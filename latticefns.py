@@ -76,10 +76,10 @@ jp = JetProton(energy)
 
 bml_fact    = bmlfactory(mad_file)
 bmline_orig = bml_fact.create_beamline(line_name, pr.ReferenceBRho())
-#bmline_orig.flatten()
-#bmline_orig.insert(pacifier)
-#bmline_orig.append(pacifier)
-#bmline = DriftsToSlots(bmline_orig)
+bmline_orig.flatten()
+bmline_orig.insert(pacifier)
+bmline_orig.append(pacifier)
+bmline = DriftsToSlots(bmline_orig)
 #bmline = bmline_orig
 
 #insert_markers(bmline, 20, energy, momentum)
