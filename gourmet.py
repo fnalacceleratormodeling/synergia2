@@ -91,9 +91,12 @@ class Gourmet:
         self.beamline.append(accuracy_marker)
         self._commission()
         
+    def orbit_length(self):
+        return self.beamline.OrbitLength(self.particle)
+    
     def insert_space_charge_markers(self, num_markers):
         insertion_list = InsertionList(self.momentum)
-        marker_interval = self.beamline.OrbitLength(self.particle)/ \
+        marker_interval = self.orbit_length()/ \
                           num_markers
         insertion_point = 0.0
         ile_list = []
@@ -173,10 +176,14 @@ class Gourmet:
 class Lattice_function_array:
     def __init__(self):
         self.s = []
-        self.betax = []
-        self.betay = []
+        self.beta_x = []
+        self.beta_y = []
+        self.alpha_x = []
+        self.alpha_y = []
 
     def append(self, lattice_fn):
         self.s.append(lattice_fn.arcLength)
-        self.betax.append(lattice_fn.beta.hor)
-        self.betay.append(lattice_fn.beta.ver)
+        self.beta_x.append(lattice_fn.beta.hor)
+        self.beta_y.append(lattice_fn.beta.ver)
+        self.alpha_x.append(lattice_fn.alpha.hor)
+        self.alpha_y.append(lattice_fn.alpha.ver)

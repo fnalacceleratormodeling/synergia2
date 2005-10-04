@@ -1,9 +1,11 @@
 #!/home/dechow/Python/bin/bwpython
+
 from mpi4py import MPI
 mpi_rank = MPI.rank
 mpi_size = MPI.size
 print "I am processor %d of %d" % (mpi_rank, mpi_size)
 
+import local_paths
 import array
 import sys
 import Numeric
@@ -36,6 +38,7 @@ def Create_BeamLineElement( bnseg, bmpstp, bitype, blength, frequency, MapOrder 
     # ARE THE NEXT TWO LINES PART OF THE CONSTRUCTION PROCESS?
     tmpextble = Numeric.array([ 0.0, 1.0, 0., 0.040000, 1.0, 0., 0., 0., 0. ] ) 
     setparam2_ExternalBLE_external( element, tmpextble )
+    print "jfa: external_ble.mapstp =", element.Mapstp
     return element
 
 def Initial_Distribution( bunch, nparam, distparam, grid, flagalloc ):
