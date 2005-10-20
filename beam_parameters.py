@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
+import local_paths
 import physics_constants
 import math
 import Numeric
 
 class Beam_parameters:
     def __init__(self, mass_GeV, charge_e, kinetic_energy_GeV,
-                 initial_phase_rad, scaling_frequency_Hz):
+                 initial_phase_rad, scaling_frequency_Hz, transverse=0):
         self.mass_GeV = mass_GeV
         self.charge_e = charge_e
         self.kinetic_energy_GeV = kinetic_energy_GeV
@@ -19,6 +20,7 @@ class Beam_parameters:
         self.lambda_y_GeVoc = None
         self.sigma_z_m = None
         self.lambda_z_GeVoc = None
+        self.transverse = transverse
 
     def x_params(self,sigma,lam,
                  r=None,mismatch=1,mismatch_p=1,offset=0,offset_p=0):
@@ -58,21 +60,21 @@ class Beam_parameters:
         self.offset_pz = offset_p
         self.num_zpeaks = num_peaks
 
-    def omega(self):
+    def get_omega(self):
         return self.scaling_frequency_Hz * 2* math.pi
 
-    def gamma(self):
+    def get_gamma(self):
         return self.kinetic_energy_GeV/self.mass_GeV + 1.0
 
-    def beta(self):
+    def get_beta(self):
         """returns the velocity of the reference particle in natural units"""
-        gamma = self.gamma()
+        gamma = self.get_gamma()
         return math.sqrt(1.0 - 1.0/(gamma*gamma))
 
     def get_conversions(self):
         c = physics_constants.PH_MKS_c # m/s
-        w = self.omega() # rad/s
-        beta = self.beta()
+        w = self.get_omega() # rad/s
+        beta = self.get_beta()
         m = self.mass_GeV # GeV
         # Unit conversion: X^impact_i = C_i X^real_i
         Cxy   = w/c
@@ -122,7 +124,7 @@ class Beam_parameters:
         if pypz: self.pypz = pypz
         if zpz: self.zpz = zpz
         
-    def distparam(self):
+    def get_distparam(self):
         (Cxy, Cxpyp, Cz, Czp) = self.get_conversions()
         # Unit conversion: X^impact_i = C_i X^real_i
         Cx = Cxy
@@ -163,3 +165,14 @@ class Beam_parameters:
                  666.0]
         return Numeric.array(param,'d')
                   
+    def get_nparam(self):
+        return 30
+
+    def get_dist_type(self):
+        if self.transverse:
+            return 667
+        else:
+            return 666
+
+    def get_transverse(self):
+        return self.transverse
