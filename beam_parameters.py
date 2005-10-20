@@ -133,6 +133,10 @@ class Beam_parameters:
         Cxp = Cxpyp
         Cyp = Cxpyp
         #Czp = Czp
+        if self.transverse:
+            dist_num = 667.0
+        else:
+            dist_num = 666.0
         param = [self.sigma_x_m**2 * Cx**2,
                  (self.sigma_x_m*self.lambda_x_GeVoc*self.xpx)*Cx*Cxp,
                  self.lambda_x_GeVoc**2 * Cxp**2,
@@ -161,8 +165,8 @@ class Beam_parameters:
                  self.offset_z * Cz,
                  self.offset_pz * Czp,
                  self.num_zpeaks,
-                 666.0,
-                 666.0]
+                 dist_num,
+                 dist_num]
         return Numeric.array(param,'d')
                   
     def get_nparam(self):

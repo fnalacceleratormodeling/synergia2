@@ -8,6 +8,8 @@ from ExternalBLEPkgpy import *
 from DistributionPkgpy import *
 from OutputPkgpy import *
 
+import loadfile
+
 class Bunch:
     def __init__(self, current, beam_parameters, num_particles,
                  processor_grid):
@@ -21,23 +23,32 @@ class Bunch:
                                      kinetic_energy * 1.0e9,
                                      mass* 1.0e9, charge, num_particles,
                                      initial_phase)
+        self.processor_grid = processor_grid
+    def generate_particles(self):
         flagalloc = 0
-        self.proc_grid = processor_grid
-        if beam_parameters.get_transverse():
+        print "transvers =",self.beam_parameters.get_transverse()
+        if self.beam_parameters.get_transverse():
+            print "generating transverse"
             Gauss_Covariance_Trans_Dist_external(\
                 self.beambunch,
-                beam_parameters.get_nparam(),
-                beam_parameters.get_distparam(),
-                processor_grid.get_pgrid2d(),
+                self.beam_parameters.get_nparam(),
+                self.beam_parameters.get_distparam(),
+                self.processor_grid.get_pgrid2d(),
                 flagalloc)
         else:
+            print "generating not transverse"
             Gauss_Covariance_Dist_external(\
                 self.beambunch,
-                beam_parameters.get_nparam(),
-                beam_parameters.get_distparam(),
-                processor_grid.get_pgrid2d(),
+                self.beam_parameters.get_nparam(),
+                self.beam_parameters.get_distparam(),
+                self.processor_grid.get_pgrid2d(),
                 flagalloc)
 
+    def read_particles(self,filename):
+        self.beambunch.Pts1 = loadfile.loadfile_transpose(filename)
+        self.beambunch.Npt = self.beambunch.Pts1.shape[1]
+        self.beambunch.Nptlocal = self.beambunch.Npt
+        print "read",self.beambunch.Npt,"particles"
     def current(self):
         return self.beambunch.Current
     def mass(self):
