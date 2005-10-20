@@ -64,15 +64,13 @@ if ( __name__ == '__main__'):
     charge = 1.0
     initial_phase = 0.0
     scaling_frequency = 10221.05558e6
-#     num_particles = 1000000
-#     num_particles = 10000
-    part_per_cell = 4
+    part_per_cell = 0.01
     width_x = 0.004
     pipe_radius = 0.04
     kicks_per_line = 10
-    griddim = (33,33,257)
-    griddim = (17,17,17)
-    num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] * part_per_cell,1)*5*100
+    griddim = (65,17,17)
+    num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
+                                     part_per_cell,1)
     
     xwidth=0.0012026
     xpwidth=0.0049608
@@ -93,7 +91,7 @@ if ( __name__ == '__main__'):
     bp.y_params(sigma = xwidth, lam = xpwidth * pz)
     sigma_z_meters = bp.get_beta()*physics_constants.PH_MKS_c/scaling_frequency/math.pi
     bp.z_params(sigma = sigma_z_meters, lam = dpop* pz)
-    bp.correlation_coeffs(xpx = -rx, ypy = -rx)
+    bp.correlation_coeffs(xpx = -rx, ypy = rx)
 
     printmem("before impact modules")
     pgrid = processor_grid.Processor_grid()
@@ -107,6 +105,8 @@ if ( __name__ == '__main__'):
     print "<who is printing this?>"
     b = bunch.Bunch(current, bp, num_particles, pgrid)
     print "</who is printing this?>"
+    b.generate_particles()
+    print "</or is it who is printing this?>"
     printmem("after bunch")
 
     b.write_particles("initial.dat")
@@ -119,11 +119,8 @@ if ( __name__ == '__main__'):
     printmem("before loop")
     for kick in range(0,kicks_per_line):
         print "-----------------------------------kick %d--------------------------" % kick
-        print b.num_particles(), "particles, first =",b.particles()[0,0],b.particles()[1,0],b.particles()[2,0],b.particles()[3,0],b.particles()[4,0],b.particles()[5,0]
-
         apply_map(g.maps[kick*2],b)
         printmem("after leading map %d" % kick)
-        print 'jfa: refptcl=',b.beambunch.refptcl
         sys.stdout.flush()
         SpaceChargePkgpy.Apply_SpaceCharge_external(\
             b.get_beambunch(),
