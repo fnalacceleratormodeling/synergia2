@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from mpi4py import MPI
-from Pgrid2dPkgpy import *
+from UberPkgpy import *
 
 # Oi. We need a more general solution for this
 MPI.MPI_COMM_WORLD=91

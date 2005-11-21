@@ -1,4 +1,4 @@
-all: latticefns fixlat
+all: latticefns fixlat apply_map.so
 
 top_srcdir = /home3/amundson/work/fnal/branches/jfa1
 ldadd = \
@@ -26,5 +26,13 @@ latticefns:latticefns.cc
 fixlat:fixlat.cc
 	g++ -o fixlat $(incadd) fixlat.cc $(ldadd)
 
+PYTHON_INCLUDES = -I /opt/mpi4py/include/python2.4 -I /opt/boost/1_33_0-mpi4py/include/boost-1_33
+
+BOOST_INCLUDES =
+BOOST_LIBS = -lboost_python-gcc
+
+apply_map.so: apply_map.cc
+	g++ -O3 -shared $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -o $@ $< $(BOOST_LIBS)
+
 clean:
-	rm -f latticefns fixlat
+	rm -f latticefns fixlat apply_map.so

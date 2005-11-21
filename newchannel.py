@@ -22,8 +22,9 @@ import sys
 import do_compare_channel
 import memory
 
-import SpaceChargePkgpy
+import UberPkgpy #SpaceChargePkgpy
 
+import apply_map
 
 def adjust_particles(base,procs):
     retval = base
@@ -48,12 +49,19 @@ def printmem(str=""):
     mem0 = newmem0
 
 mt = 0
-def apply_map(map, the_bunch):
+def python_apply_map(map, the_bunch):
     global mt
     t0 = time.time()
     the_bunch.beambunch.Pts1 = \
                              Numeric.matrixmultiply(map,
                                                     the_bunch.beambunch.Pts1)
+    mt += time.time() - t0
+
+def wrapped_apply_map(map, the_bunch):
+    global mt
+    t0 = time.time()
+    apply_map.apply_map1(the_bunch.particles(),the_bunch.num_particles_local(),
+                         map)
     mt += time.time() - t0
 
 if ( __name__ == '__main__'):
@@ -64,7 +72,7 @@ if ( __name__ == '__main__'):
     charge = 1.0
     initial_phase = 0.0
     scaling_frequency = 10221.05558e6
-    part_per_cell = 0.01
+    part_per_cell = 0.01*100*10
     width_x = 0.004
     pipe_radius = 0.04
     kicks_per_line = 10
@@ -119,10 +127,10 @@ if ( __name__ == '__main__'):
     printmem("before loop")
     for kick in range(0,kicks_per_line):
         print "-----------------------------------kick %d--------------------------" % kick
-        apply_map(g.maps[kick*2],b)
+        wrapped_apply_map(g.maps[kick*2],b)
         printmem("after leading map %d" % kick)
         sys.stdout.flush()
-        SpaceChargePkgpy.Apply_SpaceCharge_external(\
+        UberPkgpy.Apply_SpaceCharge_external(\
             b.get_beambunch(),
             pgrid.get_pgrid2d(),
             field.get_fieldquant(),
@@ -133,7 +141,7 @@ if ( __name__ == '__main__'):
             tau, 0, scaling_frequency)
         sys.stdout.flush()
         printmem("after sc kick %d" % kick)
-        apply_map(g.maps[kick*2+1],b)
+        wrapped_apply_map(g.maps[kick*2+1],b)
         printmem("after trailing map %d" % kick)
         s += line_length/kicks_per_line
         b.write_fort(s)
