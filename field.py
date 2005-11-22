@@ -12,24 +12,7 @@ class Field:
                              beam_parameters.get_omega() *\
                              beam_parameters.get_beta() *\
                              beam_parameters.get_gamma()
-        print "self.period_length =",self.period_length, beam_parameters.get_omega() ,\
-                             beam_parameters.get_beta() ,\
-                             beam_parameters.get_gamma()
         self.compdom = CompDom()
-        print self.compdom,\
-                                   beam_parameters.get_distparam(),\
-                                   beam_parameters.get_nparam(),\
-                                   beam_parameters.get_dist_type(),\
-                                   computational_grid.get_nx(),\
-                                   computational_grid.get_ny(),\
-                                   computational_grid.get_nz(),\
-                                   processor_grid.get_pgrid2d(),\
-                                   processor_grid.get_nrow(),\
-                                   processor_grid.get_ncol(),\
-                                   computational_grid.get_bc_num(),\
-                                   self.get_pipe_radius(),\
-                                   self.get_pipe_radius(),\
-                                   self.get_period_length()
         construct_CompDom_external(self.compdom,
                                    beam_parameters.get_distparam(),
                                    beam_parameters.get_nparam(),

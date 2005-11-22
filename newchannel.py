@@ -25,6 +25,9 @@ import memory
 import UberPkgpy #SpaceChargePkgpy
 
 import apply_map
+import error_eater
+
+from mpi4py import MPI
 
 def adjust_particles(base,procs):
     retval = base
@@ -32,13 +35,12 @@ def adjust_particles(base,procs):
     if not multiple == round(multiple):
         retval = round(multiple + 1) * \
                    (procs * 10)
-        print "Note: number of particles increased to %d for MPI." % \
-              retval
     return retval
 
 mem0 = 0.0
 
 def printmem(str=""):
+    return None
     global mem0
     if mem0 == 0.0:
         print "memory usage total:",
@@ -72,7 +74,7 @@ if ( __name__ == '__main__'):
     charge = 1.0
     initial_phase = 0.0
     scaling_frequency = 10221.05558e6
-    part_per_cell = 0.01*100*10
+    part_per_cell = 0.01*100
     width_x = 0.004
     pipe_radius = 0.04
     kicks_per_line = 10
@@ -86,6 +88,8 @@ if ( __name__ == '__main__'):
     dpop = 1.0e-20
 
     printmem()
+    ee = error_eater.Error_eater()
+    ee.start()
     g = gourmet.Gourmet("channel.mad","channel",kinetic_energy)
     g.insert_space_charge_markers(2*kicks_per_line)
     g.generate_maps(scaling_frequency)
@@ -102,7 +106,7 @@ if ( __name__ == '__main__'):
     bp.correlation_coeffs(xpx = -rx, ypy = rx)
 
     printmem("before impact modules")
-    pgrid = processor_grid.Processor_grid()
+    pgrid = processor_grid.Processor_grid(1)
     printmem("after pgrid")
     cgrid = computational_grid.Computational_grid(griddim[0],griddim[1],griddim[2],
                                                   "trans finite, long periodic round")
@@ -110,11 +114,8 @@ if ( __name__ == '__main__'):
     piperad = 0.04
     field = field.Field(bp, pgrid, cgrid, piperad)
     printmem("after field")
-    print "<who is printing this?>"
     b = bunch.Bunch(current, bp, num_particles, pgrid)
-    print "</who is printing this?>"
     b.generate_particles()
-    print "</or is it who is printing this?>"
     printmem("after bunch")
 
     b.write_particles("initial.dat")
@@ -126,7 +127,8 @@ if ( __name__ == '__main__'):
 
     printmem("before loop")
     for kick in range(0,kicks_per_line):
-        print "-----------------------------------kick %d--------------------------" % kick
+        if MPI.rank == 0:
+            print "-----------------------------------kick %d--------------------------" % kick
         wrapped_apply_map(g.maps[kick*2],b)
         printmem("after leading map %d" % kick)
         sys.stdout.flush()
@@ -150,5 +152,6 @@ if ( __name__ == '__main__'):
     print "elapsed time =",time.time() - t0
     print "map time =",mt
 
-    do_compare_channel.doit()
+    if MPI.rank == 0:
+        do_compare_channel.doit()
     print "Why does this hang???"
