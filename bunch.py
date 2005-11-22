@@ -23,9 +23,7 @@ class Bunch:
         self.processor_grid = processor_grid
     def generate_particles(self):
         flagalloc = 0
-        print "transvers =",self.beam_parameters.get_transverse()
         if self.beam_parameters.get_transverse():
-            print "generating transverse"
             Gauss_Covariance_Trans_Dist_external(\
                 self.beambunch,
                 self.beam_parameters.get_nparam(),
@@ -33,7 +31,6 @@ class Bunch:
                 self.processor_grid.get_pgrid2d(),
                 flagalloc)
         else:
-            print "generating not transverse"
             Gauss_Covariance_Dist_external(\
                 self.beambunch,
                 self.beam_parameters.get_nparam(),

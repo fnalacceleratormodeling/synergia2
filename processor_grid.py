@@ -7,11 +7,10 @@ from UberPkgpy import *
 MPI.MPI_COMM_WORLD=91
 
 class Processor_grid:
-    def __init__(self):
+    def __init__(self,columns):
         self.pgrid2d = Pgrid2d()
-        # fixme
-        self.nprow = 1
-        self.npcol = 1
+        self.npcol = columns
+        self.nprow = MPI.size/self.npcol
         construct_Pgrid2d_external(self.pgrid2d, MPI.MPI_COMM_WORLD,
                                    self.nprow, self.npcol)
 

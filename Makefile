@@ -1,4 +1,4 @@
-all: latticefns fixlat apply_map.so
+all: latticefns fixlat apply_map.so error_eater.so
 
 top_srcdir = /home3/amundson/work/fnal/branches/jfa1
 ldadd = \
@@ -34,5 +34,8 @@ BOOST_LIBS = -lboost_python-gcc
 apply_map.so: apply_map.cc
 	g++ -O3 -shared $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -o $@ $< $(BOOST_LIBS)
 
+error_eater.so: error_eater.cc
+	g++ -O3 -shared $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -o $@ $< $(BOOST_LIBS)
+
 clean:
-	rm -f latticefns fixlat apply_map.so
+	rm -f latticefns fixlat apply_map.so error_eater.so
