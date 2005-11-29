@@ -29,7 +29,7 @@ fixlat:fixlat.cc
 PYTHON_INCLUDES = -I /opt/mpi4py/include/python2.4 -I /opt/boost/1_33_0-mpi4py/include/boost-1_33
 
 BOOST_INCLUDES =
-BOOST_LIBS = -lboost_python-gcc
+BOOST_LIBS = -L/opt/boost/1_32_0-mpi4py/lib -lboost_python-gcc
 
 apply_map.so: apply_map.cc
 	g++ -O3 -shared $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -o $@ $< $(BOOST_LIBS)
