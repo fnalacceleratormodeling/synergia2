@@ -1,0 +1,8 @@
+#!/usr/bin/env python
+
+gourmet_path = "_subst_CHEF_BUILD_DIR_subst_/python-bindings/src/.libs"
+impact_path = "_subst_IMPACT_BUILD_DIR_subst_/Forthon_Interfaces"
+
+import sys
+sys.path.append(gourmet_path)
+sys.path.append(impact_path)

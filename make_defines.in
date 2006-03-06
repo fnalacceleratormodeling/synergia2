@@ -1,10 +1,10 @@
 # -*- Makefile -*-
 
-GC_ROOT = _subst_GC_ROOT_subst_
+ROOT_INSTALL_DIR = _subst_ROOT_INSTALL_DIR_subst_
 
-fnal_top_srcdir = $(GC_ROOT)/other_build/fnal
+fnal_top_srcdir = _subst_chef_src_dir_subst_
 
-PYTHON_INCLUDES = -I $(GC_ROOT)/install/include/python2.4 
+PYTHON_INCLUDES = -I $(ROOT_INSTALL_DIR)/include/python2.4 
 
-BOOST_INCLUDES = -I $(GC_ROOT)/install/include/boost-1_33
-BOOST_LIBS = -L $(GC_ROOT)/install/lib -lboost_python-gcc
+BOOST_INCLUDES = -I $(ROOT_INSTALL_DIR)/include/boost-1_33
+BOOST_LIBS = -L $(ROOT_INSTALL_DIR)/lib -lboost_python-gcc
