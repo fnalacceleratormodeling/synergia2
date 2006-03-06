@@ -2,7 +2,6 @@
 
 import local_paths
 import gourmet
-import pylab
 import Numeric
 import physics_constants
 import bunch
@@ -19,7 +18,7 @@ import math
 
 import sys
 
-import do_compare_channel
+#import do_compare_channel
 import memory
 
 import UberPkgpy #SpaceChargePkgpy
@@ -88,8 +87,8 @@ if ( __name__ == '__main__'):
     dpop = 1.0e-20
 
     printmem()
-    ee = error_eater.Error_eater()
-    ee.start()
+#    ee = error_eater.Error_eater()
+#    ee.start()
     g = gourmet.Gourmet("channel.mad","channel",kinetic_energy)
     g.insert_space_charge_markers(2*kicks_per_line)
     g.generate_maps(scaling_frequency)
@@ -105,6 +104,9 @@ if ( __name__ == '__main__'):
     bp.z_params(sigma = sigma_z_meters, lam = dpop* pz)
     bp.correlation_coeffs(xpx = -rx, ypy = rx)
 
+    print "jfa is here"
+    sys.stdout.flush()
+    
     printmem("before impact modules")
     pgrid = processor_grid.Processor_grid(1)
     printmem("after pgrid")
@@ -153,5 +155,6 @@ if ( __name__ == '__main__'):
     print "map time =",mt
 
     if MPI.rank == 0:
+        import do_compare_channel
         do_compare_channel.doit()
     print "Why does this hang???"

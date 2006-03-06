@@ -3,15 +3,14 @@
 from mpi4py import MPI
 from UberPkgpy import *
 
-# Oi. We need a more general solution for this
-MPI.MPI_COMM_WORLD=91
-
 class Processor_grid:
     def __init__(self,columns):
         self.pgrid2d = Pgrid2d()
         self.npcol = columns
         self.nprow = MPI.size/self.npcol
-        construct_Pgrid2d_external(self.pgrid2d, MPI.MPI_COMM_WORLD,
+        mpi_comm_world = fmpi_comm_world_external()
+        print "mpi_comm_world =",mpi_comm_world
+        construct_Pgrid2d_external(self.pgrid2d, fmpi_comm_world_external(),
                                    self.nprow, self.npcol)
 
     def get_pgrid2d(self):
