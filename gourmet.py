@@ -8,6 +8,7 @@ from beamline import *
 from physics_toolkit import *
 from bmlfactory import *
 from physics_constants import *
+import mappers
 
 import math
 import sys
@@ -18,7 +19,9 @@ space_charge_marker = marker("space charge")
 pacifier = drift("pacifier",0.0)
 
 class Gourmet:
-    def __init__(self, mad_file, line_name, kinetic_energy, order=1):
+    def __init__(self, mad_file, line_name, kinetic_energy, scaling_frequency,
+                 order=1):
+        self.scaling_frequency = scaling_frequency
         self.order = order
         Jet.BeginEnvironment(self.order)
         x    = coord(0.0)
@@ -48,7 +51,7 @@ class Gourmet:
         beamline_orig.append(pacifier)
         self.beamline = DriftsToSlots(beamline_orig)
         self.have_mappings = 0
-        self.have_maps = 0
+        self.have_linear_maps = 0
         self.have_fast_mappings = 0
         self.context = BeamlineContext(0,self.beamline)
         if not self.context.isTreatedAsRing():
@@ -137,45 +140,7 @@ class Gourmet:
             i += 1
         return lattice_function_array
 
-    def _convert_maps(self, chef_maps, scaling_frequency):
-        # units conversion
-        # X_impact = U X_external
-        # where U = diag(u[0],u[1],u[2],u[3],u[4],u[5])
-        self.scaling_frequency = scaling_frequency
-        gamma = self.energy/self.mass
-        beta = math.sqrt(1.0 - 1.0/(gamma*gamma))
-        c = PH_MKS_c
-        w = 2.0* math.pi* scaling_frequency
-        u = [w/c,gamma*beta,w/c,gamma*beta,w/c,-gamma*beta*beta]
-        self.maps = []
-        for chef_map in chef_maps:
-            map = Numeric.zeros((7,7),'d')
-            for row in range(0,6):
-                for column in range(0,6):
-                    chef_row = int(row/2+3*(row%2))
-                    chef_column = int(column/2+3*(column%2))
-                    map[row,column] = chef_map[chef_row,chef_column]* \
-                                      u[row]/u[column]
-            map[6,6] = 1.0
-            self.maps.append(map)
-
-    def generate_maps(self, scaling_frequency):
-        chef_maps = []
-        self.iterator.reset()
-        element = self.iterator.next()
-        jet_proton = None
-        while element:
-            if element.Name() == "space charge":
-                if jet_proton:
-                    chef_maps.append(jet_proton.State().Jacobian())
-                jet_proton = JetProton(self.energy)
-            else:
-                if jet_proton:
-                    element.propagateJetParticle(jet_proton)
-            element = self.iterator.next()
-        self._convert_maps(chef_maps, scaling_frequency)
-                    
-    def generate_mappings(self, scaling_frequency):
+    def generate_mappings(self):
         self.mappings = []
         self.iterator.reset()
         element = self.iterator.next()
@@ -189,13 +154,80 @@ class Gourmet:
                 if jet_proton:
                     element.propagateJetParticle(jet_proton)
             element = self.iterator.next()
+        self.have_mappings = 1
+        
+    def delete_mappings(self):
+        self.mappings = []
+        self.have_mappings = 0
 
-    def get_u(self,scaling_frequency):
-        self.scaling_frequency = scaling_frequency
+    def get_mapping(self, index):
+        if not self.have_mappings:
+            self.generate_mappings()
+        return self.mappings[index]
+    
+    def _convert_linear_maps(self, chef_linear_maps):
+        # units conversion
+        # X_impact = U X_external
+        # where U = diag(u[0],u[1],u[2],u[3],u[4],u[5])
+        u = self.get_u()
+        linear_maps = []
+        for chef_map in chef_linear_maps:
+            map = Numeric.zeros((7,7),'d')
+            for row in range(0,6):
+                for column in range(0,6):
+                    chef_row = int(row/2+3*(row%2))
+                    chef_column = int(column/2+3*(column%2))
+                    map[row,column] = chef_map[chef_row,chef_column]* \
+                                      u[row]/u[column]
+            map[6,6] = 1.0
+            linear_maps.append(map)
+        return linear_maps
+    
+    def generate_linear_maps(self, keep_mappings=0):
+        chef_linear_maps = []
+        if not self.have_mappings:
+            self.generate_mappings()
+        for mapping in self.mappings:
+            chef_linear_maps.append(mapping.Jacobian())
+        self.linear_maps = self._convert_linear_maps(chef_linear_maps)
+        self.have_linear_maps = 1
+        if not keep_mappings:
+            self.delete_mappings()
+
+    def delete_linear_maps(self):
+        self.linear_maps = []
+        self.have_linear_maps = 0
+
+    def get_linear_map(self,index):
+        if not self.have_linear_maps:
+            self.generate_linear_maps()
+        return self.linear_maps[index]
+
+    def generate_fast_mappings(self, keep_mappings=0):
+        self.fast_mappings = []
+        if not self.have_mappings:
+            self.generate_mappings()
+        u = self.get_u()
+        for mapping in self.mappings:
+            self.fast_mappings.append(mappers.Fast_mapping(u,mapping))
+        self.have_fast_mappings = 1
+        if not keep_mappings:
+            self.delete_mappings()
+
+    def delete_fast_mappings(self):
+        self.fast_mappings = []
+        self.have_fast_mappings = 0
+
+    def get_fast_mapping(self, index):
+        if not self.have_fast_mappings:
+            self.generate_fast_mappings()
+        return self.fast_mappings[index]
+
+    def get_u(self):
         gamma = self.energy/self.mass
         beta = math.sqrt(1.0 - 1.0/(gamma*gamma))
         c = PH_MKS_c
-        w = 2.0* math.pi* scaling_frequency
+        w = 2.0* math.pi* self.scaling_frequency
         u = [w/c,gamma*beta,w/c,gamma*beta,w/c,-gamma*beta*beta]
         return Numeric.array(u)
        
