@@ -18,8 +18,8 @@ space_charge_marker = marker("space charge")
 pacifier = drift("pacifier",0.0)
 
 class Gourmet:
-    def __init__(self, mad_file, line_name, kinetic_energy):
-        self.order = 1
+    def __init__(self, mad_file, line_name, kinetic_energy, order=1):
+        self.order = order
         Jet.BeginEnvironment(self.order)
         x    = coord(0.0)
         y    = coord(0.0)
@@ -47,6 +47,9 @@ class Gourmet:
         beamline_orig.insert(pacifier)
         beamline_orig.append(pacifier)
         self.beamline = DriftsToSlots(beamline_orig)
+        self.have_mappings = 0
+        self.have_maps = 0
+        self.have_fast_mappings = 0
         self.context = BeamlineContext(0,self.beamline)
         if not self.context.isTreatedAsRing():
             self.context.handleAsRing()
@@ -172,7 +175,31 @@ class Gourmet:
             element = self.iterator.next()
         self._convert_maps(chef_maps, scaling_frequency)
                     
+    def generate_mappings(self, scaling_frequency):
+        self.mappings = []
+        self.iterator.reset()
+        element = self.iterator.next()
+        jet_proton = None
+        while element:
+            if element.Name() == "space charge":
+                if jet_proton:
+                    self.mappings.append(jet_proton.State())
+                jet_proton = JetProton(self.energy)
+            else:
+                if jet_proton:
+                    element.propagateJetParticle(jet_proton)
+            element = self.iterator.next()
 
+    def get_u(self,scaling_frequency):
+        self.scaling_frequency = scaling_frequency
+        gamma = self.energy/self.mass
+        beta = math.sqrt(1.0 - 1.0/(gamma*gamma))
+        c = PH_MKS_c
+        w = 2.0* math.pi* scaling_frequency
+        u = [w/c,gamma*beta,w/c,gamma*beta,w/c,-gamma*beta*beta]
+        return Numeric.array(u)
+       
+        
 class Lattice_function_array:
     def __init__(self):
         self.s = []

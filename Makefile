@@ -1,4 +1,4 @@
-all: latticefns fixlat apply_map.so error_eater.so
+all: latticefns fixlat apply_map.so error_eater.so test_map.so mappers.so
 
 include make_defines
 
@@ -28,10 +28,16 @@ fixlat:fixlat.cc
 	g++ -o fixlat $(incadd) fixlat.cc $(ldadd)
 
 apply_map.so: apply_map.cc
-	g++ -O3 -shared $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -o $@ $< $(BOOST_LIBS)
+	g++ -O3 -shared $(incadd) $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -o $@ $< $(BOOST_LIBS)
+
+test_map.so: test_map.cc Double_tensor.cc Makefile
+	g++ -O3 -c Double_tensor.cc
+	g++ -O3 -shared -march=pentium4 -mfpmath=sse $(incadd) $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -o $@ $< $(BOOST_LIBS) $(ldadd) Double_tensor.o
 
 error_eater.so: error_eater.cc
 	g++ -O3 -shared $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -o $@ $< $(BOOST_LIBS)
 
+mappers.so: mappers.cc
+	g++ -O3 -shared -march=pentium4 -mfpmath=sse $(incadd) $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -o $@ $< $(BOOST_LIBS) $(ldadd)
 clean:
 	rm -f latticefns fixlat apply_map.so error_eater.so
