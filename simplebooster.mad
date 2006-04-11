@@ -16,9 +16,13 @@ fmagd01:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
 short: drift, l=0.5
 medium: drift, l=1.2
 long: drift, l=6.0
+half: drift, l=3.0
 
-cell:         line=(fmagu01,short,dmagu01,long,&
+realcell:         line=(fmagu01,short,dmagu01,long,&
                       dmagd01,short,fmagd01, medium)
+
+cell: line = (half,dmagd01,short,fmagd01, medium, &
+		fmagu01,short,dmagu01,half)
 
 fullb:        line=(cell, cell, cell, cell, cell, cell,&
                       cell, cell, cell, cell, cell, cell,&
