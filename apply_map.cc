@@ -3,7 +3,16 @@
 #include <boost/python.hpp>
 #include <boost/python/numeric.hpp>
 #include <Numeric/arrayobject.h>
+#include <vector>
+#include "bmlfactory.h"
 
+class Term
+{
+private:
+  int order;
+public:
+  Term(int order_in) { order = order_in; };
+};
 
 using namespace boost::python;
 

@@ -9,7 +9,6 @@ class Processor_grid:
         self.npcol = columns
         self.nprow = MPI.size/self.npcol
         mpi_comm_world = fmpi_comm_world_external()
-        print "mpi_comm_world =",mpi_comm_world
         construct_Pgrid2d_external(self.pgrid2d, fmpi_comm_world_external(),
                                    self.nprow, self.npcol)
 
