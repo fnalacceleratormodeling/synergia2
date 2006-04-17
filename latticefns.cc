@@ -5,7 +5,6 @@
 #include <iomanip>
 #include <string>
 #include <cmath>
-#include "InsertionList.h"
 
 #include "PhysicsConstants.h"
 #include "beamline.h"
@@ -13,12 +12,14 @@
 #include "BeamlineContext.h"
 #include "RefRegVisitor.h"
 #include "ClosedOrbitSage.h"
+#include "InsertionList.h"
 
 using namespace std;
 extern beamline* DriftsToSlots( beamline& original );
 
 madparser* mp = 0;
 
+#define NEWCHEFnotreally youbetcha
 void insert_markers(beamline* bmline, int num_markers_per_element,
 			     double momentum)
 {
@@ -75,10 +76,20 @@ int main(int argc, char **argv)
   const int digits=16;
 
   int order = 1;
+
+#ifdef NEWCHEF
+  double scale[]  = { 1.0e-3, 1.0e-3, 1.0e-3, 1.0e-3, 1.0e-3, 1.0e-3 };
+  Jet__environment::BeginEnvironment(order);
+  coord x(0.0),  y(0.0),  z(0.0),
+    px(0.0), py(0.0), pz(0.0);
+  EnvPtr<double>::Type JetEnvPtr  =  Jet__environment::EndEnvironment(scale);
+  JetC::_lastEnv  =  *JetEnvPtr; // implicit conversion
+#else
   Jet::BeginEnvironment(order);
   coord x(0.0),  y(0.0),  z(0.0),
-       px(0.0), py(0.0), pz(0.0);
+    px(0.0), py(0.0), pz(0.0);
   JetC::_lastEnv = JetC::CreateEnvFrom(Jet::EndEnvironment());
+#endif
 
   double brho = (fabs(momentum))/PH_CNV_brho_to_p;
   bmlfactory* bml_fact = new bmlfactory(mad_file.c_str(), brho);
@@ -88,7 +99,12 @@ int main(int argc, char **argv)
 
   insert_markers(bmline, 10, momentum);
 
+#ifdef NEWCHEF
+  Proton jfcproton(energy);
+  BeamlineContext* bmln_context = new BeamlineContext(jfcproton,bmline,false);
+#else
   BeamlineContext* bmln_context = new BeamlineContext(false,bmline);
+#endif
 
   if (bmln_context->isTreatedAsRing()) {
     cout << "already treated as ring\n";
@@ -106,13 +122,14 @@ int main(int argc, char **argv)
 //   lfsage.Disp_Calc(&jpr);
 //   lfsage.Slow_CS_Calc(&jpr);
 
+#define notsoHARDWAY iguessso
+#ifdef HARDWAY
   bmlnElmnt* be;
   DeepBeamlineIterator deep_beamline_iterator(bmline);
   const LattFuncSage::lattFunc* lf;
   ofstream fout("lat.dat");
   int i=0;
   while((be = deep_beamline_iterator++)) {
-    //    lf  = static_cast<LattFuncSage::lattFunc*>(be->dataHook.find("Twiss",1));
     lf = bmln_context->getLattFuncPtr(i);
     if (lf) {
       fout << setprecision(digits) << lf->arcLength << " " 
@@ -126,6 +143,39 @@ int main(int argc, char **argv)
     ++i;
   }
   fout.close();
+#else
+  JetProton jpr(energy);
+//   DeepBeamlineIterator deep_beamline_iterator(bmline);
+//   bmlnElmnt* be;
+//   while(be = deep_beamline_iterator++) {
+//     be->propagate(jpr);
+//   }
+  bmline->propagate(jpr);
+  std::cout << jpr.State().Jacobian() << std::endl;
+  Matrix M = jpr.State().Jacobian();
+  double mxx = M.getElement(0,0);
+  double mxpxp = M.getElement(3,3);
+  double mxxp = M.getElement(0,3);
+  double mu = acos((mxx+mxpxp)/2.0);
+  std::cout << "mu = " << mu/3.141592653589793 << " pi" <<  std::endl;
+  std::cout << "fractional tune = " << mu/(2.0*3.141592653589793) << std::endl;
+  double beta = mxxp/sin(mu);
+  std::cout << "beta =  " << beta << std::endl;
+  double alpha = (mxx-mxpxp)/(2.0*sin(mu));
+  std::cout << "alpha = " << alpha << std::endl;
+
+  double myy = M.getElement(1,1);
+  double mypyp = M.getElement(4,4);
+  double myyp = M.getElement(1,4);
+  mu = acos((myy+mypyp)/2.0);
+  std::cout << "mu = " << mu/3.141592653589793 << " pi" <<  std::endl;
+  std::cout << "fractional tune = " << mu/(2.0*3.141592653589793) << std::endl;
+  beta = myyp/sin(mu);
+  std::cout << "beta =  " << beta << std::endl;
+  alpha = (myy-mypyp)/(2.0*sin(mu));
+  std::cout << "alpha = " << alpha << std::endl;
+#endif
+
   cout << "success!\n";
   return(0);
 }

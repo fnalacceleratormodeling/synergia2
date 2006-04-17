@@ -89,7 +89,8 @@ if ( __name__ == '__main__'):
     printmem()
 #    ee = error_eater.Error_eater()
 #    ee.start()
-    g = gourmet.Gourmet("channel.mad","channel",kinetic_energy)
+    g = gourmet.Gourmet("channel.mad","channel",kinetic_energy,
+                        scaling_frequency)
     g.insert_space_charge_markers(2*kicks_per_line)
     g.generate_maps(scaling_frequency)
 

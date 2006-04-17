@@ -13,7 +13,7 @@ def show_lattice_functions(lf):
     pylab.ylabel('beta (m)')
     pylab.show()
     
-g = gourmet.Gourmet("simplebooster.mad","cell",0.4)
+g = gourmet.Gourmet("simplebooster.mad","cell",0.4,1.0)
 g.print_elements()
 lf = g.get_lattice_functions()
 print "x beta function =",lf.beta_x[0],"at s =",lf.s[0]

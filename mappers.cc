@@ -297,11 +297,45 @@ Fast_mapping::apply(numeric::array& numeric_particles, int num_particles) {
 #endif
   }
 }
+
+void crap(numeric::array& numeric_particles, int num_particles,
+	  numeric::array& numeric_map)
+{
+  std::cout << "here I am in crap\n";
+  double t0 = double_time();
+  Particles particles(numeric_particles);
+  Linear_map map(numeric_map);
+  
+  for (int i=0; i<6; ++i) {
+    std::cout << particles(i,0) <<" " ;
+  }
+  std::cout << std::endl;
+  double m11 = map(0,0);
+  double m12 = map(0,1);
+  double m13 = map(0,5);
+  double m21 = map(1,0);
+  double m22 = map(1,1);
+  double m23 = map(1,5);
+  double D = (m13*(1.0-m22)+m12*m23)/(2.0-m11-m22);
+  double Dp = (m13*m21+(1.0-m11)*m23)/(2.0-m11-m22);
+  for(int part=0; part<num_particles; ++part) {
+//     particles(0,part) += particles(5,part)*map(0,5)*13.32;
+//     particles(1,part) += particles(5,part)*map(1,5)*0.0003245;
+    particles(0,part) += particles(5,part)*D;
+    particles(1,part) += particles(5,part)*Dp;
+  }
+  for (int i=0; i<6; ++i) {
+    std::cout << particles(i,0) <<" " ;
+  }
+  std::cout << std::endl;
+}
+
  
 BOOST_PYTHON_MODULE(mappers)
 {
   numeric::array::set_module_and_type("Numeric", "ArrayType");
   def("apply_linear_map",&apply_linear_map);
+  def("crap",&crap);
   class_<Fast_mapping>("Fast_mapping",init<numeric::array&, Mapping>() )
     .def("apply",&Fast_mapping::apply);
 }

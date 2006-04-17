@@ -23,14 +23,22 @@ class Gourmet:
                  order=1):
         self.scaling_frequency = scaling_frequency
         self.order = order
-        Jet.BeginEnvironment(self.order)
+        self.newchef = 0
+        if self.newchef:
+            BeginEnvironment(self.order)
+        else:
+            Jet.BeginEnvironment(self.order)
         x    = coord(0.0)
         y    = coord(0.0)
         ct   = coord(0.0)
         npx  = coord(0.0)
         npy  = coord(0.0)
         np   = coord(0.0)
-        JetC.setLastEnv(JetC.CreateEnvFrom(Jet.EndEnvironment()))
+        if self.newchef:
+            EndEnvironment()
+            JetC.setLastEnv(toCmplxEnvironment(Jet.getLastEnv()))
+        else:
+            JetC.setLastEnv(JetC.CreateEnvFrom(Jet.EndEnvironment()))
 
         # Notice that our particle is hard-wired to be a Proton
         # This will have to be fixed once the various particle issues
@@ -53,7 +61,10 @@ class Gourmet:
         self.have_mappings = 0
         self.have_linear_maps = 0
         self.have_fast_mappings = 0
-        self.context = BeamlineContext(0,self.beamline)
+        if self.newchef:
+            self.context = BeamlineContext(self.particle,self.beamline,0)
+        else:
+            self.context = BeamlineContext(0,self.beamline)
         if not self.context.isTreatedAsRing():
             self.context.handleAsRing()
 
@@ -177,8 +188,12 @@ class Gourmet:
                 for column in range(0,6):
                     chef_row = int(row/2+3*(row%2))
                     chef_column = int(column/2+3*(column%2))
-                    map[row,column] = chef_map[chef_row,chef_column]* \
-                                      u[row]/u[column]
+                    if self.newchef:
+                        map[row,column] = chef_map.get(chef_row,chef_column)* \
+                                          u[row]/u[column]
+                    else:
+                        map[row,column] = chef_map[chef_row,chef_column]* \
+                                          u[row]/u[column]
             map[6,6] = 1.0
             linear_maps.append(map)
         return linear_maps
@@ -188,7 +203,10 @@ class Gourmet:
         if not self.have_mappings:
             self.generate_mappings()
         for mapping in self.mappings:
-            chef_linear_maps.append(mapping.Jacobian())
+            if self.newchef:
+                chef_linear_maps.append(mapping.jacobian())
+            else:
+                chef_linear_maps.append(mapping.Jacobian())
         self.linear_maps = self._convert_linear_maps(chef_linear_maps)
         self.have_linear_maps = 1
         if not keep_mappings:
@@ -222,6 +240,11 @@ class Gourmet:
         if not self.have_fast_mappings:
             self.generate_fast_mappings()
         return self.fast_mappings[index]
+
+    def get_single_linear_map(self):
+        jet_proton = JetProton(self.energy)
+        self.beamline.propagateJetParticle(jet_proton)
+        return self._convert_linear_maps([jet_proton.State().Jacobian()])[0]        
 
     def get_u(self):
         gamma = self.energy/self.mass
