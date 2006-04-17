@@ -159,8 +159,11 @@ if ( __name__ == '__main__'):
     color = ['g','r','c','y','m','k']
     map_times = []
     convert_times = []
+    print g.get_linear_map(0)
     for count in range(0,2):
-        g.get_fast_mapping(0).apply(b.particles(), b.num_particles_local())
+###        g.get_fast_mapping(0).apply(b.particles(), b.num_particles_local())
+        mappers.apply_linear_map(b.particles(),b.num_particles_local(),
+                                 g.get_linear_map(0))
         plot_bunch(b,color[count])
             
     print "elapsed time =",time.time() - t0

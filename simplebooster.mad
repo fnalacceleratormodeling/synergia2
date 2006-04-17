@@ -29,6 +29,11 @@ fullb:        line=(cell, cell, cell, cell, cell, cell,&
                       cell, cell, cell, cell, cell, cell,&
                       cell, cell, cell, cell, cell, cell)
 
+realb:   line=(realcell, realcell, realcell, realcell, realcell, realcell,&
+               realcell, realcell, realcell, realcell, realcell, realcell,&
+               realcell, realcell, realcell, realcell, realcell, realcell,&
+               realcell, realcell, realcell, realcell, realcell, realcell)
+
 halfb:        line=(cell, cell, cell, cell, cell, cell,&
                       cell, cell, cell, cell, cell, cell)
 
