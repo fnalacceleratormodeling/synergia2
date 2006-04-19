@@ -7,7 +7,6 @@
 #include <vector>
 #include "bmlfactory.h"
 #include "Mapping.h"
-#include "Double_tensor.h"
 
 extern "C" {
 #include <sys/time.h>
