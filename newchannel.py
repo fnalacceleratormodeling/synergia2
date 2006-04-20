@@ -49,22 +49,6 @@ def printmem(str=""):
     print (newmem0-mem0)/math.pow(2,20), "(",newmem0/math.pow(2,20)," total)"
     mem0 = newmem0
 
-mt = 0
-def python_apply_map(map, the_bunch):
-    global mt
-    t0 = time.time()
-    the_bunch.beambunch.Pts1 = \
-                             Numeric.matrixmultiply(map,
-                                                    the_bunch.beambunch.Pts1)
-    mt += time.time() - t0
-
-def wrapped_apply_map(map, the_bunch):
-    global mt
-    t0 = time.time()
-    apply_map.apply_map1(the_bunch.particles(),the_bunch.num_particles_local(),
-                         map)
-    mt += time.time() - t0
-
 if ( __name__ == '__main__'):
     t0 = time.time()
     current = 0.5
@@ -92,7 +76,7 @@ if ( __name__ == '__main__'):
     g = gourmet.Gourmet("channel.mad","channel",kinetic_energy,
                         scaling_frequency)
     g.insert_space_charge_markers(2*kicks_per_line)
-    g.generate_maps(scaling_frequency)
+    g.generate_mappings()
 
     bp = beam_parameters.Beam_parameters(mass, charge, kinetic_energy,
                                          initial_phase, scaling_frequency,
@@ -132,7 +116,8 @@ if ( __name__ == '__main__'):
     for kick in range(0,kicks_per_line):
         if MPI.rank == 0:
             print "-----------------------------------kick %d--------------------------" % kick
-        wrapped_apply_map(g.maps[kick*2],b)
+        g.get_fast_mapping(kick*2).apply(b.particles(),
+                                         b.num_particles_local())
         printmem("after leading map %d" % kick)
         sys.stdout.flush()
         UberPkgpy.Apply_SpaceCharge_external(\
@@ -146,14 +131,14 @@ if ( __name__ == '__main__'):
             tau, 0, scaling_frequency)
         sys.stdout.flush()
         printmem("after sc kick %d" % kick)
-        wrapped_apply_map(g.maps[kick*2+1],b)
+        g.get_fast_mapping(kick*2+1).apply(b.particles(),
+                                         b.num_particles_local())
         printmem("after trailing map %d" % kick)
         s += line_length/kicks_per_line
         b.write_fort(s)
         printmem("after write fort %d" % kick)
             
     print "elapsed time =",time.time() - t0
-    print "map time =",mt
 
     if MPI.rank == 0:
         import do_compare_channel
