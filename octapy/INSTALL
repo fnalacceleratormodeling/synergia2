@@ -1,0 +1,27 @@
+octapy does not yet use distutils. For the time being, the included
+Makefile contains all that is needed to build octapy. The only
+site-specific information is the location of the Python includes. Edit
+the first line of the Makefile for your site.
+
+make
+	should build the octapy Python module.
+
+make demo
+	will demonstrate the features of octapy.
+
+Requirements:
+	1) Python
+	2) Octave
+	3) For development only: Swig
+
+Versions:
+
+Here is what I have used successfully:
+
+|abacus3>python -V
+Python 2.2.3
+|abacus3>octave -version
+GNU Octave, version 2.1.55 (i686-pc-linux-gnu).
+|abacus3>swig -version
+SWIG Version 1.3.19
+
