@@ -1,8 +1,11 @@
 #!/usr/bin/env python
-
-gourmet_path = "_subst_CHEF_BUILD_DIR_subst_/python-bindings/src/.libs"
-impact_path = "_subst_IMPACT_BUILD_DIR_subst_/Forthon_Interfaces"
-
+import os.path
+gourmet_dir = "_subst_CHEF_BUILD_DIR_subst_/python-bindings/src/.libs"
+impact_dir = "_subst_IMPACT_BUILD_DIR_subst_/Forthon_Interfaces"
+synergia2_dir = "_subst_SYNERGIA2_BUILD_DIR_subst_"
+octapy_dir = os.path.join(synergia2_dir,"octapy")
 import sys
-sys.path.append(gourmet_path)
-sys.path.append(impact_path)
+sys.path.append(gourmet_dir)
+sys.path.append(impact_dir)
+sys.path.append(synergia2_dir)
+sys.path.append(octapy_dir)
