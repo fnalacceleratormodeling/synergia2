@@ -21,6 +21,8 @@ pacifier = drift("pacifier",0.0)
 class Gourmet:
     def __init__(self, mad_file, line_name, kinetic_energy, scaling_frequency,
                  order=1):
+        self.mad_file = mad_file
+        self.line_name = line_name
         self.scaling_frequency = scaling_frequency
         self.order = order
         self.newchef = 0
@@ -70,6 +72,11 @@ class Gourmet:
 
         self.iterator = DeepBeamlineIterator(self.beamline)
 
+    def get_mad_file(self):
+        return self.mad_file
+    def get_line_name(self):
+        return self.line_name
+    
     def _commission(self):
 ### The following is in reaction to the message:
 ### *** WARNING ***
@@ -166,7 +173,38 @@ class Gourmet:
                     element.propagateJetParticle(jet_proton)
             element = self.iterator.next()
         self.have_mappings = 1
-        
+
+    def get_strengths(self):
+        self.iterator.reset()
+        element = self.iterator.next()
+        brho = self.particle.ReferenceBRho()
+        kxs = []
+        kys = []
+        ss = []
+        s = 0.0
+        while element:
+            kx = 0.0
+            ky = 0.0
+            strength = element.Strength()
+            length = element.OrbitLength(self.particle)
+            s += length
+            if (element.Type() == "quadrupole") or \
+                   (element.Type() == "thinQuad"):
+                kx = strength/brho;
+                ky = -kx
+            elif (element.Type() == "CF_sbend") or \
+                 (element.Type() == "CF_rbend"):
+                ky = -element.getQuadrupole()/brho/length
+                kx = -ky + strength**2/(brho**2) 
+            else:
+                if (strength != 0.0):
+                    sys.stderr.write("gourmet.get_strengths error. element of type %s has non-zero\nStrength(), but is not handled by this routine.\n" % element.Type())
+            kxs.append(kx)
+            kys.append(ky)
+            ss.append(s)
+            element = self.iterator.next()
+        return (Numeric.array(ss),Numeric.array(kxs),Numeric.array(kys))
+    
     def delete_mappings(self):
         self.mappings = []
         self.have_mappings = 0
