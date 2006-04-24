@@ -61,13 +61,16 @@ class Diagnostics:
             index = 0
             while line:
                 cols = string.split(line)
-                self.s[index] = float(cols[0])
-                self.mean[index,offset*2] = float(cols[1])
-                self.std[index,offset*2] = float(cols[2])
-                self.mean[index,offset*2+1] = float(cols[3])
-                self.std[index,offset*2+1] = float(cols[4])
+                try:
+                    self.s[index] = float(cols[0])
+                    self.mean[index,offset*2] = float(cols[1])
+                    self.std[index,offset*2] = float(cols[2])
+                    self.mean[index,offset*2+1] = float(cols[3])
+                    self.std[index,offset*2+1] = float(cols[4])
+                    index += 1
+                except:
+                    pass
                 line = f.readline()
-                index += 1
             f.close()
 
     def _read_emit(self):
@@ -82,13 +85,16 @@ class Diagnostics:
         index = 0
         while line:
             cols = string.split(line)
-            self.emitx[index] = float(cols[0])
-            self.emity[index] = float(cols[1])
-            self.emitz[index] = float(cols[2])
-            self.emit4d[index] = float(cols[3])
-            self.emit6d[index] = float(cols[4])
+            try:
+                self.emitx[index] = float(cols[0])
+                self.emity[index] = float(cols[1])
+                self.emitz[index] = float(cols[2])
+                self.emit4d[index] = float(cols[3])
+                self.emit6d[index] = float(cols[4])
+                index += 1
+            except:
+                pass
             line = f.readline()
-            index += 1
         f.close()
 
     def _read_corr(self):
@@ -99,8 +105,11 @@ class Diagnostics:
         index = 0
         while line:
             cols = string.split(line)
-            for i in range(0,15):
-                self.corr[index,i] = float(cols[i])
+            try:
+                for i in range(0,15):
+                    self.corr[index,i] = float(cols[i])
+                index += 1
+            except:
+                pass
             line = f.readline()
-            index += 1
         f.close()
