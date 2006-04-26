@@ -59,7 +59,11 @@ class Bunch:
         return self.beambunch.Pts1
     def get_beambunch(self):
         return self.beambunch
-    
+
+    def inject(self,injected):
+        inject_BeamBunch_external(self.get_beambunch(),
+                                  injected.get_beambunch())
+        
     def write_fort(self,z):
         diagnostic3_Output(z, self.beambunch,
                            self.beam_parameters.scaling_frequency_Hz)
