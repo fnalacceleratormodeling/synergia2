@@ -2,7 +2,10 @@
 
 from math import sqrt, sin, acos, pi
 import function_cache
-import octapy
+try:
+    import octapy
+except:
+    pass
 import local_paths
 import os.path
 
