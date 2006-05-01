@@ -4,6 +4,7 @@ import Numeric
 
 from UberPkgpy import *
 from OutputPkgpy import *
+from mpi4py import MPI
 
 import loadfile
 
@@ -67,11 +68,16 @@ class Bunch:
     def write_fort(self,z):
         diagnostic3_Output(z, self.beambunch,
                            self.beam_parameters.scaling_frequency_Hz)
+
     def write_particles(self,filename):
-        f = open(filename,"w")
-        p = self.particles()
-        for i in range(0,p.shape[1]):
-#            f.write("%g %g\n" % tuple([p[0,i],p[1,i]))
-            f.write("%g %g %g %g %g %g %g\n" % tuple(p[:,i].tolist()))
-        f.close()
-        
+        if MPI.rank == 0:
+            f = open(filename,"w")
+        sendbuf = self.particles()
+        MPI.WORLD.Send(sendbuf,dest=0)
+        if MPI.rank == 0:
+            for proc in xrange(MPI.size):
+                parts = MPI.WORLD.Recv(source=proc)
+                for i in range(0,parts.shape[1]):
+                    f.write("%g %g %g %g %g %g %g\n" % \
+                            tuple(parts[:,i].tolist()))
+            f.close()
