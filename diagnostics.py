@@ -47,6 +47,7 @@ class Diagnostics:
         self._read_s_mean_std()
         self._read_emit()
         self._read_corr()
+        self._read_num_part()
 
     def _read_s_mean_std(self):
         # read the number of lines in fort.24
@@ -113,3 +114,20 @@ class Diagnostics:
                 pass
             line = f.readline()
         f.close()
+
+    def _read_num_part(self):
+        num = self.num
+        self.num_part = Numeric.zeros(num,'d')
+        f = open("%s/fort.28" % self.dirname, "r")
+        line = f.readline()
+        index = 0
+        while line:
+            try:
+                cols = string.split(line)
+                self.num_part[index] = float(cols[3])
+                index += 1
+            except:
+                pass
+            line = f.readline()
+        f.close()
+        
