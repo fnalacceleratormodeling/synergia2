@@ -21,11 +21,33 @@ incadd = \
     -I$(fnal_top_srcdir)/gms/include\
     -I$(fnal_top_srcdir)/mxyzptlk/include
 
+new_fnal_top_objdir=/home2/amundson/work/chef-head/build/chef-libs
+new_fnal_top_srcdir=/home2/amundson/work/chef-head/build/chef-root
+
+newldadd = \
+    $(new_fnal_top_objdir)/physics_toolkit/src/.libs/libphysics_toolkit.so \
+    $(new_fnal_top_objdir)/beamline/src/.libs/libbeamline.so \
+    $(new_fnal_top_objdir)/bmlfactory/src/.libs/libbmlfactory.so \
+    -lglib-2.0 \
+    $(new_fnal_top_objdir)/basic_toolkit/src/.libs/libbasic_toolkit.so \
+    $(new_fnal_top_objdir)/mxyzptlk/src/.libs/libmxyzptlk.so
+
+newincadd = \
+    $(BOOST_INCLUDES)\
+    -I/usr/include/glib-2.0\
+    -I/usr/lib/glib-2.0/include\
+    -I$(new_fnal_top_srcdir)/physics_toolkit/include\
+    -I$(new_fnal_top_srcdir)/beamline/include\
+    -I$(new_fnal_top_srcdir)/bmlfactory/include\
+    -I$(new_fnal_top_srcdir)/basic_toolkit/include\
+    -I$(new_fnal_top_srcdir)/gms/include\
+    -I$(new_fnal_top_srcdir)/mxyzptlk/include
+
 latticefns:latticefns.cc
 	g++ -o latticefns $(incadd) latticefns.cc $(ldadd)
 
 term_iterator:term_iterator.cc
-	g++ -g -O0 -o term_iterator $(incadd) term_iterator.cc $(ldadd)
+	g++ -g -O0 -o term_iterator $(newincadd) term_iterator.cc $(newldadd)
 
 fixlat:fixlat.cc
 	g++ -o fixlat $(incadd) fixlat.cc $(ldadd)
@@ -36,6 +58,9 @@ apply_map.so: apply_map.cc
 # test_map.so: test_map.cc Double_tensor.cc Makefile
 # 	g++ -O3 -c Double_tensor.cc
 # 	g++ -O3 -shared -march=pentium4 -mfpmath=sse $(incadd) $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -o $@ $< $(BOOST_LIBS) $(ldadd) Double_tensor.o
+
+test_map.so: test_map.cc 
+	g++ -O3 -shared -march=pentium4 -mfpmath=sse $(incadd) $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -o $@ $< $(BOOST_LIBS) $(ldadd)
 
 error_eater.so: error_eater.cc
 	g++ -O3 -shared $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -o $@ $< $(BOOST_LIBS)

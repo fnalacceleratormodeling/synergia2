@@ -57,7 +57,7 @@ if ( __name__ == '__main__'):
 ### start save
     scaling_frequency = 200.0e6
 ### end save
-    part_per_cell = 10
+    part_per_cell = .01
     pipe_radius = 0.04
     griddim = (9,9,9)
     num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
@@ -118,6 +118,7 @@ if ( __name__ == '__main__'):
             binj = bunch.Bunch(myopts.get("current"), bp, num_particles, pgrid)
             binj.generate_particles()
             b.inject(binj)
+        b.write_particles("turn_%d.dat"%turn)
         pylab.hist(b.particles()[4,:],bins)
         pylab.draw()
         for cell in range(0,24):
@@ -125,8 +126,10 @@ if ( __name__ == '__main__'):
             for kick in range(0,myopts.get("kickspercell")):
                 steps += 1
                 if MPI.rank == 0:
-                    print "turn %d, cell %d, kick %d" %\
-                          (turn,cell,kick)
+#                     print "turn %d, cell %d, kick %d" %\
+#                           (turn,cell,kick),
+                    if cell == 23 and kick == myopts.get("kickspercell") -1:
+                        print
         ###        wrapped_apply_map(g.maps[kick*2],b)
                 g.get_fast_mapping(kick*2).apply(b.particles(), b.num_particles_local())
                 sys.stdout.flush()
@@ -145,7 +148,8 @@ if ( __name__ == '__main__'):
                 s += line_length/myopts.get("kickspercell")
                 b.write_fort(s)
                 if MPI.rank == 0:
-                    print "cell time =",time.time() - tcell
+                    pass
+#                    print "cell time =",time.time() - tcell
     #             if MPI.rank == 0 and myopts.get("showplot") and steps % myopts.get("plotperiod") == 0:
     #                 d = diagnostics.Diagnostics()
     #                 line_x, = pylab.plot(d.s,d.std[:,diagnostics.x],'r-o',label='x')
