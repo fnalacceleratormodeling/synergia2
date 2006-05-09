@@ -70,6 +70,7 @@ class Bunch:
                            self.beam_parameters.scaling_frequency_Hz)
 
     def write_particles(self,filename):
+        return
         if MPI.rank == 0:
             f = open(filename,"w")
         sendbuf = self.particles()
