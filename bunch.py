@@ -8,6 +8,7 @@ from mpi4py import MPI
 
 import loadfile
 
+seed_offset = 0
 class Bunch:
     def __init__(self, current, beam_parameters, num_particles,
                  processor_grid):
@@ -22,6 +23,10 @@ class Bunch:
                                      mass* 1.0e9, charge, num_particles,
                                      initial_phase)
         self.processor_grid = processor_grid
+        global seed_offset
+        init_seed_external(processor_grid.get_pgrid2d(),seed_offset)
+        seed_offset += MPI.size
+        
     def generate_particles(self):
         flagalloc = 0
         if self.beam_parameters.get_transverse():
@@ -60,25 +65,24 @@ class Bunch:
         return self.beambunch.Pts1
     def get_beambunch(self):
         return self.beambunch
-
     def inject(self,injected):
         inject_BeamBunch_external(self.get_beambunch(),
                                   injected.get_beambunch())
-        
     def write_fort(self,z):
         diagnostic3_Output(z, self.beambunch,
                            self.beam_parameters.scaling_frequency_Hz)
-
     def write_particles(self,filename):
-        return
         if MPI.rank == 0:
             f = open(filename,"w")
-        sendbuf = self.particles()
-        MPI.WORLD.Send(sendbuf,dest=0)
-        if MPI.rank == 0:
-            for proc in xrange(MPI.size):
+            for proc in xrange(1,MPI.size):
                 parts = MPI.WORLD.Recv(source=proc)
                 for i in range(0,parts.shape[1]):
                     f.write("%g %g %g %g %g %g %g\n" % \
-                            tuple(parts[:,i].tolist()))
+                            tuple(parts[:,i]))
+            parts = self.particles()
+            for i in range(0,parts.shape[1]):
+                f.write("%g %g %g %g %g %g %g\n" % \
+                        tuple(parts[:,i]))
             f.close()
+        else:
+            MPI.WORLD.Send(self.particles(),dest=0)
