@@ -159,7 +159,7 @@ class Gourmet:
         return lattice_function_array
 
     def generate_mappings(self):
-        self.mappings = []
+        self.delete_mappings()
         self.iterator.reset()
         element = self.iterator.next()
         jet_proton = None
@@ -173,6 +173,8 @@ class Gourmet:
                     element.propagateJetParticle(jet_proton)
             element = self.iterator.next()
         self.have_mappings = 1
+        self.delete_linear_maps()
+        self.delete_fast_mappings()
 
     def get_strengths(self):
         self.iterator.reset()
@@ -237,7 +239,7 @@ class Gourmet:
         return linear_maps
     
     def generate_linear_maps(self, keep_mappings=0):
-        chef_linear_maps = []
+        self.delete_linear_maps()
         if not self.have_mappings:
             self.generate_mappings()
         for mapping in self.mappings:
@@ -260,7 +262,7 @@ class Gourmet:
         return self.linear_maps[index]
 
     def generate_fast_mappings(self, keep_mappings=0):
-        self.fast_mappings = []
+        self.delete_fast_mappings()
         if not self.have_mappings:
             self.generate_mappings()
         u = self.get_u()
@@ -278,7 +280,7 @@ class Gourmet:
         if not self.have_fast_mappings:
             self.generate_fast_mappings()
         return self.fast_mappings[index]
-
+    
     def get_single_linear_map(self):
         jet_proton = JetProton(self.energy)
         self.beamline.propagateJetParticle(jet_proton)
