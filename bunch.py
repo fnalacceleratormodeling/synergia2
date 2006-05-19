@@ -71,8 +71,12 @@ class Bunch:
         inject_BeamBunch_external(self.get_beambunch(),
                                   injected.get_beambunch())
     def write_fort(self,z):
+        mean = Numeric.zeros(6,'d')
+        std = Numeric.zeros(6,'d')
         diagnostic3_Output(z, self.beambunch,
-                           self.beam_parameters.scaling_frequency_Hz)
+                           self.beam_parameters.scaling_frequency_Hz,
+                           mean, std)
+        return (mean,std)
     def write_particles(self,filename):
         if MPI.rank == 0:
             f = open(filename,"w")
