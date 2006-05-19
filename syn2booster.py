@@ -29,6 +29,7 @@ import UberPkgpy #SpaceChargePkgpy
 import apply_map
 import error_eater
 import options
+import job_manager
 
 import thread
 
@@ -52,26 +53,42 @@ def plot_long(b):
         z = b.particles()[4,:]
         zprime = b.particles()[5,:]
 
+        d = diagnostics.Diagnostics()
+        dd = diagnostics.Diagnostics("reference")
         pylab.hold(0)
         pylab.ioff()
 
-#         pylab.subplot(2,1,1)
-#         pylab.plot(z,zprime,'r,')
-#         pylab.title("phase space")
-#         limits = pylab.axis()
-#         limits[0] = -pi
-#         limits[1] = pi
-#         pylab.axis(limits)
+        pylab.subplot(2,2,1)
+        pylab.hold(0)
+        pylab.plot(dd.s[1:len(dd.mean):4]/474.2,dd.mean[1:len(dd.mean):4,diagnostics.x],'g')
+        pylab.hold(1)
+        pylab.plot(d.s[1:len(d.mean):4]/474.2,d.mean[1:len(d.mean):4,diagnostics.x])
+        pylab.title("horizontal position")
+        pylab.subplot(2,2,2)
+        pylab.hold(0)
+        pylab.plot(dd.s[1:len(dd.mean):4]/474.2,dd.mean[1:len(dd.mean):4,diagnostics.zprime],'g')
+        pylab.hold(1)
+        pylab.plot(d.s[1:len(d.mean):4]/474.2,d.mean[1:len(d.mean):4,diagnostics.zprime])
+        pylab.title("energy deviation")
 
-        d = diagnostics.Diagnostics()
-
-        pylab.subplot(2,2,3)
-        pylab.plot(d.s/474.2,d.num_part,'g')
-        pylab.title("number of particles")
 
         pylab.subplot(2,2,4)
-        pylab.plot(d.s[1:len(d.std):4]/474.2,d.std[1:len(d.std):4,diagnostics.x])
-        pylab.title("horizontal width")
+        pylab.hold(0)
+        pylab.plot(dd.s[1:len(dd.mean):4]/474.2,dd.mean[1:len(dd.mean):4,diagnostics.z],'g')
+        pylab.hold(1)
+        pylab.plot(d.s[1:len(d.mean):4]/474.2,d.mean[1:len(d.mean):4,diagnostics.z])
+        pylab.title("mean phase")
+#         pylab.plot(d.s/474.2,d.num_part,'g')
+#         pylab.title("number of particles")
+
+        pylab.subplot(2,2,3)
+        pylab.plot(z,zprime,'r,')
+        pylab.title("phase space")
+        limits = pylab.axis()
+        limits[0] = -pi
+        limits[1] = pi
+        pylab.axis(limits)
+        pylab.title("long ps")
 
         pylab.ion()
         pylab.draw()
@@ -118,8 +135,8 @@ class Line:
             self.g.get_fast_mapping(kick*2+1).apply(bunch.particles(),
                                                     bunch.num_particles_local())
             s += 2.0*self.tau
-            b.write_fort(s)
-        return s
+            (mean,std) = b.write_fort(s)
+        return (s,mean,std)
 
     def _get_rf_mapping(self):
         self.rf_strength_mapping = {}
@@ -235,20 +252,44 @@ def insert_rf(g):
         element = g.iterator.next()
     g.beamline.remove(element_to_remove)
 
-def update_rf(cell_line,opts,turn):
+rflast_turn = 1
+last_phase1 = 0.0
+last_phase2 = 0.0
+def update_rf(cell_line,opts,turn,beam_mean):
     global rfcells
+    global rflast_turn
+    global last_phase1, last_phase2
     for cell in rfcells:
         if turn < (opts.get("norfturns")+opts.get("rampturns")):
             ramp = (turn-opts.get("norfturns"))/(1.0*opts.get("rampturns"))
-            offset_a = -pi/2.0*(1-ramp)
-            offset_b = pi/2.0*(1-ramp)
+            offset = pi/2.0*(1-ramp)
         else:
-            offset_a = 0.0
-            offset_b = 0.0
-###        print offset_a,offset_b
-        cell_line[cell].set_rf_params(opts.get("rfvoltage"),
-                                      opts.get("rfphase") + offset_a,
-                                      opts.get("rfphase") + offset_b)
+            offset = 0.0
+        voltage = opts.get("rfvoltage")
+        deviation = beam_mean[5]*1.0e6 # convert MeV to eV
+        if voltage > 0.0:
+            rpos_correction = -math.asin(deviation/\
+                                         (2*len(rfcells)*voltage*math.cos(offset)))
+            compaction_correction = -beam_mean[4]*math.pi/180.0
+        else:
+            rpos_correction = 0.0
+            compaction_correction = 0.0
+#         if MPI.rank ==0:
+#             print "r,c =", rpos_correction*180/math.pi,\
+#                   compaction_correction*180/math.pi
+#         if turn != rflast_turn:
+#             last_phase1 = last_phase2
+#             rflast_turn = turn
+#             if (last_phase1>0.0 and rpos_correction<0.0) or (last_phase1<0.0 and rpos_correction>0.0):
+#                 last_phase1 = 0.0
+#             if MPI.rank ==0:
+#                 print "turn,phase0 =",turn,(last_phase1 + rpos_correction)*180/math.pi
+#         phase0 = last_phase1 + rpos_correction
+        phase0 = math.pi/2
+        last_phase2 = phase0
+        cell_line[cell].set_rf_params(voltage,
+                                      phase0 - offset,
+                                      phase0 + offset)
 
 if ( __name__ == '__main__'):
     t0 = time.time()
@@ -273,9 +314,13 @@ if ( __name__ == '__main__'):
     myopts.add("scgrid",[33,33,33],"Space charge grid",int)
     myopts.add("saveperiod",10,"save beam each <saveperiod> turns",int)
     myopts.add("partpercell",1.0,"average number of particles per cell",float)
-    
+
+    myopts.add_suboptions(job_manager.opts)
     myopts.parse_argv(sys.argv)
 
+    job_mgr = job_manager.Job_manager(sys.argv,myopts,
+                                      ["booster_classic.lat",
+                                       "envelope_match.cache"])
 ### start save
     scaling_frequency = 37.7e6
 ### end save
@@ -316,6 +361,8 @@ if ( __name__ == '__main__'):
     last_turn = myopts.get("turns")
 
     s = 0.0
+    mean = Numeric.zeros(6,'d')
+    std = None
     b.write_fort(s)
 
     if MPI.rank == 0 and myopts.get("showplot"):
@@ -327,20 +374,20 @@ if ( __name__ == '__main__'):
             time_file.write("%g %g\n" % (s,time.time()-t1))
             t1 = time.time()
             time_file.flush()
-        update_rf(cell_line,myopts,turn)
+        update_rf(cell_line,myopts,turn,mean)
         if MPI.rank==0:
             print "turn %d:" % turn,
             sys.stdout.flush()
-        s = injb_line.propagate(s, b, sc_params)
+        (s,mean,std) = injb_line.propagate(s, b, sc_params)
         if turn % myopts.get("plotperiod") == 0 and myopts.get("showplot"):
             plot_long(b)
         for cell in range(2,25):
-            s = cell_line[cell].propagate(s,b, sc_params)
+            (s,mean,std) = cell_line[cell].propagate(s,b, sc_params)
             if cell % 24 == 0 and turn % myopts.get("plotperiod") == 0 \
                    and myopts.get("showplot"):
                 plot_long(b)
         if not turn == last_inj_turn:
-            s = inja_line.propagate(s,b,sc_params)
+            (s,mean,std) = inja_line.propagate(s,b,sc_params)
             binj = bunch.Bunch(myopts.get("current"), bp, num_particles,
                                sc_params.pgrid)
             binj.generate_particles()
@@ -354,12 +401,12 @@ if ( __name__ == '__main__'):
             time_file.write("%g %g\n" % (s,time.time()-t1))
             t1 = time.time()
             time_file.flush()
-        update_rf(cell_line,myopts,turn)
+        update_rf(cell_line,myopts,turn,mean)
         if MPI.rank==0:
             print "turn %d:" % turn,
             sys.stdout.flush()
         for cell in range(1,25):
-            s = cell_line[cell].propagate(s,b, sc_params)
+            (s,mean,std) = cell_line[cell].propagate(s,b, sc_params)
             if cell % 24 == 0 and turn % myopts.get("plotperiod") == 0 \
                    and myopts.get("showplot"):
                 plot_long(b)
