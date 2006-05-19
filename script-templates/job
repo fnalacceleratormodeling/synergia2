@@ -1,0 +1,28 @@
+#!/bin/sh
+#PBS -o synergia.out
+#PBS -e synergia.err
+#PBS -l nodes=@@numproc@@
+
+echo PBS_NODEFILE is "$PBS_NODEFILE"
+if [ -n "$PBS_NODEFILE" ]
+then
+   cat $PBS_NODEFILE
+fi
+export PATH=/usr/local/openmpi/1.0.1/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/openmpi/1.0.1/lib:$LD_LIBRARY_PATH
+
+PATH="@@synergia2dir@@/../../install/bin:$PATH"
+export PATH
+LD_LIBRARY_PATH="/usr/local/lib/octave-2.1.72:@@synergia2dir@@/extra_libs:@@synergia2dir@@/../../install/lib:$LD_LIBRARY_PATH"
+export LD_LIBRARY_PATH
+
+SYNERGIA2DIR=@@synergia2dir@@
+export SYNERGIA2DIR
+
+PYTHONPATH=$SYNERGIA2DIR
+export PYTHONPATH
+
+cd @@jobdir@@
+exec mpirun -np @@numproc@@ python @@script@@ @@args@@
+
+
