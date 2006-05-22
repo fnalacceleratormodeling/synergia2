@@ -127,7 +127,7 @@ function [sigma_x,sigma_xprime,r_x,sigma_y,sigma_yprime,r_y] = ...
       endif    
     endfor
     if verbose
-      plot(s,x(:,1));
+###      plot(s,x(:,1));
     endif
     
     Mmatrix = [M0(1),M0(2), M0(3), M0(4);  M0(5),M0(6),M0(7),M0(8);...
