@@ -1,4 +1,4 @@
-all: latticefns fixlat apply_map.so error_eater.so mappers.so
+all: latticefns fixlat apply_map.so error_eater.so mappers.so chef_propagate.so
 
 include make_defines
 
@@ -67,5 +67,9 @@ error_eater.so: error_eater.cc
 
 mappers.so: mappers.cc
 	g++ -O3 -shared -march=pentium4 -mfpmath=sse $(incadd) $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -o $@ $< $(BOOST_LIBS) $(ldadd)
+
+chef_propagate.so: chef_propagate.cc
+	g++ -O3 -shared -march=pentium4 -mfpmath=sse $(incadd) $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -o $@ $< $(BOOST_LIBS) $(ldadd)
+
 clean:
 	rm -f latticefns fixlat apply_map.so error_eater.so mappers.so

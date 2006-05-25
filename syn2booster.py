@@ -27,6 +27,7 @@ import memory
 import UberPkgpy #SpaceChargePkgpy
 
 import apply_map
+import chef_propagate
 import error_eater
 import options
 import job_manager
@@ -100,81 +101,107 @@ rfcells = [14,15,16,17,19,21,22,23,24]
 
 class Line:
     def __init__(self, mad_file, line_name, kinetic_energy, scaling_frequency,
-                 map_order, kicks):
+                 map_order, kicks, opts):
         global rfcells
+        self.name = line_name
+        self.scaling_frequency = scaling_frequency
+        self.kicks = kicks
+        self.opts = opts
         self.rfnames = ["bcel%02d" % cell for cell in rfcells]
         self.g = gourmet.Gourmet(mad_file,line_name, kinetic_energy,
                                  scaling_frequency, map_order)
         if line_name in self.rfnames:
-            insert_rf(self.g)
-        self.g.insert_space_charge_markers(2*kicks)
-        if line_name in self.rfnames:
-            self._get_rf_mapping()
-        self.scaling_frequency = scaling_frequency
-        self.kicks = kicks
+            self.insert_rf()
+        self.g.insert_space_charge_markers(kicks)
+###        self.g.print_actions()
         self.line_length = self.g.orbit_length()
         self.tau = 0.5*self.line_length/self.kicks
-        self.name = line_name
         
-    def propagate(self, s, bunch, sc_params):
-        if MPI.rank == 0:
-            print "%s" % self.name,
-        sys.stdout.flush()
-        for kick in range(0,self.kicks):
-            self.g.get_fast_mapping(kick*2).apply(bunch.particles(),
-                                                  bunch.num_particles_local())
-            UberPkgpy.Apply_SpaceCharge_external(\
-                bunch.get_beambunch(),
-                sc_params.pgrid.get_pgrid2d(),
-                sc_params.field.get_fieldquant(),
-                sc_params.field.get_compdom(),
-                sc_params.field.get_period_length(),
-                sc_params.cgrid.get_bc_num(),
-                sc_params.field.get_pipe_radius(),
-                self.tau, 0, self.scaling_frequency)
-            self.g.get_fast_mapping(kick*2+1).apply(bunch.particles(),
-                                                    bunch.num_particles_local())
-            s += 2.0*self.tau
-            (mean,std) = b.write_fort(s)
-        return (s,mean,std)
-
-    def _get_rf_mapping(self):
-        self.rf_strength_mapping = {}
-        self.rf_phase_mapping = {}
+    def insert_rf(self):
         self.g.iterator.reset()
         element = self.g.iterator.next()
-        while element:
-            if element.Type() == 'thinrfcavity':
-                self.rf_strength_mapping[element.Name()] = element.Strength()
-                if element.Name()[0:3] == 'RFA':
-                    self.rf_phase_mapping[element.Name()] = 0
-                elif element.Name()[0:3] == 'RFB':
-                    self.rf_phase_mapping[element.Name()] = 1
-                else:
-                    print "****** Warning: unknown rfcavity",element.Name()
+        s = 0.0
+        while element.Name() != "LONGA:":
+            s += element.OrbitLength(self.g.get_initial_particle())
             element = self.g.iterator.next()
+        rf_total_length = element.OrbitLength(self.g.get_initial_particle())
+        cavity_length = 2.56
+        drift_length = (rf_total_length - 2.0*cavity_length)/2.0
+        s_rf1 = s + drift_length + 0.5*cavity_length
+        s_rf2 = s_rf1 + cavity_length
+        phase1 = self.opts.get("rfphase") - math.pi/2.0
+        phase2 = self.opts.get("rfphase") + math.pi/2.0
+        voltage = self.opts.get("rfvoltage")
+        freq = self.scaling_frequency/(2.0*math.pi)
+        quality = 0
+        impedance = 0
+        elements = (beamline.thinrfcavity("synergia action:rfcavity1",
+                                          freq,voltage,phase1,quality,impedance),
+                    beamline.thinrfcavity("synergia action:rfcavity2",
+                                          freq,voltage,phase2,quality,impedance))
+        positions = (s_rf1,s_rf2)
+        self.g.insert_elements(elements,positions)
 
-    def set_rf_params(self,voltage_ev,phase_a,phase_b):
+    def set_rf_params(self,voltage_ev,phase1,phase2):
         if self.name in self.rfnames:
             self.g.iterator.reset()
             element = self.g.iterator.next()
-            phases = [phase_a,phase_b]
             while element:
                 if element.Type() == 'thinrfcavity':
-                    strength = self.rf_strength_mapping[element.Name()] *\
-                               voltage_ev
-                    phase = phases[self.rf_phase_mapping[element.Name()]]
+                    if element.Name() == "synergia action:rfcavity1":
+                        phase = phase1
+                    elif element.Name() == "synergia action:rfcavity2":
+                        phase = phase2
+                    else:
+                        print "Unknown rf cavity",element.Name()
+                    strength = 1.0e-9 * voltage_ev
                     element.setStrength(strength)
                     element.setPhi(phase)
-#                     if MPI.rank == 0:
-#                         print element.Name(),
-#                         print "strength =",element.Strength(),
-#                         print "phi =",element.getPhi(),
-#                         print "freq =",element.getFrequency()
-
                 element = self.g.iterator.next()
-            self.g.generate_mappings()
-        
+            self.g.generate_actions()
+
+    def propagate(self, s, bunch, sc_params):
+        if MPI.rank == 0:
+            print "%s" % self.name,
+        mean = None
+        std = None
+        sys.stdout.flush()
+        first_action = 1
+        for action in self.g.get_actions():
+            if action.is_mapping():
+                action.get_data().apply(bunch.particles(),
+                                   bunch.num_particles_local())
+                s += action.get_length()
+            elif action.is_synergia_action():
+                if action.get_synergia_action() == "space charge endpoint":
+                    if not first_action:
+                        (mean,std) = b.write_fort(s)
+                elif action.get_synergia_action() == "space charge kick":
+                    UberPkgpy.Apply_SpaceCharge_external(
+                        bunch.get_beambunch(),
+                        sc_params.pgrid.get_pgrid2d(),
+                        sc_params.field.get_fieldquant(),
+                        sc_params.field.get_compdom(),
+                        sc_params.field.get_period_length(),
+                        sc_params.cgrid.get_bc_num(),
+                        sc_params.field.get_pipe_radius(),
+                        self.tau, 0, self.scaling_frequency)
+                elif action.get_synergia_action() == "rfcavity1" or \
+                     action.get_synergia_action() == "rfcavity2":
+                    element = action.get_data()
+                    u_in = self.g.get_u(action.get_initial_energy())
+                    u_out = self.g.get_u(action.get_final_energy())
+                    chef_propagate.chef_propagate(
+                        bunch.particles(), bunch.num_particles_local(),
+                        element, action.get_initial_energy(),
+                        u_in, u_out)
+                else:
+                    print "Whachou talkin' about, Willis? '%s'" % \
+                          action.get_synergia_action()
+            else:
+                print "action",action.get_type(),"unknown"
+            first_action = 0
+        return (s,mean,std)
 
 def get_beam_parameters(line, opts):
     bp = beam_parameters.Beam_parameters(physics_constants.PH_NORM_mp,
@@ -205,60 +232,9 @@ class Sc_params:
         piperad = 0.04
         self.field = field.Field(bp, self.pgrid, self.cgrid, piperad)
 
-element_keeper = []
 
-def insert_rf(g):
-    voltage = 1.0
-    phase0 = 0
-    g.iterator.reset()
-    element = g.iterator.next()
-    while element:
-        if element.Name() == "LONGA:":
-            rf_total_length = element.OrbitLength(g.particle)
-            cavity_length = 2.56
-            drift_length = (rf_total_length - 2.0*cavity_length)/2.0
-            freq = 37.7e6/(2.0*math.pi)
-            phase_a = phase0 - pi
-            phase_b = phase0 + pi
-            quality = 0
-            impedance = 0
-            pre_rf_drift = beamline.drift("PRERF:",drift_length)
-            element_keeper.append(pre_rf_drift)
-            rfda1 = beamline.drift("RFDA1:",cavity_length/2.0)
-            element_keeper.append(rfda1)
-            rfda2 = beamline.drift("RFDA2:",cavity_length/2.0)
-            element_keeper.append(rfda2)
-            rfdb1 = beamline.drift("RFDB1:",cavity_length/2.0)
-            element_keeper.append(rfdb1)
-            rfdb2 = beamline.drift("RFDB2:",cavity_length/2.0)
-            element_keeper.append(rfdb2)
-            rfa = beamline.thinrfcavity("RFA:",freq,voltage,phase_a,
-                                        quality,impedance)
-            element_keeper.append(rfa)
-            rfb = beamline.thinrfcavity("RFB:",freq,voltage,phase_b,
-                                    quality,impedance)
-            element_keeper.append(rfb)
-            post_rf_drift = beamline.drift("POSTRF:",drift_length)
-            element_keeper.append(post_rf_drift)
-            g.beamline.putAbove(element,pre_rf_drift)
-            g.beamline.putAbove(element,rfda1)
-            g.beamline.putAbove(element,rfa)
-            g.beamline.putAbove(element,rfda2)
-            g.beamline.putAbove(element,rfdb1)
-            g.beamline.putAbove(element,rfb)
-            g.beamline.putAbove(element,rfdb2)
-            g.beamline.putAbove(element,post_rf_drift)
-            element_to_remove = element
-        element = g.iterator.next()
-    g.beamline.remove(element_to_remove)
-
-rflast_turn = 1
-last_phase1 = 0.0
-last_phase2 = 0.0
 def update_rf(cell_line,opts,turn,beam_mean):
     global rfcells
-    global rflast_turn
-    global last_phase1, last_phase2
     for cell in rfcells:
         if turn < (opts.get("norfturns")+opts.get("rampturns")):
             ramp = (turn-opts.get("norfturns"))/(1.0*opts.get("rampturns"))
@@ -267,26 +243,14 @@ def update_rf(cell_line,opts,turn,beam_mean):
             offset = 0.0
         voltage = opts.get("rfvoltage")
         deviation = beam_mean[5]*1.0e6 # convert MeV to eV
-        if voltage > 0.0:
-            rpos_correction = -math.asin(deviation/\
-                                         (2*len(rfcells)*voltage*math.cos(offset)))
-            compaction_correction = -beam_mean[4]*math.pi/180.0
-        else:
-            rpos_correction = 0.0
-            compaction_correction = 0.0
-#         if MPI.rank ==0:
-#             print "r,c =", rpos_correction*180/math.pi,\
-#                   compaction_correction*180/math.pi
-#         if turn != rflast_turn:
-#             last_phase1 = last_phase2
-#             rflast_turn = turn
-#             if (last_phase1>0.0 and rpos_correction<0.0) or (last_phase1<0.0 and rpos_correction>0.0):
-#                 last_phase1 = 0.0
-#             if MPI.rank ==0:
-#                 print "turn,phase0 =",turn,(last_phase1 + rpos_correction)*180/math.pi
-#         phase0 = last_phase1 + rpos_correction
-        phase0 = math.pi/2
-        last_phase2 = phase0
+#         if voltage > 0.0:
+#             rpos_correction = -math.asin(deviation/\
+#                                          (2*len(rfcells)*voltage*math.cos(offset)))
+#             compaction_correction = -beam_mean[4]*math.pi/180.0
+#         else:
+#             rpos_correction = 0.0
+#             compaction_correction = 0.0
+        phase0 = opts.get("rfphase")
         cell_line[cell].set_rf_params(voltage,
                                       phase0 - offset,
                                       phase0 + offset)
@@ -317,7 +281,6 @@ if ( __name__ == '__main__'):
 
     myopts.add_suboptions(job_manager.opts)
     myopts.parse_argv(sys.argv)
-
     job_mgr = job_manager.Job_manager(sys.argv,myopts,
                                       ["booster_classic.lat",
                                        "envelope_match.cache"])
@@ -337,17 +300,14 @@ if ( __name__ == '__main__'):
     kicks = myopts.get("kickspercell")
     for cell in range(1,25):
         cell_line[cell] = Line("booster_classic.lat","bcel%02d"%cell ,0.4,
-                               scaling_frequency,order,kicks)
-        cell_line[cell].set_rf_params(myopts.get("rfvoltage"),
-                                      myopts.get("rfphase") - pi/2.0,
-                                      myopts.get("rfphase") + pi/2.0)
+                               scaling_frequency,order,kicks,myopts)
     injcell_line = Line("booster_classic.lat","bcelinj" ,0.4,
-                        scaling_frequency,order,kicks)
+                        scaling_frequency,order,kicks,myopts)
     part_kicks = 2
     inja_line = Line("booster_classic.lat","bcel01a" ,0.4,
-                     scaling_frequency,order,part_kicks)
+                     scaling_frequency,order,part_kicks,myopts)
     injb_line = Line("booster_classic.lat","bcel01b" ,0.4,
-                     scaling_frequency,order,part_kicks)
+                     scaling_frequency,order,part_kicks,myopts)
 
     bp = get_beam_parameters(injcell_line,myopts)
 
