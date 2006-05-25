@@ -89,7 +89,8 @@ class Gourmet:
         self.beamline = DriftsToSlots(beamline_orig)
         self.have_actions = 0
         if self.newchef:
-            self.context = BeamlineContext(self.particle,self.beamline,0)
+            self.context = BeamlineContext(self.get_initial_particle(),
+                                           self.beamline,0)
         else:
             self.context = BeamlineContext(0,self.beamline)
         if not self.context.isTreatedAsRing():
@@ -103,6 +104,9 @@ class Gourmet:
     def get_line_name(self):
         return self.line_name
 
+    def get_initial_energy(self):
+        return self.initial_energy
+    
     def get_initial_particle(self):
         return Proton(self.initial_energy)
 
@@ -287,7 +291,8 @@ class Gourmet:
     def get_strengths(self):
         self.iterator.reset()
         element = self.iterator.next()
-        brho = self.particle.ReferenceBRho()
+        particle = self.get_initial_particle()
+        brho = particle.ReferenceBRho()
         kxs = []
         kys = []
         ss = []
@@ -296,7 +301,7 @@ class Gourmet:
             kx = 0.0
             ky = 0.0
             strength = element.Strength()
-            length = element.OrbitLength(self.particle)
+            length = element.OrbitLength(particle)
             s += length
             if (element.Type() == "quadrupole") or \
                    (element.Type() == "thinQuad"):
@@ -312,6 +317,7 @@ class Gourmet:
             kxs.append(kx)
             kys.append(ky)
             ss.append(s)
+            element.propagateParticle(particle)
             element = self.iterator.next()
         return (Numeric.array(ss),Numeric.array(kxs),Numeric.array(kys))
     
@@ -319,27 +325,27 @@ class Gourmet:
         self.actions = []
         self.have_actions = 0
 
-#     def _convert_linear_maps(self, chef_linear_maps):
-#         # units conversion
-#         # X_impact = U X_external
-#         # where U = diag(u[0],u[1],u[2],u[3],u[4],u[5])
-#         u = self.get_u()
-#         linear_maps = []
-#         for chef_map in chef_linear_maps:
-#             map = Numeric.zeros((7,7),'d')
-#             for row in range(0,6):
-#                 for column in range(0,6):
-#                     chef_row = int(row/2+3*(row%2))
-#                     chef_column = int(column/2+3*(column%2))
-#                     if self.newchef:
-#                         map[row,column] = chef_map.get(chef_row,chef_column)* \
-#                                           u[row]/u[column]
-#                     else:
-#                         map[row,column] = chef_map[chef_row,chef_column]* \
-#                                           u[row]/u[column]
-#             map[6,6] = 1.0
-#             linear_maps.append(map)
-#         return linear_maps
+    def _convert_linear_maps(self, chef_linear_maps):
+        # units conversion
+        # X_impact = U X_external
+        # where U = diag(u[0],u[1],u[2],u[3],u[4],u[5])
+        u = self.get_u(self.initial_energy)
+        linear_maps = []
+        for chef_map in chef_linear_maps:
+            map = Numeric.zeros((7,7),'d')
+            for row in range(0,6):
+                for column in range(0,6):
+                    chef_row = int(row/2+3*(row%2))
+                    chef_column = int(column/2+3*(column%2))
+                    if self.newchef:
+                        map[row,column] = chef_map.get(chef_row,chef_column)* \
+                                          u[row]/u[column]
+                    else:
+                        map[row,column] = chef_map[chef_row,chef_column]* \
+                                          u[row]/u[column]
+            map[6,6] = 1.0
+            linear_maps.append(map)
+        return linear_maps
     
 #     def generate_linear_maps(self, keep_mappings=0):
 #         self.delete_linear_maps()
@@ -368,7 +374,7 @@ class Gourmet:
         self.delete_fast_mappings()
         if not self.have_actions:
             self.generate_actions()
-        u = self.get_u()
+        u = self.get_u(self.initial_energy)
         for mapping in self.actions:
             self.fast_mappings.append(mappers.Fast_mapping(u,mapping))
         self.have_fast_mappings = 1
@@ -385,7 +391,7 @@ class Gourmet:
         return self.fast_mappings[index]
     
     def get_single_linear_map(self):
-        jet_proton = JetProton(self.energy)
+        jet_proton = JetProton(self.initial_energy)
         self.beamline.propagateJetParticle(jet_proton)
         return self._convert_linear_maps([jet_proton.State().Jacobian()])[0]        
 
