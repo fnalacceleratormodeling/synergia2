@@ -35,7 +35,7 @@ def match_twiss_emittance(emittance,alpha,beta):
 
 def get_alpha_beta(my_gourmet):
     mymap = my_gourmet.get_single_linear_map()
-    u = my_gourmet.get_u()
+    u = my_gourmet.get_u(my_gourmet.get_initial_energy())
     mxx = mymap[0,0]
     mxpxp = mymap[1,1]
     mxxp = mymap[0,1]
