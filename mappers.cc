@@ -229,7 +229,7 @@ Fast_mapping::Fast_mapping(numeric::array& numeric_u, Mapping mapping) {
 	  terms.at(i).at(term_order-1).push_back(tmp_term);
 	} else {
 	  std::cerr 
-	    << "Fast_mapping found something funky witha term of order "
+	    << "Fast_mapping found something funky with a term of order "
 	    <<jlterm->exponents().Sum() << std::endl;
 	}
       }
