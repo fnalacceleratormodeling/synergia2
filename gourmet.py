@@ -329,7 +329,7 @@ class Gourmet:
         # units conversion
         # X_impact = U X_external
         # where U = diag(u[0],u[1],u[2],u[3],u[4],u[5])
-        u = self.get_u(self.initial_energy)
+        u = self.get_initial_u()
         linear_maps = []
         for chef_map in chef_linear_maps:
             map = Numeric.zeros((7,7),'d')
@@ -347,39 +347,15 @@ class Gourmet:
             linear_maps.append(map)
         return linear_maps
     
-#     def generate_linear_maps(self, keep_mappings=0):
-#         self.delete_linear_maps()
-#         if not self.have_actions:
-#             self.generate_actions()
-#         for mapping in self.actions:
-#             if self.newchef:
-#                 chef_linear_maps.append(mapping.jacobian())
-#             else:
-#                 chef_linear_maps.append(mapping.Jacobian())
-#         self.linear_maps = self._convert_linear_maps(chef_linear_maps)
-#         self.have_linear_maps = 1
-#         if not keep_mappings:
-#             self.delete_mappings()
-
-#     def delete_linear_maps(self):
-#         self.linear_maps = []
-#         self.have_linear_maps = 0
-
-#     def get_linear_map(self,index):
-#         if not self.have_linear_maps:
-#             self.generate_linear_maps()
-#         return self.linear_maps[index]
-
-    def generate_fast_mappings(self, keep_mappings=0):
+    def generate_fast_mappings(self):
         self.delete_fast_mappings()
         if not self.have_actions:
             self.generate_actions()
-        u = self.get_u(self.initial_energy)
-        for mapping in self.actions:
-            self.fast_mappings.append(mappers.Fast_mapping(u,mapping))
+        u = self.get_initial_u()
+        for action in self.actions:
+            if action.is_mapping():
+                self.fast_mappings.append(action.get_data())
         self.have_fast_mappings = 1
-        if not keep_mappings:
-            self.delete_mappings()
 
     def delete_fast_mappings(self):
         self.fast_mappings = []
@@ -393,7 +369,34 @@ class Gourmet:
     def get_single_linear_map(self):
         jet_proton = JetProton(self.initial_energy)
         self.beamline.propagateJetParticle(jet_proton)
-        return self._convert_linear_maps([jet_proton.State().Jacobian()])[0]        
+        return self._convert_linear_maps([jet_proton.State().Jacobian()])[0]
+
+    def get_single_fast_map(self):
+        jet_proton = JetProton(self.initial_energy)
+        self.beamline.propagateJetParticle(jet_proton)
+        mapping = jet_proton.State()
+        return mappers.Fast_mapping(self.get_initial_u(),
+                                    jet_proton.State())
+    def printpart(self,particle):
+        print '|',"%0.5g" % particle.get_x(),
+        print "%0.5g" % particle.get_npx(),
+        print "%0.5g" % particle.get_y(),
+        print "%0.5g" % particle.get_npy(),
+        print "%0.5g" % particle.get_cdt(),
+        print "%0.5g" % particle.get_ndp(), '|'
+        
+    def check(self,print_coeffs=0):
+        jet_proton = JetProton(self.initial_energy)
+        self.beamline.propagateJetParticle(jet_proton)
+        mapping = jet_proton.State()
+        if print_coeffs:
+            mapping.printCoeffs()
+        testpart = self.get_initial_particle()
+        print "initial test particle:"
+        self.printpart(testpart)
+        self.beamline.propagateParticle(testpart)
+        print "test particle after propagation:"
+        self.printpart(testpart)
 
     def get_u(self,energy):
         gamma = energy/self.mass
@@ -402,7 +405,9 @@ class Gourmet:
         w = 2.0* math.pi* self.scaling_frequency
         u = [w/c,gamma*beta,w/c,gamma*beta,w/c,-gamma*beta*beta]
         return Numeric.array(u)
-       
+
+    def get_initial_u(self):
+        return self.get_u(self.initial_energy)
         
 class Lattice_function_array:
     def __init__(self):
