@@ -7,6 +7,10 @@ from OutputPkgpy import *
 from mpi4py import MPI
 
 import loadfile
+import os.path
+import tables
+import time
+import sys
 
 # this is a comment
 
@@ -77,7 +81,28 @@ class Bunch:
                            self.beam_parameters.scaling_frequency_Hz,
                            mean, std)
         return (mean,std)
-    def write_particles(self,filename):
+    def write_particles(self,filename,compress_level=1):
+        h5filename = os.path.splitext(filename)[0] + '.h5'
+        if MPI.rank == 0:
+            t0 = time.time()
+            f = tables.openFile(h5filename,mode = "w")
+            filter = tables.Filters(complevel=compress_level)
+            atom = tables.Atom(dtype='Float64',shape=(7,0))
+            earray = f.createEArray(f.root,'particles',atom,'Float64',
+                                    filters = filter)
+            if self.particles().shape[1] > 0:
+                earray.append(self.particles())
+            for proc in xrange(1,MPI.size):
+                parts = MPI.WORLD.Recv(source=proc)
+                if parts.shape[1] > 0:
+                    earray.append(parts)
+###            f.createArray(f.root,'units',units)
+            f.close()
+            print "write",h5filename,"took",time.time()-t0
+        else:
+            MPI.WORLD.Send(self.particles(),dest=0)
+
+    def write_particles_text(self,filename):
         if MPI.rank == 0:
             f = open(filename,"w")
             for proc in xrange(1,MPI.size):
