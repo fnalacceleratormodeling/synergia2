@@ -32,7 +32,10 @@ class Job_manager:
             self.create_job(self.opts.get("jobdir"))
             if extra_files:
                 self.copy_extra_files(extra_files)
-            print "created job"
+            print "created",
+            if opts.get("submit"):
+                print "and submitted",
+            print "job"
             sys.exit(0)
 
     def _args_to_string(self,args,strip=[None]):
@@ -77,8 +80,13 @@ class Job_manager:
         subs["args"] = self._args_to_string(self.arguments[1:],["createjob"])
         subs["jobdir"] = os.path.abspath(self.directory)
         subs["script"] = os.path.basename(real_script)
-        self.create_script("job",directory+"_job",directory,subs)
+        job_name = directory + "_job"
+        self.create_script("job",job_name,directory,subs)
         self.create_script("cleanup","cleanup",directory,subs)
+        if self.opts.get("submit"):
+            os.chdir(directory)
+            os.system("qsub %s" % job_name)
+            os.chdir(old_cwd)
 
     def copy_extra_files(self,files):
         for file in files:
