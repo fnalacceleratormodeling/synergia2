@@ -30,7 +30,8 @@ import chef_propagate
 import error_eater
 import options
 import job_manager
-import thread
+import tracker
+
 
 from mpi4py import MPI
 try:
@@ -298,6 +299,8 @@ if ( __name__ == '__main__'):
     myopts.add("injturns",12,"myoptsnumber of injection turns",int)
     myopts.add("scgrid",[33,33,33],"Space charge grid",int)
     myopts.add("saveperiod",10,"save beam each <saveperiod> turns",int)
+    myopts.add("track",0,"whether to track particles",int)
+    myopts.add("trackfraction",[2,7],"fraction of particles to track (numer,denom)",int)
     myopts.add("partpercell",1.0,"average number of particles per cell",float)
 
     myopts.add_suboptions(job_manager.opts)
@@ -350,6 +353,8 @@ if ( __name__ == '__main__'):
 
     if MPI.rank == 0 and myopts.get("showplot"):
         pylab.ion()
+    if myopts.get("track"):
+        mytracker = tracker.Tracker('/scratch',myopts.get("trackfraction"))
     time_file = open("timing.dat","w")
     t1 = time.time()
     for turn in range(1,last_inj_turn+1):
@@ -382,6 +387,8 @@ if ( __name__ == '__main__'):
             print
         if turn % myopts.get("saveperiod") == 0:
             b.write_particles("turn_inj_%04d.dat" % turn)
+        if myopts.get("track"):
+            mytracker.add(b,s)
     for turn in range(last_inj_turn+1,last_turn+1):
         if MPI.rank == 0:
             time_file.write("%g %g\n" % (s,time.time()-t1))
@@ -401,6 +408,11 @@ if ( __name__ == '__main__'):
             print        
         if turn % myopts.get("saveperiod") == 0:
             b.write_particles("turn_%04d.dat" % turn)
+        if myopts.get("track"):
+            mytracker.add(b,s)
+    if myopts.get("track"):
+        mytracker.close()
+        mytracker.show_statistics()
     MPI.WORLD.Barrier()
     print "elapsed time =",time.time() - t0
     time_file.close()
