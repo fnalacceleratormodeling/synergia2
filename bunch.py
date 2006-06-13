@@ -12,8 +12,6 @@ import tables
 import time
 import sys
 
-# this is a comment
-
 seed_offset = 0
 class Bunch:
     def __init__(self, current, beam_parameters, num_particles,
