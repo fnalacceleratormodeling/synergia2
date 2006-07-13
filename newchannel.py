@@ -49,6 +49,7 @@ def printmem(str=""):
     print (newmem0-mem0)/math.pow(2,20), "(",newmem0/math.pow(2,20)," total)"
     mem0 = newmem0
 
+
 if ( __name__ == '__main__'):
     t0 = time.time()
     current = 0.5
@@ -70,13 +71,11 @@ if ( __name__ == '__main__'):
     rx=0.85440
     dpop = 1.0e-20
 
-    printmem()
-#    ee = error_eater.Error_eater()
-#    ee.start()
+    ee = error_eater.Error_eater()
+    ee.start()
     g = gourmet.Gourmet("channel.mad","channel",kinetic_energy,
                         scaling_frequency)
-    g.insert_space_charge_markers(2*kicks_per_line)
-    g.generate_mappings()
+    g.insert_space_charge_markers(kicks_per_line)
 
     bp = beam_parameters.Beam_parameters(mass, charge, kinetic_energy,
                                          initial_phase, scaling_frequency,
@@ -89,58 +88,59 @@ if ( __name__ == '__main__'):
     bp.z_params(sigma = sigma_z_meters, lam = dpop* pz)
     bp.correlation_coeffs(xpx = -rx, ypy = rx)
 
-    print "jfa is here"
     sys.stdout.flush()
     
-    printmem("before impact modules")
     pgrid = processor_grid.Processor_grid(1)
-    printmem("after pgrid")
     cgrid = computational_grid.Computational_grid(griddim[0],griddim[1],griddim[2],
                                                   "trans finite, long periodic round")
-    printmem("after cgrid")
     piperad = 0.04
     field = field.Field(bp, pgrid, cgrid, piperad)
-    printmem("after field")
     b = bunch.Bunch(current, bp, num_particles, pgrid)
     b.generate_particles()
-    printmem("after bunch")
 
-    b.write_particles("initial.dat")
-     
     line_length = g.orbit_length()
     tau = 0.5*line_length/kicks_per_line
     s = 0.0
-    b.write_fort(s)
+    first_action = 0
+    for action in g.get_actions():
+        if action.is_mapping():
+            action.get_data().apply(b.particles(),
+                               b.num_particles_local())
+            s += action.get_length()
+        elif action.is_synergia_action():
+            if action.get_synergia_action() == "space charge endpoint":
+                b.write_fort(s)
+                if not first_action:
+                    print "finished space charge kick"
+            elif action.get_synergia_action() == "space charge kick":
+                UberPkgpy.Apply_SpaceCharge_external(
+                    b.get_beambunch(),
+                    pgrid.get_pgrid2d(),
+                    field.get_fieldquant(),
+                    field.get_compdom(),
+                    field.get_period_length(),
+                    cgrid.get_bc_num(),
+                    field.get_pipe_radius(),
+                    tau, 0, scaling_frequency)
+            elif action.get_synergia_action() == "rfcavity1" or \
+                 action.get_synergia_action() == "rfcavity2":
+                element = action.get_data()
+                u_in = g.get_u(action.get_initial_energy())
+                u_out = g.get_u(action.get_final_energy())
+                chef_propagate.chef_propagate(
+                    b.particles(), b.num_particles_local(),
+                    element, action.get_initial_energy(),
+                    u_in, u_out)
+            else:
+                print "unknown action: '%s'" % \
+                      action.get_synergia_action()
+        else:
+            print "action",action.get_type(),"unknown"
+        first_action = 0
 
-    printmem("before loop")
-    for kick in range(0,kicks_per_line):
-        if MPI.rank == 0:
-            print "-----------------------------------kick %d--------------------------" % kick
-        g.get_fast_mapping(kick*2).apply(b.particles(),
-                                         b.num_particles_local())
-        printmem("after leading map %d" % kick)
-        sys.stdout.flush()
-        UberPkgpy.Apply_SpaceCharge_external(\
-            b.get_beambunch(),
-            pgrid.get_pgrid2d(),
-            field.get_fieldquant(),
-            field.get_compdom(),
-            field.get_period_length(),
-            cgrid.get_bc_num(),
-            field.get_pipe_radius(),
-            tau, 0, scaling_frequency)
-        sys.stdout.flush()
-        printmem("after sc kick %d" % kick)
-        g.get_fast_mapping(kick*2+1).apply(b.particles(),
-                                         b.num_particles_local())
-        printmem("after trailing map %d" % kick)
-        s += line_length/kicks_per_line
-        b.write_fort(s)
-        printmem("after write fort %d" % kick)
-            
     print "elapsed time =",time.time() - t0
 
     if MPI.rank == 0:
         import do_compare_channel
         do_compare_channel.doit()
-    print "Why does this hang???"
+    print "*** ignore the following error:"
