@@ -121,7 +121,7 @@ if ( __name__ == '__main__'):
                     field.get_period_length(),
                     cgrid.get_bc_num(),
                     field.get_pipe_radius(),
-                    tau, 0, scaling_frequency)
+                    tau, 0, scaling_frequency,0)
             elif action.get_synergia_action() == "rfcavity1" or \
                  action.get_synergia_action() == "rfcavity2":
                 element = action.get_data()

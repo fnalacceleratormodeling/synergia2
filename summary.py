@@ -36,31 +36,37 @@ for i in range(1,len(sys.argv)):
     tuples.append((d,colors[(i-1) % len(colors)],sys.argv[i]))
 
 #pylab.ion()
+decimate = 100
 pylab.subplot(2,3,1)
 for (d,color,name) in tuples:
-    pylab.plot(d.s/474.2,d.mean[:,diagnostics.x],color)
+    l = len(d.mean)
+    pylab.plot(d.s[1:l:decimate]/474.2,d.mean[1:l:decimate,diagnostics.x],color)
 pylab.title('x mean')
 
 pylab.subplot(2,3,4)
 for (d,color,name) in tuples:
-    pylab.plot(d.s/474.2,d.std[:,diagnostics.x],color)
+    l = len(d.mean)
+    pylab.plot(d.s[1:l:decimate]/474.2,d.std[1:l:decimate,diagnostics.x],color)
 pylab.title('x width')
 
 
 pylab.subplot(2,3,2)
 for (d,color,name) in tuples:
-    pylab.plot(d.s/474.2,d.mean[:,diagnostics.y],color)
+    l = len(d.mean)
+    pylab.plot(d.s[1:l:decimate]/474.2,d.mean[1:l:decimate,diagnostics.y],color)
 pylab.title('y mean')
 
 pylab.subplot(2,3,5)
 for (d,color,name) in tuples:
-    pylab.plot(d.s/474.2,d.std[:,diagnostics.y],color)
+    l = len(d.mean)
+    pylab.plot(d.s[1:l:decimate]/474.2,d.std[1:l:decimate,diagnostics.y],color)
 pylab.title('y width')
 
 
 pylab.subplot(2,3,3)
 for (d,color,name) in tuples:
-    pylab.plot(d.s/474.2,d.num_part/max(d.num_part),color)
+    l = len(d.mean)
+    pylab.plot(d.s[1:l:decimate]/474.2,d.num_part[1:l:decimate]/max(d.num_part),color)
 limits = pylab.axis()
 limits[2] = 0.0
 limits[3] = 1.1

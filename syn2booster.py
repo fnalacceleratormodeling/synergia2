@@ -376,6 +376,8 @@ if ( __name__ == '__main__'):
             if cell % 24 == 0 and turn % myopts.get("plotperiod") == 0 \
                    and myopts.get("showplot"):
                 plot_long(b)
+            if cell % 12 == 2 and myopts.get("track"):
+                mytracker.add(b,s)
         if turn < last_inj_turn:
             (s,mean,std) = inja_line.propagate(s,b,sc_params)
             binj = bunch.Bunch(myopts.get("current"), bp, num_particles,
@@ -387,8 +389,6 @@ if ( __name__ == '__main__'):
             print
         if turn % myopts.get("saveperiod") == 0:
             b.write_particles("turn_inj_%04d.dat" % turn)
-        if myopts.get("track"):
-            mytracker.add(b,s)
     for turn in range(last_inj_turn+1,last_turn+1):
         if MPI.rank == 0:
             time_file.write("%g %g\n" % (s,time.time()-t1))
@@ -404,12 +404,12 @@ if ( __name__ == '__main__'):
             if cell % 24 == 0 and turn % myopts.get("plotperiod") == 0 \
                    and myopts.get("showplot"):
                 plot_long(b)
+            if cell % 12 == 2 and myopts.get("track"):
+                mytracker.add(b,s)
         if MPI.rank==0:
             print        
         if turn % myopts.get("saveperiod") == 0:
             b.write_particles("turn_%04d.dat" % turn)
-        if myopts.get("track"):
-            mytracker.add(b,s)
     if myopts.get("track"):
         mytracker.close()
         mytracker.show_statistics()
