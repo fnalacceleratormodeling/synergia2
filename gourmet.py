@@ -88,6 +88,7 @@ class Gourmet:
         beamline_orig.append(pacifier)
         self.beamline = DriftsToSlots(beamline_orig)
         self.have_actions = 0
+        self.have_fast_mappings = 0
         if self.newchef:
             self.context = BeamlineContext(self.get_initial_particle(),
                                            self.beamline,0)
