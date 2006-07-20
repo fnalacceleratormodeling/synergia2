@@ -111,6 +111,8 @@ class Line:
         self.rfnames = ["bcel%02d" % cell for cell in rfcells]
         self.g = gourmet.Gourmet(mad_file,line_name, kinetic_energy,
                                  scaling_frequency, map_order)
+        if MPI.rank == 0:
+            print "initial u =",self.g.get_initial_u()
         if line_name in self.rfnames:
             self.insert_rf()
         self.g.insert_space_charge_markers(kicks)
@@ -186,7 +188,7 @@ class Line:
                         sc_params.field.get_period_length(),
                         sc_params.cgrid.get_bc_num(),
                         sc_params.field.get_pipe_radius(),
-                        self.tau, 0, self.scaling_frequency)
+                        self.tau, 0, self.scaling_frequency,0)
                 elif action.get_synergia_action() == "rfcavity1" or \
                      action.get_synergia_action() == "rfcavity2":
                     element = action.get_data()
@@ -213,8 +215,10 @@ def get_beam_parameters_orig(line, opts):
         opts.get("emittance"),opts.get("current"),line.g)
     
     pz = bp.get_gamma() * bp.get_beta() * bp.mass_GeV
-    bp.x_params(sigma = sigma_x, lam = sigma_xprime * pz)
-    bp.y_params(sigma = sigma_y, lam = sigma_yprime * pz)
+    mismatchx = 1.0 + opts.get("mismatchfracx")
+    mismatchy = 1.0 + opts.get("mismatchfracy")
+    bp.x_params(sigma = sigma_x*mismatchx, lam = sigma_xprime/mismatchx * pz)
+    bp.y_params(sigma = sigma_y*mismatchy, lam = sigma_yprime/mismatchy * pz)
     sigma_z_meters = bp.get_beta()*physics_constants.PH_MKS_c/\
                      scaling_frequency/math.pi * opts.get("zfrac")
     bp.z_params(sigma = sigma_z_meters, lam = opts.get("dpop")* pz,
@@ -245,8 +249,8 @@ def get_beam_parameters(line, opts):
     return bp
 
 class Sc_params:
-    def __init__(self, griddim, bp):
-        self.pgrid = processor_grid.Processor_grid(1)
+    def __init__(self, griddim, bp, proccol):
+        self.pgrid = processor_grid.Processor_grid(proccol)
         self.cgrid = computational_grid.Computational_grid(griddim[0],
                                                       griddim[1],
                                                       griddim[2],
@@ -292,7 +296,7 @@ if ( __name__ == '__main__'):
     myopts.add("kickspercell",4,"kicks per cell",int)
     myopts.add("plotperiod",4,"update plot every plotperiod steps",int)
     myopts.add("turns",12,"number of booster revolutions",int)
-    myopts.add("rfvoltage",0.6e6/18.0*0,"rf voltage (MV)",float)
+    myopts.add("rfvoltage",0.6e6/18.0,"rf voltage (MV)",float)
     myopts.add("rfphase",0.0,"rf cavity phase (rad)",float)
     myopts.add("rampturns",200,"number of turns for rf phase ramping",int)
     myopts.add("norfturns",0,"number of turns without any rf BROKEN!",int)
@@ -302,6 +306,9 @@ if ( __name__ == '__main__'):
     myopts.add("track",0,"whether to track particles",int)
     myopts.add("trackfraction",[2,7],"fraction of particles to track (numer,denom)",int)
     myopts.add("partpercell",1.0,"average number of particles per cell",float)
+    myopts.add("mismatchfracx",0.0,"fractional horizontal mismatch",float)
+    myopts.add("mismatchfracy",0.0,"fractional vertical mismatch",float)
+    myopts.add("proccol",2,"number of columns in processor grid (y direction)",int)
 
     myopts.add_suboptions(job_manager.opts)
     myopts.parse_argv(sys.argv)
@@ -314,6 +321,7 @@ if ( __name__ == '__main__'):
     part_per_cell = myopts.get("partpercell")
     pipe_radius = 0.04
     griddim = myopts.get("scgrid")
+    proccol = myopts.get("proccol")
     num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
                                      part_per_cell,MPI.size)
 
@@ -335,7 +343,7 @@ if ( __name__ == '__main__'):
 
     bp = get_beam_parameters_orig(injcell_line,myopts)
 
-    sc_params = Sc_params(griddim,bp)
+    sc_params = Sc_params(griddim,bp,proccol)
     b = bunch.Bunch(myopts.get("current"), bp, num_particles, sc_params.pgrid)
     b.generate_particles()
     linear_map = injcell_line.g.get_single_linear_map()
