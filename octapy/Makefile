@@ -1,4 +1,4 @@
-PYTHON_INCLUDE = /home2/amundson/work/contract-synergia2/install/include/python2.4
+PYTHON_INCLUDE = ../../..//install/include/python2.4
 PYTHON = python
 MKOCTFILE = mkoctfile
 SWIG = swig
