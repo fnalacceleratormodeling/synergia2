@@ -25,7 +25,6 @@ from math import pi
 
 import UberPkgpy #SpaceChargePkgpy
 
-import apply_map
 import chef_propagate
 import error_eater
 import options
@@ -111,8 +110,8 @@ class Line:
         self.rfnames = ["bcel%02d" % cell for cell in rfcells]
         self.g = gourmet.Gourmet(mad_file,line_name, kinetic_energy,
                                  scaling_frequency, map_order)
-        if MPI.rank == 0:
-            print "initial u =",self.g.get_initial_u()
+#         if MPI.rank == 0:
+#             print "initial u =",self.g.get_initial_u()
         if line_name in self.rfnames:
             self.insert_rf()
         self.g.insert_space_charge_markers(kicks)
@@ -123,7 +122,7 @@ class Line:
         self.g.iterator.reset()
         element = self.g.iterator.next()
         s = 0.0
-        while element.Name() != "LONGA:":
+        while element.Name() != "LONGA":
             s += element.OrbitLength(self.g.get_initial_particle())
             element = self.g.iterator.next()
         rf_total_length = element.OrbitLength(self.g.get_initial_particle())
@@ -322,6 +321,8 @@ if ( __name__ == '__main__'):
     pipe_radius = 0.04
     griddim = myopts.get("scgrid")
     proccol = myopts.get("proccol")
+    if MPI.size == 1:
+        proccol = 1
     num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
                                      part_per_cell,MPI.size)
 

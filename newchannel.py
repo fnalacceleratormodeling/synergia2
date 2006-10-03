@@ -23,7 +23,6 @@ import memory
 
 import UberPkgpy #SpaceChargePkgpy
 
-import apply_map
 import error_eater
 
 from mpi4py import MPI

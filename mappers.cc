@@ -5,8 +5,8 @@
 #include <boost/python/numeric.hpp>
 #include <Numeric/arrayobject.h>
 #include <vector>
-#include "bmlfactory.h"
-#include "Mapping.h"
+#include "bmlfactory/bmlfactory.h"
+#include "mxyzptlk/Mapping.h"
 
 extern "C" {
 #include <sys/time.h>
@@ -204,22 +204,21 @@ Fast_mapping::Fast_mapping(numeric::array& numeric_u, Mapping mapping) {
   }      
   for (int i = 0; i<6 ; ++i) {
     int chef_i = convert_chef_index(i);
-    const TJLterm<double,std::complex<double> > * jlterm;
-    mapping(chef_i).resetConstIterator();
+    Jet::iterator jet_it(mapping(chef_i));
     int nterm = 0;
-    while(jlterm = mapping(chef_i).stepConstIteratorPtr()){
-      if ((jlterm->coefficient() == 0.0) || 
-	  (jlterm->exponents().Sum() == 0)) {
+    while(++jet_it){
+      if ((jet_it->coefficient() == 0.0) || 
+	  (jet_it->exponents().Sum() == 0)) {
 	//ignore zero coefficients
       } else {
-	if (jlterm->exponents().Sum() > 0) {
-	  int term_order = jlterm->exponents().Sum();
+	if (jet_it->exponents().Sum() > 0) {
+	  int term_order = jet_it->exponents().Sum();
 	  Fast_mapping_term tmp_term(term_order);
-	  tmp_term.coeff = jlterm->coefficient()*u(i);
+	  tmp_term.coeff = jet_it->coefficient()*u(i);
 	  int which = 0;
 	  for (int index=0; index<6; ++index) {
 	    int chef_index = convert_chef_index(index);
-	    int expt = jlterm->exponents()(chef_index);
+	    int expt = jet_it->exponents()(chef_index);
 	    for (int count = 0; count < expt; ++count) {
 	      tmp_term.i[which] = index;
 	      ++which;
@@ -230,7 +229,7 @@ Fast_mapping::Fast_mapping(numeric::array& numeric_u, Mapping mapping) {
 	} else {
 	  std::cerr 
 	    << "Fast_mapping found something funky with a term of order "
-	    <<jlterm->exponents().Sum() << std::endl;
+	    <<jet_it->exponents().Sum() << std::endl;
 	}
       }
     }
@@ -318,8 +317,6 @@ void crap(numeric::array& numeric_particles, int num_particles,
   double D = (m13*(1.0-m22)+m12*m23)/(2.0-m11-m22);
   double Dp = (m13*m21+(1.0-m11)*m23)/(2.0-m11-m22);
   for(int part=0; part<num_particles; ++part) {
-//     particles(0,part) += particles(5,part)*map(0,5)*13.32;
-//     particles(1,part) += particles(5,part)*map(1,5)*0.0003245;
     particles(0,part) += particles(5,part)*D;
     particles(1,part) += particles(5,part)*Dp;
   }

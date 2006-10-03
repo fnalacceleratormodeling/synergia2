@@ -4,7 +4,7 @@
 #include <boost/python/numeric.hpp>
 #include <Numeric/arrayobject.h>
 #include <vector>
-#include "bmlfactory.h"
+#include "bmlfactory/bmlfactory.h"
 
 class Term
 {

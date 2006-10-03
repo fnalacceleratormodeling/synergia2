@@ -6,20 +6,19 @@
 #include <string>
 #include <cmath>
 
-#include "PhysicsConstants.h"
-#include "beamline.h"
-#include "bmlfactory.h"
-#include "BeamlineContext.h"
-#include "RefRegVisitor.h"
-#include "ClosedOrbitSage.h"
-#include "InsertionList.h"
+#include "basic_toolkit/PhysicsConstants.h"
+#include "beamline/beamline.h"
+#include "bmlfactory/bmlfactory.h"
+#include "physics_toolkit/BeamlineContext.h"
+#include "beamline/RefRegVisitor.h"
+#include "physics_toolkit/ClosedOrbitSage.h"
+#include "beamline/InsertionList.h"
 
 using namespace std;
 extern beamline* DriftsToSlots( beamline& original );
 
 madparser* mp = 0;
 
-#define NEWCHEFnotreally youbetcha
 void insert_markers(beamline* bmline, int num_markers_per_element,
 			     double momentum)
 {
@@ -77,19 +76,7 @@ int main(int argc, char **argv)
 
   int order = 1;
 
-#ifdef NEWCHEF
-  double scale[]  = { 1.0e-3, 1.0e-3, 1.0e-3, 1.0e-3, 1.0e-3, 1.0e-3 };
-  Jet__environment::BeginEnvironment(order);
-  coord x(0.0),  y(0.0),  z(0.0),
-    px(0.0), py(0.0), pz(0.0);
-  EnvPtr<double>::Type JetEnvPtr  =  Jet__environment::EndEnvironment(scale);
-  JetC::_lastEnv  =  *JetEnvPtr; // implicit conversion
-#else
-  Jet::BeginEnvironment(order);
-  coord x(0.0),  y(0.0),  z(0.0),
-    px(0.0), py(0.0), pz(0.0);
-  JetC::_lastEnv = JetC::CreateEnvFrom(Jet::EndEnvironment());
-#endif
+  JetParticle::createStandardEnvironments(order);
 
   double brho = (fabs(momentum))/PH_CNV_brho_to_p;
   bmlfactory* bml_fact = new bmlfactory(mad_file.c_str(), brho);
@@ -99,12 +86,8 @@ int main(int argc, char **argv)
 
   insert_markers(bmline, 10, momentum);
 
-#ifdef NEWCHEF
   Proton jfcproton(energy);
   BeamlineContext* bmln_context = new BeamlineContext(jfcproton,bmline,false);
-#else
-  BeamlineContext* bmln_context = new BeamlineContext(false,bmline);
-#endif
 
   if (bmln_context->isTreatedAsRing()) {
     cout << "already treated as ring\n";
