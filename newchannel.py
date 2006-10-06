@@ -6,7 +6,6 @@ import Numeric
 import physics_constants
 import bunch
 import diagnostics
-import pylab
 import beam_parameters
 import processor_grid
 import computational_grid
