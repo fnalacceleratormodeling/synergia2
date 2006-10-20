@@ -47,7 +47,7 @@ pacifier = drift("pacifier",0.0)
 
 class Gourmet:
     def __init__(self, mad_file, line_name, initial_kinetic_energy,
-                 scaling_frequency, order=1):
+                 scaling_frequency, order=1, particle='proton'):
         self.mad_file = mad_file
         self.line_name = line_name
         self.scaling_frequency = scaling_frequency
@@ -55,11 +55,14 @@ class Gourmet:
         self.saved_elements = []
         createStandardEnvironments(self.order)
 
-        # Notice that our particle is hard-wired to be a Proton
-        # This will have to be fixed once the various particle issues
-        # have been resolved
+        self.particle = particle
+        if self.particle == 'proton':
+            self.mass = PH_NORM_mp
+        elif self.particle == 'positron':
+            self.mass = PH_NORM_me
+        else:
+            raise RuntimeError, 'Unknown particle %s' % self.particle
         self.initial_kinetic_energy = initial_kinetic_energy
-        self.mass = PH_NORM_mp
         self.initial_energy = self.initial_kinetic_energy + self.mass
         self.final_energy = None
         self.initial_momentum = math.sqrt(self.initial_energy**2 -
@@ -91,10 +94,32 @@ class Gourmet:
         return self.initial_energy
     
     def get_initial_particle(self):
-        return Proton(self.initial_energy)
+        if self.particle == 'proton':
+            particle = Proton(self.initial_energy)
+        else:
+            particle = Positron(self.initial_energy)
+        return particle
 
     def get_initial_jet_particle(self):
-        return JetProton(self.initial_energy)
+        if self.particle == 'proton':
+            jet_particle = JetProton(self.initial_energy)
+        else:
+            jet_particle = JetPositron(self.initial_energy)
+        return jet_particle
+
+    def get_particle(self,energy):
+        if self.particle == 'proton':
+            particle = Proton(energy)
+        else:
+            particle = Positron(energy)
+        return particle
+
+    def get_jet_particle(self,energy):
+        if self.particle == 'proton':
+            jet_particle = JetProton(energy)
+        else:
+            jet_particle = JetPositron(energy)
+        return jet_particle
     
     def _commission(self):
 ### The following is in reaction to the message:
@@ -239,7 +264,7 @@ class Gourmet:
                            data=element,
                            synergia_action=string.join(split_name[1:],':')))
                 energy = new_energy           
-                jet_particle = JetProton(energy)
+                jet_particle = self.get_jet_particle(energy)
                 has_propagated = 0
                 s = 0.0
             else:
@@ -346,16 +371,16 @@ class Gourmet:
         return self.fast_mappings[index]
     
     def get_single_linear_map(self):
-        jet_proton = JetProton(self.initial_energy)
-        self.beamline.propagateJetParticle(jet_proton)
-        return self._convert_linear_maps([jet_proton.State().jacobian()])[0]
+        jet_particle = self.get_initial_jet_particle()
+        self.beamline.propagateJetParticle(jet_particle)
+        return self._convert_linear_maps([jet_particle.State().jacobian()])[0]
 
     def get_single_fast_map(self):
-        jet_proton = JetProton(self.initial_energy)
-        self.beamline.propagateJetParticle(jet_proton)
-        mapping = jet_proton.State()
+        jet_particle = self.get_initial_jet_particle()
+        self.beamline.propagateJetParticle(jet_particle)
+        mapping = jet_particle.State()
         return mappers.Fast_mapping(self.get_initial_u(),
-                                    jet_proton.State())
+                                    jet_particle.State())
     def printpart(self,particle):
         print '|',"%0.5g" % particle.get_x(),
         print "%0.5g" % particle.get_npx(),
@@ -365,9 +390,9 @@ class Gourmet:
         print "%0.5g" % particle.get_ndp(), '|'
         
     def check(self,print_coeffs=0):
-        jet_proton = JetProton(self.initial_energy)
-        self.beamline.propagateJetParticle(jet_proton)
-        mapping = jet_proton.State()
+        jet_particle = self.get_initial_jet_particle()
+        self.beamline.propagateJetParticle(jet_particle)
+        mapping = jet_particle.State()
         if print_coeffs:
             mapping.printCoeffs()
         testpart = self.get_initial_particle()
