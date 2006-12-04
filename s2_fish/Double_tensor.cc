@@ -118,3 +118,13 @@ Double_tensor::print() const
   int indices[dims.size()];
   print_n(dims.size(),indices);
 }
+
+void 
+Double_tensor::zero_all( )
+{
+  int size = storage.size( );
+  for ( int i = 0; i < size; ++i )
+    {
+      storage[i] = 0.0;
+    }
+}

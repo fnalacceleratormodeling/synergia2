@@ -20,6 +20,7 @@ class Double_tensor {
   std::vector<int> get_dims();
   void describe();
   void print() const;
+  void zero_all( );
 };
 
   
