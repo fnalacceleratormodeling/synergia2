@@ -14,6 +14,7 @@ class Double_tensor {
   Double_tensor(int order, int const dims_in[]);
   Double_tensor(const Double_tensor& original);
   void reshape(int order, int const dims_in[]);
+  std::vector<int> get_shape();
   double & operator() (int const indices[]);
   double operator() (int const indices[]) const;
   void set(int const indices[],double val);

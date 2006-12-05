@@ -35,6 +35,12 @@ Double_tensor::reshape(int order, int const dims_in[])
   storage.resize(size);
 }
 
+std::vector<int>
+Double_tensor::get_shape()
+{
+  return dims;
+}
+
 int
 Double_tensor::vector_index(int const indices[]) const
 {

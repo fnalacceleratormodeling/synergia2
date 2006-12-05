@@ -19,7 +19,7 @@ Scalar_Field::Scalar_Field(  )
 }
 
 //--------------------------------------------------------------------
-Scalar_Field::Scalar_Field(int num_points[3], double physical_size[3], double physical_offset[3] )
+Scalar_Field::Scalar_Field(int3 num_points, double3 physical_size, double3 physical_offset )
 {
   set_num_points( num_points );
   set_physical_params( physical_size, physical_offset );
@@ -32,14 +32,21 @@ Scalar_Field::~Scalar_Field()
 }
 
 //--------------------------------------------------------------------
-void Scalar_Field::set_num_points( int num_points[3] )
+void Scalar_Field::set_num_points( int3 num_points )
 {
-  points.reshape( 3, num_points);
+  points.reshape( 3, num_points.c_array());
   update_constants( );
 }
 
 //--------------------------------------------------------------------
-void Scalar_Field::set_physical_params( double physical_size[3], double physical_offset[3] )
+int3 Scalar_Field::get_num_points()
+{
+  std::vector<int> v(points.get_shape());
+  return int3(v);
+}
+
+//--------------------------------------------------------------------
+void Scalar_Field::set_physical_params( double3 physical_size, double3 physical_offset )
 {
   for (int i = 0; i < 3; ++i)
     {
@@ -50,33 +57,46 @@ void Scalar_Field::set_physical_params( double physical_size[3], double physical
 }
 
 //--------------------------------------------------------------------
+double3 Scalar_Field::get_physical_size()
+{
+  return physical_size;
+}
+
+//--------------------------------------------------------------------
+double3 Scalar_Field::get_physical_offset()
+{
+  return physical_offset;
+}
+
+//--------------------------------------------------------------------
 void Scalar_Field::zero_the_points( )
 {
   points.zero_all( );
 }
 
-void Scalar_Field::set_point( int indices[3], double val )
+void Scalar_Field::set_point( int3 indices, double val )
 {
-  points.set( indices, val );
+  points.set( indices.c_array(), val );
 }
 
-double Scalar_Field::get_point ( int indices[3])
+double Scalar_Field::get_point ( int3 indices)
 {
-  return points(indices);
+  return points(indices.c_array());
 }
 
-void Scalar_Field::add_to_point( int indices[3], double val )
+void Scalar_Field::add_to_point( int3 indices, double val )
 {
-  points.set( indices, val + points(indices) );
+  points.set( indices.c_array(), val + points(indices.c_array()) );
 }
 
-int* Scalar_Field::get_nearest_indices( double location[3] )
+int3 Scalar_Field::get_nearest_indices( double3 location )
 {
-  int nearest_val[3];
+  int3 nearest_val;
   for ( int i = 0; i < 3; ++i )
     {
       nearest_val[i] = round( h[i] * ( location[i] - left[i] ) );
     }
+  return nearest_val;
 }
 
 void Scalar_Field::update_constants( )
