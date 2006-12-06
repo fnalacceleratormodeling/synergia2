@@ -5,6 +5,9 @@
 *******************************************/
 #include "scalar_field.h"
 
+#include <stdexcept>
+#include <sstream>
+
 int round( double x )
 {
   return static_cast<int>(x + 0.5);
@@ -34,6 +37,7 @@ Scalar_Field::~Scalar_Field()
 //--------------------------------------------------------------------
 void Scalar_Field::set_num_points( int3 num_points )
 {
+  this->num_points = num_points;
   points.reshape( 3, num_points.c_array());
   update_constants( );
 }
@@ -76,17 +80,62 @@ void Scalar_Field::zero_the_points( )
 
 void Scalar_Field::set_point( int3 indices, double val )
 {
-  points.set( indices.c_array(), val );
+  if ((indices[0] >= 0) && (indices[0] < num_points[0]) &&
+      (indices[1] >= 0) && (indices[1] < num_points[1]) &&
+      (indices[2] >= 0) && (indices[2] < num_points[2])) {
+    points.set( indices.c_array(), val );
+  } else {
+    std::stringstream message("");
+    message << "Scalar_field range error: point ("
+	    << indices[0] << ","
+	    << indices[1] << ","
+	    << indices[2] << ") outside of bounds of field ("
+	    << "0-" << num_points[0]-1 << ","
+	    << "0-" << num_points[1]-1 << ","
+	    << "0-" << num_points[2]-1 << ")";
+    throw std::out_of_range(message.str());
+  }
 }
 
 double Scalar_Field::get_point ( int3 indices)
 {
-  return points(indices.c_array());
+  double retval;
+  if ((indices[0] >= 0) && (indices[0] < num_points[0]) &&
+      (indices[1] >= 0) && (indices[1] < num_points[1]) &&
+      (indices[2] >= 0) && (indices[2] < num_points[2])) {
+    retval = points(indices.c_array());
+  }
+ else {
+    std::stringstream message("");
+    message << "Scalar_field range error: point ("
+	    << indices[0] << ","
+	    << indices[1] << ","
+	    << indices[2] << ") outside of bounds of field ("
+	    << "0-" << num_points[0]-1 << ","
+	    << "0-" << num_points[1]-1 << ","
+	    << "0-" << num_points[2]-1 << ")";
+    throw std::out_of_range(message.str());
+  }
+  return retval;
 }
 
 void Scalar_Field::add_to_point( int3 indices, double val )
 {
-  points.set( indices.c_array(), val + points(indices.c_array()) );
+  if ((indices[0] >= 0) && (indices[0] < num_points[0]) &&
+      (indices[1] >= 0) && (indices[1] < num_points[1]) &&
+      (indices[2] >= 0) && (indices[2] < num_points[2])) {
+    points.set( indices.c_array(), val + points(indices.c_array()) );
+  } else {
+    std::stringstream message("");
+    message << "Scalar_field range error: point ("
+	    << indices[0] << ","
+	    << indices[1] << ","
+	    << indices[2] << ") outside of bounds of field ("
+	    << "0-" << num_points[0]-1 << ","
+	    << "0-" << num_points[1]-1 << ","
+	    << "0-" << num_points[2]-1 << ")";
+    throw std::out_of_range(message.str());
+  }
 }
 
 int3 Scalar_Field::get_nearest_indices( double3 location )
@@ -103,7 +152,7 @@ void Scalar_Field::update_constants( )
 {
   for ( int i = 0; i < 3; ++i )
     {
-      left[i] = ( physical_offset[i] - physical_size[i] ) / 2;
+      left[i] = ( physical_offset[i] - physical_size[i]/ 2);
       h[i] = ( num_points[i] - 1.0 ) / physical_size[i];
     }
 }

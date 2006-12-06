@@ -17,13 +17,19 @@ class Triple
     storage[2] = z;
   }
 
-  Triple(T array[3]) {
+  Triple(const Triple<T> &t) {
+    storage[0] = t[0];
+    storage[1] = t[1];
+    storage[2] = t[2];
+  }
+
+  Triple(const T array[3]) {
     storage[0] = array[0];
     storage[1] = array[1];
     storage[2] = array[2];
   }
 
-  Triple(std::vector<T> &v) {
+  Triple(const std::vector<T> &v) {
     storage[0] = v[0];
     storage[1] = v[1];
     storage[2] = v[2];
