@@ -1,5 +1,4 @@
 #include "scalar_field.h"
-
 #undef _POSIX_C_SOURCE
 #include <boost/python.hpp>
 

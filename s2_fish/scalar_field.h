@@ -1,5 +1,5 @@
 /*******************************************
-** grid.h
+** scalar_field.h
 ** Contains:
 ** 
 *******************************************/
@@ -41,5 +41,5 @@ class Scalar_Field
   int3 get_nearest_indices( double3 location );
 };
 
-#endif				//	ifndef GRID_H
+#endif				//	ifndef HAVE_SCALAR_FIELD_H
 
