@@ -14,8 +14,9 @@ s2_fish.so: scalar_field.o Double_tensor.o s2_fish_wrap.o
 macro_bunch_store.so: macro_bunch_store_wrap.o macro_bunch_store.o
 	g++ -shared -o $@ $^ $(BOOST_LIBS)
 
-check: s2_fish.so
-	python test.py
+check: s2_fish.so macro_bunch_store.so
+	python test_scalar_field.py
+	python test_macro_bunch.py
 
 clean:
 	rm -rf space_charge *.so *.o 
