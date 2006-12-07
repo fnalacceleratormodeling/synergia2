@@ -16,20 +16,20 @@ class Macro_bunch:
         total_current = 1.0
         self.units = Numeric.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
         self.ref_particle = Numeric.array([0.0,0.0,0.0,0.0,0.0,1.1],'d')
-        self.particles = Numeric.array((7,local_num),'d')
+        self.particles = Numeric.zeros((7,local_num),'d')
         is_z = 0
-        id = 0
+        index = 0
         for i in range(0,num[0]):
             for j in range(0,num[1]):
                 for k in range(0,num[2]):
-                    id += 1
-                    self.particles[(0,id)] = offset[0] - size[0]/2.0 + \
+                    self.particles[0,index] = offset[0] - size[0]/2.0 + \
                                              size[0]/(num[0]-1)*(i+0.5)
-                    self.particles[(2,id)] = offset[1] - size[1]/2.0 + \
+                    self.particles[2,index] = offset[1] - size[1]/2.0 + \
                                              size[1]/(num[1]-1)*(j+0.5)
-                    self.particles[(4,id)] =  offset[2] - size[2]/2.0 + \
+                    self.particles[4,index] =  offset[2] - size[2]/2.0 + \
                                              size[2]/(num[2]-1)*(k+0.5)
-                    self.particles[(6,id)] = id
+                    self.particles[6,index] = index+1
+                    index += 1 
         self.store = Macro_bunch_store(self.particles,local_num,total_num,
                                        total_current,self.units,
                                        self.ref_particle,is_z)

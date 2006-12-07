@@ -13,7 +13,7 @@ Macro_bunch_store::Macro_bunch_store(numeric::array& numeric_local_particles,
 			 int local_num, int total_num, double total_current,
 			 numeric::array& numeric_units,
 			 numeric::array& numeric_ref_particle,
-			 bool is_z)
+			 int is_z)
 {
   this->numeric_local_particles = &numeric_local_particles;
   local_particles = data_from_numeric_array<double *>(numeric_local_particles);
