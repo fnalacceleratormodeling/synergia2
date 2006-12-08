@@ -25,13 +25,14 @@ struct Macro_bunch_store
   double* units;
   numeric::array* numeric_ref_particle;
   double* ref_particle;
-  int is_z;
+  bool is_z;
 
   Macro_bunch_store(numeric::array& numeric_local_particles,
 	      int local_num, int total_num, double total_current,
 	      numeric::array& numeric_units,
 	      numeric::array& numeric_ref_particle,
-	      int is_z);
+	      bool is_z);
+  numeric::array get_local_particles();
   ~Macro_bunch_store();
 };
 

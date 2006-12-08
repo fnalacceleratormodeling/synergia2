@@ -5,23 +5,17 @@
 using namespace boost::python;
 
 #include <iostream>
-void foo(bool bar)
-{
-  if (bar) {
-    std::cout << "Tune in for more great Tek Jansen adventures!\n";
-  } else {
-    std::cout << "Do not tune in for more great Tek Jansen adventures!\n";
-  }
-}
 
 BOOST_PYTHON_MODULE(macro_bunch_store)
 {
   numeric::array::set_module_and_type("Numeric", "ArrayType");
   class_<Macro_bunch_store>("Macro_bunch_store",
 			    init<numeric::array&,int,int,double,
-			    numeric::array&,numeric::array&,int>())
+			    numeric::array&,numeric::array&,bool>())
     .def_readonly("local_particles",
 		  &Macro_bunch_store::numeric_local_particles)
+    .def("get_local_particles",
+		  &Macro_bunch_store::get_local_particles)
     .def_readwrite("local_num",&Macro_bunch_store::local_num)
     .def_readwrite("total_num",&Macro_bunch_store::total_num)
     .def_readwrite("total_current",&Macro_bunch_store::total_current)
@@ -29,6 +23,5 @@ BOOST_PYTHON_MODULE(macro_bunch_store)
     .def_readonly("ref_particle",&Macro_bunch_store::numeric_ref_particle)
     .def_readwrite("is_z",&Macro_bunch_store::is_z)
   ;
-  def("foo",&foo);
 }
 

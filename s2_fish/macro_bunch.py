@@ -35,7 +35,15 @@ class Macro_bunch:
                                        self.ref_particle,is_z)
         self.complete = 1
         
-    def init_from_beambunch(self, beambunch):
-        pass
+    def init_from_bunch(self, bunch):
+        (Cxy, Cxpyp, Cz, Czp) = bunch.beam_parameters.get_conversions()
+        self.units = Numeric.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
+        self.store = Macro_bunch_store(bunch.particles(),
+                                       bunch.num_particles_local(),
+                                       bunch.num_particles(),
+                                       bunch.current(),
+                                       self.units,
+                                       bunch.reference_particle(),
+                                       0)
     
         
