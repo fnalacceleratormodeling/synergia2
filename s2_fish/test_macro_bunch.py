@@ -15,11 +15,25 @@ class Test_Macro_bunch(unittest.TestCase):
     def test_01_construct(self):
         mb = Macro_bunch()
 
-    def test_02_init_test(self):
+    def test_02_init_test1(self):
         mb = Macro_bunch()
-        mb.init_test()
+        num_per_side = 2
+        mb.init_test(num_per_side)
+        shape = Numeric.shape(mb.store.get_local_particles())
+        self.assertEqual(shape[0],7)
+        self.assertEqual(shape[1],num_per_side**3)
 
-    def test_03_init_from_bunch(self):
+    def test_02_init_test2(self):
+        mb = Macro_bunch()
+        num_per_side = 2
+        mb.init_test(num_per_side)
+        shape = Numeric.shape(mb.particles)
+        for j in range(0,shape[1]):
+            for i in range(0,shape[0]):
+                self.assertAlmostEqual(mb.particles[i,j],
+                                       mb.store.get_coord(i,j),14)
+                
+    def _get_bunch(self):
         current = 0.5
         kinetic_energy = 0.0067
         mass = physics_constants.PH_NORM_mp
@@ -27,7 +41,7 @@ class Test_Macro_bunch(unittest.TestCase):
         initial_phase = 0.0
         scaling_frequency = 10221.05558e6
         width_x = 0.004
-        num_particles = 10000
+        num_particles = 1000
         xwidth=0.0012026
         xpwidth=0.0049608
         rx=0.85440
@@ -48,13 +62,43 @@ class Test_Macro_bunch(unittest.TestCase):
         b = bunch.Bunch(current, bp, num_particles, pgrid)
         b.generate_particles()
 
+        return b
+    
+    def test_03_init_from_bunch(self):
+        b = self._get_bunch()
+        orig_shape = Numeric.shape(b.particles())
         mb = Macro_bunch()
         mb.init_from_bunch(b)
         shape = Numeric.shape(mb.store.get_local_particles())
-        self.assertEqual(shape[0],7)
-        self.assertEqual(shape[1],10000)
+        for j in range(0,shape[1]):
+            for i in range(0,shape[0]):
+                self.assertAlmostEqual(b.particles()[i,j],
+                                       mb.store.get_coord(i,j),14)
+        self.assertEqual(shape[0],orig_shape[0])
+        self.assertEqual(shape[1],orig_shape[1])
         
 
+    def test_04_conversions(self):
+        b = self._get_bunch()
+        mb = Macro_bunch()
+        mb.init_from_bunch(b)
+        sample_id = 307
+        x0 = mb.store.get_local_particles()[0,sample_id]
+        y0 = mb.store.get_local_particles()[2,sample_id]
+        z0 = mb.store.get_local_particles()[4,sample_id]
+        x1 = x0/mb.store.get_units()[0]
+        y1 = y0/mb.store.get_units()[2]
+        mb.store.convert_to_fixedt()
+        self.assertEqual(x1,mb.store.get_local_particles()[0,sample_id])
+        self.assertEqual(y1,mb.store.get_local_particles()[2,sample_id])
+        # really need to check z conversion
+        self.assertEqual(0,mb.store.is_fixedz)
+
+        mb.store.convert_to_fixedz()
+        self.assertEqual(x0,mb.store.get_local_particles()[0,sample_id])
+        self.assertEqual(y0,mb.store.get_local_particles()[2,sample_id])
+        self.assertEqual(z0,mb.store.get_local_particles()[4,sample_id])
+        self.assertEqual(1,mb.store.is_fixedz)
 
 if __name__ == '__main__':
     macro_bunch_suite = unittest.TestLoader().loadTestsFromTestCase(Test_Macro_bunch)

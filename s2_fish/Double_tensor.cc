@@ -104,7 +104,7 @@ Double_tensor::print_n(int which_index, int indices[]) const
       indices[0] = i;
       for(int j=0; j<dims[1]; j++) {
 	indices[1] = j;
-	std::cout << std::setw(10);
+	std::cout << std::setw(9);
 	std::cout << (*this)(indices);
       }
       std::cout << std::endl;

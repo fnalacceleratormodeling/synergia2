@@ -1,4 +1,5 @@
 #include "scalar_field.h"
+#include "deposit.h"
 #undef _POSIX_C_SOURCE
 #include <boost/python.hpp>
 
@@ -46,7 +47,12 @@ BOOST_PYTHON_MODULE(s2_fish)
     .def("set_point",&Scalar_Field::set_point)
     .def("get_point",&Scalar_Field::get_point)
     .def("add_to_point",&Scalar_Field::add_to_point)
-    .def("get_nearest_indices",&Scalar_Field::get_nearest_indices)
+    .def("get_leftmost_indices",&Scalar_Field::get_leftmost_indices)
+    .def("get_leftmost_offsets",&Scalar_Field::get_leftmost_offsets)
+    .def("print_points",&Scalar_Field::print_points)
     ;
+
+  def("deposit_charge_cic",deposit_charge_cic);
+  def("deposit_charge_ngp",deposit_charge_ngp);
 }
 

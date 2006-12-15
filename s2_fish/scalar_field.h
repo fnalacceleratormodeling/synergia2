@@ -38,7 +38,9 @@ class Scalar_Field
   void set_point( int3 indices, double val );
   double get_point( int3 indices );
   void add_to_point( int3 indices, double val );
-  int3 get_nearest_indices( double3 location );
+  int3 get_leftmost_indices( double3 location );
+  double3 get_leftmost_offsets( double3 location );
+  void print_points();
 };
 
 #endif				//	ifndef HAVE_SCALAR_FIELD_H

@@ -81,13 +81,21 @@ class Test_Scalar_Field(unittest.TestCase):
             caught = 1
         self.assertEqual(caught,1)
 
-    def test_11_get_nearest(self):
+    def test_11_get_leftmost_indices(self):
         sf = Scalar_Field(int3(10,10,10),double3(1.0,2.0,3.0),
                           double3(0.1,0.2,0.3))
-        retval = sf.get_nearest_indices(double3(0.44,0.99,-1.01))
-        self.assertEqual(retval.get(0),8)
+        retval = sf.get_leftmost_indices(double3(0.44,0.99,-1.01))
+        self.assertEqual(retval.get(0),7)
         self.assertEqual(retval.get(1),8)
-        self.assertEqual(retval.get(2),1)
+        self.assertEqual(retval.get(2),0)
+
+    def test_12_get_leftmost_offsets(self):
+        sf = Scalar_Field(int3(2,2,2),double3(10.0,10.0,10.0),
+                          double3(5.0,5.0,5.0))
+        retval = sf.get_leftmost_offsets(double3(1.0,3.0,5.0))
+        self.assertAlmostEqual(retval.get(0),0.1,12)
+        self.assertAlmostEqual(retval.get(1),0.3,12)
+        self.assertAlmostEqual(retval.get(2),0.5,12)
         
 
 if __name__ == '__main__':

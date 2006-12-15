@@ -12,16 +12,19 @@ BOOST_PYTHON_MODULE(macro_bunch_store)
   class_<Macro_bunch_store>("Macro_bunch_store",
 			    init<numeric::array&,int,int,double,
 			    numeric::array&,numeric::array&,bool>())
-    .def_readonly("local_particles",
-		  &Macro_bunch_store::numeric_local_particles)
     .def("get_local_particles",
 		  &Macro_bunch_store::get_local_particles)
+    .def("get_units",
+		  &Macro_bunch_store::get_units)
+    .def("get_ref_particle",
+		  &Macro_bunch_store::get_ref_particle)
     .def_readwrite("local_num",&Macro_bunch_store::local_num)
     .def_readwrite("total_num",&Macro_bunch_store::total_num)
     .def_readwrite("total_current",&Macro_bunch_store::total_current)
-    .def_readonly("units",&Macro_bunch_store::numeric_units)
-    .def_readonly("ref_particle",&Macro_bunch_store::numeric_ref_particle)
-    .def_readwrite("is_z",&Macro_bunch_store::is_z)
+    .def_readwrite("is_fixedz",&Macro_bunch_store::is_fixedz)
+    .def("convert_to_fixedt",&Macro_bunch_store::convert_to_fixedt)
+    .def("convert_to_fixedz",&Macro_bunch_store::convert_to_fixedz)
+    .def("get_coord",&Macro_bunch_store::get_coord)
   ;
 }
 

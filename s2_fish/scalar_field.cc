@@ -7,11 +7,8 @@
 
 #include <stdexcept>
 #include <sstream>
+#include <cmath>
 
-int round( double x )
-{
-  return static_cast<int>(x + 0.5);
-}
 
 //--------------------------------------------------------------------
 Scalar_Field::Scalar_Field(  )
@@ -138,14 +135,28 @@ void Scalar_Field::add_to_point( int3 indices, double val )
   }
 }
 
-int3 Scalar_Field::get_nearest_indices( double3 location )
+int3 Scalar_Field::get_leftmost_indices( double3 location )
 {
-  int3 nearest_val;
+  int3 leftmost_val;
   for ( int i = 0; i < 3; ++i )
     {
-      nearest_val[i] = round( h[i] * ( location[i] - left[i] ) );
+      leftmost_val[i] = static_cast<int>
+	( floor( h[i] * ( location[i] - left[i] ) ) );
     }
-  return nearest_val;
+  return leftmost_val;
+}
+
+// return the fractional offset
+double3 Scalar_Field::get_leftmost_offsets( double3 location )
+{
+  double3 offset;
+  for ( int i = 0; i < 3; ++i )
+    {
+      double scaled_location =  h[i] * ( location[i] - left[i] );
+      offset[i] = scaled_location - 
+	static_cast<int>(floor(scaled_location));
+    }
+  return offset;
 }
 
 void Scalar_Field::update_constants( )
@@ -155,4 +166,9 @@ void Scalar_Field::update_constants( )
       left[i] = ( physical_offset[i] - physical_size[i]/ 2);
       h[i] = ( num_points[i] - 1.0 ) / physical_size[i];
     }
+}
+
+void Scalar_Field::print_points( )
+{
+  points.print();
 }
