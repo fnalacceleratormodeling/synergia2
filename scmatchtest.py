@@ -46,7 +46,8 @@ def adjust_particles(base,procs):
 
 def get_alpha_beta(my_gourmet):
     mymap = my_gourmet.get_single_linear_map()
-    u = my_gourmet.get_u()
+    # jfa: I modified the next line in a hurry. It should be checked!!!
+    u = my_gourmet.get_u(my_gourmet.initial_energy)
     mxx = mymap[0,0]
     mxpxp = mymap[1,1]
     mxxp = mymap[0,1]
@@ -136,7 +137,7 @@ if ( __name__ == '__main__'):
     g = gourmet.Gourmet("booster_classic.lat","bcel02",kinetic_energy,
                         scaling_frequency,order=map_order)
     g.insert_space_charge_markers(1)
-    g.generate_linear_maps()
+#    g.generate_linear_maps()
     t0 = time.time()
 
     bp = beam_parameters.Beam_parameters(mass, charge, kinetic_energy,
