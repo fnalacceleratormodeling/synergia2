@@ -147,7 +147,6 @@ if ( __name__ == '__main__'):
     (alpha_x, alpha_y, beta_x, beta_y) = get_alpha_beta(g)
 
     envelope_match(1.0e-7,1.5,g)
-    sys.exit(1)
     pz = bp.get_gamma() * bp.get_beta() * bp.mass_GeV
 
     (width_x,width_xprime,r_x) = matching.match_twiss_emittance(emittance,
@@ -173,12 +172,13 @@ if ( __name__ == '__main__'):
     print "generate time =", time.time() - t0b
     
 
-    the_map = g.get_linear_map(0)
+    the_map = g.get_single_linear_map()
     print Numeric.array2string(the_map,
                                precision=3,suppress_small=1)
     color = ['g','r','c','y','m','k']
 
-    print g.get_u()
+    # jfa: ditto (see above)
+    print g.get_u(g.initial_energy)
     mappers.crap(b.particles(),b.num_particles_local(), the_map)
     xsum = Numeric.zeros(num_particles,'d')
     xpsum = Numeric.zeros(num_particles,'d')
