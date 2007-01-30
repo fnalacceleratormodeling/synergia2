@@ -23,6 +23,18 @@ Double_tensor::Double_tensor(const Double_tensor& original)
   dims = original.dims;
 }
 
+int
+Double_tensor::length()
+{
+  return storage.size();
+}
+
+double*
+Double_tensor::get_base_address()
+{
+  return &storage[0];
+}
+
 void
 Double_tensor::reshape(int order, int const dims_in[])
 {

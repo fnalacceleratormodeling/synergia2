@@ -172,3 +172,13 @@ void Scalar_Field::print_points( )
 {
   points.print();
 }
+
+int Scalar_Field::array_length( )
+{
+  return points.length();
+}
+
+double* Scalar_Field::array_base_address()
+{
+  return points.get_base_address();
+}

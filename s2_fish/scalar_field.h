@@ -41,6 +41,8 @@ class Scalar_Field
   int3 get_leftmost_indices( double3 location );
   double3 get_leftmost_offsets( double3 location );
   void print_points();
+  int array_length();
+  double* array_base_address();
 };
 
 #endif				//	ifndef HAVE_SCALAR_FIELD_H

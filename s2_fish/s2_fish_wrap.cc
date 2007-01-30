@@ -1,5 +1,6 @@
 #include "scalar_field.h"
 #include "deposit.h"
+#include "solver.h"
 #undef _POSIX_C_SOURCE
 #include <boost/python.hpp>
 
@@ -54,5 +55,7 @@ BOOST_PYTHON_MODULE(s2_fish)
 
   def("deposit_charge_cic",deposit_charge_cic);
   def("deposit_charge_ngp",deposit_charge_ngp);
+  
+  def("solver",solver);
 }
 
