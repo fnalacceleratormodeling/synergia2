@@ -37,25 +37,26 @@ BOOST_PYTHON_MODULE(s2_fish)
     .def("set",&double3::set)
     ;
 
-  class_<Scalar_Field>("Scalar_Field",init<>())
+  class_<Real_scalar_field>("Real_scalar_field",init<>())
     .def(init<int3, double3, double3>())
-    .def("set_num_points",&Scalar_Field::set_num_points)
-    .def("get_num_points",&Scalar_Field::get_num_points)
-    .def("set_physical_params",&Scalar_Field::set_physical_params)
-    .def("get_physical_size",&Scalar_Field::get_physical_size)
-    .def("get_physical_offset",&Scalar_Field::get_physical_offset)
-    .def("zero_the_points",&Scalar_Field::zero_the_points)
-    .def("set_point",&Scalar_Field::set_point)
-    .def("get_point",&Scalar_Field::get_point)
-    .def("add_to_point",&Scalar_Field::add_to_point)
-    .def("get_leftmost_indices",&Scalar_Field::get_leftmost_indices)
-    .def("get_leftmost_offsets",&Scalar_Field::get_leftmost_offsets)
-    .def("print_points",&Scalar_Field::print_points)
+    .def("set_num_points",&Real_scalar_field::set_num_points)
+    .def("get_num_points",&Real_scalar_field::get_num_points)
+    .def("set_physical_params",&Real_scalar_field::set_physical_params)
+    .def("get_physical_size",&Real_scalar_field::get_physical_size)
+    .def("get_physical_offset",&Real_scalar_field::get_physical_offset)
+    .def("zero_the_points",&Real_scalar_field::zero_the_points)
+    .def("set_point",&Real_scalar_field::set_point)
+    .def("get_point",&Real_scalar_field::get_point)
+    .def("add_to_point",&Real_scalar_field::add_to_point)
+    .def("get_leftmost_indices",&Real_scalar_field::get_leftmost_indices)
+    .def("get_leftmost_offsets",&Real_scalar_field::get_leftmost_offsets)
+    .def("print_points",&Real_scalar_field::print_points)
     ;
 
   def("deposit_charge_cic",deposit_charge_cic);
   def("deposit_charge_ngp",deposit_charge_ngp);
   
   def("solver",solver);
+  def("fft_tester",fft_tester);
 }
 

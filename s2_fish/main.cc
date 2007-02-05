@@ -9,7 +9,7 @@
 int main( )
 {
 
-  Scalar_Field my_Scalar_Field( );
+  Real_scalar_field my_Scalar_Field( );
   int3 t(1,2,3);
   std::cout << "t[0] = " << t[0] << std::endl;
   t[0]=5;

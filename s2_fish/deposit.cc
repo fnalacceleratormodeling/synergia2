@@ -4,7 +4,7 @@
 
 // Deposit charge using Cloud-in-Cell (CIC) algorithm.
 double
-deposit_charge_cic(Scalar_Field& sf, Macro_bunch_store& mbs)
+deposit_charge_cic(Real_scalar_field& sf, Macro_bunch_store& mbs)
 {
   int3 indices;
   double3 offsets;
@@ -36,7 +36,7 @@ deposit_charge_cic(Scalar_Field& sf, Macro_bunch_store& mbs)
 
 // Deposit charge on the nearest grid point to the particle
 double
-deposit_charge_ngp(Scalar_Field& sf, Macro_bunch_store& mbs)
+deposit_charge_ngp(Real_scalar_field& sf, Macro_bunch_store& mbs)
 {
   int3 indices;
   double3 offsets;

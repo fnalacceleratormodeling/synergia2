@@ -9,10 +9,10 @@ PETSC_LIBS = -L$(PETSC_DIR)/lib/linux-gnu-cxx-debug -lpetscmat -lpetscvec -lpets
 %.o : %.cc
 	g++ -c -g $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(PETSC_INCLUDES) $<
 
-space_charge: scalar_field.o main.o Double_tensor.o
+space_charge: main.o
 	g++ -o $@ $^
 
-s2_fish.so: scalar_field.o Double_tensor.o s2_fish_wrap.o deposit.o ltwt_containers.o solver.o
+s2_fish.so: s2_fish_wrap.o deposit.o ltwt_containers.o solver.o
 	g++ -shared -o $@ $^ $(BOOST_LIBS) $(PETSC_LIBS)
 
 macro_bunch_store.so: macro_bunch_store_wrap.o macro_bunch_store.o ltwt_containers.o
@@ -43,13 +43,11 @@ depend:
 
 deposit.o: deposit.h scalar_field.h Double_tensor.h TripleT.h
 deposit.o: macro_bunch_store.h ltwt_containers.h
-Double_tensor.o: Double_tensor.h
 ltwt_containers.o: ltwt_containers.h
 macro_bunch_store.o: macro_bunch_store.h ltwt_containers.h
 macro_bunch_store_wrap.o: macro_bunch_store.h ltwt_containers.h
 main.o: scalar_field.h Double_tensor.h TripleT.h
 s2_fish_wrap.o: scalar_field.h Double_tensor.h TripleT.h deposit.h
 s2_fish_wrap.o: macro_bunch_store.h ltwt_containers.h solver.h
-scalar_field.o: scalar_field.h Double_tensor.h TripleT.h
 solver.o: solver.h scalar_field.h Double_tensor.h TripleT.h
 solver.o: macro_bunch_store.h ltwt_containers.h

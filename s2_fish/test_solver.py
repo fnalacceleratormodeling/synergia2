@@ -8,7 +8,17 @@ import unittest
 class Test_solver(unittest.TestCase):
     def test_01(self):
         num_grid = 8
-        sf = Scalar_Field(int3(num_grid,num_grid,num_grid),
+        sf = Real_scalar_field(int3(num_grid,num_grid,num_grid),
+                          double3(2.0,2.0,2.0),double3(0.0,0.0,0.0))
+        mb = Macro_bunch()
+        mb.init_test(16,edge_length=1.0)
+        total_charge = deposit_charge_cic(sf,mb.store)
+        phi = fft_tester(sf)
+#         phi.print_points()
+    
+    def test_02(self):
+        num_grid = 8
+        sf = Real_scalar_field(int3(num_grid,num_grid,num_grid),
                           double3(2.0,2.0,2.0),double3(0.0,0.0,0.0))
         mb = Macro_bunch()
         mb.init_test(16,edge_length=1.0)

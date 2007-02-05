@@ -11,7 +11,10 @@
 #include "macro_bunch_store.h"
 #include <iostream>
 
-Scalar_Field
-solver(Scalar_Field rho);
+Real_scalar_field
+solver(Real_scalar_field rho);
+
+Real_scalar_field
+fft_tester(Real_scalar_field rho);
 
 #endif // HAVE_SOLVER_H

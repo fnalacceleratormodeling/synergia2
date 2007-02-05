@@ -9,7 +9,7 @@ class Test_deposit(unittest.TestCase):
     def test_01_ngp1(self):
         num_grid = 5
         num_grid = 5
-        sf = Scalar_Field(int3(num_grid,num_grid,num_grid),
+        sf = Real_scalar_field(int3(num_grid,num_grid,num_grid),
                           double3(2.0,2.0,2.0),double3(0.0,0.0,0.0))
         mb = Macro_bunch()
         mb.init_test(16,edge_length=1.0)
@@ -27,7 +27,7 @@ class Test_deposit(unittest.TestCase):
 
     def test_02_ngp2(self):
         num_grid = 64
-        sf = Scalar_Field(int3(num_grid,num_grid,num_grid),
+        sf = Real_scalar_field(int3(num_grid,num_grid,num_grid),
                           double3(2.0,2.0,2.0),double3(0.0,0.0,0.0))
         mb = Macro_bunch()
         mb.init_test(16,edge_length=4.0)
@@ -36,7 +36,7 @@ class Test_deposit(unittest.TestCase):
         
     def test_03_cic1(self):
         num_grid = 5
-        sf = Scalar_Field(int3(num_grid,num_grid,num_grid),
+        sf = Real_scalar_field(int3(num_grid,num_grid,num_grid),
                           double3(2.0,2.0,2.0),double3(0.0,0.0,0.0))
         mb = Macro_bunch()
         mb.init_test(16,edge_length=1.0)
@@ -54,7 +54,7 @@ class Test_deposit(unittest.TestCase):
 
     def test_04_cic2(self):
         num_grid = 64
-        sf = Scalar_Field(int3(num_grid,num_grid,num_grid),
+        sf = Real_scalar_field(int3(num_grid,num_grid,num_grid),
                           double3(2.0,2.0,2.0),double3(0.0,0.0,0.0))
         mb = Macro_bunch()
         mb.init_test(16,edge_length=4.0)
