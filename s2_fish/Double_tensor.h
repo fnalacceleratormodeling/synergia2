@@ -112,7 +112,7 @@ T_tensor<T>::set_dims(int order, int const dims_in[])
   int size = 1;
   dims.reserve(order);
   for (int i = 0; i < order ; i++) {
-    dims.push_back(dims_in[i]);
+    dims[i] = dims_in[i];
     size *= dims[i];
   }
   storage.reserve(size);
@@ -137,6 +137,7 @@ T_tensor<T>::T_tensor(const T_tensor& original)
   dims = original.dims;
 }
 
+
 template<class T>
 template<class T1>
 void 
@@ -145,7 +146,7 @@ T_tensor<T>::copy(T_tensor<T1> * T1_tensor)
   std::vector<int> shape(T1_tensor->get_shape());
   set_dims(shape.size(),&shape[0]);
   for(int i=0; i<T1_tensor->length(); ++i) {
-  	*(this->get_base_address()+i) = *(T1_tensor->get_base_address()+i);
+  	storage[i] = *(T1_tensor->get_base_address()+i);
   }
 }
 

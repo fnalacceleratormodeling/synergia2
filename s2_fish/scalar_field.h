@@ -1,8 +1,8 @@
 /*******************************************
-** scalar_field.h
-** Contains:
-** 
-*******************************************/
+ ** scalar_field.h
+ ** Contains:
+ ** 
+ *******************************************/
 
 #ifndef HAVE_SCALAR_FIELD_H
 #define HAVE_SCALAR_FIELD_H
@@ -15,7 +15,6 @@ template<class T>
 class Scalar_field
 {
  private:
-  T_tensor<T> points;
   double3 physical_size;
   double3 physical_offset;
   int3 num_points;
@@ -26,6 +25,7 @@ class Scalar_field
   void update_constants( );
 
  public:
+  T_tensor<T> points;
   Scalar_field(  );
   Scalar_field(int3 num_points, double3 physical_size, double3 physical_offset );
   ~Scalar_field();
@@ -74,15 +74,14 @@ Scalar_field<T>::Scalar_field(int3 num_points, double3 physical_size, double3 ph
 }
 
 template<class T>
-  template<class T1> 
+template<class T1> 
 void
 Scalar_field<T>::copy(Scalar_field<T1> * T1_scalar_field)
 {
-	set_num_points( T1_scalar_field->get_num_points() );
-	T_tensor<T1> points = T1_scalar_field->get_points();
-	points.copy(&points);
-	set_physical_params( T1_scalar_field->get_physical_size(),
-				T1_scalar_field->get_physical_offset());
+  set_num_points( T1_scalar_field->get_num_points() );
+  set_physical_params( T1_scalar_field->get_physical_size(),
+		       T1_scalar_field->get_physical_offset());
+  points.copy(&T1_scalar_field->points);
 }
 //--------------------------------------------------------------------
 template<class T>
@@ -147,7 +146,7 @@ double3 Scalar_field<T>::get_cell_size()
 template<class T>
 T_tensor<T> Scalar_field<T>::get_points()
 {
-	return points;
+  return points;
 }
 //--------------------------------------------------------------------
 template<class T>
@@ -185,7 +184,7 @@ T Scalar_field<T>::get_point ( int3 indices)
       (indices[2] >= 0) && (indices[2] < num_points[2])) {
     retval = points(indices.c_array());
   }
- else {
+  else {
     std::stringstream message("");
     message << "Scalar_field range error: point ("
 	    << indices[0] << ","

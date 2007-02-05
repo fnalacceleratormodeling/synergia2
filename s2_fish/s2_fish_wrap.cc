@@ -53,6 +53,22 @@ BOOST_PYTHON_MODULE(s2_fish)
     .def("print_points",&Real_scalar_field::print_points)
     ;
 
+  class_<Complex_scalar_field>("Complex_scalar_field",init<>())
+    .def(init<int3, double3, double3>())
+    .def("set_num_points",&Complex_scalar_field::set_num_points)
+    .def("get_num_points",&Complex_scalar_field::get_num_points)
+    .def("set_physical_params",&Complex_scalar_field::set_physical_params)
+    .def("get_physical_size",&Complex_scalar_field::get_physical_size)
+    .def("get_physical_offset",&Complex_scalar_field::get_physical_offset)
+    .def("zero_the_points",&Complex_scalar_field::zero_the_points)
+    .def("set_point",&Complex_scalar_field::set_point)
+    .def("get_point",&Complex_scalar_field::get_point)
+    .def("add_to_point",&Complex_scalar_field::add_to_point)
+    .def("get_leftmost_indices",&Complex_scalar_field::get_leftmost_indices)
+    .def("get_leftmost_offsets",&Complex_scalar_field::get_leftmost_offsets)
+    .def("print_points",&Complex_scalar_field::print_points)
+    ;
+
   def("deposit_charge_cic",deposit_charge_cic);
   def("deposit_charge_ngp",deposit_charge_ngp);
   

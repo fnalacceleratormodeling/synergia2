@@ -21,7 +21,7 @@ class Test_solver(unittest.TestCase):
         sf = Real_scalar_field(int3(num_grid,num_grid,num_grid),
                           double3(2.0,2.0,2.0),double3(0.0,0.0,0.0))
         mb = Macro_bunch()
-        mb.init_test(16,edge_length=1.0)
+        mb.init_test(16,edge_length=0.1)
         total_charge = deposit_charge_cic(sf,mb.store)
         phi = solver(sf)
         phi.print_points()
