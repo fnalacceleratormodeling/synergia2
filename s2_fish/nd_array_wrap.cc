@@ -19,6 +19,10 @@ BOOST_PYTHON_MODULE(nd_array)
     (std::vector<int> const& indices, double val) =
     &Real_nd_array::set;
 
+  void (Real_nd_array::*real_add_to_point)
+    (std::vector<int> const& indices, double val) =
+    &Real_nd_array::add_to_point;
+
   double (Real_nd_array::*real_get)
     (std::vector<int> const& indices) const= &Real_nd_array::get;
 
@@ -33,9 +37,11 @@ BOOST_PYTHON_MODULE(nd_array)
     .def("zero_all",&Real_nd_array::zero_all)
     .def("set_nocheck",real_set_nocheck)
     .def("set",real_set)
+    .def("add_to_point",real_add_to_point)
     .def("get",real_get)
 
     .def("scale",&Real_nd_array::scale)
+    .def("add",&Real_nd_array::add)
     
     .def("get_length",&Real_nd_array::get_length)
 
@@ -57,6 +63,10 @@ BOOST_PYTHON_MODULE(nd_array)
     (std::vector<int> const& indices, std::complex<double> val) =
     &Complex_nd_array::set;
 
+  void (Complex_nd_array::*complex_add_to_point)
+    (std::vector<int> const& indices, std::complex<double> val) =
+    &Complex_nd_array::add_to_point;
+
   std::complex<double> (Complex_nd_array::*complex_get)
     (std::vector<int> const& indices) const= &Complex_nd_array::get;
 
@@ -73,9 +83,11 @@ BOOST_PYTHON_MODULE(nd_array)
     .def("zero_all",&Complex_nd_array::zero_all)
     .def("set_nocheck",complex_set_nocheck)
     .def("set",complex_set)
+    .def("add_to_point",complex_add_to_point)
     .def("get",complex_get)
 
     .def("scale",&Complex_nd_array::scale)
+    .def("add",&Complex_nd_array::add)
     
     .def("get_length",&Complex_nd_array::get_length)
 

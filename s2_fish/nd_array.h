@@ -58,10 +58,13 @@ class Nd_array {
   void set_nocheck(std::vector<int> const& indices,T val);
   void set(int const indices[],T val);
   void set(std::vector<int> const& indices,T val);
+  void add_to_point(int const indices[],T val);
+  void add_to_point(std::vector<int> const& indices,T val);
   T get(int const indices[]) const;
   T get(std::vector<int> const& indices) const;
 
   void scale(T factor);
+  void add(T constant);
 
   int get_length();
   T* get_base_address();
@@ -362,6 +365,22 @@ Nd_array<T>::set(std::vector<int> const& indices,T val)
 }
 
 template<class T>
+void 
+Nd_array<T>::add_to_point(int const indices[], T val)
+{
+  assert_dims(indices);
+  storage[vector_index(indices)] += val;
+}
+
+template<class T>
+void 
+Nd_array<T>::add_to_point(std::vector<int> const& indices,T val)
+{
+  assert_dims(&indices[0]);
+  storage[vector_index(&indices[0])] += val;
+}
+
+template<class T>
 void
 Nd_array<T>::scale(T factor)
 {
@@ -369,6 +388,17 @@ Nd_array<T>::scale(T factor)
   for ( int i = 0; i < size; ++i )
     {
       storage[i] *= factor;
+    }
+}
+
+template<class T>
+void
+Nd_array<T>::add(T constant)
+{
+  int size = storage.size();
+  for ( int i = 0; i < size; ++i )
+    {
+      storage[i] += constant;
     }
 }
 

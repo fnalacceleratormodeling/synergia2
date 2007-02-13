@@ -125,7 +125,13 @@ class Test_Real_nd_array(unittest.TestCase):
             caught_index = 1
         self.assertEqual(caught_index,1)
 
-    def test_14_scale(self):
+    def test_14_add_to_point(self):
+        na = Real_nd_array([2,2])
+        na.set([1,1],1)
+        na.add_to_point([1,1],100)
+        self.assertEqual(na.get([1,1]),101.0)
+
+    def test_15_scale(self):
         na = Real_nd_array([2,2])
         na.set([0,0],1.0)
         na.set([0,1],2.0)
@@ -137,14 +143,26 @@ class Test_Real_nd_array(unittest.TestCase):
         self.assertEqual(na.get([1,0]),303.0)
         self.assertEqual(na.get([1,1]),404.0)
 
-    def test_15_get_length(self):
+    def test_16_add(self):
+        na = Real_nd_array([2,2])
+        na.set([0,0],1.0)
+        na.set([0,1],2.0)
+        na.set([1,0],3.0)
+        na.set([1,1],4.0)
+        na.add(100.0)
+        self.assertEqual(na.get([0,0]),101.0)
+        self.assertEqual(na.get([0,1]),102.0)
+        self.assertEqual(na.get([1,0]),103.0)
+        self.assertEqual(na.get([1,1]),104.0)
+
+    def test_17_get_length(self):
         shape = (3,5,17)
         expected_length = shape[0]*shape[1]*shape[2]
         na = Real_nd_array(shape)
         length = na.get_length()
         self.assertEqual(length,expected_length)
 
-    def test_16_get_length2(self):
+    def test_18_get_length2(self):
         na = Real_nd_array()        
         length = na.get_length()
         self.assertEqual(length,0)
@@ -154,29 +172,29 @@ class Test_Real_nd_array(unittest.TestCase):
         length = na.get_length()
         self.assertEqual(length,expected_length)
 
-    def test_17_describe(self):
+    def test_19_describe(self):
         print
         na = Real_nd_array()
         na.describe()
         na = Real_nd_array([1,2,3,4,5,6,7])
         na.describe()
 
-    def test_18_print_empty(self):
+    def test_20_print_empty(self):
         print
         empty = Real_nd_array()
         empty.print_("empty")
 
-    def test_19_print(self):
+    def test_21_print(self):
         print
         na = self.create222()
         na.print_("na")
 
-    def test_20_print(self):
+    def test_22_print(self):
         print
         na = Real_nd_array([4])
         na.print_("na")
 
-    def test_21_readwrite(self):
+    def test_23_readwrite(self):
         na_orig = self.create222()
         filename = tempfile.mktemp()
         na_orig.write_to_file(filename)
@@ -331,7 +349,14 @@ class Test_Complex_nd_array(unittest.TestCase):
             caught_index = 1
         self.assertEqual(caught_index,1)
 
-    def test_15_scale(self):
+    def test_15_add_to_point(self):
+        na = Complex_nd_array([2,2])
+        na.set([1,1],1.0+2.0j)
+        na.add_to_point([1,1],1.0+100.0j)
+        self.assertEqual(na.get([1,1]).real,2.0)
+        self.assertEqual(na.get([1,1]).imag,102.0)
+
+    def test_16_scale(self):
         na = Complex_nd_array([2,2])
         na.set([0,0],1.0)
         na.set([0,1],2.0)
@@ -343,14 +368,26 @@ class Test_Complex_nd_array(unittest.TestCase):
         self.assertEqual(na.get([1,0]),303.0)
         self.assertEqual(na.get([1,1]),404.0)
 
-    def test_16_get_length(self):
+    def test_17_add(self):
+        na = Complex_nd_array([2,2])
+        na.set([0,0],1.0)
+        na.set([0,1],2.0)
+        na.set([1,0],3.0)
+        na.set([1,1],4.0)
+        na.add(100.0)
+        self.assertEqual(na.get([0,0]),101.0)
+        self.assertEqual(na.get([0,1]),102.0)
+        self.assertEqual(na.get([1,0]),103.0)
+        self.assertEqual(na.get([1,1]),104.0)
+
+    def test_18_get_length(self):
         shape = (3,5,17)
         expected_length = shape[0]*shape[1]*shape[2]
         na = Complex_nd_array(shape)
         length = na.get_length()
         self.assertEqual(length,expected_length)
 
-    def test_17_get_length2(self):
+    def test_19_get_length2(self):
         na = Complex_nd_array()        
         length = na.get_length()
         self.assertEqual(length,0)
@@ -360,29 +397,29 @@ class Test_Complex_nd_array(unittest.TestCase):
         length = na.get_length()
         self.assertEqual(length,expected_length)
 
-    def test_18_describe(self):
+    def test_20_describe(self):
         print
         na = Complex_nd_array()
         na.describe()
         na = Complex_nd_array([1,2,3,4,5,6,7])
         na.describe()
 
-    def test_19_print_empty(self):
+    def test_21_print_empty(self):
         print
         empty = Complex_nd_array()
         empty.print_("empty")
 
-    def test_20_print(self):
+    def test_22_print(self):
         print
         na = self.create222()
         na.print_("na")
 
-    def test_21_print(self):
+    def test_23_print(self):
         print
         na = Complex_nd_array([4])
         na.print_("na")
 
-    def test_22_readwrite(self):
+    def test_24_readwrite(self):
         na_orig = self.create222()
         filename = tempfile.mktemp()
         na_orig.write_to_file(filename)
