@@ -12,12 +12,9 @@
 #include <iostream>
 
 Real_scalar_field
-solver(Real_scalar_field rho);
+solver_fft_open(Real_scalar_field rho);
 
 double
 fft_tester(int nx, int ny, int nz);
-
-Real_scalar_field
-fft_tester2(Real_scalar_field rho);
 
 #endif // HAVE_SOLVER_H

@@ -195,7 +195,7 @@ BOOST_PYTHON_MODULE(s2_fish)
   //---------------------------------------------------------------------
   // solvers
   //---------------------------------------------------------------------
-  def("solver",solver);
+  def("solver_fft_open",solver_fft_open);
   def("fft_tester",fft_tester);
 }
 

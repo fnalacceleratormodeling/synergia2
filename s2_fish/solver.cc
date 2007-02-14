@@ -17,53 +17,6 @@ check(PetscErrorCode ierr)
   }
 }
 
-double zero_cutoff = 1.0e-10;
-// prints a 3d petsc_vector whose dimensions are that of scalar_field
-void
-print(Real_scalar_field scalar_field,Vec petsc_vector)
-{  
-  PetscScalar ***a;
-  Int3 dims(scalar_field.get_points().get_shape());
-  PetscErrorCode ierr = VecGetArray3d(petsc_vector,
-				      dims[0],dims[1],dims[2],
-				      0,0,0,&a); check(ierr);
-  for(int k=0; k < dims[2]; ++k) {
-    std::cout << "Re a[:][:][" << k << "]\n";
-    for (int j=0; j<dims[1]; ++j) {
-      for (int i=0; i < dims[0]; ++i) {
-	std::cout << std::setw(9);
-	PetscScalar tmp = a[i][j][k];
-	if (fabs(tmp.real()) < zero_cutoff) {
-	  tmp.real() = 0.0;
-	}
-	if (fabs(tmp.imag()) < zero_cutoff) {
-	  tmp.imag() = 0.0;
-	}
-	std::cout << tmp.real();
-      }
-      std::cout << std::endl;
-    }
-  }
-
-  for(int k=0; k < dims[2]; ++k) {
-    std::cout << "Im a[:][:][" << k << "]\n";
-    for (int j=0; j<dims[1]; ++j) {
-      for (int i=0; i < dims[0]; ++i) {
-	std::cout << std::setw(9);
-	PetscScalar tmp = a[i][j][k];
-	if (fabs(tmp.real()) < zero_cutoff) {
-	  tmp.real() = 0.0;
-	}
-	if (fabs(tmp.imag()) < zero_cutoff) {
-	  tmp.imag() = 0.0;
-	}
-	std::cout << tmp.imag();
-      }
-      std::cout << std::endl;
-    }
-  }
-}
-
 void
 print_vec(std::string prefix, Real_scalar_field sf, bool doubled, Vec vec)
 {
@@ -113,49 +66,6 @@ write_vec(std::string filename, Real_scalar_field sf, bool doubled, Vec vec)
   stream << std::endl;
   stream.close();
   ierr = VecRestoreArray1d(vec,shape[0],0,&sf_array); check(ierr);
-}
-
-void
-print_ratio(Real_scalar_field scalar_field,Vec petsc_vector, Vec petsc_vector2)
-{  
-  PetscScalar ***a,***a2;
-  Int3 dims(scalar_field.get_points().get_shape());
-  PetscErrorCode ierr = VecGetArray3d(petsc_vector,
-				      dims[0],dims[1],dims[2],
-				      0,0,0,&a); check(ierr);
-  ierr = VecGetArray3d(petsc_vector2,
-		       dims[0],dims[1],dims[2],
-		       0,0,0,&a2); check(ierr);
-  for(int k=0; k < dims[2]; ++k) {
-    std::cout << "a[:][:][" << k << "]\n";
-    for (int j=0; j<dims[1]; ++j) {
-      for (int i=0; i < dims[0]; ++i) {
-	std::cout << std::setw(9);
-	PetscScalar tmp = a[i][j][k];
-	if (fabs(tmp.real()) < zero_cutoff) {
-	  tmp.real() = 0.0;
-	}
-	if (fabs(tmp.imag()) < zero_cutoff) {
-	  tmp.imag() = 0.0;
-	}
-	PetscScalar tmp2 = a2[i][j][k];
-	if (fabs(tmp2.real()) < zero_cutoff) {
-	  tmp2.real() = 0.0;
-	}
-	if (fabs(tmp2.imag()) < zero_cutoff) {
-	  tmp2.imag() = 0.0;
-	}
-	double ratio;
-	if(tmp.real() == 0.0) {
-	  ratio = 1.0;
-	} else {
-	  ratio = tmp.real()/tmp2.real();
-	}
-	std::cout << ratio;
-      }
-      std::cout << std::endl;
-    }
-  }
 }
 
 double
@@ -213,60 +123,6 @@ fft_tester(int nx, int ny, int nz)
     }
   }
   return max_err;
-}
-
-Real_scalar_field
-fft_tester2(Real_scalar_field rho)
-{
-  Real_scalar_field phi(rho.get_points().get_shape(),rho.get_physical_size(),
-			rho.get_physical_offset());
-  phi.get_points().zero_all();
-  int argc = 0;
-  char **argv;
-  PetscErrorCode ierr;
-  ierr = PetscInitialize(&argc,&argv,(char *)0,""); check(ierr);
-
-  PetscScalar complex_rho[rho.get_points().get_length()];
-  for(int i=0; i<rho.get_points().get_length(); ++i) {
-    complex_rho[i] = *(rho.get_points().get_base_address()+i);
-  }
-  Vec v;
-  ierr = VecCreateSeqWithArray(PETSC_COMM_WORLD,rho.get_points().get_length(),
-			       complex_rho,&v); check(ierr);
-
-  Vec vhat;
-  ierr = VecDuplicate(v,&vhat); check(ierr);
-
-  Vec vhathat;
-  ierr = VecDuplicate(v,&vhathat); check(ierr);
-
-  Mat A;
-  ierr = MatCreateSeqFFTW(PETSC_COMM_SELF,
-			  3,&(rho.get_points().get_shape()[0]),&A); check(ierr);
-
-  ierr = MatMult(A,v,vhat); check(ierr);
-  Int3 dims = rho.get_points().get_shape();
-  double norm = 1.0/(dims[0]*dims[1]*dims[2]);
-  ierr = VecScale(vhat,norm);
-  
-  /*  std::cout << "\nv =\n";
-      print(rho,v);
-
-      std::cout << "\nvhat =\n";
-      print(rho,vhat);
-  */
-  ierr = MatMultTranspose(A,vhat,vhathat); check(ierr);
-
-  /*  std::cout << "\nv =\n";
-      print(rho,v);
-
-      std::cout << "\nvhathat =\n";
-      print(rho,vhathat);
-
-      std::cout << "\nvhathat/v =\n";
-      print_ratio(rho,vhathat,v);
-  */
-  return phi;
 }
 
 Vec
@@ -421,10 +277,8 @@ get_phi(Real_scalar_field rho, Vec phi2_petsc)
 			rho.get_physical_offset());
   PetscErrorCode ierr;
   Int3 shape(phi.get_points().get_shape());
-  Int3 shape2;
-  shape2[0] = shape[0]*2;
-  shape2[1] = shape[1]*2;
-  shape2[2] = shape[2]*2;
+  Int3 shape2(shape);
+  shape2.scale(2);
   PetscScalar ***phi2_array;
   ierr = VecGetArray3d(phi2_petsc,shape2[0],shape2[1],shape2[2],0,0,0,
                        &phi2_array); check(ierr);
@@ -446,7 +300,7 @@ get_phi(Real_scalar_field rho, Vec phi2_petsc)
 
 
 Real_scalar_field
-solver(Real_scalar_field rho)
+solver_fft_open(Real_scalar_field rho)
 {
   // The plan: Solve del^2 phi = rho by:
   //  1) convert rho to rho2, where 2 suffix indicates
@@ -473,7 +327,6 @@ solver(Real_scalar_field rho)
   Vec rho_hat2_petsc = get_rho_hat2_petsc(rho,FFT_matrix);
   // write_vec("rho_hat2_petsc",rho,true,rho_hat2_petsc);
   
-
   Vec G_hat2_petsc = get_G_hat2_petsc(rho,FFT_matrix);
   //  write_vec("G_hat2_petsc",rho,true,G_hat2_petsc);
 
