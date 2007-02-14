@@ -72,7 +72,7 @@ class Macro_bunch:
                 p = (RandomArray.random([6,chunk_size])-0.5)*2.0*radius
                 index = 0
         t1 = time.time()
-        print "pi =",6.0*added/(1.0*added+discarded),"in",t1-t0,"secs"
+#        print "pi =",6.0*added/(1.0*added+discarded),"in",t1-t0,"secs"
         self.store = Macro_bunch_store(self.particles,local_num,total_num,
                                        total_current,self.units,
                                        self.ref_particle,is_fixedz)
