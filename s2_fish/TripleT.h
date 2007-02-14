@@ -51,6 +51,10 @@ class Triple
     return storage[i] = x;
   }
 
+  operator T* () {
+    return storage;
+  }
+  
   T* c_array() {
     return storage;
   }
@@ -63,6 +67,23 @@ class Triple
     return retval;
   }
 
+  void scale(T constant) {
+    storage[0] *= constant;
+    storage[1] *= constant;
+    storage[2] *= constant;
+  }
+  
+  void add(T constant) {
+    storage[0] += constant;
+    storage[1] += constant;
+    storage[2] += constant;
+  }
+
+  void add(Triple<T> triple) {
+    storage[0] += triple[0];
+    storage[1] += triple[1];
+    storage[2] += triple[2];
+  }
 };
 
 typedef Triple<int> int3;
