@@ -34,10 +34,11 @@ class Nd_array {
  private:
   std::vector<T> storage;
   std::vector<int> dims;
+  bool frozen;
   int vector_index(int const indices[]) const;
   void print_recursive(std::string name, int which_index, int indices[]) const;
   void set_dims(int order, int const dims_in[]);
-  inline void assert_dims(int const indices[]);
+  inline void assert_dims(int const indices[]) const;
  public:
   Nd_array();
   Nd_array(int order, int const dims_in[]);
@@ -51,11 +52,10 @@ class Nd_array {
 
   void reshape(int order, int const dims_in[]);
   void reshape(std::vector<int> const& dims);
+  void freeze_shape();
   std::vector<int> get_shape() const;
 
   void zero_all( );
-  void set_nocheck(int const indices[],T val);
-  void set_nocheck(std::vector<int> const& indices,T val);
   void set(int const indices[],T val);
   void set(std::vector<int> const& indices,T val);
   void add_to_point(int const indices[],T val);
@@ -130,6 +130,7 @@ complex_helper<T>::imag(Nd_array<T> * t) {
 template<class T>
 Nd_array<T>::Nd_array()
 {
+  frozen = false;
 }
 
 template<class T>
@@ -148,18 +149,21 @@ Nd_array<T>::set_dims(int order, int const dims_in[])
 template<class T>
 Nd_array<T>::Nd_array(int order, int const dims_in[])
 {
+  frozen = false;
   set_dims(order,dims_in);
 }
 
 template<class T>
 Nd_array<T>::Nd_array(std::vector<int> const dims_in)
 {
+  frozen = false;
   set_dims(dims_in.size(),&dims_in[0]);
 }
 
 template<class T>
 Nd_array<T>::Nd_array(const Nd_array& original)
 {
+  frozen = false;
   storage = original.storage;
   dims = original.dims;
 }
@@ -219,13 +223,23 @@ template<class T>
 void
 Nd_array<T>::reshape(int order, int const dims_in[])
 {
-  int size = 1;
-  dims.resize(order);
-  for (int i = 0; i < order ; i++) {
-    dims[i] = dims_in[i];
-    size *= dims[i];
+  bool shape_changed = false;
+  if (order == dims.size()) {
+    for (int i=0; i<order; ++i) {
+      if (dims[i] != dims_in[i]) {
+	shape_changed = true;
+      }
+    }
+  } else {
+    shape_changed = true;
   }
-  storage.resize(size);
+  if (shape_changed && frozen) {
+    throw 
+      std::runtime_error("Attempt to change the shape of a frozen Nd_array");
+  }
+  if (shape_changed) {
+    set_dims(order, dims_in);
+  }
 }
 
 template<class T>
@@ -233,6 +247,13 @@ void
 Nd_array<T>::reshape(std::vector<int> const& dims)
 {
   reshape(dims.size(),&dims[0]);
+}
+
+template<class T>
+void
+Nd_array<T>::freeze_shape()
+{
+  frozen = true;
 }
 
 template<class T>
@@ -271,6 +292,7 @@ template<class T>
 T
 Nd_array<T>::get(int const indices[]) const
 {
+  assert_dims(indices);
   return storage[vector_index(indices)];
 }
 
@@ -278,26 +300,13 @@ template<class T>
 T
 Nd_array<T>::get(std::vector<int> const& indices) const
 {
+  assert_dims(&indices[0]);
   return storage[vector_index(&indices[0])];
 }
 
 template<class T>
-void 
-Nd_array<T>::set_nocheck(int const indices[], T val)
-{
-  storage[vector_index(indices)] = val;
-}
-
-template<class T>
-void 
-Nd_array<T>::set_nocheck(std::vector<int> const& indices,T val)
-{
-  storage[vector_index(&indices[0])] = val;
-}
-
-template<class T>
 void
-Nd_array<T>::assert_dims(int const indices[])
+Nd_array<T>::assert_dims(int const indices[]) const
 {
   if (dims.size() == 0) {
     std::stringstream message("");

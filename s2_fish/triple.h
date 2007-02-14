@@ -86,6 +86,6 @@ class Triple
   }
 };
 
-typedef Triple<int> int3;
-typedef Triple<double> double3;
+typedef Triple<int> Int3;
+typedef Triple<double> Double3;
 #endif

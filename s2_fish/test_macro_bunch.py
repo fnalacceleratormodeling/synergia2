@@ -9,6 +9,7 @@ import bunch
 import processor_grid
 
 import math
+import sys
 import unittest
 
 class Test_Macro_bunch(unittest.TestCase):
@@ -23,7 +24,7 @@ class Test_Macro_bunch(unittest.TestCase):
         self.assertEqual(shape[0],7)
         self.assertEqual(shape[1],num_per_side**3)
 
-    def test_02_init_test2(self):
+    def test_03_init_test2(self):
         mb = Macro_bunch()
         num_per_side = 2
         mb.init_test(num_per_side)
@@ -64,7 +65,7 @@ class Test_Macro_bunch(unittest.TestCase):
 
         return b
     
-    def test_03_init_from_bunch(self):
+    def test_04_init_from_bunch(self):
         b = self._get_bunch()
         orig_shape = Numeric.shape(b.particles())
         mb = Macro_bunch()
@@ -78,7 +79,7 @@ class Test_Macro_bunch(unittest.TestCase):
         self.assertEqual(shape[1],orig_shape[1])
         
 
-    def test_04_conversions(self):
+    def test_05_conversions(self):
         b = self._get_bunch()
         mb = Macro_bunch()
         mb.init_from_bunch(b)
@@ -101,5 +102,10 @@ class Test_Macro_bunch(unittest.TestCase):
         self.assertEqual(1,mb.store.is_fixedz)
 
 if __name__ == '__main__':
+    unsuccessful = 0
     macro_bunch_suite = unittest.TestLoader().loadTestsFromTestCase(Test_Macro_bunch)
-    unittest.TextTestRunner(verbosity=2).run(macro_bunch_suite)
+    retval = unittest.TextTestRunner(verbosity=2).run(macro_bunch_suite)
+    if not retval.wasSuccessful():
+        unsuccessful = 1
+
+    sys.exit(unsuccessful)

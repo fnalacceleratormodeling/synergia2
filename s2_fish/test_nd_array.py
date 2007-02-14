@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from nd_array import Real_nd_array, Complex_nd_array
-import tempfile,os
+from s2_fish import Real_nd_array, Complex_nd_array
+import tempfile,os,sys
 import unittest
 class Test_Real_nd_array(unittest.TestCase):
     def create222(self):
@@ -44,23 +44,40 @@ class Test_Real_nd_array(unittest.TestCase):
         shape_out = na.get_shape()
         self.assertEqual(shape_in,shape_out)
 
-    def test_06_set_nocheck(self):
-        na = Real_nd_array([5,5])
-        na.set_nocheck([1,3],100.0)
-        self.assertAlmostEqual(na.get([1,3]),100.0)        
+    def test_06_freeze_shape1(self):
+        na = Real_nd_array()
+        na.reshape((3,4,5))
+        na.freeze_shape()
+        caught_runtime = 0
+        try:
+            na.reshape((2,2))
+        except RuntimeError, e:
+            caught_runtime = 1
+        self.assertEqual(caught_runtime,1)
 
-    def test_07_zero_all(self):
+    def test_07_freeze_shape2(self):
+        na = Real_nd_array()
+        na.reshape((2,2))
+        na.freeze_shape()
+        caught_runtime = 0
+        try:
+            na.reshape((2,2))
+        except RuntimeError, e:
+            caught_runtime = 1
+        self.assertEqual(caught_runtime,0)
+
+    def test_08_zero_all(self):
         na = Real_nd_array([2,2])
-        na.set_nocheck([0,0],100)
+        na.set([0,0],100)
         na.zero_all()
         self.assertEqual(na.get([0,0]),0.0)
 
-    def test_08_set(self):
+    def test_09_set(self):
         na = Real_nd_array([5,5,7])
         na.set([1,3,6],100.0)
         self.assertAlmostEqual(na.get([1,3,6]),100.0)        
 
-    def test_09_set_out_of_bounds1(self):
+    def test_10_set_out_of_bounds1(self):
         na = Real_nd_array([3,5,7,9])
         caught_index = 0
         try:
@@ -69,7 +86,7 @@ class Test_Real_nd_array(unittest.TestCase):
             caught_index = 1
         self.assertEqual(caught_index,1)
 
-    def test_10_set_out_of_bounds2(self):
+    def test_11_set_out_of_bounds2(self):
         na = Real_nd_array([3,5,7,9])
         caught_index = 0
         try:
@@ -78,7 +95,7 @@ class Test_Real_nd_array(unittest.TestCase):
             caught_index = 1
         self.assertEqual(caught_index,1)
 
-    def test_11_set_out_of_bounds3(self):
+    def test_12_set_out_of_bounds3(self):
         na = Real_nd_array([3,5,7,9])
         caught_index = 0
         try:
@@ -87,7 +104,7 @@ class Test_Real_nd_array(unittest.TestCase):
             caught_index = 1
         self.assertEqual(caught_index,1)
 
-    def test_12_set_out_of_bounds4(self):
+    def test_13_set_out_of_bounds4(self):
         na = Real_nd_array([16,32,8])
         caught_num = 0
         try:
@@ -116,7 +133,7 @@ class Test_Real_nd_array(unittest.TestCase):
             caught_num += 1
         self.assertEqual(caught_num,6)
 
-    def test_13_set_empty(self):
+    def test_14_set_empty(self):
         na = Real_nd_array()
         caught_index = 0
         try:
@@ -125,13 +142,13 @@ class Test_Real_nd_array(unittest.TestCase):
             caught_index = 1
         self.assertEqual(caught_index,1)
 
-    def test_14_add_to_point(self):
+    def test_15_add_to_point(self):
         na = Real_nd_array([2,2])
         na.set([1,1],1)
         na.add_to_point([1,1],100)
         self.assertEqual(na.get([1,1]),101.0)
 
-    def test_15_scale(self):
+    def test_16_scale(self):
         na = Real_nd_array([2,2])
         na.set([0,0],1.0)
         na.set([0,1],2.0)
@@ -143,7 +160,7 @@ class Test_Real_nd_array(unittest.TestCase):
         self.assertEqual(na.get([1,0]),303.0)
         self.assertEqual(na.get([1,1]),404.0)
 
-    def test_16_add(self):
+    def test_17_add(self):
         na = Real_nd_array([2,2])
         na.set([0,0],1.0)
         na.set([0,1],2.0)
@@ -155,14 +172,14 @@ class Test_Real_nd_array(unittest.TestCase):
         self.assertEqual(na.get([1,0]),103.0)
         self.assertEqual(na.get([1,1]),104.0)
 
-    def test_17_get_length(self):
+    def test_18_get_length(self):
         shape = (3,5,17)
         expected_length = shape[0]*shape[1]*shape[2]
         na = Real_nd_array(shape)
         length = na.get_length()
         self.assertEqual(length,expected_length)
 
-    def test_18_get_length2(self):
+    def test_19_get_length2(self):
         na = Real_nd_array()        
         length = na.get_length()
         self.assertEqual(length,0)
@@ -172,29 +189,29 @@ class Test_Real_nd_array(unittest.TestCase):
         length = na.get_length()
         self.assertEqual(length,expected_length)
 
-    def test_19_describe(self):
+    def test_20_describe(self):
         print
         na = Real_nd_array()
         na.describe()
         na = Real_nd_array([1,2,3,4,5,6,7])
         na.describe()
 
-    def test_20_print_empty(self):
+    def test_21_print_empty(self):
         print
         empty = Real_nd_array()
         empty.print_("empty")
 
-    def test_21_print(self):
+    def test_22_print(self):
         print
         na = self.create222()
         na.print_("na")
 
-    def test_22_print(self):
+    def test_23_print(self):
         print
         na = Real_nd_array([4])
         na.print_("na")
 
-    def test_23_readwrite(self):
+    def test_24_readwrite(self):
         na_orig = self.create222()
         filename = tempfile.mktemp()
         na_orig.write_to_file(filename)
@@ -266,25 +283,40 @@ class Test_Complex_nd_array(unittest.TestCase):
         shape_out = na.get_shape()
         self.assertEqual(shape_in,shape_out)
 
-    def test_07_set_nocheck(self):
-        na = Complex_nd_array([5,5])
-        na.set_nocheck([1,3],100.0j)
-        self.assertAlmostEqual(na.get([1,3]).real,0.0)        
-        self.assertAlmostEqual(na.get([1,3]).imag,100.0)        
+    def test_07_freeze_shape1(self):
+        na = Complex_nd_array()
+        na.freeze_shape()
+        caught_runtime = 0
+        try:
+            na.reshape((2,2))
+        except RuntimeError, e:
+            caught_runtime = 1
+        self.assertEqual(caught_runtime,1)
 
-    def test_08_zero_all(self):
+    def test_08_freeze_shape2(self):
+        na = Complex_nd_array()
+        na.reshape((2,2))
+        na.freeze_shape()
+        caught_runtime = 0
+        try:
+            na.reshape((2,2))
+        except RuntimeError, e:
+            caught_runtime = 1
+        self.assertEqual(caught_runtime,0)
+
+    def test_09_zero_all(self):
         na = Complex_nd_array([2,2])
-        na.set_nocheck([0,0],100)
+        na.set([0,0],100)
         na.zero_all()
         self.assertEqual(na.get([0,0]),0.0)
 
-    def test_09_set(self):
+    def test_10_set(self):
         na = Complex_nd_array([5,5,7])
         na.set([1,3,6],100.0j)
         self.assertAlmostEqual(na.get([1,3,6]).real,0.0)        
         self.assertAlmostEqual(na.get([1,3,6]).imag,100.0)        
 
-    def test_10_set_out_of_bounds1(self):
+    def test_11_set_out_of_bounds1(self):
         na = Complex_nd_array([3,5,7,9])
         caught_index = 0
         try:
@@ -293,7 +325,7 @@ class Test_Complex_nd_array(unittest.TestCase):
             caught_index = 1
         self.assertEqual(caught_index,1)
 
-    def test_11_set_out_of_bounds2(self):
+    def test_12_set_out_of_bounds2(self):
         na = Complex_nd_array([3,5,7,9])
         caught_index = 0
         try:
@@ -302,7 +334,7 @@ class Test_Complex_nd_array(unittest.TestCase):
             caught_index = 1
         self.assertEqual(caught_index,1)
 
-    def test_12_set_out_of_bounds3(self):
+    def test_13_set_out_of_bounds3(self):
         na = Complex_nd_array([3,5,7,9])
         caught_index = 0
         try:
@@ -311,7 +343,7 @@ class Test_Complex_nd_array(unittest.TestCase):
             caught_index = 1
         self.assertEqual(caught_index,1)
 
-    def test_13_set_out_of_bounds4(self):
+    def test_14_set_out_of_bounds4(self):
         na = Complex_nd_array([16,32,8])
         caught_num = 0
         try:
@@ -340,7 +372,7 @@ class Test_Complex_nd_array(unittest.TestCase):
             caught_num += 1
         self.assertEqual(caught_num,6)
 
-    def test_14_set_empty(self):
+    def test_15_set_empty(self):
         na = Complex_nd_array()
         caught_index = 0
         try:
@@ -349,14 +381,14 @@ class Test_Complex_nd_array(unittest.TestCase):
             caught_index = 1
         self.assertEqual(caught_index,1)
 
-    def test_15_add_to_point(self):
+    def test_16_add_to_point(self):
         na = Complex_nd_array([2,2])
         na.set([1,1],1.0+2.0j)
         na.add_to_point([1,1],1.0+100.0j)
         self.assertEqual(na.get([1,1]).real,2.0)
         self.assertEqual(na.get([1,1]).imag,102.0)
 
-    def test_16_scale(self):
+    def test_17_scale(self):
         na = Complex_nd_array([2,2])
         na.set([0,0],1.0)
         na.set([0,1],2.0)
@@ -368,7 +400,7 @@ class Test_Complex_nd_array(unittest.TestCase):
         self.assertEqual(na.get([1,0]),303.0)
         self.assertEqual(na.get([1,1]),404.0)
 
-    def test_17_add(self):
+    def test_18_add(self):
         na = Complex_nd_array([2,2])
         na.set([0,0],1.0)
         na.set([0,1],2.0)
@@ -380,14 +412,14 @@ class Test_Complex_nd_array(unittest.TestCase):
         self.assertEqual(na.get([1,0]),103.0)
         self.assertEqual(na.get([1,1]),104.0)
 
-    def test_18_get_length(self):
+    def test_19_get_length(self):
         shape = (3,5,17)
         expected_length = shape[0]*shape[1]*shape[2]
         na = Complex_nd_array(shape)
         length = na.get_length()
         self.assertEqual(length,expected_length)
 
-    def test_19_get_length2(self):
+    def test_20_get_length2(self):
         na = Complex_nd_array()        
         length = na.get_length()
         self.assertEqual(length,0)
@@ -397,29 +429,29 @@ class Test_Complex_nd_array(unittest.TestCase):
         length = na.get_length()
         self.assertEqual(length,expected_length)
 
-    def test_20_describe(self):
+    def test_21_describe(self):
         print
         na = Complex_nd_array()
         na.describe()
         na = Complex_nd_array([1,2,3,4,5,6,7])
         na.describe()
 
-    def test_21_print_empty(self):
+    def test_22_print_empty(self):
         print
         empty = Complex_nd_array()
         empty.print_("empty")
 
-    def test_22_print(self):
+    def test_23_print(self):
         print
         na = self.create222()
         na.print_("na")
 
-    def test_23_print(self):
+    def test_24_print(self):
         print
         na = Complex_nd_array([4])
         na.print_("na")
 
-    def test_24_readwrite(self):
+    def test_25_readwrite(self):
         na_orig = self.create222()
         filename = tempfile.mktemp()
         na_orig.write_to_file(filename)
@@ -434,7 +466,15 @@ class Test_Complex_nd_array(unittest.TestCase):
         os.unlink(filename)
 
 if __name__ == '__main__':
+    unsuccessful = 0
     real_nd_array_suite = unittest.TestLoader().loadTestsFromTestCase(Test_Real_nd_array)
-    unittest.TextTestRunner(verbosity=2).run(real_nd_array_suite)
+    retval = unittest.TextTestRunner(verbosity=2).run(real_nd_array_suite)
+    if not retval.wasSuccessful():
+        unsuccessful = 1
+        
     complex_nd_array_suite = unittest.TestLoader().loadTestsFromTestCase(Test_Complex_nd_array)
-    unittest.TextTestRunner(verbosity=2).run(complex_nd_array_suite)
+    retval = unittest.TextTestRunner(verbosity=2).run(complex_nd_array_suite)
+    if not retval.wasSuccessful():
+        unsuccessful = 1
+
+    sys.exit(unsuccessful)

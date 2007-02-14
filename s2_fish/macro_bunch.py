@@ -2,10 +2,12 @@
 
 from macro_bunch_store import Macro_bunch_store
 import Numeric
+import RandomArray
 from mpi4py import MPI
 
 import os.path
 import tables
+import time
 
 class Macro_bunch:
     def __init__(self):
@@ -36,6 +38,41 @@ class Macro_bunch:
                                              size[2]/num[2]*(k+0.5)
                     self.particles[6,index] = index+1
                     index += 1 
+        self.store = Macro_bunch_store(self.particles,local_num,total_num,
+                                       total_current,self.units,
+                                       self.ref_particle,is_fixedz)
+        self.complete = 1
+
+    def init_sphere(self,num,radius):
+        '''Paricles uniformly distributed in a sphere of radius "radius"'''
+        offset = (0.0,0.0,0.0)
+        local_num = num
+        total_num = local_num # fix me for mpi
+        total_current = 1.0
+        self.units = Numeric.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
+        self.ref_particle = Numeric.array([0.0,0.0,0.0,0.0,0.0,1.1],'d')
+        self.particles = Numeric.zeros((7,local_num),'d')
+        is_fixedz = 1
+        index = 0
+        added = 0
+        discarded = 0
+        chunk_size = 1000
+        t0 = time.time()
+        p = (RandomArray.random([6,chunk_size])-0.5)*2.0*radius
+        index = 0
+        while added < local_num:
+            if ((p[0,index]**2 + p[2,index]**2 + p[4,index]**2) < radius**2):
+                self.particles[0:6,added] = p[:,index]
+                self.particles[6,added] = added + 1
+                added += 1
+            else:
+                discarded += 1
+            index += 1
+            if index >= chunk_size:
+                p = (RandomArray.random([6,chunk_size])-0.5)*2.0*radius
+                index = 0
+        t1 = time.time()
+        print "pi =",6.0*added/(1.0*added+discarded),"in",t1-t0,"secs"
         self.store = Macro_bunch_store(self.particles,local_num,total_num,
                                        total_current,self.units,
                                        self.ref_particle,is_fixedz)
