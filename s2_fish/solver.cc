@@ -70,9 +70,7 @@ print_vec(std::string prefix, Real_scalar_field sf, bool doubled, Vec vec)
   PetscErrorCode ierr;
   Int3 shape(sf.get_points().get_shape());
   if (doubled) {
-    shape[0] = shape[0]*2;
-    shape[1] = shape[1]*2;
-    shape[2] = shape[2]*2;
+    shape.scale(2);
   }
   PetscScalar ***sf_array;
   ierr = VecGetArray3d(vec,shape[0],shape[1],shape[2],0,0,0,
@@ -99,9 +97,7 @@ write_vec(std::string filename, Real_scalar_field sf, bool doubled, Vec vec)
   PetscErrorCode ierr;
   Int3 shape(sf.get_points().get_shape());
   if (doubled) {
-    shape[0] = shape[0]*2;
-    shape[1] = shape[1]*2;
-    shape[2] = shape[2]*2;
+    shape.scale(2);
   }
   PetscScalar *sf_array;
   ierr = VecGetArray1d(vec,shape[0]*shape[1]*shape[2],
@@ -278,13 +274,9 @@ get_rho_hat2_petsc(Real_scalar_field rho, Mat FFT_matrix)
 {
   // steps 1 and 2
   Int3 num_points2 = rho.get_points().get_shape();
-  num_points2[0] *= 2;
-  num_points2[1] *= 2;
-  num_points2[2] *= 2;
+  num_points2.scale(2);
   Double3 physical_size2 = rho.get_physical_size();
-  physical_size2[0] *= 2.0;
-  physical_size2[1] *= 2.0;
-  physical_size2[2] *= 2.0;
+  physical_size2.scale(2.0);
   Complex_scalar_field rho2(num_points2.vector(), physical_size2.vector(),
 			    rho.get_physical_offset());
   rho2.get_points().zero_all();
@@ -315,13 +307,9 @@ get_G_hat2_petsc(Real_scalar_field rho, Mat FFT_matrix)
 {
   //step 3
   Int3 num_points2 = rho.get_points().get_shape();
-  num_points2[0] *= 2;
-  num_points2[1] *= 2;
-  num_points2[2] *= 2;
+  num_points2.scale(2);
   Double3 physical_size2 = rho.get_physical_size();
-  physical_size2[0] *= 2.0;
-  physical_size2[1] *= 2.0;
-  physical_size2[2] *= 2.0;
+  physical_size2.scale(2.0);
   Complex_scalar_field G2(num_points2.vector(), physical_size2.vector(),
 			  rho.get_physical_offset());
   G2.get_points().zero_all();
@@ -383,9 +371,7 @@ get_phi_hat2_petsc(Real_scalar_field rho, Vec rho_hat2_petsc,
   ierr = VecZeroEntries(phi_hat2_petsc); check(ierr);
     
   Int3 shape(rho.get_points().get_shape());
-  shape[0] *= 2;
-  shape[1] *= 2;
-  shape[2] *= 2;
+  shape.scale(2);
   PetscScalar ***rho_hat2_array, ***G_hat2_array;
   ierr = VecGetArray3d(rho_hat2_petsc,shape[0],shape[1],shape[2],0,0,0,
                        &rho_hat2_array); check(ierr);
@@ -479,9 +465,7 @@ solver(Real_scalar_field rho)
 
   Mat FFT_matrix;
   Int3 num_points2 = rho.get_points().get_shape();
-  num_points2[0] *= 2;
-  num_points2[1] *= 2;
-  num_points2[2] *= 2;
+  num_points2.scale(2);
   ierr = MatCreateSeqFFTW(PETSC_COMM_SELF,
 			  3,num_points2.c_array(),
 			  &FFT_matrix); check(ierr);
