@@ -162,6 +162,7 @@ Vec
 get_G_hat2_petsc(Real_scalar_field rho, Mat FFT_matrix)
 {
   //step 3
+  const double pi = 4.0*atan(1.0);
   Int3 num_points2 = rho.get_points().get_shape();
   num_points2.scale(2);
   Double3 physical_size2 = rho.get_physical_size();
@@ -192,7 +193,7 @@ get_G_hat2_petsc(Real_scalar_field rho, Mat FFT_matrix)
 	  z = index[2]*h[2];
 	}
 	if (!((x==0.0) && (y==0.0) && (z==0.0))) {
-	  G2.get_points().set(index,1.0/sqrt(x*x + y*y + z*z));
+	  G2.get_points().set(index,1.0/(4.0*pi*sqrt(x*x + y*y + z*z)));
 	}
       }
     }
