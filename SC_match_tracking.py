@@ -83,13 +83,13 @@ if ( __name__ == '__main__'):
     ee = error_eater.Error_eater()
     ee.start()
 
-# We will match to the "unskewed" lattice
+# We will match to the non-resonant lattice
 # the scaling beta is also calculated from this lattice
-# to avoid Leo "instabilities"
+# to avoid solution "instabilities"
 
     gmatch = gourmet.Gourmet("booster_classic.lat","bcelinj",0.4,
                         scaling_frequency,myopts.get("maporder"))
-    gmatch.insert_space_charge_markers(2*myopts.get("kickspercell"))
+    gmatch.insert_space_charge_markers(myopts.get("kickspercell"))
 
     [sigma_x,sigma_xprime,r_x,\
      sigma_y,sigma_yprime,r_y] = matching.envelope_match(
@@ -100,14 +100,20 @@ if ( __name__ == '__main__'):
     rtbetay = math.sqrt(lf.beta_y[0])
     print " rtbetax_y = ",rtbetax, rtbetay 
 
-    g = gourmet.Gourmet("booster_classic.lat","bcelinj",0.4,
+#
+# The intension here is to use the resonant lattice and observe the effects of the mismatch
+#
+    g = gourmet.Gourmet("booster_sum.lat","bcelinj",0.4,
                         scaling_frequency,myopts.get("maporder"))
     units = g.get_u(g.get_initial_energy())
     print "units ", units
     # X_impact = U X_external
-    g.insert_space_charge_markers(2*myopts.get("kickspercell"))
+    g.insert_space_charge_markers(myopts.get("kickspercell"))
     g.iterator.reset()
     element = g.iterator.next()
+#
+# Here add a skewed quad to see effect
+#
     while element:
         print element.Name(),element.Type(),element.Strength()
         if element.Name()[0:4] == 'SL01':
