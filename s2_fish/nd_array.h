@@ -282,7 +282,7 @@ Nd_array<T>::vector_index(int const indices[]) const
 {
   int val = 0;
   int multiplier = 1;
-  for(int i = 0; i < dims.size(); i++) {
+  for(int i = dims.size()-1; i >=0 ; --i) {
     val += indices[i]*multiplier;
     multiplier *= dims[i];
   }
