@@ -47,6 +47,7 @@ class Nd_array {
 
   template<class T1> void copy(Nd_array<T1> * T1_tensor);
   void copy_data(T* base_address, int order, int const dims_in[]);
+  // real and imag do not work (!) To be fixed during a time of great patience.
   typename complex_helper<T>::the_type real();
   typename complex_helper<T>::the_type imag();
 
