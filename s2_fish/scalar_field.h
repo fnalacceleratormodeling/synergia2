@@ -25,14 +25,14 @@ class Scalar_field
   
  public:
   Scalar_field();
-  Scalar_field(int num_points[], double physical_size[], 
-	       double physical_offset[]);
+  Scalar_field(int num_points[3], double physical_size[3], 
+	       double physical_offset[3]);
   Scalar_field(std::vector<int> num_points, std::vector<double> physical_size, 
 	       std::vector<double> physical_offset);
   ~Scalar_field();
   template<class T1> void copy(Scalar_field<T1> * T1_scalar_field);
 
-  void set_physical_params(double physical_size[], double physical_offset[]);
+  void set_physical_params(double physical_size[3], double physical_offset[3]);
   void set_physical_params(std::vector<double> physical_size,
 			   std::vector<double> physical_offset);
   std::vector<double> get_physical_size();
@@ -42,10 +42,13 @@ class Scalar_field
   Nd_array<T>& get_points();
   const Nd_array<T>& get_points() const;
 
-  int* get_leftmost_indices(double location[]);
+  int* get_leftmost_indices(double location[3]);
   std::vector<int> get_leftmost_indices(std::vector<double> location);
-  double* get_leftmost_offsets(double location[]);
+  double* get_leftmost_offsets(double location[3]);
   std::vector<double> get_leftmost_offsets(std::vector<double> location);
+
+  T get_val(double location[3]);
+  T get_val(std::vector<double> location);
 
   void write_to_fstream(std::ofstream& stream);
   void write_to_file(std::string filename);
@@ -65,8 +68,8 @@ Scalar_field<T>::Scalar_field()
 }
 
 template<class T>
-Scalar_field<T>::Scalar_field(int num_points[], double physical_size[],
-			      double physical_offset[])
+Scalar_field<T>::Scalar_field(int num_points[3], double physical_size[3],
+			      double physical_offset[3])
 {
   points.reshape(3, num_points);
   set_physical_params(physical_size, physical_offset);
@@ -102,15 +105,15 @@ Scalar_field<T>::~Scalar_field()
 
 template<class T>
 void 
-Scalar_field<T>::set_physical_params(double physical_size[],
-				     double physical_offset[])
+Scalar_field<T>::set_physical_params(double physical_size[3],
+				     double physical_offset[3])
 {
   points.freeze_shape();
   for (int i = 0; i < 3; ++i) {
       this->physical_size[i] = physical_size[i];
       this->physical_offset[i] = physical_offset[i];
       left[i] = (physical_offset[i] - physical_size[i]/ 2);
-      h[i] = (points.get_shape()[i] - 1.0) / physical_size[i];
+      h[i] = physical_size[i]/(points.get_shape()[i] - 1.0);
     }
 }
 
@@ -162,13 +165,13 @@ Scalar_field<T>::get_points() const
 
 template<class T>
 int* 
-Scalar_field<T>::get_leftmost_indices(double location[])
+Scalar_field<T>::get_leftmost_indices(double location[3])
 {
   Int3 leftmost_val;
   for (int i = 0; i < 3; ++i)
     {
       leftmost_val[i] = static_cast<int>
-	(floor(h[i] * (location[i] - left[i])));
+	(floor((location[i] - left[i])/h[i]));
     }
   return leftmost_val;
 }
@@ -182,16 +185,42 @@ Scalar_field<T>::get_leftmost_indices(std::vector<double> location)
 
 template<class T>
 double* 
-Scalar_field<T>::get_leftmost_offsets(double location[])
+Scalar_field<T>::get_leftmost_offsets(double location[3])
 {
   Double3 offset;
   for (int i = 0; i < 3; ++i)
     {
-      double scaled_location =  h[i] * (location[i] - left[i]);
+      double scaled_location =  (location[i] - left[i])/h[i];
       offset[i] = scaled_location - 
 	static_cast<int>(floor(scaled_location));
     }
   return offset;
+}
+
+template<class T>
+T
+Scalar_field<T>::get_val(double location[3])
+{
+  // Interpolate between grid points. There is no unique scheme to do this
+  // in 3D, so we choose to use trilinear interpolation.
+  Int3 c(get_leftmost_indices(location)); // c for corner
+  Double3 f(get_leftmost_offsets(location)); // f for fractional difference
+  T val = ((1.0-f[0])*(1.0-f[1])*(1.0-f[2])*points.get(c) +
+	   f[0]*(1.0-f[1])*(1.0-f[2])*points.get(Int3(c[0]+1,c[1],c[2])) +
+	   (1.0-f[0])*f[1]*(1.0-f[2])*points.get(Int3(c[0],c[1]+1,c[2])) +
+	   (1.0-f[0])*(1.0-f[1])*f[2]*points.get(Int3(c[0],c[1],c[2]+1)) +
+	   f[0]*f[1]*(1.0-f[2])*points.get(Int3(c[0]+1,c[1]+1,c[2])) +
+	   f[0]*(1.0-f[1])*f[2]*points.get(Int3(c[0]+1,c[1],c[2]+1)) +
+	   (1.0-f[0])*f[1]*f[2]*points.get(Int3(c[0],c[1]+1,c[2]+1)) +
+	   f[0]*f[1]*f[2]*points.get(Int3(c[0]+1,c[1]+1,c[2]+1)));
+  return val;
+}
+
+template<class T>
+T
+Scalar_field<T>::get_val(std::vector<double> location)
+{
+  return get_val(&location[0]);
 }
 
 template<class T>
