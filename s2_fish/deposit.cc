@@ -8,7 +8,9 @@ deposit_charge_cic(Real_scalar_field& sf, Macro_bunch_store& mbs)
 {
   Int3 indices;
   Double3 offsets;
-  double total_charge = 0.0;
+  double total_charge_per_cell_vol = 0.0;
+  Double3 h(sf.get_cell_size());
+  double weight0 = 1.0/(h[0]*h[1]*h[2]);
   for(int n=0; n<mbs.local_num; ++n) {
     Double3 location(mbs.local_particles(0,n),
 		     mbs.local_particles(2,n),
@@ -18,7 +20,7 @@ deposit_charge_cic(Real_scalar_field& sf, Macro_bunch_store& mbs)
     for(int i=0; i<2; ++i) {
       for(int j=0; j<2; ++j) {
 	for(int k=0; k<2; ++k) {
-	  double weight = (1-i - (1-2*i)*offsets[0])* 
+	  double weight = weight0*(1-i - (1-2*i)*offsets[0])* 
 	    (1-j - (1-2*j)*offsets[1])* 
 	    (1-k - (1-2*k)*offsets[2]);
 	  try {
@@ -26,14 +28,14 @@ deposit_charge_cic(Real_scalar_field& sf, Macro_bunch_store& mbs)
 					      indices[1]+j,
 					      indices[2]+k),
 					 weight);
-	    total_charge += weight;
+	    total_charge_per_cell_vol += weight;
 	  } catch(std::out_of_range e) {
 	  }
 	}
       }
     }
   }
-  return total_charge;
+  return total_charge_per_cell_vol * h[0]*h[1]*h[2];
 }
 
 // Deposit charge on the nearest grid point to the particle
@@ -42,8 +44,9 @@ deposit_charge_ngp(Real_scalar_field& sf, Macro_bunch_store& mbs)
 {
   Int3 indices;
   Double3 offsets;
-  double total_charge = 0.0;
-  double weight = 1.0;
+  double total_charge_per_cell_vol = 0.0;
+  Double3 h(sf.get_cell_size());
+  double weight = 1.0/(h[0]*h[1]*h[2]);
   for(int n=0; n<mbs.local_num; ++n) {
     Double3 location(mbs.local_particles(0,n),
 		     mbs.local_particles(2,n),
@@ -57,10 +60,10 @@ deposit_charge_ngp(Real_scalar_field& sf, Macro_bunch_store& mbs)
     }
     try {
       sf.get_points().add_to_point(indices,weight);
-      total_charge += weight;
+      total_charge_per_cell_vol += weight;
     } catch(std::out_of_range e) {
     }
   }
-  return total_charge;
+  return total_charge_per_cell_vol * h[0]*h[1]*h[2];
 }
 

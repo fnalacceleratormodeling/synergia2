@@ -55,8 +55,7 @@ class Test_Real_scalar_field(unittest.TestCase):
         self.assertEqual(val,sqrtpi+e)
 
     def test_08_set_zero_get(self):
-        sf = Real_scalar_field((10,10,10),(1.0,2.0,3.0),
-                          (0.1,0.2,0.3))
+        sf = Real_scalar_field((10,10,10),(1.0,2.0,3.0),(0.1,0.2,0.3))
         sqrtpi = 1.7724539
         sf.get_points().set((4,5,3),sqrtpi)
         sf.get_points().zero_all()
@@ -64,8 +63,7 @@ class Test_Real_scalar_field(unittest.TestCase):
         self.assertEqual(val,0.0)
 
     def test_09_set_outside(self):
-        sf = Real_scalar_field((10,10,10),(1.0,2.0,3.0),
-                          (0.1,0.2,0.3))
+        sf = Real_scalar_field((10,10,10),(1.0,2.0,3.0),(0.1,0.2,0.3))
         caught = 0
         try:
             sf.get_points().set((10,9,9),1.0)
@@ -74,8 +72,7 @@ class Test_Real_scalar_field(unittest.TestCase):
         self.assertEqual(caught,1)
 
     def test_10_get_outside(self):
-        sf = Real_scalar_field((10,10,10),(1.0,2.0,3.0),
-                          (0.1,0.2,0.3))
+        sf = Real_scalar_field((10,10,10),(1.0,2.0,3.0),(0.1,0.2,0.3))
         caught = 0
         try:
             retval = sf.get_points().get((10,9,9))
@@ -104,13 +101,28 @@ class Test_Real_scalar_field(unittest.TestCase):
         self.assertEqual(retval,expected)
 
     def test_12_get_leftmost_offsets(self):
-        sf = Real_scalar_field((2,2,2),(10.0,10.0,10.0),
-                          (5.0,5.0,5.0))
+        sf = Real_scalar_field((2,2,2),(10.0,10.0,10.0),(5.0,5.0,5.0))
         retval = sf.get_leftmost_offsets((1.0,3.0,5.0))
         self.assertAlmostEqual(retval[0],0.1,12)
         self.assertAlmostEqual(retval[1],0.3,12)
         self.assertAlmostEqual(retval[2],0.5,12)
+
+    def test_13_get_val(self):
+        sf = Real_scalar_field((5,5,5),(20.0,20.0,20.0),(0.0,0.0,0.0))
+        sf.get_points().zero_all()
+        sf.get_points().add(1.0)
         
+        self.assertAlmostEqual(sf.get_val((-2.5,3.5,8.5)),1.0)
+        self.assertAlmostEqual(sf.get_val((0.0,0.0,0.0)),1.0)
+        self.assertAlmostEqual(sf.get_val((0.0,1.0,1.0)),1.0)
+        self.assertAlmostEqual(sf.get_val((1.0,0.0,1.0)),1.0)
+        self.assertAlmostEqual(sf.get_val((1.0,1.0,0.0)),1.0)
+
+        for j in range(0,5):
+            for k in range(0,5):
+                sf.get_points().set((2,j,k),2.0)
+        
+        self.assertAlmostEqual(sf.get_val((2.5,2.5,2.5)),1.5)
 
 if __name__ == '__main__':
     unsuccessful = 0

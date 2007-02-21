@@ -137,6 +137,9 @@ BOOST_PYTHON_MODULE(s2_fish)
   std::vector<double> (Real_scalar_field::*real_get_leftmost_offsets)
     (std::vector<double> location) = &Real_scalar_field::get_leftmost_offsets;
 
+  double (Real_scalar_field::*real_get_val)
+    (std::vector<double> location) = &Real_scalar_field::get_val;
+
   class_<Real_scalar_field>("Real_scalar_field",init<>())
     .def(init<std::vector<int>, std::vector<double>, std::vector<double> >())
     .def("copy",&Real_scalar_field::copy<double>)
@@ -147,6 +150,7 @@ BOOST_PYTHON_MODULE(s2_fish)
     .def("get_points",real_get_points,return_internal_reference<>())
     .def("get_leftmost_indices",real_get_leftmost_indices)
     .def("get_leftmost_offsets",real_get_leftmost_offsets)
+    .def("get_val",real_get_val)
     .def("write_to_file",&Real_scalar_field::write_to_file)
     .def("read_from_file",&Real_scalar_field::read_from_file)
     .def("describe",&Real_scalar_field::describe)
@@ -171,6 +175,9 @@ BOOST_PYTHON_MODULE(s2_fish)
     (std::vector<double> location) = 
     &Complex_scalar_field::get_leftmost_offsets;
 
+  std::complex<double> (Complex_scalar_field::*complex_get_val)
+    (std::vector<double> location) = &Complex_scalar_field::get_val;
+
   class_<Complex_scalar_field>("Complex_scalar_field",init<>())
     .def(init<std::vector<int>, std::vector<double>, std::vector<double> >())
     .def("copy",&Complex_scalar_field::copy<std::complex<double> >)
@@ -181,6 +188,7 @@ BOOST_PYTHON_MODULE(s2_fish)
     .def("get_points",complex_get_points,return_internal_reference<>())
     .def("get_leftmost_indices",complex_get_leftmost_indices)
     .def("get_leftmost_offsets",complex_get_leftmost_offsets)
+    .def("get_val",complex_get_val)
     .def("write_to_file",&Complex_scalar_field::write_to_file)
     .def("read_from_file",&Complex_scalar_field::read_from_file)
     .def("describe",&Complex_scalar_field::describe)

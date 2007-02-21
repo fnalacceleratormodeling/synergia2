@@ -171,7 +171,6 @@ get_G_hat2_petsc(Real_scalar_field rho, Mat FFT_matrix)
 			  rho.get_physical_offset());
   G2.get_points().zero_all();
   Double3 h(rho.get_cell_size());
-  Int3 num_points = rho.get_points().get_shape();
   Int3 index;
   double x,y,z;
   for(index[0]=0; index[0]<num_points2[0]; ++index[0]) {
@@ -203,7 +202,50 @@ get_G_hat2_petsc(Real_scalar_field rho, Mat FFT_matrix)
   // I don't think it is either, but I have not yet worked out what I 
   // consider to be the right answer (the one that preserves the integral
   // of G*rho).
-  G2.get_points().set(Int3(0,0,0),G2.get_points().get(Int3(0,0,1)));
+  
+  // Rob and Ji version
+//   G2.get_points().set(Int3(0,0,0),G2.get_points().get(Int3(0,0,1)));
+
+  // This would be the correct value if we were using cells that were spheres
+  // instead of rectangular solids:
+  // average value of inner sphere:
+//   G2.get_points().set(Int3(0,0,0),(1.0/4.0*pi)*
+// 		      (3.0/(2.0*((1+sqrt(3))/2.0)*
+// 			    sqrt(h[0]*h[0] + h[1]*h[1] + h[2]*h[2]))));
+
+  // average value of outer sphere. This works unresonably well.
+  G2.get_points().set(Int3(0,0,0),(1.0/4.0*pi)*
+		      (3.0/(2.0*(sqrt(3))*
+			    sqrt(h[0]*h[0] + h[1]*h[1] + h[2]*h[2]))));
+  // Calculate what I think the answer should be by doing a very
+  // simple numerical integral. The resulting answer doesn't work
+  // nearly as well as the outer sphere approximation above, so
+  // something must be wrong.
+//   double sum = 0.0;
+//   const int nsteps = 32;
+//   double dx = h[0]/nsteps;
+//   double dy = h[1]/nsteps;
+//   double dz = h[2]/nsteps;
+//   x = 0.5*dx;
+//   for(int i=0; i<nsteps; ++i) {
+//     y = 0.5*dy;
+//     for(int j=0; j<nsteps; ++j) {
+//       z = 0.5*dz;
+//       for(int k=0; k<nsteps; ++k) {
+// 	sum += 1.0/sqrt(x*x+y*y+z*z);
+// 	z += dz;
+//       }
+//       y += dy;
+//     }
+//     x += dx;
+//   }
+// //   double R = h[0];
+// //   double vol = (1/8.0)*4.0*pi/3.0*R*R*R;
+//   double R = sqrt(h[0]*h[0] + h[1]*h[1] + h[2]*h[2]);
+//   double vol = h[0]*h[1]*h[2];
+//   double mean_inv_r = sum*dx*dy*dz/vol;
+//   G2.get_points().set(Int3(0,0,0),(1.0/4.0*pi)*mean_inv_r);
+
   Vec G2_petsc;
   PetscErrorCode ierr;
   ierr = VecCreateSeqWithArray(PETSC_COMM_WORLD,G2.get_points().get_length(),
@@ -237,12 +279,13 @@ get_phi_hat2_petsc(Real_scalar_field rho, Vec rho_hat2_petsc,
   PetscScalar ***phi_hat2_array;
   ierr = VecGetArray3d(phi_hat2_petsc,shape[0],shape[1],shape[2],0,0,0,
                        &phi_hat2_array); check(ierr);
+  Double3 h(rho.get_cell_size());
   for(int i=0; i<shape[0]; ++i) {
     for(int j=0; j<shape[1]; ++j) {
       for(int k=0; k<shape[2]; ++k) {
 	phi_hat2_array[i][j][k] = 	
 	  rho_hat2_array[i][j][k]*
-	  G_hat2_array[i][j][k];
+	  G_hat2_array[i][j][k]*h[0]*h[1]*h[2];
       }
     }
   }
@@ -324,7 +367,7 @@ solver_fft_open(Real_scalar_field rho)
   ierr = MatCreateSeqFFTW(PETSC_COMM_SELF,
 			  3,num_points2.c_array(),
 			  &FFT_matrix); check(ierr);
-  rho.write_to_file("rho");
+  //  rho.write_to_file("rho");
   Vec rho_hat2_petsc = get_rho_hat2_petsc(rho,FFT_matrix);
   // write_vec("rho_hat2_petsc",rho,true,rho_hat2_petsc);
   
@@ -340,6 +383,6 @@ solver_fft_open(Real_scalar_field rho)
   //  write_vec("phi2_petsc",rho,true,phi2_petsc);
   Real_scalar_field phi = get_phi(rho,phi2_petsc);
   ierr = VecDestroy(phi2_petsc); check(ierr);
-  phi.write_to_file("phi");
+  //  phi.write_to_file("phi");
   return phi;
 }
