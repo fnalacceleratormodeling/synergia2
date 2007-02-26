@@ -250,7 +250,7 @@ get_G_hat2_petsc(Real_scalar_field rho, Mat FFT_matrix)
   PetscErrorCode ierr;
   ierr = VecCreateSeqWithArray(PETSC_COMM_WORLD,G2.get_points().get_length(),
 			       G2.get_points().get_base_address(),&G2_petsc); check(ierr);
-  write_vec("G2_petsc",rho,true,G2_petsc);
+  //  write_vec("G2_petsc",rho,true,G2_petsc);
   Vec G_hat2_petsc;
   ierr = VecDuplicate(G2_petsc,&G_hat2_petsc); check(ierr);
   ierr = MatMult(FFT_matrix,G2_petsc,G_hat2_petsc); check(ierr);
@@ -360,29 +360,66 @@ solver_fft_open(Real_scalar_field rho)
   char **argv;
   PetscErrorCode ierr;
   ierr = PetscInitialize(&argc,&argv,(char *)0,""); check(ierr);
-
   Mat FFT_matrix;
   Int3 num_points2 = rho.get_points().get_shape();
   num_points2.scale(2);
   ierr = MatCreateSeqFFTW(PETSC_COMM_SELF,
 			  3,num_points2.c_array(),
 			  &FFT_matrix); check(ierr);
-  //  rho.write_to_file("rho");
   Vec rho_hat2_petsc = get_rho_hat2_petsc(rho,FFT_matrix);
-  // write_vec("rho_hat2_petsc",rho,true,rho_hat2_petsc);
-  
   Vec G_hat2_petsc = get_G_hat2_petsc(rho,FFT_matrix);
-  //  write_vec("G_hat2_petsc",rho,true,G_hat2_petsc);
-
   Vec phi_hat2_petsc = get_phi_hat2_petsc(rho, rho_hat2_petsc,
 					  G_hat2_petsc);
   ierr = VecDestroy(rho_hat2_petsc); check(ierr);
   ierr = VecDestroy(G_hat2_petsc); check(ierr);
   Vec phi2_petsc = get_phi2_petsc(rho,phi_hat2_petsc,FFT_matrix);
   ierr = VecDestroy(phi_hat2_petsc); check(ierr);
-  //  write_vec("phi2_petsc",rho,true,phi2_petsc);
   Real_scalar_field phi = get_phi(rho,phi2_petsc);
   ierr = VecDestroy(phi2_petsc); check(ierr);
-  //  phi.write_to_file("phi");
   return phi;
+}
+
+Real_scalar_field
+calculate_E_n(Real_scalar_field phi, int n)
+{
+  if((n<0) || (n>2)) {
+    std::stringstream message("");
+    message << "calculate_E_n: invalid argument n=" << n
+	    <<". Argument be in range 0<=n<=2";
+    throw std::invalid_argument(message.str());
+  }
+  Real_scalar_field E(phi.get_points().get_shape(),phi.get_physical_size(),
+		      phi.get_physical_offset());
+  Int3 shape(phi.get_points().get_shape());
+  Double3 hi(phi.get_cell_size());
+  double h(hi[n]),delta;
+  Int3 point;
+  Int3 offset_plus(0,0,0),offset_minus(0,0,0);
+  offset_plus[n] = 1;
+  offset_minus[n] = -1;
+  double deriv;
+  for(int i=0; i<shape[0]; ++i) {
+    point[0] = i;
+    for(int j=0; j<shape[1]; ++j) {
+      point[1] = j;
+      for(int k=0; k<shape[2]; ++k) {
+	point[2] = k;
+	Int3 p0(point),p1(point);
+	if (point[n] == 0) {
+	  p1.add(offset_plus);
+	  delta = h;
+	} else if(point[n] == shape[n] - 1) {
+	  p0.add(offset_minus);
+	  delta = h;
+	} else {
+	  p0.add(offset_minus);
+	  p1.add(offset_plus);
+	  delta = 2.0*h;
+	}
+	deriv = (phi.get_points().get(p1) - phi.get_points().get(p0))/delta;
+	E.get_points().set(point,deriv);
+      }
+    }
+  }
+  return E;
 }

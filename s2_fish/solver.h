@@ -11,10 +11,13 @@
 #include "macro_bunch_store.h"
 #include <iostream>
 
+double
+fft_tester(int nx, int ny, int nz);
+
 Real_scalar_field
 solver_fft_open(Real_scalar_field rho);
 
-double
-fft_tester(int nx, int ny, int nz);
+Real_scalar_field
+calculate_E_n(Real_scalar_field phi, int n);
 
 #endif // HAVE_SOLVER_H
