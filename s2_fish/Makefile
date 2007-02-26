@@ -1,4 +1,4 @@
-all: space_charge s2_fish.so macro_bunch_store.so
+all: s2_fish.so macro_bunch_store.so
 
 include ../make_defines
 PETSC_DIR = /home2/amundson/src/petsc-dev
