@@ -413,6 +413,9 @@ class Gourmet:
     def get_initial_u(self):
         return self.get_u(self.initial_energy)
         
+    def get_initial_brho(self):
+        return self.get_initial_particle().ReferenceBRho()
+    
 class Lattice_function_array:
     def __init__(self):
         self.s = []
