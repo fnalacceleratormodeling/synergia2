@@ -89,6 +89,7 @@ if ( __name__ == '__main__'):
     sys.stdout.flush()
     
     pgrid = processor_grid.Processor_grid(1)
+    print "xxx"
     cgrid = computational_grid.Computational_grid(griddim[0],griddim[1],griddim[2],
                                                   "trans finite, long periodic round")
     piperad = 0.04
