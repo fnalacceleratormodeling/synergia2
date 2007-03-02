@@ -61,7 +61,7 @@ if ( __name__ == '__main__'):
 
 
     myopts = options.Options("ertml")
-    myopts.add("current",0.35,"current",float)
+    myopts.add("current",1.6e-4,"current",float)
     # transverse = 1 for longitudinally uniform beam
     myopts.add("transverse",0,"longitudinally uniform beam",int)
     myopts.add("maporder",2,"map order",int)
@@ -86,7 +86,7 @@ if ( __name__ == '__main__'):
     f.close()
 
 ### start save
-    scaling_frequency = 200.0e6
+    scaling_frequency = 1.30e9
 ### end save
     pipe_radius = 0.04
     griddim = myopts.get("scgrid")
@@ -105,6 +105,8 @@ if ( __name__ == '__main__'):
                         scaling_frequency,myopts.get("maporder"),particle='positron')
     g.insert_space_charge_markers(myopts.get("kicksperline"))
     units = g.get_u(g.get_initial_energy())
+    print units
+###    sys.exit(1)
 
     EMASS = 0.0005110034
     Ex = 8E-6 * EMASS/5
@@ -158,7 +160,7 @@ if ( __name__ == '__main__'):
     line_length = g.orbit_length()
     tau = 0.5*line_length/myopts.get("kicksperline")
     s = 0.0
-    ### b.write_fort(s)
+    b.write_fort(s)
 
 
     line_x = None
