@@ -23,7 +23,7 @@ ndcheck: s2_fish.so
 sfcheck: s2_fish.so
 	python test_scalar_field.py
 
-s2_fish.so: s2_fish_wrap.o deposit.o ltwt_containers.o solver.o
+s2_fish.so: s2_fish_wrap.o deposit.o ltwt_containers.o solver.o macro_bunch_store.so
 	g++ $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(PETSC_LIBS)
 
 macro_bunch_store.so: macro_bunch_store_wrap.o macro_bunch_store.o ltwt_containers.o

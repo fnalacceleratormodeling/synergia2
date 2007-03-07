@@ -1,3 +1,4 @@
+// -*- C++ -*-
 /*******************************************
 ** macro_bunch_store.h
 ** Contains:
@@ -36,6 +37,7 @@ struct Macro_bunch_store
   numeric::array get_ref_particle();
   void convert_to_fixedt();
   void convert_to_fixedz();
+  void check(numeric::array & array);
   double get_coord(int coord_index,int particle_index);
   ~Macro_bunch_store();
 };

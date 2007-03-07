@@ -1,3 +1,4 @@
+// -*- C++ -*-
 #ifndef HAVE_TRIPLET_H
 #define HAVE_TRIPLET_H
 

@@ -3,7 +3,6 @@
 #PBS -e synergia.err
 #PBS -l nodes=@@numproc@@
 
-umask 022
 echo PBS_NODEFILE is "$PBS_NODEFILE"
 if [ -n "$PBS_NODEFILE" ]
 then
@@ -24,6 +23,6 @@ PYTHONPATH=$SYNERGIA2DIR
 export PYTHONPATH
 
 cd @@jobdir@@
-exec mpirun -np @@numproc@@ python @@script@@ @@args@@
+exec mpirun -machinefile $PBS_NODEFILE -np @@numproc@@ python @@script@@ @@args@@
 
 

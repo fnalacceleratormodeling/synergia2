@@ -18,6 +18,7 @@ BOOST_PYTHON_MODULE(macro_bunch_store)
 		  &Macro_bunch_store::get_units)
     .def("get_ref_particle",
 		  &Macro_bunch_store::get_ref_particle)
+    .def("check",&Macro_bunch_store::check)
     .def_readwrite("local_num",&Macro_bunch_store::local_num)
     .def_readwrite("total_num",&Macro_bunch_store::total_num)
     .def_readwrite("total_current",&Macro_bunch_store::total_current)

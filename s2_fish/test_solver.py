@@ -92,7 +92,7 @@ class Test_solver_fft_open(unittest.TestCase):
         Q = 100000
         r0 = 0.2
         mb.init_sphere(Q,r0)
-        total_charge = deposit_charge_cic(sf,mb.store)
+        total_charge = deposit_charge_cic(sf,mb.get_store())
         phi = solver_fft_open(sf)
         for axis in range(0,3):
             r,phi_r,exact,max_err,mean_err = compare_on_axis(axis,shape,size,
@@ -109,7 +109,7 @@ class Test_solver_fft_open(unittest.TestCase):
         Q = 100000
         r0 = 0.2
         mb.init_sphere(Q,r0)
-        total_charge = deposit_charge_cic(sf,mb.store)
+        total_charge = deposit_charge_cic(sf,mb.get_store())
         phi = solver_fft_open(sf)
         for axis in range(0,3):
             r,phi_r,exact,max_err,mean_err = compare_on_axis(axis,shape,size,
@@ -126,7 +126,7 @@ class Test_solver_fft_open(unittest.TestCase):
         Q = 100000
         r0 = 0.2
         mb.init_sphere(Q,r0)
-        total_charge = deposit_charge_cic(sf,mb.store)
+        total_charge = deposit_charge_cic(sf,mb.get_store())
         phi = solver_fft_open(sf)
         max_tolerance = [0.07,0.05,0.09]
         mean_tolerance = [0.03,0.006,0.03]
@@ -145,7 +145,7 @@ class Test_solver_fft_open(unittest.TestCase):
         Q = 100000
         r0 = 0.2
         mb.init_sphere(Q,r0)
-        total_charge = deposit_charge_cic(sf,mb.store)
+        total_charge = deposit_charge_cic(sf,mb.get_store())
         phi = solver_fft_open(sf)
         max_tolerance = [[0.3,   2.5e3, 2.5e3],
                          [4.5e3,   0.3, 4.5e3],
@@ -165,7 +165,65 @@ class Test_solver_fft_open(unittest.TestCase):
                 self.failIf(max_err>max_tolerance[E_axis][axis])
                 self.failIf(mean_err>mean_tolerance[E_axis][axis])
 
-    
+    def test_05_E_asymmetric_grid_2xsize(self):
+        shape = (24,32,48)
+        size = (4.0,10.0,6.0)
+        offset = (0.1,0.5,0.4)
+        sf = Real_scalar_field(shape,size,offset)
+        mb = Macro_bunch()
+        Q = 100000
+        r0 = 0.2
+        mb.init_sphere(Q,r0)
+        total_charge = deposit_charge_cic(sf,mb.get_store())
+        phi = solver_fft_open(sf)
+        max_tolerance = [[0.3,   2.5e3, 2.5e3],
+                         [4.5e3,   0.3, 4.5e3],
+                         [2.5e3, 2.5e3,   0.3]]
+
+        mean_tolerance = [[0.06,  500.0,  500.0],
+                          [2.0e3,  0.08,  2.0e3],
+                          [5000.0, 5000.0,   0.06]]
+        for E_axis in range(0,3):
+            E = calculate_E_n(phi,E_axis)
+            for axis in range(0,3):
+                r,Er,exact,max_err,mean_err = \
+                                           compare_E_on_axis(axis,
+                                                             shape,size,
+                                                             offset,E,Q,
+                                                             r0,E_axis)
+                self.failIf(max_err>max_tolerance[E_axis][axis])
+                self.failIf(mean_err>mean_tolerance[E_axis][axis])
+
+    def test_06_kick(self):
+        shape = (48,48,48)
+        size = (2.0,2.0,2.0)
+        offset = (0.0,0.0,0.0)
+        sf = Real_scalar_field(shape,size,offset)
+        mb = Macro_bunch()
+        Q = 100000
+        r0 = 0.2
+        mb.init_sphere(Q,r0)
+        t0 = time.time()
+        total_charge = deposit_charge_cic(sf,mb.get_store())
+        t1 = time.time()
+        print "deposit:",t1-t0
+        t0 = time.time()
+        phi = solver_fft_open(sf)
+        t1 = time.time()
+        print "solve:",t1-t0
+        calc_time = 0
+        apply_time = 0
+        for E_axis in range(0,3):
+            t0 = time.time()
+            E = calculate_E_n(phi,E_axis)
+            t1 = time.time()
+            calc_time += t1 -t0
+            t0 = time.time()
+            apply_E_n_kick(E,E_axis,1.0,mb.get_store())
+            t1 = time.time()
+            apply_time += t1 - t0
+        print "calc E:",calc_time
+        print "apply:",apply_time
 
 if __name__ == '__main__':
     unsuccessful = 0

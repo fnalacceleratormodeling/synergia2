@@ -1,3 +1,4 @@
+// -*- C++ -*-
 /*******************************************
 ** solver.h
 ** Contains:
@@ -19,5 +20,9 @@ solver_fft_open(Real_scalar_field rho);
 
 Real_scalar_field
 calculate_E_n(Real_scalar_field phi, int n);
+
+void
+apply_E_n_kick(Real_scalar_field E, int n_axis, double tau,
+	       Macro_bunch_store mbs);
 
 #endif // HAVE_SOLVER_H

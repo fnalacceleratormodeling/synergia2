@@ -40,6 +40,13 @@ numeric::array Macro_bunch_store::get_ref_particle()
   return *(ref_particle.numeric_array);
 }
 
+void
+Macro_bunch_store::check(numeric::array &array)
+{
+  std::cout << "stored value: " << ref_particle.numeric_array << std::endl;
+  std::cout << "passed value: " << &array << std::endl;
+}
+
 void Macro_bunch_store::convert_to_fixedt()
 {
   if (is_fixedz) {

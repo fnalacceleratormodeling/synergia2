@@ -381,6 +381,13 @@ class Gourmet:
         mapping = jet_particle.State()
         return mappers.Fast_mapping(self.get_initial_u(),
                                     jet_particle.State())
+				    
+    def get_single_chef_mapping(self):
+        jet_particle = self.get_initial_jet_particle()
+        self.beamline.propagateJetParticle(jet_particle)
+        mapping = jet_particle.State()
+	mapping.printCoeffs()
+    	
     def printpart(self,particle):
         print '|',"%0.5g" % particle.get_x(),
         print "%0.5g" % particle.get_npx(),

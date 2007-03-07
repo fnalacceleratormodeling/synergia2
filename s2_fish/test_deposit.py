@@ -15,8 +15,8 @@ class Test_deposit(unittest.TestCase):
         mb.init_test(16,edge_length=1.0)
         h = sf.get_cell_size()
         vol = h[0]*h[1]*h[2]
-        total_charge = deposit_charge_ngp(sf,mb.store)
-        self.assertAlmostEqual(total_charge,mb.store.local_num)
+        total_charge = deposit_charge_ngp(sf,mb.get_store())
+        self.assertAlmostEqual(total_charge,mb.get_store().local_num)
         self.assertAlmostEqual(sf.get_points().get((0,2,2)),0.0)
         self.assertAlmostEqual(sf.get_points().get((4,2,2)),0.0)
         self.assertAlmostEqual(sf.get_points().get((2,0,2)),0.0)
@@ -33,8 +33,8 @@ class Test_deposit(unittest.TestCase):
                           (2.0,2.0,2.0),(0.0,0.0,0.0))
         mb = Macro_bunch()
         mb.init_test(16,edge_length=4.0)
-        total_charge = deposit_charge_ngp(sf,mb.store)
-        self.assertAlmostEqual(total_charge/mb.store.local_num,1.0/8.0)
+        total_charge = deposit_charge_ngp(sf,mb.get_store())
+        self.assertAlmostEqual(total_charge/mb.get_store().local_num,1.0/8.0)
         
     def test_03_cic1(self):
         num_grid = 5
@@ -44,8 +44,8 @@ class Test_deposit(unittest.TestCase):
         mb.init_test(16,edge_length=1.0)
         h = sf.get_cell_size()
         vol = h[0]*h[1]*h[2]
-        total_charge = deposit_charge_cic(sf,mb.store)
-        self.assertAlmostEqual(total_charge,mb.store.local_num)
+        total_charge = deposit_charge_cic(sf,mb.get_store())
+        self.assertAlmostEqual(total_charge,mb.get_store().local_num)
         self.assertAlmostEqual(sf.get_points().get((0,2,2)),0.0)
         self.assertAlmostEqual(sf.get_points().get((4,2,2)),0.0)
         self.assertAlmostEqual(sf.get_points().get((2,0,2)),0.0)
@@ -66,7 +66,7 @@ class Test_deposit(unittest.TestCase):
         mb.init_test(num_per_side,edge_length=4.0)
         h = sf.get_cell_size()
         vol = h[0]*h[1]*h[2]
-        total_charge = deposit_charge_cic(sf,mb.store)
+        total_charge = deposit_charge_cic(sf,mb.get_store())
         self.assertAlmostEqual(total_charge,num_per_side**3)
 
 if __name__ == '__main__':

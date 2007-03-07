@@ -61,11 +61,20 @@ class Line:
         self.scaling_frequency = scaling_frequency
         self.kicks = kicks
         self.opts = opts
+        self.particle = particle
         self.g = gourmet.Gourmet(mad_file,line_name, kinetic_energy,
                                  scaling_frequency, map_order, particle)
         self.g.insert_space_charge_markers(kicks)
+	self.g.check()
+	self.g.get_single_chef_mapping()
         self.line_length = self.g.orbit_length()
         self.tau = 0.5*self.line_length/self.kicks
+
+    def get_mass(self):
+        if self.particle == 'positron':
+            return physics_constants.PH_NORM_me
+        else:
+            return physics_constants.PH_NORM_mp
         
     def propagate(self, s, bunch, sc_params):
         if MPI.rank == 0:
@@ -82,8 +91,12 @@ class Line:
             elif action.is_synergia_action():
                 if action.get_synergia_action() == "space charge endpoint":
                     if not first_action:
-                        pass
-#                         (mean,std) = b.write_fort(s)
+                        t0 = time.time()
+                        print "write_fort...",
+                        sys.stdout.flush()
+                        (mean,std) = b.write_fort(s)
+                        t1 = time.time()
+                        print " took",t1-t0,"s"
                 elif action.get_synergia_action() == "space charge kick":
                     UberPkgpy.Apply_SpaceCharge_external(
                         bunch.get_beambunch(),
@@ -103,7 +116,7 @@ class Line:
         return (s,mean,std)
 
 def get_beam_parameters_envelope_match(line, opts):
-    bp = beam_parameters.Beam_parameters(physics_constants.PH_NORM_mp,
+    bp = beam_parameters.Beam_parameters(line.get_mass(),
                                          1.0, 0.4, 0.0, scaling_frequency,
                                          opts.get("transverse"))
     [sigma_x,sigma_xprime,r_x,\
@@ -124,7 +137,7 @@ def get_beam_parameters_envelope_match(line, opts):
     return bp
 
 def get_beam_parameters_lattice_fns(line, opts):
-    bp = beam_parameters.Beam_parameters(physics_constants.PH_NORM_mp,
+    bp = beam_parameters.Beam_parameters(line.get_mass(),
                                          1.0, 0.4, 0.0, scaling_frequency,
                                          opts.get("transverse"))
     (alpha_x, alpha_y, beta_x, beta_y) = matching.get_alpha_beta(line.g)
@@ -168,7 +181,7 @@ if ( __name__ == '__main__'):
     myopts.add("dpop",5.0e-4,"(delta p)/p",float)
     myopts.add("showplot",0,"show plot",int)
     myopts.add("plotperiod",10,"how often to plot")
-    myopts.add("kicksperturn",4,"kicks per cell",int)
+    myopts.add("kicksperturn",2000,"kicks per cell",int)
     myopts.add("plotperiod",4,"update plot every plotperiod steps",int)
     myopts.add("turns",12,"number of booster revolutions",int)
     myopts.add("injturns",12,"myoptsnumber of injection turns",int)
@@ -184,7 +197,7 @@ if ( __name__ == '__main__'):
     myopts.add_suboptions(job_manager.opts)
     myopts.parse_argv(sys.argv)
     job_mgr = job_manager.Job_manager(sys.argv,myopts,
-                                      ["booster_classic.lat",
+                                      ["ocs6-7.lat",
                                        "envelope_match.cache"])
 ### start save
     scaling_frequency = 37.7e6
@@ -199,7 +212,7 @@ if ( __name__ == '__main__'):
                                      part_per_cell,MPI.size)
 
     ee = error_eater.Error_eater()
-    ee.start()
+#    ee.start()
     cell_line = range(0,25)
     order = myopts.get("maporder")
     kicks = myopts.get("kicksperturn")
@@ -239,7 +252,9 @@ if ( __name__ == '__main__'):
         if MPI.rank==0:
             print "turn %d:" % turn,
             sys.stdout.flush()
+        print "jfa: propagate start"
         (s,mean,std) = dr.propagate(s,b, sc_params)
+        print "jfa: propagate end"
         (mean,std) = b.write_fort(s)
         if MPI.rank==0:
             print        

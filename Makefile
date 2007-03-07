@@ -1,5 +1,5 @@
 all: latticefns fixlat apply_map.so error_eater.so mappers.so \
-	chef_propagate.so hist2d.so
+	chef_propagate.so hist2d.so drtest
 
 include make_defines
 
@@ -22,6 +22,9 @@ term_iterator:term_iterator.cc
 
 fixlat:fixlat.cc
 	g++ -o fixlat $(incadd) fixlat.cc $(ldadd)
+
+drtest:drtest.cc
+	g++ -o drtest $(incadd) drtest.cc $(ldadd)
 
 apply_map.so: apply_map.cc
 	g++ -O3 -shared $(incadd) $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -o $@ $< $(BOOST_LIBS) -L /home2/amundson/work/chef-head/install/lib -lbeamline
@@ -46,4 +49,4 @@ hist2d.so: hist2d.cc
 	g++ -O3 -shared $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -o $@ $< $(BOOST_LIBS)
 
 clean:
-	rm -f latticefns fixlat apply_map.so error_eater.so mappers.so
+	rm -f latticefns fixlat drtest apply_map.so error_eater.so mappers.so

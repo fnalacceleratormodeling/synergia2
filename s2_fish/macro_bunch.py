@@ -12,10 +12,41 @@ import time
 class Macro_bunch:
     def __init__(self):
         self.complete = 0
-        self.store = None
+        self.particles = None
+        self.local_num = None
+        self.total_num = None
+        self.total_current = None
+        self.is_fixedz = None
+        self.ref_particle = None
+
+    def get_local_particles(self):
+        return self.particles
+    
+    def get_num_particles_local(self):
+        return self.local_num
+    
+    def get_store(self):
+        if self.particles:
+            return Macro_bunch_store(self.particles,
+                                     self.local_num,
+                                     self.total_num,
+                                     self.total_current,
+                                     self.units,
+                                     self.ref_particle,
+                                     self.is_fixedz)
+        else:
+            return None
+        
+    def convert_to_fixedz(self):
+        self.get_store().convert_to_fixedz()
+        self.is_fixedz = 1
+
+    def convert_to_fixedt(self):
+        self.get_store().convert_to_fixedt()
+        self.is_fixedz = 0
         
     def init_test(self,num_per_side,edge_length=1.0):
-        '''Paricles uniformly distributed in a cube of size "size"'''
+        '''Particles uniformly distributed in a cube of size "size"'''
         size = (edge_length,edge_length,edge_length)
         offset = (0.0,0.0,0.0)
         num = (num_per_side,num_per_side,num_per_side)
@@ -25,7 +56,7 @@ class Macro_bunch:
         self.units = Numeric.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
         self.ref_particle = Numeric.array([0.0,0.0,0.0,0.0,0.0,1.1],'d')
         self.particles = Numeric.zeros((7,local_num),'d')
-        is_fixedz = 1
+        self.is_fixedz = 1
         index = 0
         for i in range(0,num[0]):
             for j in range(0,num[1]):
@@ -38,9 +69,9 @@ class Macro_bunch:
                                              size[2]/num[2]*(k+0.5)
                     self.particles[6,index] = index+1
                     index += 1 
-        self.store = Macro_bunch_store(self.particles,local_num,total_num,
-                                       total_current,self.units,
-                                       self.ref_particle,is_fixedz)
+        self.local_num = local_num
+        self.total_num = total_num
+        self.total_current = total_current
         self.complete = 1
 
     def init_sphere(self,num,radius):
@@ -52,7 +83,7 @@ class Macro_bunch:
         self.units = Numeric.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
         self.ref_particle = Numeric.array([0.0,0.0,0.0,0.0,0.0,1.1],'d')
         self.particles = Numeric.zeros((7,local_num),'d')
-        is_fixedz = 1
+        self.is_fixedz = 1
         index = 0
         added = 0
         discarded = 0
@@ -73,21 +104,21 @@ class Macro_bunch:
                 index = 0
         t1 = time.time()
 #        print "pi =",6.0*added/(1.0*added+discarded),"in",t1-t0,"secs"
-        self.store = Macro_bunch_store(self.particles,local_num,total_num,
-                                       total_current,self.units,
-                                       self.ref_particle,is_fixedz)
+        self.local_num = local_num
+        self.total_num = total_num
+        self.total_current = total_current
         self.complete = 1
         
     def init_from_bunch(self, bunch):
         (Cxy, Cxpyp, Cz, Czp) = bunch.beam_parameters.get_conversions()
         self.units = Numeric.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
-        self.store = Macro_bunch_store(bunch.particles(),
-                                       bunch.num_particles_local(),
-                                       bunch.num_particles(),
-                                       bunch.current(),
-                                       self.units,
-                                       bunch.reference_particle(),
-                                       1)
+        self.particles = bunch.particles()
+        self.local_num = bunch.num_particles_local()
+        self.total_num = bunch.num_particles()
+        self.total_current = bunch.current()
+        print "current from bunch =",bunch.current()
+        self.ref_particle = bunch.reference_particle()
+        self.is_fixedz = 1
         
     def write_particles(self,filename,compress_level=1):
         h5filename = os.path.splitext(filename)[0] + '.h5'
@@ -106,4 +137,20 @@ class Macro_bunch:
                     earray.append(parts)
             f.close()
         else:
-            MPI.WORLD.Send(self.store.get_local_particles(),dest=0)
+            MPI.WORLD.Send(self.particles,dest=0)
+
+    def write_particles_text(self,filename):
+        if MPI.rank == 0:
+            f = open(filename,"w")
+            for proc in xrange(1,MPI.size):
+                parts = MPI.WORLD.Recv(source=proc)
+                for i in range(0,parts.shape[1]):
+                    f.write("%g %g %g %g %g %g %g\n" % \
+                            tuple(parts[:,i]))
+            parts = self.particles
+            for i in range(0,parts.shape[1]):
+                f.write("%g %g %g %g %g %g %g\n" % \
+                        tuple(parts[:,i]))
+            f.close()
+        else:
+            MPI.WORLD.Send(self.particles(),dest=0)

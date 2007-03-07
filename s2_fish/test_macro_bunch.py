@@ -12,6 +12,8 @@ import math
 import sys
 import unittest
 
+import syn2_diagnostics
+
 class Test_Macro_bunch(unittest.TestCase):
     def test_01_construct(self):
         mb = Macro_bunch()
@@ -20,7 +22,7 @@ class Test_Macro_bunch(unittest.TestCase):
         mb = Macro_bunch()
         num_per_side = 2
         mb.init_test(num_per_side)
-        shape = Numeric.shape(mb.store.get_local_particles())
+        shape = Numeric.shape(mb.get_local_particles())
         self.assertEqual(shape[0],7)
         self.assertEqual(shape[1],num_per_side**3)
 
@@ -32,7 +34,7 @@ class Test_Macro_bunch(unittest.TestCase):
         for j in range(0,shape[1]):
             for i in range(0,shape[0]):
                 self.assertAlmostEqual(mb.particles[i,j],
-                                       mb.store.get_coord(i,j),14)
+                                       mb.get_store().get_coord(i,j),14)
                 
     def _get_bunch(self):
         current = 0.5
@@ -70,11 +72,11 @@ class Test_Macro_bunch(unittest.TestCase):
         orig_shape = Numeric.shape(b.particles())
         mb = Macro_bunch()
         mb.init_from_bunch(b)
-        shape = Numeric.shape(mb.store.get_local_particles())
+        shape = Numeric.shape(mb.get_local_particles())
         for j in range(0,shape[1]):
             for i in range(0,shape[0]):
                 self.assertAlmostEqual(b.particles()[i,j],
-                                       mb.store.get_coord(i,j),14)
+                                       mb.get_store().get_coord(i,j),14)
         self.assertEqual(shape[0],orig_shape[0])
         self.assertEqual(shape[1],orig_shape[1])
         
@@ -84,22 +86,30 @@ class Test_Macro_bunch(unittest.TestCase):
         mb = Macro_bunch()
         mb.init_from_bunch(b)
         sample_id = 307
-        x0 = mb.store.get_local_particles()[0,sample_id]
-        y0 = mb.store.get_local_particles()[2,sample_id]
-        z0 = mb.store.get_local_particles()[4,sample_id]
-        x1 = x0/mb.store.get_units()[0]
-        y1 = y0/mb.store.get_units()[2]
-        mb.store.convert_to_fixedt()
-        self.assertEqual(x1,mb.store.get_local_particles()[0,sample_id])
-        self.assertEqual(y1,mb.store.get_local_particles()[2,sample_id])
+        x0 = mb.get_local_particles()[0,sample_id]
+        y0 = mb.get_local_particles()[2,sample_id]
+        z0 = mb.get_local_particles()[4,sample_id]
+        x1 = x0/mb.get_store().get_units()[0]
+        y1 = y0/mb.get_store().get_units()[2]
+        mb.convert_to_fixedt()
+        self.assertEqual(x1,mb.get_local_particles()[0,sample_id])
+        self.assertEqual(y1,mb.get_local_particles()[2,sample_id])
         # really need to check z conversion
-        self.assertEqual(0,mb.store.is_fixedz)
+        self.assertEqual(0,mb.get_store().is_fixedz)
 
-        mb.store.convert_to_fixedz()
-        self.assertEqual(x0,mb.store.get_local_particles()[0,sample_id])
-        self.assertEqual(y0,mb.store.get_local_particles()[2,sample_id])
-        self.assertEqual(z0,mb.store.get_local_particles()[4,sample_id])
-        self.assertEqual(1,mb.store.is_fixedz)
+        mb.convert_to_fixedz()
+        self.assertEqual(x0,mb.get_local_particles()[0,sample_id])
+        self.assertEqual(y0,mb.get_local_particles()[2,sample_id])
+        self.assertEqual(z0,mb.get_local_particles()[4,sample_id])
+        self.assertEqual(1,mb.get_store().is_fixedz)
+
+    def test_06_diagnostics(self):
+        b = self._get_bunch()
+        orig_shape = Numeric.shape(b.particles())
+        mb = Macro_bunch()
+        mb.init_from_bunch(b)
+        d = syn2_diagnostics.Diagnostics(mb.units)
+        d.get_coord_stds(mb)
 
 if __name__ == '__main__':
     unsuccessful = 0
