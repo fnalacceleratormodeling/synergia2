@@ -4,7 +4,7 @@ include ../make_defines
 PETSC_DIR = /home2/amundson/src/petsc-dev
 #include ${PETSC_DIR}/bmake/common/base
 PETSC_INCLUDES = -I$(PETSC_DIR) -I$(PETSC_DIR)/bmake/linux-gnu-cxx-debug -I$(PETSC_DIR)/include -I/usr/X11R6/include -I$(PETSC_DIR)/externalpackages/fftw-3.1.2/linux-gnu-cxx-debug/include -I$(PETSC_DIR)/include/mpiuni
-PETSC_LIBS = -L$(PETSC_DIR)/lib/linux-gnu-cxx-debug -lpetscmat -lpetscvec -lpetsc
+PETSC_LIBS = -L$(PETSC_DIR)/lib/linux-gnu-cxx-debug -lpetscsnes -lpetscdm -lpetscksp -lpetscmat -lpetscvec -lpetsc
 
 CXXFLAGS = -O3
 

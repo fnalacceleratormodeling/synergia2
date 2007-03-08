@@ -7,6 +7,10 @@
 #include <fstream>
 #include <cmath>
 
+#include "petscda.h"
+#include "petscksp.h"
+#include "petscdmmg.h"
+
 void 
 check(PetscErrorCode ierr)
 {
@@ -535,3 +539,255 @@ apply_E_n_kick(Real_scalar_field E, int n_axis, double tau,
     mbs.local_particles(index,n) -= kick;
   }
 }
+
+// BC types are not consistent, but match our needs:
+// mixed is for x,y closed and z periodic
+// pzneumann is for neumann (open) with the periodic z 
+typedef enum {DIRICHLET, NEUMANN, MIXED, PZNEUMANN} BCType;
+
+typedef struct {
+  BCType        bcType;
+  PetscInt gs;
+  Real_scalar_field *rho;
+} UserContext;
+
+Real_scalar_field
+get_real_scalar_field_from_vec(Real_scalar_field rho, Vec vec)
+{
+  Real_scalar_field retval(rho.get_points().get_shape(),
+			   rho.get_physical_size(),
+			   rho.get_physical_offset());
+  PetscErrorCode ierr;
+  Int3 shape(retval.get_points().get_shape());
+  PetscScalar ***retval_array;
+  ierr = VecGetArray3d(vec,shape[0],shape[1],shape[2],0,0,0,
+                       &retval_array); check(ierr);
+  Int3 point;
+  for(int i=0; i<shape[0]; ++i) {
+    point[0] = i;
+    for(int j=0; j<shape[1]; ++j) {
+      point[1] = j;
+      for(int k=0; k<shape[2]; ++k) {
+	point[2] = k;
+	retval.get_points().set(point,(retval_array[i][j][k]).real());
+      }
+    }
+  }
+  ierr = VecRestoreArray3d(vec,shape[0],shape[1],shape[2],0,0,0,
+			   &retval_array); check(ierr);
+  return retval;	
+}
+
+#undef __FUNCT__
+#define __FUNCT__ "ComputeRHS"
+PetscErrorCode ComputeRHS(DMMG dmmg,Vec b)
+{
+  PetscErrorCode ierr;
+  PetscInt       mx,my,mz;
+  PetscInt       xs,ys,zs;
+  PetscInt       xm,ym,zm;
+  PetscScalar    h;
+  PetscInt size;
+  PetscScalar    ***array;
+  DA             da = (DA)dmmg->dm;
+  const double pi = 3.141592653589793;
+
+  PetscFunctionBegin;
+
+  UserContext    *user = (UserContext *) dmmg->user;
+
+  VecGetSize(b,&size);
+
+  int rank;
+  ierr = MPI_Comm_rank(MPI_COMM_WORLD, &rank);CHKERRQ(ierr);
+  ierr = DAGetInfo((DA)dmmg->dm,0,&mx,&my,&mz,0,0,0,0,0,0,0);CHKERRQ(ierr);
+  ierr = DAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm);CHKERRQ(ierr);
+  ierr = DAVecGetArray(da, b, &array);CHKERRQ(ierr);
+  Int3 point;
+  for (int k=zs; k<zs+zm; k++){
+    point[2] = k;
+    for (int j=ys; j<ys+ym; j++){
+      point[1] = j;
+      for(int i=xs; i<xs+xm; i++){
+	point[0] = i;
+	array[i][j][k] = user->rho->get_points().get(point);
+      }
+    }
+  }
+  ierr = DAVecRestoreArray(da, b, &array);CHKERRQ(ierr);
+  ierr = VecAssemblyBegin(b);CHKERRQ(ierr);
+  ierr = VecAssemblyEnd(b);CHKERRQ(ierr);
+  VecGetSize(b,&size);
+  if (user->bcType != DIRICHLET) {
+    MatNullSpace nullspace;
+    ierr = KSPGetNullSpace(dmmg->ksp,&nullspace);CHKERRQ(ierr);
+    ierr = MatNullSpaceRemove(nullspace,b,PETSC_NULL);CHKERRQ(ierr);
+  }
+  PetscFunctionReturn(0);
+}
+
+#undef __FUNCT__
+#define __FUNCT__ "ComputeJacobian"
+PetscErrorCode ComputeJacobian(DMMG dmmg, Mat J, Mat jac)
+{
+  DA             da = (DA)dmmg->dm;
+  UserContext    *user = (UserContext *) dmmg->user;
+  PetscErrorCode ierr;
+  PetscInt       num,i,j,k,mx,my,mz,xm,ym,zm,xs,ys,zs;
+  PetscInt       ileft,iright,jleft,jright,kleft,kright;
+  PetscScalar    v[7],Hx,Hy,Hz,HxHydHz,HyHzdHx,HxHzdHy;
+  MatStencil     row,col[7];
+
+  PetscFunctionBegin;
+  if (user->bcType != NEUMANN) {
+    printf(" Boundary condition must be neumann\n");
+    exit(1);
+  }
+  ierr = DAGetInfo(da,0,&mx,&my,&mz,0,0,0,0,0,0,0); check(ierr);
+
+  Hx = user->rho->get_physical_size()[0]/ (PetscReal)(mx-1);
+  Hy = user->rho->get_physical_size()[1]/ (PetscReal)(my-1);
+  Hz = user->rho->get_physical_size()[2]/ (PetscReal)(mz-1);
+
+  HxHydHz = Hx*Hy/Hz; HxHzdHy = Hx*Hz/Hy; HyHzdHx = Hy*Hz/Hx;
+  ierr = DAGetCorners(da,&xs,&ys,&zs,&xm,&ym,&zm); check(ierr);
+  
+  for (k=zs; k<zs+zm; k++){
+    for (j=ys; j<ys+ym; j++){
+      for(i=xs; i<xs+xm; i++){
+        row.i = i; row.j = j; row.k = k;
+	num = 0;
+	v[0] = 2.0*(HxHydHz + HxHzdHy + HyHzdHx);
+	col[0].i = i;col[0].j = j; col[0].k=k;
+	num++;
+	ileft = i-1;
+	/* Neumann boundary conditions in x */
+	if (ileft == -1) {
+	  ileft = 0;
+	  v[0] -= HyHzdHx;
+	} else {
+	  v[num] = -HyHzdHx; col[num].i = ileft; col[num].j = j; col[num].k=k;
+	  num++;
+	}
+	iright = i+1;
+	if (iright == mx) {
+	  iright = mx-1;
+	  v[0] -= HyHzdHx;
+	} else {
+	  v[num] = -HyHzdHx; col[num].i = iright; col[num].j = j; col[num].k=k;
+	  num++;
+	}
+	jleft = j-1;
+	/* Neumann boundary conditions in y */
+	if (jleft == -1) {
+	  jleft = 0;
+	  v[0] -= HxHzdHy;
+	} else {
+	  v[num] = -HxHzdHy; col[num].i = i; col[num].j = jleft; col[num].k=k;
+	  num++;
+	}
+	jright = j+1;
+	if (jright == my) {
+	  jright = my-1;
+	  v[0] -= HxHzdHy;
+	} else {
+	  v[num] = -HxHzdHy; col[num].i = i; col[num].j = jright; col[num].k=k;
+	  num++;
+	}
+	/* Neumann boundary conditions in z */
+	kleft = k-1;
+	if (kleft == -1) {
+	  kleft = 0;
+	  v[0] -= HxHydHz;
+	} else {
+	  v[num] = -HxHydHz; col[num].i = i; col[num].j = j; col[num].k=kleft;
+	  num++;
+	}
+	kright = k+1;
+	if (kright == mz) {
+	  kright = mz-1;
+	  v[0] -= HxHydHz;
+	} else {
+	  v[num] = -HxHydHz; col[num].i = i; col[num].j = j; col[num].k=kright;
+	  num++;
+	}
+	ierr = MatSetValuesStencil(jac,1,&row,num,col,v,INSERT_VALUES); check(ierr);
+      }
+    }
+  }
+  ierr = MatAssemblyBegin(jac,MAT_FINAL_ASSEMBLY); check(ierr);
+  ierr = MatAssemblyEnd(jac,MAT_FINAL_ASSEMBLY); check(ierr);
+  PetscFunctionReturn(0);
+}
+
+#undef __FUNCT__
+#define __FUNCT__ "solver_fd_multigrid_open"
+Real_scalar_field
+solver_fd_multigrid_open(Real_scalar_field rho)
+{
+  int argc = 3;
+  char fakeprog[] = "./solver_fd_multigrid_open";
+  char precondflag1[] = "-mg_coarse_pc_type";
+  char precondflag2[] = "cholesky";
+  char * argv1[] = {fakeprog,precondflag1,precondflag2};
+  char ** argv = argv1;
+  PetscErrorCode ierr;
+  ierr = PetscInitialize(&argc,&argv,(char *)0,""); check(ierr);
+
+  DMMG           *dmmg;
+  PetscScalar    mone = -1.0;
+  PetscReal      norm;
+  UserContext    user;
+  Vec            soln;
+  DA             da;
+
+  PetscFunctionBegin;
+  const int dmmg_nlevels = 6;
+  ierr = DMMGCreate(PETSC_COMM_WORLD,dmmg_nlevels,PETSC_NULL,&dmmg);
+  check(ierr);
+   // user stuff
+  for (int l = 0; l < DMMGGetLevels(dmmg); l++) {
+    ierr = DMMGSetUser(dmmg,l,&user); check(ierr);
+  }
+  user.bcType = NEUMANN;
+  user.gs = 3;
+  user.rho = &rho;
+  if (user.bcType == PZNEUMANN) {
+    ierr = DACreate3d(PETSC_COMM_WORLD,DA_ZPERIODIC,DA_STENCIL_STAR,
+		      //		    3,3,9,
+		      user.gs,user.gs,4*(user.gs -1) + 1,
+		      PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,1,1,0,0,0,&da);
+  }
+  else { 
+    ierr = DACreate3d(PETSC_COMM_WORLD,DA_NONPERIODIC,DA_STENCIL_STAR,
+		      user.gs,user.gs,user.gs,
+		      PETSC_DECIDE,PETSC_DECIDE,PETSC_DECIDE,1,1,0,0,0,&da);
+  }
+  check(ierr); 
+
+  ierr = DMMGSetDM(dmmg,(DM)da); check(ierr);
+  ierr = DADestroy(da); check(ierr);
+
+  ierr = DMMGSetKSP(dmmg,ComputeRHS,ComputeJacobian); check(ierr);
+
+  //For all BC types with a Neumann component, do the majic
+  if (user.bcType != DIRICHLET) {
+    ierr = DMMGSetNullSpace(dmmg,PETSC_TRUE,0,PETSC_NULL); check(ierr);
+  }
+
+  ierr = DMMGSolve(dmmg); check(ierr);
+  ierr = VecAssemblyBegin(DMMGGetx(dmmg)); check(ierr);
+  ierr = VecAssemblyEnd(DMMGGetx(dmmg)); check(ierr);
+
+  soln = DMMGGetx(dmmg);
+
+  ierr = MatMult(DMMGGetJ(dmmg),DMMGGetx(dmmg),DMMGGetr(dmmg)); check(ierr);
+  ierr = VecAXPY(DMMGGetr(dmmg),mone,DMMGGetRHS(dmmg)); check(ierr);
+  ierr = VecNorm(DMMGGetr(dmmg),NORM_2,&norm); check(ierr);
+
+  PetscInt size;
+  VecGetSize(soln,&size);
+  Real_scalar_field phi = get_real_scalar_field_from_vec(rho,soln);
+  ierr = DMMGDestroy(dmmg); check(ierr);
+  return phi;
+}  

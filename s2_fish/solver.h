@@ -19,6 +19,9 @@ Real_scalar_field
 solver_fft_open(Real_scalar_field rho);
 
 Real_scalar_field
+solver_fd_multigrid_open(Real_scalar_field rho);
+
+Real_scalar_field
 calculate_E_n(Real_scalar_field phi, int n);
 
 void

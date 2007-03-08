@@ -205,6 +205,7 @@ BOOST_PYTHON_MODULE(s2_fish)
   //---------------------------------------------------------------------
   def("fft_tester",fft_tester);
   def("solver_fft_open",solver_fft_open);
+  def("solver_fd_multigrid_open",solver_fd_multigrid_open);
   def("calculate_E_n",calculate_E_n);
   def("apply_E_n_kick",apply_E_n_kick);
 }
