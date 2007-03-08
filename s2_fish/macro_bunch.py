@@ -75,7 +75,7 @@ class Macro_bunch:
         self.complete = 1
 
     def init_sphere(self,num,radius):
-        '''Paricles uniformly distributed in a sphere of radius "radius"'''
+        '''Particles uniformly distributed in a sphere of radius "radius"'''
         offset = (0.0,0.0,0.0)
         local_num = num
         total_num = local_num # fix me for mpi
@@ -104,6 +104,42 @@ class Macro_bunch:
                 index = 0
         t1 = time.time()
 #        print "pi =",6.0*added/(1.0*added+discarded),"in",t1-t0,"secs"
+        self.local_num = local_num
+        self.total_num = total_num
+        self.total_current = total_current
+        self.complete = 1
+
+    def init_cylinder(self,num,radius):
+        '''Particles uniformly distributed in a cylinder of radius "radius"
+        and length 2pi'''
+        offset = (0.0,0.0,0.0)
+        local_num = num
+        total_num = local_num # fix me for mpi
+        total_current = 1.0
+        self.units = Numeric.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
+        self.ref_particle = Numeric.array([0.0,0.0,0.0,0.0,0.0,1.1],'d')
+        self.particles = Numeric.zeros((7,local_num),'d')
+        self.is_fixedz = 1
+        index = 0
+        added = 0
+        discarded = 0
+        chunk_size = 1000
+        t0 = time.time()
+        p = (RandomArray.random([6,chunk_size])-0.5)*2.0*radius
+        index = 0
+        while added < local_num:
+            if ((p[0,index]**2 + p[2,index]**2) < radius**2):
+                self.particles[0:6,added] = p[:,index]
+                self.particles[4,added] *= 2.0*math.pi/(2.0*radius)
+                self.particles[6,added] = added + 1
+                added += 1
+            else:
+                discarded += 1
+            index += 1
+            if index >= chunk_size:
+                p = (RandomArray.random([6,chunk_size])-0.5)*2.0*radius
+                index = 0
+        t1 = time.time()
         self.local_num = local_num
         self.total_num = total_num
         self.total_current = total_current
