@@ -8,6 +8,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <memory>
 
 template<class T>
 class Nd_array;
@@ -32,10 +33,12 @@ struct complex_helper {
 template<class T>
 class Nd_array {
  private:
-  std::vector<T> storage;
+  T * storage;
+  std::allocator<T> myallocator;
+  size_t size;
   std::vector<int> dims;
   bool frozen;
-  int vector_index(int const indices[]) const;
+  inline int vector_index(int const indices[]) const;
   void print_recursive(std::string name, int which_index, int indices[]) const;
   void set_dims(int order, int const dims_in[]);
   inline void assert_dims(int const indices[]) const;
@@ -57,12 +60,12 @@ class Nd_array {
   std::vector<int> get_shape() const;
 
   void zero_all( );
-  void set(int const indices[],T val);
-  void set(std::vector<int> const& indices,T val);
-  void add_to_point(int const indices[],T val);
-  void add_to_point(std::vector<int> const& indices,T val);
-  T get(int const indices[]) const;
-  T get(std::vector<int> const& indices) const;
+  inline void set(int const indices[],T val);
+  inline void set(std::vector<int> const& indices,T val);
+  inline void add_to_point(int const indices[],T val);
+  inline void add_to_point(std::vector<int> const& indices,T val);
+  inline T get(int const indices[]) const;
+  inline T get(std::vector<int> const& indices) const;
 
   void scale(T factor);
   void add(T constant);
@@ -77,6 +80,8 @@ class Nd_array {
   void write_to_file(std::string filename);
   void read_from_fstream(std::ifstream& stream);
   void read_from_file(std::string filename);
+
+  ~Nd_array();
 };
 
 typedef Nd_array<double> Real_nd_array;
@@ -132,25 +137,30 @@ template<class T>
 Nd_array<T>::Nd_array()
 {
   frozen = false;
+  size = 0;
 }
 
 template<class T>
 void
 Nd_array<T>::set_dims(int order, int const dims_in[])
 {
-  int size = 1;
+  if (size > 0) {
+    myallocator.deallocate(storage,size);
+  }
+  size = 1;
   dims.resize(order);
   for (int i = 0; i < order ; i++) {
     dims[i] = dims_in[i];
     size *= dims[i];
   }
-  storage.resize(size);
+  storage = myallocator.allocate(size);
 }
 
 template<class T>
 Nd_array<T>::Nd_array(int order, int const dims_in[])
 {
   frozen = false;
+  size = 0;
   set_dims(order,dims_in);
 }
 
@@ -158,6 +168,7 @@ template<class T>
 Nd_array<T>::Nd_array(std::vector<int> const dims_in)
 {
   frozen = false;
+  size = 0;
   set_dims(dims_in.size(),&dims_in[0]);
 }
 
@@ -165,8 +176,11 @@ template<class T>
 Nd_array<T>::Nd_array(const Nd_array& original)
 {
   frozen = false;
-  storage = original.storage;
-  dims = original.dims;
+  size = 0;
+  set_dims(original.dims.size(),&original.dims[0]);
+  for (int i=0; i<size; ++i) {
+    storage[i] = original.storage[i];
+  }
 }
 
 
@@ -210,14 +224,14 @@ template<class T>
 int
 Nd_array<T>::get_length()
 {
-  return storage.size();
+  return size;
 }
 
 template<class T>
 T*
 Nd_array<T>::get_base_address()
 {
-  return &storage[0];
+  return storage;
 }
 
 template<class T>
@@ -269,7 +283,6 @@ template<class T>
 void
 Nd_array<T>::zero_all( )
 {
-  int size = storage.size( );
   for ( int i = 0; i < size; ++i )
     {
       storage[i] = 0.0;
@@ -277,7 +290,7 @@ Nd_array<T>::zero_all( )
 }
 
 template<class T>
-int
+inline int
 Nd_array<T>::vector_index(int const indices[]) const
 {
   int val = 0;
@@ -290,7 +303,7 @@ Nd_array<T>::vector_index(int const indices[]) const
 }
 
 template<class T>
-T
+inline T
 Nd_array<T>::get(int const indices[]) const
 {
   assert_dims(indices);
@@ -298,7 +311,7 @@ Nd_array<T>::get(int const indices[]) const
 }
 
 template<class T>
-T
+inline T
 Nd_array<T>::get(std::vector<int> const& indices) const
 {
   assert_dims(&indices[0]);
@@ -306,14 +319,9 @@ Nd_array<T>::get(std::vector<int> const& indices) const
 }
 
 template<class T>
-void
+inline void
 Nd_array<T>::assert_dims(int const indices[]) const
 {
-  if (dims.size() == 0) {
-    std::stringstream message("");
-    message << "Nd_array range error: operation attempted on zero-dimensional array.";
-    throw std::out_of_range(message.str());
-  }
   // optimize for case size == 3
   if (dims.size() == 3) {
     if ((indices[0] < 0) || (indices[0] >= dims[0]) ||
@@ -330,6 +338,11 @@ Nd_array<T>::assert_dims(int const indices[]) const
       throw std::out_of_range(message.str());
     }
   } else {
+    if (dims.size() == 0) {
+      std::stringstream message("");
+      message << "Nd_array range error: operation attempted on zero-dimensional array.";
+      throw std::out_of_range(message.str());
+    }
     bool out_of_bounds = false;
     for(int i=0; i<dims.size(); ++i) {
       if ((indices[i] < 0) || (indices[i] >= dims[i])) {
@@ -359,7 +372,7 @@ Nd_array<T>::assert_dims(int const indices[]) const
 }
  
 template<class T>
-void 
+inline void 
 Nd_array<T>::set(int const indices[], T val)
 {
   assert_dims(indices);
@@ -367,7 +380,7 @@ Nd_array<T>::set(int const indices[], T val)
 }
 
 template<class T>
-void 
+inline void 
 Nd_array<T>::set(std::vector<int> const& indices,T val)
 {
   assert_dims(&indices[0]);
@@ -375,7 +388,7 @@ Nd_array<T>::set(std::vector<int> const& indices,T val)
 }
 
 template<class T>
-void 
+inline void 
 Nd_array<T>::add_to_point(int const indices[], T val)
 {
   assert_dims(indices);
@@ -383,7 +396,7 @@ Nd_array<T>::add_to_point(int const indices[], T val)
 }
 
 template<class T>
-void 
+inline void 
 Nd_array<T>::add_to_point(std::vector<int> const& indices,T val)
 {
   assert_dims(&indices[0]);
@@ -394,7 +407,6 @@ template<class T>
 void
 Nd_array<T>::scale(T factor)
 {
-  int size = storage.size();
   for ( int i = 0; i < size; ++i )
     {
       storage[i] *= factor;
@@ -405,7 +417,6 @@ template<class T>
 void
 Nd_array<T>::add(T constant)
 {
-  int size = storage.size();
   for ( int i = 0; i < size; ++i )
     {
       storage[i] += constant;
@@ -550,4 +561,11 @@ Nd_array<T>::read_from_file(std::string filename)
   stream.close();
 }
 
+template<class T>
+Nd_array<T>::~Nd_array()
+{
+  if (size > 0) {
+    myallocator.deallocate(storage,size); 
+  }
+}
 #endif
