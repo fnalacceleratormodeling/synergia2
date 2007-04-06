@@ -39,16 +39,16 @@ class Scalar_field
   std::vector<double> get_physical_offset();
   std::vector<double> get_cell_size();
 
-  Nd_array<T>& get_points();
-  const Nd_array<T>& get_points() const;
+  inline Nd_array<T>& get_points();
+  inline const Nd_array<T>& get_points() const;
 
   int* get_leftmost_indices(double location[3]);
   std::vector<int> get_leftmost_indices(std::vector<double> location);
   double* get_leftmost_offsets(double location[3]);
   std::vector<double> get_leftmost_offsets(std::vector<double> location);
 
-  T get_val(double location[3]);
-  T get_val(std::vector<double> location);
+  inline T get_val(double location[3]);
+  inline T get_val(std::vector<double> location);
 
   void write_to_fstream(std::ofstream& stream);
   void write_to_file(std::string filename);
@@ -150,14 +150,14 @@ Scalar_field<T>::get_cell_size()
 }
 
 template<class T>
-Nd_array<T>& 
+inline Nd_array<T>& 
 Scalar_field<T>::get_points()
 {
   return points;
 }
 
 template<class T>
-const Nd_array<T>& 
+inline const Nd_array<T>& 
 Scalar_field<T>::get_points() const
 {
   return points;
@@ -198,7 +198,7 @@ Scalar_field<T>::get_leftmost_offsets(double location[3])
 }
 
 template<class T>
-T
+inline T
 Scalar_field<T>::get_val(double location[3])
 {
   // Interpolate between grid points. There is no unique scheme to do this
@@ -217,7 +217,7 @@ Scalar_field<T>::get_val(double location[3])
 }
 
 template<class T>
-T
+inline T
 Scalar_field<T>::get_val(std::vector<double> location)
 {
   return get_val(&location[0]);

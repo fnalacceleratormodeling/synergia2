@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 from s2_fish import *
+from s2_fish_fftw2 import *
 from macro_bunch import Macro_bunch
 import numarray
 import time
@@ -78,12 +79,8 @@ def compare_E_on_axis(axis,shape,size,offset,E,Q,r0,E_axis):
     mean_err = sum_err/shape[axis]
     return r,Er,exact,max_err,mean_err
 
-class Test_solver_fft_open(unittest.TestCase):    
-    def test_01_fft(self):
-        max_err = fft_tester(8,32,64);
-        self.assertAlmostEqual(max_err,0.0)
-        
-    def test_02_rough_grid(self):
+class Test_solver_fftw2_open(unittest.TestCase):    
+    def test_01_rough_grid(self):
         shape = (16,16,16)
         size = (2.0,2.0,2.0)
         offset = (0.0,0.0,0.0)
@@ -93,14 +90,14 @@ class Test_solver_fft_open(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),0)
-        phi = solver_fft_open(sf,0)
+        phi = solver_fftw2_open(sf,0)
         for axis in range(0,3):
             r,phi_r,exact,max_err,mean_err = compare_on_axis(axis,shape,size,
                                                              offset,phi,Q,r0)
             self.failIf(max_err>0.07)
             self.failIf(mean_err>0.02)
 
-    def test_03_fine_grid(self):
+    def test_02_fine_grid(self):
         shape = (48,48,48)
         size = (2.0,2.0,2.0)
         offset = (0.0,0.0,0.0)
@@ -110,14 +107,14 @@ class Test_solver_fft_open(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),0)
-        phi = solver_fft_open(sf,0)
+        phi = solver_fftw2_open(sf,0)
         for axis in range(0,3):
             r,phi_r,exact,max_err,mean_err = compare_on_axis(axis,shape,size,
                                                              offset,phi,Q,r0)
             self.failIf(max_err>0.015)
             self.failIf(mean_err>0.003)
 
-    def test_04_asymmetric_grid(self):
+    def test_03_asymmetric_grid(self):
         shape = (16,24,32)
         size = (2.0,5.0,3.0)
         offset = (0.1,0.5,0.4)
@@ -127,7 +124,7 @@ class Test_solver_fft_open(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),0)
-        phi = solver_fft_open(sf,0)
+        phi = solver_fftw2_open(sf,0)
         max_tolerance = [0.07,0.05,0.09]
         mean_tolerance = [0.03,0.006,0.03]
         for axis in range(0,3):
@@ -136,7 +133,7 @@ class Test_solver_fft_open(unittest.TestCase):
             self.failIf(max_err>max_tolerance[axis])
             self.failIf(mean_err>mean_tolerance[axis])
 
-    def test_05_E_asymmetric_grid(self):
+    def test_04_E_asymmetric_grid(self):
         shape = (24,32,48)
         size = (2.0,5.0,3.0)
         offset = (0.1,0.5,0.4)
@@ -146,7 +143,7 @@ class Test_solver_fft_open(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),0)
-        phi = solver_fft_open(sf,0)
+        phi = solver_fftw2_open(sf,0)
         max_tolerance = [[0.3,   2.5e3, 2.5e3],
                          [4.5e3,   0.3, 4.5e3],
                          [2.5e3, 2.5e3,   0.3]]
@@ -165,7 +162,7 @@ class Test_solver_fft_open(unittest.TestCase):
                 self.failIf(max_err>max_tolerance[E_axis][axis])
                 self.failIf(mean_err>mean_tolerance[E_axis][axis])
 
-    def test_06_kick(self):
+    def test_05_kick(self):
         shape = (48,48,48)
         size = (2.0,2.0,2.0)
         offset = (0.0,0.0,0.0)
@@ -175,13 +172,13 @@ class Test_solver_fft_open(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),0)
-        phi = solver_fft_open(sf,0)
+        phi = solver_fftw2_open(sf,0)
         for E_axis in range(0,3):
             E = calculate_E_n(phi,E_axis)
             apply_E_n_kick(E,E_axis,1.0,mb.get_store())
 
-class Test_solver_fft_open_periodic(unittest.TestCase):    
-    def test_02_rough_grid(self):
+class Test_solver_fftw2_open_periodic(unittest.TestCase):    
+    def test_01_rough_grid(self):
         shape = (16,16,16)
         size = (2.0,2.0,2.0)
         offset = (0.0,0.0,0.0)
@@ -191,35 +188,16 @@ class Test_solver_fft_open_periodic(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),1)
-        phi = solver_fft_open(sf,0)
+        phi = solver_fftw2_open(sf,0)
         for axis in range(0,3):
             r,phi_r,exact,max_err,mean_err = compare_on_axis(axis,shape,size,
                                                              offset,phi,Q,r0)
             self.failIf(max_err>0.07)
             self.failIf(mean_err>0.02)
 
-
-class Test_solver_fd_multigrid(unittest.TestCase):    
-    def test_01_rough_grid(self):
-        shape = (33,33,33)
-        size = (2.0,2.0,2.0)
-        offset = (0.0,0.0,0.0)
-        sf = Real_scalar_field(shape,size,offset)
-        mb = Macro_bunch()
-        Q = 100000
-        r0 = 0.2
-        mb.init_sphere(Q,r0)
-        total_charge = deposit_charge_cic(sf,mb.get_store())
-        phi = solver_fd_multigrid_open(sf)
-#         for axis in range(0,3):
-#             r,phi_r,exact,max_err,mean_err = compare_on_axis(axis,shape,size,
-#                                                              offset,phi,Q,r0)
-#             self.failIf(max_err>0.07)
-#             self.failIf(mean_err>0.02)
-
 if __name__ == '__main__':
     unsuccessful = 0
-    solver_suite = unittest.TestLoader().loadTestsFromTestCase(Test_solver_fft_open)
+    solver_suite = unittest.TestLoader().loadTestsFromTestCase(Test_solver_fftw2_open)
     retval = unittest.TextTestRunner(verbosity=2).run(solver_suite)
     if not retval.wasSuccessful():
         unsuccessful = 1

@@ -8,6 +8,7 @@ from mpi4py import MPI
 import os.path
 import tables
 import time
+import math
 
 class Macro_bunch:
     def __init__(self):
@@ -109,7 +110,7 @@ class Macro_bunch:
         self.total_current = total_current
         self.complete = 1
 
-    def init_cylinder(self,num,radius):
+    def init_cylinder(self,num,radius,length):
         '''Particles uniformly distributed in a cylinder of radius "radius"
         and length 2pi'''
         offset = (0.0,0.0,0.0)
@@ -130,7 +131,7 @@ class Macro_bunch:
         while added < local_num:
             if ((p[0,index]**2 + p[2,index]**2) < radius**2):
                 self.particles[0:6,added] = p[:,index]
-                self.particles[4,added] *= 2.0*math.pi/(2.0*radius)
+                self.particles[4,added] *= length/(2.0*radius)
                 self.particles[6,added] = added + 1
                 added += 1
             else:

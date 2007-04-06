@@ -1,4 +1,4 @@
-all: s2_fish.so macro_bunch_store.so
+all: s2_fish.so s2_fish_fftw2.so s2_fish_fftw3.so macro_bunch_store.so
 
 include ../make_defines
 PETSC_DIR = /home2/amundson/src/petsc-dev
@@ -6,10 +6,18 @@ PETSC_DIR = /home2/amundson/src/petsc-dev
 PETSC_INCLUDES = -I$(PETSC_DIR) -I$(PETSC_DIR)/bmake/linux-gnu-cxx-debug -I$(PETSC_DIR)/include -I/usr/X11R6/include -I$(PETSC_DIR)/externalpackages/fftw-3.1.2/linux-gnu-cxx-debug/include -I$(PETSC_DIR)/include/mpiuni
 PETSC_LIBS = -L$(PETSC_DIR)/lib/linux-gnu-cxx-debug -lpetscsnes -lpetscdm -lpetscksp -lpetscmat -lpetscvec -lpetsc
 
+FFTW2DIR = /home2/amundson/opt/fftw2
+FFTW2INCLUDES = -I$(FFTW2DIR)/include
+FFTW2LIBS = -L$(FFTW2DIR)/lib -lrfftw -lfftw 
+
+FFTW3DIR = /home2/amundson/opt/fftw3
+FFTW3INCLUDES = -I$(FFTW3DIR)/include
+FFTW3LIBS = -L$(FFTW3DIR)/lib -lfftw3
+
 CXXFLAGS = -O3
 
 %.o : %.cc
-	g++ $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(PETSC_INCLUDES) $<
+	g++ $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(PETSC_INCLUDES) $(FFTW2INCLUDES) $<
 
 space_charge: main.o
 	g++ $(CXXFLAGS) -o $@ $^
@@ -23,8 +31,17 @@ ndcheck: s2_fish.so
 sfcheck: s2_fish.so
 	python test_scalar_field.py
 
-s2_fish.so: s2_fish_wrap.o deposit.o ltwt_containers.o solver.o macro_bunch_store.so
+s2_fish.so: s2_fish_wrap.o deposit.o ltwt_containers.o solver.o macro_bunch_store.so mytimer.o
 	g++ $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(PETSC_LIBS)
+
+s2_fish_fftw2.so: s2_fish_fftw2_wrap.o deposit.o ltwt_containers.o solver_fftw2.o macro_bunch_store.so mytimer.o
+	g++ $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(PETSC_LIBS) $(FFTW2LIBS)
+
+solver_fftw3.o : solver_fftw3.cc
+	g++ $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(PETSC_INCLUDES) $(FFTW3INCLUDES) $<
+
+s2_fish_fftw3.so: s2_fish_fftw3_wrap.o deposit.o ltwt_containers.o solver_fftw3.o macro_bunch_store.so mytimer.o
+	g++ $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(FFTW3LIBS)
 
 macro_bunch_store.so: macro_bunch_store_wrap.o macro_bunch_store.o ltwt_containers.o
 	g++ $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
@@ -35,12 +52,16 @@ dump_array.so: dump_array.o
 dumbass: dumbass.o
 	g++ $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
 
-check: s2_fish.so macro_bunch_store.so
+check: s2_fish.so s2_fish_fftw3.so macro_bunch_store.so
 	python test_nd_array.py && \
 	python test_scalar_field.py && \
 	python test_macro_bunch.py && \
 	python test_deposit.py && \
-	python test_solver.py
+	python test_solver.py && \
+	python test_solver_fftw3.py
+
+check-fftw2: s2_fish_fftw2.so
+	python test_solver_fftw2.py
 
 quick: s2_fish.so macro_bunch_store.so
 	python test_solver.py
@@ -53,15 +74,26 @@ depend:
 
 # DO NOT DELETE
 
-deposit.o: deposit.h scalar_field.h nd_array.h triple.h macro_bunch_store.h
-deposit.o: ltwt_containers.h
+deposit.o: deposit.h scalar_field.h nd_array.h triple.h mytimer.h
+deposit.o: macro_bunch_store.h ltwt_containers.h
 ltwt_containers.o: ltwt_containers.h
 macro_bunch_store.o: macro_bunch_store.h ltwt_containers.h
 macro_bunch_store_wrap.o: macro_bunch_store.h ltwt_containers.h
-main.o: scalar_field.h nd_array.h triple.h
+main.o: scalar_field.h nd_array.h triple.h mytimer.h
+mytimer.o: mytimer.h
 nd_array_wrap.o: nd_array.h container_conversions.h
-s2_fish_wrap.o: nd_array.h scalar_field.h triple.h deposit.h
+s2_fish_fftw2_wrap.o: nd_array.h scalar_field.h triple.h mytimer.h deposit.h
+s2_fish_fftw2_wrap.o: macro_bunch_store.h ltwt_containers.h solver_fftw2.h
+s2_fish_fftw2_wrap.o: container_conversions.h
+s2_fish_fftw3_wrap.o: nd_array.h scalar_field.h triple.h mytimer.h deposit.h
+s2_fish_fftw3_wrap.o: macro_bunch_store.h ltwt_containers.h solver_fftw3.h
+s2_fish_fftw3_wrap.o: container_conversions.h
+s2_fish_wrap.o: nd_array.h scalar_field.h triple.h mytimer.h deposit.h
 s2_fish_wrap.o: macro_bunch_store.h ltwt_containers.h solver.h
 s2_fish_wrap.o: container_conversions.h
-solver.o: solver.h scalar_field.h nd_array.h triple.h macro_bunch_store.h
-solver.o: ltwt_containers.h
+solver.o: solver.h scalar_field.h nd_array.h triple.h mytimer.h
+solver.o: macro_bunch_store.h ltwt_containers.h
+solver_fftw2.o: solver.h scalar_field.h nd_array.h triple.h mytimer.h
+solver_fftw2.o: macro_bunch_store.h ltwt_containers.h
+solver_fftw3.o: solver.h scalar_field.h nd_array.h triple.h mytimer.h
+solver_fftw3.o: macro_bunch_store.h ltwt_containers.h

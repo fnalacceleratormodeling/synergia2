@@ -11,6 +11,8 @@
 #include "petscksp.h"
 #include "petscdmmg.h"
 
+#include "mytimer.h"
+
 void 
 check(PetscErrorCode ierr)
 {
@@ -83,7 +85,7 @@ fft_tester(int nx, int ny, int nz)
   ierr = PetscInitialize(&argc,&argv,(char *)0,""); check(ierr);
   PetscScalar data[array_length];
   for(int i=0; i<array_length; ++i) {
-    data[i] = 1.000001*i + 0.1;
+    data[i] = std::complex<double>(1.000001*i + 0.1,2.000001*i + 0.5);
   }
   Vec v;
   ierr = VecCreateSeqWithArray(PETSC_COMM_WORLD,array_length,
@@ -99,6 +101,16 @@ fft_tester(int nx, int ny, int nz)
 			  3,dims,&A); check(ierr);
 
   ierr = MatMult(A,v,vhat); check(ierr);
+
+  PetscScalar *aa,*aa1,*aa2;
+  ierr = VecGetArray(v,&aa); check(ierr);
+  ierr = VecGetArray(vhat,&aa1); check(ierr);
+
+//   for(int i=0; i<array_length; ++i) {
+//     std::cout << "in[" << i << "] = " << aa[i]
+// 	      << ", out[" << i << "] = " << aa1[i] << std::endl;
+//   }
+
   double norm = 1.0/(array_length);
   ierr = VecScale(vhat,norm);
   
@@ -130,7 +142,7 @@ fft_tester(int nx, int ny, int nz)
 }
 
 Vec
-get_rho_hat2_petsc(Real_scalar_field rho, Mat FFT_matrix)
+get_rho_hat2_petsc(Real_scalar_field &rho, Mat &FFT_matrix)
 {
   // steps 1 and 2
   Int3 num_points2 = rho.get_points().get_shape();
@@ -163,12 +175,13 @@ get_rho_hat2_petsc(Real_scalar_field rho, Mat FFT_matrix)
 }
 
 Vec
-get_G_hat2_petsc(Real_scalar_field rho, Mat FFT_matrix)
+get_G_hat2_petsc(Real_scalar_field &rho, Mat &FFT_matrix, bool z_periodic)
 {
   //step 3
   const double pi = 4.0*atan(1.0);
   Int3 num_points2 = rho.get_points().get_shape();
   num_points2.scale(2);
+  Double3 physical_size = rho.get_physical_size();
   Double3 physical_size2 = rho.get_physical_size();
   physical_size2.scale(2.0);
   Complex_scalar_field G2(num_points2.vector(), physical_size2.vector(),
@@ -176,31 +189,6 @@ get_G_hat2_petsc(Real_scalar_field rho, Mat FFT_matrix)
   G2.get_points().zero_all();
   Double3 h(rho.get_cell_size());
   Int3 index;
-  double x,y,z;
-  for(index[0]=0; index[0]<num_points2[0]; ++index[0]) {
-    if(index[0]>num_points2[0]/2) {
-      x = (num_points2[0]-index[0])*h[0];
-    } else {
-      x = index[0]*h[0];
-    }
-    for(index[1]=0; index[1]<num_points2[1]; ++index[1]) {
-      if(index[1]>num_points2[1]/2) {
-	y = (num_points2[1]-index[1])*h[1];
-      } else {
-	y = index[1]*h[1];
-      }
-      for(index[2]=0; index[2]<num_points2[2]; ++index[2]) {
-	if(index[2]>num_points2[2]/2) {
-	  z = (num_points2[2]-index[2])*h[2];
-	} else {
-	  z = index[2]*h[2];
-	}
-	if (!((x==0.0) && (y==0.0) && (z==0.0))) {
-	  G2.get_points().set(index,1.0/(4.0*pi*sqrt(x*x + y*y + z*z)));
-	}
-      }
-    }
-  }
   // What is G(0,0,0), anyway? Rob and Ji seem to think it is G(0,0,1).
   // Hockney seems to think it is 1.
   // I don't think it is either, but I have not yet worked out what I 
@@ -217,10 +205,9 @@ get_G_hat2_petsc(Real_scalar_field rho, Mat FFT_matrix)
 // 		      (3.0/(2.0*((1+sqrt(3))/2.0)*
 // 			    sqrt(h[0]*h[0] + h[1]*h[1] + h[2]*h[2]))));
 
-  // average value of outer sphere. This works unresonably well.
-  G2.get_points().set(Int3(0,0,0),(1.0/4.0*pi)*
-		      (3.0/(2.0*(sqrt(3))*
-			    sqrt(h[0]*h[0] + h[1]*h[1] + h[2]*h[2]))));
+  // average value of outer sphere. This works unreasonably well.
+  double G000 = (1.0/4.0*pi)*(3.0/(2.0*(sqrt(3))*
+				   sqrt(h[0]*h[0] + h[1]*h[1] + h[2]*h[2])));
   // Calculate what I think the answer should be by doing a very
   // simple numerical integral. The resulting answer doesn't work
   // nearly as well as the outer sphere approximation above, so
@@ -250,6 +237,49 @@ get_G_hat2_petsc(Real_scalar_field rho, Mat FFT_matrix)
 //   double mean_inv_r = sum*dx*dy*dz/vol;
 //   G2.get_points().set(Int3(0,0,0),(1.0/4.0*pi)*mean_inv_r);
 
+  double x,y,z,G;
+  const int num_images = 4;
+  for(index[0]=0; index[0]<num_points2[0]; ++index[0]) {
+    if(index[0]>=num_points2[0]/2) {
+      x = (num_points2[0]-index[0])*h[0];
+    } else {
+      x = index[0]*h[0];
+    }
+    for(index[1]=0; index[1]<num_points2[1]; ++index[1]) {
+      if(index[1]>=num_points2[1]/2) {
+	y = (num_points2[1]-index[1])*h[1];
+      } else {
+	y = index[1]*h[1];
+      }
+      for(index[2]=0; index[2]<num_points2[2]; ++index[2]) {
+	if(index[2]>=num_points2[2]/2) {
+	  z = (num_points2[2]-index[2])*h[2];
+	} else {
+	  z = index[2]*h[2];
+	}
+	if (!((x==0.0) && (y==0.0) && (z==0.0))) {
+	  G = 1.0/(4.0*pi*sqrt(x*x + y*y + z*z));
+	} else {
+	  G = G000;
+	}
+	if (z_periodic) {
+	  for(int image=-num_images; image<=num_images; ++image) {
+	    if (image != 0) {
+	      double z_image = z+image*physical_size[2];
+	      if (!((x==0.0) && (y==0.0) && (fabs(z_image)<1.0e-14))) {
+		G += 1.0/(4.0*pi*sqrt(x*x + y*y + z_image*z_image));
+	      } else {
+		G += G000;
+	      }
+	    }
+	  }
+	}
+	G2.get_points().set(index,G);
+      }
+    }
+  }
+
+
   Vec G2_petsc;
   PetscErrorCode ierr;
   ierr = VecCreateSeqWithArray(PETSC_COMM_WORLD,G2.get_points().get_length(),
@@ -263,8 +293,8 @@ get_G_hat2_petsc(Real_scalar_field rho, Mat FFT_matrix)
 }
 
 Vec
-get_phi_hat2_petsc(Real_scalar_field rho, Vec rho_hat2_petsc,
-		   Vec G_hat2_petsc)
+get_phi_hat2_petsc(Real_scalar_field &rho, Vec &rho_hat2_petsc,
+		   Vec &G_hat2_petsc)
 {
   // step 4
   PetscErrorCode ierr;
@@ -303,7 +333,7 @@ get_phi_hat2_petsc(Real_scalar_field rho, Vec rho_hat2_petsc,
 }
 
 Vec
-get_phi2_petsc(Real_scalar_field rho, Vec phi_hat2_petsc, Mat FFT_matrix)
+get_phi2_petsc(Real_scalar_field &rho, Vec &phi_hat2_petsc, Mat &FFT_matrix)
 {
   // step 5
   PetscErrorCode ierr;
@@ -318,7 +348,7 @@ get_phi2_petsc(Real_scalar_field rho, Vec phi_hat2_petsc, Mat FFT_matrix)
 }
 
 Real_scalar_field
-get_phi(Real_scalar_field rho, Vec phi2_petsc)
+get_phi(Real_scalar_field &rho, Vec &phi2_petsc)
 {
   // step 6
   Real_scalar_field phi(rho.get_points().get_shape(),rho.get_physical_size(),
@@ -348,7 +378,7 @@ get_phi(Real_scalar_field rho, Vec phi2_petsc)
 
 
 Real_scalar_field
-solver_fft_open(Real_scalar_field rho)
+solver_fft_open(Real_scalar_field &rho, bool z_periodic)
 {
   // The plan: Solve del^2 phi = rho by:
   //  1) convert rho to rho2, where 2 suffix indicates
@@ -360,6 +390,7 @@ solver_fft_open(Real_scalar_field rho)
   //  5) calculate phi2 = invFFT(phi_hat2)
   //  6) extract phi from phi2
 
+  double t0,t1,t00 = time();
   int argc = 0;
   char **argv;
   PetscErrorCode ierr;
@@ -371,7 +402,7 @@ solver_fft_open(Real_scalar_field rho)
 			  3,num_points2.c_array(),
 			  &FFT_matrix); check(ierr);
   Vec rho_hat2_petsc = get_rho_hat2_petsc(rho,FFT_matrix);
-  Vec G_hat2_petsc = get_G_hat2_petsc(rho,FFT_matrix);
+  Vec G_hat2_petsc = get_G_hat2_petsc(rho,FFT_matrix,z_periodic);
   Vec phi_hat2_petsc = get_phi_hat2_petsc(rho, rho_hat2_petsc,
 					  G_hat2_petsc);
   ierr = VecDestroy(rho_hat2_petsc); check(ierr);
@@ -380,11 +411,12 @@ solver_fft_open(Real_scalar_field rho)
   ierr = VecDestroy(phi_hat2_petsc); check(ierr);
   Real_scalar_field phi = get_phi(rho,phi2_petsc);
   ierr = VecDestroy(phi2_petsc); check(ierr);
+
   return phi;
 }
 
 Real_scalar_field
-calculate_E_n_higher_order(Real_scalar_field phi, int n)
+calculate_E_n_higher_order(Real_scalar_field &phi, int n)
 {
   if((n<0) || (n>2)) {
     std::stringstream message("");
@@ -442,7 +474,7 @@ calculate_E_n_higher_order(Real_scalar_field phi, int n)
 }
 
 Real_scalar_field
-calculate_E_n(Real_scalar_field phi, int n)
+calculate_E_n(Real_scalar_field &phi, int n)
 {
   if((n<0) || (n>2)) {
     std::stringstream message("");
@@ -487,8 +519,8 @@ calculate_E_n(Real_scalar_field phi, int n)
 }
 
 void
-apply_E_n_kick(Real_scalar_field E, int n_axis, double tau,
-	       Macro_bunch_store mbs)
+apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
+	       Macro_bunch_store &mbs)
 {
   if((n_axis<0) || (n_axis>2)) {
     std::stringstream message("");
@@ -518,8 +550,11 @@ apply_E_n_kick(Real_scalar_field E, int n_axis, double tau,
   factor *= 1.0/mbs.total_num;
   if (n_axis == 2) {
     factor *= beta*gamma*gamma;
+  } else {
+    // (We think) this is for the Lorentz transformation of the transverse
+    // E field.
+    factor *= gamma;
   }
-
   int index = 2*n_axis+1; // for axis n_axis = (0,1,2) corresponding to x,y,z,
                           // in particle store indexing, px,py,pz = (1,3,5)
   double kick;
@@ -723,7 +758,7 @@ PetscErrorCode ComputeJacobian(DMMG dmmg, Mat J, Mat jac)
 #undef __FUNCT__
 #define __FUNCT__ "solver_fd_multigrid_open"
 Real_scalar_field
-solver_fd_multigrid_open(Real_scalar_field rho)
+solver_fd_multigrid_open(Real_scalar_field &rho)
 {
   int argc = 3;
   char fakeprog[] = "./solver_fd_multigrid_open";

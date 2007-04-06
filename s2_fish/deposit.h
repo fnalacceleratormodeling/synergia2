@@ -14,7 +14,8 @@
 
 // Deposit charge using Cloud-in-Cell (CIC) algorithm.
 double
-deposit_charge_cic(Real_scalar_field& sf, Macro_bunch_store& mbs);
+deposit_charge_cic(Real_scalar_field& sf, Macro_bunch_store& mbs,
+		   bool z_periodic);
 
 // Deposit charge in the bin to the left hand side of the particle
 double

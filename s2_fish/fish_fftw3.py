@@ -1,12 +1,14 @@
 #!/usr/bin/env python
 
-from s2_fish import *
+from s2_fish import Real_scalar_field, deposit_charge_cic, calculate_E_n, apply_E_n_kick
+from s2_fish_fftw3 import *
+from s2_fish_fftw3 import solver_fftw3_open as solver_fft_open
 import time
 import syn2_diagnostics
 import sys
 
 def apply_space_charge_kick(shape,size,offset,mbunch,tau):
-	show_timings=0
+	show_timings=1
 	t0 = time.time()
 	mbunch.convert_to_fixedt()
         t1 = time.time()
@@ -29,18 +31,27 @@ def apply_space_charge_kick(shape,size,offset,mbunch,tau):
 		print "solve:",t1-t0
         calc_time = 0
         apply_time = 0
-        for E_axis in range(0,3):
-            t0 = time.time()
-            E = calculate_E_n(phi,E_axis)
-            t1 = time.time()
-            calc_time += t1 -t0
-            t0 = time.time()
-            apply_E_n_kick(E,E_axis,tau,mbunch.get_store())
-            t1 = time.time()
-            apply_time += t1 - t0
-	if show_timings:
-		print "calc E:",calc_time
-		print "apply:",apply_time
+	old = 0
+	if old:
+		for E_axis in range(0,3):
+		    t0 = time.time()
+		    E = calculate_E_n(phi,E_axis)
+		    t1 = time.time()
+		    calc_time += t1 -t0
+		    t0 = time.time()
+		    apply_E_n_kick(E,E_axis,tau,mbunch.get_store())
+		    t1 = time.time()
+		    apply_time += t1 - t0
+		if show_timings:
+	 		print "calc E:",calc_time
+	 		print "apply:",apply_time
+	else:
+		t0 = time.time()
+		full_kick(phi,tau,mbunch.get_store())
+		t1 = time.time()
+		full_kick_time = t1-t0;
+		if show_timings:
+			print "full kick:",full_kick_time
 	t0 = time.time()
 	mbunch.convert_to_fixedz()
         t1 = time.time()
