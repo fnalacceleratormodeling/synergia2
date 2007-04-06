@@ -17,7 +17,7 @@ import math
 
 import syn2_diagnostics
 
-import fish
+import fish_fftw3
 import macro_bunch
 
 import sys
@@ -126,7 +126,7 @@ if ( __name__ == '__main__'):
                     print "finished space charge kick"
             elif action.get_synergia_action() == "space charge kick":
                 tk0 = time.time()
-                fish.apply_space_charge_kick(griddim,size,offset, b, 2*tau)
+                fish_fftw3.apply_space_charge_kick(griddim,size,offset, b, 2*tau)
                 tk1 = time.time()
                 kick_time += tk1 - tk0
             elif action.get_synergia_action() == "rfcavity1" or \
@@ -153,7 +153,7 @@ if ( __name__ == '__main__'):
     import loadfile
 
     print \
-"""nb: openchannel_fish.py expects to find the results of openchannel_impact.py
+"""nb: openchannel_fish_fftw3.py expects to find the results of openchannel_impact.py
 in the current directory.
 """
     dimpact = diagnostics.Diagnostics()

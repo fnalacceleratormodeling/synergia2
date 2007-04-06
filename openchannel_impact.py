@@ -62,7 +62,8 @@ if ( __name__ == '__main__'):
     width_x = 0.004
     pipe_radius = 0.04
     kicks_per_line = 10
-    griddim = (64,64,64)
+    gridnum = int(sys.argv[1])
+    griddim = (gridnum,gridnum,gridnum)
     num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
                                      part_per_cell,1)
     
@@ -104,6 +105,7 @@ if ( __name__ == '__main__'):
     s = 0.0
     first_action = 0
     diag = syn2_diagnostics_impact.Diagnostics(g.get_initial_u())
+    kick_time = 0.0
     for action in g.get_actions():
         if action.is_mapping():
             action.get_data().apply(b.particles(),
@@ -116,6 +118,7 @@ if ( __name__ == '__main__'):
                 if not first_action:
                     print "finished space charge kick"
             elif action.get_synergia_action() == "space charge kick":
+                tk0 = time.time()
                 UberPkgpy.Apply_SpaceCharge_external(
                     b.get_beambunch(),
                     pgrid.get_pgrid2d(),
@@ -125,6 +128,8 @@ if ( __name__ == '__main__'):
                     cgrid.get_bc_num(),
                     field.get_pipe_radius(),
                     tau, 0, scaling_frequency,0)
+                tk1 = time.time()
+                kick_time += tk1 - tk0
             elif action.get_synergia_action() == "rfcavity1" or \
                  action.get_synergia_action() == "rfcavity2":
                 element = action.get_data()
@@ -141,7 +146,7 @@ if ( __name__ == '__main__'):
             print "action",action.get_type(),"unknown"
         first_action = 0
 
-    print "elapsed time =",time.time() - t0
+    print "elapsed time =",time.time() - t0, "kick time =",kick_time
 
     diag.write("ocimpact")
     import pylab
