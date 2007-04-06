@@ -1,14 +1,16 @@
 #!/usr/bin/env python
 
-from s2_fish import Real_scalar_field, deposit_charge_cic, calculate_E_n, apply_E_n_kick
-from s2_fish_fftw3 import *
-from s2_fish_fftw3 import solver_fftw3_open as solver_fft_open
+from s2_containers import *
+from s2_deposit import *
+from s2_electric_field import *
+from s2_solver_fftw3 import solver_fftw3_open as solver_fft_open
+
 import time
 import syn2_diagnostics
 import sys
 
 def apply_space_charge_kick(shape,size,offset,mbunch,tau):
-	show_timings=1
+	show_timings=0
 	t0 = time.time()
 	mbunch.convert_to_fixedt()
         t1 = time.time()
@@ -57,3 +59,4 @@ def apply_space_charge_kick(shape,size,offset,mbunch,tau):
         t1 = time.time()
 	if show_timings:
 		print "unconvert:",t1-t0
+

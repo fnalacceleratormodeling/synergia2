@@ -2,7 +2,7 @@
 
 import sys
 
-from s2_fish import *
+from s2_containers import *
 import unittest
 class Test_Real_scalar_field(unittest.TestCase):
     def test_01_construct1(self):

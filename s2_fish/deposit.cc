@@ -2,6 +2,9 @@
 #include <boost/python/numeric.hpp>
 #include <boost/python/tuple.hpp>
 
+#include "mpi.h"
+#include <cstdlib>
+
 // Deposit charge using Cloud-in-Cell (CIC) algorithm.
 double
 deposit_charge_cic(Real_scalar_field& sf, Macro_bunch_store& mbs,
@@ -49,7 +52,16 @@ deposit_charge_cic(Real_scalar_field& sf, Macro_bunch_store& mbs,
 	sf.get_points().set(right,sum);
       }
     }
-  }  
+  }
+  void* tmp = malloc(sf.get_points().get_length()*sizeof(double));
+  MPI_Allreduce(reinterpret_cast<void*>(sf.get_points().get_base_address()),
+		tmp,sf.get_points().get_length(),
+		MPI_DOUBLE,MPI_SUM,MPI_COMM_WORLD);
+  memcpy(reinterpret_cast<void*>(sf.get_points().get_base_address()),
+	 tmp,sf.get_points().get_length()*sizeof(double));
+  free(tmp);
+
+  //jfa next line is wrong on multiple processors!!!
   return total_charge_per_cell_vol * h[0]*h[1]*h[2];
 }
 

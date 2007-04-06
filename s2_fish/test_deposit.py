@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
-from s2_fish import *
+from s2_deposit import *
+from s2_containers import *
+
 from macro_bunch import Macro_bunch
 import Numeric
 import sys

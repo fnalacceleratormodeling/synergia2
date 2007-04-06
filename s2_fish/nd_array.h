@@ -10,6 +10,8 @@
 #include <stdexcept>
 #include <memory>
 
+#include "mytimer.h"
+
 template<class T>
 class Nd_array;
 

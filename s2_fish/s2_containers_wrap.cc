@@ -1,7 +1,5 @@
 #include "nd_array.h"
 #include "scalar_field.h"
-#include "deposit.h"
-#include "solver.h"
 #undef _POSIX_C_SOURCE
 #include <boost/python.hpp>
 
@@ -9,7 +7,7 @@
 
 using namespace boost::python;
 
-BOOST_PYTHON_MODULE(s2_fish)
+BOOST_PYTHON_MODULE(s2_containers)
 {
   //---------------------------------------------------------------------
   // std::vector<> conversions
@@ -193,20 +191,5 @@ BOOST_PYTHON_MODULE(s2_fish)
     .def("read_from_file",&Complex_scalar_field::read_from_file)
     .def("describe",&Complex_scalar_field::describe)
     ;
-
-  //---------------------------------------------------------------------
-  // deposit functions
-  //---------------------------------------------------------------------
-  def("deposit_charge_cic",deposit_charge_cic);
-  def("deposit_charge_ngp",deposit_charge_ngp);
-  
-  //---------------------------------------------------------------------
-  // solvers
-  //---------------------------------------------------------------------
-  def("fft_tester",fft_tester);
-  def("solver_fft_open",solver_fft_open);
-  def("solver_fd_multigrid_open",solver_fd_multigrid_open);
-  def("calculate_E_n",calculate_E_n);
-  def("apply_E_n_kick",apply_E_n_kick);
 }
 

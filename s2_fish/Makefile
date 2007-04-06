@@ -1,4 +1,4 @@
-all: s2_fish.so s2_fish_fftw2.so s2_fish_fftw3.so macro_bunch_store.so
+all: s2_containers.so s2_deposit.so s2_electric_field.so s2_solver.so s2_solver_fftw2.so s2_solver_fftw3.so macro_bunch_store.so
 
 include ../make_defines
 PETSC_DIR = /home2/amundson/src/petsc-dev
@@ -15,15 +15,16 @@ FFTW3INCLUDES = -I$(FFTW3DIR)/include
 FFTW3LIBS = -L$(FFTW3DIR)/lib -lfftw3
 
 CXXFLAGS = -O3
+CXX = mpicxx
 
 %.o : %.cc
-	g++ $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(PETSC_INCLUDES) $(FFTW2INCLUDES) $<
+	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(PETSC_INCLUDES) $(FFTW2INCLUDES) $<
 
 space_charge: main.o
-	g++ $(CXXFLAGS) -o $@ $^
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
 nd_array.so: nd_array_wrap.o
-	g++ $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(PETSC_LIBS)
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(PETSC_LIBS)
 
 ndcheck: s2_fish.so
 	python test_nd_array.py
@@ -31,28 +32,40 @@ ndcheck: s2_fish.so
 sfcheck: s2_fish.so
 	python test_scalar_field.py
 
-s2_fish.so: s2_fish_wrap.o deposit.o ltwt_containers.o solver.o macro_bunch_store.so mytimer.o
+s2_containers.so: s2_containers_wrap.o ltwt_containers.o mytimer.o
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
+
+s2_deposit.so: s2_deposit_wrap.o deposit.o s2_containers.so mytimer.o
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
+
+s2_electric_field.so: s2_electric_field_wrap.o electric_field.o s2_containers.so mytimer.o
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
+
+solver.o : solver.cc
+	g++ $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(PETSC_INCLUDES) $<
+
+s2_solver.so: s2_solver_wrap.o solver.o macro_bunch_store.so mytimer.o
 	g++ $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(PETSC_LIBS)
 
-s2_fish_fftw2.so: s2_fish_fftw2_wrap.o deposit.o ltwt_containers.o solver_fftw2.o macro_bunch_store.so mytimer.o
-	g++ $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(PETSC_LIBS) $(FFTW2LIBS)
+s2_solver_fftw2.so: s2_solver_fftw2_wrap.o solver_fftw2.o macro_bunch_store.so mytimer.o
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(FFTW2LIBS)
 
 solver_fftw3.o : solver_fftw3.cc
-	g++ $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(PETSC_INCLUDES) $(FFTW3INCLUDES) $<
+	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(FFTW3INCLUDES) $<
 
-s2_fish_fftw3.so: s2_fish_fftw3_wrap.o deposit.o ltwt_containers.o solver_fftw3.o macro_bunch_store.so mytimer.o
-	g++ $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(FFTW3LIBS)
+s2_solver_fftw3.so: s2_solver_fftw3_wrap.o solver_fftw3.o macro_bunch_store.so mytimer.o
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(FFTW3LIBS)
 
 macro_bunch_store.so: macro_bunch_store_wrap.o macro_bunch_store.o ltwt_containers.o
-	g++ $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
 
 dump_array.so: dump_array.o
-	g++ $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
 
 dumbass: dumbass.o
-	g++ $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
 
-check: s2_fish.so s2_fish_fftw3.so macro_bunch_store.so
+check: s2_containers.so s2_deposit.so s2_electric_field.so s2_solver.so s2_solver_fftw3.so macro_bunch_store.so
 	python test_nd_array.py && \
 	python test_scalar_field.py && \
 	python test_macro_bunch.py && \
@@ -60,10 +73,10 @@ check: s2_fish.so s2_fish_fftw3.so macro_bunch_store.so
 	python test_solver.py && \
 	python test_solver_fftw3.py
 
-check-fftw2: s2_fish_fftw2.so
+check-fftw2: s2_solver_fftw2.so
 	python test_solver_fftw2.py
 
-quick: s2_fish.so macro_bunch_store.so
+quick: s2_solver.so macro_bunch_store.so
 	python test_solver.py
 
 clean:

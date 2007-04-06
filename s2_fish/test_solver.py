@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-from s2_fish import *
+from s2_solver import *
+from s2_containers import *
+from s2_deposit import *
+from s2_electric_field import *
+
 from macro_bunch import Macro_bunch
 import numarray
 import time

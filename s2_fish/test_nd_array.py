@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from s2_fish import Real_nd_array, Complex_nd_array
+from s2_containers import Real_nd_array, Complex_nd_array
 import tempfile,os,sys
 import unittest
 class Test_Real_nd_array(unittest.TestCase):
