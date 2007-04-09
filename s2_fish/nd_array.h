@@ -39,15 +39,19 @@ class Nd_array {
   std::allocator<T> myallocator;
   size_t size;
   std::vector<int> dims;
+  int dim0_lower,dim0_upper;
   bool frozen;
+  inline int old_vector_index(int const indices[]) const;
   inline int vector_index(int const indices[]) const;
   void print_recursive(std::string name, int which_index, int indices[]) const;
-  void set_dims(int order, int const dims_in[]);
+  void set_dims(int order, int const dims_in[],int dim0_lower, int dim0_upper);
   inline void assert_dims(int const indices[]) const;
  public:
   Nd_array();
   Nd_array(int order, int const dims_in[]);
+  Nd_array(int order, int const dims_in[],int dim0_lower, int dim0_upper);
   Nd_array(std::vector<int> const dims_in);
+  Nd_array(std::vector<int> const dims_in,int dim0_lower, int dim0_upper);
   Nd_array(const Nd_array& original);
 
   template<class T1> void copy(Nd_array<T1> * T1_tensor);
@@ -57,9 +61,13 @@ class Nd_array {
   typename complex_helper<T>::the_type imag();
 
   void reshape(int order, int const dims_in[]);
+  void reshape(int order, int const dims_in[],int dim0_lower, int dim0_upper);
   void reshape(std::vector<int> const& dims);
+  void reshape(std::vector<int> const& dims,int dim0_lower, int dim0_upper);
   void freeze_shape();
   std::vector<int> get_shape() const;
+  int get_dim0_lower() const;
+  int get_dim0_upper() const;
 
   void zero_all( );
   inline void set(int const indices[],T val);
@@ -144,14 +152,18 @@ Nd_array<T>::Nd_array()
 
 template<class T>
 void
-Nd_array<T>::set_dims(int order, int const dims_in[])
+Nd_array<T>::set_dims(int order, int const dims_in[],
+		      int dim0_lower, int dim0_upper)
 {
   if (size > 0) {
     myallocator.deallocate(storage,size);
   }
-  size = 1;
   dims.resize(order);
-  for (int i = 0; i < order ; i++) {
+  this->dim0_lower = dim0_lower;
+  this->dim0_upper = dim0_upper;
+  dims[0] = dim0_upper;
+  size = dim0_upper - dim0_lower;
+  for (int i = 1; i < order ; i++) {
     dims[i] = dims_in[i];
     size *= dims[i];
   }
@@ -163,7 +175,16 @@ Nd_array<T>::Nd_array(int order, int const dims_in[])
 {
   frozen = false;
   size = 0;
-  set_dims(order,dims_in);
+  set_dims(order,dims_in,0,dims_in[0]);
+}
+
+template<class T>
+Nd_array<T>::Nd_array(int order, int const dims_in[],
+		      int dim0_lower, int dim0_upper)
+{
+  frozen = false;
+  size = 0;
+  set_dims(order,dims_in,dim0_lower,dim0_upper);
 }
 
 template<class T>
@@ -171,7 +192,16 @@ Nd_array<T>::Nd_array(std::vector<int> const dims_in)
 {
   frozen = false;
   size = 0;
-  set_dims(dims_in.size(),&dims_in[0]);
+  set_dims(dims_in.size(),&dims_in[0],0,dims_in[0]);
+}
+
+template<class T>
+Nd_array<T>::Nd_array(std::vector<int> const dims_in,
+		      int dim0_lower, int dim0_upper)
+{
+  frozen = false;
+  size = 0;
+  set_dims(dims_in.size(),&dims_in[0],dim0_lower,dim0_upper);
 }
 
 template<class T>
@@ -179,12 +209,12 @@ Nd_array<T>::Nd_array(const Nd_array& original)
 {
   frozen = false;
   size = 0;
-  set_dims(original.dims.size(),&original.dims[0]);
+  set_dims(original.dims.size(),&original.dims[0],
+	   original.dim0_lower,original.dim0_upper);
   for (int i=0; i<size; ++i) {
     storage[i] = original.storage[i];
   }
 }
-
 
 template<class T>
 template<class T1>
@@ -192,7 +222,8 @@ void
 Nd_array<T>::copy(Nd_array<T1> * T1_tensor)
 {
   std::vector<int> shape(T1_tensor->get_shape());
-  set_dims(shape.size(),&shape[0]);
+  set_dims(shape.size(),&shape[0],T1_tensor->get_dim0_lower(),
+	   T1_tensor->get_dim0_upper());
   for(int i=0; i<T1_tensor->get_length(); ++i) {
   	storage[i] = *(T1_tensor->get_base_address()+i);
   }
@@ -240,11 +271,27 @@ template<class T>
 void
 Nd_array<T>::reshape(int order, int const dims_in[])
 {
+  reshape(order,dims_in,0,dims_in[0]);
+}
+
+template<class T>
+void
+Nd_array<T>::reshape(int order, int const dims_in[],
+		     int dim0_lower, int dim0_upper)
+{
   bool shape_changed = false;
   if (order == dims.size()) {
-    for (int i=0; i<order; ++i) {
-      if (dims[i] != dims_in[i]) {
+    if (this->dim0_lower != dim0_lower) {
+      shape_changed = true;
+    } else {
+      if (this->dim0_upper != dim0_upper) {
 	shape_changed = true;
+      } else {
+	for (int i=0; i<order; ++i) {
+	  if (dims[i] != dims_in[i]) {
+	    shape_changed = true;
+	  }
+	}
       }
     }
   } else {
@@ -255,7 +302,7 @@ Nd_array<T>::reshape(int order, int const dims_in[])
       std::runtime_error("Attempt to change the shape of a frozen Nd_array");
   }
   if (shape_changed) {
-    set_dims(order, dims_in);
+    set_dims(order, dims_in, dim0_lower, dim0_upper);
   }
 }
 
@@ -263,7 +310,15 @@ template<class T>
 void
 Nd_array<T>::reshape(std::vector<int> const& dims)
 {
-  reshape(dims.size(),&dims[0]);
+  reshape(dims.size(),&dims[0],0,dims[0]);
+}
+
+template<class T>
+void
+Nd_array<T>::reshape(std::vector<int> const& dims,
+		      int dim0_lower, int dim0_upper)
+{
+  reshape(dims.size(),&dims[0],dim0_lower,dim0_upper);
 }
 
 template<class T>
@@ -280,6 +335,19 @@ Nd_array<T>::get_shape() const
   return dims;
 }
 
+template<class T>
+int
+Nd_array<T>::get_dim0_lower() const
+{
+  return dim0_lower;
+}
+
+template<class T>
+int
+Nd_array<T>::get_dim0_upper() const
+{
+  return dim0_upper;
+}
 
 template<class T>
 void
@@ -293,7 +361,7 @@ Nd_array<T>::zero_all( )
 
 template<class T>
 inline int
-Nd_array<T>::vector_index(int const indices[]) const
+Nd_array<T>::old_vector_index(int const indices[]) const
 {
   int val = 0;
   int multiplier = 1;
@@ -302,6 +370,25 @@ Nd_array<T>::vector_index(int const indices[]) const
     multiplier *= dims[i];
   }
   return val;
+}
+
+template<class T>
+inline int
+Nd_array<T>::vector_index(int const indices[]) const
+{
+  int val = 0;
+  int multiplier = 1;
+  for(int i = dims.size()-1; i >=1 ; --i) {
+    val += indices[i]*multiplier;
+    multiplier *= dims[i];
+  }
+  val += (indices[0]-dim0_lower)*multiplier;
+  int other_val = old_vector_index(indices);
+  if (other_val != val) {
+    std::cout << "jfa: wtf?\n";
+  }
+  return val;
+
 }
 
 template<class T>
@@ -326,7 +413,7 @@ Nd_array<T>::assert_dims(int const indices[]) const
 {
   // optimize for case size == 3
   if (dims.size() == 3) {
-    if ((indices[0] < 0) || (indices[0] >= dims[0]) ||
+    if ((indices[0] < dim0_lower) || (indices[0] >= dim0_upper) ||
 	(indices[1] < 0) || (indices[1] >= dims[1]) ||
 	(indices[2] < 0) || (indices[2] >= dims[2])) {
       std::stringstream message("");
@@ -334,7 +421,7 @@ Nd_array<T>::assert_dims(int const indices[]) const
 	      << indices[0] << ","
 	      << indices[1] << ","
 	      << indices[2] << ") outside of bounds of field ("
-	      << "0-" << dims[0]-1 << ","
+	      << dim0_lower << "-" << dim0_upper << ","
 	      << "0-" << dims[1]-1 << ","
 	      << "0-" << dims[2]-1 << ")";
       throw std::out_of_range(message.str());
@@ -346,9 +433,13 @@ Nd_array<T>::assert_dims(int const indices[]) const
       throw std::out_of_range(message.str());
     }
     bool out_of_bounds = false;
-    for(int i=0; i<dims.size(); ++i) {
-      if ((indices[i] < 0) || (indices[i] >= dims[i])) {
-	out_of_bounds = true;
+    if ((indices[0] < dim0_lower) || (indices[0] >= dim0_upper)) {
+      out_of_bounds = true;
+    } else {
+      for(int i=1; i<dims.size(); ++i) {
+	if ((indices[i] < 0) || (indices[i] >= dims[i])) {
+	  out_of_bounds = true;
+	}
       }
     }
     if (out_of_bounds) {
@@ -361,7 +452,11 @@ Nd_array<T>::assert_dims(int const indices[]) const
 	}
       }
       message << ") outside of bounds (";
-      for(int i=0; i<dims.size(); ++i) {
+      message << dim0_lower << "-" << dim0_upper;
+      if (dims.size() > 1) {
+	message << ",";
+      }
+      for(int i=1; i<dims.size(); ++i) {
 	message << "0-" << dims[i]-1;
 	if (i<dims.size()-1) {
 	  message << ",";
