@@ -87,26 +87,35 @@ depend:
 
 # DO NOT DELETE
 
-deposit.o: deposit.h scalar_field.h nd_array.h triple.h mytimer.h
+deposit.o: deposit.h scalar_field.h nd_array.h mytimer.h triple.h
 deposit.o: macro_bunch_store.h ltwt_containers.h
+electric_field.o: electric_field.h scalar_field.h nd_array.h mytimer.h
+electric_field.o: triple.h macro_bunch_store.h ltwt_containers.h
 ltwt_containers.o: ltwt_containers.h
 macro_bunch_store.o: macro_bunch_store.h ltwt_containers.h
 macro_bunch_store_wrap.o: macro_bunch_store.h ltwt_containers.h
-main.o: scalar_field.h nd_array.h triple.h mytimer.h
+main.o: scalar_field.h nd_array.h mytimer.h triple.h
 mytimer.o: mytimer.h
-nd_array_wrap.o: nd_array.h container_conversions.h
-s2_fish_fftw2_wrap.o: nd_array.h scalar_field.h triple.h mytimer.h deposit.h
-s2_fish_fftw2_wrap.o: macro_bunch_store.h ltwt_containers.h solver_fftw2.h
-s2_fish_fftw2_wrap.o: container_conversions.h
-s2_fish_fftw3_wrap.o: nd_array.h scalar_field.h triple.h mytimer.h deposit.h
-s2_fish_fftw3_wrap.o: macro_bunch_store.h ltwt_containers.h solver_fftw3.h
-s2_fish_fftw3_wrap.o: container_conversions.h
-s2_fish_wrap.o: nd_array.h scalar_field.h triple.h mytimer.h deposit.h
-s2_fish_wrap.o: macro_bunch_store.h ltwt_containers.h solver.h
-s2_fish_wrap.o: container_conversions.h
-solver.o: solver.h scalar_field.h nd_array.h triple.h mytimer.h
+nd_array_wrap.o: nd_array.h mytimer.h container_conversions.h
+s2_containers_wrap.o: nd_array.h mytimer.h scalar_field.h triple.h
+s2_containers_wrap.o: container_conversions.h
+s2_deposit_wrap.o: deposit.h scalar_field.h nd_array.h mytimer.h triple.h
+s2_deposit_wrap.o: macro_bunch_store.h ltwt_containers.h
+s2_electric_field_wrap.o: electric_field.h scalar_field.h nd_array.h
+s2_electric_field_wrap.o: mytimer.h triple.h macro_bunch_store.h
+s2_electric_field_wrap.o: ltwt_containers.h
+s2_solver_fftw2_wrap.o: nd_array.h mytimer.h scalar_field.h triple.h
+s2_solver_fftw2_wrap.o: deposit.h macro_bunch_store.h ltwt_containers.h
+s2_solver_fftw2_wrap.o: solver_fftw2.h container_conversions.h
+s2_solver_fftw3_wrap.o: nd_array.h mytimer.h scalar_field.h triple.h
+s2_solver_fftw3_wrap.o: deposit.h macro_bunch_store.h ltwt_containers.h
+s2_solver_fftw3_wrap.o: solver_fftw3.h container_conversions.h
+s2_solver_wrap.o: solver.h scalar_field.h nd_array.h mytimer.h triple.h
+s2_solver_wrap.o: macro_bunch_store.h ltwt_containers.h
+s2_solver_wrap.o: container_conversions.h
+solver.o: solver.h scalar_field.h nd_array.h mytimer.h triple.h
 solver.o: macro_bunch_store.h ltwt_containers.h
-solver_fftw2.o: solver.h scalar_field.h nd_array.h triple.h mytimer.h
+solver_fftw2.o: solver.h scalar_field.h nd_array.h mytimer.h triple.h
 solver_fftw2.o: macro_bunch_store.h ltwt_containers.h
-solver_fftw3.o: solver.h scalar_field.h nd_array.h triple.h mytimer.h
+solver_fftw3.o: solver.h scalar_field.h nd_array.h mytimer.h triple.h
 solver_fftw3.o: macro_bunch_store.h ltwt_containers.h
