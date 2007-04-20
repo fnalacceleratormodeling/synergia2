@@ -77,6 +77,7 @@ class Macro_bunch:
 
     def init_sphere(self,num,radius):
         '''Particles uniformly distributed in a sphere of radius "radius"'''
+        RandomArray.seed(17,59)
         offset = (0.0,0.0,0.0)
         local_num = num
         total_num = local_num # fix me for mpi

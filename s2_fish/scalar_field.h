@@ -27,8 +27,13 @@ class Scalar_field
   Scalar_field();
   Scalar_field(int num_points[3], double physical_size[3], 
 	       double physical_offset[3]);
+  Scalar_field(int num_points[3], double physical_size[3], 
+	       double physical_offset[3], int dim0_lower, int dim0_upper);
   Scalar_field(std::vector<int> num_points, std::vector<double> physical_size, 
 	       std::vector<double> physical_offset);
+  Scalar_field(std::vector<int> num_points, std::vector<double> physical_size, 
+	       std::vector<double> physical_offset,
+	       int dim0_lower, int dim0_upper);
   ~Scalar_field();
   template<class T1> void copy(Scalar_field<T1> * T1_scalar_field);
 
@@ -76,6 +81,15 @@ Scalar_field<T>::Scalar_field(int num_points[3], double physical_size[3],
 }
 
 template<class T>
+Scalar_field<T>::Scalar_field(int num_points[3], double physical_size[3],
+			      double physical_offset[3],
+			      int dim0_lower, int dim0_upper)
+{
+  points.reshape(3, num_points, dim0_lower, dim0_upper);
+  set_physical_params(physical_size, physical_offset);
+}
+
+template<class T>
 Scalar_field<T>::Scalar_field(std::vector<int> num_points, 
 			      std::vector<double> physical_size, 
 			      std::vector<double> physical_offset)
@@ -85,6 +99,20 @@ Scalar_field<T>::Scalar_field(std::vector<int> num_points,
     throw std::invalid_argument("Arguments to Scalar_field constructors must be of length 3");
   }
   points.reshape(num_points);
+  set_physical_params(physical_size, physical_offset);  
+}
+
+template<class T>
+Scalar_field<T>::Scalar_field(std::vector<int> num_points, 
+			      std::vector<double> physical_size, 
+			      std::vector<double> physical_offset,
+			      int dim0_lower, int dim0_upper)
+{
+  if ((num_points.size() != 3) || (physical_size.size() != 3) ||
+      (physical_offset.size() !=3)) {
+    throw std::invalid_argument("Arguments to Scalar_field constructors must be of length 3");
+  }
+  points.reshape(num_points,dim0_lower,dim0_upper);
   set_physical_params(physical_size, physical_offset);  
 }
 
@@ -259,8 +287,8 @@ Scalar_field<T>::read_from_fstream(std::ifstream& stream)
   std::vector<double> read_physical_size, read_physical_offset;
   read_line_vector(read_physical_size,stream);
   read_line_vector(read_physical_offset,stream);
-  set_physical_params(read_physical_size,read_physical_offset);
   points.read_from_fstream(stream);
+  set_physical_params(read_physical_size,read_physical_offset);
 }
 
 template<class T>

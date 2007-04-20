@@ -56,6 +56,8 @@ BOOST_PYTHON_MODULE(s2_containers)
     .def("reshape",real_reshape)
     .def("freeze_shape",&Real_nd_array::freeze_shape)
     .def("get_shape",&Real_nd_array::get_shape)
+    .def("get_dim0_lower",&Real_nd_array::get_dim0_lower)
+    .def("get_dim0_upper",&Real_nd_array::get_dim0_upper)
 
     .def("zero_all",&Real_nd_array::zero_all)
     .def("set",real_set)

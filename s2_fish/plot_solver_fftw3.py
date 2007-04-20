@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
-import s2_fish
-import s2_fish_fftw3
+from s2_solver_fftw3 import *
+from s2_containers import *
+from s2_deposit import *
+from s2_electric_field import *
+
 import macro_bunch
 import numarray
 import time
@@ -24,7 +27,7 @@ shape = (n,n,n)
 print "shape =",shape
 size = (2.0,2.0,2.0)
 #size = (100.0,100.0,100.0)
-rho = s2_fish.Real_scalar_field(shape,size,(0.0,0.0,0.0))
+rho = Real_scalar_field(shape,size,(0.0,0.0,0.0))
 mb = macro_bunch.Macro_bunch()
 t0 = time.time()
 Q = 100000
@@ -32,10 +35,10 @@ r0 = 0.5
 mb.init_sphere(Q,r0)
 t_init = time.time() - t0
 t0 = time.time()
-total_charge = s2_fish.deposit_charge_cic(rho,mb.get_store(),0)
+total_charge = deposit_charge_cic(rho,mb.get_store(),0)
 t_deposit = time.time() - t0
 t0 = time.time()
-phi = s2_fish_fftw3.solver_fftw3_open(rho,0)
+phi = solver_fftw3_open(rho,0)
 #phi.get_points().print_("phi")
 t_solve = time.time() - t0
 

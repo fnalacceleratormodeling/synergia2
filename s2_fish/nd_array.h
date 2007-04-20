@@ -9,7 +9,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <memory>
-
+#include <algorithm>
 #include "mytimer.h"
 
 template<class T>
@@ -37,7 +37,7 @@ class Nd_array {
  private:
   T * storage;
   std::allocator<T> myallocator;
-  size_t size;
+  size_t size,storage_size;
   std::vector<int> dims;
   int dim0_lower,dim0_upper;
   bool frozen;
@@ -64,6 +64,7 @@ class Nd_array {
   void reshape(int order, int const dims_in[],int dim0_lower, int dim0_upper);
   void reshape(std::vector<int> const& dims);
   void reshape(std::vector<int> const& dims,int dim0_lower, int dim0_upper);
+  void set_storage_size(size_t storage_size);
   void freeze_shape();
   std::vector<int> get_shape() const;
   int get_dim0_lower() const;
@@ -148,6 +149,7 @@ Nd_array<T>::Nd_array()
 {
   frozen = false;
   size = 0;
+  storage_size = 0;
 }
 
 template<class T>
@@ -155,19 +157,26 @@ void
 Nd_array<T>::set_dims(int order, int const dims_in[],
 		      int dim0_lower, int dim0_upper)
 {
-  if (size > 0) {
-    myallocator.deallocate(storage,size);
+  if (storage_size > 0) {
+    myallocator.deallocate(storage,storage_size);
   }
   dims.resize(order);
-  this->dim0_lower = dim0_lower;
-  this->dim0_upper = dim0_upper;
-  dims[0] = dim0_upper;
-  size = dim0_upper - dim0_lower;
+  this->dim0_lower = std::min(dim0_lower,dims_in[0]);
+  this->dim0_upper = std::min(dim0_upper,dims_in[0]);
+  dims[0] = dims_in[0];
+  size = this->dim0_upper - this->dim0_lower;
   for (int i = 1; i < order ; i++) {
     dims[i] = dims_in[i];
     size *= dims[i];
   }
-  storage = myallocator.allocate(size);
+  storage_size = size;
+  if (storage_size < 1) {
+    storage_size = 1;
+  }
+  std::cout << "about to allocate size = " << storage_size 
+	    << " " << this->dim0_lower 
+	    << " " << this->dim0_upper << std::endl;
+  storage = myallocator.allocate(storage_size);
 }
 
 template<class T>
@@ -175,6 +184,7 @@ Nd_array<T>::Nd_array(int order, int const dims_in[])
 {
   frozen = false;
   size = 0;
+  storage_size = 0;
   set_dims(order,dims_in,0,dims_in[0]);
 }
 
@@ -184,6 +194,7 @@ Nd_array<T>::Nd_array(int order, int const dims_in[],
 {
   frozen = false;
   size = 0;
+  storage_size = 0;
   set_dims(order,dims_in,dim0_lower,dim0_upper);
 }
 
@@ -192,6 +203,7 @@ Nd_array<T>::Nd_array(std::vector<int> const dims_in)
 {
   frozen = false;
   size = 0;
+  storage_size = 0;
   set_dims(dims_in.size(),&dims_in[0],0,dims_in[0]);
 }
 
@@ -201,6 +213,7 @@ Nd_array<T>::Nd_array(std::vector<int> const dims_in,
 {
   frozen = false;
   size = 0;
+  storage_size = 0;
   set_dims(dims_in.size(),&dims_in[0],dim0_lower,dim0_upper);
 }
 
@@ -209,12 +222,14 @@ Nd_array<T>::Nd_array(const Nd_array& original)
 {
   frozen = false;
   size = 0;
+  storage_size = 0;
   set_dims(original.dims.size(),&original.dims[0],
 	   original.dim0_lower,original.dim0_upper);
   for (int i=0; i<size; ++i) {
     storage[i] = original.storage[i];
   }
 }
+
 
 template<class T>
 template<class T1>
@@ -323,6 +338,20 @@ Nd_array<T>::reshape(std::vector<int> const& dims,
 
 template<class T>
 void
+Nd_array<T>::set_storage_size(size_t storage_size)
+{
+  this->storage_size = storage_size;
+  if (storage_size < size) {
+    throw std::out_of_range("storage size must be >= actual size of array");
+  }
+   if (storage_size > 0) {
+    myallocator.deallocate(storage,storage_size);
+  }
+  storage = myallocator.allocate(storage_size); 
+}
+
+template<class T>
+void
 Nd_array<T>::freeze_shape()
 {
   frozen = true;
@@ -383,12 +412,7 @@ Nd_array<T>::vector_index(int const indices[]) const
     multiplier *= dims[i];
   }
   val += (indices[0]-dim0_lower)*multiplier;
-  int other_val = old_vector_index(indices);
-  if (other_val != val) {
-    std::cout << "jfa: wtf?\n";
-  }
   return val;
-
 }
 
 template<class T>
@@ -421,7 +445,7 @@ Nd_array<T>::assert_dims(int const indices[]) const
 	      << indices[0] << ","
 	      << indices[1] << ","
 	      << indices[2] << ") outside of bounds of field ("
-	      << dim0_lower << "-" << dim0_upper << ","
+	      << dim0_lower << "-" << dim0_upper-1 << ","
 	      << "0-" << dims[1]-1 << ","
 	      << "0-" << dims[2]-1 << ")";
       throw std::out_of_range(message.str());
@@ -452,7 +476,7 @@ Nd_array<T>::assert_dims(int const indices[]) const
 	}
       }
       message << ") outside of bounds (";
-      message << dim0_lower << "-" << dim0_upper;
+      message << dim0_lower << "-" << dim0_upper-1;
       if (dims.size() > 1) {
 	message << ",";
       }
@@ -535,6 +559,7 @@ Nd_array<T>::describe() const
   std::cout << ")\n";
 }
 
+//jfa: n.b. printing has not been updated for distributed arrays.
 template<class T>
 void
 Nd_array<T>::print_recursive(std::string name, int which_index,
@@ -588,9 +613,7 @@ template<class T>
 void
 Nd_array<T>::write_to_fstream(std::ofstream& stream)
 {
-  int size(1);
   for(int i=0; i<dims.size(); ++i) {
-    size *= dims[i];
     stream << dims[i];
     if(i<dims.size()-1) {
       stream << " ";
@@ -601,7 +624,7 @@ Nd_array<T>::write_to_fstream(std::ofstream& stream)
   for(int i=0; i<size; ++i) {
     stream << storage[i];
     if(i<size-1) {
-      stream << " ";
+      stream << "\n";
     }
   }
   stream << std::endl;
@@ -661,8 +684,8 @@ Nd_array<T>::read_from_file(std::string filename)
 template<class T>
 Nd_array<T>::~Nd_array()
 {
-  if (size > 0) {
-    myallocator.deallocate(storage,size); 
+  if (storage_size > 0) {
+    myallocator.deallocate(storage,storage_size); 
   }
 }
 #endif
