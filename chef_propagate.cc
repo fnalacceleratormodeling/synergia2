@@ -5,9 +5,9 @@
 #include <boost/python/numeric.hpp>
 #include <Numeric/arrayobject.h>
 #include <vector>
-#include "bmlfactory.h"
-#include "Mapping.h"
-#include "bmlnElmnt.h"
+#include "bmlfactory/bmlfactory.h"
+#include "mxyzptlk/Mapping.h"
+#include "beamline/bmlnElmnt.h"
 
 extern "C" {
 #include <sys/time.h>

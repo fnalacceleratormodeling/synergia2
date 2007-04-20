@@ -15,6 +15,11 @@ import time
 import field
 import math
 
+import syn2_diagnostics
+
+import fish_fftw3
+import macro_bunch
+
 import sys
 
 #import do_compare_channel
@@ -56,14 +61,17 @@ if ( __name__ == '__main__'):
     charge = 1.0
     initial_phase = 0.0
     scaling_frequency = 10221.05558e6
-    part_per_cell = 0.01*100
+    part_per_cell = 1
     width_x = 0.004
     pipe_radius = 0.04
     kicks_per_line = 10
-    griddim = (65,17,17)
+    gridnum = int(sys.argv[1])
+    griddim = (gridnum,gridnum,gridnum)
+    offset = (0.0,0.0,0.0)
     num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
                                      part_per_cell,1)
     
+    print "num_particles =",num_particles
     xwidth=0.0012026
     xpwidth=0.0049608
     rx=0.85440
@@ -89,45 +97,45 @@ if ( __name__ == '__main__'):
     sys.stdout.flush()
     
     pgrid = processor_grid.Processor_grid(1)
-    print "xxx"
-    cgrid = computational_grid.Computational_grid(griddim[0],griddim[1],griddim[2],
-                                                  "trans finite, long periodic round")
-    piperad = 0.04
-    field = field.Field(bp, pgrid, cgrid, piperad)
-    b = bunch.Bunch(current, bp, num_particles, pgrid)
-    b.generate_particles()
+    b_impact = bunch.Bunch(current, bp, num_particles, pgrid)
+###    b_impact.read_particles("oc_particles.h5")
+    b_impact.generate_particles()
+    
+    b = macro_bunch.Macro_bunch()
+    b.init_from_bunch(b_impact)
+
 
     line_length = g.orbit_length()
     tau = 0.5*line_length/kicks_per_line
     s = 0.0
     first_action = 0
+    diag = syn2_diagnostics.Diagnostics(g.get_initial_u())
+    coord_stds = diag.get_coord_stds(b)
+    n_sigma = 10.0
+    size = (coord_stds[0]*n_sigma,coord_stds[1]*n_sigma,coord_stds[2]*n_sigma)
+    kick_time = 0.0
     for action in g.get_actions():
         if action.is_mapping():
-            action.get_data().apply(b.particles(),
-                               b.num_particles_local())
+            action.get_data().apply(b.get_local_particles(),
+                               b.get_num_particles_local())
             s += action.get_length()
         elif action.is_synergia_action():
             if action.get_synergia_action() == "space charge endpoint":
-                b.write_fort(s)
+                diag.add(s,b)
                 if not first_action:
                     print "finished space charge kick"
             elif action.get_synergia_action() == "space charge kick":
-                UberPkgpy.Apply_SpaceCharge_external(
-                    b.get_beambunch(),
-                    pgrid.get_pgrid2d(),
-                    field.get_fieldquant(),
-                    field.get_compdom(),
-                    field.get_period_length(),
-                    cgrid.get_bc_num(),
-                    field.get_pipe_radius(),
-                    tau, 0, scaling_frequency,0)
+                tk0 = time.time()
+                fish_fftw3.apply_space_charge_kick(griddim,size,offset, b, 2*tau)
+                tk1 = time.time()
+                kick_time += tk1 - tk0
             elif action.get_synergia_action() == "rfcavity1" or \
                  action.get_synergia_action() == "rfcavity2":
                 element = action.get_data()
                 u_in = g.get_u(action.get_initial_energy())
                 u_out = g.get_u(action.get_final_energy())
                 chef_propagate.chef_propagate(
-                    b.particles(), b.num_particles_local(),
+                    b.get_local_particles(), b.get_num_particles_local(),
                     element, action.get_initial_energy(),
                     u_in, u_out)
             else:
@@ -137,9 +145,26 @@ if ( __name__ == '__main__'):
             print "action",action.get_type(),"unknown"
         first_action = 0
 
-    print "elapsed time =",time.time() - t0
+    print "elapsed time =",time.time() - t0, "kick time =",kick_time
 
-    if MPI.rank == 0:
-        import do_compare_channel
-        do_compare_channel.doit()
-    print "*** ignore the following error:"
+
+    diag.write("ocimpact")
+    import pylab
+    import loadfile
+
+    print \
+"""nb: openchannel_fish_fftw3.py expects to find the results of openchannel_impact.py
+in the current directory.
+"""
+    dimpact = diagnostics.Diagnostics()
+    d0 = diagnostics.Diagnostics("channel0current")
+
+    pylab.plot(d0.s,d0.std[:,diagnostics.x],'gx',label='no space charge')
+    pylab.xlabel('s (m)')
+    pylab.ylabel('std<x> (m)')
+
+    pylab.plot(dimpact.s,dimpact.std[:,diagnostics.x],'o',label='impact',
+               markerfacecolor=None)
+    pylab.plot(diag.s,diag.std[syn2_diagnostics.x][:],'r+',label='barracuda')
+    pylab.legend(loc=0)
+    pylab.show()

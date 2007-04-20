@@ -15,6 +15,8 @@ import time
 import field
 import math
 
+import syn2_diagnostics_impact
+
 import sys
 
 #import do_compare_channel
@@ -60,7 +62,8 @@ if ( __name__ == '__main__'):
     width_x = 0.004
     pipe_radius = 0.04
     kicks_per_line = 10
-    griddim = (65,17,17)
+    gridnum = int(sys.argv[1])
+    griddim = (gridnum,gridnum,gridnum)
     num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
                                      part_per_cell,1)
     
@@ -89,18 +92,20 @@ if ( __name__ == '__main__'):
     sys.stdout.flush()
     
     pgrid = processor_grid.Processor_grid(1)
-    print "xxx"
     cgrid = computational_grid.Computational_grid(griddim[0],griddim[1],griddim[2],
-                                                  "trans finite, long periodic round")
+                                                  "3d open")
     piperad = 0.04
     field = field.Field(bp, pgrid, cgrid, piperad)
     b = bunch.Bunch(current, bp, num_particles, pgrid)
     b.generate_particles()
-
+###    b.write_particles_text("oc_particles.h5")
+    
     line_length = g.orbit_length()
     tau = 0.5*line_length/kicks_per_line
     s = 0.0
     first_action = 0
+    diag = syn2_diagnostics_impact.Diagnostics(g.get_initial_u())
+    kick_time = 0.0
     for action in g.get_actions():
         if action.is_mapping():
             action.get_data().apply(b.particles(),
@@ -108,10 +113,12 @@ if ( __name__ == '__main__'):
             s += action.get_length()
         elif action.is_synergia_action():
             if action.get_synergia_action() == "space charge endpoint":
+                diag.add(s,b)
                 b.write_fort(s)
                 if not first_action:
                     print "finished space charge kick"
             elif action.get_synergia_action() == "space charge kick":
+                tk0 = time.time()
                 UberPkgpy.Apply_SpaceCharge_external(
                     b.get_beambunch(),
                     pgrid.get_pgrid2d(),
@@ -121,6 +128,8 @@ if ( __name__ == '__main__'):
                     cgrid.get_bc_num(),
                     field.get_pipe_radius(),
                     tau, 0, scaling_frequency,0)
+                tk1 = time.time()
+                kick_time += tk1 - tk0
             elif action.get_synergia_action() == "rfcavity1" or \
                  action.get_synergia_action() == "rfcavity2":
                 element = action.get_data()
@@ -137,9 +146,28 @@ if ( __name__ == '__main__'):
             print "action",action.get_type(),"unknown"
         first_action = 0
 
-    print "elapsed time =",time.time() - t0
+    print "elapsed time =",time.time() - t0, "kick time =",kick_time
 
-    if MPI.rank == 0:
-        import do_compare_channel
-        do_compare_channel.doit()
-    print "*** ignore the following error:"
+    diag.write("ocimpact")
+    import pylab
+    import loadfile
+
+    d = diagnostics.Diagnostics()
+
+    d0 = diagnostics.Diagnostics("channel0current")
+
+    pylab.plot(d0.s,d0.std[:,diagnostics.x],'gx',label='Synergia2, no space charge')
+    pylab.xlabel('s (m)')
+    pylab.ylabel('std<x> (m)')
+
+    e = loadfile.loadfile("envelope_match_channel_0.5A.dat")
+    pylab.plot(e[:,0],e[:,1],label='envelope equation')
+
+    dold = diagnostics.Diagnostics(".")
+#    pylab.plot(dold.s,dold.std[:,diagnostics.x],'yo')
+
+    pylab.plot(d.s,d.std[:,diagnostics.x],'ro',label='Synergia2 with space charge')
+    pylab.plot(diag.s,diag.std[syn2_diagnostics_impact.x][:],'b+')
+###    pylab.legend(loc=0)
+
+    pylab.show()

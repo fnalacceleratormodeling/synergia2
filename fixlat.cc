@@ -5,14 +5,13 @@
 #include <iomanip>
 #include <string>
 #include <cmath>
-#include "InsertionList.h"
 
-#include "PhysicsConstants.h"
-#include "beamline.h"
-#include "bmlfactory.h"
-#include "BeamlineContext.h"
-#include "RefRegVisitor.h"
-#include "ClosedOrbitSage.h"
+#include "basic_toolkit/PhysicsConstants.h"
+#include "beamline/beamline.h"
+#include "bmlfactory/bmlfactory.h"
+#include "physics_toolkit/BeamlineContext.h"
+#include "beamline/RefRegVisitor.h"
+#include "physics_toolkit/ClosedOrbitSage.h"
 
 using namespace std;
 extern beamline* DriftsToSlots( beamline& original );
@@ -33,18 +32,17 @@ int main(int argc, char **argv)
   double momentum = sqrt(energy*energy - mass*mass);
 
   int order = 1;
-  Jet::BeginEnvironment(order);
-  coord x(0.0),  y(0.0),  z(0.0),
-       px(0.0), py(0.0), pz(0.0);
-  JetC::_lastEnv = JetC::CreateEnvFrom(Jet::EndEnvironment());
 
+  JetParticle::createStandardEnvironments(order);
+  
   double brho = (fabs(momentum))/PH_CNV_brho_to_p;
   bmlfactory* bml_fact = new bmlfactory(mad_file.c_str(), brho);
   beamline* bmline_orig = bml_fact->create_beamline(line_name.c_str());
   bmline_orig->flatten();
  
   beamline* bmline = DriftsToSlots(*bmline_orig);
-  BeamlineContext* bmln_context = new BeamlineContext(false,bmline);
+  Proton jfcproton(energy);
+  BeamlineContext* bmln_context = new BeamlineContext(jfcproton,bmline,false);
 
   JetProton jpr(energy);
 

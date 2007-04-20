@@ -47,34 +47,22 @@ pacifier = drift("pacifier",0.0)
 
 class Gourmet:
     def __init__(self, mad_file, line_name, initial_kinetic_energy,
-                 scaling_frequency, order=1):
+                 scaling_frequency, order=1, particle='proton'):
         self.mad_file = mad_file
         self.line_name = line_name
         self.scaling_frequency = scaling_frequency
         self.order = order
         self.saved_elements = []
-        self.newchef = 0
-        if self.newchef:
-            BeginEnvironment(self.order)
-        else:
-            Jet.BeginEnvironment(self.order)
-        x    = coord(0.0)
-        y    = coord(0.0)
-        ct   = coord(0.0)
-        npx  = coord(0.0)
-        npy  = coord(0.0)
-        np   = coord(0.0)
-        if self.newchef:
-            EndEnvironment()
-            JetC.setLastEnv(toCmplxEnvironment(Jet.getLastEnv()))
-        else:
-            JetC.setLastEnv(JetC.CreateEnvFrom(Jet.EndEnvironment()))
+        createStandardEnvironments(self.order)
 
-        # Notice that our particle is hard-wired to be a Proton
-        # This will have to be fixed once the various particle issues
-        # have been resolved
+        self.particle = particle
+        if self.particle == 'proton':
+            self.mass = PH_NORM_mp
+        elif self.particle == 'positron':
+            self.mass = PH_NORM_me
+        else:
+            raise RuntimeError, 'Unknown particle %s' % self.particle
         self.initial_kinetic_energy = initial_kinetic_energy
-        self.mass = PH_NORM_mp
         self.initial_energy = self.initial_kinetic_energy + self.mass
         self.final_energy = None
         self.initial_momentum = math.sqrt(self.initial_energy**2 -
@@ -89,11 +77,8 @@ class Gourmet:
         self.beamline = DriftsToSlots(beamline_orig)
         self.have_actions = 0
         self.have_fast_mappings = 0
-        if self.newchef:
-            self.context = BeamlineContext(self.get_initial_particle(),
-                                           self.beamline,0)
-        else:
-            self.context = BeamlineContext(0,self.beamline)
+        self.context = BeamlineContext(self.get_initial_particle(),
+                                       self.beamline,0)
         if not self.context.isTreatedAsRing():
             self.context.handleAsRing()
 
@@ -109,10 +94,32 @@ class Gourmet:
         return self.initial_energy
     
     def get_initial_particle(self):
-        return Proton(self.initial_energy)
+        if self.particle == 'proton':
+            particle = Proton(self.initial_energy)
+        else:
+            particle = Positron(self.initial_energy)
+        return particle
 
     def get_initial_jet_particle(self):
-        return JetProton(self.initial_energy)
+        if self.particle == 'proton':
+            jet_particle = JetProton(self.initial_energy)
+        else:
+            jet_particle = JetPositron(self.initial_energy)
+        return jet_particle
+
+    def get_particle(self,energy):
+        if self.particle == 'proton':
+            particle = Proton(energy)
+        else:
+            particle = Positron(energy)
+        return particle
+
+    def get_jet_particle(self,energy):
+        if self.particle == 'proton':
+            jet_particle = JetProton(energy)
+        else:
+            jet_particle = JetPositron(energy)
+        return jet_particle
     
     def _commission(self):
 ### The following is in reaction to the message:
@@ -257,7 +264,7 @@ class Gourmet:
                            data=element,
                            synergia_action=string.join(split_name[1:],':')))
                 energy = new_energy           
-                jet_particle = JetProton(energy)
+                jet_particle = self.get_jet_particle(energy)
                 has_propagated = 0
                 s = 0.0
             else:
@@ -338,12 +345,8 @@ class Gourmet:
                 for column in range(0,6):
                     chef_row = int(row/2+3*(row%2))
                     chef_column = int(column/2+3*(column%2))
-                    if self.newchef:
-                        map[row,column] = chef_map.get(chef_row,chef_column)* \
-                                          u[row]/u[column]
-                    else:
-                        map[row,column] = chef_map[chef_row,chef_column]* \
-                                          u[row]/u[column]
+                    map[row,column] = chef_map.get(chef_row,chef_column)* \
+                                      u[row]/u[column]
             map[6,6] = 1.0
             linear_maps.append(map)
         return linear_maps
@@ -368,16 +371,23 @@ class Gourmet:
         return self.fast_mappings[index]
     
     def get_single_linear_map(self):
-        jet_proton = JetProton(self.initial_energy)
-        self.beamline.propagateJetParticle(jet_proton)
-        return self._convert_linear_maps([jet_proton.State().Jacobian()])[0]
+        jet_particle = self.get_initial_jet_particle()
+        self.beamline.propagateJetParticle(jet_particle)
+        return self._convert_linear_maps([jet_particle.State().jacobian()])[0]
 
     def get_single_fast_map(self):
-        jet_proton = JetProton(self.initial_energy)
-        self.beamline.propagateJetParticle(jet_proton)
-        mapping = jet_proton.State()
+        jet_particle = self.get_initial_jet_particle()
+        self.beamline.propagateJetParticle(jet_particle)
+        mapping = jet_particle.State()
         return mappers.Fast_mapping(self.get_initial_u(),
-                                    jet_proton.State())
+                                    jet_particle.State())
+				    
+    def get_single_chef_mapping(self):
+        jet_particle = self.get_initial_jet_particle()
+        self.beamline.propagateJetParticle(jet_particle)
+        mapping = jet_particle.State()
+	mapping.printCoeffs()
+    	
     def printpart(self,particle):
         print '|',"%0.5g" % particle.get_x(),
         print "%0.5g" % particle.get_npx(),
@@ -387,9 +397,9 @@ class Gourmet:
         print "%0.5g" % particle.get_ndp(), '|'
         
     def check(self,print_coeffs=0):
-        jet_proton = JetProton(self.initial_energy)
-        self.beamline.propagateJetParticle(jet_proton)
-        mapping = jet_proton.State()
+        jet_particle = self.get_initial_jet_particle()
+        self.beamline.propagateJetParticle(jet_particle)
+        mapping = jet_particle.State()
         if print_coeffs:
             mapping.printCoeffs()
         testpart = self.get_initial_particle()
@@ -410,6 +420,9 @@ class Gourmet:
     def get_initial_u(self):
         return self.get_u(self.initial_energy)
         
+    def get_initial_brho(self):
+        return self.get_initial_particle().ReferenceBRho()
+    
 class Lattice_function_array:
     def __init__(self):
         self.s = []

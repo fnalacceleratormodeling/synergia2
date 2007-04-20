@@ -4,7 +4,7 @@
 #include <boost/python/numeric.hpp>
 #include <Numeric/arrayobject.h>
 #include <vector>
-#include "bmlfactory.h"
+#include "bmlfactory/bmlfactory.h"
 
 class Term
 {
@@ -16,11 +16,13 @@ public:
 
 using namespace boost::python;
 
+// indexing for particles
 int pindex(int row,int col)
 {
   return col*7 + row;
 }
 
+// indexing for maps
 int mindex(int row,int col)
 {
   return row*7 + col;

@@ -1,0 +1,1620 @@
+! read the files:  start with the definitions
+
+!  CALL, FILENAME = "RTML_common.lat"
+! ==============================================================================
+! 30-jan-2007, PT:
+!    add ILCCAV_LEFF to convert gradients to voltages.
+! 12-dec-2006, PT:
+!    new cryomodule dimensions for 9 cavity and 8 cavity with quad per T.
+!    Peterson.
+! 08-dec-2006, PT:
+!    new cryomodule dimensions per M. Woodley.  Redefine CMQ so that it can
+!    either include or omit an x corrector.
+! 30-JAN-2006, M. Woodley [SLAC]
+!    Common parameters and definitions for ILC RTML system
+! ------------------------------------------------------------------------------
+
+! global parameters
+
+  EMASS := 0.0005110034
+  CLIGHT := 2.99792458E8
+  Cb   := 1.0E+10/CLIGHT  !energy-to-rigidity (kG-m/GeV)
+  ae   := 1.1596521859E-3 !electron anomalous magnetic moment ((g-2)/2)
+  E0   := 5.0             !entry momentum in GeV/c
+
+! derived parameters
+
+  Aspin := (PI/2)/ae/(E0/EMASS) !spin rotator arc angle
+  BRHO  := E0 * CB              !magnetic rigidity in kG.m
+
+! magnet parameters
+
+  LB30 := 0.8     !4D30.5 dipole effective length (m)
+  GB30 := 0.0254  !4D30.5 dipole gap (m)
+  LB15 := 0.4     !4D14.7 dipole effective length (m)
+  GB15 := 0.0254  !4D14.7 dipole gap (m)
+
+  LQ7 := 0.20 !0.79Q7.5 quadrupole effective length (m)
+  rQ7 := 0.01 !0.79Q7.5 quadrupole pole-tip radius (m)
+  LQ5 := 0.15 !0.79Q5.5 quadrupole effective length (m)
+  rQ5 := 0.01 !0.79Q5.5 quadrupole pole-tip radius (m)
+  LQ3 := 0.10 !0.79Q3.5 quadrupole effective length (m)
+  rQ3 := 0.01 !0.79Q3.5 quadrupole pole-tip radius (m)
+
+  LS3 := 0.10 !0.79S3.5 sextupole effective length (m)
+  rS3 := 0.01 !0.79S3.5 sextupole pole-tip radius (m)
+
+! Tuning quads
+
+  LZCQBC := 0.1  ! only need 10 cm length here, I think
+  ACQBC  := 0.05 ! large bore to accomodate dispersion * sigE 
+
+  QBCTUNE : QUADRUPOLE, L = LZCQBC/2
+
+! We need a drift equal to the tuning quad length as well
+
+  DBC_CQ : DRIFT, L = QBCTUNE[L]
+
+! diagnostic/correction element definitions
+
+  LFBC   := 0.2 !length of feedback corrector (m)
+  LFBK   := 0.3 !length of feedback kicker (m)
+  Lspace := 0.1 !minimum device-to-device space (m)
+  DZ     :=1E-12 ! prevent 0/0 in wigglers
+
+! 30 cm drift for space between elements
+
+  DR30CM : DRIFT, L = 0.3
+
+  BPMQ079  : MONITOR
+  BPMMB079 : MONITOR
+  BPMDL    : MONITOR
+  BPMETA   : MONITOR                     !freestanding energy jitter BPM in BCs
+  WS       : MARKER
+  FBCX     : HKICK
+  FBCY     : VKICK
+  FBKX     : MARKER
+  FBKY     : MARKER
+  MMOVER   : MARKER
+  PHASMON  : MARKER
+  STREAK   : MARKER
+  XCOR     : HKICK                       !for now zero length...
+  YCOR     : VKICK                       !for now zero length...
+  NOCOLL   : MARKER                      !stub for wiggler slots w/o colls
+
+  ILCCAV_LEFF := 1.038
+
+! Rastering dipoles for the dumps
+
+  XRASTER : HKICK
+  YRASTER : VKICK
+
+! Start and end markers
+
+  BEGINERTML : MARKER
+  ENDERTML   : MARKER
+
+! ==============================================================================
+! RF horn-type bunch length monitor
+! ------------------------------------------------------------------------------
+
+  BLMO_HORN : MONITOR
+
+! ------------------------------------------------------------------------------
+
+
+
+! Now the bunch length confgs
+
+!  CALL, FILENAME = "RTML_sigznominal.lat"
+!========1=========2=========3=========4=========5=========6=========7=========8
+!
+! Configuration file for RTML when desired configuration is the nominal
+! baseline (ie, 300 um RMS final bunch length, 6 mm RMS initial bunch length,
+! undercompression in BC1)
+!
+! Auth:  PT, 02-Mar-2006
+! Mod:
+!      PT, 30-jan-2007:
+!         new parameters for BCs.
+!      PT, 11-jan-2007:
+!         new BC2 DELTAE required due to reduction in # of CMs.
+!      PT, 11-dec-2006:
+!         new matching quad strengths needed due to change in CM lengths.
+!
+! ------------------------------------------------------------------------------
+
+! Bunch Charge
+
+  BunchCharge = 2e10
+
+! ==============================================================================
+! BC1 parameters
+! ------------------------------------------------------------------------------
+
+! On-crest energy gain, phase, and ELOSS parameters for BC1 RF stations:
+
+  BC1GRADIENT := 18.007
+  BC1DELTAE   := BC1GRADIENT * ILCCAV_LEFF  
+  BC1PHI0   := -104.9/360
+  BC1ELOSS  :=        0
+
+! Matching quad settings
+
+  KQFBC1_1   :=  1.803624E+00    
+  KQDBC1_1   := -1.387815E+00    
+  KQFBC1CM_1 :=  2.459401E-01    
+  KQDBC1CM_1 := -2.111464E-01    
+  KQFBC1CM_2 :=  1.792818E-01    
+
+! wiggler quad settings
+
+  KQFBC1W :=  0.631761213211
+  KQDBC1W := -0.595261883799
+
+! we need to slightly energize the tuning quads to zero the dispersion
+! at the end of the lattice
+
+  KBC1CQ12 := 1.190035E-03    
+  KBC1CQ34 := 1.233657E-03    
+
+! Wiggler bend settings for -0.376 mm R_56 (standard sign convention; MAD-8
+! uses the opposite sign convention)
+
+  BC1ETAP := 0.065 ! angle wrt tunnel axis at entry to wiggler proper
+
+  BC1ANG1 :=  0.01
+  BC1ANG2 := -0.045867039218
+  BC1ANG3 :=  0.01572311625
+  BC1ANG4 := -0.055527614381
+  BC1ANG5 := -0.023285784634
+  BC1ANG6 := -0.02379261903
+  BC1ANG7 :=  0.274994101384E-2 
+  BC1ANG8 := -0.01
+
+! the last quad in the BC1 line is a matching quad for this system
+
+  KQFBC1X2 := 3.572428E-01    
+
+! ==============================================================================
+! BC2 parameters
+! ------------------------------------------------------------------------------
+
+! Because of the way the matching is done, the BC2 initial conditions are
+! a function of the configuration selected
+
+!  TWISS_EBC2 : BETA0, BETX = 45.2063, ALFX =  1.5123, &
+!                      BETY = 17.8060, ALFY = -1.3067
+!
+!  BEAM_EBC2 : BEAM, ENERGY = 4.88, NPART = BunchCharge, &
+!                SIGE = 1.50E-2, SIGT = 880E-6, &
+!                EX = 8E-6 * EMASS/4.88, EY = 20E-9 * EMASS/4.88
+
+
+! On-crest energy gain, phase, and ELOSS parameters for BC2 RF stations:
+
+  BC2GRADIENT := 30.204
+  BC2DELTAE   := BC2GRADIENT * ILCCAV_LEFF
+  BC2PHI0   := -27.57/360
+  BC2ELOSS  :=  0.
+
+! Matching quad settings
+
+  KQM1BC2 := -7.396302E-02    
+  KQM2BC2 :=  5.190490E-02    
+  KQM3BC2 := -4.391834E-02    
+  KQM4BC2 :=  3.466611E-02    
+
+  KQM5BC2  :=  3.391711E-02    
+  KQM6BC2  := -3.317643E-02    
+  KQM7BC2  :=  5.112387E-02    
+  KQM8BC2  := -6.490267E-02    
+  KQFBC2M1 :=  3.678087E-01    
+  KQDBC2M1 := -5.466546E-01    
+
+! wiggler quad strengths
+
+  KQFBC2W :=  0.64026977455
+  KQDBC2W := -0.637787295971
+
+  KCQBC2_12 := -1.685275E-03    
+  KCQBC2_34 := -9.623408E-05    
+
+! Bend magnet angles set for R_56 = -55 mm (standard sign convention, which
+! is the opposite of the MAD-8 convention).
+
+  BC2ANG1 := -0.005
+  BC2ANG2 := -0.277470181582E-2
+  BC2ANG3 := -0.010257960961
+  BC2ANG4 := -0.01294222902
+  BC2ANG5 := -0.756018914668E-2
+  BC2ANG6 := -0.614863524012E-2
+  BC2ANG7 := -0.631628381669E-2
+  BC2ANG8 := -0.005
+
+! Quads for matching from the wiggler to the diagnostic station
+
+  KQDBC2W2D1 := -9.769660E-01    
+  KQFBC2W2D1 :=  7.301033E-01    
+  KQDBC2W2D2 :=  2.786733E-02    
+  KQFBC2W2D2 :=  5.718339E-01    
+  
+! beam conditions at the end of the RTML
+
+!  BEAM_ENDRTML : BEAM, ENERGY = 15.0, NPART = BunchCharge, &
+!                 SIGE = 1.5E-2, SIGT = 300E-6, &
+!                 EX = 8E-6 * EMASS/15.0, EY = 20E-9 * EMASS/15.0
+
+
+!
+!
+!
+
+
+! Finally the deckfiles
+
+!  CALL, FILENAME = 'egetaway.lat'
+!========1=========2=========3=========4=========5=========6=========7=========8
+!
+! ILC RTML e- getaway line -- transport from the DRX to the escalator,
+!   including skew correction, emittance, collimation, pulsed extraction,
+!   and PPS segmentation
+!
+! This lattice requires the following files to run properly:
+!
+!    RTML_common.xsif
+!
+! plus one of
+!
+!    RTML_sigz_nominal.xsif
+!    RTML_sizg300A.xsif
+!    RTML_sigzLowN.xsif
+!    RTML_sigz150A.xsif
+!
+! Auth:  PT, 03-Jan-2007.
+! Mod:  
+!
+! ------------------------------------------------------------------------------
+
+! Initial parameters at entry to the return line:
+
+!  TWISS_EPREP : BETA0, BETX = 4.5803, ALFX =  0.8834, &
+!                       BETY = 7.2602, ALFY = -1.3498
+
+!  TWISS_EGETAWAY : BETA0, BETX = 1.6479, ALFX =  0.4982, &
+!                          BETY = 8.8630, ALFY = -2.3771
+
+!  BEAM_EGETAWAY  :  BEAM, ENERGY = 5, NPART = BunchCharge, &
+!                    SIGE = 1.5E-3, SIGT = 9.E-03, &
+!                    EX = 8E-6 * EMASS/5, EY = 20E-9 * EMASS/5
+
+! ==============================================================================
+! Quads
+! ------------------------------------------------------------------------------
+
+! 90/90 cells for the first and second arcs
+
+  QDGA1   : QUADRUPOLE, L = 0.2/2, K1 = -2.67051111806105
+  QFGA1   : QUADRUPOLE, L = 0.2/2, K1 =  2.68492998459280
+  QDGA1M1 : QUADRUPOLE, L = 0.2/2, K1 = -2.67048923565850
+  QFGA1M1 : QUADRUPOLE, L = 0.2/2, K1 =  2.68590429591542
+  QDGA1M2 : QUADRUPOLE, L = 0.2/2, K1 = -2.68230632761910
+  QFGA1M2 : QUADRUPOLE, L = 0.2/2, K1 =  2.68590279447561
+
+  QDGA2   : QUADRUPOLE, L = 0.2/2, K1 = -2.66012757703439
+  QFGA2   : QUADRUPOLE, L = 0.2/2, K1 =  2.68403127641302
+  QDGA2M1 : QUADRUPOLE, L = 0.2/2, K1 = -2.66016116067709
+  QFGA2M1 : QUADRUPOLE, L = 0.2/2, K1 =  2.68569273980942
+  QDGA2M2 : QUADRUPOLE, L = 0.2/2, K1 = -2.67970767102563
+  QFGA2M2 : QUADRUPOLE, L = 0.2/2, K1 =  2.68565302068146
+
+! 90/90 cells for the straight section between arcs
+
+  QDGAA  : QUADRUPOLE, L = 0.2/2, K1 = -2.842901E+00    
+  QFGAA  : QUADRUPOLE, L = 0.2/2, K1 =  2.842901E+00    
+  QDGAA1 : QUADRUPOLE, L = 0.2/2, K1 = -2.914090E+00    
+  QFGAA1 : QUADRUPOLE, L = 0.2/2, K1 =  2.797804E+00    
+  QDGAA2 : QUADRUPOLE, L = 0.2/2, K1 = -2.984495E+00    
+  QFGAA2 : QUADRUPOLE, L = 0.2/2, K1 =  2.828813E+00    
+  QDGAA3 : QUADRUPOLE, L = 0.2/2, K1 = -2.795308E+00    
+  QFGAA3 : QUADRUPOLE, L = 0.2/2, K1 =  2.687500E+00    
+  QDGAA4 : QUADRUPOLE, L = 0.2/2, K1 = -2.740989E+00    
+  QFGAA4 : QUADRUPOLE, L = 0.2/2, K1 =  2.619585E+00    
+
+! quads for matching from the arc to the scs
+
+  QDASM1 : QUADRUPOLE, L = 0.2/2, K1 = -3.856167E+00    
+  QFASM1 : QUADRUPOLE, L = 0.2/2, K1 =  3.054046E+00    
+  QDASM2 : QUADRUPOLE, L = 0.2/2, K1 = -3.612135E+00    
+  QFASM2 : QUADRUPOLE, L = 0.2/2, K1 =  2.266598E+00    
+
+! 45/45 cell for the skew correction and diagnostic section
+
+  KSCS45 := 0.17947529496151E+01 ! about 0.3 T pole-tip
+  QFSCS1 : QUADRUPOLE, L = 0.2/2, K1 =  KSCS45
+  QDSCS1 : QUADRUPOLE, L = 0.2/2, K1 = -KSCS45
+
+! Quads for the 180/90 insertions in the SCS
+
+  KFSCS2 :=  0.28817425042996E+01 ! about 0.5 T pole-tip
+  KDSCS2 := -0.24075562630531E+01
+  QFSCS2 : QUADRUPOLE, L = 0.2/2, K1 = KFSCS2
+  QDSCS2 : QUADRUPOLE, L = 0.2/2, K1 = KDSCS2
+
+! Quads for matching into and out of the DR stretch straight
+
+  QFSSM1 : QUADRUPOLE, L = 0.2/2, K1 =  4.386146E-01    
+  QDSSM1 : QUADRUPOLE, L = 0.2/2, K1 = -9.301393E-01    
+  QFSSM2 : QUADRUPOLE, L = 0.2/2, K1 =  1.210973E+00    
+  QDSSM2 : QUADRUPOLE, L = 0.2/2, K1 = -1.190980E+00    
+    
+  QFSSM3 : QUADRUPOLE, L = 0.2/2, K1 =  7.386545E-02    
+  QDSSM3 : QUADRUPOLE, L = 0.2/2, K1 = -5.953084E-01    
+  QFSSM4 : QUADRUPOLE, L = 0.2/2, K1 =  1.134937E+00    
+  QDSSM4 : QUADRUPOLE, L = 0.2/2, K1 = -1.019872E+00    
+
+! quads for the DR stretch
+
+  QFSTRETCH : QUADRUPOLE, L = 0.2/2, K1 =  1.035896E-01    
+  QDSTRETCH : QUADRUPOLE, L = 0.2/2, K1 = -1.035896E-01    
+
+! skew quads for coupling correction
+
+  SCS_SQ1 : QUADRUPOLE, L = LQ3/2, K1 = 0, TILT
+  SCS_SQ2 : QUADRUPOLE, L = LQ3/2, K1 = 0, TILT
+  SCS_SQ3 : QUADRUPOLE, L = LQ3/2, K1 = 0, TILT
+  SCS_SQ4 : QUADRUPOLE, L = LQ3/2, K1 = 0, TILT
+
+! Skew quads for dispersion correction (arc 2 only)
+
+  SQGA1 : QUADRUPOLE, L = LQ3/2, K1 = 0, TILT
+  SQGA2 : QUADRUPOLE, L = LQ3/2, K1 = 0, TILT
+
+! ==============================================================================
+! Sector bends
+! ------------------------------------------------------------------------------
+
+! Bends for arc 1 -- dispersion matching and suppression, plus regular bends
+
+  GA1_TOTALANGLE := 34.488 * PI / 180 ! total angle arc 1 in radians
+!  GA1_NCELL      := 2 + 4/2           ! 2 normal cells, 4 half-bend cells
+!  GA1_ANGLEAPPROX := GA1_TOTALANGLE / GA1_NCELL / 2
+!  GA1_ANGLE1      := GA1_ANGLEAPPROX / 2
+!  GA1_ANGLE2      := GA1_ANGLEAPPROX / 2
+!  GA1_ANGLE       := (GA1_TOTALANGLE - 4*GA1_ANGLE1 - 4*GA1_ANGLE2)/4
+  GA1_ANGLE1 := 0.03755628610178
+  GA1_ANGLE2 := 0.03769705604424
+  GA1_ANGLE       := (GA1_TOTALANGLE - 4*GA1_ANGLE1 - 4*GA1_ANGLE2)/4
+
+  BGA1   : SBEND, L = 1.9, HGAP = GB30/2, ANGLE = GA1_ANGLE, &
+                  E1 = GA1_ANGLE/2, E2 = GA1_ANGLE/2
+  BGA1M1 : SBEND, L = 1.9, HGAP = GB30/2, ANGLE = GA1_ANGLE1, &
+                  E1 = GA1_ANGLE1/2, E2 = GA1_ANGLE1/2
+  BGA1M2 : SBEND, L = 1.9, HGAP = GB30/2, ANGLE = GA1_ANGLE2, &
+                  E1 = GA1_ANGLE2/2, E2 = GA1_ANGLE2/2
+
+! Bends for arc 2 -- dispersion matching and suppression, plus regular bends
+
+  GA2_TOTALANGLE := 55.512 * PI / 180 ! total angle arc 2 in radians
+!  GA2_NCELL      := 3 + 4/2           ! 3 normal cells, 4 half-bend cells
+!  GA2_ANGLE      := GA2_TOTALANGLE / GA2_NCELL / 2
+!  GA2_ANGLE1     := GA2_ANGLE / 2
+!  GA2_ANGLE2     := GA2_ANGLE / 2
+  GA2_ANGLE1 := 0.04830759107400
+  GA2_ANGLE2 := 0.04861100390565
+  GA2_ANGLE  := (GA2_TOTALANGLE - 4*GA2_ANGLE1 - 4*GA2_ANGLE2) / 6
+
+  BGA2   : SBEND, L = 1.9, HGAP = GB30/2, ANGLE = GA2_ANGLE, &
+                  E1 = GA2_ANGLE/2, E2 = GA2_ANGLE/2
+  BGA2M1 : SBEND, L = 1.9, HGAP = GB30/2, ANGLE = GA2_ANGLE1, &
+                  E1 = GA2_ANGLE1/2, E2 = GA2_ANGLE1/2
+  BGA2M2 : SBEND, L = 1.9, HGAP = GB30/2, ANGLE = GA2_ANGLE2, &
+                  E1 = GA2_ANGLE2/2, E2 = GA2_ANGLE2/2
+
+! bends for chicane which is used to extract laser wire signal -- for now,
+! use a 2 cm total offset in 4 0.8 meter bends
+
+  BGLW1 : SBEND, L = 0.8, HGAP = GB30/2, ANGLE =  0.025, &
+                 E1 =  0.0125, E2 =  0.0125
+  BGLW2 : SBEND, L = 0.8, HGAP = GB30/2, ANGLE = -0.025, &
+                 E1 = -0.0125, E2 = -0.0125
+  BGLW3 : SBEND, L = 0.8, HGAP = GB30/2, ANGLE = -0.025, &
+                 E1 = -0.0125, E2 = -0.0125
+  BGLW4 : SBEND, L = 0.8, HGAP = GB30/2, ANGLE =  0.025, &
+                 E1 =  0.0125, E2 =  0.0125
+
+
+
+! ==============================================================================
+! Drifts
+! ------------------------------------------------------------------------------
+
+! Arc 1 drifts
+
+  DGA1  : DRIFT, L = 0.3
+
+! Arc 2 drifts
+
+  DGA2   : DRIFT, L = 0.3
+  DGA2s  : DRIFT, L = (DGA2[L] - 2*SQGA1[L])/2
+
+! straight section drift
+
+  DGAA     : DRIFT, L = 30.66 / 12 - 0.2
+  DGAA2    : drift, l = dgaa[l] / 18
+
+! arc-SCS matching drift
+
+  DASM : DRIFT, L = 1.7
+
+! skew correction section drift, and drift with space reserved for skew quads
+
+  DSCS1  : DRIFT, L = 2.0
+  DSCS1s : DRIFT, L = DSCS1[L] - DR30CM[L] - 2*SCS_SQ1[L]
+
+! drifts for 180/90 insertion in SCS
+
+  DSCS2  : DRIFT, L = 2.2497
+  DSCS2s : DRIFT, L = DSCS2[L] - DR30CM[L] - 2*SCS_SQ1[L]
+  DSCS3  : DRIFT, L = 2.0744
+
+! drift for wire scanner space
+
+  DWS : DRIFT, L = SCS_SQ1[L]
+
+! drifts for matching regions into and out of the stretch
+
+  D1SSM : DRIFT, L = 1.6
+  D2SSM : DRIFT, L = 10.8 - 4*DR30CM[L] - BGLW1[L] - BGLW2[L] &
+                                        - BGLW3[L] - BGLW4[L]
+  D3SSM : DRIFT, L = 1.3
+  D4SSM : DRIFT, L = 9.9
+
+  D5SSM : DRIFT, L = 3
+  D6SSM : DRIFT, L = 0.75745916551760E+01
+  D7SSM : DRIFT, L = 0.43244043819188E+01
+  D8SSM : DRIFT, L = 0.47635417662622E+01
+  D9SSM : DRIFT, L = 4.3
+
+! drift for the stretch itself
+
+  DSTRETCH : DRIFT, L = 36.809
+
+! ==============================================================================
+! COLLs
+! ------------------------------------------------------------------------------
+
+! Nominal settings for adjustable spoilers, collimating at 60sigy
+! by 10sigx.  For 60sigy, and assuming "razor blade" spoilers, 
+! the jitter-amplification factor is 0.76;
+! this is probably not acceptable if the beam jitter from the DR
+! is 1 sigma (goes to 1.25 sigmas downstream of the collimator, and
+! emittance growth from wakefields is about 9%).  In x, the 
+! amplification factor is 0.069, which is fine (1 sigma jitter goes
+! to 1.002 sigmas, emittance growth is 0.07%).
+
+  SPOILY : MARKER
+  SPOILX : MARKER
+
+! Quad protection collimators have an aperture of 6.5 mm
+
+  PCQUAD : MARKER
+
+! ==============================================================================
+! Markers
+! ------------------------------------------------------------------------------
+
+  BEGINEGETAWAY : MARKER
+  ENDEGETAWAY   : MARKER
+  DUMPKICK      : MARKER ! for now just a marker
+  PPS_STOPPER   : MARKER
+
+! ==============================================================================
+! BEAMLINE
+! ------------------------------------------------------------------------------
+
+  EGETAWAY : LINE = (BEGINEGETAWAY, &
+      2*QDGA1M1, BPMQ079,       YCOR, DGA1, BGA1M1, DGA1, &
+      2*QFGA1M1, BPMQ079, XCOR, YCOR, DGA1, BGA1M1, DGA1, &
+      2*QDGA1M2, BPMQ079,       YCOR, DGA1, BGA1M2, DGA1, &
+      2*QFGA1M2, BPMQ079, XCOR, YCOR, DGA1, BGA1M2, DGA1, &
+  2 * (2*QDGA1, BPMQ079,       YCOR, DGA1, BGA1, DGA1,&
+       2*QFGA1, BPMQ079, XCOR, YCOR, DGA1, BGA1, DGA1  ), &
+      2*QDGA1M1, BPMQ079,       YCOR, DGA1, BGA1M2, DGA1, &
+      2*QFGA1M1, BPMQ079, XCOR, YCOR, DGA1, BGA1M2, DGA1, &
+      2*QDGA1M2, BPMQ079,       YCOR, DGA1, BGA1M1, DGA1, &
+      2*QFGA1M2, BPMQ079, XCOR, YCOR, DGA1, BGA1M1, DGA1, &
+      2*QDGAA1, BPMQ079,       YCOR, DGAA, &
+      2*QFGAA1, BPMQ079, XCOR, YCOR, DGAA, &
+      2*QDGAA2, BPMQ079,       YCOR, DGAA, &
+      2*QFGAA2, BPMQ079, XCOR, YCOR, DGAA, &
+   2*(2*QDGAA,  BPMQ079,       YCOR, DGAA,&
+      2*QFGAA,  BPMQ079, XCOR, YCOR, DGAA),&
+      2*QDGAA3, BPMQ079,       YCOR, DGAA, &
+      2*QFGAA3, BPMQ079, XCOR, YCOR, DGAA, &
+      2*QDGAA4, BPMQ079,       YCOR, DGAA, &
+      2*QFGAA4, BPMQ079, XCOR, YCOR, DGAA, &
+      DGAA2,                               &
+      2*QDGA2M1, BPMQ079,       YCOR, DGA2, BGA2M1, DGA2s, &
+                                           2*SQGA1, DGA2s, &
+      2*QFGA2M1, BPMQ079, XCOR, YCOR, DGA2, BGA2M1, DGA2,  &
+      2*QDGA2M2, BPMQ079,       YCOR, DGA2, BGA2M2, DGA2,  &
+      2*QFGA2M2, BPMQ079, XCOR, YCOR, DGA2, BGA2M2, DGA2,  &
+      2*QDGA2,   BPMQ079,       YCOR, DGA2, BGA2,   DGA2s, &
+                                           2*SQGA1, DGA2s, &
+      2*QFGA2,   BPMQ079, XCOR, YCOR, DGA2, BGA2,   DGA2,  &  
+      2*QDGA2,   BPMQ079,       YCOR, DGA2, BGA2,   DGA2s, &
+                                           2*SQGA2, DGA2s, &
+      2*QFGA2,   BPMQ079, XCOR, YCOR, DGA2, BGA2,   DGA2,  &  
+      2*QDGA2,   BPMQ079,       YCOR, DGA2, BGA2,   DGA2,  &
+      2*QFGA2,   BPMQ079, XCOR, YCOR, DGA2, BGA2,   DGA2,  &  
+      2*QDGA2M1, BPMQ079,       YCOR, DGA2, BGA2M2, DGA2s, &
+                                           2*SQGA2, DGA2s, &
+      2*QFGA2M1, BPMQ079, XCOR, YCOR, DGA2, BGA2M2, DGA2,  &
+      2*QDGA2M2, BPMQ079,       YCOR, DGA2, BGA2M1, DGA2,  &
+      2*QFGA2M2, BPMQ079, XCOR, YCOR, DGA2, BGA2M1, DGA2,  &     
+      2*QDASM1, BPMQ079,       YCOR, DASM, &
+      2*QFASM1, BPMQ079, XCOR, YCOR, DASM, &
+      2*QDASM2, BPMQ079,       YCOR, DASM, &
+      2*QFASM2, BPMQ079, XCOR, YCOR, DASM, &
+                                    2*SCS_SQ1, DR30CM, &
+      2*QDSCS1, BPMQ079,       YCOR, DSCS1,            &
+      2*QFSCS1, BPMQ079, XCOR, YCOR, DSCS1,            &
+      2*QDSCS1, BPMQ079,       YCOR, DSCS1,            &
+      2*QFSCS1, BPMQ079, XCOR, YCOR, DSCS1s,           &
+                                    2*SCS_SQ2, DR30CM, &
+      2*QDSCS1, BPMQ079,       YCOR, DSCS2,            &
+      2*QFSCS2, BPMQ079, XCOR, YCOR, DSCS3,            &
+      2*QDSCS2, BPMQ079,       YCOR, DSCS3,            &
+      2*QFSCS2, BPMQ079, XCOR, YCOR, DSCS2s,           &
+                                    2*SCS_SQ3, DR30CM, &
+      2*QDSCS1, BPMQ079,       YCOR, DSCS1,            &
+      2*QFSCS1, BPMQ079, XCOR, YCOR, DSCS1,            &
+      2*QDSCS1, BPMQ079,       YCOR, DSCS1,            &
+      2*QFSCS1, BPMQ079, XCOR, YCOR, DSCS1s,           &
+                                    2*SCS_SQ4, DR30CM, &
+      2*QDSCS1, BPMQ079,       YCOR, DR30CM,           &
+                                 DWS,     DWS, DSCS1s, &
+      2*QFSCS1, BPMQ079, XCOR, YCOR, DSCS1,            &
+      2*QDSCS1, BPMQ079,       YCOR, DSCS1,            &
+      2*QFSCS1, BPMQ079, XCOR, YCOR, DSCS1,            &
+      2*QDSCS1, BPMQ079,       YCOR, DR30CM,           &
+                                 DWS,     DWS, DSCS2s, &
+      2*QFSCS2, BPMQ079, XCOR, YCOR, DSCS3,            &
+      2*QDSCS2, BPMQ079,       YCOR, DSCS3,            &
+      2*QFSCS2, BPMQ079, XCOR, YCOR, DSCS2,            &
+      2*QDSCS1, BPMQ079,       YCOR, DR30CM,           &
+                                 DWS, WS, DWS, DSCS1s, &
+      2*QFSCS1, BPMQ079, XCOR, YCOR, DSCS1,            &
+      2*QDSCS1, BPMQ079,       YCOR, DR30CM,           &
+                                 DWS, WS, DWS, DSCS1s, &
+      2*QFSCS1, BPMQ079, XCOR, YCOR, DSCS1,            &
+      2*QDSCS1, BPMQ079,       YCOR, DR30CM,           &
+                                 DWS, WS, DWS, DSCS1s, &
+      2*QFSCS1, BPMQ079, XCOR, YCOR, DSCS1,            &
+      2*QDSCS1, BPMQ079,       YCOR, DR30CM,           &
+                                 DWS, WS, DWS, DSCS1s, &
+      2*QFSSM1, BPMQ079, XCOR, YCOR, D1SSM,  &
+      2*QDSSM1, BPMQ079,       YCOR, DR30CM, &
+        BGLW1, DR30CM, BGLW2, DR30CM,        &
+        BGLW3, DR30CM, BGLW4, D2SSM,         &
+      2*QFSSM2, BPMQ079, XCOR, YCOR, D3SSM,  &
+      2*QDSSM2, BPMQ079,       YCOR, D4SSM,  &
+              2*QFSTRETCH, BPMQ079, XCOR, YCOR,           &
+                                        SPOILX, DSTRETCH, &
+      PCQUADRUPOLE, 2*QDSTRETCH, BPMQ079,       YCOR,           &
+                                        SPOILY, DSTRETCH, &
+      PCQUADRUPOLE, 2*QFSTRETCH, BPMQ079, XCOR, YCOR, DSTRETCH, &
+      PCQUADRUPOLE, 2*QDSTRETCH, BPMQ079,       YCOR, DSTRETCH, &
+      PCQUADRUPOLE, 2*QFSTRETCH, BPMQ079, XCOR, YCOR,           &
+                                        SPOILX, DSTRETCH, &
+      PCQUADRUPOLE, 2*QDSTRETCH, BPMQ079,       YCOR,           &
+                                        SPOILY, DSTRETCH, &
+      PCQUADRUPOLE, 2*QFSTRETCH, BPMQ079, XCOR, YCOR, DSTRETCH, &
+      PCQUADRUPOLE, 2*QDSTRETCH, BPMQ079,       YCOR, DSTRETCH, &
+      PCQUADRUPOLE,                                             &
+              2*QFSTRETCH, BPMQ079, XCOR, YCOR, DSTRETCH, &
+              2*QDSTRETCH, BPMQ079,       YCOR,           &
+      DUMPKICK,                                 DSTRETCH, & 
+   7 * (      2*QFSTRETCH, BPMQ079, XCOR, YCOR, DSTRETCH, &
+              2*QDSTRETCH, BPMQ079,       YCOR, DSTRETCH),&
+              2*QFSTRETCH, BPMQ079, XCOR, YCOR,           &
+      3 * PPS_STOPPER,                          DSTRETCH, &
+              2*QDSTRETCH, BPMQ079,       YCOR,           &
+      D5SSM, &
+      2*QFSSM3, BPMQ079, XCOR, YCOR, D6SSM, &
+      2*QDSSM3, BPMQ079,       YCOR, D7SSM, &
+      2*QFSSM4, BPMQ079, XCOR, YCOR, D8SSM, &
+      2*QDSSM4, BPMQ079,       YCOR, D9SSM, &
+      ENDEGETAWAY                                         )
+!
+!
+!
+
+
+
+!  CALL, FILENAME = 'eescalator.lat'
+!========1=========2=========3=========4=========5=========6=========7=========8
+!
+! ILC RTML e- escalator line -- EESCALATOR.xsif
+!
+! Lattice file for the electron escalator, which brings the beam down from the
+! damping ring elevation to the elevation of the main linac tunnel's ceiling.
+!
+! This lattice requires the following files to run properly:
+!
+!    RTML_common.xsif
+!
+! plus one of
+!
+!    RTML_sigz_nominal.xsif
+!    RTML_sizg300A.xsif
+!    RTML_sigzLowN.xsif
+!    RTML_sigz150A.xsif
+!
+! Auth:  PT, 02-Jan-2007.
+! Mod:  
+!
+! ------------------------------------------------------------------------------
+
+! Initial parameters at entry to the return line:
+
+!  TWISS_EESCAL : BETA0, BETX = 4.7964, ALFX = -2.3888, &
+!                        BETY = 0.9485, ALFY =  0.5712
+
+!  BEAM_EESCAL  :  BEAM, ENERGY = 5, NPART = BunchCharge, &
+!                  SIGE = 1.5E-3, SIGT = 9.E-03, &
+!                  EX = 8E-6 * EMASS/5, EY = 20E-9 * EMASS/5
+
+! ==============================================================================
+! Quads
+! ------------------------------------------------------------------------------
+
+! Quadrupoles in the arcs:
+
+  QFEARC : QUADRUPOLE, L = 0.1, K1 =  0.49395436677548E+01
+  QDEARC : QUADRUPOLE, L = 0.1, K1 = -0.49392472356947E+01
+
+! Quads for 45/45 FODO cell with 39.675 meter cell drifts
+
+  QFESTR : QUADRUPOLE, L = 0.1, K1 =  9.613164E-02    
+  QDESTR : QUADRUPOLE, L = 0.1, K1 = -9.613164E-02    
+
+! matching quads between the arcs and the longcells
+
+  QF1ASM  : QUADRUPOLE, L = 0.1, K1 =  9.495159E-01    
+  QD1ASM  : QUADRUPOLE, L = 0.1, K1 = -1.132184E+00    
+  QF2ASM  : QUADRUPOLE, L = 0.1, K1 =  6.382628E-01    
+  QD2ASM  : QUADRUPOLE, L = 0.1, K1 = -1.041486E-01    
+
+  QF1SAM  : QUADRUPOLE, L = 0.1, K1 =  1.041486E-01    
+  QD1SAM  : QUADRUPOLE, L = 0.1, K1 = -6.382628E-01    
+  QF2SAM  : QUADRUPOLE, L = 0.1, K1 =  1.132184E+00    
+  QD2SAM  : QUADRUPOLE, L = 0.1, K1 = -9.495159E-01    
+
+! ==============================================================================
+! Drifts
+! ------------------------------------------------------------------------------
+
+  DESC     : DRIFT, L = 0.45 
+  DESC2 : DRIFT, L = 1.30
+  DESCLONG : DRIFT, L = 39.675
+
+  D1ASM : DRIFT, L = 3
+  D2ASM : DRIFT, L = 0.47635417662622E+01
+  D3ASM : DRIFT, L = 0.43244043819188E+01
+  D4ASM : DRIFT, L = 0.75745916551760E+01
+  D5ASM : DRIFT, L = 3
+
+! ==============================================================================
+! Sector bends
+! ------------------------------------------------------------------------------
+
+ ! ESCANGL1 := 0.00275
+ ! ESCANGL2 := 0.00275
+  ESCANGL1 := 0.00169696
+  ESCANGL2 := 0.00169696
+
+  BESC1 : SBEND, L = 0.4, ANGLE =  ESCANGL1, TILT
+  BESC2 : SBEND, L = 0.4, ANGLE =  ESCANGL2, TILT
+  BESC3 : SBEND, L = 0.4, ANGLE = -ESCANGL1, TILT
+  BESC4 : SBEND, L = 0.4, ANGLE = -ESCANGL2, TILT
+
+! ==============================================================================
+! Markers
+! ------------------------------------------------------------------------------
+
+  BEGINEESCALATOR : MARKER
+  ENDEESCALATOR   : MARKER
+
+! ==============================================================================
+! BEAMLINE
+! ------------------------------------------------------------------------------
+
+! just the one beamline:
+
+  EESCALATOR : LINE = (BEGINEESCALATOR, &
+     2*QFEARC, BPMQ079, XCOR, YCOR, DESC, BESC1, DESC, &
+     2*QDEARC, BPMQ079,       YCOR, DESC, BESC1, DESC, &
+     2*QFEARC, BPMQ079, XCOR, YCOR, DESC, BESC2, DESC, &
+     2*QDEARC, BPMQ079,       YCOR, DESC, BESC2, DESC, &
+     2*QFEARC, BPMQ079, XCOR, YCOR, DESC, BESC2, DESC, &
+     2*QDEARC, BPMQ079,       YCOR, DESC, BESC2, DESC, &
+     2*QFEARC, BPMQ079, XCOR, YCOR, DESC, BESC1, DESC, &
+     2*QDEARC, BPMQ079,       YCOR, DESC, BESC1, DESC, &
+     D1ASM, 2*QF1ASM, BPMQ079, XCOR, YCOR, D2ASM, &
+            2*QD1ASM, BPMQ079,       YCOR, D3ASM, &
+            2*QF2ASM, BPMQ079, XCOR, YCOR, D4ASM, &
+            2*QD2ASM, BPMQ079,       YCOR, D5ASM, &
+    2*QFESTR, BPMQ079, XCOR, YCOR, DESCLONG, &
+    2*QDESTR, BPMQ079,       YCOR, DESCLONG, &
+    2*QFESTR, BPMQ079, XCOR, YCOR, DESCLONG, &
+    2*QDESTR, BPMQ079,       YCOR, DESCLONG, &
+    2*QFESTR, BPMQ079, XCOR, YCOR, DESCLONG, &
+    2*QDESTR, BPMQ079,       YCOR, DESCLONG, &
+    2*QFESTR, BPMQ079, XCOR, YCOR, DESCLONG, &
+    2*QDESTR, BPMQ079,       YCOR, DESCLONG, &
+    2*QFESTR, BPMQ079, XCOR, YCOR, DESCLONG, &
+    2*QDESTR, BPMQ079,       YCOR, DESCLONG, &
+    2*QFESTR, BPMQ079, XCOR, YCOR, DESCLONG, &
+    2*QDESTR, BPMQ079,       YCOR, DESCLONG, &
+    2*QFESTR, BPMQ079, XCOR, YCOR, DESCLONG, &
+    2*QDESTR, BPMQ079,       YCOR,           &
+    D5ASM, 2*QF1SAM, BPMQ079, XCOR, YCOR, D4ASM, &
+           2*QD1SAM, BPMQ079,       YCOR, D3ASM, &
+           2*QF2SAM, BPMQ079, XCOR, YCOR, D2ASM, &
+           2*QD2SAM, BPMQ079,       YCOR, D1ASM, &
+    DESC2, &
+     2*QFEARC, BPMQ079, XCOR, YCOR, DESC, BESC3, DESC, &
+     2*QDEARC, BPMQ079,       YCOR, DESC, BESC3, DESC, &
+     2*QFEARC, BPMQ079, XCOR, YCOR, DESC, BESC4, DESC, &
+     2*QDEARC, BPMQ079,       YCOR, DESC, BESC4, DESC, &
+     2*QFEARC, BPMQ079, XCOR, YCOR, DESC, BESC4, DESC, &
+     2*QDEARC, BPMQ079,       YCOR, DESC, BESC4, DESC, &
+     2*QFEARC, BPMQ079, XCOR, YCOR, DESC, BESC3, DESC, &
+     2*QDEARC, BPMQ079,       YCOR, DESC, BESC3, DESC, &
+  ENDEESCALATOR                                          )
+!
+!
+!
+
+
+
+!  CALL, FILENAME = 'ereturn.lat'
+!========1=========2=========3=========4=========5=========6=========7=========8
+!
+! ILC RTML e- return line -- ERETURN.xsif
+!
+! Lattice file for the electron return line, which brings the beam from the
+! bottom of the escalator to the start of the turnaround.
+!
+! This lattice requires the following files to run properly:
+!
+!    RTML_common.xsif
+!
+! plus one of
+!
+!    RTML_sigz_nominal.xsif
+!    RTML_sizg300A.xsif
+!    RTML_sigzLowN.xsif
+!    RTML_sigz150A.xsif
+!
+! In addition, the kink in coordinates due to the earth's curvature, 
+! EKINK, must be defined in the caller (since this is different in MAD-8
+! and in beamlines which have a GKICK element).
+!
+! Auth:  PT, 13-dec-2006.
+! Mod:  
+!
+! ------------------------------------------------------------------------------
+
+! Initial parameters at entry to the return line:
+
+!  TWISS_ERETURN : BETA0, BETX = 4.7964, ALFX = -2.3888, &
+!                         BETY = 0.9485, ALFY =  0.5712
+
+!  BEAM_ERETURN  :  BEAM, ENERGY = 5, NPART = BunchCharge, &
+!                   SIGE = 1.5E-3, SIGT = 9.E-03, &
+!                   EX = 8E-6 * EMASS/5, EY = 20E-9 * EMASS/5
+
+! ==============================================================================
+! Quads
+! ------------------------------------------------------------------------------
+
+! Quadrupoles in the matching region from the escalator into the return line
+
+  QF1ERM : QUADRUPOLE, L = 0.1, K1 =  1.039683E+00    
+  QD1ERM : QUADRUPOLE, L = 0.1, K1 = -1.134834E+00    
+  QF2ERM : QUADRUPOLE, L = 0.1, K1 =  5.810963E-01    
+  QD2ERM : QUADRUPOLE, L = 0.1, K1 = -6.436235E-02    
+
+! Quadrupoles in the matching region from the return line to the turnaround
+
+  QF1RTM : QUADRUPOLE, L = 0.1, K1 =  5.539566E-01    
+  QD1RTM : QUADRUPOLE, L = 0.1, K1 = -8.538169E-01    
+  QF2RTM : QUADRUPOLE, L = 0.1, K1 =  1.355329E+00    
+  QD2RTM : QUADRUPOLE, L = 0.1, K1 = -4.607947E+00    
+  QF3RTM : QUADRUPOLE, L = 0.1, K1 =  2.4113
+
+! Quads in the return line proper
+
+  QFRETURN : QUADRUPOLE, L = 0.1, K1 =  1.057713E-01    
+  QDRETURN : QUADRUPOLE, L = 0.1, K1 = -1.057713E-01    
+
+! ==============================================================================
+! Drifts
+! ------------------------------------------------------------------------------
+
+! drifts in the matching region from the escalator to the return line
+
+  D1ERM : DRIFT, L = 3
+  D2ERM : DRIFT, L = 4.764
+  D3ERM : DRIFT, L = 4.324
+  D4ERM : DRIFT, L = 7.575
+  D5ERM : DRIFT, L = 3
+
+! drifts in the matching region from the return line to the turnaround
+
+ ! D1RTM : DRIFT, L = 3
+ ! D2RTM : DRIFT, L = 7.575
+ ! D3RTM : DRIFT, L = 4.324
+ ! D4RTM : DRIFT, L = 4.764
+ ! D5RTM : DRIFT, L = 3
+
+  D1RTM : DRIFT, L = 8.7
+  D2RTM : DRIFT, L = 3.2
+  D3RTM : DRIFT, L = 9.3
+  D4RTM : DRIFT, L = 2.5
+  D5RTM : DRIFT, L = 1.1
+
+! drift in the long FODO cell
+ 
+  DERFODO : DRIFT, L = 36.047
+
+! ==============================================================================
+! Y correctors for following the curvature of the earth and dispersion matching
+! ------------------------------------------------------------------------------
+
+  CURVEON  := 1
+  CURVEOFF := 0
+
+  ECURVE = CURVEOFF
+
+  ECURVEANGLE := -1 * ECURVE * (2*QFRETURN[L] + DERFODO[L])/(6.370E6)
+
+  YCRETURN : VKICK, KICK = ECURVEANGLE
+
+  YCETA1 : VKICK, kick = -1.110731056890000e-005 * ECURVE 
+  YCETA2 : VKICK, kick = -4.826658573800000e-006 * ECURVE
+  YCETA3 : VKICK, kick = -2.452302306440000e-006 * ECURVE
+  YCETA4 : VKICK, kick = -1.012698923124000e-005 * ECURVE
+
+! ==============================================================================
+! Markers
+! ------------------------------------------------------------------------------
+
+  BEGINERETURN : MARKER
+  ENDERETURN   : MARKER
+  NOKINK       : MARKER
+  EKINK        : MARKER
+
+! ==============================================================================
+! BEAMLINES
+! ------------------------------------------------------------------------------
+
+! There are 3 kinds of return cell:  the standard curved cell, the standard
+! straight cell, and the curved cell with dispersion matching correctors.  
+! We handle all this with formal parameters:
+
+! RETURNCELL(Y1,Y2,KINK) : LINE = ( 2*QFRETURN, BPMQ079, XCOR, Y1, KINK, DERFODO, 2*QDRETURN, BPMQ079, Y2, KINK, DERFODO )
+
+! now define the families of cells
+
+  RETURNCELLC     : LINE = ( 2*QFRETURN, BPMQ079, XCOR, YCRETURN, EKINK, DERFODO, 2*QDRETURN, BPMQ079, YCRETURN, EKINK, DERFODO )
+  RETURNCELLS     : LINE = ( 2*QFRETURN, BPMQ079, XCOR, YCOR, NOKINK, DERFODO, 2*QDRETURN, BPMQ079, YCOR, NOKINK, DERFODO )
+
+!  RETURNCELLM(YC) : LINE = ( 2*QFRETURN, BPMQ079, XCOR, YC, EKINK, DERFODO, 2*QDRETURN, BPMQ079, YCRETURN, EKINK, DERFODO )
+
+! The entry matcher
+
+  ERMATCH : LINE = (D1ERM, 2*QF1ERM, BPMQ079, XCOR, YCOR, &
+                    D2ERM, 2*QD1ERM, BPMQ079,       YCOR, &
+                    D3ERM, 2*QF2ERM, BPMQ079, XCOR, YCOR, &
+                    D4ERM, 2*QD2ERM, BPMQ079,       YCOR, &
+                    D5ERM)
+
+! The exit matcher
+
+  RTMATCH : LINE = (D1RTM, 2*QF1RTM, BPMQ079, XCOR, YCOR, &
+                    D2RTM, 2*QD1RTM, BPMQ079,       YCOR, &
+                    D3RTM, 2*QF2RTM, BPMQ079, XCOR, YCOR, &
+                    D4RTM, 2*QD2RTM, BPMQ079,       YCOR, &
+                    D5RTM, 2*QF3RTM)
+
+! The beamline:
+
+  ERETURN : LINE = (BEGINERETURN, ERMATCH, &
+     2*QFRETURN, BPMQ079, XCOR, YCETA1, EKINK, DERFODO, 2*QDRETURN, BPMQ079, YCRETURN, EKINK, DERFODO, &
+     RETURNCELLC, &
+     2*QFRETURN, BPMQ079, XCOR, YCETA2, EKINK, DERFODO, 2*QDRETURN, BPMQ079, YCRETURN, EKINK, DERFODO, &
+     RETURNCELLC,  &
+     2*QFRETURN, BPMQ079, XCOR, YCETA1, EKINK, DERFODO, 2*QDRETURN, BPMQ079, YCRETURN, EKINK, DERFODO, &
+     RETURNCELLC, &
+     2*QFRETURN, BPMQ079, XCOR, YCETA2, EKINK, DERFODO, 2*QDRETURN, BPMQ079, YCRETURN, EKINK, DERFODO, &
+     158 * RETURNCELLC,                                                   &
+     2*QFRETURN, BPMQ079, XCOR, YCETA3, EKINK, DERFODO, 2*QDRETURN, BPMQ079, YCRETURN, EKINK, DERFODO, &
+     RETURNCELLC, &
+     2*QFRETURN, BPMQ079, XCOR, YCETA4, EKINK, DERFODO, 2*QDRETURN, BPMQ079, YCRETURN, EKINK, DERFODO, &
+     RETURNCELLC,  &
+     2*QFRETURN, BPMQ079, XCOR, YCETA3, EKINK, DERFODO, 2*QDRETURN, BPMQ079, YCRETURN, EKINK, DERFODO, &
+     RETURNCELLC, &
+     2*QFRETURN, BPMQ079, XCOR, YCETA4, EKINK, DERFODO, 2*QDRETURN, BPMQ079, YCRETURN, EKINK, DERFODO, &
+     16 * RETURNCELLS,                                                    &
+     2*QFRETURN, BPMQ079, XCOR, YCOR, DERFODO, 2*QDRETURN, BPMQ079, YCOR, &
+     RTMATCH, ENDERETURN )
+!
+!
+!
+
+!  CALL, FILENAME = 'eturn.lat'
+!========1=========2=========3=========4=========5=========6=========7=========8
+!
+! ILC RTML e- turnaround, ETURN.XSIF
+!
+! New version:  compared to the original turnaround, here are the changes:
+!   1.  Doubled the cell length 
+!   2.  Increased the phase advance per cell to 108 degrees
+!   3.  Inserted doglegs to change the position of the RTML
+!       from near-ceiling in the long transfer line to linac level in
+!       the forward RTML, and from the center of the tunnel to the linac
+!       line in x.  The doglegs have 90 degree phase advance per cell.
+!   4.  Exchanged the relationship of the short and long arcs, with the long
+!       arc now first.  This is set by the horizontal alignments of the 
+!       long transfer line and the linac in the main linac tunnel.
+!   5.  Elimination of the tuning quads:  horizontal dispersion can be
+!       tuned by using two standard arc quads, while vertical dispersion
+!       can be tuned by using 2 vertical dogleg quads.
+!   6.  Eliminate xcors at D quads.  Move BPMs to downstream of quads.
+!
+! This lattice requires the following files to run properly:
+!
+!    RTML_COMMON.XSIF
+!
+! plus one of the following (mainly for bunch charge):
+!
+!    RTML_sigznominal.xsif
+!    RTML_sigzLowN.xsif
+!
+! Auth:  PT, 26-Oct-2006.
+! 
+! Mod:
+!       PT, 12-jan-2007:
+!         added spoilers and absorbers to horizontal dogleg.
+!
+! ------------------------------------------------------------------------------
+
+! Initial Twiss and Beam statements
+
+! here's the TWISS for the nominal entry point
+
+!  TWISS_ETURN : BETA0, BETX = 10.9294, ALFX =  3.0356, &
+!                       BETY =  1.2617, ALFY = -0.4263, &
+!                       DX = 0, DPX = 0, DY = 0, DPY = 0
+
+!  BEAM_ETURN  : BEAM, NPART = BunchCharge, &
+!                      ENERGY = 5, SIGT = 9E-3, SIGE = 1.5E-3, &
+!                      EX = 8E-6 * EMASS/5, EY = 20E-9 * EMASS/5
+
+! defined parameters
+
+  LQA    := 0.20  !arc quad effective length (m)
+  LDFODO := 0.25  !FODO drift length (m)
+
+
+! ==============================================================================
+! BENDs
+! ------------------------------------------------------------------------------
+
+  HGBA := GB30 / 2
+
+  ABD1 := 0.41348161915782E-01
+  ABD2 := 0.67582405620248E-01
+  ABD3 := 0.67254219563421E-01
+  ABD4 := 0.41402011892442E-01
+  ABA  := 0.10933421599710
+
+! "reverse" arc bends
+
+  BAR  : SBEND, L = 2.3, HGAP = HGBA, ANGLE = -ABA,  E1 = -ABA/2,  E2 = -ABA/2
+  BD1R : SBEND, L = 2.3, HGAP = HGBA, ANGLE = -ABD1, E1 = -ABD1/2, E2 = -ABD1/2
+  BD2R : SBEND, L = 2.3, HGAP = HGBA, ANGLE = -ABD2, E1 = -ABD2/2, E2 = -ABD2/2
+  BD3R : SBEND, L = 2.3, HGAP = HGBA, ANGLE = -ABD3, E1 = -ABD3/2, E2 = -ABD3/2
+  BD4R : SBEND, L = 2.3, HGAP = HGBA, ANGLE = -ABD4, E1 = -ABD4/2, E2 = -ABD4/2
+
+! "forward" arc bends
+
+  BAF  : SBEND, L = 2.3, HGAP = HGBA, ANGLE = ABA,  E1 = ABA/2,  E2 = ABA/2
+  BD1F : SBEND, L = 2.3, HGAP = HGBA, ANGLE = ABD1, E1 = ABD1/2, E2 = ABD1/2
+  BD2F : SBEND, L = 2.3, HGAP = HGBA, ANGLE = ABD2, E1 = ABD2/2, E2 = ABD2/2
+  BD3F : SBEND, L = 2.3, HGAP = HGBA, ANGLE = ABD3, E1 = ABD3/2, E2 = ABD3/2
+  BD4F : SBEND, L = 2.3, HGAP = HGBA, ANGLE = ABD4, E1 = ABD4/2, E2 = ABD4/2
+
+! Vertical arc bends 
+
+  AV1 := 0.011169
+  AV2 := 0.011169
+
+  BV1 : SBEND, L = 2.3, HGAP=HGBA, ANGLE =  AV1, E1 =  AV1/2, E2 =  AV1/2, TILT
+  BV2 : SBEND, L = 2.3, HGAP=HGBA, ANGLE =  AV2, E1 =  AV2/2, E2 =  AV2/2, TILT
+  BV3 : SBEND, L = 2.3, HGAP=HGBA, ANGLE = -AV1, E1 = -AV1/2, E2 = -AV1/2, TILT
+  BV4 : SBEND, L = 2.3, HGAP=HGBA, ANGLE = -AV2, E1 = -AV2/2, E2 = -AV2/2, TILT
+
+! horizontal dogleg bends
+
+  AH1 := 0.004029
+  AH2 := 0.004029
+
+  BH1 : SBEND, L = 2.3, HGAP = HGBA, ANGLE =  AH1, E1 =  AH1/2, E2 =  AH1/2
+  BH2 : SBEND, L = 2.3, HGAP = HGBA, ANGLE =  AH2, E1 =  AH2/2, E2 =  AH2/2
+  BH3 : SBEND, L = 2.3, HGAP = HGBA, ANGLE = -AH1, E1 = -AH1/2, E2 = -AH1/2
+  BH4 : SBEND, L = 2.3, HGAP = HGBA, ANGLE = -AH2, E1 = -AH2/2, E2 = -AH2/2
+
+! ==============================================================================
+! QUADs
+! ------------------------------------------------------------------------------
+
+
+! arc FODO cells
+
+  KQFA :=  0.27599525631660E+01
+  KQDA := -0.27335934255751E+01
+
+  QFA : QUADRUPOLE, L=LQA/2, K1=KQFA
+  QDA : QUADRUPOLE, L=LQA/2, K1=KQDA
+
+  QDAS1 : QUADRUPOLE, L=LQA/2, K1 = -0.27479594904701E+01
+  QDAS2 : QUADRUPOLE, L=LQA/2, K1 = -0.27534461947460E+01
+  QFAS1 : QUADRUPOLE, L=LQA/2, K1 =  0.27556435289068E+01
+  QFAS2 : QUADRUPOLE, L=LQA/2, K1 =  0.27577774003461E+01
+
+  QDAM1 : QUADRUPOLE, L=LQA/2, K1 = -0.27535473123509E+01
+  QDAM2 : QUADRUPOLE, L=LQA/2, K1 = -0.27480718251248E+01
+  QFAM1 : QUADRUPOLE, L=LQA/2, K1 =  0.27591003111614E+01
+  QFAM2 : QUADRUPOLE, L=LQA/2, K1 =  0.27621020663312E+01
+
+  QDAH : QUADRUPOLE, L=LQA/2, K1 = -0.24113326137009E+01
+  QFAH : QUADRUPOLE, L=LQA/2, K1 =  0.24113326137009E+01
+
+  QDAV : QUADRUPOLE, L=LQA/2, K1 = -0.24113128778319E+01
+  QFAV : QUADRUPOLE, L=LQA/2, K1 =  0.24110397544602E+01
+
+! match to spin rotator (solenoids ON)
+
+  KQMTS1 :=  0.40555093395780E+01
+  KQMTS2 := -0.28170664906697E+01
+  KQMTS3 :=  0.52522407520103E+01
+  KQMTS4 := -0.33828882497362E+01
+
+  QMTS1 : QUADRUPOLE, L=LQA/2, K1=KQMTS1
+  QMTS2 : QUADRUPOLE, L=LQA/2, K1=KQMTS2
+  QMTS3 : QUADRUPOLE, L=LQA/2, K1=KQMTS3
+  QMTS4 : QUADRUPOLE, L=LQA/2, K1=KQMTS4
+
+! ==============================================================================
+! DRIFTs
+! ------------------------------------------------------------------------------
+
+  DFODO  : DRIFT, L=LDFODO
+  DMTS1  : DRIFT, L=2.0
+  DMTS2  : DRIFT, L=1.5
+  DMTS3  : DRIFT, L=0.4
+  DMTS4  : DRIFT, L=0.4
+
+! ==============================================================================
+! COLLs
+! ------------------------------------------------------------------------------
+
+! adjustable spoilers, here set to 1.5% energy spread at the high-dispersion
+! points of the horizontal dogleg
+
+  SPHDOG : MARKER
+
+! fixed absorbers at 6.5 mm aperture to match the ones in the collimation
+! section
+
+  ABHDOG : MARKER
+
+! ==============================================================================
+! MARKs
+! ------------------------------------------------------------------------------
+
+  BEGINETURN : MARKER
+  ENDETURN   : MARKER
+
+! ==============================================================================
+! BEAMLINEs
+! ------------------------------------------------------------------------------
+
+! Standard cell
+
+  TURNCELL : LINE = (                            DFODO, BAF, DFODO, &
+                     2*QDA, BPMQ079,       YCOR, DFODO, BAF, DFODO, &
+                     2*QFA, BPMQ079 ,XCOR, YCOR )
+
+! dispersion matching cell
+
+  TURNMATCH : LINE = (                                DFODO, BD1F, DFODO, &
+                       2*QDAM1, BPMQ079 ,       YCOR, DFODO, BD1F, DFODO, &
+                       2*QFAM1, BPMQ079 ,XCOR , YCOR, DFODO, BD2F, DFODO, &
+                       2*QDAM2, BPMQ079 ,       YCOR, DFODO, BD2F, DFODO, &
+                       2*QFAM2, BPMQ079 ,XCOR , YCOR )
+
+! dispersion suppression cell
+
+  TURNSUPP : LINE = (                                DFODO, BD3F, DFODO, &
+                       2*QDAS1, BPMQ079,       YCOR, DFODO, BD3F, DFODO, &
+                       2*QFAS1, BPMQ079, XCOR, YCOR, DFODO, BD4F, DFODO, &
+                       2*QDAS2, BPMQ079,       YCOR, DFODO, BD4F, DFODO, &
+                       2*QFAS2, BPMQ079, XCOR, YCOR                        )
+
+! Reverse bend cells 
+
+  TURNCELLR : LINE = (                            DFODO, BAR, DFODO, &
+                      2*QDA, BPMQ079,       YCOR, DFODO, BAR, DFODO, &
+                      2*QFA, BPMQ079, XCOR, YCOR )
+
+
+  TURNMATCHR : LINE = (                               DFODO, BD1R, DFODO, &
+                        2*QDAM1, BPMQ079,       YCOR, DFODO, BD1R, DFODO, &
+                        2*QFAM1, BPMQ079, XCOR, YCOR, DFODO, BD2R, DFODO, &
+                        2*QDAM2, BPMQ079,       YCOR, DFODO, BD2R, DFODO, &
+                        2*QFAM2, BPMQ079, XCOR, YCOR )
+
+  TURNSUPPR : LINE = (                                DFODO, BD3R, DFODO, &
+                        2*QDAS1, BPMQ079,       YCOR, DFODO, BD3R, DFODO, &
+                        2*QFAS1, BPMQ079, XCOR, YCOR, DFODO, BD4R, DFODO, &
+                        2*QDAS2, BPMQ079,       YCOR, DFODO, BD4R, DFODO    )
+
+
+! vertical dogleg
+
+  VDOG : LINE = (                             DFODO, BV1, DFODO, &
+                 2*QDAV, BPMQ079,       YCOR, DFODO, BV1, DFODO, &
+                 2*QFAV, BPMQ079, XCOR, YCOR, DFODO, BV2, DFODO, &
+                 2*QDAV, BPMQ079,       YCOR, DFODO, BV2, DFODO, &
+                 2*QFAV, BPMQ079, XCOR, YCOR, DFODO, BV2, DFODO, &
+                 2*QDAV, BPMQ079,       YCOR, DFODO, BV2, DFODO, &
+                 2*QFAV, BPMQ079, XCOR, YCOR, DFODO, BV1, DFODO, &
+                 2*QDAV, BPMQ079,       YCOR, DFODO, BV1, DFODO, &
+                 2*QFAV, BPMQ079, XCOR, YCOR, DFODO, BV3, DFODO, &
+                 2*QDAV, BPMQ079,       YCOR, DFODO, BV3, DFODO, &
+                 2*QFAV, BPMQ079, XCOR, YCOR, DFODO, BV4, DFODO, &
+                 2*QDAV, BPMQ079,       YCOR, DFODO, BV4, DFODO, &
+                 2*QFAV, BPMQ079, XCOR, YCOR, DFODO, BV4, DFODO, &
+                 2*QDAV, BPMQ079,       YCOR, DFODO, BV4, DFODO, &
+                 2*QFAV, BPMQ079, XCOR, YCOR, DFODO, BV3, DFODO, &
+                 2*QDAV, BPMQ079,       YCOR, DFODO, BV3, DFODO, &
+                 2*QFAV, BPMQ079, XCOR, YCOR )
+
+! horizontal dogleg
+
+  HDOG : LINE = (                             DFODO, BH1, DFODO, &
+                 2*QDAH, BPMQ079,       YCOR, DFODO, BH1, DFODO, &
+                 2*QFAH, BPMQ079, XCOR, YCOR, DFODO, BH2, DFODO, &
+                 2*QDAH, BPMQ079,       YCOR, DFODO, BH2, DFODO, &
+         SPHDOG, 2*QFAH, BPMQ079, XCOR, YCOR, DFODO, BH2, DFODO, &
+                 2*QDAH, BPMQ079,       YCOR, DFODO, BH2, DFODO, &
+         ABHDOG, 2*QFAH, BPMQ079, XCOR, YCOR, DFODO, BH1, DFODO, &
+                 2*QDAH, BPMQ079,       YCOR, DFODO, BH1, DFODO, &
+                 2*QFAH, BPMQ079, XCOR, YCOR, DFODO, BH3, DFODO, &
+                 2*QDAH, BPMQ079,       YCOR, DFODO, BH3, DFODO, &
+                 2*QFAH, BPMQ079, XCOR, YCOR, DFODO, BH4, DFODO, &
+                 2*QDAH, BPMQ079,       YCOR, DFODO, BH4, DFODO, &
+         SPHDOG, 2*QFAH, BPMQ079, XCOR, YCOR, DFODO, BH4, DFODO, &
+                 2*QDAH, BPMQ079,       YCOR, DFODO, BH4, DFODO, &
+         ABHDOG, 2*QFAH, BPMQ079, XCOR, YCOR, DFODO, BH3, DFODO, &
+                 2*QDAH, BPMQ079,       YCOR, DFODO, BH3, DFODO, &
+                 2*QFAH, BPMQ079, XCOR, YCOR )
+!
+! Match into spin rotator
+!
+  SPINMATCH : LINE = (&
+   2*QMTS1, BPMQ079, XCOR, YCOR, DMTS1, &
+   2*QMTS2, BPMQ079, XCOR, YCOR, DMTS2, &
+   2*QMTS3, BPMQ079, XCOR, YCOR, DMTS3, &
+   2*QMTS4, BPMQ079, XCOR, YCOR, DMTS4    )
+
+! Complete system:
+
+  ETURN : LINE = ( BEGINETURN, HDOG, VDOG, &
+                   TURNMATCH,  18*TURNCELL, TURNSUPP, &
+                   TURNMATCHR, 3*TURNCELLR, TURNSUPPR, SPINMATCH, ENDETURN )
+
+! ------------------------------------------------------------------------------
+
+
+
+!  CALL, FILENAME = 'espin.lat'
+! ==============================================================================
+! 08-dec-2006, PT:
+!    add skew correction section; remove 2 wire scanners.  Eliminate xcors
+!    at D quads.  Moved BPMs to corrector side of quads.
+! 17-feb-2006, PT:
+!    incorporate emittance diagnostic line, per beamline information sheet.
+!    Add feed-forward correctors.
+! 11-NOV-2005, M. Woodley
+!    ILC post-DR 5 GeV spin rotator system from Jeff Smith
+! ------------------------------------------------------------------------------
+
+! Modifed for MAD conformity
+
+  Ei_EBC1  := E0
+  BSIGNBC2 := 1.0 !electrons
+
+! Initial beam and twiss conditions:
+
+!  TWISS_ESPIN : BETA0, BETX = 8.3553, ALFX =  0.4830, &
+!                       BETY = 8.3435, ALFY =  0.9003
+
+!  BEAM_ESPIN  : BEAM, ENERGY = 5, NPART = BunchCharge, &
+!                SIGE = 1.5E-3, SIGT = 9.7E-03, &
+!                EX = 8E-6 * EMASS/5, EY = 20E-9 * EMASS/5
+
+! ==============================================================================
+! BENDs
+! ------------------------------------------------------------------------------
+
+! ABABC1 :=  0.11284306*Bsignbc2/Ei_EBC1
+! ABABC1 :=  0.1154*Bsignbc2/Ei_EBC1
+  ABABC1 :=  -Aspin/6
+
+  B1_X  : SBEND, L=LB30, ANGLE=ABABC1, HGAP=GB30/2, &
+                 E1=ABABC1/2, E2=ABABC1/2
+  B2_X  : SBEND, L=LB30, ANGLE=ABABC1, HGAP=GB30/2, &
+                 E1=ABABC1/2, E2=ABABC1/2
+  B3_X  : SBEND, L=LB30, ANGLE=ABABC1, HGAP=GB30/2, &
+                 E1=ABABC1/2, E2=ABABC1/2
+  B4_X  : SBEND, L=LB30, ANGLE=ABABC1, HGAP=GB30/2, &
+                 E1=ABABC1/2, E2=ABABC1/2
+  B5_X  : SBEND, L=LB30, ANGLE=ABABC1, HGAP=GB30/2, &
+                 E1=ABABC1/2, E2=ABABC1/2
+  B6_X  : SBEND, L=LB30, ANGLE=ABABC1, HGAP=GB30/2, &
+                 E1=ABABC1/2, E2=ABABC1/2
+
+! ==============================================================================
+! QUADs
+! ------------------------------------------------------------------------------
+
+! solenoids ON
+
+  KQM011 :=  4.093468179872
+  KQM012 := -4.088433049741
+  KQM013 := -2.61080815551
+  KQM014 :=  5.612899537078
+
+  KQFARC :=  6.625165717429
+  KQDARC := -6.62128760605
+
+  KQDA1 := KQDARC
+  KQFA2 := KQFARC
+  KQDA3 := KQDARC
+  KQFA4 := KQFARC
+  KQDA5 := KQDARC
+  KQFA6 := KQFARC
+  KQDA7 := KQDARC
+  KQM24 := KQM014
+  KQM23 := KQM013
+  KQM22 := KQM012
+  KQM21 := KQM011
+
+  QM011 : QUADRUPOLE, L=LQ5/2, K1=KQM011
+  QM012 : QUADRUPOLE, L=LQ5/2, K1=KQM012
+  QM013 : QUADRUPOLE, L=LQ5/2, K1=KQM013
+  QM014 : QUADRUPOLE, L=LQ5/2, K1=KQM014
+  QDA1  : QUADRUPOLE, L=LQ5/2, K1=KQDA1
+  QFA2  : QUADRUPOLE, L=LQ5/2, K1=KQFA2
+  QDA3  : QUADRUPOLE, L=LQ5/2, K1=KQDA3
+  QFA4  : QUADRUPOLE, L=LQ5/2, K1=KQFA4
+  QDA5  : QUADRUPOLE, L=LQ5/2, K1=KQDA5
+  QFA6  : QUADRUPOLE, L=LQ5/2, K1=KQFA6
+  QDA7  : QUADRUPOLE, L=LQ5/2, K1=KQDA7
+  QM24  : QUADRUPOLE, L=LQ5/2, K1=KQM24
+  QM23  : QUADRUPOLE, L=LQ5/2, K1=KQM23
+  QM22  : QUADRUPOLE, L=LQ5/2, K1=KQM22
+  QM21  : QUADRUPOLE, L=LQ5/2, K1=KQM21
+
+! match from spin rotator system
+
+  KQM31BC1 := -5.711628712509
+  KQM32BC1 :=  5.524418996233
+  KQM33BC1 :=  0.245316312638
+  KQM34BC1 := -0.723546776196
+
+  QM31BC1 : QUADRUPOLE, L=LQ5/2, K1=KQM31BC1
+  QM32BC1 : QUADRUPOLE, L=LQ5/2, K1=KQM32BC1
+  QM33BC1 : QUADRUPOLE, L=LQ5/2, K1=KQM33BC1
+  QM34BC1 : QUADRUPOLE, L=LQ5/2, K1=KQM34BC1
+
+! 4D emittance diagnostic section
+
+  BQF1BC1 :=  7.149634777821
+  BQD1BC1 := -BQF1BC1
+  BQF2BC1 :=  9.564805633604
+  BQD2BC1 := -6.986341016318
+  BQF3BC1 :=  6.501146758882
+  BQD3BC1 := -BQF3BC1
+  BQFMBC1 :=  7.44372730028
+  BQDMBC1 := -6.771786628447
+
+  KQF1BC1 := (BQF1BC1/rQ5)/Brho
+  KQD1BC1 := (BQD1BC1/rQ5)/Brho
+  KQF2BC1 := (BQF2BC1/rQ5)/Brho
+  KQD2BC1 := (BQD2BC1/rQ5)/Brho
+  KQF3BC1 := (BQF3BC1/rQ5)/Brho
+  KQD3BC1 := (BQD3BC1/rQ5)/Brho
+  KQFMBC1 := (BQFMBC1/rQ5)/Brho
+  KQDMBC1 := (BQDMBC1/rQ5)/Brho
+
+  QF1BC1 : QUADRUPOLE, L=LQ5/2, K1=KQF1BC1
+  QD1BC1 : QUADRUPOLE, L=LQ5/2, K1=KQD1BC1
+  QF2BC1 : QUADRUPOLE, L=LQ5/2, K1=KQF2BC1
+  QD2BC1 : QUADRUPOLE, L=LQ5/2, K1=KQD2BC1
+  QF3BC1 : QUADRUPOLE, L=LQ5/2, K1=KQF3BC1
+  QD3BC1 : QUADRUPOLE, L=LQ5/2, K1=KQD3BC1
+  QFMBC1 : QUADRUPOLE, L=LQ5/2, K1=KQFMBC1
+  QDMBC1 : QUADRUPOLE, L=LQ5/2, K1=KQDMBC1
+
+! Skew quads
+
+  LSQSPINROT := 0.2
+
+  KSQ5 := 0.
+  KSQ6 := 0.
+  KSQ7 := 0.
+  KSQ8 := 0.
+
+  SQ5 : QUADRUPOLE, L = LSQSPINROT/2, K1 = KSQ5, TILT
+  SQ6 : QUADRUPOLE, L = LSQSPINROT/2, K1 = KSQ6, TILT
+  SQ7 : QUADRUPOLE, L = LSQSPINROT/2, K1 = KSQ7, TILT
+  SQ8 : QUADRUPOLE, L = LSQSPINROT/2, K1 = KSQ8, TILT
+
+
+! ==============================================================================
+! SOLENOIDs
+! ------------------------------------------------------------------------------
+
+! use 3 times Paul Emma's design
+
+  LSOL := 1.38650*3 !solenoid effective length (m)
+  rSOL := 0.01      !solenoid bore radius (m)
+
+  sole_on := 1      !turn solenoids on (1) or off (0)
+
+! KSOL := sole_on*37.78871*(Ei_EBC1/2.0)/(Cb*Ei_EBC1)
+  KSOL := -Bsignbc2*(sole_on*37.78871*(Ei_EBC1/2)/(Cb*Ei_EBC1))/3
+
+!  SOL1 : SOLENOID, L=LSOL/2, KS=ksol
+!  SOL2 : SOLENOID, L=LSOL/2, KS=ksol
+!  SOL3 : SOLENOID, L=LSOL/2, KS=ksol
+!  SOL4 : SOLENOID, L=LSOL/2, KS=ksol
+
+  SOL1 : DRIFT, L=LSOL/2
+  SOL2 : DRIFT, L=LSOL/2
+  SOL3 : DRIFT, L=LSOL/2
+  SOL4 : DRIFT, L=LSOL/2
+
+! ==============================================================================
+! DRIFTs
+! ------------------------------------------------------------------------------
+
+  dma1_dl1 :=  0.1              !tweak to keep |Bq|<9.6 kG for matching quads
+  dma1_dl2 := -0.2              !keep overall length the same
+  dma1_l1  :=  0.83769
+  dma1_l2  :=  0.68660+dma1_dl1
+  dma1_l3  :=  3.0528+dma1_dl2
+  dma1_l4  :=  0.472798677612
+  
+  DMA1EBC1 : DRIFT, L=dma1_l1
+  DMA2EBC1 : DRIFT, L=dma1_l2
+  DMA3EBC1 : DRIFT, L=dma1_l3
+  DMA4EBC1 : DRIFT, L=dma1_l4
+
+  DMA5 : DRIFT, L=1.431264366865
+  DA   : DRIFT, L=0.262
+
+! match from spin rotator system
+
+  LM31BC1 := 0.5
+  LM32BC1 := 0.5
+  LM33BC1 := 1.0
+  LM34BC1 := 0.5
+  LM35BC1 := 1.5
+  
+  DM31BC1 : DRIFT, L=LM31BC1
+  DM32BC1 : DRIFT, L=LM32BC1
+  DM33BC1 : DRIFT, L=LM33BC1
+  DM34BC1 : DRIFT, L=LM34BC1
+  DM35BC1 : DRIFT, L=LM35BC1
+
+! lattice drifts
+
+  L1BC1  := 2.25-LQ5       !minimum length for abs(Bq)<9.6 kG
+  L2BC1  := 1.436055184653
+  L3BC1  := 1.445502922566
+  L4BC1  := 1.36-LQ5       !maximum length for match from 90 degree FODO
+  LM1BC1 := 1.548782138257
+  LM2BC1 := 1.120610446749
+
+  SQ4BC1 : DRIFT, L=LQ3/2
+  D1BC1  : DRIFT, L=L1BC1
+  D2BC1  : DRIFT, L=L2BC1
+  D3BC1  : DRIFT, L=L3BC1
+  D4BC1  : DRIFT, L=L4BC1
+  DM1BC1 : DRIFT, L=LM1BC1
+  DM2BC1 : DRIFT, L=LM2BC1
+
+! device drifts
+
+  LSQBC1 := 0.5                  !drift between skew quad and quad
+  LWBC1  := 0.5                  !drift between laserwire and quad
+  LFKBC1 := Lspace+LFBK/2        !drift between FB kicker and quad
+  LFCBC1 := LFBK/2+Lspace+LFBC/2 !drift between FB kicker and FB corrector
+
+  DSQBC1    : DRIFT, L=LSQBC1
+  DFKBC1    : DRIFT, L=LFKBC1
+  DFCBC1    : DRIFT, L=LFCBC1
+  D1FBBC1   : DRIFT, L=L1BC1-(LFKBC1+LFCBC1)
+  D1FBSQBC1 : DRIFT, L=L1BC1-(LFKBC1+LFCBC1+LQ3+LSQBC1)
+  DWBC1     : DRIFT, L=LWBC1
+  D1WBC1    : DRIFT, L=L1BC1-LWBC1
+  D2WBC1    : DRIFT, L=L2BC1-LWBC1
+  DM1WBC1   : DRIFT, L=LM1BC1-LWBC1
+  D4WBC1    : DRIFT, L=L4BC1-LWBC1
+
+  D1SQBC1 : DRIFT, L = L1BC1-LWBC1-LSQSPINROT
+  D2SQBC1 : DRIFT, L = L2BC1-LWBC1-LSQSPINROT
+
+! ==============================================================================
+! some markers
+! ==============================================================================
+
+  FCARC : MARKER
+  EMMAi : MARKER
+  EMMAo : MARKER
+  MFIT1 : MARKER
+  MFIT2 : MARKER
+  MINIT  : MARKER
+
+  BEGINESPIN : MARKER
+  ENDESPIN   : MARKER
+  BEGINEEMIT : MARKER
+  ENDEEMIT   : MARKER
+
+  NOWS : MARKER ! spool piece for removed 4demit wires
+
+! ==============================================================================
+! Correctors for feedforward from upstream of the turnaround
+! ==============================================================================
+
+  XCORFEEDFORWARD1 : HKICK
+  XCORFEEDFORWARD2 : HKICK
+  YCORFEEDFORWARD1 : VKICK
+  YCORFEEDFORWARD2 : VKICK
+
+! ==============================================================================
+! Peter Schmidt's Emma Rotator
+! ------------------------------------------------------------------------------
+
+  DS1 : DRIFT, L=0.6
+  DS2 : DRIFT, L=0.4
+
+  KQFSOL :=  0.996500031842
+  KQDSOL := -0.828434010467
+
+! NB: set aperture of these quads to 20 mm
+
+  QFS  : QUADRUPOLE, L=0.4/2, K1=KQFSOL
+  QFS2 : QUADRUPOLE, L=0.8/2, K1=KQFSOL
+  QDS2 : QUADRUPOLE, L=0.8/2, K1=KQDSOL
+
+  EMMA_ROT: LINE=(&
+   DS2, QFS,QFS,         BPMQ079, XCOR,YCOR, &
+   DS1, QDS2,QDS2,       BPMQ079, XCOR,YCOR, & 
+   DS1, QFS2,QFS2,       BPMQ079, XCOR,YCOR, &
+   DS1, QDS2,QDS2,       BPMQ079, XCOR,YCOR, & 
+   DS1, QFS2,QFS2,       BPMQ079, XCOR,YCOR, &
+   DS1, QDS2,QDS2,       BPMQ079, XCOR,YCOR, & 
+   DS1, QFS2,MFIT1,QFS2, BPMQ079, XCOR,YCOR, &
+   DS1, QDS2,QDS2,       BPMQ079, XCOR,YCOR, & 
+   DS1, QFS2,QFS2,       BPMQ079, XCOR,YCOR, &
+   DS1, QDS2,QDS2,       BPMQ079, XCOR,YCOR, & 
+   DS1, QFS2,QFS2,       BPMQ079, XCOR,YCOR, &
+   DS1, QDS2,QDS2,       BPMQ079, XCOR,YCOR, & 
+   DS1, QFS,QFS,         BPMQ079, XCOR,YCOR, MFIT2, DS2 )
+
+! ==============================================================================
+! Lattice Layout
+! ------------------------------------------------------------------------------
+
+  SPINROT : LINE= (&
+   SOL1,SOL1,&
+   EMMAi,EMMA_ROT,EMMAo, &
+   SOL2,SOL2,DMA1EBC1,&
+   QM011,QM011,BPMQ079,XCOR,YCOR,DMA2EBC1,&
+   QM012,QM012,BPMQ079,XCOR,YCOR,DMA3EBC1,&
+   QM013,QM013,BPMQ079,XCOR,YCOR,DMA2EBC1,&
+   QM014,QM014,BPMQ079,XCOR,YCOR,DMA1EBC1,&
+   B1_X,DMA4EBC1,&
+   QDA1,QDA1,BPMQ079,YCOR,DMA5,&
+   QFA2,FCARC,QFA2,BPMQ079,XCOR,YCOR,DA,&
+   B2_X,DA,&
+   QDA3,QDA3,BPMQ079,YCOR,DA,&
+   B3_X,DA,&
+   QFA4,QFA4,BPMQ079,XCOR,YCOR,DA,&
+   B4_X,DA,&
+   QDA5,QDA5,BPMQ079,YCOR,DA,&
+   B5_X,DA,&
+   QFA6,QFA6,BPMQ079,XCOR,YCOR,DMA5,&
+   QDA7,QDA7,BPMQ079,YCOR,DMA4EBC1,&
+   B6_X,DMA1EBC1,&
+   QM24,QM24,BPMQ079,XCOR,YCOR,DMA2EBC1,&
+   QM23,QM23,BPMQ079,XCOR,YCOR,DMA3EBC1,&
+   QM22,QM22,BPMQ079,XCOR,YCOR,DMA2EBC1,&
+   QM21,QM21,BPMQ079,XCOR,YCOR,DMA1EBC1,&
+   SOL3,SOL3,&
+   EMMA_ROT,&
+   SOL4,SOL4)
+
+  MSRED : LINE=(&
+   DM31BC1,&
+   QM31BC1,QM31BC1,BPMQ079,XCOR,YCOR,DM32BC1,&
+   QM32BC1,QM32BC1,BPMQ079,XCOR,YCOR,DM33BC1,&
+   QM33BC1,QM33BC1,BPMQ079,XCOR,YCOR,DM34BC1,&
+   QM34BC1,QM34BC1,BPMQ079,XCOR,YCOR,DM35BC1)
+
+  EMITDIAG : LINE=(&
+   SQ4BC1,SQ4BC1,DSQBC1,&
+   QD1BC1,QD1BC1,BPMQ079,     YCOR, DWBC1,2*SQ5, D1SQBC1, &
+   QF1BC1,QF1BC1,BPMQ079,XCOR,YCOR, D1BC1,&
+   QD1BC1,QD1BC1,BPMQ079,     YCOR, DWBC1,2*SQ6, D2SQBC1, &
+   QF2BC1,QF2BC1,BPMQ079,XCOR,YCOR, D3BC1,&
+   QD2BC1,QD2BC1,BPMQ079,     YCOR, D3BC1,&
+   QF2BC1,QF2BC1,BPMQ079,XCOR,YCOR, D2BC1,&
+   QD1BC1,QD1BC1,BPMQ079,     YCOR, DWBC1,2*SQ7, D1SQBC1, &
+   QF1BC1,QF1BC1,BPMQ079,XCOR,YCOR, D1BC1,&
+   QD1BC1,QD1BC1,BPMQ079,     YCOR, DWBC1,2*SQ8, D1SQBC1, &
+   QF1BC1,QF1BC1,BPMQ079,XCOR,YCOR, D1BC1,&
+   QD1BC1,QD1BC1,BPMQ079,     YCOR, DFKBC1,DFCBC1, &
+   XCORFEEDFORWARD1,YCORFEEDFORWARD1, D1FBBC1,&
+   QF1BC1,QF1BC1,BPMQ079,XCOR,YCOR, DFKBC1,DFCBC1,D1FBBC1,&
+   QD1BC1,QD1BC1,BPMQ079,     YCOR, DWBC1,NOWS, &
+   XCORFEEDFORWARD2,YCORFEEDFORWARD2, D1WBC1,&
+   QF1BC1,QF1BC1,BPMQ079,XCOR,YCOR, D1BC1,&
+   QD1BC1,QD1BC1,BPMQ079,     YCOR, DWBC1,NOWS,D2WBC1,&
+   QF2BC1,QF2BC1,BPMQ079,XCOR,YCOR, D3BC1,&
+   QD2BC1,QD2BC1,BPMQ079,     YCOR, D3BC1,&
+   QF2BC1,QF2BC1,BPMQ079,XCOR,YCOR, D2BC1,&
+   QD1BC1,QD1BC1,BPMQ079,     YCOR, DWBC1,WS,D1WBC1,&
+   QF1BC1,QF1BC1,BPMQ079,XCOR,YCOR, D1BC1,&
+   QDMBC1,QDMBC1,BPMQ079,     YCOR, DWBC1,WS,DM1WBC1,&
+   QFMBC1,QFMBC1,BPMQ079,XCOR,YCOR, DM2BC1,&
+   QD3BC1,QD3BC1,BPMQ079,      YCOR, DWBC1,WS,D4WBC1,&
+   QF3BC1,QF3BC1,BPMQ079,XCOR,YCOR, D4BC1,&
+   QD3BC1,QD3BC1,BPMQ079,     YCOR, DWBC1,WS)
+
+  ESPIN : LINE = (BEGINESPIN, SPINROT, MSRED, ENDESPIN, &
+                  BEGINEEMIT, EMITDIAG, ENDEEMIT          )
+
+! ------------------------------------------------------------------------------
+
+
+
+
+! define the beamline
+
+  ERTML : LINE = (EGETAWAY, EESCALATOR, ERETURN, &
+                  ETURN, ESPIN)
+!
+!
+!
+
