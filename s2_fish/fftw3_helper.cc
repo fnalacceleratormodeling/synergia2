@@ -11,8 +11,6 @@ Fftw3_helper_mpi::Fftw3_helper_mpi(Real_scalar_field &rho):
   local_size = fftw_mpi_local_size(3,shape,MPI_COMM_WORLD,&local_n,
 				    &local_lower);
   local_upper = local_lower + local_n;
-  std::cout << "local size is " << local_size << ", would have guessed "
-	    << local_n*shape[1]*shape[2] << std::endl;
   std::cout << "shape 0: " << shape[0] << ", local_lower = "
 	    << local_lower << ", local_upper = " << local_upper << std::endl;
 

@@ -77,10 +77,10 @@ class Macro_bunch:
 
     def init_sphere(self,num,radius):
         '''Particles uniformly distributed in a sphere of radius "radius"'''
-        RandomArray.seed(17,59)
+        RandomArray.seed(17+MPI.rank*51,59+MPI.rank*23)
         offset = (0.0,0.0,0.0)
-        local_num = num
-        total_num = local_num # fix me for mpi
+        local_num = num/MPI.size #jfa: could be more precise...
+        total_num = MPI.WORLD.Allreduce(local_num,MPI.SUM)
         total_current = 1.0
         self.units = Numeric.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
         self.ref_particle = Numeric.array([0.0,0.0,0.0,0.0,0.0,1.1],'d')

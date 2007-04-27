@@ -37,6 +37,12 @@ mb.init_sphere(Q,r0)
 t_init = time.time() - t0
 t0 = time.time()
 total_charge = deposit_charge_cic(rho,mb.get_store(),0)
+#~ if MPI.rank == 0:
+    #~ for i in range(0,2):
+        #~ for j in range(0,2):
+            #~ for k in range(0,2):
+                #~ rho.get_points().set((i,j,k),1.0)
+                #~ print i,j,k,rho.get_points().get((i,j,k))
 t_deposit = time.time() - t0
 t0 = time.time()
 phi = solver_fftw_open(rho,0)
@@ -77,6 +83,7 @@ if MPI.rank<4:
 
 
     sys.stdout.flush()
-    print "doing show on rank",MPI.rank
-    pylab.show()
+    if MPI.rank == 0:
+        print "doing show on rank",MPI.rank
+        pylab.show()
 

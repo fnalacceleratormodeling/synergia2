@@ -173,9 +173,6 @@ Nd_array<T>::set_dims(int order, int const dims_in[],
   if (storage_size < 1) {
     storage_size = 1;
   }
-  std::cout << "about to allocate size = " << storage_size 
-	    << " " << this->dim0_lower 
-	    << " " << this->dim0_upper << std::endl;
   storage = myallocator.allocate(storage_size);
 }
 

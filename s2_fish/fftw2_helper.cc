@@ -87,8 +87,6 @@ Fftw2_helper_mpi::Fftw2_helper_mpi(Real_scalar_field &rho):
     (malloc(max_local_size*sizeof(fftw_real)));
   workspace = reinterpret_cast<fftw_real *>
     (malloc(max_local_size*sizeof(fftw_real)));
-  std::cout << "local size is " << max_local_size << ", would have guessed "
-	    << local_nx*padded_shape_real()[1]*padded_shape_real()[2] << std::endl;
   std::cout << "shape 0: " << shape[0] << ", local_lower = "
 	    << lower_limit << ", local_upper = " << upper_limit << std::endl;
 }
@@ -126,27 +124,16 @@ Fftw2_helper_mpi::padded_shape_complex()
 void
 Fftw2_helper_mpi::transform(Real_scalar_field &in, Complex_scalar_field &out)
 {
-//   memcpy(reinterpret_cast<void*>(data),
-// 	 reinterpret_cast<void*>(in.get_points().get_base_address()),
-// 	 in.get_points().get_length()*sizeof(double));
-
-  for (int i=0; i<max_local_size; ++i) {
-    data[i] = 0.0;
-  }
-  for (int i=0 ; i<in.get_points().get_length(); ++i) {
-    data[i] = in.get_points().get_base_address()[i];
-  }
+    memcpy(reinterpret_cast<void*>(data),
+    reinterpret_cast<void*>(in.get_points().get_base_address()),
+    in.get_points().get_length()*sizeof(double));
   rfftwnd_mpi(plan, 1,
 	      data,
 	      workspace,
 	      FFTW_NORMAL_ORDER);
-  for (int i=0 ; i<out.get_points().get_length(); ++i) {
-    out.get_points().get_base_address()[i] = 
-      reinterpret_cast<std::complex<double>* >(workspace)[i];
-  }
-//   memcpy(reinterpret_cast<void*>(out.get_points().get_base_address()),
-// 	 reinterpret_cast<void*>(data),
-// 	 out.get_points().get_length()*sizeof(std::complex<double>));
+   memcpy(reinterpret_cast<void*>(out.get_points().get_base_address()),
+ 	 reinterpret_cast<void*>(data),
+ 	 out.get_points().get_length()*sizeof(std::complex<double>));
 }
 
 void 
@@ -157,7 +144,7 @@ Fftw2_helper_mpi::inv_transform(Complex_scalar_field &in, Real_scalar_field &out
 	  in.get_points().get_length()*sizeof(std::complex<double>));
   rfftwnd_mpi(inv_plan, 1,
 	      data,
-	      NULL,
+	      workspace,
 	      FFTW_NORMAL_ORDER);
    memcpy(reinterpret_cast<void*>(out.get_points().get_base_address()),
 	  reinterpret_cast<void*>(data),
