@@ -19,6 +19,27 @@ Fftw_helper::upper()
   return 0;
 }
 
+int
+Fftw_helper::guard_lower()
+{
+  std::cout << "jfa: badbad guard_lower\n";
+  return 0;
+}
+
+int
+Fftw_helper::guard_upper()
+{
+  std::cout << "jfa: badbad guard_upper\n";
+  return 0;
+}
+
+int
+Fftw_helper::offset()
+{
+  std::cout << "jfa: badbad offset\n";
+  return 0;
+}
+
 size_t
 Fftw_helper::local_size()
 {

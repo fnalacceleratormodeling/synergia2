@@ -83,6 +83,7 @@ class Nd_array {
 
   int get_length();
   T* get_base_address();
+  T* get_offset_base_address(int offset);
 
   void describe() const;
   void print(std::string name) const;
@@ -277,6 +278,17 @@ T*
 Nd_array<T>::get_base_address()
 {
   return storage;
+}
+
+template<class T>
+T*
+Nd_array<T>::get_offset_base_address(int offset)
+{
+  int multiplier = 1;
+  for(int i = dims.size()-1; i >=1 ; --i) {
+    multiplier *= dims[i];
+  }
+  return storage + offset*multiplier;
 }
 
 template<class T>

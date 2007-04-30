@@ -25,7 +25,7 @@ def exact(Q,r0,rvec):
 
 n = int(sys.argv[1])
 shape = (n,n,n)
-print "shape =",shape
+#~ print "shape =",shape
 size = (2.0,2.0,2.0)
 #size = (100.0,100.0,100.0)
 rho = Real_scalar_field(shape,size,(0.0,0.0,0.0))
@@ -50,8 +50,8 @@ phi.write_to_file("phi-%d-%d" % (MPI.size,MPI.rank))
 #phi.get_points().print_("phi")
 t_solve = time.time() - t0
 
-if MPI.rank<4:
-    print "init =",t_init,", deposit =",t_deposit,", solve =",t_solve
+if MPI.rank==0:
+    #~ print "init =",t_init,", deposit =",t_deposit,", solve =",t_solve
     points = phi.get_points()
     shape = points.get_shape()
     print "on",MPI.rank,"shape is",shape,points.get_dim0_lower(),points.get_dim0_upper()

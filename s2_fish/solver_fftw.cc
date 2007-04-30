@@ -22,7 +22,7 @@ get_rho_hat2(Real_scalar_field &rho, Fftw_helper &fftwh) {
 	Real_scalar_field rho2(fftwh.padded_shape_real().vector(),
 	                       physical_size2.vector(),
 	                       rho.get_physical_offset(),
-	                       fftwh.lower(), fftwh.upper());
+	                       fftwh.guard_lower(), fftwh.guard_upper());
 	//  rho2.get_points().set_storage_size(fftwh.local_size());
 	timer("misc");
 	rho2.get_points().zero_all();
@@ -43,7 +43,7 @@ get_rho_hat2(Real_scalar_field &rho, Fftw_helper &fftwh) {
 	Complex_scalar_field rho_hat2(fftwh.padded_shape_complex().vector(),
 	                              physical_size2.vector(),
 	                              rho.get_physical_offset(),
-	                              fftwh.lower(), fftwh.upper());
+	                              fftwh.guard_lower(), fftwh.guard_upper());
 	//  rho_hat2.get_points().set_storage_size(fftwh.local_size());
 	timer("rho plan");
 	fftwh.transform(rho2, rho_hat2);
@@ -63,7 +63,7 @@ get_G2(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh) {
 	Real_scalar_field G2(fftwh.padded_shape_real().vector(),
 	                     physical_size2.vector(),
 	                     rho.get_physical_offset(),
-	                     fftwh.lower(), fftwh.upper());
+	                     fftwh.guard_lower(), fftwh.guard_upper());
 	//  G2.get_points().set_storage_size(fftwh.local_size());
 	Double3 h(rho.get_cell_size());
 	Int3 index;
@@ -183,7 +183,7 @@ get_G2_old(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh) {
 	Real_scalar_field G2(fftwh.padded_shape_real().vector(),
 	                     physical_size2.vector(),
 	                     rho.get_physical_offset(),
-	                     fftwh.lower(), fftwh.upper());
+	                     fftwh.guard_lower(), fftwh.guard_upper());
 	//  G2.get_points().set_storage_size(fftwh.local_size());
 	Double3 h(rho.get_cell_size());
 	Int3 index;
@@ -310,7 +310,7 @@ get_G_hat2(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh) {
 	Complex_scalar_field G_hat2(fftwh.padded_shape_complex().vector(),
 	                            G2.get_physical_size(),
 	                            rho.get_physical_offset(),
-	                            fftwh.lower(), fftwh.upper());
+	                            fftwh.guard_lower(), fftwh.guard_upper());
 	//  G_hat2.get_points().set_storage_size(fftwh.local_size());
 	fftwh.transform(G2, G_hat2);
 	timer("G fft");
@@ -324,7 +324,7 @@ get_phi_hat2(Real_scalar_field &rho, Complex_scalar_field &rho_hat2,
 	Complex_scalar_field phi_hat2(fftwh.padded_shape_complex().vector(),
 	                              G_hat2.get_physical_size(),
 	                              G_hat2.get_physical_offset(),
-	                              fftwh.lower(), fftwh.upper());
+	                              fftwh.guard_lower(), fftwh.guard_upper());
 	//  phi_hat2.get_points().set_storage_size(fftwh.local_size());
 	Int3 shape(G_hat2.get_points().get_shape());
 	Double3 h(rho.get_cell_size());
@@ -348,7 +348,7 @@ get_phi2(Real_scalar_field &rho, Complex_scalar_field &phi_hat2,
 	Real_scalar_field phi2(fftwh.padded_shape_real().vector(),
 	                       phi_hat2.get_physical_size(),
 	                       phi_hat2.get_physical_offset(),
-	                       fftwh.lower(), fftwh.upper());
+	                       fftwh.guard_lower(), fftwh.guard_upper());
 	//  phi2.get_points().set_storage_size(fftwh.local_size());
 	timer("misc");
 	fftwh.inv_transform(phi_hat2, phi2);
@@ -364,8 +364,8 @@ get_phi(Real_scalar_field &rho, Real_scalar_field &phi2, Fftw_helper &fftwh) {
 	// step 6
 	Real_scalar_field phi(rho.get_points().get_shape(), rho.get_physical_size(),
 	                      rho.get_physical_offset(),
-	                      fftwh.lower(),
-	                      std::min(fftwh.upper(),
+	                      fftwh.guard_lower(),
+	                      std::min(fftwh.guard_upper(),
 	                               rho.get_points().get_shape()[0]));
 	Int3 shape(phi.get_points().get_shape());
 	Int3 point;
