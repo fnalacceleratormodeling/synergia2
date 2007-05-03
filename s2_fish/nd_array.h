@@ -284,11 +284,22 @@ template<class T>
 T*
 Nd_array<T>::get_offset_base_address(int offset)
 {
-  int multiplier = 1;
-  for(int i = dims.size()-1; i >=1 ; --i) {
-    multiplier *= dims[i];
-  }
-  return storage + offset*multiplier;
+  //~ int multiplier = 1;
+  //~ for(int i = dims.size()-1; i >=1 ; --i) {
+    //~ multiplier *= dims[i];
+  //~ }
+  //~ std::cout << "offset = " << offset << ", dim0_lower = " << dim0_lower 
+            //~ << ", dim0_upper = " << dim0_upper << std::endl;
+  //~ return storage + multiplier;
+    int index[dims.size()];
+    index[0] = offset;
+    for (int i=1; i<dims.size(); ++i) {
+            index[i] = 0;
+    }
+    //~ std::cout << "offset: " << offset << " storage:" << storage << " vector_index: " << vector_index(index)
+            //~ << " sum: " << storage + vector_index(index) << std::endl;
+    assert_dims(index);
+    return storage + vector_index(index);
 }
 
 template<class T>

@@ -371,6 +371,11 @@ get_phi(Real_scalar_field &rho, Real_scalar_field &phi2, Fftw_helper &fftwh) {
 	Int3 point;
 	timer("misc");
 	int i_max = std::min(fftwh.upper(), shape[0]);
+    int rank,size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    std::cout << "rank " << rank << ": lower = " << fftwh.lower() 
+            << " upper = " << fftwh.upper() 
+            << " i_max = " << i_max << std::endl;
 	for (int i = fftwh.lower(); i < i_max; ++i) {
 		point[0] = i;
 		for (int j = 0; j < shape[1]; ++j) {
@@ -386,9 +391,9 @@ get_phi(Real_scalar_field &rho, Real_scalar_field &phi2, Fftw_helper &fftwh) {
 }
 
 void
-fill_guards(Real_scalar_field &rho, Fftw_helper &fftwh)
+fill_guards(Real_scalar_field &phi, Fftw_helper &fftwh)
 {
-    Int3 shape(rho.get_points().get_shape());
+    Int3 shape(phi.get_points().get_shape());
     size_t message_size = shape[1]*shape[2];
     void *recv_buffer, *send_buffer;
     int rank,size;
@@ -396,42 +401,35 @@ fill_guards(Real_scalar_field &rho, Fftw_helper &fftwh)
     MPI_Comm_size(MPI_COMM_WORLD,&size);
     MPI_Status status;
 
-    // send to the right
-    if(fftwh.lower() == fftwh.guard_lower()) {
-        recv_buffer = malloc(message_size*sizeof(double));
-    } else {
-        recv_buffer = reinterpret_cast<void*>(rho.get_points().get_offset_base_address(fftwh.guard_lower()));
+    if (size < 3) {
+            return;
     }
-    send_buffer = reinterpret_cast<void*>(rho.get_points().get_offset_base_address(fftwh.upper()-1));
-    if (rank < size -1) {
+    if (fftwh.lower() >= phi.get_points().get_shape()[0]) {
+        std::cout  << rank << ": cut and run\n";
+        return;
+    }
+    // send to the right
+    recv_buffer = reinterpret_cast<void*>(phi.get_points().get_offset_base_address(fftwh.guard_lower()));
+    send_buffer = reinterpret_cast<void*>(phi.get_points().get_offset_base_address(fftwh.upper()-1));
+    if (fftwh.upper() != fftwh.guard_upper()) {
             MPI_Send(send_buffer,message_size,MPI_DOUBLE,rank+1,rank,MPI_COMM_WORLD);
     }
-    if (rank > 0) {
+    if (fftwh.lower() != fftwh.guard_lower()) {
             MPI_Recv(recv_buffer,message_size,MPI_DOUBLE,rank-1,rank-1,MPI_COMM_WORLD,&status);
     }
     std::cout << "completed right on rank " << rank << std::endl;
-    if(fftwh.lower() == fftwh.guard_lower()) {
-        free(recv_buffer);
-    }
     
     //send to the left
-    if(fftwh.upper() == fftwh.guard_upper()) {
-        recv_buffer = malloc(message_size*sizeof(double));
-    } else {
-        recv_buffer = reinterpret_cast<void*>(rho.get_points().get_offset_base_address(fftwh.guard_upper()-1));
-    }
-    send_buffer = reinterpret_cast<void*>(rho.get_points().get_offset_base_address(fftwh.lower()));
-    if (rank > 0) {
+    recv_buffer = reinterpret_cast<void*>(phi.get_points().get_offset_base_address(fftwh.guard_upper()-1));
+    send_buffer = reinterpret_cast<void*>(phi.get_points().get_offset_base_address(fftwh.lower()));
+    if (fftwh.lower() != fftwh.guard_lower()) {
             MPI_Send(send_buffer,message_size,MPI_DOUBLE,rank-1,rank,MPI_COMM_WORLD);
     }
-    if (rank < size - 1) {
+    if (fftwh.upper() != fftwh.guard_upper()) {
             MPI_Recv(recv_buffer,message_size,MPI_DOUBLE,rank+1,rank+1,MPI_COMM_WORLD,&status);
     }
     std::cout << "completed left on rank " << rank << std::endl;
-    if(fftwh.upper() == fftwh.guard_upper()) {
-        free(recv_buffer);
-    }
-    }
+}
 
 Real_scalar_field
 solver_fftw_open(Real_scalar_field &rho, bool z_periodic) {
@@ -459,7 +457,7 @@ solver_fftw_open(Real_scalar_field &rho, bool z_periodic) {
 	timer("misc");
 	Real_scalar_field phi = get_phi(rho, phi2, fftwh);
 	timer("misc");
-    fill_guards(rho,fftwh);
+    fill_guards(phi,fftwh);
 //   std::cout << "time total: " << time() - t0 << std::endl;
 	return phi;
 }

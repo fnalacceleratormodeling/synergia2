@@ -12,6 +12,7 @@ import pylab
 import math
 from math import pi
 import sys
+import loadfile
 
 from mpi4py import MPI
 
@@ -45,21 +46,31 @@ total_charge = deposit_charge_cic(rho,mb.get_store(),0)
                 #~ print i,j,k,rho.get_points().get((i,j,k))
 t_deposit = time.time() - t0
 t0 = time.time()
+print "about to solve on",MPI.rank
 phi = solver_fftw_open(rho,0)
-phi.write_to_file("phi-%d-%d" % (MPI.size,MPI.rank))
+print "completed solve on",MPI.rank
+sys.stdout.flush()
+#~ phi.write_to_file("phi-%d-%d" % (MPI.size,MPI.rank))
 #phi.get_points().print_("phi")
 t_solve = time.time() - t0
-
-if MPI.rank==0:
+print "about to plot on",MPI.rank
+sys.stdout.flush()
+if MPI.rank<MPI.size/2 or MPI.size == 1:
     #~ print "init =",t_init,", deposit =",t_deposit,", solve =",t_solve
     points = phi.get_points()
     shape = points.get_shape()
     print "on",MPI.rank,"shape is",shape,points.get_dim0_lower(),points.get_dim0_upper()
     p = []
+    x = []
     for i in range(points.get_dim0_lower(),points.get_dim0_upper()):
+        x.append(float(i))
         index = (i,shape[1]/2,shape[2]/2)
         p.append(points.get(index))
-    pylab.plot(p,'o')
+    if MPI.size == 1:
+        loadfile.savevector("answer",p)
+    answer = loadfile.loadvector("answer")
+    pylab.plot(answer,'ro')
+    pylab.plot(x,p,'x-')
     #~ num_points = n
     #~ ax = numarray.arrayrange(num_points)*size[0]/(num_points -1) - 0.5*size[0]
     #~ aphi = numarray.zeros([num_points],numarray.Float)
@@ -83,7 +94,10 @@ if MPI.rank==0:
 
 
     sys.stdout.flush()
-    if MPI.rank == 0:
+    if MPI.rank < MPI.size/2 or MPI.size == 1:
         print "doing show on rank",MPI.rank
+        #~ pylab.savefig("foo%d.eps" % MPI.rank)
         pylab.show()
+MPI.WORLD.Barrier()
+print "ended successfully on",MPI.rank
 

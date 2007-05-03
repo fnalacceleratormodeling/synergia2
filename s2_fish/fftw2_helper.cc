@@ -158,14 +158,14 @@ Fftw2_helper_mpi::transform(Real_scalar_field &in, Complex_scalar_field &out)
 {
     size_t complex_data_length = (upper() - lower())*shape[1]*(shape[2] / 2 + 1);
     memcpy(reinterpret_cast<void*>(data),
-           reinterpret_cast<void*>(in.get_points().get_offset_base_address(offset())),
+           reinterpret_cast<void*>(in.get_points().get_offset_base_address(lower())),
            //~ in.get_points().get_length()*sizeof(double));
            complex_data_length*2*sizeof(double));
     rfftwnd_mpi(plan, 1,
                 data,
                 workspace,
                 FFTW_NORMAL_ORDER);
-    memcpy(reinterpret_cast<void*>(out.get_points().get_offset_base_address(offset())),
+    memcpy(reinterpret_cast<void*>(out.get_points().get_offset_base_address(lower())),
            reinterpret_cast<void*>(data),
            //~ out.get_points().get_length()*sizeof(std::complex<double>));
            complex_data_length*sizeof(std::complex<double>));
@@ -176,13 +176,13 @@ Fftw2_helper_mpi::inv_transform(Complex_scalar_field &in, Real_scalar_field &out
 {
     size_t complex_data_length = (upper() - lower())*shape[1]*(shape[2] / 2 + 1);
     memcpy(reinterpret_cast<void*>(data),
-           reinterpret_cast<void*>(in.get_points().get_offset_base_address(offset())),
+           reinterpret_cast<void*>(in.get_points().get_offset_base_address(lower())),
            complex_data_length*sizeof(std::complex<double>));
     rfftwnd_mpi(inv_plan, 1,
                 data,
                 workspace,
                 FFTW_NORMAL_ORDER);
-    memcpy(reinterpret_cast<void*>(out.get_points().get_offset_base_address(offset())),
+    memcpy(reinterpret_cast<void*>(out.get_points().get_offset_base_address(lower())),
            reinterpret_cast<void*>(data),
            complex_data_length*2*sizeof(double));
 }
