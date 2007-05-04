@@ -1,5 +1,6 @@
 #include "electric_field.h"
 #include "mpi.h"
+#include "mytimer.h"
 
 void
 broadcast_E(Real_scalar_field &E, int i_lower, int i_upper)
@@ -14,7 +15,6 @@ broadcast_E(Real_scalar_field &E, int i_lower, int i_upper)
     int last_upper = 0;
     int sender = 0;
     while (last_upper<shape[0]) {
-        if (rank == sender) std::cout << "broadcasting from " << sender << std::endl;
         MPI_Bcast(reinterpret_cast<void*>(E.get_points().get_offset_base_address(last_upper)),
                 (uppers[sender]-last_upper)*shape[1]*shape[2],
                 MPI_DOUBLE, sender, MPI_COMM_WORLD);
@@ -26,6 +26,7 @@ broadcast_E(Real_scalar_field &E, int i_lower, int i_upper)
 Real_scalar_field
 calculate_E_n(Real_scalar_field &phi, int n)
 {
+    reset_timer();
     if ((n < 0) || (n > 2)) {
         std::stringstream message("");
         message << "calculate_E_n: invalid argument n=" << n
@@ -75,7 +76,9 @@ calculate_E_n(Real_scalar_field &phi, int n)
             }
         }
     }
+    timer("E calc");
     broadcast_E(E,i_lower,i_upper);
+    timer("E broadcast");
     return E;
 }
 
@@ -125,11 +128,11 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
                                                     mbs.local_particles(2, n),
                                                     mbs.local_particles(4, n)));
         } catch (std::out_of_range e) {
-            //       std::cout << "particle " << n << " out of range ("
-            // 		<< mbs.local_particles(0,n) << ", "
-            // 		<< mbs.local_particles(2,n) << ", "
-            // 		<< mbs.local_particles(4,n) << ") "
-            // 		<<"\n";
+                  //~ std::cout << "particle " << n << " out of range ("
+            		//~ << mbs.local_particles(0,n) << ", "
+                //~ << mbs.local_particles(2,n) << ", "
+            		//~ << mbs.local_particles(4,n) << ") "
+            		//~ <<"\n";
             kick = 0.0;
         }
         mbs.local_particles(index, n) -= kick;

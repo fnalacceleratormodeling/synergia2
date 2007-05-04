@@ -373,9 +373,6 @@ get_phi(Real_scalar_field &rho, Real_scalar_field &phi2, Fftw_helper &fftwh) {
 	int i_max = std::min(fftwh.upper(), shape[0]);
     int rank,size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    std::cout << "rank " << rank << ": lower = " << fftwh.lower() 
-            << " upper = " << fftwh.upper() 
-            << " i_max = " << i_max << std::endl;
 	for (int i = fftwh.lower(); i < i_max; ++i) {
 		point[0] = i;
 		for (int j = 0; j < shape[1]; ++j) {
@@ -405,7 +402,6 @@ fill_guards(Real_scalar_field &phi, Fftw_helper &fftwh)
             return;
     }
     if (fftwh.lower() >= phi.get_points().get_shape()[0]) {
-        std::cout  << rank << ": cut and run\n";
         return;
     }
     // send to the right
@@ -417,7 +413,6 @@ fill_guards(Real_scalar_field &phi, Fftw_helper &fftwh)
     if (fftwh.lower() != fftwh.guard_lower()) {
             MPI_Recv(recv_buffer,message_size,MPI_DOUBLE,rank-1,rank-1,MPI_COMM_WORLD,&status);
     }
-    std::cout << "completed right on rank " << rank << std::endl;
     
     //send to the left
     recv_buffer = reinterpret_cast<void*>(phi.get_points().get_offset_base_address(fftwh.guard_upper()-1));
@@ -428,7 +423,6 @@ fill_guards(Real_scalar_field &phi, Fftw_helper &fftwh)
     if (fftwh.upper() != fftwh.guard_upper()) {
             MPI_Recv(recv_buffer,message_size,MPI_DOUBLE,rank+1,rank+1,MPI_COMM_WORLD,&status);
     }
-    std::cout << "completed left on rank " << rank << std::endl;
 }
 
 Real_scalar_field
@@ -458,6 +452,7 @@ solver_fftw_open(Real_scalar_field &rho, bool z_periodic) {
 	Real_scalar_field phi = get_phi(rho, phi2, fftwh);
 	timer("misc");
     fill_guards(phi,fftwh);
+    timer("fill guards");
 //   std::cout << "time total: " << time() - t0 << std::endl;
 	return phi;
 }
