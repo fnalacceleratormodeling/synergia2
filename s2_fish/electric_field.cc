@@ -1,6 +1,28 @@
 #include "electric_field.h"
 #include "mpi.h"
 
+void
+broadcast_E(Real_scalar_field &E, int i_lower, int i_upper)
+{
+    int rank,size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    int uppers[size];
+    MPI_Allgather(reinterpret_cast<void*>(&i_upper),1,MPI_INT,
+            reinterpret_cast<void*>(uppers),1,MPI_INT,MPI_COMM_WORLD);
+    Int3 shape(E.get_points().get_shape());
+    int last_upper = 0;
+    int sender = 0;
+    while (last_upper<shape[0]) {
+        if (rank == sender) std::cout << "broadcasting from " << sender << std::endl;
+        MPI_Bcast(reinterpret_cast<void*>(E.get_points().get_offset_base_address(last_upper)),
+                (uppers[sender]-last_upper)*shape[1]*shape[2],
+                MPI_DOUBLE, sender, MPI_COMM_WORLD);
+        last_upper = uppers[sender];
+        sender++;
+    }
+}
+
 Real_scalar_field
 calculate_E_n(Real_scalar_field &phi, int n)
 {
@@ -20,7 +42,17 @@ calculate_E_n(Real_scalar_field &phi, int n)
     offset_plus[n] = 1;
     offset_minus[n] = -1;
     double deriv;
-    for (int i = phi.get_points().get_dim0_lower(); i < phi.get_points().get_dim0_upper(); ++i) {
+   // calculate i range taking into account guard grids
+    int i_lower, i_upper;
+    i_lower = phi.get_points().get_dim0_lower();
+    if (i_lower > 0) {
+            i_lower += 1;
+    }
+    i_upper = phi.get_points().get_dim0_upper();
+    if (i_upper < shape[0] -1) {
+            i_upper -= 1;
+    }
+    for (int i = i_lower; i < i_upper; ++i) {
         point[0] = i;
         for (int j = 0; j < shape[1]; ++j) {
             point[1] = j;
@@ -43,6 +75,7 @@ calculate_E_n(Real_scalar_field &phi, int n)
             }
         }
     }
+    broadcast_E(E,i_lower,i_upper);
     return E;
 }
 
