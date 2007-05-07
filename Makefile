@@ -1,5 +1,5 @@
 all: latticefns fixlat apply_map.so error_eater.so mappers.so \
-	chef_propagate.so hist2d.so drtest
+	chef_propagate.so hist2d.so 
 
 include make_defines
 
