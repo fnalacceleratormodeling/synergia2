@@ -8,9 +8,9 @@ Fftw2_helper_nompi::Fftw2_helper_nompi(Real_scalar_field &rho):
     shape.scale(2);
     timer("misc");
     plan = rfftwnd_create_plan(3, shape.c_array(),
-                               FFTW_FORWARD, FFTW_ESTIMATE);
+                               FFTW_FORWARD, FFTW_MEASURE);
     inv_plan = rfftwnd_create_plan(3, shape.c_array(),
-                                   FFTW_BACKWARD, FFTW_ESTIMATE);
+                                   FFTW_BACKWARD, FFTW_MEASURE);
     upper_limit = shape[0];
     max_local_size = shape[0] * shape[1] * shape[2];
 }

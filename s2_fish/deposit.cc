@@ -27,13 +27,12 @@ deposit_charge_cic(Real_scalar_field& sf, Macro_bunch_store& mbs,
                     double weight = weight0 * (1 - i - (1 - 2 * i) * offsets[0]) *
                                     (1 - j - (1 - 2 * j) * offsets[1]) *
                                     (1 - k - (1 - 2 * k) * offsets[2]);
-                    try {
                         sf.get_points().add_to_point(Int3(indices[0] + i,
                                                           indices[1] + j,
                                                           indices[2] + k),
                                                      weight);
                         total_charge_per_cell_vol += weight;
-                    } catch (std::out_of_range e) {}}
+                }
             }
         }
     }
@@ -75,10 +74,9 @@ deposit_charge_ngp(Real_scalar_field& sf, Macro_bunch_store& mbs)
                 indices[i] += 1;
             }
         }
-        try {
             sf.get_points().add_to_point(indices, weight);
             total_charge_per_cell_vol += weight;
-        } catch (std::out_of_range e) {}}
+    }
     return total_charge_per_cell_vol * h[0]*h[1]*h[2];
 }
 

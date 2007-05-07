@@ -123,18 +123,9 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
     // in particle store indexing, px,py,pz = (1,3,5)
     double kick;
     for (int n = 0; n < mbs.local_num; ++n) {
-        try {
             kick = tau * factor * E.get_val(Double3(mbs.local_particles(0, n),
                                                     mbs.local_particles(2, n),
                                                     mbs.local_particles(4, n)));
-        } catch (std::out_of_range e) {
-                  //~ std::cout << "particle " << n << " out of range ("
-            		//~ << mbs.local_particles(0,n) << ", "
-                //~ << mbs.local_particles(2,n) << ", "
-            		//~ << mbs.local_particles(4,n) << ") "
-            		//~ <<"\n";
-            kick = 0.0;
-        }
         mbs.local_particles(index, n) -= kick;
     }
 }
