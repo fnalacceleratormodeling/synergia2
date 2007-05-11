@@ -6,7 +6,7 @@ PETSC_DIR = /home2/amundson/src/petsc-dev
 PETSC_INCLUDES = -I$(PETSC_DIR) -I$(PETSC_DIR)/bmake/linux-gnu-cxx-debug -I$(PETSC_DIR)/include -I/usr/X11R6/include -I$(PETSC_DIR)/externalpackages/fftw-3.1.2/linux-gnu-cxx-debug/include -I$(PETSC_DIR)/include/mpiuni
 PETSC_LIBS = -L$(PETSC_DIR)/lib/linux-gnu-cxx-debug -lpetscsnes -lpetscdm -lpetscksp -lpetscmat -lpetscvec -lpetsc
 
-FFTW2DIR = /home2/amundson/opt/fftw2
+FFTW2DIR = /home2/amundson/opt/fftw2-ompi12
 FFTW2INCLUDES = -I$(FFTW2DIR)/include
 FFTW2LIBS = -L$(FFTW2DIR)/lib -lrfftw_mpi -lfftw_mpi -lrfftw -lfftw 
 
@@ -52,7 +52,7 @@ s2_containers.so: s2_containers_wrap.o ltwt_containers.o mytimer.o
 s2_deposit.so: s2_deposit_wrap.o deposit.o s2_containers.so mytimer.o
 	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
 
-s2_electric_field.so: s2_electric_field_wrap.o electric_field.o s2_containers.so mytimer.o
+s2_electric_field.so: s2_electric_field_wrap.o electric_field.o s2_containers.so mytimer.o communicate.o
 	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
 
 solver.o : solver.cc
@@ -110,6 +110,7 @@ deposit.o: deposit.h scalar_field.h nd_array.h mytimer.h triple.h
 deposit.o: macro_bunch_store.h ltwt_containers.h
 electric_field.o: electric_field.h scalar_field.h nd_array.h mytimer.h
 electric_field.o: triple.h macro_bunch_store.h ltwt_containers.h
+electric_field.o: communicate.h
 fftw2_helper.o: fftw2_helper.h fftw_helper.h scalar_field.h nd_array.h
 fftw2_helper.o: mytimer.h triple.h
 fftw3_helper.o: fftw3_helper.h scalar_field.h nd_array.h mytimer.h triple.h
@@ -150,7 +151,3 @@ solver_fftw3.o: macro_bunch_store.h ltwt_containers.h
 solver_fftw.o: solver_fftw.h scalar_field.h nd_array.h mytimer.h triple.h
 solver_fftw.o: macro_bunch_store.h ltwt_containers.h fftw2_helper.h
 solver_fftw.o: fftw_helper.h communicate.h
-testfftw.o: fftw2_helper.h fftw_helper.h scalar_field.h nd_array.h mytimer.h
-testfftw.o: triple.h
-xx.o: solver_fftw.h scalar_field.h nd_array.h mytimer.h triple.h
-xx.o: macro_bunch_store.h ltwt_containers.h fftw2_helper.h fftw_helper.h
