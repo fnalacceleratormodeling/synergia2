@@ -6,15 +6,13 @@
 #include <boost/python.hpp>
 
 #include "container_conversions.h"
+#include "fftw_helper.h"
 
 using namespace boost::python;
 
 BOOST_PYTHON_MODULE(s2_solver_fftw)
 {
-  //---------------------------------------------------------------------
-  // solvers
-  //---------------------------------------------------------------------
-  //  def("fft_tester",fft_tester);
-  def("solver_fftw_open",solver_fftw_open);
+    class_<Fftw_helper>("Fftw_helper",init<std::vector<int> >());
+    def("solver_fftw_open",solver_fftw_open);
 }
 

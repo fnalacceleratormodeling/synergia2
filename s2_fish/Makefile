@@ -20,19 +20,17 @@ ifdef FFTW3
   FFTWDIR=$(FFTW3DIR)
   FFTWINCLUDES = $(FFTW3INCLUDES)
   FFTWLIBS = $(FFTW3LIBS)
-  FFTWHELPER = fftw3_helper
 else
   FFTWDIR=$(FFTW2DIR)
   FFTWINCLUDES = $(FFTW2INCLUDES)
   FFTWLIBS = $(FFTW2LIBS)
-  FFTWHELPER = fftw2_helper
 endif
 
 CXXFLAGS = -O3
 CXX = mpicxx
 
 %.o : %.cc
-	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $<
+	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(FFTWINCLUDES) $<
 
 space_charge: main.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
@@ -52,7 +50,7 @@ s2_containers.so: s2_containers_wrap.o ltwt_containers.o mytimer.o
 s2_deposit.so: s2_deposit_wrap.o deposit.o s2_containers.so mytimer.o
 	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
 
-s2_electric_field.so: s2_electric_field_wrap.o electric_field.o s2_containers.so mytimer.o communicate.o
+s2_electric_field.so: s2_electric_field_wrap.o electric_field.o s2_containers.so mytimer.o communicate.o s2_solver_fftw.so
 	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
 
 solver.o : solver.cc
@@ -70,14 +68,14 @@ fftw2_helper.o: fftw2_helper.cc
 solver_fftw.o : solver_fftw.cc
 	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(FFTWINCLUDES) $<
 
-s2_solver_fftw.so: s2_solver_fftw_wrap.o solver_fftw.o macro_bunch_store.so mytimer.o fftw_helper.o $(FFTWHELPER).o communicate.o
+s2_solver_fftw.so: s2_solver_fftw_wrap.o solver_fftw.o macro_bunch_store.so mytimer.o fftw_helper.o communicate.o
 	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(FFTWLIBS)
 
 testfftw3: testfftw3.cc
 	mpicxx -g -o testfftw3 $(FFTW3INCLUDES) testfftw3.cc $(FFTW3LIBS)
 
-testfftw: testfftw.cc fftw_helper.o $(FFTWHELPER).o mytimer.o
-	mpicxx -g -o testfftw $(FFTWINCLUDES) testfftw.cc fftw_helper.o $(FFTWHELPER).o mytimer.o $(FFTWLIBS)
+testfftw: testfftw.cc fftw_helper.o mytimer.o
+	mpicxx -g -o testfftw $(FFTWINCLUDES) testfftw.cc fftw_helper.o mytimer.o $(FFTWLIBS)
 
 macro_bunch_store.so: macro_bunch_store_wrap.o macro_bunch_store.o ltwt_containers.o
 	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
@@ -106,15 +104,12 @@ depend:
 
 BasErs_field.o: BasErs_field.h
 communicate.o: communicate.h scalar_field.h nd_array.h mytimer.h triple.h
+communicate.o: fftw_helper.h
 deposit.o: deposit.h scalar_field.h nd_array.h mytimer.h triple.h
 deposit.o: macro_bunch_store.h ltwt_containers.h
 electric_field.o: electric_field.h scalar_field.h nd_array.h mytimer.h
 electric_field.o: triple.h macro_bunch_store.h ltwt_containers.h
-electric_field.o: communicate.h
-fftw2_helper.o: fftw2_helper.h fftw_helper.h scalar_field.h nd_array.h
-fftw2_helper.o: mytimer.h triple.h
-fftw3_helper.o: fftw3_helper.h scalar_field.h nd_array.h mytimer.h triple.h
-fftw3_helper.o: fftw_helper.h
+electric_field.o: communicate.h fftw_helper.h
 fftw_helper.o: fftw_helper.h scalar_field.h nd_array.h mytimer.h triple.h
 GaussSC.o: BasErs_field.h
 ltwt_containers.o: ltwt_containers.h
@@ -130,12 +125,6 @@ s2_deposit_wrap.o: macro_bunch_store.h ltwt_containers.h
 s2_electric_field_wrap.o: electric_field.h scalar_field.h nd_array.h
 s2_electric_field_wrap.o: mytimer.h triple.h macro_bunch_store.h
 s2_electric_field_wrap.o: ltwt_containers.h
-s2_solver_fftw2_wrap.o: nd_array.h mytimer.h scalar_field.h triple.h
-s2_solver_fftw2_wrap.o: deposit.h macro_bunch_store.h ltwt_containers.h
-s2_solver_fftw2_wrap.o: solver_fftw2.h container_conversions.h
-s2_solver_fftw3_wrap.o: nd_array.h mytimer.h scalar_field.h triple.h
-s2_solver_fftw3_wrap.o: deposit.h macro_bunch_store.h ltwt_containers.h
-s2_solver_fftw3_wrap.o: solver_fftw3.h container_conversions.h
 s2_solver_fftw_wrap.o: nd_array.h mytimer.h scalar_field.h triple.h deposit.h
 s2_solver_fftw_wrap.o: macro_bunch_store.h ltwt_containers.h solver_fftw.h
 s2_solver_fftw_wrap.o: container_conversions.h
@@ -144,10 +133,6 @@ s2_solver_wrap.o: macro_bunch_store.h ltwt_containers.h
 s2_solver_wrap.o: container_conversions.h
 solver.o: solver.h scalar_field.h nd_array.h mytimer.h triple.h
 solver.o: macro_bunch_store.h ltwt_containers.h
-solver_fftw2.o: solver.h scalar_field.h nd_array.h mytimer.h triple.h
-solver_fftw2.o: macro_bunch_store.h ltwt_containers.h
-solver_fftw3.o: solver.h scalar_field.h nd_array.h mytimer.h triple.h
-solver_fftw3.o: macro_bunch_store.h ltwt_containers.h
 solver_fftw.o: solver_fftw.h scalar_field.h nd_array.h mytimer.h triple.h
-solver_fftw.o: macro_bunch_store.h ltwt_containers.h fftw2_helper.h
-solver_fftw.o: fftw_helper.h communicate.h
+solver_fftw.o: macro_bunch_store.h ltwt_containers.h fftw_helper.h
+solver_fftw: communicate.h

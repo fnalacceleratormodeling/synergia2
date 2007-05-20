@@ -44,7 +44,8 @@ total_charge = deposit_charge_cic(rho,mb.get_store(),0)
                 #~ print i,j,k,rho.get_points().get((i,j,k))
 t_deposit = time.time() - t0
 t0 = time.time()
-phi = solver_fftw_open(rho,0)
+fftwh = Fftw_helper(shape)
+phi = solver_fftw_open(rho,fftwh,0)
 phi.write_to_file("phi-%d-%d" % (MPI.size,MPI.rank))
 #phi.get_points().print_("phi")
 t_solve = time.time() - t0
@@ -60,6 +61,7 @@ if MPI.rank<4:
         index = (i,shape[1]/2,shape[2]/2)
         p.append(points.get(index))
     pylab.plot(p,'o')
+    pylab.title('proc %d' % MPI.rank)
     #~ num_points = n
     #~ ax = numarray.arrayrange(num_points)*size[0]/(num_points -1) - 0.5*size[0]
     #~ aphi = numarray.zeros([num_points],numarray.Float)
@@ -83,7 +85,7 @@ if MPI.rank<4:
 
 
     sys.stdout.flush()
-    if MPI.rank == 0:
+    if MPI.rank < 4:
         print "doing show on rank",MPI.rank
         pylab.show()
 

@@ -22,7 +22,9 @@ class Scalar_field
   //derived quantities
   Double3 left;
   Double3 h;
-  
+ 
+    inline T get_delta(int location[3], int axis);
+
  public:
   Scalar_field();
   Scalar_field(int num_points[3], double physical_size[3], 
@@ -54,6 +56,7 @@ class Scalar_field
 
   inline T get_val(double location[3]);
   inline T get_val(std::vector<double> location);
+  inline T get_deriv(double location[3], int axis);
 
   void write_to_fstream(std::ofstream& stream);
   void write_to_file(std::string filename);
@@ -241,6 +244,45 @@ Scalar_field<T>::get_val(double location[3])
 	   f[0]*(1.0-f[1])*f[2]*points.get(Int3(c[0]+1,c[1],c[2]+1)) +
 	   (1.0-f[0])*f[1]*f[2]*points.get(Int3(c[0],c[1]+1,c[2]+1)) +
 	   f[0]*f[1]*f[2]*points.get(Int3(c[0]+1,c[1]+1,c[2]+1)));
+  return val;
+}
+
+template<class T>
+inline T
+Scalar_field<T>::get_delta(int location[3], int axis)
+{
+    // return delta such that derivative is delta/h
+    Int3 left(location), right(location);
+    double scale = 0.5;
+    --left[axis];
+    if (left[axis] < 0) {
+        left[axis] = 0;
+        scale = 1.0;
+    }
+    ++right[axis];
+    if (right[axis] >= points.get_shape()[axis]) {
+        right[axis] = points.get_shape()[axis]-1;
+        scale = 1.0;
+    }
+    return scale*(points.get(right) - points.get(left));
+}
+
+template<class T>
+inline T
+Scalar_field<T>::get_deriv(double location[3], int axis)
+{
+  // Interpolate between grid points. There is no unique scheme to do this
+  // in 3D, so we choose to use trilinear interpolation.
+  Int3 c(get_leftmost_indices(location)); // c for corner
+  Double3 f(get_leftmost_offsets(location)); // f for fractional difference
+  T val = ((1.0-f[0])*(1.0-f[1])*(1.0-f[2])*get_delta(c,axis) +
+	   f[0]*(1.0-f[1])*(1.0-f[2])*get_delta(Int3(c[0]+1,c[1],c[2]),axis) +
+	   (1.0-f[0])*f[1]*(1.0-f[2])*get_delta(Int3(c[0],c[1]+1,c[2]),axis) +
+	   (1.0-f[0])*(1.0-f[1])*f[2]*get_delta(Int3(c[0],c[1],c[2]+1),axis) +
+	   f[0]*f[1]*(1.0-f[2])*get_delta(Int3(c[0]+1,c[1]+1,c[2]),axis) +
+	   f[0]*(1.0-f[1])*f[2]*get_delta(Int3(c[0]+1,c[1],c[2]+1),axis) +
+	   (1.0-f[0])*f[1]*f[2]*get_delta(Int3(c[0],c[1]+1,c[2]+1),axis) +
+	   f[0]*f[1]*f[2]*get_delta(Int3(c[0]+1,c[1]+1,c[2]+1),axis))/h[axis];
   return val;
 }
 

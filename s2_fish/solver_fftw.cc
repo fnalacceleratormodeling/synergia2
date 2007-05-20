@@ -8,7 +8,7 @@
 
 #undef DL_IMPORT
 #include "mytimer.h"
-#include "fftw2_helper.h"
+#include "fftw_helper.h"
 
 #include "communicate.h"
 
@@ -45,7 +45,6 @@ get_rho_hat2(Real_scalar_field &rho, Fftw_helper &fftwh) {
 	                              rho.get_physical_offset(),
 	                              fftwh.guard_lower(), fftwh.guard_upper());
 	//  rho_hat2.get_points().set_storage_size(fftwh.local_size());
-	timer("rho plan");
 	fftwh.transform(rho2, rho_hat2);
 	timer("rho fft");
 	return rho_hat2;
@@ -387,46 +386,8 @@ get_phi(Real_scalar_field &rho, Real_scalar_field &phi2, Fftw_helper &fftwh) {
 	return phi;
 }
 
-void
-fill_guards(Real_scalar_field &phi, Fftw_helper &fftwh)
-{
-    Int3 shape(phi.get_points().get_shape());
-    size_t message_size = shape[1]*shape[2];
-    void *recv_buffer, *send_buffer;
-    int rank,size;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD,&size);
-    MPI_Status status;
-
-    if (size < 3) {
-            return;
-    }
-    if (fftwh.lower() >= phi.get_points().get_shape()[0]) {
-        return;
-    }
-    // send to the right
-    recv_buffer = reinterpret_cast<void*>(phi.get_points().get_offset_base_address(fftwh.guard_lower()));
-    send_buffer = reinterpret_cast<void*>(phi.get_points().get_offset_base_address(fftwh.upper()-1));
-    if (fftwh.upper() != fftwh.guard_upper()) {
-            MPI_Send(send_buffer,message_size,MPI_DOUBLE,rank+1,rank,MPI_COMM_WORLD);
-    }
-    if (fftwh.lower() != fftwh.guard_lower()) {
-            MPI_Recv(recv_buffer,message_size,MPI_DOUBLE,rank-1,rank-1,MPI_COMM_WORLD,&status);
-    }
-    
-    //send to the left
-    recv_buffer = reinterpret_cast<void*>(phi.get_points().get_offset_base_address(fftwh.guard_upper()-1));
-    send_buffer = reinterpret_cast<void*>(phi.get_points().get_offset_base_address(fftwh.lower()));
-    if (fftwh.lower() != fftwh.guard_lower()) {
-            MPI_Send(send_buffer,message_size,MPI_DOUBLE,rank-1,rank,MPI_COMM_WORLD);
-    }
-    if (fftwh.upper() != fftwh.guard_upper()) {
-            MPI_Recv(recv_buffer,message_size,MPI_DOUBLE,rank+1,rank+1,MPI_COMM_WORLD,&status);
-    }
-}
-
 Real_scalar_field
-solver_fftw_open(Real_scalar_field &rho, bool z_periodic) {
+solver_fftw_open(Real_scalar_field &rho, Fftw_helper &fftwh, bool z_periodic) {
 	// The plan: Solve del^2 phi = rho by:
 	//  1) convert rho to rho2, where 2 suffix indicates
 	//     that we are using Hockney's doubled grid. rho2 = zero when
@@ -439,10 +400,10 @@ solver_fftw_open(Real_scalar_field &rho, bool z_periodic) {
 
 	double t0 = time();
 	reset_timer();
-    gather_rho(rho);
+	//~ Fftw_helper fftwh(rho);
+    //~ timer("get plans");
+    gather_rho(rho, fftwh.upper());
     timer("gather rho");
-	Fftw2_helper_mpi fftwh(rho);
-    timer("get plans");
 	Complex_scalar_field rho_hat2 = get_rho_hat2(rho, fftwh);
 	Complex_scalar_field G_hat2 = get_G_hat2(rho, z_periodic, fftwh);
 	Complex_scalar_field phi_hat2 = get_phi_hat2(rho, rho_hat2, G_hat2, fftwh);

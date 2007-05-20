@@ -5,9 +5,10 @@
 double
 time()
 {
-    timeb timestruct;
-    ftime(&timestruct);
-    return timestruct.time + timestruct.millitm / 1000.0;
+    //~ timeb timestruct;
+    //~ ftime(&timestruct);
+    //~ return timestruct.time + timestruct.millitm / 1000.0;
+    return MPI_Wtime();
 }
 
 double timer_t0;

@@ -3,23 +3,32 @@
 #define HAVE_FFTW_HELPER_H true
 
 #include "scalar_field.h"
+#undef DL_IMPORT
+#include <rfftw_mpi.h>
+#include <vector>
 
 class Fftw_helper
 {
 private:
-public:
+    rfftwnd_mpi_plan plan, inv_plan;
+    int lower_limit, upper_limit, max_local_size;
+    int left_guard, right_guard;
+    fftw_real *workspace, *data;
     Int3 shape;
-    Fftw_helper(Real_scalar_field &rho);
-    virtual int lower();
-    virtual int upper();
-    virtual int guard_lower();
-    virtual int guard_upper();
-    virtual int offset();
-    virtual size_t local_size();
-    virtual Int3 padded_shape_real();
-    virtual Int3 padded_shape_complex();
-    virtual void transform(Real_scalar_field &in, Complex_scalar_field &out);
-    virtual void inv_transform(Complex_scalar_field &in, Real_scalar_field &out);
+    void construct(int *shape);
+public:
+    Fftw_helper(Int3 shape);
+    Fftw_helper(std::vector<int> shape);
+    int lower();
+    int upper();
+    int guard_lower();
+    int guard_upper();
+    int offset();
+    size_t local_size();
+    Int3 padded_shape_real();
+    Int3 padded_shape_complex();
+    void transform(Real_scalar_field &in, Complex_scalar_field &out);
+    void inv_transform(Complex_scalar_field &in, Real_scalar_field &out);
     ~Fftw_helper();
 };
 
