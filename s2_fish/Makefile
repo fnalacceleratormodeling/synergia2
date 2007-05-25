@@ -1,4 +1,4 @@
-all: s2_containers.so s2_deposit.so s2_electric_field.so s2_solver.so s2_solver_fftw.so macro_bunch_store.so
+all: s2_containers.so s2_deposit.so s2_electric_field.so s2_solver_fftw.so macro_bunch_store.so
 
 include ../make_defines
 PETSC_DIR = /home2/amundson/src/petsc-dev
