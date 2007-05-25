@@ -4,7 +4,7 @@ gourmet_dir = "_subst_CHEF_INSTALL_DIR_subst_/lib"
 impact_dir = "_subst_IMPACT_BUILD_DIR_subst_/Forthon_Interfaces"
 synergia2_dir = "_subst_SYNERGIA2_BUILD_DIR_subst_"
 octapy_dir = os.path.join(synergia2_dir,"octapy")
-fish_dir = os.path.join(fish_dir,"s2_fish")
+fish_dir = os.path.join(synergia2_dir,"s2_fish")
 import sys
 sys.path.append(gourmet_dir)
 sys.path.append(impact_dir)
