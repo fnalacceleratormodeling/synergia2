@@ -17,7 +17,7 @@ import math
 
 import syn2_diagnostics
 
-import fish
+import fish_fftw as fish
 import macro_bunch
 
 import sys
