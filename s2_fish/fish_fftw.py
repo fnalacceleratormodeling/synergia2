@@ -18,8 +18,9 @@ fftwhs = {}
 def apply_space_charge_kick(shape,size,offset,mbunch,tau):
     show_timings=1
     mytimer("misc asck1")
-    if not fftwhs.has_key(shape):
-        fftwhs[shape] = Fftw_helper(shape)
+    key = str(shape)
+    if not fftwhs.has_key(key):
+        fftwhs[key] = Fftw_helper(shape)
     mbunch.convert_to_fixedt()
     mytimer("convert")
     n_sigma = 8.0
@@ -29,7 +30,7 @@ def apply_space_charge_kick(shape,size,offset,mbunch,tau):
     rho = Real_scalar_field(shape,size,offset)
     total_charge = deposit_charge_cic(rho,mbunch.get_store(),0)
     mytimer("deposit")
-    phi = solver_fft_open(rho,fftwhs[shape],0)
+    phi = solver_fft_open(rho,fftwhs[key],0)
     mytimer("solve")
     old = 0
     if old:
