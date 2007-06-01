@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import Numeric
+import MLab
 import math
 import sys
 
@@ -41,6 +42,13 @@ zprime_xprime = 11
 zprime_y = 12
 zprime_yprime = 13
 zprime_z = 14
+
+def get_spatial_stds(bunch):
+    stdx = MLab.std(bunch.get_store().get_local_particles()[0,:])
+    stdy = MLab.std(bunch.get_store().get_local_particles()[2,:])
+    stdz = MLab.std(bunch.get_store().get_local_particles()[4,:])
+    print "stds =", stdx,stdy,stdz
+    return stdx,stdy,stdz
 
 def get_diagnostics(bunch):
     means = Numeric.zeros([6],Numeric.Float)
