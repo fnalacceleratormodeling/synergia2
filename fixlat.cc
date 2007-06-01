@@ -8,15 +8,14 @@
 
 #include "basic_toolkit/PhysicsConstants.h"
 #include "beamline/beamline.h"
-#include "bmlfactory/bmlfactory.h"
+#include "bmlfactory/MAD8Factory.h"
 #include "physics_toolkit/BeamlineContext.h"
 #include "beamline/RefRegVisitor.h"
 #include "physics_toolkit/ClosedOrbitSage.h"
+#include "beamline/BeamlineIterator.h"
 
 using namespace std;
 extern beamline* DriftsToSlots( beamline& original );
-
-madparser* mp = 0;
 
 int main(int argc, char **argv)
 {
@@ -36,7 +35,7 @@ int main(int argc, char **argv)
   JetParticle::createStandardEnvironments(order);
   
   double brho = (fabs(momentum))/PH_CNV_brho_to_p;
-  bmlfactory* bml_fact = new bmlfactory(mad_file.c_str(), brho);
+  MAD8Factory* bml_fact = new MAD8Factory(mad_file.c_str(), brho);
   beamline* bmline_orig = bml_fact->create_beamline(line_name.c_str());
   bmline_orig->flatten();
  
@@ -48,7 +47,7 @@ int main(int argc, char **argv)
 
   ClosedOrbitSage cos(bmline);
   cos.set_verbose();
-  if (!cos.findClosedOrbit(&jpr)) {
+  if (!cos.findClosedOrbit(jpr)) {
     cout << "found a closed orbit\n";
   } else {
     cout << "failed to find a closed orbit\n";
@@ -62,7 +61,7 @@ int main(int argc, char **argv)
   }
 
   bmlnElmnt* be;
-  DeepBeamlineIterator deep_beamline_iterator(bmline);
+  DeepBeamlineIterator deep_beamline_iterator(*bmline);
 
   int i=0;
   while((be = deep_beamline_iterator++)) {

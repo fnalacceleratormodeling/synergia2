@@ -8,6 +8,7 @@
 #include "bmlfactory/bmlfactory.h"
 #include "mxyzptlk/Mapping.h"
 #include "beamline/bmlnElmnt.h"
+#include "beamline/Particle.h"
 
 extern "C" {
 #include <sys/time.h>
@@ -70,7 +71,7 @@ chef_propagate(numeric::array& numeric_particles, int num_particles,
 
   Particles particles(numeric_particles);
 
-  double chef_state[6];
+  Vector chef_state;
   for(int part=0; part<num_particles; ++part) {
     for (int impact_index=0; impact_index<6; ++impact_index) {
       int chef_index = convert_chef_index(impact_index);
@@ -80,7 +81,7 @@ chef_propagate(numeric::array& numeric_particles, int num_particles,
     Proton proton(energy_in);
     proton.setState(chef_state);
     element.propagate(proton);
-    proton.getState(chef_state);
+    chef_state = proton.getState();
     for (int impact_index=0; impact_index<6; ++impact_index) {
       int chef_index = convert_chef_index(impact_index);
       particles(impact_index,part) = chef_state[chef_index]*

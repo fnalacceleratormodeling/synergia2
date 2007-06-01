@@ -8,22 +8,22 @@
 
 #include "basic_toolkit/PhysicsConstants.h"
 #include "beamline/beamline.h"
-#include "bmlfactory/bmlfactory.h"
+#include "bmlfactory/MAD8Factory.h"
 #include "physics_toolkit/BeamlineContext.h"
 #include "beamline/RefRegVisitor.h"
 #include "physics_toolkit/ClosedOrbitSage.h"
 #include "beamline/InsertionList.h"
+#include "beamline/BeamlineIterator.h"
+#include "beamline/marker.h"
 
 using namespace std;
 extern beamline* DriftsToSlots( beamline& original );
-
-madparser* mp = 0;
 
 void insert_markers(beamline* bmline, int num_markers_per_element,
 			     double momentum)
 {
   bmlnElmnt* element;
-  DeepBeamlineIterator deep_beamline_iterator(bmline);
+  DeepBeamlineIterator deep_beamline_iterator(*bmline);
   marker *accuracy_marker = new marker("accuracy marker");
   double master_insertion_point = 0.0;
   double marker_interval;
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
   JetParticle::createStandardEnvironments(order);
 
   double brho = (fabs(momentum))/PH_CNV_brho_to_p;
-  bmlfactory* bml_fact = new bmlfactory(mad_file.c_str(), brho);
+  MAD8Factory* bml_fact = new MAD8Factory(mad_file.c_str(), brho);
   beamline* bmline_orig = bml_fact->create_beamline(line_name.c_str());
   bmline_orig->flatten();
   beamline* bmline = DriftsToSlots(*bmline_orig);
