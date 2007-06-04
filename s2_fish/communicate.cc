@@ -290,5 +290,6 @@ broadcast_E(Real_scalar_field &E, int i_lower, int i_upper)
         MPI_DOUBLE, 0, MPI_COMM_WORLD);
     memcpy(reinterpret_cast<void*>(E.get_points().get_base_address()),
                     buffer,E.get_points().get_length()*sizeof(double));
+    free(buffer);
     //~ MPI_Comm_free(&comm_half);
 }
