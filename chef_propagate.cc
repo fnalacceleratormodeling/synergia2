@@ -71,7 +71,7 @@ chef_propagate(numeric::array& numeric_particles, int num_particles,
 
   Particles particles(numeric_particles);
 
-  Vector chef_state;
+  Vector chef_state(6);
   for(int part=0; part<num_particles; ++part) {
     for (int impact_index=0; impact_index<6; ++impact_index) {
       int chef_index = convert_chef_index(impact_index);
