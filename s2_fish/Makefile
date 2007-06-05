@@ -100,6 +100,16 @@ clean:
 depend:
 	makedepend -Y *.cc 2>/dev/null
 
+install:
+	mkdir -p ../extra_libs && \
+	cd ../extra_libs && \
+	for lib in macro_bunch_store s2_containers s2_deposit \
+			s2_electric_field s2_solver_fftw ; \
+	do \
+		rm -f $$lib.so ; \
+		ln -s ../s2_fish/$$lib.so .; \
+	done
+
 # DO NOT DELETE
 
 BasErs_field.o: BasErs_field.h

@@ -1,5 +1,7 @@
 all: latticefns fixlat apply_map.so error_eater.so mappers.so \
-	chef_propagate.so hist2d.so 
+	chef_propagate.so hist2d.so octapy-all s2_fish-all
+
+install: octapy-install s2_fish-install
 
 include make_defines
 
@@ -48,5 +50,15 @@ chef_propagate.so: chef_propagate.cc
 hist2d.so: hist2d.cc
 	g++ -O3 -shared $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -o $@ $< $(BOOST_LIBS)
 
-clean:
+clean: octapy-clean s2_fish-clean
 	rm -f latticefns fixlat drtest apply_map.so error_eater.so mappers.so
+
+%-all:
+	$(MAKE) -C $*
+
+%-install:
+	$(MAKE) -C $* install
+
+%-clean:
+	$(MAKE) -C $* clean
+
