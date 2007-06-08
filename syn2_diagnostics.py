@@ -91,10 +91,22 @@ class Diagnostics:
     
     def write(self,filename_prefix):
         # same format as fort.24
-        f = open(filename_prefix+"_x.dat","w")
+        fx = open(filename_prefix+"_x.dat","w")
+        fy = open(filename_prefix+"_y.dat","w")
+        fz = open(filename_prefix+"_z.dat","w")
         for i in range(0,len(self.s)):
-            f.write("%g %g %g %g %g\n" % \
+            fx.write("%g %g %g %g %g\n" % \
                     (self.s[i],
                      self.mean[xprime][i], self.std[xprime][i],
                      self.mean[x][i], self.std[x][i]))
-        f.close()
+            fy.write("%g %g %g %g %g\n" % \
+                    (self.s[i],
+                     self.mean[yprime][i], self.std[yprime][i],
+                     self.mean[y][i], self.std[y][i]))
+            fz.write("%g %g %g %g %g\n" % \
+                    (self.s[i],
+                     self.mean[zprime][i], self.std[zprime][i],
+                     self.mean[z][i], self.std[z][i]))
+        fx.close()
+        fy.close()
+        fz.close()
