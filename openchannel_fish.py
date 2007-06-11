@@ -101,7 +101,7 @@ if ( __name__ == '__main__'):
 ###    b_impact.read_particles("oc_particles.h5")
     b_impact.generate_particles()
     
-    b = macro_bunch.Macro_bunch()
+    b = macro_bunch.Macro_bunch(mass,1)
     b.init_from_bunch(b_impact)
 
 

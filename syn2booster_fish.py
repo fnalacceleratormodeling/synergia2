@@ -368,7 +368,7 @@ if ( __name__ == '__main__'):
     sc_params = Sc_params(griddim,bp,proccol)
     impact_bunch = bunch.Bunch(myopts.get("current"), bp, num_particles, sc_params.pgrid)
     impact_bunch.generate_particles()
-    b = macro_bunch.Macro_bunch()
+    b = macro_bunch.Macro_bunch(physics_constants.PH_NORM_mp,1)
     b.init_from_bunch(impact_bunch)
 
     linear_map = injcell_line.g.get_single_linear_map()
