@@ -16,10 +16,10 @@ import syn2_diagnostics
 
 class Test_Macro_bunch(unittest.TestCase):
     def test_01_construct(self):
-        mb = Macro_bunch()
+        mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
 
     def test_02_init_test1(self):
-        mb = Macro_bunch()
+        mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         num_per_side = 2
         mb.init_test(num_per_side)
         shape = Numeric.shape(mb.get_local_particles())
@@ -27,7 +27,7 @@ class Test_Macro_bunch(unittest.TestCase):
         self.assertEqual(shape[1],num_per_side**3)
 
     def test_03_init_test2(self):
-        mb = Macro_bunch()
+        mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         num_per_side = 2
         mb.init_test(num_per_side)
         shape = Numeric.shape(mb.particles)
@@ -70,7 +70,7 @@ class Test_Macro_bunch(unittest.TestCase):
     def test_04_init_from_bunch(self):
         b = self._get_bunch()
         orig_shape = Numeric.shape(b.particles())
-        mb = Macro_bunch()
+        mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         mb.init_from_bunch(b)
         shape = Numeric.shape(mb.get_local_particles())
         for j in range(0,shape[1]):
@@ -83,7 +83,7 @@ class Test_Macro_bunch(unittest.TestCase):
 
     def test_05_conversions(self):
         b = self._get_bunch()
-        mb = Macro_bunch()
+        mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         mb.init_from_bunch(b)
         sample_id = 307
         x0 = mb.get_local_particles()[0,sample_id]
@@ -106,7 +106,7 @@ class Test_Macro_bunch(unittest.TestCase):
     def test_06_diagnostics(self):
         b = self._get_bunch()
         orig_shape = Numeric.shape(b.particles())
-        mb = Macro_bunch()
+        mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         mb.init_from_bunch(b)
         d = syn2_diagnostics.Diagnostics(mb.units)
         d.get_coord_stds(mb)

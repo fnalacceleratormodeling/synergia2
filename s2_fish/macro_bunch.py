@@ -11,7 +11,7 @@ import time
 import math
 
 class Macro_bunch:
-    def __init__(self):
+    def __init__(self,mass,charge):
         self.complete = 0
         self.particles = None
         self.local_num = None
@@ -19,6 +19,8 @@ class Macro_bunch:
         self.total_current = None
         self.is_fixedz = None
         self.ref_particle = None
+        self.mass = mass
+        self.charge = charge
 
     def get_local_particles(self):
         return self.particles
@@ -31,6 +33,8 @@ class Macro_bunch:
             return Macro_bunch_store(self.particles,
                                      self.local_num,
                                      self.total_num,
+                                     self.mass,
+                                     self.charge,
                                      self.total_current,
                                      self.units,
                                      self.ref_particle,

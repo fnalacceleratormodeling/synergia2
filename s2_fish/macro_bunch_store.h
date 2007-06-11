@@ -22,13 +22,16 @@ struct Macro_bunch_store
 {
   Ltwt_matrix local_particles;
   int local_num, total_num;
+  double mass;
+  int charge;
   double total_current;
   Ltwt_array units; // Unit conversion: X^impact_i = units_i X^real_i
   Ltwt_array ref_particle;
   bool is_fixedz;
 
   Macro_bunch_store(numeric::array& numeric_local_particles,
-	      int local_num, int total_num, double total_current,
+	      int local_num, int total_num, 
+          double mass, double charge, double total_current,
 	      numeric::array& numeric_units,
 	      numeric::array& numeric_ref_particle,
 	      bool is_fixedz);

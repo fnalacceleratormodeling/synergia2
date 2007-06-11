@@ -10,7 +10,8 @@ BOOST_PYTHON_MODULE(macro_bunch_store)
 {
   numeric::array::set_module_and_type("Numeric", "ArrayType");
   class_<Macro_bunch_store>("Macro_bunch_store",
-			    init<numeric::array&,int,int,double,
+			    init<numeric::array&,int,int,
+                double,int,double,
 			    numeric::array&,numeric::array&,bool>())
     .def("get_local_particles",
 		  &Macro_bunch_store::get_local_particles)

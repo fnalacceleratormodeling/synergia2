@@ -91,7 +91,6 @@ check: s2_containers.so s2_deposit.so s2_electric_field.so s2_solver.so s2_solve
 	python test_scalar_field.py && \
 	python test_macro_bunch.py && \
 	python test_deposit.py && \
-	python test_solver.py && \
 	python test_solver_fftw.py
 
 clean:

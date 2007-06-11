@@ -62,23 +62,23 @@ class Test_Real_scalar_field(unittest.TestCase):
         val = sf.get_points().get((4,5,3))
         self.assertEqual(val,0.0)
 
-    def test_09_set_outside(self):
-        sf = Real_scalar_field((10,10,10),(1.0,2.0,3.0),(0.1,0.2,0.3))
-        caught = 0
-        try:
-            sf.get_points().set((10,9,9),1.0)
-        except IndexError,e:
-            caught = 1
-        self.assertEqual(caught,1)
+    #~ def test_09_set_outside(self):
+        #~ sf = Real_scalar_field((10,10,10),(1.0,2.0,3.0),(0.1,0.2,0.3))
+        #~ caught = 0
+        #~ try:
+            #~ sf.get_points().set((10,9,9),1.0)
+        #~ except IndexError,e:
+            #~ caught = 1
+        #~ self.assertEqual(caught,1)
 
-    def test_10_get_outside(self):
-        sf = Real_scalar_field((10,10,10),(1.0,2.0,3.0),(0.1,0.2,0.3))
-        caught = 0
-        try:
-            retval = sf.get_points().get((10,9,9))
-        except IndexError,e:
-            caught = 1
-        self.assertEqual(caught,1)
+    #~ def test_10_get_outside(self):
+        #~ sf = Real_scalar_field((10,10,10),(1.0,2.0,3.0),(0.1,0.2,0.3))
+        #~ caught = 0
+        #~ try:
+            #~ retval = sf.get_points().get((10,9,9))
+        #~ except IndexError,e:
+            #~ caught = 1
+        #~ self.assertEqual(caught,1)
 
     def test_11_get_leftmost_indices(self):
         n = (10,10,10)
