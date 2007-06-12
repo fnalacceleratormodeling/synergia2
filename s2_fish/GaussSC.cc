@@ -1,17 +1,12 @@
 #include <stdio.h>
-#undef _POSIX_C_SOURCE
-#include <boost/python.hpp>
-#include <boost/python/numeric.hpp>
-#include <boost/python/tuple.hpp>
-#include <numarray/numarray.h>
-#include <iostream>
+#include "macro_bunch_store.h"
 
 #include "BasErs_field.h"
 
 using namespace boost::python;
 
 int
-apply_BasErs_kick(numeric::array& particles, int numpart, double sigmaX, double sigmaY, double sigmaZ, double gamma, double tau, double PartPersigmaZ, double LengthScale)
+apply_BasErs_kick(Macro_bunch_store &mbs, double sigmaX, double sigmaY, double sigmaZ, double gamma, double tau, double PartPersigmaZ)
 
 {
 
@@ -27,8 +22,8 @@ apply_BasErs_kick(numeric::array& particles, int numpart, double sigmaX, double 
   const double epsilon_0 = 8.854187817e-12;
   const double e_charge = 1.6021773e-19;
 
-  double *get_funky_data = reinterpret_cast<double *>
-    (reinterpret_cast<PyArrayObject*>(particles.ptr())->data);
+  //  double *get_funky_data = reinterpret_cast<double *>
+  //  (reinterpret_cast<PyArrayObject*>(particles.ptr())->data);
   // for (i,j) element index = i*end_outer + j, with j 0 to end_outer
 
   double sigma[2];
@@ -45,34 +40,36 @@ apply_BasErs_kick(numeric::array& particles, int numpart, double sigmaX, double 
   double y[6];
   int N_PhS = 6; // Number of phase space coordinates
 
-  for (int ipart = 0; ipart < numpart; ipart++){
-    for (int j_PhS = 0; j_PhS < N_PhS; j_PhS++){
-      y[j_PhS]=get_funky_data[ipart*N_PhS+j_PhS];
+  for (int ipart = 0; ipart < mbs.local_num; ipart++){
+    for (int n_axis = 0; n_axis < 2; n_axis++){
+      int index = 2 * n_axis + 1; // for axis n_axis = (0,1,2) corresponding to x,y,z,
+      // in particle store indexing, px,py,pz = (1,3,5)
+    
+      std::vector<double> Efield(3);
+
+      double LengthScale = mbs.units(0);
+
+      xMeters = mbs.local_particles(0,ipart)/LengthScale;
+      yMeters = mbs.local_particles(2,ipart)/LengthScale;
+      Efield = myfield->NormalizedEField(xMeters, yMeters);
+
+      std::cout << " Ex = " << Efield[0] << " Y = "<< Efield[1] << " Z = " << Efield[2] << std::endl; 
+
+      //here we need to kick the friging y[coord]
+      // we need the Efield back in the accelerator frame E->E*gamma
+      // and a normalization of perv(2*scale)
+      // Here is the explanation:
+      // Leo normalizes E with  l/(2 pi epsilon_o), where l is the charge density C/m in the rest frame
+      // Rob normalizes the scalar potential with ll/(4 pi epsilon_o), where ll is charge density 
+      // at the lab frame
+
+      //y[1] = y[1] + Efield[0]*Norm_field*tau*gamma;
+      //y[3] = y[3] + Efield[1]*Norm_field*tau*gamma;
+
+      double kick = Efield[n_axis]*Norm_field*tau*gamma;
+      // update the data structure
+      mbs.local_particles(index, n) += kick;
     }
-    std::vector<double> Efield(3);
-
-    xMeters = y[0]/LengthScale;
-    yMeters = y[2]*LengthScale;
-    Efield = myfield->NormalizedEField(xMeters, yMeters);
-
-    std::cout << " Ex = " << Efield[0] << " Y = "<< Efield[1] << " Z = " << Efield[2] << std::endl; 
-
-    //here we need to kick the friging y[coord]
-    // we need the Efield back in the accelerator frame E->E*gamma
-    // and a normalization of perv(2*scale)
-    // Here is the explanation:
-    // Leo normalizes E with  l/(2 pi epsilon_o), where l is the charge density C/m in the rest frame
-    // Rob normalizes the scalar potential with ll/(4 pi epsilon_o), where ll is charge density 
-    // at the lab frame
-
-    y[1] = y[1] + Efield[0]*Norm_field*tau*gamma;
-    y[3] = y[3] + Efield[1]*Norm_field*tau*gamma;
-
-    // update the data structure
-    for (int j_PhS = 0; j_PhS < N_PhS; j_PhS++){
-      get_funky_data[ipart*N_PhS+j_PhS] =  y[j_PhS];
-    }
-
 
   }
 
