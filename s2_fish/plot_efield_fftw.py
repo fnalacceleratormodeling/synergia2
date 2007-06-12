@@ -5,6 +5,9 @@ from s2_containers import *
 from s2_deposit import *
 from s2_electric_field import *
 
+import sublocal_paths
+import physics_constants
+
 import macro_bunch
 import numarray
 import time
@@ -28,7 +31,7 @@ shape = (n,n,n)
 size = (2.0,2.0,2.0)
 #size = (100.0,100.0,100.0)
 rho = Real_scalar_field(shape,size,(0.0,0.0,0.0))
-mb = macro_bunch.Macro_bunch()
+mb = macro_bunch.Macro_bunch(physics_constants.PH_NORM_mp,1)
 t0 = time.time()
 Q = 100000
 r0 = 0.5

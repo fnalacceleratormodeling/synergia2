@@ -12,6 +12,8 @@ import pylab
 import math
 from math import pi
 import sys
+import sublocal_paths
+import physics_constants
 import loadfile
 
 from mpi4py import MPI
@@ -30,7 +32,7 @@ shape = (n,n,n)
 size = (2.0,2.0,2.0)
 #size = (100.0,100.0,100.0)
 rho = Real_scalar_field(shape,size,(0.0,0.0,0.0))
-mb = macro_bunch.Macro_bunch()
+mb = macro_bunch.Macro_bunch(physics_constants.PH_NORM_mp,1)
 t0 = time.time()
 Q = 100000
 r0 = 0.5
@@ -47,7 +49,8 @@ total_charge = deposit_charge_cic(rho,mb.get_store(),0)
 t_deposit = time.time() - t0
 t0 = time.time()
 print "about to solve on",MPI.rank
-phi = solver_fftw_open(rho,0)
+fftwh = Fftw_helper(shape)
+phi = solver_fftw_open(rho,fftwh,0)
 print "completed solve on",MPI.rank
 sys.stdout.flush()
 #~ phi.write_to_file("phi-%d-%d" % (MPI.size,MPI.rank))
@@ -66,33 +69,38 @@ if MPI.rank<MPI.size/2 or MPI.size == 1:
         x.append(float(i))
         index = (i,shape[1]/2,shape[2]/2)
         p.append(points.get(index))
-    if MPI.size == 1:
-        loadfile.savevector("answer",p)
-    answer = loadfile.loadvector("answer")
-    pylab.plot(answer,'ro')
-    pylab.plot(x,p,'x-')
-    #~ num_points = n
-    #~ ax = numarray.arrayrange(num_points)*size[0]/(num_points -1) - 0.5*size[0]
-    #~ aphi = numarray.zeros([num_points],numarray.Float)
-    #~ arho = numarray.zeros([num_points],numarray.Float)
-    #~ aexact = numarray.zeros([num_points],numarray.Float)
-    #~ index = 0;
-    #~ for i in range(0,len(ax)):
-        #~ x = ax[i]
-        #~ if abs(x - 0.5*size[0]) < 1.0e-10:
-            #~ x = 0.5*size[0] - 1.0e-10
-        #~ rvec = (x,0,0)
-        #~ try:
-            #~ aphi[i] = phi.get_val(rvec)
-        #~ except:
-            #~ pass
-        #~ aexact[i] = exact(Q,r0,rvec)
+    #~ if MPI.size == 1:
+        #~ loadfile.savevector("answer",p)
+    #~ answer = loadfile.loadvector("answer")
+    #~ pylab.plot(answer,'ro')
+    #~ pylab.plot(x,p,'ro-')
+    #~ analytic = []
+    #~ for xi in x:
+        #~ analytic.append(exact(Q,r0,
+    num_points = n
+    
+    ax = numarray.arrayrange(num_points)*size[0]/(num_points -1) - 0.5*size[0]
+    aexact = numarray.zeros([num_points],numarray.Float)
+    aphi = numarray.zeros([num_points],numarray.Float)
+    index = 0;
+    for i in range(0,len(ax)):
+        x = ax[i]
+        if abs(x - 0.5*size[0]) < 1.0e-10:
+            x = 0.5*size[0] - 1.0e-10
+        rvec = (x,0,0)
+        try:
+            aphi[i] = phi.get_val(rvec)
+        except:
+            pass
+        aexact[i] = exact(Q,r0,rvec)
         #~ arho[i] = rho.get_val(rvec)
-    #~ ###    print x,aphi[i]/aexact[i]
-    #~ pylab.plot(ax,aphi,'o')
-    #~ pylab.plot(ax,aexact,'r')
+    ###    print x,aphi[i]/aexact[i]
+    pylab.plot(ax,aphi,'o',label='solver using %s grid' % str(shape))
+    pylab.plot(ax,aexact,'r',label='analytic solution')
 
-
+    pylab.xlabel('$x$')
+    pylab.ylabel('$\phi(x,0,0)$')
+    pylab.legend(loc=0)
     sys.stdout.flush()
     if MPI.rank < MPI.size/2 or MPI.size == 1:
         print "doing show on rank",MPI.rank
