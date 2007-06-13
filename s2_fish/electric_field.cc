@@ -85,7 +85,8 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
     // GACK! THIS IS HARDCODED FOR PROTONS! FIXME FIXME FIXME FIXME
     // FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
     // FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-    double mass = 0.93827231e9; // should I come from macro_bunch_store?
+    //    double mass = 0.93827231e9; // should I come from macro_bunch_store?
+    double mass = 0.5110034e6; // should I come from macro_bunch_store?
     double eps0 = 1.0 / (4 * pi * c * c * 1.0e-7); // using c^2 = 1/(eps0 * mu0)
     double Brho = gamma * beta * mass / c;
     double perveance0 = mbs.total_current / (2 * pi * eps0 * Brho * gamma * gamma*\
@@ -134,7 +135,7 @@ apply_phi_kick(Real_scalar_field &phi, int axis, double tau,
     // GACK! THIS IS HARDCODED FOR PROTONS! FIXME FIXME FIXME FIXME
     // FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
     // FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-    double mass = 0.93827231e9; // should I come from macro_bunch_store?
+    double mass = 0.5110034e6; // should I come from macro_bunch_store?
     double eps0 = 1.0 / (4 * pi * c * c * 1.0e-7); // using c^2 = 1/(eps0 * mu0)
     double Brho = gamma * beta * mass / c;
     double perveance0 = mbs.total_current / (2 * pi * eps0 * Brho * gamma * gamma*\

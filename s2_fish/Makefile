@@ -1,4 +1,4 @@
-all: s2_containers.so s2_deposit.so s2_electric_field.so s2_solver_fftw.so macro_bunch_store.so
+all: s2_containers.so s2_deposit.so s2_electric_field.so s2_solver_fftw.so macro_bunch_store.so GaussSC.so
 
 include ../make_defines
 PETSC_DIR = /home2/amundson/src/petsc-dev
@@ -82,6 +82,15 @@ macro_bunch_store.so: macro_bunch_store_wrap.o macro_bunch_store.o ltwt_containe
 
 dump_array.so: dump_array.o
 	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
+
+BasErs_field.o : BasErs_field.cc
+	g++ $(CXXFLAGS) -c -I$(CHEF_INSTALL_DIR)/include $<
+
+GaussSC.o : GaussSC.cc 
+	g++ $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) -I$(CHEF_INSTALL_DIR)/include $<
+
+GaussSC.so: GaussSC.o BasErs_field.o ltwt_containers.o mytimer.o
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) -L$(CHEF_INSTALL_DIR)/lib -lbasic_toolkit
 
 dumbass: dumbass.o
 	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)

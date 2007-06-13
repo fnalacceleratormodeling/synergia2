@@ -1,7 +1,7 @@
 
 #include "BasErs_field.h"
 
-extern Complex w( Complex );
+extern std::complex<double>  w( std::complex<double> const&  );
 
 double const SIGMA_LIMIT = 64.0;
 double const SIGMA_ROUND = 0.1;
@@ -24,12 +24,12 @@ std::vector<double> BasErs_field::NormalizedEField( double arg_x, double arg_y )
 {
   std::vector<double>  retvec(3);
   char    normal;
-  Complex z;
+  std::complex<double>  z;
   double  x, y;
   double  sigmaX, sigmaY, ds, meanSigma;
-  Complex arg1, arg2;
+  std::complex<double>  arg1, arg2;
   double  tmp1,r;
-  Complex retarg1, retarg2;
+  std::complex<double>  retarg1, retarg2;
   enum    { ur, ul, lr, ll } quadrant;
 
   x = arg_x;  
