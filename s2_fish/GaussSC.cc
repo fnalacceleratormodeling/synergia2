@@ -49,7 +49,7 @@ apply_BasErs_kick(Macro_bunch_store &mbs, double sigmaX, double sigmaY, double s
 
     Efield = myfield->NormalizedEField(xMeters, yMeters);
     
-    std::cout << " Ex = " << Efield[0] << " Ey = "<< Efield[1] << " Ez = " << Efield[2] << std::endl; 
+    //std::cout << " Ex = " << Efield[0] << " Ey = "<< Efield[1] << " Ez = " << Efield[2] << std::endl; 
 
     // Now x and y kick
     for (int n_axis = 0; n_axis < 2; n_axis++){
