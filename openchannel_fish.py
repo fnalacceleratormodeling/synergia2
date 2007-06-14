@@ -67,7 +67,6 @@ if ( __name__ == '__main__'):
     kicks_per_line = 10
     gridnum = int(sys.argv[1])
     griddim = (gridnum,gridnum,gridnum)
-    offset = (0.0,0.0,0.0)
     num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
                                      part_per_cell,1)
     
@@ -98,7 +97,6 @@ if ( __name__ == '__main__'):
     
     pgrid = processor_grid.Processor_grid(1)
     b_impact = bunch.Bunch(current, bp, num_particles, pgrid)
-###    b_impact.read_particles("oc_particles.h5")
     b_impact.generate_particles()
     
     b = macro_bunch.Macro_bunch(mass,1)
@@ -110,9 +108,6 @@ if ( __name__ == '__main__'):
     s = 0.0
     first_action = 0
     diag = syn2_diagnostics.Diagnostics(g.get_initial_u())
-    coord_stds = diag.get_coord_stds(b)
-    n_sigma = 10.0
-    size = (coord_stds[0]*n_sigma,coord_stds[1]*n_sigma,coord_stds[2]*n_sigma)
     kick_time = 0.0
     for action in g.get_actions():
         if action.is_mapping():
@@ -126,7 +121,7 @@ if ( __name__ == '__main__'):
                     print "finished space charge kick"
             elif action.get_synergia_action() == "space charge kick":
                 tk0 = time.time()
-                fish.apply_space_charge_kick(griddim,size,offset, b, 2*tau)
+                fish.apply_space_charge_kick(griddim,None,None, b, 2*tau)
                 tk1 = time.time()
                 kick_time += tk1 - tk0
             elif action.get_synergia_action() == "rfcavity1" or \
@@ -147,7 +142,6 @@ if ( __name__ == '__main__'):
 
     print "elapsed time =",time.time() - t0, "kick time =",kick_time
 
-
     diag.write("ocimpact")
     import pylab
     import loadfile
@@ -165,6 +159,6 @@ in the current directory.
 
     pylab.plot(dimpact.s,dimpact.std[:,diagnostics.x],'o',label='impact',
                markerfacecolor=None)
-    pylab.plot(diag.s,diag.std[syn2_diagnostics.x][:],'r+',label='barracuda')
+    pylab.plot(diag.get_s(),diag.get_stds()[:,syn2_diagnostics.x],'r+',label='barracuda')
     pylab.legend(loc=0)
     pylab.show()

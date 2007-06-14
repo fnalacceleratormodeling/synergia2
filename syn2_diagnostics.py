@@ -1,8 +1,10 @@
 #!/usr/bin/env python
 import Numeric
-import MLab
-import math
+import LinearAlgebra
+from math import sqrt
 import sys
+
+import s2_diagnostics
 
 x = 0
 xprime = 1
@@ -43,14 +45,13 @@ zprime_y = 12
 zprime_yprime = 13
 zprime_z = 14
 
-def get_spatial_stds(bunch):
-    stdx = MLab.std(bunch.get_store().get_local_particles()[0,:])
-    stdy = MLab.std(bunch.get_store().get_local_particles()[2,:])
-    stdz = MLab.std(bunch.get_store().get_local_particles()[4,:])
-    print "stds =", stdx,stdy,stdz
-    return stdx,stdy,stdz
+def get_spatial_means_stds(bunch):
+    means = Numeric.zeros([3],Numeric.Float)
+    stds = Numeric.zeros([3],Numeric.Float)
+    s2_diagnostics.get_spatial_means_stds(bunch.get_store(),means,stds)
+    return means,stds
 
-def get_diagnostics(bunch):
+def old_get_diagnostics(bunch):
     means = Numeric.zeros([6],Numeric.Float)
     stds = Numeric.zeros([6],Numeric.Float)
     for i in range(0,6):
@@ -63,33 +64,62 @@ def get_diagnostics(bunch):
             mom2s[i,j] = Numeric.average(tmp) - means[i]*means[j]
             mom2s[j,i] = mom2s[i,j]
     for i in range(0,6):
-        stds[i] = math.sqrt(mom2s[i,i])
+        stds[i] = sqrt(mom2s[i,i])
     for i in range(0,6):
         for j in range(i,6):
             corrs[i,j] = mom2s[i,j]/(stds[i]*stds[j])
             corrs[j,i] = corrs[i,j]
     return means,stds,mom2s,corrs
 
+def get_diagnostics(bunch,units):
+    means = Numeric.zeros([6],Numeric.Float)
+    mom2s = Numeric.zeros([6,6],Numeric.Float)
+    corrs = Numeric.zeros([6,6],Numeric.Float)
+    diagmom4s = Numeric.zeros([6],Numeric.Float)
+    s2_diagnostics.get_moments_corrs(bunch.get_store(),units,means,mom2s,corrs,diagmom4s)
+    return means,mom2s,corrs,diagmom4s
+
 class Diagnostics:
     def __init__(self,units):
         self.s = []
-        self.mean = [[],[],[],[],[],[]]
-        self.std = [[],[],[],[],[],[]]
+        self.means = []
+        self.mom2s = []
+        self.corrs = []
+        self.diagmom4s = []
+        self.stds = []
+        self.emitxs = []
+        self.emitys = []
+        self.emitzs = []
+        self.emitxys = []
+        #~ self.emitxzs = []
+        self.emitxyzs = []
         self.u = units
-        # n.b. we are ignoring mom2, corrs!
 
     def add(self,s,bunch):
-        means,stds,mom2s,corrs = get_diagnostics(bunch.get_store().get_local_particles())
+        means,mom2s,corrs,diagmom4s = get_diagnostics(bunch,self.u)
         self.s.append(s)
-        for i in range(0,6):
-            self.mean[i].append(means[i]/self.u[i])
-            self.std[i].append(stds[i]/self.u[i])
-
-    def get_coord_stds(self,bunch):
-        means,stds,mom2s,corrs = get_diagnostics(bunch.get_store().get_local_particles())
-        return (stds[x],stds[y],stds[z])
+        self.means.append(means)
+        self.mom2s.append(mom2s)
+        self.corrs.append(corrs)
+        self.diagmom4s.append(diagmom4s)
+        #derived quantities
+        self.stds.append(Numeric.sqrt(Numeric.diagonal(mom2s)))
+        self.emitxs.append(sqrt(abs(LinearAlgebra.determinant(mom2s[0:2,0:2]))))
+        self.emitys.append(sqrt(abs(LinearAlgebra.determinant(mom2s[2:4,2:4]))))
+        self.emitzs.append(sqrt(abs(LinearAlgebra.determinant(mom2s[4:6,4:6]))))
+        self.emitxys.append(sqrt(abs(LinearAlgebra.determinant(mom2s[0:4,0:4]))))
+        #~ self.emitxzs.append(sqrt(LinearAlgebra.determinant(
+        self.emitxyzs.append(sqrt(abs(LinearAlgebra.determinant(mom2s))))
     
+    def get_s(self):
+        return Numeric.array(self.s)
+    def get_means(self):
+        return Numeric.array(self.means)
+    def get_stds(self):
+        return Numeric.array(self.stds)
+     
     def write(self,filename_prefix):
+        return
         # same format as fort.24
         fx = open(filename_prefix+"_x.dat","w")
         fy = open(filename_prefix+"_y.dat","w")
