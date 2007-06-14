@@ -82,11 +82,7 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
     const  double c = 2.99792458e8;
     const  double pi = 4.0 * atan(1.0);
 
-    // GACK! THIS IS HARDCODED FOR PROTONS! FIXME FIXME FIXME FIXME
-    // FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-    // FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME FIXME
-    //    double mass = 0.93827231e9; // should I come from macro_bunch_store?
-    double mass = 0.5110034e6; // should I come from macro_bunch_store?
+    double mass = mbs.mass * 1.0e9;
     double eps0 = 1.0 / (4 * pi * c * c * 1.0e-7); // using c^2 = 1/(eps0 * mu0)
     double Brho = gamma * beta * mass / c;
     double perveance0 = mbs.total_current / (2 * pi * eps0 * Brho * gamma * gamma*\
