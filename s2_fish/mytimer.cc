@@ -19,7 +19,7 @@ reset_timer()
 }
 
 void
-timer(std::string message)
+nottimer(std::string message)
 {
     MPI_Barrier(MPI_COMM_WORLD);
     double t1 = time();
@@ -32,4 +32,4 @@ timer(std::string message)
 }
 
 void
-nottimer(std::string message) { return; }
+timer(std::string message) { return; }

@@ -1,4 +1,4 @@
-all: s2_containers.so s2_deposit.so s2_electric_field.so s2_solver_fftw.so macro_bunch_store.so GaussSC.so
+all: s2_containers.so s2_deposit.so s2_electric_field.so s2_solver_fftw.so macro_bunch_store.so s2_diagnostics.so GaussSC.so
 
 include ../make_defines
 PETSC_DIR = /home2/amundson/src/petsc-dev
@@ -59,6 +59,9 @@ solver.o : solver.cc
 s2_solver.so: s2_solver_wrap.o solver.o macro_bunch_store.so mytimer.o
 	g++ $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(PETSC_LIBS)
 
+s2_diagnostics.so: s2_diagnostics_wrap.o ltwt_containers.o s2_diagnostics.o
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) 
+
 fftw3_helper.o: fftw3_helper.cc
 	$(CXX) $(CXXFLAGS) -c $(BOOST_INCLUDES) $(FFTW3INCLUDES) $<
 
@@ -112,7 +115,7 @@ install:
 	mkdir -p ../extra_libs && \
 	cd ../extra_libs && \
 	for lib in macro_bunch_store s2_containers s2_deposit \
-			s2_electric_field s2_solver_fftw ; \
+			s2_electric_field s2_solver_fftw s2_diagnostics; \
 	do \
 		rm -f $$lib.so ; \
 		ln -s ../s2_fish/$$lib.so .; \
@@ -128,8 +131,12 @@ deposit.o: macro_bunch_store.h ltwt_containers.h
 electric_field.o: electric_field.h scalar_field.h nd_array.h mytimer.h
 electric_field.o: triple.h macro_bunch_store.h ltwt_containers.h
 electric_field.o: communicate.h fftw_helper.h
+fftw2_helper.o: fftw2_helper.h fftw_helper.h scalar_field.h nd_array.h
+fftw2_helper.o: mytimer.h triple.h
+fftw3_helper.o: fftw3_helper.h scalar_field.h nd_array.h mytimer.h triple.h
+fftw3_helper.o: fftw_helper.h
 fftw_helper.o: fftw_helper.h scalar_field.h nd_array.h mytimer.h triple.h
-GaussSC.o: BasErs_field.h
+GaussSC.o: macro_bunch_store.h ltwt_containers.h BasErs_field.h
 ltwt_containers.o: ltwt_containers.h
 macro_bunch_store.o: macro_bunch_store.h ltwt_containers.h
 macro_bunch_store_wrap.o: macro_bunch_store.h ltwt_containers.h
@@ -140,17 +147,29 @@ s2_containers_wrap.o: nd_array.h mytimer.h scalar_field.h triple.h
 s2_containers_wrap.o: container_conversions.h
 s2_deposit_wrap.o: deposit.h scalar_field.h nd_array.h mytimer.h triple.h
 s2_deposit_wrap.o: macro_bunch_store.h ltwt_containers.h
+s2_diagnostics.o: s2_diagnostics.h macro_bunch_store.h ltwt_containers.h
+s2_diagnostics_wrap.o: s2_diagnostics.h macro_bunch_store.h ltwt_containers.h
 s2_electric_field_wrap.o: electric_field.h scalar_field.h nd_array.h
 s2_electric_field_wrap.o: mytimer.h triple.h macro_bunch_store.h
 s2_electric_field_wrap.o: ltwt_containers.h
+s2_solver_fftw2_wrap.o: nd_array.h mytimer.h scalar_field.h triple.h
+s2_solver_fftw2_wrap.o: deposit.h macro_bunch_store.h ltwt_containers.h
+s2_solver_fftw2_wrap.o: solver_fftw2.h container_conversions.h
+s2_solver_fftw3_wrap.o: nd_array.h mytimer.h scalar_field.h triple.h
+s2_solver_fftw3_wrap.o: deposit.h macro_bunch_store.h ltwt_containers.h
+s2_solver_fftw3_wrap.o: solver_fftw3.h container_conversions.h
 s2_solver_fftw_wrap.o: nd_array.h mytimer.h scalar_field.h triple.h deposit.h
 s2_solver_fftw_wrap.o: macro_bunch_store.h ltwt_containers.h solver_fftw.h
-s2_solver_fftw_wrap.o: container_conversions.h
+s2_solver_fftw_wrap.o: fftw_helper.h container_conversions.h
 s2_solver_wrap.o: solver.h scalar_field.h nd_array.h mytimer.h triple.h
 s2_solver_wrap.o: macro_bunch_store.h ltwt_containers.h
 s2_solver_wrap.o: container_conversions.h
 solver.o: solver.h scalar_field.h nd_array.h mytimer.h triple.h
 solver.o: macro_bunch_store.h ltwt_containers.h
+solver_fftw2.o: solver.h scalar_field.h nd_array.h mytimer.h triple.h
+solver_fftw2.o: macro_bunch_store.h ltwt_containers.h
+solver_fftw3.o: solver.h scalar_field.h nd_array.h mytimer.h triple.h
+solver_fftw3.o: macro_bunch_store.h ltwt_containers.h
 solver_fftw.o: solver_fftw.h scalar_field.h nd_array.h mytimer.h triple.h
 solver_fftw.o: macro_bunch_store.h ltwt_containers.h fftw_helper.h
-solver_fftw: communicate.h
+solver_fftw.o: communicate.h

@@ -11,7 +11,7 @@ template<class T> T data_from_numeric_array(numeric::array& array)
 
 Macro_bunch_store::Macro_bunch_store(numeric::array& numeric_local_particles,
 				     int local_num, int total_num, 
-				     double mass, double charge, double total_current,
+				     double mass, int charge, double total_current,
 				     numeric::array& numeric_units,
 				     numeric::array& numeric_ref_particle,
 				     bool is_fixedz) :

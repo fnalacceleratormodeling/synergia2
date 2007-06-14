@@ -23,24 +23,20 @@ def apply_space_charge_kick(shape,size,offset,mbunch,tau):
         fftwhs[key] = Fftw_helper(shape)
     mbunch.convert_to_fixedt()
     mytimer("convert")
-    n_sigma = 8.0
-    stdx,stdy,stdz = syn2_diagnostics.get_spatial_stds(mbunch)
-    size = (stdx*n_sigma,stdy*n_sigma,stdz*n_sigma)
+    if (size == None) or (offset == None):
+        means, stds = syn2_diagnostics.get_spatial_means_stds(mbunch)
+        if size == None:
+            n_sigma = 8.0
+            size = tuple(n_sigma*stds)
+        if offset == None:
+            offset = tuple(means)
     mytimer("diagnostics")
     rho = Real_scalar_field(shape,size,offset)
     total_charge = deposit_charge_cic(rho,mbunch.get_store(),0)
     mytimer("deposit")
     phi = solver_fft_open(rho,fftwhs[key],0)
     mytimer("solve")
-    old = 0
-    if old:
-        for E_axis in range(0,3):
-            E = calculate_E_n(phi,E_axis)
-            calc_time += t1 -t0
-            apply_E_n_kick(E,E_axis,tau,mbunch.get_store())
-        mytimer("full kick")
-    else:
-        full_kick(phi,tau,mbunch.get_store())
-        mytimer("full kick")
+    full_kick(phi,tau,mbunch.get_store())
+    mytimer("full kick")
     mbunch.convert_to_fixedz()
     mytimer("unconvert")

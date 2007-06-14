@@ -109,7 +109,7 @@ class Test_Macro_bunch(unittest.TestCase):
         mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         mb.init_from_bunch(b)
         d = syn2_diagnostics.Diagnostics(mb.units)
-        d.get_coord_stds(mb)
+        d.add(0,mb)
 
 if __name__ == '__main__':
     unsuccessful = 0
