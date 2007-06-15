@@ -105,12 +105,14 @@ class Diagnostics:
         self.diagmom4s.append(diagmom4s)
         #derived quantities
         self.stds.append(Numeric.sqrt(Numeric.diagonal(mom2s)))
-        self.emitxs.append(sqrt(abs(LinearAlgebra.determinant(mom2s[0:2,0:2]))))
-        self.emitys.append(sqrt(abs(LinearAlgebra.determinant(mom2s[2:4,2:4]))))
-        self.emitzs.append(sqrt(abs(LinearAlgebra.determinant(mom2s[4:6,4:6]))))
-        self.emitxys.append(sqrt(abs(LinearAlgebra.determinant(mom2s[0:4,0:4]))))
+        self.emitxs.append(sqrt(abs(LinearAlgebra.determinant(mom2s[0:2,0:2])))*self.u[xprime])
+        self.emitys.append(sqrt(abs(LinearAlgebra.determinant(mom2s[2:4,2:4])))*self.u[yprime])
+        self.emitzs.append(sqrt(abs(LinearAlgebra.determinant(mom2s[4:6,4:6])))*self.u[zprime])
+        self.emitxys.append(sqrt(abs(LinearAlgebra.determinant(mom2s[0:4,0:4])))\
+                        *self.u[xprime]*self.u[yprime])
         #~ self.emitxzs.append(sqrt(LinearAlgebra.determinant(
-        self.emitxyzs.append(sqrt(abs(LinearAlgebra.determinant(mom2s))))
+        self.emitxyzs.append(sqrt(abs(LinearAlgebra.determinant(mom2s)))\
+                        *self.u[xprime]*self.u[yprime]*self.u[zprime])
     
     def get_s(self):
         return Numeric.array(self.s)
