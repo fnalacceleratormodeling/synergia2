@@ -174,6 +174,6 @@ class Diagnostics:
         hdfarray = f.createArray(root,'emity',Numeric.array(self.emitys),"y emittance")
         hdfarray = f.createArray(root,'emitz',Numeric.array(self.emitzs),"z emittance")
         hdfarray = f.createArray(root,'emitxy',Numeric.array(self.emitxys),"x-y emittance")
-        hdfarray = f.createArray(root,'emitxyz',Numeric.array(self.means),"x-y-z emittance")
+        hdfarray = f.createArray(root,'emitxyz',Numeric.array(self.emitxyzs),"x-y-z emittance")
         hdfarray = f.createArray(root,'units',Numeric.array(self.u),"units")
         f.close()
