@@ -135,7 +135,7 @@ get_moments_corrs(Macro_bunch_store& mbs,
         for (int i=0; i<6; ++i) {
             s[i] = mbs.local_particles(i,n) - means(i);
             sum4[i] += s[i]*s[i]*s[i]*s[i];
-            for (int j=i; j<6; ++j) {
+            for (int j=0; j<=i; ++j) {
                 sum2[6*i + j] += s[i]*s[j];
             }
         }
@@ -151,8 +151,10 @@ get_moments_corrs(Macro_bunch_store& mbs,
         means(i) /= units(i);
     }
     for (int i=0; i<6; ++i) {
-        for(int j=i; j<6; ++j) {
-            mom2s(i,j) = mom2s(j,i) = global_buffer[6*i + j]/(units(i)*units(j)*mbs.total_num);
+        for(int j=0; j<=i; ++j) {
+            //~ mom2s(i,j) = mom2s(j,i) = global_buffer[6*i + j]/(units(i)*units(j)*mbs.total_num);
+            mom2s(i,j) = global_buffer[6*i + j]/(units(i)*units(j)*mbs.total_num);
+            mom2s(j,i) = mom2s(i,j);
         }
         diagmom4s(i) = global_buffer[36+i]/(units(i)*units(i)*mbs.total_num);
     }
