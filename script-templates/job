@@ -6,10 +6,12 @@
 echo PBS_NODEFILE is "$PBS_NODEFILE"
 if [ -n "$PBS_NODEFILE" ]
 then
-   cat $PBS_NODEFILE
+    echo "begin nodes"
+    cat $PBS_NODEFILE
+    echo "end nodes"
 fi
-export PATH=/usr/local/openmpi/1.0.1/bin:$PATH
-export LD_LIBRARY_PATH=/usr/local/openmpi/1.0.1/lib:$LD_LIBRARY_PATH
+export PATH=/usr/local/openmpi/1.2.1/bin:$PATH
+export LD_LIBRARY_PATH=/usr/local/openmpi/1.2.1/lib:$LD_LIBRARY_PATH
 
 PATH="@@synergia2dir@@/../../install/bin:$PATH"
 export PATH
@@ -23,6 +25,6 @@ PYTHONPATH=$SYNERGIA2DIR
 export PYTHONPATH
 
 cd @@jobdir@@
-exec mpirun -machinefile $PBS_NODEFILE -np @@numproc@@ python @@script@@ @@args@@
+exec mpirun -np @@numproc@@ python @@script@@ @@args@@
 
 
