@@ -39,7 +39,14 @@ keys = None
 bigresults = {}
 etimes = {}
 for dirname in sys.argv[2:]:
-    numproc,etime,results = doit(dirname)
+    ok = 1
+    try:
+        numproc,etime,results = doit(dirname)
+    except:
+        ok = 0
+        numproc = 0
+        etime = {}
+        results = {}
     if keys:
         tmp = results.keys()
         tmp.sort()
@@ -47,9 +54,11 @@ for dirname in sys.argv[2:]:
             print "keys do not match:",dirname
             print keys
             print tmp
+            ok = 0
     else:
         keys = results.keys()
         keys.sort()
+    if ok:
         bigresults[numproc] = results
         etimes[numproc] = etime
 f = open(sys.argv[1] + ".dat", "w")
