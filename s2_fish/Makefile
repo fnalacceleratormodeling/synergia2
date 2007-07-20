@@ -22,7 +22,7 @@ CXXFLAGS = -O3
 CXX = mpicxx
 
 %.o : %.cc
-	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) aaa$(FFTW_INCLUDES)bbb yourmomma $<
+	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(FFTW_INCLUDES) yourmomma $<
 
 space_charge: main.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
