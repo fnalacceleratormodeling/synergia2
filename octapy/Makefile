@@ -1,22 +1,22 @@
-PYTHON_INCLUDE = ../../..//install/include/python2.4
+all: _octapy.so
+
 PYTHON = python
 MKOCTFILE = mkoctfile
 SWIG = swig
 #DEFINES = -DNUMARRAY=1
-
-all: _octapy.so
+include ../make_defines 
 
 demo: _octapy.so
 	$(PYTHON) demo.py
 
 octave_class.o: octave_class.cc octave_class.h
-	$(MKOCTFILE) $(DEFINES) -I$(PYTHON_INCLUDE) -c octave_class.cc
+	$(MKOCTFILE) $(DEFINES) $(PYTHON_INCLUDES) -c octave_class.cc
 
 octapy_wrap.cc: octapy.i octave_class.h
 	$(SWIG) -python -c++ -o octapy_wrap.cc octapy.i
 
 octapy_wrap.o: octapy_wrap.cc
-	$(MKOCTFILE) $(DEFINES) -I$(PYTHON_INCLUDE) -c octapy_wrap.cc
+	$(MKOCTFILE) $(DEFINES) $(PYTHON_INCLUDES) -c octapy_wrap.cc
 
 _octapy.so: octave_class.o octapy_wrap.o
 	$(MKOCTFILE) $(DEFINES) octave_class.o octapy_wrap.o -o _octapy.so
