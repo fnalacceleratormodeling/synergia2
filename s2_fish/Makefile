@@ -6,23 +6,15 @@ PETSC_DIR = /home2/amundson/src/petsc-dev
 PETSC_INCLUDES = -I$(PETSC_DIR) -I$(PETSC_DIR)/bmake/linux-gnu-cxx-debug -I$(PETSC_DIR)/include -I/usr/X11R6/include -I$(PETSC_DIR)/externalpackages/fftw-3.1.2/linux-gnu-cxx-debug/include -I$(PETSC_DIR)/include/mpiuni
 PETSC_LIBS = -L$(PETSC_DIR)/lib/linux-gnu-cxx-debug -lpetscsnes -lpetscdm -lpetscksp -lpetscmat -lpetscvec -lpetsc
 
-FFTW2DIR = $(ROOT_INSTALL_DIR)
-FFTW2INCLUDES = -I$(FFTW2DIR)/include
-FFTW2LIBS = -L$(FFTW2DIR)/lib -lrfftw_mpi -lfftw_mpi -lrfftw -lfftw 
+FFTW2LIBS = -lrfftw_mpi -lfftw_mpi -lrfftw -lfftw 
 
-FFTW3DIR = /home2/amundson/opt/fftw3
-FFTW3INCLUDES = -I$(FFTW3DIR)/include
-FFTW3LIBS = -L$(FFTW3DIR)/lib -lfftw3_mpi -lfftw3
+FFTW3LIBS = -lfftw3_mpi -lfftw3
 
 #FFTW3 = youbet
 
 ifdef FFTW3
-  FFTWDIR=$(FFTW3DIR)
-  FFTW_INCLUDES = $(FFTW3INCLUDES)
   FFTWLIBS = $(FFTW3LIBS)
 else
-  FFTWDIR=$(FFTW2DIR)
-  FFTW_INCLUDES = $(FFTW2INCLUDES)
   FFTWLIBS = $(FFTW2LIBS)
 endif
 
@@ -30,7 +22,7 @@ CXXFLAGS = -O3
 CXX = mpicxx
 
 %.o : %.cc
-	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(FFTW_INCLUDES) $<
+	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) aaa$(FFTW_INCLUDES)bbb yourmomma $<
 
 space_charge: main.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
@@ -72,13 +64,13 @@ solver_fftw.o : solver_fftw.cc
 	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(FFTW_INCLUDES) $<
 
 s2_solver_fftw.so: s2_solver_fftw_wrap.o solver_fftw.o macro_bunch_store.so mytimer.o fftw_helper.o communicate.o
-	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(FFTWLIBS)
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(FFTW_LDFLAGS) $(FFTWLIBS)
 
 testfftw3: testfftw3.cc
 	mpicxx -g -o testfftw3 $(FFTW3INCLUDES) testfftw3.cc $(FFTW3LIBS)
 
 testfftw: testfftw.cc fftw_helper.o mytimer.o
-	mpicxx -g -o testfftw $(FFTW_INCLUDES) testfftw.cc fftw_helper.o mytimer.o $(FFTWLIBS)
+	mpicxx -g -o testfftw $(FFTW_INCLUDES) testfftw.cc fftw_helper.o mytimer.o $(FFTW_LDFLAGS) $(FFTWLIBS)
 
 macro_bunch_store.so: macro_bunch_store_wrap.o macro_bunch_store.o ltwt_containers.o
 	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
