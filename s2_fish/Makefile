@@ -18,11 +18,11 @@ FFTW3LIBS = -L$(FFTW3DIR)/lib -lfftw3_mpi -lfftw3
 
 ifdef FFTW3
   FFTWDIR=$(FFTW3DIR)
-  FFTWINCLUDES = $(FFTW3INCLUDES)
+  FFTW_INCLUDES = $(FFTW3INCLUDES)
   FFTWLIBS = $(FFTW3LIBS)
 else
   FFTWDIR=$(FFTW2DIR)
-  FFTWINCLUDES = $(FFTW2INCLUDES)
+  FFTW_INCLUDES = $(FFTW2INCLUDES)
   FFTWLIBS = $(FFTW2LIBS)
 endif
 
@@ -30,7 +30,7 @@ CXXFLAGS = -O3
 CXX = mpicxx
 
 %.o : %.cc
-	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(FFTWINCLUDES) $<
+	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(FFTW_INCLUDES) $<
 
 space_charge: main.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
@@ -69,7 +69,7 @@ fftw2_helper.o: fftw2_helper.cc
 	$(CXX) $(CXXFLAGS) -c $(BOOST_INCLUDES) $(FFTW2INCLUDES) $<
 
 solver_fftw.o : solver_fftw.cc
-	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(FFTWINCLUDES) $<
+	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(FFTW_INCLUDES) $<
 
 s2_solver_fftw.so: s2_solver_fftw_wrap.o solver_fftw.o macro_bunch_store.so mytimer.o fftw_helper.o communicate.o
 	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(FFTWLIBS)
@@ -78,7 +78,7 @@ testfftw3: testfftw3.cc
 	mpicxx -g -o testfftw3 $(FFTW3INCLUDES) testfftw3.cc $(FFTW3LIBS)
 
 testfftw: testfftw.cc fftw_helper.o mytimer.o
-	mpicxx -g -o testfftw $(FFTWINCLUDES) testfftw.cc fftw_helper.o mytimer.o $(FFTWLIBS)
+	mpicxx -g -o testfftw $(FFTW_INCLUDES) testfftw.cc fftw_helper.o mytimer.o $(FFTWLIBS)
 
 macro_bunch_store.so: macro_bunch_store_wrap.o macro_bunch_store.o ltwt_containers.o
 	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
