@@ -93,6 +93,9 @@ class Gourmet:
     def get_initial_energy(self):
         return self.initial_energy
     
+    def get_initial_kinetic_energy(self):
+        return self.initial_energy - self.mass
+        
     def get_initial_particle(self):
         if self.particle == 'proton':
             particle = Proton(self.initial_energy)
@@ -100,6 +103,9 @@ class Gourmet:
             particle = Positron(self.initial_energy)
         return particle
 
+    def get_mass(self):
+        return self.mass
+        
     def get_initial_jet_particle(self):
         if self.particle == 'proton':
             jet_particle = JetProton(self.initial_energy)
