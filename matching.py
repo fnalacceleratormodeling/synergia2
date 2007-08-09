@@ -65,7 +65,7 @@ def get_alpha_beta(my_gourmet):
 envelope_match_cache  = function_cache.Function_cache("envelope_match.cache")
 def envelope_match(emit,current,g):
     if envelope_match_cache.in_cache(emit,current,g.get_mad_file(),
-                                     g.get_line_name()):
+                                     g.get_line_name(),g.get_initial_kinetic_energy()):
         return envelope_match_cache.get(emit,current,g.get_mad_file(),
                                         g.get_line_name())
     (alpha_x, alpha_y, beta_x, beta_y) = get_alpha_beta(g)

@@ -39,7 +39,7 @@ mem0 = 0.0
 if ( __name__ == '__main__'):
     t0 = time.time()
     current = 1.5
-    kinetic_energy = 0.7
+    kinetic_energy = 0.5
     mass = physics_constants.PH_NORM_mp
     charge = 1.0
     initial_phase = 0.0
@@ -54,7 +54,7 @@ if ( __name__ == '__main__'):
 
     ee = error_eater.Error_eater()
     ee.start()
-    g = gourmet.Gourmet("fodo_low_e.lat","fodo",kinetic_energy,
+    g = gourmet.Gourmet("fodo.lat","fodo",kinetic_energy,
                         scaling_frequency)
 
     if current < 1.0e-6:
