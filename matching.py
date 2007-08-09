@@ -74,6 +74,7 @@ def envelope_match(emit,current,g,use_cache=1):
     o = octapy.Octave()
     o.execute('LOADPATH="%s:";' %
               os.path.join(local_paths.synergia2_dir,"envelope"))
+    o.set_value("m",g.get_mass())
     o.set_value("alphax",alpha_x)
     o.set_value("alphay",alpha_y)
     o.set_value("betax",beta_x)
@@ -84,7 +85,7 @@ def envelope_match(emit,current,g,use_cache=1):
     o.set_value("emit",emit)
     o.set_value("current",current)
     o.set_value("kinetic_energy",g.get_initial_kinetic_energy())
-    o.execute('[sigma_x,sigma_xprime,r_x,sigma_y,sigma_yprime,r_y] = envelope_match(alphax,alphay,betax,betay,s_array,Kx_array,Ky_array, kinetic_energy, current, emit, emit, 4, 1.0e-13,0)' )
+    o.execute('[sigma_x,sigma_xprime,r_x,sigma_y,sigma_yprime,r_y] = envelope_match(m,alphax,alphay,betax,betay,s_array,Kx_array,Ky_array, kinetic_energy, current, emit, emit, 4, 1.0e-13,0)' )
     sigma_x = o.get_value("sigma_x")
     sigma_xprime = o.get_value("sigma_xprime")
     r_x = o.get_value("r_x")
