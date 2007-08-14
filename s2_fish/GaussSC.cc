@@ -1,72 +1,56 @@
 #include <stdio.h>
 #include "macro_bunch_store.h"
+#include "basic_toolkit/PhysicsConstants.h"
 
 #include "BasErs_field.h"
 
 using namespace boost::python;
 
 int
-apply_BasErs_kick(Macro_bunch_store &mbs, double sigmaX, double sigmaY, double sigmaZ, double tau, double PartPersigmaZ)
+apply_BasErs_kick(Macro_bunch_store &mbs, double sigmaX, double sigmaY, double tau)
 
 {
 
-// Line density will be calculated from sigma_z and 
-// PartPersigmaZ which is the number of 
-// charged particles per sigmaZ (signed for plus or minus 
-// charges)
-
-// sigmaX,Y,Z [m], at the accelerator frame
-
-// PGS
-// DANGER, HARDCODED SH*T, NEED PARTCILE INFO FROM BUNCH!
-//PGS
-
-  const double epsilon_0 = 8.854187817e-12;
-  const double e_charge = 1.6021773e-19;
-
-  //  double *get_funky_data = reinterpret_cast<double *>
-  //  (reinterpret_cast<PyArrayObject*>(particles.ptr())->data);
-  // for (i,j) element index = i*end_outer + j, with j 0 to end_outer
+  const double epsilon_0 = PH_MKS_eps0;
 
   double sigma[2];
   sigma[0]=sigmaX;
   sigma[1]=sigmaY;
   BasErs_field *myfield = new BasErs_field(sigma);
 
-  // LineDensity at the Lab frame
-  double const LineDensity = PartPersigmaZ*e_charge/sigmaZ;
-  double const Norm_field = LineDensity/(M_TWOPI*epsilon_0);
-
-  std::cout << " NormField = " << Norm_field << std::endl;
-
   for (int ipart = 0; ipart < mbs.local_num; ipart++){
     // Get the field at the particle (x,y) location 
     std::vector<double> Efield(3);
     
-    double LengthScale = mbs.units(0);
-    double xMeters = mbs.local_particles(0,ipart)/LengthScale;
-    double yMeters = mbs.local_particles(2,ipart)/LengthScale;
-
-    Efield = myfield->NormalizedEField(xMeters, yMeters);
+    Efield = myfield->NormalizedEField(mbs.local_particles(0,ipart), mbs.local_particles(2,ipart));
     
     //std::cout << " Ex = " << Efield[0] << " Ey = "<< Efield[1] << " Ez = " << Efield[2] << std::endl; 
 
     // Now x and y kick
     for (int n_axis = 0; n_axis < 2; n_axis++){
+      double gamma = -1 * mbs.ref_particle(5);
+      double beta = sqrt(gamma * gamma - 1.0) / gamma;
+      const  double c = PH_MKS_c;
+      const  double pi = M_PI;
+      
+      double mass = mbs.mass * 1.0e9;
+      double eps0 = PH_MKS_eps0; 
+      double Brho = gamma * beta * mass / c;
+      double perveance0 = mbs.total_current / (2 * pi * eps0 * Brho * gamma * gamma* \
+					       beta * c * beta * c);
+      double LengthScale = mbs.units(2*n_axis);
+    
+      double factor = pi * perveance0 * gamma * beta * beta / LengthScale * 4.0 * pi;
+         // (We think) this is for the Lorentz transformation of the transverse
+        // E field.
+      factor *= gamma;
+ 
       int index = 2 * n_axis + 1; // for n_axis = (0,1,2) Cartesian coordinate x,y,z,
       // in particle store indexing, px,py,pz = (1,3,5)
+      double kick = Efield[n_axis]*tau * factor ; // the "Rob kick with the 2D geometric field contribution
     
-      // Now we need the Efield back in the accelerator frame, E->E*gamma.
-      // Since we calculated line density at the accelerator (Lab) frame, 
-      // we can drop the *gamma.  We might need normalization for 
-      // perv(2*scale)
-      // Here is the explanation:
-      // Leo normalizes E with  l/(2 pi epsilon_o), where l is the charge density C/m in the 
-      // rest frame, and Rob normalizes the scalar potential with ll/(4 pi epsilon_o), 
-      // where ll is charge density at the lab frame.
-
-
-      double kick = Efield[n_axis]*Norm_field*tau; // *gamma
+      //if (ipart < 5) {
+      //std::cout << " our kick " << kick << "the 3d kick " << kick2 << " ID " << mbs.local_particles(6,ipart) << std::endl;}
 
       // update the data structure
       mbs.local_particles(index, ipart) += kick;
