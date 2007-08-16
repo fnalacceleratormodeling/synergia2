@@ -63,11 +63,11 @@ def get_alpha_beta(my_gourmet):
     return (alpha_x, alpha_y, beta_x, beta_y)
 
 envelope_match_cache  = function_cache.Function_cache("envelope_match.cache")
-def envelope_match(emit,current,g,use_cache=1):
+def envelope_match(emitx,emity,current,g,use_cache=1):
     if use_cache:
-        if envelope_match_cache.in_cache(emit,current,g.get_mad_file(),
+        if envelope_match_cache.in_cache(emitx,emity,current,g.get_mad_file(),
                                          g.get_line_name(),g.get_initial_kinetic_energy()):
-            return envelope_match_cache.get(emit,current,g.get_mad_file(),
+            return envelope_match_cache.get(emitx,emity,current,g.get_mad_file(),
                                             g.get_line_name(),g.get_initial_kinetic_energy())
     (alpha_x, alpha_y, beta_x, beta_y) = get_alpha_beta(g)
     (s,kx,ky) = g.get_strengths()
@@ -82,10 +82,11 @@ def envelope_match(emit,current,g,use_cache=1):
     o.set_value("s_array",s)
     o.set_value("Kx_array",kx)
     o.set_value("Ky_array",ky)
-    o.set_value("emit",emit)
+    o.set_value("emitx",emitx)
+    o.set_value("emity",emity)
     o.set_value("current",current)
     o.set_value("kinetic_energy",g.get_initial_kinetic_energy())
-    o.execute('[sigma_x,sigma_xprime,r_x,sigma_y,sigma_yprime,r_y] = envelope_match(m,alphax,alphay,betax,betay,s_array,Kx_array,Ky_array, kinetic_energy, current, emit, emit, 4, 1.0e-13,0)' )
+    o.execute('[sigma_x,sigma_xprime,r_x,sigma_y,sigma_yprime,r_y] = envelope_match(m,alphax,alphay,betax,betay,s_array,Kx_array,Ky_array, kinetic_energy, current, emitx, emity, 4, 1.0e-13,0)' )
     sigma_x = o.get_value("sigma_x")
     sigma_xprime = o.get_value("sigma_xprime")
     r_x = o.get_value("r_x")
@@ -94,6 +95,6 @@ def envelope_match(emit,current,g,use_cache=1):
     r_y = o.get_value("r_y")
     retval = [sigma_x,sigma_xprime,r_x,sigma_y,sigma_yprime,r_y]
     if retval.count(None) == 0:
-        envelope_match_cache.add(retval,emit,current,g.get_mad_file(),
+        envelope_match_cache.add(retval,emitx,emity,current,g.get_mad_file(),
                                  g.get_line_name(),g.get_initial_kinetic_energy())
     return retval
