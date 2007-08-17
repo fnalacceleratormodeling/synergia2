@@ -22,11 +22,14 @@ import math
 import sys
 import memory
 
+import job_manager
+
 import UberPkgpy #SpaceChargePkgpy
 
 import syn2_diagnostics
 
 import fish_fftw as fish
+import fish_gauss as fish2
 import macro_bunch
 
 import error_eater
@@ -66,14 +69,14 @@ if ( __name__ == '__main__'):
 
 
     myopts = options.Options("ertml")
-    myopts.add("current",1.6e-4,"current",float)
+    myopts.add("current",40.,"current",float)
     # transverse = 1 for longitudinally uniform beam
     myopts.add("transverse",0,"longitudinally uniform beam",int)
     myopts.add("maporder",2,"map order",int)
     myopts.add("open_all",1,"open transverse boundary conditions", int)
     myopts.add("sigmaz_m",9.E-03,"sigma z in meters",float)
     myopts.add("dpop",1.50e-3,"(delta p)/p",float)
-    myopts.add("showplot",1,"show plot",int)
+    myopts.add("showplot",0,"show plot",int)
     myopts.add("kicksperline",1000,"kicks per line",int)
     myopts.add("xinit",0.0,"x initial",float)
     myopts.add("xpinit",0.0,"x prime initial",float)
@@ -83,17 +86,22 @@ if ( __name__ == '__main__'):
     myopts.add("scgrid",[17,17,17],"Space charge grid",int)
     myopts.add("part_per_cell",1,"particlels per cell",int)
     
+    myopts.add_suboptions(job_manager.opts)
     myopts.parse_argv(sys.argv)
+
+    job_mgr = job_manager.Job_manager(sys.argv,myopts,
+                                      ["ertml.lat",
+                                       "envelope_match.cache"])
+    
     f = open("command","w")
     for arg in sys.argv:
         f.write("%s "%arg)
     f.write("\n")
     f.close()
 
-### start save
     scaling_frequency = 1.30e9
-### end save
-    pipe_radius = 0.04
+
+    pipe_radius = 0.01
     griddim = myopts.get("scgrid")
     part_per_cell = myopts.get("part_per_cell")
     num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
@@ -118,14 +126,26 @@ if ( __name__ == '__main__'):
     Ey = 20E-9 * EMASS/5
     rtbetax=1.6479
     rtbetay=8.8630
-    [sigma_x,sigma_xprime,r_x]=matching.match_twiss_emittance(Ex,0.4982,rtbetax)   
-    [sigma_y,sigma_yprime,r_y]=matching.match_twiss_emittance(Ey,-2.3771,rtbetay)   
+    alphax =  0.4982
+    alphay = -2.3771
+    [sigma_x,sigma_xprime,r_x]=matching.match_twiss_emittance(Ex,alphax,rtbetax)   
+    [sigma_y,sigma_yprime,r_y]=matching.match_twiss_emittance(Ey,alphay,rtbetay)
+    print " twiss matching ", sigma_x, sigma_y, sigma_xprime, sigma_yprime, r_x, r_y
 
-# should first do twiss matching as asked
-##    [sigma_x,sigma_xprime,r_x,\
-##     sigma_y,sigma_yprime,r_y] = matching.envelope_match(
-##        myopts.get("emittance"),myopts.get("current"),g)
+    g_egetaway = gourmet.Gourmet("ertml.lat","EGETAWAY",5.0,
+                        scaling_frequency,myopts.get("maporder"),particle='positron')
+    [ax,ay,bx,by] = matching.get_alpha_beta(g_egetaway)
+    print " alphax alphay betax betay ",ax,ay,bx,by
+    print " sx sxp sy syp ", matching.match_twiss_emittance(Ex,ax,bx), matching.match_twiss_emittance(Ey,ay,by)
+    print " Fix SC matching line "
+    # should first do twiss matching as asked
+#    [sigma_xSC,sigma_xprimeSC,r_xSC,\
+#     sigma_ySC,sigma_yprimeSC,r_ySC] = matching.envelope_match(
+#        Ex,Ey,myopts.get("current"),g_egetaway)
+#    print " SC matching ", sigma_xSC, sigma_ySC, sigma_xprimeSC, sigma_yprimeSC, r_xSC, r_ySC
 
+
+    ##sys.exit(0)
 
 # Is it enough to set the positron mass here?
     bp = beam_parameters.Beam_parameters(physics_constants.PH_NORM_me,
@@ -197,7 +217,7 @@ if ( __name__ == '__main__'):
 # Now initialize new bunch
 #
 
-    b = macro_bunch.Macro_bunch()
+    b = macro_bunch.Macro_bunch(physics_constants.PH_NORM_me,1)
     b.init_from_bunch(old_bunch)
     # and diagnostics
     d = syn2_diagnostics.Diagnostics(units)
@@ -207,7 +227,8 @@ if ( __name__ == '__main__'):
     for kick in range(0,myopts.get("kicksperline")):
         if MPI.rank == 0 and myopts.get("showplot"):
             if(int(b.particles()[6,0]) == 1):
-                xpl.append(b.particles()[0,0]/
+                # change the rest
+                xpl.append(b.get_particles()[0,0]/
                            (rtbetax*units[0]))
                 xppl.append(b.particles()[1,0]*
                             rtbetax/units[1])
@@ -256,10 +277,11 @@ if ( __name__ == '__main__'):
 ##                    tau, 0, scaling_frequency, 0)
 ##        sys.stdout.flush()
         
-# wtf??
+# wtf??2e10
         size = (1,1,1)
         offset = (0,0,0)
-        fish.apply_space_charge_kick(griddim,size,offset, b, 2*tau)        
+        fish.apply_space_charge_kick(griddim,size,offset, b, 2*tau)
+        ##fish2.apply_BasErs_space_charge_kick(b, 2*tau)
 
         g.get_fast_mapping(kick*2+1).apply(b.get_local_particles(), b.get_num_particles_local())
         s += line_length/myopts.get("kicksperline")
@@ -272,7 +294,7 @@ if ( __name__ == '__main__'):
 #            b.write_particles(particle_output_str)
             
     print "elapsed time =",time.time() - t0
-    d.write("ertml")
+    d.write_hdf5("ertml_fish")
     
 ##    pylab.subplot(3,2,1)
 ##    pylab.plot(xpl,xppl,'r,')
