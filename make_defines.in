@@ -1,6 +1,5 @@
 # -*- Makefile -*-
 
-ROOT_INSTALL_DIR = _subst_ROOT_INSTALL_DIR_subst_
 CHEF_INSTALL_DIR = _subst_CHEF_INSTALL_DIR_subst_
 
 PYTHON_INCLUDES = -I_subst_PYTHON_INSTALL_DIR_subst_/include/python2.4 
