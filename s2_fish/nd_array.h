@@ -644,7 +644,7 @@ std::vector<T>
 read_line_vector(std::vector<T>& v, std::ifstream& stream)
 {
     const int buffer_length(1000);
-    char buffer[buffer_length];
+    char buffer[1000];
     stream.getline(buffer, buffer_length);
     std::stringstream sstream(buffer);
     while (! sstream.eof()) {
