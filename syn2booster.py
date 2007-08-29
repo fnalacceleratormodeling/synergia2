@@ -211,7 +211,8 @@ def get_beam_parameters_orig(line, opts):
                                          opts.get("transverse"))
     [sigma_x,sigma_xprime,r_x,\
      sigma_y,sigma_yprime,r_y] = matching.envelope_match(
-        opts.get("emittance"),opts.get("current"),line.g)
+        opts.get("emittance"),opts.get("emittance"),
+        opts.get("current"),line.g)
     
     pz = bp.get_gamma() * bp.get_beta() * bp.mass_GeV
     mismatchx = 1.0 + opts.get("mismatchfracx")
