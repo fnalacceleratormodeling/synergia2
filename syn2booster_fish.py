@@ -231,7 +231,8 @@ def get_beam_parameters_orig(line, opts):
                                          opts.get("transverse"))
     [sigma_x,sigma_xprime,r_x,\
      sigma_y,sigma_yprime,r_y] = matching.envelope_match(
-        opts.get("emittance"),opts.get("current"),line.g)
+        opts.get("emittance"),opts.get("emittance"),
+        opts.get("current"),line.g)
     
     pz = bp.get_gamma() * bp.get_beta() * bp.mass_GeV
     mismatchx = 1.0 + opts.get("mismatchfracx")
@@ -387,7 +388,7 @@ if ( __name__ == '__main__'):
     if MPI.rank == 0 and myopts.get("showplot"):
         pylab.ion()
     if myopts.get("track"):
-        mytracker = tracker.Tracker('/scratch',myopts.get("trackfraction"))
+        mytracker = tracker.Tracker('/tmp',myopts.get("trackfraction"))
     time_file = open("timing.dat","w")
     t1 = time.time()
     for turn in range(1,last_inj_turn+1):
