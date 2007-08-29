@@ -364,7 +364,7 @@ if ( __name__ == '__main__'):
     if MPI.rank == 0 and myopts.get("showplot"):
         pylab.ion()
     if myopts.get("track"):
-        mytracker = tracker.Tracker('/scratch',myopts.get("trackfraction"))
+        mytracker = tracker.Tracker('/tmp',myopts.get("trackfraction"))
     time_file = open("timing.dat","w")
     t1 = time.time()
     for turn in range(1,last_inj_turn+1):
