@@ -73,10 +73,10 @@ class Tracker:
         last_flag = -999
         if MPI.rank == 0:
             t0 = time.time()
-            for i in range(0,bunch.num_particles_local()):
-                id = int(bunch.particles()[6,i])
+            for i in range(0,bunch.get_num_particles_local()):
+                id = int(bunch.get_local_particles()[6,i])
                 if (self.numer*id % self.denom) < self.numer:
-                    self._write_track(bunch.particles()[:,i],s)            
+                    self._write_track(bunch.get_local_particles()[:,i],s)            
             for proc in xrange(1,MPI.size):
                 parts = MPI.WORLD.Recv(source=proc)
                 for i in range(0,parts.shape[1]):
@@ -85,12 +85,12 @@ class Tracker:
         else:
             save_ids = []
             for i in range(0,bunch.num_particles_local()):
-                id = int(bunch.particles()[6,i])
+                id = int(bunch.get_local_particles()[6,i])
                 if (self.numer*id % self.denom) < self.numer:
                     save_ids.append(i)
             save_parts = Numeric.zeros((7,len(save_ids)),'d')
             for i in range(0,len(save_ids)):
-                save_parts[:,i] = bunch.particles()[:,save_ids[i]]
+                save_parts[:,i] = bunch.get_local_particles()[:,save_ids[i]]
             MPI.WORLD.Send(save_parts,dest=0)
 
     def close(self):

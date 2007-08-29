@@ -63,9 +63,15 @@ class Bunch:
         return self.beambunch.Npt
     def num_particles_local(self):
         return self.beambunch.Nptlocal
+    ### duplicate function for compatibility with macro_bunch. Fixme.
+    def get_num_particles_local(self):
+        return self.beambunch.Nptlocal
     def reference_particle(self):
         return self.beambunch.refptcl
     def particles(self):
+        return self.beambunch.Pts1
+    ### duplicate function for compatibility with macro_bunch. Fixme.
+    def get_local_particles(self):
         return self.beambunch.Pts1
     def get_beambunch(self):
         return self.beambunch
