@@ -84,7 +84,7 @@ class Tracker:
             self.add_times.append(time.time() - t0)
         else:
             save_ids = []
-            for i in range(0,bunch.num_particles_local()):
+            for i in range(0,bunch.get_num_particles_local()):
                 id = int(bunch.get_local_particles()[6,i])
                 if (self.numer*id % self.denom) < self.numer:
                     save_ids.append(i)
