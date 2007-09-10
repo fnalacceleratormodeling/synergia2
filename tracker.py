@@ -102,11 +102,17 @@ class Tracker:
             shutil.rmtree(self.base_dir)
         self.open = 0
 
-    def show_statistics(self):
+    def show_statistics(self,filename=None):
         if MPI.rank == 0:
-            print "add times =",self.add_times
-            print "copy time =",self.copy_time
-        
+            if filename == None:
+                print "add times =",self.add_times
+                print "copy time =",self.copy_time
+            else:
+                f = open(filename,'a')
+                f.write('add times = %s\n' % string(self.add_times))
+                f.write('copy times = %s\n' % string(self.copy_times))
+                f.close()
+
 
 def index2filename(index,dirname,suffix):
     i1 = index % 100
