@@ -6,9 +6,9 @@ PETSC_DIR = /home2/amundson/src/petsc-dev
 PETSC_INCLUDES = -I$(PETSC_DIR) -I$(PETSC_DIR)/bmake/linux-gnu-cxx-debug -I$(PETSC_DIR)/include -I/usr/X11R6/include -I$(PETSC_DIR)/externalpackages/fftw-3.1.2/linux-gnu-cxx-debug/include -I$(PETSC_DIR)/include/mpiuni
 PETSC_LIBS = -L$(PETSC_DIR)/lib/linux-gnu-cxx-debug -lpetscsnes -lpetscdm -lpetscksp -lpetscmat -lpetscvec -lpetsc
 
-FFTW2LIBS = -lrfftw_mpi -lfftw_mpi -lrfftw -lfftw 
+FFTW2LIBS = $(FFTW_LDFLAGS) -lrfftw_mpi -lfftw_mpi -lrfftw -lfftw 
 
-FFTW3LIBS = -lfftw3_mpi -lfftw3
+FFTW3LIBS = $(FFTW_LDFLAGS) -lfftw3_mpi -lfftw3
 
 #FFTW3 = youbet
 

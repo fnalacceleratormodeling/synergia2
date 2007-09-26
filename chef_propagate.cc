@@ -79,9 +79,9 @@ chef_propagate(numeric::array& numeric_particles, int num_particles,
 	u_in(impact_index);
     }
     Proton proton(energy_in);
-    proton.setState(chef_state);
+    proton.State() = chef_state;
     element.propagate(proton);
-    chef_state = proton.getState();
+    chef_state = proton.State();
     for (int impact_index=0; impact_index<6; ++impact_index) {
       int chef_index = convert_chef_index(impact_index);
       particles(impact_index,part) = chef_state[chef_index]*
