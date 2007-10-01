@@ -2,11 +2,11 @@
 
 import local_paths
 
+from bmlfactory import *
 from basic_toolkit import *
 from mxyzptlk import *
 from beamline import *
 from physics_toolkit import *
-from bmlfactory import *
 from physics_constants import *
 import mappers
 
@@ -14,6 +14,7 @@ import math
 import sys
 import Numeric
 import string
+import os.path
 
 class Action:
     def __init__(self,type,length,initial_energy,final_energy,data,
@@ -46,9 +47,9 @@ space_charge_marker = marker("space charge")
 pacifier = drift("pacifier",0.0)
 
 class Gourmet:
-    def __init__(self, mad_file, line_name, initial_kinetic_energy,
+    def __init__(self, lattice_file, line_name, initial_kinetic_energy,
                  scaling_frequency, order=1, particle='proton'):
-        self.mad_file = mad_file
+        self.lattice_file = lattice_file
         self.line_name = line_name
         self.scaling_frequency = scaling_frequency
         self.order = order
@@ -67,8 +68,12 @@ class Gourmet:
         self.final_energy = None
         self.initial_momentum = math.sqrt(self.initial_energy**2 -
                                           self.mass**2)
-
-        self.factory = MAD8Factory(mad_file)
+        if os.path.splitext(lattice_file)[1] == '.xsif':
+            print "gourmet: using xsif parser"
+            self.factory = XSIFFactory(lattice_file)
+        else:
+            print "gourmet: using MAD8 parser"
+            self.factory = MAD8Factory(lattice_file)
         brho = self.get_initial_particle().ReferenceBRho()
         beamline_orig = self.factory.create_beamline(line_name,brho)
         beamline_orig.flatten()
@@ -82,8 +87,8 @@ class Gourmet:
         if not self.context.isTreatedAsRing():
             self.context.handleAsRing()
 
-    def get_mad_file(self):
-        return self.mad_file
+    def get_lattice_file(self):
+        return self.lattice_file
 
     def get_line_name(self):
         return self.line_name
