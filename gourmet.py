@@ -200,6 +200,10 @@ class Gourmet:
             elements.append(marker("synergia action:space charge kick"))
             positions.append(insertion_point)
             insertion_point += kick_interval/2.0
+        # begin bug workaround
+        positions.append(insertion_point + 1000.0)
+        elements.append(marker("bug workaround"))
+        # end bug workaround
         end_marker = marker("synergia action:space charge endpoint")
         self.saved_elements.append(end_marker)
         self.beamline.append(end_marker)
