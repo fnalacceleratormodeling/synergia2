@@ -1,4 +1,4 @@
-all: s2_containers.so s2_deposit.so s2_electric_field.so s2_solver_fftw.so macro_bunch_store.so s2_diagnostics.so GaussSC.so
+all: s2_containers.so s2_deposit.so s2_electric_field.so s2_solver_fftw.so macro_bunch_store.so s2_diagnostics.so GaussSC.so gsl_rand.so
 
 include ../make_defines
 PETSC_DIR = /home2/amundson/src/petsc-dev
@@ -17,6 +17,9 @@ ifdef FFTW3
 else
   FFTWLIBS = $(FFTW2LIBS)
 endif
+
+GSL_INCLUDES = `gsl-config --cflags`
+GSL_LIBS = `gsl-config --libs`
 
 CXXFLAGS = -O3
 CXX = mpicxx
@@ -86,6 +89,12 @@ GaussSC.o : GaussSC.cc
 
 GaussSC.so: GaussSC.o BasErs_field.o ltwt_containers.o mytimer.o
 	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) -L$(CHEF_INSTALL_DIR)/lib -lbasic_toolkit
+
+gsl_rand.o: gsl_rand.cc
+	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(GSL_INCLUDES) $<
+
+gsl_rand.so: gsl_rand.o
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(GSL_LIBS)
 
 dumbass: dumbass.o
 	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
