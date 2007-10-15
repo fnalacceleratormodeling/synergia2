@@ -35,6 +35,8 @@ import macro_bunch
 import error_eater
 import options
 
+import tracker
+
 from mpi4py import MPI
 
 def adjust_particles(base,procs):
@@ -85,6 +87,8 @@ if ( __name__ == '__main__'):
     myopts.add("dpinit",0.0,"dp initial",float)
     myopts.add("scgrid",[17,17,17],"Space charge grid",int)
     myopts.add("part_per_cell",1,"particlels per cell",int)
+    myopts.add("track",0,"whether to track particles",int)
+    myopts.add("trackfraction",[2,7],"fraction of particles to track (numer,denom)",int)
     
     myopts.add_suboptions(job_manager.opts)
     myopts.parse_argv(sys.argv)
@@ -189,6 +193,8 @@ if ( __name__ == '__main__'):
     tau = 0.5*line_length/myopts.get("kicksperline")
     s = 0.0
     ###b.write_fort(s)
+    if myopts.get("track"):
+        mytracker = tracker.Tracker('/tmp',myopts.get("trackfraction"))
 
 
     line_x = None
@@ -259,11 +265,27 @@ if ( __name__ == '__main__'):
                 sys.exit(0)
 
         steps += 1
+        if myopts.get("track"):
+            if MPI.rank == 0:
+                f = open("live_output","a")
+                f.write("starting track at s=%g\n" % s)
+                f.close()
+            mytracker.add(b,s)
+            mytracker.show_statistics("live_output")
+            if MPI.rank == 0:
+                f = open("live_output","a")
+                f.write("completed track at s=%g\n" % s)
+                f.close()
+
 ###                if MPI.rank == 0:
 ###                    print "turn %d, cell %d, kick %d" %\
 ###                          (turn,cell,kick)
 
         g.get_fast_mapping(kick*2).apply(b.get_local_particles(), b.get_num_particles_local())
+        if MPI.rank == 0:
+            f = open("live_output","a")
+            f.write("finished map at s=%g\n" % s)
+            f.close()
 
         #        sys.stdout.flush()
         ##UberPkgpy.Apply_SpaceCharge_external(\
@@ -280,8 +302,14 @@ if ( __name__ == '__main__'):
 # wtf??2e10
         size = (1,1,1)
         offset = (0,0,0)
+        if MPI.rank == 0:
+            f = open("live_output","a")
+            f.write("starting kick at s=%g\n" % s)
         fish.apply_space_charge_kick(griddim,size,offset, b, 2*tau)
-        ##fish2.apply_BasErs_space_charge_kick(b, 2*tau)
+        if MPI.rank == 0:
+            f = open("live_output","a")
+            f.write("finished kick at s=%g\n" % s)
+         ##fish2.apply_BasErs_space_charge_kick(b, 2*tau)
 
         g.get_fast_mapping(kick*2+1).apply(b.get_local_particles(), b.get_num_particles_local())
         s += line_length/myopts.get("kicksperline")
@@ -295,7 +323,11 @@ if ( __name__ == '__main__'):
             
     print "elapsed time =",time.time() - t0
     d.write_hdf5("ertml_fish")
-    
+
+    if myopts.get("track"):
+        mytracker.close()
+        mytracker.show_statistics()
+        
 ##    pylab.subplot(3,2,1)
 ##    pylab.plot(xpl,xppl,'r,')
 ##    pylab.title('x vs xp')
