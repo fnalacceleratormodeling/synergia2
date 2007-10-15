@@ -1,0 +1,164 @@
+!========1=========2=========3=========4=========5=========6=========7=========8
+!
+! ILC RTML e- escalator line -- EESCALATOR.xsif
+!
+! Lattice file for the electron escalator, which brings the beam down from the
+! damping ring elevation to the elevation of the main linac tunnel's ceiling.
+!
+! This lattice requires the following files to run properly:
+!
+!    RTML_common.xsif
+!
+! plus one of
+!
+!    RTML_sigz_nominal.xsif
+!    RTML_sizg300A.xsif
+!    RTML_sigzLowN.xsif
+!    RTML_sigz150A.xsif
+!
+! Auth:  PT, 02-Jan-2007.
+! Mod:  
+!
+! ------------------------------------------------------------------------------
+
+! Initial parameters at entry to the return line:
+
+!  TWISS_EESCAL : BETA0, BETX = 4.7964, ALFX = -2.3888, &
+!                        BETY = 0.9485, ALFY =  0.5712
+
+!  BEAM_EESCAL  :  BEAM, ENERGY = 5, NPART = BunchCharge, &
+!                  SIGE = 1.5E-3, SIGT = 9.E-03, &
+!                  EX = 8E-6 * EMASS/5, EY = 20E-9 * EMASS/5
+
+! ==============================================================================
+! Quads
+! ------------------------------------------------------------------------------
+
+! Quadrupoles in the arcs:
+
+  QFEARC : QUAD, L = 0.1, APER = 0.01, K1 =  0.49395436677548E+01
+  QDEARC : QUAD, L = 0.1, APER = 0.01, K1 = -0.49392472356947E+01
+
+! Quads for 45/45 FODO cell with 39.675 meter cell drifts
+
+  QFESTR : QUAD, L = 0.1, APER = 0.01, K1 =  9.613164E-02    
+  QDESTR : QUAD, L = 0.1, APER = 0.01, K1 = -9.613164E-02    
+
+! matching quads between the arcs and the longcells
+
+  QF1ASM  : QUAD, L = 0.1, APER = 0.01, K1 =  9.495159E-01    
+  QD1ASM  : QUAD, L = 0.1, APER = 0.01, K1 = -1.132184E+00    
+  QF2ASM  : QUAD, L = 0.1, APER = 0.01, K1 =  6.382628E-01    
+  QD2ASM  : QUAD, L = 0.1, APER = 0.01, K1 = -1.041486E-01    
+
+  QF1SAM  : QUAD, L = 0.1, APER = 0.01, K1 =  1.041486E-01    
+  QD1SAM  : QUAD, L = 0.1, APER = 0.01, K1 = -6.382628E-01    
+  QF2SAM  : QUAD, L = 0.1, APER = 0.01, K1 =  1.132184E+00    
+  QD2SAM  : QUAD, L = 0.1, APER = 0.01, K1 = -9.495159E-01    
+
+! ==============================================================================
+! Drifts
+! ------------------------------------------------------------------------------
+
+  DESC     : DRIFT, L = 0.45 
+  DESC2 : DRIFT, L = 1.30
+  DESCLONG : DRIFT, L = 39.675
+
+  D1ASM : DRIFT, L = 3
+  D2ASM : DRIFT, L = 0.47635417662622E+01
+  D3ASM : DRIFT, L = 0.43244043819188E+01
+  D4ASM : DRIFT, L = 0.75745916551760E+01
+  D5ASM : DRIFT, L = 3
+
+! ==============================================================================
+! Sector bends
+! ------------------------------------------------------------------------------
+
+ ! ESCANGL1 := 0.00275
+ ! ESCANGL2 := 0.00275
+  ESCANGL1 := 0.00169696
+  ESCANGL2 := 0.00169696
+
+  BESC1 : SBEND, L = 0.4, ANGLE =  ESCANGL1, TILT
+  BESC2 : SBEND, L = 0.4, ANGLE =  ESCANGL2, TILT
+  BESC3 : SBEND, L = 0.4, ANGLE = -ESCANGL1, TILT
+  BESC4 : SBEND, L = 0.4, ANGLE = -ESCANGL2, TILT
+
+! ==============================================================================
+! Markers
+! ------------------------------------------------------------------------------
+
+  BEGINEESCALATOR : MARKER
+  ENDEESCALATOR   : MARKER
+
+! ==============================================================================
+! BEAMLINE
+! ------------------------------------------------------------------------------
+
+! just the one beamline:
+
+  EESCALATOR : LINE = (BEGINEESCALATOR, &
+!
+! initial arc:
+!
+     2*QFEARC, BPMQ079, XCOR, YCOR, DESC, BESC1, DESC, &
+     2*QDEARC, BPMQ079,       YCOR, DESC, BESC1, DESC, &
+     2*QFEARC, BPMQ079, XCOR, YCOR, DESC, BESC2, DESC, &
+     2*QDEARC, BPMQ079,       YCOR, DESC, BESC2, DESC, &
+     2*QFEARC, BPMQ079, XCOR, YCOR, DESC, BESC2, DESC, &
+     2*QDEARC, BPMQ079,       YCOR, DESC, BESC2, DESC, &
+     2*QFEARC, BPMQ079, XCOR, YCOR, DESC, BESC1, DESC, &
+     2*QDEARC, BPMQ079,       YCOR, DESC, BESC1, DESC, &
+!
+! match to the long cell
+!
+     D1ASM, 2*QF1ASM, BPMQ079, XCOR, YCOR, D2ASM, &
+            2*QD1ASM, BPMQ079,       YCOR, D3ASM, &
+            2*QF2ASM, BPMQ079, XCOR, YCOR, D4ASM, &
+            2*QD2ASM, BPMQ079,       YCOR, D5ASM, &
+!
+! 7 long cells minus the final drift
+!
+    2*QFESTR, BPMQ079, XCOR, YCOR, DESCLONG, &
+    2*QDESTR, BPMQ079,       YCOR, DESCLONG, &
+    2*QFESTR, BPMQ079, XCOR, YCOR, DESCLONG, &
+    2*QDESTR, BPMQ079,       YCOR, DESCLONG, &
+    2*QFESTR, BPMQ079, XCOR, YCOR, DESCLONG, &
+    2*QDESTR, BPMQ079,       YCOR, DESCLONG, &
+    2*QFESTR, BPMQ079, XCOR, YCOR, DESCLONG, &
+    2*QDESTR, BPMQ079,       YCOR, DESCLONG, &
+    2*QFESTR, BPMQ079, XCOR, YCOR, DESCLONG, &
+    2*QDESTR, BPMQ079,       YCOR, DESCLONG, &
+    2*QFESTR, BPMQ079, XCOR, YCOR, DESCLONG, &
+    2*QDESTR, BPMQ079,       YCOR, DESCLONG, &
+    2*QFESTR, BPMQ079, XCOR, YCOR, DESCLONG, &
+    2*QDESTR, BPMQ079,       YCOR,           &
+!
+! match to the arc
+!
+    D5ASM, 2*QF1SAM, BPMQ079, XCOR, YCOR, D4ASM, &
+           2*QD1SAM, BPMQ079,       YCOR, D3ASM, &
+           2*QF2SAM, BPMQ079, XCOR, YCOR, D2ASM, &
+           2*QD2SAM, BPMQ079,       YCOR, D1ASM, &
+    DESC2, &
+!
+! second arc
+!
+     2*QFEARC, BPMQ079, XCOR, YCOR, DESC, BESC3, DESC, &
+     2*QDEARC, BPMQ079,       YCOR, DESC, BESC3, DESC, &
+     2*QFEARC, BPMQ079, XCOR, YCOR, DESC, BESC4, DESC, &
+     2*QDEARC, BPMQ079,       YCOR, DESC, BESC4, DESC, &
+     2*QFEARC, BPMQ079, XCOR, YCOR, DESC, BESC4, DESC, &
+     2*QDEARC, BPMQ079,       YCOR, DESC, BESC4, DESC, &
+     2*QFEARC, BPMQ079, XCOR, YCOR, DESC, BESC3, DESC, &
+     2*QDEARC, BPMQ079,       YCOR, DESC, BESC3, DESC, &
+!
+! and that's it
+!
+  ENDEESCALATOR                                          )
+!
+!
+!
+RETURN
+
+

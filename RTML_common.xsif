@@ -1,0 +1,100 @@
+! ==============================================================================
+! 30-jan-2007, PT:
+!    add ILCCAV_LEFF to convert gradients to voltages.
+! 12-dec-2006, PT:
+!    new cryomodule dimensions for 9 cavity and 8 cavity with quad per T.
+!    Peterson.
+! 08-dec-2006, PT:
+!    new cryomodule dimensions per M. Woodley.  Redefine CMQ so that it can
+!    either include or omit an x corrector.
+! 30-JAN-2006, M. Woodley [SLAC]
+!    Common parameters and definitions for ILC RTML system
+! ------------------------------------------------------------------------------
+
+! global parameters
+
+  Cb   := 1.0E+10/CLIGHT  !energy-to-rigidity (kG-m/GeV)
+  ae   := 1.1596521859E-3 !electron anomalous magnetic moment ((g-2)/2)
+  E0   := 5.0             !entry momentum in GeV/c
+
+! derived parameters
+
+  Aspin   := (PI/2)/ae/(E0/EMASS) !spin rotator arc angle
+  ARRRGH := E0 * CB               !magnetic rigidity in kG.m
+
+! magnet parameters
+
+  LB30 := 0.8     !4D30.5 dipole effective length (m)
+  GB30 := 0.0254  !4D30.5 dipole gap (m)
+  LB15 := 0.4     !4D14.7 dipole effective length (m)
+  GB15 := 0.0254  !4D14.7 dipole gap (m)
+
+  LQ7 := 0.20 !0.79Q7.5 quadrupole effective length (m)
+  rQ7 := 0.01 !0.79Q7.5 quadrupole pole-tip radius (m)
+  LQ5 := 0.15 !0.79Q5.5 quadrupole effective length (m)
+  rQ5 := 0.01 !0.79Q5.5 quadrupole pole-tip radius (m)
+  LQ3 := 0.10 !0.79Q3.5 quadrupole effective length (m)
+  rQ3 := 0.01 !0.79Q3.5 quadrupole pole-tip radius (m)
+
+  LS3 := 0.10 !0.79S3.5 sextupole effective length (m)
+  rS3 := 0.01 !0.79S3.5 sextupole pole-tip radius (m)
+
+! Tuning quad
+
+  LZCQBC := 0.1  ! only need 10 cm length here, I think
+  ACQBC  := 0.05 ! large bore to accomodate dispersion * sigE 
+
+  QBCTUNE : QUAD, L = LZCQBC/2, APERTURE = ACQBC/2
+
+! We need a drift equal to the tuning quad length as well
+
+  DBC_CQ : DRIFT, L = QBCTUNE[L]
+
+! diagnostic/correction element definitions
+
+  LFBC   := 0.2 !length of feedback corrector (m)
+  LFBK   := 0.3 !length of feedback kicker (m)
+  Lspace := 0.1 !minimum device-to-device space (m)
+  DZ     :=1E-12 ! prevent 0/0 in wigglers
+
+! 30 cm drift for space between elements
+
+  DR30CM : DRIFT, L = 0.3
+
+  BPMQ079  : MONI,  TYPE="BPMQ_0.79"     !"Q" bpm (2 cm bore)
+  BPMMB079 : MONI,  TYPE="BPMMB_0.79"    !"MB" bpm (2 cm bore)
+  BPMDL    : MONI,  TYPE="BPM_DUMPLINE"  !dumpline BPM, large bore
+  BPMETA   : MONI                        !freestanding energy jitter BPM in BCs
+  WS       : WIRE,  TYPE="LASER_WIRE"    !wire scanner
+  FBCX     : HKICK, TYPE="FB_HCOR"       !feedback corrector (H)
+  FBCY     : VKICK, TYPE="FB_VCOR"       !feedback corrector (V)
+  FBKX     : INST,  TYPE="FB_HKICK"      !subtrain feedback kicker (H)
+  FBKY     : INST,  TYPE="FB_VKICK"      !subtrain feedback kicker (V)
+  MMOVER   : MARK,  TYPE="MAGNET_MOVER"  !x/y/roll magnet mover
+  PHASMON  : INST,  TYPE="PHASE_MONITOR" !time-of-arrival beam phase monitor
+  STREAK   : INST,  TYPE="STREAK_PORT"   !bunch length monitor
+  XCOR     : HKICK                       !for now zero length...
+  YCOR     : VKICK                       !for now zero length...
+  NOCOLL   : MARKER                      !stub for wiggler slots w/o colls
+
+  ILCCAV_LEFF := 1.038
+
+! Rastering dipoles for the dumps
+
+  XRASTER : HKICK
+  YRASTER : VKICK
+
+! Start and end markers
+
+  BEGINERTML : MARK
+  ENDERTML   : MARK
+
+! ==============================================================================
+! RF horn-type bunch length monitor
+! ------------------------------------------------------------------------------
+
+  BLMO_HORN : BLMO
+
+! ------------------------------------------------------------------------------
+
+  RETURN
