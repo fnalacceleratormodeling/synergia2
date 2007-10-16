@@ -92,6 +92,7 @@ if ( __name__ == '__main__'):
     myopts.add("part_per_cell",1,"particlels per cell",int)
     myopts.add("track",0,"whether to track particles",int)
     myopts.add("trackfraction",[2,7],"fraction of particles to track (numer,denom)",int)
+    myopts.add("xsif","ertml_filecalls.xsif",str)
     
     myopts.add_suboptions(job_manager.opts)
     myopts.parse_argv(sys.argv)
@@ -120,7 +121,7 @@ if ( __name__ == '__main__'):
 
 # Need to set positrons!
 
-    g = gourmet.Gourmet("ertml.lat","ERTML",5.0,
+    g = gourmet.Gourmet(myopts.get("xsif"),"ERTML",5.0,
                         scaling_frequency,myopts.get("maporder"),particle='positron')
     g.insert_space_charge_markers(myopts.get("kicksperline"))
     units = g.get_u(g.get_initial_energy())
@@ -137,9 +138,6 @@ if ( __name__ == '__main__'):
     [sigma_x,sigma_xprime,r_x]=matching.match_twiss_emittance(Ex,alphax,rtbetax)   
     [sigma_y,sigma_yprime,r_y]=matching.match_twiss_emittance(Ey,alphay,rtbetay)
     print " twiss matching ", sigma_x, sigma_y, sigma_xprime, sigma_yprime, r_x, r_y
-
-    g_egetaway = gourmet.Gourmet("ertml.xsif","EGETAWAY",5.0,
-                        scaling_frequency,myopts.get("maporder"),particle='positron')
 
 # Is it enough to set the positron mass here?
     bp = beam_parameters.Beam_parameters(physics_constants.PH_NORM_me,
