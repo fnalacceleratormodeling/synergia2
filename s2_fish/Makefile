@@ -21,7 +21,7 @@ endif
 GSL_INCLUDES = `gsl-config --cflags`
 GSL_LIBS = `gsl-config --libs`
 
-CXXFLAGS = -O3
+CXXFLAGS = -O3 -fPIC
 CXX = mpicxx
 
 %.o : %.cc

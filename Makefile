@@ -14,7 +14,7 @@ incadd = \
     $(BOOST_INCLUDES)\
     -I/usr/include/glib-2.0\
     -I/usr/lib/glib-2.0/include\
-    -I$(CHEF_INSTALL_DIR)/include
+    -I$(CHEF_INSTALL_DIR)/include -I/usr/lib64/glib-2.0/include
 
 latticefns:latticefns.cc
 	g++ -o latticefns $(incadd) latticefns.cc $(ldadd)
