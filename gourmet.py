@@ -9,6 +9,7 @@ from beamline import *
 from physics_toolkit import *
 from physics_constants import *
 import mappers
+import chef_propagate
 
 import math
 import sys
@@ -69,7 +70,7 @@ class Gourmet:
         self.initial_momentum = math.sqrt(self.initial_energy**2 -
                                           self.mass**2)
         if os.path.splitext(lattice_file)[1] == '.xsif':
-            print "gourmet: using xsif parser"
+            print "gourmet: using xsif parser for %s" % lattice_file
             self.factory = XSIFFactory(lattice_file)
         else:
             print "gourmet: using MAD8 parser"
@@ -82,6 +83,7 @@ class Gourmet:
         self.beamline = DriftsToSlots(beamline_orig)
         self.have_actions = 0
         self.have_fast_mappings = 0
+        self.have_element_fast_mappings = 0
         self.context = BeamlineContext(self.get_initial_particle(),
                                        self.beamline)
         if not self.context.isTreatedAsRing():
@@ -208,6 +210,37 @@ class Gourmet:
         self.saved_elements.append(end_marker)
         self.beamline.append(end_marker)
         self.insert_elements(elements,positions)
+
+    def insert_element_space_charge_markers(self, num_markers_per_element):
+        if num_markers_per_element != 1:
+            raise RuntimeError, \
+                "insert_element_space_charge_markers only currently supports one marker per element"
+        master_insertion_point = 0.0
+        ile_list = []
+        particle = self.get_initial_particle()
+        for element in self.beamline:
+                if (element.OrbitLength(particle) > 0) and \
+                    (element.Name() != 'QDRETURN2') and \
+                    (element.Name() != 'QDRETURN3'):
+                        print "splitting",element.Type()
+                        marker_interval = element.OrbitLength(particle)/ \
+                        (num_markers_per_element + 1.0)
+                        insertion_point = master_insertion_point
+                        for i in range(0,num_markers_per_element):
+                                insertion_point += marker_interval
+                                ile = space_charge_marker, insertion_point
+                                ile_list.append(ile)
+                else:
+                    print "not splitting",element.Name()
+                master_insertion_point += element.OrbitLength(particle)
+                element.propagateParticle(particle)
+        ile = accuracy_marker, master_insertion_point + 1000.0
+        ile_list.append(ile)
+        s_0 = 0.0
+        self.beamline.InsertElementsFromList(particle, s_0, ile_list)
+        self.beamline.append(accuracy_marker)
+        self._commission()
+
 
     def print_elements(self):
         i = 0
@@ -350,6 +383,26 @@ class Gourmet:
                 self.fast_mappings.append(action.get_data())
         self.have_fast_mappings = 1
 
+    def generate_element_fast_mappings(self):
+        jet_particle = self.get_initial_jet_particle()
+        particle = self.get_initial_particle()
+        energy = self.initial_energy
+        self.num_elements = 0
+        self.elements = []
+        self.element_fast_mappings = []
+        self.element_lengths = []
+        for element in self.beamline:
+            self.num_elements += 1
+            self.elements.append(element)
+            self.element_lengths.append(element.OrbitLength(particle))
+            element.propagateJetParticle(jet_particle)
+            mapping = mappers.Fast_mapping(self.get_u(energy),
+                                                   jet_particle.State())
+            self.element_fast_mappings.append(mapping)
+            energy = jet_particle.ReferenceEnergy()
+            jet_particle = self.get_jet_particle(energy)
+        self.have_element_fast_mappings = 1
+
     def delete_fast_mappings(self):
         self.fast_mappings = []
         self.have_fast_mappings = 0
@@ -358,7 +411,35 @@ class Gourmet:
         if not self.have_fast_mappings:
             self.generate_fast_mappings()
         return self.fast_mappings[index]
-    
+
+    def get_element_fast_mapping(self, index):
+        if not self.have_element_fast_mappings:
+            self.generate_element_fast_mappings()
+        return self.element_fast_mappings[index]
+        
+    def get_element_length(self, index):
+        if not self.have_element_fast_mappings:
+            self.generate_element_fast_mappings()
+        return self.element_lengths[index]
+
+    def propagate_element(self, index, bunch):
+        chef_propagate.chef_propagate(bunch.get_local_particles(),
+            bunch.get_num_particles_local(),
+            self.elements[index],
+            self.get_initial_energy(),
+            self.get_initial_u(),
+            self.get_initial_u())
+
+    def get_num_elements(self):
+        if not self.have_element_fast_mappings:
+            self.generate_element_fast_mappings()
+        return self.num_elements
+
+    def get_element(self,index):
+        if not self.have_element_fast_mappings:
+            self.generate_element_fast_mappings()
+        return self.elements[index]
+
     def get_single_linear_map(self):
         jet_particle = self.get_initial_jet_particle()
         self.beamline.propagateJetParticle(jet_particle)
