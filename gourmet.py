@@ -222,7 +222,7 @@ class Gourmet:
                 if (element.OrbitLength(particle) > 0) and \
                     (element.Name() != 'QDRETURN2') and \
                     (element.Name() != 'QDRETURN3'):
-                        print "splitting",element.Type()
+                        #~ print "splitting",element.Type()
                         marker_interval = element.OrbitLength(particle)/ \
                         (num_markers_per_element + 1.0)
                         insertion_point = master_insertion_point
@@ -231,7 +231,8 @@ class Gourmet:
                                 ile = space_charge_marker, insertion_point
                                 ile_list.append(ile)
                 else:
-                    print "not splitting",element.Name()
+                    #~ print "not splitting",element.Name()
+                    pass
                 master_insertion_point += element.OrbitLength(particle)
                 element.propagateParticle(particle)
         ile = accuracy_marker, master_insertion_point + 1000.0
@@ -244,9 +245,14 @@ class Gourmet:
 
     def print_elements(self):
         i = 0
+        s = 0
+        print "%5s %10s %5s %13s %s" % ("index", 's_begin', 'length', 'type','name')
         for element in self.beamline:
-            print i, element.Name(), element.Type()
+            print "%5d %10.3f %10.03f %10s %s" %(i,s,
+                element.OrbitLength(self.get_initial_particle()),
+                element.Type(), element.Name())
             i += 1
+            s += element.OrbitLength(self.get_initial_particle())
 
     def get_lattice_functions(self):
         lattice_function_array = Lattice_function_array()
