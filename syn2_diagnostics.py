@@ -166,6 +166,7 @@ class Diagnostics:
         filter = tables.Filters(complevel=compress_level)
         root = f.root
         hdfarray = f.createArray(root,'s',Numeric.array(self.s),"position")
+        hdfarray = f.createArray(root,'mean',Numeric.array(self.means),"centroid")
         hdfarray = f.createArray(root,'mom2',Numeric.array(self.mom2s),"second moments")
         hdfarray = f.createArray(root,'corr',Numeric.array(self.corrs),"correlation coefficients")
         hdfarray = f.createArray(root,'diagmom4',Numeric.array(self.diagmom4s),"fourth moments on diagonal")
