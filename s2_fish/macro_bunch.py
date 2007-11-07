@@ -10,6 +10,8 @@ import tables
 import time
 import math
 
+import loadfile
+
 class Macro_bunch:
     def __init__(self,mass,charge):
         self.complete = 0
@@ -196,3 +198,9 @@ class Macro_bunch:
             f.close()
         else:
             MPI.WORLD.Send(self.particles(),dest=0)
+
+    def read_particles(self,filename):
+        self.particles = loadfile.loadfile_transpose(filename)
+        self.local_num = self.particles.shape[1]
+        self.total_num = self.local_num
+        print "read",self.local_num,"particles"
