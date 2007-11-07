@@ -137,7 +137,7 @@ if ( __name__ == '__main__'):
     print "map_escalator:",LinearAlgebra.determinant(map_getaway[0:6,0:6]),\
         LinearAlgebra.determinant(LinearAlgebra.inverse(map_getaway[0:6,0:6]))
     print Numeric.array2string(map_escalator[0:6,0:6],precision=6,suppress_small=1)
-    g_return_pre = gourmet.Gourmet(myopts.get("xsif"),"ERPRE",5.0,
+    g_return_pre = gourmet.Gourmet(("ertml_filecalls_4match.xsif"),"ERPRE",5.0,
                         scaling_frequency,myopts.get("maporder"),particle='positron')
     map_return_pre= g_return_pre.get_single_linear_map()
     print "map_return_pre:",LinearAlgebra.determinant(map_getaway[0:6,0:6]),\

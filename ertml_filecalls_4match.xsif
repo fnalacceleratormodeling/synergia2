@@ -1,0 +1,28 @@
+
+! read the files:  start with the definitions
+
+  BEAM, PARTICLE=POSITRON, ENERGY=5.0
+
+  CALL, FILENAME = "RTML_common.xsif"
+
+! Now the bunch length confgs
+
+  CALL, FILENAME = "RTML_sigznominal.xsif"
+
+! Finally the deckfiles
+
+  CALL, FILENAME = "egetaway.xsif"
+  CALL, FILENAME = "eescalator.xsif"
+  CALL, FILENAME = "ereturn_4match.xsif"
+  CALL, FILENAME = "eturn.xsif"
+  CALL, FILENAME = "espin.xsif"
+
+
+! define the beamline
+
+  ERTML : LINE = (EGETAWAY, EESCALATOR, ERETURN, &
+                  ETURN, ESPIN)
+!
+!
+!
+RETURN
