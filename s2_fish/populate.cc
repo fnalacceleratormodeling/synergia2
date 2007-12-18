@@ -123,6 +123,16 @@ adjust_moments(Array_2d<double> &array_in,
     const Array_1d<double> &means,
     const Array_2d<double> &covariances)
 {
+    // Verify that covariance matrix is symmetric
+    for (int i=0; i<6; ++i) {
+        for (int j=i+1; j<6; ++j) {
+            if (covariances.at(i,j) != covariances.at(j,i)) {
+                throw
+                    std::runtime_error("covariance matrix in adjust_moments is not symmetric");
+            }
+        }
+    }
+    
     Array_1d<double> actual_means(6);
     Array_2d<double> actual_covs(6,6);
     get_means_covariances(array_in,actual_means,actual_covs);

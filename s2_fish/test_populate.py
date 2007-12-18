@@ -16,6 +16,7 @@ for i in range(0,6):
             covs[i,j] = i+1.0
         if (i+1 == j) and (i%2 == 0):
             covs[i,j] = 0.1*(j+1.0)
+            covs[j,i] = 0.1*(j+1.0)
 
 print "requested covs"
 print covs
