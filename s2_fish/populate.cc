@@ -5,11 +5,11 @@
 #include <gsl/gsl_qrng.h>
 #include <gsl/gsl_randist.h>
 
-#include "array_1d.h"
-#include "array_2d.h"
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_linalg.h>
 #include <gsl/gsl_blas.h>
+
+#include "populate.h"
 
 class GSL_random
 {
@@ -65,6 +65,12 @@ gsl_matrix_from_Array_2d(const Array_2d<double> &array)
     matrix.owner = 0;
     
     return matrix;
+}
+
+Array_2d<double>
+Array_2d_from_gsl_matrix(const gsl_matrix &matrix)
+{
+    return Array_2d<double>(matrix.size1,matrix.size2,matrix.data);
 }
 
 void
@@ -123,6 +129,7 @@ adjust_moments(Array_2d<double> &array_in,
     
     // Calculate G
     gsl_matrix C = gsl_matrix_from_Array_2d(covariances);
+    covariances.print("debug covariances");
     int err =  gsl_linalg_cholesky_decomp(&C);
     if (err !=0) {
         throw
@@ -135,6 +142,7 @@ adjust_moments(Array_2d<double> &array_in,
     gsl_matrix X_tmp = gsl_matrix_from_Array_2d(actual_covs);
     gsl_matrix *X_ptr = gsl_matrix_alloc(6,6);
     gsl_matrix_memcpy(X_ptr,&X_tmp);
+    Array_2d_from_gsl_matrix(X_tmp).print("copied matrix");
     // X -> H
     err =  gsl_linalg_cholesky_decomp(X_ptr);
     if (err !=0) {
@@ -211,28 +219,5 @@ populate_6d_gaussian(Array_2d<double> &particles,
         for(int j=0; j<6; ++j) particles(n,j) = tmp2(n,j) + means(j);
         particles(n,6) = (n + id_offset)*1.0;
     }
-}
-
-int main()
-{
-    int num_particles=10000;
-    Array_2d<double> a(num_particles,7);
-
-    Array_2d<double> desired_covs(6,6);
-    desired_covs.set_all(0.0);
-    for (int i=0; i<6; ++i) {
-        desired_covs(i,i) = 1.0*(i+1.0);
-    }
-    for (int i=0; i<3; ++i) {
-        desired_covs(2*i,2*i+1) = desired_covs(2*i+1,2*i) = 0.2+i/10.0;
-    }
-    desired_covs.print("desired_covs");
-
-    Array_1d<double> desired_means(6);
-    desired_means.set_all(0.0);
-    
-    populate_6d_gaussian(a,desired_means,desired_covs,0);
-    array_2d_to_octave_file(a,"r.dat");
-    std::cout << "success!\n";
-    return 0;
+    array_2d_to_octave_file(particles,"debug.dat");
 }

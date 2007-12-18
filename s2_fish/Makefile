@@ -95,14 +95,20 @@ GaussSC.so: GaussSC.o BasErs_field.o ltwt_containers.o mytimer.o
 gsl_rand.o: gsl_rand.cc
 	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(GSL_INCLUDES) $<
 
-pure_gsl: pure_gsl.cc array_nd.h
-	$(CXX) $(CXXFLAGS) -o $@ -Wall -pedantic $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(GSL_INCLUDES) $< $(GSL_LIBS)
-
 gsl_rand.so: gsl_rand.o
 	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(GSL_LIBS)
 
-dumbass: dumbass.o
-	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
+populate.o: populate.cc
+	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(GSL_INCLUDES) $<
+
+populate_wrap.o: populate_wrap.cc
+	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(GSL_INCLUDES) $<
+
+populate.so: populate.o populate_wrap.o
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(GSL_LIBS)
+
+test_populate: test_populate.cc populate.o
+	$(CXX) $(CXXFLAGS) -o $@ -Wall -pedantic $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(GSL_INCLUDES) $< populate.o $(GSL_LIBS)
 
 check: s2_containers.so s2_deposit.so s2_electric_field.so s2_solver.so s2_solver_fftw.so macro_bunch_store.so
 	python test_nd_array.py && \
@@ -149,6 +155,9 @@ macro_bunch_store_wrap.o: macro_bunch_store.h ltwt_containers.h
 main.o: scalar_field.h nd_array.h mytimer.h triple.h
 mytimer.o: mytimer.h
 nd_array_wrap.o: nd_array.h mytimer.h container_conversions.h
+populate.o: populate.h array_1d.h array_nd.h vector_helper.h array_2d.h
+populate_wrap.o: populate.h array_1d.h array_nd.h vector_helper.h array_2d.h
+populate_wrap.o: array_nd_python.h
 s2_containers_wrap.o: nd_array.h mytimer.h scalar_field.h triple.h
 s2_containers_wrap.o: container_conversions.h
 s2_deposit_wrap.o: deposit.h scalar_field.h nd_array.h mytimer.h triple.h

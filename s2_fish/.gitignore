@@ -1,3 +1,4 @@
 *.so
 *.o
 pure_gsl
+test_populate
