@@ -112,24 +112,14 @@ get_means_covariances(const Array_2d<double> &array,
 }
 
 void
-populate_6d_gaussian(Array_2d<double> &particles, 
-    const Array_2d<double> &covariances,  const Array_1d<double> &means,
-    const int id_offset)
+adjust_moments(Array_2d<double> &array_in,
+    Array_2d<double> &array_out,
+    const Array_1d<double> &means,
+    const Array_2d<double> &covariances)
 {
-    if (particles.get_shape()[1] != 7) {
-        throw
-        std::runtime_error("populate_6d_gaussian expects a particle array with shape (num_particles,7)");
-    }
-    int num_particles = particles.get_shape()[0];
-    // Use the memory allocated for particles as a scratch area until the very end
-    Array_2d<double> tmp(num_particles,6,particles.get_data_ptr());
-
-    GSL_random gslr;
-    gslr.fill_array_unit_gaussian(tmp.get_data_ptr(),tmp.get_size());
-
     Array_1d<double> actual_means(6);
     Array_2d<double> actual_covs(6,6);
-    get_means_covariances(tmp,actual_means,actual_covs);
+    get_means_covariances(array_in,actual_means,actual_covs);
     
     // Calculate G
     gsl_matrix C = gsl_matrix_from_Array_2d(covariances);
@@ -182,26 +172,45 @@ populate_6d_gaussian(Array_2d<double> &particles,
     gsl_blas_dgemm (CblasNoTrans, CblasNoTrans,1.0, G_ptr, Hinv_ptr, 0.0, A);
     
     // Subtract actual means
-    for(int n=0; n<num_particles; ++n) {
-        for(int j=0; j<6; ++j) tmp(n,j) -= actual_means(j);
+    for(int n=0; n<array_in.get_shape()[0]; ++n) {
+        for(int j=0; j<6; ++j) array_in(n,j) -= actual_means(j);
     }
     
-    gsl_matrix tmp_gsl = gsl_matrix_from_Array_2d(tmp);
-    Array_2d<double> tmp2(num_particles,6);
-    gsl_matrix tmp2_gsl = gsl_matrix_from_Array_2d(tmp2);
+    gsl_matrix array_in_gsl = gsl_matrix_from_Array_2d(array_in);
+    gsl_matrix array_out_gsl = gsl_matrix_from_Array_2d(array_out);
     
-    gsl_blas_dgemm(CblasNoTrans, CblasTrans,1.0,&tmp_gsl,A,0.0,&tmp2_gsl);
+    gsl_blas_dgemm(CblasNoTrans, CblasTrans,1.0,&array_in_gsl,A,0.0,&array_out_gsl);
+    
+    gsl_matrix_free(X_ptr);
+    gsl_permutation_free(perm);
+    gsl_matrix_free(Hinv_ptr);
+    gsl_matrix_free(A);    
+}
+
+void
+populate_6d_gaussian(Array_2d<double> &particles, 
+    const Array_1d<double> &means, const Array_2d<double> &covariances,
+    const int id_offset)
+{
+    if (particles.get_shape()[1] != 7) {
+        throw
+        std::runtime_error("populate_6d_gaussian expects a particle array with shape (num_particles,7)");
+    }
+    int num_particles = particles.get_shape()[0];
+    // Use the memory allocated for particles as a scratch area until the very end
+    Array_2d<double> tmp(num_particles,6,particles.get_data_ptr());
+    Array_2d<double> tmp2(num_particles,6);
+
+    GSL_random gslr;
+    gslr.fill_array_unit_gaussian(tmp.get_data_ptr(),tmp.get_size());
+ 
+    adjust_moments(tmp,tmp2,means,covariances);
+    
     // Fill output array, adding (requested) means and setting particle ID.
     for(int n=0; n<num_particles; ++n) {
         for(int j=0; j<6; ++j) particles(n,j) = tmp2(n,j) + means(j);
         particles(n,6) = (n + id_offset)*1.0;
     }
-    
-    gsl_matrix_free(X_ptr);
-    gsl_permutation_free(perm);
-    gsl_matrix_free(Hinv_ptr);
-    gsl_matrix_free(A);
-    
 }
 
 int main()
@@ -222,7 +231,7 @@ int main()
     Array_1d<double> desired_means(6);
     desired_means.set_all(0.0);
     
-    populate_6d_gaussian(a,desired_covs,desired_means,0);
+    populate_6d_gaussian(a,desired_means,desired_covs,0);
     array_2d_to_octave_file(a,"r.dat");
     std::cout << "success!\n";
     return 0;
