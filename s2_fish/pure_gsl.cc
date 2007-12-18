@@ -84,38 +84,131 @@ array_2d_to_octave_file(const Array_2d<double> &array, const std::string filenam
     stream.close();
 }
 
-int main()
+void
+get_means_covariances(const Array_2d<double> &array,
+    Array_1d<double> &means,
+    Array_2d<double> &covariances)
 {
-    GSL_random gslr;
-    int num_particles=10000;
-    Array_2d<double> a(num_particles,6);
-    //~ gslr.fill_array_unit_gaussian(a.get_data_ptr()+2,a.get_size(),6);
-    gslr.fill_array_unit_gaussian(a.get_data_ptr(),a.get_size());
-
-    Array_1d<double> means(6);
+    int num = array.get_shape()[0];
     means.set_all(0.0);
-    Array_2d<double> covs(6,6);
-    covs.set_all(0.0);
-    for(int n=0; n<num_particles; ++n) {
-        for(int j=0; j<6; ++j) means(j) += a(n,j);
+    covariances.set_all(0.0);
+    for(int n=0; n<num; ++n) {
+        for(int j=0; j<6; ++j) means(j) += array(n,j);
     }
-    means.scale(1.0/num_particles);
-    means.print("means");
-    for(int n=0; n<num_particles; ++n) {
+    means.scale(1.0/num);
+    for(int n=0; n<num; ++n) {
         for (int i=0; i<6; ++i) {
             for (int j=0; j<=i; ++j) {
-                covs(i,j) += (a(n,i)-means(i))*(a(n,j)-means(j));
+                covariances(i,j) += (array(n,i)-means(i))*(array(n,j)-means(j));
             }
         }
     }
     for (int i=0; i<6; ++i) {
         for (int j=i; j<6; ++j) {
-            covs(i,j) = covs(j,i);
+            covariances(i,j) = covariances(j,i);
         }
     }
-    covs.scale(1.0/num_particles);
-    covs.print("covs");
+    covariances.scale(1.0/num);
+}
+
+void
+populate_6d_gaussian(Array_2d<double> &particles, 
+    const Array_2d<double> &covariances,  const Array_1d<double> &means,
+    const int id_offset)
+{
+    if (particles.get_shape()[1] != 7) {
+        throw
+        std::runtime_error("populate_6d_gaussian expects a particle array with shape (num_particles,7)");
+    }
+    int num_particles = particles.get_shape()[0];
+    // Use the memory allocated for particles as a scratch area until the very end
+    Array_2d<double> tmp(num_particles,6,particles.get_data_ptr());
+
+    GSL_random gslr;
+    gslr.fill_array_unit_gaussian(tmp.get_data_ptr(),tmp.get_size());
+
+    Array_1d<double> actual_means(6);
+    Array_2d<double> actual_covs(6,6);
+    get_means_covariances(tmp,actual_means,actual_covs);
     
+    // Calculate G
+    gsl_matrix C = gsl_matrix_from_Array_2d(covariances);
+    int err =  gsl_linalg_cholesky_decomp(&C);
+    if (err !=0) {
+        throw
+            std::runtime_error("gsl_linalg_cholesky_decomp failed for matrix C");
+    }
+    gsl_matrix *G_ptr = &C;
+    
+    // Calculate H
+    // actual_covs is const and cholesky overwrites, so work on a copy
+    gsl_matrix X_tmp = gsl_matrix_from_Array_2d(actual_covs);
+    gsl_matrix *X_ptr = gsl_matrix_alloc(6,6);
+    gsl_matrix_memcpy(X_ptr,&X_tmp);
+    // X -> H
+    err =  gsl_linalg_cholesky_decomp(X_ptr);
+    if (err !=0) {
+        throw
+            std::runtime_error("gsl_linalg_cholesky_decomp failed for matrix X");
+    }
+    gsl_matrix *H_ptr = X_ptr;
+    
+    // H_ptr and G_ptr are currently G + transp(G) and H + transp(H), so
+    // we need to zero out the transp() parts
+    for (int i=0; i<6; ++i) {
+        for (int j = i+1; j<6; ++j) {
+            gsl_matrix_set(H_ptr,i,j,0.0);
+            gsl_matrix_set(G_ptr,i,j,0.0);
+        }
+    }
+    
+    // Calculate H^-1
+    gsl_permutation *perm = gsl_permutation_alloc(6);
+    int signum;
+    err = gsl_linalg_LU_decomp(H_ptr, perm, &signum);
+    if (err !=0) {
+        throw
+            std::runtime_error("gsl_linalg_LU_decomp  failed for matrix H");
+    }
+    gsl_matrix *Hinv_ptr = gsl_matrix_alloc(6,6);
+    err = gsl_linalg_LU_invert(H_ptr, perm, Hinv_ptr);
+    if (err !=0) {
+        throw
+            std::runtime_error("gsl_linalg_LU_invert  failed for matrix H");
+    }
+    
+    // Calculate A
+    gsl_matrix *A = gsl_matrix_alloc(6,6);
+    gsl_blas_dgemm (CblasNoTrans, CblasNoTrans,1.0, G_ptr, Hinv_ptr, 0.0, A);
+    
+    // Subtract actual means
+    for(int n=0; n<num_particles; ++n) {
+        for(int j=0; j<6; ++j) tmp(n,j) -= actual_means(j);
+    }
+    
+    gsl_matrix tmp_gsl = gsl_matrix_from_Array_2d(tmp);
+    Array_2d<double> tmp2(num_particles,6);
+    gsl_matrix tmp2_gsl = gsl_matrix_from_Array_2d(tmp2);
+    
+    gsl_blas_dgemm(CblasNoTrans, CblasTrans,1.0,&tmp_gsl,A,0.0,&tmp2_gsl);
+    // Fill output array, adding (requested) means and setting particle ID.
+    for(int n=0; n<num_particles; ++n) {
+        for(int j=0; j<6; ++j) particles(n,j) = tmp2(n,j) + means(j);
+        particles(n,6) = (n + id_offset)*1.0;
+    }
+    
+    gsl_matrix_free(X_ptr);
+    gsl_permutation_free(perm);
+    gsl_matrix_free(Hinv_ptr);
+    gsl_matrix_free(A);
+    
+}
+
+int main()
+{
+    int num_particles=10000;
+    Array_2d<double> a(num_particles,7);
+
     Array_2d<double> desired_covs(6,6);
     desired_covs.set_all(0.0);
     for (int i=0; i<6; ++i) {
@@ -126,54 +219,10 @@ int main()
     }
     desired_covs.print("desired_covs");
 
-    gsl_matrix C = gsl_matrix_from_Array_2d(desired_covs);
-    // C -> G
-    int err =  gsl_linalg_cholesky_decomp(&C);
-    gsl_matrix *G = &C;
-    std::cout << "gsl_linalg_cholesky_decomp returns " << err << std::endl;
+    Array_1d<double> desired_means(6);
+    desired_means.set_all(0.0);
     
-    gsl_matrix X = gsl_matrix_from_Array_2d(covs);
-    // X -> H
-    err =  gsl_linalg_cholesky_decomp(&X);
-    std::cout << "gsl_linalg_cholesky_decomp returns " << err << std::endl;
-
-    for (int i=0; i<6; ++i) {
-        for (int j = i+1; j<6; ++j) {
-            covs(i,j) = 0.0;
-            desired_covs(i,j) = 0.0;
-        }
-    }
-    //~ desired_covs.print("G");
-    //~ covs.print("H");
-    
-    gsl_permutation *perm = gsl_permutation_alloc(6);
-    int signum;
-    err = gsl_linalg_LU_decomp(&X, perm, &signum);
-    std::cout << "gsl_linalg_LU_decomp returns " << err << std::endl;
-    
-    gsl_matrix *Hinv = gsl_matrix_alloc(6,6);
-    err = gsl_linalg_LU_invert(&X, perm, Hinv);
-    std::cout << "gsl_linalg_LU_invert returns " << err << std::endl;
-
-    gsl_matrix *A = gsl_matrix_alloc(6,6);
-    
-    gsl_blas_dgemm (CblasNoTrans, CblasNoTrans,1.0, G, Hinv, 0.0, A);
-    
-    Array_2d<double> rho_sub(a);
-    for(int n=0; n<num_particles; ++n) {
-        for(int j=0; j<6; ++j) rho_sub(n,j) -= means(j);
-    }
-    
-    gsl_matrix rho_sub_gsl = gsl_matrix_from_Array_2d(rho_sub);
-    gsl_matrix r = gsl_matrix_from_Array_2d(a);
-    
-    gsl_blas_dgemm(CblasNoTrans, CblasTrans,1.0,&rho_sub_gsl,A,0.0,&r);
-    // n.b.: we have not provided for a desired non-zero r, i.e., rbar.
-    
-    gsl_permutation_free(perm);
-    gsl_matrix_free(Hinv);
-    gsl_matrix_free(A);
-    
+    populate_6d_gaussian(a,desired_covs,desired_means,0);
     array_2d_to_octave_file(a,"r.dat");
     std::cout << "success!\n";
     return 0;
