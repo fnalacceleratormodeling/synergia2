@@ -11,6 +11,7 @@ import time
 import math
 
 import loadfile
+import populate
 
 class Macro_bunch:
     def __init__(self,mass,charge):
@@ -152,7 +153,28 @@ class Macro_bunch:
         self.total_num = total_num
         self.total_current = total_current
         self.complete = 1
-        
+    
+    def init_6d_gaussian(self,total_num,total_current, beam_parameters):
+        (Cxy, Cxpyp, Cz, Czp) = beam_parameters.get_conversions()
+        self.units = Numeric.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
+        self.total_num = total_num
+        self.local_num = total_num/MPI.size
+        remainder = total_num % MPI.size
+        if (MPI.rank < remainder):
+            self.local_num += 1
+        id_offset = MPI.rank * total_num/MPI.size
+        if MPI.rank < remainder:
+            id_offset += rank
+        else:
+            id_offset += remainder
+        self.total_current = total_current
+        self.is_fixedz = 1
+        self.ref_particle = Numeric.zeros((6,),'d')
+        self.particles = Numeric.zeros((self.local_num,7),'d')
+        populate.populate_6d_gaussian(self.particles,
+            beam_parameters.get_means(),
+            beam_parameters.get_covariances,id_offset)
+
     def init_from_bunch(self, bunch):
         (Cxy, Cxpyp, Cz, Czp) = bunch.beam_parameters.get_conversions()
         self.units = Numeric.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')

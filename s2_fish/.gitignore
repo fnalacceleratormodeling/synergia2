@@ -1,3 +1,4 @@
+*.pyc
 *.so
 *.o
 pure_gsl

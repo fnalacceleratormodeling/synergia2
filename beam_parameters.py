@@ -123,7 +123,60 @@ class Beam_parameters:
         if ypz: self.ypz = ypz
         if pypz: self.pypz = pypz
         if zpz: self.zpz = zpz
+    
+    def get_covariances(self):
+        c  = Numeric.array((6,6),'d')
+        (Cxy, Cxpyp, Cz, Czp) = self.get_conversions()
+        # Unit conversion: X^impact_i = C_i X^real_i
+        Cx = Cxy
+        Cy = Cxy
+        #Cz = Cz
+        Cxp = Cxpyp
+        Cyp = Cxpyp
+        #Czp = Czp
         
+        c[0,0] = self.sigma_x_m**2 * Cx**2
+        c[0,1] = c[1,0] = self.sigma_x_m*self.lambda_x_GeVoc*self.xpx*Cx*Cxp
+        c[1,1] = self.lambda_x_GeVoc**2 * Cxp**2
+        c[0,2] = c[2,0] = self.sigma_x_m*self.sigma_y_m*self.xy*Cx*Cy
+        c[1,2] = c[2,1] = self.lambda_x_GeVoc*self.sigma_y_m*self.pxy*Cxp*Cy
+        c[2,2] = self.sigma_y_m**2 * Cy**2
+        c[0,3] = c[3,0] = self.sigma_x_m*self.lambda_y_GeVoc*self.xpy*Cx*Cyp
+        c[1,3] = c[3,1] = self.lambda_x_GeVoc*self.lambda_y_GeVoc*self.pxpy*Cxp*Cyp
+        c[2,3] = c[3,2] = self.sigma_y_m*self.lambda_y_GeVoc*self.ypy*Cy*Cyp
+        c[3,3] = self.lambda_y_GeVoc**2 * Cyp**2
+        c[0,4] = c[4,0] = self.sigma_x_m*self.sigma_z_m*self.xz*Cx*Cz
+        c[1,4] = c[4,1] = self.lambda_x_GeVoc*self.sigma_z_m*self.pxz*Cxp*Cz
+        c[2,4] = c[4,2] = self.sigma_y_m*self.sigma_z_m*self.yz*Cy*Cz
+        c[3,4] = c[4,3] = self.lambda_y_GeVoc*self.sigma_z_m*self.pyz*Cyp*Cz
+        c[4,4] = self.sigma_z_m**2 * Cz**2
+        c[0,5] = c[5,0] = self.sigma_x_m*self.lambda_z_GeVoc*self.xpz*Cx*Czp
+        c[1,5] = c[5,1] = self.lambda_x_GeVoc*self.lambda_z_GeVoc*self.pxpz*Cxp*Czp
+        c[2,5] = c[5,2] = self.sigma_y_m*self.lambda_z_GeVoc*self.ypz*Cy*Czp
+        c[3,5] = c[5,3] = self.lambda_y_GeVoc*self.lambda_z_GeVoc*self.pypz*Cyp*Czp
+        c[4,5] = c[5,4] = self.sigma_z_m*self.lambda_z_GeVoc*self.zpz*Cz*Czp
+        c[5,5] = self.lambda_z_GeVoc**2 * Czp**2
+        
+        return c
+
+    def get_means(self):
+        (Cxy, Cxpyp, Cz, Czp) = self.get_conversions()
+        # Unit conversion: X^impact_i = C_i X^real_i
+        Cx = Cxy
+        Cy = Cxy
+        #Cz = Cz
+        Cxp = Cxpyp
+        Cyp = Cxpyp
+        #Czp = Czp
+
+        return Numeric.array(
+                [self.offset_x_m * Cx,
+                 self.offset_px * Cxp,
+                 self.offset_y_m * Cy,
+                 self.offset_py * Cyp,
+                 self.offset_z * Cz,
+                 self.offset_pz * Czp],'d')
+                 
     def get_distparam(self):
         (Cxy, Cxpyp, Cz, Czp) = self.get_conversions()
         # Unit conversion: X^impact_i = C_i X^real_i

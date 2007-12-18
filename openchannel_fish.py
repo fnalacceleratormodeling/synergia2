@@ -4,16 +4,13 @@ import local_paths
 import gourmet
 import Numeric
 import physics_constants
-import bunch
 import diagnostics
 import beam_parameters
-import processor_grid
-import computational_grid
-import processor_grid
 import matching
 import time
 import field
 import math
+import os
 
 import syn2_diagnostics
 
@@ -30,14 +27,6 @@ import UberPkgpy #SpaceChargePkgpy
 import error_eater
 
 from mpi4py import MPI
-
-def adjust_particles(base,procs):
-    retval = base
-    multiple = base/(procs * 10.0)
-    if not multiple == round(multiple):
-        retval = round(multiple + 1) * \
-                   (procs * 10)
-    return retval
 
 mem0 = 0.0
 
@@ -67,8 +56,7 @@ if ( __name__ == '__main__'):
     kicks_per_line = 10
     gridnum = int(sys.argv[1])
     griddim = (gridnum,gridnum,gridnum)
-    num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
-                                     part_per_cell,1)
+    num_particles = griddim[0]*griddim[1]*griddim[2] * part_per_cell
     
     print "num_particles =",num_particles
     xwidth=0.0012026
@@ -78,7 +66,7 @@ if ( __name__ == '__main__'):
 
     ee = error_eater.Error_eater()
     ee.start()
-    g = gourmet.Gourmet("channel.mad","channel",kinetic_energy,
+    g = gourmet.Gourmet(os.path.join(os.getcwd(),"channel.mad"),"channel",kinetic_energy,
                         scaling_frequency)
     g.insert_space_charge_markers(kicks_per_line)
 
@@ -95,13 +83,8 @@ if ( __name__ == '__main__'):
 
     sys.stdout.flush()
     
-    pgrid = processor_grid.Processor_grid(1)
-    b_impact = bunch.Bunch(current, bp, num_particles, pgrid)
-    b_impact.generate_particles()
-    
     b = macro_bunch.Macro_bunch(mass,1)
-    b.init_from_bunch(b_impact)
-
+    b.init_6d_gaussian(num_particles,current,bp)
 
     line_length = g.orbit_length()
     tau = 0.5*line_length/kicks_per_line
