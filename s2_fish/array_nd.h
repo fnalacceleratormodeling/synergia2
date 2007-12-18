@@ -40,7 +40,7 @@ public:
     void reshape(const std::vector<int> shape, T *data_ptr);
     void freeze_shape();
 
-    void zero_all();
+    void set_all(const T value);
     void scale(const T factor);
     void add(const T constant);
 
@@ -215,10 +215,10 @@ Array_nd<T>::get_rank() const
 
 template<class T>
 void
-Array_nd<T>::zero_all( )
+Array_nd<T>::set_all(const T value)
 {
     for (unsigned int i = 0; i < size; ++i ) {
-        data_ptr[i] = 0.0;
+        data_ptr[i] = value;
     }
 }
 

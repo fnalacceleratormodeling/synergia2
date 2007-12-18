@@ -13,7 +13,7 @@ public:
     Array_1d(const int n, T *data_ptr);
     Array_1d(const Array_nd<T> &array_nd);
 
-    void reshape(const int n)
+    void reshape(const int n);
     void reshape(const int n, T *data_ptr);
 
     T& at(const int i);

@@ -2,8 +2,10 @@
 
 #include <iomanip>
 #include <gsl/gsl_rng.h>
+#include <gsl/gsl_qrng.h>
 #include <gsl/gsl_randist.h>
 
+#include "array_1d.h"
 #include "array_2d.h"
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_linalg.h>
@@ -84,28 +86,25 @@ array_2d_to_octave_file(const Array_2d<double> &array, const std::string filenam
 
 int main()
 {
-    std::cout << "hello gsl\n";
     GSL_random gslr;
     int num_particles=10000;
     Array_2d<double> a(num_particles,6);
     //~ gslr.fill_array_unit_gaussian(a.get_data_ptr()+2,a.get_size(),6);
     gslr.fill_array_unit_gaussian(a.get_data_ptr(),a.get_size());
 
-    std::vector<double> means(6);
-    for(int j=0; j<6; ++j) means[j] = 0;
+    Array_1d<double> means(6);
+    means.set_all(0.0);
     Array_2d<double> covs(6,6);
-    covs.zero_all();
+    covs.set_all(0.0);
     for(int n=0; n<num_particles; ++n) {
-        for(int j=0; j<6; ++j) means[j] += a(n,j);
+        for(int j=0; j<6; ++j) means(j) += a(n,j);
     }
-    for(int j=0; j<6; ++j) means[j] *= 1.0/num_particles;
-    std::cout << "means: ";
-    for(int j=0; j<6; ++j) std::cout << means[j] << " ";
-    std::cout << std::endl;
+    means.scale(1.0/num_particles);
+    means.print("means");
     for(int n=0; n<num_particles; ++n) {
         for (int i=0; i<6; ++i) {
             for (int j=0; j<=i; ++j) {
-                covs(i,j) += (a(n,i)-means[i])*(a(n,j)-means[j]);
+                covs(i,j) += (a(n,i)-means(i))*(a(n,j)-means(j));
             }
         }
     }
@@ -118,7 +117,7 @@ int main()
     covs.print("covs");
     
     Array_2d<double> desired_covs(6,6);
-    desired_covs.zero_all();
+    desired_covs.set_all(0.0);
     for (int i=0; i<6; ++i) {
         desired_covs(i,i) = 1.0*(i+1.0);
     }
@@ -162,7 +161,7 @@ int main()
     
     Array_2d<double> rho_sub(a);
     for(int n=0; n<num_particles; ++n) {
-        for(int j=0; j<6; ++j) rho_sub(n,j) -= means[j];
+        for(int j=0; j<6; ++j) rho_sub(n,j) -= means(j);
     }
     
     gsl_matrix rho_sub_gsl = gsl_matrix_from_Array_2d(rho_sub);
