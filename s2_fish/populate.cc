@@ -139,7 +139,6 @@ adjust_moments(Array_2d<double> &array_in,
     
     // Calculate G
     gsl_matrix C = gsl_matrix_from_Array_2d(covariances);
-    covariances.print("debug covariances");
     int err =  gsl_linalg_cholesky_decomp(&C);
     if (err !=0) {
         throw
@@ -152,7 +151,6 @@ adjust_moments(Array_2d<double> &array_in,
     gsl_matrix X_tmp = gsl_matrix_from_Array_2d(actual_covs);
     gsl_matrix *X_ptr = gsl_matrix_alloc(6,6);
     gsl_matrix_memcpy(X_ptr,&X_tmp);
-    Array_2d_from_gsl_matrix(X_tmp).print("copied matrix");
     // X -> H
     err =  gsl_linalg_cholesky_decomp(X_ptr);
     if (err !=0) {
@@ -229,5 +227,4 @@ populate_6d_gaussian(Array_2d<double> &particles,
         for(int j=0; j<6; ++j) particles(n,j) = tmp2(n,j) + means(j);
         particles(n,6) = (n + id_offset)*1.0;
     }
-    array_2d_to_octave_file(particles,"debug.dat");
 }

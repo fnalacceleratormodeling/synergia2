@@ -25,10 +25,10 @@ print means
 
 populate.populate_6d_gaussian(p,means,covs,0)
 
+print "actual covariances"
 cp = MLab.cov(p)
 print array2string(cp[0:6,0:6],suppress_small=1,precision=4)
+
+print "actual means"
 mp = MLab.mean(p)
 print mp
-
-print "covariances after"
-print covs

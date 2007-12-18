@@ -29,6 +29,6 @@ int main()
     
     populate_6d_gaussian(p,means,covs,0);
     array_2d_to_octave_file(p,"r.dat");
-    covs.print("covariances after");
+    std::cout << "particles dumped to r.dat\n";
     return 0;
 }

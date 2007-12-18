@@ -52,7 +52,7 @@ Array_2d<T>::Array_2d(const int nx, const int ny, T *data_ptr) : Array_nd<T>()
 template<class T>
 Array_2d<T>::Array_2d(const Array_nd<T>& original)
 {
-    std::cout << "converting from nd to 2d\n";
+    //~ std::cout << "converting from nd to 2d\n";
     if (original.get_rank() != 2) {
         throw 
             std::runtime_error("Attempt to convert Array_nd of rank !=2 to Array_2d");

@@ -188,3 +188,4 @@ solver_fftw3.o: macro_bunch_store.h ltwt_containers.h
 solver_fftw.o: solver_fftw.h scalar_field.h nd_array.h mytimer.h triple.h
 solver_fftw.o: macro_bunch_store.h ltwt_containers.h fftw_helper.h
 solver_fftw.o: communicate.h
+test_populate.o: populate.h array_1d.h array_nd.h vector_helper.h array_2d.h

@@ -52,7 +52,7 @@ Array_1d<T>::Array_1d(const int n, T *data_ptr) : Array_nd<T>()
 template<class T>
 Array_1d<T>::Array_1d(const Array_nd<T>& original)
 {
-    std::cout << "converting from nd to 1d\n";
+    //~ std::cout << "converting from nd to 1d\n";
     if (original.get_rank() != 1) {
         throw 
             std::runtime_error("Attempt to convert Array_nd of rank !=1 to Array_1d");

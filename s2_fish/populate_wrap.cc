@@ -15,7 +15,6 @@ populate_6d_gaussian_wrapper(object &particles,
         Array_nd_from_PyObject<double>(means.ptr());
     Array_2d<double> covariances_array = 
         Array_nd_from_PyObject<double>(covariances.ptr());
-    covariances_array.print("debug covariances_array");
     populate_6d_gaussian(particles_array, means_array, covariances_array, id_offset);
 }
 
