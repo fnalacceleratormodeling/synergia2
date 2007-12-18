@@ -1,3 +1,4 @@
+temp: pure_gsl
 all: s2_containers.so s2_deposit.so s2_electric_field.so s2_solver_fftw.so macro_bunch_store.so s2_diagnostics.so GaussSC.so 
 other: gsl_rand.so
 
@@ -93,6 +94,9 @@ GaussSC.so: GaussSC.o BasErs_field.o ltwt_containers.o mytimer.o
 
 gsl_rand.o: gsl_rand.cc
 	$(CXX) $(CXXFLAGS) -c $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(GSL_INCLUDES) $<
+
+pure_gsl: pure_gsl.cc array_nd.h
+	$(CXX) $(CXXFLAGS) -o $@ -Wall -pedantic $(PYTHON_INCLUDES) $(BOOST_INCLUDES) $(GSL_INCLUDES) $< $(GSL_LIBS)
 
 gsl_rand.so: gsl_rand.o
 	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(GSL_LIBS)
