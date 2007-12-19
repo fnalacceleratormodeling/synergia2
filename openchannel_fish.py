@@ -84,7 +84,7 @@ if ( __name__ == '__main__'):
     sys.stdout.flush()
     
     b = macro_bunch.Macro_bunch(mass,1)
-    b.init_6d_gaussian(num_particles,current,bp)
+    b.init_gaussian(num_particles,current,bp)
     b.write_particles_text("ocf_new.dat")
 
     line_length = g.orbit_length()
