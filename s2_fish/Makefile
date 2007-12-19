@@ -1,4 +1,4 @@
-all: s2_containers.so s2_deposit.so s2_electric_field.so s2_solver_fftw.so macro_bunch_store.so s2_diagnostics.so GaussSC.so 
+all: s2_containers.so s2_deposit.so s2_electric_field.so s2_solver_fftw.so macro_bunch_store.so s2_diagnostics.so GaussSC.so populate.so
 other: gsl_rand.so
 
 include ../make_defines
