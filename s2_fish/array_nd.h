@@ -36,6 +36,8 @@ public:
     Array_nd(const std::vector<int> shape, T *data_ptr);
     Array_nd(const Array_nd& original);
 
+    void copy();
+
     void reshape(const std::vector<int> shape);
     void reshape(const std::vector<int> shape, T *data_ptr);
     void freeze_shape();
@@ -136,6 +138,20 @@ Array_nd<T>::Array_nd(const Array_nd& original)
         }
     } else {
         data_ptr = original.data_ptr;
+    }
+}
+
+template<class T>
+void
+Array_nd<T>::copy()
+{
+    if (not own_data) {
+        T * tmp_ptr = data_ptr;
+        data_ptr = myallocator.allocate(size);
+        own_data = true;        
+        for (unsigned int i = 0; i < size; ++i) {
+            data_ptr[i] = tmp_ptr[i];
+        }
     }
 }
 
