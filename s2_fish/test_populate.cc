@@ -6,7 +6,7 @@ array_2d_to_octave_file(const Array_2d<double> &array, const std::string filenam
 int main()
 {
     int num_particles=1000;
-    Array_2d<double> p(num_particles,7);
+    Array_2d<double> p(7,num_particles);
     Array_2d<double> covs(6,6);
     covs.set_all(0.0);
     Array_1d<double> means(6);

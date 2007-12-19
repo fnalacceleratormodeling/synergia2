@@ -170,10 +170,10 @@ class Macro_bunch:
         self.total_current = total_current
         self.is_fixedz = 1
         self.ref_particle = Numeric.zeros((6,),'d')
-        self.particles = Numeric.zeros((self.local_num,7),'d')
+        self.particles = Numeric.zeros((7,self.local_num),'d')
         populate.populate_6d_gaussian(self.particles,
             beam_parameters.get_means(),
-            beam_parameters.get_covariances,id_offset)
+            beam_parameters.get_covariances(),id_offset)
 
     def init_from_bunch(self, bunch):
         (Cxy, Cxpyp, Cz, Czp) = bunch.beam_parameters.get_conversions()
@@ -206,6 +206,7 @@ class Macro_bunch:
             MPI.WORLD.Send(self.particles,dest=0)
 
     def write_particles_text(self,filename):
+        print "particles.shape =",self.get_local_particles().shape
         if MPI.rank == 0:
             f = open(filename,"w")
             for proc in xrange(1,MPI.size):

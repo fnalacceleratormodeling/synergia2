@@ -5,7 +5,7 @@ import Numeric
 import MLab
 from ArrayPrinter import array2string
 
-p = Numeric.zeros((1000,7),'d')
+p = Numeric.zeros((7,1000),'d')
 covs = Numeric.zeros((6,6),'d')
 means = Numeric.zeros((6,),'d')
 
@@ -26,9 +26,9 @@ print means
 populate.populate_6d_gaussian(p,means,covs,0)
 
 print "actual covariances"
-cp = MLab.cov(p)
+cp = MLab.cov(Numeric.transpose(p))
 print array2string(cp[0:6,0:6],suppress_small=1,precision=4)
 
 print "actual means"
-mp = MLab.mean(p)
+mp = MLab.mean(Numeric.transpose(p))
 print mp
