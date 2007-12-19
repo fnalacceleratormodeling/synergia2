@@ -19,7 +19,8 @@ class GSL_random
     GSL_random(unsigned long int seed = 0,
         const gsl_rng_type *generator = gsl_rng_ranlxd2);
     void fill_array_unit_gaussian(double *array, int num, int stride=1);
-    void fill_array_uniform(double *array, int num, int stride=1);
+    void fill_array_uniform(double *array, int num, double min, double max,
+        int stride=1);
     ~GSL_random();
 };
 
@@ -40,10 +41,11 @@ GSL_random::fill_array_unit_gaussian(double *array, int num, int stride)
 }
 
 void
-GSL_random::fill_array_uniform(double *array, int num, int stride)
+GSL_random::fill_array_uniform(double *array, int num, double min,
+    double max, int stride)
 {
     for(int i = 0; i<num; i+=stride) {
-            array[i] = gsl_rng_uniform(rng);
+            array[i] = gsl_ran_flat(rng,min,max);
     }
 }
 
@@ -227,4 +229,45 @@ populate_6d_gaussian(Array_2d<double> &particles,
         for(int j=0; j<6; ++j) particles(j,n) = tmp2(j,n) + means(j);
         particles(6,n) = (n + id_offset)*1.0;
     }
+}
+
+void
+populate_transverse_gaussian(Array_2d<double> &particles, 
+    const Array_1d<double> &means, const Array_2d<double> &covariances,
+    const int id_offset)
+{
+    if (particles.get_shape()[0] != 7) {
+        throw
+        std::runtime_error("populate_6d_gaussian expects a particle array with shape (num_particles,7)");
+    }
+    int num_particles = particles.get_shape()[1];
+    // Use the memory allocated for particles as a scratch area until the very end
+    Array_2d<double> tmp(6,num_particles,particles.get_data_ptr());
+    Array_2d<double> tmp2(6,num_particles);
+
+    // It is simplest to let z be gaussian now, then replace it later
+    GSL_random gslr;
+    gslr.fill_array_unit_gaussian(tmp.get_data_ptr(),tmp.get_size());
+ 
+    // Symmetry requires no correlations with the z coordinate. Make a copy
+    // of the covariance matrix and manually set all correlations to zero.
+    Array_2d<double> covariances_modified(covariances);
+    covariances_modified.copy();
+    for (int k=0; k<6; ++k) {
+        covariances_modified(4,k) = covariances_modified(k,4) = 0.0;
+    }
+    covariances_modified(4,4) = 1.0;
+    
+    adjust_moments(tmp,tmp2,means,covariances_modified);
+    
+    // Fill output array, adding (requested) means and setting particle ID.
+    for(int n=0; n<num_particles; ++n) {
+        for(int j=0; j<6; ++j) particles(j,n) = tmp2(j,n) + means(j);
+        particles(6,n) = (n + id_offset)*1.0;
+    }
+    
+    const double pi = 3.1415926535897932385;
+    // Real z distribution
+    gslr.fill_array_uniform(particles.get_data_ptr()+particles.offset(4,0),
+        num_particles,-pi,pi);
 }

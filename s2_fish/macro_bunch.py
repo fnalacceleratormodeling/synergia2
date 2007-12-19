@@ -154,7 +154,7 @@ class Macro_bunch:
         self.total_current = total_current
         self.complete = 1
     
-    def init_6d_gaussian(self,total_num,total_current, beam_parameters):
+    def init_gaussian(self,total_num,total_current, beam_parameters):
         (Cxy, Cxpyp, Cz, Czp) = beam_parameters.get_conversions()
         self.units = Numeric.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
         self.total_num = total_num
@@ -171,9 +171,14 @@ class Macro_bunch:
         self.is_fixedz = 1
         self.ref_particle = Numeric.zeros((6,),'d')
         self.particles = Numeric.zeros((7,self.local_num),'d')
-        populate.populate_6d_gaussian(self.particles,
-            beam_parameters.get_means(),
-            beam_parameters.get_covariances(),id_offset)
+        if beam_parameters.get_transverse():
+            populate.populate_transverse_gaussian(self.particles,
+                beam_parameters.get_means(),
+                beam_parameters.get_covariances(),id_offset)
+        else:
+            populate.populate_6d_gaussian(self.particles,
+                beam_parameters.get_means(),
+                beam_parameters.get_covariances(),id_offset)
 
     def init_from_bunch(self, bunch):
         (Cxy, Cxpyp, Cz, Czp) = bunch.beam_parameters.get_conversions()
