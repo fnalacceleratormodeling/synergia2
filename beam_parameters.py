@@ -125,7 +125,7 @@ class Beam_parameters:
         if zpz: self.zpz = zpz
     
     def get_covariances(self):
-        c  = Numeric.array((6,6),'d')
+        c  = Numeric.zeros((6,6),'d')
         (Cxy, Cxpyp, Cz, Czp) = self.get_conversions()
         # Unit conversion: X^impact_i = C_i X^real_i
         Cx = Cxy
