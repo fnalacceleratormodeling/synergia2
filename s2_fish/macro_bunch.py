@@ -170,6 +170,7 @@ class Macro_bunch:
         self.total_current = total_current
         self.is_fixedz = 1
         self.ref_particle = Numeric.zeros((6,),'d')
+        self.ref_particle[5] = beam_parameters.get_gamma()
         self.particles = Numeric.zeros((7,self.local_num),'d')
         if beam_parameters.get_transverse():
             populate.populate_transverse_gaussian(self.particles,

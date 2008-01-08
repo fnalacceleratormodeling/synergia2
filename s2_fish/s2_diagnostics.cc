@@ -51,6 +51,11 @@ get_spatial_means_stds(Macro_bunch_store& mbs,
         sum1[i] = 0.0;
         sum2[i] = 0.0;
     }
+    std::cout << "get_spatial_means_stds: particle 0 =";
+    for(int i=0; i<7; ++i) {
+        std::cout << mbs.local_particles(i,0) << " ";
+    }
+    std::cout << std::endl;
     for (int n = 0; n < mbs.local_num; ++n) {
         sum1[0] += mbs.local_particles(0, n);
         sum1[1] += mbs.local_particles(2, n);

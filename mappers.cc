@@ -7,6 +7,8 @@
 #include <vector>
 #include "bmlfactory/bmlfactory.h"
 #include "mxyzptlk/Mapping.h"
+#include "s2_fish/array_2d.h"
+#include "s2_fish/array_nd_python.h"
 
 extern "C"
 {
@@ -37,25 +39,25 @@ double quickpow(double x, int i)
     return retval;
 }
 
-class Particles
-{
-private:
-    double *data;
-    int index(int row, int col)
-    {
-        return col*7 + row;
-    };
-public:
-    Particles(numeric::array& numeric_particles)
-    {
-        data = reinterpret_cast<double *>
-               (reinterpret_cast<PyArrayObject*>(numeric_particles.ptr())->data);
-    };
-    double & operator()(int component, int particle)
-    {
-        return data[index(component,particle)];
-    };
-};
+//~ class Particles
+//~ {
+//~ private:
+    //~ double *data;
+    //~ int index(int row, int col)
+    //~ {
+        //~ return col*7 + row;
+    //~ };
+//~ public:
+    //~ Particles(numeric::array& numeric_particles)
+    //~ {
+        //~ data = reinterpret_cast<double *>
+               //~ (reinterpret_cast<PyArrayObject*>(numeric_particles.ptr())->data);
+    //~ };
+    //~ double & operator()(int component, int particle)
+    //~ {
+        //~ return data[index(component,particle)];
+    //~ };
+//~ };
 
 class Linear_map
 {
@@ -83,7 +85,8 @@ void apply_linear_map(numeric::array& numeric_particles, int num_particles,
                       numeric::array& numeric_map)
 {
     double t0 = double_time();
-    Particles particles(numeric_particles);
+    Array_2d<double> particles = 
+        Array_nd_from_PyObject<double>(numeric_particles.ptr());
     Linear_map map(numeric_map);
 
     double temp[6];
@@ -253,7 +256,14 @@ Fast_mapping::Fast_mapping(numeric::array& numeric_u, Mapping mapping)
 void
 Fast_mapping::apply(numeric::array& numeric_particles, int num_particles)
 {
-    Particles particles(numeric_particles);
+    Array_2d<double> particles = 
+        Array_nd_from_PyObject<double>(numeric_particles.ptr());
+    std::cout << "Fast_mapping::apply\n";
+    std::cout << "particles: ";
+    for(int i=0; i<7; ++i) {
+        std::cout << particles(i,0) << " ";
+    }
+    std::cout << std::endl;
     double temp[6];
     for (int part = 0; part < num_particles; ++part) {
         for (int i = 0; i < 6; ++i) {
@@ -316,7 +326,8 @@ void crap(numeric::array& numeric_particles, int num_particles,
 {
     std::cout << "here I am in crap\n";
     double t0 = double_time();
-    Particles particles(numeric_particles);
+    Array_2d<double> particles =
+        Array_nd_from_PyObject<double>(numeric_particles.ptr());
     Linear_map map(numeric_map);
 
     for (int i = 0; i < 6; ++i) {

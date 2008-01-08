@@ -26,13 +26,13 @@ Array_nd_from_PyObject(const PyObject *obj)
         strides.at(i) = PyArray_STRIDES(obj)[i]/sizeof(T);
     }
     Array_nd<T> retval(shape,strides,reinterpret_cast<T*>(PyArray_DATA(obj)));
-    std::cout << "returned array has strides = ";
-    output_vector(retval.get_strides());
-    std::cout << std::endl;
-    Array_nd<T> notretval(shape,reinterpret_cast<T*>(PyArray_DATA(obj)));
-    std::cout << "default array would have strides = ";
-    output_vector(notretval.get_strides());
-    std::cout << std::endl;
+    //~ std::cout << "returned array has strides = ";
+    //~ output_vector(retval.get_strides());
+    //~ std::cout << std::endl;
+    //~ Array_nd<T> notretval(shape,reinterpret_cast<T*>(PyArray_DATA(obj)));
+    //~ std::cout << "default array would have strides = ";
+    //~ output_vector(notretval.get_strides());
+    //~ std::cout << std::endl;
     return retval;
 }
 

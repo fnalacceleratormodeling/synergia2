@@ -85,6 +85,9 @@ if ( __name__ == '__main__'):
     
     b = macro_bunch.Macro_bunch(mass,1)
     b.init_gaussian(num_particles,current,bp)
+    print "inited particles.shape =",b.get_local_particles().shape
+    print "inited particles[:,0] =",b.get_local_particles()[:,0]
+    
     b.write_particles_text("ocf_new.dat")
 
     line_length = g.orbit_length()
@@ -95,8 +98,10 @@ if ( __name__ == '__main__'):
     kick_time = 0.0
     for action in g.get_actions():
         if action.is_mapping():
+            print "before mapping particles[:,0] =",b.get_local_particles()[:,0]
             action.get_data().apply(b.get_local_particles(),
                                b.get_num_particles_local())
+            print "after mapping particles[:,0] =",b.get_local_particles()[:,0]
             s += action.get_length()
         elif action.is_synergia_action():
             if action.get_synergia_action() == "space charge endpoint":
@@ -105,11 +110,13 @@ if ( __name__ == '__main__'):
                     print "finished space charge kick"
             elif action.get_synergia_action() == "space charge kick":
                 tk0 = time.time()
+                print "before kick particles[:,0] =",b.get_local_particles()[:,0]
                 fish.apply_space_charge_kick(griddim,None,None, b, 2*tau)
+                print "after kick particles[:,0] =",b.get_local_particles()[:,0]
                 tk1 = time.time()
                 kick_time += tk1 - tk0
             elif action.get_synergia_action() == "rfcavity1" or \
-                 action.get_synergia_action() == "rfcavity2":
+                action.get_synergia_action() == "rfcavity2":
                 element = action.get_data()
                 u_in = g.get_u(action.get_initial_energy())
                 u_out = g.get_u(action.get_final_energy())

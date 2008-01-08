@@ -4,3 +4,4 @@
 config.status
 local_paths.py
 make_defines
+fort.*

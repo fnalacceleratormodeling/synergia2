@@ -186,7 +186,7 @@ template<class T>
 void
 Array_nd<T>::copy_construct(const Array_nd& original)
 {
-    std::cout << "calling Array_nd copy constructor\n";
+    std::cout << "calling Array_nd copy constructor:";
     shape_frozen = false;
     own_data = false;
     construct(original.shape,original.strides,original.own_data);
@@ -194,7 +194,9 @@ Array_nd<T>::copy_construct(const Array_nd& original)
         for (unsigned int i = 0; i < size; ++i) {
             data_ptr[i] = original.data_ptr[i];
         }
+        std::cout << " copied " << size*sizeof(T) << " bytes\n";
     } else {
+        std::cout << " no data copied\n";
         data_ptr = original.data_ptr;
     }
 }
@@ -529,7 +531,7 @@ Array_nd<T>::write_to_file(std::string filename)
 
 template<class T>
 std::vector<T>
-read_line_vector(std::vector<T>& v, std::ifstream& stream)
+read_vector_line(std::vector<T>& v, std::ifstream& stream)
 {
     const int buffer_length(1000);
     char buffer[1000];
@@ -548,9 +550,9 @@ void
 Array_nd<T>::read_from_fstream(std::ifstream& stream)
 {
     std::vector<int> read_shape;
-    read_line_vector(read_shape, stream);
+    read_vector_line(read_shape, stream);
     std::vector<int> read_strides;
-    read_line_vector(read_strides, stream);
+    read_vector_line(read_strides, stream);
     int size = 1;
     for (int i = 0; i < read_shape.size(); ++i) {
         size *= read_shape[i];
