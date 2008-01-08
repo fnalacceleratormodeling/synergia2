@@ -33,7 +33,7 @@ Array_nd_from_PyObject(const PyObject *obj)
     std::cout << "default array would have strides = ";
     output_vector(notretval.get_strides());
     std::cout << std::endl;
-    return notretval;
+    return retval;
 }
 
 template<class T>
