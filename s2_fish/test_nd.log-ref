@@ -11,7 +11,7 @@ new x1(:,:)
         3.14        3.14
         3.14        3.14
 making x2 a copy of x1
-calling array_nd copy constructor
+calling Array_nd copy constructor
 x2(:,:)
         3.14        3.14
         3.14        3.14

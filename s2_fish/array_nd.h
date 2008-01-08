@@ -177,7 +177,7 @@ template<class T>
 void
 Array_nd<T>::copy_construct(const Array_nd& original)
 {
-    std::cout << "calling array_nd copy constructor\n";
+    std::cout << "calling Array_nd copy constructor\n";
     shape_frozen = false;
     own_data = false;
     construct(original.shape,original.strides,original.own_data);
