@@ -10,10 +10,21 @@ class Array_3d : public Array_nd<T>
 public:
     Array_3d();
     Array_3d(const int nx, const int ny, const int nz);
+    Array_3d(const int nx, const int ny, const int nz,
+        const int stride_x, const int stride_y, const int stride_z);
     Array_3d(const int nx, const int ny, const int nz, T *data_ptr);
+    Array_3d(const int nx, const int ny, const int nz,
+        const int stride_x, const int stride_y, const int stride_z,
+        T *data_ptr);
+    Array_3d(const Array_nd<T> &array_nd);
 
     void reshape(const int nx, const int ny, const int nz);
+    void reshape(const int nx, const int ny, const int nz,
+        const int stride_x, const int stride_y, const int stride_z);
     void reshape(const int nx, const int ny, const int nz, T *data_ptr);
+    void reshape(const int nx, const int ny, const int nz,
+        const int stride_x, const int stride_y, const int stride_z,
+        T *data_ptr);
 
     T& at(const int i, const int j, const int k);
     T at(const int i, const int j, const int k) const;
@@ -33,6 +44,7 @@ template<class T>
 Array_3d<T>::Array_3d() : Array_nd<T>()
 {
     this->shape = vector3(0,0,0);
+    this->strides = vector3(0,0,0);
 }
 
 template<class T>
@@ -43,11 +55,41 @@ Array_3d<T>::Array_3d(const int nx, const int ny, const int nz) :
 }
 
 template<class T>
+Array_3d<T>::Array_3d(const int nx, const int ny, const int nz,
+        const int stride_x, const int stride_y, const int stride_z) :
+    Array_nd<T>()
+{
+    this->construct(vector3(nx,ny,nz),vector3(stride_x,stride_y,stride_z),true);
+}
+
+template<class T>
 Array_3d<T>::Array_3d(const int nx, const int ny, const int nz, T *data_ptr) :
     Array_nd<T>()
 {
     this->data_ptr = data_ptr;
     this->construct(vector3(nx,ny,nz),false);
+}
+
+template<class T>
+Array_3d<T>::Array_3d(const int nx, const int ny, const int nz, 
+        const int stride_x, const int stride_y, const int stride_z,
+        T *data_ptr) :
+    Array_nd<T>()
+{
+    this->data_ptr = data_ptr;
+    this->construct(vector3(nx,ny,nz),vector3(stride_x,stride_y,stride_z),
+        false);
+}
+
+template<class T>
+Array_3d<T>::Array_3d(const Array_nd<T>& original)
+{
+    //~ std::cout << "converting from nd to 3d\n";
+    if (original.get_rank() != 3) {
+        throw 
+            std::runtime_error("Attempt to convert Array_nd of rank !=3 to Array_3d");
+    }
+    copy_construct(original);
 }
 
 template<class T>
@@ -61,6 +103,21 @@ Array_3d<T>::reshape(const int nx, const int ny, const int nz)
     }
     if (shape_changed) {
         this->construct(vector3(nx,ny,nz),true);
+    }
+}
+
+template<class T>
+void
+Array_3d<T>::reshape(const int nx, const int ny, const int nz,
+        const int stride_x, const int stride_y, const int stride_z)
+{
+    bool shape_changed = this->different_shape(vector3(nx,ny,nz));
+    if (shape_changed && this->shape_frozen) {
+        throw
+        std::out_of_range("Attempt to change the shape of a frozen Array_3d");
+    }
+    if (shape_changed) {
+        this->construct(vector3(nx,ny,nz),vector3(stride_x,stride_y,stride_z),true);
     }
 }
 
@@ -80,10 +137,26 @@ Array_3d<T>::reshape(const int nx, const int ny, const int nz, T *data_ptr)
 }
 
 template<class T>
+void
+Array_3d<T>::reshape(const int nx, const int ny, const int nz,
+        const int stride_x, const int stride_y, const int stride_z, T *data_ptr)
+{
+    bool shape_changed = this->different_shape(vector3(nx,ny,nz));
+    if (shape_changed && this->shape_frozen) {
+        throw
+        std::out_of_range("Attempt to change the shape of a frozen Array_3d");
+    }
+    this->data_ptr = data_ptr;
+    if (shape_changed) {
+        this->construct(vector3(nx,ny,nz),vector3(stride_x,stride_y,stride_z),false);
+    }
+}
+
+template<class T>
 inline int
 Array_3d<T>::offset(const int i, const int j, const int k) const
 {
-    return k + this->shape[1]*(j+this->shape[2]*i);
+    return i*this->strides[0] + j*this->strides[1] + k*this->strides[2];
 }
 
     
