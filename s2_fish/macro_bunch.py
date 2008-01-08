@@ -188,7 +188,6 @@ class Macro_bunch:
         self.local_num = bunch.num_particles_local()
         self.total_num = bunch.num_particles()
         self.total_current = bunch.current()
-        print "current from bunch =",bunch.current()
         self.ref_particle = bunch.reference_particle()
         self.is_fixedz = 1
         
@@ -212,7 +211,6 @@ class Macro_bunch:
             MPI.WORLD.Send(self.particles,dest=0)
 
     def write_particles_text(self,filename):
-        print "particles.shape =",self.get_local_particles().shape
         if MPI.rank == 0:
             f = open(filename,"w")
             for proc in xrange(1,MPI.size):

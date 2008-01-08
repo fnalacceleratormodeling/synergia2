@@ -4,7 +4,7 @@ import time
 
 t0 = 0.0
 
-def not_mytimer(message):
+def mytimer(message):
     global t0
     if t0 == 0.0:
         t0 = time.time()
@@ -12,5 +12,5 @@ def not_mytimer(message):
     print "%s: %g"%(message,t1-t0)
     t0 = time.time()
 
-def mytimer(message):
+def not_mytimer(message):
     pass

@@ -105,7 +105,9 @@ Array_nd<T>::construct(const std::vector<int> shape,
     const std::vector<int> strides, const bool allocate)
 {
     if (own_data) {
+#if defined(DEBUG_ALL) || defined(DEBUG_ARRAY_ND_ALL) || defined(DEBUG_ARRAY_ND_DEALLOCATE)
         std::cout << "deallocating\n";
+#endif
         myallocator.deallocate(data_ptr, size);
     }
     this->shape = shape;
@@ -186,7 +188,9 @@ template<class T>
 void
 Array_nd<T>::copy_construct(const Array_nd& original)
 {
+#if defined(DEBUG_ALL) || defined(DEBUG_ARRAY_ND_ALL) || defined(DEBUG_ARRAY_ND_COPY_CTOR)
     std::cout << "calling Array_nd copy constructor:";
+#endif
     shape_frozen = false;
     own_data = false;
     construct(original.shape,original.strides,original.own_data);
@@ -194,9 +198,13 @@ Array_nd<T>::copy_construct(const Array_nd& original)
         for (unsigned int i = 0; i < size; ++i) {
             data_ptr[i] = original.data_ptr[i];
         }
+#if defined(DEBUG_ALL) || defined(DEBUG_ARRAY_ND_ALL) || defined(DEBUG_ARRAY_ND_COPY_CTOR)
         std::cout << " copied " << size*sizeof(T) << " bytes\n";
+#endif
     } else {
+#if defined(DEBUG_ALL) || defined(DEBUG_ARRAY_ND_ALL) || defined(DEBUG_ARRAY_ND_COPY_CTOR)
         std::cout << " no data copied\n";
+#endif
         data_ptr = original.data_ptr;
     }
 }

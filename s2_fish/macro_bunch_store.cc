@@ -23,10 +23,6 @@ Macro_bunch_store::Macro_bunch_store(numeric::array& numeric_local_particles,
     this->charge = charge;
     this->total_current = total_current;
     this->is_fixedz = is_fixedz;
-    
-    std::cout << "mbs created, particle 0 = ";
-    for (int i=0;i<7; ++i) {std::cout << local_particles(i,0) << " ";}
-    std::cout << std::endl;
 }
 
 numeric::array Macro_bunch_store::get_local_particles()
@@ -68,8 +64,6 @@ void Macro_bunch_store::convert_to_fixedt()
         }
         is_fixedz = false;
     }
-    std::cout << "convert_to_fixedt: gamma = " << -ref_particle(5)
-        << " betai = ??" << " units(0) =" << units(0) << std::endl;
 }
 
 void Macro_bunch_store::convert_to_fixedz()

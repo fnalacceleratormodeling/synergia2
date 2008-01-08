@@ -3,18 +3,11 @@
 #include "array_2d.h"
 #include <Numeric/arrayobject.h>
 
-void
-output_vector(std::vector<int> v)
-{
-    std::cout << "[";
-    std::copy(v.begin(),v.end(),std::ostream_iterator<int>(std::cout,","));
-    std::cout << "]";
-}
-
 #define PyArray_NDIM(obj) (((PyArrayObject *)(obj))->nd)
 #define PyArray_STRIDES(obj) (((PyArrayObject *)(obj))->strides)
 #define PyArray_DIMS(obj) (((PyArrayObject *)(obj))->dimensions)
 #define PyArray_DATA(obj) ((void *)(((PyArrayObject *)(obj))->data))
+
 template<class T>
 Array_nd<T>
 Array_nd_from_PyObject(const PyObject *obj)
@@ -26,13 +19,6 @@ Array_nd_from_PyObject(const PyObject *obj)
         strides.at(i) = PyArray_STRIDES(obj)[i]/sizeof(T);
     }
     Array_nd<T> retval(shape,strides,reinterpret_cast<T*>(PyArray_DATA(obj)));
-    //~ std::cout << "returned array has strides = ";
-    //~ output_vector(retval.get_strides());
-    //~ std::cout << std::endl;
-    //~ Array_nd<T> notretval(shape,reinterpret_cast<T*>(PyArray_DATA(obj)));
-    //~ std::cout << "default array would have strides = ";
-    //~ output_vector(notretval.get_strides());
-    //~ std::cout << std::endl;
     return retval;
 }
 
