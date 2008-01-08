@@ -20,26 +20,39 @@ protected:
     T * data_ptr;
     bool own_data;
     std::vector<int> shape;
+    std::vector<int> strides;
     size_t size;
     bool shape_frozen;
 
     std::allocator<T> myallocator;
 
-    void construct(const std::vector<int> shape, const bool allocate);
+    void construct(const std::vector<int> shape, 
+        const std::vector<int> strides, const bool allocate);
     bool different_shape(const std::vector<int> shape) const;
+    std::vector<int> 
+        default_strides_from_shape(const std::vector<int> &shape);
     void recursive_print(const std::string name, const int which_index,
         std::vector<int> indices) const;
 
 public:
     Array_nd();
     Array_nd(const std::vector<int> shape);
+    Array_nd(const std::vector<int> shape, 
+        const std::vector<int> strides);
     Array_nd(const std::vector<int> shape, T *data_ptr);
+    Array_nd(const std::vector<int> shape, 
+        const std::vector<int> strides, T *data_ptr);
     Array_nd(const Array_nd& original);
 
     void copy();
 
     void reshape(const std::vector<int> shape);
+    void reshape(const std::vector<int> shape,
+        const std::vector<int> strides);
     void reshape(const std::vector<int> shape, T *data_ptr);
+    void reshape(const std::vector<int> shape,
+        const std::vector<int> strides, T *data_ptr);
+
     void freeze_shape();
 
     void set_all(const T value);
@@ -54,6 +67,7 @@ public:
     T* get_data_ptr() const;
     bool owns_data() const;
     std::vector<int> get_shape() const;
+    std::vector<int> get_strides() const;
     int get_rank() const;
     size_t get_size() const;
     bool shape_is_frozen() const;
@@ -85,13 +99,15 @@ Array_nd<T>::Array_nd()
 
 template<class T>
 void
-Array_nd<T>::construct(const std::vector<int> shape, const bool allocate)
+Array_nd<T>::construct(const std::vector<int> shape,
+    const std::vector<int> strides, const bool allocate)
 {
     if (own_data) {
         std::cout << "deallocating\n";
         myallocator.deallocate(data_ptr, size);
     }
     this->shape = shape;
+    this->strides = strides;
     size = shape[0];
     for (unsigned int i = 1; i < shape.size() ; i++) {
         size *= shape[i];
@@ -109,11 +125,32 @@ Array_nd<T>::construct(const std::vector<int> shape, const bool allocate)
 }
 
 template<class T>
+std::vector<int> 
+Array_nd<T>::default_strides_from_shape(const std::vector<int> &shape)
+{
+    std::vector<int> strides(shape);
+    strides.at(0) = 1;
+    for (int i=1; i<shape.size(); ++i) {
+        strides.at(i) = strides.at(i-1)*shape.at(i-1);
+    }
+    return strides;
+}
+
+template<class T>
 Array_nd<T>::Array_nd(const std::vector<int> shape)
 {
     shape_frozen = false;
     own_data = false;
-    construct(shape,true);
+    construct(shape,default_strides_from_shape(shape),true);
+}
+
+template<class T>
+Array_nd<T>::Array_nd(const std::vector<int> shape,
+    const std::vector<int> strides)
+{
+    shape_frozen = false;
+    own_data = false;
+    construct(shape,strides,true);
 }
 
 template<class T>
@@ -122,7 +159,17 @@ Array_nd<T>::Array_nd(const std::vector<int> shape, T *data_ptr)
     shape_frozen = false;
     own_data = false;
     this->data_ptr = data_ptr;
-    construct(shape,false);
+    construct(shape,default_strides_from_shape(shape),false);
+}
+
+template<class T>
+Array_nd<T>::Array_nd(const std::vector<int> shape,
+    const std::vector<int> strides, T *data_ptr)
+{
+    shape_frozen = false;
+    own_data = false;
+    this->data_ptr = data_ptr;
+    construct(shape,strides,false);
 }
 
 template<class T>
@@ -131,7 +178,7 @@ Array_nd<T>::Array_nd(const Array_nd& original)
     std::cout << "calling copy constructor\n";
     shape_frozen = false;
     own_data = false;
-    construct(original.shape,original.own_data);
+    construct(original.shape,original.strides,original.own_data);
     if (original.own_data) {
         for (unsigned int i = 0; i < size; ++i) {
             data_ptr[i] = original.data_ptr[i];
@@ -176,19 +223,35 @@ template<class T>
 void
 Array_nd<T>::reshape(const std::vector<int> shape)
 {
+    reshape(shape,default_strides_from_shape(shape));
+}
+
+template<class T>
+void
+Array_nd<T>::reshape(const std::vector<int> shape,
+    const std::vector<int> strides)
+{
     bool shape_changed = different_shape(shape);
     if (shape_changed && shape_frozen) {
         throw
         std::runtime_error("Attempt to change the shape of a frozen Array_nd");
     }
     if (shape_changed) {
-        construct(shape,true);
+        construct(shape,strides,true);
     }
 }
 
 template<class T>
 void
 Array_nd<T>::reshape(const std::vector<int> shape, T *data_ptr)
+{
+    reshape(shape,default_strides_from_shape(shape),data_ptr);
+}
+
+template<class T>
+void
+Array_nd<T>::reshape(const std::vector<int> shape, 
+    const std::vector<int> strides, T *data_ptr)
 {
     bool shape_changed = different_shape(shape);
     if (shape_changed && shape_frozen) {
@@ -197,7 +260,7 @@ Array_nd<T>::reshape(const std::vector<int> shape, T *data_ptr)
     }
     this->data_ptr = data_ptr;
     if (shape_changed) {
-        construct(shape,false);
+        construct(shape,strides,false);
     }
 }
 
@@ -227,6 +290,13 @@ int
 Array_nd<T>::get_rank() const
 {
     return shape.size();
+}
+
+template<class T>
+std::vector<int>
+Array_nd<T>::get_strides() const
+{
+    return strides;
 }
 
 template<class T>
@@ -261,10 +331,8 @@ inline int
 Array_nd<T>::offset(const std::vector<int> &indices) const
 {
     int val = 0;
-    int multiplier = 1;
-    for (int i = shape.size() - 1; i >= 0 ; --i) {
-        val += indices[i] * multiplier;
-        multiplier *= shape[i];
+    for (int i = 0; i < shape.size() ; ++i) {
+        val += indices[i] * strides[i];
     }
     return val;
 }
@@ -359,7 +427,6 @@ Array_nd<T>::describe() const
     std::cout << ")\n";
 }
 
-//jfa: n.b. printing has not been updated for distributed arrays.
 template<class T>
 void
 Array_nd<T>::recursive_print(const std::string name,
@@ -421,13 +488,17 @@ Array_nd<T>::write_to_fstream(std::ofstream& stream)
     }
     stream << std::endl;
 
-    for (unsigned int i = 0; i < size; ++i ) {
-        stream << data_ptr[i];
-        if (i < size - 1) {
-            stream << "\n";
+    for (unsigned int i = 0; i < shape.size(); ++i) {
+        stream << strides[i];
+        if (i < strides.size() - 1) {
+            stream << " ";
         }
     }
     stream << std::endl;
+
+    for (unsigned int i = 0; i < size; ++i ) {
+        stream << data_ptr[i] << std::endl;
+    }
 }
 
 template<class T>
@@ -461,11 +532,13 @@ Array_nd<T>::read_from_fstream(std::ifstream& stream)
 {
     std::vector<int> read_shape;
     read_line_vector(read_shape, stream);
-    int size(1);
+    std::vector<int> read_strides;
+    read_line_vector(read_strides, stream);
+    int size = 1;
     for (int i = 0; i < read_shape.size(); ++i) {
         size *= read_shape[i];
     }
-    reshape(read_shape.size(), &read_shape[0]);
+    reshape(shape,strides);
 
     for (unsigned int i = 0; i < size; ++i ) {
         stream >> data_ptr[i];

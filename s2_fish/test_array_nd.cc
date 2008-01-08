@@ -131,6 +131,11 @@ main()
     output_vector(retrieved_shape);
     std::cout << std::endl;
  
+    std::vector<int> retrieved_strides(x5.get_strides());
+    std::cout << "x5.get_strides() = ";
+    output_vector(retrieved_strides);
+    std::cout << std::endl;
+ 
     index = vector3(1,2,3);
     std::cout << "x5.offset(1,2,3) = " << x5.offset(index) << std::endl; 
     

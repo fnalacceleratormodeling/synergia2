@@ -95,6 +95,7 @@ x3.owns_data() = 0
 x4.owns_data() = 1
 x5.owns_data() = 0
 x5.get_shape() = [2,3,4,]
+x5.get_strides() = [1,2,6,]
 x5.offset(1,2,3) = 23
 x1.get_size() = 6
 x2.get_size() = 6
