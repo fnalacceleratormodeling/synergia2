@@ -4,21 +4,20 @@
 #include <Numeric/arrayobject.h>
 
 #define PyArray_NDIM(obj) (((PyArrayObject *)(obj))->nd)
+#define PyArray_STRIDES(obj) (((PyArrayObject *)(obj))->strides)
 #define PyArray_DIMS(obj) (((PyArrayObject *)(obj))->dimensions)
 #define PyArray_DATA(obj) ((void *)(((PyArrayObject *)(obj))->data))
 template<class T>
 Array_nd<T>
 Array_nd_from_PyObject(const PyObject *obj)
 {
-    std::vector<int> shape;
-    shape.resize(PyArray_NDIM(obj));
-    shape.at(0) = PyArray_DIMS(obj)[0];
-    int size = shape.at(0);
-    for (int i = 1; i < PyArray_NDIM(obj) ; ++i) {
+    std::vector<int> shape(PyArray_NDIM(obj));
+    std::vector<int> strides(PyArray_NDIM(obj));
+    for (int i = 0; i < PyArray_NDIM(obj) ; ++i) {
         shape.at(i) = PyArray_DIMS(obj)[i];
-        size *= shape.at(i);
+        strides.at(i) = PyArray_STRIDES(obj)[i];
     }
-    Array_nd<T> retval(shape,reinterpret_cast<T*>(PyArray_DATA(obj)));
+    Array_nd<T> retval(shape,strides,reinterpret_cast<T*>(PyArray_DATA(obj)));
     return retval;
 }
 
