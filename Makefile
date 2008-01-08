@@ -1,5 +1,5 @@
 all: apply_map.so error_eater.so mappers.so \
-	chef_propagate.so hist2d.so octapy-all s2_fish-all
+	chef_propagate.so hist2d.so s2_fish-all
 
 install: s2_fish-install
 
