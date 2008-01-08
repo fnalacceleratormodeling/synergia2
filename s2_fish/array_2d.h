@@ -48,8 +48,7 @@ Array_2d<T>::Array_2d() : Array_nd<T>()
 template<class T>
 Array_2d<T>::Array_2d(const int nx, const int ny) : Array_nd<T>()
 {
-    this->construct(vector2(nx,ny),
-        this->default_strides_from_shape(vector2(nx,ny)),true);
+    this->construct(vector2(nx,ny),true);
 }
 
 template<class T>
@@ -63,8 +62,7 @@ template<class T>
 Array_2d<T>::Array_2d(const int nx, const int ny, T *data_ptr) : Array_nd<T>()
 {
     this->data_ptr = data_ptr;
-    this->construct(vector2(nx,ny),
-        this->default_strides_from_shape(vector2(nx,ny)),false);
+    this->construct(vector2(nx,ny),false);
 }
 
 template<class T>
@@ -97,8 +95,7 @@ Array_2d<T>::reshape(const int nx, const int ny)
         std::out_of_range("Attempt to change the shape of a frozen Array_2d");
     }
     if (shape_changed) {
-        this->construct(vector2(nx,ny),
-            this->default_strides_from_shape(vector2(nx,ny)),true);
+        this->construct(vector2(nx,ny),true);
     }
 }
 
@@ -128,8 +125,7 @@ Array_2d<T>::reshape(const int nx, const int ny, T *data_ptr)
     }
     this->data_ptr = data_ptr;
     if (shape_changed) {
-        this->construct(vector2(nx,ny),
-            this->default_strides_from_shape(vector2(nx,ny)),false);
+        this->construct(vector2(nx,ny),false);
     }
 }
 
