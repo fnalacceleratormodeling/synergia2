@@ -34,6 +34,9 @@ space_charge: main.o
 nd_array.so: nd_array_wrap.o
 	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS) $(PETSC_LIBS)
 
+array_checker.so: array_checker.o
+	$(CXX) $(CXXFLAGS) -shared -o $@ $^ $(BOOST_LIBS)
+	
 ndcheck: s2_fish.so
 	python test_nd_array.py
 
@@ -134,6 +137,7 @@ install:
 
 # DO NOT DELETE
 
+array_checker.o: array_nd_python.h array_2d.h array_nd.h vector_helper.h
 BasErs_field.o: BasErs_field.h
 communicate.o: communicate.h scalar_field.h nd_array.h mytimer.h triple.h
 communicate.o: fftw_helper.h
@@ -187,4 +191,8 @@ solver_fftw3.o: macro_bunch_store.h ltwt_containers.h
 solver_fftw.o: solver_fftw.h scalar_field.h nd_array.h mytimer.h triple.h
 solver_fftw.o: macro_bunch_store.h ltwt_containers.h fftw_helper.h
 solver_fftw.o: communicate.h
+test_array_1d.o: array_1d.h array_nd.h vector_helper.h
+test_array_2d.o: array_2d.h array_nd.h vector_helper.h
+test_array_3d.o: array_3d.h array_nd.h vector_helper.h
+test_array_nd.o: array_nd.h vector_helper.h
 test_populate.o: populate.h array_1d.h array_nd.h vector_helper.h array_2d.h

@@ -138,9 +138,10 @@ std::vector<int>
 Array_nd<T>::default_strides_from_shape(const std::vector<int> &shape)
 {
     std::vector<int> strides(shape);
-    strides.at(0) = 1;
-    for (int i=1; i<shape.size(); ++i) {
-        strides.at(i) = strides.at(i-1)*shape.at(i-1);
+    int dim = shape.size();
+    strides.at(dim-1) = 1;
+    for (int i=dim-2;i>=0; --i) {
+        strides.at(i) = strides.at(i+1)*shape.at(i+1);
     }
     return strides;
 }
