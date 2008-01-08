@@ -76,8 +76,8 @@ main()
     try {
         x5.reshape(shape1);
         std::cout << "no error!\n";
-    } catch(std::out_of_range) {
-        std::cout << "caught out_of_range error!\n";
+    } catch(std::runtime_error) {
+        std::cout << "caught runtime_error!\n";
     }
 
     std::cout << "attempting to set x5.at(-1,0,0)... ";
