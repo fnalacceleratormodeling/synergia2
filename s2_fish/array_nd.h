@@ -28,6 +28,7 @@ protected:
 
     void construct(const std::vector<int> shape, 
         const std::vector<int> strides, const bool allocate);
+    void copy_construct(const Array_nd& original);
     bool different_shape(const std::vector<int> shape) const;
     std::vector<int> 
         default_strides_from_shape(const std::vector<int> &shape);
@@ -173,9 +174,10 @@ Array_nd<T>::Array_nd(const std::vector<int> shape,
 }
 
 template<class T>
-Array_nd<T>::Array_nd(const Array_nd& original)
+void
+Array_nd<T>::copy_construct(const Array_nd& original)
 {
-    std::cout << "calling copy constructor\n";
+    std::cout << "calling array_nd copy constructor\n";
     shape_frozen = false;
     own_data = false;
     construct(original.shape,original.strides,original.own_data);
@@ -186,6 +188,12 @@ Array_nd<T>::Array_nd(const Array_nd& original)
     } else {
         data_ptr = original.data_ptr;
     }
+}
+
+template<class T>
+Array_nd<T>::Array_nd(const Array_nd& original)
+{
+    copy_construct(original);
 }
 
 template<class T>
