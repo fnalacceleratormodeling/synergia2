@@ -3,3 +3,4 @@
 *.o
 pure_gsl
 test_populate
+test_array_nd

@@ -1,0 +1,43 @@
+all: test_nd test_2d test_3d
+
+ifdef REF
+outsuffix=-ref
+else
+outsuffix=
+endif
+
+test_array_nd: test_array_nd.cc array_nd.h array_nd.h
+	g++ -o test_array_nd test_array_nd.cc
+
+test_nd: test_array_nd
+	./test_array_nd > test_nd.log$(outsuffix)
+
+test_array_2d: test_array_2d.cc array_2d.h array_nd.h
+	g++ -o test_array_2d test_array_2d.cc
+
+test_2d: test_array_2d
+	./test_array_2d > test_2d.log$(outsuffix)
+
+test_array_3d: test_array_3d.cc array_3d.h array_nd.h
+	g++ -o test_array_3d test_array_3d.cc
+
+test_3d: test_array_3d
+	./test_array_3d > test_3d.log$(outsuffix)
+
+diff: diff_nd diff_2d diff_3d
+
+diff_nd:
+	diff -c test_nd.log-ref test_nd.log
+
+diff_2d:
+	diff -c test_2d.log-ref test_2d.log
+
+diff_3d:
+	diff -c test_3d.log-ref test_3d.log
+	
+clean:
+	/bin/rm -f test_array_nd test_array_2d test_array_3d
+
+debug:
+	echo "outsuffix=$(outsuffix)"
+	echo "REF=$(REF)"
