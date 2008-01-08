@@ -10,11 +10,19 @@ class Array_2d : public Array_nd<T>
 public:
     Array_2d();
     Array_2d(const int nx, const int ny);
+    Array_2d(const int nx, const int ny, 
+        const int stride_x, const int stride_y);
     Array_2d(const int nx, const int ny, T *data_ptr);
+    Array_2d(const int nx, const int ny, 
+        const int stride_x, const int stride_y, T *data_ptr);
     Array_2d(const Array_nd<T> &array_nd);
 
     void reshape(const int nx, const int ny);
+    void reshape(const int nx, const int ny, 
+        const int stride_x, const int stride_y);
     void reshape(const int nx, const int ny, T *data_ptr);
+    void reshape(const int nx, const int ny, 
+        const int stride_x, const int stride_y, T *data_ptr);
 
     T& at(const int i, const int j);
     T at(const int i, const int j) const;
@@ -34,19 +42,37 @@ template<class T>
 Array_2d<T>::Array_2d() : Array_nd<T>()
 {
     this->shape = vector2(0,0);
+    this->strides = vector2(0,0);
 }
 
 template<class T>
 Array_2d<T>::Array_2d(const int nx, const int ny) : Array_nd<T>()
 {
-    this->construct(vector2(nx,ny),true);
+    this->construct(vector2(nx,ny),
+        this->default_strides_from_shape(vector2(nx,ny)),true);
+}
+
+template<class T>
+Array_2d<T>::Array_2d(const int nx, const int ny, 
+        const int stride_x, const int stride_y) : Array_nd<T>()
+{
+    this->construct(vector2(nx,ny),vector2(stride_x,stride_y),true);
 }
 
 template<class T>
 Array_2d<T>::Array_2d(const int nx, const int ny, T *data_ptr) : Array_nd<T>()
 {
     this->data_ptr = data_ptr;
-    this->construct(vector2(nx,ny),false);
+    this->construct(vector2(nx,ny),
+        this->default_strides_from_shape(vector2(nx,ny)),false);
+}
+
+template<class T>
+Array_2d<T>::Array_2d(const int nx, const int ny, 
+        const int stride_x, const int stride_y, T *data_ptr) : Array_nd<T>()
+{
+    this->data_ptr = data_ptr;
+    this->construct(vector2(nx,ny),vector2(stride_x,stride_y),false);
 }
 
 template<class T>
@@ -57,17 +83,7 @@ Array_2d<T>::Array_2d(const Array_nd<T>& original)
         throw 
             std::runtime_error("Attempt to convert Array_nd of rank !=2 to Array_2d");
     }
-    this->shape_frozen = false;
-    this->own_data = false;
-    this->construct(original.get_shape(),original.owns_data());
-    T *original_data_ptr = original.get_data_ptr();
-    if (original.owns_data()) {
-        for (unsigned int i = 0; i < this->size; ++i) {
-            this->data_ptr[i] = original_data_ptr[i];
-        }
-    } else {
-        this->data_ptr = original_data_ptr;
-    }
+    copy_construct(original);
 }
 
 
@@ -81,7 +97,23 @@ Array_2d<T>::reshape(const int nx, const int ny)
         std::out_of_range("Attempt to change the shape of a frozen Array_2d");
     }
     if (shape_changed) {
-        this->construct(vector2(nx,ny),true);
+        this->construct(vector2(nx,ny),
+            this->default_strides_from_shape(vector2(nx,ny)),true);
+    }
+}
+
+template<class T>
+void
+Array_2d<T>::reshape(const int nx, const int ny,
+    const int stride_x, const int stride_y)
+{
+    bool shape_changed = this->different_shape(vector2(nx,ny));
+    if (shape_changed && this->shape_frozen) {
+        throw
+        std::out_of_range("Attempt to change the shape of a frozen Array_2d");
+    }
+    if (shape_changed) {
+        this->construct(vector2(nx,ny),vector2(stride_x,stride_y),true);
     }
 }
 
@@ -96,7 +128,24 @@ Array_2d<T>::reshape(const int nx, const int ny, T *data_ptr)
     }
     this->data_ptr = data_ptr;
     if (shape_changed) {
-        this->construct(vector2(nx,ny),false);
+        this->construct(vector2(nx,ny),
+            this->default_strides_from_shape(vector2(nx,ny)),false);
+    }
+}
+
+template<class T>
+void
+Array_2d<T>::reshape(const int nx, const int ny,
+    const int stride_x, const int stride_y, T *data_ptr)
+{
+    bool shape_changed = this->different_shape(vector2(nx,ny));
+    if (shape_changed && this->shape_frozen) {
+        throw
+        std::out_of_range("Attempt to change the shape of a frozen Array_2d");
+    }
+    this->data_ptr = data_ptr;
+    if (shape_changed) {
+        this->construct(vector2(nx,ny),vector2(stride_x,stride_y),false);
     }
 }
 
@@ -104,7 +153,7 @@ template<class T>
 inline int
 Array_2d<T>::offset(const int i, const int j) const
 {
-    return j + this->shape[1]*i;
+    return i*this->strides[0] + j*this->strides[1];
 }
 
     
