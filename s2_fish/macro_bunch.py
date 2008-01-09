@@ -62,7 +62,7 @@ class Macro_bunch:
         total_num = local_num # fix me for mpi
         total_current = 1.0
         self.units = Numeric.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
-        self.ref_particle = Numeric.array([0.0,0.0,0.0,0.0,0.0,1.1],'d')
+        self.ref_particle = Numeric.array([0.0,0.0,0.0,0.0,0.0,-1.1],'d')
         self.particles = Numeric.zeros((7,local_num),'d')
         self.is_fixedz = 1
         index = 0
@@ -90,7 +90,7 @@ class Macro_bunch:
         total_num = MPI.WORLD.Allreduce(local_num,MPI.SUM)
         total_current = 1.0
         self.units = Numeric.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
-        self.ref_particle = Numeric.array([0.0,0.0,0.0,0.0,0.0,1.1],'d')
+        self.ref_particle = Numeric.array([0.0,0.0,0.0,0.0,0.0,-1.1],'d')
         self.particles = Numeric.zeros((7,local_num),'d')
         self.is_fixedz = 1
         index = 0
@@ -126,7 +126,7 @@ class Macro_bunch:
         total_num = local_num # fix me for mpi
         total_current = 1.0
         self.units = Numeric.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
-        self.ref_particle = Numeric.array([0.0,0.0,0.0,0.0,0.0,1.1],'d')
+        self.ref_particle = Numeric.array([0.0,0.0,0.0,0.0,0.0,-1.1],'d')
         self.particles = Numeric.zeros((7,local_num),'d')
         self.is_fixedz = 1
         index = 0
@@ -170,7 +170,7 @@ class Macro_bunch:
         self.total_current = total_current
         self.is_fixedz = 1
         self.ref_particle = Numeric.zeros((6,),'d')
-        self.ref_particle[5] = beam_parameters.get_gamma()
+        self.ref_particle[5] = -beam_parameters.get_gamma()
         self.particles = Numeric.zeros((7,self.local_num),'d')
         if beam_parameters.get_transverse():
             populate.populate_transverse_gaussian(self.particles,
@@ -226,7 +226,13 @@ class Macro_bunch:
         else:
             MPI.WORLD.Send(self.particles(),dest=0)
 
-    def read_particles(self,filename):
+    def read_particles(self,filename,total_current, beam_parameters):
+        (Cxy, Cxpyp, Cz, Czp) = beam_parameters.get_conversions()
+        self.units = Numeric.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
+        self.total_current = total_current
+        self.is_fixedz = 1
+        self.ref_particle = Numeric.zeros((6,),'d')
+        self.ref_particle[5] = -beam_parameters.get_gamma()
         self.particles = loadfile.loadfile_transpose(filename)
         self.local_num = self.particles.shape[1]
         self.total_num = self.local_num
