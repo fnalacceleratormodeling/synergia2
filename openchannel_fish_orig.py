@@ -143,8 +143,8 @@ if ( __name__ == '__main__'):
 
     print "elapsed time =",time.time() - t0, "kick time =",kick_time
 
-    diag.write("ocfish")
-    diag.write_hdf5("ocfish")
+    diag.write("ocfish_orig")
+    diag.write_hdf5("ocfish_orig")
     import pylab
     import loadfile
 
