@@ -16,7 +16,7 @@ from mpi4py import MPI
 fftwhs = {}
 
 def apply_space_charge_kick(shape,size,offset,mbunch,tau):
-    show_timings=1
+    show_timings=0
     mytimer("misc asck1")
     key = str(shape)
     if not fftwhs.has_key(key):
