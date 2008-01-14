@@ -23,7 +23,7 @@ import memory
 from math import pi
 
 
-import UberPkgpy #SpaceChargePkgpy
+import UberPkgpy
 
 import chef_propagate
 import error_eater
@@ -31,6 +31,10 @@ import options
 import job_manager
 import tracker
 
+import syn2_diagnostics
+
+import fish_fftw as fish
+import macro_bunch
 
 from mpi4py import MPI
 try:
@@ -53,8 +57,8 @@ mem0 = 0.0
 plot_index = 0
 def plot_long(b):
     if MPI.rank ==0:
-        z = b.particles()[4,:]
-        zprime = b.particles()[5,:]
+        z = b.get_local_particles()[4,:]
+        zprime = b.get_local_particles()[5,:]
 
         d = diagnostics.Diagnostics()
         pylab.hold(0)
@@ -95,8 +99,8 @@ def plot_long(b):
         plot_index += 1
     
 def correct_for_dispersion(b,the_map):
-    for i in range(0,b.num_particles_local()):
-         b.particles()[0,i] += b.particles()[5,i]*the_map[0,5]
+    for i in range(0,b.get_num_particles_local()):
+         b.get_local_particles()[0,i] += b.get_local_particles()[5,i]*the_map[0,5]
 
 rfcells = [14,15,16,17,19,21,22,23,24]
 class Line:
@@ -119,12 +123,11 @@ class Line:
         self.tau = 0.5*self.line_length/self.kicks
         
     def insert_rf(self):
-        self.g.iterator.reset()
-        element = self.g.iterator.next()
         s = 0.0
-        while element.Name() != "LONGA":
+        for element in self.g.beamline:
+            if element.Name() == "LONGA":
+                break
             s += element.OrbitLength(self.g.get_initial_particle())
-            element = self.g.iterator.next()
         rf_total_length = element.OrbitLength(self.g.get_initial_particle())
         cavity_length = 2.56
         drift_length = (rf_total_length - 2.0*cavity_length)/2.0
@@ -145,9 +148,7 @@ class Line:
 
     def set_rf_params(self,voltage_ev,phase1,phase2):
         if self.name in self.rfnames:
-            self.g.iterator.reset()
-            element = self.g.iterator.next()
-            while element:
+            for element in self.g.beamline:
                 if element.Type() == 'thinrfcavity':
                     if element.Name() == "synergia action:rfcavity1":
                         phase = phase1
@@ -158,7 +159,6 @@ class Line:
                     strength = 1.0e-9 * voltage_ev
                     element.setStrength(strength)
                     element.setPhi(phase)
-                element = self.g.iterator.next()
             self.g.generate_actions()
 
     def propagate(self, s, bunch, sc_params):
@@ -177,7 +177,6 @@ class Line:
                 if action.get_synergia_action() == "space charge endpoint":
                     if not first_action:
                         pass
-#                         (mean,std) = b.write_fort(s)
                 elif action.get_synergia_action() == "space charge kick":
                     UberPkgpy.Apply_SpaceCharge_external(
                         bunch.get_beambunch(),
@@ -359,7 +358,6 @@ if ( __name__ == '__main__'):
     s = 0.0
     mean = Numeric.zeros(6,'d')
     std = None
-#    b.write_fort(s)
 
     if MPI.rank == 0 and myopts.get("showplot"):
         pylab.ion()

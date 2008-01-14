@@ -70,10 +70,10 @@ class Gourmet:
         self.initial_momentum = math.sqrt(self.initial_energy**2 -
                                           self.mass**2)
         if os.path.splitext(lattice_file)[1] == '.xsif':
-            print "gourmet: using xsif parser for %s" % lattice_file
+            #~ print "gourmet: using xsif parser for %s" % lattice_file
             self.factory = XSIFFactory(lattice_file)
         else:
-            print "gourmet: using MAD8 parser"
+            #~ print "gourmet: using MAD8 parser"
             self.factory = MAD8Factory(lattice_file)
         brho = self.get_initial_particle().ReferenceBRho()
         beamline_orig = self.factory.create_beamline(line_name,brho)

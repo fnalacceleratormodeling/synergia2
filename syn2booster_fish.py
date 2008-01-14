@@ -25,7 +25,7 @@ import memory
 from math import pi
 
 
-import UberPkgpy #SpaceChargePkgpy
+import UberPkgpy
 
 import chef_propagate
 import error_eater
@@ -175,34 +175,20 @@ class Line:
         first_action = 1
         for action in self.g.get_actions():
             if action.is_mapping():
-                t0 = time.time()
                 action.get_data().apply(bunch.get_local_particles(),
                                    bunch.get_num_particles_local())
-                t1 = time.time()
                 s += action.get_length()
             elif action.is_synergia_action():
                 if action.get_synergia_action() == "space charge endpoint":
                     if not first_action:
+                        diag.add(s,bunch)
                         if MPI.rank == 0:
                             f = open("diagnostics","a")
                             f.write("%g %g\n" % (s,time.time()-self.t0))
                             f.close()
-#                         (mean,std) = b.write_fort(s)
-                            diag.add(s,bunch)
                 elif action.get_synergia_action() == "space charge kick":
                     size = (1,1,1)
-                    t0 = time.time()
                     fish.apply_space_charge_kick(griddim,size,offset, bunch, 2*self.tau)
-                    t1 = time.time()
-                    #~ UberPkgpy.Apply_SpaceCharge_external(
-                        #~ bunch.get_beambunch(),
-                        #~ sc_params.pgrid.get_pgrid2d(),
-                        #~ sc_params.field.get_fieldquant(),
-                        #~ sc_params.field.get_compdom(),
-                        #~ sc_params.field.get_period_length(),
-                        #~ sc_params.cgrid.get_bc_num(),
-                        #~ sc_params.field.get_pipe_radius(),
-                        #~ self.tau, 0, self.scaling_frequency,0)
                 elif action.get_synergia_action() == "rfcavity1" or \
                      action.get_synergia_action() == "rfcavity2":
                     element = action.get_data()
@@ -378,7 +364,6 @@ if ( __name__ == '__main__'):
     s = 0.0
     mean = Numeric.zeros(6,'d')
     std = None
-#    b.write_fort(s)
     diag = syn2_diagnostics.Diagnostics(injcell_line.g.get_initial_u())
     diag.add(s,b)
     
@@ -398,12 +383,10 @@ if ( __name__ == '__main__'):
             print "turn %d:" % turn,
             sys.stdout.flush()
         (s,mean,std) = injb_line.propagate(s, b, offset, griddim, diag)
-        #~ (mean,std) = b.write_fort(s)
         if turn % myopts.get("plotperiod") == 0 and myopts.get("showplot"):
             plot_long(b)
         for cell in range(2,25):
             (s,mean,std) = cell_line[cell].propagate(s,b, offset, griddim,diag)
-            #~ (mean,std) = b.write_fort(s)
             if cell % 24 == 0 and turn % myopts.get("plotperiod") == 0 \
                    and myopts.get("showplot"):
                 plot_long(b)
@@ -431,7 +414,6 @@ if ( __name__ == '__main__'):
             sys.stdout.flush()
         for cell in range(1,25):
             (s,mean,std) = cell_line[cell].propagate(s,b, offset,griddim, diag)
-            #~ (mean,std) = b.write_fort(s)
             if cell % 24 == 0 and turn % myopts.get("plotperiod") == 0 \
                    and myopts.get("showplot"):
                 plot_long(b)
