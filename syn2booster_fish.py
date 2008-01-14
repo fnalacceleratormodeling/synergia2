@@ -18,6 +18,8 @@ import math
 import basic_toolkit
 import beamline
 
+import syn2_diagnostics
+
 import sys
 import memory
 from math import pi
@@ -126,12 +128,11 @@ class Line:
         self.t0 = time.time()
         
     def insert_rf(self):
-        self.g.iterator.reset()
-        element = self.g.iterator.next()
         s = 0.0
-        while element.Name() != "LONGA":
+        for element in self.g.beamline:
+            if element.Name() == "LONGA":
+                break
             s += element.OrbitLength(self.g.get_initial_particle())
-            element = self.g.iterator.next()
         rf_total_length = element.OrbitLength(self.g.get_initial_particle())
         cavity_length = 2.56
         drift_length = (rf_total_length - 2.0*cavity_length)/2.0
@@ -152,9 +153,7 @@ class Line:
 
     def set_rf_params(self,voltage_ev,phase1,phase2):
         if self.name in self.rfnames:
-            self.g.iterator.reset()
-            element = self.g.iterator.next()
-            while element:
+            for element in self.g.beamline:
                 if element.Type() == 'thinrfcavity':
                     if element.Name() == "synergia action:rfcavity1":
                         phase = phase1
@@ -165,10 +164,9 @@ class Line:
                     strength = 1.0e-9 * voltage_ev
                     element.setStrength(strength)
                     element.setPhi(phase)
-                element = self.g.iterator.next()
             self.g.generate_actions()
 
-    def propagate(self, s, bunch, offset, griddim):
+    def propagate(self, s, bunch, offset, griddim, diag):
         if MPI.rank == 0:
             print "%s" % self.name,
         mean = None
@@ -181,8 +179,6 @@ class Line:
                 action.get_data().apply(bunch.get_local_particles(),
                                    bunch.get_num_particles_local())
                 t1 = time.time()
-                if MPI.rank ==0:
-                    print "wtfmapping:",t1-t0
                 s += action.get_length()
             elif action.is_synergia_action():
                 if action.get_synergia_action() == "space charge endpoint":
@@ -192,13 +188,12 @@ class Line:
                             f.write("%g %g\n" % (s,time.time()-self.t0))
                             f.close()
 #                         (mean,std) = b.write_fort(s)
+                            diag.add(s,bunch)
                 elif action.get_synergia_action() == "space charge kick":
                     size = (1,1,1)
                     t0 = time.time()
                     fish.apply_space_charge_kick(griddim,size,offset, bunch, 2*self.tau)
                     t1 = time.time()
-                    if MPI.rank ==0:
-                        print "wtfkick:",t1-t0
                     #~ UberPkgpy.Apply_SpaceCharge_external(
                         #~ bunch.get_beambunch(),
                         #~ sc_params.pgrid.get_pgrid2d(),
@@ -275,7 +270,7 @@ class Sc_params:
                                                       griddim[1],
                                                       griddim[2],
                                                       "trans finite, long periodic round")
-        piperad = 0.08
+        piperad = 0.04
         self.field = field.Field(bp, self.pgrid, self.cgrid, piperad)
 
 
@@ -339,7 +334,7 @@ if ( __name__ == '__main__'):
     scaling_frequency = 37.7e6
 ### end save
     part_per_cell = myopts.get("partpercell")
-    pipe_radius = 0.08
+    pipe_radius = 0.04
     offset = (0,0,0)
     griddim = myopts.get("scgrid")
     proccol = myopts.get("proccol")
@@ -384,7 +379,9 @@ if ( __name__ == '__main__'):
     mean = Numeric.zeros(6,'d')
     std = None
 #    b.write_fort(s)
-
+    diag = syn2_diagnostics.Diagnostics(injcell_line.g.get_initial_u())
+    diag.add(s,b)
+    
     if MPI.rank == 0 and myopts.get("showplot"):
         pylab.ion()
     if myopts.get("track"):
@@ -400,12 +397,12 @@ if ( __name__ == '__main__'):
         if MPI.rank==0:
             print "turn %d:" % turn,
             sys.stdout.flush()
-        (s,mean,std) = injb_line.propagate(s, b, offset, griddim)
+        (s,mean,std) = injb_line.propagate(s, b, offset, griddim, diag)
         #~ (mean,std) = b.write_fort(s)
         if turn % myopts.get("plotperiod") == 0 and myopts.get("showplot"):
             plot_long(b)
         for cell in range(2,25):
-            (s,mean,std) = cell_line[cell].propagate(s,b, offset, griddim)
+            (s,mean,std) = cell_line[cell].propagate(s,b, offset, griddim,diag)
             #~ (mean,std) = b.write_fort(s)
             if cell % 24 == 0 and turn % myopts.get("plotperiod") == 0 \
                    and myopts.get("showplot"):
@@ -413,7 +410,7 @@ if ( __name__ == '__main__'):
             if cell % 12 == 2 and myopts.get("track"):
                 mytracker.add(b,s)
         if turn < last_inj_turn:
-            (s,mean,std) = inja_line.propagate(s,b,offset, griddim)
+            (s,mean,std) = inja_line.propagate(s,b,offset, griddim, diag)
             binj = bunch.Bunch(myopts.get("current"), bp, num_particles,
                                sc_params.pgrid)
             binj.generate_particles()
@@ -433,7 +430,7 @@ if ( __name__ == '__main__'):
             print "turn %d:" % turn,
             sys.stdout.flush()
         for cell in range(1,25):
-            (s,mean,std) = cell_line[cell].propagate(s,b, offset,griddim)
+            (s,mean,std) = cell_line[cell].propagate(s,b, offset,griddim, diag)
             #~ (mean,std) = b.write_fort(s)
             if cell % 24 == 0 and turn % myopts.get("plotperiod") == 0 \
                    and myopts.get("showplot"):
@@ -447,6 +444,8 @@ if ( __name__ == '__main__'):
     if myopts.get("track"):
         mytracker.close()
         mytracker.show_statistics()
+    diag.write_hdf5("syn2booster_fish");
+    diag.write("syn2booster_fish");
     MPI.WORLD.Barrier()
     print "elapsed time =",time.time() - t0
     time_file.close()
