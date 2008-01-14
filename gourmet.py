@@ -191,16 +191,21 @@ class Gourmet:
         self._commission()
     
     def insert_space_charge_markers(self, num_kicks):
-        kick_interval = self.orbit_length()/(1.0*num_kicks)
         elements = []
         positions = []
         insertion_point = 0.0
-        for i in range(0,num_kicks):
+        if (num_kicks == 0):
             elements.append(marker("synergia action:space charge endpoint"))
             positions.append(insertion_point)
-            insertion_point += kick_interval/2.0
-            elements.append(marker("synergia action:space charge kick"))
-            positions.append(insertion_point)
+            insertion_point +=  self.orbit_length()
+        else:    
+            kick_interval = self.orbit_length()/(1.0*num_kicks)
+            for i in range(0,num_kicks):
+                elements.append(marker("synergia action:space charge endpoint"))
+                positions.append(insertion_point)
+                insertion_point += kick_interval/2.0
+                elements.append(marker("synergia action:space charge kick"))
+                positions.append(insertion_point)
             insertion_point += kick_interval/2.0
         # begin bug workaround
         positions.append(insertion_point + 1000.0)
