@@ -151,7 +151,7 @@ if ( __name__ == '__main__'):
     bp.y_params(sigma = sigma_y, lam = sigma_yprime * pz)
     sigma_z_meters = myopts.get("sigmaz_m")
     bp.z_params(sigma = sigma_z_meters, lam = myopts.get("dpop")* pz)
-    bp.correlation_coeffs(xpx = -r_x, ypy = -r_y)
+    bp.correlation_coeffs(xpx = r_x, ypy = r_y)
 
 
 ##    bp.x_params(sigma = myopts.get("xinit"), lam = myopts.get("xpinit")*pz)
