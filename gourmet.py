@@ -438,6 +438,7 @@ class Gourmet:
             bunch.get_num_particles_local(),
             self.elements[index],
             self.get_initial_energy(),
+            self.particle,
             self.get_initial_u(),
             self.get_initial_u())
 
