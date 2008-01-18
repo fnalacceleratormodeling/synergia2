@@ -77,10 +77,10 @@ class Gourmet:
             self.factory = MAD8Factory(lattice_file)
         brho = self.get_initial_particle().ReferenceBRho()
         beamline_orig = self.factory.create_beamline(line_name,brho)
-        beamline_orig.flatten()
         beamline_orig.insert(pacifier)
         beamline_orig.append(pacifier)
         self.beamline = DriftsToSlots(beamline_orig)
+        self._commission()
         self.have_actions = 0
         self.have_fast_mappings = 0
         self.have_element_fast_mappings = 0
