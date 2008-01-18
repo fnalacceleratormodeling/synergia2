@@ -11,6 +11,10 @@
 #include "beamline/Particle.h"
 #include <string>
 
+#include "s2_fish/array_nd.h"
+#include "s2_fish/array_2d.h"
+#include "s2_fish/array_1d.h"
+#include "s2_fish/array_nd_python.h"
 extern "C" {
 #include <sys/time.h>
 }
@@ -30,47 +34,18 @@ int convert_chef_index(int impact_index)
   return impact_index/2+3*(impact_index%2);
 }
 
-class Particles
-{
-private:
-  double *data;
-  int index(int row,int col) {
-    return col*7 + row;
-  };
-public:
-  Particles(numeric::array& numeric_particles) {
-    data = reinterpret_cast<double *>
-      (reinterpret_cast<PyArrayObject*>(numeric_particles.ptr())->data);
-  };
-  double & operator()(int component, int particle) {
-    return data[index(component,particle)];
-  };
-};
-
-
-class Unit_conversion
-{
-private:
-  double *data;
-public:
-  Unit_conversion(numeric::array& numeric_u) {
-    data = reinterpret_cast<double *>
-    (reinterpret_cast<PyArrayObject*>(numeric_u.ptr())->data);
-  };
-  double & operator()(int impact_index) {
-    return data[impact_index];
-  };
-};
-
 void
 chef_propagate(numeric::array& numeric_particles, int num_particles,
 	       bmlnElmnt& element, double energy_in, std::string particle_type,
 	       numeric::array& numeric_u_in, numeric::array& numeric_u_out)
 {
-  Unit_conversion u_in(numeric_u_in);
-  Unit_conversion u_out(numeric_u_out);
-
-  Particles particles(numeric_particles);
+    Array_1d<double> u_in =
+        Array_nd_from_PyObject<double>(numeric_u_in.ptr());
+    Array_1d<double> u_out =
+        Array_nd_from_PyObject<double>(numeric_u_out.ptr());
+        
+    Array_2d<double> particles = 
+        Array_nd_from_PyObject<double>(numeric_particles.ptr());
 
   Vector chef_state(6);
   for(int part=0; part<num_particles; ++part) {
