@@ -148,15 +148,15 @@ public:
     int order;
     Fast_mapping_term(int order)
     {
-        i = new int[order];
+        i = new int[order+1];
         this->order = order;
     };
     Fast_mapping_term(const Fast_mapping_term& t)
     {
         coeff = t.coeff;
         order = t.order;
-        i = new int[order];
-        for (int j = 0; j < order; ++j) {
+        i = new int[order+1];
+        for (int j = 0; j < order+1; ++j) {
             i[j] = t.i[j];
         }
     };
@@ -195,7 +195,7 @@ Fast_mapping::Fast_mapping(numeric::array& numeric_u, Mapping mapping)
     order = mapping.Weight();
     terms.resize(6);
     for (int comp_index = 0; comp_index < 6; ++comp_index) {
-        terms.at(comp_index).resize(order);
+        terms.at(comp_index).resize(order+1);
     }
     for (int i = 0; i < 6 ; ++i) {
         int chef_i = convert_chef_index(i);
@@ -204,30 +204,23 @@ Fast_mapping::Fast_mapping(numeric::array& numeric_u, Mapping mapping)
         for (Jet::iterator jet_it = mapping(chef_i).begin();
                 jet_it != mapping(chef_i).end();
                 ++jet_it) {
-            if ((jet_it->coefficient() == 0.0) ||
-                    (jet_it->exponents(env).Sum() == 0)) {
+            if (jet_it->coefficient() == 0.0) {
                 //ignore zero coefficients
             } else {
-                if (jet_it->exponents(env).Sum() > 0) {
-                    int term_order = jet_it->exponents(env).Sum();
-                    Fast_mapping_term tmp_term(term_order);
-                    tmp_term.coeff = jet_it->coefficient() * u(i);
-                    int which = 0;
-                    for (int index = 0; index < 6; ++index) {
-                        int chef_index = convert_chef_index(index);
-                        int expt = jet_it->exponents(env)(chef_index);
-                        for (int count = 0; count < expt; ++count) {
-                            tmp_term.i[which] = index;
-                            ++which;
-                        }
-                        tmp_term.coeff *= 1.0 / quickpow(u(index), expt);
+                int term_order = jet_it->exponents(env).Sum();
+                Fast_mapping_term tmp_term(term_order);
+                tmp_term.coeff = jet_it->coefficient() * u(i);
+                int which = 0;
+                for (int index = 0; index < 6; ++index) {
+                    int chef_index = convert_chef_index(index);
+                    int expt = jet_it->exponents(env)(chef_index);
+                    for (int count = 0; count < expt; ++count) {
+                        tmp_term.i[which] = index;
+                        ++which;
                     }
-                    terms.at(i).at(term_order - 1).push_back(tmp_term);
-                } else {
-                    std::cerr
-                    << "Fast_mapping found something funky with a term of order "
-                    << jet_it->exponents(env).Sum() << std::endl;
+                    tmp_term.coeff *= 1.0 / quickpow(u(index), expt);
                 }
+                terms.at(i).at(term_order).push_back(tmp_term);
             }
         }
     }
@@ -245,19 +238,22 @@ Fast_mapping::apply(numeric::array& numeric_particles, int num_particles)
             double term;
             std::list<Fast_mapping_term>::const_iterator telem;
             for (telem = terms[i][0].begin(); telem != terms[i][0].end(); ++telem) {
+                temp[i] += telem->coeff;
+            }
+            for (telem = terms[i][1].begin(); telem != terms[i][1].end(); ++telem) {
                 term = telem->coeff;
                 term *= particles(telem->i[0], part);
                 temp[i] += term;
             }
             if (order > 1) {
-                for (telem = terms[i][1].begin(); telem != terms[i][1].end(); ++telem) {
+                for (telem = terms[i][2].begin(); telem != terms[i][2].end(); ++telem) {
                     term = telem->coeff;
                     term *= particles(telem->i[0], part);
                     term *= particles(telem->i[1], part);
                     temp[i] += term;
                 }
                 if (order > 2) {
-                    for (telem = terms[i][2].begin(); telem != terms[i][2].end(); ++telem) {
+                    for (telem = terms[i][3].begin(); telem != terms[i][3].end(); ++telem) {
                         term = telem->coeff;
                         term *= particles(telem->i[0], part);
                         term *= particles(telem->i[1], part);
@@ -265,12 +261,12 @@ Fast_mapping::apply(numeric::array& numeric_particles, int num_particles)
                         temp[i] += term;
                     }
                     if (order > 3) {
-                        for (int suborder = 1; suborder < order; ++suborder) {
+                        for (int suborder = 4; suborder <= order; ++suborder) {
                             for (telem = terms[i][suborder].begin();
                                     telem != terms[i][suborder].end();
                                     ++telem) {
                                 term = telem->coeff;
-                                for (int j = 0; j <= suborder; ++j) {
+                                for (int j = 0; j < suborder; ++j) {
                                     term *= particles(telem->i[j], part);
                                 }
                                 temp[i] += term;
