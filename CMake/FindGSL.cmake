@@ -75,7 +75,7 @@ ELSE(WIN32)
       ${GSL_CONFIG_PREFER_PATH}
       /usr/bin/
       )
-    MESSAGE("DBG GSL_CONFIG ${GSL_CONFIG}")
+    # MESSAGE("DBG GSL_CONFIG ${GSL_CONFIG}")
     
     IF (GSL_CONFIG) 
       # set CXXFLAGS to be fed into CXX_FLAGS by the user:
@@ -138,5 +138,3 @@ IF(GSL_LIBRARIES)
     
   ENDIF(GSL_INCLUDE_DIR OR GSL_CXX_FLAGS)
 ENDIF(GSL_LIBRARIES)
-
-message("jfa: gsl_cxx_flags = ${GSL_CXX_FLAGS}")
