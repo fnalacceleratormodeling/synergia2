@@ -206,7 +206,7 @@ class Gourmet:
                 insertion_point += kick_interval/2.0
                 elements.append(marker("synergia action:space charge kick"))
                 positions.append(insertion_point)
-            insertion_point += kick_interval/2.0
+                insertion_point += kick_interval/2.0
         # begin bug workaround
         positions.append(insertion_point + 1000.0)
         elements.append(marker("bug workaround"))
