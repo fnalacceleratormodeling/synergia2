@@ -75,11 +75,11 @@ ELSE(WIN32)
       ${GSL_CONFIG_PREFER_PATH}
       /usr/bin/
       )
-    # MESSAGE("DBG GSL_CONFIG ${GSL_CONFIG}")
+    MESSAGE("DBG GSL_CONFIG ${GSL_CONFIG}")
     
     IF (GSL_CONFIG) 
       # set CXXFLAGS to be fed into CXX_FLAGS by the user:
-      SET(GSL_CXX_FLAGS "`${GSL_CONFIG} --cflags`")
+      SET(GSL_CXX_FLAGS "\"`${GSL_CONFIG} --cflags`\"")
       
       # set INCLUDE_DIRS to prefix+include
       EXEC_PROGRAM(${GSL_CONFIG}
@@ -88,7 +88,7 @@ ELSE(WIN32)
       SET(GSL_INCLUDE_DIR ${GSL_PREFIX}/include CACHE STRING INTERNAL)
 
       # set link libraries and link flags
-      SET(GSL_LIBRARIES "`${GSL_CONFIG} --libs`")
+      SET(GSL_LIBRARIES "\"`${GSL_CONFIG} --libs`\"")
       
       # extract link dirs for rpath  
       EXEC_PROGRAM(${GSL_CONFIG}
@@ -139,3 +139,4 @@ IF(GSL_LIBRARIES)
   ENDIF(GSL_INCLUDE_DIR OR GSL_CXX_FLAGS)
 ENDIF(GSL_LIBRARIES)
 
+message("jfa: gsl_cxx_flags = ${GSL_CXX_FLAGS}")
