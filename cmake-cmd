@@ -1,1 +1,4 @@
-cmake -DPYTHON_INCLUDE_PATH:PATH=/home2/amundson/work/synergia2-base/install/include/python2.4 -DPYTHON_LIBRARY:FILEPATH=/home2/amundson/work/synergia2-base/install/lib/libpython2.4 -DBoost_INCLUDE_DIR:PATH=/home2/amundson/work/synergia2-base/install/include/boost-1_33
+cmake -DPYTHON_INCLUDE_PATH:PATH=/home2/amundson/work/synergia2-base/install/include/python2.4 \
+-DPYTHON_LIBRARY:FILEPATH=/home2/amundson/work/synergia2-base/install/lib/libpython2.4 \
+-DBoost_INCLUDE_DIR:PATH=/home2/amundson/work/synergia2-base/install/include/boost-1_33 \
+-DCMAKE_CXX_COMPILER:FILEPATH=`type -p mpicxx` .

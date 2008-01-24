@@ -1,7 +1,5 @@
 project(synergia2)
 
-set(CMAKE_VERBOSE_MAKEFILE ON)
-
 INCLUDE(FindPythonInterp)
 
 INCLUDE(FindPythonLibs)
@@ -18,8 +16,7 @@ set(CHEF_LIBS -lphysics_toolkit -lbeamline -lbmlfactory -lglib-2.0 -lbasic_toolk
 INCLUDE_DIRECTORIES(${CHEF_INSTALL_DIR}/include)
 LINK_DIRECTORIES(${CHEF_INSTALL_DIR}/lib)
 
-
-# add_subdirectory(s2_fish)
+add_subdirectory(s2_fish)
 
 add_library(apply_map MODULE apply_map.cc)
 target_link_libraries(apply_map  ${CHEF_LIBS} ${BOOST_LIBS})
