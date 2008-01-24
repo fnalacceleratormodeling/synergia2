@@ -1,0 +1,6 @@
+macro(add_python_extension MODNAME)
+    set(FILES ${ARGV})
+    list(REMOVE_AT FILES 0)
+    add_library(${MODNAME} MODULE ${FILES})
+    set_target_properties(${MODNAME} PROPERTIES PREFIX "")
+endmacro(add_python_extension)

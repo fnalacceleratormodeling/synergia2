@@ -1,10 +1,11 @@
-SET(CMAKE_CXX_COMPILER ${mpicxx})
+link_libraries(${CHEF_LIBS} ${BOOST_LIBS})
 
-add_library(GaussSC MODULE GaussSC.cc BasErs_field)
-target_link_libraries(GaussSC  ${CHEF_LIBS} ${BOOST_LIBS})
-set_target_properties(GaussSC PROPERTIES PREFIX "")
+add_python_extension(GaussSC GaussSC.cc BasErs_field)
 
-add_library(s2_containers MODULE s2_containers_wrap.cc ltwt_containers.cc mytimer.cc)
-target_link_libraries(s2_containers ${CHEF_LIBS} ${BOOST_LIBS})
-set_target_properties(s2_containers PROPERTIES PREFIX "")
+add_python_extension(s2_containers s2_containers_wrap.cc ltwt_containers.cc 
+    mytimer.cc)
 
+add_python_extension(macro_bunch_store macro_bunch_store_wrap.cc 
+    macro_bunch_store.cc ltwt_containers.cc)
+
+add_python_extension(populate populate.cc)
