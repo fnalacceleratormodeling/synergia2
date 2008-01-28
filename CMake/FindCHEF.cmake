@@ -1,6 +1,6 @@
 # jfa: work is left to be done here...
 
-set(CHEF_PREFIX /home2/amundson/work/synergia2-base/install)
+set(CHEF_PREFIX xxx)
 set(CHEF_INCLUDE_DIRS ${CHEF_PREFIX}/include)
 set(CHEF_LIBRARY_DIRS ${CHEF_PREFIX}/lib)
 
