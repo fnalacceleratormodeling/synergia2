@@ -86,7 +86,7 @@ class Line:
                     element.setPhi(phase)
             self.gourmet.generate_actions()
 
-def get_beam_parameters_orig(line, opts):
+def get_beam_parameters(line, opts):
     beam_parameters = synergia.Beam_parameters(synergia.PH_NORM_mp,
                                          1.0, 0.4, 0.0, scaling_frequency,
                                          opts.get("transverse"))
@@ -142,10 +142,7 @@ if ( __name__ == '__main__'):
     myopts.add("emittance",3.0e-6,"emittance",float)
     myopts.add("zfrac",0.1,"z width as fraction of bucket",float)
     myopts.add("dpop",5.0e-4,"(delta p)/p",float)
-    myopts.add("showplot",0,"show plot",int)
-    myopts.add("plotperiod",10,"how often to plot")
     myopts.add("kickspercell",4,"kicks per cell",int)
-    myopts.add("plotperiod",4,"update plot every plotperiod steps",int)
     myopts.add("turns",12,"number of booster revolutions",int)
     myopts.add("rfvoltage",0.6e6/18.0,"rf voltage (MV)",float)
     myopts.add("rfphase",0.0,"rf cavity phase (rad)",float)
@@ -193,7 +190,7 @@ if ( __name__ == '__main__'):
     injb_line = Line("booster_classic.lat","bcel01b" ,0.4,
                      scaling_frequency,order,part_kicks,myopts)
 
-    beam_parameters = get_beam_parameters_orig(injcell_line,myopts)
+    beam_parameters = get_beam_parameters(injcell_line,myopts)
 
     bunch = s2_fish.Macro_bunch(synergia.PH_NORM_mp,1)
     bunch.init_gaussian(num_particles,myopts.get("current"),beam_parameters)
@@ -201,9 +198,10 @@ if ( __name__ == '__main__'):
     linear_map = injcell_line.gourmet.get_single_linear_map()
     correct_for_dispersion(bunch,linear_map)
 
-    #b.write_particles("initial.dat")
-
     last_inj_turn = myopts.get("injturns")
+    if last_inj_turn < 1:
+        raise RuntimeError,"Number of injection turns must be >=1"
+        
     last_turn = myopts.get("turns")
 
     s = 0.0
@@ -212,71 +210,43 @@ if ( __name__ == '__main__'):
     diag = synergia.Diagnostics(injcell_line.gourmet.get_initial_u())
     diag.add(s,bunch)
     
-    if MPI.rank == 0 and myopts.get("showplot"):
-        pylab.ion()
     if myopts.get("track"):
         mytracker = synergia.Tracker('/tmp',myopts.get("trackfraction"))
-    time_file = open("timing.dat","w")
-    t1 = time.time()
-    for turn in range(1,last_inj_turn+1):
-        if MPI.rank == 0:
-            time_file.write("%g %g\n" % (s,time.time()-t1))
-            t1 = time.time()
-            time_file.flush()
+
+    for turn in range(1,last_turn+1):
         update_rf(cell_line,myopts,turn)
         if MPI.rank==0:
             print "turn %d:" % turn,
             sys.stdout.flush()
-        s = synergia.propagate(s,injb_line.gourmet,bunch,diag,griddim)
-        #~ (s,mean,std) = injb_line.propagate(s, bunch, offset, griddim, diag)
-        if turn % myopts.get("plotperiod") == 0 and myopts.get("showplot"):
-            plot_long(b)
+        if (turn<=last_inj_turn):
+            s = synergia.propagate(s,injb_line.gourmet,bunch,diag,griddim)
+            print "inj_b",
+            sys.stdout.flush()
         for cell in range(2,25):
             s = synergia.propagate(s,cell_line[cell].gourmet,bunch,diag,griddim)
-            #~ (s,mean,std) = cell_line[cell].propagate(s,bunch, offset, griddim,diag)
-            if cell % 24 == 0 and turn % myopts.get("plotperiod") == 0 \
-                   and myopts.get("showplot"):
-                plot_long(b)
+            print "%02d" % cell,
+            sys.stdout.flush()
             if cell % 12 == 2 and myopts.get("track"):
-                mysynergia.add(bunch,s)
-        if turn < last_inj_turn:
+                mytracker.add(bunch,s)
+        if turn <= last_inj_turn:
             s = synergia.propagate(s,inja_line.gourmet,bunch,diag,griddim)
-            #~ (s,mean,std) = inja_line.propagate(s,bunch,offset, griddim, diag)
-            binj = synergia.Bunch(myopts.get("current"), beam_parameters, num_particles,
-                               sc_params.pgrid)
-            binj.generate_particles()
-            correct_for_dispersion(binj,injcell_line.gourmet.get_single_linear_map())
-            bunch.inject(binj)
+            print "inj_a",
+            sys.stdout.flush()
+            if turn < last_inj_turn:
+                print "injection is temporarily broken"
+                #~ binj = synergia.Bunch(myopts.get("current"), beam_parameters, num_particles,
+                                   #~ sc_params.pgrid)
+                #~ binj.generate_particles()
+                #~ correct_for_dispersion(binj,injcell_line.gourmet.get_single_linear_map())
+                #~ bunch.inject(binj)
+        else:
+            s = synergia.propagate(s,cell_line[1].gourmet,bunch,diag,griddim)
+            print "01",
+            sys.stdout.flush()
         if MPI.rank==0:
             print
-        if turn % myopts.get("saveperiod") == 0:
-            bunch.write_particles("turn_inj_%04d.dat" % turn)
-    for turn in range(last_inj_turn+1,last_turn+1):
-        if MPI.rank == 0:
-            time_file.write("%g %g\n" % (s,time.time()-t1))
-            t1 = time.time()
-            time_file.flush()
-        update_rf(cell_line,myopts,turn)
-        if MPI.rank==0:
-            print "turn %d:" % turn,
-            sys.stdout.flush()
-        for cell in range(1,25):
-            s = synergia.propagate(s,cell_line[cell].gourmet,bunch,diag,griddim)
-            #~ (s,mean,std) = cell_line[cell].propagate(s,bunch, offset,griddim, diag)
-            if cell % 24 == 0 and turn % myopts.get("plotperiod") == 0 \
-                   and myopts.get("showplot"):
-                plot_long(b)
-            if cell % 12 == 2 and myopts.get("track"):
-                mysynergia.add(bunch,s)
-        if MPI.rank==0:
-            print        
-        if turn % myopts.get("saveperiod") == 0:
-            bunch.write_particles("turn_%04d.dat" % turn)
-    if myopts.get("track"):
-        mysynergia.close()
-        mysynergia.show_statistics()
+
     diag.write_hdf5("syn2booster_fish");
     MPI.WORLD.Barrier()
     print "elapsed time =",time.time() - t0
-    time_file.close()
 
