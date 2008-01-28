@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>s2_fish.assemble_rho</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="s2_fish-module.html">Package&nbsp;s2_fish</a> ::
+        Module&nbsp;assemble_rho
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="s2_fish.assemble_rho-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="s2_fish.assemble_rho-module.html">Module s2_fish.assemble_rho</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno"> 1</tt>  <tt class="py-line"><tt class="py-comment">#!/usr/bin/env python</tt> </tt>
+<a name="L2"></a><tt class="py-lineno"> 2</tt>  <tt class="py-line"><tt class="py-comment"></tt> </tt>
+<a name="L3"></a><tt class="py-lineno"> 3</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt id="link-0" class="py-name" targets="Module s2_fish.arrayio=s2_fish.arrayio-module.html"><a title="s2_fish.arrayio" class="py-name" href="#" onclick="return doclink('link-0', 'arrayio', 'link-0');">arrayio</a></tt> </tt>
+<a name="L4"></a><tt class="py-lineno"> 4</tt>  <tt class="py-line"> </tt>
+<a name="write_vector"></a><div id="write_vector-def"><a name="L5"></a><tt class="py-lineno"> 5</tt> <a class="py-toggle" href="#" id="write_vector-toggle" onclick="return toggle('write_vector');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="s2_fish.assemble_rho-module.html#write_vector">write_vector</a><tt class="py-op">(</tt><tt class="py-param">file</tt><tt class="py-op">,</tt><tt class="py-param">t</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="write_vector-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="write_vector-expanded"><a name="L6"></a><tt class="py-lineno"> 6</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt id="link-1" class="py-name" targets="Variable synergia.latticefns.i=synergia.latticefns-module.html#i"><a title="synergia.latticefns.i" class="py-name" href="#" onclick="return doclink('link-1', 'i', 'link-1');">i</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">t</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L7"></a><tt class="py-lineno"> 7</tt>  <tt class="py-line">        <tt class="py-name">file</tt><tt class="py-op">.</tt><tt id="link-2" class="py-name" targets="Method synergia.syn2_diagnostics.Diagnostics.write()=synergia.syn2_diagnostics.Diagnostics-class.html#write,Method synergia.syn2_diagnostics_impact.Diagnostics_impact.write()=synergia.syn2_diagnostics_impact.Diagnostics_impact-class.html#write"><a title="synergia.syn2_diagnostics.Diagnostics.write
+synergia.syn2_diagnostics_impact.Diagnostics_impact.write" class="py-name" href="#" onclick="return doclink('link-2', 'write', 'link-2');">write</a></tt><tt class="py-op">(</tt><tt class="py-name">str</tt><tt class="py-op">(</tt><tt class="py-name">t</tt><tt class="py-op">[</tt><tt id="link-3" class="py-name"><a title="synergia.latticefns.i" class="py-name" href="#" onclick="return doclink('link-3', 'i', 'link-1');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L8"></a><tt class="py-lineno"> 8</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt id="link-4" class="py-name"><a title="synergia.latticefns.i" class="py-name" href="#" onclick="return doclink('link-4', 'i', 'link-1');">i</a></tt><tt class="py-op">&lt;</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">t</tt><tt class="py-op">)</tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">:</tt> </tt>
+<a name="L9"></a><tt class="py-lineno"> 9</tt>  <tt class="py-line">            <tt class="py-name">file</tt><tt class="py-op">.</tt><tt id="link-5" class="py-name"><a title="synergia.syn2_diagnostics.Diagnostics.write
+synergia.syn2_diagnostics_impact.Diagnostics_impact.write" class="py-name" href="#" onclick="return doclink('link-5', 'write', 'link-2');">write</a></tt><tt class="py-op">(</tt><tt class="py-string">" "</tt><tt class="py-op">)</tt> </tt>
+<a name="L10"></a><tt class="py-lineno">10</tt>  <tt class="py-line">    <tt class="py-name">file</tt><tt class="py-op">.</tt><tt id="link-6" class="py-name"><a title="synergia.syn2_diagnostics.Diagnostics.write
+synergia.syn2_diagnostics_impact.Diagnostics_impact.write" class="py-name" href="#" onclick="return doclink('link-6', 'write', 'link-2');">write</a></tt><tt class="py-op">(</tt><tt class="py-string">"\n"</tt><tt class="py-op">)</tt> </tt>
+</div><a name="L11"></a><tt class="py-lineno">11</tt>  <tt class="py-line"><tt id="link-7" class="py-name" targets="Variable s2_fish.assemble_rho.h=s2_fish.assemble_rho-module.html#h,Method s2_fish.sphere_display.Py_scalar_field.h()=s2_fish.sphere_display.Py_scalar_field-class.html#h,Method s2_fish.sphere_display2.Py_scalar_field.h()=s2_fish.sphere_display2.Py_scalar_field-class.html#h"><a title="s2_fish.assemble_rho.h
+s2_fish.sphere_display.Py_scalar_field.h
+s2_fish.sphere_display2.Py_scalar_field.h" class="py-name" href="#" onclick="return doclink('link-7', 'h', 'link-7');">h</a></tt> <tt class="py-op">=</tt> <tt class="py-name">map</tt><tt class="py-op">(</tt><tt class="py-name">float</tt><tt class="py-op">,</tt><tt class="py-name">open</tt><tt class="py-op">(</tt><tt class="py-string">"../fort.51"</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">readline</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">split</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L12"></a><tt class="py-lineno">12</tt>  <tt class="py-line"><tt class="py-keyword">print</tt> <tt id="link-8" class="py-name"><a title="s2_fish.assemble_rho.h
+s2_fish.sphere_display.Py_scalar_field.h
+s2_fish.sphere_display2.Py_scalar_field.h" class="py-name" href="#" onclick="return doclink('link-8', 'h', 'link-7');">h</a></tt> </tt>
+<a name="L13"></a><tt class="py-lineno">13</tt>  <tt class="py-line"><tt id="link-9" class="py-name" targets="Variable s2_fish.assemble_rho.n=s2_fish.assemble_rho-module.html#n,Variable s2_fish.plot_efield_fftw.n=s2_fish.plot_efield_fftw-module.html#n,Variable s2_fish.plot_solver.n=s2_fish.plot_solver-module.html#n,Variable s2_fish.plot_solver_fftw.n=s2_fish.plot_solver_fftw-module.html#n,Variable s2_fish.plot_solver_fftw2.n=s2_fish.plot_solver_fftw2-module.html#n,Variable s2_fish.plot_solver_fftw3.n=s2_fish.plot_solver_fftw3-module.html#n,Variable s2_fish.plot_solver_periodic.n=s2_fish.plot_solver_periodic-module.html#n"><a title="s2_fish.assemble_rho.n
+s2_fish.plot_efield_fftw.n
+s2_fish.plot_solver.n
+s2_fish.plot_solver_fftw.n
+s2_fish.plot_solver_fftw2.n
+s2_fish.plot_solver_fftw3.n
+s2_fish.plot_solver_periodic.n" class="py-name" href="#" onclick="return doclink('link-9', 'n', 'link-9');">n</a></tt> <tt class="py-op">=</tt> <tt class="py-name">map</tt><tt class="py-op">(</tt><tt class="py-name">int</tt><tt class="py-op">,</tt><tt class="py-name">open</tt><tt class="py-op">(</tt><tt class="py-string">"../fort.39"</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">readline</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">split</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
+<a name="L14"></a><tt class="py-lineno">14</tt>  <tt class="py-line"><tt class="py-keyword">print</tt> <tt id="link-10" class="py-name"><a title="s2_fish.assemble_rho.n
+s2_fish.plot_efield_fftw.n
+s2_fish.plot_solver.n
+s2_fish.plot_solver_fftw.n
+s2_fish.plot_solver_fftw2.n
+s2_fish.plot_solver_fftw3.n
+s2_fish.plot_solver_periodic.n" class="py-name" href="#" onclick="return doclink('link-10', 'n', 'link-9');">n</a></tt> </tt>
+<a name="L15"></a><tt class="py-lineno">15</tt>  <tt class="py-line"><tt id="link-11" class="py-name" targets="Variable s2_fish.assemble_rho.physical_size=s2_fish.assemble_rho-module.html#physical_size"><a title="s2_fish.assemble_rho.physical_size" class="py-name" href="#" onclick="return doclink('link-11', 'physical_size', 'link-11');">physical_size</a></tt><tt class="py-op">=</tt><tt class="py-op">[</tt><tt id="link-12" class="py-name"><a title="s2_fish.assemble_rho.h
+s2_fish.sphere_display.Py_scalar_field.h
+s2_fish.sphere_display2.Py_scalar_field.h" class="py-name" href="#" onclick="return doclink('link-12', 'h', 'link-7');">h</a></tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">*</tt><tt class="py-op">(</tt><tt id="link-13" class="py-name"><a title="s2_fish.assemble_rho.n
+s2_fish.plot_efield_fftw.n
+s2_fish.plot_solver.n
+s2_fish.plot_solver_fftw.n
+s2_fish.plot_solver_fftw2.n
+s2_fish.plot_solver_fftw3.n
+s2_fish.plot_solver_periodic.n" class="py-name" href="#" onclick="return doclink('link-13', 'n', 'link-9');">n</a></tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">,</tt><tt id="link-14" class="py-name"><a title="s2_fish.assemble_rho.h
+s2_fish.sphere_display.Py_scalar_field.h
+s2_fish.sphere_display2.Py_scalar_field.h" class="py-name" href="#" onclick="return doclink('link-14', 'h', 'link-7');">h</a></tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">*</tt><tt class="py-op">(</tt><tt id="link-15" class="py-name"><a title="s2_fish.assemble_rho.n
+s2_fish.plot_efield_fftw.n
+s2_fish.plot_solver.n
+s2_fish.plot_solver_fftw.n
+s2_fish.plot_solver_fftw2.n
+s2_fish.plot_solver_fftw3.n
+s2_fish.plot_solver_periodic.n" class="py-name" href="#" onclick="return doclink('link-15', 'n', 'link-9');">n</a></tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">,</tt><tt id="link-16" class="py-name"><a title="s2_fish.assemble_rho.h
+s2_fish.sphere_display.Py_scalar_field.h
+s2_fish.sphere_display2.Py_scalar_field.h" class="py-name" href="#" onclick="return doclink('link-16', 'h', 'link-7');">h</a></tt><tt class="py-op">[</tt><tt class="py-number">2</tt><tt class="py-op">]</tt><tt class="py-op">*</tt><tt class="py-op">(</tt><tt id="link-17" class="py-name"><a title="s2_fish.assemble_rho.n
+s2_fish.plot_efield_fftw.n
+s2_fish.plot_solver.n
+s2_fish.plot_solver_fftw.n
+s2_fish.plot_solver_fftw2.n
+s2_fish.plot_solver_fftw3.n
+s2_fish.plot_solver_periodic.n" class="py-name" href="#" onclick="return doclink('link-17', 'n', 'link-9');">n</a></tt><tt class="py-op">[</tt><tt class="py-number">2</tt><tt class="py-op">]</tt><tt class="py-op">-</tt><tt class="py-number">1</tt><tt class="py-op">)</tt><tt class="py-op">]</tt> </tt>
+<a name="L16"></a><tt class="py-lineno">16</tt>  <tt class="py-line"><tt class="py-keyword">print</tt> <tt id="link-18" class="py-name"><a title="s2_fish.assemble_rho.physical_size" class="py-name" href="#" onclick="return doclink('link-18', 'physical_size', 'link-11');">physical_size</a></tt> </tt>
+<a name="L17"></a><tt class="py-lineno">17</tt>  <tt class="py-line"><tt id="link-19" class="py-name" targets="Variable s2_fish.assemble_rho.physical_offset=s2_fish.assemble_rho-module.html#physical_offset"><a title="s2_fish.assemble_rho.physical_offset" class="py-name" href="#" onclick="return doclink('link-19', 'physical_offset', 'link-19');">physical_offset</a></tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt class="py-number">0</tt><tt class="py-op">]</tt> </tt>
+<a name="L18"></a><tt class="py-lineno">18</tt>  <tt class="py-line"> </tt>
+<a name="L19"></a><tt class="py-lineno">19</tt>  <tt class="py-line"><tt id="link-20" class="py-name" targets="Variable s2_fish.assemble_rho.fort_points=s2_fish.assemble_rho-module.html#fort_points"><a title="s2_fish.assemble_rho.fort_points" class="py-name" href="#" onclick="return doclink('link-20', 'fort_points', 'link-20');">fort_points</a></tt> <tt class="py-op">=</tt> <tt id="link-21" class="py-name"><a title="s2_fish.arrayio" class="py-name" href="#" onclick="return doclink('link-21', 'arrayio', 'link-0');">arrayio</a></tt><tt class="py-op">.</tt><tt id="link-22" class="py-name" targets="Function s2_fish.arrayio.readfort()=s2_fish.arrayio-module.html#readfort"><a title="s2_fish.arrayio.readfort" class="py-name" href="#" onclick="return doclink('link-22', 'readfort', 'link-22');">readfort</a></tt><tt class="py-op">(</tt><tt class="py-string">"../fort.40"</tt><tt class="py-op">,</tt><tt id="link-23" class="py-name"><a title="s2_fish.assemble_rho.n
+s2_fish.plot_efield_fftw.n
+s2_fish.plot_solver.n
+s2_fish.plot_solver_fftw.n
+s2_fish.plot_solver_fftw2.n
+s2_fish.plot_solver_fftw3.n
+s2_fish.plot_solver_periodic.n" class="py-name" href="#" onclick="return doclink('link-23', 'n', 'link-9');">n</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L20"></a><tt class="py-lineno">20</tt>  <tt class="py-line"> </tt>
+<a name="L21"></a><tt class="py-lineno">21</tt>  <tt class="py-line"><tt id="link-24" class="py-name" targets="Variable s2_fish.assemble_rho.f=s2_fish.assemble_rho-module.html#f"><a title="s2_fish.assemble_rho.f" class="py-name" href="#" onclick="return doclink('link-24', 'f', 'link-24');">f</a></tt> <tt class="py-op">=</tt> <tt class="py-name">open</tt><tt class="py-op">(</tt><tt class="py-string">"rho_in"</tt><tt class="py-op">,</tt><tt class="py-string">"w"</tt><tt class="py-op">)</tt> </tt>
+<a name="L22"></a><tt class="py-lineno">22</tt>  <tt class="py-line"><tt id="link-25" class="py-name" targets="Function s2_fish.assemble_rho.write_vector()=s2_fish.assemble_rho-module.html#write_vector"><a title="s2_fish.assemble_rho.write_vector" class="py-name" href="#" onclick="return doclink('link-25', 'write_vector', 'link-25');">write_vector</a></tt><tt class="py-op">(</tt><tt id="link-26" class="py-name"><a title="s2_fish.assemble_rho.f" class="py-name" href="#" onclick="return doclink('link-26', 'f', 'link-24');">f</a></tt><tt class="py-op">,</tt><tt id="link-27" class="py-name"><a title="s2_fish.assemble_rho.physical_size" class="py-name" href="#" onclick="return doclink('link-27', 'physical_size', 'link-11');">physical_size</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L23"></a><tt class="py-lineno">23</tt>  <tt class="py-line"><tt id="link-28" class="py-name"><a title="s2_fish.assemble_rho.write_vector" class="py-name" href="#" onclick="return doclink('link-28', 'write_vector', 'link-25');">write_vector</a></tt><tt class="py-op">(</tt><tt id="link-29" class="py-name"><a title="s2_fish.assemble_rho.f" class="py-name" href="#" onclick="return doclink('link-29', 'f', 'link-24');">f</a></tt><tt class="py-op">,</tt><tt id="link-30" class="py-name"><a title="s2_fish.assemble_rho.physical_offset" class="py-name" href="#" onclick="return doclink('link-30', 'physical_offset', 'link-19');">physical_offset</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L24"></a><tt class="py-lineno">24</tt>  <tt class="py-line"><tt id="link-31" class="py-name"><a title="s2_fish.assemble_rho.write_vector" class="py-name" href="#" onclick="return doclink('link-31', 'write_vector', 'link-25');">write_vector</a></tt><tt class="py-op">(</tt><tt id="link-32" class="py-name"><a title="s2_fish.assemble_rho.f" class="py-name" href="#" onclick="return doclink('link-32', 'f', 'link-24');">f</a></tt><tt class="py-op">,</tt><tt id="link-33" class="py-name"><a title="s2_fish.assemble_rho.n
+s2_fish.plot_efield_fftw.n
+s2_fish.plot_solver.n
+s2_fish.plot_solver_fftw.n
+s2_fish.plot_solver_fftw2.n
+s2_fish.plot_solver_fftw3.n
+s2_fish.plot_solver_periodic.n" class="py-name" href="#" onclick="return doclink('link-33', 'n', 'link-9');">n</a></tt><tt class="py-op">)</tt> </tt>
+<a name="L25"></a><tt class="py-lineno">25</tt>  <tt class="py-line"><tt class="py-keyword">for</tt> <tt id="link-34" class="py-name"><a title="synergia.latticefns.i" class="py-name" href="#" onclick="return doclink('link-34', 'i', 'link-1');">i</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt id="link-35" class="py-name"><a title="s2_fish.assemble_rho.n
+s2_fish.plot_efield_fftw.n
+s2_fish.plot_solver.n
+s2_fish.plot_solver_fftw.n
+s2_fish.plot_solver_fftw2.n
+s2_fish.plot_solver_fftw3.n
+s2_fish.plot_solver_periodic.n" class="py-name" href="#" onclick="return doclink('link-35', 'n', 'link-9');">n</a></tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L26"></a><tt class="py-lineno">26</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-name">j</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt id="link-36" class="py-name"><a title="s2_fish.assemble_rho.n
+s2_fish.plot_efield_fftw.n
+s2_fish.plot_solver.n
+s2_fish.plot_solver_fftw.n
+s2_fish.plot_solver_fftw2.n
+s2_fish.plot_solver_fftw3.n
+s2_fish.plot_solver_periodic.n" class="py-name" href="#" onclick="return doclink('link-36', 'n', 'link-9');">n</a></tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L27"></a><tt class="py-lineno">27</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">k</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt id="link-37" class="py-name"><a title="s2_fish.assemble_rho.n
+s2_fish.plot_efield_fftw.n
+s2_fish.plot_solver.n
+s2_fish.plot_solver_fftw.n
+s2_fish.plot_solver_fftw2.n
+s2_fish.plot_solver_fftw3.n
+s2_fish.plot_solver_periodic.n" class="py-name" href="#" onclick="return doclink('link-37', 'n', 'link-9');">n</a></tt><tt class="py-op">[</tt><tt class="py-number">2</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L28"></a><tt class="py-lineno">28</tt>  <tt class="py-line">            <tt id="link-38" class="py-name"><a title="s2_fish.assemble_rho.f" class="py-name" href="#" onclick="return doclink('link-38', 'f', 'link-24');">f</a></tt><tt class="py-op">.</tt><tt id="link-39" class="py-name"><a title="synergia.syn2_diagnostics.Diagnostics.write
+synergia.syn2_diagnostics_impact.Diagnostics_impact.write" class="py-name" href="#" onclick="return doclink('link-39', 'write', 'link-2');">write</a></tt><tt class="py-op">(</tt><tt class="py-string">"%g "</tt> <tt class="py-op">%</tt> <tt id="link-40" class="py-name"><a title="s2_fish.assemble_rho.fort_points" class="py-name" href="#" onclick="return doclink('link-40', 'fort_points', 'link-20');">fort_points</a></tt><tt class="py-op">[</tt><tt class="py-name">k</tt><tt class="py-op">,</tt><tt class="py-name">j</tt><tt class="py-op">,</tt><tt id="link-41" class="py-name"><a title="synergia.latticefns.i" class="py-name" href="#" onclick="return doclink('link-41', 'i', 'link-1');">i</a></tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
+<a name="L29"></a><tt class="py-lineno">29</tt>  <tt class="py-line"><tt id="link-42" class="py-name"><a title="s2_fish.assemble_rho.f" class="py-name" href="#" onclick="return doclink('link-42', 'f', 'link-24');">f</a></tt><tt class="py-op">.</tt><tt id="link-43" class="py-name"><a title="synergia.syn2_diagnostics.Diagnostics.write
+synergia.syn2_diagnostics_impact.Diagnostics_impact.write" class="py-name" href="#" onclick="return doclink('link-43', 'write', 'link-2');">write</a></tt><tt class="py-op">(</tt><tt class="py-string">"\n"</tt><tt class="py-op">)</tt> </tt>
+<a name="L30"></a><tt class="py-lineno">30</tt>  <tt class="py-line"><tt id="link-44" class="py-name"><a title="s2_fish.assemble_rho.f" class="py-name" href="#" onclick="return doclink('link-44', 'f', 'link-24');">f</a></tt><tt class="py-op">.</tt><tt id="link-45" class="py-name" targets="Method synergia.tracker.Tracker.close()=synergia.tracker.Tracker-class.html#close"><a title="synergia.tracker.Tracker.close" class="py-name" href="#" onclick="return doclink('link-45', 'close', 'link-45');">close</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L31"></a><tt class="py-lineno">31</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0beta1 on Mon Jan 28 14:58:29 2008
+    </td>
+    <td align="right" class="footer">
+      <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie()
+  // -->
+</script>
+  
+</body>
+</html>

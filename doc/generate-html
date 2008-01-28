@@ -1,0 +1,7 @@
+#!/bin/sh
+
+cd `dirname $0`
+cd ..
+
+rm -rf doc/html
+epydoc --html -o doc/html --graph classtree --dotpath=/usr/bin/dot synergia s2_fish
