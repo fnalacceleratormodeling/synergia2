@@ -1,108 +1,28 @@
 #!/usr/bin/env bwpython
 
-import local_paths
-import gourmet
-import Numeric
-import MLab
-import physics_constants
-import bunch
-import diagnostics
-import beam_parameters
-import processor_grid
-import computational_grid
-import processor_grid
-import matching
-import time
-import field
-import math
+import synergia
+import s2_fish
+
 import basic_toolkit
 import beamline
 
-import syn2_diagnostics
-
+import Numeric
+import MLab
+import time
+import math
 import sys
-import memory
 from math import pi
-
-
-import UberPkgpy
-
-import chef_propagate
-import error_eater
-import options
-import job_manager
-import tracker
-
-import syn2_diagnostics
-
-import fish_fftw as fish
-import macro_bunch
 
 from mpi4py import MPI
 try:
     import pylab
-    import density_plot
 except:
     if MPI.rank == 0:
         print "pylab not available"
-
-def adjust_particles(base,procs):
-    retval = base
-    multiple = base/(procs * 10.0)
-    if not multiple == round(multiple):
-        retval = round(multiple + 1) * \
-                   (procs * 10)
-    return retval
-
-mem0 = 0.0
-
-plot_index = 0
-def plot_long(b):
-    if MPI.rank ==0:
-        z = b.get_local_particles()[4,:]
-        zprime = b.get_local_particles()[5,:]
-
-        d = diagnostics.Diagnostics()
-        pylab.hold(0)
-        pylab.ioff()
-
-        sample_period = 1
-        pylab.subplot(2,2,1)
-        pylab.hold(0)
-        pylab.plot(d.s[1:len(d.mean):sample_period]/474.2,d.mean[1:len(d.mean):sample_period,diagnostics.x])
-        pylab.title("horizontal position")
-        pylab.subplot(2,2,2)
-        pylab.hold(0)
-        pylab.plot(d.s[1:len(d.mean):sample_period]/474.2,
-                   d.std[1:len(d.mean):sample_period,diagnostics.x])
-        pylab.title("horizontal width")
-
-        pylab.subplot(2,2,4)
-        pylab.hold(0)
-        pylab.plot(d.s[1:len(d.mean):sample_period]/474.2,
-                   d.std[1:len(d.mean):sample_period,diagnostics.xprime])
-        pylab.title("horizontal angular width")
-#         pylab.plot(d.s/474.2,d.num_part,'g')
-#         pylab.title("number of particles")
-
-        pylab.subplot(2,2,3)
-        density_plot.density_plot(z,zprime,70)
-        pylab.title("phase space")
-        limits = pylab.axis()
-        limits[0] = -pi
-        limits[1] = pi
-        pylab.axis(limits)
-        pylab.title("long ps")
-
-        pylab.ion()
-        pylab.draw()
-        global plot_index
-#        pylab.savefig("plot%03d.png" % plot_index)
-        plot_index += 1
     
-def correct_for_dispersion(b,the_map):
-    for i in range(0,b.get_num_particles_local()):
-         b.get_local_particles()[0,i] += b.get_local_particles()[5,i]*the_map[0,5]
+def correct_for_dispersion(bunch,the_map):
+    for i in range(0,bunch.get_num_particles_local()):
+         bunch.get_local_particles()[0,i] += bunch.get_local_particles()[5,i]*the_map[0,5]
 
 rfcells = [14,15,16,17,19,21,22,23,24]
 class Line:
@@ -114,26 +34,26 @@ class Line:
         self.kicks = kicks
         self.opts = opts
         self.rfnames = ["bcel%02d" % cell for cell in rfcells]
-        self.g = gourmet.Gourmet(mad_file,line_name, kinetic_energy,
+        self.gourmet = synergia.Gourmet(mad_file,line_name, kinetic_energy,
                                  scaling_frequency, map_order)
 #         if MPI.rank == 0:
-#             print "initial u =",self.g.get_initial_u()
+#             print "initial u =",self.gourmet.get_initial_u()
         if line_name in self.rfnames:
             self.insert_rf()
-        self.g.insert_space_charge_markers(kicks)
-        self.line_length = self.g.orbit_length()
+        self.gourmet.insert_space_charge_markers(kicks)
+        self.line_length = self.gourmet.orbit_length()
         self.tau = 0.5*self.line_length/self.kicks
-        self.diag = syn2_diagnostics.Diagnostics(self.g.get_initial_u())
+        self.diag = synergia.Diagnostics(self.gourmet.get_initial_u())
         self.n_sigma = 10
         self.t0 = time.time()
         
     def insert_rf(self):
         s = 0.0
-        for element in self.g.beamline:
+        for element in self.gourmet.beamline:
             if element.Name() == "LONGA":
                 break
-            s += element.OrbitLength(self.g.get_initial_particle())
-        rf_total_length = element.OrbitLength(self.g.get_initial_particle())
+            s += element.OrbitLength(self.gourmet.get_initial_particle())
+        rf_total_length = element.OrbitLength(self.gourmet.get_initial_particle())
         cavity_length = 2.56
         drift_length = (rf_total_length - 2.0*cavity_length)/2.0
         s_rf1 = s + drift_length + 0.5*cavity_length
@@ -149,11 +69,11 @@ class Line:
                     beamline.thinrfcavity("synergia action:rfcavity2",
                                           freq,voltage,phase2,quality,impedance))
         positions = (s_rf1,s_rf2)
-        self.g.insert_elements(elements,positions)
+        self.gourmet.insert_elements(elements,positions)
 
     def set_rf_params(self,voltage_ev,phase1,phase2):
         if self.name in self.rfnames:
-            for element in self.g.beamline:
+            for element in self.gourmet.beamline:
                 if element.Type() == 'thinrfcavity':
                     if element.Name() == "synergia action:rfcavity1":
                         phase = phase1
@@ -164,103 +84,33 @@ class Line:
                     strength = 1.0e-9 * voltage_ev
                     element.setStrength(strength)
                     element.setPhi(phase)
-            self.g.generate_actions()
-
-    def propagate(self, s, bunch, offset, griddim, diag):
-        if MPI.rank == 0:
-            print "%s" % self.name,
-        mean = None
-        std = None
-        sys.stdout.flush()
-        first_action = 1
-        for action in self.g.get_actions():
-            if action.is_mapping():
-                action.get_data().apply(bunch.get_local_particles(),
-                                   bunch.get_num_particles_local())
-                s += action.get_length()
-            elif action.is_synergia_action():
-                if action.get_synergia_action() == "space charge endpoint":
-                    if not first_action:
-                        diag.add(s,bunch)
-                        if MPI.rank == 0:
-                            f = open("diagnostics","a")
-                            f.write("%g %g\n" % (s,time.time()-self.t0))
-                            f.close()
-                elif action.get_synergia_action() == "space charge kick":
-                    size = (1,1,1)
-                    fish.apply_space_charge_kick(griddim,size,offset, bunch, 2*self.tau)
-                elif action.get_synergia_action() == "rfcavity1" or \
-                     action.get_synergia_action() == "rfcavity2":
-                    element = action.get_data()
-                    u_in = self.g.get_u(action.get_initial_energy())
-                    u_out = self.g.get_u(action.get_final_energy())
-                    chef_propagate.chef_propagate(
-                        bunch.get_local_particles(), bunch.get_num_particles_local(),
-                        element, action.get_initial_energy(),
-                        u_in, u_out)
-                else:
-                    print "Whachou talkin' about, Willis? '%s'" % \
-                          action.get_synergia_action()
-            else:
-                print "action",action.get_type(),"unknown"
-            first_action = 0
-        return (s,mean,std)
+            self.gourmet.generate_actions()
 
 def get_beam_parameters_orig(line, opts):
-    bp = beam_parameters.Beam_parameters(physics_constants.PH_NORM_mp,
+    beam_parameters = synergia.Beam_parameters(synergia.PH_NORM_mp,
                                          1.0, 0.4, 0.0, scaling_frequency,
                                          opts.get("transverse"))
     [sigma_x,sigma_xprime,r_x,\
-     sigma_y,sigma_yprime,r_y] = matching.envelope_match(
+     sigma_y,sigma_yprime,r_y] = synergia.envelope_match(
         opts.get("emittance"),opts.get("emittance"),
-        opts.get("current"),line.g)
+        opts.get("current"),line.gourmet)
     
-    pz = bp.get_gamma() * bp.get_beta() * bp.mass_GeV
+    pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
     mismatchx = 1.0 + opts.get("mismatchfracx")
     mismatchy = 1.0 + opts.get("mismatchfracy")
-    bp.x_params(sigma = sigma_x*mismatchx, lam = sigma_xprime/mismatchx * pz)
-    bp.y_params(sigma = sigma_y*mismatchy, lam = sigma_yprime/mismatchy * pz)
-    sigma_z_meters = bp.get_beta()*physics_constants.PH_MKS_c/\
+    beam_parameters.x_params(sigma = sigma_x*mismatchx, 
+        lam = sigma_xprime/mismatchx * pz,
+        r=-r_x)
+    beam_parameters.y_params(sigma = sigma_y*mismatchy, 
+        lam = sigma_yprime/mismatchy * pz,
+        r=-r_y)
+    sigma_z_meters = beam_parameters.get_beta()*synergia.PH_MKS_c/\
                      scaling_frequency/math.pi * opts.get("zfrac")
-    bp.z_params(sigma = sigma_z_meters, lam = opts.get("dpop")* pz,
+    beam_parameters.z_params(sigma = sigma_z_meters, lam = opts.get("dpop")* pz,
                 num_peaks = 5)
-    bp.correlation_coeffs(xpx = -r_x, ypy = -r_y)
-
-    return bp
-
-def get_beam_parameters(line, opts):
-    bp = beam_parameters.Beam_parameters(physics_constants.PH_NORM_mp,
-                                         1.0, 0.4, 0.0, scaling_frequency,
-                                         opts.get("transverse"))
-    (alpha_x, alpha_y, beta_x, beta_y) = matching.get_alpha_beta(line.g)
-    (sigma_x, sigma_xprime,r_x) = matching.match_twiss_emittance(
-        opts.get("emittance"),alpha_x,beta_x)
-    (sigma_y, sigma_yprime,r_y) = matching.match_twiss_emittance(
-        opts.get("emittance"),alpha_y,beta_y)
+    return beam_parameters
     
-    pz = bp.get_gamma() * bp.get_beta() * bp.mass_GeV
-    bp.x_params(sigma = sigma_x, lam = sigma_xprime * pz)
-    bp.y_params(sigma = sigma_y, lam = sigma_yprime * pz)
-    sigma_z_meters = bp.get_beta()*physics_constants.PH_MKS_c/\
-                     scaling_frequency/math.pi * opts.get("zfrac")
-    bp.z_params(sigma = sigma_z_meters, lam = opts.get("dpop")* pz,
-                num_peaks = 1)
-    bp.correlation_coeffs(xpx = r_x, ypy = r_y)
-
-    return bp
-
-class Sc_params:
-    def __init__(self, griddim, bp, proccol):
-        self.pgrid = processor_grid.Processor_grid(proccol)
-        self.cgrid = computational_grid.Computational_grid(griddim[0],
-                                                      griddim[1],
-                                                      griddim[2],
-                                                      "trans finite, long periodic round")
-        piperad = 0.04
-        self.field = field.Field(bp, self.pgrid, self.cgrid, piperad)
-
-
-def update_rf(cell_line,opts,turn,beam_mean):
+def update_rf(cell_line,opts,turn):
     global rfcells
     for cell in rfcells:
         if turn < (opts.get("norfturns")+opts.get("rampturns")):
@@ -285,7 +135,7 @@ def update_rf(cell_line,opts,turn,beam_mean):
 if ( __name__ == '__main__'):
     t0 = time.time()
 
-    myopts = options.Options("syn2booster")
+    myopts = synergia.Options("syn2booster")
     myopts.add("current",0.035,"current",float)
     myopts.add("transverse",0,"longitudinally uniform beam",int)
     myopts.add("maporder",2,"map order",int)
@@ -311,14 +161,12 @@ if ( __name__ == '__main__'):
     myopts.add("mismatchfracy",0.0,"fractional vertical mismatch",float)
     myopts.add("proccol",2,"number of columns in processor grid (y direction)",int)
 
-    myopts.add_suboptions(job_manager.opts)
+    myopts.add_suboptions(synergia.opts)
     myopts.parse_argv(sys.argv)
-    job_mgr = job_manager.Job_manager(sys.argv,myopts,
+    job_mgr = synergia.Job_manager(sys.argv,myopts,
                                       ["booster_classic.lat",
                                        "envelope_match.cache"])
-### start save
     scaling_frequency = 37.7e6
-### end save
     part_per_cell = myopts.get("partpercell")
     pipe_radius = 0.04
     offset = (0,0,0)
@@ -326,10 +174,10 @@ if ( __name__ == '__main__'):
     proccol = myopts.get("proccol")
     if MPI.size == 1:
         proccol = 1
-    num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
-                                     part_per_cell,MPI.size)
+    num_particles = int(griddim[0]*griddim[1]*griddim[2] *\
+                                     part_per_cell)
 
-    ee = error_eater.Error_eater()
+    ee = synergia.Error_eater()
     ee.start()
     cell_line = range(0,25)
     order = myopts.get("maporder")
@@ -345,16 +193,13 @@ if ( __name__ == '__main__'):
     injb_line = Line("booster_classic.lat","bcel01b" ,0.4,
                      scaling_frequency,order,part_kicks,myopts)
 
-    bp = get_beam_parameters_orig(injcell_line,myopts)
+    beam_parameters = get_beam_parameters_orig(injcell_line,myopts)
 
-    sc_params = Sc_params(griddim,bp,proccol)
-    impact_bunch = bunch.Bunch(myopts.get("current"), bp, num_particles, sc_params.pgrid)
-    impact_bunch.generate_particles()
-    b = macro_bunch.Macro_bunch(physics_constants.PH_NORM_mp,1)
-    b.init_from_bunch(impact_bunch)
+    bunch = s2_fish.Macro_bunch(synergia.PH_NORM_mp,1)
+    bunch.init_gaussian(num_particles,myopts.get("current"),beam_parameters)
 
-    linear_map = injcell_line.g.get_single_linear_map()
-    correct_for_dispersion(b,linear_map)
+    linear_map = injcell_line.gourmet.get_single_linear_map()
+    correct_for_dispersion(bunch,linear_map)
 
     #b.write_particles("initial.dat")
 
@@ -364,13 +209,13 @@ if ( __name__ == '__main__'):
     s = 0.0
     mean = Numeric.zeros(6,'d')
     std = None
-    diag = syn2_diagnostics.Diagnostics(injcell_line.g.get_initial_u())
-    diag.add(s,b)
+    diag = synergia.Diagnostics(injcell_line.gourmet.get_initial_u())
+    diag.add(s,bunch)
     
     if MPI.rank == 0 and myopts.get("showplot"):
         pylab.ion()
     if myopts.get("track"):
-        mytracker = tracker.Tracker('/tmp',myopts.get("trackfraction"))
+        mytracker = synergia.Tracker('/tmp',myopts.get("trackfraction"))
     time_file = open("timing.dat","w")
     t1 = time.time()
     for turn in range(1,last_inj_turn+1):
@@ -378,56 +223,59 @@ if ( __name__ == '__main__'):
             time_file.write("%g %g\n" % (s,time.time()-t1))
             t1 = time.time()
             time_file.flush()
-        update_rf(cell_line,myopts,turn,mean)
+        update_rf(cell_line,myopts,turn)
         if MPI.rank==0:
             print "turn %d:" % turn,
             sys.stdout.flush()
-        (s,mean,std) = injb_line.propagate(s, b, offset, griddim, diag)
+        s = synergia.propagate(s,injb_line.gourmet,bunch,diag,griddim)
+        #~ (s,mean,std) = injb_line.propagate(s, bunch, offset, griddim, diag)
         if turn % myopts.get("plotperiod") == 0 and myopts.get("showplot"):
             plot_long(b)
         for cell in range(2,25):
-            (s,mean,std) = cell_line[cell].propagate(s,b, offset, griddim,diag)
+            s = synergia.propagate(s,cell_line[cell].gourmet,bunch,diag,griddim)
+            #~ (s,mean,std) = cell_line[cell].propagate(s,bunch, offset, griddim,diag)
             if cell % 24 == 0 and turn % myopts.get("plotperiod") == 0 \
                    and myopts.get("showplot"):
                 plot_long(b)
             if cell % 12 == 2 and myopts.get("track"):
-                mytracker.add(b,s)
+                mysynergia.add(bunch,s)
         if turn < last_inj_turn:
-            (s,mean,std) = inja_line.propagate(s,b,offset, griddim, diag)
-            binj = bunch.Bunch(myopts.get("current"), bp, num_particles,
+            s = synergia.propagate(s,inja_line.gourmet,bunch,diag,griddim)
+            #~ (s,mean,std) = inja_line.propagate(s,bunch,offset, griddim, diag)
+            binj = synergia.Bunch(myopts.get("current"), beam_parameters, num_particles,
                                sc_params.pgrid)
             binj.generate_particles()
-            correct_for_dispersion(binj,injcell_line.g.get_single_linear_map())
-            b.inject(binj)
+            correct_for_dispersion(binj,injcell_line.gourmet.get_single_linear_map())
+            bunch.inject(binj)
         if MPI.rank==0:
             print
         if turn % myopts.get("saveperiod") == 0:
-            b.write_particles("turn_inj_%04d.dat" % turn)
+            bunch.write_particles("turn_inj_%04d.dat" % turn)
     for turn in range(last_inj_turn+1,last_turn+1):
         if MPI.rank == 0:
             time_file.write("%g %g\n" % (s,time.time()-t1))
             t1 = time.time()
             time_file.flush()
-        update_rf(cell_line,myopts,turn,mean)
+        update_rf(cell_line,myopts,turn)
         if MPI.rank==0:
             print "turn %d:" % turn,
             sys.stdout.flush()
         for cell in range(1,25):
-            (s,mean,std) = cell_line[cell].propagate(s,b, offset,griddim, diag)
+            s = synergia.propagate(s,cell_line[cell].gourmet,bunch,diag,griddim)
+            #~ (s,mean,std) = cell_line[cell].propagate(s,bunch, offset,griddim, diag)
             if cell % 24 == 0 and turn % myopts.get("plotperiod") == 0 \
                    and myopts.get("showplot"):
                 plot_long(b)
             if cell % 12 == 2 and myopts.get("track"):
-                mytracker.add(b,s)
+                mysynergia.add(bunch,s)
         if MPI.rank==0:
             print        
         if turn % myopts.get("saveperiod") == 0:
-            b.write_particles("turn_%04d.dat" % turn)
+            bunch.write_particles("turn_%04d.dat" % turn)
     if myopts.get("track"):
-        mytracker.close()
-        mytracker.show_statistics()
+        mysynergia.close()
+        mysynergia.show_statistics()
     diag.write_hdf5("syn2booster_fish");
-    diag.write("syn2booster_fish");
     MPI.WORLD.Barrier()
     print "elapsed time =",time.time() - t0
     time_file.close()

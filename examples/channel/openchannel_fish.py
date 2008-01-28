@@ -55,7 +55,7 @@ if ( __name__ == '__main__'):
     bunch = s2_fish.Macro_bunch(mass,1)
     bunch.init_gaussian(num_particles,current,beam_parameters)
     
-    bunch.write_particles_text("ocf_new.dat")
+    #~ bunch.write_particles_text("ocf_new.dat")
 
     line_length = gourmet.orbit_length()
     tau = 0.5*line_length/kicks_per_line
@@ -67,7 +67,7 @@ if ( __name__ == '__main__'):
     s = synergia.propagate(0.0,gourmet,bunch,diag,griddim)
     print "elapsed time =",time.time() - t0
 
-    diag.write("ocfish")
+    #~ diag.write("ocfish")
     diag.write_hdf5("ocfish")
     import pylab
 

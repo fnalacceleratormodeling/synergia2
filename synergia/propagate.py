@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import s2_fish
+import chef_propagate
 
 last_step_length = 0
 def propagate(s0,gourmet,bunch,diagnostics,grid_dim):
@@ -24,11 +25,11 @@ def propagate(s0,gourmet,bunch,diagnostics,grid_dim):
             elif action.get_synergia_action() == "rfcavity1" or \
                 action.get_synergia_action() == "rfcavity2":
                 element = action.get_data()
-                u_in = g.get_u(action.get_initial_energy())
-                u_out = g.get_u(action.get_final_energy())
+                u_in = gourmet.get_u(action.get_initial_energy())
+                u_out = gourmet.get_u(action.get_final_energy())
                 chef_propagate.chef_propagate(
                     bunch.get_local_particles(), bunch.get_num_particles_local(),
-                    element, action.get_initial_energy(),
+                    element, action.get_initial_energy(), gourmet.particle,
                     u_in, u_out)
             else:
                 print "unknown action: '%s'" % \
