@@ -24,6 +24,6 @@ PYTHONPATH=$SYNERGIA2DIR
 export PYTHONPATH
 
 cd @@jobdir@@
-exec mpirun -np @@numproc@@ python @@script@@ @@args@@
+exec mpirun -np @@numproc@@ "$SYNERGIA2DIR"/synergia_local @@script@@ @@args@@
 
 

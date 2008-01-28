@@ -3,21 +3,31 @@
 import hist2d
 import Numeric
 
-import pylab
+have_pylab = False
+try:
+    import pylab
+    have_pylab = True
+except:
+    have_pylab = False
+    
 import MLab
 
 def density_plot(px_in,py_in,n):
-    px = Numeric.array(px_in)
-    py = Numeric.array(py_in)
-    xmin = MLab.min(px)
-    xmax = MLab.max(px)
-    ymin = MLab.min(py)
-    ymax = MLab.max(py)
-    X,Y = pylab.meshgrid(Numeric.arange(xmin,xmax,(xmax-xmin)/n),
-                         Numeric.arange(ymin,ymax,(ymax-ymin)/n))
-    freq = Numeric.zeros([n,n],'d')
-    hist2d.hist2d(px,xmin,xmax,n,py,ymin,ymax,n,len(px),freq)
-    pylab.pcolor(X,Y,freq,shading='flat')
+    global have_pylab
+    if have_pylab:
+        px = Numeric.array(px_in)
+        py = Numeric.array(py_in)
+        xmin = MLab.min(px)
+        xmax = MLab.max(px)
+        ymin = MLab.min(py)
+        ymax = MLab.max(py)
+        X,Y = pylab.meshgrid(Numeric.arange(xmin,xmax,(xmax-xmin)/n),
+                             Numeric.arange(ymin,ymax,(ymax-ymin)/n))
+        freq = Numeric.zeros([n,n],'d')
+        hist2d.hist2d(px,xmin,xmax,n,py,ymin,ymax,n,len(px),freq)
+        pylab.pcolor(X,Y,freq,shading='flat')
+    else:
+        print "density_plot: pylab not available"
 
 
 if __name__ == '__main__':

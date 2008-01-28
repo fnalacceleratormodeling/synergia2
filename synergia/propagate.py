@@ -4,7 +4,7 @@ import s2_fish
 import chef_propagate
 
 last_step_length = 0
-def propagate(s0,gourmet,bunch,diagnostics,grid_dim):
+def propagate(s0,gourmet,bunch,diagnostics,grid_dim,quiet=1):
     s = s0
     global last_step_length
     first_action = 1
@@ -17,7 +17,7 @@ def propagate(s0,gourmet,bunch,diagnostics,grid_dim):
         elif action.is_synergia_action():
             if action.get_synergia_action() == "space charge endpoint":
                 diagnostics.add(s,bunch)
-                if not first_action:
+                if not first_action and not quiet:
                     print "finished space charge kick"
             elif action.get_synergia_action() == "space charge kick":
                 tau = last_step_length
