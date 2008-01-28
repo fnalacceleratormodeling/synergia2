@@ -41,7 +41,7 @@ zprime_y = 12
 zprime_yprime = 13
 zprime_z = 14
 
-class Diagnostics:
+class Diagnostics_impact_orig:
     def __init__(self, dirname = "."):
         self.dirname = dirname
         self._read_s_mean_std()

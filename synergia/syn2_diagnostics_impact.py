@@ -62,7 +62,7 @@ def get_diagnostics(bunch):
             corrs[j,i] = corrs[i,j]
     return means,stds,mom2s,corrs
 
-class Diagnostics:
+class Diagnostics_impact:
     def __init__(self,units):
         self.s = []
         self.mean = [[],[],[],[],[],[]]

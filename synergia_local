@@ -1,0 +1,11 @@
+#!/bin/sh
+
+local_dir="`dirname $0`"
+chef_dir="/home2/amundson/work/synergia2-base/install/lib"
+impact_dir="/home2/amundson/work/synergia2-base/build/impact/Forthon_Interfaces"
+for dir in $local_dir $gourmet_dir $impact_dir
+do
+    PYTHONPATH="$dir:$PYTHONPATH"
+done
+export PYTHONPATH
+exec python "$@"

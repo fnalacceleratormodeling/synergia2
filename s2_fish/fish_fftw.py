@@ -8,7 +8,7 @@ from s2_solver_fftw import Fftw_helper
 from mytimer import mytimer
 
 import time
-import syn2_diagnostics
+import synergia
 import sys
 
 from mpi4py import MPI
@@ -24,7 +24,7 @@ def apply_space_charge_kick(shape,size,offset,mbunch,tau):
     mbunch.convert_to_fixedt()
     mytimer("convert")
     if (size == None) or (offset == None):
-        means, stds = syn2_diagnostics.get_spatial_means_stds(mbunch)
+        means, stds = synergia.get_spatial_means_stds(mbunch)
         if size == None:
             n_sigma = 8.0
             size = tuple(n_sigma*stds)

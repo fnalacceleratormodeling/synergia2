@@ -10,7 +10,7 @@ import tables
 import time
 import math
 
-import loadfile
+from synergia import loadfile_transpose
 import populate
 
 class Macro_bunch:
@@ -233,7 +233,7 @@ class Macro_bunch:
         self.is_fixedz = 1
         self.ref_particle = Numeric.zeros((6,),'d')
         self.ref_particle[5] = -beam_parameters.get_gamma()
-        self.particles = loadfile.loadfile_transpose(filename)
+        self.particles = loadfile_transpose(filename)
         self.local_num = self.particles.shape[1]
         self.total_num = self.local_num
         print "read",self.local_num,"particles"

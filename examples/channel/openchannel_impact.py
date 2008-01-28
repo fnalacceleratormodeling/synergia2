@@ -1,30 +1,15 @@
 #!/usr/bin/env bwpython
 
-import local_paths
-import gourmet
 import Numeric
-import physics_constants
-import bunch
-import diagnostics
-import beam_parameters
-import processor_grid
-import computational_grid
-import processor_grid
-import matching
 import time
-import field
 import math
 
-import syn2_diagnostics_impact
 
 import sys
 
-#import do_compare_channel
-import memory
-
-import UberPkgpy #SpaceChargePkgpy
-
-import error_eater
+import synergia
+import s2_fish
+import UberPkgpy 
 
 from mpi4py import MPI
 
@@ -45,7 +30,7 @@ def printmem(str=""):
         print "memory usage total:",
     else:
         print "memory gain %s:" % str,
-    newmem0 = memory.memory()
+    newmem0 = synergia.memory()
     print (newmem0-mem0)/math.pow(2,20), "(",newmem0/math.pow(2,20)," total)"
     mem0 = newmem0
 
@@ -54,49 +39,48 @@ if ( __name__ == '__main__'):
     t0 = time.time()
     current = 0.5
     kinetic_energy = 0.0067
-    mass = physics_constants.PH_NORM_mp
+    mass = synergia.PH_NORM_mp
     charge = 1.0
     initial_phase = 0.0
     scaling_frequency = 10221.05558e6
-    part_per_cell = 0.01*100
+    part_per_cell = 1
     width_x = 0.004
     pipe_radius = 0.04
     kicks_per_line = 10
     gridnum = int(sys.argv[1])
     griddim = (gridnum,gridnum,gridnum)
-    num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
-                                     part_per_cell,1)
+    num_particles = griddim[0]*griddim[1]*griddim[2] * part_per_cell
     
     xwidth=0.0012026
     xpwidth=0.0049608
     rx=0.85440
     dpop = 1.0e-20
 
-    ee = error_eater.Error_eater()
+    ee = synergia.Error_eater()
     ee.start()
-    g = gourmet.Gourmet("channel.mad","channel",kinetic_energy,
+    g = synergia.Gourmet("channel.mad","channel",kinetic_energy,
                         scaling_frequency)
     g.insert_space_charge_markers(kicks_per_line)
 
-    bp = beam_parameters.Beam_parameters(mass, charge, kinetic_energy,
+    bp = synergia.Beam_parameters(mass, charge, kinetic_energy,
                                          initial_phase, scaling_frequency,
                                          transverse=1)
 
     pz = bp.get_gamma() * bp.get_beta() * bp.mass_GeV
     bp.x_params(sigma = xwidth, lam = xpwidth * pz)
     bp.y_params(sigma = xwidth, lam = xpwidth * pz)
-    sigma_z_meters = bp.get_beta()*physics_constants.PH_MKS_c/scaling_frequency/math.pi
+    sigma_z_meters = bp.get_beta()*synergia.PH_MKS_c/scaling_frequency/math.pi
     bp.z_params(sigma = sigma_z_meters, lam = dpop* pz)
     bp.correlation_coeffs(xpx = -rx, ypy = rx)
 
     sys.stdout.flush()
     
-    pgrid = processor_grid.Processor_grid(1)
-    cgrid = computational_grid.Computational_grid(griddim[0],griddim[1],griddim[2],
+    pgrid = synergia.Processor_grid(1)
+    cgrid = synergia.Computational_grid(griddim[0],griddim[1],griddim[2],
                                                   "3d open")
     piperad = 0.04
-    field = field.Field(bp, pgrid, cgrid, piperad)
-    b = bunch.Bunch(current, bp, num_particles, pgrid)
+    field = synergia.Field(bp, pgrid, cgrid, piperad)
+    b = synergia.Bunch(current, bp, num_particles, pgrid)
     b.generate_particles()
 ###    b.write_particles_text("oc_particles.h5")
     
@@ -104,7 +88,7 @@ if ( __name__ == '__main__'):
     tau = 0.5*line_length/kicks_per_line
     s = 0.0
     first_action = 0
-    diag = syn2_diagnostics_impact.Diagnostics(g.get_initial_u())
+    diag = synergia.Diagnostics_impact(g.get_initial_u())
     kick_time = 0.0
     for action in g.get_actions():
         if action.is_mapping():
@@ -148,26 +132,17 @@ if ( __name__ == '__main__'):
 
     print "elapsed time =",time.time() - t0, "kick time =",kick_time
 
-    diag.write("ocimpact")
+    #~ diag.write("ocimpact")
     import pylab
-    import loadfile
+    d0 = synergia.Diagnostics_impact_orig("channel0current")
 
-    d = diagnostics.Diagnostics()
-
-    d0 = diagnostics.Diagnostics("channel0current")
-
-    pylab.plot(d0.s,d0.std[:,diagnostics.x],'gx',label='Synergia2, no space charge')
+    pylab.plot(d0.s,d0.std[:,synergia.x],'gx',label='Synergia2, no space charge')
     pylab.xlabel('s (m)')
     pylab.ylabel('std<x> (m)')
 
-    e = loadfile.loadfile("envelope_match_channel_0.5A.dat")
+    e = synergia.loadfile("envelope_match_channel_0.5A.dat")
     pylab.plot(e[:,0],e[:,1],label='envelope equation')
 
-    dold = diagnostics.Diagnostics(".")
-#    pylab.plot(dold.s,dold.std[:,diagnostics.x],'yo')
-
-    pylab.plot(d.s,d.std[:,diagnostics.x],'ro',label='Synergia2 with space charge')
-    pylab.plot(diag.s,diag.std[syn2_diagnostics_impact.x][:],'b+')
-###    pylab.legend(loc=0)
+    pylab.plot(diag.s,diag.std[synergia.x][:],'ro',label='Synergia2 with space charge')
 
     pylab.show()
