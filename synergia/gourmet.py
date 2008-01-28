@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 
-import local_paths
-
 from bmlfactory import *
 from basic_toolkit import *
 from mxyzptlk import *

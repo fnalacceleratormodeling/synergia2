@@ -6,7 +6,6 @@ try:
     import octapy
 except:
     pass
-import local_paths
 import os.path
 
 def match_twiss_width(width,alpha,beta):

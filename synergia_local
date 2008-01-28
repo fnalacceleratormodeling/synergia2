@@ -5,7 +5,7 @@ SYNERGIA2DIR="$local_dir"
 export SYNERGIA2DIR
 chef_dir="/home2/amundson/work/synergia2-base/install/lib"
 impact_dir="/home2/amundson/work/synergia2-base/build/impact/Forthon_Interfaces"
-for dir in $local_dir $gourmet_dir $impact_dir
+for dir in $local_dir $chef_dir $impact_dir
 do
     PYTHONPATH="$dir:$PYTHONPATH"
 done

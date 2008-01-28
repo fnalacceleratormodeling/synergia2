@@ -5,7 +5,7 @@ from math import sqrt
 import sys
 import tables
 
-import s2_diagnostics
+import s2_fish.s2_diagnostics as s2_diagnostics
 
 x = 0
 xprime = 1

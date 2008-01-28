@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import local_paths
 import physics_constants
 import math
 import Numeric
