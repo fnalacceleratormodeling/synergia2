@@ -135,7 +135,7 @@ def update_rf(cell_line,opts,turn):
 if ( __name__ == '__main__'):
     t0 = time.time()
 
-    myopts = synergia.Options("syn2booster")
+    myopts = synergia.Options("booster")
     myopts.add("current",0.035,"current",float)
     myopts.add("transverse",0,"longitudinally uniform beam",int)
     myopts.add("maporder",2,"map order",int)
@@ -246,7 +246,7 @@ if ( __name__ == '__main__'):
         if MPI.rank==0:
             print
 
-    diag.write_hdf5("syn2booster_fish");
+    diag.write_hdf5("booster_output");
     MPI.WORLD.Barrier()
     print "elapsed time =",time.time() - t0
 
