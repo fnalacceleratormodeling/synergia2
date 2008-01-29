@@ -72,7 +72,7 @@ def envelope_match(emitx,emity,current,g,use_cache=1):
     (s,kx,ky) = g.get_strengths()
     o = octapy.Octave()
     o.execute('LOADPATH="%s:";' %
-              os.path.join(local_paths.synergia2_dir,"envelope"))
+              os.path.join(os.environ["SYNERGIA2DIR"],"envelope"))
     o.set_value("m",g.get_mass())
     o.set_value("alphax",alpha_x)
     o.set_value("alphay",alpha_y)
