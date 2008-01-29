@@ -21,3 +21,5 @@ INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindFFTW2.cmake)
 
 add_subdirectory(synergia)
 add_subdirectory(s2_fish)
+
+add_subdirectory(octapy)
