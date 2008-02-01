@@ -1,10 +1,10 @@
 # python files
 from beam_parameters import *
-from bunch import *
-from computational_grid import *
+#~ from bunch import *
+#~ from computational_grid import *
 from density_plot import *
 from diagnostics import *
-from field import *
+#~ from field import *
 from function_cache import *
 from gourmet import *
 from job_manager import *
@@ -14,7 +14,7 @@ from matching import *
 from memory import *
 from options import *
 from physics_constants import *
-from processor_grid import *
+#~ from processor_grid import *
 from propagate import *
 from syn2_diagnostics_impact import *
 from syn2_diagnostics import *
