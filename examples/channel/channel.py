@@ -75,8 +75,7 @@ if ( __name__ == '__main__'):
     pylab.xlabel('s (m)')
     pylab.ylabel('std<x> (m)')
 
-    pylab.plot(dimpact.s,dimpact.std[:,synergia.x],'o',label='impact',
-               markerfacecolor=None)
+    pylab.plot(dimpact.s,dimpact.std[:,synergia.x],'o',label='impact')
     pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.x],'r+',label='fish')
     pylab.legend(loc=0)
     pylab.show()
