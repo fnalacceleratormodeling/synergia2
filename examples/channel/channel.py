@@ -8,7 +8,6 @@ import sys
 
 import synergia
 import s2_fish
-import UberPkgpy 
 
 from mpi4py import MPI
 
