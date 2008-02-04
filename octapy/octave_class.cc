@@ -1,3 +1,5 @@
+#define NUMARRAY youbetcha
+
 #include <iostream>
 #include <octave/config.h>
 #include <octave/octave.h>
