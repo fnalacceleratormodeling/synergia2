@@ -71,8 +71,8 @@ class Gourmet:
             #~ print "gourmet: using xsif parser for %s" % lattice_file
             self.factory = XSIFFactory(lattice_file)
         else:
-            #~ print "gourmet: using MAD8 parser"
-            self.factory = MAD8Factory(lattice_file)
+            #~ print "gourmet: using MAD8 parser for %s" % os.path.abspath(lattice_file)
+            self.factory = MAD8Factory(os.path.abspath(lattice_file))
         brho = self.get_initial_particle().ReferenceBRho()
         beamline_orig = self.factory.create_beamline(line_name,brho)
         beamline_orig.insert(pacifier)
