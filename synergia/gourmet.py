@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from bmlfactory import *
 from basic_toolkit import *
+from bmlfactory import *
 from mxyzptlk import *
 from beamline import *
 from physics_toolkit import *
