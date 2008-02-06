@@ -175,7 +175,8 @@ class Macro_bunch:
         # jfa: the following parallel seed algorithm is ad hoc
         #      Need to get better algorithm, probably from SPRNG
         seed_offset = int(time.time())
-        seed = (1000+5*(MPI.rank+seed_offset))*((MPI.rank+seed_offset)+7)-1
+        long_seed = (1000+5*(MPI.rank+seed_offset))*((MPI.rank+seed_offset)+7)-1
+        seed = int(long_seed % 2**32)
         if beam_parameters.get_transverse():
             populate.populate_transverse_gaussian(self.particles,
                 beam_parameters.get_means(),
