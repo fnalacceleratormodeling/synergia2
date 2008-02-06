@@ -36,8 +36,6 @@ class Line:
         self.rfnames = ["bcel%02d" % cell for cell in rfcells]
         self.gourmet = synergia.Gourmet(mad_file,line_name, kinetic_energy,
                                  scaling_frequency, map_order)
-#         if MPI.rank == 0:
-#             print "initial u =",self.gourmet.get_initial_u()
         if line_name in self.rfnames:
             self.insert_rf()
         self.gourmet.insert_space_charge_markers(kicks)
@@ -218,35 +216,41 @@ if ( __name__ == '__main__'):
         if MPI.rank==0:
             print "turn %d:" % turn,
             sys.stdout.flush()
+        if turn % myopts.get("saveperiod") == 0:
+            bunch.write_particles("turn_%02d.h5"%(turn-1))
         if (turn<=last_inj_turn):
             s = synergia.propagate(s,injb_line.gourmet,bunch,diag,griddim)
-            print "inj_b",
+            if MPI.rank == 0:
+                print "inj_b",
             sys.stdout.flush()
         for cell in range(2,25):
             s = synergia.propagate(s,cell_line[cell].gourmet,bunch,diag,griddim)
-            print "%02d" % cell,
+            if MPI.rank == 0:
+                print "%02d" % cell,
             sys.stdout.flush()
             if cell % 12 == 2 and myopts.get("track"):
                 mytracker.add(bunch,s)
         if turn <= last_inj_turn:
             s = synergia.propagate(s,inja_line.gourmet,bunch,diag,griddim)
-            print "inj_a",
+            if MPI.rank == 0:
+                print "inj_a",
             sys.stdout.flush()
             if turn < last_inj_turn:
-                print "injection is temporarily broken"
-                #~ binj = synergia.Bunch(myopts.get("current"), beam_parameters, num_particles,
-                                   #~ sc_params.pgrid)
-                #~ binj.generate_particles()
-                #~ correct_for_dispersion(binj,injcell_line.gourmet.get_single_linear_map())
-                #~ bunch.inject(binj)
+                inject_bunch = s2_fish.Macro_bunch(synergia.PH_NORM_mp,1)
+                inject_bunch.init_gaussian(num_particles,myopts.get("current"),beam_parameters)
+                correct_for_dispersion(inject_bunch,linear_map)
+                bunch.inject(inject_bunch)
         else:
             s = synergia.propagate(s,cell_line[1].gourmet,bunch,diag,griddim)
-            print "01",
+            if MPI.rank == 0:
+                print "01",
             sys.stdout.flush()
         if MPI.rank==0:
             print
-
+    if turn % myopts.get("saveperiod") == 0:
+        bunch.write_particles("turn_%02d.g5"%turn)
     diag.write_hdf5("booster_output");
     MPI.WORLD.Barrier()
-    print "elapsed time =",time.time() - t0
+    if MPI.rank == 0:
+        print "elapsed time =",time.time() - t0
 
