@@ -172,15 +172,36 @@ class Macro_bunch:
         self.ref_particle = Numeric.zeros((6,),'d')
         self.ref_particle[5] = -beam_parameters.get_gamma()
         self.particles = Numeric.zeros((7,self.local_num),'d')
+        # jfa: the following parallel seed algorithm is ad hoc
+        #      Need to get better algorithm, probably from SPRNG
+        seed_offset = int(time.time())
+        seed = (1000+5*(MPI.rank+seed_offset))*((MPI.rank+seed_offset)+7)-1
         if beam_parameters.get_transverse():
             populate.populate_transverse_gaussian(self.particles,
                 beam_parameters.get_means(),
-                beam_parameters.get_covariances(),id_offset)
+                beam_parameters.get_covariances(),id_offset,seed)
         else:
             populate.populate_6d_gaussian(self.particles,
                 beam_parameters.get_means(),
-                beam_parameters.get_covariances(),id_offset)
-
+                beam_parameters.get_covariances(),id_offset,seed)
+    
+    def inject(self, bunch):
+        if (self.is_fixedz != bunch.is_fixedz):
+            raise RuntimeError, "injected bunch must have same fixedz status as parent"
+        if (self.ref_particle != bunch.ref_particle):
+            raise RuntimError, "injected bunch must have same reference particle as parent"
+        
+        new_total_num = self.total_num + bunch.total_num
+        new_local_num = self.local_num + bunch.local_num
+        new_total_current = self.total_current + bunch.total_current
+        new_particles = Numeric.zeros((7,new_local_num),'d')
+        new_particles[:,0:self.local_num] = self.particles
+        new_particles[:,self.local_num:new_local_num] = bunch.particles
+        self.particles = new_particles
+        self.total_num = new_total_num
+        self.local_num = new_local_num
+        self.total_current = new_total_current
+        
     def init_from_bunch(self, bunch):
         (Cxy, Cxpyp, Cz, Czp) = bunch.beam_parameters.get_conversions()
         self.units = Numeric.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')

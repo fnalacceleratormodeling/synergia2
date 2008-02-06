@@ -208,7 +208,7 @@ adjust_moments(Array_2d<double> &array_in,
 void
 populate_6d_gaussian(Array_2d<double> &particles, 
     const Array_1d<double> &means, const Array_2d<double> &covariances,
-    const int id_offset)
+    const int id_offset, const unsigned long int seed)
 {
     if (particles.get_shape()[0] != 7) {
         throw
@@ -219,7 +219,7 @@ populate_6d_gaussian(Array_2d<double> &particles,
     Array_2d<double> tmp(6,num_particles,particles.get_data_ptr());
     Array_2d<double> tmp2(6,num_particles);
 
-    GSL_random gslr;
+    GSL_random gslr(seed);
     gslr.fill_array_unit_gaussian(tmp.get_data_ptr(),tmp.get_size());
  
     adjust_moments(tmp,tmp2,means,covariances);
@@ -234,7 +234,7 @@ populate_6d_gaussian(Array_2d<double> &particles,
 void
 populate_transverse_gaussian(Array_2d<double> &particles, 
     const Array_1d<double> &means, const Array_2d<double> &covariances,
-    const int id_offset)
+    const int id_offset, const unsigned long int seed)
 {
     if (particles.get_shape()[0] != 7) {
         throw
@@ -246,7 +246,7 @@ populate_transverse_gaussian(Array_2d<double> &particles,
     Array_2d<double> tmp2(6,num_particles);
 
     // It is simplest to let z be gaussian now, then replace it later
-    GSL_random gslr;
+    GSL_random gslr(seed);
     gslr.fill_array_unit_gaussian(tmp.get_data_ptr(),tmp.get_size());
  
     // Symmetry requires no correlations with the z coordinate. Make a copy
