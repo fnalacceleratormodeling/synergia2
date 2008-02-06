@@ -220,6 +220,22 @@ if ( __name__ == '__main__'):
             sys.stdout.flush()
         if turn % myopts.get("saveperiod") == 0:
             bunch.write_particles("turn_%02d.h5"%(turn-1))
+        if turn == 1:
+            pass
+        elif (turn <= last_inj_turn):
+            s = synergia.propagate(s,inja_line.gourmet,bunch,diag,griddim)
+            if MPI.rank == 0:
+                print "inj_a",
+            sys.stdout.flush()
+            inject_bunch = s2_fish.Macro_bunch(synergia.PH_NORM_mp,1)
+            inject_bunch.init_gaussian(num_particles,myopts.get("current"),beam_parameters)
+            correct_for_dispersion(inject_bunch,linear_map)
+            bunch.inject(inject_bunch)
+        else:
+            s = synergia.propagate(s,cell_line[1].gourmet,bunch,diag,griddim)
+            if MPI.rank == 0:
+                print "01",
+            sys.stdout.flush()
         if (turn<=last_inj_turn):
             s = synergia.propagate(s,injb_line.gourmet,bunch,diag,griddim)
             if MPI.rank == 0:
@@ -232,21 +248,6 @@ if ( __name__ == '__main__'):
             sys.stdout.flush()
             if cell % 12 == 2 and myopts.get("track"):
                 mytracker.add(bunch,s)
-        if turn < last_inj_turn:
-            s = synergia.propagate(s,inja_line.gourmet,bunch,diag,griddim)
-            if MPI.rank == 0:
-                print "inj_a",
-            sys.stdout.flush()
-            if turn < last_inj_turn:
-                inject_bunch = s2_fish.Macro_bunch(synergia.PH_NORM_mp,1)
-                inject_bunch.init_gaussian(num_particles,myopts.get("current"),beam_parameters)
-                correct_for_dispersion(inject_bunch,linear_map)
-                bunch.inject(inject_bunch)
-        else:
-            s = synergia.propagate(s,cell_line[1].gourmet,bunch,diag,griddim)
-            if MPI.rank == 0:
-                print "01",
-            sys.stdout.flush()
         if MPI.rank==0:
             print
     if turn % myopts.get("saveperiod") == 0:
