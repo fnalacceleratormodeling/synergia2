@@ -3,7 +3,7 @@
 local_dir="`dirname $0`"
 SYNERGIA2DIR="$local_dir"
 export SYNERGIA2DIR
-chef_dir="/home/amundson/work/synergia2-base/install/lib"
+chef_dir="/home2/amundson/work/synergia2-base/install/lib"
 impact_dir="$local_dir/../impact/Forthon_Interfaces"
 for dir in $local_dir $chef_dir $impact_dir
 do

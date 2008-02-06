@@ -16,9 +16,10 @@ def propagate(s0,gourmet,bunch,diagnostics,grid_dim,quiet=1):
             s += last_step_length
         elif action.is_synergia_action():
             if action.get_synergia_action() == "space charge endpoint":
-                diagnostics.add(s,bunch)
-                if not first_action and not quiet:
-                    print "finished space charge kick"
+                if not first_action:
+                    diagnostics.add(s,bunch)
+                    if not quiet:
+                        print "finished space charge kick"
             elif action.get_synergia_action() == "space charge kick":
                 tau = last_step_length
                 s2_fish.apply_space_charge_kick(grid_dim,None,None, bunch, 2*tau)

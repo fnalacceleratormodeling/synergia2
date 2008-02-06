@@ -182,7 +182,9 @@ if ( __name__ == '__main__'):
                                scaling_frequency,order,kicks,myopts)
     injcell_line = Line("booster_classic.lat","bcelinj" ,0.4,
                         scaling_frequency,order,kicks,myopts)
-    part_kicks = 2
+    part_kicks = kicks/2
+    if (kicks%2 != 0):
+        raise RuntimeError, "number of kicks per cell must be even"
     inja_line = Line("booster_classic.lat","bcel01a" ,0.4,
                      scaling_frequency,order,part_kicks,myopts)
     injb_line = Line("booster_classic.lat","bcel01b" ,0.4,
@@ -230,7 +232,7 @@ if ( __name__ == '__main__'):
             sys.stdout.flush()
             if cell % 12 == 2 and myopts.get("track"):
                 mytracker.add(bunch,s)
-        if turn <= last_inj_turn:
+        if turn < last_inj_turn:
             s = synergia.propagate(s,inja_line.gourmet,bunch,diag,griddim)
             if MPI.rank == 0:
                 print "inj_a",
