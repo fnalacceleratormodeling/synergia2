@@ -110,9 +110,8 @@ class Diagnostics:
         self.emitzs.append(sqrt(abs(LinearAlgebra.determinant(mom2s[4:6,4:6])))*self.u[zprime])
         self.emitxys.append(sqrt(abs(LinearAlgebra.determinant(mom2s[0:4,0:4])))\
                         *self.u[xprime]*self.u[yprime])
-        #~ self.emitxzs.append(sqrt(LinearAlgebra.determinant(
-        self.emitxyzs.append(sqrt(abs(LinearAlgebra.determinant(mom2s)))\
-                        *self.u[xprime]*self.u[yprime]*self.u[zprime])
+        self.emitxyzs.append(abs(sqrt(abs(LinearAlgebra.determinant(mom2s)))\
+                        *self.u[xprime]*self.u[yprime]*self.u[zprime]))
     
     def get_s(self):
         return Numeric.array(self.s)
