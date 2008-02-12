@@ -10,6 +10,8 @@
 #include <sstream>
 #include <iomanip>
 
+#include "range.h"
+
 template<class T>
 class Array_nd;
 
@@ -17,7 +19,7 @@ template<class T>
 class Array_nd
 {
 protected:
-    T * data_ptr;
+    T *data_ptr;
     bool own_data;
     std::vector<int> shape;
     std::vector<int> strides;
@@ -37,6 +39,25 @@ protected:
         std::vector<int> indices) const;
 
 public:
+    class iterator
+    {
+        protected:
+            T* begin_ptr;
+            T* current_ptr;
+            std::vector<int> current_indices;
+            std::vector<int> *shape;
+            int rank;
+            int count,max_count;
+            std::vector<int> *strides;
+        public:
+            iterator(T* begin_ptr, std::vector<int> &shape,
+                std::vector<int> &strides);
+            inline T& operator*();
+            inline void operator++();
+            inline bool operator==(const iterator& other);
+            inline bool operator!=(const iterator& other);
+    };        
+
     Array_nd();
     Array_nd(const std::vector<int> shape);
     Array_nd(const std::vector<int> shape, 
@@ -54,7 +75,6 @@ public:
     void reshape(const std::vector<int> shape, T *data_ptr);
     void reshape(const std::vector<int> shape,
         const std::vector<int> strides, T *data_ptr);
-
     void freeze_shape();
 
     void set_all(const T value);
@@ -68,6 +88,8 @@ public:
 
     T* get_data_ptr() const;
     bool owns_data() const;
+    iterator begin();
+    iterator end();
     std::vector<int> get_shape() const;
     std::vector<int> get_strides() const;
     int get_rank() const;
@@ -75,6 +97,8 @@ public:
     bool shape_is_frozen() const;
     inline int offset(const std::vector<int> &indices) const;
     inline bool bounds_check(const std::vector<int> &indices) const;
+
+    Array_nd<T> slice(std::vector<Range>);
 
     void describe() const;
     void print(const std::string name) const;
@@ -90,6 +114,80 @@ public:
 // Begin implementation.
 #include <iostream>
 #include <iomanip>
+
+template<class T>
+Array_nd<T>::iterator::iterator(T* begin_ptr, std::vector<int> &shape,
+                std::vector<int> &strides)
+{
+    this->begin_ptr = begin_ptr;
+    this->shape = &shape;
+    rank = shape.size();
+    this->strides = &strides;
+    max_count = 1;
+    for(int i=0; i<shape.size(); ++i) {
+        current_indices.push_back(0);
+        max_count *= shape[i];
+    }
+    current_ptr = begin_ptr;
+    count = 0;
+}
+
+template<class T>
+T&
+Array_nd<T>::iterator::operator*()
+{
+    return *current_ptr;
+}
+
+template<class T>
+inline void
+Array_nd<T>::iterator::operator++()
+{
+    int index = 0; 
+    bool roll_over = true;
+    while(roll_over) {
+        ++current_indices[index];
+        if (current_indices[index] >= (*shape)[index]) {
+            current_indices[index] = 0;
+            current_ptr -= ((*shape)[index] - 1) * (*strides)[index];
+            ++index;
+            if (index == rank) {
+                current_ptr = 0;
+                roll_over=false;
+            }
+        } else {
+            current_ptr += (*strides)[index];
+            roll_over = false;
+        }
+    }
+}
+
+//~ template<class T>
+//~ inline void
+//~ Array_nd<T>::iterator::operator++()
+//~ {
+    //~ count++;
+    //~ if (count > max_count) {
+        //~ current_ptr = 0;
+    //~ } else {
+        //~ current_ptr ++;
+    //~ }
+//~ }
+
+template<class T>
+inline bool
+Array_nd<T>::iterator::operator==(const Array_nd<T>::iterator& other)
+{
+    return (other.current_ptr == current_ptr);
+}
+
+template<class T>
+inline bool
+Array_nd<T>::iterator::operator!=(const Array_nd<T>::iterator& other)
+{
+    return (other.current_ptr != current_ptr);
+}
+
 
 template<class T>
 Array_nd<T>::Array_nd()
@@ -117,10 +215,6 @@ Array_nd<T>::construct(const std::vector<int> shape,
         size *= shape[i];
     }
     if (allocate) {
-        //jfa: hmmm... not sure why we do this
-        //~ if (data_size < 1) {
-            //~ data_size = 1;
-        //~ }
         data_ptr = myallocator.allocate(size);
         own_data = true;
     } else {
@@ -193,6 +287,12 @@ Array_nd<T>::copy_construct(const Array_nd& original)
 #endif
     shape_frozen = false;
     own_data = false;
+    if (! original.own_data) {
+#if defined(DEBUG_ALL) || defined(DEBUG_ARRAY_ND_ALL) || defined(DEBUG_ARRAY_ND_COPY_CTOR)
+        std::cout << " no data copied\n";
+#endif
+        data_ptr = original.data_ptr;
+    }
     construct(original.shape,original.strides,original.own_data);
     if (original.own_data) {
         for (unsigned int i = 0; i < size; ++i) {
@@ -201,12 +301,7 @@ Array_nd<T>::copy_construct(const Array_nd& original)
 #if defined(DEBUG_ALL) || defined(DEBUG_ARRAY_ND_ALL) || defined(DEBUG_ARRAY_ND_COPY_CTOR)
         std::cout << " copied " << size*sizeof(T) << " bytes\n";
 #endif
-    } else {
-#if defined(DEBUG_ALL) || defined(DEBUG_ARRAY_ND_ALL) || defined(DEBUG_ARRAY_ND_COPY_CTOR)
-        std::cout << " no data copied\n";
-#endif
-        data_ptr = original.data_ptr;
-    }
+    } 
 }
 
 template<class T>
@@ -433,10 +528,59 @@ Array_nd<T>::owns_data() const
 }
 
 template<class T>
+typename Array_nd<T>::iterator
+Array_nd<T>::begin()
+{
+    return iterator (data_ptr,shape,strides);
+}
+
+template<class T>
+typename Array_nd<T>::iterator
+Array_nd<T>::end()
+{
+    return iterator(0,shape,strides);
+}
+
+template<class T>
 size_t
 Array_nd<T>::get_size() const
 {
     return size;
+}
+
+template<class T>
+Array_nd<T>
+Array_nd<T>::slice(std::vector<Range> ranges)
+{
+    if (ranges.size() != get_rank()) {
+        throw std::runtime_error("Array_nd.slice(ranges) called with incorrect ranges length.");
+    }
+    int new_rank = 0;
+    for (int i=0; i< ranges.size(); ++i) {
+        if (! ranges.at(i).is_unit_length()) {
+            ++new_rank;
+        }
+    }
+    std::vector<int> new_shape(new_rank);
+    std::vector<int> new_strides(new_rank);
+    std::vector<int> offset_indices(get_rank());
+    int which_new = 0;
+    for (int i=0; i<ranges.size(); ++i) {
+        int min = ranges.at(i).get_first(0,shape.at(i)-1); 
+        int max = ranges.at(i).get_last(0,shape.at(i)-1);
+        if ( (min<0) || (max>=shape.at(i)) ) {
+            throw std::runtime_error("Array_nd.slice: requested range outside range of parent array.");
+        }
+        offset_indices.at(i) = min;
+        if (! ranges.at(i).is_unit_length()) {
+            new_shape.at(which_new) = (max-min)/ranges.at(i).get_step() + 1;
+            new_strides.at(which_new) = strides.at(i) *
+                ranges.at(i).get_step();
+             ++which_new;
+        }
+    }
+    return Array_nd<double>(new_shape,new_strides,
+        get_data_ptr()+offset(offset_indices));
 }
 
 template<class T>
