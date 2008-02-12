@@ -8,15 +8,15 @@ template<class T>
 class Array_1d : public Array_nd<T>
 {
 public:
-    class iterator : public Array_nd<T>::iterator
-    {
-        protected:
-            int step0,max0,current_index0;
-        public:
-            iterator(T* begin_ptr, std::vector<int> &shape,
-                std::vector<int> &strides);
-            inline void operator++();
-    };        
+    //~ class iterator : public Array_nd<T>::iterator
+    //~ {
+        //~ protected:
+            //~ int step0,max0,current_index0;
+        //~ public:
+            //~ iterator(T* begin_ptr, std::vector<int> &shape,
+                //~ std::vector<int> &strides);
+            //~ void operator++();
+    //~ };        
     Array_1d();
     Array_1d(const int n);
     Array_1d(const int n, const int stride);
@@ -29,8 +29,8 @@ public:
     void reshape(const int n, T *data_ptr);
     void reshape(const int n, const int stride, T *data_ptr);
 
-    iterator begin();
-    iterator end();
+    //~ iterator begin();
+    //~ iterator end();
 
     T& at(const int i);
     T at(const int i) const;
@@ -46,29 +46,29 @@ public:
 // Begin implementation.
 #include <iostream>
 
-template<class T>
-Array_1d<T>::iterator::iterator(T* begin_ptr, std::vector<int> &shape,
-                std::vector<int> &strides) : 
-    Array_nd<T>::iterator::iterator(begin_ptr,shape,strides)
-{
-    step0 = (*this->strides)[0];
-    max0 = (*this->shape)[0];
-    current_index0 = this->current_indices[0];
-}
+//~ template<class T>
+//~ Array_1d<T>::iterator::iterator(T* begin_ptr, std::vector<int> &shape,
+                //~ std::vector<int> &strides) : 
+    //~ Array_nd<T>::iterator::iterator(begin_ptr,shape,strides)
+//~ {
+    //~ step0 = (*this->strides)[0];
+    //~ max0 = (*this->shape)[0];
+    //~ current_index0 = this->current_indices[0];
+//~ }
 
-template<class T>
-inline void
-Array_1d<T>::iterator::operator++()
-{
+//~ template<class T>
+//~ void
+//~ Array_1d<T>::iterator::operator++()
+//~ {
     //~ std::cout << "current_indices = "<< current_indices[0] <<", " << current_indices[1];
-    this->current_ptr += step0;
-    ++current_index0;
-    if (current_index0== max0) {
-        this->current_ptr = 0;
-    }
+    //~ this->current_ptr += step0;
+    //~ ++current_index0;
+    //~ if (current_index0== max0) {
+        //~ this->current_ptr = 0;
+    //~ }
     //~ std::cout << " -> "<< current_indices[0] <<", " << current_indices[1] << 
         //~ " " << current_ptr << std::endl;
-}
+//~ }
 
 template<class T>
 Array_1d<T>::Array_1d() : Array_nd<T>()
@@ -172,19 +172,19 @@ Array_1d<T>::reshape(const int n, const int stride, T *data_ptr)
     }
 }
 
-template<class T>
-typename Array_1d<T>::iterator
-Array_1d<T>::begin()
-{
-    return iterator(this->data_ptr,this->shape,this->strides);
-}
+//~ template<class T>
+//~ typename Array_1d<T>::iterator
+//~ Array_1d<T>::begin()
+//~ {
+    //~ return iterator(this->data_ptr,this->shape,this->strides);
+//~ }
 
-template<class T>
-typename Array_1d<T>::iterator
-Array_1d<T>::end()
-{
-    return iterator(0,this->shape,this->strides);
-}
+//~ template<class T>
+//~ typename Array_1d<T>::iterator
+//~ Array_1d<T>::end()
+//~ {
+    //~ return iterator(0,this->shape,this->strides);
+//~ }
 
 template<class T>
 inline int
