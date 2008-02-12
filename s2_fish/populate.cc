@@ -11,12 +11,16 @@
 
 #include "populate.h"
 
+gsl_rng * _saved_rng = 0;
+const gsl_rng_type * _saved_rng_type = 0;
+
 class GSL_random
 {
     private:
     gsl_rng * rng;
+    const gsl_rng_type * rng_type;
     public:
-    GSL_random(unsigned long int seed = 0,
+    GSL_random(bool init=true, unsigned long int seed = 0,
         const gsl_rng_type *generator = gsl_rng_ranlxd2);
     void fill_array_unit_gaussian(double *array, int num, int stride=1);
     void fill_array_uniform(double *array, int num, double min, double max,
@@ -24,12 +28,17 @@ class GSL_random
     ~GSL_random();
 };
 
-GSL_random::GSL_random(unsigned long int seed,
+GSL_random::GSL_random(bool init, unsigned long int seed,
         const gsl_rng_type *generator)
 {
     gsl_rng_env_setup();
-    rng = gsl_rng_alloc(generator);
-    gsl_rng_set(rng,seed);
+    rng_type = generator;
+    rng = gsl_rng_alloc(rng_type);
+    if (init || _saved_rng == 0 || _saved_rng_type != generator) {
+        gsl_rng_set(rng,seed);
+    } else {
+        gsl_rng_memcpy(rng,_saved_rng);
+    }
 }
 
 void
@@ -51,6 +60,12 @@ GSL_random::fill_array_uniform(double *array, int num, double min,
 
 GSL_random::~GSL_random()
 {
+    if (_saved_rng != 0) {
+        gsl_rng_free(_saved_rng);
+    }
+    _saved_rng = gsl_rng_alloc(rng_type);
+    gsl_rng_memcpy(_saved_rng,rng);
+    _saved_rng_type = rng_type;
     gsl_rng_free(rng);
 }
 
@@ -208,7 +223,7 @@ adjust_moments(Array_2d<double> &array_in,
 void
 populate_6d_gaussian(Array_2d<double> &particles, 
     const Array_1d<double> &means, const Array_2d<double> &covariances,
-    const int id_offset, const unsigned long int seed)
+    const int id_offset, const unsigned long int seed, bool init_generator)
 {
     if (particles.get_shape()[0] != 7) {
         throw
@@ -219,7 +234,7 @@ populate_6d_gaussian(Array_2d<double> &particles,
     Array_2d<double> tmp(6,num_particles,particles.get_data_ptr());
     Array_2d<double> tmp2(6,num_particles);
 
-    GSL_random gslr(seed);
+    GSL_random gslr(init_generator,seed);
     gslr.fill_array_unit_gaussian(tmp.get_data_ptr(),tmp.get_size());
  
     adjust_moments(tmp,tmp2,means,covariances);
@@ -234,7 +249,7 @@ populate_6d_gaussian(Array_2d<double> &particles,
 void
 populate_transverse_gaussian(Array_2d<double> &particles, 
     const Array_1d<double> &means, const Array_2d<double> &covariances,
-    const int id_offset, const unsigned long int seed)
+    const int id_offset, const unsigned long int seed, bool init_generator)
 {
     if (particles.get_shape()[0] != 7) {
         throw
@@ -246,7 +261,7 @@ populate_transverse_gaussian(Array_2d<double> &particles,
     Array_2d<double> tmp2(6,num_particles);
 
     // It is simplest to let z be gaussian now, then replace it later
-    GSL_random gslr(seed);
+    GSL_random gslr(init_generator,seed);
     gslr.fill_array_unit_gaussian(tmp.get_data_ptr(),tmp.get_size());
  
     // Symmetry requires no correlations with the z coordinate. Make a copy

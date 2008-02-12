@@ -8,7 +8,7 @@ using namespace boost::python;
 void
 populate_6d_gaussian_wrapper(object &particles, 
     const object &means, const object &covariances, const int id_offset,
-    const unsigned long int seed)
+    const unsigned long int seed, bool init_generator)
 {
     Array_2d<double> particles_array = 
         Array_nd_from_PyObject<double>(particles.ptr());
@@ -17,13 +17,13 @@ populate_6d_gaussian_wrapper(object &particles,
     Array_2d<double> covariances_array = 
         Array_nd_from_PyObject<double>(covariances.ptr());
     populate_6d_gaussian(particles_array, means_array, covariances_array, 
-    id_offset, seed);
+    id_offset, seed, init_generator);
 }
 
 void
 populate_transverse_gaussian_wrapper(object &particles, 
     const object &means, const object &covariances, const int id_offset,
-    const unsigned long int seed)
+    const unsigned long int seed, bool init_generator)
 {
     Array_2d<double> particles_array = 
         Array_nd_from_PyObject<double>(particles.ptr());
@@ -32,7 +32,7 @@ populate_transverse_gaussian_wrapper(object &particles,
     Array_2d<double> covariances_array = 
         Array_nd_from_PyObject<double>(covariances.ptr());
     populate_transverse_gaussian(particles_array, means_array, covariances_array, 
-    id_offset, seed);
+    id_offset, seed, init_generator);
 }
 
 BOOST_PYTHON_MODULE(populate)
