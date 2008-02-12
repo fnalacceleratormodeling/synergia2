@@ -59,6 +59,9 @@ class Beam_parameters:
         self.offset_pz = offset_p
         self.num_zpeaks = num_peaks
 
+    def get_z_peaks(self):
+        return self.num_zpeaks
+
     def get_omega(self):
         return self.scaling_frequency_Hz * 2* math.pi
 
