@@ -47,7 +47,6 @@ public:
             std::vector<int> current_indices;
             std::vector<int> *shape;
             int rank;
-            int count,max_count;
             std::vector<int> *strides;
         public:
             iterator(T* begin_ptr, std::vector<int> &shape,
@@ -123,13 +122,10 @@ Array_nd<T>::iterator::iterator(T* begin_ptr, std::vector<int> &shape,
     this->shape = &shape;
     rank = shape.size();
     this->strides = &strides;
-    max_count = 1;
     for(int i=0; i<shape.size(); ++i) {
         current_indices.push_back(0);
-        max_count *= shape[i];
     }
     current_ptr = begin_ptr;
-    count = 0;
 }
 
 template<class T>
@@ -138,6 +134,22 @@ Array_nd<T>::iterator::operator*()
 {
     return *current_ptr;
 }
+
+//~ template<class T>
+//~ inline void
+//~ Array_nd<T>::iterator::operator++()
+//~ {
+    //~ current_ptr += (*strides)[0];
+    //~ ++current_indices[0];
+    //~ if (current_indices[0] == (*shape)[0]) {
+        //~ current_indices[0] = 0;
+        //~ current_ptr += (*strides)[1] - (*shape)[0] * (*strides)[0];
+        //~ ++current_indices[1];
+        //~ if (current_indices[1] == (*shape)[1]) {
+            //~ current_ptr = 0;
+        //~ }
+    //~ }
+//~ }
 
 template<class T>
 inline void
@@ -531,7 +543,7 @@ template<class T>
 typename Array_nd<T>::iterator
 Array_nd<T>::begin()
 {
-    return iterator (data_ptr,shape,strides);
+    return iterator(data_ptr,shape,strides);
 }
 
 template<class T>
