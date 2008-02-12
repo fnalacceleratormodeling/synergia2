@@ -1,8 +1,6 @@
 #include "mytimer.h"
 #include <iostream>
 
-#define ENABLE_MYTIMER_MPI oh_yes
-
 #ifdef ENABLE_MYTIMER_CLOCK
 #include <sys/times.h>
 #endif
@@ -66,7 +64,10 @@ timer(std::string message)
 }
 #endif // ENABLE_MYTIMER_MPI
 
-#ifdef FIXME
+#if !defined(ENABLE_MYTIMER_CLOCK) && !defined(ENABLE_MYTIMER_MPI)
+double
+time(){return 0.0; }
+
 void
 timer(std::string message) { return; }
-#endif
+#endif // neither defined
