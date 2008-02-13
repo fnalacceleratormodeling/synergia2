@@ -7,7 +7,7 @@ import os
 import sys
 
 import synergia
-import s2_fish
+import impact
 
 from mpi4py import MPI
 
@@ -25,7 +25,8 @@ if ( __name__ == '__main__'):
     kicks_per_line = 10
     gridnum = int(sys.argv[1])
     griddim = (gridnum,gridnum,gridnum)
-    num_particles = griddim[0]*griddim[1]*griddim[2] * part_per_cell
+    num_particles = impact.adjust_particles(
+        griddim[0]*griddim[1]*griddim[2] * part_per_cell,MPI.size)
     
     print "num_particles =",num_particles
     xwidth=0.0012026
@@ -50,18 +51,25 @@ if ( __name__ == '__main__'):
     beam_parameters.z_params(sigma = sigma_z_meters, lam = dpop* pz)
 
     sys.stdout.flush()
-    
-    bunch = s2_fish.Macro_bunch(mass,1)
-    bunch.init_gaussian(num_particles,current,beam_parameters)
-    
+
+    print "jfa debug 1"
+    pgrid = impact.Processor_grid(1)
+    print "jfa debug 2"
+    cgrid = impact.Computational_grid(griddim[0],griddim[1],griddim[2],
+                                                  "3d open")
+    piperad = 0.04
+    field = impact.Field(beam_paramters, pgrid, cgrid, piperad)
+    bunch = impact.Bunch(current, beam_paramters, num_particles, pgrid)
+    bunch.generate_particles()
+
     line_length = gourmet.orbit_length()
     tau = 0.5*line_length/kicks_per_line
     s = 0.0
     first_action = 0
-    diag = synergia.Diagnostics(gourmet.get_initial_u())
+    diag = synergia.Diagnostics_impact(gourmet.get_initial_u())
     kick_time = 0.0
-    
-    s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_s2_fish=True)
+
+    s = synergia.propagate(0.0,gourmet,bunch,diag,griddim)
     print "elapsed time =",time.time() - t0
 
     diag.write_hdf5("channel")

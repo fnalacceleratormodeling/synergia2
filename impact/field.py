@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 from UberPkgpy import *
-import physics_constants
+from synergia import physics_constants
 import math
 
 class Field:

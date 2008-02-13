@@ -1,10 +1,13 @@
 #!/usr/bin/env python
 
 import s2_fish
+import impact
 import chef_propagate
 
 last_step_length = 0
-def propagate(s0,gourmet,bunch,diagnostics,grid_dim,quiet=1):
+def propagate(s0,gourmet,bunch,diagnostics,grid_dim,quiet=1,
+    use_s2_fish=False, use_impact=False, use_none=False,
+    pgrid=None,field=None,cgrid=None):
     s = s0
     global last_step_length
     first_action = 1
@@ -22,7 +25,26 @@ def propagate(s0,gourmet,bunch,diagnostics,grid_dim,quiet=1):
                         print "finished space charge kick"
             elif action.get_synergia_action() == "space charge kick":
                 tau = last_step_length
-                s2_fish.apply_space_charge_kick(grid_dim,None,None, bunch, 2*tau)
+                if use_s2_fish:
+                    s2_fish.apply_space_charge_kick(grid_dim,None,None, bunch, 2*tau)
+                elif use_impact:
+                    if ((pgrid == None) or (field == None) or (cgrid == None)):
+                        raise RuntimeError, \
+                            "propagate with use_impact=True requires pgrid, field and cgrid to be specified"
+                    UberPkgpy.Apply_SpaceCharge_external(
+                        bunch.get_beambunch(),
+                        pgrid.get_pgrid2d(),
+                        field.get_fieldquant(),
+                        field.get_compdom(),
+                        field.get_period_length(),
+                        cgrid.get_bc_num(),
+                        field.get_pipe_radius(),
+                        tau, 0, scaling_frequency,0)
+                elif use_none:
+                    pass
+                else:
+                    raise RuntimeError, \
+                        "propagate requires one of use_s2_fish, use_impact or use_none to be True"
             elif action.get_synergia_action() == "rfcavity1" or \
                 action.get_synergia_action() == "rfcavity2":
                 element = action.get_data()

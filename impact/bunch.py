@@ -6,7 +6,7 @@ from UberPkgpy import *
 from OutputPkgpy import *
 from mpi4py import MPI
 
-import loadfile
+from synergia import loadfile
 import os.path
 import tables
 import time
@@ -49,7 +49,7 @@ class Bunch:
                 flagalloc)
 
     def read_particles(self,filename):
-        self.beambunch.Pts1 = loadfile.loadfile_transpose(filename)
+        self.beambunch.Pts1 = loadfile_transpose(filename)
         self.beambunch.Npt = self.beambunch.Pts1.shape[1]
         self.beambunch.Nptlocal = self.beambunch.Npt
         print "read",self.beambunch.Npt,"particles"
