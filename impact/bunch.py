@@ -48,6 +48,8 @@ class Bunch:
                 self.processor_grid.get_pgrid2d(),
                 flagalloc)
 
+    def get_scaling_frequency(self):
+        return self.beam_parameters.scaling_frequency_Hz
     def read_particles(self,filename):
         self.beambunch.Pts1 = loadfile_transpose(filename)
         self.beambunch.Npt = self.beambunch.Pts1.shape[1]

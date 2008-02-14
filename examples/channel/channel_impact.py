@@ -58,8 +58,8 @@ if ( __name__ == '__main__'):
     cgrid = impact.Computational_grid(griddim[0],griddim[1],griddim[2],
                                                   "3d open")
     piperad = 0.04
-    field = impact.Field(beam_paramters, pgrid, cgrid, piperad)
-    bunch = impact.Bunch(current, beam_paramters, num_particles, pgrid)
+    field = impact.Field(beam_parameters, pgrid, cgrid, piperad)
+    bunch = impact.Bunch(current, beam_parameters, num_particles, pgrid)
     bunch.generate_particles()
 
     line_length = gourmet.orbit_length()
@@ -69,10 +69,11 @@ if ( __name__ == '__main__'):
     diag = synergia.Diagnostics_impact(gourmet.get_initial_u())
     kick_time = 0.0
 
-    s = synergia.propagate(0.0,gourmet,bunch,diag,griddim)
+    s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_impact=True,
+        pgrid=pgrid,field=field,cgrid=cgrid)
     print "elapsed time =",time.time() - t0
 
-    diag.write_hdf5("channel")
+    diag.write("channel")
     import pylab
 
     dimpact = synergia.Diagnostics_impact_orig("channel_impact_open")
@@ -82,7 +83,7 @@ if ( __name__ == '__main__'):
     pylab.xlabel('s (m)')
     pylab.ylabel('std<x> (m)')
 
-    pylab.plot(dimpact.s,dimpact.std[:,synergia.x],'o',label='impact')
-    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.x],'r+',label='fish')
+    pylab.plot(dimpact.s,dimpact.std[:,synergia.x],'o',label='impact (saved)')
+    pylab.plot(diag.s,diag.std[0],'r+',label='impact (current)')
     pylab.legend(loc=0)
     pylab.show()

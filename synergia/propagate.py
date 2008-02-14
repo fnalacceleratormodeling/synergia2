@@ -31,7 +31,7 @@ def propagate(s0,gourmet,bunch,diagnostics,grid_dim,quiet=1,
                     if ((pgrid == None) or (field == None) or (cgrid == None)):
                         raise RuntimeError, \
                             "propagate with use_impact=True requires pgrid, field and cgrid to be specified"
-                    UberPkgpy.Apply_SpaceCharge_external(
+                    impact.apply_space_charge_kick(
                         bunch.get_beambunch(),
                         pgrid.get_pgrid2d(),
                         field.get_fieldquant(),
@@ -39,7 +39,7 @@ def propagate(s0,gourmet,bunch,diagnostics,grid_dim,quiet=1,
                         field.get_period_length(),
                         cgrid.get_bc_num(),
                         field.get_pipe_radius(),
-                        tau, 0, scaling_frequency,0)
+                        tau, 0, bunch.get_scaling_frequency(),0)
                 elif use_none:
                     pass
                 else:
