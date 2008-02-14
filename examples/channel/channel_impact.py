@@ -28,7 +28,11 @@ if ( __name__ == '__main__'):
     num_particles = impact.adjust_particles(
         griddim[0]*griddim[1]*griddim[2] * part_per_cell,MPI.size)
     
+    BC_choice = sys.argv[2]
+    
     print "num_particles =",num_particles
+    print "Boundary conditions ", BC_choice
+    
     xwidth=0.0012026
     xpwidth=0.0049608
     rx=0.85440
@@ -56,7 +60,7 @@ if ( __name__ == '__main__'):
     pgrid = impact.Processor_grid(1)
     print "jfa debug 2"
     cgrid = impact.Computational_grid(griddim[0],griddim[1],griddim[2],
-                                                  "3d open")
+                                                  BC_choice)
     piperad = 0.04
     field = impact.Field(beam_parameters, pgrid, cgrid, piperad)
     bunch = impact.Bunch(current, beam_parameters, num_particles, pgrid)
@@ -76,7 +80,10 @@ if ( __name__ == '__main__'):
     diag.write("channel")
     import pylab
 
+    #if BC_choice=="3d open":
     dimpact = synergia.Diagnostics_impact_orig("channel_impact_open")
+    #if BC_choice=="trans finite, long periodic round":
+    #    dimpact = synergia.Diagnostics_impact_orig("channel_impact_round_Lperiodic")
     d0 = synergia.Diagnostics_impact_orig("channel0current")
 
     pylab.plot(d0.s,d0.std[:,synergia.x],'gx',label='no space charge')
