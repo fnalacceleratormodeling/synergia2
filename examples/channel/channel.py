@@ -13,7 +13,7 @@ from mpi4py import MPI
 
 if ( __name__ == '__main__'):
     t0 = time.time()
-    current = 0.5
+    current = 0.5*10
     kinetic_energy = 0.0067
     mass = synergia.PH_NORM_mp
     charge = 1.0
@@ -26,8 +26,10 @@ if ( __name__ == '__main__'):
     gridnum = int(sys.argv[1])
     griddim = (gridnum,gridnum,gridnum)
     num_particles = griddim[0]*griddim[1]*griddim[2] * part_per_cell
+    Solver = sys.argv[2]
     
     print "num_particles =",num_particles
+    print "We will use a ", Solver, " solver"
     xwidth=0.0012026
     xpwidth=0.0049608
     rx=0.85440
@@ -61,7 +63,10 @@ if ( __name__ == '__main__'):
     diag = synergia.Diagnostics(gourmet.get_initial_u())
     kick_time = 0.0
     
-    s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_s2_fish=True)
+    if Solver == "3D":
+        s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_s2_fish=True)
+    elif Solver =="2D":
+        s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_gauss=True)
     print "elapsed time =",time.time() - t0
 
     diag.write_hdf5("channel")
