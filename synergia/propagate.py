@@ -7,7 +7,7 @@ import chef_propagate
 last_step_length = 0
 def propagate(s0,gourmet,bunch,diagnostics,grid_dim,quiet=1,
     use_s2_fish=False, use_impact=False, use_none=False,
-    pgrid=None,field=None,cgrid=None):
+    pgrid=None,field=None,cgrid=None,use_gauss=False):
     s = s0
     global last_step_length
     first_action = 1
@@ -40,6 +40,8 @@ def propagate(s0,gourmet,bunch,diagnostics,grid_dim,quiet=1,
                         cgrid.get_bc_num(),
                         field.get_pipe_radius(),
                         tau, 0, bunch.get_scaling_frequency(),0)
+                elif use_gauss:
+                    s2_fish.apply_BasErs_space_charge_kick(bunch, 2*tau)
                 elif use_none:
                     pass
                 else:
