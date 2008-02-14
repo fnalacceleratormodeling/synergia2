@@ -4,7 +4,7 @@ from GaussSC import *
 from mytimer import mytimer
 
 import time
-import syn2_diagnostics
+import synergia
 import sys
 
 from mpi4py import MPI
@@ -18,7 +18,7 @@ def apply_BasErs_space_charge_kick(mbunch,tau):
     mytimer("convert")
 
     n_sigma = 8.0
-    means, stds= syn2_diagnostics.get_spatial_means_stds(mbunch)
+    means, stds= synergia.get_spatial_means_stds(mbunch)
     ##print "sx, sy, sz =", stds[0], stds[1], stds[2]
     mytimer("diagnostics")
 
