@@ -12,9 +12,6 @@ int main(int argc, char **argv)
     int xmax = 1000000;
     int ymax = 7;
     int zmax = 8192;
-    //~ int xmax = 4;
-    //~ int ymax = 4;
-    //~ int zmax = 4;
     MPI_Init(&argc, &argv);
 
     reset_timer();
@@ -43,105 +40,105 @@ int main(int argc, char **argv)
     }
     timer("a1 dumb set all2");
 
-    //~ reset_timer();
-    //~ Array_2d<double> a2(xmax,ymax);
-    //~ timer("a2 construct");
+    reset_timer();
+    Array_2d<double> a2(xmax, ymax);
+    timer("a2 construct");
 
-    //~ a2.set_all(0.0);
-    //~ timer("a2 set_all");
-    //~ a2.set_all(0.0);
-    //~ timer("a2 set_all2");
+    a2.set_all(0.0);
+    timer("a2 set_all");
+    a2.set_all(0.0);
+    timer("a2 set_all2");
 
-    //~ for(Array_2d<double>::Iterator it = a2.begin(); it != a2.end(); ++it) {
-    //~ *it = 0.0;
-    //~ }
-    //~ timer("a2 Iterator");
-    //~ for(Array_2d<double>::Iterator it = a2.begin(); it != a2.end(); ++it) {
-    //~ *it = 0.0;
-    //~ }
-    //~ timer("a2 Iterator2");
+    for (Array_2d<double>::Iterator it = a2.begin(); it != a2.end(); ++it) {
+        *it = 0.0;
+    }
+    timer("a2 Iterator");
+    for (Array_2d<double>::Iterator it = a2.begin(); it != a2.end(); ++it) {
+        *it = 0.0;
+    }
+    timer("a2 Iterator2");
 
-    //~ for(int i = 0 ; i < xmax; ++i) {
-    //~ for(int j = 0; j<ymax; ++j) {
-    //~ a2(i,j) = 0.0;
-    //~ }
-    //~ }
-    //~ timer("a2 dumb set all");
-    //~ for(int i = 0 ; i < xmax; ++i) {
-    //~ for(int j = 0; j<ymax; ++j) {
-    //~ a2(i,j) = 0.0;
-    //~ }
-    //~ }
-    //~ timer("a2 dumb set all2");
+    for (int i = 0 ; i < xmax; ++i) {
+        for (int j = 0; j < ymax; ++j) {
+            a2(i, j) = 0.0;
+        }
+    }
+    timer("a2 dumb set all");
+    for (int i = 0 ; i < xmax; ++i) {
+        for (int j = 0; j < ymax; ++j) {
+            a2(i, j) = 0.0;
+        }
+    }
+    timer("a2 dumb set all2");
 
-    //~ reset_timer();
-    //~ Array_2d<double> at2(ymax,xmax);
-    //~ timer("at2 construct");
+    reset_timer();
+    Array_2d<double> at2(ymax, xmax);
+    timer("at2 construct");
 
-    //~ at2.set_all(0.0);
-    //~ timer("at2 set_all");
-    //~ at2.set_all(0.0);
-    //~ timer("at2 set_all2");
+    at2.set_all(0.0);
+    timer("at2 set_all");
+    at2.set_all(0.0);
+    timer("at2 set_all2");
 
-    //~ for(Array_2d<double>::Iterator it = at2.begin(); it != at2.end(); ++it) {
-    //~ *it = 0.0;
-    //~ }
-    //~ timer("at2 Iterator");
-    //~ for(Array_2d<double>::Iterator it = at2.begin(); it != at2.end(); ++it) {
-    //~ *it = 0.0;
-    //~ }
-    //~ timer("at2 Iterator2");
+    for (Array_2d<double>::Iterator it = at2.begin(); it != at2.end(); ++it) {
+        *it = 0.0;
+    }
+    timer("at2 Iterator");
+    for (Array_2d<double>::Iterator it = at2.begin(); it != at2.end(); ++it) {
+        *it = 0.0;
+    }
+    timer("at2 Iterator2");
 
-    //~ for(int i = 0 ; i < ymax; ++i) {
-    //~ for(int j = 0; j<xmax; ++j) {
-    //~ at2(i,j) = 0.0;
-    //~ }
-    //~ }
-    //~ timer("at2 dumb set all");
-    //~ for(int i = 0 ; i < ymax; ++i) {
-    //~ for(int j = 0; j<xmax; ++j) {
-    //~ at2(i,j) = 0.0;
-    //~ }
-    //~ }
-    //~ timer("at2 dumb set all2");
+    for (int i = 0 ; i < ymax; ++i) {
+        for (int j = 0; j < xmax; ++j) {
+            at2(i, j) = 0.0;
+        }
+    }
+    timer("at2 dumb set all");
+    for (int i = 0 ; i < ymax; ++i) {
+        for (int j = 0; j < xmax; ++j) {
+            at2(i, j) = 0.0;
+        }
+    }
+    timer("at2 dumb set all2");
 
-    //~ xmax = 2;
-    //~ ymax = 256;
+    xmax = 2;
+    ymax = 256;
 
-    //~ reset_timer();
-    //~ Array_3d<double> a3(xmax,ymax,zmax);
-    //~ timer("a3 construct");
+    reset_timer();
+    Array_3d<double> a3(xmax, ymax, zmax);
+    timer("a3 construct");
 
-    //~ a3.set_all(0.0);
-    //~ timer("a3 set_all");
-    //~ a3.set_all(0.0);
-    //~ timer("a3 set_all2");
+    a3.set_all(0.0);
+    timer("a3 set_all");
+    a3.set_all(0.0);
+    timer("a3 set_all2");
 
-    //~ for(Array_3d<double>::Iterator it = a3.begin(); it != a3.end(); ++it) {
-    //~ *it = 0.0;
-    //~ }
-    //~ timer("a3 Iterator");
-    //~ for(Array_3d<double>::Iterator it = a3.begin(); it != a3.end(); ++it) {
-    //~ *it = 0.0;
-    //~ }
-    //~ timer("a3 Iterator2");
+    for (Array_3d<double>::Iterator it = a3.begin(); it != a3.end(); ++it) {
+        *it = 0.0;
+    }
+    timer("a3 Iterator");
+    for (Array_3d<double>::Iterator it = a3.begin(); it != a3.end(); ++it) {
+        *it = 0.0;
+    }
+    timer("a3 Iterator2");
 
-    //~ for(int i = 0 ; i < xmax; ++i) {
-    //~ for(int j = 0; j<ymax; ++j) {
-    //~ for(int k = 0; k<zmax; ++k) {
-    //~ a3(i,j,k) = 0.0;
-    //~ }
-    //~ }
-    //~ }
-    //~ timer("a3 dumb set all ");
-    //~ for(int i = 0 ; i < xmax; ++i) {
-    //~ for(int j = 0; j<ymax; ++j) {
-    //~ for(int k = 0; k<zmax; ++k) {
-    //~ a3(i,j,k) = 0.0;
-    //~ }
-    //~ }
-    //~ }
-    //~ timer("a3 dumb set all2");
+    for (int i = 0 ; i < xmax; ++i) {
+        for (int j = 0; j < ymax; ++j) {
+            for (int k = 0; k < zmax; ++k) {
+                a3(i, j, k) = 0.0;
+            }
+        }
+    }
+    timer("a3 dumb set all ");
+    for (int i = 0 ; i < xmax; ++i) {
+        for (int j = 0; j < ymax; ++j) {
+            for (int k = 0; k < zmax; ++k) {
+                a3(i, j, k) = 0.0;
+            }
+        }
+    }
+    timer("a3 dumb set all2");
 
     reset_timer();
     xmax = 2;
@@ -211,8 +208,7 @@ int main(int argc, char **argv)
     an_yslice.set_all(0.0);
     timer("an_yslice set_all2");
 
-    Array_nd<double>::Iterator  end = an_yslice.end();
-    for (Array_nd<double>::Iterator it = an_yslice.begin(); it != end; ++it) {
+    for (Array_nd<double>::Iterator it = an_yslice.begin(); it != an_yslice.end(); ++it) {
         *it = 0.0;
     }
     timer("an_yslice Iterator");
@@ -233,9 +229,9 @@ int main(int argc, char **argv)
 
     reset_timer();
     Array_nd<double> an_halfslice(an.slice(
-                                   vector3(Range(Range::begin,Range::end,2),
-                                           Range(Range::begin,Range::end,2),
-                                           Range(Range::begin,Range::end,2))));
+                                      vector3(Range(Range::begin, Range::end, 2),
+                                              Range(Range::begin, Range::end, 2),
+                                              Range(Range::begin, Range::end, 2))));
     timer("an_halfslice construct");
 
     an_halfslice.set_all(0.0);
@@ -243,10 +239,9 @@ int main(int argc, char **argv)
     an_halfslice.set_all(0.0);
     timer("an_halfslice set_all2");
 
-    end = an_halfslice.end();
     for (Array_nd<double>::Iterator it = an_halfslice.begin();
-        it != end;
-        ++it) {
+            it != an_halfslice.end();
+            ++it) {
         *it = 0.0;
     }
     timer("an_halfslice Iterator");

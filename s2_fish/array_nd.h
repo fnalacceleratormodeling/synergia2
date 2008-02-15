@@ -29,54 +29,58 @@ protected:
 
     std::allocator<T> myallocator;
 
-    void construct(const std::vector<int> shape, 
-        const std::vector<int> strides, const bool allocate);
+    void construct(const std::vector<int> shape,
+                   const std::vector<int> strides, const bool allocate);
     void construct(const std::vector<int> shape, const bool allocate);
     void copy_construct(const Array_nd& original);
     bool different_shape(const std::vector<int> shape) const;
-    std::vector<int> 
-        default_strides_from_shape(const std::vector<int> &shape);
+    std::vector<int>
+    default_strides_from_shape(const std::vector<int> &shape);
     void recursive_print(const std::string name, const int which_index,
-        std::vector<int> indices) const;
+                         std::vector<int> indices) const;
 
 public:
     class Iterator
     {
-        protected:
-            bool contiguous;
-            T* begin_ptr;
-            T *end_ptr;
-            T* current_ptr;
-            std::vector<int> current_indices;
-            std::vector<int> *shape;
-            int index_start, index_end, index_step;
-            std::vector<int> *strides;
-        public:
-            Iterator(T* begin_ptr, T* end_ptr, bool contiguous,
-                std::vector<int> &shape, std::vector<int> &strides);
-            inline T& operator*();
-            void operator++();
-            inline bool operator==(const Iterator& other);
-            inline bool operator!=(const Iterator& other);
+    private:
+        void noncontig_plusplus();
+    protected:
+        bool contiguous;
+        T* begin_ptr;
+        T *end_ptr;
+        T* current_ptr;
+        std::vector<int> current_indices;
+        std::vector<int> *shape;
+        int index_start, index_end, index_step;
+        std::vector<int> *strides;
+    public:
+        Iterator(T* begin_ptr, T* end_ptr, bool contiguous,
+                 std::vector<int> &shape, std::vector<int> &strides);
+        inline T& operator*();
+        void operator++();
+        inline bool operator==(const Iterator& other);
+        inline bool operator!=(const Iterator& other);
+        inline bool operator==(const T *ptr);
+        inline bool operator!=(const T *ptr);
     };
-    
+
     Array_nd();
     Array_nd(const std::vector<int> shape);
-    Array_nd(const std::vector<int> shape, 
-        const std::vector<int> strides);
+    Array_nd(const std::vector<int> shape,
+             const std::vector<int> strides);
     Array_nd(const std::vector<int> shape, T *data_ptr);
-    Array_nd(const std::vector<int> shape, 
-        const std::vector<int> strides, T *data_ptr);
+    Array_nd(const std::vector<int> shape,
+             const std::vector<int> strides, T *data_ptr);
     Array_nd(const Array_nd& original);
 
     void copy();
 
     void reshape(const std::vector<int> shape);
     void reshape(const std::vector<int> shape,
-        const std::vector<int> strides);
+                 const std::vector<int> strides);
     void reshape(const std::vector<int> shape, T *data_ptr);
     void reshape(const std::vector<int> shape,
-        const std::vector<int> strides, T *data_ptr);
+                 const std::vector<int> strides, T *data_ptr);
     void freeze_shape();
 
     void set_all(const T value);
@@ -91,7 +95,7 @@ public:
     T* get_data_ptr() const;
     bool owns_data() const;
     Iterator begin();
-    Iterator end();
+    T* end();
     std::vector<int> get_shape() const;
     std::vector<int> get_strides() const;
     int get_rank() const;
