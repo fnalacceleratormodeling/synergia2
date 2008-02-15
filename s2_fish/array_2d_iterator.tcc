@@ -1,7 +1,7 @@
 template<class T>
-Array_2d<T>::iterator::iterator(T* begin_ptr, std::vector<int> &shape,
+Array_2d<T>::Iterator::Iterator(T* begin_ptr, std::vector<int> &shape,
                 std::vector<int> &strides) : 
-    Array_nd<T>::iterator::iterator(begin_ptr,shape,strides)
+    Array_nd<T>::Iterator::Iterator(begin_ptr,shape,strides)
 {
     step0 = (*this->strides)[0];
     max0 = (*this->shape)[0];
@@ -13,7 +13,7 @@ Array_2d<T>::iterator::iterator(T* begin_ptr, std::vector<int> &shape,
 
 template<class T>
 void
-Array_2d<T>::iterator::operator++()
+Array_2d<T>::Iterator::operator++()
 {
     this->current_ptr += step0;
     ++current_index0;

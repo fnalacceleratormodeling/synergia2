@@ -6,7 +6,8 @@ Array_nd<T>::Array_nd()
 {
     shape_frozen = false;
     own_data = false;
-    size = 0;
+    data_ptr = 0;
+    end_ptr = 0;
 }
 
 template<class T>
@@ -22,9 +23,16 @@ Array_nd<T>::construct(const std::vector<int> shape,
     }
     this->shape = shape;
     this->strides = strides;
-    size = shape[0];
-    for (unsigned int i = 1; i < shape.size() ; i++) {
+    size = 1;
+    std::vector<int> last_point(shape);
+    for (unsigned int i = 0; i < shape.size() ; i++) {
         size *= shape[i];
+        last_point[i] = shape[i] -1;
+    }
+    if (offset(last_point) == size-1) {
+        contiguous = true;
+    } else {
+        contiguous = false;
     }
     if (allocate) {
         data_ptr = myallocator.allocate(size);
@@ -32,6 +40,7 @@ Array_nd<T>::construct(const std::vector<int> shape,
     } else {
         own_data = false;
     }
+    end_ptr = data_ptr + offset(last_point) + 1;
 }
 
 template<class T>
@@ -99,21 +108,8 @@ Array_nd<T>::copy_construct(const Array_nd& original)
 #endif
     shape_frozen = false;
     own_data = false;
-    if (! original.own_data) {
-#if defined(DEBUG_ALL) || defined(DEBUG_ARRAY_ND_ALL) || defined(DEBUG_ARRAY_ND_COPY_CTOR)
-        std::cout << " no data copied\n";
-#endif
-        data_ptr = original.data_ptr;
-    }
+    data_ptr = original.data_ptr;
     construct(original.shape,original.strides,original.own_data);
-    if (original.own_data) {
-        for (unsigned int i = 0; i < size; ++i) {
-            data_ptr[i] = original.data_ptr[i];
-        }
-#if defined(DEBUG_ALL) || defined(DEBUG_ARRAY_ND_ALL) || defined(DEBUG_ARRAY_ND_COPY_CTOR)
-        std::cout << " copied " << size*sizeof(T) << " bytes\n";
-#endif
-    } 
 }
 
 template<class T>
@@ -237,17 +233,22 @@ template<class T>
 void
 Array_nd<T>::set_all(const T value)
 {
-    for (unsigned int i = 0; i < size; ++i ) {
-        data_ptr[i] = value;
+    //~ int count = 0;
+    for (Iterator it = begin(); it != end(); ++it) {
+        *it = value;
+        //~ ++count;
     }
+    //~ int expected=1;
+    //~ for (int i =0; i<shape.size(); ++i) {expected *= shape.at(i);}
+    //~ std::cout << "jfa: set_all used " << count<<" iterations, expected " << size << " or " << expected<< "\n";
 }
 
 template<class T>
 void
 Array_nd<T>::scale(const T factor)
 {
-    for (unsigned int i = 0; i < size; ++i ) {
-        data_ptr[i] *= factor;
+    for (Iterator it = begin(); it != end(); ++it) {
+        *it *= factor;
     }
 }
 
@@ -255,8 +256,8 @@ template<class T>
 void
 Array_nd<T>::add(const T constant)
 {
-    for (unsigned int i = 0; i < size; ++i ) {
-        data_ptr[i] += constant;
+    for (Iterator it = begin(); it != end(); ++it) {
+        *it += constant;
     }
 }
 
@@ -340,24 +341,17 @@ Array_nd<T>::owns_data() const
 }
 
 template<class T>
-typename Array_nd<T>::iterator
+typename Array_nd<T>::Iterator
 Array_nd<T>::begin()
 {
-    return iterator(data_ptr,shape,strides);
+    return Iterator(data_ptr,end_ptr,contiguous,shape,strides);
 }
 
 template<class T>
-typename Array_nd<T>::iterator
+typename Array_nd<T>::Iterator
 Array_nd<T>::end()
 {
-    return iterator(0,shape,strides);
-}
-
-template<class T>
-size_t
-Array_nd<T>::get_size() const
-{
-    return size;
+    return Iterator(end_ptr,end_ptr,contiguous,shape,strides);
 }
 
 template<class T>

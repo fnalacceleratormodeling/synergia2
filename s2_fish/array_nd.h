@@ -19,12 +19,13 @@ template<class T>
 class Array_nd
 {
 protected:
-    T *data_ptr;
+    T *data_ptr, *end_ptr;
     bool own_data;
     std::vector<int> shape;
     std::vector<int> strides;
-    size_t size;
     bool shape_frozen;
+    bool contiguous;
+    int size; // remove me
 
     std::allocator<T> myallocator;
 
@@ -39,24 +40,26 @@ protected:
         std::vector<int> indices) const;
 
 public:
-    class iterator
+    class Iterator
     {
         protected:
+            bool contiguous;
             T* begin_ptr;
+            T *end_ptr;
             T* current_ptr;
             std::vector<int> current_indices;
             std::vector<int> *shape;
             int index_start, index_end, index_step;
             std::vector<int> *strides;
         public:
-            iterator(T* begin_ptr, std::vector<int> &shape,
-                std::vector<int> &strides);
+            Iterator(T* begin_ptr, T* end_ptr, bool contiguous,
+                std::vector<int> &shape, std::vector<int> &strides);
             inline T& operator*();
-            inline void operator++();
-            inline bool operator==(const iterator& other);
-            inline bool operator!=(const iterator& other);
-    };        
-
+            void operator++();
+            inline bool operator==(const Iterator& other);
+            inline bool operator!=(const Iterator& other);
+    };
+    
     Array_nd();
     Array_nd(const std::vector<int> shape);
     Array_nd(const std::vector<int> shape, 
@@ -87,12 +90,11 @@ public:
 
     T* get_data_ptr() const;
     bool owns_data() const;
-    iterator begin();
-    iterator end();
+    Iterator begin();
+    Iterator end();
     std::vector<int> get_shape() const;
     std::vector<int> get_strides() const;
     int get_rank() const;
-    size_t get_size() const;
     bool shape_is_frozen() const;
     inline int offset(const std::vector<int> &indices) const;
     inline bool bounds_check(const std::vector<int> &indices) const;

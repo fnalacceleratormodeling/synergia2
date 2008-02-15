@@ -8,13 +8,13 @@ template<class T>
 class Array_2d : public Array_nd<T>
 {
 public:
-    //~ class iterator : public Array_nd<T>::iterator
+    //~ class Iterator : public Array_nd<T>::Iterator
     //~ {
         //~ protected:
             //~ int step0,max0,current_index0;
             //~ int step1,max1,current_index1;
         //~ public:
-            //~ iterator(T* begin_ptr, std::vector<int> &shape,
+            //~ Iterator(T* begin_ptr, std::vector<int> &shape,
                 //~ std::vector<int> &strides);
              //~ void operator++();
     //~ };        
@@ -34,8 +34,8 @@ public:
     void reshape(const int nx, const int ny, 
         const int stride_x, const int stride_y, T *data_ptr);
 
-    //~ iterator begin();
-    //~ iterator end();
+    //~ Iterator begin();
+    //~ Iterator end();
 
     T& at(const int i, const int j);
     T at(const int i, const int j) const;
@@ -48,7 +48,7 @@ public:
     virtual ~Array_2d();
 };
 
-//~ #include "array_2d_iterator.tcc"
+//~ #include "array_2d_Iterator.tcc"
 #include "array_2d.tcc"
 
 #endif

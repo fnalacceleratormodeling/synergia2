@@ -108,17 +108,17 @@ Array_2d<T>::reshape(const int nx, const int ny,
 }
 
 //~ template<class T>
-//~ typename Array_2d<T>::iterator
+//~ typename Array_2d<T>::Iterator
 //~ Array_2d<T>::begin()
 //~ {
-    //~ return iterator(this->data_ptr,this->shape,this->strides);
+    //~ return Iterator(this->data_ptr,this->shape,this->strides);
 //~ }
 
 //~ template<class T>
-//~ typename Array_2d<T>::iterator
+//~ typename Array_2d<T>::Iterator
 //~ Array_2d<T>::end()
 //~ {
-    //~ return iterator(0,this->shape,this->strides);
+    //~ return Iterator(0,this->shape,this->strides);
 //~ }
 
 template<class T>

@@ -8,12 +8,12 @@ template<class T>
 class Array_1d : public Array_nd<T>
 {
 public:
-    //~ class iterator : public Array_nd<T>::iterator
+    //~ class Iterator : public Array_nd<T>::Iterator
     //~ {
         //~ protected:
             //~ int step0,max0,current_index0;
         //~ public:
-            //~ iterator(T* begin_ptr, std::vector<int> &shape,
+            //~ Iterator(T* begin_ptr, std::vector<int> &shape,
                 //~ std::vector<int> &strides);
             //~ void operator++();
     //~ };        
@@ -29,8 +29,8 @@ public:
     void reshape(const int n, T *data_ptr);
     void reshape(const int n, const int stride, T *data_ptr);
 
-    //~ iterator begin();
-    //~ iterator end();
+    //~ Iterator begin();
+    //~ Iterator end();
 
     T& at(const int i);
     T at(const int i) const;
@@ -47,9 +47,9 @@ public:
 #include <iostream>
 
 //~ template<class T>
-//~ Array_1d<T>::iterator::iterator(T* begin_ptr, std::vector<int> &shape,
+//~ Array_1d<T>::Iterator::Iterator(T* begin_ptr, std::vector<int> &shape,
                 //~ std::vector<int> &strides) : 
-    //~ Array_nd<T>::iterator::iterator(begin_ptr,shape,strides)
+    //~ Array_nd<T>::Iterator::Iterator(begin_ptr,shape,strides)
 //~ {
     //~ step0 = (*this->strides)[0];
     //~ max0 = (*this->shape)[0];
@@ -58,7 +58,7 @@ public:
 
 //~ template<class T>
 //~ void
-//~ Array_1d<T>::iterator::operator++()
+//~ Array_1d<T>::Iterator::operator++()
 //~ {
     //~ std::cout << "current_indices = "<< current_indices[0] <<", " << current_indices[1];
     //~ this->current_ptr += step0;
@@ -173,17 +173,17 @@ Array_1d<T>::reshape(const int n, const int stride, T *data_ptr)
 }
 
 //~ template<class T>
-//~ typename Array_1d<T>::iterator
+//~ typename Array_1d<T>::Iterator
 //~ Array_1d<T>::begin()
 //~ {
-    //~ return iterator(this->data_ptr,this->shape,this->strides);
+    //~ return Iterator(this->data_ptr,this->shape,this->strides);
 //~ }
 
 //~ template<class T>
-//~ typename Array_1d<T>::iterator
+//~ typename Array_1d<T>::Iterator
 //~ Array_1d<T>::end()
 //~ {
-    //~ return iterator(0,this->shape,this->strides);
+    //~ return Iterator(0,this->shape,this->strides);
 //~ }
 
 template<class T>
