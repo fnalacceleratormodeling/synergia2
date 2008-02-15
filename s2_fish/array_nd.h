@@ -25,7 +25,7 @@ protected:
     std::vector<int> strides;
     bool shape_frozen;
     bool contiguous;
-    int size; // remove me
+    int size;
 
     std::allocator<T> myallocator;
 
