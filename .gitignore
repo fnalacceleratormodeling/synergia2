@@ -11,6 +11,8 @@ code_parts*.dat
 
 synergia_local
 
+.kdbgrc.*
+
 # cmake
 CMakeCache.txt
 CMakeFiles

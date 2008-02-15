@@ -11,10 +11,10 @@
 #include "beamline/Particle.h"
 #include <string>
 
-#include "s2_fish/array_nd.h"
-#include "s2_fish/array_2d.h"
-#include "s2_fish/array_1d.h"
-#include "s2_fish/array_nd_python.h"
+#include "array_nd/array_nd.h"
+#include "array_nd/array_2d.h"
+#include "array_nd/array_1d.h"
+#include "array_nd/array_nd_python.h"
 extern "C" {
 #include <sys/time.h>
 }

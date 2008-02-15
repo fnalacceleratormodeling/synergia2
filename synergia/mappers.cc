@@ -7,8 +7,8 @@
 #include <vector>
 #include "bmlfactory/bmlfactory.h"
 #include "mxyzptlk/Mapping.h"
-#include "s2_fish/array_2d.h"
-#include "s2_fish/array_nd_python.h"
+#include "array_nd/array_2d.h"
+#include "array_nd/array_nd_python.h"
 
 extern "C"
 {

@@ -1,7 +1,7 @@
 #include "populate.h"
 #undef _POSIX_C_SOURCE
 #include <boost/python.hpp>
-#include "array_nd_python.h"
+#include "array_nd/array_nd_python.h"
 
 using namespace boost::python;
 

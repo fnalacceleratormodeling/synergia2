@@ -11,3 +11,4 @@ test_array_2d
 test_2d.log
 test_array_3d
 test_3d.log
+test_slice

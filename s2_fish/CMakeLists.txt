@@ -1,6 +1,7 @@
-add_executable(test_slice test_slice.cc range.cc)
+add_executable(test_slice test_slice.cc)
+target_link_libraries(test_slice array_nd)
 
-link_libraries(${CHEF_LIBS} -lfftw3 ${BOOST_LIBS})
+link_libraries(${CHEF_LIBS} -lfftw3 ${BOOST_LIBS} array_nd)
 
 add_python_extension(GaussSC GaussSC.cc BasErs_field.cc)
 

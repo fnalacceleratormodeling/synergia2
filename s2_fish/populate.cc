@@ -22,9 +22,9 @@ class GSL_random
     public:
     GSL_random(bool init=true, unsigned long int seed = 0,
         const gsl_rng_type *generator = gsl_rng_ranlxd2);
-    void fill_array_unit_gaussian(double *array, int num, int stride=1);
-    void fill_array_uniform(double *array, int num, double min, double max,
-        int stride=1);
+    void fill_array_unit_gaussian(Array_nd<double> &array);
+    void fill_array_uniform(Array_nd<double> &array, const double min, 
+        const double max);
     ~GSL_random();
 };
 
@@ -42,19 +42,23 @@ GSL_random::GSL_random(bool init, unsigned long int seed,
 }
 
 void
-GSL_random::fill_array_unit_gaussian(double *array, int num, int stride)
+GSL_random::fill_array_unit_gaussian(Array_nd<double> &array)
 {
-    for(int i = 0; i<num; i+=stride) {
-            array[i] = gsl_ran_ugaussian_ratio_method(rng);
+    for(Array_nd<double>::Iterator it = array.begin(); 
+        it != array.end();
+        ++it) {
+        *it = gsl_ran_ugaussian_ratio_method(rng);
     }
 }
 
 void
-GSL_random::fill_array_uniform(double *array, int num, double min,
-    double max, int stride)
+GSL_random::fill_array_uniform(Array_nd<double> &array,
+    const double min, const double max)
 {
-    for(int i = 0; i<num; i+=stride) {
-            array[i] = gsl_ran_flat(rng,min,max);
+     for(Array_nd<double>::Iterator it = array.begin(); 
+        it != array.end();
+        ++it) {
+        *it = gsl_ran_flat(rng,min,max);
     }
 }
 
@@ -235,7 +239,7 @@ populate_6d_gaussian(Array_2d<double> &particles,
     Array_2d<double> tmp2(6,num_particles);
 
     GSL_random gslr(init_generator,seed);
-    gslr.fill_array_unit_gaussian(tmp.get_data_ptr(),tmp.get_size());
+    gslr.fill_array_unit_gaussian(tmp);
  
     adjust_moments(tmp,tmp2,means,covariances);
     
@@ -262,7 +266,7 @@ populate_transverse_gaussian(Array_2d<double> &particles,
 
     // It is simplest to let z be gaussian now, then replace it later
     GSL_random gslr(init_generator,seed);
-    gslr.fill_array_unit_gaussian(tmp.get_data_ptr(),tmp.get_size());
+    gslr.fill_array_unit_gaussian(tmp);
  
     // Symmetry requires no correlations with the z coordinate. Make a copy
     // of the covariance matrix and manually set all correlations to zero.
@@ -283,6 +287,6 @@ populate_transverse_gaussian(Array_2d<double> &particles,
     
     const double pi = 3.1415926535897932385;
     // Real z distribution
-    gslr.fill_array_uniform(particles.get_data_ptr()+particles.offset(4,0),
-        num_particles,-pi,pi);
+    Array_1d<double> z = particles.slice(vector2(Range(4),Range()));
+    gslr.fill_array_uniform(z,-pi,pi);
 }

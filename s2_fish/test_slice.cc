@@ -1,8 +1,6 @@
 #include <iostream>
-#include "range.h"
-#include "array_nd.h"
-#include "array_1d.h"
-#include "vector_helper.h"
+#include "array_nd/array_nd.h"
+#include "array_nd/array_1d.h"
 
 int main()
 {
@@ -30,19 +28,19 @@ int main()
     s22.describe();
     s22.print("s22");
     
-    //~ Array_nd<double>::iterator itx = s22.begin();
+    //~ Array_nd<double>::Iterator itx = s22.begin();
     //~ double * the_end = s22.end();
     //~ std::cout << "itx = " << *itx << ", end = " << the_end << std::endl;
     
     std::cout << "s22 iteration:\n";
-    for(Array_nd<double>::iterator it = s22.begin(); 
+    for(Array_nd<double>::Iterator it = s22.begin(); 
             it != s22.end();
             ++it) {
         std::cout << *it << std::endl;
     }
     
     std::cout << "s22 iteration:\n";
-    for(Array_nd<double>::iterator it = s22.begin(); 
+    for(Array_nd<double>::Iterator it = s22.begin(); 
             it != s22.end();
             ++it) {
         *it = -99.9;
@@ -50,7 +48,7 @@ int main()
     s22.print("s22");
     
     //~ std::cout << "\na2n iteration:\n";
-    //~ for(Array_nd<double>::iterator it = a2n.begin(); 
+    //~ for(Array_nd<double>::Iterator it = a2n.begin(); 
             //~ *it != a2n.end();
             //~ ++it) {
         //~ std::cout << **it << std::endl;
