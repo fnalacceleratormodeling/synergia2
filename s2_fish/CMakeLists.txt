@@ -29,3 +29,4 @@ add_python_extension(macro_bunch_store macro_bunch_store_wrap.cc
 add_python_extension(populate populate.cc populate_wrap.cc)
 target_link_libraries(populate ${GSL_CONFIG_LIBS})
 
+add_python_extension(constraints constraints.cc constraints_wrap.cc)

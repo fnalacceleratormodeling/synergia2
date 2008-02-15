@@ -6,21 +6,26 @@ from s2_electric_field import *
 from s2_solver_fftw import solver_fftw_open as solver_fft_open
 from s2_solver_fftw import Fftw_helper
 from mytimer import mytimer
+import constraints
 
 import time
 import synergia
 import sys
 
 from mpi4py import MPI
+import Numeric
+import MLab
 
 fftwhs = {}
 
 def apply_space_charge_kick(shape,size,offset,mbunch,tau):
-    show_timings=0
+    show_timings=1
     mytimer("misc asck1")
     key = str(shape)
     if not fftwhs.has_key(key):
         fftwhs[key] = Fftw_helper(shape)
+    constraints.apply_longitudinal_periodicity(mbunch.get_store())
+    mytimer("apply periodicity")
     mbunch.convert_to_fixedt()
     mytimer("convert")
     if (size == None) or (offset == None):
