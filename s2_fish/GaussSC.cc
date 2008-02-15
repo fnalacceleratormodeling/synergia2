@@ -41,13 +41,17 @@ apply_BasErs_kick(Macro_bunch_store &mbs, double sigmaX, double sigmaY, double t
       double LengthScale = mbs.units(2*n_axis);
     
       double factor = pi * perveance0 * gamma * beta * beta / LengthScale * 4.0 * pi;
-         // (We think) this is for the Lorentz transformation of the transverse
-        // E field.
-      factor *= gamma;
+      // (We think) this is for the Lorentz transformation of the transverse
+      // E field.
+      //factor *= gamma;
+      // the above fudge seemed to work for high energy, for low energy, I had to multiply current by
+      // pi/betagamma (checked using channel).  Fudge factor recalculated below:
+      
+      factor *= pi/beta;
  
       int index = 2 * n_axis + 1; // for n_axis = (0,1,2) Cartesian coordinate x,y,z,
       // in particle store indexing, px,py,pz = (1,3,5)
-      double kick = Efield[n_axis]*tau * factor ; // the "Rob kick with the 2D geometric field contribution
+      double kick = Efield[n_axis]*tau * factor ; // the SC kick with the 2D geometric field contribution
     
       //if (ipart < 5) {
       //std::cout << " our kick " << kick << "the 3d kick " << kick2 << " ID " << mbs.local_particles(6,ipart) << std::endl;}
