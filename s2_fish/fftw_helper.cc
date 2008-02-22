@@ -7,7 +7,7 @@ Fftw_helper::construct(int *shape_in, bool z_periodic)
     shape[0] = 2*shape_in[0];
     shape[1] = 2*shape_in[1];
     if (! z_periodic) {
-        shape[0] = 2*shape_in[0];
+        shape[2] = 2*shape_in[2];
     }
     timer("misc");
     plan = rfftwnd_mpi_create_plan(MPI_COMM_WORLD, 3, shape.c_array(),
