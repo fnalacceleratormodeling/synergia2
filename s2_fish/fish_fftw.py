@@ -45,7 +45,6 @@ def apply_space_charge_kick(shape,size,offset,mbunch,tau,
         constraints.apply_longitudinal_periodicity(mbunch.get_store())
         mytimer("apply periodicity")
     mbunch.convert_to_fixedt()
-    mbunch.write_particles("bunch_fixedt_%02d.dat" % counter)
     mytimer("convert")
     if (size == None) or (offset == None):
         means, stds = synergia.get_spatial_means_stds(mbunch)
@@ -60,10 +59,8 @@ def apply_space_charge_kick(shape,size,offset,mbunch,tau,
     mytimer("diagnostics")
     rho = Real_scalar_field(shape,size,offset)
     total_charge = deposit_charge_cic(rho,mbunch.get_store(),periodic)
-    rho.write_to_file("rho_%02d.dat"%counter)
     mytimer("deposit")
     phi = solver_fft_open(rho,fftwhs[key],periodic)
-    phi.write_to_file("phi_%02d.dat"%counter)
     mytimer("solve")
     full_kick(phi,tau,mbunch.get_store())
     mytimer("full kick")
