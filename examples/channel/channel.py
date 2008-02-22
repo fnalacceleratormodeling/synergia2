@@ -84,6 +84,6 @@ if ( __name__ == '__main__'):
     pylab.ylabel('std<x> (m)')
 
     pylab.plot(dimpact.s,dimpact.std[:,synergia.x],'o',label='impact')
-    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.x],'r+',label='fish')
+    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.x],'r+',markersize=15.0,label='fish')
     pylab.legend(loc=0)
     pylab.show()
