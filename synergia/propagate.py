@@ -27,10 +27,8 @@ def propagate(s0,gourmet,bunch,diagnostics,grid_dim,quiet=1,
             elif action.get_synergia_action() == "space charge kick":
                 tau = last_step_length
                 if use_s2_fish:
-                    bunch.write_particles("before%1.3f.h5" % s)
                     s2_fish.apply_space_charge_kick(grid_dim,None,None, bunch, 2*tau,
                         periodic=periodic,aperture=aperture)
-                    bunch.write_particles("after%1.3f.h5" % s)
                 elif use_impact:
                     if ((pgrid == None) or (field == None) or (cgrid == None)):
                         raise RuntimeError, \
