@@ -117,6 +117,12 @@ get_G2(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh) {
 	double x, y, z, G;
 	const int num_images = 8;
 	int miy, miz; // mirror index x, etc.
+    double z_bin_offset;
+    if (z_periodic) {
+        z_bin_offset = -0.5;
+    } else {
+        z_bin_offset = 0.0;
+    }
 	for (index[0] = fftwh.lower(); index[0] < fftwh.upper(); ++index[0]) {
 		if (index[0] > num_points2[0] / 2) {
 			x = (num_points2[0] - index[0]) * h[0];
@@ -130,7 +136,7 @@ get_G2(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh) {
 				miy = num_points2[1];
 			}
 			for (index[2] = 0; index[2] <= num_points[2]; ++index[2]) {
-				z = index[2] * h[2];
+				z = (index[2] + z_bin_offset)* h[2];
 				miz = num_points2[2] - index[2];
 				if (miz == num_points[2]) {
 					miz = num_points2[2];
@@ -340,10 +346,14 @@ get_phi_hat2(Real_scalar_field &rho, Complex_scalar_field &rho_hat2,
 
 Real_scalar_field
 get_phi2(Real_scalar_field &rho, Complex_scalar_field &phi_hat2,
-         Fftw_helper &fftwh) {
+         Fftw_helper &fftwh, bool z_periodic) {
 	// step 5
 	Int3 num_points2(rho.get_points().get_shape());
-	num_points2.scale(2);
+    num_points2[0] *= 2;
+    num_points2[1] *= 2;
+    if (! z_periodic) {
+        num_points2[2] *= 2;
+    }
 	Real_scalar_field phi2(fftwh.padded_shape_real().vector(),
 	                       phi_hat2.get_physical_size(),
 	                       phi_hat2.get_physical_offset(),
@@ -408,7 +418,7 @@ solver_fftw_open(Real_scalar_field &rho, Fftw_helper &fftwh, bool z_periodic) {
 	Complex_scalar_field G_hat2 = get_G_hat2(rho, z_periodic, fftwh);
 	Complex_scalar_field phi_hat2 = get_phi_hat2(rho, rho_hat2, G_hat2, fftwh);
 	timer("misc");
-	Real_scalar_field phi2 = get_phi2(rho, phi_hat2, fftwh);
+	Real_scalar_field phi2 = get_phi2(rho, phi_hat2, fftwh, z_periodic);
 	timer("misc");
 	Real_scalar_field phi = get_phi(rho, phi2, fftwh);
 	timer("misc");
