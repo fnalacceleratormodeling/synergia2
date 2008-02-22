@@ -3,8 +3,7 @@
 from s2_solver_fftw import *
 from s2_containers import *
 from s2_deposit import *
-#~ from s2_electric_field import *
-from s2_solver_fftw import *
+from s2_electric_field import *
 
 from synergia import physics_constants
 from macro_bunch import Macro_bunch
@@ -95,7 +94,8 @@ class Test_solver_fftw_open(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),0)
-        phi = solver_fftw_open(sf,0)
+        fftwh = Fftw_helper(shape)
+        phi = solver_fftw_open(sf,fftwh,0)
         for axis in range(0,3):
             r,phi_r,exact,max_err,mean_err = compare_on_axis(axis,shape,size,
                                                              offset,phi,Q,r0)
@@ -112,7 +112,8 @@ class Test_solver_fftw_open(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),0)
-        phi = solver_fftw_open(sf,0)
+        fftwh = Fftw_helper(shape)
+        phi = solver_fftw_open(sf,fftwh,0)
         for axis in range(0,3):
             r,phi_r,exact,max_err,mean_err = compare_on_axis(axis,shape,size,
                                                              offset,phi,Q,r0)
@@ -129,7 +130,8 @@ class Test_solver_fftw_open(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),0)
-        phi = solver_fftw_open(sf,0)
+        fftwh = Fftw_helper(shape)
+        phi = solver_fftw_open(sf,fftwh,0)
         max_tolerance = [0.07,0.05,0.09]
         mean_tolerance = [0.03,0.006,0.03]
         for axis in range(0,3):
@@ -148,7 +150,8 @@ class Test_solver_fftw_open(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),0)
-        phi = solver_fftw_open(sf,0)
+        fftwh = Fftw_helper(shape)
+        phi = solver_fftw_open(sf,fftwh,0)
         max_tolerance = [[0.3,   2.5e3, 2.5e3],
                          [4.5e3,   0.3, 4.5e3],
                          [2.5e3, 2.5e3,   0.3]]
@@ -177,7 +180,8 @@ class Test_solver_fftw_open(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),0)
-        phi = solver_fftw_open(sf,0)
+        fftwh = Fftw_helper(shape)
+        phi = solver_fftw_open(sf,fftwh,0)
         for E_axis in range(0,3):
             E = calculate_E_n(phi,E_axis)
             apply_E_n_kick(E,E_axis,1.0,mb.get_store())
@@ -193,7 +197,8 @@ class Test_solver_fftw_open_periodic(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),1)
-        phi = solver_fftw_open(sf,0)
+        fftwh = Fftw_helper(shape)
+        phi = solver_fftw_open(sf,fftwh,1)
         for axis in range(0,3):
             r,phi_r,exact,max_err,mean_err = compare_on_axis(axis,shape,size,
                                                              offset,phi,Q,r0)
