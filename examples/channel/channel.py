@@ -26,11 +26,10 @@ if ( __name__ == '__main__'):
     gridnum = int(sys.argv[1])
     griddim = (gridnum,gridnum,gridnum)
     num_particles = griddim[0]*griddim[1]*griddim[2] * part_per_cell
-    Solver = sys.argv[2]
+    solver = sys.argv[2]
     
     print "num_particles =",num_particles
-    print "We will use a ", Solver, " solver"
-
+    print "We will use a", solver, "solver"
     xwidth=0.0012026
     xpwidth=0.0049608
     rx=0.85440
@@ -68,9 +67,9 @@ if ( __name__ == '__main__'):
     diag = synergia.Diagnostics(gourmet.get_initial_u())
     kick_time = 0.0
     
-    if Solver == "3D":
-        s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_s2_fish=True)
-    elif Solver =="2D":
+    if solver == "3D" or solver == "3d":
+        s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_s2_fish=True,aperture=0.002)
+    elif solver =="2D" or solver == "2d":
         s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_gauss=True)
     print "elapsed time =",time.time() - t0
 
