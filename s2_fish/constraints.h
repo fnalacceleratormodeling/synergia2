@@ -3,6 +3,6 @@
 #include "macro_bunch_store.h"
 
 void apply_longitudinal_periodicity(Macro_bunch_store &mbs);
-void apply_circular_aperture(Macro_bunch_store &mbs);
+void apply_circular_aperture(Macro_bunch_store &mbs, double radius);
 
 #endif // HAVE_CONSTRAINTS_H

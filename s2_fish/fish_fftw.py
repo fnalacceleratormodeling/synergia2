@@ -18,14 +18,19 @@ import MLab
 
 fftwhs = {}
 
-def apply_space_charge_kick(shape,size,offset,mbunch,tau):
+def apply_space_charge_kick(shape,size,offset,mbunch,tau,
+        periodic=True,aperture=None):
     show_timings=1
     mytimer("misc asck1")
     key = str(shape)
     if not fftwhs.has_key(key):
         fftwhs[key] = Fftw_helper(shape)
-    constraints.apply_longitudinal_periodicity(mbunch.get_store())
-    mytimer("apply periodicity")
+    if aperture:
+        constraints.apply_circular_aperture(mbunch.get_store(),aperture)
+        mytimer("apply aperture")
+    if periodic:
+        constraints.apply_longitudinal_periodicity(mbunch.get_store())
+        mytimer("apply periodicity")
     mbunch.convert_to_fixedt()
     mytimer("convert")
     if (size == None) or (offset == None):
@@ -39,7 +44,7 @@ def apply_space_charge_kick(shape,size,offset,mbunch,tau):
     rho = Real_scalar_field(shape,size,offset)
     total_charge = deposit_charge_cic(rho,mbunch.get_store(),0)
     mytimer("deposit")
-    phi = solver_fft_open(rho,fftwhs[key],0)
+    phi = solver_fft_open(rho,fftwhs[key],periodic)
     mytimer("solve")
     full_kick(phi,tau,mbunch.get_store())
     mytimer("full kick")
