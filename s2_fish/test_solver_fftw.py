@@ -26,18 +26,14 @@ def potential_uniform_sphere(Q,r0,rvec):
     return retval
 
 def potential_uniform_sphere_periodic(Q,r0,rvec,period):
-    #~ return potential_uniform_sphere(Q,r0,rvec)
     retval = 0.0
     num_images = 20
     image_vec = [0.0,0.0,0.0]
     image_vec[0] = rvec[0]
     image_vec[1] = rvec[1]
-    #~ print "begin"
     for image in range(-num_images,num_images+1):
         image_vec[2] = rvec[2] - image*period
         retval += potential_uniform_sphere(Q,r0,image_vec)
-        #~ print potential_uniform_sphere(Q,r0,image_vec)
-    #~ print "end"
     return retval
 
 def E_field_uniform_sphere(Q,r0,rvec,axis):
@@ -52,18 +48,14 @@ def E_field_uniform_sphere(Q,r0,rvec,axis):
     return dphi_dr*rhat[axis]
 
 def E_field_uniform_sphere_periodic(Q,r0,rvec,period,axis):
-    #~ return potential_uniform_sphere(Q,r0,rvec)
     retval = 0.0
     num_images = 10
     image_vec = [0.0,0.0,0.0]
     image_vec[0] = rvec[0]
     image_vec[1] = rvec[1]
-    #~ print "begin"
     for image in range(-num_images,num_images+1):
         image_vec[2] = rvec[2] - image*period
         retval += E_field_uniform_sphere(Q,r0,image_vec,axis)
-        #~ print E_field_uniform_sphere(Q,r0,image_vec,axis)
-    #~ print "end"
     return retval
 
 def compare_on_axis(axis,shape,size,offset,phi,Q,r0,periodic=False):
@@ -148,7 +140,7 @@ class Test_solver_fftw_open(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),0)
-        fftwh = Fftw_helper(shape)
+        fftwh = Fftw_helper(shape,False)
         phi = solver_fftw_open(sf,fftwh,0)
         for axis in range(0,3):
             r,phi_r,exact,max_err,mean_err = compare_on_axis(axis,shape,size,
@@ -166,7 +158,7 @@ class Test_solver_fftw_open(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),0)
-        fftwh = Fftw_helper(shape)
+        fftwh = Fftw_helper(shape,False)
         phi = solver_fftw_open(sf,fftwh,0)
         for axis in range(0,3):
             r,phi_r,exact,max_err,mean_err = compare_on_axis(axis,shape,size,
@@ -184,7 +176,7 @@ class Test_solver_fftw_open(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),0)
-        fftwh = Fftw_helper(shape)
+        fftwh = Fftw_helper(shape,False)
         phi = solver_fftw_open(sf,fftwh,0)
         max_tolerance = [0.07,0.05,0.09]
         mean_tolerance = [0.03,0.006,0.03]
@@ -204,7 +196,7 @@ class Test_solver_fftw_open(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),0)
-        fftwh = Fftw_helper(shape)
+        fftwh = Fftw_helper(shape,False)
         phi = solver_fftw_open(sf,fftwh,0)
         max_tolerance = [[0.3,   2.5e3, 2.5e3],
                          [4.5e3,   0.3, 4.5e3],
@@ -234,7 +226,7 @@ class Test_solver_fftw_open(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),0)
-        fftwh = Fftw_helper(shape)
+        fftwh = Fftw_helper(shape,False)
         phi = solver_fftw_open(sf,fftwh,0)
         for E_axis in range(0,3):
             E = calculate_E_n(phi,E_axis)
@@ -251,7 +243,7 @@ class Test_solver_fftw_open_periodic(unittest.TestCase):
         #~ r0 = 0.2
         #~ mb.init_sphere(Q,r0)
         #~ total_charge = deposit_charge_cic(sf,mb.get_store(),1)
-        #~ fftwh = Fftw_helper(shape)
+        #~ fftwh = Fftw_helper(shape,False)
         #~ phi = solver_fftw_open(sf,fftwh,1)
         #~ for axis in range(0,3):
             #~ r,phi_r,exact,max_err,mean_err = compare_on_axis(axis,shape,size,
@@ -270,7 +262,7 @@ class Test_solver_fftw_open_periodic(unittest.TestCase):
         r0 = 0.2
         mb.init_sphere(Q,r0)
         total_charge = deposit_charge_cic(sf,mb.get_store(),1)
-        fftwh = Fftw_helper(shape)
+        fftwh = Fftw_helper(shape,True)
         phi = solver_fftw_open(sf,fftwh,1)
         for axis in range(0,3):
             E = calculate_E_n(phi,axis)
