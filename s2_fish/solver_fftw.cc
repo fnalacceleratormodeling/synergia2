@@ -115,7 +115,7 @@ get_G2(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh) {
 	//   G2.get_points().set(Int3(0,0,0),(1.0/4.0*pi)*mean_inv_r);
 	timer("misc");
 	double x, y, z, G;
-	const int num_images = 4;
+	const int num_images = 8;
 	int miy, miz; // mirror index x, etc.
 	for (index[0] = fftwh.lower(); index[0] < fftwh.upper(); ++index[0]) {
 		if (index[0] > num_points2[0] / 2) {
