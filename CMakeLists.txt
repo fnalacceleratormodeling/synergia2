@@ -21,8 +21,8 @@ INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/AddPythonExtension.cmake)
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindGSL.cmake)
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindFFTW2.cmake)
 
-configure_file("${SYNERGIA2_SOURCE_DIR}/synergia_local.in" 
-    "${SYNERGIA2_BINARY_DIR}/synergia_local" IMMEDIATE)
+configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in" 
+    "${SYNERGIA2_BINARY_DIR}/synergia-local" IMMEDIATE)
 
 include_directories(${SYNERGIA2_SOURCE_DIR})
 
