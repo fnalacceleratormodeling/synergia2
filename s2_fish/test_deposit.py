@@ -4,8 +4,7 @@ from s2_deposit import *
 from s2_containers import *
 
 from macro_bunch import Macro_bunch
-import sublocal_paths
-import physics_constants
+from synergia import physics_constants
 import Numeric
 import sys
 

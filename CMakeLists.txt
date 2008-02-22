@@ -1,5 +1,7 @@
 project(SYNERGIA2)
 
+enable_testing()
+
 INCLUDE(FindPythonInterp)
 
 INCLUDE(FindPythonLibs)

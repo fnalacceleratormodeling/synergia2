@@ -6,8 +6,7 @@ from s2_deposit import *
 #~ from s2_electric_field import *
 from s2_solver_fftw import *
 
-import sublocal_paths
-import physics_constants
+from synergia import physics_constants
 from macro_bunch import Macro_bunch
 import numarray
 import time

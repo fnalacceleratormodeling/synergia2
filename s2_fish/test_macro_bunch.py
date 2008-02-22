@@ -2,17 +2,16 @@
 
 from macro_bunch import *
 
-import sublocal_paths
-import physics_constants
-import beam_parameters
-import bunch
-import processor_grid
+from synergia import physics_constants
+from synergia import beam_parameters
+from impact import bunch
+from impact import processor_grid
 
 import math
 import sys
 import unittest
 
-import syn2_diagnostics
+from synergia import syn2_diagnostics
 
 class Test_Macro_bunch(unittest.TestCase):
     def test_01_construct(self):
