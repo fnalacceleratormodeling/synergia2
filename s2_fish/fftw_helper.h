@@ -15,10 +15,10 @@ private:
     int left_guard, right_guard;
     fftw_real *workspace, *data;
     Int3 shape;
-    void construct(int *shape);
+    void construct(int *shape, bool z_periodic);
 public:
-    Fftw_helper(Int3 shape);
-    Fftw_helper(std::vector<int> shape);
+    Fftw_helper(Int3 shape, bool z_periodic);
+    Fftw_helper(std::vector<int> shape, bool z_periodic);
     int lower();
     int upper();
     int guard_lower();

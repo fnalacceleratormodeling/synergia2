@@ -12,7 +12,7 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(s2_solver_fftw)
 {
-    class_<Fftw_helper>("Fftw_helper",init<std::vector<int> >());
+    class_<Fftw_helper>("Fftw_helper",init<std::vector<int>,bool >());
     def("solver_fftw_open",solver_fftw_open);
 }
 

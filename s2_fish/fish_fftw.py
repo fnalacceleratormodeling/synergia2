@@ -37,7 +37,7 @@ def apply_space_charge_kick(shape,size,offset,mbunch,tau,
     mytimer("misc asck1")
     key = str(shape)
     if not fftwhs.has_key(key):
-        fftwhs[key] = Fftw_helper(shape)
+        fftwhs[key] = Fftw_helper(shape,periodic)
     if aperture:
         constraints.apply_circular_aperture(mbunch.get_store(),aperture)
         mytimer("apply aperture")

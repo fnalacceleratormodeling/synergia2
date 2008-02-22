@@ -1,10 +1,14 @@
 #include "fftw_helper.h"
 
 void 
-Fftw_helper::construct(int *shape_in)
+Fftw_helper::construct(int *shape_in, bool z_periodic)
 {
     shape = Int3(shape_in);
-    shape.scale(2);
+    shape[0] = 2*shape_in[0];
+    shape[1] = 2*shape_in[1];
+    if (! z_periodic) {
+        shape[0] = 2*shape_in[0];
+    }
     timer("misc");
     plan = rfftwnd_mpi_create_plan(MPI_COMM_WORLD, 3, shape.c_array(),
                                    FFTW_REAL_TO_COMPLEX, FFTW_ESTIMATE);
@@ -33,14 +37,14 @@ Fftw_helper::construct(int *shape_in)
                 (malloc(max_local_size * sizeof(fftw_real)));
 }
 
-Fftw_helper::Fftw_helper(Int3 shape_in)
+Fftw_helper::Fftw_helper(Int3 shape_in, bool z_periodic)
 {
-    construct(shape_in);
+    construct(shape_in, z_periodic);
 }
 
-Fftw_helper::Fftw_helper(std::vector<int> shape_in)
+Fftw_helper::Fftw_helper(std::vector<int> shape_in, bool z_periodic)
 {
-    construct(&shape_in[0]);
+    construct(&shape_in[0], z_periodic);
 }
 
 int
