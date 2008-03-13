@@ -51,7 +51,6 @@ GSL_random::fill_array_unit_gaussian(Array_nd<double> &array)
             it != array.end();
             ++it) {
         *it = gsl_ran_ugaussian_ratio_method(rng);
-        //~ *it = gsl_cdf_gaussian_Pinv(gsl_rng_uniform(rng),1.0);
     }
 }
 
@@ -86,7 +85,7 @@ private:
 public:
     GSL_quasirandom(const gsl_qrng_type *generator = gsl_qrng_sobol);
     void fill_array_unit_gaussian(Array_2d<double> &array);
-    //~ void fill_array_3d_unit_gaussian_transverse(Array_3d<double> &array);
+    void fill_array_unit_gaussian_transverse(Array_2d<double> &array);
     //~ void fill_array_uniform(Array_nd<double> &array, const double min,
                             //~ const double max);
     ~GSL_quasirandom();
@@ -107,6 +106,22 @@ GSL_quasirandom::fill_array_unit_gaussian(Array_2d<double> &array)
         gsl_qrng_get(qrng,&qrand_vec[0]);
         for (int j=0; j<dimension; ++j) {
             array(j,i) =  gsl_cdf_gaussian_Pinv(qrand_vec[j],1.0);
+        }
+    }
+}
+
+void
+GSL_quasirandom::fill_array_unit_gaussian_transverse(Array_2d<double> &array)
+{
+    std::vector<double> qrand_vec(dimension);
+    for (int i=0; i<array.get_shape()[1]; ++i) {
+        gsl_qrng_get(qrng,&qrand_vec[0]);
+        for (int j=0; j<dimension; ++j) {
+            if (j==4) {
+                array(j,i) = qrand_vec[j];
+            } else {
+                array(j,i) =  gsl_cdf_gaussian_Pinv(qrand_vec[j],1.0);
+            }
         }
     }
 }
@@ -311,7 +326,7 @@ populate_6d_gaussian_quasi(Array_2d<double> &particles,
 {
     if (particles.get_shape()[0] != 7) {
         throw
-        std::runtime_error("populate_6d_gaussian expects a particle array with shape (num_particles,7)");
+        std::runtime_error("populate_6d_gaussian_quasi expects a particle array with shape (num_particles,7)");
     }
     int num_particles = particles.get_shape()[1];
     // Use the memory allocated for particles as a scratch area until the very end
@@ -367,4 +382,54 @@ populate_transverse_gaussian(Array_2d<double> &particles,
     // Real z distribution
     Array_1d<double> z = particles.slice(vector2(Range(4), Range()));
     gslr.fill_array_uniform(z, -pi, pi);
+}
+
+void
+populate_transverse_gaussian_quasi(Array_2d<double> &particles,
+                             const Array_1d<double> &means, const Array_2d<double> &covariances,
+                             const int id_offset)
+{
+    if (particles.get_shape()[0] != 7) {
+        throw
+        std::runtime_error("populate_6d_gaussian_quasi expects a particle array with shape (num_particles,7)");
+    }
+    int num_particles = particles.get_shape()[1];
+    // Use the memory allocated for particles as a scratch area until the very end
+    Array_2d<double> tmp(6, num_particles, particles.get_data_ptr());
+    Array_2d<double> tmp2(6, num_particles);
+
+    GSL_quasirandom gslqr;
+    gslqr.fill_array_unit_gaussian_transverse(tmp);
+
+    // Symmetry requires no correlations with the z coordinate. Make a copy
+    // of the covariance matrix and manually set all correlations to zero.
+    Array_2d<double> covariances_modified(covariances);
+    covariances_modified.copy();
+    for (int k = 0; k < 6; ++k) {
+        covariances_modified(4, k) = covariances_modified(k, 4) = 0.0;
+    }
+    covariances_modified(4, 4) = 1.0;
+
+    adjust_moments(tmp, tmp2, means, covariances_modified);
+    double min_z = 1.0e30;
+    double max_z = -1.0e30;
+    for (int n=0; n < num_particles; ++n) {
+        if (tmp2(4,n) > max_z) {
+            max_z = tmp2(4,n);
+        }
+        if (tmp2(4,n) < min_z) {
+            min_z = tmp2(4,n);
+        }
+    }
+    // Fill output array, adding (requested) means and setting particle ID.
+    for (int n = 0; n < num_particles; ++n) {
+        for (int j = 0; j < 6; ++j) {
+            if (j == 4) {
+                particles(j, n) = (tmp2(j, n)-min_z)/(max_z - min_z)*2.0*pi - pi;
+            } else {
+                particles(j, n) = tmp2(j, n) + means(j);
+            }
+        }
+        particles(6, n) = (n + id_offset) * 1.0;
+    }
 }

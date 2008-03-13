@@ -49,9 +49,24 @@ populate_transverse_gaussian_wrapper(object &particles,
                                  id_offset, seed, init_generator);
 }
 
+void
+populate_transverse_gaussian_wrapper_quasi(object &particles,
+                                     const object &means, const object &covariances, const int id_offset)
+{
+    Array_2d<double> particles_array =
+        Array_nd_from_PyObject<double>(particles.ptr());
+    Array_1d<double> means_array =
+        Array_nd_from_PyObject<double>(means.ptr());
+    Array_2d<double> covariances_array =
+        Array_nd_from_PyObject<double>(covariances.ptr());
+    populate_transverse_gaussian_quasi(particles_array, means_array, covariances_array,
+        id_offset);
+}
+
 BOOST_PYTHON_MODULE(populate)
 {
     def("populate_6d_gaussian", populate_6d_gaussian_wrapper);
     def("populate_6d_gaussian_quasi", populate_6d_gaussian_quasi_wrapper);
     def("populate_transverse_gaussian", populate_transverse_gaussian_wrapper);
+    def("populate_transverse_gaussian_quasi", populate_transverse_gaussian_wrapper_quasi);
 }
