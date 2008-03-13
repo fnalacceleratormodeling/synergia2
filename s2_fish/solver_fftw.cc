@@ -416,7 +416,6 @@ solver_fftw_open(Real_scalar_field &rho, Fftw_helper &fftwh, bool z_periodic)
     //  5) calculate phi2 = invFFT(phi_hat2)
     //  6) extract phi from phi2
 
-    double t0 = time();
     reset_timer();
     //~ Fftw_helper fftwh(rho);
     //~ timer("get plans");
@@ -432,7 +431,6 @@ solver_fftw_open(Real_scalar_field &rho, Fftw_helper &fftwh, bool z_periodic)
     timer("misc");
     fill_guards(phi, fftwh);
     timer("fill guards");
-//   std::cout << "time total: " << time() - t0 << std::endl;
     return phi;
 }
 
