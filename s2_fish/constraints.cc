@@ -1,8 +1,7 @@
 #include "constraints.h"
 #include <cmath>
 #include <mpi.h>
-
-const double pi = 3.141592653589793238462643;
+#include "math_constants.h"
 
 void
 apply_longitudinal_periodicity(Macro_bunch_store &mbs)

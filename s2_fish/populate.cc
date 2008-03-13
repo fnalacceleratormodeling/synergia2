@@ -11,6 +11,8 @@
 
 #include "populate.h"
 
+#include "math_constants.h"
+
 gsl_rng * _saved_rng = 0;
 const gsl_rng_type * _saved_rng_type = 0;
 
@@ -285,7 +287,6 @@ populate_transverse_gaussian(Array_2d<double> &particles,
         particles(6,n) = (n + id_offset)*1.0;
     }
     
-    const double pi = 3.1415926535897932385;
     // Real z distribution
     Array_1d<double> z = particles.slice(vector2(Range(4),Range()));
     gslr.fill_array_uniform(z,-pi,pi);

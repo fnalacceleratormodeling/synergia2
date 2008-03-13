@@ -7,6 +7,8 @@
 #include <fstream>
 #include <cmath>
 
+#include "math_constants.h"
+
 #include "petscda.h"
 #include "petscksp.h"
 #include "petscdmmg.h"
@@ -616,8 +618,7 @@ PetscErrorCode ComputeRHS(DMMG dmmg,Vec b)
   PetscInt size;
   PetscScalar    ***array;
   DA             da = (DA)dmmg->dm;
-  const double pi = 3.141592653589793;
-
+  
   PetscFunctionBegin;
 
   UserContext    *user = (UserContext *) dmmg->user;
