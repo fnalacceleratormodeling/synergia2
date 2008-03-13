@@ -4,6 +4,7 @@
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_qrng.h>
 #include <gsl/gsl_randist.h>
+#include <gsl/gsl_cdf.h>
 
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_linalg.h>
@@ -50,6 +51,7 @@ GSL_random::fill_array_unit_gaussian(Array_nd<double> &array)
             it != array.end();
             ++it) {
         *it = gsl_ran_ugaussian_ratio_method(rng);
+        //~ *it = gsl_cdf_gaussian_Pinv(gsl_rng_uniform(rng),1.0);
     }
 }
 
@@ -73,6 +75,56 @@ GSL_random::~GSL_random()
     gsl_rng_memcpy(_saved_rng, rng);
     _saved_rng_type = rng_type;
     gsl_rng_free(rng);
+}
+
+class GSL_quasirandom
+{
+private:
+    gsl_qrng * qrng;
+    const gsl_qrng_type * qrng_type;
+    int dimension;
+public:
+    GSL_quasirandom(const gsl_qrng_type *generator = gsl_qrng_sobol);
+    void fill_array_unit_gaussian(Array_2d<double> &array);
+    //~ void fill_array_3d_unit_gaussian_transverse(Array_3d<double> &array);
+    //~ void fill_array_uniform(Array_nd<double> &array, const double min,
+                            //~ const double max);
+    ~GSL_quasirandom();
+};
+
+GSL_quasirandom::GSL_quasirandom(const gsl_qrng_type *generator)
+{
+    qrng_type = generator;
+    dimension = 6;
+    qrng = gsl_qrng_alloc(qrng_type,dimension);
+}
+
+void
+GSL_quasirandom::fill_array_unit_gaussian(Array_2d<double> &array)
+{
+    std::vector<double> qrand_vec(dimension);
+    for (int i=0; i<array.get_shape()[1]; ++i) {
+        gsl_qrng_get(qrng,&qrand_vec[0]);
+        for (int j=0; j<dimension; ++j) {
+            array(j,i) =  gsl_cdf_gaussian_Pinv(qrand_vec[j],1.0);
+        }
+    }
+}
+
+//~ void
+//~ GSL_qrandom::fill_array_uniform(Array_nd<double> &array,
+                               //~ const double min, const double max)
+//~ {
+    //~ for (Array_nd<double>::Iterator it = array.begin();
+            //~ it != array.end();
+            //~ ++it) {
+        //~ *it = gsl_ran_flat(rng, min, max);
+    //~ }
+//~ }
+
+GSL_quasirandom::~GSL_quasirandom()
+{
+    gsl_qrng_free(qrng);
 }
 
 gsl_matrix
@@ -242,6 +294,32 @@ populate_6d_gaussian(Array_2d<double> &particles,
 
     GSL_random gslr(init_generator, seed);
     gslr.fill_array_unit_gaussian(tmp);
+
+    adjust_moments(tmp, tmp2, means, covariances);
+
+    // Fill output array, adding (requested) means and setting particle ID.
+    for (int n = 0; n < num_particles; ++n) {
+        for (int j = 0; j < 6; ++j) particles(j, n) = tmp2(j, n) + means(j);
+        particles(6, n) = (n + id_offset) * 1.0;
+    }
+}
+
+void
+populate_6d_gaussian_quasi(Array_2d<double> &particles,
+                     const Array_1d<double> &means, const Array_2d<double> &covariances,
+                     const int id_offset)
+{
+    if (particles.get_shape()[0] != 7) {
+        throw
+        std::runtime_error("populate_6d_gaussian expects a particle array with shape (num_particles,7)");
+    }
+    int num_particles = particles.get_shape()[1];
+    // Use the memory allocated for particles as a scratch area until the very end
+    Array_2d<double> tmp(6, num_particles, particles.get_data_ptr());
+    Array_2d<double> tmp2(6, num_particles);
+
+    GSL_quasirandom gslqr;
+    gslqr.fill_array_unit_gaussian(tmp);
 
     adjust_moments(tmp, tmp2, means, covariances);
 
