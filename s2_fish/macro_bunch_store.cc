@@ -9,13 +9,13 @@ Macro_bunch_store::Macro_bunch_store(numeric::array& numeric_local_particles,
                                      double mass, int charge, double total_current,
                                      numeric::array& numeric_units,
                                      numeric::array& numeric_ref_particle,
-                                     bool is_fixedz) 
+                                     bool is_fixedz)
 {
     this->numeric_local_particles = &numeric_local_particles;
     local_particles = Array_nd_from_PyObject<double>(numeric_local_particles.ptr());
-    this->numeric_units= &numeric_units;
+    this->numeric_units = &numeric_units;
     units = Array_nd_from_PyObject<double>(numeric_units.ptr());
-    this->numeric_ref_particle= &numeric_ref_particle;
+    this->numeric_ref_particle = &numeric_ref_particle;
     ref_particle = Array_nd_from_PyObject<double>(numeric_ref_particle.ptr());
     this->local_num = local_num;
     this->total_num = total_num;

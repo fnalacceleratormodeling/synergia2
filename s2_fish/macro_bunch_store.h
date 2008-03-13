@@ -19,8 +19,7 @@
 
 using namespace boost::python;
 
-struct Macro_bunch_store
-{
+struct Macro_bunch_store {
     Array_2d<double> local_particles;
     int local_num, total_num;
     double mass;
@@ -28,8 +27,8 @@ struct Macro_bunch_store
     double total_current;
     Array_1d<double> units; // Unit conversion: X^impact_i = units_i X^real_i
     Array_1d<double> ref_particle;
-    numeric::array *numeric_local_particles,*numeric_units,
-        *numeric_ref_particle;
+    numeric::array *numeric_local_particles, *numeric_units,
+    *numeric_ref_particle;
     bool is_fixedz;
 
     Macro_bunch_store(numeric::array& numeric_local_particles,

@@ -1,13 +1,13 @@
 #include "fftw_helper.h"
 
-void 
+void
 Fftw_helper::construct(int *shape_in, bool z_periodic)
 {
     shape = Int3(shape_in);
-    shape[0] = 2*shape_in[0];
-    shape[1] = 2*shape_in[1];
+    shape[0] = 2 * shape_in[0];
+    shape[1] = 2 * shape_in[1];
     if (! z_periodic) {
-        shape[2] = 2*shape_in[2];
+        shape[2] = 2 * shape_in[2];
     }
     timer("misc");
     plan = rfftwnd_mpi_create_plan(MPI_COMM_WORLD, 3, shape.c_array(),
@@ -26,7 +26,7 @@ Fftw_helper::construct(int *shape_in, bool z_periodic)
     } else {
         left_guard = 1;
     }
-    if (upper_limit >= shape[0]/2) {
+    if (upper_limit >= shape[0] / 2) {
         right_guard = 0;
     } else {
         right_guard = 1;
@@ -98,7 +98,7 @@ Fftw_helper::padded_shape_complex()
 void
 Fftw_helper::transform(Real_scalar_field &in, Complex_scalar_field &out)
 {
-    size_t complex_data_length = (upper() - lower())*shape[1]*(shape[2] / 2 + 1);
+    size_t complex_data_length = (upper() - lower()) * shape[1] * (shape[2] / 2 + 1);
     memcpy(reinterpret_cast<void*>(data),
            reinterpret_cast<void*>(in.get_points().get_offset_base_address(lower())),
            //~ in.get_points().get_length()*sizeof(double));
@@ -116,7 +116,7 @@ Fftw_helper::transform(Real_scalar_field &in, Complex_scalar_field &out)
 void
 Fftw_helper::inv_transform(Complex_scalar_field &in, Real_scalar_field &out)
 {
-    size_t complex_data_length = (upper() - lower())*shape[1]*(shape[2] / 2 + 1);
+    size_t complex_data_length = (upper() - lower()) * shape[1] * (shape[2] / 2 + 1);
     memcpy(reinterpret_cast<void*>(data),
            reinterpret_cast<void*>(in.get_points().get_offset_base_address(lower())),
            complex_data_length*sizeof(std::complex<double>));

@@ -6,6 +6,6 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(constraints)
 {
-  def("apply_longitudinal_periodicity",apply_longitudinal_periodicity);
-  def("apply_circular_aperture",apply_circular_aperture);
+    def("apply_longitudinal_periodicity", apply_longitudinal_periodicity);
+    def("apply_circular_aperture", apply_circular_aperture);
 }

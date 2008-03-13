@@ -19,16 +19,14 @@ template<class T>
 struct complex_helper;
 
 template<class T >
-struct complex_helper<std::complex<T> >
-{
+struct complex_helper<std::complex<T> > {
     typedef Nd_array<T> the_type;
     the_type real(Nd_array<std::complex<T> > * t);
     the_type imag(Nd_array<std::complex<T> > * t);
 };
 
 template<class T>
-struct complex_helper
-{
+struct complex_helper {
     typedef Nd_array<T> the_type;
     the_type real(Nd_array<T> * t);
     the_type imag(Nd_array<T> * t);
@@ -447,24 +445,24 @@ Nd_array<T>::vector_index(int const indices[]) const
 template<class T>
 inline T
 Nd_array<T>::get(int const indices[]) const
-    {
-        if (assert_dims(indices)) {
-            return storage[vector_index(indices)];
-        } else {
-            return 0;
-        }
+{
+    if (assert_dims(indices)) {
+        return storage[vector_index(indices)];
+    } else {
+        return 0;
     }
+}
 
 template<class T>
 inline T
 Nd_array<T>::get(std::vector<int> const& indices) const
-    {
-        if (assert_dims(&indices[0])) {
-            return storage[vector_index(&indices[0])];
-        } else {
-            return 0;
-        }
+{
+    if (assert_dims(&indices[0])) {
+        return storage[vector_index(&indices[0])];
+    } else {
+        return 0;
     }
+}
 
 template<class T>
 inline bool

@@ -8,15 +8,15 @@
 #include <Numeric/arrayobject.h>
 
 void
-get_spatial_means_stds(Macro_bunch_store& mbs, 
-                                numeric::array& means,
-                                numeric::array& stds);
+get_spatial_means_stds(Macro_bunch_store& mbs,
+                       numeric::array& means,
+                       numeric::array& stds);
 
 void
 get_moments_corrs(Macro_bunch_store& mbs,
-                    numeric::array& units,
-                    numeric::array& means,
-                    numeric::array& mom2s,
-                    numeric::array& corrs,
-                    numeric::array& diagmom4s);
+                  numeric::array& units,
+                  numeric::array& means,
+                  numeric::array& mom2s,
+                  numeric::array& corrs,
+                  numeric::array& diagmom4s);
 #endif // HAVE_S2_DIAGNOSTICS_H

@@ -25,15 +25,15 @@ calculate_E_n(Real_scalar_field &phi, int n)
     offset_plus[n] = 1;
     offset_minus[n] = -1;
     double deriv;
-   // calculate i range taking into account guard grids
+    // calculate i range taking into account guard grids
     int i_lower, i_upper;
     i_lower = phi.get_points().get_dim0_lower();
     if (i_lower > 0) {
-            i_lower += 1;
+        i_lower += 1;
     }
     i_upper = phi.get_points().get_dim0_upper();
-    if (i_upper < shape[0] -1) {
-            i_upper -= 1;
+    if (i_upper < shape[0] - 1) {
+        i_upper -= 1;
     }
     for (int i = i_lower; i < i_upper; ++i) {
         point[0] = i;
@@ -59,7 +59,7 @@ calculate_E_n(Real_scalar_field &phi, int n)
         }
     }
     timer("E calc");
-    broadcast_E(E,i_lower,i_upper);
+    broadcast_E(E, i_lower, i_upper);
     timer("E broadcast");
     return E;
 }
@@ -102,9 +102,9 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
     // in particle store indexing, px,py,pz = (1,3,5)
     double kick;
     for (int n = 0; n < mbs.local_num; ++n) {
-            kick = tau * factor * E.get_val(Double3(mbs.local_particles(0, n),
-                                                    mbs.local_particles(2, n),
-                                                    mbs.local_particles(4, n)));
+        kick = tau * factor * E.get_val(Double3(mbs.local_particles(0, n),
+                                                mbs.local_particles(2, n),
+                                                mbs.local_particles(4, n)));
         mbs.local_particles(index, n) -= kick;
     }
     timer("apply kick");
@@ -148,9 +148,9 @@ apply_phi_kick(Real_scalar_field &phi, int axis, double tau,
     // in particle store indexing, px,py,pz = (1,3,5)
     double kick;
     for (int n = 0; n < mbs.local_num; ++n) {
-            kick = tau * factor * phi.get_deriv(Double3(mbs.local_particles(0, n),
-                                                    mbs.local_particles(2, n),
-                                                    mbs.local_particles(4, n)),axis);
+        kick = tau * factor * phi.get_deriv(Double3(mbs.local_particles(0, n),
+                                            mbs.local_particles(2, n),
+                                            mbs.local_particles(4, n)), axis);
         mbs.local_particles(index, n) -= kick;
     }
     timer("apply kick");
@@ -169,11 +169,11 @@ just_phi_full_kick(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs)
 {
     timer("misc");
     Real_scalar_field full_phi(phi.get_points().get_shape(), phi.get_physical_size(),
-	                      phi.get_physical_offset());
+                               phi.get_physical_offset());
     allgather_phi(phi, full_phi);
     timer("E broadcast");
     for (int axis = 0; axis < 3; ++axis) {
         apply_phi_kick(full_phi, axis, tau, mbs);
-       //~ apply_E_n_kick(E, axis, tau, mbs);
+        //~ apply_E_n_kick(E, axis, tau, mbs);
     }
 }

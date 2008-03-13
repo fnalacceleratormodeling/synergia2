@@ -6,7 +6,7 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(s2_deposit)
 {
-  def("deposit_charge_cic",deposit_charge_cic);
-  def("deposit_charge_ngp",deposit_charge_ngp);
+    def("deposit_charge_cic", deposit_charge_cic);
+    def("deposit_charge_ngp", deposit_charge_ngp);
 }
 

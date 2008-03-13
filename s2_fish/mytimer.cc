@@ -23,12 +23,12 @@ time()
     //~ timeb timestruct;
     //~ ftime(&timestruct);
     //~ return timestruct.time + timestruct.millitm / 1000.0;
-    
+
     //~ return clock()/(1.0*CLOCKS_PER_SEC);
-    
+
     tms my_tms;
     times(&my_tms);
-    return my_tms.tms_stime/(1.0*sysconf(_SC_CLK_TCK));
+    return my_tms.tms_stime / (1.0*sysconf(_SC_CLK_TCK));
 }
 
 void
