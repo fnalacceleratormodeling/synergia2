@@ -9,8 +9,8 @@ get_cylindrical_coords(Macro_bunch_store &mbs, Array_2d<double> &coords)
         double y = mbs.local_particles(2,n);        
         double r = sqrt(x*x + y*y);
         double theta;
-        if (x>0.0) {
-            if(y>0.0) {
+        if (x>=0.0) {
+            if(y>=0.0) {
                 theta = asin(y/r);
             } else {
                 theta = 2*pi + asin(y/r);

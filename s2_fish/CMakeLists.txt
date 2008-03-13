@@ -31,11 +31,12 @@ target_link_libraries(populate ${GSL_CONFIG_LIBS})
 
 add_python_extension(constraints constraints.cc constraints_wrap.cc)
 
-add_python_extension(s2_solver_cylindrical cylindrical.cc)
+add_python_extension(s2_solver_cylindrical cylindrical.cc cylindrical_wrap.cc)
 
 ################
-add_test(deposit ${SYNERGIA2_BINARY_DIR}/synergia_local test_deposit.py)
-add_test(macro_bunch ${SYNERGIA2_BINARY_DIR}/synergia_local test_macro_bunch.py)
-add_test(nd_array ${SYNERGIA2_BINARY_DIR}/synergia_local test_nd_array.py)
-add_test(scalar_field ${SYNERGIA2_BINARY_DIR}/synergia_local test_scalar_field.py)
-add_test(solver_fftw ${SYNERGIA2_BINARY_DIR}/synergia_local test_solver_fftw.py)
+add_test(deposit ${SYNERGIA2_BINARY_DIR}/synergia-local test_deposit.py)
+add_test(macro_bunch ${SYNERGIA2_BINARY_DIR}/synergia-local test_macro_bunch.py)
+add_test(nd_array ${SYNERGIA2_BINARY_DIR}/synergia-local test_nd_array.py)
+add_test(scalar_field ${SYNERGIA2_BINARY_DIR}/synergia-local test_scalar_field.py)
+add_test(solver_fftw ${SYNERGIA2_BINARY_DIR}/synergia-local test_solver_fftw.py)
+add_test(solver_cylindrical ${SYNERGIA2_BINARY_DIR}/synergia-local test_solver_cylindrical.py)
