@@ -47,14 +47,26 @@ Field_domain::set_params(const std::vector<double> &physical_size,
 }
 
 std::vector<int>
-Field_domain::get_grid_shape()
+Field_domain::get_grid_shape() const
 {
     return grid_shape;
 }
 
+std::vector<double>
+Field_domain::get_cell_size() const
+{
+    return cell_size;
+}
+
+std::vector<bool>
+Field_domain::get_periodic() const
+{
+    return periodic;
+}
+
 void
 Field_domain::get_leftmost_indices_offsets(double c0, double c1, double c2,
-        std::vector<int> &indices, std::vector<double> &offsets)
+        std::vector<int> &indices, std::vector<double> &offsets) const
 {
     double scaled_location;
     
