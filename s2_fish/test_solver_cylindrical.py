@@ -1,15 +1,22 @@
 #!/usr/bin/env python
 
-from s2_solver_cylindrical import *
 
 from synergia import physics_constants
 from macro_bunch import Macro_bunch
+from s2_solver_cylindrical import *
+import populate
 
 import Numeric
+import MLab
 
 import unittest
 import sys
-from math import cos,sin
+from math import cos,sin,pi
+
+#~ begin debug
+import pylab
+import time
+#~ end debug
 
 class Test_solver_cylindrical(unittest.TestCase):                       
     def test_01_get_cylindrical_coords(self):
@@ -77,6 +84,48 @@ class Test_solver_cylindrical(unittest.TestCase):
         returned_periodic = field_domain.get_periodic()
         for i in range(0,3):
             self.assertEqual(returned_periodic[i],periodic[i])
+
+    def test_07_deposit(self):
+        mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
+        # jfa: this is a workaround for the lack of a reasonable general populate
+        mb.units = Numeric.ones((6),'d')
+        mb.local_num = 500000
+        mb.total_num = mb.local_num
+        mb.ref_particle = Numeric.zeros((6,),'d')
+        mb.ref_particle[5] = -1.1
+        mb.is_fixed_z=0
+        mb.total_current=1.0
+        mb.charge=1
+
+        mb.particles = Numeric.zeros((7,mb.local_num),'d')
+        means = Numeric.zeros((6),'d')
+        covs = Numeric.zeros((6,6),'d')
+        for i in range(0,6):
+            covs[i,i] = 1.0            
+        populate.populate_transverse_gaussian(mb.particles,means,covs,0,0,True)
+        coords = Numeric.zeros((3,mb.local_num),'d')
+        get_cylindrical_coords(mb.get_store(),coords)
+        #~ print "r:",MLab.min(coords[0,:]),MLab.max(coords[0,:])
+        #~ print "theta:",MLab.min(coords[1,:]),MLab.max(coords[1,:])
+        #~ print "z:",MLab.min(coords[2,:]),MLab.max(coords[2,:])
+        physical_size = [10.0,2*pi,2*pi]
+        physical_offset = [physical_size[0]/2.0,physical_size[1]/2.0,0.0]
+        grid_shape = [64,8,8]
+        periodic = [False,True,True]
+        field_domain = Field_domain(physical_size,physical_offset,grid_shape,periodic)
+        rho = Numeric.zeros(grid_shape,'d')
+        t0 = time.time()
+        deposit_charge_cic_cylindrical(field_domain, rho ,mb.get_store(),coords)
+        t1 = time.time()
+        print "\ntime =",t1-t0
+        for phi in range(0,8):
+            for z in range(0,8):
+                pylab.plot(rho[:,phi,z])
+        oldaxis = pylab.axis()
+        newaxis = [oldaxis[0],oldaxis[1],-1.0,oldaxis[3]]
+        pylab.axis(newaxis)
+        #~ pylab.show()
+
 
 if __name__ == '__main__':
     unsuccessful = 0

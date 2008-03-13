@@ -18,6 +18,18 @@ get_cylindrical_coords_wrapper(Macro_bunch_store &mbs,
     get_cylindrical_coords(mbs,coords_array);
 }
 
+void
+deposit_charge_cic_cylindrical_wrapper(const Field_domain &fdomain, 
+    object &rho , Macro_bunch_store& mbs,
+    const object &coords)
+{
+    Array_3d<double > rho_array = 
+        Array_nd_from_PyObject<double>(rho.ptr());
+    Array_2d<double> coords_array = 
+        Array_nd_from_PyObject<double>(coords.ptr());
+    deposit_charge_cic_cylindrical(fdomain, rho_array , mbs,coords_array);
+}
+
 BOOST_PYTHON_MODULE(s2_solver_cylindrical)
 {    
     //---------------------------------------------------------------------
@@ -63,5 +75,6 @@ BOOST_PYTHON_MODULE(s2_solver_cylindrical)
     ;
         
     def("get_cylindrical_coords",get_cylindrical_coords_wrapper);
+    def("deposit_charge_cic_cylindrical",deposit_charge_cic_cylindrical_wrapper);
 }
 
