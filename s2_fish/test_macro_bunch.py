@@ -66,49 +66,49 @@ class Test_Macro_bunch(unittest.TestCase):
 
         return b
     
-    def test_04_init_from_bunch(self):
-        b = self._get_bunch()
-        orig_shape = Numeric.shape(b.particles())
-        mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
-        mb.init_from_bunch(b)
-        shape = Numeric.shape(mb.get_local_particles())
-        for j in range(0,shape[1]):
-            for i in range(0,shape[0]):
-                self.assertAlmostEqual(b.particles()[i,j],
-                                       mb.get_store().get_coord(i,j),14)
-        self.assertEqual(shape[0],orig_shape[0])
-        self.assertEqual(shape[1],orig_shape[1])
+    #~ def test_04_init_from_bunch(self):
+        #~ b = self._get_bunch()
+        #~ orig_shape = Numeric.shape(b.particles())
+        #~ mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
+        #~ mb.init_from_bunch(b)
+        #~ shape = Numeric.shape(mb.get_local_particles())
+        #~ for j in range(0,shape[1]):
+            #~ for i in range(0,shape[0]):
+                #~ self.assertAlmostEqual(b.particles()[i,j],
+                                       #~ mb.get_store().get_coord(i,j),14)
+        #~ self.assertEqual(shape[0],orig_shape[0])
+        #~ self.assertEqual(shape[1],orig_shape[1])
         
 
-    def test_05_conversions(self):
-        b = self._get_bunch()
-        mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
-        mb.init_from_bunch(b)
-        sample_id = 307
-        x0 = mb.get_local_particles()[0,sample_id]
-        y0 = mb.get_local_particles()[2,sample_id]
-        z0 = mb.get_local_particles()[4,sample_id]
-        x1 = x0/mb.get_store().get_units()[0]
-        y1 = y0/mb.get_store().get_units()[2]
-        mb.convert_to_fixedt()
-        self.assertEqual(x1,mb.get_local_particles()[0,sample_id])
-        self.assertEqual(y1,mb.get_local_particles()[2,sample_id])
-        # really need to check z conversion
-        self.assertEqual(0,mb.get_store().is_fixedz)
+    #~ def test_05_conversions(self):
+        #~ b = self._get_bunch()
+        #~ mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
+        #~ mb.init_from_bunch(b)
+        #~ sample_id = 307
+        #~ x0 = mb.get_local_particles()[0,sample_id]
+        #~ y0 = mb.get_local_particles()[2,sample_id]
+        #~ z0 = mb.get_local_particles()[4,sample_id]
+        #~ x1 = x0/mb.get_store().get_units()[0]
+        #~ y1 = y0/mb.get_store().get_units()[2]
+        #~ mb.convert_to_fixedt()
+        #~ self.assertEqual(x1,mb.get_local_particles()[0,sample_id])
+        #~ self.assertEqual(y1,mb.get_local_particles()[2,sample_id])
+        #~ # really need to check z conversion
+        #~ self.assertEqual(0,mb.get_store().is_fixedz)
 
-        mb.convert_to_fixedz()
-        self.assertEqual(x0,mb.get_local_particles()[0,sample_id])
-        self.assertEqual(y0,mb.get_local_particles()[2,sample_id])
-        self.assertEqual(z0,mb.get_local_particles()[4,sample_id])
-        self.assertEqual(1,mb.get_store().is_fixedz)
+        #~ mb.convert_to_fixedz()
+        #~ self.assertEqual(x0,mb.get_local_particles()[0,sample_id])
+        #~ self.assertEqual(y0,mb.get_local_particles()[2,sample_id])
+        #~ self.assertEqual(z0,mb.get_local_particles()[4,sample_id])
+        #~ self.assertEqual(1,mb.get_store().is_fixedz)
 
-    def test_06_diagnostics(self):
-        b = self._get_bunch()
-        orig_shape = Numeric.shape(b.particles())
-        mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
-        mb.init_from_bunch(b)
-        d = syn2_diagnostics.Diagnostics(mb.units)
-        d.add(0,mb)
+    #~ def test_06_diagnostics(self):
+        #~ b = self._get_bunch()
+        #~ orig_shape = Numeric.shape(b.particles())
+        #~ mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
+        #~ mb.init_from_bunch(b)
+        #~ d = syn2_diagnostics.Diagnostics(mb.units)
+        #~ d.add(0,mb)
 
 if __name__ == '__main__':
     unsuccessful = 0
