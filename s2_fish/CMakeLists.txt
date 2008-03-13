@@ -31,6 +31,8 @@ target_link_libraries(populate ${GSL_CONFIG_LIBS})
 
 add_python_extension(constraints constraints.cc constraints_wrap.cc)
 
+add_python_extension(s2_solver_cylindrical cylindrical.cc)
+
 ################
 add_test(deposit ${SYNERGIA2_BINARY_DIR}/synergia_local test_deposit.py)
 add_test(macro_bunch ${SYNERGIA2_BINARY_DIR}/synergia_local test_macro_bunch.py)
