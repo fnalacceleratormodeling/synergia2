@@ -28,6 +28,7 @@ public:
     void fill_array_unit_gaussian(Array_nd<double> &array);
     void fill_array_uniform(Array_nd<double> &array, const double min,
                             const double max);
+    void fill_array_unit_disk(Array_2d<double> &array);
     ~GSL_random();
 };
 
@@ -65,6 +66,20 @@ GSL_random::fill_array_uniform(Array_nd<double> &array,
     }
 }
 
+void
+GSL_random::fill_array_unit_disk(Array_2d<double> &array)
+{
+    for(int n = 0; n < array.get_shape()[1]; ++n) {
+        double x=1.0,y=1.0;
+        while (x*x+y*y > 1.0) {
+            x = 2.0*gsl_rng_uniform(rng)-1.0;
+            y = 2.0*gsl_rng_uniform(rng)-1.0;
+        }
+        array(0,n) = x;
+        array(1,n) = y;
+    }
+}
+
 GSL_random::~GSL_random()
 {
     if (_saved_rng != 0) {
@@ -86,6 +101,7 @@ public:
     GSL_quasirandom(const gsl_qrng_type *generator = gsl_qrng_sobol);
     void fill_array_unit_gaussian(Array_2d<double> &array);
     void fill_array_unit_gaussian_transverse(Array_2d<double> &array);
+    void fill_array_uniform_cylinder(Array_2d<double> &array);
     //~ void fill_array_uniform(Array_nd<double> &array, const double min,
                             //~ const double max);
     ~GSL_quasirandom();
@@ -123,6 +139,27 @@ GSL_quasirandom::fill_array_unit_gaussian_transverse(Array_2d<double> &array)
                 array(j,i) =  gsl_cdf_gaussian_Pinv(qrand_vec[j],1.0);
             }
         }
+    }
+}
+
+void
+GSL_quasirandom::fill_array_uniform_cylinder(Array_2d<double> &array)
+{
+    std::vector<double> qrand_vec(dimension);
+    for (int i=0; i<array.get_shape()[1]; ++i) {
+        qrand_vec[0] = 1.0;
+        qrand_vec[2] = 1.0;
+        while (qrand_vec[0]*qrand_vec[0] + qrand_vec[2]*qrand_vec[2] > 1.0) {
+            gsl_qrng_get(qrng,&qrand_vec[0]);
+            qrand_vec[0] = 2.0*qrand_vec[0] -1;
+            qrand_vec[2] = 2.0*qrand_vec[2] -1;
+        }
+        array(0,i) = qrand_vec[0];
+        array(2,i) = qrand_vec[2];
+        array(4,i) = qrand_vec[4];
+        array(1,i) =  gsl_cdf_gaussian_Pinv(qrand_vec[1],1.0);
+        array(3,i) =  gsl_cdf_gaussian_Pinv(qrand_vec[3],1.0);
+        array(5,i) =  gsl_cdf_gaussian_Pinv(qrand_vec[5],1.0);
     }
 }
 
@@ -400,6 +437,102 @@ populate_transverse_gaussian_quasi(Array_2d<double> &particles,
 
     GSL_quasirandom gslqr;
     gslqr.fill_array_unit_gaussian_transverse(tmp);
+
+    // Symmetry requires no correlations with the z coordinate. Make a copy
+    // of the covariance matrix and manually set all correlations to zero.
+    Array_2d<double> covariances_modified(covariances);
+    covariances_modified.copy();
+    for (int k = 0; k < 6; ++k) {
+        covariances_modified(4, k) = covariances_modified(k, 4) = 0.0;
+    }
+    covariances_modified(4, 4) = 1.0;
+
+    adjust_moments(tmp, tmp2, means, covariances_modified);
+    double min_z = 1.0e30;
+    double max_z = -1.0e30;
+    for (int n=0; n < num_particles; ++n) {
+        if (tmp2(4,n) > max_z) {
+            max_z = tmp2(4,n);
+        }
+        if (tmp2(4,n) < min_z) {
+            min_z = tmp2(4,n);
+        }
+    }
+    // Fill output array, adding (requested) means and setting particle ID.
+    for (int n = 0; n < num_particles; ++n) {
+        for (int j = 0; j < 6; ++j) {
+            if (j == 4) {
+                particles(j, n) = (tmp2(j, n)-min_z)/(max_z - min_z)*2.0*pi - pi;
+            } else {
+                particles(j, n) = tmp2(j, n) + means(j);
+            }
+        }
+        particles(6, n) = (n + id_offset) * 1.0;
+    }
+}
+
+void
+populate_uniform_cylinder(Array_2d<double> &particles,
+                             const Array_1d<double> &means, const Array_2d<double> &covariances,
+                             const int id_offset, const unsigned long int seed, bool init_generator)
+{
+    if (particles.get_shape()[0] != 7) {
+        throw
+        std::runtime_error("populate_uniform_cylinder expects a particle array with shape (num_particles,7)");
+    }
+    int num_particles = particles.get_shape()[1];
+    // Use the memory allocated for particles as a scratch area until the very end
+    Array_2d<double> tmp(6, num_particles, particles.get_data_ptr());
+    Array_2d<double> tmp2(6, num_particles);
+
+    GSL_random gslr(init_generator, seed);
+    // fill rows 1,3,5 with gaussians
+    Array_2d<double> rows135 = tmp.slice(vector2(Range(1,Range::end,2),Range()));
+    gslr.fill_array_unit_gaussian(rows135);
+    // fill rows 0,2 with unit disk
+    Array_2d<double> rows02 = tmp.slice(vector2(Range(0,2,2),Range())); 
+    gslr.fill_array_unit_disk(rows02);
+    // fill row 4 with uniform distribution -- to be replaced at end
+    Array_1d<double> row4 = tmp.slice(vector2(Range(4), Range()));
+    gslr.fill_array_uniform(row4,0,1);
+
+    // Symmetry requires no correlations with the z coordinate. Make a copy
+    // of the covariance matrix and manually set all correlations to zero.
+    Array_2d<double> covariances_modified(covariances);
+    covariances_modified.copy();
+    for (int k = 0; k < 6; ++k) {
+        covariances_modified(4, k) = covariances_modified(k, 4) = 0.0;
+    }
+    covariances_modified(4, 4) = 1.0;
+
+    adjust_moments(tmp, tmp2, means, covariances_modified);
+
+    // Fill output array, adding (requested) means and setting particle ID.
+    for (int n = 0; n < num_particles; ++n) {
+        for (int j = 0; j < 6; ++j) particles(j, n) = tmp2(j, n) + means(j);
+        particles(6, n) = (n + id_offset) * 1.0;
+    }
+    // Real z distribution
+    Array_1d<double> z = particles.slice(vector2(Range(4), Range()));
+    gslr.fill_array_uniform(z, -pi, pi);
+}
+
+void
+populate_uniform_cylinder_quasi(Array_2d<double> &particles,
+                             const Array_1d<double> &means, const Array_2d<double> &covariances,
+                             const int id_offset)
+{
+    if (particles.get_shape()[0] != 7) {
+        throw
+        std::runtime_error("populate_uniform_cylinder_quasi expects a particle array with shape (num_particles,7)");
+    }
+    int num_particles = particles.get_shape()[1];
+    // Use the memory allocated for particles as a scratch area until the very end
+    Array_2d<double> tmp(6, num_particles, particles.get_data_ptr());
+    Array_2d<double> tmp2(6, num_particles);
+
+    GSL_quasirandom gslqr;
+    gslqr.fill_array_uniform_cylinder(tmp);
 
     // Symmetry requires no correlations with the z coordinate. Make a copy
     // of the covariance matrix and manually set all correlations to zero.
