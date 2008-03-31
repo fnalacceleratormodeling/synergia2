@@ -55,16 +55,21 @@ deposit_charge_cic_cylindrical(const Field_domain &fdomain,
         double theta = coords(1,n);
         double z = coords(2,n);
         fdomain.get_leftmost_indices_offsets(r,theta,z,indices,offsets);
-        for (int i = 0; i < 2; ++i) {
+        for (int i = 0; i < 1; ++i) {
             int this_i = get_this(i,0,indices,grid_shape,periodic);
-            for (int j = 0; j < 2; ++j) {
+            for (int j = 0; j < 1; ++j) {
                 int this_j = get_this(j,1,indices,grid_shape,periodic);
-                for (int k = 0; k < 2; ++k) {
+                for (int k = 0; k < 1; ++k) {
                     int this_k = get_this(k,2,indices,grid_shape,periodic);
-                    double weight = (1 - i - (1 - 2 * i) * offsets[0]) *
+                    double weight = 
+                                    (1 - i - (1 - 2 * i) * offsets[0]*offsets[0]) *
                                     (1 - j - (1 - 2 * j) * offsets[1]) *
                                     (1 - k - (1 - 2 * k) * offsets[2]);
-                    weight *= grid_shape[0]/((indices[0]+0.5)*(indices[0]+0.5)); // Jacobian factor
+                    // jfa: The good news: the next line is correct.
+                    // jfa: The bad news: I don't understand why.
+                    // jfa: The 0.75 is a little bit of a mystery.
+                    weight *= static_cast<double>(grid_shape[0])/
+                        (2*indices[0]+0.75); // Jacobian factor
                     if (rho.bounds_check(this_i,this_j,this_k)) {
                         rho(this_i,this_j,this_k) += weight;
                     } else {
