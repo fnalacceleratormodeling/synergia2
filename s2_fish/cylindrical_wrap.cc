@@ -27,7 +27,17 @@ deposit_charge_cic_cylindrical_wrapper(const Field_domain &fdomain,
         Array_nd_from_PyObject<double>(rho.ptr());
     Array_2d<double> coords_array = 
         Array_nd_from_PyObject<double>(coords.ptr());
-    deposit_charge_cic_cylindrical(fdomain, rho_array , mbs,coords_array);
+    deposit_charge_cic_cylindrical(fdomain, rho_array, mbs, coords_array);
+}
+
+void solve_cylindrical_finite_periodic_wrapper(const Field_domain &fdomain,
+    object &rho, object &phi)
+{
+    Array_3d<double > rho_array = 
+        Array_nd_from_PyObject<double>(rho.ptr());
+    Array_3d<double > phi_array = 
+        Array_nd_from_PyObject<double>(phi.ptr());
+    solve_cylindrical_finite_periodic(fdomain, rho_array, phi_array);
 }
 
 BOOST_PYTHON_MODULE(s2_solver_cylindrical)
@@ -75,6 +85,9 @@ BOOST_PYTHON_MODULE(s2_solver_cylindrical)
     ;
         
     def("get_cylindrical_coords",get_cylindrical_coords_wrapper);
-    def("deposit_charge_cic_cylindrical",deposit_charge_cic_cylindrical_wrapper);
+    def("deposit_charge_cic_cylindrical",
+        deposit_charge_cic_cylindrical_wrapper);
+    def("solve_cylindrical_finite_periodic",
+        solve_cylindrical_finite_periodic_wrapper);
 }
 

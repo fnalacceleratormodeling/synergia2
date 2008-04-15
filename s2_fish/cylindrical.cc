@@ -73,7 +73,7 @@ deposit_charge_cic_cylindrical(const Field_domain &fdomain,
                     if (rho.bounds_check(this_i,this_j,this_k)) {
                         rho(this_i,this_j,this_k) += weight;
                     } else {
-                        std::cout << "oob: " << this_i << ", " << this_j << ", " << this_k << std::endl;
+                        std::cout << "jfa debug oob: " << this_i << ", " << this_j << ", " << this_k << std::endl;
                     }
                 }
             }
@@ -108,3 +108,8 @@ deposit_charge_cic_cylindrical(const Field_domain &fdomain,
     }
 }
 
+void solve_cylindrical_finite_periodic(const Field_domain &fdomain,
+    const Array_3d<double > &rho, Array_3d<double> &phi)
+{
+    std::cout << "solve_cylindrical_finite_periodic\n";
+}

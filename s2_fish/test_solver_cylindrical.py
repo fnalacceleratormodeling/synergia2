@@ -19,7 +19,7 @@ import time
 #~ end debug
 
 class Test_solver_cylindrical(unittest.TestCase):                       
-    def test_01_get_cylindrical_coords(self):
+    def xtest_01_get_cylindrical_coords(self):
         mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         Q = 10
         r0 = 0.2
@@ -39,7 +39,7 @@ class Test_solver_cylindrical(unittest.TestCase):
             self.assertAlmostEqual(coords[1,i],theta)
             self.assertAlmostEqual(coords[2,i],arbitrary_z)
     
-    def test_02_field_domain_construct1(self):
+    def xtest_02_field_domain_construct1(self):
         field_domain = Field_domain()
         physical_size = [2,4,6]
         physical_offset = [0.1,0.2,0.3]
@@ -47,14 +47,14 @@ class Test_solver_cylindrical(unittest.TestCase):
         periodic = [False,True,True]
         field_domain.set_params(physical_size,physical_offset,grid_shape,periodic)
     
-    def test_03_field_domain_construct2(self):
+    def xtest_03_field_domain_construct2(self):
         physical_size = [2,4,6]
         physical_offset = [0.1,0.2,0.3]
         grid_shape = [32,32,32]
         periodic = [False,True,True]
         field_domain = Field_domain(physical_size,physical_offset,grid_shape,periodic)
         
-    def test_04_field_domain_get_grid_shape(self):
+    def xtest_04_field_domain_get_grid_shape(self):
         physical_size = [2,4,6]
         physical_offset = [0.1,0.2,0.3]
         grid_shape = [32,32,32]
@@ -64,7 +64,7 @@ class Test_solver_cylindrical(unittest.TestCase):
         for i in range(0,3):
             self.assertEqual(returned_shape[i],grid_shape[i])
 
-    def test_05_field_domain_get_cell_size(self):
+    def xtest_05_field_domain_get_cell_size(self):
         physical_size = [2,4,6]
         physical_offset = [0.1,0.2,0.3]
         grid_shape = [32,32,32]
@@ -75,7 +75,7 @@ class Test_solver_cylindrical(unittest.TestCase):
             expected = physical_size[i]/(grid_shape[i] - 1.0)
             self.assertAlmostEqual(cell_size[i],expected)
 
-    def test_06_field_domain_get_periodic(self):
+    def xtest_06_field_domain_get_periodic(self):
         physical_size = [2,4,6]
         physical_offset = [0.1,0.2,0.3]
         grid_shape = [32,32,32]
@@ -85,7 +85,7 @@ class Test_solver_cylindrical(unittest.TestCase):
         for i in range(0,3):
             self.assertEqual(returned_periodic[i],periodic[i])
 
-    def test_07_deposit(self):
+    def xtest_07_deposit(self):
         mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         # jfa: this is a workaround for the lack of a reasonable general populate
         mb.units = Numeric.ones((6),'d')
@@ -115,6 +115,38 @@ class Test_solver_cylindrical(unittest.TestCase):
         rho = Numeric.zeros(grid_shape,'d')
         deposit_charge_cic_cylindrical(field_domain, rho ,mb.get_store(),coords)
         # jfa: need to test resulting rho...
+        
+    def xtest_08_solve(self):
+        mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
+        # jfa: this is a workaround for the lack of a reasonable general populate
+        mb.units = Numeric.ones((6),'d')
+        mb.local_num = 20000
+        mb.total_num = mb.local_num
+        mb.ref_particle = Numeric.zeros((6,),'d')
+        mb.ref_particle[5] = -1.1
+        mb.is_fixed_z=0
+        mb.total_current=1.0
+        mb.charge=1
+
+        mb.particles = Numeric.zeros((7,mb.local_num),'d')
+        means = Numeric.zeros((6),'d')
+        covs = Numeric.zeros((6,6),'d')
+        for i in range(0,6):
+            covs[i,i] = 1.0
+        #~ populate.populate_uniform_cylinder_quasi(mb.particles,means,covs,0)
+        populate.populate_uniform_cylinder(mb.particles,means,covs,0,0,1)
+        
+        coords = Numeric.zeros((3,mb.local_num),'d')
+        get_cylindrical_coords(mb.get_store(),coords)
+        physical_size = [5.0,2*pi,2*pi]
+        physical_offset = [physical_size[0]/2.0,physical_size[1]/2.0,0.0]
+        grid_shape = [20,8,4]
+        periodic = [False,True,True]
+        field_domain = Field_domain(physical_size,physical_offset,grid_shape,periodic)
+        rho = Numeric.zeros(grid_shape,'d')
+        deposit_charge_cic_cylindrical(field_domain, rho ,mb.get_store(),coords)
+        phi = Numeric.zeros(grid_shape,'d')
+        solve_cylindrical_finite_periodic(field_domain,rho,phi)
 
 if __name__ == '__main__':
     unsuccessful = 0
