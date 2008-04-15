@@ -1,5 +1,6 @@
 #include "cylindrical.h"
 #include "math_constants.h"
+#include <fftw3.h>
 
 void 
 get_cylindrical_coords(Macro_bunch_store &mbs, Array_2d<double> &coords)
@@ -108,8 +109,75 @@ deposit_charge_cic_cylindrical(const Field_domain &fdomain,
     }
 }
 
-void solve_cylindrical_finite_periodic(const Field_domain &fdomain,
-    const Array_3d<double > &rho, Array_3d<double> &phi)
+// Adapted from a GSL routine.
+// plain gauss elimination, only not bothering with the zeroes
+//
+//       diag[0]  abovediag[0]             0   .....
+//  belowdiag[0]       diag[1]  abovediag[1]   .....
+//             0  belowdiag[1]       diag[2]
+//             0             0  belowdiag[2]   .....
+//
+void
+solve_tridiag_nonsym(const Array_1d<double> &diag,
+    const Array_1d<double> &abovediag,
+    const Array_1d<double> &belowdiag,
+    const Array_1d<double> &rhs,
+    Array_1d<double> &x)
 {
-    std::cout << "solve_cylindrical_finite_periodic\n";
+    int N = diag.get_shape()[0];
+    Array_1d<double> alpha(N);
+    Array_1d<double> z(N);
+    size_t i, j;
+
+    // Bidiagonalization (eliminating belowdiag)
+    // & rhs update
+    // diag' = alpha
+    // rhs' = z
+    alpha(0) = diag(0);
+    z(0) = rhs(0);
+
+    for (i = 1; i < N; ++i) {
+        const double t = belowdiag(i - 1)/alpha(i-1);
+        alpha(i) = diag(i) - t*abovediag(i - 1);
+        z(i) = rhs(i) - t*z(i-1);
+        if (alpha(i) == 0) {
+            throw
+                std::runtime_error("solve_tridiag_nonsym: zero pivot");
+        }
+    }
+
+    // backsubstitution
+    x(N - 1) = z(N - 1)/alpha(N - 1);
+    if (N >= 2) {
+      for (i = N - 2, j = 0; j <= N - 2; ++j, --i) {
+          x(i) = (z(i) - abovediag(i) * x(i + 1))/alpha(i);
+        }
+    }
 }
+
+void 
+solve_cylindrical_finite_periodic(const Field_domain &fdomain,
+    Array_3d<double > &rho, Array_3d<double> &phi)
+{
+    std::cout << "\njfa wtf:" << fdomain.get_grid_shape()[0] << std::endl;
+    std::cout << rho.get_strides()[0] << " " << rho.get_strides()[1]
+        << " " << rho.get_strides()[2] << std::endl;
+    std::vector<int> shape = fdomain.get_grid_shape();
+    Array_3d<std::complex<double> > rho_lm(
+        vector3(shape[0],shape[1],shape[2]/2+1));
+        
+    fftw_plan plan = fftw_plan_many_dft_r2c(2,
+        &shape[1],
+        shape[0],
+        rho.get_data_ptr(),
+        NULL,
+        1,
+        shape[0],
+        reinterpret_cast<double (*)[2]>(rho_lm.get_data_ptr()),
+        NULL,
+        1,
+        shape[0],
+        FFTW_ESTIMATE);
+    fftw_execute(plan);
+    
+ }

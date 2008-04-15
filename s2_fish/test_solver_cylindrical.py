@@ -115,8 +115,24 @@ class Test_solver_cylindrical(unittest.TestCase):
         rho = Numeric.zeros(grid_shape,'d')
         deposit_charge_cic_cylindrical(field_domain, rho ,mb.get_store(),coords)
         # jfa: need to test resulting rho...
+
+    def test_08_tridiag(self):
+        A = Numeric.array([[1,2,0,0],[3,4,5,0],[0,6,7,8],[0,0,9,10]],'d')
+        # next three lines are the three tridiagonal vectors of A
+        diag = Numeric.array([1,4,7,10],'d')
+        above_diag = Numeric.array([2,5,8],'d')
+        below_diag = Numeric.array([3,6,9],'d')
         
-    def xtest_08_solve(self):
+        b = Numeric.array([1,2,3,4],'d')
+        x = Numeric.zeros([4],'d')
+        solve_tridiag_nonsym(diag,above_diag,below_diag,b,x)
+        newb = Numeric.matrixmultiply(A,x)
+        for i in range(0,4):
+            self.assertAlmostEqual(b[i],newb[i])
+        
+        
+
+    def test_09_solve(self):
         mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         # jfa: this is a workaround for the lack of a reasonable general populate
         mb.units = Numeric.ones((6),'d')
@@ -140,13 +156,14 @@ class Test_solver_cylindrical(unittest.TestCase):
         get_cylindrical_coords(mb.get_store(),coords)
         physical_size = [5.0,2*pi,2*pi]
         physical_offset = [physical_size[0]/2.0,physical_size[1]/2.0,0.0]
-        grid_shape = [20,8,4]
+        grid_shape = [16,12,18]
         periodic = [False,True,True]
         field_domain = Field_domain(physical_size,physical_offset,grid_shape,periodic)
         rho = Numeric.zeros(grid_shape,'d')
         deposit_charge_cic_cylindrical(field_domain, rho ,mb.get_store(),coords)
         phi = Numeric.zeros(grid_shape,'d')
         solve_cylindrical_finite_periodic(field_domain,rho,phi)
+    
 
 if __name__ == '__main__':
     unsuccessful = 0

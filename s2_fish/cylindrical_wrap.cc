@@ -30,7 +30,8 @@ deposit_charge_cic_cylindrical_wrapper(const Field_domain &fdomain,
     deposit_charge_cic_cylindrical(fdomain, rho_array, mbs, coords_array);
 }
 
-void solve_cylindrical_finite_periodic_wrapper(const Field_domain &fdomain,
+void 
+solve_cylindrical_finite_periodic_wrapper(const Field_domain &fdomain,
     object &rho, object &phi)
 {
     Array_3d<double > rho_array = 
@@ -40,6 +41,26 @@ void solve_cylindrical_finite_periodic_wrapper(const Field_domain &fdomain,
     solve_cylindrical_finite_periodic(fdomain, rho_array, phi_array);
 }
 
+void
+solve_tridiag_nonsym_wrapper(object &diag,
+    object &abovediag,
+    object &belowdiag,
+    object &rhs,
+    object &x)
+{
+    Array_1d<double> diag_array = 
+        Array_nd_from_PyObject<double>(diag.ptr());
+    Array_1d<double> abovediag_array = 
+        Array_nd_from_PyObject<double>(abovediag.ptr());
+    Array_1d<double> belowdiag_array = 
+        Array_nd_from_PyObject<double>(belowdiag.ptr());
+    Array_1d<double> rhs_array = 
+        Array_nd_from_PyObject<double>(rhs.ptr());
+    Array_1d<double> x_array = 
+        Array_nd_from_PyObject<double>(x.ptr());
+    solve_tridiag_nonsym(diag_array,abovediag_array,belowdiag_array,
+        rhs_array,x_array);
+}
 BOOST_PYTHON_MODULE(s2_solver_cylindrical)
 {    
     //---------------------------------------------------------------------
@@ -89,5 +110,9 @@ BOOST_PYTHON_MODULE(s2_solver_cylindrical)
         deposit_charge_cic_cylindrical_wrapper);
     def("solve_cylindrical_finite_periodic",
         solve_cylindrical_finite_periodic_wrapper);
+        
+    // OK, solve_tridiag_nonsym was not designed to be wrapped. For the time
+    // being, however, we need to wrap it in order to test it.
+    def("solve_tridiag_nonsym",solve_tridiag_nonsym_wrapper);
 }
 
