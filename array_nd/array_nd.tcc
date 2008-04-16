@@ -380,7 +380,7 @@ Array_nd<T>::slice(std::vector<Range> ranges)
             ++which_new;
         }
     }
-    return Array_nd<double>(new_shape, new_strides,
+    return Array_nd<T>(new_shape, new_strides,
                             get_data_ptr() + offset(offset_indices));
 }
 
