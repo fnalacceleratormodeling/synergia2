@@ -10,11 +10,11 @@ void get_cylindrical_coords(Macro_bunch_store &mbs, Array_2d<double> &coords);
 void deposit_charge_cic_cylindrical(const Field_domain &fdomain, 
     Array_3d<double > &rho , Macro_bunch_store& mbs,
     const Array_2d<double> &coords);
-void solve_tridiag_nonsym(const Array_1d<double> &diag,
-    const Array_1d<double> &abovediag,
-    const Array_1d<double> &belowdiag,
-    const Array_1d<double> &rhs,
-    Array_1d<double> &x);
+void solve_tridiag_nonsym(const Array_1d<std::complex<double> > &diag,
+    const Array_1d<std::complex<double> > &abovediag,
+    const Array_1d<std::complex<double> > &belowdiag,
+    const Array_1d<std::complex<double> > &rhs,
+    Array_1d<std::complex<double> > &x);
 void solve_cylindrical_finite_periodic(const Field_domain &fdomain,
     Array_3d<double> &rho, Array_3d<double> &phi);
 

@@ -48,16 +48,16 @@ solve_tridiag_nonsym_wrapper(object &diag,
     object &rhs,
     object &x)
 {
-    Array_1d<double> diag_array = 
-        Array_nd_from_PyObject<double>(diag.ptr());
-    Array_1d<double> abovediag_array = 
-        Array_nd_from_PyObject<double>(abovediag.ptr());
-    Array_1d<double> belowdiag_array = 
-        Array_nd_from_PyObject<double>(belowdiag.ptr());
-    Array_1d<double> rhs_array = 
-        Array_nd_from_PyObject<double>(rhs.ptr());
-    Array_1d<double> x_array = 
-        Array_nd_from_PyObject<double>(x.ptr());
+    Array_1d<std::complex<double> > diag_array = 
+        Array_nd_from_PyObject<std::complex<double> >(diag.ptr());
+    Array_1d<std::complex<double> > abovediag_array = 
+        Array_nd_from_PyObject<std::complex<double> >(abovediag.ptr());
+    Array_1d<std::complex<double> > belowdiag_array = 
+        Array_nd_from_PyObject<std::complex<double> >(belowdiag.ptr());
+    Array_1d<std::complex<double> > rhs_array = 
+        Array_nd_from_PyObject<std::complex<double> >(rhs.ptr());
+    Array_1d<std::complex<double> > x_array = 
+        Array_nd_from_PyObject<std::complex<double> >(x.ptr());
     solve_tridiag_nonsym(diag_array,abovediag_array,belowdiag_array,
         rhs_array,x_array);
 }

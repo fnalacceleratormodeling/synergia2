@@ -118,15 +118,15 @@ deposit_charge_cic_cylindrical(const Field_domain &fdomain,
 //             0             0  belowdiag[2]   .....
 //
 void
-solve_tridiag_nonsym(const Array_1d<double> &diag,
-    const Array_1d<double> &abovediag,
-    const Array_1d<double> &belowdiag,
-    const Array_1d<double> &rhs,
-    Array_1d<double> &x)
+solve_tridiag_nonsym(const Array_1d<std::complex<double> > &diag,
+    const Array_1d<std::complex<double> > &abovediag,
+    const Array_1d<std::complex<double> > &belowdiag,
+    const Array_1d<std::complex<double> > &rhs,
+    Array_1d<std::complex<double> > &x)
 {
     int N = diag.get_shape()[0];
-    Array_1d<double> alpha(N);
-    Array_1d<double> z(N);
+    Array_1d<std::complex<double> > alpha(N);
+    Array_1d<std::complex<double> > z(N);
     size_t i, j;
 
     // Bidiagonalization (eliminating belowdiag)
@@ -137,10 +137,10 @@ solve_tridiag_nonsym(const Array_1d<double> &diag,
     z(0) = rhs(0);
 
     for (i = 1; i < N; ++i) {
-        const double t = belowdiag(i - 1)/alpha(i-1);
+        const std::complex<double> t = belowdiag(i - 1)/alpha(i-1);
         alpha(i) = diag(i) - t*abovediag(i - 1);
         z(i) = rhs(i) - t*z(i-1);
-        if (alpha(i) == 0) {
+        if (alpha(i) == 0.0) {
             throw
                 std::runtime_error("solve_tridiag_nonsym: zero pivot");
         }
@@ -163,21 +163,54 @@ solve_cylindrical_finite_periodic(const Field_domain &fdomain,
     std::cout << rho.get_strides()[0] << " " << rho.get_strides()[1]
         << " " << rho.get_strides()[2] << std::endl;
     std::vector<int> shape = fdomain.get_grid_shape();
-    Array_3d<std::complex<double> > rho_lm(
-        vector3(shape[0],shape[1],shape[2]/2+1));
+    // the shape of the FFT'd array (shape_lm) is halved in the third 
+    // dimension because of the peculiar (but efficient) way FFTW does
+    // real-to-complex transforms.
+    std::vector<int> shape_lm = vector3(shape[0],shape[1],shape[2]/2+1);
+    Array_3d<std::complex<double> > rho_lm(shape_lm);
         
     fftw_plan plan = fftw_plan_many_dft_r2c(2,
-        &shape[1],
-        shape[0],
+        &shape[1], shape[0],
         rho.get_data_ptr(),
-        NULL,
-        1,
-        shape[0],
+        NULL, 1, shape[0],
         reinterpret_cast<double (*)[2]>(rho_lm.get_data_ptr()),
-        NULL,
-        1,
-        shape[0],
+        NULL, 1, shape[0],
         FFTW_ESTIMATE);
     fftw_execute(plan);
     
+    Array_1d<std::complex<double> > diag(shape_lm[0]);
+    Array_1d<std::complex<double> > above_diag(shape_lm[0]-1);
+    Array_1d<std::complex<double> > below_diag(shape_lm[0]-1);
+    Array_3d<std::complex<double> > phi_lm(shape_lm);
+    double deltar = fdomain.get_cell_size()[0];
+    for(int l=0; l<shape_lm[1]; ++l) {
+        for(int m=0; m<shape_lm[2]; ++m) {
+            for(int i=0; i< shape[0]; ++i) {
+                double r = (i-0.5)*deltar;
+                diag(i) = -2.0*(1.0/(deltar*deltar));
+                diag(i) += - l*l/(r*r) - m*m;
+                if (i<(shape[0]-1)) {
+                        above_diag(i) = 1.0/(deltar*deltar) + 1.0/(2*deltar*r);
+                }
+                if (i>0) {
+                        below_diag(i-1) = 1.0/(deltar*deltar) - 1.0/(2*deltar*r);
+                }
+            }
+        Array_1d<std::complex<double> > rhs =
+            rho_lm.slice(vector3(Range(),Range(l),Range(m)));
+        Array_1d<std::complex<double> > x = 
+            phi_lm.slice(vector3(Range(),Range(l),Range(m)));
+         solve_tridiag_nonsym(diag,above_diag,below_diag,
+            rhs,x);
+        }
+    }
+    
+    //~ plan = fftw_plan_many_dft_c2r(2,
+        //~ &shape[1], shape[0],
+        //~ reinterpret_cast<double (*)[2]>(phi_lm.get_data_ptr()),
+        //~ NULL, 1, shape[0],
+        //~ phi.get_data_ptr(),
+        //~ NULL, 1, shape[0],
+        //~ FFTW_ESTIMATE);
+    //~ fftw_execute(plan);
  }

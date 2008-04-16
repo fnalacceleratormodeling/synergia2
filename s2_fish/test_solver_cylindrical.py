@@ -117,20 +117,19 @@ class Test_solver_cylindrical(unittest.TestCase):
         # jfa: need to test resulting rho...
 
     def test_08_tridiag(self):
-        A = Numeric.array([[1,2,0,0],[3,4,5,0],[0,6,7,8],[0,0,9,10]],'d')
+        A = Numeric.array([[1,2,0,0],[3,4,5,0],[0,6,7,8],[0,0,9,10]],'D')
         # next three lines are the three tridiagonal vectors of A
-        diag = Numeric.array([1,4,7,10],'d')
-        above_diag = Numeric.array([2,5,8],'d')
-        below_diag = Numeric.array([3,6,9],'d')
+        diag = Numeric.array([1,4,7,10],'D')
+        above_diag = Numeric.array([2,5,8],'D')
+        below_diag = Numeric.array([3,6,9],'D')
         
-        b = Numeric.array([1,2,3,4],'d')
-        x = Numeric.zeros([4],'d')
+        b = Numeric.array([1,2,3,4],'D')
+        x = Numeric.zeros([4],'D')
         solve_tridiag_nonsym(diag,above_diag,below_diag,b,x)
         newb = Numeric.matrixmultiply(A,x)
         for i in range(0,4):
-            self.assertAlmostEqual(b[i],newb[i])
-        
-        
+            self.assertAlmostEqual(b[i].real,newb[i].real)
+            self.assertAlmostEqual(b[i].imag,newb[i].imag)
 
     def test_09_solve(self):
         mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
@@ -163,6 +162,10 @@ class Test_solver_cylindrical(unittest.TestCase):
         deposit_charge_cic_cylindrical(field_domain, rho ,mb.get_store(),coords)
         phi = Numeric.zeros(grid_shape,'d')
         solve_cylindrical_finite_periodic(field_domain,rho,phi)
+        #~ print "phi =",phi
+        for mphi in range(0,grid_shape[1]):
+            pylab.plot(phi[:,mphi,8])
+        pylab.show()
     
 
 if __name__ == '__main__':
