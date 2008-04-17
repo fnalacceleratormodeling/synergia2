@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 
 import s2_fish
-import impact
+have_impact = False
+try:
+    import impact
+    have_impact = True
+except ImportError:
+    pass
 import chef_propagate
 
 last_step_length = 0
@@ -30,6 +35,9 @@ def propagate(s0,gourmet,bunch,diagnostics,grid_dim,quiet=1,
                     s2_fish.apply_space_charge_kick(grid_dim,None,None, bunch, 2*tau,
                         periodic=periodic,aperture=aperture)
                 elif use_impact:
+                    if not have_impact:
+                        raise RuntimeError, \
+                            "propagate with use_impact=True requires a working impact module"                        
                     if ((pgrid == None) or (field == None) or (cgrid == None)):
                         raise RuntimeError, \
                             "propagate with use_impact=True requires pgrid, field and cgrid to be specified"
