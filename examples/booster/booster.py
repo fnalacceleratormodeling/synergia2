@@ -38,6 +38,10 @@ class Line:
                                  scaling_frequency, map_order)
         if line_name in self.rfnames:
             self.insert_rf()
+        if self.opts.get("err_type") > 0:
+            self.gourmet.insert_element_errors(self.opts.get("ble_with_error"),\
+                                               self.opts.get("err_type"),self.opts.get("err_strength"),\
+                                               self.opts.get("err_name"))
         self.gourmet.insert_space_charge_markers(kicks)
         self.line_length = self.gourmet.orbit_length()
         self.tau = 0.5*self.line_length/self.kicks
@@ -97,10 +101,10 @@ def get_beam_parameters(line, opts):
     mismatchx = 1.0 + opts.get("mismatchfracx")
     mismatchy = 1.0 + opts.get("mismatchfracy")
     beam_parameters.x_params(sigma = sigma_x*mismatchx, 
-        lam = sigma_xprime/mismatchx * pz,
+        lam = sigma_xprime/mismatchx * pz, offset = opts.get("offsetx"), 
         r=-r_x)
     beam_parameters.y_params(sigma = sigma_y*mismatchy, 
-        lam = sigma_yprime/mismatchy * pz,
+        lam = sigma_yprime/mismatchy * pz, offset = opts.get("offsety"),
         r=-r_y)
     sigma_z_meters = beam_parameters.get_beta()*synergia.PH_MKS_c/\
                      scaling_frequency/math.pi * opts.get("zfrac")
@@ -155,11 +159,18 @@ if ( __name__ == '__main__'):
     myopts.add("mismatchfracx",0.0,"fractional horizontal mismatch",float)
     myopts.add("mismatchfracy",0.0,"fractional vertical mismatch",float)
     myopts.add("proccol",2,"number of columns in processor grid (y direction)",int)
+    myopts.add("offsetx",0,"x beam offset (m)",float)
+    myopts.add("offsety",0,"y beam offset (m)",float)
+    myopts.add("latticefile","booster_classic.lat","lattice file",str)
+    myopts.add("err_type",0,"error type: 0=none, i=poleorder",int)
+    myopts.add("ble_with_error","none","name of element to insert error",str)
+    myopts.add("err_name","thinerror","thin multipole name",str)
+    myopts.add("err_strength",0,"error multipole strength",float) 
 
     myopts.add_suboptions(synergia.opts)
     myopts.parse_argv(sys.argv)
     job_mgr = synergia.Job_manager(sys.argv,myopts,
-                                      ["booster_classic.lat",
+                                      [myopts.get("latticefile"),
                                        "envelope_match.cache"])
     scaling_frequency = 37.7e6
     part_per_cell = myopts.get("partpercell")
@@ -178,16 +189,16 @@ if ( __name__ == '__main__'):
     order = myopts.get("maporder")
     kicks = myopts.get("kickspercell")
     for cell in range(1,25):
-        cell_line[cell] = Line("booster_classic.lat","bcel%02d"%cell ,0.4,
+        cell_line[cell] = Line(myopts.get("latticefile"),"bcel%02d"%cell ,0.4,
                                scaling_frequency,order,kicks,myopts)
-    injcell_line = Line("booster_classic.lat","bcelinj" ,0.4,
+    injcell_line = Line(myopts.get("latticefile"),"bcelinj" ,0.4,
                         scaling_frequency,order,kicks,myopts)
     part_kicks = kicks/2
     if (kicks%2 != 0):
         raise RuntimeError, "number of kicks per cell must be even"
-    inja_line = Line("booster_classic.lat","bcel01a" ,0.4,
+    inja_line = Line(myopts.get("latticefile"),"bcel01a" ,0.4,
                      scaling_frequency,order,part_kicks,myopts)
-    injb_line = Line("booster_classic.lat","bcel01b" ,0.4,
+    injb_line = Line(myopts.get("latticefile"),"bcel01b" ,0.4,
                      scaling_frequency,order,part_kicks,myopts)
 
     beam_parameters = get_beam_parameters(injcell_line,myopts)
