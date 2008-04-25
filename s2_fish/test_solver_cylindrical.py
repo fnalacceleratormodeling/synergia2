@@ -157,7 +157,7 @@ class Test_solver_cylindrical(unittest.TestCase):
         get_cylindrical_coords(mb.get_store(),coords)
         physical_size = [1.0,2*pi,2*pi]
         physical_offset = [physical_size[0]/2.0,physical_size[1]/2.0,0.0]
-        grid_shape = [4,4,4]
+        grid_shape = [6,4,4]
         periodic = [False,True,True]
         field_domain = Field_domain(physical_size,physical_offset,grid_shape,periodic)
         rho = Numeric.zeros(grid_shape,'d')
@@ -165,9 +165,9 @@ class Test_solver_cylindrical(unittest.TestCase):
         phi = Numeric.zeros(grid_shape,'d')
         solve_cylindrical_finite_periodic(field_domain,rho,phi)
         #~ print "phi =",phi
-        for mphi in range(0,grid_shape[1]):
-            pylab.plot(phi[:,mphi,0])
-        pylab.show()
+        #for mphi in range(0,grid_shape[1]):
+            #pylab.plot(phi[:,mphi,0])
+        #pylab.show()
     
 
 if __name__ == '__main__':

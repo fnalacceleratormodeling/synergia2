@@ -155,14 +155,62 @@ solve_tridiag_nonsym(const Array_1d<std::complex<double> > &diag,
     }
 }
 
+extern void
+    array_2d_to_octave_file(const Array_2d<double> &array, const std::string filename);
+
+void
+array_2d_to_octave_file_real(const Array_2d<std::complex<double> > &array, const std::string filename)
+{
+    std::ofstream stream(filename.c_str());
+    for (int i = 0; i < array.get_shape()[0]; ++i) {
+        for (int j = 0; j < array.get_shape()[1]; ++j) {
+            stream << std::setprecision(16) << array(i, j).real();
+            if (j == array.get_shape()[1] - 1) {
+                stream << std::endl;
+            } else {
+                stream << " ";
+            }
+        }
+    }
+    stream.close();
+}
+
+void
+array_2d_to_octave_file_imag(const Array_2d<std::complex<double> > &array, const std::string filename)
+{
+    std::ofstream stream(filename.c_str());
+    for (int i = 0; i < array.get_shape()[0]; ++i) {
+        for (int j = 0; j < array.get_shape()[1]; ++j) {
+            stream << std::setprecision(16) << array(i, j).imag();
+            if (j == array.get_shape()[1] - 1) {
+                stream << std::endl;
+            } else {
+                stream << " ";
+            }
+        }
+    }
+    stream.close();
+}
+
 void 
 solve_cylindrical_finite_periodic(const Field_domain &fdomain,
     Array_3d<double > &rho, Array_3d<double> &phi)
 {
     rho.set_all(0.0);
-    rho.slice(vector3(Range(0),Range(),Range())).set_all(-12.56637);
-    rho.slice(vector3(Range(1),Range(),Range())).set_all(-9.38289);
+    rho.slice(vector3(Range(0),Range(),Range())).set_all(-12.56637061435917);
+    rho.slice(vector3(Range(1),Range(),Range())).set_all(-12.56637061435917);
+    rho.slice(vector3(Range(2),Range(),Range())).set_all(-1.0);
+    rho.slice(vector3(Range(3),Range(),Range())).set_all(-1.0);
+    rho.slice(vector3(Range(4),Range(),Range())).set_all(-2.0);
+    rho.slice(vector3(Range(5),Range(),Range())).set_all(-2.0);
+//     rho.slice(vector3(Range(),Range(1),Range(1))).set_all(0.0);
+    rho(1,1,1) = 100.0;
+    
     rho.print("rho");
+    array_2d_to_octave_file(rho.slice(vector3(Range(),Range(),Range(0))),"rho-cxx0.dat");
+    array_2d_to_octave_file(rho.slice(vector3(Range(),Range(),Range(1))),"rho-cxx1.dat");
+    array_2d_to_octave_file(rho.slice(vector3(Range(),Range(),Range(2))),"rho-cxx2.dat");
+    array_2d_to_octave_file(rho.slice(vector3(Range(),Range(),Range(3))),"rho-cxx3.dat");
     std::vector<int> shape = fdomain.get_grid_shape();
     // the shape of the FFT'd array (shape_lm) is halved in the third 
     // dimension because of the peculiar (but efficient) way FFTW does
@@ -185,8 +233,11 @@ solve_cylindrical_finite_periodic(const Field_domain &fdomain,
     Array_1d<std::complex<double> > above_diag(shape_lm[0]-1);
     Array_1d<std::complex<double> > below_diag(shape_lm[0]-1);
     Array_3d<std::complex<double> > phi_lm(shape_lm);
-    double deltar = fdomain.get_cell_size()[0];
-    deltar = 0.22222;
+    double deltar = fdomain.get_physical_size()[0]/
+        (fdomain.get_grid_shape()[0]+0.5);
+    //~ deltar = 0.22222;
+    std::cout << "physical size = " << fdomain.get_physical_size()[0]
+        <<", grid shape = " << fdomain.get_grid_shape()[0] << std::endl;
     std::cout << "deltar = " << deltar << std::endl;
     for(int l=0; l<shape_lm[1]; ++l) {
         for(int m=0; m<shape_lm[2]; ++m) {
@@ -215,9 +266,18 @@ solve_cylindrical_finite_periodic(const Field_domain &fdomain,
     }
 
     phi_lm.print("phi_lm");
-    
+    array_2d_to_octave_file_real(phi_lm.slice(vector3(Range(),Range(),Range(0))),"philm-cxx0real.dat");
+    array_2d_to_octave_file_real(phi_lm.slice(vector3(Range(),Range(),Range(1))),"philm-cxx1real.dat");
+    array_2d_to_octave_file_real(phi_lm.slice(vector3(Range(),Range(),Range(2))),"philm-cxx2real.dat");
+//     array_2d_to_octave_file_real(phi_lm.slice(vector3(Range(),Range(),Range(3))),"philm-cxx3real.dat");
+
+    array_2d_to_octave_file_imag(phi_lm.slice(vector3(Range(),Range(),Range(0))),"philm-cxx0imag.dat");
+    array_2d_to_octave_file_imag(phi_lm.slice(vector3(Range(),Range(),Range(1))),"philm-cxx1imag.dat");
+    array_2d_to_octave_file_imag(phi_lm.slice(vector3(Range(),Range(),Range(2))),"philm-cxx2imag.dat");
+//     array_2d_to_octave_file_imag(phi_lm.slice(vector3(Range(),Range(),Range(3))),"philm-cxx3imag.dat");
+
     plan = fftw_plan_many_dft_c2r(2,
-        &shape_lm[1], shape_lm[0],
+        &shape[1], shape_lm[0],
         reinterpret_cast<double (*)[2]>(phi_lm.get_data_ptr()),
         NULL, 1, shape_lm[1]*shape_lm[2],
         phi.get_data_ptr(),
@@ -227,4 +287,8 @@ solve_cylindrical_finite_periodic(const Field_domain &fdomain,
     phi.scale(1.0/(shape[1]*shape[2]));
     
     phi.print("phi");
+    array_2d_to_octave_file(phi.slice(vector3(Range(),Range(),Range(0))),"phi-cxx0.dat");
+    array_2d_to_octave_file(phi.slice(vector3(Range(),Range(),Range(1))),"phi-cxx1.dat");
+    array_2d_to_octave_file(phi.slice(vector3(Range(),Range(),Range(2))),"phi-cxx2.dat");
+    array_2d_to_octave_file(phi.slice(vector3(Range(),Range(),Range(3))),"phi-cxx3.dat");
  }

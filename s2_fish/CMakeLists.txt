@@ -32,12 +32,14 @@ target_link_libraries(populate ${GSL_CONFIG_LIBS})
 add_python_extension(constraints constraints.cc constraints_wrap.cc)
 
 add_python_extension(s2_solver_cylindrical cylindrical.cc cylindrical_wrap.cc
-    field_domain.cc) # jfa fix this!!!!!!!!!!!!!!!!!!!!!!
+    field_domain.cc populate.cc ) # jfa fix this!!!!!!!!!!!!!!!!!!!!!!
+target_link_libraries(s2_solver_cylindrical ${GSL_CONFIG_LIBS})
+## jfa nb.: populate and gsl_config_libs are only part of s2_solver so that I can use the freakin' write to octave function for debugging. Much refoactoring necessary.
 ################
 add_test(deposit ${SYNERGIA2_BINARY_DIR}/synergia-local test_deposit.py)
 add_test(macro_bunch ${SYNERGIA2_BINARY_DIR}/synergia-local test_macro_bunch.py)
 add_test(nd_array ${SYNERGIA2_BINARY_DIR}/synergia-local test_nd_array.py)
 add_test(scalar_field ${SYNERGIA2_BINARY_DIR}/synergia-local test_scalar_field.py)
 add_test(solver_fftw ${SYNERGIA2_BINARY_DIR}/synergia-local test_solver_fftw.py)
-add_test(solver_cylindrical ${SYNERGIA2_BINARY_DIR}/synergia-local test_solver_cylindrical.py)
+add_test(solver_cylindrical ${SYNERGIA2_BINARY_DIR}/synergia-local ${SYNERGIA2_SOURCE_DIR}/s2_fish/test_solver_cylindrical.py)
 add_test(populate ${SYNERGIA2_BINARY_DIR}/synergia-local test_populate.py)
