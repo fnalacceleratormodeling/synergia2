@@ -32,6 +32,7 @@ public:
         const std::vector<bool> &periodic);
 
     std::vector<int> get_grid_shape() const;
+    std::vector<double> get_physical_size() const;
     std::vector<double> get_cell_size() const;
     std::vector<bool> get_periodic() const;
     void get_leftmost_indices_offsets(double c1, double c2, double c3,

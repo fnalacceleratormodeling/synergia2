@@ -53,6 +53,12 @@ Field_domain::get_grid_shape() const
 }
 
 std::vector<double>
+Field_domain::get_physical_size() const
+{
+    return physical_size;
+}
+
+std::vector<double>
 Field_domain::get_cell_size() const
 {
     return cell_size;
