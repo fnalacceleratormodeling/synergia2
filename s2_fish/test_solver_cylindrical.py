@@ -146,16 +146,18 @@ class Test_solver_cylindrical(unittest.TestCase):
         mb.particles = Numeric.zeros((7,mb.local_num),'d')
         means = Numeric.zeros((6),'d')
         covs = Numeric.zeros((6,6),'d')
+        r0 = 0.4
         for i in range(0,6):
-            covs[i,i] = 1.0
+            covs[i,i] = r0**2/4
         #~ populate.populate_uniform_cylinder_quasi(mb.particles,means,covs,0)
         populate.populate_uniform_cylinder(mb.particles,means,covs,0,0,1)
+        mb.write_particles("debug.h5");
         
         coords = Numeric.zeros((3,mb.local_num),'d')
         get_cylindrical_coords(mb.get_store(),coords)
-        physical_size = [5.0,2*pi,2*pi]
+        physical_size = [1.0,2*pi,2*pi]
         physical_offset = [physical_size[0]/2.0,physical_size[1]/2.0,0.0]
-        grid_shape = [16,12,18]
+        grid_shape = [4,4,4]
         periodic = [False,True,True]
         field_domain = Field_domain(physical_size,physical_offset,grid_shape,periodic)
         rho = Numeric.zeros(grid_shape,'d')
@@ -164,7 +166,7 @@ class Test_solver_cylindrical(unittest.TestCase):
         solve_cylindrical_finite_periodic(field_domain,rho,phi)
         #~ print "phi =",phi
         for mphi in range(0,grid_shape[1]):
-            pylab.plot(phi[:,mphi,8])
+            pylab.plot(phi[:,mphi,0])
         pylab.show()
     
 

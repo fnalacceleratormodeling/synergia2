@@ -159,9 +159,10 @@ void
 solve_cylindrical_finite_periodic(const Field_domain &fdomain,
     Array_3d<double > &rho, Array_3d<double> &phi)
 {
-    std::cout << "\njfa wtf:" << fdomain.get_grid_shape()[0] << std::endl;
-    std::cout << rho.get_strides()[0] << " " << rho.get_strides()[1]
-        << " " << rho.get_strides()[2] << std::endl;
+    rho.set_all(0.0);
+    rho.slice(vector3(Range(0),Range(),Range())).set_all(-12.56637);
+    rho.slice(vector3(Range(1),Range(),Range())).set_all(-9.38289);
+    rho.print("rho");
     std::vector<int> shape = fdomain.get_grid_shape();
     // the shape of the FFT'd array (shape_lm) is halved in the third 
     // dimension because of the peculiar (but efficient) way FFTW does
@@ -172,30 +173,38 @@ solve_cylindrical_finite_periodic(const Field_domain &fdomain,
     fftw_plan plan = fftw_plan_many_dft_r2c(2,
         &shape[1], shape[0],
         rho.get_data_ptr(),
-        NULL, 1, shape[0],
+        NULL, 1, shape[1]*shape[2],
         reinterpret_cast<double (*)[2]>(rho_lm.get_data_ptr()),
-        NULL, 1, shape[0],
+        NULL, 1, shape_lm[1]*shape_lm[2],
         FFTW_ESTIMATE);
     fftw_execute(plan);
+    
+    rho_lm.print("rho_lm");
     
     Array_1d<std::complex<double> > diag(shape_lm[0]);
     Array_1d<std::complex<double> > above_diag(shape_lm[0]-1);
     Array_1d<std::complex<double> > below_diag(shape_lm[0]-1);
     Array_3d<std::complex<double> > phi_lm(shape_lm);
     double deltar = fdomain.get_cell_size()[0];
+    deltar = 0.22222;
+    std::cout << "deltar = " << deltar << std::endl;
     for(int l=0; l<shape_lm[1]; ++l) {
         for(int m=0; m<shape_lm[2]; ++m) {
-            for(int i=0; i< shape[0]; ++i) {
-                double r = (i-0.5)*deltar;
+            for(int i=0; i< shape_lm[0]; ++i) {
+                double r = (i+0.5)*deltar;
                 diag(i) = -2.0*(1.0/(deltar*deltar));
                 diag(i) += - l*l/(r*r) - m*m;
-                if (i<(shape[0]-1)) {
-                        above_diag(i) = 1.0/(deltar*deltar) + 1.0/(2*deltar*r);
+                if (i<(shape_lm[0]-1)) {
+                    above_diag.at(i) = 1.0/(deltar*deltar) + 1.0/(2*deltar*r);
                 }
                 if (i>0) {
-                        below_diag(i-1) = 1.0/(deltar*deltar) - 1.0/(2*deltar*r);
+                    below_diag.at(i-1) = 1.0/(deltar*deltar) - 1.0/(2*deltar*r);
                 }
             }
+        diag.print("diag");
+        above_diag.print("above_diag");
+        below_diag.print("below_diag");
+        
         Array_1d<std::complex<double> > rhs =
             rho_lm.slice(vector3(Range(),Range(l),Range(m)));
         Array_1d<std::complex<double> > x = 
@@ -204,13 +213,18 @@ solve_cylindrical_finite_periodic(const Field_domain &fdomain,
             rhs,x);
         }
     }
+
+    phi_lm.print("phi_lm");
     
-    //~ plan = fftw_plan_many_dft_c2r(2,
-        //~ &shape[1], shape[0],
-        //~ reinterpret_cast<double (*)[2]>(phi_lm.get_data_ptr()),
-        //~ NULL, 1, shape[0],
-        //~ phi.get_data_ptr(),
-        //~ NULL, 1, shape[0],
-        //~ FFTW_ESTIMATE);
-    //~ fftw_execute(plan);
+    plan = fftw_plan_many_dft_c2r(2,
+        &shape_lm[1], shape_lm[0],
+        reinterpret_cast<double (*)[2]>(phi_lm.get_data_ptr()),
+        NULL, 1, shape_lm[1]*shape_lm[2],
+        phi.get_data_ptr(),
+        NULL, 1, shape[1]*shape[2],
+        FFTW_ESTIMATE);
+    fftw_execute(plan);
+    phi.scale(1.0/(shape[1]*shape[2]));
+    
+    phi.print("phi");
  }
