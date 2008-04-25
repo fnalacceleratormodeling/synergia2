@@ -1,6 +1,7 @@
 *.pyc
 *.so
 *.o
+*.dat
 pure_gsl
 test_populate
 test_array_nd
