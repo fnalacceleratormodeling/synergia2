@@ -131,14 +131,14 @@ BOOST_PYTHON_MODULE(s2_containers)
     (std::vector<double> physical_size, std::vector<double> physical_offset) =
         &Real_scalar_field::set_physical_params;
 
-    std::vector<int> (Real_scalar_field::*real_get_leftmost_indices)
-    (std::vector<double> location) = &Real_scalar_field::get_leftmost_indices;
+    std::vector<int> (Real_scalar_field::*real_get_leftmost_indices) 
+    ( std::vector<double> location) const = &Real_scalar_field::get_leftmost_indices;
 
     std::vector<double> (Real_scalar_field::*real_get_leftmost_offsets)
-    (std::vector<double> location) = &Real_scalar_field::get_leftmost_offsets;
+    (std::vector<double> location) const = &Real_scalar_field::get_leftmost_offsets;
 
     double (Real_scalar_field::*real_get_val)
-    (std::vector<double> location) = &Real_scalar_field::get_val;
+    (std::vector<double> location) const = &Real_scalar_field::get_val;
 
     class_<Real_scalar_field>("Real_scalar_field", init<>())
     .def(init<std::vector<int>, std::vector<double>, std::vector<double> >())
@@ -168,15 +168,15 @@ BOOST_PYTHON_MODULE(s2_containers)
         &Complex_scalar_field::set_physical_params;
 
     std::vector<int> (Complex_scalar_field::*complex_get_leftmost_indices)
-    (std::vector<double> location) =
+    (std::vector<double> location) const =
         &Complex_scalar_field::get_leftmost_indices;
 
     std::vector<double> (Complex_scalar_field::*complex_get_leftmost_offsets)
-    (std::vector<double> location) =
+    (std::vector<double> location) const =
         &Complex_scalar_field::get_leftmost_offsets;
 
     std::complex<double> (Complex_scalar_field::*complex_get_val)
-    (std::vector<double> location) = &Complex_scalar_field::get_val;
+    (std::vector<double> location) const = &Complex_scalar_field::get_val;
 
     class_<Complex_scalar_field>("Complex_scalar_field", init<>())
     .def(init<std::vector<int>, std::vector<double>, std::vector<double> >())
