@@ -23,7 +23,7 @@ private:
     Double3 left;
     Double3 h;
 
-    inline T get_delta(int location[3], int axis);
+    inline T get_delta(int location[3], int axis) const;
 
 public:
     Scalar_field();
@@ -42,21 +42,21 @@ public:
     void set_physical_params(double physical_size[3], double physical_offset[3]);
     void set_physical_params(std::vector<double> physical_size,
                              std::vector<double> physical_offset);
-    std::vector<double> get_physical_size();
-    std::vector<double> get_physical_offset();
-    std::vector<double> get_cell_size();
+    std::vector<double> get_physical_size() const;
+    std::vector<double> get_physical_offset() const;
+    std::vector<double> get_cell_size() const;
 
     inline Nd_array<T>& get_points();
     inline const Nd_array<T>& get_points() const;
 
-    int* get_leftmost_indices(double location[3]);
-    std::vector<int> get_leftmost_indices(std::vector<double> location);
-    double* get_leftmost_offsets(double location[3]);
-    std::vector<double> get_leftmost_offsets(std::vector<double> location);
+    int* get_leftmost_indices(double location[3]) const;
+    std::vector<int> get_leftmost_indices(std::vector<double> location) const ;
+    double* get_leftmost_offsets(double location[3]) const ;
+    std::vector<double> get_leftmost_offsets(std::vector<double> location) const;
 
-    inline T get_val(double location[3]);
-    inline T get_val(std::vector<double> location);
-    inline T get_deriv(double location[3], int axis);
+    inline T get_val(double location[3]) const ;
+    inline T get_val(std::vector<double> location) const ;
+    inline T get_deriv(double location[3], int axis) const ;
 
     void write_to_fstream(std::ofstream& stream);
     void write_to_file(std::string filename);
@@ -161,21 +161,21 @@ Scalar_field<T>::set_physical_params(std::vector<double> physical_size,
 
 template<class T>
 std::vector<double>
-Scalar_field<T>::get_physical_size()
+Scalar_field<T>::get_physical_size() const 
 {
     return physical_size.vector();
 }
 
 template<class T>
 std::vector<double>
-Scalar_field<T>::get_physical_offset()
+Scalar_field<T>::get_physical_offset() const 
 {
     return physical_offset.vector();
 }
 
 template<class T>
 std::vector<double>
-Scalar_field<T>::get_cell_size()
+Scalar_field<T>::get_cell_size() const 
 {
     return h.vector();
 }
@@ -196,7 +196,7 @@ Scalar_field<T>::get_points() const
 
 template<class T>
 int*
-Scalar_field<T>::get_leftmost_indices(double location[3])
+Scalar_field<T>::get_leftmost_indices(double location[3]) const
 {
     Int3 leftmost_val;
     for (int i = 0; i < 3; ++i) {
@@ -208,14 +208,14 @@ Scalar_field<T>::get_leftmost_indices(double location[3])
 
 template<class T>
 std::vector<int>
-Scalar_field<T>::get_leftmost_indices(std::vector<double> location)
+Scalar_field<T>::get_leftmost_indices(std::vector<double> location) const
 {
     return Int3(get_leftmost_indices(&location[0])).vector();
 }
 
 template<class T>
 double*
-Scalar_field<T>::get_leftmost_offsets(double location[3])
+Scalar_field<T>::get_leftmost_offsets(double location[3]) const
 {
     Double3 offset;
     for (int i = 0; i < 3; ++i) {
@@ -228,7 +228,7 @@ Scalar_field<T>::get_leftmost_offsets(double location[3])
 
 template<class T>
 inline T
-Scalar_field<T>::get_val(double location[3])
+Scalar_field<T>::get_val(double location[3]) const
 {
     // Interpolate between grid points. There is no unique scheme to do this
     // in 3D, so we choose to use trilinear interpolation.
@@ -247,7 +247,7 @@ Scalar_field<T>::get_val(double location[3])
 
 template<class T>
 inline T
-Scalar_field<T>::get_delta(int location[3], int axis)
+Scalar_field<T>::get_delta(int location[3], int axis) const
 {
     // return delta such that derivative is delta/h
     Int3 left(location), right(location);
@@ -267,7 +267,7 @@ Scalar_field<T>::get_delta(int location[3], int axis)
 
 template<class T>
 inline T
-Scalar_field<T>::get_deriv(double location[3], int axis)
+Scalar_field<T>::get_deriv(double location[3], int axis) const
 {
     // Interpolate between grid points. There is no unique scheme to do this
     // in 3D, so we choose to use trilinear interpolation.
@@ -286,14 +286,14 @@ Scalar_field<T>::get_deriv(double location[3], int axis)
 
 template<class T>
 inline T
-Scalar_field<T>::get_val(std::vector<double> location)
+Scalar_field<T>::get_val(std::vector<double> location) const
 {
     return get_val(&location[0]);
 }
 
 template<class T>
 std::vector<double>
-Scalar_field<T>::get_leftmost_offsets(std::vector<double> location)
+Scalar_field<T>::get_leftmost_offsets(std::vector<double> location) const
 {
     return Double3(get_leftmost_offsets(&location[0])).vector();
 }
