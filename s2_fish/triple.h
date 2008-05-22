@@ -44,7 +44,7 @@ public:
         return storage[i];
     }
 
-    T get(int i) {
+    T get(int i) const {
         return storage[i];
     }
 
@@ -60,7 +60,7 @@ public:
         return storage;
     }
 
-    std::vector<T> vector() {
+    std::vector<T> vector() const {
         std::vector<T> retval(3);
         retval[0] = storage[0];
         retval[1] = storage[1];
