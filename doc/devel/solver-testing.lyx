@@ -39,6 +39,214 @@
 \begin_body
 
 \begin_layout Section
+Solving a differential equation with discrete Fourier transforms
+\end_layout
+
+\begin_layout Standard
+We start with the 1-d equation
+\begin_inset Formula \[
+\frac{d^{2}}{dz^{2}}\phi(z)=f(z).\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Next, we divide the domain 
+\begin_inset Formula $z:[0-L]$
+\end_inset
+
+ into 
+\begin_inset Formula $N$
+\end_inset
+
+ discrete points and apply the discrete Fourier operator
+\begin_inset Formula \[
+\mathcal{F}_{m}=\sum_{m=0}^{N-1}e^{2\pi imn/N}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where
+\begin_inset Formula \[
+z=nL/N,\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+so
+\begin_inset Formula \[
+\mathcal{F}_{m}=\sum_{m=0}^{N-1}e^{2\pi imz/L}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+to get
+\begin_inset Formula \[
+-\left(\frac{2\pi m}{L}\right)^{2}\phi(m)=f(m),\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where
+\begin_inset Formula \[
+\phi(m)\equiv\mathcal{F}_{m}\phi(z)=\sum_{m=0}^{N-1}\phi(z)e^{2\pi imz/L}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+and
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+f(m)\equiv\mathcal{F}_{m}f(z)=\sum_{m=0}^{N-1}f(z)e^{2\pi imz/L}.\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Then
+\begin_inset Formula \[
+\phi(z)=\widetilde{\mathcal{F}}_{z}\left[-\left(\frac{L}{2\pi m}\right)^{2}f(m)\right]=\frac{1}{N}\sum_{m=0}^{N-1}-\left(\frac{L}{2\pi m}\right)^{2}f(m)e^{-2\pi imz/L},\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where we have used the inverse discrete Fourier operator
+\begin_inset Formula \[
+\widetilde{\mathcal{F}}_{z}=\frac{1}{N}\sum_{m=0}^{N-1}e^{-2\pi imz/L}.\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+A simple case
+\end_layout
+
+\begin_layout Standard
+As a test, we take THE SIMPLEST FREAKIN' CASE I CAN IMAGINE,
+\begin_inset Formula \[
+\phi(z)=\phi_{1}(z)=cos\left(\frac{2\pi}{L}z\right),\]
+
+\end_inset
+
+with the corresponding right hand side given by
+\begin_inset Formula \[
+f(z)=f_{1}(z)=-\left(\frac{2\pi}{L}\right)^{2}cos\left(\frac{2\pi}{L}z\right).\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Our goal is to use the procedure above to solve our 1-d equation for 
+\begin_inset Formula $\phi(z)$
+\end_inset
+
+ given 
+\begin_inset Formula $f_{1}(z)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Solving the Poisson equation in a cylindrical conducting pipe
+\end_layout
+
+\begin_layout Standard
+We start with the Poisson equation,
+\begin_inset Formula \[
+\nabla^{2}\phi=-\frac{1}{\epsilon}\rho.\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We use cylindrical coordinates 
+\begin_inset Formula $(r,\theta,z)$
+\end_inset
+
+, where 
+\begin_inset Formula \[
+\nabla^{2}\phi=\frac{1}{r}\frac{\partial}{\partial r}\left(r\frac{\partial\phi}{\partial r}\right)+\frac{1}{r^{2}}\frac{\partial^{2}\phi}{\partial\theta^{2}}+\frac{\partial^{2}\phi}{\partial z^{2}}.\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We apply the two-dimensional Fourier transform
+\begin_inset Formula \[
+\int e^{-il\theta-imz}d\theta dz\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+to each side of the Poisson equation to obtain
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\frac{1}{r}\frac{\partial}{\partial r}\left(r\frac{\partial\phi^{lm}}{\partial r}\right)-\frac{l^{2}}{r^{2}}\phi^{lm}-m^{2}\phi^{lm}=-\frac{1}{\epsilon}\rho^{lm},\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where
+\begin_inset Formula \[
+\phi^{lm}=\int\phi e^{-il\theta-imz}d\theta dz\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+and
+\begin_inset Formula \[
+\rho^{lm}=\int\rho e^{-il\theta-imz}d\theta dz.\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
 A test distribution for Poisson solvers
 \end_layout
 
