@@ -60,11 +60,9 @@
 <a name="L5"></a><tt class="py-lineno"> 5</tt>  <tt class="py-line"> </tt>
 <a name="readfort"></a><div id="readfort-def"><a name="L6"></a><tt class="py-lineno"> 6</tt> <a class="py-toggle" href="#" id="readfort-toggle" onclick="return toggle('readfort');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="s2_fish.arrayio-module.html#readfort">readfort</a><tt class="py-op">(</tt><tt class="py-param">filename</tt><tt class="py-op">,</tt><tt class="py-param">shape</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="readfort-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="readfort-expanded"><a name="L7"></a><tt class="py-lineno"> 7</tt>  <tt class="py-line">    <tt class="py-name">expected_length</tt> <tt class="py-op">=</tt> <tt class="py-number">1</tt> </tt>
-<a name="L8"></a><tt class="py-lineno"> 8</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-name">si</tt> <tt class="py-keyword">in</tt> <tt id="link-0" class="py-name" targets="Variable s2_fish.plot_efield_fftw.shape=s2_fish.plot_efield_fftw-module.html#shape,Variable s2_fish.plot_solver.shape=s2_fish.plot_solver-module.html#shape,Variable s2_fish.plot_solver_fftw.shape=s2_fish.plot_solver_fftw-module.html#shape,Variable s2_fish.plot_solver_fftw2.shape=s2_fish.plot_solver_fftw2-module.html#shape,Variable s2_fish.plot_solver_fftw3.shape=s2_fish.plot_solver_fftw3-module.html#shape,Variable s2_fish.plot_solver_periodic.shape=s2_fish.plot_solver_periodic-module.html#shape"><a title="s2_fish.plot_efield_fftw.shape
+<a name="L8"></a><tt class="py-lineno"> 8</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-name">si</tt> <tt class="py-keyword">in</tt> <tt id="link-0" class="py-name" targets="Variable s2_fish.plot_efield_fftw.shape=s2_fish.plot_efield_fftw-module.html#shape,Variable s2_fish.plot_solver.shape=s2_fish.plot_solver-module.html#shape,Variable s2_fish.plot_solver_fftw.shape=s2_fish.plot_solver_fftw-module.html#shape,Variable s2_fish.plot_solver_periodic.shape=s2_fish.plot_solver_periodic-module.html#shape"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-0', 'shape', 'link-0');">shape</a></tt><tt class="py-op">:</tt> </tt>
 <a name="L9"></a><tt class="py-lineno"> 9</tt>  <tt class="py-line">        <tt class="py-name">expected_length</tt><tt class="py-op">*=</tt><tt class="py-name">si</tt> </tt>
 <a name="L10"></a><tt class="py-lineno">10</tt>  <tt class="py-line">    <tt class="py-name">data</tt> <tt class="py-op">=</tt> <tt class="py-op">[</tt><tt class="py-op">]</tt> </tt>
@@ -76,47 +74,31 @@ s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doc
 <a name="L16"></a><tt class="py-lineno">16</tt>  <tt class="py-line">        <tt class="py-keyword">raise</tt> <tt class="py-name">RuntimeError</tt><tt class="py-op">,</tt><tt class="py-string">"found length %d,\nbut expected an array of shape %s (length %d)"</tt> <tt class="py-op">%</tt> <tt class="py-op">(</tt><tt class="py-name">len</tt><tt class="py-op">(</tt><tt class="py-name">data</tt><tt class="py-op">)</tt><tt class="py-op">,</tt><tt class="py-name">str</tt><tt class="py-op">(</tt><tt id="link-6" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-6', 'shape', 'link-0');">shape</a></tt><tt class="py-op">)</tt><tt class="py-op">,</tt><tt class="py-name">expected_length</tt><tt class="py-op">)</tt> </tt>
 <a name="L17"></a><tt class="py-lineno">17</tt>  <tt class="py-line">    <tt class="py-name">retval</tt> <tt class="py-op">=</tt> <tt class="py-name">numarray</tt><tt class="py-op">.</tt><tt class="py-name">zeros</tt><tt class="py-op">(</tt><tt id="link-7" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-7', 'shape', 'link-0');">shape</a></tt><tt class="py-op">,</tt><tt class="py-name">numarray</tt><tt class="py-op">.</tt><tt class="py-name">Float</tt><tt class="py-op">)</tt> </tt>
-<a name="L18"></a><tt class="py-lineno">18</tt>  <tt class="py-line">    <tt id="link-8" class="py-name" targets="Variable s2_fish.plot_solver.index=s2_fish.plot_solver-module.html#index,Variable s2_fish.plot_solver_fftw.index=s2_fish.plot_solver_fftw-module.html#index,Variable s2_fish.plot_solver_fftw2.index=s2_fish.plot_solver_fftw2-module.html#index,Variable s2_fish.plot_solver_fftw3.index=s2_fish.plot_solver_fftw3-module.html#index,Variable s2_fish.plot_solver_periodic.index=s2_fish.plot_solver_periodic-module.html#index"><a title="s2_fish.plot_solver.index
+<a name="L18"></a><tt class="py-lineno">18</tt>  <tt class="py-line">    <tt id="link-8" class="py-name" targets="Variable s2_fish.plot_solver.index=s2_fish.plot_solver-module.html#index,Variable s2_fish.plot_solver_fftw.index=s2_fish.plot_solver_fftw-module.html#index,Variable s2_fish.plot_solver_periodic.index=s2_fish.plot_solver_periodic-module.html#index"><a title="s2_fish.plot_solver.index
 s2_fish.plot_solver_fftw.index
-s2_fish.plot_solver_fftw2.index
-s2_fish.plot_solver_fftw3.index
 s2_fish.plot_solver_periodic.index" class="py-name" href="#" onclick="return doclink('link-8', 'index', 'link-8');">index</a></tt> <tt class="py-op">=</tt> <tt class="py-number">0</tt> </tt>
 <a name="L19"></a><tt class="py-lineno">19</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-name">k</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt id="link-9" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-9', 'shape', 'link-0');">shape</a></tt><tt class="py-op">[</tt><tt class="py-number">2</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L20"></a><tt class="py-lineno">20</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">j</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt id="link-10" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-10', 'shape', 'link-0');">shape</a></tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L21"></a><tt class="py-lineno">21</tt>  <tt class="py-line">            <tt class="py-keyword">for</tt> <tt id="link-11" class="py-name" targets="Variable synergia.latticefns.i=synergia.latticefns-module.html#i"><a title="synergia.latticefns.i" class="py-name" href="#" onclick="return doclink('link-11', 'i', 'link-11');">i</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt id="link-12" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-12', 'shape', 'link-0');">shape</a></tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L22"></a><tt class="py-lineno">22</tt>  <tt class="py-line">                <tt class="py-name">retval</tt><tt class="py-op">[</tt><tt id="link-13" class="py-name"><a title="synergia.latticefns.i" class="py-name" href="#" onclick="return doclink('link-13', 'i', 'link-11');">i</a></tt><tt class="py-op">,</tt><tt class="py-name">j</tt><tt class="py-op">,</tt><tt class="py-name">k</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">data</tt><tt class="py-op">[</tt><tt id="link-14" class="py-name"><a title="s2_fish.plot_solver.index
 s2_fish.plot_solver_fftw.index
-s2_fish.plot_solver_fftw2.index
-s2_fish.plot_solver_fftw3.index
 s2_fish.plot_solver_periodic.index" class="py-name" href="#" onclick="return doclink('link-14', 'index', 'link-8');">index</a></tt><tt class="py-op">]</tt> </tt>
 <a name="L23"></a><tt class="py-lineno">23</tt>  <tt class="py-line">                <tt id="link-15" class="py-name"><a title="s2_fish.plot_solver.index
 s2_fish.plot_solver_fftw.index
-s2_fish.plot_solver_fftw2.index
-s2_fish.plot_solver_fftw3.index
 s2_fish.plot_solver_periodic.index" class="py-name" href="#" onclick="return doclink('link-15', 'index', 'link-8');">index</a></tt> <tt class="py-op">+=</tt> <tt class="py-number">1</tt> </tt>
 <a name="L24"></a><tt class="py-lineno">24</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">retval</tt> </tt>
 </div><a name="L25"></a><tt class="py-lineno">25</tt>  <tt class="py-line"> </tt>
@@ -126,8 +108,6 @@ s2_fish.plot_solver_periodic.index" class="py-name" href="#" onclick="return doc
 <a name="L29"></a><tt class="py-lineno">29</tt>  <tt class="py-line">    <tt id="link-18" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-18', 'shape', 'link-0');">shape</a></tt> <tt class="py-op">=</tt> <tt class="py-name">map</tt><tt class="py-op">(</tt><tt class="py-name">int</tt><tt class="py-op">,</tt><tt id="link-19" class="py-name"><a title="s2_fish.assemble_rho.f" class="py-name" href="#" onclick="return doclink('link-19', 'f', 'link-1');">f</a></tt><tt class="py-op">.</tt><tt class="py-name">readline</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">split</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
 <a name="L30"></a><tt class="py-lineno">30</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-name">line</tt> <tt class="py-keyword">in</tt> <tt id="link-20" class="py-name"><a title="s2_fish.assemble_rho.f" class="py-name" href="#" onclick="return doclink('link-20', 'f', 'link-1');">f</a></tt><tt class="py-op">.</tt><tt class="py-name">readlines</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L31"></a><tt class="py-lineno">31</tt>  <tt class="py-line">        <tt class="py-name">data</tt><tt class="py-op">+=</tt><tt class="py-op">(</tt><tt class="py-name">map</tt><tt class="py-op">(</tt><tt class="py-name">float</tt><tt class="py-op">,</tt><tt class="py-name">line</tt><tt class="py-op">.</tt><tt class="py-name">split</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
@@ -135,41 +115,27 @@ s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doc
 <a name="L33"></a><tt class="py-lineno">33</tt>  <tt class="py-line">    <tt class="py-name">retval</tt> <tt class="py-op">=</tt> <tt class="py-name">numarray</tt><tt class="py-op">.</tt><tt class="py-name">zeros</tt><tt class="py-op">(</tt><tt id="link-23" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-23', 'shape', 'link-0');">shape</a></tt><tt class="py-op">,</tt><tt class="py-name">numarray</tt><tt class="py-op">.</tt><tt class="py-name">Float</tt><tt class="py-op">)</tt> </tt>
 <a name="L34"></a><tt class="py-lineno">34</tt>  <tt class="py-line">    <tt id="link-24" class="py-name"><a title="s2_fish.plot_solver.index
 s2_fish.plot_solver_fftw.index
-s2_fish.plot_solver_fftw2.index
-s2_fish.plot_solver_fftw3.index
 s2_fish.plot_solver_periodic.index" class="py-name" href="#" onclick="return doclink('link-24', 'index', 'link-8');">index</a></tt> <tt class="py-op">=</tt> <tt class="py-number">0</tt> </tt>
 <a name="L35"></a><tt class="py-lineno">35</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt id="link-25" class="py-name"><a title="synergia.latticefns.i" class="py-name" href="#" onclick="return doclink('link-25', 'i', 'link-11');">i</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt id="link-26" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-26', 'shape', 'link-0');">shape</a></tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L36"></a><tt class="py-lineno">36</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">j</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt id="link-27" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-27', 'shape', 'link-0');">shape</a></tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L37"></a><tt class="py-lineno">37</tt>  <tt class="py-line">            <tt class="py-keyword">for</tt> <tt class="py-name">k</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt id="link-28" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-28', 'shape', 'link-0');">shape</a></tt><tt class="py-op">[</tt><tt class="py-number">2</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L38"></a><tt class="py-lineno">38</tt>  <tt class="py-line">                <tt class="py-name">retval</tt><tt class="py-op">[</tt><tt id="link-29" class="py-name"><a title="synergia.latticefns.i" class="py-name" href="#" onclick="return doclink('link-29', 'i', 'link-11');">i</a></tt><tt class="py-op">,</tt><tt class="py-name">j</tt><tt class="py-op">,</tt><tt class="py-name">k</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">data</tt><tt class="py-op">[</tt><tt id="link-30" class="py-name"><a title="s2_fish.plot_solver.index
 s2_fish.plot_solver_fftw.index
-s2_fish.plot_solver_fftw2.index
-s2_fish.plot_solver_fftw3.index
 s2_fish.plot_solver_periodic.index" class="py-name" href="#" onclick="return doclink('link-30', 'index', 'link-8');">index</a></tt><tt class="py-op">]</tt> </tt>
 <a name="L39"></a><tt class="py-lineno">39</tt>  <tt class="py-line">                <tt id="link-31" class="py-name"><a title="s2_fish.plot_solver.index
 s2_fish.plot_solver_fftw.index
-s2_fish.plot_solver_fftw2.index
-s2_fish.plot_solver_fftw3.index
 s2_fish.plot_solver_periodic.index" class="py-name" href="#" onclick="return doclink('link-31', 'index', 'link-8');">index</a></tt> <tt class="py-op">+=</tt> <tt class="py-number">1</tt> </tt>
 <a name="L40"></a><tt class="py-lineno">40</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">retval</tt> </tt>
 </div><a name="L41"></a><tt class="py-lineno">41</tt>  <tt class="py-line"> </tt>
@@ -181,8 +147,6 @@ s2_fish.plot_solver_periodic.index" class="py-name" href="#" onclick="return doc
 <a name="L47"></a><tt class="py-lineno">47</tt>  <tt class="py-line">    <tt id="link-36" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-36', 'shape', 'link-0');">shape</a></tt> <tt class="py-op">=</tt> <tt class="py-name">map</tt><tt class="py-op">(</tt><tt class="py-name">int</tt><tt class="py-op">,</tt><tt id="link-37" class="py-name"><a title="s2_fish.assemble_rho.f" class="py-name" href="#" onclick="return doclink('link-37', 'f', 'link-1');">f</a></tt><tt class="py-op">.</tt><tt class="py-name">readline</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">split</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
 <a name="L48"></a><tt class="py-lineno">48</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-name">line</tt> <tt class="py-keyword">in</tt> <tt id="link-38" class="py-name"><a title="s2_fish.assemble_rho.f" class="py-name" href="#" onclick="return doclink('link-38', 'f', 'link-1');">f</a></tt><tt class="py-op">.</tt><tt class="py-name">readlines</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L49"></a><tt class="py-lineno">49</tt>  <tt class="py-line">        <tt class="py-name">data</tt><tt class="py-op">+=</tt><tt class="py-op">(</tt><tt class="py-name">map</tt><tt class="py-op">(</tt><tt class="py-name">float</tt><tt class="py-op">,</tt><tt class="py-name">line</tt><tt class="py-op">.</tt><tt class="py-name">split</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
@@ -190,41 +154,27 @@ s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doc
 <a name="L51"></a><tt class="py-lineno">51</tt>  <tt class="py-line">    <tt class="py-name">retval</tt> <tt class="py-op">=</tt> <tt class="py-name">numarray</tt><tt class="py-op">.</tt><tt class="py-name">zeros</tt><tt class="py-op">(</tt><tt id="link-41" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-41', 'shape', 'link-0');">shape</a></tt><tt class="py-op">,</tt><tt class="py-name">numarray</tt><tt class="py-op">.</tt><tt class="py-name">Float</tt><tt class="py-op">)</tt> </tt>
 <a name="L52"></a><tt class="py-lineno">52</tt>  <tt class="py-line">    <tt id="link-42" class="py-name"><a title="s2_fish.plot_solver.index
 s2_fish.plot_solver_fftw.index
-s2_fish.plot_solver_fftw2.index
-s2_fish.plot_solver_fftw3.index
 s2_fish.plot_solver_periodic.index" class="py-name" href="#" onclick="return doclink('link-42', 'index', 'link-8');">index</a></tt> <tt class="py-op">=</tt> <tt class="py-number">0</tt> </tt>
 <a name="L53"></a><tt class="py-lineno">53</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt id="link-43" class="py-name"><a title="synergia.latticefns.i" class="py-name" href="#" onclick="return doclink('link-43', 'i', 'link-11');">i</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt id="link-44" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-44', 'shape', 'link-0');">shape</a></tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L54"></a><tt class="py-lineno">54</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">j</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt id="link-45" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-45', 'shape', 'link-0');">shape</a></tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L55"></a><tt class="py-lineno">55</tt>  <tt class="py-line">            <tt class="py-keyword">for</tt> <tt class="py-name">k</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt id="link-46" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-46', 'shape', 'link-0');">shape</a></tt><tt class="py-op">[</tt><tt class="py-number">2</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L56"></a><tt class="py-lineno">56</tt>  <tt class="py-line">                <tt class="py-name">retval</tt><tt class="py-op">[</tt><tt id="link-47" class="py-name"><a title="synergia.latticefns.i" class="py-name" href="#" onclick="return doclink('link-47', 'i', 'link-11');">i</a></tt><tt class="py-op">,</tt><tt class="py-name">j</tt><tt class="py-op">,</tt><tt class="py-name">k</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">data</tt><tt class="py-op">[</tt><tt id="link-48" class="py-name"><a title="s2_fish.plot_solver.index
 s2_fish.plot_solver_fftw.index
-s2_fish.plot_solver_fftw2.index
-s2_fish.plot_solver_fftw3.index
 s2_fish.plot_solver_periodic.index" class="py-name" href="#" onclick="return doclink('link-48', 'index', 'link-8');">index</a></tt><tt class="py-op">]</tt> </tt>
 <a name="L57"></a><tt class="py-lineno">57</tt>  <tt class="py-line">                <tt id="link-49" class="py-name"><a title="s2_fish.plot_solver.index
 s2_fish.plot_solver_fftw.index
-s2_fish.plot_solver_fftw2.index
-s2_fish.plot_solver_fftw3.index
 s2_fish.plot_solver_periodic.index" class="py-name" href="#" onclick="return doclink('link-49', 'index', 'link-8');">index</a></tt> <tt class="py-op">+=</tt> <tt class="py-number">1</tt> </tt>
 <a name="L58"></a><tt class="py-lineno">58</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">retval</tt> </tt>
 </div><a name="L59"></a><tt class="py-lineno">59</tt>  <tt class="py-line"> </tt>
@@ -234,8 +184,6 @@ s2_fish.plot_solver_periodic.index" class="py-name" href="#" onclick="return doc
 <a name="L63"></a><tt class="py-lineno">63</tt>  <tt class="py-line">    <tt id="link-52" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-52', 'shape', 'link-0');">shape</a></tt> <tt class="py-op">=</tt> <tt class="py-name">map</tt><tt class="py-op">(</tt><tt class="py-name">int</tt><tt class="py-op">,</tt><tt id="link-53" class="py-name"><a title="s2_fish.assemble_rho.f" class="py-name" href="#" onclick="return doclink('link-53', 'f', 'link-1');">f</a></tt><tt class="py-op">.</tt><tt class="py-name">readline</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">split</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
 <a name="L64"></a><tt class="py-lineno">64</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt class="py-name">line</tt> <tt class="py-keyword">in</tt> <tt id="link-54" class="py-name"><a title="s2_fish.assemble_rho.f" class="py-name" href="#" onclick="return doclink('link-54', 'f', 'link-1');">f</a></tt><tt class="py-op">.</tt><tt class="py-name">readlines</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L65"></a><tt class="py-lineno">65</tt>  <tt class="py-line">        <tt class="py-name">cdata</tt><tt class="py-op">=</tt><tt class="py-name">line</tt><tt class="py-op">.</tt><tt class="py-name">split</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
@@ -246,49 +194,37 @@ s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doc
 <a name="L70"></a><tt class="py-lineno">70</tt>  <tt class="py-line">    <tt class="py-name">retval</tt> <tt class="py-op">=</tt> <tt class="py-name">numarray</tt><tt class="py-op">.</tt><tt class="py-name">zeros</tt><tt class="py-op">(</tt><tt id="link-58" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-58', 'shape', 'link-0');">shape</a></tt><tt class="py-op">,</tt><tt class="py-name">numarray</tt><tt class="py-op">.</tt><tt class="py-name">Complex</tt><tt class="py-op">)</tt> </tt>
 <a name="L71"></a><tt class="py-lineno">71</tt>  <tt class="py-line">    <tt id="link-59" class="py-name"><a title="s2_fish.plot_solver.index
 s2_fish.plot_solver_fftw.index
-s2_fish.plot_solver_fftw2.index
-s2_fish.plot_solver_fftw3.index
 s2_fish.plot_solver_periodic.index" class="py-name" href="#" onclick="return doclink('link-59', 'index', 'link-8');">index</a></tt> <tt class="py-op">=</tt> <tt class="py-number">0</tt> </tt>
 <a name="L72"></a><tt class="py-lineno">72</tt>  <tt class="py-line">    <tt class="py-keyword">for</tt> <tt id="link-60" class="py-name"><a title="synergia.latticefns.i" class="py-name" href="#" onclick="return doclink('link-60', 'i', 'link-11');">i</a></tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt id="link-61" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-61', 'shape', 'link-0');">shape</a></tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L73"></a><tt class="py-lineno">73</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">j</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt id="link-62" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-62', 'shape', 'link-0');">shape</a></tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L74"></a><tt class="py-lineno">74</tt>  <tt class="py-line">            <tt class="py-keyword">for</tt> <tt class="py-name">k</tt> <tt class="py-keyword">in</tt> <tt class="py-name">range</tt><tt class="py-op">(</tt><tt class="py-number">0</tt><tt class="py-op">,</tt><tt id="link-63" class="py-name"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-63', 'shape', 'link-0');">shape</a></tt><tt class="py-op">[</tt><tt class="py-number">2</tt><tt class="py-op">]</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 <a name="L75"></a><tt class="py-lineno">75</tt>  <tt class="py-line">                <tt class="py-name">retval</tt><tt class="py-op">[</tt><tt id="link-64" class="py-name"><a title="synergia.latticefns.i" class="py-name" href="#" onclick="return doclink('link-64', 'i', 'link-11');">i</a></tt><tt class="py-op">,</tt><tt class="py-name">j</tt><tt class="py-op">,</tt><tt class="py-name">k</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">data</tt><tt class="py-op">[</tt><tt id="link-65" class="py-name"><a title="s2_fish.plot_solver.index
 s2_fish.plot_solver_fftw.index
-s2_fish.plot_solver_fftw2.index
-s2_fish.plot_solver_fftw3.index
 s2_fish.plot_solver_periodic.index" class="py-name" href="#" onclick="return doclink('link-65', 'index', 'link-8');">index</a></tt><tt class="py-op">]</tt> </tt>
 <a name="L76"></a><tt class="py-lineno">76</tt>  <tt class="py-line">                <tt id="link-66" class="py-name"><a title="s2_fish.plot_solver.index
 s2_fish.plot_solver_fftw.index
-s2_fish.plot_solver_fftw2.index
-s2_fish.plot_solver_fftw3.index
 s2_fish.plot_solver_periodic.index" class="py-name" href="#" onclick="return doclink('link-66', 'index', 'link-8');">index</a></tt> <tt class="py-op">+=</tt> <tt class="py-number">1</tt> </tt>
 <a name="L77"></a><tt class="py-lineno">77</tt>  <tt class="py-line">    <tt class="py-keyword">return</tt> <tt class="py-name">retval</tt> </tt>
 </div><a name="L78"></a><tt class="py-lineno">78</tt>  <tt class="py-line"> </tt>
 <a name="L79"></a><tt class="py-lineno">79</tt>  <tt class="py-line"><tt class="py-keyword">if</tt> <tt class="py-name">__name__</tt> <tt class="py-op">==</tt> <tt class="py-string">"__main__"</tt><tt class="py-op">:</tt> </tt>
 <a name="L80"></a><tt class="py-lineno">80</tt>  <tt class="py-line"><tt class="py-comment">#    foo = readfort("../fort.40",[8,8,8])</tt> </tt>
 <a name="L81"></a><tt class="py-lineno">81</tt>  <tt class="py-line"><tt class="py-comment"></tt><tt class="py-comment">#    foo = readscalarfield("rho")</tt> </tt>
-<a name="L82"></a><tt class="py-lineno">82</tt>  <tt class="py-line"><tt class="py-comment"></tt>    <tt id="link-67" class="py-name" targets="Variable s2_fish.test_GaussSC.foo=s2_fish.test_GaussSC-module.html#foo"><a title="s2_fish.test_GaussSC.foo" class="py-name" href="#" onclick="return doclink('link-67', 'foo', 'link-67');">foo</a></tt> <tt class="py-op">=</tt> <tt id="link-68" class="py-name" targets="Function s2_fish.arrayio.readpetscvec()=s2_fish.arrayio-module.html#readpetscvec"><a title="s2_fish.arrayio.readpetscvec" class="py-name" href="#" onclick="return doclink('link-68', 'readpetscvec', 'link-68');">readpetscvec</a></tt><tt class="py-op">(</tt><tt class="py-string">"G_hat2_petsc"</tt><tt class="py-op">)</tt> </tt>
-<a name="L83"></a><tt class="py-lineno">83</tt>  <tt class="py-line">    <tt class="py-keyword">print</tt> <tt id="link-69" class="py-name"><a title="s2_fish.test_GaussSC.foo" class="py-name" href="#" onclick="return doclink('link-69', 'foo', 'link-67');">foo</a></tt> </tt>
+<a name="L82"></a><tt class="py-lineno">82</tt>  <tt class="py-line"><tt class="py-comment"></tt>    <tt id="link-67" class="py-name" targets="Module s2_fish.foo=s2_fish.foo-module.html,Variable s2_fish.test_GaussSC.foo=s2_fish.test_GaussSC-module.html#foo"><a title="s2_fish.foo
+s2_fish.test_GaussSC.foo" class="py-name" href="#" onclick="return doclink('link-67', 'foo', 'link-67');">foo</a></tt> <tt class="py-op">=</tt> <tt id="link-68" class="py-name" targets="Function s2_fish.arrayio.readpetscvec()=s2_fish.arrayio-module.html#readpetscvec"><a title="s2_fish.arrayio.readpetscvec" class="py-name" href="#" onclick="return doclink('link-68', 'readpetscvec', 'link-68');">readpetscvec</a></tt><tt class="py-op">(</tt><tt class="py-string">"G_hat2_petsc"</tt><tt class="py-op">)</tt> </tt>
+<a name="L83"></a><tt class="py-lineno">83</tt>  <tt class="py-line">    <tt class="py-keyword">print</tt> <tt id="link-69" class="py-name"><a title="s2_fish.foo
+s2_fish.test_GaussSC.foo" class="py-name" href="#" onclick="return doclink('link-69', 'foo', 'link-67');">foo</a></tt> </tt>
 <a name="L84"></a><tt class="py-lineno">84</tt>  <tt class="py-line"> </tt><script type="text/javascript">
 <!--
 expandto(location.href);
@@ -319,7 +255,7 @@ expandto(location.href);
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0beta1 on Mon Jan 28 14:58:30 2008
+    Generated by Epydoc 3.0beta1 on Fri May 23 16:29:55 2008
     </td>
     <td align="right" class="footer">
       <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>

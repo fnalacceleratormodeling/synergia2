@@ -66,12 +66,10 @@
 <a name="L11"></a><tt class="py-lineno">11</tt>  <tt class="py-line"> </tt>
 <a name="apply_space_charge_kick"></a><div id="apply_space_charge_kick-def"><a name="L12"></a><tt class="py-lineno">12</tt> <a class="py-toggle" href="#" id="apply_space_charge_kick-toggle" onclick="return toggle('apply_space_charge_kick');">-</a><tt class="py-line"><tt class="py-keyword">def</tt> <a class="py-def-name" href="s2_fish.fish-module.html#apply_space_charge_kick">apply_space_charge_kick</a><tt class="py-op">(</tt><tt class="py-param">shape</tt><tt class="py-op">,</tt><tt class="py-param">size</tt><tt class="py-op">,</tt><tt class="py-param">offset</tt><tt class="py-op">,</tt><tt class="py-param">mbunch</tt><tt class="py-op">,</tt><tt class="py-param">tau</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
 </div><div id="apply_space_charge_kick-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="apply_space_charge_kick-expanded"><a name="L13"></a><tt class="py-lineno">13</tt>  <tt class="py-line">        <tt class="py-name">show_timings</tt><tt class="py-op">=</tt><tt class="py-number">0</tt> </tt>
-<a name="L14"></a><tt class="py-lineno">14</tt>  <tt class="py-line">        <tt id="link-1" class="py-name" targets="Variable s2_fish.mytimer.t0=s2_fish.mytimer-module.html#t0,Variable s2_fish.plot_efield_fftw.t0=s2_fish.plot_efield_fftw-module.html#t0,Variable s2_fish.plot_solver.t0=s2_fish.plot_solver-module.html#t0,Variable s2_fish.plot_solver_fftw.t0=s2_fish.plot_solver_fftw-module.html#t0,Variable s2_fish.plot_solver_fftw2.t0=s2_fish.plot_solver_fftw2-module.html#t0,Variable s2_fish.plot_solver_fftw3.t0=s2_fish.plot_solver_fftw3-module.html#t0,Variable s2_fish.plot_solver_periodic.t0=s2_fish.plot_solver_periodic-module.html#t0"><a title="s2_fish.mytimer.t0
+<a name="L14"></a><tt class="py-lineno">14</tt>  <tt class="py-line">        <tt id="link-1" class="py-name" targets="Variable s2_fish.mytimer.t0=s2_fish.mytimer-module.html#t0,Variable s2_fish.plot_efield_fftw.t0=s2_fish.plot_efield_fftw-module.html#t0,Variable s2_fish.plot_solver.t0=s2_fish.plot_solver-module.html#t0,Variable s2_fish.plot_solver_fftw.t0=s2_fish.plot_solver_fftw-module.html#t0,Variable s2_fish.plot_solver_periodic.t0=s2_fish.plot_solver_periodic-module.html#t0"><a title="s2_fish.mytimer.t0
 s2_fish.plot_efield_fftw.t0
 s2_fish.plot_solver.t0
 s2_fish.plot_solver_fftw.t0
-s2_fish.plot_solver_fftw2.t0
-s2_fish.plot_solver_fftw3.t0
 s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclink('link-1', 't0', 'link-1');">t0</a></tt> <tt class="py-op">=</tt> <tt class="py-name">time</tt><tt class="py-op">.</tt><tt class="py-name">time</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
 <a name="L15"></a><tt class="py-lineno">15</tt>  <tt class="py-line">        <tt class="py-name">mbunch</tt><tt class="py-op">.</tt><tt id="link-2" class="py-name" targets="Method s2_fish.macro_bunch.Macro_bunch.convert_to_fixedt()=s2_fish.macro_bunch.Macro_bunch-class.html#convert_to_fixedt"><a title="s2_fish.macro_bunch.Macro_bunch.convert_to_fixedt" class="py-name" href="#" onclick="return doclink('link-2', 'convert_to_fixedt', 'link-2');">convert_to_fixedt</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
 <a name="L16"></a><tt class="py-lineno">16</tt>  <tt class="py-line">        <tt class="py-name">t1</tt> <tt class="py-op">=</tt> <tt class="py-name">time</tt><tt class="py-op">.</tt><tt class="py-name">time</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
@@ -80,51 +78,35 @@ s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclin
 s2_fish.plot_efield_fftw.t0
 s2_fish.plot_solver.t0
 s2_fish.plot_solver_fftw.t0
-s2_fish.plot_solver_fftw2.t0
-s2_fish.plot_solver_fftw3.t0
 s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclink('link-3', 't0', 'link-1');">t0</a></tt> </tt>
 <a name="L19"></a><tt class="py-lineno">19</tt>  <tt class="py-line">        <tt class="py-name">diag</tt> <tt class="py-op">=</tt> <tt id="link-4" class="py-name"><a title="synergia.syn2_diagnostics" class="py-name" href="#" onclick="return doclink('link-4', 'syn2_diagnostics', 'link-0');">syn2_diagnostics</a></tt><tt class="py-op">.</tt><tt id="link-5" class="py-name" targets="Class synergia.syn2_diagnostics.Diagnostics=synergia.syn2_diagnostics.Diagnostics-class.html"><a title="synergia.syn2_diagnostics.Diagnostics" class="py-name" href="#" onclick="return doclink('link-5', 'Diagnostics', 'link-5');">Diagnostics</a></tt><tt class="py-op">(</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">,</tt><tt class="py-number">1</tt><tt class="py-op">,</tt><tt class="py-number">1</tt><tt class="py-op">,</tt><tt class="py-number">1</tt><tt class="py-op">,</tt><tt class="py-number">1</tt><tt class="py-op">,</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">)</tt> </tt>
 <a name="L20"></a><tt class="py-lineno">20</tt>  <tt class="py-line">        <tt class="py-name">coord_stds</tt> <tt class="py-op">=</tt> <tt class="py-name">diag</tt><tt class="py-op">.</tt><tt id="link-6" class="py-name" targets="Method synergia.syn2_diagnostics_impact.Diagnostics_impact.get_coord_stds()=synergia.syn2_diagnostics_impact.Diagnostics_impact-class.html#get_coord_stds"><a title="synergia.syn2_diagnostics_impact.Diagnostics_impact.get_coord_stds" class="py-name" href="#" onclick="return doclink('link-6', 'get_coord_stds', 'link-6');">get_coord_stds</a></tt><tt class="py-op">(</tt><tt class="py-name">mbunch</tt><tt class="py-op">)</tt> </tt>
 <a name="L21"></a><tt class="py-lineno">21</tt>  <tt class="py-line">        <tt class="py-name">n_sigma</tt> <tt class="py-op">=</tt> <tt class="py-number">8.0</tt> </tt>
-<a name="L22"></a><tt class="py-lineno">22</tt>  <tt class="py-line">        <tt id="link-7" class="py-name" targets="Variable s2_fish.plot_efield_fftw.size=s2_fish.plot_efield_fftw-module.html#size,Variable s2_fish.plot_solver.size=s2_fish.plot_solver-module.html#size,Variable s2_fish.plot_solver_fftw.size=s2_fish.plot_solver_fftw-module.html#size,Variable s2_fish.plot_solver_fftw2.size=s2_fish.plot_solver_fftw2-module.html#size,Variable s2_fish.plot_solver_fftw3.size=s2_fish.plot_solver_fftw3-module.html#size,Variable s2_fish.plot_solver_periodic.size=s2_fish.plot_solver_periodic-module.html#size"><a title="s2_fish.plot_efield_fftw.size
+<a name="L22"></a><tt class="py-lineno">22</tt>  <tt class="py-line">        <tt id="link-7" class="py-name" targets="Variable s2_fish.plot_efield_fftw.size=s2_fish.plot_efield_fftw-module.html#size,Variable s2_fish.plot_solver.size=s2_fish.plot_solver-module.html#size,Variable s2_fish.plot_solver_fftw.size=s2_fish.plot_solver_fftw-module.html#size,Variable s2_fish.plot_solver_periodic.size=s2_fish.plot_solver_periodic-module.html#size"><a title="s2_fish.plot_efield_fftw.size
 s2_fish.plot_solver.size
 s2_fish.plot_solver_fftw.size
-s2_fish.plot_solver_fftw2.size
-s2_fish.plot_solver_fftw3.size
 s2_fish.plot_solver_periodic.size" class="py-name" href="#" onclick="return doclink('link-7', 'size', 'link-7');">size</a></tt> <tt class="py-op">=</tt> <tt class="py-op">(</tt><tt class="py-name">coord_stds</tt><tt class="py-op">[</tt><tt class="py-number">0</tt><tt class="py-op">]</tt><tt class="py-op">*</tt><tt class="py-name">n_sigma</tt><tt class="py-op">,</tt><tt class="py-name">coord_stds</tt><tt class="py-op">[</tt><tt class="py-number">1</tt><tt class="py-op">]</tt><tt class="py-op">*</tt><tt class="py-name">n_sigma</tt><tt class="py-op">,</tt><tt class="py-name">coord_stds</tt><tt class="py-op">[</tt><tt class="py-number">2</tt><tt class="py-op">]</tt><tt class="py-op">*</tt><tt class="py-name">n_sigma</tt><tt class="py-op">)</tt> </tt>
-<a name="L23"></a><tt class="py-lineno">23</tt>  <tt class="py-line">        <tt id="link-8" class="py-name" targets="Variable s2_fish.plot_efield_fftw.rho=s2_fish.plot_efield_fftw-module.html#rho,Variable s2_fish.plot_solver.rho=s2_fish.plot_solver-module.html#rho,Variable s2_fish.plot_solver_fftw.rho=s2_fish.plot_solver_fftw-module.html#rho,Variable s2_fish.plot_solver_fftw2.rho=s2_fish.plot_solver_fftw2-module.html#rho,Variable s2_fish.plot_solver_fftw3.rho=s2_fish.plot_solver_fftw3-module.html#rho,Variable s2_fish.plot_solver_periodic.rho=s2_fish.plot_solver_periodic-module.html#rho"><a title="s2_fish.plot_efield_fftw.rho
+<a name="L23"></a><tt class="py-lineno">23</tt>  <tt class="py-line">        <tt id="link-8" class="py-name" targets="Variable s2_fish.plot_efield_fftw.rho=s2_fish.plot_efield_fftw-module.html#rho,Variable s2_fish.plot_solver.rho=s2_fish.plot_solver-module.html#rho,Variable s2_fish.plot_solver_fftw.rho=s2_fish.plot_solver_fftw-module.html#rho,Variable s2_fish.plot_solver_periodic.rho=s2_fish.plot_solver_periodic-module.html#rho"><a title="s2_fish.plot_efield_fftw.rho
 s2_fish.plot_solver.rho
 s2_fish.plot_solver_fftw.rho
-s2_fish.plot_solver_fftw2.rho
-s2_fish.plot_solver_fftw3.rho
-s2_fish.plot_solver_periodic.rho" class="py-name" href="#" onclick="return doclink('link-8', 'rho', 'link-8');">rho</a></tt> <tt class="py-op">=</tt> <tt class="py-name">Real_scalar_field</tt><tt class="py-op">(</tt><tt id="link-9" class="py-name" targets="Variable s2_fish.plot_efield_fftw.shape=s2_fish.plot_efield_fftw-module.html#shape,Variable s2_fish.plot_solver.shape=s2_fish.plot_solver-module.html#shape,Variable s2_fish.plot_solver_fftw.shape=s2_fish.plot_solver_fftw-module.html#shape,Variable s2_fish.plot_solver_fftw2.shape=s2_fish.plot_solver_fftw2-module.html#shape,Variable s2_fish.plot_solver_fftw3.shape=s2_fish.plot_solver_fftw3-module.html#shape,Variable s2_fish.plot_solver_periodic.shape=s2_fish.plot_solver_periodic-module.html#shape"><a title="s2_fish.plot_efield_fftw.shape
+s2_fish.plot_solver_periodic.rho" class="py-name" href="#" onclick="return doclink('link-8', 'rho', 'link-8');">rho</a></tt> <tt class="py-op">=</tt> <tt class="py-name">Real_scalar_field</tt><tt class="py-op">(</tt><tt id="link-9" class="py-name" targets="Variable s2_fish.plot_efield_fftw.shape=s2_fish.plot_efield_fftw-module.html#shape,Variable s2_fish.plot_solver.shape=s2_fish.plot_solver-module.html#shape,Variable s2_fish.plot_solver_fftw.shape=s2_fish.plot_solver_fftw-module.html#shape,Variable s2_fish.plot_solver_periodic.shape=s2_fish.plot_solver_periodic-module.html#shape"><a title="s2_fish.plot_efield_fftw.shape
 s2_fish.plot_solver.shape
 s2_fish.plot_solver_fftw.shape
-s2_fish.plot_solver_fftw2.shape
-s2_fish.plot_solver_fftw3.shape
 s2_fish.plot_solver_periodic.shape" class="py-name" href="#" onclick="return doclink('link-9', 'shape', 'link-9');">shape</a></tt><tt class="py-op">,</tt><tt id="link-10" class="py-name"><a title="s2_fish.plot_efield_fftw.size
 s2_fish.plot_solver.size
 s2_fish.plot_solver_fftw.size
-s2_fish.plot_solver_fftw2.size
-s2_fish.plot_solver_fftw3.size
 s2_fish.plot_solver_periodic.size" class="py-name" href="#" onclick="return doclink('link-10', 'size', 'link-7');">size</a></tt><tt class="py-op">,</tt><tt class="py-name">offset</tt><tt class="py-op">)</tt> </tt>
 <a name="L24"></a><tt class="py-lineno">24</tt>  <tt class="py-line">        <tt id="link-11" class="py-name"><a title="s2_fish.mytimer.t0
 s2_fish.plot_efield_fftw.t0
 s2_fish.plot_solver.t0
 s2_fish.plot_solver_fftw.t0
-s2_fish.plot_solver_fftw2.t0
-s2_fish.plot_solver_fftw3.t0
 s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclink('link-11', 't0', 'link-1');">t0</a></tt> <tt class="py-op">=</tt> <tt class="py-name">time</tt><tt class="py-op">.</tt><tt class="py-name">time</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
-<a name="L25"></a><tt class="py-lineno">25</tt>  <tt class="py-line">        <tt id="link-12" class="py-name" targets="Variable s2_fish.plot_efield_fftw.total_charge=s2_fish.plot_efield_fftw-module.html#total_charge,Variable s2_fish.plot_solver.total_charge=s2_fish.plot_solver-module.html#total_charge,Variable s2_fish.plot_solver_fftw.total_charge=s2_fish.plot_solver_fftw-module.html#total_charge,Variable s2_fish.plot_solver_fftw2.total_charge=s2_fish.plot_solver_fftw2-module.html#total_charge,Variable s2_fish.plot_solver_fftw3.total_charge=s2_fish.plot_solver_fftw3-module.html#total_charge,Variable s2_fish.plot_solver_periodic.total_charge=s2_fish.plot_solver_periodic-module.html#total_charge"><a title="s2_fish.plot_efield_fftw.total_charge
+<a name="L25"></a><tt class="py-lineno">25</tt>  <tt class="py-line">        <tt id="link-12" class="py-name" targets="Variable s2_fish.plot_efield_fftw.total_charge=s2_fish.plot_efield_fftw-module.html#total_charge,Variable s2_fish.plot_solver.total_charge=s2_fish.plot_solver-module.html#total_charge,Variable s2_fish.plot_solver_fftw.total_charge=s2_fish.plot_solver_fftw-module.html#total_charge,Variable s2_fish.plot_solver_periodic.total_charge=s2_fish.plot_solver_periodic-module.html#total_charge"><a title="s2_fish.plot_efield_fftw.total_charge
 s2_fish.plot_solver.total_charge
 s2_fish.plot_solver_fftw.total_charge
-s2_fish.plot_solver_fftw2.total_charge
-s2_fish.plot_solver_fftw3.total_charge
 s2_fish.plot_solver_periodic.total_charge" class="py-name" href="#" onclick="return doclink('link-12', 'total_charge', 'link-12');">total_charge</a></tt> <tt class="py-op">=</tt> <tt class="py-name">deposit_charge_cic</tt><tt class="py-op">(</tt><tt id="link-13" class="py-name"><a title="s2_fish.plot_efield_fftw.rho
 s2_fish.plot_solver.rho
 s2_fish.plot_solver_fftw.rho
-s2_fish.plot_solver_fftw2.rho
-s2_fish.plot_solver_fftw3.rho
 s2_fish.plot_solver_periodic.rho" class="py-name" href="#" onclick="return doclink('link-13', 'rho', 'link-8');">rho</a></tt><tt class="py-op">,</tt><tt class="py-name">mbunch</tt><tt class="py-op">.</tt><tt id="link-14" class="py-name" targets="Method s2_fish.macro_bunch.Macro_bunch.get_store()=s2_fish.macro_bunch.Macro_bunch-class.html#get_store"><a title="s2_fish.macro_bunch.Macro_bunch.get_store" class="py-name" href="#" onclick="return doclink('link-14', 'get_store', 'link-14');">get_store</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">,</tt><tt class="py-number">0</tt><tt class="py-op">)</tt> </tt>
 <a name="L26"></a><tt class="py-lineno">26</tt>  <tt class="py-line">        <tt class="py-name">t1</tt> <tt class="py-op">=</tt> <tt class="py-name">time</tt><tt class="py-op">.</tt><tt class="py-name">time</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
 <a name="L27"></a><tt class="py-lineno">27</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">show_timings</tt><tt class="py-op">:</tt> </tt>
@@ -132,26 +114,18 @@ s2_fish.plot_solver_periodic.rho" class="py-name" href="#" onclick="return docli
 s2_fish.plot_efield_fftw.t0
 s2_fish.plot_solver.t0
 s2_fish.plot_solver_fftw.t0
-s2_fish.plot_solver_fftw2.t0
-s2_fish.plot_solver_fftw3.t0
 s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclink('link-15', 't0', 'link-1');">t0</a></tt> </tt>
 <a name="L29"></a><tt class="py-lineno">29</tt>  <tt class="py-line">        <tt id="link-16" class="py-name"><a title="s2_fish.mytimer.t0
 s2_fish.plot_efield_fftw.t0
 s2_fish.plot_solver.t0
 s2_fish.plot_solver_fftw.t0
-s2_fish.plot_solver_fftw2.t0
-s2_fish.plot_solver_fftw3.t0
 s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclink('link-16', 't0', 'link-1');">t0</a></tt> <tt class="py-op">=</tt> <tt class="py-name">time</tt><tt class="py-op">.</tt><tt class="py-name">time</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
-<a name="L30"></a><tt class="py-lineno">30</tt>  <tt class="py-line">        <tt id="link-17" class="py-name" targets="Variable s2_fish.plot_efield_fftw.phi=s2_fish.plot_efield_fftw-module.html#phi,Variable s2_fish.plot_solver.phi=s2_fish.plot_solver-module.html#phi,Variable s2_fish.plot_solver_fftw.phi=s2_fish.plot_solver_fftw-module.html#phi,Variable s2_fish.plot_solver_fftw2.phi=s2_fish.plot_solver_fftw2-module.html#phi,Variable s2_fish.plot_solver_fftw3.phi=s2_fish.plot_solver_fftw3-module.html#phi,Variable s2_fish.plot_solver_periodic.phi=s2_fish.plot_solver_periodic-module.html#phi"><a title="s2_fish.plot_efield_fftw.phi
+<a name="L30"></a><tt class="py-lineno">30</tt>  <tt class="py-line">        <tt id="link-17" class="py-name" targets="Variable s2_fish.plot_efield_fftw.phi=s2_fish.plot_efield_fftw-module.html#phi,Variable s2_fish.plot_solver.phi=s2_fish.plot_solver-module.html#phi,Variable s2_fish.plot_solver_fftw.phi=s2_fish.plot_solver_fftw-module.html#phi,Variable s2_fish.plot_solver_periodic.phi=s2_fish.plot_solver_periodic-module.html#phi"><a title="s2_fish.plot_efield_fftw.phi
 s2_fish.plot_solver.phi
 s2_fish.plot_solver_fftw.phi
-s2_fish.plot_solver_fftw2.phi
-s2_fish.plot_solver_fftw3.phi
 s2_fish.plot_solver_periodic.phi" class="py-name" href="#" onclick="return doclink('link-17', 'phi', 'link-17');">phi</a></tt> <tt class="py-op">=</tt> <tt class="py-name">solver_fft_open</tt><tt class="py-op">(</tt><tt id="link-18" class="py-name"><a title="s2_fish.plot_efield_fftw.rho
 s2_fish.plot_solver.rho
 s2_fish.plot_solver_fftw.rho
-s2_fish.plot_solver_fftw2.rho
-s2_fish.plot_solver_fftw3.rho
 s2_fish.plot_solver_periodic.rho" class="py-name" href="#" onclick="return doclink('link-18', 'rho', 'link-8');">rho</a></tt><tt class="py-op">,</tt><tt class="py-number">0</tt><tt class="py-op">)</tt> </tt>
 <a name="L31"></a><tt class="py-lineno">31</tt>  <tt class="py-line">        <tt class="py-name">t1</tt> <tt class="py-op">=</tt> <tt class="py-name">time</tt><tt class="py-op">.</tt><tt class="py-name">time</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
 <a name="L32"></a><tt class="py-lineno">32</tt>  <tt class="py-line">        <tt class="py-keyword">if</tt> <tt class="py-name">show_timings</tt><tt class="py-op">:</tt> </tt>
@@ -159,8 +133,6 @@ s2_fish.plot_solver_periodic.rho" class="py-name" href="#" onclick="return docli
 s2_fish.plot_efield_fftw.t0
 s2_fish.plot_solver.t0
 s2_fish.plot_solver_fftw.t0
-s2_fish.plot_solver_fftw2.t0
-s2_fish.plot_solver_fftw3.t0
 s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclink('link-19', 't0', 'link-1');">t0</a></tt> </tt>
 <a name="L34"></a><tt class="py-lineno">34</tt>  <tt class="py-line">        <tt class="py-name">calc_time</tt> <tt class="py-op">=</tt> <tt class="py-number">0</tt> </tt>
 <a name="L35"></a><tt class="py-lineno">35</tt>  <tt class="py-line">        <tt class="py-name">apply_time</tt> <tt class="py-op">=</tt> <tt class="py-number">0</tt> </tt>
@@ -171,29 +143,21 @@ s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclin
 s2_fish.plot_efield_fftw.t0
 s2_fish.plot_solver.t0
 s2_fish.plot_solver_fftw.t0
-s2_fish.plot_solver_fftw2.t0
-s2_fish.plot_solver_fftw3.t0
 s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclink('link-20', 't0', 'link-1');">t0</a></tt> <tt class="py-op">=</tt> <tt class="py-name">time</tt><tt class="py-op">.</tt><tt class="py-name">time</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
 <a name="L40"></a><tt class="py-lineno">40</tt>  <tt class="py-line">                    <tt id="link-21" class="py-name" targets="Variable s2_fish.plot_efield_fftw.E=s2_fish.plot_efield_fftw-module.html#E"><a title="s2_fish.plot_efield_fftw.E" class="py-name" href="#" onclick="return doclink('link-21', 'E', 'link-21');">E</a></tt> <tt class="py-op">=</tt> <tt class="py-name">calculate_E_n</tt><tt class="py-op">(</tt><tt id="link-22" class="py-name"><a title="s2_fish.plot_efield_fftw.phi
 s2_fish.plot_solver.phi
 s2_fish.plot_solver_fftw.phi
-s2_fish.plot_solver_fftw2.phi
-s2_fish.plot_solver_fftw3.phi
 s2_fish.plot_solver_periodic.phi" class="py-name" href="#" onclick="return doclink('link-22', 'phi', 'link-17');">phi</a></tt><tt class="py-op">,</tt><tt class="py-name">E_axis</tt><tt class="py-op">)</tt> </tt>
 <a name="L41"></a><tt class="py-lineno">41</tt>  <tt class="py-line">                    <tt class="py-name">t1</tt> <tt class="py-op">=</tt> <tt class="py-name">time</tt><tt class="py-op">.</tt><tt class="py-name">time</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
 <a name="L42"></a><tt class="py-lineno">42</tt>  <tt class="py-line">                    <tt class="py-name">calc_time</tt> <tt class="py-op">+=</tt> <tt class="py-name">t1</tt> <tt class="py-op">-</tt><tt id="link-23" class="py-name"><a title="s2_fish.mytimer.t0
 s2_fish.plot_efield_fftw.t0
 s2_fish.plot_solver.t0
 s2_fish.plot_solver_fftw.t0
-s2_fish.plot_solver_fftw2.t0
-s2_fish.plot_solver_fftw3.t0
 s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclink('link-23', 't0', 'link-1');">t0</a></tt> </tt>
 <a name="L43"></a><tt class="py-lineno">43</tt>  <tt class="py-line">                    <tt id="link-24" class="py-name"><a title="s2_fish.mytimer.t0
 s2_fish.plot_efield_fftw.t0
 s2_fish.plot_solver.t0
 s2_fish.plot_solver_fftw.t0
-s2_fish.plot_solver_fftw2.t0
-s2_fish.plot_solver_fftw3.t0
 s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclink('link-24', 't0', 'link-1');">t0</a></tt> <tt class="py-op">=</tt> <tt class="py-name">time</tt><tt class="py-op">.</tt><tt class="py-name">time</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
 <a name="L44"></a><tt class="py-lineno">44</tt>  <tt class="py-line">                    <tt class="py-name">apply_E_n_kick</tt><tt class="py-op">(</tt><tt id="link-25" class="py-name"><a title="s2_fish.plot_efield_fftw.E" class="py-name" href="#" onclick="return doclink('link-25', 'E', 'link-21');">E</a></tt><tt class="py-op">,</tt><tt class="py-name">E_axis</tt><tt class="py-op">,</tt><tt id="link-26" class="py-name" targets="Variable s2_fish.test_GaussSC.tau=s2_fish.test_GaussSC-module.html#tau"><a title="s2_fish.test_GaussSC.tau" class="py-name" href="#" onclick="return doclink('link-26', 'tau', 'link-26');">tau</a></tt><tt class="py-op">,</tt><tt class="py-name">mbunch</tt><tt class="py-op">.</tt><tt id="link-27" class="py-name"><a title="s2_fish.macro_bunch.Macro_bunch.get_store" class="py-name" href="#" onclick="return doclink('link-27', 'get_store', 'link-14');">get_store</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
 <a name="L45"></a><tt class="py-lineno">45</tt>  <tt class="py-line">                    <tt class="py-name">t1</tt> <tt class="py-op">=</tt> <tt class="py-name">time</tt><tt class="py-op">.</tt><tt class="py-name">time</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
@@ -201,8 +165,6 @@ s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclin
 s2_fish.plot_efield_fftw.t0
 s2_fish.plot_solver.t0
 s2_fish.plot_solver_fftw.t0
-s2_fish.plot_solver_fftw2.t0
-s2_fish.plot_solver_fftw3.t0
 s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclink('link-28', 't0', 'link-1');">t0</a></tt> </tt>
 <a name="L47"></a><tt class="py-lineno">47</tt>  <tt class="py-line">                <tt class="py-keyword">if</tt> <tt class="py-name">show_timings</tt><tt class="py-op">:</tt> </tt>
 <a name="L48"></a><tt class="py-lineno">48</tt>  <tt class="py-line">                        <tt class="py-keyword">print</tt> <tt class="py-string">"calc E:"</tt><tt class="py-op">,</tt><tt class="py-name">calc_time</tt> </tt>
@@ -212,22 +174,16 @@ s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclin
 s2_fish.plot_efield_fftw.t0
 s2_fish.plot_solver.t0
 s2_fish.plot_solver_fftw.t0
-s2_fish.plot_solver_fftw2.t0
-s2_fish.plot_solver_fftw3.t0
 s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclink('link-29', 't0', 'link-1');">t0</a></tt> <tt class="py-op">=</tt> <tt class="py-name">time</tt><tt class="py-op">.</tt><tt class="py-name">time</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
 <a name="L52"></a><tt class="py-lineno">52</tt>  <tt class="py-line">                <tt class="py-name">full_kick</tt><tt class="py-op">(</tt><tt id="link-30" class="py-name"><a title="s2_fish.plot_efield_fftw.phi
 s2_fish.plot_solver.phi
 s2_fish.plot_solver_fftw.phi
-s2_fish.plot_solver_fftw2.phi
-s2_fish.plot_solver_fftw3.phi
 s2_fish.plot_solver_periodic.phi" class="py-name" href="#" onclick="return doclink('link-30', 'phi', 'link-17');">phi</a></tt><tt class="py-op">,</tt><tt id="link-31" class="py-name"><a title="s2_fish.test_GaussSC.tau" class="py-name" href="#" onclick="return doclink('link-31', 'tau', 'link-26');">tau</a></tt><tt class="py-op">,</tt><tt class="py-name">mbunch</tt><tt class="py-op">.</tt><tt id="link-32" class="py-name"><a title="s2_fish.macro_bunch.Macro_bunch.get_store" class="py-name" href="#" onclick="return doclink('link-32', 'get_store', 'link-14');">get_store</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">)</tt> </tt>
 <a name="L53"></a><tt class="py-lineno">53</tt>  <tt class="py-line">                <tt class="py-name">t1</tt> <tt class="py-op">=</tt> <tt class="py-name">time</tt><tt class="py-op">.</tt><tt class="py-name">time</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
 <a name="L54"></a><tt class="py-lineno">54</tt>  <tt class="py-line">                <tt class="py-name">full_kick_time</tt> <tt class="py-op">=</tt> <tt class="py-name">t1</tt><tt class="py-op">-</tt><tt id="link-33" class="py-name"><a title="s2_fish.mytimer.t0
 s2_fish.plot_efield_fftw.t0
 s2_fish.plot_solver.t0
 s2_fish.plot_solver_fftw.t0
-s2_fish.plot_solver_fftw2.t0
-s2_fish.plot_solver_fftw3.t0
 s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclink('link-33', 't0', 'link-1');">t0</a></tt><tt class="py-op">;</tt> </tt>
 <a name="L55"></a><tt class="py-lineno">55</tt>  <tt class="py-line">                <tt class="py-keyword">if</tt> <tt class="py-name">show_timings</tt><tt class="py-op">:</tt> </tt>
 <a name="L56"></a><tt class="py-lineno">56</tt>  <tt class="py-line">                        <tt class="py-keyword">print</tt> <tt class="py-string">"full kick:"</tt><tt class="py-op">,</tt><tt class="py-name">full_kick_time</tt> </tt>
@@ -235,8 +191,6 @@ s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclin
 s2_fish.plot_efield_fftw.t0
 s2_fish.plot_solver.t0
 s2_fish.plot_solver_fftw.t0
-s2_fish.plot_solver_fftw2.t0
-s2_fish.plot_solver_fftw3.t0
 s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclink('link-34', 't0', 'link-1');">t0</a></tt> <tt class="py-op">=</tt> <tt class="py-name">time</tt><tt class="py-op">.</tt><tt class="py-name">time</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
 <a name="L58"></a><tt class="py-lineno">58</tt>  <tt class="py-line">        <tt class="py-name">mbunch</tt><tt class="py-op">.</tt><tt id="link-35" class="py-name" targets="Method s2_fish.macro_bunch.Macro_bunch.convert_to_fixedz()=s2_fish.macro_bunch.Macro_bunch-class.html#convert_to_fixedz"><a title="s2_fish.macro_bunch.Macro_bunch.convert_to_fixedz" class="py-name" href="#" onclick="return doclink('link-35', 'convert_to_fixedz', 'link-35');">convert_to_fixedz</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
 <a name="L59"></a><tt class="py-lineno">59</tt>  <tt class="py-line">        <tt class="py-name">t1</tt> <tt class="py-op">=</tt> <tt class="py-name">time</tt><tt class="py-op">.</tt><tt class="py-name">time</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
@@ -245,8 +199,6 @@ s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclin
 s2_fish.plot_efield_fftw.t0
 s2_fish.plot_solver.t0
 s2_fish.plot_solver_fftw.t0
-s2_fish.plot_solver_fftw2.t0
-s2_fish.plot_solver_fftw3.t0
 s2_fish.plot_solver_periodic.t0" class="py-name" href="#" onclick="return doclink('link-36', 't0', 'link-1');">t0</a></tt> </tt>
 </div><a name="L62"></a><tt class="py-lineno">62</tt>  <tt class="py-line"> </tt><script type="text/javascript">
 <!--
@@ -278,7 +230,7 @@ expandto(location.href);
 <table border="0" cellpadding="0" cellspacing="0" width="100%%">
   <tr>
     <td align="left" class="footer">
-    Generated by Epydoc 3.0beta1 on Mon Jan 28 14:58:29 2008
+    Generated by Epydoc 3.0beta1 on Fri May 23 16:29:55 2008
     </td>
     <td align="right" class="footer">
       <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>
