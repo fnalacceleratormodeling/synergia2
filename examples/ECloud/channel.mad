@@ -1,0 +1,20 @@
+!scaling
+!scale=0.112312466/0.299792458
+scale=0.374749636
+!scale=1.0
+!drifts
+drs: drift, l=7.44d-2     ! "drift short"
+drl: drift, l=14.88d-2    ! "drift long" (equals 2*drs)
+!
+!quads
+qd7: quadrupole, l=6.10d-2, k1=-38.64d0/scale
+qf7: quadrupole, l=6.10d-2, k1= 38.64d0/scale
+! line
+channel:  line=(drs, qd7, drl, qf7, drs)
+
+ldrs: line=(drs)
+ldrl: line=(drl)
+lqd7: line=(qd7)
+lqf7: line=(qf7)
+
+
