@@ -19,7 +19,7 @@ import time
 #~ end debug
 
 class Test_solver_cylindrical(unittest.TestCase):                       
-    def xtest_01_get_cylindrical_coords(self):
+    def test_01_get_cylindrical_coords(self):
         mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         Q = 10
         r0 = 0.2
@@ -39,7 +39,7 @@ class Test_solver_cylindrical(unittest.TestCase):
             self.assertAlmostEqual(coords[1,i],theta)
             self.assertAlmostEqual(coords[2,i],arbitrary_z)
     
-    def xtest_02_field_domain_construct1(self):
+    def test_02_field_domain_construct1(self):
         field_domain = Field_domain()
         physical_size = [2,4,6]
         physical_offset = [0.1,0.2,0.3]
@@ -47,14 +47,14 @@ class Test_solver_cylindrical(unittest.TestCase):
         periodic = [False,True,True]
         field_domain.set_params(physical_size,physical_offset,grid_shape,periodic)
     
-    def xtest_03_field_domain_construct2(self):
+    def test_03_field_domain_construct2(self):
         physical_size = [2,4,6]
         physical_offset = [0.1,0.2,0.3]
         grid_shape = [32,32,32]
         periodic = [False,True,True]
         field_domain = Field_domain(physical_size,physical_offset,grid_shape,periodic)
         
-    def xtest_04_field_domain_get_grid_shape(self):
+    def test_04_field_domain_get_grid_shape(self):
         physical_size = [2,4,6]
         physical_offset = [0.1,0.2,0.3]
         grid_shape = [32,32,32]
@@ -64,7 +64,7 @@ class Test_solver_cylindrical(unittest.TestCase):
         for i in range(0,3):
             self.assertEqual(returned_shape[i],grid_shape[i])
 
-    def xtest_05_field_domain_get_cell_size(self):
+    def test_05_field_domain_get_cell_size(self):
         physical_size = [2,4,6]
         physical_offset = [0.1,0.2,0.3]
         grid_shape = [32,32,32]
@@ -75,7 +75,7 @@ class Test_solver_cylindrical(unittest.TestCase):
             expected = physical_size[i]/(grid_shape[i] - 1.0)
             self.assertAlmostEqual(cell_size[i],expected)
 
-    def xtest_06_field_domain_get_periodic(self):
+    def test_06_field_domain_get_periodic(self):
         physical_size = [2,4,6]
         physical_offset = [0.1,0.2,0.3]
         grid_shape = [32,32,32]
@@ -85,7 +85,7 @@ class Test_solver_cylindrical(unittest.TestCase):
         for i in range(0,3):
             self.assertEqual(returned_periodic[i],periodic[i])
 
-    def xtest_07_deposit(self):
+    def test_07_deposit(self):
         mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         # jfa: this is a workaround for the lack of a reasonable general populate
         mb.units = Numeric.ones((6),'d')
@@ -151,8 +151,7 @@ class Test_solver_cylindrical(unittest.TestCase):
             covs[i,i] = r0**2/4
         #~ populate.populate_uniform_cylinder_quasi(mb.particles,means,covs,0)
         populate.populate_uniform_cylinder(mb.particles,means,covs,0,0,1)
-        mb.write_particles("debug.h5");
-        
+        mb.write_particles("debug.h5")
         coords = Numeric.zeros((3,mb.local_num),'d')
         get_cylindrical_coords(mb.get_store(),coords)
         physical_size = [1.0,2*pi,2*pi]

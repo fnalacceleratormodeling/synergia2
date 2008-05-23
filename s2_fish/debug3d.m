@@ -58,7 +58,9 @@ for l=0:mphi-1
         A(i,i+1) = 1.0/deltar**2 + 1.0/(2*deltar*r);
       endif
       A(i,i) = -2.0*(1.0/deltar**2);
-      A(i,i) += - l**2/r**2 - m**2;
+      wavenumber_l = mod(l+mphi/2,mphi)-mphi/2;
+      wavenumber_m = mod(l+mz/2,mz)-mz/2;
+      A(i,i) += - wavenumber_l**2/r**2 - (2*pi*wavenumber_m/(2*z0))**2;
     endfor
     psilm(:,l+1,m+1) = A\blm(:,l+1,m+1);
   endfor

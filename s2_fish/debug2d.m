@@ -22,7 +22,7 @@ for i = 1:mr
         for k = 1:mz
             z = (k-1.0)/(1.0*mz)*2*z0 - z0;
             coords(k) = z;
-            b(i,j,k) = (r0**2+3*r**2)*sin(theta)/(r**2*r0**2);
+            b(i,j,k) = (9*r0**2-5*r**2)*sin(3*theta)/(r**2*r0**2);
         endfor
     endfor
 endfor
@@ -68,19 +68,21 @@ middle_mphi = mphi/2;
 middle_mz = mz/2;
 middle_mr = mr/2;
 hold off
+# for j = middle_mphi:middle_mphi
 for j = 1:mphi
     plot(coords_r,real(psi(:,j,middle_mz)),'r*');
     hold on
 endfor
 
 analytic = zeros(1,mr);
-for j = 1:mphi
+# for j = middle_mphi:middle_mphi
+for j =1:mphi
     for i = 1:mr
         r = coords_r(i);
         theta = coords_phi(j);
         z = coords_z(middle_mz);
-        analytic(i) = -0.5*(-r^2/r0^2 +1)*sin(theta);
-        hold on
-        plot(coords_r,analytic);
+        analytic(i) = -0.5*(-r^2/r0^2 +1)*sin(3*theta);
     endfor
+    hold on
+    plot(coords_r,analytic);
 endfor

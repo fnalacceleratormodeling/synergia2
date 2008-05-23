@@ -196,28 +196,14 @@ void
 solve_cylindrical_finite_periodic(const Field_domain &fdomain,
     Array_3d<double > &rho, Array_3d<double> &phi)
 {
-    rho.set_all(0.0);
-    rho.slice(vector3(Range(0),Range(),Range())).set_all(-12.56637061435917);
-    rho.slice(vector3(Range(1),Range(),Range())).set_all(-12.56637061435917);
-    rho.slice(vector3(Range(2),Range(),Range())).set_all(-1.0);
-    rho.slice(vector3(Range(3),Range(),Range())).set_all(-1.0);
-    rho.slice(vector3(Range(4),Range(),Range())).set_all(-2.0);
-    rho.slice(vector3(Range(5),Range(),Range())).set_all(-2.0);
-//     rho.slice(vector3(Range(),Range(1),Range(1))).set_all(0.0);
-    rho(1,1,1) = 100.0;
-    
-    rho.print("rho");
-    array_2d_to_octave_file(rho.slice(vector3(Range(),Range(),Range(0))),"rho-cxx0.dat");
-    array_2d_to_octave_file(rho.slice(vector3(Range(),Range(),Range(1))),"rho-cxx1.dat");
-    array_2d_to_octave_file(rho.slice(vector3(Range(),Range(),Range(2))),"rho-cxx2.dat");
-    array_2d_to_octave_file(rho.slice(vector3(Range(),Range(),Range(3))),"rho-cxx3.dat");
     std::vector<int> shape = fdomain.get_grid_shape();
+    double z_length = fdomain.get_physical_size()[2];
     // the shape of the FFT'd array (shape_lm) is halved in the third 
     // dimension because of the peculiar (but efficient) way FFTW does
     // real-to-complex transforms.
     std::vector<int> shape_lm = vector3(shape[0],shape[1],shape[2]/2+1);
     Array_3d<std::complex<double> > rho_lm(shape_lm);
-        
+
     fftw_plan plan = fftw_plan_many_dft_r2c(2,
         &shape[1], shape[0],
         rho.get_data_ptr(),
@@ -226,25 +212,25 @@ solve_cylindrical_finite_periodic(const Field_domain &fdomain,
         NULL, 1, shape_lm[1]*shape_lm[2],
         FFTW_ESTIMATE);
     fftw_execute(plan);
-    
-    rho_lm.print("rho_lm");
-    
+
     Array_1d<std::complex<double> > diag(shape_lm[0]);
     Array_1d<std::complex<double> > above_diag(shape_lm[0]-1);
     Array_1d<std::complex<double> > below_diag(shape_lm[0]-1);
     Array_3d<std::complex<double> > phi_lm(shape_lm);
     double deltar = fdomain.get_physical_size()[0]/
         (fdomain.get_grid_shape()[0]+0.5);
-    //~ deltar = 0.22222;
-    std::cout << "physical size = " << fdomain.get_physical_size()[0]
-        <<", grid shape = " << fdomain.get_grid_shape()[0] << std::endl;
-    std::cout << "deltar = " << deltar << std::endl;
+
     for(int l=0; l<shape_lm[1]; ++l) {
         for(int m=0; m<shape_lm[2]; ++m) {
-            for(int i=0; i< shape_lm[0]; ++i) {
+            for(int i=0; i<shape_lm[0]; ++i) {
                 double r = (i+0.5)*deltar;
                 diag(i) = -2.0*(1.0/(deltar*deltar));
-                diag(i) += - l*l/(r*r) - m*m;
+                int wavenumber_l = (l+shape_lm[1]/2) % shape_lm[1] - 
+                    shape_lm[1]/2;
+                int wavenumber_m = (m+shape_lm[2]/2) % shape_lm[2] - 
+                    shape_lm[2]/2;
+                diag(i) += - wavenumber_l*wavenumber_l/(r*r) - 
+                    pow(2*pi*wavenumber_m/z_length,2);
                 if (i<(shape_lm[0]-1)) {
                     above_diag.at(i) = 1.0/(deltar*deltar) + 1.0/(2*deltar*r);
                 }
@@ -252,10 +238,6 @@ solve_cylindrical_finite_periodic(const Field_domain &fdomain,
                     below_diag.at(i-1) = 1.0/(deltar*deltar) - 1.0/(2*deltar*r);
                 }
             }
-        diag.print("diag");
-        above_diag.print("above_diag");
-        below_diag.print("below_diag");
-        
         Array_1d<std::complex<double> > rhs =
             rho_lm.slice(vector3(Range(),Range(l),Range(m)));
         Array_1d<std::complex<double> > x = 
@@ -265,17 +247,6 @@ solve_cylindrical_finite_periodic(const Field_domain &fdomain,
         }
     }
 
-    phi_lm.print("phi_lm");
-    array_2d_to_octave_file_real(phi_lm.slice(vector3(Range(),Range(),Range(0))),"philm-cxx0real.dat");
-    array_2d_to_octave_file_real(phi_lm.slice(vector3(Range(),Range(),Range(1))),"philm-cxx1real.dat");
-    array_2d_to_octave_file_real(phi_lm.slice(vector3(Range(),Range(),Range(2))),"philm-cxx2real.dat");
-//     array_2d_to_octave_file_real(phi_lm.slice(vector3(Range(),Range(),Range(3))),"philm-cxx3real.dat");
-
-    array_2d_to_octave_file_imag(phi_lm.slice(vector3(Range(),Range(),Range(0))),"philm-cxx0imag.dat");
-    array_2d_to_octave_file_imag(phi_lm.slice(vector3(Range(),Range(),Range(1))),"philm-cxx1imag.dat");
-    array_2d_to_octave_file_imag(phi_lm.slice(vector3(Range(),Range(),Range(2))),"philm-cxx2imag.dat");
-//     array_2d_to_octave_file_imag(phi_lm.slice(vector3(Range(),Range(),Range(3))),"philm-cxx3imag.dat");
-
     plan = fftw_plan_many_dft_c2r(2,
         &shape[1], shape_lm[0],
         reinterpret_cast<double (*)[2]>(phi_lm.get_data_ptr()),
@@ -284,11 +255,40 @@ solve_cylindrical_finite_periodic(const Field_domain &fdomain,
         NULL, 1, shape[1]*shape[2],
         FFTW_ESTIMATE);
     fftw_execute(plan);
+    // FFTW transforms are not normalized. We need to apply the normalization
+    // manually.
     phi.scale(1.0/(shape[1]*shape[2]));
-    
-    phi.print("phi");
-    array_2d_to_octave_file(phi.slice(vector3(Range(),Range(),Range(0))),"phi-cxx0.dat");
-    array_2d_to_octave_file(phi.slice(vector3(Range(),Range(),Range(1))),"phi-cxx1.dat");
-    array_2d_to_octave_file(phi.slice(vector3(Range(),Range(),Range(2))),"phi-cxx2.dat");
-    array_2d_to_octave_file(phi.slice(vector3(Range(),Range(),Range(3))),"phi-cxx3.dat");
- }
+}
+
+void
+calculate_E_n_cylindrical(const Field_domain &fdomain,
+                          Array_3d<double> &phi, Array_3d<double> &E, int n)
+{
+    if ((n < 0) || (n > 2)) {
+        std::stringstream message("");
+        message << "calculate_E_n_cylindrical: invalid argument n=" << n
+                << ". Argument be in range 0<=n<=2";
+        throw std::invalid_argument(message.str());
+    }
+    E.set_all(0.0);
+    //jfa stub
+}
+
+void
+apply_E_n_kick_cylindrical(const Field_domain &fdomain,
+                           Array_3d<double> &E, int n, double tau,
+                           Macro_bunch_store &mbs)
+{
+    //jfa stub
+}
+void
+full_kick_cylindrical(const Field_domain &fdomain,
+    Array_3d<double> &phi, double tau, Macro_bunch_store &mbs)
+{
+    std::vector<int> shape = fdomain.get_grid_shape();
+    Array_3d<double> E(shape[0],shape[1],shape[2]);
+    for(int axis=0; axis<3; ++axis) {
+        calculate_E_n_cylindrical(fdomain,phi,E,axis);
+        apply_E_n_kick_cylindrical(fdomain,E,axis,tau,mbs);
+    }
+}
