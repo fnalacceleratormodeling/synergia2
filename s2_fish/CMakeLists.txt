@@ -1,9 +1,3 @@
-add_executable(gdfs1d gdfs1d.cc)
-target_link_libraries(gdfs1d -lfftw3)
-
-add_executable(fft_test fft_test.cc)
-target_link_libraries(fft_test -lfftw3)
-
 add_executable(test_slice test_slice.cc)
 target_link_libraries(test_slice array_nd)
 
