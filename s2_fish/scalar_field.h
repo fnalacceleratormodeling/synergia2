@@ -57,6 +57,7 @@ public:
     inline T get_val(double location[3]) const ;
     inline T get_val(std::vector<double> location) const ;
     inline T get_deriv(double location[3], int axis) const ;
+    inline T get_deriv(std::vector<double> location, int axis) const ;
 
     void write_to_fstream(std::ofstream& stream);
     void write_to_file(std::string filename);
@@ -289,6 +290,13 @@ inline T
 Scalar_field<T>::get_val(std::vector<double> location) const
 {
     return get_val(&location[0]);
+}
+
+template<class T>
+inline T
+Scalar_field<T>::get_deriv(std::vector<double> location, int axis) const
+{
+    return get_deriv(&location[0], axis);
 }
 
 template<class T>
