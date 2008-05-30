@@ -139,6 +139,9 @@ BOOST_PYTHON_MODULE(s2_containers)
 
     double (Real_scalar_field::*real_get_val)
     (std::vector<double> location) const = &Real_scalar_field::get_val;
+    
+    double (Real_scalar_field::*real_get_deriv)
+    (std::vector<double> location, int axis) const = &Real_scalar_field::get_deriv;
 
     class_<Real_scalar_field>("Real_scalar_field", init<>())
     .def(init<std::vector<int>, std::vector<double>, std::vector<double> >())
@@ -151,6 +154,7 @@ BOOST_PYTHON_MODULE(s2_containers)
     .def("get_leftmost_indices", real_get_leftmost_indices)
     .def("get_leftmost_offsets", real_get_leftmost_offsets)
     .def("get_val", real_get_val)
+    .def("get_deriv", real_get_deriv)
     .def("write_to_file", &Real_scalar_field::write_to_file)
     .def("read_from_file", &Real_scalar_field::read_from_file)
     .def("describe", &Real_scalar_field::describe)
