@@ -34,7 +34,7 @@ from mpi4py import MPI
 import txphysics.txionpack
 import ECloudPy
 from electronFlock import ElectronFlock
-
+import plotPotential
  
 if ( __name__ == '__main__'):
 
@@ -47,12 +47,14 @@ if ( __name__ == '__main__'):
     massEev = 1.0e9*synergia.PH_NORM_me
     charge = 1.0
     initial_phase = 0.0
-    scaling_frequency = 10221.05558e6 # Angular frequency 
+#    scaling_frequency = 10221.05558e6 # Angular frequency 
+    scaling_frequency = 2.0e8 # Angular frequency 
+    scaling_frequency = synergia.PH_MKS_c/(2.0*math.pi) # Angular frequency 
     part_per_cell = 1
     pipe_radius = 0.0254 # one inch beam pipe
     kicks_per_line = 10 # Number of iteration on space charge field kick 
-    gridnum = 32 
-    griddim = (gridnum,gridnum,gridnum)
+    gridnum = 64 
+    griddim = (gridnum,gridnum,2*gridnum)
     num_particles = griddim[0]*griddim[1]*griddim[2] * part_per_cell
     solver = "3D"
     
@@ -62,13 +64,15 @@ if ( __name__ == '__main__'):
     xwidth=0.0032   # 5 pi mm mrad, beta = 55 m., gamma = 9.  
     ywidth=0.0056   # who know, emittance is a bit bigger.. 
     xpwidth=0.0049608  # not sure it matters for now.. 
+    ypwidth=0.00768  # random crap for now, matching conditions to be studied later
     xOffset = 0.002
     yOffset = 0.005
     rx=0.85440 
     dpop = 1.0e-20
-    bunchLength = 0.45*c_light*1.0e-9 # in meters 
-    protonPerBunch = 2.0e12
-
+    bunchLength = 1.5*c_light*1.0e-9 # in meters 
+    protonPerBunch = 2.0e11
+    tokenCase="VCstp1MediumP"
+    
     # generate electron. Get the Tech-X Cross section for proton on gas.. 
     
    # Extracted from Spentz prototype..
@@ -90,7 +94,8 @@ if ( __name__ == '__main__'):
 
     beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
                                          initial_phase, scaling_frequency,
-                                         transverse=1)
+                                         transverse=0)
+# note: last argument, we want 6D Gaussian beam... 					 
     print "Mass of particle", mass
     print "Beam Beta", beam_parameters.get_beta()
     print "Beam Gamma", beam_parameters.get_gamma()
@@ -99,14 +104,22 @@ if ( __name__ == '__main__'):
     
     pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
     beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = -rx)
-    beam_parameters.y_params(sigma = xwidth, lam = xpwidth * pz,r = rx)
-    sigma_z_meters = beam_parameters.get_beta()*synergia.PH_MKS_c/scaling_frequency/math.pi
+    beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,r = rx)
+    sigma_z_meters = bunchLength
+    print " sigma_z_meters ", sigma_z_meters
     beam_parameters.z_params(sigma = sigma_z_meters, lam = dpop* pz)
-
+#    print " And Quit " 
+#    sys.exit()
+    
     sys.stdout.flush()
     
     bunch = s2_fish.Macro_bunch(mass,1)
     bunch.init_gaussian(num_particles,current,beam_parameters)
+    means,sigs = synergia.get_spatial_means_stds(bunch)
+    sigXNow = sigs[0]
+    sigYNow = sigs[1]
+    bunchLength = sigs[2] 
+    print " Bunch sigmas, before propagation, x =  ", sigXNow, " y = ", sigYNow, " z ", bunchLength
     
     line_length = gourmet.orbit_length()
     tau = 0.5*line_length/kicks_per_line
@@ -120,7 +133,11 @@ if ( __name__ == '__main__'):
     elif solver =="2D" or solver == "2d":
         s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_gauss=True)
     print "elapsed time =",time.time() - t0
-
+    unitsBunch = bunch.get_store().get_units()
+    print " Units X or Y for the bunch ", unitsBunch[0]  
+    print " Units Z for the bunch ", unitsBunch[4]    
+#    print " And quit "
+#    sys.exit()  
 #
 # How do I get the sigma of the bunch after propagation through the lattice 
 # put the injected parameters for now.
@@ -129,7 +146,7 @@ if ( __name__ == '__main__'):
     sigXNow = sigs[0]
     sigYNow = sigs[1]
     bunchLength = sigs[2] 
-    print " Bunch sigmas, x =  ", sigXNow, " y = ", sigYNow, " z ", bunchLength
+    print " Bunch sigmas, after propagation, x =  ", sigXNow, " y = ", sigYNow, " z ", bunchLength
 
     this_vel = numpy.array([vProtons])
     flagIon=1
@@ -162,13 +179,17 @@ if ( __name__ == '__main__'):
     print " Average kinetic energy for my electron flock ", mEl.averageKineticEnergy()
     print " Average radius for this flock ", mEl.averageRadius()
     print " Average radial velocity ", mEl.averageRadialVelocity()
+    tokenTraj=tokenCase+"Creation"
+    mEl.pyplotEk1(tokenTraj, False, 0.5)
+#    print " And quit for now.. " 
+#    sys.exit()
     
 # How do I get the potential from the bunch after propagation?
 # define a new scalar and re-populate with charge from the bunch ?  
 # repopulate with charge? This looks like a waste of time !. 
 # get the sigma of the bunch.  For now, assume it did not changed by the 
 # by the propagation...      
-    sizeNow = (5.0*sigXNow, 5.0*sigYNow, 3.0*bunchLength)
+    sizeNow = (10.0*sigXNow, 10.0*sigYNow, 5.0*bunchLength)
 # set the offset.. ?? Keep it centered     
     rhoAfterProp = Real_scalar_field(griddim,sizeNow,(0.0,0.0,0.0))
 # drop the bunch charge onto the grid..    
@@ -177,13 +198,20 @@ if ( __name__ == '__main__'):
 #    griddimA = numpy.array([griddim[0], griddim[1], griddim[2]])
     fftwh = Fftw_helper(griddim, False)
     phiAfterProp = solver_fftw_open(rhoAfterProp,fftwh,0)
+    totalQ = protonPerBunch*proton_charge/total_charge
+    plotPotential.plotPotentialX(phiAfterProp, totalQ)
+    ffNamePotData="Potential"+tokenCase+".dat"
+    phiAfterProp.write_to_file(ffNamePotData)
+#    print " And quit after graphing the potential "
+#    sys.exit() 
 #
 # Now propagate the electron through this potential, with a static Bfield 
 # of 1 kG oriented along the Y axis..     
 #
     bField = numpy.array([0., 0.1, 0.], 'd')
-    mEl.propagateWithBeam(phiAfterProp, bField, mXPipe=5.5e-2, mYPipe=2.5e-2)
+    mEl.propagateWithBeam(phiAfterProp, bField, 5.5e-2, 2.5e-2, totalQ, tokenTraj)
     print " Number of electron in Vacuum ", mEl.numInVaccum()
+    print " Number of electron lost in propagation error  ", mEl.nBad
     print " Number of electron Reached Beam Pipe ", mEl.numReachedBeamPipe()
     print " Average kinetic energy for my electron in vaccum ", mEl.averageKineticEnergy()
     print " Average radius... ", mEl.averageRadius()
@@ -193,16 +221,11 @@ if ( __name__ == '__main__'):
 
 #    dimpact = synergia.Diagnostics_impact_orig("channel_impact_open")
 #    d0 = synergia.Diagnostics_impact_orig("channel0current")
+    tokenNow=tokenCase+"Through"
+    mEl.pyplotEk1(tokenNow, True, 0.5)
+    mEl.pyplotEk1(tokenNow, False, 0.5)
     print " One bunch propagated though the potential of the bunch, enough for today.. " 
     sys.exit()
 
-    import pylab
 
-#    pylab.plot(d0.s,d0.std[:,synergia.x],'gx',label='no space charge')
-#    pylab.xlabel('s (m)')
-#    pylab.ylabel('std<x> (m)')
-#
-#    pylab.plot(dimpact.s,dimpact.std[:,synergia.x],'o',label='impact')
-#    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.x],'r+',markersize=15.0,label='fish')
-#    pylab.legend(loc=0)
-#    pylab.show()
+   
