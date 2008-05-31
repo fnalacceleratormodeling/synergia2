@@ -66,6 +66,15 @@ class RKIntegrator {
   void reOpenTrajectoryFile(const char *fName); 
   void reOpenTrajectoryFilePy(PyObject *fName); 
   void setTrajectoryFileNamePy(PyObject *fName);	 
+  PyObject *getTrajectoryFileNamePy();
+  // The Synergia potential have natural units. 
+  // These units are not available in the scalar_field class, 
+  // so the have to be uploaded here..
+  // Bunch charge here is expressed in number of protons..
+  // units0 is the related to "frequency scale" in the Impact package.
+  // The charge of the bunch must be expressed in Coulomb.
+  // Units0 is a scale factor, related to Impact frequency_scale paramter.  	 
+  void setUnits(double totalChargeProtonBunch, double units0); // 
   
   private:
     
@@ -85,6 +94,8 @@ class RKIntegrator {
     mutable double stepRatio; // Avoid jumping too fast in numrical integration, adjusting 
                               // the macro-step...			  
     mutable bool inBeamPipe;
+    mutable bool theDebugFlag; // Lots of print out...
+    mutable bool errorInStep; // Lots of print out...
     double gamProtonBunch;
     double gamProtonBunchSq;
     double BFieldStatic[3];
@@ -106,6 +117,12 @@ class RKIntegrator {
     // Specifiy the tolerance for field uniformity over a presumed time step. 
     // Used in propagateV   
     double relEFieldChange;
+    // Unit convesion factors. Synergia inherits from Impact, 
+    // which uses "natural units" that depend on grid spacing, 
+    // or non-standard units of charge, vaccum permeability, and what not.. 
+    double potentialUnits; // For the potential
+    double eFieldUnits; // for its derivative.. done O.K., should not be 
+                        // needed.. 
 
     std::ofstream *thefOutPtr;
     // Pointer to GSL utilities.. 
@@ -179,5 +196,9 @@ class RKIntegrator {
   inline void resetClock() {theTAbsolute=0.;}
   inline double getTime() const {return theTAbsolute;}
   
+  inline void setDebugOn() const {theDebugFlag=true;}
+  inline void setDebugOff() const {theDebugFlag=false;}
+  
+  inline bool gotPropagationError() const {return errorInStep;}
 };
 #endif
