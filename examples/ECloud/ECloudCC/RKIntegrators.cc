@@ -5,6 +5,8 @@
 #include <Numeric/arrayobject.h>
 #define PyArray_DATA(obj) ((void *)(((PyArrayObject *)(obj))->data))
 #include "triple.h"
+#include <boost/python/extract.hpp>
+#include <boost/python/to_python_converter.hpp>
 
 const double RKIntegrator::speedOfLight = 2.99792458e8; // m/sec
 const double RKIntegrator::speedOfLightSq = RKIntegrator::speedOfLight * 
@@ -26,6 +28,8 @@ trajFName("RKIntergatorTrajectoryDump.txt"),
 precisionStep(1.0e-6),
 stepRatio(5.),
 inBeamPipe(true),
+theDebugFlag(true),
+errorInStep(false),
 gamProtonBunch(8.938/0.938),
 gamProtonBunchSq(gamProtonBunch*gamProtonBunch),
 theTAbsolute(0.),
@@ -37,7 +41,9 @@ maxXBeamPipe(5.e10),
 maxYBeamPipe(5.e10),
 minMaxRPipe(std::min(maxXBeamPipe, maxYBeamPipe)),
 nRecursive(0),
-relEFieldChange(0.1),
+relEFieldChange(0.01),
+potentialUnits(1.0),
+eFieldUnits(1.0),
 thefOutPtr(0)
 {
   
@@ -68,12 +74,19 @@ void RKIntegrator::reOpenTrajectoryFile(const char *fName)
 }
 
 void RKIntegrator::reOpenTrajectoryFilePy(PyObject *fName) {
-  const char *ff = reinterpret_cast<char*>(PyArray_DATA(fName));
+  char const* ff = boost::python::extract<char const*>(fName);
   this->reOpenTrajectoryFile(ff);
 }
 void RKIntegrator::setTrajectoryFileNamePy(PyObject *fName) {
-  const char *ff = reinterpret_cast<char*>(PyArray_DATA(fName));
+  char const* ff = boost::python::extract<char const*>(fName);
+  if (ff == 0) {
+    std::cerr << " Null file name pointer, quit !! " << std::endl; exit(2);
+  }
   this->setTrajectoryFileName(ff);
+}
+// Boost Magic.. 
+PyObject *RKIntegrator::getTrajectoryFileNamePy() {
+  return boost::python::incref(boost::python::object(trajFName).ptr());
 }
 
 void RKIntegrator::writeFOutTrajPreamble() {
@@ -89,6 +102,7 @@ int RKIntegrator::propagateF(double *vect6D, const double *fields, double deltaT
  // Not yet implemented.. Done through the logical flag isRel 
   thefOutPtr=0;
   checkBeamPipeBoundary(vect6D);
+  errorInStep=false;
   if (!inBeamPipe) return 0;
   nRecursive = 0;
   theTAbsolute = 0.; theDeltaTGoal = deltaT; theTStart = 0.;
@@ -117,14 +131,17 @@ int RKIntegrator::propagateFPy(PyObject *vect6DPy, PyObject *fieldsPy, double de
 int RKIntegrator::propagateV(double *vect6D, const Real_scalar_field &potential, 
                               double tStart, double deltaT, double *tFinal) {
 
-// std::cerr << " Entering RKIntegrator::propagateV ... " << std::endl; 
+  bool debugFlag=theDebugFlag;
+  errorInStep=false;
+  if (debugFlag) 
+     std::cerr << " Entering RKIntegrator::propagateV ... " << std::endl; 
   checkBeamPipeBoundary(vect6D);
   if (!inBeamPipe) return 0;
-  bool debugFlag=false;
-  if ((thefOutPtr == 0) && trajToFile) { 
-    thefOutPtr = new std::ofstream(trajFName.c_str());
-    writeFOutTrajPreamble(); 
-  }
+  // Already done! 
+//  if ((thefOutPtr == 0) && trajToFile) { 
+//    thefOutPtr = new std::ofstream(trajFName.c_str());
+//    writeFOutTrajPreamble(); 
+//  }
   // Crude adaptive stepping through a time dependend field 
   // Compute the field where we are...  (i) 
   // Transfor in lab frame, assuming electron velocity is small.. 
@@ -144,6 +161,11 @@ int RKIntegrator::propagateV(double *vect6D, const Real_scalar_field &potential,
   double tNow = tStart;
   double epsilField = 1.0e10;
   const double epsilFieldTarget = relEFieldChange;
+  std::vector<double> gSize=potential.get_physical_size();
+  // Set the minimum time step in the loop below. 
+  // If the grid is define too coarsely, not satisfactory convergence 
+  // on local homogeneity can be set... Set to 1% of the bunch length.. 
+  double minTimeStep=0.001*gSize[2]/speedOfLight;
   int nStep=0;
   theTAbsolute = tStart; theDeltaTGoal = deltaT;
   theTStart = tStart;
@@ -161,9 +183,9 @@ int RKIntegrator::propagateV(double *vect6D, const Real_scalar_field &potential,
       // Beam moves along Z, neglect transverse motion over the length of one bunch..
       locationS[2] += speedOfLight*tNow;   
       // Compute the difference of potential.  If too small, field assumed to vanish 
-      double potHere = potential.get_val(locationS);
+      double potHere = potentialUnits*potential.get_val(locationS);
       for (int k=0; k !=3; k++) {
-        ETmp1[k] = potential.get_deriv(locationS, k);
+        ETmp1[k] = eFieldUnits*potential.get_deriv(locationS, k);
         ETmp1[k+3] = 0.; // No magnetic field from the proton bunch...
       }
       this->fieldBunchTransBeamToLab(ETmp1, fieldHere);
@@ -171,10 +193,10 @@ int RKIntegrator::propagateV(double *vect6D, const Real_scalar_field &potential,
           locationN[k] = theVect6D[2*k] + theVect6D[2*k+1]*speedOfLight*deltaTCurrent;  
       locationN[2] += speedOfLight*(tNow+deltaTCurrent);   
       for (int k=0; k !=3; k++) {
-        ETmp2[k] = potential.get_deriv(locationN, k);
+        ETmp2[k] = eFieldUnits*potential.get_deriv(locationN, k);
         ETmp2[k+3] = 0.;
       }
-      double potThere = potential.get_val(locationN);
+      double potThere = potentialUnits*potential.get_val(locationN);
       // Protect against indefinite fields (zero potentials) 
       if ((std::abs(potHere) < 0.01) && (std::abs(potThere) < 0.01)) {  
          for (int k=0; k !=6; k++) {
@@ -215,14 +237,15 @@ int RKIntegrator::propagateV(double *vect6D, const Real_scalar_field &potential,
 //      std::cerr << " ..Relative difference " 
 //                << epsilField << " deltaTCurrent " << deltaTCurrent << std::endl;
       deltaTCurrent /= 2; 
+      if (deltaTCurrent < minTimeStep) break; // Potential just not smooth enough, gave up 
     } // on adjusting the step.. 
     // Now intergate over this step..
     theDeltaTGoal = deltaT;
     nRecursive = 0;
-    double potS = potential.get_val(locationS);
+    double potS = potentialUnits*potential.get_val(locationS);
     theCurrentPotential = potS; 
     if (debugFlag) { // debugging... 
-      double potN = potential.get_val(locationN); 
+      double potN = potentialUnits*potential.get_val(locationN); 
       std::cerr << "---------------" << std::endl << " Decided on a step, start, vect6D ";
       for (int k=0; k !=6; ++k) std::cerr << ",  " <<  theVect6D[k];
       std::cerr << std::endl << " LocationS ";
@@ -269,6 +292,7 @@ int RKIntegrator::propagateVPy(PyObject *vect6DPy, Real_scalar_field &phi,
 int RKIntegrator::propThroughBunch(double *vect6D,  const Real_scalar_field &potential, 
                  double tOffset, double *tF){
 
+  errorInStep=false;
   double tFTmp = tOffset;
   double tStart = tOffset;
   double rIn = std::sqrt(vect6D[0]*vect6D[0] + vect6D[2]*vect6D[2]); 
@@ -279,8 +303,13 @@ int RKIntegrator::propThroughBunch(double *vect6D,  const Real_scalar_field &pot
   std::vector<double> gSize=potential.get_physical_size();
   // Assume the largest size is in Z... 
   double mxSize=-999999.;
-  for (int k=0; k != gSize.size(); ++k)
-    if (std::abs(gSize[k]) > mxSize) mxSize =  gSize[k];
+//  for (int k=0; k != gSize.size(); ++k)
+//    if (std::abs(gSize[k]) > mxSize) mxSize =  gSize[k];
+//  Bunch alway longer than wide.. 
+  mxSize =  gSize[2];
+//  std::cerr << " RKIntegrator::propThroughProtonBunch,sizes, x = " << gSize[0] << 
+//              ",y =  " << gSize[1] << ", z = " << gSize[2] << std::endl;
+//  std::cerr << " And quit " << std::endl; exit(2);
   double betaBunch = std::sqrt(1. - 1./gamProtonBunchSq);
   // Increased a bit, by 5%, divide by two..
   mxSize *= 0.525;
@@ -289,12 +318,15 @@ int RKIntegrator::propThroughBunch(double *vect6D,  const Real_scalar_field &pot
   // Assume the largest size is in Z... 
   double tLast = dz/(betaBunch*speedOfLight);
 //  std::cerr << " RKIntegrator::propThroughProtonBunch, mxSize = " << mxSize
-//            << " zinit " << vect6D[4] << " tLast " << tLast << std::endl;	 
+//            << " zinit " << vect6D[4] << " tLast " << tLast << std::endl;
+  int kStep = 0;	 
   while (tFTmp < tLast) {
-//    std::cerr << " Macro-step number kStep " << kStep << std::endl;
+   if (theDebugFlag)    std::cerr << " propThroughBunch: Macro-step number kStep " 
+              << kStep << std::endl;
     nStep += this->propagateV(vect6D,  potential, tStart, 5.0e-10, &tFTmp);
     if (!inBeamPipe) break;
     tStart = this->getTime();
+    kStep++;
   }
   (*tF) = tFTmp;
   return nStep;		 
@@ -302,16 +334,19 @@ int RKIntegrator::propThroughBunch(double *vect6D,  const Real_scalar_field &pot
 
 int RKIntegrator::propThroughBunchPy(PyObject *vect6DPy, Real_scalar_field &phi, 
                  double tOffset, PyObject *tFPy) {
+  		 
   double *loc = reinterpret_cast<double*>(PyArray_DATA(vect6DPy));
 //  double rIn = std::sqrt(loc[0]*loc[0] + loc[2]*loc[2]); 
 //  std::cerr << " RKIntegrator::propThroughBunch, rIn, C++ " << rIn << std::endl;   
-   double *tFinal = reinterpret_cast<double*>(PyArray_DATA(tFPy));		 
-   this->propThroughBunch(loc, phi, tOffset, tFinal);		 
+   double *tFinal = reinterpret_cast<double*>(PyArray_DATA(tFPy));
+   int nn = this->propThroughBunch(loc, phi, tOffset, tFinal);
+   return nn;		 
 }
 
 int RKIntegrator::propBetweenBunches(double *vect6D, 
                          double tOffset, double maxTime, double *tFinal) {
 
+  errorInStep=false;
   checkBeamPipeBoundary(vect6D);
   if (!inBeamPipe) return 0;
   // Norm of the field 
@@ -381,20 +416,25 @@ int RKIntegrator::propBetweenBunchesPy(PyObject *vect6DPy,
 void RKIntegrator::closeTrajectoryFile() {
  if (trajToFile && (thefOutPtr != 0)) { 
    thefOutPtr->close();
-   delete(thefOutPtr);
+   delete thefOutPtr;
    thefOutPtr = 0;
+   trajFName=std::string("");
+   trajToFile=false;
  }
 }
 
 int RKIntegrator::propagateStepField(const double *fields, double deltaT) {
 
-//  std::cerr << " Entering propagateStepField, request time step " 
-//            << deltaT << " Current time " << theTAbsolute 
-//	    << " beta Z " << theVect6D[5] << std::endl;
-//  std::cerr << " Ey " << fields[1] << " nRecursive " << nRecursive  <<  std::endl; 
+  if (theDebugFlag) {
+    std::cerr << " Entering propagateStepField, request time step " 
+            << deltaT << " Current time " << theTAbsolute 
+	    << " beta Z " << theVect6D[5] << std::endl;
+    std::cerr << " Ey " << fields[1] << " nRecursive " << nRecursive  <<  std::endl; 
+  }
   if (nRecursive > 10) {
     std::cerr << " Excessive recursion in RKIntegrator::propagateStepField, stop here !" << std::endl;
-    exit(2);
+    errorInStep=true;
+    return 0;
   }
   // Check the end game for recursion... 
   if ((theTAbsolute-theTStart) > theDeltaTGoal) return 0; // And no action!. 
@@ -427,7 +467,7 @@ int RKIntegrator::propagateStepField(const double *fields, double deltaT) {
 //  std::cerr << " t = " << t << " t1 " << t1 << std::endl;
   
   double tBefore = theTAbsolute;
-  bool goingForward = true; // Sometimes, the integrator make a step back.... 
+  bool goingForward = true; // Sometimes, the integrator make a step back....
   while (t < t1)
     {
       if (trajToFile) {
@@ -540,6 +580,16 @@ int RKIntegrator::propagateStepField(const double *fields, double deltaT) {
          break;
       }
       n++;
+      if (theDebugFlag) { 
+         std::cerr << " PropagateStepField, at step " << n << std::endl;
+	 std::cerr << "   vect6D "; for (int k=0; k!=6; k++) std::cerr << ", " << vect6D[k];
+	 std::cerr << std::endl;
+      }
+      // Against infinite loops! Needs to report error. 
+      if (n > 1000) {
+       errorInStep = true;
+       break;
+      }
 //      if (n > 5) {
 //        std::cerr << " Enough debugging, stop here " << std::endl; exit(2);
 //      }
@@ -871,6 +921,7 @@ void RKIntegrator::fieldBunchTransBeamToLab(const double *fieldIn,
 
 bool RKIntegrator::checkBeamPipeBoundary(const double *v) {
 
+  inBeamPipe = true; // Benefit of the doubt!  
   if ((std::abs(v[0]) > maxXBeamPipe) || (std::abs(v[2]) > maxYBeamPipe)) {
       inBeamPipe = false;
       return false;
@@ -884,3 +935,16 @@ bool RKIntegrator::checkBeamPipeBoundary(const double *v) {
   return true;
 
 }
+
+void RKIntegrator::setUnits(double totalCharge, double units0) {
+
+// Total charge x 1.0/(4.0*pi*eps0) (in SI units) 
+// The factor .04954 is a mystery one. To be fixed later... 
+//  potentialUnits = totalCharge*8.98755e9/0.04954;
+  potentialUnits = totalCharge*8.98755e9;
+  // Grid size must matter for the potential.. Guess work.. 
+  eFieldUnits = potentialUnits/units0;
+//  std::cerr << " Potential Units " << potentialUnits << " And quit " <<  std::endl;
+//  exit(2); 
+}
+
