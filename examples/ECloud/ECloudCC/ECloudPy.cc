@@ -17,6 +17,7 @@ using namespace boost::python;
       .def("propagateV", &RKIntegrator::propagateVPy)
       .def("propThroughBunch", &RKIntegrator::propThroughBunchPy)
       .def("propBetweenBunches", &RKIntegrator::propBetweenBunchesPy)
+      .def("setUnits", &RKIntegrator::setUnits)
       .def("closeTrajectoryFile", &RKIntegrator::closeTrajectoryFile)
       .def("reOpenTrajectoryFile", &RKIntegrator::reOpenTrajectoryFilePy)
       .def("setToRelativstic", &RKIntegrator::setToRelativstic)
@@ -41,6 +42,9 @@ using namespace boost::python;
       .def("reachedBeamPipe", &RKIntegrator::reachedBeamPipe)
       .def("resetClock", &RKIntegrator::resetClock)
       .def("getTime", &RKIntegrator::getTime)
+      .def("setDebugOn", &RKIntegrator::setDebugOn)
+      .def("setDebugOff", &RKIntegrator::setDebugOff)
+      .def("gotPropagationError", &RKIntegrator::gotPropagationError)
     ;   
   }
 
