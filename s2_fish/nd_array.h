@@ -573,7 +573,7 @@ Nd_array<T>::print_recursive(std::string name, int which_index,
             indices[0] = i;
             for (int j = 0; j < dims[1]; j++) {
                 indices[1] = j;
-                std::cout << std::setw(9);
+                std::cout << std::setw(13);
                 std::cout << get(indices);
             }
             std::cout << std::endl;
