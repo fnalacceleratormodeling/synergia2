@@ -35,6 +35,7 @@ def apply_cylindrical_space_charge_kick(shape,radius,mbunch,tau,
     rho = Numeric.zeros(shape,'d')
     print "jfa: about to deposit_charge_cic_cylindrical"
     deposit_charge_cic_cylindrical(field_domain,rho,mbunch.get_store(),coords)
+    print "rho =",rho
     phi = Numeric.zeros(shape,'d')
     solve_cylindrical_finite_periodic(field_domain,rho,phi)
 

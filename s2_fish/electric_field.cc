@@ -102,6 +102,9 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
     // in particle store indexing, px,py,pz = (1,3,5)
     double kick;
     for (int n = 0; n < mbs.local_num; ++n) {
+        if (n == 0) std::cout << "jfa: " << tau*factor << " " << E.get_val(Double3(mbs.local_particles(0, n),
+            mbs.local_particles(2, n),
+                                mbs.local_particles(4, n))) << std::endl;
         kick = tau * factor * E.get_val(Double3(mbs.local_particles(0, n),
                                                 mbs.local_particles(2, n),
                                                 mbs.local_particles(4, n)));
