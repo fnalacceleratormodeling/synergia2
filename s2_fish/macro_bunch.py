@@ -298,3 +298,13 @@ class Macro_bunch:
         self.local_num = self.particles.shape[1]
         self.total_num = self.local_num
         print "read",self.local_num,"particles"
+
+def get_longitudinal_period_size(mbunch):
+    mbs = mbunch.get_store()
+    ref_particle = mbs.get_ref_particle()
+    units = mbs.get_units()
+    gamma = -ref_particle[5]
+    beta = math.sqrt(1.0-1.0/gamma**2)
+    size = 2.0*math.pi*gamma*beta/units[0]
+    return size
+

@@ -12,8 +12,9 @@ import chef_propagate
 last_step_length = 0
 def propagate(s0,gourmet,bunch,diagnostics,grid_dim,quiet=1,
     use_s2_fish=False, use_impact=False, use_none=False,
+    use_s2_fish_cylindrical=False,
     pgrid=None,field=None,cgrid=None,use_gauss=False,
-    periodic=False, aperture=None):
+    periodic=False, aperture=None, radius=None):
     s = s0
     global last_step_length
     first_action = 1
@@ -34,6 +35,9 @@ def propagate(s0,gourmet,bunch,diagnostics,grid_dim,quiet=1,
                 if use_s2_fish:
                     s2_fish.apply_space_charge_kick(grid_dim,None,None, bunch, 2*tau,
                         periodic=periodic,aperture=aperture)
+                elif use_s2_fish_cylindrical:
+                    s2_fish.apply_cylindrical_space_charge_kick(grid_dim,
+                        radius,bunch,2*tau,aperture=aperture)
                 elif use_impact:
                     if not have_impact:
                         raise RuntimeError, \

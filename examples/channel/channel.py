@@ -69,6 +69,9 @@ if ( __name__ == '__main__'):
     
     if solver == "3D" or solver == "3d":
         s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True)
+    if solver == "3DC" or solver == "3dc":
+        s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,
+            use_s2_fish_cylindrical=True,radius=0.01)
     elif solver =="2D" or solver == "2d":
         s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_gauss=True)
     print "elapsed time =",time.time() - t0

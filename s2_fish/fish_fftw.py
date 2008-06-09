@@ -5,6 +5,8 @@ from s2_deposit import *
 from s2_electric_field import *
 from s2_solver_fftw import solver_fftw_open as solver_fft_open
 from s2_solver_fftw import Fftw_helper
+from macro_bunch import get_longitudinal_period_size
+
 from mytimer import mytimer
 import constraints
 
@@ -19,15 +21,6 @@ import math
 
 fftwhs = {}
 counter = 0   
-
-def get_longitudinal_period_size(mbunch):
-    mbs = mbunch.get_store()
-    ref_particle = mbs.get_ref_particle()
-    units = mbs.get_units()
-    gamma = -ref_particle[5]
-    beta = math.sqrt(1.0-1.0/gamma**2)
-    size = 2.0*math.pi*gamma*beta/units[0]
-    return size
 
 def apply_space_charge_kick(shape,size,offset,mbunch,tau,
         periodic=True,aperture=None):
