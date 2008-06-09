@@ -43,10 +43,10 @@ solve_cylindrical_finite_periodic_wrapper(const Field_domain &fdomain,
 
 void
 solve_tridiag_nonsym_wrapper(object &diag,
-    object &abovediag,
-    object &belowdiag,
-    object &rhs,
-    object &x)
+                             object &abovediag,
+                             object &belowdiag,
+                             object &rhs,
+                             object &x)
 {
     Array_1d<std::complex<double> > diag_array = 
         Array_nd_from_PyObject<std::complex<double> >(diag.ptr());
@@ -61,6 +61,17 @@ solve_tridiag_nonsym_wrapper(object &diag,
     solve_tridiag_nonsym(diag_array,abovediag_array,belowdiag_array,
         rhs_array,x_array);
 }
+
+void
+full_kick_cylindrical_wrapper(const Field_domain &fdomain,
+                              object &phi, double tau,
+                              Macro_bunch_store &mbs, object &coords)
+{
+    Array_3d<double> phi_array = Array_nd_from_PyObject<double>(phi.ptr());
+    Array_2d<double> coords_array = Array_nd_from_PyObject<double>(coords.ptr());
+    full_kick_cylindrical(fdomain,phi_array,tau,mbs,coords_array);
+}
+
 BOOST_PYTHON_MODULE(s2_solver_cylindrical)
 {    
     //---------------------------------------------------------------------
@@ -110,7 +121,7 @@ BOOST_PYTHON_MODULE(s2_solver_cylindrical)
         deposit_charge_cic_cylindrical_wrapper);
     def("solve_cylindrical_finite_periodic",
         solve_cylindrical_finite_periodic_wrapper);
-        
+    def("full_kick_cylindrical",full_kick_cylindrical_wrapper);
     // OK, solve_tridiag_nonsym was not designed to be wrapped. For the time
     // being, however, we need to wrap it in order to test it.
     def("solve_tridiag_nonsym",solve_tridiag_nonsym_wrapper);

@@ -74,7 +74,8 @@ deposit_charge_cic_cylindrical(const Field_domain &fdomain,
                     if (rho.bounds_check(this_i,this_j,this_k)) {
                         rho(this_i,this_j,this_k) += weight;
                     } else {
-                        std::cout << "jfa debug oob: " << this_i << ", " << this_j << ", " << this_k << std::endl;
+                        std::cout << "jfa debug oob: " << this_i << ", " 
+                                << this_j << ", " << this_k << std::endl;
                     }
                 }
             }
@@ -261,34 +262,134 @@ solve_cylindrical_finite_periodic(const Field_domain &fdomain,
 }
 
 void
-calculate_E_n_cylindrical(const Field_domain &fdomain,
-                          Array_3d<double> &phi, Array_3d<double> &E, int n)
+calculate_E_cylindrical(const Field_domain &fdomain,
+                          Array_3d<double> &phi,
+                          Array_3d<double> &Ex,
+                          Array_3d<double> &Ey,
+                          Array_3d<double> &Ez)
 {
-    if ((n < 0) || (n > 2)) {
-        std::stringstream message("");
-        message << "calculate_E_n_cylindrical: invalid argument n=" << n
-                << ". Argument be in range 0<=n<=2";
-        throw std::invalid_argument(message.str());
+    std::vector<int> shape = phi.get_shape();
+    std::vector<double> size = fdomain.get_physical_size();
+    double theta_step = 2.0*pi/(shape[1]-1);
+    double z_step = size[2]/(shape[2]-1);
+    double ordinary_r_step = size[0]*2.0/(2*shape[0]+1);
+    for(int i_r = 0; i_r<shape[0]; ++i_r) {
+        int r_left = i_r-1;
+        int r_right = i_r+1;
+        double r_step = ordinary_r_step;
+        double r = (i_r-0.5)*ordinary_r_step;
+        if(i_r == 0) {
+            r_left = 0;
+            r_step *= 0.5;
+        }
+        if(i_r == shape[0]-1) {
+            r_right = shape[0]-1;
+            r_step = 0.5;
+        }
+        for(int i_theta = 0; i_theta<shape[1]; ++i_theta) {
+            int theta_left = i_theta-1;
+            int theta_right = i_theta+1;
+            double theta = (i_theta-1)*theta_step;
+            if (theta_left == -1) {
+                theta_left = shape[1]-1;
+            }
+            if (theta_right == shape[1]) {
+                theta_right = 0;
+            }
+            for(int i_z = 0; i_z<shape[2]; ++i_z) {
+                int z_left = i_z-1;
+                int z_right = i_z+1;
+                if (z_left == -1) {
+                    z_left = shape[1]-1;
+                }
+                if (z_right == shape[1]) {
+                    z_right = 0;
+                }
+                double dphi_dr = (phi(r_right,i_theta,i_z) - 
+                            phi(r_left,i_theta,i_z))/r_step;
+                double dphi_dtheta = (phi(i_r,theta_right,i_z) - 
+                            phi(i_r,theta_left,i_z))/theta_step;
+                double dphi_dz = (phi(i_r,i_theta,z_right) - 
+                            phi(i_r,i_theta,z_left))/z_step;
+                Ex(i_r,i_theta,i_z) = cos(theta)*dphi_dr - sin(theta)*dphi_dtheta/r;
+                Ey(i_r,i_theta,i_z) = sin(theta)*dphi_dr + cos(theta)*dphi_dtheta/r;
+                Ez(i_r,i_theta,i_z) = dphi_dz;
+            }
+        }
     }
-    E.set_all(0.0);
-    //jfa stub
 }
 
-void
+/*void
 apply_E_n_kick_cylindrical(const Field_domain &fdomain,
                            Array_3d<double> &E, int n, double tau,
                            Macro_bunch_store &mbs)
 {
     //jfa stub
+}*/
+
+inline
+double
+interpolate_3d(double x1, double x2, double x3,
+               const Field_domain &fdomain,
+               const Array_3d<double> &points)
+{
+    // Interpolate between grid points. There is no unique scheme to do this
+    // in 3D, so we choose to use trilinear interpolation.
+    std::vector<int> c(3); // c for corner
+    std::vector<double> f(3); // f for fractional difference
+    fdomain.get_leftmost_indices_offsets(x1,x2,x3,c,f);
+    double val = ((1.0 - f[0]) * (1.0 - f[1]) * (1.0 - f[2]) * points(c[0],c[1],c[2]) +
+            f[0] * (1.0 - f[1]) * (1.0 - f[2]) * points(c[0] + 1, c[1], c[2]) +
+            (1.0 - f[0]) * f[1] * (1.0 - f[2]) * points(c[0], c[1] + 1, c[2]) +
+            (1.0 - f[0]) * (1.0 - f[1]) * f[2] * points(c[0], c[1], c[2] + 1) +
+            f[0] * f[1] * (1.0 - f[2]) * points(c[0] + 1, c[1] + 1, c[2]) +
+            f[0] * (1.0 - f[1]) * f[2] * points(c[0] + 1, c[1], c[2] + 1) +
+            (1.0 - f[0]) * f[1] * f[2] * points(c[0], c[1] + 1, c[2] + 1) +
+            f[0] * f[1] * f[2] * points(c[0] + 1, c[1] + 1, c[2] + 1));
+    return val;
 }
+
 void
 full_kick_cylindrical(const Field_domain &fdomain,
-    Array_3d<double> &phi, double tau, Macro_bunch_store &mbs)
+                      Array_3d<double> &phi, double tau, 
+                      Macro_bunch_store &mbs, Array_2d<double> &coords)
 {
     std::vector<int> shape = fdomain.get_grid_shape();
-    Array_3d<double> E(shape[0],shape[1],shape[2]);
-    for(int axis=0; axis<3; ++axis) {
-        calculate_E_n_cylindrical(fdomain,phi,E,axis);
-        apply_E_n_kick_cylindrical(fdomain,E,axis,tau,mbs);
+    Array_3d<double> Ex(shape[0],shape[1],shape[2]);
+    Array_3d<double> Ey(shape[0],shape[1],shape[2]);
+    Array_3d<double> Ez(shape[0],shape[1],shape[2]);
+    calculate_E_cylindrical(fdomain,phi,Ex,Ey,Ez);
+    
+    // jfa: I am taking this calculation of "factor" more-or-less
+    // directly from Impact.  I should really redo it in terms that make
+    // sense to me
+    double gamma = -1 * mbs.ref_particle(5);
+    double beta = sqrt(gamma * gamma - 1.0) / gamma;
+    const  double c = 2.99792458e8;
+    const  double pi = 4.0 * atan(1.0);
+
+    double mass = mbs.mass * 1.0e9;
+    double eps0 = 1.0 / (4 * pi * c * c * 1.0e-7); // using c^2 = 1/(eps0 * mu0)
+    double Brho = gamma * beta * mass / c;
+    double perveance0 = mbs.total_current / (2 * pi * eps0 * Brho * gamma * gamma*\
+                beta * c * beta * c);
+    double xk = mbs.units(0);
+
+    double factor = pi * perveance0 * gamma * beta * beta / xk * 4.0 * pi;
+    factor *= 1.0 / mbs.total_num;
+    double zfactor = -tau* factor * beta * gamma * gamma;
+    // (We think) this is for the Lorentz transformation of the transverse
+    // E field.
+    double xyfactor = -tau* factor * gamma;
+    for (int n = 0; n < mbs.local_num; ++n) {
+        double r = coords(0,n);
+        double theta = coords(1,n);
+        double z = coords(2,n);
+        mbs.local_particles(0,n) += xyfactor*
+                interpolate_3d(r,theta,z,fdomain,Ex);
+        mbs.local_particles(2,n) += xyfactor*
+                interpolate_3d(r,theta,z,fdomain,Ey);
+        mbs.local_particles(4,n) += zfactor*
+                interpolate_3d(r,theta,z,fdomain,Ez);
     }
 }
