@@ -263,7 +263,10 @@ if ( __name__ == '__main__'):
             print
     if turn % myopts.get("saveperiod") == 0:
         bunch.write_particles("turn_%02d.g5"%turn)
-    diag.write_hdf5("booster_output");
+    diag.write_hdf5("booster_output")
+    if myopts.get("track"):
+        mytracker.close()
+        mytracker.show_statistics()
     MPI.WORLD.Barrier()
     if MPI.rank == 0:
         print "elapsed time =",time.time() - t0
