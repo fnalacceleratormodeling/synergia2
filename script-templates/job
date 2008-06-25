@@ -3,6 +3,9 @@
 #PBS -e synergia.err
 #PBS -l nodes=@@numproc@@
 
+# This script is an appropriate template for running PBS jobs on the
+# pcac1 and pcac2 clusters
+
 echo PBS_NODEFILE is "$PBS_NODEFILE"
 if [ -n "$PBS_NODEFILE" ]
 then
@@ -10,8 +13,10 @@ then
     cat $PBS_NODEFILE
     echo "end nodes"
 fi
-export PATH=/usr/local/openmpi-1.2.3/bin:$PATH
-export LD_LIBRARY_PATH=/usr/local/openmpi-1.2.3/lib:$LD_LIBRARY_PATH
+MPI_HOME=/usr/local
+
+export PATH=${MPI_HOME}/bin:$PATH
+export LD_LIBRARY_PATH=${MPI_HOME}/lib:$LD_LIBRARY_PATH
 
 . "@@synergia2dir@@/../../setup.sh"
 LD_LIBRARY_PATH="/usr/local/lib/octave-2.1.72:@@synergia2dir@@/extra_libs:$LD_LIBRARY_PATH"
@@ -23,7 +28,10 @@ export SYNERGIA2DIR
 PYTHONPATH=$SYNERGIA2DIR
 export PYTHONPATH
 
-cd @@jobdir@@
-exec mpirun -np @@numproc@@ "$SYNERGIA2DIR"/synergia_local @@script@@ @@args@@
+export HDF5_DISABLE_VERSION_CHECK=2
 
+cd @@jobdir@@
+echo "Job start at `date`"
+${MPI_HOME}/bin/mpirun -np @@numproc@@ "$SYNERGIA2DIR"/synergia-local @@script@@ @@args@@
+echo "Job end at `date`"
 
