@@ -52,7 +52,6 @@ def apply_space_charge_kick(shape,size,offset,mbunch,tau,
     mytimer("diagnostics")
     rho = Real_scalar_field(shape,size,offset)
     total_charge = deposit_charge_cic(rho,mbunch.get_store(),periodic)
-    rho.get_points().print_("rho")
     mytimer("deposit")
     phi = solver_fft_open(rho,fftwhs[key],periodic)
     mytimer("solve")

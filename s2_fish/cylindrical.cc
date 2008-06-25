@@ -385,7 +385,7 @@ full_kick_cylindrical(const Field_domain &fdomain,
         double r = coords(0,n);
         double theta = coords(1,n);
         double z = coords(2,n);
-        std::cout << "jfa: " << xyfactor << " " << interpolate_3d(r,theta,z,fdomain,Ex) << std::endl;
+        //~ std::cout << "jfa: " << xyfactor << " " << interpolate_3d(r,theta,z,fdomain,Ex) << std::endl;
         mbs.local_particles(0,n) += xyfactor*
                 interpolate_3d(r,theta,z,fdomain,Ex);
         mbs.local_particles(2,n) += xyfactor*
