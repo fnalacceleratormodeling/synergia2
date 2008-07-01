@@ -117,6 +117,7 @@ if ( __name__ == '__main__'):
       vv = phi.get_val(loc)/total_charge # Normalize to the total charge (units?) 
       vv *= 8.98755e9*4.0*math.pi
 #      vvPrime = phi.get_deriv(loc,0)/total_charge # Not available in Python..  
-      print " V for 1 cb  ", rr , " = ", vv*1.0e-9, " V*r " , vv*rr*1.0e-9
+      print " V for 1 cb  ", rr , " = ", vv*1.0e-9, " V*r " , \
+             vv*math.sqrt(3.0)* rr*1.0e-9
       iSig = iSig+0.5
     
