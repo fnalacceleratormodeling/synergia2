@@ -84,6 +84,7 @@ class RKIntegrator {
     static const double electronMass;
     static const double electronMassEV;
     static const double ChargeOverMass;
+    static int signChange; // Flip the sign of electron default is 1 
     static const gsl_odeiv_step_type *myOdeiv_step_type;
 
     mutable bool isRel;  // Relativistic or not.  very dynamic.  
@@ -95,7 +96,7 @@ class RKIntegrator {
                               // the macro-step...			  
     mutable bool inBeamPipe;
     mutable bool theDebugFlag; // Lots of print out...
-    mutable bool errorInStep; // Lots of print out...
+    mutable bool errorInStep; // Bad nes, field boundary problems
     double gamProtonBunch;
     double gamProtonBunchSq;
     double BFieldStatic[3];
@@ -145,6 +146,7 @@ class RKIntegrator {
 
     void fieldBunchTransBeamToLab(const double *fieldIn, double *fieldOut);
     bool checkBeamPipeBoundary(const double *vect6D);
+    double distToBeamPipe(const double *vect6D);
     void writeFOutTrajPreamble();
 
   public:
@@ -200,5 +202,7 @@ class RKIntegrator {
   inline void setDebugOff() const {theDebugFlag=false;}
   
   inline bool gotPropagationError() const {return errorInStep;}
+  inline void setToPositron() {signChange = -1;}
+  inline void setToElectron() {signChange = 1;}
 };
 #endif
