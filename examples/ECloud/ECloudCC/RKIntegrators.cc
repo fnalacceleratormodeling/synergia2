@@ -21,6 +21,8 @@ const gsl_odeiv_step_type * RKIntegrator::myOdeiv_step_type = gsl_odeiv_step_rk8
 
 static const double RKIntegratorECloudCCChargeOverMass = -1.75882e11;
 
+int RKIntegrator::signChange=1;
+
 RKIntegrator::RKIntegrator(bool isRelativistic):
 isRel(isRelativistic),
 trajToFile(false),
@@ -185,15 +187,16 @@ int RKIntegrator::propagateV(double *vect6D, const Real_scalar_field &potential,
       // Compute the difference of potential.  If too small, field assumed to vanish 
       double potHere = potentialUnits*potential.get_val(locationS);
       for (int k=0; k !=3; k++) {
-        ETmp1[k] = eFieldUnits*potential.get_deriv(locationS, k);
-        ETmp1[k+3] = 0.; // No magnetic field from the proton bunch...
+        ETmp1[k] = -1.*eFieldUnits*potential.get_deriv(locationS, k);
+        ETmp1[k+3] = 0.; // No magnetic field from the proton bunch..., 
+	                 // in the reference of the bunch
       }
       this->fieldBunchTransBeamToLab(ETmp1, fieldHere);
       for (int k=0; k !=3; k++) 
           locationN[k] = theVect6D[2*k] + theVect6D[2*k+1]*speedOfLight*deltaTCurrent;  
       locationN[2] += speedOfLight*(tNow+deltaTCurrent);   
       for (int k=0; k !=3; k++) {
-        ETmp2[k] = eFieldUnits*potential.get_deriv(locationN, k);
+        ETmp2[k] = -1.0*eFieldUnits*potential.get_deriv(locationN, k);
         ETmp2[k+3] = 0.;
       }
       double potThere = potentialUnits*potential.get_val(locationN);
@@ -299,7 +302,10 @@ int RKIntegrator::propThroughBunch(double *vect6D,  const Real_scalar_field &pot
 //  std::cerr << " RKIntegrator::propThroughBunch, rIn, C++ " << rIn << std::endl;
   int nStep = 0;
   checkBeamPipeBoundary(vect6D);
-  if (!inBeamPipe) return 0;
+  if (!inBeamPipe) {
+//    std::cerr <<  " PropThroughBunch: electron already out of Beam Pipe " << std::endl;
+    return 0;
+  }
   std::vector<double> gSize=potential.get_physical_size();
   // Assume the largest size is in Z... 
   double mxSize=-999999.;
@@ -311,8 +317,8 @@ int RKIntegrator::propThroughBunch(double *vect6D,  const Real_scalar_field &pot
 //              ",y =  " << gSize[1] << ", z = " << gSize[2] << std::endl;
 //  std::cerr << " And quit " << std::endl; exit(2);
   double betaBunch = std::sqrt(1. - 1./gamProtonBunchSq);
-  // Increased a bit, by 5%, divide by two..
-  mxSize *= 0.525;
+  // Increased a bit, by 0.5%, divide by two..
+  mxSize *= 0.5025;
   // Subtract from where we currently are.. 
   double dz = mxSize - vect6D[4];
   // Assume the largest size is in Z... 
@@ -358,7 +364,8 @@ int RKIntegrator::propBetweenBunches(double *vect6D,
   }
   double bNorm = std::sqrt(bNormSq);
   double beta = std::sqrt(betaSq);
-//  std::cerr << " propBetweenBunches: bNorm " << bNorm << " beta " << beta << std::endl;
+  if (theDebugFlag)
+    std::cerr << " propBetweenBunches: bNorm " << bNorm << " beta " << beta << std::endl;
   double gamma = std::sqrt(1.0/(1.0-betaSq));
   double e=electronMassEV*gamma*1.0e-9; // need energy in GeV to compute rho.. 
   double p=beta*e; // in GeV/c			 
@@ -373,11 +380,13 @@ int RKIntegrator::propBetweenBunches(double *vect6D,
   double tau = 2.0*M_PI*rho/(beta*speedOfLight);
   double vParallel = speedOfLight*beta*cost;
   double timeToWall = minMaxRPipe/vParallel; // maximum time to wall.. 
-//  std::cerr << " .... Larmor radius " 
-//            << rho << " dt " << dt << " Freq. " 
-//	    << (1.0/tau) << " App. time to Wall " << timeToWall <<  std::endl;
+  if (theDebugFlag) std::cerr << " .... Larmor radius " 
+            << rho << " dt " << dt << " Freq. " 
+	    << (1.0/tau) << " App. time to Wall " << timeToWall <<  std::endl;
+	    
   theTAbsolute=tOffset;
   int nStep = 0;
+  int nCallProp=0;
   double fieldHere[6];
   for (int k=0; k !=3; ++k) fieldHere[k] = 0.; 
   for (int k=0; k !=3; ++k) fieldHere[k+3] = BFieldStatic[k];
@@ -387,10 +396,15 @@ int RKIntegrator::propBetweenBunches(double *vect6D,
   // Set the precision to boundary to 10 time the precision of 
   while ((theTAbsolute < (tOffset+maxTime)) && (dz > 10.0*precisionStep)) {
     for (int k=0; k != 6; ++k) vect6DPrev[k] = theVect6D[k];
-//    std::cerr << " dt is now " << dt << " tAbs " 
-//             << theTAbsolute << std::endl << " vect6D " ;
-//    for (int k=0; k !=6; k++) std::cerr << ", " << theVect6D[k]; std::cerr << std::endl;
+    if (theDebugFlag) {
+      std::cerr << " dt is now " << dt << " tAbs " 
+             << theTAbsolute << std::endl << " vect6D " ;
+       for (int k=0; k !=6; k++) std::cerr << ", " << theVect6D[k]; std::cerr << std::endl;
+    }
+    theTStart = theTAbsolute; // by pass a previously installed chonology check. 
+    nRecursive=0;
     nStep += propagateStepField(fieldHere, dt);
+    nCallProp++;
     // Geometry
     if (!inBeamPipe) { // Go back a few steps... Brute force bisecting.. 
       theTAbsolute -= dt;
@@ -398,10 +412,16 @@ int RKIntegrator::propBetweenBunches(double *vect6D,
       dt /=2.;
       dz = dt*beta*speedOfLight;    
     }
-    if (theTAbsolute < tOffset) break; // something wrong ! 
+    if (theTAbsolute < tOffset) break; // something wrong !
+    if (nCallProp > 100000) {
+      std::cerr << " prop between bunches Greater than 100000 integration steps.. " << std::endl;
+      break; 
+    }  
   }
  *tFinal = theTAbsolute;
  for (int k=0; k != 6; ++k) vect6D[k] = theVect6D[k];
+// std::cerr << " Quit from prop between bunches, after first track... " << std::endl;
+// exit(2);
  return nStep; 
 }
 
@@ -436,9 +456,9 @@ int RKIntegrator::propagateStepField(const double *fields, double deltaT) {
     errorInStep=true;
     return 0;
   }
+  if (!checkBeamPipeBoundary(theVect6D)) return 0; 
   // Check the end game for recursion... 
   if ((theTAbsolute-theTStart) > theDeltaTGoal) return 0; // And no action!. 
-  if (!inBeamPipe) return 0;
   double t=theTAbsolute;
   // Extra copy because of recusrsion... 
   // (and automatic switching Relativistic not non-rel. )
@@ -459,7 +479,7 @@ int RKIntegrator::propagateStepField(const double *fields, double deltaT) {
   sys.params = (double *) fields;
   
   double t1 = theTAbsolute+deltaT; double h = precisionStep;
-  double dt1 = deltaT/stepRatio; // aribtrary for now.... 
+  double dt1 = deltaT/stepRatio; // arbtrary for now.... 
   // Go to velocities in m/Sec (SI units in this integrator) 
   for (int k=1; k!= 7; k+=2) vect6D[k] *= speedOfLight;
   // Iterate. 
@@ -492,7 +512,7 @@ int RKIntegrator::propagateStepField(const double *fields, double deltaT) {
          double betax = vect6D[1]/speedOfLight; double betay = vect6D[3]/speedOfLight; 
          double betaz = vect6D[5]/speedOfLight; 
          double betaSq = betax*betax + betay*betay + betaz*betaz;
-         double gammaSq = 1.0/std::sqrt((1.-betaSq));
+         double gammaSq = 1.0/(1.-betaSq);
 	 double fact = betaSq*gammaSq;
 	 if (fact > 1.0e10) {
 	   std::cerr << " Setting new precision.., betagam sq " << fact << std::endl;
@@ -587,8 +607,17 @@ int RKIntegrator::propagateStepField(const double *fields, double deltaT) {
       }
       // Against infinite loops! Needs to report error. 
       if (n > 1000) {
-       errorInStep = true;
-       break;
+        std::cerr << " PropagateStepField: Too many interation, and far from the beam bipe.." <<
+	       std::endl;
+	double dBP = distToBeamPipe(vect6D);
+        std::cerr << " Distance to beam bipe.." <<  dBP << std::endl;
+	double dBPInit = distToBeamPipe(theVect6D);
+        std::cerr << " Distance to beam bipe, start " <<  dBPInit << std::endl;
+        if (dBP < .05) break; // 1% spatial error possible reaching the beam pipe. 
+	 std::cerr << "   vect6D "; for (int k=0; k!=6; k++) std::cerr << ", " << vect6D[k];
+	 std::cerr << std::endl;
+         errorInStep = true;
+         break;
       }
 //      if (n > 5) {
 //        std::cerr << " Enough debugging, stop here " << std::endl; exit(2);
@@ -612,11 +641,11 @@ int RKIntegrator::funcNR (double t, const double y[], double f[], void *params) 
   //0-2 is Ex, Ey, Ez, 3-5 is Bx, By, Bz
   // y[0-5] is x 'x y y' z z', units are SI, meter and meter/sec 
   f[0] = y[1];
-  f[1] = RKIntegrator::ChargeOverMass*(Field[0] + y[3]*Field[5] - y[5]*Field[4]);
+  f[1] = RKIntegrator::ChargeOverMass*signChange*(Field[0] + y[3]*Field[5] - y[5]*Field[4]);
   f[2] = y[3];
-  f[3] = RKIntegrator::ChargeOverMass*(Field[1] + y[5]*Field[3] - y[1]*Field[5]);
+  f[3] = RKIntegrator::ChargeOverMass*signChange*(Field[1] + y[5]*Field[3] - y[1]*Field[5]);
   f[4] = y[5];
-  f[5] = RKIntegrator::ChargeOverMass*(Field[2] + y[1]*Field[4] - y[3]*Field[3]);
+  f[5] = RKIntegrator::ChargeOverMass*signChange*(Field[2] + y[1]*Field[4] - y[3]*Field[3]);
   return GSL_SUCCESS;
 
 
@@ -662,7 +691,7 @@ int RKIntegrator::funcR (double t, const double yIn[], double f[], void *params)
   double vx2 = vx*vx;
   double vy2 = vy*vy;
   double vz2 = vz*vz;
-  double qOverM = electronCharge/electronMass;
+  double qOverM = signChange*electronCharge/electronMass;
   double coeffx = qOverM/ ((1+gam2*vx2/speedOfLightSq)*gamma);
   f[1] = coeffx*(Ex+(vy*Bz-vz*By));
   double coeffy = qOverM/ ((1+gam2*vy2/speedOfLightSq)*gamma);
@@ -699,9 +728,9 @@ int RKIntegrator::jacNR (double t, const double y[], double *dfdy,
   gsl_matrix_set (m, 1, 0, 0.0);
   gsl_matrix_set (m, 1, 1, 0.0);
   gsl_matrix_set (m, 1, 2, 0.0);
-  gsl_matrix_set (m, 1, 3, RKIntegratorECloudCCChargeOverMass*Field[5]);
+  gsl_matrix_set (m, 1, 3, RKIntegratorECloudCCChargeOverMass*signChange*Field[5]);
   gsl_matrix_set (m, 1, 4, 0.0);
-  gsl_matrix_set (m, 1, 5, -RKIntegratorECloudCCChargeOverMass*Field[4]);
+  gsl_matrix_set (m, 1, 5, -RKIntegratorECloudCCChargeOverMass*signChange*Field[4]);
 
   gsl_matrix_set (m, 2, 0, 0.0);
   gsl_matrix_set (m, 2, 1, 0.0);
@@ -711,11 +740,11 @@ int RKIntegrator::jacNR (double t, const double y[], double *dfdy,
   gsl_matrix_set (m, 2, 5, 0.0);
 
   gsl_matrix_set (m, 3, 0, 0.0);
-  gsl_matrix_set (m, 3, 1, -RKIntegratorECloudCCChargeOverMass*Field[5]);
+  gsl_matrix_set (m, 3, 1, -RKIntegratorECloudCCChargeOverMass*signChange*Field[5]);
   gsl_matrix_set (m, 3, 2, 0.0);
   gsl_matrix_set (m, 3, 3, 0.0);
   gsl_matrix_set (m, 3, 4, 0.0);
-  gsl_matrix_set (m, 3, 5, RKIntegratorECloudCCChargeOverMass*Field[3]);
+  gsl_matrix_set (m, 3, 5, RKIntegratorECloudCCChargeOverMass*signChange*Field[3]);
 
   gsl_matrix_set (m, 4, 0, 0.0);
   gsl_matrix_set (m, 4, 1, 0.0);
@@ -725,9 +754,9 @@ int RKIntegrator::jacNR (double t, const double y[], double *dfdy,
   gsl_matrix_set (m, 4, 5, 1.0);
 
   gsl_matrix_set (m, 5, 0, 0.0);
-  gsl_matrix_set (m, 5, 1, RKIntegratorECloudCCChargeOverMass*Field[4]);
+  gsl_matrix_set (m, 5, 1, RKIntegratorECloudCCChargeOverMass*signChange*Field[4]);
   gsl_matrix_set (m, 5, 2, 0.0);
-  gsl_matrix_set (m, 5, 3, -RKIntegratorECloudCCChargeOverMass*Field[3]);
+  gsl_matrix_set (m, 5, 3, -RKIntegratorECloudCCChargeOverMass*signChange*Field[3]);
   gsl_matrix_set (m, 5, 4, 0.0);
   gsl_matrix_set (m, 5, 5, 0.0);
 
@@ -772,7 +801,7 @@ int RKIntegrator::jacR (double t, const double coord[], double *dfdy,
   z = coord[4]; vz = coord[5]; 
 
   c = speedOfLight;
-  q = electronCharge;
+  q = signChange*electronCharge;
   m = electronMass;
 
   velsq = vx*vx +  vy*vy +  vz*vz;
@@ -936,12 +965,22 @@ bool RKIntegrator::checkBeamPipeBoundary(const double *v) {
 
 }
 
+double RKIntegrator::distToBeamPipe(const double *v) {
+
+  if ((std::abs(v[0]) > maxXBeamPipe) || (std::abs(v[2]) > maxYBeamPipe)) 
+      return 0.;
+  double rrWallSq = (v[0]*v[0]/(maxXBeamPipe*maxXBeamPipe)) + 
+                   (v[2]*v[2]/(maxYBeamPipe*maxYBeamPipe));
+  return std::sqrt(std::abs(1.0-rrWallSq)); //effective metric ! Relative..
+
+}
+
 void RKIntegrator::setUnits(double totalCharge, double units0) {
 
 // Total charge x 1.0/(4.0*pi*eps0) (in SI units) 
 // The factor .04954 is a mystery one. To be fixed later... 
 //  potentialUnits = totalCharge*8.98755e9/0.04954;
-  potentialUnits = totalCharge*8.98755e9;
+  potentialUnits = totalCharge*8.98755e9*4.0*M_PI; // Check with ../StudyPotential 
   // Grid size must matter for the potential.. Guess work.. 
   eFieldUnits = potentialUnits/units0;
 //  std::cerr << " Potential Units " << potentialUnits << " And quit " <<  std::endl;

@@ -45,6 +45,8 @@ using namespace boost::python;
       .def("setDebugOn", &RKIntegrator::setDebugOn)
       .def("setDebugOff", &RKIntegrator::setDebugOff)
       .def("gotPropagationError", &RKIntegrator::gotPropagationError)
+      .def("setToElectron", &RKIntegrator::setToElectron)
+      .def("setToPositron", &RKIntegrator::setToPositron)
     ;   
   }
 
