@@ -34,6 +34,10 @@ theDebugFlag(true),
 errorInStep(false),
 gamProtonBunch(8.938/0.938),
 gamProtonBunchSq(gamProtonBunch*gamProtonBunch),
+staticFieldModel(UNIFORM),
+BFieldStrength(5.e-4),
+BFieldMaxNonUnif(5.e-4),
+BFieldMinNonUnif(5.e-4),
 theTAbsolute(0.),
 theTStart(0.),
 theDeltaTGoal(0.),
@@ -54,7 +58,7 @@ thefOutPtr(0)
   eOdeivEvolve = gsl_odeiv_evolve_alloc (6); 
   for (int k=0; k != 3; k++) BFieldStatic[k]=0.;
   for (int k=0; k != 6; k++) theVect6D[k]=0.;
-  std::cerr << " RKIntegrator instantiated!... " << std::endl;
+//  std::cerr << " RKIntegrator instantiated!... " << std::endl;
 }
 
 RKIntegrator::~RKIntegrator() {
@@ -191,6 +195,7 @@ int RKIntegrator::propagateV(double *vect6D, const Real_scalar_field &potential,
         ETmp1[k+3] = 0.; // No magnetic field from the proton bunch..., 
 	                 // in the reference of the bunch
       }
+      updateBField();  
       this->fieldBunchTransBeamToLab(ETmp1, fieldHere);
       for (int k=0; k !=3; k++) 
           locationN[k] = theVect6D[2*k] + theVect6D[2*k+1]*speedOfLight*deltaTCurrent;  
@@ -201,10 +206,11 @@ int RKIntegrator::propagateV(double *vect6D, const Real_scalar_field &potential,
       }
       double potThere = potentialUnits*potential.get_val(locationN);
       // Protect against indefinite fields (zero potentials) 
-      if ((std::abs(potHere) < 0.01) && (std::abs(potThere) < 0.01)) {  
+      if ((std::abs(potHere) < 0.01) && (std::abs(potThere) < 0.01)) {
          for (int k=0; k !=6; k++) {
 	   fieldHere[k]=0.;
-	   if (k > 2) fieldHere[k] += BFieldStatic[k-3];
+//	   if (k > 2) fieldHere[k] += BFieldStatic[k-3];
+	   if (k > 2) fieldHere[k] += BFieldFromModel[k-3];
 	 }
          break;
       }
@@ -308,21 +314,21 @@ int RKIntegrator::propThroughBunch(double *vect6D,  const Real_scalar_field &pot
   }
   std::vector<double> gSize=potential.get_physical_size();
   // Assume the largest size is in Z... 
-  double mxSize=-999999.;
+//  double mxSize=-999999.;
 //  for (int k=0; k != gSize.size(); ++k)
 //    if (std::abs(gSize[k]) > mxSize) mxSize =  gSize[k];
 //  Bunch alway longer than wide.. 
-  mxSize =  gSize[2];
+//  mxSize =  gSize[2];
 //  std::cerr << " RKIntegrator::propThroughProtonBunch,sizes, x = " << gSize[0] << 
 //              ",y =  " << gSize[1] << ", z = " << gSize[2] << std::endl;
 //  std::cerr << " And quit " << std::endl; exit(2);
   double betaBunch = std::sqrt(1. - 1./gamProtonBunchSq);
   // Increased a bit, by 0.5%, divide by two..
-  mxSize *= 0.5025;
-  // Subtract from where we currently are.. 
-  double dz = mxSize - vect6D[4];
+//  mxSize *= 0.5025;
+  // Subtract from where we currently are.. No! done in the upstream class...  
+//  double dz = mxSize - vect6D[4];
   // Assume the largest size is in Z... 
-  double tLast = dz/(betaBunch*speedOfLight);
+  double tLast = gSize[2]/(betaBunch*speedOfLight);
 //  std::cerr << " RKIntegrator::propThroughProtonBunch, mxSize = " << mxSize
 //            << " zinit " << vect6D[4] << " tLast " << tLast << std::endl;
   int kStep = 0;	 
@@ -359,7 +365,7 @@ int RKIntegrator::propBetweenBunches(double *vect6D,
   double bNormSq = 0.;
   double betaSq = 0.; 
   for (int k=0; k!=3; k++) {
-    bNormSq += BFieldStatic[k]*BFieldStatic[k];
+    bNormSq += BFieldMaxNonUnif*BFieldMaxNonUnif;
     betaSq += vect6D[2*k+1]*vect6D[2*k+1];
   }
   double bNorm = std::sqrt(bNormSq);
@@ -371,7 +377,8 @@ int RKIntegrator::propBetweenBunches(double *vect6D,
   double p=beta*e; // in GeV/c			 
   // Compute the Larmor radius			 
   double cost=0.;
-  for (int k=0; k !=3; k++) cost += vect6D[2*k+1]*BFieldStatic[k];
+  updateBField();
+  for (int k=0; k !=3; k++) cost += vect6D[2*k+1]*BFieldFromModel[k];
   cost /= (bNorm*beta); 
   double pEff = p*std::sqrt(1.0 - cost*cost);
   if (bNorm < 0.1) bNorm = 0.5e-4; // minimum field, to avoid unphysical Nan... 
@@ -389,7 +396,8 @@ int RKIntegrator::propBetweenBunches(double *vect6D,
   int nCallProp=0;
   double fieldHere[6];
   for (int k=0; k !=3; ++k) fieldHere[k] = 0.; 
-  for (int k=0; k !=3; ++k) fieldHere[k+3] = BFieldStatic[k];
+//  for (int k=0; k !=3; ++k) fieldHere[k+3] = BFieldStatic[k];
+  for (int k=0; k !=3; ++k) fieldHere[k+3] = BFieldFromModel[k];
   for (int k=0; k != 6; ++k) theVect6D[k] = vect6D[k]; 
   double vect6DPrev[6]; 
   double dz = 1000.0*precisionStep;
@@ -403,6 +411,8 @@ int RKIntegrator::propBetweenBunches(double *vect6D,
     }
     theTStart = theTAbsolute; // by pass a previously installed chonology check. 
     nRecursive=0;
+    updateBField();
+    for (int k=0; k !=3; ++k) fieldHere[k+3] = BFieldFromModel[k];
     nStep += propagateStepField(fieldHere, dt);
     nCallProp++;
     // Geometry
@@ -607,15 +617,15 @@ int RKIntegrator::propagateStepField(const double *fields, double deltaT) {
       }
       // Against infinite loops! Needs to report error. 
       if (n > 1000) {
-        std::cerr << " PropagateStepField: Too many interation, and far from the beam bipe.." <<
-	       std::endl;
+//        std::cerr << " PropagateStepField: Too many interation, and far from the beam bipe.." <<
+//	       std::endl;
 	double dBP = distToBeamPipe(vect6D);
-        std::cerr << " Distance to beam bipe.." <<  dBP << std::endl;
+//        std::cerr << " Distance to beam bipe.." <<  dBP << std::endl;
 	double dBPInit = distToBeamPipe(theVect6D);
-        std::cerr << " Distance to beam bipe, start " <<  dBPInit << std::endl;
+//        std::cerr << " Distance to beam bipe, start " <<  dBPInit << std::endl;
         if (dBP < .05) break; // 1% spatial error possible reaching the beam pipe. 
-	 std::cerr << "   vect6D "; for (int k=0; k!=6; k++) std::cerr << ", " << vect6D[k];
-	 std::cerr << std::endl;
+//	 std::cerr << "   vect6D "; for (int k=0; k!=6; k++) std::cerr << ", " << vect6D[k];
+//	 std::cerr << std::endl;
          errorInStep = true;
          break;
       }
@@ -942,9 +952,9 @@ void RKIntegrator::fieldBunchTransBeamToLab(const double *fieldIn,
  double betaZ = std::sqrt(1.0-1.0/gamProtonBunchSq);
  fieldOut[0] = gamProtonBunch*fieldIn[0]; fieldOut[1] = gamProtonBunch*fieldIn[1];
  fieldOut[2] = fieldIn[2];
- fieldOut[3] = BFieldStatic[0] + 1.0*gamProtonBunch*(betaZ/speedOfLight)*fieldIn[1];
- fieldOut[4] = BFieldStatic[1] + 1.0*gamProtonBunch*(betaZ/speedOfLight)*fieldIn[0];
- fieldOut[5] = BFieldStatic[2];  
+ fieldOut[3] = BFieldFromModel[0] + 1.0*gamProtonBunch*(betaZ/speedOfLight)*fieldIn[1];
+ fieldOut[4] = BFieldFromModel[1] + 1.0*gamProtonBunch*(betaZ/speedOfLight)*fieldIn[0];
+ fieldOut[5] = BFieldFromModel[2];  
 
 }
 
@@ -987,3 +997,64 @@ void RKIntegrator::setUnits(double totalCharge, double units0) {
 //  exit(2); 
 }
 
+void RKIntegrator::setFieldModel(BFieldModel aModel, double strength) {
+   
+   staticFieldModel=aModel;
+   // compute the minim and max value of the field over ~ 2.7 m ( 6 x bunch length) 
+   switch (aModel) {
+    case UNIFORM: {
+        double bNorm = 0.;
+        for (int k=0; k!=3; k++) bNorm += BFieldStatic[k]*BFieldStatic[k];
+        BFieldMaxNonUnif=std::sqrt(bNorm); 
+        BFieldMinNonUnif=BFieldMaxNonUnif; }
+      break;
+    
+    case QUADRUPOLE: { // Uniform in z, not quad rotation..
+      BFieldStrength= strength;
+      double bxMax=BFieldStrength*maxXBeamPipe;
+      double byMax=BFieldStrength*maxYBeamPipe;
+      BFieldMinNonUnif = 1.0e-3;  // at center, roughly. 
+      BFieldMaxNonUnif = std::max(bxMax, byMax); 
+      break; }
+      
+    case DIPOLEEDGE:
+      BFieldStrength= strength;
+      std::cerr << 
+       " setFieldModel, DIPOLEEDGE, not yet supported.. Quit here!. " << std::endl;
+      exit(2);
+      break;
+      
+    case QUADRUPOLEEDGE:
+      BFieldStrength= strength;
+      std::cerr << 
+      " setFieldModel, QUADRUPOLEEDGE, not yet supported.. Quit here!. " << std::endl;
+      exit(2);
+      
+   }
+} 
+
+void RKIntegrator::setFieldModelPy(int aModel, double strength) {
+  // No protection,, tired of computology.. 
+  BFieldModel  am = (BFieldModel) aModel;
+  this->setFieldModel(am, strength);
+}
+
+void RKIntegrator::updateBField() {
+  
+  switch (staticFieldModel) {
+     case UNIFORM:
+       for (int k=0; k!=3; k++) BFieldFromModel[k] = BFieldStatic[k]; // old model. 
+       break;
+     case QUADRUPOLE:
+       BFieldFromModel[2] = 0.;
+       BFieldFromModel[0] = BFieldStrength*theVect6D[0];
+       BFieldFromModel[1] = BFieldStrength*theVect6D[2];
+//       std::cerr << " At x= " << theVect6D[0] << " Bx " << BFieldFromModel[0] << 
+//                " y = " << theVect6D[2] << " By " << BFieldFromModel[1] << std::endl;
+       break;
+     default:
+       for (int k=0; k!=3; k++) BFieldFromModel[k] = 1.0e-4;
+       break;
+    }
+
+}
