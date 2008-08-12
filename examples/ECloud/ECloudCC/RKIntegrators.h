@@ -16,66 +16,71 @@ class RKIntegrator {
     RKIntegrator(bool isRelativistic=false);
     ~RKIntegrator();
     
-  // Returns the number of steps
-  // vect6D is x, betax, y, betay, z, betaz.  Units are SI, meters. 
-  // Bad old fashion C-code: input and output are the same vector. Saving a copy.. 
-  // Fields is Ex, Ey, Ez, Bx, By, Bz, in the reference frame of the electron. 
-  // This field is assumed perfectly static. 
+    // Returns the number of steps
+    // vect6D is x, betax, y, betay, z, betaz.  Units are SI, meters. 
+    // Bad old fashion C-code: input and output are the same vector. Saving a copy.. 
+    // Fields is Ex, Ey, Ez, Bx, By, Bz, in the reference frame of the electron. 
+    // This field is assumed perfectly static. 
   
-  // Throughout these function, vect6D is both input and output. 
-  // (initial and final position in phase space) 
-  // Returns the number of steps 
-  // (Basically, the number of calls to GSL numerical integration 
+    // Throughout these function, vect6D is both input and output. 
+    // (initial and final position in phase space) 
+    // Returns the number of steps 
+    // (Basically, the number of calls to GSL numerical integration 
     
-  int propagateF(double *vect6D, const double *fields, double deltaT);
-  // Same with Python interface. 
-  int propagateFPy(PyObject *vect6DPy, PyObject *fieldsPy, double deltaT);
+    int propagateF(double *vect6D, const double *fields, double deltaT);
+    // Same with Python interface. 
+    int propagateFPy(PyObject *vect6DPy, PyObject *fieldsPy, double deltaT);
   
-  // Propagate from the potential of the bunch at the point given where the electron is...
-  // from an arbitrary time, which can be negative, for an approximate time deltaT. 
-  // depending on accuracy requirement, tFinal (returned) is approximately tStart + tFinal. 
-  // That is, if the electron did not bumped in the beam pipe before, at which point 
-  // This method is based on propagateF 
+    // Propagate from the potential of the bunch at the point given where the electron is...
+    // from an arbitrary time, which can be negative, for an approximate time deltaT. 
+    // depending on accuracy requirement, tFinal (returned) is approximately tStart + tFinal. 
+    // That is, if the electron did not bumped in the beam pipe before, at which point 
+    // This method is based on propagateF 
   
-  int propagateV(double *vect6D,  const Real_scalar_field &potential, 
+    int propagateV(double *vect6D,  const Real_scalar_field &potential, 
                  double tStart, double deltaT, double *tFinal);
-  int propagateVPy(PyObject *vect6DPy, Real_scalar_field &fieldsPy, 
+    int propagateVPy(PyObject *vect6DPy, Real_scalar_field &fieldsPy, 
                  double tStart, double deltaT, PyObject *timePy);
-  //
-  // Propagate through the Proton bunch defined by a given potential
-  // Start at tOffset, return tFinal.. We will step through... 
-  // we will stop when we are outside the region where the protential 
-  // is non-zero. 
-  // This method is based on propagateV
-  //
-  int propThroughBunch(double *vect6D,  const Real_scalar_field &potential, 
+    //
+    // Propagate through the Proton bunch defined by a given potential
+    // Start at tOffset, return tFinal.. We will step through... 
+    // we will stop when we are outside the region where the protential 
+    // is non-zero. 
+    // This method is based on propagateV
+    //
+    int propThroughBunch(double *vect6D,  const Real_scalar_field &potential, 
                  double tOffset, double *tFinal);
-  int propThroughBunchPy(PyObject *vect6DPy,  Real_scalar_field &potential, 
+    int propThroughBunchPy(PyObject *vect6DPy,  Real_scalar_field &potential, 
                  double tOffset, PyObject *tFinal);
 		   
-  //
-  // Propagate in between bunch, where there are no electric field, and 
-  // the magnetic field is static, and uniform. bField is of type double[3] 
-  //
-  int propBetweenBunches(double *vect6D,   
+    //
+    // Propagate in between bunch, where there are no electric field, and 
+    // the magnetic field is static, and uniform. bField is of type double[3] 
+    //
+    int propBetweenBunches(double *vect6D,   
                          double tOffset, double maxTime, double *tFinal);
-  int propBetweenBunchesPy(PyObject *vect6DPy,  
+    int propBetweenBunchesPy(PyObject *vect6DPy,  
                            double tOffset, double maxTime, PyObject *tFinal);
+			   
+    enum BFieldModel {UNIFORM, DIPOLEEDGE, QUADRUPOLE, QUADRUPOLEEDGE, DIPQUADEDGES};			   
 		   
-  void closeTrajectoryFile(); 
-  void reOpenTrajectoryFile(const char *fName); 
-  void reOpenTrajectoryFilePy(PyObject *fName); 
-  void setTrajectoryFileNamePy(PyObject *fName);	 
-  PyObject *getTrajectoryFileNamePy();
-  // The Synergia potential have natural units. 
-  // These units are not available in the scalar_field class, 
-  // so the have to be uploaded here..
-  // Bunch charge here is expressed in number of protons..
-  // units0 is the related to "frequency scale" in the Impact package.
-  // The charge of the bunch must be expressed in Coulomb.
-  // Units0 is a scale factor, related to Impact frequency_scale paramter.  	 
-  void setUnits(double totalChargeProtonBunch, double units0); // 
-  
+    void closeTrajectoryFile(); 
+    void reOpenTrajectoryFile(const char *fName); 
+    void reOpenTrajectoryFilePy(PyObject *fName); 
+    void setTrajectoryFileNamePy(PyObject *fName);	 
+    PyObject *getTrajectoryFileNamePy();
+    // The Synergia potential have natural units. 
+    // These units are not available in the scalar_field class, 
+    // so the have to be uploaded here..
+    // Bunch charge here is expressed in number of protons..
+    // units0 is the related to "frequency scale" in the Impact package.
+    // The charge of the bunch must be expressed in Coulomb.
+    // Units0 is a scale factor, related to Impact frequency_scale paramter.  	 
+    void setUnits(double totalChargeProtonBunch, double units0); // 
+    void setFieldModel(BFieldModel aModel, double strength);
+    // I don't know how to handle C++ enumeration in Python... Sorry... 
+    void setFieldModelPy(int aModel, double strength);
+ 
   private:
     
     static const double speedOfLight; // m/sec
@@ -99,7 +104,12 @@ class RKIntegrator {
     mutable bool errorInStep; // Bad nes, field boundary problems
     double gamProtonBunch;
     double gamProtonBunchSq;
+    BFieldModel staticFieldModel;
     double BFieldStatic[3];
+    double BFieldFromModel[3];
+    double BFieldStrength; // Model dependant, gradient for quadrupole... 
+    double BFieldMaxNonUnif; // to compute the maximum value of Larmor radius.
+    double BFieldMinNonUnif; // and its minimum..
     double theTAbsolute;
     double theTStart; // for moving bunch...
     double theDeltaTGoal; // Maximum delta for macro step, using to terminate recursion 
@@ -143,7 +153,7 @@ class RKIntegrator {
                 double dfdt[], void *params);
     static int jacR (double t, const double y[], double *dfdy, 
                 double dfdt[], void *params);
-
+    void updateBField(); // Based on model.. No longer uniform, but still static. 
     void fieldBunchTransBeamToLab(const double *fieldIn, double *fieldOut);
     bool checkBeamPipeBoundary(const double *vect6D);
     double distToBeamPipe(const double *vect6D);
@@ -169,7 +179,12 @@ class RKIntegrator {
   inline double getGamProtonBunch() const { return gamProtonBunch;} 
 
   inline void setBFieldStaticCmp(double val, int axis)
-        { BFieldStatic[axis] = val;} // No protection,, 
+        { BFieldStatic[axis] = val;
+	  double bNorm = 0.;
+	  for (int k=0; k!=3; k++) bNorm += BFieldStatic[k]*BFieldStatic[k];
+	  BFieldMaxNonUnif=std::sqrt(bNorm); 
+	  BFieldMinNonUnif=BFieldMaxNonUnif; } // No protection,, Only valid for uniform Model
+	   
   inline double getBFieldStaticCmp(int axis) const {return BFieldStatic[axis];}		
 
   inline double getStepRatio() const { return stepRatio;}
@@ -204,5 +219,7 @@ class RKIntegrator {
   inline bool gotPropagationError() const {return errorInStep;}
   inline void setToPositron() {signChange = -1;}
   inline void setToElectron() {signChange = 1;}
+  
+  inline BFieldModel getFieldModel() const {return staticFieldModel;}
 };
 #endif
