@@ -47,6 +47,9 @@ using namespace boost::python;
       .def("gotPropagationError", &RKIntegrator::gotPropagationError)
       .def("setToElectron", &RKIntegrator::setToElectron)
       .def("setToPositron", &RKIntegrator::setToPositron)
+      // New magnetic field 
+      .def("getFieldModel", &RKIntegrator::getFieldModel)
+      .def("setFieldModel", &RKIntegrator::setFieldModelPy)
     ;   
   }
 
