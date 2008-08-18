@@ -8,6 +8,7 @@
 #include <gsl/gsl_matrix.h>
 #include <gsl/gsl_odeiv.h>
 #include "scalar_field.h"
+#include "MIDipoleEdge.h"
 
 // Propagate electrons, using GSL integrator, for a short step. 
 
@@ -140,7 +141,9 @@ class RKIntegrator {
     gsl_odeiv_step * sOdeivStepAlloc; 
     gsl_odeiv_control * cOdeivControl; 
     gsl_odeiv_evolve * eOdeivEvolve; 
-   
+    // Magnetic field knowledge... Make it a pointer... 
+    // Kind of ugly, this class is supposed to be end-application independent.. 
+    MIDipQuadEdge *MIMagnetData;
     
     mutable std::vector<double> currentField;
     		
