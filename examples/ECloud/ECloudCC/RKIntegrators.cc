@@ -50,7 +50,8 @@ nRecursive(0),
 relEFieldChange(0.01),
 potentialUnits(1.0),
 eFieldUnits(1.0),
-thefOutPtr(0)
+thefOutPtr(0),
+MIMagnetData(0)
 {
   
   sOdeivStepAlloc = gsl_odeiv_step_alloc (myOdeiv_step_type, 6);
@@ -66,6 +67,7 @@ RKIntegrator::~RKIntegrator() {
   gsl_odeiv_control_free (cOdeivControl);
   gsl_odeiv_step_free (sOdeivStepAlloc);
   if (trajToFile && (thefOutPtr != 0)) this->closeTrajectoryFile();
+  delete MIMagnetData;
 }
 
 void RKIntegrator::reOpenTrajectoryFile(const char *fName) 
@@ -423,8 +425,9 @@ int RKIntegrator::propBetweenBunches(double *vect6D,
       dz = dt*beta*speedOfLight;    
     }
     if (theTAbsolute < tOffset) break; // something wrong !
-    if (nCallProp > 100000) {
-      std::cerr << " prop between bunches Greater than 100000 integration steps.. " << std::endl;
+    if (nCallProp > 10000) {
+      std::cerr << " prop between bunches Greater than 10000 integration steps.. " << std::endl;
+      theTAbsolute = tOffset+maxTime+0.7e-12; // jump in time coordinate, we are going nowhere..
       break; 
     }  
   }
@@ -1010,7 +1013,9 @@ void RKIntegrator::setFieldModel(BFieldModel aModel, double strength) {
       break;
     
     case QUADRUPOLE: { // Uniform in z, not quad rotation..
-      BFieldStrength= strength;
+      if (MIMagnetData == 0) MIMagnetData = new MIDipQuadEdge();
+      MIMagnetData->setMIEnergy(strength);
+      BFieldStrength= strength*MIMagnetData->BQuadStrOverMIEnergy;
       double bxMax=BFieldStrength*maxXBeamPipe;
       double byMax=BFieldStrength*maxYBeamPipe;
       BFieldMinNonUnif = 1.0e-3;  // at center, roughly. 
@@ -1018,17 +1023,35 @@ void RKIntegrator::setFieldModel(BFieldModel aModel, double strength) {
       break; }
       
     case DIPOLEEDGE:
-      BFieldStrength= strength;
-      std::cerr << 
-       " setFieldModel, DIPOLEEDGE, not yet supported.. Quit here!. " << std::endl;
-      exit(2);
+      if (MIMagnetData == 0) MIMagnetData = new MIDipQuadEdge();
+      BFieldStrength= strength*MIMagnetData->BDipoleOverMIEnergy;
+      // Strength is in fact the MI energy... in this context.. 
+      MIMagnetData->setMIEnergy(strength);
+      BFieldMaxNonUnif=strength; 
+      BFieldMinNonUnif = 0.5e-4;  // Earth field, far away..  
       break;
       
-    case QUADRUPOLEEDGE:
-      BFieldStrength= strength;
-      std::cerr << 
-      " setFieldModel, QUADRUPOLEEDGE, not yet supported.. Quit here!. " << std::endl;
-      exit(2);
+    case QUADRUPOLEEDGE: {
+        if (MIMagnetData == 0) MIMagnetData = new MIDipQuadEdge();
+        MIMagnetData->setMIEnergy(strength);
+        BFieldStrength= strength*MIMagnetData->BQuadStrOverMIEnergy;
+        double bxMax=BFieldStrength*maxXBeamPipe;
+        double byMax=BFieldStrength*maxYBeamPipe;
+        BFieldMaxNonUnif=std::max(bxMax, byMax); 
+        BFieldMinNonUnif = 0.5e-4;  
+      }
+      break;      
+    case DIPQUADEDGES:
+      {
+        if (MIMagnetData == 0) MIMagnetData = new MIDipQuadEdge();
+      // Strength is in fact the MI energy... in this context.. 
+        MIMagnetData->setMIEnergy(strength);
+      // For sake of consitency, 
+        BFieldStrength= strength*0.011409; // MIDipQuadEdge class 
+        BFieldMaxNonUnif=BFieldStrength; 
+        BFieldMinNonUnif = 0.5e-4;  // Earth field, far away..
+       }  
+      break;
       
    }
 } 
@@ -1052,6 +1075,33 @@ void RKIntegrator::updateBField() {
 //       std::cerr << " At x= " << theVect6D[0] << " Bx " << BFieldFromModel[0] << 
 //                " y = " << theVect6D[2] << " By " << BFieldFromModel[1] << std::endl;
        break;
+    case DIPOLEEDGE:
+      { 
+        for (int k=0; k!=3; k++) BFieldFromModel[k] = 0.5e-4; // earth field. 
+        double fact = MIMagnetData->getFieldYFact(theVect6D[4]);
+        BFieldFromModel[1] = BFieldStrength*fact;
+      }
+      break;
+      
+    case QUADRUPOLEEDGE: 
+      {
+        double fact = MIMagnetData->getFieldYFact(theVect6D[4]);
+        BFieldFromModel[1] = BFieldStrength*fact*theVect6D[2];
+        BFieldFromModel[0] = BFieldStrength*fact*theVect6D[0];
+        BFieldFromModel[2] = 0.5e-4;
+      }
+      break;
+      
+    case DIPQUADEDGES:
+      { 
+        double loc[3]; 
+        for (int k=0; k!=3; k++) loc[k] = theVect6D[2*k];
+        BFieldFromModel[2] = 0.5e-4;
+        BFieldFromModel[0] = MIMagnetData->getFieldX(loc);
+        BFieldFromModel[1] = MIMagnetData->getFieldY(loc);
+      }
+      break;
+      
      default:
        for (int k=0; k!=3; k++) BFieldFromModel[k] = 1.0e-4;
        break;
