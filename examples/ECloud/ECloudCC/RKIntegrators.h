@@ -42,6 +42,16 @@ class RKIntegrator {
                  double tStart, double deltaT, double *tFinal);
     int propagateVPy(PyObject *vect6DPy, Real_scalar_field &fieldsPy, 
                  double tStart, double deltaT, PyObject *timePy);
+		 
+    // Same as above, but adding the field from the electron 
+    // As for the proton, the electron field is assumed 
+  
+    int propagateV(double *vect6D,  const Real_scalar_field &potential, 
+                   const Real_scalar_field &electronPotential,
+                 double tStart, double deltaT, double *tFinal);
+    int propagateVElPy(PyObject *vect6DPy, Real_scalar_field &fieldsPy, 
+                  Real_scalar_field &fieldsElectronPy, 
+                 double tStart, double deltaT, PyObject *timePy);
     //
     // Propagate through the Proton bunch defined by a given potential
     // Start at tOffset, return tFinal.. We will step through... 
@@ -53,14 +63,27 @@ class RKIntegrator {
                  double tOffset, double *tFinal);
     int propThroughBunchPy(PyObject *vect6DPy,  Real_scalar_field &potential, 
                  double tOffset, PyObject *tFinal);
+    // And with Electrons 	   
+    int propThroughBunch(double *vect6D,  const Real_scalar_field &potential, 
+                  const Real_scalar_field &electronPotential, 
+                 double tOffset, double *tFinal);
+    int propThroughBunchWElPy(PyObject *vect6DPy,  Real_scalar_field &potential,
+                 Real_scalar_field &electronPotential,
+                 double tOffset, PyObject *tFinal);
 		   
-    //
+   //
     // Propagate in between bunch, where there are no electric field, and 
     // the magnetic field is static, and uniform. bField is of type double[3] 
     //
     int propBetweenBunches(double *vect6D,   
                          double tOffset, double maxTime, double *tFinal);
     int propBetweenBunchesPy(PyObject *vect6DPy,  
+                           double tOffset, double maxTime, PyObject *tFinal);
+			   
+   // And with electrons 		   
+    int propBetweenBunches(double *vect6D, const Real_scalar_field &electronPotential,  
+                         double tOffset, double maxTime, double *tFinal);
+    int propBetweenBunchesElPy(PyObject *vect6DPy, Real_scalar_field &electronPotential, 
                            double tOffset, double maxTime, PyObject *tFinal);
 			   
     enum BFieldModel {UNIFORM, DIPOLEEDGE, QUADRUPOLE, QUADRUPOLEEDGE, DIPQUADEDGES};			   
@@ -99,7 +122,9 @@ class RKIntegrator {
     mutable double precisionStep; // set by the GSL algorithms. 
                                   // We keep here a value set by the user. 
     mutable double stepRatio; // Avoid jumping too fast in numrical integration, adjusting 
-                              // the macro-step...			  
+                              // the macro-step...Obsolete, replace by Laromor radius criteria. 
+    mutable double minLarmorRad; // below this, we will not keep track of the Larmor phase 
+                                 // anylonger ( it will be chosen randomly). 			      			  
     mutable bool inBeamPipe;
     mutable bool theDebugFlag; // Lots of print out...
     mutable bool errorInStep; // Bad nes, field boundary problems
@@ -143,12 +168,13 @@ class RKIntegrator {
     gsl_odeiv_evolve * eOdeivEvolve; 
     // Magnetic field knowledge... Make it a pointer... 
     // Kind of ugly, this class is supposed to be end-application independent.. 
-    MIDipQuadEdge *MIMagnetData;
-    
+    MIDipQuadEdge *MIMagnetData; // Owned 
+        
     mutable std::vector<double> currentField;
     		
     // Returns the number of steps. 	
     int propagateStepField(const double *fields, double deltaT);
+    int propagateFastNL(const double *fields, double deltaT, double rho);
     // Interface to GSL Ordinary Differential equation Integrators 
     static int funcNR (double t, const double y[], double f[], void *params);
     static int funcR (double t, const double y[], double f[], void *params);
@@ -160,6 +186,7 @@ class RKIntegrator {
     void fieldBunchTransBeamToLab(const double *fieldIn, double *fieldOut);
     bool checkBeamPipeBoundary(const double *vect6D);
     double distToBeamPipe(const double *vect6D);
+    double getLarmorRadius(double *vect6D);  
     void writeFOutTrajPreamble();
 
   public:
@@ -173,8 +200,7 @@ class RKIntegrator {
   }
   inline double getPrecisionStep() const {return precisionStep; }
   inline void setTrajectoryFileName(const char *fName) 
-     {if (fName == NULL) trajToFile = false; 
-         else {trajFName=std::string(fName); trajToFile=true;} }
+     {this->reOpenTrajectoryFile(fName); }
   inline const char* getTrajectoryFileName() const {return trajFName.c_str();}
 
   inline void setGamProtonBunch(double gamma) 
@@ -192,6 +218,10 @@ class RKIntegrator {
 
   inline double getStepRatio() const { return stepRatio;}
   inline void setStepRatio(double r) { stepRatio = r;}
+  
+  inline double getMinimumLarmorRadius() const { return minLarmorRad;}
+  inline void setMinimumLarmorRadius(double r) { minLarmorRad = r;}
+  
   // Allowing to change the equation set from non-relativistic to relativistic
   // dynamically, based on current velocity. 
   inline bool getDynamicRelativistic() const { return relDynamic;}
@@ -218,6 +248,9 @@ class RKIntegrator {
   
   inline void setDebugOn() const {theDebugFlag=true;}
   inline void setDebugOff() const {theDebugFlag=false;}
+  // For debugging from the static method...
+  inline double getCurrentVect6D(int k) const {return theVect6D[k];}
+  
   
   inline bool gotPropagationError() const {return errorInStep;}
   inline void setToPositron() {signChange = -1;}
