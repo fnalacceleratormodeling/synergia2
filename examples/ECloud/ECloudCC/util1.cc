@@ -3,9 +3,10 @@
 
 #include "util1.h"
 #include "txionpack.h"
-
- gsl_rng * _saved_rng = 0;
- const gsl_rng_type * _saved_rng_type = 0;
+// In global space... 
+gsl_rng *_saved_rng = 0;
+ 
+const gsl_rng_type * _saved_rng_type = 0;
 
 void setGSLRandom() {
 
@@ -27,6 +28,8 @@ double getLandauEnergyDist(double width, double eMax) {
   return al*width;
 }
 //
+
+
   
 double getTechXEnergyDist(double eProton, double eMax) {
 
