@@ -6,6 +6,7 @@ import s2_fish
 import ECloudPy
 import txphysics.txegenelec
 import sys
+from mpi4py import MPI
 
 class ElectronFlock:
 #
@@ -14,6 +15,8 @@ class ElectronFlock:
       self.data = [] # intented to be a list of numpy arrays, 8 doubles.
                      # 6 for phase space (3*(x,beta_x), time, time of flight )
       self.dataBP = [] # Electrons stuck on the beam pipe,8 doubles.
+      self.lenDataAll=0 # For MPI use... 
+      self.lenDataBPAll=0 # same
       self.nBad=0  # Number of electron lost in inf. loop or other propagation errors. 
       self.mass = 1.0e6*synergia.PH_NORM_me # Energy units here are keV..
       self.useRK = 1
@@ -40,7 +43,7 @@ class ElectronFlock:
       self.betaProtonBunch=0.994478 # velocity of the Proton Bunch 
       self.electronCount=0. # we need a counter to uniquely tag the electron. 
       # Some properties of the proton bunch are convenient to be kept in memory here
-      self.numIonsFromGasPerLength=25000
+      self.numIonsFromGasPerLength=25000 # Guess.. depend on Gas pressure, must be set by user.
       self.totalChargeProtonBunch=3e11 # in Units appropriate to compute e.m. force from potential 
       self.xOffsetProtonBunch=0.
       self.yOffsetProtonBunch=0.
@@ -49,6 +52,13 @@ class ElectronFlock:
       self.yWidthProtonBunch=0.0035
       self.protonBunchLength=0.45
       self.bunchNumber=0
+      # Static Magnetic Field models:
+      self.magnetModel=0 # 0 for an arbitrary magnetic field, uniform in space. 
+      self.magnetStrength=0.0912 # for 8 GeV in MI, dipole magnets 
+      self.uniformBField=numpy.array([0., 0., 0.5e4], 'd')
+      self.fNameDataOut="/xpand1/lebrun/"
+      if MPI.size == 1 : 
+        self.fNameDataOut="/local/lebrun/Synergia/EcloudDump/"
       
 #   Initialize the GSL random number for Laundau distribution.
 #
@@ -71,7 +81,17 @@ class ElectronFlock:
       
     def setBetaProtonBunch(self, bb):
       self.betaProtonBunch=bb
+    
+    def setMagnetStrength(self, s):
+      self.magnetStrength=s
       
+    def setMagnetModel(self, ii, strength):
+      self.magnetModel=ii
+      self.magnetStrength=strength
+    
+    def setUniformBField(self, bf):
+      self.uniformBField=bf
+    
 #   
     def setNumIonsFromGasPerLength(self, n):  
       self.numIonsFromGasPerLength=n
@@ -169,13 +189,29 @@ class ElectronFlock:
     
       self.setTotalCharge(synergia.PH_MKS_e * self.numIonsFromGasPerLength)
     
-    def numInVaccum(self):
-      return len(self.data) 
+    def gatherNumInVaccum(self):
+      if (MPI.size == 1):
+        self.lenDataAll=len(self.data)
+      self.lenDataAll=0
+      if (MPI.rank !=0):
+	MPI.COMM_WORLD.Send([len(self.data), 1, MPI.INT],dest=0, tag=None)
+      else:
+	for proc in range(1,MPI.size):
+	  aVTmp=MPI.COMM_WORLD.Recv(source=proc)
+          self.lenDataAll+=aVTmp[0]
+#	  print " gatherNumInVaccum, MPI Rank ", MPI.rank, " received ", aVTmp[0], " electron tally "
+	self.lenDataAll+=len(self.data)
+      self.lenDataAll=MPI.COMM_WORLD.Bcast(self.lenDataAll, root=0)
+#      print " gatherNumInVaccum, MPI Rank ", MPI.rank, " total e count ", self.lenDataAll
       
+      
+    def numInVaccum(self):
+       return self.lenDataAll
+              
     def numLeftToTrackBC(self): # Stands for left to track between Bunch Crossing... 
       nToTrack=0
       for ee in self.data:
-        if (ee[6] < self.bunchSpacing): nToTrack=nToTrack+1
+        if (numpy.abs(ee[6]-self.bunchSpacing) > 1.5e-12): nToTrack=nToTrack+1
       return nToTrack 
       
     def numLeftToTrack(self, tMax):
@@ -198,7 +234,17 @@ class ElectronFlock:
         bb+=numpy.sqrt(ee[1]*ee[1] + ee[3]*ee[3] + ee[5]*ee[5])
       bb/=len(self.data)
       gam = 1./numpy.sqrt(1.0-bb*bb)
-      return self.mass*(gam-1) 
+      return self.mass*(gam-1)
+       
+    def totalKineticEnergy(self):  # in keV.. 
+      eTot=0.
+      if (len(self.data) == 0): 
+        return 0.
+      for ee in self.data:
+        betaTmp=numpy.sqrt(ee[1]*ee[1] + ee[3]*ee[3] + ee[5]*ee[5])
+        gamTmp=1./numpy.sqrt(1.0-betaTmp*betaTmp)
+	eTot+=self.mass*(gamTmp-1)
+      return eTot 
            
     def averageKineticEnergyBP(self):  # Hitting the Beam Pipe... in keV.. 
       bb=0.
@@ -264,12 +310,11 @@ class ElectronFlock:
     #              behind this interaction point
     # phiFromBunch: The scalar array that described the static electric potnetial from the 
     #                 proton bunch estimated in the reference frame of the bunch.
-    # staticBField: vector of dimension 3, the static magnetic field.
     # TotalQ:  the total Charge of the proton bunch, used to appropriately scale the 
     #            the potential
     # tokenTraj:  A string, used to compose a file for trajectories. 
     #
-    def propagateWithBeam(self, steadyState, phiFromBunch, staticBField, totalQ, tokenTraj ):
+    def propagateWithBeam(self, steadyState, phiFromBunch, totalQ, tokenTraj ):
         # Check the arguments.  Expect a Real scalar field    	
       argName1=str(phiFromBunch.__class__)
       if (argName1.find("Real_scalar_field") == -1): 
@@ -278,12 +323,6 @@ class ElectronFlock:
 	print " Fatal Error "     
 	sys.exit() 
 	    
-      argName2=str(staticBField.__class__)
-      if (argName2.find("array") == -1): 
-        print " Electron Flock: Wrong 2nd argument type, expect an array, type is  ", \
-	    argName2
-	print " Fatal Error "     
-	sys.exit() 
      # all particles are treated separatly.
      # Instantiate an Runge Kutta Propagator
       # Before paying the price of instantiating a Integrator, look if we 
@@ -305,9 +344,12 @@ class ElectronFlock:
       myRK.setMaximumYBeamPipe(self.myPipe);
       myRK.setStepRatio(10.);
 #      myRK.setToPositron(); # just for kicks, try positron instead of electrons
-      myRK.setBFieldStaticCmp(staticBField[0], 0);  
-      myRK.setBFieldStaticCmp(staticBField[1], 1);  
-      myRK.setBFieldStaticCmp(staticBField[2], 2);
+      if (self.magnetModel != 0): # quadrupole.
+        myRK.setFieldModel(self.magnetModel, self.magnetStrength)
+      else:
+        myRK.setBFieldStaticCmp(self.uniformBField[0], 0);  
+        myRK.setBFieldStaticCmp(self.uniformBField[1], 1);  
+        myRK.setBFieldStaticCmp(self.uniformBField[2], 2);
       myRK.setUnits(totalQ, 1.0); 
       dataTmp=[]
       dataBPTmp=[]
@@ -324,7 +366,10 @@ class ElectronFlock:
 #	  print " Skipping electron ", int(ee[8]), " at time ", ee[6], " z = ",  ee[4]
 	  dataTmp.append(ee)
 	  continue
-#	print " Tracking electron ", int(ee[8]), " at time " , ee[6], "  z= " , ee[4]
+#	myRK.setDebugOn()
+#	print " Tracking electron ", int(ee[8]), " at time " , ee[6], \
+#	        " x= ", ee[0], " y=", ee[2], " z=" , ee[4], \
+#	        " bx= ", ee[1], " by=", ee[3], " bz=" , ee[5] 
         eeZOrig=ee[4]
 	tOff = ee[6]
 	tOffInit = tOff
@@ -346,9 +391,9 @@ class ElectronFlock:
 	  myRK.closeTrajectoryFile()
 	if (myRK.gotPropagationError()):
 	  self.nBad=self.nBad+1
-	  print "..Bad Trajectory Y ..", eeInit[2]
+#	  print "..Bad Trajectory Y ..", eeInit[2]
 	  if (self.nBad<self.numTrajDebug): 
-	    fNameNum="TrBBadTrajElecNum%d" % int(eeinit[8])
+	    fNameNum="TrBBadTrajElecNum%d" % int(eeInit[8])
 	    fName=tokenTraj+fNameNum+".txt"
 	    myRK.reOpenTrajectoryFile(fName)
 	    tFinal[0]=0.
@@ -377,23 +422,20 @@ class ElectronFlock:
      # Arguments
      # static Bfield : vector of dimension 3, the static magnetic field 
      # tokenTraj : a string should there be a request to dump trajectories.    
-    def propagateNoBeam(self, staticBField, tokenTraj):
+    def propagateNoBeam(self, tokenTraj):
 	    
-      argName1=str(staticBField.__class__)
-      if (argName1.find("array") == -1): 
-        print " Electron Flock: Wrong first argument type, expect an array, type is  ", \
-	    argName2
-	print " Fatal Error "     
-	sys.exit() 
       if (self.numLeftToTrackBC()==0):
         return
       myRK = ECloudPy.RKIntegrator(False);
       myRK.setDynamicRelativistic(True);
       myRK.setMaximumXBeamPipe(self.mxPipe);
       myRK.setMaximumYBeamPipe(self.myPipe);
-      myRK.setBFieldStaticCmp(staticBField[0], 0);  
-      myRK.setBFieldStaticCmp(staticBField[1], 1);  
-      myRK.setBFieldStaticCmp(staticBField[2], 2);
+      if (self.magnetModel != 0): # quadrupole,...see RK Integrator. 
+        myRK.setFieldModel(self.magnetModel, self.magnetStrength)
+      else:
+        myRK.setBFieldStaticCmp(self.uniformBField[0], 0);  
+        myRK.setBFieldStaticCmp(self.uniformBField[1], 1);  
+        myRK.setBFieldStaticCmp(self.uniformBField[2], 2);
       myRK.setDebugOff()
       nCnt=1
       dataTmp=[]
@@ -403,7 +445,7 @@ class ElectronFlock:
         tOff = ee[6]
 	deltaT = self.bunchSpacing - tOff
 	if (numpy.abs(deltaT) < 1.0e-12):
-	  dataTmp.append[ee]
+	  dataTmp.append(ee)
 	  continue
 	tFinal = numpy.array([0.],'d')
 	rIn = numpy.sqrt(ee[0]*ee[0] + ee[2]*ee[2])
@@ -451,6 +493,7 @@ class ElectronFlock:
 	 stuff=txphysics.txegenelec.nsec_array(incEnergy, incCosAngle, materialIndex)
 	 # now unwrap what I got .. 
 	 nSecTmp=stuff[0].size
+#	 print "Add from wall, generated ", nSecTmp
 	 incPhiRadial=numpy.arctan2(ee[3], ee[1])
 	 for k in range(nSecTmp):
 	 # not sure at all about the geometry!... 
@@ -490,61 +533,95 @@ class ElectronFlock:
        self.dataBP=[] # we got rid of those.. NO re-DIFFUSE ELECTRONS !? 
     
     
-    def propagateOneCrossing(self, prescaleFactor, phiFromBunch, bField, tokenCase):
+    def propagateOneCrossing(self, prescaledForGas, phiFromBunch, tokenCase):
     
       self.resetClockForNextBunch()
       physSize= phiFromBunch.get_physical_size()
       deltaTMax=physSize[2]/(self.betaProtonBunch*synergia.PH_MKS_c) - 1.0e-11
-      print " PropagateOneCrossing, deltaTMax ", deltaTMax
+      if (MPI.rank == 0): 
+        print " PropagateOneCrossing, deltaTMax ", deltaTMax
       # We propagate the electron left over from the previous bunch crossing, 
       # though the current bunch crossing, until we are running out of regenerated electron, 
       # for the bunch crossing time..
       nIterPhase1=0
       steadyState=True  
       while (self.numLeftToTrack(deltaTMax) > 0):
-        self.propagateWithBeam(steadyState, phiFromBunch, bField, self.totalChargeProtonBunch, "")
-	print " SteadyState BunchCrossing, iter ", nIterPhase1,\
+        self.propagateWithBeam(steadyState, phiFromBunch, self.totalChargeProtonBunch, "")
+        if (MPI.rank == 0): 
+	  print " SteadyState BunchCrossing, iter ", nIterPhase1,\
 	      " numElectrons ", len(self.data), " Reached Pipe " , len(self.dataBP)
-	print " Average Clock on Beam Pipe ", self.averageClockBP()      
+	  print " Average Clock on Beam Pipe ", self.averageClockBP()      
 	self.AddFromWall(2.0, 1)
 	steadyState=False # Late electron do not see the whole bunch...
 	nIterPhase1+=1
 
       if (len(tokenCase) > 2):
-        fName="ElectronFlockBC_" + tokenCase + "_Crossing_%d" % self.bunchNumber + ".txt" 
-        self.writeToASCIIFile(fName)
-
+        fName=self.fNameDataOut
+        fName +="ElectronFlockBC_" + tokenCase + "_Crossing_%d" % self.bunchNumber + ".txt"
+	if (MPI.size == 1): 
+          self.writeToASCIIFile(fName)
+        else:
+          self.writeToASCIIFileMPI(fName)
+	   
       # Now add the newly created electron over the length of bunch crossing. 	   
-      self.addFromGas(prescaleFactor)
-      print "  Added from Gas interaction, numElectrons ", len(self.data)
+      self.addFromGas(prescaledForGas)
+      if (MPI.rank == 0): 
+        print "  Added from Gas interaction, numElectrons ", len(self.data)
       #
       # 
       nIterPhase2=0  
       while (self.numLeftToTrack(deltaTMax) > 0):
-        self.propagateWithBeam(False, phiFromBunch, bField, self.totalChargeProtonBunch, "")  
+        self.propagateWithBeam(False, phiFromBunch, self.totalChargeProtonBunch, "")  
+        if (self.numReachedBeamPipe() == 0):
+          break 
 	self.AddFromWall(2.0, 1)
-	print "  After from Wall Sec Emission, iter ", nIterPhase2, " numElectrons ", len(self.data)
+        if (MPI.rank == 0): 
+	  print "  After from Wall Sec Emission, iter ", nIterPhase2, " numElectrons ", len(self.data)
 	nIterPhase2+=1
+        if (nIterPhase2 > 100):
+	  if (MPI.rank == 0):
+	    print "  Run away Phase 2, cut short after 100 iteration " 
+	  break
 	
       # Now we drift between bunches.. Again, regenerating electrons.. 
       nIterPhase3=0  
       while (self.numLeftToTrackBC() > 0):
-        self.propagateNoBeam(bField, "")
+        self.propagateNoBeam("")
+        if (self.numReachedBeamPipe() == 0):
+          break 
 	self.AddFromWall(2.0, 1)
-	print "  After from Sec emission, between bunches iter ", \
+        if (MPI.rank == 0): 
+	  print "  After from Sec emission, between bunches iter ", \
 	       nIterPhase3, " numElectrons ", len(self.data)
 	nIterPhase3+=1
-	
-      print " PropagateOneCrossing, Ending with ", len(self.data)
+        if (nIterPhase3 > 100):
+	  if (MPI.rank == 0):
+	    print "  Run away Phase 3, cut short after 100 iteration " 
+	  break
+
+      if (MPI.rank == 0):
+        print " PropagateOneCrossing, Ending with ", len(self.data), "local count"
+# tall all the array size.. The Allgather in numInVaccum  will probably do its one barrier,
+# but we make one in any case. Should not hurt much...
+      self.lenDataLocal=len(self.data)
+      MPI.COMM_WORLD.Barrier()
+      self.gatherNumInVaccum()
+            
       if (len(tokenCase) > 2):
-        fName="ElectronFlockDR_" + tokenCase + "_Crossing_%d" % self.bunchNumber + ".txt" 
-        self.writeToASCIIFile(fName)
+        fName=self.fNameDataOut
+        fName +="ElectronFlockDR_" + tokenCase + "_Crossing_%d" % self.bunchNumber + ".txt" 
+	if (MPI.size == 1): 
+          self.writeToASCIIFile(fName)
+        else:
+          self.writeToASCIIFileMPI(fName)
       self.bunchNumber+=1
       
     def resetClockForNextBunch(self):
       for ee in self.data:
 	  ee[6]=0.
 	  ee[7]=0.
+      self.lenDataLocal=len(self.data)
+      
     # Unbiased resampling 
     def reSample(self, fraction):
       dataTmp=[]
@@ -570,6 +647,52 @@ class ElectronFlock:
         output.write(line)
       output.close()
        
+    def writeToASCIIFileMPI(self, fName):
+    
+      lenData=[]
+      for iProc in range(MPI.size):
+        lenData.append(0)
+	
+      if (MPI.rank !=0):
+	MPI.COMM_WORLD.Send([len(self.data), 1, MPI.DOUBLE],dest=0, tag=None)
+      else:
+	for proc in range(1,MPI.size):
+	  aVTmp=MPI.COMM_WORLD.Recv(source=proc)
+          lenData[proc]=aVTmp[0]
+#	  print "writeToASCIIFileMPI, rank ", MPI.rank, " lendata = ", lenData[proc]
+	lenData[0]=len(self.data)
+	
+      if (MPI.rank == 0): 
+        output=open(fName,'w')
+        output.write("n x bx y by z bz t dt \n")
+# 
+      if (MPI.rank != 0):
+	if (len(self.data) > 0): MPI.COMM_WORLD.Send(self.data,dest=0, tag=None)
+      else:
+	for proc in range(1,MPI.size):
+	  if (lenData[proc] > 0):
+	    dataTmp=MPI.COMM_WORLD.Recv(source=proc)
+	    for ee in dataTmp:
+              line = " %d" % int(ee[8])
+	      for k in range(3):
+	        line += " %10.5g " % (1000.*ee[2*k])  
+	        line += " %10.5g " % ee[2*k+1]
+	      line += " %10.5g " % (1.0e9*ee[6])    
+	      line += " %10.5g \n " % (1.0e9*ee[7])
+              output.write(line)
+# Node 0 	    
+        for ee in self.data:
+          line = " %d" % int(ee[8])
+	  for k in range(3):
+	    line += " %10.5g " % (1000.*ee[2*k])  
+	    line += " %10.5g " % ee[2*k+1]
+	  line += " %10.5g " % (1.0e9*ee[6])    
+	  line += " %10.5g \n " % (1.0e9*ee[7])
+          output.write(line)
+# node 0 collection end here	  
+      if (MPI.rank == 0): 
+        output.close()
+      
     def pyplotEk1(self, token, reachedBP, maxEk):
     
       import pylab

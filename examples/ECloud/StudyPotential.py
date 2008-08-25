@@ -115,9 +115,10 @@ if ( __name__ == '__main__'):
       rr = iSig*sigXNow # at given radius rr .. In what units? 
       loc = numpy.array([rr, rr, rr],'d')
       vv = phi.get_val(loc)/total_charge # Normalize to the total charge (units?) 
+      vvDerX = phi.get_deriv(loc,0)/total_charge # Normalize to the total charge (units?) 
       vv *= 8.98755e9*4.0*math.pi
 #      vvPrime = phi.get_deriv(loc,0)/total_charge # Not available in Python..  
       print " V for 1 cb  ", rr , " = ", vv*1.0e-9, " V*r " , \
-             vv*math.sqrt(3.0)* rr*1.0e-9
+             vv*math.sqrt(3.0)* rr*1.0e-9, " Deriv X*x*x", vvDerX*rr*rr
       iSig = iSig+0.5
     

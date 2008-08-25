@@ -31,15 +31,14 @@ mpoverme = 1836
 
 
 from mpi4py import MPI
-import mpi4py
 import txphysics.txionpack
 import ECloudPy
 from electronFlock import ElectronFlock
-import plotPotential
+from testMPISimple import testMPISimple
+#import plotPotential
  
 if ( __name__ == '__main__'):
 
-    print mpi4py.__file__
 #    fNameLog="LogFileECloud1NodeV2_%d" % MPI.rank + ".lis"
 #    outputLog=open(fNameLog,'w')
 
@@ -58,14 +57,21 @@ if ( __name__ == '__main__'):
     for k in range(numThrow):
       aa=numpy.random.rand(100)
     
-#    outputLog.write(\
-#    "First element seed of random state vector %d \n" % numpy.random.get_state()[1][0])        
-#    if MPI.rank == 0:
-#      print " Finalized " 
-    
-      
+        
+#    mT=testMPISimple()
+#    if (MPI.rank == 0):
+#      print " Generating .... " 
+#    mT.generate()
+#    if (MPI.rank == 0):
+#      print " Analysis .... " 
+#   mT.analyze()   
+#    if (MPI.rank == 0):
+#      print " Collection .... " 
+#    mT.sumOut()
+#    mT.spitOut()
+#    mT.spitOutFast()
 #    MPI.Finalize()
-#    sys.exit()
+#   sys.exit()
        
     t0 = time.time()
     current = 0.5
@@ -101,7 +107,7 @@ if ( __name__ == '__main__'):
     dpop = 1.0e-20
     bunchLength = 1.5*c_light*1.0e-9 # in meters 
     protonPerBunch = 3.1e11 # Nominal is 3.1 10^11 particle per bunch 
-    tokenCase="V3e11ppbMediumPNegLW3" # MediumP means 2.0e-8 
+    tokenCase="V3e11ppbMediumPNegLW16" # MediumP means 2.0e-8 
     
     # generate electron. Get the Tech-X Cross section for proton on gas.. 
     
@@ -183,8 +189,60 @@ if ( __name__ == '__main__'):
     means,sigs = synergia.get_spatial_means_stds(bunch)
     sigXNow = sigs[0]
     sigYNow = sigs[1]
-    bunchLength = sigs[2] 
-    print " Bunch sigmas, after propagation, x =  ", sigXNow, " y = ", sigYNow, " z ", bunchLength
+    bunchLength = sigs[2]
+    print " Bunch sigmas, Rank ", MPI.rank, ", sigYNow, y = ", sigYNow, " z ", bunchLength
+# Take this bunch and compute a potential from it.     
+# set the offset.. ?? Keep it centered     
+#
+    maxBeanPipeInX=0.055
+    maxBeanPipeInY=0.025 # Radius..
+    sizeNow = (2.0*maxBeanPipeInX+0.0005, 2.0*maxBeanPipeInY+0.0005, 6.0*bunchLength)
+    rhoAfterProp = Real_scalar_field(griddim,sizeNow,(0.0,0.0,0.0))
+# drop the bunch charge onto the grid..    
+    total_charge = deposit_charge_cic(rhoAfterProp,bunch.get_store(),0)
+    print " ..Total Charge Rank ", MPI.rank, " Q = ", total_charge 
+# Recompute the potential
+#    griddimA = numpy.array([griddim[0], griddim[1], griddim[2]])
+    fftwh = Fftw_helper(griddim, False)
+#    print " ..Got FFTW Helper, Rank   ", MPI.rank
+    phiStripedAfterProp = solver_fftw_open(rhoAfterProp,fftwh, 0, True)
+    phiAfterProp = Real_scalar_field(griddim,sizeNow,(0.0,0.0,0.0))
+#    print " ..Did Solve , Rank   ", MPI.rank
+    i_lower = phiStripedAfterProp.get_points().get_dim0_lower()
+    i_upper = phiStripedAfterProp.get_points().get_dim0_upper()
+#    print " Rank ", MPI.rank, " From myECloud,.. dim lower/upper ", i_lower , " / " , i_upper
+     
+    broadcast_Phi(phiStripedAfterProp, phiAfterProp, i_lower, i_upper)
+#    print " ..Did broadcast    ", MPI.rank
+    
+# put a barrier, as we want to test the potential NOW.     
+#    MPI.COMM_WORLD.Barrier()
+#    print " ..Did Barrier for the hell of it    ", MPI.rank
+    # Diagnostics for parallel processing: dump potential values from two different nodes. 
+    #
+    testPotentialMPI=False
+    if (testPotentialMPI):
+      print " On Node ", MPI.rank, " getting  physSizeDiag"
+      physSizeDiag=phiAfterProp.get_physical_size(); 
+      print " On Node ", MPI.rank, " Defining loc"
+      loc = numpy.array([physSizeDiag[0]/5., physSizeDiag[1]/3., physSizeDiag[2]/4.],'d')
+      print " On Node ", MPI.rank, " getting vv ", loc
+      if (MPI.rank < 10):
+        vv = phiAfterProp.get_val(loc)/total_charge # UnNormalize to the total charge (units?) 
+        print " On Node ", MPI.rank, " getting derivatives ", loc
+        vvDerX = phiAfterProp.get_deriv(loc,0)/total_charge # UnNormalize to the total charge (units?) 
+        print " On Node ", MPI.rank, " At location ", loc
+        print " ....MPIRank", MPI.rank, "....Potential value ", vv, " derivative, X ", vvDerX
+      if (MPI.rank == 0):
+        fNamePhiTmp= "Potential_Grid_"
+	ffN1="%d" % gridnum
+	ffN2="%d" % MPI.size
+	fNamePhiTmp+= ffN1+"_Nodes_"+ffN2+".dat"
+	phiAfterProp.write_to_file(fNamePhiTmp)
+#
+        
+      MPI.Finalize()
+      sys.exit()
 
     this_vel = numpy.array([vProtons])
     flagIon=1
@@ -199,31 +257,21 @@ if ( __name__ == '__main__'):
     # factor 3.28 = torr to Pascal (133.32) * Avogadro * / (R=8.314 J. mol^-1.K^-1 * 294 K) 
     # Assume the cross section are for molecule, not atomic.. 
     # This quantity is the linear density, electrons and ions per meter
-    print "Ionization production: ",ion_elecs, " from ", protonPerBunch, " protons"
-    print "Production cross section [Mbarns]:", xsec_Mbarn
+    if (MPI.rank == 0):  
+      print "Ionization production: ",ion_elecs, " from ", protonPerBunch, " protons"
+      print "Production cross section [Mbarns]:", xsec_Mbarn
          
 #    
 # Prescale factor for creating to the flock.. 
 #
     prescaleFact = 1.0 
-#
-    maxBeanPipeInX=0.055
-    maxBeanPipeInY=0.025 # Radius..
-    sizeNow = (2.0*maxBeanPipeInX+0.0005, 2.0*maxBeanPipeInY+0.0005, 6.0*bunchLength)
 #   Create the flock of electron.
 #
     mEl = ElectronFlock()
     mEl.setMaxXDimPipe(maxBeanPipeInX)
     mEl.setMaxYDimPipe(maxBeanPipeInY)
 
-# set the offset.. ?? Keep it centered     
-    rhoAfterProp = Real_scalar_field(griddim,sizeNow,(0.0,0.0,0.0))
-# drop the bunch charge onto the grid..    
-    total_charge = deposit_charge_cic(rhoAfterProp,bunch.get_store(),0)
-# Recompute the potential
-#    griddimA = numpy.array([griddim[0], griddim[1], griddim[2]])
-    fftwh = Fftw_helper(griddim, False)
-    phiAfterProp = solver_fftw_open(rhoAfterProp,fftwh,0)
+      
     totalQ = protonPerBunch*proton_charge/total_charge
 #    plotPotential.plotPotentialX(phiAfterProp, totalQ)
 #    ffNamePotData="Potential"+tokenCase+".dat"
@@ -248,24 +296,49 @@ if ( __name__ == '__main__'):
     mEl.setNumberTrajectoryDump(0)
     
     # Static Bfield
-    bField = numpy.array([0., 0.1, 0.], 'd')
+#    bYDip=0.091*kinetic_energy/8.0
+#    bYDip = 0.5e-4  # Earth magnetic field. 
+#    bYDip = 0.091  # at 8 Gev, Check..
+    bYDip = 0.228  
+
+    bField = numpy.array([0., bYDip, 0.], 'd')
+    mEl.setUniformBField(bField)    
+#
+# Test the fancy magent models.. 4 means DIPQUADEDGES; 3 QUADRUPOLEEDGE
+# See ECloudCC/MIDipoleEdge.h
+#     
+    mEl.setMagnetModel(0, bYDip) # Drift.. 
+
+    if (MPI.rank==0):
+      print " Static By = " , bField[1] 
     
-    numCrossing=10
-    prescaleFactor=0.1
-    maxNumElec=20000
+    numCrossing=25
+    prescaleFactorForGas=0.2
+    
+    maxNumElec=100000
     fractReSampled=1.0
-    print " Maximum number of electron after one bunch .. ",maxNumElec
+    if (MPI.rank == 0): 
+      print " Prescale factor for Gas = ",  prescaleFactorForGas
+      print " Maximum number of electron after one bunch .. ", maxNumElec
     mEl.resetBunchNumber()  
     for kBunch in range(numCrossing):
-      print " Number of electrons Begining Bunch Crossing ", kBunch, " is  ", mEl.numInVaccum() 
-      mEl.propagateOneCrossing(prescaleFactor*fractReSampled, phiAfterProp, bField, tokenCase) 
-      print " Number of electrons at end Bunch Crossing ", kBunch, " is  ", mEl.numInVaccum()
+#      print " Number of electrons Begining Bunch Crossing ", kBunch, " is  ", mEl.numInVaccum() 
+      mEl.propagateOneCrossing(prescaleFactorForGas, phiAfterProp, tokenCase) 
+      if (MPI.rank==0):
+        print " Total number of electrons at end Bunch Crossing ", kBunch, " is  ", mEl.numInVaccum()
+        if (mEl.numInVaccum() > maxNumElec):
+          fractReSampled=float(maxNumElec)/mEl.numInVaccum()
+          print " Node ", MPI.rank, " kBunch = ", kBunch,  " Resampling, fraction  ", fractReSampled
+      
+      fractReSampled=MPI.COMM_WORLD.Bcast(fractReSampled, root=0)  
       if (mEl.numInVaccum() > maxNumElec):
-        fractReSampled=float(maxNumElec)/mEl.numInVaccum() 
-        print " ... Resampling, fraction  ", fractReSampled
         mEl.reSample(fractReSampled)
-
-    print " Electron flock propagated though a few crossings " 
+      # 
+      prescaleFactorForGas *= fractReSampled
+      if (MPI.rank==0):
+        print " Current prescale for Gas for bunch ", kBunch, " is  ", prescaleFactorForGas
+      # And this is weight ..
+    MPI.Finalize()
     sys.exit()
 
 
