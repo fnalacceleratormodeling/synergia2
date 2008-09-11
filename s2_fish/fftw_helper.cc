@@ -21,12 +21,12 @@ Fftw_helper::construct(int *shape_in, bool z_periodic)
                             &max_local_size);
     upper_limit = lower_limit + local_nx;
     // padding for guard grids
-    if (lower_limit == 0) {
+    if ((lower_limit == 0) || (local_nx == 0)) {
         left_guard = 0;
     } else {
         left_guard = 1;
     }
-    if (upper_limit >= shape[0] / 2) {
+    if ((upper_limit >= shape[0] / 2) || (local_nx == 0)){
         right_guard = 0;
     } else {
         right_guard = 1;

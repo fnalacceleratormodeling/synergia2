@@ -21,6 +21,9 @@ gather_rho(Real_scalar_field &rho, int upper_limit)
             uppers[i] = shape[0];
         }
         lengths[i] = (uppers[i] - uppers[i-1]) * shape[1] * shape[2];
+        if (lengths[i] < 0) {
+            lengths[i] = 0;
+        }
     }
     void *tmp;
     if (lengths[rank] > 0) {
