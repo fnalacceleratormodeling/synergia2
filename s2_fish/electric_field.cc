@@ -238,8 +238,9 @@ rw_kick(Real_scalar_field &rho,
         for (int ahead_slice = first_ahead_slice; 
                 ahead_slice < num_slices;
                 ++ahead_slice) {
-            double zdistance = (ahead_slice+0.5)*cell_size_z+left_z -
-                mbs.local_particles(4,n)+zoffset;
+            double zdistance_beamframe = (ahead_slice+0.5)*cell_size_z+left_z -
+                mbs.local_particles(4,n)+zoffset*gamma;
+            double zdistance = zdistance_beamframe/gamma;
             if (zdistance>0.0) {
                 xkick += wake_factorx * charge_factor* zdensity(ahead_slice) *
                     emradius/(beta*gamma)*
@@ -248,6 +249,7 @@ rw_kick(Real_scalar_field &rho,
                     emradius/(beta*gamma)*
                     ymom(ahead_slice)/sqrt(zdistance);
             } else {
+                std::cout << "jfa:still broken\n";
                 //~ std::cout << "jfa: zdistance = " << zdistance << std::endl;
                 //~ std::cout << "jfa: zoffset = " << zoffset << std::endl;
                 //~ std::cout << "jfa: cell_size_z = " << cell_size_z << std::endl;
@@ -259,6 +261,13 @@ rw_kick(Real_scalar_field &rho,
         }
         mbs.local_particles(1,n) += xkick;
         mbs.local_particles(3,n) += ykick;
+        //~ std::cout << "f0:" <<xkick << " " << ykick << std::endl;
+        //~ std::cout << "fff:" << wake_factorx
+            //~ << " " << charge_factor
+            //~ << " " << zdensity(num_slices/2)
+            //~ << " " << xmom(num_slices/2)
+            //~ << " " << cell_size_z
+            //~ << std::endl;
     }
 }
 
