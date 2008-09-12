@@ -212,9 +212,10 @@ rw_kick(Real_scalar_field &rho,
              //~ accel_length
 
     double accel_length = tau;
-    double wake_factorx = 2.0/(pi*pipe_radiusx*pipe_radiusx*pipe_radiusx)*
+    double fff = 1.0e10;
+    double wake_factorx = fff*2.0/(pi*pipe_radiusx*pipe_radiusx*pipe_radiusx)*
         sqrt(c/(pipe_conduct/(4*pi*eps0)))*accel_length;
-    double wake_factory= 2.0/(pi*pipe_radiusy*pipe_radiusy*pipe_radiusy)*
+    double wake_factory= fff*2.0/(pi*pipe_radiusy*pipe_radiusy*pipe_radiusy)*
         sqrt(c/(pipe_conduct/(4*pi*eps0)))*accel_length;
     
     double charge_factor = mbs.total_current/mbs.total_num;
