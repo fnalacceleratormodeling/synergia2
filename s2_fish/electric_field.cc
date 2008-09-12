@@ -2,6 +2,7 @@
 #include "communicate.h"
 #include "mpi.h"
 #include "mytimer.h"
+#include "math_constants.h"
 
 Real_scalar_field
 calculate_E_n(Real_scalar_field &phi, int n)
@@ -80,7 +81,6 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
     double gamma = -1 * mbs.ref_particle(5);
     double beta = sqrt(gamma * gamma - 1.0) / gamma;
     const  double c = 2.99792458e8;
-    const  double pi = 4.0 * atan(1.0);
 
     double mass = mbs.mass * 1.0e9;
     double eps0 = 1.0 / (4 * pi * c * c * 1.0e-7); // using c^2 = 1/(eps0 * mu0)
@@ -158,6 +158,7 @@ apply_phi_kick(Real_scalar_field &phi, int axis, double tau,
     }
     timer("apply kick");
 }
+
 void
 full_kick(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs)
 {
@@ -180,3 +181,83 @@ just_phi_full_kick(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs)
         //~ apply_E_n_kick(E, axis, tau, mbs);
     }
 }
+
+void
+rw_kick(Real_scalar_field &rho,
+                Array_1d<double> &zdensity,
+                Array_1d<double> &xmom, 
+                Array_1d<double> &ymom,
+                double tau, 
+                Macro_bunch_store &mbs,
+                double pipe_radiusx,
+                double pipe_radiusy,
+                double pipe_conduct,
+                double zoffset)
+{
+    // jfa: I am taking this calculation of "factor" more-or-less
+    // directly from Impact.  I should really redo it in terms that make
+    // sense to me
+    double gamma = -1 * mbs.ref_particle(5);
+    double beta = sqrt(gamma * gamma - 1.0) / gamma;
+    const  double c = 2.99792458e8;
+
+    double mass = mbs.mass * 1.0e9;
+    double eps0 = 1.0 / (4 * pi * c * c * 1.0e-7); // using c^2 = 1/(eps0 * mu0)
+    double qe = 1.602176462e-19;
+    double emradius = qe/(4*pi*eps0*mass);
+
+    // jfa: from Eric's Impedance.f90
+            //~ wake_factor = 2.0/(pi * pipe_radius**3) *  &
+             //~ sqrt(speed_of_light/(pipe_conduct/fourpiepsilon0)) * &
+             //~ accel_length
+
+    double accel_length = tau;
+    double wake_factorx = 2.0/(pi*pipe_radiusx*pipe_radiusx*pipe_radiusx)*
+        sqrt(c/(pipe_conduct/(4*pi*eps0)))*accel_length;
+    double wake_factory= 2.0/(pi*pipe_radiusy*pipe_radiusy*pipe_radiusy)*
+        sqrt(c/(pipe_conduct/(4*pi*eps0)))*accel_length;
+    
+    double charge_factor = mbs.total_current/mbs.total_num;
+    
+    int num_slices = zdensity.get_shape()[0];
+    double left_z = rho.get_left()[2];
+    double cell_size_z = rho.get_cell_size()[2];
+    for (int n = 0; n < mbs.local_num; ++n) {
+        int first_ahead_slice;
+        if (zoffset == 0.0) {
+            first_ahead_slice = static_cast<int>
+                            (floor((mbs.local_particles(4,n) - left_z) 
+                            / cell_size_z))+1;
+        } else {
+            first_ahead_slice = 0;
+        }
+        double xkick, ykick;
+        xkick = 0.0;
+        ykick = 0.0;
+        for (int ahead_slice = first_ahead_slice; 
+                ahead_slice < num_slices;
+                ++ahead_slice) {
+            double zdistance = (ahead_slice+0.5)*cell_size_z+left_z -
+                mbs.local_particles(4,n)+zoffset;
+            if (zdistance>0.0) {
+                xkick += wake_factorx * charge_factor* zdensity(ahead_slice) *
+                    emradius/(beta*gamma)*
+                    xmom(ahead_slice)/sqrt(zdistance);
+                ykick += wake_factory * charge_factor * zdensity(ahead_slice) * 
+                    emradius/(beta*gamma)*
+                    ymom(ahead_slice)/sqrt(zdistance);
+            } else {
+                //~ std::cout << "jfa: zdistance = " << zdistance << std::endl;
+                //~ std::cout << "jfa: zoffset = " << zoffset << std::endl;
+                //~ std::cout << "jfa: cell_size_z = " << cell_size_z << std::endl;
+                //~ std::cout << "jfa: left_z = " << left_z << std::endl;
+                //~ std::cout << "jfa: ahead_slice = " << ahead_slice << std::endl;
+                //~ exit(1);
+            }
+
+        }
+        mbs.local_particles(1,n) += xkick;
+        mbs.local_particles(3,n) += ykick;
+    }
+}
+

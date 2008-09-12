@@ -7,6 +7,7 @@
 
 #include "container_conversions.h"
 #include "fftw_helper.h"
+#include "communicate.h"
 
 using namespace boost::python;
 
@@ -14,5 +15,6 @@ BOOST_PYTHON_MODULE(s2_solver_fftw)
 {
     class_<Fftw_helper>("Fftw_helper", init<std::vector<int>, bool >());
     def("solver_fftw_open", solver_fftw_open);
+    def("gather_global_rho",gather_global_rho);
 }
 

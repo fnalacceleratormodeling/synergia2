@@ -80,3 +80,34 @@ deposit_charge_ngp(Real_scalar_field& sf, Macro_bunch_store& mbs)
     return total_charge_per_cell_vol * h[0]*h[1]*h[2];
 }
 
+void
+rho_to_rwvars(Real_scalar_field &rho, Array_1d<double> &zdensity,
+            Array_1d<double> &xmom, Array_1d<double> &ymom)
+{
+    Int3 shape = rho.get_points().get_shape();
+    std::vector<double> cell_size = rho.get_cell_size();
+    std::vector<double> left = rho.get_left();
+    for (int k=0; k<shape[2]; ++k) {
+        zdensity(k) = 0.0;
+        xmom(k) = 0.0;
+        ymom(k) = 0.0;
+        for (int i=0; i<shape[0]; ++i) {
+            double x = left[0] + i*cell_size[0];
+            for (int j=0; j<shape[1]; ++j) {
+                double y = left[1] + j*cell_size[1];
+                zdensity(k) += rho.get_points().get(Int3(i,j,k));
+                xmom(k) += x*rho.get_points().get(Int3(i,j,k));
+                ymom(k) += y*rho.get_points().get(Int3(i,j,k));
+            }
+        }
+    }
+    for (int k=0; k<shape[2]; ++k) {
+        if (zdensity(k) > 0.0) {
+            xmom(k) *= 1.0/zdensity(k);
+            ymom(k) *= 1.0/zdensity(k);
+        } else {
+            xmom(k) = 0.0;
+            ymom(k) = 0.0;
+        }
+    }
+}

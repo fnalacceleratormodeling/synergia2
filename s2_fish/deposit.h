@@ -8,6 +8,7 @@
 #ifndef HAVE_DEPOSIT_H
 #define HAVE_DEPOSIT_H
 
+#include "array_nd/array_1d.h"
 #include "scalar_field.h"
 #include "macro_bunch_store.h"
 #include <iostream>
@@ -21,4 +22,7 @@ deposit_charge_cic(Real_scalar_field& sf, Macro_bunch_store& mbs,
 double
 deposit_charge_ngp(Real_scalar_field& sf, Macro_bunch_store& mbs);
 
+void
+rho_to_rwvars(Real_scalar_field &rho, Array_1d<double> &zdensity,
+            Array_1d<double> &xmom, Array_1d<double> &ymom);
 #endif // HAVE_DEPOSIT_H

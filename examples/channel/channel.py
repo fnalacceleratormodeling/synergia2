@@ -12,6 +12,10 @@ import s2_fish
 from mpi4py import MPI
 
 if ( __name__ == '__main__'):
+    if len(sys.argv) <=2:
+        print "usage: channel.py gridnum solver [xoffset] [impedance] [pipe_radius] [pipe_conduct] [space_charge]"
+        sys.exit(1)
+
     t0 = time.time()
     current = 0.5
     kinetic_energy = 0.0067
@@ -27,6 +31,39 @@ if ( __name__ == '__main__'):
     griddim = (gridnum,gridnum,gridnum)
     num_particles = griddim[0]*griddim[1]*griddim[2] * part_per_cell
     solver = sys.argv[2]
+    xoffset = 0.0
+    if len(sys.argv)>3:
+        xoffset = float(sys.argv[3])
+    
+    impedance = False
+    if len(sys.argv)>4:
+        if (sys.argv[4] == "True" or sys.argv[4] == "true"):
+            impedance = True
+        elif (sys.argv[4] == "False" or sys.argv[4] == "false"):
+            impedance = False
+        else:
+            raise RuntimeError,\
+                "impedance (third argument) must be true or false"
+    
+    pipe_radius = 0.01
+    if len(sys.argv)>5:
+        pipe_radius = float(sys.argv[5])
+        
+    pipe_conduct= 1.4e6 # [/s] (stainless steel)
+    if len(sys.argv)>6:
+        pipe_conduct= float(sys.argv[6])
+    
+    space_charge = True
+    if len(sys.argv)>7:
+        if (sys.argv[7] == "True" or sys.argv[7] == "true"):
+            space_charge = True
+        elif (sys.argv[7] == "False" or sys.argv[7] == "false"):
+            space_charge = False
+        else:
+            raise RuntimeError,\
+                "space_charge (seventh argument) must be true or false"
+    
+    print "space_charge =",space_charge
     
     print "num_particles =",num_particles
     print "We will use a", solver, "solver"
@@ -50,7 +87,7 @@ if ( __name__ == '__main__'):
     print "Betagamma and inverse betagamma",betagamma,1./betagamma
     
     pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
-    beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = -rx)
+    beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = -rx,offset=xoffset)
     beam_parameters.y_params(sigma = xwidth, lam = xpwidth * pz,r = rx)
     sigma_z_meters = beam_parameters.get_beta()*synergia.PH_MKS_c/scaling_frequency/math.pi
     beam_parameters.z_params(sigma = sigma_z_meters, lam = dpop* pz)
@@ -59,7 +96,7 @@ if ( __name__ == '__main__'):
     
     bunch = s2_fish.Macro_bunch(mass,1)
     bunch.init_gaussian(num_particles,current,beam_parameters)
-    
+    bunch.write_particles("begin")
     line_length = gourmet.orbit_length()
     tau = 0.5*line_length/kicks_per_line
     s = 0.0
@@ -68,14 +105,19 @@ if ( __name__ == '__main__'):
     kick_time = 0.0
     
     if solver == "3D" or solver == "3d":
-        s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True)
+        s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True,
+            impedance=impedance,space_charge=space_charge,
+            pipe_radius=pipe_radius,pipe_conduct=pipe_conduct)
     if solver == "3DC" or solver == "3dc":
         s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,
-            use_s2_fish_cylindrical=True,radius=0.01)
+            use_s2_fish_cylindrical=True,radius=0.01,
+            impedance=impedance,space_charge=space_charge,
+            pipe_radius=pipe_radius,pipe_conduct=pipe_conduct)
     elif solver =="2D" or solver == "2d":
-        s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_gauss=True)
+        s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_gauss=True,
+            impedance=impedance,pipe_radius=pipe_radius,pipe_conduct=pipe_conduct)
     print "elapsed time =",time.time() - t0
-
+    bunch.write_particles("end")
     diag.write_hdf5("channel")
     import pylab
 

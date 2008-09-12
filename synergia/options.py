@@ -3,7 +3,7 @@ import string
 import sys
  
 class _option:
-    def __init__(self,default_value,doc_string,val_type=None):
+    def __init__(self,default_value,doc_string,val_type):
         self.value = default_value
         self.doc_string = doc_string
         self.val_type = val_type

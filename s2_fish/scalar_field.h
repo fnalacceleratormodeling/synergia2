@@ -45,6 +45,7 @@ public:
     std::vector<double> get_physical_size() const;
     std::vector<double> get_physical_offset() const;
     std::vector<double> get_cell_size() const;
+    std::vector<double> get_left() const;
 
     inline Nd_array<T>& get_points();
     inline const Nd_array<T>& get_points() const;
@@ -179,6 +180,13 @@ std::vector<double>
 Scalar_field<T>::get_cell_size() const 
 {
     return h.vector();
+}
+
+template<class T>
+std::vector<double>
+Scalar_field<T>::get_left() const 
+{
+    return left.vector();
 }
 
 template<class T>
