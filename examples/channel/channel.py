@@ -107,7 +107,7 @@ if ( __name__ == '__main__'):
     if solver == "3D" or solver == "3d":
         s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True,
             impedance=impedance,space_charge=space_charge,
-            pipe_radius=pipe_radius,pipe_conduct=pipe_conduct)
+            pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius, pipe_conduct=pipe_conduct)
     if solver == "3DC" or solver == "3dc":
         s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,
             use_s2_fish_cylindrical=True,radius=0.01,
