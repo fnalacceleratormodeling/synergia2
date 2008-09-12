@@ -12,11 +12,23 @@ import s2_fish
 from mpi4py import MPI
 
 if ( __name__ == '__main__'):
-    if len(sys.argv) <=2:
-        print "usage: channel.py gridnum solver [xoffset] [impedance] [pipe_radius] [pipe_conduct] [space_charge]"
-        sys.exit(1)
-
     t0 = time.time()
+    myopts = synergia.Options("channel")
+    myopts.add("gridnum",16,"number of grid points to be used for all directions",int)
+    myopts.add("solver","3d","solver",str)
+    myopts.add("xoffset",0.0,"x offset",float)
+    myopts.add("impedance",0,"whether to use resistive wall kicks",int)
+    myopts.add("piperadius",0.01,"pipe radius for impedance",float)
+    myopts.add("pipeconduct",1.4e6,
+        "conductivity for pipe [/s], default is for stainless steel",float)
+    myopts.add("spacecharge",1,"whether to use space charge kicks",int)        
+    myopts.add("doplot",1,"show plot",int)
+
+    myopts.add_suboptions(synergia.opts)
+    myopts.parse_argv(sys.argv)
+    job_mgr = synergia.Job_manager(sys.argv,myopts,
+                                      ["channel.mad"])    
+    
     current = 0.5
     kinetic_energy = 0.0067
     mass = synergia.PH_NORM_mp
@@ -27,43 +39,16 @@ if ( __name__ == '__main__'):
     width_x = 0.004
     pipe_radius = 0.04
     kicks_per_line = 10
-    gridnum = int(sys.argv[1])
+    gridnum = myopts.get("gridnum")
     griddim = (gridnum,gridnum,gridnum)
     num_particles = griddim[0]*griddim[1]*griddim[2] * part_per_cell
-    solver = sys.argv[2]
-    xoffset = 0.0
-    if len(sys.argv)>3:
-        xoffset = float(sys.argv[3])
-    
-    impedance = False
-    if len(sys.argv)>4:
-        if (sys.argv[4] == "True" or sys.argv[4] == "true"):
-            impedance = True
-        elif (sys.argv[4] == "False" or sys.argv[4] == "false"):
-            impedance = False
-        else:
-            raise RuntimeError,\
-                "impedance (third argument) must be true or false"
-    
-    pipe_radius = 0.01
-    if len(sys.argv)>5:
-        pipe_radius = float(sys.argv[5])
-        
-    pipe_conduct= 1.4e6 # [/s] (stainless steel)
-    if len(sys.argv)>6:
-        pipe_conduct= float(sys.argv[6])
-    
-    space_charge = True
-    if len(sys.argv)>7:
-        if (sys.argv[7] == "True" or sys.argv[7] == "true"):
-            space_charge = True
-        elif (sys.argv[7] == "False" or sys.argv[7] == "false"):
-            space_charge = False
-        else:
-            raise RuntimeError,\
-                "space_charge (seventh argument) must be true or false"
-    
-    print "space_charge =",space_charge
+
+    xoffset = myopts.get("xoffset")  
+    pipe_radius = myopts.get("pipe_radius")
+    pipe_conduct= myopts.get("pipeconduct")
+    space_charge = myopts.get("spacecharge")
+    solver = myopts.get("solver")
+    impedance = myopts.get("impedance")
     
     print "num_particles =",num_particles
     print "We will use a", solver, "solver"
@@ -119,16 +104,17 @@ if ( __name__ == '__main__'):
     print "elapsed time =",time.time() - t0
     bunch.write_particles("end")
     diag.write_hdf5("channel")
-    import pylab
+    if myopts.get("doplot"):
+        import pylab
 
-    dimpact = synergia.Diagnostics_impact_orig("channel_impact_open")
-    d0 = synergia.Diagnostics_impact_orig("channel0current")
+        dimpact = synergia.Diagnostics_impact_orig("channel_impact_open")
+        d0 = synergia.Diagnostics_impact_orig("channel0current")
 
-    pylab.plot(d0.s,d0.std[:,synergia.x],'gx',label='no space charge')
-    pylab.xlabel('s (m)')
-    pylab.ylabel('std<x> (m)')
+        pylab.plot(d0.s,d0.std[:,synergia.x],'gx',label='no space charge')
+        pylab.xlabel('s (m)')
+        pylab.ylabel('std<x> (m)')
 
-    pylab.plot(dimpact.s,dimpact.std[:,synergia.x],'o',label='impact')
-    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.x],'r+',markersize=15.0,label='fish')
-    pylab.legend(loc=0)
-    pylab.show()
+        pylab.plot(dimpact.s,dimpact.std[:,synergia.x],'o',label='impact')
+        pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.x],'r+',markersize=15.0,label='fish')
+        pylab.legend(loc=0)
+        pylab.show()
