@@ -234,7 +234,7 @@ if ( __name__ == '__main__'):
         if turn == 1:
             pass
         elif (turn <= last_inj_turn):
-            s = synergia.propagate(s,inja_line.gourmet,bunch,diag,griddim,use_s2_fish=True)
+            s = synergia.propagate(s,inja_line.gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True)
             if MPI.rank == 0:
                 print "inj_a",
             sys.stdout.flush()
@@ -243,17 +243,17 @@ if ( __name__ == '__main__'):
             correct_for_dispersion(inject_bunch,linear_map)
             bunch.inject(inject_bunch)
         else:
-            s = synergia.propagate(s,cell_line[1].gourmet,bunch,diag,griddim,use_s2_fish=True)
+            s = synergia.propagate(s,cell_line[1].gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True)
             if MPI.rank == 0:
                 print "01",
             sys.stdout.flush()
         if (turn<=last_inj_turn):
-            s = synergia.propagate(s,injb_line.gourmet,bunch,diag,griddim,use_s2_fish=True)
+            s = synergia.propagate(s,injb_line.gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True)
             if MPI.rank == 0:
                 print "inj_b",
             sys.stdout.flush()
         for cell in range(2,25):
-            s = synergia.propagate(s,cell_line[cell].gourmet,bunch,diag,griddim,use_s2_fish=True)
+            s = synergia.propagate(s,cell_line[cell].gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True)
             if MPI.rank == 0:
                 print "%02d" % cell,
             sys.stdout.flush()
