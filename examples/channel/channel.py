@@ -37,14 +37,13 @@ if ( __name__ == '__main__'):
     scaling_frequency = 10221.05558e6
     part_per_cell = 1
     width_x = 0.004
-    pipe_radius = 0.04
     kicks_per_line = 10
     gridnum = myopts.get("gridnum")
     griddim = (gridnum,gridnum,gridnum)
     num_particles = griddim[0]*griddim[1]*griddim[2] * part_per_cell
 
     xoffset = myopts.get("xoffset")  
-    pipe_radius = myopts.get("pipe_radius")
+    pipe_radius = myopts.get("piperadius")
     pipe_conduct= myopts.get("pipeconduct")
     space_charge = myopts.get("spacecharge")
     solver = myopts.get("solver")
