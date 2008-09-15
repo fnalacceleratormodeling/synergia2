@@ -99,7 +99,7 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
             xmoms.append(xmom)
             ymoms.append(ymom)
                 
-        if space_charge:
+        if space_charge and (mbunch.total_current > 0.0):
             phi = solver_fft_open(rho,fftwhs[key],periodic)
             mytimer("solve")
             full_kick(phi,tau,mbunch.get_store())
