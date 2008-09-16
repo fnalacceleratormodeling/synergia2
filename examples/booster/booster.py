@@ -166,6 +166,12 @@ if ( __name__ == '__main__'):
     myopts.add("ble_with_error","none","name of element to insert error",str)
     myopts.add("err_name","thinerror","thin multipole name",str)
     myopts.add("err_strength",0,"error multipole strength",float) 
+    myopts.add("impedance",0,"whether to use resistive wall kicks",int)
+    myopts.add("imppipexradius",0.04,"pipe horizontal radius for impedance",float)
+    myopts.add("imppipeyradius",0.04,"pipe vertical radius for impedance",float)
+    myopts.add("pipeconduct",1.4e6,
+        "conductivity for pipe [/s], default is for stainless steel",float)
+    myopts.add("spacecharge",1,"whether to use space charge kicks",int)        
 
     myopts.add_suboptions(synergia.opts)
     myopts.parse_argv(sys.argv)
@@ -183,6 +189,13 @@ if ( __name__ == '__main__'):
     num_particles = int(griddim[0]*griddim[1]*griddim[2] *\
                                      part_per_cell)
 
+
+    impedance = myopts.get("impedance")
+    imp_pipe_xradius = myopts.get("imppipexradius")
+    imp_pipe_yradius = myopts.get("imppipeyradius")
+    pipe_conduct = myopts.get("pipeconduct")
+    space_charge = myopts.get("spacecharge")
+    
     ee = synergia.Error_eater()
     ee.start()
     cell_line = range(0,25)
@@ -234,7 +247,9 @@ if ( __name__ == '__main__'):
         if turn == 1:
             pass
         elif (turn <= last_inj_turn):
-            s = synergia.propagate(s,inja_line.gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True)
+            s = synergia.propagate(s,inja_line.gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True,
+                impedance=impedance,space_charge=space_charge,
+                pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius, pipe_conduct=pipe_conduct)
             if MPI.rank == 0:
                 print "inj_a",
             sys.stdout.flush()
@@ -243,17 +258,23 @@ if ( __name__ == '__main__'):
             correct_for_dispersion(inject_bunch,linear_map)
             bunch.inject(inject_bunch)
         else:
-            s = synergia.propagate(s,cell_line[1].gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True)
+            s = synergia.propagate(s,cell_line[1].gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True,
+                impedance=impedance,space_charge=space_charge,
+                pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius, pipe_conduct=pipe_conduct)
             if MPI.rank == 0:
                 print "01",
             sys.stdout.flush()
         if (turn<=last_inj_turn):
-            s = synergia.propagate(s,injb_line.gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True)
+            s = synergia.propagate(s,injb_line.gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True,
+                impedance=impedance,space_charge=space_charge,
+                pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius, pipe_conduct=pipe_conduct)
             if MPI.rank == 0:
                 print "inj_b",
             sys.stdout.flush()
         for cell in range(2,25):
-            s = synergia.propagate(s,cell_line[cell].gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True)
+            s = synergia.propagate(s,cell_line[cell].gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True,
+                impedance=impedance,space_charge=space_charge,
+                pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius, pipe_conduct=pipe_conduct)
             if MPI.rank == 0:
                 print "%02d" % cell,
             sys.stdout.flush()
