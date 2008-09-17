@@ -49,8 +49,6 @@ if ( __name__ == '__main__'):
     solver = myopts.get("solver")
     impedance = myopts.get("impedance")
     
-    print "num_particles =",num_particles
-    print "We will use a", solver, "solver"
     xwidth=0.0012026
     xpwidth=0.0049608
     rx=0.85440
@@ -65,10 +63,14 @@ if ( __name__ == '__main__'):
     beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
                                          initial_phase, scaling_frequency,
                                          transverse=1)
-    print "Beam Beta", beam_parameters.get_beta()
-    print "Beam Gamma", beam_parameters.get_gamma()
     betagamma=beam_parameters.get_beta()*beam_parameters.get_gamma() 
-    print "Betagamma and inverse betagamma",betagamma,1./betagamma
+
+    if MPI.rank == 0:
+        print "num_particles =",num_particles
+        print "We will use a", solver, "solver"
+        print "Beam Beta", beam_parameters.get_beta()
+        print "Beam Gamma", beam_parameters.get_gamma()
+        print "Betagamma and inverse betagamma",betagamma,1./betagamma
     
     pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
     beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = -rx,offset=xoffset)
@@ -100,10 +102,10 @@ if ( __name__ == '__main__'):
     elif solver =="2D" or solver == "2d":
         s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_gauss=True,
             impedance=impedance,pipe_radius=pipe_radius,pipe_conduct=pipe_conduct)
-    print "elapsed time =",time.time() - t0
+    print "elapsed time =",time.time() - t0,"on rank", MPI.rank
     bunch.write_particles("end")
     diag.write_hdf5("channel")
-    if myopts.get("doplot"):
+    if myopts.get("doplot") and MPI.rank == 0:
         import pylab
 
         dimpact = synergia.Diagnostics_impact_orig("channel_impact_open")
