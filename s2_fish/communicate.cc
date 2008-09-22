@@ -1,6 +1,22 @@
 #include "communicate.h"
 #include <mpi.h>
 
+#include <fstream>
+std::ofstream * fdebugc = 0;
+
+void
+init_fdebugc()
+{
+    if (fdebugc == 0) {
+        int rank;
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        char buffer[100];
+        sprintf(buffer, "cxxdebug-%02d", rank);
+        fdebugc = new std::ofstream(buffer);
+    }
+}
+
+
 void
 gather_rho(Real_scalar_field &rho, int upper_limit)
 {
@@ -49,11 +65,11 @@ gather_rho(Real_scalar_field &rho, int upper_limit)
 }
 
 void
-gather_global_rho(Real_scalar_field &local_rho,Real_scalar_field &global_rho)
+gather_global_rho(Real_scalar_field &local_rho, Real_scalar_field &global_rho)
 {
     MPI_Allreduce(reinterpret_cast<void*>(local_rho.get_points().get_base_address()),
-                reinterpret_cast<void*>(global_rho.get_points().get_base_address()),
-                local_rho.get_points().get_length(), MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                  reinterpret_cast<void*>(global_rho.get_points().get_base_address()),
+                  local_rho.get_points().get_length(), MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 }
 
 void
@@ -251,12 +267,16 @@ broadcast_E(Real_scalar_field &E, int i_lower, int i_upper)
     if (size == 1) {
         return;
     }
+    //~ init_fdebugc();
     int uppers[size];
     int lowers[size];
     int lengths[size];
     int num_with_data = 1;
-    MPI_Allgather(reinterpret_cast<void*>(&i_upper), 1, MPI_INT,
-                  reinterpret_cast<void*>(uppers), 1, MPI_INT, MPI_COMM_WORLD);
+    int retval;
+    //~ *fdebugc << "about to MPI_Allgather\n"; fdebugc->flush();
+    retval = MPI_Allgather(reinterpret_cast<void*>(&i_upper), 1, MPI_INT,
+                           reinterpret_cast<void*>(uppers), 1, MPI_INT, MPI_COMM_WORLD);
+    //~ *fdebugc << "MPI_Allgather returned " << retval << "\n"; fdebugc->flush();
     Int3 shape(E.get_points().get_shape());
     lengths[0] = uppers[0] * shape[1] * shape[2];
     lowers[0] = 0;
@@ -285,27 +305,31 @@ broadcast_E(Real_scalar_field &E, int i_lower, int i_upper)
     //~ }
     //~ std::cout << "total lengths = " << total << ", phi length = " << E.get_points().get_length() << std::endl;
     //~ }
-    MPI_Comm_group(MPI_COMM_WORLD, &group_world);
-    MPI_Group_incl(group_world, num_with_data, ranks, &group_half);
-    MPI_Comm_create(MPI_COMM_WORLD, group_half, &comm_half);
     void *buffer = malloc(E.get_points().get_length() * sizeof(double));
+    retval = MPI_Comm_group(MPI_COMM_WORLD, &group_world);
+    retval = MPI_Group_incl(group_world, num_with_data, ranks, &group_half);
+    //~ *fdebugc << "about to do that thing\n" ; fdebugc->flush();
+    retval = MPI_Comm_create(MPI_COMM_WORLD, group_half, &comm_half);
     if (rank < num_with_data) {
-        MPI_Gatherv(reinterpret_cast<void*>
-                    (E.get_points().get_base_address() + lowers[rank]),
-                    lengths[rank], MPI_DOUBLE,
-                    buffer, lengths, lowers,
-                    MPI_DOUBLE, 0, comm_half);
+        //~ *fdebugc << "about to do gatherv\n" ; fdebugc->flush();
+        retval = MPI_Gatherv(reinterpret_cast<void*>
+                             (E.get_points().get_base_address() + lowers[rank]),
+                             lengths[rank], MPI_DOUBLE,
+                             buffer, lengths, lowers,
+                             MPI_DOUBLE, 0, comm_half);
+        //~ *fdebugc << "gatheredv\n" ; fdebugc->flush();
+        MPI_Comm_free(&comm_half);
     }
-    MPI_Bcast(buffer,
-              E.get_points().get_length(),
-              MPI_DOUBLE, 0, MPI_COMM_WORLD);
+    //~ *fdebugc << "did that thing\n" ; fdebugc->flush();
+    retval = MPI_Bcast(buffer,
+                       E.get_points().get_length(),
+                       MPI_DOUBLE, 0, MPI_COMM_WORLD);
     memcpy(reinterpret_cast<void*>(E.get_points().get_base_address()),
            buffer, E.get_points().get_length()*sizeof(double));
     free(buffer);
-    //~ MPI_Comm_free(&comm_half);
 }
-// Collect the stripes, and fill the potential over the entire physical size 
-// of the problem, on every node. 
+// Collect the stripes, and fill the potential over the entire physical size
+// of the problem, on every node.
 void
 broadcast_Phi(Real_scalar_field &E, Real_scalar_field &EAll, int i_lower, int i_upper)
 {
@@ -314,18 +338,18 @@ broadcast_Phi(Real_scalar_field &E, Real_scalar_field &EAll, int i_lower, int i_
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     if (size == 1) {
         memcpy(reinterpret_cast<void*>(EAll.get_points().get_base_address()),
-	       reinterpret_cast<void*>(E.get_points().get_base_address()),
-	       E.get_points().get_length()*sizeof(double));
+               reinterpret_cast<void*>(E.get_points().get_base_address()),
+               E.get_points().get_length()*sizeof(double));
         return;
     }
     int uppers[size];
-    int lowersSend[size];  // on the sending node 
-    int lowersRcv[size];  // on the receiving node (rank zero, or root) 
+    int lowersSend[size];  // on the sending node
+    int lowersRcv[size];  // on the receiving node (rank zero, or root)
     int lengths[size];
     int num_with_data = 1;
     Int3 shape(E.get_points().get_shape());
-    int i_upperEff = i_upper-1; // Skip the guards 
-    if (i_upper == shape[0]) i_upperEff=i_upper; // except at the upper edge of entire grid
+    int i_upperEff = i_upper - 1; // Skip the guards
+    if (i_upper == shape[0]) i_upperEff = i_upper; // except at the upper edge of entire grid
     MPI_Allgather(reinterpret_cast<void*>(&i_upperEff), 1, MPI_INT,
                   reinterpret_cast<void*>(uppers), 1, MPI_INT, MPI_COMM_WORLD);
     lengths[0] = uppers[0] * shape[1] * shape[2];
@@ -343,9 +367,9 @@ broadcast_Phi(Real_scalar_field &E, Real_scalar_field &EAll, int i_lower, int i_
         lengths[i] = (uppers[i] - uppers[i-1]) * shape[1] * shape[2];
     }
 //    std::cerr << " ... Upper/lower recalc, rank " << rank << " --- ";
-//    for (int kS=0; kS != size; kS++) 
-//      std::cerr << " r- " << kS << " lowR=" << lowersRcv[kS] << " lowS=" << 
-//                << " upp=" 
+//    for (int kS=0; kS != size; kS++)
+//      std::cerr << " r- " << kS << " lowR=" << lowersRcv[kS] << " lowS=" <<
+//                << " upp="
 //                << uppers[kS] << " len=" << lengths[kS];
 //     std::cerr << std::endl;
     MPI_Group group_world, group_half;
@@ -368,12 +392,12 @@ broadcast_Phi(Real_scalar_field &E, Real_scalar_field &EAll, int i_lower, int i_
     MPI_Comm_create(MPI_COMM_WORLD, group_half, &comm_half);
     void *buffer = malloc(EAll.get_points().get_length() * sizeof(double));
     if (rank < num_with_data) {
-        
+
 //        double *aValTmp=E.get_points().get_base_address();
-//	if (rank == 1) { 
+//	if (rank == 1) {
 //            aValTmp=E.get_points().get_base_address();
-//	    for (int k=0; k != E.get_points().get_length(); k++) 
-//	      std::cerr << " Before GatherV, from rank " << rank << 
+//	    for (int k=0; k != E.get_points().get_length(); k++)
+//	      std::cerr << " Before GatherV, from rank " << rank <<
 //	     " .. k = " << k << " val = " << aValTmp[k] << std::endl;
 //	}
         MPI_Gatherv(reinterpret_cast<void*>
@@ -381,16 +405,16 @@ broadcast_Phi(Real_scalar_field &E, Real_scalar_field &EAll, int i_lower, int i_
                     lengths[rank], MPI_DOUBLE,
                     buffer, lengths, lowersRcv,
                     MPI_DOUBLE, 0, comm_half);
-	  // We only have values for rank 0... (root) 
-//	  if (rank == 0) { 
+        // We only have values for rank 0... (root)
+//	  if (rank == 0) {
 //            aValTmp=reinterpret_cast<double*> (buffer);
-//	    for (int k=0; k != EAll.get_points().get_length(); k++) 
-//	      std::cerr << " After GatherV, from rank " << rank << 
+//	    for (int k=0; k != EAll.get_points().get_length(); k++)
+//	      std::cerr << " After GatherV, from rank " << rank <<
 //	     " .. k = " << k << " val = " << aValTmp[k] << std::endl;
 //	  }
-		    
+
     }
-    
+
     MPI_Bcast(buffer,
               EAll.get_points().get_length(),
               MPI_DOUBLE, 0, MPI_COMM_WORLD);
