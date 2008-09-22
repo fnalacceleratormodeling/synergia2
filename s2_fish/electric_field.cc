@@ -3,10 +3,27 @@
 #include "mpi.h"
 #include "mytimer.h"
 #include "math_constants.h"
+#include <fstream>
+#include <stdio.h>
 
+std::ofstream * fdebug=0;
+
+void
+init_fdebug()
+{
+    if (fdebug == 0) {
+        int rank;
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        char buffer[100];
+        sprintf(buffer,"cxxdebug-%02d",rank);
+        fdebug = new std::ofstream(buffer);
+    }
+}
+  
 Real_scalar_field
 calculate_E_n(Real_scalar_field &phi, int n)
 {
+    //~ *fdebug << "in calculate_E_n\n"; fdebug->flush();
     reset_timer();
     if ((n < 0) || (n > 2)) {
         std::stringstream message("");
@@ -36,6 +53,14 @@ calculate_E_n(Real_scalar_field &phi, int n)
     if (i_upper < shape[0] - 1) {
         i_upper -= 1;
     }
+    //~ *fdebug << "calculate_E_n loop is ilower iupper shape[1] shape[2] " 
+        //~ << i_lower<<" "
+        //~ << i_upper<<" "
+        //~ << shape[1]<<" "
+        //~ << shape[2]<<" "
+        //~ << std::endl;
+    //~ fdebug->flush();
+
     for (int i = i_lower; i < i_upper; ++i) {
         point[0] = i;
         for (int j = 0; j < shape[1]; ++j) {
@@ -60,7 +85,9 @@ calculate_E_n(Real_scalar_field &phi, int n)
         }
     }
     timer("E calc");
+    //~ *fdebug << "about to broadcast_E\n"; fdebug->flush();
     broadcast_E(E, i_lower, i_upper);
+    //~ *fdebug << "broadcast_E done\n"; fdebug->flush();
     timer("E broadcast");
     return E;
 }
@@ -162,9 +189,13 @@ apply_phi_kick(Real_scalar_field &phi, int axis, double tau,
 void
 full_kick(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs)
 {
+    //~ init_fdebug();
     for (int axis = 0; axis < 3; ++axis) {
+        //~ *fdebug << "about to Real_scalar_field\n"; fdebug->flush();
         Real_scalar_field E = calculate_E_n(phi, axis);
+        //~ *fdebug << "about to apply kick " << axis << "\n"; fdebug->flush();
         apply_E_n_kick(E, axis, tau, mbs);
+        //~ *fdebug << "full_kick complete\n"; fdebug->flush();
     }
 }
 
