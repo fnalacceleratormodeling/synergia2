@@ -18,6 +18,7 @@ using namespace boost::python;
       .def("propThroughBunch", &RKIntegrator::propThroughBunchPy)
       .def("propBetweenBunches", &RKIntegrator::propBetweenBunchesPy)
       .def("setUnits", &RKIntegrator::setUnits)
+      .def("setUnitsElectrons", &RKIntegrator::setUnitsElectrons)
       .def("closeTrajectoryFile", &RKIntegrator::closeTrajectoryFile)
       .def("reOpenTrajectoryFile", &RKIntegrator::reOpenTrajectoryFilePy)
       .def("setToRelativstic", &RKIntegrator::setToRelativstic)
@@ -50,6 +51,8 @@ using namespace boost::python;
       // New magnetic field 
       .def("getFieldModel", &RKIntegrator::getFieldModel)
       .def("setFieldModel", &RKIntegrator::setFieldModelPy)
+      // Timing performance studies.
+      .def("getCPUTimeLastTrack", &RKIntegrator::getCPUTimeLastTrack)
     ;   
   }
 
