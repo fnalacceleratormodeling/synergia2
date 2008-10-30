@@ -44,7 +44,7 @@ int RKIntegrator::propagateV(double *vect6D, const Real_scalar_field &potential,
   double locationSBP[3]; // not shifted, in BP.
   double locationNBP[3]; 
   double fieldHere[6], fieldThere[6];
-  double ETmp1[6], ETmp2[6], ETmp1Elec[6], ETmp2Elec[6];
+  double ETmpHere[6], ETmpThere[6], ETmpHereElec[6], ETmpThereElec[6];
   double tEnd = tStart + 0.999*deltaT;
   double deltaTCurrentExpected = deltaT;
 //  std::cerr << " deltaTCurrentExpected = " << deltaTCurrentExpected << std::endl;
@@ -77,14 +77,14 @@ int RKIntegrator::propagateV(double *vect6D, const Real_scalar_field &potential,
       locationS[2] += speedOfLight*tNow;   
       // Compute the difference of potential.  If too small, field assumed to vanish 
       double potHere = potentialUnits*potential.get_val(locationS);
-      double potHereElectron = potentialUnits*electronPotential.get_val(locationSBP);
+      double potHereElectron = potentialUnitsElectr*electronPotential.get_val(locationSBP);
       for (int k=0; k !=3; k++) {
-        ETmp1[k] = -1.*eFieldUnits*potential.get_deriv(locationS, k);
-        ETmp1[k+3] = 0.; // No magnetic field from the proton bunch..., 
+        ETmpHere[k] = -1.*eFieldUnits*potential.get_deriv(locationS, k);
+        ETmpHere[k+3] = 0.; // No magnetic field from the proton bunch..., 
 	                 // in the reference of the bunch
       }
       updateBField();  
-      this->fieldBunchTransBeamToLab(ETmp1, fieldHere);
+      this->fieldBunchTransBeamToLab(ETmpHere, fieldHere);
       // O.K., that was here.  Now check overt there, 
       // and see if it not too different.. 
       
@@ -94,13 +94,13 @@ int RKIntegrator::propagateV(double *vect6D, const Real_scalar_field &potential,
       }
       locationN[2] += speedOfLight*(tNow+deltaTCurrent);   
       double potThere = potentialUnits*potential.get_val(locationN);
-      double potThereElectron = potentialUnits*electronPotential.get_val(locationNBP);
+      double potThereElectron = potentialUnitsElectr*electronPotential.get_val(locationNBP);
       double deltaPot = std::abs(potHere - potThere);
       for (int k=0; k !=3; k++) {
-        ETmp2[k] = -1.0*eFieldUnits*potential.get_deriv(locationN, k);
-        ETmp2[k+3] = 0.;
+        ETmpThere[k] = -1.0*eFieldUnits*potential.get_deriv(locationN, k);
+        ETmpThere[k+3] = 0.;
       }
-      this->fieldBunchTransBeamToLab(ETmp2, fieldThere);
+      this->fieldBunchTransBeamToLab(ETmpThere, fieldThere);
       
       // Before adding the field from electron, check if 
       // if the field from the proton bunch is O.K. 
@@ -115,21 +115,22 @@ int RKIntegrator::propagateV(double *vect6D, const Real_scalar_field &potential,
       if ((std::abs(potHereElectron) > 0.01) || (std::abs(potThereElectron) > 0.01)) {
       // Sign to be checked!. 
         for (int k=0; k !=3; k++) {
-          ETmp1Elec[k] = -1.0*eFieldUnits*electronPotential.get_deriv(locationSBP, k);
-          ETmp1Elec[k+3] = 0.; // No magnetic field from these electrons  
-          ETmp2Elec[k] = -1.0*eFieldUnits*electronPotential.get_deriv(locationNBP, k);
-          ETmp2Elec[k+3] = 0.; // No magnetic field from these electrons  
+          ETmpHereElec[k] = -1.0*eFieldUnitsElectr*electronPotential.get_deriv(locationSBP, k);
+          ETmpHereElec[k+3] = 0.; // No magnetic field from these electrons  
+          ETmpThereElec[k] = -1.0*eFieldUnitsElectr*electronPotential.get_deriv(locationNBP, k);
+          ETmpThereElec[k+3] = 0.; // No magnetic field from these electrons  
         }      
       
-        for (int k=0; k !=6; k++) { 
-	   fieldHere[k] += ETmp1Elec[k];
-           fieldThere[k] += ETmp2Elec[k];
+        for (int k=0; k !=3; k++) {  // No magentic field from the electron, too low 
+	                             // energy. 
+	   fieldHere[k] += ETmpHereElec[k];
+           fieldThere[k] += ETmpThereElec[k];
 	}
       }
       
       double rDiffMax = 0.; double relDiff[3];
       for (int k=0; k !=3; k++) {
-         if (std::abs(ETmp1[k]) > 1.0) { // below 1 Volt, we don't care... 
+         if (std::abs(ETmpHere[k]) > 1.0) { // below 1 Volt, we don't care... 
            relDiff[k] = std::abs((fieldThere[k] - fieldHere[k])/fieldHere[k]);
 	   if (relDiff[k] > rDiffMax) rDiffMax = relDiff[k]; 
          }
@@ -164,16 +165,18 @@ int RKIntegrator::propagateV(double *vect6D, const Real_scalar_field &potential,
     theDeltaTGoal = deltaT;
     nRecursive = 0;
     double potS = potentialUnits*potential.get_val(locationS);
+    double potSEl = potentialUnitsElectr*electronPotential.get_val(locationS); 
     theCurrentPotential = potS; 
     if (debugFlag) { // debugging... 
       double potN = potentialUnits*potential.get_val(locationN); 
+      double potNEl = potentialUnitsElectr*electronPotential.get_val(locationN); 
       std::cerr << "---------------" << std::endl << " Decided on a step, start, vect6D ";
       for (int k=0; k !=6; ++k) std::cerr << ",  " <<  theVect6D[k];
       std::cerr << std::endl << " LocationS ";
       for (int k=0; k !=6; ++k) std::cerr << ",  " <<  locationS[k];
        std::cerr << std::endl << " .... Potential Here, Proton Bunch ref = "
-	 << potS << " there " 
-	 << potN << " diff " <<  (potS - potN) << std::endl;
+	 << potS << " electron " << potSEl << " there " 
+	 << potN << " electron " << potNEl <<  std::endl;
        std::cerr << " .... fieldHere ";
       for (int k=0; k !=6; ++k) std::cerr << ", " <<  fieldHere[k];
       std::cerr << std::endl << " .... fieldThere  ";
@@ -336,14 +339,14 @@ int RKIntegrator::propBetweenBunches(double *vect6D, const Real_scalar_field &ph
           locationS[k] = theVect6D[2*k];
           locationN[k] = theVect6D[2*k] + theVect6D[2*k+1]*speedOfLight*dt; 
     }  
-    double potHere = potentialUnits*phiElectron.get_val(locationS);
-    double potThere = potentialUnits*phiElectron.get_val(locationN);
+    double potHere = potentialUnitsElectr*phiElectron.get_val(locationS);
+    double potThere = potentialUnitsElectr*phiElectron.get_val(locationN);
     updateBField();
     for (int k=0; k !=3; k++) fieldHere[k] = 0.;
     for (int k=0; k !=3; ++k) fieldHere[k+3] = BFieldFromModel[k];
     if ((std::abs(potHere) > 0.01) || (std::abs(potThere) > 0.01)) {
       for (int k=0; k !=3; k++) {
-        fieldHere[k] += -1.*eFieldUnits*phiElectron.get_deriv(locationS, k);
+        fieldHere[k] += -1.*eFieldUnitsElectr*phiElectron.get_deriv(locationS, k);
       }
     }
     nStep += propagateStepField(fieldHere, dt);
@@ -357,7 +360,7 @@ int RKIntegrator::propBetweenBunches(double *vect6D, const Real_scalar_field &ph
     }
     if (theTAbsolute < tOffset) break; // something wrong !
     if (nCallProp > 10000) {
-      std::cerr << " prop between bunches Greater than 10000 integration steps.. " << std::endl;
+//      std::cerr << " prop between bunches Greater than 10000 integration steps.. " << std::endl;
       theTAbsolute = tOffset+maxTime+0.7e-12; // jump in time coordinate, we are going nowhere..
       break; 
     }  
@@ -378,4 +381,12 @@ int RKIntegrator::propBetweenBunchesElPy(PyObject *vect6DPy,
    double *tFinal = reinterpret_cast<double*>(PyArray_DATA(tFPy));		 
    return this->propBetweenBunches(loc, electronPotential, 
                                    tOffset, maxTime, tFinal);		  
+}
+void RKIntegrator::setUnitsElectrons(double totalCharge, double units0) {
+
+// Total charge x 1.0/(4.0*pi*eps0) (in SI units) 
+  potentialUnitsElectr = totalCharge*8.98755e9*4.0*M_PI; // Check with ../StudyPotential 
+  eFieldUnitsElectr = potentialUnitsElectr/units0;
+//  std::cerr << " Potential Units " << potentialUnits << " And quit " <<  std::endl;
+//  exit(2); 
 }
