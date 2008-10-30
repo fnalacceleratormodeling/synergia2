@@ -9,6 +9,7 @@
 #include <gsl/gsl_odeiv.h>
 #include "scalar_field.h"
 #include "MIDipoleEdge.h"
+#include "VorpalYeeField.h"
 
 // Propagate electrons, using GSL integrator, for a short step. 
 
@@ -70,7 +71,11 @@ class RKIntegrator {
     int propThroughBunchWElPy(PyObject *vect6DPy,  Real_scalar_field &potential,
                  Real_scalar_field &electronPotential,
                  double tOffset, PyObject *tFinal);
-		   
+   //		 
+   // For comparing Vorpal vs this in terms of propagating accuracy.. 
+   // 
+   int propThroughVorpalField(double *vect6D, const VorpalYeeField &aField, 
+                              double tStart, double deltaT, double *tFinal); 		 
    //
     // Propagate in between bunch, where there are no electric field, and 
     // the magnetic field is static, and uniform. bField is of type double[3] 
@@ -101,6 +106,7 @@ class RKIntegrator {
     // The charge of the bunch must be expressed in Coulomb.
     // Units0 is a scale factor, related to Impact frequency_scale paramter.  	 
     void setUnits(double totalChargeProtonBunch, double units0); // 
+    void setUnitsElectrons(double totalChargeElectron, double units0); // 
     void setFieldModel(BFieldModel aModel, double strength);
     // I don't know how to handle C++ enumeration in Python... Sorry... 
     void setFieldModelPy(int aModel, double strength);
@@ -116,7 +122,8 @@ class RKIntegrator {
     static int signChange; // Flip the sign of electron default is 1 
     static const gsl_odeiv_step_type *myOdeiv_step_type;
 
-    mutable bool isRel;  // Relativistic or not.  very dynamic.  
+    mutable bool isRel;  // Relativistic or not.  very dynamic.
+    double relCutOff; 
     bool trajToFile;   // Dump the trajectory to a file 
     std::string trajFName;
     mutable double precisionStep; // set by the GSL algorithms. 
@@ -136,10 +143,15 @@ class RKIntegrator {
     double BFieldStrength; // Model dependant, gradient for quadrupole... 
     double BFieldMaxNonUnif; // to compute the maximum value of Larmor radius.
     double BFieldMinNonUnif; // and its minimum..
-    double theTAbsolute;
+    double theTAbsolute;  // for integrating on dTau 
+    double theTAbsoluteB;  // Boosted time, for above... 
     double theTStart; // for moving bunch...
     double theDeltaTGoal; // Maximum delta for macro step, using to terminate recursion 
-                         // properly... 
+                         // properly...
+    double theTimePrecisionIntegralLimit; 			  
+    mutable double theCPUTimeStart;
+    mutable double theCPUTimeEnd;
+    
     mutable double theCurrentPotential; // The potential in the fine RK step. Used for debugging... 
     double theVect6D[6]; // the vector at current time... 
                       // Changed in propagateStepField
@@ -160,7 +172,10 @@ class RKIntegrator {
     double potentialUnits; // For the potential
     double eFieldUnits; // for its derivative.. done O.K., should not be 
                         // needed.. 
-
+// Same for the electrons. 
+    double potentialUnitsElectr; // For the potential
+    double eFieldUnitsElectr;
+ 
     std::ofstream *thefOutPtr;
     // Pointer to GSL utilities.. 
     gsl_odeiv_step * sOdeivStepAlloc; 
@@ -188,16 +203,26 @@ class RKIntegrator {
     double distToBeamPipe(const double *vect6D);
     double getLarmorRadius(double *vect6D);  
     void writeFOutTrajPreamble();
+    double getcputime(); // for improving integration speed.
 
   public:
 
   inline void setToRelativstic(bool GoRelativistic) { isRel=GoRelativistic; }   
   inline bool isRelativistic() const {return isRel;}
+  inline bool getRelativisticCutOff() const {return relCutOff;}
+  inline bool setRelativisticCutOff(double c) {relCutOff=c;}
   inline void setPrecisionStep(double h) {
       precisionStep = h;
       gsl_odeiv_control_free (cOdeivControl);
       cOdeivControl = gsl_odeiv_control_y_new (precisionStep, 0.0); 
   }
+  //
+  // Tweaking the accuracy with which the upper integration limit is reached... 
+  // 
+  
+  inline void setTheTimePrecisionIntegralLimit( double deltaTLim) {theTimePrecisionIntegralLimit = deltaTLim;}
+  inline double getTheTimePrecisionIntegralLimit() const { return theTimePrecisionIntegralLimit;}
+  
   inline double getPrecisionStep() const {return precisionStep; }
   inline void setTrajectoryFileName(const char *fName) 
      {this->reOpenTrajectoryFile(fName); }
@@ -243,8 +268,9 @@ class RKIntegrator {
   
   inline bool reachedBeamPipe() const {return !inBeamPipe;}
   
-  inline void resetClock() {theTAbsolute=0.;}
+  inline void resetClock() {theTAbsolute=0.;  theTAbsoluteB=0.;}
   inline double getTime() const {return theTAbsolute;}
+  inline double getTimeBoosted() const {return theTAbsoluteB;}
   
   inline void setDebugOn() const {theDebugFlag=true;}
   inline void setDebugOff() const {theDebugFlag=false;}
@@ -255,7 +281,9 @@ class RKIntegrator {
   inline bool gotPropagationError() const {return errorInStep;}
   inline void setToPositron() {signChange = -1;}
   inline void setToElectron() {signChange = 1;}
-  
+  // scale factor for the electric field from the electrons
+    
   inline BFieldModel getFieldModel() const {return staticFieldModel;}
+  inline double getCPUTimeLastTrack() const {return (theCPUTimeEnd - theCPUTimeStart);}
 };
 #endif
