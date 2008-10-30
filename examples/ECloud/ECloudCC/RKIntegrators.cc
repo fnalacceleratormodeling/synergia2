@@ -1,6 +1,8 @@
 #include <iostream>
 #include <cmath>
-
+#include <cfloat>
+#include <sys/time.h>
+#include <sys/resource.h>
 #include "RKIntegrators.h"
 #include <Numeric/arrayobject.h>
 #define PyArray_DATA(obj) ((void *)(((PyArrayObject *)(obj))->data))
@@ -32,9 +34,10 @@ int RKIntegrator::signChange=1;
 
 RKIntegrator::RKIntegrator(bool isRelativistic):
 isRel(isRelativistic),
+relCutOff(1.0e-8),
 trajToFile(false),
 trajFName("RKIntergatorTrajectoryDump.txt"),
-precisionStep(1.0e-6),
+precisionStep(1.0e-7),
 stepRatio(5.),
 minLarmorRad(1.0e-5), 
 inBeamPipe(true),
@@ -49,6 +52,7 @@ BFieldMinNonUnif(5.e-4),
 theTAbsolute(0.),
 theTStart(0.),
 theDeltaTGoal(0.),
+theTimePrecisionIntegralLimit(2.0e-12),
 theCurrentPotential(0.),
 relDynamic(true),
 maxXBeamPipe(5.e10),
@@ -58,6 +62,8 @@ nRecursive(0),
 relEFieldChange(0.01),
 potentialUnits(1.0),
 eFieldUnits(1.0),
+potentialUnitsElectr(1.0),
+eFieldUnitsElectr(1.0),
 thefOutPtr(0),
 MIMagnetData(0)
 {
@@ -65,7 +71,8 @@ MIMagnetData(0)
   sOdeivStepAlloc = gsl_odeiv_step_alloc (myOdeiv_step_type, 6);
   cOdeivControl = gsl_odeiv_control_y_new (precisionStep, 0.0); 
   eOdeivEvolve = gsl_odeiv_evolve_alloc (6); 
-  for (int k=0; k != 3; k++) BFieldStatic[k]=0.;
+  for (int k=0; k != 3; k++) BFieldStatic[k]=0.; 
+  for (int k=0; k != 3; k++) BFieldFromModel[k]=0.;
   for (int k=0; k != 6; k++) theVect6D[k]=0.;
 //  std::cerr << " RKIntegrator instantiated!... " << std::endl;
   lastRKI=this;
@@ -201,6 +208,8 @@ int RKIntegrator::propagateV(double *vect6D, const Real_scalar_field &potential,
       locationS[2] += speedOfLight*tNow;   
       // Compute the difference of potential.  If too small, field assumed to vanish 
       double potHere = potentialUnits*potential.get_val(locationS);
+      if (debugFlag) std::cerr << " z = " << vect6D[4] << " zS " << locationS[2] 
+                << " Pot here " << potHere << std::endl; 
       for (int k=0; k !=3; k++) {
         ETmp1[k] = -1.*eFieldUnits*potential.get_deriv(locationS, k);
         ETmp1[k+3] = 0.; // No magnetic field from the proton bunch..., 
@@ -229,6 +238,7 @@ int RKIntegrator::propagateV(double *vect6D, const Real_scalar_field &potential,
       this->fieldBunchTransBeamToLab(ETmp2, fieldThere);
       double rDiffMax = 0.; double relDiff[3];
       for (int k=0; k !=3; k++) {
+         relDiff[k] = 0.;
          if (std::abs(ETmp1[k]) > 1.0) { // below 1 Volt, we don't care... 
            relDiff[k] = std::abs((fieldThere[k] - fieldHere[k])/fieldHere[k]);
 	   if (relDiff[k] > rDiffMax) rDiffMax = relDiff[k]; 
@@ -243,7 +253,8 @@ int RKIntegrator::propagateV(double *vect6D, const Real_scalar_field &potential,
       // 0.5 the electron mass (To be tuned!).  This, for all three direction
        
       for (int k=0; k!=3; k++) {
-        double deltaE = std::abs(locationS[k] - locationN[k])*deltaPot;
+        double deltaE = std::abs(locationS[k] - locationN[k])*deltaPot; //Why am I computing something like an action/c ? 
+	                 // Should be just deltaPot... does not influence the result, this is just a sanity check. 
         if (deltaE > 0.5*electronMassEV) {
 	   epsilField=1.0e10;
 	   std::cerr << " Extraordinarly strong field " << std::endl;
@@ -313,6 +324,7 @@ int RKIntegrator::propThroughBunch(double *vect6D,  const Real_scalar_field &pot
                  double tOffset, double *tF){
 
   errorInStep=false;
+  theCPUTimeStart = this->getcputime();
   double tFTmp = tOffset;
   double tStart = tOffset;
   double rIn = std::sqrt(vect6D[0]*vect6D[0] + vect6D[2]*vect6D[2]); 
@@ -346,13 +358,168 @@ int RKIntegrator::propThroughBunch(double *vect6D,  const Real_scalar_field &pot
   while (tFTmp < tLast) {
    if (theDebugFlag)    std::cerr << " propThroughBunch: Macro-step number kStep " 
               << kStep << std::endl;
+// We have a hard-type number here, which is the macro time step in propagating 
+// through a time dependent potential. Note that in propagateV, there will be 
+// smaller time steps, which depend on fast the potential varies. 
+// Results, such as kicks, do not depend much on this parameters.
+// However, the difference of time tFinal-tStart will be bunched, with gaps every 
+// 0.5 ns.  This is o.k., since time is the variable on which we integrate. 
+//  	      
     nStep += this->propagateV(vect6D,  potential, tStart, 5.0e-10, &tFTmp);
     if (!inBeamPipe) break;
     tStart = this->getTime();
     kStep++;
   }
   (*tF) = tFTmp;
+  theCPUTimeEnd = this->getcputime();
   return nStep;		 
+}
+int RKIntegrator::propThroughVorpalField(double *vect6D, const VorpalYeeField &aVorpField, 
+                              double tStart, double deltaTNB, double *tFinal) { 		 
+
+  bool debugFlag=theDebugFlag;
+  errorInStep=false;
+  std::vector<double> locationS(3);
+  std::vector<double> locationN(3);
+  double fieldHere[6], fieldThere[6];
+  double betaSq = 0.; 
+  for (int k=0; k!=3; k++) {
+    betaSq += vect6D[2*k+1]*vect6D[2*k+1];
+  }
+  double gam = std::sqrt(1./(1.0-betaSq));
+  double deltaT = gam*deltaTNB;
+  if (debugFlag) 
+     std::cerr << " Entering RKIntegrator::propThroughVorpalField ... tStart " 
+               << tStart << " deltaT " << deltaT << " deltaNB  " << std::endl; 
+  
+  double tEnd = tStart + deltaT;
+  double deltaTCurrentExpected = deltaT;
+  
+  
+//  std::cerr << " deltaTCurrentExpected = " << deltaTCurrentExpected << std::endl;
+  double tNow = tStart;
+  double epsilField = 1.0e10;
+  double epsilFieldTarget = relEFieldChange;
+  std::vector<double> gSize=aVorpField.getPhysSize();
+  // Set the minimum time step in the loop below. 
+  // If the grid is define too coarsely, not satisfactory convergence 
+  // on local homogeneity can be set... Set to 1% of the bunch length.. 
+  double minTimeStep=0.001*gSize[2]/speedOfLight;
+  int nStep=0;
+  theTAbsolute = tStart; theDeltaTGoal = deltaT;
+  theTAbsoluteB = tStart; // Not yest boosted...
+  theTStart = tStart;
+  for (int k=0; k!=6; k++) theVect6D[k] = vect6D[k];
+   
+  while ((tEnd - tNow) > theTimePrecisionIntegralLimit) {
+    double deltaTCurrent = deltaTCurrentExpected;
+    epsilField = 1.0e10;
+    while (epsilField > epsilFieldTarget) {
+      updateBField();  
+      if (debugFlag) { 
+        std::cerr << " Checking Vorpal Field at ";
+        for (int k=0; k !=6; k++) std::cerr << ", " << theVect6D[k]; std::cerr << std::endl; 
+        std::cerr << " .... deltaTCurrent " << deltaTCurrent << std::endl;
+      }  
+      for (int k=0; k !=3; k++) locationS[k] = theVect6D[2*k];
+      for (int k=0; k !=3; k++) {
+        fieldHere[k] = -1.*aVorpField.getEField(locationS, k);
+        fieldHere[k+3] = BFieldFromModel[k]; 
+      }
+      updateBField();  
+      for (int k=0; k !=3; k++) 
+          locationN[k] = theVect6D[2*k] + theVect6D[2*k+1]*speedOfLight*deltaTCurrent;  
+      for (int k=0; k !=3; k++) {
+        fieldThere[k] = -1.0*aVorpField.getEField(locationN, k);
+        fieldThere[k+3] = BFieldFromModel[k];
+      }
+      double rDiffMax = 0.; double relDiff[3];
+      for (int k=0; k !=3; k++) {
+         relDiff[k] = 0. ;
+         if (std::abs(fieldHere[k]) > 1.0) { // below 1 Volt, we don't care... 
+           relDiff[k] = std::abs((fieldThere[k] - fieldHere[k])/fieldHere[k]);
+	   if (relDiff[k] > rDiffMax) rDiffMax = relDiff[k]; 
+         }
+      }
+      if (debugFlag) {
+        std::cerr << " relDiff ";  
+        for (int k=0; k !=3; k++) std::cerr << ", " << relDiff[k]; std::cerr << std::endl;
+      }  
+      epsilField = rDiffMax;
+      
+      if (epsilField < epsilFieldTarget)  break;
+//      std::cerr << " ..Relative difference " 
+//                << epsilField << " deltaTCurrent " << deltaTCurrent << std::endl;
+      deltaTCurrent /= 2; 
+      if (deltaTCurrent < minTimeStep) break; // Potential just not smooth enough, gave up 
+      if (deltaTCurrent < theTimePrecisionIntegralLimit) {
+         deltaTCurrent *= 2.5; // can't make the precision
+	 if (debugFlag) std::cerr << " .. Field homogenity requirement conflict with integral limit precision " << std::endl;
+         break; // Potential just not smooth enough, gave up
+      } 
+    } // on adjusting the step.. 
+    // Now intergate over this step..
+    theDeltaTGoal = deltaT;
+    nRecursive = 0;
+    double rrStep = 0;
+    double ffNorm = 0.;
+    for (int k=0; k!=3; k++) {
+       rrStep += (locationS[k] - locationN[k])*(locationS[k] - locationN[k]);
+       ffNorm += (fieldThere[k] + fieldHere[k])*(fieldThere[k] + fieldHere[k])/4.;
+    }
+    double potS = sqrt(rrStep*ffNorm);
+    theCurrentPotential = potS; 
+    if (debugFlag) { // debugging... 
+      std::cerr << "---------------" << std::endl << " Decided on a step, start, vect6D ";
+      for (int k=0; k !=6; ++k) std::cerr << ",  " <<  theVect6D[k];
+      std::cerr << std::endl << " LocationS ";
+      for (int k=0; k !=3; ++k) std::cerr << ",  " <<  locationS[k];
+       std::cerr << std::endl << " .... Potential average = "
+	 << potS << std::endl;
+       std::cerr << " .... fieldHere ";
+      for (int k=0; k !=6; ++k) std::cerr << ", " <<  fieldHere[k];
+      std::cerr << std::endl << " .... fieldThere  ";
+      for (int k=0; k !=6; ++k) std::cerr << ", " <<  fieldThere[k];
+      std::cerr << std::endl << " deltaTCurrent " << deltaTCurrent 
+                << " tNow " << tNow << std::endl;
+    }
+    for (int k=0; k !=6; ++k) theVect6D[k] = vect6D[k];
+    // Change the sign of the field, for some very, very, mysterious reasons...
+    //  
+    for (int k=0; k !=6; ++k) fieldHere[k] *=-1.;
+        
+    nStep += this->propagateStepField(fieldHere, deltaTCurrent) +1;
+    if (theDebugFlag) std::cerr << " After Vorpal Step, theTAbsolute " 
+                                << theTAbsolute << " theTAbsoluteB " << theTAbsoluteB << std::endl; 
+    tNow = theTAbsolute;
+    for (int k=0; k !=6; ++k) vect6D[k] = theVect6D[k];
+//    std::cerr << " After step num " << nStep << ", end, vect6D ";
+//    for (int k=0; k !=6; ++k) std::cerr << ",  " <<  vect6D[k];
+//    std::cerr << std::endl;
+    // Try to upgrade the step size .. 
+    deltaTCurrentExpected = 2*deltaTCurrent;
+    double deltaStepSq=0;
+    for (int k=0; k !=3; k++) deltaStepSq += vect6D[2*k]*vect6D[2*k];
+    if (deltaStepSq < 1.0e-8) {
+      std::cerr << 
+        " step size less than one micro, not converging, accuracy requirement unrealistic.. " 
+	   << std::endl;
+	std::cerr <<  " Doubling epsilFieldTarget, to " <<  epsilFieldTarget << std::endl;
+      epsilFieldTarget *=2.;
+      if (epsilFieldTarget > 0.25) {
+       std::cerr << " espilFieldTarget too large, gave up here.. " << std::endl;
+       break;
+      }
+    }
+    if (nStep > 5000) {
+      std::cerr << " Too many steps in PropThroughVorpalField, gave up here.. " << std::endl;
+      exit(2);
+    }
+//    
+ } // on step driven by field uniformity. 
+ *tFinal = tNow; 
+ return nStep;
+ 
 }
 
 int RKIntegrator::propThroughBunchPy(PyObject *vect6DPy, Real_scalar_field &phi, 
@@ -421,7 +588,7 @@ int RKIntegrator::propBetweenBunches(double *vect6D,
     }
     if (theTAbsolute < tOffset) break; // something wrong !
     if (nCallProp > 10000) {
-      std::cerr << " prop between bunches Greater than 10000 integration steps.. " << std::endl;
+//      std::cerr << " prop between bunches Greater than 10000 integration steps.. " << std::endl;
       theTAbsolute = tOffset+maxTime+0.7e-12; // jump in time coordinate, we are going nowhere..
       break; 
     }  
@@ -456,8 +623,11 @@ int RKIntegrator::propagateStepField(const double *fields, double deltaT) {
   if (theDebugFlag) {
     std::cerr << " Entering propagateStepField, request time step " 
             << deltaT << " Current time " << theTAbsolute 
-	    << " beta Z " << theVect6D[5] << std::endl;
-    std::cerr << " Ey " << fields[1] << " nRecursive " << nRecursive  <<  std::endl; 
+	    << " theTStart " << theTStart << " theDeltaTGoal " 
+	    << theDeltaTGoal << std::endl;
+    if (isRel) std::cerr << " Going relativistic.. ";
+    else std::cerr << " Not relativistic ";
+    std::cerr << " Ex " << fields[0] << " nRecursive " << nRecursive  <<  std::endl; 
   }
   if (nRecursive > 10) {
     std::cerr << " Excessive recursion in RKIntegrator::propagateStepField, stop here !" << std::endl;
@@ -465,9 +635,7 @@ int RKIntegrator::propagateStepField(const double *fields, double deltaT) {
     return 0;
   }
   if (!checkBeamPipeBoundary(theVect6D)) return 0; 
-  // Check the end game for recursion... 
-  if ((theTAbsolute-theTStart) > theDeltaTGoal) return 0; // And no action!. 
-  // Precision must be set based on Larmor radius
+   // Precision must be set based on Larmor radius
   // The Larmor radius can't be smaller than the integration precision, 
   // otherwise the particle becomes a tachion, which confuses the present author.  
   double rho=this->getLarmorRadius(theVect6D);
@@ -489,7 +657,7 @@ int RKIntegrator::propagateStepField(const double *fields, double deltaT) {
   } else { 
     sys.function =  RKIntegrator::funcR;
     sys.jacobian =  RKIntegrator::jacR;
-//    std::cerr << " Going relativistic.. " << std::endl;
+    if (theDebugFlag) std::cerr << " Using relativistic equations " << std::endl;
   }
   sys.dimension = 6;
   sys.params = (double *) fields;
@@ -497,6 +665,18 @@ int RKIntegrator::propagateStepField(const double *fields, double deltaT) {
   double t1 = theTAbsolute+deltaT; double h = precisionStep;
   double hPrevious = precisionStep;
   double dt1 = deltaT/stepRatio; // arbtrary for now.... 
+  
+  //But.. It is easier to integrate on proper time So fix boundary condition 
+  // of the integration.. it is gona to take longer, clock goes slower...  
+  double betaSQ =  vect6D[1]*vect6D[1] + vect6D[3]*vect6D[3] + vect6D[5]*vect6D[5];
+  double gam = std::sqrt(1./(1.0-betaSQ));
+  double t1B = t1*gam; double dt1B = dt1*gam;
+  double tB = t*gam; 
+ // Check the end game for recursion... 
+ 
+//  if ((theTAbsoluteB-theTStartB) > gam*theDeltaTGoal) return 0; // And no action!. 
+  if ((theTAbsolute-theTStart) > theDeltaTGoal) return 0; // And no action!. 
+  
   if (theDebugFlag) std::cerr << " Larmor Radius " << rho << " h " << h << std::endl;
   if (rho/10. < h) {
      double aPrec = rho/10.; // factor 5 is an educated guess..
@@ -509,19 +689,21 @@ int RKIntegrator::propagateStepField(const double *fields, double deltaT) {
   for (int k=1; k!= 7; k+=2) vect6D[k] *= speedOfLight;
   double velocity = std::sqrt(vect6D[1]*vect6D[1] + 
                               vect6D[3]*vect6D[3] + vect6D[5]*vect6D[5]);  
-  double dt1Rho = rho/(velocity); 
-  if (dt1 > dt1Rho/5.0) {
+  double dt1BRho = rho/(velocity); 
+  if (dt1B > dt1BRho/5.0) {
      if (theDebugFlag) std::cerr << " previous dt1 " << dt1 
-                                 << " new " << dt1Rho/5.0 << std::endl;
-     dt1 = 0.6667*dt1Rho; // Rough guess of what that factor ought to be... 
+                                 << " new " << dt1BRho/5.0 << std::endl;
+     dt1B = 0.6667*dt1BRho; // Rough guess of what that factor ought to be... 
    }
   // Iterate. 
   int n = 0;
   if (theDebugFlag) std::cerr << " t = " << t << " t1 " << t1 << std::endl;
   
   double tBefore = theTAbsolute;
+  double tBeforeB = gam*theTAbsolute;
   bool goingForward = true; // Sometimes, the integrator make a step back....
-  while (t < t1)
+//  while ((t1B-tB) > 1.001e-12) // On boosted time 
+  while ((t1-t) > theTimePrecisionIntegralLimit) // last picosecond, we don't care...
     {
       if (trajToFile) {
         double betax = vect6D[1]/speedOfLight; double betay = vect6D[3]/speedOfLight; 
@@ -558,7 +740,7 @@ int RKIntegrator::propagateStepField(const double *fields, double deltaT) {
 //
 
          if (isRel && relDynamic) {
-           if (betaSq < 1.0e-4) { // we can go non-relativistic... 
+           if (betaSq < relCutOff) { // we can go non-relativistic... 
              // Revert to beta units (SI units in this integrator) 
              for (int k=1; k!= 7; k+=2) vect6D[k] /= speedOfLight;  
              gsl_odeiv_evolve_reset(eOdeivEvolve);  
@@ -580,7 +762,7 @@ int RKIntegrator::propagateStepField(const double *fields, double deltaT) {
 	   }
          } else if (!isRel && relDynamic) { // we are non-relativistic.. Place a tight limit, accuracy 
 	          // matters more than speed.  
-           if (betaSq > 1.0e-4) { // we must go relativistic... 
+           if (betaSq > relCutOff) { // we must go relativistic... 
              // Revert to beta units (SI units in this integrator) 
              for (int k=1; k!= 7; k+=2) vect6D[k] /= speedOfLight;  
              gsl_odeiv_evolve_reset(eOdeivEvolve);  
@@ -604,26 +786,39 @@ int RKIntegrator::propagateStepField(const double *fields, double deltaT) {
       }
       double tGoal = t + dt1; // for this sub-step... 
       tBefore = t;
+      double tGoalB = tB + dt1B; // for this sub-step... 
+      tBeforeB = tB;
+      
 //      if (isRel) std::cerr << " Rel.."; else std::cerr << " NRel..";
       if (theDebugFlag) { 
            std::cerr << " Bf Step ... ";
            for (int k=0; k !=6; ++k) std::cerr << ",  " <<  vect6D[k];
            std::cerr << std::endl;
 	   std::cerr << " t= " << t << " tGoal " << tGoal <<  " h " << h << std::endl;
+	   std::cerr << " tB= " << tB << " tGoal " << tGoalB <<  " h " << h << std::endl;
       }
+//      int status = gsl_odeiv_evolve_apply (eOdeivEvolve, cOdeivControl, sOdeivStepAlloc,
+//                                           &sys, 
+//                                           &tB, tGoalB,
+//                                           &h, vect6D);
       int status = gsl_odeiv_evolve_apply (eOdeivEvolve, cOdeivControl, sOdeivStepAlloc,
                                            &sys, 
                                            &t, tGoal,
                                            &h, vect6D);
       gsl_odeiv_evolve_reset(eOdeivEvolve); 
 //      std::cerr << " t = " << t << std::endl;
+//      double betaSQTmp =  (vect6D[1]*vect6D[1] + vect6D[3]*vect6D[3] + vect6D[5]*vect6D[5])/speedOfLightSq;
+//      double gamTmp = std::sqrt(1./(1.0-betaSQTmp));
+//      t = tB/gamTmp;
       theTAbsolute += t - tBefore;
+//      theTAbsoluteB += tB - tBeforeB;
 //      if (isRel) std::cerr << " Rel.."; else std::cerr << " NRel..";
 //      std::cerr << " dt1 ... " << dt1 << " delta Reached " 
 //                << t - tBefore << " tAbsolute= " << theTAbsolute << " vY " << vect6D[3] << std::endl;
 //      std::cerr << " Af Step ... ";
 //      for (int k=0; k !=6; ++k) std::cerr << ",  " <<  vect6D[k];
 //      std::cerr << std::endl;
+//      if (tBeforeB > tB) {
       if (tBefore > t) {
         std::cerr << " Backward step!.... at t = " << tBefore 
 	          << " fatal confusion for now... "  << std::endl;
@@ -647,36 +842,51 @@ int RKIntegrator::propagateStepField(const double *fields, double deltaT) {
          std::cerr << " PropagateStepField, at step " << n << std::endl;
 	 std::cerr << "   vect6D "; for (int k=0; k!=6; k++) std::cerr << ", " << vect6D[k];
 	 std::cerr << std::endl;
+//	 std::cerr << " And quit after one step... " << std::endl;
+//	 exit(2);
       }
+//      if (n > (1000000-5)) {
+//        std::cerr << " Infinite loops, setting theDebugFlag On " << std::endl;
+//	// desperate move, will get plenty of outputs. 
+//	theDebugFlag = true;
+//      }
       // Against infinite loops! Needs to report error. 
-      if (n > 10000*BFieldMaxNonUnif) {
-        std::cerr << " PropagateStepField: Too many interation, and far from the beam bipe.." <<
-	       std::endl;
+      if (n > 10000) {
 	double dBP = distToBeamPipe(vect6D);
-//        std::cerr << " Distance to beam bipe.." <<  dBP << std::endl;
 	double dBPInit = distToBeamPipe(theVect6D);
-//        std::cerr << " Distance to beam bipe, start " <<  dBPInit << std::endl;
-        if (dBP < .05) break; // 1% spatial error possible reaching the beam pipe. 
-	 std::cerr << "   vect6D "; for (int k=0; k!=6; k++) std::cerr << ", " << vect6D[k];
-	 std::cerr << std::endl;
+	if ((dBP < 0.95) || (dBPInit < 0.95)) {
+            std::cerr << 
+	     " PropagateStepField: Too many interation, and far from the beam bipe.." <<
+	       std::endl;
+             std::cerr << " Distance to beam bipe.." <<  dBP << std::endl;
+             std::cerr << " Distance to beam bipe, start " <<  dBPInit << std::endl;
+	     std::cerr << "   vect6D "; for (int k=0; k!=6; k++) std::cerr << ", " << vect6D[k];
+	     std::cerr << std::endl;
+	 }
+        if (dBP < .95) break; // 5% spatial error possible reaching the beam pipe. 
+	std::cerr << " Setting error flag for this trajectory " << std::endl;
          errorInStep = true;
 	 // revert to the original direction...And go along the field...  
 	 for (int k=1; k!= 7; k+=2) vect6D[k]=theVect6D[k]*speedOfLight;
 	 for (int k=0; k !=3; k++) 
 	   vect6D[2*k] = theVect6D[2*k] + 
-	                 vect6D[2*k+1]*deltaT*BFieldStatic[k]/BFieldMaxNonUnif;
+	                 vect6D[2*k+1]*deltaT*BFieldFromModel[k]/BFieldMaxNonUnif;
          break;
       }
 //      if (n > 5) {
 //        std::cerr << " Enough debugging, stop here " << std::endl; exit(2);
 //      }
     }
+//    std::cerr << " Number of iterations " << n << std::endl;
     for (int k=1; k!= 7; k+=2) vect6D[k] /= speedOfLight;  
     for (int k=0; k !=6; k++) theVect6D[k] = vect6D[k];
    if (theDebugFlag) {
       std::cerr << " ....nRecursive= " << nRecursive << "  end, vect6D ";
        for (int k=0; k !=6; ++k) std::cerr << ",  " <<  vect6D[k];
       std::cerr << std::endl;
+      std::cerr << " theTAbsolute " << theTAbsolute << " Boosted " << theTAbsoluteB << std::endl;
+//      std::cerr <<  " And quit for now.. " << std::endl;
+//      exit(2);
    }
   gsl_odeiv_evolve_reset(eOdeivEvolve); 
   if (std::abs(h - hPrevious)/h > 1.-0e-5) 
@@ -715,10 +925,15 @@ int RKIntegrator::propagateFastNL(const double *fields, double deltaT, double rh
   // Extra copy because of recursion... 
   // (and automatic switching Relativistic not non-rel. )
   double vect6D[6]; for (int k=0; k !=6; k++) vect6D[k] = theVect6D[k];
+  if (theDebugFlag) { 
+      std::cerr << " RKIntegrator::propagateFastNL ..., deltaT " << deltaT << std::endl << " .... vect6D,";
+      for (int k=0; k !=6; ++k) std::cerr << ",  " <<  vect6D[k];
+      std::cerr << endl;
+  }
   double betaSq=0.;
   for (int k=0; k!=3; k++) {
    beta(k) = vect6D[2*k+1];
-   betaSq +=beta(k);
+   betaSq +=beta(k)*beta(k);
   }
   // Now rotate..
   fAlongZ.convertInPlace(zero, beta);
@@ -730,8 +945,7 @@ int RKIntegrator::propagateFastNL(const double *fields, double deltaT, double rh
   newField[2]=Ef[2]; // Take only the Z component..
   double t=theTAbsolute;
   // Initial Phase space vector in this local frame.  
-  double vect6DLoc[6]; for (int k=0; k !=3; k++) vect6DLoc[2*k] = 0.;
-  for (int k=0; k !=3; k++) vect6DLoc[2*k+1]=0.;
+  double vect6DLoc[6]; for (int k=0; k !=6; k++) vect6DLoc[k] = 0.;
   // Only velocity along Bfield, or along the Z axis of the local ref. frame matters. 
   vect6DLoc[5] = beta[2];
   double velPerp = std::sqrt(beta[0]*beta[0] + beta[1]*beta[1]);
@@ -784,7 +998,7 @@ int RKIntegrator::propagateFastNL(const double *fields, double deltaT, double rh
 // Check if the equation of motion are appropriate... Relativistic vs non-relativistic... 
 //
          if (isRel && relDynamic) {
-           if (betaSq < 1.0e-4) { // we can go non-relativistic... 
+           if (betaSq < relCutOff) { // we can go non-relativistic... 
              gsl_odeiv_evolve_reset(eOdeivEvolve);  
 	     double deltaTNext = deltaT-(theTAbsolute-theTStart);
 	     isRel = false;
@@ -804,7 +1018,7 @@ int RKIntegrator::propagateFastNL(const double *fields, double deltaT, double rh
 	   }
          } else if (!isRel && relDynamic) { // we are non-relativistic.. Place a tight limit, accuracy 
 	          // matters more than speed.  
-           if (betaSq > 1.0e-4) { // we must go relativistic... 
+           if (betaSq > relCutOff) { // we must go relativistic... 
              gsl_odeiv_evolve_reset(eOdeivEvolve);  
 	     double deltaTNext = deltaT-(theTAbsolute-theTStart);
 	     isRel = true;
@@ -837,7 +1051,8 @@ int RKIntegrator::propagateFastNL(const double *fields, double deltaT, double rh
                                            &sys, 
                                            &t, tGoal,
                                            &h, vect6DLoc);
-      gsl_odeiv_evolve_reset(eOdeivEvolve); 
+//      std::cerr << "  .... After gsl_odeiv_evolve_apply... z " <<  vect6DLoc[4] << " z' " << vect6DLoc[5] << std::endl;
+      gsl_odeiv_evolve_reset(eOdeivEvolve);
 //      std::cerr << " After this step..  t = " << t << std::endl;
       theTAbsolute += t - tBefore;
 //      if (isRel) std::cerr << " Rel.."; else std::cerr << " NRel..";
@@ -850,7 +1065,7 @@ int RKIntegrator::propagateFastNL(const double *fields, double deltaT, double rh
         std::cerr << " Backward step!.... at t = " << tBefore 
 	          << " fatal confusion for now... "  << std::endl;
 	goingForward = false;
-	exit(2); // nned fixing, if need be....
+	exit(2); // need fixing, if need be....
       }
 
       if (status != GSL_SUCCESS) {
@@ -903,10 +1118,6 @@ int RKIntegrator::propagateFastNL(const double *fields, double deltaT, double rh
   gsl_odeiv_evolve_reset(eOdeivEvolve); 	   
 //  std::cerr << " Exiting PropagateFieldStep at t = " <<  theTAbsolute << std::endl;
   return n;
-
-  
-  
-
 }
 
 int RKIntegrator::funcNR (double t, const double y[], double f[], void *params) {
@@ -946,10 +1157,6 @@ int RKIntegrator::funcR (double t, const double yIn[], double f[], void *params)
 //  velsq = pow(vx,2.) +  pow(vy,2.) +  pow(vz,2.);
   velsq = vx*vx +  vy*vy +  vz*vz;
   betasq = velsq/speedOfLightSq;
-  // Debugging.... 
-  
-//  std::cerr << " at t= " << t << ",  x " << x << " y " << y << " z " << z << std::endl;
-//  std::cerr << "   .. vx " << vx << " vy " << vy << " vz " << vz << std::endl;
   
   if (betasq > 1.) {
     std::cerr << " Going tachionic in funcR, at x " << x << " y " << y << " z " << z << std::endl;
@@ -978,13 +1185,36 @@ int RKIntegrator::funcR (double t, const double yIn[], double f[], void *params)
   double vy2 = vy*vy;
   double vz2 = vz*vz;
   double qOverM = signChange*electronCharge/electronMass;
+  // Debugging.... 
+  
+//  std::cerr << " at t= " << t << ",  x " << x << " y " << y << " z " << z << std::endl;
+//  std::cerr << "   .. vx " << vx << " vy " << vy << " vz " << vz << " gam " << gamma << std::endl;
+  //  Thought to be correct, 2007 -> Oct 2008... 
   double coeffx = qOverM/ ((1+gam2*vx2/speedOfLightSq)*gamma);
   f[1] = coeffx*(Ex+(vy*Bz-vz*By));
   double coeffy = qOverM/ ((1+gam2*vy2/speedOfLightSq)*gamma);
   f[3] = coeffy*(Ey+ (vz*Bx-vx*Bz));
   double coeffz = qOverM/ ((1+gam2*vz2/speedOfLightSq)*gamma);
   f[5] = coeffz*(Ez+ (vx*By-vy*Bx));
+// Back to Panagiotis equations!//// Shame, shame...  
+/* 
+  double Cf1=speedOfLightSq;
+  double Cf2=1/Cf1;
+  double Cf3=1/m;
+  double Cf4=1/gamma;
+  double Cf5=pow(vx,2);
+  double Cf6=pow(gamma,3);
+  double Cf7=pow(vy,2);
+  double q = signChange*electronCharge;
+ 
+  f[1] = -Cf2*Cf3*Cf4*(m*Cf5*Cf6+By*Cf1*q*vz-Bz*Cf1*q*vy-Cf1*Ex*q);
   
+  f[3] = -Cf2*Cf3*Cf4*(m*Cf7*Cf6-Bx*Cf1*q*vz+Bz*Cf1*q*vx-Cf1*Ey*q);
+
+  f[5] = Cf2*Cf3*Cf4*((m*Cf7+m*Cf5-Cf1*m)*Cf6+Cf1*m*gamma-Bx*Cf1*q* 
+		   vy+By*Cf1*q*vx+Cf1*Ez*q);
+
+*/
   return GSL_SUCCESS;
     
 }   
@@ -1236,6 +1466,7 @@ void RKIntegrator::fieldBunchTransBeamToLab(const double *fieldIn,
 
 bool RKIntegrator::checkBeamPipeBoundary(const double *v) {
 
+//  std::cerr << " entering RKIntegrator::checkBeamPipeBoundary " << std::endl;
   inBeamPipe = true; // Benefit of the doubt!  
   if ((std::abs(v[0]) > maxXBeamPipe) || (std::abs(v[2]) > maxYBeamPipe)) {
       inBeamPipe = false;
@@ -1264,10 +1495,7 @@ double RKIntegrator::distToBeamPipe(const double *v) {
 void RKIntegrator::setUnits(double totalCharge, double units0) {
 
 // Total charge x 1.0/(4.0*pi*eps0) (in SI units) 
-// The factor .04954 is a mystery one. To be fixed later... 
-//  potentialUnits = totalCharge*8.98755e9/0.04954;
   potentialUnits = totalCharge*8.98755e9*4.0*M_PI; // Check with ../StudyPotential 
-  // Grid size must matter for the potential.. Guess work.. 
   eFieldUnits = potentialUnits/units0;
 //  std::cerr << " Potential Units " << potentialUnits << " And quit " <<  std::endl;
 //  exit(2); 
@@ -1331,7 +1559,8 @@ void RKIntegrator::setFieldModel(BFieldModel aModel, double strength) {
 
 double RKIntegrator::getLarmorRadius(double *vect6D) {  
   updateBField();
-  double bNormSq = 0.;
+  /// Protect against rho infinitly large.... 
+  double bNormSq = 2.0*DBL_MIN;
   double betaSq = 0.; 
   for (int k=0; k!=3; k++) {
     bNormSq += BFieldFromModel[k]*BFieldFromModel[k];
@@ -1346,7 +1575,6 @@ double RKIntegrator::getLarmorRadius(double *vect6D) {
   for (int k=0; k !=3; k++) cost += vect6D[2*k+1]*BFieldFromModel[k];
   cost /= (bNorm*beta); 
   double pEff = p*std::sqrt(1.0 - cost*cost);
-  if (bNorm < 0.1e-4) bNorm = 0.5e-4; // minimum field, to avoid unphysical Nan... 
   double rho = pEff/(0.3*bNorm);
   return rho;
 }
@@ -1402,4 +1630,13 @@ void RKIntegrator::updateBField() {
        break;
     }
 
+}
+double RKIntegrator::getcputime(void) {
+   double t;
+   struct timeval tim;
+   struct rusage ru;
+   getrusage(RUSAGE_SELF, &ru);
+   tim=ru.ru_utime; // user time, not system time.. 
+   t=(double)tim.tv_sec * 1000000.0 + (double)tim.tv_usec;
+   return t;
 }
