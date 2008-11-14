@@ -13,6 +13,10 @@ SET(Boost_USE_STATIC_LIBS OFF)
 SET(Boost_USE_MULTITHREAD ON)
 FIND_PACKAGE(Boost COMPONENTS python regex unit_test_framework)
 
+IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.6)
+    set(Boost_LIBRARIES -lboost_python-gcc)
+ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.6)
+
 message("Boost_FOUND = '${Boost_FOUND}'")
 message("Boost_ERROR_REASON = '${Boost_ERROR_REASON}'")
 message("Boost_INCLUDE_DIRS = '${Boost_INCLUDE_DIRS}'")
