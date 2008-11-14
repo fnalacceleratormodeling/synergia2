@@ -14,6 +14,7 @@
 #include <iostream>
 
 Real_scalar_field
-solver_fftw_open(Real_scalar_field &rho, Fftw_helper &fftw, bool periodic_z);
+solver_fftw_open(Real_scalar_field &rho, Fftw_helper &fftw, bool periodic_z,
+    bool use_guards=true);
 
 #endif // HAVE_SOLVER_FFTW_H

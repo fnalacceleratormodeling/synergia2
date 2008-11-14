@@ -1,6 +1,7 @@
 *.pyc
 *.so
 *.o
+*~
 config.status
 local_paths.py
 make_defines
@@ -21,3 +22,14 @@ progress.make
 Makefile
 DartTestfile.txt
 Testing
+
+# kdevelop
+Doxyfile
+SYNERGIA2.kdev*
+
+# eclipse
+.cproject
+.project
+.project.tmp
+.pydevproject
+CTestTestfile.cmake

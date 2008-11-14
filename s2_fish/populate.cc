@@ -13,6 +13,7 @@
 #include "populate.h"
 
 #include "math_constants.h"
+#include <cmath>
 
 gsl_rng * _saved_rng = 0;
 const gsl_rng_type * _saved_rng_type = 0;
@@ -384,8 +385,11 @@ populate_6d_gaussian_quasi(Array_2d<double> &particles,
 
 void
 populate_transverse_gaussian(Array_2d<double> &particles,
-                             const Array_1d<double> &means, const Array_2d<double> &covariances,
-                             const int id_offset, const unsigned long int seed, bool init_generator)
+                             const Array_1d<double> &means,
+                             const Array_2d<double> &covariances,
+                             const int id_offset,
+                             const unsigned long int seed,
+                             bool init_generator)
 {
     if (particles.get_shape()[0] != 7) {
         throw
@@ -423,7 +427,8 @@ populate_transverse_gaussian(Array_2d<double> &particles,
 
 void
 populate_transverse_gaussian_quasi(Array_2d<double> &particles,
-                             const Array_1d<double> &means, const Array_2d<double> &covariances,
+                             const Array_1d<double> &means,
+                             const Array_2d<double> &covariances,
                              const int id_offset)
 {
     if (particles.get_shape()[0] != 7) {
@@ -473,8 +478,11 @@ populate_transverse_gaussian_quasi(Array_2d<double> &particles,
 
 void
 populate_uniform_cylinder(Array_2d<double> &particles,
-                             const Array_1d<double> &means, const Array_2d<double> &covariances,
-                             const int id_offset, const unsigned long int seed, bool init_generator)
+                             const Array_1d<double> &means,
+                             const Array_2d<double> &covariances,
+                             const int id_offset,
+                             const unsigned long int seed,
+                             bool init_generator)
 {
     if (particles.get_shape()[0] != 7) {
         throw
@@ -519,7 +527,8 @@ populate_uniform_cylinder(Array_2d<double> &particles,
 
 void
 populate_uniform_cylinder_quasi(Array_2d<double> &particles,
-                             const Array_1d<double> &means, const Array_2d<double> &covariances,
+                             const Array_1d<double> &means,
+                             const Array_2d<double> &covariances,
                              const int id_offset)
 {
     if (particles.get_shape()[0] != 7) {
@@ -564,5 +573,39 @@ populate_uniform_cylinder_quasi(Array_2d<double> &particles,
             }
         }
         particles(6, n) = (n + id_offset) * 1.0;
+    }
+}
+
+void
+populate_uniform_cylinder_regular(Array_2d<double> &particles,
+                                  double radius, double length,
+                                  int num_circles, int num_disks,
+                                  int num_theta0)
+{
+    if (particles.get_shape()[0] != 7) {
+        throw
+                std::runtime_error("populate_uniform_cylinder_quasi expects a particle array with shape (num_particles,7)");
+    }
+    int num_particles = particles.get_shape()[1];
+/*    int num_circles = 10;
+    int num_disks = 20;
+    int num_theta0 = 100;*/
+    int n=0;
+    for(int ir=0; ir<num_circles; ++ir) {
+        double r = (ir+1.0)/num_circles*radius;
+        for(int iz=0; iz<num_disks; ++ iz) {
+            double z = -0.5*length+(iz+0.5)*length/num_disks;
+            int num_theta = (ir+1)*num_theta0;
+            for(int itheta=0; itheta<num_theta; ++itheta) {
+                // jfa the 1.0/num_theta piece is there to offset each circle a little
+                // from the x-axis
+                double theta = 2*pi*(itheta+1.0/num_theta)/(1.0*num_theta);
+                particles.at(0,n) = r*cos(theta);
+                particles.at(2,n) = r*sin(theta);
+                particles.at(4,n) = z;
+                particles.at(6,n) = n+1;
+                ++n;
+            }
+        }
     }
 }

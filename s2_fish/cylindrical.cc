@@ -1,23 +1,28 @@
 #include "cylindrical.h"
 #include "math_constants.h"
 #include <fftw3.h>
+#include <cmath>
 
 void 
 get_cylindrical_coords(Macro_bunch_store &mbs, Array_2d<double> &coords)
 {
     for (int n = 0; n < mbs.local_num; ++n) {
         double x = mbs.local_particles(0,n);
-        double y = mbs.local_particles(2,n);        
+        double y = mbs.local_particles(2,n);
         double r = sqrt(x*x + y*y);
         double theta;
-        if (x>=0.0) {
-            if(y>=0.0) {
-                theta = asin(y/r);
-            } else {
-                theta = 2*pi + asin(y/r);
-            }
+        if (r == 0.0) {
+            theta = 0.0;
         } else {
-            theta = pi - asin(y/r);
+            if (x>=0.0) {
+                if(y>=0.0) {
+                    theta = asin(y/r);
+                } else {
+                    theta = 2*pi + asin(y/r);
+                }
+            } else {
+                theta = pi - asin(y/r);
+            }
         }
         coords(0,n) = r;
         coords(1,n) = theta;
@@ -39,75 +44,216 @@ get_this(int index, int which, const std::vector<int> &indices,
     return this_;
 }
 
+int numout, numin;
+
+void
+add_to_cylindrical_cell(Array_3d<double > &rho,
+                        int ir, int iphi, int iz,
+                        double scaled_rmin, double scaled_rmax,
+                        double scaled_overlap_phi, double scaled_overlap_z,
+                        double cell_size_r, double cell_size_phi, double cell_size_z,
+                        double cloud_volume)
+{
+    double overlap_volume = 0.5*
+                (scaled_rmax*scaled_rmax - scaled_rmin*scaled_rmin)*
+                scaled_overlap_phi*scaled_overlap_z*
+                cell_size_r*cell_size_r*cell_size_phi*cell_size_z;
+    double cell_volume = 0.5*((ir+1)*(ir+1) - ir*ir)*cell_size_r*cell_size_r*
+                cell_size_phi*cell_size_z;
+//         std::cout
+//             << ", " << overlap_volume
+//             << ", " << cell_volume
+//             << ", " << cloud_volume
+//             << ", " << overlap_volume/(cell_volume*cloud_volume) << std::endl;
+
+    if (rho.bounds_check(ir,iphi,iz)) {
+        rho(ir,iphi,iz) += overlap_volume/(cell_volume*cloud_volume);
+        ++numin;
+/*        std::cout << "add_to_cylindrical_cell: "
+                << ir
+                << ", " << iphi
+                << ", " << iz 
+                << " " <<  scaled_rmin
+                << " " <<  scaled_rmax
+                << " " <<  scaled_overlap_phi
+                << " " <<  scaled_overlap_z
+                << " " <<  overlap_volume/(cell_volume*cloud_volume)
+                << std::endl;*/
+    } else {
+        std::cout << "add_to_cylindrical_cell outside bounds: " << ir
+                << ", " << iphi
+                << ", " << iz << std::endl;
+        ++numout;
+    }
+}
+
 // Deposit charge using Cloud-in-Cell (CIC) algorithm.
 void
-deposit_charge_cic_cylindrical(const Field_domain &fdomain, 
-    Array_3d<double > &rho , Macro_bunch_store& mbs,
+deposit_charge_cic_cylindrical(const Cylindrical_field_domain &fdomain, 
+    Array_3d<double > &rho, Macro_bunch_store& mbs,
     const Array_2d<double> &coords)
 {
     std::vector<int> indices(3);
     std::vector<double> offsets(3);
-    std::vector<double> cell_size(fdomain.get_cell_size());
-    std::vector<bool> periodic(fdomain.get_periodic());
+// jfa: we assume z to be periodic!!!!!!!!    std::vector<bool> periodic(fdomain.get_periodic());
     std::vector<int> grid_shape(fdomain.get_grid_shape());
+    std::vector<double> cell_size(fdomain.get_cell_size());
+    
     rho.set_all(0.0);
+    numout = 0;
+    numin = 0;
     for (int n = 0; n < mbs.local_num; ++n) {
         double r = coords(0,n);
         double theta = coords(1,n);
         double z = coords(2,n);
         fdomain.get_leftmost_indices_offsets(r,theta,z,indices,offsets);
-        for (int i = 0; i < 1; ++i) {
-            int this_i = get_this(i,0,indices,grid_shape,periodic);
-            for (int j = 0; j < 1; ++j) {
-                int this_j = get_this(j,1,indices,grid_shape,periodic);
-                for (int k = 0; k < 1; ++k) {
-                    int this_k = get_this(k,2,indices,grid_shape,periodic);
-                    double weight = 
-                                    (1 - i - (1 - 2 * i) * offsets[0]*offsets[0]) *
-                                    (1 - j - (1 - 2 * j) * offsets[1]) *
-                                    (1 - k - (1 - 2 * k) * offsets[2]);
-                    // jfa: The good news: the next line is correct.
-                    // jfa: The bad news: I don't understand why.
-                    // jfa: The 0.75 is a little bit of a mystery.
-                    weight *= static_cast<double>(grid_shape[0])/
-                        (2*indices[0]+0.75); // Jacobian factor
-                    if (rho.bounds_check(this_i,this_j,this_k)) {
-                        rho(this_i,this_j,this_k) += weight;
-                    } else {
-                        std::cout << "jfa debug oob: " << this_i << ", " 
-                                << this_j << ", " << this_k << std::endl;
-                    }
-                }
+        
+        int left_ir, left_iphi, left_iz;
+        int right_ir,right_iphi, right_iz;
+        double left_r, center_r, right_r;
+        double left_overlap_phi, left_overlap_z;
+        
+        if (offsets[0] > 0.5) {
+            left_ir = indices[0];
+            right_ir = indices[0] + 1;
+            left_r = indices[0] + offsets[0] - 0.5;
+            center_r = indices[0] + 1;
+            right_r = left_r + 1;
+        } else {
+            left_ir = indices[0] - 1;
+            right_ir = indices[0];
+            left_r = indices[0] + offsets[0] - 0.5;
+            center_r = indices[0];
+            right_r = left_r + 1;
+        }
+        // The cloud volume is the volume of the cell containing the particle
+        double cloud_volume;
+        if (left_ir < 0) {
+            // use smallest cell volume
+            cloud_volume = 0.5*cell_size[0]*cell_size[0]*cell_size[1]*cell_size[2];
+        } else {
+            // use volume of a cell centered on particle
+            cloud_volume = 0.5*((indices[0]+offsets[0]+0.5)*(indices[0]+offsets[0]+0.5) - 
+                        (indices[0]+offsets[0]-0.5)*(indices[0]+offsets[0]-0.5))
+                        *cell_size[0]*cell_size[0]*cell_size[1]*cell_size[2];
+        }
+
+        
+        if (offsets[1] > 0.5) {
+            left_iphi = indices[1];
+            if (indices[1] == grid_shape[1] - 1) {
+                right_iphi = 0;
+            } else {
+                right_iphi = indices[1] + 1;
             }
+            left_overlap_phi = 1 - offsets[1];
+        } else {
+            if (indices[1] == 0) {
+                left_iphi = grid_shape[1] - 1;
+            } else {
+                left_iphi = indices[1] - 1;
+            }
+            right_iphi = indices[1];
+            left_overlap_phi = offsets[1];
+        }
+        
+        if (offsets[2] > 0.5) {
+            left_iz = indices[2];
+            if (indices[2] == grid_shape[2] - 1) {
+                right_iz = 0;
+            } else {
+                right_iz = indices[2] + 1;
+            }
+            left_overlap_z = 1 - offsets[2];
+        } else {
+            if (indices[2] == 0) {
+                left_iz = grid_shape[2] - 1;
+            } else {
+                left_iz = indices[2] - 1;
+            }
+            right_iz = indices[2];
+            left_overlap_z = offsets[2];
+        }
+        if (left_iz > 100) {std::cout << "left_iz = " << left_iz << std::endl;}
+        if (right_iz > 100) {std::cout << "right_iz = " << right_iz << " " << indices[2] << " " << offsets[2] << " " << z << std::endl;}
+
+        add_to_cylindrical_cell(rho,right_ir,left_iphi,left_iz,
+                                center_r,right_r,
+                                left_overlap_phi,left_overlap_z,
+                                cell_size[0],cell_size[1],cell_size[2],
+                                cloud_volume);
+        add_to_cylindrical_cell(rho,right_ir,right_iphi,left_iz,
+                                center_r,right_r,
+                                1.0-left_overlap_phi,left_overlap_z,
+                                cell_size[0],cell_size[1],cell_size[2],
+                                cloud_volume);
+        add_to_cylindrical_cell(rho,right_ir,left_iphi,right_iz,
+                                center_r,right_r,
+                                left_overlap_phi,1.0-left_overlap_z,
+                                cell_size[0],cell_size[1],cell_size[2],
+                                cloud_volume);
+        add_to_cylindrical_cell(rho,right_ir,right_iphi,right_iz,
+                                center_r,right_r,
+                                1.0-left_overlap_phi,1.0-left_overlap_z,
+                                cell_size[0],cell_size[1],cell_size[2],
+                                cloud_volume);
+        if (left_ir < 0) {
+            for (int i_phi=0; i_phi<grid_shape[1]; ++i_phi) {
+                add_to_cylindrical_cell(rho,0,i_phi,left_iz,
+                                        right_r,1,
+                                        1.0/grid_shape[1],left_overlap_z,
+                                        cell_size[0],cell_size[1],cell_size[2],
+                                        cloud_volume);
+                add_to_cylindrical_cell(rho,0,i_phi,right_iz,
+                                        right_r,1,
+                                        1.0/grid_shape[1],1.0-left_overlap_z,
+                                        cell_size[0],cell_size[1],cell_size[2],
+                                        cloud_volume);
+            }
+/*            add_to_cylindrical_cell(rho,0,left_iphi,left_iz,
+                                    right_r,1,
+                                    left_overlap_phi,left_overlap_z,
+                                    cell_size[0],cell_size[1],cell_size[2],
+                                    cloud_volume);
+            add_to_cylindrical_cell(rho,0,right_iphi,left_iz,
+                                    right_r,1,
+                                    1.0-left_overlap_phi,left_overlap_z,
+                                    cell_size[0],cell_size[1],cell_size[2],
+                                    cloud_volume);
+            add_to_cylindrical_cell(rho,0,left_iphi,right_iz,
+                                    right_r,1,
+                                    left_overlap_phi,1.0-left_overlap_z,
+                                    cell_size[0],cell_size[1],cell_size[2],
+                                    cloud_volume);
+            add_to_cylindrical_cell(rho,0,right_iphi,right_iz,
+                                    right_r,1,
+                                    1.0-left_overlap_phi,1.0-left_overlap_z,
+                                    cell_size[0],cell_size[1],cell_size[2],
+                                    cloud_volume);*/
+        } else {
+            add_to_cylindrical_cell(rho,left_ir,left_iphi,left_iz,
+                                    left_r,center_r,
+                                    left_overlap_phi,left_overlap_z,
+                                    cell_size[0],cell_size[1],cell_size[2],
+                                    cloud_volume);
+            add_to_cylindrical_cell(rho,left_ir,right_iphi,left_iz,
+                                    left_r,center_r,
+                                    1.0-left_overlap_phi,left_overlap_z,
+                                    cell_size[0],cell_size[1],cell_size[2],
+                                    cloud_volume);
+            add_to_cylindrical_cell(rho,left_ir,left_iphi,right_iz,
+                                    left_r,center_r,
+                                    left_overlap_phi,1.0-left_overlap_z,
+                                    cell_size[0],cell_size[1],cell_size[2],
+                                    cloud_volume);
+            add_to_cylindrical_cell(rho,left_ir,right_iphi,right_iz,
+                                    left_r,center_r,
+                                    1.0-left_overlap_phi,1.0-left_overlap_z,
+                                    cell_size[0],cell_size[1],cell_size[2],
+                                    cloud_volume);
         }
     }
-    if (periodic[0]) {
-        for(int j=0; j<grid_shape[1]; ++j) {
-            for(int k=0; k<grid_shape[2]; ++k) {
-                double sum = rho(0,j,k) + rho(grid_shape[0]-1,j,k);
-                rho(0,j,k) = sum;
-                rho(grid_shape[0]-1,j,k) = sum;
-            }
-        }
-    }
-    if (periodic[1]) {
-        for(int i=0; i<grid_shape[0]; ++i) {
-            for(int k=0; k<grid_shape[2]; ++k) {
-                double sum = rho(i,0,k) + rho(i,grid_shape[1]-1,k);
-                rho(i,0,k) = sum;
-                rho(i,grid_shape[1]-1,k) = sum;
-            }
-        }
-    }
-    if (periodic[2]) {
-        for(int i=0; i<grid_shape[0]; ++i) {
-            for(int j=0; j<grid_shape[1]; ++j) {
-                double sum = rho(i,j,0) + rho(i,j,grid_shape[2]-1);
-                rho(i,j,0) = sum;
-                rho(i,j,grid_shape[2]-1) = sum;
-            }
-        }
-    }
+    std::cout << "numin = " << numin << ", numout = " << numout << std::endl;
 }
 
 // Adapted from a GSL routine.
@@ -381,6 +527,7 @@ full_kick_cylindrical(const Field_domain &fdomain,
     // (We think) this is for the Lorentz transformation of the transverse
     // E field.
     double xyfactor = -tau* factor * gamma;
+    double jfa_total_kick_x = 0.0, jfa_total_kick_y = 0.0, jfa_total_kick_z = 0.0;
     for (int n = 0; n < mbs.local_num; ++n) {
         double r = coords(0,n);
         double theta = coords(1,n);
@@ -388,9 +535,18 @@ full_kick_cylindrical(const Field_domain &fdomain,
         //~ std::cout << "jfa: " << xyfactor << " " << interpolate_3d(r,theta,z,fdomain,Ex) << std::endl;
         mbs.local_particles(0,n) += xyfactor*
                 interpolate_3d(r,theta,z,fdomain,Ex);
+        jfa_total_kick_x += fabs(xyfactor*
+                interpolate_3d(r,theta,z,fdomain,Ex));
         mbs.local_particles(2,n) += xyfactor*
                 interpolate_3d(r,theta,z,fdomain,Ey);
+        jfa_total_kick_y += fabs(xyfactor*
+                interpolate_3d(r,theta,z,fdomain,Ey));
         mbs.local_particles(4,n) += zfactor*
                 interpolate_3d(r,theta,z,fdomain,Ez);
+        jfa_total_kick_z += fabs(zfactor*
+                interpolate_3d(r,theta,z,fdomain,Ez));
     }
+    std::cout << "jfa average kick x: " << jfa_total_kick_x/mbs.local_num << std::endl;
+    std::cout << "jfa average kick y: " << jfa_total_kick_y/mbs.local_num << std::endl;
+    std::cout << "jfa average kick z: " << jfa_total_kick_z/mbs.local_num << std::endl;
 }

@@ -39,4 +39,27 @@ public:
         std::vector<int> &indices, std::vector<double> &offsets) const;
 };
 
+class Cylindrical_field_domain
+{
+    private:
+        double radius;
+        double length,half_length;
+        std::vector<int> grid_shape;
+        bool periodic_z;
+
+        std::vector<double> cell_size;
+
+    public:
+        Cylindrical_field_domain(double radius, double length,
+                                 const std::vector<int> &grid_shape,
+                                 bool periodic_z);
+
+        // jfa: The name get_leftmost_indices_offsets is possibly misleading
+        void get_leftmost_indices_offsets(double c0, double c1, double c2,
+                                          std::vector<int> &indices, 
+                                          std::vector<double> &offsets) const;
+        const std::vector<int> &get_grid_shape() const;
+        const std::vector<double> &get_cell_size() const;
+};
+
 #endif // HAVE_FIELD_DOMAIN_H

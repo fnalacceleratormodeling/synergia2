@@ -68,8 +68,8 @@ void
 gather_global_rho(Real_scalar_field &local_rho, Real_scalar_field &global_rho)
 {
     MPI_Allreduce(reinterpret_cast<void*>(local_rho.get_points().get_base_address()),
-                  reinterpret_cast<void*>(global_rho.get_points().get_base_address()),
-                  local_rho.get_points().get_length(), MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+                reinterpret_cast<void*>(global_rho.get_points().get_base_address()),
+                local_rho.get_points().get_length(), MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 }
 
 void

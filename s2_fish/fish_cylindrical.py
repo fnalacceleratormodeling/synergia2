@@ -14,7 +14,7 @@ import Numeric
 import MLab
 import math
 
-counter = 0   
+counter = 0
 
 def apply_cylindrical_space_charge_kick(shape,radius,mbunch,tau,
         aperture=None):

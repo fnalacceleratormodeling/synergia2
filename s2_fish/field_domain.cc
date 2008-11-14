@@ -1,5 +1,6 @@
 #include "field_domain.h"
 #include "array_nd/vector_helper.h"
+#include "math_constants.h"
 #include <cmath>
 
 void 
@@ -87,4 +88,51 @@ Field_domain::get_leftmost_indices_offsets(double c0, double c1, double c2,
     scaled_location = (c2 - left[2])/cell_size[2];
     offsets[2] = scaled_location - static_cast<int>(floor(scaled_location));
     indices[2] = static_cast<int>(floor(scaled_location));
+}
+
+Cylindrical_field_domain::Cylindrical_field_domain(double radius, double length,
+                         const std::vector<int> &grid_shape,
+                         bool periodic_z)
+{
+    this->radius = radius;
+    this->length = length;
+    this->half_length = length/2.0;
+    this->grid_shape = grid_shape;
+    this->periodic_z = periodic_z;
+    cell_size.resize(3);
+    cell_size[0] = radius/(grid_shape[0]+0.5);
+    cell_size[1] = 2.0*pi/grid_shape[1];
+    cell_size[2] = length/grid_shape[2];
+}
+
+void 
+Cylindrical_field_domain::get_leftmost_indices_offsets(double c0, double c1, double c2,
+                                          std::vector<int> &indices, 
+                                          std::vector<double> &offsets) const
+{
+    double scaled_location;
+
+    scaled_location = c0/cell_size[0];
+    offsets[0] = scaled_location - static_cast<int>(floor(scaled_location));
+    indices[0] = static_cast<int>(floor(scaled_location));
+
+    scaled_location = c1/cell_size[1];
+    offsets[1] = scaled_location - static_cast<int>(floor(scaled_location));
+    indices[1] = static_cast<int>(floor(scaled_location));
+
+    scaled_location = (c2+half_length)/cell_size[2];
+    offsets[2] = scaled_location - static_cast<int>(floor(scaled_location));
+    indices[2] = static_cast<int>(floor(scaled_location));
+}
+
+const std::vector<int> &
+Cylindrical_field_domain::get_grid_shape() const
+{
+    return grid_shape;
+}
+
+const std::vector<double> &
+        Cylindrical_field_domain::get_cell_size() const
+{
+    return cell_size;
 }

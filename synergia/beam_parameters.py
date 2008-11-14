@@ -20,6 +20,9 @@ class Beam_parameters:
         self.sigma_z_m = None
         self.lambda_z_GeVoc = None
         self.transverse = transverse
+        self.x_params(1,1)
+        self.y_params(1, 1)
+        self.z_params(1, 1)
 
     def x_params(self,sigma,lam,
                  r=None,mismatch=1,mismatch_p=1,offset=0,offset_p=0):

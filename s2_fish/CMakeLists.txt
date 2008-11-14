@@ -1,7 +1,12 @@
 add_executable(test_slice test_slice.cc)
 target_link_libraries(test_slice array_nd)
 
-link_libraries(${CHEF_LIBS} -lfftw3 ${BOOST_LIBS} array_nd)
+link_libraries(${CHEF_LIBS} -lfftw3 ${Boost_LIBRARIES} array_nd)
+# jfa: this is overkill
+add_definitions(-DBOOST_TEST_DYN_LINK)
+add_executable(test_field_domain test_field_domain.cc)
+target_link_libraries(test_field_domain -lboost_unit_test_framework-gcc41-mt s2_solver_cyl ${GSL_CONFIG_LIBS} -lpython2.4)
+
 
 add_python_extension(GaussSC GaussSC.cc BasErs_field.cc)
 
@@ -31,9 +36,10 @@ target_link_libraries(populate ${GSL_CONFIG_LIBS})
 
 add_python_extension(constraints constraints.cc constraints_wrap.cc)
 
-add_python_extension(s2_solver_cylindrical cylindrical.cc cylindrical_wrap.cc
+add_library(s2_solver_cyl SHARED cylindrical.cc
     field_domain.cc populate.cc ) # jfa fix this!!!!!!!!!!!!!!!!!!!!!!
-target_link_libraries(s2_solver_cylindrical ${GSL_CONFIG_LIBS})
+add_python_extension(s2_solver_cylindrical cylindrical_wrap.cc) # jfa fix this!!!!!!!!!!!!!!!!!!!!!!
+target_link_libraries(s2_solver_cylindrical s2_solver_cyl ${GSL_CONFIG_LIBS})
 ## jfa nb.: populate and gsl_config_libs are only part of s2_solver so that I can use the freakin' write to octave function for debugging. Much refoactoring necessary.
 ################
 add_test(deposit ${SYNERGIA2_BINARY_DIR}/synergia-local test_deposit.py)

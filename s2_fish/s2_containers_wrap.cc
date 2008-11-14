@@ -71,6 +71,7 @@ BOOST_PYTHON_MODULE(s2_containers)
 
     .def("describe", &Real_nd_array::describe)
     .def("print_", &Real_nd_array::print)
+    .def("print_to_file", &Real_nd_array::print_to_file)
 
     .def("write_to_file", &Real_nd_array::write_to_file)
     .def("read_from_file", &Real_nd_array::read_from_file)

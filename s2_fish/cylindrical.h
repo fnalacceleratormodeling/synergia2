@@ -7,7 +7,7 @@
 #include "field_domain.h"
 
 void get_cylindrical_coords(Macro_bunch_store &mbs, Array_2d<double> &coords);
-void deposit_charge_cic_cylindrical(const Field_domain &fdomain,
+void deposit_charge_cic_cylindrical(const Cylindrical_field_domain &fdomain,
                                     Array_3d<double > &rho,
                                     Macro_bunch_store& mbs,
                                     const Array_2d<double> &coords);

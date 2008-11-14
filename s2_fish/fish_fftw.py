@@ -52,16 +52,11 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
     xmoms = []
     ymoms = []
     for mbunch in mbunches:
-        #~ mbunch.write_particles("before")
         if aperture:
-            #~ pardebug("start aperture...\n")
             constraints.apply_circular_aperture(mbunch.get_store(),aperture)
-            #~ pardebug("end aperture\n")
             mytimer("apply aperture")
         if periodic:
-            #~ pardebug("start periodic...\n")
             constraints.apply_longitudinal_periodicity(mbunch.get_store())
-            #~ pardebug("end periodic\n")
             mytimer("apply periodicity")
         mbunch.convert_to_fixedt()
         mytimer("convert")
@@ -82,7 +77,6 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
             total_charge = deposit_charge_cic(rho,mbunch.get_store(),periodic)
             mytimer("deposit")
         if impedance:
-            #~ pardebug("start impedance...\n")
             if ((pipe_radiusx == None) or (pipe_radiusy == None) or (pipe_conduct == None)):
                             raise RuntimeError, \
                                 "apply_space_charge_kick with impedance != 0.0 requires pipe_radiusx, pipe_radiusy, pipe_conduct and to be specified"
@@ -99,7 +93,6 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
             rw_kick(rho,zdensity,xmom,ymom,2*tau, 
                     mbunch.get_store(),
                     pipe_radiusx,pipe_radiusy,pipe_conduct,zoffset)
-            #~ pardebug("impedance kick\n")
             for index in range(len(zdensities)-1,-1,-1):
                 zoffset += bunch_spacing
                 rw_kick(rho,zdensities[index],xmoms[index],ymoms[index],2*tau,
@@ -108,19 +101,11 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
             zdensities.append(zdensity)
             xmoms.append(xmom)
             ymoms.append(ymom)
-            #~ pardebug("impedance end\n")
-        #~ mbunch.write_particles("before")
-    
-        if space_charge and (mbunch.total_current > 0.0):
-            #~ pardebug("space charge...\n")
-            phi = solver_fft_open(rho,fftwhs[key],periodic)
-            #~ pardebug("solved\n")
+                
+        if space_charge:
+            phi = solver_fft_open(rho,fftwhs[key],periodic,True)
             mytimer("solve")
             full_kick(phi,tau,mbunch.get_store())
-            #~ pardebug(" kicked\n")
             mytimer("full kick")
         mbunch.convert_to_fixedz()
         mytimer("unconvert")
-        #~ pardebug("end apply_space_charge_kick\n")
-        #~ mbunch.write_particles("after")
-

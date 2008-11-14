@@ -8,7 +8,7 @@ try:
 except ImportError:
     pass
 import chef_propagate
-from pardebug import pardebug
+import time
 
 def listify(x):
     if type(x) == type([]) or type(x) == type(()):
@@ -17,7 +17,6 @@ def listify(x):
         return [x]
 
 last_step_length = 0
-
 def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
     use_s2_fish=False, use_impact=False, use_none=False,
     use_s2_fish_cylindrical=False,
@@ -39,10 +38,8 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
     for action in gourmet.get_actions():
         if action.is_mapping():
             for bunch in bunches:
-                #~ pardebug("start apply_map...\n")
                 action.get_data().apply(bunch.get_local_particles(),
                                    bunch.get_num_particles_local())
-                #~ pardebug("done\n")
             last_step_length = action.get_length()
             s += last_step_length
         elif action.is_synergia_action():
@@ -56,7 +53,6 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
                 tau = last_step_length
                 #~ pardebug("start space charge\n")
                 if use_s2_fish:
-                    #~ pardebug("s2_fish...\n")
                     s2_fish.apply_space_charge_kick(grid_dim,None,None, bunches, 2*tau,
                         periodic=periodic,aperture=aperture,space_charge=space_charge,
                         impedance=impedance,pipe_radiusx=pipe_radiusx,
@@ -101,12 +97,10 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
                 u_in = gourmet.get_u(action.get_initial_energy())
                 u_out = gourmet.get_u(action.get_final_energy())
                 for bunch in bunches:
-                    #~ pardebug("start chef_propagate...\n")
                     chef_propagate.chef_propagate(
                         bunch.get_local_particles(), bunch.get_num_particles_local(),
                         element, action.get_initial_energy(), gourmet.particle,
                         u_in, u_out)
-                    #~ pardebug("end\n")
             else:
                 print "unknown action: '%s'" % \
                       action.get_synergia_action()

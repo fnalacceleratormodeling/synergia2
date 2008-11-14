@@ -44,7 +44,7 @@ private:
     bool frozen;
     inline int old_vector_index(int const indices[]) const;
     inline int vector_index(int const indices[]) const;
-    void print_recursive(std::string name, int which_index, int indices[]) const;
+    void print_recursive(std::ostream &out, std::string name, int which_index, int indices[]) const;
     void set_dims(int order, int const dims_in[], int dim0_lower, int dim0_upper);
     inline bool assert_dims(int const indices[]) const;
 public:
@@ -87,7 +87,9 @@ public:
     T* get_offset_base_address(int offset);
 
     void describe() const;
+    void print_to_ostream(std::ostream &out, std::string name) const;
     void print(std::string name) const;
+    void print_to_file(std::string name, std::string filename) const;
 
     void write_to_fstream(std::ofstream& stream);
     void write_to_file(std::string filename);
@@ -557,33 +559,57 @@ Nd_array<T>::describe() const
     std::cout << ")\n";
 }
 
-//jfa: n.b. printing has not been updated for distributed arrays.
 template<class T>
 void
-Nd_array<T>::print_recursive(std::string name, int which_index,
+Nd_array<T>::print_recursive(std::ostream &out, std::string name, int which_index,
                              int indices[]) const
 {
+    out << name;
     if (which_index == 2) {
-        std::cout << name << "(:,:";
-        for (int i = 2; i < dims.size(); i++) {
-            std::cout << "," << indices[i];
+        if ((dim0_lower == 0) && (dim0_upper == dims[0])) { 
+            out << "(:,:";
+        } else {
+            out << "(" << dim0_lower << ":" << dim0_upper-1 << ",:";
         }
-        std::cout << ")" << std::endl;
-        for (int i = 0; i < dims[0]; i++) {
+        for (int i = 2; i < dims.size(); i++) {
+            out << "," << indices[i];
+        }
+        out << ")" << std::endl;
+        for (int i = dim0_lower; i < dim0_upper; i++) {
             indices[0] = i;
             for (int j = 0; j < dims[1]; j++) {
                 indices[1] = j;
-                std::cout << std::setw(13);
-                std::cout << get(indices);
+                out << std::setw(9);
+                out << get(indices);
             }
-            std::cout << std::endl;
+            out << std::endl;
         }
     } else {
         for (int i = 0; i < dims[which_index-1]; i++) {
             indices[which_index-1] = i;
-            print_recursive(name, which_index - 1, indices);
-            std::cout << std::endl;
+            print_recursive(out, name, which_index - 1, indices);
+            out << std::endl;
         }
+    }
+}
+
+template<class T>
+void
+Nd_array<T>::print_to_ostream(std::ostream &out, std::string name) const
+{
+    if (dims.size() == 0) {
+        out << name << ": empty\n";
+    } else if (dims.size() == 1) {
+        out << name << ":\n";
+        int index[1];
+        for (int i = 0; i < dims[0]; ++i) {
+            index[0] = i;
+            out << std::setw(9);
+            out << get(index) << std::endl;
+        }
+    } else {
+        int indices[dims.size()];
+        print_recursive(out, name, dims.size(), indices);
     }
 }
 
@@ -591,20 +617,16 @@ template<class T>
 void
 Nd_array<T>::print(std::string name) const
 {
-    if (dims.size() == 0) {
-        std::cout << name << ": empty\n";
-    } else if (dims.size() == 1) {
-        std::cout << name << ":\n";
-        int index[1];
-        for (int i = 0; i < dims[0]; ++i) {
-            index[0] = i;
-            std::cout << std::setw(9);
-            std::cout << get(index) << std::endl;
-        }
-    } else {
-        int indices[dims.size()];
-        print_recursive(name, dims.size(), indices);
-    }
+    print_to_ostream(std::cout, name);
+}
+
+template<class T>
+void
+Nd_array<T>::print_to_file(std::string filename, std::string name) const
+{
+    std::ofstream out(filename.c_str());
+    print_to_ostream(out, name);
+    out.close();
 }
 
 template<class T>

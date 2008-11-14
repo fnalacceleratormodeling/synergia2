@@ -404,7 +404,8 @@ get_phi(Real_scalar_field &rho, Real_scalar_field &phi2, Fftw_helper &fftwh)
 }
 
 Real_scalar_field
-solver_fftw_open(Real_scalar_field &rho, Fftw_helper &fftwh, bool z_periodic)
+solver_fftw_open(Real_scalar_field &rho, Fftw_helper &fftwh, bool z_periodic,
+    bool use_guards)
 {
     // The plan: Solve del^2 phi = rho by:
     //  1) convert rho to rho2, where 2 suffix indicates
@@ -429,7 +430,9 @@ solver_fftw_open(Real_scalar_field &rho, Fftw_helper &fftwh, bool z_periodic)
     timer("misc");
     Real_scalar_field phi = get_phi(rho, phi2, fftwh);
     timer("misc");
-    fill_guards(phi, fftwh);
+    if (use_guards) {
+        fill_guards(phi, fftwh);
+    }
     timer("fill guards");
     return phi;
 }

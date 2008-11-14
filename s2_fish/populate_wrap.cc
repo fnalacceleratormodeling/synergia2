@@ -7,7 +7,8 @@ using namespace boost::python;
 
 void
 populate_6d_gaussian_wrapper(object &particles,
-                             const object &means, const object &covariances, const int id_offset,
+                             const object &means, const object &covariances,
+                             const int id_offset,
                              const unsigned long int seed, bool init_generator)
 {
     Array_2d<double> particles_array =
@@ -22,7 +23,8 @@ populate_6d_gaussian_wrapper(object &particles,
 
 void
 populate_6d_gaussian_quasi_wrapper(object &particles,
-                             const object &means, const object &covariances, const int id_offset)
+                             const object &means, const object &covariances,
+                             const int id_offset)
 {
     Array_2d<double> particles_array =
         Array_nd_from_PyObject<double>(particles.ptr());
@@ -36,8 +38,11 @@ populate_6d_gaussian_quasi_wrapper(object &particles,
 
 void
 populate_transverse_gaussian_wrapper(object &particles,
-                                     const object &means, const object &covariances, const int id_offset,
-                                     const unsigned long int seed, bool init_generator)
+                                     const object &means,
+                                     const object &covariances,
+                                     const int id_offset,
+                                     const unsigned long int seed,
+                                     bool init_generator)
 {
     Array_2d<double> particles_array =
         Array_nd_from_PyObject<double>(particles.ptr());
@@ -92,6 +97,17 @@ populate_uniform_cylinder_quasi_wrapper(object &particles,
         id_offset);
 }
 
+void
+populate_uniform_cylinder_regular_wrapper(object &particles,
+                                          double radius, double length,
+                                          int num_circles, int num_disks,
+                                          int num_theta0)
+{
+    Array_2d<double> particles_array =
+            Array_nd_from_PyObject<double>(particles.ptr());
+    populate_uniform_cylinder_regular(particles_array,radius,length,num_circles,
+                                      num_disks,num_theta0);
+}
 BOOST_PYTHON_MODULE(populate)
 {
     def("populate_6d_gaussian", populate_6d_gaussian_wrapper);
@@ -100,4 +116,5 @@ BOOST_PYTHON_MODULE(populate)
     def("populate_transverse_gaussian_quasi", populate_transverse_gaussian_quasi_wrapper);
     def("populate_uniform_cylinder", populate_uniform_cylinder_wrapper);
     def("populate_uniform_cylinder_quasi", populate_uniform_cylinder_quasi_wrapper);
+    def("populate_uniform_cylinder_regular", populate_uniform_cylinder_regular_wrapper);
 }

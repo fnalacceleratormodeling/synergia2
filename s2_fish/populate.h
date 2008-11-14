@@ -27,4 +27,10 @@ void populate_uniform_cylinder(Array_2d<double> &particles,
 void populate_uniform_cylinder_quasi(Array_2d<double> &particles,
                              const Array_1d<double> &means, const Array_2d<double> &covariances,
                              const int id_offset);
+void
+populate_uniform_cylinder_regular(Array_2d<double> &particles,
+                                  double radius, double length,
+                                  int num_circles, int num_disks,
+                                  int num_theta0);
+
 #endif

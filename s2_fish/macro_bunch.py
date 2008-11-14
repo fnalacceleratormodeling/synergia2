@@ -225,6 +225,36 @@ class Macro_bunch:
                     self.particles[:,peak_offsets[peak]:peak_offsets[peak+1]] = tmp
                     _need_random_init= False
                     
+    def init_gaussian_covariance(self,total_num,total_current, beam_parameters,covariance):
+        (Cxy, Cxpyp, Cz, Czp) = beam_parameters.get_conversions()
+        self.units = Numeric.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
+        self.total_num = total_num
+        nums, offsets = self._split_num_particles(total_num,MPI.size)
+        self.local_num = nums[MPI.rank]
+        global _global_id_max
+        id_offset = _global_id_max + offsets[MPI.rank]
+        _global_id_max += total_num
+        self.total_current = total_current
+        self.is_fixedz = 1
+        self.ref_particle = Numeric.zeros((6,),'d')
+        self.ref_particle[5] = -beam_parameters.get_gamma()
+        self.particles = Numeric.zeros((7,self.local_num),'d')
+        seed_offset = int(time.time())
+        long_seed = (1000+5*(MPI.rank+seed_offset))*((MPI.rank+seed_offset)+7)-1
+        seed = int(long_seed % 2**32)
+        global _need_random_init
+        if beam_parameters.get_transverse():
+            raise RuntimeError, "init_gaussian_covariance does not work with transverse beams"
+        else:
+            if beam_parameters.get_z_peaks() == 1:
+                populate.populate_6d_gaussian(self.particles,
+                    beam_parameters.get_means(),
+                    covariance,id_offset,seed,
+                    _need_random_init)
+                _need_random_init= False
+            else:
+                raise RuntimeError, "init_gaussian_covariance does not work with z_peaks <> 1"
+            
     def inject(self, bunch):
         if (self.is_fixedz != bunch.is_fixedz):
             raise RuntimeError, "injected bunch must have same fixedz status as parent"

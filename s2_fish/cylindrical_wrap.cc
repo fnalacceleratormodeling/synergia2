@@ -19,7 +19,7 @@ get_cylindrical_coords_wrapper(Macro_bunch_store &mbs,
 }
 
 void
-deposit_charge_cic_cylindrical_wrapper(const Field_domain &fdomain, 
+deposit_charge_cic_cylindrical_wrapper(const Cylindrical_field_domain &fdomain, 
     object &rho , Macro_bunch_store& mbs,
     const object &coords)
 {
@@ -28,6 +28,7 @@ deposit_charge_cic_cylindrical_wrapper(const Field_domain &fdomain,
     Array_2d<double> coords_array = 
         Array_nd_from_PyObject<double>(coords.ptr());
     deposit_charge_cic_cylindrical(fdomain, rho_array, mbs, coords_array);
+    std::cout << "jfa: about to return from deposit_charge_cic_cylindrical_wrapper\n";
 }
 
 void 
@@ -73,49 +74,38 @@ full_kick_cylindrical_wrapper(const Field_domain &fdomain,
 }
 
 BOOST_PYTHON_MODULE(s2_solver_cylindrical)
-{    
-    //---------------------------------------------------------------------
-    // std::vector<> conversions
-    //---------------------------------------------------------------------
-    //~ scitbx::boost_python::container_conversions::from_python_sequence <
-    //~ std::vector<int>,
-    //~ scitbx::boost_python::container_conversions::variable_capacity_policy > ();
-
-    //~ boost::python::to_python_converter <
-    //~ std::vector<int>,
-    //~ scitbx::boost_python::container_conversions::to_tuple <
-    //~ std::vector<int> > > ();
-
-    //~ scitbx::boost_python::container_conversions::from_python_sequence <
-    //~ std::vector<double>,
-    //~ scitbx::boost_python::container_conversions::variable_capacity_policy > ();
-
-    //~ boost::python::to_python_converter <
-    //~ std::vector<double>,
-    //~ scitbx::boost_python::container_conversions::to_tuple <
-    //~ std::vector<double> > > ();
-
-    scitbx::boost_python::container_conversions::from_python_sequence <
-    std::vector<bool>,
-    scitbx::boost_python::container_conversions::variable_capacity_policy > ();
-
-    boost::python::to_python_converter <
-    std::vector<bool>,
-    scitbx::boost_python::container_conversions::to_tuple <
-    std::vector<bool> > > ();
-
-    class_<Field_domain>("Field_domain", init<>())
-    .def(init<const std::vector<double> &,
-        const std::vector<double> &,
-        const std::vector<int> &,
-        const std::vector<bool> &>())
-    .def("set_params",&Field_domain::set_params)
-    .def("get_grid_shape",&Field_domain::get_grid_shape)
-    .def("get_cell_size",&Field_domain::get_cell_size)
-    .def("get_periodic",&Field_domain::get_periodic)
+{
+   class_<Field_domain>("Field_domain", init<>())
+            .def(init<const std::vector<double> &,
+                 const std::vector<double> &,
+                 const std::vector<int> &,
+                 const std::vector<bool> &>())
+            .def("set_params",&Field_domain::set_params)
+            .def("get_grid_shape",&Field_domain::get_grid_shape)
+            .def("get_cell_size",&Field_domain::get_cell_size)
+            .def("get_periodic",&Field_domain::get_periodic)
         //~ .def("get_leftmost_indices_offsets",&Field_domain::get_leftmost_indices_offsets)
-    ;
-        
+            ;
+
+//     Cylindrical_field_domain(double radius, double length,
+//                              const std::vector<int> &grid_shape,
+//                              bool periodic_z);
+// 
+//         // jfa: The name get_leftmost_indices_offsets is possibly misleading
+//     void get_leftmost_indices_offsets(double c0, double c1, double c2,
+//                                       std::vector<int> &indices, 
+//                                       std::vector<double> &offsets) const;
+//     const std::vector<int> &get_grid_shape() const;
+
+    class_<Cylindrical_field_domain>("Cylindrical_field_domain", init<double, double,
+                 const std::vector<int> &,
+                 bool>())
+//             .def("get_grid_shape",&Field_domain::get_grid_shape)
+            .def("get_cell_size",&Cylindrical_field_domain::get_cell_size,return_value_policy<return_by_value>() ) // jfa: hmm... I'm not sure this is what I want...
+//             .def("get_periodic",&Field_domain::get_periodic)
+//          .def("get_leftmost_indices_offsets",&Field_domain::get_leftmost_indices_offsets)
+            ;
+
     def("get_cylindrical_coords",get_cylindrical_coords_wrapper);
     def("deposit_charge_cic_cylindrical",
         deposit_charge_cic_cylindrical_wrapper);
