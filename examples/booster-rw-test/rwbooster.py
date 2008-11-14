@@ -8,6 +8,7 @@ import beamline
 
 import Numeric
 import LinearAlgebra
+import numpy
 import MLab
 import time
 import math
@@ -89,7 +90,7 @@ def update_rf(cell_line,opts):
         cell_line[cell].set_rf_params(opts.get("rfvoltage"),phase0,phase0)
 
 def ha_match(map,beam_parameters,emitx,emity,dpop):
-    evals,evects = LinearAlgebra.eigenvectors(map)
+    evals,evects = numpy.linalg.eig(map)
     for evect in evects:
         print "evect =",evect
     E = range(0,3)
