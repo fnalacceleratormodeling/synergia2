@@ -92,11 +92,27 @@ def update_rf(cell_line,opts):
 def ha_match(map,beam_parameters,emitx,emity,dpop):
     evals,evects = numpy.linalg.eig(map)
     for evect in evects:
-        print "evect =",evect
+        print "evect =",numpy.array2string(evect,precision=1,max_line_width=120)
     E = range(0,3)
+    remaining = range(5,-1,-1)
     for i in range(0,3):
-        tmp=Numeric.outerproduct(evects[2*i],Numeric.conjugate(evects[2*i]))
-        tmp+=Numeric.outerproduct(evects[2*i+1],Numeric.conjugate(evects[2*i+1]))
+        # find complex conjugate among remaining eigenvectors
+        first = remaining.pop()
+        best = 1.0e30
+        conj = -1
+        for item in remaining:
+            sum = evects[item]+Numeric.conjugate(evects[item])
+            if abs(MLab.max(sum.imag)) < best:
+                best = abs(MLab.max(sum.imag))
+                conj = item
+        if conj == -1:
+            raise RuntimeError,"failed to find a conjugate pair in ha_match"
+        remaining.remove(conj)
+        print first,conj,best
+        tmp=Numeric.outerproduct(evects[first],
+            Numeric.conjugate(evects[first]))
+        tmp+=Numeric.outerproduct(evects[conj],
+            Numeric.conjugate(evects[conj]))
         E[i]=tmp.real
 
     for srt in range(1,3):
@@ -110,7 +126,8 @@ def ha_match(map,beam_parameters,emitx,emity,dpop):
         E[2] = tmp
     for i in range(0,3):
         print "E",i
-        print Numeric.array2string(E[i],precision=5,max_line_width=120)
+        print Numeric.array2string(E[i],precision=1,max_line_width=120)
+    sys.exit(2)
     Cxy, Cxpyp, Cz, Czp = beam_parameters.get_conversions()
     gamma = beam_parameters.get_gamma()
     C = Numeric.zeros([6,6],'d')
