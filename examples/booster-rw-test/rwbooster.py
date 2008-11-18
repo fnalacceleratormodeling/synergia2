@@ -23,6 +23,22 @@ except:
     if MPI.rank == 0:
         print "pylab not available"
 
+def write_map(map):
+    f = open("map.dat","w")
+    for i in range(0,6):
+        for j in range(0,6):
+            f.write("%0.15g\n" % map[i,j]);
+    f.close()
+    
+def read_map():
+    map = numpy.zeros([6,6],'d')
+    f = open("map.dat","r")
+    for i in range(0,6):
+        for j in range(0,6):
+            map[i,j] = float(f.readline())
+    f.close()
+    return map
+    
 rfcells = [14,15,16,17,19,21,22,23,24]
 class Line:
     def __init__(self, mad_file, line_name, kinetic_energy, scaling_frequency,
@@ -90,9 +106,13 @@ def update_rf(cell_line,opts):
         cell_line[cell].set_rf_params(opts.get("rfvoltage"),phase0,phase0)
 
 def ha_match(map,beam_parameters,emitx,emity,dpop):
-    evals,evects = numpy.linalg.eig(map)
-    for evect in evects:
-        print "evect =",numpy.array2string(evect,precision=1,max_line_width=120)
+    numpy_map = map
+    evals,evect_matrix = numpy.linalg.eig(numpy_map)
+    evects = []
+    for i in range(0,6):
+        evects.append(evect_matrix[:,i])
+    #~ for evect in evects:
+        #~ print "evect =",numpy.array2string(evect,precision=1,max_line_width=120)
     E = range(0,3)
     remaining = range(5,-1,-1)
     for i in range(0,3):
@@ -101,14 +121,14 @@ def ha_match(map,beam_parameters,emitx,emity,dpop):
         best = 1.0e30
         conj = -1
         for item in remaining:
-            sum = evects[item]+Numeric.conjugate(evects[item])
-            if abs(MLab.max(sum.imag)) < best:
+            sum = evects[first]+evects[item]
+            if abs(numpy.max(sum.imag)) < best:
                 best = abs(MLab.max(sum.imag))
                 conj = item
         if conj == -1:
             raise RuntimeError,"failed to find a conjugate pair in ha_match"
         remaining.remove(conj)
-        print first,conj,best
+        #~ print first,conj,best
         tmp=Numeric.outerproduct(evects[first],
             Numeric.conjugate(evects[first]))
         tmp+=Numeric.outerproduct(evects[conj],
@@ -124,10 +144,9 @@ def ha_match(map,beam_parameters,emitx,emity,dpop):
         tmp = E[1]
         E[1] = E[2]
         E[2] = tmp
-    for i in range(0,3):
-        print "E",i
-        print Numeric.array2string(E[i],precision=1,max_line_width=120)
-    sys.exit(2)
+    #~ for i in range(0,3):
+        #~ print "E",i
+        #~ print Numeric.array2string(E[i],precision=1,max_line_width=120)
     Cxy, Cxpyp, Cz, Czp = beam_parameters.get_conversions()
     gamma = beam_parameters.get_gamma()
     C = Numeric.zeros([6,6],'d')
@@ -135,8 +154,6 @@ def ha_match(map,beam_parameters,emitx,emity,dpop):
     C += E[1]*emity/(Cxpyp*sqrt(abs(LinearAlgebra.determinant(E[1][2:4,2:4]))))
     C += E[2]*dpop*dpop/(gamma*gamma*E[2][5,5])
     
-    print "C ="
-    print Numeric.array2string(C,precision=5,max_line_width=120)
     return C
 
 
@@ -204,8 +221,8 @@ if ( __name__ == '__main__'):
     C = ha_match(full_map[0:6,0:6],beam_parameters,myopts.get("emittance"),
                  myopts.get("emittance"),myopts.get("dpop"))
 
-    print "OK, C = "
-    print C
+    #~ print "C = "
+    #~ print Numeric.array2string(C,precision=2)
     bunch.init_gaussian_covariance(num_particles, myopts.get("current"), beam_parameters, C)
 
     s = 0.0
