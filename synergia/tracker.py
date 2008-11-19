@@ -96,8 +96,10 @@ class Tracker:
     def close(self):
         if MPI.rank == 0:
             t0 = time.time()
-            shutil.copytree(self.dir,
-                            os.path.join(self.dest_dir,self.track_dir))
+            destination = os.path.join(self.dest_dir,self.track_dir)
+            if os.path.exists(destination):
+                shutil.rmtree(destination)
+            shutil.copytree(self.dir,destination)
             self.copy_time = time.time() - t0
             shutil.rmtree(self.base_dir)
         self.open = 0
