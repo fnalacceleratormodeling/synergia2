@@ -40,6 +40,7 @@ def read_map():
     return map
     
 rfcells = [14,15,16,17,19,21,22,23,24]
+#~ rfcells = []
 class Line:
     def __init__(self, mad_file, line_name, kinetic_energy, scaling_frequency,
                  map_order, kicks, opts):
@@ -111,8 +112,7 @@ def ha_match(map,beam_parameters,emitx,emity,dpop):
     evects = []
     for i in range(0,6):
         evects.append(evect_matrix[:,i])
-    #~ for evect in evects:
-        #~ print "evect =",numpy.array2string(evect,precision=1,max_line_width=120)
+    evals,evects = numpy.linalg.eig(map)
     E = range(0,3)
     remaining = range(5,-1,-1)
     for i in range(0,3):
@@ -144,9 +144,6 @@ def ha_match(map,beam_parameters,emitx,emity,dpop):
         tmp = E[1]
         E[1] = E[2]
         E[2] = tmp
-    #~ for i in range(0,3):
-        #~ print "E",i
-        #~ print Numeric.array2string(E[i],precision=1,max_line_width=120)
     Cxy, Cxpyp, Cz, Czp = beam_parameters.get_conversions()
     gamma = beam_parameters.get_gamma()
     C = Numeric.zeros([6,6],'d')
@@ -173,13 +170,16 @@ if ( __name__ == '__main__'):
     myopts.add("rfphase",0.0,"rf cavity phase (rad)",float)
     myopts.add("scgrid",[33,33,33],"Space charge grid",int)
     myopts.add("saveperiod",10,"save beam each <saveperiod> turns",int)
-    myopts.add("track",1,"whether to track particles",int)
+    myopts.add("track",0,"whether to track particles",int)
     myopts.add("trackfraction",[1,100],"fraction of particles to track (numer,denom)",int)
     myopts.add("partpercell",1.0,"average number of particles per cell",float)
     myopts.add("numparticles", 0, "number of particles; if non-zero, supersedes partpercell", int)
     myopts.add("offsetx",0,"x beam offset (m)",float)
     myopts.add("offsety",0,"y beam offset (m)",float)
     myopts.add("latticefile","booster_classic.lat","lattice file",str)
+    myopts.add("space_charge",0,"flag for space_charge",int)
+    myopts.add("impedance",1,"flag for impedance",int)
+    myopts.add("pipe_conduct", 1.4e6,"conductivity # [/s] (stainless steel)",float)
 
     myopts.add_suboptions(synergia.opts)
     myopts.parse_argv(sys.argv)
@@ -215,14 +215,15 @@ if ( __name__ == '__main__'):
         linear_map = cell_line[cell].gourmet.get_single_linear_map()
         full_map = Numeric.matrixmultiply(linear_map,full_map)
     
-    print "full_map ="
-    print Numeric.array2string(full_map,precision=2,suppress_small=True)
+    #~ print "full_map ="
+    #~ print Numeric.array2string(full_map,precision=2,suppress_small=True)
 
     C = ha_match(full_map[0:6,0:6],beam_parameters,myopts.get("emittance"),
                  myopts.get("emittance"),myopts.get("dpop"))
 
-    #~ print "C = "
-    #~ print Numeric.array2string(C,precision=2)
+    # jfa: this is an ugly hack
+    beam_parameters.offset_x_m = myopts.get("offsetx")
+    beam_parameters.offset_y_m = myopts.get("offsety")
     bunch.init_gaussian_covariance(num_particles, myopts.get("current"), beam_parameters, C)
 
     s = 0.0
@@ -232,14 +233,27 @@ if ( __name__ == '__main__'):
     if myopts.get("track"):
         mytracker = synergia.Tracker('/tmp',myopts.get("trackfraction"))
 
+    print "init:" 
+    print bunch.get_local_particles()[0:6,0]
+    print bunch.get_local_particles()[0:6,1]
+
+    psx = Numeric.zeros([myopts.get("turns"),num_particles],'d')
+    psxp = Numeric.zeros([myopts.get("turns"),num_particles],'d')
     for turn in range(1,myopts.get("turns")+1):
+        psx[turn-1,:] = bunch.get_local_particles()[4,:]
+        psxp[turn-1,:] = bunch.get_local_particles()[5,:]
         if MPI.rank==0:
             print "turn %d:" % turn,
             sys.stdout.flush()
         if turn % myopts.get("saveperiod") == 0:
             bunch.write_particles("turn_%02d.h5"%(turn-1))
         for cell in range(1,25):
-            s = synergia.propagate(s,cell_line[cell].gourmet,bunch,diag,griddim,use_s2_fish=True)
+            s = synergia.propagate(s,cell_line[cell].gourmet,bunch,diag,
+                griddim,use_s2_fish=True,
+                space_charge=myopts.get("space_charge"),
+                impedance=myopts.get("impedance"),
+                pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius,
+                pipe_conduct=myopts.get("pipe_conduct"))
             if MPI.rank == 0:
                 print "%02d" % cell,
             sys.stdout.flush()
@@ -257,3 +271,7 @@ if ( __name__ == '__main__'):
     if MPI.rank == 0:
         print "elapsed time =",time.time() - t0
 
+    for i in range(0,num_particles):
+        pylab.plot(psx[:,i],psxp[:,i],'.')
+    pylab.show()
+    
