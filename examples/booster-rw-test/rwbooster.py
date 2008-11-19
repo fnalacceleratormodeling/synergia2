@@ -112,7 +112,6 @@ def ha_match(map,beam_parameters,emitx,emity,dpop):
     evects = []
     for i in range(0,6):
         evects.append(evect_matrix[:,i])
-    evals,evects = numpy.linalg.eig(map)
     E = range(0,3)
     remaining = range(5,-1,-1)
     for i in range(0,3):
@@ -220,6 +219,8 @@ if ( __name__ == '__main__'):
 
     C = ha_match(full_map[0:6,0:6],beam_parameters,myopts.get("emittance"),
                  myopts.get("emittance"),myopts.get("dpop"))
+    print "C = "
+    print Numeric.array2string(C,precision=2)
 
     # jfa: this is an ugly hack
     beam_parameters.offset_x_m = myopts.get("offsetx")
@@ -233,15 +234,7 @@ if ( __name__ == '__main__'):
     if myopts.get("track"):
         mytracker = synergia.Tracker('/tmp',myopts.get("trackfraction"))
 
-    print "init:" 
-    print bunch.get_local_particles()[0:6,0]
-    print bunch.get_local_particles()[0:6,1]
-
-    psx = Numeric.zeros([myopts.get("turns"),num_particles],'d')
-    psxp = Numeric.zeros([myopts.get("turns"),num_particles],'d')
     for turn in range(1,myopts.get("turns")+1):
-        psx[turn-1,:] = bunch.get_local_particles()[4,:]
-        psxp[turn-1,:] = bunch.get_local_particles()[5,:]
         if MPI.rank==0:
             print "turn %d:" % turn,
             sys.stdout.flush()
@@ -270,8 +263,4 @@ if ( __name__ == '__main__'):
     MPI.WORLD.Barrier()
     if MPI.rank == 0:
         print "elapsed time =",time.time() - t0
-
-    for i in range(0,num_particles):
-        pylab.plot(psx[:,i],psxp[:,i],'.')
-    pylab.show()
     
