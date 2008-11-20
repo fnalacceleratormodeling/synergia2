@@ -61,7 +61,7 @@ class Tracker:
             f = tables.openFile(fname,mode = "a")
             earray = f.root.points
         point = Numeric.zeros((7,1),'d')
-        point[0:5,0] = part[0:5]
+        point[0:6,0] = part[0:6]
         point[6,0] = s
         earray.append(point)
         f.close()
