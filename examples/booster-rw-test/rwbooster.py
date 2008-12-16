@@ -233,6 +233,7 @@ if ( __name__ == '__main__'):
         
     if myopts.get("track"):
         mytracker = synergia.Tracker('/tmp',myopts.get("trackfraction"))
+        mytracker.add(bunch,s)
 
     for turn in range(1,myopts.get("turns")+1):
         if MPI.rank==0:
@@ -250,7 +251,7 @@ if ( __name__ == '__main__'):
             if MPI.rank == 0:
                 print "%02d" % cell,
             sys.stdout.flush()
-            if cell % 12 == 2 and myopts.get("track"):
+            if cell % 12 == 0 and myopts.get("track"):
                 mytracker.add(bunch,s)
         if MPI.rank==0:
             print
