@@ -152,7 +152,12 @@ calculate_rwvars(Macro_bunch_store& mbs,
         }
     }
     for (int k = 0; k < z_num; ++k) {
-        xmom(k) /= zdensity(k)*mbs.units(0);
-        ymom(k) /= zdensity(k)*mbs.units(2);
+    	if (zdensity(k) != 0.0) {
+	        xmom(k) /= zdensity(k)*mbs.units(0);
+	        ymom(k) /= zdensity(k)*mbs.units(2);
+    	} else {
+    		xmom(k) = 0.0;
+    		ymom(k) = 0.0;
+    	}
     }
 }   
