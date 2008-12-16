@@ -14,6 +14,8 @@ deposit_charge_cic(Real_scalar_field& sf, Macro_bunch_store& mbs,
     double total_charge_per_cell_vol = 0.0;
     Double3 h(sf.get_cell_size());
     double weight0 = 1.0 / (h[0] * h[1] * h[2]);
+    //~ weight0 = 1.0; //jfa DEBUG ONLY!!!!!!!!!!!!!!!!!!!!!
+    //~ std::cout << "jfa: btw, zperiodic = " << z_periodic << std::endl;
     sf.get_points().zero_all();
     for (int n = 0; n < mbs.local_num; ++n) {
         Double3 location(mbs.local_particles(0, n),
@@ -96,11 +98,12 @@ rho_to_rwvars(Real_scalar_field &rho, Array_1d<double> &zdensity,
         ymom(k) = 0.0;
         for (int i=0; i<shape[0]; ++i) {
             double x = left[0] + i*cell_size[0];
+            std::cout << "jfa x = " << x << std::endl;
             for (int j=0; j<shape[1]; ++j) {
                 double y = left[1] + j*cell_size[1];
                 zdensity(k) += cell_volume*rho.get_points().get(Int3(i,j,k));
-                xmom(k) += x*rho.get_points().get(Int3(i,j,k));
-                ymom(k) += y*rho.get_points().get(Int3(i,j,k));
+                xmom(k) += x*cell_volume*rho.get_points().get(Int3(i,j,k));
+                ymom(k) += y*cell_volume*rho.get_points().get(Int3(i,j,k));
             }
         }
     }
@@ -114,3 +117,28 @@ rho_to_rwvars(Real_scalar_field &rho, Array_1d<double> &zdensity,
         }
     }
 }
+
+void
+calculate_rwvars(Macro_bunch_store& mbs,
+                   Array_1d<double> &zdensity,
+                   Array_1d<double> &xmom, Array_1d<double> &ymom,
+                   double z_left, double z_length)
+{
+    int z_num = zdensity.get_length();
+    double h = z_length/z_num;
+    zdensity.set_all(0.0);
+    xmom.set_all(0.0);
+    ymom.set_all(0.0);
+    for (int n = 0; n < mbs.local_num; ++n) {
+        int bin = static_cast<int>((mbs.local_particles(4,n)-z_left)/h);
+        if ((bin < z_num) && (bin >= 0)) {
+            zdensity(bin) += 1;
+            xmom(bin) += mbs.local_particles(0,n);
+            ymom(bin) += mbs.local_particles(2,n);
+        }
+    }
+    for (int k = 0; k < z_num; ++k) {
+        xmom(bin) /= zdensity(bin);
+        ymom(bin) /= zdensity(bin);
+    }
+}   
