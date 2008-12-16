@@ -274,8 +274,8 @@ if ( __name__ == '__main__'):
     print "<ymom> =",MLab.mean(ymom),"+/",MLab.std(ymom)/MLab.mean(ymom)*100,"%"
     
     xtmp = xmom*zdensity/MLab.sum(zdensity)
-    print "<xtmp> =",MLab.mean(xtmp),"+/",MLab.std(xtmp)/MLab.mean(xtmp)*100,"%"
+    print "<xtmp> =",MLab.mean(xtmp),"+/",MLab.std(xtmp)
 
     ytmp = ymom*zdensity/MLab.sum(zdensity)
-    print "<ytmp> =",MLab.mean(ytmp),"+/",MLab.std(ytmp)/MLab.mean(ytmp)*100,"%"
+    print "<ytmp> =",MLab.mean(ytmp),"+/",MLab.std(ytmp)
     
