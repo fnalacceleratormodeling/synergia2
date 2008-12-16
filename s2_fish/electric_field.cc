@@ -304,20 +304,12 @@ rw_kick(Real_scalar_field &rho,
                     ymom(ahead_slice)/sqrt(zdistance);
             } else {
                 std::cout << "jfa:still broken\n";
-//                std::cout << "jfa:mbs.local_particles(4,n) = " << mbs.local_particles(4,n) << std::endl;
-//                std::cout << "jfa: zdistance = " << zdistance << std::endl;
-//                std::cout << "jfa: zoffset = " << zoffset << std::endl;
-//                std::cout << "jfa: cell_size_z = " << cell_size_z << std::endl;
-//				std::cout << "jfa: left_z = " << left_z << std::endl;
-//				std::cout << "jfa: ahead_slice = " << ahead_slice << std::endl;
-//				exit(1);
             }
 
         }
         mbs.local_particles(1,n) += xkick;
         mbs.local_particles(3,n) += ykick;
         //~ std::cout << "f0:" <<xkick << " " << ykick << std::endl;
-        //~ std::cout << "fff:" << wake_factor_x
             //~ << " " << charge_factor
             //~ << " " << zdensity(num_slices/2)
             //~ << " " << xmom(num_slices/2)
