@@ -124,7 +124,21 @@ calculate_rwvars(Macro_bunch_store& mbs,
                    Array_1d<double> &xmom, Array_1d<double> &ymom,
                    double z_left, double z_length)
 {
-    int z_num = zdensity.get_length();
+//	const double really_big = 1.0e30;
+//	double zmin = really_big;
+//	double zmax = -really_big;
+//    for (int n = 0; n < mbs.local_num; ++n) {
+//    	double z = mbs.local_particles(4,n);
+//    	if (z < zmin) {
+//    		zmin = z;
+//    	} else if (z > zmax) {
+//    		zmax = z;
+//    	}
+//	}
+//    double z_left = zmin;
+//    double z_length = (zmax - zmin);
+//    std::cout << "jfa: z_left = " << z_left << ", z_length = " << z_length << std::endl;
+	int z_num = zdensity.get_length();
     double h = z_length/z_num;
     zdensity.set_all(0.0);
     xmom.set_all(0.0);
@@ -138,7 +152,7 @@ calculate_rwvars(Macro_bunch_store& mbs,
         }
     }
     for (int k = 0; k < z_num; ++k) {
-        xmom(bin) /= zdensity(bin);
-        ymom(bin) /= zdensity(bin);
+        xmom(k) /= zdensity(k)*mbs.units(0);
+        ymom(k) /= zdensity(k)*mbs.units(2);
     }
 }   

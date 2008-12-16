@@ -17,6 +17,7 @@ from math import pi,sqrt
 
 from s2_fish.s2_containers import Real_scalar_field
 from s2_fish.s2_deposit import rho_to_rwvars
+from s2_fish.s2_deposit import calculate_rwvars
 from s2_fish.s2_deposit import deposit_charge_cic
 
 #from mpi4py import MPI
@@ -253,8 +254,9 @@ if ( __name__ == '__main__'):
     zdensity = Numeric.zeros((shape[2]),'d')
     xmom = Numeric.zeros((shape[2]),'d')
     ymom= Numeric.zeros((shape[2]),'d')
-    rho_to_rwvars(rho,zdensity,xmom,ymom)
-
+#    rho_to_rwvars(rho,zdensity,xmom,ymom)
+    calculate_rwvars(bunch.get_store(),zdensity,xmom,ymom,
+                     offset[2]-size[2]*0.5,size[2])
     #~ rho.get_points().print_("rho")
 
     print "zdensity =",zdensity
@@ -265,3 +267,15 @@ if ( __name__ == '__main__'):
     print "cell_volume =",cell_volume
     print "xmom =",xmom
     print "ymom =",ymom
+    
+    print "z_left =",offset[2]-size[2]*0.5
+    print "z_length =", size[2]
+    print "<xmom> =",MLab.mean(xmom),"+/",MLab.std(xmom)/MLab.mean(xmom)*100,"%"
+    print "<ymom> =",MLab.mean(ymom),"+/",MLab.std(ymom)/MLab.mean(ymom)*100,"%"
+    
+    xtmp = xmom*zdensity/MLab.sum(zdensity)
+    print "<xtmp> =",MLab.mean(xtmp),"+/",MLab.std(xtmp)/MLab.mean(xtmp)*100,"%"
+
+    ytmp = ymom*zdensity/MLab.sum(zdensity)
+    print "<ytmp> =",MLab.mean(ytmp),"+/",MLab.std(ytmp)/MLab.mean(ytmp)*100,"%"
+    

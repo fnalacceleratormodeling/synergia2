@@ -14,7 +14,7 @@ SET(Boost_USE_MULTITHREAD ON)
 FIND_PACKAGE(Boost COMPONENTS python regex unit_test_framework)
 
 IF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.6)
-    set(Boost_LIBRARIES -lboost_python-gcc)
+    set(Boost_LIBRARIES -lboost_python-gcc41-mt)
 ENDIF (${CMAKE_MAJOR_VERSION}.${CMAKE_MINOR_VERSION} LESS 2.6)
 
 message("Boost_FOUND = '${Boost_FOUND}'")
@@ -28,6 +28,8 @@ message("Boost_LIB_VERSION = '${Boost_LIB_VERSION}'")
 message("Boost_MAJOR_VERSION = '${Boost_MAJOR_VERSION}'")
 message("Boost_MINOR_VERSION = '${Boost_MINOR_VERSION}'")
 message("Boost_SUBMINOR_VERSION = '${Boost_SUBMINOR_VERSION}'")
+
+set(Boost_LIBRARIES -lboost_python-gcc41-mt)
 
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})

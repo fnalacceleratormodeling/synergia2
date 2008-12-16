@@ -25,4 +25,11 @@ deposit_charge_ngp(Real_scalar_field& sf, Macro_bunch_store& mbs);
 void
 rho_to_rwvars(Real_scalar_field &rho, Array_1d<double> &zdensity,
             Array_1d<double> &xmom, Array_1d<double> &ymom);
+
+void
+calculate_rwvars(Macro_bunch_store& mbs,
+                   Array_1d<double> &zdensity,
+                   Array_1d<double> &xmom, Array_1d<double> &ymom,
+                   double z_left, double z_length);
+
 #endif // HAVE_DEPOSIT_H
