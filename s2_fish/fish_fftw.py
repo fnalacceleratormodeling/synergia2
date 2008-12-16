@@ -88,7 +88,8 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
             zdensity = Numeric.zeros((shape[2]),'d')
             xmom = Numeric.zeros((shape[2]),'d')
             ymom= Numeric.zeros((shape[2]),'d')
-            rho_to_rwvars(global_rho,zdensity,xmom,ymom)
+            calculate_rwvars(mbunch.get_store(),zdensity,xmom,ymom,
+                     offset[2]-size[2]*0.5,size[2])
             zoffset = 0.0
             rw_kick(rho,zdensity,xmom,ymom,2*tau, 
                     mbunch.get_store(),
