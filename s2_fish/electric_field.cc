@@ -303,18 +303,12 @@ rw_kick(Real_scalar_field &rho,
                 ykick += wake_factor_y * zdensity(ahead_slice) * 
                     ymom(ahead_slice)/sqrt(zdistance);
             } else {
-                std::cout << "jfa:still broken\n";
+                std::cerr << "warning: rw_kick encountered a nonsensical longitudinal distance\n";
             }
 
         }
         mbs.local_particles(1,n) += xkick;
         mbs.local_particles(3,n) += ykick;
-        //~ std::cout << "f0:" <<xkick << " " << ykick << std::endl;
-            //~ << " " << charge_factor
-            //~ << " " << zdensity(num_slices/2)
-            //~ << " " << xmom(num_slices/2)
-            //~ << " " << cell_size_z
-            //~ << std::endl;
     }
 }
 
