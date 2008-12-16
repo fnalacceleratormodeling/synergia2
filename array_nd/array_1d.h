@@ -25,6 +25,8 @@ public:
     T& operator()(const int i);
     T operator()(const int i) const;
 
+    inline int get_length() const;
+
     inline int offset(const int i) const;
     inline bool bounds_check(const int i) const;
 

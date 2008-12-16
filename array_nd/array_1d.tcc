@@ -147,6 +147,13 @@ Array_1d<T>::operator()(const int i) const
 }
 
 template<class T>
+inline int
+Array_1d<T>::get_length() const
+{
+    return this->shape[0];
+}
+
+template<class T>
 inline bool
 Array_1d<T>::bounds_check(const int i) const
 {
