@@ -236,6 +236,10 @@ if ( __name__ == '__main__'):
         mytracker.add(bunch,s)
 
     for turn in range(1,myopts.get("turns")+1):
+        #~ dt0 = time.time()
+        #~ diag.write_hdf5("booster_output")
+        #~ dt1 = time.time()
+        #~ print "writing booster_output took",dt1-dt0,"s"
         if MPI.rank==0:
             print "turn %d:" % turn,
             sys.stdout.flush()
