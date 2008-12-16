@@ -29,7 +29,7 @@ message("Boost_MAJOR_VERSION = '${Boost_MAJOR_VERSION}'")
 message("Boost_MINOR_VERSION = '${Boost_MINOR_VERSION}'")
 message("Boost_SUBMINOR_VERSION = '${Boost_SUBMINOR_VERSION}'")
 
-set(Boost_LIBRARIES -lboost_python-gcc-mt)
+set(Boost_LIBRARIES -lboost_python-gcc)
 
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
