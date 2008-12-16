@@ -12,7 +12,8 @@ def addiflonger(hash,key,value):
 dummyhash = {}
 results = {}
 exclude = ["summarizedir","jobdir","createjob",
-    "trackfraction","saveperiod","submit","track","space_charge"]
+    "trackfraction","saveperiod","submit","track","space_charge",
+    "numproc"]
 for dir in sys.argv[1:]:
     addiflonger(dummyhash,"summarizedir",dir)
     results[dir] = {}
