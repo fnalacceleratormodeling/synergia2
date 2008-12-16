@@ -1,6 +1,7 @@
 #include "deposit.h"
 #include <boost/python/numeric.hpp>
 #include <boost/python/tuple.hpp>
+#include <mpi.h>
 
 #include <cstdlib>
 
@@ -140,17 +141,33 @@ calculate_rwvars(Macro_bunch_store& mbs,
 //    std::cout << "jfa: z_left = " << z_left << ", z_length = " << z_length << std::endl;
 	int z_num = zdensity.get_length();
     double h = z_length/z_num;
-    zdensity.set_all(0.0);
-    xmom.set_all(0.0);
-    ymom.set_all(0.0);
+    Array_1d<double> local_zdensity(z_num);
+    Array_1d<double> local_xmom(z_num);
+    Array_1d<double> local_ymom(z_num);
+    local_zdensity.set_all(0.0);
+    local_xmom.set_all(0.0);
+    local_ymom.set_all(0.0);
     for (int n = 0; n < mbs.local_num; ++n) {
         int bin = static_cast<int>((mbs.local_particles(4,n)-z_left)/h);
         if ((bin < z_num) && (bin >= 0)) {
-            zdensity(bin) += 1;
-            xmom(bin) += mbs.local_particles(0,n);
-            ymom(bin) += mbs.local_particles(2,n);
+            local_zdensity(bin) += 1;
+            local_xmom(bin) += mbs.local_particles(0,n);
+            local_ymom(bin) += mbs.local_particles(2,n);
         }
     }
+    
+    // jfa: the other deposit functions do not do the communication. This one does.
+    // Obviously, something should change.
+    MPI_Allreduce(reinterpret_cast<void*>(local_zdensity.get_data_ptr()),
+                    reinterpret_cast<void*>(zdensity.get_data_ptr()),
+                    z_num, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(reinterpret_cast<void*>(local_xmom.get_data_ptr()),
+                    reinterpret_cast<void*>(xmom.get_data_ptr()),
+                    z_num, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(reinterpret_cast<void*>(local_ymom.get_data_ptr()),
+                    reinterpret_cast<void*>(ymom.get_data_ptr()),
+                    z_num, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    
     for (int k = 0; k < z_num; ++k) {
     	if (zdensity(k) != 0.0) {
 	        xmom(k) /= zdensity(k)*mbs.units(0);
