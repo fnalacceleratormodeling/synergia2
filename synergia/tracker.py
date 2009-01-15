@@ -23,7 +23,7 @@ class Tracker:
             self.denom = fractuple
         if not sub_dir:
             sub_dir = os.environ['USER'] + str(os.getpid())
-        if MPI.rank == 0:
+        if MPI.COMM_WORLD.Get_rank() == 0:
             self.base_dir = create_new_directory(os.path.join(root_dir,
                                                               sub_dir),
                                                  0,overwrite=0)
@@ -71,13 +71,13 @@ class Tracker:
             print "Warning: attempt to add to tracker after closing. Nothing added."
             return
         last_flag = -999
-        if MPI.rank == 0:
+        if MPI.COMM_WORLD.Get_rank() == 0:
             t0 = time.time()
             for i in range(0,bunch.get_num_particles_local()):
                 id = int(bunch.get_local_particles()[6,i])
                 if (self.numer*id % self.denom) < self.numer:
                     self._write_track(bunch.get_local_particles()[:,i],s)            
-            for proc in xrange(1,MPI.size):
+            for proc in xrange(1,MPI.COMM_WORLD.Get_size()):
                 parts = MPI.WORLD.Recv(source=proc)
                 for i in range(0,parts.shape[1]):
                     self._write_track(parts[:,i],s)
@@ -94,7 +94,7 @@ class Tracker:
             MPI.WORLD.Send(save_parts,dest=0)
 
     def close(self):
-        if MPI.rank == 0:
+        if MPI.COMM_WORLD.Get_rank() == 0:
             t0 = time.time()
             destination = os.path.join(self.dest_dir,self.track_dir)
             if os.path.exists(destination):
@@ -105,7 +105,7 @@ class Tracker:
         self.open = 0
 
     def show_statistics(self,filename=None):
-        if MPI.rank == 0:
+        if MPI.COMM_WORLD.Get_rank() == 0:
             if filename == None:
                 print "add times =",self.add_times
                 print "copy time =",self.copy_time

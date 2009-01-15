@@ -25,7 +25,7 @@ from fakempi import MPI
 try:
     import pylab
 except:
-    if MPI.rank == 0:
+    if MPI.COMM_WORLD.Get_rank() == 0:
         print "pylab not available"
 
 def write_map(map):

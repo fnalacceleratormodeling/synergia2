@@ -7,7 +7,7 @@ class testMPISimple:
     def __init__(self):
     
       self.data = [] # intended to hold phasespace vectors. 
-      self.myRank=MPI.rank
+      self.myRank=MPI.COMM_WORLD.Get_rank()
       self.aXVal=0.
       self.aXValErr=0.
       self.aYVal=0.
@@ -58,7 +58,7 @@ class testMPISimple:
         if (self.myRank != 0):
 	  MPI.COMM_WORLD.Send(ee,dest=0, tag=None)
         else:
-	  for proc in range(1,MPI.size):
+	  for proc in range(1,MPI.COMM_WORLD.Get_size()):
 	    eeTmp=MPI.COMM_WORLD.Recv(source=proc)
 	    line=" %10.5g " % eeTmp[0]
 	    line+=" %10.5g \n" % eeTmp[1] 
@@ -79,13 +79,13 @@ class testMPISimple:
                                self.aYVal, self.aYValErr],'f')
       sumAllTmp=[]
       if (self.myRank == 0):
-        for proc in range(0,MPI.size):
+        for proc in range(0,MPI.COMM_WORLD.Get_size()):
           sumAllTmp.append(sumDataTmp) # temporary copy
       
       if (self.myRank != 0):
 	MPI.COMM_WORLD.Send(sumDataTmp,dest=0, tag=None)
       else:
-	for proc in range(1,MPI.size):
+	for proc in range(1,MPI.COMM_WORLD.Get_size()):
 	  sumDataTmp2=MPI.COMM_WORLD.Recv(source=proc)
           sumAllTmp[proc]=sumDataTmp2
 	  
@@ -98,7 +98,7 @@ class testMPISimple:
 	if (len(self.data) > 0): 
 	  MPI.COMM_WORLD.Send(self.data,dest=0, tag=None)
       else:
-	for proc in range(1,MPI.size):
+	for proc in range(1,MPI.COMM_WORLD.Get_size()):
 	  if (sumAllTmp[proc][0] > 0.): 
 	    dataTmp=MPI.COMM_WORLD.Recv(source=proc)
 	    for ee in dataTmp:
@@ -127,11 +127,11 @@ class testMPISimple:
       if (self.myRank !=0):
 	MPI.COMM_WORLD.Send([self.aXVal, 1, MPI.DOUBLE],dest=0, tag=None)
       else:
-	for proc in range(1,MPI.size):
+	for proc in range(1,MPI.COMM_WORLD.Get_size()):
 	  aVTmp=MPI.COMM_WORLD.Recv(source=proc)
 	  print " Receive aXVal value from node ", proc, " = ", aVTmp
 	  aXVSum+=aVTmp[0]
 	aXVSum+=self.aXVal
-        aXVSum/=MPI.size
+        aXVSum/=MPI.COMM_WORLD.Get_size()
 	print " Collector node, final value ", aXVSum 
 	  

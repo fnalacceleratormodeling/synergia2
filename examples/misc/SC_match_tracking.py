@@ -76,9 +76,9 @@ if ( __name__ == '__main__'):
     griddim = myopts.get("scgrid")
     part_per_cell = myopts.get("part_per_cell")
     num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
-                                     part_per_cell,MPI.size)
+                                     part_per_cell,MPI.COMM_WORLD.Get_size())
 
-##    num_particles = adjust_particles(10,MPI.size)
+##    num_particles = adjust_particles(10,MPI.COMM_WORLD.Get_size())
 
     ee = error_eater.Error_eater()
     ee.start()
@@ -166,7 +166,7 @@ if ( __name__ == '__main__'):
     line_x = None
     line_y = None
     steps = 0
-    if MPI.rank == 0 and myopts.get("showplot"):
+    if MPI.COMM_WORLD.Get_rank() == 0 and myopts.get("showplot"):
         pylab.ion()
         pylab.hold(0)
         xpl=[]
@@ -189,7 +189,7 @@ if ( __name__ == '__main__'):
 
     for turn in range(0,myopts.get("turns")):
         for cell in range(0,24):
-            if MPI.rank == 0 and myopts.get("showplot"):
+            if MPI.COMM_WORLD.Get_rank() == 0 and myopts.get("showplot"):
                 if(int(b.particles()[6,0]) == 1):
                     xpl.append(b.particles()[0,0]/
                                (rtbetax*units[0]))
@@ -223,7 +223,7 @@ if ( __name__ == '__main__'):
             tcell = time.time()
             for kick in range(0,myopts.get("kickspercell")):
                 steps += 1
-###                if MPI.rank == 0:
+###                if MPI.COMM_WORLD.Get_rank() == 0:
 ###                    print "turn %d, cell %d, kick %d" %\
 ###                          (turn,cell,kick)
         ###        wrapped_apply_map(g.maps[kick*2],b)
@@ -243,7 +243,7 @@ if ( __name__ == '__main__'):
                 g.get_fast_mapping(kick*2+1).apply(b.particles(), b.num_particles_local())
                 s += line_length/myopts.get("kickspercell")
                 b.write_fort(s)
-###                if MPI.rank == 0:
+###                if MPI.COMM_WORLD.Get_rank() == 0:
 ###                    print "cell time =",time.time() - tcell
             
     print "elapsed time =",time.time() - t0

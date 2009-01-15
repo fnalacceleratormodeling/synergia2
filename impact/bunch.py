@@ -29,7 +29,7 @@ class Bunch:
         self.processor_grid = processor_grid
         global seed_offset
         init_seed_external(processor_grid.get_pgrid2d(),seed_offset)
-        seed_offset += MPI.size
+        seed_offset += MPI.COMM_WORLD.Get_size()
         
     def generate_particles(self):
         flagalloc = 0
@@ -89,7 +89,7 @@ class Bunch:
         return (mean,std)
     def write_particles(self,filename,compress_level=1):
         h5filename = os.path.splitext(filename)[0] + '.h5'
-        if MPI.rank == 0:
+        if MPI.COMM_WORLD.Get_rank() == 0:
             t0 = time.time()
             f = tables.openFile(h5filename,mode = "w")
             filter = tables.Filters(complevel=compress_level)
@@ -98,7 +98,7 @@ class Bunch:
                                     filters = filter)
             if self.particles().shape[1] > 0:
                 earray.append(self.particles())
-            for proc in xrange(1,MPI.size):
+            for proc in xrange(1,MPI.COMM_WORLD.Get_size()):
                 parts = MPI.WORLD.Recv(source=proc)
                 if parts.shape[1] > 0:
                     earray.append(parts)
@@ -109,9 +109,9 @@ class Bunch:
             MPI.WORLD.Send(self.particles(),dest=0)
 
     def write_particles_text(self,filename):
-        if MPI.rank == 0:
+        if MPI.COMM_WORLD.Get_rank() == 0:
             f = open(filename,"w")
-            for proc in xrange(1,MPI.size):
+            for proc in xrange(1,MPI.COMM_WORLD.Get_size()):
                 parts = MPI.WORLD.Recv(source=proc)
                 for i in range(0,parts.shape[1]):
                     f.write("%g %g %g %g %g %g %g\n" % \

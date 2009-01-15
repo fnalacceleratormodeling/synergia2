@@ -38,7 +38,7 @@ import plotPotential
  
 if ( __name__ == '__main__'):
 
-    print " My MPI rank is ", MPI.rank
+    print " My MPI.COMM_WORLD.Get_rank() is ", MPI.COMM_WORLD.Get_rank()
 
     t0 = time.time()
     current = 0.5

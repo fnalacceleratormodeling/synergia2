@@ -26,7 +26,7 @@ if ( __name__ == '__main__'):
     gridnum = int(sys.argv[1])
     griddim = (gridnum,gridnum,gridnum)
     num_particles = impact.adjust_particles(
-        griddim[0]*griddim[1]*griddim[2] * part_per_cell,MPI.size)
+        griddim[0]*griddim[1]*griddim[2] * part_per_cell,MPI.COMM_WORLD.Get_size())
     
     BC_choice = sys.argv[2]
     

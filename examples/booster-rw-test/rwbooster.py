@@ -20,7 +20,7 @@ from fakempi import MPI
 try:
     import pylab
 except:
-    if MPI.rank == 0:
+    if MPI.COMM_WORLD.Get_rank() == 0:
         print "pylab not available"
 
 def write_map(map):
@@ -240,7 +240,7 @@ if ( __name__ == '__main__'):
         #~ diag.write_hdf5("booster_output")
         #~ dt1 = time.time()
         #~ print "writing booster_output took",dt1-dt0,"s"
-        if MPI.rank==0:
+        if MPI.COMM_WORLD.Get_rank()==0:
             print "turn %d:" % turn,
             sys.stdout.flush()
         if turn % myopts.get("saveperiod") == 0:
@@ -252,12 +252,12 @@ if ( __name__ == '__main__'):
                 impedance=myopts.get("impedance"),
                 pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius,
                 pipe_conduct=myopts.get("pipe_conduct"))
-            if MPI.rank == 0:
+            if MPI.COMM_WORLD.Get_rank() == 0:
                 print "%02d" % cell,
             sys.stdout.flush()
             if cell % 12 == 0 and myopts.get("track"):
                 mytracker.add(bunch,s)
-        if MPI.rank==0:
+        if MPI.COMM_WORLD.Get_rank()==0:
             print
     if turn % myopts.get("saveperiod") == 0:
         bunch.write_particles("turn_%02d.g5"%turn)
@@ -266,6 +266,6 @@ if ( __name__ == '__main__'):
         mytracker.close()
         mytracker.show_statistics()
     MPI.WORLD.Barrier()
-    if MPI.rank == 0:
+    if MPI.COMM_WORLD.Get_rank() == 0:
         print "elapsed time =",time.time() - t0
     

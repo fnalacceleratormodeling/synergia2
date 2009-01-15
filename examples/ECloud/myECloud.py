@@ -39,11 +39,11 @@ from testMPISimple import testMPISimple
  
 if ( __name__ == '__main__'):
 
-#    fNameLog="LogFileECloud1NodeV2_%d" % MPI.rank + ".lis"
+#    fNameLog="LogFileECloud1NodeV2_%d" % MPI.COMM_WORLD.Get_rank() + ".lis"
 #    outputLog=open(fNameLog,'w')
 
-    print " My MPI rank is ", MPI.rank
-#    outputLog.write(" My MPI rank is %d \n" % MPI.rank)
+    print " My MPI.COMM_WORLD.Get_rank() is ", MPI.COMM_WORLD.Get_rank()
+#    outputLog.write(" My MPI.COMM_WORLD.Get_rank() is %d \n" % MPI.COMM_WORLD.Get_rank())
 #    outputLog.flush()
 #    outputLog.close()
 #    sys.exit() 
@@ -52,20 +52,20 @@ if ( __name__ == '__main__'):
 # Setting the numpy random seeds.. 
 # Start different seeds based on the rank.  Crummy!!! Not 
     junk1=numpy.random.rand(1)
-    numThrow = int(100*junk1[0])*MPI.rank + 1
+    numThrow = int(100*junk1[0])*MPI.COMM_WORLD.Get_rank() + 1
 #    outputLog.write(" Number of throw %d \n" % numThrow)
     for k in range(numThrow):
       aa=numpy.random.rand(100)
     
         
 #    mT=testMPISimple()
-#    if (MPI.rank == 0):
+#    if (MPI.COMM_WORLD.Get_rank() == 0):
 #      print " Generating .... " 
 #    mT.generate()
-#    if (MPI.rank == 0):
+#    if (MPI.COMM_WORLD.Get_rank() == 0):
 #      print " Analysis .... " 
 #   mT.analyze()   
-#    if (MPI.rank == 0):
+#    if (MPI.COMM_WORLD.Get_rank() == 0):
 #      print " Collection .... " 
 #    mT.sumOut()
 #    mT.spitOut()
@@ -93,7 +93,7 @@ if ( __name__ == '__main__'):
     num_particles = griddim[0]*griddim[1]*griddim[2] * part_per_cell
     solver = "3D"
     
-    if MPI.rank == 0:
+    if MPI.COMM_WORLD.Get_rank() == 0:
       print "num_particles =",num_particles
       print "We will use a", solver, "solver"
     
@@ -118,7 +118,7 @@ if ( __name__ == '__main__'):
     oneOGam = proton_mass/(kinetic_energy + proton_mass)
     betaProtons=(1.0 - oneOGam*oneOGam)**0.5
     gamProtons = 1.0/oneOGam
-    if MPI.rank == 0:
+    if MPI.COMM_WORLD.Get_rank() == 0:
       print " beta protons " , betaProtons
     vProtons = betaProtons*c_light
    
@@ -135,19 +135,19 @@ if ( __name__ == '__main__'):
                                          initial_phase, scaling_frequency,
                                          transverse=0)
 # note: last argument, we want 6D Gaussian beam... 					 
-    if MPI.rank == 0:
+    if MPI.COMM_WORLD.Get_rank() == 0:
       print "Mass of particle", mass
       print "Beam Beta", beam_parameters.get_beta()
       print "Beam Gamma", beam_parameters.get_gamma()
     betagamma=beam_parameters.get_beta()*beam_parameters.get_gamma() 
-    if MPI.rank == 0:
+    if MPI.COMM_WORLD.Get_rank() == 0:
       print "Betagamma and inverse betagamma",betagamma,1./betagamma
     
     pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
     beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = -rx)
     beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,r = rx)
     sigma_z_meters = bunchLength
-    if MPI.rank == 0:
+    if MPI.COMM_WORLD.Get_rank() == 0:
       print " sigma_z_meters ", sigma_z_meters
     beam_parameters.z_params(sigma = sigma_z_meters, lam = dpop* pz)
 #    print " And Quit " 
@@ -161,7 +161,7 @@ if ( __name__ == '__main__'):
     sigXNow = sigs[0]
     sigYNow = sigs[1]
     bunchLength = sigs[2] 
-    if MPI.rank == 0:
+    if MPI.COMM_WORLD.Get_rank() == 0:
       print " Bunch sigmas, before propagation, x =  ", \
             sigXNow, " y = ", sigYNow, " z ", bunchLength
     
@@ -190,7 +190,7 @@ if ( __name__ == '__main__'):
     sigXNow = sigs[0]
     sigYNow = sigs[1]
     bunchLength = sigs[2]
-    print " Bunch sigmas, Rank ", MPI.rank, ", sigYNow, y = ", sigYNow, " z ", bunchLength
+    print " Bunch sigmas, Rank ", MPI.COMM_WORLD.Get_rank(), ", sigYNow, y = ", sigYNow, " z ", bunchLength
 # Take this bunch and compute a potential from it.     
 # set the offset.. ?? Keep it centered     
 #
@@ -200,43 +200,43 @@ if ( __name__ == '__main__'):
     rhoAfterProp = Real_scalar_field(griddim,sizeNow,(0.0,0.0,0.0))
 # drop the bunch charge onto the grid..    
     total_charge = deposit_charge_cic(rhoAfterProp,bunch.get_store(),0)
-    print " ..Total Charge Rank ", MPI.rank, " Q = ", total_charge 
+    print " ..Total Charge Rank ", MPI.COMM_WORLD.Get_rank(), " Q = ", total_charge 
 # Recompute the potential
 #    griddimA = numpy.array([griddim[0], griddim[1], griddim[2]])
     fftwh = Fftw_helper(griddim, False)
-#    print " ..Got FFTW Helper, Rank   ", MPI.rank
+#    print " ..Got FFTW Helper, Rank   ", MPI.COMM_WORLD.Get_rank()
     phiStripedAfterProp = solver_fftw_open(rhoAfterProp,fftwh, 0, True)
     phiAfterProp = Real_scalar_field(griddim,sizeNow,(0.0,0.0,0.0))
-#    print " ..Did Solve , Rank   ", MPI.rank
+#    print " ..Did Solve , Rank   ", MPI.COMM_WORLD.Get_rank()
     i_lower = phiStripedAfterProp.get_points().get_dim0_lower()
     i_upper = phiStripedAfterProp.get_points().get_dim0_upper()
-#    print " Rank ", MPI.rank, " From myECloud,.. dim lower/upper ", i_lower , " / " , i_upper
+#    print " Rank ", MPI.COMM_WORLD.Get_rank(), " From myECloud,.. dim lower/upper ", i_lower , " / " , i_upper
      
     broadcast_Phi(phiStripedAfterProp, phiAfterProp, i_lower, i_upper)
-#    print " ..Did broadcast    ", MPI.rank
+#    print " ..Did broadcast    ", MPI.COMM_WORLD.Get_rank()
     
 # put a barrier, as we want to test the potential NOW.     
 #    MPI.COMM_WORLD.Barrier()
-#    print " ..Did Barrier for the hell of it    ", MPI.rank
+#    print " ..Did Barrier for the hell of it    ", MPI.COMM_WORLD.Get_rank()
     # Diagnostics for parallel processing: dump potential values from two different nodes. 
     #
     testPotentialMPI=False
     if (testPotentialMPI):
-      print " On Node ", MPI.rank, " getting  physSizeDiag"
+      print " On Node ", MPI.COMM_WORLD.Get_rank(), " getting  physSizeDiag"
       physSizeDiag=phiAfterProp.get_physical_size(); 
-      print " On Node ", MPI.rank, " Defining loc"
+      print " On Node ", MPI.COMM_WORLD.Get_rank(), " Defining loc"
       loc = numpy.array([physSizeDiag[0]/5., physSizeDiag[1]/3., physSizeDiag[2]/4.],'d')
-      print " On Node ", MPI.rank, " getting vv ", loc
-      if (MPI.rank < 10):
+      print " On Node ", MPI.COMM_WORLD.Get_rank(), " getting vv ", loc
+      if (MPI.COMM_WORLD.Get_rank() < 10):
         vv = phiAfterProp.get_val(loc)/total_charge # UnNormalize to the total charge (units?) 
-        print " On Node ", MPI.rank, " getting derivatives ", loc
+        print " On Node ", MPI.COMM_WORLD.Get_rank(), " getting derivatives ", loc
         vvDerX = phiAfterProp.get_deriv(loc,0)/total_charge # UnNormalize to the total charge (units?) 
-        print " On Node ", MPI.rank, " At location ", loc
-        print " ....MPIRank", MPI.rank, "....Potential value ", vv, " derivative, X ", vvDerX
-      if (MPI.rank == 0):
+        print " On Node ", MPI.COMM_WORLD.Get_rank(), " At location ", loc
+        print " ....MPIRank", MPI.COMM_WORLD.Get_rank(), "....Potential value ", vv, " derivative, X ", vvDerX
+      if (MPI.COMM_WORLD.Get_rank() == 0):
         fNamePhiTmp= "Potential_Grid_"
 	ffN1="%d" % gridnum
-	ffN2="%d" % MPI.size
+	ffN2="%d" % MPI.COMM_WORLD.Get_size()
 	fNamePhiTmp+= ffN1+"_Nodes_"+ffN2+".dat"
 	phiAfterProp.write_to_file(fNamePhiTmp)
 #
@@ -257,7 +257,7 @@ if ( __name__ == '__main__'):
     # factor 3.28 = torr to Pascal (133.32) * Avogadro * / (R=8.314 J. mol^-1.K^-1 * 294 K) 
     # Assume the cross section are for molecule, not atomic.. 
     # This quantity is the linear density, electrons and ions per meter
-    if (MPI.rank == 0):  
+    if (MPI.COMM_WORLD.Get_rank() == 0):  
       print "Ionization production: ",ion_elecs, " from ", protonPerBunch, " protons"
       print "Production cross section [Mbarns]:", xsec_Mbarn
          
@@ -309,7 +309,7 @@ if ( __name__ == '__main__'):
 #     
     mEl.setMagnetModel(0, bYDip) # Drift.. 
 
-    if (MPI.rank==0):
+    if (MPI.COMM_WORLD.Get_rank()==0):
       print " Static By = " , bField[1] 
     
     numCrossing=25
@@ -317,25 +317,25 @@ if ( __name__ == '__main__'):
     
     maxNumElec=100000
     fractReSampled=1.0
-    if (MPI.rank == 0): 
+    if (MPI.COMM_WORLD.Get_rank() == 0): 
       print " Prescale factor for Gas = ",  prescaleFactorForGas
       print " Maximum number of electron after one bunch .. ", maxNumElec
     mEl.resetBunchNumber()  
     for kBunch in range(numCrossing):
 #      print " Number of electrons Begining Bunch Crossing ", kBunch, " is  ", mEl.numInVaccum() 
       mEl.propagateOneCrossing(prescaleFactorForGas, phiAfterProp, tokenCase) 
-      if (MPI.rank==0):
+      if (MPI.COMM_WORLD.Get_rank()==0):
         print " Total number of electrons at end Bunch Crossing ", kBunch, " is  ", mEl.numInVaccum()
         if (mEl.numInVaccum() > maxNumElec):
           fractReSampled=float(maxNumElec)/mEl.numInVaccum()
-          print " Node ", MPI.rank, " kBunch = ", kBunch,  " Resampling, fraction  ", fractReSampled
+          print " Node ", MPI.COMM_WORLD.Get_rank(), " kBunch = ", kBunch,  " Resampling, fraction  ", fractReSampled
       
       fractReSampled=MPI.COMM_WORLD.Bcast(fractReSampled, root=0)  
       if (mEl.numInVaccum() > maxNumElec):
         mEl.reSample(fractReSampled)
       # 
       prescaleFactorForGas *= fractReSampled
-      if (MPI.rank==0):
+      if (MPI.COMM_WORLD.Get_rank()==0):
         print " Current prescale for Gas for bunch ", kBunch, " is  ", prescaleFactorForGas
       # And this is weight ..
     MPI.Finalize()

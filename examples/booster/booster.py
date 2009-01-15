@@ -17,7 +17,7 @@ from mpi4py import MPI
 try:
     import pylab
 except:
-    if MPI.rank == 0:
+    if MPI.COMM_WORLD.Get_rank() == 0:
         print "pylab not available"
     
 def correct_for_dispersion(bunch,the_map):
@@ -184,7 +184,7 @@ if ( __name__ == '__main__'):
     offset = (0,0,0)
     griddim = myopts.get("scgrid")
     proccol = myopts.get("proccol")
-    if MPI.size == 1:
+    if MPI.COMM_WORLD.Get_size() == 1:
         proccol = 1
     num_particles = int(griddim[0]*griddim[1]*griddim[2] *\
                                      part_per_cell)
@@ -239,7 +239,7 @@ if ( __name__ == '__main__'):
 
     for turn in range(1,last_turn+1):
         update_rf(cell_line,myopts,turn)
-        if MPI.rank==0:
+        if MPI.COMM_WORLD.Get_rank()==0:
             print "turn %d:" % turn,
             sys.stdout.flush()
         if turn % myopts.get("saveperiod") == 0:
@@ -250,7 +250,7 @@ if ( __name__ == '__main__'):
             s = synergia.propagate(s,inja_line.gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True,
                 impedance=impedance,space_charge=space_charge,
                 pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius, pipe_conduct=pipe_conduct)
-            if MPI.rank == 0:
+            if MPI.COMM_WORLD.Get_rank() == 0:
                 print "inj_a",
             sys.stdout.flush()
             inject_bunch = s2_fish.Macro_bunch(synergia.PH_NORM_mp,1)
@@ -261,26 +261,26 @@ if ( __name__ == '__main__'):
             s = synergia.propagate(s,cell_line[1].gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True,
                 impedance=impedance,space_charge=space_charge,
                 pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius, pipe_conduct=pipe_conduct)
-            if MPI.rank == 0:
+            if MPI.COMM_WORLD.Get_rank() == 0:
                 print "01",
             sys.stdout.flush()
         if (turn<=last_inj_turn):
             s = synergia.propagate(s,injb_line.gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True,
                 impedance=impedance,space_charge=space_charge,
                 pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius, pipe_conduct=pipe_conduct)
-            if MPI.rank == 0:
+            if MPI.COMM_WORLD.Get_rank() == 0:
                 print "inj_b",
             sys.stdout.flush()
         for cell in range(2,25):
             s = synergia.propagate(s,cell_line[cell].gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True,
                 impedance=impedance,space_charge=space_charge,
                 pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius, pipe_conduct=pipe_conduct)
-            if MPI.rank == 0:
+            if MPI.COMM_WORLD.Get_rank() == 0:
                 print "%02d" % cell,
             sys.stdout.flush()
             if cell % 12 == 2 and myopts.get("track"):
                 mytracker.add(bunch,s)
-        if MPI.rank==0:
+        if MPI.COMM_WORLD.Get_rank()==0:
             print
     if turn % myopts.get("saveperiod") == 0:
         bunch.write_particles("turn_%02d.g5"%turn)
@@ -289,6 +289,6 @@ if ( __name__ == '__main__'):
         mytracker.close()
         mytracker.show_statistics()
     MPI.WORLD.Barrier()
-    if MPI.rank == 0:
+    if MPI.COMM_WORLD.Get_rank() == 0:
         print "elapsed time =",time.time() - t0
 

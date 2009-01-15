@@ -64,7 +64,7 @@ if ( __name__ == '__main__'):
     impedance=myopts.get("impedance")
     space_charge=myopts.get("space_charge")
 
-    if MPI.rank ==0:
+    if MPI.COMM_WORLD.Get_rank() ==0:
         print "space_charge =",space_charge
         print "impedance =",space_charge
         print "num_particles =",num_particles
@@ -101,7 +101,7 @@ if ( __name__ == '__main__'):
     s = 0.0
     line_length = gourmet.orbit_length()
     bunch_spacing = line_length/588.0
-    if MPI.rank ==0:
+    if MPI.COMM_WORLD.Get_rank() ==0:
         print "line_length =",line_length
         print "bunch_spacing =",bunch_spacing
     tau = 0.5*line_length/kicks_per_line
@@ -122,7 +122,7 @@ if ( __name__ == '__main__'):
         diags.append(synergia.Diagnostics(gourmet.get_initial_u()))
 
     log = open("log","w")
-    if MPI.rank ==0:
+    if MPI.COMM_WORLD.Get_rank() ==0:
             output = "start propagation"
             print output
             log.write("%s\n" % output)
@@ -134,18 +134,18 @@ if ( __name__ == '__main__'):
             impedance=impedance,space_charge=space_charge,
             pipe_radiusx=pipexradius,pipe_radiusy=pipeyradius,
             pipe_conduct=pipe_conduct,bunch_spacing=bunch_spacing)
-        if MPI.rank ==0:
+        if MPI.COMM_WORLD.Get_rank() ==0:
             output = "turn %d time = %g"%(turn,time.time() - t1)
             print output
             log.write("%s\n" % output)
             log.flush()
     for bunchnum in range(0,numbunches):
-        if MPI.rank == 0:
+        if MPI.COMM_WORLD.Get_rank() == 0:
             diags[bunchnum].write_hdf5("mi-%02d"%bunchnum)
     for bunchnum in range(0,numbunches):
         bunches[bunchnum].write_particles("end-%02d"%bunchnum)
     log.close()
-    if MPI.rank ==0:
+    if MPI.COMM_WORLD.Get_rank() ==0:
         print "elapsed time =",time.time() - t0
  
  

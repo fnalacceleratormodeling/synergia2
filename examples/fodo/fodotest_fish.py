@@ -85,9 +85,9 @@ if ( __name__ == '__main__'):
     width_x = 0.004
     part_per_cell = myopts.get("part_per_cell")
     num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
-                                     part_per_cell,MPI.size)
+                                     part_per_cell,MPI.COMM_WORLD.Get_size())
 
-##    num_particles = adjust_particles(10,MPI.size)
+##    num_particles = adjust_particles(10,MPI.COMM_WORLD.Get_size())
 
     ee = error_eater.Error_eater()
     ee.start()
@@ -149,7 +149,7 @@ if ( __name__ == '__main__'):
     line_x = None
     line_y = None
     steps = 0
-    if MPI.rank == 0 and myopts.get("showplot"):
+    if MPI.COMM_WORLD.Get_rank() == 0 and myopts.get("showplot"):
         pylab.ion()
         pylab.hold(0)
         xpl=[]
@@ -180,7 +180,7 @@ if ( __name__ == '__main__'):
 
     for cell in range(0,2):
         for kick in range(0,myopts.get("kicksperline")):
-            if MPI.rank == 0 and myopts.get("showplot"):
+            if MPI.COMM_WORLD.Get_rank() == 0 and myopts.get("showplot"):
                 if(int(b.particles()[6,0]) == 1):
                     # change the rest
                     xpl.append(b.get_particles()[0,0]/
@@ -214,7 +214,7 @@ if ( __name__ == '__main__'):
                     sys.exit(0)
 
             steps += 1
-    ###                if MPI.rank == 0:
+    ###                if MPI.COMM_WORLD.Get_rank() == 0:
     ###                    print "turn %d, cell %d, kick %d" %\
     ###                          (turn,cell,kick)
 

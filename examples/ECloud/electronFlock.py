@@ -57,7 +57,7 @@ class ElectronFlock:
       self.magnetStrength=0.0912 # for 8 GeV in MI, dipole magnets 
       self.uniformBField=numpy.array([0., 0., 0.5e4], 'd')
       self.fNameDataOut="/xpand1/lebrun/"
-      if MPI.size == 1 : 
+      if MPI.COMM_WORLD.Get_size() == 1 : 
         self.fNameDataOut="/local/lebrun/Synergia/EcloudDump/"
       
 #   Initialize the GSL random number for Laundau distribution.
@@ -190,19 +190,19 @@ class ElectronFlock:
       self.setTotalCharge(synergia.PH_MKS_e * self.numIonsFromGasPerLength)
     
     def gatherNumInVaccum(self):
-      if (MPI.size == 1):
+      if (MPI.COMM_WORLD.Get_size() == 1):
         self.lenDataAll=len(self.data)
       self.lenDataAll=0
-      if (MPI.rank !=0):
+      if (MPI.COMM_WORLD.Get_rank() !=0):
 	MPI.COMM_WORLD.Send([len(self.data), 1, MPI.INT],dest=0, tag=None)
       else:
-	for proc in range(1,MPI.size):
+	for proc in range(1,MPI.COMM_WORLD.Get_size()):
 	  aVTmp=MPI.COMM_WORLD.Recv(source=proc)
           self.lenDataAll+=aVTmp[0]
-#	  print " gatherNumInVaccum, MPI Rank ", MPI.rank, " received ", aVTmp[0], " electron tally "
+#	  print " gatherNumInVaccum, MPI Rank ", MPI.COMM_WORLD.Get_rank(), " received ", aVTmp[0], " electron tally "
 	self.lenDataAll+=len(self.data)
       self.lenDataAll=MPI.COMM_WORLD.Bcast(self.lenDataAll, root=0)
-#      print " gatherNumInVaccum, MPI Rank ", MPI.rank, " total e count ", self.lenDataAll
+#      print " gatherNumInVaccum, MPI Rank ", MPI.COMM_WORLD.Get_rank(), " total e count ", self.lenDataAll
       
       
     def numInVaccum(self):
@@ -538,7 +538,7 @@ class ElectronFlock:
       self.resetClockForNextBunch()
       physSize= phiFromBunch.get_physical_size()
       deltaTMax=physSize[2]/(self.betaProtonBunch*synergia.PH_MKS_c) - 1.0e-11
-      if (MPI.rank == 0): 
+      if (MPI.COMM_WORLD.Get_rank() == 0): 
         print " PropagateOneCrossing, deltaTMax ", deltaTMax
       # We propagate the electron left over from the previous bunch crossing, 
       # though the current bunch crossing, until we are running out of regenerated electron, 
@@ -547,7 +547,7 @@ class ElectronFlock:
       steadyState=True  
       while (self.numLeftToTrack(deltaTMax) > 0):
         self.propagateWithBeam(steadyState, phiFromBunch, self.totalChargeProtonBunch, "")
-        if (MPI.rank == 0): 
+        if (MPI.COMM_WORLD.Get_rank() == 0): 
 	  print " SteadyState BunchCrossing, iter ", nIterPhase1,\
 	      " numElectrons ", len(self.data), " Reached Pipe " , len(self.dataBP)
 	  print " Average Clock on Beam Pipe ", self.averageClockBP()      
@@ -558,14 +558,14 @@ class ElectronFlock:
       if (len(tokenCase) > 2):
         fName=self.fNameDataOut
         fName +="ElectronFlockBC_" + tokenCase + "_Crossing_%d" % self.bunchNumber + ".txt"
-	if (MPI.size == 1): 
+	if (MPI.COMM_WORLD.Get_size() == 1): 
           self.writeToASCIIFile(fName)
         else:
           self.writeToASCIIFileMPI(fName)
 	   
       # Now add the newly created electron over the length of bunch crossing. 	   
       self.addFromGas(prescaledForGas)
-      if (MPI.rank == 0): 
+      if (MPI.COMM_WORLD.Get_rank() == 0): 
         print "  Added from Gas interaction, numElectrons ", len(self.data)
       #
       # 
@@ -575,11 +575,11 @@ class ElectronFlock:
         if (self.numReachedBeamPipe() == 0):
           break 
 	self.AddFromWall(2.0, 1)
-        if (MPI.rank == 0): 
+        if (MPI.COMM_WORLD.Get_rank() == 0): 
 	  print "  After from Wall Sec Emission, iter ", nIterPhase2, " numElectrons ", len(self.data)
 	nIterPhase2+=1
         if (nIterPhase2 > 100):
-	  if (MPI.rank == 0):
+	  if (MPI.COMM_WORLD.Get_rank() == 0):
 	    print "  Run away Phase 2, cut short after 100 iteration " 
 	  break
 	
@@ -590,16 +590,16 @@ class ElectronFlock:
         if (self.numReachedBeamPipe() == 0):
           break 
 	self.AddFromWall(2.0, 1)
-        if (MPI.rank == 0): 
+        if (MPI.COMM_WORLD.Get_rank() == 0): 
 	  print "  After from Sec emission, between bunches iter ", \
 	       nIterPhase3, " numElectrons ", len(self.data)
 	nIterPhase3+=1
         if (nIterPhase3 > 100):
-	  if (MPI.rank == 0):
+	  if (MPI.COMM_WORLD.Get_rank() == 0):
 	    print "  Run away Phase 3, cut short after 100 iteration " 
 	  break
 
-      if (MPI.rank == 0):
+      if (MPI.COMM_WORLD.Get_rank() == 0):
         print " PropagateOneCrossing, Ending with ", len(self.data), "local count"
 # tall all the array size.. The Allgather in numInVaccum  will probably do its one barrier,
 # but we make one in any case. Should not hurt much...
@@ -610,7 +610,7 @@ class ElectronFlock:
       if (len(tokenCase) > 2):
         fName=self.fNameDataOut
         fName +="ElectronFlockDR_" + tokenCase + "_Crossing_%d" % self.bunchNumber + ".txt" 
-	if (MPI.size == 1): 
+	if (MPI.COMM_WORLD.Get_size() == 1): 
           self.writeToASCIIFile(fName)
         else:
           self.writeToASCIIFileMPI(fName)
@@ -650,26 +650,26 @@ class ElectronFlock:
     def writeToASCIIFileMPI(self, fName):
     
       lenData=[]
-      for iProc in range(MPI.size):
+      for iProc in range(MPI.COMM_WORLD.Get_size()):
         lenData.append(0)
 	
-      if (MPI.rank !=0):
+      if (MPI.COMM_WORLD.Get_rank() !=0):
 	MPI.COMM_WORLD.Send([len(self.data), 1, MPI.DOUBLE],dest=0, tag=None)
       else:
-	for proc in range(1,MPI.size):
+	for proc in range(1,MPI.COMM_WORLD.Get_size()):
 	  aVTmp=MPI.COMM_WORLD.Recv(source=proc)
           lenData[proc]=aVTmp[0]
-#	  print "writeToASCIIFileMPI, rank ", MPI.rank, " lendata = ", lenData[proc]
+#	  print "writeToASCIIFileMPI, rank ", MPI.COMM_WORLD.Get_rank(), " lendata = ", lenData[proc]
 	lenData[0]=len(self.data)
 	
-      if (MPI.rank == 0): 
+      if (MPI.COMM_WORLD.Get_rank() == 0): 
         output=open(fName,'w')
         output.write("n x bx y by z bz t dt \n")
 # 
-      if (MPI.rank != 0):
+      if (MPI.COMM_WORLD.Get_rank() != 0):
 	if (len(self.data) > 0): MPI.COMM_WORLD.Send(self.data,dest=0, tag=None)
       else:
-	for proc in range(1,MPI.size):
+	for proc in range(1,MPI.COMM_WORLD.Get_size()):
 	  if (lenData[proc] > 0):
 	    dataTmp=MPI.COMM_WORLD.Recv(source=proc)
 	    for ee in dataTmp:
@@ -690,7 +690,7 @@ class ElectronFlock:
 	  line += " %10.5g \n " % (1.0e9*ee[7])
           output.write(line)
 # node 0 collection end here	  
-      if (MPI.rank == 0): 
+      if (MPI.COMM_WORLD.Get_rank() == 0): 
         output.close()
       
     def pyplotEk1(self, token, reachedBP, maxEk):

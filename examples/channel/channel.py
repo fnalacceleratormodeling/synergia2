@@ -65,7 +65,7 @@ if ( __name__ == '__main__'):
                                          transverse=1)
     betagamma=beam_parameters.get_beta()*beam_parameters.get_gamma() 
 
-    if MPI.rank == 0:
+    if MPI.COMM_WORLD.Get_rank() == 0:
         print "num_particles =",num_particles
         print "We will use a", solver, "solver"
         print "Beam Beta", beam_parameters.get_beta()
@@ -102,10 +102,10 @@ if ( __name__ == '__main__'):
     elif solver =="2D" or solver == "2d":
         s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_gauss=True,
             impedance=impedance,pipe_radius=pipe_radius,pipe_conduct=pipe_conduct)
-    print "elapsed time =",time.time() - t0,"on rank", MPI.rank
+    print "elapsed time =",time.time() - t0,"on rank", MPI.COMM_WORLD.Get_rank()
     bunch.write_particles("end")
     diag.write_hdf5("channel")
-    if myopts.get("doplot") and MPI.rank == 0:
+    if myopts.get("doplot") and MPI.COMM_WORLD.Get_rank() == 0:
         import pylab
 
         dimpact = synergia.Diagnostics_impact_orig("channel_impact_open")

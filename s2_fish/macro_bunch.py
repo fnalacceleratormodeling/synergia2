@@ -86,9 +86,9 @@ class Macro_bunch:
 
     def init_sphere(self,num,radius):
         '''Particles uniformly distributed in a sphere of radius "radius"'''
-        RandomArray.seed(17+MPI.rank*51,59+MPI.rank*23)
+        RandomArray.seed(17+MPI.COMM_WORLD.Get_rank()*51,59+MPI.COMM_WORLD.Get_rank()*23)
         offset = (0.0,0.0,0.0)
-        local_num = num/MPI.size #jfa: could be more precise...
+        local_num = num/MPI.COMM_WORLD.Get_size() #jfa: could be more precise...
         total_num = MPI.WORLD.Allreduce(local_num,MPI.SUM)
         total_current = 1.0
         self.units = Numeric.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
@@ -176,10 +176,10 @@ class Macro_bunch:
         (Cxy, Cxpyp, Cz, Czp) = beam_parameters.get_conversions()
         self.units = Numeric.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
         self.total_num = total_num
-        nums, offsets = self._split_num_particles(total_num,MPI.size)
-        self.local_num = nums[MPI.rank]
+        nums, offsets = self._split_num_particles(total_num,MPI.COMM_WORLD.Get_size())
+        self.local_num = nums[MPI.COMM_WORLD.Get_rank()]
         global _global_id_max
-        id_offset = _global_id_max + offsets[MPI.rank]
+        id_offset = _global_id_max + offsets[MPI.COMM_WORLD.Get_rank()]
         _global_id_max += total_num
         self.total_current = total_current
         self.is_fixedz = 1
@@ -189,7 +189,7 @@ class Macro_bunch:
         # jfa: the following parallel seed algorithm is ad hoc
         #      Need to get better algorithm, probably from SPRNG
         seed_offset = int(time.time())
-        long_seed = (1000+5*(MPI.rank+seed_offset))*((MPI.rank+seed_offset)+7)-1
+        long_seed = (1000+5*(MPI.COMM_WORLD.Get_rank()+seed_offset))*((MPI.COMM_WORLD.Get_rank()+seed_offset)+7)-1
         seed = int(long_seed % 2**32)
         global _need_random_init
         if beam_parameters.get_transverse():
@@ -229,10 +229,10 @@ class Macro_bunch:
         (Cxy, Cxpyp, Cz, Czp) = beam_parameters.get_conversions()
         self.units = Numeric.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
         self.total_num = total_num
-        nums, offsets = self._split_num_particles(total_num,MPI.size)
-        self.local_num = nums[MPI.rank]
+        nums, offsets = self._split_num_particles(total_num,MPI.COMM_WORLD.Get_size())
+        self.local_num = nums[MPI.COMM_WORLD.Get_rank()]
         global _global_id_max
-        id_offset = _global_id_max + offsets[MPI.rank]
+        id_offset = _global_id_max + offsets[MPI.COMM_WORLD.Get_rank()]
         _global_id_max += total_num
         self.total_current = total_current
         self.is_fixedz = 1
@@ -240,7 +240,7 @@ class Macro_bunch:
         self.ref_particle[5] = -beam_parameters.get_gamma()
         self.particles = Numeric.zeros((7,self.local_num),'d')
         seed_offset = int(time.time())
-        long_seed = (1000+5*(MPI.rank+seed_offset))*((MPI.rank+seed_offset)+7)-1
+        long_seed = (1000+5*(MPI.COMM_WORLD.Get_rank()+seed_offset))*((MPI.COMM_WORLD.Get_rank()+seed_offset)+7)-1
         seed = int(long_seed % 2**32)
         global _need_random_init
         if beam_parameters.get_transverse():
@@ -284,7 +284,7 @@ class Macro_bunch:
         
     def write_particles(self,filename,compress_level=1):
         h5filename = os.path.splitext(filename)[0] + '.h5'
-        if MPI.rank == 0:
+        if MPI.COMM_WORLD.Get_rank() == 0:
             f = tables.openFile(h5filename,mode = "w")
             filter = tables.Filters(complevel=compress_level)
             atom = tables.Atom(dtype='Float64',shape=(7,0))
@@ -293,7 +293,7 @@ class Macro_bunch:
             # THIS IS NOT CORRECT. DO NOT LEAVE IT HERE!!!!!
             particles = self.particles
             earray.append(particles)
-            for proc in xrange(1,MPI.size):
+            for proc in xrange(1,MPI.COMM_WORLD.Get_size()):
                 parts = MPI.WORLD.Recv(source=proc)
                 if parts.shape[1] > 0:
                     earray.append(parts)
@@ -302,9 +302,9 @@ class Macro_bunch:
             MPI.WORLD.Send(self.particles,dest=0)
 
     def write_particles_text(self,filename):
-        if MPI.rank == 0:
+        if MPI.COMM_WORLD.Get_rank() == 0:
             f = open(filename,"w")
-            for proc in xrange(1,MPI.size):
+            for proc in xrange(1,MPI.COMM_WORLD.Get_size()):
                 parts = MPI.WORLD.Recv(source=proc)
                 for i in range(0,parts.shape[1]):
                     f.write("%g %g %g %g %g %g %g\n" % \

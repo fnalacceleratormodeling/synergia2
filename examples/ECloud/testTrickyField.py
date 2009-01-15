@@ -25,7 +25,7 @@ if ( __name__ == '__main__'):
   mEl.setMagnetModel(4, 20.)
   numTry=6
   massE = 1.0e6*synergia.PH_NORM_me # Energy units here are keV..
-  if (MPI.size != 1):
+  if (MPI.COMM_WORLD.Get_size() != 1):
     print " Not a tru MPI application!... "
     sys.exit()
   ctx=0.01 

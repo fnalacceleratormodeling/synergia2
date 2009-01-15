@@ -39,7 +39,7 @@ mb.init_sphere(Q,r0)
 t_init = time.time() - t0
 t0 = time.time()
 total_charge = deposit_charge_cic(rho,mb.get_store(),0)
-#~ if MPI.rank == 0:
+#~ if MPI.COMM_WORLD.Get_rank() == 0:
     #~ for i in range(0,2):
         #~ for j in range(0,2):
             #~ for k in range(0,2):
@@ -49,13 +49,13 @@ t_deposit = time.time() - t0
 t0 = time.time()
 fftwh = Fftw_helper(shape)
 phi = solver_fftw_open(rho,fftwh,0)
-phi.write_to_file("phi-%d-%d" % (MPI.size,MPI.rank))
+phi.write_to_file("phi-%d-%d" % (MPI.COMM_WORLD.Get_size(),MPI.COMM_WORLD.Get_rank()))
 #phi.get_points().print_("phi")
 t_solve = time.time() - t0
 E = calculate_E_n(phi,0)
 
 #~ E = phi
-if MPI.rank<4:
+if MPI.COMM_WORLD.Get_rank()<4:
     print "init =",t_init,", deposit =",t_deposit,", solve =",t_solve
     points = E.get_points()
     shape = points.get_shape()
@@ -64,7 +64,7 @@ if MPI.rank<4:
         index = (i,shape[1]/2,shape[2]/2)
         p.append(points.get(index))
     pylab.plot(p,'o')
-    pylab.title('proc %d' % MPI.rank)
+    pylab.title('proc %d' % MPI.COMM_WORLD.Get_rank())
     #~ num_points = n
     #~ ax = numarray.arrayrange(num_points)*size[0]/(num_points -1) - 0.5*size[0]
     #~ aphi = numarray.zeros([num_points],numarray.Float)
@@ -88,7 +88,7 @@ if MPI.rank<4:
 
 
     sys.stdout.flush()
-    if MPI.rank < 4:
-        print "doing show on rank",MPI.rank
+    if MPI.COMM_WORLD.Get_rank() < 4:
+        print "doing show on rank",MPI.COMM_WORLD.Get_rank()
         pylab.show()
 

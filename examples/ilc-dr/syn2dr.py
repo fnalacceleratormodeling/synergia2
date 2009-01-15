@@ -39,7 +39,7 @@ try:
     import pylab
     import density_plot
 except:
-    if MPI.rank == 0:
+    if MPI.COMM_WORLD.Get_rank() == 0:
         print "pylab not available"
 
 def adjust_particles(base,procs):
@@ -77,7 +77,7 @@ class Line:
             return physics_constants.PH_NORM_mp
         
     def propagate(self, s, bunch, sc_params):
-        if MPI.rank == 0:
+        if MPI.COMM_WORLD.Get_rank() == 0:
             print "%s" % self.name,
         mean = None
         std = None
@@ -206,10 +206,10 @@ if ( __name__ == '__main__'):
     pipe_radius = 0.04
     griddim = myopts.get("scgrid")
     proccol = myopts.get("proccol")
-    if MPI.size == 1:
+    if MPI.COMM_WORLD.Get_size() == 1:
         proccol = 1
     num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
-                                     part_per_cell,MPI.size)
+                                     part_per_cell,MPI.COMM_WORLD.Get_size())
 
     ee = error_eater.Error_eater()
 #    ee.start()
@@ -245,18 +245,18 @@ if ( __name__ == '__main__'):
     time_file = open("timing.dat","w")
     t1 = time.time()
     for turn in range(1,last_turn+1):
-        if MPI.rank == 0:
+        if MPI.COMM_WORLD.Get_rank() == 0:
             time_file.write("%g %g\n" % (s,time.time()-t1))
             t1 = time.time()
             time_file.flush()
-        if MPI.rank==0:
+        if MPI.COMM_WORLD.Get_rank()==0:
             print "turn %d:" % turn,
             sys.stdout.flush()
         print "jfa: propagate start"
         (s,mean,std) = dr.propagate(s,b, sc_params)
         print "jfa: propagate end"
         (mean,std) = b.write_fort(s)
-        if MPI.rank==0:
+        if MPI.COMM_WORLD.Get_rank()==0:
             print        
         if turn % myopts.get("saveperiod") == 0:
             b.write_particles("turn_%04d.dat" % turn)

@@ -112,9 +112,9 @@ if ( __name__ == '__main__'):
     griddim = myopts.get("scgrid")
     part_per_cell = myopts.get("part_per_cell")
     num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
-                                     part_per_cell,MPI.size)
+                                     part_per_cell,MPI.COMM_WORLD.Get_size())
 
-##    num_particles = adjust_particles(10,MPI.size)
+##    num_particles = adjust_particles(10,MPI.COMM_WORLD.Get_size())
 
     ee = error_eater.Error_eater()
     ee.start()
@@ -188,7 +188,7 @@ if ( __name__ == '__main__'):
     line_x = None
     line_y = None
     steps = 0
-    if MPI.rank == 0 and myopts.get("showplot"):
+    if MPI.COMM_WORLD.Get_rank() == 0 and myopts.get("showplot"):
         pylab.ion()
         pylab.hold(0)
         xpl=[]
@@ -219,7 +219,7 @@ if ( __name__ == '__main__'):
 
 
     for kick in range(0,myopts.get("kicksperline")):
-        if MPI.rank == 0 and myopts.get("showplot"):
+        if MPI.COMM_WORLD.Get_rank() == 0 and myopts.get("showplot"):
             if(int(b.particles()[6,0]) == 1):
                 # change the rest
                 xpl.append(b.get_particles()[0,0]/
@@ -254,23 +254,23 @@ if ( __name__ == '__main__'):
 
         steps += 1
         if myopts.get("track"):
-            if MPI.rank == 0:
+            if MPI.COMM_WORLD.Get_rank() == 0:
                 f = open("live_output","a")
                 f.write("starting track at s=%g\n" % s)
                 f.close()
             mytracker.add(b,s)
             mytracker.show_statistics("live_output")
-            if MPI.rank == 0:
+            if MPI.COMM_WORLD.Get_rank() == 0:
                 f = open("live_output","a")
                 f.write("completed track at s=%g\n" % s)
                 f.close()
 
-###                if MPI.rank == 0:
+###                if MPI.COMM_WORLD.Get_rank() == 0:
 ###                    print "turn %d, cell %d, kick %d" %\
 ###                          (turn,cell,kick)
 
         g.get_fast_mapping(kick*2).apply(b.get_local_particles(), b.get_num_particles_local())
-        if MPI.rank == 0:
+        if MPI.COMM_WORLD.Get_rank() == 0:
             f = open("live_output","a")
             f.write("finished map at s=%g\n" % s)
             f.close()
@@ -290,11 +290,11 @@ if ( __name__ == '__main__'):
 # wtf??2e10
         size = (1,1,1)
         offset = (0,0,0)
-        if MPI.rank == 0:
+        if MPI.COMM_WORLD.Get_rank() == 0:
             f = open("live_output","a")
             f.write("starting kick at s=%g\n" % s)
         fish.apply_space_charge_kick(griddim,size,offset, b, 2*tau)
-        if MPI.rank == 0:
+        if MPI.COMM_WORLD.Get_rank() == 0:
             f = open("live_output","a")
             f.write("finished kick at s=%g\n" % s)
          ##fish2.apply_BasErs_space_charge_kick(b, 2*tau)

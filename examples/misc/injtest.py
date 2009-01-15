@@ -61,7 +61,7 @@ if ( __name__ == '__main__'):
     pipe_radius = 0.04
     griddim = (9,9,9)
     num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
-                                     part_per_cell,MPI.size)
+                                     part_per_cell,MPI.COMM_WORLD.Get_size())
 
     ee = error_eater.Error_eater()
     ee.start()
@@ -104,7 +104,7 @@ if ( __name__ == '__main__'):
 
     line_x = None
     line_y = None
-#     if MPI.rank == 0 and myopts.get("showplot"):
+#     if MPI.COMM_WORLD.Get_rank() == 0 and myopts.get("showplot"):
 #         pylab.ion()
     steps = 0
     pylab.ion()
@@ -125,7 +125,7 @@ if ( __name__ == '__main__'):
             tcell = time.time()
             for kick in range(0,myopts.get("kickspercell")):
                 steps += 1
-                if MPI.rank == 0:
+                if MPI.COMM_WORLD.Get_rank() == 0:
 #                     print "turn %d, cell %d, kick %d" %\
 #                           (turn,cell,kick),
                     if cell == 23 and kick == myopts.get("kickspercell") -1:
@@ -147,10 +147,10 @@ if ( __name__ == '__main__'):
                 g.get_fast_mapping(kick*2+1).apply(b.particles(), b.num_particles_local())
                 s += line_length/myopts.get("kickspercell")
                 b.write_fort(s)
-                if MPI.rank == 0:
+                if MPI.COMM_WORLD.Get_rank() == 0:
                     pass
 #                    print "cell time =",time.time() - tcell
-    #             if MPI.rank == 0 and myopts.get("showplot") and steps % myopts.get("plotperiod") == 0:
+    #             if MPI.COMM_WORLD.Get_rank() == 0 and myopts.get("showplot") and steps % myopts.get("plotperiod") == 0:
     #                 d = diagnostics.Diagnostics()
     #                 line_x, = pylab.plot(d.s,d.std[:,diagnostics.x],'r-o',label='x')
     #                 line_y, = pylab.plot(d.s,d.std[:,diagnostics.y],'b-x',label='y')

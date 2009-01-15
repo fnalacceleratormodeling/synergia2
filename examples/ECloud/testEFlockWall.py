@@ -23,7 +23,7 @@ if ( __name__ == '__main__'):
   numTry=1000
   vv=numpy.random.rand(numTry)
   massE = 1.0e6*synergia.PH_NORM_me # Energy units here are keV..
-  if (MPI.size != 1):
+  if (MPI.COMM_WORLD.Get_size() != 1):
     print " Not a tru MPI application!... "
     sys.exit()
   ctx=0.01 
@@ -60,7 +60,7 @@ if ( __name__ == '__main__'):
 	       " total energy ", totalKin 
        nIter+=1
        if (nIter > 25):
-	 if (MPI.rank == 0):
+	 if (MPI.COMM_WORLD.Get_rank() == 0):
 	   print "  Run away with one electron, cut short after 25 iteration "
 	   sys.exit() 
 	   break

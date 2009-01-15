@@ -17,23 +17,23 @@ class aFlock:
       ee=numpy.zeros(5)
       self.data.append(ee)
 
-    print " MPI Rank ", MPI.rank, " created ", len(self.data), " thingies " 
+    print " MPI Rank ", MPI.COMM_WORLD.Get_rank(), " created ", len(self.data), " thingies " 
 
   def gatherNumInVaccum(self):
-      if (MPI.size == 1):
+      if (MPI.COMM_WORLD.Get_size() == 1):
         self.lenDataAll=len(self.data)
       self.lenDataAll=0
-      if (MPI.rank !=0):
+      if (MPI.COMM_WORLD.Get_rank() !=0):
 	MPI.COMM_WORLD.Send([len(self.data), 1, MPI.INT],dest=0, tag=None)
       else:
-	for proc in range(1,MPI.size):
+	for proc in range(1,MPI.COMM_WORLD.Get_size()):
 	  aVTmp=MPI.COMM_WORLD.Recv(source=proc)
           self.lenDataAll+=aVTmp[0]
-#          print " MPI Rank ", MPI.rank, " received ", aVTmp[0] 
+#          print " MPI Rank ", MPI.COMM_WORLD.Get_rank(), " received ", aVTmp[0] 
 	self.lenDataAll+=len(self.data)
-#      print " MPI Rank ", MPI.rank, " all collected " 
+#      print " MPI Rank ", MPI.COMM_WORLD.Get_rank(), " all collected " 
       self.lenDataAll=MPI.COMM_WORLD.Bcast(self.lenDataAll, root=0)
-#      print " MPI Rank ", MPI.rank, " Broadcast val ", self.lenDataAll 
+#      print " MPI Rank ", MPI.COMM_WORLD.Get_rank(), " Broadcast val ", self.lenDataAll 
       
   def numInVaccum(self):
        return self.lenDataAll
@@ -42,12 +42,12 @@ aF=aFlock()
 aF.addSome(45)
 MPI.COMM_WORLD.Barrier()
 aF.gatherNumInVaccum()
-print " MPI Rank ", MPI.rank, " Gathered, total ", aF.numInVaccum()
+print " MPI Rank ", MPI.COMM_WORLD.Get_rank(), " Gathered, total ", aF.numInVaccum()
 aNumHere=0.
-if (MPI.rank==0):
+if (MPI.COMM_WORLD.Get_rank()==0):
    aNumHere=99.
 aNumHere=MPI.COMM_WORLD.Bcast(aNumHere, root=0)
-print " MPI Rank ", MPI.rank, " aNumHere ", aNumHere
+print " MPI Rank ", MPI.COMM_WORLD.Get_rank(), " aNumHere ", aNumHere
 
 MPI.Finalize()
 

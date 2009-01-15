@@ -1,8 +1,8 @@
 #!/home/dechow/Python/bin/bwpython
 
 from mpi4py import MPI
-mpi_rank = MPI.rank
-mpi_size = MPI.size
+mpi_rank = MPI.COMM_WORLD.Get_rank()
+mpi_size = MPI.COMM_WORLD.Get_size()
 print "I am processor %d of %d" % (mpi_rank, mpi_size)
 
 import local_paths

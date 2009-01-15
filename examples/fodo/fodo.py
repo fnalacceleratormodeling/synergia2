@@ -145,7 +145,7 @@ if ( __name__ == '__main__'):
 
     print "elapsed time =",time.time() - t0
 
-    if MPI.rank == 0:
+    if MPI.COMM_WORLD.Get_rank() == 0:
         import pylab
         d = diagnostics.Diagnostics()
         pylab.plot(d.s,d.std[:,diagnostics.x],'b',label='x')
