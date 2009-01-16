@@ -28,11 +28,11 @@ if ( __name__ == '__main__'):
     myopts.add("xoffset",0,"",float)
     myopts.add("yoffset",0,"",float)
     myopts.add("emittance",0.26e-6,"",float)
-    myopts.add("space_charge",1,"",int)
+    myopts.add("space_charge",0,"",int)
     myopts.add("impedance",1,"",int)
     myopts.add("energy",8.9,"",float)
     myopts.add("partpercell",1,"",float)
-    myopts.add("bunches",2,"",int)
+    myopts.add("bunches",1,"",int)
     myopts.add("bunchnp",1.0e11,"number of particles per bunch",float)
     
     myopts.add_suboptions(synergia.opts)
@@ -72,7 +72,7 @@ if ( __name__ == '__main__'):
     ee = synergia.Error_eater()
     ee.start()
     gourmet = synergia.Gourmet(os.path.join(os.getcwd(),myopts.get("latticefile"))
-        ,"ring_p_q605",kinetic_energy,
+        ,"model",kinetic_energy,
                         scaling_frequency)
     gourmet.insert_space_charge_markers(kicks_per_line)
     (alpha_x, alpha_y, beta_x, beta_y) = synergia.matching.get_alpha_beta(gourmet)
