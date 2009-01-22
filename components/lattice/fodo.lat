@@ -1,0 +1,38 @@
+! File fodo.lat
+! 
+! Written for the January, 2007 USPAS.
+! To be used in conjunction with CHEF.
+! 
+! Send complaints to the author: Leo Michelotti
+! 
+
+! ------------------
+! Parameters
+! ------------------
+momentum := 100                   ! [GeV/c] : particle momentum;
+                                  !         :   arbitrary number
+focus    :=   7                   ! [m]     : focal length of equivalent 
+                                  !         :   thin quad
+sepn     :=  10                   ! [m]     : distance between quad centers
+length   :=   0.2                 ! [m]     : quadrupole length
+strength := 1/(focus*length)      ! [m**-2] : quadrupole strength
+                                  !         :   = B'/brho
+beam, particle=proton, pc=momentum
+
+
+! ------------------
+! Elements
+! ------------------
+o: drift, l=( sepn - length )
+f: quadrupole, l=length, k1=strength
+d: quadrupole, l=length, k1=(-strength)
+
+
+! ------------------
+! Lattices
+! ------------------
+justf:  line=( f )
+justo:  line=( o )
+justd:  line=( d )
+fodo:  line=( f, o, d, o )
+model: line=( 5*fodo )

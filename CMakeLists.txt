@@ -29,7 +29,7 @@ message("Boost_MAJOR_VERSION = '${Boost_MAJOR_VERSION}'")
 message("Boost_MINOR_VERSION = '${Boost_MINOR_VERSION}'")
 message("Boost_SUBMINOR_VERSION = '${Boost_SUBMINOR_VERSION}'")
 
-set(Boost_LIBRARIES -lboost_python-gcc)
+set(Boost_LIBRARIES -lboost_python -lboost_regex)
 
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
@@ -48,6 +48,7 @@ configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in"
 include_directories(${SYNERGIA2_SOURCE_DIR})
 
 add_subdirectory(array_nd)
+add_subdirectory(components)
 add_subdirectory(synergia)
 add_subdirectory(s2_fish)
 add_subdirectory(impact)
