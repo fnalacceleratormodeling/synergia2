@@ -24,23 +24,16 @@ upcase(const std::string str)
 	return retval;
 }
 
-Lattice_element::Lattice_element(ElmPtr chef_elmptr)
-{
-	this->chef_elmptr = chef_elmptr;
-}
-
-std::string
-Lattice_element::get_name()
-{
-	return std::string(chef_elmptr->Name());
-}
-
 Lattice::Lattice(std::string const &file_name,
 		std::string const &line_name)
 {
 	XSIFFactory factory(file_name);
-	chef_bmlptr = BmlPtr(DriftsToSlots(*factory.create_beamline(
-			upcase(line_name).c_str())));
+	BmlPtr tmp = factory.create_beamline(upcase(line_name).c_str());
+	if (tmp == 0) {
+		throw
+			std::runtime_error("Failed to read line " + line_name + " from lattice file " + file_name);
+	}
+	chef_bmlptr = BmlPtr(DriftsToSlots(*tmp));
 	int nelm = chef_bmlptr->countHowManyDeeply();
 		std::cout << "nelm = " << nelm << std::endl;
 

@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "lattice.h"
+#include "four_momentum.h"
 
 int
 main(int argc, char **argv)
@@ -17,9 +18,12 @@ main(int argc, char **argv)
 	for(std::list<Lattice_element>::iterator it = elements.begin();
 		it != elements.end();
 		++it) {
-		std::cout << it->get_name() << std::endl;
+		std::cout << it->get_name() << ": " << it->get_type() << std::endl;
 	}
 
+	Four_momentum mom4(0.938,0.0);
+	mom4.set_momentum(100.0);
+	std::cout << "mom4.energy = " << mom4.get_total_energy() << std::endl;
 	std::cout << "success!\n";
 	return 0;
 }

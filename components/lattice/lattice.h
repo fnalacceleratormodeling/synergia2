@@ -6,18 +6,7 @@
 
 #include <beamline/beamline.h>
 
-class Lattice_element
-{
-private:
-	ElmPtr chef_elmptr;
-
-public:
-	Lattice_element(ElmPtr chef_elmptr);
-	std::string get_name();
-//	std::string type();
-//	double length();
-//	double quadrupole_strength();
-};
+#include "lattice_element.h"
 
 class Lattice
 {
