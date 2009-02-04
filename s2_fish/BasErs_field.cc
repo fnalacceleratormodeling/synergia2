@@ -1,4 +1,4 @@
-
+#include <cstdlib>
 #include "BasErs_field.h"
 
 extern std::complex<double>  w( std::complex<double> const&  );
@@ -49,7 +49,7 @@ std::vector<double> BasErs_field::NormalizedEField( double arg_x, double arg_y )
             std::cerr << "*** ERROR *** Asymptotic limit                \n";
             std::cerr << "*** ERROR *** r seems too small.              \n";
             std::cerr << "*** ERROR ***                                 \n";
-            exit(1);
+            std::exit(1);
         }
         retvec[0] = x / r;
         retvec[1] = y / r;
