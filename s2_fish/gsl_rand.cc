@@ -2,7 +2,7 @@
 
 #include <boost/python.hpp>
 #include <boost/python/numeric.hpp>
-#include <Numeric/arrayobject.h>
+#include <numpy/arrayobject.h>
 
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>

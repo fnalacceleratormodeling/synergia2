@@ -1,9 +1,8 @@
 #include <iostream>
 #include <list>
-#undef _POSIX_C_SOURCE
 #include <boost/python.hpp>
 #include <boost/python/numeric.hpp>
-#include <Numeric/arrayobject.h>
+#include <numpy/arrayobject.h>
 #include <vector>
 #include "bmlfactory/bmlfactory.h"
 #include "mxyzptlk/Mapping.h"
@@ -19,14 +18,14 @@ extern "C" {
 #include <sys/time.h>
 }
 
-double 
+double
 double_time()
 {
   timeval t;
   gettimeofday(&t,NULL);
   return t.tv_sec + t.tv_usec/1.0e6;
 }
-  
+
 using namespace boost::python;
 
 int convert_chef_index(int impact_index)
@@ -43,8 +42,8 @@ chef_propagate(numeric::array& numeric_particles, int num_particles,
         Array_nd_from_PyObject<double>(numeric_u_in.ptr());
     Array_1d<double> u_out =
         Array_nd_from_PyObject<double>(numeric_u_out.ptr());
-        
-    Array_2d<double> particles = 
+
+    Array_2d<double> particles =
         Array_nd_from_PyObject<double>(numeric_particles.ptr());
 
   Vector chef_state(6);
@@ -60,7 +59,7 @@ chef_propagate(numeric::array& numeric_particles, int num_particles,
     } else if (particle_type == "positron") {
         particle_ptr = new Positron(energy_in);
     } else {
-        throw 
+        throw
             std::runtime_error("chef_propagate: unknown particle_type " + particle_type);
     }
     particle_ptr->State() = chef_state;
@@ -75,8 +74,8 @@ chef_propagate(numeric::array& numeric_particles, int num_particles,
   }
 }
 
-    
-    
+
+
 BOOST_PYTHON_MODULE(chef_propagate)
 {
   numeric::array::set_module_and_type("Numeric", "ArrayType");

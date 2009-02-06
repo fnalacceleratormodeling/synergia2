@@ -2,7 +2,7 @@
 #undef _POSIX_C_SOURCE
 #include <boost/python.hpp>
 #include <boost/python/numeric.hpp>
-#include <Numeric/arrayobject.h>
+#include <numpy/arrayobject.h>
 #include <vector>
 #include "bmlfactory/bmlfactory.h"
 
@@ -37,7 +37,7 @@ void apply_map1(numeric::array& numeric_particles, int num_particles,
   double *map;
   map = reinterpret_cast<double *>
     (reinterpret_cast<PyArrayObject*>(numeric_map.ptr())->data);
-  
+
   double temp[6];
   for(int part=0; part<num_particles; ++part) {
     for(int i=0; i<6; ++i) {
@@ -51,7 +51,7 @@ void apply_map1(numeric::array& numeric_particles, int num_particles,
     }
   }
 }
-	
+
 BOOST_PYTHON_MODULE(apply_map)
 {
   numeric::array::set_module_and_type("Numeric", "ArrayType");

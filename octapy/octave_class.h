@@ -8,7 +8,7 @@
 #include <numarray/libnumarray.h>
 #include <numarray/arrayobject.h>
 #else
-#include <Numeric/arrayobject.h>
+#include <numpy/arrayobject.h>
 #endif
 class Octave
 {

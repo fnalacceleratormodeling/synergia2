@@ -2,7 +2,7 @@
 #undef _POSIX_C_SOURCE
 #include <boost/python.hpp>
 #include <boost/python/numeric.hpp>
-#include <Numeric/arrayobject.h>
+#include <numpy/arrayobject.h>
 
 using namespace boost::python;
 

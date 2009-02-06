@@ -3,7 +3,7 @@
 #undef _POSIX_C_SOURCE
 #include <boost/python.hpp>
 #include <boost/python/numeric.hpp>
-#include <Numeric/arrayobject.h>
+#include <numpy/arrayobject.h>
 #include <vector>
 #include "bmlfactory/bmlfactory.h"
 #include "mxyzptlk/Mapping.h"

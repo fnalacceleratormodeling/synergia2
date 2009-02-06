@@ -1,5 +1,5 @@
 #include "macro_bunch_store.h"
-#include <Numeric/arrayobject.h>
+#include <numpy/arrayobject.h>
 #include "array_nd/array_nd_python.h"
 #include <iostream>
 using namespace boost::python;

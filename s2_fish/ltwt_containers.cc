@@ -1,5 +1,5 @@
 #include "ltwt_containers.h"
-#include <Numeric/arrayobject.h>
+#include <numpy/arrayobject.h>
 
 Ltwt_array::Ltwt_array(numeric::array& numeric_array)
 {
