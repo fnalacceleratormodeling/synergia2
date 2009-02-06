@@ -4,7 +4,7 @@
 #include <sys/time.h>
 #include <sys/resource.h>
 #include "RKIntegrators.h"
-#include <Numeric/arrayobject.h>
+#include <numpy/arrayobject.h>
 #define PyArray_DATA(obj) ((void *)(((PyArrayObject *)(obj))->data))
 #include "triple.h"
 #include <boost/python/extract.hpp>

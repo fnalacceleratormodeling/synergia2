@@ -5,7 +5,7 @@
 #undef _POSIX_C_SOURCE
 #include <boost/python.hpp>
 #include <boost/python/numeric.hpp>
-#include <Numeric/arrayobject.h>
+#include <numpy/arrayobject.h>
 
 void
 get_spatial_means_stds(Macro_bunch_store& mbs,
