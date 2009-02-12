@@ -1,7 +1,7 @@
 add_executable(test_slice test_slice.cc)
 target_link_libraries(test_slice array_nd)
 
-link_libraries(${CHEF_LIBS} -lfftw3 ${Boost_LIBRARIES} array_nd)
+link_libraries(${CHEF_LIBS} ${FFTW3_LIB} ${Boost_LIBRARIES} array_nd)
 # jfa: this is overkill
 add_definitions(-DBOOST_TEST_DYN_LINK)
 #add_executable(test_field_domain test_field_domain.cc)
