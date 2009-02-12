@@ -3,7 +3,7 @@
 import local_paths
 import gourmet
 import pylab
-import Numeric
+import numpy
 import physics_constants
 import bunch
 import diagnostics
@@ -43,7 +43,7 @@ def apply_map(map, the_bunch):
     global mt
     t0 = time.time()
     the_bunch.beambunch.Pts1 = \
-                             Numeric.matrixmultiply(map,
+                             numpy.matrixmultiply(map,
                                                     the_bunch.beambunch.Pts1)
     mt += time.time() - t0
 

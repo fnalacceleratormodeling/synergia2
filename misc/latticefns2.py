@@ -3,7 +3,7 @@
 import local_paths
 import gourmet
 import pylab
-import Numeric
+import numpy
 
 def show_lattice_functions(lf):
     bx = pylab.plot(lf.s,lf.beta_x,'-b',linewidth=1.5)

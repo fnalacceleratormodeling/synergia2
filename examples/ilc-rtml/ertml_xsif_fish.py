@@ -3,7 +3,7 @@
 import local_paths
 import beamline
 import gourmet
-import Numeric
+import numpy
 import physics_constants
 import bunch
 #import diagnostics

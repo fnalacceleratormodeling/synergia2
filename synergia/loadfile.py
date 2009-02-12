@@ -1,13 +1,13 @@
 #!/usr/bin/env python
 
-import Numeric
+import numpy
 
 def loadfile(filename):
     num = len(open(filename ,"r").readlines())
     f = open(filename,"r")
     line = f.readline()
     cols = len(line.split())
-    data = Numeric.zeros((num,cols),'d')
+    data = numpy.zeros((num,cols),'d')
     index = 0
     while line:
         cols = line.split()
@@ -22,7 +22,7 @@ def loadfile_transpose(filename):
     f = open(filename,"r")
     line = f.readline()
     cols = len(line.split())
-    data = Numeric.zeros((cols,num),'d')
+    data = numpy.zeros((cols,num),'d')
     index = 0
     while line:
         cols = line.split()

@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 
 from macro_bunch_store import Macro_bunch_store
-import Numeric
-import RandomArray
+import numpy
 from mpi4py import MPI
 
 import os.path
@@ -63,9 +62,9 @@ class Macro_bunch:
         local_num = num[0]*num[1]*num[2]
         total_num = local_num # fix me for mpi
         total_current = 1.0
-        self.units = Numeric.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
-        self.ref_particle = Numeric.array([0.0,0.0,0.0,0.0,0.0,-1.1],'d')
-        self.particles = Numeric.zeros((7,local_num),'d')
+        self.units = numpy.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
+        self.ref_particle = numpy.array([0.0,0.0,0.0,0.0,0.0,-1.1],'d')
+        self.particles = numpy.zeros((7,local_num),'d')
         self.is_fixedz = 1
         index = 0
         for i in range(0,num[0]):
@@ -86,21 +85,21 @@ class Macro_bunch:
 
     def init_sphere(self,num,radius):
         '''Particles uniformly distributed in a sphere of radius "radius"'''
-        RandomArray.seed(17+MPI.COMM_WORLD.Get_rank()*51,59+MPI.COMM_WORLD.Get_rank()*23)
+        numpy.random.seed(17+MPI.COMM_WORLD.Get_rank()*51,59+MPI.COMM_WORLD.Get_rank()*23)
         offset = (0.0,0.0,0.0)
         local_num = num/MPI.COMM_WORLD.Get_size() #jfa: could be more precise...
         total_num = MPI.WORLD.Allreduce(local_num,MPI.SUM)
         total_current = 1.0
-        self.units = Numeric.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
-        self.ref_particle = Numeric.array([0.0,0.0,0.0,0.0,0.0,-1.1],'d')
-        self.particles = Numeric.zeros((7,local_num),'d')
+        self.units = numpy.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
+        self.ref_particle = numpy.array([0.0,0.0,0.0,0.0,0.0,-1.1],'d')
+        self.particles = numpy.zeros((7,local_num),'d')
         self.is_fixedz = 1
         index = 0
         added = 0
         discarded = 0
         chunk_size = 1000
         t0 = time.time()
-        p = (RandomArray.random([6,chunk_size])-0.5)*2.0*radius
+        p = (numpy.random.random([6,chunk_size])-0.5)*2.0*radius
         index = 0
         while added < local_num:
             if ((p[0,index]**2 + p[2,index]**2 + p[4,index]**2) < radius**2):
@@ -111,7 +110,7 @@ class Macro_bunch:
                 discarded += 1
             index += 1
             if index >= chunk_size:
-                p = (RandomArray.random([6,chunk_size])-0.5)*2.0*radius
+                p = (numpy.random.random([6,chunk_size])-0.5)*2.0*radius
                 index = 0
         t1 = time.time()
 #        print "pi =",6.0*added/(1.0*added+discarded),"in",t1-t0,"secs"
@@ -127,16 +126,16 @@ class Macro_bunch:
         local_num = num
         total_num = local_num # fix me for mpi
         total_current = 1.0
-        self.units = Numeric.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
-        self.ref_particle = Numeric.array([0.0,0.0,0.0,0.0,0.0,-1.1],'d')
-        self.particles = Numeric.zeros((7,local_num),'d')
+        self.units = numpy.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
+        self.ref_particle = numpy.array([0.0,0.0,0.0,0.0,0.0,-1.1],'d')
+        self.particles = numpy.zeros((7,local_num),'d')
         self.is_fixedz = 1
         index = 0
         added = 0
         discarded = 0
         chunk_size = 1000
         t0 = time.time()
-        p = (RandomArray.random([6,chunk_size])-0.5)*2.0*radius
+        p = (numpy.random.random([6,chunk_size])-0.5)*2.0*radius
         index = 0
         while added < local_num:
             if ((p[0,index]**2 + p[2,index]**2) < radius**2):
@@ -148,7 +147,7 @@ class Macro_bunch:
                 discarded += 1
             index += 1
             if index >= chunk_size:
-                p = (RandomArray.random([6,chunk_size])-0.5)*2.0*radius
+                p = (numpy.random.random([6,chunk_size])-0.5)*2.0*radius
                 index = 0
         t1 = time.time()
         self.local_num = local_num
@@ -174,7 +173,7 @@ class Macro_bunch:
 
     def init_gaussian(self,total_num,total_current, beam_parameters):
         (Cxy, Cxpyp, Cz, Czp) = beam_parameters.get_conversions()
-        self.units = Numeric.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
+        self.units = numpy.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
         self.total_num = total_num
         nums, offsets = self._split_num_particles(total_num,MPI.COMM_WORLD.Get_size())
         self.local_num = nums[MPI.COMM_WORLD.Get_rank()]
@@ -183,9 +182,9 @@ class Macro_bunch:
         _global_id_max += total_num
         self.total_current = total_current
         self.is_fixedz = 1
-        self.ref_particle = Numeric.zeros((6,),'d')
+        self.ref_particle = numpy.zeros((6,),'d')
         self.ref_particle[5] = -beam_parameters.get_gamma()
-        self.particles = Numeric.zeros((7,self.local_num),'d')
+        self.particles = numpy.zeros((7,self.local_num),'d')
         # jfa: the following parallel seed algorithm is ad hoc
         #      Need to get better algorithm, probably from SPRNG
         seed_offset = int(time.time())
@@ -209,7 +208,7 @@ class Macro_bunch:
                 delta_z = 2.0*math.pi
                 num_peaks = beam_parameters.get_z_peaks()
                 old_means = beam_parameters.get_means()
-                new_means = Numeric.zeros([len(old_means)],'d')
+                new_means = numpy.zeros([len(old_means)],'d')
                 new_means[:] = old_means[:]
                 peak_nums, peak_offsets = \
                     self._split_num_particles(self.local_num,num_peaks)
@@ -217,7 +216,7 @@ class Macro_bunch:
                 for peak in range(0,num_peaks):
                     new_means[4] = old_means[4] + \
                         ((2*peak+1)/(2.0*num_peaks) - 0.5)*delta_z
-                    tmp = Numeric.zeros((7,peak_nums[peak]),'d')
+                    tmp = numpy.zeros((7,peak_nums[peak]),'d')
                     populate.populate_6d_gaussian(tmp,new_means,
                         beam_parameters.get_covariances(),
                         id_offset+peak_offsets[peak],seed,
@@ -227,7 +226,7 @@ class Macro_bunch:
                     
     def init_gaussian_covariance(self,total_num,total_current, beam_parameters,covariance):
         (Cxy, Cxpyp, Cz, Czp) = beam_parameters.get_conversions()
-        self.units = Numeric.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
+        self.units = numpy.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
         self.total_num = total_num
         nums, offsets = self._split_num_particles(total_num,MPI.COMM_WORLD.Get_size())
         self.local_num = nums[MPI.COMM_WORLD.Get_rank()]
@@ -236,9 +235,9 @@ class Macro_bunch:
         _global_id_max += total_num
         self.total_current = total_current
         self.is_fixedz = 1
-        self.ref_particle = Numeric.zeros((6,),'d')
+        self.ref_particle = numpy.zeros((6,),'d')
         self.ref_particle[5] = -beam_parameters.get_gamma()
-        self.particles = Numeric.zeros((7,self.local_num),'d')
+        self.particles = numpy.zeros((7,self.local_num),'d')
         seed_offset = int(time.time())
         long_seed = (1000+5*(MPI.COMM_WORLD.Get_rank()+seed_offset))*((MPI.COMM_WORLD.Get_rank()+seed_offset)+7)-1
         seed = int(long_seed % 2**32)
@@ -264,7 +263,7 @@ class Macro_bunch:
         new_total_num = self.total_num + bunch.total_num
         new_local_num = self.local_num + bunch.local_num
         new_total_current = self.total_current + bunch.total_current
-        new_particles = Numeric.zeros((7,new_local_num),'d')
+        new_particles = numpy.zeros((7,new_local_num),'d')
         new_particles[:,0:self.local_num] = self.particles
         new_particles[:,self.local_num:new_local_num] = bunch.particles
         self.particles = new_particles
@@ -274,7 +273,7 @@ class Macro_bunch:
         
     def init_from_bunch(self, bunch):
         (Cxy, Cxpyp, Cz, Czp) = bunch.beam_parameters.get_conversions()
-        self.units = Numeric.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
+        self.units = numpy.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
         self.particles = bunch.particles()
         self.local_num = bunch.num_particles_local()
         self.total_num = bunch.num_particles()
@@ -319,10 +318,10 @@ class Macro_bunch:
 
     def read_particles(self,filename,total_current, beam_parameters):
         (Cxy, Cxpyp, Cz, Czp) = beam_parameters.get_conversions()
-        self.units = Numeric.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
+        self.units = numpy.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
         self.total_current = total_current
         self.is_fixedz = 1
-        self.ref_particle = Numeric.zeros((6,),'d')
+        self.ref_particle = numpy.zeros((6,),'d')
         self.ref_particle[5] = -beam_parameters.get_gamma()
         self.particles = loadfile_transpose(filename)
         self.local_num = self.particles.shape[1]

@@ -8,7 +8,7 @@ print "I am processor %d of %d" % (mpi_rank, mpi_size)
 import local_paths
 import array
 import sys
-import Numeric
+import numpy
 
 # FORTHON PACKAGE IMPORTS
 from Pgrid2dPkgpy      import *
@@ -36,7 +36,7 @@ def Create_BeamLineElement( bnseg, bmpstp, bitype, blength, frequency, MapOrder 
     element = ExternalBLE()
     construct_ExternalBLE_external( element, bnseg, bmpstp, bitype, blength, frequency, MapOrder )
     # ARE THE NEXT TWO LINES PART OF THE CONSTRUCTION PROCESS?
-    tmpextble = Numeric.array([ 0.0, 1.0, 0., 0.040000, 1.0, 0., 0., 0., 0. ] ) 
+    tmpextble = numpy.array([ 0.0, 1.0, 0., 0.040000, 1.0, 0., 0., 0., 0. ] ) 
     setparam2_ExternalBLE_external( element, tmpextble )
     print "jfa: external_ble.mapstp =", element.Mapstp
     return element
@@ -50,10 +50,10 @@ def Apply_Map(a_beam_bunch, a_map_1, a_map_2 = None):
 	MapOrder = 2
     else:
 	MapOrder = 1
-    m = Numeric.zeros( (7,7), 'd' )
+    m = numpy.zeros( (7,7), 'd' )
     m[0:6,0:6] = a_map_1
     m[6,6] = 1.0
-    a_beam_bunch.Pts1 = Numeric.matrixmultiply( m, a_beam_bunch.Pts1 )
+    a_beam_bunch.Pts1 = numpy.matrixmultiply( m, a_beam_bunch.Pts1 )
 
 def Run_Simulation( bunch, element, xm, z, tau, number_of_turns, number_of_segments ):
     # CREATE A DATA FILE FOR VERIFICATION IN OCTAVE
@@ -114,7 +114,7 @@ if ( __name__ == '__main__'):
 #    distparam = array.array( 'd', [ 0.000281124, -2.25491e-20, 4.9945e-07, 0, 0, 0.000991052, 0,
 #				    0, -1.55282e-20, 1.41675e-07, 0, 0, 0, 0,
 #				    0.345566, -6.62671e-07, 0, 0, 0, 0, 9.30938e-08, 0, 0, 0, 0, 0, 0, 1, 666, 666] )
-    distparam = Numeric.array( [ 0.000281124, 0, 4.9945e-07, 0, 0, 0.000991052, 0,
+    distparam = numpy.array( [ 0.000281124, 0, 4.9945e-07, 0, 0, 0.000991052, 0,
 				 0, 0, 1.41675e-07, 0, 0, 0, 0,
 				 0.345566, -6.62671e-07, 0, 0, 0, 0, 9.30938e-08, 0, 0, 0, 0, 0, 0, 1, 666, 666] ,'d' )
 
@@ -127,7 +127,7 @@ if ( __name__ == '__main__'):
     frequency = 2e+08
     
     # Map parameters
-    xm = Numeric.zeros( (6,6), 'd' )
+    xm = numpy.zeros( (6,6), 'd' )
     z = 0.0
     tau = 0.5*blength/bnseg
     number_of_turns = 10
@@ -141,15 +141,15 @@ if ( __name__ == '__main__'):
     # run the simulation
     Run_Simulation( the_bunch, the_element, xm, z, tau, number_of_turns, bnseg )
 
-    print "Numeric.shape( the_bunch.Pts1 ): ",Numeric.shape( the_bunch.Pts1 )
+    print "numpy.shape( the_bunch.Pts1 ): ",numpy.shape( the_bunch.Pts1 )
 
     x = MPI.WORLD[ 0 ].Gather( the_bunch.Pts1[0,:] )
     y = MPI.WORLD[ 0 ].Gather( the_bunch.Pts1[1,:] )
 
     if mpi_rank == 0:
-	print "shape x: ", Numeric.shape( x )
+	print "shape x: ", numpy.shape( x )
 	print x
-	print "shape y: ", Numeric.shape( y )
+	print "shape y: ", numpy.shape( y )
 	print y
 	#file = open("pympi-x1.txt", 'w')
 	#for i in range(0,1000):

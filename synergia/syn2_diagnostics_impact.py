@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import Numeric
+import numpy
 import math
 import sys
 
@@ -43,16 +43,16 @@ zprime_yprime = 13
 zprime_z = 14
 
 def get_diagnostics(bunch):
-    means = Numeric.zeros([6],Numeric.Float)
-    stds = Numeric.zeros([6],Numeric.Float)
+    means = numpy.zeros([6],numpy.Float)
+    stds = numpy.zeros([6],numpy.Float)
     for i in range(0,6):
-        means[i] = Numeric.average(bunch[i,:])
-    mom2s = Numeric.zeros([6,6],Numeric.Float)
-    corrs = Numeric.zeros([6,6],Numeric.Float)
+        means[i] = numpy.average(bunch[i,:])
+    mom2s = numpy.zeros([6,6],numpy.Float)
+    corrs = numpy.zeros([6,6],numpy.Float)
     for i in range(0,6):
         for j in range(i,6):
             tmp = bunch[i,:]*bunch[j,:]
-            mom2s[i,j] = Numeric.average(tmp) - means[i]*means[j]
+            mom2s[i,j] = numpy.average(tmp) - means[i]*means[j]
             mom2s[j,i] = mom2s[i,j]
     for i in range(0,6):
         stds[i] = math.sqrt(mom2s[i,i])

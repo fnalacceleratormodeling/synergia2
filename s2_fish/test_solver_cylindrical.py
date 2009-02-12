@@ -6,8 +6,8 @@ from macro_bunch import Macro_bunch
 from s2_solver_cylindrical import *
 import populate
 
-import Numeric
-import MLab
+import numpy
+import numpy
 
 import unittest
 import sys
@@ -31,7 +31,7 @@ class Test_solver_cylindrical(unittest.TestCase):
             mb.get_local_particles()[2,i] = r0*sin(theta)
             mb.get_local_particles()[4,i] = arbitrary_z
         local_num = mb.get_num_particles_local()
-        coords = Numeric.zeros((3,local_num),'d')
+        coords = numpy.zeros((3,local_num),'d')
         get_cylindrical_coords(mb.get_store(),coords)
         for i in range(0,Q):
             theta = 6.0/Q*i
@@ -97,17 +97,17 @@ class Test_solver_cylindrical(unittest.TestCase):
         mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         num = 100
         radius = 5.0
-        p = Numeric.zeros((7,num),'d')
+        p = numpy.zeros((7,num),'d')
         
         for i in range(0,num):
             for j in range(1,7):
                 p[j,i] = 0.0
             p[0,i] = (radius*i)/num
         
-        mb.units = Numeric.ones((6),'d')
+        mb.units = numpy.ones((6),'d')
         mb.local_num = num
         mb.total_num = mb.local_num
-        mb.ref_particle = Numeric.zeros((6,),'d')
+        mb.ref_particle = numpy.zeros((6,),'d')
         mb.ref_particle[5] = -1.1
         mb.is_fixed_z=0
         mb.total_current=1.0
@@ -116,12 +116,12 @@ class Test_solver_cylindrical(unittest.TestCase):
         mb.particles = p
         
         #mb.write_particles_text("cylinder")
-        coords = Numeric.zeros((3,mb.local_num),'d')
+        coords = numpy.zeros((3,mb.local_num),'d')
         get_cylindrical_coords(mb.get_store(),coords)
         grid_shape = [9,4,4]
         z_length = 2*pi
         field_domain = Cylindrical_field_domain(radius,z_length,grid_shape,True)
-        rho = Numeric.zeros(grid_shape,'d')
+        rho = numpy.zeros(grid_shape,'d')
         print "jfa: about to deposit"
         deposit_charge_cic_cylindrical(field_domain, rho ,mb.get_store(),coords)
         sys.exit(999)
@@ -129,7 +129,7 @@ class Test_solver_cylindrical(unittest.TestCase):
         nonzero = 0
         integral = 0
         cell_size = field_domain.get_cell_size()
-        rhoz = Numeric.zeros((grid_shape[0],),'d')
+        rhoz = numpy.zeros((grid_shape[0],),'d')
         for r in range(0,grid_shape[0]):
             for theta in range(0,grid_shape[1]):
                 for z in range(0,grid_shape[2]):
@@ -145,9 +145,9 @@ class Test_solver_cylindrical(unittest.TestCase):
     def xtest_07_aarandom(self):
         mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         num = 100000
-        p = Numeric.zeros((7,num),'d')
-        covs = Numeric.zeros((6,6),'d')
-        means = Numeric.zeros((6,),'d')
+        p = numpy.zeros((7,num),'d')
+        covs = numpy.zeros((6,6),'d')
+        means = numpy.zeros((6,),'d')
 
         for i in range(0,6):
             means[i] = 0.0;
@@ -159,10 +159,10 @@ class Test_solver_cylindrical(unittest.TestCase):
         populate.populate_uniform_cylinder(p,means,covs,0,0,False)
         t1 = time.time()
 
-        mb.units = Numeric.ones((6),'d')
+        mb.units = numpy.ones((6),'d')
         mb.local_num = num
         mb.total_num = mb.local_num
-        mb.ref_particle = Numeric.zeros((6,),'d')
+        mb.ref_particle = numpy.zeros((6,),'d')
         mb.ref_particle[5] = -1.1
         mb.is_fixed_z=0
         mb.total_current=1.0
@@ -171,13 +171,13 @@ class Test_solver_cylindrical(unittest.TestCase):
         mb.particles = p
         
         #mb.write_particles_text("cylinder")
-        coords = Numeric.zeros((3,mb.local_num),'d')
+        coords = numpy.zeros((3,mb.local_num),'d')
         get_cylindrical_coords(mb.get_store(),coords)
         grid_shape = [9,4,4]
         radius = 5.0
         z_length = 2*pi
         field_domain = Cylindrical_field_domain(radius,z_length,grid_shape,True)
-        rho = Numeric.zeros(grid_shape,'d')
+        rho = numpy.zeros(grid_shape,'d')
         deposit_charge_cic_cylindrical(field_domain, rho ,mb.get_store(),coords)
         nonzero = 0
         integral = 0
@@ -205,26 +205,26 @@ class Test_solver_cylindrical(unittest.TestCase):
         for i in range(0,numcircs):
             num += numdisks*numtheta0*(i+1)
         print "num particles =",num
-        p = Numeric.zeros((7,num),'d')
+        p = numpy.zeros((7,num),'d')
 
-        mb.units = Numeric.ones((6),'d')
+        mb.units = numpy.ones((6),'d')
         mb.local_num = num
         mb.total_num = mb.local_num
-        mb.ref_particle = Numeric.zeros((6,),'d')
+        mb.ref_particle = numpy.zeros((6,),'d')
         mb.ref_particle[5] = -1.1
         mb.is_fixed_z=0
         mb.total_current=1.0
         mb.charge=1
 
-        mb.particles = Numeric.zeros((7,mb.local_num),'d')
+        mb.particles = numpy.zeros((7,mb.local_num),'d')
         populate.populate_uniform_cylinder_regular(mb.particles,2.0,2*pi,numcircs,numdisks,numtheta0)
         
         #mb.write_particles_text("cylinder")
-        coords = Numeric.zeros((3,mb.local_num),'d')
+        coords = numpy.zeros((3,mb.local_num),'d')
         get_cylindrical_coords(mb.get_store(),coords)
         grid_shape = [12,4,4]
         field_domain = Cylindrical_field_domain(5.0,2*pi,grid_shape,True)
-        rho = Numeric.zeros(grid_shape,'d')
+        rho = numpy.zeros(grid_shape,'d')
         deposit_charge_cic_cylindrical(field_domain, rho ,mb.get_store(),coords)
         nonzero = 0
         integral = 0
@@ -247,18 +247,18 @@ class Test_solver_cylindrical(unittest.TestCase):
         mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         # jfa: this is a workaround for the lack of a reasonable general populate
         num = 1
-        p = Numeric.zeros((7,num),'d')
+        p = numpy.zeros((7,num),'d')
 
-        mb.units = Numeric.ones((6),'d')
+        mb.units = numpy.ones((6),'d')
         mb.local_num = num
         mb.total_num = mb.local_num
-        mb.ref_particle = Numeric.zeros((6,),'d')
+        mb.ref_particle = numpy.zeros((6,),'d')
         mb.ref_particle[5] = -1.1
         mb.is_fixed_z=0
         mb.total_current=1.0
         mb.charge=1
 
-        mb.particles = Numeric.zeros((7,mb.local_num),'d')
+        mb.particles = numpy.zeros((7,mb.local_num),'d')
         if len(sys.argv) > 1:
             x = float(sys.argv[1])
         else:
@@ -280,14 +280,14 @@ class Test_solver_cylindrical(unittest.TestCase):
         #populate.populate_uniform_cylinder_regular(mb.particles,2.0,2*pi,numcircs,numdisks,numtheta0)
         
         #mb.write_particles_text("cylinder")
-        coords = Numeric.zeros((3,mb.local_num),'d')
+        coords = numpy.zeros((3,mb.local_num),'d')
         get_cylindrical_coords(mb.get_store(),coords)
         print "coords =",coords
         grid_shape = [8,6,6]
         radius = 5.0
         z_length = 2*pi
         field_domain = Cylindrical_field_domain(radius,z_length,grid_shape,True)
-        rho = Numeric.zeros(grid_shape,'d')
+        rho = numpy.zeros(grid_shape,'d')
         deposit_charge_cic_cylindrical(field_domain, rho ,mb.get_store(),coords)
         #print "rho =",rho
         nonzero = 0
@@ -305,16 +305,16 @@ class Test_solver_cylindrical(unittest.TestCase):
         print "found",nonzero,"entries. integral = %0.6f" % integral
         
     def xtest_08_tridiag(self):
-        A = Numeric.array([[1,2,0,0],[3,4,5,0],[0,6,7,8],[0,0,9,10]],'D')
+        A = numpy.array([[1,2,0,0],[3,4,5,0],[0,6,7,8],[0,0,9,10]],'D')
         # next three lines are the three tridiagonal vectors of A
-        diag = Numeric.array([1,4,7,10],'D')
-        above_diag = Numeric.array([2,5,8],'D')
-        below_diag = Numeric.array([3,6,9],'D')
+        diag = numpy.array([1,4,7,10],'D')
+        above_diag = numpy.array([2,5,8],'D')
+        below_diag = numpy.array([3,6,9],'D')
         
-        b = Numeric.array([1,2,3,4],'D')
-        x = Numeric.zeros([4],'D')
+        b = numpy.array([1,2,3,4],'D')
+        x = numpy.zeros([4],'D')
         solve_tridiag_nonsym(diag,above_diag,below_diag,b,x)
-        newb = Numeric.matrixmultiply(A,x)
+        newb = numpy.matrixmultiply(A,x)
         for i in range(0,4):
             self.assertAlmostEqual(b[i].real,newb[i].real)
             self.assertAlmostEqual(b[i].imag,newb[i].imag)
@@ -322,34 +322,34 @@ class Test_solver_cylindrical(unittest.TestCase):
     def xtest_09_solve(self):
         mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         # jfa: this is a workaround for the lack of a reasonable general populate
-        mb.units = Numeric.ones((6),'d')
+        mb.units = numpy.ones((6),'d')
         mb.local_num = 20000
         mb.total_num = mb.local_num
-        mb.ref_particle = Numeric.zeros((6,),'d')
+        mb.ref_particle = numpy.zeros((6,),'d')
         mb.ref_particle[5] = -1.1
         mb.is_fixed_z=0
         mb.total_current=1.0
         mb.charge=1
 
-        mb.particles = Numeric.zeros((7,mb.local_num),'d')
-        means = Numeric.zeros((6),'d')
-        covs = Numeric.zeros((6,6),'d')
+        mb.particles = numpy.zeros((7,mb.local_num),'d')
+        means = numpy.zeros((6),'d')
+        covs = numpy.zeros((6,6),'d')
         r0 = 0.4
         for i in range(0,6):
             covs[i,i] = r0**2/4
         #~ populate.populate_uniform_cylinder_quasi(mb.particles,means,covs,0)
         populate.populate_uniform_cylinder(mb.particles,means,covs,0,0,1)
         mb.write_particles("debug.h5")
-        coords = Numeric.zeros((3,mb.local_num),'d')
+        coords = numpy.zeros((3,mb.local_num),'d')
         get_cylindrical_coords(mb.get_store(),coords)
         physical_size = [1.0,2*pi,2*pi]
         physical_offset = [physical_size[0]/2.0,physical_size[1]/2.0,0.0]
         grid_shape = [6,4,4]
         periodic = [False,True,True]
         field_domain = Field_domain(physical_size,physical_offset,grid_shape,periodic)
-        rho = Numeric.zeros(grid_shape,'d')
+        rho = numpy.zeros(grid_shape,'d')
         deposit_charge_cic_cylindrical(field_domain, rho ,mb.get_store(),coords)
-        phi = Numeric.zeros(grid_shape,'d')
+        phi = numpy.zeros(grid_shape,'d')
         solve_cylindrical_finite_periodic(field_domain,rho,phi)
         #~ print "phi =",phi
         #for mphi in range(0,grid_shape[1]):

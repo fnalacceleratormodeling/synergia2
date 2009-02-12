@@ -10,13 +10,13 @@ from physics_toolkit import *
 from physics_constants import *
 
 import loadfile
-import Numeric
+import numpy
 
 import chef_propagate
 
 def read_em(index,units):
     x = loadfile.loadfile_transpose("code_parts_%d.dat" % index)
-    shape = Numeric.shape(x)
+    shape = numpy.shape(x)
     for i in range(0,6):
         for j in range(0,shape[1]):
             x[i,j] *= units[i]
@@ -42,7 +42,7 @@ def compare(local_particles,index,units):
     return passes
 
 def read_parts(index,units):
-    retval = Numeric.zeros((7,10),'d')
+    retval = numpy.zeros((7,10),'d')
     retval[0:6,:] = read_em(index,units)
     return retval
 
@@ -55,7 +55,7 @@ positron = Positron ( energy )
 rrv = RefRegVisitor ( positron )
 bmln.accept( rrv )
 
-units = Numeric.array((0.1,0.2,0.3,0.4,0.5,-0.6),'d')
+units = numpy.array((0.1,0.2,0.3,0.4,0.5,-0.6),'d')
 particles = read_parts(-1,units)
 step = 0
 for elem in bmln:

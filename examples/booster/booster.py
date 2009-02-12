@@ -6,8 +6,8 @@ import s2_fish
 import basic_toolkit
 import beamline
 
-import Numeric
-import MLab
+import numpy
+import numpy
 import time
 import math
 import sys
@@ -229,7 +229,7 @@ if ( __name__ == '__main__'):
     last_turn = myopts.get("turns")
 
     s = 0.0
-    mean = Numeric.zeros(6,'d')
+    mean = numpy.zeros(6,'d')
     std = None
     diag = synergia.Diagnostics(injcell_line.gourmet.get_initial_u())
     diag.add(s,bunch)

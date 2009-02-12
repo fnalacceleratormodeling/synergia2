@@ -1,6 +1,6 @@
 #!/usr/bin/env python
-import Numeric
-import LinearAlgebra
+import numpy
+import numpy.linalg
 from math import sqrt
 import sys
 import tables
@@ -47,22 +47,22 @@ zprime_yprime = 13
 zprime_z = 14
 
 def get_spatial_means_stds(bunch):
-    means = Numeric.zeros([3],Numeric.Float)
-    stds = Numeric.zeros([3],Numeric.Float)
+    means = numpy.zeros([3],numpy.Float)
+    stds = numpy.zeros([3],numpy.Float)
     s2_diagnostics.get_spatial_means_stds(bunch.get_store(),means,stds)
     return means,stds
 
 def old_get_diagnostics(bunch):
-    means = Numeric.zeros([6],Numeric.Float)
-    stds = Numeric.zeros([6],Numeric.Float)
+    means = numpy.zeros([6],numpy.Float)
+    stds = numpy.zeros([6],numpy.Float)
     for i in range(0,6):
-        means[i] = Numeric.average(bunch[i,:])
-    mom2s = Numeric.zeros([6,6],Numeric.Float)
-    corrs = Numeric.zeros([6,6],Numeric.Float)
+        means[i] = numpy.average(bunch[i,:])
+    mom2s = numpy.zeros([6,6],numpy.Float)
+    corrs = numpy.zeros([6,6],numpy.Float)
     for i in range(0,6):
         for j in range(i,6):
             tmp = bunch[i,:]*bunch[j,:]
-            mom2s[i,j] = Numeric.average(tmp) - means[i]*means[j]
+            mom2s[i,j] = numpy.average(tmp) - means[i]*means[j]
             mom2s[j,i] = mom2s[i,j]
     for i in range(0,6):
         stds[i] = sqrt(mom2s[i,i])
@@ -73,10 +73,10 @@ def old_get_diagnostics(bunch):
     return means,stds,mom2s,corrs
 
 def get_diagnostics(bunch,units):
-    means = Numeric.zeros([6],Numeric.Float)
-    mom2s = Numeric.zeros([6,6],Numeric.Float)
-    corrs = Numeric.zeros([6,6],Numeric.Float)
-    diagmom4s = Numeric.zeros([6],Numeric.Float)
+    means = numpy.zeros([6],numpy.Float)
+    mom2s = numpy.zeros([6,6],numpy.Float)
+    corrs = numpy.zeros([6,6],numpy.Float)
+    diagmom4s = numpy.zeros([6],numpy.Float)
     s2_diagnostics.get_moments_corrs(bunch.get_store(),units,means,mom2s,corrs,diagmom4s)
     return means,mom2s,corrs,diagmom4s
 
@@ -104,21 +104,21 @@ class Diagnostics:
         self.corrs.append(corrs)
         self.diagmom4s.append(diagmom4s)
         #derived quantities
-        self.stds.append(Numeric.sqrt(Numeric.diagonal(mom2s)))
-        self.emitxs.append(sqrt(abs(LinearAlgebra.determinant(mom2s[0:2,0:2])))*self.u[xprime])
-        self.emitys.append(sqrt(abs(LinearAlgebra.determinant(mom2s[2:4,2:4])))*self.u[yprime])
-        self.emitzs.append(sqrt(abs(LinearAlgebra.determinant(mom2s[4:6,4:6])))*self.u[zprime])
-        self.emitxys.append(sqrt(abs(LinearAlgebra.determinant(mom2s[0:4,0:4])))\
+        self.stds.append(numpy.sqrt(numpy.diagonal(mom2s)))
+        self.emitxs.append(sqrt(abs(numpy.linalg.det(mom2s[0:2,0:2])))*self.u[xprime])
+        self.emitys.append(sqrt(abs(numpy.linalg.det(mom2s[2:4,2:4])))*self.u[yprime])
+        self.emitzs.append(sqrt(abs(numpy.linalg.det(mom2s[4:6,4:6])))*self.u[zprime])
+        self.emitxys.append(sqrt(abs(numpy.linalg.det(mom2s[0:4,0:4])))\
                         *self.u[xprime]*self.u[yprime])
-        self.emitxyzs.append(abs(sqrt(abs(LinearAlgebra.determinant(mom2s)))\
+        self.emitxyzs.append(abs(sqrt(abs(numpy.linalg.det(mom2s)))\
                         *self.u[xprime]*self.u[yprime]*self.u[zprime]))
     
     def get_s(self):
-        return Numeric.array(self.s)
+        return numpy.array(self.s)
     def get_means(self):
-        return Numeric.array(self.means)
+        return numpy.array(self.means)
     def get_stds(self):
-        return Numeric.array(self.stds)
+        return numpy.array(self.stds)
      
     def write(self,filename_prefix):
         # same format as fort.24, et. al, but we don't calculate Twiss alpha
@@ -164,16 +164,16 @@ class Diagnostics:
         # n.b. filter (and compress_level) not (yet) used
         filter = tables.Filters(complevel=compress_level)
         root = f.root
-        hdfarray = f.createArray(root,'s',Numeric.array(self.s),"position")
-        hdfarray = f.createArray(root,'mean',Numeric.array(self.means),"centroid")
-        hdfarray = f.createArray(root,'mom2',Numeric.array(self.mom2s),"second moments")
-        hdfarray = f.createArray(root,'corr',Numeric.array(self.corrs),"correlation coefficients")
-        hdfarray = f.createArray(root,'diagmom4',Numeric.array(self.diagmom4s),"fourth moments on diagonal")
-        hdfarray = f.createArray(root,'std',Numeric.array(self.stds),"standard deviation")
-        hdfarray = f.createArray(root,'emitx',Numeric.array(self.emitxs),"x emittance")
-        hdfarray = f.createArray(root,'emity',Numeric.array(self.emitys),"y emittance")
-        hdfarray = f.createArray(root,'emitz',Numeric.array(self.emitzs),"z emittance")
-        hdfarray = f.createArray(root,'emitxy',Numeric.array(self.emitxys),"x-y emittance")
-        hdfarray = f.createArray(root,'emitxyz',Numeric.array(self.emitxyzs),"x-y-z emittance")
-        hdfarray = f.createArray(root,'units',Numeric.array(self.u),"units")
+        hdfarray = f.createArray(root,'s',numpy.array(self.s),"position")
+        hdfarray = f.createArray(root,'mean',numpy.array(self.means),"centroid")
+        hdfarray = f.createArray(root,'mom2',numpy.array(self.mom2s),"second moments")
+        hdfarray = f.createArray(root,'corr',numpy.array(self.corrs),"correlation coefficients")
+        hdfarray = f.createArray(root,'diagmom4',numpy.array(self.diagmom4s),"fourth moments on diagonal")
+        hdfarray = f.createArray(root,'std',numpy.array(self.stds),"standard deviation")
+        hdfarray = f.createArray(root,'emitx',numpy.array(self.emitxs),"x emittance")
+        hdfarray = f.createArray(root,'emity',numpy.array(self.emitys),"y emittance")
+        hdfarray = f.createArray(root,'emitz',numpy.array(self.emitzs),"z emittance")
+        hdfarray = f.createArray(root,'emitxy',numpy.array(self.emitxys),"x-y emittance")
+        hdfarray = f.createArray(root,'emitxyz',numpy.array(self.emitxyzs),"x-y-z emittance")
+        hdfarray = f.createArray(root,'units',numpy.array(self.u),"units")
         f.close()

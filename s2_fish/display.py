@@ -3,7 +3,7 @@
 import pylab
 import matplotlib
 import math
-import numarray
+import numpy
 
 def display888(sf):
     index = 1
@@ -22,7 +22,7 @@ def display888_trans(sf):
     for i in range(0,4):
         for j in range(0,2):
             pylab.subplot(2,4,index)
-            pylab.pcolor(numarray.transpose(sf[index-1,:,:]),
+            pylab.pcolor(numpy.transpose(sf[index-1,:,:]),
                          norm=matplotlib.colors.normalize(vmax=max,vmin=0),
                          vmax=max,vmin=0.0)
             index +=1

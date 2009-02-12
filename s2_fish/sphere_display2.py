@@ -3,7 +3,7 @@
 import pylab
 import matplotlib
 import math
-import numarray
+import numpy
 import sys
 
 class Py_scalar_field:
@@ -13,12 +13,12 @@ class Py_scalar_field:
         self.points = None
 
     def h(self):
-        n = numarray.array(self.points.shape,numarray.Float)
+        n = numpy.array(self.points.shape,numpy.Float)
         return self.physical_size/(n - 1.0)
 
     def axis(self,index):
         len = self.points.shape[index]
-        retval = numarray.zeros([len],numarray.Float)
+        retval = numpy.zeros([len],numpy.Float)
         for i in range(0,len):
             retval[i] = i*self.h()[index] + self.physical_offset[index] -\
                         self.physical_size[index]/2.0
@@ -28,13 +28,13 @@ def readscalarfield(filename):
     sf = Py_scalar_field()
     data = []
     f = open(filename,"r")
-    sf.physical_size = numarray.array(map(float,f.readline().split()))
-    sf.physical_offset = numarray.array(map(float,f.readline().split()))
+    sf.physical_size = numpy.array(map(float,f.readline().split()))
+    sf.physical_offset = numpy.array(map(float,f.readline().split()))
     shape = map(int,f.readline().split())
     for line in f.readlines():
         data+=(map(float,line.split()))
     f.close()
-    sf.points = numarray.zeros(shape,numarray.Float)
+    sf.points = numpy.zeros(shape,numpy.Float)
     index = 0
     for i in range(0,shape[0]):
         for j in range(0,shape[1]):
@@ -79,7 +79,7 @@ def display_theory(sf):
     R = 0.1
     for i in range(0,3):
         axis = sf.axis(i)
-        theory = numarray.zeros([len(axis)],numarray.Float)
+        theory = numpy.zeros([len(axis)],numpy.Float)
         const = 100000
         for j in range(0,len(axis)):
             if abs(axis[j]) < R:

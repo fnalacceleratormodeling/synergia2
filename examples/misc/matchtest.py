@@ -2,9 +2,9 @@
 
 import local_paths
 import gourmet
-import Numeric
-import LinearAlgebra
-import MLab
+import numpy
+import numpy.linalg
+import numpy
 import physics_constants
 import bunch
 import diagnostics
@@ -140,16 +140,16 @@ if ( __name__ == '__main__'):
     
 
     the_map = g.get_linear_map(0)
-    print Numeric.array2string(the_map,
+    print numpy.array2string(the_map,
                                precision=3,suppress_small=1)
     color = ['g','r','c','y','m','k']
 
     print g.get_u()
     mappers.crap(b.particles(),b.num_particles_local(), the_map)
-    xsum = Numeric.zeros(num_particles,'d')
-    xpsum = Numeric.zeros(num_particles,'d')
-    ysum = Numeric.zeros(num_particles,'d')
-    ypsum = Numeric.zeros(num_particles,'d')
+    xsum = numpy.zeros(num_particles,'d')
+    xpsum = numpy.zeros(num_particles,'d')
+    ysum = numpy.zeros(num_particles,'d')
+    ypsum = numpy.zeros(num_particles,'d')
     xnum = 0
     for count in range(0,100):
         g.get_fast_mapping(0).apply(b.particles(), b.num_particles_local())

@@ -6,7 +6,7 @@ from s2_deposit import *
 from s2_electric_field import *
 
 from macro_bunch import Macro_bunch
-import numarray
+import numpy
 import time
 import sys
 import math
@@ -36,10 +36,10 @@ def E_field_uniform_sphere(Q,r0,rvec,axis):
     return dphi_dr*rhat[axis]
 
 def compare_on_axis(axis,shape,size,offset,phi,Q,r0):
-    r = numarray.arrayrange(shape[axis])*size[axis]/(shape[axis]-1) \
+    r = numpy.arrayrange(shape[axis])*size[axis]/(shape[axis]-1) \
         - 0.5*size[axis] + offset[axis]
-    phi_r = numarray.zeros(shape[axis],numarray.Float)
-    exact = numarray.zeros(shape[axis],numarray.Float)
+    phi_r = numpy.zeros(shape[axis],numpy.Float)
+    exact = numpy.zeros(shape[axis],numpy.Float)
     max_err = 0.0
     sum_err = 0.0
     for i in range(0,shape[axis]):
@@ -58,10 +58,10 @@ def compare_on_axis(axis,shape,size,offset,phi,Q,r0):
     return r,phi_r,exact,max_err,mean_err
 
 def compare_E_on_axis(axis,shape,size,offset,E,Q,r0,E_axis):
-    r = numarray.arrayrange(shape[axis])*size[axis]/(shape[axis]-1) \
+    r = numpy.arrayrange(shape[axis])*size[axis]/(shape[axis]-1) \
         - 0.5*size[axis] + offset[axis]
-    Er = numarray.zeros(shape[axis],numarray.Float)
-    exact = numarray.zeros(shape[axis],numarray.Float)
+    Er = numpy.zeros(shape[axis],numpy.Float)
+    exact = numpy.zeros(shape[axis],numpy.Float)
     max_err = 0.0
     sum_err = 0.0
     for i in range(0,shape[axis]):

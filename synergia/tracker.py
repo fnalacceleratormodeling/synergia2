@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import Numeric
+import numpy
 import os
 import tables
 import time
@@ -60,7 +60,7 @@ class Tracker:
         else:
             f = tables.openFile(fname,mode = "a")
             earray = f.root.points
-        point = Numeric.zeros((7,1),'d')
+        point = numpy.zeros((7,1),'d')
         point[0:6,0] = part[0:6]
         point[6,0] = s
         earray.append(point)
@@ -88,7 +88,7 @@ class Tracker:
                 id = int(bunch.get_local_particles()[6,i])
                 if (self.numer*id % self.denom) < self.numer:
                     save_ids.append(i)
-            save_parts = Numeric.zeros((7,len(save_ids)),'d')
+            save_parts = numpy.zeros((7,len(save_ids)),'d')
             for i in range(0,len(save_ids)):
                 save_parts[:,i] = bunch.get_local_particles()[:,save_ids[i]]
             MPI.WORLD.Send(save_parts,dest=0)

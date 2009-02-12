@@ -3,7 +3,7 @@
 import local_paths
 import beamline
 import gourmet
-import Numeric
+import numpy
 import physics_constants
 import bunch
 #import diagnostics
@@ -64,7 +64,7 @@ def adjust_particles(base,procs):
 
 def read_em(index,units):
     x = loadfile.loadfile_transpose("code_parts_%d.dat" % index)
-    shape = Numeric.shape(x)
+    shape = numpy.shape(x)
     for i in range(0,6):
         for j in range(0,shape[1]):
             x[i,j] *= units[i]

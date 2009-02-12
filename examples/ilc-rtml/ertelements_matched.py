@@ -3,8 +3,8 @@
 import local_paths
 import beamline
 import gourmet
-import Numeric
-import LinearAlgebra
+import numpy
+import numpy.linalg
 import physics_constants
 import bunch
 #import diagnostics
@@ -126,29 +126,29 @@ if ( __name__ == '__main__'):
     g_getaway = gourmet.Gourmet(myopts.get("xsif"),"EGETAWAY",5.0,
                         scaling_frequency,myopts.get("maporder"),particle='positron')
     map_getaway = g_getaway.get_single_linear_map()
-    print "map_getaway:",LinearAlgebra.determinant(map_getaway[0:6,0:6]),\
-        LinearAlgebra.determinant(LinearAlgebra.inverse(map_getaway[0:6,0:6]))
-    print Numeric.array2string(map_getaway[0:6,0:6],precision=6,suppress_small=1)
+    print "map_getaway:",numpy.linalg.det(map_getaway[0:6,0:6]),\
+        numpy.linalg.det(numpy.linalg.inv(map_getaway[0:6,0:6]))
+    print numpy.array2string(map_getaway[0:6,0:6],precision=6,suppress_small=1)
     #~ print "inverse map_getaway:"
-    #~ print Numeric.array2string(LinearAlgebra.inverse(map_getaway)[0:6,0:6],precision=6,suppress_small=1)
+    #~ print numpy.array2string(numpy.linalg.inv(map_getaway)[0:6,0:6],precision=6,suppress_small=1)
     g_escalator = gourmet.Gourmet(myopts.get("xsif"),"EESCALATOR",5.0,
                         scaling_frequency,myopts.get("maporder"),particle='positron')
     map_escalator= g_escalator.get_single_linear_map()
-    print "map_escalator:",LinearAlgebra.determinant(map_getaway[0:6,0:6]),\
-        LinearAlgebra.determinant(LinearAlgebra.inverse(map_getaway[0:6,0:6]))
-    print Numeric.array2string(map_escalator[0:6,0:6],precision=6,suppress_small=1)
+    print "map_escalator:",numpy.linalg.det(map_getaway[0:6,0:6]),\
+        numpy.linalg.det(numpy.linalg.inv(map_getaway[0:6,0:6]))
+    print numpy.array2string(map_escalator[0:6,0:6],precision=6,suppress_small=1)
     g_return_pre = gourmet.Gourmet(("ertml_filecalls_4match.xsif"),"ERPRE",5.0,
                         scaling_frequency,myopts.get("maporder"),particle='positron')
     map_return_pre= g_return_pre.get_single_linear_map()
-    print "map_return_pre:",LinearAlgebra.determinant(map_getaway[0:6,0:6]),\
-        LinearAlgebra.determinant(LinearAlgebra.inverse(map_getaway[0:6,0:6]))
-    print Numeric.array2string(map_return_pre[0:6,0:6],precision=6,suppress_small=1)
+    print "map_return_pre:",numpy.linalg.det(map_getaway[0:6,0:6]),\
+        numpy.linalg.det(numpy.linalg.inv(map_getaway[0:6,0:6]))
+    print numpy.array2string(map_return_pre[0:6,0:6],precision=6,suppress_small=1)
     g_returncellc = gourmet.Gourmet(myopts.get("xsif"),"RETURNCELLC",5.0,
                         scaling_frequency,myopts.get("maporder"),particle='positron')
     map_returncellc = g_returncellc.get_single_linear_map()
-    print "map_returncellc:",LinearAlgebra.determinant(map_getaway[0:6,0:6]),\
-        LinearAlgebra.determinant(LinearAlgebra.inverse(map_getaway[0:6,0:6]))
-    print Numeric.array2string(map_returncellc[0:6,0:6],precision=6,suppress_small=1)
+    print "map_returncellc:",numpy.linalg.det(map_getaway[0:6,0:6]),\
+        numpy.linalg.det(numpy.linalg.inv(map_getaway[0:6,0:6]))
+    print numpy.array2string(map_returncellc[0:6,0:6],precision=6,suppress_small=1)
 
     g = gourmet.Gourmet(myopts.get("xsif"),"ERTML",5.0,
                         scaling_frequency,myopts.get("maporder"),particle='positron')
@@ -249,15 +249,15 @@ if ( __name__ == '__main__'):
     d.add(-1,b)
     print "emitx =",d.emitxs
     mappers.apply_linear_map(b.get_local_particles(),b.get_num_particles_local(),
-        LinearAlgebra.inverse(map_return_pre))
+        numpy.linalg.inv(map_return_pre))
     d.add(-1,b)
     print "emitx =",d.emitxs
     mappers.apply_linear_map(b.get_local_particles(),b.get_num_particles_local(),
-        LinearAlgebra.inverse(map_escalator))
+        numpy.linalg.inv(map_escalator))
     d.add(-1,b)
     print "emitx =",d.emitxs
     mappers.apply_linear_map(b.get_local_particles(),b.get_num_particles_local(),
-        LinearAlgebra.inverse(map_getaway))
+        numpy.linalg.inv(map_getaway))
     # and diagnostics
     d.add(0,b)
     print "emitx =",d.emitxs

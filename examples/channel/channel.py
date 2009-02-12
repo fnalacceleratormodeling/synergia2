@@ -1,6 +1,6 @@
 #!/usr/bin/env bwpython
 
-import Numeric
+import numpy
 import time
 import math
 import os

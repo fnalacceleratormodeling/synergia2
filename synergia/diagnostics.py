@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import Numeric
+import numpy
 import string
 
 x = 0
@@ -53,9 +53,9 @@ class Diagnostics_impact_orig:
         # read the number of lines in fort.24
         num = len(open("%s/fort.24" % self.dirname ,"r").readlines())
         self.num = num
-        self.s = Numeric.zeros(num,'d')
-        self.mean = Numeric.zeros((num,6),'d')
-        self.std = Numeric.zeros((num,6),'d')
+        self.s = numpy.zeros(num,'d')
+        self.mean = numpy.zeros((num,6),'d')
+        self.std = numpy.zeros((num,6),'d')
         for offset in range(0,3):
             f = open("%s/fort.%d" % (self.dirname,24 + offset),"r")
             line = f.readline()
@@ -76,11 +76,11 @@ class Diagnostics_impact_orig:
 
     def _read_emit(self):
         num = self.num
-        self.emitx = Numeric.zeros(num, 'd')
-        self.emity = Numeric.zeros(num, 'd')
-        self.emitz = Numeric.zeros(num, 'd')
-        self.emit4d = Numeric.zeros(num, 'd')
-        self.emit6d = Numeric.zeros(num, 'd')
+        self.emitx = numpy.zeros(num, 'd')
+        self.emity = numpy.zeros(num, 'd')
+        self.emitz = numpy.zeros(num, 'd')
+        self.emit4d = numpy.zeros(num, 'd')
+        self.emit6d = numpy.zeros(num, 'd')
         f = open("%s/fort.31" % self.dirname, "r")
         line = f.readline()
         index = 0
@@ -100,7 +100,7 @@ class Diagnostics_impact_orig:
 
     def _read_corr(self):
         num = self.num
-        self.corr = Numeric.zeros((num,15),'d')
+        self.corr = numpy.zeros((num,15),'d')
         f = open("%s/fort.32" % self.dirname, "r")
         line = f.readline()
         index = 0
@@ -117,7 +117,7 @@ class Diagnostics_impact_orig:
 
     def _read_num_part(self):
         num = self.num
-        self.num_part = Numeric.zeros(num,'d')
+        self.num_part = numpy.zeros(num,'d')
         f = open("%s/fort.28" % self.dirname, "r")
         line = f.readline()
         index = 0

@@ -21,7 +21,7 @@ class Test_Macro_bunch(unittest.TestCase):
         mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         num_per_side = 2
         mb.init_test(num_per_side)
-        shape = Numeric.shape(mb.get_local_particles())
+        shape = numpy.shape(mb.get_local_particles())
         self.assertEqual(shape[0],7)
         self.assertEqual(shape[1],num_per_side**3)
 
@@ -29,7 +29,7 @@ class Test_Macro_bunch(unittest.TestCase):
         mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         num_per_side = 2
         mb.init_test(num_per_side)
-        shape = Numeric.shape(mb.particles)
+        shape = numpy.shape(mb.particles)
         for j in range(0,shape[1]):
             for i in range(0,shape[0]):
                 self.assertAlmostEqual(mb.particles[i,j],
@@ -68,10 +68,10 @@ class Test_Macro_bunch(unittest.TestCase):
     
     #~ def test_04_init_from_bunch(self):
         #~ b = self._get_bunch()
-        #~ orig_shape = Numeric.shape(b.particles())
+        #~ orig_shape = numpy.shape(b.particles())
         #~ mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         #~ mb.init_from_bunch(b)
-        #~ shape = Numeric.shape(mb.get_local_particles())
+        #~ shape = numpy.shape(mb.get_local_particles())
         #~ for j in range(0,shape[1]):
             #~ for i in range(0,shape[0]):
                 #~ self.assertAlmostEqual(b.particles()[i,j],
@@ -104,7 +104,7 @@ class Test_Macro_bunch(unittest.TestCase):
 
     #~ def test_06_diagnostics(self):
         #~ b = self._get_bunch()
-        #~ orig_shape = Numeric.shape(b.particles())
+        #~ orig_shape = numpy.shape(b.particles())
         #~ mb = Macro_bunch(physics_constants.PH_NORM_mp,1)
         #~ mb.init_from_bunch(b)
         #~ d = syn2_diagnostics.Diagnostics(mb.units)

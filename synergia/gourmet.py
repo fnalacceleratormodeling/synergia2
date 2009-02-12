@@ -11,7 +11,7 @@ import chef_propagate
 
 import math
 import sys
-import Numeric
+import numpy
 import string
 import os.path
 
@@ -408,7 +408,7 @@ class Gourmet:
             kys.append(ky)
             ss.append(s)
             element.propagateParticle(particle)
-        return (Numeric.array(ss),Numeric.array(kxs),Numeric.array(kys))
+        return (numpy.array(ss),numpy.array(kxs),numpy.array(kys))
     
     def delete_actions(self):
         self.actions = []
@@ -421,7 +421,7 @@ class Gourmet:
         u = self.get_initial_u()
         linear_maps = []
         for chef_map in chef_linear_maps:
-            map = Numeric.zeros((7,7),'d')
+            map = numpy.zeros((7,7),'d')
             for row in range(0,6):
                 for column in range(0,6):
                     chef_row = int(row/2+3*(row%2))
@@ -551,7 +551,7 @@ class Gourmet:
         c = PH_MKS_c
         w = 2.0* math.pi* self.scaling_frequency
         u = [w/c,gamma*beta,w/c,gamma*beta,w/c,-gamma*beta*beta]
-        return Numeric.array(u)
+        return numpy.array(u)
 
     def get_initial_u(self):
         return self.get_u(self.initial_energy)

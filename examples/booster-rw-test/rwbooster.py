@@ -6,10 +6,10 @@ import s2_fish
 import basic_toolkit
 import beamline
 
-import Numeric
-import LinearAlgebra
 import numpy
-import MLab
+import numpy.linalg
+import numpy
+import numpy
 import time
 import math
 import sys
@@ -122,32 +122,32 @@ def ha_match(map,beam_parameters,emitx,emity,dpop):
         for item in remaining:
             sum = evects[first]+evects[item]
             if abs(numpy.max(sum.imag)) < best:
-                best = abs(MLab.max(sum.imag))
+                best = abs(numpy.max(sum.imag))
                 conj = item
         if conj == -1:
             raise RuntimeError,"failed to find a conjugate pair in ha_match"
         remaining.remove(conj)
         #~ print first,conj,best
-        tmp=Numeric.outerproduct(evects[first],
-            Numeric.conjugate(evects[first]))
-        tmp+=Numeric.outerproduct(evects[conj],
-            Numeric.conjugate(evects[conj]))
+        tmp=numpy.outerproduct(evects[first],
+            numpy.conjugate(evects[first]))
+        tmp+=numpy.outerproduct(evects[conj],
+            numpy.conjugate(evects[conj]))
         E[i]=tmp.real
 
     for srt in range(1,3):
-        if abs(LinearAlgebra.determinant(E[srt][0:2,0:2])) > abs(LinearAlgebra.determinant(E[0][0:2,0:2])):
+        if abs(numpy.linalg.det(E[srt][0:2,0:2])) > abs(numpy.linalg.det(E[0][0:2,0:2])):
             tmp = E[0]
             E[0] = E[srt]
             E[srt] = tmp
-    if abs(LinearAlgebra.determinant(E[2][2:4,2:4])) > abs(LinearAlgebra.determinant(E[1][2:4,2:4])):
+    if abs(numpy.linalg.det(E[2][2:4,2:4])) > abs(numpy.linalg.det(E[1][2:4,2:4])):
         tmp = E[1]
         E[1] = E[2]
         E[2] = tmp
     Cxy, Cxpyp, Cz, Czp = beam_parameters.get_conversions()
     gamma = beam_parameters.get_gamma()
-    C = Numeric.zeros([6,6],'d')
-    C += E[0]*emitx/(Cxpyp*sqrt(abs(LinearAlgebra.determinant(E[0][0:2,0:2]))))
-    C += E[1]*emity/(Cxpyp*sqrt(abs(LinearAlgebra.determinant(E[1][2:4,2:4]))))
+    C = numpy.zeros([6,6],'d')
+    C += E[0]*emitx/(Cxpyp*sqrt(abs(numpy.linalg.det(E[0][0:2,0:2]))))
+    C += E[1]*emity/(Cxpyp*sqrt(abs(numpy.linalg.det(E[1][2:4,2:4]))))
     C += E[2]*dpop*dpop/(gamma*gamma*E[2][5,5])
     
     return C
@@ -208,19 +208,19 @@ if ( __name__ == '__main__'):
 
     bunch = s2_fish.Macro_bunch(synergia.PH_NORM_mp,1)
 #    bunch.init_gaussian(num_particles,myopts.get("current"),beam_parameters)
-    full_map = Numeric.identity(7, 'd')
+    full_map = numpy.identity(7, 'd')
     update_rf(cell_line,myopts)
     for cell in range(1,25):
         linear_map = cell_line[cell].gourmet.get_single_linear_map()
-        full_map = Numeric.matrixmultiply(linear_map,full_map)
+        full_map = numpy.matrixmultiply(linear_map,full_map)
     
     #~ print "full_map ="
-    #~ print Numeric.array2string(full_map,precision=2,suppress_small=True)
+    #~ print numpy.array2string(full_map,precision=2,suppress_small=True)
 
     C = ha_match(full_map[0:6,0:6],beam_parameters,myopts.get("emittance"),
                  myopts.get("emittance"),myopts.get("dpop"))
     print "C = "
-    print Numeric.array2string(C,precision=2)
+    print numpy.array2string(C,precision=2)
 
     # jfa: this is an ugly hack
     beam_parameters.offset_x_m = myopts.get("offsetx")

@@ -2,7 +2,7 @@
 
 from s2_fish import *
 from macro_bunch import Macro_bunch
-import numarray
+import numpy
 import time
 import pylab
 import math

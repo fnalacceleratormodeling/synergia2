@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import populate
-import Numeric
-import MLab
+import numpy
+import numpy
 from ArrayPrinter import array2string
 
 import unittest
@@ -14,9 +14,9 @@ import pylab
 class Test_populate(unittest.TestCase):
     def test_01_populate_6d_gaussian(self):
         N = 10000
-        p = Numeric.zeros((7,N),'d')
-        covs = Numeric.zeros((6,6),'d')
-        means = Numeric.zeros((6,),'d')
+        p = numpy.zeros((7,N),'d')
+        covs = numpy.zeros((6,6),'d')
+        means = numpy.zeros((6,),'d')
 
         for i in range(0,6):
             means[i] = 0.01*i;
@@ -46,8 +46,8 @@ class Test_populate(unittest.TestCase):
                     covs[i,j] = 0.1*(j+1.0)
                     covs[j,i] = 0.1*(j+1.0)
 
-        found_covs = MLab.cov(Numeric.transpose(p))
-        found_means = MLab.mean(Numeric.transpose(p))
+        found_covs = numpy.cov(numpy.transpose(p))
+        found_means = numpy.mean(numpy.transpose(p))
         
         #~ print "actual covariances"
         #~ print array2string(found_covs[0:6,0:6],suppress_small=1,precision=4)
@@ -64,9 +64,9 @@ class Test_populate(unittest.TestCase):
 
     def test_02_populate_6d_gaussian_quasi(self):
         N = 10000
-        p = Numeric.zeros((7,N),'d')
-        covs = Numeric.zeros((6,6),'d')
-        means = Numeric.zeros((6,),'d')
+        p = numpy.zeros((7,N),'d')
+        covs = numpy.zeros((6,6),'d')
+        means = numpy.zeros((6,),'d')
 
         for i in range(0,6):
             means[i] = 0.01*i;
@@ -96,8 +96,8 @@ class Test_populate(unittest.TestCase):
                     covs[i,j] = 0.1*(j+1.0)
                     covs[j,i] = 0.1*(j+1.0)
 
-        found_covs = MLab.cov(Numeric.transpose(p))
-        found_means = MLab.mean(Numeric.transpose(p))
+        found_covs = numpy.cov(numpy.transpose(p))
+        found_means = numpy.mean(numpy.transpose(p))
         
         #~ print "actual covariances"
         #~ print array2string(found_covs[0:6,0:6],suppress_small=1,precision=4)
@@ -114,9 +114,9 @@ class Test_populate(unittest.TestCase):
 
     def test_03_populate_6d_gaussian_transverse(self):
         N = 10000
-        p = Numeric.zeros((7,N),'d')
-        covs = Numeric.zeros((6,6),'d')
-        means = Numeric.zeros((6,),'d')
+        p = numpy.zeros((7,N),'d')
+        covs = numpy.zeros((6,6),'d')
+        means = numpy.zeros((6,),'d')
 
         for i in range(0,6):
             means[i] = 0.01*i;
@@ -146,8 +146,8 @@ class Test_populate(unittest.TestCase):
                     covs[i,j] = 0.1*(j+1.0)
                     covs[j,i] = 0.1*(j+1.0)
 
-        found_covs = MLab.cov(Numeric.transpose(p))
-        found_means = MLab.mean(Numeric.transpose(p))
+        found_covs = numpy.cov(numpy.transpose(p))
+        found_means = numpy.mean(numpy.transpose(p))
         
         #~ print "actual covariances"
         #~ print array2string(found_covs[0:6,0:6],suppress_small=1,precision=4)
@@ -166,9 +166,9 @@ class Test_populate(unittest.TestCase):
 
     def test_04_populate_6d_gaussian_transverse_quasi(self):
         N = 10000
-        p = Numeric.zeros((7,N),'d')
-        covs = Numeric.zeros((6,6),'d')
-        means = Numeric.zeros((6,),'d')
+        p = numpy.zeros((7,N),'d')
+        covs = numpy.zeros((6,6),'d')
+        means = numpy.zeros((6,),'d')
 
         for i in range(0,6):
             means[i] = 0.01*i;
@@ -198,8 +198,8 @@ class Test_populate(unittest.TestCase):
                     covs[i,j] = 0.1*(j+1.0)
                     covs[j,i] = 0.1*(j+1.0)
 
-        found_covs = MLab.cov(Numeric.transpose(p))
-        found_means = MLab.mean(Numeric.transpose(p))
+        found_covs = numpy.cov(numpy.transpose(p))
+        found_means = numpy.mean(numpy.transpose(p))
         
         #~ print "actual covariances"
         #~ print array2string(found_covs[0:6,0:6],suppress_small=1,precision=4)
@@ -218,9 +218,9 @@ class Test_populate(unittest.TestCase):
 
     def test_04_populate_uniform_cylinder(self):
         N = 10000
-        p = Numeric.zeros((7,N),'d')
-        covs = Numeric.zeros((6,6),'d')
-        means = Numeric.zeros((6,),'d')
+        p = numpy.zeros((7,N),'d')
+        covs = numpy.zeros((6,6),'d')
+        means = numpy.zeros((6,),'d')
 
         for i in range(0,6):
             means[i] = 0.0;
@@ -244,8 +244,8 @@ class Test_populate(unittest.TestCase):
                 if i==j:
                     covs[i,j] = 2.0
 
-        found_covs = MLab.cov(Numeric.transpose(p))
-        found_means = MLab.mean(Numeric.transpose(p))
+        found_covs = numpy.cov(numpy.transpose(p))
+        found_means = numpy.mean(numpy.transpose(p))
         
         #~ print "actual covariances"
         #~ print array2string(found_covs[0:6,0:6],suppress_small=1,precision=4)
@@ -267,9 +267,9 @@ class Test_populate(unittest.TestCase):
 
     def test_05_populate_uniform_cylinder_quasi(self):
         N = 10000
-        p = Numeric.zeros((7,N),'d')
-        covs = Numeric.zeros((6,6),'d')
-        means = Numeric.zeros((6,),'d')
+        p = numpy.zeros((7,N),'d')
+        covs = numpy.zeros((6,6),'d')
+        means = numpy.zeros((6,),'d')
 
         for i in range(0,6):
             means[i] = 0.0;
@@ -293,8 +293,8 @@ class Test_populate(unittest.TestCase):
                 if i==j:
                     covs[i,j] = 2.0
 
-        found_covs = MLab.cov(Numeric.transpose(p))
-        found_means = MLab.mean(Numeric.transpose(p))
+        found_covs = numpy.cov(numpy.transpose(p))
+        found_means = numpy.mean(numpy.transpose(p))
         
         #~ print "actual covariances"
         #~ print array2string(found_covs[0:6,0:6],suppress_small=1,precision=4)

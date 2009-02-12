@@ -1,8 +1,8 @@
 import GaussSC
-import numarray
+import numpy
 
 
-foo = numarray.array([[1.e-7,0.0,5.e-9,-0.001,0.0,0.000]])
+foo = numpy.array([[1.e-7,0.0,5.e-9,-0.001,0.0,0.000]])
 print "Send particles =",foo
 
 numpart = 1

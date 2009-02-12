@@ -1,5 +1,5 @@
 import octapy
-import numarray
+import numpy
 
 def test_get(oct,name):
     print "testing getting",name,"from octave:"
@@ -50,13 +50,13 @@ o.execute(cmd)
 test_get(o,"my_avg")
 test_get(o,"my_dev")
 
-print "\n********** Vectors and matrices are handled using numarray:"
+print "\n********** Vectors and matrices are handled using numpy:"
 test_get(o,"my_x")
 test_get(o,"my_xx")
 my_xx = o.get_value("my_xx")
 print "my_xx.is_c_array() =", my_xx.is_c_array()
 print "my_xx.is_f_array() =", my_xx.is_f_array()
-test_set(o,"x1",numarray.array([1,2,3]))
-test_set(o,"x2",numarray.array([[1,2],[3,4]]))
+test_set(o,"x1",numpy.array([1,2,3]))
+test_set(o,"x2",numpy.array([[1,2],[3,4]]))
 
 

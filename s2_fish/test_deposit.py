@@ -5,7 +5,7 @@ from s2_containers import *
 
 from macro_bunch import Macro_bunch
 from synergia import physics_constants
-import Numeric
+import numpy
 import sys
 
 import unittest

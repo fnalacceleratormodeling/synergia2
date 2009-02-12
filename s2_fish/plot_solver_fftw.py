@@ -6,7 +6,7 @@ from s2_deposit import *
 from s2_electric_field import *
 
 import macro_bunch
-import numarray
+import numpy
 import time
 import pylab
 import math
@@ -79,9 +79,9 @@ if MPI.COMM_WORLD.Get_rank()<MPI.COMM_WORLD.Get_size()/2 or MPI.COMM_WORLD.Get_s
         #~ analytic.append(exact(Q,r0,
     num_points = n
     
-    ax = numarray.arrayrange(num_points)*size[0]/(num_points -1) - 0.5*size[0]
-    aexact = numarray.zeros([num_points],numarray.Float)
-    aphi = numarray.zeros([num_points],numarray.Float)
+    ax = numpy.arrayrange(num_points)*size[0]/(num_points -1) - 0.5*size[0]
+    aexact = numpy.zeros([num_points],numpy.Float)
+    aphi = numpy.zeros([num_points],numpy.Float)
     index = 0;
     for i in range(0,len(ax)):
         x = ax[i]

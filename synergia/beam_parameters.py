@@ -2,7 +2,7 @@
 
 import physics_constants
 import math
-import Numeric
+import numpy
 
 class Beam_parameters:
     def __init__(self, mass_GeV, charge_e, kinetic_energy_GeV,
@@ -130,7 +130,7 @@ class Beam_parameters:
         if zpz: self.zpz = zpz
     
     def get_covariances(self):
-        c  = Numeric.zeros((6,6),'d')
+        c  = numpy.zeros((6,6),'d')
         (Cxy, Cxpyp, Cz, Czp) = self.get_conversions()
         # Unit conversion: X^impact_i = C_i X^real_i
         Cx = Cxy
@@ -174,7 +174,7 @@ class Beam_parameters:
         Cyp = Cxpyp
         #Czp = Czp
 
-        return Numeric.array(
+        return numpy.array(
                 [self.offset_x_m * Cx,
                  self.offset_px * Cxp,
                  self.offset_y_m * Cy,
@@ -225,7 +225,7 @@ class Beam_parameters:
                  self.num_zpeaks,
                  dist_num,
                  dist_num]
-        return Numeric.array(param,'d')
+        return numpy.array(param,'d')
                   
     def get_nparam(self):
         return 30

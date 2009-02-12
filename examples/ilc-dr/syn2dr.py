@@ -2,8 +2,8 @@
 
 import local_paths
 import gourmet
-import Numeric
-import MLab
+import numpy
+import numpy
 import physics_constants
 import bunch
 import diagnostics
@@ -236,7 +236,7 @@ if ( __name__ == '__main__'):
     last_turn = myopts.get("turns")
 
     s = 0.0
-    mean = Numeric.zeros(6,'d')
+    mean = numpy.zeros(6,'d')
     std = None
 #    b.write_fort(s)
 

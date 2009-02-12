@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-import numarray
+import numpy
 
 def readfort(filename,shape):
     expected_length = 1
@@ -14,7 +14,7 @@ def readfort(filename,shape):
     f.close()
     if not len(data) == expected_length:
         raise RuntimeError,"found length %d,\nbut expected an array of shape %s (length %d)" % (len(data),str(shape),expected_length)
-    retval = numarray.zeros(shape,numarray.Float)
+    retval = numpy.zeros(shape,numpy.Float)
     index = 0
     for k in range(0,shape[2]):
         for j in range(0,shape[1]):
@@ -30,7 +30,7 @@ def readtensor(filename):
     for line in f.readlines():
         data+=(map(float,line.split()))
     f.close()
-    retval = numarray.zeros(shape,numarray.Float)
+    retval = numpy.zeros(shape,numpy.Float)
     index = 0
     for i in range(0,shape[0]):
         for j in range(0,shape[1]):
@@ -48,7 +48,7 @@ def readscalarfield(filename):
     for line in f.readlines():
         data+=(map(float,line.split()))
     f.close()
-    retval = numarray.zeros(shape,numarray.Float)
+    retval = numpy.zeros(shape,numpy.Float)
     index = 0
     for i in range(0,shape[0]):
         for j in range(0,shape[1]):
@@ -67,7 +67,7 @@ def readpetscvec(filename):
             pair = cdatum[1:len(cdatum)-1].split(',')
             data.append(complex(float(pair[0]),float(pair[1])))
     f.close()
-    retval = numarray.zeros(shape,numarray.Complex)
+    retval = numpy.zeros(shape,numpy.Complex)
     index = 0
     for i in range(0,shape[0]):
         for j in range(0,shape[1]):

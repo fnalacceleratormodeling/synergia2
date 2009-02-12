@@ -1,9 +1,9 @@
 #/usr/bin/env python
 
-import Numeric
+import numpy
 import gsl_rand
 import time
-import MLab
+import numpy
 
 gr = gsl_rand.GSL_rand()
 
@@ -13,4 +13,4 @@ for i in range(0,10):
     a = gr.get_array((6,100000))
     t = time.time()
     times.append(t-t0)
-print "time =",MLab.mean(times),"+/-",MLab.std(times)
+print "time =",numpy.mean(times),"+/-",numpy.std(times)

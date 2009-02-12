@@ -3,7 +3,7 @@
 import s2_fish
 import s2_fish_fftw2
 import macro_bunch
-import numarray
+import numpy
 import time
 import pylab
 import math
@@ -41,10 +41,10 @@ t_solve = time.time() - t0
 
 print "init =",t_init,", deposit =",t_deposit,", solve =",t_solve
 num_points = n
-ax = numarray.arrayrange(num_points)*size[0]/(num_points -1) - 0.5*size[0]
-aphi = numarray.zeros([num_points],numarray.Float)
-arho = numarray.zeros([num_points],numarray.Float)
-aexact = numarray.zeros([num_points],numarray.Float)
+ax = numpy.arrayrange(num_points)*size[0]/(num_points -1) - 0.5*size[0]
+aphi = numpy.zeros([num_points],numpy.Float)
+arho = numpy.zeros([num_points],numpy.Float)
+aexact = numpy.zeros([num_points],numpy.Float)
 index = 0;
 for i in range(0,len(ax)):
     x = ax[i]

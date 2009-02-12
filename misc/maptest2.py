@@ -2,8 +2,8 @@
 
 import local_paths
 import gourmet
-import Numeric
-import MLab
+import numpy
+import numpy
 import physics_constants
 import bunch
 import diagnostics

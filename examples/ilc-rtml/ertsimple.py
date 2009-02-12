@@ -10,11 +10,11 @@ from physics_toolkit import *
 from physics_constants import *
 
 import loadfile
-import Numeric
+import numpy
 
 def read_em(particles,index):
     x = loadfile.loadfile_transpose("code_parts_%d.dat" % index)
-    shape = Numeric.shape(x)
+    shape = numpy.shape(x)
     for p in range(0,len(particles)):
         particles[p].set_x(x[0,p])
         particles[p].set_npx(x[1,p])
@@ -24,7 +24,7 @@ def read_em(particles,index):
         particles[p].set_ndp(x[5,p])
 
 def parts_to_array(particles):
-    retval = Numeric.zeros((6,len(particles)),'d')
+    retval = numpy.zeros((6,len(particles)),'d')
     for p in range(0,len(particles)):
         s = particles[p]
         retval[0,p] = s.get_x()

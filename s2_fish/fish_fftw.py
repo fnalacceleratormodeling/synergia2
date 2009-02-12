@@ -18,8 +18,8 @@ import synergia
 import sys
 
 from mpi4py import MPI
-import Numeric
-import MLab
+import numpy
+import numpy
 import math
 
 def listify(x):
@@ -85,9 +85,9 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
                                 "apply_space_charge_kick with impedance and multiple bunches requires bunch_spacing to be specified"
             global_rho = Real_scalar_field(shape,size,offset)
             gather_global_rho(rho,global_rho)
-            zdensity = Numeric.zeros((shape[2]),'d')
-            xmom = Numeric.zeros((shape[2]),'d')
-            ymom= Numeric.zeros((shape[2]),'d')
+            zdensity = numpy.zeros((shape[2]),'d')
+            xmom = numpy.zeros((shape[2]),'d')
+            ymom= numpy.zeros((shape[2]),'d')
             calculate_rwvars(mbunch.get_store(),zdensity,xmom,ymom,
                      offset[2]-size[2]*0.5,size[2])
             zoffset = 0.0
