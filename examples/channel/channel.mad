@@ -1,5 +1,11 @@
+mp = 0.9382723
+ekin = 0.0067
+etotal = mp + ekin
+beam, particle=proton, energy=etotal
+
 !scaling
 !scale=0.112312466/0.299792458
+
 scale=0.374749636
 !scale=1.0
 !drifts
