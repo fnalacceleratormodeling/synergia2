@@ -80,8 +80,8 @@ if MPI.COMM_WORLD.Get_rank()<MPI.COMM_WORLD.Get_size()/2 or MPI.COMM_WORLD.Get_s
     num_points = n
     
     ax = numpy.arrayrange(num_points)*size[0]/(num_points -1) - 0.5*size[0]
-    aexact = numpy.zeros([num_points],numpy.Float)
-    aphi = numpy.zeros([num_points],numpy.Float)
+    aexact = numpy.zeros([num_points],numpy.float64)
+    aphi = numpy.zeros([num_points],numpy.float64)
     index = 0;
     for i in range(0,len(ax)):
         x = ax[i]

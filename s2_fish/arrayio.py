@@ -14,7 +14,7 @@ def readfort(filename,shape):
     f.close()
     if not len(data) == expected_length:
         raise RuntimeError,"found length %d,\nbut expected an array of shape %s (length %d)" % (len(data),str(shape),expected_length)
-    retval = numpy.zeros(shape,numpy.Float)
+    retval = numpy.zeros(shape,numpy.float64)
     index = 0
     for k in range(0,shape[2]):
         for j in range(0,shape[1]):
@@ -30,7 +30,7 @@ def readtensor(filename):
     for line in f.readlines():
         data+=(map(float,line.split()))
     f.close()
-    retval = numpy.zeros(shape,numpy.Float)
+    retval = numpy.zeros(shape,numpy.float64)
     index = 0
     for i in range(0,shape[0]):
         for j in range(0,shape[1]):
@@ -48,7 +48,7 @@ def readscalarfield(filename):
     for line in f.readlines():
         data+=(map(float,line.split()))
     f.close()
-    retval = numpy.zeros(shape,numpy.Float)
+    retval = numpy.zeros(shape,numpy.float64)
     index = 0
     for i in range(0,shape[0]):
         for j in range(0,shape[1]):

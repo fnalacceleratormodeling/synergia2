@@ -43,12 +43,12 @@ zprime_yprime = 13
 zprime_z = 14
 
 def get_diagnostics(bunch):
-    means = numpy.zeros([6],numpy.Float)
-    stds = numpy.zeros([6],numpy.Float)
+    means = numpy.zeros([6],numpy.float64)
+    stds = numpy.zeros([6],numpy.float64)
     for i in range(0,6):
         means[i] = numpy.average(bunch[i,:])
-    mom2s = numpy.zeros([6,6],numpy.Float)
-    corrs = numpy.zeros([6,6],numpy.Float)
+    mom2s = numpy.zeros([6,6],numpy.float64)
+    corrs = numpy.zeros([6,6],numpy.float64)
     for i in range(0,6):
         for j in range(i,6):
             tmp = bunch[i,:]*bunch[j,:]

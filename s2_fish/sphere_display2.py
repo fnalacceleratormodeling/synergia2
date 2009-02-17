@@ -13,12 +13,12 @@ class Py_scalar_field:
         self.points = None
 
     def h(self):
-        n = numpy.array(self.points.shape,numpy.Float)
+        n = numpy.array(self.points.shape,numpy.float64)
         return self.physical_size/(n - 1.0)
 
     def axis(self,index):
         len = self.points.shape[index]
-        retval = numpy.zeros([len],numpy.Float)
+        retval = numpy.zeros([len],numpy.float64)
         for i in range(0,len):
             retval[i] = i*self.h()[index] + self.physical_offset[index] -\
                         self.physical_size[index]/2.0
@@ -34,7 +34,7 @@ def readscalarfield(filename):
     for line in f.readlines():
         data+=(map(float,line.split()))
     f.close()
-    sf.points = numpy.zeros(shape,numpy.Float)
+    sf.points = numpy.zeros(shape,numpy.float64)
     index = 0
     for i in range(0,shape[0]):
         for j in range(0,shape[1]):
@@ -79,7 +79,7 @@ def display_theory(sf):
     R = 0.1
     for i in range(0,3):
         axis = sf.axis(i)
-        theory = numpy.zeros([len(axis)],numpy.Float)
+        theory = numpy.zeros([len(axis)],numpy.float64)
         const = 100000
         for j in range(0,len(axis)):
             if abs(axis[j]) < R:

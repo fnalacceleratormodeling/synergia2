@@ -47,18 +47,18 @@ zprime_yprime = 13
 zprime_z = 14
 
 def get_spatial_means_stds(bunch):
-    means = numpy.zeros([3],numpy.Float)
-    stds = numpy.zeros([3],numpy.Float)
+    means = numpy.zeros([3],numpy.float64)
+    stds = numpy.zeros([3],numpy.float64)
     s2_diagnostics.get_spatial_means_stds(bunch.get_store(),means,stds)
     return means,stds
 
 def old_get_diagnostics(bunch):
-    means = numpy.zeros([6],numpy.Float)
-    stds = numpy.zeros([6],numpy.Float)
+    means = numpy.zeros([6],numpy.float64)
+    stds = numpy.zeros([6],numpy.float64)
     for i in range(0,6):
         means[i] = numpy.average(bunch[i,:])
-    mom2s = numpy.zeros([6,6],numpy.Float)
-    corrs = numpy.zeros([6,6],numpy.Float)
+    mom2s = numpy.zeros([6,6],numpy.float64)
+    corrs = numpy.zeros([6,6],numpy.float64)
     for i in range(0,6):
         for j in range(i,6):
             tmp = bunch[i,:]*bunch[j,:]
@@ -73,10 +73,10 @@ def old_get_diagnostics(bunch):
     return means,stds,mom2s,corrs
 
 def get_diagnostics(bunch,units):
-    means = numpy.zeros([6],numpy.Float)
-    mom2s = numpy.zeros([6,6],numpy.Float)
-    corrs = numpy.zeros([6,6],numpy.Float)
-    diagmom4s = numpy.zeros([6],numpy.Float)
+    means = numpy.zeros([6],numpy.float64)
+    mom2s = numpy.zeros([6,6],numpy.float64)
+    corrs = numpy.zeros([6,6],numpy.float64)
+    diagmom4s = numpy.zeros([6],numpy.float64)
     s2_diagnostics.get_moments_corrs(bunch.get_store(),units,means,mom2s,corrs,diagmom4s)
     return means,mom2s,corrs,diagmom4s
 

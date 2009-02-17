@@ -61,8 +61,8 @@ def E_field_uniform_sphere_periodic(Q,r0,rvec,period,axis):
 def compare_on_axis(axis,shape,size,offset,phi,Q,r0,periodic=False):
     r = numpy.arrayrange(shape[axis])*size[axis]/(shape[axis]-1) \
         - 0.5*size[axis] + offset[axis]
-    phi_r = numpy.zeros(shape[axis],numpy.Float)
-    exact = numpy.zeros(shape[axis],numpy.Float)
+    phi_r = numpy.zeros(shape[axis],numpy.float64)
+    exact = numpy.zeros(shape[axis],numpy.float64)
     max_err = 0.0
     sum_err = 0.0
     rfile = open("r.dat","w")
@@ -95,8 +95,8 @@ def compare_on_axis(axis,shape,size,offset,phi,Q,r0,periodic=False):
 def compare_E_on_axis(axis,shape,size,offset,E,Q,r0,E_axis,periodic=False):
     r = numpy.arrayrange(shape[axis])*size[axis]/(shape[axis]-1) \
         - 0.5*size[axis] + offset[axis]
-    Er = numpy.zeros(shape[axis],numpy.Float)
-    exact = numpy.zeros(shape[axis],numpy.Float)
+    Er = numpy.zeros(shape[axis],numpy.float64)
+    exact = numpy.zeros(shape[axis],numpy.float64)
     max_err = 0.0
     sum_err = 0.0
     rfile = open("er.dat","w")

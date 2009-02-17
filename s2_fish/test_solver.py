@@ -38,8 +38,8 @@ def E_field_uniform_sphere(Q,r0,rvec,axis):
 def compare_on_axis(axis,shape,size,offset,phi,Q,r0):
     r = numpy.arrayrange(shape[axis])*size[axis]/(shape[axis]-1) \
         - 0.5*size[axis] + offset[axis]
-    phi_r = numpy.zeros(shape[axis],numpy.Float)
-    exact = numpy.zeros(shape[axis],numpy.Float)
+    phi_r = numpy.zeros(shape[axis],numpy.float64)
+    exact = numpy.zeros(shape[axis],numpy.float64)
     max_err = 0.0
     sum_err = 0.0
     for i in range(0,shape[axis]):
@@ -60,8 +60,8 @@ def compare_on_axis(axis,shape,size,offset,phi,Q,r0):
 def compare_E_on_axis(axis,shape,size,offset,E,Q,r0,E_axis):
     r = numpy.arrayrange(shape[axis])*size[axis]/(shape[axis]-1) \
         - 0.5*size[axis] + offset[axis]
-    Er = numpy.zeros(shape[axis],numpy.Float)
-    exact = numpy.zeros(shape[axis],numpy.Float)
+    Er = numpy.zeros(shape[axis],numpy.float64)
+    exact = numpy.zeros(shape[axis],numpy.float64)
     max_err = 0.0
     sum_err = 0.0
     for i in range(0,shape[axis]):

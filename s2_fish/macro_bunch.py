@@ -33,7 +33,7 @@ class Macro_bunch:
         return self.local_num
     
     def get_store(self):
-        if self.particles:
+        if self.particles != None:
             return Macro_bunch_store(self.particles,
                                      self.local_num,
                                      self.total_num,
