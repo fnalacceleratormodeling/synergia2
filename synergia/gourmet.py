@@ -163,7 +163,7 @@ class Gourmet:
                                 ile = accuracy_marker, insertion_point
                                 ile_list.append(ile)
                 master_insertion_point += element.OrbitLength(particle)
-                element.propagateParticle(particle)
+                element.propagate(particle)
         s_0 = 0.0
         self.beamline.InsertElementsFromList(particle, s_0, ile_list)
         self.beamline.append(accuracy_marker)
@@ -249,7 +249,7 @@ class Gourmet:
                     #~ print "not splitting",element.Name()
                     pass
                 master_insertion_point += element.OrbitLength(particle)
-                element.propagateParticle(particle)
+                element.propagate(particle)
         ile = accuracy_marker, master_insertion_point + 1000.0
         ile_list.append(ile)
         s_0 = 0.0
@@ -286,7 +286,7 @@ class Gourmet:
                     print "not splitting",element.Name()
                     pass
                 master_insertion_point += element.OrbitLength(particle)
-                element.propagateParticle(particle)
+                element.propagate(particle)
         s_0 = 0.0
         if inserted_error:
             self.beamline.InsertElementsFromList(particle, s_0, ile_list)
@@ -335,8 +335,8 @@ class Gourmet:
                                data=mapping))
                     energy = new_energy
                     s = element.OrbitLength(particle)
-                    element.propagateParticle(particle)
-                    element.propagateJetParticle(jet_particle)
+                    element.propagate(particle)
+                    element.propagate(jet_particle)
                 new_energy = jet_particle.ReferenceEnergy()
                 self.actions.append(
                     Action("synergia action",
@@ -352,8 +352,8 @@ class Gourmet:
             else:
                 if not element.Type() == "marker":
                     s += element.OrbitLength(particle)
-                    element.propagateParticle(particle)
-                    element.propagateJetParticle(jet_particle)
+                    element.propagate(particle)
+                    element.propagate(jet_particle)
                     has_propagated = 1
         self.final_energy = jet_particle.ReferenceEnergy()
         self.have_actions = 1
@@ -407,7 +407,7 @@ class Gourmet:
             kxs.append(kx)
             kys.append(ky)
             ss.append(s)
-            element.propagateParticle(particle)
+            element.propagate(particle)
         return (numpy.array(ss),numpy.array(kxs),numpy.array(kys))
     
     def delete_actions(self):
@@ -456,7 +456,7 @@ class Gourmet:
             self.num_elements += 1
             self.elements.append(element)
             self.element_lengths.append(element.OrbitLength(particle))
-            element.propagateJetParticle(jet_particle)
+            element.propagate(jet_particle)
             mapping = mappers.Fast_mapping(self.get_u(energy),
                                                    jet_particle.State())
             self.element_fast_mappings.append(mapping)
@@ -506,13 +506,13 @@ class Gourmet:
     def get_single_linear_map(self):
         self._commission()
         jet_particle = self.get_initial_jet_particle()
-        self.beamline.propagateJetParticle(jet_particle)
+        self.beamline.propagate(jet_particle)
         return self._convert_linear_maps([jet_particle.State().jacobian()])[0]
 
     def get_single_fast_map(self):
         self._commission()
         jet_particle = self.get_initial_jet_particle()
-        self.beamline.propagateJetParticle(jet_particle)
+        self.beamline.propagate(jet_particle)
         mapping = jet_particle.State()
         return mappers.Fast_mapping(self.get_initial_u(),
                                     jet_particle.State())
@@ -520,7 +520,7 @@ class Gourmet:
     def get_single_chef_mapping(self):
         self._commission()
         jet_particle = self.get_initial_jet_particle()
-        self.beamline.propagateJetParticle(jet_particle)
+        self.beamline.propagate(jet_particle)
         mapping = jet_particle.State()
 
     def printpart(self,particle):
@@ -534,14 +534,14 @@ class Gourmet:
     def check(self,print_coeffs=0):
         self._commission()
         jet_particle = self.get_initial_jet_particle()
-        self.beamline.propagateJetParticle(jet_particle)
+        self.beamline.propagate(jet_particle)
         mapping = jet_particle.State()
         if print_coeffs:
             mapping.printCoeffs()
         testpart = self.get_initial_particle()
         print "initial test particle:"
         self.printpart(testpart)
-        self.beamline.propagateParticle(testpart)
+        self.beamline.propagate(testpart)
         print "test particle after propagation:"
         self.printpart(testpart)
 
