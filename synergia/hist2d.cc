@@ -32,7 +32,7 @@ hist2d(numeric::array& numeric_x, double xmin, double xmax, long nx,
 
 BOOST_PYTHON_MODULE(hist2d)
 {
-  numeric::array::set_module_and_type("Numeric", "ArrayType");
+  numeric::array::set_module_and_type("numpy", "ndarray");
   def("hist2d",&hist2d);
 }
 

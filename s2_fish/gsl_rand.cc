@@ -64,7 +64,7 @@ GSL_rand::~GSL_rand()
 
 BOOST_PYTHON_MODULE(gsl_rand)
 {
-    numeric::array::set_module_and_type("Numeric", "ArrayType");
+    numeric::array::set_module_and_type("numpy", "ndarray");
     class_<GSL_rand>("GSL_rand",
                      init<>())
     .def("get_array",

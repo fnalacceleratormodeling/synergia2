@@ -8,7 +8,7 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(macro_bunch_store)
 {
-    numeric::array::set_module_and_type("Numeric", "ArrayType");
+    numeric::array::set_module_and_type("numpy", "ndarray");
     class_<Macro_bunch_store>("Macro_bunch_store",
                               init < numeric::array&, int, int,
                               double, int, double,

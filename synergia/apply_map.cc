@@ -54,7 +54,7 @@ void apply_map1(numeric::array& numeric_particles, int num_particles,
 
 BOOST_PYTHON_MODULE(apply_map)
 {
-  numeric::array::set_module_and_type("Numeric", "ArrayType");
+  numeric::array::set_module_and_type("numpy", "ndarray");
   def("apply_map1",&apply_map1);
 }
 

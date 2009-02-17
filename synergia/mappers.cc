@@ -10,6 +10,9 @@
 #include "array_nd/array_2d.h"
 #include "array_nd/array_nd_python.h"
 
+
+#include "beamline/JetParticle.h"
+
 extern "C"
 {
 #include <sys/time.h>
@@ -189,7 +192,7 @@ public:
     void apply(numeric::array& numeric_particles, int num_particles);
 };
 
-Fast_mapping::Fast_mapping(numeric::array& numeric_u, Mapping mapping)
+Fast_mapping::Fast_mapping(numeric::array& numeric_u, TMapping<double> mapping)
 {
     Unit_conversion u(numeric_u);
     order = mapping.Weight();
@@ -322,13 +325,12 @@ void crap(numeric::array& numeric_particles, int num_particles,
     std::cout << std::endl;
 }
 
-
 BOOST_PYTHON_MODULE(mappers)
 {
-    numeric::array::set_module_and_type("Numeric", "ArrayType");
+    numeric::array::set_module_and_type( "numpy", "ndarray");
     def("apply_linear_map", &apply_linear_map);
     def("crap", &crap);
-    class_<Fast_mapping>("Fast_mapping", init<numeric::array&, Mapping>() )
+    class_<Fast_mapping>("Fast_mapping", init<numeric::array&, Mapping >() )
     .def("apply", &Fast_mapping::apply);
 }
 

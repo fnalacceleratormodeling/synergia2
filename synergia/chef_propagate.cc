@@ -1,5 +1,5 @@
 #include <iostream>
-#include <list>
+#undef _POSIX_C_SOURCE
 #include <boost/python.hpp>
 #include <boost/python/numeric.hpp>
 #include <numpy/arrayobject.h>
@@ -9,6 +9,7 @@
 #include "beamline/bmlnElmnt.h"
 #include "beamline/Particle.h"
 #include <string>
+#include <list>
 
 #include "array_nd/array_nd.h"
 #include "array_nd/array_2d.h"
@@ -78,7 +79,7 @@ chef_propagate(numeric::array& numeric_particles, int num_particles,
 
 BOOST_PYTHON_MODULE(chef_propagate)
 {
-  numeric::array::set_module_and_type("Numeric", "ArrayType");
+  numeric::array::set_module_and_type("numpy", "ndarray");
   def("chef_propagate",&chef_propagate);
 }
 
