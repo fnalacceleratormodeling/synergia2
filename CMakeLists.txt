@@ -10,7 +10,7 @@ LINK_DIRECTORIES(${PYTHON_LIBRARIES})
 
 # boost
 SET(Boost_USE_STATIC_LIBS OFF)
-SET(Boost_USE_MULTITHREAD ON)
+SET(Boost_USE_MULTITHREADED OFF CACHE BOOL "Use multithreaded version of Boost. Should remain off.")
 FIND_PACKAGE(Boost COMPONENTS python regex unit_test_framework)
 #~ message("Boost_INCLUDE_DIRS = '${Boost_INCLUDE_DIRS}'")
 #~ message("Boost_LIBRARIES = '${Boost_LIBRARIES}'")
