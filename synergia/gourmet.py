@@ -400,7 +400,8 @@ class Gourmet:
                 kx = -ky + strength**2/(brho**2) 
             elif (element.Type() == "sbend") or \
                  (element.Type() == "rbend"):
-                pass
+		  kx = (strength/brho)**2; # this is probably wrong for rbend
+		  pass
             else:
                 if (strength != 0.0):
                     sys.stderr.write("gourmet.get_strengths error. element of type %s has non-zero\nStrength(), but is not handled by this routine.\n" % element.Type())
