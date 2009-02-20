@@ -18,19 +18,23 @@ if ( __name__ == '__main__'):
     #~ myopts.add("current",0.5,"current",float)
     myopts.add("transverse",0,"longitudinally uniform beam",int)
     myopts.add("maporder",2,"map order",int)
-    myopts.add("emittance",3.0e-6,"emittance",float)
-    myopts.add("dpop",1.0e-20,"(delta p)/p",float)
-    myopts.add("kicks",10,"kicks per line",int)
-    myopts.add("turns",4,"number of turns",int)
-    myopts.add("latticefile","fobodobo_s.lat","",str)
+    myopts.add("emittance",5.89533703303356e-07,"emittance",float)
+    myopts.add("dpop",1.0e-10,"(delta p)/p RMS width",float)
+    myopts.add("dpopoffset", 1.0e-4, "offset in dpop", float)
+    myopts.add("kicks",32,"kicks per line",int)
+    myopts.add("turns",10,"number of turns",int)
+    myopts.add("latticefile","foborodobo_s.lat","",str)
     myopts.add("tgridnum",16,"transverse grid cells",int)
     myopts.add("lgridnum",64,"",int)
-    myopts.add("xoffset",0,"",float)
-    myopts.add("yoffset",0,"",float)
-    myopts.add("emittance",0.26e-6,"",float)
+    myopts.add("xoffset",0,"transverse offset in x",float)
+    myopts.add("yoffset",0,"transverse offset in y",float)
+#    myopts.add("zoffset",0,"offset in z", float)
+#    myopts.add("xoffset",4.26e-4,"transverse offset in x",float)
+#    myopts.add("yoffset",1.86e-4,"transverse offset in y",float)
+    myopts.add("zoffset",0,"offset in z", float)
     myopts.add("space_charge",0,"",int)
-    myopts.add("impedance",1,"",int)
-    myopts.add("energy",8.9,"",float)
+    myopts.add("impedance",0,"",int)
+    myopts.add("energy",100.004401675138,"",float)
     myopts.add("partpercell",1,"",float)
     myopts.add("bunches",1,"",int)
     myopts.add("bunchnp",1.0e11,"number of particles per bunch",float)
@@ -46,9 +50,11 @@ if ( __name__ == '__main__'):
     kinetic_energy = energy-mass
     charge = 1.0
     initial_phase = 0.0
-    scaling_frequency = 53e6
-    pipexradius = 0.123
-    pipeyradius = 0.0508
+    scaling_frequency = 47713451.5923694
+    pipexradius = 0.03
+    pipeyradius = 0.03
+#    pipexradius = 0.123
+#    pipeyradius = 0.0508
     part_per_cell = myopts.get("partpercell")
     kicks_per_line = myopts.get("kicks")
     tgridnum = myopts.get("tgridnum")
@@ -58,7 +64,8 @@ if ( __name__ == '__main__'):
     solver = "3d"
     xoffset = myopts.get("xoffset")
     yoffset = myopts.get("yoffset")
-
+    zoffset = myopts.get("zoffset")
+    
     pipe_conduct= 1.4e6 # [/s] (stainless steel)
     
     impedance=myopts.get("impedance")
@@ -74,6 +81,36 @@ if ( __name__ == '__main__'):
     gourmet = synergia.Gourmet(os.path.join(os.getcwd(),myopts.get("latticefile"))
         ,"model",kinetic_energy,
                         scaling_frequency)
+
+### insert rf freq
+    for element in gourmet.beamline:
+        ###print element.Type()
+        if element.Type() == 'rfcavity':
+            element.setFrequency(59955852.5381452)
+            print "my rf cavity frequency is ", element.getRadialFrequency()/(2.0*math.pi)
+
+    # try without commissioning
+    #gourmet.needs_commission = True
+    #gourmet.is_commissioned = False
+    #gourmet._commission()
+
+    #gourmet.check()
+    # sys.exit(1)
+    #jet_particle = gourmet.get_initial_jet_particle()
+    #particle = gourmet.get_initial_particle()
+    #gourmet.printpart(particle)
+    #for element in gourmet.beamline:
+    #    element.propagateJetParticle(jet_particle)
+    #    element.propagateParticle(particle)
+    #    map = gourmet._convert_linear_maps([jet_particle.State().jacobian()])[0]
+    #    print element.Name(),element.Type()
+    #    gourmet.printpart(particle)
+#        print Numeric.array2string(map,precision=2)
+    #    energy = jet_particle.ReferenceEnergy()
+    #    print "energy =",energy
+    #    jet_particle = gourmet.get_jet_particle(energy)
+    #sys.exit(1)
+    
     gourmet.insert_space_charge_markers(kicks_per_line)
     (alpha_x, alpha_y, beta_x, beta_y) = synergia.matching.get_alpha_beta(gourmet)
     #~ print "(alpha_x, alpha_y, beta_x, beta_y) = %g, %g, %g, %g" % (alpha_x, alpha_y, beta_x, beta_y)
@@ -93,8 +130,8 @@ if ( __name__ == '__main__'):
     (ywidth,ypwidth,ry) = synergia.matching.match_twiss_emittance(emittance,alpha_y,beta_y)
     beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,r = ry,offset=yoffset)
     
-    sigma_z_meters = 0.75
-    beam_parameters.z_params(sigma = sigma_z_meters, lam = myopts.get("dpop")* pz)
+    sigma_z_meters = 0.43
+    beam_parameters.z_params(sigma = sigma_z_meters, lam = myopts.get("dpop")* pz, offset=zoffset, offset_p = myopts.get("dpopoffset")*pz)
 
     sys.stdout.flush()
     
