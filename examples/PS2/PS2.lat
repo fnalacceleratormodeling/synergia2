@@ -1,6 +1,6 @@
 TITLE, "PS2 NMC with supressor"
-!ASSIGN, ECHO="out"
 Option,echo
+
 
 
 !  MKA  : MARKER,APERTYPE=CIRCLE, APER_1=0.1
@@ -38,14 +38,16 @@ Option,echo
   Bfield = 1.7
   Ekin = 50
   E0 = 0.938272029
-  Energ = Ekin+E0
-  gammar = Energ/E0
+  Energie = Ekin+E0
+  BEAM, PARTICLE=PROTON, ENERGY=Energie, EX=3.24E-6, EY=1.73E-6, SIGE=0.001
+  gammar = Energie/E0
   betar = sqrt(1-1/gammar^2)
-  radius = betar*Energ/0.2998/Bfield
+  radius = betar*Energie/0.2998/Bfield
 
   MB:  SBEND, L=Pi/Ndip*radius, ANGLE=Pi/Ndip, E1=Pi/(2*Ndip), E2=Pi/(2*Ndip)
 
   MBhalf:  SBEND, L=Pi/Ndip*radius/2, ANGLE=Pi/Ndip/2, E1=Pi/(2*Ndip)/2, E2=0
+  MBhalfr: SBEND, L=Pi/Ndip*radius/2, ANGLE=Pi/Ndip/2, E1=0, E2=Pi/(2*Ndip)/2
 
   DB: DRIFT, L=Pi/Ndip*radius
 
@@ -90,7 +92,7 @@ Option,echo
 
   kfs = 0.09306062285
 ! original QFHS : MQHb,    K1=KQFS  ?????, KQFS not defined
-!  QFHS : QUADRUPOLE, L = 1.0,  K1=KFS
+!  QFHS : QUADRUPOLE, L = 1.0,  K1=KQFS
 
   DS1: DRIFT, L = 9.9
   DS2: DRIFT, L = 10.9
@@ -153,7 +155,7 @@ Option,echo
 
   cav: rfcavity, volt=1.5, harmon= 180
 
- BEAM, PARTICLE=PROTON, ENERGY=50, EX=3.24E-6, EY=1.73E-6, SIGE=0.001
+ 
 
 THREEBENDS : LINE=(D2, MB, D1, MB, D1, MB, D2)
 
@@ -168,6 +170,12 @@ HalfBEND    : LINE=(DD, MBhalf)
 HalfBENDS    : LINE=(DDS, MBhalf)
 
 HalfBEND2    : LINE=(D2, MBhalf)
+
+HalfBENDR    : LINE=(DD, MBhalfr)
+
+HalfBENDSR    : LINE=(DDS, MBhalfr)
+
+HalfBEND2R    : LINE=(D2, MBhalfr)
 
 HalfFODO1    : LINE=(MKA, PS2.MQA.MOD.1,THREEBENDS,PS2.MQA.MOD.2,MKB)
 
@@ -197,25 +205,37 @@ NMChalfS:LINE=(HalfFODO1S,-HalfFODO2S,PS2.MQB.MOD.3,D4,PS2.MQB.MOD.4,  &
                        MKD,PS2.MQB.MOD.4,DMS3,PS2.MS.3,PS2.MS.3,HalfBENDS)	      
 
 NMChalfSS : LINE=(HalfFODO1SS,-HalfFODO2S,PS2.MQB.MOD.3,D4,            & 
-       PS2.MQB.MOD.4,MKD,PS2.MQB.MOD.4,DMS3,PS2.MS.3,PS2.MS.3,HalfBENDS)	      
+       PS2.MQB.MOD.4,MKD,PS2.MQB.MOD.4,DMS3,PS2.MS.3,PS2.MS.3,HalfBENDS)	
+
+NMChalfSSR : LINE=(HalfFODO1SS,-HalfFODO2S,PS2.MQB.MOD.3,D4,            & 
+       PS2.MQB.MOD.4,MKD,PS2.MQB.MOD.4,DMS3,PS2.MS.3,PS2.MS.3,HalfBENDSR)     
 
 NMChalfSUPAUX: LINE=(HalfFODOSUP1, -HalfFODOSUP2, PS2.MQB.SUP.9, D4,   &
                      PS2.MQA.SUP.8, MKD, PS2.MQA.SUP.8,HalfBEND2)
 
+NMChalfSUPAUXR: LINE=(HalfFODOSUP1, -HalfFODOSUP2, PS2.MQB.SUP.9, D4,   &
+                     PS2.MQA.SUP.8, MKD, PS2.MQA.SUP.8,HalfBEND2R)
+
 NMChalfSUP1:LINE=(NMChalfSUPAUX)
+
+NMChalfSUP1R:LINE=(NMChalfSUPAUXR)
 
 NMChalfSUP2:LINE=(HalfFODO3, -HalfFODOSUP3, PS2.MQD.SUP.6, D5,        &
                    PS2.MQB.SUP.7, PS2.MQB.SUP.7, HalfBEND)
 
+NMChalfSUP2R:LINE=(HalfFODO3, -HalfFODOSUP3, PS2.MQD.SUP.6, D5,        &
+                   PS2.MQB.SUP.7, PS2.MQB.SUP.7, HalfBENDR)
 
 !NMC : LINE=(NMChalf,MKE,-NMChalf)
-NMC : LINE=(NMChalfS,MKE,-NMChalfSS)
+NMC : LINE=(NMChalfS,MKE,-NMChalfSSR)
 
-NMCSUPAUX : LINE=(NMChalfSUPAUX,-NMChalfSUPAUX)
+NMCSUPAUX : LINE=(NMChalfSUPAUX,-NMChalfSUPAUXR)
 
-NMCSUP: LINE=(NMChalfSUP1,-NMChalfSUP2)
+NMCSUP: LINE=(NMChalfSUP1,-NMChalfSUP2R)
 
-ARC: LINE=(NMCSUP,5*NMC,-NMCSUP)
+NMCSUPR: LINE=(NMChalfSUP1R,-NMChalfSUP2)
+
+ARC: LINE=(NMCSUP,5*NMC,-NMCSUPR)
 
 HALFNMCRING : LINE=(ARC,STRAIGHT)
 
@@ -233,24 +253,7 @@ HALFSTRAIGHT:LINE=(FODO1,FODO2,PS2.MQC.FSTR1,DS3,PS2.MQA.DSTR2,      &
 
 STRAIGHT : LINE=(HALFSTRAIGHT,MKF,CAV,-HALFSTRAIGHT)  
 
-!CNGSInjection: BEAM, PARTICLE=PROTON, ENERGY=50, EX=3.24E-6, EY=1.73E-6, SIGE=0.001
 
-  USE, PERIOD = NMChalf
-  USE, PERIOD = NMC
-  USE, PERIOD = NMCSUPAUX
-  USE, PERIOD = NMChalfSUPAUX
-  USE, PERIOD = NMCSUP
-  USE, PERIOD = ARC
-  USE, PERIOD = FODO1
-  USE, PERIOD = FODO1
-  USE, PERIOD = FODO12
-  USE, PERIOD = HalfSTRAIGHT
-  USE, PERIOD = STRAIGHT
-  USE, PERIOD = HALFNMCRING
-  USE, PERIOD = NMCRING
-  USE, PERIOD = STRAIGHT
-
-Use, NMCRING
 
 
 
