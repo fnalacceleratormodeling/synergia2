@@ -49,22 +49,33 @@ if ( __name__ == '__main__'):
     solver = myopts.get("solver")
     impedance = myopts.get("impedance")
     
-    xwidth=0.0012026
-    xpwidth=0.0049608
-    rx=0.85440
+    xwidth_initial=0.0012026
+    ywidth_initial=0.0012026
+    #xpwidth=0.0049608
+    #rx=-0.85440
     dpop = 1.0e-20
 
     ee = synergia.Error_eater()
     ee.start()
     gourmet = synergia.Gourmet(os.path.join(os.getcwd(),"channel.mad"),"channel",kinetic_energy,
                         scaling_frequency)
-    gourmet.insert_space_charge_markers(kicks_per_line)
+    gourmet.insert_space_charge_markers(kicks_per_line)  
 
     beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
                                          initial_phase, scaling_frequency,
                                          transverse=1)
     betagamma=beam_parameters.get_beta()*beam_parameters.get_gamma() 
 
+    (alpha_x, alpha_y, beta_x, beta_y) = synergia.matching.get_alpha_beta(gourmet)
+    #~print "(alpha_x, alpha_y, beta_x, beta_y) = %g, %g, %g, %g" % (alpha_x, alpha_y, beta_x, beta_y)
+    emitx=(xwidth_initial)**2/beta_x
+    emity=(ywidth_initial)**2/beta_y
+    print "emitx= ", emitx, "emity = ", emity
+    #(xwidthf,xpwidthf,rxf) = synergia.matching.match_twiss_emittance(emitx,alpha_x,beta_x)
+    #print "no space charge   xwidth,xpwidth, rx=",xwidthf,xpwidthf,rxf
+    (xwidth,xpwidth,rx,ywidth,ypwidth,ry)=synergia.matching.envelope_match(emitx,emity,current,gourmet)
+    print "xwidth,xpwidth,rx=", xwidth,xpwidth,rx
+	
     if MPI.COMM_WORLD.Get_rank() == 0:
         print "num_particles =",num_particles
         print "We will use a", solver, "solver"
@@ -73,8 +84,9 @@ if ( __name__ == '__main__'):
         print "Betagamma and inverse betagamma",betagamma,1./betagamma
     
     pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
-    beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = -rx,offset=xoffset)
-    beam_parameters.y_params(sigma = xwidth, lam = xpwidth * pz,r = rx)
+#    beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = -rx,offset=xoffset)
+    beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = rx,offset=xoffset)
+    beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,r = ry)
     sigma_z_meters = beam_parameters.get_beta()*synergia.PH_MKS_c/scaling_frequency/math.pi
     beam_parameters.z_params(sigma = sigma_z_meters, lam = dpop* pz)
 
