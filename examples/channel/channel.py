@@ -56,7 +56,7 @@ if ( __name__ == '__main__'):
 
     ee = synergia.Error_eater()
     ee.start()
-    gourmet = synergia.Gourmet(os.path.join(os.getcwd(),"channel.mad"),"channel",kinetic_energy,
+    gourmet = synergia.Gourmet(os.path.join(os.getcwd(),"channel.xsif"),"channel",kinetic_energy,
                         scaling_frequency)
     gourmet.insert_space_charge_markers(kicks_per_line)
 
@@ -98,10 +98,10 @@ if ( __name__ == '__main__'):
         s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,
             use_s2_fish_cylindrical=True,radius=0.01,
             impedance=impedance,space_charge=space_charge,
-            pipe_radius=pipe_radius,pipe_conduct=pipe_conduct)
+            pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius,pipe_conduct=pipe_conduct)
     elif solver =="2D" or solver == "2d":
         s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_gauss=True,
-            impedance=impedance,pipe_radius=pipe_radius,pipe_conduct=pipe_conduct)
+            impedance=impedance,pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius,pipe_conduct=pipe_conduct)
     print "elapsed time =",time.time() - t0,"on rank", MPI.COMM_WORLD.Get_rank()
     bunch.write_particles("end")
     diag.write_hdf5("channel")
