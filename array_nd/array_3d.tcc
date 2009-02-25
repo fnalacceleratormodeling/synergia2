@@ -29,7 +29,7 @@ Array_3d<T>::Array_3d(const int nx, const int ny, const int nz, T *data_ptr) :
 }
 
 template<class T>
-Array_3d<T>::Array_3d(const int nx, const int ny, const int nz, 
+Array_3d<T>::Array_3d(const int nx, const int ny, const int nz,
         const int stride_x, const int stride_y, const int stride_z,
         T *data_ptr) :
     Array_nd<T>()
@@ -44,7 +44,7 @@ Array_3d<T>::Array_3d(const Array_nd<T>& original)
 {
     //~ std::cout << "converting from nd to 3d\n";
     if (original.get_rank() != 3) {
-        throw 
+        throw
             std::runtime_error("Attempt to convert Array_nd of rank !=3 to Array_3d");
     }
     copy_construct(original);
@@ -117,7 +117,7 @@ Array_3d<T>::offset(const int i, const int j, const int k) const
     return i*this->strides[0] + j*this->strides[1] + k*this->strides[2];
 }
 
-    
+
 template<class T>
 inline T&
 Array_3d<T>::at(const int i, const int j, const int k)
@@ -166,6 +166,13 @@ Array_3d<T>::bounds_check(const int i, const int j, const int k) const
         return false;
     }
     return true;
+}
+
+template<class T>
+Array_nd<T>
+Array_3d<T>::slice(Range i_range, Range j_range, Range k_range)
+{
+	return Array_nd<T>::slice(vector3(i_range,j_range,k_range));
 }
 
 template<class T>
