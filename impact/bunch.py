@@ -2,8 +2,12 @@
 
 import numpy
 
-from UberPkgpy import *
-from OutputPkgpy import *
+have_impact = True
+try:
+    from UberPkgpy import *
+    from OutputPkgpy import *
+except:
+    have_impact = False
 from mpi4py import MPI
 
 from synergia import loadfile

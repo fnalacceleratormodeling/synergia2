@@ -1,7 +1,11 @@
 #!/usr/bin/env python
 
 from mpi4py import MPI
-from UberPkgpy import *
+have_impact = True
+try:
+    from UberPkgpy import *
+except:
+    have_impact = False
 
 class Processor_grid:
     def __init__(self,columns):
