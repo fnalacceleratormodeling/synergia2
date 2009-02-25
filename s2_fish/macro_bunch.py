@@ -85,7 +85,11 @@ class Macro_bunch:
 
     def init_sphere(self,num,radius):
         '''Particles uniformly distributed in a sphere of radius "radius"'''
+<<<<<<< HEAD:s2_fish/macro_bunch.py
         numpy.random.seed((17+MPI.COMM_WORLD.Get_rank()*51,59+MPI.COMM_WORLD.Get_rank()*23))
+=======
+        numpy.random.RandomState([17+MPI.COMM_WORLD.Get_rank()*51,59+MPI.COMM_WORLD.Get_rank()*23])
+>>>>>>> e23a0396f9925d0062b2c2354ce27d4cfeb107d3:s2_fish/macro_bunch.py
         offset = (0.0,0.0,0.0)
         local_num = num/MPI.COMM_WORLD.Get_size() #jfa: could be more precise...
         total_num = MPI.WORLD.Allreduce(local_num,MPI.SUM)
