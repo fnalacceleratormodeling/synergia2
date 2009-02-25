@@ -3,7 +3,7 @@
 #include <fftw3.h>
 #include <cmath>
 
-void 
+void
 get_cylindrical_coords(Macro_bunch_store &mbs, Array_2d<double> &coords)
 {
     for (int n = 0; n < mbs.local_num; ++n) {
@@ -31,7 +31,7 @@ get_cylindrical_coords(Macro_bunch_store &mbs, Array_2d<double> &coords)
 }
 
 inline int
-get_this(int index, int which, const std::vector<int> &indices, 
+get_this(int index, int which, const std::vector<int> &indices,
     const std::vector<int> &grid_shape, const std::vector<bool> &periodic)
 {
     int this_ = indices[which] + index;
@@ -72,7 +72,7 @@ add_to_cylindrical_cell(Array_3d<double > &rho,
 /*        std::cout << "add_to_cylindrical_cell: "
                 << ir
                 << ", " << iphi
-                << ", " << iz 
+                << ", " << iz
                 << " " <<  scaled_rmin
                 << " " <<  scaled_rmax
                 << " " <<  scaled_overlap_phi
@@ -89,7 +89,7 @@ add_to_cylindrical_cell(Array_3d<double > &rho,
 
 // Deposit charge using Cloud-in-Cell (CIC) algorithm.
 void
-deposit_charge_cic_cylindrical(const Cylindrical_field_domain &fdomain, 
+deposit_charge_cic_cylindrical(const Cylindrical_field_domain &fdomain,
     Array_3d<double > &rho, Macro_bunch_store& mbs,
     const Array_2d<double> &coords)
 {
@@ -98,7 +98,7 @@ deposit_charge_cic_cylindrical(const Cylindrical_field_domain &fdomain,
 // jfa: we assume z to be periodic!!!!!!!!    std::vector<bool> periodic(fdomain.get_periodic());
     std::vector<int> grid_shape(fdomain.get_grid_shape());
     std::vector<double> cell_size(fdomain.get_cell_size());
-    
+
     rho.set_all(0.0);
     numout = 0;
     numin = 0;
@@ -107,12 +107,12 @@ deposit_charge_cic_cylindrical(const Cylindrical_field_domain &fdomain,
         double theta = coords(1,n);
         double z = coords(2,n);
         fdomain.get_leftmost_indices_offsets(r,theta,z,indices,offsets);
-        
+
         int left_ir, left_iphi, left_iz;
         int right_ir,right_iphi, right_iz;
         double left_r, center_r, right_r;
         double left_overlap_phi, left_overlap_z;
-        
+
         if (offsets[0] > 0.5) {
             left_ir = indices[0];
             right_ir = indices[0] + 1;
@@ -133,12 +133,12 @@ deposit_charge_cic_cylindrical(const Cylindrical_field_domain &fdomain,
             cloud_volume = 0.5*cell_size[0]*cell_size[0]*cell_size[1]*cell_size[2];
         } else {
             // use volume of a cell centered on particle
-            cloud_volume = 0.5*((indices[0]+offsets[0]+0.5)*(indices[0]+offsets[0]+0.5) - 
+            cloud_volume = 0.5*((indices[0]+offsets[0]+0.5)*(indices[0]+offsets[0]+0.5) -
                         (indices[0]+offsets[0]-0.5)*(indices[0]+offsets[0]-0.5))
                         *cell_size[0]*cell_size[0]*cell_size[1]*cell_size[2];
         }
 
-        
+
         if (offsets[1] > 0.5) {
             left_iphi = indices[1];
             if (indices[1] == grid_shape[1] - 1) {
@@ -156,7 +156,7 @@ deposit_charge_cic_cylindrical(const Cylindrical_field_domain &fdomain,
             right_iphi = indices[1];
             left_overlap_phi = offsets[1];
         }
-        
+
         if (offsets[2] > 0.5) {
             left_iz = indices[2];
             if (indices[2] == grid_shape[2] - 1) {
@@ -339,13 +339,13 @@ array_2d_to_octave_file_imag(const Array_2d<std::complex<double> > &array, const
     stream.close();
 }
 
-void 
-solve_cylindrical_finite_periodic(const Field_domain &fdomain,
+void
+solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
     Array_3d<double > &rho, Array_3d<double> &phi)
 {
     std::vector<int> shape = fdomain.get_grid_shape();
-    double z_length = fdomain.get_physical_size()[2];
-    // the shape of the FFT'd array (shape_lm) is halved in the third 
+    double z_length = fdomain.get_length();
+    // the shape of the FFT'd array (shape_lm) is halved in the third
     // dimension because of the peculiar (but efficient) way FFTW does
     // real-to-complex transforms.
     std::vector<int> shape_lm = vector3(shape[0],shape[1],shape[2]/2+1);
@@ -364,7 +364,7 @@ solve_cylindrical_finite_periodic(const Field_domain &fdomain,
     Array_1d<std::complex<double> > above_diag(shape_lm[0]-1);
     Array_1d<std::complex<double> > below_diag(shape_lm[0]-1);
     Array_3d<std::complex<double> > phi_lm(shape_lm);
-    double deltar = fdomain.get_physical_size()[0]/
+    double deltar = fdomain.get_radius()/
         (fdomain.get_grid_shape()[0]+0.5);
 
     for(int l=0; l<shape_lm[1]; ++l) {
@@ -372,11 +372,11 @@ solve_cylindrical_finite_periodic(const Field_domain &fdomain,
             for(int i=0; i<shape_lm[0]; ++i) {
                 double r = (i+0.5)*deltar;
                 diag(i) = -2.0*(1.0/(deltar*deltar));
-                int wavenumber_l = (l+shape_lm[1]/2) % shape_lm[1] - 
+                int wavenumber_l = (l+shape_lm[1]/2) % shape_lm[1] -
                     shape_lm[1]/2;
-                int wavenumber_m = (m+shape_lm[2]/2) % shape_lm[2] - 
+                int wavenumber_m = (m+shape_lm[2]/2) % shape_lm[2] -
                     shape_lm[2]/2;
-                diag(i) += - wavenumber_l*wavenumber_l/(r*r) - 
+                diag(i) += - wavenumber_l*wavenumber_l/(r*r) -
                     pow(2*pi*wavenumber_m/z_length,2);
                 if (i<(shape_lm[0]-1)) {
                     above_diag.at(i) = 1.0/(deltar*deltar) + 1.0/(2*deltar*r);
@@ -386,9 +386,9 @@ solve_cylindrical_finite_periodic(const Field_domain &fdomain,
                 }
             }
         Array_1d<std::complex<double> > rhs =
-            rho_lm.slice(vector3(Range(),Range(l),Range(m)));
-        Array_1d<std::complex<double> > x = 
-            phi_lm.slice(vector3(Range(),Range(l),Range(m)));
+            rho_lm.slice(Range(),Range(l),Range(m));
+        Array_1d<std::complex<double> > x =
+            phi_lm.slice(Range(),Range(l),Range(m));
          solve_tridiag_nonsym(diag,above_diag,below_diag,
             rhs,x);
         }
@@ -408,17 +408,16 @@ solve_cylindrical_finite_periodic(const Field_domain &fdomain,
 }
 
 void
-calculate_E_cylindrical(const Field_domain &fdomain,
+calculate_E_cylindrical(const Cylindrical_field_domain &fdomain,
                           Array_3d<double> &phi,
                           Array_3d<double> &Ex,
                           Array_3d<double> &Ey,
                           Array_3d<double> &Ez)
 {
     std::vector<int> shape = phi.get_shape();
-    std::vector<double> size = fdomain.get_physical_size();
     double theta_step = 2.0*pi/(shape[1]-1);
-    double z_step = size[2]/(shape[2]-1);
-    double ordinary_r_step = size[0]*2.0/(2*shape[0]+1);
+    double z_step = fdomain.get_length()/(shape[2]-1);
+    double ordinary_r_step = fdomain.get_radius()*2.0/(2*shape[0]+1);
     for(int i_r = 0; i_r<shape[0]; ++i_r) {
         int r_left = i_r-1;
         int r_right = i_r+1;
@@ -451,11 +450,11 @@ calculate_E_cylindrical(const Field_domain &fdomain,
                 if (z_right == shape[1]) {
                     z_right = 0;
                 }
-                double dphi_dr = (phi(r_right,i_theta,i_z) - 
+                double dphi_dr = (phi(r_right,i_theta,i_z) -
                             phi(r_left,i_theta,i_z))/r_step;
-                double dphi_dtheta = (phi(i_r,theta_right,i_z) - 
+                double dphi_dtheta = (phi(i_r,theta_right,i_z) -
                             phi(i_r,theta_left,i_z))/theta_step;
-                double dphi_dz = (phi(i_r,i_theta,z_right) - 
+                double dphi_dz = (phi(i_r,i_theta,z_right) -
                             phi(i_r,i_theta,z_left))/z_step;
                 Ex(i_r,i_theta,i_z) = cos(theta)*dphi_dr - sin(theta)*dphi_dtheta/r;
                 Ey(i_r,i_theta,i_z) = sin(theta)*dphi_dr + cos(theta)*dphi_dtheta/r;
@@ -495,9 +494,31 @@ interpolate_3d(double x1, double x2, double x3,
     return val;
 }
 
+inline
+double
+interpolate_3d_cyl(double x1, double x2, double x3,
+               const Cylindrical_field_domain &fdomain,
+               const Array_3d<double> &points)
+{
+    // Interpolate between grid points. There is no unique scheme to do this
+    // in 3D, so we choose to use trilinear interpolation.
+    std::vector<int> c(3); // c for corner
+    std::vector<double> f(3); // f for fractional difference
+    fdomain.get_leftmost_indices_offsets(x1,x2,x3,c,f);
+    double val = ((1.0 - f[0]) * (1.0 - f[1]) * (1.0 - f[2]) * points(c[0],c[1],c[2]) +
+            f[0] * (1.0 - f[1]) * (1.0 - f[2]) * points(c[0] + 1, c[1], c[2]) +
+            (1.0 - f[0]) * f[1] * (1.0 - f[2]) * points(c[0], c[1] + 1, c[2]) +
+            (1.0 - f[0]) * (1.0 - f[1]) * f[2] * points(c[0], c[1], c[2] + 1) +
+            f[0] * f[1] * (1.0 - f[2]) * points(c[0] + 1, c[1] + 1, c[2]) +
+            f[0] * (1.0 - f[1]) * f[2] * points(c[0] + 1, c[1], c[2] + 1) +
+            (1.0 - f[0]) * f[1] * f[2] * points(c[0], c[1] + 1, c[2] + 1) +
+            f[0] * f[1] * f[2] * points(c[0] + 1, c[1] + 1, c[2] + 1));
+    return val;
+}
+
 void
-full_kick_cylindrical(const Field_domain &fdomain,
-                      Array_3d<double> &phi, double tau, 
+full_kick_cylindrical(const Cylindrical_field_domain &fdomain,
+                      Array_3d<double> &phi, double tau,
                       Macro_bunch_store &mbs, Array_2d<double> &coords)
 {
     std::vector<int> shape = fdomain.get_grid_shape();
@@ -505,7 +526,7 @@ full_kick_cylindrical(const Field_domain &fdomain,
     Array_3d<double> Ey(shape[0],shape[1],shape[2]);
     Array_3d<double> Ez(shape[0],shape[1],shape[2]);
     calculate_E_cylindrical(fdomain,phi,Ex,Ey,Ez);
-    
+
     // jfa: I am taking this calculation of "factor" more-or-less
     // directly from Impact.  I should really redo it in terms that make
     // sense to me
@@ -534,19 +555,19 @@ full_kick_cylindrical(const Field_domain &fdomain,
         double z = coords(2,n);
         //~ std::cout << "jfa: " << xyfactor << " " << interpolate_3d(r,theta,z,fdomain,Ex) << std::endl;
         mbs.local_particles(0,n) += xyfactor*
-                interpolate_3d(r,theta,z,fdomain,Ex);
+                interpolate_3d_cyl(r,theta,z,fdomain,Ex);
         jfa_total_kick_x += fabs(xyfactor*
-                interpolate_3d(r,theta,z,fdomain,Ex));
+                interpolate_3d_cyl(r,theta,z,fdomain,Ex));
         mbs.local_particles(2,n) += xyfactor*
-                interpolate_3d(r,theta,z,fdomain,Ey);
+                interpolate_3d_cyl(r,theta,z,fdomain,Ey);
         jfa_total_kick_y += fabs(xyfactor*
-                interpolate_3d(r,theta,z,fdomain,Ey));
+                interpolate_3d_cyl(r,theta,z,fdomain,Ey));
         mbs.local_particles(4,n) += zfactor*
-                interpolate_3d(r,theta,z,fdomain,Ez);
+                interpolate_3d_cyl(r,theta,z,fdomain,Ez);
         jfa_total_kick_z += fabs(zfactor*
-                interpolate_3d(r,theta,z,fdomain,Ez));
+                interpolate_3d_cyl(r,theta,z,fdomain,Ez));
     }
-    std::cout << "jfa average kick x: " << jfa_total_kick_x/mbs.local_num << std::endl;
-    std::cout << "jfa average kick y: " << jfa_total_kick_y/mbs.local_num << std::endl;
-    std::cout << "jfa average kick z: " << jfa_total_kick_z/mbs.local_num << std::endl;
+//    std::cout << "jfa average kick x: " << jfa_total_kick_x/mbs.local_num << std::endl;
+//    std::cout << "jfa average kick y: " << jfa_total_kick_y/mbs.local_num << std::endl;
+//    std::cout << "jfa average kick z: " << jfa_total_kick_z/mbs.local_num << std::endl;
 }

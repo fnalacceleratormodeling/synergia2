@@ -16,10 +16,10 @@ void solve_tridiag_nonsym(const Array_1d<std::complex<double> > &diag,
                           const Array_1d<std::complex<double> > &belowdiag,
                           const Array_1d<std::complex<double> > &rhs,
                           Array_1d<std::complex<double> > &x);
-void solve_cylindrical_finite_periodic(const Field_domain &fdomain,
+void solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
                                        Array_3d<double> &rho,
                                        Array_3d<double> &phi);
-void full_kick_cylindrical(const Field_domain &fdomain,
+void full_kick_cylindrical(const Cylindrical_field_domain &fdomain,
                            Array_3d<double> &phi, double tau,
                            Macro_bunch_store &mbs, Array_2d<double> &coords);
 #endif // HAVE_CYLINDRICAL_H
