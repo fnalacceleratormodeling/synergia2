@@ -65,7 +65,7 @@ def get_alpha_beta(my_gourmet):
     return (alpha_x, alpha_y, beta_x, beta_y)
 
 envelope_match_cache  = function_cache.Function_cache("envelope_match.cache")
-def envelope_match(emitx,emity,current,g,use_cache=0,use_octave=0):
+def envelope_match(emitx,emity,current,g,use_cache=0,use_octave=0,do_plot=0):
     if use_cache:
         if envelope_match_cache.in_cache(emitx,emity,current,g.get_lattice_file(),
                                          g.get_line_name(),g.get_initial_kinetic_energy()):
@@ -115,7 +115,7 @@ def envelope_match(emitx,emity,current,g,use_cache=0,use_octave=0):
     
     
       retval=envelope_matching.envelope_match(alpha_x, alpha_y, beta_x, beta_y, s, kx, ky,
-           xi, emitx,emity,accuracy=1.0e-9, verbose=True, integrator=4)      
+           xi, emitx,emity,accuracy=1.0e-9, verbose=True, integrator=4,do_plot=do_plot)      
 #     retval= [sigma_x, sigma_xprime, r_x, sigma_y,s igma_yprime, r_y]  
                      
     if retval.count(None) == 0:

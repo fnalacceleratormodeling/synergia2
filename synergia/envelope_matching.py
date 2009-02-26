@@ -1,4 +1,5 @@
 import Numeric
+import numpy
 import time
 from math import sqrt
 import os.path
@@ -19,9 +20,9 @@ def envelope_rhs(s, x, param):
     do_map=param[5]
     
     if do_map:
-	xp = Numeric.zeros((20,), Numeric.Float) 
+	xp = numpy.zeros((20,), 'd') 
     else:
-	xp = Numeric.zeros((4,), Numeric.Float) 
+	xp = numpy.zeros((4,), 'd') 
     
     sigma_x=x[0]
     sigma_y=x[2]	
@@ -63,7 +64,7 @@ def envelope_rhs(s, x, param):
 
 def   envelope_match(alphax, alphay, betax, betay, s_array, kx_array,\
 	ky_array,xi_in,eps_x_in, eps_y_in,\
-	accuracy=1.0e-9, verbose=True, integrator=4):      
+	accuracy=1.0e-9, verbose=True, integrator=4, do_plot=0):      
       print "envelope_matching.py  called" 
    
       stepper_list = [odeiv.step_rk2,odeiv.step_rk4,odeiv.step_rkf45,\
@@ -94,8 +95,8 @@ def   envelope_match(alphax, alphay, betax, betay, s_array, kx_array,\
       sigma_prime_y = betap_y0*eps_y/(2.*sigma_y)
 
 
-      x0 = Numeric.array([sigma_x,sigma_prime_x,sigma_y,sigma_prime_y], Numeric.Float)       
-      delta=Numeric.array([1,1,1,1])
+      x0 = numpy.array([sigma_x,sigma_prime_x,sigma_y,sigma_prime_y], Numeric.Float)       
+      delta=numpy.array([1,1,1,1])
 
       if verbose:
 	print " " 
@@ -113,45 +114,51 @@ def   envelope_match(alphax, alphay, betax, betay, s_array, kx_array,\
 	  print "x        = %e  %e  %e  %e   delta=  %e   ( %f s)"  %\
 	   (x0[0],x0[1],x0[2],x0[3],max(abs(delta)),t1 )
 
-	M0 = Numeric.array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1])
+	M0 = numpy.array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1])
         if do_map:
-          elem_all=Numeric.concatenate((x0,M0),1)
+          elem_all=numpy.concatenate((x0,M0),1)
         else:
          elem_all=x0
 
 	dimension = len(elem_all)
-	for i in range(Numeric.size(kx_array)):	
-	  if i==0:
-	    ss=0
-	  else:	
-	    ss=s_array[i-1] 
-	  s1=s_array[i]		
-	  param[0]=kx_array[i]
-	  param[1]=ky_array[i]
+	n_elem=numpy.size(kx_array)
+	if do_plot:	
+	    elem_stored=numpy.zeros((n_elem, dimension), 'd')
+	
+	for i in range(n_elem):	
+	    if i==0:
+	      ss=0
+	    else:	
+	      ss=s_array[i-1] 
+	    s1=s_array[i]		
+	    param[0]=kx_array[i]
+	    param[1]=ky_array[i]
 
-          step=stepper(dimension,  envelope_rhs, None, param)
-	  control = odeiv.control_y_new(step, 1e-15, 1e-15)
-	  evolve  = odeiv.evolve(step, control, dimension)
-	  h=0.03
+            step=stepper(dimension,  envelope_rhs, None, param)
+	    control = odeiv.control_y_new(step, 1e-15, 1e-15)
+	    evolve  = odeiv.evolve(step, control, dimension)
+	    h=0.03
 	  	  	
-	  for j in range(max_steps):	  
-	    if ss>=s1:		
-		break	
-	    ss,h,elem_all=evolve.apply(ss, s1, h, elem_all)
-	    elem_all=elem_all[-1]	    
+	    for j in range(max_steps):	  
+	      if ss>=s1:		
+		  break	
+	      ss,h,elem_all=evolve.apply(ss, s1, h, elem_all)
+	      elem_all=elem_all[-1]	    
 
-	  else:
-	        raise ValueError, "Maximum number of steps exceeded!"
+	    else:
+	          raise ValueError, "Maximum number of steps exceeded!"
+	    if do_plot:	 
+	       elem_stored[i,0:dimension]=elem_all[0:dimension]	
 	
 	
 	if do_map:
-	  M_matrix=Numeric.array(elem_all[4:20])
-	  M_matrix=Numeric.reshape(M_matrix,(4,4))
-	  Jinv=inverse(Numeric.identity(4)-M_matrix)
-	  F = x0 - Numeric.array(elem_all[0:4])
+	  M_matrix=numpy.array(elem_all[4:20])
+	  M_matrix=numpy.reshape(M_matrix,(4,4))
+	  Jinv=numpy.linalg.inv(numpy.identity(4)-M_matrix)
+	  F = x0 - numpy.array(elem_all[0:4])
 	 
 
-          xnew = x0 - Numeric.matrixmultiply(Jinv, F)
+          xnew = x0 - numpy.dot(Jinv, F)
 	  delta=(xnew - x0)/(1.0+abs(xnew))	 
 	  it=it+1
 	  
@@ -162,7 +169,7 @@ def   envelope_match(alphax, alphay, betax, betay, s_array, kx_array,\
 	  break
 	
 
-      xx=Numeric.array(elem_all[0:4])
+      xx=numpy.array(elem_all[0:4])
       sigma_x = xx[0]
       sigma_xprime=sqrt( (eps_x/sigma_x)**2 + xx[1]**2 )
       r_x=x0[1]/sigma_xprime # ? with minus like in the ocatve script ?
@@ -180,6 +187,12 @@ def   envelope_match(alphax, alphay, betax, betay, s_array, kx_array,\
         print "sigma_y = %e" % sigma_y
         print "sigma_yprime= %e " % sigma_yprime
         print "r_y= %e" % r_y
+	
+      if do_plot:
+          import pylab
+	  sigmax_plot=numpy.zeros(n_elem, 'd')
+	  sigmax_plot[0:n_elem]=elem_stored[0:n_elem, 0]
+	  pylab.plot(s_array, sigmax_plot,'ro',label='env eq')   	
     
       return [sigma_x, sigma_xprime,r_x,sigma_y, sigma_yprime,r_y]
  
