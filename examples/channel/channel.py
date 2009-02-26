@@ -23,13 +23,14 @@ if ( __name__ == '__main__'):
         "conductivity for pipe [/s], default is for stainless steel",float)
     myopts.add("spacecharge",1,"whether to use space charge kicks",int)        
     myopts.add("doplot",1,"show plot",int)
+    myopts.add("current",0.5,"current -- modify at your own risk",float)
 
     myopts.add_suboptions(synergia.opts)
     myopts.parse_argv(sys.argv)
     job_mgr = synergia.Job_manager(sys.argv,myopts,
                                       ["channel.mad"])    
     
-    current = 0.5
+    current = myopts.get("current")
     kinetic_energy = 0.0067
     mass = synergia.PH_NORM_mp
     charge = 1.0
@@ -90,18 +91,26 @@ if ( __name__ == '__main__'):
     diag = synergia.Diagnostics(gourmet.get_initial_u())
     kick_time = 0.0
     
+    use_s2_fish = False
+    use_s2_fish_cylindrical = False
+    use_gauss = False
+    radius=None
     if solver == "3D" or solver == "3d":
-        s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True,
-            impedance=impedance,space_charge=space_charge,
-            pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius, pipe_conduct=pipe_conduct)
+        use_s2_fish = True
     if solver == "3DC" or solver == "3dc":
-        s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,
-            use_s2_fish_cylindrical=True,radius=0.01,
-            impedance=impedance,space_charge=space_charge,
-            pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius,pipe_conduct=pipe_conduct)
+        use_s2_fish_cylindrical = True
+        radius = 0.01
     elif solver =="2D" or solver == "2d":
-        s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_gauss=True,
-            impedance=impedance,pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius,pipe_conduct=pipe_conduct)
+        use_gauss = True
+    s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,
+                           use_s2_fish=use_s2_fish,
+                           use_s2_fish_cylindrical=use_s2_fish_cylindrical,
+                           use_gauss=use_gauss,
+                           radius=radius,
+                           periodic=True,
+                           impedance=impedance,space_charge=space_charge,
+                           pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius,
+                           pipe_conduct=pipe_conduct)
     print "elapsed time =",time.time() - t0,"on rank", MPI.COMM_WORLD.Get_rank()
     bunch.write_particles("end")
     diag.write_hdf5("channel")
