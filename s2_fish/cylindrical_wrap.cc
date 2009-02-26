@@ -9,35 +9,34 @@ using namespace boost::python;
 
 #include <iostream>
 
-void 
-get_cylindrical_coords_wrapper(Macro_bunch_store &mbs, 
+void
+get_cylindrical_coords_wrapper(Macro_bunch_store &mbs,
     object &coords)
 {
-    Array_2d<double> coords_array = 
+    Array_2d<double> coords_array =
         Array_nd_from_PyObject<double>(coords.ptr());
     get_cylindrical_coords(mbs,coords_array);
 }
 
 void
-deposit_charge_cic_cylindrical_wrapper(const Cylindrical_field_domain &fdomain, 
+deposit_charge_cic_cylindrical_wrapper(const Cylindrical_field_domain &fdomain,
     object &rho , Macro_bunch_store& mbs,
     const object &coords)
 {
-    Array_3d<double > rho_array = 
+    Array_3d<double > rho_array =
         Array_nd_from_PyObject<double>(rho.ptr());
-    Array_2d<double> coords_array = 
+    Array_2d<double> coords_array =
         Array_nd_from_PyObject<double>(coords.ptr());
     deposit_charge_cic_cylindrical(fdomain, rho_array, mbs, coords_array);
-    std::cout << "jfa: about to return from deposit_charge_cic_cylindrical_wrapper\n";
 }
 
-void 
-solve_cylindrical_finite_periodic_wrapper(const Field_domain &fdomain,
+void
+solve_cylindrical_finite_periodic_wrapper(const Cylindrical_field_domain &fdomain,
     object &rho, object &phi)
 {
-    Array_3d<double > rho_array = 
+    Array_3d<double > rho_array =
         Array_nd_from_PyObject<double>(rho.ptr());
-    Array_3d<double > phi_array = 
+    Array_3d<double > phi_array =
         Array_nd_from_PyObject<double>(phi.ptr());
     solve_cylindrical_finite_periodic(fdomain, rho_array, phi_array);
 }
@@ -49,22 +48,22 @@ solve_tridiag_nonsym_wrapper(object &diag,
                              object &rhs,
                              object &x)
 {
-    Array_1d<std::complex<double> > diag_array = 
+    Array_1d<std::complex<double> > diag_array =
         Array_nd_from_PyObject<std::complex<double> >(diag.ptr());
-    Array_1d<std::complex<double> > abovediag_array = 
+    Array_1d<std::complex<double> > abovediag_array =
         Array_nd_from_PyObject<std::complex<double> >(abovediag.ptr());
-    Array_1d<std::complex<double> > belowdiag_array = 
+    Array_1d<std::complex<double> > belowdiag_array =
         Array_nd_from_PyObject<std::complex<double> >(belowdiag.ptr());
-    Array_1d<std::complex<double> > rhs_array = 
+    Array_1d<std::complex<double> > rhs_array =
         Array_nd_from_PyObject<std::complex<double> >(rhs.ptr());
-    Array_1d<std::complex<double> > x_array = 
+    Array_1d<std::complex<double> > x_array =
         Array_nd_from_PyObject<std::complex<double> >(x.ptr());
     solve_tridiag_nonsym(diag_array,abovediag_array,belowdiag_array,
         rhs_array,x_array);
 }
 
 void
-full_kick_cylindrical_wrapper(const Field_domain &fdomain,
+full_kick_cylindrical_wrapper(const Cylindrical_field_domain &fdomain,
                               object &phi, double tau,
                               Macro_bunch_store &mbs, object &coords)
 {
@@ -90,10 +89,10 @@ BOOST_PYTHON_MODULE(s2_solver_cylindrical)
 //     Cylindrical_field_domain(double radius, double length,
 //                              const std::vector<int> &grid_shape,
 //                              bool periodic_z);
-// 
+//
 //         // jfa: The name get_leftmost_indices_offsets is possibly misleading
 //     void get_leftmost_indices_offsets(double c0, double c1, double c2,
-//                                       std::vector<int> &indices, 
+//                                       std::vector<int> &indices,
 //                                       std::vector<double> &offsets) const;
 //     const std::vector<int> &get_grid_shape() const;
 

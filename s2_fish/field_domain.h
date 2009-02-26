@@ -56,10 +56,12 @@ class Cylindrical_field_domain
 
         // jfa: The name get_leftmost_indices_offsets is possibly misleading
         void get_leftmost_indices_offsets(double c0, double c1, double c2,
-                                          std::vector<int> &indices, 
+                                          std::vector<int> &indices,
                                           std::vector<double> &offsets) const;
         const std::vector<int> &get_grid_shape() const;
         const std::vector<double> &get_cell_size() const;
+        const double get_length() const;
+        const double get_radius() const;
 };
 
 #endif // HAVE_FIELD_DOMAIN_H

@@ -59,11 +59,12 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
                         pipe_radiusy=pipe_radiusy,pipe_conduct=pipe_conduct,
                         bunch_spacing=bunch_spacing)
                 elif use_s2_fish_cylindrical:
-                    raise RuntimeError,"jfa: temporarily broken!!!!"
                     s2_fish.apply_cylindrical_space_charge_kick(grid_dim,
                         radius,bunch,2*tau,aperture=aperture,space_charge=space_charge,
-                        impedance=impedance,pipe_radius=pipe_radius,
-                        pipe_conduct=pipe_conduct)
+                        impedance=impedance,impedance_pipe_radiusx=pipe_radiusx,
+                        impedance_pipe_radiusy=pipe_radiusy,
+                        pipe_conduct=pipe_conduct,
+                        bunch_spacing=bunch_spacing)
                 elif use_impact:
                     raise RuntimeError,"jfa: temporarily broken!!!!"
                     if not have_impact:
@@ -82,8 +83,12 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
                         field.get_pipe_radius(),
                         tau, 0, bunch.get_scaling_frequency(),0)
                 elif use_gauss:
-                    raise RuntimeError,"jfa: temporarily broken!!!!"
-                    s2_fish.apply_BasErs_space_charge_kick(bunch, 2*tau)
+                    s2_fish.apply_BasErs_space_charge_kick(bunch, 2*tau,
+                        space_charge=space_charge,
+                        impedance=impedance,impedance_pipe_radiusx=pipe_radiusx,
+                        impedance_pipe_radiusy=pipe_radiusy,
+                        pipe_conduct=pipe_conduct,
+                        bunch_spacing=bunch_spacing)
                 elif use_none:
                     pass
                 else:
