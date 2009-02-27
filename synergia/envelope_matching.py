@@ -62,9 +62,13 @@ def envelope_rhs(s, x, param):
 
     return xp
 
-def   envelope_match(alphax, alphay, betax, betay, s_array, kx_array,\
-	ky_array,xi_in,eps_x_in, eps_y_in,\
-	accuracy=1.0e-9, verbose=True, integrator=4, do_plot=0):      
+#def   envelope_match(alphax, alphay, betax, betay, s_array, kx_array,\
+#	ky_array,xi_in,eps_x_in, eps_y_in,\
+#	accuracy=1.0e-9, verbose=True, integrator=4, do_plot=0):   
+	   
+def   envelope_match(widths, s_array, kx_array,ky_array,xi_in,\
+	accuracy=1.0e-9, verbose=True, integrator=4, do_map=True, do_plot=0):   	   
+      
       print "envelope_matching.py  called" 
    
       stepper_list = [odeiv.step_rk2,odeiv.step_rk4,odeiv.step_rkf45,\
@@ -74,25 +78,30 @@ def   envelope_match(alphax, alphay, betax, betay, s_array, kx_array,\
       if verbose:
         print "using integration method:  ", stepper	   
       
-      do_map=True
+
       epsilon = accuracy      
-      eps_x = eps_x_in
-      eps_y = eps_y_in
+      eps_x = sqrt((widths[0]**2)*(widths[1]**2)*(1-widths[2]**2))
+      eps_y = sqrt((widths[3]**2)*(widths[4]**2)*(1-widths[5]**2))
       xi=xi_in     #  4.0*Q**2*r0*lambd/(A*beta**2*gamma**3)
       
-      param=[0.,0., eps_x,eps_y, xi, True] # param=[kx,ky, eps_x,eps_y, xi, True] 
+      param=[0.,0., eps_x,eps_y, xi, do_map] # param=[kx,ky, eps_x,eps_y, xi, True] 
    
       
-      beta_x0 = betax
-      betap_x0 = -2.*alphax
-      beta_y0 = betay
-      betap_y0 = -2.*alphay
+      #beta_x0 = betax
+      #betap_x0 = -2.*alphax
+      #beta_y0 = betay
+      #betap_y0 = -2.*alphay
       
-      sigma_x = sqrt(eps_x*beta_x0)
-      sigma_prime_x = betap_x0*eps_x/(2.*sigma_x)
+      #sigma_x = sqrt(eps_x*beta_x0)
+      #sigma_prime_x = betap_x0*eps_x/(2.*sigma_x)
        
-      sigma_y = sqrt(eps_y*beta_y0)
-      sigma_prime_y = betap_y0*eps_y/(2.*sigma_y)
+      #sigma_y = sqrt(eps_y*beta_y0)
+      #sigma_prime_y = betap_y0*eps_y/(2.*sigma_y)
+      sigma_x = widths[0]
+      sigma_prime_x=widths[1]*widths[2]
+
+      sigma_y = widths[3]
+      sigma_prime_y=widths[4]*widths[5]
 
 
       x0 = numpy.array([sigma_x,sigma_prime_x,sigma_y,sigma_prime_y], Numeric.Float)       
@@ -130,6 +139,7 @@ def   envelope_match(alphax, alphay, betax, betay, s_array, kx_array,\
 	      ss=0
 	    else:	
 	      ss=s_array[i-1] 
+	    
 	    s1=s_array[i]		
 	    param[0]=kx_array[i]
 	    param[1]=ky_array[i]
@@ -172,11 +182,11 @@ def   envelope_match(alphax, alphay, betax, betay, s_array, kx_array,\
       xx=numpy.array(elem_all[0:4])
       sigma_x = xx[0]
       sigma_xprime=sqrt( (eps_x/sigma_x)**2 + xx[1]**2 )
-      r_x=x0[1]/sigma_xprime # ? with minus like in the ocatve script ?
+      r_x=x0[1]/sigma_xprime 
       
       sigma_y = xx[2]
       sigma_yprime=sqrt( (eps_y/sigma_y)**2 + xx[3]**2 )
-      r_y=xx[3]/sigma_yprime # ? with minus, like in the ocatve script ?
+      r_y=xx[3]/sigma_yprime 
     
       if verbose: 
         print "x_final  = %e  %e  %e  %e  ( %f s total time)" % (x0[0],x0[1],x0[2],x0[3],time.time()-t00)
@@ -190,9 +200,17 @@ def   envelope_match(alphax, alphay, betax, betay, s_array, kx_array,\
 	
       if do_plot:
           import pylab
-	  sigmax_plot=numpy.zeros(n_elem, 'd')
-	  sigmax_plot[0:n_elem]=elem_stored[0:n_elem, 0]
-	  pylab.plot(s_array, sigmax_plot,'ro',label='env eq')   	
+	  
+	  sigma_plot=numpy.zeros(n_elem, 'd')
+	  sigma_plot[0:n_elem]=elem_stored[0:n_elem, 0]
+	  pylab.figure(1)
+	  pylab.plot(s_array, sigma_plot,'ro',label='env eq ')   
+
+
+	  for i in range(n_elem):
+	     sigma_plot[i]= sqrt( (eps_x/elem_stored[i, 0])**2 + elem_stored[i, 1]**2 )
+	  pylab.figure(2)
+	  pylab.plot(s_array, sigma_plot,'ro',label='env eq')   	
     
       return [sigma_x, sigma_xprime,r_x,sigma_y, sigma_yprime,r_y]
  
