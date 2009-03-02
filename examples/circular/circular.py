@@ -87,7 +87,7 @@ if ( __name__ == '__main__'):
     ee.start()
     gourmet = synergia.Gourmet(os.path.join(os.getcwd(),myopts.get("latticefile"))
         ,"model",kinetic_energy,
-                        scaling_frequency)
+                        scaling_frequency, myopts.get("maporder"))
 
 ### insert rf freq
     for element in gourmet.beamline:
