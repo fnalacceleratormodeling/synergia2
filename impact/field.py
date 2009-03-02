@@ -1,6 +1,11 @@
 #!/usr/bin/env python
 
-from UberPkgpy import *
+have_impact = True
+try:
+    from UberPkgpy import *
+except:
+    have_impact = False
+
 from synergia import physics_constants
 import math
 

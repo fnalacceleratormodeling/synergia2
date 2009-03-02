@@ -1,6 +1,10 @@
 #!/usr/bin/env python
 
-from UberPkgpy import Apply_SpaceCharge_external as apply_space_charge_kick
+have_impact = True
+try:
+    from UberPkgpy import Apply_SpaceCharge_external as apply_space_charge_kick
+except:
+    have_impact = False
 
 def adjust_particles(base,procs):
     retval = base

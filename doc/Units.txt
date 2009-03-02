@@ -1,0 +1,47 @@
+
+X = x/l        P_x = p_x/d
+
+Y = y/l        P_y = p_y/d
+
+T = w t        P_t = p_t/(w l d), p_t = - gamma m c^2
+
+If we want to specify the Longitudinal coordinates in Z [m], Pz [GeV/C] then
+Z = z/(betta l), P_t = p_z/(beta m)
+
+X, P, T are in "natural" units
+
+IMPACT: user specifies w, w = 2 pi f, f is frequency in MHz or something of the
+        like.
+        l = c/w
+        d = m c
+
+Mary Lie (old): user specifies l
+                w = c/l
+                d = p0  = gamma_0 beta_0 m c
+
+Mary Lie (new): "magnetic" (original ML)
+                "dynamic"  (IMPACT)
+
+		user specifies l, d, w
+
+------------------------------------------------------------------------------
+
+MAD 8:
+
+X [m] (X = x)
+P_x = P_x/P0
+T   = - c t [m]
+P_t = D_E/(P0 c)
+
+MAD 9:
+
+X, Px, Y, Py a' la MAD8
+
+T= - p0 c T
+
+PT = DE/P0c
+
+-------------------------------------------------------------------------------
+
+ 
+

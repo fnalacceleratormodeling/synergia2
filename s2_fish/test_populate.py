@@ -2,8 +2,8 @@
 
 import populate
 import numpy
-import numpy
-from ArrayPrinter import array2string
+#import numpy
+#from ArrayPrinter import array2string
 
 import unittest
 import sys
@@ -46,23 +46,26 @@ class Test_populate(unittest.TestCase):
                     covs[i,j] = 0.1*(j+1.0)
                     covs[j,i] = 0.1*(j+1.0)
 
-        found_covs = numpy.cov(numpy.transpose(p))
-        found_means = numpy.mean(numpy.transpose(p))
+	found_covs = numpy.cov(p)
+	found_means = numpy.mean(p,1)
+#        found_covs = numpy.cov(numpy.transpose(p))
+#        found_means = numpy.mean(numpy.transpose(p),axis=0)
         
-        #~ print "actual covariances"
-        #~ print array2string(found_covs[0:6,0:6],suppress_small=1,precision=4)
-        #~ print "actual means"
-        #~ print found_means
+        print "actual covariances"
+	print found_covs 
+#        print numpy.array2string(found_covs[0:6,0:6],suppress_small=1,precision=4)
+        print "actual means"
+        print found_means
 
         for i in range(0,6):
             self.assertAlmostEqual(means[i],found_means[i])
             for j in range(0,6):
                 self.assertAlmostEqual(covs[i,j],found_covs[i,j]*(N-1.0)/N) # N vs. N-1!!!!!!!
-        
         #~ pylab.figure(0)
         #~ pylab.plot(p[0,:],p[2,:],'.')
 
     def test_02_populate_6d_gaussian_quasi(self):
+	
         N = 10000
         p = numpy.zeros((7,N),'d')
         covs = numpy.zeros((6,6),'d')
@@ -95,9 +98,11 @@ class Test_populate(unittest.TestCase):
                 if (i+1 == j) and (i%2 == 0):
                     covs[i,j] = 0.1*(j+1.0)
                     covs[j,i] = 0.1*(j+1.0)
-
-        found_covs = numpy.cov(numpy.transpose(p))
-        found_means = numpy.mean(numpy.transpose(p))
+        
+	found_covs = numpy.cov(p)
+	found_means = numpy.mean(p,1)
+#        found_covs = numpy.cov(numpy.transpose(p))
+#        found_means = numpy.mean(numpy.transpose(p))
         
         #~ print "actual covariances"
         #~ print array2string(found_covs[0:6,0:6],suppress_small=1,precision=4)
@@ -112,7 +117,7 @@ class Test_populate(unittest.TestCase):
         #~ pylab.figure(1)
         #~ pylab.plot(p[0,:],p[2,:],'.')
 
-    def test_03_populate_6d_gaussian_transverse(self):
+    def test_03_populate_6d_gaussian_transverse(self):	
         N = 10000
         p = numpy.zeros((7,N),'d')
         covs = numpy.zeros((6,6),'d')
@@ -146,8 +151,11 @@ class Test_populate(unittest.TestCase):
                     covs[i,j] = 0.1*(j+1.0)
                     covs[j,i] = 0.1*(j+1.0)
 
-        found_covs = numpy.cov(numpy.transpose(p))
-        found_means = numpy.mean(numpy.transpose(p))
+        
+	found_covs = numpy.cov(p)
+	found_means = numpy.mean(p,1)
+#	found_covs = numpy.cov(numpy.transpose(p))
+#        found_means = numpy.mean(numpy.transpose(p))
         
         #~ print "actual covariances"
         #~ print array2string(found_covs[0:6,0:6],suppress_small=1,precision=4)
@@ -164,7 +172,7 @@ class Test_populate(unittest.TestCase):
             #~ pylab.subplot(2,3,i+1)
             #~ pylab.hist(p[i,:],50)
 
-    def test_04_populate_6d_gaussian_transverse_quasi(self):
+    def test_04_populate_6d_gaussian_transverse_quasi(self):   
         N = 10000
         p = numpy.zeros((7,N),'d')
         covs = numpy.zeros((6,6),'d')
@@ -198,8 +206,10 @@ class Test_populate(unittest.TestCase):
                     covs[i,j] = 0.1*(j+1.0)
                     covs[j,i] = 0.1*(j+1.0)
 
-        found_covs = numpy.cov(numpy.transpose(p))
-        found_means = numpy.mean(numpy.transpose(p))
+        found_covs = numpy.cov(p)
+	found_means = numpy.mean(p,1)
+        #found_covs = numpy.cov(numpy.transpose(p))
+        #found_means = numpy.mean(numpy.transpose(p))
         
         #~ print "actual covariances"
         #~ print array2string(found_covs[0:6,0:6],suppress_small=1,precision=4)
@@ -216,7 +226,7 @@ class Test_populate(unittest.TestCase):
             #~ pylab.subplot(2,3,i+1)
             #~ pylab.hist(p[i,:],50)
 
-    def test_04_populate_uniform_cylinder(self):
+    def test_04_populate_uniform_cylinder(self):   
         N = 10000
         p = numpy.zeros((7,N),'d')
         covs = numpy.zeros((6,6),'d')
@@ -244,8 +254,10 @@ class Test_populate(unittest.TestCase):
                 if i==j:
                     covs[i,j] = 2.0
 
-        found_covs = numpy.cov(numpy.transpose(p))
-        found_means = numpy.mean(numpy.transpose(p))
+	found_covs = numpy.cov(p)
+	found_means = numpy.mean(p,1)
+        #found_covs = numpy.cov(numpy.transpose(p))
+        #found_means = numpy.mean(numpy.transpose(p))
         
         #~ print "actual covariances"
         #~ print array2string(found_covs[0:6,0:6],suppress_small=1,precision=4)
@@ -265,7 +277,7 @@ class Test_populate(unittest.TestCase):
         #~ pylab.plot(p[0,:],p[2,:],'.')
         #~ pylab.axis('equal')
 
-    def test_05_populate_uniform_cylinder_quasi(self):
+    def test_05_populate_uniform_cylinder_quasi(self):  
         N = 10000
         p = numpy.zeros((7,N),'d')
         covs = numpy.zeros((6,6),'d')
@@ -292,9 +304,10 @@ class Test_populate(unittest.TestCase):
             for j in range(0,6):
                 if i==j:
                     covs[i,j] = 2.0
-
-        found_covs = numpy.cov(numpy.transpose(p))
-        found_means = numpy.mean(numpy.transpose(p))
+        found_covs = numpy.cov(p)
+	found_means = numpy.mean(p,1)
+        #found_covs = numpy.cov(numpy.transpose(p))
+        #found_means = numpy.mean(numpy.transpose(p))
         
         #~ print "actual covariances"
         #~ print array2string(found_covs[0:6,0:6],suppress_small=1,precision=4)

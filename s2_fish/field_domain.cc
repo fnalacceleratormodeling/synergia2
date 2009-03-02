@@ -3,7 +3,7 @@
 #include "math_constants.h"
 #include <cmath>
 
-void 
+void
 Field_domain::construct(const std::vector<double> &physical_size,
     const std::vector<double> &physical_offset,
     const std::vector<int> &grid_shape,
@@ -13,7 +13,7 @@ Field_domain::construct(const std::vector<double> &physical_size,
     this->physical_offset = physical_offset;
     this->grid_shape = grid_shape;
     this->periodic = periodic;
-    
+
     left.resize(3);
     cell_size.resize(3);
     for (int i = 0; i < 3; ++i) {
@@ -25,7 +25,7 @@ Field_domain::construct(const std::vector<double> &physical_size,
 Field_domain::Field_domain()
 {
     std::vector<double> zero_d = vector3<double>(0.0,0.0,0.0);
-    std::vector<int> two_i = vector3<int>(2,2,2); 
+    std::vector<int> two_i = vector3<int>(2,2,2);
     std::vector<bool> zero_b = vector3<bool>(false,false,false);
     construct(zero_d,zero_d,two_i,zero_b);
 }
@@ -76,7 +76,7 @@ Field_domain::get_leftmost_indices_offsets(double c0, double c1, double c2,
         std::vector<int> &indices, std::vector<double> &offsets) const
 {
     double scaled_location;
-    
+
     scaled_location = (c0 - left[0])/cell_size[0];
     offsets[0] = scaled_location - static_cast<int>(floor(scaled_location));
     indices[0] = static_cast<int>(floor(scaled_location));
@@ -105,9 +105,9 @@ Cylindrical_field_domain::Cylindrical_field_domain(double radius, double length,
     cell_size[2] = length/grid_shape[2];
 }
 
-void 
+void
 Cylindrical_field_domain::get_leftmost_indices_offsets(double c0, double c1, double c2,
-                                          std::vector<int> &indices, 
+                                          std::vector<int> &indices,
                                           std::vector<double> &offsets) const
 {
     double scaled_location;
@@ -132,7 +132,19 @@ Cylindrical_field_domain::get_grid_shape() const
 }
 
 const std::vector<double> &
-        Cylindrical_field_domain::get_cell_size() const
+Cylindrical_field_domain::get_cell_size() const
 {
     return cell_size;
+}
+
+const double
+Cylindrical_field_domain::get_length() const
+{
+    return length;
+}
+
+const double
+Cylindrical_field_domain::get_radius() const
+{
+    return radius;
 }

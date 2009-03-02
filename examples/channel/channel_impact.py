@@ -56,9 +56,7 @@ if ( __name__ == '__main__'):
 
     sys.stdout.flush()
 
-    print "jfa debug 1"
     pgrid = impact.Processor_grid(1)
-    print "jfa debug 2"
     cgrid = impact.Computational_grid(griddim[0],griddim[1],griddim[2],
                                                   BC_choice)
     piperad = 0.04
@@ -91,6 +89,6 @@ if ( __name__ == '__main__'):
     pylab.ylabel('std<x> (m)')
 
     pylab.plot(dimpact.s,dimpact.std[:,synergia.x],'o',label='impact (saved)')
-    pylab.plot(diag.s,diag.std[0],'r+',label='impact (current)')
+    pylab.plot(diag.s,diag.std[0],'r+',markersize=15.0,label='impact (current)')
     pylab.legend(loc=0)
     pylab.show()

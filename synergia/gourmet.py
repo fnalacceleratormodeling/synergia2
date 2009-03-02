@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-from basic_toolkit import *
 from bmlfactory import *
+from basic_toolkit import *
 from mxyzptlk import *
 from beamline import *
 from physics_toolkit import *
@@ -70,6 +70,7 @@ class Gourmet:
         if os.path.splitext(lattice_file)[1] == '.xsif':
             #~ print "gourmet: using xsif parser for %s" % lattice_file
             self.factory = XSIFFactory(lattice_file)
+            line_name = line_name.upper()
         else:
             #~ print "gourmet: using MAD8 parser for %s" % os.path.abspath(lattice_file)
             self.factory = MAD8Factory(os.path.abspath(lattice_file))
