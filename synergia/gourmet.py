@@ -432,6 +432,20 @@ class Gourmet:
             map[6,6] = 1.0
             linear_maps.append(map)
         return linear_maps
+
+    # reorder chef maps but don't apply scaling
+    def _convert_linear_chef_maps(self, chef_linear_maps):
+        linear_maps = []
+        for chef_map in chef_linear_maps:
+            map = numpy.zeros((7,7),'d')
+            for row in range(0,6):
+                for column in range(0,6):
+                    chef_row = int(row/2+3*(row%2))
+                    chef_column = int(column/2+3*(column%2))
+                    map[row,column] = chef_map.get(chef_row,chef_column)
+            map[6,6] = 1.0
+            linear_maps.append(map)
+        return linear_maps
     
     def generate_fast_mappings(self):
         self._commission()
@@ -509,6 +523,12 @@ class Gourmet:
         jet_particle = self.get_initial_jet_particle()
         self.beamline.propagate(jet_particle)
         return self._convert_linear_maps([jet_particle.State().jacobian()])[0]
+
+    def get_single_linear_chef_map(self):
+        self._commission()
+        jet_particle = self.get_initial_jet_particle()
+        self.beamline.propagate(jet_particle)
+        return self._convert_linear_chef_maps([jet_particle.State().jacobian()])[0]
 
     def get_single_fast_map(self):
         self._commission()
