@@ -66,10 +66,12 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
                         pipe_conduct=pipe_conduct,
                         bunch_spacing=bunch_spacing)
                 elif use_impact:
-                    raise RuntimeError,"jfa: temporarily broken!!!!"
                     if not have_impact:
                         raise RuntimeError, \
-                            "propagate with use_impact=True requires a working impact module"                        
+                            "propagate with use_impact=True requires a working impact module"
+                    if impedance:
+                        raise RuntimeError,\
+                            "impact solvers cannot currently be combined with impedance"
                     if ((pgrid == None) or (field == None) or (cgrid == None)):
                         raise RuntimeError, \
                             "propagate with use_impact=True requires pgrid, field and cgrid to be specified"
