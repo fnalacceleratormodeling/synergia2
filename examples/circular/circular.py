@@ -19,8 +19,10 @@ if ( __name__ == '__main__'):
     myopts.add("transverse",0,"longitudinally uniform beam",int)
     myopts.add("maporder",2,"map order",int)
     myopts.add("emittance",5.89533703303356e-07,"emittance",float)
-    myopts.add("dpop",1.0e-10,"(delta p)/p RMS width",float)
-    myopts.add("dpopoffset", 1.0e-4, "offset in dpop", float)
+    # longitudinal beta is 143.6
+    myopts.add("dpop",3.482e-4,"(delta p)/p RMS width",float)
+    myopts.add("bunchlen", 0.05, "RMS bunchs length (z width) [m]", float)
+    myopts.add("dpopoffset", 0.0, "offset in dpop", float)
     myopts.add("kicks",32,"kicks per line",int)
     myopts.add("turns",10,"number of turns",int)
     myopts.add("latticefile","foborodobo_s.lat","",str)
@@ -28,6 +30,8 @@ if ( __name__ == '__main__'):
     myopts.add("lgridnum",64,"",int)
     myopts.add("xoffset",0,"transverse offset in x",float)
     myopts.add("yoffset",0,"transverse offset in y",float)
+    myopts.add("xpoffset", 0, "offset in x-prime", float)
+    myopts.add("ypoffset", 0, "offset in y-prime", float)
 #    myopts.add("zoffset",0,"offset in z", float)
 #    myopts.add("xoffset",4.26e-4,"transverse offset in x",float)
 #    myopts.add("yoffset",1.86e-4,"transverse offset in y",float)
@@ -51,6 +55,7 @@ if ( __name__ == '__main__'):
     charge = 1.0
     initial_phase = 0.0
     scaling_frequency = 47713451.5923694
+    #scaling_frequency = 1.0
     pipexradius = 0.03
     pipeyradius = 0.03
 #    pipexradius = 0.123
@@ -63,7 +68,9 @@ if ( __name__ == '__main__'):
     num_particles = int(griddim[0]*griddim[1]*griddim[2] * part_per_cell)
     solver = "3d"
     xoffset = myopts.get("xoffset")
+    xpoffset = myopts.get("xpoffset")
     yoffset = myopts.get("yoffset")
+    ypoffset = myopts.get("ypoffset")
     zoffset = myopts.get("zoffset")
     
     pipe_conduct= 1.4e6 # [/s] (stainless steel)
@@ -80,13 +87,14 @@ if ( __name__ == '__main__'):
     ee.start()
     gourmet = synergia.Gourmet(os.path.join(os.getcwd(),myopts.get("latticefile"))
         ,"model",kinetic_energy,
-                        scaling_frequency)
+                        scaling_frequency, myopts.get("maporder"))
 
 ### insert rf freq
     for element in gourmet.beamline:
         ###print element.Type()
         if element.Type() == 'rfcavity':
             element.setFrequency(59955852.5381452)
+            element.setPhi(math.pi)
             print "my rf cavity frequency is ", element.getRadialFrequency()/(2.0*math.pi)
 
     # try without commissioning
@@ -113,8 +121,7 @@ if ( __name__ == '__main__'):
     
     gourmet.insert_space_charge_markers(kicks_per_line)
     (alpha_x, alpha_y, beta_x, beta_y) = synergia.matching.get_alpha_beta(gourmet)
-    #~ print "(alpha_x, alpha_y, beta_x, beta_y) = %g, %g, %g, %g" % (alpha_x, alpha_y, beta_x, beta_y)
-    
+    print "(alpha_x, alpha_y, beta_x, beta_y) = %g, %g, %g, %g" % (alpha_x, alpha_y, beta_x, beta_y)
     
     beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
                                          initial_phase, scaling_frequency,
@@ -125,13 +132,16 @@ if ( __name__ == '__main__'):
     pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
 
     (xwidth,xpwidth,rx) = synergia.matching.match_twiss_emittance(emittance,alpha_x,beta_x)
-    beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = rx,offset=xoffset)
+    beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,
+                             r = rx,offset=xoffset, offset_p = xpoffset * pz)
     
     (ywidth,ypwidth,ry) = synergia.matching.match_twiss_emittance(emittance,alpha_y,beta_y)
-    beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,r = ry,offset=yoffset)
+    beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,
+                             r = ry,offset=yoffset, offset_p = ypoffset * pz )
     
-    sigma_z_meters = 0.43
-    beam_parameters.z_params(sigma = sigma_z_meters, lam = myopts.get("dpop")* pz, offset=zoffset, offset_p = myopts.get("dpopoffset")*pz)
+    beam_parameters.z_params(sigma = myopts.get("bunchlen"),
+                             lam = myopts.get("dpop")* pz, offset=zoffset,
+                             offset_p = myopts.get("dpopoffset")*pz)
 
     sys.stdout.flush()
     
