@@ -80,7 +80,7 @@ if ( __name__ == '__main__'):
 
     if MPI.COMM_WORLD.Get_rank() ==0:
         print "space_charge =",space_charge
-        print "impedance =",space_charge
+        print "impedance =", impedance
         print "num_particles =",num_particles
 
     ee = synergia.Error_eater()
