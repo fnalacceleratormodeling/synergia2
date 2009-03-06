@@ -43,5 +43,9 @@ PT = DE/P0c
 
 -------------------------------------------------------------------------------
 
- 
+In the code, we often use either "U" or, interchangably, "units" to hold 
+the unit conversions. U is defined as follows:
 
+        X_impact = U X_chef
+        U = diag(u[0],u[1],u[2],u[3],u[4],u[5])
+ 
