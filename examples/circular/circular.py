@@ -54,8 +54,8 @@ if ( __name__ == '__main__'):
     kinetic_energy = energy-mass
     charge = 1.0
     initial_phase = 0.0
-    scaling_frequency = 47713451.5923694
-    #scaling_frequency = 1.0
+    #scaling_frequency = 47713451.5923694
+    scaling_frequency = 1000000
     pipexradius = 0.03
     pipeyradius = 0.03
 #    pipexradius = 0.123
@@ -73,7 +73,7 @@ if ( __name__ == '__main__'):
     ypoffset = myopts.get("ypoffset")
     zoffset = myopts.get("zoffset")
     
-    pipe_conduct= 1.4e6 # [/s] (stainless steel)
+    pipe_conduct= 1.4e6 # [ohm^-1 m^-1] (stainless steel)
     
     impedance=myopts.get("impedance")
     space_charge=myopts.get("space_charge")
@@ -147,16 +147,16 @@ if ( __name__ == '__main__'):
     
     s = 0.0
     line_length = gourmet.orbit_length()
-    bunch_spacing = line_length/588.0
+    bunch_spacing = line_length/myopts.get("bunches")
     if MPI.COMM_WORLD.Get_rank() ==0:
         print "line_length =",line_length
         print "bunch_spacing =",bunch_spacing
     tau = 0.5*line_length/kicks_per_line
     kick_time = 0.0
     beta = beam_parameters.get_beta()
-    current = myopts.get("bunchnp")* \
+    current = myopts.get("bunchnp")* myopts.get("bunches") * \
         synergia.physics_constants.PH_MKS_e/ \
-        (bunch_spacing/(beta*synergia.physics_constants.PH_MKS_c))
+        (line_length/(beta*synergia.physics_constants.PH_MKS_c))
     print "current =",current
     
     numbunches = myopts.get("bunches")
