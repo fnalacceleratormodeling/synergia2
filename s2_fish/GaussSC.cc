@@ -33,31 +33,70 @@ apply_BasErs_kick(Macro_bunch_store &mbs, double sigmaX, double sigmaY, double t
             const  double c = PH_MKS_c;
             const  double pi = M_PI;
 
-            double mass = mbs.mass * 1.0e9;
+//           double mass = mbs.mass * 1.0e9;
             double eps0 = PH_MKS_eps0;
-            double Brho = gamma * beta * mass / c;
-            double perveance0 = mbs.total_current / (2 * pi * eps0 * Brho * gamma * gamma* \
-                                beta * c * beta * c);
-            double LengthScale = mbs.units(2 * n_axis);
+//            double Brho = gamma * beta * mass/ c;
 
-            double factor = pi * perveance0 * gamma * beta * beta / LengthScale * 4.0 * pi;
+
+            //double perveance0 = mbs.total_current / (2 * pi * eps0 * Brho * gamma * gamma* \
+            //                    beta * c * beta * c);
+            //double LengthScale = mbs.units(2 * n_axis);
+            //double factor = pi * perveance0 * gamma * beta * beta / LengthScale * 4.0 * pi;
+            //factor = perveance0* beta*gamma*mbs.mass;//0.93827231;
+
+
+
             // (We think) this is for the Lorentz transformation of the transverse
             // E field.
             //factor *= gamma;
             // the above fudge seemed to work for high energy, for low energy, I had to multiply current by
             // pi/betagamma (checked using channel).  Fudge factor recalculated below:
 
-            factor *= pi / beta;
+//           factor *= pi / beta;
 
-            int index = 2 * n_axis + 1; // for n_axis = (0,1,2) Cartesian coordinate x,y,z,
+
+
+
+
+/*        please check it, although I am almost sure it is right.....
+          In the bunch frame,  
+
+                    (Delta p) = q*E* (Delta t) =factor*Efiled*tau
+                                             
+           where Efiled=normalized field, see BasErs_field.h	    	
+
+            q=p/Brho=PH_CNV_brho_to_p
+	    because p unit is [GeV/c], the charge is measured in  q=c*10e-9
+
+	    E= 1/(2*pi*eps0) *lambda*Efield, 
+	    the line density of charge,lambda= current/v=current/beta*c
+	
+	   so far:  */
+
+           double factor = PH_CNV_brho_to_p*mbs.total_current /(2.*pi*eps0* beta*c);
+	
+//	  the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
+
+//	  in the bunch frame the factor before Efield is	 	
+		
+          factor=factor/(beta*c);
+
+//        the Lorentz transformation to the lab frame introduces a factor of 1/gamma^2
+//        since time interval(in the lab frame)=time interval(in the bunch frame)*gamma
+//        and transversal coordinates x and y  are the same in both frames
+	  factor = factor/(gamma * gamma);
+	
+
+          int index = 2 * n_axis + 1; // for n_axis = (0,1,2) Cartesian coordinate x,y,z,
             // in particle store indexing, px,py,pz = (1,3,5)
-            double kick = Efield[n_axis] * tau * factor ; // the SC kick with the 2D geometric field contribution
+          double kick = Efield[n_axis] * tau * factor ; // the SC kick with the 2D geometric field contribution
 
             //if (ipart < 5) {
             //std::cout << " our kick " << kick << "the 3d kick " << kick2 << " ID " << mbs.local_particles(6,ipart) << std::endl;}
 
             // update the data structure
             mbs.local_particles(index, ipart) += kick;
+           
         }
 
     }
