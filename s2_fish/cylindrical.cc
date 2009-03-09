@@ -544,10 +544,10 @@ full_kick_cylindrical(const Cylindrical_field_domain &fdomain,
 
     double factor = pi * perveance0 * gamma * beta * beta / xk * 4.0 * pi;
     factor *= 1.0 / mbs.total_num;
-    double zfactor = -tau* factor * beta * gamma * gamma;
+    double zfactor = tau* factor * beta * gamma * gamma;
     // (We think) this is for the Lorentz transformation of the transverse
     // E field.
-    double xyfactor = -tau* factor * gamma;
+    double xyfactor = tau* factor * gamma;
     double jfa_total_kick_x = 0.0, jfa_total_kick_y = 0.0, jfa_total_kick_z = 0.0;
     for (int n = 0; n < mbs.local_num; ++n) {
         double r = coords(0,n);
