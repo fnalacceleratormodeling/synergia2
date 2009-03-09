@@ -91,7 +91,7 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
             calculate_rwvars(mbunch.get_store(),zdensity,xmom,ymom,
                      offset[2]-size[2]*0.5,size[2])
             zoffset = 0.0
-            rw_kick(rho,zdensity,xmom,ymom,2*tau, 
+            rw_kick(rho,zdensity,xmom,ymom,tau, 
                     mbunch.get_store(),
                     pipe_radiusx,pipe_radiusy,pipe_conduct,zoffset)
             for index in range(len(zdensities)-1,-1,-1):
