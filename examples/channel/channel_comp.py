@@ -81,7 +81,7 @@ if ( __name__ == '__main__'):
     print "emitx= ", emitx, "emity = ", emity
    
   
-    xwidth=2*xwidth_initial
+    xwidth=xwidth_initial
     xpwidth=0.0049608
     rx=-0.85440
    
@@ -166,6 +166,13 @@ if ( __name__ == '__main__'):
     solver="3d"
     current=current_in
 
+    pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
+    beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = rx,offset=xoffset)
+    beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,r = ry)
+    sigma_z_meters = beam_parameters.get_beta()*synergia.PH_MKS_c/scaling_frequency/math.pi
+    beam_parameters.z_params(sigma = sigma_z_meters, lam = dpop* pz)
+
+    
     bunch = s2_fish.Macro_bunch(mass,1)
     bunch.init_gaussian(num_particles,current,beam_parameters)
     bunch.write_particles("begin")
@@ -175,12 +182,7 @@ if ( __name__ == '__main__'):
     kick_time = 0.0
     
 
-    pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
-    beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = rx,offset=xoffset)
-    beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,r = ry)
-    sigma_z_meters = beam_parameters.get_beta()*synergia.PH_MKS_c/scaling_frequency/math.pi
-    beam_parameters.z_params(sigma = sigma_z_meters, lam = dpop* pz)
-
+  
     t0=time.time()
     s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True,
             impedance=impedance,space_charge=space_charge,
@@ -207,17 +209,10 @@ if ( __name__ == '__main__'):
 
     current=current_in
 
-    griddim=[17,17,17]
-    num_particles = impact.adjust_particles(
-        griddim[0]*griddim[1]*griddim[2] * part_per_cell,MPI.COMM_WORLD.Get_size())
        
     print "num_particles 3d impact=",num_particles
     print "Boundary conditions ", BC_choice
 
-    s = 0.0
-    first_action = 0
-    diag = synergia.Diagnostics_impact(gourmet.get_initial_u())
-    kick_time = 0.0
 
     pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
     beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = rx)
@@ -225,6 +220,11 @@ if ( __name__ == '__main__'):
     sigma_z_meters = beam_parameters.get_beta()*synergia.PH_MKS_c/scaling_frequency/math.pi
     beam_parameters.z_params(sigma = sigma_z_meters, lam = dpop* pz)
 
+    
+    griddim=[17,17,17]
+    num_particles = impact.adjust_particles(
+        griddim[0]*griddim[1]*griddim[2] * part_per_cell,MPI.COMM_WORLD.Get_size())
+    
     pgrid = impact.Processor_grid(1)
     cgrid = impact.Computational_grid(griddim[0],griddim[1],griddim[2],
                                                   BC_choice)
@@ -234,6 +234,10 @@ if ( __name__ == '__main__'):
     bunch = impact.Bunch(current, beam_parameters, num_particles, pgrid)
     bunch.generate_particles()
 
+    s = 0.0
+    first_action = 0
+    diag = synergia.Diagnostics_impact(gourmet.get_initial_u())
+    kick_time = 0.0
     t0=time.time()
     s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_impact=True,
         pgrid=pgrid,field=field,cgrid=cgrid)
@@ -256,17 +260,10 @@ if ( __name__ == '__main__'):
 
     current=0. 
 
-    griddim=[16,16,16]
-    num_particles = impact.adjust_particles(
-        griddim[0]*griddim[1]*griddim[2] * part_per_cell,MPI.COMM_WORLD.Get_size())
        
     print "num_particles 3d impact=",num_particles
     print "Boundary conditions ", BC_choice
 
-    s = 0.0
-    first_action = 0
-    diag = synergia.Diagnostics_impact(gourmet.get_initial_u())
-    kick_time = 0.0
 
     pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
     beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = rx)
@@ -274,6 +271,11 @@ if ( __name__ == '__main__'):
     sigma_z_meters = beam_parameters.get_beta()*synergia.PH_MKS_c/scaling_frequency/math.pi
     beam_parameters.z_params(sigma = sigma_z_meters, lam = dpop* pz)
 
+    
+    
+    griddim=[16,16,16]
+    num_particles = impact.adjust_particles(
+        griddim[0]*griddim[1]*griddim[2] * part_per_cell,MPI.COMM_WORLD.Get_size())
     pgrid = impact.Processor_grid(1)
     cgrid = impact.Computational_grid(griddim[0],griddim[1],griddim[2],
                                                   BC_choice)
@@ -284,6 +286,12 @@ if ( __name__ == '__main__'):
     bunch = impact.Bunch(current, beam_parameters, num_particles, pgrid)
     bunch.generate_particles()
 
+    s = 0.0
+    first_action = 0
+    diag = synergia.Diagnostics_impact(gourmet.get_initial_u())
+    kick_time = 0.0
+    
+    
     t0=time.time()
     s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_impact=True,
         pgrid=pgrid,field=field,cgrid=cgrid)
