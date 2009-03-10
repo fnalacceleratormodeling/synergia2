@@ -284,7 +284,6 @@ class Macro_bunch:
     def write_particles(self,filename,compress_level=1):
         old_pytables = False
         try:
-            print 'pytables major version =',tables.__version__.split('.')[0]
             if tables.__version__.split('.')[0] == '1':
                 old_pytables = True
         except:
