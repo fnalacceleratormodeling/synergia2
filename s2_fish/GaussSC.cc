@@ -32,33 +32,32 @@ apply_BasErs_kick(Macro_bunch_store &mbs, double sigmaX, double sigmaY, double t
             double beta = sqrt(gamma * gamma - 1.0) / gamma;
             const  double c = PH_MKS_c;
             const  double pi = M_PI;
-
-//           double mass = mbs.mass * 1.0e9;
             double eps0 = PH_MKS_eps0;
-//            double Brho = gamma * beta * mass/ c;
+//**************** old attempt **********************************
+/*          double mass = mbs.mass * 1.0e9;          
+            double Brho = gamma * beta * mass/ c;
 
-
-            //double perveance0 = mbs.total_current / (2 * pi * eps0 * Brho * gamma * gamma* \
-            //                    beta * c * beta * c);
-            //double LengthScale = mbs.units(2 * n_axis);
-            //double factor = pi * perveance0 * gamma * beta * beta / LengthScale * 4.0 * pi;
-            //factor = perveance0* beta*gamma*mbs.mass;//0.93827231;
-
-
-
-            // (We think) this is for the Lorentz transformation of the transverse
-            // E field.
-            //factor *= gamma;
-            // the above fudge seemed to work for high energy, for low energy, I had to multiply current by
-            // pi/betagamma (checked using channel).  Fudge factor recalculated below:
-
-//           factor *= pi / beta;
+            double perveance0 = mbs.total_current / (2 * pi * eps0 * Brho * gamma * gamma* \
+                                beta * c * beta * c);
+            double LengthScale = mbs.units(2 * n_axis);
+            double factor = pi * perveance0 * gamma * beta * beta / LengthScale * 4.0 * pi;
+            factor = perveance0* beta*gamma*mbs.mass;//0.93827231;
 
 
 
+             //(We think) this is for the Lorentz transformation of the transverse
+             //E field.
+             factor *= gamma;
+             //the above fudge seemed to work for high energy, for low energy, I had to multiply current by
+             //pi/betagamma (checked using channel).  Fudge factor recalculated below:
+
+             factor *= pi / beta; */
 
 
-/*        please check it, although I am almost sure it is right.....
+//**************************************************************
+
+
+/*       A;ex: please check it, although I am almost sure it is right.....
           In the bunch frame,  
 
                     (Delta p) = q*E* (Delta t) =factor*Efiled*tau
@@ -81,9 +80,20 @@ apply_BasErs_kick(Macro_bunch_store &mbs, double sigmaX, double sigmaY, double t
 		
           factor=factor/(beta*c);
 
-//        the Lorentz transformation to the lab frame introduces a factor of 1/gamma^2
-//        since time interval(in the lab frame)=time interval(in the bunch frame)*gamma
-//        and transversal coordinates x and y  are the same in both frames
+//        the Lorentz transformation to the accelerator
+//                        frame introduces a factor of 1/gamma^2
+//        where:
+//        1/gamma is due to the time interval of the kick,
+//        since time interval(in the acc frame)=time interval(in the bunch frame)*gamma
+//
+//        transversal coordinates x and y and momenta
+//        px and py are the same in both frames, 
+// 
+//        and:
+//        1/gamma is due to the charge density transformation between the frames
+//        rho_charge (in the acc frame)=  rho_charge (in the bunch frame)*gamma
+//        remember that the current I=lambda*beta*c is defined in the acc frame 
+
 	  factor = factor/(gamma * gamma);
 	
 
