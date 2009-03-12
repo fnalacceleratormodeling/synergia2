@@ -17,7 +17,7 @@ void
 full_kick(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs);
 
 void
-rw_kick(Real_scalar_field &rho,
+rw_kick(double zleft, double zsize,
                 Array_1d<double> &zdensity,
                 Array_1d<double> &xmom, 
                 Array_1d<double> &ymom,
