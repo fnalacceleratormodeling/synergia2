@@ -21,10 +21,12 @@ class Macro_bunch:
         self.local_num = None
         self.total_num = None
         self.total_current = None
+	self.units = None
         self.is_fixedz = None
         self.ref_particle = None
         self.mass = mass
         self.charge = charge
+	
 
     def get_local_particles(self):
         return self.particles
