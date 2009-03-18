@@ -30,17 +30,20 @@ if ( __name__ == '__main__'):
     job_mgr = synergia.Job_manager(sys.argv,myopts,
                                       ["channel.mad"])    
     
-    current_in = 100000
+    current_in = 130000
+#    current_in = 1
     
     print "curent=",current_in
-    current_in = 1
-    kinetic_energy = 0.0027
-#    kinetic_energy = 5.
+    
+#    kinetic_energy = 0.0027
+    kinetic_energy = 4.
     print "kinetic_energy= ",kinetic_energy
     mass = synergia.PH_NORM_mp
     charge = 1.0
     initial_phase = 0.0
+#    scaling_frequency = 10221.05558e6
     scaling_frequency = 10221.05558e6
+#    scaling_frequency = 47713451.5923694e3
     part_per_cell = 1
     width_x = 0.004
     kicks_per_line = 40
@@ -66,6 +69,10 @@ if ( __name__ == '__main__'):
     ee.start()
     gourmet = synergia.Gourmet(os.path.join(os.getcwd(),"channel.xsif"),"channel",kinetic_energy,
                         scaling_frequency)
+			
+			
+    print "line_length =", gourmet.orbit_length()
+    		
     gourmet.insert_space_charge_markers(kicks_per_line) 
     
     
@@ -83,8 +90,9 @@ if ( __name__ == '__main__'):
   
     xwidth=xwidth_initial
     xpwidth=0.0049608
+#    xpwidth= 0.
     rx=-0.85440
-   
+#    rx =0.
 #   xwidth=xwidth_initial
 #    xpwidth=0.0049608
 #    rx=-0.85440
@@ -92,7 +100,8 @@ if ( __name__ == '__main__'):
     ywidth=ywidth_initial
     ypwidth=0.0049608
     ry=0.85440
-    
+#    ypwidth=0.
+#    ry=0.    
 ##~~   input twiss matched beam parameters, require only the emitance   
     #(xwidth,xpwidth,rx) = synergia.matching.match_twiss_emittance(emitx,alpha_x,beta_x)
     #(ywidth,ypwidth,ry) = synergia.matching.match_twiss_emittance(emity,alpha_y,beta_y)
@@ -166,6 +175,12 @@ if ( __name__ == '__main__'):
     solver="3d"
     current=current_in
 
+
+    griddim = (16,16,16)
+    num_particles = griddim[0]*griddim[1]*griddim[2] * 1 #part_per_cell
+    print "num_particles =",num_particles
+    
+    
     pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
     beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = rx,offset=xoffset)
     beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,r = ry)
@@ -199,8 +214,7 @@ if ( __name__ == '__main__'):
     pylab.figure(2)
     pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.xprime],'b+',markersize=15.0,label='fish 3d')
     pylab.legend(loc=0)
-    
- 
+   
 # **********************************************************************
     solver="3d impact closed"
     BC_choice="trans finite, long periodic round"
@@ -252,6 +266,7 @@ if ( __name__ == '__main__'):
     pylab.figure(2)
     pylab.plot(diag.s,diag.std[1],'o',label='impact')
     pylab.legend(loc=0)
+    
     
 # ****** no space charge****************************************************************
  
