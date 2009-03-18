@@ -17,6 +17,9 @@ void
 full_kick(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs);
 
 void
+full_kick_version(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs);
+
+void
 rw_kick(Real_scalar_field &rho,
                 Array_1d<double> &zdensity,
                 Array_1d<double> &xmom, 
@@ -27,5 +30,8 @@ rw_kick(Real_scalar_field &rho,
                 double pipe_radiusy,
                 double pipe_conduct,
                 double zoffset);
+
+void apply_Efield_kick(const std::vector<Real_scalar_field> &E, double tau,
+               Macro_bunch_store &mbs);
 
 #endif // HAVE_ELECTRIC_FIELD_H

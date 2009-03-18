@@ -6,6 +6,9 @@
 #include "math_constants.h"
 #include <fstream>
 #include <stdio.h>
+#include "basic_toolkit/PhysicsConstants.h"
+
+
 
 std::ofstream * fdebug=0;
 
@@ -103,29 +106,24 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
         << ". Argument be in range 0<=n_axis<=2";
         throw std::invalid_argument(message.str());
     }
-    // jfa: I am taking this calculation of "factor" more-or-less
-    // directly from Impact.  I should really redo it in terms that make
-    // sense to me
-    double gamma = -1 * mbs.ref_particle(5);
+
+
+ 
+    double gamma = -1. * mbs.ref_particle(5);
     double beta = sqrt(gamma * gamma - 1.0) / gamma;
-    const  double c = 2.99792458e8;
-
+    const  double c = PH_MKS_c;
     double mass = mbs.mass * 1.0e9;
-    double eps0 = 1.0 / (4 * pi * c * c * 1.0e-7); // using c^2 = 1/(eps0 * mu0)
-    double Brho = gamma * beta * mass / c;
-    double perveance0 = mbs.total_current / (2 * pi * eps0 * Brho * gamma * gamma*\
-                        beta * c * beta * c);
-    double xk = mbs.units(0);
+    double eps0 = PH_MKS_eps0; 
 
-    double factor = pi * perveance0 * gamma * beta * beta / xk * 4.0 * pi;
-    factor *= 1.0 / mbs.total_num;
-    if (n_axis == 2) {
-        factor *= beta * gamma * gamma;
-    } else {
-        // (We think) this is for the Lorentz transformation of the transverse
-        // E field.
-        factor *= gamma;
-    }
+    double length=2.0*pi*gamma*beta/mbs.units(0); // see macro_bunch, length=get_longitudinal_period_size
+    double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho
+    factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
+    factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
+    factor *= -1.0 / mbs.total_num; // normailze the density...,-minus from the definition of phi ???
+    factor *= 1.0/(gamma*gamma);    // relativistic factor
+
+
+   
     int index = 2 * n_axis + 1; // for axis n_axis = (0,1,2) corresponding to x,y,z,
     // in particle store indexing, px,py,pz = (1,3,5)
     double kick;
@@ -137,12 +135,50 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
         kick = tau * factor * E.get_val(Double3(mbs.local_particles(0, n),
                                                 mbs.local_particles(2, n),
                                                 mbs.local_particles(4, n)));
-        mbs.local_particles(index, n) -= kick;
-//         jfa_total_kick += fabs(kick);
+        
+        mbs.local_particles(index, n) += kick;
+
     }
-//     std::cout << "jfa: average kick for " << n_axis << ": " << jfa_total_kick/mbs.local_num << std::endl;
     timer("apply kick");
 }
+
+
+
+void apply_Efield_kick(const std::vector<Real_scalar_field> &E, double tau,
+               Macro_bunch_store &mbs)
+{
+ 
+    double gamma = -1. * mbs.ref_particle(5);
+    double beta = sqrt(gamma * gamma - 1.0) / gamma;
+    const  double c = PH_MKS_c;
+    double mass = mbs.mass * 1.0e9;
+    double eps0 = PH_MKS_eps0; 
+
+    double length=2.0*pi*gamma*beta/mbs.units(0); // see macro_bunch, length=get_longitudinal_period_size
+    double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho
+    factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
+    factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
+    factor *= -1.0 / mbs.total_num; // normailze the density...,-minus from the definition of phi ???
+    factor *= 1.0/(gamma*gamma);    // relativistic factor
+
+
+
+    double kick;
+    int index;
+    for (int axis = 0; axis < 3; ++axis) {
+          index = 2 * axis + 1;
+          for (int n = 0; n < mbs.local_num; ++n) {                     
+                             kick = tau * factor* E.at(axis).get_val(Double3(mbs.local_particles(0, n),
+                                               mbs.local_particles(2, n),
+                                               mbs.local_particles(4, n)));
+              mbs.local_particles(index, n) += kick;
+           }
+    }
+  return;
+}
+
+
+
 
 void
 apply_phi_kick(Real_scalar_field &phi, int axis, double tau,
@@ -160,23 +196,31 @@ apply_phi_kick(Real_scalar_field &phi, int axis, double tau,
     double gamma = -1 * mbs.ref_particle(5);
     double beta = sqrt(gamma * gamma - 1.0) / gamma;
     const  double c = 2.99792458e8;
-    const  double pi = 4.0 * atan(1.0);
-
     double mass = mbs.mass * 1.0e9;
-    double eps0 = 1.0 / (4 * pi * c * c * 1.0e-7); // using c^2 = 1/(eps0 * mu0)
-    double Brho = gamma * beta * mass / c;
-    double perveance0 = mbs.total_current / (2 * pi * eps0 * Brho * gamma * gamma*\
-                        beta * c * beta * c);
-    double xk = mbs.units(0);
+    double eps0 = PH_MKS_eps0; // 1.0 / (4 * pi * c * c * 1.0e-7); // using c^2 = 1/(eps0 * mu0)
+//    double Brho = gamma * beta * mass / c;
+//    double perveance0 = mbs.total_current / (2 * pi * eps0 * Brho * gamma * gamma*\
+//                        beta * c * beta * c);
+//    double xk = mbs.units(0);
 
-    double factor = pi * perveance0 * gamma * beta * beta / xk * 4.0 * pi;
-    factor *= 1.0 / mbs.total_num;
-    if (axis == 2) {
-        factor *= beta * gamma * gamma;
+//    double factor = pi * perveance0 * gamma * beta * beta / xk * 4.0 * pi;
+
+      double length=2.0*pi*gamma*beta/mbs.units(0); // see macro_bunch, length=get_longitudinal_period_size
+      double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho
+      factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
+
+      factor *=1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
+      factor *= 1.0 / mbs.total_num; // normailze the density...
+
+     if (axis == 2) {
+//        factor *= beta * gamma * gamma;
+        factor *= 1.0/gamma;
     } else {
         // (We think) this is for the Lorentz transformation of the transverse
         // E field.
-        factor *= gamma;
+        // factor *= gamma;
+
+        factor *= 1.0/(gamma*gamma);
     }
     int index = 2 * axis + 1; // for axis axis = (0,1,2) corresponding to x,y,z,
     // in particle store indexing, px,py,pz = (1,3,5)
@@ -191,6 +235,23 @@ apply_phi_kick(Real_scalar_field &phi, int axis, double tau,
 }
 
 void
+full_kick_version(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs)
+{
+    //~ init_fdebug();
+   std::vector<Real_scalar_field> E;	
+    for (int axis = 0; axis < 3; ++axis) {
+        //~ *fdebug << "about to Real_scalar_field\n"; fdebug->flush();
+	Real_scalar_field En=calculate_E_n(phi, axis);
+        E.push_back(En);
+           }
+        //~ *fdebug << "about to apply kick " << axis << "\n"; fdebug->flush();
+        apply_Efield_kick(E, tau, mbs);
+        //~ *fdebug << "full_kick complete\n"; fdebug->flush();
+   
+}
+
+
+void
 full_kick(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs)
 {
     //~ init_fdebug();
@@ -202,6 +263,7 @@ full_kick(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs)
         //~ *fdebug << "full_kick complete\n"; fdebug->flush();
     }
 }
+
 
 void
 transverse_kick(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs)
@@ -225,6 +287,7 @@ just_phi_full_kick(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs)
         //~ apply_E_n_kick(E, axis, tau, mbs);
     }
 }
+
 
 void
 rw_kick(Real_scalar_field &rho,
