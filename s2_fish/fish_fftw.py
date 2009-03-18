@@ -66,7 +66,7 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
             if dbg:
                 print "mean z: ", means[2], " std z: ", stds[2]
             if size == None:
-                n_sigma = 6.0
+                n_sigma = 8.0
                 size = list(n_sigma*stds)
                 rwsize = size[:]
             if offset == None:
