@@ -23,6 +23,18 @@ if ( __name__ == '__main__'):
     width_x = 0.004
     pipe_radius = 0.04
     kicks_per_line = 10
+    
+    if len(sys.argv) == 1:
+        sys.argv.append("17")
+        sys.argv.append("trans finite, long periodic round")
+
+    if sys.argv[1] == "--help":
+        print "usage: channel_impact.py gridnum bc"
+        print "default gridnum is 17"
+        print 'default bc is "trans finite, long periodic round"'
+        print 'another working combination is 16 and "3d open"'
+        sys.exit(1)
+        
     gridnum = int(sys.argv[1])
     griddim = (gridnum,gridnum,gridnum)
     num_particles = impact.adjust_particles(

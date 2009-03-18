@@ -15,9 +15,8 @@ if ( __name__ == '__main__'):
     t0 = time.time()
 
     myopts = synergia.Options("circular")
-    #~ myopts.add("current",0.5,"current",float)
     myopts.add("transverse",0,"longitudinally uniform beam",int)
-    myopts.add("maporder",2,"map order",int)
+    myopts.add("maporder",1,"map order",int)
     myopts.add("emittance",5.89533703303356e-07,"emittance",float)
     # longitudinal beta is 143.6
     myopts.add("dpop",3.482e-4,"(delta p)/p RMS width",float)
@@ -93,6 +92,8 @@ if ( __name__ == '__main__'):
     for element in gourmet.beamline:
         ###print element.Type()
         if element.Type() == 'rfcavity':
+            #  WARNING, this frequency is specific to the foborodobo line
+            # running with protons at momentum of 100 GeV/c
             element.setFrequency(59955852.5381452)
             element.setPhi(math.pi)
             print "my rf cavity frequency is ", element.getRadialFrequency()/(2.0*math.pi)
@@ -154,9 +155,9 @@ if ( __name__ == '__main__'):
     tau = 0.5*line_length/kicks_per_line
     kick_time = 0.0
     beta = beam_parameters.get_beta()
-    current = myopts.get("bunchnp")* myopts.get("bunches") * \
-        synergia.physics_constants.PH_MKS_e/ \
-        (line_length/(beta*synergia.physics_constants.PH_MKS_c))
+    # current is (bunch charge)/(1 period of scaling frequency)
+    current = myopts.get("bunchnp") * synergia.physics_constants.PH_MKS_e * \
+              scaling_frequency
     print "current =",current
     
     numbunches = myopts.get("bunches")

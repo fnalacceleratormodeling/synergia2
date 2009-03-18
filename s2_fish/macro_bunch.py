@@ -284,14 +284,24 @@ class Macro_bunch:
         self.is_fixedz = 1
         
     def write_particles(self,filename,compress_level=1):
+        old_pytables = False
+        try:
+            if tables.__version__.split('.')[0] == '1':
+                old_pytables = True
+        except:
+            pass
         h5filename = os.path.splitext(filename)[0] + '.h5'
         if MPI.COMM_WORLD.Get_rank() == 0:
             f = tables.openFile(h5filename,mode = "w")
             filter = tables.Filters(complevel=compress_level)
-            atom = tables.Atom(dtype='Float64',shape=(7,0))
-            earray = f.createEArray(f.root,'particles',atom,'Float64',
-                                    filters = filter)
-            # THIS IS NOT CORRECT. DO NOT LEAVE IT HERE!!!!!
+            if old_pytables:
+                atom = tables.Atom(dtype='Float64',shape=(7,0))
+                earray = f.createEArray(f.root,'particles',atom,'Float64',
+                                        filters = filter)
+            else:
+                atom = tables.Float64Atom()
+                earray = f.createEArray(f.root,'particles',atom,(7,0),
+                                        filters = filter)
             particles = self.particles
             earray.append(particles)
             for proc in xrange(1,MPI.COMM_WORLD.Get_size()):

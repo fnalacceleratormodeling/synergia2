@@ -6,7 +6,7 @@
 using namespace boost::python;
 
 void
-rw_kick_wrap(Real_scalar_field &rho,
+rw_kick_wrap(double zleft, double zsize,
                 object &zdensity,
                 object &xmom, 
                 object &ymom,
@@ -23,7 +23,8 @@ rw_kick_wrap(Real_scalar_field &rho,
         Array_nd_from_PyObject<double>(xmom.ptr());
     Array_1d<double> ymom_array = 
         Array_nd_from_PyObject<double>(ymom.ptr());
-    rw_kick(rho,zdensity_array,xmom_array,ymom_array,tau,mbs,pipe_radiusx,
+    rw_kick(zleft,zsize,zdensity_array,
+	    xmom_array,ymom_array,tau,mbs,pipe_radiusx,
         pipe_radiusx,pipe_conduct,zoffset);
 }
 

@@ -5,6 +5,7 @@
 #include <cmath>
 #include "math_constants.h"
 #include <fstream>
+#include <iostream>
 #include <stdio.h>
 #include "basic_toolkit/PhysicsConstants.h"
 
@@ -290,7 +291,7 @@ just_phi_full_kick(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs)
 
 
 void
-rw_kick(Real_scalar_field &rho,
+rw_kick(double left_z, double size_z,
                 Array_1d<double> &zdensity,
                 Array_1d<double> &xmom, 
                 Array_1d<double> &ymom,
@@ -314,19 +315,34 @@ rw_kick(Real_scalar_field &rho,
 
     // tau is the step length in m
     double L = tau;
+
+    int dbg = 0;
     
+    if (dbg) std::cout << "rwkick called, w: " << w <<
+      " total current: " << mbs.total_current <<
+      " L: " << L << std::endl;
+
+    if (dbg) std::cout << "left: " << left_z << " size: " << size_z << std::endl;
+
     // Number of particles in slice: Ntot_real*N_macro(slice)/Ntot_macro
     // N_macro(slice) is simply zdensity
     // Ntot_macro is mbs.total_num
-    double Qtot = 2*pi*gamma*mbs.total_current/w;
+    double Qtot = 2*pi*mbs.total_current/w;
     double Ntot_real = Qtot/(mbs.charge*qe);
     // N = N_factor * N_macro(slice) = N_factor * zdensity(slice)
     double N_factor = Ntot_real/mbs.total_num;
     
+
     // formula from paper is for delta pxy/p. We need the change
     // in trans mom coord, delta pxy/(mc)
     double dpop_to_trans_coord_factor = gamma*beta;
     
+    if (dbg) std::cout << "is_fixed_z: " << mbs.is_fixedz << " mbs.total_current: " <<
+      mbs.total_current << std::endl;
+    if (dbg) std::cout << "Qtot: " << Qtot << "Ntot_real: " << Ntot_real <<
+      "total_num: " << mbs.total_num << "beta*gamma: " <<
+      dpop_to_trans_coord_factor << std::endl;
+
     double wake_factor_x = r_classical*2/
     		(beta*gamma*pi*pipe_radiusx*pipe_radiusx*pipe_radiusx)*
     		sqrt(4*pi*eps0*c/pipe_conduct)*L*
@@ -336,9 +352,19 @@ rw_kick(Real_scalar_field &rho,
     		sqrt(4*pi*eps0*c/pipe_conduct)*L*
     		N_factor*dpop_to_trans_coord_factor;
     
+    if (dbg) std::cout << "wake_factor_x: " << wake_factor_x << " wake_factor_y: " <<
+      wake_factor_y << std::endl;
     int num_slices = zdensity.get_shape()[0];
-    double left_z = rho.get_left()[2];
-    double cell_size_z = rho.get_cell_size()[2];
+    double cell_size_z = size_z/num_slices;
+
+    if (dbg) std::cout << "num_slices: " << num_slices << "cell_size_z: " << cell_size_z << std::endl;
+    if (dbg) {
+      double sumdens = 0.0;
+      for (int k=0; k<num_slices; ++k)
+	sumdens += zdensity(k);
+      std::cout << "Total density sum: " << sumdens << std::endl;
+    }
+
     for (int n = 0; n < mbs.local_num; ++n) {
         int first_ahead_slice;
         if (zoffset == 0.0) {
@@ -348,6 +374,10 @@ rw_kick(Real_scalar_field &rho,
             if (first_ahead_slice < 0) {
             	first_ahead_slice = num_slices;
             }
+	    if (((n % 1000) == 0) && (n < 100001) && (n > 0)) {
+	      if (dbg) std::cout << "particle: " << n << " first_ahead_slice: " <<
+		first_ahead_slice << std::endl;
+	    }
         } else {
             first_ahead_slice = 0;
         }
@@ -360,6 +390,10 @@ rw_kick(Real_scalar_field &rho,
             double zdistance_beamframe = (ahead_slice+0.5)*cell_size_z+left_z -
                 mbs.local_particles(4,n)+zoffset*gamma;
             double zdistance = zdistance_beamframe/gamma;
+	    if (((n % 1000) == 0) && (n < 100001) && (n > 0)) {
+	      if (dbg) std::cout << "ahead_slice: " << ahead_slice <<
+		" zdistance: " << zdistance << std::endl;
+	    }
             if (zdistance>0.0) {
                 xkick += wake_factor_x * zdensity(ahead_slice) *
                     xmom(ahead_slice)/sqrt(zdistance);
@@ -373,5 +407,6 @@ rw_kick(Real_scalar_field &rho,
         mbs.local_particles(1,n) += xkick;
         mbs.local_particles(3,n) += ykick;
     }
+    if (dbg) std::cout << std::endl;
 }
 
