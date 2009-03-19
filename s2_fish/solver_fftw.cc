@@ -182,10 +182,19 @@ get_G2(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 Real_scalar_field
 get_G2_z_steps(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 {
+
+	
+
     const double pi = 4.0 * atan(1.0);
     Int3 num_points = rho.get_points().get_shape();
     Int3 num_points2 = rho.get_points().get_shape();
     num_points2.scale(2);
+     if ((fftwh.lower()!= 0) ||(fftwh.upper() != num_points2[0])){
+        throw
+               std::runtime_error("get_G2_z_steps requires the guards fftwh.lower()= 0 and fftwh.upper()=num_points2[0]), and this is not the case");
+    }
+
+
     Double3 physical_size = rho.get_physical_size();
     Double3 physical_size2 = rho.get_physical_size();
     physical_size2.scale(2.0);
@@ -205,7 +214,7 @@ get_G2_z_steps(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
     const int num_images = 8;
     int mix, miy, miz; // mirror index x, etc.
     double z_bin_offset, hz, rr, r1;
-	hz=0.75*h[2];
+	hz=1.25*h[2]; // don't make hz a multiple of h[2]
         G=0.;
         for (index[0] = 0; index[0] <= num_points2[0]/2; ++index[0]) {
            x = index[0] * h[0];
@@ -220,7 +229,8 @@ get_G2_z_steps(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 
           
 		if (fabs(x)+fabs(y)<1.0e-10) { 
-			if (fabs(z)<1.0e-10) {G=G000*2.0*hz;}
+			if (fabs(z)-hz<1.0e-10) {
+                            G=G000*2.0*hz+log(fabs((fabs(z)+hz)/(fabs(z)-hz)));}
 			else  {G = log((fabs(z)+hz)/(fabs(z)-hz));} 
                         } 
   		else { rr=x * x + y * y;                   
@@ -233,7 +243,8 @@ get_G2_z_steps(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
                            double z_image = z + image * physical_size[2];
 
    			   if (fabs(x)+fabs(y)<1.0e-10)  {
-                                if (fabs(z_image)<1.0e-10) {G += G000*2.0*hz;}
+                               if ((fabs(z_image)-hz)<1.0e-10) {
+                                       G += G000*2.0*hz+log(fabs((fabs(z_image)+hz)/(fabs(z_image)-hz)));}
 			         else { G += log((fabs(z_image)+hz)/(fabs(z_image)-hz));}
                                 }
  		           else {rr=x * x + y * y;                          
