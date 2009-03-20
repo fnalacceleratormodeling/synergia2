@@ -454,6 +454,101 @@ get_G2_z_linear(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
     return G2;
 }
 
+Real_scalar_field
+get_G2_spherical(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
+{
+
+	
+
+    const double pi = 4.0 * atan(1.0);
+    Int3 num_points = rho.get_points().get_shape();
+    Int3 num_points2 = rho.get_points().get_shape();
+    num_points2.scale(2);
+     if ((fftwh.lower()!= 0) ||(fftwh.upper() != num_points2[0])){
+        throw
+               std::runtime_error("get_G2_spherical requires the guards fftwh.lower()= 0 and fftwh.upper()=num_points2[0]), and this is not the case");
+    }
+
+
+    Double3 physical_size = rho.get_physical_size();
+    Double3 physical_size2 = rho.get_physical_size();
+    physical_size2.scale(2.0);
+    Real_scalar_field G2(fftwh.padded_shape_real().vector(),
+                         physical_size2.vector(),
+                         rho.get_physical_offset(),
+                         fftwh.guard_lower(), fftwh.guard_upper());
+    //  G2.get_points().set_storage_size(fftwh.local_size());
+    Double3 h(rho.get_cell_size());
+    Int3 index;
+   
+
+
+    timer("misc");
+    double x, y, z, G, G0,G1;
+    const int num_images = 8;
+    int mix, miy, miz; // mirror index x, etc.
+    double z_bin_offset, rr;
+   // const double hr=0.005*sqrt(h[0] * h[0] + h[1] * h[1] + h[2] * h[2]); 
+    double hr=3.*sqrt(h[0] * h[0] + h[1]*h[1]);//Note that h[2] usually much larger than h[0] and h[1],
+						// so probably this is not going to work too well!
+
+     G0=hr*hr/2.0; 
+     G1=hr*hr*hr/3.0;	   
+     G=0.;
+        for (index[0] = 0; index[0] <= num_points2[0]/2; ++index[0]) {
+           x = index[0] * h[0];
+           mix=num_points2[0]-index[0];
+           for (index[1] = 0; index[1] <= num_points2[1]/2; ++index[1]) {
+	     y = index[1] * h[1];
+	     miy=num_points2[1]-index[1];	
+             for (index[2] = 0; index[2] <num_points[2]; ++index[2]) {
+	       z = index[2]* h[2];
+               if ((!z_periodic) && (index[2] > num_points2[2] / 2)) {
+                           z  = (index[2]-num_points2[2]) * h[2];}
+
+	       
+              rr=sqrt(x*x+y*y+z*z);
+	      if(rr<1.e-10) {G=0.;}//G0;}
+	      else if (rr<hr){
+	      G=G0-rr*rr/6.0;}
+              else {G=G1/rr;}
+		
+
+
+             
+                if (z_periodic) {
+                   for (int image = -num_images; image <= num_images; ++image) {
+                        if (image != 0) {
+                           double z_image = z + image * physical_size[2];
+
+ 	      rr=sqrt(x*x+y*y+z_image*z_image);
+	      if(rr<1.e-10) {G += G0;}
+	      else if (rr<hr){		
+              G += G0-rr*rr/6.0;}
+              else {G += G1/rr;}
+
+
+                       }
+                    }
+                }
+                G2.get_points().set(index, G);
+		
+                // three mirror images
+	        if (!(index[0] == num_points2[0]/2)) {
+                     G2.get_points().set(Int3(mix,index[1], index[2]), G);}
+                if (!(index[1] == num_points2[1]/2)) {
+                     G2.get_points().set(Int3(index[0], miy, index[2]), G);}
+               if (!((index[0] == num_points2[0]/2) || (index[1] == num_points2[1]/2))) {
+                     G2.get_points().set(Int3(mix, miy, index[2]), G);}
+            }
+        }
+    }
+    double scale=3.0/(4.0*pi*hr*hr*hr);	
+    G2.get_points().scale(scale);
+    timer("calc G");
+    return G2;
+}
+
 
 Real_scalar_field
 get_G2_old(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
@@ -490,7 +585,7 @@ get_G2_old(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 
     // average value of outer sphere. This works unreasonably well.
     double G000 = (1.0 / 4.0 * pi) * (3.0 / (2.0 * (sqrt(3)) *
-                                      sqrt(h[0] * h[0] + h[1] * h[1] + h[2] * h[2])));
+                                     sqrt(h[0] * h[0] + h[1] * h[1] + h[2] * h[2])));
     // Calculate what I think the answer should be by doing a very
     // simple numerical integral. The resulting answer doesn't work
     // nearly as well as the outer sphere approximation above, so
@@ -592,10 +687,11 @@ Complex_scalar_field
 get_G_hat2(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 {
     //step 3
+   // Real_scalar_field G2 = get_G2_spherical(rho, z_periodic, fftwh);
     Real_scalar_field G2 = get_G2_z_linear(rho, z_periodic, fftwh);
    // Real_scalar_field G2 = get_G2_z_steps(rho, z_periodic, fftwh);
  //   Real_scalar_field G2 = get_G2(rho, z_periodic, fftwh);
-    //Real_scalar_field G2 = get_G2_old(rho, z_periodic, fftwh);
+  //  Real_scalar_field G2 = get_G2_old(rho, z_periodic, fftwh);
     Complex_scalar_field G_hat2(fftwh.padded_shape_complex().vector(),
                                 G2.get_physical_size(),
                                 rho.get_physical_offset(),
