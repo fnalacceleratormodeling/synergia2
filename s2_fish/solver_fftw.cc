@@ -215,7 +215,7 @@ get_G2_z_steps(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
     const int num_images = 8;
     int mix, miy, miz; // mirror index x, etc.
     double z_bin_offset, hz, rr, r1,r2;
-    hz=2.*h[2];
+    hz=1.*h[2];
     rr= h[0] * h[0] + h[1] * h[1];
     r1=sqrt(h[0] * h[0] + h[1] * h[1] + h[2] * h[2]);
     G000=(2.0/rr)*(h[2]*r1+rr*log((h[2]+r1)/sqrt(rr))-h[2] * h[2]);// average value of outer cylinder.
@@ -235,22 +235,22 @@ get_G2_z_steps(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
                            z  = (index[2]-num_points2[2]) * h[2];}
 
 
-             if (fabs(fabs(z)-hz)<1.0e-10){
-                        if (fabs(x)+fabs(y)<2.0e-10) {
+             if (fabs(fabs(z)-hz)<1.0e-10){   // z=+-hz  case
+                        if (fabs(x)+fabs(y)<2.0e-10) { // r_perp=0
 				r1=(sqrt(rr+(fabs(z)+hz)*(fabs(z)+hz))+fabs(z)+hz)/(sqrt(rr+h[2]*h[2])+h[2]);
 				G=G000/2.+log(r1);   }
-                        else {r1=(sqrt(rr+(fabs(z)+hz)*(fabs(z)+hz))+fabs(z)+hz)/sqrt(rr);
+                        else {r1=(sqrt(rr+(fabs(z)+hz)*(fabs(z)+hz))+fabs(z)+hz)/sqrt(rr);// r_perp != 0
                              G=log(r1);}
                         }
-             else if ((z<hz-1.0e-10)&&(z>-hz+1.0e-10)) {		
-	        if (fabs(x)+fabs(y)<2.0e-10) {G=G000;}
-		else {r1=(sqrt(rr+h[2]*h[2])+h[2])/sqrt(rr);
+             else if ((z<hz-1.0e-10)&&(z>-hz+1.0e-10)) { //-hz<z<hz  case		
+	        if (fabs(x)+fabs(y)<2.0e-10) {G=G000;}   // r_perp=0  case
+		else {r1=(sqrt(rr+h[2]*h[2])+h[2])/sqrt(rr); // r_perp != 0
 		      G=2.*log(r1);}
 		r1=(sqrt(rr+(z-hz)*(z-hz))-z+hz)/(sqrt(rr+h[2]*h[2])+h[2]);
 		r2=(sqrt(rr+(z+hz)*(z+hz))+z+hz)/(sqrt(rr+h[2]*h[2])+h[2]);
 		G += log(r1)+log(r2);	
                 }
-            else {
+            else { //  z<-hz  or hz<z case
                      r1=(sqrt((fabs(z)+hz)*(fabs(z)+hz)+rr)+fabs(z)+hz)/
                       (sqrt((fabs(z)-hz)*(fabs(z)-hz)+rr)+fabs(z)-hz);
                       G = log(fabs(r1));
@@ -318,7 +318,7 @@ get_G2_z_linear(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
     num_points2.scale(2);
      if ((fftwh.lower()!= 0) ||(fftwh.upper() != num_points2[0])){
         throw
-               std::runtime_error("get_G2_z_steps requires the guards fftwh.lower()= 0 and fftwh.upper()=num_points2[0]), and this is not the case");
+               std::runtime_error("get_G2_z_linear requires the guards fftwh.lower()= 0 and fftwh.upper()=num_points2[0]), and this is not the case");
     }
 
 
@@ -334,15 +334,22 @@ get_G2_z_linear(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
     Int3 index;
    
 
-    double G000 = (2.0* pi)*(h[0] * h[0] + h[1] * h[1] + h[2] * h[2]);
 
     timer("misc");
-    double x, y, z, G;
+    double x, y, z, G, G000;
     const int num_images = 8;
     int mix, miy, miz; // mirror index x, etc.
-    double z_bin_offset, hz, rr, r1;
-	hz=h[2]; // do not modify hz!
-        G=0.;
+    double z_bin_offset, rr, r1,r2, T1,T2;
+    const double hz=h[2]; // do not modify hz!
+	
+
+
+     rr= h[0] * h[0] + h[1] * h[1];
+     r1=sqrt(h[0] * h[0] + h[1] * h[1] + h[2] * h[2]);
+     G000=(2.0/rr)*(h[2]*r1+rr*log((h[2]+r1)/sqrt(rr))-h[2] * h[2]);// average value of outer cylinder.
+
+     
+     G=0.;
         for (index[0] = 0; index[0] <= num_points2[0]/2; ++index[0]) {
            x = index[0] * h[0];
            mix=num_points2[0]-index[0];
@@ -355,39 +362,80 @@ get_G2_z_linear(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
                            z  = (index[2]-num_points2[2]) * h[2];}
 
 	        rr=x * x + y * y;
-                G = 2.0*sqrt(rr+z*z)-sqrt(rr+(z-hz)*(z-hz))-sqrt(rr+(z+hz)*(z+hz));
+		G=2.0*sqrt(rr+z*z)-sqrt(rr+(z-hz)*(z-hz))-sqrt(rr+(z+hz)*(z+hz));
+		if (z<-hz) {
+                           r1=(sqrt((z-hz)*(z-hz)+rr)-z+hz)/(sqrt(z*z+rr)-z);
+			   T1=(hz-z)*log(r1);
+			   r2=(sqrt(z*z+rr)-z)/(sqrt((z+hz)*(z+hz)+rr)-z-hz);
+			   T2=(hz+z)*log(r2);
+			   G +=	T1+T2; }
 
-               if (fabs(z)<0.) {r1=(sqrt(rr+(hz-z)*(hz-z))-z+hz)/(sqrt(rr+z*z)-z);}
-               else if ( (fabs(z)-hz)>1.0e-10) {  r1=(sqrt(rr+z*z)+z)/(sqrt(rr+(hz-z)*(hz-z))+z-hz);}   
-               G += (hz-z)*log(r1);
+		else if (fabs(z+hz)<1.0e-10){
+			   r1=(sqrt((z-hz)*(z-hz)+rr)-z+hz)/(sqrt(z*z+rr)-z);
+			   T1=(hz-z)*log(r1);
+			   G +=	T1;}
+		
+ 		else if (fabs(z)<1.e-10){
+			   if (fabs(x)+fabs(y)<2.0e-10)	{G +=hz*G000;} // T1+T2 in fact		
+			   else {                        r1=(sqrt(hz*hz+rr)+hz)/sqrt(rr);
+				                         G += 2.*hz*log(r1);}	
+					}
+		else if (fabs(z-hz)<1.0e-10){ 
+			   r1=(sqrt((z+hz)*(z+hz)+rr)+z+hz)/(sqrt(z*z+rr)+z);
+			   T1=(hz+z)*log(r1);
+			   G +=	T1;}
+		else if (z>hz){
+			   r1=(sqrt(z*z+rr)+z)/(sqrt((z-hz)*(z-hz)+rr)+z-hz);			   
+			   T1=(hz-z)*log(r1);
+                           r2=(sqrt((z+hz)*(z+hz)+rr)+z+hz)/(sqrt(z*z+rr)+z);			
+			   T2=(hz+z)*log(r2);
+			   G +=	T1+T2;}
+		else{ throw
+                    std::runtime_error("get_G2_z_linear error1, check if hz=h[2]");}
 
-// 		if (fabs(x)+fabs(y)<1.0e-10) { 
-// 			if (fabs(z)-hz<1.0e-10) {
-//                             G=G000*2.0*hz+log(fabs((fabs(z)+hz)/(fabs(z)-hz)));}
-// 			else  {G = log((fabs(z)+hz)/(fabs(z)-hz));} 
-//                         } 
-//   		else { rr=x * x + y * y;                   
-//                        r1=(sqrt((z+hz)*(z+hz)+rr)+z+hz)/(sqrt((z-hz)*(z-hz)+rr)+z-hz);
-//                        G = log(fabs(r1));}
-//              
-//                 if (z_periodic) {
-//                    for (int image = -num_images; image <= num_images; ++image) {
-//                         if (image != 0) {
-//                            double z_image = z + image * physical_size[2];
-// 
-//    			   if (fabs(x)+fabs(y)<1.0e-10)  {
-//                                if ((fabs(z_image)-hz)<1.0e-10) {
-//                                        G += G000*2.0*hz+log(fabs((fabs(z_image)+hz)/(fabs(z_image)-hz)));}
-// 			         else { G += log((fabs(z_image)+hz)/(fabs(z_image)-hz));}
-//                                 }
-//  		           else {rr=x * x + y * y;                          
-//                                  r1=(sqrt((z_image+hz)*(z_image+hz)+rr)+z_image+hz)/
-//                                  (sqrt((z_image-hz)*(z_image-hz)+rr)+z_image-hz);
-//                                  G += log(fabs(r1));}
-// 
-//                        }
-//                     }
-//                 }
+             
+                if (z_periodic) {
+                   for (int image = -num_images; image <= num_images; ++image) {
+                        if (image != 0) {
+                           double z_image = z + image * physical_size[2];
+
+
+			if (z_image<-hz) {
+                           r1=(sqrt((z_image-hz)*(z_image-hz)+rr)-z_image+hz)/(sqrt(z_image*z_image+rr)-z_image);
+			   T1=(hz-z_image)*log(r1);
+			   r2=(sqrt(z_image*z_image+rr)-z_image)/(sqrt((z_image+hz)*(z_image+hz)+rr)-z_image-hz);
+			   T2=(hz+z_image)*log(r2);
+			   G +=	T1+T2; }
+
+			else if (fabs(z_image+hz)<1.0e-10){
+			   r1=(sqrt((z_image-hz)*(z_image-hz)+rr)-z_image+hz)/(sqrt(z_image*z_image+rr)-z_image);
+			   T1=(hz-z_image)*log(r1);
+			   G +=	T1;}
+		
+ 			else if (fabs(z_image)<1.e-10){
+			   if (fabs(x)+fabs(y)<2.0e-10)	{G +=hz*G000;} // T1+T2 in fact		
+			   else {                        r1=(sqrt(hz*hz+rr)+hz)/sqrt(rr);
+				                         G += 2.*hz*log(r1);}	
+					}
+			else if (fabs(z_image-hz)<1.0e-10){ 
+			   r1=(sqrt((z_image+hz)*(z_image+hz)+rr)+z_image+hz)/(sqrt(z_image*z_image+rr)+z_image);
+			   T1=(hz+z_image)*log(r1);
+			   G +=	T1;}
+			else if (z_image>hz){
+			   r1=(sqrt(z_image*z_image+rr)+z_image)/
+					(sqrt((z_image-hz)*(z_image-hz)+rr)+z_image-hz);			   
+			   T1=(hz-z_image)*log(r1);
+                           r2=(sqrt((z_image+hz)*(z_image+hz)+rr)+z_image+hz)/
+							(sqrt(z_image*z_image+rr)+z_image);			
+			   T2=(hz+z_image)*log(r2);
+			   G +=	T1+T2;}
+			else{ throw
+                               std::runtime_error("get_G2_z_linear error2, check if hz=h[2]");}
+   			 
+
+                       }
+                    }
+                }
                 G2.get_points().set(index, G);
 		
                 // three mirror images
@@ -544,8 +592,8 @@ Complex_scalar_field
 get_G_hat2(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 {
     //step 3
-   // Real_scalar_field G2 = get_G2_z_linear(rho, z_periodic, fftwh);
-    Real_scalar_field G2 = get_G2_z_steps(rho, z_periodic, fftwh);
+    Real_scalar_field G2 = get_G2_z_linear(rho, z_periodic, fftwh);
+   // Real_scalar_field G2 = get_G2_z_steps(rho, z_periodic, fftwh);
  //   Real_scalar_field G2 = get_G2(rho, z_periodic, fftwh);
     //Real_scalar_field G2 = get_G2_old(rho, z_periodic, fftwh);
     Complex_scalar_field G_hat2(fftwh.padded_shape_complex().vector(),
