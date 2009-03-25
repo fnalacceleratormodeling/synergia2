@@ -2,6 +2,7 @@ import os.path
 import sys
 import synergia
 import Numeric
+import numpy
 from math import sqrt, sin, acos, pi
 import time
 
@@ -12,12 +13,13 @@ if ( __name__ == '__main__'):
 
    
     myopts = synergia.Options("PS2")
-    myopts.add("latticefile","PS2.lat","",str)
+    myopts.add("latticefile","PS2v.lat","",str)
+    myopts.add("maporder",1,"map order",int)
     myopts.add("turns",1,"number of turns",int)
 #    myopts.add("latticefile","fobodobo_s.lat","",str)
 #    myopts.add("latticefile","fodo.lat","",str)
-    myopts.add("xoffset",1.e-7,"transverse offset in x",float)
-    myopts.add("yoffset",1.e-7,"transverse offset in y",float)
+    myopts.add("xoffset",3.e-7,"transverse offset in x",float)
+    myopts.add("yoffset",3.e-7,"transverse offset in y",float)
     myopts.add("emitx",3.24e-06,"X emittance",float)
     myopts.add("emity",1.73e-06,"Y emittance",float)
     myopts.add("sige",1e-3,"(sigma E) over E",float)
@@ -27,7 +29,7 @@ if ( __name__ == '__main__'):
     myopts.add("lgridnum",64,"",int)
     myopts.add("bunches",1,"",int)
     myopts.add("partpercell",1,"",float)
-    myopts.add("kicks",14,"kicks per line",int)
+    myopts.add("kicks",16,"kicksper line",int)
     
     myopts.add_suboptions(synergia.opts)
     myopts.parse_argv(sys.argv)
@@ -63,28 +65,59 @@ if ( __name__ == '__main__'):
     
     gourmet = synergia.Gourmet(os.path.join(os.getcwd(),myopts.get("latticefile"))
         ,model,kinetic_energy,
-                        scaling_frequency)
+                        scaling_frequency,myopts.get("maporder"), delay_complete=True)
+    
     gourmet.insert_space_charge_markers(kicks_per_line)
-    #if MPI.COMM_WORLD.Get_rank() ==0:
-        #print "line length= ",gourmet.orbit_length()
+    gourmet.complete_setup()
+   
+    
+    
+    if MPI.COMM_WORLD.Get_rank() ==0:
+        print "line length= ",gourmet.orbit_length()
         #gourmet.print_elements()
+   
+
 #
-    (alpha_x, alpha_y, beta_x, beta_y) = synergia.matching.get_alpha_beta(gourmet)
-#    print " lattice beta_x, alpha_x, beta_y, alpha_y = ", beta_x, alpha_x, beta_y, alpha_y
+   
+    #sys.exit(1)
 # 
     #particle = gourmet.get_initial_particle()
+    #particle.set_x(xoffset)
+    #particle.set_y(yoffset)
+    #jet_particle = gourmet.get_initial_jet_particle()
+    #gourmet.printpart(particle)
+    #for index, element in enumerate(gourmet.beamline):
+	#print element.Name(), element.Type()  
+	#element.propagate(jet_particle)
+	#element.propagate(particle)
+	#map = gourmet._convert_linear_maps([jet_particle.State().jacobian()])[0]	
+	#gourmet.printpart(particle)
+	#print numpy.array2string(map,precision=2)
+	#energy = jet_particle.ReferenceEnergy()
+	#print "energy =",energy
+	#jet_particle = gourmet.get_jet_particle(energy)
+  
+    
+    
+    (alpha_x, alpha_y, beta_x, beta_y) = synergia.matching.get_alpha_beta(gourmet)
+    print " lattice beta_x, alpha_x, beta_y, alpha_y = ", beta_x, alpha_x, beta_y, alpha_y
+    
+    
+    
     #brho = particle.ReferenceBRho()
     #print "brho= ",brho, brho/Bfield
 	
+     #element.OrbitLength(particle) ,
 #    (s,kx,ky) = gourmet.get_strengths()
-#    lat_func=gourmet.get_lattice_functions()
+    #lat_func=gourmet.get_lattice_functions()
     
-    #print " i      s     beta_x      alpha_x   beta_y    alpha_y"
+    #print " i      s        beta_x      alpha_x   beta_y    alpha_y"
     #for i, element in enumerate(gourmet.beamline):
-	#print i, lat_func.s[i],"  ", lat_func.beta_x[i], "  ",lat_func.alpha_x[i] \
-	  #,"  ",lat_func.beta_y[i],"  ", lat_func.alpha_y[i]		
+	#print i,"  ", lat_func.s[i], "       "\
+	   #,lat_func.beta_x[i], "       ",lat_func.alpha_x[i] \
+	   #,"       ",lat_func.beta_y[i],"       ", lat_func.alpha_y[i]		
  
-    
+ 
     beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
                                         initial_phase, scaling_frequency,
                                          transverse=0)	
@@ -122,8 +155,8 @@ if ( __name__ == '__main__'):
        print "bunch_spacing=",bunch_spacing
        print "current =",current
     
-#    for element in gourmet.beamline:
-#         print  "split_name = ",element.Name().split(":")[0]
+    #for element in gourmet.beamline:
+        #print  "split_name = ",element.Name().split(":")[0]
     
 #    sys.exit(1)
     sys.stdout.flush()
@@ -136,9 +169,10 @@ if ( __name__ == '__main__'):
     for bunchnum in range(0,numbunches):
         bunches.append(s2_fish.Macro_bunch(mass,1))
         bunches[bunchnum].init_gaussian(num_particles,current,beam_parameters)
+    #	bunches[bunchnum].init_sphere(num_particles,1.0e-13)
         bunches[bunchnum].write_particles("begin-%02d"%bunchnum)
         diags.append(synergia.Diagnostics(gourmet.get_initial_u()))
-
+	
     
     
     log = open("log","w") 
