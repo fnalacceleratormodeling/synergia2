@@ -5,6 +5,7 @@ import Numeric
 import numpy
 from math import sqrt, sin, acos, pi
 import time
+import impact
 
 import s2_fish
 from mpi4py import MPI
@@ -15,7 +16,7 @@ if ( __name__ == '__main__'):
     myopts = synergia.Options("PS2")
     myopts.add("latticefile","PS2v.lat","",str)
     myopts.add("maporder",1,"map order",int)
-    myopts.add("turns",1,"number of turns",int)
+    myopts.add("turns",10,"number of turns",int)
 #    myopts.add("latticefile","fobodobo_s.lat","",str)
 #    myopts.add("latticefile","fodo.lat","",str)
     myopts.add("xoffset",3.e-7,"transverse offset in x",float)
@@ -24,12 +25,14 @@ if ( __name__ == '__main__'):
     myopts.add("emity",1.73e-06,"Y emittance",float)
     myopts.add("sige",1e-3,"(sigma E) over E",float)
     myopts.add("Ekin",50.9383,"",float)
-    myopts.add("bunchnp",5.0e+11,"number of particles per bunch",float)
+    myopts.add("bunchnp",5.0e+12,"number of particles per bunch",float)
     myopts.add("tgridnum",16,"transverse grid cells",int)
     myopts.add("lgridnum",64,"",int)
     myopts.add("bunches",1,"",int)
     myopts.add("partpercell",1,"",float)
-    myopts.add("kicks",16,"kicksper line",int)
+    myopts.add("space_charge",1,"",int)
+    myopts.add("kicks",40,"kicksper line",int)
+    
     
     myopts.add_suboptions(synergia.opts)
     myopts.parse_argv(sys.argv)
@@ -59,6 +62,8 @@ if ( __name__ == '__main__'):
     griddim = (tgridnum,tgridnum,lgridnum)
     num_particles = int(griddim[0]*griddim[1]*griddim[2] * myopts.get("partpercell"))
     kicks_per_line = myopts.get("kicks")
+    space_charge=myopts.get("space_charge")
+    
     
     ee = synergia.Error_eater()
     ee.start()
@@ -154,6 +159,9 @@ if ( __name__ == '__main__'):
     if MPI.COMM_WORLD.Get_rank() ==0:
        print "bunch_spacing=",bunch_spacing
        print "current =",current
+       print "space_charge =",space_charge
+       print "num_particles =",num_particles
+       
     
     #for element in gourmet.beamline:
         #print  "split_name = ",element.Name().split(":")[0]
@@ -161,7 +169,12 @@ if ( __name__ == '__main__'):
 #    sys.exit(1)
     sys.stdout.flush()
   
-     
+    #widths=[xwidth,xpwidth,rx,ywidth,ypwidth,ry]
+    #retval=synergia.matching.envelope_motion(widths,current,gourmet,do_plot=0,do_match=1)
+    ##pylab.show() 
+    #xwidth,xpwidth,rx,ywidth,ypwidth,ry
+
+    
     s = 0.0
     numbunches = myopts.get("bunches")
     bunches = []
@@ -169,7 +182,6 @@ if ( __name__ == '__main__'):
     for bunchnum in range(0,numbunches):
         bunches.append(s2_fish.Macro_bunch(mass,1))
         bunches[bunchnum].init_gaussian(num_particles,current,beam_parameters)
-    #	bunches[bunchnum].init_sphere(num_particles,1.0e-13)
         bunches[bunchnum].write_particles("begin-%02d"%bunchnum)
         diags.append(synergia.Diagnostics(gourmet.get_initial_u()))
 	
@@ -183,7 +195,7 @@ if ( __name__ == '__main__'):
        log.flush()
     for turn in range(1,myopts.get("turns")+1):
        t1 = time.time()
-       s = synergia.propagate(s,gourmet,  bunches,diags,griddim,use_s2_fish=True,space_charge=0)
+       s = synergia.propagate(s,gourmet,  bunches,diags,griddim,use_s2_fish=True,space_charge=space_charge)
        if MPI.COMM_WORLD.Get_rank() ==0:
           output = "turn %d time = %g"%(turn,time.time() - t1)
           print output

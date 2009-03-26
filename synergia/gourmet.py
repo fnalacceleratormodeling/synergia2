@@ -76,14 +76,14 @@ class Gourmet:
             self.factory = MAD8Factory(os.path.abspath(lattice_file))
         brho = self.get_initial_particle().ReferenceBRho()
         self.beamline = self.factory.create_beamline(line_name,brho)
+	self.beamline.insert(pacifier)
+        self.beamline.append(pacifier)
 	if not delay_complete:
 		self.complete_setup() 
 		
 		
 			
     def complete_setup(self):
-        self.beamline.insert(pacifier)
-        self.beamline.append(pacifier)
         self.beamline = DriftsToSlots(self.beamline)
         self.needs_commission = False
         self.is_commissioned = False

@@ -186,14 +186,21 @@ get_G2_z_steps(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 	
 
     const double pi = 4.0 * atan(1.0);
+    int distribute_fftwh;
     Int3 num_points = rho.get_points().get_shape();
     Int3 num_points2 = rho.get_points().get_shape();
     num_points2.scale(2);
-     if ((fftwh.lower()!= 0) ||(fftwh.upper() != num_points2[0])){
-        throw
-               std::runtime_error("get_G2_z_steps requires the guards fftwh.lower()= 0 and fftwh.upper()=num_points2[0]), and this is not the case");
-    }
+//      if ((fftwh.lower()!= 0) ||(fftwh.upper() != num_points2[0])){
+//         throw
+//                std::runtime_error("get_G2_z_steps requires the guards fftwh.lower()= 0 and fftwh.upper()=num_points2[0]), and this is not the case");
+//     }
 
+    int x_lrange=fftwh.lower();
+    int x_urange=fftwh.upper();
+    if ((x_lrange != 0) ||(x_urange != num_points2[0])) { 
+				distribute_fftwh=1;     }
+    else {                      distribute_fftwh=0;
+                                x_urange=x_urange/2+1;     }
 
     Double3 physical_size = rho.get_physical_size();
     Double3 physical_size2 = rho.get_physical_size();
@@ -221,9 +228,13 @@ get_G2_z_steps(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
     G000=(2.0/rr)*(h[2]*r1+rr*log((h[2]+r1)/sqrt(rr))-h[2] * h[2]);// average value of outer cylinder.
 
         G=0.;
-        for (index[0] = 0; index[0] <= num_points2[0]/2; ++index[0]) {
+	
+
+	
+    //    for (index[0] = 0; index[0] <= num_points2[0]/2; ++index[0]) {
+	 for (index[0] = x_lrange; index[0] <x_urange; ++index[0]) {
            x = index[0] * h[0];
-           mix=num_points2[0]-index[0];
+           if (distribute_fftwh==0) mix=num_points2[0]-index[0];
            for (index[1] = 0; index[1] <= num_points2[1]/2; ++index[1]) {
 	     y = index[1] * h[1];
 	     miy=num_points2[1]-index[1];
@@ -290,8 +301,8 @@ get_G2_z_steps(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 		
                 G2.get_points().set(index, G);
 		
-                // three mirror images
-	        if (!(index[0] == num_points2[0]/2)) {
+                // three mirror imagesif 
+	        if ((!(index[0] == num_points2[0]/2)) && (distribute_fftwh==0)){
                      G2.get_points().set(Int3(mix,index[1], index[2]), G);}
                 if (!(index[1] == num_points2[1]/2)) {
                      G2.get_points().set(Int3(index[0], miy, index[2]), G);}
@@ -313,14 +324,18 @@ get_G2_z_linear(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 	
 
     const double pi = 4.0 * atan(1.0);
+    int distribute_fftwh;
     Int3 num_points = rho.get_points().get_shape();
     Int3 num_points2 = rho.get_points().get_shape();
     num_points2.scale(2);
-     if ((fftwh.lower()!= 0) ||(fftwh.upper() != num_points2[0])){
-        throw
-               std::runtime_error("get_G2_z_linear requires the guards fftwh.lower()= 0 and fftwh.upper()=num_points2[0]), and this is not the case");
-    }
+    
 
+    int x_lrange=fftwh.lower();
+    int x_urange=fftwh.upper();
+    if ((x_lrange != 0) ||(x_urange != num_points2[0])) { 
+				distribute_fftwh=1;     }
+    else {                      distribute_fftwh=0;
+                                x_urange=x_urange/2+1;     }
 
     Double3 physical_size = rho.get_physical_size();
     Double3 physical_size2 = rho.get_physical_size();
@@ -350,9 +365,10 @@ get_G2_z_linear(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 
      
      G=0.;
-        for (index[0] = 0; index[0] <= num_points2[0]/2; ++index[0]) {
+       // for (index[0] = 0; index[0] <= num_points2[0]/2; ++index[0]) {
+         for (index[0] = x_lrange; index[0] <x_urange; ++index[0]) {
            x = index[0] * h[0];
-           mix=num_points2[0]-index[0];
+           if (distribute_fftwh==0) mix=num_points2[0]-index[0];
            for (index[1] = 0; index[1] <= num_points2[1]/2; ++index[1]) {
 	     y = index[1] * h[1];
 	     miy=num_points2[1]-index[1];	
@@ -439,11 +455,11 @@ get_G2_z_linear(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
                 G2.get_points().set(index, G);
 		
                 // three mirror images
-	        if (!(index[0] == num_points2[0]/2)) {
+	        if ((!(index[0] == num_points2[0]/2)) && (distribute_fftwh==0)){
                      G2.get_points().set(Int3(mix,index[1], index[2]), G);}
                 if (!(index[1] == num_points2[1]/2)) {
                      G2.get_points().set(Int3(index[0], miy, index[2]), G);}
-               if (!((index[0] == num_points2[0]/2) || (index[1] == num_points2[1]/2))) {
+                if (!((index[0] == num_points2[0]/2) || (index[1] == num_points2[1]/2))) {
                      G2.get_points().set(Int3(mix, miy, index[2]), G);}
             }
         }
@@ -461,14 +477,17 @@ get_G2_spherical(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 	
 
     const double pi = 4.0 * atan(1.0);
+    int distribute_fftwh;
     Int3 num_points = rho.get_points().get_shape();
     Int3 num_points2 = rho.get_points().get_shape();
     num_points2.scale(2);
-     if ((fftwh.lower()!= 0) ||(fftwh.upper() != num_points2[0])){
-        throw
-               std::runtime_error("get_G2_spherical requires the guards fftwh.lower()= 0 and fftwh.upper()=num_points2[0]), and this is not the case");
-    }
-
+     
+    int x_lrange=fftwh.lower();
+    int x_urange=fftwh.upper();
+    if ((x_lrange != 0) ||(x_urange != num_points2[0])) { 
+				distribute_fftwh=1;     }
+    else {                      distribute_fftwh=0;
+                                x_urange=x_urange/2+1;     }
 
     Double3 physical_size = rho.get_physical_size();
     Double3 physical_size2 = rho.get_physical_size();
@@ -495,9 +514,10 @@ get_G2_spherical(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
      G0=hr*hr/2.0; 
      G1=hr*hr*hr/3.0;	   
      G=0.;
-        for (index[0] = 0; index[0] <= num_points2[0]/2; ++index[0]) {
+      //  for (index[0] = 0; index[0] <= num_points2[0]/2; ++index[0]) {
+         for (index[0] = x_lrange; index[0] <x_urange; ++index[0]) {
            x = index[0] * h[0];
-           mix=num_points2[0]-index[0];
+           if (distribute_fftwh==0) mix=num_points2[0]-index[0];
            for (index[1] = 0; index[1] <= num_points2[1]/2; ++index[1]) {
 	     y = index[1] * h[1];
 	     miy=num_points2[1]-index[1];	
@@ -534,11 +554,11 @@ get_G2_spherical(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
                 G2.get_points().set(index, G);
 		
                 // three mirror images
-	        if (!(index[0] == num_points2[0]/2)) {
+	        if ((!(index[0] == num_points2[0]/2)) && (distribute_fftwh==0)){
                      G2.get_points().set(Int3(mix,index[1], index[2]), G);}
                 if (!(index[1] == num_points2[1]/2)) {
                      G2.get_points().set(Int3(index[0], miy, index[2]), G);}
-               if (!((index[0] == num_points2[0]/2) || (index[1] == num_points2[1]/2))) {
+                if (!((index[0] == num_points2[0]/2) || (index[1] == num_points2[1]/2))) {
                      G2.get_points().set(Int3(mix, miy, index[2]), G);}
             }
         }
@@ -688,9 +708,9 @@ get_G_hat2(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 {
     //step 3
    // Real_scalar_field G2 = get_G2_spherical(rho, z_periodic, fftwh);
-    Real_scalar_field G2 = get_G2_z_linear(rho, z_periodic, fftwh);
-   // Real_scalar_field G2 = get_G2_z_steps(rho, z_periodic, fftwh);
- //   Real_scalar_field G2 = get_G2(rho, z_periodic, fftwh);
+   // Real_scalar_field G2 = get_G2_z_linear(rho, z_periodic, fftwh);
+    Real_scalar_field G2 = get_G2_z_steps(rho, z_periodic, fftwh);
+    //Real_scalar_field G2 = get_G2(rho, z_periodic, fftwh);
   //  Real_scalar_field G2 = get_G2_old(rho, z_periodic, fftwh);
     Complex_scalar_field G_hat2(fftwh.padded_shape_complex().vector(),
                                 G2.get_physical_size(),
