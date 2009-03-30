@@ -2,6 +2,7 @@
 import numpy
 import math
 import sys
+from mpi4py import MPI
 
 x = 0
 xprime = 1
@@ -42,9 +43,10 @@ zprime_y = 12
 zprime_yprime = 13
 zprime_z = 14
 
-def get_diagnostics(bunch):
-    means = numpy.zeros([6],numpy.float64)
-    stds = numpy.zeros([6],numpy.float64)
+def get_diagnostics_old(bunch):
+#    means = numpy.zeros([6],numpy.float64)
+    means = numpy.zeros([6],'d')
+    stds = numpy.zeros([6],numpy.float64)    
     for i in range(0,6):
         means[i] = numpy.average(bunch[i,:])
     mom2s = numpy.zeros([6,6],numpy.float64)
@@ -58,9 +60,52 @@ def get_diagnostics(bunch):
         stds[i] = math.sqrt(mom2s[i,i])
     for i in range(0,6):
         for j in range(i,6):
-            corrs[i,j] = mom2s[i,j]/(stds[i]*stds[j])
-            corrs[j,i] = corrs[i,j]
+            corrs[i,j] = mom2s[i,j]/(stds[i]*stds[j])            
+	    corrs[j,i] = corrs[i,j]
     return means,stds,mom2s,corrs
+
+
+def get_diagnostics(bunch):
+    MPI.COMM_WORLD.Barrier()
+#    num_local=bunch.num_particles_local() it doesn't work
+    num_local=numpy.shape(bunch)[1]
+    Nptlocal=numpy.array(num_local,'d')
+    data_local = numpy.zeros([6],'d')
+    tmp=numpy.zeros([6,6], 'd')
+      
+    
+    for i in range(0,6):
+        data_local[i] = numpy.sum(bunch[i,:])
+        
+   
+    for i in range(0,6):
+        for j in range(i,6):
+            tmp[i,j] = numpy.sum(bunch[i,:]*bunch[j,:])
+	    tmp[j,i]=tmp[i,j]
+               	
+ 
+    means=numpy.zeros([6],'d')
+    num_part=numpy.array(0.0, 'd') 
+    mom2s = numpy.zeros([6,6], 'd')
+    MPI.COMM_WORLD.Allreduce([Nptlocal,MPI.DOUBLE], [num_part, MPI.DOUBLE], op=MPI.SUM)
+    MPI.COMM_WORLD.Allreduce([data_local,MPI.DOUBLE], [means, MPI.DOUBLE], op=MPI.SUM)
+    MPI.COMM_WORLD.Allreduce([tmp,MPI.DOUBLE], [mom2s, MPI.DOUBLE], op=MPI.SUM)
+    
+    means=means/num_part
+    mom2s= mom2s/num_part-numpy.outer(means,means)	
+    
+    stds = numpy.zeros([6],numpy.float64) 
+    corrs = numpy.zeros([6,6],numpy.float64)
+    for i in range(0,6):
+        stds[i] = math.sqrt(mom2s[i,i])
+   
+    for i in range(0,6):
+        for j in range(i,6):
+            corrs[i,j] = mom2s[i,j]/(stds[i]*stds[j])            
+	    corrs[j,i] = corrs[i,j]
+    
+    return means,stds,mom2s,corrs
+
 
 class Diagnostics_impact:
     def __init__(self,units):
@@ -70,10 +115,10 @@ class Diagnostics_impact:
         self.u = units
         # n.b. we are ignoring mom2, corrs!
 
-    def add(self,s,bunch):
+    def add(self,s,bunch):	
         means,stds,mom2s,corrs = get_diagnostics(bunch.particles())
         self.s.append(s)
-        for i in range(0,6):
+        for i in range(0,6):	    	
             self.mean[i].append(means[i]/self.u[i])
             self.std[i].append(stds[i]/self.u[i])
 
@@ -86,23 +131,24 @@ class Diagnostics_impact:
     
     def write(self,filename_prefix):
         # same format as fort.24
-        fx = open(filename_prefix+"_x.dat","w")
-	fy = open(filename_prefix+"_y.dat","w")
-	fz = open(filename_prefix+"_z.dat","w")
-        for i in range(0,len(self.s)):
-            fx.write("%g %g %g %g %g\n" % \
-                    (self.s[i],
-                     self.mean[xprime][i], self.std[xprime][i],
-                     self.mean[x][i], self.std[x][i]))
-	    fy.write("%g %g %g %g %g\n" % \
-                    (self.s[i],
-                     self.mean[yprime][i], self.std[yprime][i],
-                     self.mean[y][i], self.std[y][i])) 
-	    fz.write("%g %g %g %g %g\n" % \
-                    (self.s[i],
-                     self.mean[zprime][i], self.std[zprime][i],
-                     self.mean[z][i], self.std[z][i]))       
-        fx.close()
-	fy.close()
-	fz.close()
-	
+	if MPI.COMM_WORLD.Get_rank() ==0:
+	    fx = open(filename_prefix+"_x.dat","w")
+	    fy = open(filename_prefix+"_y.dat","w")
+	    fz = open(filename_prefix+"_z.dat","w")
+	    for i in range(0,len(self.s)):
+	        fx.write("%g %g %g %g %g\n" % \
+		    (self.s[i],
+		    self.mean[xprime][i], self.std[xprime][i],
+		    self.mean[x][i], self.std[x][i]))
+	        fy.write("%g %g %g %g %g\n" % \
+		    (self.s[i],
+		    self.mean[yprime][i], self.std[yprime][i],
+		    self.mean[y][i], self.std[y][i])) 
+	        fz.write("%g %g %g %g %g\n" % \
+		    (self.s[i],
+		    self.mean[zprime][i], self.std[zprime][i],
+		    self.mean[z][i], self.std[z][i]))       
+	    fx.close()
+	    fy.close()
+	    fz.close()
+
