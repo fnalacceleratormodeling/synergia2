@@ -53,9 +53,9 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
         elif action.is_synergia_action():
             if action.get_synergia_action() == "space charge endpoint":
                 if not first_action:
-		    if steps % track_period_steps == 0:
-		        for (bunch,tracker) in zip(bunches,trackers):
-			    if tracker:
+		    if tracker:
+		        if steps % track_period_steps == 0:
+		           for (bunch,tracker) in zip(bunches,trackers):
 			       tracker.add(bunch,s)			
 		    for (diagnostics,bunch) in zip(diagnosticss,bunches):
                         diagnostics.add(s,bunch)
