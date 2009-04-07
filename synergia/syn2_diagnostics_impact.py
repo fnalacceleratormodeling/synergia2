@@ -2,6 +2,7 @@
 import numpy
 import math
 import sys
+import tables
 from mpi4py import MPI
 
 x = 0
@@ -152,3 +153,21 @@ class Diagnostics_impact:
 	    fy.close()
 	    fz.close()
 
+    def write_hdf5(self,filename_prefix,compress_level=1):
+        f = tables.openFile(filename_prefix+".h5",mode = "w")
+        # n.b. filter (and compress_level) not (yet) used
+        filter = tables.Filters(complevel=compress_level)
+        root = f.root
+        hdfarray = f.createArray(root,'s',numpy.array(self.s),"position")
+        hdfarray = f.createArray(root,'mean',numpy.array(self.mean),"centroid")
+#        hdfarray = f.createArray(root,'mom2',numpy.array(self.mom2s),"second moments")
+#        hdfarray = f.createArray(root,'corr',numpy.array(self.corrs),"correlation coefficients")
+#        hdfarray = f.createArray(root,'diagmom4',numpy.array(self.diagmom4s),"fourth moments on diagonal")
+        hdfarray = f.createArray(root,'std',numpy.array(self.std),"standard deviation")
+        #hdfarray = f.createArray(root,'emitx',numpy.array(self.emitxs),"x emittance")
+        #hdfarray = f.createArray(root,'emity',numpy.array(self.emitys),"y emittance")
+        #hdfarray = f.createArray(root,'emitz',numpy.array(self.emitzs),"z emittance")
+        #hdfarray = f.createArray(root,'emitxy',numpy.array(self.emitxys),"x-y emittance")
+        #hdfarray = f.createArray(root,'emitxyz',numpy.array(self.emitxyzs),"x-y-z emittance")
+        hdfarray = f.createArray(root,'units',numpy.array(self.u),"units")
+        f.close()
