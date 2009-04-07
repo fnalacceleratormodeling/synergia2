@@ -116,13 +116,24 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
     double mass = mbs.mass * 1.0e9;
     double eps0 = PH_MKS_eps0; 
 
-    double length=2.0*pi*gamma*beta/mbs.units(0); // see macro_bunch, length=get_longitudinal_period_size
+/*    consider the electric fields in the rest frame, E'x, E'y, E'z,
+	and Ex,Ey,Ez in the lab frame
+      the force on a charge q is
+	Fx=q * E'x/gamma =q * Ex/gamma^2
+	Fy=q * E'y/gamma=q * Ey/gamma^2
+	Fz=q * E'z = q *Ez	
+	
+	the kick in the 3rd direction is a kick of p_t, not p_z	
+	p_t=-U ==> dp_t/dt=-betaz * dpz/dt-betax *dpx/dt-betay*dpy/dt =~ -beta*dpz/dt
+*/
+
+    double length=2.0*pi*beta/mbs.units(0); // bunch length in lab frame
     double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho
     factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
     factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
     factor *= -1.0 / mbs.total_num; // normailze the density...,-minus from the definition of phi ???
-    factor *= 1.0/(gamma*gamma);    // relativistic factor
-
+    factor *= 1.0/gamma;    // relativistic factor
+    if (n_axis == 2) {factor *=-beta*gamma;} // -dp_t=-beta dp_z; E
 
    
     int index = 2 * n_axis + 1; // for axis n_axis = (0,1,2) corresponding to x,y,z,
@@ -163,13 +174,25 @@ void apply_Efield_kick(const std::vector<Real_scalar_field> &E, double tau,
     factor *= 1.0/(gamma*gamma);    // relativistic factor
 
 
+/*    consider the electric fields in the rest frame, E'x, E'y, E'z,
+	and Ex,Ey,Ez in the lab frame
+      the force on a charge q is
+	Fx=q * E'x/gamma =q * Ex/gamma^2
+	Fy=q * E'y/gamma=q * Ey/gamma^2
+	Fz=q * E'z = q *Ez	
+	
+	the kick in the 3rd direction is a kick of p_t, not p_z	
+	p_t=-U ==> dp_t/dt=-betaz * dpz/dt-betax *dpx/dt-betay*dpy/dt =~ -beta*dpz/dt
+*/
 
     double kick;
+    double factor1;
     int index;
     for (int axis = 0; axis < 3; ++axis) {
           index = 2 * axis + 1;
+          axis == 2 ? factor1 =-factor*beta*gamma:factor1=factor;
           for (int n = 0; n < mbs.local_num; ++n) {                     
-                             kick = tau * factor* E.at(axis).get_val(Double3(mbs.local_particles(0, n),
+                             kick = tau * factor1* E.at(axis).get_val(Double3(mbs.local_particles(0, n),
                                                mbs.local_particles(2, n),
                                                mbs.local_particles(4, n)));
               mbs.local_particles(index, n) += kick;
