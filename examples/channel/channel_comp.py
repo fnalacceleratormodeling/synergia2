@@ -19,7 +19,7 @@ if ( __name__ == '__main__'):
     myopts.add("solver","3d","solver",str)
     myopts.add("xoffset",0.0,"x offset",float)
     myopts.add("impedance",0,"whether to use resistive wall kicks",int)
-    myopts.add("piperadius",0.01,"pipe radius for impedance",float)
+    myopts.add("piperadius",100.,"pipe radius for impedance",float)
     myopts.add("pipeconduct",1.4e6,
         "conductivity for pipe [/s], default is for stainless steel",float)
     myopts.add("spacecharge",1,"whether to use space charge kicks",int)        
@@ -31,12 +31,12 @@ if ( __name__ == '__main__'):
                                       ["channel.mad"])    
     
     current_in = 130000
-#    current_in = 1
+    current_in = 1
     
     print "curent=",current_in
     
-#    kinetic_energy = 0.0027
-    kinetic_energy = 4.
+    kinetic_energy = 0.0027
+#    kinetic_energy = 4.
     print "kinetic_energy= ",kinetic_energy
     mass = synergia.PH_NORM_mp
     charge = 1.0
@@ -176,7 +176,7 @@ if ( __name__ == '__main__'):
     current=current_in
 
 
-    griddim = (16,16,16)
+    griddim = (16,16,128)
     num_particles = griddim[0]*griddim[1]*griddim[2] * 1 #part_per_cell
     print "num_particles =",num_particles
     
@@ -216,10 +216,15 @@ if ( __name__ == '__main__'):
     pylab.legend(loc=0)
    
 # **********************************************************************
-    solver="3d impact closed"
-    BC_choice="trans finite, long periodic round"
-
-
+   # solver="3d impact closed"
+   # BC_choice="trans finite, long periodic round"
+   # griddim=[17,17,17]
+    
+    
+    
+    solver="3d impact z-closed, trans open"
+    BC_choice="trans open, long periodic"
+    griddim = [16,16,129]   
 
     current=current_in
 
@@ -235,7 +240,7 @@ if ( __name__ == '__main__'):
     beam_parameters.z_params(sigma = sigma_z_meters, lam = dpop* pz)
 
     
-    griddim=[17,17,17]
+    
     num_particles = impact.adjust_particles(
         griddim[0]*griddim[1]*griddim[2] * part_per_cell,MPI.COMM_WORLD.Get_size())
     
@@ -258,13 +263,15 @@ if ( __name__ == '__main__'):
     print "elapsed time 3d impact=",time.time() - t0
 
     pylab.figure(1)
-    pylab.plot(diag.s,diag.std[0],'o',label='impact ')
+    #pylab.plot(diag.s,diag.stds[0],'o',label='impact ') old version
+    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.x],'o',label='impact ')
     pylab.legend(loc=0)
 
 
 
     pylab.figure(2)
-    pylab.plot(diag.s,diag.std[1],'o',label='impact')
+    #pylab.plot(diag.s,diag.stds[1],'o',label='impact') old version
+    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.xprime],'o',label='impact ')
     pylab.legend(loc=0)
     
     
@@ -313,13 +320,15 @@ if ( __name__ == '__main__'):
     print "elapsed time 3d impact=",time.time() - t0
 
     pylab.figure(1)
-    pylab.plot(diag.s,diag.std[0],'gx',label='no sp ch ')
+   # pylab.plot(diag.s,diag.stds[0],'gx',label='no sp ch ') old version
+    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.x],'gx',label='no sp ch ')
     pylab.legend(loc=0)
 
 
 
     pylab.figure(2)
-    pylab.plot(diag.s,diag.std[1],'gx',label='no sp ch')
+    #pylab.plot(diag.s,diag.stds[1],'gx',label='no sp ch') old version
+    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.xprime],'gx',label='no sp ch ')
     pylab.legend(loc=0)
     
     pylab.show()    

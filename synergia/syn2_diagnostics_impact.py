@@ -133,6 +133,13 @@ class Diagnostics_impact:
         print "got diagnostics"
         return (stds[x],stds[y],stds[z])
     
+    def get_s(self):
+        return numpy.array(self.s)    
+    def get_means(self):
+        return numpy.array(self.means)
+    def get_stds(self):
+        return numpy.array(self.stds)
+    
     def write(self,filename_prefix):
         # same format as fort.24
 	if MPI.COMM_WORLD.Get_rank() ==0:
