@@ -111,17 +111,20 @@ def get_diagnostics(bunch):
 class Diagnostics_impact:
     def __init__(self,units):
         self.s = []
-        self.mean = [[],[],[],[],[],[]]
-        self.std = [[],[],[],[],[],[]]
+        self.means = []
+        self.stds = []
         self.u = units
         # n.b. we are ignoring mom2, corrs!
 
     def add(self,s,bunch):	
         means,stds,mom2s,corrs = get_diagnostics(bunch.particles())
+	for i in range(0,6):
+	    means[i]=means[i]/self.u[i]
+	    stds[i] = stds[i]/self.u[i]
         self.s.append(s)
-        for i in range(0,6):	    	
-            self.mean[i].append(means[i]/self.u[i])
-            self.std[i].append(stds[i]/self.u[i])
+	self.means.append(means)
+	self.stds.append(stds)
+       
 
     def get_coord_stds(self,bunch):
         print "about to get diagnostics"
@@ -137,18 +140,32 @@ class Diagnostics_impact:
 	    fy = open(filename_prefix+"_y.dat","w")
 	    fz = open(filename_prefix+"_z.dat","w")
 	    for i in range(0,len(self.s)):
+	        #fx.write("%g %g %g %g %g\n" % \
+		    #(self.s[i],
+		    #self.mean[xprime][i], self.std[xprime][i],
+		    #self.mean[x][i], self.std[x][i]))
+	        #fy.write("%g %g %g %g %g\n" % \
+		    #(self.s[i],
+		    #self.mean[yprime][i], self.std[yprime][i],
+		    #self.mean[y][i], self.std[y][i])) 
+	        #fz.write("%g %g %g %g %g\n" % \
+		    #(self.s[i],
+		    #self.mean[zprime][i], self.std[zprime][i],
+		    #self.mean[z][i], self.std[z][i]))       
+		    
+		    
 	        fx.write("%g %g %g %g %g\n" % \
-		    (self.s[i],
-		    self.mean[xprime][i], self.std[xprime][i],
-		    self.mean[x][i], self.std[x][i]))
-	        fy.write("%g %g %g %g %g\n" % \
-		    (self.s[i],
-		    self.mean[yprime][i], self.std[yprime][i],
-		    self.mean[y][i], self.std[y][i])) 
-	        fz.write("%g %g %g %g %g\n" % \
-		    (self.s[i],
-		    self.mean[zprime][i], self.std[zprime][i],
-		    self.mean[z][i], self.std[z][i]))       
+                     (self.s[i],
+                     self.means[i][x], self.stds[i][x],
+                     self.means[i][xprime], self.stds[i][xprime]))
+                fy.write("%g %g %g %g %g\n" % \
+                     (self.s[i],
+                     self.means[i][y], self.stds[i][y],
+                     self.means[i][yprime], self.stds[i][yprime]))
+                fz.write("%g %g %g %g %g\n" % \
+                     (self.s[i],
+                     self.means[i][z], self.stds[i][z],
+                     self.means[i][zprime], self.stds[i][zprime])) 		    
 	    fx.close()
 	    fy.close()
 	    fz.close()
@@ -159,11 +176,11 @@ class Diagnostics_impact:
         filter = tables.Filters(complevel=compress_level)
         root = f.root
         hdfarray = f.createArray(root,'s',numpy.array(self.s),"position")
-        hdfarray = f.createArray(root,'mean',numpy.array(self.mean),"centroid")
+        hdfarray = f.createArray(root,'mean',numpy.array(self.means),"centroid")
 #        hdfarray = f.createArray(root,'mom2',numpy.array(self.mom2s),"second moments")
 #        hdfarray = f.createArray(root,'corr',numpy.array(self.corrs),"correlation coefficients")
 #        hdfarray = f.createArray(root,'diagmom4',numpy.array(self.diagmom4s),"fourth moments on diagonal")
-        hdfarray = f.createArray(root,'std',numpy.array(self.std),"standard deviation")
+        hdfarray = f.createArray(root,'std',numpy.array(self.stds),"standard deviation")
         #hdfarray = f.createArray(root,'emitx',numpy.array(self.emitxs),"x emittance")
         #hdfarray = f.createArray(root,'emity',numpy.array(self.emitys),"y emittance")
         #hdfarray = f.createArray(root,'emitz',numpy.array(self.emitzs),"z emittance")
