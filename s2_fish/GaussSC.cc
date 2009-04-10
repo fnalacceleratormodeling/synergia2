@@ -57,47 +57,38 @@ apply_BasErs_kick(Macro_bunch_store &mbs, double sigmaX, double sigmaY, double t
 
 //**************************************************************
 
+/*     Alex opinion:
+	 In the lab frame  (Delta p) = q*E_eff* (Delta t) =factor*Efield*tau
+ 
+        what is factor=?
 
-/*       Alex: please check it, although I am almost sure it is right.....
-          In the bunch frame,  
+	
 
-                    (Delta p) = q*E* (Delta t) =factor*Efiled*tau
-                                             
-           where Efiled=normalized field, see BasErs_field.h	    	
-
-            q=p/Brho=PH_CNV_brho_to_p
+	1) the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
+        
+	2)   q=p/Brho=PH_CNV_brho_to_p
 	    because p unit is [GeV/c], the charge is measured in  q=c*10e-9
 
-	    E= 1/(2*pi*eps0) *lambda*Efield, 
-	    the line density of charge,lambda= current/v=current/beta*c
+        3) in the bunch frame
+         E'= 1/(2*pi*eps0) *lambda'*Efield
+         where Efield=normalized field, see BasErs_field.h
+
+	E' --electric field in the bunch frame	
+        E=gamma* E' --electric field in the lab frame
+
+        E_eff=E-beta*B=E-Beta^2*E= E/gamma^2=E'/gamma
+
+	4) charge density transformation:
+	lambda=lambda'*gamma ===>lambda'=lambda/gamma
+
+
+        5) lambda= current/v=current/beta*c
 	
-	   so far:  */
 
-           double factor = PH_CNV_brho_to_p*mbs.total_current /(2.*pi*eps0* beta*c);
-	
-//	  the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
-
-//	  in the bunch frame the factor before Efield is	 	
-		
-          factor=factor/(beta*c);
-
-//        the Lorentz transformation to the accelerator
-//                        frame introduces a factor of 1/gamma^2
-//        where:
-//        1/gamma is due to the time interval of the kick,
-//        since time interval(in the acc frame)=time interval(in the bunch frame)*gamma
-//
-//        transversal coordinates x and y and momenta
-//        px and py are the same in both frames, 
-// 
-//        and:
-//        1/gamma is due to the charge density transformation between the frames
-//        rho_charge (in the acc frame)=  rho_charge (in the bunch frame)*gamma
-//        remember that the current I=lambda*beta*c is defined in the acc frame 
-//   
-
-
-	  factor = factor/(gamma * gamma);	
+*/       
+         double factor = PH_CNV_brho_to_p*mbs.total_current /(2.*pi*eps0* beta*c); //point 2) and 5) above
+          factor=factor/(beta*c);  //         point 1) above  
+	  factor = factor/(gamma * gamma);	// point  3) and 4) above
 
           int index = 2 * n_axis + 1; // for n_axis = (0,1,2) Cartesian coordinate x,y,z,
             // in particle store indexing, px,py,pz = (1,3,5)
