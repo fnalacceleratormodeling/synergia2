@@ -116,19 +116,35 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
     double mass = mbs.mass * 1.0e9;
     double eps0 = PH_MKS_eps0; 
 
-    double length=2.0*pi*gamma*beta/mbs.units(0); // see macro_bunch, length=get_longitudinal_period_size
+/*    consider the electric fields in the rest frame, E'x, E'y, E'z,
+	and Ex,Ey,Ez in the lab frame
+      the force on a charge q is
+	Fx=q * E'x/gamma =q * Ex/gamma^2
+	Fy=q * E'y/gamma=q * Ey/gamma^2
+	Fz=q * E'z = q *Ez	
+	
+	the kick in the 3rd direction is a kick of p_t, not p_z	
+	p_t=-U ==> dp_t/dt=-betaz * dpz/dt-betax *dpx/dt-betay*dpy/dt =~ -beta*dpz/dt
+*/
+
+    double length=2.0*pi*beta/mbs.units(0); // bunch length in lab frame
     double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho
     factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
     factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
     factor *= -1.0 / mbs.total_num; // normailze the density...,-minus from the definition of phi ???
-    factor *= 1.0/(gamma*gamma);    // relativistic factor
-
-
-   
+    factor *= 1.0/gamma;    // relativistic factor
+    factor *=mbs.units(1); // the kikcing force should be muliplied  by the unit of p, this is a factor of 1/mass
+    if (n_axis == 2) {factor *=-beta*gamma;} // -dp_t=-beta dp_z; E      
     int index = 2 * n_axis + 1; // for axis n_axis = (0,1,2) corresponding to x,y,z,
     // in particle store indexing, px,py,pz = (1,3,5)
     double kick;
-//     double jfa_total_kick = 0;
+  	
+
+/*   difference with the factor (i.e. xycon,tcon) in impact :
+ 	   factor_fish*n_part/(4*pi)= - factor_impact
+ 
+ in impact, -1/(4*pi) *n_part is included in the definition of the electric field....
+*/
     for (int n = 0; n < mbs.local_num; ++n) {
         //~ if (n == 0) std::cout << "jfa: " << tau*factor << " " << E.get_val(Double3(mbs.local_particles(0, n),
             //~ mbs.local_particles(2, n),
@@ -136,11 +152,13 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
         kick = tau * factor * E.get_val(Double3(mbs.local_particles(0, n),
                                                 mbs.local_particles(2, n),
                                                 mbs.local_particles(4, n)));
-        
-        mbs.local_particles(index, n) += kick;
 
+   
+        mbs.local_particles(index, n) += kick;
+	
     }
     timer("apply kick");
+	
 }
 
 
@@ -161,15 +179,33 @@ void apply_Efield_kick(const std::vector<Real_scalar_field> &E, double tau,
     factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
     factor *= -1.0 / mbs.total_num; // normailze the density...,-minus from the definition of phi ???
     factor *= 1.0/(gamma*gamma);    // relativistic factor
+    factor *=mbs.units(1); // the kikcing force should be muliplied  by the unit of p, this is a factor of 1/mass
 
 
+/*    consider the electric fields in the rest frame, E'x, E'y, E'z,
+	and Ex,Ey,Ez in the lab frame
+      the force on a charge q is
+	Fx=q * E'x/gamma =q * Ex/gamma^2
+	Fy=q * E'y/gamma=q * Ey/gamma^2
+	Fz=q * E'z = q *Ez	
+	
+	the kick in the 3rd direction is a kick of p_t, not p_z	
+	p_t=-U ==> dp_t/dt=-betaz * dpz/dt-betax *dpx/dt-betay*dpy/dt =~ -beta*dpz/dt
+*/
 
+/*   difference with the factor (i.e. xycon,tcon) in impact :
+ 	   factor_fish*n_part/(4*pi)= - factor_impact
+ 
+ in impact, -1/(4*pi) *n_part is included in the definition of the electric field....
+*/
     double kick;
+    double factor1;
     int index;
     for (int axis = 0; axis < 3; ++axis) {
           index = 2 * axis + 1;
+          axis == 2 ? factor1 =-factor*beta*gamma:factor1=factor;
           for (int n = 0; n < mbs.local_num; ++n) {                     
-                             kick = tau * factor* E.at(axis).get_val(Double3(mbs.local_particles(0, n),
+                             kick = tau * factor1* E.at(axis).get_val(Double3(mbs.local_particles(0, n),
                                                mbs.local_particles(2, n),
                                                mbs.local_particles(4, n)));
               mbs.local_particles(index, n) += kick;
@@ -191,48 +227,54 @@ apply_phi_kick(Real_scalar_field &phi, int axis, double tau,
         << ". Argument be in range 0<=axis<=2";
         throw std::invalid_argument(message.str());
     }
-    // jfa: I am taking this calculation of "factor" more-or-less
-    // directly from Impact.  I should really redo it in terms that make
-    // sense to me
-    double gamma = -1 * mbs.ref_particle(5);
-    double beta = sqrt(gamma * gamma - 1.0) / gamma;
-    const  double c = 2.99792458e8;
-    double mass = mbs.mass * 1.0e9;
-    double eps0 = PH_MKS_eps0; // 1.0 / (4 * pi * c * c * 1.0e-7); // using c^2 = 1/(eps0 * mu0)
-//    double Brho = gamma * beta * mass / c;
-//    double perveance0 = mbs.total_current / (2 * pi * eps0 * Brho * gamma * gamma*\
-//                        beta * c * beta * c);
-//    double xk = mbs.units(0);
 
-//    double factor = pi * perveance0 * gamma * beta * beta / xk * 4.0 * pi;
 
-      double length=2.0*pi*gamma*beta/mbs.units(0); // see macro_bunch, length=get_longitudinal_period_size
-      double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho
-      factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
+     double gamma = -1. * mbs.ref_particle(5);
+     double beta = sqrt(gamma * gamma - 1.0) / gamma;
+     const  double c = PH_MKS_c;
+     double mass = mbs.mass * 1.0e9;
+     double eps0 = PH_MKS_eps0; 
 
-      factor *=1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
-      factor *= 1.0 / mbs.total_num; // normailze the density...
+/*    consider the electric fields in the rest frame, E'x, E'y, E'z,
+	and Ex,Ey,Ez in the lab frame
+      the force on a charge q is
+	Fx=q * E'x/gamma =q * Ex/gamma^2
+	Fy=q * E'y/gamma=q * Ey/gamma^2
+	Fz=q * E'z = q *Ez	
+	
+	the kick in the 3rd direction is a kick of p_t, not p_z	
+	p_t=-U ==> dp_t/dt=-betaz * dpz/dt-betax *dpx/dt-betay*dpy/dt =~ -beta*dpz/dt
+*/
 
-     if (axis == 2) {
-//        factor *= beta * gamma * gamma;
-        factor *= 1.0/gamma;
-    } else {
-        // (We think) this is for the Lorentz transformation of the transverse
-        // E field.
-        // factor *= gamma;
+    double length=2.0*pi*beta/mbs.units(0); // bunch length in lab frame
+    double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho
+    factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
+    factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
+    factor *= -1.0 / mbs.total_num; // normailze the density...,-minus from the definition of phi ???
+    factor *= 1.0/gamma;    // relativistic factor
+    factor *=mbs.units(1); // the kikcing force should be muliplied  by the unit of p, this is a factor of 1/mass
+    if (axis == 2) {factor *=-beta*gamma;} // -dp_t=-beta dp_z; E     
 
-        factor *= 1.0/(gamma*gamma);
-    }
-    int index = 2 * axis + 1; // for axis axis = (0,1,2) corresponding to x,y,z,
+
+/*   difference with the factor (i.e. xycon,tcon) in impact :
+ 	   factor_fish*n_part/(4*pi)= - factor_impact
+ 
+ in impact, -1/(4*pi) *n_part is included in the definition of the electric field....
+*/
+  
+ 
+    int index = 2 * axis + 1; // for axis n_axis = (0,1,2) corresponding to x,y,z,
     // in particle store indexing, px,py,pz = (1,3,5)
-    double kick;
+    double kick;   
     for (int n = 0; n < mbs.local_num; ++n) {
         kick = tau * factor * phi.get_deriv(Double3(mbs.local_particles(0, n),
                                             mbs.local_particles(2, n),
                                             mbs.local_particles(4, n)), axis);
-        mbs.local_particles(index, n) -= kick;
+        mbs.local_particles(index, n) += kick;	
+
     }
     timer("apply kick");
+      
 }
 
 void
@@ -262,6 +304,7 @@ full_kick(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs)
         //~ *fdebug << "about to apply kick " << axis << "\n"; fdebug->flush();
         apply_E_n_kick(E, axis, tau, mbs);
         //~ *fdebug << "full_kick complete\n"; fdebug->flush();
+      //  apply_phi_kick(phi, axis,  tau,  mbs);
     }
 }
 

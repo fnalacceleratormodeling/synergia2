@@ -24,17 +24,25 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
     periodic=False, aperture=None, radius=None,
     space_charge=True,impedance=False,
     pipe_radiusx=None,pipe_radiusy=None,
-    pipe_conduct=None,bunch_spacing=None):
+    pipe_conduct=None,bunch_spacing=None,
+    tracker=None,track_period_steps=None):
 
     bunches = listify(bunch_in)
     diagnosticss = listify(diagnostics_in)
+    
+    if tracker and not track_period_steps:
+        raise RuntimeError,\
+            "propagate: when specifying a tracker, one must also specify track_period_steps"
+    trackers=listify(tracker)
 
     if len(bunches) != len(diagnosticss):
         raise RuntimeError,\
             "propagate: len(bunches) must = len(diagnosticss)"
     s = s0
+    steps = 0
     global last_step_length
     first_action = 1
+    
     for action in gourmet.get_actions():
         if action.is_mapping():
             for bunch in bunches:
@@ -45,10 +53,15 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
         elif action.is_synergia_action():
             if action.get_synergia_action() == "space charge endpoint":
                 if not first_action:
-                    for num in range(0,len(bunches)):
-                        diagnosticss[num].add(s,bunches[num])
+		    if tracker:
+		        if steps % track_period_steps == 0:
+		           for (bunch,tracker) in zip(bunches,trackers):
+			       tracker.add(bunch,s)			
+		    for (diagnostics,bunch) in zip(diagnosticss,bunches):
+                        diagnostics.add(s,bunch)
                     if not quiet:
                         print "finished space charge kick"
+                steps += 1
             elif action.get_synergia_action() == "space charge kick":
                 tau = last_step_length
                 #~ pardebug("start space charge\n")

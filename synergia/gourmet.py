@@ -47,7 +47,7 @@ pacifier = drift("pacifier",0.0)
 
 class Gourmet:
     def __init__(self, lattice_file, line_name, initial_kinetic_energy,
-                 scaling_frequency, order=1, particle='proton'):
+                 scaling_frequency, order=1, particle='proton', delay_complete=False):
         self.lattice_file = lattice_file
         self.line_name = line_name
         self.scaling_frequency = scaling_frequency
@@ -75,10 +75,16 @@ class Gourmet:
             #~ print "gourmet: using MAD8 parser for %s" % os.path.abspath(lattice_file)
             self.factory = MAD8Factory(os.path.abspath(lattice_file))
         brho = self.get_initial_particle().ReferenceBRho()
-        beamline_orig = self.factory.create_beamline(line_name,brho)
-        beamline_orig.insert(pacifier)
-        beamline_orig.append(pacifier)
-        self.beamline = DriftsToSlots(beamline_orig)
+        self.beamline = self.factory.create_beamline(line_name,brho)
+	self.beamline.insert(pacifier)
+        self.beamline.append(pacifier)
+	if not delay_complete:
+		self.complete_setup() 
+		
+		
+			
+    def complete_setup(self):
+        self.beamline = DriftsToSlots(self.beamline)
         self.needs_commission = False
         self.is_commissioned = False
         ##self._commission()

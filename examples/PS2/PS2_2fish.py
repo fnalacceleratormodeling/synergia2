@@ -24,15 +24,15 @@ if ( __name__ == '__main__'):
     myopts.add("emitx",3.24e-06,"X emittance",float)
     myopts.add("emity",1.73e-06,"Y emittance",float)
     myopts.add("sige",1e-3,"(sigma E) over E",float)
-    myopts.add("Ekin",50.9383,"",float)
+    myopts.add("Ekin",4.0,"",float)
     myopts.add("bunchnp",5.0e+12,"number of particles per bunch",float)
-    myopts.add("tgridnum",16,"transverse grid cells",int)
+    myopts.add("tgridnum",32,"transverse grid cells",int)
     myopts.add("lgridnum",64,"",int)
-    myopts.add("bunches",1,"",int)
+   # myopts.add("bunches",1,"",int)
     myopts.add("partpercell",1,"",float)
     myopts.add("space_charge",1,"",int)
     myopts.add("kicks",40,"kicksper line",int)
-    
+    myopts.add("numtrack",8000,"number of particles to track",int)
     
     myopts.add_suboptions(synergia.opts)
     myopts.parse_argv(sys.argv)
@@ -48,6 +48,7 @@ if ( __name__ == '__main__'):
 #    scaling_frequency = 47713451.5923694
 #    scaling_frequency =40.0e6
     scaling_frequency =1.0e9
+    pipe_radius=0.1
     
     kinetic_energy= myopts.get("Ekin")
     mass = synergia.PH_NORM_mp
@@ -105,7 +106,8 @@ if ( __name__ == '__main__'):
     
     
     (alpha_x, alpha_y, beta_x, beta_y) = synergia.matching.get_alpha_beta(gourmet)
-    print " lattice beta_x, alpha_x, beta_y, alpha_y = ", beta_x, alpha_x, beta_y, alpha_y
+    if MPI.COMM_WORLD.Get_rank() ==0:
+        print " lattice beta_x, alpha_x, beta_y, alpha_y = ", beta_x, alpha_x, beta_y, alpha_y
     
     
     
@@ -138,13 +140,24 @@ if ( __name__ == '__main__'):
     
     (ywidth,ypwidth,ry) = synergia.matching.match_twiss_emittance(emity,alpha_y,beta_y)
     beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,r = ry,offset=yoffset)
-       
+                     
     bunch_len= 1e-9
     lam_z=sige*gamma*beam_parameters.mass_GeV
     sigma_z_meters = beta*synergia.physics_constants.PH_MKS_c*bunch_len
     if MPI.COMM_WORLD.Get_rank() ==0:
-        print "sigma_z_meters =",sigma_z_meters
-        print "sigma z in the code=",beta*synergia.physics_constants.PH_MKS_c/scaling_frequency
+	print " xwidth=",xwidth
+	print " ywidth=",ywidth
+	print "sigma_z_meters =",sigma_z_meters
+	print "sigma z in the code=",beta*synergia.physics_constants.PH_MKS_c/scaling_frequency
+	print " "
+	print " xpwidth=",xpwidth
+	print " ypwidth=",ypwidth   
+	print " "
+	print " xoffset=",xoffset
+	print " yoffset=",yoffset
+	
+        
+        
     beam_parameters.z_params(sigma = sigma_z_meters, lam = sige* pz/beta**2)
     # beam_parameters.z_params(sigma = sigma_z_meters, lam = lam_z)
 	
@@ -152,11 +165,14 @@ if ( __name__ == '__main__'):
     bunch_sp=25.e-9	
     bunch_spacing=beta*synergia.physics_constants.PH_MKS_c*bunch_sp
     
-    
-    current = myopts.get("bunchnp")* \
-        synergia.physics_constants.PH_MKS_e/ \
-        (bunch_spacing/(beta*synergia.physics_constants.PH_MKS_c))
+    if not space_charge:
+	current =0.
+    else:	    
+        current = myopts.get("bunchnp")* \
+            synergia.physics_constants.PH_MKS_e/ \
+            (bunch_spacing/(beta*synergia.physics_constants.PH_MKS_c))
     if MPI.COMM_WORLD.Get_rank() ==0:
+       print "Kinetic energy=", kinetic_energy   
        print "bunch_spacing=",bunch_spacing
        print "current =",current
        print "space_charge =",space_charge
@@ -176,15 +192,28 @@ if ( __name__ == '__main__'):
 
     
     s = 0.0
-    numbunches = myopts.get("bunches")
-    bunches = []
-    diags = []
-    for bunchnum in range(0,numbunches):
-        bunches.append(s2_fish.Macro_bunch(mass,1))
-        bunches[bunchnum].init_gaussian(num_particles,current,beam_parameters)
-        bunches[bunchnum].write_particles("begin-%02d"%bunchnum)
-        diags.append(synergia.Diagnostics(gourmet.get_initial_u()))
+    #numbunches = myopts.get("bunches")
+    #bunches = []
+    #diags = []
+    #for bunchnum in range(0,numbunches):
+        #bunches.append(s2_fish.Macro_bunch(mass,1))
+        #bunches[bunchnum].init_gaussian(num_particles,current,beam_parameters)
+        #bunches[bunchnum].write_particles("begin-%02d"%bunchnum)
+        #diags.append(synergia.Diagnostics(gourmet.get_initial_u()))
 	
+    bunch = s2_fish.Macro_bunch(mass,1)
+    bunch.init_gaussian(num_particles,current,beam_parameters)
+    bunch.write_particles("begin")
+    diag = synergia.Diagnostics(gourmet.get_initial_u())
+    
+    
+    if myopts.get("numtrack") > 0:
+        tracker = synergia.Tracker("/tmp",(myopts.get("numtrack"),num_particles))
+        tracker.add(bunch,0.0)
+    else:
+        tracker = None
+    track_period_steps=20
+    
     
     
     log = open("log","w") 
@@ -193,18 +222,26 @@ if ( __name__ == '__main__'):
        print output
        log.write("%s\n" % output)
        log.flush()
+    s=0.
     for turn in range(1,myopts.get("turns")+1):
        t1 = time.time()
-       s = synergia.propagate(s,gourmet,  bunches,diags,griddim,use_s2_fish=True,space_charge=space_charge)
+       s = synergia.propagate(s,gourmet,bunch,diag,griddim,use_gauss=True,
+		impedance=0,pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius,pipe_conduct=1.4e6,
+		tracker=tracker,track_period_steps=track_period_steps)
+      # bunch.write_particles("turn_%03d.h5" % turn)
+     
        if MPI.COMM_WORLD.Get_rank() ==0:
           output = "turn %d time = %g"%(turn,time.time() - t1)
           print output
           log.write("%s\n" % output)
           log.flush()
-    for bunchnum in range(0,numbunches):	   
-        diags[bunchnum].write_hdf5("mi-%02d"%bunchnum)
-    for bunchnum in range(0,numbunches):
-        bunches[bunchnum].write_particles("end-%02d"%bunchnum)
+    if MPI.COMM_WORLD.Get_rank() == 0:  
+         diag.write_hdf5("mi_2dfish") 
+    bunch.write_particles("end")
+    if tracker:
+       tracker.close()
+       tracker.show_statistics()    
+    
     log.close()
     if MPI.COMM_WORLD.Get_rank() ==0:
         print "elapsed time =",time.time() - t0

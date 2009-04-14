@@ -19,20 +19,20 @@ if ( __name__ == '__main__'):
     myopts.add("turns",10,"number of turns",int)
 #    myopts.add("latticefile","fobodobo_s.lat","",str)
 #    myopts.add("latticefile","fodo.lat","",str)
-    myopts.add("xoffset",3.e-7,"transverse offset in x",float)
-    myopts.add("yoffset",3.e-7,"transverse offset in y",float)
+    myopts.add("xoffset",0.,"transverse offset in x",float)
+    myopts.add("yoffset",0.,"transverse offset in y",float)
     myopts.add("emitx",3.24e-06,"X emittance",float)
     myopts.add("emity",1.73e-06,"Y emittance",float)
     myopts.add("sige",1e-3,"(sigma E) over E",float)
-    myopts.add("Ekin",50.9383,"",float)
-    myopts.add("bunchnp",5.0e+12,"number of particles per bunch",float)
+    myopts.add("Ekin",4.0,"",float)
+    myopts.add("bunchnp",7.0e+11,"number of particles per bunch",float)
     myopts.add("tgridnum",16,"transverse grid cells",int)
     myopts.add("lgridnum",64,"",int)
     myopts.add("bunches",1,"",int)
     myopts.add("partpercell",1,"",float)
     myopts.add("space_charge",1,"",int)
     myopts.add("kicks",40,"kicksper line",int)
-    
+    myopts.add("numtrack",10,"number of particles to track",int)
     
     myopts.add_suboptions(synergia.opts)
     myopts.parse_argv(sys.argv)
@@ -60,7 +60,8 @@ if ( __name__ == '__main__'):
     tgridnum = myopts.get("tgridnum")
     lgridnum = myopts.get("lgridnum")
     griddim = (tgridnum,tgridnum,lgridnum)
-    num_particles = int(griddim[0]*griddim[1]*griddim[2] * myopts.get("partpercell"))
+    part_per_cell=myopts.get("partpercell")
+    num_particles = int(griddim[0]*griddim[1]*griddim[2] * part_per_cell )
     kicks_per_line = myopts.get("kicks")
     space_charge=myopts.get("space_charge")
     
@@ -82,47 +83,15 @@ if ( __name__ == '__main__'):
         #gourmet.print_elements()
    
 
-#
-   
-    #sys.exit(1)
-# 
-    #particle = gourmet.get_initial_particle()
-    #particle.set_x(xoffset)
-    #particle.set_y(yoffset)
-    #jet_particle = gourmet.get_initial_jet_particle()
-    #gourmet.printpart(particle)
-    #for index, element in enumerate(gourmet.beamline):
-	#print element.Name(), element.Type()  
-	#element.propagate(jet_particle)
-	#element.propagate(particle)
-	#map = gourmet._convert_linear_maps([jet_particle.State().jacobian()])[0]	
-	#gourmet.printpart(particle)
-	#print numpy.array2string(map,precision=2)
-	#energy = jet_particle.ReferenceEnergy()
-	#print "energy =",energy
-	#jet_particle = gourmet.get_jet_particle(energy)
   
     
     
     (alpha_x, alpha_y, beta_x, beta_y) = synergia.matching.get_alpha_beta(gourmet)
-    print " lattice beta_x, alpha_x, beta_y, alpha_y = ", beta_x, alpha_x, beta_y, alpha_y
+    if MPI.COMM_WORLD.Get_rank() ==0:
+        print " lattice beta_x, alpha_x, beta_y, alpha_y = ", beta_x, alpha_x, beta_y, alpha_y
     
     
-    
-    #brho = particle.ReferenceBRho()
-    #print "brho= ",brho, brho/Bfield
-	
-     #element.OrbitLength(particle) ,
-#    (s,kx,ky) = gourmet.get_strengths()
-    #lat_func=gourmet.get_lattice_functions()
-    
-    #print " i      s        beta_x      alpha_x   beta_y    alpha_y"
-    #for i, element in enumerate(gourmet.beamline):
-	#print i,"  ", lat_func.s[i], "       "\
-	   #,lat_func.beta_x[i], "       ",lat_func.alpha_x[i] \
-	   #,"       ",lat_func.beta_y[i],"       ", lat_func.alpha_y[i]		
- 
- 
+   
     beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
                                         initial_phase, scaling_frequency,
                                          transverse=1)	
@@ -143,8 +112,17 @@ if ( __name__ == '__main__'):
     lam_z=sige*gamma*beam_parameters.mass_GeV
     sigma_z_meters = beta*synergia.physics_constants.PH_MKS_c*bunch_len
     if MPI.COMM_WORLD.Get_rank() ==0:
-        print "sigma_z_meters =",sigma_z_meters
-        print "sigma z in the code=",beta*synergia.physics_constants.PH_MKS_c/scaling_frequency
+        print " xwidth=",xwidth
+	print " ywidth=",ywidth
+	print "sigma_z_meters =",sigma_z_meters
+	print "sigma z in the code=",beta*synergia.physics_constants.PH_MKS_c/scaling_frequency
+	print " "
+	print " xpwidth=",xpwidth
+	print " ypwidth=",ypwidth   
+	print " "
+	print " xoffset=",xoffset
+	print " yoffset=",yoffset
+        
     beam_parameters.z_params(sigma = sigma_z_meters, lam = sige* pz/beta**2)
     # beam_parameters.z_params(sigma = sigma_z_meters, lam = lam_z)
 	
@@ -156,55 +134,89 @@ if ( __name__ == '__main__'):
     current = myopts.get("bunchnp")* \
         synergia.physics_constants.PH_MKS_e/ \
         (bunch_spacing/(beta*synergia.physics_constants.PH_MKS_c))
+    
+    if not space_charge:
+        current=0.
+       
     if MPI.COMM_WORLD.Get_rank() ==0:
+       print "Kinetic energy=", kinetic_energy    
        print "bunch_spacing=",bunch_spacing
        print "current =",current
        print "space_charge =",space_charge
        print "num_particles =",num_particles
-       
     
-    #for element in gourmet.beamline:
-        #print  "split_name = ",element.Name().split(":")[0]
     
-#    sys.exit(1)
     sys.stdout.flush()
-  
-    #widths=[xwidth,xpwidth,rx,ywidth,ypwidth,ry]
-    #retval=synergia.matching.envelope_motion(widths,current,gourmet,do_plot=0,do_match=1)
-    ##pylab.show() 
-    #xwidth,xpwidth,rx,ywidth,ypwidth,ry
-
+     
+     
+    #BC_choice="trans finite, long periodic round"
+    #griddim = (tgridnum+1,tgridnum+1,lgridnum+1)  
+    BC_choice="trans open, long periodic"
+    griddim = (tgridnum,tgridnum,lgridnum+1)    
     
-    s = 0.0
-    numbunches = myopts.get("bunches")
-    bunches = []
-    diags = []
-    for bunchnum in range(0,numbunches):
-        bunches.append(s2_fish.Macro_bunch(mass,1))
-        bunches[bunchnum].init_gaussian(num_particles,current,beam_parameters)
-        bunches[bunchnum].write_particles("begin-%02d"%bunchnum)
-        diags.append(synergia.Diagnostics(gourmet.get_initial_u()))
+    num_particles = impact.adjust_particles(
+        griddim[0]*griddim[1]*griddim[2] * part_per_cell,MPI.COMM_WORLD.Get_size())
+   
 	
     
     
+    pgrid = impact.Processor_grid(1)
+    cgrid = impact.Computational_grid(griddim[0],griddim[1],griddim[2],
+                                                  BC_choice)
+    piperad =100.
+    
+    field = impact.Field(beam_parameters, pgrid, cgrid, piperad)
+    bunch = impact.Bunch(current, beam_parameters, num_particles, pgrid)
+    bunch.generate_particles()          
+    bunch.write_particles("beginimpact")
+    diag = synergia.Diagnostics_impact(gourmet.get_initial_u())
+    
+     
+    if myopts.get("numtrack") > 0:
+        tracker = synergia.Tracker("/tmp",(myopts.get("numtrack"),num_particles))
+        tracker.add(bunch,0.0)
+    else:
+        tracker = None
+    track_period_steps=20
+    
+    
+    
+    
     log = open("log","w") 
+    
+    diag1 = synergia.Diagnostics_impact(gourmet.get_initial_u())
+    diag1.add(0.0,bunch)
+    diag1.write_hdf5("begin_impact")
+    
+ 
+    
+    
+         
     if MPI.COMM_WORLD.Get_rank() ==0:
        output = "start propagation"
        print output
        log.write("%s\n" % output)
        log.flush()
+    
+    
+    s = 0.0  
     for turn in range(1,myopts.get("turns")+1):
        t1 = time.time()
-       s = synergia.propagate(s,gourmet,  bunches,diags,griddim,use_s2_fish=True,space_charge=space_charge)
+       s = synergia.propagate(s,gourmet,bunch,diag,diag1,griddim,use_impact=True,
+        pgrid=pgrid,field=field,cgrid=cgrid,tracker=tracker,track_period_steps=track_period_steps)
        if MPI.COMM_WORLD.Get_rank() ==0:
           output = "turn %d time = %g"%(turn,time.time() - t1)
           print output
           log.write("%s\n" % output)
           log.flush()
-    for bunchnum in range(0,numbunches):	   
-        diags[bunchnum].write_hdf5("mi-%02d"%bunchnum)
-    for bunchnum in range(0,numbunches):
-        bunches[bunchnum].write_particles("end-%02d"%bunchnum)
+    if MPI.COMM_WORLD.Get_rank() == 0:
+#           diag.write("mi_impact")
+       diag.write_hdf5("mi_impact")
+       diag1.write_hdf5("bk_impact")  
+    if tracker:
+      tracker.close()
+      tracker.show_statistics()   
+	  	  
     log.close()
     if MPI.COMM_WORLD.Get_rank() ==0:
         print "elapsed time =",time.time() - t0

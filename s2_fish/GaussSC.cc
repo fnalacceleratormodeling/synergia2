@@ -22,20 +22,11 @@ apply_BasErs_kick(Macro_bunch_store &mbs, double sigmaX, double sigmaY, double t
     sigma[1] = sigmaY;
     BasErs_field *myfield = new BasErs_field(sigma);
 
- 
-    for (int ipart = 0; ipart < mbs.local_num; ipart++) {
-        // Get the field at the particle (x,y) location
-        std::vector<double> Efield(3);
-        Efield = myfield->NormalizedEField(mbs.local_particles(0, ipart), mbs.local_particles(2, ipart));
-        //std::cout << " Ex = " << Efield[0] << " Ey = "<< Efield[1] << " Ez = " << Efield[2] << std::endl;
+    // std::cout<<" sigma X = "<<sigmaX<<" sigma y = "<<sigmaY<<std::endl;
 
-        // Now x and y kick
 
- 	
 
-        for (int n_axis = 0; n_axis < 2; n_axis++) {
-           
-//**************** old attempt **********************************
+	//**************** old attempt **********************************
 /*          double mass = mbs.mass * 1.0e9;          
             double Brho = gamma * beta * mass/ c;
 
@@ -57,60 +48,61 @@ apply_BasErs_kick(Macro_bunch_store &mbs, double sigmaX, double sigmaY, double t
 
 //**************************************************************
 
+/*     Alex:
+	 In the lab frame  (Delta p) = q*E_eff* (Delta t) =factor*Efield*tau
+ 
+        what is factor=?
 
-/*       Alex: please check it, although I am almost sure it is right.....
-          In the bunch frame,  
+	
 
-                    (Delta p) = q*E* (Delta t) =factor*Efiled*tau
-                                             
-           where Efiled=normalized field, see BasErs_field.h	    	
-
-            q=p/Brho=PH_CNV_brho_to_p
+	1) the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
+        
+	2)   q=p/Brho=PH_CNV_brho_to_p
 	    because p unit is [GeV/c], the charge is measured in  q=c*10e-9
 
-	    E= 1/(2*pi*eps0) *lambda*Efield, 
-	    the line density of charge,lambda= current/v=current/beta*c
-	
-	   so far:  */
+        3) in the bunch frame
+         E'= 1/(2*pi*eps0) *lambda'*Efield
+         where Efield=normalized field, see BasErs_field.h
 
-           double factor = PH_CNV_brho_to_p*mbs.total_current /(2.*pi*eps0* beta*c);
-	
-//	  the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
+	E' --electric field in the bunch frame	
+        E=gamma* E' --electric field in the lab frame
 
-//	  in the bunch frame the factor before Efield is	 	
+        E_eff=E-beta*B=E-Beta^2*E= E/gamma^2=E'/gamma
+
+	4) charge density transformation:
+	lambda=lambda'*gamma ===>lambda'=lambda/gamma
+
+
+        5) lambda= current/v=current/beta*c
+	
+	6) Keep in mind the units used in the code p=p*units(1).....
+*/       
+    double factor = PH_CNV_brho_to_p*mbs.total_current /(2.*pi*eps0* beta*c); //point 2) and 5) above
+    factor=factor/(beta*c);  //         point 1) above  
+    factor = factor/(gamma * gamma);	// point  3) and 4) above
+    factor *=mbs.units(1); // point 6)
+    
+    for (int ipart = 0; ipart < mbs.local_num; ipart++) {
+        // Get the field at the particle (x,y) location
+        std::vector<double> Efield(3),Etest(3);
+        Efield = myfield->NormalizedEField(mbs.local_particles(0, ipart), mbs.local_particles(2, ipart));	
+        // Now x and y kick
 		
-          factor=factor/(beta*c);
-
-//        the Lorentz transformation to the accelerator
-//                        frame introduces a factor of 1/gamma^2
-//        where:
-//        1/gamma is due to the time interval of the kick,
-//        since time interval(in the acc frame)=time interval(in the bunch frame)*gamma
-//
-//        transversal coordinates x and y and momenta
-//        px and py are the same in both frames, 
-// 
-//        and:
-//        1/gamma is due to the charge density transformation between the frames
-//        rho_charge (in the acc frame)=  rho_charge (in the bunch frame)*gamma
-//        remember that the current I=lambda*beta*c is defined in the acc frame 
-//   
-
-
-	  factor = factor/(gamma * gamma);	
+        for (int n_axis = 0; n_axis < 2; n_axis++) {
+           
 
           int index = 2 * n_axis + 1; // for n_axis = (0,1,2) Cartesian coordinate x,y,z,
             // in particle store indexing, px,py,pz = (1,3,5)
           double kick = Efield[n_axis] * tau * factor ; // the SC kick with the 2D geometric field contribution
             // update the data structure
-            mbs.local_particles(index, ipart) += kick;
+            mbs.local_particles(index, ipart) += kick;	
            
         }
 
     }
 
     delete myfield;
-
+	
     return 0;
 }
 
