@@ -52,6 +52,12 @@ def get_spatial_means_stds(bunch):
     s2_diagnostics.get_spatial_means_stds(bunch.get_store(),means,stds)
     return means,stds
 
+def get_spatial_minmax(bunch):
+    bmin = numpy.zeros([3],numpy.float64)
+    bmax = numpy.zeros([3],numpy.float64)
+    s2_diagnostics.get_spatial_minmax(bunch.get_store(),bmin,bmax)
+    return bmin, bmax
+
 def old_get_diagnostics(bunch):
     means = numpy.zeros([6],numpy.float64)
     stds = numpy.zeros([6],numpy.float64)

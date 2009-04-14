@@ -13,6 +13,11 @@ get_spatial_means_stds(Macro_bunch_store& mbs,
                        numeric::array& stds);
 
 void
+get_spatial_minmax(Macro_bunch_store& mbs,
+                       numeric::array& bmin,
+                       numeric::array& bmax);
+
+void
 get_moments_corrs(Macro_bunch_store& mbs,
                   numeric::array& units,
                   numeric::array& means,
