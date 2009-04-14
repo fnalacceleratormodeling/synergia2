@@ -22,20 +22,11 @@ apply_BasErs_kick(Macro_bunch_store &mbs, double sigmaX, double sigmaY, double t
     sigma[1] = sigmaY;
     BasErs_field *myfield = new BasErs_field(sigma);
 
- 
-    for (int ipart = 0; ipart < mbs.local_num; ipart++) {
-        // Get the field at the particle (x,y) location
-        std::vector<double> Efield(3);
-        Efield = myfield->NormalizedEField(mbs.local_particles(0, ipart), mbs.local_particles(2, ipart));
-        //std::cout << " Ex = " << Efield[0] << " Ey = "<< Efield[1] << " Ez = " << Efield[2] << std::endl;
+    // std::cout<<" sigma X = "<<sigmaX<<" sigma y = "<<sigmaY<<std::endl;
 
-        // Now x and y kick
 
- 	
 
-        for (int n_axis = 0; n_axis < 2; n_axis++) {
-           
-//**************** old attempt **********************************
+	//**************** old attempt **********************************
 /*          double mass = mbs.mass * 1.0e9;          
             double Brho = gamma * beta * mass/ c;
 
@@ -57,7 +48,7 @@ apply_BasErs_kick(Macro_bunch_store &mbs, double sigmaX, double sigmaY, double t
 
 //**************************************************************
 
-/*     Alex opinion:
+/*     Alex:
 	 In the lab frame  (Delta p) = q*E_eff* (Delta t) =factor*Efield*tau
  
         what is factor=?
@@ -84,24 +75,34 @@ apply_BasErs_kick(Macro_bunch_store &mbs, double sigmaX, double sigmaY, double t
 
         5) lambda= current/v=current/beta*c
 	
-
+	6) Keep in mind the units used in the code p=p*units(1).....
 */       
-         double factor = PH_CNV_brho_to_p*mbs.total_current /(2.*pi*eps0* beta*c); //point 2) and 5) above
-          factor=factor/(beta*c);  //         point 1) above  
-	  factor = factor/(gamma * gamma);	// point  3) and 4) above
+    double factor = PH_CNV_brho_to_p*mbs.total_current /(2.*pi*eps0* beta*c); //point 2) and 5) above
+    factor=factor/(beta*c);  //         point 1) above  
+    factor = factor/(gamma * gamma);	// point  3) and 4) above
+    factor *=mbs.units(1); // point 6)
+    
+    for (int ipart = 0; ipart < mbs.local_num; ipart++) {
+        // Get the field at the particle (x,y) location
+        std::vector<double> Efield(3),Etest(3);
+        Efield = myfield->NormalizedEField(mbs.local_particles(0, ipart), mbs.local_particles(2, ipart));	
+        // Now x and y kick
+		
+        for (int n_axis = 0; n_axis < 2; n_axis++) {
+           
 
           int index = 2 * n_axis + 1; // for n_axis = (0,1,2) Cartesian coordinate x,y,z,
             // in particle store indexing, px,py,pz = (1,3,5)
           double kick = Efield[n_axis] * tau * factor ; // the SC kick with the 2D geometric field contribution
             // update the data structure
-            mbs.local_particles(index, ipart) += kick;
+            mbs.local_particles(index, ipart) += kick;	
            
         }
 
     }
 
     delete myfield;
-
+	
     return 0;
 }
 

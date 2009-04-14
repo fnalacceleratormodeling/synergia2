@@ -25,16 +25,17 @@ if ( __name__ == '__main__'):
     myopts.add("yoffset",0.,"transverse offset in y",float)
     myopts.add("emitx",3.24e-06,"X emittance",float)
     myopts.add("emity",1.73e-06,"Y emittance",float)
+   # myopts.add("emity",1.73e-06,"Y emittance",float)
     myopts.add("sige",1e-3,"(sigma E) over E",float)
     myopts.add("Ekin",4.0,"",float)
     myopts.add("bunchnp",7.0e+11,"number of particles per bunch",float)
     myopts.add("tgridnum",16,"transverse grid cells",int)
-    myopts.add("lgridnum",256,"",int)
+    myopts.add("lgridnum",64,"",int)
    # myopts.add("bunches",1,"",int)
     myopts.add("partpercell",1,"",float)
     myopts.add("space_charge",1,"",int)
     myopts.add("kicks",40,"kicksper line",int)
-    myopts.add("numtrack",10,"number of particles to track",int)
+    myopts.add("numtrack",0,"number of particles to track",int)
     myopts.add("solver","3d","solver",str)
     
     myopts.add_suboptions(synergia.opts)
@@ -155,8 +156,8 @@ if ( __name__ == '__main__'):
 	print "sigma_z_meters =",sigma_z_meters
 	print "sigma z in the code=",beta*synergia.physics_constants.PH_MKS_c/scaling_frequency
 	print " "
-	print " xpwidth=",xpwidth
-	print " ypwidth=",ypwidth   
+	print " xpwidth=",xpwidth,"  rx =",rx  
+	print " ypwidth=",ypwidth,"  ry =",ry  
 	print " "
 	print " xoffset=",xoffset
 	print " yoffset=",yoffset
@@ -208,10 +209,15 @@ if ( __name__ == '__main__'):
         #diags.append(synergia.Diagnostics(gourmet.get_initial_u()))
 	
     bunch = s2_fish.Macro_bunch(mass,1)
-    bunch.init_gaussian(num_particles,current,beam_parameters)
-    bunch.write_particles("begin")
+    bunch.init_gaussian(num_particles,current,beam_parameters)       
+    bunch.write_particles("beginfish")
     diag = synergia.Diagnostics(gourmet.get_initial_u())
     
+    diag1= synergia.Diagnostics(gourmet.get_initial_u())
+    diag1.add(0.0,bunch)
+    diag1.write_hdf5("begin_fish")
+    
+
     
     if myopts.get("numtrack") > 0:
         tracker = synergia.Tracker("/tmp",(myopts.get("numtrack"),num_particles))
