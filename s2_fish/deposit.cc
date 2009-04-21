@@ -125,6 +125,9 @@ calculate_rwvars(Macro_bunch_store& mbs,
                    Array_1d<double> &xmom, Array_1d<double> &ymom,
                    double z_left, double z_length)
 {
+  //
+  //   this routine is expecting particles in the fixed-t frame with
+  //   the units factor already applied
 //	const double really_big = 1.0e30;
 //	double zmin = really_big;
 //	double zmax = -really_big;
@@ -150,9 +153,11 @@ calculate_rwvars(Macro_bunch_store& mbs,
     for (int n = 0; n < mbs.local_num; ++n) {
         int bin = static_cast<int>((mbs.local_particles(4,n)-z_left)/h);
         if ((bin < z_num) && (bin >= 0)) {
+	  //	  std::cout << "rwvars before: bin: " << bin << " local_zdensity(bin): " << local_zdensity(bin) << " local_xmom(bin): " << local_xmom(bin) << " local_ymom(bin): " << local_ymom(bin) << std::endl;
             local_zdensity(bin) += 1;
             local_xmom(bin) += mbs.local_particles(0,n);
             local_ymom(bin) += mbs.local_particles(2,n);
+	    //	  std::cout << "rwvars after: bin: " << bin << " local_zdensity(bin): " << local_zdensity(bin) << " local_xmom(bin): " << local_xmom(bin) << " local_ymom(bin): " << local_ymom(bin) << std::endl;
         }
     }
     
@@ -168,10 +173,15 @@ calculate_rwvars(Macro_bunch_store& mbs,
                     reinterpret_cast<void*>(ymom.get_data_ptr()),
                     z_num, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
     
+    //    dbg is set here XXXXXXXXXXXXXX
+    int dbg = 0;
+
     for (int k = 0; k < z_num; ++k) {
     	if (zdensity(k) != 0.0) {
-	        xmom(k) /= zdensity(k)*mbs.units(0);
-	        ymom(k) /= zdensity(k)*mbs.units(2);
+	  if (dbg) std::cout << "before bin: " << k << " zdensity(k): " << zdensity(k) << " xmom(k): " << xmom(k) << " ymom(k): " << ymom(k) << " units: " << mbs.units(0) << std::endl;
+	        xmom(k) /= zdensity(k);
+	        ymom(k) /= zdensity(k);
+	  if (dbg) std::cout << "after bin: " << k << " zdensity(k): " << zdensity(k) << " xmom(k): " << xmom(k) << " ymom(k): " << ymom(k) << std::endl;
     	} else {
     		xmom(k) = 0.0;
     		ymom(k) = 0.0;

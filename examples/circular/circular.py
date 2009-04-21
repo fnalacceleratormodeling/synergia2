@@ -11,6 +11,10 @@ import s2_fish
 
 from mpi4py import MPI
 
+write_memory_diagnostics_by_rank = False  # write memory usage each rank
+write_memory_diagnostics_to_output = True # write memory usage to stdout
+write_memory_diagnostics_each = 1000 # write memory usage out for every n turns
+
 if ( __name__ == '__main__'):
     t0 = time.time()
 
@@ -27,8 +31,8 @@ if ( __name__ == '__main__'):
     myopts.add("latticefile","foborodobo_s.lat","",str)
     myopts.add("tgridnum",16,"transverse grid cells",int)
     myopts.add("lgridnum",64,"",int)
-    myopts.add("xoffset",0,"transverse offset in x",float)
-    myopts.add("yoffset",0,"transverse offset in y",float)
+    myopts.add("xoffset",0.0004,"transverse offset in x",float)
+    myopts.add("yoffset",-0.0002,"transverse offset in y",float)
     myopts.add("xpoffset", 0, "offset in x-prime", float)
     myopts.add("ypoffset", 0, "offset in y-prime", float)
 #    myopts.add("zoffset",0,"offset in z", float)
@@ -54,7 +58,8 @@ if ( __name__ == '__main__'):
     charge = 1.0
     initial_phase = 0.0
     #scaling_frequency = 47713451.5923694
-    scaling_frequency = 1000000
+    #scaling_frequency = 1000000
+    scaling_frequency = 1
     pipexradius = 0.03
     pipeyradius = 0.03
 #    pipexradius = 0.123
@@ -80,7 +85,18 @@ if ( __name__ == '__main__'):
     if MPI.COMM_WORLD.Get_rank() ==0:
         print "space_charge =",space_charge
         print "impedance =", impedance
-        print "num_particles =",num_particles
+        print "macroparticles =",num_particles
+        print "bunchnp = ", myopts.get("bunchnp")
+        print "maporder = ", myopts.get("maporder")
+        print "kicks/line = ", myopts.get("kicks")
+        print "offsets x,y,z: ", myopts.get("xoffset"), \
+              myopts.get("yoffset"), myopts.get("zoffset")
+        print "emittance: ", myopts.get("emittance")
+        print "bunch length = ", myopts.get("bunchlen")
+        print "dpop width = ", myopts.get("dpop")
+        print "using lattice file: ", myopts.get("latticefile")
+        print "grid = ", myopts.get("tgridnum"),"^2 x ",\
+              myopts.get("lgridnum")
 
     ee = synergia.Error_eater()
     ee.start()
@@ -96,7 +112,7 @@ if ( __name__ == '__main__'):
             # running with protons at momentum of 100 GeV/c
             element.setFrequency(59955852.5381452)
             element.setPhi(math.pi)
-            print "my rf cavity frequency is ", element.getRadialFrequency()/(2.0*math.pi)
+            # print "my rf cavity frequency is ", element.getRadialFrequency()/(2.0*math.pi)
 
     # try without commissioning
     #gourmet.needs_commission = True
@@ -122,7 +138,8 @@ if ( __name__ == '__main__'):
     
     gourmet.insert_space_charge_markers(kicks_per_line)
     (alpha_x, alpha_y, beta_x, beta_y) = synergia.matching.get_alpha_beta(gourmet)
-    print "(alpha_x, alpha_y, beta_x, beta_y) = %g, %g, %g, %g" % (alpha_x, alpha_y, beta_x, beta_y)
+    if MPI.COMM_WORLD.Get_rank() == 0:
+        print "(alpha_x, alpha_y, beta_x, beta_y) = %g, %g, %g, %g" % (alpha_x, alpha_y, beta_x, beta_y)
     
     beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
                                          initial_phase, scaling_frequency,
@@ -158,8 +175,9 @@ if ( __name__ == '__main__'):
     # current is (bunch charge)/(1 period of scaling frequency)
     current = myopts.get("bunchnp") * synergia.physics_constants.PH_MKS_e * \
               scaling_frequency
-    print "current =",current
-    
+    if MPI.COMM_WORLD.Get_rank() == 0:
+        print "current =",current
+
     numbunches = myopts.get("bunches")
     bunches = []
     diags = []
@@ -167,7 +185,7 @@ if ( __name__ == '__main__'):
         bunches.append(s2_fish.Macro_bunch(mass,1))
         bunches[bunchnum].init_gaussian(num_particles,current,beam_parameters)
         bunches[bunchnum].write_particles("begin-%02d"%bunchnum)
-        diags.append(synergia.Diagnostics(gourmet.get_initial_u()))
+        diags.append(synergia.Diagnostics(gourmet.get_initial_u(),short=True))
 
     log = open("log","w")
     if MPI.COMM_WORLD.Get_rank() ==0:
@@ -175,8 +193,27 @@ if ( __name__ == '__main__'):
             print output
             log.write("%s\n" % output)
             log.flush()
+
+    if write_memory_diagnostics_by_rank:
+        memusage = open(("mem_usage_rank_%04d.log" \
+                         % MPI.COMM_WORLD.Get_rank()), "w")
+
     for turn in range(1,myopts.get("turns")+1):
         t1 = time.time()
+
+        # check memory usage every n turns
+        if turn%write_memory_diagnostics_each == 0:
+            if write_memory_diagnostics_by_rank:
+                memusage.write( "turn %d, mem: %f, res: %f, stk: %f\n" % \
+                                (turn, synergia.memory(),synergia.resident(), \
+                                 synergia.stacksize()))
+                memusage.flush()
+            if write_memory_diagnostics_to_output and (MPI.COMM_WORLD.Get_rank() == 0):
+                sys.stdout.write( "turn %d, mem: %f, res: %f, stk: %f\n" % \
+                                  (turn, synergia.memory(),synergia.resident(), \
+                                   synergia.stacksize()))
+
+            
         s = synergia.propagate(s,gourmet,
             bunches,diags,griddim,use_s2_fish=True,periodic=True,
             impedance=impedance,space_charge=space_charge,
@@ -187,6 +224,9 @@ if ( __name__ == '__main__'):
             print output
             log.write("%s\n" % output)
             log.flush()
+
+    if write_memory_diagnostics_by_rank:
+        memusage.close()
     for bunchnum in range(0,numbunches):
         if MPI.COMM_WORLD.Get_rank() == 0:
             diags[bunchnum].write_hdf5("mi-%02d"%bunchnum)

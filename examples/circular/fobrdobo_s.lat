@@ -29,28 +29,31 @@ bendlength  := pct*(sepn-quadlength) ! [m]     : length of dipole
 driftlength := (sepn-quadlength-bendlength)/2
 ! driftlenth := (10-0.2-3.92)/2 = 2.94
 beam, particle=proton, pc=momentum
-harmno = 80
+! harmonic number = 80  harmonic number, yields 2 meter wavelength
+! the actual frequence is harmno following
+harmno=149889631.345363
 lambda = 160.0/harmno
-! resulting frequency = 1498896313.45363
 
+hvoltage = 1250
 
-hvoltage = 2000.0
-
+cavlen = 1.0 ! rf cavity length 1 meter, (half bucket length)
+shortdlen = (driftlength - cavlen)/2.0   ! 0.97 m
 ! this lattice has 8 copies of a 20 m cell.
 
 ! ------------------
 ! Elements
 ! ------------------
 o: drift,      l=driftlength
+os: drift,      l=shortdlen
 f: quadrupole, l=quadlength, k1=strength
 d: quadrupole, l=quadlength, k1=(-strength)
 b: sbend,      l=bendlength, angle=bendangle
-r: rfcavity,	l=driftlength, volt=hvoltage, harmon=harmno
+r: rfcavity,	l=cavlen, volt=hvoltage, harmon=harmno
 
 ! ------------------
 ! Lattices
 ! ------------------
 !fobodobo:  line=( f, o, b, o, d, o, b, o )
-fobrdobo:  line=( f, o, b, r, d, o, b, o)
+fobrdobo:  line=( f, o, b, os, r, os, d, o, b, o)
 model:     line=( 8*fobrdobo )
 ! Doesn't work: model:     line=( n*fobodobo )

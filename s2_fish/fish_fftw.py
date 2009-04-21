@@ -39,6 +39,8 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
                         pipe_radiusy=None,
                         pipe_conduct=None,
                         bunch_spacing=None):
+
+    # XXXXXXXXXXXXXXX   dbg is set here
     dbg = False
     global counter
     #~ pardebug("start apply_space_charge_kick\n")
@@ -63,12 +65,14 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
         mytimer("convert")
         if (size == None) or (offset == None):
             means, stds = synergia.get_spatial_means_stds(mbunch)
+            bunchmin, bunchmax = synergia.get_spatial_minmax(mbunch)
             if dbg:
                 print "mean z: ", means[2], " std z: ", stds[2]
+                print "min z: ", bunchmin[2], " max z: ", bunchmax[2]
             if size == None:
                 n_sigma = 8.0
                 size = list(n_sigma*stds)
-                rwsize = size[:]
+                rwsize = bunchmax - bunchmin
             if offset == None:
                 offset = list(means)
                 rwoffset = offset[:]
@@ -93,16 +97,20 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
             zdensity = numpy.zeros((shape[2]),'d')
             xmom = numpy.zeros((shape[2]),'d')
             ymom= numpy.zeros((shape[2]),'d')
+            if dbg:
+                print "rw region: ", bunchmin, bunchmax, shape[2]
             calculate_rwvars(mbunch.get_store(),zdensity,xmom,ymom,
-                     rwoffset[2]-rwsize[2],2.0*rwsize[2])
+                     bunchmin[2],rwsize[2])
             zoffset = 0.0
             # impedance kick within my own bunch
-            rw_kick(rwoffset[2]-rwsize[2],2.0*rwsize[2],
+            rw_kick(bunchmin[2],rwsize[2],
                     zdensity,xmom,ymom,tau, 
                     mbunch.get_store(),
                     pipe_radiusx,pipe_radiusy,pipe_conduct,zoffset)
             for index in range(len(zdensities)-1,-1,-1):
                 # impedance kick due to other bunches
+                if dbg:
+                    print "!!!!!!   I Shouldn't get here"
                 zoffset += bunch_spacing
                 rw_kick(rwoffset[2]-rwsize[2],2.0*rwsize[2],
                         zdensities[index],xmoms[index],ymoms[index],tau,
