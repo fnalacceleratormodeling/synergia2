@@ -1,0 +1,84 @@
+Return-path: <michelotti@fnal.gov>
+Received: from mailgw1.fnal.gov ([131.225.111.11])
+ by imap1.fnal.gov (Sun Java(tm) System Messaging Server 6.3-6.03 (built Mar 14
+ 2008; 32bit)) with SMTP id <0KEG00LJQ6HG6U60@imap1.fnal.gov> for
+ egstern@imapserver1.fnal.gov; Mon, 02 Feb 2009 10:44:04 -0600 (CST)
+Original-recipient: rfc822;egstern@imapserver1.fnal.gov
+Received: from mailav2.fnal.gov (mailav2.fnal.gov [131.225.111.20])
+ by mailgw1.fnal.gov
+ (iPlanet Messaging Server 5.2 HotFix 2.06 (built Mar 28 2005))
+ with SMTP id <0KEG000KE6CK7D@mailgw1.fnal.gov> for
+ egstern@imapserver1.fnal.gov; Mon, 02 Feb 2009 10:44:04 -0600 (CST)
+Received: from mailgw2.fnal.gov ([131.225.111.12])
+ by mailav2.fnal.gov (SAVSMTP 3.1.7.47) with SMTP id M2009020210440422237 for
+ <egstern@imapserver1.fnal.gov>; Mon, 02 Feb 2009 10:44:04 -0600
+Received: from conversion-daemon.mailgw2.fnal.gov by mailgw2.fnal.gov
+ (iPlanet Messaging Server 5.2 HotFix 2.06 (built Mar 28 2005))
+ id <0KEG004015UOFJ@mailgw2.fnal.gov> (original mail from michelotti@fnal.gov)
+ for egstern@imapserver1.fnal.gov (ORCPT egstern@fnal.gov); Mon,
+ 02 Feb 2009 10:44:04 -0600 (CST)
+Received: from wally.fnal.gov (wally.fnal.gov [131.225.136.146])
+ by mailgw2.fnal.gov
+ (iPlanet Messaging Server 5.2 HotFix 2.06 (built Mar 28 2005))
+ with SMTP id <0KEG00HNA6HFDB@mailgw2.fnal.gov> for
+ egstern@imapserver1.fnal.gov (ORCPT egstern@fnal.gov); Mon,
+ 02 Feb 2009 10:44:03 -0600 (CST)
+Received: by wally.fnal.gov (sSMTP sendmail emulation); Mon,
+ 02 Feb 2009 10:44:03 -0600
+Date: Mon, 02 Feb 2009 10:44:03 -0600
+From: Leo Michelotti <michelotti@fnal.gov>
+Subject: Calculating chromaticity
+To: egstern@fnal.gov
+Cc: amundson@fnal.gov, michelotti@fnal.gov
+Reply-to: michelotti@fnal.gov
+Message-id: <0KEG00HNB6HFDB@mailgw2.fnal.gov>
+Content-type: TEXT/PLAIN
+
+Eric,
+
+Just a little code fragment from mu2e program
+chromaticity_scan.cc, to illustrate brute
+force computation of nonlinear chromaticity:
+  -------------------------------------------------------
+  MAD8Factory factory( myOptions.fileName );
+
+  double const brho             = factory.getBrho();
+  double const central_momentum = brho*PH_CNV_brho_to_p;
+  double momentum               = central_momentum;
+
+  BmlPtr bmlPtr = BmlPtr( new beamline );
+  bmlPtr = factory.create_beamline( myOptions.machineName, brho );
+
+  BmlPtr modelPtr = BmlPtr( DriftsToSlots( *bmlPtr ) );
+
+  Proton probe;
+  
+  ... etc., etc., etc. ...
+
+  double central_fractune = myOptions.startingTune - double( int( myOptions.startingTune ) );
+  ofstream dataStream( myOptions.ostreamName.c_str() );
+
+  for(   double dpp = - myOptions.dppMax
+       ; dpp <= myOptions.dppMax + myOptions.dppDelta/2.0
+       ; dpp += myOptions.dppDelta ) 
+  {
+    momentum = central_momentum*( 1.0 + dpp );
+    probe.SetReferenceMomentum( momentum );
+    probe.setStateToZero(); 
+
+    modelPtr->setEnergy(  probe.ReferenceEnergy() );
+
+    BeamlineContext context( probe, modelPtr );
+
+    if( std::abs(myOptions.dppDelta/2.0) < std::abs(dpp) ) {
+      dataStream << dpp << "  " 
+                 << ( context.getHorizontalEigenTune() - central_fractune )/dpp
+                 << endl;
+    }
+  }
+
+  dataStream.close();
+  -------------------------------------------------------
+
+Cheers,
+Leo
