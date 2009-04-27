@@ -34,7 +34,8 @@ beam, particle=proton, pc=momentum
 harmno=149889631.345363
 lambda = 160.0/harmno
 
-hvoltage = 1250
+!hvoltage = 12500
+hvoltage = 12.5
 
 cavlen = 1.0 ! rf cavity length 1 meter, (half bucket length)
 shortdlen = (driftlength - cavlen)/2.0   ! 0.97 m

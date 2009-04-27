@@ -365,6 +365,7 @@ rw_kick(double left_z, double size_z,
     // tau is the step length in m
     double L = tau;
 
+    // XXXXXXXXXXXXXXX  dbg is set here
     int dbg = 0;
     
     if (dbg) std::cout << "rwkick called, w: " << w <<
@@ -390,16 +391,18 @@ rw_kick(double left_z, double size_z,
       mbs.total_current << std::endl;
     if (dbg) std::cout << "Qtot: " << Qtot << "Ntot_real: " << Ntot_real <<
       "total_num: " << mbs.total_num << "beta*gamma: " <<
-      dpop_to_trans_coord_factor << std::endl;
+	       dpop_to_trans_coord_factor << " N_factor: " << N_factor << std::endl;
+
+    if (dbg) std::cout << "pipe_conduct: " << pipe_conduct << std::endl;
 
     double wake_factor_x = r_classical*2/
     		(beta*gamma*pi*pipe_radiusx*pipe_radiusx*pipe_radiusx)*
     		sqrt(4*pi*eps0*c/pipe_conduct)*L*
-    		N_factor*dpop_to_trans_coord_factor;
+    		N_factor * dpop_to_trans_coord_factor;
     double wake_factor_y = r_classical*2/
     		(beta*gamma*pi*pipe_radiusy*pipe_radiusy*pipe_radiusy)*
     		sqrt(4*pi*eps0*c/pipe_conduct)*L*
-    		N_factor*dpop_to_trans_coord_factor;
+                N_factor * dpop_to_trans_coord_factor;
     
     if (dbg) std::cout << "wake_factor_x: " << wake_factor_x << " wake_factor_y: " <<
       wake_factor_y << std::endl;
@@ -411,7 +414,7 @@ rw_kick(double left_z, double size_z,
       double sumdens = 0.0;
       for (int k=0; k<num_slices; ++k)
 	sumdens += zdensity(k);
-      std::cout << "Total density sum: " << sumdens << std::endl;
+      if (dbg) std::cout << "Total density sum: " << sumdens << std::endl;
     }
 
     for (int n = 0; n < mbs.local_num; ++n) {
@@ -441,7 +444,19 @@ rw_kick(double left_z, double size_z,
             double zdistance = zdistance_beamframe/gamma;
 	    if (((n % 1000) == 0) && (n < 100001) && (n > 0)) {
 	      if (dbg) std::cout << "ahead_slice: " << ahead_slice <<
-		" zdistance: " << zdistance << std::endl;
+		" zdistance: " << zdistance <<
+			 " zdensity: " << zdensity(ahead_slice) <<
+			 " xmom, ymom: " <<
+			 xmom(ahead_slice) << " " << ymom(ahead_slice) << std::endl;
+
+	      if (zdistance>0.0) {
+                if (dbg) std::cout << "x_kick: " << wake_factor_x * zdensity(ahead_slice) *
+		  xmom(ahead_slice)/sqrt(zdistance) << " y_kick: " <<
+                wake_factor_y * zdensity(ahead_slice) * 
+			   ymom(ahead_slice)/sqrt(zdistance) << std::endl << std::endl;
+	      } else {
+                std::cerr << "warning: rw_kick encountered a nonsensical longitudinal distance\n";
+	      }
 	    }
             if (zdistance>0.0) {
                 xkick += wake_factor_x * zdensity(ahead_slice) *

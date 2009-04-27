@@ -52,6 +52,12 @@ def get_spatial_means_stds(bunch):
     s2_diagnostics.get_spatial_means_stds(bunch.get_store(),means,stds)
     return means,stds
 
+def get_spatial_minmax(bunch):
+    bmin = numpy.zeros([3],numpy.float64)
+    bmax = numpy.zeros([3],numpy.float64)
+    s2_diagnostics.get_spatial_minmax(bunch.get_store(),bmin,bmax)
+    return bmin, bmax
+
 def old_get_diagnostics(bunch):
     means = numpy.zeros([6],numpy.float64)
     stds = numpy.zeros([6],numpy.float64)
@@ -81,7 +87,7 @@ def get_diagnostics(bunch,units):
     return means,mom2s,corrs,diagmom4s
 
 class Diagnostics:
-    def __init__(self,units):
+    def __init__(self,units,short=False):
         self.s = []
         self.means = []
         self.mom2s = []
@@ -95,14 +101,17 @@ class Diagnostics:
         #~ self.emitxzs = []
         self.emitxyzs = []
         self.u = units
+        self.n = []
+        self.short = short
 
     def add(self,s,bunch):
         means,mom2s,corrs,diagmom4s = get_diagnostics(bunch,self.u)
         self.s.append(s)
         self.means.append(means)
-        self.mom2s.append(mom2s)
-        self.corrs.append(corrs)
-        self.diagmom4s.append(diagmom4s)
+        if not self.short:
+            self.mom2s.append(mom2s)
+            self.corrs.append(corrs)
+            self.diagmom4s.append(diagmom4s)
         #derived quantities
         self.stds.append(numpy.sqrt(numpy.diagonal(mom2s)))
         self.emitxs.append(sqrt(abs(numpy.linalg.det(mom2s[0:2,0:2])))*self.u[xprime])
@@ -121,6 +130,9 @@ class Diagnostics:
         return numpy.array(self.stds)
      
     def write(self,filename_prefix):
+        if self.short:
+            raise RuntimeError, \
+                "Diagnostics: write not supported for short=True"
         # same format as fort.24, et. al, but we don't calculate Twiss alpha
         fx = open(filename_prefix+"_x.dat","w")
         fy = open(filename_prefix+"_y.dat","w")
@@ -166,9 +178,10 @@ class Diagnostics:
         root = f.root
         hdfarray = f.createArray(root,'s',numpy.array(self.s),"position")
         hdfarray = f.createArray(root,'mean',numpy.array(self.means),"centroid")
-        hdfarray = f.createArray(root,'mom2',numpy.array(self.mom2s),"second moments")
-        hdfarray = f.createArray(root,'corr',numpy.array(self.corrs),"correlation coefficients")
-        hdfarray = f.createArray(root,'diagmom4',numpy.array(self.diagmom4s),"fourth moments on diagonal")
+        if not self.short:
+            hdfarray = f.createArray(root,'mom2',numpy.array(self.mom2s),"second moments")
+            hdfarray = f.createArray(root,'corr',numpy.array(self.corrs),"correlation coefficients")
+            hdfarray = f.createArray(root,'diagmom4',numpy.array(self.diagmom4s),"fourth moments on diagonal")
         hdfarray = f.createArray(root,'std',numpy.array(self.stds),"standard deviation")
         hdfarray = f.createArray(root,'emitx',numpy.array(self.emitxs),"x emittance")
         hdfarray = f.createArray(root,'emity',numpy.array(self.emitys),"y emittance")

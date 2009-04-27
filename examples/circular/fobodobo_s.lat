@@ -9,7 +9,7 @@
 ! ------------------
 ! Parameters
 ! ------------------
-twopi       :=   6.2831853072
+twopi       :=   6.28318530717959
 n           :=   8                   !         : number of cells
 momentum    := 100                   ! [GeV/c] : particle momentum; 
                                      !         :   arbitrary number

@@ -84,6 +84,55 @@ get_spatial_means_stds(Macro_bunch_store& mbs,
 }
 
 void
+get_spatial_minmax(Macro_bunch_store& mbs,
+		   numeric::array& numeric_min,
+		   numeric::array& numeric_max)
+{
+    Vector bmin(numeric_min);
+    Vector bmax(numeric_max);
+
+    double lmin[3], lmax[3];
+
+    for (int i = 0; i < 3; ++i) {
+        lmin[i] = 1.0e100;
+        lmax[i] = -1.0e100;
+    }
+    for (int n = 0; n < mbs.local_num; ++n) {
+      if (mbs.local_particles(0, n) < lmin[0]) {
+	lmin[0] = mbs.local_particles(0, n);
+      }
+      if (mbs.local_particles(0, n) > lmax[0]) {
+	lmax[0] = mbs.local_particles(0, n);
+      }
+      if (mbs.local_particles(2, n) < lmin[1]) {
+	lmin[1] = mbs.local_particles(2, n);
+      }
+      if (mbs.local_particles(2, n) > lmax[1]) {
+	lmax[1] = mbs.local_particles(2, n);
+      }
+      if (mbs.local_particles(4, n) < lmin[2]) {
+	lmin[2] = mbs.local_particles(4, n);
+      }
+      if (mbs.local_particles(4, n) > lmax[2]) {
+	lmax[2] = mbs.local_particles(4, n);
+      }
+    }
+
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    if (size > 1) {
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        MPI_Allreduce(lmin, bmin.data, 3, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+        MPI_Allreduce(lmin, bmax.data, 3, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+    } else {
+        for (int i = 0; i < 3; ++i) {
+            bmin(i) = lmin[i];
+	    bmax(i) = lmax[i];
+        }
+    }
+}
+
+void
 get_moments_corrs(Macro_bunch_store& mbs,
                   numeric::array& numeric_units,
                   numeric::array& numeric_means,
