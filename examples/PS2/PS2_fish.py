@@ -21,8 +21,8 @@ if ( __name__ == '__main__'):
 #    myopts.add("latticefile","fodo.lat","",str)
 #    myopts.add("xoffset",3.e-7,"transverse offset in x",float)
 #    myopts.add("yoffset",3.e-7,"transverse offset in y",float)
-    myopts.add("xoffset",0.,"transverse offset in x",float)
-    myopts.add("yoffset",0.,"transverse offset in y",float)
+    myopts.add("xoffset",0,"transverse offset in x",float)
+    myopts.add("yoffset",0,"transverse offset in y",float)
     myopts.add("emitx",3.24e-06,"X emittance",float)
     myopts.add("emity",1.73e-06,"Y emittance",float)
    # myopts.add("emity",1.73e-06,"Y emittance",float)
@@ -47,6 +47,12 @@ if ( __name__ == '__main__'):
     model="NMCRING"
 
     
+    tgridnum = myopts.get("tgridnum")
+    lgridnum = myopts.get("lgridnum")
+    griddim = (tgridnum,tgridnum,lgridnum+1)
+    
+    
+    
     charge = 1.0  # electron charge in C
     initial_phase = 0.0
 #    scaling_frequency = 47713451.5923694
@@ -62,9 +68,12 @@ if ( __name__ == '__main__'):
     xoffset = myopts.get("xoffset")
     yoffset = myopts.get("yoffset")
     sige= myopts.get("sige")
-    tgridnum = myopts.get("tgridnum")
-    lgridnum = myopts.get("lgridnum")
-    griddim = (tgridnum,tgridnum,lgridnum)
+   
+    
+    
+    
+    
+    
     num_particles = int(griddim[0]*griddim[1]*griddim[2] * myopts.get("partpercell"))
     kicks_per_line = myopts.get("kicks")
     space_charge=myopts.get("space_charge")
@@ -210,12 +219,13 @@ if ( __name__ == '__main__'):
 	
     bunch = s2_fish.Macro_bunch(mass,1)
     bunch.init_gaussian(num_particles,current,beam_parameters)       
-    bunch.write_particles("beginfish")
+    bunch.write_particles("begin_particles")
     diag = synergia.Diagnostics(gourmet.get_initial_u())
     
     diag1= synergia.Diagnostics(gourmet.get_initial_u())
     diag1.add(0.0,bunch)
-    diag1.write_hdf5("begin_fish")
+    if MPI.COMM_WORLD.Get_rank() == 0:
+         diag1.write_hdf5("begin_fish")
     
 
     
@@ -258,7 +268,7 @@ if ( __name__ == '__main__'):
           log.flush()
     if MPI.COMM_WORLD.Get_rank() == 0:  
          diag.write_hdf5("mi_fish") 
-    bunch.write_particles("end")
+    bunch.write_particles("end_particles")
     if tracker:
        tracker.close()
        tracker.show_statistics()    

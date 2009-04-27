@@ -17,7 +17,7 @@ get_rho_hat2(Real_scalar_field &rho, Fftw_helper &fftwh)
 {
     // steps 1 and 2
     Int3 num_points2 = rho.get_points().get_shape();
-    num_points2.scale(2);
+   // num_points2.scale(2); am: do we need this?
     Double3 physical_size2 = rho.get_physical_size();
     physical_size2.scale(2.0);
     Real_scalar_field rho2(fftwh.padded_shape_real().vector(),
@@ -69,6 +69,9 @@ get_G2(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
     //  G2.get_points().set_storage_size(fftwh.local_size());
     Double3 h(rho.get_cell_size());
     Int3 index;
+    double num_points_z;	
+    (!z_periodic) ? num_points_z=num_points[2] : num_points_z=num_points[2]-1;
+
     // What is G(0,0,0), anyway? Rob and Ji seem to think it is G(0,0,1).
     // Hockney seems to think it is 1.
     // I don't think it is either, but I have not yet worked out what I
@@ -120,12 +123,15 @@ get_G2(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
     double x, y, z, G;
     const int num_images = 8;
     int miy, miz; // mirror index x, etc.
-    double z_bin_offset;
-    if (z_periodic) {
-        z_bin_offset = -0.5;
-    } else {
-        z_bin_offset = 0.0;
-    }
+   // double z_bin_offset;
+   // z_bin_offset = 0.0;
+//     if (z_periodic) {
+//         z_bin_offset = 0.0;//-0.5;
+//     } else {
+//         z_bin_offset = 0.0;
+//     }
+
+
     for (index[0] = fftwh.lower(); index[0] < fftwh.upper(); ++index[0]) {
         if (index[0] > num_points2[0] / 2) {
             x = (num_points2[0] - index[0]) * h[0];
@@ -138,19 +144,19 @@ get_G2(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
             if (miy == num_points[1]) {
                 miy = num_points2[1];
             }
-            for (index[2] = 0; index[2] <= num_points[2]; ++index[2]) {
-                z = (index[2] + z_bin_offset) * h[2];
-                miz = num_points2[2] - index[2];
-                if (miz == num_points[2]) {
-                    miz = num_points2[2];
-                }
+            for (index[2] = 0; index[2] <= num_points_z; ++index[2]) {
+
+                 z = index[2]* h[2];            
+	         if (!z_periodic) {miz=num_points2[2]-index[2]; 
+                                if (miz == num_points[2])  miz = num_points2[2];
+                  }              
                 if (!((x == 0.0) && (y == 0.0) && (z == 0.0))) {
                     G = 1.0 / (4.0 * pi * sqrt(x * x + y * y + z * z));
                 } else {
                     G = G000;
                 }
                 if (z_periodic) {
-                    for (int image = -num_images; image <= num_images; ++image) {
+                    for (int image = -num_images; image < num_images; ++image) {
                         if (image != 0) {
                             double z_image = z + image * physical_size[2];
                             if (!((x == 0.0) && (y == 0.0) && (fabs(z_image) < 1.0e-14))) {
@@ -165,11 +171,11 @@ get_G2(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
                 // three mirror images
                 if (miy < num_points2[1]) {
                     G2.get_points().set(Int3(index[0], miy, index[2]), G);
-                    if (miz < num_points2[2]) {
+                    if ((miz < num_points2[2]) && (!z_periodic)){
                         G2.get_points().set(Int3(index[0], miy, miz), G);
                     }
                 }
-                if (miz < num_points2[2]) {
+                if ((miz < num_points2[2]) && (!z_periodic)){
                     G2.get_points().set(Int3(index[0], index[1], miz), G);
                 }
             }
@@ -202,6 +208,9 @@ get_G2_z_steps(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
     else {                      distribute_fftwh=0;
                                 x_urange=x_urange/2+1;     }
 
+    double num_points_z;	
+    (!z_periodic) ? num_points_z=num_points[2] : num_points_z=num_points[2]-1;
+
     Double3 physical_size = rho.get_physical_size();
     Double3 physical_size2 = rho.get_physical_size();
     physical_size2.scale(2.0);
@@ -232,18 +241,26 @@ get_G2_z_steps(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 
 	
     //    for (index[0] = 0; index[0] <= num_points2[0]/2; ++index[0]) {
-	 for (index[0] = x_lrange; index[0] <x_urange; ++index[0]) {
-           x = index[0] * h[0];
-           if (distribute_fftwh==0) mix=num_points2[0]-index[0];
-           for (index[1] = 0; index[1] <= num_points2[1]/2; ++index[1]) {
-	     y = index[1] * h[1];
-	     miy=num_points2[1]-index[1];
-	     rr=x * x + y * y;
+         for (index[0] = x_lrange; index[0] <x_urange; ++index[0]) {
+            if (index[0] > num_points2[0] / 2) {
+                x = (num_points2[0] - index[0]) * h[0];
+            } else {
+                 x = index[0] * h[0];
+            }             
+            if (distribute_fftwh==0) {mix=num_points2[0]-index[0];
+                                     if (mix == num_points[0])  mix = num_points2[0];}
+            
+            for (index[1] = 0; index[1] <= num_points[1]; ++index[1]) {
+	        y = index[1] * h[1];
+	        miy=num_points2[1]-index[1];
+                rr=x * x + y * y;
+	        if (miy == num_points[1])  miy = num_points2[1];
 
-             for (index[2] = 0; index[2] <num_points[2]; ++index[2]) {
-	       z = index[2]* h[2];
-               if ((!z_periodic) && (index[2] > num_points2[2] / 2)) {
-                           z  = (index[2]-num_points2[2]) * h[2];}
+                for (index[2] = 0; index[2] <= num_points_z; ++index[2]) {
+	           z = index[2]* h[2];            
+	           if (!z_periodic) {miz=num_points2[2]-index[2]; 
+                                if (miz == num_points[2])  miz = num_points2[2];
+                   }
 
 
              if (fabs(fabs(z)-hz)<1.0e-10){   // z=+-hz  case
@@ -269,7 +286,7 @@ get_G2_z_steps(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 
 
              if (z_periodic) {
-               for (int image = -num_images; image <= num_images; ++image) {
+               for (int image = -num_images; image < num_images; ++image) {
                    if (image != 0) {
                    double z_image = z + image * physical_size[2];
 
@@ -300,14 +317,32 @@ get_G2_z_steps(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
                 }
 		
                 G2.get_points().set(index, G);
-		
-                // three mirror imagesif 
-	        if ((!(index[0] == num_points2[0]/2)) && (distribute_fftwh==0)){
-                     G2.get_points().set(Int3(mix,index[1], index[2]), G);}
-                if (!(index[1] == num_points2[1]/2)) {
-                     G2.get_points().set(Int3(index[0], miy, index[2]), G);}
-               if (!((index[0] == num_points2[0]/2) || (index[1] == num_points2[1]/2))) {
-                     G2.get_points().set(Int3(mix, miy, index[2]), G);}
+
+
+
+                // seven mirror images
+                if ((distribute_fftwh==0)  && (mix < num_points2[0])) {
+                    G2.get_points().set(Int3(mix, index[1], index[2]), G);
+                    if (miy < num_points2[1]) {
+                        G2.get_points().set(Int3(mix, miy, index[2]), G);
+                        if ((!z_periodic)  &&(miz < num_points2[2])) {
+                            G2.get_points().set(Int3(mix, miy, miz), G);
+                        }
+                    }
+                    if ((!z_periodic) && (miz < num_points2[2])) {
+                        G2.get_points().set(Int3(mix, index[1], miz), G);
+                    }
+                }
+                if (miy < num_points2[1]) {
+                    G2.get_points().set(Int3(index[0], miy, index[2]), G);
+                    if ((!z_periodic) && (miz < num_points2[2])) {
+                        G2.get_points().set(Int3(index[0], miy, miz), G);
+                    }
+                }
+                if ((!z_periodic) && (miz < num_points2[2])) {
+                    G2.get_points().set(Int3(index[0], index[1], miz), G);
+                }
+
             }
         }
     }
@@ -336,6 +371,8 @@ get_G2_z_linear(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 				distribute_fftwh=1;     }
     else {                      distribute_fftwh=0;
                                 x_urange=x_urange/2+1;     }
+    double num_points_z;	
+    (!z_periodic) ? num_points_z=num_points[2] : num_points_z=num_points[2]-1;
 
     Double3 physical_size = rho.get_physical_size();
     Double3 physical_size2 = rho.get_physical_size();
@@ -365,21 +402,31 @@ get_G2_z_linear(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 
      
      G=0.;
-       // for (index[0] = 0; index[0] <= num_points2[0]/2; ++index[0]) {
-         for (index[0] = x_lrange; index[0] <x_urange; ++index[0]) {
-           x = index[0] * h[0];
-           if (distribute_fftwh==0) mix=num_points2[0]-index[0];
-           for (index[1] = 0; index[1] <= num_points2[1]/2; ++index[1]) {
+      // for (index[0] = 0; index[0] <= num_points2[0]/2; ++index[0]) {
+        for (index[0] = x_lrange; index[0] <x_urange; ++index[0]) {
+           if (index[0] > num_points2[0] / 2) {
+                x = (num_points2[0] - index[0]) * h[0];
+           } else {
+                 x = index[0] * h[0];
+           }        
+           if (distribute_fftwh==0) {mix=num_points2[0]-index[0];
+                                     if (mix == num_points[0])  mix = num_points2[0];
+           }
+            
+           for (index[1] = 0; index[1] <= num_points[1]; ++index[1]) {
 	     y = index[1] * h[1];
-	     miy=num_points2[1]-index[1];	
-             for (index[2] = 0; index[2] <num_points[2]; ++index[2]) {
-	       z = index[2]* h[2];
-               if ((!z_periodic) && (index[2] > num_points2[2] / 2)) {
-                           z  = (index[2]-num_points2[2]) * h[2];}
+	     miy=num_points2[1]-index[1];
+	     if (miy == num_points[1])  miy = num_points2[1];
+             rr=x * x + y * y;
+             for (index[2] = 0; index[2] <= num_points_z; ++index[2]) {
+	         z = index[2]* h[2];            
+	         if (!z_periodic) {miz=num_points2[2]-index[2]; 
+                                if (miz == num_points[2])  miz = num_points2[2];
+                 }
 
-	        rr=x * x + y * y;
-		G=2.0*sqrt(rr+z*z)-sqrt(rr+(z-hz)*(z-hz))-sqrt(rr+(z+hz)*(z+hz));
-		if (z<-hz) {
+	        
+		 G=2.0*sqrt(rr+z*z)-sqrt(rr+(z-hz)*(z-hz))-sqrt(rr+(z+hz)*(z+hz));
+		 if (z<-hz) {
                            r1=(sqrt((z-hz)*(z-hz)+rr)-z+hz)/(sqrt(z*z+rr)-z);
 			   T1=(hz-z)*log(r1);
 			   r2=(sqrt(z*z+rr)-z)/(sqrt((z+hz)*(z+hz)+rr)-z-hz);
@@ -411,7 +458,7 @@ get_G2_z_linear(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 
              
                 if (z_periodic) {
-                   for (int image = -num_images; image <= num_images; ++image) {
+                   for (int image = -num_images; image < num_images; ++image) {
                         if (image != 0) {
                            double z_image = z + image * physical_size[2];
 
@@ -453,14 +500,32 @@ get_G2_z_linear(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
                     }
                 }
                 G2.get_points().set(index, G);
-		
-                // three mirror images
-	        if ((!(index[0] == num_points2[0]/2)) && (distribute_fftwh==0)){
-                     G2.get_points().set(Int3(mix,index[1], index[2]), G);}
-                if (!(index[1] == num_points2[1]/2)) {
-                     G2.get_points().set(Int3(index[0], miy, index[2]), G);}
-                if (!((index[0] == num_points2[0]/2) || (index[1] == num_points2[1]/2))) {
-                     G2.get_points().set(Int3(mix, miy, index[2]), G);}
+
+
+                // seven mirror images
+                if ((distribute_fftwh==0)  && (mix < num_points2[0])) {
+                    G2.get_points().set(Int3(mix, index[1], index[2]), G);
+                    if (miy < num_points2[1]) {
+                        G2.get_points().set(Int3(mix, miy, index[2]), G);
+                        if ((!z_periodic)  &&(miz < num_points2[2])) {
+                            G2.get_points().set(Int3(mix, miy, miz), G);
+                        }
+                    }
+                    if ((!z_periodic) && (miz < num_points2[2])) {
+                        G2.get_points().set(Int3(mix, index[1], miz), G);
+                    }
+                }
+                if (miy < num_points2[1]) {
+                    G2.get_points().set(Int3(index[0], miy, index[2]), G);
+                    if ((!z_periodic) && (miz < num_points2[2])) {
+                        G2.get_points().set(Int3(index[0], miy, miz), G);
+                    }
+                }
+                if ((!z_periodic) && (miz < num_points2[2])) {
+                    G2.get_points().set(Int3(index[0], index[1], miz), G);
+                }
+
+
             }
         }
     }
@@ -481,6 +546,7 @@ get_G2_spherical(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
     Int3 num_points = rho.get_points().get_shape();
     Int3 num_points2 = rho.get_points().get_shape();
     num_points2.scale(2);
+   
      
     int x_lrange=fftwh.lower();
     int x_urange=fftwh.upper();
@@ -489,9 +555,15 @@ get_G2_spherical(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
     else {                      distribute_fftwh=0;
                                 x_urange=x_urange/2+1;     }
 
+
+    double num_points_z;	
+    (!z_periodic) ? num_points_z=num_points[2] : num_points_z=num_points[2]-1;
+
+	
     Double3 physical_size = rho.get_physical_size();
     Double3 physical_size2 = rho.get_physical_size();
     physical_size2.scale(2.0);
+  // if (z_periodic) { physical_size2[2] /= 2.0;}
     Real_scalar_field G2(fftwh.padded_shape_real().vector(),
                          physical_size2.vector(),
                          rho.get_physical_offset(),
@@ -503,32 +575,40 @@ get_G2_spherical(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 
 
     timer("misc");
-    double x, y, z, G, G0,G1;
+    double x, y, z, rr, G, G0,G1;
     const int num_images = 8;
     int mix, miy, miz; // mirror index x, etc.
-    double z_bin_offset, rr;
-   // const double hr=0.005*sqrt(h[0] * h[0] + h[1] * h[1] + h[2] * h[2]); 
-    double hr=3.*sqrt(h[0] * h[0] + h[1]*h[1]);//Note that h[2] usually much larger than h[0] and h[1],
+    double hr=0.5*sqrt(h[0] * h[0] + h[1]*h[1]);//Note that h[2] usually much larger than h[0] and h[1],
 						// so probably this is not going to work too well!
 
      G0=hr*hr/2.0; 
      G1=hr*hr*hr/3.0;	   
      G=0.;
-      //  for (index[0] = 0; index[0] <= num_points2[0]/2; ++index[0]) {
-         for (index[0] = x_lrange; index[0] <x_urange; ++index[0]) {
-           x = index[0] * h[0];
-           if (distribute_fftwh==0) mix=num_points2[0]-index[0];
-           for (index[1] = 0; index[1] <= num_points2[1]/2; ++index[1]) {
+ 
+        //for (index[0] = 0; index[0] <= num_points[0]; ++index[0]) {
+         for (index[0] = x_lrange; index[0] <x_urange; ++index[0]) {          
+             if (index[0] > num_points2[0] / 2) {
+                x = (num_points2[0] - index[0]) * h[0];
+             } else {
+                 x = index[0] * h[0];
+             }
+             if (distribute_fftwh==0) {mix=num_points2[0]-index[0];
+                                     if (mix == num_points[0])  mix = num_points2[0];
+             }
+	  
+            
+           for (index[1] = 0; index[1] <= num_points[1]; ++index[1]) {
 	     y = index[1] * h[1];
-	     miy=num_points2[1]-index[1];	
-             for (index[2] = 0; index[2] <num_points[2]; ++index[2]) {
-	       z = index[2]* h[2];
-               if ((!z_periodic) && (index[2] > num_points2[2] / 2)) {
-                           z  = (index[2]-num_points2[2]) * h[2];}
+	     miy=num_points2[1]-index[1];
+	     if (miy == num_points[1])  miy = num_points2[1];
+             for (index[2] = 0; index[2] <= num_points_z; ++index[2]) {
+	       z = index[2]* h[2];            
+	       if (!z_periodic) {miz=num_points2[2]-index[2]; 
+                                if (miz == num_points[2])  miz = num_points2[2];}
 
 	       
               rr=sqrt(x*x+y*y+z*z);
-	      if(rr<1.e-10) {G=0.;}//G0;}
+	      if(rr<1.e-10) {G=G0;}
 	      else if (rr<hr){
 	      G=G0-rr*rr/6.0;}
               else {G=G1/rr;}
@@ -537,7 +617,7 @@ get_G2_spherical(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 
              
                 if (z_periodic) {
-                   for (int image = -num_images; image <= num_images; ++image) {
+                   for (int image = -num_images; image < num_images; ++image) {
                         if (image != 0) {
                            double z_image = z + image * physical_size[2];
 
@@ -553,18 +633,36 @@ get_G2_spherical(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
                 }
                 G2.get_points().set(index, G);
 		
-                // three mirror images
-	        if ((!(index[0] == num_points2[0]/2)) && (distribute_fftwh==0)){
-                     G2.get_points().set(Int3(mix,index[1], index[2]), G);}
-                if (!(index[1] == num_points2[1]/2)) {
-                     G2.get_points().set(Int3(index[0], miy, index[2]), G);}
-                if (!((index[0] == num_points2[0]/2) || (index[1] == num_points2[1]/2))) {
-                     G2.get_points().set(Int3(mix, miy, index[2]), G);}
+
+                // seven mirror images
+                if ((distribute_fftwh==0)  && (mix < num_points2[0])) {
+                    G2.get_points().set(Int3(mix, index[1], index[2]), G);
+                    if (miy < num_points2[1]) {
+                        G2.get_points().set(Int3(mix, miy, index[2]), G);
+                        if ((!z_periodic)  &&(miz < num_points2[2])) {
+                            G2.get_points().set(Int3(mix, miy, miz), G);
+                        }
+                    }
+                    if ((!z_periodic) && (miz < num_points2[2])) {
+                        G2.get_points().set(Int3(mix, index[1], miz), G);
+                    }
+                }
+                if (miy < num_points2[1]) {
+                    G2.get_points().set(Int3(index[0], miy, index[2]), G);
+                    if ((!z_periodic) && (miz < num_points2[2])) {
+                        G2.get_points().set(Int3(index[0], miy, miz), G);
+                    }
+                }
+                if ((!z_periodic) && (miz < num_points2[2])) {
+                    G2.get_points().set(Int3(index[0], index[1], miz), G);
+                }
+
+
             }
         }
     }
     double scale=3.0/(4.0*pi*hr*hr*hr);	
-    G2.get_points().scale(scale);
+    G2.get_points().scale(scale);      
     timer("calc G");
     return G2;
 }
@@ -636,7 +734,7 @@ get_G2_old(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
     //   G2.get_points().set(Int3(0,0,0),(1.0/4.0*pi)*mean_inv_r);
     timer("misc");
     double x, y, z, G;
-    const int num_images = 4;
+    const int num_images = 8;
     int mix, miy, miz; // mirror index x, etc.
     for (index[0] = 0; index[0] <= num_points[0]; ++index[0]) {
         x = index[0] * h[0];
@@ -662,7 +760,7 @@ get_G2_old(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
                     G = G000;
                 }
                 if (z_periodic) {
-                    for (int image = -num_images; image <= num_images; ++image) {
+                    for (int image = -num_images; image < num_images; ++image) {
                         if (image != 0) {
                             double z_image = z + image * physical_size[2];
                             if (!((x == 0.0) && (y == 0.0) && (fabs(z_image) < 1.0e-14))) {
@@ -707,12 +805,17 @@ Complex_scalar_field
 get_G_hat2(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 {
     //step 3
-   // Real_scalar_field G2 = get_G2_spherical(rho, z_periodic, fftwh);
+
+     Real_scalar_field G2 = get_G2(rho, z_periodic, fftwh); // AM: after correcting a bug in the z-dimension  
+							    //  of the FT, this seems to work the best!
+     // Real_scalar_field G2 = get_G2_spherical(rho, z_periodic, fftwh);
+    
+
    // Real_scalar_field G2 = get_G2_z_linear(rho, z_periodic, fftwh);
-    Real_scalar_field G2 = get_G2_z_steps(rho, z_periodic, fftwh);
-    //Real_scalar_field G2 = get_G2(rho, z_periodic, fftwh);
+    // Real_scalar_field G2 = get_G2_z_steps(rho, z_periodic, fftwh);
+   
   //  Real_scalar_field G2 = get_G2_old(rho, z_periodic, fftwh);
-    Complex_scalar_field G_hat2(fftwh.padded_shape_complex().vector(),
+      Complex_scalar_field G_hat2(fftwh.padded_shape_complex().vector(),
                                 G2.get_physical_size(),
                                 rho.get_physical_offset(),
                                 fftwh.guard_lower(), fftwh.guard_upper());
@@ -735,12 +838,15 @@ get_phi_hat2(Real_scalar_field &rho, Complex_scalar_field &rho_hat2,
     Int3 shape(G_hat2.get_points().get_shape());
     Double3 h(rho.get_cell_size());
     timer("misc");
+
     for (int i = 0; i < G_hat2.get_points().get_length(); ++i) {
         phi_hat2.get_points().get_base_address()[i] =
             rho_hat2.get_points().get_base_address()[i] *
             G_hat2.get_points().get_base_address()[i] *
             h[0] * h[1] * h[2];
     }
+
+    
     timer("calc phi_hat");
     return phi_hat2;
 }
@@ -755,6 +861,8 @@ get_phi2(Real_scalar_field &rho, Complex_scalar_field &phi_hat2,
     num_points2[1] *= 2;
     if (! z_periodic) {
         num_points2[2] *= 2;
+    } else {
+	num_points2[2] -= 1;
     }
     Real_scalar_field phi2(fftwh.padded_shape_real().vector(),
                            phi_hat2.get_physical_size(),
@@ -780,7 +888,7 @@ get_phi(Real_scalar_field &rho, Real_scalar_field &phi2, Fftw_helper &fftwh)
                           std::min(fftwh.guard_upper(),
                                    rho.get_points().get_shape()[0]));
     Int3 shape(phi.get_points().get_shape());
-    Int3 point;
+    Int3 point, p0;
     timer("misc");
     int i_max = std::min(fftwh.upper(), shape[0]);
     int rank, size;
@@ -789,15 +897,24 @@ get_phi(Real_scalar_field &rho, Real_scalar_field &phi2, Fftw_helper &fftwh)
         point[0] = i;
         for (int j = 0; j < shape[1]; ++j) {
             point[1] = j;
-            for (int k = 0; k < shape[2]; ++k) {
-                point[2] = k;
-                phi.get_points().set(point, phi2.get_points().get(point));
+            for (int k = 0; k < shape[2]-1; ++k) {
+             point[2] = k;
+                   phi.get_points().set(point, phi2.get_points().get(point));                     		
             }
+	    point[2]=shape[2]-1;
+	    p0[0]=i;
+	    p0[1]=j;
+	    p0[2]=0;
+	    phi.get_points().set(point, phi2.get_points().get(p0));
         }
     }
+
+
     timer("calc phi");
     return phi;
 }
+
+
 
 Real_scalar_field
 solver_fftw_open(Real_scalar_field &rho, Fftw_helper &fftwh, bool z_periodic,
@@ -829,6 +946,8 @@ solver_fftw_open(Real_scalar_field &rho, Fftw_helper &fftwh, bool z_periodic,
     Real_scalar_field phi2 = get_phi2(rho, phi_hat2, fftwh, z_periodic);
     timer("misc");
     Real_scalar_field phi = get_phi(rho, phi2, fftwh);
+ 
+
     timer("misc");
     if (use_guards) {
         fill_guards(phi, fftwh);

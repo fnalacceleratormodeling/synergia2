@@ -147,6 +147,7 @@ Scalar_field<T>::set_physical_params(double physical_size[3],
         this->physical_offset[i] = physical_offset[i];
         left[i] = (physical_offset[i] - physical_size[i] / 2);
         h[i] = physical_size[i] / (points.get_shape()[i] - 1.0);
+       
     }
 }
 
@@ -241,6 +242,13 @@ Scalar_field<T>::get_val(double location[3]) const
 {
     // Interpolate between grid points. There is no unique scheme to do this
     // in 3D, so we choose to use trilinear interpolation.
+
+// AM: In order to preserve the force  density per cell, the interpolation should be done 
+    // following the same algortihm as in the charge deposit subroutine "deposit_charge_cic"	
+    // If rho_c=sum_i (weight_ci*rho_i) where i is location and c is the grid point, then
+    // E_i=sum_c (w_ci*E_c)
+
+
     Int3 c(get_leftmost_indices(location)); // c for corner
     Double3 f(get_leftmost_offsets(location)); // f for fractional difference
     T val = ((1.0 - f[0]) * (1.0 - f[1]) * (1.0 - f[2]) * points.get(c) +
@@ -253,6 +261,10 @@ Scalar_field<T>::get_val(double location[3]) const
              f[0] * f[1] * f[2] * points.get(Int3(c[0] + 1, c[1] + 1, c[2] + 1)));
     return val;
 }
+
+
+
+
 
 template<class T>
 inline T
@@ -299,6 +311,9 @@ Scalar_field<T>::get_val(std::vector<double> location) const
 {
     return get_val(&location[0]);
 }
+
+
+
 
 template<class T>
 inline T

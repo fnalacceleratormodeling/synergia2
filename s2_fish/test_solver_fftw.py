@@ -206,7 +206,7 @@ class Test_solver_fftw_open(unittest.TestCase):
                           [2.0e3,  0.08,  2.0e3],
                           [5000.0, 5000.0,   0.06]]
         for E_axis in range(0,3):
-            E = calculate_E_n(phi,E_axis)
+            E = calculate_E_n(phi,E_axis,fftwh,0) 
             for axis in range(0,3):
                 r,Er,exact,max_err,mean_err = \
                                            compare_E_on_axis(axis,
@@ -229,7 +229,7 @@ class Test_solver_fftw_open(unittest.TestCase):
         fftwh = Fftw_helper(shape,False)
         phi = solver_fftw_open(sf,fftwh,0,True)
         for E_axis in range(0,3):
-            E = calculate_E_n(phi,E_axis)
+            E = calculate_E_n(phi,E_axis,fftwh,0)
             apply_E_n_kick(E,E_axis,1.0,mb.get_store())
 
 class Test_solver_fftw_open_periodic(unittest.TestCase):    
@@ -271,7 +271,7 @@ class Test_solver_fftw_open_periodic(unittest.TestCase):
                           [2.0e3,  0.08,  2.0e3],
                           [5000.0, 5000.0,   0.06]]
         for axis in range(0,3):
-            E = calculate_E_n(phi,axis)            
+            E = calculate_E_n(phi,axis,fftwh,1)            
             for E_axis in range(0,3):
                 r,E_r,exact,max_err,mean_err = \
                     compare_E_on_axis(axis,shape,size,

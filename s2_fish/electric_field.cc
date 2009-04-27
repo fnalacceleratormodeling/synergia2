@@ -25,8 +25,10 @@ init_fdebug()
     }
 }
   
+
+
 Real_scalar_field
-calculate_E_n(Real_scalar_field &phi, int n)
+calculate_E_n(Real_scalar_field &phi, int n, Fftw_helper &fftwh, bool z_periodic)
 {
     //~ *fdebug << "in calculate_E_n\n"; fdebug->flush();
     reset_timer();
@@ -48,23 +50,12 @@ calculate_E_n(Real_scalar_field &phi, int n)
     offset_plus[n] = 1;
     offset_minus[n] = -1;
     double deriv;
-    // calculate i range taking into account guard grids
-    int i_lower, i_upper;
-    i_lower = phi.get_points().get_dim0_lower();
-    if (i_lower > 0) {
-        i_lower += 1;
-    }
-    i_upper = phi.get_points().get_dim0_upper();
-    if (i_upper < shape[0] - 1) {
-        i_upper -= 1;
-    }
-    //~ *fdebug << "calculate_E_n loop is ilower iupper shape[1] shape[2] " 
-        //~ << i_lower<<" "
-        //~ << i_upper<<" "
-        //~ << shape[1]<<" "
-        //~ << shape[2]<<" "
-        //~ << std::endl;
-    //~ fdebug->flush();
+
+     int i_lower, i_upper;   
+     i_lower =fftwh.lower();
+     i_upper =std::min(fftwh.upper(),shape[0]);
+  
+
 
     for (int i = i_lower; i < i_upper; ++i) {
         point[0] = i;
@@ -73,6 +64,7 @@ calculate_E_n(Real_scalar_field &phi, int n)
             for (int k = 0; k < shape[2]; ++k) {
                 point[2] = k;
                 Int3 p0(point), p1(point);
+
                 if (point[n] == 0) {
                     p1.add(offset_plus);
                     delta = h;
@@ -84,11 +76,24 @@ calculate_E_n(Real_scalar_field &phi, int n)
                     p1.add(offset_plus);
                     delta = 2.0 * h;
                 }
-                deriv = (phi.get_points().get(p1) - phi.get_points().get(p0)) / delta;
+                deriv = (phi.get_points().get(p1) - phi.get_points().get(p0))/ delta;                  
                 E.get_points().set(point, deriv);
             }
         }
     }
+   
+    if ((z_periodic) && (n==2)) {;
+       double average;
+       for (int i = i_lower; i < i_upper; ++i) {
+          for (int j = 0; j < shape[1]; ++j) { 
+           Int3 left(i, j, 0), right(i, j, shape[2] - 1);
+           average=0.5*(E.get_points().get(left)+E.get_points().get(right));
+           E.get_points().set(left, average);
+ 	   E.get_points().set(right, average);
+           } 
+        }
+      }
+	
     timer("E calc");
     //~ *fdebug << "about to broadcast_E\n"; fdebug->flush();
     broadcast_E(E, i_lower, i_upper);
@@ -131,24 +136,21 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
     double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho
     factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
     factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
-    factor *= -1.0 / mbs.total_num; // normailze the density...,-minus from the definition of phi ???
+    factor *= -1.0 /double(mbs.total_num); // normailze the density...,-minus from the definition of E= + grad phi ???
     factor *= 1.0/gamma;    // relativistic factor
     factor *=mbs.units(1); // the kikcing force should be muliplied  by the unit of p, this is a factor of 1/mass
     if (n_axis == 2) {factor *=-beta*gamma;} // -dp_t=-beta dp_z; E      
     int index = 2 * n_axis + 1; // for axis n_axis = (0,1,2) corresponding to x,y,z,
     // in particle store indexing, px,py,pz = (1,3,5)
     double kick;
-  	
-
 /*   difference with the factor (i.e. xycon,tcon) in impact :
  	   factor_fish*n_part/(4*pi)= - factor_impact
  
- in impact, -1/(4*pi) *n_part is included in the definition of the electric field....
+      in impact, -1/(4*pi) *n_part is included in the definition of the electric field....
 */
+	
     for (int n = 0; n < mbs.local_num; ++n) {
-        //~ if (n == 0) std::cout << "jfa: " << tau*factor << " " << E.get_val(Double3(mbs.local_particles(0, n),
-            //~ mbs.local_particles(2, n),
-                                //~ mbs.local_particles(4, n))) << std::endl;
+       
         kick = tau * factor * E.get_val(Double3(mbs.local_particles(0, n),
                                                 mbs.local_particles(2, n),
                                                 mbs.local_particles(4, n)));
@@ -157,6 +159,10 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
         mbs.local_particles(index, n) += kick;
 	
     }
+
+   	
+
+
     timer("apply kick");
 	
 }
@@ -177,7 +183,7 @@ void apply_Efield_kick(const std::vector<Real_scalar_field> &E, double tau,
     double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho
     factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
     factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
-    factor *= -1.0 / mbs.total_num; // normailze the density...,-minus from the definition of phi ???
+    factor *= -1.0 / double(mbs.total_num); // normailze the density...,-minus from the definition of E= + grad phi ???
     factor *= 1.0/(gamma*gamma);    // relativistic factor
     factor *=mbs.units(1); // the kikcing force should be muliplied  by the unit of p, this is a factor of 1/mass
 
@@ -250,7 +256,7 @@ apply_phi_kick(Real_scalar_field &phi, int axis, double tau,
     double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho
     factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
     factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
-    factor *= -1.0 / mbs.total_num; // normailze the density...,-minus from the definition of phi ???
+    factor *= -1.0 / mbs.total_num; // normailze the density...,-minus from the definition of E= + grad phi ???
     factor *= 1.0/gamma;    // relativistic factor
     factor *=mbs.units(1); // the kikcing force should be muliplied  by the unit of p, this is a factor of 1/mass
     if (axis == 2) {factor *=-beta*gamma;} // -dp_t=-beta dp_z; E     
@@ -278,13 +284,13 @@ apply_phi_kick(Real_scalar_field &phi, int axis, double tau,
 }
 
 void
-full_kick_version(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs)
+full_kick_version(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs,Fftw_helper &fftwh, bool z_periodic)
 {
     //~ init_fdebug();
    std::vector<Real_scalar_field> E;	
     for (int axis = 0; axis < 3; ++axis) {
         //~ *fdebug << "about to Real_scalar_field\n"; fdebug->flush();
-	Real_scalar_field En=calculate_E_n(phi, axis);
+	Real_scalar_field En=calculate_E_n(phi, axis, fftwh, z_periodic);
         E.push_back(En);
            }
         //~ *fdebug << "about to apply kick " << axis << "\n"; fdebug->flush();
@@ -295,25 +301,25 @@ full_kick_version(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs)
 
 
 void
-full_kick(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs)
+full_kick(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs, Fftw_helper &fftwh, bool z_periodic )
 {
     //~ init_fdebug();
     for (int axis = 0; axis < 3; ++axis) {
         //~ *fdebug << "about to Real_scalar_field\n"; fdebug->flush();
-        Real_scalar_field E = calculate_E_n(phi, axis);
+        Real_scalar_field E = calculate_E_n(phi, axis, fftwh, z_periodic);
         //~ *fdebug << "about to apply kick " << axis << "\n"; fdebug->flush();
         apply_E_n_kick(E, axis, tau, mbs);
         //~ *fdebug << "full_kick complete\n"; fdebug->flush();
-      //  apply_phi_kick(phi, axis,  tau,  mbs);
+     //   apply_phi_kick(phi, axis,  tau,  mbs);
     }
 }
 
 
 void
-transverse_kick(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs)
+transverse_kick(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs, Fftw_helper &fftwh, bool z_periodic)
 {
     for (int axis = 0; axis < 2; ++axis) {
-        Real_scalar_field E = calculate_E_n(phi, axis);
+        Real_scalar_field E = calculate_E_n(phi, axis, fftwh, z_periodic);
         apply_E_n_kick(E, axis, tau, mbs);
     }
 }

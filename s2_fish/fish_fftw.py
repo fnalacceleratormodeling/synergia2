@@ -64,9 +64,10 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
         if (size == None) or (offset == None):
             means, stds = synergia.get_spatial_means_stds(mbunch)
             if dbg:
-                print "mean z: ", means[2], " std z: ", stds[2]
+              #  print "mean z: ", means[2], " std z: ", stds[2]
+		print "mean x: ", means[0], " std x: ", stds[0]
             if size == None:
-                n_sigma = 8.0
+                n_sigma = 12.0
                 size = list(n_sigma*stds)
                 rwsize = size[:]
             if offset == None:
@@ -115,7 +116,7 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
         if space_charge:
             phi = solver_fft_open(rho,fftwhs[key],periodic,True)
             mytimer("solve")
-            full_kick(phi,tau,mbunch.get_store())
+            full_kick(phi,tau,mbunch.get_store(),fftwhs[key],periodic)
             mytimer("full kick")
         mbunch.convert_to_fixedz()
         mytimer("unconvert")

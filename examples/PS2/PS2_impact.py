@@ -32,7 +32,7 @@ if ( __name__ == '__main__'):
     myopts.add("partpercell",1,"",float)
     myopts.add("space_charge",1,"",int)
     myopts.add("kicks",40,"kicksper line",int)
-    myopts.add("numtrack",10,"number of particles to track",int)
+    myopts.add("numtrack",0,"number of particles to track",int)
     
     myopts.add_suboptions(synergia.opts)
     myopts.parse_argv(sys.argv)
@@ -59,9 +59,9 @@ if ( __name__ == '__main__'):
     sige= myopts.get("sige")
     tgridnum = myopts.get("tgridnum")
     lgridnum = myopts.get("lgridnum")
-    griddim = (tgridnum,tgridnum,lgridnum)
+   # griddim = (tgridnum,tgridnum,lgridnum+1)
     part_per_cell=myopts.get("partpercell")
-    num_particles = int(griddim[0]*griddim[1]*griddim[2] * part_per_cell )
+   # num_particles = int(griddim[0]*griddim[1]*griddim[2] * part_per_cell )
     kicks_per_line = myopts.get("kicks")
     space_charge=myopts.get("space_charge")
     
@@ -138,19 +138,14 @@ if ( __name__ == '__main__'):
     if not space_charge:
         current=0.
        
-    if MPI.COMM_WORLD.Get_rank() ==0:
-       print "Kinetic energy=", kinetic_energy    
-       print "bunch_spacing=",bunch_spacing
-       print "current =",current
-       print "space_charge =",space_charge
-       print "num_particles =",num_particles
+    
     
     
     sys.stdout.flush()
      
      
-    #BC_choice="trans finite, long periodic round"
-    #griddim = (tgridnum+1,tgridnum+1,lgridnum+1)  
+   # BC_choice="trans finite, long periodic round"
+   # griddim = (tgridnum+1,tgridnum+1,lgridnum+1)  
     BC_choice="trans open, long periodic"
     griddim = (tgridnum,tgridnum,lgridnum+1)    
     
@@ -158,7 +153,12 @@ if ( __name__ == '__main__'):
         griddim[0]*griddim[1]*griddim[2] * part_per_cell,MPI.COMM_WORLD.Get_size())
    
 	
-    
+    if MPI.COMM_WORLD.Get_rank() ==0:
+       print "Kinetic energy=", kinetic_energy    
+       print "bunch_spacing=",bunch_spacing
+       print "current =",current
+       print "space_charge =",space_charge
+       print "num_particles =",num_particles
     
     pgrid = impact.Processor_grid(1)
     cgrid = impact.Computational_grid(griddim[0],griddim[1],griddim[2],

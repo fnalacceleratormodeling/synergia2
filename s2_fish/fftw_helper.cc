@@ -8,7 +8,9 @@ Fftw_helper::construct(int *shape_in, bool z_periodic)
     shape[1] = 2 * shape_in[1];
     if (! z_periodic) {
         shape[2] = 2 * shape_in[2];
-    }
+    } else {shape[2] -= 1;
+       }
+
     timer("misc");
     plan = rfftwnd_mpi_create_plan(MPI_COMM_WORLD, 3, shape.c_array(),
                                    FFTW_REAL_TO_COMPLEX, FFTW_ESTIMATE);
@@ -87,13 +89,16 @@ Int3
 Fftw_helper::padded_shape_real()
 {
     return Int3(shape[0], shape[1], 2*(shape[2] / 2 + 1));
+  
 }
 
 Int3
 Fftw_helper::padded_shape_complex()
 {
     return Int3(shape[0], shape[1], shape[2] / 2 + 1);
+  
 }
+
 
 void
 Fftw_helper::transform(Real_scalar_field &in, Complex_scalar_field &out)
