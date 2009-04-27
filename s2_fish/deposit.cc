@@ -48,10 +48,25 @@ deposit_charge_cic(Real_scalar_field& sf, Macro_bunch_store& mbs,
                 sum = sf.get_points().get(left) +
                       sf.get_points().get(right);
                 sf.get_points().set(left, sum);
-                sf.get_points().set(right, sum);
+                sf.get_points().set(right, sum);				
             }
         }
     }
+
+// 	Int3 shape(sf.get_points().get_shape());
+// 	for (int j = 0; j < shape[1]; ++j) {
+// 	   for (int k = 0; k < shape[2]-1; ++k) {
+// 	Int3 left(0, j, k), right(shape[0]-1,j,k);
+//         Int3 left1(1, j, k), right1(shape[0]-2,j,k);
+// 	if((sf.get_points().get(left)>1.e-10)||(sf.get_points().get(right)>1.e-10))
+//         std::cout<<"charge left="<<sf.get_points().get(left)<<"charge right="<<sf.get_points().get(right)<<"   jk= "<<j<<k<<std::endl;
+// //           sf.get_points().set(right, 0.);
+// //  	  sf.get_points().set(left, 0.); 
+// // 	  sf.get_points().set(right1, 0.);
+// //  	  sf.get_points().set(left1, 0.);
+// 
+//            }
+//          }
     //jfa next line is wrong on multiple processors!!!
     return total_charge_per_cell_vol * h[0]*h[1]*h[2];
 }
