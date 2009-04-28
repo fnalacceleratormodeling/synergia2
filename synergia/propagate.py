@@ -53,6 +53,12 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
             s += last_step_length
         elif action.is_synergia_action():
             if action.get_synergia_action() == "space charge endpoint":
+                if aperture:
+                    for mbunch in bunches:
+                        mbs = mbunch.get_store()
+                        s2_fish.constraints.apply_circular_aperture(mbs,aperture)
+                        mbunch.local_num = mbs.local_num
+                        mbunch.total_num = mbs.total_num
                 if not first_action:
 		    if tracker:
 		        if steps % track_period_steps == 0:
