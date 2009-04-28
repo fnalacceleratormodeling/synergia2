@@ -14,6 +14,7 @@ deposit_charge_cic(Real_scalar_field& sf, Macro_bunch_store& mbs,
     Double3 offsets;
     double total_charge_per_cell_vol = 0.0;
     Double3 h(sf.get_cell_size());
+    Int3 shape(sf.get_points().get_shape());
     double weight0 = 1.0 / (h[0] * h[1] * h[2]);
     //~ weight0 = 1.0; //jfa DEBUG ONLY!!!!!!!!!!!!!!!!!!!!!
     //~ std::cout << "jfa: btw, zperiodic = " << z_periodic << std::endl;
@@ -30,44 +31,42 @@ deposit_charge_cic(Real_scalar_field& sf, Macro_bunch_store& mbs,
                     double weight = weight0 * (1 - i - (1 - 2 * i) * offsets[0]) *
                                     (1 - j - (1 - 2 * j) * offsets[1]) *
                                     (1 - k - (1 - 2 * k) * offsets[2]);
-                    sf.get_points().add_to_point(Int3(indices[0] + i,
+                 if(((indices[0] + i) != 0) && ((indices[0] + i) != shape[0]-1) // on the transverse grid edges 
+                    && ((indices[1] + j) != 0) && ((indices[1] + j) != shape[1]-1)){   // no charge is deposited 
+		     sf.get_points().add_to_point(Int3(indices[0] + i,
                                                       indices[1] + j,
                                                       indices[2] + k),
                                                  weight);
                     total_charge_per_cell_vol += weight;
+                  }
                 }
             }
         }
     }
-    if (z_periodic) {
-        Int3 shape(sf.get_points().get_shape());
-        double sum;
-        for (int i = 0; i < shape[0]; ++i) {
-            for (int j = 0; j < shape[1]; ++j) {
-                Int3 left(i, j, 0), right(i, j, shape[2] - 1);
-                sum = sf.get_points().get(left) +
-                      sf.get_points().get(right);
-                sf.get_points().set(left, sum);
-                sf.get_points().set(right, sum);				
-            }
-        }
-    }
+ 
 
-// 	Int3 shape(sf.get_points().get_shape());
-// 	for (int j = 0; j < shape[1]; ++j) {
-// 	   for (int k = 0; k < shape[2]-1; ++k) {
-// 	Int3 left(0, j, k), right(shape[0]-1,j,k);
-//         Int3 left1(1, j, k), right1(shape[0]-2,j,k);
-// 	if((sf.get_points().get(left)>1.e-10)||(sf.get_points().get(right)>1.e-10))
-//         std::cout<<"charge left="<<sf.get_points().get(left)<<"charge right="<<sf.get_points().get(right)<<"   jk= "<<j<<k<<std::endl;
-// //           sf.get_points().set(right, 0.);
-// //  	  sf.get_points().set(left, 0.); 
-// // 	  sf.get_points().set(right1, 0.);
-// //  	  sf.get_points().set(left1, 0.);
-// 
-//            }
+      
+       
+     for (int i = 1; i < shape[0]-1; ++i) {
+       for (int j = 1; j < shape[1]-1; ++j) {
+            Int3 left(i, j, 0), right(i, j, shape[2] - 1);
+            double sum;
+	    sum = sf.get_points().get(left) +
+                      sf.get_points().get(right); 
+            if (!z_periodic) {                             
+		total_charge_per_cell_vol -= sum;
+		sum=0.;}	      
+              sf.get_points().set(left, sum);
+              sf.get_points().set(right, sum);
+       }
+    }
+ 
+
+   //  std::cout<<"total charge is "<<total_charge_per_cell_vol * h[0]*h[1]*h[2]<<" cel size="<<h[0]*h[1]*h[2]<<std::endl<<std::endl;
 //          }
     //jfa next line is wrong on multiple processors!!!
+    // AM:  the total charge deposit on the grid is not equal to the number of particles 
+    //when are particles outside the grid...	
     return total_charge_per_cell_vol * h[0]*h[1]*h[2];
 }
 

@@ -52,47 +52,77 @@ calculate_E_n(Real_scalar_field &phi, int n, Fftw_helper &fftwh, bool z_periodic
     double deriv;
 
      int i_lower, i_upper;   
-     i_lower =fftwh.lower();
+     i_lower =fftwh.lower(); 
      i_upper =std::min(fftwh.upper(),shape[0]);
-  
 
 
-    for (int i = i_lower; i < i_upper; ++i) {
+// AM: the field on  the grid edges is set to zero for directions with no periodic boundary, 
+//in acordance  to charge deposit, thus  we loop from 1 to shape-2 
+     int i_lower1, i_upper1; 
+     i_lower1=std::max(i_lower,1);
+     i_upper1=std::min(i_upper,shape[0]-1);
+
+    for (int i = i_lower1; i < i_upper1; ++i) {
         point[0] = i;
-        for (int j = 0; j < shape[1]; ++j) {
+        for (int j = 1; j < shape[1]-1; ++j) { // the field on  the grid edges is set to zero
             point[1] = j;
-            for (int k = 0; k < shape[2]; ++k) {
+            for (int k = 0; k < shape[2]; ++k) { // z direction may be periodic
                 point[2] = k;
                 Int3 p0(point), p1(point);
-
                 if (point[n] == 0) {
                     p1.add(offset_plus);
                     delta = h;
+                    deriv=0.;
                 } else if (point[n] == shape[n] - 1) {
                     p0.add(offset_minus);
                     delta = h;
+                    deriv=0.;
                 } else {
                     p0.add(offset_minus);
                     p1.add(offset_plus);
+
                     delta = 2.0 * h;
                 }
-                deriv = (phi.get_points().get(p1) - phi.get_points().get(p0))/ delta;                  
+                deriv = (phi.get_points().get(p1) - phi.get_points().get(p0))/ delta; 
                 E.get_points().set(point, deriv);
+	        
             }
         }
     }
    
-    if ((z_periodic) && (n==2)) {;
-       double average;
-       for (int i = i_lower; i < i_upper; ++i) {
-          for (int j = 0; j < shape[1]; ++j) { 
-           Int3 left(i, j, 0), right(i, j, shape[2] - 1);
-           average=0.5*(E.get_points().get(left)+E.get_points().get(right));
+    
+      
+    for (int i = i_lower1; i < i_upper1; ++i) {
+      for (int j = 0; j < shape[1]; ++j) { 
+         Int3 left(i, j, 0), right(i, j, shape[2] - 1);
+         double average;
+         if ((z_periodic))  {
+                   average=0.5*(E.get_points().get(left)+E.get_points().get(right));
+          } else {average=0.;} // the field on  the grid edges is set to zero
            E.get_points().set(left, average);
  	   E.get_points().set(right, average);
-           } 
-        }
+      } 
+     }
+      
+/*
+    for (int j = 0; j < shape[1]; ++j) {
+      for (int k = 0; k < shape[2]; ++k) { 
+	Int3 left(0, j, k), right(shape[0]-1, j, k);	
+ 	E.get_points().set(left, 0.);
+ 	E.get_points().set(right, 0.);
       }
+    }
+
+    for (int i = 0; i < shape[0]; ++i) {
+      for (int k = 0; k < shape[2]; ++k) { 
+	Int3 left(i, 0, k), right(i, shape[1]-1, k);	
+ 	E.get_points().set(left, 0.);
+ 	E.get_points().set(right, 0.);
+      }
+    }*/
+
+
+  
 	
     timer("E calc");
     //~ *fdebug << "about to broadcast_E\n"; fdebug->flush();
@@ -136,8 +166,7 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
     double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho
     factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
     factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
-    factor *= -1.0 /double(mbs.total_num); // normailze the density...,-minus from the definition of E= + grad phi ???
-    factor *= 1.0/gamma;    // relativistic factor
+    factor *= -1.0/gamma;    // relativistic factor,...-minus from the definition of E= + grad phi ???
     factor *=mbs.units(1); // the kikcing force should be muliplied  by the unit of p, this is a factor of 1/mass
     if (n_axis == 2) {factor *=-beta*gamma;} // -dp_t=-beta dp_z; E      
     int index = 2 * n_axis + 1; // for axis n_axis = (0,1,2) corresponding to x,y,z,
@@ -179,13 +208,13 @@ void apply_Efield_kick(const std::vector<Real_scalar_field> &E, double tau,
     double mass = mbs.mass * 1.0e9;
     double eps0 = PH_MKS_eps0; 
 
-    double length=2.0*pi*gamma*beta/mbs.units(0); // see macro_bunch, length=get_longitudinal_period_size
+    double length=2.0*pi*beta/mbs.units(0); // bunch length in lab frame
     double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho
     factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
     factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
-    factor *= -1.0 / double(mbs.total_num); // normailze the density...,-minus from the definition of E= + grad phi ???
-    factor *= 1.0/(gamma*gamma);    // relativistic factor
+    factor *= -1.0/gamma;    // relativistic factor,...-minus from the definition of E= + grad phi ???
     factor *=mbs.units(1); // the kikcing force should be muliplied  by the unit of p, this is a factor of 1/mass
+
 
 
 /*    consider the electric fields in the rest frame, E'x, E'y, E'z,
@@ -256,8 +285,7 @@ apply_phi_kick(Real_scalar_field &phi, int axis, double tau,
     double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho
     factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
     factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
-    factor *= -1.0 / mbs.total_num; // normailze the density...,-minus from the definition of E= + grad phi ???
-    factor *= 1.0/gamma;    // relativistic factor
+    factor *= -1.0/gamma;    // relativistic factor...,-minus from the definition of E= + grad phi ???
     factor *=mbs.units(1); // the kikcing force should be muliplied  by the unit of p, this is a factor of 1/mass
     if (axis == 2) {factor *=-beta*gamma;} // -dp_t=-beta dp_z; E     
 

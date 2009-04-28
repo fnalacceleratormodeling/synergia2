@@ -12,6 +12,41 @@
 
 #include "communicate.h"
 
+
+double total_grid_charge(Real_scalar_field &rho, bool z_periodic)
+{
+
+    Real_scalar_field global_rho(rho.get_points().get_shape(),
+                          rho.get_physical_size(),
+                           rho.get_physical_offset());
+                          
+     gather_global_rho(rho, global_rho);
+
+
+   int rank, size;
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   Int3 shape(rho.get_points().get_shape());
+   if 	(z_periodic) shape[2] -= 1;	
+   Double3 h(rho.get_cell_size());	
+   double grid_charge=0.0;
+    for (int i=0; i < shape[0]; ++i){
+        for (int j=0; j < shape[1]; ++j){
+	   for (int k=0; k < shape[2]; ++k){
+	    Int3 pp(i, j, k);
+            grid_charge += global_rho.get_points().get(pp);
+           }
+	}
+    }	
+		
+    grid_charge *= h[0]*h[1]*h[2];
+
+return grid_charge;
+}
+
+
+
+
+
 Complex_scalar_field
 get_rho_hat2(Real_scalar_field &rho, Fftw_helper &fftwh)
 {
@@ -910,6 +945,56 @@ get_phi(Real_scalar_field &rho, Real_scalar_field &phi2, Fftw_helper &fftwh)
     }
 
 
+// normalize phi by dividing to the number of charges deposited on the grid (not necesarily the same as the 
+// total number of charges).
+  /*  Int3 shape_rho(rho.get_points().get_shape());
+    if 	(z_periodic) shape_rho[2] -= 1;	
+    Double3 h(rho.get_cell_size());	
+    double grid_charge=0.0;
+    
+   
+     Real_scalar_field global_rho(rho.get_points().get_shape(),
+                          rho.get_physical_size(),
+                           rho.get_physical_offset());
+                          
+     gather_global_rho(rho, global_rho);
+
+    //int rank, size;
+   // MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+  //  Int3 shape_rho(rho.get_points().get_shape());
+   // if 	(z_periodic) shape_rho[2] -= 1;	
+   // Double3 h(rho.get_cell_size());	
+   // double grid_charge=0.0;
+    for (int i=0; i < shape_rho[0]; ++i){
+        for (int j=0; j < shape_rho[1]; ++j){
+	   for (int k=0; k < shape_rho[2]; ++k){
+	    Int3 pp(i, j, k);
+            grid_charge += global_rho.get_points().get(pp);
+           }
+	}
+    }	
+		
+    grid_charge *= h[0]*h[1]*h[2];
+
+    std::cout<<"xxglobal grid charge="<<grid_charge<<" on rank "<<rank<<" cel size="<<h[0]*h[1]*h[2]<<std::endl;*/	
+
+
+
+
+//     for (int i=0; i < shape_rho[0]; ++i){
+//         for (int j=0; j < shape_rho[1]; ++j){
+// 	   for (int k=0; k < shape_rho[2]; ++k){
+// 	    Int3 pp(i, j, k);
+//             grid_charge += rho.get_points().get(pp);
+//            }
+// 	}
+//     }	
+// 		
+//     grid_charge *= h[0]*h[1]*h[2];
+// 
+//     std::cout<<" grid charge="<<grid_charge<<" on rank "<<rank<<" cel size="<<h[0]*h[1]*h[2]<<std::endl;	
+
+
     timer("calc phi");
     return phi;
 }
@@ -937,7 +1022,13 @@ solver_fftw_open(Real_scalar_field &rho, Fftw_helper &fftwh, bool z_periodic,
     reset_timer();
     //~ Fftw_helper fftwh(rho);
     //~ timer("get plans");
-    gather_rho(rho, fftwh.upper());
+
+
+// normalize phi by dividing to the number of charges deposited on the grid (not necesarily the same as the 
+// total number of charges): phi=phi/grid_charge
+
+    double grid_chargei=1.0/total_grid_charge(rho,z_periodic);// this should be called before gather_rho(rho, fftwh.upper())
+    gather_rho(rho, fftwh.upper());    
     timer("gather rho");
     Complex_scalar_field rho_hat2 = get_rho_hat2(rho, fftwh);
     Complex_scalar_field G_hat2 = get_G_hat2(rho, z_periodic, fftwh);
@@ -946,8 +1037,8 @@ solver_fftw_open(Real_scalar_field &rho, Fftw_helper &fftwh, bool z_periodic,
     Real_scalar_field phi2 = get_phi2(rho, phi_hat2, fftwh, z_periodic);
     timer("misc");
     Real_scalar_field phi = get_phi(rho, phi2, fftwh);
- 
-
+    phi.get_points().scale(grid_chargei); 
+    
     timer("misc");
     if (use_guards) {
         fill_guards(phi, fftwh);

@@ -73,7 +73,7 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
                 print "min z: ", bunchmin[2], " max z: ", bunchmax[2]
 
             if size == None:
-                n_sigma = 12.0
+                n_sigma = 10.0
                 size = list(n_sigma*stds)
                 rwsize = bunchmax - bunchmin
             if offset == None:

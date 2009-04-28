@@ -31,12 +31,12 @@ if ( __name__ == '__main__'):
                                       ["channel.mad"])    
     
     current_in = 130000
-    current_in = 1
+#    current_in = 1
     
     print "curent=",current_in
     
-    kinetic_energy = 0.0027
-#    kinetic_energy = 4.
+#    kinetic_energy = 0.0027
+    kinetic_energy = 4.
     print "kinetic_energy= ",kinetic_energy
     mass = synergia.PH_NORM_mp
     charge = 1.0
@@ -172,11 +172,11 @@ if ( __name__ == '__main__'):
 
     
 # **********************************************************************
-    solver="3d"
+    solver="3d fish"
     current=current_in
 
 
-    griddim = (16,16,128)
+    griddim = (16,16,129)
     num_particles = griddim[0]*griddim[1]*griddim[2] * 1 #part_per_cell
     print "num_particles =",num_particles
     
@@ -226,7 +226,9 @@ if ( __name__ == '__main__'):
     BC_choice="trans open, long periodic"
     griddim = [16,16,129]   
 
-    current=current_in
+    current=current_in  
+    num_particles = impact.adjust_particles(
+        griddim[0]*griddim[1]*griddim[2] * part_per_cell,MPI.COMM_WORLD.Get_size())
 
        
     print "num_particles 3d impact=",num_particles
@@ -241,8 +243,7 @@ if ( __name__ == '__main__'):
 
     
     
-    num_particles = impact.adjust_particles(
-        griddim[0]*griddim[1]*griddim[2] * part_per_cell,MPI.COMM_WORLD.Get_size())
+  
     
     pgrid = impact.Processor_grid(1)
     cgrid = impact.Computational_grid(griddim[0],griddim[1],griddim[2],
