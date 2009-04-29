@@ -199,4 +199,6 @@ class Diagnostics:
         hdfarray = f.createArray(root,'emitxy',numpy.array(self.emitxys),"x-y emittance")
         hdfarray = f.createArray(root,'emitxyz',numpy.array(self.emitxyzs),"x-y-z emittance")
         hdfarray = f.createArray(root,'units',numpy.array(self.u),"units")
+        # octave gets confused if n is not an array of doubles
+        hdfarray = f.createArray(root, 'n',numpy.array(self.n,'d'),"n") 
         f.close()
