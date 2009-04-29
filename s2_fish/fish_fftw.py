@@ -133,6 +133,6 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
             else:
                 #~ pardebug("using full kick\n")
                 full_kick(phi,tau,mbunch.get_store(),fftwhs[key],periodic)
-           mytimer("full kick")
+            mytimer("full kick")
         mbunch.convert_to_fixedz()
         mytimer("unconvert")
