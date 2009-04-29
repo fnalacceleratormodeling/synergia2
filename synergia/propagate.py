@@ -25,7 +25,8 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
     space_charge=True,impedance=False,
     pipe_radiusx=None,pipe_radiusy=None,
     pipe_conduct=None,bunch_spacing=None,
-    tracker=None,track_period_steps=None):
+    tracker=None,track_period_steps=None,
+              transverse=False):
 
     bunches = listify(bunch_in)
     diagnosticss = listify(diagnostics_in)
@@ -70,7 +71,7 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
                         periodic=periodic,aperture=aperture,space_charge=space_charge,
                         impedance=impedance,pipe_radiusx=pipe_radiusx,
                         pipe_radiusy=pipe_radiusy,pipe_conduct=pipe_conduct,
-                        bunch_spacing=bunch_spacing)
+                        bunch_spacing=bunch_spacing,transverse=transverse)
                 elif use_s2_fish_cylindrical:
                     s2_fish.apply_cylindrical_space_charge_kick(grid_dim,
                         radius,bunch,2*tau,aperture=aperture,space_charge=space_charge,
