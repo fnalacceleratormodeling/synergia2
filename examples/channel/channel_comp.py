@@ -30,13 +30,13 @@ if ( __name__ == '__main__'):
     job_mgr = synergia.Job_manager(sys.argv,myopts,
                                       ["channel.mad"])    
     
-    current_in = 130000
-#    current_in = 1
+#    current_in = 530000
+    current_in = 1
     
     print "curent=",current_in
     
-#    kinetic_energy = 0.0027
-    kinetic_energy = 4.
+    kinetic_energy = 0.0027
+#    kinetic_energy = 8.
     print "kinetic_energy= ",kinetic_energy
     mass = synergia.PH_NORM_mp
     charge = 1.0
@@ -67,7 +67,7 @@ if ( __name__ == '__main__'):
 
     ee = synergia.Error_eater()
     ee.start()
-    gourmet = synergia.Gourmet(os.path.join(os.getcwd(),"channel.xsif"),"channel",kinetic_energy,
+    gourmet = synergia.Gourmet(os.path.join(os.getcwd(),"channel.mad"),"channel",kinetic_energy,
                         scaling_frequency)
 			
 			
