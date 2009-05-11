@@ -157,7 +157,7 @@ template<class T>
 inline bool
 Array_1d<T>::bounds_check(const int i) const
 {
-    if ((i<0) || (i>this->shape[0])) {
+    if ((i<0) || (i>=this->shape[0])) {
         return false;
     }
     return true;

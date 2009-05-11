@@ -171,7 +171,7 @@ template<class T>
 inline bool
 Array_2d<T>::bounds_check(const int i, const int j) const
 {
-    if ((i<0) || (i>this->shape[0]) || (j<0) || (j>this->shape[1])) {
+    if ((i<0) || (i>=this->shape[0]) || (j<0) || (j>=this->shape[1])) {
         return false;
     }
     return true;

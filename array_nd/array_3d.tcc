@@ -160,9 +160,9 @@ template<class T>
 inline bool
 Array_3d<T>::bounds_check(const int i, const int j, const int k) const
 {
-    if ( (i<0) || (i>this->shape[0]) ||
-        (j<0) || (j>this->shape[1]) ||
-        (k<0) || (k>this->shape[2]) ) {
+    if ( (i<0) || (i>=this->shape[0]) ||
+        (j<0) || (j>=this->shape[1]) ||
+        (k<0) || (k>=this->shape[2]) ) {
         return false;
     }
     return true;
