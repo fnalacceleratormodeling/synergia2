@@ -4,6 +4,8 @@ import numpy.linalg
 from math import sqrt
 import sys
 import tables
+from mpi4py import MPI
+import time
 
 import s2_fish.s2_diagnostics as s2_diagnostics
 
@@ -87,7 +89,7 @@ def get_diagnostics(bunch,units):
     return means,mom2s,corrs,diagmom4s
 
 class Diagnostics:
-    def __init__(self,units,short=False):
+    def __init__(self,units,short=False,save_period=100):
         self.s = []
         self.means = []
         self.mom2s = []
@@ -103,6 +105,7 @@ class Diagnostics:
         self.u = units
         self.n = []
         self.short = short
+        self.save_period=save_period
 
     def add(self,s,bunch):
         means,mom2s,corrs,diagmom4s = get_diagnostics(bunch,self.u)
@@ -121,6 +124,13 @@ class Diagnostics:
                         *self.u[xprime]*self.u[yprime])
         self.emitxyzs.append(abs(sqrt(abs(numpy.linalg.det(mom2s)))\
                         *self.u[xprime]*self.u[yprime]*self.u[zprime]))
+        self.n.append(bunch.total_num)
+        if self.save_period:
+                if (len(self.n) % self.save_period == 0) and \
+                    (MPI.COMM_WORLD.Get_rank() == 0):
+                    t0 = time.time()
+                    self.write_hdf5("tmp-diagnostics")
+                    print "tmp-diagnostics time",time.time()-t0
     
     def get_s(self):
         return numpy.array(self.s)
@@ -189,4 +199,6 @@ class Diagnostics:
         hdfarray = f.createArray(root,'emitxy',numpy.array(self.emitxys),"x-y emittance")
         hdfarray = f.createArray(root,'emitxyz',numpy.array(self.emitxyzs),"x-y-z emittance")
         hdfarray = f.createArray(root,'units',numpy.array(self.u),"units")
+        # octave gets confused if n is not an array of doubles
+        hdfarray = f.createArray(root, 'n',numpy.array(self.n,'d'),"n") 
         f.close()

@@ -38,7 +38,8 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
                         pipe_radiusx=None,
                         pipe_radiusy=None,
                         pipe_conduct=None,
-                        bunch_spacing=None):
+                        bunch_spacing=None,
+                            transverse=False):
 
     # XXXXXXXXXXXXXXX   dbg is set here
     dbg = False
@@ -126,7 +127,12 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
         if space_charge:
             phi = solver_fft_open(rho,fftwhs[key],periodic,True)
             mytimer("solve")
-            full_kick(phi,tau,mbunch.get_store(),fftwhs[key],periodic)
+            if transverse:
+                #~ pardebug("using transverse kick\n")
+                transverse_kick(phi,tau,mbunch.get_store(),fftwhs[key],periodic)
+            else:
+                #~ pardebug("using full kick\n")
+                full_kick(phi,tau,mbunch.get_store(),fftwhs[key],periodic)
             mytimer("full kick")
         mbunch.convert_to_fixedz()
         mytimer("unconvert")

@@ -12,7 +12,7 @@ from job_manager import create_new_directory
 
 
 class Tracker:
-    def __init__(self,root_dir,fractuple,sub_dir=None,dest_dir=".",track_dir='tracks'):
+    def __init__(self,root_dir,fractuple,sub_dir=None,dest_dir=".",track_dir='tracks',save_period=20):
         # if fractuple is of the form (a,b), interpret as a/b
         # else interpret as 1/fractuple 
         if operator.isSequenceType(fractuple):
@@ -35,6 +35,8 @@ class Tracker:
         self.add_times = []
         self.copy_time = None
         self.open = 1
+        self.count = 0
+        self.save_period=save_period
         
     def _write_track_text(self,part,s):
         id = int(part[6])
@@ -92,8 +94,15 @@ class Tracker:
             for i in range(0,len(save_ids)):
                 save_parts[:,i] = bunch.get_local_particles()[:,save_ids[i]]
             MPI.WORLD.Send(save_parts,dest=0)
+        self.count += 1
+        if self.save_period:
+            if (self.count % self.save_period == 0) and \
+                (MPI.COMM_WORLD.Get_rank() == 0):
+                t0 = time.time()
+                self._copy()
+                print "tracker auto copy time",time.time()-t0
 
-    def close(self):
+    def _copy(self):
         if MPI.COMM_WORLD.Get_rank() == 0:
             t0 = time.time()
             destination = os.path.join(self.dest_dir,self.track_dir)
@@ -102,6 +111,9 @@ class Tracker:
             shutil.copytree(self.dir,destination)
             self.copy_time = time.time() - t0
             shutil.rmtree(self.base_dir)
+
+    def close(self):
+        self._copy()
         self.open = 0
 
     def show_statistics(self,filename=None):
