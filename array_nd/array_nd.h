@@ -30,8 +30,8 @@ protected:
     std::allocator<T> myallocator;
 
     void construct(const std::vector<int> shape,
-                   const std::vector<int> strides, const bool allocate);
-    void construct(const std::vector<int> shape, const bool allocate);
+                   const std::vector<int> strides, T *data_ptr);
+    void construct(const std::vector<int> shape, T *data_ptr);
     void copy_construct(const Array_nd& original);
     bool different_shape(const std::vector<int> shape) const;
     std::vector<int>

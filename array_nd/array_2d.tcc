@@ -10,28 +10,14 @@ Array_2d<T>::Array_2d() : Array_nd<T>()
 template<class T>
 Array_2d<T>::Array_2d(const int nx, const int ny, T *data_ptr) : Array_nd<T>()
 {
-    bool allocate;
-    if (data_ptr == 0) {
-    	allocate = true;
-    } else {
-    	allocate = false;
-        this->data_ptr = data_ptr;
-    }
-    this->construct(vector2(nx,ny),allocate);
+    this->construct(vector2(nx,ny),data_ptr);
 }
 
 template<class T>
 Array_2d<T>::Array_2d(const int nx, const int ny,
         const int stride_x, const int stride_y, T *data_ptr) : Array_nd<T>()
 {
-    bool allocate;
-    if (data_ptr == 0) {
-    	allocate = true;
-    } else {
-    	allocate = false;
-        this->data_ptr = data_ptr;
-    }
-    this->construct(vector2(nx,ny),vector2(stride_x,stride_y),allocate);
+    this->construct(vector2(nx,ny),vector2(stride_x,stride_y),data_ptr);
 }
 
 template<class T>
@@ -54,15 +40,12 @@ Array_2d<T>::reshape(const int nx, const int ny, T *data_ptr)
         throw
         std::out_of_range("Attempt to change the shape of a frozen Array_2d");
     }
-    bool allocate;
-    if (data_ptr == 0) {
-    	allocate = true;
-    } else {
-    	allocate = false;
-        this->data_ptr = data_ptr;
-    }
     if (shape_changed) {
-        this->construct(vector2(nx,ny),allocate);
+        this->construct(vector2(nx,ny),data_ptr);
+    } else {
+    	if (data_ptr != 0) {
+    		this->data_ptr = data_ptr;
+    	}
     }
 }
 
@@ -76,15 +59,12 @@ Array_2d<T>::reshape(const int nx, const int ny,
         throw
         std::out_of_range("Attempt to change the shape of a frozen Array_2d");
     }
-    bool allocate;
-    if (data_ptr == 0) {
-    	allocate = true;
-    } else {
-    	allocate = false;
-        this->data_ptr = data_ptr;
-    }
     if (shape_changed) {
-        this->construct(vector2(nx,ny),vector2(stride_x,stride_y),allocate);
+        this->construct(vector2(nx,ny),vector2(stride_x,stride_y),data_ptr);
+    } else {
+    	if (data_ptr != 0) {
+    		this->data_ptr = data_ptr;
+    	}
     }
 }
 

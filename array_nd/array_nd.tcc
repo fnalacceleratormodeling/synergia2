@@ -13,13 +13,13 @@ Array_nd<T>::Array_nd()
 template<class T>
 void
 Array_nd<T>::construct(const std::vector<int> shape,
-                       const std::vector<int> strides, const bool allocate)
+                       const std::vector<int> strides, T *data_ptr)
 {
     if (own_data) {
 #if defined(DEBUG_ALL) || defined(DEBUG_ARRAY_ND_ALL) || defined(DEBUG_ARRAY_ND_DEALLOCATE)
         std::cout << "deallocating\n";
 #endif
-        myallocator.deallocate(data_ptr, size);
+        myallocator.deallocate(this->data_ptr, size);
     }
     this->shape = shape;
     this->strides = strides;
@@ -34,20 +34,21 @@ Array_nd<T>::construct(const std::vector<int> shape,
     } else {
         contiguous = false;
     }
-    if (allocate) {
-        data_ptr = myallocator.allocate(size);
+    if (data_ptr == 0) {
+        this->data_ptr = myallocator.allocate(size);
         own_data = true;
     } else {
+    	this->data_ptr = data_ptr;
         own_data = false;
     }
-    end_ptr = data_ptr + offset(last_point) + 1;
+    end_ptr = this->data_ptr + offset(last_point) + 1;
 }
 
 template<class T>
 void
-Array_nd<T>::construct(const std::vector<int> shape, const bool allocate)
+Array_nd<T>::construct(const std::vector<int> shape, T *data_ptr)
 {
-    construct(shape, default_strides_from_shape(shape), allocate);
+    construct(shape, default_strides_from_shape(shape), data_ptr);
 }
 
 template<class T>
@@ -68,14 +69,7 @@ Array_nd<T>::Array_nd(const std::vector<int> shape, T *data_ptr)
 {
     shape_frozen = false;
     own_data = false;
-    bool allocate;
-    if (data_ptr == 0) {
-    	allocate = true;
-    } else {
-    	this->data_ptr = data_ptr;
-    	allocate = false;
-    }
-    construct(shape,allocate);
+    construct(shape,data_ptr);
 }
 
 template<class T>
@@ -84,14 +78,7 @@ Array_nd<T>::Array_nd(const std::vector<int> shape,
 {
     shape_frozen = false;
     own_data = false;
-    bool allocate;
-    if (data_ptr == 0) {
-    	allocate = true;
-    } else {
-    	this->data_ptr = data_ptr;
-    	allocate = false;
-    }
-    construct(shape,strides,allocate);
+    construct(shape,strides,data_ptr);
 }
 
 template<class T>
@@ -104,7 +91,13 @@ Array_nd<T>::copy_construct(const Array_nd& original)
     shape_frozen = false;
     own_data = false;
     data_ptr = original.data_ptr;
-    construct(original.shape, original.strides, original.own_data);
+    T* original_data_ptr;
+    if (original.own_data){
+    	original_data_ptr = 0;
+    } else {
+    	original_data_ptr = original.data_ptr;
+    }
+    construct(original.shape, original.strides, original_data_ptr);
 }
 
 template<class T>
@@ -161,15 +154,12 @@ Array_nd<T>::reshape(const std::vector<int> shape,
         throw
         std::runtime_error("Attempt to change the shape of a frozen Array_nd");
     }
-    bool allocate;
-    if (data_ptr == 0) {
-    	allocate = true;
-    } else {
-    	this->data_ptr = data_ptr;
-    	allocate = false;
-    }
     if (shape_changed) {
-        construct(shape, strides, allocate);
+        construct(shape, strides, data_ptr);
+    } else {
+    	if (data_ptr != 0) {
+    		this->data_ptr = data_ptr;
+    	}
     }
 }
 
