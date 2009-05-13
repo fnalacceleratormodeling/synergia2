@@ -9,16 +9,12 @@ class Array_1d : public Array_nd<T>
 {
 public:
     Array_1d();
-    Array_1d(const int n);
-    Array_1d(const int n, const int stride);
-    Array_1d(const int n, T *data_ptr);
-    Array_1d(const int n, const int stride, T *data_ptr);
+    Array_1d(const int n, T *data_ptr=0);
+    Array_1d(const int n, const int stride, T *data_ptr=0);
     Array_1d(const Array_nd<T> &array_nd);
 
-    void reshape(const int n);
-    void reshape(const int n, const int stride);
-    void reshape(const int n, T *data_ptr);
-    void reshape(const int n, const int stride, T *data_ptr);
+    void reshape(const int n, T *data_ptr=0);
+    void reshape(const int n, const int stride, T *data_ptr=0);
 
     T& at(const int i);
     T at(const int i) const;

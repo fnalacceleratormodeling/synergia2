@@ -6,26 +6,17 @@ Array_3d<T>::Array_3d() : Array_nd<T>()
 }
 
 template<class T>
-Array_3d<T>::Array_3d(const int nx, const int ny, const int nz) :
-    Array_nd<T>()
-{
-    this->construct(vector3(nx,ny,nz),true);
-}
-
-template<class T>
-Array_3d<T>::Array_3d(const int nx, const int ny, const int nz,
-        const int stride_x, const int stride_y, const int stride_z) :
-    Array_nd<T>()
-{
-    this->construct(vector3(nx,ny,nz),vector3(stride_x,stride_y,stride_z),true);
-}
-
-template<class T>
 Array_3d<T>::Array_3d(const int nx, const int ny, const int nz, T *data_ptr) :
     Array_nd<T>()
 {
-    this->data_ptr = data_ptr;
-    this->construct(vector3(nx,ny,nz),false);
+    bool allocate;
+    if (data_ptr == 0) {
+    	allocate = true;
+    } else {
+    	allocate = false;
+        this->data_ptr = data_ptr;
+    }
+    this->construct(vector3(nx,ny,nz),allocate);
 }
 
 template<class T>
@@ -34,9 +25,15 @@ Array_3d<T>::Array_3d(const int nx, const int ny, const int nz,
         T *data_ptr) :
     Array_nd<T>()
 {
-    this->data_ptr = data_ptr;
+    bool allocate;
+    if (data_ptr == 0) {
+    	allocate = true;
+    } else {
+    	allocate = false;
+        this->data_ptr = data_ptr;
+    }
     this->construct(vector3(nx,ny,nz),vector3(stride_x,stride_y,stride_z),
-        false);
+        allocate);
 }
 
 template<class T>
@@ -52,35 +49,6 @@ Array_3d<T>::Array_3d(const Array_nd<T>& original)
 
 template<class T>
 void
-Array_3d<T>::reshape(const int nx, const int ny, const int nz)
-{
-    bool shape_changed = this->different_shape(vector3(nx,ny,nz));
-    if (shape_changed && this->shape_frozen) {
-        throw
-        std::out_of_range("Attempt to change the shape of a frozen Array_3d");
-    }
-    if (shape_changed) {
-        this->construct(vector3(nx,ny,nz),true);
-    }
-}
-
-template<class T>
-void
-Array_3d<T>::reshape(const int nx, const int ny, const int nz,
-        const int stride_x, const int stride_y, const int stride_z)
-{
-    bool shape_changed = this->different_shape(vector3(nx,ny,nz));
-    if (shape_changed && this->shape_frozen) {
-        throw
-        std::out_of_range("Attempt to change the shape of a frozen Array_3d");
-    }
-    if (shape_changed) {
-        this->construct(vector3(nx,ny,nz),vector3(stride_x,stride_y,stride_z),true);
-    }
-}
-
-template<class T>
-void
 Array_3d<T>::reshape(const int nx, const int ny, const int nz, T *data_ptr)
 {
     bool shape_changed = this->different_shape(vector3(nx,ny,nz));
@@ -88,9 +56,15 @@ Array_3d<T>::reshape(const int nx, const int ny, const int nz, T *data_ptr)
         throw
         std::out_of_range("Attempt to change the shape of a frozen Array_3d");
     }
-    this->data_ptr = data_ptr;
+    bool allocate;
+    if (data_ptr == 0) {
+    	allocate = true;
+    } else {
+    	allocate = false;
+        this->data_ptr = data_ptr;
+    }
     if (shape_changed) {
-        this->construct(vector3(nx,ny,nz),false);
+        this->construct(vector3(nx,ny,nz),allocate);
     }
 }
 
@@ -104,9 +78,15 @@ Array_3d<T>::reshape(const int nx, const int ny, const int nz,
         throw
         std::out_of_range("Attempt to change the shape of a frozen Array_3d");
     }
-    this->data_ptr = data_ptr;
+    bool allocate;
+    if (data_ptr == 0) {
+    	allocate = true;
+    } else {
+    	allocate = false;
+        this->data_ptr = data_ptr;
+    }
     if (shape_changed) {
-        this->construct(vector3(nx,ny,nz),vector3(stride_x,stride_y,stride_z),false);
+        this->construct(vector3(nx,ny,nz),vector3(stride_x,stride_y,stride_z),allocate);
     }
 }
 

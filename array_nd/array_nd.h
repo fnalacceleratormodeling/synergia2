@@ -65,22 +65,16 @@ public:
     };
 
     Array_nd();
-    Array_nd(const std::vector<int> shape);
+    Array_nd(const std::vector<int> shape, T *data_ptr=0);
     Array_nd(const std::vector<int> shape,
-             const std::vector<int> strides);
-    Array_nd(const std::vector<int> shape, T *data_ptr);
-    Array_nd(const std::vector<int> shape,
-             const std::vector<int> strides, T *data_ptr);
+             const std::vector<int> strides, T *data_ptr=0);
     Array_nd(const Array_nd& original);
 
     void copy();
 
-    void reshape(const std::vector<int> shape);
+    void reshape(const std::vector<int> shape, T *data_ptr=0);
     void reshape(const std::vector<int> shape,
-                 const std::vector<int> strides);
-    void reshape(const std::vector<int> shape, T *data_ptr);
-    void reshape(const std::vector<int> shape,
-                 const std::vector<int> strides, T *data_ptr);
+                 const std::vector<int> strides, T *data_ptr=0);
     void freeze_shape();
 
     void set_all(const T value);

@@ -6,29 +6,29 @@ Array_1d<T>::Array_1d() : Array_nd<T>()
 }
 
 template<class T>
-Array_1d<T>::Array_1d(const int n) : Array_nd<T>()
-{
-    this->construct(vector1(n),true);
-}
-
-template<class T>
-Array_1d<T>::Array_1d(const int n, const int stride) : Array_nd<T>()
-{
-    this->construct(vector1(n),vector1(stride),true);
-}
-
-template<class T>
 Array_1d<T>::Array_1d(const int n, T *data_ptr) : Array_nd<T>()
 {
-    this->data_ptr = data_ptr;
-    this->construct(vector1(n),false);
+	bool allocate;
+	if (data_ptr == 0) {
+		allocate = true;
+	} else {
+		allocate = false;
+	    this->data_ptr = data_ptr;
+	}
+    this->construct(vector1(n),allocate);
 }
 
 template<class T>
 Array_1d<T>::Array_1d(const int n, const int stride, T *data_ptr) : Array_nd<T>()
 {
-    this->data_ptr = data_ptr;
-    this->construct(vector1(n),vector1(stride),false);
+	bool allocate;
+	if (data_ptr == 0) {
+		allocate = true;
+	} else {
+		allocate = false;
+	    this->data_ptr = data_ptr;
+	}
+    this->construct(vector1(n),vector1(stride),allocate);
 }
 
 template<class T>
@@ -36,38 +36,10 @@ Array_1d<T>::Array_1d(const Array_nd<T>& original)
 {
     //~ std::cout << "converting from nd to 1d\n";
     if (original.get_rank() != 1) {
-        throw 
+        throw
             std::runtime_error("Attempt to convert Array_nd of rank !=1 to Array_1d");
     }
     copy_construct(original);
-}
-
-template<class T>
-void
-Array_1d<T>::reshape(const int n)
-{
-    bool shape_changed = this->different_shape(vector1(n));
-    if (shape_changed && this->shape_frozen) {
-        throw
-        std::out_of_range("Attempt to change the shape of a frozen Array_1d");
-    }
-    if (shape_changed) {
-        this->construct(vector1(n),true);
-    }
-}
-
-template<class T>
-void
-Array_1d<T>::reshape(const int n, const int stride)
-{
-    bool shape_changed = this->different_shape(vector1(n));
-    if (shape_changed && this->shape_frozen) {
-        throw
-        std::out_of_range("Attempt to change the shape of a frozen Array_1d");
-    }
-    if (shape_changed) {
-        this->construct(vector1(n),vector1(stride),true);
-    }
 }
 
 template<class T>
@@ -79,9 +51,15 @@ Array_1d<T>::reshape(const int n, T *data_ptr)
         throw
         std::out_of_range("Attempt to change the shape of a frozen Array_1d");
     }
-    this->data_ptr = data_ptr;
+    bool allocate;
+    if (data_ptr == 0) {
+    	allocate = true;
+    } else {
+    	allocate = false;
+        this->data_ptr = data_ptr;
+    }
     if (shape_changed) {
-        this->construct(vector1(n),false);
+        this->construct(vector1(n),allocate);
     }
 }
 
@@ -94,9 +72,15 @@ Array_1d<T>::reshape(const int n, const int stride, T *data_ptr)
         throw
         std::out_of_range("Attempt to change the shape of a frozen Array_1d");
     }
-    this->data_ptr = data_ptr;
+    bool allocate;
+    if (data_ptr == 0) {
+    	allocate = true;
+    } else {
+    	allocate = false;
+        this->data_ptr = data_ptr;
+    }
     if (shape_changed) {
-        this->construct(vector1(n),vector1(stride),false);
+        this->construct(vector1(n),vector1(stride),allocate);
     }
 }
 
@@ -107,7 +91,7 @@ Array_1d<T>::offset(const int i) const
     return i*this->strides[0];
 }
 
-    
+
 template<class T>
 inline T&
 Array_1d<T>::at(const int i)

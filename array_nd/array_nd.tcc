@@ -64,29 +64,18 @@ Array_nd<T>::default_strides_from_shape(const std::vector<int> &shape)
 }
 
 template<class T>
-Array_nd<T>::Array_nd(const std::vector<int> shape)
-{
-    shape_frozen = false;
-    own_data = false;
-    construct(shape, true);
-}
-
-template<class T>
-Array_nd<T>::Array_nd(const std::vector<int> shape,
-                      const std::vector<int> strides)
-{
-    shape_frozen = false;
-    own_data = false;
-    construct(shape, strides, true);
-}
-
-template<class T>
 Array_nd<T>::Array_nd(const std::vector<int> shape, T *data_ptr)
 {
     shape_frozen = false;
     own_data = false;
-    this->data_ptr = data_ptr;
-    construct(shape, false);
+    bool allocate;
+    if (data_ptr == 0) {
+    	allocate = true;
+    } else {
+    	this->data_ptr = data_ptr;
+    	allocate = false;
+    }
+    construct(shape,allocate);
 }
 
 template<class T>
@@ -95,8 +84,14 @@ Array_nd<T>::Array_nd(const std::vector<int> shape,
 {
     shape_frozen = false;
     own_data = false;
-    this->data_ptr = data_ptr;
-    construct(shape, strides, false);
+    bool allocate;
+    if (data_ptr == 0) {
+    	allocate = true;
+    } else {
+    	this->data_ptr = data_ptr;
+    	allocate = false;
+    }
+    construct(shape,strides,allocate);
 }
 
 template<class T>
@@ -151,28 +146,6 @@ Array_nd<T>::different_shape(const std::vector<int> shape) const
 
 template<class T>
 void
-Array_nd<T>::reshape(const std::vector<int> shape)
-{
-    reshape(shape, default_strides_from_shape(shape));
-}
-
-template<class T>
-void
-Array_nd<T>::reshape(const std::vector<int> shape,
-                     const std::vector<int> strides)
-{
-    bool shape_changed = different_shape(shape);
-    if (shape_changed && shape_frozen) {
-        throw
-        std::runtime_error("Attempt to change the shape of a frozen Array_nd");
-    }
-    if (shape_changed) {
-        construct(shape, strides, true);
-    }
-}
-
-template<class T>
-void
 Array_nd<T>::reshape(const std::vector<int> shape, T *data_ptr)
 {
     reshape(shape, default_strides_from_shape(shape), data_ptr);
@@ -188,9 +161,15 @@ Array_nd<T>::reshape(const std::vector<int> shape,
         throw
         std::runtime_error("Attempt to change the shape of a frozen Array_nd");
     }
-    this->data_ptr = data_ptr;
+    bool allocate;
+    if (data_ptr == 0) {
+    	allocate = true;
+    } else {
+    	this->data_ptr = data_ptr;
+    	allocate = false;
+    }
     if (shape_changed) {
-        construct(shape, strides, false);
+        construct(shape, strides, allocate);
     }
 }
 

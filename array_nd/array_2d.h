@@ -9,20 +9,14 @@ class Array_2d : public Array_nd<T>
 {
 public:
     Array_2d();
-    Array_2d(const int nx, const int ny);
-    Array_2d(const int nx, const int ny, 
-        const int stride_x, const int stride_y);
-    Array_2d(const int nx, const int ny, T *data_ptr);
-    Array_2d(const int nx, const int ny, 
-        const int stride_x, const int stride_y, T *data_ptr);
+    Array_2d(const int nx, const int ny, T *data_ptr=0);
+    Array_2d(const int nx, const int ny,
+    		const int stride_x, const int stride_y, T *data_ptr=0);
     Array_2d(const Array_nd<T> &array_nd);
 
-    void reshape(const int nx, const int ny);
-    void reshape(const int nx, const int ny, 
-        const int stride_x, const int stride_y);
-    void reshape(const int nx, const int ny, T *data_ptr);
-    void reshape(const int nx, const int ny, 
-        const int stride_x, const int stride_y, T *data_ptr);
+    void reshape(const int nx, const int ny, T *data_ptr=0);
+    void reshape(const int nx, const int ny,
+        const int stride_x, const int stride_y, T *data_ptr=0);
 
     T& at(const int i, const int j);
     T at(const int i, const int j) const;

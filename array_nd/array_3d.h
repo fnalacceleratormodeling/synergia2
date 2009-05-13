@@ -9,22 +9,16 @@ class Array_3d : public Array_nd<T>
 {
 public:
     Array_3d();
-    Array_3d(const int nx, const int ny, const int nz);
-    Array_3d(const int nx, const int ny, const int nz,
-        const int stride_x, const int stride_y, const int stride_z);
-    Array_3d(const int nx, const int ny, const int nz, T *data_ptr);
+    Array_3d(const int nx, const int ny, const int nz, T *data_ptr=0);
     Array_3d(const int nx, const int ny, const int nz,
         const int stride_x, const int stride_y, const int stride_z,
-        T *data_ptr);
+        T *data_ptr=0);
     Array_3d(const Array_nd<T> &array_nd);
 
-    void reshape(const int nx, const int ny, const int nz);
-    void reshape(const int nx, const int ny, const int nz,
-        const int stride_x, const int stride_y, const int stride_z);
-    void reshape(const int nx, const int ny, const int nz, T *data_ptr);
+    void reshape(const int nx, const int ny, const int nz, T *data_ptr=0);
     void reshape(const int nx, const int ny, const int nz,
         const int stride_x, const int stride_y, const int stride_z,
-        T *data_ptr);
+        T *data_ptr=0);
 
     T& at(const int i, const int j, const int k);
     T at(const int i, const int j, const int k) const;
