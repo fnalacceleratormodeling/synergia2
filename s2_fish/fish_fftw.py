@@ -59,10 +59,14 @@ def apply_space_charge_kick(shape,size,offset,mbunch_in,tau,
         if aperture:
             constraints.apply_circular_aperture(mbunch.get_store(),aperture)
             mytimer("apply aperture")
-        if periodic:
-            constraints.apply_longitudinal_periodicity(mbunch.get_store())
-            mytimer("apply periodicity")
+        #if periodic:
+            #constraints.apply_longitudinal_periodicity_t(mbunch.get_store())
+            #
         mbunch.convert_to_fixedt()
+	if periodic:
+	    length=get_longitudinal_period_size(mbunch)	
+	    constraints.apply_longitudinal_periodicity_z(mbunch.get_store(),length)
+	    mytimer("apply periodicity")
         mytimer("convert")
         if (size == None) or (offset == None):
             means, stds = synergia.get_spatial_means_stds(mbunch)

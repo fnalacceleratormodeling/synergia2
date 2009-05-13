@@ -30,13 +30,13 @@ if ( __name__ == '__main__'):
     job_mgr = synergia.Job_manager(sys.argv,myopts,
                                       ["channel.mad"])    
     
-#    current_in = 330000
-    current_in = 1
+    current_in = 330000
+    #current_in = 1
     
     print "curent=",current_in
     
-    kinetic_energy = 0.0027
-  #  kinetic_energy = 8.
+   # kinetic_energy = 0.0027
+    kinetic_energy = 8.
     print "kinetic_energy= ",kinetic_energy
     mass = synergia.PH_NORM_mp
     charge = 1.0
@@ -110,7 +110,7 @@ if ( __name__ == '__main__'):
     
     widths=[xwidth,xpwidth,rx,ywidth,ypwidth,ry]
     current=current_in
-    retval=synergia.matching.envelope_motion(widths,current,gourmet,do_plot=1,do_match=0)
+   # retval=synergia.matching.envelope_motion(widths,current,gourmet,do_plot=1,do_match=0)
     
     #~for testing, only for matched beam with no space charge when sigma^2=beta*emitt
     #betax_chef=gourmet.get_lattice_functions().beta_x 
@@ -126,7 +126,6 @@ if ( __name__ == '__main__'):
         print "Beam Beta", beam_parameters.get_beta()
         print "Beam Gamma", beam_parameters.get_gamma()
         print "Betagamma and inverse betagamma",betagamma,1./betagamma
-    
     pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
     beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = rx,offset=xoffset)
     beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,r = ry)
@@ -168,57 +167,15 @@ if ( __name__ == '__main__'):
     pylab.xlabel('s (m)')
     pylab.ylabel('std<xprime> ')
     pylab.legend(loc=0)
-    
+       
+   
 
     
-# **********************************************************************
-    solver="3d fish"
-    current=current_in
-
-
-    griddim = (16,16,129)
-    num_particles = griddim[0]*griddim[1]*griddim[2] * 1 #part_per_cell
-    print "num_particles =",num_particles
-    
-    
-    pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
-    beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = rx,offset=xoffset)
-    beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,r = ry)
-    sigma_z_meters = beam_parameters.get_beta()*synergia.PH_MKS_c/scaling_frequency/math.pi
-    beam_parameters.z_params(sigma = sigma_z_meters, lam = dpop* pz)
-
-    
-    bunch = s2_fish.Macro_bunch(mass,1)
-    bunch.init_gaussian(num_particles,current,beam_parameters)
-    bunch.write_particles("begin")
-    s = 0.0
-    first_action = 0
-    diag = synergia.Diagnostics(gourmet.get_initial_u())
-    kick_time = 0.0
     
 
-  
-    t0=time.time()
-    s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True,
-            impedance=impedance,space_charge=space_charge,
-            pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius, pipe_conduct=pipe_conduct)
-    print "elapsed time 3d =",time.time() - t0,"on rank", MPI.COMM_WORLD.Get_rank()
-    bunch.write_particles("end")
-
-
-    print " "
-    pylab.figure(1)
-    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.x],'b+',markersize=15.0,label='fish 3d')
-    pylab.legend(loc=0)
-
-    pylab.figure(2)
-    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.xprime],'b+',markersize=15.0,label='fish 3d')
-    pylab.legend(loc=0)
-     
 # **********************************************************************
     solver="3d fish cylindrical"
     current=current_in
-
 
 
     griddim = (64,16,16)
@@ -255,76 +212,14 @@ if ( __name__ == '__main__'):
 
     print " "
     pylab.figure(1)
-    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.x],'kx',markersize=15.0,label='3d cyl')
+    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.x],'k+',markersize=15.0,label='3d cyl')
     pylab.legend(loc=0)
 
     pylab.figure(2)
-    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.xprime],'kx',markersize=15.0,label='3d cyl')
+    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.xprime],'k+',markersize=15.0,label='3d cyl')
     pylab.legend(loc=0)
    
-   
-# **********************************************************************  
-# **********************************************************************
-   # solver="3d impact closed"
-   # BC_choice="trans finite, long periodic round"
-   # griddim=[17,17,17]
-    
-    
-    
-    solver="3d impact z-closed, trans open"
-    BC_choice="trans open, long periodic"
-    griddim = [16,16,129]   
 
-    current=current_in  
-    num_particles = impact.adjust_particles(
-        griddim[0]*griddim[1]*griddim[2] * part_per_cell,MPI.COMM_WORLD.Get_size())
-
-       
-    print "num_particles 3d impact=",num_particles
-    print "Boundary conditions ", BC_choice
-
-
-    pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
-    beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = rx)
-    beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,r = ry)
-    sigma_z_meters = beam_parameters.get_beta()*synergia.PH_MKS_c/scaling_frequency/math.pi
-    beam_parameters.z_params(sigma = sigma_z_meters, lam = dpop* pz)
-
-    
-    
-  
-    
-    pgrid = impact.Processor_grid(1)
-    cgrid = impact.Computational_grid(griddim[0],griddim[1],griddim[2],
-                                                  BC_choice)
-        
-    piperad =pipe_radius #~0.04
-    field = impact.Field(beam_parameters, pgrid, cgrid, piperad)
-    bunch = impact.Bunch(current, beam_parameters, num_particles, pgrid)
-    bunch.generate_particles()
-
-    s = 0.0
-    first_action = 0
-    diag = synergia.Diagnostics_impact(gourmet.get_initial_u())
-    kick_time = 0.0
-    t0=time.time()
-    s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_impact=True,
-        pgrid=pgrid,field=field,cgrid=cgrid)
-    print "elapsed time 3d impact=",time.time() - t0
-
-    pylab.figure(1)
-    #pylab.plot(diag.s,diag.stds[0],'o',label='impact ') old version
-    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.x],'o',label='impact ')
-    pylab.legend(loc=0)
-
-
-
-    pylab.figure(2)
-    #pylab.plot(diag.s,diag.stds[1],'o',label='impact') old version
-    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.xprime],'o',label='impact ')
-    pylab.legend(loc=0)
-    
-    
 # ****** no space charge****************************************************************
  
     solver="3d impact"
@@ -334,7 +229,7 @@ if ( __name__ == '__main__'):
 
        
     print "num_particles 3d impact=",num_particles
-    print "Boundary conditions ", BC_choice
+    print "Boundary conditionsimpact", BC_choice
 
 
     pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV

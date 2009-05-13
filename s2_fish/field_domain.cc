@@ -1,3 +1,4 @@
+#include <iostream>
 #include "field_domain.h"
 #include "array_nd/vector_helper.h"
 #include "math_constants.h"
@@ -112,17 +113,35 @@ Cylindrical_field_domain::get_leftmost_indices_offsets(double c0, double c1, dou
 {
     double scaled_location;
 
-    scaled_location = c0/cell_size[0];
-    offsets[0] = scaled_location - static_cast<int>(floor(scaled_location));
+    scaled_location = c0/cell_size[0]-0.5;  // AM modification 
     indices[0] = static_cast<int>(floor(scaled_location));
+    offsets[0] = scaled_location - static_cast<int>(floor(scaled_location));
+    if (indices[0]<0) offsets[0] +=0.5; // AM  modification, must indices[0]=-1, otherwise something is wrong
 
+
+//              {if (indices[0]==-1) {offsets[0] +=0.5;}
+//                         else{std::cout<<"error in charge distribution, indices[0]="<<indices[0]<<std::endl;
+//                                 std::cout<<" c0= "<<c0<<" c1= "<<c1<<" c2= "<<c2<<std::endl;   }  
+//                       }   	
+//     if (indices[0]>100) {std::cout<<"indices[0] large="<<indices[0]<<std::endl;
+// 	                 std::cout<<" scaled_location="<<scaled_location<<std::endl;
+//                          std::cout<<" c0= "<<c0<<" c1= "<<c1<<" c2= "<<c2<<std::endl;
+//                          std::cout<<" cell_size0= "<<cell_size[0]<<" cell_size1= "<<cell_size[1]<<" cell_size2= "<<cell_size[2]<<std::endl;
+//                          std::cout<<" radius= "<<this->radius<<std::endl;
+//                          std::cout<<" length= "<<this->length<<std::endl;
+// 
+// 	abort();
+//      }      	// AM  modification
     scaled_location = c1/cell_size[1];
-    offsets[1] = scaled_location - static_cast<int>(floor(scaled_location));
     indices[1] = static_cast<int>(floor(scaled_location));
+    offsets[1] = scaled_location - static_cast<int>(floor(scaled_location));
+   
 
     scaled_location = (c2+half_length)/cell_size[2];
-    offsets[2] = scaled_location - static_cast<int>(floor(scaled_location));
     indices[2] = static_cast<int>(floor(scaled_location));
+    offsets[2] = scaled_location - static_cast<int>(floor(scaled_location));
+    
+
 }
 
 const std::vector<int> &
@@ -147,4 +166,10 @@ const double
 Cylindrical_field_domain::get_radius() const
 {
     return radius;
+}
+
+const bool
+Cylindrical_field_domain::get_periodic_z() const
+{
+    return periodic_z;
 }

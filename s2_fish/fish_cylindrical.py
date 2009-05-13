@@ -22,6 +22,7 @@ def listify(x):
 
 counter = 0
 def apply_cylindrical_space_charge_kick(shape,radius,mbunch_in,tau,
+	periodic=True,
         aperture=None,
         space_charge=True,
         impedance=False,
@@ -40,8 +41,14 @@ def apply_cylindrical_space_charge_kick(shape,radius,mbunch_in,tau,
         if aperture:
             constraints.apply_circular_aperture(mbunch.get_store(),aperture)
             mytimer("apply aperture")
+	#if periodic:
+        #    constraints.apply_longitudinal_periodicity_t(mbunch.get_store())
+        mytimer("apply periodicity")    
         if (impedance or space_charge):
             mbunch.convert_to_fixedt()
+	    if periodic:
+	        length = get_longitudinal_period_size(mbunch) 
+	        constraints.apply_longitudinal_periodicity_z(mbunch.get_store(), length)	    
         if impedance:
             if ((impedance_pipe_radiusx == None) or (impedance_pipe_radiusy == None) or (pipe_conduct == None)):
                             raise RuntimeError, \
@@ -76,10 +83,11 @@ def apply_cylindrical_space_charge_kick(shape,radius,mbunch_in,tau,
             physical_offset = [0.0,0.0,physical_size[2]/2.0]
             periodic = [False,True,True]
             field_domain = Cylindrical_field_domain(radius,length,shape,True)
-            rho = numpy.zeros(shape,'d')
-            deposit_charge_cic_cylindrical(field_domain,rho,mbunch.get_store(),coords)
-            phi = numpy.zeros(shape,'d')
-            solve_cylindrical_finite_periodic(field_domain,rho,phi)        
-            full_kick_cylindrical(field_domain,phi,tau,mbunch.get_store(),coords)
+            rho = numpy.zeros(shape,'d')	   	    
+            deposit_charge_cic_cylindrical(field_domain,rho,mbunch.get_store(),coords)		
+            phi = numpy.zeros(shape,'d')	   
+            solve_cylindrical_finite_periodic(field_domain,rho,phi)  	  
+            full_kick_cylindrical(field_domain,phi,tau,mbunch.get_store(),coords)	   
         if (impedance or space_charge):
             mbunch.convert_to_fixedz()
+	     
