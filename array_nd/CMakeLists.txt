@@ -1,1 +1,2 @@
 add_library(array_nd SHARED range.cc)
+add_executable(test_distributed_array_nd test_distributed_array_nd.cc)
