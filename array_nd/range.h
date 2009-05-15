@@ -11,6 +11,14 @@ public:
     Range(int first, keyword last, int step = 1);
     Range(keyword first, keyword last, int step = 1);
 
+    void set();
+    void set(int only);
+    void set(keyword only);
+    void set(int first, int last, int step = 1);
+    void set(keyword first, int last, int step = 1);
+    void set(int first, keyword last, int step = 1);
+    void set(keyword first, keyword last, int step = 1);
+
     bool is_unit_length() const;
     int get_first(int min, int max) const;
     int get_last(int min, int max) const;

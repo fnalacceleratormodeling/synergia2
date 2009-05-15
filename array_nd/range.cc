@@ -2,6 +2,42 @@
 
 Range::Range()
 {
+    set();
+}
+
+Range::Range(int only)
+{
+	set(only);
+}
+
+Range::Range(keyword only)
+{
+    set(only);
+}
+
+Range::Range(int first, int last, int step)
+{
+    set(first, last, step);
+}
+
+Range::Range(keyword first, int last, int step)
+{
+    set(first,last,step);
+}
+
+Range::Range(int first, keyword last, int step)
+{
+	set(first,last,step);
+}
+
+Range::Range(keyword first, keyword last, int step)
+{
+	set(first,last,step);
+}
+
+void
+Range::set()
+{
     first_is_keyword = true;
     first_keyword = begin;
     last_is_keyword = true;
@@ -9,7 +45,8 @@ Range::Range()
     step = 1;
 }
 
-Range::Range(int only)
+void
+Range::set(int only)
 {
     first_is_keyword = false;
     last_is_keyword = false;
@@ -18,7 +55,8 @@ Range::Range(int only)
     step = 1;
 }
 
-Range::Range(keyword only)
+void
+Range::set(keyword only)
 {
     first_is_keyword = true;
     last_is_keyword = true;
@@ -27,7 +65,8 @@ Range::Range(keyword only)
     step = 1;
 }
 
-Range::Range(int first, int last, int step)
+void
+Range::set(int first, int last, int step)
 {
     first_is_keyword = false;
     this->first = first;
@@ -36,7 +75,8 @@ Range::Range(int first, int last, int step)
     this->step = step;
 }
 
-Range::Range(keyword first, int last, int step)
+void
+Range::set(keyword first, int last, int step)
 {
     first_is_keyword = true;
     first_keyword = first;
@@ -45,7 +85,8 @@ Range::Range(keyword first, int last, int step)
     this->step = step;
 }
 
-Range::Range(int first, keyword last, int step)
+void
+Range::set(int first, keyword last, int step)
 {
     first_is_keyword = false;
     this->first = first;
@@ -54,7 +95,8 @@ Range::Range(int first, keyword last, int step)
     this->step = step;
 }
 
-Range::Range(keyword first, keyword last, int step)
+void
+Range::set(keyword first, keyword last, int step)
 {
     first_is_keyword = true;
     first_keyword = first;
@@ -62,7 +104,6 @@ Range::Range(keyword first, keyword last, int step)
     last_keyword = last;
     this->step = step;
 }
-
 //~ void
 //~ Range::show(int lower, int upper) const
 //~ {
@@ -110,7 +151,7 @@ Range::get_last(int min, int max) const
     }
 }
 
-int 
+int
 Range::get_step() const
 {
     return step;
