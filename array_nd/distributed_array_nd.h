@@ -26,6 +26,7 @@ protected:
     std::vector<int> local_min,local_max;
     std::vector<int> global_guard_min,global_guard_max;
     std::vector<int> local_guard_min,local_guard_max;
+    std::vector<bool> periodic;
 
     void construct(const std::vector<int> global_min,
     		const std::vector<int> global_max,
@@ -79,7 +80,7 @@ public:
     inline int offset(const std::vector<int> &indices) const;
     inline bool bounds_check(const std::vector<int> &indices) const;
 
-    Array_nd<T>& get_local_array();
+    Array_nd<T> get_local_array();
     Array_nd<T>& get_local_array_wguards();
 
     void describe() const;

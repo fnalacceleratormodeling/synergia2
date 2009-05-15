@@ -28,23 +28,33 @@ Distributed_array_nd<T>::construct(const std::vector<int> global_min,
 	this->local_max = local_max;
 	this->periodic = periodic;
 	std::vector<int> local_shape(global_min.size());
+	global_guard_min.resize(global_min.size());
+	global_guard_max.resize(global_min.size());
+	local_guard_min.resize(global_min.size());
+	local_guard_max.resize(global_min.size());
 	for(int i=0; i<global_min.size(); ++i) {
-		if (periodic[i]) {
-			global_guard_min[i] = global_min[i] - guard_size;
-			global_guard_max[i] = global_max[i] + guard_size;
+		if (periodic.at(i)) {
+			global_guard_min.at(i) = global_min.at(i) - guard_size;
+			global_guard_max.at(i) = global_max.at(i) + guard_size;
 		} else {
-			global_guard_min[i] = global_min[i];
-			global_guard_max[i] = global_max[i];
+			global_guard_min.at(i) = global_min.at(i);
+			global_guard_max.at(i) = global_max.at(i);
 		}
-		local_guard_min[i] = local_guard_min[i] - guard_size;
-		if (local_guard_min[i] < global_guard_min[i]) {
-			local_guard_min[i] = global_guard_min[i];
+		local_guard_min.at(i) = local_min.at(i) - guard_size;
+		if (local_guard_min.at(i) < global_guard_min.at(i)) {
+			local_guard_min.at(i) = global_guard_min.at(i);
 		}
-		local_guard_max[i] = local_guard_max[i] + guard_size;
-		if (local_guard_max[i] > global_guard_max[i]) {
-			local_guard_max[i] = global_guard_max[i];
+		local_guard_max.at(i) = local_max.at(i) + guard_size;
+		if (local_guard_max.at(i) > global_guard_max.at(i)) {
+			local_guard_max.at(i) = global_guard_max.at(i);
 		}
-		local_shape[i] = local_guard_max[i] - local_guard_min[i];
+		local_shape.at(i) = local_guard_max.at(i) - local_guard_min.at(i);
+//		std::cout << "jfa: global_guard_min("<<i<<") = " << global_guard_min.at(i) << std::endl;
+//		std::cout << "jfa: global_guard_max("<<i<<") = " << global_guard_max.at(i) << std::endl;
+//		std::cout << "jfa: local_guard_min("<<i<<") = " << local_guard_min.at(i) << std::endl;
+//		std::cout << "jfa: local_guard_max("<<i<<") = " << local_guard_max.at(i) << std::endl;
+//		std::cout << "jfa: local_min("<<i<<") = " << local_min.at(i) << std::endl;
+//		std::cout << "jfa: local_max("<<i<<") = " << local_max.at(i) << std::endl;
 	}
 	local_array.reshape(local_shape,data_ptr);
 }
@@ -249,12 +259,12 @@ Distributed_array_nd<T>::bounds_check(const std::vector<int> &indices) const
 }
 
 template<class T>
-Array_nd<T>&
+Array_nd<T>
 Distributed_array_nd<T>::get_local_array()
 {
 	std::vector<Range> ranges(global_min.size());
 	for(int i=0; i<global_min.size(); ++i) {
-		ranges[i].set(-local_guard_min[i],local_max[i]-local_guard_min[i]);
+		ranges[i].set(local_min[i]-local_guard_min[i],local_max[i]-local_guard_min[i]-1);
 	}
 	return local_array.slice(ranges);
 }
