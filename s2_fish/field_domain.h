@@ -62,6 +62,7 @@ class Cylindrical_field_domain
         const std::vector<double> &get_cell_size() const;
         const double get_length() const;
         const double get_radius() const;
+        const bool get_periodic_z() const;
 };
 
 #endif // HAVE_FIELD_DOMAIN_H
