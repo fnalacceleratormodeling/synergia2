@@ -153,7 +153,8 @@ def   envelope_match(widths, s_array, kx_array,ky_array,xi_in,\
 	      if ss>=s1:		
 		  break	
 	      ss,h,elem_all=evolve.apply(ss, s1, h, elem_all)
-	      elem_all=elem_all[-1]	    
+	      if (int(pygsl.version.split('.')) < 9):
+	        elem_all=elem_all[-1]
 
 	    else:
 	          raise ValueError, "Maximum number of steps exceeded!"
