@@ -1,9 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include <cmath>
-#include <iostream>
-
 #include "four_momentum.h"
 
 const double tolerance = 1.0e-15;
@@ -108,16 +105,3 @@ BOOST_AUTO_TEST_CASE(set_beta)
     BOOST_CHECK_CLOSE(four_momentum.get_total_energy(),total_energy,
     		tolerance);
 }
-
-//BOOST_AUTO_TEST_CASE(large_beta)
-//{
-//    Four_momentum four_momentum(mass);
-//    double small = 1.0e-10;
-//    double large_beta = 1.0 - small;
-//    double large_gamma = 1.0/sqrt(2*small) + sqrt(2*small)/8.0; // Taylor expansion
-//    four_momentum.set_beta(large_beta);
-//    std::cout << "error is " << (four_momentum.get_gamma()-large_gamma)/large_gamma << std::endl;
-//    BOOST_CHECK_CLOSE(four_momentum.get_gamma(),large_gamma,
-//    		tolerance);
-//}
-//
