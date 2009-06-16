@@ -120,11 +120,11 @@ get_G2(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
     // instead of rectangular solids:
     // average value of inner sphere:
     //   G2.get_points().set(Int3(0,0,0),(1.0/4.0*pi)*
-    // 		      (3.0/(2.0*((1+sqrt(3))/2.0)*
+    // 		      (3.0/(2.0*((1+sqrt(3.0))/2.0)*
     // 			    sqrt(h[0]*h[0] + h[1]*h[1] + h[2]*h[2]))));
 
     // average value of outer sphere. This works unreasonably well.
-    double G000 = (1.0 / 4.0 * pi) * (3.0 / (2.0 * (sqrt(3)) *
+    double G000 = (1.0 / 4.0 * pi) * (3.0 / (2.0 * (sqrt(3.0)) *
                                       sqrt(h[0] * h[0] + h[1] * h[1] + h[2] * h[2])));
     // Calculate what I think the answer should be by doing a very
     // simple numerical integral. The resulting answer doesn't work
@@ -733,11 +733,11 @@ get_G2_old(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
     // instead of rectangular solids:
     // average value of inner sphere:
     //   G2.get_points().set(Int3(0,0,0),(1.0/4.0*pi)*
-    // 		      (3.0/(2.0*((1+sqrt(3))/2.0)*
+    // 		      (3.0/(2.0*((1+sqrt(3.0))/2.0)*
     // 			    sqrt(h[0]*h[0] + h[1]*h[1] + h[2]*h[2]))));
 
     // average value of outer sphere. This works unreasonably well.
-    double G000 = (1.0 / 4.0 * pi) * (3.0 / (2.0 * (sqrt(3)) *
+    double G000 = (1.0 / 4.0 * pi) * (3.0 / (2.0 * (sqrt(3.0)) *
                                      sqrt(h[0] * h[0] + h[1] * h[1] + h[2] * h[2])));
     // Calculate what I think the answer should be by doing a very
     // simple numerical integral. The resulting answer doesn't work
