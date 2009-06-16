@@ -5,20 +5,21 @@ void
 Four_momentum::update_from_gamma()
 {
 	energy= gamma*mass;
-	beta = 1.0/sqrt(1.0-1.0/(gamma*gamma));
+	beta = sqrt(1.0-1.0/(gamma*gamma));
 	momentum = gamma*beta*mass;
 }
 
-Four_momentum::Four_momentum(double mass, double total_energy)
+Four_momentum::Four_momentum(double mass)
 {
 	this->mass = mass;
-	set_total_energy(0.0);
+	gamma = 1.0;
+	update_from_gamma();
 }
 
 void
 Four_momentum::set_total_energy(double total_energy)
 {
-	gamma = energy/mass;
+	gamma = total_energy/mass;
 	update_from_gamma();
 }
 

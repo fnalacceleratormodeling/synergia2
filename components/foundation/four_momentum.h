@@ -6,7 +6,7 @@ private:
 	double mass,energy,momentum,gamma,beta;
 	void update_from_gamma();
 public:
-	Four_momentum(double mass, double total_energy=0.0);
+	Four_momentum(double mass);
 	void set_total_energy(double total_energy);
 	void set_kinetic_energy(double kinetic_energy);
 	void set_momentum(double momentum);

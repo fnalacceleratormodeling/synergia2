@@ -1,1 +1,2 @@
-add_subdirectory(lattice)
+add_subdirectory(foundation)
+#add_subdirectory(lattice)
