@@ -48,7 +48,7 @@ configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in"
 include_directories(${SYNERGIA2_SOURCE_DIR})
 
 # jfa hardcoded path fixme
-include_directories(/usr/lib64/python2.5/site-packages/numpy/core/include)
+include_directories(/usr/lib64/python2.6/site-packages/numpy/core/include)
 
 add_subdirectory(array_nd)
 add_subdirectory(components)
