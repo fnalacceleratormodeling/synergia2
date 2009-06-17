@@ -3,16 +3,18 @@
 
 class Reference_particle {
 private:
-	double energy;
+	double total_energy;
 	double state[6];
+	double units[6];
 public:
-	Reference_particle(double energy);
-	Reference_particle(double energy, double state[6]);
+	Reference_particle(double total_energy, double units[6]);
+	Reference_particle(double total_energy, double units[6], double state[6]);
 
-	void set_energy(double energy);
+	void set_total_energy(double total_energy);
 	void set_state(double state[6]);
 
-	double get_energy();
+	double get_total_energy();
+	double * get_units();
 	double * get_state();
 };
 

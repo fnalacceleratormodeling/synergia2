@@ -11,4 +11,7 @@ link_directories(..)
 add_executable(test_four_momentum test_four_momentum.cc)
 target_link_libraries(test_four_momentum -lfoundation -lboost_unit_test_framework)
 add_test(test_four_momentum test_four_momentum)
- 
+
+add_executable(test_reference_particle test_reference_particle.cc)
+target_link_libraries(test_reference_particle -lfoundation -lboost_unit_test_framework)
+add_test(test_reference_particle test_reference_particle)
