@@ -48,5 +48,6 @@ add_subdirectory(array_nd)
 add_subdirectory(synergia)
 add_subdirectory(s2_fish)
 add_subdirectory(impact)
+add_subdirectory(frontend)
 
 add_subdirectory(octapy)

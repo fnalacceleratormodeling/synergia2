@@ -1,0 +1,13 @@
+#!/bin/sh
+
+local_dir="${SYNERGIA2_BINARY_DIR}"
+SYNERGIA2DIR="$local_dir"
+export SYNERGIA2DIR
+chef_dir="${CHEF_LIBRARY_DIRS}"
+impact_dir="$local_dir/../impact/Forthon_Interfaces"
+for dir in $local_dir $chef_dir $impact_dir
+do
+    PYTHONPATH="$dir:$PYTHONPATH"
+done
+export PYTHONPATH
+exec python "$@"
