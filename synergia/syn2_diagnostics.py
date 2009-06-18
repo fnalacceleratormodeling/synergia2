@@ -130,7 +130,6 @@ class Diagnostics:
                     (MPI.COMM_WORLD.Get_rank() == 0):
                     t0 = time.time()
                     self.write_hdf5("tmp-diagnostics")
-                    print "tmp-diagnostics time",time.time()-t0
     
     def get_s(self):
         return numpy.array(self.s)
