@@ -1,11 +1,25 @@
 #!/bin/sh
 
+if [ -z "$1" ]; then
+    echo "usage: $0 <synergia_script> [arguments]" >&2
+    exit 1
+fi
+if [ "$1" = "--help" ]; then
+    echo "usage: $0 <synergia_script> [arguments]"
+    exit 0
+fi
+
 local_dir="${SYNERGIA2_BINARY_DIR}"
 SYNERGIA2DIR="$local_dir"
 export SYNERGIA2DIR
+install_dir="${CMAKE_INSTALL_PREFIX}"
+# the next section is a hack
+. "$install_dir/../setup.sh"
+install_python_dir="`find $install_dir -type d -name site-packages`"
+# end hack
 chef_dir="${CHEF_LIBRARY_DIRS}"
 impact_dir="$local_dir/../impact/Forthon_Interfaces"
-for dir in $local_dir $chef_dir $impact_dir
+for dir in $local_dir $chef_dir $impact_dir $install_python_dir
 do
     PYTHONPATH="$dir:$PYTHONPATH"
 done
