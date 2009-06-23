@@ -34,6 +34,9 @@ def match_twiss_emittance(emittance,alpha,beta):
     return (width,width_prime,r)
 
 def get_alpha_beta(my_gourmet):
+    '''Get Courant-Snyder (Twiss) parameters from a Gourmet instance.
+    Returns 
+        (alpha_x, alpha_y, beta_x, beta_y).'''
     mymap = my_gourmet.get_single_linear_map()
 #    print "mymap is "
 #    print mymap
@@ -66,6 +69,10 @@ def get_alpha_beta(my_gourmet):
 
 envelope_match_cache  = function_cache.Function_cache("envelope_match.cache")
 def envelope_match(emitx,emity,current,g,use_cache=0,use_octave=0,do_plot=0):
+    '''Match a beam with horizontal emittance emitx and vertical emittance emity to a lattice from
+    a Gourmet instance g using the envelope equations.
+    Returns 
+        [sigma_x, sigma_xprime,r_x,sigma_y, sigma_yprime,r_y].'''
     if use_cache:
         if envelope_match_cache.in_cache(emitx,emity,current,g.get_lattice_file(),
                                          g.get_line_name(),g.get_initial_kinetic_energy()):

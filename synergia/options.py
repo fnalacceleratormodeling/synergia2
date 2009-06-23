@@ -34,12 +34,15 @@ class _option:
                 sys.exit(1)
 
 class Options:
+    '''Define a set of command-line options. 
+    Hierarchical sets of option may be created with add_suboptions'''
     def __init__(self,name):
         self.name = name
         self.dict = {}
         self.suboptions = []
 
     def add(self,option,default_value,doc_string,val_type=None):
+        '''Add a new option definition'''
         self.dict[option] = _option(default_value,doc_string,val_type)
 
     def get(self,option):
@@ -72,6 +75,7 @@ class Options:
         return 0
 
     def options(self, include_suboptions=1):
+        '''Returns a list of all options, including suboptions'''
         list = self.dict.keys()
         if include_suboptions:
             for suboption in self.suboptions:
@@ -82,6 +86,7 @@ class Options:
         self.suboptions.append(suboptions)
 
     def usage(self):
+        '''Print usage message to stdout'''
         for suboption in self.suboptions:
             suboption.usage()
         print "%s options:" % self.name
@@ -124,6 +129,7 @@ class Options:
         print
 
     def parse_argv(self,argv):
+        '''Parse command-line arguments from argv'''
         for arg in argv[1:]:
             if arg == "--help" or arg == "help":
                 self.usage()
