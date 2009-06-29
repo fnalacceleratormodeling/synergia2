@@ -46,7 +46,7 @@ def get_alpha_beta(my_gourmet):
     # beta function is positive
     # use this to pick branch
     if mxxp/sin(mu) < 0:
-        mu = 2*pi - mu
+        mu = 2*pi - mu	
     beta_x = mxxp/sin(mu)*u[1]/u[0]
     alpha_x = (mxx-mxpxp)/(2.0*sin(mu))
 
@@ -63,6 +63,34 @@ def get_alpha_beta(my_gourmet):
     alpha_y = (myy-mypyp)/(2.0*sin(mu))
 
     return (alpha_x, alpha_y, beta_x, beta_y)
+    
+def  get_tunes(my_gourmet):
+    mymap = my_gourmet.get_single_linear_map()
+#    print "mymap is "
+#    print mymap
+    u = my_gourmet.get_u(my_gourmet.get_initial_energy())
+    mxx = mymap[0,0]
+    mxpxp = mymap[1,1]
+    mxxp = mymap[0,1]
+    cos_mu = (mxx+mxpxp)/2.0
+    mu = acos(cos_mu) 
+    if mxxp/sin(mu) < 0:
+       mu = 2*pi - mu
+    tune_x=mu/(2.*pi)
+    
+    
+    myy = mymap[2,2]
+    mypyp = mymap[3,3]
+    myyp = mymap[2,3]
+    cos_mu = (myy+mypyp)/2.0
+    mu = acos(cos_mu)
+    # beta function is positive
+    # use this to pick branch
+    if myyp/sin(mu) < 0:
+        mu = 2*pi - mu
+    tune_y=mu/(2.*pi) 
+    
+    return (tune_x,tune_y)
 
 envelope_match_cache  = function_cache.Function_cache("envelope_match.cache")
 def envelope_match(emitx,emity,current,g,use_cache=0,use_octave=0,do_plot=0):
