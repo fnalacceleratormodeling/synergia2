@@ -46,6 +46,7 @@ space_charge_marker = marker("space charge")
 pacifier = drift("pacifier",0.0)
 
 class Gourmet:
+    '''An interface to the single-particle physics of CHEF'''
     def __init__(self, lattice_file, line_name, initial_kinetic_energy,
                  scaling_frequency, order=1, particle='proton', delay_complete=False):
         self.lattice_file = lattice_file
