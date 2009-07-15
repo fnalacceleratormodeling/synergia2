@@ -102,17 +102,33 @@ if ( __name__ == '__main__'):
     ee.start()
     gourmet = synergia.Gourmet(os.path.join(os.getcwd(),myopts.get("latticefile"))
         ,"model",kinetic_energy,
-                        scaling_frequency, myopts.get("maporder"))
+                        scaling_frequency, myopts.get("maporder"),delay_complete=True)
+			
+    gourmet.insert_space_charge_markers(kicks_per_line) 		
 
-### insert rf freq
-    for element in gourmet.beamline:
-        ###print element.Type()
-        if element.Type() == 'rfcavity':
-            #  WARNING, this frequency is specific to the foborodobo line
-            # running with protons at momentum of 100 GeV/c
-            element.setFrequency(59955852.5381452)
-            element.setPhi(math.pi)
-            # print "my rf cavity frequency is ", element.getRadialFrequency()/(2.0*math.pi)
+    line_length = gourmet.orbit_length()
+    gamma = energy/mass
+    beta = math.sqrt(1.0-1.0/gamma**2)
+
+
+
+    w_cav=beta*synergia.physics_constants.PH_MKS_c/line_length
+    print "w_cav=",w_cav
+    print "betacav=",beta		
+    
+    for element in gourmet.beamline:	
+	if element.Type() == 'rfcavity':
+#	   element.setHarmonicNumber(4)	
+#	   h=element.getHarmonicNumber()
+	   #print"h=",h	  
+	   #element.setFrequency(59955852.5381452)
+	   element.setFrequency(32*w_cav)
+	  # print "cavitiy w=",element.getRadialFrequency()/(2.*math.pi)
+	   element.setPhi(math.pi)
+
+
+
+    gourmet.complete_setup()
 
     # try without commissioning
     #gourmet.needs_commission = True
@@ -136,11 +152,14 @@ if ( __name__ == '__main__'):
     #    jet_particle = gourmet.get_jet_particle(energy)
     #sys.exit(1)
     
-    gourmet.insert_space_charge_markers(kicks_per_line)
+ 
     (alpha_x, alpha_y, beta_x, beta_y) = synergia.matching.get_alpha_beta(gourmet)
+    (tune_x, tune_y)                    = synergia.matching.get_tunes(gourmet)
+    
     if MPI.COMM_WORLD.Get_rank() == 0:
         print "(alpha_x, alpha_y, beta_x, beta_y) = %g, %g, %g, %g" % (alpha_x, alpha_y, beta_x, beta_y)
-    
+        print "(tune_x, tune_y) = %g, %g" % (tune_x, tune_y)
+	
     beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
                                          initial_phase, scaling_frequency,
                                          transverse=0)
@@ -164,7 +183,6 @@ if ( __name__ == '__main__'):
     sys.stdout.flush()
     
     s = 0.0
-    line_length = gourmet.orbit_length()
     bunch_spacing = line_length/myopts.get("bunches")
     if MPI.COMM_WORLD.Get_rank() ==0:
         print "line_length =",line_length
