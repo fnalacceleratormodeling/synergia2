@@ -118,12 +118,15 @@ get_spatial_minmax(Macro_bunch_store& mbs,
       }
     }
 
+    
+ 
     int rank, size;
     MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);   
     if (size > 1) {
-        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+       
         MPI_Allreduce(lmin, bmin.data, 3, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
-        MPI_Allreduce(lmin, bmax.data, 3, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
+        MPI_Allreduce(lmax, bmax.data, 3, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
     } else {
         for (int i = 0; i < 3; ++i) {
             bmin(i) = lmin[i];

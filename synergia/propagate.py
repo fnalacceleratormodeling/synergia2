@@ -22,11 +22,12 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
     use_s2_fish_cylindrical=False,
     pgrid=None,field=None,cgrid=None,use_gauss=False,
     periodic=False, aperture=None, radius=None,
-    space_charge=True,impedance=False,
+    space_charge=True,impedance=False, rw_impedance=None,
     pipe_radiusx=None,pipe_radiusy=None,
     pipe_conduct=None,bunch_spacing=None,
     tracker=None,track_period_steps=None,
               transverse=False):
+
 
     bunches = listify(bunch_in)
     diagnosticss = listify(diagnostics_in)
@@ -76,11 +77,18 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
 		#for (diagnostics,bunch) in zip(diagnosticss2,bunches):
                         #diagnostics.add(s,bunch)
                 if use_s2_fish:
-                    s2_fish.apply_space_charge_kick(grid_dim,None,None, bunches, 2*tau,
+		    #~ 	s2_fish.apply_kick is in fish_kick.py
+                    s2_fish.apply_kick(grid_dim,None,None, bunches, 2*tau,
                         periodic=periodic,aperture=aperture,space_charge=space_charge,
-                        impedance=impedance,pipe_radiusx=pipe_radiusx,
-                        pipe_radiusy=pipe_radiusy,pipe_conduct=pipe_conduct,
-                        bunch_spacing=bunch_spacing,transverse=transverse)
+                        impedance=rw_impedance, transverse=transverse)
+		    # the old one below from fish_fftw.py still should work	
+		    #s2_fish.apply_space_charge_kick(grid_dim,None,None, bunches, 2*tau,
+                        #periodic=periodic,aperture=aperture,space_charge=space_charge,
+                        #impedance=impedance,pipe_radiusx=pipe_radiusx,
+                        #pipe_radiusy=pipe_radiusy,pipe_conduct=pipe_conduct,
+                        #bunch_spacing=bunch_spacing,transverse=transverse)
+
+			
                 elif use_s2_fish_cylindrical:
                     s2_fish.apply_cylindrical_space_charge_kick(grid_dim,
                         radius,bunch,2*tau,aperture=aperture,space_charge=space_charge,

@@ -30,6 +30,6 @@ void
 calculate_rwvars(Macro_bunch_store& mbs,
                    Array_1d<double> &zdensity,
                    Array_1d<double> &xmom, Array_1d<double> &ymom,
-                   double z_left, double z_length);
+                   double z_left, double z_length, Array_1d<int> &slice_partition);
 
 #endif // HAVE_DEPOSIT_H

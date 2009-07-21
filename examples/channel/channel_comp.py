@@ -68,13 +68,16 @@ if ( __name__ == '__main__'):
     ee = synergia.Error_eater()
     ee.start()
     gourmet = synergia.Gourmet(os.path.join(os.getcwd(),"channel.mad"),"channel",kinetic_energy,
-                        scaling_frequency)
+                        scaling_frequency,delay_complete=True)
 			
 			
-    print "line_length =", gourmet.orbit_length()
+   
     		
     gourmet.insert_space_charge_markers(kicks_per_line) 
+    gourmet.complete_setup()
     
+     
+    print "line_length =", gourmet.orbit_length()
     
     beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
                                          initial_phase, scaling_frequency,
@@ -176,7 +179,7 @@ if ( __name__ == '__main__'):
     current=current_in
 
 
-    griddim = (16,16,129)
+    griddim = (16,16,513)
     num_particles = griddim[0]*griddim[1]*griddim[2] * 1 #part_per_cell
     print "num_particles =",num_particles
     
@@ -200,8 +203,7 @@ if ( __name__ == '__main__'):
   
     t0=time.time()
     s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True,
-            impedance=impedance,space_charge=space_charge,
-            pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius, pipe_conduct=pipe_conduct)
+            space_charge=space_charge,impedance=impedance)
     print "elapsed time 3d =",time.time() - t0,"on rank", MPI.COMM_WORLD.Get_rank()
     bunch.write_particles("end")
 

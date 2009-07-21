@@ -137,8 +137,12 @@ void
 calculate_rwvars(Macro_bunch_store& mbs,
                    Array_1d<double> &zdensity,
                    Array_1d<double> &xmom, Array_1d<double> &ymom,
-                   double z_left, double z_length)
+                   double z_left, double z_length, Array_1d<int> &bin_partition)
 {
+
+
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   //
   //   this routine is expecting particles in the fixed-t frame with
   //   the units factor already applied
@@ -157,10 +161,12 @@ calculate_rwvars(Macro_bunch_store& mbs,
 //    double z_length = (zmax - zmin);
 //    std::cout << "jfa: z_left = " << z_left << ", z_length = " << z_length << std::endl;
 	int z_num = zdensity.get_length();
-    double h = z_length/z_num;
+//    double h = z_length/(z_num-1.0); // AM , before was h = z_length/z_num
+    double h = z_length/z_num;  // AM, what if z_periodic??? 
     Array_1d<double> local_zdensity(z_num);
     Array_1d<double> local_xmom(z_num);
     Array_1d<double> local_ymom(z_num);
+
     local_zdensity.set_all(0.0);
     local_xmom.set_all(0.0);
     local_ymom.set_all(0.0);
@@ -171,8 +177,24 @@ calculate_rwvars(Macro_bunch_store& mbs,
             local_zdensity(bin) += 1;
             local_xmom(bin) += mbs.local_particles(0,n);
             local_ymom(bin) += mbs.local_particles(2,n);
+             bin_partition(n)=bin;
 	    //	  std::cout << "rwvars after: bin: " << bin << " local_zdensity(bin): " << local_zdensity(bin) << " local_xmom(bin): " << local_xmom(bin) << " local_ymom(bin): " << local_ymom(bin) << std::endl;
         }
+	 else if ((bin==z_num) && fabs(mbs.local_particles(4,n)-z_length-z_left)<z_length*1.e-20) {
+                                                                                                    bin_partition(n)=z_num-1;
+         } 
+         else
+	      {   /*std::cout << "  z_left  "<<z_left<<"  rank= "<<rank<<std::endl;
+                  std::cout<<"mbs.local_particles(4,n)="  <<mbs.local_particles(4,n)<<"  rank= "<<rank<<std::endl; 
+                  std::cout << "  z_length  "<<z_length<<"  rank= "<<rank<<std::endl;
+                  std::cout << "(mbs.local_particles(4,n)-z_left)= "<<(mbs.local_particles(4,n)-z_left)<<"  rank= "<<rank<<std::endl;
+                  std::cout << "bin: " << bin<<"  z_num="<<z_num<< "h=" << h <<"  rank= "<<rank<<std::endl;                
+                  std::cout << "mbs.local_particles(4,n)-z_length-z_left= "<<fabs(mbs.local_particles(4,n)-z_length-z_left)<<"  rank= "<<rank<<std::endl;*/
+  		  throw
+                     std::runtime_error("particles out of range");
+         }
+
+	
     }
     
     // jfa: the other deposit functions do not do the communication. This one does.
@@ -201,4 +223,5 @@ calculate_rwvars(Macro_bunch_store& mbs,
     		ymom(k) = 0.0;
     	}
     }
+  	
 }   

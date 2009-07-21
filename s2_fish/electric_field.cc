@@ -163,7 +163,7 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
 */
 
     double length=2.0*pi*beta/mbs.units(0); // bunch length in lab frame
-    double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho
+    double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho in [GeV/c]/[Tesla*m]
     factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
     factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
     factor *= -1.0/gamma;    // relativistic factor,...-minus from the definition of E= + grad phi ???
@@ -368,7 +368,7 @@ just_phi_full_kick(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs)
 
 
 void
-rw_kick(double left_z, double size_z,
+rw_kick_eric(double left_z, double size_z,
                 Array_1d<double> &zdensity,
                 Array_1d<double> &xmom, 
                 Array_1d<double> &ymom,
@@ -501,4 +501,167 @@ rw_kick(double left_z, double size_z,
     }
     if (dbg) std::cout << std::endl;
 }
+
+
+
+
+void
+rw_kick(double left_z, double size_z,
+                Array_1d<int> &bin_partition,
+                Array_1d<double> &zdensity,
+                Array_1d<double> &xmom, 
+                Array_1d<double> &ymom,
+                double tau, 
+                Macro_bunch_store &mbs,
+                double pipe_radius,
+                double pipe_conduct, Array_1d<double> &wake_coeff, 
+                double orbit_length,double quad_wake_sum, bool quad_wake)
+
+{
+
+
+//  general  form of kikcks
+//       xkick=wake_factor*(ax_dipole*dipole_x(bin)+
+//                     bx_dipole*dipole_y(bin)+
+//                    (cx_quad+a_quad*mbs.local_particles(0,n)+b_quad*mbs.local_particles(2,n))*quad(bin));
+// 
+//       ykick=wake_factor*(ay_dipole*dipole_y(bin)+
+//                    by_dipole*dipole_x(bin)+
+//                    (cy_quad-a_quad*mbs.local_particles(2,n)+b_quad*mbs.local_particles(0,n))*quad(bin));
+
+// some parameters are zero due to symmetry, see S. Heifets, SLAC/AP110, January 1998......
+//input parameter (ax_dipole, ay_dipole, bx_dipole, by_dipole,a_quad, b_quad, cx_quad, cy_quad)
+
+
+ 
+    double ax_dipole= wake_coeff(0);
+    double ay_dipole= wake_coeff(1);
+    double bx_dipole= wake_coeff(2);
+    double by_dipole= wake_coeff(3);
+    double a_quad   = wake_coeff(4);
+    double b_quad   = wake_coeff(5);
+    double cx_quad  = wake_coeff(6);
+    double cy_quad  = wake_coeff(7);
+
+
+
+
+
+
+    double gamma = -1 * mbs.ref_particle(5);
+    double beta = sqrt(gamma * gamma - 1.0) / gamma;
+    const double c = PH_MKS_c;
+    double qe = PH_MKS_e; // 1.602176462e-19;
+    double eps0 = PH_MKS_eps0;// 1.0 / (4 * pi * c * c * 1.0e-7); // using c^2 = 1/(eps0 * mu0)
+    double r_classical = PH_MKS_rp;//mbs.charge*mbs.charge*qe*qe/(4*pi*eps0*mass*c*c);
+    // tau is the step length in m
+    double L = tau;
+
+    
+    // Number of particles in slice: Ntot_real*N_macro(slice)/Ntot_macro
+    // N_macro(slice) is simply zdensity
+    // Ntot_macro is mbs.total_num
+   
+    double length=2.0*pi*beta/mbs.units(0); // bunch length in lab frame
+    double Qtot = length* mbs.total_current /(beta * c);
+    double Ntot_real = Qtot/(mbs.charge*qe);  
+   // std::cout<<" Ntot_real ="<<Ntot_real<<std::endl;
+    // N = N_factor * N_macro(slice) = N_factor * zdensity(slice)
+    double N_factor = Ntot_real/mbs.total_num;
+    double wake_factor=r_classical*2.0/
+    		(beta*gamma*pi*pipe_radius*pipe_radius*pipe_radius)*
+    		sqrt(4*pi*eps0*c/pipe_conduct)*N_factor*L;
+
+  
+
+
+
+
+
+    // formula from paper is for delta pxy/p. We need the change
+    // in trans mom coord, delta pxy/(mc)
+     wake_factor *= gamma*beta; 
+   
+     //std::cout<<"wake_factor="<<wake_factor<<std::endl;	
+
+   
+     int num_slices = zdensity.get_shape()[0];
+
+     Array_1d<double> dipole_x(num_slices);
+     Array_1d<double> dipole_y(num_slices);
+     Array_1d<double> quad(num_slices);
+
+
+
+    double cell_size_z = size_z/num_slices;
+    double orbit_length_scaled=orbit_length*gamma/cell_size_z;
+
+
+    get_wake_factors(num_slices, orbit_length_scaled, zdensity, xmom, ymom, dipole_x, dipole_y, quad);
+
+
+    wake_factor *= sqrt(gamma/cell_size_z); // the distance in lab frame is the distance 
+                                          //  in the beam frame divided to gamma
+
+    if (quad_wake) { 
+          double quad_wake_sum_scaled=mbs.total_num*quad_wake_sum*sqrt(cell_size_z/gamma); //rescaled to cancel
+          quad.add(quad_wake_sum_scaled);                     //  the factor considered in wake_factor above
+    }
+
+
+
+//  applying kikcs	
+   for (int n = 0; n < mbs.local_num; ++n) {
+       double xkick=0., ykick=0.;
+       int bin=bin_partition(n);
+        /*   if ((bin>=num_slices) || (bin<0))  { std::cout<<"bin="<<bin<<"num_slices="<<num_slices<<std::endl;
+  		                         throw
+                                         std::runtime_error("something wrong with bining");}*/	
+
+
+       xkick=ax_dipole*dipole_x(bin);
+       ykick=ay_dipole*dipole_y(bin);
+    //xkick=ax_dipole*dipole_x(bin)+bx_dipole*dipole_y(bin);
+    //ykick=ay_dipole*dipole_y(bin)+by_dipole*dipole_x(bin);
+
+       if (quad_wake) {
+                   xkick += a_quad*quad(bin)*mbs.local_particles(0,n);
+                   ykick +=-a_quad*quad(bin)*mbs.local_particles(2,n);
+      
+              // xkick += (cx_quad+a_quad*mbs.local_particles(0,n)+b_quad*mbs.local_particles(2,n))*quad(bin);
+             //  ykick += (cy_quad-a_quad*mbs.local_particles(2,n)+b_quad*mbs.local_particles(0,n))*quad(bin);
+
+       }	
+
+
+       mbs.local_particles(1,n) += wake_factor*xkick;	
+       mbs.local_particles(3,n) += wake_factor*ykick;
+   }   
+   
+}
+
+void get_wake_factors(int num_slices, double orbit_length_scaled, Array_1d<double> &zdensity, 
+Array_1d<double> &xmom, Array_1d<double> &ymom, Array_1d<double> &dipole_x, 
+Array_1d<double> &dipole_y, Array_1d<double> & quad)
+{
+
+     dipole_x.set_all(0.0);
+     dipole_y.set_all(0.0);
+         quad.set_all(0.0);
+
+     for (int i = 0; i < num_slices; ++i){      
+       for (int j = i+1; j < num_slices; ++j){
+ 	  dipole_x(i) += zdensity(j)*xmom(j)/sqrt(double(j-i));
+          dipole_y(i) += zdensity(j)*ymom(j)/sqrt(double(j-i));
+          quad(i) += zdensity(j)/sqrt(double(j-i)); 
+       } 
+ 
+   }
+}
+
+
+
+
+
+
 

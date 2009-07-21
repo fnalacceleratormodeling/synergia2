@@ -21,7 +21,7 @@ rho_to_rwvars_wrapper(Real_scalar_field &rho, object &zdensity,
 void
 calculate_rwvars_wrapper(Macro_bunch_store& mbs,
 		object &zdensity, object &xmom, object &ymom,
-        double z_left, double z_length)
+        double z_left, double z_length, object &slice_partition )
 {
     Array_1d<double> zdensity_array = 
         Array_nd_from_PyObject<double>(zdensity.ptr());
@@ -29,8 +29,11 @@ calculate_rwvars_wrapper(Macro_bunch_store& mbs,
         Array_nd_from_PyObject<double>(xmom.ptr());
     Array_1d<double> ymom_array = 
         Array_nd_from_PyObject<double>(ymom.ptr());
+    Array_1d<int> slice_array   =
+        Array_nd_from_PyObject<int>(slice_partition.ptr());
+
     calculate_rwvars(mbs,zdensity_array,xmom_array,ymom_array,
-    		z_left,z_length);
+    		z_left,z_length, slice_array);
 }
 
 BOOST_PYTHON_MODULE(s2_deposit)

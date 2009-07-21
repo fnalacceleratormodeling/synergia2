@@ -7,15 +7,15 @@ using namespace boost::python;
 
 void
 rw_kick_wrap(double zleft, double zsize,
+                object &bin_partition,
                 object &zdensity,
                 object &xmom, 
                 object &ymom,
                 double tau, 
                 Macro_bunch_store &mbs,
-                double pipe_radiusx,
-                double pipe_radiusy,
-                double pipe_conduct,
-                double zoffset)
+                double pipe_radius,
+                double pipe_conduct, object &wake_coeff, 
+                double orbit_length,double quad_wake_sum,  bool quad_wake)
 {
    Array_1d<double> zdensity_array = 
         Array_nd_from_PyObject<double>(zdensity.ptr());
@@ -23,9 +23,13 @@ rw_kick_wrap(double zleft, double zsize,
         Array_nd_from_PyObject<double>(xmom.ptr());
     Array_1d<double> ymom_array = 
         Array_nd_from_PyObject<double>(ymom.ptr());
-    rw_kick(zleft,zsize,zdensity_array,
-	    xmom_array,ymom_array,tau,mbs,pipe_radiusx,
-        pipe_radiusx,pipe_conduct,zoffset);
+    Array_1d<int> bin_part_array = 
+        Array_nd_from_PyObject<int>(bin_partition.ptr());
+    Array_1d<double> wake_coeff_array = 
+        Array_nd_from_PyObject<double>(wake_coeff.ptr());
+    rw_kick(zleft,zsize,bin_part_array,zdensity_array,
+	    xmom_array,ymom_array,tau,mbs,pipe_radius,
+               pipe_conduct,wake_coeff_array, orbit_length, quad_wake_sum, quad_wake);
 }
 
 BOOST_PYTHON_MODULE(s2_electric_field)

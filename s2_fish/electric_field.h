@@ -25,18 +25,24 @@ full_kick_version(Real_scalar_field &phi, double tau, Macro_bunch_store &mbs, Ff
 
 void
 rw_kick(double zleft, double zsize,
+                Array_1d<int> &bin_partition,
                 Array_1d<double> &zdensity,
                 Array_1d<double> &xmom, 
                 Array_1d<double> &ymom,
                 double tau, 
                 Macro_bunch_store &mbs,
-                double pipe_radiusx,
-                double pipe_radiusy,
-                double pipe_conduct,
-                double zoffset);
+                double pipe_radius,
+                double pipe_conduct, Array_1d<double> &wake_coeff,
+                double orbit_length,double quad_wake_sum,  bool quad_wake);
+
 
 void apply_Efield_kick(const std::vector<Real_scalar_field> &E, double tau,
                Macro_bunch_store &mbs);
+
+void
+get_wake_factors(int num_slices, double orbit_length_scaled,
+Array_1d<double> &zdensity, Array_1d<double> &xmom, Array_1d<double> &ymom,
+Array_1d<double> &dipole_x, Array_1d<double> &dipole_y, Array_1d<double> &quad);
 
 //void testrho(Real_scalar_field &rho, Real_scalar_field &phi, Macro_bunch_store &mbs, bool z_periodic);
 
