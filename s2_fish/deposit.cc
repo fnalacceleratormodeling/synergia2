@@ -180,8 +180,9 @@ calculate_rwvars(Macro_bunch_store& mbs,
              bin_partition(n)=bin;
 	    //	  std::cout << "rwvars after: bin: " << bin << " local_zdensity(bin): " << local_zdensity(bin) << " local_xmom(bin): " << local_xmom(bin) << " local_ymom(bin): " << local_ymom(bin) << std::endl;
         }
-	 else if ((bin==z_num) && fabs(mbs.local_particles(4,n)-z_length-z_left)<z_length*1.e-20) {
-                                                                                                    bin_partition(n)=z_num-1;
+	 else if ((bin==z_num) && fabs(mbs.local_particles(4,n)-z_length-z_left)<z_length*1.e-20) { 
+                         local_zdensity(bin-1) += 1; // put the edge particle in the last bin=z_num-1
+                          bin_partition(n)=z_num-1;
          } 
          else
 	      {   /*std::cout << "  z_left  "<<z_left<<"  rank= "<<rank<<std::endl;
