@@ -14,7 +14,7 @@ rw_kick_wrap(double zleft, double zsize,
                 double tau, 
                 Macro_bunch_store &mbs,
                 double pipe_radius,
-                double pipe_conduct, object &wake_coeff, 
+                double pipe_conduct, double cutoff_small_z, object &wake_coeff, 
                 double orbit_length,double quad_wake_sum,  bool quad_wake)
 {
    Array_1d<double> zdensity_array = 
@@ -29,7 +29,7 @@ rw_kick_wrap(double zleft, double zsize,
         Array_nd_from_PyObject<double>(wake_coeff.ptr());
     rw_kick(zleft,zsize,bin_part_array,zdensity_array,
 	    xmom_array,ymom_array,tau,mbs,pipe_radius,
-               pipe_conduct,wake_coeff_array, orbit_length, quad_wake_sum, quad_wake);
+               pipe_conduct,cutoff_small_z, wake_coeff_array, orbit_length, quad_wake_sum, quad_wake);
 }
 
 BOOST_PYTHON_MODULE(s2_electric_field)

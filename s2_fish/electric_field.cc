@@ -514,7 +514,7 @@ rw_kick(double left_z, double size_z,
                 double tau, 
                 Macro_bunch_store &mbs,
                 double pipe_radius,
-                double pipe_conduct, Array_1d<double> &wake_coeff, 
+                double pipe_conduct, double cutoff_small_z, Array_1d<double> &wake_coeff, 
                 double orbit_length,double quad_wake_sum, bool quad_wake)
 
 {
@@ -565,17 +565,16 @@ rw_kick(double left_z, double size_z,
     double length=2.0*pi*beta/mbs.units(0); // bunch length in lab frame
     double Qtot = length* mbs.total_current /(beta * c);
     double Ntot_real = Qtot/(mbs.charge*qe);  
-   // std::cout<<" Ntot_real ="<<Ntot_real<<std::endl;
+     //std::cout<<" Ntot_real ="<<Ntot_real<<std::endl;
     // N = N_factor * N_macro(slice) = N_factor * zdensity(slice)
     double N_factor = Ntot_real/mbs.total_num;
+    
+
     double wake_factor=r_classical*2.0/
     		(beta*gamma*pi*pipe_radius*pipe_radius*pipe_radius)*
     		sqrt(4*pi*eps0*c/pipe_conduct)*N_factor*L;
 
   
-
-
-
 
 
     // formula from paper is for delta pxy/p. We need the change
@@ -587,6 +586,9 @@ rw_kick(double left_z, double size_z,
    
      int num_slices = zdensity.get_shape()[0];
 
+
+
+
      Array_1d<double> dipole_x(num_slices);
      Array_1d<double> dipole_y(num_slices);
      Array_1d<double> quad(num_slices);
@@ -595,9 +597,10 @@ rw_kick(double left_z, double size_z,
 
     double cell_size_z = size_z/num_slices;
     double orbit_length_scaled=orbit_length*gamma/cell_size_z;
+    int cut_scaled=static_cast<int>(floor(cutoff_small_z*gamma/cell_size_z));	
+    //std::cout<<" cutoff small="<< cutoff_small_z*gamma<<" cell size="<< cell_size_z<<"  cut_scaled="<<cut_scaled<<std::endl;
 
-
-    get_wake_factors(num_slices, orbit_length_scaled, zdensity, xmom, ymom, dipole_x, dipole_y, quad);
+    get_wake_factors(num_slices, orbit_length_scaled, cut_scaled, zdensity, xmom, ymom, dipole_x, dipole_y, quad);
 
 
     wake_factor *= sqrt(gamma/cell_size_z); // the distance in lab frame is the distance 
@@ -640,7 +643,7 @@ rw_kick(double left_z, double size_z,
    
 }
 
-void get_wake_factors(int num_slices, double orbit_length_scaled, Array_1d<double> &zdensity, 
+void get_wake_factors(int num_slices, double orbit_length_scaled, int icut, Array_1d<double> &zdensity, 
 Array_1d<double> &xmom, Array_1d<double> &ymom, Array_1d<double> &dipole_x, 
 Array_1d<double> &dipole_y, Array_1d<double> & quad)
 {
@@ -650,13 +653,15 @@ Array_1d<double> &dipole_y, Array_1d<double> & quad)
          quad.set_all(0.0);
 
      for (int i = 0; i < num_slices; ++i){      
-       for (int j = i+1; j < num_slices; ++j){
- 	  dipole_x(i) += zdensity(j)*xmom(j)/sqrt(double(j-i));
+       for (int j = i+1+icut; j < num_slices; ++j){  // icut is introduced to avoid the interaction at very small distance 
+ 	  dipole_x(i) += zdensity(j)*xmom(j)/sqrt(double(j-i)); // for resonable cell size (lgridnum<500) it is usually zero
           dipole_y(i) += zdensity(j)*ymom(j)/sqrt(double(j-i));
           quad(i) += zdensity(j)/sqrt(double(j-i)); 
        } 
  
    }
+
+
 }
 
 

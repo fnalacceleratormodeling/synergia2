@@ -43,10 +43,11 @@ def apply_impedance_kick(bunch,impedance,tau):
     quad_wake=impedance.get_quad_wake()
     orbit_length=impedance.get_orbit_length()
     quad_wake_sum=impedance.get_quad_wake_sum()
+    cutoff_small_z=impedance.get_cutoff_small_z()
     rw_kick(bunchmin[2],rwsize[2],bin_partition,
                     zdensity,xmom,ymom,tau, 
                     bunch.get_store(),
-                    pipe_radius,pipe_conduct,wake_coeff,orbit_length, quad_wake_sum, quad_wake)
+                    pipe_radius,pipe_conduct,cutoff_small_z,wake_coeff,orbit_length, quad_wake_sum, quad_wake)
     
     
 
@@ -55,15 +56,18 @@ class Impedance:
     def __init__(self, pipe_radius, pipe_conduct, orbit_length, z_grid, pipe_symmetry="circular"):
 	    
 	self.pipe_radius=pipe_radius
-	self.pipe_conduct=pipe_conduct
+	self.pipe_conduct=pipe_conduct # to agree with eq in chao's book (units s^-1), make pipe_conduct=pipe_conduct/(4*pi*eps_0)
 	self.orbit_length=orbit_length
-	self.z_grid=z_grid
+	self.z_grid=z_grid 
+	self.cutoff_small_z=4.2*pow(synergia.physics_constants.PH_MKS_c*pipe_radius*pipe_radius*4.*math.pi* synergia.physics_constants.PH_MKS_eps0/(2.*math.pi*pipe_conduct),1./3.)
+	print "cutoff_small_z=",self.cutoff_small_z #~for the factor 4.2 see K. Bane, SLAC-AP-87, 1991
 	self.pipe_symmetry=pipe_symmetry
 # pipe symmetry keywords so far, see below  "circular", "x parallel plates", "y parallel plates", "elliptical"	
         self.wall_thickness=None
 	self.quad_wake=None
         self.wake_coeff=None 
 	self.cutoff_quad=1000 # cutoff shoul be calculated as a function of  wall_thickness
+	
 	
 	
 	
@@ -161,6 +165,9 @@ class Impedance:
     def get_z_grid(self):
         return self.z_grid
     
+    def get_cutoff_small_z(self):
+	 return self.cutoff_small_z
+         
     def get_wake_coeff(self):
 	   return self.wake_coeff
     

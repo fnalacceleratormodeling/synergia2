@@ -32,7 +32,7 @@ rw_kick(double zleft, double zsize,
                 double tau, 
                 Macro_bunch_store &mbs,
                 double pipe_radius,
-                double pipe_conduct, Array_1d<double> &wake_coeff,
+                double pipe_conduct,double cutoff_small_z, Array_1d<double> &wake_coeff,
                 double orbit_length,double quad_wake_sum,  bool quad_wake);
 
 
@@ -40,7 +40,7 @@ void apply_Efield_kick(const std::vector<Real_scalar_field> &E, double tau,
                Macro_bunch_store &mbs);
 
 void
-get_wake_factors(int num_slices, double orbit_length_scaled,
+get_wake_factors(int num_slices, double orbit_length_scaled, int icut,
 Array_1d<double> &zdensity, Array_1d<double> &xmom, Array_1d<double> &ymom,
 Array_1d<double> &dipole_x, Array_1d<double> &dipole_y, Array_1d<double> &quad);
 
