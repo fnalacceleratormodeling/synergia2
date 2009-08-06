@@ -506,7 +506,7 @@ rw_kick_eric(double left_z, double size_z,
 
 
 void
-rw_kick(double left_z, double size_z,
+rw_kick(        double size_z,
                 Array_1d<int> &bin_partition,
                 Array_1d<double> &zdensity,
                 Array_1d<double> &xmom, 
@@ -515,7 +515,7 @@ rw_kick(double left_z, double size_z,
                 Macro_bunch_store &mbs,
                 double pipe_radius,
                 double pipe_conduct, double cutoff_small_z, Array_1d<double> &wake_coeff, 
-                double orbit_length,double quad_wake_sum, bool quad_wake)
+                double quad_wake_sum, bool quad_wake)
 
 {
 
@@ -596,11 +596,11 @@ rw_kick(double left_z, double size_z,
 
 
     double cell_size_z = size_z/num_slices;
-    double orbit_length_scaled=orbit_length*gamma/cell_size_z;
+   // double orbit_length_scaled=orbit_length*gamma/cell_size_z;
     int cut_scaled=static_cast<int>(floor(cutoff_small_z*gamma/cell_size_z));	
     //std::cout<<" cutoff small="<< cutoff_small_z*gamma<<" cell size="<< cell_size_z<<"  cut_scaled="<<cut_scaled<<std::endl;
 
-    get_wake_factors(num_slices, orbit_length_scaled, cut_scaled, zdensity, xmom, ymom, dipole_x, dipole_y, quad);
+    get_wake_factors(num_slices, cut_scaled, zdensity, xmom, ymom, dipole_x, dipole_y, quad);
 
 
     wake_factor *= sqrt(gamma/cell_size_z); // the distance in lab frame is the distance 
@@ -643,7 +643,7 @@ rw_kick(double left_z, double size_z,
    
 }
 
-void get_wake_factors(int num_slices, double orbit_length_scaled, int icut, Array_1d<double> &zdensity, 
+void get_wake_factors(int num_slices, int icut, Array_1d<double> &zdensity, 
 Array_1d<double> &xmom, Array_1d<double> &ymom, Array_1d<double> &dipole_x, 
 Array_1d<double> &dipole_y, Array_1d<double> & quad)
 {

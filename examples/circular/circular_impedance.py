@@ -41,6 +41,7 @@ if ( __name__ == '__main__'):
     myopts.add("zoffset",0,"offset in z", float)
     myopts.add("space_charge",0,"",int)
     myopts.add("impedance",0,"",int)
+    myopts.add("pipe_symmetry","x_parallel_plates","",str) 
     myopts.add("energy",100.004401675138,"",float)
     myopts.add("partpercell",1,"",float)
     myopts.add("bunches",1,"",int)
@@ -62,8 +63,8 @@ if ( __name__ == '__main__'):
     #scaling_frequency = 47713451.5923694
     #scaling_frequency = 1000000
     scaling_frequency = 1
-    pipexradius = 0.03
-    pipeyradius = 0.03
+   # pipexradius = 0.025
+    # pipeyradius = 0.025
 #    pipexradius = 0.123
 #    pipeyradius = 0.0508
     part_per_cell = myopts.get("partpercell")
@@ -79,7 +80,7 @@ if ( __name__ == '__main__'):
     ypoffset = myopts.get("ypoffset")
     zoffset = myopts.get("zoffset")
     
-    pipe_conduct= 1.4e6 # [ohm^-1 m^-1] (stainless steel)
+   # pipe_conduct= 1.4e6 # [ohm^-1 m^-1] (stainless steel)
     
     impedance=myopts.get("impedance")
     space_charge=myopts.get("space_charge")
@@ -246,9 +247,13 @@ if ( __name__ == '__main__'):
             log.write("%s\n" % output)
             log.flush()
 
-
+ 
+    pipe_conduct= 1.4e6 # [ohm^-1 m^-1] (stainless steel)
+    wall_thickness=0.0114
+    pipe_radius=0.025
     if impedance:
-        rw_impedance=s2_fish.Impedance(pipexradius, pipe_conduct, line_length,lgridnum, pipe_symmetry="circular")
+	pipe_symmetry=myopts.get("pipe_symmetry")
+        rw_impedance=s2_fish.Impedance(pipe_radius, pipe_conduct,wall_thickness, line_length,lgridnum, pipe_symmetry)
 	#pipe_symmetry="x parallel plates")
         print "IMPEDANCE PIPE radius=", rw_impedance.get_pipe_radius()
     else:
