@@ -254,8 +254,10 @@ if ( __name__ == '__main__'):
     if impedance:
 	pipe_symmetry=myopts.get("pipe_symmetry")
         rw_impedance=s2_fish.Impedance(pipe_radius, pipe_conduct,wall_thickness, line_length,lgridnum, pipe_symmetry)
-	#pipe_symmetry="x parallel plates")
+	#pipe_symmetry="x_parallel_plates")
         print "IMPEDANCE PIPE radius=", rw_impedance.get_pipe_radius()
+	print "IMPEDANCE PIPE wall_thickness=",rw_impedance.get_wall_thickness()
+	print "IMPEDANCE PIPE symmetry=",rw_impedance.get_pipe_symmetry()
     else:
 	rw_impedance=None      
     

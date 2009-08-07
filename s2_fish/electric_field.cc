@@ -513,9 +513,9 @@ rw_kick(        double size_z,
                 Array_1d<double> &ymom,
                 double tau, 
                 Macro_bunch_store &mbs,
-                double pipe_radius,
-                double pipe_conduct, double cutoff_small_z, Array_1d<double> &wake_coeff, 
-                double quad_wake_sum, bool quad_wake)
+                double w_f,
+                double cutoff_small_z, Array_1d<double> &wake_coeff, 
+                double quad_wake_sum, bool bool_quad_wake)
 
 {
 
@@ -569,34 +569,21 @@ rw_kick(        double size_z,
     // N = N_factor * N_macro(slice) = N_factor * zdensity(slice)
     double N_factor = Ntot_real/mbs.total_num;
     
-
-    double wake_factor=r_classical*2.0/
-    		(beta*gamma*pi*pipe_radius*pipe_radius*pipe_radius)*
-    		sqrt(4*pi*eps0*c/pipe_conduct)*N_factor*L;
-
   
 
+//    w_f= paking_fraction*r_classical*2.0/
+//     		(beta*gamma*pi*pipe_radius*pipe_radius*pipe_radius)*
+//     		sqrt(4*pi*eps0*c/pipe_conduct)*gamma*beta; the multiplication with gamma*beta of
+//             formula from paper is to account that our coordinate is delta pxy/(mc) not delta pxy/p
 
-    // formula from paper is for delta pxy/p. We need the change
-    // in trans mom coord, delta pxy/(mc)
-     wake_factor *= gamma*beta; 
+    double  wake_factor=w_f*N_factor*L;
+
    
-     //std::cout<<"wake_factor="<<wake_factor<<std::endl;	
-
-   
-     int num_slices = zdensity.get_shape()[0];
-
-
-
-
-     Array_1d<double> dipole_x(num_slices);
-     Array_1d<double> dipole_y(num_slices);
-     Array_1d<double> quad(num_slices);
-
-
-
+    int num_slices = zdensity.get_shape()[0];
+    Array_1d<double> dipole_x(num_slices);
+    Array_1d<double> dipole_y(num_slices);
+    Array_1d<double> quad(num_slices);
     double cell_size_z = size_z/num_slices;
-   // double orbit_length_scaled=orbit_length*gamma/cell_size_z;
     int cut_scaled=static_cast<int>(floor(cutoff_small_z*gamma/cell_size_z));	
     //std::cout<<" cutoff small="<< cutoff_small_z*gamma<<" cell size="<< cell_size_z<<"  cut_scaled="<<cut_scaled<<std::endl;
 
@@ -606,7 +593,8 @@ rw_kick(        double size_z,
     wake_factor *= sqrt(gamma/cell_size_z); // the distance in lab frame is the distance 
                                           //  in the beam frame divided to gamma
 
-    if (quad_wake) { 
+    // contributions from previous turns, propto sum_n W(n*orbit_lenght), are considered by adding quad_wake_sum
+    if (bool_quad_wake) { 
           double quad_wake_sum_scaled=mbs.total_num*quad_wake_sum*sqrt(cell_size_z/gamma); //rescaled to cancel
           quad.add(quad_wake_sum_scaled);                     //  the factor considered in wake_factor above
     }
@@ -616,7 +604,7 @@ rw_kick(        double size_z,
 //  applying kikcs	
    for (int n = 0; n < mbs.local_num; ++n) {
        double xkick=0., ykick=0.;
-       int bin=bin_partition(n);
+       int bin=bin_partition(n);  // bin_partition(n) is the bin where you find the particle n 
         /*   if ((bin>=num_slices) || (bin<0))  { std::cout<<"bin="<<bin<<"num_slices="<<num_slices<<std::endl;
   		                         throw
                                          std::runtime_error("something wrong with bining");}*/	
@@ -627,15 +615,18 @@ rw_kick(        double size_z,
     //xkick=ax_dipole*dipole_x(bin)+bx_dipole*dipole_y(bin);
     //ykick=ay_dipole*dipole_y(bin)+by_dipole*dipole_x(bin);
 
-       if (quad_wake) {
+       if (bool_quad_wake) {
                    xkick += a_quad*quad(bin)*mbs.local_particles(0,n);
                    ykick +=-a_quad*quad(bin)*mbs.local_particles(2,n);
       
-              // xkick += (cx_quad+a_quad*mbs.local_particles(0,n)+b_quad*mbs.local_particles(2,n))*quad(bin);
+              // xkick += (cx_quad+a_quad*mbs.local_particles(0,n)+b_quad*mbs.local_particles(2,n))*quad(bin);  //this is a more general form,
+                                                                                                                // comment before and uncomment here
              //  ykick += (cy_quad-a_quad*mbs.local_particles(2,n)+b_quad*mbs.local_particles(0,n))*quad(bin);
 
        }	
 
+      // mbs.local_particles(5,n) += -wake_factor*(xkick*mbs.local_particles(1,n)+ykick*mbs.local_particles(3,n))/gamma; //this is a higher order approximation
+                                                                                                                         // probably not necessary...
 
        mbs.local_particles(1,n) += wake_factor*xkick;	
        mbs.local_particles(3,n) += wake_factor*ykick;

@@ -51,16 +51,24 @@ void Macro_bunch_store::convert_to_fixedt()
 {
     if (is_fixedz) {
         double gamma = -ref_particle(5);
-        for (int i = 0; i < local_num; ++i) {
+        for (int i = 0; i < local_num; ++i) {        
             local_particles(0, i) /= units(0);
             local_particles(2, i) /= units(2);
             double xp = local_particles(1, i);
             double yp = local_particles(3, i);
             double rcp_gammai = 1.0 / (gamma - local_particles(5, i));
-            double betai = sqrt(1.0 - rcp_gammai * rcp_gammai * (1 + xp * xp + yp * yp));
+            double betai;
+             if ((1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp))<0.0) {  
+                                          throw std::runtime_error (" error in convert_to_fixedt,"
+                                 "probably the approximation beta ~betaz broke down, unstable beam ");
+             } 
+             else {
+                  betai = sqrt(1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp));
+             }
             local_particles(4, i) *= -gamma * betai / units(0); // units(0)
             // is not
             // an error!
+
         }
         is_fixedz = false;
     }
@@ -76,7 +84,14 @@ void Macro_bunch_store::convert_to_fixedz()
             double xp = local_particles(1, i);
             double yp = local_particles(3, i);
             double rcp_gammai = 1.0 / (gamma - local_particles(5, i));
-            double betai = sqrt(1.0 - rcp_gammai * rcp_gammai * (1 + xp * xp + yp * yp));
+            double betai;
+             if ((1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp))<0.0) {  
+                                          throw std::runtime_error (" error in convert_to_fixedz,"
+                                 "probably the approximation beta ~betaz broke down, unstable beam ");
+             } 
+             else {
+                  betai = sqrt(1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp));
+             }
             local_particles(4, i) /= -gamma * betai / units(0); // units(0)
             // is not
             // an error!

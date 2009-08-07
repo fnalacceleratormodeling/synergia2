@@ -31,9 +31,9 @@ rw_kick(        double zsize,
                 Array_1d<double> &ymom,
                 double tau, 
                 Macro_bunch_store &mbs,
-                double pipe_radius,
-                double pipe_conduct,double cutoff_small_z, Array_1d<double> &wake_coeff,
-                double quad_wake_sum,  bool quad_wake);
+                double wake_factor,
+                double cutoff_small_z, Array_1d<double> &wake_coeff,
+                double quad_wake_sum,  bool bool_quad_wake);
 
 
 void apply_Efield_kick(const std::vector<Real_scalar_field> &E, double tau,

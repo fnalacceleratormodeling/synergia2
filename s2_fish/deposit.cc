@@ -173,12 +173,10 @@ calculate_rwvars(Macro_bunch_store& mbs,
     for (int n = 0; n < mbs.local_num; ++n) {
         int bin = static_cast<int>((mbs.local_particles(4,n)-z_left)/h);
         if ((bin < z_num) && (bin >= 0)) {
-	  //	  std::cout << "rwvars before: bin: " << bin << " local_zdensity(bin): " << local_zdensity(bin) << " local_xmom(bin): " << local_xmom(bin) << " local_ymom(bin): " << local_ymom(bin) << std::endl;
             local_zdensity(bin) += 1;
             local_xmom(bin) += mbs.local_particles(0,n);
             local_ymom(bin) += mbs.local_particles(2,n);
-             bin_partition(n)=bin;
-	    //	  std::cout << "rwvars after: bin: " << bin << " local_zdensity(bin): " << local_zdensity(bin) << " local_xmom(bin): " << local_xmom(bin) << " local_ymom(bin): " << local_ymom(bin) << std::endl;
+             bin_partition(n)=bin; //bin_partition(n) is the bin where you find the particle n
         }
 	 else if ((bin==z_num) && fabs(mbs.local_particles(4,n)-z_length-z_left)<z_length*1.e-20) { 
                          local_zdensity(bin-1) += 1; // put the edge particle in the last bin=z_num-1
@@ -187,12 +185,13 @@ calculate_rwvars(Macro_bunch_store& mbs,
          else
 	      {   /*std::cout << "  z_left  "<<z_left<<"  rank= "<<rank<<std::endl;
                   std::cout<<"mbs.local_particles(4,n)="  <<mbs.local_particles(4,n)<<"  rank= "<<rank<<std::endl; 
+                  std::cout<< "NNNNNNNNNN n="<<n<<std::endl; 
                   std::cout << "  z_length  "<<z_length<<"  rank= "<<rank<<std::endl;
                   std::cout << "(mbs.local_particles(4,n)-z_left)= "<<(mbs.local_particles(4,n)-z_left)<<"  rank= "<<rank<<std::endl;
                   std::cout << "bin: " << bin<<"  z_num="<<z_num<< "h=" << h <<"  rank= "<<rank<<std::endl;                
                   std::cout << "mbs.local_particles(4,n)-z_length-z_left= "<<fabs(mbs.local_particles(4,n)-z_length-z_left)<<"  rank= "<<rank<<std::endl;*/
   		  throw
-                     std::runtime_error("particles out of range");
+                     std::runtime_error("particles out of range in calculate_rwvars ");
          }
 
 	
