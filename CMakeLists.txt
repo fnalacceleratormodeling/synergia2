@@ -9,8 +9,9 @@ INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
 LINK_DIRECTORIES(${PYTHON_LIBRARIES})
 
 # boost
-SET(Boost_USE_STATIC_LIBS OFF)
-SET(Boost_USE_MULTITHREADED OFF CACHE BOOL "Use multithreaded version of Boost. Should remain off.")
+SET(Boost_USE_STATIC_LIBS OFF CACHE BOOL "Do not modify")
+SET(Boost_USE_MULTITHREADED OFF CACHE BOOL "Do not modify")
+SET(Boost_ADDITIONAL_VERSIONS 1.38 1.39 1.40 1.41 1.42 1.43)
 FIND_PACKAGE(Boost COMPONENTS python regex unit_test_framework)
 #~ message("Boost_INCLUDE_DIRS = '${Boost_INCLUDE_DIRS}'")
 #~ message("Boost_LIBRARIES = '${Boost_LIBRARIES}'")
