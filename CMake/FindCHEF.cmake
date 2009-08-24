@@ -1,7 +1,23 @@
 # jfa: work is left to be done here...
 
-#~ set(CHEF_PREFIX xxx)
-set(CHEF_INCLUDE_DIRS ${CHEF_PREFIX}/include)
-set(CHEF_LIBRARY_DIRS ${CHEF_PREFIX}/lib)
-
-set(CHEF_LIBS -lphysics_toolkit -lbeamline -lbmlfactory -lglib-2.0 -lbasic_toolkit -lmxyzptlk)
+if (NOT CHEF_INCLUDE_DIRS)
+  EXEC_PROGRAM ("chef-config.sh"
+    ARGS "--includes_list"
+    OUTPUT_VARIABLE CHEF_INCLUDE_DIRS
+    RETURN_VALUE CHEF_CONFIG_FAILED)
+  set (CHEF_INCLUDE_DIRS ${CHEF_INCLUDE_DIRS} CACHE FILEPATH "CHEF include paths")
+endif (NOT CHEF_INCLUDE_DIRS)
+if (NOT CHEF_LIBRARY_DIRS)
+  EXEC_PROGRAM ("chef-config.sh"
+    ARGS "--lib_dirs_list"
+    OUTPUT_VARIABLE CHEF_LIBRARY_DIRS
+    RETURN_VALUE CHEF_CONFIG_FAILED)
+  set (CHEF_LIBRARY_DIRS ${CHEF_LIBRARY_DIRS} CACHE FILEPATH "CHEF library paths")
+endif (NOT CHEF_LIBRARY_DIRS)
+if (NOT CHEF_LIBS)
+  EXEC_PROGRAM ("chef-config.sh"
+    ARGS "--libs_list"
+    OUTPUT_VARIABLE CHEF_LIBS
+    RETURN_VALUE CHEF_CONFIG_FAILED)
+  set (CHEF_LIBS ${CHEF_LIBS} CACHE FILEPATH "CHEF libraries")
+endif (NOT CHEF_LIBS)
