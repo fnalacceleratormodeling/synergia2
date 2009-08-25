@@ -3,7 +3,7 @@ import time
 from math import sqrt
 import os.path
 import sys
-from LinearAlgebra import inverse
+from numpy.linalg import inv as inverse
 import synergia
 from pygsl import odeiv
 import pygsl
