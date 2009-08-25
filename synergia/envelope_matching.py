@@ -1,4 +1,3 @@
-import Numeric
 import numpy
 import time
 from math import sqrt
@@ -104,7 +103,7 @@ def   envelope_match(widths, s_array, kx_array,ky_array,xi_in,\
       sigma_prime_y=widths[4]*widths[5]
 
 
-      x0 = numpy.array([sigma_x,sigma_prime_x,sigma_y,sigma_prime_y], Numeric.Float)       
+      x0 = numpy.array([sigma_x,sigma_prime_x,sigma_y,sigma_prime_y], numpy.float)       
       delta=numpy.array([1,1,1,1])
 
       if verbose:
