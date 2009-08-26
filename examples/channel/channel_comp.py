@@ -153,11 +153,9 @@ if ( __name__ == '__main__'):
     kick_time = 0.0
     
     t0=time.time()
-    solver="2d"
-
-    s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_gauss=True,
-		impedance=impedance,pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius,pipe_conduct=pipe_conduct)
-	
+    solver="s2_fish_gauss"
+    sp_ch=s2_fish.SpaceCharge(solver)
+    s= synergia.propagate(0.0,gourmet, bunch,diag, space_charge=sp_ch)
     print "elapsed time 2d =",time.time() - t0,"on rank", MPI.COMM_WORLD.Get_rank()
 	
     pylab.figure(1)	
@@ -199,11 +197,12 @@ if ( __name__ == '__main__'):
     diag = synergia.Diagnostics(gourmet.get_initial_u())
     kick_time = 0.0
     
-
+    solver="s2_fish_3d"
+    sp_ch=s2_fish.SpaceCharge(solver,grid=griddim,periodic=True)
   
     t0=time.time()
-    s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_s2_fish=True,periodic=True,
-            space_charge=space_charge,impedance=impedance)
+    s= synergia.propagate(0.0,gourmet, bunch,diag, space_charge=sp_ch)
+    
     print "elapsed time 3d =",time.time() - t0,"on rank", MPI.COMM_WORLD.Get_rank()
     bunch.write_particles("end")
 
@@ -218,16 +217,16 @@ if ( __name__ == '__main__'):
     pylab.legend(loc=0)
      
 # **********************************************************************
-    solver="3d fish cylindrical"
+    solver="s2_fish_cylindrical"
     current=current_in
-
-
-
-    griddim = (64,16,16)
+    griddim = (64,16,129)
+    radius=10.0*math.sqrt(xwidth*xwidth+ywidth*ywidth)
+    sp_ch=s2_fish.SpaceCharge(solver,grid=griddim,radius_cylindrical=radius)
+    
     num_particles = griddim[0]*griddim[1]*griddim[2] * 1 #part_per_cell
     print "num_particles =",num_particles
     
-    radius=10.0*math.sqrt(xwidth*xwidth+ywidth*ywidth)
+    
    # radius=3.
     pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
     beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = rx,offset=xoffset)
@@ -247,10 +246,8 @@ if ( __name__ == '__main__'):
 
   
     t0=time.time()
-    s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,
-                use_s2_fish_cylindrical=True,radius=radius,
-                impedance=impedance,space_charge=space_charge,
-                pipe_radiusx=pipe_radius,pipe_radiusy=pipe_radius,pipe_conduct=pipe_conduct)
+    s= synergia.propagate(0.0,gourmet, bunch,diag, space_charge=sp_ch,periodic_bunch=True)
+   
     print "elapsed time 3d cyl =",time.time() - t0,"on rank", MPI.COMM_WORLD.Get_rank()
     bunch.write_particles("end")
 
@@ -273,9 +270,11 @@ if ( __name__ == '__main__'):
     
     
     
-    solver="3d impact z-closed, trans open"
+   # solver="3d impact z-closed, trans open"
+    
     BC_choice="trans open, long periodic"
-    griddim = [16,16,129]   
+    solver="impact"
+    griddim = [16,16,513]   
 
     current=current_in  
     num_particles = impact.adjust_particles(
@@ -302,6 +301,8 @@ if ( __name__ == '__main__'):
         
     piperad =pipe_radius #~0.04
     field = impact.Field(beam_parameters, pgrid, cgrid, piperad)
+    sp_ch=s2_fish.SpaceCharge(solver,impact_pgrid=pgrid, impact_field=field, impact_cgrid=cgrid)
+    
     bunch = impact.Bunch(current, beam_parameters, num_particles, pgrid)
     bunch.generate_particles()
 
@@ -310,8 +311,8 @@ if ( __name__ == '__main__'):
     diag = synergia.Diagnostics_impact(gourmet.get_initial_u())
     kick_time = 0.0
     t0=time.time()
-    s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_impact=True,
-        pgrid=pgrid,field=field,cgrid=cgrid)
+    s= synergia.propagate(0.0,gourmet, bunch,diag, space_charge=sp_ch)
+  
     print "elapsed time 3d impact=",time.time() - t0
 
     pylab.figure(1)
@@ -327,9 +328,9 @@ if ( __name__ == '__main__'):
     pylab.legend(loc=0)
     
     
-# ****** no space charge****************************************************************
+## ****** no space charge****************************************************************
  
-    solver="3d impact"
+    solver="impact"
     BC_choice="3d open"
 
     current=0. 
@@ -357,6 +358,7 @@ if ( __name__ == '__main__'):
     piperad =pipe_radius #~0.04
 
     field = impact.Field(beam_parameters, pgrid, cgrid, piperad)
+    sp_ch=s2_fish.SpaceCharge(solver,impact_pgrid=pgrid, impact_field=field, impact_cgrid=cgrid)
     bunch = impact.Bunch(current, beam_parameters, num_particles, pgrid)
     bunch.generate_particles()
 
@@ -367,8 +369,8 @@ if ( __name__ == '__main__'):
     
     
     t0=time.time()
-    s = synergia.propagate(0.0,gourmet,bunch,diag,griddim,use_impact=True,
-        pgrid=pgrid,field=field,cgrid=cgrid)
+    s= synergia.propagate(0.0,gourmet, bunch,diag, space_charge=sp_ch)
+    
     print "elapsed time 3d impact=",time.time() - t0
 
     pylab.figure(1)

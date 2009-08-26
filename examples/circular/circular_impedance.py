@@ -247,11 +247,26 @@ if ( __name__ == '__main__'):
             log.write("%s\n" % output)
             log.flush()
 
+
+    if space_charge:
+        griddim = (16,16,33)
+        solver="s2_fish_gauss"
+        radius=0.1
+        sp_ch=s2_fish.SpaceCharge(solver,griddim,radius_cylindrical=radius,periodic=True)	
+        print " sp_ch grid=",sp_ch.get_grid()
+        print " sp_ch solver=",sp_ch.get_solver()
+    else:
+	sp_ch=None    	
+
+
+
+
  
-    pipe_conduct= 1.4e6 # [ohm^-1 m^-1] (stainless steel)
-    wall_thickness=0.0114
-    pipe_radius=0.025
+   
     if impedance:
+	pipe_conduct= 1.4e6 # [ohm^-1 m^-1] (stainless steel)
+        wall_thickness=0.0114
+        pipe_radius=0.025
 	pipe_symmetry=myopts.get("pipe_symmetry")
         rw_impedance=s2_fish.Impedance(pipe_radius, pipe_conduct,wall_thickness, line_length,lgridnum, pipe_symmetry)
 	#pipe_symmetry="x_parallel_plates")
@@ -263,12 +278,11 @@ if ( __name__ == '__main__'):
     
     
     
+    
     for turn in range(1,myopts.get("turns")+1):
         t1 = time.time()
-
         s = synergia.propagate(s,gourmet,
-            bunch,diag,griddim,use_s2_fish=True,periodic=True,
-            space_charge=space_charge, rw_impedance=rw_impedance)
+            bunch,diag, space_charge=sp_ch,impedance=rw_impedance, periodic_bunch=True)
 	    	
         if MPI.COMM_WORLD.Get_rank() ==0:
             output = "turn %d time = %g"%(turn,time.time() - t1)
