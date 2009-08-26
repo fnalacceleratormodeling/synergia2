@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import sys
 import s2_fish
+from s2_fish.space_charge import *
 have_impact = False
 try:
     import impact
@@ -17,18 +18,9 @@ def listify(x):
         return [x]
 
 last_step_length = 0
-def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
-    use_s2_fish=False, use_impact=False, use_none=False,
-    use_s2_fish_cylindrical=False,
-    pgrid=None,field=None,cgrid=None,use_gauss=False,
-    periodic=False, aperture=None, radius=None,
-    space_charge=True,impedance=False, rw_impedance=None,
-    pipe_radiusx=None,pipe_radiusy=None,
-    pipe_conduct=None,bunch_spacing=None,
-    tracker=None,track_period_steps=None,
-              transverse=False):
-
-
+def propagate(s0,gourmet,bunch_in,diagnostics_in, space_charge=None,impedance=None,
+  periodic_bunch=True, aperture=None,	bunch_spacing=None, track_period_steps=None,tracker=None, quiet=1):
+  
     bunches = listify(bunch_in)
     diagnosticss = listify(diagnostics_in)
     #diagnosticss2 = listify(diagnostics2_in)
@@ -45,6 +37,18 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
     steps = 0
     global last_step_length
     first_action = 1
+    
+    apply_fish_kick=False
+    apply_impact_kick=False
+    if space_charge.get_solver()=="impact":	  
+	 if impedance:
+                  raise RuntimeError,\
+                            "impact solvers cannot currently be combined with impedance" 
+			    
+	 apply_impact_kick=True	    
+    elif (space_charge) or (impedance):
+        apply_fish_kick=True
+
     
     for action in gourmet.get_actions():
         if action.is_mapping():
@@ -73,61 +77,12 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in,grid_dim,quiet=1,
                 steps += 1
             elif action.get_synergia_action() == "space charge kick":
                 tau = last_step_length
-                #~ pardebug("start space charge\n")
-		#for (diagnostics,bunch) in zip(diagnosticss2,bunches):
-                        #diagnostics.add(s,bunch)
-                if use_s2_fish:
-		    #~ 	s2_fish.apply_kick is in fish_kick.py
-                    s2_fish.apply_kick(grid_dim,None,None, bunches, 2*tau,
-                        periodic=periodic,aperture=aperture,space_charge=space_charge,
-                        impedance=rw_impedance, transverse=transverse)
-		    # the old one below from fish_fftw.py still should work	
-		    #s2_fish.apply_space_charge_kick(grid_dim,None,None, bunches, 2*tau,
-                        #periodic=periodic,aperture=aperture,space_charge=space_charge,
-                        #impedance=impedance,pipe_radiusx=pipe_radiusx,
-                        #pipe_radiusy=pipe_radiusy,pipe_conduct=pipe_conduct,
-                        #bunch_spacing=bunch_spacing,transverse=transverse)
-
-			
-                elif use_s2_fish_cylindrical:
-                    s2_fish.apply_cylindrical_space_charge_kick(grid_dim,
-                        radius,bunch,2*tau,aperture=aperture,space_charge=space_charge,
-                        impedance=impedance,impedance_pipe_radiusx=pipe_radiusx,
-                        impedance_pipe_radiusy=pipe_radiusy,
-                        pipe_conduct=pipe_conduct,
-                        bunch_spacing=bunch_spacing)
-                elif use_impact:
-                    if not have_impact:
-                        raise RuntimeError, \
-                            "propagate with use_impact=True requires a working impact module"
-                    if impedance:
-                        raise RuntimeError,\
-                            "impact solvers cannot currently be combined with impedance"
-                    if ((pgrid == None) or (field == None) or (cgrid == None)):
-                        raise RuntimeError, \
-                            "propagate with use_impact=True requires pgrid, field and cgrid to be specified"
-                    impact.apply_space_charge_kick(
-                        bunch.get_beambunch(),
-                        pgrid.get_pgrid2d(),
-                        field.get_fieldquant(),
-                        field.get_compdom(),
-                        field.get_period_length(),
-                        cgrid.get_bc_num(),
-                        field.get_pipe_radius(),
-                        tau, 0, bunch.get_scaling_frequency(),0)
-                elif use_gauss:
-                    s2_fish.apply_BasErs_space_charge_kick(bunch, 2*tau,
-                        space_charge=space_charge,
-                        impedance=impedance,impedance_pipe_radiusx=pipe_radiusx,
-                        impedance_pipe_radiusy=pipe_radiusy,
-                        pipe_conduct=pipe_conduct,
-                        bunch_spacing=bunch_spacing)
-                elif use_none:
-                    pass
-                else:
-                    raise RuntimeError, \
-                        "propagate requires one of use_s2_fish, use_impact or use_none to be True"
-                #~ pardebug("end space charge\n")
+		if apply_fish_kick: 
+		#~ 	s2_fish.apply_kick is in fish_kick.py
+		    s2_fish.apply_kick(bunches, 2*tau,space_charge=space_charge,
+                        impedance=impedance, periodic_bunch=periodic_bunch,aperture=aperture) 
+		elif apply_impact_kick:
+		     apply_space_charge_kick(bunch,space_charge,tau)	#it skips aperture and periodic on the bunch               
 		#for (diagnostics,bunch) in zip(diagnosticss2,bunches):
                         #diagnostics.add(s,bunch)	
             elif action.get_synergia_action() == "rfcavity1" or \
