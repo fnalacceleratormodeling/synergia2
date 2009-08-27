@@ -41,7 +41,8 @@ if ( __name__ == '__main__'):
     myopts.add("zoffset",0,"offset in z", float)
     myopts.add("space_charge",0,"",int)
     myopts.add("impedance",0,"",int)
-    myopts.add("pipe_symmetry","x_parallel_plates","",str) 
+    myopts.add("pipe_symmetry","circular","",str) 
+  #  myopts.add("pipe_symmetry","x_parallel_plates","",str) 
     myopts.add("energy",100.004401675138,"",float)
     myopts.add("partpercell",1,"",float)
     myopts.add("bunches",1,"",int)
@@ -250,7 +251,7 @@ if ( __name__ == '__main__'):
 
     if space_charge:
         griddim = (16,16,33)
-        solver="s2_fish_gauss"
+        solver="s2_fish_3d"
         radius=0.1
         sp_ch=s2_fish.SpaceCharge(solver,griddim,radius_cylindrical=radius,periodic=True)	
         print " sp_ch grid=",sp_ch.get_grid()

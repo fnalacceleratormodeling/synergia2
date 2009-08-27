@@ -428,7 +428,7 @@ get_G2_z_linear(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
     int mix, miy, miz; // mirror index x, etc.
     double z_bin_offset, rr, r1,r2, T1,T2;
     const double hz=h[2]; // do not modify hz!
-
+    const double epsz= h[2]*1.e-12;
 
 
      rr= h[0] * h[0] + h[1] * h[1];
@@ -468,17 +468,17 @@ get_G2_z_linear(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 			   T2=(hz+z)*log(r2);
 			   G +=	T1+T2; }
 
-		else if (fabs(z+hz)<1.0e-10){
+		else if (fabs(z+hz)<epsz){
 			   r1=(sqrt((z-hz)*(z-hz)+rr)-z+hz)/(sqrt(z*z+rr)-z);
 			   T1=(hz-z)*log(r1);
 			   G +=	T1;}
 
- 		else if (fabs(z)<1.e-10){
-			   if (fabs(x)+fabs(y)<2.0e-10)	{G +=hz*G000;} // T1+T2 in fact
+ 		else if (fabs(z)<epsz){
+			   if (fabs(x)+fabs(y)<2.*epsz)	{G +=hz*G000;} // T1+T2 in fact
 			   else {                        r1=(sqrt(hz*hz+rr)+hz)/sqrt(rr);
 				                         G += 2.*hz*log(r1);}
 					}
-		else if (fabs(z-hz)<1.0e-10){
+		else if (fabs(z-hz)<epsz){
 			   r1=(sqrt((z+hz)*(z+hz)+rr)+z+hz)/(sqrt(z*z+rr)+z);
 			   T1=(hz+z)*log(r1);
 			   G +=	T1;}
@@ -505,17 +505,17 @@ get_G2_z_linear(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 			   T2=(hz+z_image)*log(r2);
 			   G +=	T1+T2; }
 
-			else if (fabs(z_image+hz)<1.0e-10){
+			else if (fabs(z_image+hz)<epsz){
 			   r1=(sqrt((z_image-hz)*(z_image-hz)+rr)-z_image+hz)/(sqrt(z_image*z_image+rr)-z_image);
 			   T1=(hz-z_image)*log(r1);
 			   G +=	T1;}
 
- 			else if (fabs(z_image)<1.e-10){
-			   if (fabs(x)+fabs(y)<2.0e-10)	{G +=hz*G000;} // T1+T2 in fact
+ 			else if (fabs(z_image)<epsz){
+			   if (fabs(x)+fabs(y)<2.*epsz)	{G +=hz*G000;} // T1+T2 in fact
 			   else {                        r1=(sqrt(hz*hz+rr)+hz)/sqrt(rr);
 				                         G += 2.*hz*log(r1);}
 					}
-			else if (fabs(z_image-hz)<1.0e-10){
+			else if (fabs(z_image-hz)<epsz){
 			   r1=(sqrt((z_image+hz)*(z_image+hz)+rr)+z_image+hz)/(sqrt(z_image*z_image+rr)+z_image);
 			   T1=(hz+z_image)*log(r1);
 			   G +=	T1;}
@@ -527,8 +527,12 @@ get_G2_z_linear(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 							(sqrt(z_image*z_image+rr)+z_image);
 			   T2=(hz+z_image)*log(r2);
 			   G +=	T1+T2;}
-			else{ throw
-                               std::runtime_error("get_G2_z_linear error2, check if hz=h[2]");}
+			else{ 
+//                                std::cout<<"z_image="<<z_image<<"  hz="<<hz<<" z_image/hz="<<z_image/hz<<std::endl;
+// 			       std::cout<<"z_image+hz="<<z_image+hz<<std::endl;
+// 			       std::cout<<"physical size/hz="<<physical_size[2]/hz<<"  z="<<z<<" z/hz="<<z/hz<<std::endl;
+			       throw
+                                   std::runtime_error("get_G2_z_linear error2, check if hz=h[2]");}
 
 
                        }
@@ -841,13 +845,13 @@ get_G_hat2(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 {
     //step 3
 
-//     Real_scalar_field G2 = get_G2(rho, z_periodic, fftwh); // AM: after correcting a bug in the z-dimension
+     Real_scalar_field G2 = get_G2(rho, z_periodic, fftwh); // AM: after correcting a bug in the z-dimension
 							    //  of the FT, this seems to work the best!
      // Real_scalar_field G2 = get_G2_spherical(rho, z_periodic, fftwh);
 
 
-    Real_scalar_field G2 = get_G2_z_linear(rho, z_periodic, fftwh);
-    // Real_scalar_field G2 = get_G2_z_steps(rho, z_periodic, fftwh);
+    //  Real_scalar_field G2 = get_G2_z_linear(rho, z_periodic, fftwh);
+     //Real_scalar_field G2 = get_G2_z_steps(rho, z_periodic, fftwh);
 
   //  Real_scalar_field G2 = get_G2_old(rho, z_periodic, fftwh);
       Complex_scalar_field G_hat2(fftwh.padded_shape_complex().vector(),

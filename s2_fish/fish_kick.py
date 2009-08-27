@@ -4,7 +4,7 @@ from macro_bunch import get_longitudinal_period_size
 from impedance import *
 from space_charge import *
 from s2_containers import *
-from s2_solver_transverse_fftw import *
+#from s2_solver_transverse_fftw import *
 from pardebug import pardebug
 
 from mytimer import mytimer

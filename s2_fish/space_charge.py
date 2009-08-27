@@ -5,7 +5,7 @@ from s2_deposit import *
 from s2_electric_field import *
 from s2_solver_fftw import solver_fftw_open as solver_fft_open
 from s2_solver_fftw import Fftw_helper
-from s2_solver_transverse_fftw import *
+#from s2_solver_transverse_fftw import *
 from GaussSC import *
 from s2_solver_cylindrical import *
 #from s2_solver_fftw import gather_global_rho
@@ -129,9 +129,9 @@ def apply_space_charge_kick(mbunch,space_charge,tau,size=None,offset=None):
 	    shape=space_charge.get_grid()
 	    radius=space_charge.get_radius_cylindrical()
 	    apply_space_charge_kick_cylindrical(shape,radius,mbunch,tau)	    
-	elif  solver== "s2_fish_transverse":
-	    shape=space_charge.get_grid()
-            apply_space_charge_kick_orbit(shape,mbunch,tau) 
+	#elif  solver== "s2_fish_transverse":
+	    #shape=space_charge.get_grid()
+            #apply_space_charge_kick_orbit(shape,mbunch,tau) 
 	elif solver=="impact":           
 	    if not have_impact:
                     raise RuntimeError, \

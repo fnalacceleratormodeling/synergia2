@@ -39,16 +39,18 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in, space_charge=None,impedance=No
     first_action = 1
     
     apply_fish_kick=False
-    apply_impact_kick=False
-    if space_charge.get_solver()=="impact":	  
-	 if impedance:
-                  raise RuntimeError,\
-                            "impact solvers cannot currently be combined with impedance" 
-			    
-	 apply_impact_kick=True	    
-    elif (space_charge) or (impedance):
+    apply_impact_kick=False    
+    if (space_charge) or (impedance):
         apply_fish_kick=True
-
+        if space_charge:
+	    if (space_charge.get_solver()=="impact"):
+	         if impedance:
+                       raise RuntimeError,\
+                             "impact solvers cannot currently be combined with impedance"
+                 apply_impact_kick=True
+                 apply_fish_kick=False
+    
+     
     
     for action in gourmet.get_actions():
         if action.is_mapping():
