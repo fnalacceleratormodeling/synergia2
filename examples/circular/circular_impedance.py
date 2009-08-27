@@ -249,13 +249,18 @@ if ( __name__ == '__main__'):
             log.flush()
 
 
+
+    pipe_radius=0.025
     if space_charge:
-        griddim = (16,16,33)
-        solver="s2_fish_3d"
-        radius=0.1
-        sp_ch=s2_fish.SpaceCharge(solver,griddim,radius_cylindrical=radius,periodic=True)	
+        griddim = (16,16,32)
+        solver="s2_fish_cylindrical"
+	#griddim = (16,16,33)
+        #solver="s2_fish_3d"
+
+        sp_ch=s2_fish.SpaceCharge(solver,griddim,radius_cylindrical=pipe_radius,periodic=True)	
         print " sp_ch grid=",sp_ch.get_grid()
         print " sp_ch solver=",sp_ch.get_solver()
+        print " sp_ch pipe radius=",sp_ch.get_radius_cylindrical()
     else:
 	sp_ch=None    	
 
@@ -266,8 +271,7 @@ if ( __name__ == '__main__'):
    
     if impedance:
 	pipe_conduct= 1.4e6 # [ohm^-1 m^-1] (stainless steel)
-        wall_thickness=0.0114
-        pipe_radius=0.025
+        wall_thickness=0.0114        
 	pipe_symmetry=myopts.get("pipe_symmetry")
         rw_impedance=s2_fish.Impedance(pipe_radius, pipe_conduct,wall_thickness, line_length,lgridnum, pipe_symmetry)
 	#pipe_symmetry="x_parallel_plates")
