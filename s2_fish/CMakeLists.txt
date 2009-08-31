@@ -36,6 +36,8 @@ target_link_libraries(populate ${GSL_CONFIG_LIBS})
 
 add_python_extension(constraints constraints.cc constraints_wrap.cc)
 
+add_python_extension(s2_solver_transverse_fftw  solver_transverse_fftw.cc s2_solver_transverse_wrap.cc macro_bunch_store.cc)
+
 add_library(s2_solver_cyl SHARED cylindrical.cc
     field_domain.cc populate.cc ) # jfa fix this!!!!!!!!!!!!!!!!!!!!!!
 add_python_extension(s2_solver_cylindrical cylindrical_wrap.cc) # jfa fix this!!!!!!!!!!!!!!!!!!!!!!
