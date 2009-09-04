@@ -52,3 +52,9 @@ add_subdirectory(impact)
 add_subdirectory(frontend)
 
 add_subdirectory(octapy)
+
+# jfa: hardcoded!!!!
+include_directories("/usr/include/glib-2.0")
+include_directories("/usr/lib/glib-2.0/include")
+
+add_subdirectory(examples/mu2e)
