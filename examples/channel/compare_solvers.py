@@ -12,7 +12,7 @@ import pylab
 
 from mpi4py import MPI
 
-SOLVER_ORBIT = "orbit"
+SOLVER_ORBIT = "transverse2d"
 SOLVER_GAUSS  = "gauss"
 SOLVER_3D = "solver3d"
 NO_SOLVER = "no_solver"
@@ -169,7 +169,7 @@ if ( __name__ == '__main__'):
     synergia.matching.envelope_motion(widths,current,gourmet,do_plot=1,do_match=0)
    
     # Orbit solver    
-    griddim = (gridnum,gridnum,gridnum*4+1)
+    griddim = (gridnum,gridnum,gridnum*2+1)
     num_particles = gridnum*gridnum
     diag = runSolverTest(beam_parameters,mass, num_particles,current_in,gourmet,SOLVER_ORBIT,color='g')
  
@@ -179,7 +179,7 @@ if ( __name__ == '__main__'):
     
     # 3d solver
     num_particles = gridnum*gridnum*gridnum
-    #diag = runSolverTest(beam_parameters,mass,num_particles,current_in,gourmet, SOLVER_3D,color='b', periodic=True)
+    diag = runSolverTest(beam_parameters,mass,num_particles,current_in,gourmet, SOLVER_3D,color='b', periodic=True)
     #diag = runSolverTest(beam_parameters,mass,num_particles,current_in,gourmet, SOLVER_3D,color='k', periodic=False)
     
     # no space charge
@@ -187,7 +187,7 @@ if ( __name__ == '__main__'):
     diag = runSolverTest(beam_parameters,mass,num_particles,0.,gourmet, NO_SOLVER ,color='r')
     
     pylab.figure(1)
-    title = "N=%d, init w = %e, E=%s, I=%s" % (gridnum,xwidth_initial,str(kinetic_energy),str(current_in))
+    title = "N=%d, init w = %e (m), E=%s (GeV), I=%s (A)" % (gridnum,xwidth_initial,str(kinetic_energy),str(current_in))
     pylab.title(title)
     
     if do_plot == 1:

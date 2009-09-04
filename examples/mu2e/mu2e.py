@@ -25,26 +25,25 @@ if ( __name__ == '__main__'):
     #~ myopts.add("bunchlen", 0.05, "RMS bunchs length (z width) [m]", float)
     myopts.add("bunchlen", 40.0, "RMS bunch length (z width) [nanoseconds]", float)
     myopts.add("dpopoffset", 0.0, "offset in dpop", float)
-    myopts.add("kicks",1,"kicks per line",int)
-    myopts.add("turns",2,"number of turns",int)
+    myopts.add("kicks",240,"kicks per line",int)
+    myopts.add("turns",10,"number of turns",int)
     #~ myopts.add("latticefile","Debunch_modified.lat","",str)
     myopts.add("tgridnum",16,"transverse grid cells",int)
-    myopts.add("lgridnum",64,"",int)
-    myopts.add("space_charge",1,"",int)
-    myopts.add("impedance",0,"",int)
+    myopts.add("lgridnum",16,"longitudinal grid cells",int)
+    myopts.add("space_charge",1,"include space charge",int)
+    myopts.add("impedance",0,"include impedance",int)
     myopts.add("energy",8.87710994,"total energy, default taken from Debunch_modified.lat",float)
-    myopts.add("partpercell",1,"",float)
+    myopts.add("partpercell",1,"particles per cell",float)
     #~ myopts.add("current",0.5,"current",float)
     myopts.add("realnum",1.2e13,"number of real particles per bunch",float)
     myopts.add("solver","3d","solver",str)
     myopts.add("aperture",0.05,"aperture radius in m",float)
-    myopts.add("numtrack",1000,"number of particles to track",int)
-    myopts.add("solver","3d","solver (3d or 2d)",str)
-    myopts.add("rampturns",200,"sextupole ramping turns",int)
+    myopts.add("numtrack",0,"number of particles to track",int)
+    myopts.add("rampturns",0,"sextupole ramping turns",int)
     myopts.add("periodic",0,"longitudinal periodic boundary conditions",int)
     myopts.add("transverse",0,"use longitudinally uniform beam",int)
-    myopts.add("tuneh",9.63,"horizontal fractional tune",float)
-    myopts.add("tunev",9.75,"vertical fractional tune",float)
+    myopts.add("tuneh",9.745,"horizontal fractional tune",float)
+    myopts.add("tunev",9.93,"vertical fractional tune",float)
     
     myopts.add_suboptions(synergia.opts)
     myopts.parse_argv(sys.argv)
@@ -182,20 +181,21 @@ if ( __name__ == '__main__'):
         log.write("%s\n" % output)
         log.flush()
     t5total = 0
+    
     if myopts.get("solver") == "3d" or myopts.get("solver") == "3D":
-        s2_fish=True
-        gauss=False
+        space_charge_solver ="s2_fish_3d"
         if MPI.COMM_WORLD.Get_rank() ==0:
             print "using 3d solver"
     elif myopts.get("solver") == "2d" or myopts.get("solver") == "2D":
-        s2_fish=False
-        gauss=True
+        space_charge_solver = "s2_fish_gauss"
         if MPI.COMM_WORLD.Get_rank() ==0:
-            print "using 2d solver"
+            print "using 2d gauss solver"
     else:
         if MPI.COMM_WORLD.Get_rank() ==0:
             print "unknown solver",myopts.get("solver")
         sys.exit(1)
+    
+    space_charge = s2_fish.SpaceCharge(space_charge_solver, grid=griddim, periodic=myopts.get("periodic"), transverse=True)    
         
     for turn in range(1,myopts.get("turns")+1):
         t1 = time.time()
@@ -204,13 +204,9 @@ if ( __name__ == '__main__'):
             gourmet.set_sextupoles(new_sextupoles)
             gourmet.generate_actions()
 
-        s = synergia.propagate(s,gourmet,
-            bunch,diag,griddim,use_s2_fish=s2_fish,use_gauss=gauss,
-            periodic=myopts.get("periodic"),
-            impedance=impedance,space_charge=space_charge,
-            aperture=myopts.get("aperture"),
-            tracker=tracker,track_period_steps=track_period_steps,
-                               transverse=True)
+        s = synergia.propagate(s,gourmet,bunch,diag, 
+                                impedance=impedance, space_charge=space_charge,aperture=myopts.get("aperture"), 
+                                tracker=tracker,track_period_steps=track_period_steps)
         ### keep beam from moving
 #         local_sump = numpy.zeros([6],'d')
 #         global_sump = numpy.zeros([6],'d')
