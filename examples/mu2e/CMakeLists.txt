@@ -1,0 +1,11 @@
+INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${CHEF_INCLUDE_DIRS})
+include_directories(/home2/amundson/work/synergia2-proto3/install/include)
+
+LINK_DIRECTORIES(${PYTHON_LIBRARIES})
+LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
+LINK_DIRECTORIES(${CHEF_LIBRARY_DIRS})
+link_directories(/home2/amundson/work/synergia2-proto3/install/lib)
+add_python_extension(debuncher debuncher.cc)
+target_link_libraries(debuncher  ${CHEF_LIBS} ${Boost_LIBRARIES})
