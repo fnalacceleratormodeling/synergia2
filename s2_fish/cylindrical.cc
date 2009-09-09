@@ -20,7 +20,7 @@ get_cylindrical_coords(Macro_bunch_store &mbs, Array_2d<double> &coords)
                 if(y>=0.0) {
                     theta = asin(y/r);
                 } else {
-                    theta = 2*pi + asin(y/r);                  
+                    theta = 2*pi + asin(y/r);
                 }
             } else {
                 theta = pi - asin(y/r);
@@ -30,7 +30,7 @@ get_cylindrical_coords(Macro_bunch_store &mbs, Array_2d<double> &coords)
         coords(1,n) = theta;
         coords(2,n) = mbs.local_particles(4,n); // z
 
-      
+
     }
 }
 
@@ -87,7 +87,7 @@ add_to_cylindrical_cell(Array_3d<double > &rho,
         std::cout << "add_to_cylindrical_cell outside bounds: " << ir
                 << ", " << iphi
                 << ", " << iz << std::endl;
-       // ++numout;	
+       // ++numout;
     }
 }
 
@@ -238,7 +238,7 @@ deposit_charge_cic_cylindrical_old(const Cylindrical_field_domain &fdomain,
                                     1.0-left_overlap_phi,1.0-left_overlap_z,
                                     cell_size[0],cell_size[1],cell_size[2],
                                     cloud_volume);*/
-        } else {	    
+        } else {
             add_to_cylindrical_cell(rho,left_ir,left_iphi,left_iz,
                                     left_r,center_r,
                                     left_overlap_phi,left_overlap_z,
@@ -278,9 +278,9 @@ deposit_charge_cic_cylindrical(const Cylindrical_field_domain &fdomain,
     std::vector<int> shape(fdomain.get_grid_shape());
 //    std::vector<double> cell_size(fdomain.get_cell_size());
 
-    
-    rho.set_all(0.0);    
-  
+
+    rho.set_all(0.0);
+
     double cell_r=fdomain.get_cell_size()[0];
     double cell_phi=fdomain.get_cell_size()[1];
     double cell_z=fdomain.get_cell_size()[2];
@@ -292,7 +292,7 @@ deposit_charge_cic_cylindrical(const Cylindrical_field_domain &fdomain,
         double z = coords(2,n);
         fdomain.get_leftmost_indices_offsets(r,theta,z,indices,offsets);
         double weight0;
-	
+
 
        if (indices[0]>=0) {
           weight0= 1.0 / ((indices[0]+1.)*cell_r*cell_r*cell_phi*cell_z);
@@ -309,7 +309,7 @@ deposit_charge_cic_cylindrical(const Cylindrical_field_domain &fdomain,
 	            if (iphi==shape[1]) iphi=0;
                     if ((iz==shape[2]) && (z_periodic)) iz=0;
 
-                 if (rho.bounds_check(ir,iphi,iz)) { 
+                 if (rho.bounds_check(ir,iphi,iz)) {
                             rho(ir,iphi,iz) += weight;
                             total_charge_per_cell_vol += weight*((indices[0]+1.)*cell_r*cell_r*cell_phi*cell_z);
                     }
@@ -318,35 +318,35 @@ deposit_charge_cic_cylindrical(const Cylindrical_field_domain &fdomain,
               }
           }
       }
-      else if (indices[0]==-1){ 
+      else if (indices[0]==-1){
           //std::cout<<" indices="<<indices[0]<<"  "<<indices[1]<<"  "<<indices[2]<<"  "<<std::endl;
           weight0= 1.0/(pi*(0.5*cell_r)*(0.5*cell_r)*cell_z);
-          int ir=0; 
-          if (r >=1.e-20) {  
+          int ir=0;
+          if (r >=1.e-20) {
              for (int j = 0; j < 2; ++j) {
-                 for (int k = 0; k < 2; ++k) { 
+                 for (int k = 0; k < 2; ++k) {
                  double weight =weight0 *(1 - j - (1 - 2 * j) * offsets[1]) *
-                                    (1 - k - (1 - 2 * k) * offsets[2]); 
+                                    (1 - k - (1 - 2 * k) * offsets[2]);
                     int iz=indices[2] + k;
-                    int iphi=indices[1] + j; 
-                    if ((iz==shape[2]) && (z_periodic)) iz=0;                                      
-                    if (iphi==shape[1]) iphi=0;                    
-                    if (rho.bounds_check(ir,iphi,iz))  { 
+                    int iphi=indices[1] + j;
+                    if ((iz==shape[2]) && (z_periodic)) iz=0;
+                    if (iphi==shape[1]) iphi=0;
+                    if (rho.bounds_check(ir,iphi,iz))  {
                         rho(ir,iphi,iz) += weight;
                       total_charge_per_cell_vol += weight*pi*(0.5*cell_r)*(0.5*cell_r)*cell_z;
                     }
-                } 
-            } 
+                }
+            }
          } // AM: to be corrected, put r=0 distribution even on the phi grid, however small effect expected
-     
+
       }
       else {std::cout<<"error on the grid, indices[0]="<<indices[0]<<" r="<<r<<std::endl;}
 
     }
 
     //  std::cout<<"total charge= "<<total_charge_per_cell_vol<<" total number="<<mbs.local_num<<std::endl;
-	
-   
+
+
 }
 
 // Adapted from a GSL routine.
@@ -372,16 +372,16 @@ solve_tridiag_nonsym(const Array_1d<std::complex<double> > &diag,
     Array_1d<std::complex<double> > z(N);
     size_t i, j;
 
-     	
-   
+
+
 
      alpha(0) = diag(0);
      z(0) = rhs(0);
-        
+
 
      for (i = 1; i < N; ++i) {
            const std::complex<double> t = belowdiag(i)/alpha(i-1);
-           alpha(i) = diag(i) - abovediag(i - 1)*t;    //*belowdiag(i)/alpha(i-1);                    
+           alpha(i) = diag(i) - abovediag(i - 1)*t;    //*belowdiag(i)/alpha(i-1);
 
            if (alpha(i) == 0.0) {
                throw
@@ -392,7 +392,7 @@ solve_tridiag_nonsym(const Array_1d<std::complex<double> > &diag,
 
      }
 
-    	
+
 	/* Now back substitute. */
        x(N - 1) = z(N - 1)/alpha(N - 1);
       if (N >= 2) {
@@ -401,7 +401,7 @@ solve_tridiag_nonsym(const Array_1d<std::complex<double> > &diag,
           }
       }
 
-    
+
 }
 
 
@@ -444,116 +444,77 @@ array_2d_to_octave_file_imag(const Array_2d<std::complex<double> > &array, const
 
 void
 solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
-    Array_3d<double > &rho, Array_3d<double> &phi)
+		Array_3d<double > &rho, Array_3d<double> &phi)
 {
 
-    std::vector<int> shape = fdomain.get_grid_shape();
-    double z_length = fdomain.get_length();
-    // the shape of the FFT'd array (shape_lm) is halved in the third
-    // dimension because of the peculiar (but efficient) way FFTW does
-    // real-to-complex transforms.
-    std::vector<int> shape_lm = vector3(shape[0],shape[1],shape[2]/2+1);
-    Array_3d<std::complex<double> > rho_lm(shape_lm);
+	std::vector<int> shape = fdomain.get_grid_shape();
+	double z_length = fdomain.get_length();
+	// the shape of the FFT'd array (shape_lm) is halved in the third
+	// dimension because of the peculiar (but efficient) way FFTW does
+	// real-to-complex transforms.
+	std::vector<int> shape_lm = vector3(shape[0],shape[1],shape[2]/2+1);
+	Array_3d<std::complex<double> > rho_lm(shape_lm);
 
-    fftw_plan plan = fftw_plan_many_dft_r2c(2,
-        &shape[1], shape[0],
-        rho.get_data_ptr(),
-        NULL, 1, shape[1]*shape[2],
-        reinterpret_cast<double (*)[2]>(rho_lm.get_data_ptr()),
-        NULL, 1, shape_lm[1]*shape_lm[2],
-        FFTW_ESTIMATE);
-    fftw_execute(plan);
+	fftw_plan plan = fftw_plan_many_dft_r2c(2,
+			&shape[1], shape[0],
+			rho.get_data_ptr(),
+			NULL, 1, shape[1]*shape[2],
+			reinterpret_cast<double (*)[2]>(rho_lm.get_data_ptr()),
+			NULL, 1, shape_lm[1]*shape_lm[2],
+			FFTW_ESTIMATE);
+	fftw_execute(plan);
 
-    Array_1d<std::complex<double> > diag(shape_lm[0]);
-    Array_1d<std::complex<double> > above_diag(shape_lm[0]);
-    Array_1d<std::complex<double> > below_diag(shape_lm[0]);
-    Array_3d<std::complex<double> > phi_lm(shape_lm);
-  //  Array_3d<std::complex<double> > phi_lm_tmp(shape_lm);
-    double deltar = fdomain.get_radius()/
-        (fdomain.get_grid_shape()[0]+0.5);
+	Array_1d<std::complex<double> > diag(shape_lm[0]);
+	Array_1d<std::complex<double> > above_diag(shape_lm[0]);
+	Array_1d<std::complex<double> > below_diag(shape_lm[0]);
+	Array_3d<std::complex<double> > phi_lm(shape_lm);
+	double deltar = fdomain.get_radius()/(fdomain.get_grid_shape()[0]+0.5);
 
-    phi_lm.set_all(0.);
-  //  phi_lm_tmp.set_all(0.);
-    diag.set_all(0.);
-    above_diag.set_all(0.);
-    below_diag.set_all(0.);
+	phi_lm.set_all(0.);
+	diag.set_all(0.);
+	above_diag.set_all(0.);
+	below_diag.set_all(0.);
 
-    double r;
-    //   for(int kl=-2; kl< 3; ++kl) {	
-         for(int l=0; l<shape_lm[1]; ++l) {
-        //   int wavenumber_l = l+kl*shape[1];
-             int wavenumber_l = (l+shape_lm[1]/2) % shape_lm[1] -
-                  shape_lm[1]/2;
+	double r;
+	for(int l=0; l<shape_lm[1]; ++l) {
+		int wavenumber_l = (l+shape_lm[1]/2) % shape_lm[1] -
+		shape_lm[1]/2;
+		for(int m=0; m<shape_lm[2]; ++m) {
+			int wavenumber_m = (m+shape_lm[2]/2) % shape_lm[2] -
+			shape_lm[2]/2;
+			for(int i=0; i<shape_lm[0]; ++i) {
+				r = (i+0.5)*deltar;
+				diag(i) = -2.0/(deltar*deltar);
+				diag(i) += - wavenumber_l*wavenumber_l/(r*r)
+				-(2*pi*wavenumber_m/z_length)*(2*pi*wavenumber_m/z_length);
+				if (i<(shape_lm[0]-1)) {
+					above_diag.at(i) = 1.0/(deltar*deltar) + 1.0/(2*deltar*r);
+				}
+				if (i>0) {
+					below_diag.at(i) = 1.0/(deltar*deltar) - 1.0/(2*deltar*r);
+				}
+			}
+			Array_1d<std::complex<double> > rhs =
+				rho_lm.slice(Range(),Range(l),Range(m));
+			Array_1d<std::complex<double> > x =
+				phi_lm.slice(Range(),Range(l),Range(m));
+			x.set_all(0.);
+			solve_tridiag_nonsym(diag,above_diag,below_diag,
+					rhs,x);
+		}
+	}
 
-          //  for(int km=-2; km< 3; ++km) {
-            for(int m=0; m<shape_lm[2]; ++m) {
-              // int wavenumber_m = m+km*shape[2];
-               int wavenumber_m = (m+shape_lm[2]/2) % shape_lm[2] -
-                  shape_lm[2]/2;
-
-               for(int i=0; i<shape_lm[0]; ++i) {
-
-                 r = (i+0.5)*deltar;
-		 diag(i) = -2.0/(deltar*deltar); 
-                
-
-          
- 		
- 
-		
-                  diag(i) += - wavenumber_l*wavenumber_l/(r*r) 
-                          -(2*pi*wavenumber_m/z_length)*(2*pi*wavenumber_m/z_length);                   
-
-                  if (i<(shape_lm[0]-1)) {
-                      above_diag.at(i) = 1.0/(deltar*deltar) + 1.0/(2*deltar*r);
-                   }
-
-                   if (i>0) {
-                  //  below_diag.at(i-1) += 1.0/(deltar*deltar) - 1.0/(2*deltar*r); 
-                      below_diag.at(i) = 1.0/(deltar*deltar) - 1.0/(2*deltar*r); 
-
-                    }
-
-               }
-            
-
-
-
-        Array_1d<std::complex<double> > rhs =
-            rho_lm.slice(Range(),Range(l),Range(m));        
-	//phi_lm_tmp.set_all(0.0);
-        Array_1d<std::complex<double> > x =
-         //  phi_lm_tmp.slice(Range(),Range(l),Range(m));
-           phi_lm.slice(Range(),Range(l),Range(m));
-	  x.set_all(0.); 
-          solve_tridiag_nonsym(diag,above_diag,below_diag,
-            rhs,x);    
-
-       
-
-// 	   for (int i=0; i<shape[0];++i) {
-//               phi_lm(i,l, m) += phi_lm_tmp(i,l,m);
-//            }
-      //     }
-          }
-      //}
-    }
- 
-       
-
-    plan = fftw_plan_many_dft_c2r(2,
-        &shape[1], shape_lm[0],
-        reinterpret_cast<double (*)[2]>(phi_lm.get_data_ptr()),
-        NULL, 1, shape_lm[1]*shape_lm[2],
-        phi.get_data_ptr(),
-        NULL, 1, shape[1]*shape[2],
-        FFTW_ESTIMATE);
-    fftw_execute(plan);
-    // FFTW transforms are not normalized. We need to apply the normalization
-    // manually.
-    phi.scale(1.0/(shape[1]*shape[2]));
-  
-
+	plan = fftw_plan_many_dft_c2r(2,
+			&shape[1], shape_lm[0],
+			reinterpret_cast<double (*)[2]>(phi_lm.get_data_ptr()),
+			NULL, 1, shape_lm[1]*shape_lm[2],
+			phi.get_data_ptr(),
+			NULL, 1, shape[1]*shape[2],
+			FFTW_ESTIMATE);
+	fftw_execute(plan);
+	// FFTW transforms are not normalized. We need to apply the normalization
+	// manually.
+	phi.scale(1.0/(shape[1]*shape[2]));
 }
 
 
@@ -564,7 +525,7 @@ calculate_E_cylindrical(const Cylindrical_field_domain &fdomain,
                           Array_3d<double> &Ex,
                           Array_3d<double> &Ey,
                           Array_3d<double> &Ez)
-{ //std::cout<< " begin E_cylindrical"<<std::endl;	
+{ //std::cout<< " begin E_cylindrical"<<std::endl;
     std::vector<int> shape = phi.get_shape();
    //double theta_step = 2.0*pi/(shape[1]-1);
     double theta_step = 2.0*pi/shape[1];
@@ -606,18 +567,18 @@ calculate_E_cylindrical(const Cylindrical_field_domain &fdomain,
 //           if(i_r == shape[0]-1) {
 //              r_right = shape[0]-1;
 //          }
-// 	 if (!phi.bounds_check(r_right,i_theta,i_z)) { std::cout<<"out of bounds phi1"<<std::endl;  
+// 	 if (!phi.bounds_check(r_right,i_theta,i_z)) { std::cout<<"out of bounds phi1"<<std::endl;
 //          std::cout<<"r_right="<<r_right<<" i_theta="<<i_theta<<"  i_z="<<i_z<<std::endl;; abort();}
 //          if (!phi.bounds_check(r_left,i_theta,i_z)) { std::cout<<"out of bounds phi2"<<std::endl;  abort();}
-//          if (!phi.bounds_check(i_r,theta_right,i_z)) { std::cout<<"out of bounds phi3"<<std::endl;  abort();} 
+//          if (!phi.bounds_check(i_r,theta_right,i_z)) { std::cout<<"out of bounds phi3"<<std::endl;  abort();}
 //          if (!phi.bounds_check(i_r,theta_left,i_z)) { std::cout<<"out of bounds phi4"<<std::endl;  abort();}
-//          if (!phi.bounds_check(i_r,i_theta,z_right)) { std::cout<<"out of bounds phi5"<<std::endl; 
+//          if (!phi.bounds_check(i_r,i_theta,z_right)) { std::cout<<"out of bounds phi5"<<std::endl;
 //                   std::cout<<"i_r="<<i_r<<" i_theta="<<i_theta<<"  z_right="<<z_right<<std::endl;
 //                                   abort();}
 //          if (!phi.bounds_check(i_r,i_theta,z_left)) { std::cout<<"out of bounds phi6"<<std::endl;  abort();}
 
 
-               
+
 	       double dphi_dr;
                if(i_r == shape[0]-1) {dphi_dr=- phi(r_left,i_theta,i_z)/(r_step); // because phi(shape[0],i_theta,i_z)=0
                 }
@@ -635,9 +596,9 @@ calculate_E_cylindrical(const Cylindrical_field_domain &fdomain,
 	    abort();}*/
 
                 Ex(i_r,i_theta,i_z) = cos(theta)*dphi_dr - sin(theta)*dphi_dtheta/r;
-                Ey(i_r,i_theta,i_z) = sin(theta)*dphi_dr + cos(theta)*dphi_dtheta/r;              
+                Ey(i_r,i_theta,i_z) = sin(theta)*dphi_dr + cos(theta)*dphi_dtheta/r;
                 Ez(i_r,i_theta,i_z) = dphi_dz;
-             
+
             }
         }
     }
@@ -696,7 +657,7 @@ interpolate_3d_cyl(double x1, double x2, double x3,
                const Cylindrical_field_domain &fdomain,
                const Array_3d<double> &points)
 {
-    
+
     std::vector<int> shape=fdomain.get_grid_shape();
     std::vector<int> c(3); // c for corner
     std::vector<double> f(3); // f for fractional difference
@@ -707,37 +668,37 @@ interpolate_3d_cyl(double x1, double x2, double x3,
     int c0p=c0+1;
     int c1p=c1+1;
     int c2p=c2+1;
-    	
 
-    if(c1p==shape[1]) c1p=0;	
+
+    if(c1p==shape[1]) c1p=0;
     if(c2p==shape[2]) c2p=0;
-	
+
 //     std::cout<<"shape="<<shape[0]<<"  "<<shape[1]<<"  "<<shape[2]<<std::endl;
 //     std::cout<<"c0= "<<c0<<"  c1= "<<c1<<"  c2= "<<c2<<std::endl;
 //     std::cout<<"c0p= "<<c0p<<"  c1p= "<<c1p<<"  c2p= "<<c2p<<std::endl;
 
     double val;
 
-    if ((c0>=0) && (c0<shape[0])) { 
-	 
+    if ((c0>=0) && (c0<shape[0])) {
+
 // 	    if ((!points.bounds_check(c0,c1,c2)) || (!points.bounds_check(c0,c1p,c2)) || (!points.bounds_check(c0,c1,c2p)) || (!points.bounds_check(c0,c1p,c2p))) { std::cout<<"out of bounds 1"<<std::endl;
 // 	    std::cout<<"c0="<<c0<<"  c1="<<c1<<"  c2="<<c2<<"  c1p="<<c1p<<" c2p="<<c2p<<std::endl;
 //             std::cout<<std::setprecision(18)<<"x1="<<x1<<"  x2="<<x2<<"  x3="<<x3<<"  0.5 length="<<0.5*fdomain.get_length()<<std::endl;
 //             std::cout<<"shape ="<<shape[0]<<" "<<shape[1]<<" "<<shape[2]<<std::endl;
 // 	    return 0.;}
-            val = ((1.0 - f[0]) * (1.0 - f[1]) * (1.0 - f[2]) * points.at(c0,c1,c2) +            
+            val = ((1.0 - f[0]) * (1.0 - f[1]) * (1.0 - f[2]) * points.at(c0,c1,c2) +
             (1.0 - f[0]) * f[1] * (1.0 - f[2]) * points.at(c0, c1p, c2) +
             (1.0 - f[0]) * (1.0 - f[1]) * f[2] * points.at(c0, c1, c2p) +
             (1.0 - f[0]) * f[1] * f[2] * points.at(c0, c1p, c2p));
-            
- 
-          if (c0p<shape[0]){ 
+
+
+          if (c0p<shape[0]){
 //                               if ((!points.bounds_check(c0p,c1,c2)) || (!points.bounds_check(c0p,c1p,c2)) || (!points.bounds_check(c0p,c1,c2p)) || (!points.bounds_check(c0p,c1p,c2p))) { std::cout<<"out of bounds 2"<<std::endl;
 //                         std::cout<<"c0p="<<c0p<<"  c1="<<c1<<"  c2="<<c2<<"  c1p="<<c1p<<" c2p="<<c2p<<std::endl;
 // 			std::cout<<std::setprecision(18)<<"x1="<<x1<<"  x2="<<x2<<"  x3="<<x3<<"  0.5 length="<<0.5*fdomain.get_length()<<std::endl;
 //                         std::cout<<"shape ="<<shape[0]<<" "<<shape[1]<<" "<<shape[2]<<std::endl;
-//          
-// 
+//
+//
 // 	                       return 0.;}
 
 	                    val +=   (f[0] * (1.0 - f[1]) * (1.0 - f[2]) * points.at(c0p, c1, c2) +
@@ -746,20 +707,20 @@ interpolate_3d_cyl(double x1, double x2, double x3,
                             f[0] * f[1] * f[2] * points.at(c0p, c1p, c2p));}
      }
      else if (c0==-1) {
-         
+
 // 		if ((!points.bounds_check(0,c1,c2)) || (!points.bounds_check(0,c1p,c2)) || (!points.bounds_check(0,c1,c2p)) || (!points.bounds_check(0,c1p,c2p))) { std::cout<<"out of bounds 3"<<std::endl;
 //              std::cout<<"  c1="<<c1<<"  c2="<<c2<<"  c1p="<<c1p<<" c2p="<<c2p<<std::endl;
 //             std::cout<<std::setprecision(18)<<"x1="<<x1<<"  x2="<<x2<<"  x3="<<x3<<"  0.5 length="<<0.5*fdomain.get_length()<<std::endl;
 //             std::cout<<"shape ="<<shape[0]<<" "<<shape[1]<<" "<<shape[2]<<std::endl;
-// 
-// 
-// 
+//
+//
+//
 // 	                       return 0.;}
- 
-            val = ((1.0 - f[1]) * (1.0 - f[2]) * points.at(0,c1,c2) +            
+
+            val = ((1.0 - f[1]) * (1.0 - f[2]) * points.at(0,c1,c2) +
             f[1] * (1.0 - f[2]) * points.at(0, c1p, c2) +
             (1.0 - f[1]) * f[2] * points.at(0, c1, c2p) +
-            f[1] * f[2] * points.at(0, c1p, c2p));     
+            f[1] * f[2] * points.at(0, c1p, c2p));
      }
    //  else{ std::cout<<" indices[0] error, in interoplation, indices[0]="<<c[0]<<std::endl;}
 
@@ -782,12 +743,12 @@ full_kick_cylindrical(const Cylindrical_field_domain &fdomain,
 
 
 
- 
+
     double gamma = -1. * mbs.ref_particle(5);
     double beta = sqrt(gamma * gamma - 1.0) / gamma;
     const  double c = PH_MKS_c;
     double mass = mbs.mass * 1.0e9;
-    double eps0 = PH_MKS_eps0; 
+    double eps0 = PH_MKS_eps0;
 
 
 
@@ -796,9 +757,9 @@ full_kick_cylindrical(const Cylindrical_field_domain &fdomain,
       the force on a charge q is
 	Fx=q * E'x/gamma =q * Ex/gamma^2
 	Fy=q * E'y/gamma=q * Ey/gamma^2
-	Fz=q * E'z = q *Ez	
-	
-	the kick in the 3rd direction is a kick of p_t, not p_z	
+	Fz=q * E'z = q *Ez
+
+	the kick in the 3rd direction is a kick of p_t, not p_z
 	p_t=-U ==> dp_t/dt=-betaz * dpz/dt-betax *dpx/dt-betay*dpy/dt =~ -beta*dpz/dt
 */
 
@@ -812,23 +773,23 @@ full_kick_cylindrical(const Cylindrical_field_domain &fdomain,
     double xyfactor =tau*factor;
     double zfactor =-tau*factor*beta*gamma;
 
- 
- 
+
+
     for (int n = 0; n < mbs.local_num; ++n) {
         double r = coords(0,n);
         double theta = coords(1,n);
         double z = coords(2,n);
-     
-       
+
+
         mbs.local_particles(1,n) += xyfactor*
                 interpolate_3d_cyl(r,theta,z,fdomain,Ex);
-      
+
         mbs.local_particles(3,n) += xyfactor*
                 interpolate_3d_cyl(r,theta,z,fdomain,Ey);
-    
+
         mbs.local_particles(5,n) += zfactor*
                 interpolate_3d_cyl(r,theta,z,fdomain,Ez);
-   
+
     }
 
 }
