@@ -9,7 +9,7 @@ from s2_solver_transverse_fftw import *
 from GaussSC import *
 from s2_solver_cylindrical import *
 #from s2_solver_fftw import gather_global_rho
-from macro_bunch import get_longitudinal_period_size
+#from macro_bunch import get_longitudinal_period_size
 import constraints
 
 have_impact = False
@@ -52,7 +52,7 @@ def apply_space_charge_kick_fftw(shape,bunch,tau,periodic,transverse,size=None,o
             offset = list(means)
  
         if periodic:
-            size[2] = get_longitudinal_period_size(bunch)
+            size[2] = bunch.get_longitudinal_period_size()
             offset[2] = 0
        # mytimer("diagnostics")
 	
@@ -89,7 +89,7 @@ def apply_space_charge_kick_gauss(mbunch,tau):
 def apply_space_charge_kick_cylindrical(shape,radius,mbunch,tau):
 	coords = numpy.zeros((3,mbunch.local_num),'d')
 	get_cylindrical_coords(mbunch.get_store(),coords)
-        length = get_longitudinal_period_size(mbunch)
+        length = mbunch.get_longitudinal_period_size()
 	physical_size = [radius,2*math.pi,length]
         physical_offset = [0.0,0.0,physical_size[2]/2.0]
         periodic = [False,True,True]

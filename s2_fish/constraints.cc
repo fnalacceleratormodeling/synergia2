@@ -3,24 +3,24 @@
 #include <mpi.h>
 #include "math_constants.h"
 
-void
-apply_longitudinal_periodicity_t(Macro_bunch_store &mbs)
-{
-    Array_1d<double> z = mbs.local_particles.slice(vector2(Range(4), Range()));
-    for (Array_1d<double>::Iterator it = z.begin();
-            it != z.end();
-            ++it) {
-        double tmp = *it + pi;
-        if (tmp > 0) {
-            *it = fmod(tmp, 2.0 * pi) - pi;
-        } else {
-            *it = fmod(tmp, 2.0 * pi) + pi;
-        }
-    }
-}
+// void
+// apply_longitudinal_periodicity_t(Macro_bunch_store &mbs)
+// {
+//     Array_1d<double> z = mbs.local_particles.slice(vector2(Range(4), Range()));
+//     for (Array_1d<double>::Iterator it = z.begin();
+//             it != z.end();
+//             ++it) {
+//         double tmp = *it + pi;
+//         if (tmp > 0) {
+//             *it = fmod(tmp, 2.0 * pi) - pi;
+//         } else {
+//             *it = fmod(tmp, 2.0 * pi) + pi;
+//         }
+//     }
+// }
 
 void
-apply_longitudinal_periodicity_z(Macro_bunch_store &mbs, double length)
+apply_longitudinal_periodicity(Macro_bunch_store &mbs, double length)
 {   
     double half_length=0.5*length;	
     Array_1d<double> z = mbs.local_particles.slice(vector2(Range(4), Range()));

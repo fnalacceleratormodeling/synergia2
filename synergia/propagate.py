@@ -19,7 +19,7 @@ def listify(x):
 
 last_step_length = 0
 def propagate(s0,gourmet,bunch_in,diagnostics_in, space_charge=None,impedance=None,
-  periodic_bunch=True, aperture=None,	bunch_spacing=None, track_period_steps=None,tracker=None, quiet=1):
+  aperture=None, bunch_spacing=None, track_period_steps=None,tracker=None, quiet=1):
   
     bunches = listify(bunch_in)
     diagnosticss = listify(diagnostics_in)
@@ -82,7 +82,7 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in, space_charge=None,impedance=No
 		if apply_fish_kick: 
 		#~ 	s2_fish.apply_kick is in fish_kick.py
 		    s2_fish.apply_kick(bunches, 2*tau,space_charge=space_charge,
-                        impedance=impedance, periodic_bunch=periodic_bunch,aperture=aperture) 
+                        impedance=impedance,aperture=aperture) 
 		elif apply_impact_kick:
 		     apply_space_charge_kick(bunch,space_charge,tau)	#it skips aperture and periodic on the bunch               
 		#for (diagnostics,bunch) in zip(diagnosticss2,bunches):
