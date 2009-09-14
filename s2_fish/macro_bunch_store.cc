@@ -6,7 +6,7 @@ using namespace boost::python;
 
 Macro_bunch_store::Macro_bunch_store(numeric::array& numeric_local_particles,
                                      int local_num, int total_num,
-                                     double mass, int charge, double total_current,
+                                     double mass, int charge, double total_current, double bunch_np,
                                      numeric::array& numeric_units,
                                      numeric::array& numeric_ref_particle,
                                      bool is_fixedz)
@@ -22,6 +22,7 @@ Macro_bunch_store::Macro_bunch_store(numeric::array& numeric_local_particles,
     this->mass = mass;
     this->charge = charge;
     this->total_current = total_current;
+    this->bunch_np = bunch_np;
     this->is_fixedz = is_fixedz;
 }
 

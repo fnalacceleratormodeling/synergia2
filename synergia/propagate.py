@@ -43,15 +43,15 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in, space_charge=None,impedance=No
     if (space_charge) or (impedance):
         apply_fish_kick=True
         if space_charge:
-	    if (space_charge.get_solver()=="impact"):
-	         if impedance:
+            if (space_charge.get_solver()=="impact"):
+                if impedance:
                        raise RuntimeError,\
                              "impact solvers cannot currently be combined with impedance"
-                 apply_impact_kick=True
-                 apply_fish_kick=False
+                apply_impact_kick=True
+                apply_fish_kick=False
     
      
-    
+   
     for action in gourmet.get_actions():
         if action.is_mapping():
             for bunch in bunches:
@@ -68,23 +68,23 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in, space_charge=None,impedance=No
                         mbunch.local_num = mbs.local_num
                         mbunch.total_num = mbs.total_num
                 if not first_action:
-		    if tracker:
-		        if steps % track_period_steps == 0:
-		           for (bunch,tracker) in zip(bunches,trackers):
-			       tracker.add(bunch,s)			
-		    for (diagnostics,bunch) in zip(diagnosticss,bunches):
-                        diagnostics.add(s,bunch)
+                    if tracker:
+                         if steps % track_period_steps == 0:
+                             for (bunch,tracker) in zip(bunches,trackers):
+                                 tracker.add(bunch,s)			
+                    for (diagnostics,bunch) in zip(diagnosticss,bunches):
+                            diagnostics.add(s,bunch)
                     if not quiet:
                         print "finished space charge kick"
                 steps += 1
             elif action.get_synergia_action() == "space charge kick":
                 tau = last_step_length
-		if apply_fish_kick: 
+                if apply_fish_kick: 
 		#~ 	s2_fish.apply_kick is in fish_kick.py
-		    s2_fish.apply_kick(bunches, 2*tau,space_charge=space_charge,
+                    s2_fish.apply_kick(bunches, 2.*tau,space_charge=space_charge,
                         impedance=impedance,aperture=aperture) 
-		elif apply_impact_kick:
-		     apply_space_charge_kick(bunch,space_charge,tau)	#it skips aperture and periodic on the bunch               
+                elif apply_impact_kick:
+                    apply_space_charge_kick(bunch,space_charge,tau)	#it skips aperture and periodic on the bunch               
 		#for (diagnostics,bunch) in zip(diagnosticss2,bunches):
                         #diagnostics.add(s,bunch)	
             elif action.get_synergia_action() == "rfcavity1" or \
@@ -104,4 +104,5 @@ def propagate(s0,gourmet,bunch_in,diagnostics_in, space_charge=None,impedance=No
         else:
             print "action",action.get_type(),"unknown"
         first_action = 0
+   
     return s
