@@ -17,13 +17,11 @@ SOLVER_GAUSS  = "gauss"
 SOLVER_3D = "solver3d"
 NO_SOLVER = "no_solver"
 
-def runSolverTest(beam_parameters,mass,num_particles,current_in,gourmet, solver_type,color='k', periodic = True):
-    current=current_in
+def runSolverTest(beam_parameters,mass,num_particles,bunchnp,gourmet, solver_type,color='k', periodic = True):
     print "\n***************** testing ",solver_type
     print "num_particles =",num_particles
     print "griddim =",griddim
-    bunch = s2_fish.Macro_bunch(mass,1)
-    bunch.init_gaussian(num_particles,current,beam_parameters)
+    bunch = s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,periodic=True)
     #modify_test_particles(bunch)
     diag = synergia.Diagnostics(gourmet.get_initial_u())
     t0=time.time()
@@ -48,7 +46,7 @@ def runSolverTest(beam_parameters,mass,num_particles,current_in,gourmet, solver_
 	  
     print "elapsed time =",time.time() - t0,"on rank", MPI.COMM_WORLD.Get_rank()
     solver_type_label=solver_type
-    if current_in==0:
+    if bunchnp==0:
         solver_type_label="no spc"     
     pylab.figure(1)
     pylab.xlabel('s (m)')
@@ -135,7 +133,7 @@ if ( __name__ == '__main__'):
     
     beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
                                          initial_phase, scaling_frequency,
-                                         transverse=1)
+                                         transverse=1, adjust_zlength_to_freq=1)
     betagamma=beam_parameters.get_beta()*beam_parameters.get_gamma() 
     beam_parameters.z_peaks = 1
     
@@ -163,31 +161,36 @@ if ( __name__ == '__main__'):
     sigma_z_meters = beam_parameters.get_beta()*synergia.PH_MKS_c/scaling_frequency/math.pi
     beam_parameters.z_params(sigma = sigma_z_meters, lam = dpop* pz)
     sys.stdout.flush()
-  
+    
+
+    bunchnp = 1.0e9 #number of particles per bunch
+
+
+    ### Envelope equation ###
     widths=[xwidth,xpwidth,rx,ywidth,ypwidth,ry]
-    current=current_in
+    current = bunchnp*synergia.physics_constants.PH_MKS_e*beam_parameters.get_beta()*\
+                synergia.physics_constants.PH_MKS_c/beam_parameters.get_z_length()  
     synergia.matching.envelope_motion(widths,current,gourmet,do_plot=1,do_match=0)
    
-    # Orbit solver    
+    ### Orbit solver ###    
     griddim = (gridnum,gridnum,gridnum*2+1)
     num_particles = gridnum*gridnum
-    diag = runSolverTest(beam_parameters,mass, num_particles,current_in,gourmet,SOLVER_ORBIT,color='g')
+    diag = runSolverTest(beam_parameters,mass, num_particles,bunchnp,gourmet,SOLVER_ORBIT,color='g')
  
-    # Gauss solver
+    ### Gauss solver ###
     num_particles = gridnum*gridnum
-    diag = runSolverTest(beam_parameters,mass, num_particles, current_in,gourmet,SOLVER_GAUSS)
+    diag = runSolverTest(beam_parameters,mass, num_particles,bunchnp,gourmet,SOLVER_GAUSS)
     
-    # 3d solver
+    ### 3d solver ###
     num_particles = gridnum*gridnum*gridnum
-    diag = runSolverTest(beam_parameters,mass,num_particles,current_in,gourmet, SOLVER_3D,color='b', periodic=True)
-    #diag = runSolverTest(beam_parameters,mass,num_particles,current_in,gourmet, SOLVER_3D,color='k', periodic=False)
+    #diag = runSolverTest(beam_parameters,mass,num_particles,bunchnp,gourmet, SOLVER_3D,color='b', periodic=True)
     
-    # no space charge
+    ### No space charge ###
     num_particles = gridnum
     diag = runSolverTest(beam_parameters,mass,num_particles,0.,gourmet, NO_SOLVER ,color='r')
     
     pylab.figure(1)
-    title = "N=%d, init w = %e (m), E=%s (GeV), I=%s (A)" % (gridnum,xwidth_initial,str(kinetic_energy),str(current_in))
+    title = "N=%d, init w = %e (m), E=%s (GeV), I=%s (A)" % (gridnum,xwidth_initial,str(kinetic_energy),str(current))
     pylab.title(title)
     
     if do_plot == 1:

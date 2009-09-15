@@ -39,7 +39,7 @@ if ( __name__ == '__main__'):
     myopts.add("solver","3d","solver",str)
     myopts.add("aperture",0.05,"aperture radius in m",float)
     myopts.add("numtrack",0,"number of particles to track",int)
-    myopts.add("rampturns",0,"sextupole ramping turns",int)
+    myopts.add("rampturns",30,"sextupole ramping turns",int)
     myopts.add("periodic",0,"longitudinal periodic boundary conditions",int)
     myopts.add("transverse",0,"use longitudinally uniform beam",int)
     myopts.add("tuneh",9.745,"horizontal fractional tune",float)
@@ -69,7 +69,6 @@ if ( __name__ == '__main__'):
     lgridnum = myopts.get("lgridnum")
     griddim = (tgridnum,tgridnum,lgridnum)
     num_particles = int(griddim[0]*griddim[1]*griddim[2] * part_per_cell)
-    solver = "3d"
     
  #   pipe_conduct= 1.4e6 # [ohm^-1 m^-1] (stainless steel)
     
@@ -111,7 +110,7 @@ if ( __name__ == '__main__'):
     
     beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
                                          initial_phase, scaling_frequency,
-                                         transverse=myopts.get("transverse"))
+                                         transverse=myopts.get("transverse"), adjust_zlength_to_freq=1)
     betagamma=beam_parameters.get_beta()*beam_parameters.get_gamma() 
 
     emittance = myopts.get("emittance95_over_pi")*math.pi*1.0e-6/(6.0*math.pi*betagamma)
@@ -158,12 +157,16 @@ if ( __name__ == '__main__'):
         tau = 1.0 # not used!!!
     kick_time = 0.0
     beta = beam_parameters.get_beta()
-    current = myopts.get("realnum")*synergia.PH_MKS_e*scaling_frequency
-    if write_output:
-        print "current =",current
     
-    bunch = s2_fish.Macro_bunch(mass,1)
-    bunch.init_gaussian(num_particles,current,beam_parameters)
+    bunchnp = 1.0e9;
+    bunch = s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,periodic=True)
+    
+    #current = myopts.get("realnum")*synergia.PH_MKS_e*scaling_frequency
+    #if write_output:
+    #    print "current =",current
+    
+    #bunch = s2_fish.Macro_bunch(mass,1)
+    #bunch.init_gaussian(num_particles,current,beam_parameters)
     bunch.write_particles("begin")
 
     if myopts.get("numtrack") > 0:
@@ -187,9 +190,9 @@ if ( __name__ == '__main__'):
         if MPI.COMM_WORLD.Get_rank() ==0:
             print "using 3d solver"
     elif myopts.get("solver") == "2d" or myopts.get("solver") == "2D":
-        space_charge_solver = "s2_fish_gauss"
+        space_charge_solver = "s2_fish_transverse"
         if MPI.COMM_WORLD.Get_rank() ==0:
-            print "using 2d gauss solver"
+            print "using 2d transverse solver"
     else:
         if MPI.COMM_WORLD.Get_rank() ==0:
             print "unknown solver",myopts.get("solver")
