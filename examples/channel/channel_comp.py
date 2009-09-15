@@ -228,7 +228,8 @@ if ( __name__ == '__main__'):
     kick_time = 0.0
     
     solver="s2_fish_3d"
-    sp_ch=s2_fish.SpaceCharge(solver,grid=griddim,periodic=True)
+    periodic_solver=bunch.periodic
+    sp_ch=s2_fish.SpaceCharge(solver,grid=griddim,periodic=periodic_solver)
   
     t0=time.time()
     s= synergia.propagate(0.0,gourmet, bunch,diag, space_charge=sp_ch)
