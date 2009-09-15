@@ -83,13 +83,12 @@ if ( __name__ == '__main__'):
  
     beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
                                          initial_phase, scaling_frequency_Hz=scaling_frequency,
-                                         transverse=1, adjust_zlength_to_freq=1)    
+                                         transverse=1, adjust_zlength_to_freq=0)    
                                                                         
                                                                         
     
     bunchnp= myopts.get("bunchnp")
-    current_in = bunchnp*synergia.physics_constants.PH_MKS_e *beam_parameters.scaling_frequency_Hz 
-                                                                    
+   
     betagamma=beam_parameters.get_beta()*beam_parameters.get_gamma() 
 
     (alpha_x, alpha_y, beta_x, beta_y) = synergia.matching.get_alpha_beta(gourmet)
@@ -120,8 +119,31 @@ if ( __name__ == '__main__'):
     
     
     widths=[xwidth,xpwidth,rx,ywidth,ypwidth,ry]
-   
-    current=current_in
+    
+    if MPI.COMM_WORLD.Get_rank() == 0:
+      
+       # print "We will use a", solver, "solver"
+        print "Beam Beta", beam_parameters.get_beta()
+        print "Beam Gamma", beam_parameters.get_gamma()
+        print "Betagamma and inverse betagamma",betagamma,1./betagamma
+        
+    pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
+    beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = rx,offset=xoffset)
+    beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,r = ry)
+    sigma_z_meters = beam_parameters.get_beta()*synergia.PH_MKS_c/scaling_frequency/math.pi
+    z_length=0.00033
+    beam_parameters.z_params(sigma = sigma_z_meters, z_length=z_length,lam = dpop* pz)  
+        
+ 
+# **********************************************************************
+# ********** envelope equation ***********************************************
+    if (beam_parameters.get_z_length()==None):
+        raise RuntimeError, "make the beam transverse for envelope equation"
+    
+    current = bunchnp*synergia.physics_constants.PH_MKS_e*beam_parameters.get_beta()* \
+                 synergia.physics_constants.PH_MKS_c/beam_parameters.get_z_length()  
+                 
+    print " CURRENT =",current
     retval=synergia.matching.envelope_motion(widths,current,gourmet,do_plot=1,do_match=0)
     
     #~for testing, only for matched beam with no space charge when sigma^2=beta*emitt
@@ -132,28 +154,16 @@ if ( __name__ == '__main__'):
     #for i in range(len(betax_chef)):
     #sigmax_chef[i]=math.sqrt(betax_chef[i]*emitx)
     
-    if MPI.COMM_WORLD.Get_rank() == 0:
-      
-       # print "We will use a", solver, "solver"
-        print "Beam Beta", beam_parameters.get_beta()
-        print "Beam Gamma", beam_parameters.get_gamma()
-        print "Betagamma and inverse betagamma",betagamma,1./betagamma
     
-    pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
-    beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = rx,offset=xoffset)
-    beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,r = ry)
-    sigma_z_meters =1.
-    beam_parameters.z_params(sigma = sigma_z_meters, z_length=z_length,lam = dpop* pz)
 
     sys.stdout.flush()
     
    
-    print " CURRENT =",current_in
+    
     
     
 # **********************************************************************
     solver="2d"
-    current=current_in 
     
     gridnum = myopts.get("gridnum")
     griddim = (gridnum,gridnum,32)
@@ -193,7 +203,7 @@ if ( __name__ == '__main__'):
     
 # **********************************************************************
     solver="3d fish"
-    current=current_in
+   
 
 
     griddim = (16,16,257)
@@ -238,7 +248,7 @@ if ( __name__ == '__main__'):
      
 # **********************************************************************
     solver="s2_fish_cylindrical"
-    current=current_in
+    
     griddim = (64,16,257)
     radius=10.0*math.sqrt(xwidth*xwidth+ywidth*ywidth)
     sp_ch=s2_fish.SpaceCharge(solver,grid=griddim,radius_cylindrical=radius)
