@@ -9,7 +9,7 @@ from s2_solver_transverse_fftw import *
 from GaussSC import *
 from s2_solver_cylindrical import *
 #from s2_solver_fftw import gather_global_rho
-from macro_bunch import get_longitudinal_period_size
+#from macro_bunch import get_longitudinal_period_size
 import constraints
 
 have_impact = False
@@ -52,7 +52,7 @@ def apply_space_charge_kick_fftw(shape,bunch,tau,periodic,transverse,size=None,o
             offset = list(means)
  
         if periodic:
-            size[2] = get_longitudinal_period_size(bunch)
+            size[2] = bunch.get_longitudinal_period_size()
             offset[2] = 0
        # mytimer("diagnostics")
 	
@@ -87,18 +87,18 @@ def apply_space_charge_kick_gauss(mbunch,tau):
 	 apply_BasErs_kick(mbunch.get_store(), stds[0], stds[1], tau)
 	 
 def apply_space_charge_kick_cylindrical(shape,radius,mbunch,tau):
-	coords = numpy.zeros((3,mbunch.local_num),'d')
-	get_cylindrical_coords(mbunch.get_store(),coords)
-        length = get_longitudinal_period_size(mbunch)
-	physical_size = [radius,2*math.pi,length]
-        physical_offset = [0.0,0.0,physical_size[2]/2.0]
-        periodic = [False,True,True]
-        field_domain = Cylindrical_field_domain(radius,length,shape,True)
-        rho = numpy.zeros(shape,'d')	   	    
-        deposit_charge_cic_cylindrical(field_domain,rho,mbunch.get_store(),coords)		
-        phi = numpy.zeros(shape,'d')	   
-        solve_cylindrical_finite_periodic(field_domain,rho,phi)  	  
-        full_kick_cylindrical(field_domain,phi,tau,mbunch.get_store(),coords)
+    coords = numpy.zeros((3,mbunch.local_num),'d')
+    get_cylindrical_coords(mbunch.get_store(),coords)
+    length = mbunch.get_longitudinal_period_size()
+    physical_size = [radius,2*math.pi,length]
+    physical_offset = [0.0,0.0,physical_size[2]/2.0]
+    periodic = [False,True,True]
+    field_domain = Cylindrical_field_domain(radius,length,shape,True)
+    rho = numpy.zeros(shape,'d')	   	    
+    deposit_charge_cic_cylindrical(field_domain,rho,mbunch.get_store(),coords)		
+    phi = numpy.zeros(shape,'d')	   
+    solve_cylindrical_finite_periodic(field_domain,rho,phi)  	  
+    full_kick_cylindrical(field_domain,phi,tau,mbunch.get_store(),coords)
 	
 def apply_space_charge_kick_impact(bunch,tau,pgrid,cgrid,field):		     
 	 if ((pgrid == None) or (field == None) or (cgrid == None)):
@@ -118,29 +118,34 @@ def apply_space_charge_kick_impact(bunch,tau,pgrid,cgrid,field):
 			    
 # ~ other space charge solver to be put here..(fish_cylindrical, impact...)....
 def apply_space_charge_kick(mbunch,space_charge,tau,size=None,offset=None):
-	solver=space_charge.get_solver()    		
-	if solver=="s2_fish_3d":
-	    shape=space_charge.get_grid()	    
-	    periodic=space_charge.get_periodic()
-	    transverse=space_charge.get_transverse()
-	    apply_space_charge_kick_fftw(shape,mbunch,tau,periodic,transverse)
-	elif  solver== "s2_fish_gauss":   
-	    apply_space_charge_kick_gauss(mbunch,tau) 
-	elif  solver== "s2_fish_cylindrical":
-	    shape=space_charge.get_grid()
-	    radius=space_charge.get_radius_cylindrical()
-	    apply_space_charge_kick_cylindrical(shape,radius,mbunch,tau)	    
-	elif solver== "s2_fish_transverse":
-            shape = space_charge.get_grid()
-            apply_space_charge_kick_orbit(shape,mbunch,tau) 
-        elif solver=="impact":
-	    if not have_impact:
-		raise RuntimeError, \
+    solver=space_charge.get_solver()    		
+    if solver=="s2_fish_3d":
+        shape=space_charge.get_grid()	    
+	   # periodic=space_charge.get_periodic()
+        periodic=mbunch.periodic
+        transverse=space_charge.get_transverse()
+        apply_space_charge_kick_fftw(shape,mbunch,tau,periodic,transverse)
+    elif  solver== "s2_fish_gauss": 
+        if not(mbunch.periodic):
+            raise RuntimeError, "make the bunch periodic and  transverse for gauss solver!"
+        apply_space_charge_kick_gauss(mbunch,tau) 
+    elif  solver== "s2_fish_cylindrical":
+        if not(mbunch.periodic):
+            raise RuntimeError, "the cylindrical solver requires a periodic bunch!"
+        shape=space_charge.get_grid()
+        radius=space_charge.get_radius_cylindrical()
+        apply_space_charge_kick_cylindrical(shape,radius,mbunch,tau)	    
+    elif solver== "s2_fish_transverse":
+        shape = space_charge.get_grid()
+        apply_space_charge_kick_orbit(shape,mbunch,tau) 
+    elif solver=="impact":
+        if not have_impact:
+            raise RuntimeError, \
 		    "propagate with use_impact=True requires a working impact module"	
-	    pgrid=space_charge.get_impact_pgrid()
-	    cgrid=space_charge.get_impact_cgrid()
-	    field=space_charge.get_impact_field()		    
-	    apply_space_charge_kick_impact(mbunch,tau,pgrid,cgrid,field)
+        pgrid=space_charge.get_impact_pgrid()
+        cgrid=space_charge.get_impact_cgrid()
+        field=space_charge.get_impact_field()		    
+        apply_space_charge_kick_impact(mbunch,tau,pgrid,cgrid,field)
 
 class SpaceCharge:
     def __init__(self,solver,grid=None, periodic=False,radius_cylindrical=None,transverse=False,impact_pgrid=None, impact_field=None, impact_cgrid=None):

@@ -148,9 +148,9 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
     double gamma = -1. * mbs.ref_particle(5);
     double beta = sqrt(gamma * gamma - 1.0) / gamma;
     const  double c = PH_MKS_c;
-    double mass = mbs.mass * 1.0e9;
-    double eps0 = PH_MKS_eps0; 
-
+    const double mass = mbs.mass * 1.0e9;
+    const double eps0 = PH_MKS_eps0; 
+    const double qe=PH_MKS_e;
 /*    consider the electric fields in the rest frame, E'x, E'y, E'z,
 	and Ex,Ey,Ez in the lab frame
       the force on a charge q is
@@ -162,9 +162,11 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
 	p_t=-U ==> dp_t/dt=-betaz * dpz/dt-betax *dpx/dt-betay*dpy/dt =~ -beta*dpz/dt
 */
 
-    double length=2.0*pi*beta/mbs.units(0); // bunch length in lab frame
+    //double length=2.0*pi*beta/mbs.units(0); // bunch length in lab frame
+    // factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
     double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho in [GeV/c]/[Tesla*m]
-    factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
+    factor *=mbs.bunch_np*qe*mbs.charge;// total charge
+    //std::cout<<" previous factor= "<<length* mbs.total_current /(beta * c)<<" now ="<<mbs.bunch_np*qe<<std::endl;
     factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
     factor *= -1.0/gamma;    // relativistic factor,...-minus from the definition of E= + grad phi ???
     factor *=mbs.units(1); // the kikcing force should be muliplied  by the unit of p, this is a factor of 1/mass
@@ -207,10 +209,16 @@ void apply_Efield_kick(const std::vector<Real_scalar_field> &E, double tau,
     const  double c = PH_MKS_c;
     double mass = mbs.mass * 1.0e9;
     double eps0 = PH_MKS_eps0; 
+    const double qe=PH_MKS_e;
 
-    double length=2.0*pi*beta/mbs.units(0); // bunch length in lab frame
+    //double length=2.0*pi*beta/mbs.units(0); // bunch length in lab frame
+   
+    
+
+   // factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
+   // std::cout<<" previous factor= "<<length* mbs.total_current /(beta * c)<<" now ="<<mbs.bunch_np*qe<<std::endl;
     double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho
-    factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
+    factor *=mbs.bunch_np*qe*mbs.charge;// total charge
     factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
     factor *= -1.0/gamma;    // relativistic factor,...-minus from the definition of E= + grad phi ???
     factor *=mbs.units(1); // the kikcing force should be muliplied  by the unit of p, this is a factor of 1/mass
@@ -269,7 +277,8 @@ apply_phi_kick(Real_scalar_field &phi, int axis, double tau,
      const  double c = PH_MKS_c;
      double mass = mbs.mass * 1.0e9;
      double eps0 = PH_MKS_eps0; 
-
+     const double qe=PH_MKS_e;
+     
 /*    consider the electric fields in the rest frame, E'x, E'y, E'z,
 	and Ex,Ey,Ez in the lab frame
       the force on a charge q is
@@ -281,9 +290,9 @@ apply_phi_kick(Real_scalar_field &phi, int axis, double tau,
 	p_t=-U ==> dp_t/dt=-betaz * dpz/dt-betax *dpx/dt-betay*dpy/dt =~ -beta*dpz/dt
 */
 
-    double length=2.0*pi*beta/mbs.units(0); // bunch length in lab frame
+   
     double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho
-    factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
+    factor *=mbs.bunch_np*qe*mbs.charge;// total charge
     factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
     factor *= -1.0/gamma;    // relativistic factor...,-minus from the definition of E= + grad phi ???
     factor *=mbs.units(1); // the kikcing force should be muliplied  by the unit of p, this is a factor of 1/mass
@@ -533,7 +542,6 @@ rw_kick(        double size_z,
 //input parameter (ax_dipole, ay_dipole, bx_dipole, by_dipole,a_quad, b_quad, cx_quad, cy_quad)
 
 
- 
     double ax_dipole= wake_coeff(0);
     double ay_dipole= wake_coeff(1);
     double bx_dipole= wake_coeff(2);
@@ -564,12 +572,12 @@ rw_kick(        double size_z,
    
     double length=2.0*pi*beta/mbs.units(0); // bunch length in lab frame
     double Qtot = length* mbs.total_current /(beta * c);
+    //Qtot=mbs.bunch_np*qe*mbs.charge;// total charge
     double Ntot_real = Qtot/(mbs.charge*qe);  
      //std::cout<<" Ntot_real ="<<Ntot_real<<std::endl;
     // N = N_factor * N_macro(slice) = N_factor * zdensity(slice)
     double N_factor = Ntot_real/mbs.total_num;
-    
-  
+    //double N_factor = mbs.bunch_np/mbs.total_num;
 
 //    w_f= paking_fraction*r_classical*2.0/
 //     		(beta*gamma*pi*pipe_radius*pipe_radius*pipe_radius)*
@@ -584,23 +592,23 @@ rw_kick(        double size_z,
     Array_1d<double> dipole_y(num_slices);
     Array_1d<double> quad(num_slices);
     double cell_size_z = size_z/num_slices;
-    int cut_scaled=static_cast<int>(floor(cutoff_small_z*gamma/cell_size_z));	
-    //std::cout<<" cutoff small="<< cutoff_small_z*gamma<<" cell size="<< cell_size_z<<"  cut_scaled="<<cut_scaled<<std::endl;
-
+    int cut_scaled=static_cast<int>(floor(cutoff_small_z*gamma/cell_size_z));
+   // int cut_scaled=max(static_cast<int>(floor(cutoff_small_z*gamma/cell_size_z)),num_slices+1);	
+   // std::cout<<" cutoff small="<< cutoff_small_z*gamma<<" cell size="<< cell_size_z<<"  cut_scaled="<<cut_scaled<<std::endl;
+   // std::cout<<" gamma="<<gamma<<std::endl;
     get_wake_factors(num_slices, cut_scaled, zdensity, xmom, ymom, dipole_x, dipole_y, quad);
-
+ 
 
     wake_factor *= sqrt(gamma/cell_size_z); // the distance in lab frame is the distance 
                                           //  in the beam frame divided to gamma
-
+    
     // contributions from previous turns, propto sum_n W(n*orbit_lenght), are considered by adding quad_wake_sum
     if (bool_quad_wake) { 
           double quad_wake_sum_scaled=mbs.total_num*quad_wake_sum*sqrt(cell_size_z/gamma); //rescaled to cancel
           quad.add(quad_wake_sum_scaled);                     //  the factor considered in wake_factor above
     }
 
-
-
+    
 //  applying kikcs	
    for (int n = 0; n < mbs.local_num; ++n) {
        double xkick=0., ykick=0.;
@@ -608,7 +616,6 @@ rw_kick(        double size_z,
         /*   if ((bin>=num_slices) || (bin<0))  { std::cout<<"bin="<<bin<<"num_slices="<<num_slices<<std::endl;
   		                         throw
                                          std::runtime_error("something wrong with bining");}*/	
-
 
        xkick=ax_dipole*dipole_x(bin);
        ykick=ay_dipole*dipole_y(bin);
@@ -627,31 +634,27 @@ rw_kick(        double size_z,
 
       // mbs.local_particles(5,n) += -wake_factor*(xkick*mbs.local_particles(1,n)+ykick*mbs.local_particles(3,n))/gamma; //this is a higher order approximation
                                                                                                                          // probably not necessary...
-
+       
        mbs.local_particles(1,n) += wake_factor*xkick;	
        mbs.local_particles(3,n) += wake_factor*ykick;
    }   
-   
 }
 
 void get_wake_factors(int num_slices, int icut, Array_1d<double> &zdensity, 
 Array_1d<double> &xmom, Array_1d<double> &ymom, Array_1d<double> &dipole_x, 
 Array_1d<double> &dipole_y, Array_1d<double> & quad)
 {
-
      dipole_x.set_all(0.0);
      dipole_y.set_all(0.0);
          quad.set_all(0.0);
-
      for (int i = 0; i < num_slices; ++i){      
        for (int j = i+1+icut; j < num_slices; ++j){  // icut is introduced to avoid the interaction at very small distance 
- 	  dipole_x(i) += zdensity(j)*xmom(j)/sqrt(double(j-i)); // for resonable cell size (lgridnum<500) it is usually zero
+ 	      dipole_x(i) += zdensity(j)*xmom(j)/sqrt(double(j-i)); // for resonable cell size (lgridnum<500) it is usually zero
           dipole_y(i) += zdensity(j)*ymom(j)/sqrt(double(j-i));
           quad(i) += zdensity(j)/sqrt(double(j-i)); 
        } 
  
    }
-
 
 }
 

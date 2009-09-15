@@ -315,8 +315,11 @@ void TransverseSolver::kick_transverse_charge(Macro_bunch_store &mbs, double tau
     double beta = sqrt(gamma*gamma- 1.) / gamma;
     double eps0 = PH_MKS_eps0;
     double c = PH_MKS_c;
+    double qe=PH_MKS_e;
+    
     double length = 2.0*pi*beta/mbs.units(0); // Bunch length in lab frame
-    double charge  = (PH_CNV_brho_to_p/eps0)*length*mbs.total_current / (beta*c);
+   // double charge  = (PH_CNV_brho_to_p/eps0)*length*mbs.total_current / (beta*c);
+    double charge  = (PH_CNV_brho_to_p/eps0)*mbs.bunch_np*qe*mbs.charge;
     double factor = charge* ( 1./ (beta*c) )*(1. / gamma)*mbs.units(1);		
     
     /*

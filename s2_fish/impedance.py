@@ -37,7 +37,6 @@ def apply_impedance_kick(bunch,impedance,tau):
     calculate_rwvars(bunch.get_store(),zdensity,xmom,ymom,
                      bunchmin[2],rwsize[2], bin_partition)
     
-    
     pipe_radius=impedance.get_pipe_radius()
     pipe_conduct=impedance.get_pipe_conduct()
     wake_factor=impedance.get_wake_factor()
@@ -46,7 +45,6 @@ def apply_impedance_kick(bunch,impedance,tau):
     cutoff_small_z=impedance.get_cutoff_small_z()
     rw_kick(rwsize[2], bin_partition,  zdensity, xmom, ymom, tau, 
              bunch.get_store(), wake_factor,  cutoff_small_z, wake_coeff, quad_wake_sum, bool_quad_wake)
-    
     
 
 class Impedance:

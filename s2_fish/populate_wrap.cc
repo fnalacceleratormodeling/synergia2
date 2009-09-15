@@ -40,6 +40,7 @@ void
 populate_transverse_gaussian_wrapper(object &particles,
                                      const object &means,
                                      const object &covariances,
+                                     const double z_length,
                                      const int id_offset,
                                      const unsigned long int seed,
                                      bool init_generator)
@@ -50,7 +51,7 @@ populate_transverse_gaussian_wrapper(object &particles,
         Array_nd_from_PyObject<double>(means.ptr());
     Array_2d<double> covariances_array =
         Array_nd_from_PyObject<double>(covariances.ptr());
-    populate_transverse_gaussian(particles_array, means_array, covariances_array,
+    populate_transverse_gaussian(particles_array, means_array, covariances_array, z_length,
                                  id_offset, seed, init_generator);
 }
 

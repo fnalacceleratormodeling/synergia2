@@ -6,9 +6,9 @@ import numpy
 
 class Beam_parameters:
     def __init__(self, mass_GeV, charge_e, kinetic_energy_GeV,
-                 initial_phase_rad, scaling_frequency_Hz, transverse=0):
+                 initial_phase_rad=0, scaling_frequency_Hz=1, transverse=0, adjust_zlength_to_freq=0):
         self.mass_GeV = mass_GeV
-        self.charge_e = charge_e
+        self.charge_e = int(charge_e)
         self.kinetic_energy_GeV = kinetic_energy_GeV
         self.initial_phase_rad = initial_phase_rad
         self.scaling_frequency_Hz = scaling_frequency_Hz
@@ -20,9 +20,10 @@ class Beam_parameters:
         self.sigma_z_m = None
         self.lambda_z_GeVoc = None
         self.transverse = transverse
+        self.adjust_zlength_to_freq=adjust_zlength_to_freq
         self.x_params(1,1)
         self.y_params(1, 1)
-        self.z_params(1, 1)
+        self.z_params(1, 1, 1)
 
     def x_params(self,sigma,lam,
                  r=None,mismatch=1,mismatch_p=1,offset=0,offset_p=0):
@@ -30,7 +31,7 @@ class Beam_parameters:
 	to correlation_coeffs"""
         self.sigma_x_m = sigma
         self.lambda_x_GeVoc = lam
-	if r != None: self.xpx = r
+        if r != None: self.xpx = r
         self.mismatch_x = mismatch
         self.mismatch_px = mismatch_p
         self.offset_x_m = offset
@@ -42,26 +43,54 @@ class Beam_parameters:
 	to correlation_coeffs"""
         self.sigma_y_m = sigma
         self.lambda_y_GeVoc = lam
-	if r != None: self.ypy = r
-        self.mismatch_y = mismatch
+        if r != None: self.ypy = r
         self.mismatch_py = mismatch_p
         self.offset_y_m = offset
         self.offset_py = offset_p
         
-    def z_params(self,sigma,lam,
+    def z_params(self,sigma,lam, z_length=None,
                  r=None,mismatch=1,mismatch_p=1,offset=0,offset_p=0,
                  num_peaks=1):
 	"""The correlation coefficient r can also be set by the zpz argument
-	to correlation_coeffs"""
+	to correlation_coeffs, zlength is used to make a  periodic bunch of length z_length 
+    or can be the length of a transverse bunch"""
         self.sigma_z_m = sigma
         self.lambda_z_GeVoc = lam
-	if r !=None : self.zpz = r
+        if r !=None : self.zpz = r
         self.mismatch_z = mismatch
         self.mismatch_pz = mismatch_p
         self.offset_z = offset
         self.offset_pz = offset_p
         self.num_zpeaks = num_peaks
 
+        self.z_length=z_length
+        if self.adjust_zlength_to_freq: 
+            self.z_length = 2.0*math.pi*self.get_beta()*physics_constants.PH_MKS_c/self.get_omega()
+        elif self.transverse:
+            if z_length==None: raise RuntimeError, "please provide z_length for a transverse beam"
+            
+        
+
+
+
+    def get_mass(self):
+        return self.mass_GeV
+    
+    def get_charge(self):
+        return self.charge_e
+    
+    def get_z_length(self):
+        return self.z_length
+    
+    def get_t_length(self): 
+        if (self.z_length==None):
+            t_length=None
+        else:
+           (Cxy, Cxpyp, Cz, Czp) = self.get_conversions()
+           t_length=self.z_length*Cz
+        return t_length
+        
+    
     def get_z_peaks(self):
         return self.num_zpeaks
 

@@ -74,9 +74,13 @@ apply_BasErs_kick(Macro_bunch_store &mbs, double sigmaX, double sigmaY, double t
 
 
         5) lambda= current/v=current/beta*c
+        or lambda=mbs.bunch_np*PH_MKS_e/mbs.z_length, but we did not defined mbs.z_length yet...
 	
 	6) Keep in mind the units used in the code p=p*units(1).....
-*/       
+*/      
+     
+    // double factor_new=PH_CNV_brho_to_p*mbs.bunch_np*PH_MKS_e/(2.*pi*eps0*mbs.z_length);
+   
     double factor = PH_CNV_brho_to_p*mbs.total_current /(2.*pi*eps0* beta*c); //point 2) and 5) above
     factor=factor/(beta*c);  //         point 1) above  
     factor = factor/(gamma * gamma);	// point  3) and 4) above
