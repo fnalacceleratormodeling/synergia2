@@ -4,19 +4,23 @@
 #include "math_constants.h"
 #include "basic_toolkit/PhysicsConstants.h"
 
-static std::ofstream logFile("log_transverse_solver.txt");
+std::ofstream& logFile() 
+{
+    static std::ofstream logFile("log_transverse_solver.txt");
+    return logFile;
+}
 
 template<class T> void dbg_print_array_2d(const std::string& name, const Array_2d<T>& array) {
 #ifdef DBG
-    logFile << name << ":" << std::endl;
+    logFile() << name << ":" << std::endl;
     std::vector<int> shapes = array.get_shape();
     for (int i = 0; i < shapes[0]; ++i) {
 	for (int j = 0; j < shapes[1]; ++j) {
-	    logFile << array(i,j) << "   ";
+	    logFile() << array(i,j) << "   ";
 	}
-	logFile << std::endl;
+	logFile() << std::endl;
     }
-    logFile << std::endl;
+    logFile() << std::endl;
 #endif
 }
 
@@ -187,21 +191,21 @@ void TransverseSolver::kick_transverse_charge(Macro_bunch_store &mbs, double tau
     int nMacros;
    
     // Form grid (2 times larger than real particle extent, check Hockney convolution method for details)
-    logFile << "******************** FFTW TRANSVERSE METHOD **************************************" << std::endl;
+    logFile() << "******************** FFTW TRANSVERSE METHOD **************************************" << std::endl;
     
-    logFile << "\nForming the grid...\n";
+    logFile() << "\nForming the grid...\n";
     form_grid(mbs, means, sizes);
     
     // Bin the particles (set rho)
     
-    logFile << "Binning the particles...\n";
+    logFile() << "Binning the particles...\n";
     deposit_charge(mbs);
         
     // Calculate the Greens funtion grid 
     
     dbg_print_array_2d("rho", rho);
     
-    logFile << "Calculating Greens function...\n"; 
+    logFile() << "Calculating Greens function...\n"; 
     
     epsSq = dx*dy*eps;
         
@@ -339,12 +343,12 @@ void TransverseSolver::kick_transverse_charge(Macro_bunch_store &mbs, double tau
     ++step;
     
     if (includeLocalDensity) {
-	logFile << "Calculate line density along z direction..." << std::endl;   
+	logFile() << "Calculate line density along z direction..." << std::endl;   
 	calc_local_z_density(mbs);
 	//for (int iZ = 0; iZ < nZBins + 1; ++iZ) 
 	//    logFile << iZ << " : " << z_density(iZ) << std::endl;
     } else {
-	logFile << "Assume uniform charge distribution..." << std::endl;
+	logFile() << "Assume uniform charge distribution..." << std::endl;
     }
 
     // Local line density (if assumed uniform charge distribution) 
@@ -399,7 +403,7 @@ void TransverseSolver::kick_transverse_charge(Macro_bunch_store &mbs, double tau
     fftw_destroy_plan(forward_plan_charge);
     fftw_destroy_plan(backward_plan);
     
-    logFile << "Calculation finished" << std::endl;
+    logFile() << "Calculation finished" << std::endl;
 
 }
 
@@ -414,9 +418,9 @@ void TransverseSolver::kick_transverse_charge_direct(Macro_bunch_store &mbs)
    
     // Form grid (2 times larger than real particle extent, check Hockney convolution method for details)
     
-    logFile << "******************** DIRECT METHOD **************************************" << std::endl;
+    logFile() << "******************** DIRECT METHOD **************************************" << std::endl;
     
-    logFile << "\nForming the grid...\n";
+    logFile() << "\nForming the grid...\n";
     
     form_grid(mbs);
     
@@ -433,7 +437,7 @@ void TransverseSolver::kick_transverse_charge_direct(Macro_bunch_store &mbs)
     
     // Bin the particles (set rho)
     
-    logFile << "Binning the particles...\n";
+    logFile() << "Binning the particles...\n";
     deposit_charge(mbs);
     dbg_print_array_2d("rho", rho);
      
@@ -451,15 +455,15 @@ void TransverseSolver::kick_transverse_charge_direct(Macro_bunch_store &mbs)
 	for (iY = 0; iY <= nYBins; ++iY)
 	{
 	    double b = yGrid(iY);
-	    logFile << "Calculating forces for point: (" << a << "," << b << ")" << std::endl;
+	    logFile() << "Calculating forces for point: (" << a << "," << b << ")" << std::endl;
 	    for(int iXS = 0; iXS <= nXBins; iXS++)
 	    {
 		rTransX = a - xGrid(iXS);
 		for(int iYS = 0; iYS <= nYBins; iYS++)
 		{
 		    rTransY = b - yGrid(iYS);
-		    logFile << "\t...contribution of point (" << xGrid(iXS) << "," << yGrid(iYS) << ") is (";
-		    logFile << rTransX << "," << rTransY << ")" << std::endl;
+		    logFile() << "\t...contribution of point (" << xGrid(iXS) << "," << yGrid(iYS) << ") is (";
+		    logFile() << rTransX << "," << rTransY << ")" << std::endl;
 		    rTot2 = rTransX*rTransX + rTransY*rTransY + epsSq;
 	            rr = rho(iXS, iYS) / rTot2;
 		    
@@ -467,13 +471,13 @@ void TransverseSolver::kick_transverse_charge_direct(Macro_bunch_store &mbs)
 		    fscy(iX,iY) += rr * rTransY;
 		}
 	    }
-	    logFile << "The force is : (" << fscx(iX,iY) << "," << fscy(iX,iY) << ")" << std::endl;
+	    logFile() << "The force is : (" << fscx(iX,iY) << "," << fscy(iX,iY) << ")" << std::endl;
 	
 	}
     }
     
     //std::ofstream outfile("direct_results");
-    std::ofstream& outfile = logFile;
+    std::ofstream& outfile = logFile();
     outfile << "RESULTS: " << std::endl;
     for (int i = 0; i <= nYBins; ++i) {
 	for (int j = 0; j <= nXBins; ++j) {
@@ -502,7 +506,7 @@ void TransverseSolver::kick_transverse_charge_direct(Macro_bunch_store &mbs)
 
     */
 
-    logFile << "Calculation finished" << std::endl;
+    logFile() << "Calculation finished" << std::endl;
 }
  
 
