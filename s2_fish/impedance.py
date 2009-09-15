@@ -12,7 +12,7 @@
 
 import synergia
 from s2_deposit import *
-from s2_electric_field import *
+from s2_impedance_kick import *
 
 
 import math
