@@ -58,22 +58,18 @@ class Impedance:
         self.wall_thickness=wall_thickness
         self.paking_frac=paking_frac # <=1.0,  packing fraction is the fraction of elements in the ring  (magnets) which contribute to the res wall impedance 
         self.kick=kick
+        if MPI.COMM_WORLD.Get_rank() == 0:    
+                print "impedance kick type=", kick
 # pipe symmetry keywords so far, see below  "circular", "x_parallel_plates", "y_parallel_plates", "elliptical"	
         self.r=1.+ wall_thickness*wall_thickness/((wall_thickness+pipe_radius)*(wall_thickness+pipe_radius)) # this definition is for a perfect outer magnet at r=b+t
 	#print "geometric factor r=",self.r
 #~ cutoff_small is the cut off distance  below which the wake force changes is dependence of z, presenlty we approximate W(z)=0 for z<cutoff_small
         self.cutoff_small_z=4.2*pow(synergia.physics_constants.PH_MKS_c*pipe_radius*pipe_radius*4.*math.pi* \
          synergia.physics_constants.PH_MKS_eps0/(2.*math.pi*pipe_conduct),1./3.)  #~for the factor 4.2 see K. Bane, SLAC-AP-87, 1991
-	
+        
  # the depenence W(z) propto 1/sqrt(z) is not valid at distace larger than cutoff_quad where the field penetrates the wall....        
 # cutoff_quad is a function of  wall_thickness, still not sure if the form above is the best choice for thick walls (though good for thin walls) 	
-	
-        self.cutoff_quad= int(wall_thickness*wall_thickness*pipe_conduct/ \
-            (math.pi*synergia.physics_constants.PH_MKS_eps0*synergia.physics_constants.PH_MKS_c*orbit_length))
-        if MPI.COMM_WORLD.Get_rank() == 0:    
-            print "long distance cutoff=", self.cutoff_quad ," x  (orbit length =" , self.orbit_length," m )"
-	 
-			
+	   
 	
 	
 	
@@ -174,14 +170,22 @@ class Impedance:
         self.wake_coeff=[ax_dipole,ay_dipole,bx_dipole,by_dipole,a_quad,b_quad,cx_quad,cy_quad, a_monopole]
         
         if (self.bool_quad_wake):
+            self.cutoff_quad= int(wall_thickness*wall_thickness*pipe_conduct/ \
+                (math.pi*synergia.physics_constants.PH_MKS_eps0*synergia.physics_constants.PH_MKS_c*orbit_length))
+            if MPI.COMM_WORLD.Get_rank() == 0:    
+                print "long distance cutoff=", self.cutoff_quad ," x  (orbit length =" , self.orbit_length," m )"
+
             self.quad_wake_sum=self.calculate_quad_wake_sum()
         else: 
+            self.cutoff_quad=None
             self.quad_wake_sum=0.
     
         self.wake_factor=paking_frac*synergia.physics_constants.PH_MKS_rp*2.0/ (math.pi*pipe_radius*pipe_radius*pipe_radius)* \
             math.sqrt(4*math.pi*synergia.physics_constants.PH_MKS_eps0*synergia.physics_constants.PH_MKS_c/pipe_conduct)
     
-      
+       
+     
+              
     
     def get_pipe_radius(self):
         return self.pipe_radius
