@@ -1,6 +1,6 @@
 #include "mytimer.h"
 #include <iostream>
-
+#define ENABLE_MYTIMER_MPI true
 #ifdef ENABLE_MYTIMER_CLOCK
 #include <sys/times.h>
 #endif
@@ -37,6 +37,7 @@ timer(std::string message)
     double t1 = time();
     int rank;
     std::cout << "timer " << message << ": " << t1 - timer_t0 << std::endl;
+    timer_t0 = time();
 }
 #endif // ENABLE_MYTIMER_CLOCK
 
