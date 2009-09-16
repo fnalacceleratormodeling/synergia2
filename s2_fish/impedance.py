@@ -21,13 +21,13 @@ import numpy
 #import string
 #import os.path
 
-#from mpi4py import MPI
+from mpi4py import MPI
 
 def apply_impedance_kick(bunch,impedance,tau):
     bunchmin, bunchmax = synergia.get_spatial_minmax(bunch)
     rwsize = bunchmax - bunchmin
     impedance_zgrid=impedance.get_z_grid()   
-    wake_coeff=numpy.zeros((8), 'd')
+    wake_coeff=numpy.zeros((9), 'd')
     wake_coeff[:]=impedance.get_wake_coeff()[:] # wake_coeff are determined by the pipe_symmetry
     zdensity = numpy.zeros((impedance_zgrid),'d')
     xmom = numpy.zeros((impedance_zgrid),'d')
@@ -49,28 +49,29 @@ def apply_impedance_kick(bunch,impedance,tau):
 
 class Impedance:
     '''Defines the parameters and methods necessary to  impedance calculation'''
-    def __init__(self, pipe_radius, pipe_conduct, wall_thickness, orbit_length, z_grid, pipe_symmetry="circular",paking_frac=1.0):
-	self.pipe_radius=pipe_radius
-	self.pipe_conduct=pipe_conduct # to agree with eq in chao's book (units s^-1), make pipe_conduct=pipe_conduct/(4*pi*eps_0)	
-	self.orbit_length=orbit_length
-	self.z_grid=z_grid 
-	self.pipe_symmetry=pipe_symmetry
-	self.wall_thickness=wall_thickness
-	self.paking_frac=paking_frac # <=1.0,  packing fraction is the fraction of elements in the ring  (magnets) which contribute to the res wall impedance 
-	
+    def __init__(self, pipe_radius, pipe_conduct, wall_thickness, orbit_length, z_grid, pipe_symmetry="circular",paking_frac=1.0, kick="full"):
+        self.pipe_radius=pipe_radius
+        self.pipe_conduct=pipe_conduct # to agree with eq in chao's book (units s^-1), make pipe_conduct=pipe_conduct/(4*pi*eps_0)	
+        self.orbit_length=orbit_length
+        self.z_grid=z_grid 
+        self.pipe_symmetry=pipe_symmetry
+        self.wall_thickness=wall_thickness
+        self.paking_frac=paking_frac # <=1.0,  packing fraction is the fraction of elements in the ring  (magnets) which contribute to the res wall impedance 
+        self.kick=kick
 # pipe symmetry keywords so far, see below  "circular", "x_parallel_plates", "y_parallel_plates", "elliptical"	
-	self.r=1.+ wall_thickness*wall_thickness/((wall_thickness+pipe_radius)*(wall_thickness+pipe_radius)) # this definition is for a perfect outer magnet at r=b+t
+        self.r=1.+ wall_thickness*wall_thickness/((wall_thickness+pipe_radius)*(wall_thickness+pipe_radius)) # this definition is for a perfect outer magnet at r=b+t
 	#print "geometric factor r=",self.r
 #~ cutoff_small is the cut off distance  below which the wake force changes is dependence of z, presenlty we approximate W(z)=0 for z<cutoff_small
-	self.cutoff_small_z=4.2*pow(synergia.physics_constants.PH_MKS_c*pipe_radius*pipe_radius*4.*math.pi* \
-	 synergia.physics_constants.PH_MKS_eps0/(2.*math.pi*pipe_conduct),1./3.)  #~for the factor 4.2 see K. Bane, SLAC-AP-87, 1991
+        self.cutoff_small_z=4.2*pow(synergia.physics_constants.PH_MKS_c*pipe_radius*pipe_radius*4.*math.pi* \
+         synergia.physics_constants.PH_MKS_eps0/(2.*math.pi*pipe_conduct),1./3.)  #~for the factor 4.2 see K. Bane, SLAC-AP-87, 1991
 	
  # the depenence W(z) propto 1/sqrt(z) is not valid at distace larger than cutoff_quad where the field penetrates the wall....        
 # cutoff_quad is a function of  wall_thickness, still not sure if the form above is the best choice for thick walls (though good for thin walls) 	
 	
-	self.cutoff_quad= int(wall_thickness*wall_thickness*pipe_conduct/ \
-	        (math.pi*synergia.physics_constants.PH_MKS_eps0*synergia.physics_constants.PH_MKS_c*orbit_length))
-	print "long distance cutoff=", self.cutoff_quad ," x orbit length"
+        self.cutoff_quad= int(wall_thickness*wall_thickness*pipe_conduct/ \
+            (math.pi*synergia.physics_constants.PH_MKS_eps0*synergia.physics_constants.PH_MKS_c*orbit_length))
+        if MPI.COMM_WORLD.Get_rank() == 0:    
+            print "long distance cutoff=", self.cutoff_quad ," x  (orbit length =" , self.orbit_length," m )"
 	 
 			
 	
@@ -102,62 +103,83 @@ class Impedance:
    #~cx_quad =0
 
 
-
-        if self.pipe_symmetry=="circular":
-#~ pipe with symmetry regardig pi/2 rotation in xy plane (ex: circular pipe)
+        if (self.kick == "full") or (self.kick == "transverse"):
+            if self.pipe_symmetry=="circular":
+    #~ pipe with symmetry regardig pi/2 rotation in xy plane (ex: circular pipe)
+                self.bool_quad_wake=False
+                ax_dipole=1.0 # please adjust it
+                ay_dipole=1.0 # please adjust it
+                bx_dipole=0.0 
+                by_dipole=0.0 
+                a_quad   =0.0
+                b_quad   =0.0
+                cx_quad  =0.0
+                cy_quad  =0.0
+            elif self.pipe_symmetry=="x_parallel_plates": # see a. chao prst-ab, 111001, (2002) for parameters
+    #~ pipe with (x,z) plane symmetry and (y,z) plane symmetry  (ex: eliptical, parallel plates...)
+                self.bool_quad_wake=True
+                ax_dipole=math.pi*math.pi/24. #  pi*pi/24 for parallel plates, see a. chao prst-ab, 111001, (2002)
+                ay_dipole=math.pi*math.pi/12. # pi*pi/12 for parallel plates, 
+                bx_dipole=0.0 
+                by_dipole=0.0 
+                a_quad  = -math.pi*math.pi/24. #  - pi*pi/24 for parallel plates
+                b_quad   =0.0
+                cx_quad  =0.0
+                cy_quad  =0.0
+            elif self.pipe_symmetry=="y_parallel_plates":  # AM guess for the value of the parameters
+    #~ pipe with (x,z) plane symmetry and (y,z) plane symmetry  (ex: eliptical, parallel plates...)
+                self.bool_quad_wake=True
+                ax_dipole=math.pi*math.pi/12. # it's a a guess
+                ay_dipole=math.pi*math.pi/24. # it's a a guess
+                bx_dipole=0.0 
+                by_dipole=0.0 
+                a_quad  = math.pi*math.pi/24. #  it's a a guess, not sure about sign
+                b_quad   =0.0
+                cx_quad  =0.0
+                cy_quad  =0.0	    
+            elif self.pipe_symmetry=="elliptical": # (consider pipe radius = small axis =b to be along y direction) 
+                self.bool_quad_wake=True
+                ax_dipole=math.pi*math.pi/24. # please adjust it, between (pi*pi/24,1) ?? am guess
+                ay_dipole=math.pi*math.pi/12. # please adjust it, between (pi*pi/12,1) ?? am guess
+                bx_dipole=0.0 
+                by_dipole=0.0 
+                a_quad  = -math.pi*math.pi/24. # please adjust it, between (- pi*pi/24, 0) ?? am guess
+                b_quad   =0.0
+                cx_quad  =0.0
+                cy_quad  =0.0
+            else:
+                raise RuntimeError,  "pipe symmetry wrongly specified"	
+        elif (self.kick == "longitudinal"):
             self.bool_quad_wake=False
-	    ax_dipole=1.0 # please adjust it
-	    ay_dipole=1.0 # please adjust it
-	    bx_dipole=0.0 
+            ax_dipole=0.0 
+            ay_dipole=0.0 
+            bx_dipole=0.0 
             by_dipole=0.0 
             a_quad   =0.0
             b_quad   =0.0
             cx_quad  =0.0
             cy_quad  =0.0
-	elif self.pipe_symmetry=="x_parallel_plates": # see a. chao prst-ab, 111001, (2002) for parameters
-#~ pipe with (x,z) plane symmetry and (y,z) plane symmetry  (ex: eliptical, parallel plates...)
-	    self.bool_quad_wake=True
-            ax_dipole=math.pi*math.pi/24. #  pi*pi/24 for parallel plates, see a. chao prst-ab, 111001, (2002)
-	    ay_dipole=math.pi*math.pi/12. # pi*pi/12 for parallel plates, 
-	    bx_dipole=0.0 
-            by_dipole=0.0 
-            a_quad  = -math.pi*math.pi/24. #  - pi*pi/24 for parallel plates
-            b_quad   =0.0
-            cx_quad  =0.0
-            cy_quad  =0.0
-        elif self.pipe_symmetry=="y_parallel_plates":  # AM guess for the value of the parameters
-#~ pipe with (x,z) plane symmetry and (y,z) plane symmetry  (ex: eliptical, parallel plates...)
-	    self.bool_quad_wake=True
-            ax_dipole=math.pi*math.pi/12. # it's a a guess
-	    ay_dipole=math.pi*math.pi/24. # it's a a guess
-	    bx_dipole=0.0 
-            by_dipole=0.0 
-            a_quad  = math.pi*math.pi/24. #  it's a a guess, not sure about sign
-            b_quad   =0.0
-            cx_quad  =0.0
-            cy_quad  =0.0	    
-	elif self.pipe_symmetry=="elliptical": # (consider pipe radius = small axis =b to be along y direction) 
-	    self.bool_quad_wake=True
-            ax_dipole=math.pi*math.pi/24. # please adjust it, between (pi*pi/24,1) ?? am guess
-            ay_dipole=math.pi*math.pi/12. # please adjust it, between (pi*pi/12,1) ?? am guess
-	    bx_dipole=0.0 
-            by_dipole=0.0 
-            a_quad  = -math.pi*math.pi/24. # please adjust it, between (- pi*pi/24, 0) ?? am guess
-            b_quad   =0.0
-            cx_quad  =0.0
-            cy_quad  =0.0
-	else:
-	    raise RuntimeError,  "pipe symmetry wrongly specified"			
-	
-	self.wake_coeff=[ax_dipole,ay_dipole,bx_dipole,by_dipole,a_quad,b_quad,cx_quad,cy_quad]
+            
+        else:   		
+            raise RuntimeError,  "1-- kick can be full, transverse or longitudinal....what did you choose? "
         
-	if (self.bool_quad_wake):
-	    self.quad_wake_sum=self.calculate_quad_wake_sum()
-	else: 
+        if (self.kick == "full") or (self.kick == "longitudinal") :
+            a_monopole=0.25*pipe_radius*pipe_radius
+        elif (self.kick == "transverse"):
+            a_monopole=0.
+        else:          
+            raise RuntimeError,  "2-- kick can be full, transverse or longitudinal....what did you choose?"   
+                
+                
+        self.wake_coeff=[ax_dipole,ay_dipole,bx_dipole,by_dipole,a_quad,b_quad,cx_quad,cy_quad, a_monopole]
+        
+        if (self.bool_quad_wake):
+            self.quad_wake_sum=self.calculate_quad_wake_sum()
+        else: 
             self.quad_wake_sum=0.
     
         self.wake_factor=paking_frac*synergia.physics_constants.PH_MKS_rp*2.0/ (math.pi*pipe_radius*pipe_radius*pipe_radius)* \
-     	     math.sqrt(4*math.pi*synergia.physics_constants.PH_MKS_eps0*synergia.physics_constants.PH_MKS_c/pipe_conduct)
+            math.sqrt(4*math.pi*synergia.physics_constants.PH_MKS_eps0*synergia.physics_constants.PH_MKS_c/pipe_conduct)
     
       
     
@@ -180,13 +202,13 @@ class Impedance:
         return self.z_grid
     
     def get_cutoff_small_z(self):
-	 return self.cutoff_small_z
+        return self.cutoff_small_z
          
     def get_wake_coeff(self):
-	   return self.wake_coeff
+        return self.wake_coeff
     
     def get_bool_quad_wake(self):
-	   return self.bool_quad_wake
+        return self.bool_quad_wake
     
     def get_quad_wake_sum(self):
          return self.quad_wake_sum
@@ -196,26 +218,27 @@ class Impedance:
     
     
     def calculate_quad_wake_sum(self):
-	orbit_length= self.orbit_length
-	cutoff=self.cutoff_quad	
-	t=self.wall_thickness
-	sigma=self.pipe_conduct
-	quad_wake_sum=0.
-	for turn in range(1,cutoff+1):		 
-	    quad_wake_sum +=1./math.sqrt(turn)  	    	    
-	quad_wake_sum *= 1./math.sqrt(orbit_length)
+        orbit_length= self.orbit_length
+        cutoff=self.cutoff_quad	
+        t=self.wall_thickness
+        sigma=self.pipe_conduct
+        quad_wake_sum=0.
+        for turn in range(1,cutoff+1):		 
+            quad_wake_sum +=1./math.sqrt(turn) 
+             	    	    
+        quad_wake_sum *= 1./math.sqrt(orbit_length)
 	#print " quad_wake_sum  until cut off=", quad_wake_sum
 # quad_wake_exp is the exponentially decaying term at  distance > cutoff*orbit_length
-	r=self.r
-	b=self.pipe_radius 
+        r=self.r
+        b=self.pipe_radius 
 #  W(z) is prop to exp(-aa*z) at large z
-	aa=(synergia.physics_constants.PH_MKS_c*synergia.physics_constants.PH_MKS_eps0)/(sigma*t*r*b) 
-	quad_wake_exp=math.exp(-aa*(cutoff+1)*orbit_length)/(orbit_length*aa)
-	quad_wake_exp *= math.sqrt(math.pi*synergia.physics_constants.PH_MKS_c*synergia.physics_constants.PH_MKS_eps0/sigma)/t 
-		    
+        aa=(synergia.physics_constants.PH_MKS_c*synergia.physics_constants.PH_MKS_eps0)/(sigma*t*r*b) 
+        quad_wake_exp=math.exp(-aa*(cutoff+1)*orbit_length)/(orbit_length*aa)
+        quad_wake_exp *= math.sqrt(math.pi*synergia.physics_constants.PH_MKS_c*synergia.physics_constants.PH_MKS_eps0/sigma)/t 
+
 	#print "quad_wake_exp (after cutoff contribution) =", quad_wake_exp
-	quad_wake_sum += quad_wake_exp
+        quad_wake_sum += quad_wake_exp
 	#print " quad_wake_sum =", quad_wake_sum
-	return  quad_wake_sum   
+        return  quad_wake_sum   
 	
    	

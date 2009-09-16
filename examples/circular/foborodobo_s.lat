@@ -37,6 +37,7 @@ lambda = 160.0/harmno
 ! frequency is beta * speed_of_light * harmno / 160.0 (59955852.5381452)
 
 hvoltage = 12.50
+!hvoltage = 20
 
 cavlen = 1.0 ! rf cavity length 1 meter, (half bucket length)
 shortdlen = (driftlength - cavlen)/2.0   ! 0.97 m

@@ -48,6 +48,7 @@ if ( __name__ == '__main__'):
     myopts.add("partpercell",1,"",float)
     myopts.add("bunches",1,"",int)
     myopts.add("bunchnp",1.0e11,"number of particles per bunch",float)
+    myopts.add("kick","full","kick type",str)
     
     myopts.add_suboptions(synergia.opts)
     myopts.parse_argv(sys.argv)
@@ -122,7 +123,7 @@ if ( __name__ == '__main__'):
     
     beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
                                          initial_phase, scaling_frequency_Hz=scaling_frequency,
-                                         transverse=0, adjust_zlength_to_freq=1)
+                                         transverse=1, adjust_zlength_to_freq=1)
     betagamma=beam_parameters.get_beta()*beam_parameters.get_gamma() 
 
     emittance = myopts.get("emittance")
@@ -212,7 +213,8 @@ if ( __name__ == '__main__'):
         pipe_conduct= 1.4e6 # [ohm^-1 m^-1] (stainless steel)
         wall_thickness=0.0114        
         pipe_symmetry=myopts.get("pipe_symmetry")
-        rw_impedance=s2_fish.Impedance(pipe_radius, pipe_conduct,wall_thickness, line_length,lgridnum, pipe_symmetry)
+        kick=myopts.get("kick")
+        rw_impedance=s2_fish.Impedance(pipe_radius, pipe_conduct,wall_thickness, line_length,lgridnum, pipe_symmetry,kick=kick)
                 #pipe_symmetry="x_parallel_plates")
         print "IMPEDANCE PIPE radius=", rw_impedance.get_pipe_radius()
         print "IMPEDANCE PIPE wall_thickness=",rw_impedance.get_wall_thickness()

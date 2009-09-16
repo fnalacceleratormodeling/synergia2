@@ -24,7 +24,7 @@ rw_kick(        double zsize,
 void
 get_wake_factors(int num_slices, int icut,
 Array_1d<double> &zdensity, Array_1d<double> &xmom, Array_1d<double> &ymom,
-Array_1d<double> &dipole_x, Array_1d<double> &dipole_y, Array_1d<double> &quad);
+Array_1d<double> &dipole_x, Array_1d<double> &dipole_y, Array_1d<double> &quad, Array_1d<double> &l_monopole);
 
 
 #endif // HAVE_ELECTRIC_FIELD_H
