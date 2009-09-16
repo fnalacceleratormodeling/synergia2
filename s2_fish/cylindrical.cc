@@ -3,6 +3,8 @@
 #include <fftw3.h>
 #include <cmath>
 #include "basic_toolkit/PhysicsConstants.h"
+#include <mpi.h>
+#include "mytimer.h"
 
 void
 get_cylindrical_coords(Macro_bunch_store &mbs, Array_2d<double> &coords)
@@ -442,11 +444,22 @@ array_2d_to_octave_file_imag(const Array_2d<std::complex<double> > &array, const
     stream.close();
 }
 
+//std::vector<int>
+//decompose_1d()
+//{
+//
+//}
 void
 solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
-		Array_3d<double > &rho, Array_3d<double> &phi)
+		Array_3d<double > &local_rho, Array_3d<double> &phi)
 {
 
+	timer("start");
+	Array_3d<double> rho(local_rho.get_shape());
+	MPI_Allreduce(reinterpret_cast<void*>(local_rho.get_data_ptr()),
+			reinterpret_cast<void*>(rho.get_data_ptr()),
+			local_rho.get_size(), MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+	timer("gather rho");
 	std::vector<int> shape = fdomain.get_grid_shape();
 	double z_length = fdomain.get_length();
 	// the shape of the FFT'd array (shape_lm) is halved in the third
@@ -455,15 +468,17 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 	std::vector<int> shape_lm = vector3(shape[0],shape[1],shape[2]/2+1);
 	Array_3d<std::complex<double> > rho_lm(shape_lm);
 
+	timer("misc1");
 	fftw_plan plan = fftw_plan_many_dft_r2c(2,
 			&shape[1], shape[0],
 			rho.get_data_ptr(),
 			NULL, 1, shape[1]*shape[2],
 			reinterpret_cast<double (*)[2]>(rho_lm.get_data_ptr()),
 			NULL, 1, shape_lm[1]*shape_lm[2],
-			FFTW_ESTIMATE);
+			FFTW_MEASURE);
+	timer("plan");
 	fftw_execute(plan);
-
+	timer("fft");
 	Array_1d<std::complex<double> > diag(shape_lm[0]);
 	Array_1d<std::complex<double> > above_diag(shape_lm[0]);
 	Array_1d<std::complex<double> > below_diag(shape_lm[0]);
@@ -474,7 +489,7 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 	diag.set_all(0.);
 	above_diag.set_all(0.);
 	below_diag.set_all(0.);
-
+	timer("misc2");
 	double r;
 	for(int l=0; l<shape_lm[1]; ++l) {
 		int wavenumber_l = (l+shape_lm[1]/2) % shape_lm[1] -
@@ -503,6 +518,7 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 					rhs,x);
 		}
 	}
+	timer("tridiag");
 
 	plan = fftw_plan_many_dft_c2r(2,
 			&shape[1], shape_lm[0],
@@ -510,8 +526,10 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 			NULL, 1, shape_lm[1]*shape_lm[2],
 			phi.get_data_ptr(),
 			NULL, 1, shape[1]*shape[2],
-			FFTW_ESTIMATE);
+			FFTW_MEASURE);
+	timer("invplan");
 	fftw_execute(plan);
+	timer("ifft");
 	// FFTW transforms are not normalized. We need to apply the normalization
 	// manually.
 	phi.scale(1.0/(shape[1]*shape[2]));
