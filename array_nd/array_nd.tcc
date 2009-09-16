@@ -186,6 +186,13 @@ Array_nd<T>::get_shape() const
 
 template<class T>
 int
+Array_nd<T>::get_size() const
+{
+    return size;
+}
+
+template<class T>
+int
 Array_nd<T>::get_rank() const
 {
     return shape.size();
