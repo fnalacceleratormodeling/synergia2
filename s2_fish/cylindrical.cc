@@ -444,11 +444,24 @@ array_2d_to_octave_file_imag(const Array_2d<std::complex<double> > &array, const
     stream.close();
 }
 
-//std::vector<int>
-//decompose_1d()
-//{
-//
-//}
+void
+decompose_1d(int length, int processors, std::vector<int> &offsets,
+		std::vector<int> &counts)
+{
+	int min_counts = length/processors;
+	int remainder = fmod(length,processors);
+	int offset = 0;
+	for(int i=0; i<processors; ++i) {
+		int count = min_counts;
+		if (i >= (processors - remainder)) {
+			count += 1;
+		}
+		offsets.at(i) = offset;
+		counts.at(i) = count;
+		offset += count;
+	}
+}
+
 void
 solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 		Array_3d<double > &local_rho, Array_3d<double> &phi)
@@ -466,19 +479,41 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 	// dimension because of the peculiar (but efficient) way FFTW does
 	// real-to-complex transforms.
 	std::vector<int> shape_lm = vector3(shape[0],shape[1],shape[2]/2+1);
-	Array_3d<std::complex<double> > rho_lm(shape_lm);
-
+	Array_3d<std::complex<double> > rho_lm(shape_lm), rho_lm_local(shape_lm);
+	int rank, size;
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	std::vector<int> offsets(size), counts(size);
+	std::vector<int> receive_offsets(size), receive_counts(size);
+	decompose_1d(shape[0],size,offsets,counts);
+	for (int i=0; i< size; ++i) {
+		receive_counts.at(i) = counts.at(i)*shape_lm[1]*shape_lm[2];
+		receive_offsets.at(i) = offsets.at(i)*shape_lm[1]*shape_lm[2];
+	}
+	Array_3d<double> sliced_rho(rho.slice(
+			Range(offsets[rank],offsets[rank]+counts[rank]-1),Range(),Range()));
+	Array_3d<std::complex<double> > sliced_rho_lm(rho_lm_local.slice(
+			Range(offsets[rank],offsets[rank]+counts[rank]-1),Range(),Range()));
 	timer("misc1");
 	fftw_plan plan = fftw_plan_many_dft_r2c(2,
-			&shape[1], shape[0],
-			rho.get_data_ptr(),
+			&shape[1], counts[rank],
+			sliced_rho.get_data_ptr(),
 			NULL, 1, shape[1]*shape[2],
-			reinterpret_cast<double (*)[2]>(rho_lm.get_data_ptr()),
+			reinterpret_cast<double (*)[2]>(sliced_rho_lm.get_data_ptr()),
 			NULL, 1, shape_lm[1]*shape_lm[2],
 			FFTW_MEASURE);
 	timer("plan");
 	fftw_execute(plan);
 	timer("fft");
+	MPI_Allgatherv(reinterpret_cast<void*>(sliced_rho_lm.get_data_ptr()),
+			counts[rank]*shape_lm[1]*shape_lm[2],
+			MPI_DOUBLE_COMPLEX,
+			reinterpret_cast<void*>(rho_lm.get_data_ptr()),
+			&receive_counts[0],
+			&receive_offsets[0],
+			MPI_DOUBLE_COMPLEX,
+			MPI_COMM_WORLD);
+	timer("gather");
 	Array_1d<std::complex<double> > diag(shape_lm[0]);
 	Array_1d<std::complex<double> > above_diag(shape_lm[0]);
 	Array_1d<std::complex<double> > below_diag(shape_lm[0]);
