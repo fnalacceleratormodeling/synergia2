@@ -39,7 +39,7 @@ add_python_extension(constraints constraints.cc constraints_wrap.cc)
 add_python_extension(s2_solver_transverse_fftw  solver_transverse_fftw.cc s2_solver_transverse_wrap.cc macro_bunch_store.cc)
 
 add_library(s2_solver_cyl SHARED cylindrical.cc
-    field_domain.cc populate.cc ) # jfa fix this!!!!!!!!!!!!!!!!!!!!!!
+    field_domain.cc populate.cc mytimer.cc) # jfa fix this!!!!!!!!!!!!!!!!!!!!!!
 add_python_extension(s2_solver_cylindrical cylindrical_wrap.cc) # jfa fix this!!!!!!!!!!!!!!!!!!!!!!
 target_link_libraries(s2_solver_cylindrical s2_solver_cyl ${GSL_CONFIG_LIBS})
 ## jfa nb.: populate and gsl_config_libs are only part of s2_solver so that I can use the freakin' write to octave function for debugging. Much refoactoring necessary.
