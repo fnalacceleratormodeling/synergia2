@@ -1,6 +1,5 @@
 #include "mytimer.h"
 #include <iostream>
-#define ENABLE_MYTIMER_MPI true
 #ifdef ENABLE_MYTIMER_CLOCK
 #include <sys/times.h>
 #endif
