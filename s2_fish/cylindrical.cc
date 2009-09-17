@@ -479,6 +479,9 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 	// dimension because of the peculiar (but efficient) way FFTW does
 	// real-to-complex transforms.
 	std::vector<int> shape_lm = vector3(shape[0],shape[1],shape[2]/2+1);
+	// jfa: Note on parallelization: rho_lm_local allocates enough memory for
+	//      a second copy of the array, instead of just allocating what it needs
+	//      locally. Please fix this.
 	Array_3d<std::complex<double> > rho_lm(shape_lm), rho_lm_local(shape_lm);
 	int rank, size;
 	MPI_Comm_size(MPI_COMM_WORLD, &size);
@@ -517,16 +520,23 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 	Array_1d<std::complex<double> > diag(shape_lm[0]);
 	Array_1d<std::complex<double> > above_diag(shape_lm[0]);
 	Array_1d<std::complex<double> > below_diag(shape_lm[0]);
-	Array_3d<std::complex<double> > phi_lm(shape_lm);
+	Array_3d<std::complex<double> > phi_lm(shape_lm),phi_lm_local(shape_lm);
 	double deltar = fdomain.get_radius()/(fdomain.get_grid_shape()[0]+0.5);
 
-	phi_lm.set_all(0.);
+	phi_lm_local.set_all(0.);
 	diag.set_all(0.);
 	above_diag.set_all(0.);
 	below_diag.set_all(0.);
+	std::vector<int> offsets2(size), counts2(size);
+	std::vector<int> receive_offsets2(size), receive_counts2(size);
+	decompose_1d(shape_lm[1],size,offsets2,counts2);
+	for (int i=0; i< size; ++i) {
+		receive_counts2.at(i) = counts2.at(i)*shape_lm[2];
+		receive_offsets2.at(i) = offsets2.at(i)*shape_lm[2];
+	}
 	timer("misc2");
 	double r;
-	for(int l=0; l<shape_lm[1]; ++l) {
+	for(int l=offsets2[rank]; l<(offsets2[rank]+counts2[rank]); ++l) {
 		int wavenumber_l = (l+shape_lm[1]/2) % shape_lm[1] -
 		shape_lm[1]/2;
 		for(int m=0; m<shape_lm[2]; ++m) {
@@ -547,13 +557,29 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 			Array_1d<std::complex<double> > rhs =
 				rho_lm.slice(Range(),Range(l),Range(m));
 			Array_1d<std::complex<double> > x =
-				phi_lm.slice(Range(),Range(l),Range(m));
+				phi_lm_local.slice(Range(),Range(l),Range(m));
 			x.set_all(0.);
 			solve_tridiag_nonsym(diag,above_diag,below_diag,
 					rhs,x);
 		}
 	}
 	timer("tridiag");
+//	MPI_Allreduce(reinterpret_cast<void*>(phi_lm_local.get_data_ptr()),
+//			reinterpret_cast<void*>(phi_lm.get_data_ptr()),
+//			phi_lm_local.get_size(), MPI_DOUBLE_COMPLEX, MPI_SUM, MPI_COMM_WORLD);
+//	timer("allreduce");
+	for(int i=0; i<shape_lm[0]; ++i) {
+		MPI_Allgatherv(reinterpret_cast<void*>(phi_lm_local.slice(Range(i),
+				Range(offsets2[rank],offsets2[rank]+counts2[rank]-1),Range()).get_data_ptr()),
+				counts2[rank]*shape_lm[2],
+				MPI_DOUBLE_COMPLEX,
+				reinterpret_cast<void*>(phi_lm.slice(Range(i),Range(),Range()).get_data_ptr()),
+				&receive_counts2[0],
+				&receive_offsets2[0],
+				MPI_DOUBLE_COMPLEX,
+				MPI_COMM_WORLD);
+	}
+	timer("gather2");
 
 	plan = fftw_plan_many_dft_c2r(2,
 			&shape[1], shape_lm[0],
