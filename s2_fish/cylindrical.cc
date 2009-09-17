@@ -564,10 +564,6 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 		}
 	}
 	timer("tridiag");
-//	MPI_Allreduce(reinterpret_cast<void*>(phi_lm_local.get_data_ptr()),
-//			reinterpret_cast<void*>(phi_lm.get_data_ptr()),
-//			phi_lm_local.get_size(), MPI_DOUBLE_COMPLEX, MPI_SUM, MPI_COMM_WORLD);
-//	timer("allreduce");
 	for(int i=0; i<shape_lm[0]; ++i) {
 		MPI_Allgatherv(reinterpret_cast<void*>(phi_lm_local.slice(Range(i),
 				Range(offsets2[rank],offsets2[rank]+counts2[rank]-1),Range()).get_data_ptr()),
@@ -582,10 +578,14 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 	timer("gather2");
 
 	plan = fftw_plan_many_dft_c2r(2,
-			&shape[1], shape_lm[0],
-			reinterpret_cast<double (*)[2]>(phi_lm.get_data_ptr()),
+			&shape[1], counts[rank],
+			reinterpret_cast<double (*)[2]>(phi_lm.slice(
+					Range(offsets[rank],offsets[rank]+counts[rank]-1),
+					Range(),Range()).get_data_ptr()),
 			NULL, 1, shape_lm[1]*shape_lm[2],
-			phi.get_data_ptr(),
+			phi.slice(
+					Range(offsets[rank],offsets[rank]+counts[rank]-1),
+					Range(),Range()).get_data_ptr(),
 			NULL, 1, shape[1]*shape[2],
 			FFTW_MEASURE);
 	timer("invplan");
@@ -593,10 +593,57 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 	timer("ifft");
 	// FFTW transforms are not normalized. We need to apply the normalization
 	// manually.
-	phi.scale(1.0/(shape[1]*shape[2]));
+	phi.slice(
+			Range(offsets[rank],offsets[rank]+counts[rank]-1),
+			Range(),Range()).scale(1.0/(shape[1]*shape[2]));
+	// at end of routine, phi is the size of the global array, but it only contains
+	// the locally calculated pieces.
 }
 
+void
+fill_guards_cylindrical(const Cylindrical_field_domain &fdomain,
+		Array_3d<double> &phi)
+{
+	std::vector<int> shape = fdomain.get_grid_shape();
+	int rank, size;
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	std::vector<int> offsets(size), counts(size);
+	decompose_1d(shape[0],size,offsets,counts);
 
+	void *send_buffer, *recv_buffer;
+	MPI_Status status;
+ 	int message_size = shape[1] * shape[2];
+	int lower = offsets[rank];
+	int upper = offsets[rank] + counts[rank];
+	// send to the right
+	if (upper < shape[0]) {
+		send_buffer = reinterpret_cast<void*>(phi.slice(
+        		Range(upper),Range(),Range()).get_data_ptr());
+        MPI_Send(send_buffer, message_size, MPI_DOUBLE, rank + 1, rank,
+        		MPI_COMM_WORLD);
+    }
+    if (lower > 0) {
+        recv_buffer = reinterpret_cast<void*>(phi.slice(
+        		Range(lower-1),Range(),Range()).get_data_ptr());
+        MPI_Recv(recv_buffer, message_size, MPI_DOUBLE, rank - 1, rank - 1,
+        		MPI_COMM_WORLD, &status);
+    }
+
+	// send to the left
+	if (lower > 0) {
+		send_buffer = reinterpret_cast<void*>(phi.slice(
+        		Range(lower),Range(),Range()).get_data_ptr());
+        MPI_Send(send_buffer, message_size, MPI_DOUBLE, rank - 1, rank,
+        		MPI_COMM_WORLD);
+    }
+    if (upper < shape[0]) {
+        recv_buffer = reinterpret_cast<void*>(phi.slice(
+        		Range(upper+1),Range(),Range()).get_data_ptr());
+        MPI_Recv(recv_buffer, message_size, MPI_DOUBLE, rank + 1, rank + 1,
+        		MPI_COMM_WORLD, &status);
+    }
+}
 
 void
 calculate_E_cylindrical(const Cylindrical_field_domain &fdomain,
@@ -605,13 +652,27 @@ calculate_E_cylindrical(const Cylindrical_field_domain &fdomain,
                           Array_3d<double> &Ey,
                           Array_3d<double> &Ez)
 { //std::cout<< " begin E_cylindrical"<<std::endl;
+	timer("misc calc_E");
+	fill_guards_cylindrical(fdomain,phi);
+	timer("fill guards");
     std::vector<int> shape = phi.get_shape();
-   //double theta_step = 2.0*pi/(shape[1]-1);
+	int rank, size;
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	std::vector<int> offsets(size), counts(size);
+	std::vector<int> receive_offsets(size), receive_counts(size);
+	decompose_1d(shape[0],size,offsets,counts);
+	decompose_1d(shape[0],size,offsets,counts);
+	for (int i=0; i< size; ++i) {
+		receive_counts.at(i) = counts.at(i)*shape[1]*shape[2];
+		receive_offsets.at(i) = offsets.at(i)*shape[1]*shape[2];
+	}
+  //double theta_step = 2.0*pi/(shape[1]-1);
     double theta_step = 2.0*pi/shape[1];
   //  double z_step = fdomain.get_length()/(shape[2]-1);
     double z_step = fdomain.get_length()/shape[2];
     double ordinary_r_step = fdomain.get_radius()/(shape[0]+0.5);
-    for(int i_r = 0; i_r<shape[0]; ++i_r) {
+    for(int i_r = offsets[rank]; i_r<offsets[rank]+counts[rank]; ++i_r) {
         int r_left = i_r-1;
         int r_right = i_r+1;
         double r_step = 2.*ordinary_r_step;
@@ -681,6 +742,40 @@ calculate_E_cylindrical(const Cylindrical_field_domain &fdomain,
             }
         }
     }
+    timer("calcE");
+    if (size > 1) {
+    	MPI_Allgatherv(reinterpret_cast<void*>(Ex.slice(
+    			Range(offsets[rank],offsets[rank]+counts[rank]-1),
+    			Range(),Range()).get_data_ptr()),
+    			receive_counts[rank],
+    			MPI_DOUBLE,
+    			reinterpret_cast<void*>(Ex.get_data_ptr()),
+    			&receive_counts[0],
+    			&receive_offsets[0],
+    			MPI_DOUBLE,
+    			MPI_COMM_WORLD);
+    	MPI_Allgatherv(reinterpret_cast<void*>(Ey.slice(
+    			Range(offsets[rank],offsets[rank]+counts[rank]-1),
+    			Range(),Range()).get_data_ptr()),
+    			receive_counts[rank],
+    			MPI_DOUBLE,
+    			reinterpret_cast<void*>(Ey.get_data_ptr()),
+    			&receive_counts[0],
+    			&receive_offsets[0],
+    			MPI_DOUBLE,
+    			MPI_COMM_WORLD);
+    	MPI_Allgatherv(reinterpret_cast<void*>(Ez.slice(
+    			Range(offsets[rank],offsets[rank]+counts[rank]-1),
+    			Range(),Range()).get_data_ptr()),
+    			receive_counts[rank],
+    			MPI_DOUBLE,
+    			reinterpret_cast<void*>(Ez.get_data_ptr()),
+    			&receive_counts[0],
+    			&receive_offsets[0],
+    			MPI_DOUBLE,
+    			MPI_COMM_WORLD);
+    }
+    timer("gatherE");
  // std::cout<< " end E_cylindrical"<<std::endl;
 }
 
