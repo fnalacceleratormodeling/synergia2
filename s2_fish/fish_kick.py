@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from macro_bunch import get_longitudinal_period_size
+#from macro_bunch import get_longitudinal_period_size
 from impedance import *
 from space_charge import *
 from s2_containers import *
@@ -28,8 +28,9 @@ def listify(x):
 
 counter = 0   
 
-def apply_kick(mbunch_in,tau, space_charge=None,impedance=None, periodic_bunch=False, aperture=None):
+def apply_kick(mbunch_in,tau, space_charge=None,impedance=None, aperture=None):
     
+#    if not (space_charge or impedance) : return
     
     global counter 
     counter += 1
@@ -42,26 +43,25 @@ def apply_kick(mbunch_in,tau, space_charge=None,impedance=None, periodic_bunch=F
     for mbunch in mbunches:    
         if aperture:
             constraints.apply_circular_aperture(mbunch.get_store(),aperture)
-            mytimer("apply aperture")  
+            mytimer("apply aperture")       
         mbunch.convert_to_fixedt()
-	mytimer("convert")
+        mytimer("convert")
 	
-	if periodic_bunch:	
-	    length=get_longitudinal_period_size(mbunch)	
-	    constraints.apply_longitudinal_periodicity_z(mbunch.get_store(),length)
-	    mytimer("apply periodicity")
+        if mbunch.periodic:	
+            length=mbunch.get_longitudinal_period_size()
+            constraints.apply_longitudinal_periodicity(mbunch.get_store(),length)
+            mytimer("apply periodicity")
         
 	    
-	if space_charge:
-	    apply_space_charge_kick(mbunch,space_charge,tau)   
+        if space_charge:
+            apply_space_charge_kick(mbunch,space_charge,tau)   
 	    
         if impedance:
-	    if (len(mbunches) >1): 
+            if (len(mbunches) >1): 
                 print "impedance for multiple bunches not implemented yet"
-	        sys.exit(1)
-	    apply_impedance_kick(mbunch,impedance,tau) 
-	
-	mbunch.convert_to_fixedz()
+                sys.exit(1)
+            apply_impedance_kick(mbunch,impedance,tau) 
+        mbunch.convert_to_fixedz()
         mytimer("unconvert")
 
 

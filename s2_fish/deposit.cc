@@ -178,18 +178,18 @@ calculate_rwvars(Macro_bunch_store& mbs,
             local_ymom(bin) += mbs.local_particles(2,n);
              bin_partition(n)=bin; //bin_partition(n) is the bin where you find the particle n
         }
-	 else if ((bin==z_num) && fabs(mbs.local_particles(4,n)-z_length-z_left)<z_length*1.e-20) { 
+	 else if ((bin==z_num) && fabs(mbs.local_particles(4,n)-z_length-z_left)<z_length*1.e-14) { 
                          local_zdensity(bin-1) += 1; // put the edge particle in the last bin=z_num-1
                           bin_partition(n)=z_num-1;
          } 
          else
-	      {   /*std::cout << "  z_left  "<<z_left<<"  rank= "<<rank<<std::endl;
+	      {   std::cout << "  z_left  "<<z_left<<"  rank= "<<rank<<std::endl;
                   std::cout<<"mbs.local_particles(4,n)="  <<mbs.local_particles(4,n)<<"  rank= "<<rank<<std::endl; 
                   std::cout<< "NNNNNNNNNN n="<<n<<std::endl; 
                   std::cout << "  z_length  "<<z_length<<"  rank= "<<rank<<std::endl;
                   std::cout << "(mbs.local_particles(4,n)-z_left)= "<<(mbs.local_particles(4,n)-z_left)<<"  rank= "<<rank<<std::endl;
-                  std::cout << "bin: " << bin<<"  z_num="<<z_num<< "h=" << h <<"  rank= "<<rank<<std::endl;                
-                  std::cout << "mbs.local_particles(4,n)-z_length-z_left= "<<fabs(mbs.local_particles(4,n)-z_length-z_left)<<"  rank= "<<rank<<std::endl;*/
+                  std::cout << "bin: " << bin<<"  z_num="<<z_num<< "  h=" << h <<"  rank= "<<rank<<std::endl;                
+                  std::cout << "mbs.local_particles(4,n)-z_length-z_left= "<<fabs(mbs.local_particles(4,n)-z_length-z_left)<<"  rank= "<<rank<<std::endl;
   		  throw
                      std::runtime_error("particles out of range in calculate_rwvars ");
          }

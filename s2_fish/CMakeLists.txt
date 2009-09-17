@@ -25,6 +25,8 @@ add_python_extension(s2_electric_field s2_electric_field_wrap.cc
 target_link_libraries(s2_electric_field ${FFTW2_R_MPI_LIB} ${FFTW2_MPI_LIB}
     ${FFTW2_R_LIB} ${FFTW2_LIB})
 
+add_python_extension(s2_impedance_kick  impedance_kick.cc s2_impedance_kick_wrap.cc macro_bunch_store.cc)
+
 add_python_extension(s2_diagnostics s2_diagnostics_wrap.cc ltwt_containers.cc
     s2_diagnostics.cc)
 

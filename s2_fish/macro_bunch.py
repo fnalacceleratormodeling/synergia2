@@ -9,30 +9,87 @@ import tables
 import time
 import math
 
-from synergia import loadfile_transpose
+from synergia import loadfile_transpose, physics_constants
 import populate
+import constraints
 
 _need_random_init= True
 _global_id_max = 0
 class Macro_bunch:
-    def __init__(self,mass,charge):
-        self.complete = 0
+    #def __init__(self,bunch_np,total_num,beam_parameters, periodic=False):
+    def __init__(self):  
+        self.complete=0 
         self.particles = None
         self.local_num = None
-        self.total_num = None
+        self.total_num = None # total number of macroparticles in the bunch
         self.total_current = None
-	self.units = None
+        self.bunch_np=None  # total number of particles in the bunch
+        self.units = None
         self.is_fixedz = None
         self.ref_particle = None
-        self.mass = mass
-        self.charge = charge
-	
+        self.periodic=None
+        self.mass = None 
+        self.charge = None 
+        self.periodic=False
+        self.periodic_z_size=None
+
+
+# constructors     
+    @classmethod
+    def gaussian(klass, bunch_np,total_num,beam_parameters,periodic=False):
+        bunch=klass() 
+        bunch.init_gaussian(bunch_np,total_num,beam_parameters,periodic)
+        bunch.complete=1
+        return bunch  
+    
+    @classmethod
+    def gaussian_covariance(klass,bunch_np,total_num, beam_parameters,covariance,periodic=False):
+        bunch=klass() 
+        bunch.init_gaussian_covariance(bunch_np,total_num, beam_parameters,covariance,periodic)
+        return bunch       
+             
+    @classmethod
+    def from_bunch(klass, mbunch):
+        bunch=klass() 
+        bunch.init_from_bunch(mbunch)
+        return bunch
+        
+    @classmethod
+    def sphere(klass,num,radius):
+        bunch=klass() 
+        bunch.init_sphere(num,radius)
+        return bunch
+            
+    @classmethod
+    def cylinder(klass,num,radius,length):
+        bunch=klass() 
+        bunch.init_cylinder(num,radius,length)
+        return bunch    
+        
+    @classmethod
+    def test(klass,num_per_side,edge_length=1.0):
+        bunch=klass() 
+        bunch.init_test(num_per_side,edge_length)
+        return bunch
+    
+    
+    @classmethod
+    def test_am(klass,bunch_np,num_per_cell,shape,beam_parameters):
+        bunch=klass() 
+        bunch.init_test_am(bunch_np,num_per_cell,shape, beam_parameters)
+        return bunch
+    
+  
 
     def get_local_particles(self):
         return self.particles
     
     def get_num_particles_local(self):
         return self.local_num
+    
+    def get_bunch_np():
+        return self.get_bunch_np()
+    
     
     def get_store(self):
         if self.particles != None:
@@ -42,11 +99,17 @@ class Macro_bunch:
                                      self.mass,
                                      self.charge,
                                      self.total_current,
+                                     self.bunch_np,
                                      self.units,
                                      self.ref_particle,
                                      self.is_fixedz)
         else:
             return None
+        
+        
+    def get_longitudinal_period_size(self):   
+        gamma = -self.get_store().get_ref_particle()[5]# beam frame
+        return self.periodic_z_size*gamma    
         
     def convert_to_fixedz(self):
         self.get_store().convert_to_fixedz()
@@ -64,6 +127,8 @@ class Macro_bunch:
         local_num = num[0]*num[1]*num[2]
         total_num = local_num # fix me for mpi
         total_current = 1.0
+        self.mass = 1.0
+        self.charge = 1
         self.units = numpy.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
         self.ref_particle = numpy.array([0.0,0.0,0.0,0.0,0.0,-1.1],'d')
         self.particles = numpy.zeros((7,local_num),'d')
@@ -84,6 +149,51 @@ class Macro_bunch:
         self.total_num = total_num
         self.total_current = total_current
         self.complete = 1
+	
+
+    def init_test_am(self,bunch_np,num_per_cell,shape, beam_parameters):
+        '''Particles uniformly distributed in a cube of size "size"'''
+        cc=beam_parameters.get_covariances()
+	
+	 
+        sigmax=math.sqrt(cc[0,0])
+        sigmay=math.sqrt(cc[2,2])
+        sigmaz=math.sqrt(cc[4,4])
+        
+	
+        size = (2.*sigmax,2.*sigmay,2.*sigmaz)
+        print" size=",size
+        part_per_cell=int(num_per_cell)       
+        (Cxy, Cxpyp, Cz, Czp) = beam_parameters.get_conversions()
+        self.units = numpy.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
+        offset = (beam_parameters.offset_x_m*Cxy,beam_parameters.offset_y_m*Cxy,beam_parameters.offset_z*Cz)
+        num = (part_per_cell*shape[0],part_per_cell*shape[1],part_per_cell*shape[2])
+        local_num = num[0]*num[1]*num[2]
+        total_num = local_num # fix me for mpi
+        self.mass = beam_parameters.get_mass()
+        self.charge = beam_parameters.get_charge()
+        self.is_fixedz = 1
+        self.total_current = bunch_np*physics_constants.PH_MKS_e *beam_parameters.scaling_frequency_Hz
+        self.bunch_np=bunch_np
+        self.ref_particle = numpy.zeros((6,),'d')
+        self.ref_particle[5] = -beam_parameters.get_gamma()        
+        self.particles = numpy.zeros((7,local_num),'d')
+        self.is_fixedz = 1
+        index = 0
+        for i in range(0,num[0]):
+            for j in range(0,num[1]):
+                for k in range(0,num[2]):
+                    self.particles[0,index] = offset[0] - size[0]/2.0 + \
+                                             size[0]/num[0]*(i+0.5)
+                    self.particles[2,index] = offset[1] - size[1]/2.0 + \
+                                             size[1]/num[1]*(j+0.5)
+                    self.particles[4,index] =  offset[2] - size[2]/2.0 + \
+                                             size[2]/num[2]*(k+0.5)
+                    self.particles[6,index] = index+1
+                    index += 1 
+        self.local_num = local_num
+        self.total_num = total_num
+  
 
     def init_sphere(self,num,radius):
         '''Particles uniformly distributed in a sphere of radius "radius"'''
@@ -92,6 +202,8 @@ class Macro_bunch:
         local_num = num/MPI.COMM_WORLD.Get_size() #jfa: could be more precise...
         total_num = MPI.WORLD.Allreduce(local_num,MPI.SUM)
         total_current = 1.0
+        self.mass=1.0
+        self.charge=1
         self.units = numpy.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
         self.ref_particle = numpy.array([0.0,0.0,0.0,0.0,0.0,-1.1],'d')
         self.particles = numpy.zeros((7,local_num),'d')
@@ -118,7 +230,7 @@ class Macro_bunch:
 #        print "pi =",6.0*added/(1.0*added+discarded),"in",t1-t0,"secs"
         self.local_num = local_num
         self.total_num = total_num
-        self.total_current = total_current
+        self.total_current = 1.0
         self.complete = 1
 
     def init_cylinder(self,num,radius,length):
@@ -128,6 +240,8 @@ class Macro_bunch:
         local_num = num
         total_num = local_num # fix me for mpi
         total_current = 1.0
+        self.mass=1.0
+        self.charge=1
         self.units = numpy.array([1.0,1.0,1.0,1.0,1.0,1.0],'d')
         self.ref_particle = numpy.array([0.0,0.0,0.0,0.0,0.0,-1.1],'d')
         self.particles = numpy.zeros((7,local_num),'d')
@@ -173,16 +287,27 @@ class Macro_bunch:
             offset += num
         return nums,offsets
 
-    def init_gaussian(self,total_num,total_current, beam_parameters):
+    
+    def init_gaussian(self,bunch_np,total_num,beam_parameters, periodic=False):
+        
+        if periodic:
+            if (beam_parameters.get_z_length()==None):
+                raise RuntimeError, " z_length is needed for a periodic bunch!"
+            self.periodic_z_size=beam_parameters.get_z_length()
+        self.periodic=periodic   
+            
         (Cxy, Cxpyp, Cz, Czp) = beam_parameters.get_conversions()
         self.units = numpy.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
-        self.total_num = total_num
+        self.total_num = total_num       
         nums, offsets = self._split_num_particles(total_num,MPI.COMM_WORLD.Get_size())
         self.local_num = nums[MPI.COMM_WORLD.Get_rank()]
         global _global_id_max
         id_offset = _global_id_max + offsets[MPI.COMM_WORLD.Get_rank()]
         _global_id_max += total_num
-        self.total_current = total_current
+        self.mass = beam_parameters.get_mass()
+        self.charge = beam_parameters.get_charge()
+        self.bunch_np=bunch_np
+
         self.is_fixedz = 1
         self.ref_particle = numpy.zeros((6,),'d')
         self.ref_particle[5] = -beam_parameters.get_gamma()
@@ -194,11 +319,15 @@ class Macro_bunch:
         seed = int(long_seed % 2**32)
         global _need_random_init
         if beam_parameters.get_transverse():
+            t_length=beam_parameters.get_t_length()    
             populate.populate_transverse_gaussian(self.particles,
                 beam_parameters.get_means(),
-                beam_parameters.get_covariances(),id_offset,seed,
+                beam_parameters.get_covariances(),t_length,id_offset,seed,
                 _need_random_init)
-            _need_random_init= False
+            _need_random_init= False 
+            # current below should be used for a transverse beam, and is needed ONLY in the gaussian solver
+            self.total_current = bunch_np*physics_constants.PH_MKS_e*beam_parameters.get_beta()* \
+                  physics_constants.PH_MKS_c/beam_parameters.get_z_length()       
         else:
             if beam_parameters.get_z_peaks() == 1:
                 populate.populate_6d_gaussian(self.particles,
@@ -206,8 +335,15 @@ class Macro_bunch:
                     beam_parameters.get_covariances(),id_offset,seed,
                     _need_random_init)
                 _need_random_init= False
+                # you shouldn't  use anywhere the total_current defined below
+                self.total_current = bunch_np*physics_constants.PH_MKS_e *beam_parameters.scaling_frequency_Hz
+               # self.completed=1 
             else:
-                delta_z = 2.0*math.pi
+               # raise RuntimeError, "please modify the init of a bunch with multiple z_peaks"
+                #delta_z = 2.0*math.pi
+                if (beam_parameters.get_z_length()==None):
+                    raise RuntimeError, " z_length is needed for multiple peaks!" 
+                delta_z =beam_parameters.get_t_length()
                 num_peaks = beam_parameters.get_z_peaks()
                 old_means = beam_parameters.get_means()
                 new_means = numpy.zeros([len(old_means)],'d')
@@ -225,8 +361,20 @@ class Macro_bunch:
                         _need_random_init)
                     self.particles[:,peak_offsets[peak]:peak_offsets[peak+1]] = tmp
                     _need_random_init= False
+                self.total_current = bunch_np*physics_constants.PH_MKS_e*beam_parameters.get_beta()* \
+                  physics_constants.PH_MKS_c/beam_parameters.get_z_length()   
+            if periodic:
+                t_length=beam_parameters.get_t_length() 
+                constraints.apply_longitudinal_periodicity(self.get_store(),t_length)
                     
-    def init_gaussian_covariance(self,total_num,total_current, beam_parameters,covariance):
+    def init_gaussian_covariance(self,bunch_np,total_num, beam_parameters,covariance,periodic=False):
+        
+        if periodic:
+            if (beam_parameters.get_z_length()==None):
+                raise RuntimeError, " z_length is needed for a periodic bunch!"
+            self.periodic_z_size=beam_parameters.get_z_length()
+        self.periodic=periodic
+            
         (Cxy, Cxpyp, Cz, Czp) = beam_parameters.get_conversions()
         self.units = numpy.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
         self.total_num = total_num
@@ -235,7 +383,11 @@ class Macro_bunch:
         global _global_id_max
         id_offset = _global_id_max + offsets[MPI.COMM_WORLD.Get_rank()]
         _global_id_max += total_num
-        self.total_current = total_current
+        self.mass = beam_parameters.get_mass()
+        self.charge = beam_parameters.get_charge()
+        self.bunch_np=bunch_np
+        self.total_current = bunch_np*physics_constants.PH_MKS_e *beam_parameters.scaling_frequency_Hz
+        self.periodic=periodic
         self.is_fixedz = 1
         self.ref_particle = numpy.zeros((6,),'d')
         self.ref_particle[5] = -beam_parameters.get_gamma()
@@ -255,6 +407,9 @@ class Macro_bunch:
                 _need_random_init= False
             else:
                 raise RuntimeError, "init_gaussian_covariance does not work with z_peaks <> 1"
+            if periodic:
+                t_length=beam_parameters.get_t_length() 
+                constraints.apply_longitudinal_periodicity(self.get_store(),t_length)
             
     def inject(self, bunch):
         if (self.is_fixedz != bunch.is_fixedz):
@@ -274,13 +429,15 @@ class Macro_bunch:
         self.total_current = new_total_current
         
     def init_from_bunch(self, bunch):
-        (Cxy, Cxpyp, Cz, Czp) = bunch.beam_parameters.get_conversions()
-        self.units = numpy.array([Cxy,Cxpyp,Cxy,Cxpyp,Cz,Czp],'d')
-        self.particles = bunch.particles()
-        self.local_num = bunch.num_particles_local()
-        self.total_num = bunch.num_particles()
-        self.total_current = bunch.current()
-        self.ref_particle = bunch.reference_particle()
+        self.units = bunch.units
+        self.mass = bunch.mass
+        self.charge = bunch.charge
+        self.particles = bunch.get_local_particles()
+        self.local_num = bunch.get_num_particles_local()
+        self.total_num = bunch.total_num
+        self.total_current = bunch.total_current
+        self.bunch_np=bunch.get_bunch_np()
+        self.ref_particle = bunch.ref_particle
         self.is_fixedz = 1
         
     def write_particles(self,filename,compress_level=1):
@@ -339,13 +496,6 @@ class Macro_bunch:
         self.local_num = self.particles.shape[1]
         self.total_num = self.local_num
         print "read",self.local_num,"particles"
-
-def get_longitudinal_period_size(mbunch):
-    mbs = mbunch.get_store()
-    ref_particle = mbs.get_ref_particle()
-    units = mbs.get_units()
-    gamma = -ref_particle[5]
-    beta = math.sqrt(1.0-1.0/gamma**2)
-    size = 2.0*math.pi*gamma*beta/units[0]
-    return size
+    
+    
 

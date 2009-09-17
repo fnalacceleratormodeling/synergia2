@@ -6,7 +6,7 @@ using namespace boost::python;
 
 Macro_bunch_store::Macro_bunch_store(numeric::array& numeric_local_particles,
                                      int local_num, int total_num,
-                                     double mass, int charge, double total_current,
+                                     double mass, int charge, double total_current, double bunch_np,
                                      numeric::array& numeric_units,
                                      numeric::array& numeric_ref_particle,
                                      bool is_fixedz)
@@ -22,6 +22,7 @@ Macro_bunch_store::Macro_bunch_store(numeric::array& numeric_local_particles,
     this->mass = mass;
     this->charge = charge;
     this->total_current = total_current;
+    this->bunch_np = bunch_np;
     this->is_fixedz = is_fixedz;
 }
 
@@ -59,6 +60,7 @@ void Macro_bunch_store::convert_to_fixedt()
             double rcp_gammai = 1.0 / (gamma - local_particles(5, i));
             double betai;
              if ((1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp))<0.0) {  
+                                   std::cout<<"beta i ^2=" <<1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp)<<std::endl;
                                           throw std::runtime_error (" error in convert_to_fixedt,"
                                  "probably the approximation beta ~betaz broke down, unstable beam ");
              } 
@@ -86,6 +88,7 @@ void Macro_bunch_store::convert_to_fixedz()
             double rcp_gammai = 1.0 / (gamma - local_particles(5, i));
             double betai;
              if ((1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp))<0.0) {  
+                  std::cout<<"beta i ^2=" <<1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp)<<std::endl;
                                           throw std::runtime_error (" error in convert_to_fixedz,"
                                  "probably the approximation beta ~betaz broke down, unstable beam ");
              } 

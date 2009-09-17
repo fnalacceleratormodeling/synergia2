@@ -11,7 +11,7 @@ BOOST_PYTHON_MODULE(macro_bunch_store)
     numeric::array::set_module_and_type("numpy", "ndarray");
     class_<Macro_bunch_store>("Macro_bunch_store",
                               init < numeric::array&, int, int,
-                              double, int, double,
+                              double, int, double, double,
                               numeric::array&, numeric::array&, bool > ())
     .def("get_local_particles",
          &Macro_bunch_store::get_local_particles)
@@ -23,6 +23,7 @@ BOOST_PYTHON_MODULE(macro_bunch_store)
     .def_readwrite("local_num", &Macro_bunch_store::local_num)
     .def_readwrite("total_num", &Macro_bunch_store::total_num)
     .def_readwrite("total_current", &Macro_bunch_store::total_current)
+    .def_readwrite("bunch_np", &Macro_bunch_store::bunch_np)   
     .def_readwrite("is_fixedz", &Macro_bunch_store::is_fixedz)
     .def("convert_to_fixedt", &Macro_bunch_store::convert_to_fixedt)
     .def("convert_to_fixedz", &Macro_bunch_store::convert_to_fixedz)

@@ -387,6 +387,7 @@ void
 populate_transverse_gaussian(Array_2d<double> &particles,
                              const Array_1d<double> &means,
                              const Array_2d<double> &covariances,
+                             const double z_length,
                              const int id_offset,
                              const unsigned long int seed,
                              bool init_generator)
@@ -422,7 +423,7 @@ populate_transverse_gaussian(Array_2d<double> &particles,
     }
     // Real z distribution
     Array_1d<double> z = particles.slice(vector2(Range(4), Range()));
-    gslr.fill_array_uniform(z, -pi, pi);
+    gslr.fill_array_uniform(z, -z_length/2., z_length/2. );
 }
 
 void

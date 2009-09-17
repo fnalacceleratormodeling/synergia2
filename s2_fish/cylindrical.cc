@@ -923,7 +923,7 @@ full_kick_cylindrical(const Cylindrical_field_domain &fdomain,
     const  double c = PH_MKS_c;
     double mass = mbs.mass * 1.0e9;
     double eps0 = PH_MKS_eps0;
-
+    const double qe=PH_MKS_e;
 
 
 /*    consider the electric fields in the rest frame, E'x, E'y, E'z,
@@ -937,9 +937,8 @@ full_kick_cylindrical(const Cylindrical_field_domain &fdomain,
 	p_t=-U ==> dp_t/dt=-betaz * dpz/dt-betax *dpx/dt-betay*dpy/dt =~ -beta*dpz/dt
 */
 
-    double length=2.0*pi*beta/mbs.units(0); // bunch length in lab frame
     double factor =PH_CNV_brho_to_p/eps0; // charge of the particle is PH_CNV_brho_to_p =p/Brho
-    factor *= length* mbs.total_current /(beta * c); // total charge=linear charge density*length
+    factor *=mbs.bunch_np*qe*mbs.charge;// total charge
     factor *= 1.0/(beta * c*mbs.total_num); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
     factor *= 1.0/gamma;    // relativistic factor,
     factor *=mbs.units(1); // the kikcing force should be muliplied  by the unit of p, this is a factor of 1/mass

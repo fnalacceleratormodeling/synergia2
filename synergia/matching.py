@@ -93,7 +93,16 @@ def  get_tunes(my_gourmet):
         mu = 2*pi - mu
     tune_y=mu/(2.*pi) 
     
-    return (tune_x,tune_y)
+    mzz=mymap[4,4]
+    mzpzp = mymap[5,5]
+    mzzp = mymap[4,5]
+    cos_mu = (mzz+mzpzp)/2.0
+    mu = acos(cos_mu) 
+    if mzzp/sin(mu) < 0:
+       mu = 2*pi - mu
+    tune_z=mu/(2.*pi)
+    
+    return (tune_x,tune_y, tune_z)
 
 envelope_match_cache  = function_cache.Function_cache("envelope_match.cache")
 def envelope_match(emitx,emity,current,g,use_cache=0,use_octave=0,do_plot=0):
