@@ -33,6 +33,39 @@ public:
     };
 };
 
+
+void
+get_spatial_means(Macro_bunch_store& mbs,
+                               numeric::array& numeric_means)
+
+{
+    Vector means(numeric_means);
+    double sum1[3];
+    for (int i = 0; i < 3; ++i) {
+        sum1[i] = 0.0;       
+    }
+    for (int n = 0; n < mbs.local_num; ++n) {
+        sum1[0] += mbs.local_particles(0, n);
+        sum1[1] += mbs.local_particles(2, n);
+        sum1[2] += mbs.local_particles(4, n);
+    }
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    if (size > 1) {
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        MPI_Allreduce(sum1, means.data, 3, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    } else {
+        for (int i = 0; i < 3; ++i) {
+            means(i) = sum1[i];
+        }
+    }
+    for (int i = 0; i < 3; ++i) {
+        means(i) /= mbs.total_num;
+    }
+}
+
+
+
 void
 get_spatial_means_stds(Macro_bunch_store& mbs,
                        numeric::array& numeric_means,

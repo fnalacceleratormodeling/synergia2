@@ -40,7 +40,8 @@ def apply_kick(mbunch_in,tau, space_charge=None,impedance=None, aperture=None):
     #	return
        
     mbunches = listify(mbunch_in) 
-    for mbunch in mbunches:    
+    
+    for bunch_index, mbunch in enumerate(mbunches):    
         if aperture:
             constraints.apply_circular_aperture(mbunch.get_store(),aperture)
             mytimer("apply aperture")       
@@ -56,11 +57,8 @@ def apply_kick(mbunch_in,tau, space_charge=None,impedance=None, aperture=None):
         if space_charge:
             apply_space_charge_kick(mbunch,space_charge,tau)   
 	    
-        if impedance:
-            if (len(mbunches) >1): 
-                print "impedance for multiple bunches not implemented yet"
-                sys.exit(1)
-            apply_impedance_kick(mbunch,impedance,tau) 
+        if impedance: 
+            apply_impedance_kick(mbunch,impedance,tau, bunch_index) 
         mbunch.convert_to_fixedz()
         mytimer("unconvert")
 

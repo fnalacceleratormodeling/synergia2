@@ -12,7 +12,7 @@ n=[0:sz-1]*dk;
 ffx=fft(mi.mean(1,:));
 ffy=fft(mi.mean(3,:));
 ffz=fft(mi.mean(5,:));
-hold off
+#hold off
 clear n1;
 n1=[-sz/2:sz/2-1]*dk;
 for i=1:sz/2

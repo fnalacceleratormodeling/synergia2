@@ -9,14 +9,13 @@ import tables
 import time
 import math
 
-from synergia import loadfile_transpose, physics_constants
+from synergia import loadfile_transpose, physics_constants, syn2_diagnostics 
 import populate
 import constraints
 
 _need_random_init= True
 _global_id_max = 0
 class Macro_bunch:
-    #def __init__(self,bunch_np,total_num,beam_parameters, periodic=False):
     def __init__(self):  
         self.complete=0 
         self.particles = None
@@ -32,51 +31,65 @@ class Macro_bunch:
         self.charge = None 
         self.periodic=False
         self.periodic_z_size=None
-
+        self.diagnostics=None
+        self.bucket_num=None
 
 # constructors     
     @classmethod
-    def gaussian(klass, bunch_np,total_num,beam_parameters,periodic=False):
+    def gaussian(klass, bunch_np,total_num,beam_parameters,diagnostics=None,bucket_num=0,periodic=False):
         bunch=klass() 
-        bunch.init_gaussian(bunch_np,total_num,beam_parameters,periodic)
-        bunch.complete=1
+        bunch.init_gaussian(bunch_np,total_num,beam_parameters,periodic)        
+        bunch.diagnostics=diagnostics
+        bunch.bucket_num=bucket_num
         return bunch  
     
     @classmethod
-    def gaussian_covariance(klass,bunch_np,total_num, beam_parameters,covariance,periodic=False):
+    def gaussian_covariance(klass,bunch_np,total_num, beam_parameters,covariance,diagnostics=None,bucket_num=0,periodic=False):
         bunch=klass() 
         bunch.init_gaussian_covariance(bunch_np,total_num, beam_parameters,covariance,periodic)
+        bunch.diagnostics= diagnostics 
+        bunch.bucket_num=bucket_num     
         return bunch       
              
     @classmethod
-    def from_bunch(klass, mbunch):
+    def from_bunch(klass, mbunch,diagnostics=None,bucket_num=0):
         bunch=klass() 
         bunch.init_from_bunch(mbunch)
+        bunch.diagnostics=diagnostics  
+        bunch.bucket_num=bucket_num     
         return bunch
         
     @classmethod
-    def sphere(klass,num,radius):
+    def sphere(klass,num,radius,diagnostics=None,bucket_num=0):
         bunch=klass() 
         bunch.init_sphere(num,radius)
+        bunch.diagnostics= diagnostics
+        bunch.bucket_num=bucket_num        
         return bunch
             
     @classmethod
-    def cylinder(klass,num,radius,length):
+    def cylinder(klass,num,radius,length,diagnostics=None,bucket_num=0):
         bunch=klass() 
         bunch.init_cylinder(num,radius,length)
+        bunch.diagnostics= diagnostics
+        bunch.bucket_num=bucket_num         
         return bunch    
         
     @classmethod
-    def test(klass,num_per_side,edge_length=1.0):
+    def test(klass,num_per_side,diagnostics=None,bucket_num=0,edge_length=1.0):
         bunch=klass() 
         bunch.init_test(num_per_side,edge_length)
+        bunch.diagnostics= diagnostics
+        bunch.bucket_num=bucket_num  
         return bunch
     
     
     @classmethod
-    def test_am(klass,bunch_np,num_per_cell,shape,beam_parameters):
+    def test_am(klass,bunch_np,num_per_cell,shape,beam_parameters,diagnostics=None,bucket_num=0):
         bunch=klass() 
         bunch.init_test_am(bunch_np,num_per_cell,shape, beam_parameters)
+        bunch.diagnostics= diagnostics
+        bunch.bucket_num=bucket_num          
         return bunch
     
   
@@ -497,5 +510,14 @@ class Macro_bunch:
         self.total_num = self.local_num
         print "read",self.local_num,"particles"
     
-    
+    def add_diagnostics(self,s):
+        self.diagnostics.add(s,self)
 
+    
+class Multiple_bunches:
+    def __init__(self, bunches,  bunch_spacing):
+        self.bunches= bunches     
+        self.bunch_spacing=bunch_spacing
+        self.num_buckets=len(bunches)
+        
+      

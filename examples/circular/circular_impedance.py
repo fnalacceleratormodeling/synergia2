@@ -26,7 +26,7 @@ if ( __name__ == '__main__'):
     # longitudinal beta is 143.6
     myopts.add("dpop",3.482e-4,"(delta p)/p RMS width",float)
     myopts.add("bunchlen", 0.05, "RMS bunchs length (z width) [m]", float)
-    myopts.add("dpopoffset", 0.0, "offset in dpop", float)
+    myopts.add("dpopoffset", 0.0, "offset in dpop (am: ! -duop)", float)
     myopts.add("kicks",32,"kicks per line",int)
     myopts.add("turns",10,"number of turns",int)
     myopts.add("latticefile","foborodobo_s.lat","",str)
@@ -39,14 +39,15 @@ if ( __name__ == '__main__'):
 #    myopts.add("zoffset",0,"offset in z", float)
 #    myopts.add("xoffset",4.26e-4,"transverse offset in x",float)
 #    myopts.add("yoffset",1.86e-4,"transverse offset in y",float)
-    myopts.add("zoffset",0.0001,"offset in z", float)
+    myopts.add("zoffset",0.1,"offset in z", float)
+   # myopts.add("zoffset",0.,"offset in z", float)
     myopts.add("space_charge",0,"",int)
     myopts.add("impedance",0,"",int)
     myopts.add("pipe_symmetry","circular","",str) 
   #  myopts.add("pipe_symmetry","x_parallel_plates","",str) 
     myopts.add("energy",100.004401675138,"",float)
     myopts.add("partpercell",1,"",float)
-    myopts.add("bunches",1,"",int)
+    myopts.add("bunches",2,"",int)
     myopts.add("bunchnp",1.0e11,"number of particles per bunch",float)
     myopts.add("kick","full","kick type",str)
     
@@ -83,11 +84,12 @@ if ( __name__ == '__main__'):
     line_length = gourmet.orbit_length()
     gamma = energy/mass
     beta = math.sqrt(1.0-1.0/gamma**2)
-    print "gamma initial=",gamma
-
+    if MPI.COMM_WORLD.Get_rank() == 0: 
+        print "gamma initial=",gamma
+        print "beta = ",beta
 
     w_cav=beta*synergia.physics_constants.PH_MKS_c/line_length
-    print "w_cav=",w_cav
+    if MPI.COMM_WORLD.Get_rank() == 0: print "w_cav=",w_cav
     	
     
     for element in gourmet.beamline:	
@@ -123,7 +125,7 @@ if ( __name__ == '__main__'):
     
     beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
                                          initial_phase, scaling_frequency_Hz=scaling_frequency,
-                                         transverse=1, adjust_zlength_to_freq=1)
+                                         transverse=0, adjust_zlength_to_freq=0)
     betagamma=beam_parameters.get_beta()*beam_parameters.get_gamma() 
 
     emittance = myopts.get("emittance")
@@ -144,27 +146,63 @@ if ( __name__ == '__main__'):
                              r = ry,offset=yoffset, offset_p = ypoffset * pz )
     
     
-    zoffset = myopts.get("zoffset")
-    zwidth=myopts.get("bunchlen")
+    #zoffset = myopts.get("zoffset")
+    #zwidth=myopts.get("bunchlen")
     zpwidth=myopts.get("dpop")
+    
+    bunch_sp=2.0*math.pi*beta*synergia.physics_constants.PH_MKS_c/beam_parameters.get_omega()
+    z_length=bunch_sp
+    zwidth=bunch_sp/15.0    
+    zoffset = 0.2
     beam_parameters.z_params(sigma = zwidth, 
-                             lam = zpwidth* pz, z_length=0.33, offset=zoffset,
+                             lam = zpwidth* pz, z_length=z_length, offset=zoffset,
                              offset_p = myopts.get("dpopoffset")*pz)
+#Note! the input term  dpop is in fact (-duop)                           
   
-   
+    if MPI.COMM_WORLD.Get_rank() ==0:
+        print " **********************************************************************" 
+        print "beam information:"
+        print
+        print "transverse=",beam_parameters.transverse
+        if beam_parameters.adjust_zlength_to_freq:
+            print "adjusted length =",beam_parameters.z_length
+        else:
+            print "bunch length (not adjusted)= ", beam_parameters.z_length
+           
     sys.stdout.flush()
 
  
 
 ### creating the bunch
-    bunchnp=myopts.get("bunchnp") 
+    bunchnp0=myopts.get("bunchnp") 
     tgridnum = myopts.get("tgridnum")
     lgridnum = myopts.get("lgridnum")
     griddim = (tgridnum,tgridnum,lgridnum)
     part_per_cell = myopts.get("partpercell")
     num_particles = int(griddim[0]*griddim[1]*griddim[2] * part_per_cell)
     
-    bunch = s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,periodic=True)
+    numbunches = myopts.get("bunches")
+    bunches = []
+
+   
+    for bunchnum in range(0,numbunches):
+        diag=synergia.Diagnostics(gourmet.get_initial_u(),short=True)
+        bunchnp=bunchnp0#*(bunchnum+1)*0.5 # bucket_num =2 in front of bucket_num =3
+        bunches.append(s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,diagnostics=diag,bucket_num=2*bunchnum,periodic=True))
+        bunches[bunchnum].write_particles("begin-%02d"%bunchnum)
+        bunches[bunchnum].add_diagnostics(0)
+        print " bunch(",bunchnum,") periodicity=",bunches[bunchnum].periodic
+        print "  initial means bunch(",bunchnum,")=",numpy.array(bunches[bunchnum].diagnostics.get_means())
+
+    print " **********************************************************************"  
+    mbunches=s2_fish.Multiple_bunches(bunches, bunch_sp)
+        
+   
+        
+    
+    
+    #diagnostic_units=gourmet.get_initial_u()
+    #bunch = s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,gourmet.get_initial_u(),periodic=True)
     #bunch= s2_fish.Macro_bunch.from_bunch(bunch1)
     #bunch = s2_fish.Macro_bunch.test(int(part_per_cell))
    # bunch = s2_fish.Macro_bunch.test_am(bunchnp,part_per_cell,griddim,beam_parameters)
@@ -175,8 +213,8 @@ if ( __name__ == '__main__'):
    # print "bunch first long size=",bunch.get_longitudinal_period_size()
    
    
-    bunch.write_particles("begin")
-    diag = synergia.Diagnostics(gourmet.get_initial_u(),save_period=0)   
+    #bunch.write_particles("begin")
+    #diag = synergia.Diagnostics(gourmet.get_initial_u(),save_period=0)   
 
     log = open("log","w")
     if MPI.COMM_WORLD.Get_rank() ==0:
@@ -214,7 +252,7 @@ if ( __name__ == '__main__'):
         wall_thickness=0.0114        
         pipe_symmetry=myopts.get("pipe_symmetry")
         kick=myopts.get("kick")
-        rw_impedance=s2_fish.Impedance(pipe_radius, pipe_conduct,wall_thickness, line_length,lgridnum, pipe_symmetry,kick=kick)
+        rw_impedance=s2_fish.Impedance(pipe_radius, pipe_conduct,wall_thickness, line_length,lgridnum, pipe_symmetry,kick=kick,nstored_turns=3)
                 #pipe_symmetry="x_parallel_plates")
         print "IMPEDANCE PIPE radius=", rw_impedance.get_pipe_radius()
         print "IMPEDANCE PIPE wall_thickness=",rw_impedance.get_wall_thickness()
@@ -233,7 +271,7 @@ if ( __name__ == '__main__'):
         print "offsets x,y,z: ", myopts.get("xoffset"), \
             myopts.get("yoffset"), myopts.get("zoffset")
         print "emittance: ", myopts.get("emittance")
-        print "bunch length = ", myopts.get("bunchlen")
+        #print "bunch length = ", myopts.get("bunchlen")
         print "dpop width = ", myopts.get("dpop")
         print "using lattice file: ", myopts.get("latticefile")
         print "grid = ", myopts.get("tgridnum"),"^2 x ",\
@@ -245,20 +283,24 @@ if ( __name__ == '__main__'):
     s = 0.0
     for turn in range(1,myopts.get("turns")+1):
         t1 = time.time()
-        s = synergia.propagate(s,gourmet, bunch, diag, space_charge=sp_ch,impedance=rw_impedance)
-	    	
+        #s = synergia.propagate(s,gourmet, bunches,  space_charge=sp_ch,impedance=rw_impedance, bunch_spacing=0.5)
+        s = synergia.propagate(s,gourmet, mbunches,  space_charge=sp_ch,impedance=rw_impedance)
+               
         if MPI.COMM_WORLD.Get_rank() ==0:
             output = "turn %d time = %g"%(turn,time.time() - t1)
             print output
             log.write("%s\n" % output)
             log.flush()
+    
+    
+    for bunchnum in range(0,numbunches):
+        if MPI.COMM_WORLD.Get_rank() == 0:
+            bunches[bunchnum].diagnostics.write_hdf5("mi-%02d"%bunchnum)
+    for bunchnum in range(0,numbunches):
+        if MPI.COMM_WORLD.Get_rank() == 0:
+            bunches[bunchnum].write_particles("end-%02d"%bunchnum)
 
-   
-    if MPI.COMM_WORLD.Get_rank() == 0:
-        diag.write_hdf5("mi-00")
-    
-    bunch.write_particles("end-00")
-    
+    log.close()
     #wf=rw_impedance.get_wake_factor()
     ##print "wf=", wf
     #wzero=wf*beta*line_length/(synergia.physics_constants.PH_MKS_rp*4.*math.pi*synergia.physics_constants.PH_MKS_eps0)

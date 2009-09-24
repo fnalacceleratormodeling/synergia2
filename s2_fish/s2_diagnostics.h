@@ -8,6 +8,11 @@
 #include <numpy/arrayobject.h>
 
 void
+get_spatial_means(Macro_bunch_store& mbs,
+                       numeric::array& means);
+
+
+void
 get_spatial_means_stds(Macro_bunch_store& mbs,
                        numeric::array& means,
                        numeric::array& stds);

@@ -94,5 +94,6 @@ apply_circular_aperture(Macro_bunch_store &mbs, double radius)
     std::cout << "proc " << rank << ": local = " << mbs.local_num
     << ", total = " << mbs.total_num << std::endl;
     mbs.total_current *= mbs.total_num / (1.0 * old_total_num);
+    mbs.bunch_np *= mbs.bunch_np / (1.0 * old_total_num); 
 }
 

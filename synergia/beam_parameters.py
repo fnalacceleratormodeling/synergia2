@@ -6,7 +6,7 @@ import numpy
 
 class Beam_parameters:
     def __init__(self, mass_GeV, charge_e, kinetic_energy_GeV,
-                 initial_phase_rad=0, scaling_frequency_Hz=1, transverse=0, adjust_zlength_to_freq=0):
+                 initial_phase_rad=0, scaling_frequency_Hz=1, transverse=0, adjust_zlength_to_freq=1):
         self.mass_GeV = mass_GeV
         self.charge_e = int(charge_e)
         self.kinetic_energy_GeV = kinetic_energy_GeV
@@ -115,7 +115,8 @@ class Beam_parameters:
         Cz    = w/(beta*c)
         Cxpyp = 1.0/m
         Czp   = 1.0/m # really a conversion from p_z to p_t, so includes an
-                    # extra factor of beta, i.e., 1/(beta*m) * beta        
+                    # extra factor of beta, i.e., 1/(beta*m) * beta     
+                    # !!  space charge and impedance kicks assume Cxpyp=Czp, be careful when/if you change this...
         return (Cxy, Cxpyp, Cz, Czp)
     
     def default_correlation_coeffs(self):

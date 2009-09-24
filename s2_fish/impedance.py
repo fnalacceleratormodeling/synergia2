@@ -16,14 +16,17 @@ from s2_impedance_kick import *
 
 
 import math
-#import sys
+import sys
 import numpy
+
 #import string
 #import os.path
 
 from mpi4py import MPI
 
-def apply_impedance_kick(bunch,impedance,tau):
+def apply_impedance_kick(bunch,impedance,tau, bunch_index):
+   # for i in range(0,len(impedance.stored_means)):
+        #print "bunch bucket",impedance.stored_means[i].get_ibucket(),"  s=",impedance.stored_means[i].get_s(),"   means=",impedance.stored_means[i].get_means()
     bunchmin, bunchmax = synergia.get_spatial_minmax(bunch)
     rwsize = bunchmax - bunchmin
     impedance_zgrid=impedance.get_z_grid()   
@@ -43,13 +46,42 @@ def apply_impedance_kick(bunch,impedance,tau):
     bool_quad_wake=impedance.get_bool_quad_wake()
     quad_wake_sum=impedance.get_quad_wake_sum()
     cutoff_small_z=impedance.get_cutoff_small_z()
-    rw_kick(rwsize[2], bin_partition,  zdensity, xmom, ymom, tau, 
-             bunch.get_store(), wake_factor,  cutoff_small_z, wake_coeff, quad_wake_sum, bool_quad_wake)
+#  quantities needed for beam-beam interaction    
+    bunch_spacing=impedance.get_bunch_spacing()
+    line_length=impedance.get_orbit_length()
+    num_bunches=len(impedance.stored_means)
+    nts=len(impedance.stored_means[0].get_means()) # number of turns stored    
+    stored_means=numpy.zeros((num_bunches,nts,3),'d')
+    stored_buckets=numpy.zeros((num_bunches,nts),'i')
+    stored_bunchnp=numpy.zeros((num_bunches,nts),'d')
+   
+   
+
+    for i in range(0,num_bunches):
+        stored_means[i]=impedance.stored_means[i].get_means()        
+        stored_buckets[i]=impedance.stored_means[i].get_ibucket()
+        stored_bunchnp[i]=impedance.stored_means[i].get_bunchnp()
+   
+    #the  maximum number of agruments passed to C++ is by defalut 15....grouping parameters
+    dparameters=numpy.zeros((7),'d')
+    dparameters[0]=rwsize[2]
+    dparameters[1]=tau
+    dparameters[2]=wake_factor
+    dparameters[3]=cutoff_small_z
+    dparameters[4]=quad_wake_sum
+    dparameters[5]=bunch_spacing
+    dparameters[6]=line_length
     
+             
+    rw_kick(dparameters, bin_partition,  zdensity, xmom, ymom, 
+             bunch.get_store(), wake_coeff,  bool_quad_wake, \
+             bunch_index, stored_means, stored_buckets,stored_bunchnp)        
+   # print "***************************** "
 
 class Impedance:
     '''Defines the parameters and methods necessary to  impedance calculation'''
-    def __init__(self, pipe_radius, pipe_conduct, wall_thickness, orbit_length, z_grid, pipe_symmetry="circular",paking_frac=1.0, kick="full"):
+    def __init__(self, pipe_radius, pipe_conduct, wall_thickness, orbit_length, z_grid, 
+        pipe_symmetry="circular",paking_frac=1.0, kick="full",nstored_turns=2):
         self.pipe_radius=pipe_radius
         self.pipe_conduct=pipe_conduct # to agree with eq in chao's book (units s^-1), make pipe_conduct=pipe_conduct/(4*pi*eps_0)	
         self.orbit_length=orbit_length
@@ -58,6 +90,9 @@ class Impedance:
         self.wall_thickness=wall_thickness
         self.paking_frac=paking_frac # <=1.0,  packing fraction is the fraction of elements in the ring  (magnets) which contribute to the res wall impedance 
         self.kick=kick
+        self.stored_means=None
+        self.nstored_turns=nstored_turns
+        self.bunch_spacing=None
         if MPI.COMM_WORLD.Get_rank() == 0:    
                 print "impedance kick type=", kick
 # pipe symmetry keywords so far, see below  "circular", "x_parallel_plates", "y_parallel_plates", "elliptical"	
@@ -227,7 +262,7 @@ class Impedance:
         t=self.wall_thickness
         sigma=self.pipe_conduct
         quad_wake_sum=0.
-        for turn in range(1,cutoff+1):		 
+        for turn in range(self.nstored_turns,cutoff+1):		 
             quad_wake_sum +=1./math.sqrt(turn) 
              	    	    
         quad_wake_sum *= 1./math.sqrt(orbit_length)
@@ -245,4 +280,11 @@ class Impedance:
 	#print " quad_wake_sum =", quad_wake_sum
         return  quad_wake_sum   
 	
-   	
+
+    
+    def get_means(self):
+        return numpy.array(self.means)
+    
+    def get_bunch_spacing(self):
+        return self.bunch_spacing 
+        

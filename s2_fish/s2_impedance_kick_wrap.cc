@@ -6,19 +6,23 @@
 using namespace boost::python;
 
 void
-rw_kick_wrap(   double zsize,
+rw_kick_wrap(  
+                object &dparameters,
                 object &bin_partition,
                 object &zdensity,
                 object &xmom, 
                 object &ymom,
-                double tau, 
                 Macro_bunch_store &mbs,
-                double wake_factor,               
-                double cutoff_small_z, 
                 object &wake_coeff, 
-                double quad_wake_sum, 
-                bool bool_quad_wake)
+                bool bool_quad_wake,
+                int bunch_i,
+                object &stored_means,
+                object &stored_buckets,
+                object &stored_bunchnp
+            )   
 {
+
+   Array_1d<double> dparameters_array=Array_nd_from_PyObject<double>(dparameters.ptr());
    Array_1d<double> zdensity_array = 
         Array_nd_from_PyObject<double>(zdensity.ptr());
     Array_1d<double> xmom_array = 
@@ -29,9 +33,22 @@ rw_kick_wrap(   double zsize,
         Array_nd_from_PyObject<int>(bin_partition.ptr());
     Array_1d<double> wake_coeff_array = 
         Array_nd_from_PyObject<double>(wake_coeff.ptr());
-    rw_kick( zsize, bin_part_array,zdensity_array,
-	    xmom_array,ymom_array,tau,mbs,wake_factor,
-           cutoff_small_z, wake_coeff_array,  quad_wake_sum, bool_quad_wake);
+    Array_3d<double> stored_means_array=
+            Array_nd_from_PyObject<double>(stored_means.ptr());
+    Array_2d<int> stored_buckets_array = 
+            Array_nd_from_PyObject<int>(stored_buckets.ptr()); 
+    Array_2d<double> stored_bunchnp_array=
+            Array_nd_from_PyObject<double>(stored_bunchnp.ptr());  
+    
+    rw_kick( dparameters_array, bin_part_array,zdensity_array,
+	  xmom_array,ymom_array,mbs,
+      wake_coeff_array,   bool_quad_wake, bunch_i,
+      stored_means_array, stored_buckets_array, stored_bunchnp_array);
+    
+//     rw_kick( zsize, bin_part_array,zdensity_array,
+//              xmom_array,ymom_array,tau,mbs,wake_factor,
+//              cutoff_small_z, wake_coeff_array,  quad_wake_sum, bool_quad_wake, bunch_num,
+//              stored_means_array, stored_buckets_array,bunch_spacing);
 }
 
 BOOST_PYTHON_MODULE(s2_impedance_kick)

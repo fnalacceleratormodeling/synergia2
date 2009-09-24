@@ -4,6 +4,7 @@ import numpy.linalg
 from math import sqrt
 import sys
 import tables
+from collections import deque
 from mpi4py import MPI
 import time
 
@@ -47,6 +48,14 @@ zprime_xprime = 11
 zprime_y = 12
 zprime_yprime = 13
 zprime_z = 14
+
+def get_labframe_means(bunch):
+    means = numpy.zeros([3],numpy.float64)
+    s2_diagnostics.get_spatial_means(bunch.get_store(),means)
+    means[0] /= bunch.units[0] 
+    means[1] /= bunch.units[2]  
+    means[2] /= -bunch.units[4]   
+    return means
 
 def get_spatial_means_stds(bunch):
     means = numpy.zeros([3],numpy.float64)
@@ -201,3 +210,40 @@ class Diagnostics:
         # octave gets confused if n is not an array of doubles
         hdfarray = f.createArray(root, 'n',numpy.array(self.n,'d'),"n") 
         f.close()
+
+class Stored_means:
+    def __init__(self,units,maxque_len=10):
+        self.units=units
+        self.maxque_len=maxque_len
+        self.s = deque()
+        self.ibucket=deque()
+        self.means = deque()
+        self.bunch_np=deque()
+   
+   
+    def add(self,s,bunch):
+        if self.maxque_len==0: return
+        que_len=len(self.s)
+        if que_len >= self.maxque_len:
+             self.s.pop()
+             self.ibucket.pop()
+             self.means.pop()
+             self.bunch_np.pop()
+        self.s.appendleft(s)
+        self.ibucket.appendleft(bunch.bucket_num)
+        means = get_labframe_means(bunch)
+        self.means.appendleft(means)
+        self.bunch_np.appendleft(bunch.bunch_np)
+        
+    
+    def get_s(self):
+        return numpy.array(self.s)
+    
+    def get_ibucket(self):
+        return numpy.array(self.ibucket)
+    
+    def get_means(self):
+        return numpy.array(self.means)
+    
+    def get_bunchnp(self):
+        return numpy.array(self.bunch_np)
