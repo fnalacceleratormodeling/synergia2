@@ -169,8 +169,8 @@ if ( __name__ == '__main__'):
     griddim = (gridnum,gridnum,32)
     num_particles = griddim[0]*griddim[1]*griddim[2] * part_per_cell
     
-    
-    bunch = s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,periodic=True)
+    diag = synergia.Diagnostics(gourmet.get_initial_u())
+    bunch = s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,diagnostics=diag,periodic=True)
     
    
     bunch.write_particles("begin")
@@ -178,23 +178,23 @@ if ( __name__ == '__main__'):
     tau = 0.5*line_length/kicks_per_line
     s = 0.0
     first_action = 0
-    diag = synergia.Diagnostics(gourmet.get_initial_u())
+    
     kick_time = 0.0
     
     t0=time.time()
     solver="s2_fish_gauss"
     sp_ch=s2_fish.SpaceCharge(solver)
-    s= synergia.propagate(0.0,gourmet, bunch,diag, space_charge=sp_ch)
+    s= synergia.propagate(0.0,gourmet, bunch, space_charge=sp_ch)
     print "elapsed time 2d =",time.time() - t0,"on rank", MPI.COMM_WORLD.Get_rank()
 	
     pylab.figure(1)	
     pylab.xlabel('s (m)')
     pylab.ylabel('std<x> (m)')	
-    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.x],'r+',markersize=15.0,label='fish 2d')
+    pylab.plot(diag.get_s(),bunch.diagnostics.get_stds()[:,synergia.x],'r+',markersize=15.0,label='fish 2d')
     pylab.legend(loc=0)    
 
     pylab.figure(2)
-    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.xprime],'r+',markersize=15.0,label='fish 2d')
+    pylab.plot(diag.get_s(),bunch.diagnostics.get_stds()[:,synergia.xprime],'r+',markersize=15.0,label='fish 2d')
     pylab.xlabel('s (m)')
     pylab.ylabel('std<xprime> ')
     pylab.legend(loc=0)
@@ -219,12 +219,13 @@ if ( __name__ == '__main__'):
 
     
     #bunch = s2_fish.Macro_bunch(mass,1)
-    bunch = s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,periodic=True)
+    diag = synergia.Diagnostics(gourmet.get_initial_u())
+    bunch = s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,diagnostics=diag,periodic=True)
     #bunch.init_gaussian(num_particles,current,beam_parameters)
     bunch.write_particles("begin")
     s = 0.0
     first_action = 0
-    diag = synergia.Diagnostics(gourmet.get_initial_u())
+    
     kick_time = 0.0
     
     solver="s2_fish_3d"
@@ -232,7 +233,7 @@ if ( __name__ == '__main__'):
     sp_ch=s2_fish.SpaceCharge(solver,grid=griddim,periodic=periodic_solver)
   
     t0=time.time()
-    s= synergia.propagate(0.0,gourmet, bunch,diag, space_charge=sp_ch)
+    s= synergia.propagate(0.0,gourmet, bunch, space_charge=sp_ch)
     
     print "elapsed time 3d =",time.time() - t0,"on rank", MPI.COMM_WORLD.Get_rank()
     bunch.write_particles("end")
@@ -240,11 +241,11 @@ if ( __name__ == '__main__'):
 
     print " "
     pylab.figure(1)
-    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.x],'b+',markersize=15.0,label='fish 3d')
+    pylab.plot(diag.get_s(),bunch.diagnostics.get_stds()[:,synergia.x],'b+',markersize=15.0,label='fish 3d')
     pylab.legend(loc=0)
 
     pylab.figure(2)
-    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.xprime],'b+',markersize=15.0,label='fish 3d')
+    pylab.plot(diag.get_s(),bunch.diagnostics.get_stds()[:,synergia.xprime],'b+',markersize=15.0,label='fish 3d')
     pylab.legend(loc=0)
      
 # **********************************************************************
@@ -265,19 +266,19 @@ if ( __name__ == '__main__'):
     sigma_z_meters = beam_parameters.get_beta()*synergia.PH_MKS_c/scaling_frequency/math.pi
     beam_parameters.z_params(sigma = sigma_z_meters, z_length=z_length,lam = dpop* pz)
 
-    bunch = s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,periodic=True)
+    diag = synergia.Diagnostics(gourmet.get_initial_u())
+    bunch = s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,diagnostics=diag,periodic=True)
     #bunch = s2_fish.Macro_bunch(mass,1)
     #bunch.init_gaussian(num_particles,current,beam_parameters)
     bunch.write_particles("begin")
     s = 0.0
     first_action = 0
-    diag = synergia.Diagnostics(gourmet.get_initial_u())
     kick_time = 0.0
     
 
   
     t0=time.time()
-    s= synergia.propagate(0.0,gourmet, bunch,diag, space_charge=sp_ch)
+    s= synergia.propagate(0.0,gourmet, bunch, space_charge=sp_ch)
    
     print "elapsed time 3d cyl =",time.time() - t0,"on rank", MPI.COMM_WORLD.Get_rank()
     bunch.write_particles("end")
@@ -285,11 +286,11 @@ if ( __name__ == '__main__'):
 
     print " "
     pylab.figure(1)
-    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.x],'kx',markersize=15.0,label='3d cyl')
+    pylab.plot(diag.get_s(),bunch.diagnostics.get_stds()[:,synergia.x],'kx',markersize=15.0,label='3d cyl')
     pylab.legend(loc=0)
 
     pylab.figure(2)
-    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.xprime],'kx',markersize=15.0,label='3d cyl')
+    pylab.plot(diag.get_s(),bunch.diagnostics.get_stds()[:,synergia.xprime],'kx',markersize=15.0,label='3d cyl')
     pylab.legend(loc=0)
    
  ## ****** no space charge****************************************************************
@@ -301,7 +302,9 @@ if ( __name__ == '__main__'):
     beam_parameters.z_params(sigma = sigma_z_meters, z_length=z_length,lam = dpop* pz)
     griddim = (32,16,129)
     num_particles = griddim[0]*griddim[1]*griddim[2] * 1 #part_per_cell
-    bunch = s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,periodic=True)
+    
+    diag = synergia.Diagnostics(gourmet.get_initial_u())
+    bunch = s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,diagnostics=diag,periodic=True)
     
     
     bunch.write_particles("begin")
@@ -309,26 +312,26 @@ if ( __name__ == '__main__'):
     tau = 0.5*line_length/kicks_per_line
     s = 0.0
     first_action = 0
-    diag = synergia.Diagnostics(gourmet.get_initial_u())
+    
     kick_time = 0.0
 
    
     
     
     t0=time.time()
-    s= synergia.propagate(0.0,gourmet, bunch,diag) 
+    s= synergia.propagate(0.0,gourmet, bunch) 
     print "elapsed time no sp charge=",time.time() - t0
 
     pylab.figure(1)
    # pylab.plot(diag.s,diag.stds[0],'gx',label='no sp ch ') old version
-    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.x],'gx',label='no sp ch ')
+    pylab.plot(diag.get_s(),bunch.diagnostics.get_stds()[:,synergia.x],'gx',label='no sp ch ')
     pylab.legend(loc=0)
 
 
 
     pylab.figure(2)
     #pylab.plot(diag.s,diag.stds[1],'gx',label='no sp ch') old version
-    pylab.plot(diag.get_s(),diag.get_stds()[:,synergia.xprime],'gx',label='no sp ch ')
+    pylab.plot(diag.get_s(),bunch.diagnostics.get_stds()[:,synergia.xprime],'gx',label='no sp ch ')
     pylab.legend(loc=0)
     
     pylab.show()      

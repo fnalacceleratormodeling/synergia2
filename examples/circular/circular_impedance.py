@@ -190,7 +190,6 @@ if ( __name__ == '__main__'):
         bunchnp=bunchnp0#*(bunchnum+1)*0.5 # bucket_num =2 in front of bucket_num =3
         bunches.append(s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,diagnostics=diag,bucket_num=2*bunchnum,periodic=True))
         bunches[bunchnum].write_particles("begin-%02d"%bunchnum)
-        bunches[bunchnum].add_diagnostics(0)
         print " bunch(",bunchnum,") periodicity=",bunches[bunchnum].periodic
         print "  initial means bunch(",bunchnum,")=",numpy.array(bunches[bunchnum].diagnostics.get_means())
 
