@@ -10,8 +10,8 @@ private:
     boost::multi_array<double, 1 > state;
 public:
     Reference_particle(double total_energy);
-    Reference_particle(double total_energy,
-            boost::const_multi_array_ref<double, 1 > state);
+    Reference_particle(double total_energy, boost::const_multi_array_ref<
+            double, 1 > state);
 
     void
     set_total_energy(double total_energy);
