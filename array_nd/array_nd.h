@@ -92,6 +92,7 @@ public:
     T* end();
     std::vector<int> get_shape() const;
     std::vector<int> get_strides() const;
+    int get_size() const;
     int get_rank() const;
     bool shape_is_frozen() const;
     inline int offset(const std::vector<int> &indices) const;

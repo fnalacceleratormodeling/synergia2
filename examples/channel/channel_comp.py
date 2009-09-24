@@ -24,7 +24,7 @@ if ( __name__ == '__main__'):
         "conductivity for pipe [/s], default is for stainless steel",float)
     myopts.add("spacecharge",1,"whether to use space charge kicks",int)        
     myopts.add("doplot",1,"show plot",int)
-    myopts.add("bunchnp",1.0e9,"number of particles per bunch",float)
+    myopts.add("bunchnp",0.25e8,"number of particles per bunch",float)
     
     myopts.add_suboptions(synergia.opts)
     myopts.parse_argv(sys.argv)
