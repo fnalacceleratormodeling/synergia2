@@ -9,6 +9,7 @@ BOOST_PYTHON_MODULE(pyfoundation)
 {
     import_array();
     numpy_multi_array_ref_converter<double,1 >::register_to_and_from_python();
+    numpy_const_multi_array_ref_converter<double,1 >::register_to_and_from_python();
 
     class_<Four_momentum>("Four_momentum", init<double>())
         .def("set_total_energy",&Four_momentum::set_total_energy)
