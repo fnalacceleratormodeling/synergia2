@@ -21,15 +21,20 @@ import sys, os
 # absolute, like shown here.
 #sys.path.append(os.path.abspath('.'))
 sys.path.append(os.path.abspath('..'))
-sys.path.append('/home/amundson/work/synergia2-proto3/install/lib')
+sys.path.append('/home/amundson/work/synergia2-devel_1_0/install/lib')
+sys.path.append('/home/amundson/src/breathe')
+
 
 # General configuration
 # ---------------------
 
 # Add any Sphinx extension module names here, as strings. They can be extensions
 # coming with Sphinx (named 'sphinx.ext.*') or your custom ones.
-extensions = ['sphinx.ext.autodoc']
-
+extensions = ['sphinx.ext.autodoc','sphinx.ext.pngmath','breathe']
+breathe_projects = {
+    "foundation":"../components/foundation/doc/doxy/xml"
+    }
+breathe_default_project = "foundation"
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['.templates']
 

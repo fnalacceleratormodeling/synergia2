@@ -10,8 +10,7 @@ Contents:
 .. toctree::
     :maxdepth: 2
 
-    synergia.rst
-    s2_fish.rst
+    foundation.rst
 
 Indices and tables
 ==================

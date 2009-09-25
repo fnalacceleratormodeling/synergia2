@@ -50,6 +50,8 @@ include_directories(${SYNERGIA2_SOURCE_DIR})
 # jfa hardcoded path fixme
 include_directories(/usr/lib64/python2.6/site-packages/numpy/core/include)
 
+add_custom_target(doxy)
+
 add_subdirectory(array_nd)
 add_subdirectory(components)
 add_subdirectory(synergia)
