@@ -296,11 +296,9 @@ if ( __name__ == '__main__'):
     
     
     for bunchnum in range(0,numbunches):
-        if MPI.COMM_WORLD.Get_rank() == 0:
-            bunches[bunchnum].diagnostics.write_hdf5("mi-%02d"%bunchnum)
+        bunches[bunchnum].diagnostics.write_hdf5("mi-%02d"%bunchnum)
     for bunchnum in range(0,numbunches):
-        if MPI.COMM_WORLD.Get_rank() == 0:
-            bunches[bunchnum].write_particles("end-%02d"%bunchnum)
+        bunches[bunchnum].write_particles("end-%02d"%bunchnum)
 
     log.close()
     #wf=rw_impedance.get_wake_factor()

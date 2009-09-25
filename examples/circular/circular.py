@@ -296,30 +296,12 @@ if ( __name__ == '__main__'):
     
     
     for bunchnum in range(0,numbunches):
-        if MPI.COMM_WORLD.Get_rank() == 0:
-            bunches[bunchnum].diagnostics.write_hdf5("mi-%02d"%bunchnum)
+        bunches[bunchnum].diagnostics.write_hdf5("mi-%02d"%bunchnum)
     for bunchnum in range(0,numbunches):
-        if MPI.COMM_WORLD.Get_rank() == 0:
-            bunches[bunchnum].write_particles("end-%02d"%bunchnum)
+        bunches[bunchnum].write_particles("end-%02d"%bunchnum)
 
     log.close()
-    #wf=rw_impedance.get_wake_factor()
-    ##print "wf=", wf
-    #wzero=wf*beta*line_length/(synergia.physics_constants.PH_MKS_rp*4.*math.pi*synergia.physics_constants.PH_MKS_eps0)
-   ## cc=beam_parameters.get_covariances()
-    ##sigmaz=math.sqrt(math.sqrt(cc[4,4]))
-    ##wzero /=sigmaz
-    #print "wzero=", wzero
-    #coeff=4.*math.pi*synergia.physics_constants.PH_MKS_eps0*synergia.physics_constants.PH_MKS_rp*line_length/ \
-             #(16.0*math.pi*gamma*(2.+tune_x)*(1.-tune_z))
-    
-    
-    
-   
-    #print " check coefficent, <2 =",coeff*bunchnp*wzero
-    #print "estimated shift=",coeff*bunchnp*(1-tune_z)*wzero/(2.0*math.pi)
-    #print "estimated l=0 nu_x=",tune_x-coeff*bunchnp*(1-tune_z)*wzero/(2.0*math.pi)
-    #print "estimated l=-1 nu_x=",tune_x-(1-tune_z)+coeff*bunchnp*(1-tune_z)*wzero/(2.0*math.pi)
+ 
     if MPI.COMM_WORLD.Get_rank() ==0:
         print "elapsed time =",time.time() - t0
          
