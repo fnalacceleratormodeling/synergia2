@@ -11,7 +11,7 @@
 #import chef_propagate
 
 import synergia
-from s2_deposit import *
+#from s2_deposit import *
 from s2_impedance_kick import *
 
 
@@ -25,8 +25,7 @@ import numpy
 from mpi4py import MPI
 
 def apply_impedance_kick(bunch,impedance,tau, bunch_index):
-   # for i in range(0,len(impedance.stored_means)):
-        #print "bunch bucket",impedance.stored_means[i].get_ibucket(),"  s=",impedance.stored_means[i].get_s(),"   means=",impedance.stored_means[i].get_means()
+
     bunchmin, bunchmax = synergia.get_spatial_minmax(bunch)
     rwsize = bunchmax - bunchmin
     impedance_zgrid=impedance.get_z_grid()   

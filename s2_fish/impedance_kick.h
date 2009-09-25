@@ -7,6 +7,12 @@
 #include "array_nd/array_3d.h"
 #include <iostream>
 
+void
+calculate_rwvars(Macro_bunch_store& mbs,
+                 Array_1d<double> &zdensity,
+                 Array_1d<double> &xmom, Array_1d<double> &ymom,
+                 double z_left, double z_length, Array_1d<int> &slice_partition);
+
 
 void
 rw_kick(        Array_1d<double> &dparameters,

@@ -7,6 +7,98 @@
 #include <stdio.h>
 #include "basic_toolkit/PhysicsConstants.h"
 
+void
+calculate_rwvars(Macro_bunch_store& mbs,
+                 Array_1d<double> &zdensity,
+                 Array_1d<double> &xmom, Array_1d<double> &ymom,
+                 double z_left, double z_length, Array_1d<int> &bin_partition)
+{
+
+
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    //
+  //   this routine is expecting particles in the fixed-t frame with
+  //   the units factor already applied
+//  const double really_big = 1.0e30;
+//  double zmin = really_big;
+//  double zmax = -really_big;
+//    for (int n = 0; n < mbs.local_num; ++n) {
+//      double z = mbs.local_particles(4,n);
+//      if (z < zmin) {
+//          zmin = z;
+//      } else if (z > zmax) {
+//          zmax = z;
+//      }
+//  }
+//    double z_left = zmin;
+//    double z_length = (zmax - zmin);
+//    std::cout << "jfa: z_left = " << z_left << ", z_length = " << z_length << std::endl;
+    int z_num = zdensity.get_length();
+//    double h = z_length/(z_num-1.0); // AM , before was h = z_length/z_num
+    double h = z_length/z_num;  // AM, what if z_periodic??? 
+    Array_1d<double> local_zdensity(z_num);
+    Array_1d<double> local_xmom(z_num);
+    Array_1d<double> local_ymom(z_num);
+
+    local_zdensity.set_all(0.0);
+    local_xmom.set_all(0.0);
+    local_ymom.set_all(0.0);
+    for (int n = 0; n < mbs.local_num; ++n) {
+        int bin = static_cast<int>((mbs.local_particles(4,n)-z_left)/h);
+        if ((bin < z_num) && (bin >= 0)) {
+            local_zdensity(bin) += 1;
+            local_xmom(bin) += mbs.local_particles(0,n);
+            local_ymom(bin) += mbs.local_particles(2,n);
+            bin_partition(n)=bin; //bin_partition(n) is the bin where you find the particle n
+        }
+        else if ((bin==z_num) && fabs(mbs.local_particles(4,n)-z_length-z_left)<z_length*1.e-14) { 
+            local_zdensity(bin-1) += 1; // put the edge particle in the last bin=z_num-1
+            bin_partition(n)=z_num-1;
+        } 
+        else
+        {   std::cout << "  z_left  "<<z_left<<"  rank= "<<rank<<std::endl;
+        std::cout<<"mbs.local_particles(4,n)="  <<mbs.local_particles(4,n)<<"  rank= "<<rank<<std::endl; 
+        std::cout<< "NNNNNNNNNN n="<<n<<std::endl; 
+        std::cout << "  z_length  "<<z_length<<"  rank= "<<rank<<std::endl;
+        std::cout << "(mbs.local_particles(4,n)-z_left)= "<<(mbs.local_particles(4,n)-z_left)<<"  rank= "<<rank<<std::endl;
+        std::cout << "bin: " << bin<<"  z_num="<<z_num<< "  h=" << h <<"  rank= "<<rank<<std::endl;                
+        std::cout << "mbs.local_particles(4,n)-z_length-z_left= "<<fabs(mbs.local_particles(4,n)-z_length-z_left)<<"  rank= "<<rank<<std::endl;
+        throw
+                std::runtime_error("particles out of range in calculate_rwvars ");
+        }
+
+    
+    }
+    
+    // jfa: the other deposit functions do not do the communication. This one does.
+    // Obviously, something should change.
+    MPI_Allreduce(reinterpret_cast<void*>(local_zdensity.get_data_ptr()),
+                  reinterpret_cast<void*>(zdensity.get_data_ptr()),
+                                          z_num, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(reinterpret_cast<void*>(local_xmom.get_data_ptr()),
+                  reinterpret_cast<void*>(xmom.get_data_ptr()),
+                                          z_num, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    MPI_Allreduce(reinterpret_cast<void*>(local_ymom.get_data_ptr()),
+                  reinterpret_cast<void*>(ymom.get_data_ptr()),
+                                          z_num, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+    
+    //    dbg is set here XXXXXXXXXXXXXX
+    int dbg = 0;
+
+    for (int k = 0; k < z_num; ++k) {
+        if (zdensity(k) != 0.0) {
+            if (dbg) std::cout << "before bin: " << k << " zdensity(k): " << zdensity(k) << " xmom(k): " << xmom(k) << " ymom(k): " << ymom(k) << " units: " << mbs.units(0) << std::endl;
+            xmom(k) /= zdensity(k);
+            ymom(k) /= zdensity(k);
+            if (dbg) std::cout << "after bin: " << k << " zdensity(k): " << zdensity(k) << " xmom(k): " << xmom(k) << " ymom(k): " << ymom(k) << std::endl;
+        } else {
+            xmom(k) = 0.0;
+            ymom(k) = 0.0;
+        }
+    }
+    
+}   
 
 
 
@@ -75,17 +167,7 @@ rw_kick(       Array_1d<double> &dparameters,
     double L = tau;
 
     
-    // Number of particles in slice: Ntot_real*N_macro(slice)/Ntot_macro
-    // N_macro(slice) is simply zdensity
-    // Ntot_macro is mbs.total_num
-   
-//     double length=2.0*pi*beta/mbs.units(0); // bunch length in lab frame
-//     double Qtot = length* mbs.total_current /(beta * c);
-//     //Qtot=mbs.bunch_np*qe*mbs.charge;// total charge
-//     double Ntot_real = Qtot/(mbs.charge*qe);  
-//     std::cout<<" Ntot_real ="<<Ntot_real<<"  mbs.bunch_np="<<mbs.bunch_np<<std::endl;
-    // N = N_factor * N_macro(slice) = N_factor * zdensity(slice)
-//     double N_factor = Ntot_real/mbs.total_num;
+ 
     double N_factor = mbs.bunch_np/mbs.total_num;
     
 
@@ -107,9 +189,7 @@ rw_kick(       Array_1d<double> &dparameters,
     int cut_scaled=static_cast<int>(floor(cutoff_small_z*rescaling_f));
     double rbunch_sp=bunch_sp*rescaling_f; // rescaled bunch spacing
     
-   // int cut_scaled=max(static_cast<int>(floor(cutoff_small_z*gamma/cell_size_z)),num_slices+1);	
-   // std::cout<<" cutoff small="<< cutoff_small_z*gamma<<" cell size="<< cell_size_z<<"  cut_scaled="<<cut_scaled<<std::endl;
-   // std::cout<<" gamma="<<gamma<<std::endl;
+  
     get_wake_factors(num_slices, cut_scaled, zdensity, xmom, ymom, dipole_x, dipole_y, quad, l_monopole, 
                      stored_means,stored_buckets,stored_bunchnp, line_length, rbunch_sp,bunch_i,N_factor,rescaling_f);
  
@@ -128,10 +208,18 @@ rw_kick(       Array_1d<double> &dparameters,
 // this is the contribution from turns > nstored turns
 // if nstored turns  is large,  number of bunches can be taken  as a factor outside summation over bunches, 
 //        i.e 1/(nL+bunch_sp) approx  1/(nL) , for n large
-                   
-        
-        double quad_wake_sum_scaled=mbs.total_num*quad_wake_sum/sqrt(rescaling_f); //rescaled to cancel
+        int registered_turns=stored_means.get_shape()[1];
+         try{
+             if (fabs((stored_bunchnp(bunch_i,0)-stored_bunchnp(bunch_i,registered_turns-1)))>stored_bunchnp(bunch_i,0)*1.e-16){
+                 throw std::runtime_error("the bunchnp changes with turns, quad impedance assumes it is constant!");
+             }
+         } catch ( std::runtime_error e){
+             std::clog<<e.what()<<std::endl;
+        }
+
+        double quad_wake_sum_scaled=stored_bunchnp(bunch_i,registered_turns-1)*quad_wake_sum/(N_factor*sqrt(rescaling_f)); //rescaled to cancel
                                                                                //  the factor considered in wake_factor above
+        
         quad_wake_sum_scaled *= stored_buckets.get_shape()[0]; // =number of bunches....
           quad.add(quad_wake_sum_scaled); 
     }

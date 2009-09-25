@@ -6,6 +6,26 @@
 using namespace boost::python;
 
 void
+        calculate_rwvars_wrapper(Macro_bunch_store& mbs,
+                                 object &zdensity, object &xmom, object &ymom,
+                                 double z_left, double z_length, object &slice_partition )
+{
+    Array_1d<double> zdensity_array = 
+            Array_nd_from_PyObject<double>(zdensity.ptr());
+    Array_1d<double> xmom_array = 
+            Array_nd_from_PyObject<double>(xmom.ptr());
+    Array_1d<double> ymom_array = 
+            Array_nd_from_PyObject<double>(ymom.ptr());
+    Array_1d<int> slice_array   =
+            Array_nd_from_PyObject<int>(slice_partition.ptr());
+
+    calculate_rwvars(mbs,zdensity_array,xmom_array,ymom_array,
+                     z_left,z_length, slice_array);
+}
+
+
+
+void
 rw_kick_wrap(  
                 object &dparameters,
                 object &bin_partition,
@@ -45,14 +65,13 @@ rw_kick_wrap(
       wake_coeff_array,   bool_quad_wake, bunch_i,
       stored_means_array, stored_buckets_array, stored_bunchnp_array);
     
-//     rw_kick( zsize, bin_part_array,zdensity_array,
-//              xmom_array,ymom_array,tau,mbs,wake_factor,
-//              cutoff_small_z, wake_coeff_array,  quad_wake_sum, bool_quad_wake, bunch_num,
-//              stored_means_array, stored_buckets_array,bunch_spacing);
+
 }
 
 BOOST_PYTHON_MODULE(s2_impedance_kick)
 {
     def("rw_kick",rw_kick_wrap);
+    def("calculate_rwvars", calculate_rwvars_wrapper);
+
 }
 

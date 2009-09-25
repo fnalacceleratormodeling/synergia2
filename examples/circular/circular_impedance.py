@@ -47,9 +47,10 @@ if ( __name__ == '__main__'):
   #  myopts.add("pipe_symmetry","x_parallel_plates","",str) 
     myopts.add("energy",100.004401675138,"",float)
     myopts.add("partpercell",1,"",float)
-    myopts.add("bunches",2,"",int)
+    myopts.add("bunches",1,"",int)
     myopts.add("bunchnp",1.0e11,"number of particles per bunch",float)
     myopts.add("kick","full","kick type",str)
+    myopts.add("prev_turns",1,"number of prev turns contributing to impedance",int)
     
     myopts.add_suboptions(synergia.opts)
     myopts.parse_argv(sys.argv)
@@ -191,7 +192,7 @@ if ( __name__ == '__main__'):
         bunches.append(s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,diagnostics=diag,bucket_num=2*bunchnum,periodic=True))
         bunches[bunchnum].write_particles("begin-%02d"%bunchnum)
         print " bunch(",bunchnum,") periodicity=",bunches[bunchnum].periodic
-        print "  initial means bunch(",bunchnum,")=",numpy.array(bunches[bunchnum].diagnostics.get_means())
+       # print "  initial means bunch(",bunchnum,")=",numpy.array(bunches[bunchnum].diagnostics.get_means())
 
     print " **********************************************************************"  
     mbunches=s2_fish.Multiple_bunches(bunches, bunch_sp)
@@ -247,11 +248,13 @@ if ( __name__ == '__main__'):
  
     impedance=myopts.get("impedance")
     if impedance:
+        prev_turns=myopts.get("prev_turns")       
         pipe_conduct= 1.4e6 # [ohm^-1 m^-1] (stainless steel)
         wall_thickness=0.0114        
         pipe_symmetry=myopts.get("pipe_symmetry")
         kick=myopts.get("kick")
-        rw_impedance=s2_fish.Impedance(pipe_radius, pipe_conduct,wall_thickness, line_length,lgridnum, pipe_symmetry,kick=kick,nstored_turns=3)
+        rw_impedance=s2_fish.Impedance(pipe_radius, pipe_conduct,wall_thickness, line_length,lgridnum,
+             pipe_symmetry,kick=kick,nstored_turns=prev_turns)
                 #pipe_symmetry="x_parallel_plates")
         print "IMPEDANCE PIPE radius=", rw_impedance.get_pipe_radius()
         print "IMPEDANCE PIPE wall_thickness=",rw_impedance.get_wall_thickness()
@@ -319,5 +322,6 @@ if ( __name__ == '__main__'):
     #print "estimated l=-1 nu_x=",tune_x-(1-tune_z)+coeff*bunchnp*(1-tune_z)*wzero/(2.0*math.pi)
     if MPI.COMM_WORLD.Get_rank() ==0:
         print "elapsed time =",time.time() - t0
+         
  
  
