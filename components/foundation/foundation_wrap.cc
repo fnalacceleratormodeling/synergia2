@@ -26,6 +26,7 @@ BOOST_PYTHON_MODULE(pyfoundation)
         ;
 
     class_<Reference_particle>("Reference_particle",init<double>())
+        .def(init<double,Const_MArray1d_ref>())
         .def("set_total_energy",&Reference_particle::set_total_energy)
         .def("set_state",&Reference_particle::set_state)
         .def("get_total_energy",&Reference_particle::get_total_energy)
