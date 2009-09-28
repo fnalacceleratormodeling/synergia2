@@ -10,7 +10,7 @@ Reference_particle::Reference_particle(double total_energy) :
 }
 
 Reference_particle::Reference_particle(double total_energy,
-        boost::const_multi_array_ref<double, 1 > state) :
+        Const_MArray1d_ref state) :
     state(state)
 {
     this->total_energy = total_energy;
@@ -23,7 +23,7 @@ Reference_particle::set_total_energy(double total_energy)
 }
 
 void
-Reference_particle::set_state(boost::const_multi_array_ref<double, 1 > state)
+Reference_particle::set_state(Const_MArray1d_ref state)
 {
     this->state = state;
 }
@@ -34,7 +34,7 @@ Reference_particle::get_total_energy()
     return total_energy;
 }
 
-boost::multi_array_ref<double, 1 >
+MArray1d_ref
 Reference_particle::get_state()
 {
     return state;

@@ -14,7 +14,7 @@ BOOST_AUTO_TEST_CASE(construct)
 
 BOOST_AUTO_TEST_CASE(construct2)
 {
-    boost::multi_array<double, 1 > state(boost::extents[6]);
+    MArray1d state(boost::extents[6]);
     for (int i = 0; i < 6; ++i) {
         state[i] = 1.1 * i;
     }
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(set_total_energy)
 BOOST_AUTO_TEST_CASE(set_state)
 {
     Reference_particle reference_particle(total_energy);
-    boost::multi_array<double, 1 > new_state(boost::extents[6]);
+    MArray1d new_state(boost::extents[6]);
     for (int i = 0; i < 6; ++i) {
         new_state[i] = 1.1 * i;
     }
@@ -61,7 +61,7 @@ BOOST_AUTO_TEST_CASE(set_state)
 
 BOOST_AUTO_TEST_CASE(copy)
 {
-    boost::multi_array<double, 1 > state(boost::extents[6]);
+    MArray1d state(boost::extents[6]);
     for (int i = 0; i < 6; ++i) {
         state[i] = 1.1 * i;
     }
@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(copy2)
     Reference_particle reference_particle(original_reference_particle);
     double new_total_energy = total_energy * 1.1;
     original_reference_particle.set_total_energy(new_total_energy);
-    boost::multi_array<double, 1 > new_state(boost::extents[6]);
+    MArray1d new_state(boost::extents[6]);
     for (int i = 0; i < 6; ++i) {
         new_state[i] = 1.1 * i;
     }
