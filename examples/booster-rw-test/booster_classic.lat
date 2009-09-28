@@ -24,7 +24,7 @@ pc      :=      sqrt(etotal * etotal - erest * erest)
 
 brho    :=      pc/c
 
-!beam,   particle=proton, energy=etotal
+beam,   particle=proton, energy=etotal
 
 rhod    :=      48.034
 rhof    :=      40.847

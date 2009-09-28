@@ -347,12 +347,19 @@ class Gourmet:
                     element.propagate(jet_particle)
                 new_energy = jet_particle.ReferenceEnergy()
                 action_name= string.join(split_name[1:],':')
-                if action_name == "space charge endpoint":
-                    mydata=element
-                elif action_name == "space charge kick":
-                    mydata=[]
-                else:
-                    raise RuntimeError, " wrong synergya action name"   
+                if action_name == "space charge kick":
+                     mydata=[]
+                else:  
+                     mydata=element
+                       
+                #if action_name == "space charge endpoint":
+                    #mydata=element
+                #elif action_name == "space charge kick":
+                    #mydata=[]
+                #else:
+                    #element
+                    #print "action name=",action_name
+                    #raise RuntimeError, " wrong synergia action name"   
                 self.actions.append(
                         Action("synergia action",
                             length=s,
