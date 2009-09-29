@@ -6,7 +6,7 @@
 #include <stdexcept>
 
 int
-mpi_get_rank(MPI_Comm &comm);
+mpi_get_rank(const MPI_Comm &comm);
 
 int
 mpi_get_size(MPI_Comm &comm);

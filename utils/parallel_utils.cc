@@ -2,7 +2,7 @@
 #include <cmath>
 
 int
-mpi_get_rank(MPI_Comm &comm)
+mpi_get_rank(const MPI_Comm &comm)
 {
     int error,rank;
     error = MPI_Comm_rank(comm,&rank);
