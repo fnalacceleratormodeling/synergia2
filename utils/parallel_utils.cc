@@ -4,8 +4,8 @@
 int
 mpi_get_rank(const MPI_Comm &comm)
 {
-    int error,rank;
-    error = MPI_Comm_rank(comm,&rank);
+    int error, rank;
+    error = MPI_Comm_rank(comm, &rank);
     if (error != MPI_SUCCESS) {
         throw std::runtime_error("MPI error in MPI_Comm_rank");
     }
@@ -15,8 +15,8 @@ mpi_get_rank(const MPI_Comm &comm)
 int
 mpi_get_size(const MPI_Comm &comm)
 {
-    int error,size;
-    error = MPI_Comm_size(comm,&size);
+    int error, size;
+    error = MPI_Comm_size(comm, &size);
     if (error != MPI_SUCCESS) {
         throw std::runtime_error("MPI error in MPI_Comm_size");
     }
@@ -42,11 +42,11 @@ decompose_1d_raw(int processors, int length, std::vector<int > &offsets,
 }
 
 void
-decompose_1d(const MPI_Comm &comm, int length, std::vector<int> & offsets,
-        std::vector<int> &counts)
+decompose_1d(const MPI_Comm &comm, int length, std::vector<int > & offsets,
+        std::vector<int > &counts)
 {
     int size = mpi_get_size(comm);
-    decompose_1d_raw(size,length,offsets,counts);
+    decompose_1d_raw(size, length, offsets, counts);
 }
 
 int
@@ -54,7 +54,7 @@ decompose_1d_local(const MPI_Comm &comm, int length)
 {
     int size = mpi_get_size(comm);
     int rank = mpi_get_rank(comm);
-    std::vector<int> offsets(size),counts(size);
-    decompose_1d_raw(size,length,offsets,counts);
+    std::vector<int > offsets(size), counts(size);
+    decompose_1d_raw(size, length, offsets, counts);
     return counts[rank];
 }

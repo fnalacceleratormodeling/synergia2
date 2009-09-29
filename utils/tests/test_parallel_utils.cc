@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 #include "utils/boost_test_mpi_fixture.h"
 #include "parallel_utils.h"
+
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 ;
 

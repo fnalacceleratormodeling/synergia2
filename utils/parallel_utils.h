@@ -14,9 +14,10 @@ mpi_get_size(const MPI_Comm &comm);
 void
 decompose_1d_raw(int processors, int length, std::vector<int > &offsets,
         std::vector<int > &counts);
+
 void
-decompose_1d(const MPI_Comm &comm, int length, std::vector<int> & offsets,
-        std::vector<int> &counts);
+decompose_1d(const MPI_Comm &comm, int length, std::vector<int > &offsets,
+        std::vector<int > &counts);
 
 int
 decompose_1d_local(const MPI_Comm &comm, int length);
