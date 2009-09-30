@@ -11,15 +11,20 @@ namespace container_conversions
     template<typename ContainerType>
         struct to_tuple
         {
-            static PyObject*
-            convert(ContainerType const& a)
+            static boost::python::tuple
+            convert_tuple(ContainerType const& a)
             {
                 boost::python::list result;
 typedef                typename ContainerType::const_iterator const_iter;
                 for (const_iter p = a.begin();p != a.end();p++) {
                     result.append(boost::python::object(*p));
                 }
-                return boost::python::incref(boost::python::tuple(result).ptr());
+                return boost::python::tuple(result);
+            }
+            static PyObject*
+            convert(ContainerType const& a)
+            {
+                return boost::python::incref(convert_tuple(a).ptr());
             }
         };
 

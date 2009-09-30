@@ -7,11 +7,15 @@ using namespace boost::python;
 /////////////////////
 /// jfa: this wrapping procedure does not do what it should.
 ////     the values are not passed back to python
-void
-decompose_1d_raw_wrap(int processors, int length, std::vector<int > offsets,
-        std::vector<int > counts)
+
+boost::python::tuple
+decompose_1d_raw_wrap(int processors, int length)
 {
+    std::vector<int> counts(processors), offsets(processors);
     decompose_1d_raw(processors,length,offsets,counts);
+    return boost::python::make_tuple(
+            container_conversions::to_tuple<std::vector<int> >::convert_tuple(offsets),
+            container_conversions::to_tuple<std::vector<int> >::convert_tuple(counts));
 }
 
 BOOST_PYTHON_MODULE(pyparallel_utils)
