@@ -162,7 +162,7 @@ if ( __name__ == '__main__'):
     myopts = synergia.Options("booster")
     myopts.add("current",0.035*12,"current",float)
     myopts.add("transverse",0,"longitudinally uniform beam",int)
-    myopts.add("maporder",2,"map order",int)
+    myopts.add("maporder",1,"map order",int)
     myopts.add("emittance",3.0e-6,"(x-,y-)emittance",float)
     myopts.add("zfrac",0.1,"z width as fraction of bucket",float)
     myopts.add("dpop",5.0e-4,"(delta p)/p",float)
@@ -181,6 +181,7 @@ if ( __name__ == '__main__'):
     myopts.add("latticefile","booster_classic.lat","lattice file",str)
     myopts.add("space_charge",0,"flag for space_charge",int)
     myopts.add("impedance",0,"flag for impedance",int)
+    myopts.add("pipe_symmetry","circular","",str)
     myopts.add("pipe_conduct", 1.4e6,"conductivity # [/s] (stainless steel)",float)
     myopts.add("bunchnp",7.0e11,"number of particles per bunch",float)
 
@@ -189,7 +190,7 @@ if ( __name__ == '__main__'):
     job_mgr = synergia.Job_manager(sys.argv,myopts,
                                       [myopts.get("latticefile")])
     scaling_frequency = 37.7e6
-    pipe_radius = 0.04
+    
     kinetic_energy=0.4
     offset = (0,0,0)
     griddim = myopts.get("scgrid")
@@ -218,12 +219,13 @@ if ( __name__ == '__main__'):
                                          transverse=0, adjust_zlength_to_freq=1)
 
    
-#    bunch = s2_fish.Macro_bunch(synergia.PH_NORM_mp,1)
-#    bunch.init_gaussian(num_particles,myopts.get("current"),beam_parameters)
+
     full_map = numpy.identity(7, 'd')
     update_rf(cell_line,myopts)
     for cell in range(1,25):
         cell_line[cell].gourmet.complete_setup()
+    
+#Line completed...    
     
     for cell in range(1,25):
         linear_map = cell_line[cell].gourmet.get_single_linear_map()
@@ -249,30 +251,45 @@ if ( __name__ == '__main__'):
     #print "bunch_np=",bunchnp
     bunchnp=myopts.get("bunchnp")
     bunch=s2_fish.Macro_bunch.gaussian_covariance(bunchnp,num_particles,beam_parameters,C,periodic=True)
+#************** comment the following*************   
+    #pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
+    #beam_parameters.x_params(sigma = 0.0002, lam = 0.008 * pz,
+                             #r = 0.5,offset=myopts.get("offsetx"), offset_p =0.)
+    #beam_parameters.y_params(sigma = 0.001, lam = 0.001* pz,
+                             #r = 0.5,offset=myopts.get("offsety"), offset_p = 0. )
+    #beam_parameters.z_params(sigma = 0.7, 
+                             #lam = 0.0002* pz,  offset=0.,
+                             #offset_p = 0.)                                                 
+    #bunch= s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,periodic=True)
+    
+ #****************************************************     
+    
     bunch.diagnostics=synergia.Diagnostics(cell_line[1].gourmet.get_initial_u())
-    
-    
+    bunch.write_particles("begin") 
     
     
     
     impedance=myopts.get("impedance")
     if impedance:
-        prev_turns=1      
+        pipe_radius = 0.04
         pipe_conduct= myopts.get("pipe_conduct") # [ohm^-1 m^-1] (stainless steel)
+        prev_turns=10  
         wall_thickness=0.0114        
-        pipe_symmetry="circular"
+        pipe_symmetry=myopts.get("pipe_symmetry")
         kick="full"
         lgridnum=20
         line_length =0.
+        
         for cell in range(1,25):
-            line_length += cell_line[cell].gourmet.orbit_length() # this is not right...am..maybe OK, think
+            line_length += cell_line[cell].gourmet.orbit_length() 
         
         rw_impedance=s2_fish.Impedance(pipe_radius, pipe_conduct,wall_thickness, line_length,lgridnum,
-             pipe_symmetry,kick=kick,nstored_turns=prev_turns)
+             pipe_symmetry=pipe_symmetry,paking_frac=0.6,kick=kick,nstored_turns=prev_turns)
                 #pipe_symmetry="x_parallel_plates")
         print "IMPEDANCE PIPE radius=", rw_impedance.get_pipe_radius()
         print "IMPEDANCE PIPE wall_thickness=",rw_impedance.get_wall_thickness()
         print "IMPEDANCE PIPE symmetry=",rw_impedance.get_pipe_symmetry()
+        print " Orbith length=",rw_impedance.get_orbit_length()
     else:
         rw_impedance=None     
     
@@ -285,7 +302,7 @@ if ( __name__ == '__main__'):
             log.flush() 
    
     s = 0.0
-    bunch.add_diagnostics(s)
+   # bunch.add_diagnostics(s)
 
   
         
@@ -302,8 +319,8 @@ if ( __name__ == '__main__'):
         if MPI.COMM_WORLD.Get_rank()==0:
             print "turn %d:" % turn,
             sys.stdout.flush()
-        #if turn % myopts.get("saveperiod") == 0:
-            #bunch.write_particles("turn_%02d.h5"%(turn-1))
+        if turn % myopts.get("saveperiod") == 0:
+            bunch.write_particles("turn_%03d.h5"%(turn-1))
         for cell in range(1,25):
             
             s=synergia.propagate(s,cell_line[cell].gourmet, bunch,impedance=rw_impedance)
@@ -322,7 +339,7 @@ if ( __name__ == '__main__'):
             print
             
     #if turn % myopts.get("saveperiod") == 0:
-        #bunch.write_particles("turn_%02d.g5"%turn)
+        #bunch.write_particles("turn_%03d.g5"%turn)
     bunch.diagnostics.write_hdf5("booster_output")
     #if myopts.get("track"):
         #mytracker.close()
