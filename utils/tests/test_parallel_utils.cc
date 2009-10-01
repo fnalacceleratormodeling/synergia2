@@ -1,21 +1,32 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "utils/boost_test_mpi_fixture.h"
-#include "parallel_utils.h"
+#include "utils/parallel_utils.h"
 
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 ;
 
+BOOST_AUTO_TEST_CASE(test_MPI_comm_wrap_construct)
+{
+    MPI_comm_wrap comm(MPI_COMM_WORLD);
+}
+
 BOOST_AUTO_TEST_CASE(test_mpi_get_rank)
 {
-    int rank = mpi_get_rank(MPI_COMM_WORLD);
+    int rank = MPI_comm_wrap(MPI_COMM_WORLD).get_rank();
     BOOST_CHECK_EQUAL(rank,0);
 }
 
 BOOST_AUTO_TEST_CASE(test_mpi_get_size)
 {
-    int size = mpi_get_size(MPI_COMM_WORLD);
+    int size = MPI_comm_wrap(MPI_COMM_WORLD).get_size();
     BOOST_CHECK_EQUAL(size,1);
+}
+
+BOOST_AUTO_TEST_CASE(test_mpi_get)
+{
+    MPI_Comm comm = MPI_comm_wrap(MPI_COMM_WORLD).get();
+    BOOST_CHECK_EQUAL(comm,MPI_COMM_WORLD);
 }
 
 BOOST_AUTO_TEST_CASE(test_decompose_1d_raw1)
@@ -101,7 +112,7 @@ BOOST_AUTO_TEST_CASE(test_decompose_1d)
     const int procs = 1;
     std::vector<int > offsets(procs), counts(procs);
     const int length = 17;
-    decompose_1d(MPI_COMM_WORLD,length,offsets,counts);
+    decompose_1d(MPI_comm_wrap(MPI_COMM_WORLD), length, offsets, counts);
     BOOST_CHECK_EQUAL(0,offsets.at(0));
     BOOST_CHECK_EQUAL(length,counts.at(0));
 }
@@ -109,6 +120,7 @@ BOOST_AUTO_TEST_CASE(test_decompose_1d)
 BOOST_AUTO_TEST_CASE(test_decompose_1d_local)
 {
     const int length = 17;
-    int local_length = decompose_1d_local(MPI_COMM_WORLD,length);
+    int local_length =
+            decompose_1d_local(MPI_comm_wrap(MPI_COMM_WORLD), length);
     BOOST_CHECK_EQUAL(length,local_length);
 }

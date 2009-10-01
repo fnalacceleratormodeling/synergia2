@@ -1,4 +1,4 @@
-add_library(parallel_utils SHARED parallel_utils.cc)
+add_library(parallel_utils SHARED parallel_utils.cc mpi_comm_wrap.cc)
 add_python_extension(pyparallel_utils parallel_utils_wrap.cc)
 target_link_libraries(pyparallel_utils parallel_utils ${Boost_LIBRARIES}) 
 

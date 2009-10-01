@@ -4,10 +4,6 @@
 
 using namespace boost::python;
 
-/////////////////////
-/// jfa: this wrapping procedure does not do what it should.
-////     the values are not passed back to python
-
 boost::python::tuple
 decompose_1d_raw_wrap(int processors, int length)
 {
@@ -17,6 +13,14 @@ decompose_1d_raw_wrap(int processors, int length)
             container_conversions::to_tuple<std::vector<int> >::convert_tuple(offsets),
             container_conversions::to_tuple<std::vector<int> >::convert_tuple(counts));
 }
+
+//PyObject*
+//decompose_1d_wrap(const MPI_Comm &comm, int length)
+//{
+//    std::vector<int> counts(processors), offsets(processors);
+//    decompose_1d_raw(comm,length,offsets,counts);
+//    container_conversions::to_tuple<std::vector<int> >::convert(offsets);
+//}
 
 BOOST_PYTHON_MODULE(pyparallel_utils)
 {
@@ -38,4 +42,8 @@ BOOST_PYTHON_MODULE(pyparallel_utils)
     //    decompose_1d_local(const MPI_Comm &comm, int length);
 
     def("decompose_1d_raw", decompose_1d_raw_wrap);
+//    def("decompose_1d", decompose_1d_wrap);
+//    def("decompose_1d_local", decompose_1d_local);
+//    lvalue_from_pytype<extract_identity<MPI_Comm>,&noddy_NoddyType>();
+
 }
