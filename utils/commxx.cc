@@ -29,7 +29,7 @@ Commxx::get_size() const
 }
 
 MPI_Comm
-Commxx::get()
+Commxx::get() const
 {
     return comm;
 }
