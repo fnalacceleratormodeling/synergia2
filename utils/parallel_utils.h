@@ -3,17 +3,17 @@
 
 #include "mpi.h"
 #include <vector>
-#include "mpi_comm_wrap.h"
+#include "commxx.h"
 
 void
 decompose_1d_raw(int processors, int length, std::vector<int > &offsets,
         std::vector<int > &counts);
 
 void
-decompose_1d(MPI_comm_wrap comm, int length, std::vector<int > &offsets,
+decompose_1d(Commxx comm, int length, std::vector<int > &offsets,
         std::vector<int > &counts);
 
 int
-decompose_1d_local(MPI_comm_wrap comm, int length);
+decompose_1d_local(Commxx comm, int length);
 
 #endif /* PARALLEL_UTILS_H_ */

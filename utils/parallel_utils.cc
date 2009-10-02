@@ -20,7 +20,7 @@ decompose_1d_raw(int processors, int length, std::vector<int > &offsets,
 }
 
 void
-decompose_1d(MPI_comm_wrap comm, int length,
+decompose_1d(Commxx comm, int length,
         std::vector<int > & offsets, std::vector<int > &counts)
 {
     int size = comm.get_size();
@@ -28,7 +28,7 @@ decompose_1d(MPI_comm_wrap comm, int length,
 }
 
 int
-decompose_1d_local(MPI_comm_wrap comm, int length)
+decompose_1d_local(Commxx comm, int length)
 {
     int size = comm.get_size();
     int rank = comm.get_rank();
