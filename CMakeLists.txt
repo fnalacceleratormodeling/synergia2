@@ -29,6 +29,10 @@ LINK_DIRECTORIES(${CHEF_LIBRARY_DIRS})
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindNumpy.cmake)
 include_directories(${NUMPY_INCLUDE_DIR})
 
+# mpi4py
+INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindMpi4py.cmake)
+include_directories(${MPI4PY_INCLUDE_DIR})
+
 # misc
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/AddPythonExtension.cmake)
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindGSL.cmake)
