@@ -10,9 +10,9 @@ private:
 public:
     MPI_comm_wrap(MPI_Comm comm);
     int
-    get_rank();
+    get_rank() const;
     int
-    get_size();
+    get_size() const;
     MPI_Comm
     get();
 };

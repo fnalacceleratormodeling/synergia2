@@ -7,7 +7,7 @@ MPI_comm_wrap::MPI_comm_wrap(MPI_Comm comm)
 }
 
 int
-MPI_comm_wrap::get_rank()
+MPI_comm_wrap::get_rank() const
 {
     int error, rank;
     error = MPI_Comm_rank(comm, &rank);
@@ -18,7 +18,7 @@ MPI_comm_wrap::get_rank()
 }
 
 int
-MPI_comm_wrap::get_size()
+MPI_comm_wrap::get_size() const
 {
     int error, size;
     error = MPI_Comm_size(comm, &size);
