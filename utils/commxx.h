@@ -14,7 +14,7 @@ public:
     int
     get_size() const;
     MPI_Comm
-    get();
+    get() const;
 };
 
 #endif /* COMMXX_H_ */
