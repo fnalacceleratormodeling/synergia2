@@ -47,6 +47,7 @@ add_custom_target(doxy)
 
 add_subdirectory(array_nd)
 add_subdirectory(utils)
+link_directories(utils)
 add_subdirectory(components)
 add_subdirectory(synergia)
 add_subdirectory(s2_fish)
