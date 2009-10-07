@@ -25,15 +25,26 @@ private:
 public:
     Bunch(Reference_particle const& reference_particle, int particle_charge,
             int total_num, double real_num, Commxx const& comm);
-    //	void set_particle_charge(int particle_charge);
-    //	void set_local_num(int local_num);
+    void
+    set_particle_charge(int particle_charge);
+    void
+    set_real_num(double real_num);
+    void
+    set_local_num(int local_num);
+    void
+    update_total_num();
     //	void set_total_num(int total_num, bool update_current=true);
     //	void set_total_current(double total_current);
     //
     //	Array_2d<double>& get_local_particles();
-    //	int get_particle_charge();
-    //	int get_local_num();
-    //	int get_total_num();
+    int
+    get_particle_charge();
+    double
+    get_real_num();
+    int
+    get_local_num();
+    int
+    get_total_num();
     //	double get_total_current();
     //	Bunch_state get_state();
     //
@@ -41,6 +52,7 @@ public:
     //	void update_total_num();
     //
     //	void inject(Bunch bunch);
+    ~Bunch();
 };
 
 #endif /* BUNCH_H_ */
