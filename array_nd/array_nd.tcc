@@ -327,7 +327,7 @@ Array_nd<T>::end()
 
 template<class T>
 Array_nd<T>
-Array_nd<T>::slice(std::vector<Range> ranges)
+Array_nd<T>::slice(std::vector<Range> ranges, bool reduce)
 {
     if (ranges.size() != get_rank()) {
         throw std::runtime_error("Array_nd.slice(ranges) called with incorrect ranges length.");
@@ -335,6 +335,8 @@ Array_nd<T>::slice(std::vector<Range> ranges)
     int new_rank = 0;
     for (int i = 0; i < ranges.size(); ++i) {
         if (! ranges.at(i).is_unit_length()) {
+            ++new_rank;
+        } else if(!reduce) {
             ++new_rank;
         }
     }
