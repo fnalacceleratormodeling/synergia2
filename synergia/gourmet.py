@@ -238,7 +238,7 @@ class Gourmet:
         self.insert_elements(elements,positions)
 
     def insert_element_space_charge_markers(self, num_markers_per_element):
-        if num_markers_per_element != 1:
+        if num_markers_per_element > 1:
             raise RuntimeError, \
                 "insert_element_space_charge_markers only currently supports one marker per element"
         elements = []
