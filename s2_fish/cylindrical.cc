@@ -494,9 +494,11 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 		receive_offsets.at(i) = offsets.at(i)*shape_lm[1]*shape_lm[2];
 	}
 	Array_3d<double> sliced_rho(rho.slice(
-			Range(offsets[rank],offsets[rank]+counts[rank]-1),Range(),Range()));
+			Range(offsets[rank],offsets[rank]+counts[rank]-1),Range(),Range(),
+			false));
 	Array_3d<std::complex<double> > sliced_rho_lm(rho_lm_local.slice(
-			Range(offsets[rank],offsets[rank]+counts[rank]-1),Range(),Range()));
+			Range(offsets[rank],offsets[rank]+counts[rank]-1),Range(),Range(),
+			false));
 	timer("misc1");
 	fftw_plan plan = fftw_plan_many_dft_r2c(2,
 			&shape[1], counts[rank],
