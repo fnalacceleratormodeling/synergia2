@@ -238,32 +238,34 @@ class Gourmet:
         if num_markers_per_element != 1:
             raise RuntimeError, \
                 "insert_element_space_charge_markers only currently supports one marker per element"
+        elements = []
+        positions = []
         master_insertion_point = 0.0
-        ile_list = []
         particle = self.get_initial_particle()
+        elements.append(marker("synergia action:space charge endpoint"))
+        positions.append(master_insertion_point)
         for element in self.beamline:
                 if (element.OrbitLength(particle) > 0) and \
-                    (element.Name() != 'QDRETURN2') and \
-                    (element.Name() != 'QDRETURN3'):
-                        #~ print "splitting",element.Type()
+                    (element.Type() != 'rfcavity'):
+                        print "splitting",element.Type()
                         marker_interval = element.OrbitLength(particle)/ \
                         (num_markers_per_element + 1.0)
                         insertion_point = master_insertion_point
                         for i in range(0,num_markers_per_element):
                                 insertion_point += marker_interval
-                                ile = space_charge_marker, insertion_point
-                                ile_list.append(ile)
+                                elements.append(marker("synergia action:space charge kick"))
+                                positions.append(insertion_point)
                 else:
-                    #~ print "not splitting",element.Name()
+                    print "not splitting",element.Name()
                     pass
                 master_insertion_point += element.OrbitLength(particle)
+                elements.append(marker("synergia action:space charge endpoint"))
+                positions.append(master_insertion_point)
                 element.propagate(particle)
-        ile = accuracy_marker, master_insertion_point + 1000.0
-        ile_list.append(ile)
-        s_0 = 0.0
-        self.beamline.InsertElementsFromList(particle, s_0, ile_list)
+        positions.append(master_insertion_point + 1000.0)
+        elements.append(marker("bug workaround"))
         self.beamline.append(accuracy_marker)
-        self.needs_commission = True
+        self.insert_elements(elements,positions)
         ##self._commission()
 
     def insert_element_errors(self, element_name, multipole_order, pole_strength, pole_name="thinError"):
