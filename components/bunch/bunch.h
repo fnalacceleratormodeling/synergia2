@@ -33,10 +33,10 @@ public:
     set_local_num(int local_num);
     void
     update_total_num();
-    //	void set_total_num(int total_num, bool update_current=true);
-    //	void set_total_current(double total_current);
-    //
-    //	Array_2d<double>& get_local_particles();
+//    void
+//    set_state(Bunch_state state);
+    MArray2d_ref
+    get_local_particles();
     int
     get_particle_charge();
     double
@@ -45,12 +45,8 @@ public:
     get_local_num();
     int
     get_total_num();
-    //	double get_total_current();
-    //	Bunch_state get_state();
-    //
-    //	int convert_to_state(Bunch_state state);
-    //	void update_total_num();
-    //
+    Bunch_state
+    get_state();
     //	void inject(Bunch bunch);
     ~Bunch();
 };
