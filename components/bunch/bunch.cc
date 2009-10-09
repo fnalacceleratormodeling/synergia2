@@ -84,6 +84,12 @@ Bunch::get_total_num()
     return total_num;
 }
 
+Bunch::State
+Bunch::get_state()
+{
+    return state;
+}
+
 Bunch::~Bunch()
 {
     delete local_particles;

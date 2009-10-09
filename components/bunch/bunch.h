@@ -6,20 +6,21 @@
 #include "components/foundation/reference_particle.h"
 #include "utils/commxx.h"
 
-enum Bunch_state
-{
-    fixed_z = 1, fixed_t = 2
-};
-
 class Bunch
 {
+public:
+    enum State
+    {
+        fixed_z = 1, fixed_t = 2
+    };
+
 private:
     Reference_particle reference_particle;
     int particle_charge;
     MArray2d *local_particles;
     int local_num, total_num;
     double real_num;
-    Bunch_state state;
+    State state;
     bool particles_valid;
     Commxx comm;
 public:
@@ -45,7 +46,7 @@ public:
     get_local_num();
     int
     get_total_num();
-    Bunch_state
+    State
     get_state();
     //	void inject(Bunch bunch);
     ~Bunch();

@@ -120,4 +120,9 @@ BOOST_FIXTURE_TEST_CASE(increase_local_num, Fixture)
     }
 }
 
-
+BOOST_FIXTURE_TEST_CASE(get_state, Fixture)
+{
+    Bunch::State state;
+    state = bunch.get_state();
+    BOOST_CHECK_EQUAL(state,Bunch::fixed_z);
+}
