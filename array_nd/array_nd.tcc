@@ -17,9 +17,9 @@ Array_nd<T>::construct(const std::vector<int> shape,
 {
     if (own_data) {
 #if defined(DEBUG_ALL) || defined(DEBUG_ARRAY_ND_ALL) || defined(DEBUG_ARRAY_ND_DEALLOCATE)
-        std::cout << "deallocating\n";
+        std::cout << "not deallocating\n";
 #endif
-        myallocator.deallocate(this->data_ptr, size);
+//        myallocator.deallocate(this->data_ptr, size);
     }
     this->shape = shape;
     this->strides = strides;
@@ -89,15 +89,7 @@ Array_nd<T>::copy_construct(const Array_nd& original)
     std::cout << "calling Array_nd copy constructor:";
 #endif
     shape_frozen = false;
-    own_data = false;
-    data_ptr = original.data_ptr;
-    T* original_data_ptr;
-    if (original.own_data){
-    	original_data_ptr = 0;
-    } else {
-    	original_data_ptr = original.data_ptr;
-    }
-    construct(original.shape, original.strides, original_data_ptr);
+    construct(original.shape, original.strides, original.data_ptr);
 }
 
 template<class T>
