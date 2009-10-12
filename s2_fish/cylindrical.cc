@@ -36,235 +36,7 @@ get_cylindrical_coords(Macro_bunch_store &mbs, Array_2d<double> &coords)
     }
 }
 
-inline int
-get_this(int index, int which, const std::vector<int> &indices,
-    const std::vector<int> &grid_shape, const std::vector<bool> &periodic)
-{
-    int this_ = indices[which] + index;
-    if (periodic[which]) {
-        this_ = this_ % grid_shape[which];
-        if (this_ < 0) {
-            this_ += grid_shape[which];
-        }
-    }
-    return this_;
-}
 
-//int numout, numin;
-
-void
-add_to_cylindrical_cell(Array_3d<double > &rho,
-                        int ir, int iphi, int iz,
-                        double scaled_rmin, double scaled_rmax,
-                        double scaled_overlap_phi, double scaled_overlap_z,
-                        double cell_size_r, double cell_size_phi, double cell_size_z,
-                        double cloud_volume)
-{
-    double overlap_volume = 0.5*
-                (scaled_rmax*scaled_rmax - scaled_rmin*scaled_rmin)*
-                scaled_overlap_phi*scaled_overlap_z*
-                cell_size_r*cell_size_r*cell_size_phi*cell_size_z;
-    double cell_volume = 0.5*((ir+1)*(ir+1) - ir*ir)*cell_size_r*cell_size_r*
-                cell_size_phi*cell_size_z;
-//         std::cout
-//             << ", " << overlap_volume
-//             << ", " << cell_volume
-//             << ", " << cloud_volume
-//             << ", " << overlap_volume/(cell_volume*cloud_volume) << std::endl;
-
-    if (rho.bounds_check(ir,iphi,iz)) {
-        rho(ir,iphi,iz) += overlap_volume/(cell_volume*cloud_volume);
-      //  ++numin;
-/*        std::cout << "add_to_cylindrical_cell: "
-                << ir
-                << ", " << iphi
-                << ", " << iz
-                << " " <<  scaled_rmin
-                << " " <<  scaled_rmax
-                << " " <<  scaled_overlap_phi
-                << " " <<  scaled_overlap_z
-                << " " <<  overlap_volume/(cell_volume*cloud_volume)
-                << std::endl;*/
-    } else {
-        std::cout << "add_to_cylindrical_cell outside bounds: " << ir
-                << ", " << iphi
-                << ", " << iz << std::endl;
-       // ++numout;
-    }
-}
-
-// Deposit charge using Cloud-in-Cell (CIC) algorithm.
-void
-deposit_charge_cic_cylindrical_old(const Cylindrical_field_domain &fdomain,
-    Array_3d<double > &rho, Macro_bunch_store& mbs,
-    const Array_2d<double> &coords)
-{
-    std::vector<int> indices(3);
-    std::vector<double> offsets(3);
-// jfa: we assume z to be periodic!!!!!!!!    std::vector<bool> periodic(fdomain.get_periodic());
-    std::vector<int> grid_shape(fdomain.get_grid_shape());
-    std::vector<double> cell_size(fdomain.get_cell_size());
-
-    rho.set_all(0.0);
-   // numout = 0;
-   // numin = 0;
-    for (int n = 0; n < mbs.local_num; ++n) {
-        double r = coords(0,n);
-        double theta = coords(1,n);
-        double z = coords(2,n);
-        fdomain.get_leftmost_indices_offsets(r,theta,z,indices,offsets);
-
-        int left_ir, left_iphi, left_iz;
-        int right_ir,right_iphi, right_iz;
-        double left_r, center_r, right_r;
-        double left_overlap_phi, left_overlap_z;
-
-        if (offsets[0] > 0.5) {
-            left_ir = indices[0];
-            right_ir = indices[0] + 1;
-            left_r = indices[0] + offsets[0] - 0.5;
-            center_r = indices[0] + 1;
-            right_r = left_r + 1;
-        } else {
-            left_ir = indices[0] - 1;
-            right_ir = indices[0];
-            left_r = indices[0] + offsets[0] - 0.5;
-            center_r = indices[0];
-            right_r = left_r + 1;
-        }
-        // The cloud volume is the volume of the cell containing the particle
-        double cloud_volume;
-        if (left_ir < 0) {
-            // use smallest cell volume
-            cloud_volume = 0.5*cell_size[0]*cell_size[0]*cell_size[1]*cell_size[2];
-        } else {
-            // use volume of a cell centered on particle
-            cloud_volume = 0.5*((indices[0]+offsets[0]+0.5)*(indices[0]+offsets[0]+0.5) -
-                        (indices[0]+offsets[0]-0.5)*(indices[0]+offsets[0]-0.5))
-                        *cell_size[0]*cell_size[0]*cell_size[1]*cell_size[2];
-        }
-
-
-        if (offsets[1] > 0.5) {
-            left_iphi = indices[1];
-            if (indices[1] == grid_shape[1] - 1) {
-                right_iphi = 0;
-            } else {
-                right_iphi = indices[1] + 1;
-            }
-            left_overlap_phi = 1 - offsets[1];
-        } else {
-            if (indices[1] == 0) {
-                left_iphi = grid_shape[1] - 1;
-            } else {
-                left_iphi = indices[1] - 1;
-            }
-            right_iphi = indices[1];
-            left_overlap_phi = offsets[1];
-        }
-
-        if (offsets[2] > 0.5) {
-            left_iz = indices[2];
-            if (indices[2] == grid_shape[2] - 1) {
-                right_iz = 0;
-            } else {
-                right_iz = indices[2] + 1;
-            }
-            left_overlap_z = 1 - offsets[2];
-        } else {
-            if (indices[2] == 0) {
-                left_iz = grid_shape[2] - 1;
-            } else {
-                left_iz = indices[2] - 1;
-            }
-            right_iz = indices[2];
-            left_overlap_z = offsets[2];
-        }
-       // if (left_iz > 100) {std::cout << "left_iz = " << left_iz << std::endl;}
-       // if (right_iz > 100) {std::cout << "right_iz = " << right_iz << " " << indices[2] << " " << offsets[2] << " " << z << std::endl;}
-         //   std::cout << "left_iz = " << left_iz << std::endl;
-	// std::cout << "right_iz = " << right_iz << std::endl;
-        // std::cout <<std::setprecision(18)<< "half length = "<<fdomain.get_length()/2.<<std::endl;
-        //std::cout <<"indice, offset,z  "<< indices[2] << " " << offsets[2] << " " << z <<std::endl <<std::endl;
-
-        add_to_cylindrical_cell(rho,right_ir,left_iphi,left_iz,
-                                center_r,right_r,
-                                left_overlap_phi,left_overlap_z,
-                                cell_size[0],cell_size[1],cell_size[2],
-                                cloud_volume);
-        add_to_cylindrical_cell(rho,right_ir,right_iphi,left_iz,
-                                center_r,right_r,
-                                1.0-left_overlap_phi,left_overlap_z,
-                                cell_size[0],cell_size[1],cell_size[2],
-                                cloud_volume);
-        add_to_cylindrical_cell(rho,right_ir,left_iphi,right_iz,
-                                center_r,right_r,
-                                left_overlap_phi,1.0-left_overlap_z,
-                                cell_size[0],cell_size[1],cell_size[2],
-                                cloud_volume);
-        add_to_cylindrical_cell(rho,right_ir,right_iphi,right_iz,
-                                center_r,right_r,
-                                1.0-left_overlap_phi,1.0-left_overlap_z,
-                                cell_size[0],cell_size[1],cell_size[2],
-                                cloud_volume);
-        if (left_ir < 0) {
-            for (int i_phi=0; i_phi<grid_shape[1]; ++i_phi) {
-                add_to_cylindrical_cell(rho,0,i_phi,left_iz,
-                                        right_r,1,
-                                        1.0/grid_shape[1],left_overlap_z,
-                                        cell_size[0],cell_size[1],cell_size[2],
-                                        cloud_volume);
-                add_to_cylindrical_cell(rho,0,i_phi,right_iz,
-                                        right_r,1,
-                                        1.0/grid_shape[1],1.0-left_overlap_z,
-                                        cell_size[0],cell_size[1],cell_size[2],
-                                        cloud_volume);
-            }
-/*            add_to_cylindrical_cell(rho,0,left_iphi,left_iz,
-                                    right_r,1,
-                                    left_overlap_phi,left_overlap_z,
-                                    cell_size[0],cell_size[1],cell_size[2],
-                                    cloud_volume);
-            add_to_cylindrical_cell(rho,0,right_iphi,left_iz,
-                                    right_r,1,
-                                    1.0-left_overlap_phi,left_overlap_z,
-                                    cell_size[0],cell_size[1],cell_size[2],
-                                    cloud_volume);
-            add_to_cylindrical_cell(rho,0,left_iphi,right_iz,
-                                    right_r,1,
-                                    left_overlap_phi,1.0-left_overlap_z,
-                                    cell_size[0],cell_size[1],cell_size[2],
-                                    cloud_volume);
-            add_to_cylindrical_cell(rho,0,right_iphi,right_iz,
-                                    right_r,1,
-                                    1.0-left_overlap_phi,1.0-left_overlap_z,
-                                    cell_size[0],cell_size[1],cell_size[2],
-                                    cloud_volume);*/
-        } else {
-            add_to_cylindrical_cell(rho,left_ir,left_iphi,left_iz,
-                                    left_r,center_r,
-                                    left_overlap_phi,left_overlap_z,
-                                    cell_size[0],cell_size[1],cell_size[2],
-                                    cloud_volume);
-            add_to_cylindrical_cell(rho,left_ir,right_iphi,left_iz,
-                                    left_r,center_r,
-                                    1.0-left_overlap_phi,left_overlap_z,
-                                    cell_size[0],cell_size[1],cell_size[2],
-                                    cloud_volume);
-            add_to_cylindrical_cell(rho,left_ir,left_iphi,right_iz,
-                                    left_r,center_r,
-                                    left_overlap_phi,1.0-left_overlap_z,
-                                    cell_size[0],cell_size[1],cell_size[2],
-                                    cloud_volume);
-            add_to_cylindrical_cell(rho,left_ir,right_iphi,right_iz,
-                                    left_r,center_r,
-                                    1.0-left_overlap_phi,1.0-left_overlap_z,
-                                    cell_size[0],cell_size[1],cell_size[2],
-                                    cloud_volume);
-        }
-    }
-   // std::cout << "numin = " << numin << ", numout = " << numout << std::endl;
-}
 
 
 
@@ -449,7 +221,8 @@ decompose_1d(int length, int processors, std::vector<int> &offsets,
 		std::vector<int> &counts)
 {
 	int min_counts = length/processors;
-	int remainder = fmod(length,processors);
+//	int remainder = fmod(length,processors);
+    int remainder = length%processors;
 	int offset = 0;
 	for(int i=0; i<processors; ++i) {
 		int count = min_counts;
@@ -466,8 +239,12 @@ void
 solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 		Array_3d<double > &local_rho, Array_3d<double> &phi)
 {
+//     int rank1;
+//     MPI_Comm_rank(MPI_COMM_WORLD, &rank1);
+//     std::cout<< " inside solve_cylindrical on rank="<<rank1<<std::endl;
+//     MPI_Barrier (MPI_COMM_WORLD);
 
-	timer("start");
+    timer("start");
 	Array_3d<double> rho(local_rho.get_shape());
 	MPI_Allreduce(reinterpret_cast<void*>(local_rho.get_data_ptr()),
 			reinterpret_cast<void*>(rho.get_data_ptr()),
@@ -493,6 +270,8 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 		receive_counts.at(i) = counts.at(i)*shape_lm[1]*shape_lm[2];
 		receive_offsets.at(i) = offsets.at(i)*shape_lm[1]*shape_lm[2];
 	}
+
+
 	Array_3d<double> sliced_rho(rho.slice(
 			Range(offsets[rank],offsets[rank]+counts[rank]-1),Range(),Range(),
 			false));
@@ -507,18 +286,19 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 			reinterpret_cast<double (*)[2]>(sliced_rho_lm.get_data_ptr()),
 			NULL, 1, shape_lm[1]*shape_lm[2],
 			FFTW_MEASURE);
+
 	timer("plan");
 	fftw_execute(plan);
 	timer("fft");
-	MPI_Allgatherv(reinterpret_cast<void*>(sliced_rho_lm.get_data_ptr()),
-			counts[rank]*shape_lm[1]*shape_lm[2],
-			MPI_DOUBLE_COMPLEX,
-			reinterpret_cast<void*>(rho_lm.get_data_ptr()),
-			&receive_counts[0],
-			&receive_offsets[0],
-			MPI_DOUBLE_COMPLEX,
-			MPI_COMM_WORLD);
-	timer("gather");
+// 	MPI_Allgatherv(reinterpret_cast<void*>(sliced_rho_lm.get_data_ptr()),
+// 			counts[rank]*shape_lm[1]*shape_lm[2],
+// 			MPI_DOUBLE_COMPLEX,
+// 			reinterpret_cast<void*>(rho_lm.get_data_ptr()),
+// 			&receive_counts[0],
+// 			&receive_offsets[0],
+// 			MPI_DOUBLE_COMPLEX,
+// 			MPI_COMM_WORLD);
+// 	timer("gather");
 	Array_1d<std::complex<double> > diag(shape_lm[0]);
 	Array_1d<std::complex<double> > above_diag(shape_lm[0]);
 	Array_1d<std::complex<double> > below_diag(shape_lm[0]);
@@ -529,16 +309,17 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 	diag.set_all(0.);
 	above_diag.set_all(0.);
 	below_diag.set_all(0.);
-	std::vector<int> offsets2(size), counts2(size);
-	std::vector<int> receive_offsets2(size), receive_counts2(size);
-	decompose_1d(shape_lm[1],size,offsets2,counts2);
-	for (int i=0; i< size; ++i) {
-		receive_counts2.at(i) = counts2.at(i)*shape_lm[2];
-		receive_offsets2.at(i) = offsets2.at(i)*shape_lm[2];
-	}
+// 	std::vector<int> offsets2(size), counts2(size);
+// 	std::vector<int> receive_offsets2(size), receive_counts2(size);
+// 	decompose_1d(shape_lm[1],size,offsets2,counts2);
+// 	for (int i=0; i< size; ++i) {
+// 		receive_counts2.at(i) = counts2.at(i)*shape_lm[2];
+// 		receive_offsets2.at(i) = offsets2.at(i)*shape_lm[2];
+// 	}
 	timer("misc2");
 	double r;
-	for(int l=offsets2[rank]; l<(offsets2[rank]+counts2[rank]); ++l) {
+	//for(int l=offsets2[rank]; l<(offsets2[rank]+counts2[rank]); ++l) {
+    for(int l=0; l<shape_lm[1]; ++l) {    
 		int wavenumber_l = (l+shape_lm[1]/2) % shape_lm[1] -
 		shape_lm[1]/2;
 		for(int m=0; m<shape_lm[2]; ++m) {
@@ -566,38 +347,49 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 		}
 	}
 	timer("tridiag");
-	for(int i=0; i<shape_lm[0]; ++i) {
-		MPI_Allgatherv(reinterpret_cast<void*>(phi_lm_local.slice(Range(i),
-				Range(offsets2[rank],offsets2[rank]+counts2[rank]-1),Range()).get_data_ptr()),
-				counts2[rank]*shape_lm[2],
-				MPI_DOUBLE_COMPLEX,
-				reinterpret_cast<void*>(phi_lm.slice(Range(i),Range(),Range()).get_data_ptr()),
-				&receive_counts2[0],
-				&receive_offsets2[0],
-				MPI_DOUBLE_COMPLEX,
-				MPI_COMM_WORLD);
-	}
+// 	for(int i=0; i<shape_lm[0]; ++i) {
+// 		MPI_Allgatherv(reinterpret_cast<void*>(phi_lm_local.slice(Range(i),
+// 				Range(offsets2[rank],offsets2[rank]+counts2[rank]-1),Range()).get_data_ptr()),
+// 				counts2[rank]*shape_lm[2],
+// 				MPI_DOUBLE_COMPLEX,
+// 				reinterpret_cast<void*>(phi_lm.slice(Range(i),Range(),Range()).get_data_ptr()),
+// 				&receive_counts2[0],
+// 				&receive_offsets2[0],
+// 				MPI_DOUBLE_COMPLEX,
+// 				MPI_COMM_WORLD);
+// 	}
 	timer("gather2");
 
-	plan = fftw_plan_many_dft_c2r(2,
-			&shape[1], counts[rank],
-			reinterpret_cast<double (*)[2]>(phi_lm.slice(
-					Range(offsets[rank],offsets[rank]+counts[rank]-1),
-					Range(),Range()).get_data_ptr()),
-			NULL, 1, shape_lm[1]*shape_lm[2],
-			phi.slice(
-					Range(offsets[rank],offsets[rank]+counts[rank]-1),
-					Range(),Range()).get_data_ptr(),
-			NULL, 1, shape[1]*shape[2],
-			FFTW_MEASURE);
-	timer("invplan");
-	fftw_execute(plan);
-	timer("ifft");
+// 	plan = fftw_plan_many_dft_c2r(2,
+// 			&shape[1], counts[rank],
+// 			reinterpret_cast<double (*)[2]>(phi_lm.slice(
+// 					Range(offsets[rank],offsets[rank]+counts[rank]-1),
+// 					Range(),Range()).get_data_ptr()),
+// 			NULL, 1, shape_lm[1]*shape_lm[2],
+// 			phi.slice(
+// 					Range(offsets[rank],offsets[rank]+counts[rank]-1),
+// 					Range(),Range()).get_data_ptr(),
+// 			NULL, 1, shape[1]*shape[2],
+// 			FFTW_MEASURE);
+// 	timer("invplan");
+// 	fftw_execute(plan);
+// 	timer("ifft");
 	// FFTW transforms are not normalized. We need to apply the normalization
 	// manually.
-	phi.slice(
-			Range(offsets[rank],offsets[rank]+counts[rank]-1),
-			Range(),Range()).scale(1.0/(shape[1]*shape[2]));
+    
+    plan = fftw_plan_many_dft_c2r(2,
+                &shape[1], shape_lm[0],
+                reinterpret_cast<double (*)[2]>(phi_lm_local.get_data_ptr()),
+                NULL, 1, shape_lm[1]*shape_lm[2],
+                phi.get_data_ptr(),
+                NULL, 1, shape[1]*shape[2],
+                FFTW_ESTIMATE);
+                fftw_execute(plan);
+    phi.scale(1.0/(shape[1]*shape[2]));          
+    
+// 	phi.slice(
+// 			Range(offsets[rank],offsets[rank]+counts[rank]-1),
+// 			Range(),Range()).scale(1.0/(shape[1]*shape[2]));
 	// at end of routine, phi is the size of the global array, but it only contains
 	// the locally calculated pieces.
 }
@@ -655,26 +447,27 @@ calculate_E_cylindrical(const Cylindrical_field_domain &fdomain,
                           Array_3d<double> &Ez)
 { //std::cout<< " begin E_cylindrical"<<std::endl;
 	timer("misc calc_E");
-	fill_guards_cylindrical(fdomain,phi);
+	//fill_guards_cylindrical(fdomain,phi);
 	timer("fill guards");
     std::vector<int> shape = phi.get_shape();
-	int rank, size;
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-	std::vector<int> offsets(size), counts(size);
-	std::vector<int> receive_offsets(size), receive_counts(size);
-	decompose_1d(shape[0],size,offsets,counts);
-	decompose_1d(shape[0],size,offsets,counts);
-	for (int i=0; i< size; ++i) {
-		receive_counts.at(i) = counts.at(i)*shape[1]*shape[2];
-		receive_offsets.at(i) = offsets.at(i)*shape[1]*shape[2];
-	}
+// 	int rank, size;
+// 	MPI_Comm_size(MPI_COMM_WORLD, &size);
+// 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+// 	std::vector<int> offsets(size), counts(size);
+// 	std::vector<int> receive_offsets(size), receive_counts(size);
+// 	decompose_1d(shape[0],size,offsets,counts);
+// 	decompose_1d(shape[0],size,offsets,counts);
+// 	for (int i=0; i< size; ++i) {
+// 		receive_counts.at(i) = counts.at(i)*shape[1]*shape[2];
+// 		receive_offsets.at(i) = offsets.at(i)*shape[1]*shape[2];
+// 	}
   //double theta_step = 2.0*pi/(shape[1]-1);
     double theta_step = 2.0*pi/shape[1];
   //  double z_step = fdomain.get_length()/(shape[2]-1);
     double z_step = fdomain.get_length()/shape[2];
     double ordinary_r_step = fdomain.get_radius()/(shape[0]+0.5);
-    for(int i_r = offsets[rank]; i_r<offsets[rank]+counts[rank]; ++i_r) {
+  //  for(int i_r = offsets[rank]; i_r<offsets[rank]+counts[rank]; ++i_r) {
+    for(int i_r = 0; i_r<shape[0]; ++i_r) {  
         int r_left = i_r-1;
         int r_right = i_r+1;
         double r_step = 2.*ordinary_r_step;
@@ -744,40 +537,40 @@ calculate_E_cylindrical(const Cylindrical_field_domain &fdomain,
             }
         }
     }
-    timer("calcE");
-    if (size > 1) {
-    	MPI_Allgatherv(reinterpret_cast<void*>(Ex.slice(
-    			Range(offsets[rank],offsets[rank]+counts[rank]-1),
-    			Range(),Range()).get_data_ptr()),
-    			receive_counts[rank],
-    			MPI_DOUBLE,
-    			reinterpret_cast<void*>(Ex.get_data_ptr()),
-    			&receive_counts[0],
-    			&receive_offsets[0],
-    			MPI_DOUBLE,
-    			MPI_COMM_WORLD);
-    	MPI_Allgatherv(reinterpret_cast<void*>(Ey.slice(
-    			Range(offsets[rank],offsets[rank]+counts[rank]-1),
-    			Range(),Range()).get_data_ptr()),
-    			receive_counts[rank],
-    			MPI_DOUBLE,
-    			reinterpret_cast<void*>(Ey.get_data_ptr()),
-    			&receive_counts[0],
-    			&receive_offsets[0],
-    			MPI_DOUBLE,
-    			MPI_COMM_WORLD);
-    	MPI_Allgatherv(reinterpret_cast<void*>(Ez.slice(
-    			Range(offsets[rank],offsets[rank]+counts[rank]-1),
-    			Range(),Range()).get_data_ptr()),
-    			receive_counts[rank],
-    			MPI_DOUBLE,
-    			reinterpret_cast<void*>(Ez.get_data_ptr()),
-    			&receive_counts[0],
-    			&receive_offsets[0],
-    			MPI_DOUBLE,
-    			MPI_COMM_WORLD);
-    }
-    timer("gatherE");
+//     timer("calcE");
+//     if (size > 1) {
+//     	MPI_Allgatherv(reinterpret_cast<void*>(Ex.slice(
+//     			Range(offsets[rank],offsets[rank]+counts[rank]-1),
+//     			Range(),Range()).get_data_ptr()),
+//     			receive_counts[rank],
+//     			MPI_DOUBLE,
+//     			reinterpret_cast<void*>(Ex.get_data_ptr()),
+//     			&receive_counts[0],
+//     			&receive_offsets[0],
+//     			MPI_DOUBLE,
+//     			MPI_COMM_WORLD);
+//     	MPI_Allgatherv(reinterpret_cast<void*>(Ey.slice(
+//     			Range(offsets[rank],offsets[rank]+counts[rank]-1),
+//     			Range(),Range()).get_data_ptr()),
+//     			receive_counts[rank],
+//     			MPI_DOUBLE,
+//     			reinterpret_cast<void*>(Ey.get_data_ptr()),
+//     			&receive_counts[0],
+//     			&receive_offsets[0],
+//     			MPI_DOUBLE,
+//     			MPI_COMM_WORLD);
+//     	MPI_Allgatherv(reinterpret_cast<void*>(Ez.slice(
+//     			Range(offsets[rank],offsets[rank]+counts[rank]-1),
+//     			Range(),Range()).get_data_ptr()),
+//     			receive_counts[rank],
+//     			MPI_DOUBLE,
+//     			reinterpret_cast<void*>(Ez.get_data_ptr()),
+//     			&receive_counts[0],
+//     			&receive_offsets[0],
+//     			MPI_DOUBLE,
+//     			MPI_COMM_WORLD);
+//     }
+//     timer("gatherE");
  // std::cout<< " end E_cylindrical"<<std::endl;
 }
 
@@ -919,7 +712,6 @@ full_kick_cylindrical(const Cylindrical_field_domain &fdomain,
 
 
 
-
     double gamma = -1. * mbs.ref_particle(5);
     double beta = sqrt(gamma * gamma - 1.0) / gamma;
     const  double c = PH_MKS_c;
@@ -948,7 +740,7 @@ full_kick_cylindrical(const Cylindrical_field_domain &fdomain,
     double xyfactor =tau*factor;
     double zfactor =-tau*factor*beta*gamma;
 
-
+    
 
     for (int n = 0; n < mbs.local_num; ++n) {
         double r = coords(0,n);

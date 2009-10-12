@@ -26,7 +26,7 @@ template<class T>
 Array_3d<T>::Array_3d(const Array_nd<T>& original)
 {
     //~ std::cout << "converting from nd to 3d\n";
-    if (original.get_rank() != 3) {
+    if (original.get_rank() != 3) {       
         throw
             std::runtime_error("Attempt to convert Array_nd of rank !=3 to Array_3d");
     }
