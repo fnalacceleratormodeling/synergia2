@@ -86,7 +86,7 @@ void
 Array_nd<T>::copy_construct(const Array_nd& original)
 {
 #if defined(DEBUG_ALL) || defined(DEBUG_ARRAY_ND_ALL) || defined(DEBUG_ARRAY_ND_COPY_CTOR)
-    std::cout << "calling Array_nd copy constructor:";
+    std::cout << "calling Array_nd copy constructor\n";
 #endif
     shape_frozen = false;
     own_data = false;
@@ -98,6 +98,11 @@ Array_nd<T>::copy_construct(const Array_nd& original)
     	original_data_ptr = original.data_ptr;
     }
     construct(original.shape, original.strides, original_data_ptr);
+    if (original.data_ptr != data_ptr) {
+        for (unsigned int i = 0; i < size; ++i) {
+            data_ptr[i] = original.data_ptr[i];
+        }
+    }
 }
 
 template<class T>
