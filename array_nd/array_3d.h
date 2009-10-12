@@ -28,7 +28,7 @@ public:
     inline int offset(const int i, const int j, const int k) const;
     inline bool bounds_check(const int i, const int j, const int k) const;
 
-    Array_nd<T> slice(Range i_range, Range j_range, Range k_range);
+    Array_nd<T> slice(Range i_range, Range j_range, Range k_range, bool reduce=true);
 
     virtual ~Array_3d();
 };

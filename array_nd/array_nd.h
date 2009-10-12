@@ -98,7 +98,7 @@ public:
     inline int offset(const std::vector<int> &indices) const;
     inline bool bounds_check(const std::vector<int> &indices) const;
 
-    Array_nd<T> slice(std::vector<Range>);
+    Array_nd<T> slice(std::vector<Range>, bool reduce=true);
 
     void describe() const;
     void print(const std::string name) const;

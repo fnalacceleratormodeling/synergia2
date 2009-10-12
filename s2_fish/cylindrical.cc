@@ -271,39 +271,22 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 		receive_offsets.at(i) = offsets.at(i)*shape_lm[1]*shape_lm[2];
 	}
 
-//     std::cout<<" rho shape="<<rho.get_shape()[0]<<rho.get_shape()[1]<<rho.get_shape()[2]<<std::endl;
-     std::cout<<" slice shape="<<offsets[rank]<<" "<<offsets[rank]+counts[rank]-1
-             <<"    on rank ="<<rank<<std::endl;
-    
-//                          <<rho.slice(
-//                            Range(offsets[rank],offsets[rank]+counts[rank]-1),Range(),Range())[1]
-//                         <<rho.slice(
-//                                     Range(offsets[rank],offsets[rank]+counts[rank]-1),Range(),Range())[2]<<std::endl;
-//             
 
- 	Array_3d<double> sliced_rho(rho.slice(
- 			Range(offsets[rank],offsets[rank]+counts[rank]-1),Range(),Range()));
-    std::cout<<" sliced ro "<<sliced_rho.get_shape()[0]<<"    on rank ="<<rank<<std::endl;
-// 	Array_3d<std::complex<double> > sliced_rho_lm(rho_lm_local.slice(
-// 			Range(offsets[rank],offsets[rank]+counts[rank]-1),Range(),Range()));
-// 	timer("misc1");
-// 	fftw_plan plan = fftw_plan_many_dft_r2c(2,
-// 			&shape[1], counts[rank],
-// 			sliced_rho.get_data_ptr(),
-// 			NULL, 1, shape[1]*shape[2],
-// 			reinterpret_cast<double (*)[2]>(sliced_rho_lm.get_data_ptr()),
-// 			NULL, 1, shape_lm[1]*shape_lm[2],
-// 			FFTW_MEASURE);
-    
-    
-    fftw_plan plan = fftw_plan_many_dft_r2c(2,
-        &shape[1], shape[0],
-        rho.get_data_ptr(),
-        NULL, 1, shape[1]*shape[2],
-        reinterpret_cast<double (*)[2]>(rho_lm.get_data_ptr()),
-        NULL, 1, shape_lm[1]*shape_lm[2],
-        FFTW_ESTIMATE);
-    
+	Array_3d<double> sliced_rho(rho.slice(
+			Range(offsets[rank],offsets[rank]+counts[rank]-1),Range(),Range(),
+			false));
+	Array_3d<std::complex<double> > sliced_rho_lm(rho_lm_local.slice(
+			Range(offsets[rank],offsets[rank]+counts[rank]-1),Range(),Range(),
+			false));
+	timer("misc1");
+	fftw_plan plan = fftw_plan_many_dft_r2c(2,
+			&shape[1], counts[rank],
+			sliced_rho.get_data_ptr(),
+			NULL, 1, shape[1]*shape[2],
+			reinterpret_cast<double (*)[2]>(sliced_rho_lm.get_data_ptr()),
+			NULL, 1, shape_lm[1]*shape_lm[2],
+			FFTW_MEASURE);
+
 	timer("plan");
 	fftw_execute(plan);
 	timer("fft");

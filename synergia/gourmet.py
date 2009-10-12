@@ -17,13 +17,14 @@ import os.path
 
 class Action:
     def __init__(self,type,length,initial_energy,final_energy,data,
-                 synergia_action=None):
+                 synergia_action=None,element_name=None):
         self.data = data
         self.type = type
         self.length = length
         self.initial_energy = initial_energy
         self.final_energy = final_energy
         self.synergia_action = synergia_action
+        self.element_name = element_name
     def get_type(self):
         return self.type
     def is_mapping(self):
@@ -40,6 +41,8 @@ class Action:
         return self.final_energy
     def get_synergia_action(self):
         return self.synergia_action
+    def get_name(self):
+        return self.element_name
 
 accuracy_marker = marker("accuracy")
 space_charge_marker = marker("space charge")
@@ -235,35 +238,37 @@ class Gourmet:
         self.insert_elements(elements,positions)
 
     def insert_element_space_charge_markers(self, num_markers_per_element):
-        if num_markers_per_element != 1:
+        if num_markers_per_element > 1:
             raise RuntimeError, \
                 "insert_element_space_charge_markers only currently supports one marker per element"
+        elements = []
+        positions = []
         master_insertion_point = 0.0
-        ile_list = []
         particle = self.get_initial_particle()
+        elements.append(marker("synergia action:space charge endpoint"))
+        positions.append(master_insertion_point)
         for element in self.beamline:
                 if (element.OrbitLength(particle) > 0) and \
-                    (element.Name() != 'QDRETURN2') and \
-                    (element.Name() != 'QDRETURN3'):
-                        #~ print "splitting",element.Type()
+                    (element.Type() != 'rfcavity'):
+#                        print "splitting",element.Type()
                         marker_interval = element.OrbitLength(particle)/ \
                         (num_markers_per_element + 1.0)
                         insertion_point = master_insertion_point
                         for i in range(0,num_markers_per_element):
                                 insertion_point += marker_interval
-                                ile = space_charge_marker, insertion_point
-                                ile_list.append(ile)
+                                elements.append(marker("synergia action:space charge kick"))
+                                positions.append(insertion_point)
                 else:
-                    #~ print "not splitting",element.Name()
+#                    print "not splitting",element.Name()
                     pass
                 master_insertion_point += element.OrbitLength(particle)
+                elements.append(marker("synergia action:space charge endpoint"))
+                positions.append(master_insertion_point)
                 element.propagate(particle)
-        ile = accuracy_marker, master_insertion_point + 1000.0
-        ile_list.append(ile)
-        s_0 = 0.0
-        self.beamline.InsertElementsFromList(particle, s_0, ile_list)
+        positions.append(master_insertion_point + 1000.0)
+        elements.append(marker("bug workaround"))
         self.beamline.append(accuracy_marker)
-        self.needs_commission = True
+        self.insert_elements(elements,positions)
         ##self._commission()
 
     def insert_element_errors(self, element_name, multipole_order, pole_strength, pole_name="thinError"):
@@ -284,14 +289,14 @@ class Gourmet:
         for element in self.beamline:
                 if (element.OrbitLength(particle) > 0) and \
                     (element.Name().upper().find(element_name.upper()) > -1):
-                        print "splitting",element.Type()
+#                        print "splitting",element.Type()
                         marker_interval = element.OrbitLength(particle)/2
                         insertion_point = master_insertion_point + marker_interval  
                         ile = thin_error, insertion_point
                         ile_list.append(ile)
                         inserted_error = True
                 else:
-                    print "not splitting",element.Name()
+#                    print "not splitting",element.Name()
                     pass
                 master_insertion_point += element.OrbitLength(particle)
                 element.propagate(particle)
@@ -326,6 +331,7 @@ class Gourmet:
         s = 0.0
         particle = self.get_initial_particle()
         jet_particle = self.get_initial_jet_particle()
+        element_names = ""
         has_propagated = 0
         energy = self.initial_energy
         for element in self.beamline:
@@ -340,11 +346,16 @@ class Gourmet:
                                length=s,
                                initial_energy=energy,
                                final_energy=new_energy,
-                               data=mapping))
+                               data=mapping,
+                               element_name=element_names))
                     energy = new_energy
                     s = element.OrbitLength(particle)
                     element.propagate(particle)
                     element.propagate(jet_particle)
+                    if element_names == "":
+                        element_names = element.Name()
+                    else:
+                        element_names += "+" + element.Name()
                 new_energy = jet_particle.ReferenceEnergy()
                 action_name= string.join(split_name[1:],':')
                 if action_name == "space charge kick":
@@ -366,10 +377,12 @@ class Gourmet:
                             initial_energy=energy,
                             final_energy=new_energy,
                             data=mydata,
-                            synergia_action=action_name))           
-                            
+                            synergia_action=action_name,
+                            element_name=element_names))           
+    
                 energy = new_energy           
                 jet_particle = self.get_jet_particle(energy)
+                element_names = ""
                 has_propagated = 0
                 s = 0.0
             else:
@@ -377,6 +390,10 @@ class Gourmet:
                     s += element.OrbitLength(particle)
                     element.propagate(particle)
                     element.propagate(jet_particle)
+                    if element_names == "":
+                        element_names = element.Name()
+                    else:
+                        element_names += "+" + element.Name()
                     has_propagated = 1
         self.final_energy = jet_particle.ReferenceEnergy()
         self.have_actions = 1

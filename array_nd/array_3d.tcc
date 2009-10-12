@@ -130,9 +130,9 @@ Array_3d<T>::bounds_check(const int i, const int j, const int k) const
 
 template<class T>
 Array_nd<T>
-Array_3d<T>::slice(Range i_range, Range j_range, Range k_range)
+Array_3d<T>::slice(Range i_range, Range j_range, Range k_range, bool reduce)
 {
-	return Array_nd<T>::slice(vector3(i_range,j_range,k_range));
+	return Array_nd<T>::slice(vector3(i_range,j_range,k_range),reduce);
 }
 
 template<class T>
