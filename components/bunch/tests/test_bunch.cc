@@ -7,6 +7,7 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-15;
 
+const double mass = 100.0;
 const double total_energy = 125.0;
 const int proton_charge = 1;
 const int total_num = 100;
@@ -15,8 +16,9 @@ const double real_num = 2.0e12;
 struct Fixture
 {
     Fixture() :
-        reference_particle(total_energy), comm(MPI_COMM_WORLD), bunch(
-                reference_particle, proton_charge, total_num, real_num, comm)
+        four_momentum(mass), reference_particle(four_momentum), comm(
+                MPI_COMM_WORLD), bunch(reference_particle, proton_charge,
+                total_num, real_num, comm)
     {
         BOOST_TEST_MESSAGE("setup fixture");
     }
@@ -25,6 +27,7 @@ struct Fixture
         BOOST_TEST_MESSAGE("teardown fixture");
     }
 
+    Four_momentum four_momentum;
     Reference_particle reference_particle;
     Commxx comm;
     Bunch bunch;
@@ -108,7 +111,7 @@ BOOST_FIXTURE_TEST_CASE(increase_local_num, Fixture)
     }
 
     // expand bunch2 and verify that old values are still there
-    bunch2.set_local_num(old_local_num+increase);
+    bunch2.set_local_num(old_local_num + increase);
     MArray2d_ref particles2(bunch2.get_local_particles());
     BOOST_CHECK_EQUAL(particles2.shape()[1],7);
     BOOST_CHECK(particles2.shape()[0] >= bunch2.get_local_num());
