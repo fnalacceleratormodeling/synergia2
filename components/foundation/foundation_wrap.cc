@@ -25,11 +25,13 @@ BOOST_PYTHON_MODULE(pyfoundation)
         .def("get_beta",&Four_momentum::get_beta)
         ;
 
-    class_<Reference_particle>("Reference_particle",init<double>())
-        .def(init<double,Const_MArray1d_ref>())
-        .def("set_total_energy",&Reference_particle::set_total_energy)
+    class_<Reference_particle>("Reference_particle",
+            init<Four_momentum const &>())
+        .def(init<Four_momentum const &,Const_MArray1d_ref>())
+        .def("set_four_momentum",&Reference_particle::set_four_momentum)
         .def("set_state",&Reference_particle::set_state)
-        .def("get_total_energy",&Reference_particle::get_total_energy)
+        .def("get_four_momentum",&Reference_particle::get_four_momentum,
+                return_internal_reference<>())
         .def("get_state",&Reference_particle::get_state)
         ;
 }

@@ -1,25 +1,23 @@
 #include "reference_particle.h"
 
-Reference_particle::Reference_particle(double total_energy) :
-    state(boost::extents[6])
+Reference_particle::Reference_particle(Four_momentum const & four_momentum_in) :
+    four_momentum(four_momentum_in), state(boost::extents[6])
 {
-    this->total_energy = total_energy;
     for (int i = 0; i < 6; ++i) {
         state[i] = 0;
     }
 }
 
-Reference_particle::Reference_particle(double total_energy,
+Reference_particle::Reference_particle(Four_momentum const & four_momentum_in,
         Const_MArray1d_ref state) :
-    state(state)
+    four_momentum(four_momentum_in), state(state)
 {
-    this->total_energy = total_energy;
 }
 
 void
-Reference_particle::set_total_energy(double total_energy)
+Reference_particle::set_four_momentum(Four_momentum const & four_momentum)
 {
-    this->total_energy = total_energy;
+    this->four_momentum = four_momentum;
 }
 
 void
@@ -28,13 +26,13 @@ Reference_particle::set_state(Const_MArray1d_ref state)
     this->state = state;
 }
 
-double
-Reference_particle::get_total_energy()
+Four_momentum &
+Reference_particle::get_four_momentum()
 {
-    return total_energy;
+    return four_momentum;
 }
 
-MArray1d_ref
+Const_MArray1d_ref
 Reference_particle::get_state()
 {
     return state;
