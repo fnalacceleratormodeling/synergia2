@@ -348,7 +348,14 @@ Array_nd<T>::slice(std::vector<Range> ranges, bool reduce)
             new_strides.at(which_new) = strides.at(i) *
                                         ranges.at(i).get_step();
             ++which_new;
+        }else if(!reduce) { 
+            new_shape.at(which_new) = (max - min) / ranges.at(i).get_step() + 1;
+            new_strides.at(which_new) = strides.at(i) *
+                                        ranges.at(i).get_step();
+           ++which_new;                             
+         
         }
+        
     }
     return Array_nd<T>(new_shape, new_strides,
                             get_data_ptr() + offset(offset_indices));
