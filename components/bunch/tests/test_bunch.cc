@@ -126,3 +126,14 @@ BOOST_FIXTURE_TEST_CASE(get_state, Fixture)
     state = bunch.get_state();
     BOOST_CHECK_EQUAL(state,Bunch::fixed_z);
 }
+
+BOOST_FIXTURE_TEST_CASE(set_converter, Fixture)
+{
+    Fixed_t_z_ballistic converter;
+    bunch.set_converter(converter);
+}
+
+BOOST_FIXTURE_TEST_CASE(convert_to_state, Fixture)
+{
+
+}

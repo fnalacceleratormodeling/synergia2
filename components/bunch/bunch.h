@@ -6,6 +6,30 @@
 #include "components/foundation/reference_particle.h"
 #include "utils/commxx.h"
 
+class Bunch;
+
+class Fixed_t_z_converter
+{
+public:
+    virtual void fixed_t_to_fixed_z(Bunch &bunch) = 0;
+    virtual void fixed_z_to_fixed_t(Bunch &bunch) = 0;
+    virtual ~Fixed_t_z_converter() {};
+};
+
+class Fixed_t_z_zeroth: public Fixed_t_z_converter
+{
+public:
+    void fixed_t_to_fixed_z(Bunch &bunch);
+    void fixed_z_to_fixed_t(Bunch &bunch);
+};
+
+class Fixed_t_z_ballistic: public Fixed_t_z_converter
+{
+public:
+    void fixed_t_to_fixed_z(Bunch &bunch);
+    void fixed_z_to_fixed_t(Bunch &bunch);
+};
+
 class Bunch
 {
 public:
@@ -23,6 +47,8 @@ private:
     State state;
     bool particles_valid;
     Commxx comm;
+    Fixed_t_z_converter *converter_ptr;
+    Fixed_t_z_zeroth default_converter;
 public:
     Bunch(Reference_particle const& reference_particle, int particle_charge,
             int total_num, double real_num, Commxx const& comm);
@@ -34,8 +60,12 @@ public:
     set_local_num(int local_num);
     void
     update_total_num();
-//    void
-//    set_state(Bunch_state state);
+    void
+    set_converter(Fixed_t_z_converter &converter);
+    void
+    convert_to_state(State state);
+    Reference_particle &
+    get_reference_particle();
     MArray2d_ref
     get_local_particles();
     int
