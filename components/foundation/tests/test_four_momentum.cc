@@ -1,7 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include "four_momentum.h"
+#include "components/foundation/four_momentum.h"
 
 const double tolerance = 1.0e-15;
 
@@ -14,6 +14,11 @@ const double total_energy = 125.0;
 BOOST_AUTO_TEST_CASE(construct)
 {
     Four_momentum four_momentum(mass);
+}
+
+BOOST_AUTO_TEST_CASE(construct2)
+{
+    Four_momentum four_momentum(mass, total_energy);
 }
 
 BOOST_AUTO_TEST_CASE(get_mass)

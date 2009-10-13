@@ -10,6 +10,7 @@ private:
     Four_momentum four_momentum;
     MArray1d state;
 public:
+    Reference_particle(double mass, double total_energy);
     Reference_particle(Four_momentum const& four_momentum);
     Reference_particle(Four_momentum const& four_momentum,
             Const_MArray1d_ref state);

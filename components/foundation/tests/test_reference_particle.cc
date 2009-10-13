@@ -9,12 +9,17 @@ const double total_energy = 125.0;
 
 BOOST_AUTO_TEST_CASE(construct)
 {
+    Reference_particle reference_particle(mass,total_energy);
+}
+
+BOOST_AUTO_TEST_CASE(construct2)
+{
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
     Reference_particle reference_particle(four_momentum);
 }
 
-BOOST_AUTO_TEST_CASE(construct2)
+BOOST_AUTO_TEST_CASE(construct3)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);

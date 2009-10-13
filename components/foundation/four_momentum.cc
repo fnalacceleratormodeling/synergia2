@@ -11,9 +11,15 @@ Four_momentum::update_from_gamma()
 
 Four_momentum::Four_momentum(double mass)
 {
-	this->mass = mass;
-	gamma = 1.0;
-	update_from_gamma();
+    this->mass = mass;
+    gamma = 1.0;
+    update_from_gamma();
+}
+
+Four_momentum::Four_momentum(double mass, double total_energy)
+{
+    this->mass = mass;
+    set_total_energy(total_energy);
 }
 
 void

@@ -1,5 +1,13 @@
 #include "reference_particle.h"
 
+Reference_particle::Reference_particle(double mass, double total_energy) :
+    four_momentum(mass, total_energy), state(boost::extents[6])
+{
+    for (int i = 0; i < 6; ++i) {
+        state[i] = 0;
+    }
+}
+
 Reference_particle::Reference_particle(Four_momentum const & four_momentum_in) :
     four_momentum(four_momentum_in), state(boost::extents[6])
 {

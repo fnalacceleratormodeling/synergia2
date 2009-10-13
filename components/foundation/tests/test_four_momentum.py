@@ -7,10 +7,15 @@ from pyfoundation import Four_momentum
 from nose.tools import *
 
 mass = 3.0
+total_energy = 27.4
 value = 3.1415
 beta_value = 0.678
+
 def test_construct():
     f = Four_momentum(mass)
+
+def test_construct2():
+    f = Four_momentum(mass,total_energy)
 
 def test_get_mass():
     f = Four_momentum(mass)
