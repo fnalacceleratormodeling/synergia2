@@ -19,7 +19,7 @@ public:
     void
     set_state(Const_MArray1d_ref state);
 
-    Four_momentum &
+    Four_momentum const &
     get_four_momentum();
     Const_MArray1d_ref
     get_state();

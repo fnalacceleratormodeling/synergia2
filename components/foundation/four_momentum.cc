@@ -53,36 +53,36 @@ Four_momentum::set_beta(double beta)
 }
 
 double
-Four_momentum::get_mass()
+Four_momentum::get_mass() const
 {
 	return mass;
 }
 
 double
-Four_momentum::get_total_energy()
+Four_momentum::get_total_energy() const
 {
 	return energy;
 }
 
-double Four_momentum::get_kinetic_energy()
+double Four_momentum::get_kinetic_energy() const
 {
 	return energy-mass;
 }
 
 double
-Four_momentum::get_momentum()
+Four_momentum::get_momentum() const
 {
 	return momentum;
 }
 
 double
-Four_momentum::get_gamma()
+Four_momentum::get_gamma() const
 {
 	return gamma;
 }
 
 double
-Four_momentum::get_beta()
+Four_momentum::get_beta() const
 {
 	return beta;
 }

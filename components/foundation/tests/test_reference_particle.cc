@@ -57,16 +57,16 @@ BOOST_AUTO_TEST_CASE(set_four_momentum)
             new_total_energy,tolerance);
 }
 
-BOOST_AUTO_TEST_CASE(change_four_momentum)
-{
-    Four_momentum four_momentum(mass);
-    four_momentum.set_total_energy(total_energy);
-    Reference_particle reference_particle(four_momentum);
-    double new_total_energy = total_energy * 1.1;
-    reference_particle.get_four_momentum().set_total_energy(new_total_energy);
-    BOOST_CHECK_CLOSE(reference_particle.get_four_momentum().get_total_energy(),
-            new_total_energy,tolerance);
-}
+//BOOST_AUTO_TEST_CASE(change_four_momentum)
+//{
+//    Four_momentum four_momentum(mass);
+//    four_momentum.set_total_energy(total_energy);
+//    Reference_particle reference_particle(four_momentum);
+//    double new_total_energy = total_energy * 1.1;
+//    reference_particle.get_four_momentum().set_total_energy(new_total_energy);
+//    BOOST_CHECK_CLOSE(reference_particle.get_four_momentum().get_total_energy(),
+//            new_total_energy,tolerance);
+//}
 
 BOOST_AUTO_TEST_CASE(set_state)
 {
@@ -109,7 +109,9 @@ BOOST_AUTO_TEST_CASE(copy2)
     Reference_particle original_reference_particle(four_momentum);
     Reference_particle reference_particle(original_reference_particle);
     double new_total_energy = total_energy * 1.1;
-    original_reference_particle.get_four_momentum().set_total_energy(new_total_energy);
+    Four_momentum new_four_momentum(reference_particle.get_four_momentum());
+    new_four_momentum.set_total_energy(new_total_energy);
+    original_reference_particle.set_four_momentum(new_four_momentum);
     MArray1d new_state(boost::extents[6]);
     for (int i = 0; i < 6; ++i) {
         new_state[i] = 1.1 * i;

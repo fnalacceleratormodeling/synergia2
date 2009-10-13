@@ -26,7 +26,7 @@ Reference_particle::set_state(Const_MArray1d_ref state)
     this->state = state;
 }
 
-Four_momentum &
+Four_momentum const &
 Reference_particle::get_four_momentum()
 {
     return four_momentum;
