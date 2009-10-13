@@ -1,12 +1,16 @@
 #include "four_momentum.h"
 #include <cmath>
+#include <stdexcept>
 
 void
 Four_momentum::update_from_gamma()
 {
-	energy= gamma*mass;
-	beta = sqrt(1.0-1.0/(gamma*gamma));
-	momentum = gamma*beta*mass;
+    if (gamma < 1.0) {
+        throw std::range_error("Four_momentum: gamma not >= 1.0");
+    }
+    energy = gamma * mass;
+    beta = sqrt(1.0 - 1.0 / (gamma * gamma));
+    momentum = gamma * beta * mass;
 }
 
 Four_momentum::Four_momentum(double mass)
@@ -25,70 +29,75 @@ Four_momentum::Four_momentum(double mass, double total_energy)
 void
 Four_momentum::set_total_energy(double total_energy)
 {
-	gamma = total_energy/mass;
-	update_from_gamma();
+    gamma = total_energy / mass;
+    update_from_gamma();
 }
 
 void
 Four_momentum::set_kinetic_energy(double kinetic_energy)
 {
-	gamma = (mass + kinetic_energy)/mass;
-	update_from_gamma();
+    gamma = (mass + kinetic_energy) / mass;
+    update_from_gamma();
 }
 
 void
 Four_momentum::set_momentum(double momentum)
 {
-	double r2 = momentum*momentum/(mass*mass);
-	beta = sqrt(r2/(1+r2));
-	set_beta(beta);
+    double r2 = momentum * momentum / (mass * mass);
+    beta = sqrt(r2 / (1 + r2));
+    set_beta(beta);
 }
 
 void
 Four_momentum::set_gamma(double gamma)
 {
-	this->gamma = gamma;
-	update_from_gamma();
+    this->gamma = gamma;
+    update_from_gamma();
 }
 
 void
 Four_momentum::set_beta(double beta)
 {
-	gamma = 1.0/sqrt(1.0-beta*beta);
-	update_from_gamma();
+    if ((beta < 0.0) || (beta >= 1.0)) {
+        throw std::range_error(
+                "Four_momentum: beta not in range 0.0 <= beta < 1.0");
+    }
+    gamma = 1.0 / sqrt(1.0 - beta * beta);
+    update_from_gamma();
 }
 
 double
 Four_momentum::get_mass() const
 {
-	return mass;
+    return mass;
 }
 
 double
 Four_momentum::get_total_energy() const
 {
-	return energy;
+    return energy;
 }
 
-double Four_momentum::get_kinetic_energy() const
+double
+Four_momentum::get_kinetic_energy() const
 {
-	return energy-mass;
+    return energy - mass;
 }
 
 double
 Four_momentum::get_momentum() const
 {
-	return momentum;
+    return momentum;
 }
 
 double
 Four_momentum::get_gamma() const
 {
-	return gamma;
+    return gamma;
 }
 
 double
 Four_momentum::get_beta() const
 {
-	return beta;
+    return beta;
 }
