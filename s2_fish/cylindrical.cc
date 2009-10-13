@@ -6,6 +6,7 @@
 #include <mpi.h>
 #include "mytimer.h"
 
+
 void
 get_cylindrical_coords(Macro_bunch_store &mbs, Array_2d<double> &coords)
 {
@@ -239,18 +240,22 @@ void
 solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 		Array_3d<double > &local_rho, Array_3d<double> &phi)
 {
-//     int rank1;
-//     MPI_Comm_rank(MPI_COMM_WORLD, &rank1);
-//     std::cout<< " inside solve_cylindrical on rank="<<rank1<<std::endl;
-//     MPI_Barrier (MPI_COMM_WORLD);
 
+    
+    
     timer("start");
-	Array_3d<double> rho(local_rho.get_shape());
+    int rank, size;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	
+    Array_3d<double> rho(local_rho.get_shape());
 	MPI_Allreduce(reinterpret_cast<void*>(local_rho.get_data_ptr()),
 			reinterpret_cast<void*>(rho.get_data_ptr()),
 			local_rho.get_size(), MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
 	timer("gather rho");
 	std::vector<int> shape = fdomain.get_grid_shape();
+
+    
 	double z_length = fdomain.get_length();
 	// the shape of the FFT'd array (shape_lm) is halved in the third
 	// dimension because of the peculiar (but efficient) way FFTW does
@@ -260,45 +265,55 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 	//      a second copy of the array, instead of just allocating what it needs
 	//      locally. Please fix this.
 	Array_3d<std::complex<double> > rho_lm(shape_lm), rho_lm_local(shape_lm);
-	int rank, size;
-	MPI_Comm_size(MPI_COMM_WORLD, &size);
-	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 	std::vector<int> offsets(size), counts(size);
 	std::vector<int> receive_offsets(size), receive_counts(size);
 	decompose_1d(shape[0],size,offsets,counts);
+
+    
 	for (int i=0; i< size; ++i) {
 		receive_counts.at(i) = counts.at(i)*shape_lm[1]*shape_lm[2];
 		receive_offsets.at(i) = offsets.at(i)*shape_lm[1]*shape_lm[2];
 	}
 
 
-	Array_3d<double> sliced_rho(rho.slice(
-			Range(offsets[rank],offsets[rank]+counts[rank]-1),Range(),Range(),
-			false));
-	Array_3d<std::complex<double> > sliced_rho_lm(rho_lm_local.slice(
-			Range(offsets[rank],offsets[rank]+counts[rank]-1),Range(),Range(),
-			false));
-	timer("misc1");
-	fftw_plan plan = fftw_plan_many_dft_r2c(2,
-			&shape[1], counts[rank],
-			sliced_rho.get_data_ptr(),
-			NULL, 1, shape[1]*shape[2],
-			reinterpret_cast<double (*)[2]>(sliced_rho_lm.get_data_ptr()),
-			NULL, 1, shape_lm[1]*shape_lm[2],
-			FFTW_MEASURE);
 
-	timer("plan");
-	fftw_execute(plan);
-	timer("fft");
-// 	MPI_Allgatherv(reinterpret_cast<void*>(sliced_rho_lm.get_data_ptr()),
-// 			counts[rank]*shape_lm[1]*shape_lm[2],
-// 			MPI_DOUBLE_COMPLEX,
-// 			reinterpret_cast<void*>(rho_lm.get_data_ptr()),
-// 			&receive_counts[0],
-// 			&receive_offsets[0],
-// 			MPI_DOUBLE_COMPLEX,
-// 			MPI_COMM_WORLD);
-// 	timer("gather");
+       Array_3d<double> sliced_rho(rho.slice(
+            Range(offsets[rank],offsets[rank]+counts[rank]-1),Range(),Range(),
+            false));
+    
+   
+       Array_3d<std::complex<double> > sliced_rho_lm(counts[rank],shape_lm[1],shape_lm[2]);
+       sliced_rho_lm.set_all(0.);
+  
+
+          if (counts[rank]>0) {
+       fftw_plan plan2 = fftw_plan_many_dft_r2c(2,
+            &shape[1], counts[rank],
+            sliced_rho.get_data_ptr(),
+            NULL, 1, shape[1]*shape[2],
+            reinterpret_cast<double (*)[2]>(sliced_rho_lm.get_data_ptr()),
+            NULL, 1, shape_lm[1]*shape_lm[2],
+            FFTW_ESTIMATE);
+       timer("plan");
+        fftw_execute(plan2);
+        timer("fft");
+   }
+    
+ 
+	
+	MPI_Allgatherv(reinterpret_cast<void*>(sliced_rho_lm.get_data_ptr()),
+			counts[rank]*shape_lm[1]*shape_lm[2],
+			MPI_DOUBLE_COMPLEX,
+			reinterpret_cast<void*>(rho_lm.get_data_ptr()),
+			&receive_counts[0],
+			&receive_offsets[0],
+			MPI_DOUBLE_COMPLEX,
+			MPI_COMM_WORLD);
+	timer("gather");
+    
+   
+
+
 	Array_1d<std::complex<double> > diag(shape_lm[0]);
 	Array_1d<std::complex<double> > above_diag(shape_lm[0]);
 	Array_1d<std::complex<double> > below_diag(shape_lm[0]);
@@ -309,23 +324,23 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 	diag.set_all(0.);
 	above_diag.set_all(0.);
 	below_diag.set_all(0.);
-// 	std::vector<int> offsets2(size), counts2(size);
-// 	std::vector<int> receive_offsets2(size), receive_counts2(size);
-// 	decompose_1d(shape_lm[1],size,offsets2,counts2);
-// 	for (int i=0; i< size; ++i) {
-// 		receive_counts2.at(i) = counts2.at(i)*shape_lm[2];
-// 		receive_offsets2.at(i) = offsets2.at(i)*shape_lm[2];
-// 	}
+	std::vector<int> offsets2(size), counts2(size);
+	std::vector<int> receive_offsets2(size), receive_counts2(size);
+	decompose_1d(shape_lm[1],size,offsets2,counts2);
+	for (int i=0; i< size; ++i) {
+        receive_counts2.at(i) = counts2.at(i)*shape_lm[2];
+        receive_offsets2.at(i) = offsets2.at(i)*shape_lm[2];
+	}
 	timer("misc2");
 	double r;
-	//for(int l=offsets2[rank]; l<(offsets2[rank]+counts2[rank]); ++l) {
-    for(int l=0; l<shape_lm[1]; ++l) {    
+	for(int l=offsets2[rank]; l<(offsets2[rank]+counts2[rank]); ++l) { 
+    //for(int l=0; l<shape_lm[1]; ++l) {
 		int wavenumber_l = (l+shape_lm[1]/2) % shape_lm[1] -
 		shape_lm[1]/2;
 		for(int m=0; m<shape_lm[2]; ++m) {
 			int wavenumber_m = (m+shape_lm[2]/2) % shape_lm[2] -
 			shape_lm[2]/2;
-			for(int i=0; i<shape_lm[0]; ++i) {
+			for(int i=0; i<shape_lm[0]; ++i) {            
 				r = (i+0.5)*deltar;
 				diag(i) = -2.0/(deltar*deltar);
 				diag(i) += - wavenumber_l*wavenumber_l/(r*r)
@@ -342,54 +357,65 @@ solve_cylindrical_finite_periodic(const Cylindrical_field_domain &fdomain,
 			Array_1d<std::complex<double> > x =
 				phi_lm_local.slice(Range(),Range(l),Range(m));
 			x.set_all(0.);
-			solve_tridiag_nonsym(diag,above_diag,below_diag,
-					rhs,x);
+			solve_tridiag_nonsym(diag,above_diag,below_diag,rhs,x);
 		}
 	}
 	timer("tridiag");
-// 	for(int i=0; i<shape_lm[0]; ++i) {
-// 		MPI_Allgatherv(reinterpret_cast<void*>(phi_lm_local.slice(Range(i),
-// 				Range(offsets2[rank],offsets2[rank]+counts2[rank]-1),Range()).get_data_ptr()),
-// 				counts2[rank]*shape_lm[2],
-// 				MPI_DOUBLE_COMPLEX,
-// 				reinterpret_cast<void*>(phi_lm.slice(Range(i),Range(),Range()).get_data_ptr()),
-// 				&receive_counts2[0],
-// 				&receive_offsets2[0],
-// 				MPI_DOUBLE_COMPLEX,
-// 				MPI_COMM_WORLD);
-// 	}
-	timer("gather2");
 
-// 	plan = fftw_plan_many_dft_c2r(2,
-// 			&shape[1], counts[rank],
-// 			reinterpret_cast<double (*)[2]>(phi_lm.slice(
-// 					Range(offsets[rank],offsets[rank]+counts[rank]-1),
-// 					Range(),Range()).get_data_ptr()),
-// 			NULL, 1, shape_lm[1]*shape_lm[2],
-// 			phi.slice(
-// 					Range(offsets[rank],offsets[rank]+counts[rank]-1),
-// 					Range(),Range()).get_data_ptr(),
-// 			NULL, 1, shape[1]*shape[2],
-// 			FFTW_MEASURE);
-// 	timer("invplan");
-// 	fftw_execute(plan);
-// 	timer("ifft");
+    
+           
+  
+     for(int i=0; i<shape_lm[0]; ++i) {
+            MPI_Allgatherv(reinterpret_cast<void*>(phi_lm_local.slice(Range(i),
+            Range(offsets2[rank],offsets2[rank]+counts2[rank]-1),Range()).get_data_ptr()),
+            counts2[rank]*shape_lm[2],
+            MPI_DOUBLE_COMPLEX,
+            reinterpret_cast<void*>(phi_lm.slice(Range(i),Range(),Range()).get_data_ptr()),
+            &receive_counts2[0],
+            &receive_offsets2[0],
+            MPI_DOUBLE_COMPLEX,
+            MPI_COMM_WORLD);    
+     }
+             
+      
+       
+     timer("gather2");
+    
+  
+    
+     phi.set_all(0.);
+    if (counts[rank]>0) {
+        fftw_plan plani = fftw_plan_many_dft_c2r(2,
+			&shape[1], counts[rank],
+			reinterpret_cast<double (*)[2]>(phi_lm.slice(
+					Range(offsets[rank],offsets[rank]+counts[rank]-1),
+                          Range(),Range(),false).get_data_ptr()),
+			NULL, 1, shape_lm[1]*shape_lm[2],
+			phi.slice(
+					Range(offsets[rank],offsets[rank]+counts[rank]-1),
+                          Range(),Range(),false).get_data_ptr(),
+			NULL, 1, shape[1]*shape[2],
+			FFTW_ESTIMATE);
+	   timer("invplan");
+	   fftw_execute(plani);
+	   timer("ifft");
+    }
 	// FFTW transforms are not normalized. We need to apply the normalization
 	// manually.
     
-    plan = fftw_plan_many_dft_c2r(2,
+   /* fftw_plan plan1 = fftw_plan_many_dft_c2r(2,
                 &shape[1], shape_lm[0],
-                reinterpret_cast<double (*)[2]>(phi_lm_local.get_data_ptr()),
+                reinterpret_cast<double (*)[2]>(phi_lm.get_data_ptr()),
                 NULL, 1, shape_lm[1]*shape_lm[2],
                 phi.get_data_ptr(),
                 NULL, 1, shape[1]*shape[2],
                 FFTW_ESTIMATE);
-                fftw_execute(plan);
-    phi.scale(1.0/(shape[1]*shape[2]));          
+                fftw_execute(plan1); 
+   phi.scale(1.0/(shape[1]*shape[2]));     */   
     
-// 	phi.slice(
-// 			Range(offsets[rank],offsets[rank]+counts[rank]-1),
-// 			Range(),Range()).scale(1.0/(shape[1]*shape[2]));
+	phi.slice(
+			Range(offsets[rank],offsets[rank]+counts[rank]-1),
+                  Range(),Range(),false).scale(1.0/(shape[1]*shape[2]));
 	// at end of routine, phi is the size of the global array, but it only contains
 	// the locally calculated pieces.
 }
@@ -409,17 +435,20 @@ fill_guards_cylindrical(const Cylindrical_field_domain &fdomain,
 	MPI_Status status;
  	int message_size = shape[1] * shape[2];
 	int lower = offsets[rank];
-	int upper = offsets[rank] + counts[rank];
+	int upper = offsets[rank] + counts[rank]-1;
+    
+    std::cout<<" offset="<<offsets[rank]<<" counts="<<counts[rank]<<"  on rank="<<rank<<std::endl;
+    std::cout<<"lower="<<lower<<" uper="<<upper<<"  on rank="<<rank<<std::endl;
 	// send to the right
-	if (upper < shape[0]) {
+    if ((upper < shape[0]-1) &&  (upper >= 0)) {
 		send_buffer = reinterpret_cast<void*>(phi.slice(
-        		Range(upper),Range(),Range()).get_data_ptr());
+        		Range(upper),Range(),Range(),false).get_data_ptr());
         MPI_Send(send_buffer, message_size, MPI_DOUBLE, rank + 1, rank,
         		MPI_COMM_WORLD);
     }
     if (lower > 0) {
         recv_buffer = reinterpret_cast<void*>(phi.slice(
-        		Range(lower-1),Range(),Range()).get_data_ptr());
+        		Range(lower-1),Range(),Range(),false).get_data_ptr());
         MPI_Recv(recv_buffer, message_size, MPI_DOUBLE, rank - 1, rank - 1,
         		MPI_COMM_WORLD, &status);
     }
@@ -427,13 +456,13 @@ fill_guards_cylindrical(const Cylindrical_field_domain &fdomain,
 	// send to the left
 	if (lower > 0) {
 		send_buffer = reinterpret_cast<void*>(phi.slice(
-        		Range(lower),Range(),Range()).get_data_ptr());
+        		Range(lower),Range(),Range(),false).get_data_ptr());
         MPI_Send(send_buffer, message_size, MPI_DOUBLE, rank - 1, rank,
         		MPI_COMM_WORLD);
     }
-    if (upper < shape[0]) {
+    if ((upper < shape[0]-1) &&  (upper >= 0)){
         recv_buffer = reinterpret_cast<void*>(phi.slice(
-        		Range(upper+1),Range(),Range()).get_data_ptr());
+        		Range(upper+1),Range(),Range(),false).get_data_ptr());
         MPI_Recv(recv_buffer, message_size, MPI_DOUBLE, rank + 1, rank + 1,
         		MPI_COMM_WORLD, &status);
     }
@@ -447,27 +476,25 @@ calculate_E_cylindrical(const Cylindrical_field_domain &fdomain,
                           Array_3d<double> &Ez)
 { //std::cout<< " begin E_cylindrical"<<std::endl;
 	timer("misc calc_E");
-	//fill_guards_cylindrical(fdomain,phi);
+	fill_guards_cylindrical(fdomain,phi);
 	timer("fill guards");
     std::vector<int> shape = phi.get_shape();
-// 	int rank, size;
-// 	MPI_Comm_size(MPI_COMM_WORLD, &size);
-// 	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-// 	std::vector<int> offsets(size), counts(size);
-// 	std::vector<int> receive_offsets(size), receive_counts(size);
-// 	decompose_1d(shape[0],size,offsets,counts);
-// 	decompose_1d(shape[0],size,offsets,counts);
-// 	for (int i=0; i< size; ++i) {
-// 		receive_counts.at(i) = counts.at(i)*shape[1]*shape[2];
-// 		receive_offsets.at(i) = offsets.at(i)*shape[1]*shape[2];
-// 	}
-  //double theta_step = 2.0*pi/(shape[1]-1);
+	int rank, size;
+	MPI_Comm_size(MPI_COMM_WORLD, &size);
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	std::vector<int> offsets(size), counts(size);
+	std::vector<int> receive_offsets(size), receive_counts(size);
+	decompose_1d(shape[0],size,offsets,counts);
+	for (int i=0; i< size; ++i) {
+		receive_counts.at(i) = counts.at(i)*shape[1]*shape[2];
+		receive_offsets.at(i) = offsets.at(i)*shape[1]*shape[2];
+	}
+  
     double theta_step = 2.0*pi/shape[1];
-  //  double z_step = fdomain.get_length()/(shape[2]-1);
     double z_step = fdomain.get_length()/shape[2];
     double ordinary_r_step = fdomain.get_radius()/(shape[0]+0.5);
-  //  for(int i_r = offsets[rank]; i_r<offsets[rank]+counts[rank]; ++i_r) {
-    for(int i_r = 0; i_r<shape[0]; ++i_r) {  
+    for(int i_r = offsets[rank]; i_r<offsets[rank]+counts[rank]; ++i_r) {
+   // for(int i_r = 0; i_r<shape[0]; ++i_r) {  
         int r_left = i_r-1;
         int r_right = i_r+1;
         double r_step = 2.*ordinary_r_step;
@@ -476,10 +503,7 @@ calculate_E_cylindrical(const Cylindrical_field_domain &fdomain,
              r_left = 0;
              r_step *= 0.5;
          }
-//          if(i_r == shape[0]-1) {
-//              r_right = shape[0]-1;
-//              r_step *= 0.5;
-//          }
+
         for(int i_theta = 0; i_theta<shape[1]; ++i_theta) {
             int theta_left = i_theta-1;
             int theta_right = i_theta+1;
@@ -499,9 +523,7 @@ calculate_E_cylindrical(const Cylindrical_field_domain &fdomain,
                  if (z_right == shape[2]) {
                      z_right = 0;
                  }
-//           if(i_r == shape[0]-1) {
-//              r_right = shape[0]-1;
-//          }
+
 // 	 if (!phi.bounds_check(r_right,i_theta,i_z)) { std::cout<<"out of bounds phi1"<<std::endl;
 //          std::cout<<"r_right="<<r_right<<" i_theta="<<i_theta<<"  i_z="<<i_z<<std::endl;; abort();}
 //          if (!phi.bounds_check(r_left,i_theta,i_z)) { std::cout<<"out of bounds phi2"<<std::endl;  abort();}
@@ -537,40 +559,40 @@ calculate_E_cylindrical(const Cylindrical_field_domain &fdomain,
             }
         }
     }
-//     timer("calcE");
-//     if (size > 1) {
-//     	MPI_Allgatherv(reinterpret_cast<void*>(Ex.slice(
-//     			Range(offsets[rank],offsets[rank]+counts[rank]-1),
-//     			Range(),Range()).get_data_ptr()),
-//     			receive_counts[rank],
-//     			MPI_DOUBLE,
-//     			reinterpret_cast<void*>(Ex.get_data_ptr()),
-//     			&receive_counts[0],
-//     			&receive_offsets[0],
-//     			MPI_DOUBLE,
-//     			MPI_COMM_WORLD);
-//     	MPI_Allgatherv(reinterpret_cast<void*>(Ey.slice(
-//     			Range(offsets[rank],offsets[rank]+counts[rank]-1),
-//     			Range(),Range()).get_data_ptr()),
-//     			receive_counts[rank],
-//     			MPI_DOUBLE,
-//     			reinterpret_cast<void*>(Ey.get_data_ptr()),
-//     			&receive_counts[0],
-//     			&receive_offsets[0],
-//     			MPI_DOUBLE,
-//     			MPI_COMM_WORLD);
-//     	MPI_Allgatherv(reinterpret_cast<void*>(Ez.slice(
-//     			Range(offsets[rank],offsets[rank]+counts[rank]-1),
-//     			Range(),Range()).get_data_ptr()),
-//     			receive_counts[rank],
-//     			MPI_DOUBLE,
-//     			reinterpret_cast<void*>(Ez.get_data_ptr()),
-//     			&receive_counts[0],
-//     			&receive_offsets[0],
-//     			MPI_DOUBLE,
-//     			MPI_COMM_WORLD);
-//     }
-//     timer("gatherE");
+    timer("calcE");
+    if (size > 1) {
+    	MPI_Allgatherv(reinterpret_cast<void*>(Ex.slice(
+    			Range(offsets[rank],offsets[rank]+counts[rank]-1),
+    			Range(),Range(),false).get_data_ptr()),
+    			receive_counts[rank],
+    			MPI_DOUBLE,
+    			reinterpret_cast<void*>(Ex.get_data_ptr()),
+    			&receive_counts[0],
+    			&receive_offsets[0],
+    			MPI_DOUBLE,
+    			MPI_COMM_WORLD);
+    	MPI_Allgatherv(reinterpret_cast<void*>(Ey.slice(
+    			Range(offsets[rank],offsets[rank]+counts[rank]-1),
+                      Range(),Range(),false).get_data_ptr()),
+    			receive_counts[rank],
+    			MPI_DOUBLE,
+    			reinterpret_cast<void*>(Ey.get_data_ptr()),
+    			&receive_counts[0],
+    			&receive_offsets[0],
+    			MPI_DOUBLE,
+    			MPI_COMM_WORLD);
+    	MPI_Allgatherv(reinterpret_cast<void*>(Ez.slice(
+    			Range(offsets[rank],offsets[rank]+counts[rank]-1),
+                      Range(),Range(),false).get_data_ptr()),
+    			receive_counts[rank],
+    			MPI_DOUBLE,
+    			reinterpret_cast<void*>(Ez.get_data_ptr()),
+    			&receive_counts[0],
+    			&receive_offsets[0],
+    			MPI_DOUBLE,
+    			MPI_COMM_WORLD);
+    }
+    timer("gatherE");
  // std::cout<< " end E_cylindrical"<<std::endl;
 }
 
