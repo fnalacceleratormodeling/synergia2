@@ -44,6 +44,42 @@ BOOST_AUTO_TEST_CASE(get_state)
     }
 }
 
+BOOST_AUTO_TEST_CASE(get_beta)
+{
+    Four_momentum four_momentum(mass);
+    four_momentum.set_total_energy(total_energy);
+    Reference_particle reference_particle(four_momentum);
+    BOOST_CHECK_CLOSE(reference_particle.get_beta(),
+            four_momentum.get_beta(),tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(get_gamma)
+{
+    Four_momentum four_momentum(mass);
+    four_momentum.set_total_energy(total_energy);
+    Reference_particle reference_particle(four_momentum);
+    BOOST_CHECK_CLOSE(reference_particle.get_gamma(),
+            four_momentum.get_gamma(),tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(get_momentum)
+{
+    Four_momentum four_momentum(mass);
+    four_momentum.set_total_energy(total_energy);
+    Reference_particle reference_particle(four_momentum);
+    BOOST_CHECK_CLOSE(reference_particle.get_momentum(),
+            four_momentum.get_momentum(),tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(get_total_energy)
+{
+    Four_momentum four_momentum(mass);
+    four_momentum.set_total_energy(total_energy);
+    Reference_particle reference_particle(four_momentum);
+    BOOST_CHECK_CLOSE(reference_particle.get_total_energy(),
+            four_momentum.get_total_energy(),tolerance);
+}
+
 BOOST_AUTO_TEST_CASE(set_four_momentum)
 {
     Four_momentum four_momentum(mass);
@@ -56,17 +92,6 @@ BOOST_AUTO_TEST_CASE(set_four_momentum)
     BOOST_CHECK_CLOSE(reference_particle.get_four_momentum().get_total_energy(),
             new_total_energy,tolerance);
 }
-
-//BOOST_AUTO_TEST_CASE(change_four_momentum)
-//{
-//    Four_momentum four_momentum(mass);
-//    four_momentum.set_total_energy(total_energy);
-//    Reference_particle reference_particle(four_momentum);
-//    double new_total_energy = total_energy * 1.1;
-//    reference_particle.get_four_momentum().set_total_energy(new_total_energy);
-//    BOOST_CHECK_CLOSE(reference_particle.get_four_momentum().get_total_energy(),
-//            new_total_energy,tolerance);
-//}
 
 BOOST_AUTO_TEST_CASE(set_state)
 {
@@ -84,6 +109,16 @@ BOOST_AUTO_TEST_CASE(set_state)
     }
 }
 
+BOOST_AUTO_TEST_CASE(set_total_energy)
+{
+    Four_momentum four_momentum(mass);
+    four_momentum.set_total_energy(total_energy);
+    Reference_particle reference_particle(four_momentum);
+    double new_total_energy = total_energy * 1.1;
+    reference_particle.set_total_energy(new_total_energy);
+    BOOST_CHECK_CLOSE(reference_particle.get_four_momentum().get_total_energy(),
+            new_total_energy,tolerance);
+}
 BOOST_AUTO_TEST_CASE(copy)
 {
     Four_momentum four_momentum(mass);

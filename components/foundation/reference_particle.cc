@@ -26,14 +26,45 @@ Reference_particle::set_state(Const_MArray1d_ref state)
     this->state = state;
 }
 
+void
+Reference_particle::set_total_energy(double total_energy)
+{
+    four_momentum.set_total_energy(total_energy);
+}
+
 Four_momentum const &
-Reference_particle::get_four_momentum()
+Reference_particle::get_four_momentum() const
 {
     return four_momentum;
 }
 
 Const_MArray1d_ref
-Reference_particle::get_state()
+Reference_particle::get_state() const
 {
     return state;
 }
+
+double
+Reference_particle::get_gamma() const
+{
+    return four_momentum.get_gamma();
+}
+
+double
+Reference_particle::get_beta() const
+{
+    return four_momentum.get_beta();
+}
+
+double
+Reference_particle::get_momentum() const
+{
+    return four_momentum.get_momentum();
+}
+
+double
+Reference_particle::get_total_energy() const
+{
+    return four_momentum.get_total_energy();
+}
+
