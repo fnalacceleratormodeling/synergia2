@@ -1,6 +1,7 @@
 #include "bunch.h"
 #include "utils/parallel_utils.h"
 #include <stdexcept>
+#include <cmath>
 
 void
 Fixed_t_z_zeroth::fixed_t_to_fixed_z(Bunch &bunch)
@@ -199,6 +200,34 @@ Bunch::State
 Bunch::get_state() const
 {
     return state;
+}
+
+void
+Bunch::inject(Bunch &bunch)
+{
+    const double weight_tolerance = 1.0e-10;
+    if (std::abs(real_num / total_num - bunch.get_real_num() / bunch.get_total_num())
+            > weight_tolerance) {
+        throw std::runtime_error(
+                "Bunch.inject: macroparticle weight of injected bunch does not match.");
+    }
+    int old_local_num = local_num;
+    set_local_num(local_num + bunch.get_local_num());
+    MArray2d_ref injected_particles(bunch.get_local_particles());
+    MArray1d ref_state_diff(boost::extents[6]);
+    for (int i = 0; i < 6; ++i) {
+        ref_state_diff[i] = bunch.get_reference_particle().get_state()[i]
+                - reference_particle.get_state()[i];
+    }
+    for (int part = 0; part < bunch.get_local_num(); ++part) {
+        for (int i = 0; i < 6; ++i) {
+            (*local_particles)[old_local_num + part][i]
+                    = injected_particles[part][i] + ref_state_diff[i];
+        }
+        (*local_particles)[old_local_num + part][Bunch::id]
+                = injected_particles[part][Bunch::id];
+    }
+    update_total_num();
 }
 
 Bunch::~Bunch()

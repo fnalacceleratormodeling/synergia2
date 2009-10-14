@@ -96,7 +96,8 @@ public:
     get_total_num() const;
     State
     get_state() const;
-    //	void inject(Bunch bunch);
+    void
+    inject(Bunch & bunch);
     virtual
     ~Bunch();
 };

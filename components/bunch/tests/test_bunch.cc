@@ -34,18 +34,19 @@ struct Fixture
 };
 
 void
-dummy_populate(Bunch &bunch)
+dummy_populate(Bunch &bunch, int id_offset = 0)
 {
     for (int part = 0; part < bunch.get_local_num(); ++part) {
+        int id = part + id_offset;
         // coordinates
         for (int i = 0; i < 6; i += 2) {
-            bunch.get_local_particles()[part][i] = 10.0 * part + i;
+            bunch.get_local_particles()[part][i] = 10.0 * id + i;
         }
         // momenta
         for (int i = 1; i < 6; i += 2) {
-            bunch.get_local_particles()[part][i] = 1e-4 * (10.0 * part + i);
+            bunch.get_local_particles()[part][i] = 1e-4 * (10.0 * id + i);
         }
-        bunch.get_local_particles()[part][Bunch::id] = part;
+        bunch.get_local_particles()[part][Bunch::id] = id;
     }
 }
 
@@ -172,6 +173,7 @@ BOOST_FIXTURE_TEST_CASE(increase_local_num, Fixture)
 
     // expand bunch2 and verify that old values are still there
     bunch2.set_local_num(old_local_num + increase);
+    bunch2.update_total_num();
     MArray2d_ref particles2(bunch2.get_local_particles());
     BOOST_CHECK_EQUAL(particles2.shape()[1],7);
     BOOST_CHECK(particles2.shape()[0] >= bunch2.get_local_num());
@@ -231,3 +233,32 @@ BOOST_FIXTURE_TEST_CASE(set_converter, Fixture)
     compare_bunches(bunch, second_bunch, tolerance, false);
 }
 
+BOOST_FIXTURE_TEST_CASE(inject, Fixture)
+{
+    Bunch total_bunch(bunch);
+    const int local_num = 10;
+    bunch.set_local_num(local_num);
+    bunch.update_total_num();
+    Bunch second_bunch(bunch);
+    dummy_populate(bunch);
+    dummy_populate(second_bunch, local_num);
+    total_bunch.set_local_num(2* local_num );
+    total_bunch.update_total_num();
+    dummy_populate(total_bunch);
+    bunch.inject(second_bunch);
+    compare_bunches(bunch, total_bunch);
+}
+
+BOOST_FIXTURE_TEST_CASE(inject_mismatched_weights, Fixture)
+{
+    Bunch second_bunch(bunch);
+    second_bunch.set_real_num(second_bunch.get_real_num() * 2.0);
+    bool caught_error = false;
+    try {
+        bunch.inject(second_bunch);
+    }
+    catch (std::runtime_error) {
+        caught_error = true;
+    }
+    BOOST_CHECK(caught_error);
+}
