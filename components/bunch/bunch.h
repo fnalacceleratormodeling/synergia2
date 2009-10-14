@@ -65,6 +65,9 @@ private:
 public:
     Bunch(Reference_particle const& reference_particle, int particle_charge,
             int total_num, double real_num, Commxx const& comm);
+    Bunch(Bunch const& bunch);
+    Bunch &
+    operator=(Bunch const& bunch);
     void
     set_particle_charge(int particle_charge);
     void

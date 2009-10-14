@@ -33,8 +33,54 @@ struct Fixture
     Bunch bunch;
 };
 
+void
+dummy_populate(Bunch &bunch) {
+    for(int part = 0; part<bunch.get_local_num(); ++part) {
+        for (int i=0; i<6; ++i) {
+            bunch.get_local_particles()[part][i] = 10.0*part+i;
+        }
+        bunch.get_local_particles()[part][Bunch::id] = part;
+    }
+}
+
+void
+compare_bunches(Bunch &bunch1, Bunch &bunch2)
+{
+    BOOST_CHECK_EQUAL(bunch1.get_reference_particle().get_total_energy(),
+            bunch2.get_reference_particle().get_total_energy());
+    BOOST_CHECK_EQUAL(bunch1.get_particle_charge(),
+            bunch2.get_particle_charge());
+    BOOST_CHECK_CLOSE(bunch1.get_mass(), bunch2.get_mass(), tolerance);
+    BOOST_CHECK_CLOSE(bunch1.get_real_num(), bunch1.get_real_num(), tolerance);
+    BOOST_CHECK_EQUAL(bunch1.get_local_num(), bunch2.get_local_num());
+    BOOST_CHECK_EQUAL(bunch1.get_total_num(), bunch2.get_total_num());
+    BOOST_CHECK_EQUAL(bunch1.get_state(), bunch2.get_state());
+    for (int part=0; part<bunch1.get_local_num(); ++part) {
+        for (int i=0; i<7; ++i) {
+            BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][i],
+                    bunch2.get_local_particles()[part][i], tolerance);
+        }
+    }
+}
+
 BOOST_FIXTURE_TEST_CASE(construct, Fixture)
 {
+}
+
+BOOST_FIXTURE_TEST_CASE(copy_construct, Fixture)
+{
+    dummy_populate(bunch);
+    Bunch second_bunch(bunch);
+    compare_bunches(bunch,second_bunch);
+}
+
+BOOST_FIXTURE_TEST_CASE(assign, Fixture)
+{
+    Bunch second_bunch(reference_particle, proton_charge,
+            total_num+10, real_num*2, comm);
+    dummy_populate(bunch);
+    second_bunch = bunch;
+    compare_bunches(bunch,second_bunch);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_particle_charge, Fixture)

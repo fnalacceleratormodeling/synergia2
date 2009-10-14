@@ -62,6 +62,46 @@ Bunch::Bunch(Reference_particle const& reference_particle, int particle_charge,
     converter_ptr = &default_converter;
 }
 
+Bunch::Bunch(Bunch const& bunch) :
+    reference_particle(bunch.reference_particle), comm(bunch.comm),
+            default_converter()
+{
+    particle_charge = bunch.particle_charge;
+    total_num = bunch.total_num;
+    real_num = bunch.real_num;
+    local_num = bunch.local_num;
+    local_particles = new MArray2d(*(bunch.local_particles));
+    state = bunch.state;
+    particles_valid = bunch.particles_valid;
+    if (bunch.converter_ptr == &(bunch.default_converter)) {
+        converter_ptr = &default_converter;
+    } else {
+        converter_ptr = bunch.converter_ptr;
+    }
+}
+
+Bunch &
+Bunch::operator=(Bunch const& bunch)
+{
+    if (this != &bunch) {
+        reference_particle = bunch.reference_particle;
+        comm = bunch.comm;
+        particle_charge = bunch.particle_charge;
+        total_num = bunch.total_num;
+        real_num = bunch.real_num;
+        local_num = bunch.local_num;
+        local_particles = new MArray2d(*(bunch.local_particles));
+        state = bunch.state;
+        particles_valid = bunch.particles_valid;
+        if (bunch.converter_ptr == &(bunch.default_converter)) {
+            converter_ptr = &default_converter;
+        } else {
+            converter_ptr = bunch.converter_ptr;
+        }
+    }
+    return *this;
+}
+
 void
 Bunch::set_particle_charge(int particle_charge)
 {
