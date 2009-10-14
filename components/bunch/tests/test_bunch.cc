@@ -34,17 +34,24 @@ struct Fixture
 };
 
 void
-dummy_populate(Bunch &bunch) {
-    for(int part = 0; part<bunch.get_local_num(); ++part) {
-        for (int i=0; i<6; ++i) {
-            bunch.get_local_particles()[part][i] = 10.0*part+i;
+dummy_populate(Bunch &bunch)
+{
+    for (int part = 0; part < bunch.get_local_num(); ++part) {
+        // coordinates
+        for (int i = 0; i < 6; i += 2) {
+            bunch.get_local_particles()[part][i] = 10.0 * part + i;
+        }
+        // momenta
+        for (int i = 1; i < 6; i += 2) {
+            bunch.get_local_particles()[part][i] = 1e-4 * (10.0 * part + i);
         }
         bunch.get_local_particles()[part][Bunch::id] = part;
     }
 }
 
 void
-compare_bunches(Bunch &bunch1, Bunch &bunch2)
+compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance = tolerance,
+        bool check_state = true)
 {
     BOOST_CHECK_EQUAL(bunch1.get_reference_particle().get_total_energy(),
             bunch2.get_reference_particle().get_total_energy());
@@ -54,9 +61,11 @@ compare_bunches(Bunch &bunch1, Bunch &bunch2)
     BOOST_CHECK_CLOSE(bunch1.get_real_num(), bunch1.get_real_num(), tolerance);
     BOOST_CHECK_EQUAL(bunch1.get_local_num(), bunch2.get_local_num());
     BOOST_CHECK_EQUAL(bunch1.get_total_num(), bunch2.get_total_num());
-    BOOST_CHECK_EQUAL(bunch1.get_state(), bunch2.get_state());
-    for (int part=0; part<bunch1.get_local_num(); ++part) {
-        for (int i=0; i<7; ++i) {
+    if (check_state) {
+        BOOST_CHECK_EQUAL(bunch1.get_state(), bunch2.get_state());
+    }
+    for (int part = 0; part < bunch1.get_local_num(); ++part) {
+        for (int i = 0; i < 7; ++i) {
             BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][i],
                     bunch2.get_local_particles()[part][i], tolerance);
         }
@@ -71,16 +80,16 @@ BOOST_FIXTURE_TEST_CASE(copy_construct, Fixture)
 {
     dummy_populate(bunch);
     Bunch second_bunch(bunch);
-    compare_bunches(bunch,second_bunch);
+    compare_bunches(bunch, second_bunch);
 }
 
 BOOST_FIXTURE_TEST_CASE(assign, Fixture)
 {
-    Bunch second_bunch(reference_particle, proton_charge,
-            total_num+10, real_num*2, comm);
+    Bunch second_bunch(reference_particle, proton_charge, total_num + 10,
+            real_num * 2, comm);
     dummy_populate(bunch);
     second_bunch = bunch;
-    compare_bunches(bunch,second_bunch);
+    compare_bunches(bunch, second_bunch);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_particle_charge, Fixture)
@@ -181,13 +190,44 @@ BOOST_FIXTURE_TEST_CASE(get_state, Fixture)
     BOOST_CHECK_EQUAL(state,Bunch::fixed_z);
 }
 
-BOOST_FIXTURE_TEST_CASE(set_converter, Fixture)
-{
-    Fixed_t_z_ballistic converter;
-    bunch.set_converter(converter);
-}
-
 BOOST_FIXTURE_TEST_CASE(convert_to_state, Fixture)
 {
+    // This is a trivial test too see that converting to
+    // fixed_t then back to fixed_z gives the original bunch.
+    dummy_populate(bunch);
+    Bunch second_bunch(bunch);
+    bunch.convert_to_state(Bunch::fixed_t);
+    bunch.convert_to_state(Bunch::fixed_z);
+    const double convert_tolerance = 1.0e-9;
+    compare_bunches(bunch, second_bunch, convert_tolerance);
 
 }
+
+class Fixed_t_z_dummy : public Fixed_t_z_converter
+{
+public:
+    void
+    fixed_t_to_fixed_z(Bunch &bunch)
+    {
+    }
+    ;
+    void
+    fixed_z_to_fixed_t(Bunch &bunch)
+    {
+    }
+    ;
+};
+
+BOOST_FIXTURE_TEST_CASE(set_converter, Fixture)
+{
+    // This test relies on the Fixed_t_z_dummy class not
+    // doing anything to the bunch. It verifies that we are not
+    // using the default converter after set_converter.
+    Fixed_t_z_dummy converter;
+    bunch.set_converter(converter);
+    dummy_populate(bunch);
+    Bunch second_bunch(bunch);
+    bunch.convert_to_state(Bunch::fixed_t);
+    compare_bunches(bunch, second_bunch, tolerance, false);
+}
+
