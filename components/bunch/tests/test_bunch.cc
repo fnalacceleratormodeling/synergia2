@@ -16,9 +16,9 @@ const double real_num = 2.0e12;
 struct Fixture
 {
     Fixture() :
-        four_momentum(mass), reference_particle(four_momentum), comm(
-                MPI_COMM_WORLD), bunch(reference_particle, proton_charge,
-                total_num, real_num, comm)
+        four_momentum(mass, total_energy), reference_particle(four_momentum),
+                comm(MPI_COMM_WORLD), bunch(reference_particle, proton_charge,
+                        total_num, real_num, comm)
     {
         BOOST_TEST_MESSAGE("setup fixture");
     }
@@ -40,6 +40,11 @@ BOOST_FIXTURE_TEST_CASE(construct, Fixture)
 BOOST_FIXTURE_TEST_CASE(get_particle_charge, Fixture)
 {
     BOOST_CHECK_CLOSE(bunch.get_particle_charge(),proton_charge,tolerance);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_mass, Fixture)
+{
+    BOOST_CHECK_CLOSE(bunch.get_mass(),mass,tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(set_particle_charge, Fixture)

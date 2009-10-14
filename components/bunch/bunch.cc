@@ -1,51 +1,52 @@
 #include "bunch.h"
 #include "utils/parallel_utils.h"
 #include <stdexcept>
-//        double gamma = -ref_particle(5);
-//        for (int i = 0; i < local_num; ++i) {
-//            local_particles(0, i) /= units(0);
-//            local_particles(2, i) /= units(2);
-//            double xp = local_particles(1, i);
-//            double yp = local_particles(3, i);
-//            double rcp_gammai = 1.0 / (gamma - local_particles(5, i));
-//            double betai = sqrt(1.0 - rcp_gammai * rcp_gammai * (1 + xp * xp + yp * yp));
-//            local_particles(4, i) *= -gamma * betai / units(0); // units(0)
 
 void
 Fixed_t_z_zeroth::fixed_t_to_fixed_z(Bunch &bunch)
 {
-    std::cout << "zeroth fixed_t_to_fixed_z\n";
+    // This routine just copied/translated from older branch.
+    // Check/fix me please.
+    double gamma_ref = bunch.get_reference_particle().get_gamma();
+    double mass = bunch.get_mass();
+    MArray2d_ref particles = bunch.get_local_particles();
+    for (int part = 0; part < bunch.get_local_num(); ++part) {
+        double f_x = particles[part][Bunch::xp] / mass;
+        double f_y = particles[part][Bunch::yp] / mass;
+        double gamma = gamma_ref - particles[part][Bunch::tp] / mass;
+        double beta = sqrt(1.0 - (1 + f_x * f_x + f_y * f_y) / (gamma * gamma));
+        particles[part][Bunch::z] /= -gamma * beta;
+    }
 }
 
 void
 Fixed_t_z_zeroth::fixed_z_to_fixed_t(Bunch &bunch)
 {
-    //double gamma_ref = bunch.get_reference_particle().get_gamma();
+    // This routine just copied/translated from older branch.
+    // Check/fix me please.
+    double gamma_ref = bunch.get_reference_particle().get_gamma();
+    double mass = bunch.get_mass();
+    MArray2d_ref particles = bunch.get_local_particles();
+    for (int part = 0; part < bunch.get_local_num(); ++part) {
+        double f_x = particles[part][Bunch::xp] / mass;
+        double f_y = particles[part][Bunch::yp] / mass;
+        double gamma = gamma_ref - particles[part][Bunch::tp] / mass;
+        double beta = sqrt(1.0 - (1 + f_x * f_x + f_y * f_y) / (gamma * gamma));
+        particles[part][Bunch::z] *= -gamma * beta;
+    }
 }
 
 void
 Fixed_t_z_ballistic::fixed_t_to_fixed_z(Bunch &bunch)
 {
-    std::cout << "ballistic fixed_t_to_fixed_z\n";
+    std::cout << "stub: ballistic fixed_t_to_fixed_z\n";
 }
 
 void
 Fixed_t_z_ballistic::fixed_z_to_fixed_t(Bunch &bunch)
 {
-    std::cout << "ballistic fixed_z_to_fixed_t\n";
+    std::cout << "stub: ballistic fixed_z_to_fixed_t\n";
 }
-
-//
-//    Reference_particle reference_particle;
-//    int particle_charge;
-//    MArray2d local_particles;
-//    int local_num, total_num;
-//    double real_num;
-//    Bunch_state state;
-//    bool particles_valid;
-//    bool total_num_valid;
-//    MPI_comm comm;
-
 
 Bunch::Bunch(Reference_particle const& reference_particle, int particle_charge,
         int total_num, double real_num, Commxx const& comm) :
@@ -128,6 +129,12 @@ int
 Bunch::get_particle_charge()
 {
     return particle_charge;
+}
+
+double
+Bunch::get_mass()
+{
+    return reference_particle.get_four_momentum().get_mass();
 }
 
 double

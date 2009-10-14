@@ -11,23 +11,28 @@ class Bunch;
 class Fixed_t_z_converter
 {
 public:
-    virtual void fixed_t_to_fixed_z(Bunch &bunch) = 0;
-    virtual void fixed_z_to_fixed_t(Bunch &bunch) = 0;
-    virtual ~Fixed_t_z_converter() {};
+    virtual void
+    fixed_t_to_fixed_z(Bunch &bunch) = 0;
+    virtual void
+    fixed_z_to_fixed_t(Bunch &bunch) = 0;
 };
 
-class Fixed_t_z_zeroth: public Fixed_t_z_converter
+class Fixed_t_z_zeroth : public Fixed_t_z_converter
 {
 public:
-    void fixed_t_to_fixed_z(Bunch &bunch);
-    void fixed_z_to_fixed_t(Bunch &bunch);
+    void
+    fixed_t_to_fixed_z(Bunch &bunch);
+    void
+    fixed_z_to_fixed_t(Bunch &bunch);
 };
 
-class Fixed_t_z_ballistic: public Fixed_t_z_converter
+class Fixed_t_z_ballistic : public Fixed_t_z_converter
 {
 public:
-    void fixed_t_to_fixed_z(Bunch &bunch);
-    void fixed_z_to_fixed_t(Bunch &bunch);
+    void
+    fixed_t_to_fixed_z(Bunch &bunch);
+    void
+    fixed_z_to_fixed_t(Bunch &bunch);
 };
 
 class Bunch
@@ -37,7 +42,15 @@ public:
     {
         fixed_z = 1, fixed_t = 2
     };
-
+    static const int x = 0;
+    static const int xp = 1;
+    static const int y = 2;
+    static const int yp = 3;
+    static const int z = 4;
+    static const int zp = 5;
+    static const int t = 4;
+    static const int tp = 5;
+    static const int id = 6;
 private:
     Reference_particle reference_particle;
     int particle_charge;
@@ -70,6 +83,8 @@ public:
     get_local_particles();
     int
     get_particle_charge();
+    double
+    get_mass();
     double
     get_real_num();
     int
