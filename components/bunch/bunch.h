@@ -97,6 +97,7 @@ public:
     State
     get_state() const;
     //	void inject(Bunch bunch);
+    virtual
     ~Bunch();
 };
 
