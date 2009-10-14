@@ -166,37 +166,37 @@ Bunch::get_local_particles()
 }
 
 int
-Bunch::get_particle_charge()
+Bunch::get_particle_charge() const
 {
     return particle_charge;
 }
 
 double
-Bunch::get_mass()
+Bunch::get_mass() const
 {
     return reference_particle.get_four_momentum().get_mass();
 }
 
 double
-Bunch::get_real_num()
+Bunch::get_real_num() const
 {
     return real_num;
 }
 
 int
-Bunch::get_local_num()
+Bunch::get_local_num() const
 {
     return local_num;
 }
 
 int
-Bunch::get_total_num()
+Bunch::get_total_num() const
 {
     return total_num;
 }
 
 Bunch::State
-Bunch::get_state()
+Bunch::get_state() const
 {
     return state;
 }

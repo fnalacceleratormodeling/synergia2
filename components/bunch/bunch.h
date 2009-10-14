@@ -85,17 +85,17 @@ public:
     MArray2d_ref
     get_local_particles();
     int
-    get_particle_charge();
+    get_particle_charge() const;
     double
-    get_mass();
+    get_mass() const;
     double
-    get_real_num();
+    get_real_num() const;
     int
-    get_local_num();
+    get_local_num() const;
     int
-    get_total_num();
+    get_total_num() const;
     State
-    get_state();
+    get_state() const;
     //	void inject(Bunch bunch);
     ~Bunch();
 };
