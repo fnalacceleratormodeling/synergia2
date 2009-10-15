@@ -51,13 +51,13 @@ BOOST_PYTHON_MODULE(pybunch)
 
     // Ideally, this block would use, e.g., Bunch::x instead of 0. Somehow,
     // however, that doesn't work.
-    scope().attr("x") = 0;
-    scope().attr("xp") = 1;
-    scope().attr("y") = 2;
-    scope().attr("yp") = 3;
-    scope().attr("z") = 4;
-    scope().attr("zp") = 5;
-    scope().attr("t") = 4;
-    scope().attr("tp") = 5;
-    scope().attr("id") = 6;
+    scope().attr("x") = Bunch::x;
+    scope().attr("xp") = Bunch::xp;
+    scope().attr("y") = Bunch::y;
+    scope().attr("yp") = Bunch::yp;
+    scope().attr("z") = Bunch::z;
+    scope().attr("zp") = Bunch::zp;
+    scope().attr("t") = Bunch::t;
+    scope().attr("tp") = Bunch::tp;
+    scope().attr("id") = Bunch::id;
 }

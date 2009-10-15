@@ -49,6 +49,16 @@ Fixed_t_z_ballistic::fixed_z_to_fixed_t(Bunch &bunch)
     std::cout << "stub: ballistic fixed_z_to_fixed_t\n";
 }
 
+const int Bunch::x;
+const int Bunch::xp;
+const int Bunch::y;
+const int Bunch::yp;
+const int Bunch::z;
+const int Bunch::zp;
+const int Bunch::t;
+const int Bunch::tp;
+const int Bunch::id;
+
 Bunch::Bunch(Reference_particle const& reference_particle, int particle_charge,
         int total_num, double real_num, Commxx const& comm) :
     reference_particle(reference_particle), comm(comm), default_converter()
