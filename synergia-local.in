@@ -3,9 +3,9 @@
 local_dir="`dirname $0`"
 SYNERGIA2DIR="$local_dir"
 export SYNERGIA2DIR
-chef_dir="${CHEF_LIBRARY_DIRS}"
+chef_dirs=`echo "${CHEF_LIBRARY_DIRS}" | sed 's/;/ /g'`
 impact_dir="$local_dir/../impact/Forthon_Interfaces"
-for dir in $local_dir $chef_dir $impact_dir
+for dir in $local_dir $chef_dirs $impact_dir
 do
     PYTHONPATH="$dir:$PYTHONPATH"
 done
