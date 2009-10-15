@@ -24,23 +24,25 @@ BOOST_PYTHON_MODULE(pybunch)
     scope
             Bunch_scope =
                     class_<Bunch > ("Bunch", init<Reference_particle const&,
-                            int, int, double, Commxx const& > ()) .def(
-                            "set_particle_charge", &Bunch::set_particle_charge) .def(
-                            "set_real_num", &Bunch::set_real_num) .def(
-                            "set_local_num", &Bunch::set_local_num) .def(
-                            "update_total_num", &Bunch::update_total_num) .def(
-                            "set_converter", &Bunch::set_converter) .def(
-                            "convert_to_state", &Bunch::convert_to_state) .def(
-                            "get_reference_particle",
-                            &Bunch::get_reference_particle,
-                            return_internal_reference< > ()) .def(
-                            "get_local_particles", &Bunch::get_local_particles) .def(
-                            "get_particle_charge", &Bunch::get_particle_charge) .def(
-                            "get_mass", &Bunch::get_mass) .def("get_real_num",
-                            &Bunch::get_real_num) .def("get_local_num",
-                            &Bunch::get_local_num) .def("get_total_num",
-                            &Bunch::get_total_num) .def("get_state",
-                            &Bunch::get_state) .def("inject", &Bunch::inject);
+                            int, int, double, Commxx const& > ())
+                            .def("set_particle_charge", &Bunch::set_particle_charge)
+                            .def("set_real_num", &Bunch::set_real_num)
+                            .def("set_local_num", &Bunch::set_local_num)
+                            .def("update_total_num", &Bunch::update_total_num)
+                            .def("set_converter", &Bunch::set_converter)
+                            .def("convert_to_state", &Bunch::convert_to_state)
+                            .def("get_reference_particle",
+                                    &Bunch::get_reference_particle,
+                                    return_internal_reference< > ())
+                            .def("get_local_particles", &Bunch::get_local_particles)
+                            .def("get_particle_charge", &Bunch::get_particle_charge)
+                            .def("get_mass", &Bunch::get_mass)
+                            .def("get_real_num", &Bunch::get_real_num)
+                            .def("get_local_num", &Bunch::get_local_num)
+                            .def("get_total_num", &Bunch::get_total_num)
+                            .def("get_state", &Bunch::get_state)
+                            .def("inject", &Bunch::inject)
+                            ;
 
     enum_<Bunch::State > ("State") .value("fixed_z", Bunch::fixed_z) .value(
             "fixed_t", Bunch::fixed_t) .export_values();
