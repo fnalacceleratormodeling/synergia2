@@ -149,9 +149,26 @@ BOOST_FIXTURE_TEST_CASE(update_total_num, Fixture)
             new_local_num*Commxx(MPI_COMM_WORLD).get_size());
 }
 
+BOOST_FIXTURE_TEST_CASE(get_reference_particle, Fixture)
+{
+    Reference_particle ref(bunch.get_reference_particle());
+}
+
+BOOST_FIXTURE_TEST_CASE(get_const_reference_particle, Fixture)
+{
+    const Reference_particle ref(bunch.get_reference_particle());
+}
+
 BOOST_FIXTURE_TEST_CASE(get_local_particles, Fixture)
 {
     MArray2d_ref local_particles(bunch.get_local_particles());
+    BOOST_CHECK_EQUAL(local_particles.shape()[1],7);
+    BOOST_CHECK(local_particles.shape()[0] >= bunch.get_local_num());
+}
+
+BOOST_FIXTURE_TEST_CASE(get_const_local_particles, Fixture)
+{
+    Const_MArray2d_ref local_particles(bunch.get_const_local_particles());
     BOOST_CHECK_EQUAL(local_particles.shape()[1],7);
     BOOST_CHECK(local_particles.shape()[0] >= bunch.get_local_num());
 }

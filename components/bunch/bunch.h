@@ -87,8 +87,12 @@ public:
     convert_to_state(State state);
     Reference_particle &
     get_reference_particle();
+    Reference_particle const&
+    get_const_reference_particle() const;
     MArray2d_ref
     get_local_particles();
+    Const_MArray2d_ref
+    get_const_local_particles() const;
     int
     get_particle_charge() const;
     double
@@ -102,7 +106,7 @@ public:
     State
     get_state() const;
     void
-    inject(Bunch & bunch);
+    inject(Bunch const& bunch);
     virtual
     ~Bunch();
 };

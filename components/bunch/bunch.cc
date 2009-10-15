@@ -160,8 +160,20 @@ Bunch::get_reference_particle()
     return reference_particle;
 }
 
+Reference_particle const&
+Bunch::get_const_reference_particle() const
+{
+    return reference_particle;
+}
+
 MArray2d_ref
 Bunch::get_local_particles()
+{
+    return *local_particles;
+}
+
+Const_MArray2d_ref
+Bunch::get_const_local_particles() const
 {
     return *local_particles;
 }
@@ -203,7 +215,7 @@ Bunch::get_state() const
 }
 
 void
-Bunch::inject(Bunch &bunch)
+Bunch::inject(Bunch const& bunch)
 {
     const double weight_tolerance = 1.0e-10;
     if (std::abs(real_num / total_num - bunch.get_real_num() / bunch.get_total_num())
@@ -213,10 +225,10 @@ Bunch::inject(Bunch &bunch)
     }
     int old_local_num = local_num;
     set_local_num(local_num + bunch.get_local_num());
-    MArray2d_ref injected_particles(bunch.get_local_particles());
+    Const_MArray2d_ref injected_particles(bunch.get_const_local_particles());
     MArray1d ref_state_diff(boost::extents[6]);
     for (int i = 0; i < 6; ++i) {
-        ref_state_diff[i] = bunch.get_reference_particle().get_state()[i]
+        ref_state_diff[i] = bunch.get_const_reference_particle().get_state()[i]
                 - reference_particle.get_state()[i];
     }
     for (int part = 0; part < bunch.get_local_num(); ++part) {
