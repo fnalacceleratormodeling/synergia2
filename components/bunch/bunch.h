@@ -15,6 +15,11 @@ public:
     fixed_t_to_fixed_z(Bunch &bunch) = 0;
     virtual void
     fixed_z_to_fixed_t(Bunch &bunch) = 0;
+    virtual
+    ~Fixed_t_z_converter()
+    {
+    }
+    ;
 };
 
 class Fixed_t_z_zeroth : public Fixed_t_z_converter

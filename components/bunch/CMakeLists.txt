@@ -1,7 +1,8 @@
-link_directories(..)
-link_directories(../../../utils)
+link_directories(.. ../../../utils ../foundation)
 
 add_library(bunch SHARED bunch.cc)
 target_link_libraries(bunch parallel_utils)
-#target_link_libraries(demo ${CHEF_LIBS} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+add_python_extension(pybunch bunch_wrap.cc)
+target_link_libraries(pybunch bunch parallel_utils foundation ${Boost_LIBRARIES}) 
+
 add_subdirectory(tests)
