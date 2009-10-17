@@ -1,15 +1,21 @@
 #include "diagnostics.h"
 
-//class Diagnostics
-//{
-//protected:
-//    double s;
-//    MArray1d mean;
-//    MArray1d std;
 
 void
 Diagnostics::update_mean(Bunch const& bunch)
 {
+    double sum[6] = { 0, 0, 0, 0, 0, 0 };
+    Const_MArray2d_ref particles(bunch.get_local_particles());
+    for (int part = 0; part < bunch.get_local_num(); ++part) {
+        for (int i = 0; i < 6; ++i) {
+            sum[i] += particles[part][i];
+        }
+    }
+    MPI_Allreduce(sum, mean.origin(), 6, MPI_DOUBLE, MPI_SUM,
+            bunch.get_comm().get());
+    for (int i = 0; i < 6; ++i) {
+        mean[i] /= bunch.get_total_num();
+    }
 }
 
 void
@@ -22,10 +28,10 @@ Diagnostics::Diagnostics() :
 {
 }
 
-Diagnostics::Diagnostics(Bunch const& bunch, double s):
+Diagnostics::Diagnostics(Bunch const& bunch, double s) :
     mean(boost::extents[6]), std(boost::extents[6])
 {
-    update(bunch,s);
+    update(bunch, s);
 }
 
 void
@@ -45,6 +51,7 @@ Diagnostics::get_s() const
 Const_MArray1d_ref
 Diagnostics::get_mean() const
 {
+    return mean;
 }
 
 Const_MArray1d_ref
