@@ -1,5 +1,5 @@
 #include "diagnostics.h"
-
+#include <cmath>
 
 void
 Diagnostics::update_mean(Bunch const& bunch)
@@ -21,6 +21,19 @@ Diagnostics::update_mean(Bunch const& bunch)
 void
 Diagnostics::update_std(Bunch const& bunch)
 {
+    double sum[6] = { 0, 0, 0, 0, 0, 0 };
+    Const_MArray2d_ref particles(bunch.get_local_particles());
+    for (int part = 0; part < bunch.get_local_num(); ++part) {
+        for (int i = 0; i < 6; ++i) {
+            double diff = particles[part][i] - mean[i];
+            sum[i] += diff * diff;
+        }
+    }
+    MPI_Allreduce(sum, std.origin(), 6, MPI_DOUBLE, MPI_SUM,
+            bunch.get_comm().get());
+    for (int i = 0; i < 6; ++i) {
+        std[i] = std::sqrt(std[i]/bunch.get_total_num());
+    }
 }
 
 Diagnostics::Diagnostics() :
@@ -57,6 +70,7 @@ Diagnostics::get_mean() const
 Const_MArray1d_ref
 Diagnostics::get_std() const
 {
+    return std;
 }
 
 Diagnostics::~Diagnostics()

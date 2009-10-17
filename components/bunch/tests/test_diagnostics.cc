@@ -69,12 +69,27 @@ BOOST_FIXTURE_TEST_CASE(get_mean, Fixture)
 {
     Diagnostics diagnostics(bunch, s);
     // python output for get_mean
-    BOOST_CHECK_CLOSE(diagnostics.get_mean()[0], 40.00000, tolerance);
-    BOOST_CHECK_CLOSE(diagnostics.get_mean()[1], 41.10000, tolerance);
-    BOOST_CHECK_CLOSE(diagnostics.get_mean()[2], 42.20000, tolerance);
-    BOOST_CHECK_CLOSE(diagnostics.get_mean()[3], 43.30000, tolerance);
-    BOOST_CHECK_CLOSE(diagnostics.get_mean()[4], 44.40000, tolerance);
-    BOOST_CHECK_CLOSE(diagnostics.get_mean()[5], 45.50000, tolerance);
+    BOOST_CHECK_CLOSE(diagnostics.get_mean()[0], 40.000000000000000, tolerance);
+    BOOST_CHECK_CLOSE(diagnostics.get_mean()[1], 41.099999999999994, tolerance);
+    BOOST_CHECK_CLOSE(diagnostics.get_mean()[2], 42.199999999999996, tolerance);
+    BOOST_CHECK_CLOSE(diagnostics.get_mean()[3], 43.300000000000004, tolerance);
+    BOOST_CHECK_CLOSE(diagnostics.get_mean()[4], 44.400000000000006, tolerance);
+    BOOST_CHECK_CLOSE(diagnostics.get_mean()[5], 45.500000000000000, tolerance);
     // end python output for get_mean
 }
+
+BOOST_FIXTURE_TEST_CASE(get_std, Fixture)
+{
+    Diagnostics diagnostics(bunch, s);
+    // python output for get_std
+    BOOST_CHECK_CLOSE(diagnostics.get_std()[0], 25.819888974716111, tolerance);
+    BOOST_CHECK_CLOSE(diagnostics.get_std()[1], 25.819888974716111, tolerance);
+    BOOST_CHECK_CLOSE(diagnostics.get_std()[2], 25.819888974716115, tolerance);
+    BOOST_CHECK_CLOSE(diagnostics.get_std()[3], 25.819888974716111, tolerance);
+    BOOST_CHECK_CLOSE(diagnostics.get_std()[4], 25.819888974716115, tolerance);
+    BOOST_CHECK_CLOSE(diagnostics.get_std()[5], 25.819888974716111, tolerance);
+    // end python output for get_std
+}
+
+// n.b. no test for update because it is called internally for other tests.
 
