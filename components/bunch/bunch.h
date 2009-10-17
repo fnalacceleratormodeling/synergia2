@@ -88,11 +88,11 @@ public:
     Reference_particle &
     get_reference_particle();
     Reference_particle const&
-    get_const_reference_particle() const;
+    get_reference_particle() const;
     MArray2d_ref
     get_local_particles();
     Const_MArray2d_ref
-    get_const_local_particles() const;
+    get_local_particles() const;
     int
     get_particle_charge() const;
     double

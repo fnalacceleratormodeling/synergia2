@@ -168,7 +168,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_particles, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_const_local_particles, Fixture)
 {
-    Const_MArray2d_ref local_particles(bunch.get_const_local_particles());
+    Const_MArray2d_ref local_particles(bunch.get_local_particles());
     BOOST_CHECK_EQUAL(local_particles.shape()[1],7);
     BOOST_CHECK(local_particles.shape()[0] >= bunch.get_local_num());
 }

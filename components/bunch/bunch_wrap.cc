@@ -13,6 +13,7 @@ BOOST_PYTHON_MODULE(pybunch)
     }
     comm_converter::register_to_and_from_python();
     numpy_multi_array_ref_converter<double, 2 >::register_to_and_from_python();
+    numpy_const_multi_array_ref_converter<double, 2 >::register_to_and_from_python();
 
     class_<Fixed_t_z_converter, boost::noncopyable > ("Fixed_t_z_converter",
             no_init);
@@ -21,6 +22,8 @@ BOOST_PYTHON_MODULE(pybunch)
     class_<Fixed_t_z_ballistic, bases<Fixed_t_z_converter > > (
             "Fixed_t_z_ballistic", init< > ());
 
+    typedef Reference_particle & (Bunch::*get_reference_particle_non_const_type)();
+    typedef MArray2d_ref (Bunch::*get_local_particles_non_const_type)();
     scope
         Bunch_scope =
             class_<Bunch > ("Bunch", init<Reference_particle const&,
@@ -32,9 +35,12 @@ BOOST_PYTHON_MODULE(pybunch)
                 .def("set_converter", &Bunch::set_converter)
                 .def("convert_to_state", &Bunch::convert_to_state)
                 .def("get_reference_particle",
-                        &Bunch::get_reference_particle,
-                        return_internal_reference< > ())
-                .def("get_local_particles", &Bunch::get_local_particles)
+                        get_reference_particle_non_const_type(
+                                &Bunch::get_reference_particle),
+                        return_internal_reference< >())
+                .def("get_local_particles",
+                        get_local_particles_non_const_type(
+                                &Bunch::get_local_particles))
                 .def("get_particle_charge", &Bunch::get_particle_charge)
                 .def("get_mass", &Bunch::get_mass)
                 .def("get_real_num", &Bunch::get_real_num)
@@ -49,8 +55,6 @@ BOOST_PYTHON_MODULE(pybunch)
         .value("fixed_t", Bunch::fixed_t)
         .export_values();
 
-    // Ideally, this block would use, e.g., Bunch::x instead of 0. Somehow,
-    // however, that doesn't work.
     scope().attr("x") = Bunch::x;
     scope().attr("xp") = Bunch::xp;
     scope().attr("y") = Bunch::y;
