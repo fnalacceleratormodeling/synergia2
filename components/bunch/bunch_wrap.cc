@@ -47,6 +47,8 @@ BOOST_PYTHON_MODULE(pybunch)
                 .def("get_local_num", &Bunch::get_local_num)
                 .def("get_total_num", &Bunch::get_total_num)
                 .def("get_state", &Bunch::get_state)
+//                .def("get_comm",
+//                            &Bunch::get_comm, return_internal_reference< > ())
                 .def("inject", &Bunch::inject)
                 ;
 

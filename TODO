@@ -1,6 +1,8 @@
 * Numerical/physics tests:
-** Fixed_t_z_zeroth tests. Current tests only check that the converters are inverses.
+** Fixed_t_z_zeroth tests. Current tests only check that the converters are 
+   inverses.
 
 * Implementation:
 ** Fixed_t_z_ballistic currently consists of stubs only.
- 
+** Bunch.get_comm() needs (correct) python wrapping. 
+   Currently implemented, but commented out.

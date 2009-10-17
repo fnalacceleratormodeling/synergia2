@@ -224,6 +224,12 @@ Bunch::get_state() const
     return state;
 }
 
+Commxx const&
+Bunch::get_comm() const
+{
+    return comm;
+}
+
 void
 Bunch::inject(Bunch const& bunch)
 {

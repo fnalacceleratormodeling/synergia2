@@ -105,6 +105,8 @@ public:
     get_total_num() const;
     State
     get_state() const;
+    Commxx const&
+    get_comm() const;
     void
     inject(Bunch const& bunch);
     virtual

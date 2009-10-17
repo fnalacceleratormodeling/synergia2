@@ -209,6 +209,11 @@ BOOST_FIXTURE_TEST_CASE(get_state, Fixture)
     BOOST_CHECK_EQUAL(state,Bunch::fixed_z);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_comm, Fixture)
+{
+    BOOST_CHECK_EQUAL(bunch.get_comm().get(),MPI_COMM_WORLD);
+}
+
 BOOST_FIXTURE_TEST_CASE(convert_to_state, Fixture)
 {
     // This is a trivial test too see that converting to
