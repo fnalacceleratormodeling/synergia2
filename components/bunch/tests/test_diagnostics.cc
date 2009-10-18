@@ -1,5 +1,3 @@
-// python generated output for this file comes from
-// test_diagnostics_crosscheck.py
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "components/bunch/diagnostics.h"
@@ -112,4 +110,14 @@ BOOST_FIXTURE_TEST_CASE(get_mom2_full2, Fixture)
 {
     Diagnostics_full2 diagnostics(bunch, s);
 #include "test_diagnostics_get_mom2.icc"
+}
+
+BOOST_FIXTURE_TEST_CASE(get_corr_full2, Fixture)
+{
+    const double tolerance_corr = 1.0e-10;
+    Bunch bunch2(reference_particle, proton_charge, total_num, real_num, comm);
+    MArray2d_ref particles(bunch2.get_local_particles());
+#include "test_diagnostics_get_corr_particles.icc"
+    Diagnostics_full2 diagnostics(bunch2, s);
+#include "test_diagnostics_get_corr.icc"
 }

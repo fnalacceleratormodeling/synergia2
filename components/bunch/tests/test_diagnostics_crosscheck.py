@@ -37,3 +37,19 @@ for i in range(0, 6):
         f.write("BOOST_CHECK_CLOSE(diagnostics.get_mom2()[%d][%d], %0.15f, tolerance);\n" % \
             (i, j, mom2[i, j]))
 f.close()
+
+random_particles = numpy.random.lognormal(size=[total_num,6])
+corr = numpy.corrcoef(random_particles.transpose())
+print corr
+f = open("test_diagnostics_get_corr_particles.icc", "w")
+for i in range(0, total_num):
+    for j in range(0, 6):
+        f.write("particles[%d][%d] = %0.15f;\n" % \
+            (i, j, random_particles[i,j]))
+f.close()
+f = open("test_diagnostics_get_corr.icc", "w")
+for i in range(0, 6):
+    for j in range(0, 6):
+        f.write("BOOST_CHECK_CLOSE(diagnostics.get_corr()[%d][%d], %0.15f, tolerance_corr);\n" % \
+            (i, j, corr[i,j]))
+f.close()

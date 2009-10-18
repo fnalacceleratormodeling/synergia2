@@ -104,10 +104,16 @@ Diagnostics_full2::update_full2(Bunch const& bunch)
     MPI_Allreduce(sum2.origin(), mom2.origin(), 36, MPI_DOUBLE, MPI_SUM,
             bunch.get_comm().get());
     for (int i = 0; i < 6; ++i) {
-        for (int j = 0; j < 6; ++j) {
-            mom2[i][j] = mom2[i][j] / bunch.get_total_num();
+        for (int j = i; j < 6; ++j) {
+            mom2[i][j] = mom2[j][i] = mom2[i][j] / bunch.get_total_num();
         }
         std[i] = std::sqrt(mom2[i][i]);
+    }
+    for (int i = 0; i < 6; ++i) {
+        for (int j = i; j < 6; ++j) {
+            corr[i][j] = corr[j][i] = mom2[i][j] / std::sqrt(mom2[i][i]
+                    * mom2[j][j]);
+        }
     }
 }
 
