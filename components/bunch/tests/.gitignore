@@ -1,1 +1,3 @@
 test_bunch
+*.icc
+test_diagnostics
