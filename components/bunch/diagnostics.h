@@ -33,7 +33,11 @@ class Diagnostics_full2 : public Diagnostics
 protected:
     MArray2d mom2;
     MArray2d corr;
-    double emitx, emity, emitxy, emitxyz;
+    double emitx, emity, emitz, emitxy, emitxyz;
+    virtual void
+    update_full2(Bunch const& bunch);
+    virtual void
+    update_emittances();
 public:
     Diagnostics_full2();
     Diagnostics_full2(Bunch const& bunch, double s);
@@ -49,6 +53,8 @@ public:
     get_emity() const;
     virtual double
     get_emitz() const;
+    virtual double
+    get_emitxy() const;
     virtual double
     get_emitxyz() const;
     virtual
