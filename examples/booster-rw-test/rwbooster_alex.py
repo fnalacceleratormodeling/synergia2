@@ -181,7 +181,8 @@ if ( __name__ == '__main__'):
     myopts.add("latticefile","booster_classic.lat","lattice file",str)
     myopts.add("space_charge",0,"flag for space_charge",int)
     myopts.add("impedance",0,"flag for impedance",int)
-    myopts.add("pipe_symmetry","circular","",str)
+   # myopts.add("pipe_symmetry","circular","",str)
+    myopts.add("pipe_symmetry","x_parallel_plates","",str)
     myopts.add("pipe_conduct", 1.4e6,"conductivity # [/s] (stainless steel)",float)
     myopts.add("bunchnp",7.0e11,"number of particles per bunch",float)
 
@@ -267,11 +268,23 @@ if ( __name__ == '__main__'):
     bunch.diagnostics=synergia.Diagnostics(cell_line[1].gourmet.get_initial_u())
     bunch.write_particles("begin") 
     
-    
+    pipe_radius = 0.04
+    space_charge=myopts.get("space_charge")
+    if space_charge:
+        griddim = (16,16,32)
+        solver="s2_fish_cylindrical"
+       # griddim = (16,16,33)
+       # solver="s2_fish_3d"
+
+        sp_ch=s2_fish.SpaceCharge(solver,griddim,radius_cylindrical=pipe_radius,periodic=True)  
+        print " sp_ch grid=",sp_ch.get_grid()
+        print " sp_ch solver=",sp_ch.get_solver()
+        print " sp_ch pipe radius=",sp_ch.get_radius_cylindrical()
+    else:
+       sp_ch=None       
     
     impedance=myopts.get("impedance")
     if impedance:
-        pipe_radius = 0.04
         pipe_conduct= myopts.get("pipe_conduct") # [ohm^-1 m^-1] (stainless steel)
         prev_turns=10  
         wall_thickness=0.0114        
@@ -323,7 +336,7 @@ if ( __name__ == '__main__'):
             bunch.write_particles("turn_%03d.h5"%(turn-1))
         for cell in range(1,25):
             
-            s=synergia.propagate(s,cell_line[cell].gourmet, bunch,impedance=rw_impedance)
+            s=synergia.propagate(s,cell_line[cell].gourmet, bunch,space_charge=sp_ch,impedance=rw_impedance)
           
             if MPI.COMM_WORLD.Get_rank() == 0:
                 print "%02d" % cell,
