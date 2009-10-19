@@ -230,10 +230,10 @@ if ( __name__ == '__main__'):
     
     space_charge=myopts.get("space_charge")
     if space_charge:
-        #griddim = (16,16,32)
-        #solver="s2_fish_cylindrical"
-        griddim = (16,16,33)
-        solver="s2_fish_3d"
+        griddim = (16,16,32)
+        solver="s2_fish_cylindrical"
+       # griddim = (16,16,33)
+       # solver="s2_fish_3d"
 
         sp_ch=s2_fish.SpaceCharge(solver,griddim,radius_cylindrical=pipe_radius,periodic=True)	
         print " sp_ch grid=",sp_ch.get_grid()
