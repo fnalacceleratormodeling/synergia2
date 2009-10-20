@@ -195,6 +195,7 @@ if ( __name__ == '__main__'):
        # print "  initial means bunch(",bunchnum,")=",numpy.array(bunches[bunchnum].diagnostics.get_means())
 
     print " **********************************************************************"  
+    
     mbunches=s2_fish.Multiple_bunches(bunches, bunch_sp)
         
    

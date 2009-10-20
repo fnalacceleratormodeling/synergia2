@@ -459,9 +459,9 @@ class Macro_bunch:
             if tables.__version__.split('.')[0] == '1':
                 old_pytables = True
         except:
-            pass
-        h5filename = os.path.splitext(filename)[0] + '.h5'
+            pass        
         if MPI.COMM_WORLD.Get_rank() == 0:
+            h5filename = os.path.splitext(filename)[0] + '.h5'
             f = tables.openFile(h5filename,mode = "w")
             filter = tables.Filters(complevel=compress_level)
             if old_pytables:
@@ -481,6 +481,7 @@ class Macro_bunch:
             f.close()
         else:
             MPI.WORLD.Send(self.particles,dest=0)
+          
 
     def write_particles_text(self,filename):
         if MPI.COMM_WORLD.Get_rank() == 0:

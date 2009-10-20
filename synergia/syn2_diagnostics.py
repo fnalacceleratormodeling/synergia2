@@ -148,68 +148,70 @@ class Diagnostics:
         return numpy.array(self.stds)
      
     def write(self,filename_prefix):
-        if self.short:
-            raise RuntimeError, \
-                "Diagnostics: write not supported for short=True"
-        # same format as fort.24, et. al, but we don't calculate Twiss alpha
-        fx = open(filename_prefix+"_x.dat","w")
-        fy = open(filename_prefix+"_y.dat","w")
-        fz = open(filename_prefix+"_z.dat","w")
-        femit = open(filename_prefix+"_emit.dat","w")
-        fcorr = open(filename_prefix+"_corr.dat","w")
-        for i in range(0,len(self.s)):
-            fx.write("%g %g %g %g %g 0.0 %g\n" % \
-                    (self.s[i],
-                     self.means[i][x], self.stds[i][x],
-                     self.means[i][xprime], self.stds[i][xprime],
-                     self.emitxs[i]))
-            fy.write("%g %g %g %g %g 0.0 %g\n" % \
-                    (self.s[i],
-                     self.means[i][y], self.stds[i][y],
-                     self.means[i][yprime], self.stds[i][yprime],
-                     self.emitys[i]))
-            fz.write("%g %g %g %g %g 0.0 %g\n" % \
-                    (self.s[i],
-                     self.means[i][z], self.stds[i][z],
-                     self.means[i][zprime], self.stds[i][zprime],
-                     self.emitzs[i]))
-            femit.write("%g %g %g %g %g %g\n" % \
-                    (self.s[i],
-                    self.emitxs[i],self.emitys[i],self.emitzs[i],
-                    self.emitxys[i],self.emitxyzs[i]))
-            for ii in range(0,6):
-                for jj in range(ii+1,6):
-                    fcorr.write("%g" % self.corrs[i][ii,jj])
-                    if not (ii==5 and jj==5):
-                        fcorr.write(" ")
-            fcorr.write("\n")
-        fx.close()
-        fy.close()
-        fz.close()
-        femit.close()
-        fcorr.close()
+        if MPI.COMM_WORLD.Get_rank() == 0:
+            if self.short:
+                raise RuntimeError, \
+                    "Diagnostics: write not supported for short=True"
+            # same format as fort.24, et. al, but we don't calculate Twiss alpha
+            fx = open(filename_prefix+"_x.dat","w")
+            fy = open(filename_prefix+"_y.dat","w")
+            fz = open(filename_prefix+"_z.dat","w")
+            femit = open(filename_prefix+"_emit.dat","w")
+            fcorr = open(filename_prefix+"_corr.dat","w")
+            for i in range(0,len(self.s)):
+                fx.write("%g %g %g %g %g 0.0 %g\n" % \
+                        (self.s[i],
+                        self.means[i][x], self.stds[i][x],
+                        self.means[i][xprime], self.stds[i][xprime],
+                        self.emitxs[i]))
+                fy.write("%g %g %g %g %g 0.0 %g\n" % \
+                        (self.s[i],
+                        self.means[i][y], self.stds[i][y],
+                        self.means[i][yprime], self.stds[i][yprime],
+                        self.emitys[i]))
+                fz.write("%g %g %g %g %g 0.0 %g\n" % \
+                        (self.s[i],
+                        self.means[i][z], self.stds[i][z],
+                        self.means[i][zprime], self.stds[i][zprime],
+                        self.emitzs[i]))
+                femit.write("%g %g %g %g %g %g\n" % \
+                        (self.s[i],
+                        self.emitxs[i],self.emitys[i],self.emitzs[i],
+                        self.emitxys[i],self.emitxyzs[i]))
+                for ii in range(0,6):
+                    for jj in range(ii+1,6):
+                        fcorr.write("%g" % self.corrs[i][ii,jj])
+                        if not (ii==5 and jj==5):
+                            fcorr.write(" ")
+                fcorr.write("\n")
+            fx.close()
+            fy.close()
+            fz.close()
+            femit.close()
+            fcorr.close()
 
     def write_hdf5(self,filename_prefix,compress_level=1):
-        f = tables.openFile(filename_prefix+".h5",mode = "w")
-        # n.b. filter (and compress_level) not (yet) used
-        filter = tables.Filters(complevel=compress_level)
-        root = f.root
-        hdfarray = f.createArray(root,'s',numpy.array(self.s),"position")
-        hdfarray = f.createArray(root,'mean',numpy.array(self.means),"centroid")
-        if not self.short:
-            hdfarray = f.createArray(root,'mom2',numpy.array(self.mom2s),"second moments")
-            hdfarray = f.createArray(root,'corr',numpy.array(self.corrs),"correlation coefficients")
-            hdfarray = f.createArray(root,'diagmom4',numpy.array(self.diagmom4s),"fourth moments on diagonal")
-        hdfarray = f.createArray(root,'std',numpy.array(self.stds),"standard deviation")
-        hdfarray = f.createArray(root,'emitx',numpy.array(self.emitxs),"x emittance")
-        hdfarray = f.createArray(root,'emity',numpy.array(self.emitys),"y emittance")
-        hdfarray = f.createArray(root,'emitz',numpy.array(self.emitzs),"z emittance")
-        hdfarray = f.createArray(root,'emitxy',numpy.array(self.emitxys),"x-y emittance")
-        hdfarray = f.createArray(root,'emitxyz',numpy.array(self.emitxyzs),"x-y-z emittance")
-        hdfarray = f.createArray(root,'units',numpy.array(self.u),"units")
-        # octave gets confused if n is not an array of doubles
-        hdfarray = f.createArray(root, 'n',numpy.array(self.n,'d'),"n") 
-        f.close()
+        if MPI.COMM_WORLD.Get_rank() == 0:
+            f = tables.openFile(filename_prefix+".h5",mode = "w")
+            # n.b. filter (and compress_level) not (yet) used
+           # filter = tables.Filters(complevel=compress_level)
+            root = f.root
+            hdfarray = f.createArray(root,'s',numpy.array(self.s),"position")
+            hdfarray = f.createArray(root,'mean',numpy.array(self.means),"centroid")
+            if not self.short:
+                hdfarray = f.createArray(root,'mom2',numpy.array(self.mom2s),"second moments")
+                hdfarray = f.createArray(root,'corr',numpy.array(self.corrs),"correlation coefficients")
+                hdfarray = f.createArray(root,'diagmom4',numpy.array(self.diagmom4s),"fourth moments on diagonal")
+            hdfarray = f.createArray(root,'std',numpy.array(self.stds),"standard deviation")
+            hdfarray = f.createArray(root,'emitx',numpy.array(self.emitxs),"x emittance")
+            hdfarray = f.createArray(root,'emity',numpy.array(self.emitys),"y emittance")
+            hdfarray = f.createArray(root,'emitz',numpy.array(self.emitzs),"z emittance")
+            hdfarray = f.createArray(root,'emitxy',numpy.array(self.emitxys),"x-y emittance")
+            hdfarray = f.createArray(root,'emitxyz',numpy.array(self.emitxyzs),"x-y-z emittance")
+            hdfarray = f.createArray(root,'units',numpy.array(self.u),"units")
+            # octave gets confused if n is not an array of doubles
+            hdfarray = f.createArray(root, 'n',numpy.array(self.n,'d'),"n") 
+            f.close()
 
 class Stored_means:
     def __init__(self,units,maxque_len=10):

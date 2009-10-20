@@ -183,14 +183,16 @@ if ( __name__ == '__main__'):
     myopts.add("impedance",0,"flag for impedance",int)
    # myopts.add("pipe_symmetry","circular","",str)
     myopts.add("pipe_symmetry","x_parallel_plates","",str)
+    myopts.add("pipe_radius", 0.025,"average magnet self-aperture (m)",float)
     myopts.add("pipe_conduct", 1.4e6,"conductivity # [/s] (stainless steel)",float)
-    myopts.add("bunchnp",7.0e11,"number of particles per bunch",float)
-
+    myopts.add("bunchnp",6.0e10,"number of particles per bunch",float)
+    myopts.add("bunches",1,"",int)
+    
     myopts.add_suboptions(synergia.opts)
     myopts.parse_argv(sys.argv)
     job_mgr = synergia.Job_manager(sys.argv,myopts,
                                       [myopts.get("latticefile")])
-    scaling_frequency = 37.7e6
+    scaling_frequency = 37.77e6
     
     kinetic_energy=0.4
     offset = (0,0,0)
@@ -235,7 +237,6 @@ if ( __name__ == '__main__'):
         #print "full_map ="
         #print numpy.array2string(full_map,precision=2,suppress_small=True)
 
-    
     C = ha_match(full_map[0:6,0:6],beam_parameters,myopts.get("emittance"),
                  myopts.get("emittance"),myopts.get("dpop"))
     #print "C = "
@@ -246,12 +247,25 @@ if ( __name__ == '__main__'):
     beam_parameters.offset_x_m = myopts.get("offsetx")
     beam_parameters.offset_y_m = myopts.get("offsety")
 #    bunch.init_gaussian_covariance(num_particles, myopts.get("current"), beam_parameters, C)
-
-   
+    
+    betagamma=beam_parameters.get_beta()*beam_parameters.get_gamma()
+    if MPI.COMM_WORLD.Get_rank() ==0:
+        print "gamma=",beam_parameters.get_gamma(),"  beta=", beam_parameters.get_beta(),"  betagamma=",betagamma
+    
     #bunchnp=myopts.get("current")/(synergia.physics_constants.PH_MKS_e *beam_parameters.scaling_frequency_Hz)
     #print "bunch_np=",bunchnp
+    
+    
+    numbunches = myopts.get("bunches")
     bunchnp=myopts.get("bunchnp")
-    bunch=s2_fish.Macro_bunch.gaussian_covariance(bunchnp,num_particles,beam_parameters,C,periodic=True)
+   # covariance=numpy.zeros([6,6],'d')
+    bunches = []
+    
+    for bunchnum in range(0,numbunches):
+        diag=synergia.Diagnostics(cell_line[1].gourmet.get_initial_u())
+        covariance=C.copy()
+        bunches.append(s2_fish.Macro_bunch.gaussian_covariance(bunchnp,num_particles,beam_parameters,covariance,diagnostics=diag,bucket_num=bunchnum,periodic=True))        
+        bunches[bunchnum].write_particles("begin-%02d"%bunchnum)
 #************** comment the following*************   
     #pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
     #beam_parameters.x_params(sigma = 0.0002, lam = 0.008 * pz,
@@ -263,23 +277,25 @@ if ( __name__ == '__main__'):
                              #offset_p = 0.)                                                 
     #bunch= s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,periodic=True)
     
- #****************************************************     
+ #**************************************************** 
+   # bunch_sp=2.0*math.pi*beam_parameters*synergia.physics_constants.PH_MKS_c/beam_parameters.get_omega()
+    bunch_sp=beam_parameters.get_z_length()  
+    mbunches=s2_fish.Multiple_bunches(bunches, bunch_sp) 
+   
     
-    bunch.diagnostics=synergia.Diagnostics(cell_line[1].gourmet.get_initial_u())
-    bunch.write_particles("begin") 
-    
-    pipe_radius = 0.04
+    pipe_radius = myopts.get("pipe_radius")
     space_charge=myopts.get("space_charge")
     if space_charge:
-        griddim = (16,16,32)
+        griddim = myopts.get("scgrid")
         solver="s2_fish_cylindrical"
        # griddim = (16,16,33)
        # solver="s2_fish_3d"
 
-        sp_ch=s2_fish.SpaceCharge(solver,griddim,radius_cylindrical=pipe_radius,periodic=True)  
-        print " sp_ch grid=",sp_ch.get_grid()
-        print " sp_ch solver=",sp_ch.get_solver()
-        print " sp_ch pipe radius=",sp_ch.get_radius_cylindrical()
+        sp_ch=s2_fish.SpaceCharge(solver,griddim,radius_cylindrical=pipe_radius,periodic=True) 
+        if MPI.COMM_WORLD.Get_rank() ==0: 
+            print " sp_ch grid=",sp_ch.get_grid()
+            print " sp_ch solver=",sp_ch.get_solver()
+            print " sp_ch pipe radius=",sp_ch.get_radius_cylindrical()
     else:
        sp_ch=None       
     
@@ -287,10 +303,10 @@ if ( __name__ == '__main__'):
     if impedance:
         pipe_conduct= myopts.get("pipe_conduct") # [ohm^-1 m^-1] (stainless steel)
         prev_turns=10  
-        wall_thickness=0.0114        
+        wall_thickness=0.114        
         pipe_symmetry=myopts.get("pipe_symmetry")
         kick="full"
-        lgridnum=20
+        lgridnum=40
         line_length =0.
         
         for cell in range(1,25):
@@ -298,11 +314,12 @@ if ( __name__ == '__main__'):
         
         rw_impedance=s2_fish.Impedance(pipe_radius, pipe_conduct,wall_thickness, line_length,lgridnum,
              pipe_symmetry=pipe_symmetry,paking_frac=0.6,kick=kick,nstored_turns=prev_turns)
-                #pipe_symmetry="x_parallel_plates")
-        print "IMPEDANCE PIPE radius=", rw_impedance.get_pipe_radius()
-        print "IMPEDANCE PIPE wall_thickness=",rw_impedance.get_wall_thickness()
-        print "IMPEDANCE PIPE symmetry=",rw_impedance.get_pipe_symmetry()
-        print " Orbith length=",rw_impedance.get_orbit_length()
+                #pipe_symmetry="x_parallel_plates") 
+        if MPI.COMM_WORLD.Get_rank() ==0: 
+            print "IMPEDANCE PIPE radius=", rw_impedance.get_pipe_radius()
+            print "IMPEDANCE PIPE wall_thickness=",rw_impedance.get_wall_thickness()
+            print "IMPEDANCE PIPE symmetry=",rw_impedance.get_pipe_symmetry()
+            print " Orbith length=",rw_impedance.get_orbit_length()
     else:
         rw_impedance=None     
     
@@ -333,10 +350,11 @@ if ( __name__ == '__main__'):
             print "turn %d:" % turn,
             sys.stdout.flush()
         if turn % myopts.get("saveperiod") == 0:
-            bunch.write_particles("turn_%03d.h5"%(turn-1))
+            for bunchnum in range(0,numbunches):
+                bunches[bunchnum].write_particles("bunch%02d_turn_%03d.h5" %(bunchnum, (turn-1)))
         for cell in range(1,25):
             
-            s=synergia.propagate(s,cell_line[cell].gourmet, bunch,space_charge=sp_ch,impedance=rw_impedance)
+            s=synergia.propagate(s,cell_line[cell].gourmet, mbunches, space_charge=sp_ch,impedance=rw_impedance)
           
             if MPI.COMM_WORLD.Get_rank() == 0:
                 print "%02d" % cell,
@@ -353,13 +371,18 @@ if ( __name__ == '__main__'):
             
     #if turn % myopts.get("saveperiod") == 0:
         #bunch.write_particles("turn_%03d.g5"%turn)
-    bunch.diagnostics.write_hdf5("booster_output")
+    for bunchnum in range(0,numbunches):
+        bunches[bunchnum].diagnostics.write_hdf5("booster_output-%02d"%bunchnum)
+    for bunchnum in range(0,numbunches):
+        bunches[bunchnum].write_particles("end-%02d"%bunchnum)   
+    
+    
     #if myopts.get("track"):
         #mytracker.close()
         #mytracker.show_statistics() 
-    print "      BEFORE barrier on rank= ", MPI.COMM_WORLD.Get_rank()     
+   # print "      BEFORE barrier on rank= ", MPI.COMM_WORLD.Get_rank()     
     MPI.WORLD.Barrier()
-    print " after barrier on rank= ", MPI.COMM_WORLD.Get_rank()
+   # print " after barrier on rank= ", MPI.COMM_WORLD.Get_rank()
     log.close()
     if MPI.COMM_WORLD.Get_rank() == 0:
         print "elapsed time =",time.time() - t0
