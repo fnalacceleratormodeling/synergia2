@@ -1,4 +1,5 @@
 #include "bunch.h"
+#include "diagnostics.h"
 #include <boost/python.hpp>
 #include "utils/numpy_multi_ref_converter.h"
 #include "utils/comm_converter.h"
@@ -21,6 +22,25 @@ BOOST_PYTHON_MODULE(pybunch)
             init< > ());
     class_<Fixed_t_z_ballistic, bases<Fixed_t_z_converter > > (
             "Fixed_t_z_ballistic", init< > ());
+
+    class_<Diagnostics >("Diagnostics",init< >())
+        .def(init<Bunch const &, double  >())
+        .def("update", &Diagnostics::update)
+        .def("get_s", &Diagnostics::get_s)
+        .def("get_mean", &Diagnostics::get_mean)
+        .def("get_std", &Diagnostics::get_std)
+        ;
+
+    class_<Diagnostics_full2, bases<Diagnostics > >("Diagnostics_full2",init< >())
+        .def(init<Bunch const &, double >())
+        .def("get_mom2",&Diagnostics_full2::get_mom2)
+        .def("get_corr",&Diagnostics_full2::get_corr)
+        .def("get_emitx",&Diagnostics_full2::get_emitx)
+        .def("get_emity",&Diagnostics_full2::get_emity)
+        .def("get_emitz",&Diagnostics_full2::get_emitz)
+        .def("get_emitxy",&Diagnostics_full2::get_emitxy)
+        .def("get_emitxyz",&Diagnostics_full2::get_emitxyz)
+        ;
 
     typedef Reference_particle & (Bunch::*get_reference_particle_non_const_type)();
     typedef MArray2d_ref (Bunch::*get_local_particles_non_const_type)();
