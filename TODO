@@ -6,3 +6,5 @@
 ** Fixed_t_z_ballistic currently consists of stubs only.
 ** Bunch.get_comm() needs (correct) python wrapping. 
    Currently implemented, but commented out.
+** The units on emittance in Diagnostics_full2 need to be converted
+   to conventional values.

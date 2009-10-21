@@ -1,5 +1,10 @@
 #include "diagnostics.h"
 #include <cmath>
+#include "utils/eigen2/Eigen/Core"
+#include "utils/eigen2/Eigen/LU"
+
+// import most common Eigen types
+USING_PART_OF_NAMESPACE_EIGEN
 
 void
 Diagnostics::update_mean(Bunch const& bunch)
@@ -120,7 +125,12 @@ Diagnostics_full2::update_full2(Bunch const& bunch)
 void
 Diagnostics_full2::update_emittances()
 {
-
+    Matrix<double, 6, 6 > mom2_matrix(mom2.origin());
+    emitx = mom2_matrix.block<2, 2 > (Bunch::x, Bunch::x).determinant();
+    emity = mom2_matrix.block<2, 2 > (Bunch::y, Bunch::y).determinant();
+    emitz = mom2_matrix.block<2, 2 > (Bunch::z, Bunch::z).determinant();
+    emitxy = mom2_matrix.block<4, 4 > (Bunch::x, Bunch::x).determinant();
+    emitxyz = mom2_matrix.determinant();
 }
 
 Diagnostics_full2::Diagnostics_full2() :
