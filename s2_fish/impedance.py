@@ -95,7 +95,7 @@ class Impedance:
         if MPI.COMM_WORLD.Get_rank() == 0:    
                 print "impedance kick type=", kick
 # pipe symmetry keywords so far, see below  "circular", "x_parallel_plates", "y_parallel_plates", "elliptical"	
-        self.r=1.+ wall_thickness*wall_thickness/((wall_thickness+pipe_radius)*(wall_thickness+pipe_radius)) # this definition is for a perfect outer magnet at r=b+t
+        self.r=1.+ pipe_radius*pipe_radius/((wall_thickness+pipe_radius)*(wall_thickness+pipe_radius)) # this definition is for a perfect outer magnet at r=b+t
 	#print "geometric factor r=",self.r
 #~ cutoff_small is the cut off distance  below which the wake force changes is dependence of z, presenlty we approximate W(z)=0 for z<cutoff_small
         self.cutoff_small_z=4.2*pow(synergia.physics_constants.PH_MKS_c*pipe_radius*pipe_radius*4.*math.pi* \

@@ -845,12 +845,12 @@ get_G_hat2(Real_scalar_field &rho, bool z_periodic, Fftw_helper &fftwh)
 {
     //step 3
 
-     Real_scalar_field G2 = get_G2(rho, z_periodic, fftwh); // AM: after correcting a bug in the z-dimension
-							    //  of the FT, this seems to work the best!
+     //Real_scalar_field G2 = get_G2(rho, z_periodic, fftwh);  
+							  
      // Real_scalar_field G2 = get_G2_spherical(rho, z_periodic, fftwh);
 
 
-    //  Real_scalar_field G2 = get_G2_z_linear(rho, z_periodic, fftwh);
+      Real_scalar_field G2 = get_G2_z_linear(rho, z_periodic, fftwh);
      //Real_scalar_field G2 = get_G2_z_steps(rho, z_periodic, fftwh);
 
   //  Real_scalar_field G2 = get_G2_old(rho, z_periodic, fftwh);
