@@ -13,3 +13,8 @@ add_executable(test_reference_particle test_reference_particle.cc)
 target_link_libraries(test_reference_particle -lfoundation -lboost_unit_test_framework)
 add_test(test_reference_particle test_reference_particle)
 add_test(test_reference_particle_py nosetests test_reference_particle.py)
+
+add_executable(test_distribution test_distribution.cc)
+target_link_libraries(test_distribution -lfoundation -lboost_unit_test_framework)
+add_test(test_distribution test_distribution)
+# add_test(test_distribution_py nosetests test_distribution.py)

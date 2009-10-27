@@ -6,12 +6,12 @@
 #include <stdexcept>
 
 unsigned long int
-Random_distribution::get_default_seed()
+Random_distribution::get_default_seed(const char * device)
 {
     unsigned long int seed;
-    std::ifstream devrandom("/dev/random");
-    if (random) {
-        devrandom >> seed;
+    std::ifstream devrandom(device, std::ios::binary);
+    if (devrandom) {
+        devrandom.read((char *) &seed, sizeof(unsigned long int));
     } else {
         seed = std::time(0);
     }
@@ -51,6 +51,12 @@ unsigned long int
 Random_distribution::get_original_seed() const
 {
     return original_seed;
+}
+
+double
+Random_distribution::get()
+{
+    return gsl_rng_uniform(rng);
 }
 
 void

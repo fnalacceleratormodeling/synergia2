@@ -8,8 +8,10 @@
 class Distribution
 {
 public:
+    virtual double
+    get() = 0;
     virtual void
-    fill_uniform(MArray1d_ref array) = 0;
+    fill_uniform(MArray1d_ref array, double min, double max) = 0;
     virtual void
     fill_unit_gaussian(MArray1d_ref array) = 0;
     virtual void
@@ -28,8 +30,6 @@ private:
     const gsl_rng_type * rng_type;
     int rank;
     unsigned long int original_seed;
-    unsigned long int
-    get_default_seed();
 public:
     enum Generator
     {
@@ -37,10 +37,14 @@ public:
     };
     Random_distribution(unsigned long int seed, Commxx const & comm,
             Generator generator = ranlxd2);
+    static unsigned long int
+    get_default_seed(const char * device = "/dev/urandom");
     void
     set_seed(unsigned long int seed);
     unsigned long int
     get_original_seed() const;
+    virtual double
+    get();
     virtual void
     fill_uniform(MArray1d_ref array, double min, double max);
     virtual void
