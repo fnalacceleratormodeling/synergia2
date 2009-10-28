@@ -1,5 +1,6 @@
 turns=input("Enter the number of turns: ")
 mi=load("booster_output.h5");
+clear sz;
 sz=size(mi.mean(1,:))(2);
 dk=1./turns;
 kicks=sz/turns
@@ -8,6 +9,12 @@ axis([-kicks/2-1,kicks/2+1])
 #n(i)=(i-1)*dk;
 #endfor
 clear n;
+clear ffx;
+clear ffy;
+clear ffz;
+clear ff1x;
+clear ff1y;
+clear ff1z;
 n=[0:sz-1]*dk;
 ffx=fft(mi.mean(1,:));
 ffy=fft(mi.mean(3,:));

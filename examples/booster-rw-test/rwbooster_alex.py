@@ -180,10 +180,11 @@ if ( __name__ == '__main__'):
     myopts.add("offsety",0.00001,"y beam offset (m)",float)
     myopts.add("latticefile","booster_classic.lat","lattice file",str)
     myopts.add("space_charge",0,"flag for space_charge",int)
+    myopts.add("solver","3dc","solver type for spch",str)
     myopts.add("impedance",0,"flag for impedance",int)
    # myopts.add("pipe_symmetry","circular","",str)
     myopts.add("pipe_symmetry","x_parallel_plates","",str)
-    myopts.add("pipe_radius", 0.025,"average magnet self-aperture (m)",float)
+    myopts.add("spch_radius", 0.04,"average magnet self-aperture (m)",float)
     myopts.add("pipe_conduct", 1.4e6,"conductivity # [/s] (stainless steel)",float)
     myopts.add("bunchnp",6.0e10,"number of particles per bunch",float)
     myopts.add("bunches",1,"",int)
@@ -192,6 +193,7 @@ if ( __name__ == '__main__'):
     myopts.parse_argv(sys.argv)
     job_mgr = synergia.Job_manager(sys.argv,myopts,
                                       [myopts.get("latticefile")])
+    #scaling_frequency = 37.8669e6
     scaling_frequency = 37.77e6
     
     kinetic_energy=0.4
@@ -250,8 +252,9 @@ if ( __name__ == '__main__'):
     
     betagamma=beam_parameters.get_beta()*beam_parameters.get_gamma()
     if MPI.COMM_WORLD.Get_rank() ==0:
+        
         print "gamma=",beam_parameters.get_gamma(),"  beta=", beam_parameters.get_beta(),"  betagamma=",betagamma
-    
+        print "num_particles =", num_particles
     #bunchnp=myopts.get("current")/(synergia.physics_constants.PH_MKS_e *beam_parameters.scaling_frequency_Hz)
     #print "bunch_np=",bunchnp
     
@@ -280,22 +283,35 @@ if ( __name__ == '__main__'):
  #**************************************************** 
    # bunch_sp=2.0*math.pi*beam_parameters*synergia.physics_constants.PH_MKS_c/beam_parameters.get_omega()
     bunch_sp=beam_parameters.get_z_length()  
+    if MPI.COMM_WORLD.Get_rank() ==0:
+	print "bunch spacing=",	 bunch_sp   
     mbunches=s2_fish.Multiple_bunches(bunches, bunch_sp) 
    
     
-    pipe_radius = myopts.get("pipe_radius")
+  
     space_charge=myopts.get("space_charge")
     if space_charge:
-        griddim = myopts.get("scgrid")
-        solver="s2_fish_cylindrical"
-       # griddim = (16,16,33)
-       # solver="s2_fish_3d"
-
-        sp_ch=s2_fish.SpaceCharge(solver,griddim,radius_cylindrical=pipe_radius,periodic=True) 
-        if MPI.COMM_WORLD.Get_rank() ==0: 
-            print " sp_ch grid=",sp_ch.get_grid()
-            print " sp_ch solver=",sp_ch.get_solver()
-            print " sp_ch pipe radius=",sp_ch.get_radius_cylindrical()
+        solver=myopts.get("solver")
+        if (solver=="3DC") or (solver=="3dc"):
+            griddimsp = myopts.get("scgrid")
+            solversp="s2_fish_cylindrical"
+            spch_pipe_radius = myopts.get("spch_radius")
+            sp_ch=s2_fish.SpaceCharge(solversp,griddimsp,radius_cylindrical=spch_pipe_radius,periodic=True) 
+            if MPI.COMM_WORLD.Get_rank() ==0: 
+                print " sp_ch grid=",sp_ch.get_grid()
+                print " sp_ch solver=",sp_ch.get_solver()
+                print " sp_ch pipe radius=",sp_ch.get_radius_cylindrical()
+        elif (solver=="3D") or (solver=="3d"): 
+                griddimsp = myopts.get("scgrid")
+                griddimsp[2] +=1            
+                solversp="s2_fish_3d"
+                sp_ch=s2_fish.SpaceCharge(solversp,grid=griddimsp,periodic=True)
+                if MPI.COMM_WORLD.Get_rank() ==0: 
+                    print " sp_ch grid=",sp_ch.get_grid()
+                    print " sp_ch solver=",sp_ch.get_solver()
+        else:
+             raise RuntimeError,  " Choose either a 3d or a 3dc solver "           
+       
     else:
        sp_ch=None       
     
@@ -311,8 +327,8 @@ if ( __name__ == '__main__'):
         
         for cell in range(1,25):
             line_length += cell_line[cell].gourmet.orbit_length() 
-        
-        rw_impedance=s2_fish.Impedance(pipe_radius, pipe_conduct,wall_thickness, line_length,lgridnum,
+        im_pipe_radius=0.025
+        rw_impedance=s2_fish.Impedance(im_pipe_radius, pipe_conduct,wall_thickness, line_length,lgridnum,
              pipe_symmetry=pipe_symmetry,paking_frac=0.6,kick=kick,nstored_turns=prev_turns)
                 #pipe_symmetry="x_parallel_plates") 
         if MPI.COMM_WORLD.Get_rank() ==0: 
@@ -323,7 +339,7 @@ if ( __name__ == '__main__'):
     else:
         rw_impedance=None     
     
-    
+  
     log = open("log","w")
     if MPI.COMM_WORLD.Get_rank() ==0:
             output = "start propagation"
@@ -340,6 +356,7 @@ if ( __name__ == '__main__'):
         mytracker = synergia.Tracker('/tmp',myopts.get("trackfraction"))
         mytracker.add(bunch,s)
 
+    outputperiod=1000
     for turn in range(1,myopts.get("turns")+1):
         t1 = time.time()
         #~ dt0 = time.time()
@@ -361,6 +378,9 @@ if ( __name__ == '__main__'):
             sys.stdout.flush()
             if cell % 12 == 0 and myopts.get("track"):
                 mytracker.add(bunch,s)
+        if turn % outputperiod==0:	
+            for bunchnum in range(0,numbunches):
+                bunches[bunchnum].diagnostics.write_hdf5("b%02d_tmpoutput-%02d" %(bunchnum, turn/outputperiod))	
         if MPI.COMM_WORLD.Get_rank() ==0:
             print
             output = "turn %d time = %g"%(turn,time.time() - t1)    
