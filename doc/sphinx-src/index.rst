@@ -10,6 +10,7 @@ Contents:
 	
 	utils
 	foundation
+	bunch
 
 Indices and tables
 ==================

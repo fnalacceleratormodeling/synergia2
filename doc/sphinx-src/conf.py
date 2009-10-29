@@ -33,10 +33,11 @@ sys.path.append(os.path.abspath('../../../../install/lib'))
 extensions = ['sphinx.ext.autodoc','sphinx.ext.pngmath','breathe']
 
 breathe_projects = {
-    "foundation":"../components/foundation/doc/xml",
-    "utils":"../utils/doc/xml"
+    "utils":"../utils/doc/xml",
+    "bunch":"../components/bunch/doc/xml",
+    "foundation":"../components/foundation/doc/xml"
     }
-breathe_default_project = "foundation"
+breathe_default_project = "utils"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['.templates']
