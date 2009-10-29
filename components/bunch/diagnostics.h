@@ -3,6 +3,8 @@
 
 #include "components/bunch/bunch.h"
 
+/// Diagnostics provides the minimal set of statistical
+/// quantities to be calculated for a Bunch.
 class Diagnostics
 {
 protected:
@@ -14,20 +16,40 @@ protected:
     virtual void
     update_std(Bunch const& bunch);
 public:
+    /// Create an empty Diagnostics object
     Diagnostics();
+
+    /// Create a Diagnostics object
+    /// @param bunch the Bunch
+    /// @param s the position along the reference trajectory in meters.
     Diagnostics(Bunch const& bunch, double s);
+
+    /// Update the diagnostics
+    /// @param bunch the Bunch
+    /// @param s the position along the reference trajectory in meters.
     virtual void
     update(Bunch const& bunch, double s);
+
+    /// Get the position along the reference trajectory in meters.
     virtual double
     get_s() const;
+
+    /// Get a six-dimensional vector of the means of each phase-space
+    /// coordinate. The units are in Synergia units.
     virtual Const_MArray1d_ref
     get_mean() const;
+
+    /// Get a six-dimensional vector of the standard deviations of each
+    /// phase-space coordinate. The units are in Synergia units.
     virtual Const_MArray1d_ref
     get_std() const;
+
     virtual
     ~Diagnostics();
 };
 
+/// Diagnostics_full2 provides the full set of statistical
+/// quantities to be calculated for a Bunch up to the second moments.
 class Diagnostics_full2 : public Diagnostics
 {
 protected:
@@ -39,24 +61,55 @@ protected:
     virtual void
     update_emittances();
 public:
+    /// Create an empty Diagnostics_full2 object
     Diagnostics_full2();
+
+    /// Create a Diagnostics object
+    /// @param bunch the Bunch
+    /// @param s the position along the reference trajectory in meters.
     Diagnostics_full2(Bunch const& bunch, double s);
+
+    /// Update the diagnostics
+    /// @param bunch the Bunch
+    /// @param s the position along the reference trajectory in meters.
     virtual void
     update(Bunch const& bunch, double s);
+
+    /// Get a 6x6 matrix of the second moments of the phase-space coordinates.
+    /// The units are Synergia units.
     virtual Const_MArray2d_ref
     get_mom2() const;
+
+    /// Get a 6x6 matrix of the correlation coefficients of the phase-space
+    /// coordinates.
     virtual Const_MArray2d_ref
     get_corr() const;
+
+    /// Get the horizontal emittance.
+    /// Currently reported in unnatural Synergia units.
     virtual double
     get_emitx() const;
+
+    /// Get the vertical emittance.
+    /// Currently reported in unnatural Synergia units.
     virtual double
     get_emity() const;
+
+    /// Get the longitudinal emittance.
+    /// Currently reported in unnatural Synergia units.
     virtual double
     get_emitz() const;
+
+    /// Get the (4D) transverse emittance.
+    /// Currently reported in unnatural Synergia units.
     virtual double
     get_emitxy() const;
+
+    /// Get the (6D) full emittance.
+    /// Currently reported in unnatural Synergia units.
     virtual double
     get_emitxyz() const;
+
     virtual
     ~Diagnostics_full2();
 };
