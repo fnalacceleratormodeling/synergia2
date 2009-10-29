@@ -22,6 +22,7 @@ progress.make
 Makefile
 DartTestfile.txt
 Testing
+install_manifest.txt
 
 # kdevelop
 Doxyfile

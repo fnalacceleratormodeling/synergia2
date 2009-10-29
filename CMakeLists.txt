@@ -44,6 +44,8 @@ configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in"
 include_directories(${SYNERGIA2_SOURCE_DIR})
 
 add_custom_target(doxy)
+add_custom_target(sphinxdoc)
+add_dependencies(sphinxdoc doxy)
 
 add_subdirectory(array_nd)
 add_subdirectory(utils)
@@ -54,3 +56,5 @@ add_subdirectory(s2_fish)
 add_subdirectory(impact)
 
 add_subdirectory(octapy)
+
+add_subdirectory(doc)
