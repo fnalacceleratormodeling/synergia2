@@ -64,7 +64,7 @@ public:
     /// Otherwise, use the system clock.
     /// @param device Read from pathname device.
     static unsigned long int
-    get_default_seed(const char * device = "/dev/random");
+    get_default_seed(const char * device = "/dev/urandom");
 
     /// Set the random number generator seed.
     /// @param seed The seed.
