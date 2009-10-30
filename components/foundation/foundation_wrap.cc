@@ -49,15 +49,22 @@ BOOST_PYTHON_MODULE(pyfoundation)
 
     class_<Distribution, boost::noncopyable > ("Distribution", no_init);
 
-    class_<Random_distribution, bases<Distribution > > ("Random_distribution",
-            init<unsigned long int, Commxx const &>())
-        .def(init<unsigned long int, Commxx const &, Random_distribution::Generator>())
-        .def("get_default_seed",&Random_distribution::get_default_seed)
-        .def("set_seed",&Random_distribution::set_seed)
-        .def("get_original_seed",&Random_distribution::get_original_seed)
-        .def("get",&Random_distribution::get)
-        .def("fill_uniform",&Random_distribution::fill_uniform)
-        .def("fill_unit_gaussian",&Random_distribution::fill_unit_gaussian)
-        .def("fill_unit_disk",&Random_distribution::fill_unit_disk)
-        ;
+    scope
+    Random_distribution_scope =
+        class_<Random_distribution, bases<Distribution > > ("Random_distribution",
+                init<unsigned long int, Commxx const &>())
+            .def(init<unsigned long int, Commxx const &, Random_distribution::Generator>())
+//            .def("get_default_seed",&Random_distribution::get_default_seed)
+            .def("set_seed",&Random_distribution::set_seed)
+            .def("get_original_seed",&Random_distribution::get_original_seed)
+            .def("get",&Random_distribution::get)
+            .def("fill_uniform",&Random_distribution::fill_uniform)
+            .def("fill_unit_gaussian",&Random_distribution::fill_unit_gaussian)
+            .def("fill_unit_disk",&Random_distribution::fill_unit_disk)
+            ;
+
+        enum_<Random_distribution::Generator >("Generator")
+            .value("ranlxd2", Random_distribution::ranlxd2)
+            .value("mt19937", Random_distribution::mt19937)
+            .export_values();
 }

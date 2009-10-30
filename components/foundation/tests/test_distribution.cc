@@ -11,7 +11,7 @@ const unsigned long int test_seed = 12345678;
 const int array_length = 10000;
 const int default_min = -7.1;
 const int default_max = 3.25;
-const int n_sigma = 4.0; // maximum number of standard deviations for statistical tests
+const int n_sigma = 4.5; // maximum number of standard deviations for statistical tests
 const double pi = 3.1415926535897932384626433832;
 
 void
@@ -119,7 +119,7 @@ BOOST_AUTO_TEST_CASE(construct3_random)
             Random_distribution::mt19937);
 }
 
-BOOST_AUTO_TEST_CASE(get_seed_random)
+BOOST_AUTO_TEST_CASE(get_original_seed_random)
 {
     Random_distribution distribution(test_seed, Commxx(MPI_COMM_WORLD));
     BOOST_CHECK_EQUAL(test_seed, distribution.get_original_seed());
