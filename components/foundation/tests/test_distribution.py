@@ -29,6 +29,9 @@ def test_set_seed():
     new_seed = 987654321
     r.set_seed(new_seed)
     assert_equal(new_seed,r.get_original_seed())
+    
+def test_get_default_seed():
+    assert(Random_distribution.get_default_seed("/dev/random") != 0)
 
 def test_get():
     r = Random_distribution(test_seed,MPI.COMM_WORLD)

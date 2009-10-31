@@ -49,14 +49,17 @@ BOOST_PYTHON_MODULE(pyfoundation)
 
     class_<Distribution, boost::noncopyable > ("Distribution", no_init);
 
+//    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_default_seed_overloads, get_default_seed, 0, 1);
     scope
     Random_distribution_scope =
         class_<Random_distribution, bases<Distribution > > ("Random_distribution",
                 init<unsigned long int, Commxx const &>())
             .def(init<unsigned long int, Commxx const &, Random_distribution::Generator>())
-//            .def("get_default_seed",&Random_distribution::get_default_seed)
+            .def("get_default_seed",&Random_distribution::get_default_seed)
+            .staticmethod("get_default_seed")
             .def("set_seed",&Random_distribution::set_seed)
             .def("get_original_seed",&Random_distribution::get_original_seed)
+//            .def("get_original_seed",(void(*)(const char*))0,get_default_seed_overloads())
             .def("get",&Random_distribution::get)
             .def("fill_uniform",&Random_distribution::fill_uniform)
             .def("fill_unit_gaussian",&Random_distribution::fill_unit_gaussian)
