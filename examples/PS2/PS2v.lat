@@ -166,7 +166,6 @@ Option,echo
 
   cav: rfcavity, volt=1.5, harmon= 180
 
- 
 
 THREEBENDS : LINE=(D2ll, D2ss, MB, D1ss, D1ll, D1ss, MB, D1ss, D1ll, D1ss, MB, D2ss, D2ll )
 
