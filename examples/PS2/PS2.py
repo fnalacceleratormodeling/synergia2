@@ -1,107 +1,12 @@
 import os.path
 import sys
 import synergia
-import Numeric
-import numpy
 from math import sqrt, sin, acos, pi
 import time
 import impact
 
 import s2_fish
 from mpi4py import MPI
-
-def ha_match(map,beam_parameters,emitx,emity,dpop):
-    numpy_map = map
-    evals,evect_matrix = numpy.linalg.eig(numpy_map)
-    evects = []
-    for i in range(0,6):
-        evects.append(evect_matrix[:,i])
-    E = range(0,3)
-    remaining = range(5,-1,-1)
-    for i in range(0,3):
-        # find complex conjugate among remaining eigenvectors
-        first = remaining.pop()
-        best = 1.0e30
-        conj = -1
-        for item in remaining:
-            sum = evects[first]+evects[item]
-            if abs(numpy.max(sum.imag)) < best:
-                best = abs(numpy.max(sum.imag))
-                conj = item
-        if conj == -1:
-            raise RuntimeError,"failed to find a conjugate pair in ha_match"
-        remaining.remove(conj)
-        #~ print first,conj,best
-        tmp=numpy.outer(evects[first],
-            numpy.conjugate(evects[first]))
-        tmp+=numpy.outer(evects[conj],
-            numpy.conjugate(evects[conj]))
-        E[i]=tmp.real
-
-    for srt in range(1,3):
-        if abs(numpy.linalg.det(E[srt][0:2,0:2])) > abs(numpy.linalg.det(E[0][0:2,0:2])):
-            tmp = E[0]
-            E[0] = E[srt]
-            E[srt] = tmp
-    if abs(numpy.linalg.det(E[2][2:4,2:4])) > abs(numpy.linalg.det(E[1][2:4,2:4])):
-        tmp = E[1]
-        E[1] = E[2]
-        E[2] = tmp
-    Cxy, Cxpyp, Cz, Czp = beam_parameters.get_conversions()
-    gamma = beam_parameters.get_gamma()
-    C = numpy.zeros([6,6],'d')
-    C += E[0]*emitx/(Cxpyp*sqrt(abs(numpy.linalg.det(E[0][0:2,0:2]))))
-    C += E[1]*emity/(Cxpyp*sqrt(abs(numpy.linalg.det(E[1][2:4,2:4]))))
-    C += E[2]*dpop*dpop/(gamma*gamma*E[2][5,5])
-    
-    return C
-
-def ha_matche(map,beam_parameters,emitx,emity,emitz):
-    numpy_map = map
-    evals,evect_matrix = numpy.linalg.eig(numpy_map)
-    evects = []
-    for i in range(0,6):
-        evects.append(evect_matrix[:,i])
-    E = range(0,3)
-    remaining = range(5,-1,-1)
-    for i in range(0,3):
-        # find complex conjugate among remaining eigenvectors
-        first = remaining.pop()
-        best = 1.0e30
-        conj = -1
-        for item in remaining:
-            sum = evects[first]+evects[item]
-            if abs(numpy.max(sum.imag)) < best:
-                best = abs(numpy.max(sum.imag))
-                conj = item
-        if conj == -1:
-            raise RuntimeError,"failed to find a conjugate pair in ha_match"
-        remaining.remove(conj)
-        #~ print first,conj,best
-        tmp=numpy.outer(evects[first],
-            numpy.conjugate(evects[first]))
-        tmp+=numpy.outer(evects[conj],
-            numpy.conjugate(evects[conj]))
-        E[i]=tmp.real
-
-    for srt in range(1,3):
-        if abs(numpy.linalg.det(E[srt][0:2,0:2])) > abs(numpy.linalg.det(E[0][0:2,0:2])):
-            tmp = E[0]
-            E[0] = E[srt]
-            E[srt] = tmp
-    if abs(numpy.linalg.det(E[2][2:4,2:4])) > abs(numpy.linalg.det(E[1][2:4,2:4])):
-        tmp = E[1]
-        E[1] = E[2]
-        E[2] = tmp
-    Cxy, Cxpyp, Cz, Czp = beam_parameters.get_conversions()
-    gamma = beam_parameters.get_gamma()
-    C = numpy.zeros([6,6],'d')
-    C += E[0]*emitx/(Cxpyp*sqrt(abs(numpy.linalg.det(E[0][0:2,0:2]))))
-    C += E[1]*emity/(Cxpyp*sqrt(abs(numpy.linalg.det(E[1][2:4,2:4]))))
-    C += E[2]* emitz/(Czp* sqrt(abs(numpy.linalg.det(E[2][4:6,4:6]))))    
-    #C += E[2]*dpop*dpop/(gamma*gamma*E[2][5,5])
-    
-    return C
 
 if ( __name__ == '__main__'):
 
@@ -116,21 +21,24 @@ if ( __name__ == '__main__'):
 #    myopts.add("yoffset",3.e-7,"transverse offset in y",float)
     myopts.add("xoffset",0.000001,"transverse offset in x",float)
     myopts.add("yoffset",0.000001,"transverse offset in y",float)
-    myopts.add("emitx",3e-06,"X emittance",float)
-    myopts.add("emity",3e-06,"Y emittance",float)
-    myopts.add("emitz",0.098,"Z emittance",float)
-    myopts.add("sige",10.e-3,"(sigma E) over E",float)
+    #myopts.add("emitx",3e-06,"X emittance",float)
+    #myopts.add("emity",3e-06,"Y emittance",float)
+    #myopts.add("emitz",0.098,"Z emittance",float)
+    #myopts.add("sige",10.e-3,"(sigma E) over E",float)
     #myopts.add("sige",1.e-3,"(sigma E) over E",float)
+    myopts.add("xrms",4.51e-3," xrms", float)
+    myopts.add("yrms",2.81e-3," yrms", float)
+    myopts.add("trms_rad",1.11," trms in radians, bucket size=2*pi", float)
     myopts.add("Ekin",4.0,"",float)
     myopts.add("bunchnp",4.2e+11,"number of particles per bunch",float)
     myopts.add("tgridnum",32,"transverse grid cells",int)
     myopts.add("lgridnum",32,"",int)
    # myopts.add("bunches",1,"",int)
     myopts.add("saveperiod",10,"save beam each <saveperiod> turns",int)
-    myopts.add("outputperiod",100,"save beam each <saveperiod> turns",int)
+    myopts.add("outputperiod",50,"save beam each <saveperiod> turns",int)
     myopts.add("partpercell",2,"",float)
     myopts.add("space_charge",0,"",int)
-    myopts.add("kicks",40,"kicksper line",int)
+    myopts.add("kicks",60,"kicksper line",int)
     myopts.add("numtrack",0,"number of particles to track",int)
     myopts.add("solver","3dc","solver type for spch",str)
     myopts.add_suboptions(synergia.opts)
@@ -174,10 +82,7 @@ if ( __name__ == '__main__'):
             
     gourmet.complete_setup()
     
-    #for element in gourmet.beamline:
-        #if element.Type() == 'rfcavity':
-            #print " rf frecv=", element.getRadialFrequency()
-    
+ 
     
     (alpha_x, alpha_y, beta_x, beta_y) = synergia.matching.get_alpha_beta(gourmet)
     (tune_x, tune_y, tune_z)           = synergia.matching.get_tunes(gourmet)
@@ -199,51 +104,19 @@ if ( __name__ == '__main__'):
     gamma=beam_parameters.get_gamma() 
     pz = gamma * beta * beam_parameters.mass_GeV
     
-    #emitx=myopts.get("emitx")
-    #(xwidth,xpwidth,rx) = synergia.matching.match_twiss_emittance(emitx,alpha_x,beta_x)
-    #if MPI.COMM_WORLD.Get_rank() == 0:
-        #print "xwidth=",xwidth
-    #xoffset = myopts.get("xoffset")
-    #beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,r = rx,offset=xoffset)
+   
     
-    
-    #emity=myopts.get("emity")
-    #yoffset = myopts.get("yoffset")  
-    #(ywidth,ypwidth,ry) = synergia.matching.match_twiss_emittance(emity,alpha_y,beta_y)
-    #if MPI.COMM_WORLD.Get_rank() == 0:
-        #print "ywidth=",ywidth
-    #beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,r = ry,offset=yoffset)
-    
-    #sige= myopts.get("sige")
-    #bunch_len= 1e-9
-    #lam_z=sige*energy
-    
-    #sigma_z_meters = beam_parameters.get_z_length()/6.#beta*synergia.physics_constants.PH_MKS_c*bunch_len
-    #print "lam_z=",lam_z
-    #beam_parameters.z_params(sigma = sigma_z_meters, lam = lam_z, offset=0.00001)
-    
-    
-    full_map = gourmet.get_single_linear_map()    
-    C = ha_match(full_map[0:6,0:6],beam_parameters,myopts.get("emitx"),
-                 myopts.get("emity"),myopts.get("sige")/(beta*beta))
+    full_map = gourmet.get_single_linear_map()   
+    xwidth= myopts.get("xrms")
+    ywidth= myopts.get("yrms")
+    zwidth= (myopts.get("trms_rad")/(2*pi))*beam_parameters.get_z_length()
+   
+
+    rms_index=[0,2,4]
+    C=synergia.rms_match_3d(full_map[0:6,0:6],beam_parameters,xwidth,ywidth,zwidth,rms_index,print_emittances=True)
     beam_parameters.offset_x_m = myopts.get("xoffset")
     beam_parameters.offset_y_m = myopts.get("yoffset")
-   
-                 
-                 
     
-    if MPI.COMM_WORLD.Get_rank() ==0:
-        (Cxy, Cxpyp, Cz, Czp)=beam_parameters.get_conversions()
-        print "xwidth=",sqrt(C[0,0])/Cxy
-        print "ywidth=",sqrt(C[2,2])/Cxy
-        print "twidth=",sqrt(C[4,4])/(Cz*synergia.physics_constants.PH_MKS_c*beta)
-        print "zmrs=",sqrt(C[4,4])/Cz    
-        print "twidth in rad=", sqrt(C[4,4])/Cz*2.*pi/gourmet.orbit_length()
-        print "revol time=", gourmet.orbit_length()/(beta*synergia.physics_constants.PH_MKS_c)
-        print "bucket time=",1./scaling_frequency
-        print "bucket in rad=", (1./scaling_frequency)*beta*synergia.physics_constants.PH_MKS_c*2.*pi/gourmet.orbit_length()
-        print "bucket length=",beam_parameters.get_z_length()
-        print "lam_z=",sqrt(C[5,5]/Czp)
     
     if MPI.COMM_WORLD.Get_rank() ==0:
         print " **********************************************************************" 

@@ -1,0 +1,37 @@
+Notes about units in synergia:
+
+gourmet units, gU=[w/c, gamma*beta, w/c, gamma*beta, w/c, -gamma*beta^2]
+synergia units, sU=[w/c, 1/m, w/c, 1/m, w/(beta*c), 1/m]
+
+NOTE!: the mass m is in fact m*c*c
+
+X_chef*gU= X_synergia
+
+
+In synergia (xs means x in synergia below):
+   xs= sU[0] *x,  [x]=meter
+   pxs=sU[1]*px,   [px]=GeV/c
+   ys= sU[2]*x,  [y]=meter
+   pys=sU[3]*px,   [py]=GeV/c
+   zs=sU[4]*t*beta*c, [t*beta*c]=meter
+   pzs=sU[5]* -dE,  [dE] =Gev
+   
+   
+Advice for input which use beam_parameters.py (where the input is multiplies by sU):
+   
+   
+   provide:  x, y, and t*beta*c in meters
+             px, py   in  Gev/c
+             pz (E) in Gev
+            
+             xrms, yrms, trms*beta*c in m
+             pxrms, pyrms in GeV/c   
+             rx, ry  dimensionless, ex: rx=<x*px>/(xrms*pxrms) 
+               
+             pzrms in  Gev (is in fact Erms)
+             pzrms=deoe*energy 
+             
+             
+             if you use match_twiss subroutines to get width_prime, note that width_prime=prms/pz
+
+In diagnostics ONLY:   X_diagnostisc=X_synergia/gU=X_chef

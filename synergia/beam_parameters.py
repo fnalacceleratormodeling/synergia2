@@ -76,6 +76,9 @@ class Beam_parameters:
     def get_mass(self):
         return self.mass_GeV
     
+    def get_kinetic_energy(self):
+        return self.kinetic_energy_GeV
+    
     def get_charge(self):
         return self.charge_e
     

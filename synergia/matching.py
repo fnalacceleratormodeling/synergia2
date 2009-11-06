@@ -2,6 +2,10 @@
 
 from math import sqrt, sin, acos, pi
 import function_cache
+import numpy
+import sys
+from mpi4py import MPI
+
 try:
     import octapy
 except:
@@ -198,3 +202,89 @@ def envelope_motion(widths_in,current,g,do_plot=0,do_match=0):
     return retval
 
 
+
+def rms_match_3d(linear_map,beam_parameters,arms,brms,crms,rms_index,print_emittances=True):
+    '''here are 3 rms input parameters,arms, brms, crms, which corresponds to  indices rms _index[0], rms _index[1], rms _index[2] 
+        example: rms_index=[0,2,5]==> arms=xrms, brms=yrms, crms=Urms
+         units of rms should be  X_synergia/synegia_units, i.e. [xrms]=m, [pxrms]=Gev/c, [pzrms] = Gev, 
+        '''
+
+    numpy_map = linear_map
+    
+    evals,evect_matrix = numpy.linalg.eig(numpy_map)
+    evects = []
+    for i in range(0,6):
+        evects.append(evect_matrix[:,i])
+    F = range(0,3)
+    remaining = range(5,-1,-1)
+    for i in range(0,3):
+        # find complex conjugate among remaining eigenvectors
+        first = remaining.pop()
+        best = 1.0e30
+        conj = -1
+        for item in remaining:
+            sum = evects[first]+evects[item]
+            if abs(numpy.max(sum.imag)) < best:
+                best = abs(numpy.max(sum.imag))
+                conj = item
+        if conj == -1:
+            raise RuntimeError,"failed to find a conjugate pair in ha_match"
+        remaining.remove(conj)
+        tmp=numpy.outer(evects[first],
+            numpy.conjugate(evects[first]))
+        tmp+=numpy.outer(evects[conj],
+            numpy.conjugate(evects[conj]))
+        F[i]=tmp.real
+    
+    S=numpy.zeros((3,3),'d')
+    for i in range(0,3):
+        for j in range(0,3):
+            S[i,j]=F[j][rms_index[i],rms_index[i]]
+        
+    Sinv=numpy.linalg.inv(S)   
+    
+    C = numpy.zeros([6,6],'d')
+    Cxy, Cxpyp, Cz, Czp = beam_parameters.get_conversions()
+    units=[Cxy,Cxpyp,Cxy,Cxpyp,Cz, Czp]
+    cd1=arms*units[rms_index[0]]*arms*units[rms_index[0]]
+    cd2=brms*units[rms_index[1]]*brms*units[rms_index[1]]
+    cd3=crms*units[rms_index[2]]*crms*units[rms_index[2]]
+    
+    for i in range(0,3):
+        C += F[i]*(Sinv[i,0]*cd1+Sinv[i,1]*cd2+Sinv[i,2]*cd3)
+        
+        
+    if print_emittances:
+        beta=beam_parameters.get_beta()
+        gamma=beam_parameters.get_gamma()
+        pz = gamma * beta * beam_parameters.mass_GeV
+        energy=beam_parameters.get_kinetic_energy()+beam_parameters.get_mass()
+        emitx=sqrt(C[0,0]*C[1,1]-C[0,1]*C[1,0])/units[0]/units[1]
+        emity=sqrt(C[2,2]*C[3,3]-C[2,3]*C[3,2])/units[2]/units[3]
+        emitz=sqrt(C[4,4]*C[5,5]-C[4,5]*C[5,4])/units[4]/units[5] 
+        if MPI.COMM_WORLD.Get_rank() ==0: 
+            print "************ BEAM MATCHED PARAMETERS *****************"
+            print "*    emitx=", emitx, " meters*GeV/c   =", emitx/pz, " meters*rad =", emitx/pz/pi, " pi*meters*rad"
+            print "*    emity=", emity, " meters*GeV/c   =", emity/pz, " meters*rad =", emity/pz/pi, " pi*meters*rad"
+            print "*    emitz=", emitz, " meters*GeV =", emitz*1.e9/(physics_constants.PH_MKS_c*beta), " eV*s"
+            print " "
+            print "*    Normalized emitx=",  emitx*gamma*beta/pz, " meters*rad =", emitx*gamma*beta/pz/pi, " pi*meters*rad"
+            print "*    Normalized emity=",  emity*gamma*beta/pz, " meters*rad =", emity*gamma*beta/pz/pi, " pi*meters*rad"
+            print " "  
+            print "*    xrms=",sqrt(C[0,0])/units[0] , " meters"
+            print "*    yrms=",sqrt(C[2,2])/units[2] , " meters"
+            print "*    zrms=",sqrt(C[4,4])/units[4] , " meters=",2.*pi*sqrt(C[4,4])/units[4]/beam_parameters.get_z_length(), " rad"
+            print "*    pxrms=",sqrt(C[1,1])/units[1] , " GeV/c,    dpx/p=",sqrt(C[1,1])/units[1]/pz
+            print "*    pyrms=",sqrt(C[3,3])/units[3] , " GeV/c,    dpy/p=",sqrt(C[3,3])/units[3]/pz
+            print "*    pzrms(Erms)=",sqrt(C[5,5])/units[5] , " GeV,  deoe=",sqrt(C[5,5])/units[5]/energy ,\
+             ",  dpzop=", sqrt(C[5,5])/(units[5]*energy*beta*beta) 
+            print "" 
+            print "*    bucket length=",beam_parameters.get_z_length(),  " meters"
+            print "*    pz=",pz, "  GeV/c"
+            print "*    energy=",energy,"  GeV" 
+            print "****************************************************"
+            
+          
+            
+           
+    return C
