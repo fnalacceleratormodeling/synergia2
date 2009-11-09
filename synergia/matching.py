@@ -71,6 +71,41 @@ def get_alpha_beta(my_gourmet):
 
     return (alpha_x, alpha_y, beta_x, beta_y)
     
+def get_alpha_beta_frommap(mymap, u):
+    '''Get Courant-Snyder (Twiss) parameters from a Gourmet instance.
+    Returns 
+        (alpha_x, alpha_y, beta_x, beta_y).'''
+#    print "mymap is "
+#    print mymap
+    #u = my_gourmet.get_u(my_gourmet.get_initial_energy())
+    mxx = mymap[0,0]
+    mxpxp = mymap[1,1]
+    mxxp = mymap[0,1]
+    cos_mu = (mxx+mxpxp)/2.0
+    mu = acos(cos_mu)
+    # beta function is positive
+    # use this to pick branch
+    if mxxp/sin(mu) < 0:
+        mu = 2*pi - mu  
+    beta_x = mxxp/sin(mu)*u[1]/u[0]
+    alpha_x = (mxx-mxpxp)/(2.0*sin(mu))
+
+    myy = mymap[2,2]
+    mypyp = mymap[3,3]
+    myyp = mymap[2,3]
+    cos_mu = (myy+mypyp)/2.0
+    mu = acos(cos_mu)
+    # beta function is positive
+    # use this to pick branch
+    if myyp/sin(mu) < 0:
+        mu = 2*pi - mu
+    beta_y = myyp/sin(mu)*u[3]/u[2]
+    alpha_y = (myy-mypyp)/(2.0*sin(mu))
+
+    return (alpha_x, alpha_y, beta_x, beta_y)
+   
+    
+    
 def  get_tunes(my_gourmet):
     mymap = my_gourmet.get_single_linear_map()
 #    print "mymap is "
@@ -267,10 +302,25 @@ def rms_match_3d(linear_map,beam_parameters,arms,brms,crms,rms_index,print_emitt
             print "*    emitx=", emitx, " meters*GeV/c   =", emitx/pz, " meters*rad =", emitx/pz/pi, " pi*meters*rad"
             print "*    emity=", emity, " meters*GeV/c   =", emity/pz, " meters*rad =", emity/pz/pi, " pi*meters*rad"
             print "*    emitz=", emitz, " meters*GeV =", emitz*1.e9/(physics_constants.PH_MKS_c*beta), " eV*s"
+            print " "  
+            print "*    90%emitx=",  4.605*pi*emitx/pz,"  meters*rad =", 4.605*emitx/pz, " pi*meters*rad"
+            print "*    90%emity=",  4.605*pi*emity/pz, " meters*rad =", 4.605*emity/pz, " pi*meters*rad"
+            print "*    90%emitz=",  4.605*pi*emitz*1.e9/(physics_constants.PH_MKS_c*beta), " eV*s"
+            print " "
+            print " "  
+            print "*    95%emitx=",  5.991*pi*emitx/pz,"  meters*rad =", 5.991*emitx/pz, " pi*meters*rad"
+            print "*    95%emity=",  5.991*pi*emity/pz, " meters*rad =", 5.991*emity/pz, " pi*meters*rad"
+            print "*    95%emitz=",  5.991*pi*emitz*1.e9/(physics_constants.PH_MKS_c*beta), " eV*s"
             print " "
             print "*    Normalized emitx=",  emitx*gamma*beta/pz, " meters*rad =", emitx*gamma*beta/pz/pi, " pi*meters*rad"
             print "*    Normalized emity=",  emity*gamma*beta/pz, " meters*rad =", emity*gamma*beta/pz/pi, " pi*meters*rad"
+            print " " 
+            print "*    Normalized 90%emitx=",  4.605*pi*emitx*gamma*beta/pz,"  meters*rad =", 4.605*emitx*gamma*beta/pz, " pi*meters*rad"
+            print "*    Normalized 90%emity=",  4.605*pi*emity*gamma*beta/pz, " meters*rad =", 4.605*emity*gamma*beta/pz, " pi*meters*rad"
             print " "  
+            print "*    Normalized 95%emitx=",  5.991*pi*emitx*gamma*beta/pz,"  meters*rad =", 5.991*emitx*gamma*beta/pz, " pi*meters*rad"
+            print "*    Normalized 95%emity=",  5.991*pi*emity*gamma*beta/pz, " meters*rad =", 5.991*emity*gamma*beta/pz, " pi*meters*rad"
+            print " "
             print "*    xrms=",sqrt(C[0,0])/units[0] , " meters"
             print "*    yrms=",sqrt(C[2,2])/units[2] , " meters"
             print "*    zrms=",sqrt(C[4,4])/units[4] , " meters=",2.*pi*sqrt(C[4,4])/units[4]/beam_parameters.get_z_length(), " rad"
