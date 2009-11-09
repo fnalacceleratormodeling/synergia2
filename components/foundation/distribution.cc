@@ -5,6 +5,25 @@
 #include <fstream>
 #include <stdexcept>
 
+void
+Distribution::fill_uniform(MArray1d_ref array, double min, double max)
+{
+    fill_uniform(array[boost::indices[range()]],min,max);
+}
+
+void
+Distribution::fill_unit_gaussian(MArray1d_ref array)
+{
+    fill_unit_gaussian(array[boost::indices[range()]]);
+}
+
+void
+Distribution::fill_unit_disk(MArray1d_ref x_array, MArray1d_ref y_array)
+{
+    fill_unit_disk(x_array[boost::indices[range()]],
+            y_array[boost::indices[range()]]);
+}
+
 unsigned long int
 Random_distribution::get_default_seed(const char * device)
 {
@@ -60,7 +79,7 @@ Random_distribution::get()
 }
 
 void
-Random_distribution::fill_uniform(MArray1d_ref array, double min, double max)
+Random_distribution::fill_uniform(MArray1d_view array, double min, double max)
 {
     for (MArray1d::iterator it = array.begin(); it != array.end(); ++it) {
         *it = gsl_ran_flat(rng, min, max);
@@ -68,7 +87,7 @@ Random_distribution::fill_uniform(MArray1d_ref array, double min, double max)
 }
 
 void
-Random_distribution::fill_unit_gaussian(MArray1d_ref array)
+Random_distribution::fill_unit_gaussian(MArray1d_view array)
 {
     for (MArray1d::iterator it = array.begin(); it != array.end(); ++it) {
         *it = gsl_ran_ugaussian_ratio_method(rng);
@@ -77,7 +96,7 @@ Random_distribution::fill_unit_gaussian(MArray1d_ref array)
 }
 
 void
-Random_distribution::fill_unit_disk(MArray1d_ref x_array, MArray1d_ref y_array)
+Random_distribution::fill_unit_disk(MArray1d_view x_array, MArray1d_view y_array)
 {
     if (x_array.shape()[0] != y_array.shape()[0]) {
         throw std::runtime_error(

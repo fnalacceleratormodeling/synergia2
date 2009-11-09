@@ -7,6 +7,16 @@
 
 using namespace boost::python;
 
+void
+(Random_distribution::*random_fill_uniform_ref)(MArray1d_ref, double,
+        double) = &Random_distribution::fill_uniform;
+void
+(Random_distribution::*random_fill_unit_gaussian_ref)(MArray1d_ref) =
+    &Random_distribution::fill_unit_gaussian;
+void
+(Random_distribution::*random_fill_unit_disk_ref)(MArray1d_ref,
+        MArray1d_ref) = &Random_distribution::fill_unit_disk;
+
 BOOST_PYTHON_MODULE(pyfoundation)
 {
     import_array();
@@ -61,9 +71,9 @@ BOOST_PYTHON_MODULE(pyfoundation)
             .def("get_original_seed",&Random_distribution::get_original_seed)
 //            .def("get_original_seed",(void(*)(const char*))0,get_default_seed_overloads())
             .def("get",&Random_distribution::get)
-            .def("fill_uniform",&Random_distribution::fill_uniform)
-            .def("fill_unit_gaussian",&Random_distribution::fill_unit_gaussian)
-            .def("fill_unit_disk",&Random_distribution::fill_unit_disk)
+            .def("fill_uniform",random_fill_uniform_ref)
+            .def("fill_unit_gaussian",random_fill_unit_gaussian_ref)
+            .def("fill_unit_disk",random_fill_unit_disk_ref)
             ;
 
         enum_<Random_distribution::Generator >("Generator")

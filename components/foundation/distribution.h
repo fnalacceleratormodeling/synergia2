@@ -16,17 +16,29 @@ public:
 
     /// Fill a one-dimensional array uniformly between min and max.
     virtual void
-    fill_uniform(MArray1d_ref array, double min, double max) = 0;
+    fill_uniform(MArray1d_view array, double min, double max) = 0;
+
+    /// Alternate form for type compatibility.
+    void
+    fill_uniform(MArray1d_ref array, double min, double max);
 
     /// Fill a one-dimensional array with Gaussian distribution of
     /// zero mean and unit standard deviation.
     virtual void
-    fill_unit_gaussian(MArray1d_ref array) = 0;
+    fill_unit_gaussian(MArray1d_view array) = 0;
+
+    /// Alternate form for type compatibility.
+    void
+    fill_unit_gaussian(MArray1d_ref array);
 
     /// Fill two one-dimensional arrays such that (x,y) are distributed
     /// uniformly in the unit disk.
     virtual void
-    fill_unit_disk(MArray1d_ref x_array, MArray1d_ref y_array) = 0;
+    fill_unit_disk(MArray1d_view x_array, MArray1d_view y_array) = 0;
+
+    /// Alternate form for type compatibility.
+    void
+    fill_unit_disk(MArray1d_ref x_array, MArray1d_ref y_array);
 
     virtual
     ~Distribution()
@@ -81,17 +93,23 @@ public:
 
     /// Fill a one-dimensional array uniformly between min and max.
     virtual void
-    fill_uniform(MArray1d_ref array, double min, double max);
+    fill_uniform(MArray1d_view array, double min, double max);
+
+    using Distribution::fill_uniform;
 
     /// Fill a one-dimensional array with Gaussian distribution of
     /// zero mean and unit standard deviation.
     virtual void
-    fill_unit_gaussian(MArray1d_ref array);
+    fill_unit_gaussian(MArray1d_view array);
+
+    using Distribution::fill_unit_gaussian;
 
     /// Fill two one-dimensional arrays such that (x,y) are distributed
     /// uniformly in the unit disk.
     virtual void
-    fill_unit_disk(MArray1d_ref x_array, MArray1d_ref y_array);
+    fill_unit_disk(MArray1d_view x_array, MArray1d_view y_array);
+
+    using Distribution::fill_unit_disk;
 
     virtual
     ~Random_distribution();
