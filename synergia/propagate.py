@@ -105,6 +105,15 @@ def propagate(s0,gourmet,bunch_in, space_charge=None,impedance=None,
                     apply_space_charge_kick(bunch,space_charge,tau) #it skips aperture and periodic on the bunch               
         #for (diagnostics,bunch) in zip(diagnosticss2,bunches):
                         #diagnostics.add(s,bunch)   
+            elif action.get_synergia_action() == "exact":
+                element = action.get_data()
+                u_in = gourmet.get_u(action.get_initial_energy())
+                u_out = gourmet.get_u(action.get_final_energy())
+                for bunch in bunches:
+                    chef_propagate.chef_propagate(
+                        bunch.get_local_particles(), bunch.get_num_particles_local(),
+                        element, action.get_initial_energy(), gourmet.particle,
+                        u_in, u_out)
             elif action.get_synergia_action() == "rfcavity1" or \
                 action.get_synergia_action() == "rfcavity2":
                 #~ pardebug("rfcavity\n")
