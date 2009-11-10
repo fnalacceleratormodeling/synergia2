@@ -35,3 +35,6 @@ Advice for input which use beam_parameters.py (where the input is multiplies by 
              if you use match_twiss subroutines to get width_prime, note that width_prime=prms/pz
 
 In diagnostics ONLY:   X_diagnostisc=X_synergia/gU=X_chef
+
+The particles are dumped (with bunch.write_particles foe example) in X_synergia units.
+
