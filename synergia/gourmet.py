@@ -51,7 +51,8 @@ pacifier = drift("pacifier",0.0)
 class Gourmet:
     '''An interface to the single-particle physics of CHEF'''
     def __init__(self, lattice_file, line_name, initial_kinetic_energy,
-                 scaling_frequency, order=1, particle='proton', delay_complete=False):
+                 scaling_frequency, order=1, particle='proton', delay_complete=False,
+                 exact_rf=False):
         self.lattice_file = lattice_file
         self.line_name = line_name
         self.scaling_frequency = scaling_frequency
@@ -84,6 +85,7 @@ class Gourmet:
         self.beamline.append(pacifier)
         self.is_commissioned = False
         self.needs_commission = False
+        self.exact_rf = exact_rf
     	if not delay_complete:
     		self.complete_setup() 
 		
@@ -386,7 +388,37 @@ class Gourmet:
                 has_propagated = 0
                 s = 0.0
             else:
-                if not element.Type() == "marker":
+                if element.Type() == 'rfcavity' and self.exact_rf:
+                    if has_propagated:
+                        mapping = mappers.Fast_mapping(self.get_u(energy),
+                                                       jet_particle.State())
+                        new_energy = jet_particle.ReferenceEnergy()
+                        self.actions.append(
+                            Action("mapping",
+                                   length=s,
+                                   initial_energy=energy,
+                                   final_energy=new_energy,
+                                   data=mapping,
+                                   element_name=element_names))
+                        energy = new_energy
+                        s = element.OrbitLength(particle)
+                        element.propagate(particle)
+                        element.propagate(jet_particle)
+                        new_energy = jet_particle.ReferenceEnergy()
+                        self.actions.append(
+                            Action("synergia action",
+                                   length=s,
+                                   initial_energy=energy,
+                                   final_energy=new_energy,
+                                   data=element,
+                                   element_name=element.Name(),
+                                   synergia_action='exact'))
+                        energy = new_energy
+                        jet_particle = self.get_jet_particle(energy)
+                        element_names = ""
+                        has_propagated = 0
+                        s = 0.0
+                elif not element.Type() == "marker":
                     s += element.OrbitLength(particle)
                     element.propagate(particle)
                     element.propagate(jet_particle)

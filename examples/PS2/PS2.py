@@ -41,6 +41,7 @@ if ( __name__ == '__main__'):
     myopts.add("kicks",60,"kicksper line",int)
     myopts.add("numtrack",0,"number of particles to track",int)
     myopts.add("solver","3dc","solver type for spch",str)
+    myopts.add("exactrf",1,"use exact propagator for RF cavities",int)
     myopts.add_suboptions(synergia.opts)
     myopts.parse_argv(sys.argv)
     job_mgr = synergia.Job_manager(sys.argv,myopts,
@@ -61,7 +62,8 @@ if ( __name__ == '__main__'):
     
     gourmet = synergia.Gourmet(os.path.join(os.getcwd(),myopts.get("latticefile"))
         ,model,kinetic_energy,
-                        scaling_frequency,myopts.get("maporder"), delay_complete=True)
+                        scaling_frequency,myopts.get("maporder"), delay_complete=True,
+                        exact_rf=myopts.get("exactrf"))
     
     
     kicks_per_line = myopts.get("kicks")
