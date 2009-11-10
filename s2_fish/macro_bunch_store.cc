@@ -61,6 +61,8 @@ void Macro_bunch_store::convert_to_fixedt()
             double betai;
              if ((1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp))<0.0) {  
                                    std::cout<<"beta i ^2=" <<1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp)<<std::endl;
+                                   std::cout<<"rcp_gammai="<<rcp_gammai<<" delta gamma_i="<<local_particles(5, i)<<" gamma="<< gamma<<std::endl;
+                                   std::cout<<"xp="<<xp<<"   yp="<<yp<<std::endl;
                                           throw std::runtime_error (" error in convert_to_fixedt,"
                                  "probably the approximation beta ~betaz broke down, unstable beam ");
              } 
@@ -89,6 +91,8 @@ void Macro_bunch_store::convert_to_fixedz()
             double betai;
              if ((1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp))<0.0) {  
                   std::cout<<"beta i ^2=" <<1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp)<<std::endl;
+                  std::cout<<"rcp_gammai="<<rcp_gammai<<"  delta gamma_i="<<local_particles(5, i)<<" gamma="<< gamma<<std::endl;
+                  std::cout<<"xp="<<xp<<"   yp="<<yp<<std::endl;
                                           throw std::runtime_error (" error in convert_to_fixedz,"
                                  "probably the approximation beta ~betaz broke down, unstable beam ");
              } 
