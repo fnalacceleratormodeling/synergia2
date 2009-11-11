@@ -82,7 +82,12 @@ def propagate(s0,gourmet,bunch_in, space_charge=None,impedance=None,
                              for (bunch,tracker) in zip(bunches,trackers):
                                  tracker.add(bunch,s)    
                                         
-                    for mbunch in bunches: 
+                    for mbunch in bunches:
+                        if  (mbunch.periodic) and (not apply_fish_kick) and (not apply_impact_kick) :
+                            mbunch.convert_to_fixedt()
+                            length=mbunch.get_longitudinal_period_size()
+                            constraints.apply_longitudinal_periodicity(mbunch.get_store(),length)
+                            mbunch.convert_to_fixedz()
                         mbunch.add_diagnostics(s)
                         #mbunch.diagnostics.add(s,mbunch)                                     
                     if not quiet:
@@ -103,7 +108,7 @@ def propagate(s0,gourmet,bunch_in, space_charge=None,impedance=None,
                         impedance=impedance,aperture=aperture) 
                 elif apply_impact_kick:
                     apply_space_charge_kick(bunch,space_charge,tau) #it skips aperture and periodic on the bunch               
-        #for (diagnostics,bunch) in zip(diagnosticss2,bunches):
+                    #for (diagnostics,bunch) in zip(diagnosticss2,bunches):
                         #diagnostics.add(s,bunch)   
             elif action.get_synergia_action() == "exact":
                 element = action.get_data()
