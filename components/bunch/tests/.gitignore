@@ -1,3 +1,4 @@
 test_bunch
 *.icc
 test_diagnostics
+test_populate

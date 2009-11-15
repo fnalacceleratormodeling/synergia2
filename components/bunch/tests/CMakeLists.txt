@@ -16,3 +16,8 @@ add_dependencies(test_diagnostics test_diagnostics_get_mean.icc)
 target_link_libraries(test_diagnostics -lbunch -lfoundation -lboost_unit_test_framework)
 add_test(test_diagnostics test_diagnostics)
 add_test(test_diagnostics_py nosetests test_diagnostics.py)
+
+add_executable(test_populate test_populate.cc)
+target_link_libraries(test_populate -lbunch -lfoundation -lboost_unit_test_framework)
+add_test(test_populate test_populate)
+#add_test(test_populate_py nosetests test_populate.py)
