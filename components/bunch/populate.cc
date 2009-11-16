@@ -18,20 +18,15 @@ adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
     Matrix<double, 6, 6, Eigen::RowMajor > X(diagnostics.get_mom2().origin());
     Matrix<double, 6, 6, Eigen::RowMajor > A = C.llt().matrixL() * X.llt().matrixL().inverse();
 
-    // The suffix 7 is used in the following section to indicate that we
-    // are using the 7-dimensional data structure with the real 6-dimensional
-    // data plus the id (seventh dimension).
-    Matrix<double, 7, 7 > A7;
-    A7 << A, MatrixXd::Zero(6, 1), MatrixXd::Zero(1, 6), MatrixXd::Identity(1,
-            1);
+    int num_particles =  bunch.get_local_num();
     Eigen::Map<Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor > >
-            rho7(bunch.get_local_particles().origin(), bunch.get_local_num(), 7);
+            rho7(bunch.get_local_particles().origin(), num_particles, 7);
     Matrix<double,1,6> rhobar6(diagnostics.get_mean().origin());
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         rho7.block<1,6>(part,0) -= rhobar6;
     }
 
-    rho7 *= A7.transpose();
+    rho7.block(0,0,num_particles,6) *= A.transpose();
 
     Matrix<double,1,6> means6(means.origin());
     for (int part = 0; part < bunch.get_local_num(); ++part) {
