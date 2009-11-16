@@ -82,3 +82,19 @@ BOOST_FIXTURE_TEST_CASE(populate_6d_diagonal, Fixture)
     compare_multi_array(means, diagnostics.get_mean(), tolerance);
     compare_multi_array(covariances, diagnostics.get_mom2(), tolerance);
 }
+
+BOOST_FIXTURE_TEST_CASE(populate_6d_general, Fixture)
+{
+    MArray2d covariances(boost::extents[6][6]);
+    MArray1d means(boost::extents[6]);
+    for (int i = 0; i < 6; ++i) {
+        means[i] = i * 7.2;
+        for (int j = i; j < 6; ++j) {
+            covariances[i][j] = covariances[j][i] = (i + 1) * (j + 1);
+        }
+    }
+    populate_6d(distribution, bunch, means, covariances);
+    Diagnostics_full2 diagnostics(bunch, s);
+    compare_multi_array(means, diagnostics.get_mean(), tolerance);
+    compare_multi_array(covariances, diagnostics.get_mom2(), tolerance);
+}
