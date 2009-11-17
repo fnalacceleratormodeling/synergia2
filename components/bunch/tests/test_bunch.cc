@@ -34,25 +34,24 @@ struct Fixture
 };
 
 void
-dummy_populate(Bunch &bunch, int id_offset = 0)
+dummy_populate(Bunch &bunch, int offset = 0)
 {
     for (int part = 0; part < bunch.get_local_num(); ++part) {
-        int id = part + id_offset;
         // coordinates
         for (int i = 0; i < 6; i += 2) {
-            bunch.get_local_particles()[part][i] = 10.0 * id + i;
+            bunch.get_local_particles()[part][i] = 10.0 * (part + offset) + i;
         }
         // momenta
         for (int i = 1; i < 6; i += 2) {
-            bunch.get_local_particles()[part][i] = 1e-4 * (10.0 * id + i);
+            bunch.get_local_particles()[part][i] = 1e-4 * (10.0 * (part
+                    + offset) + i);
         }
-        bunch.get_local_particles()[part][Bunch::id] = id;
     }
 }
 
 void
 compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance = tolerance,
-        bool check_state = true)
+        bool check_state = true, bool check_ids = true)
 {
     BOOST_CHECK_EQUAL(bunch1.get_reference_particle().get_total_energy(),
             bunch2.get_reference_particle().get_total_energy());
@@ -65,8 +64,14 @@ compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance = tolerance,
     if (check_state) {
         BOOST_CHECK_EQUAL(bunch1.get_state(), bunch2.get_state());
     }
+    int max_compare;
+    if (check_ids) {
+        max_compare = 7;
+    } else {
+        max_compare = 6;
+    }
     for (int part = 0; part < bunch1.get_local_num(); ++part) {
-        for (int i = 0; i < 7; ++i) {
+        for (int i = 0; i < max_compare; ++i) {
             BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][i],
                     bunch2.get_local_particles()[part][i], tolerance);
         }
@@ -75,6 +80,24 @@ compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance = tolerance,
 
 BOOST_FIXTURE_TEST_CASE(construct, Fixture)
 {
+}
+
+BOOST_FIXTURE_TEST_CASE(check_ids, Fixture)
+{
+    double offset = bunch.get_local_particles()[0][Bunch::id];
+    if (comm.get_rank() == 0) {
+        for (int part = 0; part < bunch.get_local_num(); ++part) {
+            BOOST_CHECK_CLOSE(part + offset, bunch.get_local_particles()[part][Bunch::id], tolerance);
+        }
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(check_ids2, Fixture)
+{
+    Bunch second_bunch(reference_particle, proton_charge, total_num, real_num,
+            comm);
+    BOOST_CHECK( static_cast<int>(second_bunch.get_local_particles()[0][Bunch::id]
+                    - bunch.get_local_particles()[0][Bunch::id]) == total_num);
 }
 
 BOOST_FIXTURE_TEST_CASE(copy_construct, Fixture)
@@ -142,7 +165,7 @@ BOOST_FIXTURE_TEST_CASE(get_total_num, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(update_total_num, Fixture)
 {
-    const int new_local_num = 47;
+    const int new_local_num = bunch.get_local_num() - 7;
     bunch.set_local_num(new_local_num);
     bunch.update_total_num();
     BOOST_CHECK_EQUAL(bunch.get_total_num(),
@@ -175,31 +198,17 @@ BOOST_FIXTURE_TEST_CASE(get_const_local_particles, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(increase_local_num, Fixture)
 {
-    const int small_total_num = 10;
     const int increase = 5;
-    Bunch bunch2(reference_particle, proton_charge, small_total_num, real_num,
-            comm);
-    // populate bunch2
-    MArray2d_ref particles(bunch2.get_local_particles());
-    int old_local_num = bunch2.get_local_num();
-    for (int particle = 0; particle < old_local_num; ++particle) {
-        for (int index = 0; index < 7; ++index) {
-            particles[particle][index] = particle * 10.0 + index;
-        }
+    bool caught_error = false;
+    int old_num = bunch.get_local_num();
+    try {
+        bunch.set_local_num(old_num + increase);
     }
+    catch (std::runtime_error) {
+        caught_error = true;
+    }
+    BOOST_CHECK(caught_error);
 
-    // expand bunch2 and verify that old values are still there
-    bunch2.set_local_num(old_local_num + increase);
-    bunch2.update_total_num();
-    MArray2d_ref particles2(bunch2.get_local_particles());
-    BOOST_CHECK_EQUAL(particles2.shape()[1],7);
-    BOOST_CHECK(particles2.shape()[0] >= bunch2.get_local_num());
-    for (int particle = 0; particle < old_local_num; ++particle) {
-        for (int index = 0; index < 7; ++index) {
-            BOOST_CHECK_CLOSE(particles[particle][index],
-                    particles[particle][index],tolerance);
-        }
-    }
 }
 
 BOOST_FIXTURE_TEST_CASE(get_state, Fixture)
@@ -268,7 +277,7 @@ BOOST_FIXTURE_TEST_CASE(inject, Fixture)
     total_bunch.update_total_num();
     dummy_populate(total_bunch);
     bunch.inject(second_bunch);
-    compare_bunches(bunch, total_bunch);
+    compare_bunches(bunch, total_bunch, true, false);
 }
 
 BOOST_FIXTURE_TEST_CASE(inject_mismatched_weights, Fixture)

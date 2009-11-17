@@ -13,6 +13,47 @@ const int Bunch::t;
 const int Bunch::tp;
 const int Bunch::id;
 
+class Particle_id_offset
+{
+private:
+    int offset;
+public:
+    Particle_id_offset() :
+        offset(0)
+    {
+    }
+
+    int
+    get(int request_num)
+    {
+        MPI_Bcast((void *) &offset, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        int old_offset = offset;
+        int total_num;
+        MPI_Reduce((void*) &request_num, (void*) &total_num, 1, MPI_INT,
+                MPI_SUM, 0, MPI_COMM_WORLD);
+        offset += total_num;
+        return old_offset;
+    }
+
+};
+
+static Particle_id_offset particle_id_offset;
+
+void
+Bunch::assign_ids(int local_offset)
+{
+    int global_offset, request_num;
+    if (comm.get_rank() == 0) {
+        request_num = total_num;
+    } else {
+        request_num = 0;
+    }
+    global_offset = particle_id_offset.get(request_num);
+    for (int i = 0; i < local_num; ++i) {
+        (*local_particles)[i][id] = i + local_offset + global_offset;
+    }
+}
+
 Bunch::Bunch(Reference_particle const& reference_particle, int particle_charge,
         int total_num, double real_num, Commxx const& comm) :
     reference_particle(reference_particle), comm(comm), default_converter()
@@ -20,11 +61,14 @@ Bunch::Bunch(Reference_particle const& reference_particle, int particle_charge,
     this->particle_charge = particle_charge;
     this->total_num = total_num;
     this->real_num = real_num;
-    local_num = decompose_1d_local(comm, total_num);
-    local_particles = new MArray2d(boost::extents[local_num][7]);
     state = fixed_z;
-    particles_valid = false;
     converter_ptr = &default_converter;
+    local_num = decompose_1d_local(comm, total_num);
+    std::vector<int > offsets(comm.get_size()), counts(comm.get_size());
+    decompose_1d(comm, total_num, offsets, counts);
+    local_num = counts[comm.get_rank()];
+    local_particles = new MArray2d(boost::extents[local_num][7]);
+    assign_ids(offsets[comm.get_rank()]);
 }
 
 Bunch::Bunch(Bunch const& bunch) :
@@ -37,7 +81,6 @@ Bunch::Bunch(Bunch const& bunch) :
     local_num = bunch.local_num;
     local_particles = new MArray2d(*(bunch.local_particles));
     state = bunch.state;
-    particles_valid = bunch.particles_valid;
     if (bunch.converter_ptr == &(bunch.default_converter)) {
         converter_ptr = &default_converter;
     } else {
@@ -57,7 +100,6 @@ Bunch::operator=(Bunch const& bunch)
         local_num = bunch.local_num;
         local_particles = new MArray2d(*(bunch.local_particles));
         state = bunch.state;
-        particles_valid = bunch.particles_valid;
         if (bunch.converter_ptr == &(bunch.default_converter)) {
             converter_ptr = &default_converter;
         } else {
@@ -82,10 +124,11 @@ Bunch::set_real_num(double real_num)
 void
 Bunch::set_local_num(int local_num)
 {
-    this->local_num = local_num;
-    if (local_particles->shape()[0] < local_num) {
-        local_particles->resize(boost::extents[local_num][7]);
+    if (local_num > this->local_num) {
+        throw std::runtime_error(
+                "set_local_num can only decrease the number of particles");
     }
+    this->local_num = local_num;
 }
 
 void
@@ -188,13 +231,13 @@ void
 Bunch::inject(Bunch const& bunch)
 {
     const double weight_tolerance = 1.0e-10;
-    if (std::abs(real_num / total_num - bunch.get_real_num() / bunch.get_total_num())
-            > weight_tolerance) {
+    if (std::abs(real_num / total_num - bunch.get_real_num()
+            / bunch.get_total_num()) > weight_tolerance) {
         throw std::runtime_error(
                 "Bunch.inject: macroparticle weight of injected bunch does not match.");
     }
     int old_local_num = local_num;
-    set_local_num(local_num + bunch.get_local_num());
+    local_num += bunch.get_local_num();
     Const_MArray2d_ref injected_particles(bunch.get_local_particles());
     MArray1d ref_state_diff(boost::extents[6]);
     for (int i = 0; i < 6; ++i) {

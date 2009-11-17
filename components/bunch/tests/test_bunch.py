@@ -38,14 +38,14 @@ def test_set_get_real_num():
 def test_set_get_local_num():
     b = Bunch(reference_particle, proton_charge, total_num, real_num,
               MPI.COMM_WORLD)
-    new_local_num = 2*b.get_local_num()
+    new_local_num = b.get_local_num() - 3
     b.set_local_num(new_local_num)
     assert_equal(b.get_local_num(),new_local_num)
 
 def test_update_total():
     b = Bunch(reference_particle, proton_charge, total_num, real_num,
               MPI.COMM_WORLD)
-    new_local_num = 100
+    new_local_num = b.get_local_num() - 5
     new_total_num = MPI.COMM_WORLD.Get_size() * new_local_num
     b.set_local_num(new_local_num)
     b.update_total_num()

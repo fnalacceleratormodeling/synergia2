@@ -32,13 +32,14 @@ private:
     int local_num, total_num;
     double real_num;
     State state;
-    bool particles_valid;
     Commxx comm;
     Fixed_t_z_converter *converter_ptr;
     Fixed_t_z_zeroth default_converter;
+    void
+    assign_ids(int local_offset);
 public:
-    /// Construct a bunch. Allocates memory for the particles, but does not
-    /// fill the memory in any way.
+    /// Construct a bunch. Allocates memory for the particles and assigns
+    /// partice ID's, but does not fill the phase space values in any way.
     /// @param reference_particle the reference particle for the bunch.
     /// @param particle_charge in units of e.
     /// @param total_num the total number of macroparticles in the bunch
@@ -61,7 +62,9 @@ public:
     void
     set_real_num(double real_num);
 
-    /// Set the number of particles on this processor.
+    /// Reduce (set) the number of particles on this processor. The number
+    /// of particles can only be lowered by this member function. (In order
+    /// to add new particles, create another Bunch and use the inject member.)
     /// The total number and real number for the bunch will not be correct
     /// until update_total_num() is called. The real number will scale to
     /// reflect the change in the total number. n.b.: The only way to change
