@@ -22,6 +22,9 @@ LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 # chef
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindCHEF.cmake)
 INCLUDE_DIRECTORIES(${CHEF_INCLUDE_DIRS})
+if(NOT CHEF_FOUND)
+    message(FATAL_ERROR "CHEF installation not found. Please make sure chef-config.sh is in your path.")
+endif(NOT CHEF_FOUND)
 LINK_DIRECTORIES(${CHEF_LIBRARY_DIRS})
 
 # numpy
