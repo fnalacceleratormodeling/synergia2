@@ -350,6 +350,7 @@ class Gourmet:
                                final_energy=new_energy,
                                data=mapping,
                                element_name=element_names))
+                    element_names = ""
                     energy = new_energy
                     s = element.OrbitLength(particle)
                     element.propagate(particle)
