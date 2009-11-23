@@ -8,21 +8,63 @@ import sys
 
 import synergia
 import s2_fish
+from diagnostics_file import Diagnostics_file
 
 from mpi4py import MPI
 
-def summarize(diag):
+def near_equal(a, b, tolerance=1e-6):
+    retval = False
+    if (a == 0):
+        if (abs(b) < tolerance):
+            retval = True
+    else:
+        if (abs(b / a - 1.0) < tolerance):
+            retval = True
+    return retval
+
+def print_pass(a, b, tolerance=1e-6):
+    if b == None:
+        return "n/a"
+    else:
+        if near_equal(a, b, tolerance):
+            return "pass"
+        else:
+            return "FAIL"
+        
+def summarize(diag, np):
+    if (np == 0.0):
+        expected = Diagnostics_file("fodo-np0.h5")
+    elif near_equal(2.0e11, np):
+        expected = Diagnostics_file("fodo-np2e11.h5")
+    else:
+        class Dummy():
+            pass
+        expected = Dummy()
+        expected.s = [None]
+        expected.mean = [None, None, None, None, None, None]
+        expected.std = [[None], [None], [None], [None], [None], [None]]
     s = diag.get_s()
     last = len(s) - 1
-    print "%10s %15s %15s" % ("","initial","final")
-    print "%10s %15g %15g" % ("s",s[0],s[last])
-    names = ["x","xp","y","yp","t","tp"]
+    last_expected = len(expected.s) - 1
+    print "%10s %15s %15s %20s %15s" % ("", "initial", "final", "expected", "pass/fail")
+    print "%10s %15g %15g %20s %15s" % ("s", s[0], s[last], expected.s[last_expected],
+                          print_pass(s[last], expected.s[last_expected]))
+    names = ["x", "xp", "y", "yp", "t", "tp"]
     means = diag.get_means()
-    for i in range(0,6):
-        print "%10s %15g %15g" % ("mean "+names[i],means[0,i],means[last,i])
+    for i in range(0, 6):
+        if abs(expected.mean[last_expected, i])< 1.0e6:
+            expected.mean[last_expected, i] = 0.0
+        print "%10s %15g %15g %20s %15s" % \
+            ("mean " + names[i], means[0, i], means[last, i],
+            expected.mean[last_expected, i],
+            print_pass(expected.mean[last_expected, i], means[last, i]))
     stds = diag.get_stds()
-    for i in range(0,6):
-        print "%10s %15g %15g" % ("std "+names[i],stds[0,i],stds[last,i])
+    for i in range(0, 6):
+#        print "%10s %15g %15g" % ("std " + names[i], stds[0, i], stds[last, i])
+        print "%10s %15g %15g %20s %15s" % \
+            ("std " + names[i], stds[0, i], stds[last, i],
+            expected.std[last_expected, i],
+            print_pass(expected.std[last_expected, i], stds[last, i],5.0e-3))
         
 
 if (__name__ == '__main__'):
@@ -96,7 +138,7 @@ if (__name__ == '__main__'):
     line_length = gourmet.orbit_length()
     tau = 0.5 * line_length / kicks_per_cell
     s = 0.0
-    diag.add(s,bunch)
+    diag.add(s, bunch)
     
     if solver == "3D" or solver == "3d":
         solversp = "s2_fish_3d"
@@ -109,11 +151,11 @@ if (__name__ == '__main__'):
         print "unknown solver '%s'" % solver
         sys.exit(1)
 
-    for i in range(0,4):
+    for i in range(0, 4):
         s = synergia.propagate(s, gourmet, bunch, space_charge=sp_ch)
         print s
     
-    summarize(diag)
+    summarize(diag, bunchnp)
     
     print "elapsed time  =", time.time() - t0, "on rank", MPI.COMM_WORLD.Get_rank()
     bunch.write_particles("end")
