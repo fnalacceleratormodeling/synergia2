@@ -1,159 +1,120 @@
-#!/usr/bin/env bwpython
+#!/usr/bin/env python
 
-import local_paths
-import gourmet
 import numpy
-import physics_constants
-import bunch
-import diagnostics
-import beam_parameters
-import processor_grid
-import computational_grid
-import processor_grid
-import matching
 import time
-import field
 import math
-
+import os
 import sys
 
-#import do_compare_channel
-import memory
-
-import UberPkgpy #SpaceChargePkgpy
-
-import error_eater
+import synergia
+import s2_fish
 
 from mpi4py import MPI
 
-def adjust_particles(base,procs):
-    retval = base
-    multiple = base/(procs * 10.0)
-    if not multiple == round(multiple):
-        retval = round(multiple + 1) * \
-                   (procs * 10)
-    return retval
+def summarize(diag):
+    s = diag.get_s()
+    last = len(s) - 1
+    print "%10s %15s %15s" % ("","initial","final")
+    print "%10s %15g %15g" % ("s",s[0],s[last])
+    names = ["x","xp","y","yp","t","tp"]
+    means = diag.get_means()
+    for i in range(0,6):
+        print "%10s %15g %15g" % ("mean "+names[i],means[0,i],means[last,i])
+    stds = diag.get_stds()
+    for i in range(0,6):
+        print "%10s %15g %15g" % ("std "+names[i],stds[0,i],stds[last,i])
+        
 
-mem0 = 0.0
-
-if ( __name__ == '__main__'):
+if (__name__ == '__main__'):
     t0 = time.time()
-    current = 1.5
-    kinetic_energy = 0.5
-    mass = physics_constants.PH_NORM_mp
+    myopts = synergia.Options("fodo")
+    myopts.add("gridnum", 24, "number of grid points to be used for all directions", int)
+    myopts.add("solver", "3d", "solver", str)
+    myopts.add("xoffset", 0.0, "x offset", float)
+    myopts.add("impedance", 0, "whether to use resistive wall kicks", int)
+    myopts.add("piperadius", 0.01, "pipe radius for impedance", float)
+    myopts.add("pipeconduct", 1.4e6,
+        "conductivity for pipe [/s], default is for stainless steel", float)
+    myopts.add("spacecharge", 1, "whether to use space charge kicks", int)        
+    myopts.add("np", 2.0e11, "number of particles in real bunch", float)
+    myopts.add("partpercell", 4, "particles per grid cell", float)
+    myopts.add("xwidth", 0.004, "initial horizontal beam width in meters", float)
+    myopts.add("kickspercell", 10, "space-charge kicks per cell", int)
+    myopts.add("dpop", 1.0e-4, "delta p/p", float)
+    myopts.add_suboptions(synergia.opts)
+    myopts.parse_argv(sys.argv)
+    job_mgr = synergia.Job_manager(sys.argv, myopts,
+                                      ["fodo.lat"])    
+    
+    mass = synergia.PH_NORM_mp
+    kinetic_energy = 1.5 - mass
     charge = 1.0
     initial_phase = 0.0
     scaling_frequency = 1.0e8
-    part_per_cell = 1
-    width_x = 0.004
-    kicks_per_line = 50
-    griddim = (65,17,17)
-    num_particles = adjust_particles(griddim[0]*griddim[1]*griddim[2] *\
-                                     part_per_cell,1)
-    
+    part_per_cell = myopts.get("partpercell")
+    width_x = myopts.get("xwidth")
+    kicks_per_cell = myopts.get("kickspercell")
+    gridnum = myopts.get("gridnum")
+    griddim = (gridnum, gridnum, gridnum)
+    num_particles = int(griddim[0] * griddim[1] * griddim[2] * part_per_cell)
 
-    ee = error_eater.Error_eater()
+    xoffset = myopts.get("xoffset")  
+    pipe_radius = myopts.get("piperadius")
+    pipe_conduct = myopts.get("pipeconduct")
+    space_charge = myopts.get("spacecharge")
+    solver = myopts.get("solver")
+    impedance = myopts.get("impedance")
+    bunchnp = myopts.get("np")
+    dpop = myopts.get("dpop")
+
+    ee = synergia.Error_eater()
     ee.start()
-    g = gourmet.Gourmet("fodo.lat","fodo",kinetic_energy,
+    gourmet = synergia.Gourmet(os.path.join(os.getcwd(), "fodo.lat"), "fodo", kinetic_energy,
                         scaling_frequency)
-
-    if current < 1.0e-6:
-        print "using zero-current matching"
-        (alpha_x, alpha_y, beta_x, beta_y) = matching.get_alpha_beta(g)
-        print "(alpha_x, alpha_y, beta_x, beta_y) =",(alpha_x, alpha_y, beta_x, beta_y)
-        (xpwidth,rx,emittance) = matching.match_twiss_width(width_x,alpha_x,beta_x)
-        xwidth=width_x
-        (ywidth,ypwidth,ry)= matching.match_twiss_emittance(emittance,
-                alpha_y,beta_y)
-        print "(xwidth,xpwidth,rx,ywidth,ypwidth,ry) =",(xwidth,xpwidth,rx,ywidth,ypwidth,ry)
-    else:
-        print "using envelope matching"
-        # get emittance as though we were doing zero-current matching
-        (alpha_x, alpha_y, beta_x, beta_y) = matching.get_alpha_beta(g)
-        (xpwidth,rx,emittance) = matching.match_twiss_width(width_x,alpha_x,beta_x)
-        (xwidth,xpwidth,rx,ywidth,ypwidth,ry) = \
-            matching.envelope_match(emittance,current,g)
-        rx = -rx
-        ry = -ry
-        print "(xwidth,xpwidth,rx,ywidth,ypwidth,ry) =",(xwidth,xpwidth,rx,ywidth,ypwidth,ry)
-
-    dpop = 1.0e-4
-
-    bp = beam_parameters.Beam_parameters(mass, charge, kinetic_energy,
+    gourmet.insert_space_charge_markers(kicks_per_cell) 
+    
+    
+    beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
                                          initial_phase, scaling_frequency,
                                          transverse=1)
+    betagamma = beam_parameters.get_beta()*beam_parameters.get_gamma() 
 
-    pz = bp.get_gamma() * bp.get_beta() * bp.mass_GeV
-    bp.x_params(sigma = xwidth, lam = xpwidth * pz)
-    bp.y_params(sigma = ywidth, lam = ypwidth * pz)
-    sigma_z_meters = bp.get_beta()*physics_constants.PH_MKS_c/scaling_frequency/math.pi
-    bp.z_params(sigma = sigma_z_meters, lam = dpop* pz)
-    bp.correlation_coeffs(xpx = rx, ypy = ry)
+    (alpha_x, alpha_y, beta_x, beta_y) = synergia.matching.get_alpha_beta(gourmet)
+    emitx = (width_x) ** 2 / beta_x
+    (width_xp, r_x, emit_x) = synergia.matching.match_twiss_width(width_x, alpha_x, beta_x)
+    (width_y, width_yp, r_y) = synergia.matching.match_twiss_emittance(emit_x, alpha_y, beta_y)
 
-    g.insert_space_charge_markers(kicks_per_line)
+    pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
+    beam_parameters.x_params(sigma=width_x, lam=width_xp * pz, r=r_x, offset=xoffset)
+    beam_parameters.y_params(sigma=width_y, lam=width_yp * pz, r=r_y)
+    sigma_z_meters = beam_parameters.get_beta()*synergia.PH_MKS_c / scaling_frequency / math.pi
+    beam_parameters.z_params(sigma=sigma_z_meters, lam=dpop * pz)
 
-    sys.stdout.flush()
-    
-    pgrid = processor_grid.Processor_grid(1)
-    cgrid = computational_grid.Computational_grid(griddim[0],griddim[1],griddim[2],
-                                                  "trans finite, long periodic round")
-    piperad = 0.04
-    field = field.Field(bp, pgrid, cgrid, piperad)
-    b = bunch.Bunch(current, bp, num_particles, pgrid)
-    b.generate_particles()
-
-    line_length = g.orbit_length()
-    tau = 0.5*line_length/kicks_per_line
+    diag = synergia.Diagnostics(gourmet.get_initial_u())
+    bunch = s2_fish.Macro_bunch.gaussian(bunchnp, num_particles, beam_parameters, diagnostics=diag, periodic=True)
+    bunch.write_particles("begin")
+    line_length = gourmet.orbit_length()
+    tau = 0.5 * line_length / kicks_per_cell
     s = 0.0
-    first_action = 0
-    for cell in range(0,2):
-        for action in g.get_actions():
-            if action.is_mapping():
-                action.get_data().apply(b.particles(),
-                                   b.num_particles_local())
-                s += action.get_length()
-            elif action.is_synergia_action():
-                if action.get_synergia_action() == "space charge endpoint":
-                    b.write_fort(s)
-                    #~ if not first_action:
-                        #~ print "finished space charge kick"
-                elif action.get_synergia_action() == "space charge kick":
-                    UberPkgpy.Apply_SpaceCharge_external(
-                        b.get_beambunch(),
-                        pgrid.get_pgrid2d(),
-                        field.get_fieldquant(),
-                        field.get_compdom(),
-                        field.get_period_length(),
-                        cgrid.get_bc_num(),
-                        field.get_pipe_radius(),
-                        tau, 0, scaling_frequency,0)
-                elif action.get_synergia_action() == "rfcavity1" or \
-                     action.get_synergia_action() == "rfcavity2":
-                    element = action.get_data()
-                    u_in = g.get_u(action.get_initial_energy())
-                    u_out = g.get_u(action.get_final_energy())
-                    chef_propagate.chef_propagate(
-                        b.particles(), b.num_particles_local(),
-                        element, action.get_initial_energy(),
-                        u_in, u_out)
-                else:
-                    print "unknown action: '%s'" % \
-                          action.get_synergia_action()
-            else:
-                print "action",action.get_type(),"unknown"
-            first_action = 0
+    diag.add(s,bunch)
+    
+    if solver == "3D" or solver == "3d":
+        solversp = "s2_fish_3d"
+        sp_ch = s2_fish.SpaceCharge(solversp, grid=griddim, periodic=True)
+#    elif solver == "3DC" or solver == "3dc":
+#        pass
+#    elif solver == "2D" or solver == "2d":
+#         pass
+    else:
+        print "unknown solver '%s'" % solver
+        sys.exit(1)
 
-    print "elapsed time =",time.time() - t0
-
-    if MPI.COMM_WORLD.Get_rank() == 0:
-        import pylab
-        d = diagnostics.Diagnostics()
-        pylab.plot(d.s,d.std[:,diagnostics.x],'b',label='x')
-        pylab.plot(d.s,d.std[:,diagnostics.y],'r',label='y')
-        pylab.xlabel('s (m)')
-        #~ pylab.ylabel('width (m)')
-        #~ d = diagnostics.Diagnostics("wtf_pipe08")
-        #~ pylab.plot(d.s,d.std[:,diagnostics.x],'g',label='x')
-        #~ pylab.plot(d.s,d.std[:,diagnostics.y],'y',label='y')
-        
-        pylab.show()
+    for i in range(0,4):
+        s = synergia.propagate(s, gourmet, bunch, space_charge=sp_ch)
+        print s
+    
+    summarize(diag)
+    
+    print "elapsed time  =", time.time() - t0, "on rank", MPI.COMM_WORLD.Get_rank()
+    bunch.write_particles("end")
+    diag.write_hdf5("fodo")

@@ -16,6 +16,7 @@ sepn     :=  10                   ! [m]     : distance between quad centers
 length   :=   2.0                 ! [m]     : quadrupole length
 strength := 1/(focus*length)      ! [m**-2] : quadrupole strength
                                   !         :   = B'/brho
+beam, particle=proton, energy=1.5
 
 ! ------------------
 ! Elements
