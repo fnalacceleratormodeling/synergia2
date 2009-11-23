@@ -157,9 +157,10 @@ if (__name__ == '__main__'):
         print "unknown solver '%s'" % solver
         sys.exit(1)
 
-    for i in range(0, 4):
+    repeats = 4
+    for i in range(0, repeats):
         s = synergia.propagate(s, gourmet, bunch, space_charge=sp_ch)
-        print s
+        print "%d/%d complete" % (i+1,repeats)
     
     summarize(diag, bunchnp)
     
