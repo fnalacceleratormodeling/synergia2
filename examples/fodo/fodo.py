@@ -54,10 +54,16 @@ def summarize(diag, np):
     for i in range(0, 6):
         if abs(expected.mean[last_expected, i])< 1.0e6:
             expected.mean[last_expected, i] = 0.0
-        print "%10s %15g %15g %20s %15s" % \
-            ("mean " + names[i], means[0, i], means[last, i],
-            expected.mean[last_expected, i],
-            print_pass(expected.mean[last_expected, i], means[last, i]))
+        if (i == 4):
+            print "%10s %15g %15g %20s %15s" % \
+                ("mean " + names[i], means[0, i], means[last, i],
+                expected.mean[last_expected, i],
+                "n/a")
+        else:
+            print "%10s %15g %15g %20s %15s" % \
+                ("mean " + names[i], means[0, i], means[last, i],
+                expected.mean[last_expected, i],
+                print_pass(expected.mean[last_expected, i], means[last, i]))
     stds = diag.get_stds()
     for i in range(0, 6):
 #        print "%10s %15g %15g" % ("std " + names[i], stds[0, i], stds[last, i])
