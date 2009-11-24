@@ -260,17 +260,21 @@ class Gourmet:
                                 insertion_point += marker_interval
                                 elements.append(marker("synergia action:space charge kick"))
                                 positions.append(insertion_point)
+                        master_insertion_point += element.OrbitLength(particle)
+                        elements.append(marker("synergia action:space charge endpoint"))
+                        positions.append(master_insertion_point)
                 else:
 #                    print "not splitting",element.Name()
                     pass
-                master_insertion_point += element.OrbitLength(particle)
-                elements.append(marker("synergia action:space charge endpoint"))
-                positions.append(master_insertion_point)
                 element.propagate(particle)
         positions.append(master_insertion_point + 1000.0)
         elements.append(marker("bug workaround"))
         self.beamline.append(accuracy_marker)
         self.insert_elements(elements,positions)
+#        for (element,position) in zip(elements,positions):
+#            print "jfa insertion list:",position,element.Name()
+#        for element in self.beamline:
+#            print "jfa beamline:",element.Name()
         ##self._commission()
 
     def insert_element_errors(self, element_name, multipole_order, pole_strength, pole_name="thinError"):
