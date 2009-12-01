@@ -1,5 +1,5 @@
 add_custom_target(sphinxdoc-sphinx 
-    /bin/rm -r html .doctrees
+    /bin/rm -rf html .doctrees
     COMMAND sphinx-build -a -b html -d .doctrees sphinx-src html)
 add_dependencies(sphinxdoc-sphinx doxy)
 add_dependencies(sphinxdoc sphinxdoc-sphinx)
