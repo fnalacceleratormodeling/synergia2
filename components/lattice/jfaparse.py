@@ -42,7 +42,7 @@ def handleVarAssignment(str,loc,toks):
 
 def handleLineAssignment(str,loc,toks):
 #    print "hla:",toks
-    line = toks[0]
+    line = toks[0].lower()
     elements = toks[1]
     lines[line] = elements
 
@@ -60,15 +60,15 @@ def handleModifier(str,loc,toks):
 def handleElementAssignment(str,loc,toks):
 #    print "hea:",toks
     global modifierDict
-    element = toks[0]
-    type = toks[1]
+    element = toks[0].lower()
+    type = toks[1].lower()
     elements[element] = (type,modifierDict)
     modifierDict = {}
 
 def handleCommandAssignment(str,loc,toks):
     global modifierDict
 #    print "hca:",toks,modifierDict
-    command = toks[0]
+    command = toks[0].lower()
     commands.append((command, modifierDict))
     modifierDict = {}
     
@@ -158,8 +158,8 @@ def evaluateStack(s):
   if op == 'unary -':
       return -evaluateStack( s )
   elif type(op) == type([]):
-      element = op[0]
-      modifier = op[1]
+      element = op[0].lower()
+      modifier = op[1].lower()
       return (elements[element])[1][modifier]
   elif op in "+-*/^":
     op2 = evaluateStack(s)
