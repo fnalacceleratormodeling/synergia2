@@ -6,7 +6,7 @@ import sys
 import re
 from pyparsing import Word, alphas, ParseException, Literal, CaselessLiteral \
 , Combine, Optional, nums, Or, Forward, ZeroOrMore, StringEnd, alphanums, \
-restOfLine,empty,delimitedList,LineEnd,Group
+restOfLine,empty,delimitedList,LineEnd,Group,QuotedString,dblQuotedString, removeQuotes
 
 import math
 
@@ -19,7 +19,7 @@ modifierDict = {}
 variables = {}
 lines = {}
 elements = {}
-commands = {}
+commands = []
 
 def pushFirst(str, loc, toks):
 #    print "pf:",toks
@@ -48,8 +48,10 @@ def handleLineAssignment(str,loc,toks):
 
 def handleModifier(str,loc,toks):
 #    print "hm:",toks
-    modifier = toks[0]
-    if len(toks) > 1:
+    modifier = toks[0].lower()
+    if modifier == 'range':
+        value = toks[2] + toks[3] + toks[4]
+    elif len(toks) > 1:
         value = evaluateStack(exprStack)
     else:
         value = None
@@ -67,7 +69,7 @@ def handleCommandAssignment(str,loc,toks):
     global modifierDict
 #    print "hca:",toks,modifierDict
     command = toks[0]
-    commands[command] = modifierDict
+    commands.append((command, modifierDict))
     modifierDict = {}
     
 # define grammar
@@ -84,7 +86,7 @@ floatnumber = (Combine(integer +
                        Optional(e + integer)
                      )
 
-ident = Word(alphas, alphanums + '_') 
+ident = Word(alphas+'#', alphanums + '_' + '.') | dblQuotedString.setParseAction(removeQuotes)
 
 plus = Literal("+")
 minus = Literal("-")
@@ -98,6 +100,7 @@ addop = plus | minus
 multop = mult | div
 expop = Literal("^")
 assign = Literal(":=").suppress()
+assign2 = Literal("=").suppress()
 elementassign = Literal(":").suppress()
 
 subscriptedident = Group(ident + lbrack + ident + rbrack)
@@ -122,13 +125,13 @@ elementdef = ident + Optional(Literal(",") + delimitedList(modifierdef))
 multipleident = Optional(Literal("-")) + Optional(integer + Literal('*')) + (ident| lpar + Group(delimitedList(ident)) + rpar)
 linedef = CaselessLiteral("line").suppress() + Literal("=").suppress() + lpar + Group(delimitedList(multipleident)) + rpar
 
-bnf = ((ident + assign + expr).setParseAction(handleVarAssignment) |
+bnf = ((ident + (assign|assign2) + expr).setParseAction(handleVarAssignment) |
        ((ident + elementassign) + linedef).setParseAction(handleLineAssignment) |
        ((ident + elementassign) + elementdef).setParseAction(handleElementAssignment) | 
        ((ident + Optional(Literal(",").suppress() + delimitedList(modifierdef))).setParseAction(handleCommandAssignment)) |
        empty)
 
-pattern = bnf + StringEnd()
+pattern = bnf + Optional(Literal(";")) + StringEnd()
 comment = Literal('!') + restOfLine
 pattern.ignore(comment)
 continuation = Literal('&') + restOfLine + LineEnd()
@@ -162,14 +165,14 @@ def evaluateStack(s):
     op2 = evaluateStack(s)
     op1 = evaluateStack(s)
     return opn[op](op1, op2)
-  elif op == "PI":
+  elif op == "PI" or op == 'pi':
     return math.pi
-  elif op == "E":
+  elif op == "E" or op == 'e':
     return math.e
   elif op in fn:
 #    print "fn[%s]" % op
     return fn[op]( evaluateStack( s ) )
-  elif re.search('^[a-zA-Z][a-zA-Z0-9_]*$', op):
+  elif re.search('^[a-zA-Z][a-zA-Z0-9_. ]*$', op):
     name = op.lower()
     if variables.has_key(name):
       return variables[name]
