@@ -151,6 +151,9 @@ fn  = { "sin" : math.sin,
         "abs" : abs,
         "sqrt" : math.sqrt}
 
+constants = { 'pi' : math.pi,
+              'twopi' : 2*math.pi,
+              'e' : math.e}
 # Recursive function that evaluates the stack
 def evaluateStack(s):
   op = s.pop()
@@ -164,11 +167,14 @@ def evaluateStack(s):
   elif op in "+-*/^":
     op2 = evaluateStack(s)
     op1 = evaluateStack(s)
-    return opn[op](op1, op2)
-  elif op == "PI" or op == 'pi':
-    return math.pi
-  elif op == "E" or op == 'e':
-    return math.e
+    try:
+        retval = opn[op](op1, op2)
+    except TypeError,e:
+        print "Evaluate failed on %s %s %s" %(op1, op,op2)
+        sys.exit(1)
+    return retval
+  elif op in constants:
+      return constants[op]
   elif op in fn:
 #    print "fn[%s]" % op
     return fn[op]( evaluateStack( s ) )
