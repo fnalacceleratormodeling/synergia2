@@ -6,7 +6,8 @@ import sys
 import re
 from pyparsing import Word, alphas, ParseException, Literal, CaselessLiteral \
 , Combine, Optional, nums, Or, Forward, ZeroOrMore, StringEnd, alphanums, \
-restOfLine,empty,delimitedList,LineEnd,Group,QuotedString,dblQuotedString, removeQuotes
+restOfLine,empty,delimitedList,LineEnd,Group,QuotedString,dblQuotedString, \
+removeQuotes, sglQuotedString
 
 import math
 
@@ -89,7 +90,9 @@ floatnumber = (Combine(integer +
                        Optional(e + integer)
                      )
 
-ident = Word(alphas+'#', alphanums + '_' + '.') | dblQuotedString.setParseAction(removeQuotes)
+ident = Word(alphas+'#', alphanums + '_' + '.') | \
+    dblQuotedString.setParseAction(removeQuotes) | \
+    sglQuotedString.setParseAction(removeQuotes)
 
 plus = Literal("+")
 minus = Literal("-")
@@ -128,7 +131,8 @@ signedmodifierdef = Group(Optional(Literal('-')) + ident) + Optional(Literal("="
 signedmodifierdef.setParseAction(handleModifier)
 elementdef = ident + Optional(Literal(",") + delimitedList(modifierdef))
 multipleident = Optional(Literal("-")) + Optional(integer + Literal('*')) + (ident| lpar + Group(delimitedList(ident)) + rpar)
-linedef = CaselessLiteral("line").suppress() + Literal("=").suppress() + lpar + Group(delimitedList(multipleident)) + rpar
+linedef = CaselessLiteral("line").suppress() + Literal("=").suppress() +\
+     lpar + Group(multipleident + ZeroOrMore( Optional(Literal(",")).suppress() + multipleident ) ) + rpar
 
 bnf = ((ident + (assign|assign2) + expr).setParseAction(handleVarAssignment) |
        ((ident + elementassign) + linedef).setParseAction(handleLineAssignment) |
