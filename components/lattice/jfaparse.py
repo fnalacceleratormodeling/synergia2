@@ -48,7 +48,10 @@ def handleLineAssignment(str,loc,toks):
 
 def handleModifier(str,loc,toks):
 #    print "hm:",toks
-    modifier = toks[0].lower()
+    if hasattr(toks[0],'asList'):
+        modifier = "".join(toks[0]).lower()
+    else:
+        modifier = toks[0].lower()
     if modifier == 'range':
         value = toks[2] + toks[3] + toks[4]
     elif len(toks) > 1:
@@ -121,6 +124,8 @@ expr << term + ZeroOrMore((addop + term).setParseAction(pushFirst))
 
 modifierdef = ident + Optional(Literal("=") + expr)
 modifierdef.setParseAction(handleModifier)
+signedmodifierdef = Group(Optional(Literal('-')) + ident) + Optional(Literal("=") + expr)
+signedmodifierdef.setParseAction(handleModifier)
 elementdef = ident + Optional(Literal(",") + delimitedList(modifierdef))
 multipleident = Optional(Literal("-")) + Optional(integer + Literal('*')) + (ident| lpar + Group(delimitedList(ident)) + rpar)
 linedef = CaselessLiteral("line").suppress() + Literal("=").suppress() + lpar + Group(delimitedList(multipleident)) + rpar
@@ -128,7 +133,7 @@ linedef = CaselessLiteral("line").suppress() + Literal("=").suppress() + lpar + 
 bnf = ((ident + (assign|assign2) + expr).setParseAction(handleVarAssignment) |
        ((ident + elementassign) + linedef).setParseAction(handleLineAssignment) |
        ((ident + elementassign) + elementdef).setParseAction(handleElementAssignment) | 
-       ((ident + Optional(Literal(",").suppress() + delimitedList(modifierdef))).setParseAction(handleCommandAssignment)) |
+       ((ident + Optional(Literal(",").suppress() + delimitedList(signedmodifierdef))).setParseAction(handleCommandAssignment)) |
        empty)
 
 pattern = bnf + Optional(Literal(";")) + StringEnd()
