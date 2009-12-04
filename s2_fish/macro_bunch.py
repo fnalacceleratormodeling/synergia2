@@ -3,6 +3,8 @@
 from macro_bunch_store import Macro_bunch_store
 import numpy
 from mpi4py import MPI
+from mpi4py import __version__ as mpi4py__version__
+mpi4py_version = int(mpi4py__version__.split('.')[0])
 
 import os.path
 import tables
@@ -213,7 +215,7 @@ class Macro_bunch:
         numpy.random.RandomState([17+MPI.COMM_WORLD.Get_rank()*51,59+MPI.COMM_WORLD.Get_rank()*23])
         offset = (0.0,0.0,0.0)
         local_num = num/MPI.COMM_WORLD.Get_size() #jfa: could be more precise...
-        total_num = MPI.WORLD.Allreduce(local_num,MPI.SUM)
+        total_num = MPI.COMM_WORLD.Allreduce(local_num,MPI.SUM)
         total_current = 1.0
         self.mass=1.0
         self.charge=1
@@ -475,19 +477,28 @@ class Macro_bunch:
             particles = self.particles
             earray.append(particles)
             for proc in xrange(1,MPI.COMM_WORLD.Get_size()):
-                parts = MPI.WORLD.Recv(source=proc)
+                if mpi4py_version > 0:
+                    parts = MPI.COMM_WORLD.recv(source=proc)
+                else:
+                    parts = MPI.COMM_WORLD.Recv(source=proc)
                 if parts.shape[1] > 0:
                     earray.append(parts)
             f.close()
         else:
-            MPI.WORLD.Send(self.particles,dest=0)
+            if mpi4py_version > 0:
+                MPI.COMM_WORLD.send(self.particles,dest=0)
+            else:
+                MPI.COMM_WORLD.Send(self.particles,dest=0)
           
 
     def write_particles_text(self,filename):
         if MPI.COMM_WORLD.Get_rank() == 0:
             f = open(filename,"w")
             for proc in xrange(1,MPI.COMM_WORLD.Get_size()):
-                parts = MPI.WORLD.Recv(source=proc)
+                if mpi4py_version > 0:
+                    parts = MPI.COMM_WORLD.recv(source=proc)
+                else:
+                    parts = MPI.COMM_WORLD.Recv(source=proc)
                 for i in range(0,parts.shape[1]):
                     f.write("%g %g %g %g %g %g %g\n" % \
                             tuple(parts[:,i]))
@@ -497,7 +508,10 @@ class Macro_bunch:
                         tuple(parts[:,i]))
             f.close()
         else:
-            MPI.WORLD.Send(self.particles(),dest=0)
+            if mpi4py_version > 0:
+                MPI.COMM_WORLD.send(self.particles,dest=0)
+            else:
+                MPI.COMM_WORLD.Send(self.particles,dest=0)
 
     def read_particles(self,filename,total_current, beam_parameters):
         (Cxy, Cxpyp, Cz, Czp) = beam_parameters.get_conversions()
