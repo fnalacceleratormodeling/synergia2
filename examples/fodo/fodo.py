@@ -32,45 +32,46 @@ def print_pass(a, b, tolerance=1e-6):
             return "FAIL"
         
 def summarize(diag, np):
-    if (np == 0.0):
-        expected = Diagnostics_file("fodo-np0.h5")
-    elif near_equal(2.0e11, np):
-        expected = Diagnostics_file("fodo-np2e11.h5")
-    else:
-        class Dummy():
-            pass
-        expected = Dummy()
-        expected.s = [None]
-        expected.mean = [None, None, None, None, None, None]
-        expected.std = [[None], [None], [None], [None], [None], [None]]
-    s = diag.get_s()
-    last = len(s) - 1
-    last_expected = len(expected.s) - 1
-    print "%10s %15s %15s %20s %15s" % ("", "initial", "final", "expected", "pass/fail")
-    print "%10s %15g %15g %20s %15s" % ("s", s[0], s[last], expected.s[last_expected],
-                          print_pass(s[last], expected.s[last_expected]))
-    names = ["x", "xp", "y", "yp", "t", "tp"]
-    means = diag.get_means()
-    for i in range(0, 6):
-        if abs(expected.mean[last_expected, i])< 1.0e6:
-            expected.mean[last_expected, i] = 0.0
-        if (i == 4):
-            print "%10s %15g %15g %20s %15s" % \
-                ("mean " + names[i], means[0, i], means[last, i],
-                expected.mean[last_expected, i],
-                "n/a")
+    if MPI.COMM_WORLD.Get_rank() == 0:
+        if (np == 0.0):
+            expected = Diagnostics_file("fodo-np0.h5")
+        elif near_equal(2.0e11, np):
+            expected = Diagnostics_file("fodo-np2e11.h5")
         else:
+            class Dummy():
+                pass
+            expected = Dummy()
+            expected.s = [None]
+            expected.mean = [None, None, None, None, None, None]
+            expected.std = [[None], [None], [None], [None], [None], [None]]
+        s = diag.get_s()
+        last = len(s) - 1
+        last_expected = len(expected.s) - 1
+        print "%10s %15s %15s %20s %15s" % ("", "initial", "final", "expected", "pass/fail")
+        print "%10s %15g %15g %20s %15s" % ("s", s[0], s[last], expected.s[last_expected],
+                              print_pass(s[last], expected.s[last_expected]))
+        names = ["x", "xp", "y", "yp", "t", "tp"]
+        means = diag.get_means()
+        for i in range(0, 6):
+            if abs(expected.mean[last_expected, i])< 1.0e6:
+                expected.mean[last_expected, i] = 0.0
+            if (i == 4):
+                print "%10s %15g %15g %20s %15s" % \
+                    ("mean " + names[i], means[0, i], means[last, i],
+                    expected.mean[last_expected, i],
+                    "n/a")
+            else:
+                print "%10s %15g %15g %20s %15s" % \
+                    ("mean " + names[i], means[0, i], means[last, i],
+                    expected.mean[last_expected, i],
+                    print_pass(expected.mean[last_expected, i], means[last, i]))
+        stds = diag.get_stds()
+        for i in range(0, 6):
+    #        print "%10s %15g %15g" % ("std " + names[i], stds[0, i], stds[last, i])
             print "%10s %15g %15g %20s %15s" % \
-                ("mean " + names[i], means[0, i], means[last, i],
-                expected.mean[last_expected, i],
-                print_pass(expected.mean[last_expected, i], means[last, i]))
-    stds = diag.get_stds()
-    for i in range(0, 6):
-#        print "%10s %15g %15g" % ("std " + names[i], stds[0, i], stds[last, i])
-        print "%10s %15g %15g %20s %15s" % \
-            ("std " + names[i], stds[0, i], stds[last, i],
-            expected.std[last_expected, i],
-            print_pass(expected.std[last_expected, i], stds[last, i],5.0e-3))
+                ("std " + names[i], stds[0, i], stds[last, i],
+                expected.std[last_expected, i],
+                print_pass(expected.std[last_expected, i], stds[last, i],5.0e-3))
         
 
 if (__name__ == '__main__'):
@@ -154,16 +155,19 @@ if (__name__ == '__main__'):
 #    elif solver == "2D" or solver == "2d":
 #         pass
     else:
-        print "unknown solver '%s'" % solver
+        if MPI.COMM_WORLD.Get_rank() == 0:
+            print "unknown solver '%s'" % solver
         sys.exit(1)
 
     repeats = 4
     for i in range(0, repeats):
         s = synergia.propagate(s, gourmet, bunch, space_charge=sp_ch)
-        print "%d/%d complete" % (i+1,repeats)
+        if MPI.COMM_WORLD.Get_rank() == 0:
+            print "%d/%d complete" % (i+1,repeats)
     
     summarize(diag, bunchnp)
     
-    print "elapsed time  =", time.time() - t0, "on rank", MPI.COMM_WORLD.Get_rank()
+    if MPI.COMM_WORLD.Get_rank() == 0:
+        print "elapsed time  =", time.time() - t0
     bunch.write_particles("end")
     diag.write_hdf5("fodo")
