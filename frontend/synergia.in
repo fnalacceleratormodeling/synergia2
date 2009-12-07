@@ -17,9 +17,9 @@ install_dir="${CMAKE_INSTALL_PREFIX}"
 . "$install_dir/../setup.sh"
 install_python_dir="`find $install_dir -type d -name site-packages`"
 # end hack
-chef_dir="${CHEF_LIBRARY_DIRS}"
+chef_dirs=`echo "${CHEF_LIBRARY_DIRS}" | sed 's/;/ /g'`
 impact_dir="$local_dir/../impact/Forthon_Interfaces"
-for dir in $local_dir $chef_dir $impact_dir $install_python_dir
+for dir in $local_dir $chef_dirs $impact_dir $install_python_dir
 do
     PYTHONPATH="$dir:$PYTHONPATH"
 done
