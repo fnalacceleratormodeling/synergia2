@@ -114,7 +114,10 @@ class Expression_parser:
         return expr
 
     def push_floatnumber(self, strg, loc, toks):
-        self.stack.append(Stack_item(stack_type.floatnumber,float(toks[0])))
+        numstr = toks[0]
+        numstr = numstr.replace('d','e')
+        numstr = numstr.replace('D','e')
+        self.stack.append(Stack_item(stack_type.floatnumber,float(numstr)))
                           
     def push_ident(self, strg, loc, toks):
         self.stack.append(Stack_item(stack_type.ident,toks[0]))
@@ -123,7 +126,9 @@ class Expression_parser:
         self.stack.append(Stack_item(stack_type.function,toks[0]))
         
     def push_uminus(self, strg, loc, toks):
-        self.stack.append(Stack_item(stack_type.unary_minus,None))
+#        print "push_uminus:",strg,loc,toks
+        if toks and toks[0] == '-': 
+            self.stack.append(Stack_item(stack_type.unary_minus,None))
                           
     def push_operator(self, strg, loc, toks):
         self.stack.append(Stack_item(stack_type.operator,toks[0]))
@@ -131,11 +136,7 @@ class Expression_parser:
     def push_first(self, strg, loc, toks):
         print "push_first:",strg,loc,toks
         self.stack.append(toks[0])
-        
-    def push_uminus(self, strg, loc, toks):
-        if toks and toks[0] == '-': 
-            self.stack.append('unary -')
-    
+            
     def evaluate_stack(self, s, variables = {}, constants = None):
         if constants == None:
             constants = self.constants
