@@ -120,7 +120,8 @@ class Expression_parser:
         self.stack.append(Stack_item(stack_type.floatnumber,float(numstr)))
                           
     def push_ident(self, strg, loc, toks):
-        self.stack.append(Stack_item(stack_type.ident,toks[0]))
+        if not self.functions.has_key(toks[0]):
+            self.stack.append(Stack_item(stack_type.ident,toks[0]))
                           
     def push_function(self, strg, loc, toks):
         self.stack.append(Stack_item(stack_type.function,toks[0]))
