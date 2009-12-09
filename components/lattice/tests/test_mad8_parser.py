@@ -106,10 +106,20 @@ def test_functions2():
     assert_almost_equal(tan(6.6) + asin(0.77) + abs(-8.8),
                         ep.evaluate_stack(stack))
 
+def test_max():
+    ep = Expression_parser()
+    stack = ep.parse('max(-4e3,7)')
+    assert_equal(7, ep.evaluate_stack(stack))
+    
+def test_min():
+    ep = Expression_parser()
+    stack = ep.parse('min(3,10.8)')
+    assert_equal(3, ep.evaluate_stack(stack))
+    
 def test_function_neg():
     ep = Expression_parser()
     stack = ep.parse('-sin(2.3)')
-    assert_almost_equal(-sin(2.3),ep.evaluate_stack(stack))
+    assert_almost_equal(-sin(2.3), ep.evaluate_stack(stack))
    
 def test_pi():
     ep = Expression_parser()

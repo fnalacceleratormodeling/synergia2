@@ -49,16 +49,17 @@ class Expression_parser:
                           "*" : operator.mul,
                           "/" : operator.truediv,
                           "^" : operator.pow}
-        self.functions = {"sqrt" : math.sqrt,
-                           "log" : math.log,
-                           "exp" : math.exp,
-                           "sin" : math.sin,
-                           "cos" : math.cos,
-                           "tan" : math.tan,
-                           "asin" : math.asin,
-                           "abs" : abs}
-        self.twoarg_fns = {"max" : max,
-                           "min" : min}
+        # self.functions values are of the form [function, number of arguments]
+        self.functions = {"sqrt" : [math.sqrt, 1],
+                           "log" : [math.log, 1],
+                           "exp" : [math.exp, 1],
+                           "sin" : [math.sin, 1],
+                           "cos" : [math.cos, 1],
+                           "tan" : [math.tan, 1],
+                           "asin" : [math.asin, 1],
+                           "abs" : [abs, 1],
+                           "max" : [max, 2],
+                           "min" : [min, 2]}
         self.constants = {"pi" : math.pi,
                           "twopi" : 2.0 * math.pi,
                           "degrad" : 180.0 / math.pi,
@@ -79,7 +80,6 @@ class Expression_parser:
                                Optional(e + integer)) | \
                        Optional(plusorminus) + Combine(point + number) + \
                         Optional(e + integer))
-#        ident = Word(alphas, alphanums + Literal('_') + Literal('.') + Literal("'"))
         ident = Word(alphas, alphanums + '_' + '.' + "'")
      
         plus = Literal("+")
@@ -95,7 +95,7 @@ class Expression_parser:
         expr = Forward()
         atom = (Optional(minus) + 
                 ((floatnumber).setParseAction(self._push_floatnumber) | \
-                 (ident + lpar + expr + rpar).setParseAction(self._push_function) | \
+                 (ident + lpar + delimitedList(expr) + rpar).setParseAction(self._push_function) | \
                  (ident).setParseAction(self._push_ident) | \
                 (lpar + expr.suppress() + rpar))).setParseAction(self._push_uminus) 
         
@@ -145,7 +145,10 @@ class Expression_parser:
             op1 = self.evaluate_stack(s, variables, constants)
             return self.operators[op.value](op1, op2)
         elif op.type == Stack_type.function:
-            return self.functions[op.value](self.evaluate_stack(s, variables, constants))
+            ops = []
+            for i in range(0, self.functions[op.value][1]):
+                ops.append(self.evaluate_stack(s, variables, constants))
+            return apply(self.functions[op.value][0], ops)
         elif op.type == Stack_type.ident:
             if op.value in constants:
                 return constants[op.value]
