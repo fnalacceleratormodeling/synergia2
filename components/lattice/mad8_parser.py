@@ -81,6 +81,7 @@ class Expression_parser:
                        Optional(plusorminus) + Combine(point + number) + \
                         Optional(e + integer))
         ident = Word(alphas, alphanums + '_' + '.' + "'")
+        self.ident = ident
      
         plus = Literal("+")
         minus = Literal("-")
@@ -171,6 +172,29 @@ class Expression_parser:
         result = self.bnf.parseString(text)
         return self.stack
 
+class Mad8_parser:
+    def __init__(self):
+        self.expression_parser = Expression_parser()
+        self.bnf = self._construct_bnf()
+    
+    def _construct_bnf(self):
+        expr = self.expression_parser.bnf
+        colon = Literal(':')
+        equals = Literal('=')
+        semicolon = Literal(';')
+        ident = self.expression_parser.ident
+        var_assign = (equals | colon + equals).suppress()
+        
+        bnf = ((ident + var_assign + expr) | 
+               empty) + \
+               (semicolon | LineEnd() | StringEnd())
+        
+        return bnf
+
+    def parse(self, text):
+        result = self.bnf.parseString(text)
+        print result
+        
 if __name__ == '__main__':
     ep = Expression_parser()
     stack = ep.parse('2*pi+4*5')
