@@ -63,9 +63,9 @@ class Expression_parser:
         self.twoarg_fns = {"max" : max,
                            "min" : min}
         self.constants = {"pi" : math.pi,
-                          "twopi" : 2.0*math.pi,
-                          "degrad" : 180.0/math.pi,
-                          "raddeg" : math.pi/180.0,
+                          "twopi" : 2.0 * math.pi,
+                          "degrad" : 180.0 / math.pi,
+                          "raddeg" : math.pi / 180.0,
                           "e" : math.e,
                           "emass" : 0.51099906e-3,
                           "pmass" : 0.93827231,
@@ -97,10 +97,10 @@ class Expression_parser:
         
         expr = Forward()
         atom = (Optional(minus) + 
-                (floatnumber).setParseAction(self.push_floatnumber) | \
+                ((floatnumber).setParseAction(self.push_floatnumber) | \
                  (ident + lpar + expr + rpar).setParseAction(self.push_function) | \
                  (ident).setParseAction(self.push_ident) | \
-                (lpar + expr.suppress() + rpar)).setParseAction(self.push_uminus) 
+                (lpar + expr.suppress() + rpar))).setParseAction(self.push_uminus) 
         
         # by defining exponentiation as "atom [ ^ factor ]..." instead of
         # "atom [ ^ atom ]...", we get right-to-left exponents, instead of
@@ -115,36 +115,32 @@ class Expression_parser:
 
     def push_floatnumber(self, strg, loc, toks):
         numstr = toks[0]
-        numstr = numstr.replace('d','e')
-        numstr = numstr.replace('D','e')
-        self.stack.append(Stack_item(stack_type.floatnumber,float(numstr)))
-                          
+        numstr = numstr.replace('d', 'e')
+        numstr = numstr.replace('D', 'e')
+        self.stack.append(Stack_item(stack_type.floatnumber, float(numstr)))
+    
     def push_ident(self, strg, loc, toks):
-        if not self.functions.has_key(toks[0]):
-            self.stack.append(Stack_item(stack_type.ident,toks[0]))
+        if not self.functions.has_key(toks[0]) and \
+            self.last_ident_loc != loc:
+            self.stack.append(Stack_item(stack_type.ident, toks[0]))
+            self.last_ident_loc = loc
                           
     def push_function(self, strg, loc, toks):
-        self.stack.append(Stack_item(stack_type.function,toks[0]))
+        self.stack.append(Stack_item(stack_type.function, toks[0]))
         
     def push_uminus(self, strg, loc, toks):
-#        print "push_uminus:",strg,loc,toks
         if toks and toks[0] == '-': 
-            self.stack.append(Stack_item(stack_type.unary_minus,None))
+            self.stack.append(Stack_item(stack_type.unary_minus, None))
                           
     def push_operator(self, strg, loc, toks):
-        self.stack.append(Stack_item(stack_type.operator,toks[0]))
+        self.stack.append(Stack_item(stack_type.operator, toks[0]))
         
-    def push_first(self, strg, loc, toks):
-        print "push_first:",strg,loc,toks
-        self.stack.append(toks[0])
-            
-    def evaluate_stack(self, s, variables = {}, constants = None):
+    def evaluate_stack(self, s, variables={}, constants=None):
         if constants == None:
             constants = self.constants
         op = s.pop()
-        print "op =",op
         if op.type == stack_type.unary_minus:
-            return -self.evaluate_stack(s, variables, constants)
+            return - self.evaluate_stack(s, variables, constants)
         if op.type == stack_type.floatnumber:
             return op.value
         if op.type == stack_type.operator:
@@ -159,6 +155,8 @@ class Expression_parser:
             elif op.value in variables:
                 return variables[op.value]
             else:
+                if self.uninitialized_exception:
+                    raise ParseException, 'variable "%s" unitialized' % op.value
                 if self.uninitialized_warn:
                     print \
                      'warning: variable "%s" uninitialized, treating as 0.0' \
@@ -169,22 +167,20 @@ class Expression_parser:
     
     def parse(self, text):
         self.stack = []
+        self.last_ident_loc = - 1
         result = self.bnf.parseString(text)
-        print 'result =',result
-        print 'stack =',self.stack
         return self.stack
 
 if __name__ == '__main__':
     ep = Expression_parser()
-#    stack = ep.parse('3*4+5*pi/2.0')
     stack = ep.parse('2*pi+4*5')
     print 'ans =', ep.evaluate_stack(stack)
 
     stack = ep.parse('sin(2.3)')
     print 'ans =', ep.evaluate_stack(stack)
 
-#    stack = ep.parse('-sin(2.3)')
-#    print 'ans =', ep.evaluate_stack(stack)
+    stack = ep.parse('-sin(2.3)')
+    print 'ans =', ep.evaluate_stack(stack)
 
     stack = ep.parse('cos(x)')
     print 'ans =', ep.evaluate_stack(stack)
