@@ -12,14 +12,11 @@ import math
 import operator
 
 class Stack_type:
-    def __init__(self):
-        self.floatnumber = 1
-        self.ident = 2
-        self.operator = 3
-        self.function = 4
-        self.unary_minus = 5
-    
-stack_type = Stack_type()
+    floatnumber = 1
+    ident = 2
+    operator = 3
+    function = 4
+    unary_minus = 5
 
 class Stack_item:
     def __init__(self, type, value):
@@ -28,15 +25,15 @@ class Stack_item:
 
     def __repr__(self):
         retval = '<'
-        if self.type == stack_type.floatnumber :
+        if self.type == Stack_type.floatnumber :
             retval += 'floatnumber'
-        elif self.type == stack_type.ident:
+        elif self.type == Stack_type.ident:
             retval += 'ident'
-        elif self.type == stack_type.operator:
+        elif self.type == Stack_type.operator:
             retval += 'operator'
-        elif self.type == stack_type.function:
+        elif self.type == Stack_type.function:
             retval += 'function'
-        elif self.type == stack_type.ident:
+        elif self.type == Stack_type.ident:
             retval += 'unary_minus'
         retval += ':' + str(self.value) + '>'
         return retval
@@ -97,59 +94,59 @@ class Expression_parser:
         
         expr = Forward()
         atom = (Optional(minus) + 
-                ((floatnumber).setParseAction(self.push_floatnumber) | \
-                 (ident + lpar + expr + rpar).setParseAction(self.push_function) | \
-                 (ident).setParseAction(self.push_ident) | \
-                (lpar + expr.suppress() + rpar))).setParseAction(self.push_uminus) 
+                ((floatnumber).setParseAction(self._push_floatnumber) | \
+                 (ident + lpar + expr + rpar).setParseAction(self._push_function) | \
+                 (ident).setParseAction(self._push_ident) | \
+                (lpar + expr.suppress() + rpar))).setParseAction(self._push_uminus) 
         
         # by defining exponentiation as "atom [ ^ factor ]..." instead of
         # "atom [ ^ atom ]...", we get right-to-left exponents, instead of
         # left-to-right, that is, 2^3^2 = 2^(3^2), not (2^3)^2.
         factor = Forward()
-        factor << atom + ZeroOrMore((expop + factor).setParseAction(self.push_operator))
+        factor << atom + ZeroOrMore((expop + factor).setParseAction(self._push_operator))
         
-        term = factor + ZeroOrMore((multop + factor).setParseAction(self.push_operator))
-        expr << term + ZeroOrMore((addop + term).setParseAction(self.push_operator))
+        term = factor + ZeroOrMore((multop + factor).setParseAction(self._push_operator))
+        expr << term + ZeroOrMore((addop + term).setParseAction(self._push_operator))
         
         return expr
 
-    def push_floatnumber(self, strg, loc, toks):
+    def _push_floatnumber(self, strg, loc, toks):
         numstr = toks[0]
         numstr = numstr.replace('d', 'e')
         numstr = numstr.replace('D', 'e')
-        self.stack.append(Stack_item(stack_type.floatnumber, float(numstr)))
+        self.stack.append(Stack_item(Stack_type.floatnumber, float(numstr)))
     
-    def push_ident(self, strg, loc, toks):
+    def _push_ident(self, strg, loc, toks):
         if not self.functions.has_key(toks[0]) and \
             self.last_ident_loc != loc:
-            self.stack.append(Stack_item(stack_type.ident, toks[0]))
+            self.stack.append(Stack_item(Stack_type.ident, toks[0]))
             self.last_ident_loc = loc
                           
-    def push_function(self, strg, loc, toks):
-        self.stack.append(Stack_item(stack_type.function, toks[0]))
+    def _push_function(self, strg, loc, toks):
+        self.stack.append(Stack_item(Stack_type.function, toks[0]))
         
-    def push_uminus(self, strg, loc, toks):
+    def _push_uminus(self, strg, loc, toks):
         if toks and toks[0] == '-': 
-            self.stack.append(Stack_item(stack_type.unary_minus, None))
+            self.stack.append(Stack_item(Stack_type.unary_minus, None))
                           
-    def push_operator(self, strg, loc, toks):
-        self.stack.append(Stack_item(stack_type.operator, toks[0]))
+    def _push_operator(self, strg, loc, toks):
+        self.stack.append(Stack_item(Stack_type.operator, toks[0]))
         
     def evaluate_stack(self, s, variables={}, constants=None):
         if constants == None:
             constants = self.constants
         op = s.pop()
-        if op.type == stack_type.unary_minus:
+        if op.type == Stack_type.unary_minus:
             return - self.evaluate_stack(s, variables, constants)
-        if op.type == stack_type.floatnumber:
+        if op.type == Stack_type.floatnumber:
             return op.value
-        if op.type == stack_type.operator:
+        if op.type == Stack_type.operator:
             op2 = self.evaluate_stack(s, variables, constants)
             op1 = self.evaluate_stack(s, variables, constants)
             return self.operators[op.value](op1, op2)
-        elif op.type == stack_type.function:
+        elif op.type == Stack_type.function:
             return self.functions[op.value](self.evaluate_stack(s, variables, constants))
-        elif op.type == stack_type.ident:
+        elif op.type == Stack_type.ident:
             if op.value in constants:
                 return constants[op.value]
             elif op.value in variables:
