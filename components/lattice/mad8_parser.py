@@ -140,7 +140,7 @@ class Expression_parser:
     def _push_ident(self, strg, loc, toks):
         if not self.functions.has_key(toks[0]) and \
             self.last_ident_loc != loc:
-            self.stack.append(Stack_item(Stack_type.ident, toks[0]))
+            self.stack.append(Stack_item(Stack_type.ident, toks[0].lower()))
             self.last_ident_loc = loc
                           
     def _push_function(self, strg, loc, toks):

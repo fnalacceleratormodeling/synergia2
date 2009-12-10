@@ -56,6 +56,11 @@ def test_variable_assignment_expression():
     mp.parse('foo.bar=pi*sin(1.2d-4)^0.69')
     assert_equal(math.pi*math.sin(1.2e-4)**0.69,mp.variables['foo.bar'])
 
+def test_caps_variable_assignment():
+    mp = Mad8_parser()
+    mp.parse('X=1;Y=X')
+    assert_equal(1,mp.variables['y'])
+    
 def test_command():
     mp = Mad8_parser()
     mp.parse('foo')
