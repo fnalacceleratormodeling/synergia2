@@ -10,33 +10,51 @@ import sys
 import re
 import math
 import operator
+import inspect
 
+class Printable:
+    def _enum_to_string(self, enum, val):
+        for member in inspect.getmembers(enum):
+            name = member[0]
+            if getattr(enum, name) == val:
+                return name
+        return str(val)
+
+    def __repr__(self):
+        retval = '<'
+        first = True
+        for member in inspect.getmembers(self):
+            name = member[0]
+            if name[0] != '_':
+                if first:
+                    first = False
+                else:
+                    retval += ','
+                retval += name + ':'
+                val = getattr(self, name)
+                str_val = None
+                if hasattr(self, '_enum_types'):
+                    if self._enum_types.has_key(name):
+                        str_val = self._enum_to_string(self._enum_types[name], val)
+                if not str_val:
+                    str_val = str(val)
+                retval += str_val
+        retval += '>'
+        return retval
+    
 class Stack_type:
     floatnumber = 1
     ident = 2
     operator = 3
     function = 4
     unary_minus = 5
+    str = 6
 
-class Stack_item:
+class Stack_item(Printable):
     def __init__(self, type, value):
         self.type = type
+        self._enum_types = {'type' : Stack_item}
         self.value = value
-
-    def __repr__(self):
-        retval = '<'
-        if self.type == Stack_type.floatnumber :
-            retval += 'floatnumber'
-        elif self.type == Stack_type.ident:
-            retval += 'ident'
-        elif self.type == Stack_type.operator:
-            retval += 'operator'
-        elif self.type == Stack_type.function:
-            retval += 'function'
-        elif self.type == Stack_type.ident:
-            retval += 'unary_minus'
-        retval += ':' + str(self.value) + '>'
-        return retval
 
 class Expression_parser:
     def __init__(self, uninitialized_warn=True,
@@ -76,6 +94,7 @@ class Expression_parser:
         plusorminus = Literal('+') | Literal('-')
         number = Word(nums) 
         integer = Combine(Optional(plusorminus) + number)
+        self.integer = integer
         floatnumber = (Combine(integer + \
                                Optional(point + Optional(number)) + \
                                Optional(e + integer)) | \
@@ -164,8 +183,11 @@ class Expression_parser:
                      'warning: variable "%s" uninitialized, treating as 0.0' \
                      % op.value
                 return 0.0
+        elif op.type == Stack_type.str:
+            return op.value
         else:
             print "jfa: huh?", op
+
     def reset(self):
         self.stack = []
         self.last_ident_loc = - 1
@@ -175,6 +197,11 @@ class Expression_parser:
         result = self.bnf.parseString(text)
         return self.stack
 
+class Command(Printable):
+    def __init__(self, name, attributes):
+        self.name = name
+        self.attributes = attributes
+
 class Mad8_parser:
     def __init__(self):
         self.expression_parser = Expression_parser()
@@ -183,6 +210,8 @@ class Mad8_parser:
         self._attributes = {}
         self.elements = {}
         self.commands = []
+        self.labels = {}
+        self.lines = {}
     
     def _construct_bnf(self):
         expr = self.expression_parser.bnf
@@ -195,19 +224,41 @@ class Mad8_parser:
         attr_assign = Literal('=')
         str = dblQuotedString.setParseAction(removeQuotes) | \
             sglQuotedString.setParseAction(removeQuotes)
+        str.setParseAction(self._handle_str)
         attr_value = (str | expr)
         attr = ident + Optional(attr_assign + attr_value)
         attr.setParseAction(self._handle_attr)
         attr_delim = Literal(',').suppress()
         command = ident + Optional(attr_delim + delimitedList(attr))
+        command.setParseAction(self._handle_command)
 #signedmodifierdef = Group(Optional(Literal('-')) + ident) + Optional(Literal("=") + expr)
 #signedmodifierdef.setParseAction(handleModifier)
+        var_assign = (ident + var_assign + expr)
+        var_assign.setParseAction(self._handle_var_assign)
+        labeled_command = (ident + colon + ident + 
+                          Optional(attr_delim + delimitedList(attr)))
+        labeled_command.setParseAction(self._handle_labeled_command)
 
-        entry = \
-            (ident + var_assign + expr).setParseAction(self._handle_var_assign) | \
-            command.setParseAction(self._handle_command) | \
-            empty + (semicolon | LineEnd())
+        minus = Literal('-')
+        times = Literal('*')
+        integer = self.expression_parser.integer
+        lpar = Literal('(').suppress()
+        rpar = Literal(')').suppress()
+        multiple_ident = (Optional(minus) + Optional(integer + times) + 
+                          (ident | lpar + Group(delimitedList(ident)) + rpar))
+        line = (CaselessLiteral("line") + attr_assign + lpar + 
+                Group(multiple_ident + 
+                      ZeroOrMore(Optional(attr_delim) + multiple_ident)) + 
+                rpar)
+        labeled_line = (ident + colon + line)
+        labeled_line.setParseAction(self._handle_labeled_line)
         
+        entry = (var_assign | 
+                 labeled_line | 
+                 labeled_command | 
+                 command | 
+                 empty + (semicolon | LineEnd()))
+
         bnf = ZeroOrMore(entry) + StringEnd()
         comment = bang + restOfLine
         bnf.ignore(comment)
@@ -217,7 +268,7 @@ class Mad8_parser:
     def _handle_var_assign(self, str, loc, toks):
         var = toks[0].lower()
         stack = self.expression_parser.stack
-        value = self.expression_parser.evaluate_stack(stack)
+        value = self.expression_parser.evaluate_stack(stack, self.variables)
         self.variables[var] = value
         
     def _handle_attr(self, str, loc, toks):
@@ -229,33 +280,50 @@ class Mad8_parser:
 #            value = toks[2] + toks[3] + toks[4]
         if len(toks) > 1:
             stack = self.expression_parser.stack
-            value = self.expression_parser.evaluate_stack(stack)
+            if attribute == 'particle':
+                value = stack.pop().value
+            else:
+                value = self.expression_parser.evaluate_stack(stack,
+                                                              self.variables)
         else:
             value = None
         self._attributes[attribute] = value
 
+    def _handle_str(self, str, loc, toks):
+        self.expression_parser.stack.append(Stack_item(Stack_type.str,
+                                                       toks[0]))
+
     def _handle_command(self, str, loc, toks):
-        command = toks[0].lower()
-        self.commands.append((command, self._attributes))
+        name = toks[0].lower()
+        self.commands.append(Command(name, self._attributes))
         self._attributes = {}
+
+    def _handle_labeled_command(self, str, loc, toks):
+        label = toks[0].lower()
+        name = toks[2].lower()
+        self.labels[label] = Command(name, self._attributes)
+        self._attributes = {}
+
+    def _downcase_nested_list(self, lst):
+        retval = []
+        for elem in lst:
+            retval.append(elem.lower())
+        return retval
+    
+    def _handle_labeled_line(self, str, loc, toks):
+        name = toks[0].lower()
+        elements = self._downcase_nested_list(toks[4])
+        self.lines[name] = elements
 
     def parse(self, text):
         self.expression_parser.reset()
         result = self.bnf.parseString(text)
-        print result
         
 if __name__ == '__main__':
-    ep = Expression_parser()
-    stack = ep.parse('2*pi+4*5')
-    print 'ans =', ep.evaluate_stack(stack)
-
-    stack = ep.parse('sin(2.3)')
-    print 'ans =', ep.evaluate_stack(stack)
-
-    stack = ep.parse('-sin(2.3)')
-    print 'ans =', ep.evaluate_stack(stack)
-
-    stack = ep.parse('cos(x)')
-    print 'ans =', ep.evaluate_stack(stack)
-
-
+    filename = sys.argv[1]
+    mp = Mad8_parser()
+    mp.parse(open(filename, 'r').read())
+    print "variables =", mp.variables
+    print "labels =", mp.labels
+    print "lines =", mp.lines
+    print "commands =", mp.commands
