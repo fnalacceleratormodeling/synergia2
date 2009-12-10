@@ -68,6 +68,7 @@ class Expression_parser:
                           "emass" : 0.51099906e-3,
                           "pmass" : 0.93827231,
                           "clight" : 2.99792458e8}
+        self.reset()
 
     def _construct_bnf(self):
         point = Literal(".")
@@ -165,10 +166,12 @@ class Expression_parser:
                 return 0.0
         else:
             print "jfa: huh?", op
-    
-    def parse(self, text):
+    def reset(self):
         self.stack = []
         self.last_ident_loc = - 1
+        
+    def parse(self, text):
+        self.reset()
         result = self.bnf.parseString(text)
         return self.stack
 
@@ -176,22 +179,68 @@ class Mad8_parser:
     def __init__(self):
         self.expression_parser = Expression_parser()
         self.bnf = self._construct_bnf()
+        self.variables = {}
+        self._attributes = {}
+        self.elements = {}
+        self.commands = []
     
     def _construct_bnf(self):
         expr = self.expression_parser.bnf
         colon = Literal(':')
         equals = Literal('=')
         semicolon = Literal(';')
+        bang = Literal('!')
         ident = self.expression_parser.ident
         var_assign = (equals | colon + equals).suppress()
+        attr_assign = Literal('=')
+        str = dblQuotedString.setParseAction(removeQuotes) | \
+            sglQuotedString.setParseAction(removeQuotes)
+        attr_value = (str | expr)
+        attr = ident + Optional(attr_assign + attr_value)
+        attr.setParseAction(self._handle_attr)
+        attr_delim = Literal(',').suppress()
+        command = ident + Optional(attr_delim + delimitedList(attr))
+#signedmodifierdef = Group(Optional(Literal('-')) + ident) + Optional(Literal("=") + expr)
+#signedmodifierdef.setParseAction(handleModifier)
+
+        entry = \
+            (ident + var_assign + expr).setParseAction(self._handle_var_assign) | \
+            command.setParseAction(self._handle_command) | \
+            empty + (semicolon | LineEnd())
         
-        bnf = ((ident + var_assign + expr) | 
-               empty) + \
-               (semicolon | LineEnd() | StringEnd())
+        bnf = ZeroOrMore(entry) + StringEnd()
+        comment = bang + restOfLine
+        bnf.ignore(comment)
         
         return bnf
 
+    def _handle_var_assign(self, str, loc, toks):
+        var = toks[0].lower()
+        stack = self.expression_parser.stack
+        value = self.expression_parser.evaluate_stack(stack)
+        self.variables[var] = value
+        
+    def _handle_attr(self, str, loc, toks):
+        if hasattr(toks[0], 'asList'):
+            attribute = "".join(toks[0]).lower()
+        else:
+            attribute = toks[0].lower()
+#        if attribute == 'range':
+#            value = toks[2] + toks[3] + toks[4]
+        if len(toks) > 1:
+            stack = self.expression_parser.stack
+            value = self.expression_parser.evaluate_stack(stack)
+        else:
+            value = None
+        self._attributes[attribute] = value
+
+    def _handle_command(self, str, loc, toks):
+        command = toks[0].lower()
+        self.commands.append((command, self._attributes))
+        self._attributes = {}
+
     def parse(self, text):
+        self.expression_parser.reset()
         result = self.bnf.parseString(text)
         print result
         

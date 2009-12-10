@@ -1,1 +1,2 @@
 add_test(test_mad8_parser nosetests test_mad8_parser.py)
+add_test(test_expression_parser nosetests test_expression_parser.py)
