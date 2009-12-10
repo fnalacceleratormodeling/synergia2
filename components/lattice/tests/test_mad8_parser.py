@@ -127,3 +127,16 @@ def test_line():
     assert_equal('o',fodo[1])
     assert_equal('d',fodo[2])
     assert_equal('o',fodo[3])
+
+def test_continuation():
+    mp = Mad8_parser()
+    mp.parse('''q1: quadrupole,l=&
+    3.14,k1=0.2''')
+    assert_equal(1,len(mp.labels))
+    key = 'q1'
+    command = mp.labels[key]
+    assert_equal('quadrupole',command.name)
+    attributes = command.attributes
+    assert_equal(2,len(attributes))
+    assert_almost_equal(3.14,attributes['l'])
+    assert_almost_equal(0.2,attributes['k1'])

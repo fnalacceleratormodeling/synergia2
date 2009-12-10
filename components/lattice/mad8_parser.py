@@ -214,12 +214,20 @@ class Mad8_parser:
         self.lines = {}
     
     def _construct_bnf(self):
-        expr = self.expression_parser.bnf
         colon = Literal(':')
         equals = Literal('=')
         semicolon = Literal(';')
         bang = Literal('!')
+        minus = Literal('-')
+        times = Literal('*')
+        ampersand = Literal('&')
+        lpar = Literal('(').suppress()
+        rpar = Literal(')').suppress()
+
         ident = self.expression_parser.ident
+        expr = self.expression_parser.bnf
+        integer = self.expression_parser.integer
+
         var_assign = (equals | colon + equals).suppress()
         attr_assign = Literal('=')
         str = dblQuotedString.setParseAction(removeQuotes) | \
@@ -239,11 +247,6 @@ class Mad8_parser:
                           Optional(attr_delim + delimitedList(attr)))
         labeled_command.setParseAction(self._handle_labeled_command)
 
-        minus = Literal('-')
-        times = Literal('*')
-        integer = self.expression_parser.integer
-        lpar = Literal('(').suppress()
-        rpar = Literal(')').suppress()
         multiple_ident = (Optional(minus) + Optional(integer + times) + 
                           (ident | lpar + Group(delimitedList(ident)) + rpar))
         line = (CaselessLiteral("line") + attr_assign + lpar + 
@@ -262,7 +265,9 @@ class Mad8_parser:
         bnf = ZeroOrMore(entry) + StringEnd()
         comment = bang + restOfLine
         bnf.ignore(comment)
-        
+        continuation = ampersand + restOfLine + LineEnd()
+        bnf.ignore(ampersand)
+
         return bnf
 
     def _handle_var_assign(self, str, loc, toks):
