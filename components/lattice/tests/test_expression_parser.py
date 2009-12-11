@@ -121,6 +121,11 @@ def test_function_neg():
     stack = ep.parse('-sin(2.3)')
     assert_almost_equal(-sin(2.3), ep.evaluate_stack(stack))
    
+def test_function_upper():
+    ep = Expression_parser()
+    stack = ep.parse('SIN(2.3)')
+    assert_almost_equal(sin(2.3), ep.evaluate_stack(stack))
+   
 def test_pi():
     ep = Expression_parser()
     stack = ep.parse('pi')

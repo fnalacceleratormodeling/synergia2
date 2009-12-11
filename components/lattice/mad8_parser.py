@@ -147,7 +147,7 @@ class Expression_parser:
         self.stack.append(Stack_item(Stack_type.floatnumber, float(numstr)))
     
     def _push_ident(self, strg, loc, toks):
-        if not self.functions.has_key(toks[0]) and \
+        if not self.functions.has_key(toks[0].lower()) and \
             self.last_ident_loc != loc:
             self.stack.append(Stack_item(Stack_type.ident, toks[0].lower()))
             self.last_ident_loc = loc
@@ -159,7 +159,7 @@ class Expression_parser:
                                      Subscript_ident(ident, subscript)))
 
     def _push_function(self, strg, loc, toks):
-        self.stack.append(Stack_item(Stack_type.function, toks[0]))
+        self.stack.append(Stack_item(Stack_type.function, toks[0].lower()))
         
     def _push_uminus(self, strg, loc, toks):
         if toks and toks[0] == '-': 
