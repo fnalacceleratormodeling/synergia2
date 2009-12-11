@@ -11,6 +11,7 @@ import re
 import math
 import operator
 import inspect
+import types
 
 class Printable:
     def _enum_to_string(self, enum, val):
@@ -271,7 +272,7 @@ class Mad8_parser:
                           Optional(attr_delim + delimitedList(attr)))
         labeled_command.setParseAction(self._handle_labeled_command)
 
-        multiple_ident = (Optional(minus) + Optional(integer + times) + 
+        multiple_ident = (Optional(minus) + Optional(Group(integer + times)) + 
                           (ident | lpar + Group(delimitedList(ident)) + rpar))
         line = (CaselessLiteral("line") + attr_assign + lpar + 
                 Group(multiple_ident + 
@@ -338,7 +339,16 @@ class Mad8_parser:
     def _downcase_nested_list(self, lst):
         retval = []
         for elem in lst:
-            retval.append(elem.lower())
+            if hasattr(elem, 'asList'):
+                is_multiplier = False
+                if len(elem) == 2:
+                    if elem[1] == '*':
+                        retval.append(elem[0]+'*')
+                        is_multiplier = True
+                if not is_multiplier:
+                    retval.append(self._downcase_nested_list(elem))
+            else:
+                retval.append(elem.lower())
         return retval
     
     def _handle_labeled_line(self, str, loc, toks):

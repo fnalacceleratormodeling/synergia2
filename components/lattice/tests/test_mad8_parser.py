@@ -163,3 +163,31 @@ def test_continuation2():
     assert_equal(2,len(attributes))
     assert_almost_equal(3.14,attributes['l'])
     assert_almost_equal(0.2,attributes['k1'])
+
+def test_line_multiplier():
+    mp = Mad8_parser()
+    mp.parse('fodo8: line=(8*(f,o,d,o))')
+    print mp.lines
+    assert_equal(1,len(mp.lines))
+    assert_equal(2,len(mp.lines['fodo8']))
+    assert_equal('8*',mp.lines['fodo8'][0])
+    assert_equal(4,len(mp.lines['fodo8'][1]))
+    assert_equal('f',mp.lines['fodo8'][1][0])
+    assert_equal('o',mp.lines['fodo8'][1][1])
+    assert_equal('d',mp.lines['fodo8'][1][2])
+    assert_equal('o',mp.lines['fodo8'][1][3])
+
+def test_line_unary_minus():
+    mp = Mad8_parser()
+    mp.parse('odof: line=(-(f,o,d,o))')
+    print mp.lines
+    assert_equal(1,len(mp.lines))
+    assert_equal(2,len(mp.lines['odof']))
+    assert_equal('-',mp.lines['odof'][0])
+    assert_equal(4,len(mp.lines['odof'][1]))
+    assert_equal('f',mp.lines['odof'][1][0])
+    assert_equal('o',mp.lines['odof'][1][1])
+    assert_equal('d',mp.lines['odof'][1][2])
+    assert_equal('o',mp.lines['odof'][1][3])
+
+    
