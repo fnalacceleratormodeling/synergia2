@@ -119,6 +119,11 @@ def test_command_assign():
     assert_equal(1,len(attributes))
     assert_almost_equal(3.14,attributes['l'])
 
+def test_subscripted_ident():
+    mp = Mad8_parser()
+    mp.parse('foo: bar, a=1;x=foo[a]')
+    assert_equal(1,mp.variables['x'])
+    
 def test_line():
     mp = Mad8_parser()
     mp.parse('''f:quad,l=1,k1=0.1

@@ -4,7 +4,7 @@ import sys
 sys.path.append('..')
 
 from nose.tools import *
-from mad8_parser import Expression_parser, ParseException
+from mad8_parser import Expression_parser, ParseException, Command
 from math import sqrt, log, exp, sin, cos, tan, asin    
 import math
 
@@ -179,6 +179,13 @@ def test_vars2():
     stack = ep.parse('a+b*(c+d)')
     assert_almost_equal(a + b * (c + d), ep.evaluate_stack(stack, vars))
 
+def test_subscripted_ident():
+    ep = Expression_parser()
+    labels = {}
+    labels['foo'] = Command('bar',{'a':1})
+    stack = ep.parse('foo[a]')
+    assert_equal(1,ep.evaluate_stack(stack, labels=labels))
+    
 def test_unassigned_var():
     ep = Expression_parser(uninitialized_warn=False)
     stack = ep.parse('foo')
