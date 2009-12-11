@@ -150,3 +150,16 @@ def test_continuation():
     assert_equal(2,len(attributes))
     assert_almost_equal(3.14,attributes['l'])
     assert_almost_equal(0.2,attributes['k1'])
+
+def test_continuation2():
+    mp = Mad8_parser()
+    mp.parse('''q1: quadrupole,l=& )junk)
+    3.14,k1=0.2''')
+    assert_equal(1,len(mp.labels))
+    key = 'q1'
+    command = mp.labels[key]
+    assert_equal('quadrupole',command.name)
+    attributes = command.attributes
+    assert_equal(2,len(attributes))
+    assert_almost_equal(3.14,attributes['l'])
+    assert_almost_equal(0.2,attributes['k1'])

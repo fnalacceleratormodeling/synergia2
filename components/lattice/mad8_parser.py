@@ -290,7 +290,7 @@ class Mad8_parser:
         comment = bang + restOfLine
         bnf.ignore(comment)
         continuation = ampersand + restOfLine + LineEnd()
-        bnf.ignore(ampersand)
+        bnf.ignore(continuation)
 
         return bnf
 
