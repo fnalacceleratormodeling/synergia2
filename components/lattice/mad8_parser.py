@@ -124,10 +124,10 @@ class Expression_parser:
         
         expr = Forward()
         atom = (Optional(minus) + 
-                ((floatnumber).setParseAction(self._push_floatnumber) | \
-                 (ident + lpar + delimitedList(expr) + rpar).setParseAction(self._push_function) | \
-                 (subscript_ident).setParseAction(self._push_subscript_ident) | \
-                 (ident).setParseAction(self._push_ident) | \
+                ((floatnumber)("floatnumber").setParseAction(self._push_floatnumber) | \
+                 (ident + lpar + delimitedList(expr) + rpar)("function").setParseAction(self._push_function) | \
+                 (subscript_ident)("subscript_ident").setParseAction(self._push_subscript_ident) | \
+                 (ident)("ident").setParseAction(self._push_ident) | \
                 (lpar + expr.suppress() + rpar))).setParseAction(self._push_uminus) 
         
         # by defining exponentiation as "atom [ ^ factor ]..." instead of
@@ -148,10 +148,7 @@ class Expression_parser:
         self.stack.append(Stack_item(Stack_type.floatnumber, float(numstr)))
     
     def _push_ident(self, strg, loc, toks):
-        if not self.functions.has_key(toks[0].lower()) and \
-            self.last_ident_loc != loc:
-            self.stack.append(Stack_item(Stack_type.ident, toks[0].lower()))
-            self.last_ident_loc = loc
+        self.stack.append(Stack_item(Stack_type.ident, toks[0].lower()))
                           
     def _push_subscript_ident(self, strg, loc, toks):
         ident = toks[0][0].lower()
@@ -216,7 +213,6 @@ class Expression_parser:
 
     def reset(self):
         self.stack = []
-        self.last_ident_loc = - 1
         
     def parse(self, text):
         self.reset()
