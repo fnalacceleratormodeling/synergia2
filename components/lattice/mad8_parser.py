@@ -256,7 +256,8 @@ class Mad8_parser:
             sglQuotedString.setParseAction(removeQuotes)
         str.setParseAction(self._handle_str)
         attr_value = (str | expr)
-        attr = ident + Optional(attr_assign + attr_value)
+        attr = (ident + Optional(attr_assign + attr_value) | \
+                Group(Literal('-')+ident))
         attr.setParseAction(self._handle_attr)
         attr_delim = Literal(',').suppress()
         command = ident + Optional(attr_delim + delimitedList(attr))
