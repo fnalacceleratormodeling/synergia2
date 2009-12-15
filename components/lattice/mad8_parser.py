@@ -233,6 +233,7 @@ class Mad8_parser:
         self.commands = []
         self.labels = {}
         self.lines = {}
+        self.no_eval_attributes = ['particle','type']
     
     def _construct_bnf(self):
         colon = Literal(':')
@@ -307,7 +308,7 @@ class Mad8_parser:
 #            value = toks[2] + toks[3] + toks[4]
         if len(toks) > 1:
             stack = self.expression_parser.stack
-            if attribute == 'particle':
+            if attribute in self.no_eval_attributes:
                 value = stack.pop().value
             else:
                 value = self.expression_parser.evaluate_stack(stack,
