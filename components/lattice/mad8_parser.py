@@ -233,7 +233,7 @@ class Mad8_parser:
         self.commands = []
         self.labels = {}
         self.lines = {}
-        self.no_eval_attributes = ['particle','type']
+        self.no_eval_attributes = ['particle','type','filename']
     
     def _construct_bnf(self):
         colon = Literal(':')
@@ -250,7 +250,8 @@ class Mad8_parser:
         expr = self.expression_parser.bnf
         integer = self.expression_parser.integer
 
-        var_assign = (equals | colon + equals).suppress()
+        var_assign = (equals | colon + equals | 
+                      colon + CaselessLiteral('constant') + equals).suppress()
         attr_assign = Literal('=')
         str = dblQuotedString.setParseAction(removeQuotes) | \
             sglQuotedString.setParseAction(removeQuotes)
