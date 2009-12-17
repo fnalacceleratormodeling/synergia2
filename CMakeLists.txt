@@ -2,6 +2,11 @@ project(SYNERGIA2)
 cmake_minimum_required(VERSION 2.6)
 enable_testing()
 
+# MPI
+FIND_PACKAGE(MPI REQUIRED)
+INCLUDE(CMakeForceCompiler)
+CMAKE_FORCE_CXX_COMPILER(${MPI_COMPILER} "MPI C++ Compiler")
+
 # python
 INCLUDE(FindPythonInterp)
 INCLUDE(FindPythonLibs)
