@@ -12,6 +12,8 @@ from diagnostics_file import Diagnostics_file
 
 from mpi4py import MPI
 
+from fodo_options import opts
+
 def near_equal(a, b, tolerance=1e-6):
     retval = False
     if (a == 0):
@@ -76,45 +78,26 @@ def summarize(diag, np):
 
 if (__name__ == '__main__'):
     t0 = time.time()
-    myopts = synergia.Options("fodo")
-    myopts.add("gridnum", 24, "number of grid points to be used for all directions", int)
-    myopts.add("solver", "3d", "solver", str)
-    myopts.add("xoffset", 0.0, "x offset", float)
-    myopts.add("impedance", 0, "whether to use resistive wall kicks", int)
-    myopts.add("piperadius", 0.01, "pipe radius for impedance", float)
-    myopts.add("pipeconduct", 1.4e6,
-        "conductivity for pipe [/s], default is for stainless steel", float)
-    myopts.add("spacecharge", 1, "whether to use space charge kicks", int)        
-    myopts.add("np", 2.0e11, "number of particles in real bunch", float)
-    myopts.add("partpercell", 4, "particles per grid cell", float)
-    myopts.add("xwidth", 0.004, "initial horizontal beam width in meters", float)
-    myopts.add("kickspercell", 10, "space-charge kicks per cell", int)
-    myopts.add("dpop", 1.0e-4, "delta p/p", float)
-    myopts.add_suboptions(synergia.opts)
-    myopts.parse_argv(sys.argv)
-    job_mgr = synergia.Job_manager(sys.argv, myopts,
-                                      ["fodo.lat"])    
-    
     mass = synergia.PH_NORM_mp
     kinetic_energy = 1.5 - mass
     charge = 1.0
     initial_phase = 0.0
     scaling_frequency = 1.0e8
-    part_per_cell = myopts.get("partpercell")
-    width_x = myopts.get("xwidth")
-    kicks_per_cell = myopts.get("kickspercell")
-    gridnum = myopts.get("gridnum")
+    part_per_cell = opts.get("partpercell")
+    width_x = opts.get("xwidth")
+    kicks_per_cell = opts.get("kickspercell")
+    gridnum = opts.get("gridnum")
     griddim = (gridnum, gridnum, gridnum)
     num_particles = int(griddim[0] * griddim[1] * griddim[2] * part_per_cell)
 
-    xoffset = myopts.get("xoffset")  
-    pipe_radius = myopts.get("piperadius")
-    pipe_conduct = myopts.get("pipeconduct")
-    space_charge = myopts.get("spacecharge")
-    solver = myopts.get("solver")
-    impedance = myopts.get("impedance")
-    bunchnp = myopts.get("np")
-    dpop = myopts.get("dpop")
+    xoffset = opts.get("xoffset")  
+    pipe_radius = opts.get("piperadius")
+    pipe_conduct = opts.get("pipeconduct")
+    space_charge = opts.get("spacecharge")
+    solver = opts.get("solver")
+    impedance = opts.get("impedance")
+    bunchnp = opts.get("np")
+    dpop = opts.get("dpop")
 
     ee = synergia.Error_eater()
     ee.start()

@@ -9,26 +9,32 @@ import commands
 import re
 import options
 
-opts = options.Options("Job Manager")
-opts.add("createjob",0,"Whether to create new job directory",int)
-opts.add("jobdir","run","Job directory",str)
-opts.add("numproc",1,"(single!!!) Number of processors",int)
-opts.add("submit",0,"Whether to immediately submit job",int)
-###options.add("block",0,"Whether to block until job has finished",int)
-###options.add("polltime",60.0,"Time delay in seconds between polls of queue when blocking"
-###            ,float)
-opts.add("overwrite",0,"Whether to overwrite existing job directory",int)
-opts.add("walltime",None,"Limit job to given wall time",str)
-###options.add("remote",0,"Prepare job for remote host",int)
-
+job_mgr_opts = options.Options("Job Manager")
+job_mgr_opts.add("createjob", 0, "Whether to create new job directory", int)
+job_mgr_opts.add("jobdir", "run", "Job directory", str)
+job_mgr_opts.add("numproc", 1, "Number of processors", int)
+job_mgr_opts.add("submit", 0, "Whether to immediately submit job", int)
+job_mgr_opts.add("overwrite", 0, "Whether to overwrite existing job directory", int)
+job_mgr_opts.add("walltime", None, "Limit job to given wall time", str)
 
 class Job_manager:
-    def __init__(self, script, arguments, opts, extra_files = None):
+    def __init__(self, script, opts, extra_files=None, argv=sys.argv):
         self.directory = None
         self.real_script = os.path.abspath(script)
-        self.arguments = arguments
+        options_file = os.path.splitext(script)[0] + '_options.py'
+        if os.path.exists(options_file):
+            self.real_options_file = os.path.abspath(options_file)
+        else:
+            self.real_options_file = None
+        self.argv = argv
+        if len(self.argv) > 1:
+            if self.argv[1] == "--strip-options-file":
+                self.argv = self.argv[2:]
         self.synergia_dir = get_synergia_directory()
         self.opts = opts
+        self.opts.add_suboptions(job_mgr_opts)
+        self.opts.parse_argv(self.argv)
+        
         if self.opts.get("createjob"):
             self.create_job(self.opts.get("jobdir"))
             if extra_files:
@@ -39,77 +45,79 @@ class Job_manager:
             print "job"
             sys.exit(0)
 
-    def _args_to_string(self,args,strip=[None]):
+    def _args_to_string(self, args, strip=[None]):
         retval = ""
         for arg in args:
 	    argout = arg
-	    splitarg = string.split(arg,"=")
-	    if len(splitarg)>1:
+	    splitarg = string.split(arg, "=")
+	    if len(splitarg) > 1:
                 if splitarg[0] in strip:
                     argout = None
-		elif(string.count(splitarg[1]," "))>0:
+		elif(string.count(splitarg[1], " ")) > 0:
 		    argout = splitarg[0] + '="'
 		    splitarg.pop(0)
-		    argout = argout + string.join(splitarg,"=") + '"'
+		    argout = argout + string.join(splitarg, "=") + '"'
             if argout:
                 if retval != "":
                     retval += " "
                 retval += argout
         return retval
  
-    def create_script(self,template,name,directory,subs):
-        template_path = os.path.join(self.synergia_dir,"script-templates",
+    def create_script(self, template, name, directory, subs):
+        template_path = os.path.join(self.synergia_dir, "script-templates",
                                      template)
-        output_path = os.path.join(directory,name)
-        process_template(template_path,output_path,subs)
+        output_path = os.path.join(directory, name)
+        process_template(template_path, output_path, subs)
 
     def create_job(self, directory):
-###        real_script = os.path.abspath(self.arguments[0])
+###        real_script = os.path.abspath(self.argv[0])
         old_cwd = os.getcwd()
         overwrite = self.opts.get("overwrite")
-        directory = create_new_directory(directory,0,overwrite)
+        directory = create_new_directory(directory, 0, overwrite)
         self.directory = directory 
         os.chdir(directory)
-        shutil.copy(self.real_script,".")
-        commandfile = open("command","w")
-        commandfile.write("%s\n" % self._args_to_string(self.arguments))
+        shutil.copy(self.real_script, ".")
+        if self.real_options_file:
+            shutil.copy(self.real_options_file, ".")
+        commandfile = open("command", "w")
+        commandfile.write("%s\n" % self._args_to_string(self.argv))
         commandfile.close()
         os.chdir(old_cwd)
         subs = {}
-        subs["numproc"] = opts.get("numproc")
+        subs["numproc"] = self.opts.get("numproc")
         subs["synergia2dir"] = self.synergia_dir
-        subs["args"] = self._args_to_string(self.arguments[1:],["createjob"])
+        subs["args"] = self._args_to_string(self.argv[1:], ["createjob"])
         subs["jobdir"] = os.path.abspath(self.directory)
         subs["script"] = os.path.basename(self.real_script)
         job_name = directory + "_job"
-        self.create_script("job",job_name,directory,subs)
-        self.create_script("cleanup","cleanup",directory,subs)
+        self.create_script("job", job_name, directory, subs)
+        self.create_script("cleanup", "cleanup", directory, subs)
         if self.opts.get("submit"):
             os.chdir(directory)
             os.system("qsub %s" % job_name)
             os.chdir(old_cwd)
 
-    def copy_extra_files(self,files):
+    def copy_extra_files(self, files):
         for file in files:
-            shutil.copy(file,self.directory)
+            shutil.copy(file, self.directory)
 
-def process_template(template_name,output_name,subs):
-    template = open(template_name,"r")
-    output = open(output_name,"w")
+def process_template(template_name, output_name, subs):
+    template = open(template_name, "r")
+    output = open(output_name, "w")
     unknown_vars = []
     for line in template.readlines():
-        match = re.search("@@[A-z0-9]+@@",line)
+        match = re.search("@@[A-z0-9]+@@", line)
         while match:
-            var = string.replace(match.group(),"@@","")
+            var = string.replace(match.group(), "@@", "")
             if subs.has_key(var):
                 replacement = str(subs[var])
             else:
                 replacement = ""
                 unknown_vars.append(var)
             original = match.group()
-            line = string.replace(line,original,replacement)
-            match = re.search("@@[A-z0-9]+@@",line)
-        match = re.search("__([A-z0-9]+){{(.*)}}{{(.*)}}__",line)
+            line = string.replace(line, original, replacement)
+            match = re.search("@@[A-z0-9]+@@", line)
+        match = re.search("__([A-z0-9]+){{(.*)}}{{(.*)}}__", line)
         while match:
             var = match.group(1)
             if subs.has_key(var):
@@ -120,38 +128,38 @@ def process_template(template_name,output_name,subs):
                     unknown_vars.remove(var)
             original = "__%s{{%s}}{{%s}}__" % (match.group(1), match.group(2),
                                                match.group(3))
-            line = string.replace(line,original,replacement)
-            match = re.search("@@[A-z0-9]+@@",line)
+            line = string.replace(line, original, replacement)
+            match = re.search("@@[A-z0-9]+@@", line)
         output.write(line)
     for var in unknown_vars:
         print "process_template warning: variable \"%s\" unkown." % var
     template.close()
     output.close()
-    os.chmod(output_name,0755)
+    os.chmod(output_name, 0755)
 
 
 def create_new_directory(directory, version, overwrite):
     if version > 499:
         print "Sanity check failure: attempt to create directory version %d."\
-              %version
+              % version
         print "Maximum is 499."
         sys.exit(1)
     if version == 0:
         created_directory = directory
     else:
-        created_directory = "%s.%02d" % (directory,version)
+        created_directory = "%s.%02d" % (directory, version)
     if os.path.isdir(created_directory):
         if overwrite:
             shutil.rmtree(created_directory)
             os.mkdir(created_directory)
-            print "created directory",created_directory
+            print "created directory", created_directory
         else:
             created_directory = create_new_directory(directory,
                                                      version + 1,
                                                      overwrite)
     else:
         os.mkdir(created_directory)
-        print "created directory",created_directory
+        print "created directory", created_directory
     return created_directory
 
 def get_synergia_directory(die_on_failure=1):
@@ -183,4 +191,4 @@ if __name__ == "__main__":
     subs["PROCESSES"] = str(144)
     subs["WALLTIME"] = "01:00:00"
     #subs["MAIL"] = None
-    process_template("generic_pbs_template.sh","synergia-pbs.sh",subs)
+    process_template("generic_pbs_template.sh", "synergia-pbs.sh", subs)

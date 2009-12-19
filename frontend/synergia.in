@@ -24,4 +24,23 @@ do
     PYTHONPATH="$dir:$PYTHONPATH"
 done
 export PYTHONPATH
-exec python "$@"
+
+just_options=false
+options_file="`basename \"$1\" .py`_options.py"
+if [ -f "$options_file" ]; then
+	for arg in "$@"
+	do
+		if [ x"$arg" = x"--help" ]; then
+			just_options=true
+		fi
+		if [ x"$arg" = x"createjob=1" ]; then
+			just_options=true
+		fi		
+	done
+fi
+
+if [ "$just_options" = "true" ]; then
+	exec python "$options_file" --strip-options-file "$@"
+else
+	exec python "$@"
+fi
