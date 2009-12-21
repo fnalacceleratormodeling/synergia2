@@ -30,6 +30,11 @@ if [ x"$1" = x"--pythonpath" ]; then
 	exit 0
 fi
 
+if [ x"$1" = x"--ldlibrarypath" ]; then
+	echo "$LD_LIBRARY_PATH"
+	exit 0
+fi
+
 just_options=false
 options_file="`basename \"$1\" .py`_options.py"
 if [ -f "$options_file" ]; then
