@@ -1,0 +1,265 @@
+TITLE, "PS2 NMC with supressor"
+Option,echo
+
+
+
+!  MKA  : MARKER,APERTYPE=CIRCLE, APER_1=0.1
+!  MKB  : MARKER,APERTYPE=CIRCLE, APER_1=0.1
+!  MKC  : MARKER,APERTYPE=CIRCLE, APER_1=0.1
+!  MKD  : MARKER,APERTYPE=CIRCLE, APER_1=0.1
+!  MKE  : MARKER,APERTYPE=CIRCLE, APER_1=0.1
+!  MKF  : MARKER,APERTYPE=CIRCLE, APER_1=0.1
+!  MKG  : MARKER,APERTYPE=CIRCLE, APER_1=0.1
+!  MKH  : MARKER,APERTYPE=CIRCLE, APER_1=0.1
+!  MKI  : MARKER,APERTYPE=CIRCLE, APER_1=0.1
+
+  MKA  : MARKER
+  MKB  : MARKER
+  MKC  : MARKER
+  MKD  : MARKER
+  MKE  : MARKER
+  MKF  : MARKER
+  MKG  : MARKER
+  MKH  : MARKER
+  MKI  : MARKER
+
+  D1   : DRIFT, L = 0.6
+  D2   : DRIFT, L = 1.2
+  D2S  : DRIFT, L = 0.65
+  D3   : DRIFT, L = 1.2
+  D4   : DRIFT, L = 1.2
+  D5   : DRIFT, L = 2.4
+  D8   : DRIFT, L = 1.295674635
+  DD   : DRIFT, L = 2.13
+  DDS  : DRIFT, L = 0.88
+
+  Ndip=83
+
+  Bfield = 1.7
+  Ekin = 50
+  E0 = 0.938272029
+  Energie = Ekin+E0
+  BEAM, PARTICLE=PROTON, ENERGY=Energie, EX=3.24E-6, EY=1.73E-6, SIGE=0.001
+  gammar = Energie/E0
+  betar = sqrt(1-1/gammar^2)
+  radius = betar*Energie/0.2998/Bfield
+
+  MB:  SBEND, L=Pi/Ndip*radius, ANGLE=Pi/Ndip, E1=Pi/(2*Ndip), E2=Pi/(2*Ndip)
+
+  MBhalf:  SBEND, L=Pi/Ndip*radius/2, ANGLE=Pi/Ndip/2, E1=Pi/(2*Ndip)/2, E2=0
+  MBhalfr: SBEND, L=Pi/Ndip*radius/2, ANGLE=Pi/Ndip/2, E1=0, E2=Pi/(2*Ndip)/2
+
+  DB: DRIFT, L=Pi/Ndip*radius
+
+  MQHa  : QUADRUPOLE, L = 0.3
+  MQHb  : QUADRUPOLE, L = 1.0
+  MQHc  : QUADRUPOLE, L = 0.6 
+  MQHd  : QUADRUPOLE, L = 1.4
+
+  kq1 =        0.104797461 
+  kq2 =      -0.1061349379 
+  kq3 =       0.1002718851 
+  kq4 =     -0.06411662294 
+  kq5 =     -0.07196117193 
+  kq6 =        0.100688312 
+  kq7 =     -0.08431750947 
+  kq8 =     -0.01417514997 
+  kq9 =      0.08078759671 
+  kq10 =     -0.08269632156 
+
+ ! PS2.MQA.MOD.1  : MQHa,    K1=KQ1
+ ! PS2.MQA.MOD.2  : MQHa,    K1=KQ2
+ ! PS2.MQB.MOD.3  : MQHb,    K1=KQ3
+ ! PS2.MQB.MOD.4  : MQHb,    K1=KQ4
+ ! PS2.MQB.SUP.5  : MQHb,    K1=KQ5
+ ! PS2.MQD.SUP.6  : MQHd,    K1=KQ6
+ ! PS2.MQB.SUP.7  : MQHb,    K1=KQ7
+ ! PS2.MQA.SUP.8  : MQHa,    K1=KQ8
+ ! PS2.MQB.SUP.9  : MQHb,    K1=KQ9
+ ! PS2.MQC.SUP.10 : MQHc,    K1=KQ10
+
+  PS2.MQA.MOD.1  : QUADRUPOLE, L = 0.3,  K1=KQ1
+  PS2.MQA.MOD.2  : QUADRUPOLE, L = 0.3,  K1=KQ2
+  PS2.MQB.MOD.3  : QUADRUPOLE, L = 1.0,  K1=KQ3
+  PS2.MQB.MOD.4  : QUADRUPOLE, L = 1.0,  K1=KQ4
+  PS2.MQB.SUP.5  : QUADRUPOLE, L = 1.0,  K1=KQ5
+  PS2.MQD.SUP.6  : QUADRUPOLE, L = 1.4,  K1=KQ6
+  PS2.MQB.SUP.7  : QUADRUPOLE, L = 1.0,  K1=KQ7
+  PS2.MQA.SUP.8  : QUADRUPOLE, L = 0.3,  K1=KQ8
+  PS2.MQB.SUP.9  : QUADRUPOLE, L = 1.0,  K1=KQ9
+  PS2.MQC.SUP.10 : QUADRUPOLE, L = 0.6,  K1=KQ10
+
+
+  kfs = 0.09306062285
+! original QFHS : MQHb,    K1=KQFS  ?????, KQFS not defined
+!  QFHS : QUADRUPOLE, L = 1.0,  K1=KQFS
+
+  DS1: DRIFT, L = 9.9
+  DS2: DRIFT, L = 10.9
+  DS3: DRIFT, L = 9.9
+  DS4: DRIFT, L = 0.5
+  DS5: DRIFT, L = 10.9
+
+  ps2.mqcl.l = 1.489
+  ps2.mqc.ds.k1 = -0.06774232
+  ps2.mqc.fs.k1 = 0.08166197
+  ps2.mqc.ds2.k1 = -0.05906058896
+  ps2.mqb.fstr1.k1 = 0.06438946297
+  ps2.mqal.l = 2
+  ps2.mqa.dstr2.k1 = -0.08298926063
+  ps2.mqbl.l = 2
+  ps2.mqb.fstr3.k1 = 0.06636068804
+  ps2.mqcl: quadrupole,l=ps2.mqcl.l / 2.0 
+ !ps2.mqc.ds: ps2.mqcl,k1=ps2.mqc.ds.k1 
+ !ps2.mqc.fs: ps2.mqcl,k1=ps2.mqc.fs.k1 
+ !ps2.mqc.ds2: ps2.mqcl,k1=ps2.mqc.ds2.k1 
+ !ps2.mqc.fstr1: ps2.mqcl,k1=ps2.mqb.fstr1.k1 
+ !ps2.mqal: quadrupole,l=ps2.mqal.l / 2.0 
+ !ps2.mqa.dstr2: ps2.mqal,k1=ps2.mqa.dstr2.k1 
+ !ps2.mqbl: quadrupole,l=ps2.mqbl.l / 2.0 
+ !ps2.mqb.fstr3: ps2.mqbl,k1=ps2.mqb.fstr3.k1 
+
+ 
+  ps2.mqc.ds: quadrupole,l=ps2.mqcl.l / 2.0 , k1=ps2.mqc.ds.k1 
+  ps2.mqc.fs: quadrupole,l=ps2.mqcl.l / 2.0 , k1=ps2.mqc.fs.k1 
+  ps2.mqc.ds2: quadrupole,l=ps2.mqcl.l / 2.0 ,k1=ps2.mqc.ds2.k1 
+  ps2.mqc.fstr1: quadrupole,l=ps2.mqcl.l / 2.0 ,k1=ps2.mqb.fstr1.k1 
+  ps2.mqal: quadrupole,l=ps2.mqal.l / 2.0 
+  ps2.mqa.dstr2: quadrupole,l=ps2.mqal.l / 2.0 ,k1=ps2.mqa.dstr2.k1 
+  ps2.mqbl: quadrupole,l=ps2.mqbl.l / 2.0 
+  ps2.mqb.fstr3:  quadrupole,l=ps2.mqbl.l / 2.0 ,k1=ps2.mqb.fstr3.k1 
+
+
+  QF2S :QUADRUPOLE, l=0.65,k1=KFS
+
+  ps2.ms.1.k =       0.2479108916 
+  ps2.ms.3.k =      -0.2479108916
+  ps2.ms.2.k =       0.1899589516 
+  ps2.ms.4.k =      -0.1899589516
+
+!  ps2.ms.1.k =       0.0000000000 
+!  ps2.ms.3.k =       0.0000000000
+!  ps2.ms.2.k =       0.0000000000 
+!  ps2.ms.4.k =       0.0000000000
+
+
+  PS2.MS.1: SEXTUPOLE,L=0.2,K2=PS2.MS.1.K;
+  PS2.MS.2: SEXTUPOLE,L=0.2,K2=PS2.MS.2.K;
+  PS2.MS.3: SEXTUPOLE,L=0.2,K2=PS2.MS.3.K;
+  PS2.MS.4: SEXTUPOLE,L=0.2,K2=PS2.MS.4.K;
+
+  DMS1: DRIFT, L=0.15
+  DMS2: DRIFT, L=0.15
+  DMS3: DRIFT, L=0.85
+  DMS4: DRIFT, L=0.15
+
+  cav: rfcavity, volt=1.5, harmon= 180
+
+ 
+
+THREEBENDS : LINE=(D2, MB, D1, MB, D1, MB, D2)
+
+THREEBENDSS : LINE=(D2, MB, D1, MB, D1, MB, D2S)
+
+THREEBENDSSS : LINE=(D2S, MB, D1, MB, D1, MB, D2S)
+
+TWOBENDS : LINE=(D2, MB, D1, MB, D2)
+
+HalfBEND    : LINE=(DD, MBhalf)
+
+HalfBENDS    : LINE=(DDS, MBhalf)
+
+HalfBEND2    : LINE=(D2, MBhalf)
+
+HalfBENDR    : LINE=(DD, MBhalfr)
+
+HalfBENDSR    : LINE=(DDS, MBhalfr)
+
+HalfBEND2R    : LINE=(D2, MBhalfr)
+
+HalfFODO1    : LINE=(MKA, PS2.MQA.MOD.1,THREEBENDS,PS2.MQA.MOD.2,MKB)
+
+HalfFODO1S    : LINE=(MKA, PS2.MQA.MOD.1,THREEBENDSS,PS2.MS.1,PS2.MS.1,  &
+DMS1,PS2.MQA.MOD.2,MKB)
+
+HalfFODO1SS    : LINE=(MKA, PS2.MQA.MOD.1,DMS4,PS2.MS.4,PS2.MS.4,THREEBENDSSS,&
+PS2.MS.1,PS2.MS.1,DMS1,PS2.MQA.MOD.2,MKB)
+
+HalfFODO2    : LINE=(MKC, PS2.MQB.MOD.3,THREEBENDS,PS2.MQA.MOD.2,MKB)
+
+HalfFODO2S    : LINE=(MKC, PS2.MQB.MOD.3,DMS2,PS2.MS.2,PS2.MS.2,-THREEBENDSS,  &
+PS2.MQA.MOD.2,MKB)
+
+HalfFODO3    : LINE=(MKA, PS2.MQA.MOD.1, THREEBENDS, PS2.MQB.SUP.5, MKB)
+
+HalfFODOSUP1  : LINE=(MKA, QF2S, -TWOBENDS, PS2.MQC.SUP.10, MKB)
+
+HalfFODOSUP2  : LINE=(MKC,PS2.MQB.SUP.9,THREEBENDS, PS2.MQC.SUP.10)
+
+HalfFODOSUP3  : LINE=(MKC,PS2.MQD.SUP.6,D8, PS2.MQB.SUP.5)
+
+NMChalf:LINE=(HalfFODO1,-HalfFODO2,PS2.MQB.MOD.3,D4,PS2.MQB.MOD.4,     &
+              MKD,PS2.MQB.MOD.4,HalfBEND)
+
+NMChalfS:LINE=(HalfFODO1S,-HalfFODO2S,PS2.MQB.MOD.3,D4,PS2.MQB.MOD.4,  &
+                       MKD,PS2.MQB.MOD.4,DMS3,PS2.MS.3,PS2.MS.3,HalfBENDS)	      
+
+NMChalfSS : LINE=(HalfFODO1SS,-HalfFODO2S,PS2.MQB.MOD.3,D4,            & 
+       PS2.MQB.MOD.4,MKD,PS2.MQB.MOD.4,DMS3,PS2.MS.3,PS2.MS.3,HalfBENDS)	
+
+NMChalfSSR : LINE=(HalfFODO1SS,-HalfFODO2S,PS2.MQB.MOD.3,D4,            & 
+       PS2.MQB.MOD.4,MKD,PS2.MQB.MOD.4,DMS3,PS2.MS.3,PS2.MS.3,HalfBENDSR)     
+
+NMChalfSUPAUX: LINE=(HalfFODOSUP1, -HalfFODOSUP2, PS2.MQB.SUP.9, D4,   &
+                     PS2.MQA.SUP.8, MKD, PS2.MQA.SUP.8,HalfBEND2)
+
+NMChalfSUPAUXR: LINE=(HalfFODOSUP1, -HalfFODOSUP2, PS2.MQB.SUP.9, D4,   &
+                     PS2.MQA.SUP.8, MKD, PS2.MQA.SUP.8,HalfBEND2R)
+
+NMChalfSUP1:LINE=(NMChalfSUPAUX)
+
+NMChalfSUP1R:LINE=(NMChalfSUPAUXR)
+
+NMChalfSUP2:LINE=(HalfFODO3, -HalfFODOSUP3, PS2.MQD.SUP.6, D5,        &
+                   PS2.MQB.SUP.7, PS2.MQB.SUP.7, HalfBEND)
+
+NMChalfSUP2R:LINE=(HalfFODO3, -HalfFODOSUP3, PS2.MQD.SUP.6, D5,        &
+                   PS2.MQB.SUP.7, PS2.MQB.SUP.7, HalfBENDR)
+
+!NMC : LINE=(NMChalf,MKE,-NMChalf)
+NMC : LINE=(NMChalfS,MKE,-NMChalfSSR)
+
+NMCSUPAUX : LINE=(NMChalfSUPAUX,-NMChalfSUPAUXR)
+
+NMCSUP: LINE=(NMChalfSUP1,-NMChalfSUP2R)
+
+NMCSUPR: LINE=(NMChalfSUP1R,-NMChalfSUP2)
+
+ARC: LINE=(NMCSUP,5*NMC,-NMCSUPR)
+
+HALFNMCRING : LINE=(ARC,STRAIGHT)
+
+NMCRING: LINE=(2*HalfNMCRING)
+
+FODO1 : LINE = (QF2S,DS1, PS2.MQC.DS, PS2.MQC.DS, DS1, PS2.MQC.FS)
+
+FODO2 : LINE = (PS2.MQC.FS, DS1, PS2.MQC.DS2, PS2.MQC.DS2, DS2,      &
+                 PS2.MQC.FSTR1)
+
+FODO12 : LINE = (FODO1,FODO2)
+
+HALFSTRAIGHT:LINE=(FODO1,FODO2,PS2.MQC.FSTR1,DS3,PS2.MQA.DSTR2,      &
+                 PS2.MQA.DSTR2,DS4,PS2.MQB.FSTR3,PS2.MQB.FSTR3, DS5)
+
+STRAIGHT : LINE=(HALFSTRAIGHT,MKF,CAV,-HALFSTRAIGHT)  
+
+
+
+
+
+STOP
+TITLE, "PS2 NMC 531 lattice chromaticity correction";
+!ASSIGN, ECHO="out";
+Option,echo;
+
+

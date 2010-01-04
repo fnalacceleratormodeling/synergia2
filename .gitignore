@@ -1,0 +1,38 @@
+*.pyc
+*.so
+*.o
+*~
+config.status
+local_paths.py
+make_defines
+fort.*
+ocf_new.dat
+ocfish*.dat
+code_parts*.dat
+
+synergia-local
+
+.kdbgrc.*
+
+# cmake
+CMakeCache.txt
+CMakeFiles
+cmake_install.cmake
+progress.make
+Makefile
+DartTestfile.txt
+Testing
+install_manifest.txt
+
+# kdevelop
+Doxyfile
+SYNERGIA2.kdev*
+
+# eclipse
+.cproject
+.project
+.project.tmp
+.pydevproject
+CTestTestfile.cmake
+
+debug-*

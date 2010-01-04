@@ -1,0 +1,4 @@
+To build the Synergia VisIt plugin, first ensure the visit exectubles are
+in your path, then type
+    ./configure
+    make

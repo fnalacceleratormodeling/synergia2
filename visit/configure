@@ -1,0 +1,13 @@
+#!/bin/sh
+
+xml2makefile --help > /dev/null 2>&1
+retval="$?"
+if [ ! "$retval" = "0" ]; then
+    echo "$0: xml2makefile (from the VisIt bin directory) must be in PATH."
+    exit 1
+fi
+
+xml2makefile -private -clobber COMPASS_FNAL.xml && \
+echo "Makefile generated." && \
+echo 'Typing "make" will compile the Synergia visit plugin and install it in your' && \
+echo 'private visit directory.'

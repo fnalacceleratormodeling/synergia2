@@ -1,0 +1,383 @@
+#LyX 1.5.4 created this file. For more info see http://www.lyx.org/
+\lyxformat 276
+\begin_document
+\begin_header
+\textclass article
+\language english
+\inputencoding auto
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+\graphics default
+\paperfontsize default
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Section
+Solving a differential equation with discrete Fourier transforms
+\end_layout
+
+\begin_layout Standard
+We start with the 1-d equation
+\begin_inset Formula \[
+\frac{d^{2}}{dz^{2}}\phi(z)=f(z).\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Next, we divide the domain 
+\begin_inset Formula $z:[0-L]$
+\end_inset
+
+ into 
+\begin_inset Formula $N$
+\end_inset
+
+ discrete points and apply the discrete Fourier operator
+\begin_inset Formula \[
+\mathcal{F}_{m}=\sum_{m=0}^{N-1}e^{2\pi imn/N}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where
+\begin_inset Formula \[
+z=nL/N,\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+so
+\begin_inset Formula \[
+\mathcal{F}_{m}=\sum_{m=0}^{N-1}e^{2\pi imz/L}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+to get
+\begin_inset Formula \[
+-\left(\frac{2\pi m}{L}\right)^{2}\phi(m)=f(m),\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where
+\begin_inset Formula \[
+\phi(m)\equiv\mathcal{F}_{m}\phi(z)=\sum_{m=0}^{N-1}\phi(z)e^{2\pi imz/L}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+and
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+f(m)\equiv\mathcal{F}_{m}f(z)=\sum_{m=0}^{N-1}f(z)e^{2\pi imz/L}.\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Then
+\begin_inset Formula \[
+\phi(z)=\widetilde{\mathcal{F}}_{z}\left[-\left(\frac{L}{2\pi m}\right)^{2}f(m)\right]=\frac{1}{N}\sum_{m=0}^{N-1}-\left(\frac{L}{2\pi m}\right)^{2}f(m)e^{-2\pi imz/L},\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where we have used the inverse discrete Fourier operator
+\begin_inset Formula \[
+\widetilde{\mathcal{F}}_{z}=\frac{1}{N}\sum_{m=0}^{N-1}e^{-2\pi imz/L}.\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+A simple case
+\end_layout
+
+\begin_layout Standard
+As a test, we take THE SIMPLEST FREAKIN' CASE I CAN IMAGINE,
+\begin_inset Formula \[
+\phi(z)=\phi_{1}(z)=cos\left(\frac{2\pi}{L}z\right),\]
+
+\end_inset
+
+with the corresponding right hand side given by
+\begin_inset Formula \[
+f(z)=f_{1}(z)=-\left(\frac{2\pi}{L}\right)^{2}cos\left(\frac{2\pi}{L}z\right).\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Our goal is to use the procedure above to solve our 1-d equation for 
+\begin_inset Formula $\phi(z)$
+\end_inset
+
+ given 
+\begin_inset Formula $f_{1}(z)$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Section
+Solving the Poisson equation in a cylindrical conducting pipe
+\end_layout
+
+\begin_layout Standard
+We start with the Poisson equation,
+\begin_inset Formula \[
+\nabla^{2}\phi=-\frac{1}{\epsilon}\rho.\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We use cylindrical coordinates 
+\begin_inset Formula $(r,\theta,z)$
+\end_inset
+
+, where 
+\begin_inset Formula \[
+\nabla^{2}\phi=\frac{1}{r}\frac{\partial}{\partial r}\left(r\frac{\partial\phi}{\partial r}\right)+\frac{1}{r^{2}}\frac{\partial^{2}\phi}{\partial\theta^{2}}+\frac{\partial^{2}\phi}{\partial z^{2}}.\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We apply the two-dimensional Fourier transform
+\begin_inset Formula \[
+\int e^{-il\theta-imz}d\theta dz\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+to each side of the Poisson equation to obtain
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\frac{1}{r}\frac{\partial}{\partial r}\left(r\frac{\partial\phi^{lm}}{\partial r}\right)-\frac{l^{2}}{r^{2}}\phi^{lm}-m^{2}\phi^{lm}=-\frac{1}{\epsilon}\rho^{lm},\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where
+\begin_inset Formula \[
+\phi^{lm}=\int\phi e^{-il\theta-imz}d\theta dz\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+and
+\begin_inset Formula \[
+\rho^{lm}=\int\rho e^{-il\theta-imz}d\theta dz.\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+A test distribution for Poisson solvers
+\end_layout
+
+\begin_layout Standard
+We want to test solvers to the equation
+\begin_inset Formula \[
+\nabla^{2}\phi=-\frac{1}{\epsilon}\rho.\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+We use cylindrical coordinates, where 
+\begin_inset Formula \[
+\nabla^{2}=\frac{1}{r}\frac{\partial}{\partial r}\left(\frac{1}{r}\frac{\partial\phi}{\partial r}\right)+\frac{1}{r^{2}}\frac{\partial^{2}\phi}{\partial\theta^{2}}+\frac{\partial^{2}\phi}{\partial z^{2}}\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The example charge distributions for which there are simple, analytical
+ expressions for 
+\begin_inset Formula $\phi$
+\end_inset
+
+ are typically those which exhibit a very large degree of symmetry, reducing
+ the problem to one, or possibly two, dimensions.
+ These examples are poor tests for a solver because they do not equally
+ test all three dimensions.
+\end_layout
+
+\begin_layout Standard
+Instead, we work backwards, using a truly three dimensional 
+\begin_inset Formula $\phi(r,\theta,z)$
+\end_inset
+
+ and differentiating to find the corresponding 
+\begin_inset Formula $\rho(r,\theta,z)$
+\end_inset
+
+.
+ For our closed pipe solver, we have the following boundary conditions:
+\begin_inset Formula \[
+\phi(r=r_{0},\theta,z)=0\]
+
+\end_inset
+
+
+\begin_inset Formula \[
+\phi(r,\theta=0,z)=\phi(r,\theta=\2\pi,z)\]
+
+\end_inset
+
+
+\begin_inset Formula \[
+\phi(r,\theta,z=-z_{0})=\phi(r,\theta,z=+z_{0})\]
+
+\end_inset
+
+ These conditions are satisfied by the following field
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \[
+\phi(r,\theta,z)=\left(-\frac{r^{2}}{r_{0}^{2}}+1\right)\sin^{2}\left(3\theta\right)\cos^{2}\left(\pi\frac{z}{z_{0}}\right),\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+which has non-trivial dependence on all coordinates.
+\end_layout
+
+\begin_layout Standard
+The maxima program
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Standard
+
+phi:(-r^2/r0^2+1)*sin(3*theta)^2*cos(%pi*z/z0)^2;
+\end_layout
+
+\begin_layout Standard
+
+phir:1/r*diff(r*diff(phi,r),r);
+\end_layout
+
+\begin_layout Standard
+
+phitheta:1/r^2*diff(phi,theta,2);
+\end_layout
+
+\begin_layout Standard
+
+phiz:diff(phi,z,2);
+\end_layout
+
+\begin_layout Standard
+
+rho:-ratsimp(phir+phitheta+phiz);
+\end_layout
+
+\begin_layout Standard
+
+load("cformat.lisp");
+\end_layout
+
+\begin_layout Standard
+
+cformat(rho); 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+provides the C++-formatted version of the resulting charge density.
+\end_layout
+
+\end_body
+\end_document

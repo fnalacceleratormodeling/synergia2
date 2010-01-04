@@ -1,0 +1,9 @@
+load("cformat.lisp");
+phi:(-r^2/r0^2 +1)*sin(3*theta)^2*cos(%pi*z/z0)^2;
+cformat(phi);
+phir:1/r*diff(r*diff(phi,r),r);
+cformat(phir);
+phitheta:1/r^2*diff(phi,theta,2);
+cformat(phitheta);
+phiz:diff(phi,z,2);
+cformat(phiz);

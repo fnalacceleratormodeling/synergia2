@@ -1,0 +1,9 @@
+phi:(-r^2/r0^2 +1)*sin(3*theta)*cos(%pi*z/z0)^2;
+phir:1/r*diff(r*diff(phi,r),r);
+phitheta:1/r^2*diff(phi,theta,2);
+phiz:diff(phi,z,2);
+rho:-ratsimp(phir+phitheta+phiz);
+load("cformat.lisp");
+octformat(phi);
+octformat(rho);
+

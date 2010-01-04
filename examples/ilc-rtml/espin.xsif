@@ -1,0 +1,422 @@
+! ==============================================================================
+! 08-dec-2006, PT:
+!    add skew correction section; remove 2 wire scanners.  Eliminate xcors
+!    at D quads.  Moved BPMs to corrector side of quads.
+! 17-feb-2006, PT:
+!    incorporate emittance diagnostic line, per beamline information sheet.
+!    Add feed-forward correctors.
+! 11-NOV-2005, M. Woodley
+!    ILC post-DR 5 GeV spin rotator system from Jeff Smith
+! ------------------------------------------------------------------------------
+
+! Modifed for MAD conformity
+
+  Ei_EBC1  := E0
+  BSIGNBC2 := 1.0 !electrons
+
+! Initial beam and twiss conditions:
+
+! TWISS_ESPIN : BETA0, BETX = 8.3553, ALFX =  0.4830, &
+!                       BETY = 8.3435, ALFY =  0.9003
+
+! BEAM_ESPIN  : BEAM, ENERGY = 5, NPART = BunchCharge, &
+!               SIGE = 1.5E-3, SIGT = 9.7E-03, &
+!               EX = 8E-6 * EMASS/5, EY = 20E-9 * EMASS/5
+
+! ==============================================================================
+! BENDs
+! ------------------------------------------------------------------------------
+
+! ABABC1 :=  0.11284306*Bsignbc2/Ei_EBC1
+! ABABC1 :=  0.1154*Bsignbc2/Ei_EBC1
+  ABABC1 :=  -Aspin/6
+
+! B1_1  : SBEND, TYPE="4D30.5_I", L=LB30/2, ANGLE=ABABC1/2, HGAP=GB30/2, &
+!                E1=ABABC1/2, FINT=0.5, FINTX=0
+! B1_2  : SBEND, TYPE="4D30.5_I", L=LB30/2, ANGLE=ABABC1/2, HGAP=GB30/2, &
+!                E2=ABABC1/2, FINT=0,   FINTX=0.5
+! B2_1  : SBEND, TYPE="4D30.5_I", L=LB30/2, ANGLE=ABABC1/2, HGAP=GB30/2, &
+!                E1=ABABC1/2, FINT=0.5, FINTX=0
+! B2_2  : SBEND, TYPE="4D30.5_I", L=LB30/2, ANGLE=ABABC1/2, HGAP=GB30/2, &
+!                E2=ABABC1/2, FINT=0,   FINTX=0.5
+! B3_1  : SBEND, TYPE="4D30.5_I", L=LB30/2, ANGLE=ABABC1/2, HGAP=GB30/2, &
+!                E1=ABABC1/2, FINT=0.5, FINTX=0
+! B3_2  : SBEND, TYPE="4D30.5_I", L=LB30/2, ANGLE=ABABC1/2, HGAP=GB30/2, &
+!                E2=ABABC1/2, FINT=0,   FINTX=0.5
+! B4_1  : SBEND, TYPE="4D30.5_I", L=LB30/2, ANGLE=ABABC1/2, HGAP=GB30/2, &
+!                E1=ABABC1/2, FINT=0.5, FINTX=0
+! B4_2  : SBEND, TYPE="4D30.5_I", L=LB30/2, ANGLE=ABABC1/2, HGAP=GB30/2, &
+!                E2=ABABC1/2, FINT=0,   FINTX=0.5
+! B5_1  : SBEND, TYPE="4D30.5_I", L=LB30/2, ANGLE=ABABC1/2, HGAP=GB30/2, &
+!                E1=ABABC1/2, FINT=0.5, FINTX=0
+! B5_2  : SBEND, TYPE="4D30.5_I", L=LB30/2, ANGLE=ABABC1/2, HGAP=GB30/2, &
+!                E2=ABABC1/2, FINT=0,   FINTX=0.5
+! B6_1  : SBEND, TYPE="4D30.5_I", L=LB30/2, ANGLE=ABABC1/2, HGAP=GB30/2, &
+!                E1=ABABC1/2, FINT=0.5, FINTX=0
+! B6_2  : SBEND, TYPE="4D30.5_I", L=LB30/2, ANGLE=ABABC1/2, HGAP=GB30/2, &
+!                E2=ABABC1/2, FINT=0,   FINTX=0.5
+
+  B1_1  : SBEND, TYPE="4D30.5_I", L=LB30, ANGLE=ABABC1, HGAP=GB30, &
+                 E1=ABABC1/2, E2=ABABC1/2
+  B2_1  : SBEND, TYPE="4D30.5_I", L=LB30, ANGLE=ABABC1, HGAP=GB30, &
+                 E1=ABABC1/2, E2=ABABC1/2
+  B3_1  : SBEND, TYPE="4D30.5_I", L=LB30, ANGLE=ABABC1, HGAP=GB30, &
+                 E1=ABABC1/2, E2=ABABC1/2
+  B4_1  : SBEND, TYPE="4D30.5_I", L=LB30, ANGLE=ABABC1, HGAP=GB30, &
+                 E1=ABABC1/2, E2=ABABC1/2
+  B5_1  : SBEND, TYPE="4D30.5_I", L=LB30, ANGLE=ABABC1, HGAP=GB30, &
+                 E1=ABABC1/2, E2=ABABC1/2
+  B6_1  : SBEND, TYPE="4D30.5_I", L=LB30, ANGLE=ABABC1, HGAP=GB30, &
+                 E1=ABABC1/2, E2=ABABC1/2
+
+! ==============================================================================
+! QUADs
+! ------------------------------------------------------------------------------
+
+! solenoids ON
+
+  KQM011 :=  4.093468179872
+  KQM012 := -4.088433049741
+  KQM013 := -2.61080815551
+  KQM014 :=  5.612899537078
+
+  KQFARC :=  6.625165717429
+  KQDARC := -6.62128760605
+
+  KQDA1 := KQDARC
+  KQFA2 := KQFARC
+  KQDA3 := KQDARC
+  KQFA4 := KQFARC
+  KQDA5 := KQDARC
+  KQFA6 := KQFARC
+  KQDA7 := KQDARC
+  KQM24 := KQM014
+  KQM23 := KQM013
+  KQM22 := KQM012
+  KQM21 := KQM011
+
+  QM011 : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQM011
+  QM012 : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQM012
+  QM013 : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQM013
+  QM014 : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQM014
+  QDA1  : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQDA1
+  QFA2  : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQFA2
+  QDA3  : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQDA3
+  QFA4  : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQFA4
+  QDA5  : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQDA5
+  QFA6  : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQFA6
+  QDA7  : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQDA7
+  QM24  : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQM24
+  QM23  : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQM23
+  QM22  : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQM22
+  QM21  : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQM21
+
+! match from spin rotator system
+
+  KQM31BC1 := -5.711628712509
+  KQM32BC1 :=  5.524418996233
+  KQM33BC1 :=  0.245316312638
+  KQM34BC1 := -0.723546776196
+
+  QM31BC1 : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQM31BC1
+  QM32BC1 : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQM32BC1
+  QM33BC1 : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQM33BC1
+  QM34BC1 : QUAD, TYPE="0.79Q5.5", L=LQ5/2, APER=rQ5, K1=KQM34BC1
+
+! 4D emittance diagnostic section
+
+  BQF1BC1 :=  7.149634777821
+  BQD1BC1 := -BQF1BC1
+  BQF2BC1 :=  9.564805633604
+  BQD2BC1 := -6.986341016318
+  BQF3BC1 :=  6.501146758882
+  BQD3BC1 := -BQF3BC1
+  BQFMBC1 :=  7.44372730028
+  BQDMBC1 := -6.771786628447
+
+  KQF1BC1 := (BQF1BC1/rQ5)/ARRRGH
+  KQD1BC1 := (BQD1BC1/rQ5)/ARRRGH
+  KQF2BC1 := (BQF2BC1/rQ5)/ARRRGH
+  KQD2BC1 := (BQD2BC1/rQ5)/ARRRGH
+  KQF3BC1 := (BQF3BC1/rQ5)/ARRRGH
+  KQD3BC1 := (BQD3BC1/rQ5)/ARRRGH
+  KQFMBC1 := (BQFMBC1/rQ5)/ARRRGH
+  KQDMBC1 := (BQDMBC1/rQ5)/ARRRGH
+
+  QF1BC1 : QUAD, TYPE="0.79Q5.5", L=LQ5/2, K1=KQF1BC1, APER=rQ5
+  QD1BC1 : QUAD, TYPE="0.79Q5.5", L=LQ5/2, K1=KQD1BC1, APER=rQ5
+  QF2BC1 : QUAD, TYPE="0.79Q5.5", L=LQ5/2, K1=KQF2BC1, APER=rQ5
+  QD2BC1 : QUAD, TYPE="0.79Q5.5", L=LQ5/2, K1=KQD2BC1, APER=rQ5
+  QF3BC1 : QUAD, TYPE="0.79Q5.5", L=LQ5/2, K1=KQF3BC1, APER=rQ5
+  QD3BC1 : QUAD, TYPE="0.79Q5.5", L=LQ5/2, K1=KQD3BC1, APER=rQ5
+  QFMBC1 : QUAD, TYPE="0.79Q5.5", L=LQ5/2, K1=KQFMBC1, APER=rQ5
+  QDMBC1 : QUAD, TYPE="0.79Q5.5", L=LQ5/2, K1=KQDMBC1, APER=rQ5
+
+! Skew quads
+
+  LSQSPINROT := 0.2
+
+  KSQ5 := 0.
+  KSQ6 := 0.
+  KSQ7 := 0.
+  KSQ8 := 0.
+
+  SQ5 : QUAD, L = LSQSPINROT/2, APER = 0.01, K1 = KSQ5, TILT
+  SQ6 : QUAD, L = LSQSPINROT/2, APER = 0.01, K1 = KSQ6, TILT
+  SQ7 : QUAD, L = LSQSPINROT/2, APER = 0.01, K1 = KSQ7, TILT
+  SQ8 : QUAD, L = LSQSPINROT/2, APER = 0.01, K1 = KSQ8, TILT
+
+
+! ==============================================================================
+! SOLENOIDs
+! ------------------------------------------------------------------------------
+
+! use 3 times Paul Emma's design
+
+  LSOL := 1.38650*3 !solenoid effective length (m)
+  rSOL := 0.01      !solenoid bore radius (m)
+
+  sole_on := 1      !turn solenoids on (1) or off (0)
+
+! KSOL := sole_on*37.78871*(Ei_EBC1/2.0)/(Cb*Ei_EBC1)
+  KSOL := -Bsignbc2*(sole_on*37.78871*(Ei_EBC1/2)/(Cb*Ei_EBC1))/3
+
+  SOL1 : SOLE, TYPE="BC1_Solenoid", L=LSOL/2, APER=rSOL, KS=ksol
+  SOL2 : SOLE, TYPE="BC1_Solenoid", L=LSOL/2, APER=rSOL, KS=ksol
+  SOL3 : SOLE, TYPE="BC1_Solenoid", L=LSOL/2, APER=rSOL, KS=ksol
+  SOL4 : SOLE, TYPE="BC1_Solenoid", L=LSOL/2, APER=rSOL, KS=ksol
+
+! ==============================================================================
+! DRIFTs
+! ------------------------------------------------------------------------------
+
+  dma1_dl1 :=  0.1              !tweak to keep |Bq|<9.6 kG for matching quads
+  dma1_dl2 := -0.2              !keep overall length the same
+  dma1_l1  :=  0.83769
+  dma1_l2  :=  0.68660+dma1_dl1
+  dma1_l3  :=  3.0528+dma1_dl2
+  dma1_l4  :=  0.472798677612
+  
+  DMA1EBC1 : DRIF, L=dma1_l1
+  DMA2EBC1 : DRIF, L=dma1_l2
+  DMA3EBC1 : DRIF, L=dma1_l3
+  DMA4EBC1 : DRIF, L=dma1_l4
+
+  DMA5 : DRIF, L=1.431264366865
+  DA   : DRIF, L=0.262
+
+! match from spin rotator system
+
+  LM31BC1 := 0.5
+  LM32BC1 := 0.5
+  LM33BC1 := 1.0
+  LM34BC1 := 0.5
+  LM35BC1 := 1.5
+  
+  DM31BC1 : DRIF, L=LM31BC1
+  DM32BC1 : DRIF, L=LM32BC1
+  DM33BC1 : DRIF, L=LM33BC1
+  DM34BC1 : DRIF, L=LM34BC1
+  DM35BC1 : DRIF, L=LM35BC1
+
+! lattice drifts
+
+  L1BC1  := 2.25-LQ5       !minimum length for abs(Bq)<9.6 kG
+  L2BC1  := 1.436055184653
+  L3BC1  := 1.445502922566
+  L4BC1  := 1.36-LQ5       !maximum length for match from 90 degree FODO
+  LM1BC1 := 1.548782138257
+  LM2BC1 := 1.120610446749
+
+  SQ4BC1 : DRIF, L=LQ3/2
+  D1BC1  : DRIF, L=L1BC1
+  D2BC1  : DRIF, L=L2BC1
+  D3BC1  : DRIF, L=L3BC1
+  D4BC1  : DRIF, L=L4BC1
+  DM1BC1 : DRIF, L=LM1BC1
+  DM2BC1 : DRIF, L=LM2BC1
+
+! device drifts
+
+  LSQBC1 := 0.5                  !drift between skew quad and quad
+  LWBC1  := 0.5                  !drift between laserwire and quad
+  LFKBC1 := Lspace+LFBK/2        !drift between FB kicker and quad
+  LFCBC1 := LFBK/2+Lspace+LFBC/2 !drift between FB kicker and FB corrector
+
+  DSQBC1    : DRIF, L=LSQBC1
+  DFKBC1    : DRIF, L=LFKBC1
+  DFCBC1    : DRIF, L=LFCBC1
+  D1FBBC1   : DRIF, L=L1BC1-(LFKBC1+LFCBC1)
+  D1FBSQBC1 : DRIF, L=L1BC1-(LFKBC1+LFCBC1+LQ3+LSQBC1)
+  DWBC1     : DRIF, L=LWBC1
+  D1WBC1    : DRIF, L=L1BC1-LWBC1
+  D2WBC1    : DRIF, L=L2BC1-LWBC1
+  DM1WBC1   : DRIF, L=LM1BC1-LWBC1
+  D4WBC1    : DRIF, L=L4BC1-LWBC1
+
+  D1SQBC1 : DRIF, L = L1BC1-LWBC1-LSQSPINROT
+  D2SQBC1 : DRIF, L = L2BC1-LWBC1-LSQSPINROT
+
+! ==============================================================================
+! some markers
+! ==============================================================================
+
+  FCARC : MARK
+  EMMAi : MARK
+  EMMAo : MARK
+  MFIT1 : MARK
+  MFIT2 : MARK
+  MINIT  : MARK
+
+  BEGINESPIN : MARK
+  ENDESPIN   : MARK
+  BEGINEEMIT : MARK
+  ENDEEMIT   : MARK
+
+  NOWS : MARK ! spool piece for removed 4demit wires
+
+! ==============================================================================
+! Correctors for feedforward from upstream of the turnaround
+! ==============================================================================
+
+  XCORFEEDFORWARD1 : HKICK
+  XCORFEEDFORWARD2 : HKICK
+  YCORFEEDFORWARD1 : VKICK
+  YCORFEEDFORWARD2 : VKICK
+
+! ==============================================================================
+! Peter Schmidt's Emma Rotator
+! ------------------------------------------------------------------------------
+
+  DS1 : DRIF, L=0.6
+  DS2 : DRIF, L=0.4
+
+  KQFSOL :=  0.996500031842
+  KQDSOL := -0.828434010467
+
+! NB: set aperture of these quads to 20 mm
+
+  QFS  : QUAD, TYPE="MQ", L=0.4/2, APER=rQ5, K1=KQFSOL
+  QFS2 : QUAD, TYPE="MQ", L=0.8/2, APER=rQ5, K1=KQFSOL
+  QDS2 : QUAD, TYPE="MQ", L=0.8/2, APER=rQ5, K1=KQDSOL
+
+  EMMA_ROT: LINE=(&
+   DS2, QFS,QFS,         BPMQ079, XCOR,YCOR, &
+   DS1, QDS2,QDS2,       BPMQ079, XCOR,YCOR, & 
+   DS1, QFS2,QFS2,       BPMQ079, XCOR,YCOR, &
+   DS1, QDS2,QDS2,       BPMQ079, XCOR,YCOR, & 
+   DS1, QFS2,QFS2,       BPMQ079, XCOR,YCOR, &
+   DS1, QDS2,QDS2,       BPMQ079, XCOR,YCOR, & 
+   DS1, QFS2,MFIT1,QFS2, BPMQ079, XCOR,YCOR, &
+   DS1, QDS2,QDS2,       BPMQ079, XCOR,YCOR, & 
+   DS1, QFS2,QFS2,       BPMQ079, XCOR,YCOR, &
+   DS1, QDS2,QDS2,       BPMQ079, XCOR,YCOR, & 
+   DS1, QFS2,QFS2,       BPMQ079, XCOR,YCOR, &
+   DS1, QDS2,QDS2,       BPMQ079, XCOR,YCOR, & 
+   DS1, QFS,QFS,         BPMQ079, XCOR,YCOR, MFIT2, DS2 )
+
+! ==============================================================================
+! Lattice Layout
+! ------------------------------------------------------------------------------
+
+! SPINROT : LINE= (&
+!  SOL1,SOL1,&
+!  EMMAi,EMMA_ROT,EMMAo, &
+!  SOL2,SOL2,DMA1EBC1,&
+!  QM011,QM011,BPMQ079,XCOR,YCOR,DMA2EBC1,&
+!  QM012,QM012,BPMQ079,XCOR,YCOR,DMA3EBC1,&
+!  QM013,QM013,BPMQ079,XCOR,YCOR,DMA2EBC1,&
+!  QM014,QM014,BPMQ079,XCOR,YCOR,DMA1EBC1,&
+!  B1_1,B1_2,DMA4EBC1,&
+!  QDA1,QDA1,BPMQ079,YCOR,DMA5,&
+!  QFA2,FCARC,QFA2,BPMQ079,XCOR,YCOR,DA,&
+!  B2_1,B2_2,DA,&
+!  QDA3,QDA3,BPMQ079,YCOR,DA,&
+!  B3_1,B3_2,DA,&
+!  QFA4,QFA4,BPMQ079,XCOR,YCOR,DA,&
+!  B4_1,B4_2,DA,&
+!  QDA5,QDA5,BPMQ079,YCOR,DA,&
+!  B5_1,B5_2,DA,&
+!  QFA6,QFA6,BPMQ079,XCOR,YCOR,DMA5,&
+!  QDA7,QDA7,BPMQ079,YCOR,DMA4EBC1,&
+!  B6_1,B6_2,DMA1EBC1,&
+!  QM24,QM24,BPMQ079,XCOR,YCOR,DMA2EBC1,&
+!  QM23,QM23,BPMQ079,XCOR,YCOR,DMA3EBC1,&
+!  QM22,QM22,BPMQ079,XCOR,YCOR,DMA2EBC1,&
+!  QM21,QM21,BPMQ079,XCOR,YCOR,DMA1EBC1,&
+!  SOL3,SOL3,&
+!  EMMA_ROT,&
+!  SOL4,SOL4)
+
+  SPINROT : LINE= (&
+   SOL1,SOL1,&
+   EMMAi,EMMA_ROT,EMMAo, &
+   SOL2,SOL2,DMA1EBC1,&
+   QM011,QM011,BPMQ079,XCOR,YCOR,DMA2EBC1,&
+   QM012,QM012,BPMQ079,XCOR,YCOR,DMA3EBC1,&
+   QM013,QM013,BPMQ079,XCOR,YCOR,DMA2EBC1,&
+   QM014,QM014,BPMQ079,XCOR,YCOR,DMA1EBC1,&
+   B1_1,DMA4EBC1,&
+   QDA1,QDA1,BPMQ079,YCOR,DMA5,&
+   QFA2,FCARC,QFA2,BPMQ079,XCOR,YCOR,DA,&
+   B2_1,DA,&
+   QDA3,QDA3,BPMQ079,YCOR,DA,&
+   B3_1,DA,&
+   QFA4,QFA4,BPMQ079,XCOR,YCOR,DA,&
+   B4_1,DA,&
+   QDA5,QDA5,BPMQ079,YCOR,DA,&
+   B5_1,DA,&
+   QFA6,QFA6,BPMQ079,XCOR,YCOR,DMA5,&
+   QDA7,QDA7,BPMQ079,YCOR,DMA4EBC1,&
+   B6_1,DMA1EBC1,&
+   QM24,QM24,BPMQ079,XCOR,YCOR,DMA2EBC1,&
+   QM23,QM23,BPMQ079,XCOR,YCOR,DMA3EBC1,&
+   QM22,QM22,BPMQ079,XCOR,YCOR,DMA2EBC1,&
+   QM21,QM21,BPMQ079,XCOR,YCOR,DMA1EBC1,&
+   SOL3,SOL3,&
+   EMMA_ROT,&
+   SOL4,SOL4)
+
+  MSRED : LINE=(&
+   DM31BC1,&
+   QM31BC1,QM31BC1,BPMQ079,XCOR,YCOR,DM32BC1,&
+   QM32BC1,QM32BC1,BPMQ079,XCOR,YCOR,DM33BC1,&
+   QM33BC1,QM33BC1,BPMQ079,XCOR,YCOR,DM34BC1,&
+   QM34BC1,QM34BC1,BPMQ079,XCOR,YCOR,DM35BC1)
+
+  EMITDIAG : LINE=(&
+   SQ4BC1,SQ4BC1,DSQBC1,&
+   QD1BC1,QD1BC1,BPMQ079,     YCOR, DWBC1,2*SQ5, D1SQBC1, &
+   QF1BC1,QF1BC1,BPMQ079,XCOR,YCOR, D1BC1,&
+   QD1BC1,QD1BC1,BPMQ079,     YCOR, DWBC1,2*SQ6, D2SQBC1, &
+   QF2BC1,QF2BC1,BPMQ079,XCOR,YCOR, D3BC1,&
+   QD2BC1,QD2BC1,BPMQ079,     YCOR, D3BC1,&
+   QF2BC1,QF2BC1,BPMQ079,XCOR,YCOR, D2BC1,&
+   QD1BC1,QD1BC1,BPMQ079,     YCOR, DWBC1,2*SQ7, D1SQBC1, &
+   QF1BC1,QF1BC1,BPMQ079,XCOR,YCOR, D1BC1,&
+   QD1BC1,QD1BC1,BPMQ079,     YCOR, DWBC1,2*SQ8, D1SQBC1, &
+   QF1BC1,QF1BC1,BPMQ079,XCOR,YCOR, D1BC1,&
+   QD1BC1,QD1BC1,BPMQ079,     YCOR, DFKBC1,DFCBC1, &
+   XCORFEEDFORWARD1,YCORFEEDFORWARD1, D1FBBC1,&
+   QF1BC1,QF1BC1,BPMQ079,XCOR,YCOR, DFKBC1,DFCBC1,D1FBBC1,&
+   QD1BC1,QD1BC1,BPMQ079,     YCOR, DWBC1,NOWS, &
+   XCORFEEDFORWARD2,YCORFEEDFORWARD2, D1WBC1,&
+   QF1BC1,QF1BC1,BPMQ079,XCOR,YCOR, D1BC1,&
+   QD1BC1,QD1BC1,BPMQ079,     YCOR, DWBC1,NOWS,D2WBC1,&
+   QF2BC1,QF2BC1,BPMQ079,XCOR,YCOR, D3BC1,&
+   QD2BC1,QD2BC1,BPMQ079,     YCOR, D3BC1,&
+   QF2BC1,QF2BC1,BPMQ079,XCOR,YCOR, D2BC1,&
+   QD1BC1,QD1BC1,BPMQ079,     YCOR, DWBC1,WS,D1WBC1,&
+   QF1BC1,QF1BC1,BPMQ079,XCOR,YCOR, D1BC1,&
+   QDMBC1,QDMBC1,BPMQ079,     YCOR, DWBC1,WS,DM1WBC1,&
+   QFMBC1,QFMBC1,BPMQ079,XCOR,YCOR, DM2BC1,&
+   QD3BC1,QD3BC1,BPMQ079,      YCOR, DWBC1,WS,D4WBC1,&
+   QF3BC1,QF3BC1,BPMQ079,XCOR,YCOR, D4BC1,&
+   QD3BC1,QD3BC1,BPMQ079,     YCOR, DWBC1,WS)
+
+  ESPIN : LINE = (BEGINESPIN, SPINROT, MSRED, ENDESPIN, &
+                  BEGINEEMIT, EMITDIAG, ENDEEMIT          )
+
+! ------------------------------------------------------------------------------
+
+  RETURN

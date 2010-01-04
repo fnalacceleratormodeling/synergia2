@@ -1,0 +1,33 @@
+if(NOT CHEF_FOUND)
+    set(INTERNAL_CHEF_FOUND TRUE)
+    EXEC_PROGRAM ("chef-config.sh"
+        ARGS "--includes_list"
+        OUTPUT_VARIABLE CHEF_INCLUDE_DIRS
+        RETURN_VALUE CHEF_CONFIG_FAILED)
+    if(CHEF_CONFIG_FAILED)
+        set(INTERNAL_CHEF_FOUND FALSE)
+    else(CHEF_CONFIG_FAILED)
+        set (CHEF_INCLUDE_DIRS ${CHEF_INCLUDE_DIRS} CACHE FILEPATH "CHEF include paths")
+    endif(CHEF_CONFIG_FAILED)
+
+    EXEC_PROGRAM ("chef-config.sh"
+        ARGS "--lib_dirs_list"
+        OUTPUT_VARIABLE CHEF_LIBRARY_DIRS
+        RETURN_VALUE CHEF_CONFIG_FAILED)
+    if(CHEF_CONFIG_FAILED)
+        set(INTERNAL_CHEF_FOUND FALSE)
+    else(CHEF_CONFIG_FAILED)
+        set(CHEF_LIBRARY_DIRS ${CHEF_LIBRARY_DIRS} CACHE FILEPATH "CHEF library paths")
+    endif(CHEF_CONFIG_FAILED)
+
+    EXEC_PROGRAM ("chef-config.sh"
+        ARGS "--libs_list"
+        OUTPUT_VARIABLE CHEF_LIBS
+        RETURN_VALUE CHEF_CONFIG_FAILED)
+    if(CHEF_CONFIG_FAILED)
+        set(INTERNAL_CHEF_FOUND FALSE)
+    else(CHEF_CONFIG_FAILED)
+        set(CHEF_LIBS ${CHEF_LIBS} CACHE FILEPATH "CHEF libraries")
+    endif(CHEF_CONFIG_FAILED)
+    set(CHEF_FOUND ${INTERNAL_CHEF_FOUND} CACHE BOOL "CHEF configuration successful" FORCE)
+endif(NOT CHEF_FOUND)

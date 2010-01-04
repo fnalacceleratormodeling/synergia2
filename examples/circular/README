@@ -1,0 +1,6 @@
+The command rftest_command runs a job which launches a bunch slightly
+offset in dp/p which undergoes synchrotron oscillations for about 4600
+turns before they are extinguished by filamentation.
+
+The synchrotron tune of this lattice is  0.028741.  The longitudinal
+beta function is 143.6.

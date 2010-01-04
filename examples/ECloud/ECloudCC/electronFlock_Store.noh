@@ -1,0 +1,64 @@
+// -*- C++ -*-
+/*******************************************
+** electronFlock.h
+** Contains: A container for electrons, repesented as 
+** particle, vectors. This is not yet a "cloud", because, 
+** (i) not sure what I am doing (ii) no idea yet on how to 
+** diffuse them if they are subjected to collective effects 
+**
+*******************************************/
+
+#ifndef HAVE_ELECTRONFLOCK_STORE_H
+#define HAVE_ELECTRONFLOCK_STORE_H
+#include <vector> // std::vector
+#include <list> 
+#include "array_nd/array_1d.h"
+#include <boost/python.hpp>
+#include <boost/python/numeric.hpp>
+
+using namespace boost::python;
+
+class electronFlock_Store {
+
+public:   // since it's gona to be use from python...
+ // 
+ electronFlock_Store(numeric::array& numeric_units);
+ 
+ ~electronFlock_Store();
+ 
+ numeric::array get_units();
+// 
+// void convert_to_fixedt();
+// void convert_to_fixedz();  Not sure this is useful here
+// Compatibility with Macro_bunch_store
+// 
+ void check(numeric::array & array);
+ double get_coord(int coord_index, int particle_index);
+// void set_local_particles(numeric::array &particles);
+ 
+// Add particle one by one... 
+
+ void addOne(numeric::array &vect7); // 7 double, 6 phase space,  last for id. 
+ 
+// Retreive data for one particle.  
+ void getOne(int id, numeric::array & vect7);
+ 
+ Array_1d<double> units; // Unit conversion: X^impact_i = units_i X^real_i
+// numeric::array *numeric_local_particles, 
+ 
+ *numeric_units;
+
+private:
+// the data.. 
+ std::list<std::vector<double>> data; // List of electron, each of them labeled. 
+// These should be const static.. 
+ double mass; // Why ?? won't change much !... Just internal use.
+ int charge;
+ Array_1d<double> units; // Unit conversion: X^impact_i = units_i X^real_i
+ numeric::array *numeric_local_particles, *numeric_units;
+  
+  
+
+};
+
+#endif // #ifndef HAVE_ELECTRONFLOCK_STORE_H

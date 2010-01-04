@@ -1,0 +1,43 @@
+blength :=      2.889612
+qsd     :=     -0.0577069
+qsf     :=      0.0542195
+rhod    :=      48.034
+rhof    :=      40.847
+angled  :=      blength/rhod
+anglef  :=      blength/rhof
+ed      :=      angled/2.0
+ef      :=      anglef/2.0
+
+dmagu01:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu01:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd01:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd01:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+short: drift, l=0.5
+medium: drift, l=1.2
+long: drift, l=6.0
+half: drift, l=3.0
+
+realcell:         line=(fmagu01,short,dmagu01,long,&
+                      dmagd01,short,fmagd01, medium)
+
+cell: line = (half,dmagd01,short,fmagd01, medium, &
+		fmagu01,short,dmagu01,half)
+
+fullb:        line=(cell, cell, cell, cell, cell, cell,&
+                      cell, cell, cell, cell, cell, cell,&
+                      cell, cell, cell, cell, cell, cell,&
+                      cell, cell, cell, cell, cell, cell)
+
+realb:   line=(realcell, realcell, realcell, realcell, realcell, realcell,&
+               realcell, realcell, realcell, realcell, realcell, realcell,&
+               realcell, realcell, realcell, realcell, realcell, realcell,&
+               realcell, realcell, realcell, realcell, realcell, realcell)
+
+halfb:        line=(cell, cell, cell, cell, cell, cell,&
+                      cell, cell, cell, cell, cell, cell)
+
+twothirdsb:        line=(cell, cell, cell, cell, cell, cell,&
+                      cell, cell, cell, cell, cell, cell,&
+                      cell, cell, cell, cell, cell, cell)
+

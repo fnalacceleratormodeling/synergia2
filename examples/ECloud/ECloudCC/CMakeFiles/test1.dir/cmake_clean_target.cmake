@@ -1,0 +1,3 @@
+FILE(REMOVE
+"test1"
+)

@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="ascii"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+          "DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>synergia.function_cache</title>
+  <link rel="stylesheet" href="epydoc.css" type="text/css" />
+  <script type="text/javascript" src="epydoc.js"></script>
+</head>
+
+<body bgcolor="white" text="black" link="blue" vlink="#204080"
+      alink="#204080">
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table width="100%" cellpadding="0" cellspacing="0">
+  <tr valign="top">
+    <td width="100%">
+      <span class="breadcrumbs">
+        <a href="synergia-module.html">Package&nbsp;synergia</a> ::
+        Module&nbsp;function_cache
+      </span>
+    </td>
+    <td>
+      <table cellpadding="0" cellspacing="0">
+        <!-- hide/show private -->
+        <tr><td align="right"><span class="options">[<a href="javascript:void(0);" class="privatelink"
+    onclick="toggle_private();">hide&nbsp;private</a>]</span></td></tr>
+        <tr><td align="right"><span class="options"
+            >[<a href="frames.html" target="_top">frames</a
+            >]&nbsp;|&nbsp;<a href="synergia.function_cache-pysrc.html"
+            target="_top">no&nbsp;frames</a>]</span></td></tr>
+      </table>
+    </td>
+  </tr>
+</table>
+<h1 class="epydoc">Source Code for <a href="synergia.function_cache-module.html">Module synergia.function_cache</a></h1>
+<pre class="py-src">
+<a name="L1"></a><tt class="py-lineno"> 1</tt>  <tt class="py-line"><tt class="py-comment">#!/usr/bin/env python</tt> </tt>
+<a name="L2"></a><tt class="py-lineno"> 2</tt>  <tt class="py-line"><tt class="py-comment"></tt> </tt>
+<a name="L3"></a><tt class="py-lineno"> 3</tt>  <tt class="py-line"><tt class="py-keyword">import</tt> <tt class="py-name">pickle</tt> </tt>
+<a name="L4"></a><tt class="py-lineno"> 4</tt>  <tt class="py-line"> </tt>
+<a name="Function_cache"></a><div id="Function_cache-def"><a name="L5"></a><tt class="py-lineno"> 5</tt> <a class="py-toggle" href="#" id="Function_cache-toggle" onclick="return toggle('Function_cache');">-</a><tt class="py-line"><tt class="py-keyword">class</tt> <a class="py-def-name" href="synergia.function_cache.Function_cache-class.html">Function_cache</a><tt class="py-op">:</tt> </tt>
+</div><div id="Function_cache-collapsed" style="display:none;" pad="++" indent="++++"></div><div id="Function_cache-expanded"><a name="Function_cache.__init__"></a><div id="Function_cache.__init__-def"><a name="L6"></a><tt class="py-lineno"> 6</tt> <a class="py-toggle" href="#" id="Function_cache.__init__-toggle" onclick="return toggle('Function_cache.__init__');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="synergia.function_cache.Function_cache-class.html#__init__">__init__</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt><tt class="py-param">file_name</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Function_cache.__init__-collapsed" style="display:none;" pad="++" indent="++++++++"></div><div id="Function_cache.__init__-expanded"><a name="L7"></a><tt class="py-lineno"> 7</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">file_name</tt> <tt class="py-op">=</tt> <tt class="py-name">file_name</tt> </tt>
+<a name="L8"></a><tt class="py-lineno"> 8</tt>  <tt class="py-line">        <tt class="py-keyword">try</tt><tt class="py-op">:</tt> </tt>
+<a name="L9"></a><tt class="py-lineno"> 9</tt>  <tt class="py-line">            <tt class="py-name">cache_file</tt> <tt class="py-op">=</tt> <tt class="py-name">open</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">file_name</tt><tt class="py-op">,</tt><tt class="py-string">"r"</tt><tt class="py-op">)</tt> </tt>
+<a name="L10"></a><tt class="py-lineno">10</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">cache</tt> <tt class="py-op">=</tt> <tt class="py-name">pickle</tt><tt class="py-op">.</tt><tt class="py-name">Unpickler</tt><tt class="py-op">(</tt><tt class="py-name">cache_file</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">load</tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+<a name="L11"></a><tt class="py-lineno">11</tt>  <tt class="py-line">        <tt class="py-keyword">except</tt><tt class="py-op">:</tt> </tt>
+<a name="L12"></a><tt class="py-lineno">12</tt>  <tt class="py-line">            <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">cache</tt> <tt class="py-op">=</tt> <tt class="py-op">{</tt><tt class="py-op">}</tt> </tt>
+</div><a name="Function_cache.in_cache"></a><div id="Function_cache.in_cache-def"><a name="L13"></a><tt class="py-lineno">13</tt> <a class="py-toggle" href="#" id="Function_cache.in_cache-toggle" onclick="return toggle('Function_cache.in_cache');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="synergia.function_cache.Function_cache-class.html#in_cache">in_cache</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-op">*</tt><tt class="py-param">args</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Function_cache.in_cache-collapsed" style="display:none;" pad="++" indent="++++++++"></div><div id="Function_cache.in_cache-expanded"><a name="L14"></a><tt class="py-lineno">14</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">cache</tt><tt class="py-op">.</tt><tt class="py-name">has_key</tt><tt class="py-op">(</tt><tt class="py-name">args</tt><tt class="py-op">)</tt> </tt>
+</div><a name="Function_cache.add"></a><div id="Function_cache.add-def"><a name="L15"></a><tt class="py-lineno">15</tt> <a class="py-toggle" href="#" id="Function_cache.add-toggle" onclick="return toggle('Function_cache.add');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="synergia.function_cache.Function_cache-class.html#add">add</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-param">value</tt><tt class="py-op">,</tt> <tt class="py-op">*</tt><tt class="py-param">args</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Function_cache.add-collapsed" style="display:none;" pad="++" indent="++++++++"></div><div id="Function_cache.add-expanded"><a name="L16"></a><tt class="py-lineno">16</tt>  <tt class="py-line">        <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">cache</tt><tt class="py-op">[</tt><tt class="py-name">args</tt><tt class="py-op">]</tt> <tt class="py-op">=</tt> <tt class="py-name">value</tt> </tt>
+<a name="L17"></a><tt class="py-lineno">17</tt>  <tt class="py-line">        <tt class="py-name">file</tt> <tt class="py-op">=</tt> <tt class="py-name">open</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">file_name</tt><tt class="py-op">,</tt><tt class="py-string">"w"</tt><tt class="py-op">)</tt> </tt>
+<a name="L18"></a><tt class="py-lineno">18</tt>  <tt class="py-line">        <tt class="py-name">pickle</tt><tt class="py-op">.</tt><tt class="py-name">Pickler</tt><tt class="py-op">(</tt><tt class="py-name">file</tt><tt class="py-op">)</tt><tt class="py-op">.</tt><tt class="py-name">dump</tt><tt class="py-op">(</tt><tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">cache</tt><tt class="py-op">)</tt> </tt>
+<a name="L19"></a><tt class="py-lineno">19</tt>  <tt class="py-line">        <tt class="py-name">file</tt><tt class="py-op">.</tt><tt id="link-0" class="py-name" targets="Method synergia.tracker.Tracker.close()=synergia.tracker.Tracker-class.html#close"><a title="synergia.tracker.Tracker.close" class="py-name" href="#" onclick="return doclink('link-0', 'close', 'link-0');">close</a></tt><tt class="py-op">(</tt><tt class="py-op">)</tt> </tt>
+</div><a name="Function_cache.get"></a><div id="Function_cache.get-def"><a name="L20"></a><tt class="py-lineno">20</tt> <a class="py-toggle" href="#" id="Function_cache.get-toggle" onclick="return toggle('Function_cache.get');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="synergia.function_cache.Function_cache-class.html#get">get</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">,</tt> <tt class="py-op">*</tt><tt class="py-param">args</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Function_cache.get-collapsed" style="display:none;" pad="++" indent="++++++++"></div><div id="Function_cache.get-expanded"><a name="L21"></a><tt class="py-lineno">21</tt>  <tt class="py-line">        <tt class="py-keyword">return</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">cache</tt><tt class="py-op">[</tt><tt class="py-name">args</tt><tt class="py-op">]</tt> </tt>
+</div><a name="Function_cache.list"></a><div id="Function_cache.list-def"><a name="L22"></a><tt class="py-lineno">22</tt> <a class="py-toggle" href="#" id="Function_cache.list-toggle" onclick="return toggle('Function_cache.list');">-</a><tt class="py-line">    <tt class="py-keyword">def</tt> <a class="py-def-name" href="synergia.function_cache.Function_cache-class.html#list">list</a><tt class="py-op">(</tt><tt class="py-param">self</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+</div><div id="Function_cache.list-collapsed" style="display:none;" pad="++" indent="++++++++"></div><div id="Function_cache.list-expanded"><a name="L23"></a><tt class="py-lineno">23</tt>  <tt class="py-line">        <tt class="py-keyword">for</tt> <tt class="py-name">key</tt> <tt class="py-keyword">in</tt> <tt class="py-name">self</tt><tt class="py-op">.</tt><tt class="py-name">cache</tt><tt class="py-op">.</tt><tt class="py-name">keys</tt><tt class="py-op">(</tt><tt class="py-op">)</tt><tt class="py-op">:</tt> </tt>
+<a name="L24"></a><tt class="py-lineno">24</tt>  <tt class="py-line">            <tt class="py-keyword">print</tt> <tt class="py-string">"key ="</tt><tt class="py-op">,</tt><tt class="py-name">key</tt> </tt>
+</div></div><a name="L25"></a><tt class="py-lineno">25</tt>  <tt class="py-line"> </tt><script type="text/javascript">
+<!--
+expandto(location.href);
+// -->
+</script>
+</pre>
+<br />
+<!-- ==================== NAVIGATION BAR ==================== -->
+<table class="navbar" border="0" width="100%" cellpadding="0"
+       bgcolor="#a0c0ff" cellspacing="0">
+  <tr valign="middle">
+
+  <!-- Tree link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="module-tree.html">Trees</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Index link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="identifier-index.html">Indices</a>&nbsp;&nbsp;&nbsp;</th>
+
+  <!-- Help link -->
+      <th>&nbsp;&nbsp;&nbsp;<a
+        href="help.html">Help</a>&nbsp;&nbsp;&nbsp;</th>
+
+      <th class="navbar" width="100%"></th>
+  </tr>
+</table>
+<table border="0" cellpadding="0" cellspacing="0" width="100%%">
+  <tr>
+    <td align="left" class="footer">
+    Generated by Epydoc 3.0beta1 on Fri May 23 16:29:55 2008
+    </td>
+    <td align="right" class="footer">
+      <a href="http://epydoc.sourceforge.net">http://epydoc.sourceforge.net</a>
+    </td>
+  </tr>
+</table>
+
+<script type="text/javascript">
+  <!--
+  // Private objects are initially displayed (because if
+  // javascript is turned off then we want them to be
+  // visible); but by default, we want to hide them.  So hide
+  // them unless we have a cookie that says to show them.
+  checkCookie()
+  // -->
+</script>
+  
+</body>
+</html>

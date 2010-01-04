@@ -1,0 +1,45 @@
+! File fobodobo_s.lat
+! 
+! Written for the January, 2007 USPAS.
+! To be used in conjunction with CHEF.
+! 
+! Send complaints to the author: Leo Michelotti
+! 
+
+! ------------------
+! Parameters
+! ------------------
+twopi       :=   6.28318530717959
+n           :=   8                   !         : number of cells
+momentum    := 100                   ! [GeV/c] : particle momentum; 
+                                     !         :   arbitrary number
+bendangle   := twopi/(2*n)           ! [rad]   : dipole bend angle
+focus       :=   7                   ! [m]     : focal length of equivalent 
+                                     !         :   thin quad
+sepn        :=  10                   ! [m]     : distance between quad centers
+quadlength  :=   0.2                 ! [m]     : quadrupole length
+strength    := 1/(focus*quadlength)  ! [m**-2] : quadrupole strength
+                                     !         :   = B'/brho, where
+                                     !         :   brho = momentum/0.299792458
+pct         :=   0.4                 !         : fraction of space between
+                                     !         :   quads occupied by dipole
+bendlength  := pct*(sepn-quadlength) ! [m]     : length of dipole
+driftlength := (sepn-quadlength-bendlength)/2
+beam, particle=proton, pc=momentum
+
+
+! ------------------
+! Elements
+! ------------------
+o: drift,      l=driftlength
+f: quadrupole, l=quadlength, k1=strength
+d: quadrupole, l=quadlength, k1=(-strength)
+b: sbend,      l=bendlength, angle=bendangle
+
+
+! ------------------
+! Lattices
+! ------------------
+fobodobo:  line=( f, o, b, o, d, o, b, o )
+model:     line=( 8*fobodobo )
+! Doesn't work: model:     line=( n*fobodobo )

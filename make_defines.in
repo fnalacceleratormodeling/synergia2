@@ -1,0 +1,11 @@
+# -*- Makefile -*-
+
+CHEF_INSTALL_DIR = _subst_CHEF_INSTALL_DIR_subst_
+
+PYTHON_INCLUDES = -I_subst_PYTHON_INSTALL_DIR_subst_/include/python2.4
+
+BOOST_INCLUDES = -I_subst_BOOST_INSTALL_DIR_subst_/include/boost-1_33
+BOOST_LIBS = -L_subst_BOOST_INSTALL_DIR_subst_/lib -lboost_python-gcc
+
+FFTW_INCLUDES = -I_subst_FFTW_INSTALL_DIR_subst_/include
+FFTW_LDFLAGS = -L_subst_FFTW_INSTALL_DIR_subst_/lib

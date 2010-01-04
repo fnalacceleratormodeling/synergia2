@@ -1,0 +1,1 @@
+circular.py numproc=32 turns=10240 submit=1 createjob=1 maporder=5 jobdir=/mnt/xpand1/egstern/rf1 overwrite=1 overwrite=1
