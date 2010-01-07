@@ -40,7 +40,7 @@ def summarize(diag, np):
         elif near_equal(2.0e11, np):
             expected = Diagnostics_file("fodo-np2e11.h5")
         else:
-            class Dummy():
+            class Dummy:
                 pass
             expected = Dummy()
             expected.s = [None]
