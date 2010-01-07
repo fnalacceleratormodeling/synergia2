@@ -63,11 +63,19 @@ class Job_manager:
                 retval += argout
         return retval
  
-    def create_script(self, template, name, directory, subs):
-        template_path = os.path.join(self.synergia_dir, "script-templates",
+    def create_script(self,template,name,directory,subs):
+        template_path = os.path.join(self.synergia_dir,"script-templates",
                                      template)
-        output_path = os.path.join(directory, name)
-        process_template(template_path, output_path, subs)
+        if not os.path.exists(template_path):
+            template_example = template + "_example"
+            print "Warning: using", template_example, "for", template, \
+                "template."
+            print "You should create a template for your system in"
+            print template_path
+            template_path = os.path.join(self.synergia_dir,"script-templates",
+                                        template_example)
+        output_path = os.path.join(directory,name)
+        process_template(template_path,output_path,subs)
 
     def create_job(self, directory):
 ###        real_script = os.path.abspath(self.argv[0])

@@ -59,6 +59,14 @@ class Job_manager:
     def create_script(self,template,name,directory,subs):
         template_path = os.path.join(self.synergia_dir,"script-templates",
                                      template)
+        print "exists",template_path,"=",os.path.exists(template_path)
+        if not os.path.exists(template_path):
+            template_example = template + "_example"
+            print "Warning: using", template_example, "for", template, \
+                "template."
+            print "You should create a template for your system in", template
+            template_path = os.path.join(self.synergia_dir,"script-templates",
+                                        template_example)
         output_path = os.path.join(directory,name)
         process_template(template_path,output_path,subs)
 
