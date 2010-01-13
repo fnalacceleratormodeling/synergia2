@@ -63,3 +63,4 @@ include_directories("/usr/include/glib-2.0")
 include_directories("/usr/lib/glib-2.0/include")
 
 add_subdirectory(examples/mu2e)
+add_subdirectory(tests/dependencies/boost_python)
