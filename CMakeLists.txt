@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 2.6)
 enable_testing()
 
 # MPI
+INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindMPIsynergia.cmake)
 FIND_PACKAGE(MPI REQUIRED)
 INCLUDE(CMakeForceCompiler)
 CMAKE_FORCE_CXX_COMPILER(${MPI_COMPILER} "MPI C++ Compiler")
