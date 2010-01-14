@@ -1,4 +1,4 @@
-#!/usr/bin/env bwpython
+#!/usr/bin/env python
 
 import numpy
 import time
@@ -9,6 +9,7 @@ import sys
 import synergia
 import s2_fish
 
+from circular_options import myopts
 
 from mpi4py import MPI
 
