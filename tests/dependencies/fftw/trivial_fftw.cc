@@ -33,17 +33,21 @@ doit()
 
     for (int x = 0; x < local_nx; ++x) {
         for (int y = 0; y < NY; ++y) {
-            std::cout << "pre:  " << x << "," << y << ": "
+            std::cout << "pre:  " << x + local_x_start << "," << y << ": "
                     << data[(x * NY + y)] << std::endl;
             ;
         }
     }
 
+    double t0, t1;
+    t0 = MPI_Wtime();
     fftwnd_mpi(plan, 1, (fftw_complex*) data, NULL, FFTW_NORMAL_ORDER);
+    t1 = MPI_Wtime();
+    std::cout << "fft took " << t1-t0 << " secs\n";
 
     for (int x = 0; x < local_nx; ++x) {
         for (int y = 0; y < NY; ++y) {
-            std::cout << "post: " << x << "," << y << ": "
+            std::cout << "post: " << x + local_x_start << "," << y << ": "
                     << data[(x * NY + y)] << std::endl;
         }
     }
