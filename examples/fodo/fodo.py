@@ -44,8 +44,8 @@ def summarize(diag, np):
                 pass
             expected = Dummy()
             expected.s = [None]
-            expected.mean = [None, None, None, None, None, None]
-            expected.std = [[None], [None], [None], [None], [None], [None]]
+            expected.mean = numpy.zeros([1,6])
+            expected.std = numpy.zeros([1,6])
         s = diag.get_s()
         last = len(s) - 1
         last_expected = len(expected.s) - 1
