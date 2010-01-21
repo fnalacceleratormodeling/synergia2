@@ -564,10 +564,10 @@ void
 Nd_array<T>::print_recursive(std::ostream &out, std::string name, int which_index,
                              int indices[]) const
 {
-    out << name;
+//    out << name;
     if (which_index == 2) {
         if ((dim0_lower == 0) && (dim0_upper == dims[0])) { 
-            out << "(:,:";
+            out << name << "(:,:";
         } else {
             out << "(" << dim0_lower << ":" << dim0_upper-1 << ",:";
         }
