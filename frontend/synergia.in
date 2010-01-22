@@ -36,7 +36,7 @@ if [ x"$1" = x"--ldlibrarypath" ]; then
 fi
 
 just_options=false
-options_file="`basename \"$1\" .py`_options.py"
+options_file="`basename \"$1\" .py 2> /dev/null`_options.py"
 if [ -f "$options_file" ]; then
 	for arg in "$@"
 	do
