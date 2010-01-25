@@ -1,0 +1,6 @@
+#!/usr/bin/env python
+
+from workflow import options
+
+opts = options.Options('local')
+opts.add("message", "hi there!", "message to print at beginning of job script", str)

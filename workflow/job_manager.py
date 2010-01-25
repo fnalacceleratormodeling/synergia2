@@ -17,8 +17,62 @@ job_mgr_opts.add("submit", 0, "Whether to immediately submit job", int)
 job_mgr_opts.add("overwrite", 0, "Whether to overwrite existing job directory", int)
 job_mgr_opts.add("walltime", None, "Limit job to given wall time", str)
 
+def get_synergia_directory(die_on_failure=1):
+    if os.environ.has_key("SYNERGIA2DIR"):
+        synergia_dir = os.environ["SYNERGIA2DIR"]
+    else:
+        if os.path.isfile("./local_paths.py"):
+            synergia_dir = "."
+        else:
+            if os.path.isfile("../local_paths.py"):
+                synergia_dir = ".."
+            else:
+                print "Unable to determine Synergia directory. Defaults"
+                print "are \".\" and \"..\". Set the environment variable"
+                print "SYNERGIA2DIR to point to the directory containing"
+                print "local_paths.py."
+                if die_on_failure:
+                    sys.exit(1)
+                else:
+                    synergia_dir = None
+    if synergia_dir:
+        synergia_dir = os.path.abspath(synergia_dir)
+    return synergia_dir
+
+def get_script_templates_dir():
+    if os.environ.has_key('SYNERGIA2TEMPLATES'):
+        return os.environ['SYNERGIA2TEMPLATES']
+    else:
+        return os.path.join(get_synergia_directory(),'script-templates')
+
+def get_default_script_templates_dir():
+    return os.path.join(get_synergia_directory(),'script-templates')
+
+def add_local_opts():
+    found_local_opts = False
+    local_options_location = None
+    if os.path.exists(os.path.join(get_script_templates_dir(),'local_opts.py')):
+        found_local_options = True
+        local_opts_location = get_script_templates_dir()
+    else:
+        if os.path.exists(os.path.join(get_default_script_templates_dir(),'local_opts.py')):
+            found_local_options = True
+            local_opts_location = get_default_script_templates_dir()
+            if get_script_templates_dir() != get_default_script_templates_dir():
+                print "Note: using local_opts.py from",get_default_script_templates_dir()
+    if found_local_options:
+        sys.path.insert(0,local_opts_location)
+        import local_opts
+        if hasattr(local_opts,'opts'):
+            job_mgr_opts.add_suboptions(local_opts.opts)
+        else:
+            print 'Warning: local_opts.py found in'
+            print "%s," % local_opts_location
+            print "but no opts object was found there."
+    
 class Job_manager:
     def __init__(self, script, opts, extra_files=None, argv=sys.argv):
+        add_local_opts()
         self.directory = None
         self.real_script = os.path.abspath(script)
         options_file = os.path.splitext(script)[0] + '_options.py'
@@ -98,6 +152,8 @@ class Job_manager:
         commandfile.close()
         os.chdir(old_cwd)
         subs = {}
+        for sub in job_mgr_opts.options():
+            subs[sub] = job_mgr_opts.get(sub)
         subs["numproc"] = self.opts.get("numproc")
         subs["synergia2dir"] = self.synergia_dir
         subs["args"] = self._args_to_string(self.argv[1:], ["createjob"])
@@ -175,38 +231,6 @@ def create_new_directory(directory, version, overwrite):
         os.mkdir(created_directory)
         print "created directory", created_directory
     return created_directory
-
-def get_synergia_directory(die_on_failure=1):
-    if os.environ.has_key("SYNERGIA2DIR"):
-        synergia_dir = os.environ["SYNERGIA2DIR"]
-    else:
-        if os.path.isfile("./local_paths.py"):
-            synergia_dir = "."
-        else:
-            if os.path.isfile("../local_paths.py"):
-                synergia_dir = ".."
-            else:
-                print "Unable to determine Synergia directory. Defaults"
-                print "are \".\" and \"..\". Set the environment variable"
-                print "SYNERGIA2DIR to point to the directory containing"
-                print "local_paths.py."
-                if die_on_failure:
-                    sys.exit(1)
-                else:
-                    synergia_dir = None
-    if synergia_dir:
-        synergia_dir = os.path.abspath(synergia_dir)
-    return synergia_dir
-
-def get_script_templates_dir():
-    if os.environ.has_key('SYNERGIA_SCRIPT_TEMPLATES'):
-        return os.environ['SYNERGIA_SCRIPT_TEMPLATES']
-    else:
-        return os.path.join(get_synergia_directory(),'script-templates')
-
-def get_default_script_templates_dir():
-    return os.path.join(get_synergia_directory(),'script-templates')
-
 
 if __name__ == "__main__":
     subs = {}
