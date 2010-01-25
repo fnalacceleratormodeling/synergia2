@@ -209,10 +209,10 @@ def process_template(template_name, output_name, subs):
 
 
 def create_new_directory(directory, version, overwrite):
-    if version > 499:
+    if version > 999:
         print "Sanity check failure: attempt to create directory version %d."\
               % version
-        print "Maximum is 499."
+        print "Maximum is 999."
         sys.exit(1)
     if version == 0:
         created_directory = directory
