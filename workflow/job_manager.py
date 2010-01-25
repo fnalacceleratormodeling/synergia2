@@ -64,15 +64,21 @@ class Job_manager:
         return retval
  
     def create_script(self,template,name,directory,subs):
-        template_path = os.path.join(self.synergia_dir,"script-templates",
-                                     template)
+        script_templates_dir = get_script_templates_dir()
+        default_script_templates_dir = get_default_script_templates_dir()
+        template_path = os.path.join(script_templates_dir,template)
+        if ((not os.path.exists(template_path)) and 
+            (not script_templates_dir == default_script_templates_dir)):
+            template_path = os.path.join(default_script_templates_dir,
+                                         template)
+            print "Note: taking",template,"from default path",default_script_templates_dir
         if not os.path.exists(template_path):
             template_example = template + "_example"
             print "Warning: using", template_example, "for", template, \
                 "template."
             print "You should create a template for your system in"
-            print template_path
-            template_path = os.path.join(self.synergia_dir,"script-templates",
+            print os.path.join(script_templates_dir,template)
+            template_path = os.path.join(default_script_templates_dir,
                                         template_example)
         output_path = os.path.join(directory,name)
         process_template(template_path,output_path,subs)
@@ -191,6 +197,15 @@ def get_synergia_directory(die_on_failure=1):
     if synergia_dir:
         synergia_dir = os.path.abspath(synergia_dir)
     return synergia_dir
+
+def get_script_templates_dir():
+    if os.environ.has_key('SYNERGIA_SCRIPT_TEMPLATES'):
+        return os.environ['SYNERGIA_SCRIPT_TEMPLATES']
+    else:
+        return os.path.join(get_synergia_directory(),'script-templates')
+
+def get_default_script_templates_dir():
+    return os.path.join(get_synergia_directory(),'script-templates')
 
 
 if __name__ == "__main__":
