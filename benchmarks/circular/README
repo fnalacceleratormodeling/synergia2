@@ -1,0 +1,10 @@
+This benchmark is based on the circular.py example but with statistics
+writing disabled.  Example runs:
+
+A medium sized synergia job:
+
+synergia circ.py tgridnumx=64 tgridnumy=64 lgridnum=128 partpercell=10
+
+A large sized job
+
+synergia circ.py tgridnumx=1024 tgridnumy=128 lgridnum=128 partpercell=100
