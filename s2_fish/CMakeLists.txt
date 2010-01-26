@@ -1,49 +1,59 @@
 add_executable(test_slice test_slice.cc)
 target_link_libraries(test_slice array_nd)
 
-link_libraries(${CHEF_LIBS} ${FFTW3_LIB} ${Boost_LIBRARIES} array_nd)
 # jfa: this is overkill
 add_definitions(-DBOOST_TEST_DYN_LINK)
-#add_executable(test_field_domain test_field_domain.cc)
-#target_link_libraries(test_field_domain -lboost_unit_test_framework-gcc41-mt s2_solver_cyl ${GSL_CONFIG_LIBS} -lpython2.4)
-
 
 add_python_extension(GaussSC GaussSC.cc BasErs_field.cc)
+target_link_libraries(GaussSC ${CHEF_LIBS} ${Boost_LIBRARIES})
 
 add_python_extension(s2_containers s2_containers_wrap.cc ltwt_containers.cc 
     mytimer.cc)
+target_link_libraries(s2_containers ${Boost_LIBRARIES})
     
 add_python_extension(s2_deposit s2_deposit_wrap.cc deposit.cc mytimer.cc)
+target_link_libraries(s2_deposit ${Boost_LIBRARIES})
 
 add_python_extension(s2_solver_fftw s2_solver_fftw_wrap.cc solver_fftw.cc
     mytimer.cc fftw_helper.cc communicate.cc)
-target_link_libraries(s2_solver_fftw ${FFTW2_R_MPI_LIB} ${FFTW2_MPI_LIB}
+target_link_libraries(s2_solver_fftw ${Boost_LIBRARIES} ${FFTW2_R_MPI_LIB} ${FFTW2_MPI_LIB}
     ${FFTW2_R_LIB} ${FFTW2_LIB})
 
 add_python_extension(s2_electric_field s2_electric_field_wrap.cc 
     electric_field.cc fftw_helper.cc mytimer.cc communicate.cc)
-target_link_libraries(s2_electric_field ${FFTW2_R_MPI_LIB} ${FFTW2_MPI_LIB}
+target_link_libraries(s2_electric_field ${Boost_LIBRARIES} ${FFTW2_R_MPI_LIB} ${FFTW2_MPI_LIB}
     ${FFTW2_R_LIB} ${FFTW2_LIB})
 
 add_python_extension(s2_impedance_kick  impedance_kick.cc s2_impedance_kick_wrap.cc macro_bunch_store.cc)
+target_link_libraries(s2_impedance_kick ${Boost_LIBRARIES})
 
 add_python_extension(s2_diagnostics s2_diagnostics_wrap.cc ltwt_containers.cc
     s2_diagnostics.cc)
+target_link_libraries(s2_diagnostics ${Boost_LIBRARIES})
 
 add_python_extension(macro_bunch_store macro_bunch_store_wrap.cc 
     macro_bunch_store.cc ltwt_containers.cc)
+target_link_libraries(macro_bunch_store  ${Boost_LIBRARIES})
 
 add_python_extension(populate populate.cc populate_wrap.cc)
-target_link_libraries(populate ${GSL_CONFIG_LIBS})
+target_link_libraries(populate array_nd ${Boost_LIBRARIES} ${GSL_CONFIG_LIBS})
 
 add_python_extension(constraints constraints.cc constraints_wrap.cc)
+target_link_libraries(constraints array_nd ${Boost_LIBRARIES})
 
 add_python_extension(s2_solver_transverse_fftw  solver_transverse_fftw.cc s2_solver_transverse_wrap.cc macro_bunch_store.cc)
+target_link_libraries(s2_solver_transverse_fftw ${FFTW3_LIB} ${Boost_LIBRARIES})
+
+add_python_extension(s2_solver_pplanes s2_solver_pplanes_wrap.cc  parallel_planes.cc parallelization.cc mytimer.cc)
+target_link_libraries(s2_solver_pplanes ${Boost_LIBRARIES} ${FFTW3_LIB} ${FFTW2_R_MPI_LIB} ${FFTW2_MPI_LIB} ${FFTW2_R_LIB} ${FFTW2_LIB}) 
+
+add_python_extension(s2_solver_rectangular s2_solver_rectangular_wrap.cc  rectangular.cc  mytimer.cc)  
+target_link_libraries(s2_solver_rectangular ${Boost_LIBRARIES})
 
 add_library(s2_solver_cyl SHARED cylindrical.cc
     field_domain.cc populate.cc mytimer.cc) # jfa fix this!!!!!!!!!!!!!!!!!!!!!!
 add_python_extension(s2_solver_cylindrical cylindrical_wrap.cc) # jfa fix this!!!!!!!!!!!!!!!!!!!!!!
-target_link_libraries(s2_solver_cylindrical s2_solver_cyl ${GSL_CONFIG_LIBS})
+target_link_libraries(s2_solver_cylindrical s2_solver_cyl array_nd ${FFTW3_LIB} ${Boost_LIBRARIES} ${GSL_CONFIG_LIBS})
 ## jfa nb.: populate and gsl_config_libs are only part of s2_solver so that I can use the freakin' write to octave function for debugging. Much refoactoring necessary.
 ################
 add_test(deposit ${SYNERGIA2_BINARY_DIR}/synergia-local test_deposit.py)
