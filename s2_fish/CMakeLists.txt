@@ -42,11 +42,11 @@ target_link_libraries(constraints array_nd ${Boost_LIBRARIES})
 add_python_extension(s2_solver_transverse_fftw  solver_transverse_fftw.cc s2_solver_transverse_wrap.cc macro_bunch_store.cc)
 target_link_libraries(s2_solver_transverse_fftw ${FFTW3_LIB} ${Boost_LIBRARIES})
 
-add_python_extension(s2_solver_pplanes s2_solver_pplanes_wrap.cc  parallel_planes.cc parallelization.cc mytimer.cc)
-target_link_libraries(s2_solver_pplanes ${Boost_LIBRARIES} ${FFTW3_LIB} ${PARALLEL_FFTW_LIBS}) 
+# add_python_extension(s2_solver_pplanes s2_solver_pplanes_wrap.cc  parallel_planes.cc parallelization.cc mytimer.cc)
+# target_link_libraries(s2_solver_pplanes ${Boost_LIBRARIES} ${FFTW3_LIB} ${PARALLEL_FFTW_LIBS}) 
 
-add_python_extension(s2_solver_rectangular s2_solver_rectangular_wrap.cc  rectangular.cc  mytimer.cc)  
-target_link_libraries(s2_solver_rectangular ${Boost_LIBRARIES})
+# add_python_extension(s2_solver_rectangular s2_solver_rectangular_wrap.cc  rectangular.cc  mytimer.cc)  
+# target_link_libraries(s2_solver_rectangular ${Boost_LIBRARIES})
 
 add_library(s2_solver_cyl SHARED cylindrical.cc
     field_domain.cc populate.cc mytimer.cc) # jfa fix this!!!!!!!!!!!!!!!!!!!!!!
