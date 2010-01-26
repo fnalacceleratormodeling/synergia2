@@ -40,11 +40,21 @@ include_directories(${NUMPY_INCLUDE_DIR})
 # misc
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/AddPythonExtension.cmake)
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindGSL.cmake)
-INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindFFTW2.cmake)
 
-# fftw3
+
+# fftw
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindFFTW3.cmake)
 INCLUDE_DIRECTORIES(${FFTW3_INCLUDE_PATH})
+if(NOT FFTW3_MPI_LIB_FOUND)
+    message("Using FFTW2 for parallel FFTs")
+    INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindFFTW2.cmake)
+    set(PARALLEL_FFTW_LIBS ${FFTW2_R_MPI_LIB} ${FFTW2_MPI_LIB}
+        ${FFTW2_R_LIB} ${FFTW2_LIB})
+    add_definitions(-DUSE_FFTW2)
+else(NOT FFTW3_MPI_LIB_FOUND)
+    message("Using FFTW3 for parallel FFTs")
+    set(PARALLEL_FFTW_LIBS ${FFTW3_MPI_LIB} ${FFTW3_LIB})
+endif(NOT FFTW3_MPI_LIB_FOUND)
 
 configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in" 
     "${SYNERGIA2_BINARY_DIR}/synergia-local" IMMEDIATE)

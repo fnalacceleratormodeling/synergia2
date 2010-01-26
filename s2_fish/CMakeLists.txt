@@ -16,13 +16,11 @@ target_link_libraries(s2_deposit ${Boost_LIBRARIES})
 
 add_python_extension(s2_solver_fftw s2_solver_fftw_wrap.cc solver_fftw.cc
     mytimer.cc fftw_helper.cc communicate.cc)
-target_link_libraries(s2_solver_fftw ${Boost_LIBRARIES} ${FFTW2_R_MPI_LIB} ${FFTW2_MPI_LIB}
-    ${FFTW2_R_LIB} ${FFTW2_LIB})
+target_link_libraries(s2_solver_fftw ${Boost_LIBRARIES} ${PARALLEL_FFTW_LIBS})
 
 add_python_extension(s2_electric_field s2_electric_field_wrap.cc 
     electric_field.cc fftw_helper.cc mytimer.cc communicate.cc)
-target_link_libraries(s2_electric_field ${Boost_LIBRARIES} ${FFTW2_R_MPI_LIB} ${FFTW2_MPI_LIB}
-    ${FFTW2_R_LIB} ${FFTW2_LIB})
+target_link_libraries(s2_electric_field ${Boost_LIBRARIES} ${PARALLEL_FFTW_LIBS})
 
 add_python_extension(s2_impedance_kick  impedance_kick.cc s2_impedance_kick_wrap.cc macro_bunch_store.cc)
 target_link_libraries(s2_impedance_kick ${Boost_LIBRARIES})
@@ -45,7 +43,7 @@ add_python_extension(s2_solver_transverse_fftw  solver_transverse_fftw.cc s2_sol
 target_link_libraries(s2_solver_transverse_fftw ${FFTW3_LIB} ${Boost_LIBRARIES})
 
 add_python_extension(s2_solver_pplanes s2_solver_pplanes_wrap.cc  parallel_planes.cc parallelization.cc mytimer.cc)
-target_link_libraries(s2_solver_pplanes ${Boost_LIBRARIES} ${FFTW3_LIB} ${FFTW2_R_MPI_LIB} ${FFTW2_MPI_LIB} ${FFTW2_R_LIB} ${FFTW2_LIB}) 
+target_link_libraries(s2_solver_pplanes ${Boost_LIBRARIES} ${FFTW3_LIB} ${PARALLEL_FFTW_LIBS}) 
 
 add_python_extension(s2_solver_rectangular s2_solver_rectangular_wrap.cc  rectangular.cc  mytimer.cc)  
 target_link_libraries(s2_solver_rectangular ${Boost_LIBRARIES})
