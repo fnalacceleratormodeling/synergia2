@@ -238,7 +238,9 @@ class Gourmet:
         self.saved_elements.append(end_marker)
         self.beamline.append(end_marker)
         self.insert_elements(elements,positions)
-
+        workaround2 = marker("beamline end bug workaround")
+        self.beamline.append(workaround2)
+        
     def insert_element_space_charge_markers(self, num_markers_per_element):
         if num_markers_per_element > 1:
             raise RuntimeError, \
@@ -318,6 +320,8 @@ class Gourmet:
         s = 0
         print "%5s %10s %5s %13s %s" % ("index", 's_begin', 'length', 'type','name')
         for element in self.beamline:
+            if element.Name() == "beamline end bug workaround":
+                break
             print "%5d %10.3f %10.03f %10s %s" %(i,s,
                 element.OrbitLength(self.get_initial_particle()),
                 element.Type(), element.Name())
@@ -342,6 +346,8 @@ class Gourmet:
         energy = self.initial_energy
         for element in self.beamline:
             split_name = element.Name().split(":")
+            if split_name[0] == "beamline end bug workaround":
+                break
             if split_name[0] == "synergia action":
                 if has_propagated:
                     mapping = mappers.Fast_mapping(self.get_u(energy),
