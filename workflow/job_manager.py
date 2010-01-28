@@ -49,7 +49,7 @@ def get_default_script_templates_dir():
     return os.path.join(get_synergia_directory(),'script-templates')
 
 def add_local_opts():
-    found_local_opts = False
+    found_local_options= False
     local_options_location = None
     if os.path.exists(os.path.join(get_script_templates_dir(),'local_opts.py')):
         found_local_options = True
