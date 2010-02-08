@@ -2,10 +2,10 @@
 #ifndef HAVE_ELECTRIC_FIELD_H
 #define HAVE_ELECTRIC_FIELD_H
 
+#include "fftw_helper.h"
 #include "scalar_field.h"
 #include "macro_bunch_store.h"
 #include <iostream>
-#include "fftw_helper.h"
 
 Real_scalar_field
 calculate_E_n(Real_scalar_field &phi, int n,Fftw_helper &fftwh, bool z_periodic);

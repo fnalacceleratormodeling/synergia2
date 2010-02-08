@@ -1,6 +1,6 @@
+#include <mpi.h>
 #include "constraints.h"
 #include <cmath>
-#include <mpi.h>
 #include "math_constants.h"
 
 // void

@@ -2,8 +2,8 @@
 #ifndef HAVE_COMMUNICATE_H
 #define HAVE_COMMUNICATE_H
 
-#include "scalar_field.h"
 #include "fftw_helper.h"
+#include "scalar_field.h"
 
 #include <iostream>
 

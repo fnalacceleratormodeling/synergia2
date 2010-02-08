@@ -1,3 +1,4 @@
+#include "fftw_helper.h"
 #include "nd_array.h"
 #include "scalar_field.h"
 #include "deposit.h"
@@ -6,7 +7,6 @@
 #include <boost/python.hpp>
 
 #include "container_conversions.h"
-#include "fftw_helper.h"
 #include "communicate.h"
 
 using namespace boost::python;

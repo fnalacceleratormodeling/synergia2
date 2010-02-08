@@ -2,16 +2,16 @@
 #ifndef HAVE_FFTW_HELPER_H
 #define HAVE_FFTW_HELPER_H true
 
-#include "scalar_field.h"
-#undef DL_IMPORT
-#include <vector>
-
 #ifdef USE_FFTW2
 #include <rfftw_mpi.h>
 #else
 #include <fftw3.h>
 #include <fftw3-mpi.h>
 #endif //USE_FFTW2
+
+#include "scalar_field.h"
+#undef DL_IMPORT
+#include <vector>
 
 
 class Fftw_helper

@@ -1,6 +1,7 @@
 #include "communicate.h"
 #include <mpi.h>
 
+#include <cstring>
 #include <fstream>
 std::ofstream * fdebugc = 0;
 
