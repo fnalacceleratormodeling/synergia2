@@ -1,6 +1,6 @@
+#include "mpi.h"
 #include "impedance_kick.h"
 #include <cmath>
-#include "mpi.h"
 #include "math_constants.h"
 #include <fstream>
 #include <iostream>

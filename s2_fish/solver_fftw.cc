@@ -1,3 +1,5 @@
+#include "fftw_helper.h"
+#include "communicate.h"
 #include "solver_fftw.h"
 #include <iomanip>
 #include <cmath>
@@ -8,9 +10,6 @@
 
 #undef DL_IMPORT
 #include "mytimer.h"
-#include "fftw_helper.h"
-
-#include "communicate.h"
 
 
 double total_grid_charge(Real_scalar_field &rho, bool z_periodic)

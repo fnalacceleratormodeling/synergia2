@@ -1,5 +1,5 @@
-#include <iostream>
 #include <fftw_mpi.h>
+#include <iostream>
 #include <complex>
 
 #undef _POSIX_C_SOURCE

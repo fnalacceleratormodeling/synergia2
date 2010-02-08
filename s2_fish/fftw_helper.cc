@@ -1,4 +1,5 @@
 #include "fftw_helper.h"
+#include <cstring>
 
 void
 Fftw_helper::construct(int *shape_in, bool z_periodic)

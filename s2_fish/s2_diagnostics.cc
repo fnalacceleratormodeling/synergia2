@@ -1,5 +1,5 @@
-#include "s2_diagnostics.h"
 #include "mpi.h"
+#include "s2_diagnostics.h"
 
 class Vector
 {

@@ -1,7 +1,7 @@
+#include <mpi.h>
 #include "deposit.h"
 #include <boost/python/numeric.hpp>
 #include <boost/python/tuple.hpp>
-#include <mpi.h>
 
 #include <cstdlib>
 
