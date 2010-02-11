@@ -55,6 +55,7 @@ else(FFTW3_MPI_FOUND)
     endif(NOT FFTW2_MPI_FOUND)
     include_directories(${FFTW2_INCLUDE_DIR})
     set(PARALLEL_FFTW_LIBRARIES ${FFTW2_MPI_LIBRARIES} ${FFTW2_LIBRARIES})
+    add_definitions(-DUSE_FFTW2)
     message("Using FFTW2 for parallel FFTs")
 endif(FFTW3_MPI_FOUND)
 
