@@ -12,7 +12,7 @@
 
 # Find the (plain, non-MPI) libraries
 set(FFTW2_NAME ${FFTW2_NAME} fftw)
-set(FFTW2_RNAME ${FFTW2_NAME} rfftw)
+set(FFTW2_RNAME ${FFTW2_RNAME} rfftw)
 
 if(FFTW2_LIBRARY_DIRS)
     find_library(FFTW2_LIBRARY NAMES ${FFTW2_NAME} 
