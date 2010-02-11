@@ -1,6 +1,7 @@
 project(SYNERGIA2)
 cmake_minimum_required(VERSION 2.6)
 enable_testing()
+set( CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake" )
 
 # MPI
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindMPIsynergia.cmake)
@@ -41,20 +42,21 @@ include_directories(${NUMPY_INCLUDE_DIR})
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/AddPythonExtension.cmake)
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindGSL.cmake)
 
-
-# fftw
-INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindFFTW3.cmake)
-INCLUDE_DIRECTORIES(${FFTW3_INCLUDE_PATH})
-if(NOT FFTW3_MPI_LIB_FOUND)
-    message("Using FFTW2 for parallel FFTs")
-    INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindFFTW2.cmake)
-    set(PARALLEL_FFTW_LIBS ${FFTW2_R_MPI_LIB} ${FFTW2_MPI_LIB}
-        ${FFTW2_R_LIB} ${FFTW2_LIB})
-    add_definitions(-DUSE_FFTW2)
-else(NOT FFTW3_MPI_LIB_FOUND)
+# fftw3 (and, possibly, fftw2)
+find_package(FFTW3 REQUIRED)
+include_directories(${FFTW3_INCLUDE_DIR})
+if(FFTW3_MPI_FOUND)
+    set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_LIBRARIES})
     message("Using FFTW3 for parallel FFTs")
-    set(PARALLEL_FFTW_LIBS ${FFTW3_MPI_LIB} ${FFTW3_LIB})
-endif(NOT FFTW3_MPI_LIB_FOUND)
+else(FFTW3_MPI_FOUND)
+    find_package(FFTW2)
+    if(NOT FFTW2_MPI_FOUND)
+        message(FATAL_ERROR "Synergia requires either FFTW2 or FFT3 compiled with MPI support.")
+    endif(NOT FFTW2_MPI_FOUND)
+    include_directories(${FFTW2_INCLUDE_DIR})
+    set(PARALLEL_FFTW_LIBRARIES ${FFTW2_MPI_LIBRARIES} ${FFTW2_LIBRARIES})
+    message("Using FFTW2 for parallel FFTs")
+endif(FFTW3_MPI_FOUND)
 
 configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in" 
     "${SYNERGIA2_BINARY_DIR}/synergia-local" IMMEDIATE)
