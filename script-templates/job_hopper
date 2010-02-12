@@ -1,0 +1,42 @@
+#PBS -o synergia.out
+#PBS -e synergia.err
+#PBS -l mppwidth=@@numproc@@
+#PBS -l walltime=02:00:0
+#PBS -q regular
+#PBS -m abe
+#PBS -M yourname@fnal.gov
+
+# this example script is tailored for the hopper machine at NERSC
+# numproc is the number of mpi tasks to initiate.  The number of nodes
+# is automatically determined by it.  Currently, hopper uses dual quad-core
+# nodes.  Replace yourname@fnal.gov with your own email address.
+
+# -q debug is suitable for jobs less than 0.5 hours running on up to
+# 512 cores.  -q regular is for jobs that exceed those limits.
+
+cd $PBS_O_WORKDIR
+
+export CRAY_ROOTFS=DSL
+
+#from module load fftw/3.2.1.  Adjust appropriate when the module changes
+FFTW_DIR=/opt/fftw/3.2.1/lib
+export LD_LIBRARY_PATH=${FFTW_DIR}:$LD_LIBRARY_PATH
+
+SYNERGIA2DIR=@@synergia2dir@@
+export SYNERGIA2DIR
+
+. @@synergia2dir@@/../../setup.sh
+
+export PYTHONPATH=`synergia --pythonpath`
+
+export HDF5_DISABLE_VERSION_CHECK=2
+
+# echo "PATH: $PATH"
+# echo "LD_LIBRARY_PATH: $LD_LIBRARY_PATH"
+# echo "PYTHONPATH: $PYTHONPATH"
+
+#echo "python is " `which python`
+
+echo "Job start at `date`"
+aprun -n @@numproc@@ python @@script@@ @@args@@
+echo "Job end at `date`"
