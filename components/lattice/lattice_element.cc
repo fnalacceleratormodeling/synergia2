@@ -1,18 +1,37 @@
 #include "lattice_element.h"
 
-Lattice_element::Lattice_element(ElmPtr chef_elmptr)
+Lattice_element::Lattice_element(std::string const& type,
+        std::string const& name) :
+    type(type), name(name), double_attributes(), string_attributes()
 {
-	this->chef_elmptr = chef_elmptr;
 }
 
-std::string
-Lattice_element::get_name()
+std::string const &
+Lattice_element::get_type() const
 {
-	return std::string(chef_elmptr->Name());
+    return type;
 }
 
-std::string
-Lattice_element::get_type()
+std::string const &
+Lattice_element::get_name() const
 {
-	return std::string(chef_elmptr->Type());
+    return name;
+}
+
+void
+Lattice_element::set_double_attribute(std::string const& name, double value)
+{
+    double_attributes[name] = value;
+}
+
+bool
+Lattice_element::has_double_attribute(std::string const& name) const
+{
+    return (double_attributes.count(name) > 0);
+}
+
+double
+Lattice_element::get_double_attribute(std::string const& name)
+{
+    return double_attributes[name];
 }
