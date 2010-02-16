@@ -31,7 +31,29 @@ Lattice_element::has_double_attribute(std::string const& name) const
 }
 
 double
-Lattice_element::get_double_attribute(std::string const& name)
+Lattice_element::get_double_attribute(std::string const& name) const
 {
-    return double_attributes[name];
+    std::map<std::string, double>::const_iterator iter = double_attributes.find(name);
+    return iter->second;
+}
+
+void
+Lattice_element::set_string_attribute(std::string const& name,
+        std::string const& value)
+{
+    string_attributes[name] = value;
+}
+
+bool
+Lattice_element::has_string_attribute(std::string const& name) const
+{
+    return (string_attributes.count(name) > 0);
+}
+
+std::string const&
+Lattice_element::get_string_attribute(std::string const& name) const
+{
+    std::map<std::string, std::string >::const_iterator result =
+            string_attributes.find(name);
+    return result->second;
 }

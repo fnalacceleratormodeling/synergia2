@@ -5,7 +5,8 @@
 const std::string name("foo");
 const std::string type("bar");
 const std::string attr("baz");
-const double val(3.1415);
+const double dblval(3.1415);
+const std::string strval("qux");
 const double tolerance = 1.0e-12;
 
 BOOST_AUTO_TEST_CASE(construct_lattice_element)
@@ -25,16 +26,30 @@ BOOST_AUTO_TEST_CASE(get_name_lattice_element)
     BOOST_CHECK_EQUAL(name, lattice_element.get_name());
 }
 
-BOOST_AUTO_TEST_CASE(has_attribute)
+BOOST_AUTO_TEST_CASE(has_double_attribute)
 {
     Lattice_element lattice_element(name, type);
     BOOST_CHECK(lattice_element.has_double_attribute(attr) == false);
 }
 
-BOOST_AUTO_TEST_CASE(set_get_attribute)
+BOOST_AUTO_TEST_CASE(set_get_double_attribute)
 {
     Lattice_element lattice_element(name, type);
-    lattice_element.set_double_attribute(attr, val);
+    lattice_element.set_double_attribute(attr, dblval);
     BOOST_CHECK(lattice_element.has_double_attribute(attr));
-    BOOST_CHECK_CLOSE(lattice_element.get_double_attribute(attr), val, tolerance);
+    BOOST_CHECK_CLOSE(lattice_element.get_double_attribute(attr), dblval, tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(has_string_attribute)
+{
+    Lattice_element lattice_element(name, type);
+    BOOST_CHECK(lattice_element.has_string_attribute(attr) == false);
+}
+
+BOOST_AUTO_TEST_CASE(set_get_string_attribute)
+{
+    Lattice_element lattice_element(name, type);
+    lattice_element.set_string_attribute(attr, strval);
+    BOOST_CHECK(lattice_element.has_string_attribute(attr));
+    BOOST_CHECK(lattice_element.get_string_attribute(attr) == strval);
 }

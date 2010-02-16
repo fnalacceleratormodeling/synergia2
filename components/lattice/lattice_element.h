@@ -23,7 +23,13 @@ public:
     bool
     has_double_attribute(std::string const& name) const;
     double
-    get_double_attribute(std::string const& name);
+    get_double_attribute(std::string const& name) const;
+    void
+    set_string_attribute(std::string const& name, std::string const& value);
+    bool
+    has_string_attribute(std::string const& name) const;
+    std::string const&
+    get_string_attribute(std::string const& name) const;
     //	double length();
     //	double quadrupole_strength();
 };
