@@ -42,3 +42,14 @@ def test_get_set_string_attribute():
     lattice_element.set_string_attribute(attr, strval)
     assert_equal(lattice_element.has_string_attribute(attr), True)
     assert_equal(lattice_element.get_string_attribute(attr), strval)
+
+def test_add_ancestor():
+    lattice_element = Lattice_element(type, name)
+
+    lattice_element.add_ancestor("pa")
+    lattice_element.add_ancestor("grandpa")
+    ancestors = lattice_element.get_ancestors()
+    assert_equal(ancestors[0], "pa")
+    assert_equal(ancestors[1], "grandpa")
+
+
