@@ -2,10 +2,17 @@
 #ifndef HAVE_ELECTRIC_FIELD_H
 #define HAVE_ELECTRIC_FIELD_H
 
+#include <iostream>
+// undefine symbols that conflict between iostream and mpich2
+#if defined(SEEK_CUR)
+#undef SEEK_CUR
+#undef SEEK_SET
+#undef SEEK_END
+#endif /* defined(SEEK_CUR) */
+
 #include "fftw_helper.h"
 #include "scalar_field.h"
 #include "macro_bunch_store.h"
-#include <iostream>
 
 Real_scalar_field
 calculate_E_n(Real_scalar_field &phi, int n,Fftw_helper &fftwh, bool z_periodic);

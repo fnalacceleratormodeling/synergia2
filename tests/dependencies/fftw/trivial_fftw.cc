@@ -1,5 +1,12 @@
-#include <fftw_mpi.h>
 #include <iostream>
+// undefine symbols that conflict between iostream and mpich2
+#if defined(SEEK_CUR)
+#undef SEEK_CUR
+#undef SEEK_SET
+#undef SEEK_END
+#endif /* defined(SEEK_CUR) */
+
+#include <fftw_mpi.h>
 #include <complex>
 
 #undef _POSIX_C_SOURCE

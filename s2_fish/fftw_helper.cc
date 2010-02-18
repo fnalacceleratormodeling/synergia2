@@ -1,5 +1,11 @@
-#include "fftw_helper.h"
+#include <iostream>
 #include <cstring>
+// undefine symbols that conflict between iostream and mpich2
+#undef SEEK_CUR
+#undef SEEK_SET
+#undef SEEK_END
+
+#include "fftw_helper.h"
 
 void
 Fftw_helper::construct(int *shape_in, bool z_periodic)
