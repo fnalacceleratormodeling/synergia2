@@ -4,7 +4,7 @@
 # jfa: this is overkill
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
-link_libraries(${CHEF_LIBS} ${Boost_LIBRARIES} ${GSL_CONFIG_LIBS} ${PARALLEL_FFTW_LIBRARIES} array_nd)
+link_libraries(${CHEF_LIBS} ${Boost_LIBRARIES} ${GSL_CONFIG_LIBS} ${PARALLEL_FFTW_LIBS} array_nd)
 add_python_extension(GaussSC GaussSC.cc BasErs_field.cc)
 # target_link_libraries(GaussSC ${CHEF_LIBS} ${Boost_LIBRARIES})
 
