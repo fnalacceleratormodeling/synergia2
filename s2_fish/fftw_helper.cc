@@ -1,9 +1,5 @@
 #include <iostream>
 #include <cstring>
-// undefine symbols that conflict between iostream and mpich2
-#undef SEEK_CUR
-#undef SEEK_SET
-#undef SEEK_END
 
 #include "fftw_helper.h"
 

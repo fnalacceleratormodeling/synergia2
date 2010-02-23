@@ -2,13 +2,6 @@
 #ifndef HAVE_FFTW_HELPER_H
 #define HAVE_FFTW_HELPER_H true
 
-// undefine symbols that conflict between iostream and mpich2
-#if defined(SEEK_CUR)
-#undef SEEK_CUR
-#undef SEEK_SET
-#undef SEEK_END
-#endif /* defined(SEEK_CUR) */
-
 #ifdef USE_FFTW2
 #include <rfftw_mpi.h>
 #else

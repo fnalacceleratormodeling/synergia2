@@ -9,6 +9,9 @@ FIND_PACKAGE(MPI REQUIRED)
 INCLUDE(CMakeForceCompiler)
 CMAKE_FORCE_CXX_COMPILER(${MPI_COMPILER} "MPI C++ Compiler")
 
+# fix mpich2 complaints about SEEK_SET
+add_definitions(-DMPICH_IGNORE_CXX_SEEK)
+
 # python
 INCLUDE(FindPythonInterp)
 INCLUDE(FindPythonLibs)
