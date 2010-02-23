@@ -2,7 +2,7 @@
 #add_executable(demo demo.cc lattice_element.cc lattice.cc four_momentum.cc reference_particle.cc)
 #target_link_libraries(demo ${CHEF_LIBS} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
 
-add_library(lattice SHARED lattice_element.cc)
+add_library(lattice SHARED lattice_element.cc lattice.cc)
 add_python_extension(pylattice lattice_wrap.cc)
 target_link_libraries(pylattice lattice ${Boost_LIBRARIES})
 

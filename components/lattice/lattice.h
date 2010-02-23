@@ -7,20 +7,33 @@
 #include <beamline/beamline.h>
 
 #include "lattice_element.h"
+#include "components/foundation/reference_particle.h"
 
 class Lattice
 {
 private:
-//	std::string file_name;
-	BmlPtr chef_bmlptr;
-	std::list<Lattice_element> elements;
+    std::string name;
+    Reference_particle *reference_particle_ptr;
+    bool reference_particle_allocated;
+    std::list<Lattice_element > the_elements;
 
 public:
-	Lattice(std::string const &file_name,
-			std::string const &line_name);
-	std::list<Lattice_element> &get_elements();
+    Lattice(std::string const& name);
+    void
+    set_reference_particle(Reference_particle const& reference_particle);
+    bool
+    has_reference_particle() const;
+    Reference_particle const&
+    get_reference_particle() const;
+    double
+    get_length() const;
+    double
+    get_total_angle() const;
+    void
+    append(Lattice_element & element);
+    std::list<Lattice_element > &
+    elements();
+    ~Lattice();
 };
-
-
 
 #endif /* LATTICE_H_ */
