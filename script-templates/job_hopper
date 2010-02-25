@@ -1,10 +1,11 @@
 #PBS -o synergia.out
 #PBS -e synergia.err
 #PBS -l mppwidth=@@numproc@@
-#PBS -l walltime=02:00:0
-#PBS -q regular
-#PBS -m abe
-#PBS -M yourname@fnal.gov
+#PBS -l walltime=00:30:0
+#PBS -q debug
+## remove one # and customize two lines below to get job email
+##PBS -m abe
+##PBS -M yourname@fnal.gov
 
 # this example script is tailored for the hopper machine at NERSC
 # numproc is the number of mpi tasks to initiate.  The number of nodes
