@@ -1,4 +1,5 @@
 #include "reference_particle.h"
+#include "utils/floating_point.h"
 
 Reference_particle::Reference_particle(double mass, double total_energy) :
     four_momentum(mass, total_energy), state(boost::extents[6])
@@ -84,16 +85,9 @@ Reference_particle::equal(Reference_particle const& reference_particle,
         return false;
     }
     for (int i = 0; i < 6; ++i) {
-        if (std::abs(state[i]) < tolerance) {
-            if (std::abs(state[i] - reference_particle.get_state()[i])
-                    > tolerance) {
-                return false;
-            }
-        } else {
-            if (std::abs((state[i] - reference_particle.get_state()[i])
-                    / state[i]) > tolerance) {
-                return false;
-            }
+        if (!floating_point_equal(state[i], reference_particle.get_state()[i],
+                tolerance)) {
+            return false;
         }
     }
     return true;

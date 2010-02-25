@@ -1,4 +1,5 @@
 #include "four_momentum.h"
+#include "utils/floating_point.h"
 #include <cmath>
 #include <stdexcept>
 
@@ -105,13 +106,13 @@ Four_momentum::get_beta() const
 bool
 Four_momentum::equal(Four_momentum const& four_momentum, double tolerance) const
 {
-    if (std::abs(mass - four_momentum.get_mass()) > tolerance) {
+    if (! floating_point_equal(mass, four_momentum.get_mass(), tolerance)) {
         return false;
     }
-    if (std::abs(gamma - four_momentum.get_gamma()) > tolerance) {
+    if (! floating_point_equal(gamma, four_momentum.get_gamma(), tolerance)) {
         return false;
     }
-    if (std::abs(beta - four_momentum.get_beta()) > tolerance) {
+    if (! floating_point_equal(beta, four_momentum.get_beta(), tolerance)) {
         return false;
     }
     return true;
