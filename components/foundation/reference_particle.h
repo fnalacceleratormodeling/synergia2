@@ -68,6 +68,12 @@ public:
     /// Get the total energy in GeV in the lab frame.
     double
     get_total_energy() const;
+
+    /// Check equality to the given tolerance
+    /// @param reference_particle another Reference_particle
+    /// @param tolerance fractional accuracy
+    bool
+    equal(Reference_particle const& reference_particle, double tolerance) const;
 };
 
 #endif /* REFERENCE_PARTICLE_H_ */

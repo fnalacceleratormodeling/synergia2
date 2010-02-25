@@ -9,7 +9,7 @@ const double total_energy = 125.0;
 
 BOOST_AUTO_TEST_CASE(construct)
 {
-    Reference_particle reference_particle(mass,total_energy);
+    Reference_particle reference_particle(mass, total_energy);
 }
 
 BOOST_AUTO_TEST_CASE(construct2)
@@ -166,4 +166,48 @@ BOOST_AUTO_TEST_CASE(copy2)
                 new_state[i],tolerance);
         BOOST_CHECK_CLOSE(reference_particle.get_state()[i],0.0,tolerance);
     }
+}
+
+const double equal_tolerance = 1.0e-12;
+
+BOOST_AUTO_TEST_CASE(equal)
+{
+    Four_momentum four_momentum(mass);
+    Reference_particle reference_particle1(four_momentum);
+    MArray1d new_state(boost::extents[6]);
+    for (int i = 0; i < 6; ++i) {
+        new_state[i] = 1.1 * i;
+    }
+    reference_particle1.set_state(new_state);
+    Reference_particle reference_particle2(four_momentum);
+    reference_particle2.set_state(new_state);
+    BOOST_CHECK(reference_particle1.equal(reference_particle2, equal_tolerance));
+}
+
+BOOST_AUTO_TEST_CASE(equal_different_four_momentum)
+{
+    Four_momentum four_momentum1(mass, total_energy);
+    Reference_particle reference_particle1(four_momentum1);
+    Four_momentum four_momentum2(mass,total_energy*1.1);
+    Reference_particle reference_particle2(four_momentum2);
+    BOOST_CHECK(!reference_particle1.equal(reference_particle2, equal_tolerance));
+}
+
+BOOST_AUTO_TEST_CASE(equal_different_state)
+{
+    Four_momentum four_momentum(mass);
+    Reference_particle reference_particle1(four_momentum);
+    MArray1d state1(boost::extents[6]);
+    for (int i = 0; i < 6; ++i) {
+        state1[i] = 1.1 * i;
+    }
+    reference_particle1.set_state(state1);
+    Reference_particle reference_particle2(four_momentum);
+    MArray1d state2(boost::extents[6]);
+    for (int i = 0; i < 6; ++i) {
+        state2[i] = state1[i];
+    }
+    state2[1] *= 1.1;
+    reference_particle2.set_state(state2);
+    BOOST_CHECK(!reference_particle1.equal(reference_particle2, equal_tolerance));
 }

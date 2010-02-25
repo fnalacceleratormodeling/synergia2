@@ -56,6 +56,7 @@ BOOST_PYTHON_MODULE(pyfoundation)
         .def("get_gamma",&Reference_particle::get_gamma)
         .def("get_momentum",&Reference_particle::get_momentum)
         .def("get_total_energy",&Reference_particle::get_total_energy)
+        .def("equal",&Reference_particle::equal)
         ;
 
     class_<Distribution, boost::noncopyable > ("Distribution", no_init);

@@ -76,3 +76,25 @@ Reference_particle::get_total_energy() const
     return four_momentum.get_total_energy();
 }
 
+bool
+Reference_particle::equal(Reference_particle const& reference_particle,
+        double tolerance) const
+{
+    if (!four_momentum.equal(reference_particle.get_four_momentum(), tolerance)) {
+        return false;
+    }
+    for (int i = 0; i < 6; ++i) {
+        if (std::abs(state[i]) < tolerance) {
+            if (std::abs(state[i] - reference_particle.get_state()[i])
+                    > tolerance) {
+                return false;
+            }
+        } else {
+            if (std::abs((state[i] - reference_particle.get_state()[i])
+                    / state[i]) > tolerance) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
