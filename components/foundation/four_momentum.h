@@ -67,6 +67,12 @@ public:
     /// Get the relativistic beta factor
     double
     get_beta() const;
+
+    /// Check equality to the given tolerance
+    /// @param four_momentum another Four_momentum
+    /// @param tolerance fractional accuracy for beta and gamma
+    bool
+    equal(Four_momentum const& four_momentum, double tolerance) const;
 };
 
 #endif /* FOUR_MOMENTUM_H_ */

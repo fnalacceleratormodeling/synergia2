@@ -40,6 +40,7 @@ BOOST_PYTHON_MODULE(pyfoundation)
         .def("get_momentum",&Four_momentum::get_momentum)
         .def("get_gamma",&Four_momentum::get_gamma)
         .def("get_beta",&Four_momentum::get_beta)
+        .def("equal",&Four_momentum::equal)
         ;
 
     class_<Reference_particle>("Reference_particle", init<double, double>())

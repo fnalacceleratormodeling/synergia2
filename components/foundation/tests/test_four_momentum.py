@@ -25,19 +25,29 @@ def test_set_get_total_energy():
     f = Four_momentum(mass)
     f.set_total_energy(value)
     assert_almost_equal(f.get_total_energy(),value)
-    
+
 def test_set_get_kinetic_energy():
     f = Four_momentum(mass)
     f.set_kinetic_energy(value)
     assert_almost_equal(f.get_kinetic_energy(),value)
-    
+
 def test_set_get_total_energy():
     f = Four_momentum(mass)
     f.set_total_energy(value)
     assert_almost_equal(f.get_total_energy(),value)
-    
+
 def test_set_get_beta():
     f = Four_momentum(mass)
     f.set_beta(beta_value)
     assert_almost_equal(f.get_beta(),beta_value)
-    
+
+def test_equal():
+    tolerance = 1.0e-12
+    f = Four_momentum(mass)
+    f.set_beta(beta_value)
+    f_same = Four_momentum(mass)
+    f_same.set_beta(beta_value)
+    f_different = Four_momentum(mass)
+    f_different.set_beta(beta_value*1.1)
+    assert(f.equal(f_same,tolerance))
+    assert(not f.equal(f_different,tolerance))

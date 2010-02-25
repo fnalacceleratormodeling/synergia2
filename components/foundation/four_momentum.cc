@@ -101,3 +101,18 @@ Four_momentum::get_beta() const
 {
     return beta;
 }
+
+bool
+Four_momentum::equal(Four_momentum const& four_momentum, double tolerance) const
+{
+    if (std::abs(mass - four_momentum.get_mass()) > tolerance) {
+        return false;
+    }
+    if (std::abs(gamma - four_momentum.get_gamma()) > tolerance) {
+        return false;
+    }
+    if (std::abs(beta - four_momentum.get_beta()) > tolerance) {
+        return false;
+    }
+    return true;
+}
