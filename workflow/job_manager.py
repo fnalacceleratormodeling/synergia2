@@ -159,7 +159,7 @@ class Job_manager:
         subs["args"] = self._args_to_string(self.argv[1:], ["createjob"])
         subs["jobdir"] = os.path.abspath(self.directory)
         subs["script"] = os.path.basename(self.real_script)
-        job_name = directory + "_job"
+        job_name = os.path.basename(directory) + "_job"
         self.create_script("job", job_name, directory, subs)
         self.create_script("cleanup", "cleanup", directory, subs)
         if self.opts.get("submit"):
