@@ -1,4 +1,5 @@
 #include "lattice_element.h"
+#include <algorithm>
 
 void
 Lattice_element::set_default_attributes(
@@ -26,6 +27,26 @@ Lattice_element::Lattice_element(std::string const& type,
             bend_angle_attribute_name("angle")
 {
     set_default_attributes(get_standard_default_attributes_fn_map());
+}
+
+Lattice_element::Lattice_element(Lattice_element const& lattice_element) :
+            type(lattice_element.type),
+            name(lattice_element.name),
+            ancestors(),
+            double_attributes(),
+            string_attributes(),
+            length_attribute_name(lattice_element.length_attribute_name),
+            bend_angle_attribute_name(lattice_element.bend_angle_attribute_name)
+{
+    std::copy(lattice_element.ancestors.begin(),
+            lattice_element.ancestors.end(), std::inserter(ancestors,
+                    ancestors.begin()));
+    std::copy(lattice_element.double_attributes.begin(),
+            lattice_element.double_attributes.end(), std::inserter(double_attributes,
+                    double_attributes.begin()));
+    std::copy(lattice_element.string_attributes.begin(),
+            lattice_element.string_attributes.end(), std::inserter(string_attributes,
+                    string_attributes.begin()));
 }
 
 std::string const &
@@ -72,6 +93,12 @@ Lattice_element::get_double_attribute(std::string const& name) const
     return iter->second;
 }
 
+std::map<std::string, double > const &
+Lattice_element::get_double_attributes() const
+{
+    return double_attributes;
+}
+
 void
 Lattice_element::set_string_attribute(std::string const& name,
         std::string const& value)
@@ -104,6 +131,12 @@ Lattice_element::set_bend_angle_attribute_name(
         std::string const& attribute_name)
 {
     bend_angle_attribute_name = attribute_name;
+}
+
+std::map<std::string, std::string > const &
+Lattice_element::get_string_attributes() const
+{
+    return string_attributes;
 }
 
 double

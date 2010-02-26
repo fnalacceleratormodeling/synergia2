@@ -18,10 +18,14 @@ BOOST_PYTHON_MODULE(pylattice)
         .def("set_double_attribute", &Lattice_element::set_double_attribute)
         .def("has_double_attribute", &Lattice_element::has_double_attribute)
         .def("get_double_attribute", &Lattice_element::get_double_attribute)
+//        .def("get_double_attributes", &Lattice_element::get_double_attributes,
+//                return_value_policy<copy_const_reference>())
         .def("set_string_attribute", &Lattice_element::set_string_attribute)
         .def("has_string_attribute", &Lattice_element::has_string_attribute)
         .def("get_string_attribute", &Lattice_element::get_string_attribute,
                 return_value_policy<copy_const_reference>())
+//        .def("get_string_attributes", &Lattice_element::get_string_attributes,
+//                return_value_policy<copy_const_reference>())
         .def("set_length_attribute_name", &Lattice_element::set_length_attribute_name)
         .def("set_bend_angle_attribute_name", &Lattice_element::set_bend_angle_attribute_name)
         .def("get_length", &Lattice_element::get_length)

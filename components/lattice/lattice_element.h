@@ -29,6 +29,7 @@ public:
     Lattice_element(std::string const& type, std::string const& name,
             Set_default_attributes_fn_map const& map);
     Lattice_element(std::string const& type, std::string const& name);
+    Lattice_element(Lattice_element const& lattice_element);
     std::string const &
     get_type() const;
     std::string const &
@@ -43,6 +44,8 @@ public:
     has_double_attribute(std::string const& name) const;
     double
     get_double_attribute(std::string const& name) const;
+    std::map<std::string, double > const &
+    get_double_attributes() const;
     void
     set_string_attribute(std::string const& name, std::string const& value);
     bool
@@ -53,6 +56,8 @@ public:
     set_length_attribute_name(std::string const& attribute_name);
     void
     set_bend_angle_attribute_name(std::string const& attribute_name);
+    std::map<std::string, std::string > const &
+    get_string_attributes() const;
     double
     get_length() const;
     double
