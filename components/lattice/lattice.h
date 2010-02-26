@@ -19,6 +19,8 @@ private:
 
 public:
     Lattice(std::string const& name);
+    std::string const&
+    get_name() const;
     void
     set_reference_particle(Reference_particle const& reference_particle);
     bool

@@ -9,6 +9,12 @@ Lattice::Lattice(std::string const& name) :
 {
 }
 
+std::string const&
+Lattice::get_name() const
+{
+    return name;
+}
+
 void
 Lattice::set_reference_particle(Reference_particle const& reference_particle)
 {

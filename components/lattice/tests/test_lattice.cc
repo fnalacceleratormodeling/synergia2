@@ -1,61 +1,42 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "components/lattice/lattice_element.h"
+#include "components/lattice/lattice.h"
 
 const std::string name("foo");
-const std::string type("bar");
-const std::string attr("baz");
-const double dblval(3.1415);
-const std::string strval("qux");
-const double tolerance = 1.0e-12;
+const double mass = 100.0;
+const double total_energy = 125.0;
 
-BOOST_AUTO_TEST_CASE(construct_lattice_element)
+BOOST_AUTO_TEST_CASE(construct_lattice)
 {
-    Lattice_element lattice_element(type, name);
+    Lattice lattice(name);
 }
 
-BOOST_AUTO_TEST_CASE(construct2_lattice_element)
+BOOST_AUTO_TEST_CASE(get_name_lattice)
 {
-    Set_default_attributes_fn_map map(get_standard_default_attributes_fn_map());
-    Lattice_element lattice_element(type, name, map);
+    Lattice lattice(name);
+    BOOST_CHECK_EQUAL(lattice.get_name(),name);
 }
 
-BOOST_AUTO_TEST_CASE(get_type_lattice_element)
+BOOST_AUTO_TEST_CASE(set_reference_particle)
 {
-    Lattice_element lattice_element(type, name);
-    BOOST_CHECK_EQUAL(type, lattice_element.get_type());
+    Lattice lattice(name);
+    Reference_particle reference_particle(mass, total_energy);
+    lattice.set_reference_particle(reference_particle);
 }
 
-BOOST_AUTO_TEST_CASE(get_name_lattice_element)
+BOOST_AUTO_TEST_CASE(has_reference_particle)
 {
-    Lattice_element lattice_element(type, name);
-    BOOST_CHECK_EQUAL(name, lattice_element.get_name());
+    Lattice lattice(name);
+    BOOST_CHECK_EQUAL(lattice.has_reference_particle(),false);
+    Reference_particle reference_particle(mass, total_energy);
+    lattice.set_reference_particle(reference_particle);
+    BOOST_CHECK_EQUAL(lattice.has_reference_particle(),true);
 }
 
-BOOST_AUTO_TEST_CASE(has_double_attribute)
+BOOST_AUTO_TEST_CASE(get_reference_particle)
 {
-    Lattice_element lattice_element(name, type);
-    BOOST_CHECK(lattice_element.has_double_attribute(attr) == false);
-}
-
-BOOST_AUTO_TEST_CASE(set_get_double_attribute)
-{
-    Lattice_element lattice_element(name, type);
-    lattice_element.set_double_attribute(attr, dblval);
-    BOOST_CHECK(lattice_element.has_double_attribute(attr));
-    BOOST_CHECK_CLOSE(lattice_element.get_double_attribute(attr), dblval, tolerance);
-}
-
-BOOST_AUTO_TEST_CASE(has_string_attribute)
-{
-    Lattice_element lattice_element(name, type);
-    BOOST_CHECK(lattice_element.has_string_attribute(attr) == false);
-}
-
-BOOST_AUTO_TEST_CASE(set_get_string_attribute)
-{
-    Lattice_element lattice_element(name, type);
-    lattice_element.set_string_attribute(attr, strval);
-    BOOST_CHECK(lattice_element.has_string_attribute(attr));
-    BOOST_CHECK(lattice_element.get_string_attribute(attr) == strval);
+    Lattice lattice(name);
+    Reference_particle reference_particle(mass, total_energy);
+    lattice.set_reference_particle(reference_particle);
+    //    BOOST_CHECK_EQUAL(lattice.get_reference_particle(),reference_particle);
 }

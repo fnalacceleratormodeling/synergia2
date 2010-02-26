@@ -12,7 +12,7 @@ attr = "baz"
 dblval = 2.71828
 strval = "qux"
 
-def test_construct_lattice_element():
+def test_construct():
     lattice_element = Lattice_element(type, name)
 
 def test_get_type():
