@@ -37,6 +37,18 @@ Lattice::get_reference_particle() const
     return *reference_particle_ptr;
 }
 
+void
+Lattice::append(Lattice_element const& element)
+{
+    the_elements.push_back(element);
+}
+
+std::list<Lattice_element > &
+Lattice::elements()
+{
+    return the_elements;
+}
+
 double
 Lattice::get_length() const
 {
@@ -59,21 +71,9 @@ Lattice::get_total_angle() const
     return angle;
 }
 
-void
-Lattice::append(Lattice_element & element)
-{
-    the_elements.push_back(element);
-}
-
-std::list<Lattice_element > &
-Lattice::elements()
-{
-    return the_elements;
-}
-
 Lattice::~Lattice()
 {
-    if (!reference_particle_allocated) {
+    if (reference_particle_allocated) {
         delete reference_particle_ptr;
     }
 

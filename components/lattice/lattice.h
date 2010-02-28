@@ -27,14 +27,14 @@ public:
     has_reference_particle() const;
     Reference_particle const&
     get_reference_particle() const;
+    void
+    append(Lattice_element const& element);
+    std::list<Lattice_element > &
+    elements();
     double
     get_length() const;
     double
     get_total_angle() const;
-    void
-    append(Lattice_element & element);
-    std::list<Lattice_element > &
-    elements();
     ~Lattice();
 };
 
