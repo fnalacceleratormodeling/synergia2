@@ -43,16 +43,17 @@ BOOST_AUTO_TEST_CASE(get_reference_particle)
 }
 
 const double quad_length = 0.2;
-const double drift_length = 0.3;
+const double drift_length = 3.0;
+const double bend_length = 4.0;
 
 BOOST_AUTO_TEST_CASE(append_fodo)
 {
-    Lattice_element f("quadrupole","f");
-    f.set_double_attribute("l",quad_length);
-    Lattice_element o("drift","o");
+    Lattice_element f("quadrupole", "f");
+    f.set_double_attribute("l", quad_length);
+    Lattice_element o("drift", "o");
     o.set_double_attribute("l", drift_length);
-    Lattice_element d("quadrupole","d");
-    d.set_double_attribute("l",quad_length);
+    Lattice_element d("quadrupole", "d");
+    d.set_double_attribute("l", quad_length);
 
     Lattice lattice(name);
     lattice.append(f);
@@ -60,7 +61,8 @@ BOOST_AUTO_TEST_CASE(append_fodo)
     lattice.append(d);
     lattice.append(o);
 
-    std::list<Lattice_element >::const_iterator it = (lattice.elements()).begin();
+    std::list<Lattice_element >::const_iterator it =
+            (lattice.elements()).begin();
     BOOST_CHECK(it != lattice.elements().end());
     BOOST_CHECK_EQUAL(it->get_name(), "f");
     BOOST_CHECK(it->get_type() == "quadrupole");
@@ -84,12 +86,12 @@ BOOST_AUTO_TEST_CASE(append_fodo)
 
 BOOST_AUTO_TEST_CASE(get_length)
 {
-    Lattice_element f("f","quadrupole");
-    f.set_double_attribute("l",quad_length);
-    Lattice_element o("o","drift");
-    o.set_double_attribute("l",drift_length);
-    Lattice_element d("d","quadrupole");
-    d.set_double_attribute("l",quad_length);
+    Lattice_element f("f", "quadrupole");
+    f.set_double_attribute("l", quad_length);
+    Lattice_element o("o", "drift");
+    o.set_double_attribute("l", drift_length);
+    Lattice_element d("d", "quadrupole");
+    d.set_double_attribute("l", quad_length);
 
     Lattice lattice(name);
     lattice.append(f);
@@ -102,12 +104,12 @@ BOOST_AUTO_TEST_CASE(get_length)
 
 BOOST_AUTO_TEST_CASE(get_total_angle1)
 {
-    Lattice_element f("f","quadrupole");
-    f.set_double_attribute("l",quad_length);
-    Lattice_element o("o","drift");
-    o.set_double_attribute("l",drift_length);
-    Lattice_element d("d","quadrupole");
-    d.set_double_attribute("l",quad_length);
+    Lattice_element f("f", "quadrupole");
+    f.set_double_attribute("l", quad_length);
+    Lattice_element o("o", "drift");
+    o.set_double_attribute("l", drift_length);
+    Lattice_element d("d", "quadrupole");
+    d.set_double_attribute("l", quad_length);
 
     Lattice lattice(name);
     lattice.append(f);
@@ -116,4 +118,35 @@ BOOST_AUTO_TEST_CASE(get_total_angle1)
     lattice.append(o);
 
     BOOST_CHECK_CLOSE(lattice.get_total_angle(), 0.0, tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(get_total_angle2)
+{
+    const double pi = 3.141592653589793238462643;
+    const int n_cells = 8;
+    double bend_angle = 2 * pi / (2 * n_cells);
+
+    Lattice_element f("f", "quadrupole");
+    f.set_double_attribute("l", quad_length);
+    Lattice_element o("o", "drift");
+    o.set_double_attribute("l", drift_length);
+    Lattice_element b("b", "sbend");
+    b.set_double_attribute("l", bend_length);
+    b.set_double_attribute("angle", bend_angle);
+    Lattice_element d("d", "quadrupole");
+    d.set_double_attribute("l", quad_length);
+
+    Lattice lattice(name);
+    for (int i = 0; i < n_cells; ++i) {
+        lattice.append(f);
+        lattice.append(o);
+        lattice.append(b);
+        lattice.append(o);
+        lattice.append(d);
+        lattice.append(o);
+        lattice.append(b);
+        lattice.append(o);
+    }
+
+    BOOST_CHECK_CLOSE(lattice.get_total_angle(), 2*pi, tolerance);
 }
