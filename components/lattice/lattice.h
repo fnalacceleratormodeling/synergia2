@@ -4,9 +4,8 @@
 #include <string>
 #include <list>
 
-#include <beamline/beamline.h>
 
-#include "lattice_element.h"
+#include "components/lattice/lattice_element.h"
 #include "components/foundation/reference_particle.h"
 
 class Lattice
