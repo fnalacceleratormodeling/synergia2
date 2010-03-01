@@ -8,6 +8,11 @@ target_link_libraries(test_lattice_element -llattice -lboost_unit_test_framework
 add_test(test_lattice_element test_lattice_element)
 add_test(test_pylattice_element nosetests test_lattice_element.py)
 
+add_executable(test_lattice_element_slice test_lattice_element_slice.cc)
+target_link_libraries(test_lattice_element_slice -llattice -lboost_unit_test_framework)
+add_test(test_lattice_element_slice test_lattice_element_slice)
+# add_test(test_pylattice_element nosetests test_lattice_element.py)
+
 add_executable(test_lattice test_lattice.cc)
 target_link_libraries(test_lattice -llattice -lfoundation -lboost_unit_test_framework)
 add_test(test_lattice test_lattice)
