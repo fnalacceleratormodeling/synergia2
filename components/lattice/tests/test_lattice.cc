@@ -62,8 +62,8 @@ BOOST_AUTO_TEST_CASE(append_fodo)
     lattice.append(o);
 
     std::list<Lattice_element >::const_iterator it =
-            (lattice.elements()).begin();
-    BOOST_CHECK(it != lattice.elements().end());
+            (lattice.get_elements()).begin();
+    BOOST_CHECK(it != lattice.get_elements().end());
     BOOST_CHECK_EQUAL(it->get_name(), "f");
     BOOST_CHECK(it->get_type() == "quadrupole");
     BOOST_CHECK_CLOSE(it->get_double_attribute("l"), quad_length, tolerance);

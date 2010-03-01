@@ -15,7 +15,7 @@ private:
     std::string name;
     Reference_particle *reference_particle_ptr;
     bool reference_particle_allocated;
-    std::list<Lattice_element > the_elements;
+    std::list<Lattice_element > elements;
 
 public:
     Lattice(std::string const& name);
@@ -30,7 +30,7 @@ public:
     void
     append(Lattice_element const& element);
     std::list<Lattice_element > &
-    elements();
+    get_elements();
     double
     get_length() const;
     double

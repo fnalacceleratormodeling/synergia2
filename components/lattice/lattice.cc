@@ -5,7 +5,7 @@
 
 Lattice::Lattice(std::string const& name) :
     name(name), reference_particle_allocated(false),
-            the_elements()
+            elements()
 {
 }
 
@@ -40,21 +40,21 @@ Lattice::get_reference_particle() const
 void
 Lattice::append(Lattice_element const& element)
 {
-    the_elements.push_back(element);
+    elements.push_back(element);
 }
 
 std::list<Lattice_element > &
-Lattice::elements()
+Lattice::get_elements()
 {
-    return the_elements;
+    return elements;
 }
 
 double
 Lattice::get_length() const
 {
     double length = 0.0;
-    for (std::list<Lattice_element >::const_iterator it = the_elements.begin(); it
-            != the_elements.end(); ++it) {
+    for (std::list<Lattice_element >::const_iterator it = elements.begin(); it
+            != elements.end(); ++it) {
         length += it->get_length();
     }
     return length;
@@ -64,8 +64,8 @@ double
 Lattice::get_total_angle() const
 {
     double angle = 0.0;
-    for (std::list<Lattice_element >::const_iterator it = the_elements.begin(); it
-            != the_elements.end(); ++it) {
+    for (std::list<Lattice_element >::const_iterator it = elements.begin(); it
+            != elements.end(); ++it) {
         angle += it->get_bend_angle();
     }
     return angle;
