@@ -68,8 +68,8 @@ Chef_lattice::polish_lattice(beamline const& raw_beamline)
 {
     DriftConverter drift_converter;
     beamline_ptr = drift_converter.convert(raw_beamline);
-    Particle
-    testpart(reference_particle_to_chef_particle(lattice_ptr->get_reference_particle()));
+    Particle testpart(reference_particle_to_chef_particle(
+            lattice_ptr->get_reference_particle()));
     RefRegVisitor registrar(testpart);
     beamline_ptr->accept(registrar);
 }
@@ -164,12 +164,17 @@ Chef_element_list
 lattice_element_to_chef_quadrupole(Lattice_element const& lattice_element,
         double brho)
 {
-    if (lattice_element.has_string_attribute("tilt")
-            || lattice_element.has_double_attribute("tilt")) {
+    // tilt can have a string value of ""
+    if (lattice_element.has_string_attribute("tilt")) {
         throw(runtime_error(
                 "lattice_element_to_chef_quadrupole: tilt element not handled"));
     }
-
+    if (lattice_element.has_double_attribute("tilt")) {
+        if (lattice_element.get_double_attribute("tilt") != 0.0) {
+            throw(runtime_error(
+                    "lattice_element_to_chef_quadrupole: non-zero tilt element not handled"));
+        }
+    }
     Chef_element_list retval;
 
     double length = lattice_element.get_length();
