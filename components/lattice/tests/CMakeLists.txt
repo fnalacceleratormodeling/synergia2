@@ -15,5 +15,10 @@ target_link_libraries(test_lattice lattice foundation ${Boost_UNIT_TEST_FRAMEWOR
 add_test(test_lattice test_lattice)
 # add_test(test_pylattice nosetests test_lattice.py)
 
+add_executable(test_chef_lattice test_chef_lattice.cc)
+target_link_libraries(test_chef_lattice lattice foundation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_chef_lattice test_chef_lattice)
+# add_test(test_pylattice nosetests test_lattice.py)
+
 add_test(test_mad8_parser nosetests test_mad8_parser.py)
 add_test(test_expression_parser nosetests test_expression_parser.py)
