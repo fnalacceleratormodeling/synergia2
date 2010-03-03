@@ -1,20 +1,17 @@
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
-link_directories(..)
-link_directories(../../foundation)
-
 add_executable(test_lattice_element test_lattice_element.cc)
-target_link_libraries(test_lattice_element -llattice -lboost_unit_test_framework)
+target_link_libraries(test_lattice_element lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_lattice_element test_lattice_element)
 add_test(test_pylattice_element nosetests test_lattice_element.py)
 
 add_executable(test_lattice_element_slice test_lattice_element_slice.cc)
-target_link_libraries(test_lattice_element_slice -llattice -lboost_unit_test_framework)
+target_link_libraries(test_lattice_element_slice lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_lattice_element_slice test_lattice_element_slice)
 # add_test(test_pylattice_element nosetests test_lattice_element.py)
 
 add_executable(test_lattice test_lattice.cc)
-target_link_libraries(test_lattice -llattice -lfoundation -lboost_unit_test_framework)
+target_link_libraries(test_lattice lattice foundation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_lattice test_lattice)
 # add_test(test_pylattice nosetests test_lattice.py)
 
