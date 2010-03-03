@@ -1,9 +1,8 @@
-#include_directories(/usr/include/glib-2.0 /usr/lib64/glib-2.0/include)
-#add_executable(demo demo.cc lattice_element.cc lattice.cc four_momentum.cc reference_particle.cc)
-#target_link_libraries(demo ${CHEF_LIBS} ${Boost_LIBRARIES} ${PYTHON_LIBRARIES})
+add_library(lattice SHARED lattice_element.cc lattice_element_slice.cc
+    lattice.cc chef_lattice.cc)
+target_link_libraries(lattice foundation ${CHEF_LIBS} ${Boost_REGEX_LIBRARY})
 
-add_library(lattice SHARED lattice_element.cc lattice_element_slice.cc lattice.cc)
 add_python_extension(pylattice lattice_wrap.cc)
-target_link_libraries(pylattice lattice ${Boost_LIBRARIES})
+target_link_libraries(pylattice lattice foundation ${CHEF_LIBS} ${Boost_LIBRARIES})
 
 add_subdirectory(tests)
