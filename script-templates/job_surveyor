@@ -2,5 +2,5 @@
 
 cd @@jobdir@@
 
-qsub -n @@numproc@@ --mode vn -t 00:10:00 -M 'amundson@fnal.gov' -A ComPASSatBGP -O synergia --env OMP_NUM_THREADS=1:PYTHONPATH="`synergia --pythonpath`:/soft/apps/python/python-2.6-cnk-gcc/numpy-1.3.0/lib/python2.6/site-packages":LD_LIBRARY_PATH="/bgsys/drivers/ppcfloor/gnu-linux/powerpc-bgp-linux/lib:`synergia --ldlibrarypath`":SYNERGIA2DIR=@@synergia2dir@@ /bgsys/drivers/ppcfloor/gnu-linux/bin/python @@script@@ @@args@@
+qsub -n @@numproc@@ --mode @@mode@@ -t 00:10:00 -M '@@email@@' -A ComPASSatBGP -O synergia --env OMP_NUM_THREADS=1:PYTHONPATH="`synergia --pythonpath`:/soft/apps/python/python-2.6-cnk-gcc/numpy-1.3.0/lib/python2.6/site-packages":LD_LIBRARY_PATH="/bgsys/drivers/ppcfloor/gnu-linux/powerpc-bgp-linux/lib:`synergia --ldlibrarypath`":SYNERGIA2DIR=@@synergia2dir@@ /bgsys/drivers/ppcfloor/gnu-linux/bin/python @@script@@ @@args@@
 
