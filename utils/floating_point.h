@@ -3,7 +3,7 @@
 
 #include <cmath>
 
-/// compare two floating point numbers within the given tolerance
+/// check a = b within the given tolerance
 inline bool
 floating_point_equal(double a, double b, double tolerance)
 {
@@ -12,6 +12,13 @@ floating_point_equal(double a, double b, double tolerance)
     } else {
         return (std::abs((a - b) / a) < tolerance);
     }
+}
+
+/// check a <= b within the given tolerance
+inline bool
+floating_point_leq(double a, double b, double tolerance)
+{
+    return ((b - a) > -tolerance);
 }
 
 #endif /* FLOATING_POINT_H_ */
