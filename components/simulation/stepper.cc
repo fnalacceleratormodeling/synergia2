@@ -1,28 +1,32 @@
 #include "stepper.h"
 #include "utils/floating_point.h"
 
-Independent_operator::Independent_operator() :
-    slice_list()
+Independent_operator::Independent_operator(std::string const& name) :
+    Operator(name), slices()
 {
 
 }
 
 void
-Independent_operator::append_slice(Lattice_element_slice const& slice)
+Independent_operator::append_slice(Lattice_element_slice_sptr slice)
 {
-    slice_list.push_back(slice);
+    slices.push_back(slice);
 }
 
 Lattice_element_slices const&
 Independent_operator::get_slices() const
 {
-    return slice_list;
+    return slices;
 }
 
 void
 Independent_operator::print() const
 {
-    std::cout << "Independent_operator:\n";
+    std::cout << "Independent_operator: " << name << std::endl;
+    for (Lattice_element_slices::const_iterator it = slices.begin(); it
+            != slices.end(); ++it) {
+        (*it)->print();
+    }
 }
 
 Independent_operator::~Independent_operator()
@@ -37,9 +41,9 @@ Step::Step() :
 }
 
 void
-Step::append(Operator const& the_operator)
+Step::append(Operator_sptr operator_sptr)
 {
-    operators.push_back(the_operator);
+    operators.push_back(operator_sptr);
 }
 
 void
@@ -52,11 +56,12 @@ Step::append(Operators const& the_operators)
 }
 
 void
-Step::print() const
+Step::print(int index) const
 {
-    std::cout << "step:\n";
-    for(Operators::const_iterator it = operators.begin(); it != operators.end(); ++it) {
-        it->print();
+    std::cout << "step " << index << ":\n";
+    for (Operators::const_iterator it = operators.begin(); it
+            != operators.end(); ++it) {
+        (*it)->print();
     }
 }
 
@@ -78,16 +83,26 @@ Stepper::get_chef_lattice()
     return *chef_lattice_ptr;
 }
 
+void
+Stepper::print() const
+{
+    int index = 0;
+    for (Steps::const_iterator it = steps.begin(); it != steps.end(); ++it) {
+        ++index;
+        (*it)->print(index);
+    }
+}
+
 // Return an Independent_operator for a half step, starting at the
 // lattice_element given by lattice_it at position left. Both lattice_it
 // and left are updated by the function.
-Independent_operator
-Split_operator_stepper::get_half_step(
+Independent_operator_sptr
+Split_operator_stepper::get_half_step(std::string const& name,
         Lattice_element_list::iterator & lattice_it, double & left,
         Lattice_element_list::iterator const & lattice_end,
         const double half_step_length)
 {
-    Independent_operator retval;
+    Independent_operator_sptr retval(new Independent_operator(name));
     const double tolerance = 1.0e-8;
     double length = 0.0;
     bool complete = false;
@@ -95,10 +110,12 @@ Split_operator_stepper::get_half_step(
         double right = lattice_it->get_length();
         if (floating_point_leq(length + (right - left), half_step_length,
                 tolerance)) {
-            Lattice_element_slice slice(*lattice_it, left, right);
-            retval.append_slice(slice);
+            Lattice_element_slice_sptr slice(new Lattice_element_slice(
+                    *lattice_it, left, right));
+            retval->append_slice(slice);
             length += (right - left);
             ++lattice_it;
+            left = 0.0;
             if (floating_point_equal(length, half_step_length, tolerance)) {
                 complete = true;
             } else {
@@ -106,12 +123,12 @@ Split_operator_stepper::get_half_step(
                     throw(std::runtime_error(
                             "get_half_step stepped beyond end of lattice"));
                 }
-                left = 0.0;
             }
         } else {
             right = half_step_length - length + left;
-            Lattice_element_slice slice(*lattice_it, left, right);
-            retval.append_slice(slice);
+            Lattice_element_slice_sptr slice(new Lattice_element_slice(
+                    *lattice_it, left, right));
+            retval->append_slice(slice);
             left = right;
             complete = true;
         }
@@ -133,30 +150,27 @@ Split_operator_stepper::construct(Lattice & lattice,
     Lattice_element_list::iterator lattice_end = lattice.get_elements().end();
     double left = 0.0;
     for (int i = 0; i < num_steps; ++i) {
-        Step step;
-        step.append(get_half_step(lattice_it, left, lattice_end,
+        Step_sptr step(new Step);
+        step->append(get_half_step("first_half", lattice_it, left, lattice_end,
                 half_step_length));
         for (Collective_operators::const_iterator coll_op_it =
                 collective_operators.begin(); coll_op_it
                 != collective_operators.end(); ++coll_op_it) {
-            step.append(*coll_op_it);
+            step->append(*coll_op_it);
         }
-        step.append(get_half_step(lattice_it, left, lattice_end,
-                half_step_length));
+        step->append(get_half_step("second_half", lattice_it, left,
+                lattice_end, half_step_length));
         steps.push_back(step);
     }
-    if (lattice_it == lattice_end) {
-        std::cout
-                << "jfa: all is right with the world, lattice_it == lattice_end after all split operator steps have been constructed\n";
-    } else {
-        std::cout
-                << "jfa: sigh... split_operator_stepper didn't make it to the end of the lattice\n";
+    if (lattice_it != lattice_end) {
+        throw(std::runtime_error(
+                "internal error: split_operator_stepper did not make it to the end of the lattice\n"));
     }
 }
 
 Split_operator_stepper::Split_operator_stepper(Lattice & lattice,
         Chef_lattice & chef_lattice, int num_steps,
-        Collective_operator const& collective_operator)
+        Collective_operator_sptr collective_operator)
 {
     Collective_operators collective_operators;
     collective_operators.push_back(collective_operator);

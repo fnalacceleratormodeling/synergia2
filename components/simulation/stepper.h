@@ -2,6 +2,7 @@
 #define STEPPER_H_
 
 #include <list>
+#include <boost/shared_ptr.hpp>
 
 #include "components/lattice/lattice.h"
 #include "components/lattice/lattice_element_slice.h"
@@ -19,7 +20,7 @@ public:
     virtual void
     print() const
     {
-        std::cout << "Operator\n";
+        std::cout << "Operator " << name << std::endl;
     }
     virtual
     ~Operator()
@@ -28,12 +29,14 @@ public:
     ;
 };
 
-typedef std::list<Operator > Operators;
+typedef boost::shared_ptr<Operator > Operator_sptr;
+typedef std::list<Operator_sptr > Operators;
 
 class Collective_operator : public Operator
 {
 public:
-    Collective_operator()
+    Collective_operator(std::string const& name) :
+        Operator(name)
     {
     }
     ;
@@ -41,7 +44,7 @@ public:
     void
     print() const
     {
-        std::cout << "Collective_operator\n";
+        std::cout << "Collective_operator: " << name << std::endl;
     }
     ~Collective_operator()
     {
@@ -49,24 +52,29 @@ public:
     ;
 };
 
-typedef std::list<Collective_operator > Collective_operators;
+typedef boost::shared_ptr<Collective_operator > Collective_operator_sptr;
+typedef std::list<Collective_operator_sptr > Collective_operators;
 
-typedef std::list<Lattice_element_slice > Lattice_element_slices;
+typedef boost::shared_ptr<Lattice_element_slice > Lattice_element_slice_sptr;
+typedef std::list<Lattice_element_slice_sptr > Lattice_element_slices;
 
 class Independent_operator : public Operator
 {
 private:
-    Lattice_element_slices slice_list;
+    Lattice_element_slices slices;
 public:
-    Independent_operator();
+    Independent_operator(std::string const& name);
     void
-    append_slice(Lattice_element_slice const& slice);
+    append_slice(boost::shared_ptr<Lattice_element_slice > slice);
     Lattice_element_slices const&
     get_slices() const;
     virtual void
     print() const;
     ~Independent_operator();
 };
+
+typedef boost::shared_ptr<Independent_operator > Independent_operator_sptr;
+typedef std::list<Independent_operator_sptr > Independent_operators;
 
 class Step
 {
@@ -75,16 +83,17 @@ private:
 public:
     Step();
     void
-    append(Operator const& the_operator);
+    append(Operator_sptr operator_sptr);
     void
-    append(Operators const& the_operators);
+    append(Operators const& operators);
     //    Operators const&
     //    get_operators() const;
     void
-    print() const;
+    print(int index) const;
 };
 
-typedef std::list<Step > Steps;
+typedef boost::shared_ptr<Step > Step_sptr;
+typedef std::list<Step_sptr > Steps;
 
 class Stepper
 {
@@ -99,6 +108,8 @@ public:
     get_lattice();
     Chef_lattice &
     get_chef_lattice();
+    virtual void
+    print() const;
 
     virtual
     ~Stepper()
@@ -115,8 +126,9 @@ public:
 class Split_operator_stepper : public Stepper
 {
 private:
-    Independent_operator
-    get_half_step(Lattice_element_list::iterator & lattice_it, double & left,
+    Independent_operator_sptr
+    get_half_step(std::string const& name,
+            Lattice_element_list::iterator & lattice_it, double & left,
             Lattice_element_list::iterator const & lattice_end,
             const double half_step_length);
     void
@@ -124,7 +136,7 @@ private:
             Collective_operators const & collective_operators);
 public:
     Split_operator_stepper(Lattice & lattice, Chef_lattice & chef_lattice,
-            int num_steps, Collective_operator const & collective_operator);
+            int num_steps, Collective_operator_sptr collective_operator);
     Split_operator_stepper(Lattice & lattice, Chef_lattice & chef_lattice,
             int num_steps, Collective_operators const & collective_operators);
 
