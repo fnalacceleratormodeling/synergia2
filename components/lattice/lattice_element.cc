@@ -1,5 +1,6 @@
 #include "lattice_element.h"
 #include <algorithm>
+#include <iostream>
 
 void
 Lattice_element::set_default_attributes(
@@ -42,11 +43,11 @@ Lattice_element::Lattice_element(Lattice_element const& lattice_element) :
             lattice_element.ancestors.end(), std::inserter(ancestors,
                     ancestors.begin()));
     std::copy(lattice_element.double_attributes.begin(),
-            lattice_element.double_attributes.end(), std::inserter(double_attributes,
-                    double_attributes.begin()));
+            lattice_element.double_attributes.end(), std::inserter(
+                    double_attributes, double_attributes.begin()));
     std::copy(lattice_element.string_attributes.begin(),
-            lattice_element.string_attributes.end(), std::inserter(string_attributes,
-                    string_attributes.begin()));
+            lattice_element.string_attributes.end(), std::inserter(
+                    string_attributes, string_attributes.begin()));
 }
 
 std::string const &
@@ -163,6 +164,36 @@ Lattice_element::get_bend_angle() const
     return retval;
 }
 
+void
+Lattice_element::print() const
+{
+    for (std::list<std::string >::const_iterator it = ancestors.begin(); it
+            != ancestors.end(); ++it) {
+        std::cout << (*it) << ":";
+    }
+    std::cout << " ";
+    std::cout << name << ": ";
+    bool first_attr = true;
+    for (std::map<std::string, double >::const_iterator it =
+            double_attributes.begin(); it != double_attributes.end(); ++it) {
+        if (first_attr) {
+            first_attr = false;
+        } else {
+            std::cout << ", ";
+        }
+        std::cout << it->first << "=" << it->second;
+    }
+    for (std::map<std::string, std::string >::const_iterator it =
+            string_attributes.begin(); it != string_attributes.end(); ++it) {
+        if (first_attr) {
+            first_attr = false;
+        } else {
+            std::cout << ", ";
+        }
+        std::cout << it->first << "=" << it->second;
+    }
+    std::cout << std::endl;
+}
 Set_default_attributes_fn_map
 get_standard_default_attributes_fn_map()
 {
@@ -194,20 +225,17 @@ get_standard_default_attributes_fn_map()
 void
 set_default_attributes_marker_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
 }
 
 void
 set_default_attributes_drift_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
 }
 
 void
 set_default_attributes_sbend_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
     lattice_element.set_double_attribute("angle", 0.0);
     lattice_element.set_double_attribute("k1", 0.0);
@@ -225,7 +253,6 @@ set_default_attributes_sbend_mad8(Lattice_element &lattice_element)
 void
 set_default_attributes_rbend_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
     lattice_element.set_double_attribute("angle", 0.0);
     lattice_element.set_double_attribute("k1", 0.0);
@@ -243,7 +270,6 @@ set_default_attributes_rbend_mad8(Lattice_element &lattice_element)
 void
 set_default_attributes_quadrupole_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
     lattice_element.set_double_attribute("k1", 0.0);
     lattice_element.set_double_attribute("tilt", 0.0);
@@ -252,7 +278,6 @@ set_default_attributes_quadrupole_mad8(Lattice_element &lattice_element)
 void
 set_default_attributes_sextupole_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
     lattice_element.set_double_attribute("k2", 0.0);
     lattice_element.set_double_attribute("tilt", 0.0);
@@ -261,7 +286,6 @@ set_default_attributes_sextupole_mad8(Lattice_element &lattice_element)
 void
 set_default_attributes_octupole_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
     lattice_element.set_double_attribute("k3", 0.0);
     lattice_element.set_double_attribute("tilt", 0.0);
@@ -270,7 +294,6 @@ set_default_attributes_octupole_mad8(Lattice_element &lattice_element)
 void
 set_default_attributes_multipole_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("lrad", 0.0);
     lattice_element.set_double_attribute("k0l", 0.0);
     lattice_element.set_double_attribute("t0", 0.0);
@@ -297,7 +320,6 @@ set_default_attributes_multipole_mad8(Lattice_element &lattice_element)
 void
 set_default_attributes_solenoid_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
     lattice_element.set_double_attribute("ks", 0.0);
 }
@@ -305,7 +327,6 @@ set_default_attributes_solenoid_mad8(Lattice_element &lattice_element)
 void
 set_default_attributes_hkicker_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
     lattice_element.set_double_attribute("kick", 0.0);
     lattice_element.set_double_attribute("tilt", 0.0);
@@ -314,7 +335,6 @@ set_default_attributes_hkicker_mad8(Lattice_element &lattice_element)
 void
 set_default_attributes_vkicker_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
     lattice_element.set_double_attribute("kick", 0.0);
     lattice_element.set_double_attribute("tilt", 0.0);
@@ -323,7 +343,6 @@ set_default_attributes_vkicker_mad8(Lattice_element &lattice_element)
 void
 set_default_attributes_kicker_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
     lattice_element.set_double_attribute("hkick", 0.0);
     lattice_element.set_double_attribute("vkick", 0.0);
@@ -333,7 +352,6 @@ set_default_attributes_kicker_mad8(Lattice_element &lattice_element)
 void
 set_default_attributes_rfcavity_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
     lattice_element.set_double_attribute("volt", 0.0);
     lattice_element.set_double_attribute("lag", 0.0);
@@ -347,7 +365,6 @@ set_default_attributes_rfcavity_mad8(Lattice_element &lattice_element)
 void
 set_default_attributes_elseperator_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
     lattice_element.set_double_attribute("e", 0.0);
     lattice_element.set_double_attribute("tilt", 0.0);
@@ -356,35 +373,30 @@ set_default_attributes_elseperator_mad8(Lattice_element &lattice_element)
 void
 set_default_attributes_hmonitor_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
 }
 
 void
 set_default_attributes_vmonitor_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
 }
 
 void
 set_default_attributes_monitor_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
 }
 
 void
 set_default_attributes_instrument_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
 }
 
 void
 set_default_attributes_ecollimator_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
     lattice_element.set_double_attribute("xsize", 0.0);
     lattice_element.set_double_attribute("ysize", 0.0);
@@ -393,7 +405,6 @@ set_default_attributes_ecollimator_mad8(Lattice_element &lattice_element)
 void
 set_default_attributes_rcollimator_mad8(Lattice_element &lattice_element)
 {
-    lattice_element.set_string_attribute("type", "");
     lattice_element.set_double_attribute("l", 0.0);
     lattice_element.set_double_attribute("xsize", 0.0);
     lattice_element.set_double_attribute("ysize", 0.0);

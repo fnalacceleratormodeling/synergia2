@@ -36,6 +36,8 @@ public:
     get_length() const;
     double
     get_total_angle() const;
+    void
+    print() const;
     ~Lattice();
 };
 

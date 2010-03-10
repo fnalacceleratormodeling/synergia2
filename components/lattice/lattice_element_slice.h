@@ -32,6 +32,8 @@ public:
     get_lattice_element() const;
     Lattice_element &
     get_lattice_element();
+    void
+    print() const;
 };
 
 #endif /* LATTICE_ELEMENT_SLICE_H_ */

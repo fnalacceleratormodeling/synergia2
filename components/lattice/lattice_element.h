@@ -62,6 +62,8 @@ public:
     get_length() const;
     double
     get_bend_angle() const;
+    void
+    print() const;
 };
 
 Set_default_attributes_fn_map

@@ -4,8 +4,7 @@
 #include <stdexcept>
 
 Lattice::Lattice(std::string const& name) :
-    name(name), reference_particle_allocated(false),
-            elements()
+    name(name), reference_particle_allocated(false), elements()
 {
 }
 
@@ -71,6 +70,15 @@ Lattice::get_total_angle() const
     return angle;
 }
 
+void
+Lattice::print() const
+{
+    std::cout << name << ":\n";
+    for (Lattice_element_list::const_iterator it = elements.begin(); it
+            != elements.end(); ++it) {
+        it->print();
+    }
+}
 Lattice::~Lattice()
 {
     if (reference_particle_allocated) {

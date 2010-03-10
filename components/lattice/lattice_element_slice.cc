@@ -2,6 +2,7 @@
 #include "utils/floating_point.h"
 
 #include <stdexcept>
+#include <iostream>
 
 const double split_element_tolerance = 1.0e-9;
 
@@ -86,3 +87,18 @@ Lattice_element_slice::get_lattice_element()
     return *element_ptr;
 }
 
+void
+Lattice_element_slice::print() const
+{
+    if (whole) {
+        std::cout << "[]";
+    } else if(left_edge) {
+        std::cout << "[," << right << "]";
+    } else if(right_edge) {
+        std::cout << "[" << left << ",]";
+    } else {
+        std::cout << "[" << left << "," << right << "]";
+    }
+
+    element_ptr->print();
+}
