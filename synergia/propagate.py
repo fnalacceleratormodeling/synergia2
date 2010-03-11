@@ -21,7 +21,7 @@ def listify(x):
 
 last_step_length = 0
 def propagate(s0,gourmet,bunch_in, space_charge=None,impedance=None,
-  aperture=None, bunch_spacing=0., track_period_steps=None,tracker=None, quiet=1):
+  aperture=None, bunch_spacing=0., track_period_steps=None,tracker=None, quiet=1, add_diagnostics=True):
   
     
     if hasattr(bunch_in, "bunches"):     
@@ -88,7 +88,8 @@ def propagate(s0,gourmet,bunch_in, space_charge=None,impedance=None,
                             length=mbunch.get_longitudinal_period_size()
                             constraints.apply_longitudinal_periodicity(mbunch.get_store(),length)
                             mbunch.convert_to_fixedz()
-                        mbunch.add_diagnostics(s)
+                        if add_diagnostics:
+                            mbunch.add_diagnostics(s)
                         #mbunch.diagnostics.add(s,mbunch)                                     
                     if not quiet:
                         print "finished space charge kick"
