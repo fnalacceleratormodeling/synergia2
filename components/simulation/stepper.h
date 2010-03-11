@@ -43,8 +43,8 @@ class Split_operator_stepper : public Stepper
 private:
     Independent_operator_sptr
     get_half_step(std::string const& name,
-            Lattice_element_list::iterator & lattice_it, double & left,
-            Lattice_element_list::iterator const & lattice_end,
+            Lattice_elements::iterator & lattice_it, double & left,
+            Lattice_elements::iterator const & lattice_end,
             const double half_step_length);
     void
     construct(Lattice & lattice, Chef_lattice & chef_lattice, int num_steps,

@@ -42,7 +42,7 @@ Lattice::append(Lattice_element const& element)
     elements.push_back(element);
 }
 
-Lattice_element_list &
+Lattice_elements &
 Lattice::get_elements()
 {
     return elements;
@@ -52,7 +52,7 @@ double
 Lattice::get_length() const
 {
     double length = 0.0;
-    for (Lattice_element_list::const_iterator it = elements.begin(); it
+    for (Lattice_elements::const_iterator it = elements.begin(); it
             != elements.end(); ++it) {
         length += it->get_length();
     }
@@ -63,7 +63,7 @@ double
 Lattice::get_total_angle() const
 {
     double angle = 0.0;
-    for (Lattice_element_list::const_iterator it = elements.begin(); it
+    for (Lattice_elements::const_iterator it = elements.begin(); it
             != elements.end(); ++it) {
         angle += it->get_bend_angle();
     }
@@ -74,7 +74,7 @@ void
 Lattice::print() const
 {
     std::cout << name << ":\n";
-    for (Lattice_element_list::const_iterator it = elements.begin(); it
+    for (Lattice_elements::const_iterator it = elements.begin(); it
             != elements.end(); ++it) {
         it->print();
     }

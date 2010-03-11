@@ -34,8 +34,8 @@ Stepper::print() const
 // and left are updated by the function.
 Independent_operator_sptr
 Split_operator_stepper::get_half_step(std::string const& name,
-        Lattice_element_list::iterator & lattice_it, double & left,
-        Lattice_element_list::iterator const & lattice_end,
+        Lattice_elements::iterator & lattice_it, double & left,
+        Lattice_elements::iterator const & lattice_end,
         const double half_step_length)
 {
     Independent_operator_sptr retval(new Independent_operator(name));
@@ -82,8 +82,8 @@ Split_operator_stepper::construct(Lattice & lattice,
 
     double step_length = lattice_ptr->get_length() / num_steps;
     double half_step_length = 0.5 * step_length;
-    Lattice_element_list::iterator lattice_it = lattice.get_elements().begin();
-    Lattice_element_list::iterator lattice_end = lattice.get_elements().end();
+    Lattice_elements::iterator lattice_it = lattice.get_elements().begin();
+    Lattice_elements::iterator lattice_end = lattice.get_elements().end();
     double left = 0.0;
     for (int i = 0; i < num_steps; ++i) {
         Step_sptr step(new Step);

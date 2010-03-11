@@ -8,7 +8,7 @@
 #include "components/lattice/lattice_element.h"
 #include "components/foundation/reference_particle.h"
 
-typedef std::list<Lattice_element > Lattice_element_list;
+typedef std::list<Lattice_element > Lattice_elements;
 
 class Lattice
 {
@@ -30,7 +30,7 @@ public:
     get_reference_particle() const;
     void
     append(Lattice_element const& element);
-    Lattice_element_list &
+    Lattice_elements &
     get_elements();
     double
     get_length() const;

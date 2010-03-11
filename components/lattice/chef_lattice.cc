@@ -44,7 +44,7 @@ beamline
 Chef_lattice::construct_raw_lattice(Lattice_element_to_chef_fn_map const& map)
 {
     beamline raw_beamline;
-    for (Lattice_element_list::const_iterator latt_it =
+    for (Lattice_elements::const_iterator latt_it =
             lattice_ptr->get_elements().begin(); latt_it
             != lattice_ptr->get_elements().end(); ++latt_it) {
         Lattice_element_to_chef_fn_map::const_iterator map_it = map.find(
