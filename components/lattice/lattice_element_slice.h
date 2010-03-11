@@ -1,8 +1,10 @@
 #ifndef LATTICE_ELEMENT_SLICE_H_
 #define LATTICE_ELEMENT_SLICE_H_
 
-#include "components/lattice/lattice_element.h"
 #include <list>
+#include <boost/shared_ptr.hpp>
+
+#include "components/lattice/lattice_element.h"
 
 class Lattice_element_slice
 {
@@ -35,5 +37,8 @@ public:
     void
     print() const;
 };
+
+typedef boost::shared_ptr<Lattice_element_slice > Lattice_element_slice_sptr;
+typedef std::list<Lattice_element_slice_sptr > Lattice_element_slices;
 
 #endif /* LATTICE_ELEMENT_SLICE_H_ */

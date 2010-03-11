@@ -7,9 +7,6 @@
 
 #include "components/lattice/lattice_element_slice.h"
 
-typedef boost::shared_ptr<Lattice_element_slice > Lattice_element_slice_sptr;
-typedef std::list<Lattice_element_slice_sptr > Lattice_element_slices;
-
 class Operator
 {
 public:
