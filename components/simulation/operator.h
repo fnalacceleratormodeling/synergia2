@@ -7,25 +7,19 @@
 
 #include "components/lattice/lattice_element_slice.h"
 
+typedef boost::shared_ptr<Lattice_element_slice > Lattice_element_slice_sptr;
+typedef std::list<Lattice_element_slice_sptr > Lattice_element_slices;
+
 class Operator
 {
 public:
     std::string name;
-    Operator(std::string const& name)
-    {
-        this->name = name;
-    }
-    ;
+    Lattice_element_slices slices;
+    Operator(std::string const& name);
     virtual void
-    print() const
-    {
-        std::cout << "Operator " << name << std::endl;
-    }
+    print() const;
     virtual
-    ~Operator()
-    {
-    }
-    ;
+    ~Operator();
 };
 
 typedef boost::shared_ptr<Operator > Operator_sptr;
@@ -34,28 +28,17 @@ typedef std::list<Operator_sptr > Operators;
 class Collective_operator : public Operator
 {
 public:
-    Collective_operator(std::string const& name) :
-        Operator(name)
-    {
-    }
-    ;
+    Collective_operator(std::string const& name);
     virtual
     void
-    print() const
-    {
-        std::cout << "Collective_operator: " << name << std::endl;
-    }
+    print() const;
     ~Collective_operator()
-    {
-    }
+
     ;
 };
 
 typedef boost::shared_ptr<Collective_operator > Collective_operator_sptr;
 typedef std::list<Collective_operator_sptr > Collective_operators;
-
-typedef boost::shared_ptr<Lattice_element_slice > Lattice_element_slice_sptr;
-typedef std::list<Lattice_element_slice_sptr > Lattice_element_slices;
 
 class Independent_operator : public Operator
 {

@@ -2,8 +2,38 @@
 
 #include "operator.h"
 
+Operator::Operator(std::string const& name) :
+    name(name), slices()
+{
+}
+
+void
+Operator::print() const
+{
+    std::cout << "Operator " << name << std::endl;
+}
+
+Operator::~Operator()
+{
+}
+
+Collective_operator::Collective_operator(std::string const& name) :
+    Operator(name)
+{
+}
+
+void
+Collective_operator::print() const
+{
+    std::cout << "Collective_operator: " << name << std::endl;
+}
+
+Collective_operator::~Collective_operator()
+{
+}
+
 Independent_operator::Independent_operator(std::string const& name) :
-    Operator(name), slices()
+    Operator(name)
 {
 
 }
