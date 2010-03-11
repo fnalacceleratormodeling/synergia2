@@ -27,10 +27,7 @@ public:
     print() const;
 
     virtual
-    ~Stepper()
-    {
-    }
-    ;
+    ~Stepper();
 };
 
 //class Independent_stepper : public Stepper

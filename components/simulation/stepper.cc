@@ -29,6 +29,11 @@ Stepper::print() const
     }
 }
 
+Stepper::~Stepper()
+{
+
+}
+
 // Return an Independent_operator for a half step, starting at the
 // lattice_element given by lattice_it at position left. Both lattice_it
 // and left are updated by the function.
