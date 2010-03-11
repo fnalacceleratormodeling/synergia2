@@ -7,6 +7,12 @@ Operator::Operator(std::string const& name) :
 {
 }
 
+std::string const&
+Operator::get_name() const
+{
+    return name;
+}
+
 Lattice_element_slices &
 Operator::get_slices()
 {
