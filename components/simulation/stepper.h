@@ -15,14 +15,11 @@ class Stepper
 public:
     Steps steps;
     Lattice * lattice_ptr;
-    Chef_lattice * chef_lattice_ptr;
 
     Steps &
     get_steps();
     Lattice &
     get_lattice();
-    Chef_lattice &
-    get_chef_lattice();
     virtual void
     print() const;
 
@@ -31,6 +28,11 @@ public:
 };
 
 //class Independent_stepper : public Stepper
+//{
+//
+//};
+
+//class Independent_stepper_elements: public Stepper
 //{
 //
 //};
@@ -44,14 +46,24 @@ private:
             Lattice_elements::iterator const & lattice_end,
             const double half_step_length);
     void
-    construct(Lattice & lattice, Chef_lattice & chef_lattice, int num_steps,
+    construct(Lattice & lattice, int num_steps,
             Collective_operators const & collective_operators);
 public:
-    Split_operator_stepper(Lattice & lattice, Chef_lattice & chef_lattice,
-            int num_steps, Collective_operator_sptr collective_operator);
-    Split_operator_stepper(Lattice & lattice, Chef_lattice & chef_lattice,
-            int num_steps, Collective_operators const & collective_operators);
+    Split_operator_stepper(Lattice & lattice, int num_steps,
+            Collective_operator_sptr collective_operator);
+    Split_operator_stepper(Lattice & lattice, int num_steps,
+            Collective_operators const & collective_operators);
 
 };
+
+//class Split_operator_stepper_elements : public Stepper
+//{
+//
+//};
+
+//class Split_operator_stepper_intelligent : public Stepper
+//{
+//
+//};
 
 #endif /* STEPPER_H_ */

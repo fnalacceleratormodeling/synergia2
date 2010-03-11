@@ -30,21 +30,21 @@ BOOST_AUTO_TEST_CASE(construct)
     lattice.append(o);
     lattice.set_reference_particle(reference_particle);
 
-    Chef_lattice chef_lattice(lattice);
-    Collective_operator_sptr space_charge(new Collective_operator("space_charge"));
+    Collective_operator_sptr space_charge(new Collective_operator(
+            "space_charge"));
 
     lattice.print();
 
-    Split_operator_stepper stepper1(lattice, chef_lattice, 1, space_charge);
+    Split_operator_stepper stepper1(lattice, 1, space_charge);
     stepper1.print();
 
-    Split_operator_stepper stepper2(lattice, chef_lattice, 2, space_charge);
+    Split_operator_stepper stepper2(lattice, 2, space_charge);
     stepper2.print();
 
-    Split_operator_stepper stepper7(lattice, chef_lattice, 7, space_charge);
+    Split_operator_stepper stepper7(lattice, 7, space_charge);
     stepper7.print();
 
-    Split_operator_stepper stepper10(lattice, chef_lattice, 10, space_charge);
+    Split_operator_stepper stepper10(lattice, 10, space_charge);
     stepper10.print();
 }
 

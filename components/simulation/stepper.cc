@@ -13,12 +13,6 @@ Stepper::get_lattice()
     return *lattice_ptr;
 }
 
-Chef_lattice &
-Stepper::get_chef_lattice()
-{
-    return *chef_lattice_ptr;
-}
-
 void
 Stepper::print() const
 {
@@ -78,12 +72,10 @@ Split_operator_stepper::get_half_step(std::string const& name,
 }
 
 void
-Split_operator_stepper::construct(Lattice & lattice,
-        Chef_lattice & chef_lattice, int num_steps,
+Split_operator_stepper::construct(Lattice & lattice, int num_steps,
         Collective_operators const& collective_operators)
 {
     lattice_ptr = &lattice;
-    chef_lattice_ptr = &chef_lattice;
 
     double step_length = lattice_ptr->get_length() / num_steps;
     double half_step_length = 0.5 * step_length;
@@ -110,18 +102,16 @@ Split_operator_stepper::construct(Lattice & lattice,
 }
 
 Split_operator_stepper::Split_operator_stepper(Lattice & lattice,
-        Chef_lattice & chef_lattice, int num_steps,
-        Collective_operator_sptr collective_operator)
+        int num_steps, Collective_operator_sptr collective_operator)
 {
     Collective_operators collective_operators;
     collective_operators.push_back(collective_operator);
-    construct(lattice, chef_lattice, num_steps, collective_operators);
+    construct(lattice, num_steps, collective_operators);
 }
 
 Split_operator_stepper::Split_operator_stepper(Lattice & lattice,
-        Chef_lattice & chef_lattice, int num_steps,
-        Collective_operators const& collective_operators)
+        int num_steps, Collective_operators const& collective_operators)
 {
-    construct(lattice, chef_lattice, num_steps, collective_operators);
+    construct(lattice, num_steps, collective_operators);
 }
 
