@@ -7,6 +7,18 @@ Operator::Operator(std::string const& name) :
 {
 }
 
+Lattice_element_slices &
+Operator::get_slices()
+{
+    return slices;
+}
+
+void
+Operator::apply()
+{
+
+}
+
 void
 Operator::print() const
 {

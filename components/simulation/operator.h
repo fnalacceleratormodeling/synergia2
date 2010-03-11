@@ -13,6 +13,12 @@ public:
     std::string name;
     Lattice_element_slices slices;
     Operator(std::string const& name);
+    virtual
+    Lattice_element_slices &
+    get_slices();
+    virtual
+    void
+    apply();
     virtual void
     print() const;
     virtual
