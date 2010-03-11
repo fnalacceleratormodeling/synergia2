@@ -4,8 +4,8 @@
 #include "components/lattice/lattice.h"
 #include <beamline/beamline.h>
 
-typedef std::list<ElmPtr > Chef_element_list;
-typedef Chef_element_list
+typedef std::list<ElmPtr > Chef_elements;
+typedef Chef_elements
 (*lattice_element_to_chef_fn)(Lattice_element const&, double);
 typedef std::map<std::string, lattice_element_to_chef_fn >
         Lattice_element_to_chef_fn_map;
@@ -38,13 +38,13 @@ reference_particle_to_chef_particle(
 Lattice_element_to_chef_fn_map
 get_standard_lattice_element_to_chef_fn_map();
 
-Chef_element_list
+Chef_elements
 lattice_element_to_chef_marker(Lattice_element const& lattice_element,
         double brho);
-Chef_element_list
+Chef_elements
 lattice_element_to_chef_drift(Lattice_element const& lattice_element,
         double brho);
-Chef_element_list
+Chef_elements
 lattice_element_to_chef_quadrupole(Lattice_element const& lattice_element,
         double brho);
 

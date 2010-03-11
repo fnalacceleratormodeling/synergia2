@@ -53,8 +53,8 @@ Chef_lattice::construct_raw_lattice(Lattice_element_to_chef_fn_map const& map)
             throw(runtime_error("Chef_lattice: " + latt_it->get_type()
                     + " not handled"));
         } else {
-            Chef_element_list celm_list = map_it->second(*latt_it, brho);
-            for (Chef_element_list::const_iterator cel_it = celm_list.begin(); cel_it
+            Chef_elements celm_list = map_it->second(*latt_it, brho);
+            for (Chef_elements::const_iterator cel_it = celm_list.begin(); cel_it
                     != celm_list.end(); ++cel_it) {
                 raw_beamline.append(*cel_it);
             }
@@ -139,28 +139,28 @@ get_standard_lattice_element_to_chef_fn_map()
     return map;
 }
 
-Chef_element_list
+Chef_elements
 lattice_element_to_chef_marker(Lattice_element const& lattice_element,
         double brho)
 {
-    Chef_element_list retval;
+    Chef_elements retval;
     ElmPtr elm(new marker(lattice_element.get_name().c_str()));
     retval.push_back(elm);
     return retval;
 }
 
-Chef_element_list
+Chef_elements
 lattice_element_to_chef_drift(Lattice_element const& lattice_element,
         double brho)
 {
-    Chef_element_list retval;
+    Chef_elements retval;
     ElmPtr elm(new drift(lattice_element.get_name().c_str(),
             lattice_element.get_length()));
     retval.push_back(elm);
     return retval;
 }
 
-Chef_element_list
+Chef_elements
 lattice_element_to_chef_quadrupole(Lattice_element const& lattice_element,
         double brho)
 {
@@ -175,7 +175,7 @@ lattice_element_to_chef_quadrupole(Lattice_element const& lattice_element,
                     "lattice_element_to_chef_quadrupole: non-zero tilt element not handled"));
         }
     }
-    Chef_element_list retval;
+    Chef_elements retval;
 
     double length = lattice_element.get_length();
     bmlnElmnt* bmln_elmnt;
