@@ -27,16 +27,19 @@ public:
     ~Stepper();
 };
 
+/// Generate evenly-spaced steps through lattice without collective effects.
 //class Independent_stepper : public Stepper
 //{
 //
 //};
 
+/// Generate per-element steps through lattice without collective effects.
 //class Independent_stepper_elements: public Stepper
 //{
 //
 //};
 
+/// Generate evenly-spaced steps through lattice with collective effects.
 class Split_operator_stepper : public Stepper
 {
 private:
@@ -56,11 +59,14 @@ public:
 
 };
 
+/// Generate per-element steps through lattice with collective effects.
 //class Split_operator_stepper_elements : public Stepper
 //{
 //
 //};
 
+/// Generate steps through lattice based on envelope shape.
+/// Includes collective effects.
 //class Split_operator_stepper_intelligent : public Stepper
 //{
 //
