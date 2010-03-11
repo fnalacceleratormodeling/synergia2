@@ -1,5 +1,10 @@
 ! *******************************************************************************************
 !
+! egs: set hkick and vkick strengths to 0 to match mi20_mad-F_for_chef.lat
+!      now the closed orbit is back at 0
+!
+! *******************************************************************************************
+!
 ! egs: set rf cavity lengths to 0 and expanded drifts on either side
 !
 ! *******************************************************************************************
@@ -229,7 +234,13 @@
 ! One would think that LBPM's value was 0.3, but it is zero.
 ! 
 ! 
-! (11) EXTREME CAUTION: The cavities are split in this description.
+! (11) Element named V100 was defined twice: first as a drift and
+! then as a kicker with non-zero horizontal and vertical strengths.
+! Both original definitions were replaced with a single kicker
+! definition but with strengths set to zero.
+! 
+! 
+! (12) EXTREME CAUTION: The cavities are split in this description.
 ! For example,
 !   ---------------------------------------------------------
 !   CAV:    RFCAVITY, L = LRFC/2, VOLT = 0.0
@@ -247,7 +258,7 @@
 ! fully six-dimensional calculations are done on bunches.
 !     
 ! 
-! (12) WARNING: I compared with MAD on four files: (1) Dave Johnson's
+! (13) WARNING: I compared with MAD on four files: (1) Dave Johnson's
 ! original, (2) this file with no RBEND->SBEND replacement, (3) this
 ! file, but with the arclength of the sbends changed back to the
 ! original rbend lengths, and (4) this file, as is.  The calculations
@@ -3393,9 +3404,13 @@ V700_INS:   LINE = (V700_END, V700, V700_END)
 V900:       DRIFT, TYPE= ICA , L = LICA_MAG
 V900_END:   DRIFT, L = LICA_END
 V900_INS:   LINE = (V900_END, V900, V900_END)
-V100:       DRIFT, TYPE= ICA , L = LICA_MAG
-V100:       KICKER, TYPE= ICA , L = LICA_MAG, HKICK = 0.1E-9*SIN(-.199),&
-                                               VKICK = 0.1E-9*COS(-.199)
+!---------------------------------------------------
+!  V100:       DRIFT, TYPE= ICA , L = LICA_MAG
+!  V100:       KICKER, TYPE= ICA , L = LICA_MAG, HKICK = 0.1E-9*SIN(-.199),&
+!                                                 VKICK = 0.1E-9*COS(-.199)
+!---------------------------------------------------
+V100:       KICKER, TYPE= ICA , L = LICA_MAG, HKICK = 0, VKICK = 0
+!---------------------------------------------------
 V100_END:   DRIFT, L = LICA_END
 V100_INS:   LINE = (V100_END, V100, V100_END)
 V001:       DRIFT, TYPE= ICA , L = LICA_MAG
