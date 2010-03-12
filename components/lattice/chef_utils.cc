@@ -47,4 +47,12 @@ reference_particle_to_chef_particle(
     }
 }
 
-
+void
+propagate_reference_particle(Reference_particle const& reference_particle,
+        BmlPtr beamline_sptr)
+{
+    Particle particle(reference_particle_to_chef_particle(reference_particle));
+    std::cout << "initial state: " << particle.State() << std::endl;
+    beamline_sptr->propagate(particle);
+    std::cout << "final state: " << particle.State() << std::endl;
+}
