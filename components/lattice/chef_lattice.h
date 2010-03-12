@@ -2,6 +2,7 @@
 #define CHEF_LATTICE_H_
 
 #include "components/lattice/lattice.h"
+#include "components/lattice/lattice_element_slice.h"
 #include <beamline/beamline.h>
 
 typedef std::list<ElmPtr > Chef_elements;
@@ -14,7 +15,8 @@ class Chef_lattice
 {
 private:
     Lattice *lattice_ptr;
-    BmlPtr beamline_ptr;
+    BmlPtr beamline_sptr;
+    BmlPtr sliced_beamline_sptr;
     double brho;
 
     beamline
@@ -26,8 +28,12 @@ private:
 public:
     Chef_lattice(Lattice & lattice);
     Chef_lattice(Lattice & lattice, Lattice_element_to_chef_fn_map const& map);
+    void
+    construct_sliced_beamline(Lattice_element_slices const& slices);
     BmlPtr
-    get_beamline_ptr();
+    get_beamline_sptr();
+    BmlPtr
+    get_sliced_beamline_sptr();
     ~Chef_lattice();
 };
 
@@ -46,6 +52,9 @@ lattice_element_to_chef_drift(Lattice_element const& lattice_element,
         double brho);
 Chef_elements
 lattice_element_to_chef_quadrupole(Lattice_element const& lattice_element,
+        double brho);
+Chef_elements
+lattice_element_to_chef_sbend(Lattice_element const& lattice_element,
         double brho);
 
 #endif /* CHEF_LATTICE_H_ */

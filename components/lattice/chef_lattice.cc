@@ -1,4 +1,5 @@
 #include "chef_lattice.h"
+#include "chef_utils.h"
 #include "utils/floating_point.h"
 #include <beamline/beamline_elements.h>
 #include <basic_toolkit/PhysicsConstants.h>
@@ -6,39 +7,6 @@
 #include <beamline/RefRegVisitor.h>
 
 #include <stdexcept>
-
-Particle
-reference_particle_to_chef_particle(
-        Reference_particle const& reference_particle)
-{
-    // n.b. We don't deal with negatively charged particles!!!!
-    double mass = reference_particle.get_four_momentum().get_mass();
-    double momentum = reference_particle.get_momentum();
-    const double mass_tolerance = 1.0e-5;
-    if (floating_point_equal(mass, PH_NORM_mp, mass_tolerance)) {
-        Proton proton;
-        proton.SetReferenceMomentum(momentum);
-        proton.setStateToZero();
-        return proton;
-    } else {
-        if (floating_point_equal(mass, PH_NORM_me, mass_tolerance)) {
-            Positron positron;
-            positron.SetReferenceMomentum(momentum);
-            positron.setStateToZero();
-            return positron;
-        } else {
-            if (floating_point_equal(mass, PH_NORM_mmu, mass_tolerance)) {
-                AntiMuon antimuon;
-                antimuon.SetReferenceMomentum(momentum);
-                antimuon.setStateToZero();
-                return antimuon;
-            } else {
-                throw(runtime_error(
-                        "reference_particle_to_chef_particle: particle mass not equal to proton, electron or muon mass."));
-            }
-        }
-    }
-}
 
 beamline
 Chef_lattice::construct_raw_lattice(Lattice_element_to_chef_fn_map const& map)
@@ -53,9 +21,9 @@ Chef_lattice::construct_raw_lattice(Lattice_element_to_chef_fn_map const& map)
             throw(runtime_error("Chef_lattice: " + latt_it->get_type()
                     + " not handled"));
         } else {
-            Chef_elements celm_list = map_it->second(*latt_it, brho);
-            for (Chef_elements::const_iterator cel_it = celm_list.begin(); cel_it
-                    != celm_list.end(); ++cel_it) {
+            Chef_elements celms = map_it->second(*latt_it, brho);
+            for (Chef_elements::const_iterator cel_it = celms.begin(); cel_it
+                    != celms.end(); ++cel_it) {
                 raw_beamline.append(*cel_it);
             }
         }
@@ -67,11 +35,11 @@ void
 Chef_lattice::polish_lattice(beamline const& raw_beamline)
 {
     DriftConverter drift_converter;
-    beamline_ptr = drift_converter.convert(raw_beamline);
+    beamline_sptr = drift_converter.convert(raw_beamline);
     Particle testpart(reference_particle_to_chef_particle(
             lattice_ptr->get_reference_particle()));
     RefRegVisitor registrar(testpart);
-    beamline_ptr->accept(registrar);
+    beamline_sptr->accept(registrar);
 }
 
 void
@@ -88,22 +56,28 @@ Chef_lattice::construct(Lattice_element_to_chef_fn_map const& map)
 }
 
 Chef_lattice::Chef_lattice(Lattice & lattice) :
-    lattice_ptr(&lattice), beamline_ptr()
+    lattice_ptr(&lattice), beamline_sptr()
 {
     construct(get_standard_lattice_element_to_chef_fn_map());
 }
 
 Chef_lattice::Chef_lattice(Lattice & lattice,
         Lattice_element_to_chef_fn_map const& map) :
-    lattice_ptr(&lattice), beamline_ptr()
+    lattice_ptr(&lattice), beamline_sptr()
 {
     construct(map);
 }
 
-BmlPtr
-Chef_lattice::get_beamline_ptr()
+void
+Chef_lattice::construct_sliced_beamline(Lattice_element_slices const& slices)
 {
-    return beamline_ptr;
+
+}
+
+BmlPtr
+Chef_lattice::get_beamline_sptr()
+{
+    return beamline_sptr;
 }
 
 Chef_lattice::~Chef_lattice()
@@ -117,7 +91,7 @@ get_standard_lattice_element_to_chef_fn_map()
     Lattice_element_to_chef_fn_map map;
     map["marker"] = lattice_element_to_chef_marker;
     map["drift"] = lattice_element_to_chef_drift;
-    //    map["sbend"] = lattice_element_to_chef_sbend;
+    map["sbend"] = lattice_element_to_chef_sbend;
     //    map["rbend"] = lattice_element_to_chef_rbend;
     map["quadrupole"] = lattice_element_to_chef_quadrupole;
     //    map["sextupole"] = lattice_element_to_chef_sextupole;
@@ -180,13 +154,43 @@ lattice_element_to_chef_quadrupole(Lattice_element const& lattice_element,
     double length = lattice_element.get_length();
     bmlnElmnt* bmln_elmnt;
     if (length == 0.0) {
-        bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
-                brho * lattice_element.get_double_attribute("k1"));
-    } else {
         bmln_elmnt = new thinQuad(lattice_element.get_name().c_str(), brho
                 * lattice_element.get_double_attribute("k1"));
+    } else {
+        bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
+                brho * lattice_element.get_double_attribute("k1"));
     }
     ElmPtr elm(bmln_elmnt);
     retval.push_back(elm);
     return retval;
 }
+
+Chef_elements
+lattice_element_to_chef_sbend(Lattice_element const& lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+
+    double length = lattice_element.get_length();
+    double angle = lattice_element.get_double_attribute("angle");
+    double e1 = lattice_element.get_double_attribute("e1");
+    double e2 = lattice_element.get_double_attribute("e2");
+
+    if ((lattice_element.get_double_attribute("k1") != 0.0)
+            || (lattice_element.get_double_attribute("k2") != 0.0)
+            || (lattice_element.get_double_attribute("k3") != 0.0)
+            || (lattice_element.get_double_attribute("tilt") != 0.0)
+            || (lattice_element.get_double_attribute("h1") != 0.0)
+            || (lattice_element.get_double_attribute("h2") != 0.0)
+            || (lattice_element.get_double_attribute("hgap") != 0.0)
+            || (lattice_element.get_double_attribute("fint") != 0.0)) {
+        throw(runtime_error(
+                "lattice_element_to_chef_sbend: non-zero element(s) of something not handled"));
+    }
+
+    ElmPtr elm(new sbend(lattice_element.get_name().c_str(), length, brho
+            * angle / length, angle, e1, e2));
+    retval.push_back(elm);
+    return retval;
+}
+
