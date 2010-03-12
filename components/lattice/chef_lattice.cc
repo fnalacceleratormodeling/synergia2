@@ -26,6 +26,7 @@ Chef_lattice::construct_raw_lattice(Lattice_element_to_chef_fn_map const& map)
                     != celms.end(); ++cel_it) {
                 raw_beamline.append(*cel_it);
             }
+            raw_beamline.append(lattice_element_marker);
         }
     }
     return raw_beamline;
@@ -43,6 +44,25 @@ Chef_lattice::polish_lattice(beamline const& raw_beamline)
 }
 
 void
+Chef_lattice::extract_element_map()
+{
+    Chef_elements chef_elements;
+    Lattice_elements::iterator le_it =
+            lattice_ptr->get_elements().begin();
+    for (beamline::const_iterator b_it = beamline_sptr->begin(); b_it
+            != beamline_sptr->end(); ++b_it) {
+        if ((*b_it)->Name() == lattice_element_marker->Name()) {
+            element_map[&(*le_it)] = chef_elements;
+            chef_elements.clear();
+            ++le_it;
+        } else {
+            chef_elements.push_back(*b_it);
+            std::cout << "jfa: added chef_element " << (*b_it)->Name() << " to lattice_element " << le_it->get_name() << std::endl;
+        }
+    }
+}
+
+void
 Chef_lattice::construct(Lattice_element_to_chef_fn_map const& map)
 {
     if (!lattice_ptr->has_reference_particle()) {
@@ -53,19 +73,28 @@ Chef_lattice::construct(Lattice_element_to_chef_fn_map const& map)
             / PH_CNV_brho_to_p;
 
     polish_lattice(construct_raw_lattice(map));
+    extract_element_map();
 }
 
 Chef_lattice::Chef_lattice(Lattice & lattice) :
-    lattice_ptr(&lattice), beamline_sptr()
+    lattice_ptr(&lattice), beamline_sptr(), lattice_element_marker(new marker(
+            "synergia_lattice_element_marker"))
 {
     construct(get_standard_lattice_element_to_chef_fn_map());
 }
 
 Chef_lattice::Chef_lattice(Lattice & lattice,
         Lattice_element_to_chef_fn_map const& map) :
-    lattice_ptr(&lattice), beamline_sptr()
+    lattice_ptr(&lattice), beamline_sptr(), lattice_element_marker(new marker(
+            "synergia_lattice_element_marker"))
 {
     construct(map);
+}
+
+Chef_elements &
+Chef_lattice::get_chef_elements(Lattice_element const& lattice_element)
+{
+    return element_map[&lattice_element];
 }
 
 void
@@ -92,7 +121,7 @@ get_standard_lattice_element_to_chef_fn_map()
     map["marker"] = lattice_element_to_chef_marker;
     map["drift"] = lattice_element_to_chef_drift;
     map["sbend"] = lattice_element_to_chef_sbend;
-    //    map["rbend"] = lattice_element_to_chef_rbend;
+    map["rbend"] = lattice_element_to_chef_rbend;
     map["quadrupole"] = lattice_element_to_chef_quadrupole;
     //    map["sextupole"] = lattice_element_to_chef_sextupole;
     //    map["octupole"] = lattice_element_to_chef_octupole;
@@ -190,6 +219,35 @@ lattice_element_to_chef_sbend(Lattice_element const& lattice_element,
 
     ElmPtr elm(new sbend(lattice_element.get_name().c_str(), length, brho
             * angle / length, angle, e1, e2));
+    retval.push_back(elm);
+    return retval;
+}
+
+Chef_elements
+lattice_element_to_chef_rbend(Lattice_element const& lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+
+    double length = lattice_element.get_length();
+    double angle = lattice_element.get_double_attribute("angle");
+    double e1 = lattice_element.get_double_attribute("e1");
+    double e2 = lattice_element.get_double_attribute("e2");
+
+    if ((lattice_element.get_double_attribute("k1") != 0.0)
+            || (lattice_element.get_double_attribute("k2") != 0.0)
+            || (lattice_element.get_double_attribute("k3") != 0.0)
+            || (lattice_element.get_double_attribute("tilt") != 0.0)
+            || (lattice_element.get_double_attribute("h1") != 0.0)
+            || (lattice_element.get_double_attribute("h2") != 0.0)
+            || (lattice_element.get_double_attribute("hgap") != 0.0)
+            || (lattice_element.get_double_attribute("fint") != 0.0)) {
+        throw(runtime_error(
+                "lattice_element_to_chef_sbend: non-zero element(s) of something not handled"));
+    }
+
+    ElmPtr elm(new rbend(lattice_element.get_name().c_str(), length, brho
+            * (2.0 * sin(0.5 * angle)) / length, angle, e1, e2));
     retval.push_back(elm);
     return retval;
 }
