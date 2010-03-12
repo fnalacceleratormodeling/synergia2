@@ -8,8 +8,6 @@
 #include "components/lattice/lattice_element.h"
 #include "components/foundation/reference_particle.h"
 
-typedef std::list<Lattice_element > Lattice_elements;
-
 class Lattice
 {
 private:

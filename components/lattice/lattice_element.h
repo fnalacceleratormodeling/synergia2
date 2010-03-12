@@ -66,6 +66,8 @@ public:
     print() const;
 };
 
+typedef std::list<Lattice_element > Lattice_elements;
+
 Set_default_attributes_fn_map
 get_standard_default_attributes_fn_map();
 
