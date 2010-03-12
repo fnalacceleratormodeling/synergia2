@@ -15,7 +15,7 @@ job_mgr_opts.add("jobdir", "run", "Job directory", str)
 job_mgr_opts.add("numproc", 1, "Number of processors", int)
 job_mgr_opts.add("submit", 0, "Whether to immediately submit job", int)
 job_mgr_opts.add("overwrite", 0, "Whether to overwrite existing job directory", int)
-job_mgr_opts.add("walltime", None, "Limit job to given wall time", str)
+job_mgr_opts.add("walltime", "00:30:00", "Limit job to given wall time", str)
 
 def get_synergia_directory(die_on_failure=1):
     if os.environ.has_key("SYNERGIA2DIR"):
