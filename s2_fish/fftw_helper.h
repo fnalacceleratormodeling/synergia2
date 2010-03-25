@@ -29,6 +29,7 @@ private:
     int left_guard, right_guard;
     Int3 shape;
     void construct(int *shape, bool z_periodic);
+    bool have_local_data;
 public:
     Fftw_helper(Int3 shape, bool z_periodic);
     Fftw_helper(std::vector<int> shape, bool z_periodic);
