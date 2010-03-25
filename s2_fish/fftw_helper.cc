@@ -51,10 +51,6 @@ Fftw_helper::construct(int *shape_in, bool z_periodic)
             std::cout << "jfa: warning: max_local_size had to be modified\n";
         }
     }
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-//    std::cout << "jfa: rank = " << rank << ", local_nx = " << local_nx
-//            << ", fftw_local_size = " << fftw_local_size << std::endl;
     data = (double *) fftw_malloc(sizeof(double) * max_local_size);
     workspace = (fftw_complex *) fftw_malloc(sizeof(double) * max_local_size);
     plan = fftw_mpi_plan_dft_r2c_3d(shape[0], shape[1], shape[2], data,
@@ -155,26 +151,18 @@ Fftw_helper::transform(Real_scalar_field &in, Complex_scalar_field &out)
             //~ out.get_points().get_length()*sizeof(std::complex<double>));
             complex_data_length*sizeof(std::complex<double>));
 #else
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (have_local_data) {
-//        std::cout << "jfa: about to memcpy on rank " << rank << std::endl;
         memcpy(
                 reinterpret_cast<void* > (data),
                 reinterpret_cast<void* > (in.get_points().get_offset_base_address(
                         lower())), local_size() * sizeof(double));
-//        std::cout << "jfa: done with memcpy on rank " << rank << std::endl;
     }
-//    std::cout << "jfa: about to execute plan on rank " << rank << std::endl;
     fftw_execute(plan);
-//    std::cout << "jfa: executed plan on rank " << rank << std::endl;
     if (have_local_data) {
-//        std::cout << "jfa: about to memcpy back on rank " << rank << std::endl;
         memcpy(
                 reinterpret_cast<void* > (out.get_points().get_offset_base_address(
                         lower())), reinterpret_cast<void* > (workspace),
                 local_size() * sizeof(double));
-//        std::cout << "jfa: done with memcpy back on rank " << rank << std::endl;
     }
 #endif //USE_FFTW2
 }
@@ -195,28 +183,18 @@ Fftw_helper::inv_transform(Complex_scalar_field &in, Real_scalar_field &out)
             reinterpret_cast<void*>(data),
             complex_data_length*2*sizeof(double));
 #else
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (have_local_data) {
-//        std::cout << "jfa: inv about to memcpy on rank " << rank << std::endl;
         memcpy(
                 reinterpret_cast<void* > (workspace),
                 reinterpret_cast<void* > (in.get_points().get_offset_base_address(
                         lower())), local_size() * sizeof(double));
-//        std::cout << "jfa: inv done with memcpy on rank " << rank << std::endl;
     }
-//    std::cout << "jfa: inv about to execute plan on rank " << rank << std::endl;
     fftw_execute(inv_plan);
-//    std::cout << "jfa: inv executed plan on rank " << rank << std::endl;
     if (have_local_data) {
-//        std::cout << "jfa: inv about to memcpy back on rank " << rank
-//                << std::endl;
         memcpy(
                 reinterpret_cast<void* > (out.get_points().get_offset_base_address(
                         lower())), reinterpret_cast<void* > (data),
                 local_size() * sizeof(double));
-//        std::cout << "jfa: inv done with memcpy back on rank " << rank
-//                << std::endl;
     }
 #endif //USE_FFTW2
 }
