@@ -15,7 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import tables
 
-if len(sys.argv) == 0:
+if len(sys.argv) == 1:
     print "give me a file name!"
     sys.exit(10)
 
