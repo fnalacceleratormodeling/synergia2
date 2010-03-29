@@ -47,8 +47,7 @@ void
 Chef_lattice::extract_element_map()
 {
     Chef_elements chef_elements;
-    Lattice_elements::iterator le_it =
-            lattice_ptr->get_elements().begin();
+    Lattice_elements::iterator le_it = lattice_ptr->get_elements().begin();
     for (beamline::const_iterator b_it = beamline_sptr->begin(); b_it
             != beamline_sptr->end(); ++b_it) {
         if ((*b_it)->Name() == lattice_element_marker->Name()) {
@@ -57,7 +56,8 @@ Chef_lattice::extract_element_map()
             ++le_it;
         } else {
             chef_elements.push_back(*b_it);
-            std::cout << "jfa: added chef_element " << (*b_it)->Name() << " to lattice_element " << le_it->get_name() << std::endl;
+            std::cout << "jfa: added chef_element " << (*b_it)->Name()
+                    << " to lattice_element " << le_it->get_name() << std::endl;
         }
     }
 }
@@ -97,16 +97,109 @@ Chef_lattice::get_chef_elements(Lattice_element const& lattice_element)
     return element_map[&lattice_element];
 }
 
-void
-Chef_lattice::construct_sliced_beamline(Lattice_element_slices const& slices)
+ElmPtr
+slice_chef_element(ElmPtr & elm, double left, double right, double tolerance)
 {
+    double length = elm->Length();
+    ElmPtr retval, left_part, right_part;
+    if (left == 0.0) {
+        if (floating_point_equal(length, right, tolerance)) {
+            retval = elm;
+        } else {
+            elm->Split(right / length, left_part, right_part);
+            retval = left_part;
+        }
+    } else {
+        elm->Split(left / length, left_part, right_part);
+        if (floating_point_equal(length, right, tolerance)) {
+            retval = right_part;
+        } else {
+            ElmPtr second_left_part, second_right_part;
+            right_part->Split((right - left) / (length - left),
+                    second_left_part, second_right_part);
+            retval = second_left_part;
+        }
+    }
 
+    return retval;
+}
+
+Chef_elements
+Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice & slice)
+{
+    Chef_elements all_elements = element_map[&(slice.get_lattice_element())];
+    Chef_elements retval;
+    if (slice.is_whole()) {
+        retval = all_elements;
+    } else {
+        const double tolerance = 1.0e-8;
+        double left = slice.get_left();
+        double right = slice.get_right();
+        double s = 0.0;
+        Chef_elements::iterator c_it = all_elements.begin();
+        bool complete = false;
+        double element_left, element_right;
+        while (!complete) {
+            double chef_element_length = (*c_it)->Length();
+            if (!floating_point_leq(s + chef_element_length, left, tolerance)) {
+                s += chef_element_length;
+                ++c_it;
+                if (c_it == all_elements.end()) {
+                    throw(std::runtime_error(
+                            "get_chef_elements_from_slice iterated beyond end of element list"));
+                }
+            } else {
+                element_left = left - s;
+                if (floating_point_leq(s + chef_element_length, right,
+                        tolerance)) {
+                    element_right = right - s;
+                    retval.push_back(slice_chef_element(*c_it, element_left,
+                            element_right, tolerance));
+                    if (floating_point_equal(s + chef_element_length, right,
+                            tolerance)) {
+                        while ((++c_it != all_elements.end())
+                                && ((*c_it)->Length() == 0.0)) {
+                            retval.push_back(*c_it);
+                        }
+                        complete = true;
+                    } else {
+                        element_right = chef_element_length;
+                        retval.push_back(slice_chef_element(*c_it,
+                                element_left, element_right, tolerance));
+                        s += chef_element_length;
+                        ++c_it;
+                    }
+                }
+            }
+        }
+    }
+    return retval;
+}
+
+void
+Chef_lattice::construct_sliced_beamline(Lattice_element_slices & slices)
+{
+    sliced_beamline_sptr->clear();
+    for (Lattice_element_slices::iterator it = slices.begin(); it
+            != slices.end(); ++it) {
+        Chef_elements chef_elements = get_chef_elements_from_slice(*(*it));
+        for (Chef_elements::const_iterator c_it = chef_elements.begin(); c_it
+                != chef_elements.end(); ++c_it) {
+            sliced_beamline_sptr->append(*c_it);
+        }
+    }
 }
 
 BmlPtr
 Chef_lattice::get_beamline_sptr()
 {
     return beamline_sptr;
+}
+
+BmlPtr
+Chef_lattice::get_sliced_beamline_sptr()
+{
+    return sliced_beamline_sptr;
 }
 
 Chef_lattice::~Chef_lattice()
