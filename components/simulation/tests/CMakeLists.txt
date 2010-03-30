@@ -3,3 +3,7 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 add_executable(test_stepper test_stepper.cc)
 target_link_libraries(test_stepper simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_stepper test_stepper)
+
+add_executable(test_propagator test_propagator.cc)
+target_link_libraries(test_propagator simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_propagator test_propagator)
