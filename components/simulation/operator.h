@@ -47,8 +47,6 @@ typedef std::list<Collective_operator_sptr > Collective_operators;
 
 class Independent_operator : public Operator
 {
-private:
-    Lattice_element_slices slices;
 public:
     Independent_operator(std::string const& name);
     void
