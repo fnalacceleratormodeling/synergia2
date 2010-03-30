@@ -23,6 +23,12 @@ Step::append(Operators const& the_operators)
     }
 }
 
+Operators const&
+Step::get_operators() const
+{
+    return operators;
+}
+
 void
 Step::print(int index) const
 {
