@@ -56,8 +56,6 @@ Chef_lattice::extract_element_map()
             ++le_it;
         } else {
             chef_elements.push_back(*b_it);
-            std::cout << "jfa: added chef_element " << (*b_it)->Name()
-                    << " to lattice_element " << le_it->get_name() << std::endl;
         }
     }
 }
@@ -101,8 +99,6 @@ Chef_lattice::get_chef_elements(Lattice_element const& lattice_element)
 ElmPtr
 slice_chef_element(ElmPtr & elm, double left, double right, double tolerance)
 {
-    std::cout << "jfa: slice_chef_element " << elm->Name() << " " << left
-            << " " << right << std::endl;
     double length = elm->Length();
     ElmPtr retval, left_part, right_part;
     if (left == 0.0) {
@@ -133,24 +129,19 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice & slice)
     Chef_elements all_elements = element_map[&(slice.get_lattice_element())];
     Chef_elements retval;
     if (slice.is_whole()) {
-        std::cout << "jfa: slice is whole!\n";
         retval = all_elements;
     } else {
         const double tolerance = 1.0e-8;
         double left = slice.get_left();
         double right = slice.get_right();
-        std::cout << "jfa: left,right = " << left << "," << right << std::endl;
         double s = 0.0;
         Chef_elements::iterator c_it = all_elements.begin();
         bool complete = false;
         double element_left, element_right;
         double total_done = 0.0;
         while (!complete) {
-            std::cout << "jfa: working on " << (*c_it)->Name() << std::endl;
             double chef_element_length = (*c_it)->Length();
             if (!floating_point_leq(left, s + chef_element_length, tolerance)) {
-                std::cout << "jfa !leq:" << s << " " << chef_element_length
-                        << " " << left << " " << right << " " << std::endl;
                 s += chef_element_length;
                 ++c_it;
                 if (c_it == all_elements.end()) {
@@ -164,16 +155,11 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice & slice)
                     element_right = right - s;
                     retval.push_back(slice_chef_element(*c_it, element_left,
                             element_right, tolerance));
-                    std::cout << "jfa: pushed back1 " << retval.back()->Name()
-                            << std::endl;
                     total_done += element_right - element_left;
                 } else {
                     element_right = chef_element_length;
                     retval.push_back(slice_chef_element(*c_it, element_left,
                             element_right, tolerance));
-                    std::cout << "jfa: pushed back3 " << retval.back()->Name()
-                            << std::endl;
-
                     s += chef_element_length;
                     ++c_it;
                 }
@@ -182,9 +168,6 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice & slice)
                     while ((++c_it != all_elements.end()) && ((*c_it)->Length()
                             == 0.0)) {
                         retval.push_back(*c_it);
-                        std::cout << "jfa: pushed back2 "
-                                << retval.back()->Name() << std::endl;
-
                     }
                 }
                 if (floating_point_equal(total_done, right - left, tolerance)) {
@@ -194,19 +177,15 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice & slice)
             }
         }
     }
-
-    std::cout << "jfa: end of get_chef_elements_from_slice\n";
     return retval;
 }
 
 void
 Chef_lattice::construct_sliced_beamline(Lattice_element_slices & slices)
 {
-    std::cout << "jfa1 size =" << slices.size() << "\n";
     sliced_beamline_sptr->clear();
     for (Lattice_element_slices::iterator it = slices.begin(); it
             != slices.end(); ++it) {
-        std::cout << "jfa2\n";
         Chef_elements chef_elements = get_chef_elements_from_slice(*(*it));
         for (Chef_elements::const_iterator c_it = chef_elements.begin(); c_it
                 != chef_elements.end(); ++c_it) {

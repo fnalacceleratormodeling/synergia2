@@ -35,12 +35,12 @@ BOOST_AUTO_TEST_CASE(construct)
             "space_charge"));
 
     Split_operator_stepper stepper7(lattice, 7, space_charge);
-    stepper7.print();
+//    stepper7.print();
 
     Propagator propagator(stepper7);
-    std::cout << "original\n";
-    print_chef_beamline(propagator.get_chef_lattice().get_beamline_sptr());
-    std::cout << "sliced\n";
-    print_chef_beamline(propagator.get_chef_lattice().get_sliced_beamline_sptr());
+//    std::cout << "original\n";
+//    print_chef_beamline(propagator.get_chef_lattice().get_beamline_sptr());
+//    std::cout << "sliced\n";
+//    print_chef_beamline(propagator.get_chef_lattice().get_sliced_beamline_sptr());
 }
 
