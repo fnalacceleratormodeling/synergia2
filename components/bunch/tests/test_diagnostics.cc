@@ -1,6 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "components/bunch/diagnostics.h"
+#include "components/foundation/physical_constants.h"
 #include "utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 ;
@@ -9,7 +10,6 @@ const double tolerance = 1.0e-12;
 
 const double mass = 100.0;
 const double total_energy = 125.0;
-const int proton_charge = 1;
 const int total_num = 9;
 const double real_num = 2.0e12;
 const double default_s = 123.4;
@@ -30,8 +30,8 @@ struct Fixture
 {
     Fixture() :
         reference_particle(mass, total_energy), comm(MPI_COMM_WORLD), bunch(
-                reference_particle, proton_charge, total_num, real_num, comm),
-                s(default_s)
+                reference_particle, constants::proton_charge, total_num,
+                real_num, comm), s(default_s)
     {
         BOOST_TEST_MESSAGE("setup fixture");
         dummy_populate(bunch);
@@ -115,7 +115,8 @@ BOOST_FIXTURE_TEST_CASE(get_mom2_full2, Fixture)
 BOOST_FIXTURE_TEST_CASE(get_corr_full2, Fixture)
 {
     const double tolerance_corr = 1.0e-10;
-    Bunch bunch2(reference_particle, proton_charge, total_num, real_num, comm);
+    Bunch bunch2(reference_particle, constants::proton_charge, total_num,
+            real_num, comm);
     MArray2d_ref particles(bunch2.get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
     Diagnostics_full2 diagnostics(bunch2, s);
@@ -126,7 +127,8 @@ const double tolerance_emit2d = 1.0e-12;
 
 BOOST_FIXTURE_TEST_CASE(get_emitx_full2, Fixture)
 {
-    Bunch bunch2(reference_particle, proton_charge, total_num, real_num, comm);
+    Bunch bunch2(reference_particle, constants::proton_charge, total_num,
+            real_num, comm);
     MArray2d_ref particles(bunch2.get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
     Diagnostics_full2 diagnostics(bunch2, s);
@@ -135,7 +137,8 @@ BOOST_FIXTURE_TEST_CASE(get_emitx_full2, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_emity_full2, Fixture)
 {
-    Bunch bunch2(reference_particle, proton_charge, total_num, real_num, comm);
+    Bunch bunch2(reference_particle, constants::proton_charge, total_num,
+            real_num, comm);
     MArray2d_ref particles(bunch2.get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
     Diagnostics_full2 diagnostics(bunch2, s);
@@ -144,7 +147,8 @@ BOOST_FIXTURE_TEST_CASE(get_emity_full2, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_emitz_full2, Fixture)
 {
-    Bunch bunch2(reference_particle, proton_charge, total_num, real_num, comm);
+    Bunch bunch2(reference_particle, constants::proton_charge, total_num,
+            real_num, comm);
     MArray2d_ref particles(bunch2.get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
     Diagnostics_full2 diagnostics(bunch2, s);
@@ -155,7 +159,8 @@ const double tolerance_emit4d = 1.0e-12;
 
 BOOST_FIXTURE_TEST_CASE(get_emitxy_full2, Fixture)
 {
-    Bunch bunch2(reference_particle, proton_charge, total_num, real_num, comm);
+    Bunch bunch2(reference_particle, constants::proton_charge, total_num,
+            real_num, comm);
     MArray2d_ref particles(bunch2.get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
     Diagnostics_full2 diagnostics(bunch2, s);
@@ -166,7 +171,8 @@ const double tolerance_emit6d = 1.0e-12;
 
 BOOST_FIXTURE_TEST_CASE(get_emitxyz_full2, Fixture)
 {
-    Bunch bunch2(reference_particle, proton_charge, total_num, real_num, comm);
+    Bunch bunch2(reference_particle, constants::proton_charge, total_num,
+            real_num, comm);
     MArray2d_ref particles(bunch2.get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
     Diagnostics_full2 diagnostics(bunch2, s);

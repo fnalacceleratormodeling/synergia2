@@ -1,5 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
+#include "components/foundation/physical_constants.h"
 #include "components/bunch/bunch.h"
 #include "utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
@@ -9,7 +10,6 @@ const double tolerance = 1.0e-15;
 
 const double mass = 100.0;
 const double total_energy = 125.0;
-const int proton_charge = 1;
 const int total_num = 100;
 const double real_num = 2.0e12;
 
@@ -17,8 +17,8 @@ struct Fixture
 {
     Fixture() :
         four_momentum(mass, total_energy), reference_particle(four_momentum),
-                comm(MPI_COMM_WORLD), bunch(reference_particle, proton_charge,
-                        total_num, real_num, comm)
+                comm(MPI_COMM_WORLD), bunch(reference_particle,
+                        constants::proton_charge, total_num, real_num, comm)
     {
         BOOST_TEST_MESSAGE("setup fixture");
     }
@@ -94,8 +94,8 @@ BOOST_FIXTURE_TEST_CASE(check_ids, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(check_ids2, Fixture)
 {
-    Bunch second_bunch(reference_particle, proton_charge, total_num, real_num,
-            comm);
+    Bunch second_bunch(reference_particle, constants::proton_charge, total_num,
+            real_num, comm);
     BOOST_CHECK( static_cast<int>(second_bunch.get_local_particles()[0][Bunch::id]
                     - bunch.get_local_particles()[0][Bunch::id]) == total_num);
 }
@@ -109,8 +109,8 @@ BOOST_FIXTURE_TEST_CASE(copy_construct, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(assign, Fixture)
 {
-    Bunch second_bunch(reference_particle, proton_charge, total_num + 10,
-            real_num * 2, comm);
+    Bunch second_bunch(reference_particle, constants::proton_charge, total_num
+            + 10, real_num * 2, comm);
     dummy_populate(bunch);
     second_bunch = bunch;
     compare_bunches(bunch, second_bunch);
@@ -118,49 +118,50 @@ BOOST_FIXTURE_TEST_CASE(assign, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_particle_charge, Fixture)
 {
-    BOOST_CHECK_CLOSE(bunch.get_particle_charge(),proton_charge,tolerance);
+    BOOST_CHECK_CLOSE(bunch.get_particle_charge(), constants::proton_charge,
+            tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_mass, Fixture)
 {
-    BOOST_CHECK_CLOSE(bunch.get_mass(),mass,tolerance);
+    BOOST_CHECK_CLOSE(bunch.get_mass(), mass, tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(set_particle_charge, Fixture)
 {
-    const int electron_charge = -1;
-    bunch.set_particle_charge(electron_charge);
-    BOOST_CHECK_CLOSE(bunch.get_particle_charge(),electron_charge,tolerance);
+    bunch.set_particle_charge(constants::electron_charge);
+    BOOST_CHECK_CLOSE(bunch.get_particle_charge(), constants::electron_charge,
+            tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_real_num, Fixture)
 {
-    BOOST_CHECK_CLOSE(bunch.get_real_num(),real_num,tolerance);
+    BOOST_CHECK_CLOSE(bunch.get_real_num(), real_num, tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(set_real_num, Fixture)
 {
     const double new_real_num = real_num * 1.5;
     bunch.set_real_num(new_real_num);
-    BOOST_CHECK_CLOSE(bunch.get_real_num(),new_real_num,tolerance);
+    BOOST_CHECK_CLOSE(bunch.get_real_num(), new_real_num, tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_local_num, Fixture)
 {
     // n.b.: this test assumes that we are running on one processor
-    BOOST_CHECK_EQUAL(bunch.get_local_num(),total_num);
+    BOOST_CHECK_EQUAL(bunch.get_local_num(), total_num);
 }
 
 BOOST_FIXTURE_TEST_CASE(set_local_num, Fixture)
 {
     int new_local_num = total_num / comm.get_size() - 5;
     bunch.set_local_num(new_local_num);
-    BOOST_CHECK_EQUAL(bunch.get_local_num(),new_local_num);
+    BOOST_CHECK_EQUAL(bunch.get_local_num(), new_local_num);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_total_num, Fixture)
 {
-    BOOST_CHECK_EQUAL(bunch.get_total_num(),total_num);
+    BOOST_CHECK_EQUAL(bunch.get_total_num(), total_num);
 }
 
 BOOST_FIXTURE_TEST_CASE(update_total_num, Fixture)
@@ -185,14 +186,14 @@ BOOST_FIXTURE_TEST_CASE(get_const_reference_particle, Fixture)
 BOOST_FIXTURE_TEST_CASE(get_local_particles, Fixture)
 {
     MArray2d_ref local_particles(bunch.get_local_particles());
-    BOOST_CHECK_EQUAL(local_particles.shape()[1],7);
+    BOOST_CHECK_EQUAL(local_particles.shape()[1], 7);
     BOOST_CHECK(local_particles.shape()[0] >= bunch.get_local_num());
 }
 
 BOOST_FIXTURE_TEST_CASE(get_const_local_particles, Fixture)
 {
     Const_MArray2d_ref local_particles(bunch.get_local_particles());
-    BOOST_CHECK_EQUAL(local_particles.shape()[1],7);
+    BOOST_CHECK_EQUAL(local_particles.shape()[1], 7);
     BOOST_CHECK(local_particles.shape()[0] >= bunch.get_local_num());
 }
 
@@ -273,7 +274,7 @@ BOOST_FIXTURE_TEST_CASE(inject, Fixture)
     Bunch second_bunch(bunch);
     dummy_populate(bunch);
     dummy_populate(second_bunch, local_num);
-    total_bunch.set_local_num(2* local_num );
+    total_bunch.set_local_num(2 * local_num);
     total_bunch.update_total_num();
     dummy_populate(total_bunch);
     bunch.inject(second_bunch);
