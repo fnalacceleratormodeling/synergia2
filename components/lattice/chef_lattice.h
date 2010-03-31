@@ -19,25 +19,28 @@ private:
     BmlPtr sliced_beamline_sptr;
     ElmPtr lattice_element_marker;
     std::map<const Lattice_element*, Chef_elements > element_map;
+    std::map<const Lattice_element_slice*, Chef_elements > element_slice_map;
     double brho;
 
     beamline
-    construct_raw_lattice(Lattice_element_to_chef_fn_map const& map);
+    construct_raw_beamline(Lattice_element_to_chef_fn_map const& map);
     void
-    polish_lattice(beamline const& raw_beamline);
+    register_beamline(beamline & the_beamline);
+    void
+    polish_raw_beamline(beamline const& raw_beamlinee);
     void
     extract_element_map();
     void
     construct(Lattice_element_to_chef_fn_map const& map);
     Chef_elements
-    get_chef_elements_from_slice(Lattice_element_slice & slice);
+    get_chef_elements_from_slice(Lattice_element_slice const& slice);
 public:
     Chef_lattice(Lattice & lattice);
     Chef_lattice(Lattice & lattice, Lattice_element_to_chef_fn_map const& map);
     Chef_elements &
     get_chef_elements(Lattice_element const& lattice_element);
     void
-    construct_sliced_beamline(Lattice_element_slices & slices);
+    construct_sliced_beamline(Lattice_element_slices const& slices);
     BmlPtr
     get_beamline_sptr();
     BmlPtr

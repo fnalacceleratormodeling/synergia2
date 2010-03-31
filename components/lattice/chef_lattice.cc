@@ -9,9 +9,9 @@
 #include <stdexcept>
 
 beamline
-Chef_lattice::construct_raw_lattice(Lattice_element_to_chef_fn_map const& map)
+Chef_lattice::construct_raw_beamline(Lattice_element_to_chef_fn_map const& map)
 {
-    beamline raw_beamline;
+    beamline raw_beamlinee;
     for (Lattice_elements::const_iterator latt_it =
             lattice_ptr->get_elements().begin(); latt_it
             != lattice_ptr->get_elements().end(); ++latt_it) {
@@ -24,23 +24,29 @@ Chef_lattice::construct_raw_lattice(Lattice_element_to_chef_fn_map const& map)
             Chef_elements celms = map_it->second(*latt_it, brho);
             for (Chef_elements::const_iterator cel_it = celms.begin(); cel_it
                     != celms.end(); ++cel_it) {
-                raw_beamline.append(*cel_it);
+                raw_beamlinee.append(*cel_it);
             }
-            raw_beamline.append(lattice_element_marker);
+            raw_beamlinee.append(lattice_element_marker);
         }
     }
-    return raw_beamline;
+    return raw_beamlinee;
 }
 
 void
-Chef_lattice::polish_lattice(beamline const& raw_beamline)
+Chef_lattice::register_beamline(beamline & the_beamline)
 {
-    DriftConverter drift_converter;
-    beamline_sptr = drift_converter.convert(raw_beamline);
     Particle testpart(reference_particle_to_chef_particle(
             lattice_ptr->get_reference_particle()));
     RefRegVisitor registrar(testpart);
-    beamline_sptr->accept(registrar);
+    the_beamline.accept(registrar);
+}
+
+void
+Chef_lattice::polish_raw_beamline(beamline const& raw_beamlinee)
+{
+    DriftConverter drift_converter;
+    beamline_sptr = drift_converter.convert(raw_beamlinee);
+    register_beamline(*beamline_sptr);
 }
 
 void
@@ -71,7 +77,7 @@ Chef_lattice::construct(Lattice_element_to_chef_fn_map const& map)
     brho = lattice_ptr->get_reference_particle().get_momentum()
             / PH_CNV_brho_to_p;
 
-    polish_lattice(construct_raw_lattice(map));
+    polish_raw_beamline(construct_raw_beamline(map));
     extract_element_map();
 }
 
@@ -124,7 +130,7 @@ slice_chef_element(ElmPtr & elm, double left, double right, double tolerance)
 }
 
 Chef_elements
-Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice & slice)
+Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
 {
     Chef_elements all_elements = element_map[&(slice.get_lattice_element())];
     Chef_elements retval;
@@ -177,21 +183,24 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice & slice)
             }
         }
     }
+
     return retval;
 }
 
 void
-Chef_lattice::construct_sliced_beamline(Lattice_element_slices & slices)
+Chef_lattice::construct_sliced_beamline(Lattice_element_slices const& slices)
 {
     sliced_beamline_sptr->clear();
-    for (Lattice_element_slices::iterator it = slices.begin(); it
+    for (Lattice_element_slices::const_iterator it = slices.begin(); it
             != slices.end(); ++it) {
         Chef_elements chef_elements = get_chef_elements_from_slice(*(*it));
+        element_slice_map[&(*(*it))] = chef_elements;
         for (Chef_elements::const_iterator c_it = chef_elements.begin(); c_it
                 != chef_elements.end(); ++c_it) {
             sliced_beamline_sptr->append(*c_it);
         }
     }
+    register_beamline(*sliced_beamline_sptr);
 }
 
 BmlPtr
