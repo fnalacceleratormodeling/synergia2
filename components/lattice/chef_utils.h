@@ -20,7 +20,7 @@ chef_unit_conversion(Reference_particle const& reference_particle);
 
 inline
 int
-chef_index(int synergia_index)
+get_chef_index(int synergia_index)
 {
     return synergia_index / 2 + 3 * (synergia_index % 2);
 }

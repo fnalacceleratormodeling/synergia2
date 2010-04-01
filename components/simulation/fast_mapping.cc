@@ -127,7 +127,7 @@ Fast_mapping::Fast_mapping(Reference_particle const& reference_particle,
     order = chef_mapping.Weight();
     init(order);
     for (int i = 0; i < 6; ++i) {
-        int chef_i = chef_index(i);
+        int chef_i = get_chef_index(i);
         int nterm = 0;
         Jet__environment_ptr env = chef_mapping.Env();
         for (Jet::const_iterator jet_it = chef_mapping(chef_i).begin(); jet_it
@@ -140,7 +140,7 @@ Fast_mapping::Fast_mapping(Reference_particle const& reference_particle,
                 tmp_term.coeff() = jet_it->coefficient() * u[i];
                 int which = 0;
                 for (int index = 0; index < 6; ++index) {
-                    int chef_i2 = chef_index(index);
+                    int chef_i2 = get_chef_index(index);
                     int expt = jet_it->exponents(env)(chef_i2);
                     for (int count = 0; count < expt; ++count) {
                         tmp_term.index(which) = index;
