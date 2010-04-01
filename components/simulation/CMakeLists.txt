@@ -1,4 +1,5 @@
-add_library(simulation SHARED operator.cc step.cc stepper.cc propagator.cc fast_mapping.cc)
+add_library(simulation SHARED operator.cc step.cc stepper.cc propagator.cc
+    fast_mapping.cc chef_propagate.cc independent_operation.cc)
 target_link_libraries(simulation foundation bunch lattice ${CHEF_LIBS} ${Boost_REGEX_LIBRARY})
 
 #add_python_extension(pysimulation simulation_wrap.cc)
