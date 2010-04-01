@@ -15,4 +15,14 @@ void
 propagate_reference_particle(Reference_particle const& reference_particle,
         BmlPtr beamline_sptr);
 
+std::vector<double >
+chef_unit_conversion(Reference_particle const& reference_particle);
+
+inline
+int
+chef_index(int synergia_index)
+{
+    return synergia_index / 2 + 3 * (synergia_index % 2);
+}
+
 #endif /* CHEF_UTILS_H_ */
