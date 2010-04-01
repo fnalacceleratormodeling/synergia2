@@ -32,10 +32,12 @@ class Fast_mapping_term
 private:
     double the_coeff;
     int *i;
-    int order;
+    int the_order;
 public:
     Fast_mapping_term(int order);
     Fast_mapping_term(Fast_mapping_term const& fast_mapping_term);
+    inline int
+    order() const;
     inline double &
     coeff();
     inline double const&
@@ -106,9 +108,11 @@ private:
     void
     init(int order);
 public:
-    Fast_mapping();
+    Fast_mapping(int order);
     Fast_mapping(Reference_particle const& reference_particle,
-            Mapping & chef_mapping);
+            Mapping const& chef_mapping);
+    void
+    add_term(int index, Fast_mapping_term const& term);
     void
     apply(Bunch & bunch);
     void

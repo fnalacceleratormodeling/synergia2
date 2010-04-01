@@ -20,17 +20,23 @@ read_line_ignoring_comments(std::ifstream &file)
 Fast_mapping_term::Fast_mapping_term(int order)
 {
     i = new int[order + 1];
-    this->order = order;
+    this->the_order = order;
 }
 
 Fast_mapping_term::Fast_mapping_term(Fast_mapping_term const& t)
 {
     the_coeff = t.the_coeff;
-    order = t.order;
-    i = new int[order + 1];
-    for (int j = 0; j < order + 1; ++j) {
+    the_order = t.the_order;
+    i = new int[the_order + 1];
+    for (int j = 0; j < the_order + 1; ++j) {
         i[j] = t.i[j];
     }
+}
+
+inline int
+Fast_mapping_term::order() const
+{
+    return the_order;
 }
 
 inline double &
@@ -61,7 +67,7 @@ Fast_mapping_term::index(int which) const
 void
 Fast_mapping_term::write_to_stream(std::ofstream& stream) const
 {
-    for (int j = 0; j < order + 1; ++j) {
+    for (int j = 0; j < the_order + 1; ++j) {
         stream << i[j] << " ";
     }
     stream.precision(17);
@@ -72,7 +78,7 @@ void
 Fast_mapping_term::read_from_stream(std::ifstream& stream)
 {
     std::stringstream sstream(read_line_ignoring_comments(stream));
-    for (int j = 0; j < order + 1; ++j) {
+    for (int j = 0; j < the_order + 1; ++j) {
         sstream >> i[j];
     }
     sstream >> the_coeff;
@@ -93,9 +99,9 @@ Fast_mapping::init(int order)
     }
 }
 
-Fast_mapping::Fast_mapping()
+Fast_mapping::Fast_mapping(int order)
 {
-    init(0);
+    init(order);
 }
 
 inline double
@@ -108,8 +114,14 @@ quickpow(double x, int i)
     return retval;
 }
 
+void
+Fast_mapping::add_term(int index, Fast_mapping_term const& term)
+{
+    terms.at(index).at(term.order()).push_back(term);
+}
+
 Fast_mapping::Fast_mapping(Reference_particle const& reference_particle,
-        Mapping & chef_mapping)
+        Mapping const& chef_mapping)
 {
     std::vector<double > u = chef_unit_conversion(reference_particle);
     order = chef_mapping.Weight();
@@ -118,7 +130,7 @@ Fast_mapping::Fast_mapping(Reference_particle const& reference_particle,
         int chef_i = chef_index(i);
         int nterm = 0;
         Jet__environment_ptr env = chef_mapping.Env();
-        for (Jet::iterator jet_it = chef_mapping(chef_i).begin(); jet_it
+        for (Jet::const_iterator jet_it = chef_mapping(chef_i).begin(); jet_it
                 != chef_mapping(chef_i).end(); ++jet_it) {
             if (jet_it->coefficient() == 0.0) {
                 //ignore zero coefficients
@@ -136,7 +148,7 @@ Fast_mapping::Fast_mapping(Reference_particle const& reference_particle,
                     }
                     tmp_term.coeff() *= 1.0 / quickpow(u[index], expt);
                 }
-                terms.at(i).at(term_order).push_back(tmp_term);
+                add_term(i,tmp_term);
             }
         }
     }
