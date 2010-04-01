@@ -11,6 +11,7 @@
 #include <fstream>
 #include <string>
 
+// The interface in this comment is out of date
 // A Fast_mapping_term represents one term in a polynomial expansion of order
 // "order". It contains a coefficient "coeff" and a c-style vector "i" of length
 // "order" containing the vector indices of the dependent variable.
@@ -55,6 +56,7 @@ public:
 
 typedef std::list<Fast_mapping_term > Fast_mapping_terms;
 
+// The interface in this comment is out of date
 // Fast_mapping is a sparse container for a collection of arbitrary-order
 // terms in a polynomial expansion taking the six-dimensional phase space
 // variable g to a new variable f:

@@ -148,7 +148,7 @@ Fast_mapping::Fast_mapping(Reference_particle const& reference_particle,
                     }
                     tmp_term.coeff() *= 1.0 / quickpow(u[index], expt);
                 }
-                add_term(i,tmp_term);
+                add_term(i, tmp_term);
             }
         }
     }
