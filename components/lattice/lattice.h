@@ -4,7 +4,6 @@
 #include <string>
 #include <list>
 
-
 #include "components/lattice/lattice_element.h"
 #include "components/foundation/reference_particle.h"
 
