@@ -43,6 +43,7 @@ public:
 class Split_operator_stepper : public Stepper
 {
 private:
+    Independent_params * ind_params_ptr;
     Independent_operator_sptr
     get_half_step(std::string const& name,
             Lattice_elements::iterator & lattice_it, double & left,
@@ -53,9 +54,11 @@ private:
             Collective_operators const & collective_operators);
 public:
     Split_operator_stepper(Lattice & lattice, int num_steps,
-            Collective_operator_sptr collective_operator);
+            Collective_operator_sptr collective_operator,
+            Independent_params & ind_params);
     Split_operator_stepper(Lattice & lattice, int num_steps,
-            Collective_operators const & collective_operators);
+            Collective_operators const & collective_operators,
+            Independent_params & ind_params);
 
 };
 

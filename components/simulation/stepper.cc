@@ -37,7 +37,7 @@ Split_operator_stepper::get_half_step(std::string const& name,
         Lattice_elements::iterator const & lattice_end,
         const double half_step_length)
 {
-    Independent_operator_sptr retval(new Independent_operator(name));
+    Independent_operator_sptr retval(new Independent_operator(name, ind_params_ptr));
     const double tolerance = 1.0e-8;
     double length = 0.0;
     bool complete = false;
@@ -102,7 +102,9 @@ Split_operator_stepper::construct(Lattice & lattice, int num_steps,
 }
 
 Split_operator_stepper::Split_operator_stepper(Lattice & lattice,
-        int num_steps, Collective_operator_sptr collective_operator)
+        int num_steps, Collective_operator_sptr collective_operator,
+        Independent_params & ind_params) :
+    ind_params_ptr(&ind_params)
 {
     Collective_operators collective_operators;
     collective_operators.push_back(collective_operator);
@@ -110,7 +112,9 @@ Split_operator_stepper::Split_operator_stepper(Lattice & lattice,
 }
 
 Split_operator_stepper::Split_operator_stepper(Lattice & lattice,
-        int num_steps, Collective_operators const& collective_operators)
+        int num_steps, Collective_operators const& collective_operators,
+        Independent_params & ind_params) :
+    ind_params_ptr(&ind_params)
 {
     construct(lattice, num_steps, collective_operators);
 }

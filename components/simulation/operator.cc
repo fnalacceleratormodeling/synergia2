@@ -20,7 +20,7 @@ Operator::get_slices()
 }
 
 void
-Operator::apply()
+Operator::apply(Bunch & bunch, Chef_lattice & chef_lattice)
 {
 
 }
@@ -50,8 +50,40 @@ Collective_operator::~Collective_operator()
 {
 }
 
-Independent_operator::Independent_operator(std::string const& name) :
-    Operator(name)
+void
+Independent_operator::update_operations(Chef_lattice & chef_lattice)
+{
+//    operations.clear();
+//    Lattice_element_slices group;
+//    std::string operation_type(""), last_operation_type("");
+//    for (Lattice_element_slices::const_iterator it = slices.begin(); it
+//            != slices.end(); ++it) {
+//        if ((*it)->get_lattice_element().has_string_attribute("operation_type")) {
+//            operation_type = (*it)->get_lattice_element().get_string_attribute(
+//                    "operation_type");
+//        } else {
+//            operation_type = "default";
+//        }
+//        if ((operation_type != last_operation_type)) {
+//            if (!group.empty()) {
+//
+//            }
+//
+//        }
+//    }
+
+    have_operations = true;
+}
+
+bool
+Independent_operator::need_update()
+{
+    // jfa: this is a placeholder to be replaced when the update mechanism is in place
+    return !have_operations;
+}
+
+Independent_operator::Independent_operator(std::string const& name, Independent_params * ind_params) :
+    Operator(name), have_operations(false), params_ptr(ind_params)
 {
 
 }
@@ -66,6 +98,18 @@ Lattice_element_slices const&
 Independent_operator::get_slices() const
 {
     return slices;
+}
+
+void
+Independent_operator::apply(Bunch & bunch, Chef_lattice & chef_lattice)
+{
+    if (need_update()) {
+        update_operations(chef_lattice);
+    }
+    for (Independent_operations::iterator it = operations.begin(); it
+            != operations.end(); ++it) {
+        (*it)->apply(bunch);
+    }
 }
 
 void

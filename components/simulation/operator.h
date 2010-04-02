@@ -5,7 +5,11 @@
 #include <list>
 #include <boost/shared_ptr.hpp>
 
+#include "components/bunch/bunch.h"
 #include "components/lattice/lattice_element_slice.h"
+#include "components/lattice/chef_lattice.h"
+#include "components/simulation/independent_operation.h"
+#include "components/simulation/independent_params.h"
 
 class Operator
 {
@@ -20,7 +24,7 @@ public:
     get_slices();
     virtual
     void
-    apply();
+    apply(Bunch & bunch, Chef_lattice & chef_lattice);
     virtual void
     print() const;
     virtual
@@ -47,12 +51,23 @@ typedef std::list<Collective_operator_sptr > Collective_operators;
 
 class Independent_operator : public Operator
 {
+private:
+    Independent_params * params_ptr;
+    Independent_operations operations;
+    bool
+    have_operations;
+    void
+    update_operations(Chef_lattice & chef_lattice);
+    bool
+    need_update();
 public:
-    Independent_operator(std::string const& name);
+    Independent_operator(std::string const& name, Independent_params * params_ptr);
     void
     append_slice(boost::shared_ptr<Lattice_element_slice > slice);
     Lattice_element_slices const&
     get_slices() const;
+    virtual void
+    apply(Bunch & bunch, Chef_lattice & chef_lattice);
     virtual void
     print() const;
     ~Independent_operator();

@@ -32,10 +32,12 @@ Propagator::propagate(Bunch & bunch, int num_turns, bool diagnostics_per_step,
         for (Steps::const_iterator step_it = stepper.get_steps().begin(); step_it
                 != stepper.get_steps().end(); ++step_it) {
             std::cout << "jfa: step\n";
-            for (Operators::const_iterator op_it = (*step_it)->get_operators().begin(); op_it
+            for (Operators::const_iterator op_it =
+                    (*step_it)->get_operators().begin(); op_it
                     != (*step_it)->get_operators().end(); ++op_it) {
                 std::cout << "jfa: apply operator " << (*op_it)->get_name()
                         << std::endl;
+                (*op_it)->apply(bunch, chef_lattice);
             }
             if (diagnostics_per_step) {
                 std::cout << "jfa: per-step diagnostics\n";

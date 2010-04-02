@@ -39,8 +39,9 @@ BOOST_AUTO_TEST_CASE(construct)
 
     Collective_operator_sptr space_charge(new Collective_operator(
             "space_charge"));
+    Independent_params independent_parms(2);
 
-    Split_operator_stepper stepper(lattice, 7, space_charge);
+    Split_operator_stepper stepper(lattice, 7, space_charge, independent_parms);
 
     Propagator propagator(stepper);
 }
@@ -66,12 +67,14 @@ BOOST_AUTO_TEST_CASE(propagate)
 
     Collective_operator_sptr space_charge(new Collective_operator(
             "space_charge"));
+    Independent_params independent_parms(2);
 
-    Split_operator_stepper stepper(lattice, 4, space_charge);
+    Split_operator_stepper stepper(lattice, 4, space_charge, independent_parms);
     Propagator propagator(stepper);
 
     Commxx comm(MPI_COMM_WORLD);
-    Bunch bunch(reference_particle, constants::proton_charge, total_num, real_num, comm);
+    Bunch bunch(reference_particle, constants::proton_charge, total_num,
+            real_num, comm);
 
     int num_turns = 4;
     propagator.propagate(bunch, num_turns, true, true);
