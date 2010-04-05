@@ -53,24 +53,33 @@ Collective_operator::~Collective_operator()
 void
 Independent_operator::update_operations(Chef_lattice & chef_lattice)
 {
-//    operations.clear();
-//    Lattice_element_slices group;
-//    std::string operation_type(""), last_operation_type("");
-//    for (Lattice_element_slices::const_iterator it = slices.begin(); it
-//            != slices.end(); ++it) {
-//        if ((*it)->get_lattice_element().has_string_attribute("operation_type")) {
-//            operation_type = (*it)->get_lattice_element().get_string_attribute(
-//                    "operation_type");
-//        } else {
-//            operation_type = "default";
-//        }
-//        if ((operation_type != last_operation_type)) {
-//            if (!group.empty()) {
-//
-//            }
-//
-//        }
-//    }
+    operations.clear();
+
+    // Group slices of equal operation_type and pass to operation_extractor
+    // to get operations.
+    Lattice_element_slices group;
+    std::string operation_type(""), last_operation_type("");
+    for (Lattice_element_slices::const_iterator it = slices.begin(); it
+            != slices.end(); ++it) {
+        if ((*it)->get_lattice_element().has_string_attribute("operation_type")) {
+            operation_type = (*it)->get_lattice_element().get_string_attribute(
+                    "operation_type");
+        } else {
+            operation_type = "default";
+        }
+        if ((operation_type != last_operation_type)) {
+            if (!group.empty()) {
+                Independent_operations group_operations =
+                        params_ptr->get_extractor(operation_type)->extract(
+                                group, chef_lattice);
+                for (Independent_operations::const_iterator group_it =
+                        group_operations.begin(); group_it
+                        != group_operations.end(); ++group_it) {
+                    operations.push_back(*group_it);
+                }
+            }
+        }
+    }
 
     have_operations = true;
 }
@@ -82,7 +91,8 @@ Independent_operator::need_update()
     return !have_operations;
 }
 
-Independent_operator::Independent_operator(std::string const& name, Independent_params * ind_params) :
+Independent_operator::Independent_operator(std::string const& name,
+        Independent_params * ind_params) :
     Operator(name), have_operations(false), params_ptr(ind_params)
 {
 
