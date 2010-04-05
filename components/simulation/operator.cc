@@ -51,7 +51,9 @@ Collective_operator::~Collective_operator()
 }
 
 void
-Independent_operator::update_operations(Chef_lattice & chef_lattice)
+Independent_operator::update_operations(
+        Reference_particle const& reference_particle,
+        Chef_lattice & chef_lattice)
 {
     operations.clear();
 
@@ -71,7 +73,7 @@ Independent_operator::update_operations(Chef_lattice & chef_lattice)
             if (!group.empty()) {
                 Independent_operations group_operations =
                         params_ptr->get_extractor(operation_type)->extract(
-                                group, chef_lattice);
+                                reference_particle, group, chef_lattice);
                 for (Independent_operations::const_iterator group_it =
                         group_operations.begin(); group_it
                         != group_operations.end(); ++group_it) {
@@ -114,7 +116,7 @@ void
 Independent_operator::apply(Bunch & bunch, Chef_lattice & chef_lattice)
 {
     if (need_update()) {
-        update_operations(chef_lattice);
+        update_operations(bunch.get_reference_particle(), chef_lattice);
     }
     for (Independent_operations::iterator it = operations.begin(); it
             != operations.end(); ++it) {

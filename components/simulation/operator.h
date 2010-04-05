@@ -54,14 +54,15 @@ class Independent_operator : public Operator
 private:
     Independent_params * params_ptr;
     Independent_operations operations;
-    bool
-    have_operations;
+    bool have_operations;
     void
-    update_operations(Chef_lattice & chef_lattice);
+    update_operations(Reference_particle const& reference_particle,
+            Chef_lattice & chef_lattice);
     bool
     need_update();
 public:
-    Independent_operator(std::string const& name, Independent_params * params_ptr);
+    Independent_operator(std::string const& name,
+            Independent_params * params_ptr);
     void
     append_slice(boost::shared_ptr<Lattice_element_slice > slice);
     Lattice_element_slices const&
