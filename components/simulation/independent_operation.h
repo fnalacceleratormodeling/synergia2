@@ -36,6 +36,8 @@ public:
     ~Fast_mapping_operation();
 };
 
+typedef boost::shared_ptr<Fast_mapping_operation > Fast_mapping_operation_sptr;
+
 class Chef_propagate_operation : public Independent_operation
 {
 private:
@@ -48,5 +50,7 @@ public:
     virtual
     ~Chef_propagate_operation();
 };
+
+typedef boost::shared_ptr<Chef_propagate_operation > Chef_propagate_operation_sptr;
 
 #endif /* INDEPENDENT_OPERATION_H_ */
