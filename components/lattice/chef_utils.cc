@@ -47,6 +47,13 @@ reference_particle_to_chef_particle(
     }
 }
 
+JetParticle
+reference_particle_to_chef_jet_particle(
+        Reference_particle const& reference_particle)
+{
+    return JetParticle(reference_particle_to_chef_particle(reference_particle));
+}
+
 void
 propagate_reference_particle(Reference_particle const& reference_particle,
         BmlPtr beamline_sptr)
@@ -57,10 +64,10 @@ propagate_reference_particle(Reference_particle const& reference_particle,
     std::cout << "final state: " << particle.State() << std::endl;
 }
 
-std::vector<double>
+std::vector<double >
 chef_unit_conversion(Reference_particle const& reference_particle)
 {
-    std::vector<double> u(6);
+    std::vector<double > u(6);
     u.at(0) = 1.0;
     u.at(1) = reference_particle.get_momentum();
     u.at(2) = 1.0;
