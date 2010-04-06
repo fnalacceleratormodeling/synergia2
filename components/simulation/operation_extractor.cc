@@ -29,10 +29,7 @@ Chef_map_operation_extractor::extract(
             != slices.end(); ++les_it) {
         Chef_elements slice_elements = chef_lattice.get_chef_elements(
                 *(*les_it));
-        for (Chef_elements::const_iterator ce_it = slice_elements.begin(); ce_it
-                != slice_elements.end(); ++ce_it) {
-            all_chef_elements.push_back(*ce_it);
-        }
+        all_chef_elements.splice(all_chef_elements.end(),slice_elements);
     }
     Fast_mapping_operation_sptr fast_mapping_operation_sptr =
             extract_fast_mapping(reference_particle, all_chef_elements);
@@ -51,10 +48,7 @@ Chef_propagate_operation_extractor::extract(
             != slices.end(); ++les_it) {
         Chef_elements slice_elements = chef_lattice.get_chef_elements(
                 *(*les_it));
-        for (Chef_elements::const_iterator ce_it = slice_elements.begin(); ce_it
-                != slice_elements.end(); ++ce_it) {
-            chef_elements.push_back(*ce_it);
-        }
+        chef_elements.splice(chef_elements.end(),slice_elements);
     }
     Chef_propagate_operation_sptr chef_propagate_operation_sptr(
             new Chef_propagate_operation(chef_elements));

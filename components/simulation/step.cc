@@ -17,10 +17,8 @@ Step::append(Operator_sptr operator_sptr)
 void
 Step::append(Operators const& the_operators)
 {
-    for (Operators::const_iterator it = the_operators.begin(); it
-            != the_operators.end(); ++it) {
-        operators.push_back(*it);
-    }
+    Operators tmp(the_operators);
+    operators.splice(operators.end(), tmp);
 }
 
 Operators const&

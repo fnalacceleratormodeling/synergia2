@@ -8,11 +8,7 @@ Propagator::construct()
             != stepper.get_steps().end(); ++s_it) {
         for (Operators::const_iterator o_it = (*s_it)->get_operators().begin(); o_it
                 != (*s_it)->get_operators().end(); ++o_it) {
-            for (Lattice_element_slices::const_iterator les_it =
-                    (*o_it)->get_slices().begin(); les_it
-                    != (*o_it)->get_slices().end(); ++les_it) {
-                all_slices.push_back(*les_it);
-            }
+            all_slices.splice(all_slices.end(), (*o_it)->get_slices());
         }
     }
     chef_lattice.construct_sliced_beamline(all_slices);

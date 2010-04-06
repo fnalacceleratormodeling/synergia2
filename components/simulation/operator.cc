@@ -74,11 +74,7 @@ Independent_operator::update_operations(
                 Independent_operations group_operations =
                         params_ptr->get_extractor(operation_type)->extract(
                                 reference_particle, group, chef_lattice);
-                for (Independent_operations::const_iterator group_it =
-                        group_operations.begin(); group_it
-                        != group_operations.end(); ++group_it) {
-                    operations.push_back(*group_it);
-                }
+                operations.splice(operations.end(),group_operations);
             }
         }
     }
