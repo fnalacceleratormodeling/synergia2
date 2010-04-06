@@ -39,6 +39,8 @@ public:
     Chef_lattice(Lattice & lattice, Lattice_element_to_chef_fn_map const& map);
     Chef_elements &
     get_chef_elements(Lattice_element const& lattice_element);
+    Chef_elements &
+    get_chef_elements(Lattice_element_slice const& lattice_element_slice);
     void
     construct_sliced_beamline(Lattice_element_slices const& slices);
     BmlPtr

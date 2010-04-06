@@ -102,6 +102,12 @@ Chef_lattice::get_chef_elements(Lattice_element const& lattice_element)
     return element_map[&lattice_element];
 }
 
+Chef_elements &
+Chef_lattice::get_chef_elements(Lattice_element_slice const& lattice_element_slice)
+{
+    return element_slice_map[&lattice_element_slice];
+}
+
 ElmPtr
 slice_chef_element(ElmPtr & elm, double left, double right, double tolerance)
 {
