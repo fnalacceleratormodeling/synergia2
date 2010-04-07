@@ -75,8 +75,17 @@ Independent_operator::update_operations(
                         params_ptr->get_extractor(operation_type)->extract(
                                 reference_particle, group, chef_lattice);
                 operations.splice(operations.end(),group_operations);
+                group.clear();
             }
         }
+        group.push_back(*it);
+        last_operation_type = operation_type;
+    }
+    if (!group.empty()) {
+        Independent_operations group_operations = params_ptr->get_extractor(
+                operation_type)->extract(reference_particle, group,
+                chef_lattice);
+        operations.splice(operations.end(), group_operations);
     }
 
     have_operations = true;
