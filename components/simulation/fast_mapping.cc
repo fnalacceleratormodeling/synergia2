@@ -75,6 +75,31 @@ Fast_mapping::Fast_mapping(int order)
     init(order);
 }
 
+Fast_mapping::Fast_mapping(std::string const& filename)
+{
+    std::ifstream file(filename.c_str());
+    std::stringstream stream(read_line_ignoring_comments(file));
+    stream >> order;
+    init(order);
+    int num_terms_read;
+    for (int index = 0; index < 6; ++index) {
+        for (int order = 0; order <= this->order; ++order) {
+            stream.str(read_line_ignoring_comments(file));
+            stream.clear();
+            stream >> num_terms_read;
+            for (int term_index = 0; term_index < num_terms_read; ++term_index) {
+                Fast_mapping_term tmp_term(file);
+                terms.at(index).at(order).push_back(tmp_term);
+            }
+        }
+    }
+    if (read_line_ignoring_comments(file) != "end_fast_mapping") {
+        throw std::runtime_error("Fast_mapping::read_from_file(" + filename
+                + ") found a truncated file.");
+    }
+    file.close();
+}
+
 inline double
 quickpow(double x, int i)
 {
@@ -214,31 +239,5 @@ Fast_mapping::write_to_file(std::string const& filename)
         }
     }
     file << "end_fast_mapping\n";
-    file.close();
-}
-
-void
-Fast_mapping::read_from_file(std::string const& filename)
-{
-    std::ifstream file(filename.c_str());
-    std::stringstream stream(read_line_ignoring_comments(file));
-    stream >> order;
-    init(order);
-    int num_terms_read;
-    for (int index = 0; index < 6; ++index) {
-        for (int order = 0; order <= this->order; ++order) {
-            stream.str(read_line_ignoring_comments(file));
-            stream.clear();
-            stream >> num_terms_read;
-            for (int term_index = 0; term_index < num_terms_read; ++term_index) {
-                Fast_mapping_term tmp_term(file);
-                terms.at(index).at(order).push_back(tmp_term);
-            }
-        }
-    }
-    if (read_line_ignoring_comments(file) != "end_fast_mapping") {
-        throw std::runtime_error("Fast_mapping::read_from_file(" + filename
-                + ") found a truncated file.");
-    }
     file.close();
 }

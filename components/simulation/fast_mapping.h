@@ -130,6 +130,7 @@ private:
     init(int order);
 public:
     Fast_mapping(int order);
+    Fast_mapping(std::string const& filename);
     Fast_mapping(Reference_particle const& reference_particle,
             Mapping const& chef_mapping);
     void
@@ -138,8 +139,6 @@ public:
     apply(Bunch & bunch);
     void
     write_to_file(std::string const& filename);
-    void
-    read_from_file(std::string const& filename);
 };
 
 #endif /* FAST_MAPPING_H_ */
