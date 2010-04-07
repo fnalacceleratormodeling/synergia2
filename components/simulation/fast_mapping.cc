@@ -33,37 +33,6 @@ Fast_mapping_term::Fast_mapping_term(Fast_mapping_term const& t)
     }
 }
 
-inline int
-Fast_mapping_term::order() const
-{
-    return the_order;
-}
-
-inline double &
-Fast_mapping_term::coeff()
-{
-    return the_coeff;
-}
-
-inline double const&
-Fast_mapping_term::coeff() const
-{
-    return the_coeff;
-}
-
-inline int &
-Fast_mapping_term::index(int which)
-{
-    return i[which];
-}
-
-inline
-int const&
-Fast_mapping_term::index(int which) const
-{
-    return i[which];
-}
-
 void
 Fast_mapping_term::write_to_stream(std::ofstream& stream) const
 {

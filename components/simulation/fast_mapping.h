@@ -38,15 +38,35 @@ public:
     Fast_mapping_term(int order);
     Fast_mapping_term(Fast_mapping_term const& fast_mapping_term);
     inline int
-    order() const;
+    order() const
+    {
+        return the_order;
+    }
+    ;
     inline double &
-    coeff();
+    coeff()
+    {
+        return the_coeff;
+    }
+    ;
     inline double const&
-    coeff() const;
+    coeff() const
+    {
+        return the_coeff;
+    }
+    ;
     inline int &
-    index(int which);
+    index(int which)
+    {
+        return i[which];
+    }
+    ;
     inline int const&
-    index(int which) const;
+    index(int which) const
+    {
+        return i[which];
+    }
+    ;
     void
     write_to_stream(std::ofstream & stream) const;
     void
