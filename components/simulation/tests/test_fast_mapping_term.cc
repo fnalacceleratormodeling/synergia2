@@ -1,9 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "components/simulation/fast_mapping.h"
-
-const int order = 2;
-const double coeff = 3.1415;
+#include "fast_mapping_term_fixture.h"
 const double tolerance = 1.0e-14;
 
 BOOST_AUTO_TEST_CASE(construct)
@@ -26,7 +24,7 @@ BOOST_AUTO_TEST_CASE(get_set_coeff)
 
 BOOST_AUTO_TEST_CASE(get_set_indices)
 {
-    Fast_mapping_term fast_mapping_term(order);
+    Fast_mapping_term fast_mapping_term(2);
     int indices[] = { 0, 2, 4 };
     fast_mapping_term.index(0) = indices[0];
     fast_mapping_term.index(1) = indices[1];
@@ -37,34 +35,20 @@ BOOST_AUTO_TEST_CASE(get_set_indices)
     BOOST_CHECK_EQUAL(fast_mapping_term.index(2), indices[2]);
 }
 
-BOOST_AUTO_TEST_CASE(copy_construct)
+BOOST_FIXTURE_TEST_CASE(copy_construct, Fast_mapping_term_fixture)
 {
-    Fast_mapping_term fast_mapping_term(order);
-    fast_mapping_term.coeff() = coeff;
-    int indices[] = { 0, 2, 4 };
-    fast_mapping_term.index(0) = indices[0];
-    fast_mapping_term.index(1) = indices[1];
-    fast_mapping_term.index(2) = indices[2];
-
     Fast_mapping_term fast_mapping_term2(fast_mapping_term);
 
     BOOST_CHECK_EQUAL(fast_mapping_term.order(), fast_mapping_term2.order());
     BOOST_CHECK_CLOSE(fast_mapping_term.coeff(), fast_mapping_term2.coeff(),
             tolerance);
-    BOOST_CHECK_EQUAL(fast_mapping_term.index(0), fast_mapping_term2.index(0));
-    BOOST_CHECK_EQUAL(fast_mapping_term.index(1), fast_mapping_term2.index(1));
-    BOOST_CHECK_EQUAL(fast_mapping_term.index(2), fast_mapping_term2.index(2));
+    for (int i = 0; i < fast_mapping_term.order() + 1; ++i) {
+        BOOST_CHECK_EQUAL(fast_mapping_term.index(i), fast_mapping_term2.index(i));
+    }
 }
 
-BOOST_AUTO_TEST_CASE(write_read_stream)
+BOOST_FIXTURE_TEST_CASE(write_read_stream, Fast_mapping_term_fixture)
 {
-    Fast_mapping_term fast_mapping_term(order);
-    fast_mapping_term.coeff() = coeff;
-    int indices[] = { 0, 2, 4 };
-    fast_mapping_term.index(0) = indices[0];
-    fast_mapping_term.index(1) = indices[1];
-    fast_mapping_term.index(2) = indices[2];
-
     ofstream out_file("test_fast_mapping_term.dat");
     fast_mapping_term.write_to_stream(out_file);
     out_file.close();
@@ -76,8 +60,8 @@ BOOST_AUTO_TEST_CASE(write_read_stream)
     BOOST_CHECK_EQUAL(fast_mapping_term.order(), fast_mapping_term2.order());
     BOOST_CHECK_CLOSE(fast_mapping_term.coeff(), fast_mapping_term2.coeff(),
             tolerance);
-    BOOST_CHECK_EQUAL(fast_mapping_term.index(0), fast_mapping_term2.index(0));
-    BOOST_CHECK_EQUAL(fast_mapping_term.index(1), fast_mapping_term2.index(1));
-    BOOST_CHECK_EQUAL(fast_mapping_term.index(2), fast_mapping_term2.index(2));
+    for (int i = 0; i < fast_mapping_term.order() + 1; ++i) {
+        BOOST_CHECK_EQUAL(fast_mapping_term.index(i), fast_mapping_term2.index(i));
+    }
 }
 
