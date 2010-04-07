@@ -4,6 +4,11 @@ add_executable(test_chef_propagator test_chef_propagator.cc)
 target_link_libraries(test_chef_propagator simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_chef_propagator test_chef_propagator)
 
+add_executable(test_fast_mapping_term test_fast_mapping_term.cc)
+target_link_libraries(test_fast_mapping_term simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_fast_mapping_term test_fast_mapping_term)
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "test_fast_mapping_term.dat")
+
 add_executable(test_stepper test_stepper.cc)
 target_link_libraries(test_stepper simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_stepper test_stepper)
