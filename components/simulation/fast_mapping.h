@@ -36,6 +36,7 @@ private:
     int the_order;
 public:
     Fast_mapping_term(int order);
+    Fast_mapping_term(std::ifstream & stream);
     Fast_mapping_term(Fast_mapping_term const& fast_mapping_term);
     inline int
     order() const
@@ -69,8 +70,6 @@ public:
     ;
     void
     write_to_stream(std::ofstream & stream) const;
-    void
-    read_from_stream(std::ifstream & stream);
     ~Fast_mapping_term();
 };
 
