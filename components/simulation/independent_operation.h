@@ -2,6 +2,7 @@
 #define INDEPENDENT_OPERATION_H_
 
 #include "components/simulation/fast_mapping.h"
+#include "components/simulation/chef_propagator.h"
 #include "components/lattice/chef_lattice.h"
 #include "boost/shared_ptr.hpp"
 #include <list>
@@ -41,7 +42,7 @@ typedef boost::shared_ptr<Fast_mapping_operation > Fast_mapping_operation_sptr;
 class Chef_propagate_operation : public Independent_operation
 {
 private:
-    Chef_elements chef_elements;
+    Chef_propagator chef_propagator;
 
 public:
     Chef_propagate_operation(Chef_elements const& elements);
@@ -51,6 +52,7 @@ public:
     ~Chef_propagate_operation();
 };
 
-typedef boost::shared_ptr<Chef_propagate_operation > Chef_propagate_operation_sptr;
+typedef boost::shared_ptr<Chef_propagate_operation >
+        Chef_propagate_operation_sptr;
 
 #endif /* INDEPENDENT_OPERATION_H_ */

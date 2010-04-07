@@ -1,10 +1,15 @@
-#include "chef_propagate.h"
+#include "chef_propagator.h"
 #include "components/lattice/chef_utils.h"
+
+Chef_propagator::Chef_propagator(Chef_elements const& chef_elements) :
+    chef_elements(chef_elements)
+{
+}
 
 // jfa: This routine is incorrect when passing through an accelerating element.
 // Please fix it.
 void
-chef_propagate(Bunch & bunch, Chef_elements & chef_elements)
+Chef_propagator::apply(Bunch & bunch)
 {
     std::vector<double > u = chef_unit_conversion(
             bunch.get_reference_particle());
