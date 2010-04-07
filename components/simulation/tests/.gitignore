@@ -1,5 +1,8 @@
 test_chef_propagator
 test_fast_mapping_term
 test_fast_mapping_term.dat
+test_fast_mapping
+test_fast_mapping.dat
+test_fast_mapping2.dat
 test_stepper
 test_propagator
