@@ -19,6 +19,6 @@ BOOST_FIXTURE_TEST_CASE(apply, Mapping_fixture)
     Fast_mapping fast_mapping(b.reference_particle, mapping);
     Fast_mapping_operation fast_mapping_operation(fast_mapping);
     //    multi_array_print(b.bunch.get_local_particles(), "particles before");
-    fast_mapping.apply(b.bunch);
+    fast_mapping_operation.apply(b.bunch);
     //    multi_array_print(b.bunch.get_local_particles(), "particles after");
 }
