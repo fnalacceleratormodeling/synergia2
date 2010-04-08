@@ -1,5 +1,7 @@
 #ifndef MAPPING_FIXTURE_H_
 #define MAPPING_FIXTURE_H_
+#include "chef_elements_fixture.h"
+#include "bunch_fixture.h"
 
 struct Mapping_fixture
 {

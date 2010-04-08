@@ -1,8 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "components/simulation/fast_mapping.h"
-#include "chef_elements_fixture.h"
-#include "bunch_fixture.h"
 #include "fast_mapping_term_fixture.h"
 #include "mapping_fixture.h"
 #include "utils/boost_test_mpi_fixture.h"
