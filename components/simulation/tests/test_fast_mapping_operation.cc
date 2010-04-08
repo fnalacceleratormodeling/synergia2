@@ -22,3 +22,5 @@ BOOST_FIXTURE_TEST_CASE(apply, Mapping_fixture)
     fast_mapping_operation.apply(b.bunch);
     //    multi_array_print(b.bunch.get_local_particles(), "particles after");
 }
+// test_note: We need to check that apply actual produces the correct results.
+//            As of this writing, it almost certainly doesn't
