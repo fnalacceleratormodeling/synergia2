@@ -14,6 +14,13 @@ BOOST_FIXTURE_TEST_CASE(construct, Mapping_fixture)
     Fast_mapping_operation fast_mapping_operation(fast_mapping);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_type, Mapping_fixture)
+{
+    Fast_mapping fast_mapping(b.reference_particle, mapping);
+    Fast_mapping_operation fast_mapping_operation(fast_mapping);
+    BOOST_CHECK_EQUAL(fast_mapping_operation.get_type(), "fast_mapping");
+}
+
 BOOST_FIXTURE_TEST_CASE(apply, Mapping_fixture)
 {
     Fast_mapping fast_mapping(b.reference_particle, mapping);

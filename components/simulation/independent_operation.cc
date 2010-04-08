@@ -1,7 +1,22 @@
 #include "independent_operation.h"
 
+Independent_operation::Independent_operation(std::string const& type) :
+    type(type)
+{
+}
+
+std::string
+Independent_operation::get_type() const
+{
+    return type;
+}
+
+Independent_operation::~Independent_operation()
+{
+}
+
 Fast_mapping_operation::Fast_mapping_operation(Fast_mapping const& mapping) :
-    mapping(mapping)
+    mapping(mapping), Independent_operation("fast_mapping")
 {
 }
 
@@ -17,7 +32,7 @@ Fast_mapping_operation::~Fast_mapping_operation()
 
 Chef_propagate_operation::Chef_propagate_operation(
         Chef_elements const& chef_elements) :
-    chef_propagator(chef_elements)
+    chef_propagator(chef_elements), Independent_operation("chef_propagate")
 {
 }
 

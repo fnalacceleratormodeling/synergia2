@@ -14,6 +14,13 @@ BOOST_FIXTURE_TEST_CASE(construct, Chef_elements_fixture)
     Chef_propagate_operation chef_propagate_operation(chef_elements);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_type, Chef_elements_fixture)
+{
+    Chef_propagate_operation chef_propagate_operation(chef_elements);
+    BOOST_CHECK_EQUAL(chef_propagate_operation.get_type(), "chef_propagate");
+}
+
+
 BOOST_FIXTURE_TEST_CASE(apply, Chef_elements_fixture)
 {
     Bunch_fixture b;

@@ -11,14 +11,16 @@
 
 class Independent_operation
 {
+private:
+    std::string type;
 public:
+    Independent_operation(std::string const& type);
+    std::string
+    get_type() const;
     virtual void
     apply(Bunch & bunch) = 0;
     virtual
-    ~Independent_operation()
-    {
-    }
-    ;
+    ~Independent_operation();
 };
 
 typedef boost::shared_ptr<Independent_operation > Independent_operation_sptr;
