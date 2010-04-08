@@ -1,5 +1,6 @@
 #ifndef MAPPING_FIXTURE_H_
 #define MAPPING_FIXTURE_H_
+#include "fast_mapping_term_fixture.h"
 #include "chef_elements_fixture.h"
 #include "bunch_fixture.h"
 

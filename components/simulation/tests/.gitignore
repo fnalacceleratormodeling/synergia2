@@ -4,5 +4,6 @@ test_fast_mapping_term.dat
 test_fast_mapping
 test_fast_mapping.dat
 test_fast_mapping2.dat
+test_fast_mapping_operation
 test_stepper
 test_propagator

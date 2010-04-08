@@ -12,6 +12,10 @@ add_executable(test_fast_mapping test_fast_mapping.cc)
 target_link_libraries(test_fast_mapping simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_fast_mapping test_fast_mapping)
 
+add_executable(test_fast_mapping_operation test_fast_mapping_operation.cc)
+target_link_libraries(test_fast_mapping_operation simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_fast_mapping_operation test_fast_mapping_operation)
+
 add_executable(test_stepper test_stepper.cc)
 target_link_libraries(test_stepper simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_stepper test_stepper)
