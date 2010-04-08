@@ -4,34 +4,12 @@
 #include "chef_elements_fixture.h"
 #include "bunch_fixture.h"
 #include "fast_mapping_term_fixture.h"
+#include "mapping_fixture.h"
 #include "utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 ;
 
 const double tolerance = 1.0e-12;
-
-struct Mapping_fixture
-{
-    Mapping_fixture()
-    {
-        BOOST_TEST_MESSAGE("setup Mapping fixture");
-        JetParticle::createStandardEnvironments(order);
-        JetParticle jet_particle = reference_particle_to_chef_jet_particle(
-                b.reference_particle);
-        for (Chef_elements::const_iterator it = c.chef_elements.begin(); it
-                != c.chef_elements.end(); ++it) {
-            (*it)->propagate(jet_particle);
-        }
-        mapping = jet_particle.State();
-    }
-    ~Mapping_fixture()
-    {
-        BOOST_TEST_MESSAGE("teardown Mapping fixture");
-    }
-    Bunch_fixture b;
-    Chef_elements_fixture c;
-    Mapping mapping;
-};
 
 BOOST_AUTO_TEST_CASE(construct)
 {
