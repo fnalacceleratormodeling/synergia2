@@ -8,7 +8,6 @@ class Propagator
 {
 private:
     Stepper stepper;
-    Chef_lattice chef_lattice;
 
     void
     construct();
@@ -17,8 +16,6 @@ public:
     void
     propagate(Bunch & bunch, int num_turns, bool diagnostics_per_step,
             bool diagnostics_per_turn);
-    Chef_lattice &
-    get_chef_lattice();
     ~Propagator();
 };
 

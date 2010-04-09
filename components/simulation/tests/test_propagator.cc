@@ -1,6 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "components/simulation/propagator.h"
+#include "components/simulation/lattice_simulator.h"
 #include "components/foundation/physical_constants.h"
 #include "components/lattice/chef_utils.h"
 #include "components/bunch/bunch.h"
@@ -39,9 +40,9 @@ BOOST_AUTO_TEST_CASE(construct)
 
     Collective_operator_sptr space_charge(new Collective_operator(
             "space_charge"));
-    Independent_params independent_parms(2);
+    Lattice_simulator lattice_simulator(lattice, 2);
 
-    Split_operator_stepper stepper(lattice, 7, space_charge, independent_parms);
+    Split_operator_stepper stepper(lattice_simulator, space_charge, 7);
 
     Propagator propagator(stepper);
 }
@@ -67,9 +68,9 @@ BOOST_AUTO_TEST_CASE(propagate)
 
     Collective_operator_sptr space_charge(new Collective_operator(
             "space_charge"));
-    Independent_params independent_parms(2);
+    Lattice_simulator lattice_simulator(lattice, 2);
 
-    Split_operator_stepper stepper(lattice, 4, space_charge, independent_parms);
+    Split_operator_stepper stepper(lattice_simulator, space_charge, 4);
     Propagator propagator(stepper);
 
     Commxx comm(MPI_COMM_WORLD);

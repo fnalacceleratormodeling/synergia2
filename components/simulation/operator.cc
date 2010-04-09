@@ -2,8 +2,8 @@
 
 #include "operator.h"
 
-Operator::Operator(std::string const& name) :
-    name(name), slices()
+Operator::Operator(std::string const& name, std::string const& type) :
+    name(name), type(type)
 {
 }
 
@@ -13,22 +13,16 @@ Operator::get_name() const
     return name;
 }
 
-Lattice_element_slices &
-Operator::get_slices()
+std::string const&
+Operator::get_type() const
 {
-    return slices;
-}
-
-void
-Operator::apply(Bunch & bunch, Chef_lattice & chef_lattice)
-{
-
+    return type;
 }
 
 void
 Operator::print() const
 {
-    std::cout << "Operator " << name << std::endl;
+    std::cout << type << " operator: " << name << std::endl;
 }
 
 Operator::~Operator()
@@ -36,14 +30,14 @@ Operator::~Operator()
 }
 
 Collective_operator::Collective_operator(std::string const& name) :
-    Operator(name)
+    Operator(name, "collective")
 {
 }
 
 void
-Collective_operator::print() const
+Collective_operator::apply(Bunch & bunch, Operators & step_operators)
 {
-    std::cout << "Collective_operator: " << name << std::endl;
+    std::cout << "stub: Collective_operator::apply\n";
 }
 
 Collective_operator::~Collective_operator()
@@ -52,42 +46,38 @@ Collective_operator::~Collective_operator()
 
 void
 Independent_operator::update_operations(
-        Reference_particle const& reference_particle,
-        Chef_lattice & chef_lattice)
+        Reference_particle const& reference_particle)
 {
     operations.clear();
 
-    // Group slices of equal operation_type and pass to operation_extractor
+    // Group slices of equal extractor_type and pass to operation_extractor
     // to get operations.
     Lattice_element_slices group;
-    std::string operation_type(""), last_operation_type("");
+    std::string extractor_type(""), last_extractor_type("");
     for (Lattice_element_slices::const_iterator it = slices.begin(); it
             != slices.end(); ++it) {
-        if ((*it)->get_lattice_element().has_string_attribute("operation_type")) {
-            operation_type = (*it)->get_lattice_element().get_string_attribute(
-                    "operation_type");
+        if ((*it)->get_lattice_element().has_string_attribute("extractor_type")) {
+            extractor_type = (*it)->get_lattice_element().get_string_attribute(
+                    "extractor_type");
         } else {
-            operation_type = "default";
+            extractor_type = "default";
         }
-        if ((operation_type != last_operation_type)) {
-            if (!group.empty()) {
-                Independent_operations group_operations =
-                        params_ptr->get_extractor(operation_type)->extract(
-                                reference_particle, group, chef_lattice);
-                operations.splice(operations.end(),group_operations);
-                group.clear();
-            }
+        if ((extractor_type != last_extractor_type) && (!group.empty())) {
+            Independent_operations
+                    group_operations = operation_extractor_map.get_extractor(
+                            extractor_type)->extract(reference_particle, group);
+            operations.splice(operations.end(), group_operations);
+            group.clear();
         }
         group.push_back(*it);
-        last_operation_type = operation_type;
+        last_extractor_type = extractor_type;
     }
     if (!group.empty()) {
-        Independent_operations group_operations = params_ptr->get_extractor(
-                operation_type)->extract(reference_particle, group,
-                chef_lattice);
+        Independent_operations group_operations =
+                operation_extractor_map.get_extractor(extractor_type)->extract(
+                        reference_particle, group);
         operations.splice(operations.end(), group_operations);
     }
-
     have_operations = true;
 }
 
@@ -99,16 +89,16 @@ Independent_operator::need_update()
 }
 
 Independent_operator::Independent_operator(std::string const& name,
-        Independent_params * ind_params) :
-    Operator(name), have_operations(false), params_ptr(ind_params)
+        Operation_extractor_map const& operation_extractor_map) :
+    Operator(name, "independent"), have_operations(false),
+            operation_extractor_map(operation_extractor_map)
 {
-
 }
 
 void
-Independent_operator::append_slice(Lattice_element_slice_sptr slice)
+Independent_operator::append_slice(Lattice_element_slice_sptr slice_sptr)
 {
-    slices.push_back(slice);
+    slices.push_back(slice_sptr);
 }
 
 Lattice_element_slices const&
@@ -118,10 +108,10 @@ Independent_operator::get_slices() const
 }
 
 void
-Independent_operator::apply(Bunch & bunch, Chef_lattice & chef_lattice)
+Independent_operator::apply(Bunch & bunch, Operators & step_operators)
 {
     if (need_update()) {
-        update_operations(bunch.get_reference_particle(), chef_lattice);
+        update_operations(bunch.get_reference_particle());
     }
     for (Independent_operations::iterator it = operations.begin(); it
             != operations.end(); ++it) {
@@ -132,7 +122,7 @@ Independent_operator::apply(Bunch & bunch, Chef_lattice & chef_lattice)
 void
 Independent_operator::print() const
 {
-    std::cout << "Independent_operator: " << name << std::endl;
+    Operator::print();
     for (Lattice_element_slices::const_iterator it = slices.begin(); it
             != slices.end(); ++it) {
         (*it)->print();

@@ -50,6 +50,8 @@ public:
     ~Chef_lattice();
 };
 
+typedef boost::shared_ptr<Chef_lattice > Chef_lattice_sptr;
+
 Particle
 reference_particle_to_chef_particle(
         Reference_particle const& reference_particle);

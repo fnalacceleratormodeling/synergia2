@@ -32,24 +32,21 @@ BOOST_AUTO_TEST_CASE(construct)
 
     Collective_operator_sptr space_charge(new Collective_operator(
             "space_charge"));
-    Independent_params independent_parms(2);
+    Lattice_simulator lattice_simulator(lattice, 2);
 
     lattice.print();
 
-    Split_operator_stepper
-            stepper1(lattice, 1, space_charge, independent_parms);
+    Split_operator_stepper stepper1(lattice_simulator, space_charge, 1);
     stepper1.print();
 
-    Split_operator_stepper
-            stepper2(lattice, 2, space_charge, independent_parms);
+    Split_operator_stepper stepper2(lattice_simulator, space_charge, 2);
     stepper2.print();
 
-    Split_operator_stepper
-            stepper7(lattice, 7, space_charge, independent_parms);
+    Split_operator_stepper stepper7(lattice_simulator, space_charge, 7);
     stepper7.print();
 
-    Split_operator_stepper stepper10(lattice, 10, space_charge,
-            independent_parms);
+    Split_operator_stepper stepper10(lattice_simulator, space_charge, 10);
+
     stepper10.print();
 }
 

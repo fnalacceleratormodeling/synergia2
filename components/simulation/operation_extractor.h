@@ -5,48 +5,68 @@
 
 class Operation_extractor
 {
+private:
+    Chef_lattice_sptr chef_lattice_sptr;
+    int map_order;
 public:
+    Operation_extractor(Chef_lattice_sptr chef_lattice_sptr, int map_order);
+    Chef_lattice &
+    get_chef_lattice();
+    int
+    get_map_order() const;
     virtual Independent_operations
-            extract(Reference_particle const& reference_particle,
-                    Lattice_element_slices const& slices,
-                    Chef_lattice & chef_lattice) = 0;
+    extract(Reference_particle const& reference_particle,
+            Lattice_element_slices const& slices) = 0;
     virtual
-    ~Operation_extractor()
-    {
-    }
-    ;
+    ~Operation_extractor();
 };
 
 typedef boost::shared_ptr<Operation_extractor > Operation_extractor_sptr;
-typedef std::map<std::string, Operation_extractor_sptr >
-        Operation_extractor_map;
+//typedef std::map<std::string, Operation_extractor_sptr >
+//        Operation_extractor_map;
+
+class Operation_extractor_map
+{
+private:
+    std::map<std::string, Operation_extractor_sptr > extractor_map;
+public:
+    Operation_extractor_map();
+    void
+    set_extractor(std::string const& name,
+            Operation_extractor_sptr operation_extractor);
+    Operation_extractor_sptr
+    get_extractor(std::string const& name);
+    ~Operation_extractor_map();
+};
 
 class Chef_map_operation_extractor : public Operation_extractor
 {
 public:
+    Chef_map_operation_extractor(Chef_lattice_sptr chef_lattice_sptr,
+            int map_order);
     virtual Independent_operations
     extract(Reference_particle const& reference_particle,
-            Lattice_element_slices const& slices, Chef_lattice & chef_lattice);
+            Lattice_element_slices const& slices);
 };
 
 class Chef_propagate_operation_extractor : public Operation_extractor
 {
 public:
+    Chef_propagate_operation_extractor(Chef_lattice_sptr chef_lattice_sptr,
+            int map_order);
     virtual Independent_operations
     extract(Reference_particle const& reference_particle,
-            Lattice_element_slices const& slices, Chef_lattice & chef_lattice);
+            Lattice_element_slices const& slices);
 };
 
 class Mixed_chef_operation_extractor : public Operation_extractor
 {
-private:
-    Chef_map_operation_extractor chef_map_operation_extractor;
-    Chef_propagate_operation_extractor chef_propagate_operation_extractor;
-
 public:
+    Mixed_chef_operation_extractor(Chef_lattice_sptr chef_lattice_sptr,
+            int map_order);
     virtual Independent_operations
     extract(Reference_particle const& reference_particle,
-            Lattice_element_slices const& slices, Chef_lattice & chef_lattice);
+            Lattice_element_slices const& slices);
 };
 
 #endif /* OPERATION_EXTRACTOR_H_ */

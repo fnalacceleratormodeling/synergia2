@@ -5,6 +5,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "components/simulation/operator.h"
+#include "components/bunch/bunch.h"
 
 class Step
 {
@@ -16,6 +17,8 @@ public:
     append(Operator_sptr operator_sptr);
     void
     append(Operators const& operators);
+    void
+    apply(Bunch & bunch);
     Operators const&
     get_operators() const;
     void
