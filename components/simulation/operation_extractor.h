@@ -9,9 +9,9 @@ private:
     Chef_lattice_sptr chef_lattice_sptr;
     int map_order;
 public:
-    Operation_extractor(Chef_lattice_sptr chef_lattice_sptr, int map_order);
-    Chef_lattice &
-    get_chef_lattice();
+    Operation_extractor(Chef_lattice_sptr const& chef_lattice_sptr, int map_order);
+    Chef_lattice_sptr &
+    get_chef_lattice_sptr();
     int
     get_map_order() const;
     virtual Independent_operations
@@ -33,7 +33,7 @@ public:
     Operation_extractor_map();
     void
     set_extractor(std::string const& name,
-            Operation_extractor_sptr operation_extractor);
+            Operation_extractor_sptr const& operation_extractor);
     Operation_extractor_sptr
     get_extractor(std::string const& name);
     ~Operation_extractor_map();
@@ -42,7 +42,7 @@ public:
 class Chef_map_operation_extractor : public Operation_extractor
 {
 public:
-    Chef_map_operation_extractor(Chef_lattice_sptr chef_lattice_sptr,
+    Chef_map_operation_extractor(Chef_lattice_sptr const& chef_lattice_sptr,
             int map_order);
     virtual Independent_operations
     extract(Reference_particle const& reference_particle,
@@ -52,7 +52,7 @@ public:
 class Chef_propagate_operation_extractor : public Operation_extractor
 {
 public:
-    Chef_propagate_operation_extractor(Chef_lattice_sptr chef_lattice_sptr,
+    Chef_propagate_operation_extractor(Chef_lattice_sptr const& chef_lattice_sptr,
             int map_order);
     virtual Independent_operations
     extract(Reference_particle const& reference_particle,
@@ -62,7 +62,7 @@ public:
 class Mixed_chef_operation_extractor : public Operation_extractor
 {
 public:
-    Mixed_chef_operation_extractor(Chef_lattice_sptr chef_lattice_sptr,
+    Mixed_chef_operation_extractor(Chef_lattice_sptr const& chef_lattice_sptr,
             int map_order);
     virtual Independent_operations
     extract(Reference_particle const& reference_particle,

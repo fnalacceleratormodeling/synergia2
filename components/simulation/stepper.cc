@@ -73,9 +73,9 @@ Split_operator_stepper::construct(
     double step_length = lattice_simulator.get_length() / num_steps;
     double half_step_length = 0.5 * step_length;
     Lattice_elements::iterator lattice_it =
-            lattice_simulator.get_lattice().get_elements().begin();
+            lattice_simulator.get_lattice_sptr()->get_elements().begin();
     Lattice_elements::iterator lattice_end =
-            lattice_simulator.get_lattice().get_elements().end();
+            lattice_simulator.get_lattice_sptr()->get_elements().end();
     double left = 0.0;
     for (int i = 0; i < num_steps; ++i) {
         Step_sptr step(new Step);

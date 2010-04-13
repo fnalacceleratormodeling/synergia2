@@ -31,16 +31,16 @@ BOOST_AUTO_TEST_CASE(construct)
     Lattice_element d("quadrupole", "d");
     d.set_double_attribute("l", quad_length);
 
-    Lattice lattice(name);
-    lattice.append(f);
-    lattice.append(o);
-    lattice.append(d);
-    lattice.append(o);
-    lattice.set_reference_particle(reference_particle);
+    Lattice_sptr lattice_sptr(new Lattice(name));
+    lattice_sptr->append(f);
+    lattice_sptr->append(o);
+    lattice_sptr->append(d);
+    lattice_sptr->append(o);
+    lattice_sptr->set_reference_particle(reference_particle);
 
     Collective_operator_sptr space_charge(new Collective_operator(
             "space_charge"));
-    Lattice_simulator lattice_simulator(lattice, 2);
+    Lattice_simulator lattice_simulator(lattice_sptr, 2);
 
     Split_operator_stepper stepper(lattice_simulator, space_charge, 7);
 
@@ -59,16 +59,16 @@ BOOST_AUTO_TEST_CASE(propagate)
     Lattice_element d("quadrupole", "d");
     d.set_double_attribute("l", quad_length);
 
-    Lattice lattice(name);
-    lattice.append(f);
-    lattice.append(o);
-    lattice.append(d);
-    lattice.append(o);
-    lattice.set_reference_particle(reference_particle);
+    Lattice_sptr lattice_sptr(new Lattice(name));
+    lattice_sptr->append(f);
+    lattice_sptr->append(o);
+    lattice_sptr->append(d);
+    lattice_sptr->append(o);
+    lattice_sptr->set_reference_particle(reference_particle);
 
     Collective_operator_sptr space_charge(new Collective_operator(
             "space_charge"));
-    Lattice_simulator lattice_simulator(lattice, 2);
+    Lattice_simulator lattice_simulator(lattice_sptr, 2);
 
     Split_operator_stepper stepper(lattice_simulator, space_charge, 4);
     Propagator propagator(stepper);
