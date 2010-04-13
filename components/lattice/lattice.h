@@ -6,6 +6,7 @@
 
 #include "components/lattice/lattice_element.h"
 #include "components/foundation/reference_particle.h"
+#include <boost/shared_ptr.hpp>
 
 class Lattice
 {
@@ -37,5 +38,7 @@ public:
     print() const;
     ~Lattice();
 };
+
+typedef boost::shared_ptr<Lattice > Lattice_sptr;
 
 #endif /* LATTICE_H_ */
