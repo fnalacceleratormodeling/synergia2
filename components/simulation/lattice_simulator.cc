@@ -1,8 +1,23 @@
 #include "lattice_simulator.h"
 
-Lattice_simulator::Lattice_simulator(Lattice & lattice, int map_order) :
-    lattice(lattice), chef_lattice(lattice)
+void
+Lattice_simulator::construct_extractor_map()
 {
+    Operation_extractor_sptr mixed_chef_operation_extractor(
+            new Mixed_chef_operation_extractor(chef_lattice_sptr, map_order));
+
+    extractor_map.set_extractor("default", mixed_chef_operation_extractor);
+    extractor_map.set_extractor("mixed_chef", mixed_chef_operation_extractor);
+    extractor_map.set_extractor("chef_propagate", Operation_extractor_sptr(
+            new Chef_propagate_operation_extractor(chef_lattice_sptr, map_order)));
+    extractor_map.set_extractor("chef_map", Operation_extractor_sptr(
+            new Chef_map_operation_extractor(chef_lattice_sptr, map_order)));
+}
+
+Lattice_simulator::Lattice_simulator(Lattice_sptr const& lattice_sptr, int map_order) :
+    lattice_sptr(lattice_sptr), chef_lattice_sptr(new Chef_lattice(*lattice_sptr)), map_order(map_order)
+{
+    construct_extractor_map();
 }
 
 void
@@ -20,23 +35,26 @@ Lattice_simulator::construct_sliced_chef_beamline(Steps const& steps)
             }
         }
     }
-    chef_lattice.construct_sliced_beamline(all_slices);
+    chef_lattice_sptr->construct_sliced_beamline(all_slices);
 }
 
 int
 Lattice_simulator::get_map_order() const
 {
+    return map_order;
 }
 
 void
 Lattice_simulator::set_extractor(std::string const& name,
         Operation_extractor_sptr extractor)
 {
+    extractor_map.set_extractor(name, extractor);
 }
 
 Operation_extractor_sptr
 Lattice_simulator::get_extractor(std::string const& name)
 {
+    return extractor_map.get_extractor(name);
 }
 
 std::list<std::string >
@@ -47,6 +65,7 @@ Lattice_simulator::get_extractor_names() const
 Operation_extractor_map &
 Lattice_simulator::get_operation_extraction_map()
 {
+    return extractor_map;
 }
 
 double
@@ -54,16 +73,16 @@ Lattice_simulator::get_length()
 {
 }
 
-Lattice &
-Lattice_simulator::get_lattice()
+Lattice_sptr &
+Lattice_simulator::get_lattice_sptr()
 {
-    return lattice;
+    return lattice_sptr;
 }
 
-Chef_lattice &
-Lattice_simulator::get_chef_lattice()
+Chef_lattice_sptr &
+Lattice_simulator::get_chef_lattice_sptr()
 {
-    return chef_lattice;
+    return chef_lattice_sptr;
 }
 
 Lattice_simulator::~Lattice_simulator()

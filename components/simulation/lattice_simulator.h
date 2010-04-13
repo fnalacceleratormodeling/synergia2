@@ -10,13 +10,15 @@
 class Lattice_simulator
 {
 private:
-    Lattice lattice;
-    Chef_lattice chef_lattice;
+    Lattice_sptr lattice_sptr;
+    Chef_lattice_sptr chef_lattice_sptr;
     Operation_extractor_map extractor_map;
     int map_order;
 
+    void
+    construct_extractor_map();
 public:
-    Lattice_simulator(Lattice & lattice, int map_order);
+    Lattice_simulator(Lattice_sptr const& lattice, int map_order);
     void
     construct_sliced_chef_beamline(Steps const& steps);
     int
@@ -31,10 +33,10 @@ public:
     get_operation_extraction_map();
     double
     get_length();
-    Lattice &
-    get_lattice();
-    Chef_lattice &
-    get_chef_lattice();
+    Lattice_sptr &
+    get_lattice_sptr();
+    Chef_lattice_sptr &
+    get_chef_lattice_sptr();
     ~Lattice_simulator();
 };
 
