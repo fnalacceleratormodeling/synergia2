@@ -28,7 +28,10 @@ BOOST_FIXTURE_TEST_CASE(extract1, Lattice_fixture)
     Lattice_element_slices slices;
     slices.push_back(slice_sptr);
     chef_lattice_sptr->construct_sliced_beamline(slices);
-    chef_map_o_e.extract(b.reference_particle, slices);
+    Independent_operations ops = chef_map_o_e.extract(b.reference_particle,
+            slices);
+    BOOST_CHECK_EQUAL(ops.size(), 1);
+    BOOST_CHECK_EQUAL(ops.front()->get_type(), fast_mapping_type_name);
 }
 // test_note: we still need to check the extracted value
 
@@ -65,6 +68,9 @@ BOOST_FIXTURE_TEST_CASE(extract3, Lattice_fixture)
     slices.push_back(slice_sptr3);
 
     chef_lattice_sptr->construct_sliced_beamline(slices);
-    chef_map_o_e.extract(b.reference_particle, slices);
+    Independent_operations ops = chef_map_o_e.extract(b.reference_particle,
+            slices);
+    BOOST_CHECK_EQUAL(ops.size(), 1);
+    BOOST_CHECK_EQUAL(ops.front()->get_type(), fast_mapping_type_name);
 }
 // test_note: we still need to check the extracted value
