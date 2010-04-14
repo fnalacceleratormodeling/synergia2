@@ -57,7 +57,6 @@ Chef_lattice::extract_element_map()
     for (beamline::const_iterator b_it = beamline_sptr->begin(); b_it
             != beamline_sptr->end(); ++b_it) {
         if ((*b_it)->Name() == lattice_element_marker->Name()) {
-            std::cout << "jfa: added "<< &(*le_it) << " to element map\n";
             element_map[le_it->get()] = chef_elements;
             chef_elements.clear();
             ++le_it;
@@ -108,17 +107,14 @@ Chef_elements &
 Chef_lattice::get_chef_elements(
         Lattice_element_slice const& lattice_element_slice)
 {
-    std::cout << "jfa is in get_chef_elements\n";
     if (!have_sliced_beamline) {
         throw std::runtime_error(
                 "get_chef_elements(Lattice_element_slice const&) called before construct_sliced_beamline\n");
     }
-    std::cout << "jfa: passed test 1\n";
     if (element_slice_map.count(&lattice_element_slice) == 0) {
         throw std::runtime_error(
                 "get_chef_elements(Lattice_element_slice const&): slice not found\n");
     }
-    std::cout << "jfa jic\n";
     return element_slice_map[&lattice_element_slice];
 }
 
@@ -152,7 +148,6 @@ slice_chef_element(ElmPtr & elm, double left, double right, double tolerance)
 Chef_elements
 Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
 {
-    std::cout << "jfa: start " << " " << &(slice.get_lattice_element())<<" " << element_map.count(&(slice.get_lattice_element())) << "\n";
     Chef_elements all_elements = element_map[&(slice.get_lattice_element())];
     Chef_elements retval;
     if (slice.is_whole()) {
@@ -205,7 +200,6 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
         }
     }
 
-    std::cout << "jfa: end\n";
     return retval;
 }
 
