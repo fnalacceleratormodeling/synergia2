@@ -15,7 +15,7 @@ reference_particle_to_chef_particle(
 
 JetParticle
 reference_particle_to_chef_jet_particle(
-        Reference_particle const& reference_particle);
+        Reference_particle const& reference_particle, int map_order);
 
 void
 propagate_reference_particle(Reference_particle const& reference_particle,
