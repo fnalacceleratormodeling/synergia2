@@ -22,22 +22,6 @@ public:
 };
 
 typedef boost::shared_ptr<Operation_extractor > Operation_extractor_sptr;
-//typedef std::map<std::string, Operation_extractor_sptr >
-//        Operation_extractor_map;
-
-class Operation_extractor_map
-{
-private:
-    std::map<std::string, Operation_extractor_sptr > extractor_map;
-public:
-    Operation_extractor_map();
-    void
-    set_extractor(std::string const& name,
-            Operation_extractor_sptr const& operation_extractor);
-    Operation_extractor_sptr
-    get_extractor(std::string const& name);
-    ~Operation_extractor_map();
-};
 
 class Chef_map_operation_extractor : public Operation_extractor
 {
@@ -67,6 +51,20 @@ public:
     virtual Independent_operations
     extract(Reference_particle const& reference_particle,
             Lattice_element_slices const& slices);
+};
+
+class Operation_extractor_map
+{
+private:
+    std::map<std::string, Operation_extractor_sptr > extractor_map;
+public:
+    Operation_extractor_map();
+    void
+    set_extractor(std::string const& name,
+            Operation_extractor_sptr const& operation_extractor);
+    Operation_extractor_sptr
+    get_extractor(std::string const& name);
+    ~Operation_extractor_map();
 };
 
 #endif /* OPERATION_EXTRACTOR_H_ */

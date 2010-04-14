@@ -25,27 +25,6 @@ Operation_extractor::~Operation_extractor()
 {
 }
 
-Operation_extractor_map::Operation_extractor_map()
-{
-}
-
-void
-Operation_extractor_map::set_extractor(std::string const& name,
-        Operation_extractor_sptr const& operation_extractor)
-{
-    extractor_map[name] = operation_extractor;
-}
-
-Operation_extractor_sptr
-Operation_extractor_map::get_extractor(std::string const& name)
-{
-    return extractor_map[name];
-}
-
-Operation_extractor_map::~Operation_extractor_map()
-{
-}
-
 // extract_fast_mapping is a local function
 Fast_mapping_operation_sptr
 extract_fast_mapping(Reference_particle const& reference_particle,
@@ -167,4 +146,25 @@ Mixed_chef_operation_extractor::extract(
     }
 
     return retval;
+}
+
+Operation_extractor_map::Operation_extractor_map()
+{
+}
+
+void
+Operation_extractor_map::set_extractor(std::string const& name,
+        Operation_extractor_sptr const& operation_extractor)
+{
+    extractor_map[name] = operation_extractor;
+}
+
+Operation_extractor_sptr
+Operation_extractor_map::get_extractor(std::string const& name)
+{
+    return extractor_map[name];
+}
+
+Operation_extractor_map::~Operation_extractor_map()
+{
 }
