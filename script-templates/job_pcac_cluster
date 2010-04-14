@@ -14,10 +14,6 @@ then
     cat $PBS_NODEFILE
     echo "end nodes"
 fi
-MPI_HOME=/usr/local
-
-export PATH=${MPI_HOME}/bin:$PATH
-export LD_LIBRARY_PATH=${MPI_HOME}/lib:$LD_LIBRARY_PATH
 
 . "@@synergia2dir@@/../../setup.sh"
 LD_LIBRARY_PATH="/usr/local/lib/octave-2.1.72:@@synergia2dir@@/extra_libs:$LD_LIBRARY_PATH"
@@ -33,6 +29,5 @@ export HDF5_DISABLE_VERSION_CHECK=2
 
 cd @@jobdir@@
 echo "Job start at `date`"
-${MPI_HOME}/bin/mpirun "$SYNERGIA2DIR"/synergia-local @@script@@ @@args@@
+mpirun synergia @@script@@ @@args@@
 echo "Job end at `date`"
-
