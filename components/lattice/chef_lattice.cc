@@ -1,6 +1,7 @@
 #include "chef_lattice.h"
 #include "chef_utils.h"
 #include "utils/floating_point.h"
+#include "components/foundation/math_constants.h"
 #include <beamline/beamline_elements.h>
 #include <basic_toolkit/PhysicsConstants.h>
 #include <physics_toolkit/DriftConverter.h>
@@ -253,7 +254,7 @@ get_standard_lattice_element_to_chef_fn_map()
     //    map["hkicker"] = lattice_element_to_chef_hkicker;
     //    map["vkicker"] = lattice_element_to_chef_vkicker;
     //    map["kicker"] = lattice_element_to_chef_kicker;
-    //    map["rfcavity"] = lattice_element_to_chef_rfcavity;
+    map["rfcavity"] = lattice_element_to_chef_rfcavity;
     //    map["elseparator"] = lattice_element_to_chef_elseperator;
     //    map["hmonitor"] = lattice_element_to_chef_hmonitor;
     //    map["vmonitor"] = lattice_element_to_chef_vmonitor;
@@ -375,3 +376,33 @@ lattice_element_to_chef_rbend(Lattice_element const& lattice_element,
     return retval;
 }
 
+Chef_elements
+lattice_element_to_chef_rfcavity(Lattice_element const& lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+
+    double length = lattice_element.get_length();
+    double freq = 0;
+    double q = 0;
+    std::cout
+            << "jfa: rfcavity could figure out frequency, but doesn't. FIXME!\n";
+    bmlnElmnt* bmln_elmnt;
+    if (length == 0.0) {
+        bmln_elmnt = new thinrfcavity(lattice_element.get_name().c_str(), freq,
+                lattice_element.get_double_attribute("volt") * 1.0e6,
+                lattice_element.get_double_attribute("lag") * (2.0
+                        * constants::pi), q,
+                lattice_element.get_double_attribute("shunt"));
+    } else {
+        bmln_elmnt = new rfcavity(lattice_element.get_name().c_str(), length,
+                freq, lattice_element.get_double_attribute("volt") * 1.0e6,
+                lattice_element.get_double_attribute("lag") * (2.0
+                        * constants::pi), q,
+                lattice_element.get_double_attribute("shunt"));
+    }
+
+    ElmPtr elm(bmln_elmnt);
+    retval.push_back(elm);
+    return retval;
+}

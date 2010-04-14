@@ -75,5 +75,8 @@ lattice_element_to_chef_sbend(Lattice_element const& lattice_element,
 Chef_elements
 lattice_element_to_chef_rbend(Lattice_element const& lattice_element,
         double brho);
+Chef_elements
+lattice_element_to_chef_rfcavity(Lattice_element const& lattice_element,
+        double brho);
 
 #endif /* CHEF_LATTICE_H_ */
