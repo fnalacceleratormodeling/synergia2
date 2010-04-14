@@ -13,13 +13,15 @@ const int map_order = 2;
 BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture)
 {
     Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(*lattice_sptr));
-    Chef_propagate_operation_extractor chef_propagate_o_e(chef_lattice_sptr, map_order);
+    Chef_propagate_operation_extractor chef_propagate_o_e(chef_lattice_sptr,
+            map_order);
 }
 
 BOOST_FIXTURE_TEST_CASE(extract1, Lattice_fixture)
 {
     Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(*lattice_sptr));
-    Chef_propagate_operation_extractor chef_propagate_o_e(chef_lattice_sptr, map_order);
+    Chef_propagate_operation_extractor chef_propagate_o_e(chef_lattice_sptr,
+            map_order);
     Lattice_elements elements(lattice_sptr->get_elements());
     double fraction = 0.5;
     double slice_end = elements.front()->get_length() * fraction;
@@ -28,8 +30,8 @@ BOOST_FIXTURE_TEST_CASE(extract1, Lattice_fixture)
     Lattice_element_slices slices;
     slices.push_back(slice_sptr);
     chef_lattice_sptr->construct_sliced_beamline(slices);
-    Independent_operations ops = chef_propagate_o_e.extract(b.reference_particle,
-            slices);
+    Independent_operations ops = chef_propagate_o_e.extract(
+            b.reference_particle, slices);
     BOOST_CHECK_EQUAL(ops.size(), 1);
     BOOST_CHECK_EQUAL(ops.front()->get_type(), chef_propagate_type_name);
 }
@@ -38,7 +40,8 @@ BOOST_FIXTURE_TEST_CASE(extract1, Lattice_fixture)
 BOOST_FIXTURE_TEST_CASE(extract3, Lattice_fixture)
 {
     Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(*lattice_sptr));
-    Chef_propagate_operation_extractor chef_propagate_o_e(chef_lattice_sptr, map_order);
+    Chef_propagate_operation_extractor chef_propagate_o_e(chef_lattice_sptr,
+            map_order);
     Lattice_elements elements(lattice_sptr->get_elements());
 
     Lattice_element_slices slices;
@@ -68,8 +71,8 @@ BOOST_FIXTURE_TEST_CASE(extract3, Lattice_fixture)
     slices.push_back(slice_sptr3);
 
     chef_lattice_sptr->construct_sliced_beamline(slices);
-    Independent_operations ops = chef_propagate_o_e.extract(b.reference_particle,
-            slices);
+    Independent_operations ops = chef_propagate_o_e.extract(
+            b.reference_particle, slices);
     BOOST_CHECK_EQUAL(ops.size(), 1);
     BOOST_CHECK_EQUAL(ops.front()->get_type(), chef_propagate_type_name);
 }
