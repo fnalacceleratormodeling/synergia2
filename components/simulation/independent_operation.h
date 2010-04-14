@@ -26,6 +26,7 @@ public:
 typedef boost::shared_ptr<Independent_operation > Independent_operation_sptr;
 typedef std::list<Independent_operation_sptr > Independent_operations;
 
+const char fast_mapping_type_name[] = "fast_mapping";
 class Fast_mapping_operation : public Independent_operation
 {
 private:
@@ -41,6 +42,7 @@ public:
 
 typedef boost::shared_ptr<Fast_mapping_operation > Fast_mapping_operation_sptr;
 
+const char chef_propagate_type_name[] = "chef_propagate";
 class Chef_propagate_operation : public Independent_operation
 {
 private:
