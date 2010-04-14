@@ -24,8 +24,8 @@ BOOST_FIXTURE_TEST_CASE(extract1, Lattice_fixture)
     Chef_map_operation_extractor chef_map_o_e(chef_lattice_sptr, map_order);
     Lattice_elements elements(lattice_sptr->get_elements());
     double fraction = 0.5;
-    double slice_end = elements.front().get_length()*fraction;
-    Lattice_element_slice_sptr slice_sptr(new Lattice_element_slice(elements.front(),0,slice_end));
+    double slice_end = elements.front()->get_length()*fraction;
+    Lattice_element_slice_sptr slice_sptr(new Lattice_element_slice(*(elements.front()),0,slice_end));
     Lattice_element_slices slices;
     slices.push_back(slice_sptr);
     std::cout << "jfa in test 1\n";

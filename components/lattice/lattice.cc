@@ -39,7 +39,8 @@ Lattice::get_reference_particle() const
 void
 Lattice::append(Lattice_element const& element)
 {
-    elements.push_back(element);
+    Lattice_element_sptr element_sptr(new Lattice_element(element));
+    elements.push_back(element_sptr);
 }
 
 Lattice_elements &
@@ -54,7 +55,7 @@ Lattice::get_length() const
     double length = 0.0;
     for (Lattice_elements::const_iterator it = elements.begin(); it
             != elements.end(); ++it) {
-        length += it->get_length();
+        length += (*it)->get_length();
     }
     return length;
 }
@@ -65,7 +66,7 @@ Lattice::get_total_angle() const
     double angle = 0.0;
     for (Lattice_elements::const_iterator it = elements.begin(); it
             != elements.end(); ++it) {
-        angle += it->get_bend_angle();
+        angle += (*it)->get_bend_angle();
     }
     return angle;
 }
@@ -76,7 +77,7 @@ Lattice::print() const
     std::cout << name << ":\n";
     for (Lattice_elements::const_iterator it = elements.begin(); it
             != elements.end(); ++it) {
-        it->print();
+        (*it)->print();
     }
 }
 Lattice::~Lattice()

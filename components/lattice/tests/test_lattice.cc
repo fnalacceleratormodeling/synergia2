@@ -61,27 +61,27 @@ BOOST_AUTO_TEST_CASE(append_fodo)
     lattice.append(d);
     lattice.append(o);
 
-    std::list<Lattice_element >::const_iterator it =
+    Lattice_elements::const_iterator it =
             (lattice.get_elements()).begin();
     BOOST_CHECK(it != lattice.get_elements().end());
-    BOOST_CHECK_EQUAL(it->get_name(), "f");
-    BOOST_CHECK(it->get_type() == "quadrupole");
-    BOOST_CHECK_CLOSE(it->get_double_attribute("l"), quad_length, tolerance);
+    BOOST_CHECK_EQUAL((*it)->get_name(), "f");
+    BOOST_CHECK((*it)->get_type() == "quadrupole");
+    BOOST_CHECK_CLOSE((*it)->get_double_attribute("l"), quad_length, tolerance);
     ++it;
 
-    BOOST_CHECK(it->get_name() == "o");
-    BOOST_CHECK(it->get_type() == "drift");
-    BOOST_CHECK_CLOSE(it->get_double_attribute("l"), drift_length, tolerance);
+    BOOST_CHECK((*it)->get_name() == "o");
+    BOOST_CHECK((*it)->get_type() == "drift");
+    BOOST_CHECK_CLOSE((*it)->get_double_attribute("l"), drift_length, tolerance);
     ++it;
 
-    BOOST_CHECK(it->get_name() == "d");
-    BOOST_CHECK(it->get_type() == "quadrupole");
-    BOOST_CHECK_CLOSE(it->get_double_attribute("l"), quad_length, tolerance);
+    BOOST_CHECK((*it)->get_name() == "d");
+    BOOST_CHECK((*it)->get_type() == "quadrupole");
+    BOOST_CHECK_CLOSE((*it)->get_double_attribute("l"), quad_length, tolerance);
     ++it;
 
-    BOOST_CHECK(it->get_name() == "o");
-    BOOST_CHECK(it->get_type() == "drift");
-    BOOST_CHECK_CLOSE(it->get_double_attribute("l"), drift_length, tolerance);
+    BOOST_CHECK((*it)->get_name() == "o");
+    BOOST_CHECK((*it)->get_type() == "drift");
+    BOOST_CHECK_CLOSE((*it)->get_double_attribute("l"), drift_length, tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(get_length)

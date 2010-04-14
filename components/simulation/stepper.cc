@@ -37,11 +37,11 @@ Split_operator_stepper::get_half_step(std::string const& name,
     double length = 0.0;
     bool complete = false;
     while (!complete) {
-        double right = lattice_it->get_length();
+        double right = (*lattice_it)->get_length();
         if (floating_point_leq(length + (right - left), half_step_length,
                 tolerance)) {
             Lattice_element_slice_sptr slice(new Lattice_element_slice(
-                    *lattice_it, left, right));
+                    *(*lattice_it), left, right));
             retval->append_slice(slice);
             length += (right - left);
             ++lattice_it;
@@ -57,7 +57,7 @@ Split_operator_stepper::get_half_step(std::string const& name,
         } else {
             right = half_step_length - length + left;
             Lattice_element_slice_sptr slice(new Lattice_element_slice(
-                    *lattice_it, left, right));
+                    *(*lattice_it), left, right));
             retval->append_slice(slice);
             left = right;
             complete = true;

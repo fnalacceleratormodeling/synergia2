@@ -262,8 +262,8 @@ BOOST_FIXTURE_TEST_CASE(get_beamline_sptr_sbends, Fobodobo_sbend_fixture)
             beamline_sptr);
     for (Lattice_elements::iterator it = lattice.get_elements().begin(); it
             != lattice.get_elements().end(); ++it) {
-        std::cout << it->get_name() << " -> ";
-        Chef_elements chef_elements(chef_lattice.get_chef_elements(*it));
+        std::cout << (*it)->get_name() << " -> ";
+        Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*it)));
         std::cout << chef_elements.size() << " elements: ";
         for (Chef_elements::const_iterator cit = chef_elements.begin(); cit
                 != chef_elements.end(); ++cit) {
@@ -296,8 +296,8 @@ BOOST_FIXTURE_TEST_CASE(get_beamline_sptr_rbends, Fobodobo_rbend_fixture)
             beamline_sptr);
     for (Lattice_elements::iterator it = lattice.get_elements().begin(); it
             != lattice.get_elements().end(); ++it) {
-        std::cout << it->get_name() << " -> ";
-        Chef_elements chef_elements(chef_lattice.get_chef_elements(*it));
+        std::cout << (*it)->get_name() << " -> ";
+        Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*it)));
         std::cout << chef_elements.size() << " elements: ";
         for (Chef_elements::const_iterator cit = chef_elements.begin(); cit
                 != chef_elements.end(); ++cit) {

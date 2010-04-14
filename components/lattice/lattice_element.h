@@ -5,6 +5,8 @@
 #include <map>
 #include <list>
 
+#include <boost/shared_ptr.hpp>
+
 class Lattice_element;
 typedef void
 (*set_default_attributes_fn)(Lattice_element &);
@@ -66,7 +68,8 @@ public:
     print() const;
 };
 
-typedef std::list<Lattice_element > Lattice_elements;
+typedef boost::shared_ptr<Lattice_element > Lattice_element_sptr;
+typedef std::list<Lattice_element_sptr > Lattice_elements;
 
 Set_default_attributes_fn_map
 get_standard_default_attributes_fn_map();

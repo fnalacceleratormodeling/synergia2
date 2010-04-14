@@ -16,12 +16,12 @@ Chef_lattice::construct_raw_beamline(Lattice_element_to_chef_fn_map const& map)
             lattice_ptr->get_elements().begin(); latt_it
             != lattice_ptr->get_elements().end(); ++latt_it) {
         Lattice_element_to_chef_fn_map::const_iterator map_it = map.find(
-                latt_it->get_type());
+                (*latt_it)->get_type());
         if (map_it == map.end()) {
-            throw(runtime_error("Chef_lattice: " + latt_it->get_type()
+            throw(runtime_error("Chef_lattice: " + (*latt_it)->get_type()
                     + " not handled"));
         } else {
-            Chef_elements celms = map_it->second(*latt_it, brho);
+            Chef_elements celms = map_it->second(*(*latt_it), brho);
             for (Chef_elements::const_iterator cel_it = celms.begin(); cel_it
                     != celms.end(); ++cel_it) {
                 raw_beamlinee.append(*cel_it);
@@ -58,7 +58,7 @@ Chef_lattice::extract_element_map()
             != beamline_sptr->end(); ++b_it) {
         if ((*b_it)->Name() == lattice_element_marker->Name()) {
             std::cout << "jfa: added "<< &(*le_it) << " to element map\n";
-            element_map[&(*le_it)] = chef_elements;
+            element_map[le_it->get()] = chef_elements;
             chef_elements.clear();
             ++le_it;
         } else {
