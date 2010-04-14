@@ -28,9 +28,7 @@ BOOST_FIXTURE_TEST_CASE(extract1, Lattice_fixture)
     Lattice_element_slice_sptr slice_sptr(new Lattice_element_slice(*(elements.front()),0,slice_end));
     Lattice_element_slices slices;
     slices.push_back(slice_sptr);
-    std::cout << "jfa in test 1\n";
     chef_lattice_sptr->construct_sliced_beamline(slices);
-    std::cout << "jfa in test 2\n";
     chef_map_o_e.extract(b.reference_particle,slices);
 }
 
