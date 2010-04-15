@@ -27,15 +27,17 @@ BOOST_FIXTURE_TEST_CASE(set_get, Lattice_fixture)
             new Chef_mixed_operation_extractor(chef_lattice_sptr, map_order));
 
     Operation_extractor_map operation_extractor_map;
-    operation_extractor_map.set_extractor("default",
+    operation_extractor_map.set_extractor(default_operation_extractor_name,
             mixed_chef_operation_extractor);
-    operation_extractor_map.set_extractor("mixed_chef",
+    operation_extractor_map.set_extractor(chef_mixed_operation_extractor_name,
             mixed_chef_operation_extractor);
-    operation_extractor_map.set_extractor("chef_propagate",
+    operation_extractor_map.set_extractor(
+            chef_propagate_operation_extractor_name,
             chef_propagate_operation_extractor);
-    operation_extractor_map.set_extractor("chef_map",
+    operation_extractor_map.set_extractor(chef_map_operation_extractor_name,
             chef_map_operation_extractor);
 
-    BOOST_CHECK_EQUAL(operation_extractor_map.get_extractor("default").get(),
+    BOOST_CHECK_EQUAL(operation_extractor_map.get_extractor(
+            default_operation_extractor_name).get(),
             mixed_chef_operation_extractor.get());
 }

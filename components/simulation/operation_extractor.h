@@ -67,4 +67,9 @@ public:
     ~Operation_extractor_map();
 };
 
+const char default_operation_extractor_name[] = "default";
+const char chef_map_operation_extractor_name[] = "chef_map";
+const char chef_propagate_operation_extractor_name[] = "chef_propagate";
+const char chef_mixed_operation_extractor_name[] = "chef_mixed";
+
 #endif /* OPERATION_EXTRACTOR_H_ */
