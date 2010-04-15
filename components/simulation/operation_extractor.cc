@@ -1,6 +1,7 @@
 #include "operation_extractor.h"
 #include "components/lattice/chef_utils.h"
 #include "fast_mapping.h"
+#include <cstring>
 
 Operation_extractor::Operation_extractor(
         Chef_lattice_sptr const& chef_lattice_sptr, int map_order) :
@@ -130,8 +131,8 @@ Mixed_chef_operation_extractor::extract(
                 get_chef_lattice_sptr()->get_chef_elements(*(*les_it));
         for (Chef_elements::const_iterator ce_it = slice_elements.begin(); ce_it
                 != slice_elements.end(); ++ce_it) {
-            is_rf = (((*ce_it)->Type() == "rfcavity") || ((*ce_it)->Type()
-                    == "thinrfcavity"));
+            is_rf = ((std::strcmp((*ce_it)->Type(), "rfcavity") == 0)
+                    || (std::strcmp((*ce_it)->Type(), "thinrfcavity") == 0));
             if ((is_rf != last_is_rf) && (!group.empty())) {
                 handle_group(last_is_rf, reference_particle, group, retval,
                         get_map_order());
