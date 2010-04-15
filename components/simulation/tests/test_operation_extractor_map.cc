@@ -1,0 +1,41 @@
+#define BOOST_TEST_MAIN
+#include <boost/test/unit_test.hpp>
+#include "components/simulation/operation_extractor.h"
+#include "lattice_fixture.h"
+#include "utils/boost_test_mpi_fixture.h"
+BOOST_GLOBAL_FIXTURE(MPI_fixture)
+
+const double tolerance = 1.0e-12;
+
+BOOST_AUTO_TEST_CASE(construct)
+{
+    Operation_extractor_map operation_extractor_map;
+}
+
+BOOST_FIXTURE_TEST_CASE(set_get, Lattice_fixture)
+{
+    Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(*lattice_sptr));
+    const int map_order = 3;
+
+    Operation_extractor_sptr chef_map_operation_extractor(
+            new Chef_map_operation_extractor(chef_lattice_sptr, map_order));
+    Operation_extractor_sptr
+            chef_propagate_operation_extractor(
+                    new Chef_propagate_operation_extractor(chef_lattice_sptr,
+                            map_order));
+    Operation_extractor_sptr mixed_chef_operation_extractor(
+            new Chef_mixed_operation_extractor(chef_lattice_sptr, map_order));
+
+    Operation_extractor_map operation_extractor_map;
+    operation_extractor_map.set_extractor("default",
+            mixed_chef_operation_extractor);
+    operation_extractor_map.set_extractor("mixed_chef",
+            mixed_chef_operation_extractor);
+    operation_extractor_map.set_extractor("chef_propagate",
+            chef_propagate_operation_extractor);
+    operation_extractor_map.set_extractor("chef_map",
+            chef_map_operation_extractor);
+
+    BOOST_CHECK_EQUAL(operation_extractor_map.get_extractor("default").get(),
+            mixed_chef_operation_extractor.get());
+}
