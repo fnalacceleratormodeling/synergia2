@@ -4,7 +4,7 @@ Independent_params::Independent_params(int map_order) :
     map_order(map_order)
 {
     Operation_extractor_sptr mixed_chef_operation_extractor(
-            new Mixed_chef_operation_extractor());
+            new Chef_mixed_operation_extractor());
 
     extractor_map["default"] = mixed_chef_operation_extractor;
     extractor_map["mixed_chef"] = mixed_chef_operation_extractor;

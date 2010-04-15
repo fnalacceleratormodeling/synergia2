@@ -43,10 +43,10 @@ public:
             Lattice_element_slices const& slices);
 };
 
-class Mixed_chef_operation_extractor : public Operation_extractor
+class Chef_mixed_operation_extractor : public Operation_extractor
 {
 public:
-    Mixed_chef_operation_extractor(Chef_lattice_sptr const& chef_lattice_sptr,
+    Chef_mixed_operation_extractor(Chef_lattice_sptr const& chef_lattice_sptr,
             int map_order);
     virtual Independent_operations
     extract(Reference_particle const& reference_particle,

@@ -13,13 +13,13 @@ const int map_order = 2;
 BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture)
 {
     Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(*lattice_sptr));
-    Mixed_chef_operation_extractor mixed_chef_o_e(chef_lattice_sptr, map_order);
+    Chef_mixed_operation_extractor mixed_chef_o_e(chef_lattice_sptr, map_order);
 }
 
 BOOST_FIXTURE_TEST_CASE(extract1, Lattice_fixture)
 {
     Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(*lattice_sptr));
-    Mixed_chef_operation_extractor mixed_chef_o_e(chef_lattice_sptr, map_order);
+    Chef_mixed_operation_extractor mixed_chef_o_e(chef_lattice_sptr, map_order);
     Lattice_elements elements(lattice_sptr->get_elements());
     double fraction = 0.5;
     double slice_end = elements.front()->get_length() * fraction;
@@ -38,7 +38,7 @@ BOOST_FIXTURE_TEST_CASE(extract1, Lattice_fixture)
 BOOST_FIXTURE_TEST_CASE(extract3, Lattice_fixture)
 {
     Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(*lattice_sptr));
-    Mixed_chef_operation_extractor mixed_chef_o_e(chef_lattice_sptr, map_order);
+    Chef_mixed_operation_extractor mixed_chef_o_e(chef_lattice_sptr, map_order);
     Lattice_elements elements(lattice_sptr->get_elements());
 
     Lattice_element_slices slices;
@@ -110,7 +110,7 @@ struct Rf_lattice_fixture
 BOOST_FIXTURE_TEST_CASE(extract1rf, Rf_lattice_fixture)
 {
     Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(*lattice_sptr));
-    Mixed_chef_operation_extractor mixed_chef_o_e(chef_lattice_sptr, map_order);
+    Chef_mixed_operation_extractor mixed_chef_o_e(chef_lattice_sptr, map_order);
     Lattice_elements elements(lattice_sptr->get_elements());
     Lattice_elements::iterator it = elements.begin();
     ++it;
@@ -168,7 +168,7 @@ struct Thinrf_lattice_fixture
 BOOST_FIXTURE_TEST_CASE(extract4thinrf, Thinrf_lattice_fixture)
 {
     Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(*lattice_sptr));
-    Mixed_chef_operation_extractor mixed_chef_o_e(chef_lattice_sptr, map_order);
+    Chef_mixed_operation_extractor mixed_chef_o_e(chef_lattice_sptr, map_order);
     Lattice_elements elements(lattice_sptr->get_elements());
 
     Lattice_element_slices slices;

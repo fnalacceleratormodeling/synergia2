@@ -94,7 +94,7 @@ Chef_propagate_operation_extractor::extract(
     return retval;
 }
 
-Mixed_chef_operation_extractor::Mixed_chef_operation_extractor(
+Chef_mixed_operation_extractor::Chef_mixed_operation_extractor(
         Chef_lattice_sptr const& chef_lattice_sptr, int map_order) :
     Operation_extractor(chef_lattice_sptr, map_order)
 {
@@ -118,7 +118,7 @@ handle_group(bool is_rf, Reference_particle const& reference_particle,
 }
 
 Independent_operations
-Mixed_chef_operation_extractor::extract(
+Chef_mixed_operation_extractor::extract(
         Reference_particle const& reference_particle,
         Lattice_element_slices const& slices)
 {

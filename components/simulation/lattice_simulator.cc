@@ -4,7 +4,7 @@ void
 Lattice_simulator::construct_extractor_map()
 {
     Operation_extractor_sptr mixed_chef_operation_extractor(
-            new Mixed_chef_operation_extractor(chef_lattice_sptr, map_order));
+            new Chef_mixed_operation_extractor(chef_lattice_sptr, map_order));
 
     extractor_map.set_extractor("default", mixed_chef_operation_extractor);
     extractor_map.set_extractor("mixed_chef", mixed_chef_operation_extractor);
