@@ -62,7 +62,7 @@ public:
     void
     set_extractor(std::string const& name,
             Operation_extractor_sptr const& operation_extractor);
-    Operation_extractor_sptr
+    Operation_extractor_sptr &
     get_extractor(std::string const& name);
     ~Operation_extractor_map();
 };

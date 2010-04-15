@@ -160,7 +160,7 @@ Operation_extractor_map::set_extractor(std::string const& name,
     extractor_map[name] = operation_extractor;
 }
 
-Operation_extractor_sptr
+Operation_extractor_sptr &
 Operation_extractor_map::get_extractor(std::string const& name)
 {
     return extractor_map[name];
