@@ -10,5 +10,6 @@ test_chef_map_operation_extractor
 test_chef_propagate_operation_extractor
 test_chef_mixed_operation_extractor
 test_operation_extractor_map
+test_lattice_simulator
 test_stepper
 test_propagator

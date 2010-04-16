@@ -36,6 +36,10 @@ add_executable(test_operation_extractor_map test_operation_extractor_map.cc)
 target_link_libraries(test_operation_extractor_map simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_operation_extractor_map test_operation_extractor_map)
 
+add_executable(test_lattice_simulator test_lattice_simulator.cc)
+target_link_libraries(test_lattice_simulator simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_lattice_simulator test_lattice_simulator)
+
 add_executable(test_stepper test_stepper.cc)
 target_link_libraries(test_stepper simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_stepper test_stepper)
