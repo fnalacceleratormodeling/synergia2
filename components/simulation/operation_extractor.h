@@ -64,6 +64,8 @@ public:
             Operation_extractor_sptr const& operation_extractor);
     Operation_extractor_sptr &
     get_extractor(std::string const& name);
+    std::list<std::string >
+    get_extractor_names() const;
     ~Operation_extractor_map();
 };
 

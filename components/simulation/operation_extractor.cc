@@ -166,6 +166,17 @@ Operation_extractor_map::get_extractor(std::string const& name)
     return extractor_map[name];
 }
 
+std::list<std::string >
+Operation_extractor_map::get_extractor_names() const
+{
+    std::list<std::string > retval;
+    for (std::map<std::string, Operation_extractor_sptr >::const_iterator it =
+            extractor_map.begin(); it != extractor_map.end(); ++it) {
+        retval.push_back(it->first);
+    }
+    return retval;
+}
+
 Operation_extractor_map::~Operation_extractor_map()
 {
 }
