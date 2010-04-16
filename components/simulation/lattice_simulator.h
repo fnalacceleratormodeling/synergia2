@@ -20,7 +20,7 @@ private:
 public:
     Lattice_simulator(Lattice_sptr const& lattice, int map_order);
     void
-    construct_sliced_chef_beamline(Steps const& steps);
+    construct_sliced_chef_beamline(Lattice_element_slices const& slices);
     int
     get_map_order() const;
     Operation_extractor_map &

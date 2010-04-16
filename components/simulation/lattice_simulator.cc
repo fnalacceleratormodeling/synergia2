@@ -27,21 +27,9 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr const& lattice_sptr,
 }
 
 void
-Lattice_simulator::construct_sliced_chef_beamline(Steps const& steps)
+Lattice_simulator::construct_sliced_chef_beamline(Lattice_element_slices const& slices)
 {
-    Lattice_element_slices all_slices;
-    for (Steps::const_iterator s_it = steps.begin(); s_it != steps.end(); ++s_it) {
-        for (Operators::const_iterator o_it = (*s_it)->get_operators().begin(); o_it
-                != (*s_it)->get_operators().end(); ++o_it) {
-            if ((*o_it)->get_type() == "independent") {
-                Lattice_element_slices
-                        element_slices(boost::static_pointer_cast<
-                                Independent_operator >(*o_it)->get_slices());
-                all_slices.splice(all_slices.end(), element_slices);
-            }
-        }
-    }
-    chef_lattice_sptr->construct_sliced_beamline(all_slices);
+    chef_lattice_sptr->construct_sliced_beamline(slices);
 }
 
 int

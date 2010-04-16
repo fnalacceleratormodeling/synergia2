@@ -66,6 +66,25 @@ Split_operator_stepper::get_half_step(std::string const& name,
     return retval;
 }
 
+// extract_slices is a local function
+Lattice_element_slices
+extract_slices(Steps const& steps)
+{
+    Lattice_element_slices all_slices;
+    for (Steps::const_iterator s_it = steps.begin(); s_it != steps.end(); ++s_it) {
+        for (Operators::const_iterator o_it = (*s_it)->get_operators().begin(); o_it
+                != (*s_it)->get_operators().end(); ++o_it) {
+            if ((*o_it)->get_type() == "independent") {
+                Lattice_element_slices
+                        element_slices(boost::static_pointer_cast<
+                                Independent_operator >(*o_it)->get_slices());
+                all_slices.splice(all_slices.end(), element_slices);
+            }
+        }
+    }
+    return all_slices;
+}
+
 void
 Split_operator_stepper::construct(
         Collective_operators const& collective_operators, int num_steps)
@@ -94,7 +113,7 @@ Split_operator_stepper::construct(
         throw(std::runtime_error(
                 "internal error: split_operator_stepper did not make it to the end of the lattice\n"));
     }
-    lattice_simulator.construct_sliced_chef_beamline(steps);
+    lattice_simulator.construct_sliced_chef_beamline(extract_slices(steps));
 }
 
 Split_operator_stepper::Split_operator_stepper(
