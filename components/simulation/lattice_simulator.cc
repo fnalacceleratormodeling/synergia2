@@ -50,24 +50,6 @@ Lattice_simulator::get_map_order() const
     return map_order;
 }
 
-void
-Lattice_simulator::set_extractor(std::string const& name,
-        Operation_extractor_sptr extractor)
-{
-    extractor_map.set_extractor(name, extractor);
-}
-
-Operation_extractor_sptr
-Lattice_simulator::get_extractor(std::string const& name)
-{
-    return extractor_map.get_extractor(name);
-}
-
-std::list<std::string >
-Lattice_simulator::get_extractor_names() const
-{
-}
-
 Operation_extractor_map &
 Lattice_simulator::get_operation_extraction_map()
 {

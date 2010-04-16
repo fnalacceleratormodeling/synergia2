@@ -23,12 +23,6 @@ public:
     construct_sliced_chef_beamline(Steps const& steps);
     int
     get_map_order() const;
-    void
-    set_extractor(std::string const& name, Operation_extractor_sptr extractor);
-    Operation_extractor_sptr
-    get_extractor(std::string const& name);
-    std::list<std::string >
-    get_extractor_names() const;
     Operation_extractor_map &
     get_operation_extraction_map();
     double
