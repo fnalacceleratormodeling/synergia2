@@ -25,8 +25,6 @@ public:
     get_map_order() const;
     Operation_extractor_map &
     get_operation_extraction_map();
-    double
-    get_length();
     Lattice_sptr &
     get_lattice_sptr();
     Chef_lattice_sptr &

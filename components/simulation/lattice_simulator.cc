@@ -44,11 +44,6 @@ Lattice_simulator::get_operation_extraction_map()
     return extractor_map;
 }
 
-double
-Lattice_simulator::get_length()
-{
-}
-
 Lattice_sptr &
 Lattice_simulator::get_lattice_sptr()
 {
