@@ -98,7 +98,7 @@ Independent_operator::Independent_operator(std::string const& name,
 }
 
 void
-Independent_operator::append_slice(Lattice_element_slice_sptr slice_sptr)
+Independent_operator::append_slice(Lattice_element_slice_sptr const& slice_sptr)
 {
     slices.push_back(slice_sptr);
 }

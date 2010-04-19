@@ -63,7 +63,7 @@ public:
     Independent_operator(std::string const& name,
             Operation_extractor_map_sptr const& operation_extractor_map_sptr);
     void
-    append_slice(Lattice_element_slice_sptr slice_sptr);
+    append_slice(Lattice_element_slice_sptr const & slice_sptr);
     Lattice_element_slices const&
     get_slices() const;
     virtual void
