@@ -18,9 +18,10 @@ BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture)
             "space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, 2);
 
-    Split_operator_stepper stepper(lattice_simulator, space_charge, 7);
+    Split_operator_stepper_sptr stepper_sptr(new Split_operator_stepper(
+            lattice_simulator, space_charge, 7));
 
-    Propagator propagator(stepper);
+    Propagator propagator(stepper_sptr);
 }
 
 BOOST_FIXTURE_TEST_CASE(propagate, Lattice_fixture)
@@ -29,8 +30,9 @@ BOOST_FIXTURE_TEST_CASE(propagate, Lattice_fixture)
             "space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, 2);
 
-    Split_operator_stepper stepper(lattice_simulator, space_charge, 4);
-    Propagator propagator(stepper);
+    Split_operator_stepper_sptr stepper_sptr(new Split_operator_stepper(
+            lattice_simulator, space_charge, 4));
+    Propagator propagator(stepper_sptr);
 
     int num_turns = 4;
     propagator.propagate(b.bunch, num_turns, true, true);

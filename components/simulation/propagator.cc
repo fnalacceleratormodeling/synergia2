@@ -14,8 +14,8 @@
 //    chef_lattice.construct_sliced_beamline(all_slices);
 //}
 
-Propagator::Propagator(Stepper & stepper) :
-    stepper(stepper)
+Propagator::Propagator(Stepper_sptr const& stepper_sptr) :
+    stepper_sptr(stepper_sptr)
 {
 }
 
@@ -24,8 +24,8 @@ Propagator::propagate(Bunch & bunch, int num_turns, bool diagnostics_per_step,
         bool diagnostics_per_turn)
 {
     for (int turn = 0; turn < num_turns; ++turn) {
-        for (Steps::const_iterator it = stepper.get_steps().begin(); it
-                != stepper.get_steps().end(); ++it) {
+        for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
+                != stepper_sptr->get_steps().end(); ++it) {
             std::cout << "jfa: step\n";
             (*it)->apply(bunch);
             if (diagnostics_per_step) {

@@ -7,12 +7,12 @@
 class Propagator
 {
 private:
-    Stepper stepper;
+    Stepper_sptr stepper_sptr;
 
     void
     construct();
 public:
-    Propagator(Stepper & stepper);
+    Propagator(Stepper_sptr const& stepper_sptr);
     void
     propagate(Bunch & bunch, int num_turns, bool diagnostics_per_step,
             bool diagnostics_per_turn);

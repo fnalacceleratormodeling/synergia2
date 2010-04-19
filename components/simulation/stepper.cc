@@ -108,13 +108,14 @@ Split_operator_stepper::construct(
         }
         step->append(get_half_step("second_half", lattice_it, left,
                 lattice_end, half_step_length));
-        steps.push_back(step);
+        get_steps().push_back(step);
     }
     if (lattice_it != lattice_end) {
         throw(std::runtime_error(
                 "internal error: split_operator_stepper did not make it to the end of the lattice\n"));
     }
-    lattice_simulator.construct_sliced_chef_beamline(extract_slices(steps));
+    lattice_simulator.construct_sliced_chef_beamline(
+            extract_slices(get_steps()));
 }
 
 Split_operator_stepper::Split_operator_stepper(
@@ -134,4 +135,10 @@ Split_operator_stepper::Split_operator_stepper(
 {
     construct(collective_operators, num_steps);
 }
+
+Split_operator_stepper::~Split_operator_stepper()
+{
+
+}
+
 
