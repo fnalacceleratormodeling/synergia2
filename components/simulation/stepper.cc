@@ -32,7 +32,7 @@ Split_operator_stepper::get_half_step(std::string const& name,
         const double half_step_length)
 {
     Independent_operator_sptr retval(new Independent_operator(name,
-            lattice_simulator.get_operation_extraction_map()));
+            lattice_simulator.get_operation_extractor_map_sptr()));
     const double tolerance = 1.0e-8;
     double length = 0.0;
     bool complete = false;

@@ -12,7 +12,7 @@ class Lattice_simulator
 private:
     Lattice_sptr lattice_sptr;
     Chef_lattice_sptr chef_lattice_sptr;
-    Operation_extractor_map extractor_map;
+    Operation_extractor_map_sptr extractor_map_sptr;
     int map_order;
 
     void
@@ -23,8 +23,8 @@ public:
     construct_sliced_chef_beamline(Lattice_element_slices const& slices);
     int
     get_map_order() const;
-    Operation_extractor_map &
-    get_operation_extraction_map();
+    Operation_extractor_map_sptr &
+    get_operation_extractor_map_sptr();
     Lattice_sptr &
     get_lattice_sptr();
     Chef_lattice_sptr &

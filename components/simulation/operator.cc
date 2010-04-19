@@ -64,8 +64,10 @@ Independent_operator::update_operations(
         }
         if ((extractor_type != last_extractor_type) && (!group.empty())) {
             Independent_operations
-                    group_operations = operation_extractor_map.get_extractor(
-                            extractor_type)->extract(reference_particle, group);
+                    group_operations =
+                            operation_extractor_map_sptr->get_extractor(
+                                    extractor_type)->extract(
+                                    reference_particle, group);
             operations.splice(operations.end(), group_operations);
             group.clear();
         }
@@ -73,9 +75,9 @@ Independent_operator::update_operations(
         last_extractor_type = extractor_type;
     }
     if (!group.empty()) {
-        Independent_operations group_operations =
-                operation_extractor_map.get_extractor(extractor_type)->extract(
-                        reference_particle, group);
+        Independent_operations
+                group_operations = operation_extractor_map_sptr->get_extractor(
+                        extractor_type)->extract(reference_particle, group);
         operations.splice(operations.end(), group_operations);
     }
     have_operations = true;
@@ -89,9 +91,9 @@ Independent_operator::need_update()
 }
 
 Independent_operator::Independent_operator(std::string const& name,
-        Operation_extractor_map const& operation_extractor_map) :
+        Operation_extractor_map_sptr const& operation_extractor_map_sptr) :
     Operator(name, "independent"), have_operations(false),
-            operation_extractor_map(operation_extractor_map)
+            operation_extractor_map_sptr(operation_extractor_map_sptr)
 {
 }
 

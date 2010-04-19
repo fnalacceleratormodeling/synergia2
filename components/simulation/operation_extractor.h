@@ -69,6 +69,8 @@ public:
     ~Operation_extractor_map();
 };
 
+typedef boost::shared_ptr<Operation_extractor_map > Operation_extractor_map_sptr;
+
 const char default_operation_extractor_name[] = "default";
 const char chef_map_operation_extractor_name[] = "chef_map";
 const char chef_propagate_operation_extractor_name[] = "chef_propagate";
