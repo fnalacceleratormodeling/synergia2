@@ -39,13 +39,13 @@ BOOST_FIXTURE_TEST_CASE(get_map_order, Lattice_fixture)
     BOOST_CHECK_EQUAL(lattice_simulator.get_map_order(), map_order);
 }
 
-BOOST_FIXTURE_TEST_CASE(get_operation_extraction_map, Lattice_fixture)
+BOOST_FIXTURE_TEST_CASE(get_operation_extractor_map_sptr, Lattice_fixture)
 {
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     std::list<std::string >
             names(
-                    lattice_simulator.get_operation_extraction_map().get_extractor_names());
+                    lattice_simulator.get_operation_extractor_map_sptr()->get_extractor_names());
     std::list<std::string > expected_names;
     expected_names.push_back(default_operation_extractor_name);
     expected_names.push_back(chef_mixed_operation_extractor_name);
