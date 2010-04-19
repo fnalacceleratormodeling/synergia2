@@ -40,6 +40,10 @@ add_executable(test_lattice_simulator test_lattice_simulator.cc)
 target_link_libraries(test_lattice_simulator simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_lattice_simulator test_lattice_simulator)
 
+add_executable(test_collective_operator test_collective_operator.cc)
+target_link_libraries(test_collective_operator simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_collective_operator test_collective_operator)
+
 add_executable(test_stepper test_stepper.cc)
 target_link_libraries(test_stepper simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_stepper test_stepper)
