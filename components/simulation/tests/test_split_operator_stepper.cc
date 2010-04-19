@@ -14,19 +14,47 @@ BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture)
             "space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, 2);
 
-    lattice_sptr->print();
-
     Split_operator_stepper stepper1(lattice_simulator, space_charge, 1);
     stepper1.print();
+}
 
-    Split_operator_stepper stepper2(lattice_simulator, space_charge, 2);
+BOOST_FIXTURE_TEST_CASE(construct2, Lattice_fixture)
+{
+    Collective_operator_sptr space_charge(new Collective_operator(
+            "space_charge"));
+    Lattice_simulator lattice_simulator(lattice_sptr, 2);
+
+    Split_operator_stepper stepper2(lattice_simulator, space_charge, 7);
     stepper2.print();
+}
+
+BOOST_FIXTURE_TEST_CASE(construct7, Lattice_fixture)
+{
+    Collective_operator_sptr space_charge(new Collective_operator(
+            "space_charge"));
+    Lattice_simulator lattice_simulator(lattice_sptr, 2);
 
     Split_operator_stepper stepper7(lattice_simulator, space_charge, 7);
     stepper7.print();
-
-    Split_operator_stepper stepper10(lattice_simulator, space_charge, 10);
-
-    stepper10.print();
 }
 
+BOOST_FIXTURE_TEST_CASE(construct100, Lattice_fixture)
+{
+    Collective_operator_sptr space_charge(new Collective_operator(
+            "space_charge"));
+    Lattice_simulator lattice_simulator(lattice_sptr, 2);
+
+    Split_operator_stepper stepper100(lattice_simulator, space_charge, 100);
+    stepper100.print();
+}
+
+BOOST_FIXTURE_TEST_CASE(get_steps, Lattice_fixture)
+{
+    Collective_operator_sptr space_charge(new Collective_operator(
+            "space_charge"));
+    Lattice_simulator lattice_simulator(lattice_sptr, 2);
+
+    Split_operator_stepper stepper100(lattice_simulator, space_charge, 100);
+
+    BOOST_CHECK_EQUAL(stepper100.get_steps().size(), 100);
+}
