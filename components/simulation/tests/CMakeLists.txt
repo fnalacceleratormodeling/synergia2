@@ -52,9 +52,9 @@ add_executable(test_step test_step.cc)
 target_link_libraries(test_step simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_step test_step)
 
-add_executable(test_stepper test_stepper.cc)
-target_link_libraries(test_stepper simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_stepper test_stepper)
+add_executable(test_split_operator_stepper test_split_operator_stepper.cc)
+target_link_libraries(test_split_operator_stepper simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_split_operator_stepper test_split_operator_stepper)
 
 add_executable(test_propagator test_propagator.cc)
 target_link_libraries(test_propagator simulation lattice bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})

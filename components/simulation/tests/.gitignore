@@ -14,5 +14,5 @@ test_lattice_simulator
 test_collective_operator
 test_independent_operator
 test_step
-test_stepper
+test_split_operator_stepper
 test_propagator
