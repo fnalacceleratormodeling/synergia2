@@ -48,6 +48,10 @@ add_executable(test_independent_operator test_independent_operator.cc)
 target_link_libraries(test_independent_operator simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_independent_operator test_independent_operator)
 
+add_executable(test_step test_step.cc)
+target_link_libraries(test_step simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_step test_step)
+
 add_executable(test_stepper test_stepper.cc)
 target_link_libraries(test_stepper simulation lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_stepper test_stepper)

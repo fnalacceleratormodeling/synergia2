@@ -13,5 +13,6 @@ test_operation_extractor_map
 test_lattice_simulator
 test_collective_operator
 test_independent_operator
+test_step
 test_stepper
 test_propagator
