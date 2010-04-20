@@ -1,9 +1,12 @@
 #ifndef ELEMENT_ADAPTOR_H_
 #define ELEMENT_ADAPTOR_H_
 
-#include <boost/shared_ptr.hpp>
+#include <map>
+#include <string>
+#include <list>
 
-class Lattice_element;
+#include <boost/shared_ptr.hpp>
+#include "components/lattice/lattice_element.h"
 
 class Element_adaptor
 {
@@ -16,6 +19,25 @@ public:
 };
 
 typedef boost::shared_ptr<Element_adaptor > Element_adaptor_sptr;
+
+class Element_adaptor_map
+{
+private:
+    std::map<std::string, Element_adaptor_sptr > adaptor_map;
+
+public:
+    Element_adaptor_map();
+    void
+    set_adaptor(std::string const& name,
+            Element_adaptor_sptr const& element_adaptor_sptr);
+    Element_adaptor_sptr &
+    get_adaptor(std::string const& name);
+    std::list<std::string >
+    get_adaptor_names() const;
+    ~Element_adaptor_map();
+};
+
+typedef boost::shared_ptr<Element_adaptor_map > Element_adaptor_map_sptr;
 
 class Marker_mad8_adaptor : public Element_adaptor
 {

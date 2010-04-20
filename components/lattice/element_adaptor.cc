@@ -8,6 +8,38 @@ Element_adaptor::~Element_adaptor()
 {
 }
 
+Element_adaptor_map::Element_adaptor_map()
+{
+}
+
+void
+Element_adaptor_map::set_adaptor(std::string const& name,
+        Element_adaptor_sptr const& element_adaptor_sptr)
+{
+    adaptor_map[name] = element_adaptor_sptr;
+}
+
+Element_adaptor_sptr &
+Element_adaptor_map::get_adaptor(std::string const& name)
+{
+    return adaptor_map[name];
+}
+
+std::list<std::string >
+Element_adaptor_map::get_adaptor_names() const
+{
+    std::list<std::string > retval;
+    for (std::map<std::string, Element_adaptor_sptr >::const_iterator it =
+            adaptor_map.begin(); it != adaptor_map.end(); ++it) {
+        retval.push_back(it->first);
+    }
+    return retval;
+}
+
+Element_adaptor_map::~Element_adaptor_map()
+{
+}
+
 Marker_mad8_adaptor::Marker_mad8_adaptor()
 {
 }
