@@ -94,7 +94,55 @@ class Macro_bunch:
         bunch.bucket_num=bucket_num          
         return bunch
     
-  
+    # read in the bunch from a base file name and a bucket number.  The
+    # actual file to read is constructed from the rank.
+    @classmethod
+    def read_bunch(self, filename, bucket_num=0, diagnostics=None):
+
+        bunch = self()
+
+        # I'll need my processor number
+        myrank = MPI.COMM_WORLD.Get_rank()
+
+        # get the file name
+        hname = (filename + "-%03d-%05d.h5") % (bucket_num, myrank)
+
+        # open the file
+        h5file = tables.openFile(hname, "r")
+
+        # read in the row that describes the bunch
+        bdescr = [r for r in h5file.root.macro_bunch.iterrows()]
+
+        # set the bunch characteristics
+        bunch.bucket_num = bucket_num
+        bunch.local_num = bdescr[0]['local_num']
+        bunch.total_num = bdescr[0]['total_num']
+        bunch.total_current = bdescr[0]['total_current']
+        bunch.bunch_np = bdescr[0]['bunch_np']
+        bunch.units = bdescr[0]['units']
+        bunch.is_fixedz = bdescr[0]['is_fixedz']
+        bunch.periodic = bdescr[0]['periodic']
+        bunch.mass = bdescr[0]['mass']
+        bunch.charge = bdescr[0]['charge']
+        bunch.ref_particle = bdescr[0]['ref_particle']
+
+        bunch.diagnostics = diagnostics
+
+        # read in the particles
+        bunch.particles = h5file.root.particles.read()
+
+        # check that local_num is correct
+        if bunch.particles.shape[1] != bunch.local_num:
+            raise RuntimeError, "local_num %d  doesn't match the number of particles %d read on rank %d" % (bunch.local_num, bunch.particles.shape[1], myrank)
+
+        # calculate and check total_num
+        calc_total = MPI.COMM_WORLD.allreduce(bunch.local_num, op=MPI.SUM)
+        if calc_total != bunch.total_num:
+            raise RuntimeError, "total_num %d doesn't match computed total %d on rank %d" % (bunch.total_num, calc_total, myrank)
+
+        h5file.close()
+
+        return bunch
 
     def get_local_particles(self):
         return self.particles
@@ -529,6 +577,60 @@ class Macro_bunch:
         self.diagnostics.add(s,self)
 
     
+    # write the current processors notion of a bunch including
+    # particles and characteristics to an hdf5 file to be read in
+    # later.  filename is used as the template for the actual
+    # name which will be filename-bbb-nnnnn.h5 bbb is the bucket
+    # number, nnnnnn is the rank.
+    def write_bunch(self, filename):
+        # I'll need my processor number
+        myrank = MPI.COMM_WORLD.Get_rank()
+
+        # create the hdf5 file
+        hname = (filename + "-%03d-%05d.h5") % (self.bucket_num, myrank)
+        h5file = tables.openFile(hname, "w",
+                                 title="rank %d bunch bucket %d" %
+                                        (myrank, self.bucket_num))
+
+        # this class mirrors the Macro bunch definition
+        class bunch_prop(tables.IsDescription):
+            local_num = tables.Int64Col()
+            total_num = tables.Int64Col()
+            total_current = tables.Float64Col()
+            bunch_np = tables.Float64Col()
+            bucket_num = tables.Int64Col()
+            units = tables.Float64Col(6)
+            is_fixedz = tables.BoolCol()
+            ref_particle = tables.Float64Col(6)
+            periodic = tables.BoolCol()
+            mass = tables.Float64Col()
+            charge = tables.Int64Col()
+
+        compress_level=1
+        filter = tables.Filters(complevel=compress_level)
+
+        # make a table (overkill) for the bunch characteristics
+        btab = h5file.createTable(h5file.root, 'macro_bunch', bunch_prop, 'bunch characteristics', filters=filter)
+
+        b=btab.row
+        b['local_num'] = self.local_num
+        b['total_num'] = self.total_num
+        b['total_current'] = self.total_current
+        b['bunch_np'] = self.bunch_np
+        b['bucket_num'] = self.bucket_num
+        b['is_fixedz'] = self.is_fixedz
+        b['units'] = self.units
+        b['ref_particle'] = self.ref_particle
+        b['mass'] = self.mass
+        b['charge'] = self.charge
+        b.append()
+
+        btab.flush()
+
+        # write out the particles
+        p = h5file.createArray(h5file.root, 'particles', self.particles)
+        h5file.close()
+
 class Multiple_bunches:
     def __init__(self, bunches,  bunch_spacing):
         self.bunches= bunches     
