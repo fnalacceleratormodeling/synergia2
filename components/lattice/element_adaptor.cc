@@ -1,10 +1,10 @@
-#include "lattice_element_adaptor.h"
+#include "element_adaptor.h"
 
-Lattice_element_adaptor::Lattice_element_adaptor()
+Element_adaptor::Element_adaptor()
 {
 }
 
-Lattice_element_adaptor::~Lattice_element_adaptor()
+Element_adaptor::~Element_adaptor()
 {
 }
 
