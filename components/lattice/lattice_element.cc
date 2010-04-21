@@ -2,32 +2,13 @@
 #include <algorithm>
 #include <iostream>
 
-void
-Lattice_element::set_default_attributes(
-        Set_default_attributes_fn_map const& map)
-{
-    Set_default_attributes_fn_map::const_iterator iter = map.find(type);
-    if (iter != map.end()) {
-        iter->second(*this);
-    }
-}
-
-Lattice_element::Lattice_element(std::string const& type,
-        std::string const& name, Set_default_attributes_fn_map const& map) :
-    type(type), name(name), ancestors(), double_attributes(),
-            string_attributes(), length_attribute_name("l"),
-            bend_angle_attribute_name("angle")
-{
-    set_default_attributes(map);
-}
-
 Lattice_element::Lattice_element(std::string const& type,
         std::string const& name) :
     type(type), name(name), ancestors(), double_attributes(),
             string_attributes(), length_attribute_name("l"),
             bend_angle_attribute_name("angle")
 {
-    set_default_attributes(get_standard_default_attributes_fn_map());
+
 }
 
 Lattice_element::Lattice_element(Lattice_element const& lattice_element) :

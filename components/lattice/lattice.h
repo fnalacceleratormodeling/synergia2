@@ -5,6 +5,7 @@
 #include <list>
 
 #include "components/lattice/lattice_element.h"
+#include "components/lattice/element_adaptor.h"
 #include "components/foundation/reference_particle.h"
 #include <boost/shared_ptr.hpp>
 
@@ -15,11 +16,16 @@ private:
     Reference_particle *reference_particle_ptr;
     bool reference_particle_allocated;
     Lattice_elements elements;
+    Element_adaptor_map_sptr element_adaptor_map_sptr;
 
 public:
     Lattice(std::string const& name);
+    Lattice(std::string const& name,
+            Element_adaptor_map_sptr const& element_adaptor_map_sptr);
     std::string const&
     get_name() const;
+    Element_adaptor_map &
+    get_element_adaptor_map();
     void
     set_reference_particle(Reference_particle const& reference_particle);
     bool

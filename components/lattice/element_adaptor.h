@@ -36,6 +36,8 @@ public:
     void
     set_adaptor(std::string const& name,
             Element_adaptor_sptr const& element_adaptor_sptr);
+    bool
+    has_adaptor(std::string const& name);
     Element_adaptor_sptr &
     get_adaptor(std::string const& name);
     std::list<std::string >

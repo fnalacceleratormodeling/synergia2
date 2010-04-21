@@ -16,12 +16,6 @@ BOOST_AUTO_TEST_CASE(construct)
     Lattice_element lattice_element(type, name);
 }
 
-BOOST_AUTO_TEST_CASE(construct2)
-{
-    Set_default_attributes_fn_map map(get_standard_default_attributes_fn_map());
-    Lattice_element lattice_element(type, name, map);
-}
-
 BOOST_AUTO_TEST_CASE(get_type)
 {
     Lattice_element lattice_element(type, name);

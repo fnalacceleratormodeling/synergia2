@@ -116,6 +116,12 @@ Element_adaptor_map::set_adaptor(std::string const& name,
     adaptor_map[name] = element_adaptor_sptr;
 }
 
+bool
+Element_adaptor_map::has_adaptor(std::string const& name)
+{
+    return (adaptor_map.count(name) > 0);
+}
+
 Element_adaptor_sptr &
 Element_adaptor_map::get_adaptor(std::string const& name)
 {

@@ -4,7 +4,15 @@
 #include <stdexcept>
 
 Lattice::Lattice(std::string const& name) :
-    name(name), reference_particle_allocated(false), elements()
+    name(name), reference_particle_allocated(false), elements(),
+            element_adaptor_map_sptr(new Element_adaptor_map)
+{
+}
+
+Lattice::Lattice(std::string const& name,
+        Element_adaptor_map_sptr const& element_adaptor_map_sptr) :
+    name(name), reference_particle_allocated(false), elements(),
+            element_adaptor_map_sptr(element_adaptor_map_sptr)
 {
 }
 
@@ -12,6 +20,12 @@ std::string const&
 Lattice::get_name() const
 {
     return name;
+}
+
+Element_adaptor_map &
+Lattice::get_element_adaptor_map()
+{
+    return *element_adaptor_map_sptr;
 }
 
 void
@@ -40,6 +54,10 @@ void
 Lattice::append(Lattice_element const& element)
 {
     Lattice_element_sptr element_sptr(new Lattice_element(element));
+    if (element_adaptor_map_sptr->has_adaptor(element.get_type())) {
+        element_adaptor_map_sptr->get_adaptor(element.get_type())->set_default_attributes(
+                *element_sptr);
+    }
     elements.push_back(element_sptr);
 }
 

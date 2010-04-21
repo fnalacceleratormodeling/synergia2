@@ -24,12 +24,7 @@ private:
     std::string length_attribute_name;
     std::string bend_angle_attribute_name;
 
-    void
-    set_default_attributes(Set_default_attributes_fn_map const& map);
-
 public:
-    Lattice_element(std::string const& type, std::string const& name,
-            Set_default_attributes_fn_map const& map);
     Lattice_element(std::string const& type, std::string const& name);
     Lattice_element(Lattice_element const& lattice_element);
     std::string const &
