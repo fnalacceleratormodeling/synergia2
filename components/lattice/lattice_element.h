@@ -7,12 +7,6 @@
 
 #include <boost/shared_ptr.hpp>
 
-class Lattice_element;
-typedef void
-(*set_default_attributes_fn)(Lattice_element &);
-typedef std::map<std::string, set_default_attributes_fn >
-        Set_default_attributes_fn_map;
-
 class Lattice_element
 {
 private:
@@ -65,49 +59,5 @@ public:
 
 typedef boost::shared_ptr<Lattice_element > Lattice_element_sptr;
 typedef std::list<Lattice_element_sptr > Lattice_elements;
-
-Set_default_attributes_fn_map
-get_standard_default_attributes_fn_map();
-
-void
-set_default_attributes_marker_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_drift_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_sbend_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_rbend_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_quadrupole_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_sextupole_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_octupole_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_multipole_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_solenoid_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_hkicker_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_vkicker_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_kicker_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_rfcavity_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_elseperator_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_hmonitor_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_vmonitor_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_monitor_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_instrument_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_ecollimator_mad8(Lattice_element &lattice_element);
-void
-set_default_attributes_rcollimator_mad8(Lattice_element &lattice_element);
 
 #endif /* LATTICE_ELEMENT_H_ */
