@@ -4,6 +4,24 @@ Element_adaptor::Element_adaptor()
 {
 }
 
+void
+Element_adaptor::set_double_default(Lattice_element & lattice_element,
+        std::string const& name, double value)
+{
+    if (!lattice_element.has_double_attribute(name)) {
+        lattice_element.set_double_attribute(name, value);
+    }
+}
+
+void
+set_string_default(Lattice_element & lattice_element, std::string const& name,
+        std::string const& value)
+{
+    if (!lattice_element.has_string_attribute(name)) {
+        lattice_element.set_string_attribute(name, value);
+    }
+}
+
 Element_adaptor::~Element_adaptor()
 {
 }

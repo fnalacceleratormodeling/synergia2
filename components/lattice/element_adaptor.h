@@ -12,6 +12,12 @@ class Element_adaptor
 {
 public:
     Element_adaptor();
+    void
+    set_double_default(Lattice_element & lattice_element,
+            std::string const& name, double value);
+    void
+    set_string_default(Lattice_element & lattice_element,
+            std::string const& name, std::string const& value);
     virtual void
     set_default_attributes(Lattice_element & lattice_element) = 0;
     virtual
