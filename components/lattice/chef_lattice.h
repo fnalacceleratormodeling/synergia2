@@ -3,9 +3,8 @@
 
 #include "components/lattice/lattice.h"
 #include "components/lattice/lattice_element_slice.h"
-#include <beamline/beamline.h>
+#include "components/lattice/chef_elements.h"
 
-typedef std::list<ElmPtr > Chef_elements;
 typedef Chef_elements
 (*lattice_element_to_chef_fn)(Lattice_element const&, double);
 typedef std::map<std::string, lattice_element_to_chef_fn >
