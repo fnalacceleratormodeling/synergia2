@@ -1,5 +1,8 @@
 #include "element_adaptor.h"
 
+#include <beamline/beamline_elements.h>
+#include "components/foundation/math_constants.h"
+
 Element_adaptor::Element_adaptor()
 {
 }
@@ -20,6 +23,14 @@ set_string_default(Lattice_element & lattice_element, std::string const& name,
     if (!lattice_element.has_string_attribute(name)) {
         lattice_element.set_string_attribute(name, value);
     }
+}
+
+Chef_elements
+Element_adaptor::get_chef_elements(Lattice_element & lattice_element,
+        double brho)
+{
+    throw(runtime_error("Element_adaptor: " + lattice_element.get_type()
+            + " not handled"));
 }
 
 Element_adaptor::~Element_adaptor()
@@ -152,6 +163,16 @@ Marker_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 {
 }
 
+Chef_elements
+Marker_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+    ElmPtr elm(new marker(lattice_element.get_name().c_str()));
+    retval.push_back(elm);
+    return retval;
+}
+
 Marker_mad8_adaptor::~Marker_mad8_adaptor()
 {
 }
@@ -163,6 +184,17 @@ Drift_mad8_adaptor::Drift_mad8_adaptor()
 void
 Drift_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 {
+}
+
+Chef_elements
+Drift_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+    ElmPtr elm(new drift(lattice_element.get_name().c_str(),
+            lattice_element.get_length()));
+    retval.push_back(elm);
+    return retval;
 }
 
 Drift_mad8_adaptor::~Drift_mad8_adaptor()
@@ -191,6 +223,35 @@ Sbend_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 
 }
 
+Chef_elements
+Sbend_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+
+    double length = lattice_element.get_length();
+    double angle = lattice_element.get_double_attribute("angle");
+    double e1 = lattice_element.get_double_attribute("e1");
+    double e2 = lattice_element.get_double_attribute("e2");
+
+    if ((lattice_element.get_double_attribute("k1") != 0.0)
+            || (lattice_element.get_double_attribute("k2") != 0.0)
+            || (lattice_element.get_double_attribute("k3") != 0.0)
+            || (lattice_element.get_double_attribute("tilt") != 0.0)
+            || (lattice_element.get_double_attribute("h1") != 0.0)
+            || (lattice_element.get_double_attribute("h2") != 0.0)
+            || (lattice_element.get_double_attribute("hgap") != 0.0)
+            || (lattice_element.get_double_attribute("fint") != 0.0)) {
+        throw(runtime_error(
+                "lattice_element_to_chef_sbend: non-zero element(s) of something not handled"));
+    }
+
+    ElmPtr elm(new sbend(lattice_element.get_name().c_str(), length, brho
+            * angle / length, angle, e1, e2));
+    retval.push_back(elm);
+    return retval;
+}
+
 Sbend_mad8_adaptor::~Sbend_mad8_adaptor()
 {
 }
@@ -216,6 +277,35 @@ Rbend_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
     set_double_default(lattice_element, "k3", 0.0);
 }
 
+Chef_elements
+Rbend_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+
+    double length = lattice_element.get_length();
+    double angle = lattice_element.get_double_attribute("angle");
+    double e1 = lattice_element.get_double_attribute("e1");
+    double e2 = lattice_element.get_double_attribute("e2");
+
+    if ((lattice_element.get_double_attribute("k1") != 0.0)
+            || (lattice_element.get_double_attribute("k2") != 0.0)
+            || (lattice_element.get_double_attribute("k3") != 0.0)
+            || (lattice_element.get_double_attribute("tilt") != 0.0)
+            || (lattice_element.get_double_attribute("h1") != 0.0)
+            || (lattice_element.get_double_attribute("h2") != 0.0)
+            || (lattice_element.get_double_attribute("hgap") != 0.0)
+            || (lattice_element.get_double_attribute("fint") != 0.0)) {
+        throw(runtime_error(
+                "lattice_element_to_chef_sbend: non-zero element(s) of something not handled"));
+    }
+
+    ElmPtr elm(new rbend(lattice_element.get_name().c_str(), length, brho
+            * (2.0 * sin(0.5 * angle)) / length, angle, e1, e2));
+    retval.push_back(elm);
+    return retval;
+}
+
 Rbend_mad8_adaptor::~Rbend_mad8_adaptor()
 {
 }
@@ -231,6 +321,37 @@ Quadrupole_mad8_adaptor::set_default_attributes(
     set_double_default(lattice_element, "l", 0.0);
     set_double_default(lattice_element, "k1", 0.0);
     set_double_default(lattice_element, "tilt", 0.0);
+}
+
+Chef_elements
+Quadrupole_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+        double brho)
+{
+    // tilt can have a string value of ""
+    if (lattice_element.has_string_attribute("tilt")) {
+        throw(runtime_error(
+                "lattice_element_to_chef_quadrupole: tilt element not handled"));
+    }
+    if (lattice_element.has_double_attribute("tilt")) {
+        if (lattice_element.get_double_attribute("tilt") != 0.0) {
+            throw(runtime_error(
+                    "lattice_element_to_chef_quadrupole: non-zero tilt element not handled"));
+        }
+    }
+    Chef_elements retval;
+
+    double length = lattice_element.get_length();
+    bmlnElmnt* bmln_elmnt;
+    if (length == 0.0) {
+        bmln_elmnt = new thinQuad(lattice_element.get_name().c_str(), brho
+                * lattice_element.get_double_attribute("k1"));
+    } else {
+        bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
+                brho * lattice_element.get_double_attribute("k1"));
+    }
+    ElmPtr elm(bmln_elmnt);
+    retval.push_back(elm);
+    return retval;
 }
 
 Quadrupole_mad8_adaptor::~Quadrupole_mad8_adaptor()
@@ -384,6 +505,37 @@ Rfcavity_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
     set_double_default(lattice_element, "pg", 0.0);
     set_double_default(lattice_element, "shunt", 0.0);
     set_double_default(lattice_element, "tfill", 0.0);
+}
+
+Chef_elements
+Rfcavity_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+
+    double length = lattice_element.get_length();
+    double freq = 0;
+    double q = 0;
+    std::cout
+            << "jfa: rfcavity could figure out frequency, but doesn't. FIXME!\n";
+    bmlnElmnt* bmln_elmnt;
+    if (length == 0.0) {
+        bmln_elmnt = new thinrfcavity(lattice_element.get_name().c_str(), freq,
+                lattice_element.get_double_attribute("volt") * 1.0e6,
+                lattice_element.get_double_attribute("lag") * (2.0
+                        * constants::pi), q,
+                lattice_element.get_double_attribute("shunt"));
+    } else {
+        bmln_elmnt = new rfcavity(lattice_element.get_name().c_str(), length,
+                freq, lattice_element.get_double_attribute("volt") * 1.0e6,
+                lattice_element.get_double_attribute("lag") * (2.0
+                        * constants::pi), q,
+                lattice_element.get_double_attribute("shunt"));
+    }
+
+    ElmPtr elm(bmln_elmnt);
+    retval.push_back(elm);
+    return retval;
 }
 
 Rfcavity_mad8_adaptor::~Rfcavity_mad8_adaptor()

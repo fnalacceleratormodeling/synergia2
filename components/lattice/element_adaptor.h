@@ -7,6 +7,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include "components/lattice/lattice_element.h"
+#include "components/lattice/chef_elements.h"
 
 class Element_adaptor
 {
@@ -20,6 +21,8 @@ public:
             std::string const& name, std::string const& value);
     virtual void
     set_default_attributes(Lattice_element & lattice_element) = 0;
+    virtual Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Element_adaptor();
 };
@@ -53,6 +56,8 @@ public:
     Marker_mad8_adaptor();
     void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     ~Marker_mad8_adaptor();
 };
 
@@ -62,6 +67,8 @@ public:
     Drift_mad8_adaptor();
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Drift_mad8_adaptor();
 };
@@ -72,6 +79,8 @@ public:
     Sbend_mad8_adaptor();
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Sbend_mad8_adaptor();
 };
@@ -82,6 +91,8 @@ public:
     Rbend_mad8_adaptor();
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Rbend_mad8_adaptor();
 };
@@ -92,6 +103,8 @@ public:
     Quadrupole_mad8_adaptor();
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Quadrupole_mad8_adaptor();
 };
@@ -172,6 +185,8 @@ public:
     Rfcavity_mad8_adaptor();
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Rfcavity_mad8_adaptor();
 };
