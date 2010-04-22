@@ -235,12 +235,6 @@ BOOST_FIXTURE_TEST_CASE(construct, Fodo_fixture)
     Chef_lattice chef_lattice(lattice);
 }
 
-BOOST_FIXTURE_TEST_CASE(construct2, Fodo_fixture)
-{
-    Chef_lattice chef_lattice(lattice,
-            get_standard_lattice_element_to_chef_fn_map());
-}
-
 BOOST_FIXTURE_TEST_CASE(get_beamline_sptr, Fodo_fixture)
 {
     Chef_lattice chef_lattice(lattice);
