@@ -11,11 +11,16 @@ import options
 
 job_mgr_opts = options.Options("Job Manager")
 job_mgr_opts.add("createjob", 0, "Whether to create new job directory", int)
+job_mgr_opts.add("resumejob", 0, "Whether to resume a previously checkpointed job", int)
 job_mgr_opts.add("jobdir", "run", "Job directory", str)
+job_mgr_opts.add("resumedir", "run", "Directory containing checkpointed files", str)
 job_mgr_opts.add("numproc", 1, "Number of processors", int)
 job_mgr_opts.add("submit", 0, "Whether to immediately submit job", int)
 job_mgr_opts.add("overwrite", 0, "Whether to overwrite existing job directory", int)
 job_mgr_opts.add("walltime", "00:30:00", "Limit job to given wall time", str)
+
+job_mgr_opts.add("checkpoint", 0, "enable generation of checkpoint", int)
+job_mgr_opts.add("checkpoint_freq", 100, "frequency of checkpoint generation", int)
 
 def get_synergia_directory(die_on_failure=1):
     if os.environ.has_key("SYNERGIA2DIR"):
@@ -89,6 +94,13 @@ class Job_manager:
         self.opts.add_suboptions(job_mgr_opts)
         self.opts.parse_argv(self.argv)
         
+        # if we are resuming a checkpointed job, get the absolute
+        # path of the resumedir to pass to the resumed job.  I don't check
+        # whether the resumedir exists because I might be submitting a
+        # series of dependent jobs to run one after another.
+        if self.opts.get("resumejob"):
+            real_resumedir = os.path.abspath(self.opts.get("resumedir"))
+            self.opts.set("resumedir", real_resumedir)
         if self.opts.get("createjob"):
             self.create_job(self.opts.get("jobdir"))
             if extra_files:
