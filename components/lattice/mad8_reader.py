@@ -14,20 +14,23 @@ class Mad8_reader:
     def get_element_adaptor_map(self):
         return self.element_adaptor_map
 
-    def parse(self, filename):
+    def parse_string(self, string):
         self.parser = Mad8_parser()
-        self.parser.parse(open(filename, 'r').read())
+        self.parser.parse(string)
+
+    def parse(self, filename):
+        self.parse_string(open(filename, 'r').read())
 
     def _parser_check(self, filename, method):
-         if not self.parser:
+        if not self.parser:
             if not filename:
                 raise RuntimeError, "Mad8_reader." + method + \
-            ": filename must be specified if no file has been parsed"
+            ": filename must be specified if no file or string has been parsed"
             self.parse(filename)
 
     def get_lines(self, filename=None):
         self._parser_check(filename, "get_lines")
-        return parser.lines
+        return self.parser.lines.keys()
 
     def _expand_type(self, short):
         retval = None
@@ -40,10 +43,10 @@ class Mad8_reader:
                     retval = long
         return retval
 
-    def get_lattice_element(self, label):
+    def get_lattice_element(self, label, filename=None):
+        self._parser_check(filename, "get_lattice_element")
         type = self._expand_type(self.parser.labels[label].name)
         attributes = self.parser.labels[label].attributes
-        print attributes
         element = Lattice_element(type, label)
         for attribute in attributes:
             try:
@@ -62,11 +65,13 @@ class Mad8_reader:
 
     def _extract_elements(self, entries, ancestors, lattice):
         repeat_num = 1
+        if type(entries) <> type([]):
+            entries = [entries]
         for entry in entries:
             if entry in self.parser.lines:
                 ancestors.append(entry)
                 for i in range(0, repeat_num):
-                    self._extract_elements(entry, ancestors, lattice)
+                    self._extract_elements(self.parser.lines[entry], ancestors, lattice)
                 repeat_num = 1
                 ancestors.pop()
             else:
