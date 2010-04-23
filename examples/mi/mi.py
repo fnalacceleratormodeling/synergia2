@@ -1,4 +1,4 @@
-#!/usr/bin/env bwpython
+#!/usr/bin/env python
 
 import numpy
 import time
@@ -8,50 +8,41 @@ import sys
 
 import synergia
 import s2_fish
+import physics_toolkit
+
+from mi_options import myopts
 
 from mpi4py import MPI
+
+DEBUG = False
 
 if ( __name__ == '__main__'):
     t0 = time.time()
 
-    myopts = synergia.Options("mi")
-    #~ myopts.add("current",0.5,"current",float)
-    myopts.add("transverse",0,"longitudinally uniform beam",int)
-    myopts.add("maporder",2,"map order",int)
-    myopts.add("emittance",3.0e-6,"emittance",float)
-    myopts.add("dpop",1.0e-20,"(delta p)/p",float)
-    myopts.add("dpopoffset", 0.0, "offset in dpop (am: ! -duop)", float)
-    myopts.add("kicks",10,"kicks per line",int)
-    myopts.add("turns",4,"number of turns",int)
-    myopts.add("latticefile","mi20-egs.lat","",str)
-    myopts.add("tgridnum",16,"transverse grid cells",int)
-    myopts.add("lgridnum",64,"",int)
-    myopts.add("xoffset",0,"",float)
-    myopts.add("yoffset",0,"",float)
-    myopts.add("zoffset",0.1,"offset in z", float)
-    myopts.add("xpoffset", 0, "offset in x-prime", float)
-    myopts.add("ypoffset", 0, "offset in y-prime", float)
-    myopts.add("emittance",0.26e-6,"",float)
-    myopts.add("space_charge",1,"",int)
-    myopts.add("impedance",0,"",int)
-    myopts.add("energy",8.9,"",float)
-    myopts.add("partpercell",1,"",float)
-    myopts.add("bunches",1,"",int)
-    myopts.add("bunchnp",1.0e11,"number of particles per bunch",float)
-    myopts.add("pipe_radius", 0.025, "pipe radius", float)
-    
-    myopts.add_suboptions(synergia.opts)
-    myopts.parse_argv(sys.argv)
-    job_mgr = synergia.Job_manager(sys.argv,myopts,
-                                      [myopts.get("latticefile")])
 
     t0 = time.time()
+
+    # get options relating to checkpointing
+    do_checkpoint = myopts.get("checkpoint")
+    if do_checkpoint:
+        checkpoint_freq = myopts.get("checkpoint_freq")
+        # the name that will be used to save particle data.  In principle
+        # this could be made an option.  The actual name will be
+        # ckptsave-bbb-rrrrr.h5 where bbb is the bunch number and rrrrr is the
+        # MPI processor rank.
+        checkpoint_name = "ckptsave"
+
+    do_resume = myopts.get("resumejob")
+    resume_dir = myopts.get("resumedir")
+    
+    do_dump = myopts.get("dump")
+
     energy = myopts.get("energy")
     mass = synergia.PH_NORM_mp
     kinetic_energy = energy-mass
     charge = 1.0
     initial_phase = 0.0
-    scaling_frequency = 53e6
+    scaling_frequency = myopts.get("scaling_frequency")
     pipexradius = 0.123
     pipeyradius = 0.0508
     part_per_cell = myopts.get("partpercell")
@@ -67,21 +58,82 @@ if ( __name__ == '__main__'):
 
     ee = synergia.Error_eater()
     ee.start()
-    gourmet = synergia.Gourmet(os.path.join(os.getcwd(),myopts.get("latticefile"))
-        ,"ring_p_q605",kinetic_energy,
-                        scaling_frequency)
+    if DEBUG:
+        print "before Gourmet"
+        sys.stdout.flush()
+
+    gourmet = synergia.Gourmet(os.path.join(os.getcwd(),myopts.get("latticefile")),"ring_p_q605",
+                               kinetic_energy,
+                               scaling_frequency,
+                               order=myopts.get("maporder"),
+                               delay_complete=True)
+
+    if DEBUG:
+        print "after Gourmet"
+        sys.stdout.flush()
+
+    # slots at the ends of drifts to match bends
+    armando = physics_toolkit.DriftConverter()
+    if DEBUG:
+        print "after armando"
+        sys.stdout.flush()
+
+    gourmet.beamline = armando.convert(gourmet.beamline)
+    if DEBUG:
+        print "after armando.convert"
+        sys.stdout.flush()
+
     gourmet.insert_space_charge_markers(kicks_per_line)
+    if DEBUG:
+        print "after insert_space_charge_markers"
+        sys.stdout.flush()
+    
+    gourmet.complete_setup()
+    if DEBUG:
+        print "after complete setup"
+        sys.stdout.flush()
+
+    if MPI.COMM_WORLD.Get_rank() == 0:
+        gourmet.check()
+        sys.stdout.flush()
+
+
+    # check closure for safety
+    context = physics_toolkit.BeamlineContext(gourmet.get_initial_particle(),
+                                              gourmet.beamline)
+
+    if context.isRing():
+        if MPI.COMM_WORLD.Get_rank() ==0:
+            print "I am a RING!!!!"
+            print "CHEF: Horiz Frac Tune: %.10g" % context.getHorizontalFracTune()
+            print "CHEF: Vert Frac Tune: %.10g" % context.getVerticalFracTune()
+            print "CHEF: Horiz Frac Eigen Tune: %.10g" % context.getHorizontalEigenTune()
+            print "CHEF: Vert Frac Tune: %.10g" % context.getVerticalEigenTune()
+            sys.stdout.flush()
+    else:
+        if MPI.COMM_WORLD.Get_rank() ==0:
+            print "NOT a ring!!!  Garbage may result!!!"
+            sys.stdout.flush()
+    
+
     (alpha_x, alpha_y, beta_x, beta_y) = synergia.matching.get_alpha_beta(gourmet)
-    #~ print "(alpha_x, alpha_y, beta_x, beta_y) = %g, %g, %g, %g" % (alpha_x, alpha_y, beta_x, beta_y)
+    (tune_x, tune_y, tune_z)           = synergia.matching.get_tunes(gourmet)
     
-    
+    if MPI.COMM_WORLD.Get_rank() == 0:
+        print "(alpha_x, alpha_y, beta_x, beta_y) = %g, %g, %g, %g" % (alpha_x, alpha_y, beta_x, beta_y)
+        print "(tune_x, tune_y, tune_z) = %.10g, %.10g,  %.10g" % (tune_x, tune_y, 1.-tune_z)
+
     # defining beam_parameters
     charge = 1.0
     initial_phase = 0.0
 
-    beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
-                                         initial_phase, scaling_frequency_Hz=scaling_frequency,
-                                         transverse=0, adjust_zlength_to_freq=0)
+    beam_parameters = synergia.Beam_parameters(mass,
+                                               charge,
+                                               kinetic_energy,
+                                               initial_phase,
+                                               scaling_frequency_Hz=scaling_frequency,
+                                               transverse=myopts.get("transverse"),
+                                               adjust_zlength_to_freq=myopts.get("adjust_zlength_to_freq"))
 
     betagamma=beam_parameters.get_beta()*beam_parameters.get_gamma() 
 
@@ -94,11 +146,24 @@ if ( __name__ == '__main__'):
     (ywidth,ypwidth,ry) = synergia.matching.match_twiss_emittance(emittance,alpha_y,beta_y)
     beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,r = ry,offset=yoffset)
     
-    sigma_z_meters = 0.75
-    beam_parameters.z_params(sigma = sigma_z_meters, lam = myopts.get("dpop")* pz)
+    zoffset = myopts.get("zoffset")
+    zrms=myopts.get("bunchlen")
+    zpwidth=myopts.get("dpop")
 
-    sys.stdout.flush()
+    # bunch_sp is not used in the current regime
+    #bunch_sp=2.0*math.pi*beta*synergia.physics_constants.PH_MKS_c/beam_parameters.get_omega()
+
+    beam_parameters.z_params(sigma = zrms,
+                             lam = myopts.get("dpop")* pz,
+                             offset = zoffset,
+                             offset_p = myopts.get("dpopoffset")*pz)
+
     
+    
+    
+
+    #Note! the input term  dpop is in fact (-duop)
+
     s = 0.0
     line_length = gourmet.orbit_length()
     bunch_spacing = line_length/588.0
@@ -106,8 +171,7 @@ if ( __name__ == '__main__'):
     if MPI.COMM_WORLD.Get_rank() ==0:
         print "space_charge =",space_charge
         print "impedance =",impedance
-        
-        print "line_length =",line_length
+
         print "bunch_spacing =",bunch_spacing
 
 
@@ -118,7 +182,8 @@ if ( __name__ == '__main__'):
     current = bunchnp * \
         synergia.physics_constants.PH_MKS_e/ \
         (bunch_spacing/(beta*synergia.physics_constants.PH_MKS_c))
-    print "current =",current, " (but not used)"
+    if MPI.COMM_WORLD.Get_rank() ==0:
+        print "current =",current, " (but not used)"
     
     tgridnum = myopts.get("tgridnum")
     lgridnum = myopts.get("lgridnum")
@@ -129,69 +194,29 @@ if ( __name__ == '__main__'):
     numbunches = myopts.get("bunches") # I can only deal with one bunch now
     bunches = []
     for bunchnum in range(0,numbunches):
-        diag=synergia.Diagnostics(gourmet.get_initial_u(),short=True)
-        bunches.append(s2_fish.Macro_bunch.gaussian(bunchnp, num_particles,
-                                                    beam_parameters,
-                                                    bucket_num = 0,
-                                                    diagnostics=diag,
-                                                    periodic=False))
+        diag=synergia.Diagnostics(gourmet.get_initial_u(),short=True,save_period=100)
+        # if resuming, read the bunch in from the resumedir
+        if do_resume:
+            bunches.append(s2_fish.Macro_bunch.read_bunch(
+                os.path.join(resume_dir, checkpoint_name),
+                bunchnum, diagnostics=diag))
+        else:
+            # otherwise create the new bunch
+            bunches.append(s2_fish.Macro_bunch.gaussian(bunchnp, num_particles,
+                                                        beam_parameters,
+                                                        bucket_num=2*bunchnum,
+                                                        diagnostics=diag,
+                                                        periodic=myopts.get("periodic")))
         bunches[bunchnum].write_particles("begin-%02d"%bunchnum)
-
-    if space_charge:
-        solver = "s2_fish_3d"
-        sp_ch_obj =     beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
-                                         initial_phase, scaling_frequency_Hz=scaling_frequency,
-                                         transverse=0, adjust_zlength_to_freq=0)
-    betagamma=beam_parameters.get_beta()*beam_parameters.get_gamma() 
-
-    emittance = myopts.get("emittance")
-    pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
-
-
-    (xwidth,xpwidth,rx) = synergia.matching.match_twiss_emittance(emittance,alpha_x,beta_x)
-    xoffset = myopts.get("xoffset")
-    xpoffset = myopts.get("xpoffset")
-    beam_parameters.x_params(sigma = xwidth, lam = xpwidth * pz,
-                             r = rx,offset=xoffset, offset_p = xpoffset * pz)
-    
-    
-    yoffset = myopts.get("yoffset")
-    ypoffset = myopts.get("ypoffset")
-    (ywidth,ypwidth,ry) = synergia.matching.match_twiss_emittance(emittance,alpha_y,beta_y)
-    beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,
-                             r = ry,offset=yoffset, offset_p = ypoffset * pz )
-    
-    
-    #zoffset = myopts.get("zoffset")
-    #zwidth=myopts.get("bunchlen")
-    zpwidth=myopts.get("dpop")
-    
-    bunch_sp=2.0*math.pi*beta*synergia.physics_constants.PH_MKS_c/beam_parameters.get_omega()
-    z_length=bunch_sp
-    zwidth=bunch_sp/15.0    
-    zoffset = 0.2
-    beam_parameters.z_params(sigma = zwidth, 
-                             lam = zpwidth* pz, z_length=z_length, offset=zoffset,
-                             offset_p = myopts.get("dpopoffset")*pz)
-#Note! the input term  dpop is in fact (-duop)                           
-  
-
-### creating the bunch
-    bunchnp0=myopts.get("bunchnp") 
-    tgridnum = myopts.get("tgridnum")
-    lgridnum = myopts.get("lgridnum")
-    griddim = (tgridnum,tgridnum,lgridnum)
-    part_per_cell = myopts.get("partpercell")
-    num_particles = int(griddim[0]*griddim[1]*griddim[2] * part_per_cell)
-    
-    numbunches = myopts.get("bunches")
-    bunches = []
 
    
     if MPI.COMM_WORLD.Get_rank() ==0:
         print " **********************************************************************" 
         print "beam information:"
         print
+        print "emittance = ", emittance
+        print "xwidth = ", xwidth
+        print "ywidth = ", ywidth
         print "transverse=",beam_parameters.transverse
         if beam_parameters.adjust_zlength_to_freq:
             print "adjusted length =",beam_parameters.z_length
@@ -200,82 +225,88 @@ if ( __name__ == '__main__'):
            
         print "grid size: ", griddim
         print "number of macroparticles (num_particles): ", num_particles
-        print "Charge of bunch: ", bunchnp0
+        print "Charge of bunch: ", bunchnp
         print "Number of bunches: ", numbunches
         
-    sys.stdout.flush()
+        sys.stdout.flush()
 
-    for bunchnum in range(0,numbunches):
-        diag=synergia.Diagnostics(gourmet.get_initial_u(),short=True)
-        bunchnp=bunchnp0#*(bunchnum+1)*0.5 # bucket_num =2 in front of bucket_num =3
-        bunches.append(s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,diagnostics=diag,bucket_num=2*bunchnum,periodic=True))
-        bunches[bunchnum].write_particles("begin-%02d"%bunchnum)
-        print " bunch(",bunchnum,") periodicity=",bunches[bunchnum].periodic
-       # print "  initial means bunch(",bunchnum,")=",numpy.array(bunches[bunchnum].diagnostics.get_means())
 
-    print " **********************************************************************"  
-    mbunches=s2_fish.Multiple_bunches(bunches, bunch_sp)
-        
-    #diagnostic_units=gourmet.get_initial_u()
-    #bunch = s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,gourmet.get_initial_u(),periodic=True)
-    #bunch= s2_fish.Macro_bunch.from_bunch(bunch1)
-    #bunch = s2_fish.Macro_bunch.test(int(part_per_cell))
-   # bunch = s2_fish.Macro_bunch.test_am(bunchnp,part_per_cell,griddim,beam_parameters)
-   # bunch = s2_fish.Macro_bunch.sphere(num_particles, 0.001)
-   # bunch = s2_fish.Macro_bunch.cylinder(num_particles, 0.001,0.01)
-   # covar=beam_parameters.get_covariances()
-   # bunch = s2_fish.Macro_bunch.gaussian_covariance(bunchnp,num_particles,beam_parameters,covar,periodic=True)
-   # print "bunch first long size=",bunch.get_longitudinal_period_size()
-   
-   
-    #bunch.write_particles("begin")
-    #diag = synergia.Diagnostics(gourmet.get_initial_u(),save_period=0)   
-
-    log = open("log","w")
-    if MPI.COMM_WORLD.Get_rank() ==0:
-            output = "start propagation"
-            print output
-            log.write("%s\n" % output)
-            log.flush()
-
- 
     # solver and geometry
 
     pipe_radius = myopts.get("pipe_radius")
     space_charge=myopts.get("space_charge")
     if space_charge:
-        solver="s2_fish_3d"
-        sp_ch_obj = s2_fish.SpaceCharge(solver,griddim,radius_cylindrical=pipe_radius,periodic=True)	
-        print " sp_ch grid=",sp_ch_obj.get_grid()
-        print " sp_ch solver=",sp_ch_obj.get_solver()
-        print " sp_ch pipe radius=",sp_ch_obj.get_radius_cylindrical()
+        solver=myopts.get("solver")
+        sp_ch_obj = s2_fish.SpaceCharge(solver,griddim,radius_cylindrical=pipe_radius,periodic=myopts.get("periodic"))
+        if MPI.COMM_WORLD.Get_rank() ==0:
+            print " sp_ch grid=",sp_ch_obj.get_grid()
+            print " sp_ch solver=",sp_ch_obj.get_solver()
+            print " sp_ch pipe radius=",sp_ch_obj.get_radius_cylindrical()
     else:
-	   sp_ch_obj=None    	
-
+        sp_ch_obj=None    	
         
-    log = open("log","w")
     if MPI.COMM_WORLD.Get_rank() ==0:
-            output = "start propagation"
-            print output
-            log.write("%s\n" % output)
-            log.flush()
-    for turn in range(1,myopts.get("turns")+1):
+        log = open("log", "w")
+        output = "start propagation"
+        print output
+        log.write("%s\n" % output)
+        log.flush()
+
+    # if resuming a job, get the starting turn number
+    if do_resume:
+        rsf = open(os.path.join(resume_dir, "last_turn"))
+        turn = int(rsf.readline())
+        rsf.close()
+    else:
+        turn = 0
+
+    # Do diagnostics before propagation
+    for bnch in bunches:
+        bnch.add_diagnostics(s)
+    for jobturn in range(myopts.get("turns")):
         t1 = time.time()
         s = synergia.propagate(s,gourmet,
             bunches, space_charge=sp_ch_obj,
-            impedance=None)
+            impedance=None, add_diagnostics=False)
+        # Add diagnostics at the end of each turn
+        for bnch in bunches:
+            bnch.add_diagnostics(s)
         if MPI.COMM_WORLD.Get_rank() ==0:
             output = "turn %d time = %g"%(turn,time.time() - t1)
             print output
             log.write("%s\n" % output)
             log.flush()
+
+        # just completed a turn
+        turn = turn+1
+
+        # dump particles if requested (this is different than checkpointing)
+        if do_dump and ((turn % dump_freq)==0):
+            for bunchnum in range(0,numbunches):
+                bunches[bunchnum].write_particles("b-%02d-turn-%05d.h5" %
+                                                  (bunchnum,turn))
+
+
+        # write checkpoint information
+        if do_checkpoint and ((turn % checkpoint_freq)==0):
+            for bnch in bunches:
+                bnch.write_bunch(checkpoint_name)
+            # save the last turn checkpointed for resume
+            if MPI.COMM_WORLD.Get_rank() == 0:
+                ckf = open("last_turn", "w")
+                ckf.write("%d\n" % turn)
+                ckf.close()
+
+
+    # save diagnostics after propagation of all turns
     for bunchnum in range(0,numbunches):
         if MPI.COMM_WORLD.Get_rank() == 0:
             bunches[bunchnum].diagnostics.write_hdf5("mi-%02d"%bunchnum)
     for bunchnum in range(0,numbunches):
         bunches[bunchnum].write_particles("end-%02d"%bunchnum)
-    log.close()
+
+    if MPI.COMM_WORLD.Get_rank() ==0:
+        log.close()
+
     if MPI.COMM_WORLD.Get_rank() ==0:
         print "elapsed time =",time.time() - t0
- 
- 
