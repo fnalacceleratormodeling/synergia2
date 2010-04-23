@@ -100,7 +100,19 @@ class Job_manager:
         # series of dependent jobs to run one after another.
         if self.opts.get("resumejob"):
             real_resumedir = os.path.abspath(self.opts.get("resumedir"))
-            self.opts.set("resumedir", real_resumedir)
+            # edit the absolute resumedir path into the resumedir= argument
+            foundresumedir=False
+            for argidx in range(len(self.argv)):
+                splitarg = string.split(self.argv[argidx],"=")
+                if len(splitarg)>1:
+                    if splitarg[0] == "resumedir":
+                        foundresumedir=True
+                        self.argv[argidx]="resumedir=" + real_resumedir
+            # if I've made it all the way through the list without finding
+            # a resumedir argument, add it now
+            if not foundresumedir:
+                self.argv.append("resumedir=" + real_resumedir)
+
         if self.opts.get("createjob"):
             self.create_job(self.opts.get("jobdir"))
             if extra_files:
