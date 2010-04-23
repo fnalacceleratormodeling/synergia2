@@ -1,17 +1,17 @@
 ! File fodo.lat
-! 
+!
 ! Written for the January, 2007 USPAS.
 ! To be used in conjunction with CHEF.
-! 
+!
 ! Send complaints to the author: Leo Michelotti
-! 
+!
 
 ! ------------------
 ! Parameters
 ! ------------------
 momentum := 100                   ! [GeV/c] : particle momentum;
                                   !         :   arbitrary number
-focus    :=   7                   ! [m]     : focal length of equivalent 
+focus    :=   7                   ! [m]     : focal length of equivalent
                                   !         :   thin quad
 sepn     :=  10                   ! [m]     : distance between quad centers
 length   :=   0.2                 ! [m]     : quadrupole length

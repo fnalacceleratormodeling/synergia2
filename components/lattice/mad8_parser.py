@@ -42,7 +42,7 @@ class Printable:
                 retval += str_val
         retval += '>'
         return retval
-    
+
 class Stack_type:
     floatnumber = 1
     ident = 2
@@ -110,7 +110,7 @@ class Expression_parser:
         multop = mult | div
         expop = Literal("^")
         plusorminus = plus | minus
-        number = Word(nums) 
+        number = Word(nums)
         integer = Combine(Optional(plusorminus) + number)
         self.integer = integer
         floatnumber = (Combine(integer + \
@@ -121,24 +121,24 @@ class Expression_parser:
         ident = Word(alphas, alphanums + '_' + '.' + "'")
         self.ident = ident
         subscript_ident = Group(ident + lbrack + ident + rbrack)
-        
+
         expr = Forward()
-        atom = (Optional(minus) + 
+        atom = (Optional(minus) +
                 ((floatnumber)("floatnumber").setParseAction(self._push_floatnumber) | \
                  (ident + lpar + delimitedList(expr) + rpar)("function").setParseAction(self._push_function) | \
                  (subscript_ident)("subscript_ident").setParseAction(self._push_subscript_ident) | \
                  (ident)("ident").setParseAction(self._push_ident) | \
-                (lpar + expr.suppress() + rpar))).setParseAction(self._push_uminus) 
-        
+                (lpar + expr.suppress() + rpar))).setParseAction(self._push_uminus)
+
         # by defining exponentiation as "atom [ ^ factor ]..." instead of
         # "atom [ ^ atom ]...", we get right-to-left exponents, instead of
         # left-to-right, that is, 2^3^2 = 2^(3^2), not (2^3)^2.
         factor = Forward()
         factor << atom + ZeroOrMore((expop + factor).setParseAction(self._push_operator))
-        
+
         term = factor + ZeroOrMore((multop + factor).setParseAction(self._push_operator))
         expr << term + ZeroOrMore((addop + term).setParseAction(self._push_operator))
-        
+
         return expr
 
     def _push_floatnumber(self, strg, loc, toks):
@@ -146,10 +146,10 @@ class Expression_parser:
         numstr = numstr.replace('d', 'e')
         numstr = numstr.replace('D', 'e')
         self.stack.append(Stack_item(Stack_type.floatnumber, float(numstr)))
-    
+
     def _push_ident(self, strg, loc, toks):
         self.stack.append(Stack_item(Stack_type.ident, toks[0].lower()))
-                          
+
     def _push_subscript_ident(self, strg, loc, toks):
         ident = toks[0][0].lower()
         subscript = toks[0][1].lower()
@@ -158,14 +158,14 @@ class Expression_parser:
 
     def _push_function(self, strg, loc, toks):
         self.stack.append(Stack_item(Stack_type.function, toks[0].lower()))
-        
+
     def _push_uminus(self, strg, loc, toks):
-        if toks and toks[0] == '-': 
+        if toks and toks[0] == '-':
             self.stack.append(Stack_item(Stack_type.unary_minus, None))
-                          
+
     def _push_operator(self, strg, loc, toks):
         self.stack.append(Stack_item(Stack_type.operator, toks[0]))
-        
+
     def evaluate_stack(self, s, variables={}, labels={}, constants=None):
         if constants == None:
             constants = self.constants
@@ -201,7 +201,7 @@ class Expression_parser:
         elif op.type == Stack_type.subscript_ident:
             retval = None
             if labels.has_key(op.value.ident):
-                attributes = labels[op.value.ident].attributes 
+                attributes = labels[op.value.ident].attributes
                 if attributes.has_key(op.value.subscript):
                     retval = attributes[op.value.subscript]
             if retval == None:
@@ -213,7 +213,7 @@ class Expression_parser:
 
     def reset(self):
         self.stack = []
-        
+
     def parse(self, text):
         self.reset()
         result = self.bnf.parseString(text)
@@ -234,7 +234,7 @@ class Mad8_parser:
         self.labels = {}
         self.lines = {}
         self.no_eval_attributes = ['particle','type','filename']
-    
+
     def _construct_bnf(self):
         colon = Literal(':')
         equals = Literal('=')
@@ -250,7 +250,7 @@ class Mad8_parser:
         expr = self.expression_parser.bnf
         integer = self.expression_parser.integer
 
-        var_assign = (equals | colon + equals | 
+        var_assign = (equals | colon + equals |
                       colon + CaselessLiteral('constant') + equals).suppress()
         attr_assign = Literal('=')
         str = dblQuotedString.setParseAction(removeQuotes) | \
@@ -267,23 +267,23 @@ class Mad8_parser:
 #signedmodifierdef.setParseAction(handleModifier)
         var_assign = (ident + var_assign + expr)
         var_assign.setParseAction(self._handle_var_assign)
-        labeled_command = (ident + colon + ident + 
+        labeled_command = (ident + colon + ident +
                           Optional(attr_delim + delimitedList(attr)))
         labeled_command.setParseAction(self._handle_labeled_command)
 
-        multiple_ident = (Optional(minus) + Optional(Group(integer + times)) + 
+        multiple_ident = (Optional(minus) + Optional(Group(integer + times)) +
                           (ident | lpar + Group(delimitedList(ident)) + rpar))
-        line = (CaselessLiteral("line") + attr_assign + lpar + 
-                Group(multiple_ident + 
-                      ZeroOrMore(Optional(attr_delim) + multiple_ident)) + 
+        line = (CaselessLiteral("line") + attr_assign + lpar +
+                Group(multiple_ident +
+                      ZeroOrMore(Optional(attr_delim) + multiple_ident)) +
                 rpar)
         labeled_line = (ident + colon + line)
         labeled_line.setParseAction(self._handle_labeled_line)
-        
-        entry = (var_assign | 
-                 labeled_line | 
-                 labeled_command | 
-                 command | 
+
+        entry = (var_assign |
+                 labeled_line |
+                 labeled_command |
+                 command |
                  empty + (semicolon | LineEnd()))
 
         bnf = ZeroOrMore(entry) + StringEnd()
@@ -300,7 +300,7 @@ class Mad8_parser:
         value = self.expression_parser.evaluate_stack(stack, self.variables,
                                                       self.labels)
         self.variables[var] = value
-        
+
     def _handle_attr(self, str, loc, toks):
         if hasattr(toks[0], 'asList'):
             attribute = "".join(toks[0]).lower()
@@ -349,7 +349,7 @@ class Mad8_parser:
             else:
                 retval.append(elem.lower())
         return retval
-    
+
     def _handle_labeled_line(self, str, loc, toks):
         name = toks[0].lower()
         elements = self._downcase_nested_list(toks[4])
@@ -358,7 +358,7 @@ class Mad8_parser:
     def parse(self, text):
         self.expression_parser.reset()
         result = self.bnf.parseString(text)
-        
+
 if __name__ == '__main__':
     filename = sys.argv[1]
     mp = Mad8_parser()

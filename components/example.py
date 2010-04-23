@@ -13,7 +13,7 @@ num_steps = 10
 num_turns = 1000
 map_order = 2
 
-lattice = synergia.Mad8_reader().read("fodo.lat")
+lattice = synergia.Mad8_reader().get_lattice("fodo", "fodo.lat")
 bunch = synergia.generate_matched_bunch(lattice, num_particles, num_real_particles, seed=seed)
 space_charge = synergia.Space_charge_3d_open_hockney(grid)
 lattice_simulator = synergia.Lattice_simulator(lattice, map_order)
