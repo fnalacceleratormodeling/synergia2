@@ -20,7 +20,7 @@ public:
     set_string_default(Lattice_element & lattice_element,
             std::string const& name, std::string const& value);
     virtual void
-    set_default_attributes(Lattice_element & lattice_element) = 0;
+    set_default_attributes(Lattice_element & lattice_element);
     virtual Chef_elements
     get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual

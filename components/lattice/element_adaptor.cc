@@ -17,12 +17,17 @@ Element_adaptor::set_double_default(Lattice_element & lattice_element,
 }
 
 void
-set_string_default(Lattice_element & lattice_element, std::string const& name,
+Element_adaptor::set_string_default(Lattice_element & lattice_element, std::string const& name,
         std::string const& value)
 {
     if (!lattice_element.has_string_attribute(name)) {
         lattice_element.set_string_attribute(name, value);
     }
+}
+
+void
+Element_adaptor::set_default_attributes(Lattice_element & lattice_element)
+{
 }
 
 Chef_elements
