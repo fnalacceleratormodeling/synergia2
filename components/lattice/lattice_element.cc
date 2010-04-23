@@ -152,7 +152,7 @@ Lattice_element::print() const
             != ancestors.end(); ++it) {
         std::cout << (*it) << ":";
     }
-    std::cout << " ";
+    std::cout << " " << type << " ";
     std::cout << name << ": ";
     bool first_attr = true;
     for (std::map<std::string, double >::const_iterator it =
