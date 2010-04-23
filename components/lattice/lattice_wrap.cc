@@ -1,4 +1,6 @@
 #include "lattice_element.h"
+#include "element_adaptor.h"
+#include "lattice.h"
 #include <boost/python.hpp>
 #include "utils/container_conversions.h"
 
@@ -34,5 +36,40 @@ BOOST_PYTHON_MODULE(pylattice)
 
     to_python_converter<std::list<std::string >,
              container_conversions::to_tuple<std::list<std::string > > >();
+
+    class_<Element_adaptor, Element_adaptor_sptr >("Element_adaptor", init<>())
+            .def("set_double_default", &Element_adaptor::set_double_default)
+            .def("set_string_default", &Element_adaptor::set_string_default)
+            .def("set_default_attributes", &Element_adaptor::set_default_attributes)
+            .def("get_chef_elements", &Element_adaptor::get_chef_elements)
+            ;
+
+    class_<Element_adaptor_map >("Element_adaptor_map", init<>())
+            .def("set_adaptor", &Element_adaptor_map::set_adaptor)
+            .def("has_adaptor", &Element_adaptor_map::has_adaptor)
+            .def("get_adaptor", &Element_adaptor_map::get_adaptor,
+                    return_value_policy<copy_non_const_reference >())
+            .def("get_adaptor_names", &Element_adaptor_map::get_adaptor_names)
+            ;
+
+
+
+    class_<Lattice >("Lattice", init<std::string const& >())
+            .def(init<std::string const&, Element_adaptor_map_sptr >())
+            .def("get_name", &Lattice::get_name,
+                    return_value_policy<copy_const_reference>())
+            .def("get_element_adaptor_map", &Lattice::get_element_adaptor_map,
+                    return_value_policy<return_by_value >()) // jfa: not sure return_by_value is correct
+            .def("set_reference_particle", &Lattice::set_reference_particle)
+            .def("has_reference_particle", &Lattice::has_reference_particle)
+            .def("get_reference_particle", &Lattice::get_reference_particle,
+                    return_value_policy<return_by_value >()) // jfa: not sure return_by_value is correct
+            .def("append", &Lattice::append)
+            .def("get_elements", &Lattice::get_elements,
+                    return_value_policy<copy_non_const_reference >())
+            .def("get_length", &Lattice::get_length)
+            .def("get_total_angle", &Lattice::get_total_angle)
+            .def("print_", &Lattice::print)
+            ;
 }
 
