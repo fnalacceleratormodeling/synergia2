@@ -59,3 +59,95 @@ def test_get_lattice_element2():
     reader.parse("fodo.lat")
     drift = reader.get_lattice_element("o")
     assert_equal(drift.get_name(),"o")
+
+def test_get_lattice1():
+    reader = Mad8_reader()
+    caught = False
+    try:
+        reader.get_lattice("fodo")
+    except RuntimeError,e:
+        caught = True
+    assert caught
+
+def assert_element_names(elements, names):
+    assert_equal(len(elements),len(names))
+    for element, name in zip(elements,names):
+        assert_equal(element.get_name(), name)
+
+def test_get_lattice2():
+    reader = Mad8_reader()
+    lattice = reader.get_lattice("fodo","fodo.lat")
+    elements = lattice.get_elements()
+    assert_element_names(elements,['f', 'o', 'd', 'o'])
+
+def test_get_lattice_with_multiplier():
+    reader = Mad8_reader()
+    reader.parse_string('''
+    a: drift, l=1.0
+    b: drift, l=1.0
+    c: drift, l=1.0
+    one: line = (a,b)
+    two: line = (c)
+    three: line = (3*one,two)
+    ''')
+    lattice = reader.get_lattice("three")
+    elements = lattice.get_elements()
+    assert_element_names(elements,['a','b','a','b','a','b','c'])
+
+def test_get_lattice_with_multiplier2():
+    reader = Mad8_reader()
+    reader.parse_string('''
+    a: drift, l=1.0
+    b: drift, l=1.0
+    c: drift, l=1.0
+    two: line = (c)
+    three: line = (3*(a,b),two)
+    ''')
+    lattice = reader.get_lattice("three")
+    elements = lattice.get_elements()
+    assert_element_names(elements,['a','b','a','b','a','b','c'])
+
+def test_get_lattice_with_subgroup():
+    reader = Mad8_reader()
+    reader.parse_string('''
+    a: drift, l=1.0
+    b: drift, l=1.0
+    c: drift, l=1.0
+    test: line = ((a,b),c)
+    ''')
+    lattice = reader.get_lattice("test")
+    elements = lattice.get_elements()
+    assert_element_names(elements,['a','b','c'])
+
+def test_get_lattice_with_neg():
+    reader = Mad8_reader()
+    reader.parse_string('''
+    a: drift, l=1.0
+    b: drift, l=1.0
+    forw: line = (a,b)
+    back: line = (-forw)
+    ''')
+    lattice = reader.get_lattice("back")
+    elements = lattice.get_elements()
+    assert_element_names(elements,['b','a'])
+
+# The example from Section 4.1.3 of the Mad8 User Guide
+def test_get_lattice_ug_413():
+    reader = Mad8_reader()
+    reader.parse_string('''
+    a: drift, l=1.0
+    b: drift, l=1.0
+    c: drift, l=1.0
+    d: drift, l=1.0
+    e: drift, l=1.0
+    f: drift, l=1.0
+    g: drift, l=1.0
+    h: drift, l=1.0
+    R: LINE=(G,H)
+    S: LINE=(C,R,D)
+    T: LINE=(2*S,2*(E,F),-S,-(A,B))
+    ''')
+    lattice = reader.get_lattice("t")
+    elements = lattice.get_elements()
+    assert_element_names(elements,
+                        ['c','g','h','d','c','g','h','d','e','f','e','f','d','h','g','c','b','a'])
