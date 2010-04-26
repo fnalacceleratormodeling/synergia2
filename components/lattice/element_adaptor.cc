@@ -17,8 +17,8 @@ Element_adaptor::set_double_default(Lattice_element & lattice_element,
 }
 
 void
-Element_adaptor::set_string_default(Lattice_element & lattice_element, std::string const& name,
-        std::string const& value)
+Element_adaptor::set_string_default(Lattice_element & lattice_element,
+        std::string const& name, std::string const& value)
 {
     if (!lattice_element.has_string_attribute(name)) {
         lattice_element.set_string_attribute(name, value);
@@ -218,14 +218,16 @@ Sbend_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
     set_double_default(lattice_element, "k1", 0.0);
     set_double_default(lattice_element, "e1", 0.0);
     set_double_default(lattice_element, "e2", 0.0);
-    set_double_default(lattice_element, "tilt", 0.0);
     set_double_default(lattice_element, "k2", 0.0);
     set_double_default(lattice_element, "h1", 0.0);
     set_double_default(lattice_element, "h2", 0.0);
     set_double_default(lattice_element, "hgap", 0.0);
     set_double_default(lattice_element, "fint", 0.0);
     set_double_default(lattice_element, "k3", 0.0);
-
+    if (!lattice_element.has_double_attribute("tilt")
+            && !lattice_element.has_string_attribute("tilt")) {
+        lattice_element.set_double_attribute("tilt", 0.0);
+    }
 }
 
 Chef_elements
@@ -273,13 +275,16 @@ Rbend_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
     set_double_default(lattice_element, "k1", 0.0);
     set_double_default(lattice_element, "e1", 0.0);
     set_double_default(lattice_element, "e2", 0.0);
-    set_double_default(lattice_element, "tilt", 0.0);
     set_double_default(lattice_element, "k2", 0.0);
     set_double_default(lattice_element, "h1", 0.0);
     set_double_default(lattice_element, "h2", 0.0);
     set_double_default(lattice_element, "hgap", 0.0);
     set_double_default(lattice_element, "fint", 0.0);
     set_double_default(lattice_element, "k3", 0.0);
+    if (!lattice_element.has_double_attribute("tilt")
+            && !lattice_element.has_string_attribute("tilt")) {
+        lattice_element.set_double_attribute("tilt", 0.0);
+    }
 }
 
 Chef_elements
@@ -325,7 +330,11 @@ Quadrupole_mad8_adaptor::set_default_attributes(
 {
     set_double_default(lattice_element, "l", 0.0);
     set_double_default(lattice_element, "k1", 0.0);
-    set_double_default(lattice_element, "tilt", 0.0);
+    if (!lattice_element.has_double_attribute("tilt")
+            && !lattice_element.has_string_attribute("tilt")) {
+        lattice_element.set_double_attribute("tilt", 0.0);
+    }
+
 }
 
 Chef_elements
