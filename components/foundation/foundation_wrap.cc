@@ -4,6 +4,8 @@
 #include <boost/python.hpp>
 #include "utils/numpy_multi_ref_converter.h"
 #include "utils/comm_converter.h"
+#include "math_constants.h"
+#include "physical_constants.h"
 
 using namespace boost::python;
 
@@ -16,6 +18,11 @@ void
 void
 (Random_distribution::*random_fill_unit_disk_ref)(MArray1d_ref,
         MArray1d_ref) = &Random_distribution::fill_unit_disk;
+
+class Dummy
+{
+
+};
 
 BOOST_PYTHON_MODULE(pyfoundation)
 {
@@ -82,4 +89,18 @@ BOOST_PYTHON_MODULE(pyfoundation)
             .value("ranlxd2", Random_distribution::ranlxd2)
             .value("mt19937", Random_distribution::mt19937)
             .export_values();
+
+    scope constants_scope = class_<Dummy >("constants",no_init);
+// math_constants.h
+    scope().attr("pi") = constants::pi;
+// physical_constants.h
+    scope().attr("mp") = constants::mp;
+    scope().attr("me") = constants::me;
+    scope().attr("mmu") = constants::mmu;
+    scope().attr("proton_charge") = constants::proton_charge;
+    scope().attr("antiproton_charge") = constants::antiproton_charge;
+    scope().attr("electron_charge") = constants::electron_charge;
+    scope().attr("positron_charge") = constants::positron_charge;
+    scope().attr("muon_charge") = constants::muon_charge;
+    scope().attr("antimuon_charge") = constants::antimuon_charge;
 }
