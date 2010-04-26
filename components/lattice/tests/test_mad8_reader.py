@@ -151,3 +151,10 @@ def test_get_lattice_ug_413():
     elements = lattice.get_elements()
     assert_element_names(elements,
                         ['c','g','h','d','c','g','h','d','e','f','e','f','d','h','g','c','b','a'])
+
+def test_quad_tilt():
+    reader = Mad8_reader()
+    reader.parse_string('q: quad, l=1.0, tilt, k1=3.14')
+    element = reader.get_lattice_element('q')
+    assert_equal(element.get_string_attribute('tilt'),'')
+    assert(not element.has_double_attribute('tilt'))
