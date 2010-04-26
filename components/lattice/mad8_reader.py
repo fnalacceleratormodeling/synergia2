@@ -49,12 +49,15 @@ class Mad8_reader:
         attributes = self.parser.labels[label].attributes
         element = Lattice_element(type, label)
         for attribute in attributes:
-            try:
-                double_value = float(attributes[attribute])
-                element.set_double_attribute(attribute, double_value)
-            except ValueError:
-                string_value = attributes[attribute]
-                element.set_string_attribute(attribute, string_value)
+            if attributes[attribute] == None:
+                element.set_string_attribute(attribute, '')
+            else:
+                try:
+                    double_value = float(attributes[attribute])
+                    element.set_double_attribute(attribute, double_value)
+                except ValueError:
+                    string_value = attributes[attribute]
+                    element.set_string_attribute(attribute, string_value)
         return element
 
     def _extract_element(self, label, ancestors, lattice):
