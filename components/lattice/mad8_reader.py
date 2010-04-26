@@ -63,20 +63,37 @@ class Mad8_reader:
             element.add_ancestor(ancestor)
         lattice.append(element)
 
-    def _extract_elements(self, entries, ancestors, lattice):
+    def _extract_elements(self, entries, ancestors, lattice, reverse=False):
         repeat_num = 1
         if type(entries) <> type([]):
             entries = [entries]
         for entry in entries:
-            if entry in self.parser.lines:
-                ancestors.append(entry)
+            if type(entry) == type([]):
+                if reverse:
+                    entry.reverse()
                 for i in range(0, repeat_num):
-                    self._extract_elements(self.parser.lines[entry], ancestors, lattice)
+                    self._extract_elements(entry, ancestors, lattice, reverse)
+                if reverse:
+                    entry.reverse()
+                reverse = False
+                repeat_num = 1
+            elif entry in self.parser.lines:
+                ancestors.append(entry)
+                subentry = self.parser.lines[entry]
+                if reverse:
+                    subentry.reverse()
+                for i in range(0, repeat_num):
+                    self._extract_elements(subentry, ancestors, lattice, reverse)
+                if reverse:
+                    subentry.reverse()
+                reverse = False
                 repeat_num = 1
                 ancestors.pop()
             else:
                 if entry[len(entry) - 1] == '*':
                     repeat_num = int(entry[0:(len(entry) - 1)])
+                elif entry == '-':
+                    reverse = True
                 else:
                     for i in range(0, repeat_num):
                         self._extract_element(entry, ancestors, lattice)
