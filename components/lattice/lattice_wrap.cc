@@ -8,7 +8,7 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pylattice)
 {
-    class_<Lattice_element>("Lattice_element",
+    class_<Lattice_element, Lattice_element_sptr >("Lattice_element",
             init<std::string, std::string >())
         .def("get_type", &Lattice_element::get_type,
                 return_value_policy<copy_const_reference>())
@@ -36,6 +36,9 @@ BOOST_PYTHON_MODULE(pylattice)
 
     to_python_converter<std::list<std::string >,
              container_conversions::to_tuple<std::list<std::string > > >();
+
+    to_python_converter<std::list<Lattice_element_sptr >,
+             container_conversions::to_tuple<std::list<Lattice_element_sptr > > >();
 
     class_<Element_adaptor, Element_adaptor_sptr >("Element_adaptor", init<>())
             .def("set_double_default", &Element_adaptor::set_double_default)
