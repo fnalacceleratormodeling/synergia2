@@ -2,6 +2,7 @@
 
 from mad8_parser import Mad8_parser
 from pylattice import Lattice_element, Element_adaptor_map, Lattice
+from pyfoundation import constants, Four_momentum, Reference_particle
 
 class Mad8_reader:
     def __init__(self, element_adaptor_map=None):
@@ -102,10 +103,63 @@ class Mad8_reader:
                         self._extract_element(entry, ancestors, lattice)
                     repeat_num = 1
 
+    def _extract_reference_particle(self, lattice):
+        for command in self.parser.commands:
+            particle = None
+            mass = None
+            charge = None
+            pc = None
+            energy = None
+            gamma = None
+            found_beam = False
+            if command.name == 'beam':
+                found_beam = True
+                for attribute in command.attributes:
+                    if attribute == "particle":
+                        if command.attributes[attribute] == "proton":
+                            mass = constants.mp
+                            charge = constants.proton_charge
+                        elif command.attributes[attribute] == "antiproton":
+                            mass = constants.mp
+                            charge = constants.antiproton_charge
+                        elif command.attributes[attribute] == "electron":
+                            mass = constants.me
+                            charge = constants.electron_charge
+                        elif command.attributes[attribute] == "positron":
+                            mass = constants.me
+                            charge = constants.positron_charge
+                        elif command.attributes[attribute] == "muon":
+                            mass = constants.mmu
+                            charge = constants.muon_charge
+                        elif command.attributes[attribute] == "antimuon":
+                            mass = constants.mmu
+                            charge = constants.antimuon_charge
+                    elif attribute == "mass":
+                        mass = float(command.attributes[attribute])
+                    elif attribute == "charge":
+                        charge = float(command.attributes[attribute])
+                    elif attribute == "pc":
+                        pc = float(command.attributes[attribute])
+                    elif attribute == "energy":
+                        energy = float(command.attributes[attribute])
+                    elif attribute == "gamma":
+                        gamma = float(command.attributes[attribute])
+            if found_beam:
+                four_momentum = Four_momentum(mass)
+                if pc:
+                    four_momentum.set_momentum(pc)
+                if energy:
+                    four_momentum.set_total_energy(energy)
+                if gamma:
+                    four_momentum.set_gamma(gamma)
+                reference_particle = Reference_particle(four_momentum)
+                lattice.set_reference_particle(reference_particle)
+
     def get_lattice(self, line_name, filename=None):
         self._parser_check(filename, "get_lattice")
         lattice = Lattice(line_name, self.element_adaptor_map)
         self._extract_elements(self.parser.lines[line_name], [line_name], lattice)
+        self._extract_reference_particle(lattice)
         return lattice
 
 if __name__ == "__main__":
