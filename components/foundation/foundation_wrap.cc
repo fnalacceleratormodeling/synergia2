@@ -90,17 +90,18 @@ BOOST_PYTHON_MODULE(pyfoundation)
             .value("mt19937", Random_distribution::mt19937)
             .export_values();
 
-    scope constants_scope = class_<Dummy >("constants",no_init);
-// math_constants.h
-    scope().attr("pi") = constants::pi;
-// physical_constants.h
-    scope().attr("mp") = constants::mp;
-    scope().attr("me") = constants::me;
-    scope().attr("mmu") = constants::mmu;
-    scope().attr("proton_charge") = constants::proton_charge;
-    scope().attr("antiproton_charge") = constants::antiproton_charge;
-    scope().attr("electron_charge") = constants::electron_charge;
-    scope().attr("positron_charge") = constants::positron_charge;
-    scope().attr("muon_charge") = constants::muon_charge;
-    scope().attr("antimuon_charge") = constants::antimuon_charge;
+    class_<Dummy >("constants",no_init)
+    // math_constants.h
+        .def_readonly("pi", constants::pi)
+    // physical_constants.h
+        .def_readonly("mp", constants::mp)
+        .def_readonly("me", constants::me)
+        .def_readonly("mmu", constants::mmu)
+        .def_readonly("proton_charge", constants::proton_charge)
+        .def_readonly("antiproton_charge", constants::antiproton_charge)
+        .def_readonly("electron_charge", constants::electron_charge)
+        .def_readonly("positron_charge", constants::positron_charge)
+        .def_readonly("muon_charge", constants::muon_charge)
+        .def_readonly("antimuon_charge", constants::antimuon_charge)
+        ;
 }
