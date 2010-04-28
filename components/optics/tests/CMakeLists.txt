@@ -1,0 +1,1 @@
+add_test(test_one_turn_map_py nosetests test_one_turn_map.py)
