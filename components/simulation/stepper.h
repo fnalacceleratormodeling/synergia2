@@ -51,7 +51,7 @@ private:
     construct(Collective_operators const & collective_operators, int num_steps);
 public:
     Split_operator_stepper(Lattice_simulator const& lattice_simulator,
-            Collective_operator_sptr collective_operator, int num_steps);
+            Collective_operator_sptr const& collective_operator, int num_steps);
     Split_operator_stepper(Lattice_simulator const& lattice_simulator,
             Collective_operators const & collective_operators, int num_steps);
     ~Split_operator_stepper();
