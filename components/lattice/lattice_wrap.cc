@@ -1,6 +1,8 @@
 #include "lattice_element.h"
 #include "element_adaptor.h"
 #include "lattice.h"
+#include "chef_lattice.h"
+#include "chef_utils.h"
 #include <boost/python.hpp>
 #include "utils/container_conversions.h"
 
@@ -74,5 +76,25 @@ BOOST_PYTHON_MODULE(pylattice)
             .def("get_total_angle", &Lattice::get_total_angle)
             .def("print_", &Lattice::print)
             ;
+
+    class_<Chef_lattice, Chef_lattice_sptr >("Chef_lattice", init<Lattice & >())
+//            .def("get_chef_elements", &Chef_lattice::get_chef_elements,
+//                    return_value_policy<copy_non_const_reference >())
+            .def("get_beamline", &Chef_lattice::get_beamline_sptr)
+            .def("get_sliced_beamline", &Chef_lattice::get_sliced_beamline_sptr)
+            ;
+    def("print_chef_beamline", print_chef_beamline);
+    def("reference_particle_to_chef_particle",
+            reference_particle_to_chef_particle);
+    def("reference_particle_to_chef_jet_particle",
+            reference_particle_to_chef_jet_particle);
+//    propagate_reference_particle(Reference_particle const& reference_particle,
+//            BmlPtr beamline_sptr);
+   def("chef_unit_conversion", chef_unit_conversion);
+   def("get_chef_index",get_chef_index);
+
+   to_python_converter<std::vector<double >,
+            container_conversions::to_tuple<std::vector<double > > >();
+
 }
 
