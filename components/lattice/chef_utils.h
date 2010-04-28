@@ -21,6 +21,9 @@ void
 propagate_reference_particle(Reference_particle const& reference_particle,
         BmlPtr beamline_sptr);
 
+/// units conversion
+/// X_synergia = U X_chef
+/// where U = diag(u[0],u[1],u[2],u[3],u[4],u[5])
 std::vector<double >
 chef_unit_conversion(Reference_particle const& reference_particle);
 

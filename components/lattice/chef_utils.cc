@@ -76,8 +76,8 @@ chef_unit_conversion(Reference_particle const& reference_particle)
     u.at(1) = reference_particle.get_momentum();
     u.at(2) = 1.0;
     u.at(3) = reference_particle.get_momentum();
-    u.at(0) = 1.0;
-    u.at(1) = reference_particle.get_momentum();
+    u.at(4) = 1.0;
+    u.at(5) = reference_particle.get_momentum();
     return u;
 }
 
