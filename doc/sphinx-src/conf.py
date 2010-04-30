@@ -33,11 +33,9 @@ sys.path.append(os.path.abspath('../../../../install/lib'))
 extensions = ['sphinx.ext.autodoc','sphinx.ext.pngmath','breathe']
 
 breathe_projects = {
-    "utils":"../utils/doc/xml",
-    "bunch":"../components/bunch/doc/xml",
-    "foundation":"../components/foundation/doc/xml"
-    }
-breathe_default_project = "utils"
+    "synergia":"xml"
+}
+breathe_default_project = "synergia"
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['.templates']
@@ -53,7 +51,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Synergia2'
-copyright = u'2009, James Amundson, Alexandru Macridin, Panagiotis Spentzouris and Eric Stern'
+copyright = u'2010, James Amundson, Alexandru Macridin, Panagiotis Spentzouris and Eric Stern'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
