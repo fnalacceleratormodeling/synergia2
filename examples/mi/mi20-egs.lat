@@ -1,11 +1,10 @@
 ! *******************************************************************************************
+! 04/30/2010 (EGS) Double the length of the CAV: elements and change RFCAV
+! line to account for that.  No more split cavities.
+! *******************************************************************************************
 !
 ! egs: set hkick and vkick strengths to 0 to match mi20_mad-F_for_chef.lat
 !      now the closed orbit is back at 0
-!
-! *******************************************************************************************
-!
-! egs: set rf cavity lengths to 0 and expanded drifts on either side
 !
 ! *******************************************************************************************
 ! jfa: changed beam energy to 8.9
@@ -512,7 +511,7 @@ LES_SLOT     := 2*LES_END+LES
 HARMNO          := 588
 LAMBDA          := 3319.418686/HARMNO
 LAMBDAO2        := LAMBDA/2
-LRFC            := 0.0   ! make thin rf cavities
+LRFC            := 0.1   ! make thin rf cavities
 LRFCIP          := 0.889 !35 inch
 LRFC_END        := 0.5*(LAMBDAO2-LRFC-LRFCIP)
 LRFC_SLOT       := 2*LRFC_END+LRFC !76.125 inch
@@ -3416,11 +3415,12 @@ V100_INS:   LINE = (V100_END, V100, V100_END)
 V001:       DRIFT, TYPE= ICA , L = LICA_MAG
 V001_END:   DRIFT, L = LICA_END
 V001_INS:   LINE = (V001_END, V001, V001_END)
+CAV:    RFCAVITY, L = LRFC, VOLT = 0.0
 RFCU_END: DRIFT, L = LRFC_END
 RFCD_END: DRIFT, L = LRFC_END
 DRFCIP:   DRIFT, L = LRFCIP
 M_CAV: MARKER
-RFCAV:  LINE = (RFCU_END, M_CAV, RFCD_END)
+RFCAV:  LINE = (RFCU_END, CAV, RFCD_END)
 HRFCU_END: DRIFT, L = LHRFC_END
 HRFCD_END: DRIFT, L = LHRFC_END
 M_HCAV: MARKER
