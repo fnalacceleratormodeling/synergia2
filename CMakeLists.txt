@@ -51,14 +51,10 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
 ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
-configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in" 
+configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in"
     "${SYNERGIA2_BINARY_DIR}/synergia-local" IMMEDIATE)
 
 include_directories(${SYNERGIA2_SOURCE_DIR})
-
-add_custom_target(doxy)
-add_custom_target(sphinxdoc)
-add_dependencies(sphinxdoc doxy)
 
 add_subdirectory(array_nd)
 add_subdirectory(utils)
@@ -70,4 +66,4 @@ add_subdirectory(impact)
 
 add_subdirectory(octapy)
 
-add_subdirectory(doc)
+add_subdirectory(docs)
