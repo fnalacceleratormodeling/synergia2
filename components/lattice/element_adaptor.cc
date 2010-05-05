@@ -529,9 +529,13 @@ Rfcavity_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
 
     double length = lattice_element.get_length();
     double freq = 0;
+    if (lattice_element.has_double_attribute("freq")) {
+        freq = lattice_element.get_double_attribute("freq");
+    } else {
+        std::cout
+                << "jfa: rfcavity could figure out frequency, but doesn't. FIXME!\n";
+    }
     double q = 0;
-    std::cout
-            << "jfa: rfcavity could figure out frequency, but doesn't. FIXME!\n";
     bmlnElmnt* bmln_elmnt;
     if (length == 0.0) {
         bmln_elmnt = new thinrfcavity(lattice_element.get_name().c_str(), freq,
