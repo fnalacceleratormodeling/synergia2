@@ -27,7 +27,7 @@ emit = 1e-6
 stdz = 0.01
 dpop = 1e-4
 
-lattice = Mad8_reader().get_lattice("fodo", "fodo.lat")
+lattice = Mad8_reader().get_lattice("fodo", "optics/tests/fodo.lat")
 #space_charge = Space_charge_3d_open_hockney(grid)
 space_charge = Collective_operator("space charge")
 lattice_simulator = Lattice_simulator(lattice, map_order)
