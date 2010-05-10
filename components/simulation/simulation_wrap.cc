@@ -1,6 +1,7 @@
 #include "operator.h"
 #include "lattice_simulator.h"
 #include "stepper.h"
+#include "propagator.h"
 #include <boost/python.hpp>
 #include "utils/container_conversions.h"
 
@@ -51,7 +52,36 @@ BOOST_PYTHON_MODULE(pysimulation)
                 return_value_policy<copy_non_const_reference >())
         ;
 
-//    class Stepper
+//    class Step
+//    {
+//    private:
+//        Operators operators;
+//    public:
+//        Step();
+//        void
+//        append(Operator_sptr operator_sptr);
+//        void
+//        append(Operators const& operators);
+//        void
+//        apply(Bunch & bunch);
+//        Operators const&
+//        get_operators() const;
+//        void
+//        print(int index) const;
+//    };
+//
+//    typedef boost::shared_ptr<Step > Step_sptr;
+//    typedef std::list<Step_sptr > Steps;
+    class_<Step, Step_sptr >("Step", init<>())
+//            .def("append", remember how to overload methods...)
+            .def("apply",&Step::apply)
+            .def("get_operators",&Step::get_operators,
+                    return_value_policy<copy_const_reference >())
+            ;
+    to_python_converter<Steps,
+             container_conversions::to_tuple<Steps > >();
+
+    //    class Stepper
 //    {
 //    private:
 //        Steps steps;
@@ -92,4 +122,22 @@ BOOST_PYTHON_MODULE(pysimulation)
 //    };
     class_<Split_operator_stepper, bases<Stepper > >("Split_operator_stepper",
             init<Lattice_simulator const&, Collective_operator_sptr const&, int >());
+
+//    class Propagator
+//    {
+//    private:
+//        Stepper_sptr stepper_sptr;
+//
+//        void
+//        construct();
+//    public:
+//        Propagator(Stepper_sptr const& stepper_sptr);
+//        void
+//        propagate(Bunch & bunch, int num_turns, bool diagnostics_per_step,
+//                bool diagnostics_per_turn);
+//        ~Propagator();
+//    };
+    class_<Propagator >("Propagator",init<Stepper_sptr const& >())
+            .def("propagate",&Propagator::propagate)
+            ;
 }
