@@ -1,5 +1,6 @@
 #include "bunch.h"
 #include "diagnostics.h"
+#include "populate.h"
 #include <boost/python.hpp>
 #include "utils/numpy_multi_ref_converter.h"
 #include "utils/comm_converter.h"
@@ -13,6 +14,8 @@ BOOST_PYTHON_MODULE(pybunch)
         return;
     }
     comm_converter::register_to_and_from_python();
+    numpy_multi_array_ref_converter<double, 1 >::register_to_and_from_python();
+    numpy_const_multi_array_ref_converter<double, 1 >::register_to_and_from_python();
     numpy_multi_array_ref_converter<double, 2 >::register_to_and_from_python();
     numpy_const_multi_array_ref_converter<double, 2 >::register_to_and_from_python();
 
@@ -41,6 +44,8 @@ BOOST_PYTHON_MODULE(pybunch)
         .def("get_emitxy",&Diagnostics_full2::get_emitxy)
         .def("get_emitxyz",&Diagnostics_full2::get_emitxyz)
         ;
+
+    def("populate_6d", populate_6d);
 
     typedef Reference_particle & (Bunch::*get_reference_particle_non_const_type)();
     typedef MArray2d_ref (Bunch::*get_local_particles_non_const_type)();
