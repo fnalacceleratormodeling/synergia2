@@ -9,7 +9,6 @@ from pyfoundation import Random_distribution
 from math import acos, sin, sqrt
 
 def _get_correlation_matrix(map, stdx, stdy, stdz):
-    print "correlation matrix: lattice functions =",get_alpha_beta(map)
     evals, evect_matrix = numpy.linalg.eig(map)
     evects = []
     for i in range(0, 6):
@@ -34,16 +33,12 @@ def _get_correlation_matrix(map, stdx, stdy, stdz):
         tmp += numpy.outer(evects[conj],
             numpy.conjugate(evects[conj]))
         F[i] = tmp.real
-        print "F[",i,"] ="
-        print F[i]
 
     S = numpy.zeros((3, 3), 'd')
     for i in range(0, 3):
         for j in range(0, 3):
             S[i, j] = F[j][i,i]
 
-    print "S ="
-    print S
     Sinv = numpy.linalg.inv(S)
 
     C = numpy.zeros([6, 6], 'd')
@@ -117,7 +112,6 @@ def generate_matched_bunch(lattice_simulator, stdx, stdy, stdz,
                            comm=None):
 
     map = linear_one_turn_map(lattice_simulator)
-    print map
     correlation_matrix = _get_correlation_matrix(map, stdx, stdy, stdz)
     if comm == None:
         comm = MPI.COMM_WORLD
@@ -129,7 +123,6 @@ def generate_matched_bunch_transverse(lattice_simulator, emit_x, emit_y, rms_z, 
                            comm=None):
 
     map = linear_one_turn_map(lattice_simulator)
-    print map
     alpha, beta = get_alpha_beta(map)
     sigma4, r4 = match_transverse_twiss_emittance([emit_x, emit_y], alpha, beta)
     sigma = range(0, 6)
@@ -141,7 +134,6 @@ def generate_matched_bunch_transverse(lattice_simulator, emit_x, emit_y, rms_z, 
     r = [r4[0], r4[1], 1.0]
     covariance_matrix = get_covariances(sigma, r)
     means = numpy.zeros((6,),'d')
-    print covariance_matrix
     if comm == None:
         comm = MPI.COMM_WORLD
     bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
