@@ -148,3 +148,4 @@ def generate_matched_bunch_transverse(lattice_simulator, emit_x, emit_y, rms_z, 
                   1, num_macro_particles, num_real_particles, comm)
     dist = Random_distribution(seed, comm)
     populate_6d(dist, bunch, means, covariance_matrix)
+    return bunch
