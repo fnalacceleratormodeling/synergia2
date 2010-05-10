@@ -3,10 +3,12 @@
 import sys
 sys.path.append('..')
 sys.path.append('../../foundation')
+sys.path.append('../../convertors')
 
 from mpi4py import MPI
 from pyfoundation import Reference_particle, Four_momentum
 from pybunch import Bunch, Fixed_t_z_zeroth, Fixed_t_z_ballistic
+import pyconvertors
 import numpy
 from nose.tools import *
 
@@ -50,7 +52,7 @@ def test_update_total():
     b.set_local_num(new_local_num)
     b.update_total_num()
     assert_equal(b.get_total_num(),new_total_num)
-    
+
 def test_convert_to_state():
     b = Bunch(reference_particle, proton_charge, total_num, real_num,
               MPI.COMM_WORLD)
@@ -67,7 +69,7 @@ def test_get_reference_particle():
               MPI.COMM_WORLD)
     r = b.get_reference_particle()
     assert_equal(reference_particle.get_total_energy(),r.get_total_energy())
-    
+
 def test_get_local_particles():
     b = Bunch(reference_particle, proton_charge, total_num, real_num,
               MPI.COMM_WORLD)
@@ -85,12 +87,12 @@ def test_get_state():
     b = Bunch(reference_particle, proton_charge, total_num, real_num,
               MPI.COMM_WORLD)
     assert b.get_state() == Bunch.fixed_z
-    
+
 #def test_get_comm():
 #    b = Bunch(reference_particle, proton_charge, total_num, real_num,
 #              MPI.COMM_WORLD)
 #    assert b.get_comm() == MPI.COMM_WORLD
-    
+
 def test_attrs():
     assert Bunch.x == 0
     assert Bunch.xp == 1

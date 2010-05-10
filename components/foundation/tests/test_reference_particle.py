@@ -2,8 +2,11 @@
 
 import sys
 sys.path.append('..')
+sys.path.append('../../convertors')
 
 from pyfoundation import Reference_particle, Four_momentum
+import pyconvertors
+
 import numpy
 from nose.tools import *
 
@@ -27,7 +30,7 @@ def test_set_get_four_momentum():
     r = Reference_particle(four_momentum)
     r.get_four_momentum().set_total_energy(total_energy2)
     assert_almost_equal(r.get_four_momentum().get_total_energy(),total_energy2)
-    
+
 def test_set_get_four_momentum2():
     r = Reference_particle(four_momentum)
     f2 = Four_momentum(mass)
@@ -35,7 +38,7 @@ def test_set_get_four_momentum2():
     assert_almost_equal(r.get_four_momentum().get_total_energy(),total_energy)
     r.set_four_momentum(f2)
     assert_almost_equal(r.get_four_momentum().get_total_energy(),total_energy2)
-    
+
 def test_set_get_state():
     r = Reference_particle(four_momentum)
     r.set_state(state)
@@ -51,11 +54,11 @@ def test_set_get_total_energy():
 def test_get_beta():
     r = Reference_particle(four_momentum)
     assert_almost_equal(r.get_beta(),four_momentum.get_beta())
-    
+
 def test_get_gamma():
     r = Reference_particle(four_momentum)
     assert_almost_equal(r.get_gamma(),four_momentum.get_gamma())
-    
+
 def test_get_momentum():
     r = Reference_particle(four_momentum)
     assert_almost_equal(r.get_momentum(),four_momentum.get_momentum())

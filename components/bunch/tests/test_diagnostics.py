@@ -1,11 +1,13 @@
 import sys
 sys.path.append('..')
 sys.path.append('../../foundation')
+sys.path.append('../../convertors')
 
 from mpi4py import MPI
 from pyfoundation import Reference_particle, Four_momentum
 from pybunch import Bunch
 from pybunch import Diagnostics, Diagnostics_full2
+import pyconvertors
 import numpy
 from nose.tools import *
 
@@ -86,20 +88,20 @@ def test_get_mom2_full2():
 def test_get_emitx_full2():
     diagnostics = Diagnostics_full2(bunch, s)
     emitx = diagnostics.get_emitx()
-    
+
 def test_get_emity_full2():
     diagnostics = Diagnostics_full2(bunch, s)
     emity = diagnostics.get_emity()
-    
+
 def test_get_emitz_full2():
     diagnostics = Diagnostics_full2(bunch, s)
     emitz = diagnostics.get_emitz()
-    
+
 def test_get_emitxy_full2():
     diagnostics = Diagnostics_full2(bunch, s)
     emitxy = diagnostics.get_emitxy()
-    
+
 def test_get_emitxyz_full2():
     diagnostics = Diagnostics_full2(bunch, s)
     emitxyz = diagnostics.get_emitxyz()
-    
+
