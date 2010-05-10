@@ -12,17 +12,17 @@ num_real_particles = 1e12
 num_steps = 10
 num_turns = 1000
 map_order = 2
-stdx = 2e-3
-stdy = 2e-3
-stdz = 1e-4
+emit = 1e-6
+stdz = 0.01
+dpop = 1e-4
 
 lattice = synergia.Mad8_reader().get_lattice("fodo", "fodo.lat")
 space_charge = synergia.Space_charge_3d_open_hockney(grid)
 lattice_simulator = synergia.Lattice_simulator(lattice, map_order)
 stepper = synergia.Split_operator_stepper(lattice_simulator, space_charge,
                                           num_steps)
-bunch = synergia.generate_matched_bunch(lattice_simulator, stdx, stdy, stdz,
+bunch = generate_matched_bunch_transverse(lattice_simulator, emit, emit, stdz, dpop,
                                         num_real_particles, num_macro_particles,
                                         seed=seed)
-propagator = synergia.Propagator(stepper.get_steps())
-propagator.propagate(bunch, num_turns, diagnostics_per_step=False, diagnostics_per_turn=True)
+propagator = Propagator(stepper)
+propagator.propagate(bunch, num_turns, True, False)
