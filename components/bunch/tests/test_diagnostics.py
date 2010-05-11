@@ -18,9 +18,9 @@ real_num = 1.0e12
 proton_charge = 1
 default_s = 123.4
 
-reference_particle = Reference_particle(mass, total_energy)
+reference_particle = Reference_particle(proton_charge, mass, total_energy)
 comm = MPI.COMM_WORLD
-bunch = Bunch(reference_particle, proton_charge, total_num, real_num, comm)
+bunch = Bunch(reference_particle, total_num, real_num, comm)
 particles = bunch.get_local_particles()
 particles[:, 0:6] = numpy.random.lognormal(size=[bunch.get_total_num(), 6])
 s = default_s

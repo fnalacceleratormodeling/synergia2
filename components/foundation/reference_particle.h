@@ -7,27 +7,34 @@
 /// Reference_particle stores the four momentum of the reference frame
 /// with respect to  the lab frame (defined to be along the axis of the
 /// accelerator) as well as the six-dimensional state vector of the the
-/// reference particle in the reference frame.
+/// reference particle in the reference frame. Reference particle
+/// also keeps track of the total path length of the reference particle
+/// trajectory.
 class Reference_particle
 {
 private:
+    int charge;
     Four_momentum four_momentum;
     MArray1d state;
+    double s;
+    int repetition;
+    double repetition_length;
 public:
     /// Construct a Reference_particle with a given mass and total energy.
     /// @param mass in GeV/c^2
+    /// @param charge in units of e
     /// @param total_energy in GeV in the lab frame
-    Reference_particle(double mass, double total_energy);
+    Reference_particle(int charge, double mass, double total_energy);
 
     /// Construct a Reference_particle with a given four momentum.
     /// @param four_momentum in the lab frame
-    Reference_particle(Four_momentum const& four_momentum);
+    Reference_particle(int charge, Four_momentum const& four_momentum);
 
     /// Construct a Reference_particle with a given four momentum and state
     /// in the reference frame.
     /// @param four_momentum in the lab frame
     /// @param state is a six-dimensional state vector
-    Reference_particle(Four_momentum const& four_momentum,
+    Reference_particle(int charge, Four_momentum const& four_momentum,
             Const_MArray1d_ref state);
 
     /// Set the four momentum.
@@ -44,6 +51,25 @@ public:
     /// @param total_energy in GeV in the lab frame
     void
     set_total_energy(double total_energy);
+
+    /// Increment the trajectory length.
+    /// @param length in m
+    void
+    increment_trajectory(double length);
+
+    /// Start a new repetition
+    void
+    start_repetition();
+
+    /// Manually set trajectory parameters
+    /// @param repetition_length in m
+    /// @param s in m
+    void
+    set_trajectory(int repetition, double repetition_length, double s);
+
+    /// Return the Reference_particle charge in units of e
+    int
+    get_charge() const;
 
     /// Get the four momentum in the lab frame.
     Four_momentum const &
@@ -68,6 +94,24 @@ public:
     /// Get the total energy in GeV in the lab frame.
     double
     get_total_energy() const;
+
+    /// Get the total path length in m of the reference
+    /// particle trajectory
+    double
+    get_trajectory_length() const;
+
+    /// Get the distance traveled in m since the beginning
+    /// of the current repetition.
+    double
+    get_s() const;
+
+    /// Get the number of repetition.
+    int
+    get_repetition() const;
+
+    /// Get the repetition length in m.
+    double
+    get_repetition_length() const;
 
     /// Check equality to the given tolerance
     /// @param reference_particle another Reference_particle

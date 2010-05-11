@@ -54,9 +54,8 @@ Bunch::assign_ids(int local_offset)
     }
 }
 
-Bunch::Bunch(Reference_particle const& reference_particle, int particle_charge,
-        int total_num, double real_num, Commxx const& comm) :
-    reference_particle(reference_particle), comm(comm), default_converter()
+void
+Bunch::construct(int particle_charge, int total_num, double real_num)
 {
     this->particle_charge = particle_charge;
     this->total_num = total_num;
@@ -69,6 +68,20 @@ Bunch::Bunch(Reference_particle const& reference_particle, int particle_charge,
     local_num = counts[comm.get_rank()];
     local_particles = new MArray2d(boost::extents[local_num][7]);
     assign_ids(offsets[comm.get_rank()]);
+}
+
+Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
+        double real_num, Commxx const& comm) :
+    reference_particle(reference_particle), comm(comm), default_converter()
+{
+    construct(reference_particle.get_charge(), total_num, real_num);
+}
+
+Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
+        double real_num, Commxx const& comm, int particle_charge) :
+    reference_particle(reference_particle), comm(comm), default_converter()
+{
+    construct(particle_charge, total_num, real_num);
 }
 
 Bunch::Bunch(Bunch const& bunch) :

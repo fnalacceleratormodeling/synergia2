@@ -179,5 +179,5 @@ def test_reference_particle():
     reference_particle = lattice.get_reference_particle()
     four_momentum = Four_momentum(constants.mp)
     four_momentum.set_total_energy(1.5)
-    expected_rp = Reference_particle(four_momentum)
+    expected_rp = Reference_particle(constants.proton_charge, four_momentum)
     assert(reference_particle.equal(expected_rp, precision))

@@ -37,16 +37,27 @@ private:
     Fixed_t_z_zeroth default_converter;
     void
     assign_ids(int local_offset);
+    void
+    construct(int particle_charge, int total_num, double real_num);
 public:
     /// Construct a bunch. Allocates memory for the particles and assigns
     /// partice ID's, but does not fill the phase space values in any way.
     /// @param reference_particle the reference particle for the bunch.
-    /// @param particle_charge in units of e.
     /// @param total_num the total number of macroparticles in the bunch
     /// @param real_num the number of real particles represented by the bunch.
-    /// @param comm the communicator
-    Bunch(Reference_particle const& reference_particle, int particle_charge,
-            int total_num, double real_num, Commxx const& comm);
+    /// @param comm the communicator.
+    Bunch(Reference_particle const& reference_particle, int total_num,
+            double real_num, Commxx const& comm);
+
+    /// Construct a bunch. Allocates memory for the particles and assigns
+    /// partice ID's, but does not fill the phase space values in any way.
+    /// @param reference_particle the reference particle for the bunch.
+    /// @param total_num the total number of macroparticles in the bunch
+    /// @param real_num the number of real particles represented by the bunch.
+    /// @param comm the communicator.
+    /// @param particle_charge in units of e.
+    Bunch(Reference_particle const& reference_particle, int total_num,
+            double real_num, Commxx const& comm, int particle_charge);
 
     Bunch(Bunch const& bunch);
     Bunch &

@@ -47,7 +47,9 @@ BOOST_PYTHON_MODULE(pybunch)
     scope
         Bunch_scope =
             class_<Bunch > ("Bunch", init<Reference_particle const&,
-                    int, int, double, Commxx const& > ())
+                    int, double, Commxx const& > ())
+                .def(init<Reference_particle const&, int, double,
+                        Commxx const&, int >())
                 .def("set_particle_charge", &Bunch::set_particle_charge)
                 .def("set_real_num", &Bunch::set_real_num)
                 .def("set_local_num", &Bunch::set_local_num)

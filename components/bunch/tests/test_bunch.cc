@@ -16,9 +16,9 @@ const double real_num = 2.0e12;
 struct Fixture
 {
     Fixture() :
-        four_momentum(mass, total_energy), reference_particle(four_momentum),
-                comm(MPI_COMM_WORLD), bunch(reference_particle,
-                        constants::proton_charge, total_num, real_num, comm)
+        four_momentum(mass, total_energy), reference_particle(
+                constants::proton_charge, four_momentum), comm(MPI_COMM_WORLD),
+                bunch(reference_particle, total_num, real_num, comm)
     {
         BOOST_TEST_MESSAGE("setup fixture");
     }
@@ -82,6 +82,12 @@ BOOST_FIXTURE_TEST_CASE(construct, Fixture)
 {
 }
 
+BOOST_FIXTURE_TEST_CASE(construct2, Fixture)
+{
+    Bunch electron_bunch(reference_particle, total_num, real_num, comm,
+            constants::electron_charge);
+}
+
 BOOST_FIXTURE_TEST_CASE(check_ids, Fixture)
 {
     double offset = bunch.get_local_particles()[0][Bunch::id];
@@ -94,8 +100,7 @@ BOOST_FIXTURE_TEST_CASE(check_ids, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(check_ids2, Fixture)
 {
-    Bunch second_bunch(reference_particle, constants::proton_charge, total_num,
-            real_num, comm);
+    Bunch second_bunch(reference_particle, total_num, real_num, comm);
     BOOST_CHECK( static_cast<int>(second_bunch.get_local_particles()[0][Bunch::id]
                     - bunch.get_local_particles()[0][Bunch::id]) == total_num);
 }
@@ -109,8 +114,7 @@ BOOST_FIXTURE_TEST_CASE(copy_construct, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(assign, Fixture)
 {
-    Bunch second_bunch(reference_particle, constants::proton_charge, total_num
-            + 10, real_num * 2, comm);
+    Bunch second_bunch(reference_particle, total_num + 10, real_num * 2, comm);
     dummy_populate(bunch);
     second_bunch = bunch;
     compare_bunches(bunch, second_bunch);
@@ -120,6 +124,14 @@ BOOST_FIXTURE_TEST_CASE(get_particle_charge, Fixture)
 {
     BOOST_CHECK_CLOSE(bunch.get_particle_charge(), constants::proton_charge,
             tolerance);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_particle_charge2, Fixture)
+{
+    Bunch electron_bunch(reference_particle, total_num, real_num, comm,
+            constants::electron_charge);
+    BOOST_CHECK_EQUAL(electron_bunch.get_particle_charge(),
+            constants::electron_charge);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_mass, Fixture)

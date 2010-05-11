@@ -18,10 +18,10 @@ total_energy = 3.0
 total_num = 100
 real_num = 1.0e12
 proton_charge = 1
-reference_particle = Reference_particle(mass, total_energy)
+reference_particle = Reference_particle(proton_charge, mass, total_energy)
 
 def test():
-    bunch = Bunch(reference_particle, proton_charge, total_num, real_num,
+    bunch = Bunch(reference_particle, total_num, real_num,
                MPI.COMM_WORLD)
     distribution = Random_distribution(0, MPI.COMM_WORLD)
     means = numpy.zeros((6,), 'd')

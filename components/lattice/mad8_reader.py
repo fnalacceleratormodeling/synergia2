@@ -152,7 +152,7 @@ class Mad8_reader:
                     four_momentum.set_total_energy(energy)
                 if gamma:
                     four_momentum.set_gamma(gamma)
-                reference_particle = Reference_particle(four_momentum)
+                reference_particle = Reference_particle(charge, four_momentum)
                 lattice.set_reference_particle(reference_particle)
 
     def get_lattice(self, line_name, filename=None):

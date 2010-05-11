@@ -6,6 +6,7 @@
 #include "utils/multi_array_typedefs.h"
 #include "utils/multi_array_print.h"
 
+const int charge = constants::proton_charge;
 const double mass = constants::mp;
 const double real_num = 1.0e11;
 const int total_num = 20;
@@ -13,10 +14,9 @@ const double total_energy = 125.0;
 struct Bunch_fixture
 {
     Bunch_fixture() :
-        four_momentum(mass, total_energy), reference_particle(four_momentum),
-                comm(MPI_COMM_WORLD), bunch(reference_particle,
-                        constants::proton_charge, total_num, real_num, comm),
-                distribution(0, comm)
+        four_momentum(mass, total_energy), reference_particle(charge,
+                four_momentum), comm(MPI_COMM_WORLD), bunch(reference_particle,
+                total_num, real_num, comm), distribution(0, comm)
     {
         BOOST_TEST_MESSAGE("setup bunch fixture");
         MArray2d covariances(boost::extents[6][6]);

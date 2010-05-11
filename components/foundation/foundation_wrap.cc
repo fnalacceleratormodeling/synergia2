@@ -47,12 +47,17 @@ BOOST_PYTHON_MODULE(pyfoundation)
         .def("equal",&Four_momentum::equal)
         ;
 
-    class_<Reference_particle>("Reference_particle", init<double, double>())
-        .def(init<Four_momentum const &>())
-        .def(init<Four_momentum const &,Const_MArray1d_ref>())
+    class_<Reference_particle>("Reference_particle",
+            init<int, double, double>())
+        .def(init<int, Four_momentum const &>())
+        .def(init<int, Four_momentum const &,Const_MArray1d_ref>())
         .def("set_four_momentum",&Reference_particle::set_four_momentum)
         .def("set_state",&Reference_particle::set_state)
         .def("set_total_energy",&Reference_particle::set_total_energy)
+        .def("increment_trajectory", &Reference_particle::increment_trajectory)
+        .def("start_repetition", &Reference_particle::start_repetition)
+        .def("set_trajectory", &Reference_particle::set_trajectory)
+        .def("get_charge", &Reference_particle::get_charge)
         .def("get_four_momentum",&Reference_particle::get_four_momentum,
                 return_internal_reference<>())
         .def("get_state",&Reference_particle::get_state)
@@ -60,6 +65,10 @@ BOOST_PYTHON_MODULE(pyfoundation)
         .def("get_gamma",&Reference_particle::get_gamma)
         .def("get_momentum",&Reference_particle::get_momentum)
         .def("get_total_energy",&Reference_particle::get_total_energy)
+        .def("get_trajectory_length", &Reference_particle::get_trajectory_length)
+        .def("get_s", &Reference_particle::get_s)
+        .def("get_repetition", &Reference_particle::get_repetition)
+        .def("get_repetition_length", &Reference_particle::get_repetition_length)
         .def("equal",&Reference_particle::equal)
         ;
 

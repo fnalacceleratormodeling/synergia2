@@ -51,8 +51,8 @@ compare_multi_array(Const_MArray2d_ref const& a, Const_MArray2d_ref const& b,
 struct Fixture
 {
     Fixture() :
-        reference_particle(mass, total_energy), comm(MPI_COMM_WORLD), bunch(
-                reference_particle, proton_charge, total_num, real_num, comm),
+        reference_particle(proton_charge, mass, total_energy), comm(MPI_COMM_WORLD), bunch(
+                reference_particle, total_num, real_num, comm),
                 distribution(0, comm), s(default_s)
     {
         BOOST_TEST_MESSAGE("setup fixture");

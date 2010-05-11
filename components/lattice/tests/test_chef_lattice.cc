@@ -5,6 +5,7 @@
 #include <basic_toolkit/PhysicsConstants.h>
 
 const std::string name("fodo");
+const int charge = 1;
 const double mass = PH_NORM_mp;
 const double total_energy = 8.9;
 const double quad_length = 0.2;
@@ -15,8 +16,8 @@ const double tolerance = 1.0e-12;
 struct Fodo_fixture
 {
     Fodo_fixture() :
-        four_momentum(mass, total_energy), reference_particle(four_momentum),
-                lattice(name)
+        four_momentum(mass, total_energy), reference_particle(charge,
+                four_momentum), lattice(name)
     {
         BOOST_TEST_MESSAGE("setup fixture");
         lattice.set_reference_particle(reference_particle);
@@ -51,8 +52,8 @@ const double pi = 3.141592653589793;
 struct Fobodobo_sbend_fixture
 {
     Fobodobo_sbend_fixture() :
-        four_momentum(mass, total_energy), reference_particle(four_momentum),
-                lattice(name)
+        four_momentum(mass, total_energy), reference_particle(charge,
+                four_momentum), lattice(name)
     {
         BOOST_TEST_MESSAGE("setup fixture");
         lattice.set_reference_particle(reference_particle);
@@ -92,8 +93,8 @@ struct Fobodobo_sbend_fixture
 struct Fobodobo_sbend_markers_fixture
 {
     Fobodobo_sbend_markers_fixture() :
-        four_momentum(mass, total_energy), reference_particle(four_momentum),
-                lattice(name)
+        four_momentum(mass, total_energy), reference_particle(charge,
+                four_momentum), lattice(name)
     {
         BOOST_TEST_MESSAGE("setup fixture");
         lattice.set_reference_particle(reference_particle);
@@ -142,8 +143,8 @@ struct Fobodobo_sbend_markers_fixture
 struct Fobodobo_rbend_fixture
 {
     Fobodobo_rbend_fixture() :
-        four_momentum(mass, total_energy), reference_particle(four_momentum),
-                lattice(name)
+        four_momentum(mass, total_energy), reference_particle(charge,
+                four_momentum), lattice(name)
     {
         BOOST_TEST_MESSAGE("setup fixture");
         lattice.set_reference_particle(reference_particle);
@@ -183,8 +184,8 @@ struct Fobodobo_rbend_fixture
 struct Fobodobo_rbend_markers_fixture
 {
     Fobodobo_rbend_markers_fixture() :
-        four_momentum(mass, total_energy), reference_particle(four_momentum),
-                lattice(name)
+        four_momentum(mass, total_energy), reference_particle(charge,
+                four_momentum), lattice(name)
     {
         BOOST_TEST_MESSAGE("setup fixture");
         lattice.set_reference_particle(reference_particle);
