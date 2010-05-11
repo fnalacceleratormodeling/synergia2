@@ -27,11 +27,13 @@ public:
     Reference_particle(int charge, double mass, double total_energy);
 
     /// Construct a Reference_particle with a given four momentum.
+    /// @param charge in units of e
     /// @param four_momentum in the lab frame
     Reference_particle(int charge, Four_momentum const& four_momentum);
 
     /// Construct a Reference_particle with a given four momentum and state
     /// in the reference frame.
+    /// @param charge in units of e
     /// @param four_momentum in the lab frame
     /// @param state is a six-dimensional state vector
     Reference_particle(int charge, Four_momentum const& four_momentum,
@@ -62,6 +64,7 @@ public:
     start_repetition();
 
     /// Manually set trajectory parameters
+    /// @param repetition starting at 0
     /// @param repetition_length in m
     /// @param s in m
     void
