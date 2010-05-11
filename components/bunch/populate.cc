@@ -13,7 +13,7 @@ void
 adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
         Const_MArray2d_ref covariances)
 {
-    Diagnostics_full2 diagnostics(bunch, 0.0);
+    Diagnostics_full2 diagnostics(bunch);
     Matrix<double, 6, 6, Eigen::RowMajor > C(covariances.origin());
     Matrix<double, 6, 6, Eigen::RowMajor > X(diagnostics.get_mom2().origin());
     Matrix<double, 6, 6, Eigen::RowMajor > A = C.llt().matrixL()

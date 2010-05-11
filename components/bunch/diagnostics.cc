@@ -46,16 +46,18 @@ Diagnostics::Diagnostics() :
 {
 }
 
-Diagnostics::Diagnostics(Bunch const& bunch, double s) :
+Diagnostics::Diagnostics(Bunch const& bunch) :
     mean(boost::extents[6]), std(boost::extents[6])
 {
-    update(bunch, s);
+    update(bunch);
 }
 
 void
-Diagnostics::update(Bunch const& bunch, double s)
+Diagnostics::update(Bunch const& bunch)
 {
-    this->s = s;
+    s = bunch.get_reference_particle().get_s();
+    repetition = bunch.get_reference_particle().get_repetition();
+    trajectory_length = bunch.get_reference_particle().get_trajectory_length();
     update_mean(bunch);
     update_std(bunch);
 }
@@ -64,6 +66,18 @@ double
 Diagnostics::get_s() const
 {
     return s;
+}
+
+int
+Diagnostics::get_repetition() const
+{
+    return repetition;
+}
+
+double
+Diagnostics::get_trajectory_length() const
+{
+    return trajectory_length;
 }
 
 Const_MArray1d_ref
@@ -138,16 +152,18 @@ Diagnostics_full2::Diagnostics_full2() :
 {
 }
 
-Diagnostics_full2::Diagnostics_full2(Bunch const& bunch, double s) :
+Diagnostics_full2::Diagnostics_full2(Bunch const& bunch) :
     Diagnostics(), mom2(boost::extents[6][6]), corr(boost::extents[6][6])
 {
-    update(bunch, s);
+    update(bunch);
 }
 
 void
-Diagnostics_full2::update(Bunch const& bunch, double s)
+Diagnostics_full2::update(Bunch const& bunch)
 {
-    this->s = s;
+    s = bunch.get_reference_particle().get_s();
+    repetition = bunch.get_reference_particle().get_repetition();
+    trajectory_length = bunch.get_reference_particle().get_trajectory_length();
     update_mean(bunch);
     update_full2(bunch);
     update_emittances();

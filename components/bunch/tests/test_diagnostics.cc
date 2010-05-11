@@ -12,7 +12,9 @@ const double mass = 100.0;
 const double total_energy = 125.0;
 const int total_num = 9;
 const double real_num = 2.0e12;
-const double default_s = 123.4;
+const int turns = 17;
+const double turn_length = 246.8;
+const double partial_s = 123.4;
 
 void
 dummy_populate(Bunch &bunch)
@@ -31,10 +33,11 @@ struct Fixture
     Fixture() :
         reference_particle(constants::electron_charge, mass, total_energy),
                 comm(MPI_COMM_WORLD), bunch(reference_particle, total_num,
-                        real_num, comm), s(default_s)
+                        real_num, comm)
     {
         BOOST_TEST_MESSAGE("setup fixture");
         dummy_populate(bunch);
+        bunch.get_reference_particle().set_trajectory(turns, turn_length, partial_s);
     }
     ~Fixture()
     {
@@ -44,7 +47,6 @@ struct Fixture
     Reference_particle reference_particle;
     Commxx comm;
     Bunch bunch;
-    double s;
 };
 
 BOOST_AUTO_TEST_CASE(construct)
@@ -55,24 +57,37 @@ BOOST_AUTO_TEST_CASE(construct)
 
 BOOST_FIXTURE_TEST_CASE(construct2, Fixture)
 {
-    Diagnostics diagnostics(bunch, s);
+    Diagnostics diagnostics(bunch);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_s, Fixture)
 {
-    Diagnostics diagnostics(bunch, s);
-    BOOST_CHECK_CLOSE(diagnostics.get_s(),default_s,tolerance);
+    Diagnostics diagnostics(bunch);
+    BOOST_CHECK_CLOSE(diagnostics.get_s(), partial_s, tolerance);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_repetition, Fixture)
+{
+    Diagnostics diagnostics(bunch);
+    BOOST_CHECK_EQUAL(diagnostics.get_repetition(), turns);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_trajectory_length, Fixture)
+{
+    Diagnostics diagnostics(bunch);
+    BOOST_CHECK_CLOSE(diagnostics.get_trajectory_length(),
+            turns * turn_length + partial_s, tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_mean, Fixture)
 {
-    Diagnostics diagnostics(bunch, s);
+    Diagnostics diagnostics(bunch);
 #include "test_diagnostics_get_mean.icc"
 }
 
 BOOST_FIXTURE_TEST_CASE(get_std, Fixture)
 {
-    Diagnostics diagnostics(bunch, s);
+    Diagnostics diagnostics(bunch);
 #include "test_diagnostics_get_std.icc"
 }
 
@@ -85,30 +100,30 @@ BOOST_AUTO_TEST_CASE(construct_full2)
 
 BOOST_FIXTURE_TEST_CASE(construct2_full2, Fixture)
 {
-    Diagnostics_full2 diagnostics(bunch, s);
+    Diagnostics_full2 diagnostics(bunch);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_s_full2, Fixture)
 {
-    Diagnostics_full2 diagnostics(bunch, s);
-    BOOST_CHECK_CLOSE(diagnostics.get_s(),default_s,tolerance);
+    Diagnostics_full2 diagnostics(bunch);
+    BOOST_CHECK_CLOSE(diagnostics.get_s(), partial_s, tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_mean_full2, Fixture)
 {
-    Diagnostics_full2 diagnostics(bunch, s);
+    Diagnostics_full2 diagnostics(bunch);
 #include "test_diagnostics_get_mean.icc"
 }
 
 BOOST_FIXTURE_TEST_CASE(get_std_full2, Fixture)
 {
-    Diagnostics_full2 diagnostics(bunch, s);
+    Diagnostics_full2 diagnostics(bunch);
 #include "test_diagnostics_get_mean.icc"
 }
 
 BOOST_FIXTURE_TEST_CASE(get_mom2_full2, Fixture)
 {
-    Diagnostics_full2 diagnostics(bunch, s);
+    Diagnostics_full2 diagnostics(bunch);
 #include "test_diagnostics_get_mom2.icc"
 }
 
@@ -118,7 +133,7 @@ BOOST_FIXTURE_TEST_CASE(get_corr_full2, Fixture)
     Bunch bunch2(reference_particle, total_num, real_num, comm);
     MArray2d_ref particles(bunch2.get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
-    Diagnostics_full2 diagnostics(bunch2, s);
+    Diagnostics_full2 diagnostics(bunch2);
 #include "test_diagnostics_get_corr.icc"
 }
 
@@ -130,7 +145,7 @@ BOOST_FIXTURE_TEST_CASE(get_emitx_full2, Fixture)
             real_num, comm);
     MArray2d_ref particles(bunch2.get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
-    Diagnostics_full2 diagnostics(bunch2, s);
+    Diagnostics_full2 diagnostics(bunch2);
 #include "test_diagnostics_get_emitx.icc"
 }
 
@@ -140,7 +155,7 @@ BOOST_FIXTURE_TEST_CASE(get_emity_full2, Fixture)
             real_num, comm);
     MArray2d_ref particles(bunch2.get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
-    Diagnostics_full2 diagnostics(bunch2, s);
+    Diagnostics_full2 diagnostics(bunch2);
 #include "test_diagnostics_get_emity.icc"
 }
 
@@ -150,7 +165,7 @@ BOOST_FIXTURE_TEST_CASE(get_emitz_full2, Fixture)
             real_num, comm);
     MArray2d_ref particles(bunch2.get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
-    Diagnostics_full2 diagnostics(bunch2, s);
+    Diagnostics_full2 diagnostics(bunch2);
 #include "test_diagnostics_get_emitz.icc"
 }
 
@@ -162,7 +177,7 @@ BOOST_FIXTURE_TEST_CASE(get_emitxy_full2, Fixture)
             real_num, comm);
     MArray2d_ref particles(bunch2.get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
-    Diagnostics_full2 diagnostics(bunch2, s);
+    Diagnostics_full2 diagnostics(bunch2);
 #include "test_diagnostics_get_emitxy.icc"
 }
 
@@ -174,7 +189,7 @@ BOOST_FIXTURE_TEST_CASE(get_emitxyz_full2, Fixture)
             real_num, comm);
     MArray2d_ref particles(bunch2.get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
-    Diagnostics_full2 diagnostics(bunch2, s);
+    Diagnostics_full2 diagnostics(bunch2);
 #include "test_diagnostics_get_emitxyz.icc"
 }
 

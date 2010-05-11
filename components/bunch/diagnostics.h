@@ -9,6 +9,8 @@ class Diagnostics
 {
 protected:
     double s;
+    int repetition;
+    double trajectory_length;
     MArray1d mean;
     MArray1d std;
     virtual void
@@ -21,18 +23,25 @@ public:
 
     /// Create a Diagnostics object
     /// @param bunch the Bunch
-    /// @param s the position along the reference trajectory in meters.
-    Diagnostics(Bunch const& bunch, double s);
+    Diagnostics(Bunch const& bunch);
 
     /// Update the diagnostics
     /// @param bunch the Bunch
-    /// @param s the position along the reference trajectory in meters.
     virtual void
-    update(Bunch const& bunch, double s);
+    update(Bunch const& bunch);
 
-    /// Get the position along the reference trajectory in meters.
+    /// Get the distance from the origin along the reference trajectory in
+    /// meters.
     virtual double
     get_s() const;
+
+    /// Get the number of complete repetitions.
+    virtual int
+    get_repetition() const;
+
+    /// Get the total distance along the reference trajectory in meters.
+    virtual double
+    get_trajectory_length() const;
 
     /// Get a six-dimensional vector of the means of each phase-space
     /// coordinate. The units are in Synergia units.
@@ -66,14 +75,12 @@ public:
 
     /// Create a Diagnostics object
     /// @param bunch the Bunch
-    /// @param s the position along the reference trajectory in meters.
-    Diagnostics_full2(Bunch const& bunch, double s);
+    Diagnostics_full2(Bunch const& bunch);
 
     /// Update the diagnostics
     /// @param bunch the Bunch
-    /// @param s the position along the reference trajectory in meters.
     virtual void
-    update(Bunch const& bunch, double s);
+    update(Bunch const& bunch);
 
     /// Get a 6x6 matrix of the second moments of the phase-space coordinates.
     /// The units are Synergia units.

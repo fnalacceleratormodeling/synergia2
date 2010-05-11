@@ -22,15 +22,17 @@ BOOST_PYTHON_MODULE(pybunch)
             "Fixed_t_z_ballistic", init< > ());
 
     class_<Diagnostics >("Diagnostics",init< >())
-        .def(init<Bunch const &, double  >())
+        .def(init<Bunch const & >())
         .def("update", &Diagnostics::update)
         .def("get_s", &Diagnostics::get_s)
+        .def("get_repetition", &Diagnostics::get_repetition)
+        .def("get_trajectory_length", &Diagnostics::get_trajectory_length)
         .def("get_mean", &Diagnostics::get_mean)
         .def("get_std", &Diagnostics::get_std)
         ;
 
     class_<Diagnostics_full2, bases<Diagnostics > >("Diagnostics_full2",init< >())
-        .def(init<Bunch const &, double >())
+        .def(init<Bunch const & >())
         .def("get_mom2",&Diagnostics_full2::get_mom2)
         .def("get_corr",&Diagnostics_full2::get_corr)
         .def("get_emitx",&Diagnostics_full2::get_emitx)

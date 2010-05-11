@@ -78,7 +78,7 @@ BOOST_FIXTURE_TEST_CASE(populate_6d_diagonal, Fixture)
         covariances[i][i] = (i + 1) * (i + 1);
     }
     populate_6d(distribution, bunch, means, covariances);
-    Diagnostics_full2 diagnostics(bunch, s);
+    Diagnostics_full2 diagnostics(bunch);
     compare_multi_array(means, diagnostics.get_mean(), tolerance);
     compare_multi_array(covariances, diagnostics.get_mom2(), tolerance);
 }
@@ -94,7 +94,7 @@ BOOST_FIXTURE_TEST_CASE(populate_6d_general, Fixture)
         }
     }
     populate_6d(distribution, bunch, means, covariances);
-    Diagnostics_full2 diagnostics(bunch, s);
+    Diagnostics_full2 diagnostics(bunch);
     compare_multi_array(means, diagnostics.get_mean(), tolerance);
     compare_multi_array(covariances, diagnostics.get_mom2(), tolerance);
 }
