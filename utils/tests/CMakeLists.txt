@@ -15,4 +15,4 @@ target_link_libraries(test_hdf5_writer ${HDF5_LIBRARIES} ${Boost_UNIT_TEST_FRAME
 add_test(test_hdf5_writer test_hdf5_writer)
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES integer.h5 double_float.h5
-    array1d.h5)
+    array1d.h5 array2d.h array3d.h)
