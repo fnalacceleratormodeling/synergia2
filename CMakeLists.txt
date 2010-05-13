@@ -1,5 +1,5 @@
 project(SYNERGIA2)
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 enable_testing()
 
 # MPI
@@ -16,11 +16,10 @@ LINK_DIRECTORIES(${PYTHON_LIBRARIES})
 # boost
 SET(Boost_USE_STATIC_LIBS OFF)
 SET(Boost_USE_MULTITHREAD ON)
-FIND_PACKAGE(Boost COMPONENTS python regex unit_test_framework)
+FIND_PACKAGE(Boost COMPONENTS python regex unit_test_framework REQUIRED)
 
-#~ message("Boost_INCLUDE_DIRS = '${Boost_INCLUDE_DIRS}'")
-#~ message("Boost_LIBRARIES = '${Boost_LIBRARIES}'")
-#~ message("Boost_LIBRARY_DIRS = '${Boost_LIBRARY_DIRS}'")
+# hdf5
+find_package(HDF5 REQUIRED)
 
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
@@ -62,7 +61,7 @@ link_directories(utils)
 add_subdirectory(components)
 add_subdirectory(synergia)
 add_subdirectory(s2_fish)
-add_subdirectory(impact)
+#add_subdirectory(impact)
 
 add_subdirectory(octapy)
 

@@ -1,2 +1,4 @@
 test_parallel_utils
 test_floating_point
+test_hdf5_writer
+*.h5
