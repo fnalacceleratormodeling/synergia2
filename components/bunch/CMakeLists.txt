@@ -1,6 +1,6 @@
 add_library(bunch SHARED fixed_t_z_converter.cc bunch.cc diagnostics.cc populate.cc)
-target_link_libraries(bunch parallel_utils)
+target_link_libraries(bunch parallel_utils hdf5_utils foundation)
 add_python_extension(pybunch bunch_wrap.cc)
-target_link_libraries(pybunch bunch parallel_utils foundation ${Boost_LIBRARIES})
+target_link_libraries(pybunch bunch ${Boost_LIBRARIES})
 
 add_subdirectory(tests)

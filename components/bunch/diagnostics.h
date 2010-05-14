@@ -2,17 +2,25 @@
 #define DIAGNOSTICS_H_
 
 #include "components/bunch/bunch.h"
+#include "utils/hdf5_writer.h"
 
 /// Diagnostics provides the minimal set of statistical
 /// quantities to be calculated for a Bunch.
 class Diagnostics
 {
+private:
+    bool have_writers;
 protected:
     double s;
+    Hdf5_writer<double > * writer_s;
     int repetition;
+    Hdf5_writer<int > * writer_repetition;
     double trajectory_length;
+    Hdf5_writer<double > * writer_trajectory_length;
     MArray1d mean;
+    Hdf5_writer<MArray1d_ref > * writer_mean;
     MArray1d std;
+    Hdf5_writer<MArray1d_ref > * writer_std;
     virtual void
     update_mean(Bunch const& bunch);
     virtual void
@@ -52,6 +60,12 @@ public:
     /// phase-space coordinate. The units are in Synergia units.
     virtual Const_MArray1d_ref
     get_std() const;
+
+    virtual void
+    init_writers(hid_t & hdf5_file);
+
+    virtual void
+    write_hdf5();
 
     virtual
     ~Diagnostics();

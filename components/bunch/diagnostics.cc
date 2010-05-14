@@ -2,6 +2,7 @@
 #include <cmath>
 #include "utils/eigen2/Eigen/Core"
 #include "utils/eigen2/Eigen/LU"
+#include <stdexcept>
 
 // import most common Eigen types
 USING_PART_OF_NAMESPACE_EIGEN
@@ -42,12 +43,12 @@ Diagnostics::update_std(Bunch const& bunch)
 }
 
 Diagnostics::Diagnostics() :
-    mean(boost::extents[6]), std(boost::extents[6])
+    mean(boost::extents[6]), std(boost::extents[6]), have_writers(false)
 {
 }
 
 Diagnostics::Diagnostics(Bunch const& bunch) :
-    mean(boost::extents[6]), std(boost::extents[6])
+    mean(boost::extents[6]), std(boost::extents[6]), have_writers(false)
 {
     update(bunch);
 }
@@ -92,8 +93,42 @@ Diagnostics::get_std() const
     return std;
 }
 
+void
+Diagnostics::init_writers(hid_t & hdf5_file)
+{
+    writer_s = new Hdf5_writer<double > (hdf5_file, "s");
+    writer_repetition = new Hdf5_writer<int > (hdf5_file, "repetition");
+    writer_trajectory_length = new Hdf5_writer<double > (hdf5_file,
+            "trajectory_length");
+    writer_mean = new Hdf5_writer<MArray1d_ref > (hdf5_file, "mean");
+    writer_std = new Hdf5_writer<MArray1d_ref > (hdf5_file, "std");
+    have_writers = true;
+}
+
+void
+Diagnostics::write_hdf5()
+{
+    if (!have_writers) {
+        throw(std::runtime_error(
+                "Diagnostics::write_hdf5 called before Diagnostics::init_writers"));
+    }
+    writer_s->append(s);
+    writer_repetition->append(repetition);
+    writer_trajectory_length->append(trajectory_length);
+    writer_mean->append(mean);
+    writer_std->append(std);
+}
+
 Diagnostics::~Diagnostics()
 {
+    if (have_writers) {
+        std::cout << "jfa: Diagnostics deleting writers\n";
+        delete writer_s;
+        delete writer_repetition;
+        delete writer_trajectory_length;
+        delete writer_mean;
+        delete writer_std;
+    }
 }
 
 void
