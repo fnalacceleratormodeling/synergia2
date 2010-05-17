@@ -37,7 +37,8 @@ struct Fixture
     {
         BOOST_TEST_MESSAGE("setup fixture");
         dummy_populate(bunch);
-        bunch.get_reference_particle().set_trajectory(turns, turn_length, partial_s);
+        bunch.get_reference_particle().set_trajectory(turns, turn_length,
+                partial_s);
     }
     ~Fixture()
     {
@@ -91,6 +92,16 @@ BOOST_FIXTURE_TEST_CASE(get_std, Fixture)
 #include "test_diagnostics_get_std.icc"
 }
 
+BOOST_FIXTURE_TEST_CASE(write_hdf5, Fixture)
+{
+    Diagnostics diagnostics(bunch);
+    hid_t hdf5_file = H5Fcreate("test.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
+            H5P_DEFAULT);
+    diagnostics.init_writers(hdf5_file);
+    diagnostics.write_hdf5();
+}
+// test_note: We are not (yet) testing the content of the output file.
+
 // n.b. no test for update because it is called internally for other tests.
 
 BOOST_AUTO_TEST_CASE(construct_full2)
@@ -141,8 +152,7 @@ const double tolerance_emit2d = 1.0e-12;
 
 BOOST_FIXTURE_TEST_CASE(get_emitx_full2, Fixture)
 {
-    Bunch bunch2(reference_particle, total_num,
-            real_num, comm);
+    Bunch bunch2(reference_particle, total_num, real_num, comm);
     MArray2d_ref particles(bunch2.get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
     Diagnostics_full2 diagnostics(bunch2);
@@ -151,8 +161,7 @@ BOOST_FIXTURE_TEST_CASE(get_emitx_full2, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_emity_full2, Fixture)
 {
-    Bunch bunch2(reference_particle, total_num,
-            real_num, comm);
+    Bunch bunch2(reference_particle, total_num, real_num, comm);
     MArray2d_ref particles(bunch2.get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
     Diagnostics_full2 diagnostics(bunch2);
@@ -161,8 +170,7 @@ BOOST_FIXTURE_TEST_CASE(get_emity_full2, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_emitz_full2, Fixture)
 {
-    Bunch bunch2(reference_particle, total_num,
-            real_num, comm);
+    Bunch bunch2(reference_particle, total_num, real_num, comm);
     MArray2d_ref particles(bunch2.get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
     Diagnostics_full2 diagnostics(bunch2);
@@ -173,8 +181,7 @@ const double tolerance_emit4d = 1.0e-12;
 
 BOOST_FIXTURE_TEST_CASE(get_emitxy_full2, Fixture)
 {
-    Bunch bunch2(reference_particle, total_num,
-            real_num, comm);
+    Bunch bunch2(reference_particle, total_num, real_num, comm);
     MArray2d_ref particles(bunch2.get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
     Diagnostics_full2 diagnostics(bunch2);
@@ -185,8 +192,7 @@ const double tolerance_emit6d = 1.0e-12;
 
 BOOST_FIXTURE_TEST_CASE(get_emitxyz_full2, Fixture)
 {
-    Bunch bunch2(reference_particle, total_num,
-            real_num, comm);
+    Bunch bunch2(reference_particle, total_num, real_num, comm);
     MArray2d_ref particles(bunch2.get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
     Diagnostics_full2 diagnostics(bunch2);
