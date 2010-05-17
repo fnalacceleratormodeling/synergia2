@@ -77,8 +77,12 @@ class Diagnostics_full2 : public Diagnostics
 {
 protected:
     MArray2d mom2;
+    Hdf5_writer<MArray2d_ref > * writer_mom2;
     MArray2d corr;
+    Hdf5_writer<MArray2d_ref > * writer_corr;
     double emitx, emity, emitz, emitxy, emitxyz;
+    Hdf5_writer<double > *writer_emitx, *writer_emity, *writer_emitz,
+            *writer_emitxy, *writer_emitxyz;
     virtual void
     update_full2(Bunch const& bunch);
     virtual void
@@ -130,6 +134,12 @@ public:
     /// Currently reported in unnatural Synergia units.
     virtual double
     get_emitxyz() const;
+
+    virtual void
+    init_writers(hid_t & hdf5_file);
+
+    virtual void
+    write_hdf5();
 
     virtual
     ~Diagnostics_full2();

@@ -199,3 +199,12 @@ BOOST_FIXTURE_TEST_CASE(get_emitxyz_full2, Fixture)
 #include "test_diagnostics_get_emitxyz.icc"
 }
 
+BOOST_FIXTURE_TEST_CASE(write_hdf5_full2, Fixture)
+{
+    Diagnostics_full2 diagnostics(bunch);
+    hid_t hdf5_file = H5Fcreate("test_full2.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
+            H5P_DEFAULT);
+    diagnostics.init_writers(hdf5_file);
+    diagnostics.write_hdf5();
+}
+// test_note: We are not (yet) testing the content of the output file.

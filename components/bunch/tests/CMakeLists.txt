@@ -20,4 +20,4 @@ target_link_libraries(test_populate bunch foundation ${Boost_UNIT_TEST_FRAMEWORK
 add_test(test_populate test_populate)
 add_test(test_populate_py nosetests test_populate.py)
 
-set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES test.h5)
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES test.h5 test_full2.h5)
