@@ -1,6 +1,8 @@
 #ifndef DIAGNOSTICS_H_
 #define DIAGNOSTICS_H_
 
+#include <boost/shared_ptr.hpp>
+
 #include "components/bunch/bunch.h"
 #include "utils/hdf5_writer.h"
 
@@ -71,10 +73,14 @@ public:
     ~Diagnostics();
 };
 
+typedef boost::shared_ptr<Diagnostics > Diagnostics_sptr;
+
 /// Diagnostics_full2 provides the full set of statistical
 /// quantities to be calculated for a Bunch up to the second moments.
 class Diagnostics_full2 : public Diagnostics
 {
+private:
+    bool have_writers;
 protected:
     MArray2d mom2;
     Hdf5_writer<MArray2d_ref > * writer_mom2;
@@ -144,5 +150,7 @@ public:
     virtual
     ~Diagnostics_full2();
 };
+
+typedef boost::shared_ptr<Diagnostics_full2 > Diagnostics_full2_sptr;
 
 #endif /* DIAGNOSTICS_H_ */

@@ -183,12 +183,14 @@ Diagnostics_full2::update_emittances()
 }
 
 Diagnostics_full2::Diagnostics_full2() :
-    Diagnostics(), mom2(boost::extents[6][6]), corr(boost::extents[6][6])
+    Diagnostics(), mom2(boost::extents[6][6]), corr(boost::extents[6][6]),
+            have_writers(false)
 {
 }
 
 Diagnostics_full2::Diagnostics_full2(Bunch const& bunch) :
-    Diagnostics(), mom2(boost::extents[6][6]), corr(boost::extents[6][6])
+    Diagnostics(), mom2(boost::extents[6][6]), corr(boost::extents[6][6]),
+            have_writers(false)
 {
     update(bunch);
 }
@@ -246,21 +248,17 @@ Diagnostics_full2::get_emitxyz() const
     return emitxyz;
 }
 
-Diagnostics_full2::~Diagnostics_full2()
-{
-}
-
 void
 Diagnostics_full2::init_writers(hid_t & hdf5_file)
 {
     Diagnostics::init_writers(hdf5_file);
-    writer_mom2 = new Hdf5_writer<MArray2d_ref>(hdf5_file, "mom2");
-    writer_corr = new Hdf5_writer<MArray2d_ref>(hdf5_file, "corr");
-    writer_emitx = new Hdf5_writer<double>(hdf5_file, "emitx");
-    writer_emity = new Hdf5_writer<double>(hdf5_file, "emity");
-    writer_emitz = new Hdf5_writer<double>(hdf5_file, "emitz");
-    writer_emitxy = new Hdf5_writer<double>(hdf5_file, "emitxy");
-    writer_emitxyz = new Hdf5_writer<double>(hdf5_file, "emitxyz");
+    writer_mom2 = new Hdf5_writer<MArray2d_ref > (hdf5_file, "mom2");
+    writer_corr = new Hdf5_writer<MArray2d_ref > (hdf5_file, "corr");
+    writer_emitx = new Hdf5_writer<double > (hdf5_file, "emitx");
+    writer_emity = new Hdf5_writer<double > (hdf5_file, "emity");
+    writer_emitz = new Hdf5_writer<double > (hdf5_file, "emitz");
+    writer_emitxy = new Hdf5_writer<double > (hdf5_file, "emitxy");
+    writer_emitxyz = new Hdf5_writer<double > (hdf5_file, "emitxyz");
 }
 
 void
@@ -274,5 +272,19 @@ Diagnostics_full2::write_hdf5()
     writer_emitz->append(emitz);
     writer_emitxy->append(emitxy);
     writer_emitxyz->append(emitxyz);
+}
+
+Diagnostics_full2::~Diagnostics_full2()
+{
+    if (have_writers) {
+        std::cout << "jfa: Diagnostics_full2 deleting writers\n";
+        delete writer_mom2;
+        delete writer_corr;
+        delete writer_emitx;
+        delete writer_emity;
+        delete writer_emitz;
+        delete writer_emitxy;
+        delete writer_emitxyz;
+    }
 }
 
