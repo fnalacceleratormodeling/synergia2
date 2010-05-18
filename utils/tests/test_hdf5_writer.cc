@@ -6,6 +6,14 @@
 // jfa: these are bad tests because they require the user
 // to manually inspect the output files.
 
+BOOST_AUTO_TEST_CASE(construct_integer)
+{
+    hid_t file = H5Fcreate("integer.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
+            H5P_DEFAULT);
+    Hdf5_writer<int > writer(file, "i");
+    H5Fclose(file);
+}
+
 BOOST_AUTO_TEST_CASE(integer)
 {
     hid_t file = H5Fcreate("integer.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
@@ -85,4 +93,3 @@ BOOST_AUTO_TEST_CASE(array3d)
     }
     H5Fclose(file);
 }
-
