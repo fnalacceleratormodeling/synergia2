@@ -122,7 +122,6 @@ Diagnostics::write_hdf5()
 Diagnostics::~Diagnostics()
 {
     if (have_writers) {
-        std::cout << "jfa: Diagnostics deleting writers\n";
         delete writer_s;
         delete writer_repetition;
         delete writer_trajectory_length;
@@ -259,6 +258,7 @@ Diagnostics_full2::init_writers(hid_t & hdf5_file)
     writer_emitz = new Hdf5_writer<double > (hdf5_file, "emitz");
     writer_emitxy = new Hdf5_writer<double > (hdf5_file, "emitxy");
     writer_emitxyz = new Hdf5_writer<double > (hdf5_file, "emitxyz");
+    have_writers = true;
 }
 
 void
@@ -277,7 +277,6 @@ Diagnostics_full2::write_hdf5()
 Diagnostics_full2::~Diagnostics_full2()
 {
     if (have_writers) {
-        std::cout << "jfa: Diagnostics_full2 deleting writers\n";
         delete writer_mom2;
         delete writer_corr;
         delete writer_emitx;
