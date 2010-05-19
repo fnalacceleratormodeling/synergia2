@@ -34,7 +34,14 @@ BOOST_FIXTURE_TEST_CASE(propagate, Lattice_fixture)
             lattice_simulator, space_charge, 4));
     Propagator propagator(stepper_sptr);
 
+    Diagnostics_sptr diagnostics_sptr(new Diagnostics);
+    Diagnostics_writer per_step_diagnostics("test_propagate_per_step.h5",
+            diagnostics_sptr);
+    Diagnostics_full2_sptr diagnostics_full2_sptr(new Diagnostics_full2);
+    Diagnostics_writer per_turn_diagnostics("test_propagate_per_turn.h5",
+            diagnostics_full2_sptr);
     int num_turns = 4;
-    propagator.propagate(b.bunch, num_turns, true, true);
+    propagator.propagate(b.bunch, num_turns, per_step_diagnostics,
+            per_turn_diagnostics);
 }
 

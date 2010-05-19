@@ -16,3 +16,4 @@ test_independent_operator
 test_step
 test_split_operator_stepper
 test_propagator
+test*.h5

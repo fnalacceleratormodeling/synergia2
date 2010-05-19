@@ -20,21 +20,18 @@ Propagator::Propagator(Stepper_sptr const& stepper_sptr) :
 }
 
 void
-Propagator::propagate(Bunch & bunch, int num_turns, bool diagnostics_per_step,
-        bool diagnostics_per_turn)
+Propagator::propagate(Bunch & bunch, int num_turns, Diagnostics_writer & per_step_diagnostics,
+        Diagnostics_writer & per_turn_diagnostics)
 {
     for (int turn = 0; turn < num_turns; ++turn) {
+        std::cout << "jfa: turn\n";
         for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
                 != stepper_sptr->get_steps().end(); ++it) {
             std::cout << "jfa: step\n";
             (*it)->apply(bunch);
-            if (diagnostics_per_step) {
-                std::cout << "jfa: per-step diagnostics\n";
-            }
+            per_step_diagnostics.update_and_write(bunch);
         }
-        if (diagnostics_per_turn) {
-            std::cout << "jfa: per-turn diagnostics\n";
-        }
+        per_turn_diagnostics.update_and_write(bunch);
     }
 }
 

@@ -61,4 +61,4 @@ target_link_libraries(test_propagator simulation lattice bunch ${Boost_UNIT_TEST
 add_test(test_propagator test_propagator)
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
-    "test_fast_mapping_term.dat;test_fast_mapping.dat;test_fast_mapping2.dat")
+    "test_fast_mapping_term.dat;test_fast_mapping.dat;test_fast_mapping2.dat;test_propagate_per_step.h5;test_propagate_per_turn.h5")
