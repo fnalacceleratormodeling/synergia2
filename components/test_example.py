@@ -13,6 +13,7 @@ sys.path.append("/home/amundson/work/synergia2-devel_1_0/install/lib")
 from mad8_reader import Mad8_reader
 from pysimulation import Collective_operator, Lattice_simulator, \
     Split_operator_stepper, Propagator
+from pybunch import Diagnostics_full2, Diagnostics_writer, no_diagnostics
 from matching import generate_matched_bunch_transverse
 import pyconvertors
 
@@ -36,5 +37,7 @@ stepper = Split_operator_stepper(lattice_simulator, space_charge,
 bunch = generate_matched_bunch_transverse(lattice_simulator, emit, emit, stdz, dpop,
                                         num_real_particles, num_macro_particles,
                                         seed=seed)
+diagnostics = Diagnostics_full2()
+diagnostics_writer = Diagnostics_writer("example_full2.h5", diagnostics)
 propagator = Propagator(stepper)
-propagator.propagate(bunch, num_turns, True, False)
+propagator.propagate(bunch, num_turns, diagnostics_writer, no_diagnostics())
