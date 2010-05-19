@@ -3,21 +3,24 @@
 template<>
     Hdf5_writer<MArray1d_ref >::Hdf5_writer(hid_t & file,
             std::string const& name) :
-        file(file), name(name), data_rank(MArray1d_ref::dimensionality)
+        file(file), name(name), data_rank(MArray1d_ref::dimensionality),
+                have_setup(false)
     {
     }
 
 template<>
     Hdf5_writer<MArray2d_ref >::Hdf5_writer(hid_t & file,
             std::string const& name) :
-        file(file), name(name), data_rank(MArray2d_ref::dimensionality)
+        file(file), name(name), data_rank(MArray2d_ref::dimensionality),
+                have_setup(false)
     {
     }
 
 template<>
     Hdf5_writer<MArray3d_ref >::Hdf5_writer(hid_t & file,
             std::string const& name) :
-        file(file), name(name), data_rank(MArray3d_ref::dimensionality)
+        file(file), name(name), data_rank(MArray3d_ref::dimensionality),
+                have_setup(false)
     {
     }
 
