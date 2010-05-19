@@ -25,7 +25,12 @@ def print_entries(filename):
 
 def print_entry(filename, entry):
     f = tables.openFile(filename, 'r')
-    print getattr(f.root, entry).read()
+    value =  getattr(f.root, entry).read()
+    print entry,
+    if hasattr(value,"shape"):
+        print "shape =", value.shape,
+    print
+    print value
     f.close()
 
 if __name__ == '__main__':
