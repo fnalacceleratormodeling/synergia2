@@ -1,6 +1,6 @@
 test_bunch
 *.icc
 test_diagnostics
+test_diagnostics_writer
 test_populate
-test.h5
-test_full2.h5
+test*.h5
