@@ -1,5 +1,6 @@
 #include "bunch.h"
 #include "diagnostics.h"
+#include "diagnostics_writer.h"
 #include "populate.h"
 #include <boost/python.hpp>
 #include "utils/numpy_multi_ref_converter.h"
@@ -21,7 +22,7 @@ BOOST_PYTHON_MODULE(pybunch)
     class_<Fixed_t_z_ballistic, bases<Fixed_t_z_converter > > (
             "Fixed_t_z_ballistic", init< > ());
 
-    class_<Diagnostics >("Diagnostics",init< >())
+    class_<Diagnostics, Diagnostics_sptr >("Diagnostics",init< >())
         .def(init<Bunch const & >())
         .def("update", &Diagnostics::update)
         .def("get_s", &Diagnostics::get_s)
@@ -31,15 +32,23 @@ BOOST_PYTHON_MODULE(pybunch)
         .def("get_std", &Diagnostics::get_std)
         ;
 
-    class_<Diagnostics_full2, bases<Diagnostics > >("Diagnostics_full2",init< >())
+    class_<Diagnostics_full2, Diagnostics_full2_sptr, bases<Diagnostics > >("Diagnostics_full2",init< >())
         .def(init<Bunch const & >())
-        .def("get_mom2",&Diagnostics_full2::get_mom2)
-        .def("get_corr",&Diagnostics_full2::get_corr)
-        .def("get_emitx",&Diagnostics_full2::get_emitx)
-        .def("get_emity",&Diagnostics_full2::get_emity)
-        .def("get_emitz",&Diagnostics_full2::get_emitz)
-        .def("get_emitxy",&Diagnostics_full2::get_emitxy)
+        .def("get_mom2", &Diagnostics_full2::get_mom2)
+        .def("get_corr", &Diagnostics_full2::get_corr)
+        .def("get_emitx", &Diagnostics_full2::get_emitx)
+        .def("get_emity", &Diagnostics_full2::get_emity)
+        .def("get_emitz", &Diagnostics_full2::get_emitz)
+        .def("get_emitxy", &Diagnostics_full2::get_emitxy)
         .def("get_emitxyz",&Diagnostics_full2::get_emitxyz)
+        ;
+
+    class_<Diagnostics_writer >("Diagnostics_writer",
+            init<std::string const& , Diagnostics_sptr const& >())
+        .def("get_diagnostics", &Diagnostics_writer::get_diagnostics_sptr,
+                return_value_policy<copy_non_const_reference >())
+        .def("write", &Diagnostics_writer::write)
+        .def("update_and_write", &Diagnostics_writer::update_and_write)
         ;
 
     def("populate_6d", populate_6d);
