@@ -121,11 +121,12 @@ Fast_mapping::add_term(int index, Fast_mapping_term const& term)
 }
 
 Fast_mapping::Fast_mapping(Reference_particle const& reference_particle,
-        Mapping const& chef_mapping)
+        Mapping const& chef_mapping, double mapping_length)
 {
     std::vector<double > u = chef_unit_conversion(reference_particle);
     order = chef_mapping.Weight();
     init(order);
+    length = mapping_length;
     for (int i = 0; i < 6; ++i) {
         int chef_i = get_chef_index(i);
         int nterm = 0;
@@ -169,6 +170,7 @@ Fast_mapping::get_length() const
 void
 Fast_mapping::apply(Bunch & bunch)
 {
+    bunch.get_reference_particle().increment_trajectory(length);
     double temp[6];
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();

@@ -33,11 +33,16 @@ extract_fast_mapping(Reference_particle const& reference_particle,
 {
     JetParticle jet_particle = reference_particle_to_chef_jet_particle(
             reference_particle, map_order);
+    Particle particle = reference_particle_to_chef_particle(reference_particle);
+    double mapping_length = 0.0;
     for (Chef_elements::const_iterator ce_it = chef_elements.begin(); ce_it
             != chef_elements.end(); ++ce_it) {
         (*ce_it)->propagate(jet_particle);
+        mapping_length += (*ce_it)->OrbitLength(particle);
+        (*ce_it)->propagate(particle);
     }
-    Fast_mapping fast_mapping(reference_particle, jet_particle.State());
+    Fast_mapping fast_mapping(reference_particle, jet_particle.State(),
+            mapping_length);
     Fast_mapping_operation_sptr fast_mapping_operation_sptr(
             new Fast_mapping_operation(fast_mapping));
     return fast_mapping_operation_sptr;

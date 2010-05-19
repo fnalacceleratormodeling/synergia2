@@ -16,13 +16,19 @@ BOOST_AUTO_TEST_CASE(construct)
 
 BOOST_FIXTURE_TEST_CASE(construct2, Mapping_fixture)
 {
-    Fast_mapping fast_mapping(b.reference_particle, mapping);
+    Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
 }
 
 BOOST_FIXTURE_TEST_CASE(set_get_length, Mapping_fixture)
 {
-    Fast_mapping fast_mapping(b.reference_particle, mapping);
+    Fast_mapping fast_mapping(order);
     fast_mapping.set_length(mapping_length);
+    BOOST_CHECK_CLOSE(fast_mapping.get_length(), mapping_length, tolerance);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_length, Mapping_fixture)
+{
+    Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
     BOOST_CHECK_CLOSE(fast_mapping.get_length(), mapping_length, tolerance);
 }
 
@@ -34,7 +40,7 @@ BOOST_FIXTURE_TEST_CASE(add_term, Fast_mapping_term_fixture)
 
 BOOST_FIXTURE_TEST_CASE(apply, Mapping_fixture)
 {
-    Fast_mapping fast_mapping(b.reference_particle, mapping);
+    Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
     //    multi_array_print(bunch.get_local_particles(), "particles before");
     fast_mapping.apply(b.bunch);
     //    multi_array_print(bunch.get_local_particles(), "particles after");
@@ -44,7 +50,7 @@ BOOST_FIXTURE_TEST_CASE(apply, Mapping_fixture)
 
 BOOST_FIXTURE_TEST_CASE(write_read_file, Mapping_fixture)
 {
-    Fast_mapping fast_mapping(b.reference_particle, mapping);
+    Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
     fast_mapping.set_length(mapping_length);
 
     fast_mapping.write_to_file("test_fast_mapping.dat");

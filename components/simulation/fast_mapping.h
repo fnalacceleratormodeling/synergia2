@@ -133,7 +133,7 @@ public:
     Fast_mapping(int order);
     Fast_mapping(std::string const& filename);
     Fast_mapping(Reference_particle const& reference_particle,
-            Mapping const& chef_mapping);
+            Mapping const& chef_mapping, double mapping_length);
     void
     set_length(double length);
     double
