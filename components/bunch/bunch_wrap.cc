@@ -32,7 +32,8 @@ BOOST_PYTHON_MODULE(pybunch)
         .def("get_std", &Diagnostics::get_std)
         ;
 
-    class_<Diagnostics_full2, Diagnostics_full2_sptr, bases<Diagnostics > >("Diagnostics_full2",init< >())
+    class_<Diagnostics_full2, Diagnostics_full2_sptr, bases<Diagnostics > >
+            ("Diagnostics_full2",init< >())
         .def(init<Bunch const & >())
         .def("get_mom2", &Diagnostics_full2::get_mom2)
         .def("get_corr", &Diagnostics_full2::get_corr)
@@ -43,14 +44,17 @@ BOOST_PYTHON_MODULE(pybunch)
         .def("get_emitxyz",&Diagnostics_full2::get_emitxyz)
         ;
 
-    class_<Diagnostics_writer >("Diagnostics_writer",
+    class_<Diagnostics_writer, Diagnostics_writer_sptr >("Diagnostics_writer",
             init<std::string const& , Diagnostics_sptr const& >())
+        .def(init< >())
+        .def("is_dummy", &Diagnostics_writer::is_dummy)
         .def("get_diagnostics", &Diagnostics_writer::get_diagnostics_sptr,
                 return_value_policy<copy_non_const_reference >())
         .def("write", &Diagnostics_writer::write)
         .def("update_and_write", &Diagnostics_writer::update_and_write)
         ;
 
+    def("no_diagnostics", no_diagnostics);
     def("populate_6d", populate_6d);
 
     typedef Reference_particle & (Bunch::*get_reference_particle_non_const_type)();

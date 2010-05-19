@@ -7,7 +7,7 @@ from mpi4py import MPI
 from pyfoundation import Reference_particle, Four_momentum
 from pybunch import Bunch
 from pybunch import Diagnostics, Diagnostics_full2
-from pybunch import Diagnostics_writer
+from pybunch import Diagnostics_writer, no_diagnostics
 import pyconvertors
 import numpy
 from nose.tools import *
@@ -37,6 +37,12 @@ def test_construct_full2():
     diagnostics = Diagnostics_full2()
     diagnostics_writer = Diagnostics_writer("test_py_construct_full2.h5", diagnostics)
 
+def test_construct_dummy():
+    dummy = Diagnostics_writer()
+
+def test_is_dummy():
+    assert(Diagnostics_writer().is_dummy())
+
 def test_get_diagnostics():
     diagnostics = Diagnostics()
     diagnostics_writer = Diagnostics_writer("test_py_get_diagnostics.h5", diagnostics)
@@ -60,3 +66,5 @@ def test_update_and_write_full2():
     diagnostics_writer.update_and_write(bunch)
     diagnostics_writer.update_and_write(bunch)
 
+def test_no_diagnostics():
+    assert(no_diagnostics().is_dummy())

@@ -57,6 +57,25 @@ BOOST_FIXTURE_TEST_CASE(construct, Fixture)
             diagnostics_sptr);
 }
 
+BOOST_AUTO_TEST_CASE(construct_dummy)
+{
+    Diagnostics_writer dummy_diagnostics;
+}
+
+BOOST_FIXTURE_TEST_CASE(is_dummy_false, Fixture)
+{
+    Diagnostics_sptr diagnostics_sptr(new Diagnostics(bunch));
+    Diagnostics_writer diagnostics_writer("test_writer_is_dummy_false.h5",
+            diagnostics_sptr);
+    BOOST_CHECK(!diagnostics_writer.is_dummy());
+}
+
+BOOST_AUTO_TEST_CASE(is_dummy_true)
+{
+    Diagnostics_writer diagnostics_writer;
+    BOOST_CHECK(diagnostics_writer.is_dummy());
+}
+
 BOOST_FIXTURE_TEST_CASE(construct_full2, Fixture)
 {
     Diagnostics_full2_sptr diagnostics_sptr(new Diagnostics_full2(bunch));
@@ -76,7 +95,8 @@ BOOST_FIXTURE_TEST_CASE(get_diagnostics_sptr, Fixture)
 BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 {
     Diagnostics_sptr diagnostics_sptr(new Diagnostics(bunch));
-    Diagnostics_writer diagnostics_writer("test_writer_write.h5", diagnostics_sptr);
+    Diagnostics_writer diagnostics_writer("test_writer_write.h5",
+            diagnostics_sptr);
     diagnostics_writer.get_diagnostics_sptr()->update(bunch);
     diagnostics_writer.write();
 }
@@ -84,13 +104,28 @@ BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 BOOST_FIXTURE_TEST_CASE(update_and_write, Fixture)
 {
     Diagnostics_sptr diagnostics_sptr(new Diagnostics(bunch));
-    Diagnostics_writer diagnostics_writer("test_writer_update_and_write.h5", diagnostics_sptr);
+    Diagnostics_writer diagnostics_writer("test_writer_update_and_write.h5",
+            diagnostics_sptr);
     diagnostics_writer.update_and_write(bunch);
 }
 
 BOOST_FIXTURE_TEST_CASE(update_and_write_full2, Fixture)
 {
     Diagnostics_full2_sptr diagnostics_sptr(new Diagnostics_full2(bunch));
-    Diagnostics_writer diagnostics_writer("test_writer_update_and_write_full2.h5", diagnostics_sptr);
+    Diagnostics_writer diagnostics_writer(
+            "test_writer_update_and_write_full2.h5", diagnostics_sptr);
     diagnostics_writer.update_and_write(bunch);
+}
+
+BOOST_FIXTURE_TEST_CASE(dummy_do_nothing, Fixture)
+{
+    Diagnostics_writer dummy;
+    dummy.get_diagnostics_sptr();
+    dummy.write();
+    dummy.update_and_write(bunch);
+}
+
+BOOST_AUTO_TEST_CASE(no_diagnostics_)
+{
+    BOOST_CHECK(no_diagnostics().is_dummy());
 }
