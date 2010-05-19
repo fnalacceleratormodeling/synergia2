@@ -68,6 +68,7 @@ Fast_mapping::init(int order)
     for (int comp_index = 0; comp_index < 6; ++comp_index) {
         terms.at(comp_index).resize(order + 1);
     }
+    length = 0.0;
 }
 
 Fast_mapping::Fast_mapping(int order)
@@ -81,12 +82,15 @@ Fast_mapping::Fast_mapping(std::string const& filename)
     std::stringstream stream(read_line_ignoring_comments(file));
     stream >> order;
     init(order);
+    stream.str(read_line_ignoring_comments(file));
+    stream >> length;
     int num_terms_read;
     for (int index = 0; index < 6; ++index) {
         for (int order = 0; order <= this->order; ++order) {
             stream.str(read_line_ignoring_comments(file));
             stream.clear();
             stream >> num_terms_read;
+            //            std::cout << "jfa: num_terms_read = " << num_terms_read << std::endl;
             for (int term_index = 0; term_index < num_terms_read; ++term_index) {
                 Fast_mapping_term tmp_term(file);
                 terms.at(index).at(order).push_back(tmp_term);
@@ -148,6 +152,18 @@ Fast_mapping::Fast_mapping(Reference_particle const& reference_particle,
             }
         }
     }
+}
+
+void
+Fast_mapping::set_length(double length)
+{
+    this->length = length;
+}
+
+double
+Fast_mapping::get_length() const
+{
+    return length;
 }
 
 void
@@ -223,6 +239,8 @@ Fast_mapping::write_to_file(std::string const& filename)
     file << "# file format=1.0\n";
     file << "# order:\n";
     file << order << std::endl;
+    file << "# length:\n";
+    file << length << std::endl;
     for (int index = 0; index < 6; ++index) {
         for (int order = 0; order <= this->order; ++order) {
             file << "# index=" << index << ", order=" << order << std::endl;

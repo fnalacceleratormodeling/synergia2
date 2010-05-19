@@ -126,6 +126,7 @@ class Fast_mapping
 private:
     std::vector<std::vector<Fast_mapping_terms > > terms;
     int order;
+    double length;
     void
     init(int order);
 public:
@@ -133,6 +134,10 @@ public:
     Fast_mapping(std::string const& filename);
     Fast_mapping(Reference_particle const& reference_particle,
             Mapping const& chef_mapping);
+    void
+    set_length(double length);
+    double
+    get_length() const;
     void
     add_term(int index, Fast_mapping_term const& term);
     void
