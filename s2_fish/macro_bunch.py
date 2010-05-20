@@ -172,7 +172,9 @@ class Macro_bunch:
         
     def get_longitudinal_period_size(self):   
         gamma = -self.get_store().get_ref_particle()[5]# beam frame
-        return self.periodic_z_size*gamma    
+        # this gets the proper period for the fixedt frame when
+        # the z coordinate of the particle store is in scaled units.
+        return self.periodic_z_size*gamma*self.units[0]
         
     def convert_to_fixedz(self):
         self.get_store().convert_to_fixedz()
