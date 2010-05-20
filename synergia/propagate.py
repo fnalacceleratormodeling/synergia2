@@ -95,6 +95,15 @@ def propagate(s0,gourmet,bunch_in, space_charge=None,impedance=None,
                         print "finished space charge kick"
                 steps += 1
             elif action.get_synergia_action() == "space charge kick":
+                # apply periodicity to handle particles slopping out from
+                # the half step mapping
+                for mbunch in bunches:
+                    if  (mbunch.periodic) and (not apply_fish_kick) and (not apply_impact_kick) :
+                        mbunch.convert_to_fixedt()
+                        length=mbunch.get_longitudinal_period_size()
+                        constraints.apply_longitudinal_periodicity(mbunch.get_store(),length)
+                        mbunch.convert_to_fixedz()
+                
                 tau = last_step_length
                 if impedance:
                     if action.get_data()==[ ]:                                              
