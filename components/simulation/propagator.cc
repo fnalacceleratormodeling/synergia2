@@ -38,6 +38,7 @@ Propagator::propagate(Bunch & bunch, int num_turns,
             (*it)->apply(bunch);
         }
     }
+    per_step_diagnostics.update_and_write(bunch);
     per_turn_diagnostics.update_and_write(bunch);
 }
 
