@@ -31,7 +31,7 @@ template<>
 
 template<typename T>
     void
-    Hdf5_writer<T >::setup(std::vector<int > const& data_dims,
+    Hdf5_serial_writer<T >::setup(std::vector<int > const& data_dims,
             hid_t const& h5_atomic_type)
     {
         this->h5_atomic_type = h5_atomic_type;
@@ -65,25 +65,25 @@ template<typename T>
 // this is the generic case, it will only work for atomic T's that have
 // h5_atomic_typename<T>() defined
 template<typename T>
-    Hdf5_writer<T >::Hdf5_writer(hid_t & file, std::string const& name) :
+    Hdf5_serial_writer<T >::Hdf5_serial_writer(hid_t & file, std::string const& name) :
         file(file), name(name), data_rank(0), have_setup(false)
     {
     }
 
 template<>
-    Hdf5_writer<MArray1d_ref >::Hdf5_writer(hid_t & file,
+    Hdf5_serial_writer<MArray1d_ref >::Hdf5_serial_writer(hid_t & file,
             std::string const& name);
 template<>
-    Hdf5_writer<MArray2d_ref >::Hdf5_writer(hid_t & file,
+    Hdf5_serial_writer<MArray2d_ref >::Hdf5_serial_writer(hid_t & file,
             std::string const& name);
 
 template<>
-    Hdf5_writer<MArray3d_ref >::Hdf5_writer(hid_t & file,
+    Hdf5_serial_writer<MArray3d_ref >::Hdf5_serial_writer(hid_t & file,
             std::string const& name);
 
 template<typename T>
     void
-    Hdf5_writer<T >::append(T & data)
+    Hdf5_serial_writer<T >::append(T & data)
     {
         if (!have_setup) {
             std::vector<int > data_dims(1); // dummy variable -- length really should
@@ -107,18 +107,18 @@ template<typename T>
 
 template<>
     void
-    Hdf5_writer<MArray1d_ref >::append(MArray1d_ref & data);
+    Hdf5_serial_writer<MArray1d_ref >::append(MArray1d_ref & data);
 
 template<>
     void
-    Hdf5_writer<MArray2d_ref >::append(MArray2d_ref & data);
+    Hdf5_serial_writer<MArray2d_ref >::append(MArray2d_ref & data);
 
 template<>
     void
-    Hdf5_writer<MArray3d_ref >::append(MArray3d_ref & data);
+    Hdf5_serial_writer<MArray3d_ref >::append(MArray3d_ref & data);
 
 template<typename T>
-    Hdf5_writer<T >::~Hdf5_writer()
+    Hdf5_serial_writer<T >::~Hdf5_serial_writer()
     {
         if (have_setup) {
             status = H5Pclose(cparms);

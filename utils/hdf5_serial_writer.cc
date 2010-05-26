@@ -1,7 +1,7 @@
-#include "hdf5_writer.h"
+#include "hdf5_serial_writer.h"
 
 template<>
-    Hdf5_writer<MArray1d_ref >::Hdf5_writer(hid_t & file,
+    Hdf5_serial_writer<MArray1d_ref >::Hdf5_serial_writer(hid_t & file,
             std::string const& name) :
         file(file), name(name), data_rank(MArray1d_ref::dimensionality),
                 have_setup(false)
@@ -9,7 +9,7 @@ template<>
     }
 
 template<>
-    Hdf5_writer<MArray2d_ref >::Hdf5_writer(hid_t & file,
+    Hdf5_serial_writer<MArray2d_ref >::Hdf5_serial_writer(hid_t & file,
             std::string const& name) :
         file(file), name(name), data_rank(MArray2d_ref::dimensionality),
                 have_setup(false)
@@ -17,7 +17,7 @@ template<>
     }
 
 template<>
-    Hdf5_writer<MArray3d_ref >::Hdf5_writer(hid_t & file,
+    Hdf5_serial_writer<MArray3d_ref >::Hdf5_serial_writer(hid_t & file,
             std::string const& name) :
         file(file), name(name), data_rank(MArray3d_ref::dimensionality),
                 have_setup(false)
@@ -26,7 +26,7 @@ template<>
 
 template<>
     void
-    Hdf5_writer<MArray1d_ref >::append(MArray1d_ref & data)
+    Hdf5_serial_writer<MArray1d_ref >::append(MArray1d_ref & data)
     {
         if (!have_setup) {
             std::vector<int > data_dims(data_rank);
@@ -49,7 +49,7 @@ template<>
 
 template<>
     void
-    Hdf5_writer<MArray2d_ref >::append(MArray2d_ref & data)
+    Hdf5_serial_writer<MArray2d_ref >::append(MArray2d_ref & data)
     {
         if (!have_setup) {
             std::vector<int > data_dims(data_rank);
@@ -72,7 +72,7 @@ template<>
 
 template<>
     void
-    Hdf5_writer<MArray3d_ref >::append(MArray3d_ref & data)
+    Hdf5_serial_writer<MArray3d_ref >::append(MArray3d_ref & data)
     {
         if (!have_setup) {
             std::vector<int > data_dims(data_rank);

@@ -4,7 +4,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "components/bunch/bunch.h"
-#include "utils/hdf5_writer.h"
+#include "utils/hdf5_serial_writer.h"
 
 /// Diagnostics provides the minimal set of statistical
 /// quantities to be calculated for a Bunch.
@@ -14,15 +14,15 @@ private:
     bool have_writers;
 protected:
     double s;
-    Hdf5_writer<double > * writer_s;
+    Hdf5_serial_writer<double > * writer_s;
     int repetition;
-    Hdf5_writer<int > * writer_repetition;
+    Hdf5_serial_writer<int > * writer_repetition;
     double trajectory_length;
-    Hdf5_writer<double > * writer_trajectory_length;
+    Hdf5_serial_writer<double > * writer_trajectory_length;
     MArray1d mean;
-    Hdf5_writer<MArray1d_ref > * writer_mean;
+    Hdf5_serial_writer<MArray1d_ref > * writer_mean;
     MArray1d std;
-    Hdf5_writer<MArray1d_ref > * writer_std;
+    Hdf5_serial_writer<MArray1d_ref > * writer_std;
     virtual void
     update_mean(Bunch const& bunch);
     virtual void
@@ -83,11 +83,11 @@ private:
     bool have_writers;
 protected:
     MArray2d mom2;
-    Hdf5_writer<MArray2d_ref > * writer_mom2;
+    Hdf5_serial_writer<MArray2d_ref > * writer_mom2;
     MArray2d corr;
-    Hdf5_writer<MArray2d_ref > * writer_corr;
+    Hdf5_serial_writer<MArray2d_ref > * writer_corr;
     double emitx, emity, emitz, emitxy, emitxyz;
-    Hdf5_writer<double > *writer_emitx, *writer_emity, *writer_emitz,
+    Hdf5_serial_writer<double > *writer_emitx, *writer_emity, *writer_emitz,
             *writer_emitxy, *writer_emitxyz;
     virtual void
     update_full2(Bunch const& bunch);

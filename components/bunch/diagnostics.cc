@@ -96,12 +96,12 @@ Diagnostics::get_std() const
 void
 Diagnostics::init_writers(hid_t & hdf5_file)
 {
-    writer_s = new Hdf5_writer<double > (hdf5_file, "s");
-    writer_repetition = new Hdf5_writer<int > (hdf5_file, "repetition");
-    writer_trajectory_length = new Hdf5_writer<double > (hdf5_file,
+    writer_s = new Hdf5_serial_writer<double > (hdf5_file, "s");
+    writer_repetition = new Hdf5_serial_writer<int > (hdf5_file, "repetition");
+    writer_trajectory_length = new Hdf5_serial_writer<double > (hdf5_file,
             "trajectory_length");
-    writer_mean = new Hdf5_writer<MArray1d_ref > (hdf5_file, "mean");
-    writer_std = new Hdf5_writer<MArray1d_ref > (hdf5_file, "std");
+    writer_mean = new Hdf5_serial_writer<MArray1d_ref > (hdf5_file, "mean");
+    writer_std = new Hdf5_serial_writer<MArray1d_ref > (hdf5_file, "std");
     have_writers = true;
 }
 
@@ -251,13 +251,13 @@ void
 Diagnostics_full2::init_writers(hid_t & hdf5_file)
 {
     Diagnostics::init_writers(hdf5_file);
-    writer_mom2 = new Hdf5_writer<MArray2d_ref > (hdf5_file, "mom2");
-    writer_corr = new Hdf5_writer<MArray2d_ref > (hdf5_file, "corr");
-    writer_emitx = new Hdf5_writer<double > (hdf5_file, "emitx");
-    writer_emity = new Hdf5_writer<double > (hdf5_file, "emity");
-    writer_emitz = new Hdf5_writer<double > (hdf5_file, "emitz");
-    writer_emitxy = new Hdf5_writer<double > (hdf5_file, "emitxy");
-    writer_emitxyz = new Hdf5_writer<double > (hdf5_file, "emitxyz");
+    writer_mom2 = new Hdf5_serial_writer<MArray2d_ref > (hdf5_file, "mom2");
+    writer_corr = new Hdf5_serial_writer<MArray2d_ref > (hdf5_file, "corr");
+    writer_emitx = new Hdf5_serial_writer<double > (hdf5_file, "emitx");
+    writer_emity = new Hdf5_serial_writer<double > (hdf5_file, "emity");
+    writer_emitz = new Hdf5_serial_writer<double > (hdf5_file, "emitz");
+    writer_emitxy = new Hdf5_serial_writer<double > (hdf5_file, "emitxy");
+    writer_emitxyz = new Hdf5_serial_writer<double > (hdf5_file, "emitxyz");
     have_writers = true;
 }
 
