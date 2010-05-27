@@ -10,9 +10,9 @@ add_executable(test_floating_point test_floating_point.cc)
 target_link_libraries(test_floating_point ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_floating_point test_floating_point)
 
-#add_executable(test_hdf5_writer test_hdf5_writer.cc)
-#target_link_libraries(test_hdf5_writer hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-#add_test(test_hdf5_writer test_hdf5_writer)
+add_executable(test_hdf5_writer test_hdf5_writer.cc)
+target_link_libraries(test_hdf5_writer hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_hdf5_writer test_hdf5_writer)
 
 add_executable(test_hdf5_serial_writer test_hdf5_serial_writer.cc)
 target_link_libraries(test_hdf5_serial_writer hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
