@@ -14,9 +14,9 @@ private:
     bool closed, have_filespace;
 public:
     Hdf5_chunked_array2d_writer(hid_t & file, std::string const& name,
-            MArray2d_ref & initial_data);
+            Const_MArray2d_ref const & initial_data);
     void
-    write_chunk(MArray2d_ref & data);
+    write_chunk(Const_MArray2d_ref const & data);
     void
     write_chunk(MArray2d_view & data);
     void

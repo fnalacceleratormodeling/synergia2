@@ -4,7 +4,7 @@
 #include <iostream>
 
 Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(hid_t & file,
-        std::string const& name, MArray2d_ref & initial_data) :
+        std::string const& name, Const_MArray2d_ref const & initial_data) :
     dims(2), max_dims(2), size(2), offset(2), chunk_dims(2)
 {
     for (int i = 0; i < 2; ++i) {
@@ -27,7 +27,7 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(hid_t & file,
 }
 
 void
-Hdf5_chunked_array2d_writer::write_chunk(MArray2d_ref & data)
+Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_ref const & data)
 {
     if (closed) {
         throw std::runtime_error(
