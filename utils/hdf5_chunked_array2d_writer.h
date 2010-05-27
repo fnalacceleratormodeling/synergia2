@@ -18,6 +18,8 @@ public:
     void
     write_chunk(MArray2d_ref & data);
     void
+    write_chunk(MArray2d_view & data);
+    void
     close();
     ~Hdf5_chunked_array2d_writer();
 };

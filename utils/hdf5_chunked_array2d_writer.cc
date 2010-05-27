@@ -10,7 +10,7 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(hid_t & file,
     for (int i = 0; i < 2; ++i) {
         dims[i] = initial_data.shape()[i];
         max_dims[i] = initial_data.shape()[i];
-         chunk_dims[i] = initial_data.shape()[i];
+        chunk_dims[i] = initial_data.shape()[i];
         offset[i] = 0;
     }
     size[0] = initial_data.shape()[0];
@@ -28,6 +28,28 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(hid_t & file,
 
 void
 Hdf5_chunked_array2d_writer::write_chunk(MArray2d_ref & data)
+{
+    if (closed) {
+        throw std::runtime_error(
+                "Hdf5_chunked_array2d_writer: attempt to write_chunk to a closed writer");
+    }
+    size[1] += data.shape()[1];
+    std::cout << "jfa: size = " << size[0] << ", " << size[1] << std::endl;
+    herr_t status = H5Dextend(dataset, &size[0]);
+    hdf5_error_check(status);
+    filespace = H5Dget_space(dataset);
+    have_filespace = true;
+    status = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0], NULL,
+            &dims[0], NULL);
+    hdf5_error_check(status);
+    status = H5Dwrite(dataset, hdf5_atomic_typename<double > (), dataspace,
+            filespace, H5P_DEFAULT, data.origin());
+    hdf5_error_check(status);
+    offset[1] += data.shape()[1];
+}
+
+void
+Hdf5_chunked_array2d_writer::write_chunk(MArray2d_view & data)
 {
     if (closed) {
         throw std::runtime_error(
