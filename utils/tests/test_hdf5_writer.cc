@@ -3,6 +3,9 @@
 #include "utils/hdf5_writer.h"
 #include "utils/multi_array_typedefs.h"
 
+// jfa: these are bad tests because they require the user
+// to manually inspect the output files.
+
 BOOST_AUTO_TEST_CASE(integer)
 {
     hid_t file = H5Fcreate("justinteger.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
