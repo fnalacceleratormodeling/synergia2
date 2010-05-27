@@ -5,7 +5,7 @@ template<>
             std::string const& name) :
         file(file), name(name), data_rank(1), dims(1)
     {
-        atomic_type = h5_atomic_typename<double > ();
+        atomic_type = hdf5_atomic_typename<double > ();
     }
 
 template<>
@@ -13,7 +13,7 @@ template<>
             std::string const& name) :
         file(file), name(name), data_rank(2), dims(2)
     {
-        atomic_type = h5_atomic_typename<double > ();
+        atomic_type = hdf5_atomic_typename<double > ();
     }
 
 template<>
@@ -21,7 +21,7 @@ template<>
             std::string const& name) :
         file(file), name(name), data_rank(3), dims(3)
     {
-        atomic_type = h5_atomic_typename<double > ();
+        atomic_type = hdf5_atomic_typename<double > ();
     }
 
 template<>

@@ -1,5 +1,5 @@
 #include "utils/multi_array_typedefs.h"
-#include "utils/hdf5_utils.h"
+#include "utils/hdf5_misc.h"
 #include <stdexcept>
 #include <iostream>
 
@@ -7,7 +7,7 @@ template<typename T>
     Hdf5_writer<T >::Hdf5_writer(hid_t & file, std::string const& name) :
         file(file), name(name), data_rank(0), dims(1)
     {
-        atomic_type = h5_atomic_typename<T > ();
+        atomic_type = hdf5_atomic_typename<T > ();
     }
 
 template<typename T>
@@ -34,11 +34,11 @@ template<typename T>
                 dataspace_id, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT);
         hid_t status = H5Dwrite(dataset_id, atomic_type, H5S_ALL, H5S_ALL,
                 H5P_DEFAULT, get_data_ptr(data));
-        h5_error_check(status);
+        hdf5_error_check(status);
         status = H5Dclose(dataset_id);
-        h5_error_check(status);
+        hdf5_error_check(status);
         status = H5Sclose(dataspace_id);
-        h5_error_check(status);
+        hdf5_error_check(status);
     }
 
 template<typename T>

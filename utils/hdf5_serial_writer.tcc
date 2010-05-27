@@ -1,5 +1,5 @@
 #include "utils/multi_array_typedefs.h"
-#include "utils/hdf5_utils.h"
+#include "utils/hdf5_misc.h"
 #include <stdexcept>
 #include <iostream>
 
@@ -30,14 +30,14 @@ template<typename T>
         dataspace = H5Screate_simple(data_rank + 1, &dims[0], &max_dims[0]);
         cparms = H5Pcreate(H5P_DATASET_CREATE);
         status = H5Pset_chunk(cparms, data_rank + 1, &chunk_dims[0]);
-        h5_error_check(status);
+        hdf5_error_check(status);
         dataset = H5Dcreate(file, name.c_str(), h5_atomic_type, dataspace,
                 H5P_DEFAULT, cparms, H5P_DEFAULT);
         have_setup = true;
     }
 
 // this is the generic case, it will only work for atomic T's that have
-// h5_atomic_typename<T>() defined
+// hdf5_atomic_typename<T>() defined
 template<typename T>
     Hdf5_serial_writer<T >::Hdf5_serial_writer(hid_t & file, std::string const& name) :
         file(file), name(name), data_rank(0), have_setup(false)
@@ -62,20 +62,20 @@ template<typename T>
         if (!have_setup) {
             std::vector<int > data_dims(1); // dummy variable -- length really should
             // be 0, but that would not compile
-            setup(data_dims, h5_atomic_typename<T > ());
+            setup(data_dims, hdf5_atomic_typename<T > ());
         }
         ++size[data_rank];
         status = H5Dextend(dataset, &size[0]);
-        h5_error_check(status);
+        hdf5_error_check(status);
 
         filespace = H5Dget_space(dataset);
         have_filespace = true;
         status = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0],
                 NULL, &dims[0], NULL);
-        h5_error_check(status);
+        hdf5_error_check(status);
         status = H5Dwrite(dataset, h5_atomic_type, dataspace, filespace,
                 H5P_DEFAULT, &data);
-        h5_error_check(status);
+        hdf5_error_check(status);
         ++offset[data_rank];
     }
 
@@ -96,14 +96,14 @@ template<typename T>
     {
         if (have_setup) {
             status = H5Pclose(cparms);
-            h5_error_check(status);
+            hdf5_error_check(status);
             status = H5Dclose(dataset);
-            h5_error_check(status);
+            hdf5_error_check(status);
             status = H5Sclose(dataspace);
-            h5_error_check(status);
+            hdf5_error_check(status);
             if (have_filespace) {
                 status = H5Sclose(filespace);
-                h5_error_check(status);
+                hdf5_error_check(status);
             }
         }
     }

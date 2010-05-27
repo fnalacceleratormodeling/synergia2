@@ -1,5 +1,4 @@
 #include "hdf5_serial_writer.h"
-#include "hdf5_utils.h"
 
 template<>
     Hdf5_serial_writer<MArray1d_ref >::Hdf5_serial_writer(hid_t & file,
@@ -34,7 +33,7 @@ template<>
             for (int i = 0; i < data_rank; ++i) {
                 data_dims.at(i) = data.shape()[i];
             }
-            setup(data_dims, h5_atomic_typename<double > ());
+            setup(data_dims, hdf5_atomic_typename<double > ());
         }
         ++size[data_rank];
         status = H5Dextend(dataset, &size[0]);
@@ -57,7 +56,7 @@ template<>
             for (int i = 0; i < data_rank; ++i) {
                 data_dims.at(i) = data.shape()[i];
             }
-            setup(data_dims, h5_atomic_typename<double > ());
+            setup(data_dims, hdf5_atomic_typename<double > ());
         }
         ++size[data_rank];
         status = H5Dextend(dataset, &size[0]);
@@ -80,7 +79,7 @@ template<>
             for (int i = 0; i < data_rank; ++i) {
                 data_dims.at(i) = data.shape()[i];
             }
-            setup(data_dims, h5_atomic_typename<double > ());
+            setup(data_dims, hdf5_atomic_typename<double > ());
         }
         ++size[data_rank];
         status = H5Dextend(dataset, &size[0]);
