@@ -2,4 +2,5 @@ test_parallel_utils
 test_floating_point
 test_hdf5_writer
 test_hdf5_serial_writer
+test_hdf5_chunked_array2d_writer
 *.h5

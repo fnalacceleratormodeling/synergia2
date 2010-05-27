@@ -18,5 +18,9 @@ add_executable(test_hdf5_serial_writer test_hdf5_serial_writer.cc)
 target_link_libraries(test_hdf5_serial_writer hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_hdf5_serial_writer test_hdf5_serial_writer)
 
+add_executable(test_hdf5_chunked_array2d_writer test_hdf5_chunked_array2d_writer.cc)
+target_link_libraries(test_hdf5_chunked_array2d_writer hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_hdf5_chunked_array2d_writer test_hdf5_chunked_array2d_writer)
+
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES integer.h5 double_float.h5
     array1d.h5 array2d.h array3d.h)
