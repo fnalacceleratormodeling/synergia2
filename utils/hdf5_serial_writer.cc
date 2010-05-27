@@ -1,4 +1,5 @@
 #include "hdf5_serial_writer.h"
+#include "hdf5_utils.h"
 
 template<>
     Hdf5_serial_writer<MArray1d_ref >::Hdf5_serial_writer(hid_t & file,

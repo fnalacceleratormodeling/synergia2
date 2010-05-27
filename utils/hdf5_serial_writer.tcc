@@ -1,33 +1,7 @@
 #include "utils/multi_array_typedefs.h"
+#include "utils/hdf5_utils.h"
 #include <stdexcept>
 #include <iostream>
-inline void
-h5_error_check(hid_t status)
-{
-    if (status != 0) {
-        throw(std::runtime_error("hdf5 error"));
-    }
-}
-
-// h5_atomic_typename is a local function. The generic (T) version of the
-// template is undefined; only versions with specializations will compile.
-template<typename T>
-    inline hid_t
-    h5_atomic_typename();
-
-template<>
-    inline hid_t
-    h5_atomic_typename<int > ()
-    {
-        return H5T_NATIVE_INT;
-    }
-
-template<>
-    inline hid_t
-    h5_atomic_typename<double > ()
-    {
-        return H5T_NATIVE_DOUBLE;
-    }
 
 template<typename T>
     void

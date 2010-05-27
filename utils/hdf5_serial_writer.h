@@ -4,9 +4,6 @@
 #include <string>
 #include "hdf5.h"
 
-void
-h5_error_check(hid_t status);
-
 template<typename T>
     class Hdf5_serial_writer
     {
