@@ -338,6 +338,15 @@ Diagnostics_particles::write_hdf5()
     Hdf5_writer<double > writer_pz(hdf5_file, "pz");
     double pz = bunch_ptr->get_reference_particle().get_momentum();
     writer_pz.write(pz);
+    Hdf5_writer<double > writer_tlen(hdf5_file, "tlen");
+    double tlen = bunch_ptr->get_reference_particle().get_trajectory_length();
+    writer_tlen.write(tlen);
+    Hdf5_writer<int > writer_rep(hdf5_file, "rep");
+    int rep = bunch_ptr->get_reference_particle().get_repetition();
+    writer_rep.write(rep);
+    Hdf5_writer<double > writer_s(hdf5_file, "s");
+    double s = bunch_ptr->get_reference_particle().get_s();
+    writer_s.write(s);
     Hdf5_chunked_array2d_writer writer_particles(hdf5_file, "particles",
             bunch_ptr->get_local_particles());
     writer_particles.write_chunk(bunch_ptr->get_local_particles());
