@@ -5,9 +5,14 @@
 
 class Diagnostics_writer
 {
+private:
     Diagnostics_sptr diagnostics_sptr;
     hid_t file;
     bool dummy;
+    int count;
+    std::string filename_base, filename_suffix;
+    void
+    open_file_and_init();
 public:
     Diagnostics_writer(std::string const& filename,
             Diagnostics_sptr const& diagnostics_sptr);
@@ -16,6 +21,10 @@ public:
     is_dummy() const;
     Diagnostics_sptr &
     get_diagnostics_sptr();
+    int
+    get_count() const;
+    void
+    set_count(int count);
     void
     write();
     void

@@ -92,6 +92,27 @@ BOOST_FIXTURE_TEST_CASE(get_diagnostics_sptr, Fixture)
     BOOST_CHECK_EQUAL(diagnostics_sptr, retrieved_d_s);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_count, Fixture)
+{
+    Diagnostics_sptr diagnostics_sptr(new Diagnostics(bunch));
+    Diagnostics_writer diagnostics_writer("test_writer_get_count.h5",
+            diagnostics_sptr);
+    BOOST_CHECK_EQUAL(diagnostics_writer.get_count(), 0);
+    diagnostics_writer.update_and_write(bunch);
+    diagnostics_writer.update_and_write(bunch);
+    diagnostics_writer.update_and_write(bunch);
+    BOOST_CHECK_EQUAL(diagnostics_writer.get_count(), 3);
+}
+
+BOOST_FIXTURE_TEST_CASE(set_count, Fixture)
+{
+    Diagnostics_sptr diagnostics_sptr(new Diagnostics(bunch));
+    Diagnostics_writer diagnostics_writer("test_writer_get_count.h5",
+            diagnostics_sptr);
+    diagnostics_writer.set_count(17);
+    BOOST_CHECK_EQUAL(diagnostics_writer.get_count(), 17);
+}
+
 BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 {
     Diagnostics_sptr diagnostics_sptr(new Diagnostics(bunch));
@@ -114,6 +135,17 @@ BOOST_FIXTURE_TEST_CASE(update_and_write_full2, Fixture)
     Diagnostics_full2_sptr diagnostics_sptr(new Diagnostics_full2(bunch));
     Diagnostics_writer diagnostics_writer(
             "test_writer_update_and_write_full2.h5", diagnostics_sptr);
+    diagnostics_writer.update_and_write(bunch);
+}
+
+BOOST_FIXTURE_TEST_CASE(update_and_write_particles, Fixture)
+{
+    Diagnostics_particles_sptr diagnostics_sptr(
+            new Diagnostics_particles(bunch));
+    Diagnostics_writer diagnostics_writer(
+            "test_writer_update_and_write_particles.h5", diagnostics_sptr);
+    diagnostics_writer.update_and_write(bunch);
+    diagnostics_writer.update_and_write(bunch);
     diagnostics_writer.update_and_write(bunch);
 }
 
