@@ -55,6 +55,12 @@ Diagnostics::Diagnostics(Bunch const& bunch) :
     update(bunch);
 }
 
+bool
+Diagnostics::is_serial() const
+{
+    return true;
+}
+
 void
 Diagnostics::update(Bunch const& bunch)
 {
@@ -196,6 +202,12 @@ Diagnostics_full2::Diagnostics_full2(Bunch const& bunch) :
     update(bunch);
 }
 
+bool
+Diagnostics_full2::is_serial() const
+{
+    return true;
+}
+
 void
 Diagnostics_full2::update(Bunch const& bunch)
 {
@@ -298,6 +310,12 @@ Diagnostics_particles::Diagnostics_particles(Bunch const& bunch,
         int max_particles) :
     bunch_ptr(&bunch), max_particles(max_particles)
 {
+}
+
+bool
+Diagnostics_particles::is_serial() const
+{
+    return false;
 }
 
 void

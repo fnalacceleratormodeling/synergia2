@@ -72,6 +72,12 @@ BOOST_FIXTURE_TEST_CASE(construct4, Fixture)
     Diagnostics_particles diagnostics(bunch, max_particles);
 }
 
+BOOST_AUTO_TEST_CASE(is_serial)
+{
+    Diagnostics_particles diagnostics;
+    BOOST_CHECK(!diagnostics.is_serial());
+}
+
 BOOST_FIXTURE_TEST_CASE(update, Fixture)
 {
     Diagnostics_particles diagnostics;

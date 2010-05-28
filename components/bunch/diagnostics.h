@@ -35,6 +35,11 @@ public:
     /// @param bunch the Bunch
     Diagnostics(Bunch const& bunch);
 
+    /// Multiple serial diagnostics can be written to a single file.
+    /// The Diagnostics class is serial.
+    virtual bool
+    is_serial() const;
+
     /// Update the diagnostics
     /// @param bunch the Bunch
     virtual void
@@ -100,6 +105,11 @@ public:
     /// Create a Diagnostics object
     /// @param bunch the Bunch
     Diagnostics_full2(Bunch const& bunch);
+
+    /// Multiple serial diagnostics can be written to a single file.
+    /// The Diagnostics_full2 class is serial.
+    virtual bool
+    is_serial() const;
 
     /// Update the diagnostics
     /// @param bunch the Bunch
@@ -170,6 +180,11 @@ public:
     /// @param bunch the Bunch
     /// @param max_particles the maximum number of particles to save (0 for all)
     Diagnostics_particles(Bunch const& bunch, int max_particles = 0);
+
+    /// Multiple serial diagnostics can be written to a single file.
+    /// The Diagnostics_particles class is not serial.
+    virtual bool
+    is_serial() const;
 
     /// Update the diagnostics
     /// @param bunch the Bunch

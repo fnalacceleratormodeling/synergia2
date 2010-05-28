@@ -52,13 +52,18 @@ struct Fixture
 
 BOOST_AUTO_TEST_CASE(construct)
 {
-    Diagnostics
-    diagnostics();
+    Diagnostics diagnostics;
 }
 
 BOOST_FIXTURE_TEST_CASE(construct2, Fixture)
 {
     Diagnostics diagnostics(bunch);
+}
+
+BOOST_AUTO_TEST_CASE(is_serial)
+{
+    Diagnostics diagnostics;
+    BOOST_CHECK(diagnostics.is_serial());
 }
 
 BOOST_FIXTURE_TEST_CASE(get_s, Fixture)
@@ -95,8 +100,8 @@ BOOST_FIXTURE_TEST_CASE(get_std, Fixture)
 BOOST_FIXTURE_TEST_CASE(init_writers, Fixture)
 {
     Diagnostics diagnostics(bunch);
-    hid_t hdf5_file = H5Fcreate("test_init_writers.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    hid_t hdf5_file = H5Fcreate("test_init_writers.h5", H5F_ACC_TRUNC,
+            H5P_DEFAULT, H5P_DEFAULT);
     diagnostics.init_writers(hdf5_file);
     H5Fclose(hdf5_file);
 }
@@ -104,8 +109,8 @@ BOOST_FIXTURE_TEST_CASE(init_writers, Fixture)
 BOOST_FIXTURE_TEST_CASE(write_hdf5_no_init, Fixture)
 {
     Diagnostics diagnostics(bunch);
-    hid_t hdf5_file = H5Fcreate("test_write_hdf5_no_init.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    hid_t hdf5_file = H5Fcreate("test_write_hdf5_no_init.h5", H5F_ACC_TRUNC,
+            H5P_DEFAULT, H5P_DEFAULT);
     bool caught_error = false;
     try {
         diagnostics.write_hdf5();
@@ -120,8 +125,8 @@ BOOST_FIXTURE_TEST_CASE(write_hdf5_no_init, Fixture)
 BOOST_FIXTURE_TEST_CASE(write_hdf5, Fixture)
 {
     Diagnostics diagnostics(bunch);
-    hid_t hdf5_file = H5Fcreate("test_write_hdf5.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    hid_t hdf5_file = H5Fcreate("test_write_hdf5.h5", H5F_ACC_TRUNC,
+            H5P_DEFAULT, H5P_DEFAULT);
     diagnostics.init_writers(hdf5_file);
     diagnostics.write_hdf5();
     H5Fclose(hdf5_file);
@@ -138,6 +143,12 @@ BOOST_AUTO_TEST_CASE(construct_full2)
 BOOST_FIXTURE_TEST_CASE(construct2_full2, Fixture)
 {
     Diagnostics_full2 diagnostics(bunch);
+}
+
+BOOST_AUTO_TEST_CASE(is_serial_full2)
+{
+    Diagnostics_full2 diagnostics;
+    BOOST_CHECK(diagnostics.is_serial());
 }
 
 BOOST_FIXTURE_TEST_CASE(get_s_full2, Fixture)
@@ -228,8 +239,8 @@ BOOST_FIXTURE_TEST_CASE(get_emitxyz_full2, Fixture)
 BOOST_FIXTURE_TEST_CASE(init_writers_full2, Fixture)
 {
     Diagnostics_full2 diagnostics(bunch);
-    hid_t hdf5_file = H5Fcreate("test_init_writers_full2.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    hid_t hdf5_file = H5Fcreate("test_init_writers_full2.h5", H5F_ACC_TRUNC,
+            H5P_DEFAULT, H5P_DEFAULT);
     diagnostics.init_writers(hdf5_file);
     H5Fclose(hdf5_file);
 }
@@ -237,8 +248,8 @@ BOOST_FIXTURE_TEST_CASE(init_writers_full2, Fixture)
 BOOST_FIXTURE_TEST_CASE(write_hdf5_full2, Fixture)
 {
     Diagnostics_full2 diagnostics(bunch);
-    hid_t hdf5_file = H5Fcreate("test_write_hdf5_full2.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    hid_t hdf5_file = H5Fcreate("test_write_hdf5_full2.h5", H5F_ACC_TRUNC,
+            H5P_DEFAULT, H5P_DEFAULT);
     diagnostics.init_writers(hdf5_file);
     diagnostics.write_hdf5();
     H5Fclose(hdf5_file);
