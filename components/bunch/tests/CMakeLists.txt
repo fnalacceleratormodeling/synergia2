@@ -15,6 +15,12 @@ target_link_libraries(test_diagnostics bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY
 add_test(test_diagnostics test_diagnostics)
 add_test(test_diagnostics_py nosetests test_diagnostics.py)
 
+add_executable(test_diagnostics_particles test_diagnostics_particles.cc)
+add_dependencies(test_diagnostics_particles test_diagnostics_particles_get_mean.icc)
+target_link_libraries(test_diagnostics_particles bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_diagnostics_particles test_diagnostics_particles)
+add_test(test_diagnostics_particles_py nosetests test_diagnostics_particles.py)
+
 add_executable(test_diagnostics_writer test_diagnostics_writer.cc)
 target_link_libraries(test_diagnostics_writer bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_diagnostics_writer test_diagnostics_writer)

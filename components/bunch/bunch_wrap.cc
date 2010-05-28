@@ -44,6 +44,13 @@ BOOST_PYTHON_MODULE(pybunch)
         .def("get_emitxyz",&Diagnostics_full2::get_emitxyz)
         ;
 
+    class_<Diagnostics_particles, Diagnostics_particles_sptr, bases<Diagnostics > >
+            ("Diagnostics_particles",init< >())
+        .def(init<int >())
+        .def(init<Bunch const & >())
+        .def(init<Bunch const &, int>())
+        ;
+
     class_<Diagnostics_writer, Diagnostics_writer_sptr >("Diagnostics_writer",
             init<std::string const& , Diagnostics_sptr const& >())
         .def(init< >())

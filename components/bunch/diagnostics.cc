@@ -1,4 +1,6 @@
 #include "diagnostics.h"
+#include "utils/hdf5_writer.h"
+#include "utils/hdf5_chunked_array2d_writer.h"
 #include <cmath>
 #include "utils/eigen2/Eigen/Core"
 #include "utils/eigen2/Eigen/LU"
@@ -287,3 +289,42 @@ Diagnostics_full2::~Diagnostics_full2()
     }
 }
 
+Diagnostics_particles::Diagnostics_particles(int max_particles) :
+    bunch_ptr(0), max_particles(max_particles)
+{
+}
+
+Diagnostics_particles::Diagnostics_particles(Bunch const& bunch,
+        int max_particles) :
+    bunch_ptr(&bunch), max_particles(max_particles)
+{
+}
+
+void
+Diagnostics_particles::update(Bunch const& bunch)
+{
+    bunch_ptr = &bunch;
+}
+
+void
+Diagnostics_particles::init_writers(hid_t & hdf5_file)
+{
+    this->hdf5_file = hdf5_file;
+}
+
+// jfa: this method is not complete! It doesn't work on multiple processors
+// or implement the max_particles parameter.
+void
+Diagnostics_particles::write_hdf5()
+{
+    Hdf5_writer<double > writer_pz(hdf5_file, "pz");
+    double pz = bunch_ptr->get_reference_particle().get_momentum();
+    writer_pz.write(pz);
+    Hdf5_chunked_array2d_writer writer_particles(hdf5_file, "particles",
+            bunch_ptr->get_local_particles());
+    writer_particles.write_chunk(bunch_ptr->get_local_particles());
+}
+
+Diagnostics_particles::~Diagnostics_particles()
+{
+}

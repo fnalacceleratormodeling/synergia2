@@ -153,4 +153,39 @@ public:
 
 typedef boost::shared_ptr<Diagnostics_full2 > Diagnostics_full2_sptr;
 
+/// Diagnostics_particles provides the full set of statistical
+/// quantities to be calculated for a Bunch up to the second moments.
+class Diagnostics_particles : public Diagnostics
+{
+private:
+    hid_t hdf5_file;
+    Bunch const * bunch_ptr;
+    int max_particles;
+public:
+    /// Create an empty Diagnostics_particles object
+    /// @param max_particles the maximum number of particles to save (0 for all)
+    Diagnostics_particles(int max_particles = 0);
+
+    /// Create a Diagnostics object
+    /// @param bunch the Bunch
+    /// @param max_particles the maximum number of particles to save (0 for all)
+    Diagnostics_particles(Bunch const& bunch, int max_particles = 0);
+
+    /// Update the diagnostics
+    /// @param bunch the Bunch
+    virtual void
+    update(Bunch const& bunch);
+
+    virtual void
+    init_writers(hid_t & hdf5_file);
+
+    virtual void
+    write_hdf5();
+
+    virtual
+    ~Diagnostics_particles();
+};
+
+typedef boost::shared_ptr<Diagnostics_particles > Diagnostics_particles_sptr;
+
 #endif /* DIAGNOSTICS_H_ */
