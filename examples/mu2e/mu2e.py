@@ -35,9 +35,9 @@ if ( __name__ == '__main__'):
     lgridnum = myopts.get("lgridnum")
     griddim = (tgridnum,tgridnum,lgridnum)
     num_particles = int(griddim[0]*griddim[1]*griddim[2] * part_per_cell)
-    
+
  #   pipe_conduct= 1.4e6 # [ohm^-1 m^-1] (stainless steel)
-    
+
     impedance=myopts.get("impedance")
     space_charge=myopts.get("space_charge")
 
@@ -52,12 +52,12 @@ if ( __name__ == '__main__'):
         write_output = True
     else:
         write_output = False
-            
+
     gourmet = dgourmet.Dgourmet(kinetic_energy,
                         scaling_frequency, myopts.get("maporder"),
                         myopts.get("tuneh"),myopts.get("tunev"),
                         write_output=write_output)
-    
+
     #~ print numpy.array2string(gourmet.get_single_linear_map()[0:6,0:6],precision=2)
 ###    gourmet.print_elements(open("elements-orig.txt","w"))
     gourmet.insert_space_charge_markers(kicks_per_line)
@@ -73,11 +73,11 @@ if ( __name__ == '__main__'):
     #~ print numpy.array2string(gourmet.get_single_linear_map()[0:6,0:6],precision=2)
     (alpha_x, alpha_y, beta_x, beta_y) = synergia.matching.get_alpha_beta(gourmet)
     #~ print "(alpha_x, alpha_y, beta_x, beta_y) = %g, %g, %g, %g" % (alpha_x, alpha_y, beta_x, beta_y)
-    
+
     beam_parameters = synergia.Beam_parameters(mass, charge, kinetic_energy,
                                          initial_phase, scaling_frequency,
                                          transverse=myopts.get("transverse"), adjust_zlength_to_freq=1)
-    betagamma=beam_parameters.get_beta()*beam_parameters.get_gamma() 
+    betagamma=beam_parameters.get_beta()*beam_parameters.get_gamma()
 
     emittance = myopts.get("emittance95_over_pi")*math.pi*1.0e-6/(6.0*math.pi*betagamma)
     pz = beam_parameters.get_gamma() * beam_parameters.get_beta() * beam_parameters.mass_GeV
@@ -99,20 +99,20 @@ if ( __name__ == '__main__'):
     rp = 1.534698e-18
     if write_output:
         print "tune shift =",myopts.get("realnum")*rp/(math.pi * epsstar * beta *gamma *gamma)
-    
+
     (ywidth,ypwidth,ry) = synergia.matching.match_twiss_emittance(emittance,alpha_y,beta_y)
     beam_parameters.y_params(sigma = ywidth, lam = ypwidth * pz,
                              r = ry)
-    
+
     bunchlen_sec = myopts.get("bunchlen")*1e-9
     bunchlen_m = bunchlen_sec * beam_parameters.get_beta() * synergia.PH_MKS_c
     if write_output:
         print "bunchlen_m =", bunchlen_m
     beam_parameters.z_params(sigma = bunchlen_m,
                              lam = myopts.get("dpop")* pz)
-    
+
     sys.stdout.flush()
-    
+
     s = 0.0
     line_length = gourmet.orbit_length()
     if MPI.COMM_WORLD.Get_rank() ==0:
@@ -123,15 +123,15 @@ if ( __name__ == '__main__'):
         tau = 1.0 # not used!!!
     kick_time = 0.0
     beta = beam_parameters.get_beta()
-    
+
     bunchnp = myopts.get("realnum")
     diag = synergia.Diagnostics(gourmet.get_initial_u(),short=True)
     bunch = s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,diagnostics=diag,periodic=True)
-    
+
     #current = myopts.get("realnum")*synergia.PH_MKS_e*scaling_frequency
     #if write_output:
     #    print "current =",current
-    
+
     #bunch = s2_fish.Macro_bunch(mass,1)
     #bunch.init_gaussian(num_particles,current,beam_parameters)
     bunch.write_particles("begin")
@@ -150,7 +150,7 @@ if ( __name__ == '__main__'):
         log.write("%s\n" % output)
         log.flush()
     t5total = 0
-    
+
     if myopts.get("solver") == "3d" or myopts.get("solver") == "3D":
         space_charge_solver ="s2_fish_3d"
         if MPI.COMM_WORLD.Get_rank() ==0:
@@ -163,12 +163,12 @@ if ( __name__ == '__main__'):
         if MPI.COMM_WORLD.Get_rank() ==0:
             print "unknown solver",myopts.get("solver")
         sys.exit(1)
-    
+
     if space_charge:
         space_charge_kicker = s2_fish.SpaceCharge(space_charge_solver, grid=griddim, periodic=myopts.get("periodic"), transverse=True)
     else:
         space_charge_kicker = None
-        
+
     for turn in range(1,myopts.get("turns")+1):
         t1 = time.time()
         if turn<= myopts.get("rampturns"):
@@ -176,8 +176,8 @@ if ( __name__ == '__main__'):
             gourmet.set_sextupoles(new_sextupoles)
             gourmet.generate_actions()
 
-        s = synergia.propagate(s,gourmet,bunch, diag, space_charge=space_charge_kicker,
-                                impedance=impedance, aperture=myopts.get("aperture"), 
+        s = synergia.propagate(s,gourmet,bunch, space_charge=space_charge_kicker,
+                                impedance=impedance, aperture=myopts.get("aperture"),
                                 tracker=tracker,track_period_steps=track_period_steps)
         ### keep beam from moving
 #         local_sump = numpy.zeros([6],'d')
@@ -212,15 +212,15 @@ if ( __name__ == '__main__'):
             print output
             log.write("%s\n" % output)
             log.flush()
-        t5total = time.time() - t4 
+        t5total = time.time() - t4
     if MPI.COMM_WORLD.Get_rank() == 0:
         diag.write_hdf5("diagnostics")
     bunch.write_particles("end")
     if tracker:
         tracker.close()
-        tracker.show_statistics()    
+        tracker.show_statistics()
     if MPI.COMM_WORLD.Get_rank() ==0:
         log.close()
         print "elapsed time =",time.time() - t0
- 
- 
+
+
