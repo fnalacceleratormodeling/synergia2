@@ -100,7 +100,7 @@ chef_pbunch_to_mbunch_store(ParticleBunch &chef_bunch,
 {
     Vector chef_state(6);
     int partnum = 0;
-    for (ParticleBunch::iterator it = chef_bunch.begin(); 
+    for (ParticleBunch::iterator it = chef_bunch.begin();
         it != chef_bunch.end(); ++it )  {
         chef_state = it->State();
         for (int impact_index=0; impact_index<6; ++impact_index) {
@@ -112,7 +112,7 @@ chef_pbunch_to_mbunch_store(ParticleBunch &chef_bunch,
         ++partnum;
     }
  }
-    
+
 typedef boost::uniform_real<double>
 basUnifGen;
 typedef boost::variate_generator<boost::minstd_rand&, boost::uniform_real<double> >
@@ -162,7 +162,7 @@ struct Options
 };
 
 Options::Options( int argc, char** argv, int lastargs )
-        :   fileName("Debunch_modified.lat")
+        :   fileName("./Debunch_modified.lat")
         , machineName("debunch")
         , startingTune_h(9.63)
         , startingTune_v(9.75)
@@ -461,9 +461,9 @@ Debuncher::Debuncher(std::string outfilename, double tune_h, double tune_v)
     options_ptr = new Options( argc, argv, 0 );
     options_ptr->startingTune_h = tune_h;
     options_ptr->startingTune_v = tune_v;
-    
+
     progname=argv[0] ;
-    
+
     outstreamptr = new ofstream(outfilename.c_str());
     // Construct the model
     // -------------------
@@ -645,7 +645,7 @@ Debuncher::complete_setup()
     //                  ??? that was instantiated when the control circuits
     //                  ??? were established.
     //                  !!! FIX THIS !!!
-    adjustTune( context, tune_h, tune_v, options_ptr->tuneTolerance, 
+    adjustTune( context, tune_h, tune_v, options_ptr->tuneTolerance,
         options_ptr->adjusterTuneStep, outstreamptr );
 
     (*outstreamptr) << "\n\n " << progname << ": INITIAL QUADRUPOLE SETTINGS" << endl;
@@ -762,7 +762,7 @@ Debuncher::complete_setup()
     //                  ??? that was instantiated when the control circuits
     //                  ??? were established.
     //                  !!! FIX THIS !!!
-    adjustTune( context, tune_h, tune_v, options_ptr->tuneTolerance, 
+    adjustTune( context, tune_h, tune_v, options_ptr->tuneTolerance,
         options_ptr->adjusterTuneStep, outstreamptr );
 
 
@@ -819,7 +819,7 @@ Debuncher::complete_setup()
     context.reset();
     nu_h = context.getHorizontalEigenTune();
     nu_v = context.getVerticalEigenTune();
-    double startingFracTune_h = options_ptr->startingTune_h - 
+    double startingFracTune_h = options_ptr->startingTune_h -
         double(int(options_ptr->startingTune_h));
     double startingFracTune_v = options_ptr->startingTune_v -
         double(int(options_ptr->startingTune_v));
