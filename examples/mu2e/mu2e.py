@@ -10,46 +10,12 @@ import synergia
 import s2_fish
 import dgourmet
 
+from mu2e_options import myopts
+
 from mpi4py import MPI
 from pardebug import pardebug
 
 if ( __name__ == '__main__'):
-    t0 = time.time()
-
-    myopts = synergia.Options("circular")
-    myopts.add("transverse",0,"longitudinally uniform beam",int)
-    myopts.add("maporder",1,"map order",int)
-    myopts.add("emittance95_over_pi",20,"95\% emittance in units of pi * mrad*mm",float)
-    # longitudinal beta is 143.6
-    myopts.add("dpop",3.482e-4,"(delta p)/p RMS width",float)
-    #~ myopts.add("bunchlen", 0.05, "RMS bunchs length (z width) [m]", float)
-    myopts.add("bunchlen", 40.0, "RMS bunch length (z width) [nanoseconds]", float)
-    myopts.add("dpopoffset", 0.0, "offset in dpop", float)
-    myopts.add("kicks",240,"kicks per line",int)
-    myopts.add("turns",10,"number of turns",int)
-    #~ myopts.add("latticefile","Debunch_modified.lat","",str)
-    myopts.add("tgridnum",16,"transverse grid cells",int)
-    myopts.add("lgridnum",16,"longitudinal grid cells",int)
-    myopts.add("space_charge",1,"include space charge",int)
-    myopts.add("impedance",0,"include impedance",int)
-    myopts.add("energy",8.87710994,"total energy, default taken from Debunch_modified.lat",float)
-    myopts.add("partpercell",1,"particles per cell",float)
-    #~ myopts.add("current",0.5,"current",float)
-    myopts.add("realnum",1.2e13,"number of real particles per bunch",float)
-    myopts.add("solver","3d","solver",str)
-    myopts.add("aperture",0.05,"aperture radius in m",float)
-    myopts.add("numtrack",0,"number of particles to track",int)
-    myopts.add("rampturns",30,"sextupole ramping turns",int)
-    myopts.add("periodic",0,"longitudinal periodic boundary conditions",int)
-    myopts.add("transverse",0,"use longitudinally uniform beam",int)
-    myopts.add("tuneh",9.745,"horizontal fractional tune",float)
-    myopts.add("tunev",9.93,"vertical fractional tune",float)
-    
-    myopts.add_suboptions(synergia.opts)
-    myopts.parse_argv(sys.argv)
-    job_mgr = synergia.Job_manager(sys.argv,myopts,
-                                      ["Debunch_modified.lat","dgourmet.py","debuncher.so"])
-
     t0 = time.time()
     if MPI.COMM_WORLD.Get_rank() ==0:
         log = open("log","w")
@@ -158,8 +124,9 @@ if ( __name__ == '__main__'):
     kick_time = 0.0
     beta = beam_parameters.get_beta()
     
-    bunchnp = 1.0e9;
-    bunch = s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,periodic=True)
+    bunchnp = myopts.get("realnum")
+    diag = synergia.Diagnostics(gourmet.get_initial_u(),short=True)
+    bunch = s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,diagnostics=diag,periodic=True)
     
     #current = myopts.get("realnum")*synergia.PH_MKS_e*scaling_frequency
     #if write_output:
@@ -176,7 +143,6 @@ if ( __name__ == '__main__'):
         tracker = None
     track_period_steps=80
 
-    diag = synergia.Diagnostics(gourmet.get_initial_u(),short=True)
 
     if MPI.COMM_WORLD.Get_rank() ==0:
         output = "setup time = %g" % (time.time() - t0)
@@ -198,7 +164,10 @@ if ( __name__ == '__main__'):
             print "unknown solver",myopts.get("solver")
         sys.exit(1)
     
-    space_charge = s2_fish.SpaceCharge(space_charge_solver, grid=griddim, periodic=myopts.get("periodic"), transverse=True)    
+    if space_charge:
+        space_charge_kicker = s2_fish.SpaceCharge(space_charge_solver, grid=griddim, periodic=myopts.get("periodic"), transverse=True)
+    else:
+        space_charge_kicker = None
         
     for turn in range(1,myopts.get("turns")+1):
         t1 = time.time()
@@ -207,8 +176,8 @@ if ( __name__ == '__main__'):
             gourmet.set_sextupoles(new_sextupoles)
             gourmet.generate_actions()
 
-        s = synergia.propagate(s,gourmet,bunch,diag, 
-                                impedance=impedance, space_charge=space_charge,aperture=myopts.get("aperture"), 
+        s = synergia.propagate(s,gourmet,bunch, diag, space_charge=space_charge_kicker,
+                                impedance=impedance, aperture=myopts.get("aperture"), 
                                 tracker=tracker,track_period_steps=track_period_steps)
         ### keep beam from moving
 #         local_sump = numpy.zeros([6],'d')
