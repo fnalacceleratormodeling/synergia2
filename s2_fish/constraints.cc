@@ -21,8 +21,8 @@
 
 void
 apply_longitudinal_periodicity(Macro_bunch_store &mbs, double length)
-{   
-    double half_length=0.5*length;	
+{
+    double half_length=0.5*length;
     Array_1d<double> z = mbs.local_particles.slice(vector2(Range(4), Range()));
     for (Array_1d<double>::Iterator it = z.begin();
             it != z.end();
@@ -94,6 +94,6 @@ apply_circular_aperture(Macro_bunch_store &mbs, double radius)
     std::cout << "proc " << rank << ": local = " << mbs.local_num
     << ", total = " << mbs.total_num << std::endl;
     mbs.total_current *= mbs.total_num / (1.0 * old_total_num);
-    mbs.bunch_np *= mbs.bunch_np / (1.0 * old_total_num); 
+    mbs.bunch_np *= mbs.total_num / (1.0 * old_total_num);
 }
 
