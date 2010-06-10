@@ -54,14 +54,14 @@ configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in"
 
 include_directories(${SYNERGIA2_SOURCE_DIR})
 
-add_subdirectory(array_nd)
+#add_subdirectory(array_nd)
 add_subdirectory(utils)
 link_directories(${SYNERGIA2_BINARY_DIR}/utils)
 add_subdirectory(components)
-add_subdirectory(synergia)
-add_subdirectory(s2_fish)
+#add_subdirectory(synergia)
+#add_subdirectory(s2_fish)
 #add_subdirectory(impact)
 
-add_subdirectory(octapy)
+#add_subdirectory(octapy)
 
 add_subdirectory(docs)
