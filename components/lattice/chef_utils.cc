@@ -52,7 +52,6 @@ reference_particle_to_chef_jet_particle(
         Reference_particle const& reference_particle, int map_order)
 {
     if (Jet__environment::getLastEnv() == 0) {
-        std::cout << "jfa: createStandardEnvironments\n";
         JetParticle::createStandardEnvironments(map_order);
     }
     return JetParticle(reference_particle_to_chef_particle(reference_particle));

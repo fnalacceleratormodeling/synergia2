@@ -26,7 +26,6 @@ Step::apply(Bunch & bunch)
 {
     for (Operators::const_iterator it = operators.begin(); it
             != operators.end(); ++it) {
-        std::cout << "jfa: apply operator " << (*it)->get_name() << std::endl;
         (*it)->apply(bunch, operators);
     }
 }

@@ -38,7 +38,6 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_ref const & data)
     herr_t status = H5Pset_chunk(cparms, 2, &chunk_dims[0]);
     hdf5_error_check(status);
     size[1] += data.shape()[1];
-    std::cout << "jfa: size = " << size[0] << ", " << size[1] << std::endl;
     status = H5Dextend(dataset, &size[0]);
     hdf5_error_check(status);
     filespace = H5Dget_space(dataset);
