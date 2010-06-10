@@ -18,15 +18,15 @@
 //
 // Examples:
 //   3.14 * p_1
-//   => Fast_mapping_term fmt(1); fmt.coeff = 3.14; fmt.i[0] = 1;
+//   => Fast_mapping_term fmt(1); fmt.coeff() = 3.14; fmt.index(0) = 1;
 //
 //   1.7724 * p_0^3 (i.e., p_0 cubed)
-//   => Fast_mapping_term fmt(3); fmt.coeff = 1.7724;
-//          fmt.i[0] = 0; fmt.i[1] = 0; fmt.i[2] = 0;
+//   => Fast_mapping_term fmt(3); fmt.coeff() = 1.7724;
+//          fmt.index(0) = 0; fmt.index(1) = 0; fmt.index(2) = 0;
 //
 //   2.2 * p_0*p_2*p_4
-//   => Fast_mapping_term fmt(3); fmt.coeff = 2.2;
-//          fmt.i[0] = 0; fmt.i[1] = 2; fmt.i[2] = 4;
+//   => Fast_mapping_term fmt(3); fmt.coeff() = 2.2;
+//          fmt.index(0) = 0; fmt.index(1) = 2; fmt.index(2) = 4;
 //
 class Fast_mapping_term
 {
