@@ -41,12 +41,47 @@ BOOST_FIXTURE_TEST_CASE(add_term, Fast_mapping_term_fixture)
 BOOST_FIXTURE_TEST_CASE(apply, Mapping_fixture)
 {
     Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
-    //    multi_array_print(bunch.get_local_particles(), "particles before");
     fast_mapping.apply(b.bunch);
-    //    multi_array_print(bunch.get_local_particles(), "particles after");
 }
-// test_note: We need to check that apply actual produces the correct results.
-//            As of this writing, it almost certainly doesn't
+
+BOOST_FIXTURE_TEST_CASE(apply_detail, Mapping_fixture)
+{
+    int order = 2;
+    Fast_mapping fast_mapping(order);
+
+    Fast_mapping_term term1(1);
+    double c1 = 7.2;
+    int i10 = 3;
+    term1.coeff() = c1;
+    term1.index(0) = i10;
+    int ip1 = 2;
+    fast_mapping.add_term(ip1, term1);
+
+    Fast_mapping_term term2(2);
+    double c2 = 0.37;
+    int i20 = 0;
+    int i21 = 1;
+    term2.coeff() = c2;
+    term2.index(0) = i20;
+    term2.index(1) = i21;
+    int ip2 = 5;
+    fast_mapping.add_term(ip2, term2);
+
+    double p[] = { 1.1, 2.2, 3.3, 4.4, 5.5, 6.6 };
+    for (int i = 0; i < 6; ++i) {
+        b.bunch.get_local_particles()[0][i] = p[i];
+    }
+    fast_mapping.apply(b.bunch);
+
+    BOOST_CHECK_EQUAL(b.bunch.get_local_particles()[0][0], 0.0);
+    BOOST_CHECK_EQUAL(b.bunch.get_local_particles()[0][1], 0.0);
+    BOOST_CHECK_EQUAL(b.bunch.get_local_particles()[0][3], 0.0);
+    BOOST_CHECK_EQUAL(b.bunch.get_local_particles()[0][4], 0.0);
+    BOOST_CHECK_CLOSE(b.bunch.get_local_particles()[0][ip1],
+            c1*p[i10], tolerance);
+    BOOST_CHECK_CLOSE(b.bunch.get_local_particles()[0][ip2],
+            c2*p[i20]*p[i21], tolerance);
+}
 
 BOOST_FIXTURE_TEST_CASE(write_read_file, Mapping_fixture)
 {
