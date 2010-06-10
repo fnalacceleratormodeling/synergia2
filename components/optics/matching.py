@@ -103,8 +103,8 @@ def get_covariances(sigma, r):
     c = numpy.zeros((6, 6), 'd')
     for i in range(0, 6):
         c[i, i] = sigma[i] ** 2
-    for (i, ri) in zip(r, [0, 2, 4]):
-        c[i, i + 1] = ri
+    for (i, ri) in zip([0, 2, 4], r):
+        c[i, i + 1] = ri * sigma[i] * sigma[i + 1]
     return c
 
 def generate_matched_bunch(lattice_simulator, stdx, stdy, stdz,
