@@ -122,6 +122,7 @@ class Macro_bunch:
         bunch.units = bdescr[0]['units']
         bunch.is_fixedz = bdescr[0]['is_fixedz']
         bunch.periodic = bdescr[0]['periodic']
+        bunch.periodic_z_size = bdescr[0]['periodic_z_size']
         bunch.mass = bdescr[0]['mass']
         bunch.charge = bdescr[0]['charge']
         bunch.ref_particle = bdescr[0]['ref_particle']
@@ -605,6 +606,7 @@ class Macro_bunch:
             is_fixedz = tables.BoolCol()
             ref_particle = tables.Float64Col(6)
             periodic = tables.BoolCol()
+            periodic_z_size = tables.BoolCol()
             mass = tables.Float64Col()
             charge = tables.Int64Col()
 
@@ -623,6 +625,8 @@ class Macro_bunch:
         b['is_fixedz'] = self.is_fixedz
         b['units'] = self.units
         b['ref_particle'] = self.ref_particle
+        b['periodic'] = self.periodic
+        b['periodic_z_size'] = self.periodic_z_size
         b['mass'] = self.mass
         b['charge'] = self.charge
         b.append()
