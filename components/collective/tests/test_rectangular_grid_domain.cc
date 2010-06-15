@@ -1,47 +1,18 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "components/collective/rectangular_grid_domain.h"
+#include "rectangular_grid_domain_fixture.h"
 #include "utils/boost_test_mpi_fixture.h"
 //BOOST_GLOBAL_FIXTURE(MPI_fixture)
 //;
 
 const double tolerance = 1.0e-12;
 
-const double domain_min = -1.0;
-const double domain_max = 1.0;
-const double domain_offset = 5.0;
-const int grid_size = 2;
-const bool is_periodic = false;
-
-struct Rgd_fixture
-{
-    Rgd_fixture() :
-        physical_size(3), physical_offset(3), grid_shape(3)
-    {
-        for (int i = 0; i < 3; ++i) {
-            physical_offset[i] = domain_offset;
-            physical_size[i] = domain_max - domain_min;
-            grid_shape[i] = grid_size;
-        }
-        rectangular_grid_domain_sptr = Rectangular_grid_domain_sptr(
-                new Rectangular_grid_domain(physical_size, physical_offset,
-                        grid_shape, is_periodic));
-    }
-
-    ~Rgd_fixture()
-    {
-    }
-
-    std::vector<double > physical_size, physical_offset;
-    std::vector<int > grid_shape;
-    Rectangular_grid_domain_sptr rectangular_grid_domain_sptr;
-};
-
-BOOST_FIXTURE_TEST_CASE(construct, Rgd_fixture)
+BOOST_FIXTURE_TEST_CASE(construct, Rectangular_grid_domain_fixture)
 {
 }
 
-BOOST_FIXTURE_TEST_CASE(get_physical_size, Rgd_fixture)
+BOOST_FIXTURE_TEST_CASE(get_physical_size, Rectangular_grid_domain_fixture)
 {
     std::vector<double > physical_size =
             rectangular_grid_domain_sptr->get_physical_size();
@@ -50,7 +21,7 @@ BOOST_FIXTURE_TEST_CASE(get_physical_size, Rgd_fixture)
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(get_physical_offset, Rgd_fixture)
+BOOST_FIXTURE_TEST_CASE(get_physical_offset, Rectangular_grid_domain_fixture)
 {
     std::vector<double > physical_offset =
             rectangular_grid_domain_sptr->get_physical_offset();
@@ -59,7 +30,7 @@ BOOST_FIXTURE_TEST_CASE(get_physical_offset, Rgd_fixture)
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(get_grid_shape, Rgd_fixture)
+BOOST_FIXTURE_TEST_CASE(get_grid_shape, Rectangular_grid_domain_fixture)
 {
     std::vector<int > grid_shape =
             rectangular_grid_domain_sptr->get_grid_shape();
@@ -68,12 +39,12 @@ BOOST_FIXTURE_TEST_CASE(get_grid_shape, Rgd_fixture)
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(is_periodic_, Rgd_fixture)
+BOOST_FIXTURE_TEST_CASE(is_periodic_, Rectangular_grid_domain_fixture)
 {
     BOOST_CHECK_EQUAL(rectangular_grid_domain_sptr->is_periodic(), is_periodic);
 }
 
-BOOST_FIXTURE_TEST_CASE(get_leftmost_indices_offsets, Rgd_fixture)
+BOOST_FIXTURE_TEST_CASE(get_leftmost_indices_offsets, Rectangular_grid_domain_fixture)
 {
     int ix, iy, iz;
     double offx, offy, offz;
