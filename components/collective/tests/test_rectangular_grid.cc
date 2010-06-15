@@ -1,0 +1,35 @@
+#define BOOST_TEST_MAIN
+#include <boost/test/unit_test.hpp>
+#include "components/collective/rectangular_grid.h"
+#include "rectangular_grid_domain_fixture.h"
+
+const double tolerance = 1.0e-12;
+
+BOOST_FIXTURE_TEST_CASE(construct1, Rectangular_grid_domain_fixture)
+{
+    Rectangular_grid rectangular_grid(physical_size, physical_offset,
+            grid_shape, is_periodic);
+}
+
+BOOST_FIXTURE_TEST_CASE(construct2, Rectangular_grid_domain_fixture)
+{
+    Rectangular_grid rectangular_grid(rectangular_grid_domain_sptr);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_domain_sptr, Rectangular_grid_domain_fixture)
+{
+    Rectangular_grid rectangular_grid(rectangular_grid_domain_sptr);
+    BOOST_CHECK_EQUAL(rectangular_grid_domain_sptr,
+            rectangular_grid.get_domain_sptr());
+}
+
+BOOST_FIXTURE_TEST_CASE(get_grid_points, Rectangular_grid_domain_fixture)
+{
+    Rectangular_grid rectangular_grid(rectangular_grid_domain_sptr);
+    MArray3d_ref grid_points(rectangular_grid.get_grid_points());
+
+    BOOST_CHECK_EQUAL(grid_points.shape()[0], grid_size);
+    BOOST_CHECK_EQUAL(grid_points.shape()[1], grid_size);
+    BOOST_CHECK_EQUAL(grid_points.shape()[2], grid_size);
+}
+
