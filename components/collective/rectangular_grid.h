@@ -20,4 +20,6 @@ public:
     get_grid_points();
 };
 
+typedef boost::shared_ptr<Rectangular_grid> Rectangular_grid_sptr;
+
 #endif /* RECTANGULAR_GRID_H_ */
