@@ -80,8 +80,8 @@ typedef std::list<Fast_mapping_term > Fast_mapping_terms;
 // terms in a polynomial expansion taking the six-dimensional phase space
 // variable g to a new variable f:
 //
-// f^{i} = C_{0}^{i} + C_{1}^{ij} g^{j} + \
-//         C_{2}^{ijk} g^{j}g^{k} + \
+// f^{i} = C_{0}^{i} + C_{1}^{ij} g^{j} +
+//         C_{2}^{ijk} g^{j}g^{k} +
 //         C_{3}^{ijkl}g^{j}g^{k}g^{l} + ...
 //
 // Only the non-zero terms are stored.
