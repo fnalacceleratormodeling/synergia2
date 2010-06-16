@@ -4,7 +4,7 @@
 #include "chef_elements_fixture.h"
 #include "utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
-;
+
 const double tolerance = 1.0e-12;
 
 BOOST_FIXTURE_TEST_CASE(construct, Chef_elements_fixture)

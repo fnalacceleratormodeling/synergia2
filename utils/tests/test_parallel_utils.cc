@@ -4,7 +4,6 @@
 #include "utils/parallel_utils.h"
 
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
-;
 
 BOOST_AUTO_TEST_CASE(test_Commxx_construct)
 {

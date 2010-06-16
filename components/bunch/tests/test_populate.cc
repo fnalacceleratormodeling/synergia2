@@ -6,7 +6,6 @@
 #include "utils/multi_array_typedefs.h"
 #include "utils/multi_array_print.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
-;
 
 const double tolerance = 1.0e-12;
 

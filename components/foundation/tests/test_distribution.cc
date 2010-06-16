@@ -4,7 +4,6 @@
 #include "components/foundation/distribution.h"
 #include "utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
-;
 
 const double tolerance = 1.0e-15;
 const unsigned long int test_seed = 12345678;
