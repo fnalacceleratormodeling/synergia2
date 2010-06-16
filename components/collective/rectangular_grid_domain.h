@@ -10,7 +10,7 @@ private:
     std::vector<double > physical_size;
     std::vector<double > physical_offset;
     std::vector<int > grid_shape;
-    bool periodic;
+    bool periodic_z;
 
     std::vector<double > left;
     std::vector<double > cell_size;
