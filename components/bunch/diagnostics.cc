@@ -45,12 +45,12 @@ Diagnostics::update_std(Bunch const& bunch)
 }
 
 Diagnostics::Diagnostics() :
-    mean(boost::extents[6]), std(boost::extents[6]), have_writers(false)
+    have_writers(false), mean(boost::extents[6]), std(boost::extents[6])
 {
 }
 
 Diagnostics::Diagnostics(Bunch const& bunch) :
-    mean(boost::extents[6]), std(boost::extents[6]), have_writers(false)
+    have_writers(false), mean(boost::extents[6]), std(boost::extents[6])
 {
     update(bunch);
 }
@@ -190,14 +190,14 @@ Diagnostics_full2::update_emittances()
 }
 
 Diagnostics_full2::Diagnostics_full2() :
-    Diagnostics(), mom2(boost::extents[6][6]), corr(boost::extents[6][6]),
-            have_writers(false)
+    Diagnostics(), have_writers(false), mom2(boost::extents[6][6]), corr(
+            boost::extents[6][6])
 {
 }
 
 Diagnostics_full2::Diagnostics_full2(Bunch const& bunch) :
-    Diagnostics(), mom2(boost::extents[6][6]), corr(boost::extents[6][6]),
-            have_writers(false)
+    Diagnostics(), have_writers(false), mom2(boost::extents[6][6]), corr(
+            boost::extents[6][6])
 {
     update(bunch);
 }
