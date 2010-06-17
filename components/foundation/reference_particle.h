@@ -16,9 +16,9 @@ private:
     int charge;
     Four_momentum four_momentum;
     MArray1d state;
-    double s;
     int repetition;
     double repetition_length;
+    double s;
 public:
     /// Construct a Reference_particle with a given mass and total energy.
     /// @param mass in GeV/c^2
