@@ -23,7 +23,7 @@ Diagnostics_writer::Diagnostics_writer(std::string const& filename,
         Diagnostics_sptr const& diagnostics_sptr) :
     diagnostics_sptr(diagnostics_sptr), dummy(false), count(0)
 {
-    int idx = filename.rfind('.');
+    unsigned int idx = filename.rfind('.');
     if (idx == std::string::npos) {
         filename_base = filename;
         filename_suffix = "";
