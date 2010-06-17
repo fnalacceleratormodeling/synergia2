@@ -6,7 +6,6 @@
 #include "components/bunch/bunch.h"
 #include "utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
-;
 
 void
 compare_multi_array(Const_MArray3d_ref const& a, Const_MArray3d_ref const& b,
@@ -15,9 +14,9 @@ compare_multi_array(Const_MArray3d_ref const& a, Const_MArray3d_ref const& b,
     BOOST_CHECK_EQUAL(a.shape()[0],b.shape()[0]);
     BOOST_CHECK_EQUAL(a.shape()[1],b.shape()[1]);
     BOOST_CHECK_EQUAL(a.shape()[2],b.shape()[2]);
-    for (int i = 0; i < a.shape()[0]; ++i) {
-        for (int j = 0; j < a.shape()[1]; ++j) {
-            for (int k = 0; k < a.shape()[2]; ++k) {
+    for (unsigned int i = 0; i < a.shape()[0]; ++i) {
+        for (unsigned int j = 0; j < a.shape()[1]; ++j) {
+            for (unsigned int k = 0; k < a.shape()[2]; ++k) {
                 if (a[i][j][k] == 0.0) {
                     BOOST_CHECK_SMALL(b[i][j][k], tolerance);
                 } else {
@@ -52,9 +51,9 @@ struct Fixture
             physical_size[i] = domain_max - domain_min;
             grid_shape[i] = grid_size;
         }
-        for (int i = 0; i < expected.shape()[0]; ++i) {
-            for (int j = 0; j < expected.shape()[1]; ++j) {
-                for (int k = 0; k < expected.shape()[2]; ++k) {
+        for (unsigned int i = 0; i < expected.shape()[0]; ++i) {
+            for (unsigned int j = 0; j < expected.shape()[1]; ++j) {
+                for (unsigned int k = 0; k < expected.shape()[2]; ++k) {
                     expected[i][j][k] = 0.0;
                 }
             }
