@@ -92,8 +92,8 @@ Independent_operator::need_update()
 
 Independent_operator::Independent_operator(std::string const& name,
         Operation_extractor_map_sptr const& operation_extractor_map_sptr) :
-    Operator(name, "independent"), have_operations(false),
-            operation_extractor_map_sptr(operation_extractor_map_sptr)
+    Operator(name, "independent"), operation_extractor_map_sptr(
+            operation_extractor_map_sptr), have_operations(false)
 {
 }
 
