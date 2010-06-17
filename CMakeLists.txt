@@ -49,6 +49,9 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
   SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fmessage-length=0")
 ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
+# External libraries generate many warnings
+#add_definitions(-Wall -pedantic -Wno-long-long)
+
 configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in"
     "${SYNERGIA2_BINARY_DIR}/synergia-local" IMMEDIATE)
 
