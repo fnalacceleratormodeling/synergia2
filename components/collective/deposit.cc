@@ -10,9 +10,9 @@ deposit_charge_rectangular(Rectangular_grid & rho_grid, Bunch & bunch,
     MArray3d_ref rho(rho_grid.get_grid_points());
     MArray2d_ref parts(bunch.get_local_particles());
     if (zero_first) {
-        for (int i = 0; i < rho.shape()[0]; ++i) {
-            for (int j = 0; j < rho.shape()[1]; ++j) {
-                for (int k = 0; k < rho.shape()[2]; ++k) {
+        for (unsigned int i = 0; i < rho.shape()[0]; ++i) {
+            for (unsigned int j = 0; j < rho.shape()[1]; ++j) {
+                for (unsigned int k = 0; k < rho.shape()[2]; ++k) {
                     rho[i][j][k] = 0.0;
                 }
             }
@@ -35,8 +35,8 @@ deposit_charge_rectangular(Rectangular_grid & rho_grid, Bunch & bunch,
                     for (int k = 0; k < 2; ++k) {
                         int cellx = ix + i;
                         int celly = iy + j;
-                        if ((cellx >= 0) && (cellx < rho.shape()[2]) && (celly
-                                >= 0) && (celly < rho.shape()[1])) {
+                        if ((cellx >= 0) && (cellx < int(rho.shape()[2])) && (celly
+                                >= 0) && (celly < int(rho.shape()[1]))) {
                             int cellz = iz + k;
                             if (cellz >= 0) {
                                 cellz = cellz % rho.shape()[0];
@@ -64,9 +64,9 @@ deposit_charge_rectangular(Rectangular_grid & rho_grid, Bunch & bunch,
                         int cellx = ix + i;
                         int celly = iy + j;
                         int cellz = iz + k;
-                        if ((cellx >= 0) && (cellx < rho.shape()[2]) && (celly
-                                >= 0) && (celly < rho.shape()[1]) && (cellz
-                                >= 0) && (cellz < rho.shape()[0])) {
+                        if ((cellx >= 0) && (cellx < int(rho.shape()[2])) && (celly
+                                >= 0) && (celly < int(rho.shape()[1])) && (cellz
+                                >= 0) && (cellz < int(rho.shape()[0]))) {
                             double weight = weight0 * (1 - i - (1 - 2 * i)
                                     * offx) * (1 - j - (1 - 2 * j) * offy) * (1
                                     - k - (1 - 2 * k) * offz);
