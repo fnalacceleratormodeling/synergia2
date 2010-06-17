@@ -21,8 +21,8 @@ Lattice_simulator::construct_extractor_map()
 Lattice_simulator::Lattice_simulator(Lattice_sptr const& lattice_sptr,
         int map_order) :
     lattice_sptr(lattice_sptr), chef_lattice_sptr(new Chef_lattice(
-            *lattice_sptr)), map_order(map_order), extractor_map_sptr(
-            new Operation_extractor_map)
+            *lattice_sptr)), extractor_map_sptr(new Operation_extractor_map),
+            map_order(map_order)
 {
     construct_extractor_map();
 }
