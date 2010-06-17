@@ -16,7 +16,7 @@ Independent_operation::~Independent_operation()
 }
 
 Fast_mapping_operation::Fast_mapping_operation(Fast_mapping const& mapping) :
-    mapping(mapping), Independent_operation(fast_mapping_type_name)
+    Independent_operation(fast_mapping_type_name), mapping(mapping)
 {
 }
 
@@ -32,8 +32,8 @@ Fast_mapping_operation::~Fast_mapping_operation()
 
 Chef_propagate_operation::Chef_propagate_operation(
         Chef_elements const& chef_elements) :
-    chef_propagator(chef_elements), Independent_operation(
-            chef_propagate_type_name)
+    Independent_operation(chef_propagate_type_name), chef_propagator(
+            chef_elements)
 {
 }
 
