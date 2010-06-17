@@ -129,7 +129,6 @@ Fast_mapping::Fast_mapping(Reference_particle const& reference_particle,
     length = mapping_length;
     for (int i = 0; i < 6; ++i) {
         int chef_i = get_chef_index(i);
-        int nterm = 0;
         Jet__environment_ptr env = chef_mapping.Env();
         for (Jet::const_iterator jet_it = chef_mapping(chef_i).begin(); jet_it
                 != chef_mapping(chef_i).end(); ++jet_it) {
