@@ -8,7 +8,7 @@
 void
 Distribution::fill_uniform(MArray1d_ref array, double min, double max)
 {
-    fill_uniform(array[boost::indices[range()]],min,max);
+    fill_uniform(array[boost::indices[range()]], min, max);
 }
 
 void
@@ -60,8 +60,8 @@ Random_distribution::set_seed(unsigned long int seed)
         original_seed = seed;
     }
     unsigned long int distributed_seed;
-    distributed_seed = (1000 + 5* (rank + original_seed)) *
-    ((rank + original_seed) + 7) - 1;
+    distributed_seed = (1000 + 5 * (rank + original_seed)) * ((rank
+            + original_seed) + 7) - 1;
 
     gsl_rng_set(rng, distributed_seed);
 }
@@ -96,13 +96,14 @@ Random_distribution::fill_unit_gaussian(MArray1d_view array)
 }
 
 void
-Random_distribution::fill_unit_disk(MArray1d_view x_array, MArray1d_view y_array)
+Random_distribution::fill_unit_disk(MArray1d_view x_array,
+        MArray1d_view y_array)
 {
     if (x_array.shape()[0] != y_array.shape()[0]) {
         throw std::runtime_error(
                 "Random_distribution::fill_unit_disk: x_array and y_array must have the same length\n");
     }
-    for (int n = 0; n < x_array.shape()[0]; ++n) {
+    for (unsigned int n = 0; n < x_array.shape()[0]; ++n) {
         double x = 1.0, y = 1.0;
         while (x * x + y * y > 1.0) {
             x = 2.0 * gsl_rng_uniform(rng) - 1.0;
