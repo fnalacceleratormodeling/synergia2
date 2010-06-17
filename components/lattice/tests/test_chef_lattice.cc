@@ -40,9 +40,9 @@ struct Fodo_fixture
         BOOST_TEST_MESSAGE("teardown fixture");
     }
 
-    Lattice lattice;
     Four_momentum four_momentum;
     Reference_particle reference_particle;
+    Lattice lattice;
 };
 
 const double bend_length = 0.15;
@@ -85,9 +85,9 @@ struct Fobodobo_sbend_fixture
         BOOST_TEST_MESSAGE("teardown fixture");
     }
 
-    Lattice lattice;
     Four_momentum four_momentum;
     Reference_particle reference_particle;
+    Lattice lattice;
 };
 
 struct Fobodobo_sbend_markers_fixture
@@ -135,9 +135,9 @@ struct Fobodobo_sbend_markers_fixture
         BOOST_TEST_MESSAGE("teardown fixture");
     }
 
-    Lattice lattice;
     Four_momentum four_momentum;
     Reference_particle reference_particle;
+    Lattice lattice;
 };
 
 struct Fobodobo_rbend_fixture
@@ -176,9 +176,9 @@ struct Fobodobo_rbend_fixture
         BOOST_TEST_MESSAGE("teardown fixture");
     }
 
-    Lattice lattice;
     Four_momentum four_momentum;
     Reference_particle reference_particle;
+    Lattice lattice;
 };
 
 struct Fobodobo_rbend_markers_fixture
@@ -226,9 +226,9 @@ struct Fobodobo_rbend_markers_fixture
         BOOST_TEST_MESSAGE("teardown fixture");
     }
 
-    Lattice lattice;
     Four_momentum four_momentum;
     Reference_particle reference_particle;
+    Lattice lattice;
 };
 
 BOOST_FIXTURE_TEST_CASE(construct, Fodo_fixture)
