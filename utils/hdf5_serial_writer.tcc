@@ -39,8 +39,9 @@ template<typename T>
 // this is the generic case, it will only work for atomic T's that have
 // hdf5_atomic_typename<T>() defined
 template<typename T>
-    Hdf5_serial_writer<T >::Hdf5_serial_writer(hid_t & file, std::string const& name) :
-        file(file), name(name), data_rank(0), have_setup(false)
+    Hdf5_serial_writer<T >::Hdf5_serial_writer(hid_t & file,
+            std::string const& name) :
+        data_rank(0), name(name), file(file), have_setup(false)
     {
     }
 

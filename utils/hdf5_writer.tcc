@@ -5,7 +5,7 @@
 
 template<typename T>
     Hdf5_writer<T >::Hdf5_writer(hid_t & file, std::string const& name) :
-        file(file), name(name), data_rank(0), dims(1)
+        data_rank(0), dims(1), name(name), file(file)
     {
         atomic_type = hdf5_atomic_typename<T > ();
     }

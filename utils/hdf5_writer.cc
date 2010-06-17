@@ -3,7 +3,7 @@
 template<>
     Hdf5_writer<MArray1d_ref >::Hdf5_writer(hid_t & file,
             std::string const& name) :
-        file(file), name(name), data_rank(1), dims(1)
+        data_rank(1), dims(1), name(name), file(file)
     {
         atomic_type = hdf5_atomic_typename<double > ();
     }
@@ -11,7 +11,7 @@ template<>
 template<>
     Hdf5_writer<MArray2d_ref >::Hdf5_writer(hid_t & file,
             std::string const& name) :
-        file(file), name(name), data_rank(2), dims(2)
+        data_rank(2), dims(2), name(name), file(file)
     {
         atomic_type = hdf5_atomic_typename<double > ();
     }
@@ -19,7 +19,7 @@ template<>
 template<>
     Hdf5_writer<MArray3d_ref >::Hdf5_writer(hid_t & file,
             std::string const& name) :
-        file(file), name(name), data_rank(3), dims(3)
+        data_rank(3), dims(3), name(name), file(file)
     {
         atomic_type = hdf5_atomic_typename<double > ();
     }
