@@ -65,7 +65,7 @@ template<typename ValueType, int Dimension>
             object py_obj(handle< > (borrowed(obj)));
             shape_t shape;
             get_shape(py_obj, shape);
-            multi_array_t * a = new (memory_chunk) multi_array_t(
+            new (memory_chunk) multi_array_t(
                     reinterpret_cast<ValueType* > (PyArray_DATA(obj)), shape);
             data->convertible = memory_chunk;
         }
@@ -167,7 +167,7 @@ template<typename ValueType, int Dimension>
             object py_obj(handle< > (borrowed(obj)));
             shape_t shape;
             get_shape(py_obj, shape);
-            const_multi_array_t * a = new (memory_chunk) const_multi_array_t(
+            new (memory_chunk) const_multi_array_t(
                     reinterpret_cast<ValueType* > (PyArray_DATA(obj)), shape);
             data->convertible = memory_chunk;
         }
