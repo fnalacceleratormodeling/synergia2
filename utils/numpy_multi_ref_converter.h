@@ -62,9 +62,7 @@ template<typename ValueType, int Dimension>
             void * memory_chunk = the_storage->storage.bytes;
 
             //new placement
-            object
-            py_obj(handle< >
-            (borrowed( obj)));
+            object py_obj(handle< > (borrowed(obj)));
             shape_t shape;
             get_shape(py_obj, shape);
             multi_array_t * a = new (memory_chunk) multi_array_t(
@@ -109,7 +107,8 @@ template<typename ValueType, int Dimension>
 template<typename ValueType, int Dimension>
     struct numpy_const_multi_array_ref_converter
     {
-        typedef boost::const_multi_array_ref<ValueType, Dimension > const_multi_array_t;
+        typedef boost::const_multi_array_ref<ValueType, Dimension >
+                const_multi_array_t;
         typedef std::vector<std::size_t > shape_t;
 
         static void
@@ -165,9 +164,7 @@ template<typename ValueType, int Dimension>
             void * memory_chunk = the_storage->storage.bytes;
 
             //new placement
-            object
-            py_obj(handle< >
-            (borrowed( obj)));
+            object py_obj(handle< > (borrowed(obj)));
             shape_t shape;
             get_shape(py_obj, shape);
             const_multi_array_t * a = new (memory_chunk) const_multi_array_t(
