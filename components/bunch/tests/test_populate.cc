@@ -21,7 +21,7 @@ compare_multi_array(Const_MArray1d_ref const& a, Const_MArray1d_ref const& b,
         double tolerance)
 {
     BOOST_CHECK_EQUAL(a.shape()[0],b.shape()[0]);
-    for (int i = 0; i < a.shape()[0]; ++i) {
+    for (unsigned int i = 0; i < a.shape()[0]; ++i) {
         if (a[i] == 0.0) {
             BOOST_CHECK_SMALL(b[i], tolerance);
         } else {
@@ -36,8 +36,8 @@ compare_multi_array(Const_MArray2d_ref const& a, Const_MArray2d_ref const& b,
 {
     BOOST_CHECK_EQUAL(a.shape()[0],b.shape()[0]);
     BOOST_CHECK_EQUAL(a.shape()[1],b.shape()[1]);
-    for (int i = 0; i < a.shape()[0]; ++i) {
-        for (int j = 0; j < a.shape()[1]; ++j) {
+    for (unsigned int i = 0; i < a.shape()[0]; ++i) {
+        for (unsigned int j = 0; j < a.shape()[1]; ++j) {
             if (a[i][j] == 0.0) {
                 BOOST_CHECK_SMALL(b[i][j], tolerance);
             } else {
