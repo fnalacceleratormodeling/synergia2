@@ -1,0 +1,57 @@
+#ifndef DISTRIBUTED_FFT3D_H_
+#define DISTRIBUTED_FFT3D_H_
+
+#ifdef USE_FFTW2
+#include <rfftw_mpi.h>
+#else
+#include <fftw3.h>
+#include <fftw3-mpi.h>
+#endif //USE_FFTW2
+//jfa? #undef DL_IMPORT
+#include <vector>
+#include <string>
+#include "utils/multi_array_typedefs.h"
+#include "utils/commxx.h"
+
+class Distributed_fft3d
+{
+private:
+#ifdef USE_FFTW2
+    rfftwnd_mpi_plan plan, inv_plan;
+    fftw_real *workspace, *data;
+#else
+    fftw_plan plan, inv_plan;
+    double *data;
+    fftw_complex *workspace;
+#endif //USE_FFTW2
+    int lower_limit, upper_limit, max_local_size;
+    int left_guard, right_guard;
+    std::vector<int > shape;
+    bool have_local_data;
+public:
+    Distributed_fft3d(std::vector<int > const& shape, bool z_periodic,
+            Commxx const& comm, int planner_flags = FFTW_ESTIMATE,
+            std::string const& wisdom_filename = "");
+    int
+    get_lower() const;
+    int
+    get_upper() const;
+    int
+    get_guard_lower() const;
+    int
+    get_guard_upper() const;
+    int
+    get_offset() const;
+    size_t
+    get_local_size() const;
+    std::vector<int >
+    get_padded_shape_real() const;
+    std::vector<int >
+    get_padded_shape_complex() const;
+    void
+    transform(MArray3d_ref & in, MArray3dc_ref & out);
+    void
+    inv_transform(MArray3dc_ref & in, MArray3d_ref & out);
+    ~Distributed_fft3d();
+};
+#endif /* DISTRIBUTED_FFT3D_H_ */
