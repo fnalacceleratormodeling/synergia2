@@ -9,6 +9,7 @@
 #endif //USE_FFTW2
 #include <vector>
 #include <string>
+#include "boost/shared_ptr.hpp"
 #include "utils/multi_array_typedefs.h"
 #include "utils/commxx.h"
 
@@ -53,4 +54,6 @@ public:
     inv_transform(MArray3dc_ref & in, MArray3d_ref & out);
     ~Distributed_fft3d();
 };
+
+typedef boost::shared_ptr<Distributed_fft3d > Distributed_fft3d_sptr;
 #endif /* DISTRIBUTED_FFT3D_H_ */
