@@ -5,6 +5,7 @@
 #include "utils/boost_test_mpi_fixture.h"
 #include "utils/multi_array_typedefs.h"
 #include "utils/multi_array_print.h"
+#include "utils/multi_array_check_equal.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-12;
@@ -16,36 +17,6 @@ const int total_num = 1000;
 const double real_num = 2.0e12;
 const double default_s = 123.4;
 
-void
-compare_multi_array(Const_MArray1d_ref const& a, Const_MArray1d_ref const& b,
-        double tolerance)
-{
-    BOOST_CHECK_EQUAL(a.shape()[0],b.shape()[0]);
-    for (unsigned int i = 0; i < a.shape()[0]; ++i) {
-        if (a[i] == 0.0) {
-            BOOST_CHECK_SMALL(b[i], tolerance);
-        } else {
-            BOOST_CHECK_CLOSE(a[i], b[i], tolerance);
-        }
-    }
-}
-
-void
-compare_multi_array(Const_MArray2d_ref const& a, Const_MArray2d_ref const& b,
-        double tolerance)
-{
-    BOOST_CHECK_EQUAL(a.shape()[0],b.shape()[0]);
-    BOOST_CHECK_EQUAL(a.shape()[1],b.shape()[1]);
-    for (unsigned int i = 0; i < a.shape()[0]; ++i) {
-        for (unsigned int j = 0; j < a.shape()[1]; ++j) {
-            if (a[i][j] == 0.0) {
-                BOOST_CHECK_SMALL(b[i][j], tolerance);
-            } else {
-                BOOST_CHECK_CLOSE(a[i][j], b[i][j], tolerance);
-            }
-        }
-    }
-}
 
 struct Fixture
 {
@@ -78,8 +49,8 @@ BOOST_FIXTURE_TEST_CASE(populate_6d_diagonal, Fixture)
     }
     populate_6d(distribution, bunch, means, covariances);
     Diagnostics_full2 diagnostics(bunch);
-    compare_multi_array(means, diagnostics.get_mean(), tolerance);
-    compare_multi_array(covariances, diagnostics.get_mom2(), tolerance);
+    multi_array_check_equal(means, diagnostics.get_mean(), tolerance);
+    multi_array_check_equal(covariances, diagnostics.get_mom2(), tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(populate_6d_general, Fixture)
@@ -94,6 +65,6 @@ BOOST_FIXTURE_TEST_CASE(populate_6d_general, Fixture)
     }
     populate_6d(distribution, bunch, means, covariances);
     Diagnostics_full2 diagnostics(bunch);
-    compare_multi_array(means, diagnostics.get_mean(), tolerance);
-    compare_multi_array(covariances, diagnostics.get_mom2(), tolerance);
+    multi_array_check_equal(means, diagnostics.get_mean(), tolerance);
+    multi_array_check_equal(covariances, diagnostics.get_mom2(), tolerance);
 }
