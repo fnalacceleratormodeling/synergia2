@@ -7,7 +7,6 @@
 #include <fftw3.h>
 #include <fftw3-mpi.h>
 #endif //USE_FFTW2
-//jfa? #undef DL_IMPORT
 #include <vector>
 #include <string>
 #include "utils/multi_array_typedefs.h"
