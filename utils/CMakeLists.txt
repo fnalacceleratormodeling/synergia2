@@ -6,7 +6,7 @@ add_library(hdf5_utils SHARED hdf5_writer.cc hdf5_serial_writer.cc
     hdf5_chunked_array2d_writer.cc)
 target_link_libraries(hdf5_utils ${HDF5_LIBRARIES})
 
-add_library(distrbuted_fft SHARED distributed_fft3d.cc)
-target_link_libraries(distributed_fft3d ${PARALLEL_FFTW_LIBS})
+add_library(distributed_fft SHARED distributed_fft3d.cc)
+target_link_libraries(distributed_fft ${PARALLEL_FFTW_LIBRARIES} parallel_utils)
 
 add_subdirectory(tests)
