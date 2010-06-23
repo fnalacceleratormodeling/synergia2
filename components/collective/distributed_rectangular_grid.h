@@ -36,4 +36,6 @@ public:
     MArray3d_ref &
     get_grid_points();
 };
+
+typedef boost::shared_ptr<Distributed_rectangular_grid > Distributed_rectangular_grid_sptr;
 #endif /* DISTRIBUTED_RECTANGULAR_GRID_H_ */
