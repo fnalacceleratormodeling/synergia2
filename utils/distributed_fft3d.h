@@ -25,8 +25,7 @@ private:
     double *data;
     fftw_complex *workspace;
 #endif //USE_FFTW2
-    int lower_limit, upper_limit, local_size;
-    int left_guard, right_guard;
+    int lower, upper, local_size;
     std::vector<int > shape;
     bool have_local_data;
 public:
@@ -37,14 +36,6 @@ public:
     get_lower() const;
     int
     get_upper() const;
-    int
-    get_guard_lower() const;
-    int
-    get_guard_upper() const;
-    int
-    get_offset() const;
-    size_t
-    get_local_size() const;
     std::vector<int >
     get_padded_shape_real() const;
     std::vector<int >

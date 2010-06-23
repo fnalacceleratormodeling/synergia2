@@ -15,7 +15,7 @@ Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
     inv_plan = rfftwnd_mpi_create_plan(comm.get(), 3, shape.c_array(),
             FFTW_COMPLEX_TO_REAL, planner_flags);
     int local_nx, local_ny_after_transpose, local_y_start_after_transpose;
-    rfftwnd_mpi_local_sizes(plan, &local_nx, &lower_limit,
+    rfftwnd_mpi_local_sizes(plan, &local_nx, &lower,
             &local_ny_after_transpose,
             &local_y_start_after_transpose,
             &local_size);
@@ -50,56 +50,21 @@ Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
             workspace, comm.get(), planner_flags);
     inv_plan = fftw_mpi_plan_dft_c2r_3d(shape[0], shape[1], shape[2],
             workspace, data, comm.get(), planner_flags);
-    lower_limit = local_x_start;
+    lower = local_x_start;
 #endif //USE_FFTW2
-    upper_limit = lower_limit + local_nx;
-    // padding for guard grids
-    if ((lower_limit == 0) || (local_nx == 0)) {
-        left_guard = 0;
-    } else {
-        left_guard = 1;
-    }
-    if ((upper_limit >= shape[0] / 2) || (local_nx == 0)) {
-        right_guard = 0;
-    } else {
-        right_guard = 1;
-    }
+    upper = lower + local_nx;
 }
 
 int
 Distributed_fft3d::get_lower() const
 {
-    return lower_limit;
+    return lower;
 }
 
 int
 Distributed_fft3d::get_upper() const
 {
-    return upper_limit;
-}
-
-int
-Distributed_fft3d::get_guard_lower() const
-{
-    return lower_limit - left_guard;
-}
-
-int
-Distributed_fft3d::get_guard_upper() const
-{
-    return upper_limit + right_guard;
-}
-
-int
-Distributed_fft3d::get_offset() const
-{
-    return left_guard;
-}
-
-size_t
-Distributed_fft3d::get_local_size() const
-{
-    return local_size;
+    return upper;
 }
 
 std::vector<int >
@@ -136,13 +101,13 @@ Distributed_fft3d::transform(MArray3d_ref & in, MArray3dc_ref & out)
     if (have_local_data) {
         memcpy(reinterpret_cast<void* > (data),
                 reinterpret_cast<void* > (in.origin() + in.index_bases()[0]
-                        * in.strides()[0]), get_local_size() * sizeof(double));
+                        * in.strides()[0]), local_size * sizeof(double));
     }
     fftw_execute(plan);
     if (have_local_data) {
         memcpy(reinterpret_cast<void* > (out.origin() + out.index_bases()[0]
                 * out.strides()[0]), reinterpret_cast<void* > (workspace),
-                get_local_size() * sizeof(double));
+                local_size * sizeof(double));
     }
 #endif //USE_FFTW2
 }
@@ -165,13 +130,13 @@ Distributed_fft3d::inv_transform(MArray3dc_ref & in, MArray3d_ref & out)
     if (have_local_data) {
         memcpy(reinterpret_cast<void* > (workspace),
                 reinterpret_cast<void* > (in.origin() + in.index_bases()[0]
-                        * in.strides()[0]), get_local_size() * sizeof(double));
+                        * in.strides()[0]), local_size * sizeof(double));
     }
     fftw_execute(inv_plan);
     if (have_local_data) {
         memcpy(reinterpret_cast<void* > (out.origin() + out.index_bases()[0]
                 * out.strides()[0]), reinterpret_cast<void* > (data),
-                get_local_size() * sizeof(double));
+                local_size * sizeof(double));
     }
 #endif //USE_FFTW2
 }
