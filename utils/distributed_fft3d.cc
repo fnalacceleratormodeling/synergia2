@@ -4,7 +4,7 @@
 #include "distributed_fft3d.h"
 
 Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
-        bool z_periodic, Commxx const& comm, int planner_flags,
+        Commxx const& comm, int planner_flags,
         std::string const& wisdom_filename) :
     shape(shape)
 {
@@ -18,12 +18,12 @@ Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
     rfftwnd_mpi_local_sizes(plan, &local_nx, &lower_limit,
             &local_ny_after_transpose,
             &local_y_start_after_transpose,
-            &max_local_size);
+            &local_size);
     data = reinterpret_cast<fftw_real *>
-    (malloc(max_local_size * sizeof(fftw_real)));
+    (malloc(local_size * sizeof(fftw_real)));
     workspace = reinterpret_cast<fftw_real *>
-    (malloc(max_local_size * sizeof(fftw_real)));
-    if (max_local_size == 0) {
+    (malloc(local_size * sizeof(fftw_real)));
+    if (local_size == 0) {
         have_local_data = false;
     } else {
         have_local_data = true;
@@ -34,18 +34,18 @@ Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
     ptrdiff_t local_nx, local_x_start;
     ptrdiff_t fftw_local_size = fftw_mpi_local_size_3d(shape[0], shape[1],
             shape[2], comm.get(), &local_nx, &local_x_start);
-    max_local_size = local_nx * padded_shape[1] * padded_shape[2];
+    local_size = local_nx * padded_shape[1] * padded_shape[2];
     if (local_nx == 0) {
         have_local_data = false;
     } else {
         have_local_data = true;
-        if (fftw_local_size > max_local_size) {
-            max_local_size = fftw_local_size;
+        if (fftw_local_size > local_size) {
+            local_size = fftw_local_size;
             std::cout << "jfa: warning: max_local_size had to be modified\n";
         }
     }
-    data = (double *) fftw_malloc(sizeof(double) * max_local_size);
-    workspace = (fftw_complex *) fftw_malloc(sizeof(double) * max_local_size);
+    data = (double *) fftw_malloc(sizeof(double) * local_size);
+    workspace = (fftw_complex *) fftw_malloc(sizeof(double) * local_size);
     plan = fftw_mpi_plan_dft_r2c_3d(shape[0], shape[1], shape[2], data,
             workspace, comm.get(), planner_flags);
     inv_plan = fftw_mpi_plan_dft_c2r_3d(shape[0], shape[1], shape[2],
@@ -99,7 +99,7 @@ Distributed_fft3d::get_offset() const
 size_t
 Distributed_fft3d::get_local_size() const
 {
-    return max_local_size;
+    return local_size;
 }
 
 std::vector<int >

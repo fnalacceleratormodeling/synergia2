@@ -18,19 +18,20 @@ class Distributed_fft3d
 private:
 #ifdef USE_FFTW2
     rfftwnd_mpi_plan plan, inv_plan;
-    fftw_real *workspace, *data;
+    fftw_real *data;
+    fftw_real *workspace;
 #else
     fftw_plan plan, inv_plan;
     double *data;
     fftw_complex *workspace;
 #endif //USE_FFTW2
-    int lower_limit, upper_limit, max_local_size;
+    int lower_limit, upper_limit, local_size;
     int left_guard, right_guard;
     std::vector<int > shape;
     bool have_local_data;
 public:
-    Distributed_fft3d(std::vector<int > const& shape, bool z_periodic,
-            Commxx const& comm, int planner_flags = FFTW_ESTIMATE,
+    Distributed_fft3d(std::vector<int > const& shape, Commxx const& comm,
+            int planner_flags = FFTW_ESTIMATE,
             std::string const& wisdom_filename = "");
     int
     get_lower() const;

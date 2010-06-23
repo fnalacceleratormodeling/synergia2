@@ -10,7 +10,6 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture)
 const int shape0 = 3;
 const int shape1 = 4;
 const int shape2 = 5;
-const bool periodic = false;
 
 struct Shape_struct
 {
@@ -31,7 +30,7 @@ struct Shape_struct
 struct Fixture
 {
     Fixture() :
-        shape(shape_struct.shape), distributed_fft3d(shape, periodic, Commxx(
+        shape(shape_struct.shape), distributed_fft3d(shape, Commxx(
                 MPI_COMM_WORLD))
     {
     }
@@ -49,8 +48,8 @@ BOOST_FIXTURE_TEST_CASE(construct, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(construct_measure, Fixture)
 {
-    Distributed_fft3d distributed_fft3d_measure(shape, periodic, Commxx(
-            MPI_COMM_WORLD), FFTW_MEASURE);
+    Distributed_fft3d distributed_fft3d_measure(shape, Commxx(MPI_COMM_WORLD),
+            FFTW_MEASURE);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_lower, Fixture)
