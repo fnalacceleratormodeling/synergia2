@@ -4,7 +4,9 @@
 const double domain_min = -1.0;
 const double domain_max = 1.0;
 const double domain_offset = 5.0;
-const int grid_size = 2;
+const int grid_size0 = 4;
+const int grid_size1 = 5;
+const int grid_size2 = 3;
 const bool is_periodic = false;
 
 struct Rectangular_grid_domain_fixture
@@ -15,8 +17,10 @@ struct Rectangular_grid_domain_fixture
         for (int i = 0; i < 3; ++i) {
             physical_offset[i] = domain_offset;
             physical_size[i] = domain_max - domain_min;
-            grid_shape[i] = grid_size;
         }
+        grid_shape[0] = grid_size0;
+        grid_shape[1] = grid_size1;
+        grid_shape[2] = grid_size2;
         rectangular_grid_domain_sptr = Rectangular_grid_domain_sptr(
                 new Rectangular_grid_domain(physical_size, physical_offset,
                         grid_shape, is_periodic));
