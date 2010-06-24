@@ -12,7 +12,7 @@ private:
     int lower, upper;
     int lower_guard, upper_guard;
     void
-    construct(int lower, int upper, bool periodic);
+    construct(int lower, int upper);
 public:
     Distributed_rectangular_grid(std::vector<double > const & physical_size,
             std::vector<double > const & physical_offset,

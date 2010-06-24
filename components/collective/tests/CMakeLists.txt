@@ -7,16 +7,22 @@ target_link_libraries(test_rectangular_grid_domain space_charge
 add_test(test_rectangular_grid_domain test_rectangular_grid_domain)
 #add_test(test_bunch_py nosetests test_bunch.py)
 
+add_executable(test_deposit test_deposit.cc)
+target_link_libraries(test_deposit space_charge
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_deposit test_deposit)
+#add_test(test_bunch_py nosetests test_bunch.py)
+
 add_executable(test_rectangular_grid test_rectangular_grid.cc)
 target_link_libraries(test_rectangular_grid space_charge
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_rectangular_grid test_rectangular_grid)
 #add_test(test_bunch_py nosetests test_bunch.py)
 
-add_executable(test_deposit test_deposit.cc)
-target_link_libraries(test_deposit space_charge
+add_executable(test_distributed_rectangular_grid test_distributed_rectangular_grid.cc)
+target_link_libraries(test_distributed_rectangular_grid space_charge
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_deposit test_deposit)
+add_test(test_distributed_rectangular_grid test_distributed_rectangular_grid)
 #add_test(test_bunch_py nosetests test_bunch.py)
 
 #set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES

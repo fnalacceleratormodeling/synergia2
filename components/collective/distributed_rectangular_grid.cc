@@ -1,18 +1,18 @@
 #include "distributed_rectangular_grid.h"
 
 void
-Distributed_rectangular_grid::construct(int lower, int upper, bool periodic)
+Distributed_rectangular_grid::construct(int lower, int upper)
 {
     std::vector<int > grid_shape(domain_sptr->get_grid_shape());
     this->lower = lower;
     this->upper = upper;
     this->periodic = periodic;
-    if ((lower == 0) && (!periodic)) {
+    if ((lower == 0) && (!domain_sptr->is_periodic())) {
         lower_guard = 0;
     } else {
         lower_guard = lower - 1;
     }
-    if ((upper == grid_shape[0]) && (!periodic)) {
+    if ((upper == grid_shape[0]) && (!domain_sptr->is_periodic())) {
         upper_guard = grid_shape[0];
     } else {
         upper_guard = upper + 1;
@@ -32,7 +32,7 @@ Distributed_rectangular_grid::Distributed_rectangular_grid(
 {
     domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
             physical_size, physical_offset, grid_shape, periodic));
-    construct(lower, upper, periodic);
+    construct(lower, upper);
 }
 
 Distributed_rectangular_grid::Distributed_rectangular_grid(
@@ -40,7 +40,7 @@ Distributed_rectangular_grid::Distributed_rectangular_grid(
         int lower, int upper)
 {
     domain_sptr = rectangular_grid_domain_sptr;
-    construct(lower, upper, periodic);
+    construct(lower, upper);
 }
 
 Rectangular_grid_domain_sptr &
