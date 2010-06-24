@@ -90,24 +90,26 @@ Distributed_fft3d::transform(MArray3d_ref & in, MArray3dc_ref & out)
     size_t complex_data_length = (upper() - lower()) * shape[1] * (shape[2] / 2
             + 1);
     memcpy(reinterpret_cast<void* > (data),
-            reinterpret_cast<void* > (in.origin() + in.index_bases()[0]
+            reinterpret_cast<void* > (in.origin() + (in.index_bases()[0] + lower)
                     * in.strides()[0]), complex_data_length * 2
             * sizeof(double));
     rfftwnd_mpi(plan, 1, data, workspace, FFTW_NORMAL_ORDER);
-    memcpy(reinterpret_cast<void* > (out.origin() + out.index_bases()[0]
+    memcpy(reinterpret_cast<void* > (out.origin() + (out.index_bases()[0] + lower)
                     * out.strides()[0]), reinterpret_cast<void* > (data),
             complex_data_length * sizeof(std::complex<double >));
 #else
     if (have_local_data) {
         memcpy(reinterpret_cast<void* > (data),
-                reinterpret_cast<void* > (in.origin() + in.index_bases()[0]
-                        * in.strides()[0]), local_size * sizeof(double));
+                reinterpret_cast<void* > (in.origin() + (in.index_bases()[0]
+                        + lower) * in.strides()[0]), local_size
+                        * sizeof(double));
     }
     fftw_execute(plan);
     if (have_local_data) {
-        memcpy(reinterpret_cast<void* > (out.origin() + out.index_bases()[0]
-                * out.strides()[0]), reinterpret_cast<void* > (workspace),
-                local_size * sizeof(double));
+        memcpy(reinterpret_cast<void* > (out.origin() + (out.index_bases()[0]
+                + lower) * out.strides()[0]),
+                reinterpret_cast<void* > (workspace), local_size
+                        * sizeof(double));
     }
 #endif //USE_FFTW2
 }
@@ -119,23 +121,24 @@ Distributed_fft3d::inv_transform(MArray3dc_ref & in, MArray3d_ref & out)
     size_t complex_data_length = (upper() - lower()) * shape[1] * (shape[2] / 2
             + 1);
     memcpy(reinterpret_cast<void* > (data),
-            reinterpret_cast<void* > (in.origin() + in.index_bases()[0]
+            reinterpret_cast<void* > (in.origin() + (in.index_bases()[0] + lower)
                     * in.strides()[0]), complex_data_length
             * sizeof(std::complex<double >));
     rfftwnd_mpi(inv_plan, 1, data, workspace, FFTW_NORMAL_ORDER);
-    memcpy(reinterpret_cast<void* > (out.origin() + out.index_bases()[0]
+    memcpy(reinterpret_cast<void* > (out.origin() + (out.index_bases()[0] + lower)
                     * out.strides()[0]), reinterpret_cast<void* > (data),
             complex_data_length * 2 * sizeof(double));
 #else
     if (have_local_data) {
         memcpy(reinterpret_cast<void* > (workspace),
-                reinterpret_cast<void* > (in.origin() + in.index_bases()[0]
-                        * in.strides()[0]), local_size * sizeof(double));
+                reinterpret_cast<void* > (in.origin() + (in.index_bases()[0]
+                        + lower) * in.strides()[0]), local_size
+                        * sizeof(double));
     }
     fftw_execute(inv_plan);
     if (have_local_data) {
-        memcpy(reinterpret_cast<void* > (out.origin() + out.index_bases()[0]
-                * out.strides()[0]), reinterpret_cast<void* > (data),
+        memcpy(reinterpret_cast<void* > (out.origin() + (out.index_bases()[0]
+                + lower) * out.strides()[0]), reinterpret_cast<void* > (data),
                 local_size * sizeof(double));
     }
 #endif //USE_FFTW2
