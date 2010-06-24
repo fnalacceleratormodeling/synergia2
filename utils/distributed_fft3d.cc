@@ -73,6 +73,12 @@ Distributed_fft3d::get_upper() const
     return upper;
 }
 
+std::vector<int > const&
+Distributed_fft3d::get_shape() const
+{
+    return shape;
+}
+
 std::vector<int >
 Distributed_fft3d::get_padded_shape_real() const
 {

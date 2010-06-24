@@ -67,6 +67,14 @@ BOOST_FIXTURE_TEST_CASE(get_upper, Fixture)
     BOOST_CHECK_EQUAL(distributed_fft3d.get_upper(), shape0);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_shape, Fixture)
+{
+    std::vector<int > got_shape(distributed_fft3d.get_shape());
+    BOOST_CHECK_EQUAL(got_shape[0], shape[0]);
+    BOOST_CHECK_EQUAL(got_shape[1], shape[1]);
+    BOOST_CHECK_EQUAL(got_shape[2], shape[2]);
+}
+
 BOOST_FIXTURE_TEST_CASE(get_padded_shape_real, Fixture)
 {
     std::vector<int > got_shape(distributed_fft3d.get_padded_shape_real());

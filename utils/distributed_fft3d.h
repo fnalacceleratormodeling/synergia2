@@ -39,6 +39,8 @@ public:
     get_lower() const;
     int
     get_upper() const;
+    std::vector<int > const&
+    get_shape() const;
     std::vector<int >
     get_padded_shape_real() const;
     std::vector<int >
