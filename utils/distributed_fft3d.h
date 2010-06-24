@@ -28,10 +28,13 @@ private:
     int lower, upper, local_size;
     std::vector<int > shape;
     bool have_local_data;
+    Commxx comm;
 public:
     Distributed_fft3d(std::vector<int > const& shape, Commxx const& comm,
             int planner_flags = FFTW_ESTIMATE,
             std::string const& wisdom_filename = "");
+    Commxx &
+    get_comm();
     int
     get_lower() const;
     int

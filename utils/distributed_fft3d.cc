@@ -6,7 +6,7 @@
 Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
         Commxx const& comm, int planner_flags,
         std::string const& wisdom_filename) :
-    shape(shape)
+    shape(shape), comm(comm)
 {
     //n.b. : we aren't using the wisdom_filename yet
 #ifdef USE_FFTW2
@@ -53,6 +53,12 @@ Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
     lower = local_x_start;
 #endif //USE_FFTW2
     upper = lower + local_nx;
+}
+
+Commxx &
+Distributed_fft3d::get_comm()
+{
+    return comm;
 }
 
 int

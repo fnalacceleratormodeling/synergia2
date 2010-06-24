@@ -52,6 +52,11 @@ BOOST_FIXTURE_TEST_CASE(construct_measure, Fixture)
             FFTW_MEASURE);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_comm, Fixture)
+{
+    BOOST_CHECK_EQUAL(distributed_fft3d.get_comm().get(), MPI_COMM_WORLD);
+}
+
 BOOST_FIXTURE_TEST_CASE(get_lower, Fixture)
 {
     BOOST_CHECK_EQUAL(distributed_fft3d.get_lower(), 0);
