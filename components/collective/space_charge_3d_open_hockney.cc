@@ -1,11 +1,12 @@
 #include "space_charge_3d_open_hockney.h"
 #include "components/bunch/diagnostics.h"
+#include "deposit.h"
 
 Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
         std::vector<int > const & grid_shape, bool periodic_z,
         Commxx const& comm, double n_sigma) :
-    Collective_operator("space charge"), grid_shape(3), periodic_z(
-            periodic_z), comm(comm), n_sigma(n_sigma)
+    Collective_operator("space charge"), grid_shape(3), periodic_z(periodic_z),
+            comm(comm), n_sigma(n_sigma)
 {
     this->grid_shape[0] = grid_shape[2];
     this->grid_shape[1] = grid_shape[1];
@@ -14,12 +15,11 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
             grid_shape, comm));
 }
 
-Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
-        bool periodic_z,
+Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(bool periodic_z,
         Distributed_fft3d_sptr const& distributed_fft3d_sptr, double n_sigma) :
-    Collective_operator("space charge"), grid_shape(3), periodic_z(
-            periodic_z), distributed_fft3d_sptr(distributed_fft3d_sptr), comm(
-            distributed_fft3d_sptr->get_comm()), n_sigma(n_sigma)
+    Collective_operator("space charge"), grid_shape(3), periodic_z(periodic_z),
+            distributed_fft3d_sptr(distributed_fft3d_sptr), comm(
+                    distributed_fft3d_sptr->get_comm()), n_sigma(n_sigma)
 {
     grid_shape = distributed_fft3d_sptr->get_shape();
 }
@@ -41,14 +41,14 @@ Space_charge_3d_open_hockney::get_domain_sptr(Bunch const& bunch)
 }
 
 Rectangular_grid_sptr
-get_local_charge_density(Bunch const& bunch);
-
-Rectangular_grid_sptr
-Space_charge_3d_open_hockney::get_local_charge_density(Bunch const & bunch)
+Space_charge_3d_open_hockney::get_local_charge_density(Bunch const& bunch)
 {
-    //    Diagnostics diagnostics(bunch);
-    //Rectangular_grid local_rho();
+    Rectangular_grid_sptr local_rho_sptr(new Rectangular_grid(get_domain_sptr(
+            bunch)));
+    deposit_charge_rectangular(*local_rho_sptr, bunch);
+    return local_rho_sptr;
 }
+
 void
 Space_charge_3d_open_hockney::apply(Bunch & bunch, Operators & step_operators)
 {
