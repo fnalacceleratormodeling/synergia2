@@ -21,15 +21,20 @@ private:
 public:
     Space_charge_3d_open_hockney(std::vector<int > const & grid_shape,
             bool periodic_z, Commxx const& comm, double n_sigma = 4.0);
-    /// Note: internal grid is stored in [z][y][x] order, so Distributed_fft3d
-    /// must use that ordering.
+    /// Note: Use Space_charge_3d_open_hockney::get_internal_grid_shape for
+    /// Distributed_fft3d.
     Space_charge_3d_open_hockney(bool periodic_z,
             Distributed_fft3d_sptr const& distributed_fft3d_sptr,
             double n_sigma = 4.0);
+    static std::vector<int >
+    get_internal_grid_shape(std::vector<int > const& external_grid_shape);
     Rectangular_grid_domain_sptr
     get_domain_sptr(Bunch const& bunch);
     Rectangular_grid_sptr
     get_local_charge_density(Bunch const& bunch);
+    Distributed_rectangular_grid_sptr
+            get_global_charge_density(
+                    Rectangular_grid_sptr & local_charge_density_sptr);
     virtual
     void
     apply(Bunch & bunch, Operators & step_operators);

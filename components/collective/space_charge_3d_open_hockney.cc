@@ -8,9 +8,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
     Collective_operator("space charge"), grid_shape(3), periodic_z(periodic_z),
             comm(comm), n_sigma(n_sigma)
 {
-    this->grid_shape[0] = grid_shape[2];
-    this->grid_shape[1] = grid_shape[1];
-    this->grid_shape[2] = grid_shape[0];
+    this->grid_shape = get_internal_grid_shape(grid_shape);
     distributed_fft3d_sptr = Distributed_fft3d_sptr(new Distributed_fft3d(
             grid_shape, comm));
 }
@@ -22,6 +20,19 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(bool periodic_z,
                     distributed_fft3d_sptr->get_comm()), n_sigma(n_sigma)
 {
     grid_shape = distributed_fft3d_sptr->get_shape();
+}
+
+std::vector<int >
+Space_charge_3d_open_hockney::get_internal_grid_shape(
+        std::vector<int > const& external_grid_shape)
+{
+    std::vector<int > internal_grid_shape(3);
+
+    internal_grid_shape[0] = 2 * external_grid_shape[2];
+    internal_grid_shape[1] = 2 * external_grid_shape[1];
+    internal_grid_shape[2] = 2 * external_grid_shape[0];
+
+    return internal_grid_shape;
 }
 
 Rectangular_grid_domain_sptr
@@ -47,6 +58,13 @@ Space_charge_3d_open_hockney::get_local_charge_density(Bunch const& bunch)
             bunch)));
     deposit_charge_rectangular(*local_rho_sptr, bunch);
     return local_rho_sptr;
+}
+
+Distributed_rectangular_grid_sptr
+Space_charge_3d_open_hockney::get_global_charge_density(
+        Rectangular_grid_sptr & local_charge_density_sptr)
+{
+
 }
 
 void
