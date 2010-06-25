@@ -4,11 +4,11 @@
 /// The indices on the rho array are in an unusual order: [z][y][x],
 /// so that the FFTW routines can distribute along the z-axis.
 void
-deposit_charge_rectangular(Rectangular_grid & rho_grid, Bunch & bunch,
+deposit_charge_rectangular(Rectangular_grid & rho_grid, Bunch const& bunch,
         bool zero_first)
 {
     MArray3d_ref rho(rho_grid.get_grid_points());
-    MArray2d_ref parts(bunch.get_local_particles());
+    Const_MArray2d_ref parts(bunch.get_local_particles());
     if (zero_first) {
         for (unsigned int i = 0; i < rho.shape()[0]; ++i) {
             for (unsigned int j = 0; j < rho.shape()[1]; ++j) {
