@@ -1,5 +1,6 @@
 #include <iostream>
 #include <cstring>
+#include <stdexcept>
 
 #include "distributed_fft3d.h"
 
@@ -8,8 +9,12 @@ Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
         std::string const& wisdom_filename) :
     shape(shape), comm(comm)
 {
+    if (comm.get_size()/2 >= shape[0]/2) {
+        throw std::runtime_error("Distributed_fft3d: (number of processors)/2 must be <= shape[0]/2");
+    }
     //n.b. : we aren't using the wisdom_filename yet
 #ifdef USE_FFTW2
+    throw std::runtime_error("Distributed_fft3d: fftw2 version needs updating and testing");
     plan = rfftwnd_mpi_create_plan(comm.get(), 3, shape.c_array(),
             FFTW_REAL_TO_COMPLEX, planner_flags);
     inv_plan = rfftwnd_mpi_create_plan(comm.get(), 3, shape.c_array(),
@@ -34,18 +39,27 @@ Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
     ptrdiff_t local_nx, local_x_start;
     ptrdiff_t fftw_local_size = fftw_mpi_local_size_3d(shape[0], shape[1],
             shape[2], comm.get(), &local_nx, &local_x_start);
-    local_size = local_nx * padded_shape[1] * padded_shape[2];
+    local_size_real = local_nx * padded_shape[1] * padded_shape[2];
+    int padded_shape2_complex = padded_shape[2] / 2;
+    local_size_complex = local_nx * padded_shape[1] * padded_shape2_complex;
+    local_size_allocated = local_size_real;
     if (local_nx == 0) {
         have_local_data = false;
+        // create dummy space large enough for one local slice
+        local_size_allocated = 1 * padded_shape[1] * padded_shape[2];
     } else {
         have_local_data = true;
-        if (fftw_local_size > local_size) {
-            local_size = fftw_local_size;
-            std::cout << "jfa: warning: max_local_size had to be modified\n";
+        if (fftw_local_size > local_size_allocated) {
+            std::cout
+                    << "jfa: note: local_size_allocated had to be modified from "
+                    << local_size_allocated << " to " << fftw_local_size
+                    << " on rank " << comm.get_rank() << std::endl;
+            local_size_allocated = fftw_local_size;
         }
     }
-    data = (double *) fftw_malloc(sizeof(double) * local_size);
-    workspace = (fftw_complex *) fftw_malloc(sizeof(double) * local_size);
+    data = (double *) fftw_malloc(sizeof(double) * local_size_allocated);
+    workspace = (fftw_complex *) fftw_malloc(sizeof(double)
+            * local_size_allocated);
     plan = fftw_mpi_plan_dft_r2c_3d(shape[0], shape[1], shape[2], data,
             workspace, comm.get(), planner_flags);
     inv_plan = fftw_mpi_plan_dft_c2r_3d(shape[0], shape[1], shape[2],
@@ -111,17 +125,16 @@ Distributed_fft3d::transform(MArray3d_ref & in, MArray3dc_ref & out)
             complex_data_length * sizeof(std::complex<double >));
 #else
     if (have_local_data) {
-        memcpy(reinterpret_cast<void* > (data),
-                reinterpret_cast<void* > (in.origin() + (in.index_bases()[0]
-                        + lower) * in.strides()[0]), local_size
-                        * sizeof(double));
+        memcpy(
+                reinterpret_cast<void* > (data),
+                reinterpret_cast<void* > (in.origin() + lower * in.strides()[0]),
+                local_size_real * sizeof(double));
     }
     fftw_execute(plan);
     if (have_local_data) {
-        memcpy(reinterpret_cast<void* > (out.origin() + (out.index_bases()[0]
-                + lower) * out.strides()[0]),
-                reinterpret_cast<void* > (workspace), local_size
-                        * sizeof(double));
+        memcpy(reinterpret_cast<void* > (out.origin() + lower
+                * out.strides()[0]), reinterpret_cast<void* > (workspace),
+                local_size_complex * sizeof(std::complex<double >));
     }
 #endif //USE_FFTW2
 }
@@ -142,16 +155,16 @@ Distributed_fft3d::inv_transform(MArray3dc_ref & in, MArray3d_ref & out)
             complex_data_length * 2 * sizeof(double));
 #else
     if (have_local_data) {
-        memcpy(reinterpret_cast<void* > (workspace),
-                reinterpret_cast<void* > (in.origin() + (in.index_bases()[0]
-                        + lower) * in.strides()[0]), local_size
-                        * sizeof(double));
+        memcpy(
+                reinterpret_cast<void* > (workspace),
+                reinterpret_cast<void* > (in.origin() + lower * in.strides()[0]),
+                local_size_complex * sizeof(std::complex<double >));
     }
     fftw_execute(inv_plan);
     if (have_local_data) {
-        memcpy(reinterpret_cast<void* > (out.origin() + (out.index_bases()[0]
-                + lower) * out.strides()[0]), reinterpret_cast<void* > (data),
-                local_size * sizeof(double));
+        memcpy(reinterpret_cast<void* > (out.origin() + lower
+                * out.strides()[0]), reinterpret_cast<void* > (data),
+                local_size_real * sizeof(double));
     }
 #endif //USE_FFTW2
 }

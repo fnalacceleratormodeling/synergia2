@@ -26,5 +26,9 @@ add_executable(test_distributed_fft3d test_distributed_fft3d.cc)
 target_link_libraries(test_distributed_fft3d distributed_fft ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_distributed_fft3d test_distributed_fft3d)
 
+add_executable(test_distributed_fft3d_mpi test_distributed_fft3d_mpi.cc)
+target_link_libraries(test_distributed_fft3d_mpi distributed_fft ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_distributed_fft3d_mpi ${MPIEXEC} -np 2 test_distributed_fft3d_mpi)
+
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES integer.h5 double_float.h5
     array1d.h5 array2d.h array3d.h)

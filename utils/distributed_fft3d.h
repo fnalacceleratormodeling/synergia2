@@ -25,7 +25,8 @@ private:
     double *data;
     fftw_complex *workspace;
 #endif //USE_FFTW2
-    int lower, upper, local_size;
+    int lower, upper;
+    int local_size_allocated, local_size_real, local_size_complex;
     std::vector<int > shape;
     bool have_local_data;
     Commxx comm;
