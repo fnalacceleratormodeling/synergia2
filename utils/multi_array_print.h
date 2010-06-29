@@ -18,9 +18,11 @@ template<typename T, int N>
                 std::cout << "," << indices[i];
             }
             std::cout << ")" << std::endl;
-            for (int i = 0; i < a.shape()[0]; i++) {
+            for (int i = a.index_bases()[0]; i < (a.index_bases()[0]
+                    + a.shape()[0]); i++) {
                 indices[0] = i;
-                for (int j = 0; j < a.shape()[1]; j++) {
+                for (int j = a.index_bases()[1]; j < (a.index_bases()[1]
+                        + a.shape()[1]); j++) {
                     indices[1] = j;
                     std::cout << std::setw(12);
                     std::cout << a(indices);
@@ -28,7 +30,9 @@ template<typename T, int N>
                 std::cout << std::endl;
             }
         } else {
-            for (int i = 0; i < a.shape()[which_index - 1]; i++) {
+            for (int i = a.index_bases()[which_index - 1]; i
+                    < (a.index_bases()[which_index - 1] + a.shape()[which_index
+                            - 1]); i++) {
                 indices[which_index - 1] = i;
                 _recursive_print<T, N > (a, name, indices, which_index - 1);
             }
