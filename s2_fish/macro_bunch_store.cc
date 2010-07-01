@@ -47,7 +47,6 @@ Macro_bunch_store::check(numeric::array &array)
     std::cout << "stored value: " << numeric_ref_particle << std::endl;
     std::cout << "passed value: " << &array << std::endl;
 }
-
 void Macro_bunch_store::convert_to_fixedt()
 {
     if (is_fixedz) {
@@ -57,21 +56,33 @@ void Macro_bunch_store::convert_to_fixedt()
             local_particles(2, i) /= units(2);
             double xp = local_particles(1, i);
             double yp = local_particles(3, i);
-            double rcp_gammai = 1.0 / (gamma - local_particles(5, i));
-            double betai;
-             if ((1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp))<0.0) {  
-                                   std::cout<<"beta i ^2=" <<1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp)<<std::endl;
-                                   std::cout<<"rcp_gammai="<<rcp_gammai<<" delta gamma_i="<<local_particles(5, i)<<" gamma="<< gamma<<std::endl;
-                                   std::cout<<"xp="<<xp<<"   yp="<<yp<<std::endl;
-                                          throw std::runtime_error (" error in convert_to_fixedt,"
-                                 "probably the approximation beta ~betaz broke down, unstable beam ");
-             } 
-             else {
-                  betai = sqrt(1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp));
-             }
-            local_particles(4, i) *= -gamma * betai / units(0); // units(0)
+            double gammai=gamma - local_particles(5, i);
+            double rcp_gammai = 1.0 /gammai;
+            double sum1=1.0 + xp * xp + yp * yp;
+            double betazi;
+            if ((1.0 - rcp_gammai * rcp_gammai * sum1)<0.0){  
+                std::cout<<"beta i ^2=" <<1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp)<<std::endl;
+                std::cout<<"rcp_gammai="<<rcp_gammai<<" delta gamma_i="<<local_particles(5, i)<<" gamma="<< gamma<<std::endl;
+                std::cout<<"xp="<<xp<<"   yp="<<yp<<std::endl;
+                throw std::runtime_error (" error in convert_to_fixedt,"
+                        "probably the approximation beta ~betaz broke down, unstable beam ");
+                abort();        
+            } 
+            else {
+                betazi = sqrt(1.0 - rcp_gammai * rcp_gammai * sum1);
+            }
+            local_particles(4, i) *= -gamma * betazi / units(0); // units(0)
             // is not
             // an error!
+            if (gammai*gammai-sum1<0.0){
+                std::cout<<"gammai*gammai-sum1="<<gammai*gammai-sum1<<std::endl;
+                std::cout<<"gammai="<<gammai<<std::endl;
+                std::cout<<"xp="<<xp<<"   yp="<<yp<<std::endl;
+                throw std::runtime_error (" error in convert_to_fixedt,"
+                        "gamma*gamma-1-px^2-py^2 cannot be negative");
+                abort();        
+            }
+            local_particles(5, i)=sqrt(gammai*gammai-sum1);
 
         }
         is_fixedz = false;
@@ -87,21 +98,13 @@ void Macro_bunch_store::convert_to_fixedz()
             local_particles(2, i) *= units(2);
             double xp = local_particles(1, i);
             double yp = local_particles(3, i);
-            double rcp_gammai = 1.0 / (gamma - local_particles(5, i));
-            double betai;
-             if ((1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp))<0.0) {  
-                  std::cout<<"beta i ^2=" <<1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp)<<std::endl;
-                  std::cout<<"rcp_gammai="<<rcp_gammai<<"  delta gamma_i="<<local_particles(5, i)<<" gamma="<< gamma<<std::endl;
-                  std::cout<<"xp="<<xp<<"   yp="<<yp<<std::endl;
-                                          throw std::runtime_error (" error in convert_to_fixedz,"
-                                 "probably the approximation beta ~betaz broke down, unstable beam ");
-             } 
-             else {
-                  betai = sqrt(1.0 - rcp_gammai * rcp_gammai * (1.0 + xp * xp + yp * yp));
-             }
-            local_particles(4, i) /= -gamma * betai / units(0); // units(0)
+            double zp = local_particles(5, i);
+            double gammai=sqrt(1.0 + xp * xp + yp * yp+zp * zp);            
+            double betazi=zp/gammai;
+            local_particles(4, i) /= -gamma * betazi / units(0); // units(0)
             // is not
             // an error!
+            local_particles(5, i) =gamma-gammai;
         }
         is_fixedz = true;
     }

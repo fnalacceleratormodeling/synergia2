@@ -898,7 +898,7 @@ full_kick_cylindrical(const Cylindrical_field_domain &fdomain,
     factor *=mbs.units(1); // the kikcing force should be muliplied  by the unit of p, this is a factor of 1/mass
 
     double xyfactor =tau*factor;
-    double zfactor =-tau*factor*beta*gamma;
+    double zfactor =tau*factor*gamma;
 
     
 

@@ -200,7 +200,7 @@ rw_kick(       Array_1d<double> &dparameters,
    
 /*    the kick in the 3rd direction is a kick of p_t, not p_z 
             p_t=-U ==> dp_t/dt=-betaz * dpz/dt-betax *dpx/dt-betay*dpy/dt =~ -beta*dpz/dt */
-     double  l_wake_factor=-beta*wake_factor*rescaling_f; // rescaling factor for z impedance is propto z^(3/2)
+     double  l_wake_factor=wake_factor*rescaling_f; // rescaling factor for z impedance is propto z^(3/2)
     
      // contributions from previous turns, propto sum_n W(n*orbit_lenght), are considered by adding quad_wake_sum
      // The assumption that bunch.total_num is not changing from previous tunrns is made!!!!

@@ -170,7 +170,7 @@ apply_E_n_kick(Real_scalar_field &E, int n_axis, double tau,
     factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
     factor *= -1.0/gamma;    // relativistic factor,...-minus from the definition of E= + grad phi ???
     factor *=mbs.units(1); // the kikcing force should be muliplied  by the unit of p, this is a factor of 1/mass
-    if (n_axis == 2) {factor *=-beta*gamma;} // -dp_t=-beta dp_z; E      
+    if (n_axis == 2) {factor *=gamma;}     
     int index = 2 * n_axis + 1; // for axis n_axis = (0,1,2) corresponding to x,y,z,
     // in particle store indexing, px,py,pz = (1,3,5)
     double kick;
@@ -246,7 +246,7 @@ void apply_Efield_kick(const std::vector<Real_scalar_field> &E, double tau,
     int index;
     for (int axis = 0; axis < 3; ++axis) {
           index = 2 * axis + 1;
-          axis == 2 ? factor1 =-factor*beta*gamma:factor1=factor;
+          axis == 2 ? factor1 =factor*gamma:factor1=factor;
           for (int n = 0; n < mbs.local_num; ++n) {                     
                              kick = tau * factor1* E.at(axis).get_val(Double3(mbs.local_particles(0, n),
                                                mbs.local_particles(2, n),
@@ -296,7 +296,7 @@ apply_phi_kick(Real_scalar_field &phi, int axis, double tau,
     factor *= 1.0/(beta * c); // the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
     factor *= -1.0/gamma;    // relativistic factor...,-minus from the definition of E= + grad phi ???
     factor *=mbs.units(1); // the kikcing force should be muliplied  by the unit of p, this is a factor of 1/mass
-    if (axis == 2) {factor *=-beta*gamma;} // -dp_t=-beta dp_z; E     
+    if (axis == 2) {factor *=gamma;} // -dp_t=-beta dp_z; E     
 
 
 /*   difference with the factor (i.e. xycon,tcon) in impact :
