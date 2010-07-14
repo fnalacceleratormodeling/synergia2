@@ -45,8 +45,8 @@ Space_charge_3d_open_hockney::get_domain_sptr(Bunch const& bunch)
     size[0] = n_sigma * diagnostics.get_std()[Bunch::z];
     offset[1] = diagnostics.get_mean()[Bunch::y];
     size[1] = n_sigma * diagnostics.get_std()[Bunch::y];
-    offset[0] = diagnostics.get_mean()[Bunch::z];
-    size[0] = n_sigma * diagnostics.get_std()[Bunch::z];
+    offset[2] = diagnostics.get_mean()[Bunch::x];
+    size[2] = n_sigma * diagnostics.get_std()[Bunch::x];
     return Rectangular_grid_domain_sptr(new Rectangular_grid_domain(size,
             offset, grid_shape, periodic_z));
 }
