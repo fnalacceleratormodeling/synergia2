@@ -26,6 +26,8 @@ void
 get_moments_corrs(Macro_bunch_store& mbs,
                   numeric::array& units,
                   numeric::array& means,
+		  numeric::array& minims,
+		  numeric::array& maxims,
                   numeric::array& mom2s,
                   numeric::array& corrs,
                   numeric::array& diagmom4s);

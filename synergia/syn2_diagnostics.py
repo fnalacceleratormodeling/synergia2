@@ -91,16 +91,20 @@ def old_get_diagnostics(bunch):
 
 def get_diagnostics(bunch,units):
     means = numpy.zeros([6],numpy.float64)
+    minims = numpy.zeros([6],numpy.float64)
+    maxims = numpy.zeros([6],numpy.float64)
     mom2s = numpy.zeros([6,6],numpy.float64)
     corrs = numpy.zeros([6,6],numpy.float64)
     diagmom4s = numpy.zeros([6],numpy.float64)
-    s2_diagnostics.get_moments_corrs(bunch.get_store(),units,means,mom2s,corrs,diagmom4s)
-    return means,mom2s,corrs,diagmom4s
+    s2_diagnostics.get_moments_corrs(bunch.get_store(),units,means,minims,maxims,mom2s,corrs,diagmom4s)
+    return means,minims,maxims,mom2s,corrs,diagmom4s
 
 class Diagnostics:
     def __init__(self,units,short=False,save_period=100):
         self.s = []
         self.means = []
+        self.minims = []
+        self.maxims = []
         self.mom2s = []
         self.corrs = []
         self.diagmom4s = []
@@ -117,9 +121,11 @@ class Diagnostics:
         self.save_period=save_period
 
     def add(self,s,bunch):
-        means,mom2s,corrs,diagmom4s = get_diagnostics(bunch,self.u)
+        means,minims,maxims,mom2s,corrs,diagmom4s = get_diagnostics(bunch,self.u)
         self.s.append(s)
         self.means.append(means)
+        self.minims.append(minims)
+        self.maxims.append(maxims)
         if not self.short:
             self.mom2s.append(mom2s)
             self.corrs.append(corrs)
@@ -202,6 +208,8 @@ class Diagnostics:
                 hdfarray = f.createArray(root,'mom2',numpy.array(self.mom2s),"second moments")
                 hdfarray = f.createArray(root,'corr',numpy.array(self.corrs),"correlation coefficients")
                 hdfarray = f.createArray(root,'diagmom4',numpy.array(self.diagmom4s),"fourth moments on diagonal")
+            hdfarray = f.createArray(root,'minims',numpy.array(self.minims),"coordinate minima")
+            hdfarray = f.createArray(root,'maxims',numpy.array(self.maxims),"coordinate maxima")
             hdfarray = f.createArray(root,'std',numpy.array(self.stds),"standard deviation")
             hdfarray = f.createArray(root,'emitx',numpy.array(self.emitxs),"x emittance")
             hdfarray = f.createArray(root,'emity',numpy.array(self.emitys),"y emittance")

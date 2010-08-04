@@ -172,19 +172,32 @@ void
 get_moments_corrs(Macro_bunch_store& mbs,
                   numeric::array& numeric_units,
                   numeric::array& numeric_means,
+                  numeric::array& numeric_minims,
+                  numeric::array& numeric_maxims,
                   numeric::array& numeric_mom2s,
                   numeric::array& numeric_corrs,
                   numeric::array& numeric_diagmom4s)
 {
     Vector units(numeric_units);
     Vector means(numeric_means);
+    Vector minims(numeric_minims);
+    Vector maxims(numeric_maxims);
     double sum1[6];
+    double localmin[6], localmax[6];
     for (int i = 0; i < 6; ++i) {
         sum1[i] = 0.0;
+	localmin[i] = 1.0e100;
+	localmax[i] = -1.0e100;
     }
     for (int n = 0; n < mbs.local_num; ++n) {
         for (int i = 0; i < 6; ++i) {
             sum1[i] += mbs.local_particles(i, n);
+	    if (mbs.local_particles(i, n) < localmin[i]) {
+	      localmin[i] = mbs.local_particles(i, n);
+	    }
+	    if (mbs.local_particles(i, n) > localmax[i]) {
+	      localmax[i] = mbs.local_particles(i, n);
+	    }
         }
     }
     int rank, size;
@@ -192,9 +205,13 @@ get_moments_corrs(Macro_bunch_store& mbs,
     if (size > 1) {
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         MPI_Allreduce(sum1, means.data, 6, MPI_DOUBLE, MPI_SUM, MPI_COMM_WORLD);
+	MPI_Allreduce(localmin, minims.data, 6, MPI_DOUBLE, MPI_MIN, MPI_COMM_WORLD);
+	MPI_Allreduce(localmax, maxims.data, 6, MPI_DOUBLE, MPI_MAX, MPI_COMM_WORLD);
     } else {
         for (int i = 0; i < 6; ++i) {
             means(i) = sum1[i];
+	    minims(i) = localmin[i];
+	    maxims(i) = localmax[i];
         }
     }
     for (int i = 0; i < 6; ++i) {
@@ -229,6 +246,8 @@ get_moments_corrs(Macro_bunch_store& mbs,
     }
     for (int i = 0; i < 6; ++i) {
         means(i) /= units(i);
+	minims(i) /= units(i);
+	maxims(i) /= units(i);
     }
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j <= i; ++j) {
