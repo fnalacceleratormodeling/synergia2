@@ -37,6 +37,62 @@ apply_longitudinal_periodicity(Macro_bunch_store &mbs, double length)
 }
 
 
+// cut particles that leak outside the longitudinal bucket length
+void
+apply_longitudinal_aperture(Macro_bunch_store &mbs, double length)
+{
+    int kept = 0;
+    int discarded = 0;
+    double half_length=0.5*length;
+
+    // follow the pattern for circular aperture
+    for (int i = 0; i < mbs.local_num; ++i) {
+        bool try_discard = true;
+	while (try_discard) {
+	    if ((mbs.local_particles(4, i) >= half_length) ||
+		(mbs.local_particles(4, i) <= -half_length)) {
+
+	      // cut this one
+	      ++discarded;
+	      --mbs.local_num;
+	      std::cout << "Discarded particle: " << i << " z = " << mbs.local_particles(4, i) << std::endl;
+	      if (i == mbs.local_num) {
+		  // no more particles left
+		  try_discard = false;
+	      } else {
+		  // move the last particle into this newly empty position
+		  int last = mbs.local_num;
+		  mbs.local_particles(0, i) = mbs.local_particles(0, last);
+		  mbs.local_particles(1, i) = mbs.local_particles(1, last);
+		  mbs.local_particles(2, i) = mbs.local_particles(2, last);
+		  mbs.local_particles(3, i) = mbs.local_particles(3, last);
+		  mbs.local_particles(4, i) = mbs.local_particles(4, last);
+		  mbs.local_particles(5, i) = mbs.local_particles(5, last);
+		  mbs.local_particles(6, i) = mbs.local_particles(6, last);
+	      }
+	    } else {
+	        ++kept;
+		try_discard = false;
+	    }
+	}
+    }
+
+    std::cout << "kept " << kept << " particles, discarded " << discarded << " particles" << std::endl;
+    int rank, size;
+    int old_total_num = mbs.total_num;
+    rank = 0;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    if (size > 1) {
+        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+        MPI_Allreduce(&mbs.local_num, &mbs.total_num, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
+    } else {
+        mbs.total_num = mbs.local_num;
+    }
+    std::cout << "proc " << rank << ": local = " << mbs.local_num
+    << ", total = " << mbs.total_num << std::endl;
+    mbs.total_current *= mbs.total_num / (1.0 * old_total_num);
+    mbs.bunch_np *= mbs.total_num / (1.0 * old_total_num);
+}
 
 inline double sqr(double x)
 {

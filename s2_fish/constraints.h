@@ -4,6 +4,7 @@
 
 //void apply_longitudinal_periodicity_t(Macro_bunch_store &mbs);
 void apply_longitudinal_periodicity(Macro_bunch_store &mbs, double length);
+void apply_longitudinal_aperture(Macro_bunch_store &mbs, double length);
 void apply_circular_aperture(Macro_bunch_store &mbs, double radius);
 
 #endif // HAVE_CONSTRAINTS_H
