@@ -6,11 +6,28 @@ target_link_libraries(test_bunch bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_bunch test_bunch)
 add_test(test_bunch_py nosetests test_bunch.py)
 
-add_custom_command(OUTPUT test_diagnostics_get_mean.icc
+add_custom_command(OUTPUT test_diagnostics_get_corr.icc
+        test_diagnostics_get_emitx.icc
+        test_diagnostics_get_emitxy.icc
+        test_diagnostics_get_emitxyz.icc
+        test_diagnostics_get_emity.icc
+        test_diagnostics_get_emitz.icc
+        test_diagnostics_get_mean.icc
+        test_diagnostics_get_mom2.icc
+        test_diagnostics_get_random_particles.icc
+        test_diagnostics_get_std.icc
     COMMAND python test_diagnostics_crosscheck.py
     DEPENDS test_diagnostics_crosscheck.py)
-add_executable(test_diagnostics test_diagnostics.cc)
-add_dependencies(test_diagnostics test_diagnostics_get_mean.icc)
+add_executable(test_diagnostics test_diagnostics.cc test_diagnostics_get_corr.icc
+    test_diagnostics_get_emitx.icc
+    test_diagnostics_get_emitxy.icc
+    test_diagnostics_get_emitxyz.icc
+    test_diagnostics_get_emity.icc
+    test_diagnostics_get_emitz.icc
+    test_diagnostics_get_mean.icc
+    test_diagnostics_get_mom2.icc
+    test_diagnostics_get_random_particles.icc
+    test_diagnostics_get_std.icc)
 target_link_libraries(test_diagnostics bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_diagnostics test_diagnostics)
 add_test(test_diagnostics_py nosetests test_diagnostics.py)
