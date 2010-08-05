@@ -33,9 +33,9 @@ BOOST_FIXTURE_TEST_CASE(get_grid_shape, Rectangular_grid_domain_fixture)
 {
     std::vector<int > grid_shape =
             rectangular_grid_domain_sptr->get_grid_shape();
-    BOOST_CHECK_CLOSE(grid_shape.at(0), grid_size0, tolerance);
-    BOOST_CHECK_CLOSE(grid_shape.at(1), grid_size1, tolerance);
-    BOOST_CHECK_CLOSE(grid_shape.at(2), grid_size2, tolerance);
+    BOOST_CHECK_EQUAL(grid_shape.at(0), grid_size0);
+    BOOST_CHECK_EQUAL(grid_shape.at(1), grid_size1);
+    BOOST_CHECK_EQUAL(grid_shape.at(2), grid_size2);
 
 }
 

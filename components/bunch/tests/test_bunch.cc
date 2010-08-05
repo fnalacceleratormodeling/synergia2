@@ -121,8 +121,7 @@ BOOST_FIXTURE_TEST_CASE(assign, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_particle_charge, Fixture)
 {
-    BOOST_CHECK_CLOSE(bunch.get_particle_charge(), constants::proton_charge,
-            tolerance);
+    BOOST_CHECK_EQUAL(bunch.get_particle_charge(), constants::proton_charge);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_particle_charge2, Fixture)
@@ -141,8 +140,7 @@ BOOST_FIXTURE_TEST_CASE(get_mass, Fixture)
 BOOST_FIXTURE_TEST_CASE(set_particle_charge, Fixture)
 {
     bunch.set_particle_charge(constants::electron_charge);
-    BOOST_CHECK_CLOSE(bunch.get_particle_charge(), constants::electron_charge,
-            tolerance);
+    BOOST_CHECK_EQUAL(bunch.get_particle_charge(), constants::electron_charge);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_real_num, Fixture)
