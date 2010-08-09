@@ -5,7 +5,7 @@ sys.path.append("../../simulation")
 sys.path.append("../../lattice")
 sys.path.append("../../foundation")
 sys.path.append("..")
-sys.path.append("/home/amundson/work/synergia2-devel_1_0/install/lib")
+sys.path.append("/home/amundson/work/synergia2-old_devel_1_0/install/lib")
 
 from one_turn_map import linear_one_turn_map
 from mad8_reader import Mad8_reader
