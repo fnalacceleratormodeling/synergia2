@@ -7,10 +7,11 @@
 Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
         Commxx const& comm, int planner_flags,
         std::string const& wisdom_filename) :
-    shape(shape), comm(comm)
+    shape(shape), comm(comm), uppers(0), lengths(0)
 {
-    if (comm.get_size()/2 >= shape[0]/2) {
-        throw std::runtime_error("Distributed_fft3d: (number of processors)/2 must be <= shape[0]/2");
+    if (comm.get_size() / 2 >= shape[0] / 2) {
+        throw std::runtime_error(
+                "Distributed_fft3d: (number of processors)/2 must be <= shape[0]/2");
     }
     //n.b. : we aren't using the wisdom_filename yet
 #ifdef USE_FFTW2
@@ -85,6 +86,44 @@ int
 Distributed_fft3d::get_upper() const
 {
     return upper;
+}
+
+void
+Distributed_fft3d::calculate_uppers_lengths()
+{
+    if (uppers.empty()) {
+        int size = comm.get_size();
+        uppers.resize(size);
+        lengths.resize(size);
+        if (size == 1) {
+            uppers.at(0) = upper;
+            lengths.at(0) = upper - lower;
+        } else {
+            MPI_Allgather((void*) (&upper), 1, MPI_INT, (void*) (&uppers[0]),
+                    1, MPI_INT, comm.get());
+        }
+        lengths[0] = uppers[0]*shape[1]*shape[2];
+        for (int i = 1; i < size; ++i) {
+            lengths[i] = (uppers[i] - uppers[i - 1]) * shape[1] * shape[2];
+            if (lengths[i] < 0) {
+                lengths[i] = 0;
+            }
+        }
+    }
+}
+
+std::vector<int > const&
+Distributed_fft3d::get_uppers()
+{
+    calculate_uppers_lengths();
+    return uppers;
+}
+
+std::vector<int > const&
+Distributed_fft3d::get_lengths()
+{
+    calculate_uppers_lengths();
+    return lengths;
 }
 
 std::vector<int > const&

@@ -26,10 +26,13 @@ private:
     fftw_complex *workspace;
 #endif //USE_FFTW2
     int lower, upper;
+    std::vector<int> uppers, lengths;
     int local_size_allocated, local_size_real, local_size_complex;
     std::vector<int > shape;
     bool have_local_data;
     Commxx comm;
+    void
+    calculate_uppers_lengths();
 public:
     Distributed_fft3d(std::vector<int > const& shape, Commxx const& comm,
             int planner_flags = FFTW_ESTIMATE,
@@ -40,6 +43,10 @@ public:
     get_lower() const;
     int
     get_upper() const;
+    std::vector<int > const&
+    get_uppers();
+    std::vector<int > const&
+    get_lengths();
     std::vector<int > const&
     get_shape() const;
     std::vector<int >

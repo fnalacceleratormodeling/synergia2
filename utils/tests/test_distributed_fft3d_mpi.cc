@@ -43,6 +43,26 @@ struct Fixture
     Distributed_fft3d distributed_fft3d;
 };
 
+BOOST_FIXTURE_TEST_CASE(get_uppers, Fixture)
+{
+    std::vector<int > got_uppers(distributed_fft3d.get_uppers());
+    int size = distributed_fft3d.get_comm().get_size();
+    BOOST_CHECK_EQUAL(got_uppers.size(), size);
+    BOOST_CHECK_EQUAL(got_uppers[size-1], shape[0]);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_lengths, Fixture)
+{
+    std::vector<int > got_lengths(distributed_fft3d.get_lengths());
+    int size = distributed_fft3d.get_comm().get_size();
+    BOOST_CHECK_EQUAL(got_lengths.size(), size);
+    int total_length = 0;
+    for (int i = 0; i < size; ++i) {
+        total_length += got_lengths[i];
+    }
+    BOOST_CHECK_EQUAL(total_length, shape[0]*shape[1]*shape[2]);
+}
+
 const double tolerance = 1.0e-10;
 BOOST_FIXTURE_TEST_CASE(transform_roundtrip, Fixture)
 {
