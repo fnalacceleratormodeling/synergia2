@@ -513,6 +513,7 @@ class Macro_bunch:
                 old_pytables = True
         except:
             pass        
+
         if MPI.COMM_WORLD.Get_rank() == 0:
             h5filename = os.path.splitext(filename)[0] + '.h5'
             f = tables.openFile(h5filename,mode = "w")
@@ -525,7 +526,7 @@ class Macro_bunch:
                 atom = tables.Float64Atom()
                 earray = f.createEArray(f.root,'particles',atom,(7,0),
                                         filters = filter)
-            particles = self.particles
+            particles = self.particles[:,0:self.local_num]
             earray.append(particles)
             for proc in xrange(1,MPI.COMM_WORLD.Get_size()):
                 if mpi4py_version > 0:
@@ -537,9 +538,9 @@ class Macro_bunch:
             f.close()
         else:
             if mpi4py_version > 0:
-                MPI.COMM_WORLD.send(self.particles,dest=0)
+                MPI.COMM_WORLD.send(self.particles[:,0:self.local_num],dest=0)
             else:
-                MPI.COMM_WORLD.Send(self.particles,dest=0)
+                MPI.COMM_WORLD.Send(self.particles[:,0:self.local_num],dest=0)
           
 
     def write_particles_text(self,filename):
