@@ -41,7 +41,7 @@ private:
     construct(int particle_charge, int total_num, double real_num);
 public:
     /// Construct a bunch. Allocates memory for the particles and assigns
-    /// partice ID's, but does not fill the phase space values in any way.
+    /// particle ID's, but does not fill the phase space values in any way.
     /// @param reference_particle the reference particle for the bunch.
     /// @param total_num the total number of macroparticles in the bunch
     /// @param real_num the number of real particles represented by the bunch.
@@ -151,7 +151,7 @@ public:
     /// Add a copy of the particles in bunch to the current bunch. The
     /// injected bunch must have the same macroparticle weight, i.e.,
     /// real_num/total_num. If the state vectors of the reference particles
-    /// of the two bunches differ, the particles will be shifted accordingsly.
+    /// of the two bunches differ, the particles will be shifted accordingly.
     void
     inject(Bunch const& bunch);
 
