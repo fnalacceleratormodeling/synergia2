@@ -18,12 +18,8 @@ private:
     bool periodic_z;
     double z_period;
     Distributed_fft3d_sptr distributed_fft3d_sptr;
-    std::vector<int > uppers, lengths;
-    int upper, lower;
     Commxx comm;
     double n_sigma;
-    void
-    update_distribute_params();
 public:
     Space_charge_3d_open_hockney(std::vector<int > const & grid_shape,
             bool periodic_z, Commxx const& comm, double z_period = 0.0,
@@ -46,6 +42,9 @@ public:
             Rectangular_grid_sptr & local_charge_density_sptr);
     Distributed_rectangular_grid_sptr
     get_green_fn2();
+    Distributed_rectangular_grid_sptr
+    get_scalar_field2(Distributed_rectangular_grid_sptr & scalar_field2,
+            Distributed_rectangular_grid_sptr & green_fn2);
     virtual
     void
     apply(Bunch & bunch, Operators & step_operators);

@@ -3,19 +3,6 @@
 #include "components/foundation/math_constants.h"
 #include "deposit.h"
 
-void
-Space_charge_3d_open_hockney::update_distribute_params()
-{
-    uppers = distributed_fft3d_sptr->get_uppers();
-    int rank = comm.get_rank();
-    upper = uppers[rank];
-    if (rank == 0) {
-        lower = 0;
-    } else {
-        lower = uppers[rank - 1];
-    }
-}
-
 Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
         std::vector<int > const & grid_shape, bool periodic_z,
         Commxx const& comm, double z_period, double n_sigma) :
@@ -28,7 +15,6 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
     }
     distributed_fft3d_sptr = Distributed_fft3d_sptr(new Distributed_fft3d(
             doubled_grid_shape, comm));
-    update_distribute_params();
 }
 
 Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(bool periodic_z,
@@ -40,7 +26,6 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(bool periodic_z,
             n_sigma(n_sigma)
 {
     grid_shape = distributed_fft3d_sptr->get_shape();
-    update_distribute_params();
 }
 
 void
@@ -100,6 +85,8 @@ Space_charge_3d_open_hockney::get_global_charge_density2(
     // to work with MPI_Reduce_scatter.
     Rectangular_grid semiglobal_rho(
             local_charge_density_sptr->get_domain_sptr());
+    int upper = distributed_fft3d_sptr->get_upper();
+    std::vector<int > uppers(distributed_fft3d_sptr->get_uppers());
     std::vector<int > real_lengths(distributed_fft3d_sptr->get_lengths());
     for (int i = 1; i < comm.get_size(); ++i) {
         if (uppers[i - 1] >= grid_shape[0]) {
@@ -145,6 +132,8 @@ Space_charge_3d_open_hockney::get_global_charge_density2(
 Distributed_rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_green_fn2()
 {
+    int lower = distributed_fft3d_sptr->get_upper();
+    int upper = distributed_fft3d_sptr->get_upper();
     Distributed_rectangular_grid_sptr G2 =
             Distributed_rectangular_grid_sptr(new Distributed_rectangular_grid(
                     doubled_domain_sptr, lower, upper));
@@ -282,9 +271,6 @@ Space_charge_3d_open_hockney::get_green_fn2()
                                 T2 = (hz + z_image) * log(r2);
                                 G += T1 + T2;
                             } else {
-                                //                                std::cout<<"z_image="<<z_image<<"  hz="<<hz<<" z_image/hz="<<z_image/hz<<std::endl;
-                                //                 std::cout<<"z_image+hz="<<z_image+hz<<std::endl;
-                                //                 std::cout<<"physical size/hz="<<physical_size[2]/hz<<"  z="<<z<<" z/hz="<<z/hz<<std::endl;
                                 throw std::runtime_error(
                                         "Space_charge_3d_open_hockney::get_green_fn2 error2");
                             }
@@ -320,12 +306,44 @@ Space_charge_3d_open_hockney::get_green_fn2()
     return G2;
 }
 
+Distributed_rectangular_grid_sptr
+Space_charge_3d_open_hockney::get_scalar_field2(
+        Distributed_rectangular_grid_sptr & charge_density2,
+        Distributed_rectangular_grid_sptr & green_fn2)
+{
+    std::vector<int >
+            cshape(distributed_fft3d_sptr->get_padded_shape_complex());
+    int lower = distributed_fft3d_sptr->get_lower();
+    int upper = distributed_fft3d_sptr->get_upper();
+    MArray3dc rho2hat(
+            boost::extents[extent_range(lower, upper)][cshape[1]][cshape[2]]);
+    MArray3dc G2hat(
+            boost::extents[extent_range(lower, upper)][cshape[1]][cshape[2]]);
+    MArray3dc phi2hat(
+            boost::extents[extent_range(lower, upper)][cshape[1]][cshape[2]]);
+
+    distributed_fft3d_sptr->transform(charge_density2->get_grid_points(),
+            rho2hat);
+    distributed_fft3d_sptr->transform(green_fn2->get_grid_points(), G2hat);
+
+    for (int i = lower; i < upper; ++i) {
+        for (int j = 0; j < cshape[1]; ++j) {
+            for (int k = 0; k < cshape[2]; ++k) {
+                phi2hat[i][j][k] = rho2hat[i][j][k] * G2hat[i][j][k];
+            }
+        }
+    }
+    // jfa need to do inv transform here
+}
+
 void
 Space_charge_3d_open_hockney::apply(Bunch & bunch, Operators & step_operators)
 {
     Rectangular_grid_sptr local_rho(get_local_charge_density(bunch));
     Distributed_rectangular_grid_sptr rho2(
             get_global_charge_density2(local_rho));
+    Distributed_rectangular_grid_sptr G2(get_green_fn2());
+    Distributed_rectangular_grid_sptr phi2(get_scalar_field2(rho2, G2));
 }
 
 Space_charge_3d_open_hockney::~Space_charge_3d_open_hockney()
