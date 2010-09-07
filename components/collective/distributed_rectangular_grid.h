@@ -11,6 +11,7 @@ private:
     bool periodic;
     int lower, upper;
     int lower_guard, upper_guard;
+    double normalization;
     void
     construct(int lower, int upper);
 public:
@@ -35,6 +36,10 @@ public:
     get_upper_guard() const;
     MArray3d_ref &
     get_grid_points();
+    void
+    set_normalization(double val);
+    double
+    get_normalization() const;
 };
 
 typedef boost::shared_ptr<Distributed_rectangular_grid > Distributed_rectangular_grid_sptr;

@@ -21,7 +21,7 @@ Distributed_rectangular_grid::construct(int lower, int upper)
             = boost::shared_ptr<MArray3d >(
                     new MArray3d(boost::extents[extent_range(lower_guard,
                             upper_guard)][grid_shape[1]][grid_shape[2]]));
-
+    normalization = 1.0;
 }
 
 Distributed_rectangular_grid::Distributed_rectangular_grid(
@@ -83,4 +83,16 @@ MArray3d_ref &
 Distributed_rectangular_grid::get_grid_points()
 {
     return *grid_points_sptr;
+}
+
+void
+Distributed_rectangular_grid::set_normalization(double val)
+{
+    normalization = val;
+}
+
+double
+Distributed_rectangular_grid::get_normalization() const
+{
+    return normalization;
 }
