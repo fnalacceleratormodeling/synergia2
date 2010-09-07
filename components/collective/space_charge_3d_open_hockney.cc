@@ -333,7 +333,12 @@ Space_charge_3d_open_hockney::get_scalar_field2(
             }
         }
     }
-    // jfa need to do inv transform here
+
+    Distributed_rectangular_grid_sptr phi2(new Distributed_rectangular_grid(
+            doubled_domain_sptr, lower, upper));
+    distributed_fft3d_sptr->inv_transform(phi2hat,phi2->get_grid_points());
+
+    return phi2;
 }
 
 void
