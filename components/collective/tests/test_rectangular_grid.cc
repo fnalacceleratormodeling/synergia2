@@ -47,3 +47,14 @@ BOOST_FIXTURE_TEST_CASE(get_grid_points, Rectangular_grid_domain_fixture)
     BOOST_CHECK_EQUAL(grid_points.shape()[2], grid_size2);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_set_normalization, Rectangular_grid_domain_fixture)
+{
+    Rectangular_grid rectangular_grid(physical_size, physical_offset,
+                grid_shape, true);
+    BOOST_CHECK_CLOSE(rectangular_grid.get_normalization(), 1.0, tolerance);
+    double new_norm = 123.456;
+    rectangular_grid.set_normalization(new_norm);
+    BOOST_CHECK_CLOSE(rectangular_grid.get_normalization(), new_norm,
+            tolerance);
+}
+

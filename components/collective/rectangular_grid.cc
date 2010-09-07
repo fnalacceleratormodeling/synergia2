@@ -2,7 +2,8 @@
 
 Rectangular_grid::Rectangular_grid(std::vector<double > const & physical_size,
         std::vector<double > const & physical_offset,
-        std::vector<int > const & grid_shape, bool periodic_z)
+        std::vector<int > const & grid_shape, bool periodic_z) :
+    normalization(1.0)
 {
     domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
             physical_size, physical_offset, grid_shape, periodic_z));
@@ -11,7 +12,8 @@ Rectangular_grid::Rectangular_grid(std::vector<double > const & physical_size,
 }
 
 Rectangular_grid::Rectangular_grid(
-        Rectangular_grid_domain_sptr const& rectangular_grid_domain_sptr)
+        Rectangular_grid_domain_sptr const& rectangular_grid_domain_sptr) :
+    normalization(1.0)
 {
     domain_sptr = rectangular_grid_domain_sptr;
     std::vector<int >
@@ -30,4 +32,16 @@ MArray3d_ref &
 Rectangular_grid::get_grid_points()
 {
     return *grid_points_sptr;
+}
+
+void
+Rectangular_grid::set_normalization(double val)
+{
+    normalization = val;
+}
+
+double
+Rectangular_grid::get_normalization() const
+{
+    return normalization;
 }
