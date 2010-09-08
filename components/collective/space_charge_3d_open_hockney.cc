@@ -74,7 +74,7 @@ Space_charge_3d_open_hockney::get_local_charge_density(Bunch const& bunch)
 
 Distributed_rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_global_charge_density2(
-        Rectangular_grid_sptr & local_charge_density_sptr)
+        Rectangular_grid const& local_charge_density)
 {
     // jfa: here is where we do something complicated, but (potentially) efficient
     // in calculating a version of the charge density that is just global enough
@@ -84,7 +84,7 @@ Space_charge_3d_open_hockney::get_global_charge_density2(
     // processor. It has to have the same shape as the charge density in order
     // to work with MPI_Reduce_scatter.
     Rectangular_grid semiglobal_rho(
-            local_charge_density_sptr->get_domain_sptr());
+            local_charge_density.get_domain_sptr());
     int upper = distributed_fft3d_sptr->get_upper();
     std::vector<int > uppers(distributed_fft3d_sptr->get_uppers());
     std::vector<int > real_lengths(distributed_fft3d_sptr->get_lengths());
@@ -95,7 +95,7 @@ Space_charge_3d_open_hockney::get_global_charge_density2(
     }
     int real_lower = upper - real_lengths[comm.get_rank()];
     void * source;
-    source = (void *) local_charge_density_sptr->get_grid_points().origin();
+    source = (void *) local_charge_density.get_grid_points().origin();
 
     // The destination for Reduce_scatter is the appropriate slice of semiglobal_rho
     void * dest;
@@ -346,7 +346,7 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, Operators & step_operators)
 {
     Rectangular_grid_sptr local_rho(get_local_charge_density(bunch));
     Distributed_rectangular_grid_sptr rho2(
-            get_global_charge_density2(local_rho));
+            get_global_charge_density2(*local_rho));
     Distributed_rectangular_grid_sptr G2(get_green_fn2());
     Distributed_rectangular_grid_sptr phi2(get_scalar_field2(rho2, G2));
 }

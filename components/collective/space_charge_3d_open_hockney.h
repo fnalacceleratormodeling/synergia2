@@ -39,7 +39,7 @@ public:
     get_local_charge_density(Bunch const& bunch);
     Distributed_rectangular_grid_sptr
     get_global_charge_density2(
-            Rectangular_grid_sptr & local_charge_density_sptr);
+            Rectangular_grid const& local_charge_density);
     Distributed_rectangular_grid_sptr
     get_green_fn2();
     Distributed_rectangular_grid_sptr
