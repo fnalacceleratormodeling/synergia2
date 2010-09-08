@@ -22,6 +22,8 @@ public:
     Distributed_rectangular_grid(
             Rectangular_grid_domain_sptr const& rectangular_grid_domain_sptr,
             int lower, int upper);
+    Rectangular_grid_domain_sptr const&
+    get_domain_sptr() const;
     Rectangular_grid_domain_sptr &
     get_domain_sptr();
     bool
@@ -34,6 +36,8 @@ public:
     get_lower_guard() const;
     int
     get_upper_guard() const;
+    MArray3d_ref const&
+    get_grid_points() const;
     MArray3d_ref &
     get_grid_points();
     void

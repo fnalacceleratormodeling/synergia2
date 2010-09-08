@@ -43,6 +43,12 @@ Distributed_rectangular_grid::Distributed_rectangular_grid(
     construct(lower, upper);
 }
 
+Rectangular_grid_domain_sptr const&
+Distributed_rectangular_grid::get_domain_sptr() const
+{
+    return domain_sptr;
+}
+
 Rectangular_grid_domain_sptr &
 Distributed_rectangular_grid::get_domain_sptr()
 {
@@ -77,6 +83,12 @@ int
 Distributed_rectangular_grid::get_upper_guard() const
 {
     return upper_guard;
+}
+
+MArray3d_ref const&
+Distributed_rectangular_grid::get_grid_points() const
+{
+    return *grid_points_sptr;
 }
 
 MArray3d_ref &

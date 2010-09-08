@@ -18,6 +18,14 @@ BOOST_FIXTURE_TEST_CASE(construct2, Rectangular_grid_domain_fixture)
             rectangular_grid_domain_sptr, 0, grid_size0);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_const_domain_sptr, Rectangular_grid_domain_fixture)
+{
+    const Distributed_rectangular_grid distributed_rectangular_grid(
+            rectangular_grid_domain_sptr, 0, grid_size0);
+    BOOST_CHECK_EQUAL(rectangular_grid_domain_sptr,
+            distributed_rectangular_grid.get_domain_sptr());
+}
+
 BOOST_FIXTURE_TEST_CASE(get_domain_sptr, Rectangular_grid_domain_fixture)
 {
     Distributed_rectangular_grid distributed_rectangular_grid(
@@ -98,6 +106,17 @@ BOOST_FIXTURE_TEST_CASE(get_upper_guard_periodic, Rectangular_grid_domain_fixtur
             physical_offset, grid_shape, true, grid_midpoint0, grid_size0);
     BOOST_CHECK_EQUAL(distributed_rectangular_grid1.get_upper_guard(), grid_midpoint0 + 1);
     BOOST_CHECK_EQUAL(distributed_rectangular_grid2.get_upper_guard(), grid_size0 + 1);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_const_grid_points, Rectangular_grid_domain_fixture)
+{
+    const Distributed_rectangular_grid distributed_rectangular_grid(
+            rectangular_grid_domain_sptr, 0, grid_size0);
+    MArray3d_ref grid_points(distributed_rectangular_grid.get_grid_points());
+
+    BOOST_CHECK_EQUAL(grid_points.shape()[0], grid_size0);
+    BOOST_CHECK_EQUAL(grid_points.shape()[1], grid_size1);
+    BOOST_CHECK_EQUAL(grid_points.shape()[2], grid_size2);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_grid_points, Rectangular_grid_domain_fixture)
