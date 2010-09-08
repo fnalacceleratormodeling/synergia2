@@ -22,10 +22,22 @@ Rectangular_grid::Rectangular_grid(
             boost::extents[grid_shape[0]][grid_shape[1]][grid_shape[2]]));
 }
 
+Rectangular_grid_domain_sptr const&
+Rectangular_grid::get_domain_sptr() const
+{
+    return domain_sptr;
+}
+
 Rectangular_grid_domain_sptr &
 Rectangular_grid::get_domain_sptr()
 {
     return domain_sptr;
+}
+
+MArray3d_ref const&
+Rectangular_grid::get_grid_points() const
+{
+    return *grid_points_sptr;
 }
 
 MArray3d_ref &
