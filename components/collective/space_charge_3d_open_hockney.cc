@@ -294,7 +294,7 @@ Space_charge_3d_open_hockney::get_green_fn2()
         }
     }
 
-    double scale = 1.0 / (4.0 * constants::pi * hz * hz);
+    double scale = 1.0 / (4.0 * mconstants::pi * hz * hz);
     for (int iz = lower; iz < upper; ++iz) {
         for (int iy = 0; iy < grid_shape[2]; ++iy) {
             for (int ix = 0; ix < grid_shape[0]; ++ix) {

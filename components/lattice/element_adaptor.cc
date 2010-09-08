@@ -541,13 +541,13 @@ Rfcavity_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
         bmln_elmnt = new thinrfcavity(lattice_element.get_name().c_str(), freq,
                 lattice_element.get_double_attribute("volt") * 1.0e6,
                 lattice_element.get_double_attribute("lag") * (2.0
-                        * constants::pi), q,
+                        * mconstants::pi), q,
                 lattice_element.get_double_attribute("shunt"));
     } else {
         bmln_elmnt = new rfcavity(lattice_element.get_name().c_str(), length,
                 freq, lattice_element.get_double_attribute("volt") * 1.0e6,
                 lattice_element.get_double_attribute("lag") * (2.0
-                        * constants::pi), q,
+                        * mconstants::pi), q,
                 lattice_element.get_double_attribute("shunt"));
     }
 

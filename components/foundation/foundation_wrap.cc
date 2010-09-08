@@ -74,19 +74,20 @@ BOOST_PYTHON_MODULE(pyfoundation)
 
     class_<Distribution, boost::noncopyable > ("Distribution", no_init);
 
-    class_<Dummy >("constants",no_init)
-    // math_constants.h
-        .def_readonly("pi", constants::pi)
-    // physical_constants.h
-        .def_readonly("mp", constants::mp)
-        .def_readonly("me", constants::me)
-        .def_readonly("mmu", constants::mmu)
-        .def_readonly("proton_charge", constants::proton_charge)
-        .def_readonly("antiproton_charge", constants::antiproton_charge)
-        .def_readonly("electron_charge", constants::electron_charge)
-        .def_readonly("positron_charge", constants::positron_charge)
-        .def_readonly("muon_charge", constants::muon_charge)
-        .def_readonly("antimuon_charge", constants::antimuon_charge)
+    class_<Dummy >("mconstants",no_init)
+        .def_readonly("pi", mconstants::pi)
+        ;
+
+    class_<Dummy >("pconstants",no_init)
+        .def_readonly("mp", pconstants::mp)
+        .def_readonly("me", pconstants::me)
+        .def_readonly("mmu", pconstants::mmu)
+        .def_readonly("proton_charge", pconstants::proton_charge)
+        .def_readonly("antiproton_charge", pconstants::antiproton_charge)
+        .def_readonly("electron_charge", pconstants::electron_charge)
+        .def_readonly("positron_charge", pconstants::positron_charge)
+        .def_readonly("muon_charge", pconstants::muon_charge)
+        .def_readonly("antimuon_charge", pconstants::antimuon_charge)
         ;
 
     //    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_default_seed_overloads, get_default_seed, 0, 1);

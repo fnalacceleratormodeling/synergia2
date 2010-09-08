@@ -31,7 +31,7 @@ dummy_populate(Bunch &bunch)
 struct Fixture
 {
     Fixture() :
-        reference_particle(constants::electron_charge, mass, total_energy),
+        reference_particle(pconstants::electron_charge, mass, total_energy),
                 comm(MPI_COMM_WORLD), bunch(reference_particle, total_num,
                         real_num, comm)
     {

@@ -41,7 +41,7 @@ struct Fixture
 {
     Fixture() :
         four_momentum(mass, total_energy), reference_particle(
-                constants::proton_charge, four_momentum), comm(MPI_COMM_WORLD),
+                pconstants::proton_charge, four_momentum), comm(MPI_COMM_WORLD),
                 bunch(reference_particle, total_num, real_num, comm),
                 physical_size(3), physical_offset(3), grid_shape(3), expected(
                         boost::extents[grid_size][grid_size][grid_size])

@@ -7,7 +7,7 @@ sys.path.append('../../foundation')
 from nose.tools import *
 from mad8_reader import Mad8_reader
 from pylattice import Lattice_element, Element_adaptor_map, Lattice
-from pyfoundation import Four_momentum, Reference_particle, constants
+from pyfoundation import Four_momentum, Reference_particle, pconstants
 
 def test_construct():
     reader = Mad8_reader()
@@ -177,7 +177,7 @@ def test_reference_particle():
     lattice = reader.get_lattice("fodo", "fodo.lat")
     assert(lattice.has_reference_particle())
     reference_particle = lattice.get_reference_particle()
-    four_momentum = Four_momentum(constants.mp)
+    four_momentum = Four_momentum(pconstants.mp)
     four_momentum.set_total_energy(1.5)
-    expected_rp = Reference_particle(constants.proton_charge, four_momentum)
+    expected_rp = Reference_particle(pconstants.proton_charge, four_momentum)
     assert(reference_particle.equal(expected_rp, precision))

@@ -6,8 +6,8 @@
 #include "utils/multi_array_typedefs.h"
 #include "utils/multi_array_print.h"
 
-const int charge = constants::proton_charge;
-const double mass = constants::mp;
+const int charge = pconstants::proton_charge;
+const double mass = pconstants::mp;
 const double real_num = 1.0e11;
 const int total_num = 20;
 const double total_energy = 125.0;

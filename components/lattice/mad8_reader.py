@@ -2,7 +2,7 @@
 
 from mad8_parser import Mad8_parser
 from pylattice import Lattice_element, Element_adaptor_map, Lattice
-from pyfoundation import constants, Four_momentum, Reference_particle
+from pyfoundation import pconstants, Four_momentum, Reference_particle
 
 class Mad8_reader:
     def __init__(self, element_adaptor_map=None):
@@ -117,23 +117,23 @@ class Mad8_reader:
                 for attribute in command.attributes:
                     if attribute == "particle":
                         if command.attributes[attribute] == "proton":
-                            mass = constants.mp
-                            charge = constants.proton_charge
+                            mass = pconstants.mp
+                            charge = pconstants.proton_charge
                         elif command.attributes[attribute] == "antiproton":
-                            mass = constants.mp
-                            charge = constants.antiproton_charge
+                            mass = pconstants.mp
+                            charge = pconstants.antiproton_charge
                         elif command.attributes[attribute] == "electron":
-                            mass = constants.me
-                            charge = constants.electron_charge
+                            mass = pconstants.me
+                            charge = pconstants.electron_charge
                         elif command.attributes[attribute] == "positron":
-                            mass = constants.me
-                            charge = constants.positron_charge
+                            mass = pconstants.me
+                            charge = pconstants.positron_charge
                         elif command.attributes[attribute] == "muon":
-                            mass = constants.mmu
-                            charge = constants.muon_charge
+                            mass = pconstants.mmu
+                            charge = pconstants.muon_charge
                         elif command.attributes[attribute] == "antimuon":
-                            mass = constants.mmu
-                            charge = constants.antimuon_charge
+                            mass = pconstants.mmu
+                            charge = pconstants.antimuon_charge
                     elif attribute == "mass":
                         mass = float(command.attributes[attribute])
                     elif attribute == "charge":
