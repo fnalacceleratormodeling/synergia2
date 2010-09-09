@@ -41,9 +41,10 @@ struct Fixture
 {
     Fixture() :
         four_momentum(mass, total_energy), reference_particle(
-                pconstants::proton_charge, four_momentum), comm(MPI_COMM_WORLD),
-                bunch(reference_particle, total_num, real_num, comm),
-                physical_size(3), physical_offset(3), grid_shape(3), expected(
+                pconstants::proton_charge, four_momentum),
+                comm(MPI_COMM_WORLD), bunch(reference_particle, total_num,
+                        real_num, comm), physical_size(3), physical_offset(3),
+                grid_shape(3), expected(
                         boost::extents[grid_size][grid_size][grid_size])
     {
         for (int i = 0; i < 3; ++i) {
@@ -58,6 +59,9 @@ struct Fixture
                 }
             }
         }
+        double cell_size = (domain_max - domain_min) / grid_size;
+        density_norm = (real_num / total_num) * pconstants::e / (cell_size
+                * cell_size * cell_size);
     }
 
     ~Fixture()
@@ -68,6 +72,7 @@ struct Fixture
     Reference_particle reference_particle;
     Commxx comm;
     Bunch bunch;
+    double density_norm;
 
     std::vector<double > physical_size, physical_offset;
     std::vector<int > grid_shape;
@@ -99,7 +104,7 @@ BOOST_FIXTURE_TEST_CASE(origin_particle, Fixture)
     for (int i = 1; i < 3; ++i) {
         for (int j = 1; j < 3; ++j) {
             for (int k = 1; k < 3; ++k) {
-                expected[i][j][k] = 0.125;
+                expected[i][j][k] = 0.125 * density_norm;
             }
         }
     }
@@ -118,10 +123,10 @@ BOOST_FIXTURE_TEST_CASE(xedge_particle, Fixture)
 
     deposit_charge_rectangular(*rho_grid_sptr, bunch);
 
-    expected[1][1][0] = 0.125;
-    expected[1][2][0] = 0.125;
-    expected[2][1][0] = 0.125;
-    expected[2][2][0] = 0.125;
+    expected[1][1][0] = 0.125 * density_norm;
+    expected[1][2][0] = 0.125 * density_norm;
+    expected[2][1][0] = 0.125 * density_norm;
+    expected[2][2][0] = 0.125 * density_norm;
 
     compare_multi_array(rho_grid_sptr->get_grid_points(), expected, tolerance);
 }
@@ -137,10 +142,10 @@ BOOST_FIXTURE_TEST_CASE(yedge_particle, Fixture)
 
     deposit_charge_rectangular(*rho_grid_sptr, bunch);
 
-    expected[1][0][1] = 0.125;
-    expected[1][0][2] = 0.125;
-    expected[2][0][1] = 0.125;
-    expected[2][0][2] = 0.125;
+    expected[1][0][1] = 0.125 * density_norm;
+    expected[1][0][2] = 0.125 * density_norm;
+    expected[2][0][1] = 0.125 * density_norm;
+    expected[2][0][2] = 0.125 * density_norm;
 
     compare_multi_array(rho_grid_sptr->get_grid_points(), expected, tolerance);
 }
@@ -156,10 +161,10 @@ BOOST_FIXTURE_TEST_CASE(zedge_particle, Fixture)
 
     deposit_charge_rectangular(*rho_grid_sptr, bunch);
 
-    expected[0][1][1] = 0.125;
-    expected[0][1][2] = 0.125;
-    expected[0][2][1] = 0.125;
-    expected[0][2][2] = 0.125;
+    expected[0][1][1] = 0.125 * density_norm;
+    expected[0][1][2] = 0.125 * density_norm;
+    expected[0][2][1] = 0.125 * density_norm;
+    expected[0][2][2] = 0.125 * density_norm;
 
     compare_multi_array(rho_grid_sptr->get_grid_points(), expected, tolerance);
 }
@@ -175,14 +180,13 @@ BOOST_FIXTURE_TEST_CASE(xrightedge_particle, Fixture)
 
     deposit_charge_rectangular(*rho_grid_sptr, bunch);
 
-    expected[1][1][3] = 0.125;
-    expected[1][2][3] = 0.125;
-    expected[2][1][3] = 0.125;
-    expected[2][2][3] = 0.125;
+    expected[1][1][3] = 0.125 * density_norm;
+    expected[1][2][3] = 0.125 * density_norm;
+    expected[2][1][3] = 0.125 * density_norm;
+    expected[2][2][3] = 0.125 * density_norm;
 
     compare_multi_array(rho_grid_sptr->get_grid_points(), expected, tolerance);
 }
-
 
 BOOST_FIXTURE_TEST_CASE(zedge_particle_periodic, Fixture)
 {
@@ -195,15 +199,15 @@ BOOST_FIXTURE_TEST_CASE(zedge_particle_periodic, Fixture)
 
     deposit_charge_rectangular(*rho_grid_sptr, bunch);
 
-    expected[0][1][1] = 0.125;
-    expected[0][1][2] = 0.125;
-    expected[0][2][1] = 0.125;
-    expected[0][2][2] = 0.125;
+    expected[0][1][1] = 0.125 * density_norm;
+    expected[0][1][2] = 0.125 * density_norm;
+    expected[0][2][1] = 0.125 * density_norm;
+    expected[0][2][2] = 0.125 * density_norm;
 
-    expected[3][1][1] = 0.125;
-    expected[3][1][2] = 0.125;
-    expected[3][2][1] = 0.125;
-    expected[3][2][2] = 0.125;
+    expected[3][1][1] = 0.125 * density_norm;
+    expected[3][1][2] = 0.125 * density_norm;
+    expected[3][2][1] = 0.125 * density_norm;
+    expected[3][2][2] = 0.125 * density_norm;
 
     compare_multi_array(rho_grid_sptr->get_grid_points(), expected, tolerance);
 }
@@ -219,15 +223,15 @@ BOOST_FIXTURE_TEST_CASE(zrightedge_particle_periodic, Fixture)
 
     deposit_charge_rectangular(*rho_grid_sptr, bunch);
 
-    expected[0][1][1] = 0.125;
-    expected[0][1][2] = 0.125;
-    expected[0][2][1] = 0.125;
-    expected[0][2][2] = 0.125;
+    expected[0][1][1] = 0.125 * density_norm;
+    expected[0][1][2] = 0.125 * density_norm;
+    expected[0][2][1] = 0.125 * density_norm;
+    expected[0][2][2] = 0.125 * density_norm;
 
-    expected[3][1][1] = 0.125;
-    expected[3][1][2] = 0.125;
-    expected[3][2][1] = 0.125;
-    expected[3][2][2] = 0.125;
+    expected[3][1][1] = 0.125 * density_norm;
+    expected[3][1][2] = 0.125 * density_norm;
+    expected[3][2][1] = 0.125 * density_norm;
+    expected[3][2][2] = 0.125 * density_norm;
 
     compare_multi_array(rho_grid_sptr->get_grid_points(), expected, tolerance);
 }
@@ -247,7 +251,7 @@ BOOST_FIXTURE_TEST_CASE(additive_deposit, Fixture)
     for (int i = 1; i < 3; ++i) {
         for (int j = 1; j < 3; ++j) {
             for (int k = 1; k < 3; ++k) {
-                expected[i][j][k] = 2*0.125;
+                expected[i][j][k] = 2 * 0.125 * density_norm;
             }
         }
     }

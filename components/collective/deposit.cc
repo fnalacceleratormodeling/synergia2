@@ -1,8 +1,10 @@
 #include "components/collective/deposit.h"
+#include "components/foundation/physical_constants.h""
 
 /// Deposit charge using Cloud-in-Cell (CIC) algorithm.
 /// The indices on the rho array are in an unusual order: [z][y][x],
 /// so that the FFTW routines can distribute along the z-axis.
+/// The resulting charge density has units C/m^3.
 void
 deposit_charge_rectangular(Rectangular_grid & rho_grid, Bunch const& bunch,
         bool zero_first)
@@ -19,7 +21,8 @@ deposit_charge_rectangular(Rectangular_grid & rho_grid, Bunch const& bunch,
         }
     }
     std::vector<double > h(rho_grid.get_domain_sptr()->get_cell_size());
-    double weight0 = 1.0 / (h[0] * h[1] * h[2]);
+    double weight0 = (bunch.get_real_num() / bunch.get_total_num()) * std::abs(
+            bunch.get_particle_charge()) * pconstants::e / (h[0] * h[1] * h[2]);
     int ix, iy, iz;
     double offx, offy, offz;
     // jfa: This is probably a premature optimization. Two versions of the
@@ -35,8 +38,9 @@ deposit_charge_rectangular(Rectangular_grid & rho_grid, Bunch const& bunch,
                     for (int k = 0; k < 2; ++k) {
                         int cellx = ix + i;
                         int celly = iy + j;
-                        if ((cellx >= 0) && (cellx < int(rho.shape()[2])) && (celly
-                                >= 0) && (celly < int(rho.shape()[1]))) {
+                        if ((cellx >= 0) && (cellx < int(rho.shape()[2]))
+                                && (celly >= 0)
+                                && (celly < int(rho.shape()[1]))) {
                             int cellz = iz + k;
                             if (cellz >= 0) {
                                 cellz = cellz % rho.shape()[0];
@@ -64,9 +68,11 @@ deposit_charge_rectangular(Rectangular_grid & rho_grid, Bunch const& bunch,
                         int cellx = ix + i;
                         int celly = iy + j;
                         int cellz = iz + k;
-                        if ((cellx >= 0) && (cellx < int(rho.shape()[2])) && (celly
-                                >= 0) && (celly < int(rho.shape()[1])) && (cellz
-                                >= 0) && (cellz < int(rho.shape()[0]))) {
+                        if ((cellx >= 0) && (cellx < int(rho.shape()[2]))
+                                && (celly >= 0)
+                                && (celly < int(rho.shape()[1]))
+                                && (cellz >= 0)
+                                && (cellz < int(rho.shape()[0]))) {
                             double weight = weight0 * (1 - i - (1 - 2 * i)
                                     * offx) * (1 - j - (1 - 2 * j) * offy) * (1
                                     - k - (1 - 2 * k) * offz);
