@@ -38,6 +38,7 @@ endif(NOT CHEF_FOUND)
 LINK_DIRECTORIES(${CHEF_LIBRARY_DIRS})
 
 # numpy
+set(NUMPY_FIND_REQUIRED true)
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindNumpy.cmake)
 include_directories(${NUMPY_INCLUDE_DIR})
 
