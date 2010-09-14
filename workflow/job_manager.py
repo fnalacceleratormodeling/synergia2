@@ -14,7 +14,8 @@ job_mgr_opts.add("createjob", 0, "Whether to create new job directory", int)
 job_mgr_opts.add("resumejob", 0, "Whether to resume a previously checkpointed job", int)
 job_mgr_opts.add("jobdir", "run", "Job directory", str)
 job_mgr_opts.add("resumedir", "run", "Directory containing checkpointed files", str)
-job_mgr_opts.add("numproc", 1, "Number of processors", int)
+job_mgr_opts.add("numproc", 1, "Number of processes", int)
+job_mgr_opts.add("procspernode", 1, "Number of processes per node", int)
 job_mgr_opts.add("submit", 0, "Whether to immediately submit job", int)
 job_mgr_opts.add("overwrite", 0, "Whether to overwrite existing job directory", int)
 job_mgr_opts.add("walltime", "00:30:00", "Limit job to given wall time", str)
@@ -179,6 +180,10 @@ class Job_manager:
         for sub in job_mgr_opts.options():
             subs[sub] = job_mgr_opts.get(sub)
         subs["numproc"] = self.opts.get("numproc")
+        numnode = (self.opts.get("numproc") + self.opts.get("procspernode") - 1)/ \
+                  self.opts.get("procspernode")
+        subs["procspernode"] = self.opts.get("procspernode")
+        subs["numnode"] = numnode
         subs["synergia2dir"] = self.synergia_dir
         subs["args"] = self._args_to_string(self.argv[1:], ["createjob"])
         subs["jobdir"] = os.path.abspath(self.directory)
