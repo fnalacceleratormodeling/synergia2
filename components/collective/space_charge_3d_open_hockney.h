@@ -35,11 +35,14 @@ public:
     get_domain_sptr();
     Rectangular_grid_domain_sptr
     get_doubled_domain_sptr();
+    /// Returns local charge density on original grid in [C/m^3]
     Rectangular_grid_sptr
     get_local_charge_density(Bunch const& bunch);
+    /// Returns global charge density on doubled grid in [C/m^3]
     Distributed_rectangular_grid_sptr
     get_global_charge_density2(
             Rectangular_grid const& local_charge_density);
+    /// Returns Green function on the doubled grid in [1/m^3]
     Distributed_rectangular_grid_sptr
     get_green_fn2();
     Distributed_rectangular_grid_sptr

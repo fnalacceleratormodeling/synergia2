@@ -83,8 +83,7 @@ Space_charge_3d_open_hockney::get_global_charge_density2(
     // semiglobal_rho stores the portion of global charge density needed on each
     // processor. It has to have the same shape as the charge density in order
     // to work with MPI_Reduce_scatter.
-    Rectangular_grid semiglobal_rho(
-            local_charge_density.get_domain_sptr());
+    Rectangular_grid semiglobal_rho(local_charge_density.get_domain_sptr());
     int upper = distributed_fft3d_sptr->get_upper();
     std::vector<int > uppers(distributed_fft3d_sptr->get_uppers());
     std::vector<int > real_lengths(distributed_fft3d_sptr->get_lengths());
@@ -294,14 +293,8 @@ Space_charge_3d_open_hockney::get_green_fn2()
         }
     }
 
-    double scale = 1.0 / (4.0 * mconstants::pi * hz * hz);
-    for (int iz = lower; iz < upper; ++iz) {
-        for (int iy = 0; iy < grid_shape[2]; ++iy) {
-            for (int ix = 0; ix < grid_shape[0]; ++ix) {
-                G2->get_grid_points()[iz][iy][ix] *= scale;
-            }
-        }
-    }
+    double normalization = 1.0 / (4.0 * mconstants::pi * hz * hz);
+    G2->set_normalization(normalization);
 
     return G2;
 }
@@ -336,7 +329,14 @@ Space_charge_3d_open_hockney::get_scalar_field2(
 
     Distributed_rectangular_grid_sptr phi2(new Distributed_rectangular_grid(
             doubled_domain_sptr, lower, upper));
-    distributed_fft3d_sptr->inv_transform(phi2hat,phi2->get_grid_points());
+    distributed_fft3d_sptr->inv_transform(phi2hat, phi2->get_grid_points());
+
+    double normalization = 1.0;
+    normalization *= charge_density2->get_normalization();
+    normalization *= green_fn2->get_normalization();
+    std::vector<int > shape(distributed_fft3d_sptr->get_padded_shape_real());
+    normalization *= 1.0 / (shape[0] * shape[1] * shape[2]);
+    phi2->set_normalization(normalization);
 
     return phi2;
 }
@@ -344,11 +344,11 @@ Space_charge_3d_open_hockney::get_scalar_field2(
 void
 Space_charge_3d_open_hockney::apply(Bunch & bunch, Operators & step_operators)
 {
-    Rectangular_grid_sptr local_rho(get_local_charge_density(bunch));
-    Distributed_rectangular_grid_sptr rho2(
-            get_global_charge_density2(*local_rho));
-    Distributed_rectangular_grid_sptr G2(get_green_fn2());
-    Distributed_rectangular_grid_sptr phi2(get_scalar_field2(rho2, G2));
+    Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // Charge density in [C/m^3]
+    Distributed_rectangular_grid_sptr rho2(get_global_charge_density2(
+            *local_rho)); // Charge density in units [C/m^3]
+    Distributed_rectangular_grid_sptr G2(get_green_fn2()); // Green function in [1/m^3]
+    Distributed_rectangular_grid_sptr phi2(get_scalar_field2(rho2, G2)); // Scalar field in [V/m]
 }
 
 Space_charge_3d_open_hockney::~Space_charge_3d_open_hockney()
