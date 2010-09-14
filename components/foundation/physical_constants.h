@@ -1,5 +1,6 @@
 #ifndef PHYSICAL_CONSTANTS_H_
 #define PHYSICAL_CONSTANTS_H_
+#include "components/foundation/math_constants.h"
 
 namespace pconstants
 {
@@ -8,6 +9,11 @@ namespace pconstants
     const double mmu = 0.105658369; // Mass of muon [GeV/c^2]
 
     const double e = 1.6021892e-19; // Charge of proton [C]
+
+    const double c = 299792458.0; // Speed of light [m/s]
+
+    const double mu0 = 4*mconstants::pi*1.0e-7; // Permittivity of free space [F/m]
+    const double epsilon0 = 1.0/(c*c*mu0); // Permeability of free space [H/m]
 
     const int proton_charge = 1; // Charge in units of e
     const int antiproton_charge = -1; // Charge in units of e
