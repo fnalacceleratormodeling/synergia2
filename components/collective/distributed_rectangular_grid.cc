@@ -101,3 +101,103 @@ Distributed_rectangular_grid::get_normalization() const
 {
     return normalization;
 }
+
+void
+Distributed_rectangular_grid::fill_guards(Commxx & comm)
+{
+    int rank = comm.get_rank();
+    int size = comm.get_size();
+    if (size == 1) {
+        if (domain_sptr->is_periodic()) {
+                        int max0 = domain_sptr->get_grid_shape()[0];
+                        int max1 = domain_sptr->get_grid_shape()[1];
+                        int max2 = domain_sptr->get_grid_shape()[2];
+                        for (int j = 0; j < max1; ++j) {
+                            for (int k = 0; k < max2; ++k) {
+                                (*grid_points_sptr)[-1][j][k] = (*grid_points_sptr)[max0
+                                        - 1][j][k];
+                            }
+                        }
+                        for (int j = 0; j < max1; ++j) {
+                            for (int k = 0; k < max2; ++k) {
+                                (*grid_points_sptr)[max0][j][k]
+                                        = (*grid_points_sptr)[0][j][k];
+                            }
+                        }
+            return;
+        } else {
+            return;
+        }
+    }
+
+    MPI_Status status;
+    void *recv_buffer, *send_buffer;
+    // send to the right
+    recv_buffer = (void*) (grid_points_sptr->origin() + lower_guard
+            * grid_points_sptr->strides()[0]);
+    send_buffer = (void*) (grid_points_sptr->origin() + (upper - 1)
+            * grid_points_sptr->strides()[0]);
+    size_t message_size = grid_points_sptr->shape()[1]
+            * grid_points_sptr->shape()[2];
+    int sender = rank - 1;
+    bool send = true;
+    int receiver = rank + 1;
+    bool receive = true;
+    if (rank == size - 1) {
+        if (domain_sptr->is_periodic()) {
+            receiver = 0;
+        } else {
+            send = false;
+        }
+    }
+    if (rank == 0) {
+        if (domain_sptr->is_periodic()) {
+            sender = size - 1;
+        } else {
+            receive = false;
+        }
+    }
+
+    if (send) {
+        MPI_Send(send_buffer, message_size, MPI_DOUBLE, receiver, rank,
+                MPI_COMM_WORLD);
+    }
+    if (receive) {
+        MPI_Recv(recv_buffer, message_size, MPI_DOUBLE, sender, sender,
+                MPI_COMM_WORLD, &status);
+    }
+
+    //send to the left
+    recv_buffer = (void*) (grid_points_sptr->origin() + (upper_guard - 1)
+            * grid_points_sptr->strides()[0]);
+    send_buffer = (void*) (grid_points_sptr->origin() + lower
+            * grid_points_sptr->strides()[0]);
+    sender = rank + 1;
+    send = true;
+    receiver = rank - 1;
+    receive = true;
+    if (rank == size - 1) {
+        if (domain_sptr->is_periodic()) {
+            sender = 0;
+        } else {
+            receive = false;
+        }
+    }
+    if (rank == 0) {
+        if (domain_sptr->is_periodic()) {
+            receiver = size - 1;
+        } else {
+            send = false;
+        }
+    }
+
+    if (send) {
+        MPI_Send(send_buffer, message_size, MPI_DOUBLE, receiver, rank,
+                MPI_COMM_WORLD);
+    }
+    if (receive) {
+        MPI_Recv(recv_buffer, message_size, MPI_DOUBLE, sender, sender,
+                MPI_COMM_WORLD, &status);
+    }
+
+}

@@ -2,6 +2,7 @@
 #define DISTRIBUTED_RECTANGULAR_GRID_H_
 #include "components/collective/rectangular_grid_domain.h"
 #include "utils/multi_array_typedefs.h"
+#include "utils/commxx.h"
 
 class Distributed_rectangular_grid
 {
@@ -41,6 +42,8 @@ public:
     set_normalization(double val);
     double
     get_normalization() const;
+    void
+    fill_guards(Commxx & comm);
 };
 
 typedef boost::shared_ptr<Distributed_rectangular_grid > Distributed_rectangular_grid_sptr;
