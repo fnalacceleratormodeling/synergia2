@@ -103,7 +103,7 @@ Distributed_rectangular_grid::get_normalization() const
 }
 
 void
-Distributed_rectangular_grid::fill_guards(Commxx & comm)
+Distributed_rectangular_grid::fill_guards(Commxx const & comm)
 {
     int rank = comm.get_rank();
     int size = comm.get_size();

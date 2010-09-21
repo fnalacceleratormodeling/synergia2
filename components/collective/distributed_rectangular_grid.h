@@ -43,7 +43,7 @@ public:
     double
     get_normalization() const;
     void
-    fill_guards(Commxx & comm);
+    fill_guards(Commxx const & comm);
 };
 
 typedef boost::shared_ptr<Distributed_rectangular_grid > Distributed_rectangular_grid_sptr;
