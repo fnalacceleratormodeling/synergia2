@@ -18,7 +18,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
 }
 
 Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(bool periodic_z,
-        Distributed_fft3d_sptr const& distributed_fft3d_sptr, double z_period,
+        Distributed_fft3d_sptr distributed_fft3d_sptr, double z_period,
         double n_sigma) :
     Collective_operator("space charge"), grid_shape(3), periodic_z(periodic_z),
             distributed_fft3d_sptr(distributed_fft3d_sptr), comm(
@@ -301,8 +301,8 @@ Space_charge_3d_open_hockney::get_green_fn2()
 
 Distributed_rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_scalar_field2(
-        Distributed_rectangular_grid_sptr & charge_density2,
-        Distributed_rectangular_grid_sptr & green_fn2)
+        Distributed_rectangular_grid & charge_density2,
+        Distributed_rectangular_grid & green_fn2)
 {
     std::vector<int >
             cshape(distributed_fft3d_sptr->get_padded_shape_complex());
@@ -315,9 +315,9 @@ Space_charge_3d_open_hockney::get_scalar_field2(
     MArray3dc phi2hat(
             boost::extents[extent_range(lower, upper)][cshape[1]][cshape[2]]);
 
-    distributed_fft3d_sptr->transform(charge_density2->get_grid_points(),
+    distributed_fft3d_sptr->transform(charge_density2.get_grid_points(),
             rho2hat);
-    distributed_fft3d_sptr->transform(green_fn2->get_grid_points(), G2hat);
+    distributed_fft3d_sptr->transform(green_fn2.get_grid_points(), G2hat);
 
     for (int i = lower; i < upper; ++i) {
         for (int j = 0; j < cshape[1]; ++j) {
@@ -332,13 +332,32 @@ Space_charge_3d_open_hockney::get_scalar_field2(
     distributed_fft3d_sptr->inv_transform(phi2hat, phi2->get_grid_points());
 
     double normalization = 1.0;
-    normalization *= charge_density2->get_normalization();
-    normalization *= green_fn2->get_normalization();
+    normalization *= charge_density2.get_normalization();
+    normalization *= green_fn2.get_normalization();
     std::vector<int > shape(distributed_fft3d_sptr->get_padded_shape_real());
     normalization *= 1.0 / (shape[0] * shape[1] * shape[2]);
     phi2->set_normalization(normalization);
 
     return phi2;
+}
+
+Distributed_rectangular_grid_sptr
+Space_charge_3d_open_hockney::extract_scalar_field(
+        Distributed_rectangular_grid const & phi2)
+{
+    int lower = std::min(phi2.get_lower(), grid_shape[0]);
+    int upper = std::min(phi2.get_upper(), grid_shape[0]);
+    Distributed_rectangular_grid_sptr phi(new Distributed_rectangular_grid(
+            domain_sptr, lower, upper));
+
+    for (int i = lower; i < upper; ++i) {
+        for (int j = 0; j < grid_shape[1]; ++j) {
+            for (int k = 0; k < grid_shape[2]; ++k) {
+                phi->get_grid_points()[i][j][k] = phi2.get_grid_points()[i][j][k];
+            }
+        }
+    }
+    return phi;
 }
 
 void
@@ -347,8 +366,14 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, Operators & step_operators)
     Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // Charge density in [C/m^3]
     Distributed_rectangular_grid_sptr rho2(get_global_charge_density2(
             *local_rho)); // Charge density in units [C/m^3]
+    local_rho.reset();
     Distributed_rectangular_grid_sptr G2(get_green_fn2()); // Green function in [1/m^3]
-    Distributed_rectangular_grid_sptr phi2(get_scalar_field2(rho2, G2)); // Scalar field in [V/m]
+    Distributed_rectangular_grid_sptr phi2(get_scalar_field2(*rho2, *G2)); // Scalar field in [V/m]
+    rho2.reset();
+    G2.reset();
+    Distributed_rectangular_grid_sptr phi(extract_scalar_field(*phi2));
+    phi2.reset();
+    phi->fill_guards(bunch.get_comm());
 }
 
 Space_charge_3d_open_hockney::~Space_charge_3d_open_hockney()
