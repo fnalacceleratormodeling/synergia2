@@ -373,7 +373,7 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, Operators & step_operators)
     G2.reset();
     Distributed_rectangular_grid_sptr phi(extract_scalar_field(*phi2));
     phi2.reset();
-    phi->fill_guards(bunch.get_comm());
+    phi->fill_guards(distributed_fft3d_sptr->get_comm());
 }
 
 Space_charge_3d_open_hockney::~Space_charge_3d_open_hockney()
