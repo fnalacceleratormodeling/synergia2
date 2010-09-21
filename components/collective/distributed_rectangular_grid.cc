@@ -6,7 +6,6 @@ Distributed_rectangular_grid::construct(int lower, int upper)
     std::vector<int > grid_shape(domain_sptr->get_grid_shape());
     this->lower = lower;
     this->upper = upper;
-    this->periodic = periodic;
     if ((lower == 0) && (!domain_sptr->is_periodic())) {
         lower_guard = 0;
     } else {
@@ -53,12 +52,6 @@ Rectangular_grid_domain_sptr &
 Distributed_rectangular_grid::get_domain_sptr()
 {
     return domain_sptr;
-}
-
-bool
-Distributed_rectangular_grid::get_periodic() const
-{
-    return periodic;
 }
 
 int

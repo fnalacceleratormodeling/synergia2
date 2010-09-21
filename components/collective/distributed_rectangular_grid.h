@@ -8,7 +8,6 @@ class Distributed_rectangular_grid
 private:
     Rectangular_grid_domain_sptr domain_sptr;
     boost::shared_ptr<MArray3d > grid_points_sptr;
-    bool periodic;
     int lower, upper;
     int lower_guard, upper_guard;
     double normalization;
@@ -26,8 +25,6 @@ public:
     get_domain_sptr() const;
     Rectangular_grid_domain_sptr &
     get_domain_sptr();
-    bool
-    get_periodic() const;
     int
     get_lower() const;
     int
