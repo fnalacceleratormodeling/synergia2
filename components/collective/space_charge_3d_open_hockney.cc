@@ -377,7 +377,7 @@ Space_charge_3d_open_hockney::get_electric_field_component(
         upper_limit = domain_sptr->get_grid_shape()[component];
     }
     double cell_size = domain_sptr->get_cell_size()[component];
-    int center[3], left[3], right[3];
+    boost::array<MArray3d::index, 3 > center, left, right;
     for (int i = En->get_lower(); i < En->get_upper(); ++i) {
         left[0] = i;
         center[0] = i;
@@ -403,12 +403,11 @@ Space_charge_3d_open_hockney::get_electric_field_component(
                     left[component] = center[component] - 1;
                     delta = 2.0 * cell_size;
                 }
-                En_a[i][j][k] = (En_a[right[0]][right[1]][right[2]]
-                        - En_a[left[0]][left[1]][left[2]]) / delta;
+                En_a(center) = (En_a(right) - En_a(left)) / delta;
             }
         }
-
     }
+    return En;
 }
 
 void
