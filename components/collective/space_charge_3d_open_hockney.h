@@ -27,8 +27,8 @@ public:
     /// Note: Use Space_charge_3d_open_hockney::get_internal_grid_shape for
     /// Distributed_fft3d.
     Space_charge_3d_open_hockney(bool periodic_z,
-            Distributed_fft3d_sptr distributed_fft3d_sptr,
-            double z_period = 0.0, double n_sigma = 4.0);
+            Distributed_fft3d_sptr distributed_fft3d_sptr, double z_period =
+                    0.0, double n_sigma = 4.0);
     void
     update_domain(Bunch const& bunch);
     Rectangular_grid_domain_sptr
@@ -48,8 +48,10 @@ public:
     get_scalar_field2(Distributed_rectangular_grid & charge_density22,
             Distributed_rectangular_grid & green_fn2);
     Distributed_rectangular_grid_sptr
-    extract_scalar_field(
-            Distributed_rectangular_grid const& scalar_field2);
+    extract_scalar_field(Distributed_rectangular_grid const& scalar_field2);
+    Distributed_rectangular_grid_sptr
+    get_electric_field_component(
+            Distributed_rectangular_grid const& scalar_field, int component);
     virtual
     void
     apply(Bunch & bunch, Operators & step_operators);

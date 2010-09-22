@@ -353,27 +353,84 @@ Space_charge_3d_open_hockney::extract_scalar_field(
     for (int i = lower; i < upper; ++i) {
         for (int j = 0; j < grid_shape[1]; ++j) {
             for (int k = 0; k < grid_shape[2]; ++k) {
-                phi->get_grid_points()[i][j][k] = phi2.get_grid_points()[i][j][k];
+                phi->get_grid_points()[i][j][k]
+                        = phi2.get_grid_points()[i][j][k];
             }
         }
     }
     return phi;
 }
 
+Distributed_rectangular_grid_sptr
+Space_charge_3d_open_hockney::get_electric_field_component(
+        Distributed_rectangular_grid const& phi, int component)
+{
+    Distributed_rectangular_grid_sptr En(new Distributed_rectangular_grid(
+            domain_sptr, phi.get_lower(), phi.get_upper()));
+    MArray3d_ref En_a(En->get_grid_points());
+    int lower_limit, upper_limit;
+    if (component == 0) {
+        lower_limit = En->get_lower_guard();
+        upper_limit = En->get_upper_guard();
+    } else {
+        lower_limit = 0;
+        upper_limit = domain_sptr->get_grid_shape()[component];
+    }
+    double cell_size = domain_sptr->get_cell_size()[component];
+    int center[3], left[3], right[3];
+    for (int i = En->get_lower(); i < En->get_upper(); ++i) {
+        left[0] = i;
+        center[0] = i;
+        right[0] = i;
+        for (int j = 0; j < domain_sptr->get_grid_shape()[1]; ++j) {
+            left[1] = j;
+            center[1] = j;
+            right[1] = j;
+            for (int k = 0; k < domain_sptr->get_grid_shape()[2]; ++k) {
+                left[2] = k;
+                center[2] = k;
+                right[2] = k;
+
+                double delta;
+                if (center[component] == lower_limit) {
+                    right[component] = center[component] + 1;
+                    delta = cell_size;
+                } else if (center[component] == lower_limit) {
+                    left[component] = center[component] - 1;
+                    delta = cell_size;
+                } else {
+                    right[component] = center[component] + 1;
+                    left[component] = center[component] - 1;
+                    delta = 2.0 * cell_size;
+                }
+                En_a[i][j][k] = (En_a[right[0]][right[1]][right[2]]
+                        - En_a[left[0]][left[1]][left[2]]) / delta;
+            }
+        }
+
+    }
+}
+
 void
 Space_charge_3d_open_hockney::apply(Bunch & bunch, Operators & step_operators)
 {
-    Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // Charge density in [C/m^3]
+    Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
     Distributed_rectangular_grid_sptr rho2(get_global_charge_density2(
-            *local_rho)); // Charge density in units [C/m^3]
+            *local_rho)); // [C/m^3]
     local_rho.reset();
-    Distributed_rectangular_grid_sptr G2(get_green_fn2()); // Green function in [1/m^3]
-    Distributed_rectangular_grid_sptr phi2(get_scalar_field2(*rho2, *G2)); // Scalar field in [V/m]
+    Distributed_rectangular_grid_sptr G2(get_green_fn2()); // [1/m^3]
+    Distributed_rectangular_grid_sptr phi2(get_scalar_field2(*rho2, *G2)); // [V]
     rho2.reset();
     G2.reset();
     Distributed_rectangular_grid_sptr phi(extract_scalar_field(*phi2));
     phi2.reset();
     phi->fill_guards(distributed_fft3d_sptr->get_comm());
+    for (int component = 0; component < 3; ++component) {
+        Distributed_rectangular_grid_sptr local_En(
+                get_electric_field_component(*phi, component)); // [V/m]
+        //        Rectangular_grid_sptr En(get_)
+
+    }
 }
 
 Space_charge_3d_open_hockney::~Space_charge_3d_open_hockney()
