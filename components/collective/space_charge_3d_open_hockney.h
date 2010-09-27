@@ -49,6 +49,8 @@ public:
             Distributed_rectangular_grid & green_fn2);
     Distributed_rectangular_grid_sptr
     extract_scalar_field(Distributed_rectangular_grid const& scalar_field2);
+    void
+    fill_guards1(Distributed_rectangular_grid & dr_grid);
     Distributed_rectangular_grid_sptr
     get_electric_field_component(
             Distributed_rectangular_grid const& scalar_field, int component);

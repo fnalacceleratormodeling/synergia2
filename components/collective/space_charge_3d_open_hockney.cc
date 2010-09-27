@@ -361,6 +361,57 @@ Space_charge_3d_open_hockney::extract_scalar_field(
     return phi;
 }
 
+void
+Space_charge_3d_open_hockney::fill_guards1(
+        Distributed_rectangular_grid & dr_grid)
+{
+    std::vector<int > ranks1; // ranks with data from the undoubled domain
+    for (int rank = 0; rank < distributed_fft3d_sptr->get_comm().get_size(); ++rank) {
+        int uppers2 = distributed_fft3d_sptr->get_uppers()[rank];
+        int uppers1 = std::min(uppers2, grid_shape[0]);
+        if (uppers1 <= grid_shape[0]) {
+            ranks1.push_back(rank);
+        }
+    }
+    MPI_Group group2, group1;
+    MPI_Comm comm1;
+    int error;
+    error = MPI_Comm_group(distributed_fft3d_sptr->get_comm().get(), &group2);
+    if (error != MPI_SUCCESS) {
+        throw std::runtime_error(
+                "MPI error in Space_charge_3d_open_hockney::fill_guards1(MPI_Comm_group)");
+    }
+    error = MPI_Group_incl(group2, ranks1.size(), &ranks1[0], &group1);
+    if (error != MPI_SUCCESS) {
+        throw std::runtime_error(
+                "MPI error in Space_charge_3d_open_hockney::fill_guards1(MPI_Group_incl)");
+    }
+    error = MPI_Comm_create(distributed_fft3d_sptr->get_comm().get(), group1, &comm1);
+    if (error != MPI_SUCCESS) {
+        throw std::runtime_error(
+                "MPI error in Space_charge_3d_open_hockney::fill_guards1(MPI_Comm_create)");
+    }
+
+    Commxx commxx1(comm1);
+    dr_grid.fill_guards(commxx1);
+
+    error = MPI_Comm_free(&comm1);
+    if (error != MPI_SUCCESS) {
+        throw std::runtime_error(
+                "MPI error in Space_charge_3d_open_hockney::fill_guards1(MPI_Comm_free)");
+    }
+    error = MPI_Group_free(&group1);
+    if (error != MPI_SUCCESS) {
+        throw std::runtime_error(
+                "MPI error in Space_charge_3d_open_hockney::fill_guards1(MPI_Group_free(1))");
+    }
+    error = MPI_Group_free(&group2);
+    if (error != MPI_SUCCESS) {
+        throw std::runtime_error(
+                "MPI error in Space_charge_3d_open_hockney::fill_guards1(MPI_Group_free(2))");
+    }
+}
+
 Distributed_rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_electric_field_component(
         Distributed_rectangular_grid const& phi, int component)
@@ -410,6 +461,7 @@ Space_charge_3d_open_hockney::get_electric_field_component(
     return En;
 }
 
+
 void
 Space_charge_3d_open_hockney::apply(Bunch & bunch, Operators & step_operators)
 {
@@ -423,7 +475,7 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, Operators & step_operators)
     G2.reset();
     Distributed_rectangular_grid_sptr phi(extract_scalar_field(*phi2));
     phi2.reset();
-    phi->fill_guards(distributed_fft3d_sptr->get_comm());
+    fill_guards1(*phi);
     for (int component = 0; component < 3; ++component) {
         Distributed_rectangular_grid_sptr local_En(
                 get_electric_field_component(*phi, component)); // [V/m]
