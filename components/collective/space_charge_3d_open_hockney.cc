@@ -12,13 +12,14 @@ Space_charge_3d_open_hockney::setup_nondoubled_communication()
         int uppers1 = std::min(uppers2, grid_shape[0]);
         if (uppers1 <= grid_shape[0]) {
             ranks1.push_back(rank);
-            int length;
-            if(rank>0) {
-                length = uppers1 - distributed_fft3d_sptr->get_uppers()[rank-1];
+            int length0;
+            if (rank > 0) {
+                length0 = uppers1 - distributed_fft3d_sptr->get_uppers()[rank
+                        - 1];
             } else {
-                length = uppers1;
+                length0 = uppers1;
             }
-            lengths1.push_back(length);
+            lengths1.push_back(length0 * grid_shape[1] * grid_shape[2]);
         }
     }
     int error;
@@ -448,7 +449,6 @@ Space_charge_3d_open_hockney::get_electric_field_component(
     }
     return En;
 }
-
 
 void
 Space_charge_3d_open_hockney::apply(Bunch & bunch, Operators & step_operators)
