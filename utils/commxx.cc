@@ -6,6 +6,11 @@ Commxx::Commxx(MPI_Comm comm)
     this->comm = comm;
 }
 
+Commxx::Commxx()
+{
+    this->comm = MPI_COMM_WORLD;
+}
+
 int
 Commxx::get_rank() const
 {
@@ -26,6 +31,12 @@ Commxx::get_size() const
         throw std::runtime_error("MPI error in MPI_Comm_size");
     }
     return size;
+}
+
+void
+Commxx::set(MPI_Comm comm)
+{
+    this->comm = comm;
 }
 
 MPI_Comm

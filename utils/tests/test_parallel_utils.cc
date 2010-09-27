@@ -5,9 +5,14 @@
 
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
-BOOST_AUTO_TEST_CASE(test_Commxx_construct)
+BOOST_AUTO_TEST_CASE(test_Commxx_construct1)
 {
     Commxx comm(MPI_COMM_WORLD);
+}
+
+BOOST_AUTO_TEST_CASE(test_Commxx_construct2)
+{
+    Commxx comm();
 }
 
 BOOST_AUTO_TEST_CASE(test_Commxx_get_rank)
@@ -26,6 +31,17 @@ BOOST_AUTO_TEST_CASE(test_Commxx_get)
 {
     MPI_Comm comm = Commxx(MPI_COMM_WORLD).get();
     BOOST_CHECK_EQUAL(comm,MPI_COMM_WORLD);
+}
+
+BOOST_AUTO_TEST_CASE(test_Commxx_set_get)
+{
+    MPI_Comm new_comm;
+    MPI_Comm_dup(MPI_COMM_WORLD, &new_comm);
+    Commxx commxx;
+    commxx.set(new_comm);
+    MPI_Comm comm = commxx.get();
+    BOOST_CHECK(comm != MPI_COMM_WORLD);
+    BOOST_CHECK_EQUAL(comm, new_comm);
 }
 
 BOOST_AUTO_TEST_CASE(test_decompose_1d_raw1)

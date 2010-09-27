@@ -18,6 +18,9 @@ public:
     /// @param comm is an MPI communicator, e.g., MPI_COMM_WORLD
     Commxx(MPI_Comm comm);
 
+    /// Construct a Commxx object using MPI_COMM_WORLD
+    Commxx();
+
     /// Get communicator rank.
     int
     get_rank() const;
@@ -25,6 +28,11 @@ public:
     /// Get communicator size
     int
     get_size() const;
+
+    /// Change the underlying communicator
+    /// @param comm is an MPI communicator, e.g., MPI_COMM_WORLD
+    void
+    set(MPI_Comm comm);
 
     /// Extract the MPI_comm object wrapped by the Commxx instance.
     MPI_Comm
