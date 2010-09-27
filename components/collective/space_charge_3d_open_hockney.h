@@ -18,8 +18,13 @@ private:
     bool periodic_z;
     double z_period;
     Distributed_fft3d_sptr distributed_fft3d_sptr;
-    Commxx comm;
+    Commxx comm2, comm1;
+    std::vector<int > lengths1;
+    MPI_Group group2, group1;
+    MPI_Comm mpi_comm1;
     double n_sigma;
+    void
+    setup_nondoubled_communication();
 public:
     Space_charge_3d_open_hockney(std::vector<int > const & grid_shape,
             bool periodic_z, Commxx const& comm, double z_period = 0.0,
@@ -49,8 +54,6 @@ public:
             Distributed_rectangular_grid & green_fn2);
     Distributed_rectangular_grid_sptr
     extract_scalar_field(Distributed_rectangular_grid const& scalar_field2);
-    void
-    fill_guards1(Distributed_rectangular_grid & dr_grid);
     Distributed_rectangular_grid_sptr
     get_electric_field_component(
             Distributed_rectangular_grid const& scalar_field, int component);
