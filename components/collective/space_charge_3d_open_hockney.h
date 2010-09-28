@@ -19,8 +19,9 @@ private:
     double z_period;
     Distributed_fft3d_sptr distributed_fft3d_sptr;
     Commxx comm2, comm1;
-    std::vector<int > lengths1;
+    std::vector<int > lowers1, lengths1;
     MPI_Group group2, group1;
+    bool in_group1;
     MPI_Comm mpi_comm1;
     double n_sigma;
     void
@@ -57,6 +58,9 @@ public:
     Distributed_rectangular_grid_sptr
     get_electric_field_component(
             Distributed_rectangular_grid const& scalar_field, int component);
+    Rectangular_grid_sptr
+    get_global_electric_field_component(
+            Distributed_rectangular_grid const& dist_field);
     virtual
     void
     apply(Bunch & bunch, Operators & step_operators);

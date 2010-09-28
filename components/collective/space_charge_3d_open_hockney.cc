@@ -7,11 +7,16 @@ void
 Space_charge_3d_open_hockney::setup_nondoubled_communication()
 {
     std::vector<int > ranks1; // ranks with data from the undoubled domain
+    in_group1 = false;
     for (int rank = 0; rank < comm2.get_size(); ++rank) {
         int uppers2 = distributed_fft3d_sptr->get_uppers()[rank];
         int uppers1 = std::min(uppers2, grid_shape[0]);
+        int lower = 0;
         if (uppers1 <= grid_shape[0]) {
             ranks1.push_back(rank);
+            if (rank == comm2.get_rank()) {
+                in_group1 = true;
+            }
             int length0;
             if (rank > 0) {
                 length0 = uppers1 - distributed_fft3d_sptr->get_uppers()[rank
@@ -19,7 +24,10 @@ Space_charge_3d_open_hockney::setup_nondoubled_communication()
             } else {
                 length0 = uppers1;
             }
-            lengths1.push_back(length0 * grid_shape[1] * grid_shape[2]);
+            lowers1.push_back(lower);
+            int total_length = length0 * grid_shape[1] * grid_shape[2];
+            lengths1.push_back(total_length);
+            lower += total_length;
         }
     }
     int error;
@@ -450,6 +458,34 @@ Space_charge_3d_open_hockney::get_electric_field_component(
     return En;
 }
 
+Rectangular_grid_sptr
+Space_charge_3d_open_hockney::get_global_electric_field_component(
+        Distributed_rectangular_grid const& dist_field)
+{
+    Rectangular_grid_sptr global_field(new Rectangular_grid(domain_sptr));
+    const int root = 0;
+    int error;
+    if (in_group1) {
+        error = MPI_Gatherv((void *) (dist_field.get_grid_points().origin()
+                + lowers1[comm1.get_rank()]), lengths1[comm1.get_rank()],
+                MPI_DOUBLE, (void*) global_field->get_grid_points().origin(),
+                &lengths1[0], &lowers1[0], MPI_DOUBLE, root, comm1.get());
+        if (error != MPI_SUCCESS) {
+            throw std::runtime_error(
+                    "MPI error in Space_charge_3d_open_hockney(MPI_Gatherv)");
+        }
+
+    }
+    int total_length = grid_shape[0] * grid_shape[1] * grid_shape[2];
+    error = MPI_Bcast(global_field->get_grid_points().origin(), total_length,
+            MPI_DOUBLE, root, comm2.get());
+    if (error != MPI_SUCCESS) {
+        throw std::runtime_error(
+                "MPI error in Space_charge_3d_open_hockney(MPI_Bcast)");
+    }
+    return global_field;
+}
+
 void
 Space_charge_3d_open_hockney::apply(Bunch & bunch, Operators & step_operators)
 {
@@ -467,8 +503,8 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, Operators & step_operators)
     for (int component = 0; component < 3; ++component) {
         Distributed_rectangular_grid_sptr local_En(
                 get_electric_field_component(*phi, component)); // [V/m]
-        //        Rectangular_grid_sptr En(get_)
-
+        Rectangular_grid_sptr
+                En(get_global_electric_field_component(*local_En)); // [V/m]
     }
 }
 
