@@ -61,6 +61,8 @@ public:
     Rectangular_grid_sptr
     get_global_electric_field_component(
             Distributed_rectangular_grid const& dist_field);
+    void
+    apply_kick(Bunch & bunch, Rectangular_grid const& En, double delta_tau, int component);
     virtual
     void
     apply(Bunch & bunch, Operators & step_operators);
