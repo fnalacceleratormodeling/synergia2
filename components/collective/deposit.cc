@@ -1,5 +1,5 @@
 #include "components/collective/deposit.h"
-#include "components/foundation/physical_constants.h""
+#include "components/foundation/physical_constants.h"
 
 /// Deposit charge using Cloud-in-Cell (CIC) algorithm.
 /// The indices on the rho array are in an unusual order: [z][y][x],
