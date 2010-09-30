@@ -17,11 +17,11 @@ public:
     append(Operator_sptr operator_sptr);
     void
     append(Operators const& operators);
-    void
+    virtual void
     apply(Bunch & bunch);
     Operators const&
     get_operators() const;
-    void
+    virtual void
     print(int index) const;
 };
 
