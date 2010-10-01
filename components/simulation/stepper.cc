@@ -100,14 +100,14 @@ Split_operator_stepper::construct(
     for (int i = 0; i < num_steps; ++i) {
         Step_sptr step(new Step);
         step->append(get_half_step("first_half", lattice_it, left, lattice_end,
-                half_step_length));
+                half_step_length),0.5);
         for (Collective_operators::const_iterator coll_op_it =
                 collective_operators.begin(); coll_op_it
                 != collective_operators.end(); ++coll_op_it) {
-            step->append(*coll_op_it);
+            step->append(*coll_op_it, 1.0);
         }
         step->append(get_half_step("second_half", lattice_it, left,
-                lattice_end, half_step_length));
+                lattice_end, half_step_length),0.5);
         get_steps().push_back(step);
     }
     if (lattice_it != lattice_end) {

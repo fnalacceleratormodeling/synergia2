@@ -11,16 +11,19 @@ class Step
 {
 private:
     Operators operators;
+    std::list<double > time_fractions;
 public:
     Step();
     void
-    append(Operator_sptr operator_sptr);
+    append(Operator_sptr operator_sptr, double time_fraction);
     void
-    append(Operators const& operators);
+    append(Operators const& operators, double time_fraction);
     virtual void
     apply(Bunch & bunch);
     Operators const&
     get_operators() const;
+    std::list<double> const&
+    get_time_fractions() const;
     virtual void
     print(int index) const;
 };

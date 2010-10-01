@@ -11,6 +11,8 @@
 #include "components/simulation/independent_operation.h"
 #include "components/simulation/operation_extractor.h"
 
+class Step;
+
 class Operator;
 typedef boost::shared_ptr<Operator > Operator_sptr;
 typedef std::list<Operator_sptr > Operators;
@@ -25,9 +27,8 @@ public:
     get_name() const;
     std::string const&
     get_type() const;
-    virtual
-    void
-    apply(Bunch & bunch, Operators & step_operators) = 0;
+    virtual void
+    apply(Bunch & bunch, double time_step, Step & step) = 0;
     virtual void
     print() const;
     virtual
@@ -39,9 +40,8 @@ class Collective_operator : public Operator
 {
 public:
     Collective_operator(std::string const& name);
-    virtual
-    void
-    apply(Bunch & bunch, Operators & step_operators);
+    virtual void
+    apply(Bunch & bunch, double time_step, Step & step);
     ~Collective_operator();
 };
 
@@ -67,7 +67,7 @@ public:
     Lattice_element_slices const&
     get_slices() const;
     virtual void
-    apply(Bunch & bunch, Operators & step_operators);
+    apply(Bunch & bunch, double time_step, Step & step);
     virtual void
     print() const;
     ~Independent_operator();

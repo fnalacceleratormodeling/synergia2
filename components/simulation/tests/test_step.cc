@@ -19,7 +19,8 @@ BOOST_AUTO_TEST_CASE(append)
     Collective_operator_sptr collective_operator_sptr(new Collective_operator(
             "test"));
 
-    step.append(collective_operator_sptr);
+    double time_fraction = 1.0;
+    step.append(collective_operator_sptr, time_fraction);
 }
 
 BOOST_AUTO_TEST_CASE(append2)
@@ -35,7 +36,7 @@ BOOST_AUTO_TEST_CASE(append2)
     Collective_operator_sptr dummy3(new Collective_operator("dummy3"));
     operators.push_back(dummy3);
 
-    step.append(operators);
+    step.append(operators, 1.0);
 }
 
 BOOST_FIXTURE_TEST_CASE(apply, Bunch_fixture)
@@ -50,7 +51,7 @@ BOOST_FIXTURE_TEST_CASE(apply, Bunch_fixture)
     Collective_operator_sptr dummy3(new Collective_operator("dummy3"));
     operators.push_back(dummy3);
 
-    step.append(operators);
+    step.append(operators,1.0);
 
     step.apply(bunch);
 }
@@ -67,7 +68,7 @@ BOOST_AUTO_TEST_CASE(get_operators)
     Collective_operator_sptr dummy3(new Collective_operator("dummy3"));
     operators.push_back(dummy3);
 
-    step.append(operators);
+    step.append(operators, 1.0);
 
     Operators retrieved_operators(step.get_operators());
     BOOST_CHECK_EQUAL(retrieved_operators.size(),3);

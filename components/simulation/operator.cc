@@ -35,7 +35,7 @@ Collective_operator::Collective_operator(std::string const& name) :
 }
 
 void
-Collective_operator::apply(Bunch & bunch, Operators & step_operators)
+Collective_operator::apply(Bunch & bunch, double time_step, Step & step)
 {
     std::cout << "stub: Collective_operator::apply\n";
 }
@@ -110,7 +110,7 @@ Independent_operator::get_slices() const
 }
 
 void
-Independent_operator::apply(Bunch & bunch, Operators & step_operators)
+Independent_operator::apply(Bunch & bunch, double time_step, Step & step)
 {
     if (need_update()) {
         update_operations(bunch.get_reference_particle());

@@ -1,6 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "components/simulation/operator.h"
+#include "components/simulation/step.h"
 #include "components/simulation/lattice_simulator.h"
 #include "bunch_fixture.h"
 #include "lattice_fixture.h"
@@ -70,13 +71,8 @@ BOOST_FIXTURE_TEST_CASE(apply, Bunch_fixture)
     lattice_simulator.construct_sliced_chef_beamline(
             independent_operator.get_slices());
 
-    Operators operators;
-    Collective_operator_sptr dummy1(new Collective_operator("dummy1"));
-    operators.push_back(dummy1);
-    Collective_operator_sptr dummy2(new Collective_operator("dummy2"));
-    operators.push_back(dummy2);
-    Collective_operator_sptr dummy3(new Collective_operator("dummy3"));
-    operators.push_back(dummy3);
+    double step_length = 1.0;
+    Step stub_step;
 
-    independent_operator.apply(bunch, operators);
+    independent_operator.apply(bunch, step_length, stub_step);
 }
