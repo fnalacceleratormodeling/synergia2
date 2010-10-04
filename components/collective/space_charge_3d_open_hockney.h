@@ -63,9 +63,8 @@ public:
             Distributed_rectangular_grid const& dist_field);
     void
     apply_kick(Bunch & bunch, Rectangular_grid const& En, double delta_tau, int component);
-    virtual
-    void
-    apply(Bunch & bunch, Operators & step_operators);
+    virtual void
+    apply(Bunch & bunch, double time_step, Step & step);
     ~Space_charge_3d_open_hockney();
 };
 

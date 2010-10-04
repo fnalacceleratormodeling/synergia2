@@ -525,7 +525,7 @@ Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
 }
 
 void
-Space_charge_3d_open_hockney::apply(Bunch & bunch, Operators & step_operators)
+Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step, Step & step)
 {
     Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
     Distributed_rectangular_grid_sptr rho2(get_global_charge_density2(
@@ -538,13 +538,12 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, Operators & step_operators)
     Distributed_rectangular_grid_sptr phi(extract_scalar_field(*phi2));
     phi2.reset();
     phi->fill_guards(comm1);
-    double delta_tau = 1.0; // jfa: fixme!!!!!!
     for (int component = 0; component < 3; ++component) {
         Distributed_rectangular_grid_sptr local_En(
                 get_electric_field_component(*phi, component)); // [V/m]
         Rectangular_grid_sptr
                 En(get_global_electric_field_component(*local_En)); // [V/m]
-        apply_kick(bunch, *En, delta_tau, component);
+        apply_kick(bunch, *En, time_step, component);
     }
 }
 
