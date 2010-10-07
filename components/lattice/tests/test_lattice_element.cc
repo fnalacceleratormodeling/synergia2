@@ -2,6 +2,8 @@
 #include <boost/test/unit_test.hpp>
 #include "components/lattice/lattice_element.h"
 
+#include "utils/xml_serialization.h"
+
 const std::string name("foo");
 const std::string type("bar");
 const std::string attr("baz");
@@ -70,7 +72,6 @@ BOOST_AUTO_TEST_CASE(get_string_attributes)
     BOOST_CHECK(lattice_element.get_string_attributes().count(attr) == 1);
 }
 
-
 BOOST_AUTO_TEST_CASE(copy)
 {
     Lattice_element lattice_element(type, name);
@@ -95,4 +96,21 @@ BOOST_AUTO_TEST_CASE(copy)
     BOOST_CHECK(std::equal(lattice_element.get_ancestors().begin(),
                     lattice_element.get_ancestors().end(),
                     copied_lattice_element.get_ancestors().begin()));
+}
+
+BOOST_AUTO_TEST_CASE(test_serialize)
+{
+    Lattice_element lattice_element(type, name);
+    lattice_element.set_double_attribute(attr, dblval);
+    lattice_element.set_string_attribute(attr, strval);
+    xml_save<Lattice_element > (lattice_element, "lattice_element.xml");
+
+    Lattice_element loaded;
+    xml_load<Lattice_element > (loaded, "lattice_element.xml");
+    BOOST_CHECK(loaded.get_type() == type);
+    BOOST_CHECK(loaded.get_name() == name);
+    BOOST_CHECK(loaded.has_double_attribute(attr));
+    BOOST_CHECK_CLOSE(loaded.get_double_attribute(attr), dblval, tolerance);
+    BOOST_CHECK(loaded.has_string_attribute(attr));
+    BOOST_CHECK(loaded.get_string_attribute(attr) == strval);
 }

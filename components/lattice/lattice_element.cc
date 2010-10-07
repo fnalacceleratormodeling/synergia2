@@ -2,6 +2,13 @@
 #include <algorithm>
 #include <iostream>
 
+Lattice_element::Lattice_element():
+    type(""), name(""), ancestors(), double_attributes(), string_attributes(),
+            length_attribute_name("l"), bend_angle_attribute_name("angle")
+{
+
+}
+
 Lattice_element::Lattice_element(std::string const& type,
         std::string const& name) :
     type(type), name(name), ancestors(), double_attributes(),

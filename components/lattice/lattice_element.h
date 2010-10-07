@@ -7,6 +7,12 @@
 
 #include <boost/shared_ptr.hpp>
 
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/version.hpp>
+
 class Lattice_element
 {
 private:
@@ -19,6 +25,7 @@ private:
     std::string bend_angle_attribute_name;
 
 public:
+    Lattice_element();
     Lattice_element(std::string const& type, std::string const& name);
     Lattice_element(Lattice_element const& lattice_element);
     std::string const &
@@ -55,6 +62,17 @@ public:
     get_bend_angle() const;
     void
     print() const;
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(type) & BOOST_SERIALIZATION_NVP(name)
+                    & BOOST_SERIALIZATION_NVP(ancestors)
+                    & BOOST_SERIALIZATION_NVP(double_attributes)
+                    & BOOST_SERIALIZATION_NVP(string_attributes)
+                    & BOOST_SERIALIZATION_NVP(length_attribute_name)
+                    & BOOST_SERIALIZATION_NVP(bend_angle_attribute_name);
+        }
 };
 
 typedef boost::shared_ptr<Lattice_element > Lattice_element_sptr;

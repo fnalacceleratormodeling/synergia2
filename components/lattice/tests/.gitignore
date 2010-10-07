@@ -2,3 +2,5 @@ test_lattice
 test_lattice_element
 test_lattice_element_slice
 test_chef_lattice
+*.xml
+

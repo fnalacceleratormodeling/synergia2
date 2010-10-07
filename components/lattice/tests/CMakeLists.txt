@@ -23,3 +23,8 @@ add_test(test_chef_lattice test_chef_lattice)
 add_test(test_mad8_parser nosetests test_mad8_parser.py)
 add_test(test_expression_parser nosetests test_expression_parser.py)
 add_test(test_mad8_reader nosetests test_mad8_reader.py)
+
+set(CLEAN_FILES
+    lattice_element.xml)
+
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEAN_FILES}")
