@@ -19,7 +19,7 @@ from one_turn_map import linear_one_turn_map
 import numpy
 import sys
 
-num_macro_particles = 320000
+num_macro_particles = 32000
 seed = 4
 grid = [16, 16, 16]
 num_real_particles = 1e12
