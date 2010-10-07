@@ -14,6 +14,12 @@ Four_momentum::update_from_gamma()
     momentum = gamma * beta * mass;
 }
 
+Four_momentum::Four_momentum()
+{
+    mass = 0.0;
+    gamma = 1.0;
+}
+
 Four_momentum::Four_momentum(double mass)
 {
     this->mass = mass;

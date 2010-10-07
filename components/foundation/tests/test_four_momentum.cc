@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include "components/foundation/four_momentum.h"
+#include "utils/xml_serialization.h"
 
 const double tolerance = 1.0e-15;
 
@@ -167,14 +168,14 @@ BOOST_AUTO_TEST_CASE(equal_equal)
 BOOST_AUTO_TEST_CASE(equal_different_masses)
 {
     Four_momentum four_momentum1(mass, total_energy);
-    Four_momentum four_momentum2(mass*1.01, total_energy);
+    Four_momentum four_momentum2(mass * 1.01, total_energy);
     BOOST_CHECK(! four_momentum1.equal(four_momentum2, equal_tolerance));
 }
 
 BOOST_AUTO_TEST_CASE(equal_different_energies)
 {
     Four_momentum four_momentum1(mass, total_energy);
-    Four_momentum four_momentum2(mass, total_energy*1.01);
+    Four_momentum four_momentum2(mass, total_energy * 1.01);
     BOOST_CHECK(! four_momentum1.equal(four_momentum2, equal_tolerance));
 }
 
@@ -184,7 +185,7 @@ BOOST_AUTO_TEST_CASE(equal_different_small_beta)
     const double beta = 1.0e-6;
     four_momentum1.set_beta(beta);
     Four_momentum four_momentum2(mass);
-    four_momentum2.set_beta(beta*1.01);
+    four_momentum2.set_beta(beta * 1.01);
     BOOST_CHECK(! four_momentum1.equal(four_momentum2, equal_tolerance));
 }
 
@@ -194,7 +195,16 @@ BOOST_AUTO_TEST_CASE(equal_different_large_gamma)
     const double gamma = 1.0e10;
     four_momentum1.set_gamma(gamma);
     Four_momentum four_momentum2(mass);
-    four_momentum2.set_gamma(gamma*1.01);
+    four_momentum2.set_gamma(gamma * 1.01);
     BOOST_CHECK(! four_momentum1.equal(four_momentum2, equal_tolerance));
 }
 
+BOOST_AUTO_TEST_CASE(test_serialize)
+{
+    Four_momentum four_momentum(mass, total_energy);
+    xml_save<Four_momentum > (four_momentum, "four_momentum.xml");
+
+    Four_momentum loaded;
+    xml_load<Four_momentum > (loaded, "four_momentum.xml");
+    BOOST_CHECK(four_momentum.equal(loaded, tolerance));
+}

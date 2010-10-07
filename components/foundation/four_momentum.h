@@ -1,6 +1,10 @@
 #ifndef FOUR_MOMENTUM_H_
 #define FOUR_MOMENTUM_H_
 
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/version.hpp>
+
 /// Four_momentum provides conversion between various relativistic kinematic
 /// parameters.
 class Four_momentum
@@ -10,6 +14,9 @@ private:
     void
     update_from_gamma();
 public:
+    /// Default constructor for internal use only
+    Four_momentum();
+
     /// Construct a Four_momentum in the rest frame
     /// @param mass in GeV/c^2
     Four_momentum(double mass);
@@ -73,6 +80,18 @@ public:
     /// @param tolerance fractional accuracy for beta and gamma
     bool
     equal(Four_momentum const& four_momentum, double tolerance) const;
+
+    /// Serialization support
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(mass)
+                    & BOOST_SERIALIZATION_NVP(energy)
+                    & BOOST_SERIALIZATION_NVP(momentum)
+                    & BOOST_SERIALIZATION_NVP(gamma)
+                    & BOOST_SERIALIZATION_NVP(beta);
+        }
 };
 
 #endif /* FOUR_MOMENTUM_H_ */

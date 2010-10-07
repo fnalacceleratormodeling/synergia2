@@ -15,3 +15,9 @@ add_executable(test_distribution test_distribution.cc)
 target_link_libraries(test_distribution foundation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_distribution test_distribution)
 add_test(test_distribution_py nosetests test_distribution.py)
+
+set(CLEAN_FILES
+    four_momentum.xml)
+
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEAN_FILES}")
+
