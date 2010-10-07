@@ -14,8 +14,8 @@ Chef_lattice::construct_raw_beamline()
 {
     beamline raw_beamlinee;
     for (Lattice_elements::const_iterator latt_it =
-            lattice_ptr->get_elements().begin(); latt_it
-            != lattice_ptr->get_elements().end(); ++latt_it) {
+            lattice_sptr->get_elements().begin(); latt_it
+            != lattice_sptr->get_elements().end(); ++latt_it) {
         std::string type((*latt_it)->get_type());
         if (!element_adaptor_map_sptr->has_adaptor(type)) {
             throw(runtime_error("Chef_lattice: " + type + " not handled"));
@@ -38,7 +38,7 @@ void
 Chef_lattice::register_beamline(beamline & the_beamline)
 {
     Particle testpart(reference_particle_to_chef_particle(
-            lattice_ptr->get_reference_particle()));
+            lattice_sptr->get_reference_particle()));
     RefRegVisitor registrar(testpart);
     the_beamline.accept(registrar);
 }
@@ -55,7 +55,7 @@ void
 Chef_lattice::extract_element_map()
 {
     Chef_elements chef_elements;
-    Lattice_elements::iterator le_it = lattice_ptr->get_elements().begin();
+    Lattice_elements::iterator le_it = lattice_sptr->get_elements().begin();
     for (beamline::const_iterator b_it = beamline_sptr->begin(); b_it
             != beamline_sptr->end(); ++b_it) {
         if ((*b_it)->Name() == lattice_element_marker->Name()) {
@@ -71,31 +71,31 @@ Chef_lattice::extract_element_map()
 void
 Chef_lattice::construct()
 {
-    lattice_ptr->set_default_attributes(*element_adaptor_map_sptr);
+    lattice_sptr->set_default_attributes(*element_adaptor_map_sptr);
     sliced_beamline_sptr = BmlPtr(new beamline("sliced"));
     have_sliced_beamline = false;
-    if (!lattice_ptr->has_reference_particle()) {
+    if (!lattice_sptr->has_reference_particle()) {
         throw(std::runtime_error(
                 "Chef_lattice: requires a reference particle in Lattice"));
     }
-    brho = lattice_ptr->get_reference_particle().get_momentum()
+    brho = lattice_sptr->get_reference_particle().get_momentum()
             / PH_CNV_brho_to_p;
 
     polish_raw_beamline(construct_raw_beamline());
     extract_element_map();
 }
 
-Chef_lattice::Chef_lattice(Lattice & lattice) :
-    lattice_ptr(&lattice), beamline_sptr(), lattice_element_marker(new marker(
+Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr) :
+    lattice_sptr(lattice_sptr), beamline_sptr(), lattice_element_marker(new marker(
             "synergia_lattice_element_marker")), element_adaptor_map_sptr(
             new Element_adaptor_map)
 {
     construct();
 }
 
-Chef_lattice::Chef_lattice(Lattice & lattice,
+Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr,
         Element_adaptor_map_sptr element_adaptor_map_sptr) :
-    lattice_ptr(&lattice), beamline_sptr(), lattice_element_marker(new marker(
+    lattice_sptr(lattice_sptr), beamline_sptr(), lattice_element_marker(new marker(
             "synergia_lattice_element_marker")), element_adaptor_map_sptr(
             element_adaptor_map_sptr)
 {

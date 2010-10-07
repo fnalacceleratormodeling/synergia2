@@ -17,10 +17,10 @@ struct Fodo_fixture
 {
     Fodo_fixture() :
         four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), lattice(name)
+                four_momentum), lattice_sptr(new Lattice(name))
     {
         BOOST_TEST_MESSAGE("setup fixture");
-        lattice.set_reference_particle(reference_particle);
+        lattice_sptr->set_reference_particle(reference_particle);
         Lattice_element f("quadrupole", "f");
         f.set_double_attribute("l", quad_length);
         f.set_double_attribute("k1", quad_strength);
@@ -30,10 +30,10 @@ struct Fodo_fixture
         d.set_double_attribute("l", quad_length);
         d.set_double_attribute("k1", quad_strength);
 
-        lattice.append(f);
-        lattice.append(o);
-        lattice.append(d);
-        lattice.append(o);
+        lattice_sptr->append(f);
+        lattice_sptr->append(o);
+        lattice_sptr->append(d);
+        lattice_sptr->append(o);
     }
     ~Fodo_fixture()
     {
@@ -42,7 +42,7 @@ struct Fodo_fixture
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Lattice lattice;
+    Lattice_sptr lattice_sptr;
 };
 
 const double bend_length = 0.15;
@@ -53,10 +53,10 @@ struct Fobodobo_sbend_fixture
 {
     Fobodobo_sbend_fixture() :
         four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), lattice(name)
+                four_momentum), lattice_sptr(new Lattice(name))
     {
         BOOST_TEST_MESSAGE("setup fixture");
-        lattice.set_reference_particle(reference_particle);
+        lattice_sptr->set_reference_particle(reference_particle);
         Lattice_element f("quadrupole", "f");
         f.set_double_attribute("l", quad_length);
         f.set_double_attribute("k1", quad_strength);
@@ -71,14 +71,14 @@ struct Fobodobo_sbend_fixture
         b.set_double_attribute("l", bend_length);
         b.set_double_attribute("angle", bend_angle);
 
-        lattice.append(f);
-        lattice.append(o);
-        lattice.append(b);
-        lattice.append(o);
-        lattice.append(d);
-        lattice.append(o);
-        lattice.append(b);
-        lattice.append(o);
+        lattice_sptr->append(f);
+        lattice_sptr->append(o);
+        lattice_sptr->append(b);
+        lattice_sptr->append(o);
+        lattice_sptr->append(d);
+        lattice_sptr->append(o);
+        lattice_sptr->append(b);
+        lattice_sptr->append(o);
     }
     ~Fobodobo_sbend_fixture()
     {
@@ -87,17 +87,17 @@ struct Fobodobo_sbend_fixture
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Lattice lattice;
+    Lattice_sptr lattice_sptr;
 };
 
 struct Fobodobo_sbend_markers_fixture
 {
     Fobodobo_sbend_markers_fixture() :
         four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), lattice(name)
+                four_momentum), lattice_sptr(new Lattice(name))
     {
         BOOST_TEST_MESSAGE("setup fixture");
-        lattice.set_reference_particle(reference_particle);
+        lattice_sptr->set_reference_particle(reference_particle);
         Lattice_element f("quadrupole", "f");
         f.set_double_attribute("l", quad_length);
         f.set_double_attribute("k1", quad_strength);
@@ -114,21 +114,21 @@ struct Fobodobo_sbend_markers_fixture
 
         Lattice_element m("marker", "marker");
 
-        lattice.append(f);
-        lattice.append(m);
-        lattice.append(o);
-        lattice.append(m);
-        lattice.append(b);
-        lattice.append(m);
-        lattice.append(o);
-        lattice.append(m);
-        lattice.append(d);
-        lattice.append(m);
-        lattice.append(o);
-        lattice.append(m);
-        lattice.append(b);
-        lattice.append(m);
-        lattice.append(o);
+        lattice_sptr->append(f);
+        lattice_sptr->append(m);
+        lattice_sptr->append(o);
+        lattice_sptr->append(m);
+        lattice_sptr->append(b);
+        lattice_sptr->append(m);
+        lattice_sptr->append(o);
+        lattice_sptr->append(m);
+        lattice_sptr->append(d);
+        lattice_sptr->append(m);
+        lattice_sptr->append(o);
+        lattice_sptr->append(m);
+        lattice_sptr->append(b);
+        lattice_sptr->append(m);
+        lattice_sptr->append(o);
     }
     ~Fobodobo_sbend_markers_fixture()
     {
@@ -137,17 +137,17 @@ struct Fobodobo_sbend_markers_fixture
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Lattice lattice;
+    Lattice_sptr lattice_sptr;
 };
 
 struct Fobodobo_rbend_fixture
 {
     Fobodobo_rbend_fixture() :
         four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), lattice(name)
+                four_momentum), lattice_sptr(new Lattice(name))
     {
         BOOST_TEST_MESSAGE("setup fixture");
-        lattice.set_reference_particle(reference_particle);
+        lattice_sptr->set_reference_particle(reference_particle);
         Lattice_element f("quadrupole", "f");
         f.set_double_attribute("l", quad_length);
         f.set_double_attribute("k1", quad_strength);
@@ -162,14 +162,14 @@ struct Fobodobo_rbend_fixture
         b.set_double_attribute("l", bend_length);
         b.set_double_attribute("angle", bend_angle);
 
-        lattice.append(f);
-        lattice.append(o);
-        lattice.append(b);
-        lattice.append(o);
-        lattice.append(d);
-        lattice.append(o);
-        lattice.append(b);
-        lattice.append(o);
+        lattice_sptr->append(f);
+        lattice_sptr->append(o);
+        lattice_sptr->append(b);
+        lattice_sptr->append(o);
+        lattice_sptr->append(d);
+        lattice_sptr->append(o);
+        lattice_sptr->append(b);
+        lattice_sptr->append(o);
     }
     ~Fobodobo_rbend_fixture()
     {
@@ -178,17 +178,17 @@ struct Fobodobo_rbend_fixture
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Lattice lattice;
+    Lattice_sptr lattice_sptr;
 };
 
 struct Fobodobo_rbend_markers_fixture
 {
     Fobodobo_rbend_markers_fixture() :
         four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), lattice(name)
+                four_momentum), lattice_sptr(new Lattice(name))
     {
         BOOST_TEST_MESSAGE("setup fixture");
-        lattice.set_reference_particle(reference_particle);
+        lattice_sptr->set_reference_particle(reference_particle);
         Lattice_element f("quadrupole", "f");
         f.set_double_attribute("l", quad_length);
         f.set_double_attribute("k1", quad_strength);
@@ -205,21 +205,21 @@ struct Fobodobo_rbend_markers_fixture
 
         Lattice_element m("marker", "marker");
 
-        lattice.append(f);
-        lattice.append(m);
-        lattice.append(o);
-        lattice.append(m);
-        lattice.append(b);
-        lattice.append(m);
-        lattice.append(o);
-        lattice.append(m);
-        lattice.append(d);
-        lattice.append(m);
-        lattice.append(o);
-        lattice.append(m);
-        lattice.append(b);
-        lattice.append(m);
-        lattice.append(o);
+        lattice_sptr->append(f);
+        lattice_sptr->append(m);
+        lattice_sptr->append(o);
+        lattice_sptr->append(m);
+        lattice_sptr->append(b);
+        lattice_sptr->append(m);
+        lattice_sptr->append(o);
+        lattice_sptr->append(m);
+        lattice_sptr->append(d);
+        lattice_sptr->append(m);
+        lattice_sptr->append(o);
+        lattice_sptr->append(m);
+        lattice_sptr->append(b);
+        lattice_sptr->append(m);
+        lattice_sptr->append(o);
     }
     ~Fobodobo_rbend_markers_fixture()
     {
@@ -228,35 +228,36 @@ struct Fobodobo_rbend_markers_fixture
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Lattice lattice;
+    Lattice_sptr lattice_sptr;
 };
 
 BOOST_FIXTURE_TEST_CASE(construct, Fodo_fixture)
 {
-    Chef_lattice chef_lattice(lattice);
+    Chef_lattice chef_lattice(lattice_sptr);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_beamline_sptr, Fodo_fixture)
 {
-    Chef_lattice chef_lattice(lattice);
+    Chef_lattice chef_lattice(lattice_sptr);
     BmlPtr beamline_sptr = chef_lattice.get_beamline_sptr();
     std::cout << "\nchef fodo\n";
     print_chef_beamline(beamline_sptr);
-    propagate_reference_particle(lattice.get_reference_particle(),
+    propagate_reference_particle(lattice_sptr->get_reference_particle(),
             beamline_sptr);
     // Not much of a test!!!
 }
 
 BOOST_FIXTURE_TEST_CASE(get_beamline_sptr_sbends, Fobodobo_sbend_fixture)
 {
-    Chef_lattice chef_lattice(lattice);
+    Chef_lattice chef_lattice(lattice_sptr);
     BmlPtr beamline_sptr = chef_lattice.get_beamline_sptr();
     std::cout << "\nchef fobodobo sbend\n";
     print_chef_beamline(beamline_sptr);
-    propagate_reference_particle(lattice.get_reference_particle(),
+    propagate_reference_particle(lattice_sptr->get_reference_particle(),
             beamline_sptr);
-    for (Lattice_elements::iterator it = lattice.get_elements().begin(); it
-            != lattice.get_elements().end(); ++it) {
+    for (Lattice_elements::iterator it =
+            lattice_sptr->get_elements().begin(); it
+            != lattice_sptr->get_elements().end(); ++it) {
         std::cout << (*it)->get_name() << " -> ";
         Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*it)));
         std::cout << chef_elements.size() << " elements: ";
@@ -272,25 +273,26 @@ BOOST_FIXTURE_TEST_CASE(get_beamline_sptr_sbends, Fobodobo_sbend_fixture)
 BOOST_FIXTURE_TEST_CASE(get_beamline_sptr_sbends_markers,
         Fobodobo_sbend_markers_fixture)
 {
-    Chef_lattice chef_lattice(lattice);
+    Chef_lattice chef_lattice(lattice_sptr);
     BmlPtr beamline_sptr = chef_lattice.get_beamline_sptr();
     std::cout << "\nchef fobodobo sbend with markers\n";
     print_chef_beamline(beamline_sptr);
-    propagate_reference_particle(lattice.get_reference_particle(),
+    propagate_reference_particle(lattice_sptr->get_reference_particle(),
             beamline_sptr);
     // Not much of a test!!!
 }
 
 BOOST_FIXTURE_TEST_CASE(get_beamline_sptr_rbends, Fobodobo_rbend_fixture)
 {
-    Chef_lattice chef_lattice(lattice);
+    Chef_lattice chef_lattice(lattice_sptr);
     BmlPtr beamline_sptr = chef_lattice.get_beamline_sptr();
     std::cout << "\nchef fobodobo rbend\n";
     print_chef_beamline(beamline_sptr);
-    propagate_reference_particle(lattice.get_reference_particle(),
+    propagate_reference_particle(lattice_sptr->get_reference_particle(),
             beamline_sptr);
-    for (Lattice_elements::iterator it = lattice.get_elements().begin(); it
-            != lattice.get_elements().end(); ++it) {
+    for (Lattice_elements::iterator it =
+            lattice_sptr->get_elements().begin(); it
+            != lattice_sptr->get_elements().end(); ++it) {
         std::cout << (*it)->get_name() << " -> ";
         Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*it)));
         std::cout << chef_elements.size() << " elements: ";
@@ -306,11 +308,11 @@ BOOST_FIXTURE_TEST_CASE(get_beamline_sptr_rbends, Fobodobo_rbend_fixture)
 BOOST_FIXTURE_TEST_CASE(get_beamline_sptr_rbends_markers,
         Fobodobo_rbend_markers_fixture)
 {
-    Chef_lattice chef_lattice(lattice);
+    Chef_lattice chef_lattice(lattice_sptr);
     BmlPtr beamline_sptr = chef_lattice.get_beamline_sptr();
     std::cout << "\nchef fobodobo rbend with markers\n";
     print_chef_beamline(beamline_sptr);
-    propagate_reference_particle(lattice.get_reference_particle(),
+    propagate_reference_particle(lattice_sptr->get_reference_particle(),
             beamline_sptr);
     // Not much of a test!!!
 }

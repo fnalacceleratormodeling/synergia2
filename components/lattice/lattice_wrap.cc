@@ -59,7 +59,7 @@ BOOST_PYTHON_MODULE(pylattice)
 
 
 
-    class_<Lattice >("Lattice", init<std::string const& >())
+    class_<Lattice, Lattice_sptr >("Lattice", init<std::string const& >())
             .def("get_name", &Lattice::get_name,
                     return_value_policy<copy_const_reference>())
             .def("set_reference_particle", &Lattice::set_reference_particle)
@@ -74,7 +74,8 @@ BOOST_PYTHON_MODULE(pylattice)
             .def("print_", &Lattice::print)
             ;
 
-    class_<Chef_lattice, Chef_lattice_sptr >("Chef_lattice", init<Lattice & >())
+    class_<Chef_lattice, Chef_lattice_sptr >("Chef_lattice", init<Lattice_sptr>())
+            .def(init<Lattice_sptr, Element_adaptor_map_sptr>())
 //            .def("get_chef_elements", &Chef_lattice::get_chef_elements,
 //                    return_value_policy<copy_non_const_reference >())
             .def("get_beamline", &Chef_lattice::get_beamline_sptr)

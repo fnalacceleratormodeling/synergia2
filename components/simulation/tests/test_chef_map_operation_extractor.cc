@@ -11,13 +11,13 @@ const int map_order = 2;
 
 BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture)
 {
-    Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(*lattice_sptr));
+    Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(lattice_sptr));
     Chef_map_operation_extractor chef_map_o_e(chef_lattice_sptr, map_order);
 }
 
 BOOST_FIXTURE_TEST_CASE(extract1, Lattice_fixture)
 {
-    Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(*lattice_sptr));
+    Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(lattice_sptr));
     Chef_map_operation_extractor chef_map_o_e(chef_lattice_sptr, map_order);
     Lattice_elements elements(lattice_sptr->get_elements());
     double fraction = 0.5;
@@ -36,7 +36,7 @@ BOOST_FIXTURE_TEST_CASE(extract1, Lattice_fixture)
 
 BOOST_FIXTURE_TEST_CASE(extract3, Lattice_fixture)
 {
-    Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(*lattice_sptr));
+    Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(lattice_sptr));
     Chef_map_operation_extractor chef_map_o_e(chef_lattice_sptr, map_order);
     Lattice_elements elements(lattice_sptr->get_elements());
 

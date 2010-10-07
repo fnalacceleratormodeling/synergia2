@@ -14,7 +14,7 @@ BOOST_AUTO_TEST_CASE(construct)
 
 BOOST_FIXTURE_TEST_CASE(set_get, Lattice_fixture)
 {
-    Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(*lattice_sptr));
+    Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(lattice_sptr));
     const int map_order = 3;
 
     Operation_extractor_sptr chef_map_operation_extractor(
@@ -53,7 +53,7 @@ BOOST_FIXTURE_TEST_CASE(set_get, Lattice_fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_extractor_names, Lattice_fixture)
 {
-    Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(*lattice_sptr));
+    Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(lattice_sptr));
     const int map_order = 3;
 
     Operation_extractor_sptr chef_map_operation_extractor(
