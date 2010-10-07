@@ -133,15 +133,17 @@ Element_adaptor_map::set_adaptor(std::string const& name,
 }
 
 bool
-Element_adaptor_map::has_adaptor(std::string const& name)
+Element_adaptor_map::has_adaptor(std::string const& name) const
 {
     return (adaptor_map.count(name) > 0);
 }
 
-Element_adaptor_sptr &
-Element_adaptor_map::get_adaptor(std::string const& name)
+Element_adaptor_sptr const&
+Element_adaptor_map::get_adaptor(std::string const& name) const
 {
-    return adaptor_map[name];
+    std::map<std::string, Element_adaptor_sptr >::const_iterator iter =
+            adaptor_map.find(name);
+    return iter->second;
 }
 
 std::list<std::string >
