@@ -13,10 +13,6 @@
 
 class Step;
 
-class Operator;
-typedef boost::shared_ptr<Operator > Operator_sptr;
-typedef std::list<Operator_sptr > Operators;
-
 class Operator
 {
 private:
@@ -34,7 +30,8 @@ public:
     virtual
     ~Operator();
 };
-
+typedef boost::shared_ptr<Operator > Operator_sptr;
+typedef std::list<Operator_sptr > Operators;
 
 class Collective_operator : public Operator
 {
