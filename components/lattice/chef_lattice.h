@@ -23,7 +23,7 @@ private:
     void
     register_beamline(beamline & the_beamline);
     void
-    polish_raw_beamline(beamline const& raw_beamlinee);
+    polish_raw_beamline(beamline const& raw_beamline);
     void
     extract_element_map();
     Chef_elements

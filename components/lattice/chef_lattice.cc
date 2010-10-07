@@ -12,7 +12,7 @@
 beamline
 Chef_lattice::construct_raw_beamline()
 {
-    beamline raw_beamlinee;
+    beamline raw_beamline;
     for (Lattice_elements::const_iterator latt_it =
             lattice_sptr->get_elements().begin(); latt_it
             != lattice_sptr->get_elements().end(); ++latt_it) {
@@ -26,12 +26,12 @@ Chef_lattice::construct_raw_beamline()
                                     *(*latt_it), brho);
             for (Chef_elements::const_iterator cel_it = celms.begin(); cel_it
                     != celms.end(); ++cel_it) {
-                raw_beamlinee.append(*cel_it);
+                raw_beamline.append(*cel_it);
             }
-            raw_beamlinee.append(lattice_element_marker);
+            raw_beamline.append(lattice_element_marker);
         }
     }
-    return raw_beamlinee;
+    return raw_beamline;
 }
 
 void
@@ -44,10 +44,10 @@ Chef_lattice::register_beamline(beamline & the_beamline)
 }
 
 void
-Chef_lattice::polish_raw_beamline(beamline const& raw_beamlinee)
+Chef_lattice::polish_raw_beamline(beamline const& raw_beamline)
 {
     DriftConverter drift_converter;
-    beamline_sptr = drift_converter.convert(raw_beamlinee);
+    beamline_sptr = drift_converter.convert(raw_beamline);
     register_beamline(*beamline_sptr);
 }
 
