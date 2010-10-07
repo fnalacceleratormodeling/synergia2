@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "components/foundation/reference_particle.h"
+#include "utils/xml_serialization.h"
 
 const double tolerance = 1.0e-13;
 const double mass = 100.0;
@@ -299,4 +300,14 @@ BOOST_AUTO_TEST_CASE(equal_different_charge)
     Reference_particle reference_particle2(charge2, four_momentum);
     reference_particle2.set_state(new_state);
     BOOST_CHECK(!reference_particle1.equal(reference_particle2, equal_tolerance));
+}
+
+BOOST_AUTO_TEST_CASE(test_serialize)
+{
+    Reference_particle reference_particle(charge, mass, total_energy);
+    xml_save<Reference_particle > (reference_particle, "reference_particle.xml");
+
+    Reference_particle loaded;
+    xml_load<Reference_particle > (loaded, "reference_particle.xml");
+    BOOST_CHECK(reference_particle.equal(loaded, tolerance));
 }

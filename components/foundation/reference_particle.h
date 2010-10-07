@@ -2,6 +2,7 @@
 #define REFERENCE_PARTICLE_H_
 
 #include "utils/multi_array_typedefs.h"
+#include "utils/multi_array_serialization.h"
 #include "components/foundation/four_momentum.h"
 
 /// Reference_particle stores the four momentum of the reference frame
@@ -20,6 +21,9 @@ private:
     double repetition_length;
     double s;
 public:
+    /// Default constructor for internal use only
+    Reference_particle();
+
     /// Construct a Reference_particle with a given mass and total energy.
     /// @param mass in GeV/c^2
     /// @param charge in units of e
@@ -121,6 +125,19 @@ public:
     /// @param tolerance fractional accuracy
     bool
     equal(Reference_particle const& reference_particle, double tolerance) const;
+
+    /// Serialization support
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(charge)
+                    & BOOST_SERIALIZATION_NVP(four_momentum)
+                    & BOOST_SERIALIZATION_NVP(state)
+                    & BOOST_SERIALIZATION_NVP(repetition)
+                    & BOOST_SERIALIZATION_NVP(repetition_length)
+                    & BOOST_SERIALIZATION_NVP(s);
+        }
 };
 
 #endif /* REFERENCE_PARTICLE_H_ */

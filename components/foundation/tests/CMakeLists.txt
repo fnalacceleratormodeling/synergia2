@@ -17,7 +17,8 @@ add_test(test_distribution test_distribution)
 add_test(test_distribution_py nosetests test_distribution.py)
 
 set(CLEAN_FILES
-    four_momentum.xml)
+    four_momentum.xml
+    reference_particle.xml)
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEAN_FILES}")
 

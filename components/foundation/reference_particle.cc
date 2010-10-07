@@ -1,6 +1,11 @@
 #include "reference_particle.h"
 #include "utils/floating_point.h"
 
+Reference_particle::Reference_particle()
+{
+
+}
+
 Reference_particle::Reference_particle(int charge, double mass,
         double total_energy) :
     charge(charge), four_momentum(mass, total_energy),
