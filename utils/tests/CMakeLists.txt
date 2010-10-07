@@ -30,5 +30,24 @@ add_executable(test_distributed_fft3d_mpi test_distributed_fft3d_mpi.cc)
 target_link_libraries(test_distributed_fft3d_mpi distributed_fft ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_distributed_fft3d_mpi ${MPIEXEC} -np 2 test_distributed_fft3d_mpi)
 
-set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES integer.h5 double_float.h5
-    array1d.h5 array2d.h array3d.h)
+add_executable(test_xml_serialization test_xml_serialization.cc)
+target_link_libraries(test_xml_serialization ${Boost_SERIALIZATION_LIBRARY}
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_xml_serialization test_xml_serialization)
+
+set(CLEAN_FILES
+    array1d.h5
+    array2d.h5
+    array3d.h5
+    chunkedarray2d.h5
+    double_float.h5
+    integer.h5
+    justarray1d.h5
+    justarray2d.h5
+    justarray3d.h5
+    justdouble.h5
+    justinteger.h5
+    a.xml)
+
+set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEAN_FILES}")
+
