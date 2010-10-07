@@ -6,5 +6,6 @@ test_distributed_fft3d
 test_hdf5_chunked_array2d_writer
 test_distributed_fft3d_mpi
 test_xml_serialization
-a.xml
+test_multi_array_serialization
+*.xml
 *.h5

@@ -35,6 +35,11 @@ target_link_libraries(test_xml_serialization ${Boost_SERIALIZATION_LIBRARY}
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_xml_serialization test_xml_serialization)
 
+add_executable(test_multi_array_serialization test_multi_array_serialization.cc)
+target_link_libraries(test_multi_array_serialization ${Boost_SERIALIZATION_LIBRARY}
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_multi_array_serialization test_multi_array_serialization)
+
 set(CLEAN_FILES
     array1d.h5
     array2d.h5
@@ -47,7 +52,9 @@ set(CLEAN_FILES
     justarray3d.h5
     justdouble.h5
     justinteger.h5
-    a.xml)
+    a.xml
+    multi_array1d.xml
+    multi_array2d.xml)
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEAN_FILES}")
 
