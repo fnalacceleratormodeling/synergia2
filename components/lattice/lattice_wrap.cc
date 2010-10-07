@@ -53,18 +53,15 @@ BOOST_PYTHON_MODULE(pylattice)
             .def("set_adaptor", &Element_adaptor_map::set_adaptor)
             .def("has_adaptor", &Element_adaptor_map::has_adaptor)
             .def("get_adaptor", &Element_adaptor_map::get_adaptor,
-                    return_value_policy<copy_non_const_reference >())
+                    return_value_policy<copy_const_reference >())
             .def("get_adaptor_names", &Element_adaptor_map::get_adaptor_names)
             ;
 
 
 
     class_<Lattice >("Lattice", init<std::string const& >())
-            .def(init<std::string const&, Element_adaptor_map_sptr >())
             .def("get_name", &Lattice::get_name,
                     return_value_policy<copy_const_reference>())
-            .def("get_element_adaptor_map", &Lattice::get_element_adaptor_map,
-                    return_value_policy<return_by_value >()) // jfa: not sure return_by_value is correct
             .def("set_reference_particle", &Lattice::set_reference_particle)
             .def("has_reference_particle", &Lattice::has_reference_particle)
             .def("get_reference_particle", &Lattice::get_reference_particle,

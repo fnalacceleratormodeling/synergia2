@@ -157,7 +157,7 @@ class Mad8_reader:
 
     def get_lattice(self, line_name, filename=None):
         self._parser_check(filename, "get_lattice")
-        lattice = Lattice(line_name, self.element_adaptor_map)
+        lattice = Lattice(line_name)
         self._extract_elements(self.parser.lines[line_name], [line_name], lattice)
         self._extract_reference_particle(lattice)
         return lattice

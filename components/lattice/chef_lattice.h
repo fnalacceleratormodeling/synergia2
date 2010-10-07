@@ -9,6 +9,7 @@ class Chef_lattice
 {
 private:
     Lattice *lattice_ptr;
+    Element_adaptor_map_sptr element_adaptor_map_sptr;
     BmlPtr beamline_sptr;
     BmlPtr sliced_beamline_sptr;
     bool have_sliced_beamline;
@@ -27,8 +28,14 @@ private:
     extract_element_map();
     Chef_elements
     get_chef_elements_from_slice(Lattice_element_slice const& slice);
+    void
+    construct();
 public:
     Chef_lattice(Lattice & lattice);
+    Chef_lattice(Lattice & lattice,
+            Element_adaptor_map_sptr element_adaptor_map_sptr);
+    Element_adaptor_map_sptr
+    get_element_adaptor_map_sptr();
     Chef_elements &
     get_chef_elements(Lattice_element const& lattice_element);
     Chef_elements &

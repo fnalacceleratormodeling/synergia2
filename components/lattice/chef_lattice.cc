@@ -16,15 +16,14 @@ Chef_lattice::construct_raw_beamline()
     for (Lattice_elements::const_iterator latt_it =
             lattice_ptr->get_elements().begin(); latt_it
             != lattice_ptr->get_elements().end(); ++latt_it) {
-        Element_adaptor_map * adaptor_map_ptr =
-                &(lattice_ptr->get_element_adaptor_map());
         std::string type((*latt_it)->get_type());
-        if (!adaptor_map_ptr->has_adaptor(type)) {
+        if (!element_adaptor_map_sptr->has_adaptor(type)) {
             throw(runtime_error("Chef_lattice: " + type + " not handled"));
         } else {
-            Chef_elements celms =
-                    adaptor_map_ptr->get_adaptor(type)->get_chef_elements(
-                            *(*latt_it), brho);
+            Chef_elements
+                    celms =
+                            element_adaptor_map_sptr->get_adaptor(type)->get_chef_elements(
+                                    *(*latt_it), brho);
             for (Chef_elements::const_iterator cel_it = celms.begin(); cel_it
                     != celms.end(); ++cel_it) {
                 raw_beamlinee.append(*cel_it);
@@ -69,10 +68,10 @@ Chef_lattice::extract_element_map()
     }
 }
 
-Chef_lattice::Chef_lattice(Lattice & lattice) :
-    lattice_ptr(&lattice), beamline_sptr(), lattice_element_marker(new marker(
-            "synergia_lattice_element_marker"))
+void
+Chef_lattice::construct()
 {
+    lattice_ptr->set_default_attributes(*element_adaptor_map_sptr);
     sliced_beamline_sptr = BmlPtr(new beamline("sliced"));
     have_sliced_beamline = false;
     if (!lattice_ptr->has_reference_particle()) {
@@ -84,6 +83,29 @@ Chef_lattice::Chef_lattice(Lattice & lattice) :
 
     polish_raw_beamline(construct_raw_beamline());
     extract_element_map();
+}
+
+Chef_lattice::Chef_lattice(Lattice & lattice) :
+    lattice_ptr(&lattice), beamline_sptr(), lattice_element_marker(new marker(
+            "synergia_lattice_element_marker")), element_adaptor_map_sptr(
+            new Element_adaptor_map)
+{
+    construct();
+}
+
+Chef_lattice::Chef_lattice(Lattice & lattice,
+        Element_adaptor_map_sptr element_adaptor_map_sptr) :
+    lattice_ptr(&lattice), beamline_sptr(), lattice_element_marker(new marker(
+            "synergia_lattice_element_marker")), element_adaptor_map_sptr(
+            element_adaptor_map_sptr)
+{
+    construct();
+}
+
+Element_adaptor_map_sptr
+Chef_lattice::get_element_adaptor_map_sptr()
+{
+    return element_adaptor_map_sptr;
 }
 
 Chef_elements &

@@ -4,15 +4,7 @@
 #include <stdexcept>
 
 Lattice::Lattice(std::string const& name) :
-    name(name), reference_particle_allocated(false), elements(),
-            element_adaptor_map_sptr(new Element_adaptor_map)
-{
-}
-
-Lattice::Lattice(std::string const& name,
-        Element_adaptor_map_sptr const& element_adaptor_map_sptr) :
-    name(name), reference_particle_allocated(false), elements(),
-            element_adaptor_map_sptr(element_adaptor_map_sptr)
+    name(name), reference_particle_allocated(false), elements()
 {
 }
 
@@ -20,12 +12,6 @@ std::string const&
 Lattice::get_name() const
 {
     return name;
-}
-
-Element_adaptor_map &
-Lattice::get_element_adaptor_map()
-{
-    return *element_adaptor_map_sptr;
 }
 
 void
@@ -54,11 +40,25 @@ void
 Lattice::append(Lattice_element const& element)
 {
     Lattice_element_sptr element_sptr(new Lattice_element(element));
-    if (element_adaptor_map_sptr->has_adaptor(element.get_type())) {
-        element_adaptor_map_sptr->get_adaptor(element.get_type())->set_default_attributes(
-                *element_sptr);
-    }
     elements.push_back(element_sptr);
+}
+
+void
+Lattice::set_default_attributes(Element_adaptor_map const& element_adaptor_map)
+{
+    for (Lattice_elements::const_iterator it = elements.begin(); it
+            != elements.end(); ++it) {
+        if (element_adaptor_map.has_adaptor((*it)->get_type())) {
+            element_adaptor_map.get_adaptor((*it)->get_type())->set_default_attributes(
+                    *(*it));
+        }
+    }
+}
+
+void
+Lattice::set_default_attributes()
+{
+    set_default_attributes(Element_adaptor_map());
 }
 
 Lattice_elements &
