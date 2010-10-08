@@ -5,6 +5,7 @@
 #include "chef_utils.h"
 #include <boost/python.hpp>
 #include "utils/container_conversions.h"
+#include "utils/xml_serialization.h"
 
 using namespace boost::python;
 
@@ -60,6 +61,7 @@ BOOST_PYTHON_MODULE(pylattice)
 
 
     class_<Lattice, Lattice_sptr >("Lattice", init<std::string const& >())
+            .def(init<>())
             .def("get_name", &Lattice::get_name,
                     return_value_policy<copy_const_reference>())
             .def("set_reference_particle", &Lattice::set_reference_particle)
@@ -90,6 +92,9 @@ BOOST_PYTHON_MODULE(pylattice)
 //            BmlPtr beamline_sptr);
    def("chef_unit_conversion", chef_unit_conversion);
    def("get_chef_index",get_chef_index);
+
+   def("xml_save_lattice", xml_save<Lattice > );
+   def("xml_load_lattice", xml_load<Lattice > );
 
    to_python_converter<std::vector<double >,
             container_conversions::to_tuple<std::vector<double > > >();
