@@ -25,6 +25,8 @@ add_test(test_expression_parser nosetests test_expression_parser.py)
 add_test(test_mad8_reader nosetests test_mad8_reader.py)
 
 set(CLEAN_FILES
-    lattice_element.xml)
+    lattice_element.xml
+    lattice1.xml
+    lattice2.xml)
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEAN_FILES}")

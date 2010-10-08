@@ -3,6 +3,11 @@
 #include <iostream>
 #include <stdexcept>
 
+Lattice::Lattice() :
+    name(""), reference_particle_allocated(false), elements()
+{
+}
+
 Lattice::Lattice(std::string const& name) :
     name(name), reference_particle_allocated(false), elements()
 {

@@ -9,6 +9,12 @@
 #include "components/foundation/reference_particle.h"
 #include <boost/shared_ptr.hpp>
 
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/version.hpp>
+
 class Lattice
 {
 private:
@@ -18,6 +24,7 @@ private:
     Lattice_elements elements;
 
 public:
+    Lattice();
     Lattice(std::string const& name);
     std::string const&
     get_name() const;
@@ -41,6 +48,17 @@ public:
     get_total_angle() const;
     void
     print() const;
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(name)
+                    & BOOST_SERIALIZATION_NVP(reference_particle_allocated);
+            if (reference_particle_allocated) {
+                ar & BOOST_SERIALIZATION_NVP(reference_particle_ptr);
+            }
+            ar & BOOST_SERIALIZATION_NVP(elements);
+        }
     ~Lattice();
 };
 
