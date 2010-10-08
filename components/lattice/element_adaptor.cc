@@ -127,7 +127,7 @@ Element_adaptor_map::Element_adaptor_map()
 
 void
 Element_adaptor_map::set_adaptor(std::string const& name,
-        Element_adaptor_sptr const& element_adaptor_sptr)
+        Element_adaptor_sptr element_adaptor_sptr)
 {
     adaptor_map[name] = element_adaptor_sptr;
 }
@@ -138,7 +138,7 @@ Element_adaptor_map::has_adaptor(std::string const& name) const
     return (adaptor_map.count(name) > 0);
 }
 
-Element_adaptor_sptr const&
+Element_adaptor_sptr
 Element_adaptor_map::get_adaptor(std::string const& name) const
 {
     std::map<std::string, Element_adaptor_sptr >::const_iterator iter =

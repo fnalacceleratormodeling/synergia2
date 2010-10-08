@@ -15,11 +15,11 @@ private:
     open_file_and_init();
 public:
     Diagnostics_writer(std::string const& filename,
-            Diagnostics_sptr const& diagnostics_sptr);
+            Diagnostics_sptr diagnostics_sptr);
     Diagnostics_writer();
     bool
     is_dummy() const;
-    Diagnostics_sptr &
+    Diagnostics_sptr
     get_diagnostics_sptr();
     int
     get_count() const;

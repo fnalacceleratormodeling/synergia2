@@ -14,10 +14,10 @@ public:
             double > const & physical_offset,
             std::vector<int > const & grid_shape, bool periodic_z);
     Rectangular_grid(
-            Rectangular_grid_domain_sptr const& rectangular_grid_domain_sptr);
-    Rectangular_grid_domain_sptr const&
+            Rectangular_grid_domain_sptr rectangular_grid_domain_sptr);
+    Rectangular_grid_domain_sptr
     get_domain_sptr() const;
-    Rectangular_grid_domain_sptr &
+    Rectangular_grid_domain_sptr
     get_domain_sptr();
     MArray3d_ref const&
     get_grid_points() const;

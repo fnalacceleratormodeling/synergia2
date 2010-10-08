@@ -20,7 +20,7 @@ Diagnostics_writer::open_file_and_init()
 
 }
 Diagnostics_writer::Diagnostics_writer(std::string const& filename,
-        Diagnostics_sptr const& diagnostics_sptr) :
+        Diagnostics_sptr diagnostics_sptr) :
     diagnostics_sptr(diagnostics_sptr), dummy(false), count(0)
 {
     unsigned int idx = filename.rfind('.');
@@ -47,7 +47,7 @@ Diagnostics_writer::is_dummy() const
     return dummy;
 }
 
-Diagnostics_sptr &
+Diagnostics_sptr
 Diagnostics_writer::get_diagnostics_sptr()
 {
     return diagnostics_sptr;

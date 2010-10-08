@@ -20,11 +20,11 @@ public:
             std::vector<int > const & grid_shape, bool periodic, int lower,
             int upper);
     Distributed_rectangular_grid(
-            Rectangular_grid_domain_sptr const& rectangular_grid_domain_sptr,
+            Rectangular_grid_domain_sptr rectangular_grid_domain_sptr,
             int lower, int upper);
-    Rectangular_grid_domain_sptr const&
+    Rectangular_grid_domain_sptr
     get_domain_sptr() const;
-    Rectangular_grid_domain_sptr &
+    Rectangular_grid_domain_sptr
     get_domain_sptr();
     int
     get_lower() const;

@@ -52,11 +52,10 @@ BOOST_PYTHON_MODULE(pybunch)
         ;
 
     class_<Diagnostics_writer, Diagnostics_writer_sptr >("Diagnostics_writer",
-            init<std::string const& , Diagnostics_sptr const& >())
+            init<std::string const& , Diagnostics_sptr >())
         .def(init< >())
         .def("is_dummy", &Diagnostics_writer::is_dummy)
-        .def("get_diagnostics", &Diagnostics_writer::get_diagnostics_sptr,
-                return_value_policy<copy_non_const_reference >())
+        .def("get_diagnostics", &Diagnostics_writer::get_diagnostics_sptr)
         .def("write", &Diagnostics_writer::write)
         .def("update_and_write", &Diagnostics_writer::update_and_write)
         ;

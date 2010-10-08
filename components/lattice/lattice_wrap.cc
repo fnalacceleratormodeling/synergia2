@@ -53,12 +53,9 @@ BOOST_PYTHON_MODULE(pylattice)
     class_<Element_adaptor_map >("Element_adaptor_map", init<>())
             .def("set_adaptor", &Element_adaptor_map::set_adaptor)
             .def("has_adaptor", &Element_adaptor_map::has_adaptor)
-            .def("get_adaptor", &Element_adaptor_map::get_adaptor,
-                    return_value_policy<copy_const_reference >())
+            .def("get_adaptor", &Element_adaptor_map::get_adaptor)
             .def("get_adaptor_names", &Element_adaptor_map::get_adaptor_names)
             ;
-
-
 
     class_<Lattice, Lattice_sptr >("Lattice", init<std::string const& >())
             .def(init<>())

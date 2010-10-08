@@ -4,7 +4,7 @@
 #include <cstring>
 
 Operation_extractor::Operation_extractor(
-        Chef_lattice_sptr const& chef_lattice_sptr, int map_order) :
+        Chef_lattice_sptr chef_lattice_sptr, int map_order) :
     chef_lattice_sptr(chef_lattice_sptr), map_order(map_order)
 {
 
@@ -49,7 +49,7 @@ extract_fast_mapping(Reference_particle const& reference_particle,
 }
 
 Chef_map_operation_extractor::Chef_map_operation_extractor(
-        Chef_lattice_sptr const& chef_lattice_sptr, int map_order) :
+        Chef_lattice_sptr chef_lattice_sptr, int map_order) :
     Operation_extractor(chef_lattice_sptr, map_order)
 {
 }
@@ -75,7 +75,7 @@ Chef_map_operation_extractor::extract(
 }
 
 Chef_propagate_operation_extractor::Chef_propagate_operation_extractor(
-        Chef_lattice_sptr const& chef_lattice_sptr, int map_order) :
+        Chef_lattice_sptr chef_lattice_sptr, int map_order) :
     Operation_extractor(chef_lattice_sptr, map_order)
 {
 }
@@ -100,7 +100,7 @@ Chef_propagate_operation_extractor::extract(
 }
 
 Chef_mixed_operation_extractor::Chef_mixed_operation_extractor(
-        Chef_lattice_sptr const& chef_lattice_sptr, int map_order) :
+        Chef_lattice_sptr chef_lattice_sptr, int map_order) :
     Operation_extractor(chef_lattice_sptr, map_order)
 {
 }
@@ -160,7 +160,7 @@ Operation_extractor_map::Operation_extractor_map()
 
 void
 Operation_extractor_map::set_extractor(std::string const& name,
-        Operation_extractor_sptr const& operation_extractor)
+        Operation_extractor_sptr operation_extractor)
 {
     extractor_map[name] = operation_extractor;
 }

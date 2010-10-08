@@ -14,7 +14,7 @@
 //    chef_lattice.construct_sliced_beamline(all_slices);
 //}
 
-Propagator::Propagator(Stepper_sptr const& stepper_sptr) :
+Propagator::Propagator(Stepper_sptr stepper_sptr) :
     stepper_sptr(stepper_sptr)
 {
 }

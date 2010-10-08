@@ -120,7 +120,7 @@ Split_operator_stepper::construct(
 
 Split_operator_stepper::Split_operator_stepper(
         Lattice_simulator const& lattice_simulator,
-        Collective_operator_sptr const& collective_operator, int num_steps) :
+        Collective_operator_sptr collective_operator, int num_steps) :
     lattice_simulator(lattice_simulator)
 {
     Collective_operators collective_operators;

@@ -13,7 +13,7 @@ private:
     void
     construct();
 public:
-    Propagator(Stepper_sptr const& stepper_sptr);
+    Propagator(Stepper_sptr stepper_sptr);
     void
     propagate(Bunch & bunch, int num_turns,
             Diagnostics_writer & per_step_diagnostics,

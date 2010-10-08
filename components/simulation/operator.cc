@@ -91,14 +91,14 @@ Independent_operator::need_update()
 }
 
 Independent_operator::Independent_operator(std::string const& name,
-        Operation_extractor_map_sptr const& operation_extractor_map_sptr) :
+        Operation_extractor_map_sptr operation_extractor_map_sptr) :
     Operator(name, "independent"), operation_extractor_map_sptr(
             operation_extractor_map_sptr), have_operations(false)
 {
 }
 
 void
-Independent_operator::append_slice(Lattice_element_slice_sptr const& slice_sptr)
+Independent_operator::append_slice(Lattice_element_slice_sptr slice_sptr)
 {
     slices.push_back(slice_sptr);
 }

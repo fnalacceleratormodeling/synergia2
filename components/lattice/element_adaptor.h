@@ -38,10 +38,10 @@ public:
     Element_adaptor_map();
     void
     set_adaptor(std::string const& name,
-            Element_adaptor_sptr const& element_adaptor_sptr);
+            Element_adaptor_sptr element_adaptor_sptr);
     bool
     has_adaptor(std::string const& name) const;
-    Element_adaptor_sptr const&
+    Element_adaptor_sptr
     get_adaptor(std::string const& name) const;
     std::list<std::string >
     get_adaptor_names() const;

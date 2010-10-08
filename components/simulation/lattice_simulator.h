@@ -18,16 +18,16 @@ private:
     void
     construct_extractor_map();
 public:
-    Lattice_simulator(Lattice_sptr const& lattice, int map_order);
+    Lattice_simulator(Lattice_sptr lattice, int map_order);
     void
     construct_sliced_chef_beamline(Lattice_element_slices const& slices);
     int
     get_map_order() const;
-    Operation_extractor_map_sptr &
+    Operation_extractor_map_sptr
     get_operation_extractor_map_sptr();
-    Lattice_sptr &
+    Lattice_sptr
     get_lattice_sptr();
-    Chef_lattice_sptr &
+    Chef_lattice_sptr
     get_chef_lattice_sptr();
     ~Lattice_simulator();
 };

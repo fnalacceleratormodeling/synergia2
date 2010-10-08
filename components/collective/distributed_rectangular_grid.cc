@@ -35,20 +35,20 @@ Distributed_rectangular_grid::Distributed_rectangular_grid(
 }
 
 Distributed_rectangular_grid::Distributed_rectangular_grid(
-        Rectangular_grid_domain_sptr const& rectangular_grid_domain_sptr,
+        Rectangular_grid_domain_sptr rectangular_grid_domain_sptr,
         int lower, int upper)
 {
     domain_sptr = rectangular_grid_domain_sptr;
     construct(lower, upper);
 }
 
-Rectangular_grid_domain_sptr const&
+Rectangular_grid_domain_sptr
 Distributed_rectangular_grid::get_domain_sptr() const
 {
     return domain_sptr;
 }
 
-Rectangular_grid_domain_sptr &
+Rectangular_grid_domain_sptr
 Distributed_rectangular_grid::get_domain_sptr()
 {
     return domain_sptr;

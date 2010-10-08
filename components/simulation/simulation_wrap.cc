@@ -28,7 +28,7 @@ BOOST_PYTHON_MODULE(pysimulation)
 
     class_<Independent_operator, Independent_operator_sptr,
         bases<Operator > >("Independent_operator", init<std::string const&,
-                Operation_extractor_map_sptr const&>())
+                Operation_extractor_map_sptr>())
 //        .def("get_name", &Collective_operator::get_name)
 //        .def("get_type", &Collective_operator::get_type)
 //        .def("apply", &Collective_operator::apply)
@@ -39,17 +39,14 @@ BOOST_PYTHON_MODULE(pysimulation)
         ;
 
     class_<Lattice_simulator >("Lattice_simulator",
-            init<Lattice_sptr const&, int >())
+            init<Lattice_sptr, int >())
         .def("construct_sliced_chef_beamline",
                 &Lattice_simulator::construct_sliced_chef_beamline)
         .def("get_map_order", &Lattice_simulator::get_map_order)
         .def("get_operation_extractor_map",
-                &Lattice_simulator::get_operation_extractor_map_sptr,
-                return_value_policy<copy_non_const_reference >())
-        .def("get_lattice", &Lattice_simulator::get_lattice_sptr,
-                return_value_policy<copy_non_const_reference >())
-        .def("get_chef_lattice", &Lattice_simulator::get_chef_lattice_sptr,
-                return_value_policy<copy_non_const_reference >())
+                &Lattice_simulator::get_operation_extractor_map_sptr)
+        .def("get_lattice", &Lattice_simulator::get_lattice_sptr)
+        .def("get_chef_lattice", &Lattice_simulator::get_chef_lattice_sptr)
         ;
 
 //    class Step
@@ -121,7 +118,7 @@ BOOST_PYTHON_MODULE(pysimulation)
 //        ~Split_operator_stepper();
 //    };
     class_<Split_operator_stepper, bases<Stepper > >("Split_operator_stepper",
-            init<Lattice_simulator const&, Collective_operator_sptr const&, int >());
+            init<Lattice_simulator const&, Collective_operator_sptr, int >());
 
 //    class Propagator
 //    {
@@ -131,13 +128,13 @@ BOOST_PYTHON_MODULE(pysimulation)
 //        void
 //        construct();
 //    public:
-//        Propagator(Stepper_sptr const& stepper_sptr);
+//        Propagator(Stepper_sptr stepper_sptr);
 //        void
 //        propagate(Bunch & bunch, int num_turns, bool diagnostics_per_step,
 //                bool diagnostics_per_turn);
 //        ~Propagator();
 //    };
-    class_<Propagator >("Propagator",init<Stepper_sptr const& >())
+    class_<Propagator >("Propagator",init<Stepper_sptr >())
             .def("propagate",&Propagator::propagate)
             ;
 }
