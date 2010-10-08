@@ -9,6 +9,7 @@ sys.path.append('convertors')
 sys.path.append("/home/amundson/work/synergia2-devel_1_0/install/lib")
 
 from mad8_reader import Mad8_reader
+from pylattice import Lattice, xml_save_lattice, xml_load_lattice
 from pysimulation import Collective_operator, Lattice_simulator, \
     Split_operator_stepper, Propagator
 from pybunch import Diagnostics_full2, Diagnostics_particles, \
@@ -31,6 +32,9 @@ stdz = 0.01
 dpop = 1e-4
 
 lattice = Mad8_reader().get_lattice("fodo", "fodo.lat")
+#xml_save_lattice(lattice, "fodo_lattice.xml")
+#lattice = Lattice()
+#xml_load_lattice(lattice,"fodo_lattice.xml")
 #space_charge = Space_charge_3d_open_hockney(grid)
 space_charge = Collective_operator("space charge")
 lattice_simulator = Lattice_simulator(lattice, map_order)
