@@ -1,1 +1,4 @@
+cxx_example
 example*.h5
+cxx_example*.h5
+cxx_*.xml
