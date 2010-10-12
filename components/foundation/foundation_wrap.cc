@@ -19,9 +19,12 @@ void
 (Random_distribution::*random_fill_unit_disk_ref)(MArray1d_ref,
         MArray1d_ref) = &Random_distribution::fill_unit_disk;
 
-class Dummy
+class Dummy1
 {
+};
 
+class Dummy2
+{
 };
 
 BOOST_PYTHON_MODULE(pyfoundation)
@@ -74,11 +77,11 @@ BOOST_PYTHON_MODULE(pyfoundation)
 
     class_<Distribution, boost::noncopyable > ("Distribution", no_init);
 
-    class_<Dummy >("mconstants",no_init)
+    class_<Dummy1 >("mconstants",no_init)
         .def_readonly("pi", mconstants::pi)
         ;
 
-    class_<Dummy >("pconstants",no_init)
+    class_<Dummy2 >("pconstants",no_init)
         .def_readonly("mp", pconstants::mp)
         .def_readonly("me", pconstants::me)
         .def_readonly("mmu", pconstants::mmu)
