@@ -3,6 +3,7 @@
 import sys
 sys.path.append('..')
 sys.path.append('../../foundation')
+sys.path.append('../../convertors')
 
 from nose.tools import *
 from mad8_reader import Mad8_reader

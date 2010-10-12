@@ -2,6 +2,7 @@
 
 import sys
 sys.path.append('..')
+sys.path.append('../../convertors')
 
 from pylattice import Lattice_element
 from nose.tools import *

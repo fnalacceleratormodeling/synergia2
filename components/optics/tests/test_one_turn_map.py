@@ -4,6 +4,7 @@ import sys
 sys.path.append("../../simulation")
 sys.path.append("../../lattice")
 sys.path.append("../../foundation")
+sys.path.append("../../convertors")
 sys.path.append("..")
 sys.path.append("/home/amundson/work/synergia2-old_devel_1_0/install/lib")
 

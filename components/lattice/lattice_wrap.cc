@@ -11,6 +11,7 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pylattice)
 {
+    import("pyconvertors");
     class_<Lattice_element, Lattice_element_sptr >("Lattice_element",
             init<std::string, std::string >())
         .def("get_type", &Lattice_element::get_type,
@@ -36,9 +37,6 @@ BOOST_PYTHON_MODULE(pylattice)
         .def("get_length", &Lattice_element::get_length)
         .def("get_bend_angle", &Lattice_element::get_bend_angle)
        ;
-
-    to_python_converter<std::list<std::string >,
-             container_conversions::to_tuple<std::list<std::string > > >();
 
     to_python_converter<std::list<Lattice_element_sptr >,
              container_conversions::to_tuple<std::list<Lattice_element_sptr > > >();
@@ -92,9 +90,6 @@ BOOST_PYTHON_MODULE(pylattice)
 
    def("xml_save_lattice", xml_save<Lattice > );
    def("xml_load_lattice", xml_load<Lattice > );
-
-   to_python_converter<std::vector<double >,
-            container_conversions::to_tuple<std::vector<double > > >();
 
 }
 

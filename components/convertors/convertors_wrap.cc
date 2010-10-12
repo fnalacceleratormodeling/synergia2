@@ -5,7 +5,7 @@
 #include "utils/comm_converter.h"
 #include "utils/multi_array_serialization.h"
 #include "utils/xml_serialization.h"
-
+#include "utils/container_conversions.h"
 
 using namespace boost::python;
 
@@ -23,4 +23,11 @@ BOOST_PYTHON_MODULE(pyconvertors)
 
     def("xml_save_array1d", xml_save<MArray1d_ref > );
     def("xml_save_array2d", xml_save<MArray2d_ref > );
+
+    to_python_converter<std::vector<double >,
+             container_conversions::to_tuple<std::vector<double > > >();
+
+    to_python_converter<std::list<std::string >,
+             container_conversions::to_tuple<std::list<std::string > > >();
+
 }
