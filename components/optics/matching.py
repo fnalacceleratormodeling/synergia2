@@ -118,9 +118,8 @@ def generate_matched_bunch(lattice_simulator, stdx, stdy, stdz,
     bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
                   num_macro_particles, num_real_particles, comm);
 
-def generate_matched_bunch_transverse(lattice_simulator, emit_x, emit_y, rms_z, dpop,
-                           num_real_particles, num_macro_particles, seed=0,
-                           comm=None):
+def get_matched_bunch_transverse_parameters(lattice_simulator,
+                                            emit_x, emit_y, rms_z, dpop):
 
     map = linear_one_turn_map(lattice_simulator)
     alpha, beta = get_alpha_beta(map)
@@ -134,6 +133,15 @@ def generate_matched_bunch_transverse(lattice_simulator, emit_x, emit_y, rms_z, 
     r = [r4[0], r4[1], 1.0]
     covariance_matrix = get_covariances(sigma, r)
     means = numpy.zeros((6,), 'd')
+    return means, covariance_matrix
+
+def generate_matched_bunch_transverse(lattice_simulator, emit_x, emit_y, rms_z, dpop,
+                           num_real_particles, num_macro_particles, seed=0,
+                           comm=None):
+
+    means, covariance_matrix = \
+        get_matched_bunch_transverse_parameters(lattice_simulator,
+                                                emit_x, emit_y, rms_z, dpop)
     if comm == None:
         comm = MPI.COMM_WORLD
     bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
