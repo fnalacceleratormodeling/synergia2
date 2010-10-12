@@ -5,7 +5,7 @@
 #include "utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
-const double tolerance = 1.0e-12;
+const double tolerance = 1.0e-11;
 
 const double mass = 100.0;
 const double total_energy = 125.0;
@@ -184,7 +184,7 @@ BOOST_FIXTURE_TEST_CASE(get_corr_full2, Fixture)
 #include "test_diagnostics_get_corr.icc"
 }
 
-const double tolerance_emit2d = 1.0e-12;
+const double tolerance_emit2d = 1.0e-11;
 
 BOOST_FIXTURE_TEST_CASE(get_emitx_full2, Fixture)
 {
@@ -213,7 +213,7 @@ BOOST_FIXTURE_TEST_CASE(get_emitz_full2, Fixture)
 #include "test_diagnostics_get_emitz.icc"
 }
 
-const double tolerance_emit4d = 1.0e-12;
+const double tolerance_emit4d = 1.0e-11;
 
 BOOST_FIXTURE_TEST_CASE(get_emitxy_full2, Fixture)
 {
@@ -224,7 +224,7 @@ BOOST_FIXTURE_TEST_CASE(get_emitxy_full2, Fixture)
 #include "test_diagnostics_get_emitxy.icc"
 }
 
-const double tolerance_emit6d = 1.0e-12;
+const double tolerance_emit6d = 1.0e-11;
 
 BOOST_FIXTURE_TEST_CASE(get_emitxyz_full2, Fixture)
 {
