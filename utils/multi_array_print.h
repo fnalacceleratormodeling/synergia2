@@ -58,4 +58,19 @@ template<typename T>
             _recursive_print<T, N > (a, name, indices, N);
         }
     }
+
+template<typename T>
+    void
+    vector_print(std::vector<T > const& v, std::string const& name)
+    {
+        std::cout << "(";
+        for (int i = 0; i < v.size(); ++i) {
+            std::cout << v[i];
+            if (i < (v.size() - 1)) {
+                std::cout << ",";
+            }
+        }
+        std::cout << ")";
+    }
+
 #endif /* MULTI_ARRAY_PRINT_H_ */
