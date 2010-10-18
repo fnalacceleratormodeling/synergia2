@@ -1,0 +1,8 @@
+#!/bin/sh
+
+cd `dirname $0`/../../.. && \
+ctest --verbose | \
+grep cases | \
+sed 's/.*Running //' | \
+sed 's/ test.*//' | \
+awk -F" " 'BEGIN {x=0} {x+=$1} END {print x}'
