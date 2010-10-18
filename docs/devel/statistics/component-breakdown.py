@@ -8,15 +8,11 @@ def count(suffix, test):
         yesorno = ""
     else:
         yesorno = " -v "
-    out1 = getoutput("find components -name \*." + suffix +
+    out = getoutput("find src -name \*." + suffix +
                     " | grep " + yesorno +
-                    " tests| xargs wc -l | tail -n 1").split()
-    out2 = getoutput("find utils -name \*." + suffix +
-                     "| grep -v eigen2 " +
-                     " | grep " + yesorno +
-                     " tests| xargs wc -l | tail -n 1").split()
-    print suffix, "(test =", test, ")", out1, out2
-    return int(out1[0]) + int(out2[0])
+                    " tests| grep -v eigen2 | xargs wc -l | tail -n 1").split()
+    print suffix, "( test =", test, ")", out
+    return int(out[0])
 
 # make a square figure and axes
 figure(1, figsize=(6, 6))
