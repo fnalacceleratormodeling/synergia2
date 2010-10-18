@@ -1,8 +1,8 @@
 #ifndef DISTRIBUTED_RECTANGULAR_GRID_H_
 #define DISTRIBUTED_RECTANGULAR_GRID_H_
-#include "components/collective/rectangular_grid_domain.h"
-#include "utils/multi_array_typedefs.h"
-#include "utils/commxx.h"
+#include "synergia/collective/rectangular_grid_domain.h"
+#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/commxx.h"
 
 class Distributed_rectangular_grid
 {

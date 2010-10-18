@@ -1,10 +1,10 @@
 #ifndef BUNCH_FIXTURE_H_
 #define BUNCH_FIXTURE_H_
-#include "components/foundation/physical_constants.h"
-#include "components/bunch/bunch.h"
-#include "components/bunch/populate.h"
-#include "utils/multi_array_typedefs.h"
-#include "utils/multi_array_print.h"
+#include "synergia/foundation/physical_constants.h"
+#include "synergia/bunch/bunch.h"
+#include "synergia/bunch/populate.h"
+#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/multi_array_print.h"
 
 const int charge = pconstants::proton_charge;
 const double mass = pconstants::mp;

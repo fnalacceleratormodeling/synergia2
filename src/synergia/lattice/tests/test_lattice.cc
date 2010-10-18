@@ -1,13 +1,13 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "components/lattice/lattice.h"
+#include "synergia/lattice/lattice.h"
 
 const std::string name("foo");
 const double mass = 100.0;
 const double total_energy = 125.0;
 const double tolerance = 1.0e-12;
 
-#include "utils/xml_serialization.h"
+#include "synergia/utils/xml_serialization.h"
 
 BOOST_AUTO_TEST_CASE(construct_lattice)
 {

@@ -1,8 +1,8 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "components/foundation/physical_constants.h"
-#include "components/bunch/bunch.h"
-#include "utils/boost_test_mpi_fixture.h"
+#include "synergia/foundation/physical_constants.h"
+#include "synergia/bunch/bunch.h"
+#include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-15;

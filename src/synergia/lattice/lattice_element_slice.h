@@ -4,7 +4,7 @@
 #include <list>
 #include <boost/shared_ptr.hpp>
 
-#include "components/lattice/lattice_element.h"
+#include "synergia/lattice/lattice_element.h"
 
 class Lattice_element_slice
 {

@@ -1,11 +1,11 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "components/bunch/populate.h"
-#include "components/bunch/diagnostics.h"
-#include "utils/boost_test_mpi_fixture.h"
-#include "utils/multi_array_typedefs.h"
-#include "utils/multi_array_print.h"
-#include "utils/multi_array_check_equal.h"
+#include "synergia/bunch/populate.h"
+#include "synergia/bunch/diagnostics.h"
+#include "synergia/utils/boost_test_mpi_fixture.h"
+#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/multi_array_print.h"
+#include "synergia/utils/multi_array_check_equal.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-12;

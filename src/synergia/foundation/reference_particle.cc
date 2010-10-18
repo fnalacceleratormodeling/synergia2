@@ -1,5 +1,5 @@
 #include "reference_particle.h"
-#include "utils/floating_point.h"
+#include "synergia/utils/floating_point.h"
 
 Reference_particle::Reference_particle()
 {

@@ -1,16 +1,16 @@
 #include <iostream>
 
 // n.b. the use of relative pathnames here is not for general consumption
-#include "lattice/lattice.h"
-#include "../utils/xml_serialization.h"
-#include "simulation/operator.h"
-#include "simulation/lattice_simulator.h"
-#include "simulation/stepper.h"
-#include "simulation/propagator.h"
-#include "bunch/bunch.h"
-#include "foundation/distribution.h"
-#include "bunch/populate.h"
-#include "bunch/diagnostics_writer.h"
+#include "synergia/lattice/lattice.h"
+#include "synergia/utils/xml_serialization.h"
+#include "synergia/simulation/operator.h"
+#include "synergia/simulation/lattice_simulator.h"
+#include "synergia/simulation/stepper.h"
+#include "synergia/simulation/propagator.h"
+#include "synergia/bunch/bunch.h"
+#include "synergia/foundation/distribution.h"
+#include "synergia/bunch/populate.h"
+#include "synergia/bunch/diagnostics_writer.h"
 
 int
 main(int argc, char **argv)

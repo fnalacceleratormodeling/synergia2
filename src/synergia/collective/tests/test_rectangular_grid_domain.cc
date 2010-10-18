@@ -1,8 +1,8 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "components/collective/rectangular_grid_domain.h"
+#include "synergia/collective/rectangular_grid_domain.h"
 #include "rectangular_grid_domain_fixture.h"
-#include "utils/boost_test_mpi_fixture.h"
+#include "synergia/utils/boost_test_mpi_fixture.h"
 //BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-12;

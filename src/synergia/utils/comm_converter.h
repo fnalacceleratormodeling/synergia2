@@ -3,7 +3,7 @@
 
 #include <mpi4py/mpi4py.h>
 #include <boost/python.hpp>
-#include "utils/commxx.h"
+#include "synergia/utils/commxx.h"
 
 struct comm_converter
 {

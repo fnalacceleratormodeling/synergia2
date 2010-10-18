@@ -1,5 +1,5 @@
 #include "four_momentum.h"
-#include "utils/floating_point.h"
+#include "synergia/utils/floating_point.h"
 #include <cmath>
 #include <stdexcept>
 

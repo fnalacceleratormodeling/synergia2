@@ -1,6 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "utils/floating_point.h"
+#include "synergia/utils/floating_point.h"
 
 const double tolerance = 1.0e-12;
 const double small = 1.0e-14;

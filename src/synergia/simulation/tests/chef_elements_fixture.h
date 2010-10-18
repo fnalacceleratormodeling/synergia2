@@ -1,8 +1,8 @@
 #ifndef CHEF_ELEMENTS_FIXTURE_H_
 #define CHEF_ELEMENTS_FIXTURE_H_
 #include <beamline/beamline_elements.h>
-#include "components/simulation/chef_propagator.h"
-#include "components/lattice/chef_utils.h"
+#include "synergia/simulation/chef_propagator.h"
+#include "synergia/lattice/chef_utils.h"
 
 const double drift_length = 1.2;
 const double quad_length = 0.3;

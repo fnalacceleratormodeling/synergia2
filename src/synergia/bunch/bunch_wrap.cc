@@ -3,8 +3,8 @@
 #include "diagnostics_writer.h"
 #include "populate.h"
 #include <boost/python.hpp>
-#include "utils/numpy_multi_ref_converter.h"
-#include "utils/comm_converter.h"
+#include "synergia/utils/numpy_multi_ref_converter.h"
+#include "synergia/utils/comm_converter.h"
 
 using namespace boost::python;
 

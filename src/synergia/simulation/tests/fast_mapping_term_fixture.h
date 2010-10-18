@@ -1,7 +1,7 @@
 #ifndef FAST_MAPPING_TERM_FIXTURE_H_
 #define FAST_MAPPING_TERM_FIXTURE_H_
 
-#include "components/simulation/fast_mapping.h"
+#include "synergia/simulation/fast_mapping.h"
 
 const int order = 2;
 const double coeff = 3.1415;

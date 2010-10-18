@@ -1,6 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "components/collective/distributed_rectangular_grid.h"
+#include "synergia/collective/distributed_rectangular_grid.h"
 #include "rectangular_grid_domain_fixture.h"
 
 const double tolerance = 1.0e-12;

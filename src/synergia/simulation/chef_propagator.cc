@@ -1,5 +1,5 @@
 #include "chef_propagator.h"
-#include "components/lattice/chef_utils.h"
+#include "synergia/lattice/chef_utils.h"
 
 Chef_propagator::Chef_propagator(Chef_elements const& chef_elements) :
     chef_elements(chef_elements)

@@ -1,6 +1,6 @@
 #include "chef_utils.h"
 #include <iostream>
-#include "utils/floating_point.h"
+#include "synergia/utils/floating_point.h"
 
 void
 print_chef_beamline(BmlPtr beamline_sptr)

@@ -2,8 +2,8 @@
 #include "reference_particle.h"
 #include "distribution.h"
 #include <boost/python.hpp>
-#include "utils/numpy_multi_ref_converter.h"
-#include "utils/comm_converter.h"
+#include "synergia/utils/numpy_multi_ref_converter.h"
+#include "synergia/utils/comm_converter.h"
 #include "math_constants.h"
 #include "physical_constants.h"
 

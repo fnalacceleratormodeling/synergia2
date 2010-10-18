@@ -1,7 +1,7 @@
 #include "chef_lattice.h"
 #include "chef_utils.h"
-#include "utils/floating_point.h"
-#include "components/foundation/math_constants.h"
+#include "synergia/utils/floating_point.h"
+#include "synergia/foundation/math_constants.h"
 #include <beamline/beamline_elements.h>
 #include <basic_toolkit/PhysicsConstants.h>
 #include <physics_toolkit/DriftConverter.h>

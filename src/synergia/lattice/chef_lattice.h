@@ -1,9 +1,9 @@
 #ifndef CHEF_LATTICE_H_
 #define CHEF_LATTICE_H_
 
-#include "components/lattice/lattice.h"
-#include "components/lattice/lattice_element_slice.h"
-#include "components/lattice/chef_elements.h"
+#include "synergia/lattice/lattice.h"
+#include "synergia/lattice/lattice_element_slice.h"
+#include "synergia/lattice/chef_elements.h"
 
 class Chef_lattice
 {

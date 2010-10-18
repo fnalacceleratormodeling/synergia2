@@ -1,6 +1,6 @@
 #ifndef DIAGNOSTICS_WRITER_H_
 #define DIAGNOSTICS_WRITER_H_
-#include "components/bunch/diagnostics.h"
+#include "synergia/bunch/diagnostics.h"
 #include <string>
 
 class Diagnostics_writer

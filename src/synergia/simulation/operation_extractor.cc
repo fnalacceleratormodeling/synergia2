@@ -1,5 +1,5 @@
 #include "operation_extractor.h"
-#include "components/lattice/chef_utils.h"
+#include "synergia/lattice/chef_utils.h"
 #include "fast_mapping.h"
 #include <cstring>
 

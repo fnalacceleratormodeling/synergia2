@@ -1,13 +1,13 @@
 #include "populate.h"
 #include "diagnostics.h"
 
-#include "utils/eigen2/Eigen/Eigen"
-#include "utils/eigen2/Eigen/Cholesky"
+#include "synergia/utils/eigen2/Eigen/Eigen"
+#include "synergia/utils/eigen2/Eigen/Cholesky"
 
 // import most common Eigen types
 USING_PART_OF_NAMESPACE_EIGEN
 
-#include "utils/multi_array_print.h"
+#include "synergia/utils/multi_array_print.h"
 
 void
 adjust_moments(Bunch &bunch, Const_MArray1d_ref means,

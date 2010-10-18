@@ -1,7 +1,7 @@
 #include "space_charge_3d_open_hockney.h"
-#include "components/bunch/diagnostics.h"
-#include "components/foundation/math_constants.h"
-#include "components/foundation/physical_constants.h"
+#include "synergia/bunch/diagnostics.h"
+#include "synergia/foundation/math_constants.h"
+#include "synergia/foundation/physical_constants.h"
 #include "deposit.h"
 
 void

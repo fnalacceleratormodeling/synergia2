@@ -1,9 +1,9 @@
 #ifndef INDEPENDENT_OPERATION_H_
 #define INDEPENDENT_OPERATION_H_
 
-#include "components/simulation/fast_mapping.h"
-#include "components/simulation/chef_propagator.h"
-#include "components/lattice/chef_lattice.h"
+#include "synergia/simulation/fast_mapping.h"
+#include "synergia/simulation/chef_propagator.h"
+#include "synergia/lattice/chef_lattice.h"
 #include "boost/shared_ptr.hpp"
 #include <list>
 #include <string>

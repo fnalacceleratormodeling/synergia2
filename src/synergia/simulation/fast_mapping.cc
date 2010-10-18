@@ -1,5 +1,5 @@
 #include "fast_mapping.h"
-#include "components/lattice/chef_utils.h"
+#include "synergia/lattice/chef_utils.h"
 
 #define MANUAL_LOOP_UNROLL shockingly_yes
 

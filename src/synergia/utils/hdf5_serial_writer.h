@@ -25,5 +25,5 @@ template<typename T>
         ~Hdf5_serial_writer();
     };
 
-#include "utils/hdf5_serial_writer.tcc"
+#include "synergia/utils/hdf5_serial_writer.tcc"
 #endif /* HDF5_SERIAL_WRITER_H_ */

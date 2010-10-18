@@ -1,10 +1,10 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "utils/multi_array_typedefs.h"
-#include "utils/multi_array_serialization.h"
-#include "utils/xml_serialization.h"
+#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/multi_array_serialization.h"
+#include "synergia/utils/xml_serialization.h"
 
-#include "utils/multi_array_check_equal.h"
+#include "synergia/utils/multi_array_check_equal.h"
 
 const double tolerance = 1.0e-14;
 

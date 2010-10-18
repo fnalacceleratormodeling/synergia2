@@ -1,11 +1,11 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "components/collective/space_charge_3d_open_hockney.h"
-#include "components/foundation/physical_constants.h"
-#include "components/bunch/bunch.h"
-#include "components/bunch/populate.h"
-#include "utils/boost_test_mpi_fixture.h"
-#include "utils/multi_array_print.h"
+#include "synergia/collective/space_charge_3d_open_hockney.h"
+#include "synergia/foundation/physical_constants.h"
+#include "synergia/bunch/bunch.h"
+#include "synergia/bunch/populate.h"
+#include "synergia/utils/boost_test_mpi_fixture.h"
+#include "synergia/utils/multi_array_print.h"
 
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 

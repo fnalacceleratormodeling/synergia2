@@ -1,8 +1,8 @@
 #ifndef CHEF_PROPAGATOR_H_
 #define CHEF_PROPAGATOR_H_
 
-#include "components/bunch/bunch.h"
-#include "components/lattice/chef_lattice.h"
+#include "synergia/bunch/bunch.h"
+#include "synergia/lattice/chef_lattice.h"
 
 class Chef_propagator
 {

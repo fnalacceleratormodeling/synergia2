@@ -1,8 +1,8 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "components/lattice/lattice_element.h"
+#include "synergia/lattice/lattice_element.h"
 
-#include "utils/xml_serialization.h"
+#include "synergia/utils/xml_serialization.h"
 
 const std::string name("foo");
 const std::string type("bar");

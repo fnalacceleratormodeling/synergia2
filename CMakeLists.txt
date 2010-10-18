@@ -78,16 +78,7 @@ ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in"
     "${SYNERGIA2_BINARY_DIR}/synergia-local" IMMEDIATE)
 
-include_directories(${SYNERGIA2_SOURCE_DIR})
+include_directories(${SYNERGIA2_SOURCE_DIR}/src)
 
-#add_subdirectory(array_nd)
-add_subdirectory(utils)
-link_directories(${SYNERGIA2_BINARY_DIR}/utils)
-add_subdirectory(components)
-#add_subdirectory(synergia)
-#add_subdirectory(s2_fish)
-#add_subdirectory(impact)
-
-#add_subdirectory(octapy)
-
+add_subdirectory(src)
 add_subdirectory(docs)

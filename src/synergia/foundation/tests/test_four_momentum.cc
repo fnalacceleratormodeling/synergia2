@@ -2,8 +2,8 @@
 #include <boost/test/unit_test.hpp>
 #include <stdexcept>
 
-#include "components/foundation/four_momentum.h"
-#include "utils/xml_serialization.h"
+#include "synergia/foundation/four_momentum.h"
+#include "synergia/utils/xml_serialization.h"
 
 const double tolerance = 1.0e-15;
 

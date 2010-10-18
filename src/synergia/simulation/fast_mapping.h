@@ -1,10 +1,10 @@
 #ifndef FAST_MAPPING_H_
 #define FAST_MAPPING_H_
 
-#include "components/foundation/reference_particle.h"
-#include "components/bunch/bunch.h"
+#include "synergia/foundation/reference_particle.h"
+#include "synergia/bunch/bunch.h"
 #include "mxyzptlk/Mapping.h"
-#include "components/lattice/chef_utils.h"
+#include "synergia/lattice/chef_utils.h"
 
 #include <vector>
 #include <list>

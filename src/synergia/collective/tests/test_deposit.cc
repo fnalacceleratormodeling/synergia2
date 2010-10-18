@@ -1,10 +1,10 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "components/bunch/bunch.h"
-#include "components/collective/deposit.h"
-#include "components/foundation/physical_constants.h"
-#include "components/bunch/bunch.h"
-#include "utils/boost_test_mpi_fixture.h"
+#include "synergia/bunch/bunch.h"
+#include "synergia/collective/deposit.h"
+#include "synergia/foundation/physical_constants.h"
+#include "synergia/bunch/bunch.h"
+#include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 void

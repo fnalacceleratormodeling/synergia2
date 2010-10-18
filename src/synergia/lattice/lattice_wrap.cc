@@ -4,8 +4,8 @@
 #include "chef_lattice.h"
 #include "chef_utils.h"
 #include <boost/python.hpp>
-#include "utils/container_conversions.h"
-#include "utils/xml_serialization.h"
+#include "synergia/utils/container_conversions.h"
+#include "synergia/utils/xml_serialization.h"
 
 using namespace boost::python;
 

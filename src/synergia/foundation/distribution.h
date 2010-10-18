@@ -1,8 +1,8 @@
 #ifndef DISTRIBUTION_H_
 #define DISTRIBUTION_H_
 
-#include "utils/multi_array_typedefs.h"
-#include "utils/commxx.h"
+#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/commxx.h"
 #include <gsl/gsl_rng.h>
 
 /// Distribution is a virtual base class for obtaining the next number or set

@@ -1,5 +1,5 @@
 #include "lattice_element_slice.h"
-#include "utils/floating_point.h"
+#include "synergia/utils/floating_point.h"
 
 #include <stdexcept>
 #include <iostream>

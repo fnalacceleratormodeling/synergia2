@@ -1,11 +1,11 @@
 #include <boost/python.hpp>
 #include "boost/multi_array.hpp"
-#include "utils/multi_array_typedefs.h"
-#include "utils/numpy_multi_ref_converter.h"
-#include "utils/comm_converter.h"
-#include "utils/multi_array_serialization.h"
-#include "utils/xml_serialization.h"
-#include "utils/container_conversions.h"
+#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/numpy_multi_ref_converter.h"
+#include "synergia/utils/comm_converter.h"
+#include "synergia/utils/multi_array_serialization.h"
+#include "synergia/utils/xml_serialization.h"
+#include "synergia/utils/container_conversions.h"
 
 using namespace boost::python;
 

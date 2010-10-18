@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 #include "hdf5.h"
-#include "utils/multi_array_typedefs.h"
+#include "synergia/utils/multi_array_typedefs.h"
 
 class Hdf5_chunked_array2d_writer
 {

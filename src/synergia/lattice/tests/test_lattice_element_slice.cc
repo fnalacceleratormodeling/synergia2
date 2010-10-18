@@ -1,6 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "components/lattice/lattice_element_slice.h"
+#include "synergia/lattice/lattice_element_slice.h"
 
 const std::string type("quadrupole");
 const std::string name("myquad");

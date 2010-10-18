@@ -1,9 +1,9 @@
 #include "diagnostics.h"
-#include "utils/hdf5_writer.h"
-#include "utils/hdf5_chunked_array2d_writer.h"
+#include "synergia/utils/hdf5_writer.h"
+#include "synergia/utils/hdf5_chunked_array2d_writer.h"
 #include <cmath>
-#include "utils/eigen2/Eigen/Core"
-#include "utils/eigen2/Eigen/LU"
+#include "synergia/utils/eigen2/Eigen/Core"
+#include "synergia/utils/eigen2/Eigen/LU"
 #include <stdexcept>
 
 // import most common Eigen types

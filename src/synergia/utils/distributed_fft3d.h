@@ -10,8 +10,8 @@
 #include <vector>
 #include <string>
 #include "boost/shared_ptr.hpp"
-#include "utils/multi_array_typedefs.h"
-#include "utils/commxx.h"
+#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/commxx.h"
 
 class Distributed_fft3d
 {

@@ -1,7 +1,7 @@
 #ifndef OPERATION_EXTRACTOR_H_
 #define OPERATION_EXTRACTOR_H_
 
-#include "components/simulation/independent_operation.h"
+#include "synergia/simulation/independent_operation.h"
 
 class Operation_extractor
 {

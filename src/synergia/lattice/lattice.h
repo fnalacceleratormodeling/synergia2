@@ -4,9 +4,9 @@
 #include <string>
 #include <list>
 
-#include "components/lattice/lattice_element.h"
-#include "components/lattice/element_adaptor.h"
-#include "components/foundation/reference_particle.h"
+#include "synergia/lattice/lattice_element.h"
+#include "synergia/lattice/element_adaptor.h"
+#include "synergia/foundation/reference_particle.h"
 #include <boost/shared_ptr.hpp>
 
 #include <boost/serialization/nvp.hpp>

@@ -6,8 +6,8 @@
 #include <list>
 
 #include <boost/shared_ptr.hpp>
-#include "components/lattice/lattice_element.h"
-#include "components/lattice/chef_elements.h"
+#include "synergia/lattice/lattice_element.h"
+#include "synergia/lattice/chef_elements.h"
 
 class Element_adaptor
 {

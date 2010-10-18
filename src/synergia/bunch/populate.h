@@ -1,8 +1,8 @@
 #ifndef POPULATE_H_
 #define POPULATE_H_
 
-#include "components/foundation/distribution.h"
-#include "components/bunch/bunch.h"
+#include "synergia/foundation/distribution.h"
+#include "synergia/bunch/bunch.h"
 
 /// Populate a bunch with a Gaussian distribution in all six dimensions.
 /// @param dist the distribution generator

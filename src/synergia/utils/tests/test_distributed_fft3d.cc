@@ -1,8 +1,8 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "utils/distributed_fft3d.h"
-#include "utils/boost_test_mpi_fixture.h"
-#include "utils/multi_array_check_equal.h"
+#include "synergia/utils/distributed_fft3d.h"
+#include "synergia/utils/boost_test_mpi_fixture.h"
+#include "synergia/utils/multi_array_check_equal.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 // n.b. We use 0,1,2 here instead of x,y,z because

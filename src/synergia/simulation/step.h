@@ -4,8 +4,8 @@
 #include <list>
 #include <boost/shared_ptr.hpp>
 
-#include "components/simulation/operator.h"
-#include "components/bunch/bunch.h"
+#include "synergia/simulation/operator.h"
+#include "synergia/bunch/bunch.h"
 
 class Step
 {

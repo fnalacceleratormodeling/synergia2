@@ -24,5 +24,5 @@ template<typename T>
         ~Hdf5_writer();
     };
 
-#include "utils/hdf5_writer.tcc"
+#include "synergia/utils/hdf5_writer.tcc"
 #endif /* HDF5_WRITER_H_ */

@@ -1,7 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "components/lattice/chef_lattice.h"
-#include "components/lattice/chef_utils.h"
+#include "synergia/lattice/chef_lattice.h"
+#include "synergia/lattice/chef_utils.h"
 #include <basic_toolkit/PhysicsConstants.h>
 
 const std::string name("fodo");

@@ -1,5 +1,5 @@
-#include "utils/multi_array_typedefs.h"
-#include "utils/hdf5_misc.h"
+#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/hdf5_misc.h"
 #include <stdexcept>
 #include <iostream>
 

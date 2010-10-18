@@ -1,6 +1,6 @@
 #ifndef PHYSICAL_CONSTANTS_H_
 #define PHYSICAL_CONSTANTS_H_
-#include "components/foundation/math_constants.h"
+#include "synergia/foundation/math_constants.h"
 
 namespace pconstants
 {

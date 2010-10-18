@@ -1,5 +1,5 @@
 #include "stepper.h"
-#include "utils/floating_point.h"
+#include "synergia/utils/floating_point.h"
 
 Steps &
 Stepper::get_steps()

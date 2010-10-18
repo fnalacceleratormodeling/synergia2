@@ -1,7 +1,7 @@
 #include "parallel_utils.h"
 #include <boost/python.hpp>
-#include "utils/container_conversions.h"
-#include "utils/comm_converter.h"
+#include "synergia/utils/container_conversions.h"
+#include "synergia/utils/comm_converter.h"
 
 using namespace boost::python;
 

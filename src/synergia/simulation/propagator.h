@@ -1,9 +1,9 @@
 #ifndef PROPAGATOR_H_
 #define PROPAGATOR_H_
 
-#include "components/simulation/stepper.h"
-#include "components/bunch/bunch.h"
-#include "components/bunch/diagnostics_writer.h"
+#include "synergia/simulation/stepper.h"
+#include "synergia/bunch/bunch.h"
+#include "synergia/bunch/diagnostics_writer.h"
 
 class Propagator
 {

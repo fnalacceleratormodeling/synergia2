@@ -4,9 +4,9 @@
 #include <list>
 #include <boost/shared_ptr.hpp>
 
-#include "components/simulation/lattice_simulator.h"
-#include "components/simulation/operator.h"
-#include "components/simulation/step.h"
+#include "synergia/simulation/lattice_simulator.h"
+#include "synergia/simulation/operator.h"
+#include "synergia/simulation/step.h"
 
 class Stepper
 {

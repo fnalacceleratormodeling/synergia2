@@ -1,8 +1,8 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include "components/foundation/reference_particle.h"
-#include "utils/xml_serialization.h"
+#include "synergia/foundation/reference_particle.h"
+#include "synergia/utils/xml_serialization.h"
 
 const double tolerance = 1.0e-13;
 const double mass = 100.0;

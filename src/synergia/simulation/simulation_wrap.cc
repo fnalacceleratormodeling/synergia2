@@ -3,7 +3,7 @@
 #include "stepper.h"
 #include "propagator.h"
 #include <boost/python.hpp>
-#include "utils/container_conversions.h"
+#include "synergia/utils/container_conversions.h"
 
 using namespace boost::python;
 

@@ -5,11 +5,11 @@
 #include <list>
 #include <boost/shared_ptr.hpp>
 
-#include "components/bunch/bunch.h"
-#include "components/lattice/lattice_element_slice.h"
-#include "components/lattice/chef_lattice.h"
-#include "components/simulation/independent_operation.h"
-#include "components/simulation/operation_extractor.h"
+#include "synergia/bunch/bunch.h"
+#include "synergia/lattice/lattice_element_slice.h"
+#include "synergia/lattice/chef_lattice.h"
+#include "synergia/simulation/independent_operation.h"
+#include "synergia/simulation/operation_extractor.h"
 
 class Step;
 

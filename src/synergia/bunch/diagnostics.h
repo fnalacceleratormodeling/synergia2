@@ -3,8 +3,8 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include "components/bunch/bunch.h"
-#include "utils/hdf5_serial_writer.h"
+#include "synergia/bunch/bunch.h"
+#include "synergia/utils/hdf5_serial_writer.h"
 
 /// Diagnostics provides the minimal set of statistical
 /// quantities to be calculated for a Bunch.

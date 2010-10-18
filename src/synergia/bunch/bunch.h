@@ -2,10 +2,10 @@
 #define BUNCH_H_
 
 #include <mpi.h>
-#include "utils/multi_array_typedefs.h"
-#include "components/foundation/reference_particle.h"
-#include "utils/commxx.h"
-#include "components/bunch/fixed_t_z_converter.h"
+#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/foundation/reference_particle.h"
+#include "synergia/utils/commxx.h"
+#include "synergia/bunch/fixed_t_z_converter.h"
 
 /// Bunch represents a macroparticle bunch distributed across the processors
 /// in a communicator.

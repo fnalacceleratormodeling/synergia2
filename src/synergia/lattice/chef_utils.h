@@ -4,7 +4,7 @@
 #include <beamline/beamline.h>
 #include <beamline/Particle.h>
 #include <beamline/JetParticle.h>
-#include "components/foundation/reference_particle.h"
+#include "synergia/foundation/reference_particle.h"
 
 void
 print_chef_beamline(BmlPtr beamline_sptr);

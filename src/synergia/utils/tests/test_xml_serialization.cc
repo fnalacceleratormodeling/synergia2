@@ -1,6 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "utils/xml_serialization.h"
+#include "synergia/utils/xml_serialization.h"
 
 const double tolerance = 1.0e-12;
 class Foo

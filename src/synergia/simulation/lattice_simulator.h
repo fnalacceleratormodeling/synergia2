@@ -1,10 +1,10 @@
 #ifndef LATTICE_SIMULATOR_H_
 #define LATTICE_SIMULATOR_H_
 
-#include "components/lattice/lattice.h"
-#include "components/lattice/chef_lattice.h"
-#include "components/simulation/operation_extractor.h"
-#include "components/simulation/step.h"
+#include "synergia/lattice/lattice.h"
+#include "synergia/lattice/chef_lattice.h"
+#include "synergia/simulation/operation_extractor.h"
+#include "synergia/simulation/step.h"
 #include <string>
 
 class Lattice_simulator

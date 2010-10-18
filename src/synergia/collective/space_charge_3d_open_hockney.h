@@ -1,12 +1,12 @@
 #ifndef SPACE_CHARGE_3D_OPEN_HOCKNEY_H_
 #define SPACE_CHARGE_3D_OPEN_HOCKNEY_H_
-#include "components/simulation/operator.h"
-#include "components/bunch/bunch.h"
-#include "components/collective/rectangular_grid_domain.h"
-#include "components/collective/rectangular_grid.h"
-#include "components/collective/distributed_rectangular_grid.h"
-#include "utils/commxx.h"
-#include "utils/distributed_fft3d.h"
+#include "synergia/simulation/operator.h"
+#include "synergia/bunch/bunch.h"
+#include "synergia/collective/rectangular_grid_domain.h"
+#include "synergia/collective/rectangular_grid.h"
+#include "synergia/collective/distributed_rectangular_grid.h"
+#include "synergia/utils/commxx.h"
+#include "synergia/utils/distributed_fft3d.h"
 
 /// Note: internal grid is stored in [z][y][x] order, but
 /// grid shape expects [x][y][z] order.

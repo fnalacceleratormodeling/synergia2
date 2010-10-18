@@ -1,9 +1,9 @@
 #ifndef REFERENCE_PARTICLE_H_
 #define REFERENCE_PARTICLE_H_
 
-#include "utils/multi_array_typedefs.h"
-#include "utils/multi_array_serialization.h"
-#include "components/foundation/four_momentum.h"
+#include "synergia/utils/multi_array_typedefs.h"
+#include "synergia/utils/multi_array_serialization.h"
+#include "synergia/foundation/four_momentum.h"
 
 /// Reference_particle stores the four momentum of the reference frame
 /// with respect to  the lab frame (defined to be along the axis of the

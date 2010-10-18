@@ -1,7 +1,7 @@
 #include "element_adaptor.h"
 
 #include <beamline/beamline_elements.h>
-#include "components/foundation/math_constants.h"
+#include "synergia/foundation/math_constants.h"
 
 Element_adaptor::Element_adaptor()
 {

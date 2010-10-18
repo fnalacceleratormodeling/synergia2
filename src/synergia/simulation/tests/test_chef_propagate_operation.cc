@@ -1,9 +1,9 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "components/simulation/independent_operation.h"
+#include "synergia/simulation/independent_operation.h"
 #include "chef_elements_fixture.h"
 #include "bunch_fixture.h"
-#include "utils/boost_test_mpi_fixture.h"
+#include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-12;

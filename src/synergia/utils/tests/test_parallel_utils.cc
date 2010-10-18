@@ -1,7 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "utils/boost_test_mpi_fixture.h"
-#include "utils/parallel_utils.h"
+#include "synergia/utils/boost_test_mpi_fixture.h"
+#include "synergia/utils/parallel_utils.h"
 
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
