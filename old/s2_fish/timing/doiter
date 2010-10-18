@@ -1,9 +1,0 @@
-#!/bin/sh
-
-#~ FLAGS="-O0 -g -DENABLE_MYTIMER_MPI -DDEBUG_ALL"
-FLAGS="-I.. -O3 -DENABLE_MYTIMER_MPI"
-mpicxx $FLAGS -c ../range.cc -o range.o &&\
-mpicxx $FLAGS -c ../mytimer.cc -o mytimer.o &&\
-mpicxx $FLAGS -o iter iter.cc mytimer.o range.o&&\
-./iter
-

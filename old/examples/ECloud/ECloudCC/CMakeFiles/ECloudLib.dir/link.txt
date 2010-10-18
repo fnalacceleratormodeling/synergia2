@@ -1,2 +1,0 @@
-/usr/bin/ar cr libECloudLib.a  "CMakeFiles/ECloudLib.dir/util1.o" 
-/usr/bin/ranlib libECloudLib.a 
