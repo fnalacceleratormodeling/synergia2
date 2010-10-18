@@ -1,0 +1,98 @@
+<[autotemplate]
+usetheme={Madrid}
+usecolortheme={fly}
+usepackage={graphics}
+usepackage={hyperref}
+title={Synergia Refactor}
+setbeamertemplate={navigation symbols}{}
+subtitle={Goals, Plans and Status}
+author={James Amundson}
+date={September 23, 2010}
+[autotemplate]>
+
+== Background ==
+==== Background ====
+<[columns]
+[[[0.5\textwidth]]]
+* Synergia1 was a combination of IMPACT (F90) + CHEF (C++) + frontend (Python)
+** IMPACT provided the driver
+* Synergia2 started as a proof-of-concept for a Python driver
+** Design heavily influenced by IMPACT and Forthon
+* Synergia2 has evolved from there
+* Synergia2 evolved its own C++ space charge solvers
+** IMPACT solvers have atrophied
+* Evolution is not always pretty
+[[[0.5\textwidth]]]
+<<<Platypus.jpg,width=\textwidth>>>
+[columns]>
+
+== Goals ==
+==== Synergia Goals ====
+* World domination
+** Include all collective effects in beam dynamics
+** Greatly expand user base
+
+==== Refactor Goals ====
+* Make code more usable, extensible, maintainable and robust
+** also, more apple pie
+* Implement a clean Python/C++ separation
+** Pure C++ objects
+** Pure Python objects
+* Internal cleanup
+** No MPI COMM WORLD, single multi-dimensional array implementation, etc.
+* Rigorous testing
+* Create a stable API
+* End-user documentation
+* Create abstractions for common modifications
+** Previously done on-the-fly
+
+== Refactor Plans ==
+==== Refactor Features ====
+* Standalone C++ programs now possible
+** Not practical for everyday simulations
+*** Except as a last resort
+** Useful for benchmarking, optimization
+* Extensive unit tests
+* Documentation (using Sphinx and Doxygen) part of build system
+
+== Refactor Status ==
+==== Refactor Status ====
+* Fermilab CPA group has completed (or about to complete) several simulation deadlines
+** Will work more on code during next few months
+* Single-particle portion of code working
+** Has unit tests
+** Not yet implemented: ramping, apertures
+* Proof-of-principle documentation working
+** \url{http://home.fnal.gov/~amundson/synergia-refactor/index.html}
+
+==== Code Statistics ====
+<[columns]
+[[[0.5\textwidth]]]
+<<<language_breakdown.png,width=\textwidth>>>
+[[[0.5\textwidth]]]
+<<<test_breakdown,width=\textwidth>>>
+[columns]>
+
+==== Prototype Application ====[shrink=42]
+
+<[code]
+lattice = Mad8_reader().get_lattice("fodo", "fodo.lat")
+#space_charge = Space_charge_3d_open_hockney(grid)
+space_charge = Collective_operator("space charge")
+lattice_simulator = Lattice_simulator(lattice, map_order)
+stepper = Split_operator_stepper(lattice_simulator, space_charge,
+                                          num_steps)
+bunch = generate_matched_bunch_transverse(lattice_simulator, emit, emit, stdz, dpop,
+                                        num_real_particles, num_macro_particles,
+                                        seed=seed)
+diagnostics_writer_step = Diagnostics_writer("example_full2.h5", Diagnostics_full2())
+diagnostics_writer_turn = Diagnostics_writer("example_particles.h5",
+                                                  Diagnostics_particles())
+propagator = Propagator(stepper)
+propagator.propagate(bunch, num_turns, diagnostics_writer_step, diagnostics_writer_turn)
+[code]>
+
+''The above code snippet contains all the important code. The entire working application can be found in'' 
+<[code]
+components/test_example.py
+[code]>
