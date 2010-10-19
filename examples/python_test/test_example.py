@@ -1,22 +1,6 @@
 #!/usr/bin/env python
-import sys
-sys.path.append('foundation')
-sys.path.append('lattice')
-sys.path.append('simulation')
-sys.path.append('bunch')
-sys.path.append('optics')
-sys.path.append('convertors')
-sys.path.append("/home/amundson/work/synergia2-devel_1_0/install/lib")
+import synergia
 
-from mad8_reader import Mad8_reader
-from pylattice import Lattice, xml_save_lattice, xml_load_lattice
-from pysimulation import Collective_operator, Lattice_simulator, \
-    Split_operator_stepper, Propagator
-from pybunch import Diagnostics_full2, Diagnostics_particles, \
-    Diagnostics_writer, no_diagnostics
-from matching import generate_matched_bunch_transverse
-import pyconvertors
-from one_turn_map import linear_one_turn_map
 import numpy
 import sys
 
@@ -31,20 +15,17 @@ emit = 1e-6
 stdz = 0.01
 dpop = 1e-4
 
-lattice = Mad8_reader().get_lattice("fodo", "fodo.lat")
-#xml_save_lattice(lattice, "fodo_lattice.xml")
-#lattice = Lattice()
-#xml_load_lattice(lattice,"fodo_lattice.xml")
-#space_charge = Space_charge_3d_open_hockney(grid)
-space_charge = Collective_operator("space charge")
-lattice_simulator = Lattice_simulator(lattice, map_order)
-stepper = Split_operator_stepper(lattice_simulator, space_charge,
+lattice = synergia.lattice.Mad8_reader().get_lattice("fodo", "fodo.lat")
+space_charge = synergia.simulation.Collective_operator("space charge")
+lattice_simulator = synergia.simulation.Lattice_simulator(lattice, map_order)
+stepper = synergia.simulation.Split_operator_stepper(lattice_simulator, space_charge,
                                           num_steps)
-bunch = generate_matched_bunch_transverse(lattice_simulator, emit, emit, stdz, dpop,
+bunch = synergia.optics.generate_matched_bunch_transverse(lattice_simulator, emit, emit, stdz, dpop,
                                         num_real_particles, num_macro_particles,
                                         seed=seed)
-diagnostics_writer_step = Diagnostics_writer("example_full2.h5", Diagnostics_full2())
-diagnostics_writer_turn = Diagnostics_writer("example_particles.h5",
-                                                  Diagnostics_particles())
-propagator = Propagator(stepper)
+diagnostics_writer_step = synergia.bunch.Diagnostics_writer("example_full2.h5",
+                                                            synergia.bunch.Diagnostics_full2())
+diagnostics_writer_turn = synergia.bunch.Diagnostics_writer("example_particles.h5",
+                                                            synergia.bunch.Diagnostics_particles())
+propagator = synergia.simulation.Propagator(stepper)
 propagator.propagate(bunch, num_turns, diagnostics_writer_step, diagnostics_writer_turn)
