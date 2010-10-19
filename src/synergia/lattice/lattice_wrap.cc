@@ -11,7 +11,7 @@ using namespace boost::python;
 
 BOOST_PYTHON_MODULE(pylattice)
 {
-    import("pyconvertors");
+//    import("pyconvertors");
     class_<Lattice_element, Lattice_element_sptr >("Lattice_element",
             init<std::string, std::string >())
         .def("get_type", &Lattice_element::get_type,

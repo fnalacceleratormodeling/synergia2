@@ -1,14 +1,13 @@
 #!/usr/bin/env python
 
 import sys
-sys.path.append('..')
-sys.path.append('../../foundation')
-sys.path.append('../../convertors')
+sys.path.append('../../..')
+import local_paths
 
 from nose.tools import *
-from mad8_reader import Mad8_reader
-from pylattice import Lattice_element, Element_adaptor_map, Lattice
-from pyfoundation import Four_momentum, Reference_particle, pconstants
+from synergia.lattice import Mad8_reader
+from synergia.lattice import Lattice_element, Element_adaptor_map, Lattice
+from synergia.foundation import Four_momentum, Reference_particle, pconstants
 
 def test_construct():
     reader = Mad8_reader()

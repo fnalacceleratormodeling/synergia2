@@ -4,8 +4,8 @@ import numpy
 
 from one_turn_map import linear_one_turn_map
 from mpi4py import MPI
-from pybunch import Bunch, populate_6d
-from pyfoundation import Random_distribution
+from synergia.bunch import Bunch, populate_6d
+from synergia.foundation import Random_distribution
 from math import acos, sin, sqrt
 
 def _get_correlation_matrix(map, stdx, stdy, stdz):

@@ -75,8 +75,16 @@ ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 # External libraries generate many warnings
 #add_definitions(-Wall -pedantic -Wno-long-long)
 
+set(CHEF_LIBRARY_DIRS_EXPANDED "")
+foreach(dir ${CHEF_LIBRARY_DIRS})
+    set(CHEF_LIBRARY_DIRS_EXPANDED "${CHEF_LIBRARY_DIRS_EXPANDED} \"${dir}\"")
+endforeach(dir)
+
 configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in"
     "${SYNERGIA2_BINARY_DIR}/synergia-local" IMMEDIATE)
+
+configure_file("${SYNERGIA2_SOURCE_DIR}/src/local_paths.py.in"
+    "${SYNERGIA2_BINARY_DIR}/src/local_paths.py" IMMEDIATE)
 
 include_directories(${SYNERGIA2_SOURCE_DIR}/src)
 

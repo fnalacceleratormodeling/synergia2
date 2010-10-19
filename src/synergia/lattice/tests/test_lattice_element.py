@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 
 import sys
-sys.path.append('..')
-sys.path.append('../../convertors')
+sys.path.append('../../..')
+import local_paths
 
-from pylattice import Lattice_element
+from synergia.lattice import Lattice_element
 from nose.tools import *
 
 name = "foo"

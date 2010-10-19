@@ -1,16 +1,12 @@
 #!/usr/bin/env python
 
 import sys
-sys.path.append("../../simulation")
-sys.path.append("../../lattice")
-sys.path.append("../../foundation")
-sys.path.append("../../convertors")
-sys.path.append("..")
-sys.path.append("/home/amundson/work/synergia2-old_devel_1_0/install/lib")
+sys.path.append("../../..")
+import local_paths
 
-from one_turn_map import linear_one_turn_map
-from mad8_reader import Mad8_reader
-from pysimulation import Collective_operator, Lattice_simulator, \
+from synergia.optics import linear_one_turn_map
+from synergia.lattice import Mad8_reader
+from synergia.simulation import Collective_operator, Lattice_simulator, \
     Split_operator_stepper
 
 def test_linear_one_turn_map():

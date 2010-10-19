@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-from mad8_parser import Mad8_parser
-from pylattice import Lattice_element, Element_adaptor_map, Lattice
-from pyfoundation import pconstants, Four_momentum, Reference_particle
+from synergia.lattice import Mad8_parser
+from synergia.lattice import Lattice_element, Element_adaptor_map, Lattice
+from synergia.foundation import pconstants, Four_momentum, Reference_particle
 
 class Mad8_reader:
     def __init__(self, element_adaptor_map=None):

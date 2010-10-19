@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import numpy
-from pylattice import reference_particle_to_chef_jet_particle, \
+from synergia.lattice import reference_particle_to_chef_jet_particle, \
     chef_unit_conversion, get_chef_index
 
 import basic_toolkit
