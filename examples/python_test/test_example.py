@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 import synergia
 
-import numpy
-import sys
-
 num_macro_particles = 32000
 seed = 4
 grid = [16, 16, 16]
