@@ -89,4 +89,5 @@ configure_file("${SYNERGIA2_SOURCE_DIR}/src/local_paths.py.in"
 include_directories(${SYNERGIA2_SOURCE_DIR}/src)
 
 add_subdirectory(src)
+add_subdirectory(examples)
 add_subdirectory(docs)
