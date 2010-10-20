@@ -8,9 +8,9 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture)
 const double tolerance = 1.0e-15;
 const unsigned long int test_seed = 12345678;
 const int array_length = 10000;
-const int default_min = -7.1;
-const int default_max = 3.25;
-const int n_sigma = 4.5; // maximum number of standard deviations for statistical tests
+const double default_min = -7.1;
+const double default_max = 3.25;
+const double n_sigma = 4.5; // maximum number of standard deviations for statistical tests
 const double pi = 3.1415926535897932384626433832;
 
 void

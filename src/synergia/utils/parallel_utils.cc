@@ -6,7 +6,7 @@ decompose_1d_raw(int processors, int length, std::vector<int > &offsets,
         std::vector<int > &counts)
 {
     int min_counts = length / processors;
-    int remainder = fmod(length, processors);
+    int remainder = static_cast<int > (fmod(length, processors));
     int offset = 0;
     for (int i = 0; i < processors; ++i) {
         int count = min_counts;
@@ -20,8 +20,8 @@ decompose_1d_raw(int processors, int length, std::vector<int > &offsets,
 }
 
 void
-decompose_1d(Commxx comm, int length,
-        std::vector<int > & offsets, std::vector<int > &counts)
+decompose_1d(Commxx comm, int length, std::vector<int > & offsets, std::vector<
+        int > &counts)
 {
     int size = comm.get_size();
     decompose_1d_raw(size, length, offsets, counts);

@@ -3,6 +3,7 @@
 #include "synergia/lattice/lattice.h"
 
 const std::string name("foo");
+const int charge = -1;
 const double mass = 100.0;
 const double total_energy = 125.0;
 const double tolerance = 1.0e-12;
@@ -23,7 +24,7 @@ BOOST_AUTO_TEST_CASE(get_name_lattice)
 BOOST_AUTO_TEST_CASE(set_reference_particle)
 {
     Lattice lattice(name);
-    Reference_particle reference_particle(mass, total_energy);
+    Reference_particle reference_particle(charge, mass, total_energy);
     lattice.set_reference_particle(reference_particle);
 }
 
@@ -31,7 +32,7 @@ BOOST_AUTO_TEST_CASE(has_reference_particle)
 {
     Lattice lattice(name);
     BOOST_CHECK_EQUAL(lattice.has_reference_particle(), false);
-    Reference_particle reference_particle(mass, total_energy);
+    Reference_particle reference_particle(charge, mass, total_energy);
     lattice.set_reference_particle(reference_particle);
     BOOST_CHECK_EQUAL(lattice.has_reference_particle(), true);
 }
@@ -39,7 +40,7 @@ BOOST_AUTO_TEST_CASE(has_reference_particle)
 BOOST_AUTO_TEST_CASE(get_reference_particle)
 {
     Lattice lattice(name);
-    Reference_particle reference_particle(mass, total_energy);
+    Reference_particle reference_particle(charge, mass, total_energy);
     lattice.set_reference_particle(reference_particle);
     BOOST_CHECK(lattice.get_reference_particle().equal(reference_particle, tolerance));
 }
@@ -197,7 +198,7 @@ BOOST_AUTO_TEST_CASE(test_serialize1)
 BOOST_AUTO_TEST_CASE(test_serialize2)
 {
     Lattice lattice(name);
-    Reference_particle reference_particle(mass, total_energy);
+    Reference_particle reference_particle(charge, mass, total_energy);
     lattice.set_reference_particle(reference_particle);
     xml_save<Lattice > (lattice, "lattice2.xml");
 
