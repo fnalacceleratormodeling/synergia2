@@ -1,8 +1,6 @@
 #!/bin/sh
 
 cd `dirname $0`
-component_header_files=`find ../components -name \*.h | tr '\n' ' '`
-util_header_files=`find ../utils -name \*.h | grep -v /tests/ | grep -v /eigen2/ | tr '\n' ' '`
-#echo "component_header_files=$component_header_files"
-#echo "util_header_files=$util_header_files"
-sed "s%@@header_files@@%$component_header_files $util_header_files%" synergia.cfg.in > synergia.cfg
+header_files=`find ../src -name \*.h | grep -v '/eigen2/' | tr '\n' ' '`
+#echo "header_files=$header_files"
+sed "s%@@header_files@@%$header_files%" synergia.cfg.in > synergia.cfg
