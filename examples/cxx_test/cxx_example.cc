@@ -1,6 +1,6 @@
 #include <iostream>
+#include <stdexcept>
 
-// n.b. the use of relative pathnames here is not for general consumption
 #include "synergia/lattice/lattice.h"
 #include "synergia/utils/xml_serialization.h"
 #include "synergia/simulation/operator.h"
@@ -29,7 +29,14 @@ main(int argc, char **argv)
     const double dpop = 1e-4;
 
     Lattice_sptr lattice_sptr(new Lattice());
-    xml_load(*lattice_sptr, "cxx_lattice.xml");
+    try {
+        xml_load(*lattice_sptr, "cxx_lattice.xml");
+    }
+    catch (std::runtime_error) {
+        std::cerr << "cxx_example: failed to find cxx_lattice.xml\n";
+        std::cerr << "Run cxx_example.py to generate cxx_lattice.xml\n";
+        exit(1);
+    }
     Collective_operator_sptr space_charge_sptr(new Collective_operator(
             "space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
