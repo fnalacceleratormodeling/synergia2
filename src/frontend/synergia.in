@@ -18,8 +18,7 @@ install_dir="${CMAKE_INSTALL_PREFIX}"
 install_python_dir="`find $install_dir -type d -name site-packages`"
 # end hack
 chef_dirs=`echo "${CHEF_LIBRARY_DIRS}" | sed 's/;/ /g'`
-impact_dir="$local_dir/../impact/Forthon_Interfaces"
-for dir in $local_dir $chef_dirs $impact_dir $install_python_dir
+for dir in $local_dir/src $chef_dirs $install_python_dir
 do
     PYTHONPATH="$dir:$PYTHONPATH"
 done
@@ -35,6 +34,12 @@ if [ x"$1" = x"--ldlibrarypath" ]; then
 	exit 0
 fi
 
+PYTHON_EXECUTABLE="${PYTHON_EXECUTABLE}"
+if [ x"$1" = x"--ipython" ]; then
+	PYTHON_EXECUTABLE=ipython
+	shift
+fi
+
 just_options=false
 options_file="`basename \"$1\" .py 2> /dev/null`_options.py"
 if [ -f "$options_file" ]; then
@@ -45,12 +50,12 @@ if [ -f "$options_file" ]; then
 		fi
 		if [ x"$arg" = x"createjob=1" ]; then
 			just_options=true
-		fi		
+		fi
 	done
 fi
 
 if [ "$just_options" = "true" ]; then
-	exec "${PYTHON_EXECUTABLE}" "$options_file" --strip-options-file "$@"
+	exec "$PYTHON_EXECUTABLE" "$options_file" --strip-options-file "$@"
 else
-	exec "${PYTHON_EXECUTABLE}" "$@"
+	exec "$PYTHON_EXECUTABLE" "$@"
 fi
