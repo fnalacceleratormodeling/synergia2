@@ -1,6 +1,8 @@
 #include "synergia/collective/deposit.h"
 #include "synergia/foundation/physical_constants.h"
 
+#include <iostream>
+
 /// Deposit charge using Cloud-in-Cell (CIC) algorithm.
 /// The indices on the rho array are in an unusual order: [z][y][x],
 /// so that the FFTW routines can distribute along the z-axis.

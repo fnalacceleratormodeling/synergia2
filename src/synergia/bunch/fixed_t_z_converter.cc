@@ -3,6 +3,8 @@
 #include "fixed_t_z_converter.h"
 #include "bunch.h"
 
+#include <iostream>
+
 void
 Fixed_t_z_zeroth::fixed_t_to_fixed_z(Bunch &bunch)
 {
