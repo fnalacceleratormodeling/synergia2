@@ -6,3 +6,10 @@ add_subdirectory(lattice)
 add_subdirectory(simulation)
 add_subdirectory(optics)
 add_subdirectory(collective)
+
+configure_file("${SYNERGIA2_SOURCE_DIR}/src/synergia/synergia.cc.in"
+    "${SYNERGIA2_BINARY_DIR}/src/synergia/synergia.cc" IMMEDIATE)
+
+add_library(synergia SHARED synergia.cc)
+target_link_libraries(synergia parallel_utils hdf5_utils foundation bunch
+    lattice simulation distributed_fft space_charge)
