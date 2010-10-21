@@ -6,4 +6,15 @@ target_link_libraries(lattice foundation ${CHEF_LIBS} ${Boost_REGEX_LIBRARY}
 add_python_extension(pylattice lattice_wrap.cc)
 target_link_libraries(pylattice lattice foundation ${CHEF_LIBS} ${Boost_LIBRARIES})
 
+install(TARGETS lattice DESTINATION lib)
+install(FILES
+    chef_elements.h
+    chef_lattice.h
+    chef_utils.h
+    element_adaptor.h
+    lattice_element.h
+    lattice_element_slice.h
+    lattice.h
+    DESTINATION include/synergia/lattice)
+
 add_subdirectory(tests)
