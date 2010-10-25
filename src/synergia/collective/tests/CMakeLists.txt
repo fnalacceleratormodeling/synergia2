@@ -2,31 +2,31 @@
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
 add_executable(test_rectangular_grid_domain test_rectangular_grid_domain.cc)
-target_link_libraries(test_rectangular_grid_domain space_charge
+target_link_libraries(test_rectangular_grid_domain synergia_space_charge
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_rectangular_grid_domain test_rectangular_grid_domain)
 #add_test(test_bunch_py nosetests test_bunch.py)
 
 add_executable(test_deposit test_deposit.cc)
-target_link_libraries(test_deposit space_charge
+target_link_libraries(test_deposit synergia_space_charge
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_deposit test_deposit)
 #add_test(test_bunch_py nosetests test_bunch.py)
 
 add_executable(test_rectangular_grid test_rectangular_grid.cc)
-target_link_libraries(test_rectangular_grid space_charge
+target_link_libraries(test_rectangular_grid synergia_space_charge
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_rectangular_grid test_rectangular_grid)
 #add_test(test_bunch_py nosetests test_bunch.py)
 
 add_executable(test_distributed_rectangular_grid test_distributed_rectangular_grid.cc)
-target_link_libraries(test_distributed_rectangular_grid space_charge
+target_link_libraries(test_distributed_rectangular_grid synergia_space_charge
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_distributed_rectangular_grid test_distributed_rectangular_grid)
 #add_test(test_bunch_py nosetests test_bunch.py)
 
 add_executable(test_distributed_rectangular_grid_mpi test_distributed_rectangular_grid_mpi.cc)
-target_link_libraries(test_distributed_rectangular_grid_mpi space_charge
+target_link_libraries(test_distributed_rectangular_grid_mpi synergia_space_charge
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_distributed_rectangular_grid_mpi1 ${MPIEXEC} -np 1 test_distributed_rectangular_grid_mpi)
 add_test(test_distributed_rectangular_grid_mpi2 ${MPIEXEC} -np 2 test_distributed_rectangular_grid_mpi)
