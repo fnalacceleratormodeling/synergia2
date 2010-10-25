@@ -5,8 +5,8 @@ sys.path.append('..')
 sys.path.append('../../convertors')
 
 from mpi4py import MPI
-from pyfoundation import Distribution, Random_distribution
-import pyconvertors
+from foundation import Distribution, Random_distribution
+import convertors
 import numpy
 from nose.tools import *
 

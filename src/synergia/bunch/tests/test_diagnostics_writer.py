@@ -4,11 +4,11 @@ sys.path.append('../../foundation')
 sys.path.append('../../convertors')
 
 from mpi4py import MPI
-from pyfoundation import Reference_particle, Four_momentum
-from pybunch import Bunch
-from pybunch import Diagnostics, Diagnostics_full2
-from pybunch import Diagnostics_writer, no_diagnostics
-import pyconvertors
+from foundation import Reference_particle, Four_momentum
+from bunch import Bunch
+from bunch import Diagnostics, Diagnostics_full2
+from bunch import Diagnostics_writer, no_diagnostics
+import convertors
 import numpy
 from nose.tools import *
 

@@ -27,7 +27,7 @@ class Dummy2
 {
 };
 
-BOOST_PYTHON_MODULE(pyfoundation)
+BOOST_PYTHON_MODULE(foundation)
 {
     import_array();
     if (import_mpi4py() < 0) {

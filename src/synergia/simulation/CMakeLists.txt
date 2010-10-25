@@ -1,12 +1,15 @@
-add_library(simulation SHARED operator.cc step.cc stepper.cc propagator.cc
+add_library(synergia_simulation SHARED operator.cc step.cc stepper.cc propagator.cc
     fast_mapping.cc chef_propagator.cc independent_operation.cc
     lattice_simulator.cc operation_extractor.cc)
-target_link_libraries(simulation foundation bunch lattice ${CHEF_LIBS} ${Boost_REGEX_LIBRARY})
+target_link_libraries(synergia_simulation synergia_foundation synergia_bunch
+    synergia_lattice ${CHEF_LIBS} ${Boost_REGEX_LIBRARY})
 
-add_python_extension(pysimulation simulation_wrap.cc)
-target_link_libraries(pysimulation foundation bunch lattice simulation ${CHEF_LIBS} ${Boost_LIBRARIES})
+add_python_extension(simulation simulation_wrap.cc)
+target_link_libraries(simulation synergia_foundation synergia_bunch
+    synergia_lattice synergia_simulation
+    ${CHEF_LIBS} ${Boost_LIBRARIES})
 
-install(TARGETS simulation DESTINATION lib)
+install(TARGETS synergia_simulation DESTINATION lib)
 install(FILES
     chef_propagator.h
     fast_mapping.h

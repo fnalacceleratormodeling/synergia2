@@ -7,7 +7,7 @@
 
 using namespace boost::python;
 
-BOOST_PYTHON_MODULE(pysimulation)
+BOOST_PYTHON_MODULE(simulation)
 {
     class_<Operator, Operator_sptr, boost::noncopyable >("Operator", no_init)
         .def("get_name", &Operator::get_name,

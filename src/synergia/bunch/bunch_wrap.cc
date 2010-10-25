@@ -8,7 +8,7 @@
 
 using namespace boost::python;
 
-BOOST_PYTHON_MODULE(pybunch)
+BOOST_PYTHON_MODULE(bunch)
 {
     import_array();
     if (import_mpi4py() < 0) {

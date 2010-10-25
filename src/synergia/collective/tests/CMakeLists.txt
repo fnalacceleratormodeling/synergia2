@@ -35,7 +35,7 @@ add_test(test_distributed_rectangular_grid_mpi4 ${MPIEXEC} -np 4 test_distribute
 #add_test(test_bunch_py nosetests test_bunch.py)
 
 add_executable(test_space_charge_3d_open_hockney test_space_charge_3d_open_hockney.cc)
-target_link_libraries(test_space_charge_3d_open_hockney space_charge ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_space_charge_3d_open_hockney synergia_space_charge ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_space_charge_3d_open_hockney test_space_charge_3d_open_hockney)
 
 #set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES

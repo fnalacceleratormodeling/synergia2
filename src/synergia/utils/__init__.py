@@ -1,1 +1,1 @@
-from pyparallel_utils import *
+from parallel_utils import *

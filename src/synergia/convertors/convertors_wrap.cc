@@ -9,7 +9,7 @@
 
 using namespace boost::python;
 
-BOOST_PYTHON_MODULE(pyconvertors)
+BOOST_PYTHON_MODULE(convertors)
 {
     import_array();
     if (import_mpi4py() < 0) {

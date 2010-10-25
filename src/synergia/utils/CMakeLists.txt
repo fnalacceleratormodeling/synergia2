@@ -1,15 +1,15 @@
-add_library(parallel_utils SHARED parallel_utils.cc commxx.cc)
-add_python_extension(pyparallel_utils parallel_utils_wrap.cc)
-target_link_libraries(pyparallel_utils parallel_utils ${Boost_LIBRARIES})
+add_library(synergia_parallel_utils SHARED parallel_utils.cc commxx.cc)
+add_python_extension(parallel_utils parallel_utils_wrap.cc)
+target_link_libraries(parallel_utils synergia_parallel_utils ${Boost_LIBRARIES})
 
-add_library(hdf5_utils SHARED hdf5_writer.cc hdf5_serial_writer.cc
+add_library(synergia_hdf5_utils SHARED hdf5_writer.cc hdf5_serial_writer.cc
     hdf5_chunked_array2d_writer.cc)
-target_link_libraries(hdf5_utils ${HDF5_LIBRARIES})
+target_link_libraries(synergia_hdf5_utils ${HDF5_LIBRARIES})
 
-add_library(distributed_fft SHARED distributed_fft3d.cc)
-target_link_libraries(distributed_fft ${PARALLEL_FFTW_LIBRARIES} parallel_utils)
+add_library(synergia_distributed_fft SHARED distributed_fft3d.cc)
+target_link_libraries(synergia_distributed_fft ${PARALLEL_FFTW_LIBRARIES} synergia_parallel_utils)
 
-install(TARGETS parallel_utils hdf5_utils DESTINATION lib)
+install(TARGETS synergia_parallel_utils synergia_hdf5_utils DESTINATION lib)
 install(FILES
     boost_test_mpi_fixture.h
     comm_converter.h

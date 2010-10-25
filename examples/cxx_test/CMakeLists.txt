@@ -1,5 +1,5 @@
 add_executable(cxx_example cxx_example.cc)
-target_link_libraries(cxx_example simulation)
+target_link_libraries(cxx_example synergia_simulation)
 
 set(CLEAN_FILES
     cxx_covariance_matrix.xml

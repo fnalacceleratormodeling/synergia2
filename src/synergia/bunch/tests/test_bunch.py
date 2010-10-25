@@ -6,9 +6,9 @@ sys.path.append('../../foundation')
 sys.path.append('../../convertors')
 
 from mpi4py import MPI
-from pyfoundation import Reference_particle, Four_momentum
-from pybunch import Bunch, Fixed_t_z_zeroth, Fixed_t_z_ballistic
-import pyconvertors
+from foundation import Reference_particle, Four_momentum
+from bunch import Bunch, Fixed_t_z_zeroth, Fixed_t_z_ballistic
+import convertors
 import numpy
 from nose.tools import *
 

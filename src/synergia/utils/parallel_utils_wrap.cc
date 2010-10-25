@@ -26,7 +26,7 @@ decompose_1d_wrap(Commxx comm, int length)
             container_conversions::to_tuple<std::vector<int> >::convert_tuple(counts));
 }
 
-BOOST_PYTHON_MODULE(pyparallel_utils)
+BOOST_PYTHON_MODULE(parallel_utils)
 {
     if (import_mpi4py() < 0) {
         return;

@@ -14,8 +14,9 @@ configure_file("${SYNERGIA2_SOURCE_DIR}/src/synergia/version.py.in"
     "${SYNERGIA2_BINARY_DIR}/src/synergia/version.py" IMMEDIATE)
 
 add_library(synergia SHARED synergia.cc)
-target_link_libraries(synergia parallel_utils hdf5_utils foundation bunch
-    lattice simulation distributed_fft space_charge)
+target_link_libraries(synergia synergia_parallel_utils synergia_hdf5_utils
+    synergia_foundation synergia_bunch synergia_lattice synergia_simulation
+    synergia_distributed_fft synergia_space_charge)
 
 install(TARGETS synergia DESTINATION lib)
 install(FILES synergia.h DESTINATION include/synergia)

@@ -9,12 +9,12 @@ sys.path.append('convertors')
 sys.path.append("/home/amundson/work/synergia2-devel_1_0/install/lib")
 
 from mad8_reader import Mad8_reader
-from pysimulation import Collective_operator, Lattice_simulator, \
+from simulation import Collective_operator, Lattice_simulator, \
     Split_operator_stepper, Propagator
-from pybunch import Diagnostics_full2, Diagnostics_particles, \
+from bunch import Diagnostics_full2, Diagnostics_particles, \
     Diagnostics_writer, no_diagnostics
 from matching import generate_matched_bunch_transverse
-import pyconvertors
+import convertors
 from one_turn_map import linear_one_turn_map
 import numpy
 import sys

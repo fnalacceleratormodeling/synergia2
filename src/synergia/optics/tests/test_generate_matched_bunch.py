@@ -10,7 +10,7 @@ sys.path.append("/home/amundson/work/synergia2-devel_1_0/install/lib")
 
 from nose.tools import *
 from mad8_reader import Mad8_reader
-from pysimulation import Lattice_simulator
+from simulation import Lattice_simulator
 
 from matching import generate_matched_bunch, generate_matched_bunch_transverse
 

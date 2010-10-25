@@ -9,7 +9,7 @@
 
 using namespace boost::python;
 
-BOOST_PYTHON_MODULE(pylattice)
+BOOST_PYTHON_MODULE(lattice)
 {
 //    import("pyconvertors");
     class_<Lattice_element, Lattice_element_sptr >("Lattice_element",

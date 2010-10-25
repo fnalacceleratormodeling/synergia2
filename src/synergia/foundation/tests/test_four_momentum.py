@@ -3,7 +3,7 @@
 import sys
 sys.path.append('..')
 
-from pyfoundation import Four_momentum
+from foundation import Four_momentum
 from nose.tools import *
 
 mass = 3.0

@@ -4,8 +4,8 @@ import sys
 sys.path.append('..')
 sys.path.append('../../convertors')
 
-from pyfoundation import Reference_particle, Four_momentum
-import pyconvertors
+from foundation import Reference_particle, Four_momentum
+import convertors
 
 import numpy
 from nose.tools import *
