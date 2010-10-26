@@ -53,12 +53,15 @@ Space_charge_3d_open_hockney::setup_nondoubled_communication()
 Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
         std::vector<int > const & grid_shape, bool periodic_z,
         Commxx const& comm, double z_period, double n_sigma) :
-    Collective_operator("space charge"), grid_shape(grid_shape),
+    Collective_operator("space charge"), grid_shape(3),
             doubled_grid_shape(3), periodic_z(periodic_z), comm2(comm),
             z_period(z_period), n_sigma(n_sigma)
 {
+    this->grid_shape[0] = grid_shape[2];
+    this->grid_shape[1] = grid_shape[1];
+    this->grid_shape[2] = grid_shape[0];
     for (int i = 0; i < 3; ++i) {
-        doubled_grid_shape[i] = 2 * grid_shape[i];
+        doubled_grid_shape[i] = 2 * this->grid_shape[i];
     }
     distributed_fft3d_sptr = Distributed_fft3d_sptr(new Distributed_fft3d(
             doubled_grid_shape, comm));
@@ -75,6 +78,12 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(bool periodic_z,
 {
     grid_shape = distributed_fft3d_sptr->get_shape();
     setup_nondoubled_communication();
+}
+
+double
+Space_charge_3d_open_hockney::get_n_sigma() const
+{
+    return n_sigma;
 }
 
 void

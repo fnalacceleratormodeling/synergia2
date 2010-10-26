@@ -29,12 +29,14 @@ private:
 public:
     Space_charge_3d_open_hockney(std::vector<int > const & grid_shape,
             bool periodic_z, Commxx const& comm, double z_period = 0.0,
-            double n_sigma = 4.0);
+            double n_sigma = 8.0);
     /// Note: Use Space_charge_3d_open_hockney::get_internal_grid_shape for
     /// Distributed_fft3d.
     Space_charge_3d_open_hockney(bool periodic_z,
             Distributed_fft3d_sptr distributed_fft3d_sptr, double z_period =
-                    0.0, double n_sigma = 4.0);
+                    0.0, double n_sigma = 8.0);
+    double
+    get_n_sigma() const;
     void
     update_domain(Bunch const& bunch);
     Rectangular_grid_domain_sptr
