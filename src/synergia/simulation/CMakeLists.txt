@@ -21,5 +21,11 @@ install(FILES
     step.h
     stepper.h
     DESTINATION include/synergia/simulation)
+install(FILES
+    __init__.py
+    DESTINATION lib/synergia/simulation)
+install(TARGETS
+    simulation
+    DESTINATION lib/synergia/simulation)
 
 add_subdirectory(tests)

@@ -20,3 +20,7 @@ target_link_libraries(synergia synergia_parallel_utils synergia_hdf5_utils
 
 install(TARGETS synergia DESTINATION lib)
 install(FILES synergia.h DESTINATION include/synergia)
+install(FILES
+    __init__.py
+    version.py
+    DESTINATION lib/synergia)

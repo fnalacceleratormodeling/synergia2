@@ -16,5 +16,13 @@ install(FILES
     lattice_element_slice.h
     lattice.h
     DESTINATION include/synergia/lattice)
+install(FILES
+    __init__.py
+    mad8_parser.py
+    mad8_reader.py
+    DESTINATION lib/synergia/lattice)
+install(TARGETS
+    lattice
+    DESTINATION lib/synergia/lattice)
 
 add_subdirectory(tests)

@@ -14,5 +14,8 @@ install(FILES
     rectangular_grid.h
     space_charge_3d_open_hockney.h
     DESTINATION include/synergia/collective)
+install(FILES
+    __init__.py
+    DESTINATION lib/synergia/collective)
 
 add_subdirectory(tests)
