@@ -115,6 +115,8 @@ public:
     Sextupole_mad8_adaptor();
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Sextupole_mad8_adaptor();
 };
@@ -125,6 +127,8 @@ public:
     Octupole_mad8_adaptor();
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Octupole_mad8_adaptor();
 };

@@ -343,20 +343,19 @@ Chef_elements
 Quadrupole_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
         double brho)
 {
-    // tilt can have a string value of ""
-    if (lattice_element.has_string_attribute("tilt")) {
-        throw(runtime_error(
-                "lattice_element_to_chef_quadrupole: tilt element not handled"));
-    }
-    if (lattice_element.has_double_attribute("tilt")) {
-        if (lattice_element.get_double_attribute("tilt") != 0.0) {
-            throw(runtime_error(
-                    "lattice_element_to_chef_quadrupole: non-zero tilt element not handled"));
-        }
-    }
+    double qtilt;
     Chef_elements retval;
 
-    double length = lattice_element.get_length();
+    alignmentData aligner;
+    double length = lattice_element.get_double_attribute("l");
+
+    // a string attribute implies default pi/4
+    if (lattice_element.has_string_attribute("tilt")) {
+	qtilt = M_PI/4.0;
+    } else {
+	qtilt = lattice_element.get_double_attribute("tilt");
+    }
+
     bmlnElmnt* bmln_elmnt;
     if (length == 0.0) {
         bmln_elmnt = new thinQuad(lattice_element.get_name().c_str(), brho
@@ -365,6 +364,14 @@ Quadrupole_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
         bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
                 brho * lattice_element.get_double_attribute("k1"));
     }
+
+    if (qtilt != 0.0) {
+	aligner.xOffset = 0.0;
+	aligner.yOffset = 0.0;
+	aligner.tilt = qtilt;
+	bmln_elmnt->setAlignment(aligner);
+    }
+
     ElmPtr elm(bmln_elmnt);
     retval.push_back(elm);
     return retval;
@@ -387,6 +394,48 @@ Sextupole_mad8_adaptor::set_default_attributes(
     set_double_default(lattice_element, "tilt", 0.0);
 }
 
+Chef_elements
+Sextupole_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+    double brho)
+{
+    Chef_elements retval;
+
+    double sexlen = lattice_element.get_double_attribute("l");
+    double sexk2 = lattice_element.get_double_attribute("k2");
+    double sextilt;
+
+    alignmentData aligner;
+
+    bmlnElmnt* bmln_elmnt;
+
+    if (sexlen == 0.0) {
+	bmln_elmnt = new thinSextupole(lattice_element.get_name().c_str(),
+				       brho*sexk2/2.0);
+    } else {
+	bmln_elmnt = new sextupole(lattice_element.get_name().c_str(), sexlen,
+				   brho*sexk2/2.0);
+    }
+
+    if (lattice_element.has_double_attribute("tilt")) {
+	sextilt = lattice_element.get_double_attribute("tilt");
+    } else if (lattice_element.has_string_attribute("tilt")) {
+	// if this is a string, assume just tilt specified with no
+	// value so use pi/6.
+	sextilt = M_PI/6.0;
+    }
+
+    if (sextilt != 0.0) {
+	aligner.xOffset = 0.0;
+	aligner.yOffset = 0.0;
+	aligner.tilt = sextilt;
+	bmln_elmnt->setAlignment(aligner);
+    }
+
+    ElmPtr elm = ElmPtr(bmln_elmnt);
+    retval.push_back(elm);
+    return retval;
+}
+
 Sextupole_mad8_adaptor::~Sextupole_mad8_adaptor()
 {
 }
@@ -403,6 +452,47 @@ Octupole_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
     set_double_default(lattice_element, "tilt", 0.0);
 }
 
+Chef_elements
+Octupole_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+    double brho)
+{
+    Chef_elements retval;
+
+    double octulen = lattice_element.get_double_attribute("l");
+    double octuk2 = lattice_element.get_double_attribute("k2");
+    double octutilt;
+
+    alignmentData aligner;
+
+    bmlnElmnt* bmln_elmnt;
+
+    if (octulen == 0.0) {
+	bmln_elmnt = new thinOctupole(lattice_element.get_name().c_str(),
+				       brho*octuk2/6.0);
+    } else {
+	bmln_elmnt = new octupole(lattice_element.get_name().c_str(), octulen,
+				   brho*octuk2/6.0);
+    }
+
+    if (lattice_element.has_double_attribute("tilt")) {
+	octutilt = lattice_element.get_double_attribute("tilt");
+    } else if (lattice_element.has_string_attribute("tilt")) {
+	// if this is a string, assume just tilt specified with no
+	// value so use pi/8.
+	octutilt = M_PI/8.0;
+    }
+
+    if (octutilt != 0.0) {
+	aligner.xOffset = 0.0;
+	aligner.yOffset = 0.0;
+	aligner.tilt = octutilt;
+	bmln_elmnt->setAlignment(aligner);
+    }
+
+    ElmPtr elm = ElmPtr(bmln_elmnt);
+    retval.push_back(elm);
+    return retval;
+}
 Octupole_mad8_adaptor::~Octupole_mad8_adaptor()
 {
 }
