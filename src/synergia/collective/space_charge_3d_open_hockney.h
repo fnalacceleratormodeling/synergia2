@@ -24,8 +24,11 @@ private:
     bool in_group1;
     MPI_Comm mpi_comm1;
     double n_sigma;
+    bool domain_fixed;
     void
     setup_nondoubled_communication();
+    void
+    set_doubled_domain();
 public:
     Space_charge_3d_open_hockney(std::vector<int > const & grid_shape,
             bool periodic_z, Commxx const& comm, double z_period = 0.0,
@@ -38,11 +41,13 @@ public:
     double
     get_n_sigma() const;
     void
+    set_fixed_domain(Rectangular_grid_domain_sptr domain_sptr);
+    void
     update_domain(Bunch const& bunch);
     Rectangular_grid_domain_sptr
-    get_domain_sptr();
+    get_domain_sptr() const;
     Rectangular_grid_domain_sptr
-    get_doubled_domain_sptr();
+    get_doubled_domain_sptr() const;
     /// Returns local charge density on original grid in [C/m^3]
     Rectangular_grid_sptr
     get_local_charge_density(Bunch const& bunch);

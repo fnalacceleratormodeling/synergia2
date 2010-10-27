@@ -53,9 +53,9 @@ Space_charge_3d_open_hockney::setup_nondoubled_communication()
 Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
         std::vector<int > const & grid_shape, bool periodic_z,
         Commxx const& comm, double z_period, double n_sigma) :
-    Collective_operator("space charge"), grid_shape(3),
-            doubled_grid_shape(3), periodic_z(periodic_z), comm2(comm),
-            z_period(z_period), n_sigma(n_sigma)
+    Collective_operator("space charge"), grid_shape(3), doubled_grid_shape(3),
+            periodic_z(periodic_z), comm2(comm), z_period(z_period), n_sigma(
+                    n_sigma), domain_fixed(false)
 {
     this->grid_shape[0] = grid_shape[2];
     this->grid_shape[1] = grid_shape[1];
@@ -74,7 +74,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(bool periodic_z,
     Collective_operator("space charge"), grid_shape(3), periodic_z(periodic_z),
             distributed_fft3d_sptr(distributed_fft3d_sptr), comm2(
                     distributed_fft3d_sptr->get_comm()), z_period(z_period),
-            n_sigma(n_sigma)
+            n_sigma(n_sigma), domain_fixed(false)
 {
     grid_shape = distributed_fft3d_sptr->get_shape();
     setup_nondoubled_communication();
@@ -87,36 +87,54 @@ Space_charge_3d_open_hockney::get_n_sigma() const
 }
 
 void
-Space_charge_3d_open_hockney::update_domain(Bunch const& bunch)
+Space_charge_3d_open_hockney::set_doubled_domain()
 {
-    Diagnostics diagnostics(bunch);
-    std::vector<double > size(3);
-    std::vector<double > offset(3);
-    offset[0] = diagnostics.get_mean()[Bunch::z];
-    size[0] = n_sigma * diagnostics.get_std()[Bunch::z];
-    offset[1] = diagnostics.get_mean()[Bunch::y];
-    size[1] = n_sigma * diagnostics.get_std()[Bunch::y];
-    offset[2] = diagnostics.get_mean()[Bunch::x];
-    size[2] = n_sigma * diagnostics.get_std()[Bunch::x];
-    domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
-            size, offset, grid_shape, periodic_z));
     std::vector<double > doubled_size(3);
     for (int i = 0; i < 3; ++i) {
-        doubled_size[i] = 2 * size[i];
+        doubled_size[i] = 2 * domain_sptr->get_physical_size()[i];
     }
     doubled_domain_sptr = Rectangular_grid_domain_sptr(
-            new Rectangular_grid_domain(doubled_size, offset,
-                    doubled_grid_shape, periodic_z));
+            new Rectangular_grid_domain(doubled_size,
+                    domain_sptr->get_physical_offset(), doubled_grid_shape,
+                    periodic_z));
+}
+
+void
+Space_charge_3d_open_hockney::set_fixed_domain(
+        Rectangular_grid_domain_sptr domain_sptr)
+{
+    this->domain_sptr = domain_sptr;
+    set_doubled_domain();
+    domain_fixed = true;
+}
+
+void
+Space_charge_3d_open_hockney::update_domain(Bunch const& bunch)
+{
+    if (!domain_fixed) {
+        Diagnostics diagnostics(bunch);
+        std::vector<double > size(3);
+        std::vector<double > offset(3);
+        offset[0] = diagnostics.get_mean()[Bunch::z];
+        size[0] = n_sigma * diagnostics.get_std()[Bunch::z];
+        offset[1] = diagnostics.get_mean()[Bunch::y];
+        size[1] = n_sigma * diagnostics.get_std()[Bunch::y];
+        offset[2] = diagnostics.get_mean()[Bunch::x];
+        size[2] = n_sigma * diagnostics.get_std()[Bunch::x];
+        domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
+                size, offset, grid_shape, periodic_z));
+        set_doubled_domain();
+    }
 }
 
 Rectangular_grid_domain_sptr
-Space_charge_3d_open_hockney::get_domain_sptr()
+Space_charge_3d_open_hockney::get_domain_sptr() const
 {
     return domain_sptr;
 }
 
 Rectangular_grid_domain_sptr
-Space_charge_3d_open_hockney::get_doubled_domain_sptr()
+Space_charge_3d_open_hockney::get_doubled_domain_sptr() const
 {
     return doubled_domain_sptr;
 }
@@ -534,7 +552,8 @@ Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
 }
 
 void
-Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step, Step & step)
+Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
+        Step & step)
 {
     Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
     Distributed_rectangular_grid_sptr rho2(get_global_charge_density2(
