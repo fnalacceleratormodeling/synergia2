@@ -31,5 +31,11 @@ install(FILES
     parallel_utils.h
     xml_serialization.h
     DESTINATION include/synergia/utils)
+install(FILES
+    __init__.py
+    DESTINATION lib/synergia/utils)
+install(TARGETS
+    parallel_utils
+    DESTINATION lib/synergia/utils)
 
 add_subdirectory(tests)

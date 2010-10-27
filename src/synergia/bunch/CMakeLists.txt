@@ -12,5 +12,11 @@ install(FILES bunch.h
     fixed_t_z_converter.h
     populate.h
     DESTINATION include/synergia/bunch)
+install(FILES
+    __init__.py
+    DESTINATION lib/synergia/bunch)
+install(TARGETS
+    bunch
+    DESTINATION lib/synergia/bunch)
 
 add_subdirectory(tests)

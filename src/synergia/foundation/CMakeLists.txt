@@ -11,5 +11,11 @@ install(FILES
     physical_constants.h
     reference_particle.h
     DESTINATION include/synergia/foundation)
+install(FILES
+    __init__.py
+    DESTINATION lib/synergia/foundation)
+install(TARGETS
+    foundation
+    DESTINATION lib/synergia/foundation)
 
 add_subdirectory(tests)

@@ -90,7 +90,7 @@ configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in"
 configure_file("${SYNERGIA2_SOURCE_DIR}/src/local_paths.py.in"
     "${SYNERGIA2_BINARY_DIR}/src/local_paths.py" IMMEDIATE)
 
-include_directories(${SYNERGIA2_SOURCE_DIR}/src)
+include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src)
 
 add_subdirectory(src)
 add_subdirectory(examples)
