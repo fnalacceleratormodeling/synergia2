@@ -5,27 +5,8 @@
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
+#include "synergia/utils/multi_array_check_equal.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
-
-void
-compare_multi_array(Const_MArray3d_ref const& a, Const_MArray3d_ref const& b,
-        double tolerance)
-{
-    BOOST_CHECK_EQUAL(a.shape()[0],b.shape()[0]);
-    BOOST_CHECK_EQUAL(a.shape()[1],b.shape()[1]);
-    BOOST_CHECK_EQUAL(a.shape()[2],b.shape()[2]);
-    for (unsigned int i = 0; i < a.shape()[0]; ++i) {
-        for (unsigned int j = 0; j < a.shape()[1]; ++j) {
-            for (unsigned int k = 0; k < a.shape()[2]; ++k) {
-                if (a[i][j][k] == 0.0) {
-                    BOOST_CHECK_SMALL(b[i][j][k], tolerance);
-                } else {
-                    BOOST_CHECK_CLOSE(a[i][j][k], b[i][j][k], tolerance);
-                }
-            }
-        }
-    }
-}
 
 const double mass = 100.0;
 const double total_energy = 125.0;
@@ -87,7 +68,8 @@ BOOST_FIXTURE_TEST_CASE(no_particles, Fixture)
     bunch.set_local_num(0);
     deposit_charge_rectangular(*rho_grid_sptr, bunch);
 
-    compare_multi_array(rho_grid_sptr->get_grid_points(), expected, tolerance);
+    multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
+            tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(origin_particle, Fixture)
@@ -109,7 +91,8 @@ BOOST_FIXTURE_TEST_CASE(origin_particle, Fixture)
         }
     }
 
-    compare_multi_array(rho_grid_sptr->get_grid_points(), expected, tolerance);
+    multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
+            tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(xedge_particle, Fixture)
@@ -128,7 +111,8 @@ BOOST_FIXTURE_TEST_CASE(xedge_particle, Fixture)
     expected[2][1][0] = 0.125 * density_norm;
     expected[2][2][0] = 0.125 * density_norm;
 
-    compare_multi_array(rho_grid_sptr->get_grid_points(), expected, tolerance);
+    multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
+            tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(yedge_particle, Fixture)
@@ -147,7 +131,8 @@ BOOST_FIXTURE_TEST_CASE(yedge_particle, Fixture)
     expected[2][0][1] = 0.125 * density_norm;
     expected[2][0][2] = 0.125 * density_norm;
 
-    compare_multi_array(rho_grid_sptr->get_grid_points(), expected, tolerance);
+    multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
+            tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(zedge_particle, Fixture)
@@ -166,7 +151,8 @@ BOOST_FIXTURE_TEST_CASE(zedge_particle, Fixture)
     expected[0][2][1] = 0.125 * density_norm;
     expected[0][2][2] = 0.125 * density_norm;
 
-    compare_multi_array(rho_grid_sptr->get_grid_points(), expected, tolerance);
+    multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
+            tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(xrightedge_particle, Fixture)
@@ -185,7 +171,8 @@ BOOST_FIXTURE_TEST_CASE(xrightedge_particle, Fixture)
     expected[2][1][3] = 0.125 * density_norm;
     expected[2][2][3] = 0.125 * density_norm;
 
-    compare_multi_array(rho_grid_sptr->get_grid_points(), expected, tolerance);
+    multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
+            tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(zedge_particle_periodic, Fixture)
@@ -209,7 +196,8 @@ BOOST_FIXTURE_TEST_CASE(zedge_particle_periodic, Fixture)
     expected[3][2][1] = 0.125 * density_norm;
     expected[3][2][2] = 0.125 * density_norm;
 
-    compare_multi_array(rho_grid_sptr->get_grid_points(), expected, tolerance);
+    multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
+            tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(zrightedge_particle_periodic, Fixture)
@@ -233,7 +221,8 @@ BOOST_FIXTURE_TEST_CASE(zrightedge_particle_periodic, Fixture)
     expected[3][2][1] = 0.125 * density_norm;
     expected[3][2][2] = 0.125 * density_norm;
 
-    compare_multi_array(rho_grid_sptr->get_grid_points(), expected, tolerance);
+    multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
+            tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(additive_deposit, Fixture)
@@ -256,5 +245,6 @@ BOOST_FIXTURE_TEST_CASE(additive_deposit, Fixture)
         }
     }
 
-    compare_multi_array(rho_grid_sptr->get_grid_points(), expected, tolerance);
+    multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
+            tolerance);
 }
