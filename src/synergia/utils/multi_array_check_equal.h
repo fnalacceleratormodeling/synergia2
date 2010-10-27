@@ -1,5 +1,6 @@
 #ifndef MULTI_ARRAY_CHECK_EQUAL_H_
 #define MULTI_ARRAY_CHECK_EQUAL_H_
+#include "synergia/utils/floating_point.h"
 
 inline void
 multi_array_check_equal(Const_MArray1d_ref const& a,
@@ -8,11 +9,7 @@ multi_array_check_equal(Const_MArray1d_ref const& a,
     BOOST_CHECK_EQUAL(a.index_bases()[0], b.index_bases()[0]);
     BOOST_CHECK_EQUAL(a.shape()[0], b.shape()[0]);
     for (int i = a.index_bases()[0]; i < a.index_bases()[0] + a.shape()[0]; ++i) {
-        if (a[i] == 0.0) {
-            BOOST_CHECK_SMALL(b[i], tolerance);
-        } else {
-            BOOST_CHECK_CLOSE(a[i], b[i], tolerance);
-        }
+        BOOST_CHECK(floating_point_equal(a[i], b[i], tolerance));
     }
 }
 
@@ -26,11 +23,7 @@ multi_array_check_equal(Const_MArray2d_ref const& a,
     BOOST_CHECK_EQUAL(a.shape()[1], b.shape()[1]);
     for (int i = a.index_bases()[0]; i < a.index_bases()[0] + a.shape()[0]; ++i) {
         for (int j = a.index_bases()[1]; j < a.index_bases()[1] + a.shape()[1]; ++j) {
-            if (a[i][j] == 0.0) {
-                BOOST_CHECK_SMALL(b[i][j], tolerance);
-            } else {
-                BOOST_CHECK_CLOSE(a[i][j], b[i][j], tolerance);
-            }
+            BOOST_CHECK(floating_point_equal(a[i][j], b[i][j], tolerance));
         }
     }
 }
@@ -49,11 +42,7 @@ multi_array_check_equal(Const_MArray3d_ref const& a,
         for (int j = a.index_bases()[1]; j < a.index_bases()[1] + a.shape()[1]; ++j) {
             for (int k = a.index_bases()[2]; k < a.index_bases()[2]
                     + a.shape()[2]; ++k) {
-                if (a[i][j][k] == 0.0) {
-                    BOOST_CHECK_SMALL(b[i][j][k], tolerance);
-                } else {
-                    BOOST_CHECK_CLOSE(a[i][j][k], b[i][j][k], tolerance);
-                }
+                BOOST_CHECK(floating_point_equal(a[i][j][k], b[i][j][k], tolerance));
             }
         }
     }
