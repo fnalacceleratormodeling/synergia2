@@ -415,7 +415,6 @@ void
 Multipole_mad8_adaptor::set_default_attributes(
         Lattice_element & lattice_element)
 {
-    set_double_default(lattice_element, "lrad", 0.0);
     set_double_default(lattice_element, "k0l", 0.0);
     set_double_default(lattice_element, "t0", 0.0);
     set_double_default(lattice_element, "k1l", 0.0);
@@ -436,6 +435,82 @@ Multipole_mad8_adaptor::set_default_attributes(
     set_double_default(lattice_element, "t8", 0.0);
     set_double_default(lattice_element, "k9l", 0.0);
     set_double_default(lattice_element, "t9", 0.0);
+}
+
+Chef_elements
+Multipole_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+    double brho)
+{
+    Chef_elements retval;
+
+    alignmentData aligner;
+
+    // multipole strengths
+    string k_attr_list[] = {
+	"k0l", "k1l", "k2l", "k3l", "k4l", "k5l", "k6l", "k7l", "k8l", "k9l"};
+    // multipole tilts
+    string t_attr_list[] = {
+	"t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"};
+
+    double knl[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    double tn[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
+    // loop through possible attributes
+    for (int moment=0; moment<10; ++moment) {
+	if (lattice_element.has_double_attribute(k_attr_list[moment])) {
+	    knl[moment] = lattice_element.get_double_attribute(k_attr_list[moment]);
+	    // look for a tilt
+	    if (lattice_element.has_double_attribute(t_attr_list[moment])) {
+		tn[moment] = lattice_element.get_double_attribute(t_attr_list[moment]);
+	    } else if (lattice_element.has_string_attribute(t_attr_list[moment])) {
+		// any string value is equivalent to just giving the Tn keyword
+		// get default tilt for that multipole order
+		tn[moment] = M_PI/(2*moment+2);
+	    }
+	}
+    }
+
+    // assemble chef elements
+    int multipole_count = 0;
+    for (int moment=0; moment<10; ++moment) {
+	if (knl[moment] != 0.0) {
+	    bmlnElmnt* bmln_elmnt;
+	    ++multipole_count;
+	    switch (moment) {
+		
+		case 0:
+		    bmln_elmnt = new thin2pole("", brho*knl[moment]);
+		    break;
+		case 1:
+		    bmln_elmnt = new thinQuad("", brho*knl[moment]);
+		    break;
+		case 2:
+		    bmln_elmnt = new thinSextupole("", brho*knl[moment]/2.0);
+		    break;
+		case 3:
+		    bmln_elmnt = new thinOctupole("", brho*knl[moment]/6.0);
+		    break;
+		case 4:
+		    bmln_elmnt = new thinDecapole("", brho*knl[moment]/24.0);
+		    break;
+	    }
+
+	    ElmPtr elm(bmln_elmnt);
+	    // set tilt if necessary
+	    if (tn[moment] != 0.0) {
+		aligner.xOffset = 0.0;
+		aligner.yOffset = 0.0;
+		aligner.tilt = tn[moment];
+		elm->setAlignment(aligner);
+	    }
+	    retval.push_back(elm);
+	}
+    }
+
+    // put in a marker for this element
+    ElmPtr elm  = ElmPtr(new marker(lattice_element.get_name().c_str()));;
+    retval.push_back(elm);
+    return retval;
 }
 
 Multipole_mad8_adaptor::~Multipole_mad8_adaptor()

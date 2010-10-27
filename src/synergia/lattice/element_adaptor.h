@@ -135,6 +135,8 @@ public:
     Multipole_mad8_adaptor();
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Multipole_mad8_adaptor();
 };
