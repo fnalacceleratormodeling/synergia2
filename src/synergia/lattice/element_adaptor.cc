@@ -544,6 +544,36 @@ Hkicker_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
     set_double_default(lattice_element, "tilt", 0.0);
 }
 
+Chef_elements
+Hkicker_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+					double brho)
+{
+    Chef_elements retval;
+    alignmentData aligner;
+
+    double kicklen = lattice_element.get_double_attribute("l");
+    double kick = lattice_element.get_double_attribute("kick");
+    double tilt = lattice_element.get_double_attribute("tilt");
+
+    bmlnElmnt* bmln_elmnt = new hkick(lattice_element.get_name().c_str());
+    if (kicklen > 0.0) {
+	bmln_elmnt->setLength(kicklen);
+    }
+    if (kick > 0.0) {
+	bmln_elmnt->setStrength(kick*brho);
+    }
+    if (tilt > 0.0) {
+	aligner.xOffset = 0.0;
+	aligner.yOffset = 0.0;
+	aligner.tilt = tilt;
+	bmln_elmnt->setAlignment(aligner);
+    }
+
+    ElmPtr elm = ElmPtr(bmln_elmnt);
+    retval.push_back(elm);
+    return retval;
+}
+
 Hkicker_mad8_adaptor::~Hkicker_mad8_adaptor()
 {
 }
@@ -676,6 +706,26 @@ void
 Vmonitor_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 {
     set_double_default(lattice_element, "l", 0.0);
+}
+
+Chef_elements
+Vmonitor_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+    double brho)
+{
+    Chef_elements retval;
+
+    bmlnElmnt* bmln_elmnt;
+
+    double lenmon = lattice_element.get_double_attribute("l");
+    bmln_elmnt = new vmonitor(lattice_element.get_name().c_str());
+    if (lenmon > 0.0) {
+	bmln_elmnt->setLength(lenmon);
+    }
+
+    ElmPtr elm(bmln_elmnt);
+    retval.push_back(elm);
+
+    return retval;
 }
 
 Vmonitor_mad8_adaptor::~Vmonitor_mad8_adaptor()
