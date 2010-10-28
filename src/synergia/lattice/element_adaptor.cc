@@ -916,6 +916,26 @@ Monitor_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
     set_double_default(lattice_element, "l", 0.0);
 }
 
+Chef_elements
+Monitor_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+    double brho)
+{
+    Chef_elements retval;
+
+    bmlnElmnt* bmln_elmnt;
+
+    double lenmon = lattice_element.get_double_attribute("l");
+    bmln_elmnt = new monitor(lattice_element.get_name().c_str());
+    if (lenmon > 0.0) {
+	bmln_elmnt->setLength(lenmon);
+    }
+
+    ElmPtr elm(bmln_elmnt);
+    retval.push_back(elm);
+
+    return retval;
+}
+
 Monitor_mad8_adaptor::~Monitor_mad8_adaptor()
 {
 }
