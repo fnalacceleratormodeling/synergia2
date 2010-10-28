@@ -115,6 +115,8 @@ public:
     Sextupole_mad8_adaptor();
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Sextupole_mad8_adaptor();
 };
@@ -125,6 +127,8 @@ public:
     Octupole_mad8_adaptor();
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Octupole_mad8_adaptor();
 };
@@ -135,6 +139,8 @@ public:
     Multipole_mad8_adaptor();
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Multipole_mad8_adaptor();
 };
@@ -155,6 +161,8 @@ public:
     Hkicker_mad8_adaptor();
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Hkicker_mad8_adaptor();
 };
@@ -165,6 +173,8 @@ public:
     Vkicker_mad8_adaptor();
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Vkicker_mad8_adaptor();
 };
@@ -175,6 +185,8 @@ public:
     Kicker_mad8_adaptor();
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Kicker_mad8_adaptor();
 };
@@ -207,6 +219,8 @@ public:
     Hmonitor_mad8_adaptor();
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Hmonitor_mad8_adaptor();
 };
@@ -217,6 +231,8 @@ public:
     Vmonitor_mad8_adaptor();
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Vmonitor_mad8_adaptor();
 };
@@ -227,6 +243,8 @@ public:
     Monitor_mad8_adaptor();
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element & lattice_element, double brho);
     virtual
     ~Monitor_mad8_adaptor();
 };
