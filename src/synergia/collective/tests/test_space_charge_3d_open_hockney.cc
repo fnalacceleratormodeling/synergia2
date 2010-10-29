@@ -7,6 +7,7 @@
 #include "synergia/utils/boost_test_mpi_fixture.h"
 #include "synergia/utils/multi_array_print.h"
 #include "synergia/utils/floating_point.h"
+#include "synergia/utils/multi_array_check_equal.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const int charge = pconstants::proton_charge;
@@ -57,6 +58,60 @@ struct Ellipsoidal_bunch_fixture
     Random_distribution distribution;
     double stdx, stdy, stdz;
     std::vector<int > grid_shape;
+};
+
+const double domain_min = -2.0;
+const double domain_max = 2.0;
+const double domain_offset = 0.0;
+const int toy_grid_shape[] = { 4, 6, 8 };
+const int toy_total_num = 1;
+const double toy_real_num = 1.0e20;
+
+struct Toy_bunch_fixture
+{
+    Toy_bunch_fixture() :
+                four_momentum(mass, total_energy),
+                reference_particle(pconstants::proton_charge, four_momentum),
+                comm(MPI_COMM_WORLD),
+                bunch(reference_particle, total_num, toy_real_num, comm),
+                physical_size(3),
+                physical_offset(3),
+                cell_size(3),
+                grid_shape(3),
+                expected(
+                        boost::extents[toy_grid_shape[2]][toy_grid_shape[1]][toy_grid_shape[0]])
+    {
+        for (int i = 0; i < 3; ++i) {
+            grid_shape[i] = toy_grid_shape[i];
+            physical_offset[i] = domain_offset;
+            physical_size[i] = domain_max - domain_min;
+            cell_size[i] = (domain_max - domain_min) / grid_shape[i];
+        }
+        for (unsigned int i = 0; i < expected.shape()[0]; ++i) {
+            for (unsigned int j = 0; j < expected.shape()[1]; ++j) {
+                for (unsigned int k = 0; k < expected.shape()[2]; ++k) {
+                    expected[i][j][k] = 0.0;
+                }
+            }
+        }
+        density_norm = (toy_real_num / total_num) * pconstants::e / (cell_size[0]
+                * cell_size[1] * cell_size[2]);
+    }
+
+    ~Toy_bunch_fixture()
+    {
+    }
+
+    Four_momentum four_momentum;
+    Reference_particle reference_particle;
+    Commxx comm;
+    Bunch bunch;
+    double density_norm;
+
+    std::vector<double > physical_size, physical_offset, cell_size;
+    std::vector<int > grid_shape;
+    Rectangular_grid_sptr rho_grid_sptr;
+    MArray3d expected;
 };
 
 const double tolerance = 1.0e-12;
@@ -193,5 +248,112 @@ BOOST_FIXTURE_TEST_CASE(set_fixed_domain, Ellipsoidal_bunch_fixture)
             grid_shape[1]);
     BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_grid_shape()[2],
             grid_shape[0]);
+}
+
+BOOST_FIXTURE_TEST_CASE(set_fixed_domain_bad_shape, Ellipsoidal_bunch_fixture)
+{
+    Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
+    space_charge.update_domain(bunch);
+    Rectangular_grid_domain_sptr domain_sptr = space_charge.get_domain_sptr();
+    std::vector<int > bad_shape(domain_sptr->get_grid_shape());
+    // not bad yet
+    Rectangular_grid_domain_sptr not_bad_domain_sptr =
+            Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
+                    domain_sptr->get_physical_size(),
+                    domain_sptr->get_physical_offset(), bad_shape,
+                    domain_sptr->is_periodic()));
+    space_charge.set_fixed_domain(not_bad_domain_sptr);
+
+    bool caught_error;
+    // bad in 0
+    caught_error = false;
+    ++bad_shape[0];
+    Rectangular_grid_domain_sptr bad0_domain_sptr =
+            Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
+                    domain_sptr->get_physical_size(),
+                    domain_sptr->get_physical_offset(), bad_shape,
+                    domain_sptr->is_periodic()));
+    try {
+        space_charge.set_fixed_domain(bad0_domain_sptr);
+    }
+    catch (std::runtime_error) {
+        caught_error = true;
+    }
+    BOOST_CHECK(caught_error == true);
+
+    // bad in 1
+    caught_error = false;
+    --bad_shape[0];
+    ++bad_shape[1];
+    Rectangular_grid_domain_sptr bad1_domain_sptr =
+            Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
+                    domain_sptr->get_physical_size(),
+                    domain_sptr->get_physical_offset(), bad_shape,
+                    domain_sptr->is_periodic()));
+    try {
+        space_charge.set_fixed_domain(bad1_domain_sptr);
+    }
+    catch (std::runtime_error) {
+        caught_error = true;
+    }
+    BOOST_CHECK(caught_error == true);
+
+    // bad in 2
+    caught_error = false;
+    --bad_shape[1];
+    ++bad_shape[2];
+    Rectangular_grid_domain_sptr bad2_domain_sptr =
+            Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
+                    domain_sptr->get_physical_size(),
+                    domain_sptr->get_physical_offset(), bad_shape,
+                    domain_sptr->is_periodic()));
+    try {
+        space_charge.set_fixed_domain(bad2_domain_sptr);
+    }
+    catch (std::runtime_error) {
+        caught_error = true;
+    }
+    BOOST_CHECK(caught_error == true);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_local_charge_density, Toy_bunch_fixture)
+{
+    Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
+    std::vector<int > grid_shape_zyx(3);
+    grid_shape_zyx[0] = grid_shape[2];
+    grid_shape_zyx[1] = grid_shape[1];
+    grid_shape_zyx[2] = grid_shape[0];
+    Rectangular_grid_domain_sptr domain_sptr = Rectangular_grid_domain_sptr(
+            new Rectangular_grid_domain(physical_size, physical_offset,
+                    grid_shape_zyx, false));
+    space_charge.set_fixed_domain(domain_sptr);
+    std::vector<int > center_zyx(3);
+    center_zyx[0] = grid_shape_zyx[0] / 2;
+    center_zyx[1] = grid_shape_zyx[1] / 2;
+    center_zyx[2] = grid_shape_zyx[2] / 2;
+
+    bunch.set_local_num(1);
+    bunch.get_local_particles()[0][0] = 0;
+    bunch.get_local_particles()[0][2] = 0;
+    bunch.get_local_particles()[0][4] = 0;
+    Rectangular_grid_sptr local_charge_density(
+            space_charge.get_local_charge_density(bunch));
+
+    multi_array_print(local_charge_density->get_grid_points(), "rho");
+    for (int i = center_zyx[0] - 1; i < center_zyx[0] + 1; ++i) {
+        for (int j = center_zyx[1] - 1; j < center_zyx[1] + 1; ++j) {
+            for (int k = center_zyx[2] - 1; k < center_zyx[2] + 1; ++k) {
+                expected[i][j][k] = 0.125 * density_norm;
+//                std::cout << "rho[" << i << "][" << j << "][" << k << "] = "
+//                        << local_charge_density->get_grid_points()[i][j][k];
+//                std::cout << ", expected[" << i << "][" << j << "][" << k
+//                        << "] = " << expected[i][j][k];
+//                std::cout << std::endl;
+            }
+        }
+    }
+    multi_array_print(expected, "expected");
+    multi_array_check_equal(local_charge_density->get_grid_points(), expected,
+            100 * tolerance);
 }
 
