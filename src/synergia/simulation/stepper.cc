@@ -47,7 +47,10 @@ Split_operator_stepper::get_half_step(std::string const& name,
             ++lattice_it;
             left = 0.0;
             if (floating_point_equal(length, half_step_length, tolerance)) {
-                complete = true;
+                if ((lattice_it == lattice_end) || ((*lattice_it)->get_length()
+                        != 0.0)) {
+                    complete = true;
+                }
             } else {
                 if (lattice_it == lattice_end) {
                     throw(std::runtime_error(
@@ -100,14 +103,14 @@ Split_operator_stepper::construct(
     for (int i = 0; i < num_steps; ++i) {
         Step_sptr step(new Step);
         step->append(get_half_step("first_half", lattice_it, left, lattice_end,
-                half_step_length),0.5);
+                half_step_length), 0.5);
         for (Collective_operators::const_iterator coll_op_it =
                 collective_operators.begin(); coll_op_it
                 != collective_operators.end(); ++coll_op_it) {
             step->append(*coll_op_it, 1.0);
         }
         step->append(get_half_step("second_half", lattice_it, left,
-                lattice_end, half_step_length),0.5);
+                lattice_end, half_step_length), 0.5);
         get_steps().push_back(step);
     }
     if (lattice_it != lattice_end) {
@@ -140,5 +143,3 @@ Split_operator_stepper::~Split_operator_stepper()
 {
 
 }
-
-

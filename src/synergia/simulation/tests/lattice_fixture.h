@@ -18,11 +18,20 @@ struct Lattice_fixture
         o.set_double_attribute("l", drift_length);
         Lattice_element d("quadrupole", "d");
         d.set_double_attribute("l", quad_length);
+        Lattice_element m("monitor", "m");
 
+        lattice_sptr->append(m);
+        lattice_sptr->append(m);
         lattice_sptr->append(f);
+        lattice_sptr->append(m);
         lattice_sptr->append(o);
         lattice_sptr->append(d);
+        lattice_sptr->append(m);
+        lattice_sptr->append(m);
+        lattice_sptr->append(m);
         lattice_sptr->append(o);
+        lattice_sptr->append(m);
+        lattice_sptr->append(m);
         lattice_sptr->set_reference_particle(b.reference_particle);
     };
 

@@ -15,7 +15,7 @@ BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture)
     Lattice_simulator lattice_simulator(lattice_sptr, 2);
 
     Split_operator_stepper stepper1(lattice_simulator, space_charge, 1);
-    stepper1.print();
+//    stepper1.print();
 }
 
 BOOST_FIXTURE_TEST_CASE(construct2, Lattice_fixture)
@@ -25,7 +25,7 @@ BOOST_FIXTURE_TEST_CASE(construct2, Lattice_fixture)
     Lattice_simulator lattice_simulator(lattice_sptr, 2);
 
     Split_operator_stepper stepper2(lattice_simulator, space_charge, 7);
-    stepper2.print();
+//    stepper2.print();
 }
 
 BOOST_FIXTURE_TEST_CASE(construct7, Lattice_fixture)
@@ -35,7 +35,7 @@ BOOST_FIXTURE_TEST_CASE(construct7, Lattice_fixture)
     Lattice_simulator lattice_simulator(lattice_sptr, 2);
 
     Split_operator_stepper stepper7(lattice_simulator, space_charge, 7);
-    stepper7.print();
+//    stepper7.print();
 }
 
 BOOST_FIXTURE_TEST_CASE(construct100, Lattice_fixture)
@@ -45,7 +45,7 @@ BOOST_FIXTURE_TEST_CASE(construct100, Lattice_fixture)
     Lattice_simulator lattice_simulator(lattice_sptr, 2);
 
     Split_operator_stepper stepper100(lattice_simulator, space_charge, 100);
-    stepper100.print();
+//    stepper100.print();
 }
 
 BOOST_FIXTURE_TEST_CASE(get_steps, Lattice_fixture)
