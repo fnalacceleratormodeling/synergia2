@@ -351,9 +351,9 @@ Quadrupole_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
 
     // a string attribute implies default pi/4
     if (lattice_element.has_string_attribute("tilt")) {
-	qtilt = M_PI/4.0;
+        qtilt = M_PI / 4.0;
     } else {
-	qtilt = lattice_element.get_double_attribute("tilt");
+        qtilt = lattice_element.get_double_attribute("tilt");
     }
 
     bmlnElmnt* bmln_elmnt;
@@ -366,10 +366,10 @@ Quadrupole_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
     }
 
     if (qtilt != 0.0) {
-	aligner.xOffset = 0.0;
-	aligner.yOffset = 0.0;
-	aligner.tilt = qtilt;
-	bmln_elmnt->setAlignment(aligner);
+        aligner.xOffset = 0.0;
+        aligner.yOffset = 0.0;
+        aligner.tilt = qtilt;
+        bmln_elmnt->setAlignment(aligner);
     }
 
     ElmPtr elm(bmln_elmnt);
@@ -396,7 +396,7 @@ Sextupole_mad8_adaptor::set_default_attributes(
 
 Chef_elements
 Sextupole_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
-    double brho)
+        double brho)
 {
     Chef_elements retval;
 
@@ -409,26 +409,26 @@ Sextupole_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
     bmlnElmnt* bmln_elmnt;
 
     if (sexlen == 0.0) {
-	bmln_elmnt = new thinSextupole(lattice_element.get_name().c_str(),
-				       brho*sexk2/2.0);
+        bmln_elmnt = new thinSextupole(lattice_element.get_name().c_str(), brho
+                * sexk2 / 2.0);
     } else {
-	bmln_elmnt = new sextupole(lattice_element.get_name().c_str(), sexlen,
-				   brho*sexk2/2.0);
+        bmln_elmnt = new sextupole(lattice_element.get_name().c_str(), sexlen,
+                brho * sexk2 / 2.0);
     }
 
     if (lattice_element.has_double_attribute("tilt")) {
-	sextilt = lattice_element.get_double_attribute("tilt");
+        sextilt = lattice_element.get_double_attribute("tilt");
     } else if (lattice_element.has_string_attribute("tilt")) {
-	// if this is a string, assume just tilt specified with no
-	// value so use pi/6.
-	sextilt = M_PI/6.0;
+        // if this is a string, assume just tilt specified with no
+        // value so use pi/6.
+        sextilt = M_PI / 6.0;
     }
 
     if (sextilt != 0.0) {
-	aligner.xOffset = 0.0;
-	aligner.yOffset = 0.0;
-	aligner.tilt = sextilt;
-	bmln_elmnt->setAlignment(aligner);
+        aligner.xOffset = 0.0;
+        aligner.yOffset = 0.0;
+        aligner.tilt = sextilt;
+        bmln_elmnt->setAlignment(aligner);
     }
 
     ElmPtr elm = ElmPtr(bmln_elmnt);
@@ -454,7 +454,7 @@ Octupole_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 
 Chef_elements
 Octupole_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
-    double brho)
+        double brho)
 {
     Chef_elements retval;
 
@@ -467,26 +467,26 @@ Octupole_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
     bmlnElmnt* bmln_elmnt;
 
     if (octulen == 0.0) {
-	bmln_elmnt = new thinOctupole(lattice_element.get_name().c_str(),
-				       brho*octuk2/6.0);
+        bmln_elmnt = new thinOctupole(lattice_element.get_name().c_str(), brho
+                * octuk2 / 6.0);
     } else {
-	bmln_elmnt = new octupole(lattice_element.get_name().c_str(), octulen,
-				   brho*octuk2/6.0);
+        bmln_elmnt = new octupole(lattice_element.get_name().c_str(), octulen,
+                brho * octuk2 / 6.0);
     }
 
     if (lattice_element.has_double_attribute("tilt")) {
-	octutilt = lattice_element.get_double_attribute("tilt");
+        octutilt = lattice_element.get_double_attribute("tilt");
     } else if (lattice_element.has_string_attribute("tilt")) {
-	// if this is a string, assume just tilt specified with no
-	// value so use pi/8.
-	octutilt = M_PI/8.0;
+        // if this is a string, assume just tilt specified with no
+        // value so use pi/8.
+        octutilt = M_PI / 8.0;
     }
 
     if (octutilt != 0.0) {
-	aligner.xOffset = 0.0;
-	aligner.yOffset = 0.0;
-	aligner.tilt = octutilt;
-	bmln_elmnt->setAlignment(aligner);
+        aligner.xOffset = 0.0;
+        aligner.yOffset = 0.0;
+        aligner.tilt = octutilt;
+        bmln_elmnt->setAlignment(aligner);
     }
 
     ElmPtr elm = ElmPtr(bmln_elmnt);
@@ -529,76 +529,79 @@ Multipole_mad8_adaptor::set_default_attributes(
 
 Chef_elements
 Multipole_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
-    double brho)
+        double brho)
 {
     Chef_elements retval;
 
     alignmentData aligner;
 
     // multipole strengths
-    string k_attr_list[] = {
-	"k0l", "k1l", "k2l", "k3l", "k4l", "k5l", "k6l", "k7l", "k8l", "k9l"};
+    string k_attr_list[] = { "k0l", "k1l", "k2l", "k3l", "k4l", "k5l", "k6l",
+            "k7l", "k8l", "k9l" };
     // multipole tilts
-    string t_attr_list[] = {
-	"t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7", "t8", "t9"};
+    string t_attr_list[] = { "t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7",
+            "t8", "t9" };
 
-    double knl[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-    double tn[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+    double knl[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double tn[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
     // loop through possible attributes
-    for (int moment=0; moment<10; ++moment) {
-	if (lattice_element.has_double_attribute(k_attr_list[moment])) {
-	    knl[moment] = lattice_element.get_double_attribute(k_attr_list[moment]);
-	    // look for a tilt
-	    if (lattice_element.has_double_attribute(t_attr_list[moment])) {
-		tn[moment] = lattice_element.get_double_attribute(t_attr_list[moment]);
-	    } else if (lattice_element.has_string_attribute(t_attr_list[moment])) {
-		// any string value is equivalent to just giving the Tn keyword
-		// get default tilt for that multipole order
-		tn[moment] = M_PI/(2*moment+2);
-	    }
-	}
+    for (int moment = 0; moment < 10; ++moment) {
+        if (lattice_element.has_double_attribute(k_attr_list[moment])) {
+            knl[moment] = lattice_element.get_double_attribute(
+                    k_attr_list[moment]);
+            // look for a tilt
+            if (lattice_element.has_double_attribute(t_attr_list[moment])) {
+                tn[moment] = lattice_element.get_double_attribute(
+                        t_attr_list[moment]);
+            } else if (lattice_element.has_string_attribute(t_attr_list[moment])) {
+                // any string value is equivalent to just giving the Tn keyword
+                // get default tilt for that multipole order
+                tn[moment] = M_PI / (2 * moment + 2);
+            }
+        }
     }
 
     // assemble chef elements
     int multipole_count = 0;
-    for (int moment=0; moment<10; ++moment) {
-	if (knl[moment] != 0.0) {
-	    bmlnElmnt* bmln_elmnt;
-	    ++multipole_count;
-	    switch (moment) {
-		
-		case 0:
-		    bmln_elmnt = new thin2pole("", brho*knl[moment]);
-		    break;
-		case 1:
-		    bmln_elmnt = new thinQuad("", brho*knl[moment]);
-		    break;
-		case 2:
-		    bmln_elmnt = new thinSextupole("", brho*knl[moment]/2.0);
-		    break;
-		case 3:
-		    bmln_elmnt = new thinOctupole("", brho*knl[moment]/6.0);
-		    break;
-		case 4:
-		    bmln_elmnt = new thinDecapole("", brho*knl[moment]/24.0);
-		    break;
-	    }
+    for (int moment = 0; moment < 10; ++moment) {
+        if (knl[moment] != 0.0) {
+            bmlnElmnt* bmln_elmnt;
+            ++multipole_count;
+            switch (moment) {
 
-	    ElmPtr elm(bmln_elmnt);
-	    // set tilt if necessary
-	    if (tn[moment] != 0.0) {
-		aligner.xOffset = 0.0;
-		aligner.yOffset = 0.0;
-		aligner.tilt = tn[moment];
-		elm->setAlignment(aligner);
-	    }
-	    retval.push_back(elm);
-	}
+            case 0:
+                bmln_elmnt = new thin2pole("", brho * knl[moment]);
+                break;
+            case 1:
+                bmln_elmnt = new thinQuad("", brho * knl[moment]);
+                break;
+            case 2:
+                bmln_elmnt = new thinSextupole("", brho * knl[moment] / 2.0);
+                break;
+            case 3:
+                bmln_elmnt = new thinOctupole("", brho * knl[moment] / 6.0);
+                break;
+            case 4:
+                bmln_elmnt = new thinDecapole("", brho * knl[moment] / 24.0);
+                break;
+            }
+
+            ElmPtr elm(bmln_elmnt);
+            // set tilt if necessary
+            if (tn[moment] != 0.0) {
+                aligner.xOffset = 0.0;
+                aligner.yOffset = 0.0;
+                aligner.tilt = tn[moment];
+                elm->setAlignment(aligner);
+            }
+            retval.push_back(elm);
+        }
     }
 
     // put in a marker for this element
-    ElmPtr elm  = ElmPtr(new marker(lattice_element.get_name().c_str()));;
+    ElmPtr elm = ElmPtr(new marker(lattice_element.get_name().c_str()));
+    ;
     retval.push_back(elm);
     return retval;
 }
@@ -636,7 +639,7 @@ Hkicker_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 
 Chef_elements
 Hkicker_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
-					double brho)
+        double brho)
 {
     Chef_elements retval;
     alignmentData aligner;
@@ -647,16 +650,16 @@ Hkicker_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
 
     bmlnElmnt* bmln_elmnt = new hkick(lattice_element.get_name().c_str());
     if (kicklen > 0.0) {
-	bmln_elmnt->setLength(kicklen);
+        bmln_elmnt->setLength(kicklen);
     }
     if (kick != 0.0) {
-	bmln_elmnt->setStrength(kick*brho);
+        bmln_elmnt->setStrength(kick * brho);
     }
     if (tilt != 0.0) {
-	aligner.xOffset = 0.0;
-	aligner.yOffset = 0.0;
-	aligner.tilt = tilt;
-	bmln_elmnt->setAlignment(aligner);
+        aligner.xOffset = 0.0;
+        aligner.yOffset = 0.0;
+        aligner.tilt = tilt;
+        bmln_elmnt->setAlignment(aligner);
     }
 
     ElmPtr elm = ElmPtr(bmln_elmnt);
@@ -682,7 +685,7 @@ Vkicker_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 
 Chef_elements
 Vkicker_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
-					double brho)
+        double brho)
 {
     Chef_elements retval;
     alignmentData aligner;
@@ -693,16 +696,16 @@ Vkicker_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
 
     bmlnElmnt* bmln_elmnt = new vkick(lattice_element.get_name().c_str());
     if (kicklen > 0.0) {
-	bmln_elmnt->setLength(kicklen);
+        bmln_elmnt->setLength(kicklen);
     }
     if (kick != 0.0) {
-	bmln_elmnt->setStrength(kick*brho);
+        bmln_elmnt->setStrength(kick * brho);
     }
     if (tilt != 0.0) {
-	aligner.xOffset = 0.0;
-	aligner.yOffset = 0.0;
-	aligner.tilt = tilt;
-	bmln_elmnt->setAlignment(aligner);
+        aligner.xOffset = 0.0;
+        aligner.yOffset = 0.0;
+        aligner.tilt = tilt;
+        bmln_elmnt->setAlignment(aligner);
     }
 
     ElmPtr elm = ElmPtr(bmln_elmnt);
@@ -729,7 +732,7 @@ Kicker_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 
 Chef_elements
 Kicker_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
-					double brho)
+        double brho)
 {
     Chef_elements retval;
     alignmentData aligner;
@@ -741,19 +744,19 @@ Kicker_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
 
     kick* bmln_elmnt = new kick(lattice_element.get_name().c_str());
     if (kicklen > 0.0) {
-	bmln_elmnt->setLength(kicklen);
+        bmln_elmnt->setLength(kicklen);
     }
     if (hkick != 0.0) {
-	bmln_elmnt->setHorStrength(hkick*brho);
+        bmln_elmnt->setHorStrength(hkick * brho);
     }
     if (vkick != 0.0) {
-	bmln_elmnt->setVerStrength(vkick*brho);
+        bmln_elmnt->setVerStrength(vkick * brho);
     }
     if (tilt > 0.0) {
-	aligner.xOffset = 0.0;
-	aligner.yOffset = 0.0;
-	aligner.tilt = tilt;
-	bmln_elmnt->setAlignment(aligner);
+        aligner.xOffset = 0.0;
+        aligner.yOffset = 0.0;
+        aligner.tilt = tilt;
+        bmln_elmnt->setAlignment(aligner);
     }
 
     ElmPtr elm = ElmPtr(bmln_elmnt);
@@ -793,8 +796,11 @@ Rfcavity_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
     if (lattice_element.has_double_attribute("freq")) {
         freq = lattice_element.get_double_attribute("freq");
     } else {
-        std::cout
-                << "jfa: rfcavity could figure out frequency, but doesn't. FIXME!\n";
+        if (lattice_element.has_double_attribute("harmon")
+                && lattice_element.get_double_attribute("harmon") != 0.0) {
+            std::cout
+                    << "jfa: rfcavity could figure out frequency from harmonic number, but doesn't. FIXME!\n";
+        }
     }
     double q = 0;
     bmlnElmnt* bmln_elmnt;
@@ -850,7 +856,7 @@ Hmonitor_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 
 Chef_elements
 Hmonitor_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
-    double brho)
+        double brho)
 {
     Chef_elements retval;
 
@@ -859,7 +865,7 @@ Hmonitor_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
     double lenmon = lattice_element.get_double_attribute("l");
     bmln_elmnt = new hmonitor(lattice_element.get_name().c_str());
     if (lenmon > 0.0) {
-	bmln_elmnt->setLength(lenmon);
+        bmln_elmnt->setLength(lenmon);
     }
 
     ElmPtr elm(bmln_elmnt);
@@ -884,7 +890,7 @@ Vmonitor_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 
 Chef_elements
 Vmonitor_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
-    double brho)
+        double brho)
 {
     Chef_elements retval;
 
@@ -893,7 +899,7 @@ Vmonitor_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
     double lenmon = lattice_element.get_double_attribute("l");
     bmln_elmnt = new vmonitor(lattice_element.get_name().c_str());
     if (lenmon > 0.0) {
-	bmln_elmnt->setLength(lenmon);
+        bmln_elmnt->setLength(lenmon);
     }
 
     ElmPtr elm(bmln_elmnt);
@@ -918,7 +924,7 @@ Monitor_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 
 Chef_elements
 Monitor_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
-    double brho)
+        double brho)
 {
     Chef_elements retval;
 
@@ -927,7 +933,7 @@ Monitor_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
     double lenmon = lattice_element.get_double_attribute("l");
     bmln_elmnt = new monitor(lattice_element.get_name().c_str());
     if (lenmon > 0.0) {
-	bmln_elmnt->setLength(lenmon);
+        bmln_elmnt->setLength(lenmon);
     }
 
     ElmPtr elm(bmln_elmnt);
