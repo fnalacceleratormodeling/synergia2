@@ -103,6 +103,12 @@ void
 Space_charge_3d_open_hockney::set_fixed_domain(
         Rectangular_grid_domain_sptr domain_sptr)
 {
+    if ((domain_sptr->get_grid_shape()[0] != grid_shape[0])
+            || (domain_sptr->get_grid_shape()[1] != grid_shape[1])
+            || (domain_sptr->get_grid_shape()[2] != grid_shape[2])) {
+        throw runtime_error(
+                "Space_charge_3d_open_hockney::set_fixed_domain requires a shape\nequal to that of the parent object, but with zyx ordering.");
+    }
     this->domain_sptr = domain_sptr;
     set_doubled_domain();
     domain_fixed = true;
