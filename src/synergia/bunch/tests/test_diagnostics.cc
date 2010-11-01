@@ -224,7 +224,7 @@ BOOST_FIXTURE_TEST_CASE(get_emitxy_full2, Fixture)
 #include "test_diagnostics_get_emitxy.icc"
 }
 
-const double tolerance_emit6d = 1.0e-11;
+const double tolerance_emit6d = 5.0e-11;
 
 BOOST_FIXTURE_TEST_CASE(get_emitxyz_full2, Fixture)
 {
