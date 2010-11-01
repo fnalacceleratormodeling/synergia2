@@ -26,7 +26,7 @@ Chef_lattice::construct_beamline()
                                     *(*latt_it), brho);
             for (Chef_elements::const_iterator cel_it = celms.begin(); cel_it
                     != celms.end(); ++cel_it) {
-                unpolished_beamline_sptr->append(ElmPtr((*cel_it)->Clone()));
+                unpolished_beamline_sptr->append(*cel_it);
             }
             unpolished_beamline_sptr->append(lattice_element_marker);
         }
@@ -48,10 +48,10 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
 {
     DriftConverter drift_converter;
     BmlPtr converted_beamline_sptr;
-    if( beamline_sptr->countHowManyDeeply() < 3 ) {
+    if (beamline_sptr->countHowManyDeeply() < 3) {
         converted_beamline_sptr = beamline_sptr;
     } else {
-        converted_beamline_sptr =  drift_converter.convert(*beamline_sptr);
+        converted_beamline_sptr = drift_converter.convert(*beamline_sptr);
         register_beamline(*converted_beamline_sptr);
     }
     return converted_beamline_sptr;
