@@ -22,7 +22,7 @@ public:
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
     virtual Chef_elements
-    get_chef_elements(Lattice_element & lattice_element, double brho);
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     virtual
     ~Element_adaptor();
 };
@@ -57,7 +57,7 @@ public:
     void
     set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
-    get_chef_elements(Lattice_element & lattice_element, double brho);
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     ~Marker_mad8_adaptor();
 };
 
@@ -68,7 +68,7 @@ public:
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
-    get_chef_elements(Lattice_element & lattice_element, double brho);
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     virtual
     ~Drift_mad8_adaptor();
 };
@@ -80,7 +80,7 @@ public:
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
-    get_chef_elements(Lattice_element & lattice_element, double brho);
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     virtual
     ~Sbend_mad8_adaptor();
 };
@@ -92,7 +92,7 @@ public:
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
-    get_chef_elements(Lattice_element & lattice_element, double brho);
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     virtual
     ~Rbend_mad8_adaptor();
 };
@@ -104,7 +104,7 @@ public:
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
-    get_chef_elements(Lattice_element & lattice_element, double brho);
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     virtual
     ~Quadrupole_mad8_adaptor();
 };
@@ -116,7 +116,7 @@ public:
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
-    get_chef_elements(Lattice_element & lattice_element, double brho);
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     virtual
     ~Sextupole_mad8_adaptor();
 };
@@ -128,7 +128,7 @@ public:
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
-    get_chef_elements(Lattice_element & lattice_element, double brho);
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     virtual
     ~Octupole_mad8_adaptor();
 };
@@ -140,7 +140,7 @@ public:
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
-    get_chef_elements(Lattice_element & lattice_element, double brho);
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     virtual
     ~Multipole_mad8_adaptor();
 };
@@ -162,7 +162,7 @@ public:
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
-    get_chef_elements(Lattice_element & lattice_element, double brho);
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     virtual
     ~Hkicker_mad8_adaptor();
 };
@@ -174,7 +174,7 @@ public:
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
-    get_chef_elements(Lattice_element & lattice_element, double brho);
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     virtual
     ~Vkicker_mad8_adaptor();
 };
@@ -186,7 +186,7 @@ public:
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
-    get_chef_elements(Lattice_element & lattice_element, double brho);
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     virtual
     ~Kicker_mad8_adaptor();
 };
@@ -198,7 +198,7 @@ public:
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
-    get_chef_elements(Lattice_element & lattice_element, double brho);
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     virtual
     ~Rfcavity_mad8_adaptor();
 };
@@ -220,7 +220,7 @@ public:
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
-    get_chef_elements(Lattice_element & lattice_element, double brho);
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     virtual
     ~Hmonitor_mad8_adaptor();
 };
@@ -232,7 +232,7 @@ public:
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
-    get_chef_elements(Lattice_element & lattice_element, double brho);
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     virtual
     ~Vmonitor_mad8_adaptor();
 };
@@ -244,7 +244,7 @@ public:
     virtual void
     set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
-    get_chef_elements(Lattice_element & lattice_element, double brho);
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     virtual
     ~Monitor_mad8_adaptor();
 };

@@ -31,7 +31,7 @@ Element_adaptor::set_default_attributes(Lattice_element & lattice_element)
 }
 
 Chef_elements
-Element_adaptor::get_chef_elements(Lattice_element & lattice_element,
+Element_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
     throw(runtime_error("Element_adaptor: " + lattice_element.get_type()
@@ -171,7 +171,7 @@ Marker_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 }
 
 Chef_elements
-Marker_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+Marker_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
     Chef_elements retval;
@@ -194,7 +194,7 @@ Drift_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 }
 
 Chef_elements
-Drift_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+Drift_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
     Chef_elements retval;
@@ -233,7 +233,7 @@ Sbend_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 }
 
 Chef_elements
-Sbend_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
     Chef_elements retval;
@@ -290,7 +290,7 @@ Rbend_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 }
 
 Chef_elements
-Rbend_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
     Chef_elements retval;
@@ -340,7 +340,7 @@ Quadrupole_mad8_adaptor::set_default_attributes(
 }
 
 Chef_elements
-Quadrupole_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+Quadrupole_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
     double qtilt;
@@ -395,7 +395,7 @@ Sextupole_mad8_adaptor::set_default_attributes(
 }
 
 Chef_elements
-Sextupole_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+Sextupole_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
     Chef_elements retval;
@@ -453,7 +453,7 @@ Octupole_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 }
 
 Chef_elements
-Octupole_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+Octupole_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
     Chef_elements retval;
@@ -528,7 +528,7 @@ Multipole_mad8_adaptor::set_default_attributes(
 }
 
 Chef_elements
-Multipole_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+Multipole_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
     Chef_elements retval;
@@ -638,7 +638,7 @@ Hkicker_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 }
 
 Chef_elements
-Hkicker_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+Hkicker_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
     Chef_elements retval;
@@ -684,7 +684,7 @@ Vkicker_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 }
 
 Chef_elements
-Vkicker_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+Vkicker_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
     Chef_elements retval;
@@ -731,7 +731,7 @@ Kicker_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 }
 
 Chef_elements
-Kicker_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+Kicker_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
     Chef_elements retval;
@@ -786,7 +786,7 @@ Rfcavity_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 }
 
 Chef_elements
-Rfcavity_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+Rfcavity_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
     Chef_elements retval;
@@ -855,7 +855,7 @@ Hmonitor_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 }
 
 Chef_elements
-Hmonitor_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+Hmonitor_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
     Chef_elements retval;
@@ -889,7 +889,7 @@ Vmonitor_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 }
 
 Chef_elements
-Vmonitor_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+Vmonitor_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
     Chef_elements retval;
@@ -923,7 +923,7 @@ Monitor_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 }
 
 Chef_elements
-Monitor_mad8_adaptor::get_chef_elements(Lattice_element & lattice_element,
+Monitor_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
     Chef_elements retval;
