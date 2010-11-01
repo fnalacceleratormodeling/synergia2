@@ -66,7 +66,7 @@ BOOST_FIXTURE_TEST_CASE(no_particles, Fixture)
     rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
             physical_offset, grid_shape, false));
     bunch.set_local_num(0);
-    deposit_charge_rectangular(*rho_grid_sptr, bunch);
+    deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch);
 
     multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
             tolerance);
@@ -81,7 +81,7 @@ BOOST_FIXTURE_TEST_CASE(origin_particle, Fixture)
     bunch.get_local_particles()[0][2] = 0;
     bunch.get_local_particles()[0][4] = 0;
 
-    deposit_charge_rectangular(*rho_grid_sptr, bunch);
+    deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch);
 
     for (int i = 1; i < 3; ++i) {
         for (int j = 1; j < 3; ++j) {
@@ -104,7 +104,7 @@ BOOST_FIXTURE_TEST_CASE(xedge_particle, Fixture)
     bunch.get_local_particles()[0][2] = 0;
     bunch.get_local_particles()[0][4] = 0;
 
-    deposit_charge_rectangular(*rho_grid_sptr, bunch);
+    deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch);
 
     expected[1][1][0] = 0.125 * density_norm;
     expected[1][2][0] = 0.125 * density_norm;
@@ -124,7 +124,7 @@ BOOST_FIXTURE_TEST_CASE(yedge_particle, Fixture)
     bunch.get_local_particles()[0][2] = domain_min;
     bunch.get_local_particles()[0][4] = 0;
 
-    deposit_charge_rectangular(*rho_grid_sptr, bunch);
+    deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch);
 
     expected[1][0][1] = 0.125 * density_norm;
     expected[1][0][2] = 0.125 * density_norm;
@@ -144,7 +144,7 @@ BOOST_FIXTURE_TEST_CASE(zedge_particle, Fixture)
     bunch.get_local_particles()[0][2] = 0;
     bunch.get_local_particles()[0][4] = domain_min;
 
-    deposit_charge_rectangular(*rho_grid_sptr, bunch);
+    deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch);
 
     expected[0][1][1] = 0.125 * density_norm;
     expected[0][1][2] = 0.125 * density_norm;
@@ -164,7 +164,7 @@ BOOST_FIXTURE_TEST_CASE(xrightedge_particle, Fixture)
     bunch.get_local_particles()[0][2] = 0;
     bunch.get_local_particles()[0][4] = 0;
 
-    deposit_charge_rectangular(*rho_grid_sptr, bunch);
+    deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch);
 
     expected[1][1][3] = 0.125 * density_norm;
     expected[1][2][3] = 0.125 * density_norm;
@@ -184,7 +184,7 @@ BOOST_FIXTURE_TEST_CASE(zedge_particle_periodic, Fixture)
     bunch.get_local_particles()[0][2] = 0;
     bunch.get_local_particles()[0][4] = domain_min;
 
-    deposit_charge_rectangular(*rho_grid_sptr, bunch);
+    deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch);
 
     expected[0][1][1] = 0.125 * density_norm;
     expected[0][1][2] = 0.125 * density_norm;
@@ -209,7 +209,7 @@ BOOST_FIXTURE_TEST_CASE(zrightedge_particle_periodic, Fixture)
     bunch.get_local_particles()[0][2] = 0;
     bunch.get_local_particles()[0][4] = domain_max;
 
-    deposit_charge_rectangular(*rho_grid_sptr, bunch);
+    deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch);
 
     expected[0][1][1] = 0.125 * density_norm;
     expected[0][1][2] = 0.125 * density_norm;
@@ -234,8 +234,8 @@ BOOST_FIXTURE_TEST_CASE(additive_deposit, Fixture)
     bunch.get_local_particles()[0][2] = 0;
     bunch.get_local_particles()[0][4] = 0;
 
-    deposit_charge_rectangular(*rho_grid_sptr, bunch);
-    deposit_charge_rectangular(*rho_grid_sptr, bunch, false);
+    deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch);
+    deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch, false);
 
     for (int i = 1; i < 3; ++i) {
         for (int j = 1; j < 3; ++j) {

@@ -150,7 +150,7 @@ Space_charge_3d_open_hockney::get_local_charge_density(Bunch const& bunch)
 {
     update_domain(bunch);
     Rectangular_grid_sptr local_rho_sptr(new Rectangular_grid(domain_sptr));
-    deposit_charge_rectangular(*local_rho_sptr, bunch);
+    deposit_charge_rectangular_zyx(*local_rho_sptr, bunch);
     return local_rho_sptr;
 }
 

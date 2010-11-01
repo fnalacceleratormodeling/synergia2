@@ -8,7 +8,7 @@
 /// so that the FFTW routines can distribute along the z-axis.
 /// The resulting charge density has units C/m^3.
 void
-deposit_charge_rectangular(Rectangular_grid & rho_grid, Bunch const& bunch,
+deposit_charge_rectangular_zyx(Rectangular_grid & rho_grid, Bunch const& bunch,
         bool zero_first)
 {
     MArray3d_ref rho(rho_grid.get_grid_points());
