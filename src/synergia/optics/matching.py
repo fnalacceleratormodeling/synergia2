@@ -1,12 +1,12 @@
 #!/usr/bin/env python
-
+import sys
 import numpy
 
 from one_turn_map import linear_one_turn_map
 from mpi4py import MPI
 from synergia.bunch import Bunch, populate_6d
 from synergia.foundation import Random_distribution
-from math import acos, sin, sqrt
+from math import acos, pi, sin, sqrt
 
 def _get_correlation_matrix(map, stdx, stdy, stdz):
     evals, evect_matrix = numpy.linalg.eig(map)
@@ -57,7 +57,12 @@ def get_alpha_beta(map):
     mxpxp = map[1, 1]
     mxxp = map[0, 1]
     cos_mu = (mxx + mxpxp) / 2.0
-    mu = acos(cos_mu)
+    try:
+        mu = acos(cos_mu)
+    except ValueError, e:
+        sys.stderr.write('failed to take the acos of %g\n' % cos_mu)
+        raise RuntimeError("get_alpha_beta: unstable map:\n" +
+                           numpy.array2string(map) + '\n')
     # beta function is positive
     # use this to pick branch
     if mxxp / sin(mu) < 0:
