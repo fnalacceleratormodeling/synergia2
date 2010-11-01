@@ -30,11 +30,12 @@ deposit_charge_rectangular_zyx(Rectangular_grid & rho_grid, Bunch const& bunch,
     // jfa: This is probably a premature optimization. Two versions of the
     // deposit loop -- one for periodic, one for non-periodic.
     if (rho_grid.get_domain_sptr()->is_periodic()) {
-        std::cout << "jfa: deposit periodic\n";
         for (int n = 0; n < bunch.get_local_num(); ++n) {
+            // domain doesn't know about xyz->zyx transformation, so we
+            // do it in the order of arguments here
             rho_grid.get_domain_sptr()->get_leftmost_indices_offsets(
-                    parts[n][0], parts[n][2], parts[n][4], ix, iy, iz, offx,
-                    offy, offz);
+                    parts[n][4], parts[n][2], parts[n][0], iz, iy, ix, offz,
+                    offy, offx);
             for (int i = 0; i < 2; ++i) {
                 for (int j = 0; j < 2; ++j) {
                     for (int k = 0; k < 2; ++k) {
@@ -61,9 +62,11 @@ deposit_charge_rectangular_zyx(Rectangular_grid & rho_grid, Bunch const& bunch,
         }
     } else {
         for (int n = 0; n < bunch.get_local_num(); ++n) {
+            // domain doesn't know about xyz->zyx transformation, so we
+            // do it in the order of arguments here
             rho_grid.get_domain_sptr()->get_leftmost_indices_offsets(
-                    parts[n][0], parts[n][2], parts[n][4], ix, iy, iz, offx,
-                    offy, offz);
+                    parts[n][4], parts[n][2], parts[n][0], iz, iy, ix, offz,
+                    offy, offx);
             for (int i = 0; i < 2; ++i) {
                 for (int j = 0; j < 2; ++j) {
                     for (int k = 0; k < 2; ++k) {

@@ -95,6 +95,79 @@ BOOST_FIXTURE_TEST_CASE(origin_particle, Fixture)
             tolerance);
 }
 
+BOOST_FIXTURE_TEST_CASE(x_displaced_particle, Fixture)
+{
+    rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
+            physical_offset, grid_shape, false));
+    bunch.set_local_num(1);
+    bunch.get_local_particles()[0][0]
+            = rho_grid_sptr->get_domain_sptr()->get_cell_size()[2];
+    bunch.get_local_particles()[0][2] = 0;
+    bunch.get_local_particles()[0][4] = 0;
+
+    deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch);
+
+    for (int i = 1; i < 3; ++i) {
+        for (int j = 1; j < 3; ++j) {
+            for (int k = 2; k < 4; ++k) {
+                expected[i][j][k] = 0.125 * density_norm;
+            }
+        }
+    }
+
+    multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
+            tolerance);
+}
+
+BOOST_FIXTURE_TEST_CASE(y_displaced_particle, Fixture)
+{
+    rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
+            physical_offset, grid_shape, false));
+    bunch.set_local_num(1);
+    bunch.get_local_particles()[0][0] = 0;
+    bunch.get_local_particles()[0][2]
+            = rho_grid_sptr->get_domain_sptr()->get_cell_size()[1];
+    bunch.get_local_particles()[0][4] = 0;
+
+    deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch);
+
+    for (int i = 1; i < 3; ++i) {
+        for (int j = 2; j < 4; ++j) {
+            for (int k = 1; k < 3; ++k) {
+                expected[i][j][k] = 0.125 * density_norm;
+            }
+        }
+    }
+
+    multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
+            tolerance);
+}
+
+BOOST_FIXTURE_TEST_CASE(z_displaced_particle, Fixture)
+{
+    rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
+            physical_offset, grid_shape, false));
+    bunch.set_local_num(1);
+    bunch.get_local_particles()[0][0] = 0;
+    bunch.get_local_particles()[0][2] = 0;
+    bunch.get_local_particles()[0][4]
+            = rho_grid_sptr->get_domain_sptr()->get_cell_size()[0];
+    ;
+
+    deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch);
+
+    for (int i = 2; i < 4; ++i) {
+        for (int j = 1; j < 3; ++j) {
+            for (int k = 1; k < 3; ++k) {
+                expected[i][j][k] = 0.125 * density_norm;
+            }
+        }
+    }
+
+    multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
+            tolerance);
+}
+
 BOOST_FIXTURE_TEST_CASE(xedge_particle, Fixture)
 {
     rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
