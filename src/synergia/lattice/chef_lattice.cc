@@ -9,10 +9,10 @@
 
 #include <stdexcept>
 
-beamline
-Chef_lattice::construct_raw_beamline()
+void
+Chef_lattice::construct_beamline()
 {
-    beamline raw_beamline;
+    BmlPtr unpolished_beamline_sptr(new beamline());
     for (Lattice_elements::const_iterator latt_it =
             lattice_sptr->get_elements().begin(); latt_it
             != lattice_sptr->get_elements().end(); ++latt_it) {
@@ -26,12 +26,12 @@ Chef_lattice::construct_raw_beamline()
                                     *(*latt_it), brho);
             for (Chef_elements::const_iterator cel_it = celms.begin(); cel_it
                     != celms.end(); ++cel_it) {
-                raw_beamline.append(*cel_it);
+                unpolished_beamline_sptr->append(ElmPtr((*cel_it)->Clone()));
             }
-            raw_beamline.append(lattice_element_marker);
+            unpolished_beamline_sptr->append(lattice_element_marker);
         }
     }
-    return raw_beamline;
+    beamline_sptr = polish_beamline(unpolished_beamline_sptr);
 }
 
 void
@@ -43,12 +43,18 @@ Chef_lattice::register_beamline(beamline & the_beamline)
     the_beamline.accept(registrar);
 }
 
-void
-Chef_lattice::polish_raw_beamline(beamline const& raw_beamline)
+BmlPtr
+Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
 {
     DriftConverter drift_converter;
-    beamline_sptr = drift_converter.convert(raw_beamline);
-    register_beamline(*beamline_sptr);
+    BmlPtr converted_beamline_sptr;
+    if( beamline_sptr->countHowManyDeeply() < 3 ) {
+        converted_beamline_sptr = beamline_sptr;
+    } else {
+        converted_beamline_sptr =  drift_converter.convert(*beamline_sptr);
+        register_beamline(*converted_beamline_sptr);
+    }
+    return converted_beamline_sptr;
 }
 
 void
@@ -81,23 +87,23 @@ Chef_lattice::construct()
     brho = lattice_sptr->get_reference_particle().get_momentum()
             / PH_CNV_brho_to_p;
 
-    polish_raw_beamline(construct_raw_beamline());
+    construct_beamline();
     extract_element_map();
 }
 
 Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr) :
-    lattice_sptr(lattice_sptr), beamline_sptr(), lattice_element_marker(new marker(
-            "synergia_lattice_element_marker")), element_adaptor_map_sptr(
-            new Element_adaptor_map)
+    lattice_sptr(lattice_sptr), beamline_sptr(), lattice_element_marker(
+            new marker("synergia_lattice_element_marker")),
+            element_adaptor_map_sptr(new Element_adaptor_map)
 {
     construct();
 }
 
 Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr,
         Element_adaptor_map_sptr element_adaptor_map_sptr) :
-    lattice_sptr(lattice_sptr), beamline_sptr(), lattice_element_marker(new marker(
-            "synergia_lattice_element_marker")), element_adaptor_map_sptr(
-            element_adaptor_map_sptr)
+    lattice_sptr(lattice_sptr), beamline_sptr(), lattice_element_marker(
+            new marker("synergia_lattice_element_marker")),
+            element_adaptor_map_sptr(element_adaptor_map_sptr)
 {
     construct();
 }
@@ -159,7 +165,9 @@ slice_chef_element(ElmPtr & elm, double left, double right, double tolerance)
 Chef_elements
 Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
 {
-    Chef_elements all_elements = element_map[&(slice.get_lattice_element())];
+    Chef_elements all_elements = element_adaptor_map_sptr->get_adaptor(
+            slice.get_lattice_element().get_type())->get_chef_elements(
+            slice.get_lattice_element(), brho);
     Chef_elements retval;
     if (slice.is_whole()) {
         retval = all_elements;
@@ -217,17 +225,17 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
 void
 Chef_lattice::construct_sliced_beamline(Lattice_element_slices const& slices)
 {
-    sliced_beamline_sptr->clear();
+    BmlPtr unpolished_beamline_sptr(new beamline());
     for (Lattice_element_slices::const_iterator it = slices.begin(); it
             != slices.end(); ++it) {
         Chef_elements chef_elements = get_chef_elements_from_slice(*(*it));
         element_slice_map[&(*(*it))] = chef_elements;
         for (Chef_elements::const_iterator c_it = chef_elements.begin(); c_it
                 != chef_elements.end(); ++c_it) {
-            sliced_beamline_sptr->append(*c_it);
+            unpolished_beamline_sptr->append(*c_it);
         }
     }
-    register_beamline(*sliced_beamline_sptr);
+    sliced_beamline_sptr = polish_beamline(unpolished_beamline_sptr);
     have_sliced_beamline = true;
 }
 

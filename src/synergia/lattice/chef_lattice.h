@@ -18,12 +18,12 @@ private:
     std::map<const Lattice_element_slice*, Chef_elements > element_slice_map;
     double brho;
 
-    beamline
-    construct_raw_beamline();
+    void
+    construct_beamline();
     void
     register_beamline(beamline & the_beamline);
-    void
-    polish_raw_beamline(beamline const& raw_beamline);
+    BmlPtr
+    polish_beamline(BmlPtr beamline_sptr);
     void
     extract_element_map();
     Chef_elements
