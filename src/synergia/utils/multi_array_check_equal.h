@@ -11,7 +11,7 @@ multi_array_check_equal(Const_MArray1d_ref const& a,
     for (int i = a.index_bases()[0]; i < a.index_bases()[0] + a.shape()[0]; ++i) {
         BOOST_CHECK_MESSAGE(floating_point_equal(a[i], b[i], tolerance), "a["
                 << i << "] = " << a[i] << ", b[" << i << "] = " << b[i]
-                << ", a-b = " << a[i] - b[i]);
+                << ", a-b = " << a[i] - b[i] << ", tolerance = " << tolerance);
     }
 }
 
@@ -28,7 +28,8 @@ multi_array_check_equal(Const_MArray2d_ref const& a,
             BOOST_CHECK_MESSAGE(floating_point_equal(a[i][j], b[i][j],
                     tolerance), "a[" << i << "][" << j << "] = " << a[i][j]
                     << ", b[" << i << "][" << j << "] = " << b[i][j]
-                    << ", a-b = " << a[i][j] - b[i][j]);
+                    << ", a-b = " << a[i][j] - b[i][j] << ", tolerance = "
+                    << tolerance);
         }
     }
 }
@@ -51,7 +52,8 @@ multi_array_check_equal(Const_MArray3d_ref const& a,
                         b[i][j][k], tolerance), "a[" << i << "][" << j << "]["
                         << k << "] = " << a[i][j][k] << ", b[" << i << "]["
                         << j << "][" << k << "] = " << b[i][j][k] << ", a-b = "
-                        << a[i][j][k] - b[i][j][k]);
+                        << a[i][j][k] - b[i][j][k] << ", tolerance = "
+                        << tolerance);
             }
         }
     }
