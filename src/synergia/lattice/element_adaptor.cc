@@ -459,7 +459,7 @@ Octupole_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     Chef_elements retval;
 
     double octulen = lattice_element.get_double_attribute("l");
-    double octuk2 = lattice_element.get_double_attribute("k2");
+    double octuk2 = lattice_element.get_double_attribute("k3");
     double octutilt;
 
     alignmentData aligner;
