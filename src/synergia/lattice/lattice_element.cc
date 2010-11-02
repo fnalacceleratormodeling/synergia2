@@ -1,8 +1,9 @@
 #include "lattice_element.h"
 #include <algorithm>
 #include <iostream>
+#include <stdexcept>
 
-Lattice_element::Lattice_element():
+Lattice_element::Lattice_element() :
     type(""), name(""), ancestors(), double_attributes(), string_attributes(),
             length_attribute_name("l"), bend_angle_attribute_name("angle")
 {
@@ -77,9 +78,14 @@ Lattice_element::has_double_attribute(std::string const& name) const
 double
 Lattice_element::get_double_attribute(std::string const& name) const
 {
-    std::map<std::string, double >::const_iterator iter =
+    std::map<std::string, double >::const_iterator result =
             double_attributes.find(name);
-    return iter->second;
+    if (result == double_attributes.end()) {
+        throw std::runtime_error("Lattice_element::get_double_attribute: element "
+                + this->name + " of type " + type + " has no double attribute '"
+                + name + "'");
+    }
+    return result->second;
 }
 
 std::map<std::string, double > const &
@@ -106,6 +112,11 @@ Lattice_element::get_string_attribute(std::string const& name) const
 {
     std::map<std::string, std::string >::const_iterator result =
             string_attributes.find(name);
+    if (result == string_attributes.end()) {
+        throw std::runtime_error("Lattice_element::get_string_attribute: element "
+                + this->name + " of type " + type + " has no string attribute '"
+                + name + "'");
+    }
     return result->second;
 }
 

@@ -44,6 +44,20 @@ BOOST_AUTO_TEST_CASE(set_get_double_attribute)
     BOOST_CHECK_CLOSE(lattice_element.get_double_attribute(attr), dblval, tolerance);
 }
 
+BOOST_AUTO_TEST_CASE(get_nonexistent_double_attribute)
+{
+    Lattice_element lattice_element(type, name);
+    BOOST_CHECK(lattice_element.has_double_attribute(attr) == false);
+    bool caught = false;
+    try {
+        double val = lattice_element.get_double_attribute(attr);
+    }
+    catch (std::runtime_error) {
+        caught = true;
+    }
+    BOOST_CHECK(caught);
+}
+
 BOOST_AUTO_TEST_CASE(get_double_attributes)
 {
     Lattice_element lattice_element(type, name);
@@ -63,6 +77,20 @@ BOOST_AUTO_TEST_CASE(set_get_string_attribute)
     lattice_element.set_string_attribute(attr, strval);
     BOOST_CHECK(lattice_element.has_string_attribute(attr));
     BOOST_CHECK(lattice_element.get_string_attribute(attr) == strval);
+}
+
+BOOST_AUTO_TEST_CASE(get_nonexistent_string_attribute)
+{
+    Lattice_element lattice_element(type, name);
+    BOOST_CHECK(lattice_element.has_string_attribute(attr) == false);
+    bool caught = false;
+    try {
+        std::string val = lattice_element.get_string_attribute(attr);
+    }
+    catch (std::runtime_error) {
+        caught = true;
+    }
+    BOOST_CHECK(caught);
 }
 
 BOOST_AUTO_TEST_CASE(get_string_attributes)
