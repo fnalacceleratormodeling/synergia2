@@ -42,7 +42,8 @@ multi_array_check_equal(Const_MArray3d_ref const& a,
         for (int j = a.index_bases()[1]; j < a.index_bases()[1] + a.shape()[1]; ++j) {
             for (int k = a.index_bases()[2]; k < a.index_bases()[2]
                     + a.shape()[2]; ++k) {
-                BOOST_CHECK(floating_point_equal(a[i][j][k], b[i][j][k], tolerance));
+                BOOST_CHECK(floating_point_equal(a[i][j][k], b[i][j][k],
+                        tolerance));
             }
         }
     }
