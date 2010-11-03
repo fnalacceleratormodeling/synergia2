@@ -26,6 +26,8 @@ private:
     polish_beamline(BmlPtr beamline_sptr);
     void
     extract_element_map();
+    void
+    extract_element_slice_map(Lattice_element_slices const& slices);
     Chef_elements
     get_chef_elements_from_slice(Lattice_element_slice const& slice);
     void

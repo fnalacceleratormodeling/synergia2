@@ -75,6 +75,23 @@ Chef_lattice::extract_element_map()
 }
 
 void
+Chef_lattice::extract_element_slice_map(Lattice_element_slices const& slices)
+{
+    Chef_elements chef_elements;
+    Lattice_element_slices::const_iterator s_it = slices.begin();
+    for (beamline::const_iterator b_it = sliced_beamline_sptr->begin(); b_it
+            != sliced_beamline_sptr->end(); ++b_it) {
+        if ((*b_it)->Name() == lattice_element_marker->Name()) {
+            element_slice_map[s_it->get()] = chef_elements;
+            chef_elements.clear();
+            ++s_it;
+        } else {
+            chef_elements.push_back(*b_it);
+        }
+    }
+}
+
+void
 Chef_lattice::construct()
 {
     lattice_sptr->set_default_attributes(*element_adaptor_map_sptr);
@@ -229,13 +246,14 @@ Chef_lattice::construct_sliced_beamline(Lattice_element_slices const& slices)
     for (Lattice_element_slices::const_iterator it = slices.begin(); it
             != slices.end(); ++it) {
         Chef_elements chef_elements = get_chef_elements_from_slice(*(*it));
-        element_slice_map[&(*(*it))] = chef_elements;
         for (Chef_elements::const_iterator c_it = chef_elements.begin(); c_it
                 != chef_elements.end(); ++c_it) {
             unpolished_beamline_sptr->append(*c_it);
         }
+        unpolished_beamline_sptr->append(lattice_element_marker);
     }
     sliced_beamline_sptr = polish_beamline(unpolished_beamline_sptr);
+    extract_element_slice_map(slices);
     have_sliced_beamline = true;
 }
 
