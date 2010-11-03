@@ -14,12 +14,14 @@ class Cache_entry:
 class Lattice_cache:
     def __init__(self, file_name, line_name):
         self.file_name = file_name
-        self.line_name = line_name
-        self.cache_dir = os.path.join(os.path.dirname(file_name), "lattice_cache")
-        self.cache_file_name = os.path.join(self.cache_dir,
-                                            os.path.basename(file_name) + "_cache")
-        self.cache = None
-        self.max_index = 0
+        self.real_file = (file_name != None)
+        if self.real_file:
+            self.line_name = line_name
+            self.cache_dir = os.path.join(os.path.dirname(file_name), "lattice_cache")
+            self.cache_file_name = os.path.join(self.cache_dir,
+                                                os.path.basename(file_name) + "_cache")
+            self.cache = None
+            self.max_index = 0
 
     def _get_time_stamp(self):
         stat_output = os.stat(self.file_name)
@@ -40,6 +42,8 @@ class Lattice_cache:
             cache_file.close()
 
     def is_readable(self):
+        if not self.real_file:
+            return False
         if not self.cache:
             self._read_cache()
         readable = False
@@ -60,6 +64,8 @@ class Lattice_cache:
         return retval
 
     def write(self, lattice):
+        if not self.real_file:
+            return
         if not self.cache:
             self._read_cache()
         time_stamp = self._get_time_stamp()

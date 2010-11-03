@@ -27,6 +27,7 @@ add_test(test_mad8_reader nosetests test_mad8_reader.py)
 set(CLEAN_FILES
     lattice_element.xml
     lattice1.xml
-    lattice2.xml)
+    lattice2.xml
+    lattice_cache)
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEAN_FILES}")
