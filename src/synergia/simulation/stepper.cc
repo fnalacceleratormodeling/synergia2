@@ -40,6 +40,7 @@ Split_operator_stepper::get_half_step(std::string const& name,
         double right = (*lattice_it)->get_length();
         if (floating_point_leq(length + (right - left), half_step_length,
                 tolerance)) {
+            // The rest of the element fits in the half step
             Lattice_element_slice_sptr slice(new Lattice_element_slice(
                     *(*lattice_it), left, right));
             retval->append_slice(slice);
@@ -58,11 +59,25 @@ Split_operator_stepper::get_half_step(std::string const& name,
                 }
             }
         } else {
+            // Need to take a portion of the element...
+            bool end_within_error = false;
+            double old_right = right;
             right = half_step_length - length + left;
+            if ((old_right - right) < retval->get_slices().size() * tolerance) {
+                // ... unless we are within an accumulated tolerance of the end
+                right = old_right;
+                end_within_error = true;
+            }
             Lattice_element_slice_sptr slice(new Lattice_element_slice(
                     *(*lattice_it), left, right));
             retval->append_slice(slice);
-            left = right;
+            length += (right - left);
+            if (end_within_error) {
+                ++lattice_it;
+                left = 0.0;
+            } else {
+                left = right;
+            }
             complete = true;
         }
     }
