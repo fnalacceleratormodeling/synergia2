@@ -56,7 +56,7 @@ def do_error(message):
     sys.exit(1)
 
 def do_help():
-    print "usage: beam_plot.py <filename> [option1] ... [optionn] <h coord> <v coord>"
+    print "usage: synbeamplot <filename> [option1] ... [optionn] <h coord> <v coord>"
     print "available options are:"
     print "    --nohist : do not show histograms (not on by default)"
     print "    --bins=<num> : number of bins in each direction"

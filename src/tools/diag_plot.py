@@ -79,7 +79,7 @@ def do_error(message):
     sys.exit(1)
 
 def do_help(plotparams):
-    print "usage: basic_plots.py <filename> [option1] ... [optionn] <plot1> ... <plotn>"
+    print "usage: syndiagplot <filename> [option1] ... [optionn] <plot1> ... <plotn>"
     print "available options are:"
     print "    --oneplot : put all plots on the same axis (not on by default)"
     print "    --output=<file> : save output to file (not on by default)"

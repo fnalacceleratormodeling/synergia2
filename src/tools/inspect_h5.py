@@ -5,10 +5,10 @@ import tables
 
 def usage(error=False):
     print "usage:"
-    print "     " + sys.argv[0] + " <hdf5_file>"
+    print "     syninspecth5 <hdf5_file>"
     print "     " + "    to list members"
     print "or"
-    print "     " + sys.argv[0] + " <hdf5_file> <entry>"
+    print "     syninspecth5 <hdf5_file> <entry>"
     print "     " + "      to display entry"
     if error:
         retval = 1

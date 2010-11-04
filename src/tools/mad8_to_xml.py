@@ -4,7 +4,7 @@ import synergia
 
 if len(sys.argv) != 4:
     print "usage:",
-    print sys.argv[0], "<mad8 file> <line name> <xml file>"
+    print "synmad8toxml <mad8 file> <line name> <xml file>"
     print "    Reads line <line name> from <mad8 file> and writes to <xml file>."
     sys.exit(1)
 
