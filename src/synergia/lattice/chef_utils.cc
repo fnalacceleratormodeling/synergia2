@@ -71,12 +71,12 @@ std::vector<double >
 chef_unit_conversion(Reference_particle const& reference_particle)
 {
     std::vector<double > u(6);
-    u.at(0) = 1.0;
-    u.at(1) = reference_particle.get_momentum();
-    u.at(2) = 1.0;
-    u.at(3) = reference_particle.get_momentum();
-    u.at(4) = 1.0;
-    u.at(5) = reference_particle.get_momentum();
+    u[0] = 1.0;
+    u[1] = 1.0;
+    u[2] = 1.0;
+    u[3] = 1.0;
+    u[4] = 1.0;
+    u[5] = 1.0;
     return u;
 }
 
