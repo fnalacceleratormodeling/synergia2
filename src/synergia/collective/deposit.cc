@@ -23,8 +23,9 @@ deposit_charge_rectangular_zyx(Rectangular_grid & rho_grid, Bunch const& bunch,
         }
     }
     std::vector<double > h(rho_grid.get_domain_sptr()->get_cell_size());
-    double weight0 = (bunch.get_real_num() / bunch.get_total_num()) * std::abs(
-            bunch.get_particle_charge()) * pconstants::e / (h[0] * h[1] * h[2]);
+    double weight0 = (bunch.get_real_num() / bunch.get_total_num())
+            * bunch.get_particle_charge() * pconstants::e
+            / (h[0] * h[1] * h[2]);
     int ix, iy, iz;
     double offx, offy, offz;
     // jfa: This is probably a premature optimization. Two versions of the
