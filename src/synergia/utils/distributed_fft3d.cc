@@ -96,8 +96,7 @@ Distributed_fft3d::calculate_uppers_lengths()
         uppers.resize(size);
         lengths.resize(size);
         if (size == 1) {
-            uppers.at(0) = upper;
-            lengths.at(0) = upper - lower;
+            uppers[0] = upper;
         } else {
             MPI_Allgather((void*) (&upper), 1, MPI_INT, (void*) (&uppers[0]),
                     1, MPI_INT, comm.get());
