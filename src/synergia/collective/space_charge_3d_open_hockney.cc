@@ -169,31 +169,41 @@ Space_charge_3d_open_hockney::get_global_charge_density2(
     int upper = distributed_fft3d_sptr->get_upper();
     std::vector<int > uppers(distributed_fft3d_sptr->get_uppers());
     std::vector<int > real_lengths(distributed_fft3d_sptr->get_lengths());
+    if (uppers[0] > grid_shape[0]) {
+        real_lengths[0] = grid_shape[0] * grid_shape[1] * grid_shape[2];
+    } else {
+        real_lengths[0] = uppers[0] * grid_shape[1] * grid_shape[2];
+    }
     for (int i = 1; i < comm2.get_size(); ++i) {
         if (uppers[i - 1] >= grid_shape[0]) {
             real_lengths[i] == 0;
+        } else {
+            real_lengths[i] == (uppers[i] - uppers[i - 1]) * grid_shape[1]
+                    * grid_shape[2];
         }
     }
-    int real_lower = upper - real_lengths[comm2.get_rank()];
-    void * source;
-    source = (void *) local_charge_density.get_grid_points().origin();
+    int real_lower;
+    if (comm2.get_rank() > 0) {
+        real_lower = uppers[comm2.get_rank() - 1];
+    } else {
+        real_lower = 0;
+    }
+    const double * source = local_charge_density.get_grid_points().origin();
 
     // The destination for Reduce_scatter is the appropriate slice of semiglobal_rho
-    void * dest;
+    double * dest;
     MArray3d_ref dest_points(semiglobal_rho.get_grid_points());
     dest = dest_points.origin() + (dest_points.index_bases()[0] + real_lower)
             * dest_points.strides()[0];
-    MPI_Reduce_scatter(source, dest, &real_lengths[0], MPI_DOUBLE, MPI_SUM,
-            comm2.get());
-
+    MPI_Reduce_scatter((void *) source, (void *) dest, &real_lengths[0],
+            MPI_DOUBLE, MPI_SUM, comm2.get());
     Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr, real_lower,
                     upper));
-
     for (int i = real_lower; i < upper; ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
             for (int k = 0; k < doubled_grid_shape[2]; ++k) {
-                semiglobal_rho.get_grid_points()[i][j][k] = 0.0;
+                rho2->get_grid_points()[i][j][k] = 0.0;
             }
         }
     }

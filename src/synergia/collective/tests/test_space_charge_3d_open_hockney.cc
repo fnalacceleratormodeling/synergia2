@@ -94,8 +94,8 @@ struct Toy_bunch_fixture
                 }
             }
         }
-        density_norm = (toy_real_num / total_num) * pconstants::e / (cell_size[0]
-                * cell_size[1] * cell_size[2]);
+        density_norm = (toy_real_num / total_num) * pconstants::e
+                / (cell_size[0] * cell_size[1] * cell_size[2]);
     }
 
     ~Toy_bunch_fixture()
@@ -339,21 +339,44 @@ BOOST_FIXTURE_TEST_CASE(get_local_charge_density, Toy_bunch_fixture)
     Rectangular_grid_sptr local_charge_density(
             space_charge.get_local_charge_density(bunch));
 
-    multi_array_print(local_charge_density->get_grid_points(), "rho");
     for (int i = center_zyx[0] - 1; i < center_zyx[0] + 1; ++i) {
         for (int j = center_zyx[1] - 1; j < center_zyx[1] + 1; ++j) {
             for (int k = center_zyx[2] - 1; k < center_zyx[2] + 1; ++k) {
                 expected[i][j][k] = 0.125 * density_norm;
-//                std::cout << "rho[" << i << "][" << j << "][" << k << "] = "
-//                        << local_charge_density->get_grid_points()[i][j][k];
-//                std::cout << ", expected[" << i << "][" << j << "][" << k
-//                        << "] = " << expected[i][j][k];
-//                std::cout << std::endl;
             }
         }
     }
-    multi_array_print(expected, "expected");
     multi_array_check_equal(local_charge_density->get_grid_points(), expected,
             100 * tolerance);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_global_charge_density2, Ellipsoidal_bunch_fixture)
+{
+    Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
+    Rectangular_grid_sptr local_rho = space_charge.get_local_charge_density(
+            bunch); // [C/m^3]
+    Distributed_rectangular_grid_sptr rho2 =
+            space_charge.get_global_charge_density2(*local_rho); // [C/m^3]
+    std::vector<int > nondoubled_shape(
+            local_rho->get_domain_sptr()->get_grid_shape());
+    std::vector<int > doubled_shape(rho2->get_domain_sptr()->get_grid_shape());
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[0],
+            doubled_shape[0]);
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[1],
+            doubled_shape[1]);
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[2],
+            doubled_shape[2]);
+    for (int i = 0; i < doubled_shape[0]; ++i) {
+        for (int j = 0; j < doubled_shape[1]; ++j) {
+            for (int k = 0; k < doubled_shape[2]; ++k) {
+                if ((i < nondoubled_shape[0]) && (j < nondoubled_shape[1])
+                        && (k < nondoubled_shape[2])) {
+                    BOOST_CHECK_CLOSE(rho2->get_grid_points()[i][j][k],
+                            local_rho->get_grid_points()[i][j][k], tolerance);
+                } else {
+                    BOOST_CHECK_EQUAL(rho2->get_grid_points()[i][j][k], 0.0);
+                }
+            }
+        }
+    }
+}
