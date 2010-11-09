@@ -107,3 +107,92 @@ BOOST_FIXTURE_TEST_CASE(transform_roundtrip, Fixture)
     }
     multi_array_check_equal(orig, rarray, tolerance);
 }
+
+BOOST_FIXTURE_TEST_CASE(transform_bad_in_offset, Fixture)
+{
+    int lower = distributed_fft3d.get_lower();
+    int upper = distributed_fft3d.get_upper();
+    std::vector<int > rshape(distributed_fft3d.get_padded_shape_real());
+    MArray3d rarray(
+            boost::extents[extent_range(lower-1, upper-1)][rshape[1]][rshape[2]]);
+    std::vector<int > cshape(distributed_fft3d.get_padded_shape_complex());
+    MArray3dc carray(
+            boost::extents[extent_range(lower, upper)][cshape[1]][cshape[2]]);
+
+    bool caught_error = false;
+    try {
+        distributed_fft3d.transform(rarray, carray);
+    }
+    catch (std::runtime_error) {
+        caught_error = true;
+    }
+
+    BOOST_CHECK(caught_error == true);
+}
+
+BOOST_FIXTURE_TEST_CASE(transform_bad_out_offset, Fixture)
+{
+    int lower = distributed_fft3d.get_lower();
+    int upper = distributed_fft3d.get_upper();
+    std::vector<int > rshape(distributed_fft3d.get_padded_shape_real());
+    MArray3d rarray(
+            boost::extents[extent_range(lower, upper)][rshape[1]][rshape[2]]);
+    std::vector<int > cshape(distributed_fft3d.get_padded_shape_complex());
+    MArray3dc carray(
+            boost::extents[extent_range(lower-1, upper-1)][cshape[1]][cshape[2]]);
+
+    bool caught_error = false;
+    try {
+        distributed_fft3d.transform(rarray, carray);
+    }
+    catch (std::runtime_error) {
+        caught_error = true;
+    }
+
+    BOOST_CHECK(caught_error == true);
+}
+
+BOOST_FIXTURE_TEST_CASE(inv_transform_bad_in_offset, Fixture)
+{
+    int lower = distributed_fft3d.get_lower();
+    int upper = distributed_fft3d.get_upper();
+    std::vector<int > rshape(distributed_fft3d.get_padded_shape_real());
+    MArray3d rarray(
+            boost::extents[extent_range(lower, upper)][rshape[1]][rshape[2]]);
+    std::vector<int > cshape(distributed_fft3d.get_padded_shape_complex());
+    MArray3dc carray(
+            boost::extents[extent_range(lower-1, upper-1)][cshape[1]][cshape[2]]);
+
+    bool caught_error = false;
+    try {
+        distributed_fft3d.inv_transform(carray, rarray);
+    }
+    catch (std::runtime_error) {
+        caught_error = true;
+    }
+
+    BOOST_CHECK(caught_error == true);
+}
+
+BOOST_FIXTURE_TEST_CASE(inv_transform_bad_out_offset, Fixture)
+{
+    int lower = distributed_fft3d.get_lower();
+    int upper = distributed_fft3d.get_upper();
+    std::vector<int > rshape(distributed_fft3d.get_padded_shape_real());
+    MArray3d rarray(
+            boost::extents[extent_range(lower-1, upper-1)][rshape[1]][rshape[2]]);
+    std::vector<int > cshape(distributed_fft3d.get_padded_shape_complex());
+    MArray3dc carray(
+            boost::extents[extent_range(lower, upper)][cshape[1]][cshape[2]]);
+
+    bool caught_error = false;
+    try {
+        distributed_fft3d.inv_transform(carray, rarray);
+    }
+    catch (std::runtime_error) {
+        caught_error = true;
+    }
+
+    BOOST_CHECK(caught_error == true);
+}
+
