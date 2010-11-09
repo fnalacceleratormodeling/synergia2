@@ -223,15 +223,19 @@ Space_charge_3d_open_hockney::get_global_charge_density2(
 Distributed_rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_green_fn2()
 {
-    int lower = distributed_fft3d_sptr->get_upper();
+    if (doubled_domain_sptr == NULL) {
+        throw runtime_error(
+                "Space_charge_3d_open_hockney::get_green_fn2 called before domain specified");
+    }
+    int lower = distributed_fft3d_sptr->get_lower();
     int upper = distributed_fft3d_sptr->get_upper();
     Distributed_rectangular_grid_sptr G2 =
             Distributed_rectangular_grid_sptr(new Distributed_rectangular_grid(
                     doubled_domain_sptr, lower, upper));
 
-    double hx = domain_sptr->get_cell_size()[0];
+    double hx = domain_sptr->get_cell_size()[2];
     double hy = domain_sptr->get_cell_size()[1];
-    double hz = domain_sptr->get_cell_size()[2];
+    double hz = domain_sptr->get_cell_size()[0];
 
     double rr = hx * hx + hy * hy;
     double r1 = sqrt(hx * hx + hy * hy + hz * hz);
@@ -242,8 +246,8 @@ Space_charge_3d_open_hockney::get_green_fn2()
     const double epsz = 1.0e-12 * hz;
 
     for (int iz = lower; iz < upper; ++iz) {
-        if (iz > grid_shape[2]) {
-            z = (doubled_grid_shape[2] - iz) * hz;
+        if (iz > grid_shape[0]) {
+            z = (doubled_grid_shape[0] - iz) * hz;
         } else {
             z = iz * hz;
         }
@@ -253,12 +257,12 @@ Space_charge_3d_open_hockney::get_green_fn2()
             if (miy == grid_shape[1]) {
                 miy = doubled_grid_shape[1]; // will get thrown away
             }
-            for (int ix = 0; ix <= grid_shape[0]; ++ix) {
+            for (int ix = 0; ix <= grid_shape[2]; ++ix) {
                 x = ix * hx;
                 rr = x * x + y * y;
-                mix = doubled_grid_shape[0] - ix;
-                if (mix == grid_shape[0]) {
-                    mix = doubled_grid_shape[0]; // will get thrown away
+                mix = doubled_grid_shape[2] - ix;
+                if (mix == grid_shape[2]) {
+                    mix = doubled_grid_shape[2]; // will get thrown away
                 }
 
                 G = 2.0 * sqrt(rr + z * z) - sqrt(rr + (z - hz) * (z - hz))
@@ -374,11 +378,11 @@ Space_charge_3d_open_hockney::get_green_fn2()
                 // three mirror images
                 if (miy < doubled_grid_shape[1]) {
                     G2->get_grid_points()[iz][miy][ix] = G;
-                    if (mix < doubled_grid_shape[0]) {
+                    if (mix < doubled_grid_shape[2]) {
                         G2->get_grid_points()[iz][miy][mix] = G;
                     }
                 }
-                if (mix < doubled_grid_shape[0]) {
+                if (mix < doubled_grid_shape[2]) {
                     G2->get_grid_points()[iz][iy][mix] = G;
                 }
             }

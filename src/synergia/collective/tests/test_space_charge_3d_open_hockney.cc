@@ -380,3 +380,23 @@ BOOST_FIXTURE_TEST_CASE(get_global_charge_density2, Ellipsoidal_bunch_fixture)
         }
     }
 }
+
+BOOST_FIXTURE_TEST_CASE(get_green_fn2, Ellipsoidal_bunch_fixture)
+{
+    Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
+    space_charge.update_domain(bunch);
+    Distributed_rectangular_grid_sptr G2(space_charge.get_green_fn2());
+}
+
+BOOST_FIXTURE_TEST_CASE(get_green_fn2_no_domain, Ellipsoidal_bunch_fixture)
+{
+    Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
+    bool caught_error = false;
+    try {
+        Distributed_rectangular_grid_sptr G2(space_charge.get_green_fn2());
+    }
+    catch (std::runtime_error) {
+        caught_error = true;
+    }
+    BOOST_CHECK(caught_error == true);
+}
