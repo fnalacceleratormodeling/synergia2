@@ -1,7 +1,8 @@
 #include "distributed_rectangular_grid.h"
 
 void
-Distributed_rectangular_grid::construct(int lower, int upper)
+Distributed_rectangular_grid::construct(int lower, int upper,
+        std::vector<int > const & array_shape)
 {
     std::vector<int > grid_shape(domain_sptr->get_grid_shape());
     this->lower = lower;
@@ -19,7 +20,7 @@ Distributed_rectangular_grid::construct(int lower, int upper)
     grid_points_sptr
             = boost::shared_ptr<MArray3d >(
                     new MArray3d(boost::extents[extent_range(lower_guard,
-                            upper_guard)][grid_shape[1]][grid_shape[2]]));
+                            upper_guard)][array_shape[1]][array_shape[2]]));
     normalization = 1.0;
 }
 
@@ -31,15 +32,23 @@ Distributed_rectangular_grid::Distributed_rectangular_grid(
 {
     domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
             physical_size, physical_offset, grid_shape, periodic));
-    construct(lower, upper);
+    construct(lower, upper, domain_sptr->get_grid_shape());
 }
 
 Distributed_rectangular_grid::Distributed_rectangular_grid(
-        Rectangular_grid_domain_sptr rectangular_grid_domain_sptr,
-        int lower, int upper)
+        Rectangular_grid_domain_sptr rectangular_grid_domain_sptr, int lower,
+        int upper)
 {
     domain_sptr = rectangular_grid_domain_sptr;
-    construct(lower, upper);
+    construct(lower, upper, domain_sptr->get_grid_shape());
+}
+
+Distributed_rectangular_grid::Distributed_rectangular_grid(
+        Rectangular_grid_domain_sptr rectangular_grid_domain_sptr, int lower,
+        int upper, std::vector<int > const & padded_shape)
+{
+    domain_sptr = rectangular_grid_domain_sptr;
+    construct(lower, upper, padded_shape);
 }
 
 Rectangular_grid_domain_sptr
@@ -109,21 +118,21 @@ Distributed_rectangular_grid::fill_guards(Commxx const & comm)
     int size = comm.get_size();
     if (size == 1) {
         if (domain_sptr->is_periodic()) {
-                        int max0 = domain_sptr->get_grid_shape()[0];
-                        int max1 = domain_sptr->get_grid_shape()[1];
-                        int max2 = domain_sptr->get_grid_shape()[2];
-                        for (int j = 0; j < max1; ++j) {
-                            for (int k = 0; k < max2; ++k) {
-                                (*grid_points_sptr)[-1][j][k] = (*grid_points_sptr)[max0
-                                        - 1][j][k];
-                            }
-                        }
-                        for (int j = 0; j < max1; ++j) {
-                            for (int k = 0; k < max2; ++k) {
-                                (*grid_points_sptr)[max0][j][k]
-                                        = (*grid_points_sptr)[0][j][k];
-                            }
-                        }
+            int max0 = domain_sptr->get_grid_shape()[0];
+            int max1 = domain_sptr->get_grid_shape()[1];
+            int max2 = domain_sptr->get_grid_shape()[2];
+            for (int j = 0; j < max1; ++j) {
+                for (int k = 0; k < max2; ++k) {
+                    (*grid_points_sptr)[-1][j][k] = (*grid_points_sptr)[max0
+                            - 1][j][k];
+                }
+            }
+            for (int j = 0; j < max1; ++j) {
+                for (int k = 0; k < max2; ++k) {
+                    (*grid_points_sptr)[max0][j][k]
+                            = (*grid_points_sptr)[0][j][k];
+                }
+            }
             return;
         } else {
             return;

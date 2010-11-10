@@ -18,6 +18,21 @@ BOOST_FIXTURE_TEST_CASE(construct2, Rectangular_grid_domain_fixture)
             rectangular_grid_domain_sptr, 0, grid_size0);
 }
 
+BOOST_FIXTURE_TEST_CASE(construct3, Rectangular_grid_domain_fixture)
+{
+    std::vector<int > padded_shape(
+            rectangular_grid_domain_sptr->get_grid_shape());
+    padded_shape[2] += 2;
+    Distributed_rectangular_grid distributed_rectangular_grid(
+            rectangular_grid_domain_sptr, 0, grid_size0, padded_shape);
+    BOOST_CHECK_EQUAL(distributed_rectangular_grid.get_grid_points().shape()[0],
+            padded_shape[0]);
+    BOOST_CHECK_EQUAL(distributed_rectangular_grid.get_grid_points().shape()[1],
+            padded_shape[1]);
+    BOOST_CHECK_EQUAL(distributed_rectangular_grid.get_grid_points().shape()[2],
+            padded_shape[2]);
+}
+
 BOOST_FIXTURE_TEST_CASE(get_const_domain_sptr, Rectangular_grid_domain_fixture)
 {
     const Distributed_rectangular_grid distributed_rectangular_grid(
