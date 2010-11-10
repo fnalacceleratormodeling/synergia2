@@ -54,8 +54,8 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
         std::vector<int > const & grid_shape, bool periodic_z,
         Commxx const& comm, double z_period, double n_sigma) :
     Collective_operator("space charge"), grid_shape(3), doubled_grid_shape(3),
-            periodic_z(periodic_z), comm2(comm), z_period(z_period), n_sigma(
-                    n_sigma), domain_fixed(false)
+            padded_grid_shape(3), periodic_z(periodic_z), comm2(comm),
+            z_period(z_period), n_sigma(n_sigma), domain_fixed(false)
 {
     this->grid_shape[0] = grid_shape[2];
     this->grid_shape[1] = grid_shape[1];
@@ -65,18 +65,24 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
     }
     distributed_fft3d_sptr = Distributed_fft3d_sptr(new Distributed_fft3d(
             doubled_grid_shape, comm));
+    padded_grid_shape = distributed_fft3d_sptr->get_padded_shape_real();
     setup_nondoubled_communication();
 }
 
 Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(bool periodic_z,
         Distributed_fft3d_sptr distributed_fft3d_sptr, double z_period,
         double n_sigma) :
-    Collective_operator("space charge"), grid_shape(3), periodic_z(periodic_z),
+    Collective_operator("space charge"), grid_shape(3), doubled_grid_shape(3),
+            padded_grid_shape(3), periodic_z(periodic_z),
             distributed_fft3d_sptr(distributed_fft3d_sptr), comm2(
                     distributed_fft3d_sptr->get_comm()), z_period(z_period),
             n_sigma(n_sigma), domain_fixed(false)
 {
-    grid_shape = distributed_fft3d_sptr->get_shape();
+    doubled_grid_shape = distributed_fft3d_sptr->get_shape();
+    for (int i = 0; i < 3; ++i) {
+        grid_shape[i] = doubled_grid_shape[i] / 2;
+    }
+    padded_grid_shape = distributed_fft3d_sptr->get_padded_shape_real();
     setup_nondoubled_communication();
 }
 
@@ -199,7 +205,7 @@ Space_charge_3d_open_hockney::get_global_charge_density2(
             MPI_DOUBLE, MPI_SUM, comm2.get());
     Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr, real_lower,
-                    upper));
+                    upper, distributed_fft3d_sptr->get_padded_shape_real()));
     for (int i = real_lower; i < upper; ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
             for (int k = 0; k < doubled_grid_shape[2]; ++k) {
@@ -229,9 +235,9 @@ Space_charge_3d_open_hockney::get_green_fn2()
     }
     int lower = distributed_fft3d_sptr->get_lower();
     int upper = distributed_fft3d_sptr->get_upper();
-    Distributed_rectangular_grid_sptr G2 =
-            Distributed_rectangular_grid_sptr(new Distributed_rectangular_grid(
-                    doubled_domain_sptr, lower, upper));
+    Distributed_rectangular_grid_sptr G2 = Distributed_rectangular_grid_sptr(
+            new Distributed_rectangular_grid(doubled_domain_sptr, lower, upper,
+                    distributed_fft3d_sptr->get_padded_shape_real()));
 
     double hx = domain_sptr->get_cell_size()[2];
     double hy = domain_sptr->get_cell_size()[1];
@@ -410,7 +416,6 @@ Space_charge_3d_open_hockney::get_scalar_field2(
             boost::extents[extent_range(lower, upper)][cshape[1]][cshape[2]]);
     MArray3dc phi2hat(
             boost::extents[extent_range(lower, upper)][cshape[1]][cshape[2]]);
-
     distributed_fft3d_sptr->transform(charge_density2.get_grid_points(),
             rho2hat);
     distributed_fft3d_sptr->transform(green_fn2.get_grid_points(), G2hat);
@@ -424,7 +429,8 @@ Space_charge_3d_open_hockney::get_scalar_field2(
     }
 
     Distributed_rectangular_grid_sptr phi2(new Distributed_rectangular_grid(
-            doubled_domain_sptr, lower, upper));
+            doubled_domain_sptr, lower, upper,
+            distributed_fft3d_sptr->get_padded_shape_real()));
     distributed_fft3d_sptr->inv_transform(phi2hat, phi2->get_grid_points());
 
     double normalization = 1.0;

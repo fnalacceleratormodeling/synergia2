@@ -13,7 +13,7 @@
 class Space_charge_3d_open_hockney : public Collective_operator
 {
 private:
-    std::vector<int > grid_shape, doubled_grid_shape;
+    std::vector<int > grid_shape, doubled_grid_shape, padded_grid_shape;
     Rectangular_grid_domain_sptr domain_sptr, doubled_domain_sptr;
     bool periodic_z;
     double z_period;
@@ -69,7 +69,8 @@ public:
     get_global_electric_field_component(
             Distributed_rectangular_grid const& dist_field);
     void
-    apply_kick(Bunch & bunch, Rectangular_grid const& En, double delta_tau, int component);
+    apply_kick(Bunch & bunch, Rectangular_grid const& En, double delta_tau,
+            int component);
     virtual void
     apply(Bunch & bunch, double time_step, Step & step);
     ~Space_charge_3d_open_hockney();
