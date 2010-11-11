@@ -430,22 +430,22 @@ BOOST_FIXTURE_TEST_CASE(extract_scalar_field, Ellipsoidal_bunch_fixture)
 
 }
 
-//BOOST_FIXTURE_TEST_CASE(get_electric_field_component, Ellipsoidal_bunch_fixture)
-//{
-//    Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
-//    Rectangular_grid_sptr local_rho(
-//            space_charge.get_local_charge_density(bunch)); // [C/m^3]
-//    Distributed_rectangular_grid_sptr rho2(
-//            space_charge.get_global_charge_density2(*local_rho)); // [C/m^3]
-//    local_rho.reset();
-//    Distributed_rectangular_grid_sptr G2(space_charge.get_green_fn2()); // [1/m^3]
-//    Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
-//            *rho2, *G2)); // [V]
-//    Distributed_rectangular_grid_sptr
-//    phi(space_charge.extract_scalar_field(*phi2));
-//    // Normally, we would have to fill guards here, but this test is assumed
-//    // to run on a single processor, so no fill is necessary
-//    int component = 1;
-//    Distributed_rectangular_grid_sptr local_En(
-//            space_charge.get_electric_field_component(*phi, component)); // [V/m]
-//}
+BOOST_FIXTURE_TEST_CASE(get_electric_field_component, Ellipsoidal_bunch_fixture)
+{
+    Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
+    Rectangular_grid_sptr local_rho(
+            space_charge.get_local_charge_density(bunch)); // [C/m^3]
+    Distributed_rectangular_grid_sptr rho2(
+            space_charge.get_global_charge_density2(*local_rho)); // [C/m^3]
+    local_rho.reset();
+    Distributed_rectangular_grid_sptr G2(space_charge.get_green_fn2()); // [1/m^3]
+    Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
+            *rho2, *G2)); // [V]
+    Distributed_rectangular_grid_sptr
+    phi(space_charge.extract_scalar_field(*phi2));
+    // Normally, we would have to fill guards here, but this test is assumed
+    // to run on a single processor, so no fill is necessary
+    int component = 1;
+    Distributed_rectangular_grid_sptr local_En(
+            space_charge.get_electric_field_component(*phi, component)); // [V/m]
+}

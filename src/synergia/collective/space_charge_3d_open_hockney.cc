@@ -497,7 +497,7 @@ Space_charge_3d_open_hockney::get_electric_field_component(
                 if (center[component] == lower_limit) {
                     right[component] = center[component] + 1;
                     delta = cell_size;
-                } else if (center[component] == lower_limit) {
+                } else if (center[component] == upper_limit - 1) {
                     left[component] = center[component] - 1;
                     delta = cell_size;
                 } else {
