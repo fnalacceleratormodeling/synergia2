@@ -1,6 +1,7 @@
 #ifndef SPACE_CHARGE_3D_OPEN_HOCKNEY_H_
 #define SPACE_CHARGE_3D_OPEN_HOCKNEY_H_
 #include "synergia/simulation/operator.h"
+#include "synergia/simulation/step.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/collective/rectangular_grid_domain.h"
 #include "synergia/collective/rectangular_grid.h"
