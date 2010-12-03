@@ -6,8 +6,8 @@ set(tools
 
 foreach(tool ${tools})
     configure_file("${SYNERGIA2_SOURCE_DIR}/src/tools/${tool}.in"
-        "${SYNERGIA2_BINARY_DIR}/src/frontend/${tool}" IMMEDIATE)
-    install(PROGRAMS "${SYNERGIA2_BINARY_DIR}/src/frontend/${tool}" DESTINATION bin)
+        "${SYNERGIA2_BINARY_DIR}/src/tools/${tool}" IMMEDIATE)
+    install(PROGRAMS "${SYNERGIA2_BINARY_DIR}/src/tools/${tool}" DESTINATION bin)
 endforeach(tool tools)
 
 install(FILES
