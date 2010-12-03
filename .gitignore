@@ -10,6 +10,8 @@ ocf_new.dat
 ocfish*.dat
 code_parts*.dat
 
+lattice_cache
+
 synergia-local
 
 .kdbgrc.*
