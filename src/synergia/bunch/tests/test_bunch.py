@@ -88,10 +88,10 @@ def test_get_state():
               MPI.COMM_WORLD)
     assert b.get_state() == Bunch.fixed_z
 
-#def test_get_comm():
-#    b = Bunch(reference_particle, total_num, real_num,
-#              MPI.COMM_WORLD)
-#    assert b.get_comm() == MPI.COMM_WORLD
+def test_get_comm():
+    b = Bunch(reference_particle, total_num, real_num,
+              MPI.COMM_WORLD)
+    assert b.get_comm() == MPI.COMM_WORLD
 
 def test_attrs():
     assert Bunch.x == 0

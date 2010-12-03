@@ -8,6 +8,14 @@
 
 using namespace boost::python;
 
+PyObject *
+bunch_get_comm_workaround(Bunch const& bunch)
+{
+    PyObject *retval;
+    retval = PyMPIComm_New(bunch.get_comm().get());
+    return retval;
+}
+
 BOOST_PYTHON_MODULE(bunch)
 {
     import_array();
@@ -90,8 +98,12 @@ BOOST_PYTHON_MODULE(bunch)
                 .def("get_local_num", &Bunch::get_local_num)
                 .def("get_total_num", &Bunch::get_total_num)
                 .def("get_state", &Bunch::get_state)
+                // jfa: the following implementation does not work for reasons I do
+                //      not understand.
 //                .def("get_comm",
 //                            &Bunch::get_comm, return_internal_reference< > ())
+                .def("get_comm",
+                            &bunch_get_comm_workaround)
                 .def("inject", &Bunch::inject)
                 ;
 
