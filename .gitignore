@@ -33,6 +33,8 @@ SYNERGIA2.kdev*
 .project
 .project.tmp
 .pydevproject
+.settings
+
 CTestTestfile.cmake
 
 debug-*
