@@ -4,3 +4,6 @@ test_deposit
 test_distributed_rectangular_grid
 test_distributed_rectangular_grid_mpi
 test_space_charge_3d_open_hockney
+
+local_rho.h5
+phi.h5
