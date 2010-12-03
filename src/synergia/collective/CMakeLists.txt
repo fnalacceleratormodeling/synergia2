@@ -2,9 +2,11 @@ add_library(synergia_collective SHARED rectangular_grid_domain.cc rectangular_gr
     distributed_rectangular_grid.cc deposit.cc space_charge_3d_open_hockney.cc)
 target_link_libraries(synergia_collective synergia_bunch
     synergia_simulation synergia_distributed_fft)
-#target_link_libraries(bunch synergia_parallel_utils synergia_hdf5_utils foundation)
-#add_python_extension(space_charge space_charge_wrap.cc)
-#target_link_libraries(space_charge synergia_collective ${Boost_LIBRARIES})
+
+add_python_extension(collective collective_wrap.cc)
+target_link_libraries(collective synergia_collective synergia_bunch
+    synergia_simulation synergia_distributed_fft ${Boost_LIBRARIES})
+
 
 install(TARGETS synergia_collective DESTINATION lib)
 install(FILES
@@ -16,6 +18,9 @@ install(FILES
     DESTINATION include/synergia/collective)
 install(FILES
     __init__.py
+    DESTINATION lib/synergia/collective)
+install(TARGETS
+    collective
     DESTINATION lib/synergia/collective)
 
 add_subdirectory(tests)
