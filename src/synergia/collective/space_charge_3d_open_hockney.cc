@@ -245,10 +245,13 @@ Space_charge_3d_open_hockney::get_green_fn2()
 
     double rr = hx * hx + hy * hy;
     double r1 = sqrt(hx * hx + hy * hy + hz * hz);
+    double G000 = (2.0 / rr) * (hz * r1 + rr * log((hz + r1) / sqrt(rr)) - hz
+            * hz);// average value of outer cylinder.
+
 
     const int num_images = 8;
     int mix, miy; // mirror indices for x- and y-planes
-    double x, y, z, G, G000;
+    double x, y, z, G;
     const double epsz = 1.0e-12 * hz;
 
     for (int iz = lower; iz < upper; ++iz) {
@@ -395,7 +398,7 @@ Space_charge_3d_open_hockney::get_green_fn2()
         }
     }
 
-    double normalization = 1.0 / (4.0 * mconstants::pi * hz * hz);
+    double normalization = 1.0 / (4.0 * mconstants::pi);
     G2->set_normalization(normalization);
 
     return G2;
@@ -460,6 +463,7 @@ Space_charge_3d_open_hockney::extract_scalar_field(
             }
         }
     }
+    phi->set_normalization(phi2.get_normalization());
     return phi;
 }
 

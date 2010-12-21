@@ -61,6 +61,49 @@ struct Ellipsoidal_bunch_fixture
     std::vector<int > grid_shape;
 };
 
+struct Spherical_bunch_fixture
+{
+    Spherical_bunch_fixture() :
+        four_momentum(mass, total_energy), reference_particle(charge,
+                four_momentum), comm(MPI_COMM_WORLD), bunch(reference_particle,
+                total_num, real_num, comm), distribution(0, comm),
+                grid_shape(3)
+    {
+        BOOST_TEST_MESSAGE("setup Spherical bunch fixture");
+        MArray2d covariances(boost::extents[6][6]);
+        MArray1d means(boost::extents[6]);
+        for (int i = 0; i < 6; ++i) {
+            means[i] = 0.0;
+            for (int j = i; j < 6; ++j) {
+                covariances[i][j] = 0.0;
+            }
+        }
+        sigma = 1.3e-3;
+        covariances[0][0] = sigma * sigma;
+        covariances[2][2] = sigma * sigma;
+        covariances[4][4] = sigma * sigma;
+        covariances[1][1] = covariances[3][3] = covariances[5][5] = 1.0;
+        populate_6d(distribution, bunch, means, covariances);
+        grid_shape[0] = 16;
+        grid_shape[1] = 24;
+        grid_shape[2] = 32;
+
+    }
+
+    ~Spherical_bunch_fixture()
+    {
+        BOOST_TEST_MESSAGE("tear down Spherical bunch fixture");
+    }
+
+    Four_momentum four_momentum;
+    Reference_particle reference_particle;
+    Commxx comm;
+    Bunch bunch;
+    Random_distribution distribution;
+    double sigma;
+    std::vector<int > grid_shape;
+};
+
 const double domain_min = -2.0;
 const double domain_max = 2.0;
 const double domain_offset = 0.0;
@@ -402,6 +445,55 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_no_domain, Ellipsoidal_bunch_fixture)
     BOOST_CHECK(caught_error == true);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Spherical_bunch_fixture)
+{
+    // This is a roundabout way to set rho. We just duplicate the
+    // get_global_charge_density2 test and change the values afterward
+    Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
+    Rectangular_grid_sptr local_rho = space_charge.get_local_charge_density(
+            bunch); // [C/m^3]
+    Distributed_rectangular_grid_sptr rho2 =
+            space_charge.get_global_charge_density2(*local_rho); // [C/m^3]
+    std::vector<int > nondoubled_shape(
+            local_rho->get_domain_sptr()->get_grid_shape());
+    double Q = bunch.get_real_num() * bunch.get_particle_charge()
+            * pconstants::e;
+    for (int i = 0; i < nondoubled_shape[0]; ++i) {
+        for (int j = 0; j < nondoubled_shape[1]; ++j) {
+            for (int k = 0; k < nondoubled_shape[2]; ++k) {
+                double z, y, x;
+                rho2->get_domain_sptr()->get_cell_coordinates(i, j, k, z, y, x);
+                double r2 = x * x + y * y + z * z;
+                rho2->get_grid_points()[i][j][k] = Q / pow(sigma * sqrt(2
+                        * mconstants::pi), 3) * exp(-r2 / (2 * sigma * sigma));
+            }
+        }
+    }
+    Distributed_rectangular_grid_sptr G2(space_charge.get_green_fn2()); // [1/m^3]
+    Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
+            *rho2, *G2)); // [V]
+
+    // jfa: begin debug
+    hid_t file2 = H5Fcreate("phi2.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    Hdf5_writer<MArray3d_ref > (file2, "phi2").write(phi2->get_grid_points());
+    Hdf5_writer<double > (file2, "normphi2").write(phi2->get_normalization());
+    H5Fclose(file2);
+    hid_t file3 = H5Fcreate("G2.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    Hdf5_writer<MArray3d_ref > (file3, "G2").write(G2->get_grid_points());
+    H5Fclose(file3);
+    Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
+            *phi2));
+    hid_t file = H5Fcreate("phi.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    Hdf5_writer<MArray3d_ref > (file, "phi").write(phi->get_grid_points());
+    double phi0 = Q / (4 * mconstants::pi * pconstants::epsilon0) * sqrt(2.0)
+            / (sqrt(mconstants::pi) * sigma);
+    Hdf5_writer<double > (file, "phi0").write(phi0);
+    Hdf5_writer<double > (file, "normphi").write(phi->get_normalization());
+
+    H5Fclose(file);
+    // jfa: end debug
+}
+
 BOOST_FIXTURE_TEST_CASE(get_scalar_field2, Ellipsoidal_bunch_fixture)
 {
     Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
@@ -433,9 +525,6 @@ BOOST_FIXTURE_TEST_CASE(extract_scalar_field, Ellipsoidal_bunch_fixture)
             *rho2, *G2)); // [V]
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
             *phi2));
-    hid_t file = H5Fcreate("phi.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    Hdf5_writer<MArray3d_ref > (file, "phi").write(phi->get_grid_points());
-    H5Fclose(file);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_electric_field_component, Ellipsoidal_bunch_fixture)
