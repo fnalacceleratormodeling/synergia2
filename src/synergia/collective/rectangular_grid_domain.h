@@ -32,8 +32,12 @@ public:
     void
     get_leftmost_indices_offsets(double x, double y, double z, int &ix,
             int &iy, int&iz, double &offx, double &offy, double &offz) const;
+    void
+    get_cell_coordinates(int ix, int iy, int iz, double & x, double & y,
+            double & z) const;
 };
 
-typedef boost::shared_ptr<Rectangular_grid_domain > Rectangular_grid_domain_sptr;
+typedef boost::shared_ptr<Rectangular_grid_domain >
+        Rectangular_grid_domain_sptr;
 
 #endif /* RECTANGULAR_GRID_DOMAIN_H_ */
