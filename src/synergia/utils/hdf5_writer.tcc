@@ -12,21 +12,21 @@ template<typename T>
 
 template<typename T>
     void
-    Hdf5_writer<T >::update_dims(T & data)
+    Hdf5_writer<T >::update_dims(T const& data)
     {
         dims.at(0) = 1;
     }
 
 template<typename T>
-    void *
-    Hdf5_writer<T >::get_data_ptr(T & data)
+    const void *
+    Hdf5_writer<T >::get_data_ptr(T const& data)
     {
         return &data;
     }
 
 template<typename T>
     void
-    Hdf5_writer<T >::write(T & data)
+    Hdf5_writer<T >::write(T const& data)
     {
         update_dims(data);
         hid_t dataspace_id = H5Screate_simple(data_rank, &dims[0], NULL);
@@ -62,25 +62,25 @@ template<>
 
 template<>
     void
-    Hdf5_writer<MArray1d_ref >::update_dims(MArray1d_ref & data);
+    Hdf5_writer<MArray1d_ref >::update_dims(MArray1d_ref const& data);
 
 template<>
     void
-    Hdf5_writer<MArray2d_ref >::update_dims(MArray2d_ref & data);
+    Hdf5_writer<MArray2d_ref >::update_dims(MArray2d_ref const& data);
 
 template<>
     void
-    Hdf5_writer<MArray3d_ref >::update_dims(MArray3d_ref & data);
+    Hdf5_writer<MArray3d_ref >::update_dims(MArray3d_ref const& data);
 
 template<>
-    void *
-    Hdf5_writer<MArray1d_ref >::get_data_ptr(MArray1d_ref & data);
+    const void *
+    Hdf5_writer<MArray1d_ref >::get_data_ptr(MArray1d_ref const& data);
 
 template<>
-    void *
-    Hdf5_writer<MArray2d_ref >::get_data_ptr(MArray2d_ref & data);
+    const void *
+    Hdf5_writer<MArray2d_ref >::get_data_ptr(MArray2d_ref const& data);
 
 template<>
-    void *
-    Hdf5_writer<MArray3d_ref >::get_data_ptr(MArray3d_ref & data);
+    const void *
+    Hdf5_writer<MArray3d_ref >::get_data_ptr(MArray3d_ref const& data);
 

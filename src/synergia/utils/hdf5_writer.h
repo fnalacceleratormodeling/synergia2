@@ -14,13 +14,13 @@ template<typename T>
         hid_t file;
         hid_t atomic_type;
         void
-        update_dims(T & data);
-        void *
-        get_data_ptr(T &data);
+        update_dims(T const& data);
+        const void *
+        get_data_ptr(T const& data);
     public:
         Hdf5_writer(hid_t & file, std::string const& name);
         void
-        write(T & data);
+        write(T const & data);
         ~Hdf5_writer();
     };
 

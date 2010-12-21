@@ -26,21 +26,21 @@ template<>
 
 template<>
     void
-    Hdf5_writer<MArray1d_ref >::update_dims(MArray1d_ref & data)
+    Hdf5_writer<MArray1d_ref >::update_dims(MArray1d_ref const& data)
     {
         dims.at(0) = data.shape()[0];
     }
 
 template<>
     void
-    Hdf5_writer<MArray2d_ref >::update_dims(MArray2d_ref & data)
+    Hdf5_writer<MArray2d_ref >::update_dims(MArray2d_ref const& data)
     {
         dims.at(0) = data.shape()[0];
         dims.at(1) = data.shape()[1];
     }
 template<>
     void
-    Hdf5_writer<MArray3d_ref >::update_dims(MArray3d_ref & data)
+    Hdf5_writer<MArray3d_ref >::update_dims(MArray3d_ref const& data)
     {
         dims.at(0) = data.shape()[0];
         dims.at(1) = data.shape()[1];
@@ -48,21 +48,21 @@ template<>
     }
 
 template<>
-    void *
-    Hdf5_writer<MArray1d_ref >::get_data_ptr(MArray1d_ref & data)
+    const void *
+    Hdf5_writer<MArray1d_ref >::get_data_ptr(MArray1d_ref const& data)
     {
         return data.origin();
     }
 
 template<>
-    void *
-    Hdf5_writer<MArray2d_ref >::get_data_ptr(MArray2d_ref & data)
+    const void *
+    Hdf5_writer<MArray2d_ref >::get_data_ptr(MArray2d_ref const& data)
     {
         return data.origin();
     }
 template<>
-    void *
-    Hdf5_writer<MArray3d_ref >::get_data_ptr(MArray3d_ref & data)
+    const void *
+    Hdf5_writer<MArray3d_ref >::get_data_ptr(MArray3d_ref const& data)
     {
         return data.origin();
     }
