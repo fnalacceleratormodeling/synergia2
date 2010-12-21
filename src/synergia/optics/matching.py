@@ -33,19 +33,23 @@ def _get_correlation_matrix(map, stdx, stdy, stdz):
         tmp += numpy.outer(evects[conj],
             numpy.conjugate(evects[conj]))
         F[i] = tmp.real
+        # F[i] is effectively 2*e[i] cross e^H[i].
 
+    # The correlation matrix is a linear combination of F[i] with
+    # appropriate coefficients such that the diagonal elements C[i,i] i=(0,2,4)
+    # come out to be the desired 2nd moments.
     S = numpy.zeros((3, 3), 'd')
     for i in range(0, 3):
         for j in range(0, 3):
-            S[i, j] = F[j][i, i]
+            S[i, j] = F[j][2*i, 2*i]
 
     Sinv = numpy.linalg.inv(S)
 
     C = numpy.zeros([6, 6], 'd')
     units = [1, 1, 1, 1, 1, 1] # jfa have to think about units!
     cd1 = stdx * units[0] * stdx * units[0]
-    cd2 = stdy * units[1] * stdy * units[1]
-    cd3 = stdz * units[2] * stdz * units[2]
+    cd2 = stdy * units[2] * stdy * units[2]
+    cd3 = stdz * units[4] * stdz * units[4]
 
     for i in range(0, 3):
         C += F[i] * (Sinv[i, 0] * cd1 + Sinv[i, 1] * cd2 + Sinv[i, 2] * cd3)
@@ -122,6 +126,9 @@ def generate_matched_bunch(lattice_simulator, stdx, stdy, stdz,
         comm = MPI.COMM_WORLD
     bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
                   num_macro_particles, num_real_particles, comm);
+    dist = Random_distribution(seed, comm)
+    populate_6d(dist, bunch, numpy.zeros((6,),'d'), correlation_matrix)
+    return bunch
 
 def get_matched_bunch_transverse_parameters(lattice_simulator,
                                             emit_x, emit_y, rms_z, dpop):
