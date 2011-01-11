@@ -3,6 +3,7 @@
 #include "synergia/collective/rectangular_grid_domain.h"
 #include "rectangular_grid_domain_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
+#include <cmath>
 //BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-12;
@@ -65,4 +66,44 @@ BOOST_FIXTURE_TEST_CASE(get_leftmost_indices_offsets, Rectangular_grid_domain_fi
     BOOST_CHECK_CLOSE(offy, 0.7, tolerance);
     BOOST_CHECK_EQUAL(iz,1);
     BOOST_CHECK_CLOSE(offz, 0.4, tolerance);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_cell_coordinates, Rectangular_grid_domain_fixture)
+{
+    std::vector<int > small_grid_shape(3);
+    small_grid_shape[0] = 2;
+    small_grid_shape[1] = 3;
+    small_grid_shape[2] = 4;
+    physical_offset[0] = 0;
+    physical_offset[1] = 0;
+    physical_offset[2] = 0;
+    physical_size[0] = 1.0;
+    physical_size[1] = 3.4;
+    physical_size[2] = 5.6;
+    Rectangular_grid_domain rectangular_grid_domain(physical_size,
+            physical_offset, small_grid_shape, is_periodic);
+
+    int ix, iy, iz;
+    double x, y, z;
+
+    ix = 0;
+    iy = 0;
+    iz = 0;
+    rectangular_grid_domain.get_cell_coordinates(ix, iy, iz, x, y, z);
+    BOOST_CHECK_CLOSE(x,
+            -(physical_size[0]/(1.0*small_grid_shape[0]))*0.5, tolerance);
+    BOOST_CHECK_CLOSE(y,
+            -(physical_size[1]/(1.0*small_grid_shape[1])), tolerance);
+    BOOST_CHECK_CLOSE(z,
+            -(physical_size[2]/(1.0*small_grid_shape[2]))*1.5, tolerance);
+
+    ix = 1;
+    iy = 1;
+    iz = 1;
+    rectangular_grid_domain.get_cell_coordinates(ix, iy, iz, x, y, z);
+    BOOST_CHECK_CLOSE(x,
+            (physical_size[0]/(1.0*small_grid_shape[0]))*0.5, tolerance);
+    BOOST_CHECK(std::abs(y) < tolerance);
+    BOOST_CHECK_CLOSE(z,
+            -(physical_size[2]/(1.0*small_grid_shape[2]))*0.5, tolerance);
 }
