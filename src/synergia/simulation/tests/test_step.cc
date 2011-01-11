@@ -51,7 +51,7 @@ BOOST_FIXTURE_TEST_CASE(apply, Bunch_fixture)
     Collective_operator_sptr dummy3(new Collective_operator("dummy3"));
     operators.push_back(dummy3);
 
-    step.append(operators,1.0);
+    step.append(operators, 1.0);
 
     step.apply(bunch);
 }
@@ -72,6 +72,27 @@ BOOST_AUTO_TEST_CASE(get_operators)
 
     Operators retrieved_operators(step.get_operators());
     BOOST_CHECK_EQUAL(retrieved_operators.size(),3);
+}
+
+BOOST_AUTO_TEST_CASE(get_time_fractions)
+{
+    Step step;
+
+    Collective_operator_sptr dummy1(new Collective_operator("dummy1"));
+    step.append(dummy1, 0.5);
+    Collective_operator_sptr dummy2(new Collective_operator("dummy2"));
+    step.append(dummy2, 1.0);
+    Collective_operator_sptr dummy3(new Collective_operator("dummy3"));
+    step.append(dummy3, 0.25);
+
+    std::list<double > retrieved_time_fractions(step.get_time_fractions());
+    BOOST_CHECK_EQUAL(retrieved_time_fractions.size(),3);
+    std::list<double >::const_iterator it = retrieved_time_fractions.begin();
+    BOOST_CHECK_CLOSE(*it, 0.5, tolerance);
+    ++it;
+    BOOST_CHECK_CLOSE(*it, 1.0, tolerance);
+    ++it;
+    BOOST_CHECK_CLOSE(*it, 0.25, tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(print)

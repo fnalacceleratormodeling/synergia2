@@ -43,6 +43,12 @@ Step::get_operators() const
     return operators;
 }
 
+std::list<double> const&
+Step::get_time_fractions() const
+{
+    return time_fractions;
+}
+
 void
 Step::print(int index) const
 {
