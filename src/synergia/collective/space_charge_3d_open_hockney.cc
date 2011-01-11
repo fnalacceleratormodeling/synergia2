@@ -1,6 +1,7 @@
 #include "space_charge_3d_open_hockney.h"
 #include "synergia/bunch/diagnostics.h"
 #include "synergia/foundation/math_constants.h"
+using mconstants::pi;
 #include "synergia/foundation/physical_constants.h"
 #include "deposit.h"
 
@@ -227,7 +228,84 @@ Space_charge_3d_open_hockney::get_global_charge_density2(
 }
 
 Distributed_rectangular_grid_sptr
-Space_charge_3d_open_hockney::get_green_fn2()
+Space_charge_3d_open_hockney::get_green_fn2_pointlike()
+{
+    if (doubled_domain_sptr == NULL) {
+        throw runtime_error(
+                "Space_charge_3d_open_hockney::get_green_fn2 called before domain specified");
+    }
+    int lower = distributed_fft3d_sptr->get_lower();
+    int upper = distributed_fft3d_sptr->get_upper();
+    Distributed_rectangular_grid_sptr G2 = Distributed_rectangular_grid_sptr(
+            new Distributed_rectangular_grid(doubled_domain_sptr, lower, upper,
+                    distributed_fft3d_sptr->get_padded_shape_real()));
+
+    double hx = domain_sptr->get_cell_size()[2];
+    double hy = domain_sptr->get_cell_size()[1];
+    double hz = domain_sptr->get_cell_size()[0];
+
+    double G000 = (1.0 / 4.0 * pi) * (3.0 / (2.0 * (sqrt(3.0)) * sqrt(hx * hx
+            + hy * hy + hz * hz)));
+
+    const int num_images = 8;
+    int mix, miy; // mirror indices for x- and y-planes
+    double x, y, z, G;
+    const double epsz = 1.0e-12 * hz;
+
+    for (int iz = lower; iz < upper; ++iz) {
+        if (iz > grid_shape[0]) {
+            z = (doubled_grid_shape[0] - iz) * hz;
+        } else {
+            z = iz * hz;
+        }
+        for (int iy = 0; iy <= grid_shape[1]; ++iy) {
+            y = iy * hy;
+            miy = doubled_grid_shape[1] - iy;
+            if (miy == grid_shape[1]) {
+                miy = doubled_grid_shape[1]; // will get thrown away
+            }
+            for (int ix = 0; ix <= grid_shape[2]; ++ix) {
+                x = ix * hx;
+                mix = doubled_grid_shape[2] - ix;
+                if (mix == grid_shape[2]) {
+                    mix = doubled_grid_shape[2]; // will get thrown away
+                }
+
+                if ((x == 0.0) && (y == 0.0) && (z == 0.0)) {
+                    G = G000;
+                } else {
+                    G = 1.0 / (4.0 * pi * sqrt(x * x + y * y + z * z));
+                }
+                if (periodic_z) {
+                    throw std::runtime_error(
+                            "Space_charge_3d_open_hockney::get_green_fn2: periodic_z not yet implemented");
+                    for (int image = -num_images; image < num_images; ++image) {
+                        // fill me in!
+                    }
+                }
+
+                G2->get_grid_points()[iz][iy][ix] = G;
+                // three mirror images
+                if (miy < doubled_grid_shape[1]) {
+                    G2->get_grid_points()[iz][miy][ix] = G;
+                    if (mix < doubled_grid_shape[2]) {
+                        G2->get_grid_points()[iz][miy][mix] = G;
+                    }
+                }
+                if (mix < doubled_grid_shape[2]) {
+                    G2->get_grid_points()[iz][iy][mix] = G;
+                }
+            }
+        }
+    }
+
+    G2->set_normalization(1.0);
+
+    return G2;
+}
+
+Distributed_rectangular_grid_sptr
+Space_charge_3d_open_hockney::get_green_fn2_linear()
 {
     if (doubled_domain_sptr == NULL) {
         throw runtime_error(
@@ -398,7 +476,7 @@ Space_charge_3d_open_hockney::get_green_fn2()
         }
     }
 
-    double normalization = 1.0 / (4.0 * mconstants::pi);
+    double normalization = 1.0 / (4.0 * pi);
     G2->set_normalization(normalization);
 
     return G2;
@@ -597,7 +675,7 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
     Distributed_rectangular_grid_sptr rho2(get_global_charge_density2(
             *local_rho)); // [C/m^3]
     local_rho.reset();
-    Distributed_rectangular_grid_sptr G2(get_green_fn2()); // [1/m^3]
+    Distributed_rectangular_grid_sptr G2(get_green_fn2_pointlike()); // [1/m^3]
     Distributed_rectangular_grid_sptr phi2(get_scalar_field2(*rho2, *G2)); // [V]
     rho2.reset();
     G2.reset();

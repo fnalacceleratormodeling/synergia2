@@ -1,6 +1,8 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "synergia/collective/space_charge_3d_open_hockney.h"
+#include "synergia/foundation/math_constants.h"
+using mconstants::pi;
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/populate.h"
@@ -425,11 +427,12 @@ BOOST_FIXTURE_TEST_CASE(get_global_charge_density2, Ellipsoidal_bunch_fixture)
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(get_green_fn2, Ellipsoidal_bunch_fixture)
+BOOST_FIXTURE_TEST_CASE(get_green_fn2_pointlike, Ellipsoidal_bunch_fixture)
 {
     Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
     space_charge.update_domain(bunch);
-    Distributed_rectangular_grid_sptr G2(space_charge.get_green_fn2());
+    Distributed_rectangular_grid_sptr
+            G2(space_charge.get_green_fn2_pointlike());
 }
 
 BOOST_FIXTURE_TEST_CASE(get_green_fn2_no_domain, Ellipsoidal_bunch_fixture)
@@ -437,7 +440,8 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_no_domain, Ellipsoidal_bunch_fixture)
     Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
     bool caught_error = false;
     try {
-        Distributed_rectangular_grid_sptr G2(space_charge.get_green_fn2());
+        Distributed_rectangular_grid_sptr G2(
+                space_charge.get_green_fn2_pointlike());
     }
     catch (std::runtime_error) {
         caught_error = true;
@@ -452,6 +456,16 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Spherical_bunch_fixture)
     Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
     Rectangular_grid_sptr local_rho = space_charge.get_local_charge_density(
             bunch); // [C/m^3]
+
+    // jfa: begin debug
+    hid_t file5 = H5Fcreate("local_rho.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
+            H5P_DEFAULT);
+    Hdf5_writer<MArray3d_ref > (file5, "local_rho").write(
+            local_rho->get_grid_points());
+    Hdf5_writer<double > (file5, "normlocal_rho").write(
+            local_rho->get_normalization());
+    H5Fclose(file5);
+    // jfa: end debug
     Distributed_rectangular_grid_sptr rho2 =
             space_charge.get_global_charge_density2(*local_rho); // [C/m^3]
     std::vector<int > nondoubled_shape(
@@ -462,14 +476,17 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Spherical_bunch_fixture)
         for (int j = 0; j < nondoubled_shape[1]; ++j) {
             for (int k = 0; k < nondoubled_shape[2]; ++k) {
                 double z, y, x;
-                rho2->get_domain_sptr()->get_cell_coordinates(i, j, k, z, y, x);
+                local_rho->get_domain_sptr()->get_cell_coordinates(i, j, k, z,
+                        y, x);
                 double r2 = x * x + y * y + z * z;
-                rho2->get_grid_points()[i][j][k] = Q / pow(sigma * sqrt(2
-                        * mconstants::pi), 3) * exp(-r2 / (2 * sigma * sigma));
+                rho2->get_grid_points()[i][j][k] = Q / pow(
+                        sigma * sqrt(2 * pi), 3) * exp(-r2
+                        / (2 * sigma * sigma));
             }
         }
     }
-    Distributed_rectangular_grid_sptr G2(space_charge.get_green_fn2()); // [1/m^3]
+    Distributed_rectangular_grid_sptr
+            G2(space_charge.get_green_fn2_pointlike()); // [1/m^3]
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
             *rho2, *G2)); // [V]
 
@@ -480,13 +497,18 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Spherical_bunch_fixture)
     H5Fclose(file2);
     hid_t file3 = H5Fcreate("G2.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     Hdf5_writer<MArray3d_ref > (file3, "G2").write(G2->get_grid_points());
+    Hdf5_writer<double > (file3, "normG2").write(G2->get_normalization());
     H5Fclose(file3);
+    hid_t file4 = H5Fcreate("rho2.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+    Hdf5_writer<MArray3d_ref > (file4, "rho2").write(rho2->get_grid_points());
+    Hdf5_writer<double > (file4, "normrho2").write(rho2->get_normalization());
+    H5Fclose(file4);
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
             *phi2));
     hid_t file = H5Fcreate("phi.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     Hdf5_writer<MArray3d_ref > (file, "phi").write(phi->get_grid_points());
-    double phi0 = Q / (4 * mconstants::pi * pconstants::epsilon0) * sqrt(2.0)
-            / (sqrt(mconstants::pi) * sigma);
+    double phi0 = Q / (4 * pi * pconstants::epsilon0) * sqrt(2.0) / (sqrt(pi)
+            * sigma);
     Hdf5_writer<double > (file, "phi0").write(phi0);
     Hdf5_writer<double > (file, "normphi").write(phi->get_normalization());
 
@@ -502,7 +524,7 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2, Ellipsoidal_bunch_fixture)
     Distributed_rectangular_grid_sptr rho2(
             space_charge.get_global_charge_density2(*local_rho)); // [C/m^3]
     local_rho.reset();
-    Distributed_rectangular_grid_sptr G2(space_charge.get_green_fn2()); // [1/m^3]
+    Distributed_rectangular_grid_sptr G2(space_charge.get_green_fn2_pointlike()); // [1/m^3]
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
             *rho2, *G2)); // [V]
 }
@@ -520,7 +542,7 @@ BOOST_FIXTURE_TEST_CASE(extract_scalar_field, Ellipsoidal_bunch_fixture)
     Distributed_rectangular_grid_sptr rho2(
             space_charge.get_global_charge_density2(*local_rho)); // [C/m^3]
     local_rho.reset();
-    Distributed_rectangular_grid_sptr G2(space_charge.get_green_fn2()); // [1/m^3]
+    Distributed_rectangular_grid_sptr G2(space_charge.get_green_fn2_pointlike()); // [1/m^3]
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
             *rho2, *G2)); // [V]
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
@@ -535,7 +557,7 @@ BOOST_FIXTURE_TEST_CASE(get_electric_field_component, Ellipsoidal_bunch_fixture)
     Distributed_rectangular_grid_sptr rho2(
             space_charge.get_global_charge_density2(*local_rho)); // [C/m^3]
     local_rho.reset();
-    Distributed_rectangular_grid_sptr G2(space_charge.get_green_fn2()); // [1/m^3]
+    Distributed_rectangular_grid_sptr G2(space_charge.get_green_fn2_pointlike()); // [1/m^3]
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
             *rho2, *G2)); // [V]
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(

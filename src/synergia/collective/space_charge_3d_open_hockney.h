@@ -57,7 +57,9 @@ public:
     get_global_charge_density2(Rectangular_grid const& local_charge_density);
     /// Returns Green function on the doubled grid in [1/m^3]
     Distributed_rectangular_grid_sptr
-    get_green_fn2();
+    get_green_fn2_pointlike();
+    Distributed_rectangular_grid_sptr
+    get_green_fn2_linear();
     Distributed_rectangular_grid_sptr
     get_scalar_field2(Distributed_rectangular_grid & charge_density22,
             Distributed_rectangular_grid & green_fn2);
