@@ -22,6 +22,38 @@ Stepper::~Stepper()
 
 }
 
+Independent_stepper_elements::Independent_stepper_elements(
+        Lattice_simulator const& lattice_simulator, int steps_per_element) :
+    lattice_simulator(lattice_simulator)
+{
+    for (Lattice_elements::iterator it =
+            this->lattice_simulator.get_lattice_sptr()->get_elements().begin(); it
+            != this->lattice_simulator.get_lattice_sptr()->get_elements().begin(); ++it) {
+        for (int i = 0; i < steps_per_element; ++i) {
+            Independent_operator_sptr
+                    ind_op(
+                            new Independent_operator(
+                                    "step",
+                                    this->lattice_simulator.get_operation_extractor_map_sptr()));
+            double length = (*it)->get_length();
+            double step_length = length / (i + 1.0);
+            double left = i * step_length;
+            double right = (i + 1) * step_length;
+            Lattice_element_slice_sptr slice(new Lattice_element_slice(*(*it),
+                    left, right));
+            ind_op->append_slice(slice);
+            Step_sptr step(new Step);
+            step->append(ind_op, 1.0);
+            get_steps().push_back(step);
+        }
+    }
+}
+
+Independent_stepper_elements::~Independent_stepper_elements()
+{
+
+}
+
 // Return an Independent_operator for a half step, starting at the
 // lattice_element given by lattice_it at position left. Both lattice_it
 // and left are updated by the function.

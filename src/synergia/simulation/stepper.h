@@ -32,10 +32,15 @@ typedef boost::shared_ptr<Stepper > Stepper_sptr;
 //};
 
 /// Generate per-element steps through lattice without collective effects.
-//class Independent_stepper_elements: public Stepper
-//{
-//
-//};
+class Independent_stepper_elements : public Stepper
+{
+private:
+    Lattice_simulator lattice_simulator;
+public:
+    Independent_stepper_elements(Lattice_simulator const& lattice_simulator,
+            int steps_per_element);
+    ~Independent_stepper_elements();
+};
 
 /// Generate evenly-spaced steps through lattice with collective effects.
 class Split_operator_stepper : public Stepper
