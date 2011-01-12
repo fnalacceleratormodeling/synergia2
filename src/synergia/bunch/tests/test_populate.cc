@@ -62,6 +62,7 @@ BOOST_FIXTURE_TEST_CASE(populate_6d_general, Fixture)
         for (int j = i; j < 6; ++j) {
             covariances[i][j] = covariances[j][i] = (i + 1) * (j + 1);
         }
+        covariances[i][i] *= 10.0; // this makes for a positive-definite matrix
     }
     populate_6d(distribution, bunch, means, covariances);
     Diagnostics_full2 diagnostics(bunch);
