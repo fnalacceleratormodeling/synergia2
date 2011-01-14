@@ -55,8 +55,10 @@ if [ -f "$options_file" ]; then
 	done
 fi
 
+arg1="$1"
+shift
 if [ "$just_options" = "true" ]; then
-	exec "$PYTHON_EXECUTABLE" "$options_file" --strip-options-file "$@"
+	exec "$PYTHON_EXECUTABLE" "$options_file" --strip-options-file "$arg1" "synergia_executable=$SYNERGIA2DIR/synergia-local" "$@"
 else
-	exec "$PYTHON_EXECUTABLE" "$@"
+	exec "$PYTHON_EXECUTABLE" "$arg1" "synergia_executable=$SYNERGIA2DIR/synergia-local" "$@"
 fi
