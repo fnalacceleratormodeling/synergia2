@@ -1,6 +1,0 @@
-#!/bin/sh
-
-rm -f fort.* synergia.out synergia.err initial.dat timing.dat
-rm -f turn*.dat
-rm -f turn*.h5
-

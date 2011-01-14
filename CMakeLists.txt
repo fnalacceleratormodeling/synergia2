@@ -95,3 +95,5 @@ include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src)
 add_subdirectory(src)
 add_subdirectory(examples)
 add_subdirectory(docs)
+add_subdirectory(synergia-script-templates)
+

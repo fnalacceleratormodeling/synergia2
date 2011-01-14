@@ -51,10 +51,10 @@ def get_script_templates_dir():
     if os.environ.has_key('SYNERGIA2TEMPLATES'):
         return os.environ['SYNERGIA2TEMPLATES']
     else:
-        return os.path.join(get_synergia_directory(),'script-templates')
+        return os.path.join(get_synergia_directory(),'synergia-script-templates')
 
 def get_default_script_templates_dir():
-    return os.path.join(get_synergia_directory(),'script-templates')
+    return os.path.join(get_synergia_directory(),'synergia-script-templates')
 
 def add_local_opts():
     found_local_options= False

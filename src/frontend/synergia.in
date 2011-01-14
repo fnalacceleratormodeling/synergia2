@@ -10,9 +10,9 @@ if [ "$1" = "--help" ]; then
 fi
 
 local_dir="${SYNERGIA2_BINARY_DIR}"
-SYNERGIA2DIR="$local_dir"
-export SYNERGIA2DIR
 install_dir="${CMAKE_INSTALL_PREFIX}"
+SYNERGIA2DIR="$install_dir/lib"
+export SYNERGIA2DIR
 # the next section is a hack
 . "$install_dir/../setup.sh"
 install_python_dir="`find $install_dir -type d -name site-packages`"
