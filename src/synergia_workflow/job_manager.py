@@ -9,19 +9,21 @@ import commands
 import re
 import options
 
-job_mgr_opts = options.Options("Job Manager")
-job_mgr_opts.add("createjob", 0, "Whether to create new job directory", int)
-job_mgr_opts.add("resumejob", 0, "Whether to resume a previously checkpointed job", int)
+job_mgr_opts = options.Options("job_manager")
+job_mgr_opts.add("createjob", False, "Whether to create new job directory", bool)
+#job_mgr_opts.add("resumejob", 0, "Whether to resume a previously checkpointed job", int)
 job_mgr_opts.add("jobdir", "run", "Job directory", str)
-job_mgr_opts.add("resumedir", "run", "Directory containing checkpointed files", str)
+#job_mgr_opts.add("resumedir", "run", "Directory containing checkpointed files", str)
 job_mgr_opts.add("numproc", 1, "Number of processes", int)
 job_mgr_opts.add("procspernode", 1, "Number of processes per node", int)
-job_mgr_opts.add("submit", 0, "Whether to immediately submit job", int)
-job_mgr_opts.add("overwrite", 0, "Whether to overwrite existing job directory", int)
-job_mgr_opts.add("walltime", "00:30:00", "Limit job to given wall time", str)
+job_mgr_opts.add("submit", False, "Whether to immediately submit job", bool)
+job_mgr_opts.add("run", False, "Whether to immediately run job", bool)
+job_mgr_opts.add("overwrite", False, "Whether to overwrite existing job directory", bool)
+job_mgr_opts.add("synergia_executable", "synergia", "Name or path of synergia executable", str)
+#job_mgr_opts.add("walltime", "00:30:00", "Limit job to given wall time", str)
 
-job_mgr_opts.add("checkpoint", 0, "enable generation of checkpoint", int)
-job_mgr_opts.add("checkpoint_freq", 100, "frequency of checkpoint generation", int)
+#job_mgr_opts.add("checkpoint", 0, "enable generation of checkpoint", int)
+#job_mgr_opts.add("checkpoint_freq", 100, "frequency of checkpoint generation", int)
 
 def get_synergia_directory(die_on_failure=1):
     if os.environ.has_key("SYNERGIA2DIR"):
@@ -75,7 +77,7 @@ def add_local_opts():
             print 'Warning: local_opts.py found in'
             print "%s," % local_opts_location
             print "but no opts object was found there."
-    
+
 class Job_manager:
     def __init__(self, script, opts, extra_files=None, argv=sys.argv):
         add_local_opts()
@@ -94,7 +96,7 @@ class Job_manager:
         self.opts = opts
         self.opts.add_suboptions(job_mgr_opts)
         self.opts.parse_argv(self.argv)
-        
+
         # if we are resuming a checkpointed job, get the absolute
         # path of the resumedir to pass to the resumed job.  I don't check
         # whether the resumedir exists because I might be submitting a
@@ -115,13 +117,12 @@ class Job_manager:
                 self.argv.append("resumedir=" + real_resumedir)
 
         if self.opts.get("createjob"):
-            self.create_job(self.opts.get("jobdir"))
-            if extra_files:
-                self.copy_extra_files(extra_files)
-            print "created",
-            if opts.get("submit"):
-                print "and submitted",
-            print "job"
+            self.create_job(self.opts.get("jobdir"), extra_files)
+            if not opts.job_manager.run:
+                print "created",
+                if opts.get("submit"):
+                    print "and submitted",
+                print "job in directory"
             sys.exit(0)
 
     def _args_to_string(self, args, strip=[None]):
@@ -141,12 +142,12 @@ class Job_manager:
                     retval += " "
                 retval += argout
         return retval
- 
+
     def create_script(self,template,name,directory,subs):
         script_templates_dir = get_script_templates_dir()
         default_script_templates_dir = get_default_script_templates_dir()
         template_path = os.path.join(script_templates_dir,template)
-        if ((not os.path.exists(template_path)) and 
+        if ((not os.path.exists(template_path)) and
             (not script_templates_dir == default_script_templates_dir)):
             template_path = os.path.join(default_script_templates_dir,
                                          template)
@@ -162,12 +163,12 @@ class Job_manager:
         output_path = os.path.join(directory,name)
         process_template(template_path,output_path,subs)
 
-    def create_job(self, directory):
+    def create_job(self, directory, extra_files):
 ###        real_script = os.path.abspath(self.argv[0])
         old_cwd = os.getcwd()
         overwrite = self.opts.get("overwrite")
         directory = create_new_directory(directory, 0, overwrite)
-        self.directory = directory 
+        self.directory = directory
         os.chdir(directory)
         shutil.copy(self.real_script, ".")
         if self.real_options_file:
@@ -191,9 +192,15 @@ class Job_manager:
         job_name = os.path.basename(directory) + "_job"
         self.create_script("job", job_name, directory, subs)
         self.create_script("cleanup", "cleanup", directory, subs)
+        if extra_files:
+            self.copy_extra_files(extra_files)
         if self.opts.get("submit"):
             os.chdir(directory)
             os.system("qsub %s" % job_name)
+            os.chdir(old_cwd)
+        if self.opts.get("run"):
+            os.chdir(directory)
+            os.system("./"+ job_name)
             os.chdir(old_cwd)
 
     def copy_extra_files(self, files):
@@ -238,12 +245,12 @@ def process_template(template_name, output_name, subs):
 
 
 def create_new_directory(directory, version, overwrite):
-    if version > 999:
+    if version > 9999:
         print "Sanity check failure: attempt to create directory version %d."\
               % version
-        print "Maximum is 999."
+        print "Maximum is 9999."
         sys.exit(1)
-    if version == 0:
+    if overwrite:
         created_directory = directory
     else:
         created_directory = "%s.%02d" % (directory, version)
