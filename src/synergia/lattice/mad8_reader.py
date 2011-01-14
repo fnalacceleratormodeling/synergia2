@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, stat
+import os, stat, sys
 
 from synergia.lattice import Mad8_parser
 from synergia.lattice import Lattice_element, Element_adaptor_map, Lattice
@@ -106,7 +106,14 @@ class Mad8_reader:
         self.parser.parse(string)
 
     def parse(self, filename):
-        self.parse_string(open(filename, 'r').read())
+        try:
+            the_file = open(filename, 'r')
+        except IOError, e:
+            os.system("ls")
+            msg = "Mad8_reader: unable to open: " + filename + "\n"
+            msg += "current working directory: " + os.getcwd() + "\n"
+            raise RuntimeError(msg)
+        self.parse_string(the_file.read())
 
     def _parser_check(self, filename, method):
         if not self.parser:
