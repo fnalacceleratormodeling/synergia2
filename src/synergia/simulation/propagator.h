@@ -17,7 +17,7 @@ public:
     void
     propagate(Bunch & bunch, int num_turns,
             Diagnostics_writer & per_step_diagnostics,
-            Diagnostics_writer & per_turn_diagnostics);
+            Diagnostics_writer & per_turn_diagnostics, bool verbose = false);
     ~Propagator();
 };
 

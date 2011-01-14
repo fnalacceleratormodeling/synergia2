@@ -22,19 +22,25 @@ Propagator::Propagator(Stepper_sptr stepper_sptr) :
 void
 Propagator::propagate(Bunch & bunch, int num_turns,
         Diagnostics_writer & per_step_diagnostics,
-        Diagnostics_writer & per_turn_diagnostics)
+        Diagnostics_writer & per_turn_diagnostics, bool verbose)
 {
     for (int turn = 0; turn < num_turns; ++turn) {
-        std::cout << "Propagator: turn " << turn+1 << "/" << num_turns
-                << std::endl;
+        if (verbose) {
+            std::cout << "Propagator: turn " << turn + 1 << "/" << num_turns
+                    << std::endl;
+        }
         bunch.get_reference_particle().start_repetition();
         per_turn_diagnostics.update_and_write(bunch);
         int step_count = 0;
+        int num_steps = stepper_sptr->get_steps().size();
         for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
                 != stepper_sptr->get_steps().end(); ++it) {
             per_step_diagnostics.update_and_write(bunch);
             ++step_count;
-            std::cout << "Propagator: step " << step_count << std::endl;
+            if (verbose) {
+                std::cout << "Propagator:   step " << step_count << "/"
+                        << num_steps << std::endl;
+            }
             (*it)->apply(bunch);
         }
     }
