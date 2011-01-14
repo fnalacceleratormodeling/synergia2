@@ -10,12 +10,12 @@ const double tolerance = 1.0e-12;
 
 BOOST_AUTO_TEST_CASE(construct)
 {
-    Collective_operator collective_operator("test");
+    Dummy_collective_operator collective_operator("test");
 }
 
 BOOST_FIXTURE_TEST_CASE(apply, Bunch_fixture)
 {
-    Collective_operator collective_operator("test");
+    Dummy_collective_operator collective_operator("test");
     double step_length = 1.0;
     Step stub_step;
 

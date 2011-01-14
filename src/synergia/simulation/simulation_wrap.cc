@@ -7,6 +7,9 @@
 
 using namespace boost::python;
 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads,
+        Propagator::propagate, 4, 5);
+
 BOOST_PYTHON_MODULE(simulation)
 {
     class_<Operator, Operator_sptr, boost::noncopyable >("Operator", no_init)
@@ -19,7 +22,17 @@ BOOST_PYTHON_MODULE(simulation)
         ;
 
     class_<Collective_operator, Collective_operator_sptr,
-        bases<Operator> >("Collective_operator", init<std::string const& >())
+        boost::noncopyable, bases<Operator > >
+        ("Collective_operator", no_init)
+//        .def("get_name", &Collective_operator::get_name)
+//        .def("get_type", &Collective_operator::get_type)
+//        .def("apply", &Collective_operator::apply)
+//        .def("print_", &Collective_operator::print)
+        ;
+
+    class_<Dummy_collective_operator, Dummy_collective_operator_sptr,
+        bases<Collective_operator> >("Dummy_collective_operator",
+                init<std::string const& >())
 //        .def("get_name", &Collective_operator::get_name)
 //        .def("get_type", &Collective_operator::get_type)
 //        .def("apply", &Collective_operator::apply)
@@ -78,21 +91,6 @@ BOOST_PYTHON_MODULE(simulation)
     to_python_converter<Steps,
              container_conversions::to_tuple<Steps > >();
 
-    //    class Stepper
-//    {
-//    private:
-//        Steps steps;
-//
-//    public:
-//        Steps &
-//        get_steps();
-//        virtual void
-//        print() const;
-//
-//        virtual
-//        ~Stepper();
-//    };
-
     class_<Stepper >("Stepper",no_init)
         .def("get_steps", &Stepper::get_steps,
                 return_value_policy<copy_non_const_reference >())
@@ -120,21 +118,11 @@ BOOST_PYTHON_MODULE(simulation)
     class_<Split_operator_stepper, bases<Stepper > >("Split_operator_stepper",
             init<Lattice_simulator const&, Collective_operator_sptr, int >());
 
-//    class Propagator
-//    {
-//    private:
-//        Stepper_sptr stepper_sptr;
-//
-//        void
-//        construct();
-//    public:
-//        Propagator(Stepper_sptr stepper_sptr);
-//        void
-//        propagate(Bunch & bunch, int num_turns, bool diagnostics_per_step,
-//                bool diagnostics_per_turn);
-//        ~Propagator();
-//    };
     class_<Propagator >("Propagator",init<Stepper_sptr >())
-            .def("propagate",&Propagator::propagate)
+            .def("propagate",&Propagator::propagate,
+                    propagate_member_overloads(
+                            args("bunch", "num_turns",
+                                    "per_step_diagnostics",
+                                    "per_turn_diagnostics", "verbose")))
             ;
 }

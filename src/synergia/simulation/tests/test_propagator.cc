@@ -13,7 +13,7 @@ const double tolerance = 1.0e-12;
 
 BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture)
 {
-    Collective_operator_sptr space_charge(new Collective_operator(
+    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
             "space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, 2);
 
@@ -25,7 +25,7 @@ BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture)
 
 BOOST_FIXTURE_TEST_CASE(propagate, Lattice_fixture)
 {
-    Collective_operator_sptr space_charge(new Collective_operator(
+    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
             "space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, 2);
 

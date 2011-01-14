@@ -38,12 +38,25 @@ class Collective_operator : public Operator
 public:
     Collective_operator(std::string const& name);
     virtual void
-    apply(Bunch & bunch, double time_step, Step & step);
+    apply(Bunch & bunch, double time_step, Step & step) = 0;
     ~Collective_operator();
 };
 
 typedef boost::shared_ptr<Collective_operator > Collective_operator_sptr;
 typedef std::list<Collective_operator_sptr > Collective_operators;
+
+class Dummy_collective_operator : public Collective_operator
+{
+public:
+    Dummy_collective_operator(std::string const& name);
+    virtual void
+    apply(Bunch & bunch, double time_step, Step & step);
+    ~Dummy_collective_operator();
+};
+
+typedef boost::shared_ptr<Dummy_collective_operator >
+        Dummy_collective_operator_sptr;
+typedef std::list<Dummy_collective_operator_sptr > Dummy_collective_operators;
 
 class Independent_operator : public Operator
 {

@@ -34,13 +34,21 @@ Collective_operator::Collective_operator(std::string const& name) :
 {
 }
 
-void
-Collective_operator::apply(Bunch & bunch, double time_step, Step & step)
+Collective_operator::~Collective_operator()
 {
-    std::cout << "stub: Collective_operator::apply\n";
 }
 
-Collective_operator::~Collective_operator()
+Dummy_collective_operator::Dummy_collective_operator(std::string const& name) :
+    Collective_operator(name)
+{
+}
+
+void
+Dummy_collective_operator::apply(Bunch & bunch, double time_step, Step & step)
+{
+}
+
+Dummy_collective_operator::~Dummy_collective_operator()
 {
 }
 

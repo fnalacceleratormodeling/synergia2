@@ -37,8 +37,8 @@ main(int argc, char **argv)
         std::cerr << "Run cxx_example.py to generate cxx_lattice.xml\n";
         exit(1);
     }
-    Collective_operator_sptr space_charge_sptr(new Collective_operator(
-            "space_charge"));
+    Dummy_collective_operator_sptr space_charge_sptr(
+            new Dummy_collective_operator("space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     Split_operator_stepper_sptr stepper_sptr(new Split_operator_stepper(
             lattice_simulator, space_charge_sptr, num_steps));
