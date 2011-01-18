@@ -200,6 +200,8 @@ public:
     ~Diagnostics_particles();
 };
 
+typedef boost::shared_ptr<Diagnostics_particles > Diagnostics_particles_sptr;
+
 /// Diagnostics_track records the phase space coordinates of a single particle
 class Diagnostics_track: public Diagnostics
 {
@@ -247,6 +249,6 @@ public:
     ~Diagnostics_track();
 };
 
-typedef boost::shared_ptr<Diagnostics_particles > Diagnostics_particles_sptr;
+typedef boost::shared_ptr<Diagnostics_track > Diagnostics_track_sptr;
 
 #endif /* DIAGNOSTICS_H_ */

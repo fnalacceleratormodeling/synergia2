@@ -35,7 +35,7 @@ add_executable(test_diagnostics_track test_diagnostics_track.cc)
 target_link_libraries(test_diagnostics_track synergia_bunch
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_diagnostics_track test_diagnostics_track)
-#add_test(test_diagnostics_track_py nosetests test_diagnostics_track.py)
+add_test(test_diagnostics_track_py nosetests test_diagnostics_track.py)
 
 add_executable(test_diagnostics_particles test_diagnostics_particles.cc)
 add_dependencies(test_diagnostics_particles test_diagnostics_particles_get_mean.icc)
