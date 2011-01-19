@@ -52,6 +52,9 @@ public:
     ~Independent_stepper_elements();
 };
 
+typedef boost::shared_ptr<Independent_stepper_elements >
+        Independent_stepper_elements_sptr;
+
 /// Generate evenly-spaced steps through lattice with collective effects.
 class Split_operator_stepper : public Stepper
 {
