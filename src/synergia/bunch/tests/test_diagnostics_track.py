@@ -6,7 +6,7 @@ sys.path.append('../../convertors')
 from mpi4py import MPI
 from foundation import Reference_particle, Four_momentum
 from bunch import Bunch
-from bunch import Diagnostics_track
+from bunch import Diagnostics_track, Diagnostics_writer
 import convertors
 import numpy
 from nose.tools import *
@@ -38,5 +38,7 @@ def test_update():
     diagnostics = Diagnostics_track(bunch, 0)
     diagnostics.update(bunch)
 
-
-
+def test_create_writer():
+    diagnostics = Diagnostics_track(bunch, 0)
+    diagnostics_writer = Diagnostics_writer("test_create_writer_track.h5",
+                                             diagnostics)

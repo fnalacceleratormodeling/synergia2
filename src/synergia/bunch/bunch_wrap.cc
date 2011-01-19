@@ -52,7 +52,8 @@ BOOST_PYTHON_MODULE(bunch)
         .def("get_emitxyz",&Diagnostics_full2::get_emitxyz)
         ;
 
-    class_<Diagnostics_track, Diagnostics_track_sptr >("Diagnostics_track",init<int >())
+    class_<Diagnostics_track, Diagnostics_track_sptr, bases<Diagnostics > >
+        ("Diagnostics_track",init<int >())
         .def(init<Bunch const &, int >())
         .def("update", &Diagnostics_track::update)
         ;

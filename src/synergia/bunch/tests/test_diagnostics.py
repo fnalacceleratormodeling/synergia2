@@ -6,7 +6,7 @@ sys.path.append('../../convertors')
 from mpi4py import MPI
 from foundation import Reference_particle, Four_momentum
 from bunch import Bunch
-from bunch import Diagnostics, Diagnostics_full2
+from bunch import Diagnostics, Diagnostics_full2, Diagnostics_writer
 import convertors
 import numpy
 from nose.tools import *
@@ -33,6 +33,11 @@ def test_construct():
 
 def test_construct2():
     diagnostics = Diagnostics(bunch)
+
+def test_create_writer():
+    diagnostics = Diagnostics(bunch)
+    diagnostics_writer = Diagnostics_writer("test_create_writer.h5",
+                                             diagnostics)
 
 def test_get_s():
     diagnostics = Diagnostics(bunch)
@@ -70,6 +75,11 @@ def test_construct_full2():
 
 def test_construct2_full2():
     diagnostics = Diagnostics_full2(bunch)
+
+def test_create_writer_full2():
+    diagnostics = Diagnostics_full2(bunch)
+    diagnostics_writer = Diagnostics_writer("test_create_writer_full2.h5",
+                                             diagnostics)
 
 def test_get_s_full2():
     diagnostics = Diagnostics_full2(bunch)
