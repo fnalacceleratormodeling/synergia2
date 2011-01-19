@@ -1,4 +1,3 @@
-#include_directories(${Boost_INCLUDES})
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
 add_executable(test_rectangular_grid_domain test_rectangular_grid_domain.cc)
