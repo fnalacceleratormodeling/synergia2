@@ -103,7 +103,10 @@ def do_plots(options):
         plot_index += 1
         pyplot.legend()
     f.close()
-    pyplot.show()
+    if options.outputfile:
+        pyplot.savefig(options.outputfile)
+    if options.show:
+        pyplot.show()
 
 if __name__ == '__main__':
     options = handle_args(sys.argv[1:])

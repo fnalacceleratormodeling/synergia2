@@ -140,7 +140,10 @@ def do_plots(options, plotparams):
         plot_index += 1
         pyplot.legend()
     f.close()
-    pyplot.show()
+    if options.outputfile:
+        pyplot.savefig(options.outputfile)
+    if options.show:
+        pyplot.show()
 
 if __name__ == '__main__':
     plotparams = generate_plotparams()

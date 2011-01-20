@@ -47,6 +47,7 @@ class Options:
         self.hist = True
         self.inputfile = None
         self.outputfile = None
+        self.show = True
         self.hcoord = None
         self.vcoord = None
         self.bins = 10
@@ -102,7 +103,10 @@ def do_plots(options):
     particles = f.root.particles.read()
     plot_density(particles[:, coords[options.hcoord]],
                  particles[:, coords[options.vcoord]], 'foobar', options.bins)
-    pyplot.show()
+    if options.outputfile:
+        pyplot.savefig(options.outputfile)
+    if options.show:
+        pyplot.show()
 
 if __name__ == '__main__':
 #    plotparams = generate_plotparams()
