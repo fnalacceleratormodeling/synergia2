@@ -18,6 +18,11 @@ public:
     propagate(Bunch & bunch, int num_turns,
             Diagnostics_writer & per_step_diagnostics,
             Diagnostics_writer & per_turn_diagnostics, bool verbose = false);
+    void
+    propagate(Bunch & bunch, int num_turns,
+            Multi_diagnostics_writer & per_step_diagnostics,
+            Multi_diagnostics_writer & per_turn_diagnostics, bool verbose =
+                    false);
     ~Propagator();
 };
 
