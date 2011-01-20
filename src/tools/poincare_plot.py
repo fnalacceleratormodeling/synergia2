@@ -70,7 +70,7 @@ def handle_args(args):
     options.coords = args[first_coord:]
     for coord in options.coords:
         if not coord in coords.keys():
-            do_error('Unknown coord "%s"' % arg)
+            do_error('Unknown coord "%s"' % coord)
     return options
 
 def do_plots(options):
