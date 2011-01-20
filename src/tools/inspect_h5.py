@@ -8,8 +8,8 @@ def usage(error=False):
     print "     syninspecth5 <hdf5_file>"
     print "     " + "    to list members"
     print "or"
-    print "     syninspecth5 <hdf5_file> <entry>"
-    print "     " + "      to display entry"
+    print "     syninspecth5 <hdf5_file> <member>"
+    print "     " + "      to display member"
     if error:
         retval = 1
     else:

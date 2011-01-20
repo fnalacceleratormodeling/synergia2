@@ -58,3 +58,15 @@ BOOST_FIXTURE_TEST_CASE(get_steps, Lattice_fixture)
 
     BOOST_CHECK_EQUAL(stepper100.get_steps().size(), 100);
 }
+
+BOOST_FIXTURE_TEST_CASE(has_sliced_chef_beamline, Lattice_fixture)
+{
+    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
+            "space_charge"));
+    Lattice_simulator lattice_simulator(lattice_sptr, 2);
+
+    Split_operator_stepper stepper2(lattice_simulator, space_charge, 2);
+
+    BOOST_CHECK(
+            ! lattice_simulator.get_chef_lattice_sptr()->get_sliced_beamline_sptr()->empty());
+}

@@ -1,7 +1,9 @@
 test_bunch
 *.icc
 test_diagnostics
+test_diagnostics_track
 test_diagnostics_particles
 test_diagnostics_writer
+test_multi_diagnostics_writer
 test_populate
 test*.h5

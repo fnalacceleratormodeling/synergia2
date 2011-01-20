@@ -41,13 +41,6 @@ extract_slices(Steps const& steps)
     return all_slices;
 }
 
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-//                                                                            //
-//                           Independent_stepper                              //
-//                                                                            //
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
 Independent_operator_sptr
 Independent_stepper::get_step(std::string const& name,
         Lattice_elements::iterator & lattice_it, double & left,
@@ -183,6 +176,8 @@ Independent_stepper_elements::Independent_stepper_elements(
             }
         }
     }
+    this->lattice_simulator.construct_sliced_chef_beamline(
+            extract_slices(get_steps()));
 }
 
 Independent_stepper_elements::~Independent_stepper_elements()
@@ -311,13 +306,6 @@ Split_operator_stepper::~Split_operator_stepper()
 
 }
 
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
-//                                                                            //
-//                      Split_operator_stepper_elements                       //
-//                                                                            //
-////////////////////////////////////////////////////////////////////////////////
-////////////////////////////////////////////////////////////////////////////////
 void
 Split_operator_stepper_elements::construct(
         Collective_operators const& collective_operators,

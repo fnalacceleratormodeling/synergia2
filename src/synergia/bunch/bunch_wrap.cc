@@ -52,6 +52,12 @@ BOOST_PYTHON_MODULE(bunch)
         .def("get_emitxyz",&Diagnostics_full2::get_emitxyz)
         ;
 
+    class_<Diagnostics_track, Diagnostics_track_sptr, bases<Diagnostics > >
+        ("Diagnostics_track",init<int >())
+        .def(init<Bunch const &, int >())
+        .def("update", &Diagnostics_track::update)
+        ;
+
     class_<Diagnostics_particles, Diagnostics_particles_sptr, bases<Diagnostics > >
             ("Diagnostics_particles",init< >())
         .def(init<int >())
@@ -66,6 +72,11 @@ BOOST_PYTHON_MODULE(bunch)
         .def("get_diagnostics", &Diagnostics_writer::get_diagnostics_sptr)
         .def("write", &Diagnostics_writer::write)
         .def("update_and_write", &Diagnostics_writer::update_and_write)
+        ;
+
+    class_<Multi_diagnostics_writer >("Multi_diagnostics_writer",
+            init<>())
+        .def("append", &Multi_diagnostics_writer::append)
         ;
 
     def("no_diagnostics", no_diagnostics);

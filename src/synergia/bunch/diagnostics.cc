@@ -355,3 +355,97 @@ Diagnostics_particles::write_hdf5()
 Diagnostics_particles::~Diagnostics_particles()
 {
 }
+
+Diagnostics_track::Diagnostics_track(int particle_id) :
+    have_writers(false), coords(boost::extents[6]), found(false), particle_id(
+            particle_id), last_index(-1)
+{
+}
+
+Diagnostics_track::Diagnostics_track(Bunch const& bunch, int particle_id) :
+    have_writers(false), coords(boost::extents[6]), found(false), particle_id(
+            particle_id), last_index(-1)
+{
+    update(bunch);
+}
+
+bool
+Diagnostics_track::is_serial() const
+{
+    return true;
+}
+
+void
+Diagnostics_track::update(Bunch const& bunch)
+{
+    repetition = bunch.get_reference_particle().get_repetition();
+    trajectory_length = bunch.get_reference_particle().get_trajectory_length();
+    int index;
+    found = false;
+    if ((last_index > -1) && (last_index < bunch.get_local_num())) {
+        if (particle_id
+                == static_cast<int > (bunch.get_local_particles()[Bunch::id][last_index])) {
+            index = last_index;
+            found = true;
+        }
+    }
+    if (!found) {
+        index = 0;
+        while ((particle_id
+                != static_cast<int > (bunch.get_local_particles()[index][Bunch::id]))
+                && (index < bunch.get_local_num())) {
+            index += 1;
+        }
+        if (index < bunch.get_local_num()) {
+            found = true;
+        } else {
+            found = false;
+        }
+    }
+    if (found) {
+        coords[0] = bunch.get_local_particles()[index][0];
+        coords[1] = bunch.get_local_particles()[index][1];
+        coords[2] = bunch.get_local_particles()[index][2];
+        coords[3] = bunch.get_local_particles()[index][3];
+        coords[4] = bunch.get_local_particles()[index][4];
+        coords[5] = bunch.get_local_particles()[index][5];
+        s = bunch.get_reference_particle().get_s();
+        repetition = bunch.get_reference_particle().get_repetition();
+        trajectory_length
+                = bunch.get_reference_particle().get_trajectory_length();
+    }
+}
+
+void
+Diagnostics_track::init_writers(hid_t & hdf5_file)
+{
+    writer_coords = new Hdf5_serial_writer<MArray1d_ref > (hdf5_file, "coords");
+    writer_s = new Hdf5_serial_writer<double > (hdf5_file, "s");
+    writer_repetition = new Hdf5_serial_writer<int > (hdf5_file, "repetition");
+    writer_trajectory_length = new Hdf5_serial_writer<double > (hdf5_file,
+            "trajectory_length");
+    have_writers = true;
+}
+
+void
+Diagnostics_track::write_hdf5()
+{
+    if (!have_writers) {
+        throw(std::runtime_error(
+                "Diagnostics::write_hdf5 called before Diagnostics::init_writers"));
+    }
+    writer_coords->append(coords);
+    writer_s->append(s);
+    writer_repetition->append(repetition);
+    writer_trajectory_length->append(trajectory_length);
+}
+
+Diagnostics_track::~Diagnostics_track()
+{
+    if (have_writers) {
+        delete writer_coords;
+        delete writer_s;
+        delete writer_repetition;
+        delete writer_trajectory_length;
+    }
+}

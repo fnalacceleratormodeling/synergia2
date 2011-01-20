@@ -163,8 +163,7 @@ public:
 
 typedef boost::shared_ptr<Diagnostics_full2 > Diagnostics_full2_sptr;
 
-/// Diagnostics_particles provides the full set of statistical
-/// quantities to be calculated for a Bunch up to the second moments.
+/// Diagnostics_particles dumps the state of particles in a bunch
 class Diagnostics_particles : public Diagnostics
 {
 private:
@@ -202,5 +201,54 @@ public:
 };
 
 typedef boost::shared_ptr<Diagnostics_particles > Diagnostics_particles_sptr;
+
+/// Diagnostics_track records the phase space coordinates of a single particle
+class Diagnostics_track: public Diagnostics
+{
+private:
+    bool have_writers;
+    bool found;
+    int last_index;
+    int particle_id;
+protected:
+    double s;
+    Hdf5_serial_writer<double > * writer_s;
+    int repetition;
+    Hdf5_serial_writer<int > * writer_repetition;
+    double trajectory_length;
+    Hdf5_serial_writer<double > * writer_trajectory_length;
+    MArray1d coords;
+    Hdf5_serial_writer<MArray1d_ref > * writer_coords;
+public:
+    /// Create an empty Diagnostics_track object
+    /// @param particle_id the particle ID to track
+    Diagnostics_track(int particle_id);
+
+    /// Create a Diagnostics_track object
+    /// @param bunch the Bunch
+    /// @param particle_id the particle ID to track
+    Diagnostics_track(Bunch const& bunch, int particle_id);
+
+    /// Multiple serial diagnostics can be written to a single file.
+    /// The Diagnostics_full2 class is serial.
+    virtual bool
+    is_serial() const;
+
+    /// Update the diagnostics
+    /// @param bunch the Bunch
+    virtual void
+    update(Bunch const& bunch);
+
+    virtual void
+    init_writers(hid_t & hdf5_file);
+
+    virtual void
+    write_hdf5();
+
+    virtual
+    ~Diagnostics_track();
+};
+
+typedef boost::shared_ptr<Diagnostics_track > Diagnostics_track_sptr;
 
 #endif /* DIAGNOSTICS_H_ */

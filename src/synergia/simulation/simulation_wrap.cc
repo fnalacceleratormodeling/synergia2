@@ -62,26 +62,6 @@ BOOST_PYTHON_MODULE(simulation)
         .def("get_chef_lattice", &Lattice_simulator::get_chef_lattice_sptr)
         ;
 
-//    class Step
-//    {
-//    private:
-//        Operators operators;
-//    public:
-//        Step();
-//        void
-//        append(Operator_sptr operator_sptr);
-//        void
-//        append(Operators const& operators);
-//        void
-//        apply(Bunch & bunch);
-//        Operators const&
-//        get_operators() const;
-//        void
-//        print(int index) const;
-//    };
-//
-//    typedef boost::shared_ptr<Step > Step_sptr;
-//    typedef std::list<Step_sptr > Steps;
     class_<Step, Step_sptr >("Step", init<>())
 //            .def("append", remember how to overload methods...)
             .def("apply",&Step::apply)
@@ -97,32 +77,21 @@ BOOST_PYTHON_MODULE(simulation)
         .def("print_", &Stepper::print)
         ;
 
-//    class Split_operator_stepper : public Stepper
-//    {
-//    private:
-//        Lattice_simulator lattice_simulator;
-//        Independent_operator_sptr
-//        get_half_step(std::string const& name,
-//                Lattice_elements::iterator & lattice_it, double & left,
-//                Lattice_elements::iterator const & lattice_end,
-//                const double half_step_length);
-//        void
-//        construct(Collective_operators const & collective_operators, int num_steps);
-//    public:
-//        Split_operator_stepper(Lattice_simulator const& lattice_simulator,
-//                Collective_operator_sptr collective_operator, int num_steps);
-//        Split_operator_stepper(Lattice_simulator const& lattice_simulator,
-//                Collective_operators const & collective_operators, int num_steps);
-//        ~Split_operator_stepper();
-//    };
     class_<Split_operator_stepper, bases<Stepper > >("Split_operator_stepper",
             init<Lattice_simulator const&, Collective_operator_sptr, int >());
 
+    class_<Independent_stepper_elements, bases<Stepper > >("Independent_stepper_elements",
+            init<Lattice_simulator const&, int >());
+
+    void (Propagator::*propagate1)(Bunch &, int, Diagnostics_writer &,
+            Diagnostics_writer &, bool) = &Propagator::propagate;
+    void (Propagator::*propagate2)(Bunch &, int, Multi_diagnostics_writer &,
+            Multi_diagnostics_writer &, bool) = &Propagator::propagate;
+
     class_<Propagator >("Propagator",init<Stepper_sptr >())
-            .def("propagate",&Propagator::propagate,
-                    propagate_member_overloads(
-                            args("bunch", "num_turns",
-                                    "per_step_diagnostics",
-                                    "per_turn_diagnostics", "verbose")))
+            .def("propagate", propagate1,
+                    propagate_member_overloads())
+            .def("propagate", propagate2,
+                    propagate_member_overloads())
             ;
 }
