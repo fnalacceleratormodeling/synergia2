@@ -6,24 +6,24 @@ from synergia.optics.one_turn_map import linear_one_turn_map
 
 # quick and dirty twiss parameter calculator from 2x2 courant-snyder map array
 def map2twiss(csmap):
-    cosmu = 0.5 * (csmap[0,0]+csmap[1,1])
-    asinmu = 0.5*(csmap[0,0]-csmap[1,1])
+    cosmu = 0.5 * (csmap[0, 0] + csmap[1, 1])
+    asinmu = 0.5 * (csmap[0, 0] - csmap[1, 1])
 
     if abs(cosmu) > 1.0:
         print "error, map is unstable"
-    mu =np.arccos(cosmu)
+    mu = np.arccos(cosmu)
 
     # beta is positive
-    if csmap[0,1] < 0.0:
+    if csmap[0, 1] < 0.0:
         mu = 2.0 * np.pi - mu
 
-    beta = csmap[0,1]/np.sin(mu)
-    alpha = asinmu/np.sin(mu)
-    tune = mu/(2.0*np.pi)
+    beta = csmap[0, 1] / np.sin(mu)
+    alpha = asinmu / np.sin(mu)
+    tune = mu / (2.0 * np.pi)
 
     return (alpha, beta, tune)
 
-num_macro_particles =  opts.num_macro_particles
+num_macro_particles = opts.num_macro_particles
 seed = opts.seed
 #grid = [16, 16, 128]
 grid = [16, 16, 16]
@@ -49,7 +49,7 @@ print "particle gamma: ", gamma
 
 # set rf cavity frequency
 # harmno * beta * c/ring_length
-freq = harmno * beta * synergia.foundation.pconstants.c/lattice_length
+freq = harmno * beta * synergia.foundation.pconstants.c / lattice_length
 print "RF freq: ", freq
 
 # rf cavity voltage, is 1.0 MV total distributed over 18 cavities.  MAD8
@@ -64,16 +64,16 @@ lattice_simulator = synergia.simulation.Lattice_simulator(lattice, map_order)
 
 map = linear_one_turn_map(lattice_simulator)
 print "one turn map from synergia2.5 infrastructure"
-print np.array2string(map,max_line_width=200)
+print np.array2string(map, max_line_width=200)
 
-[[ax,ay],[bx,by]] = synergia.optics.get_alpha_beta(map)
+[[ax, ay], [bx, by]] = synergia.optics.get_alpha_beta(map)
 print "Lattice functions assuming uncoupled map:"
 print "alpha x: ", ax
 print "alpha y: ", ay
 print "beta x: ", bx
 print "beta y: ", by
 
-[az, bz, qz] = map2twiss(map[4:6,4:6])
+[az, bz, qz] = map2twiss(map[4:6, 4:6])
 print "alpha z (better be small): ", az
 print "beta z: ", bz
 
@@ -89,21 +89,21 @@ no_op = synergia.simulation.Dummy_collective_operator("stub")
 
 
 # define stepper with dummy collective operator
-stepper_noop = synergia.simulation.Split_operator_stepper(lattice_simulator,no_op ,
+stepper_noop = synergia.simulation.Split_operator_stepper(lattice_simulator, no_op ,
                                           num_steps)
 
-emit = norm_emit/(beta*gamma)
+emit = norm_emit / (beta * gamma)
 print "generating particles with transverse emittance: ", emit
-print "expected std_x: ", np.sqrt(emit*bx)
-print "expected std_y: ", np.sqrt(emit*by)
+print "expected std_x: ", np.sqrt(emit * bx)
+print "expected std_y: ", np.sqrt(emit * by)
 print "expected std_z: ", opts.stdz
-print "expected std_dpop: ", opts.stdz/bz
+print "expected std_dpop: ", opts.stdz / bz
 
-covar = synergia.optics.matching._get_correlation_matrix(map, np.sqrt(emit*bx), np.sqrt(emit*by), opts.stdz)
+covar = synergia.optics.matching._get_correlation_matrix(map, np.sqrt(emit * bx), np.sqrt(emit * by), opts.stdz)
 print "covariance matrix"
-print np.array2string(covar,max_line_width=200)
+print np.array2string(covar, max_line_width=200)
 
-bunch = synergia.optics.generate_matched_bunch(lattice_simulator, np.sqrt(emit*bx), np.sqrt(emit*by), stdz, num_real_particles, num_macro_particles,
+bunch = synergia.optics.generate_matched_bunch(lattice_simulator, np.sqrt(emit * bx), np.sqrt(emit * by), stdz, num_real_particles, num_macro_particles,
                                         seed=seed)
 
 
@@ -112,17 +112,18 @@ bunch = synergia.optics.generate_matched_bunch(lattice_simulator, np.sqrt(emit*b
 particles = bunch.get_local_particles()
 
 print "Generated bunch properties:"
-print "     x mean: ", particles[:,0].mean()," std: ", particles[:,0].std()
-print "     y mean: ", particles[:,2].mean()," std: ", particles[:,2].std()
-print "     z mean: ", particles[:,4].mean()," std: ", particles[:,4].std()
+print "     x mean: ", particles[:, 0].mean(), " std: ", particles[:, 0].std()
+print "     y mean: ", particles[:, 2].mean(), " std: ", particles[:, 2].std()
+print "     z mean: ", particles[:, 4].mean(), " std: ", particles[:, 4].std()
 
-particles[:,0] = particles[:,0]+opts.x_offset
-particles[:,2] = particles[:,2]+opts.y_offset
-particles[:,4] = particles[:,4]+opts.z_offset
+particles[:, 0] = particles[:, 0] + opts.x_offset
+particles[:, 2] = particles[:, 2] + opts.y_offset
+particles[:, 4] = particles[:, 4] + opts.z_offset
 
 diagnostics_writer_step = synergia.bunch.Diagnostics_writer("mi_full2.h5",
                                                             synergia.bunch.Diagnostics_full2())
 diagnostics_writer_turn = synergia.bunch.Diagnostics_writer("mi_particles.h5",
                                                             synergia.bunch.Diagnostics_particles())
 propagator = synergia.simulation.Propagator(stepper_noop)
-propagator.propagate(bunch, num_turns, diagnostics_writer_step, diagnostics_writer_turn)
+propagator.propagate(bunch, num_turns, diagnostics_writer_step,
+                      diagnostics_writer_turn, opts.verbose)
