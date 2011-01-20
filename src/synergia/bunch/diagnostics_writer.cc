@@ -110,3 +110,35 @@ no_diagnostics()
 {
     return Diagnostics_writer();
 }
+
+Multi_diagnostics_writer::Multi_diagnostics_writer() :
+    writers()
+{
+}
+
+void
+Multi_diagnostics_writer::append(
+        Diagnostics_writer_sptr diagnostics_writer_sptr)
+{
+    writers.push_back(diagnostics_writer_sptr);
+}
+
+void
+Multi_diagnostics_writer::push_back(
+        Diagnostics_writer_sptr diagnostics_writer_sptr)
+{
+    writers.push_back(diagnostics_writer_sptr);
+}
+
+Multi_diagnostics_writer::iterator
+Multi_diagnostics_writer::begin()
+{
+    return writers.begin();
+}
+
+Multi_diagnostics_writer::iterator
+Multi_diagnostics_writer::end()
+{
+    return writers.end();
+}
+

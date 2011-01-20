@@ -2,6 +2,7 @@
 #define DIAGNOSTICS_WRITER_H_
 #include "synergia/bunch/diagnostics.h"
 #include <string>
+#include <list>
 
 class Diagnostics_writer
 {
@@ -36,5 +37,18 @@ typedef boost::shared_ptr<Diagnostics_writer > Diagnostics_writer_sptr;
 
 Diagnostics_writer
 no_diagnostics();
+
+class Multi_diagnostics_writer
+{
+private:
+    std::list<Diagnostics_writer_sptr > writers;
+public:
+    Multi_diagnostics_writer();
+    void append(Diagnostics_writer_sptr diagnostics_writer_sptr);
+    void push_back(Diagnostics_writer_sptr diagnostics_writer_sptr);
+    typedef std::list<Diagnostics_writer_sptr >::iterator iterator;
+    iterator begin();
+    iterator end();
+};
 
 #endif /* DIAGNOSTICS_WRITER_H_ */
