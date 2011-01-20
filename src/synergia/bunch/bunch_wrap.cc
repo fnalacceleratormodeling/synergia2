@@ -74,6 +74,11 @@ BOOST_PYTHON_MODULE(bunch)
         .def("update_and_write", &Diagnostics_writer::update_and_write)
         ;
 
+    class_<Multi_diagnostics_writer >("Multi_diagnostics_writer",
+            init<>())
+        .def("append", &Multi_diagnostics_writer::append)
+        ;
+
     def("no_diagnostics", no_diagnostics);
     def("populate_6d", populate_6d);
 

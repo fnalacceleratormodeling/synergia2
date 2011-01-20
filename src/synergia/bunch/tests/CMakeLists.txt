@@ -51,7 +51,7 @@ add_test(test_diagnostics_writer_py nosetests test_diagnostics_writer.py)
 add_executable(test_multi_diagnostics_writer test_multi_diagnostics_writer.cc)
 target_link_libraries(test_multi_diagnostics_writer synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_multi_diagnostics_writer test_multi_diagnostics_writer)
-#add_test(test_multi_diagnostics_writer_py nosetests test_multi_diagnostics_writer.py)
+add_test(test_multi_diagnostics_writer_py nosetests test_multi_diagnostics_writer.py)
 
 add_executable(test_populate test_populate.cc)
 target_link_libraries(test_populate synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
