@@ -3,29 +3,13 @@
 import sys
 import tables
 from matplotlib import pyplot
+import matplotlib
 
-def get_layout(num):
-    if num == 1:
-        return 1, 1
-    elif num == 2:
-        return 2, 1
-    elif num == 3:
-        return 3, 1
-    elif num == 4:
-        return 2, 2
-    elif num <= 6:
-        return 2, 2
-    elif num <= 9:
-        return 3, 3
-    elif num <= 12:
-        return 3, 4
-    elif num <= 16:
-        return 4, 4
-    else:
-        do_error("Too many plots")
+def plot2d(x, y, options):
+    p = pyplot.plot(x, y, 'o')
+    pyplot.setp(p, "markersize", float(options.point_size))
+    pyplot.setp(p, "markeredgewidth", 0)
 
-def plot2d(x, y, label):
-    pyplot.plot(x, y, 'o', label=label)
 
 coords = {}
 coords['x'] = 0
@@ -37,27 +21,20 @@ coords['zp'] = 5
 
 class Options:
     def __init__(self):
-        self.oneplot = False
+        self.point_size = 4.0
         self.show = True
-        self.inputfile = None
+        self.inputfiles = []
         self.outputfile = None
         self.coords = []
-
-    def get_pairs(self):
-        pairs = []
-        for i in range(0, len(self.coords), 2):
-            pair = [self.coords[i], self.coords[i + 1]]
-            pairs.append(pair)
-        return pairs
 
 def do_error(message):
     sys.stderr.write(message + '\n')
     sys.exit(1)
 
 def do_help():
-    print "usage: synpoincareplot <filename> [option1] ... [optionn] <h coord1> <v coord1> ... <h coordn> <v coordn>"
+    print "usage: synpoincareplot <filename1> ... <filenamen> [option1] ... [optionn] <h coord> <v coord>"
     print "available options are:"
-    print "    --oneplot : put all plots on the same axis (not on by default)"
+    print "    --pointsize=<float>: size of plotted points (default=4.0)"
     print "    --output=<file> : save output to file (not on by default)"
     print "    --show : show plots on screen (on by default unless --output flag is present"
     print "available coords are:"
@@ -70,17 +47,16 @@ def do_help():
     sys.exit(0)
 
 def handle_args(args):
-    if len(args) < 2:
+    if len(args) < 3:
         do_help()
     options = Options()
-    filename = args[0]
-    options.inputfile = filename
-    for arg in args[1:]:
+    first_coord = len(args) - 2
+    for arg in args[:first_coord]:
         if arg[0] == '-':
             if arg == '--help':
                 do_help(plotparams)
-            elif arg == '--oneplot':
-                options.oneplot = True
+            elif arg.find('--pointsize') == 0:
+                options.point_size = arg.split('=')[1]
             elif arg == '--show':
                 options.show = True
             elif arg.find('--output') == 0:
@@ -88,31 +64,29 @@ def handle_args(args):
                 options.outputfile = file
                 options.show = False
             else:
-                do_error('Unknown argument "%s"' % arg)
+                do_error('Unknown option "%s"' % arg)
         else:
-            if arg in coords.keys():
-                options.coords.append(arg)
-            else:
-                do_error('Unknown coord "%s"' % arg)
-    if len(options.coords) % 2 == 1:
-        do_error("coordinates must be specified in pairs")
+            options.inputfiles.append(arg)
+    options.coords = args[first_coord:]
+    for coord in options.coords:
+        if not coord in coords.keys():
+            do_error('Unknown coord "%s"' % arg)
     return options
 
 def do_plots(options):
-    f = tables.openFile(options.inputfile, 'r')
-    rows, cols = get_layout(len(options.get_pairs()))
-    plot_index = 1
-    particle_coords = getattr(f.root, "coords").read()
-    for pair in options.get_pairs():
-        x = particle_coords[coords[pair[0]], :]
-        y = particle_coords[coords[pair[1]], :]
-        if not options.oneplot:
-            pyplot.subplot(rows, cols, plot_index)
-        plot2d(x, y, pair[0] + "," + pair[1])
-        plot_index += 1
-        pyplot.legend()
-    f.close()
-    pyplot.show()
+    for filename in options.inputfiles:
+        f = tables.openFile(filename, 'r')
+        particle_coords = getattr(f.root, "coords").read()
+        x = particle_coords[coords[options.coords[0]], :]
+        y = particle_coords[coords[options.coords[1]], :]
+        plot2d(x, y, options)
+        f.close()
+    pyplot.xlabel(options.coords[0])
+    pyplot.ylabel(options.coords[1])
+    if options.outputfile:
+        pyplot.savefig(options.outputfile)
+    if options.show:
+        pyplot.show()
 
 if __name__ == '__main__':
     options = handle_args(sys.argv[1:])
