@@ -19,37 +19,30 @@ Propagator::Propagator(Stepper_sptr stepper_sptr) :
 {
 }
 
+// Object_to_sptr_hack is a local struct
+struct Object_to_sptr_hack
+{
+    void
+    operator()(void const *) const
+    {
+    }
+};
+
 void
 Propagator::propagate(Bunch & bunch, int num_turns,
         Diagnostics_writer & per_step_diagnostics,
         Diagnostics_writer & per_turn_diagnostics, bool verbose)
 {
-    for (int turn = 0; turn < num_turns; ++turn) {
-        if (verbose) {
-            std::cout << "Propagator: turn " << turn + 1 << "/" << num_turns
-                    << std::endl;
-        }
-        bunch.get_reference_particle().start_repetition();
-        per_turn_diagnostics.update_and_write(bunch);
-        int step_count = 0;
-        int num_steps = stepper_sptr->get_steps().size();
-        for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
-                != stepper_sptr->get_steps().end(); ++it) {
-            per_step_diagnostics.update_and_write(bunch);
-            ++step_count;
-            if (verbose) {
-                std::cout << "Propagator:   step " << step_count << "/"
-                        << num_steps << std::endl;
-            }
-            (*it)->apply(bunch);
-        }
-    }
-    per_step_diagnostics.update_and_write(bunch);
-    per_turn_diagnostics.update_and_write(bunch);
+    Multi_diagnostics_writer multi_per_step_diagnostics;
+    multi_per_step_diagnostics.append(Diagnostics_writer_sptr(
+            &per_step_diagnostics, Object_to_sptr_hack()));
+    Multi_diagnostics_writer multi_per_turn_diagnostics;
+    multi_per_turn_diagnostics.append(Diagnostics_writer_sptr(
+            &per_turn_diagnostics, Object_to_sptr_hack()));
+    propagate(bunch, num_turns, multi_per_step_diagnostics,
+            multi_per_turn_diagnostics, verbose);
 }
 
-// jfa: This method is highly redundant with the other signature for propagate.
-//      Refactoring into one method would be desirable.
 void
 Propagator::propagate(Bunch & bunch, int num_turns,
         Multi_diagnostics_writer & per_step_diagnostics,
