@@ -24,7 +24,7 @@ BOOST_FIXTURE_TEST_CASE(construct2, Lattice_fixture)
             "space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, 2);
 
-    Split_operator_stepper stepper2(lattice_simulator, space_charge, 7);
+    Split_operator_stepper stepper2(lattice_simulator, space_charge, 2);
     //    stepper2.print();
 }
 

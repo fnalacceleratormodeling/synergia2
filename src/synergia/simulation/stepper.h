@@ -26,20 +26,21 @@ public:
 typedef boost::shared_ptr<Stepper > Stepper_sptr;
 
 /// Generate evenly-spaced steps through lattice with collective effects.
-//class Independent_stepper : public Stepper
-//{
-//private:
-//    Lattice_simulator lattice_simulator;
-//    void
-//    construct(Collective_operators const & collective_operators, int num_steps);
-//public:
-//    Independent_stepper(Lattice_simulator const& lattice_simulator,
-//            Collective_operator_sptr collective_operator, int num_steps);
-//    Independent_stepper(Lattice_simulator const& lattice_simulator,
-//            Collective_operators const & collective_operators, int num_steps);
-//    ~Independent_stepper();
-//
-//};
+class Independent_stepper : public Stepper
+{
+private:
+    Lattice_simulator lattice_simulator;
+    Independent_operator_sptr
+    get_step(std::string const& name,
+            Lattice_elements::iterator & lattice_it, double & left,
+            Lattice_elements::iterator const & lattice_end,
+            const double half_step_length);
+public:
+    Independent_stepper(Lattice_simulator const& lattice_simulator,
+            int num_steps);
+    ~Independent_stepper();
+
+};
 
 /// Generate per-element steps through lattice without collective effects.
 class Independent_stepper_elements : public Stepper
@@ -75,10 +76,21 @@ public:
 typedef boost::shared_ptr<Split_operator_stepper > Split_operator_stepper_sptr;
 
 /// Generate per-element steps through lattice with collective effects.
-//class Split_operator_stepper_elements : public Stepper
-//{
-//
-//};
+class Split_operator_stepper_elements : public Stepper
+{
+private:
+    Lattice_simulator lattice_simulator;
+    void
+    construct(Collective_operators const & collective_operators, int steps_per_element);
+public:
+    Split_operator_stepper_elements(Lattice_simulator const& lattice_simulator,
+            Collective_operator_sptr collective_operator, int steps_per_element);
+    Split_operator_stepper_elements(Lattice_simulator const& lattice_simulator,
+            Collective_operators const & collective_operators, int steps_per_element);
+    ~Split_operator_stepper_elements();
+};
+
+
 
 /// Generate steps through lattice based on envelope shape.
 /// Includes collective effects.
