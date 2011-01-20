@@ -369,6 +369,8 @@ Split_operator_stepper_elements::construct(
 
             }
         }
+     lattice_simulator.construct_sliced_chef_beamline(
+            extract_slices(get_steps()));
     }
 }
 

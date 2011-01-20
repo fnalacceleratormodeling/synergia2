@@ -48,3 +48,30 @@ BOOST_FIXTURE_TEST_CASE(construct17, Lattice_fixture)
     const int num_steps = 17;
     Independent_stepper stepper(lattice_simulator, num_steps);
 }
+
+BOOST_FIXTURE_TEST_CASE(construct100, Lattice_fixture)
+{
+    Lattice_simulator lattice_simulator(lattice_sptr, 2);
+
+    Independent_stepper stepper100(lattice_simulator, 100);
+    //    stepper100.print();
+}
+
+BOOST_FIXTURE_TEST_CASE(get_steps, Lattice_fixture)
+{
+    Lattice_simulator lattice_simulator(lattice_sptr, 2);
+
+    Independent_stepper stepper100(lattice_simulator, 100);
+
+    BOOST_CHECK_EQUAL(stepper100.get_steps().size(), 100);
+}
+
+BOOST_FIXTURE_TEST_CASE(has_sliced_chef_beamline, Lattice_fixture)
+{   
+    Lattice_simulator lattice_simulator(lattice_sptr, 2);
+
+    Independent_stepper stepper2(lattice_simulator, 2);
+
+    BOOST_CHECK(
+            ! lattice_simulator.get_chef_lattice_sptr()->get_sliced_beamline_sptr()->empty());
+}
