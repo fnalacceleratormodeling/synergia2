@@ -340,8 +340,8 @@ Quadrupole_mad8_adaptor::set_default_attributes(
 }
 
 Chef_elements
-Quadrupole_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
-        double brho)
+Quadrupole_mad8_adaptor::get_chef_elements(
+        Lattice_element const& lattice_element, double brho)
 {
     double qtilt;
     Chef_elements retval;
@@ -395,8 +395,8 @@ Sextupole_mad8_adaptor::set_default_attributes(
 }
 
 Chef_elements
-Sextupole_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
-        double brho)
+Sextupole_mad8_adaptor::get_chef_elements(
+        Lattice_element const& lattice_element, double brho)
 {
     Chef_elements retval;
 
@@ -453,8 +453,8 @@ Octupole_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 }
 
 Chef_elements
-Octupole_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
-        double brho)
+Octupole_mad8_adaptor::get_chef_elements(
+        Lattice_element const& lattice_element, double brho)
 {
     Chef_elements retval;
 
@@ -528,8 +528,8 @@ Multipole_mad8_adaptor::set_default_attributes(
 }
 
 Chef_elements
-Multipole_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
-        double brho)
+Multipole_mad8_adaptor::get_chef_elements(
+        Lattice_element const& lattice_element, double brho)
 {
     Chef_elements retval;
 
@@ -542,8 +542,8 @@ Multipole_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element
     string t_attr_list[] = { "t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7",
             "t8", "t9" };
 
-    double knl[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    double tn[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double knl[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double tn[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
     // loop through possible attributes
     for (int moment = 0; moment < 10; ++moment) {
@@ -557,7 +557,7 @@ Multipole_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element
             } else if (lattice_element.has_string_attribute(t_attr_list[moment])) {
                 // any string value is equivalent to just giving the Tn keyword
                 // get default tilt for that multipole order
-                tn[moment] = M_PI / (2 * moment + 2);
+                tn[moment] = mconstants::pi / (2 * moment + 2);
             }
         }
     }
@@ -786,8 +786,8 @@ Rfcavity_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 }
 
 Chef_elements
-Rfcavity_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
-        double brho)
+Rfcavity_mad8_adaptor::get_chef_elements(
+        Lattice_element const& lattice_element, double brho)
 {
     Chef_elements retval;
 
@@ -855,8 +855,8 @@ Hmonitor_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 }
 
 Chef_elements
-Hmonitor_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
-        double brho)
+Hmonitor_mad8_adaptor::get_chef_elements(
+        Lattice_element const& lattice_element, double brho)
 {
     Chef_elements retval;
 
@@ -889,8 +889,8 @@ Vmonitor_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 }
 
 Chef_elements
-Vmonitor_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
-        double brho)
+Vmonitor_mad8_adaptor::get_chef_elements(
+        Lattice_element const& lattice_element, double brho)
 {
     Chef_elements retval;
 
