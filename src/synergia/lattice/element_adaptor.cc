@@ -542,8 +542,8 @@ Multipole_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element
     string t_attr_list[] = { "t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7",
             "t8", "t9" };
 
-    double knl[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    double tn[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double knl[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    double tn[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
 
     // loop through possible attributes
     for (int moment = 0; moment < 10; ++moment) {
