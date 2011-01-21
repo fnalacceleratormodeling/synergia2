@@ -1,0 +1,5 @@
+To test, just run
+
+python normal_form_test.py
+
+You need to have numpy and matplotlib importable.
