@@ -24,12 +24,7 @@ o: drift, l=( sepn - length )
 f: quadrupole, l=length, k1=strength
 d: quadrupole, l=length, k1=(-strength)
 
-
 ! ------------------
-! Lattices
+! Lattice
 ! ------------------
-justf:  line=( f )
-justo:  line=( o )
-justd:  line=( d )
 fodo:  line=( f, o, d, o )
-model: line=( 5*fodo )
