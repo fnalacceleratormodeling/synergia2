@@ -25,7 +25,7 @@ public:
 
 typedef boost::shared_ptr<Stepper > Stepper_sptr;
 
-/// Generate evenly-spaced steps through lattice with collective effects.
+/// Generate evenly-spaced steps through lattice without collective effects.
 class Independent_stepper : public Stepper
 {
 private:
