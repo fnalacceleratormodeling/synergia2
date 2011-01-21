@@ -120,9 +120,9 @@ particles[:, 0] = particles[:, 0] + opts.x_offset
 particles[:, 2] = particles[:, 2] + opts.y_offset
 particles[:, 4] = particles[:, 4] + opts.z_offset
 
-diagnostics_writer_step = synergia.bunch.Diagnostics_writer("mi_full2.h5",
+diagnostics_writer_step = synergia.bunch.Diagnostics_writer("full2.h5",
                                                             synergia.bunch.Diagnostics_full2())
-diagnostics_writer_turn = synergia.bunch.Diagnostics_writer("mi_particles.h5",
+diagnostics_writer_turn = synergia.bunch.Diagnostics_writer("particles.h5",
                                                             synergia.bunch.Diagnostics_particles())
 propagator = synergia.simulation.Propagator(stepper_noop)
 propagator.propagate(bunch, num_turns, diagnostics_writer_step,
