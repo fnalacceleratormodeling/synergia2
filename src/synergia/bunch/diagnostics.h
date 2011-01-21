@@ -19,6 +19,10 @@ protected:
     Hdf5_serial_writer<int > * writer_repetition;
     double trajectory_length;
     Hdf5_serial_writer<double > * writer_trajectory_length;
+    int num_particles;
+    Hdf5_serial_writer<int > * writer_num_particles;
+    double real_num_particles;
+    Hdf5_serial_writer<double> * writer_real_num_particles;
     MArray1d mean;
     Hdf5_serial_writer<MArray1d_ref > * writer_mean;
     MArray1d std;
@@ -57,6 +61,14 @@ public:
     /// Get the total distance along the reference trajectory in meters.
     virtual double
     get_trajectory_length() const;
+
+    /// Get the total number of macroparticles in the bunch
+    virtual int
+    get_num_particles() const;
+
+    /// Get the total number of real particles represented by the bunch
+    virtual double
+    get_real_num_particles() const;
 
     /// Get a six-dimensional vector of the means of each phase-space
     /// coordinate. The units are in Synergia units.

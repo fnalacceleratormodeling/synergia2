@@ -67,6 +67,8 @@ Diagnostics::update(Bunch const& bunch)
     s = bunch.get_reference_particle().get_s();
     repetition = bunch.get_reference_particle().get_repetition();
     trajectory_length = bunch.get_reference_particle().get_trajectory_length();
+    num_particles = bunch.get_total_num();
+    real_num_particles = bunch.get_real_num();
     update_mean(bunch);
     update_std(bunch);
 }
@@ -89,6 +91,18 @@ Diagnostics::get_trajectory_length() const
     return trajectory_length;
 }
 
+int
+Diagnostics::get_num_particles() const
+{
+    return num_particles;
+}
+
+double
+Diagnostics::get_real_num_particles() const
+{
+    return real_num_particles;
+}
+
 Const_MArray1d_ref
 Diagnostics::get_mean() const
 {
@@ -108,6 +122,10 @@ Diagnostics::init_writers(hid_t & hdf5_file)
     writer_repetition = new Hdf5_serial_writer<int > (hdf5_file, "repetition");
     writer_trajectory_length = new Hdf5_serial_writer<double > (hdf5_file,
             "trajectory_length");
+    writer_num_particles = new Hdf5_serial_writer<int > (hdf5_file,
+            "num_particles");
+    writer_real_num_particles = new Hdf5_serial_writer<double > (hdf5_file,
+            "real_num_particles");
     writer_mean = new Hdf5_serial_writer<MArray1d_ref > (hdf5_file, "mean");
     writer_std = new Hdf5_serial_writer<MArray1d_ref > (hdf5_file, "std");
     have_writers = true;
@@ -123,6 +141,8 @@ Diagnostics::write_hdf5()
     writer_s->append(s);
     writer_repetition->append(repetition);
     writer_trajectory_length->append(trajectory_length);
+    writer_num_particles->append(num_particles);
+    writer_real_num_particles->append(real_num_particles);
     writer_mean->append(mean);
     writer_std->append(std);
 }
@@ -133,6 +153,8 @@ Diagnostics::~Diagnostics()
         delete writer_s;
         delete writer_repetition;
         delete writer_trajectory_length;
+        delete writer_num_particles;
+        delete writer_real_num_particles;
         delete writer_mean;
         delete writer_std;
     }
@@ -214,6 +236,8 @@ Diagnostics_full2::update(Bunch const& bunch)
     s = bunch.get_reference_particle().get_s();
     repetition = bunch.get_reference_particle().get_repetition();
     trajectory_length = bunch.get_reference_particle().get_trajectory_length();
+    num_particles = bunch.get_total_num();
+    real_num_particles = bunch.get_real_num();
     update_mean(bunch);
     update_full2(bunch);
     update_emittances();
@@ -331,7 +355,6 @@ Diagnostics_particles::init_writers(hid_t & hdf5_file)
 }
 
 // jfa: this method is not complete! It doesn't work on multiple processors
-// or implement the max_particles parameter.
 void
 Diagnostics_particles::write_hdf5()
 {
@@ -347,9 +370,11 @@ Diagnostics_particles::write_hdf5()
     Hdf5_writer<double > writer_s(hdf5_file, "s");
     double s = bunch_ptr->get_reference_particle().get_s();
     writer_s.write(s);
+    int local_num = bunch_ptr->get_local_num();
     Hdf5_chunked_array2d_writer writer_particles(hdf5_file, "particles",
-            bunch_ptr->get_local_particles());
-    writer_particles.write_chunk(bunch_ptr->get_local_particles());
+            bunch_ptr->get_local_particles()[ boost::indices[range(0,local_num)][range()] ]);
+    writer_particles.write_chunk(bunch_ptr->get_local_particles()
+            [ boost::indices[range(0,local_num)][range()] ]);
 }
 
 Diagnostics_particles::~Diagnostics_particles()

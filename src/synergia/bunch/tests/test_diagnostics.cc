@@ -84,6 +84,19 @@ BOOST_FIXTURE_TEST_CASE(get_trajectory_length, Fixture)
             turns * turn_length + partial_s, tolerance);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_num_particles, Fixture)
+{
+    Diagnostics diagnostics(bunch);
+    BOOST_CHECK_EQUAL(diagnostics.get_num_particles(), total_num);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_real_num_particles, Fixture)
+{
+    Diagnostics diagnostics(bunch);
+    BOOST_CHECK_CLOSE(diagnostics.get_real_num_particles(), real_num,
+            tolerance);
+}
+
 BOOST_FIXTURE_TEST_CASE(get_mean, Fixture)
 {
     Diagnostics diagnostics(bunch);
@@ -154,6 +167,19 @@ BOOST_FIXTURE_TEST_CASE(get_s_full2, Fixture)
 {
     Diagnostics_full2 diagnostics(bunch);
     BOOST_CHECK_CLOSE(diagnostics.get_s(), partial_s, tolerance);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_num_particles_full2, Fixture)
+{
+    Diagnostics_full2 diagnostics(bunch);
+    BOOST_CHECK_EQUAL(diagnostics.get_num_particles(), total_num);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_real_num_particles_full2, Fixture)
+{
+    Diagnostics_full2 diagnostics(bunch);
+    BOOST_CHECK_CLOSE(diagnostics.get_real_num_particles(), real_num,
+            tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_mean_full2, Fixture)
