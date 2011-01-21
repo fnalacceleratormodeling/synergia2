@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include "operator.h"
+#include "aperture.h"
 
 Operator::Operator(std::string const& name, std::string const& type) :
     name(name), type(type)
@@ -127,6 +128,7 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step)
             != operations.end(); ++it) {
         (*it)->apply(bunch);
     }
+    apply_circular_aperture(bunch, slices);
 }
 
 void
