@@ -51,7 +51,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Synergia2'
-copyright = u'2010, James Amundson, Alexandru Macridin, Panagiotis Spentzouris and Eric Stern'
+copyright = u'2011, James Amundson, Alexandru Macridin, Chong Shik Park, Panagiotis Spentzouris and Eric Stern'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
