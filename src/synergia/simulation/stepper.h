@@ -25,7 +25,8 @@ public:
 
 typedef boost::shared_ptr<Stepper > Stepper_sptr;
 
-/// Generate evenly-spaced steps through lattice without collective effects.
+/// The Independent_stepper class generates evenly-spaced Independent_operator
+/// steps through a Lattice. No collective effects are included.
 class Independent_stepper : public Stepper
 {
 private:
@@ -36,27 +37,39 @@ private:
             Lattice_elements::iterator const & lattice_end,
             const double half_step_length);
 public:
+    /// Construct an Independent_stepper
+    /// @param lattice_simulator the Lattice_simulator for the Lattice
+    /// @param num_steps the number of steps to take in the Lattice
     Independent_stepper(Lattice_simulator const& lattice_simulator,
             int num_steps);
+
     ~Independent_stepper();
 
 };
 
-/// Generate per-element steps through lattice without collective effects.
+/// The Independent_stepper_elements class generates a constant number of
+/// Independent_operator steps per thick element. Thin elements are assigned
+/// a single step each. No collective effects are included.
 class Independent_stepper_elements : public Stepper
 {
 private:
     Lattice_simulator lattice_simulator;
 public:
+    /// Construct an Independent_stepper
+    /// @param lattice_simulator the Lattice_simulator for the Lattice
+    /// @param steps_per_element the number of steps per thick element
     Independent_stepper_elements(Lattice_simulator const& lattice_simulator,
             int steps_per_element);
+
     ~Independent_stepper_elements();
 };
 
 typedef boost::shared_ptr<Independent_stepper_elements >
         Independent_stepper_elements_sptr;
 
-/// Generate evenly-spaced steps through lattice with collective effects.
+/// The Split_operator_stepper class generates evenly-spaced split-operator
+/// steps through a Lattice. One or more collective effects are included per
+/// step.
 class Split_operator_stepper : public Stepper
 {
 private:
@@ -69,8 +82,17 @@ private:
     void
     construct(Collective_operators const & collective_operators, int num_steps);
 public:
+    /// Construct a Split_operator_stepper with a single Collective_operator
+    /// @param lattice_simulator the Lattice_simulator for the Lattice
+    /// @param collective_operator the Collective_operator to apply in each step
+    /// @param num_steps the number of steps to take in the Lattice
     Split_operator_stepper(Lattice_simulator const& lattice_simulator,
             Collective_operator_sptr collective_operator, int num_steps);
+
+    /// Construct a Split_operator_stepper with multiple Collective_operators
+    /// @param lattice_simulator the Lattice_simulator for the Lattice
+    /// @param collective_operators the set of Collective_operators to apply in each step
+    /// @param num_steps the number of steps to take in the Lattice
     Split_operator_stepper(Lattice_simulator const& lattice_simulator,
             Collective_operators const & collective_operators, int num_steps);
     ~Split_operator_stepper();
@@ -78,7 +100,10 @@ public:
 
 typedef boost::shared_ptr<Split_operator_stepper > Split_operator_stepper_sptr;
 
-/// Generate per-element steps through lattice with collective effects.
+/// The Split_operator_stepper_elements class generates a constant number of
+/// split-operator steps per thick element. Thin elements are assigned
+/// a single step each. One or more collective effects are included per
+/// step.
 class Split_operator_stepper_elements : public Stepper
 {
 private:
@@ -86,8 +111,18 @@ private:
     void
     construct(Collective_operators const & collective_operators, int steps_per_element);
 public:
+    /// Construct a Split_operator_stepper_elements with a single Collective_operator
+    /// @param lattice_simulator the Lattice_simulator for the Lattice
+    /// @param collective_operator the Collective_operator to apply in each step
+    /// @param steps_per_element the number of steps per thick element
     Split_operator_stepper_elements(Lattice_simulator const& lattice_simulator,
             Collective_operator_sptr collective_operator, int steps_per_element);
+
+    /// Construct a Split_operator_stepper_elements with multiple Collective_operators
+    /// @param lattice_simulator the Lattice_simulator for the Lattice
+    /// @param collective_operators the set of Collective_operators to apply
+    ///        in each step
+    /// @param steps_per_element the number of steps per thick element
     Split_operator_stepper_elements(Lattice_simulator const& lattice_simulator,
             Collective_operators const & collective_operators, int steps_per_element);
     ~Split_operator_stepper_elements();
