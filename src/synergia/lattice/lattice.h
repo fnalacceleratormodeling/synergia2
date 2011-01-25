@@ -15,6 +15,8 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/version.hpp>
 
+/// The Lattice class contains an abstract representation of an ordered
+/// set of Lattice_elements. Each element of the Lattice is unique.
 class Lattice
 {
 private:
@@ -24,28 +26,61 @@ private:
     Lattice_elements elements;
 
 public:
+    /// Construct a Lattice object without a name.
     Lattice();
+
+    /// Construct a Lattice object with a name
+    /// @param name an arbitrary name
     Lattice(std::string const& name);
+
+    /// Get the Lattice name
     std::string const&
     get_name() const;
+
+    /// Set the Lattice reference particle
+    /// @param reference_particle a Reference_particle
     void
     set_reference_particle(Reference_particle const& reference_particle);
+
+    /// Determine whether the Lattice has a reference particle
     bool
     has_reference_particle() const;
+
+    /// Get the Lattice reference particle
     Reference_particle const&
     get_reference_particle() const;
+
+    /// Append a copy of a Lattice_element.
+    /// @param element a Lattice_element
     void
     append(Lattice_element const& element);
+
+    /// Set the default Element_adaptor_map to be used for elements in the
+    /// Lattice
+    /// @param element_adaptor_map an Element_adaptor_map
     void
     set_default_attributes(Element_adaptor_map const& element_adaptor_map);
+
+    /// Set the default Element_adaptor_map to be used for elements in the
+    /// Lattice to the global default Element_adaptor_map
     void
     set_default_attributes();
+
+    /// Get the list of elements in the Lattice
     Lattice_elements &
     get_elements();
+
+    /// Get the combined length of all the elements in the Lattice
     double
     get_length() const;
+
+    /// Get the total angle in radians subtended by all the elements in the
+    /// Lattice
     double
     get_total_angle() const;
+
+    /// Print a human-readable summary of the elements in the Lattice.
+    /// The Python version of this function is named "print_".
     void
     print() const;
     template<class Archive>
