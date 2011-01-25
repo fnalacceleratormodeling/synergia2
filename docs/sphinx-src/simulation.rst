@@ -1,6 +1,7 @@
 simulation module
 =================
-The simulation module needs a description
+The simulation module contains the classes necessary to perform a simulation
+of a Bunch traversing a Lattice.
 
 ---------
 Classes
@@ -60,7 +61,16 @@ Classes
 .. doxygenclass:: Stepper
     :project: synergia
 
+.. doxygenclass:: Independent_stepper
+    :project: synergia
+
+.. doxygenclass:: Independent_stepper_elements
+    :project: synergia
+
 .. doxygenclass:: Split_operator_stepper
+    :project: synergia
+
+.. doxygenclass:: Split_operator_stepper_elements
     :project: synergia
 
 ---------
