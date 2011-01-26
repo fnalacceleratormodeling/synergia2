@@ -8,6 +8,10 @@ Contents:
 .. toctree::
 	:maxdepth: 2
 
+	overview
+	units
+	code_conventions
+	tools
 	utils
 	foundation
 	bunch
