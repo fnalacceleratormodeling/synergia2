@@ -142,7 +142,7 @@ def get_matched_bunch_transverse_parameters(lattice_simulator,
     p = lattice_simulator.get_lattice().get_reference_particle().get_momentum()
     sigma[4] = rms_z / beta
     sigma[5] = dpop * p
-    r = [r4[0], r4[1], 1.0]
+    r = [r4[0], r4[1], 0.0]
     covariance_matrix = get_covariances(sigma, r)
     means = numpy.zeros((6,), 'd')
     return means, covariance_matrix
