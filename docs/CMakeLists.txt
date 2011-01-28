@@ -1,6 +1,10 @@
+add_custom_target(update_synergia_cfg
+    COMMAND ./update-synergia-cfg)
+
 add_custom_target(doxygen
     /bin/rm -rf xml
     COMMAND doxygen synergia.cfg)
+add_dependencies(doxygen update_synergia_cfg)
 
 add_custom_target(sphinx
     /bin/rm -rf html doctrees
