@@ -1,0 +1,6 @@
+#!/bin/sh
+
+cd `dirname $0`
+header_files=`find ../src -name \*.h | grep -v '/eigen2/' | tr '\n' ' '`
+#echo "header_files=$header_files"
+sed "s%@@header_files@@%$header_files%" synergia.cfg.in > synergia.cfg
