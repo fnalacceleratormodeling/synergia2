@@ -14,7 +14,7 @@ A simulation consists of a series of Steps composed of the application of a
 series of Operators to a macroparticle Bunch.
 Operators are divided into independent and collective.
 Only the former are required to be present. The application of
-Independent_operators consists of one or Independent_operations. Built-in
+Independent_operators consists of one or more Independent_operations. Built-in
 Independent_operations include chef_propagate and chef_map types. The type
 of operation corresponding to a Lattice_element is determined by an
 Operation_extractor_map, which uses information stored in the extractor_type
