@@ -4,25 +4,25 @@ add_executable(test_rectangular_grid_domain test_rectangular_grid_domain.cc)
 target_link_libraries(test_rectangular_grid_domain synergia_collective
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_rectangular_grid_domain test_rectangular_grid_domain)
-#add_test(test_bunch_py nosetests test_bunch.py)
+#add_test(test_bunch_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_bunch.py)
 
 add_executable(test_deposit test_deposit.cc)
 target_link_libraries(test_deposit synergia_collective
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_deposit test_deposit)
-#add_test(test_bunch_py nosetests test_bunch.py)
+#add_test(test_bunch_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_bunch.py)
 
 add_executable(test_rectangular_grid test_rectangular_grid.cc)
 target_link_libraries(test_rectangular_grid synergia_collective
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_rectangular_grid test_rectangular_grid)
-#add_test(test_bunch_py nosetests test_bunch.py)
+#add_test(test_bunch_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_bunch.py)
 
 add_executable(test_distributed_rectangular_grid test_distributed_rectangular_grid.cc)
 target_link_libraries(test_distributed_rectangular_grid synergia_collective
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_distributed_rectangular_grid test_distributed_rectangular_grid)
-#add_test(test_bunch_py nosetests test_bunch.py)
+#add_test(test_bunch_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_bunch.py)
 
 add_executable(test_distributed_rectangular_grid_mpi test_distributed_rectangular_grid_mpi.cc)
 target_link_libraries(test_distributed_rectangular_grid_mpi synergia_collective
@@ -31,7 +31,7 @@ add_test(test_distributed_rectangular_grid_mpi1 ${MPIEXEC} -np 1 test_distribute
 add_test(test_distributed_rectangular_grid_mpi2 ${MPIEXEC} -np 2 test_distributed_rectangular_grid_mpi)
 add_test(test_distributed_rectangular_grid_mpi3 ${MPIEXEC} -np 3 test_distributed_rectangular_grid_mpi)
 add_test(test_distributed_rectangular_grid_mpi4 ${MPIEXEC} -np 4 test_distributed_rectangular_grid_mpi)
-#add_test(test_bunch_py nosetests test_bunch.py)
+#add_test(test_bunch_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_bunch.py)
 
 add_executable(test_space_charge_3d_open_hockney test_space_charge_3d_open_hockney.cc)
 target_link_libraries(test_space_charge_3d_open_hockney synergia_collective

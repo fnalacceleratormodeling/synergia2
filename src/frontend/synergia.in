@@ -41,6 +41,10 @@ if [ x"$1" = x"--ipython" ]; then
 	shift
 fi
 
+if [ x"$1" = x"-c" ]; then
+	exec "$PYTHON_EXECUTABLE" "$@"
+fi
+
 just_options=false
 options_file="`basename \"$1\" .py 2> /dev/null`_options.py"
 if [ -f "$options_file" ]; then
