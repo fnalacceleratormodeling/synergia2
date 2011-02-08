@@ -3,6 +3,7 @@
 #include "synergia/foundation/math_constants.h"
 using mconstants::pi;
 #include "synergia/foundation/physical_constants.h"
+using pconstants::epsilon0;
 #include "deposit.h"
 
 void
@@ -244,7 +245,7 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
     double hy = domain_sptr->get_cell_size()[1];
     double hz = domain_sptr->get_cell_size()[0];
 
-    double G000 = (1.0 / 4.0 * pi) * (3.0 / (2.0 * (sqrt(3.0)) * sqrt(hx * hx
+    double G000 = (3.0 / (2.0 * (sqrt(3.0)) * sqrt(hx * hx
             + hy * hy + hz * hz)));
 
     const int num_images = 8;
@@ -274,7 +275,7 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
                 if ((x == 0.0) && (y == 0.0) && (z == 0.0)) {
                     G = G000;
                 } else {
-                    G = 1.0 / (4.0 * pi * sqrt(x * x + y * y + z * z));
+                    G = 1.0 / sqrt(x * x + y * y + z * z);
                 }
                 if (periodic_z) {
                     throw std::runtime_error(
@@ -476,8 +477,7 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
         }
     }
 
-    double normalization = 1.0 / (4.0 * pi);
-    G2->set_normalization(normalization);
+    G2->set_normalization(1.0);
 
     return G2;
 }
@@ -501,6 +501,11 @@ Space_charge_3d_open_hockney::get_scalar_field2(
             rho2hat);
     distributed_fft3d_sptr->transform(green_fn2.get_grid_points(), G2hat);
 
+    double hx, hy, hz;
+    hx = domain_sptr->get_cell_size()[2];
+    hy = domain_sptr->get_cell_size()[1];
+    hz = domain_sptr->get_cell_size()[0];
+
     for (int i = lower; i < upper; ++i) {
         for (int j = 0; j < cshape[1]; ++j) {
             for (int k = 0; k < cshape[2]; ++k) {
@@ -509,18 +514,20 @@ Space_charge_3d_open_hockney::get_scalar_field2(
         }
     }
 
+    double normalization = hx * hy * hz / ( 4.0 * pi * epsilon0);
+
     Distributed_rectangular_grid_sptr phi2(new Distributed_rectangular_grid(
             doubled_domain_sptr, lower, upper,
             distributed_fft3d_sptr->get_padded_shape_real()));
     distributed_fft3d_sptr->inv_transform(phi2hat, phi2->get_grid_points());
 
-    double normalization = 1.0;
     normalization *= charge_density2.get_normalization();
     normalization *= green_fn2.get_normalization();
     std::vector<int > shape(distributed_fft3d_sptr->get_padded_shape_real());
+    // normalization factor for FFT
     normalization *= 1.0 / (shape[0] * shape[1] * shape[2]);
     phi2->set_normalization(normalization);
-
+    
     return phi2;
 }
 
@@ -542,6 +549,7 @@ Space_charge_3d_open_hockney::extract_scalar_field(
         }
     }
     phi->set_normalization(phi2.get_normalization());
+
     return phi;
 }
 
@@ -552,6 +560,7 @@ Space_charge_3d_open_hockney::get_electric_field_component(
     Distributed_rectangular_grid_sptr En(new Distributed_rectangular_grid(
             domain_sptr, phi.get_lower(), phi.get_upper()));
     MArray3d_ref En_a(En->get_grid_points());
+    MArray3d_ref phi_a(phi.get_grid_points());
     int lower_limit, upper_limit;
     if (component == 0) {
         lower_limit = En->get_lower_guard();
@@ -587,7 +596,8 @@ Space_charge_3d_open_hockney::get_electric_field_component(
                     left[component] = center[component] - 1;
                     delta = 2.0 * cell_size;
                 }
-                En_a(center) = (En_a(right) - En_a(left)) / delta;
+                //En_a(center) = (En_a(right) - En_a(left)) / delta;
+                En_a(center) = (phi_a(right) - phi_a(left)) / delta;
             }
         }
     }
@@ -675,7 +685,7 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
     Distributed_rectangular_grid_sptr rho2(get_global_charge_density2(
             *local_rho)); // [C/m^3]
     local_rho.reset();
-    Distributed_rectangular_grid_sptr G2(get_green_fn2_pointlike()); // [1/m^3]
+    Distributed_rectangular_grid_sptr G2(get_green_fn2_pointlike()); // [1/m]
     Distributed_rectangular_grid_sptr phi2(get_scalar_field2(*rho2, *G2)); // [V]
     rho2.reset();
     G2.reset();

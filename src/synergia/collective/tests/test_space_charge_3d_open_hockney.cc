@@ -486,7 +486,7 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Spherical_bunch_fixture)
         }
     }
     Distributed_rectangular_grid_sptr
-            G2(space_charge.get_green_fn2_pointlike()); // [1/m^3]
+            G2(space_charge.get_green_fn2_pointlike()); // [1/m]
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
             *rho2, *G2)); // [V]
 
