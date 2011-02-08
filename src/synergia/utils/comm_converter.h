@@ -1,7 +1,16 @@
 #ifndef COMM_CONVERTER_H_
 #define COMM_CONVERTER_H_
 
+// begin workaround for using mpi4py using MPI-1
+#include <mpi.h>
+#if MPI_VERSION < 2
+  typedef void* MPI_Win;
+  typedef void* MPI_File;
+#endif
+// end workaround
+
 #include <mpi4py/mpi4py.h>
+
 #include <boost/python.hpp>
 #include "synergia/utils/commxx.h"
 
