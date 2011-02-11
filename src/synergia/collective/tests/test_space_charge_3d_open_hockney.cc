@@ -1,4 +1,5 @@
 #define BOOST_TEST_MAIN
+#include <algorithm>
 #include <boost/test/unit_test.hpp>
 #include "synergia/collective/space_charge_3d_open_hockney.h"
 #include "synergia/foundation/math_constants.h"
@@ -433,6 +434,44 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_pointlike, Ellipsoidal_bunch_fixture)
     space_charge.update_domain(bunch);
     Distributed_rectangular_grid_sptr
             G2(space_charge.get_green_fn2_pointlike());
+    MArray3d_ref G2_a(G2->get_grid_points());
+    int imirror, jmirror, kmirror;
+    double z, y, x;
+    int i_max = std::min(G2->get_lower(),
+            G2->get_domain_sptr()->get_grid_shape()[0] / 2);
+    double G000 = (3.0 / (2.0 * (sqrt(3.0)) * sqrt(
+            G2->get_domain_sptr()->get_cell_size()[0]
+                    * G2->get_domain_sptr()->get_cell_size()[0]
+                    + G2->get_domain_sptr()->get_cell_size()[1]
+                            * G2->get_domain_sptr()->get_cell_size()[1]
+                    + G2->get_domain_sptr()->get_grid_shape()[2]
+                            * G2->get_domain_sptr()->get_grid_shape()[2])));
+    for (int i = G2->get_lower(); i < i_max; ++i) {
+        z = i * G2->get_domain_sptr()->get_cell_size()[0];
+        imirror = G2->get_domain_sptr()->get_grid_shape()[0] - i;
+        for (int j = 0; j < G2->get_domain_sptr()->get_grid_shape()[1] / 2; ++j) {
+            y = j * G2->get_domain_sptr()->get_cell_size()[1];
+            jmirror = G2->get_domain_sptr()->get_grid_shape()[1] - j;
+            for (int k = 0; k < G2->get_domain_sptr()->get_grid_shape()[2] / 2; ++k) {
+                x = k * G2->get_domain_sptr()->get_cell_size()[2];
+                kmirror = G2->get_domain_sptr()->get_grid_shape()[2] - k;
+                double G;
+                if ((i == 0) && (j == 0) && (k == 0)) {
+                    G = G000;
+                } else {
+                    G = 1 / std::sqrt(x * x + y * y + z * z);
+                }
+                BOOST_CHECK_CLOSE(G2_a[i][j][k], G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[imirror][j][k], G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[imirror][jmirror][k], G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[imirror][jmirror][kmirror], G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[imirror][j][kmirror], G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[i][jmirror][k], G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[i][jmirror][kmirror], G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[i][j][kmirror], G, tolerance);
+            }
+        }
+    }
 }
 
 BOOST_FIXTURE_TEST_CASE(get_green_fn2_no_domain, Ellipsoidal_bunch_fixture)
@@ -524,7 +563,8 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2, Ellipsoidal_bunch_fixture)
     Distributed_rectangular_grid_sptr rho2(
             space_charge.get_global_charge_density2(*local_rho)); // [C/m^3]
     local_rho.reset();
-    Distributed_rectangular_grid_sptr G2(space_charge.get_green_fn2_pointlike()); // [1/m^3]
+    Distributed_rectangular_grid_sptr
+            G2(space_charge.get_green_fn2_pointlike()); // [1/m^3]
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
             *rho2, *G2)); // [V]
 }
@@ -542,7 +582,8 @@ BOOST_FIXTURE_TEST_CASE(extract_scalar_field, Ellipsoidal_bunch_fixture)
     Distributed_rectangular_grid_sptr rho2(
             space_charge.get_global_charge_density2(*local_rho)); // [C/m^3]
     local_rho.reset();
-    Distributed_rectangular_grid_sptr G2(space_charge.get_green_fn2_pointlike()); // [1/m^3]
+    Distributed_rectangular_grid_sptr
+            G2(space_charge.get_green_fn2_pointlike()); // [1/m^3]
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
             *rho2, *G2)); // [V]
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
@@ -557,7 +598,8 @@ BOOST_FIXTURE_TEST_CASE(get_electric_field_component, Ellipsoidal_bunch_fixture)
     Distributed_rectangular_grid_sptr rho2(
             space_charge.get_global_charge_density2(*local_rho)); // [C/m^3]
     local_rho.reset();
-    Distributed_rectangular_grid_sptr G2(space_charge.get_green_fn2_pointlike()); // [1/m^3]
+    Distributed_rectangular_grid_sptr
+            G2(space_charge.get_green_fn2_pointlike()); // [1/m^3]
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
             *rho2, *G2)); // [V]
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
