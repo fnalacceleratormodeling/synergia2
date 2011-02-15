@@ -251,7 +251,6 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
     const int num_images = 8;
     int mix, miy; // mirror indices for x- and y-planes
     double x, y, z, G;
-    const double epsz = 1.0e-12 * hz;
 
     for (int iz = lower; iz < upper; ++iz) {
         if (iz > grid_shape[0]) {
@@ -527,7 +526,7 @@ Space_charge_3d_open_hockney::get_scalar_field2(
     // normalization factor for FFT
     normalization *= 1.0 / (shape[0] * shape[1] * shape[2]);
     phi2->set_normalization(normalization);
-    
+
     return phi2;
 }
 
