@@ -1,5 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <algorithm>
+#include <gsl/gsl_sf_erf.h>
 #include <boost/test/unit_test.hpp>
 #include "synergia/collective/space_charge_3d_open_hockney.h"
 #include "synergia/foundation/math_constants.h"
@@ -47,7 +48,6 @@ struct Ellipsoidal_bunch_fixture
         grid_shape[0] = 16;
         grid_shape[1] = 24;
         grid_shape[2] = 32;
-
     }
 
     ~Ellipsoidal_bunch_fixture()
@@ -90,7 +90,6 @@ struct Spherical_bunch_fixture
         grid_shape[0] = 16;
         grid_shape[1] = 24;
         grid_shape[2] = 32;
-
     }
 
     ~Spherical_bunch_fixture()
@@ -435,9 +434,10 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_pointlike, Ellipsoidal_bunch_fixture)
     Distributed_rectangular_grid_sptr
             G2(space_charge.get_green_fn2_pointlike());
     MArray3d_ref G2_a(G2->get_grid_points());
+    double norm = G2->get_normalization();
     int imirror, jmirror, kmirror;
     double z, y, x;
-    int i_max = std::min(G2->get_lower(),
+    int i_max = std::min(G2->get_upper(),
             G2->get_domain_sptr()->get_grid_shape()[0] / 2);
     double G000 = (3.0 / (2.0 * (sqrt(3.0)) * sqrt(
             G2->get_domain_sptr()->get_cell_size()[0]
@@ -461,14 +461,14 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_pointlike, Ellipsoidal_bunch_fixture)
                 } else {
                     G = 1 / std::sqrt(x * x + y * y + z * z);
                 }
-                BOOST_CHECK_CLOSE(G2_a[i][j][k], G, tolerance);
-                BOOST_CHECK_CLOSE(G2_a[imirror][j][k], G, tolerance);
-                BOOST_CHECK_CLOSE(G2_a[imirror][jmirror][k], G, tolerance);
-                BOOST_CHECK_CLOSE(G2_a[imirror][jmirror][kmirror], G, tolerance);
-                BOOST_CHECK_CLOSE(G2_a[imirror][j][kmirror], G, tolerance);
-                BOOST_CHECK_CLOSE(G2_a[i][jmirror][k], G, tolerance);
-                BOOST_CHECK_CLOSE(G2_a[i][jmirror][kmirror], G, tolerance);
-                BOOST_CHECK_CLOSE(G2_a[i][j][kmirror], G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[i][j][k]*norm, G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[imirror][j][k]*norm, G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[imirror][jmirror][k]*norm, G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[imirror][jmirror][kmirror]*norm, G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[imirror][j][kmirror]*norm, G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[i][jmirror][k]*norm, G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[i][jmirror][kmirror]*norm, G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[i][j][kmirror]*norm, G, tolerance);
             }
         }
     }
@@ -507,6 +507,14 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Spherical_bunch_fixture)
     // jfa: end debug
     Distributed_rectangular_grid_sptr rho2 =
             space_charge.get_global_charge_density2(*local_rho); // [C/m^3]
+    std::vector<int > doubled_shape(rho2->get_domain_sptr()->get_grid_shape());
+    for (int i = 0; i < doubled_shape[0]; ++i) {
+        for (int j = 0; j < doubled_shape[1]; ++j) {
+            for (int k = 0; k < doubled_shape[2]; ++k) {
+                rho2->get_grid_points()[i][j][k] = 0.0;
+            }
+        }
+    }
     std::vector<int > nondoubled_shape(
             local_rho->get_domain_sptr()->get_grid_shape());
     double Q = bunch.get_real_num() * bunch.get_particle_charge()
@@ -528,12 +536,49 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Spherical_bunch_fixture)
             G2(space_charge.get_green_fn2_pointlike()); // [1/m]
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
             *rho2, *G2)); // [V]
-
+    Distributed_rectangular_grid phi_exact(phi2->get_domain_sptr(),
+            phi2->get_lower(), phi2->get_upper());
+    const double solution_tolerance = 1.0e-3;
+    double max_fractional_error = -2.0;
+    double min_fractional_error = 2.0;
+    for (int i = phi2->get_lower(); i < std::min(phi2->get_upper(),
+            nondoubled_shape[0]); ++i) {
+        for (int j = 0; j < nondoubled_shape[1]; ++j) {
+            for (int k = 0; k < nondoubled_shape[2]; ++k) {
+                double z, y, x;
+                local_rho->get_domain_sptr()->get_cell_coordinates(i, j, k, z,
+                        y, x);
+                double r = std::sqrt(x * x + y * y + z * z);
+                double phi_exact_ijk = Q
+                        / (4.0 * pi * pconstants::epsilon0 * r) * gsl_sf_erf(r
+                        / (std::sqrt(2.0) * sigma));
+                phi_exact.get_grid_points()[i][j][k] = phi_exact_ijk;
+                double phi_calc_ijk = phi2->get_grid_points()[i][j][k]
+                        * phi2->get_normalization();
+                double fractional_error = (phi_calc_ijk - phi_exact_ijk)
+                        / phi_exact_ijk;
+                if (fractional_error > max_fractional_error) {
+                    max_fractional_error = fractional_error;
+                }
+                if (fractional_error < min_fractional_error) {
+                    min_fractional_error = fractional_error;
+                }
+                //                BOOST_CHECK_CLOSE(phi_calc_ijk, phi_exact_ijk, solution_tolerance);
+            }
+        }
+    }
     // jfa: begin debug
     hid_t file2 = H5Fcreate("phi2.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     Hdf5_writer<MArray3d_ref > (file2, "phi2").write(phi2->get_grid_points());
     Hdf5_writer<double > (file2, "normphi2").write(phi2->get_normalization());
     H5Fclose(file2);
+    hid_t file2e = H5Fcreate("phi_exact.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
+            H5P_DEFAULT);
+    Hdf5_writer<MArray3d_ref > (file2e, "phi_exact").write(
+            phi_exact.get_grid_points());
+    Hdf5_writer<double > (file2e, "normphi_exact").write(
+            phi_exact.get_normalization());
+    H5Fclose(file2e);
     hid_t file3 = H5Fcreate("G2.h5", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     Hdf5_writer<MArray3d_ref > (file3, "G2").write(G2->get_grid_points());
     Hdf5_writer<double > (file3, "normG2").write(G2->get_normalization());
@@ -553,6 +598,9 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Spherical_bunch_fixture)
 
     H5Fclose(file);
     // jfa: end debug
+    std::cout << "max_fractional_error = " << max_fractional_error << std::endl;
+    std::cout << "min_fractional_error = " << min_fractional_error << std::endl;
+    BOOST_CHECK(std::abs(max_fractional_error) < solution_tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_scalar_field2, Ellipsoidal_bunch_fixture)
@@ -564,7 +612,7 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2, Ellipsoidal_bunch_fixture)
             space_charge.get_global_charge_density2(*local_rho)); // [C/m^3]
     local_rho.reset();
     Distributed_rectangular_grid_sptr
-            G2(space_charge.get_green_fn2_pointlike()); // [1/m^3]
+            G2(space_charge.get_green_fn2_pointlike()); // [1/m]
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
             *rho2, *G2)); // [V]
 }
@@ -583,7 +631,7 @@ BOOST_FIXTURE_TEST_CASE(extract_scalar_field, Ellipsoidal_bunch_fixture)
             space_charge.get_global_charge_density2(*local_rho)); // [C/m^3]
     local_rho.reset();
     Distributed_rectangular_grid_sptr
-            G2(space_charge.get_green_fn2_pointlike()); // [1/m^3]
+            G2(space_charge.get_green_fn2_pointlike()); // [1/m]
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
             *rho2, *G2)); // [V]
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
@@ -599,7 +647,7 @@ BOOST_FIXTURE_TEST_CASE(get_electric_field_component, Ellipsoidal_bunch_fixture)
             space_charge.get_global_charge_density2(*local_rho)); // [C/m^3]
     local_rho.reset();
     Distributed_rectangular_grid_sptr
-            G2(space_charge.get_green_fn2_pointlike()); // [1/m^3]
+            G2(space_charge.get_green_fn2_pointlike()); // [1/m]
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
             *rho2, *G2)); // [V]
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
