@@ -502,7 +502,7 @@ gaussian_charge_density(double Q, double r2, double sigma)
     return Q / pow(sigma * sqrt(2 * pi), 3) * exp(-r2 / (2 * sigma * sigma));
 }
 
-// Electric potential due to spherical Gaussian charge density [V/m]
+// Electric potential due to spherical Gaussian charge density [V]
 double
 gaussian_electric_potential(double Q, double r, double sigma)
 {
