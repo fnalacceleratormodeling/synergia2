@@ -605,11 +605,6 @@ BOOST_FIXTURE_TEST_CASE(extract_scalar_field, Ellipsoidal_bunch_fixture)
     Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
     Rectangular_grid_sptr local_rho(
             space_charge.get_local_charge_density(bunch)); // [C/m^3]
-    hid_t file0 = H5Fcreate("local_rho.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
-    Hdf5_writer<MArray3d_ref > (file0, "rho").write(
-            local_rho->get_grid_points());
-    H5Fclose(file0);
     Distributed_rectangular_grid_sptr rho2(
             space_charge.get_global_charge_density2(*local_rho)); // [C/m^3]
     local_rho.reset();
@@ -619,6 +614,19 @@ BOOST_FIXTURE_TEST_CASE(extract_scalar_field, Ellipsoidal_bunch_fixture)
             *rho2, *G2)); // [V]
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
             *phi2));
+    std::vector<int > nondoubled_shape(
+            space_charge.get_domain_sptr()->get_grid_shape());
+    for (int i = phi2->get_lower(); i < std::min(phi2->get_upper(),
+            nondoubled_shape[0]); ++i) {
+        for (int j = 0; j < nondoubled_shape[1]; ++j) {
+            for (int k = 0; k < nondoubled_shape[2]; ++k) {
+                BOOST_CHECK_CLOSE(
+                        phi2->get_grid_points()[i][j][k]*phi2->get_normalization(),
+                        phi->get_grid_points()[i][j][k]*phi->get_normalization(),
+                        tolerance);
+            }
+        }
+    }
 }
 
 BOOST_FIXTURE_TEST_CASE(get_electric_field_component, Ellipsoidal_bunch_fixture)
