@@ -495,12 +495,14 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_no_domain, Ellipsoidal_bunch_fixture)
     BOOST_CHECK(caught_error == true);
 }
 
+// Spherical Gaussian charge density [C/m^3]
 double
 gaussian_charge_density(double Q, double r2, double sigma)
 {
     return Q / pow(sigma * sqrt(2 * pi), 3) * exp(-r2 / (2 * sigma * sigma));
 }
 
+// Electric potential due to spherical Gaussian charge density [V/m]
 double
 gaussian_electric_potential(double Q, double r, double sigma)
 {
