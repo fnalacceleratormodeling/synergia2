@@ -105,6 +105,12 @@ BOOST_FIXTURE_TEST_CASE(get_padded_shape_complex, Fixture)
     BOOST_CHECK_EQUAL(got_shape[2], shape[2] / 2 + 1);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_roundtrip_normalization, Fixture)
+{
+    double normalization = distributed_fft3d.get_roundtrip_normalization();
+    BOOST_CHECK_EQUAL(normalization, 1.0/(shape[0]*shape[1]*shape[2]));
+}
+
 const double tolerance = 1.0e-12;
 BOOST_FIXTURE_TEST_CASE(transform_roundtrip, Fixture)
 {
@@ -124,11 +130,11 @@ BOOST_FIXTURE_TEST_CASE(transform_roundtrip, Fixture)
 
     distributed_fft3d.transform(rarray, carray);
     distributed_fft3d.inv_transform(carray, rarray);
-    double norm = shape[0] * shape[1] * shape[2];
     for (int j = 0; j < shape[0]; ++j) {
         for (int k = 0; k < shape[1]; ++k) {
             for (int l = 0; l < shape[2]; ++l) {
-                rarray[j][k][l] *= 1.0 / norm;
+                rarray[j][k][l]
+                        *= distributed_fft3d.get_roundtrip_normalization();
             }
         }
     }

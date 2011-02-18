@@ -275,6 +275,12 @@ Distributed_fft3d::inv_transform(MArray3dc_ref & in, MArray3d_ref & out)
 #endif //USE_FFTW2
 }
 
+double
+Distributed_fft3d::get_roundtrip_normalization() const
+{
+    return 1.0 / (shape[0] * shape[1] * shape[2]);
+}
+
 Distributed_fft3d::~Distributed_fft3d()
 {
 #ifdef USE_FFTW2
