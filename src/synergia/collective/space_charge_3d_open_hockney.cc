@@ -535,9 +535,7 @@ Space_charge_3d_open_hockney::get_scalar_field2(
 
     normalization *= charge_density2.get_normalization();
     normalization *= green_fn2.get_normalization();
-    std::vector<int > shape(distributed_fft3d_sptr->get_padded_shape_real());
-    // normalization factor for FFT
-    normalization *= 1.0 / (shape[0] * shape[1] * shape[2]);
+    normalization *= distributed_fft3d_sptr->get_roundtrip_normalization();
     phi2->set_normalization(normalization);
 
     return phi2;
