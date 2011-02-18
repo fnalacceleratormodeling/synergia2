@@ -6,6 +6,7 @@
 #include "synergia/foundation/math_constants.h"
 using mconstants::pi;
 #include "synergia/foundation/physical_constants.h"
+using pconstants::epsilon0;
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/populate.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
@@ -499,15 +500,27 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_no_domain, Ellipsoidal_bunch_fixture)
 double
 gaussian_charge_density(double Q, double r2, double sigma)
 {
-    return Q / pow(sigma * sqrt(2 * pi), 3) * exp(-r2 / (2 * sigma * sigma));
+    return Q / pow(sigma * std::sqrt(2 * pi), 3) * exp(-r2
+            / (2 * sigma * sigma));
 }
 
 // Electric potential due to spherical Gaussian charge density [V]
 double
 gaussian_electric_potential(double Q, double r, double sigma)
 {
-    return Q / (4.0 * pi * pconstants::epsilon0 * r) * gsl_sf_erf(r
-            / (std::sqrt(2.0) * sigma));
+    return Q / (4.0 * pi * epsilon0 * r) * gsl_sf_erf(r / (std::sqrt(2.0)
+            * sigma));
+}
+
+// Electric field component due to spherical Gaussian charge density [V]
+// Since all components are the same, we don't pretend to distinguish
+// between them.
+double
+gaussian_electric_field_component(double Q, double r, double sigma, double x)
+{
+    return Q * x / (4.0 * pi * epsilon0 * r * r * r) * (std::sqrt(2.0) * r
+            / (std::sqrt(pi) * sigma) * exp(-r * r / (2 * sigma * sigma))
+            - gsl_sf_erf(r / (std::sqrt(2.0) * sigma)));
 }
 
 Distributed_rectangular_grid_sptr
@@ -598,6 +611,7 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Spherical_bunch_fixture)
     //    min_fractional_error = -0.00017682
     const double solution_tolerance = 2.0e-2;
     BOOST_CHECK(std::abs(max_fractional_error) < solution_tolerance);
+    BOOST_CHECK(std::abs(min_fractional_error) < solution_tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(extract_scalar_field, Ellipsoidal_bunch_fixture)
@@ -629,26 +643,60 @@ BOOST_FIXTURE_TEST_CASE(extract_scalar_field, Ellipsoidal_bunch_fixture)
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(get_electric_field_component, Ellipsoidal_bunch_fixture)
+BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
+        Spherical_bunch_fixture)
 {
     Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
-    Rectangular_grid_sptr local_rho(
-            space_charge.get_local_charge_density(bunch)); // [C/m^3]
-    Distributed_rectangular_grid_sptr rho2(
-            space_charge.get_global_charge_density2(*local_rho)); // [C/m^3]
-    local_rho.reset();
+    Distributed_rectangular_grid_sptr rho2(get_gaussian_rho2(space_charge,
+            bunch, sigma));
+    double Q = bunch.get_real_num() * bunch.get_particle_charge()
+            * pconstants::e;
     Distributed_rectangular_grid_sptr
             G2(space_charge.get_green_fn2_pointlike()); // [1/m]
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
             *rho2, *G2)); // [V]
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
             *phi2));
-    // Normally, we would have to fill guards here, but this test is assumed
-    // to run on a single processor, so no fill is necessary
-    int component = 1;
-    Distributed_rectangular_grid_sptr local_En(
-            space_charge.get_electric_field_component(*phi, component)); // [V/m]
-    // jfa: n.b. this test is incomplete
+    phi->fill_guards(comm);
+    for (int component = 0; component < 3; ++component) {
+        Distributed_rectangular_grid_sptr local_En(
+                space_charge.get_electric_field_component(*phi, component)); // [V/m]
+        double max_fractional_error = -2.0;
+        double min_fractional_error = 2.0;
+        for (int i = local_En->get_lower(); i < local_En->get_upper(); ++i) {
+            for (int j = 0; j
+                    < local_En->get_domain_sptr()->get_grid_shape()[1]; ++j) {
+                for (int k = 0; k
+                        < local_En->get_domain_sptr()->get_grid_shape()[2]; ++k) {
+                    double z, y, x;
+                    local_En->get_domain_sptr()->get_cell_coordinates(i, j, k,
+                            z, y, x);
+                    double r = std::sqrt(x * x + y * y + z * z);
+                    double En_exact_ijk = gaussian_electric_field_component(Q,
+                            r, sigma, x);
+                    double En_calc_ijk = local_En->get_grid_points()[i][j][k]
+                            * local_En->get_normalization();
+                    double fractional_error = (En_calc_ijk - En_exact_ijk)
+                            / En_exact_ijk;
+                    if (fractional_error > max_fractional_error) {
+                        max_fractional_error = fractional_error;
+                    }
+                    if (fractional_error < min_fractional_error) {
+                        min_fractional_error = fractional_error;
+                    }
+                }
+            }
+        }
+        std::cout << "max_fractional_error = " << max_fractional_error
+                << std::endl;
+        std::cout << "min_fractional_error = " << min_fractional_error
+                << std::endl;
+
+        // on the development machine, I get
+        const double field_tolerance = 5.0e-2;
+        BOOST_CHECK(std::abs(max_fractional_error) < field_tolerance);
+        BOOST_CHECK(std::abs(min_fractional_error) < field_tolerance);
+    }
 }
 
 BOOST_FIXTURE_TEST_CASE(apply, Ellipsoidal_bunch_fixture)
