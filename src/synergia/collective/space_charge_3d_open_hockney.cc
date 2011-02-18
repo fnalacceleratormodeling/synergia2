@@ -6,6 +6,8 @@ using mconstants::pi;
 using pconstants::epsilon0;
 #include "deposit.h"
 
+#include <algorithm>
+
 void
 Space_charge_3d_open_hockney::setup_nondoubled_communication()
 {
@@ -245,36 +247,53 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
     double hy = domain_sptr->get_cell_size()[1];
     double hz = domain_sptr->get_cell_size()[0];
 
-    double G000 = (3.0 / (2.0 * (sqrt(3.0)) * sqrt(hx * hx
-            + hy * hy + hz * hz)));
+    // G000 is naively infinite. In the correct approach, it should be
+    // the value which gives the proper integral when convolved with the
+    // charge density. Even assuming a constant charge density, the proper
+    // value for G000 cannot be computed in closed form. Fortunately,
+    // the solver results are insensitive to the exact value of G000.
+    // I make the following argument: G000 should be greater than any of
+    // the neighboring values of G. The form
+    //    G000 = coeff/min(hx,hy,hz),
+    // with
+    //    coeff > 1
+    // satisfies the criterion. An empirical study (see the 3d_open_hockney.py
+    // script in docs/devel/solvers) gives coeff = 2.8.
+    const double coeff = 2.8;
+    double G000 = coeff / std::min(hx, std::min(hy, hz));
 
     const int num_images = 8;
     int mix, miy; // mirror indices for x- and y-planes
-    double x, y, z, G;
+    double dx, dy, dz, G;
 
+    // In the following loops we use mirroring for ix and iy, but
+    // calculate all iz values separately because the mirror points in
+    // iz may be on another processor.
+    // Note that the doubling algorithm is not quite symmetric. For
+    // example, the doubled grid for 4 points in 1d looks like
+    //    0 1 2 3 4 3 2 1
     for (int iz = lower; iz < upper; ++iz) {
         if (iz > grid_shape[0]) {
-            z = (doubled_grid_shape[0] - iz) * hz;
+            dz = (doubled_grid_shape[0] - iz) * hz;
         } else {
-            z = iz * hz;
+            dz = iz * hz;
         }
-        for (int iy = 0; iy <= grid_shape[1]; ++iy) {
-            y = iy * hy;
+        for (int iy = 0; iy < grid_shape[1] + 1; ++iy) {
+            dy = iy * hy;
             miy = doubled_grid_shape[1] - iy;
-            if (miy == grid_shape[1]) {
-                miy = doubled_grid_shape[1]; // will get thrown away
+            if (miy == doubled_grid_shape[1]) {
+                miy = iy;
             }
-            for (int ix = 0; ix <= grid_shape[2]; ++ix) {
-                x = ix * hx;
+            for (int ix = 0; ix < grid_shape[2] + 1; ++ix) {
+                dx = ix * hx;
                 mix = doubled_grid_shape[2] - ix;
-                if (mix == grid_shape[2]) {
-                    mix = doubled_grid_shape[2]; // will get thrown away
+                if (mix == doubled_grid_shape[2]) {
+                    mix = ix;
                 }
-
-                if ((x == 0.0) && (y == 0.0) && (z == 0.0)) {
+                if ((ix == 0) && (iy == 0) && (iz == 0)) {
                     G = G000;
                 } else {
-                    G = 1.0 / sqrt(x * x + y * y + z * z);
+                    G = 1.0 / sqrt(dx * dx + dy * dy + dz * dz);
                 }
                 if (periodic_z) {
                     throw std::runtime_error(
@@ -286,15 +305,9 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
 
                 G2->get_grid_points()[iz][iy][ix] = G;
                 // three mirror images
-                if (miy < doubled_grid_shape[1]) {
-                    G2->get_grid_points()[iz][miy][ix] = G;
-                    if (mix < doubled_grid_shape[2]) {
-                        G2->get_grid_points()[iz][miy][mix] = G;
-                    }
-                }
-                if (mix < doubled_grid_shape[2]) {
-                    G2->get_grid_points()[iz][iy][mix] = G;
-                }
+                G2->get_grid_points()[iz][miy][ix] = G;
+                G2->get_grid_points()[iz][miy][mix] = G;
+                G2->get_grid_points()[iz][iy][mix] = G;
             }
         }
     }
@@ -513,7 +526,7 @@ Space_charge_3d_open_hockney::get_scalar_field2(
         }
     }
 
-    double normalization = hx * hy * hz / ( 4.0 * pi * epsilon0);
+    double normalization = hx * hy * hz / (4.0 * pi * epsilon0);
 
     Distributed_rectangular_grid_sptr phi2(new Distributed_rectangular_grid(
             doubled_domain_sptr, lower, upper,
