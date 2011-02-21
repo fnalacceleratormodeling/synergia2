@@ -1,4 +1,4 @@
-#!/usr/bin/env
+#!/usr/bin/env python
 
 import os
 import re
@@ -6,6 +6,7 @@ import string
 import time
 import commands
 import sys
+import shutil
 
 def find_ctesttestfiles(dir):
     matches = []
@@ -59,7 +60,7 @@ class Test:
         dots = '...................................................................'
         num_dots = 78 - len(beginning) - len(end)
         print "%s %s %s" % (beginning, dots[0:num_dots], end)
-        return status
+        return status, output
 
 def extract_tests(ctesttestfile):
     f = open(ctesttestfile, 'r')
@@ -82,16 +83,21 @@ if __name__ == '__main__':
     for cttfile in cttfiles:
         tests = extract_tests(cttfile)
         all_tests.extend(tests)
+    logdir = os.path.abspath('./ctest_python_logs')
+    if os.path.exists(logdir):
+        shutil.rmtree(logdir)
+    os.mkdir(logdir)
     count = 0
     errors = []
     error_names = []
     t0 = time.time()
     for test in all_tests:
         count += 1
-        status = test.run(count, len(all_tests))
+        status, output = test.run(count, len(all_tests))
         if status:
             errors.append(count)
             error_names.append(test.name)
+        open(os.path.join(logdir, '%d.log' % count), 'w').write(output + '\n')
     t1 = time.time()
 
     print
