@@ -46,8 +46,6 @@ template<typename T>
     {
     }
 
-#include "hdf5_writer.h"
-
 template<>
     Hdf5_writer<MArray1d_ref >::Hdf5_writer(hid_t & file,
             std::string const& name);
@@ -85,16 +83,13 @@ template<>
     Hdf5_writer<MArray3d_ref >::get_data_ptr(MArray3d_ref const& data);
 
 template<>
-    Hdf5_writer<MArray1d >::Hdf5_writer(hid_t & file,
-            std::string const& name);
+    Hdf5_writer<MArray1d >::Hdf5_writer(hid_t & file, std::string const& name);
 
 template<>
-    Hdf5_writer<MArray2d >::Hdf5_writer(hid_t & file,
-            std::string const& name);
+    Hdf5_writer<MArray2d >::Hdf5_writer(hid_t & file, std::string const& name);
 
 template<>
-    Hdf5_writer<MArray3d >::Hdf5_writer(hid_t & file,
-            std::string const& name);
+    Hdf5_writer<MArray3d >::Hdf5_writer(hid_t & file, std::string const& name);
 
 template<>
     void
