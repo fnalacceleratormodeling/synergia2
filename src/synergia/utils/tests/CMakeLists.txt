@@ -13,6 +13,10 @@ add_executable(test_hdf5_writer test_hdf5_writer.cc)
 target_link_libraries(test_hdf5_writer synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_hdf5_writer test_hdf5_writer)
 
+add_executable(test_hdf5_file test_hdf5_file.cc)
+target_link_libraries(test_hdf5_file synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_hdf5_file test_hdf5_file)
+
 add_executable(test_hdf5_serial_writer test_hdf5_serial_writer.cc)
 target_link_libraries(test_hdf5_serial_writer synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_hdf5_serial_writer test_hdf5_serial_writer)
@@ -51,6 +55,8 @@ set(CLEAN_FILES
     justarray3d.h5
     justdouble.h5
     justinteger.h5
+    hdf5_file_empty.h5
+    hdf5_file_write.h5
     a.xml
     multi_array1d.xml
     multi_array2d.xml)
