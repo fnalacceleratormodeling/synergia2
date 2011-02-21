@@ -606,11 +606,11 @@ Space_charge_3d_open_hockney::get_electric_field_component(
                     left[component] = center[component] - 1;
                     delta = 2.0 * cell_size;
                 }
-                //En_a(center) = (En_a(right) - En_a(left)) / delta;
                 En_a(center) = (phi_a(right) - phi_a(left)) / delta;
             }
         }
     }
+    En->set_normalization(phi.get_normalization());
     return En;
 }
 

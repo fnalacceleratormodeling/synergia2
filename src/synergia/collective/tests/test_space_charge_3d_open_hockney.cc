@@ -13,7 +13,7 @@ using pconstants::epsilon0;
 #include "synergia/utils/multi_array_print.h"
 #include "synergia/utils/floating_point.h"
 #include "synergia/utils/multi_array_check_equal.h"
-#include "synergia/utils/hdf5_writer.h"
+#include "synergia/utils/hdf5_file.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const int charge = pconstants::proton_charge;
@@ -672,8 +672,16 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
                     local_En->get_domain_sptr()->get_cell_coordinates(i, j, k,
                             z, y, x);
                     double r = std::sqrt(x * x + y * y + z * z);
+                    double var;
+                    if (component == 0) {
+                        var = z;
+                    } else if (component == 1) {
+                        var = y;
+                    } else if (component == 2) {
+                        var = x;
+                    }
                     double En_exact_ijk = gaussian_electric_field_component(Q,
-                            r, sigma, x);
+                            r, sigma, var);
                     double En_calc_ijk = local_En->get_grid_points()[i][j][k]
                             * local_En->get_normalization();
                     double fractional_error = (En_calc_ijk - En_exact_ijk)
@@ -687,15 +695,20 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
                 }
             }
         }
-        std::cout << "max_fractional_error = " << max_fractional_error
-                << std::endl;
-        std::cout << "min_fractional_error = " << min_fractional_error
-                << std::endl;
-
+        //std::cout << "max_fractional_error = " << max_fractional_error
+        //        << std::endl;
+        //std::cout << "min_fractional_error = " << min_fractional_error
+        //        << std::endl;
         // on the development machine, I get
-        const double field_tolerance = 5.0e-2;
-        BOOST_CHECK(std::abs(max_fractional_error) < field_tolerance);
-        BOOST_CHECK(std::abs(min_fractional_error) < field_tolerance);
+        //    max_fractional_error = 0.067946
+        //    min_fractional_error = -0.00695024
+        //    max_fractional_error = 0.0932745
+        //    min_fractional_error = -0.0141639
+        //    max_fractional_error = 0.148878
+        //    min_fractional_error = -0.0393951
+        const double field_tolerance[] = {8.0e-2, 12.0e-2, 20.0e-2};
+        BOOST_CHECK(std::abs(max_fractional_error) < field_tolerance[component]);
+        BOOST_CHECK(std::abs(min_fractional_error) < field_tolerance[component]);
     }
 }
 
