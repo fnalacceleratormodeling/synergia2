@@ -57,6 +57,8 @@ public:
     transform(MArray3d_ref & in, MArray3dc_ref & out);
     void
     inv_transform(MArray3dc_ref & in, MArray3d_ref & out);
+    double
+    get_roundtrip_normalization() const;
     ~Distributed_fft3d();
 };
 
