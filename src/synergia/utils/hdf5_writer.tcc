@@ -84,3 +84,39 @@ template<>
     const void *
     Hdf5_writer<MArray3d_ref >::get_data_ptr(MArray3d_ref const& data);
 
+template<>
+    Hdf5_writer<MArray1d >::Hdf5_writer(hid_t & file,
+            std::string const& name);
+
+template<>
+    Hdf5_writer<MArray2d >::Hdf5_writer(hid_t & file,
+            std::string const& name);
+
+template<>
+    Hdf5_writer<MArray3d >::Hdf5_writer(hid_t & file,
+            std::string const& name);
+
+template<>
+    void
+    Hdf5_writer<MArray1d >::update_dims(MArray1d const& data);
+
+template<>
+    void
+    Hdf5_writer<MArray2d >::update_dims(MArray2d const& data);
+
+template<>
+    void
+    Hdf5_writer<MArray3d >::update_dims(MArray3d const& data);
+
+template<>
+    const void *
+    Hdf5_writer<MArray1d >::get_data_ptr(MArray1d const& data);
+
+template<>
+    const void *
+    Hdf5_writer<MArray2d >::get_data_ptr(MArray2d const& data);
+
+template<>
+    const void *
+    Hdf5_writer<MArray3d >::get_data_ptr(MArray3d const& data);
+
