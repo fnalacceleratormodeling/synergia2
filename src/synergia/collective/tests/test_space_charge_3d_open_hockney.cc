@@ -706,9 +706,40 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
         //    min_fractional_error = -0.0141639
         //    max_fractional_error = 0.148878
         //    min_fractional_error = -0.0393951
-        const double field_tolerance[] = {8.0e-2, 12.0e-2, 20.0e-2};
+        const double field_tolerance[] = { 8.0e-2, 12.0e-2, 20.0e-2 };
         BOOST_CHECK(std::abs(max_fractional_error) < field_tolerance[component]);
         BOOST_CHECK(std::abs(min_fractional_error) < field_tolerance[component]);
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(get_global_electric_field_component_exact_rho,
+        Spherical_bunch_fixture)
+{
+    Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
+    Distributed_rectangular_grid_sptr rho2(get_gaussian_rho2(space_charge,
+            bunch, sigma));
+    Distributed_rectangular_grid_sptr
+            G2(space_charge.get_green_fn2_pointlike()); // [1/m]
+    Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
+            *rho2, *G2)); // [V]
+    Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
+            *phi2));
+    phi->fill_guards(comm);
+    for (int component = 0; component < 3; ++component) {
+        Distributed_rectangular_grid_sptr local_En(
+                space_charge.get_electric_field_component(*phi, component)); // [V/m]
+        Rectangular_grid_sptr En(
+                space_charge.get_global_electric_field_component(*local_En)); // [V/m]
+        for (int i = local_En->get_lower(); i < local_En->get_upper(); ++i) {
+            for (int j = 0; j
+                    < local_En->get_domain_sptr()->get_grid_shape()[1]; ++j) {
+                for (int k = 0; k
+                        < local_En->get_domain_sptr()->get_grid_shape()[2]; ++k) {
+                    BOOST_CHECK_CLOSE(local_En->get_grid_points()[i][j][k],
+                            En->get_grid_points()[i][j][k], tolerance);
+                }
+            }
+        }
     }
 }
 
