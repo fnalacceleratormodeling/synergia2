@@ -1,6 +1,8 @@
 #ifndef INTERPOLATE_RECTANGULAR_ZYX_H_
 #define INTERPOLATE_RECTANGULAR_ZYX_H_
 
+#include "synergia/collective/rectangular_grid.h"
+
 inline double
 interpolate_rectangular_zyx(double x, double y, double z,
         Rectangular_grid const& f)
