@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_basic)
     grid.get_domain_sptr()->get_cell_coordinates(0, 0, 0, z_left, y_left,
             x_left);
     double z_right, y_right, x_right;
-    grid.get_domain_sptr()->get_cell_coordinates(0, 0, 0, z_right, y_right,
+    grid.get_domain_sptr()->get_cell_coordinates(1, 1, 1, z_right, y_right,
             x_right);
     double left_val = 2.0;
     double right_val = 10.0;
@@ -56,6 +56,15 @@ BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_basic)
                     y_left - cell_size[1], x_left, grid) == 0.0);
     BOOST_CHECK(interpolate_rectangular_zyx(z_left,
                     y_left, x_left - cell_size[2], grid) == 0.0);
+    BOOST_CHECK(interpolate_rectangular_zyx(
+                    z_left + physical_size[0] + cell_size[0],
+                    y_left, x_left, grid) == 0.0);
+    BOOST_CHECK(interpolate_rectangular_zyx(z_left,
+                    y_left + physical_size[1] + cell_size[1],
+                    x_left, grid) == 0.0);
+    BOOST_CHECK(interpolate_rectangular_zyx(z_left,
+                    y_left,
+                    x_left + physical_size[2] + cell_size[2], grid) == 0.0);
 
     // constant-value parallel planes in third coordinate of grid
     set_grid_constant(grid, 0.0);
@@ -128,70 +137,117 @@ BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_basic)
 
 }
 
-//BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_gaussian)
-//{
-//    const double sigma = 1.7e-3;
-//    const double Q = 2.3e-8;
-//    std::vector<double > physical_size(3);
-//    physical_size[0] = 6.0 * sigma;
-//    physical_size[1] = 7.0 * sigma;
-//    physical_size[2] = 8.0 * sigma;
-//    std::vector<double > physical_offset(3);
-//    physical_offset[0] = 0.0;
-//    physical_offset[1] = 0.0;
-//    physical_offset[2] = 0.0;
-//    std::vector<int > grid_shape(3);
-//    grid_shape[0] = 32;
-//    grid_shape[1] = 41;
-//    grid_shape[2] = 48;
-//
-//    Rectangular_grid grid(physical_size, physical_offset, grid_shape, false);
-//    for (int i = 0; i < grid_shape[0]; ++i) {
-//        for (int j = 0; j < grid_shape[1]; ++j) {
-//            for (int k = 0; k < grid_shape[2]; ++k) {
-//                double z, y, x;
-//                grid.get_domain_sptr()->get_cell_coordinates(i, j, k, z, y, x);
-//                double r = std::sqrt(z * z + y * y + x * x);
-//                grid.get_grid_points()[i][j][k]
-//                        = gaussian_electric_field_component(Q, r, sigma, x);
-//            }
-//        }
-//    }
-//    double max_fractional_error = -2.0;
-//    double min_fractional_error = 2.0;
-//    double limit = 2.0 * sigma;
-//    double step = limit / 10.0;
-////    for (double x = -limit; x < limit; x += step) {
-////        for (double y = -limit; y < limit; y += step) {
-//    double x = sigma;
-//    double y = 0.0;
-//            for (double z = -limit; z < limit; z += step) {
-//                double val = interpolate_rectangular_zyx(x, y, z, grid);
-//                double r = std::sqrt(z * z + y * y + x * x);
-//                double eval = gaussian_electric_field_component(Q, r, sigma, z);
-//                std::cout
-//                    << x << ", "
-//                    << y << ", "
-//                    << z << ": "
-//                    << val << ", "
-//                    << eval << std::endl;
-//                double fractional_error = (val - eval) / eval;
-//                if (fractional_error > max_fractional_error) {
-//                    max_fractional_error = fractional_error;
-//                }
-//                if (fractional_error < min_fractional_error) {
-//                    min_fractional_error = fractional_error;
-//                }
-//
-//            }
-////        }
-////    }
-//    std::cout << "max_fractional_error = " << max_fractional_error << std::endl;
-//    std::cout << "min_fractional_error = " << min_fractional_error << std::endl;
-//
-//    // on the development machine, I get
-//    //    const double solution_tolerance = 2.0e-2;
-//    //    BOOST_CHECK(std::abs(max_fractional_error) < solution_tolerance);
-//    //    BOOST_CHECK(std::abs(min_fractional_error) < solution_tolerance);
-//
-//}
+BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_gaussian)
+{
+    const double sigma = 1.7e-3;
+    const double Q = 2.3e-8;
+    std::vector<double > physical_size(3);
+    physical_size[0] = 8.0 * sigma;
+    physical_size[1] = 8.0 * sigma;
+    physical_size[2] = 8.0 * sigma;
+    std::vector<double > physical_offset(3);
+    physical_offset[0] = 0.0;
+    physical_offset[1] = 0.0;
+    physical_offset[2] = 0.0;
+    std::vector<int > grid_shape(3);
+    grid_shape[0] = 32;
+    grid_shape[1] = 32;
+    grid_shape[2] = 32;
+
+    Rectangular_grid grid(physical_size, physical_offset, grid_shape, false);
+    for (int i = 0; i < grid_shape[0]; ++i) {
+        for (int j = 0; j < grid_shape[1]; ++j) {
+            for (int k = 0; k < grid_shape[2]; ++k) {
+                double z, y, x;
+                grid.get_domain_sptr()->get_cell_coordinates(i, j, k, z, y, x);
+                double r = std::sqrt(z * z + y * y + x * x);
+                grid.get_grid_points()[i][j][k]
+                        = gaussian_electric_field_component(Q, r, sigma, x);
+            }
+        }
+    }
+
+    std::vector<double > cell_size(grid.get_domain_sptr()->get_cell_size());
+
+    double z_left, y_left, x_left;
+    grid.get_domain_sptr()->get_cell_coordinates(8, 8, 8, z_left, y_left,
+            x_left);
+    double z_right, y_right, x_right;
+    grid.get_domain_sptr()->get_cell_coordinates(9, 9, 9, z_right, y_right,
+            x_right);
+
+    const int num_steps = 4;
+    const double strict_tolerance = 1.0e-14;
+
+    for (double ds = 0.0; ds <= cell_size[2]; ds += cell_size[2] / num_steps) {
+        double x, y, z, r, expected_val, val, fractional_error;
+        const double max_edge_fractional_error = 0.005;
+        const double max_center_fractional_error = 0.003;
+
+        // value along edge of cube
+        x = x_left + ds;
+        y = y_left;
+        z = z_left;
+        r = std::sqrt(z * z + y * y + x * x);
+        expected_val = gaussian_electric_field_component(Q, r, sigma, x);
+        val = interpolate_rectangular_zyx(x, y, z, grid);
+        fractional_error = (val - expected_val) / expected_val;
+        // std::cout << x << ", " << y << ", " << z << ": " << fractional_error << std::endl;
+        BOOST_CHECK(std::abs(fractional_error) < max_edge_fractional_error);
+
+        // value along center of cube
+        x = x_left + ds;
+        y = (y_left + y_right) / 2.0;
+        z = (z_left + z_right) / 2.0;
+        r = std::sqrt(z * z + y * y + x * x);
+        expected_val = gaussian_electric_field_component(Q, r, sigma, x);
+        val = interpolate_rectangular_zyx(x, y, z, grid);
+        fractional_error = (val - expected_val) / expected_val;
+        // std::cout << x << ", " << y << ", " << z << ": " << fractional_error << std::endl;
+        BOOST_CHECK(std::abs(fractional_error) < max_edge_fractional_error);
+
+        // value along edge of cube
+        x = x_left;
+        y = y_left + ds;
+        z = z_left;
+        r = std::sqrt(z * z + y * y + x * x);
+        expected_val = gaussian_electric_field_component(Q, r, sigma, x);
+        val = interpolate_rectangular_zyx(x, y, z, grid);
+        fractional_error = (val - expected_val) / expected_val;
+        // std::cout << x << ", " << y << ", " << z << ": " << fractional_error << std::endl;
+        BOOST_CHECK(std::abs(fractional_error) < max_edge_fractional_error);
+
+        // value along center of cube
+        x = (x_left + x_right) / 2.0;
+        y = y_left + ds;
+        z = (z_left + z_right) / 2.0;
+        r = std::sqrt(z * z + y * y + x * x);
+        expected_val = gaussian_electric_field_component(Q, r, sigma, x);
+        val = interpolate_rectangular_zyx(x, y, z, grid);
+        fractional_error = (val - expected_val) / expected_val;
+        // std::cout << x << ", " << y << ", " << z << ": " << fractional_error << std::endl;
+        BOOST_CHECK(std::abs(fractional_error) < max_edge_fractional_error);
+
+        // value along edge of cube
+        x = x_left;
+        y = y_left;
+        z = z_left + ds;
+        r = std::sqrt(z * z + y * y + x * x);
+        expected_val = gaussian_electric_field_component(Q, r, sigma, x);
+        val = interpolate_rectangular_zyx(x, y, z, grid);
+        fractional_error = (val - expected_val) / expected_val;
+        // std::cout << x << ", " << y << ", " << z << ": " << fractional_error << std::endl;
+        BOOST_CHECK(std::abs(fractional_error) < max_edge_fractional_error);
+
+        // value along center of cube
+        x = (x_left + x_right) / 2.0;
+        y = (y_left + y_right) / 2.0;
+        z = z_left + ds;
+        r = std::sqrt(z * z + y * y + x * x);
+        expected_val = gaussian_electric_field_component(Q, r, sigma, x);
+        val = interpolate_rectangular_zyx(x, y, z, grid);
+        fractional_error = (val - expected_val) / expected_val;
+        // std::cout << x << ", " << y << ", " << z << ": " << fractional_error << std::endl;
+        BOOST_CHECK(std::abs(fractional_error) < max_edge_fractional_error);
+    }
+}
