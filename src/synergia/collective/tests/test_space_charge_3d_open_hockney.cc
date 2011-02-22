@@ -1,6 +1,6 @@
 #define BOOST_TEST_MAIN
-#include <algorithm>
 #include <boost/test/unit_test.hpp>
+#include <algorithm>
 #include "synergia/collective/space_charge_3d_open_hockney.h"
 #include "synergia/foundation/math_constants.h"
 using mconstants::pi;
