@@ -33,7 +33,8 @@ add_test(test_distributed_rectangular_grid_mpi3 ${MPIEXEC} -np 3 test_distribute
 add_test(test_distributed_rectangular_grid_mpi4 ${MPIEXEC} -np 4 test_distributed_rectangular_grid_mpi)
 #add_test(test_bunch_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_bunch.py)
 
-add_executable(test_space_charge_3d_open_hockney test_space_charge_3d_open_hockney.cc)
+add_executable(test_space_charge_3d_open_hockney
+    test_space_charge_3d_open_hockney.cc gaussian_charge_density.cc)
 target_link_libraries(test_space_charge_3d_open_hockney synergia_collective
     synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_space_charge_3d_open_hockney test_space_charge_3d_open_hockney)

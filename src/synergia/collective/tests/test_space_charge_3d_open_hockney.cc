@@ -1,6 +1,5 @@
 #define BOOST_TEST_MAIN
 #include <algorithm>
-#include <gsl/gsl_sf_erf.h>
 #include <boost/test/unit_test.hpp>
 #include "synergia/collective/space_charge_3d_open_hockney.h"
 #include "synergia/foundation/math_constants.h"
@@ -14,6 +13,8 @@ using pconstants::epsilon0;
 #include "synergia/utils/floating_point.h"
 #include "synergia/utils/multi_array_check_equal.h"
 #include "synergia/utils/hdf5_file.h"
+#include "gaussian_charge_density.h"
+
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const int charge = pconstants::proton_charge;
@@ -494,33 +495,6 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_no_domain, Ellipsoidal_bunch_fixture)
         caught_error = true;
     }
     BOOST_CHECK(caught_error == true);
-}
-
-// Spherical Gaussian charge density [C/m^3]
-double
-gaussian_charge_density(double Q, double r2, double sigma)
-{
-    return Q / pow(sigma * std::sqrt(2 * pi), 3) * exp(-r2
-            / (2 * sigma * sigma));
-}
-
-// Electric potential due to spherical Gaussian charge density [V]
-double
-gaussian_electric_potential(double Q, double r, double sigma)
-{
-    return Q / (4.0 * pi * epsilon0 * r) * gsl_sf_erf(r / (std::sqrt(2.0)
-            * sigma));
-}
-
-// Electric field component due to spherical Gaussian charge density [V]
-// Since all components are the same, we don't pretend to distinguish
-// between them.
-double
-gaussian_electric_field_component(double Q, double r, double sigma, double x)
-{
-    return Q * x / (4.0 * pi * epsilon0 * r * r * r) * (std::sqrt(2.0) * r
-            / (std::sqrt(pi) * sigma) * exp(-r * r / (2 * sigma * sigma))
-            - gsl_sf_erf(r / (std::sqrt(2.0) * sigma)));
 }
 
 Distributed_rectangular_grid_sptr
