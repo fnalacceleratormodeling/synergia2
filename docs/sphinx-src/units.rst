@@ -16,3 +16,20 @@ y    : [meters]
 yp   : py/p_ref [unitless]
 
 c dt : [meters]
+
+pp   : dp(total)/p_ref [unitless]
+
+In the fixed-t representation:
+
+x    : [meters]
+
+xp   : px/p_ref [unitless]
+
+y    : [meters]
+
+yp   : py/p_ref [unitless]
+
+z    : [meters]
+
+zp   : pz/p_ref [unitless]
+
