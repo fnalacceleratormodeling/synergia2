@@ -648,6 +648,7 @@ Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
         Rectangular_grid const& En, double delta_tau, int component)
 {
     // $\delta \vec{p} = \vec{F} \delta t = q \delta t \vec{E}$
+    bunch.convert_to_state(Bunch::fixed_t);
     double q = bunch.get_particle_charge() * pconstants::e; // [C]
     double factor = q * delta_tau * En.get_normalization();
     int ps_component = 2 * component + 1;
@@ -655,8 +656,8 @@ Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
         double x = bunch.get_local_particles()[part][Bunch::x];
         double y = bunch.get_local_particles()[part][Bunch::y];
         double z = bunch.get_local_particles()[part][Bunch::z];
-        double field_val = interpolate_rectangular_zyx(x, y, z, En);
-        bunch.get_local_particles()[part][ps_component] += factor * field_val;
+        double grid_val = interpolate_rectangular_zyx(x, y, z, En);
+        bunch.get_local_particles()[part][ps_component] += factor * grid_val;
     }
 }
 
