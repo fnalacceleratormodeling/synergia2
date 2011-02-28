@@ -236,7 +236,9 @@ void
 Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double time_step,
         Step & step)
 {
-
+    // jfa: we should really convert to fixed_t state here and adjust
+    //      factor accordingly.
+//    bunch.convert_to_state(Bunch::fixed_t);
     double sigma[2];
 
     Diagnostics diagnostics(bunch);

@@ -648,7 +648,6 @@ Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
         Rectangular_grid const& En, double delta_tau, int component)
 {
     // $\delta \vec{p} = \vec{F} \delta t = q \delta t \vec{E}$
-    bunch.convert_to_state(Bunch::fixed_t);
     double q = bunch.get_particle_charge() * pconstants::e; // [C]
     double factor = q * delta_tau * En.get_normalization();
     int ps_component = 2 * component + 1;
@@ -665,6 +664,7 @@ void
 Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
         Step & step)
 {
+    bunch.convert_to_state(Bunch::fixed_t);
     Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
     Distributed_rectangular_grid_sptr rho2(get_global_charge_density2(
             *local_rho)); // [C/m^3]
