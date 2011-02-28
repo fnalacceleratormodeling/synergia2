@@ -16,8 +16,9 @@ struct Fixture
 {
     Fixture() :
         four_momentum(mass, total_energy), reference_particle(
-                pconstants::proton_charge, four_momentum), comm(MPI_COMM_WORLD),
-                bunch(reference_particle, total_num, real_num, comm)
+                pconstants::proton_charge, four_momentum),
+                comm(MPI_COMM_WORLD), bunch(reference_particle, total_num,
+                        real_num, comm)
     {
         BOOST_TEST_MESSAGE("setup fixture");
     }
@@ -63,16 +64,24 @@ compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance = tolerance,
     if (check_state) {
         BOOST_CHECK_EQUAL(bunch1.get_state(), bunch2.get_state());
     }
-    int max_compare;
-    if (check_ids) {
-        max_compare = 7;
-    } else {
-        max_compare = 6;
-    }
     for (int part = 0; part < bunch1.get_local_num(); ++part) {
-        for (int i = 0; i < max_compare; ++i) {
-            BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][i],
-                    bunch2.get_local_particles()[part][i], tolerance);
+        // this loop is unrolled in order to give more meaningful error messages
+        // i.e., error messages including which component was tested
+        BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][0],
+                bunch2.get_local_particles()[part][0], tolerance);
+        BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][1],
+                bunch2.get_local_particles()[part][1], tolerance);
+        BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][2],
+                bunch2.get_local_particles()[part][2], tolerance);
+        BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][3],
+                bunch2.get_local_particles()[part][3], tolerance);
+        BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][4],
+                bunch2.get_local_particles()[part][4], tolerance);
+        BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][5],
+                bunch2.get_local_particles()[part][5], tolerance);
+        if (check_ids) {
+            BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][6],
+                    bunch2.get_local_particles()[part][6], tolerance);
         }
     }
 }
@@ -237,13 +246,13 @@ BOOST_FIXTURE_TEST_CASE(get_comm, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(convert_to_state, Fixture)
 {
-    // This is a trivial test too see that converting to
+    // This is a trivial test to see that converting to
     // fixed_t then back to fixed_z gives the original bunch.
     dummy_populate(bunch);
     Bunch second_bunch(bunch);
     bunch.convert_to_state(Bunch::fixed_t);
     bunch.convert_to_state(Bunch::fixed_z);
-    const double convert_tolerance = 1.0e-9;
+    const double convert_tolerance = 1.0e-10;
     compare_bunches(bunch, second_bunch, convert_tolerance);
 
 }
