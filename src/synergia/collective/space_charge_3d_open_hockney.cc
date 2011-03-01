@@ -648,8 +648,10 @@ Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
         Rectangular_grid const& En, double delta_tau, int component)
 {
     // $\delta \vec{p} = \vec{F} \delta t = q \delta t \vec{E}$
+    // scaled p = p/p_ref
     double q = bunch.get_particle_charge() * pconstants::e; // [C]
-    double factor = q * delta_tau * En.get_normalization();
+    double factor = q * delta_tau * En.get_normalization()
+            / bunch.get_reference_particle().get_momentum();
     int ps_component = 2 * component + 1;
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         double x = bunch.get_local_particles()[part][Bunch::x];
