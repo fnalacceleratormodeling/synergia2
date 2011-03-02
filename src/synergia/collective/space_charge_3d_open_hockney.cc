@@ -514,11 +514,6 @@ Space_charge_3d_open_hockney::get_scalar_field2(
             rho2hat);
     distributed_fft3d_sptr->transform(green_fn2.get_grid_points(), G2hat);
 
-    double hx, hy, hz;
-    hx = domain_sptr->get_cell_size()[2];
-    hy = domain_sptr->get_cell_size()[1];
-    hz = domain_sptr->get_cell_size()[0];
-
     for (int i = lower; i < upper; ++i) {
         for (int j = 0; j < cshape[1]; ++j) {
             for (int k = 0; k < cshape[2]; ++k) {
@@ -527,7 +522,12 @@ Space_charge_3d_open_hockney::get_scalar_field2(
         }
     }
 
-    double normalization = hx * hy * hz / (4.0 * pi * epsilon0);
+    double hx, hy, hz;
+    hx = domain_sptr->get_cell_size()[2];
+    hy = domain_sptr->get_cell_size()[1];
+    hz = domain_sptr->get_cell_size()[0];
+    double normalization = hx * hy * hz; // volume element in integral
+    normalization *= 1.0 / (4.0 * pi * epsilon0);
 
     Distributed_rectangular_grid_sptr phi2(new Distributed_rectangular_grid(
             doubled_domain_sptr, lower, upper,
@@ -645,13 +645,19 @@ Space_charge_3d_open_hockney::get_global_electric_field_component(
 
 void
 Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
-        Rectangular_grid const& En, double delta_tau, int component)
+        Rectangular_grid const& En, double delta_t, int component)
 {
     // $\delta \vec{p} = \vec{F} \delta t = q \delta t \vec{E}$
-    // scaled p = p/p_ref
     double q = bunch.get_particle_charge() * pconstants::e; // [C]
-    double factor = q * delta_tau * En.get_normalization()
-            / bunch.get_reference_particle().get_momentum();
+    // delta_t_beam: [s] in beam frame
+    double delta_t_beam = delta_t * bunch.get_reference_particle().get_gamma();
+    // unit_conversion: [kg m/s] to [Gev/c]
+    double unit_conversion = pconstants::c / (1.0e9 * pconstants::e);
+    // scaled p = p/p_ref
+    double p_scale = 1.0 / bunch.get_reference_particle().get_momentum();
+    double factor = unit_conversion * q * delta_t_beam * En.get_normalization()
+            * p_scale;
+
     int ps_component = 2 * component + 1;
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         double x = bunch.get_local_particles()[part][Bunch::x];
