@@ -20,7 +20,7 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture)
 const int charge = pconstants::proton_charge;
 const double mass = pconstants::mp;
 const double real_num = 1.7e11;
-const int total_num = 1000;
+const int total_num = 10000;
 const double total_energy = 125.0;
 struct Ellipsoidal_bunch_fixture
 {
@@ -588,6 +588,62 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Spherical_bunch_fixture)
     BOOST_CHECK(std::abs(min_fractional_error) < solution_tolerance);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_scalar_field2, Spherical_bunch_fixture)
+{
+    // n.b. We don't shift frames here. We just want a beam that's spherical
+    //      in the frame in which we are working.
+    Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
+    Rectangular_grid_sptr local_rho(space_charge.get_local_charge_density(bunch)); // [C/m^3]
+    Distributed_rectangular_grid_sptr rho2(space_charge.get_global_charge_density2(
+            *local_rho)); // [C/m^3]
+    Distributed_rectangular_grid_sptr
+            G2(space_charge.get_green_fn2_pointlike()); // [1/m]
+    Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
+            *rho2, *G2)); // [V]
+    Distributed_rectangular_grid phi_exact(phi2->get_domain_sptr(),
+            phi2->get_lower(), phi2->get_upper());
+
+    double Q = bunch.get_real_num() * bunch.get_particle_charge()
+            * pconstants::e;
+    std::vector<int > nondoubled_shape(
+            space_charge.get_domain_sptr()->get_grid_shape());
+    double max_fractional_error = -2.0;
+    double min_fractional_error = 2.0;
+    for (int i = phi2->get_lower(); i < std::min(phi2->get_upper(),
+            nondoubled_shape[0]); ++i) {
+        for (int j = 0; j < nondoubled_shape[1]; ++j) {
+            for (int k = 0; k < nondoubled_shape[2]; ++k) {
+                double z, y, x;
+                space_charge.get_domain_sptr()->get_cell_coordinates(i, j, k,
+                        z, y, x);
+                double r = std::sqrt(x * x + y * y + z * z);
+                double phi_exact_ijk = gaussian_electric_potential(Q, r, sigma);
+                phi_exact.get_grid_points()[i][j][k] = phi_exact_ijk;
+                double phi_calc_ijk = phi2->get_grid_points()[i][j][k]
+                        * phi2->get_normalization();
+                double fractional_error = (phi_calc_ijk - phi_exact_ijk)
+                        / phi_exact_ijk;
+                if (fractional_error > max_fractional_error) {
+                    max_fractional_error = fractional_error;
+                }
+                if (fractional_error < min_fractional_error) {
+                    min_fractional_error = fractional_error;
+                }
+                // BOOST_CHECK_CLOSE(phi_calc_ijk, phi_exact_ijk, solution_tolerance);
+            }
+        }
+    }
+    //    std::cout << "max_fractional_error = " << max_fractional_error << std::endl;
+    //    std::cout << "min_fractional_error = " << min_fractional_error << std::endl;
+
+    // on the development machine, I get (on one run)
+    //        max_fractional_error = 0.0164322
+    //        min_fractional_error = -0.0141608
+    const double solution_tolerance = 3.0e-2;
+    BOOST_CHECK(std::abs(max_fractional_error) < solution_tolerance);
+    BOOST_CHECK(std::abs(min_fractional_error) < solution_tolerance);
+}
+
 BOOST_FIXTURE_TEST_CASE(extract_scalar_field, Ellipsoidal_bunch_fixture)
 {
     Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
@@ -720,7 +776,7 @@ BOOST_FIXTURE_TEST_CASE(get_global_electric_field_component_exact_rho,
 BOOST_FIXTURE_TEST_CASE(apply, Ellipsoidal_bunch_fixture)
 {
     Space_charge_3d_open_hockney space_charge(grid_shape, false, comm);
-    Step dummy_step;
+    Step dummy_step(1.0);
     space_charge.apply(bunch, 1.0, dummy_step);
     // jfa : n.b. this test is incomplete
 }
