@@ -72,7 +72,7 @@ BOOST_FIXTURE_TEST_CASE(apply, Bunch_fixture)
             independent_operator.get_slices());
 
     double step_length = 1.0;
-    Step stub_step;
+    Step stub_step(1.0);
 
     independent_operator.apply(bunch, step_length, stub_step);
 }

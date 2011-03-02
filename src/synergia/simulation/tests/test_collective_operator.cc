@@ -17,7 +17,7 @@ BOOST_FIXTURE_TEST_CASE(apply, Bunch_fixture)
 {
     Dummy_collective_operator collective_operator("test");
     double step_length = 1.0;
-    Step stub_step;
+    Step stub_step(1.0);
 
     collective_operator.apply(bunch, step_length, stub_step);
 }

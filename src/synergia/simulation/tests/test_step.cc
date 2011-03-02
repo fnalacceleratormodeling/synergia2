@@ -7,15 +7,16 @@
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-12;
+const double step_length  = 1.23;
 
 BOOST_AUTO_TEST_CASE(construct)
 {
-    Step step;
+    Step step(step_length);
 }
 
 BOOST_AUTO_TEST_CASE(append)
 {
-    Step step;
+    Step step(step_length);
     Dummy_collective_operator_sptr Dummy_collective_operator_sptr(
             new Dummy_collective_operator("test"));
 
@@ -25,7 +26,7 @@ BOOST_AUTO_TEST_CASE(append)
 
 BOOST_AUTO_TEST_CASE(append2)
 {
-    Step step;
+    Step step(step_length);
     Dummy_collective_operator dummy_collective_operator("test");
 
     Operators operators;
@@ -44,7 +45,7 @@ BOOST_AUTO_TEST_CASE(append2)
 
 BOOST_FIXTURE_TEST_CASE(apply, Bunch_fixture)
 {
-    Step step;
+    Step step(step_length);
 
     Operators operators;
     Dummy_collective_operator_sptr dummy1(new Dummy_collective_operator(
@@ -64,7 +65,7 @@ BOOST_FIXTURE_TEST_CASE(apply, Bunch_fixture)
 
 BOOST_AUTO_TEST_CASE(get_operators)
 {
-    Step step;
+    Step step(step_length);
 
     Operators operators;
     Dummy_collective_operator_sptr dummy1(new Dummy_collective_operator(
@@ -85,7 +86,7 @@ BOOST_AUTO_TEST_CASE(get_operators)
 
 BOOST_AUTO_TEST_CASE(get_time_fractions)
 {
-    Step step;
+    Step step(step_length);
 
     Dummy_collective_operator_sptr dummy1(new Dummy_collective_operator(
             "dummy1"));
@@ -109,7 +110,7 @@ BOOST_AUTO_TEST_CASE(get_time_fractions)
 
 BOOST_AUTO_TEST_CASE(print)
 {
-    Step step;
+    Step step(step_length);
 
     Operators operators;
     Dummy_collective_operator_sptr dummy1(new Dummy_collective_operator(

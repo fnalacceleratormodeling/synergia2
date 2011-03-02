@@ -115,7 +115,7 @@ Independent_stepper::Independent_stepper(
     double left = 0.0;
 
     for (int i = 0; i < num_steps; ++i) {
-        Step_sptr step(new Step);
+        Step_sptr step(new Step(step_length));
         step->append(get_step("step", lattice_it, left, lattice_end,
                 step_length), 1.0);
         get_steps().push_back(step);
@@ -154,7 +154,7 @@ Independent_stepper_elements::Independent_stepper_elements(
                                     this->lattice_simulator.get_operation_extractor_map_sptr()));
             Lattice_element_slice_sptr slice(new Lattice_element_slice(*(*it)));
             ind_op->append_slice(slice);
-            Step_sptr step(new Step);
+            Step_sptr step(new Step(0.0));
             step->append(ind_op, 1.0);
             get_steps().push_back(step);
         } else {
@@ -170,7 +170,7 @@ Independent_stepper_elements::Independent_stepper_elements(
                 Lattice_element_slice_sptr slice(new Lattice_element_slice(
                         *(*it), left, right));
                 ind_op->append_slice(slice);
-                Step_sptr step(new Step);
+                Step_sptr step(new Step(step_length));
                 step->append(ind_op, 1.0);
                 get_steps().push_back(step);
             }
@@ -263,7 +263,7 @@ Split_operator_stepper::construct(
             lattice_simulator.get_lattice_sptr()->get_elements().end();
     double left = 0.0;
     for (int i = 0; i < num_steps; ++i) {
-        Step_sptr step(new Step);
+        Step_sptr step(new Step(step_length));
         step->append(get_half_step("first_half", lattice_it, left, lattice_end,
                 half_step_length), 0.5);
         for (Collective_operators::const_iterator coll_op_it =
@@ -326,7 +326,7 @@ Split_operator_stepper_elements::construct(
             Independent_operator_sptr ind_op(new Independent_operator("step", this->lattice_simulator.get_operation_extractor_map_sptr()));
             Lattice_element_slice_sptr slice(new Lattice_element_slice(*(*it)));
             ind_op->append_slice(slice);
-            Step_sptr step(new Step);
+            Step_sptr step(new Step(0.0));
             step->append(ind_op, 1.0);
             get_steps().push_back(step);
         //else
@@ -348,7 +348,7 @@ Split_operator_stepper_elements::construct(
                 Lattice_element_slice_sptr slice_1st_half(new Lattice_element_slice(
                         *(*it), left, middle));
                 ind_op->append_slice(slice_1st_half);
-                Step_sptr step(new Step);
+                Step_sptr step(new Step(step_length));
                 step->append(ind_op, 0.5);
 
                 //Collective Effects

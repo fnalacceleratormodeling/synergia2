@@ -74,6 +74,6 @@ BOOST_AUTO_TEST_CASE(construct)
 BOOST_FIXTURE_TEST_CASE(apply, Ellipsoidal_bunch_fixture)
 {
     Space_charge_2d_bassetti_erskine space_charge;
-    Step dummy_step;
+    Step dummy_step(1.0);
     space_charge.apply(bunch, 1.0, dummy_step);
 }

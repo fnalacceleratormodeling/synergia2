@@ -12,8 +12,9 @@ class Step
 private:
     Operators operators;
     std::list<double > time_fractions;
+    double length;
 public:
-    Step();
+    Step(double length);
     void
     append(Operator_sptr operator_sptr, double time_fraction);
     void
@@ -24,6 +25,8 @@ public:
     get_operators() const;
     std::list<double> const&
     get_time_fractions() const;
+    double
+    get_length() const;
     virtual void
     print(int index) const;
 };

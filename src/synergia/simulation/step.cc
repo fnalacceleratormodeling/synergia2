@@ -1,9 +1,10 @@
 #include <iostream>
 
 #include "step.h"
+#include "synergia/foundation/physical_constants.h"
 
-Step::Step() :
-    operators(), time_fractions()
+Step::Step(double length) :
+    operators(), time_fractions(), length(length)
 {
 
 }
@@ -32,7 +33,10 @@ Step::apply(Bunch & bunch)
     std::list<double >::const_iterator fractions_it = time_fractions.begin();
     for (Operators::const_iterator it = operators.begin(); it
             != operators.end(); ++it) {
-        (*it)->apply(bunch, (*fractions_it), *this);
+        // time [s] in accelerator frame
+        double time = length / (bunch.get_reference_particle().get_beta()
+                * pconstants::c);
+        (*it)->apply(bunch, (*fractions_it) * time, *this);
         ++fractions_it;
     }
 }
@@ -43,7 +47,7 @@ Step::get_operators() const
     return operators;
 }
 
-std::list<double> const&
+std::list<double > const&
 Step::get_time_fractions() const
 {
     return time_fractions;
