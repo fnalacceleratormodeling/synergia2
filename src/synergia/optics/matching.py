@@ -8,7 +8,7 @@ from synergia.bunch import Bunch, populate_6d
 from synergia.foundation import Random_distribution
 from math import acos, pi, sin, sqrt
 
-def _get_correlation_matrix(map, stdx, stdy, stdz):
+def _get_correlation_matrix(map, rms_x, rms_y, rms_z, beta):
     evals, evect_matrix = numpy.linalg.eig(map)
     evects = []
     for i in range(0, 6):
@@ -41,15 +41,15 @@ def _get_correlation_matrix(map, stdx, stdy, stdz):
     S = numpy.zeros((3, 3), 'd')
     for i in range(0, 3):
         for j in range(0, 3):
-            S[i, j] = F[j][2*i, 2*i]
+            S[i, j] = F[j][2 * i, 2 * i]
 
     Sinv = numpy.linalg.inv(S)
 
     C = numpy.zeros([6, 6], 'd')
-    units = [1, 1, 1, 1, 1, 1] # jfa have to think about units!
-    cd1 = stdx * units[0] * stdx * units[0]
-    cd2 = stdy * units[2] * stdy * units[2]
-    cd3 = stdz * units[4] * stdz * units[4]
+    cd1 = rms_x ** 2
+    cd2 = rms_y ** 2
+    rms_cdt = rms_z / beta
+    cd3 = rms_cdt ** 2
 
     for i in range(0, 3):
         C += F[i] * (Sinv[i, 0] * cd1 + Sinv[i, 1] * cd2 + Sinv[i, 2] * cd3)
@@ -116,22 +116,23 @@ def get_covariances(sigma, r):
         c[i, i + 1] = ri * sigma[i] * sigma[i + 1]
     return c
 
-def generate_matched_bunch(lattice_simulator, stdx, stdy, stdz,
+def generate_matched_bunch(lattice_simulator, rms_x, rms_y, rms_z,
                            num_real_particles, num_macro_particles, seed=0,
                            comm=None):
 
     map = linear_one_turn_map(lattice_simulator)
-    correlation_matrix = _get_correlation_matrix(map, stdx, stdy, stdz)
+    beta = lattice_simulator.get_lattice().get_reference_particle().get_beta()
+    correlation_matrix = _get_correlation_matrix(map, rms_x, rms_y, rms_z, beta)
     if comm == None:
         comm = MPI.COMM_WORLD
     bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
                   num_macro_particles, num_real_particles, comm);
     dist = Random_distribution(seed, comm)
-    populate_6d(dist, bunch, numpy.zeros((6,),'d'), correlation_matrix)
+    populate_6d(dist, bunch, numpy.zeros((6,), 'd'), correlation_matrix)
     return bunch
 
 def get_matched_bunch_transverse_parameters(lattice_simulator,
-                                            emit_x, emit_y, rms_z, dpop):
+                                            emit_x, emit_y, rms_z, rms_dpop):
 
     map = linear_one_turn_map(lattice_simulator)
     alpha, beta = get_alpha_beta(map)
@@ -141,15 +142,15 @@ def get_matched_bunch_transverse_parameters(lattice_simulator,
     beta = lattice_simulator.get_lattice().get_reference_particle().get_beta()
     p = lattice_simulator.get_lattice().get_reference_particle().get_momentum()
     sigma[4] = rms_z / beta
-    sigma[5] = dpop * p
+    sigma[5] = rms_dpop
     r = [r4[0], r4[1], 0.0]
     covariance_matrix = get_covariances(sigma, r)
     means = numpy.zeros((6,), 'd')
     return means, covariance_matrix
 
-def generate_matched_bunch_transverse(lattice_simulator, emit_x, emit_y, rms_z, dpop,
-                           num_real_particles, num_macro_particles, seed=0,
-                           comm=None):
+def generate_matched_bunch_transverse(lattice_simulator, emit_x, emit_y,
+                           rms_z, dpop, num_real_particles,
+                           num_macro_particles, seed=0, comm=None):
 
     means, covariance_matrix = \
         get_matched_bunch_transverse_parameters(lattice_simulator,
