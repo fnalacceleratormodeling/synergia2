@@ -51,7 +51,7 @@ struct Fixture
 
 BOOST_FIXTURE_TEST_CASE(construct, Fixture)
 {
-    Diagnostics_sptr diagnostics_sptr(new Diagnostics(bunch));
+    Diagnostics_basic_sptr diagnostics_sptr(new Diagnostics_basic(bunch));
     Diagnostics_writer diagnostics_writer("test_writer_construct.h5",
             diagnostics_sptr);
 }
@@ -63,7 +63,7 @@ BOOST_AUTO_TEST_CASE(construct_dummy)
 
 BOOST_FIXTURE_TEST_CASE(is_dummy_false, Fixture)
 {
-    Diagnostics_sptr diagnostics_sptr(new Diagnostics(bunch));
+    Diagnostics_basic_sptr diagnostics_sptr(new Diagnostics_basic(bunch));
     Diagnostics_writer diagnostics_writer("test_writer_is_dummy_false.h5",
             diagnostics_sptr);
     BOOST_CHECK(!diagnostics_writer.is_dummy());
@@ -84,7 +84,7 @@ BOOST_FIXTURE_TEST_CASE(construct_full2, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_diagnostics_sptr, Fixture)
 {
-    Diagnostics_sptr diagnostics_sptr(new Diagnostics(bunch));
+    Diagnostics_basic_sptr diagnostics_sptr(new Diagnostics_basic(bunch));
     Diagnostics_writer diagnostics_writer(
             "test_writer_get_diagnostics_sptr.h5", diagnostics_sptr);
     Diagnostics_sptr retrieved_d_s = diagnostics_writer.get_diagnostics_sptr();
@@ -93,7 +93,7 @@ BOOST_FIXTURE_TEST_CASE(get_diagnostics_sptr, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_count, Fixture)
 {
-    Diagnostics_sptr diagnostics_sptr(new Diagnostics(bunch));
+    Diagnostics_basic_sptr diagnostics_sptr(new Diagnostics_basic(bunch));
     Diagnostics_writer diagnostics_writer("test_writer_get_count.h5",
             diagnostics_sptr);
     BOOST_CHECK_EQUAL(diagnostics_writer.get_count(), 0);
@@ -105,7 +105,7 @@ BOOST_FIXTURE_TEST_CASE(get_count, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(set_count, Fixture)
 {
-    Diagnostics_sptr diagnostics_sptr(new Diagnostics(bunch));
+    Diagnostics_basic_sptr diagnostics_sptr(new Diagnostics_basic(bunch));
     Diagnostics_writer diagnostics_writer("test_writer_get_count.h5",
             diagnostics_sptr);
     diagnostics_writer.set_count(17);
@@ -114,7 +114,7 @@ BOOST_FIXTURE_TEST_CASE(set_count, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 {
-    Diagnostics_sptr diagnostics_sptr(new Diagnostics(bunch));
+    Diagnostics_basic_sptr diagnostics_sptr(new Diagnostics_basic(bunch));
     Diagnostics_writer diagnostics_writer("test_writer_write.h5",
             diagnostics_sptr);
     diagnostics_writer.get_diagnostics_sptr()->update(bunch);
@@ -123,7 +123,7 @@ BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(update_and_write, Fixture)
 {
-    Diagnostics_sptr diagnostics_sptr(new Diagnostics(bunch));
+    Diagnostics_basic_sptr diagnostics_sptr(new Diagnostics_basic(bunch));
     Diagnostics_writer diagnostics_writer("test_writer_update_and_write.h5",
             diagnostics_sptr);
     diagnostics_writer.update_and_write(bunch);

@@ -6,9 +6,56 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/utils/hdf5_serial_writer.h"
 
-/// Diagnostics provides the minimal set of statistical
-/// quantities to be calculated for a Bunch.
+/// Diagnostics is an abstract base class for Diagnostics classes
 class Diagnostics
+{
+public:
+    /// Create an empty Diagnostics object
+    Diagnostics()
+    {
+    }
+    ;
+
+    /// Create a Diagnostics object
+    /// @param bunch the Bunch
+    Diagnostics(Bunch const& bunch)
+    {
+    }
+    ;
+
+    /// Multiple serial diagnostics can be written to a single file.
+    virtual bool
+    is_serial() const = 0;
+
+    /// Update the diagnostics
+    /// @param bunch the Bunch
+    virtual void
+    update(Bunch const& bunch) = 0;
+
+    static MArray1d
+    calculate_mean(Bunch const& bunch);
+
+    static MArray1d
+    calculate_std(Bunch const& bunch, MArray1d_ref const& mean);
+
+    virtual void
+    init_writers(hid_t & hdf5_file) = 0;
+
+    virtual void
+    write_hdf5() = 0;
+
+    virtual
+    ~Diagnostics()
+    {
+    }
+    ;
+};
+
+typedef boost::shared_ptr<Diagnostics > Diagnostics_sptr;
+
+/// Diagnostics_basic provides the minimal set of statistical
+/// quantities to be calculated for a Bunch.
+class Diagnostics_basic : public Diagnostics
 {
 private:
     bool have_writers;
@@ -22,25 +69,21 @@ protected:
     int num_particles;
     Hdf5_serial_writer<int > * writer_num_particles;
     double real_num_particles;
-    Hdf5_serial_writer<double> * writer_real_num_particles;
+    Hdf5_serial_writer<double > * writer_real_num_particles;
     MArray1d mean;
     Hdf5_serial_writer<MArray1d_ref > * writer_mean;
     MArray1d std;
     Hdf5_serial_writer<MArray1d_ref > * writer_std;
-    virtual void
-    update_mean(Bunch const& bunch);
-    virtual void
-    update_std(Bunch const& bunch);
 public:
-    /// Create an empty Diagnostics object
-    Diagnostics();
+    /// Create an empty Diagnostics_basic object
+    Diagnostics_basic();
 
-    /// Create a Diagnostics object
+    /// Create a Diagnostics_basic object
     /// @param bunch the Bunch
-    Diagnostics(Bunch const& bunch);
+    Diagnostics_basic(Bunch const& bunch);
 
     /// Multiple serial diagnostics can be written to a single file.
-    /// The Diagnostics class is serial.
+    /// The Diagnostics_basic class is serial.
     virtual bool
     is_serial() const;
 
@@ -87,14 +130,14 @@ public:
     write_hdf5();
 
     virtual
-    ~Diagnostics();
+    ~Diagnostics_basic();
 };
 
-typedef boost::shared_ptr<Diagnostics > Diagnostics_sptr;
+typedef boost::shared_ptr<Diagnostics_basic > Diagnostics_basic_sptr;
 
 /// Diagnostics_full2 provides the full set of statistical
 /// quantities to be calculated for a Bunch up to the second moments.
-class Diagnostics_full2 : public Diagnostics
+class Diagnostics_full2 : public Diagnostics_basic
 {
 private:
     bool have_writers;
@@ -215,7 +258,7 @@ public:
 typedef boost::shared_ptr<Diagnostics_particles > Diagnostics_particles_sptr;
 
 /// Diagnostics_track records the phase space coordinates of a single particle
-class Diagnostics_track: public Diagnostics
+class Diagnostics_track : public Diagnostics
 {
 private:
     bool have_writers;

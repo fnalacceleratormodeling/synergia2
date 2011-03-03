@@ -33,7 +33,7 @@ BOOST_FIXTURE_TEST_CASE(propagate, Lattice_fixture)
             lattice_simulator, space_charge, 4));
     Propagator propagator(stepper_sptr);
 
-    Diagnostics_sptr diagnostics_sptr(new Diagnostics);
+    Diagnostics_basic_sptr diagnostics_sptr(new Diagnostics_basic);
     Diagnostics_writer per_step_diagnostics("test_propagate_per_step.h5",
             diagnostics_sptr);
     Diagnostics_full2_sptr diagnostics_full2_sptr(new Diagnostics_full2);
@@ -54,7 +54,7 @@ BOOST_FIXTURE_TEST_CASE(propagate2, Lattice_fixture)
             lattice_simulator, space_charge, 4));
     Propagator propagator(stepper_sptr);
 
-    Diagnostics_sptr diagnostics_sptr(new Diagnostics);
+    Diagnostics_basic_sptr diagnostics_sptr(new Diagnostics_basic);
     Diagnostics_writer_sptr per_step_diagnostics1(new Diagnostics_writer(
             "test_propagate_per_step1.h5", diagnostics_sptr));
     Diagnostics_full2_sptr diagnostics_full2_sptr(new Diagnostics_full2);
@@ -64,7 +64,7 @@ BOOST_FIXTURE_TEST_CASE(propagate2, Lattice_fixture)
     multi_diagnostics_writer_step.append(per_step_diagnostics1);
     multi_diagnostics_writer_step.append(per_step_diagnostics2);
 
-    Diagnostics_sptr diagnostics_sptr_t(new Diagnostics);
+    Diagnostics_basic_sptr diagnostics_sptr_t(new Diagnostics_basic);
     Diagnostics_writer_sptr per_turn_diagnostics1(
             new Diagnostics_writer("test_propagate_per_turn1.h5",
                     diagnostics_sptr_t));

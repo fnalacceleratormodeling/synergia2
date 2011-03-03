@@ -51,67 +51,67 @@ struct Fixture
 
 BOOST_AUTO_TEST_CASE(construct)
 {
-    Diagnostics diagnostics;
+    Diagnostics_basic diagnostics;
 }
 
 BOOST_FIXTURE_TEST_CASE(construct2, Fixture)
 {
-    Diagnostics diagnostics(bunch);
+    Diagnostics_basic diagnostics(bunch);
 }
 
 BOOST_AUTO_TEST_CASE(is_serial)
 {
-    Diagnostics diagnostics;
+    Diagnostics_basic diagnostics;
     BOOST_CHECK(diagnostics.is_serial());
 }
 
 BOOST_FIXTURE_TEST_CASE(get_s, Fixture)
 {
-    Diagnostics diagnostics(bunch);
+    Diagnostics_basic diagnostics(bunch);
     BOOST_CHECK_CLOSE(diagnostics.get_s(), partial_s, tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_repetition, Fixture)
 {
-    Diagnostics diagnostics(bunch);
+    Diagnostics_basic diagnostics(bunch);
     BOOST_CHECK_EQUAL(diagnostics.get_repetition(), turns);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_trajectory_length, Fixture)
 {
-    Diagnostics diagnostics(bunch);
+    Diagnostics_basic diagnostics(bunch);
     BOOST_CHECK_CLOSE(diagnostics.get_trajectory_length(),
             turns * turn_length + partial_s, tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_num_particles, Fixture)
 {
-    Diagnostics diagnostics(bunch);
+    Diagnostics_basic diagnostics(bunch);
     BOOST_CHECK_EQUAL(diagnostics.get_num_particles(), total_num);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_real_num_particles, Fixture)
 {
-    Diagnostics diagnostics(bunch);
+    Diagnostics_basic diagnostics(bunch);
     BOOST_CHECK_CLOSE(diagnostics.get_real_num_particles(), real_num,
             tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_mean, Fixture)
 {
-    Diagnostics diagnostics(bunch);
+    Diagnostics_basic diagnostics(bunch);
 #include "test_diagnostics_get_mean.icc"
 }
 
 BOOST_FIXTURE_TEST_CASE(get_std, Fixture)
 {
-    Diagnostics diagnostics(bunch);
+    Diagnostics_basic diagnostics(bunch);
 #include "test_diagnostics_get_std.icc"
 }
 
 BOOST_FIXTURE_TEST_CASE(init_writers, Fixture)
 {
-    Diagnostics diagnostics(bunch);
+    Diagnostics_basic diagnostics(bunch);
     hid_t hdf5_file = H5Fcreate("test_init_writers.h5", H5F_ACC_TRUNC,
             H5P_DEFAULT, H5P_DEFAULT);
     diagnostics.init_writers(hdf5_file);
@@ -120,7 +120,7 @@ BOOST_FIXTURE_TEST_CASE(init_writers, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(write_hdf5_no_init, Fixture)
 {
-    Diagnostics diagnostics(bunch);
+    Diagnostics_basic diagnostics(bunch);
     hid_t hdf5_file = H5Fcreate("test_write_hdf5_no_init.h5", H5F_ACC_TRUNC,
             H5P_DEFAULT, H5P_DEFAULT);
     bool caught_error = false;
@@ -136,7 +136,7 @@ BOOST_FIXTURE_TEST_CASE(write_hdf5_no_init, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(write_hdf5, Fixture)
 {
-    Diagnostics diagnostics(bunch);
+    Diagnostics_basic diagnostics(bunch);
     hid_t hdf5_file = H5Fcreate("test_write_hdf5.h5", H5F_ACC_TRUNC,
             H5P_DEFAULT, H5P_DEFAULT);
     diagnostics.init_writers(hdf5_file);
@@ -250,7 +250,7 @@ BOOST_FIXTURE_TEST_CASE(get_emitxy_full2, Fixture)
 #include "test_diagnostics_get_emitxy.icc"
 }
 
-const double tolerance_emit6d = 5.0e-11;
+const double tolerance_emit6d = 1.0e-10;
 
 BOOST_FIXTURE_TEST_CASE(get_emitxyz_full2, Fixture)
 {

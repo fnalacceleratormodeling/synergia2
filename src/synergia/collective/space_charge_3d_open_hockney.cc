@@ -129,15 +129,16 @@ void
 Space_charge_3d_open_hockney::update_domain(Bunch const& bunch)
 {
     if (!domain_fixed) {
-        Diagnostics diagnostics(bunch);
+        MArray1d mean(Diagnostics::calculate_mean(bunch));
+        MArray1d std(Diagnostics::calculate_std(bunch, mean));
         std::vector<double > size(3);
         std::vector<double > offset(3);
-        offset[0] = diagnostics.get_mean()[Bunch::z];
-        size[0] = n_sigma * diagnostics.get_std()[Bunch::z];
-        offset[1] = diagnostics.get_mean()[Bunch::y];
-        size[1] = n_sigma * diagnostics.get_std()[Bunch::y];
-        offset[2] = diagnostics.get_mean()[Bunch::x];
-        size[2] = n_sigma * diagnostics.get_std()[Bunch::x];
+        offset[0] = mean[Bunch::z];
+        size[0] = n_sigma * std[Bunch::z];
+        offset[1] = mean[Bunch::y];
+        size[1] = n_sigma * std[Bunch::y];
+        offset[2] = mean[Bunch::x];
+        size[2] = n_sigma * std[Bunch::x];
         domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
                 size, offset, grid_shape, periodic_z));
         set_doubled_domain();

@@ -9,9 +9,10 @@
 // import most common Eigen types
 USING_PART_OF_NAMESPACE_EIGEN
 
-void
-Diagnostics::update_mean(Bunch const& bunch)
+MArray1d
+Diagnostics::calculate_mean(Bunch const& bunch)
 {
+    MArray1d mean(boost::extents[6]);
     double sum[6] = { 0, 0, 0, 0, 0, 0 };
     Const_MArray2d_ref particles(bunch.get_local_particles());
     for (int part = 0; part < bunch.get_local_num(); ++part) {
@@ -24,11 +25,13 @@ Diagnostics::update_mean(Bunch const& bunch)
     for (int i = 0; i < 6; ++i) {
         mean[i] /= bunch.get_total_num();
     }
+    return mean;
 }
 
-void
-Diagnostics::update_std(Bunch const& bunch)
+MArray1d
+Diagnostics::calculate_std(Bunch const& bunch, MArray1d_ref const& mean)
 {
+    MArray1d std(boost::extents[6]);
     double sum[6] = { 0, 0, 0, 0, 0, 0 };
     Const_MArray2d_ref particles(bunch.get_local_particles());
     for (int part = 0; part < bunch.get_local_num(); ++part) {
@@ -42,81 +45,82 @@ Diagnostics::update_std(Bunch const& bunch)
     for (int i = 0; i < 6; ++i) {
         std[i] = std::sqrt(std[i] / bunch.get_total_num());
     }
+    return std;
 }
 
-Diagnostics::Diagnostics() :
+Diagnostics_basic::Diagnostics_basic() :
     have_writers(false), mean(boost::extents[6]), std(boost::extents[6])
 {
 }
 
-Diagnostics::Diagnostics(Bunch const& bunch) :
+Diagnostics_basic::Diagnostics_basic(Bunch const& bunch) :
     have_writers(false), mean(boost::extents[6]), std(boost::extents[6])
 {
     update(bunch);
 }
 
 bool
-Diagnostics::is_serial() const
+Diagnostics_basic::is_serial() const
 {
     return true;
 }
 
 void
-Diagnostics::update(Bunch const& bunch)
+Diagnostics_basic::update(Bunch const& bunch)
 {
     s = bunch.get_reference_particle().get_s();
     repetition = bunch.get_reference_particle().get_repetition();
     trajectory_length = bunch.get_reference_particle().get_trajectory_length();
     num_particles = bunch.get_total_num();
     real_num_particles = bunch.get_real_num();
-    update_mean(bunch);
-    update_std(bunch);
+    mean = Diagnostics::calculate_mean(bunch);
+    std = Diagnostics::calculate_std(bunch, mean);
 }
 
 double
-Diagnostics::get_s() const
+Diagnostics_basic::get_s() const
 {
     return s;
 }
 
 int
-Diagnostics::get_repetition() const
+Diagnostics_basic::get_repetition() const
 {
     return repetition;
 }
 
 double
-Diagnostics::get_trajectory_length() const
+Diagnostics_basic::get_trajectory_length() const
 {
     return trajectory_length;
 }
 
 int
-Diagnostics::get_num_particles() const
+Diagnostics_basic::get_num_particles() const
 {
     return num_particles;
 }
 
 double
-Diagnostics::get_real_num_particles() const
+Diagnostics_basic::get_real_num_particles() const
 {
     return real_num_particles;
 }
 
 Const_MArray1d_ref
-Diagnostics::get_mean() const
+Diagnostics_basic::get_mean() const
 {
     return mean;
 }
 
 Const_MArray1d_ref
-Diagnostics::get_std() const
+Diagnostics_basic::get_std() const
 {
     return std;
 }
 
 void
-Diagnostics::init_writers(hid_t & hdf5_file)
+Diagnostics_basic::init_writers(hid_t & hdf5_file)
 {
     writer_s = new Hdf5_serial_writer<double > (hdf5_file, "s");
     writer_repetition = new Hdf5_serial_writer<int > (hdf5_file, "repetition");
@@ -132,11 +136,11 @@ Diagnostics::init_writers(hid_t & hdf5_file)
 }
 
 void
-Diagnostics::write_hdf5()
+Diagnostics_basic::write_hdf5()
 {
     if (!have_writers) {
         throw(std::runtime_error(
-                "Diagnostics::write_hdf5 called before Diagnostics::init_writers"));
+                "Diagnostics_basic::write_hdf5 called before Diagnostics_basic::init_writers"));
     }
     writer_s->append(s);
     writer_repetition->append(repetition);
@@ -147,7 +151,7 @@ Diagnostics::write_hdf5()
     writer_std->append(std);
 }
 
-Diagnostics::~Diagnostics()
+Diagnostics_basic::~Diagnostics_basic()
 {
     if (have_writers) {
         delete writer_s;
@@ -212,13 +216,13 @@ Diagnostics_full2::update_emittances()
 }
 
 Diagnostics_full2::Diagnostics_full2() :
-    Diagnostics(), have_writers(false), mom2(boost::extents[6][6]), corr(
+    Diagnostics_basic(), have_writers(false), mom2(boost::extents[6][6]), corr(
             boost::extents[6][6])
 {
 }
 
 Diagnostics_full2::Diagnostics_full2(Bunch const& bunch) :
-    Diagnostics(), have_writers(false), mom2(boost::extents[6][6]), corr(
+    Diagnostics_basic(), have_writers(false), mom2(boost::extents[6][6]), corr(
             boost::extents[6][6])
 {
     update(bunch);
@@ -238,7 +242,7 @@ Diagnostics_full2::update(Bunch const& bunch)
     trajectory_length = bunch.get_reference_particle().get_trajectory_length();
     num_particles = bunch.get_total_num();
     real_num_particles = bunch.get_real_num();
-    update_mean(bunch);
+    mean = calculate_mean(bunch);
     update_full2(bunch);
     update_emittances();
 }
@@ -288,7 +292,7 @@ Diagnostics_full2::get_emitxyz() const
 void
 Diagnostics_full2::init_writers(hid_t & hdf5_file)
 {
-    Diagnostics::init_writers(hdf5_file);
+    Diagnostics_basic::init_writers(hdf5_file);
     writer_mom2 = new Hdf5_serial_writer<MArray2d_ref > (hdf5_file, "mom2");
     writer_corr = new Hdf5_serial_writer<MArray2d_ref > (hdf5_file, "corr");
     writer_emitx = new Hdf5_serial_writer<double > (hdf5_file, "emitx");
@@ -302,7 +306,7 @@ Diagnostics_full2::init_writers(hid_t & hdf5_file)
 void
 Diagnostics_full2::write_hdf5()
 {
-    Diagnostics::write_hdf5();
+    Diagnostics_basic::write_hdf5();
     writer_mom2->append(mom2);
     writer_corr->append(corr);
     writer_emitx->append(emitx);
@@ -371,10 +375,12 @@ Diagnostics_particles::write_hdf5()
     double s = bunch_ptr->get_reference_particle().get_s();
     writer_s.write(s);
     int local_num = bunch_ptr->get_local_num();
-    Hdf5_chunked_array2d_writer writer_particles(hdf5_file, "particles",
-            bunch_ptr->get_local_particles()[ boost::indices[range(0,local_num)][range()] ]);
-    writer_particles.write_chunk(bunch_ptr->get_local_particles()
-            [ boost::indices[range(0,local_num)][range()] ]);
+    Hdf5_chunked_array2d_writer
+            writer_particles(hdf5_file, "particles",
+                    bunch_ptr->get_local_particles()[boost::indices[range(0,
+                            local_num)][range()]]);
+    writer_particles.write_chunk(
+            bunch_ptr->get_local_particles()[boost::indices[range(0, local_num)][range()]]);
 }
 
 Diagnostics_particles::~Diagnostics_particles()
@@ -457,7 +463,7 @@ Diagnostics_track::write_hdf5()
 {
     if (!have_writers) {
         throw(std::runtime_error(
-                "Diagnostics::write_hdf5 called before Diagnostics::init_writers"));
+                "Diagnostics_track::write_hdf5 called before Diagnostics::init_writers"));
     }
     writer_coords->append(coords);
     writer_s->append(s);

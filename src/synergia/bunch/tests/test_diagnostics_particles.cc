@@ -85,7 +85,7 @@ BOOST_FIXTURE_TEST_CASE(update, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(init_writers, Fixture)
 {
-    Diagnostics diagnostics(bunch);
+    Diagnostics_particles diagnostics(bunch);
     hid_t hdf5_file = H5Fcreate("test_init_writers_particles.h5",
             H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
     diagnostics.init_writers(hdf5_file);

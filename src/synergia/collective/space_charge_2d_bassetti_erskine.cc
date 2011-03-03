@@ -241,10 +241,11 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double time_step,
 //    bunch.convert_to_state(Bunch::fixed_t);
     double sigma[2];
 
-    Diagnostics diagnostics(bunch);
-    sigma[0] = diagnostics.get_std()[Bunch::x];
-    sigma[1] = diagnostics.get_std()[Bunch::y];
-    double sigma_cdt = diagnostics.get_std()[Bunch::z];
+    MArray1d mean(Diagnostics::calculate_mean(bunch));
+    MArray1d std(Diagnostics::calculate_std(bunch, mean));
+    sigma[0] = std[Bunch::x];
+    sigma[1] = std[Bunch::y];
+    double sigma_cdt = std[Bunch::z];
 
     BasErs_field bas_ers_field(sigma);
 

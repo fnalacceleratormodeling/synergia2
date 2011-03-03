@@ -6,7 +6,7 @@ sys.path.append('../../convertors')
 from mpi4py import MPI
 from foundation import Reference_particle, Four_momentum
 from bunch import Bunch
-from bunch import Diagnostics, Diagnostics_full2
+from bunch import Diagnostics_basic, Diagnostics_full2
 from bunch import Diagnostics_writer, no_diagnostics
 import convertors
 import numpy
@@ -30,7 +30,7 @@ particles = bunch.get_local_particles()
 particles[:, 0:6] = numpy.random.lognormal(size=[bunch.get_total_num(), 6])
 
 def test_construct():
-    diagnostics = Diagnostics()
+    diagnostics = Diagnostics_basic()
     diagnostics_writer = Diagnostics_writer("test_py_construct.h5", diagnostics)
 
 def test_construct_full2():
@@ -44,18 +44,18 @@ def test_is_dummy():
     assert(Diagnostics_writer().is_dummy())
 
 def test_get_diagnostics():
-    diagnostics = Diagnostics()
+    diagnostics = Diagnostics_basic()
     diagnostics_writer = Diagnostics_writer("test_py_get_diagnostics.h5", diagnostics)
     retrieved_diagnostics = diagnostics_writer.get_diagnostics()
     assert(type(retrieved_diagnostics) == type(diagnostics))
 
 def test_write():
-    diagnostics = Diagnostics(bunch)
+    diagnostics = Diagnostics_basic(bunch)
     diagnostics_writer = Diagnostics_writer("test_py_write.h5", diagnostics)
     diagnostics_writer.write()
 
 def test_update_and_write():
-    diagnostics = Diagnostics()
+    diagnostics = Diagnostics_basic()
     diagnostics_writer = Diagnostics_writer("test_py_update_and_write.h5", diagnostics)
     diagnostics_writer.update_and_write(bunch)
     diagnostics_writer.update_and_write(bunch)

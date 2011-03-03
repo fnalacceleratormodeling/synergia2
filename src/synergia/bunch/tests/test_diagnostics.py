@@ -6,7 +6,7 @@ sys.path.append('../../convertors')
 from mpi4py import MPI
 from foundation import Reference_particle, Four_momentum
 from bunch import Bunch
-from bunch import Diagnostics, Diagnostics_full2, Diagnostics_writer
+from bunch import Diagnostics_basic, Diagnostics_full2, Diagnostics_writer
 import convertors
 import numpy
 from nose.tools import *
@@ -29,43 +29,43 @@ particles = bunch.get_local_particles()
 particles[:, 0:6] = numpy.random.lognormal(size=[bunch.get_total_num(), 6])
 
 def test_construct():
-    diagnostics = Diagnostics()
+    diagnostics = Diagnostics_basic()
 
 def test_construct2():
-    diagnostics = Diagnostics(bunch)
+    diagnostics = Diagnostics_basic(bunch)
 
 def test_create_writer():
-    diagnostics = Diagnostics(bunch)
+    diagnostics = Diagnostics_basic(bunch)
     diagnostics_writer = Diagnostics_writer("test_create_writer.h5",
                                              diagnostics)
 
 def test_get_s():
-    diagnostics = Diagnostics(bunch)
+    diagnostics = Diagnostics_basic(bunch)
     assert_almost_equal(diagnostics.get_s(), partial_s)
 
 def test_get_repetition():
-    diagnostics = Diagnostics(bunch)
+    diagnostics = Diagnostics_basic(bunch)
     assert_equal(diagnostics.get_repetition(), turns)
 
 def test_get_trajectory_length():
-    diagnostics = Diagnostics(bunch)
+    diagnostics = Diagnostics_basic(bunch)
     assert_almost_equal(diagnostics.get_trajectory_length(),
                         turns * turn_length + partial_s)
 
 def test_get_mean():
-    diagnostics = Diagnostics(bunch)
+    diagnostics = Diagnostics_basic(bunch)
     mean = diagnostics.get_mean()
     assert len(mean) == 6
 
 def test_get_std():
-    diagnostics = Diagnostics(bunch)
+    diagnostics = Diagnostics_basic(bunch)
     std = diagnostics.get_mean()
     assert len(std) == 6
 
 def test_update():
-    diagnostics1 = Diagnostics()
+    diagnostics1 = Diagnostics_basic()
     diagnostics1.update(bunch)
-    diagnostics2 = Diagnostics(bunch)
+    diagnostics2 = Diagnostics_basic(bunch)
     for i in range(0, 6):
         assert diagnostics1.get_mean()[i] == diagnostics2.get_mean()[i]
         assert diagnostics1.get_std()[i] == diagnostics2.get_std()[i]

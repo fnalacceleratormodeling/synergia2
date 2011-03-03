@@ -54,7 +54,7 @@ main(int argc, char **argv)
     xml_load(covariances, "cxx_covariance_matrix.xml");
     populate_6d(distribution, bunch, means, covariances);
 
-    Diagnostics_sptr diagnostics_sptr(new Diagnostics);
+    Diagnostics_basic_sptr diagnostics_sptr(new Diagnostics_basic);
     Diagnostics_writer per_step_diagnostics("cxx_example_per_step.h5",
             diagnostics_sptr);
     Diagnostics_full2_sptr diagnostics_full2_sptr(new Diagnostics_full2);

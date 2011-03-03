@@ -30,17 +30,21 @@ BOOST_PYTHON_MODULE(bunch)
     class_<Fixed_t_z_ballistic, bases<Fixed_t_z_converter > > (
             "Fixed_t_z_ballistic", init< > ());
 
-    class_<Diagnostics, Diagnostics_sptr >("Diagnostics",init< >())
+    class_<Diagnostics, Diagnostics_sptr, boost::noncopyable >
+        ("Diagnostics", no_init);
+
+    class_<Diagnostics_basic, Diagnostics_basic_sptr, bases<Diagnostics> >
+        ("Diagnostics_basic",init< >())
         .def(init<Bunch const & >())
-        .def("update", &Diagnostics::update)
-        .def("get_s", &Diagnostics::get_s)
-        .def("get_repetition", &Diagnostics::get_repetition)
-        .def("get_trajectory_length", &Diagnostics::get_trajectory_length)
-        .def("get_mean", &Diagnostics::get_mean)
-        .def("get_std", &Diagnostics::get_std)
+        .def("update", &Diagnostics_basic::update)
+        .def("get_s", &Diagnostics_basic::get_s)
+        .def("get_repetition", &Diagnostics_basic::get_repetition)
+        .def("get_trajectory_length", &Diagnostics_basic::get_trajectory_length)
+        .def("get_mean", &Diagnostics_basic::get_mean)
+        .def("get_std", &Diagnostics_basic::get_std)
         ;
 
-    class_<Diagnostics_full2, Diagnostics_full2_sptr, bases<Diagnostics > >
+    class_<Diagnostics_full2, Diagnostics_full2_sptr, bases<Diagnostics_basic > >
             ("Diagnostics_full2",init< >())
         .def(init<Bunch const & >())
         .def("get_mom2", &Diagnostics_full2::get_mom2)
