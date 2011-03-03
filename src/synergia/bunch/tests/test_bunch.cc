@@ -278,6 +278,26 @@ BOOST_FIXTURE_TEST_CASE(convert_to_state, Fixture)
     BOOST_CHECK_CLOSE(gamma * beta * accel_std[Bunch::cdt],
             bunch_std[Bunch::z], tolerance_std);
 
+    // Check relativistic invariants for spatial vectors
+    const double tolerance_invariant = 1.0e-15;
+    for (int part = 0; part < bunch.get_local_num(); ++part) {
+        double x, y, z, cdt;
+        // accelerator frame
+        x = second_bunch.get_local_particles()[part][Bunch::x];
+        y = second_bunch.get_local_particles()[part][Bunch::y];
+        z = 0;
+        cdt = second_bunch.get_local_particles()[part][Bunch::cdt];
+        double accel_invariant = x * x + y * y + z * z - cdt * cdt;
+        // bunch frame
+        x = bunch.get_local_particles()[part][Bunch::x];
+        y = bunch.get_local_particles()[part][Bunch::y];
+        z = bunch.get_local_particles()[part][Bunch::z];
+        cdt = gamma * second_bunch.get_local_particles()[part][Bunch::cdt];
+        double bunch_invariant = x * x + y * y + z * z - cdt * cdt;
+        BOOST_CHECK_CLOSE(accel_invariant, bunch_invariant, tolerance_invariant);
+    }
+
+    // Check that the roundtrip transformation is the identity
     bunch.convert_to_state(Bunch::fixed_z);
     const double convert_tolerance = 5.0e-8;
     compare_bunches(bunch, second_bunch, convert_tolerance);
