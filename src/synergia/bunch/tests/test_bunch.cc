@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/bunch.h"
+#include "synergia/bunch/diagnostics.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
@@ -246,13 +247,39 @@ BOOST_FIXTURE_TEST_CASE(get_comm, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(convert_to_state, Fixture)
 {
-    // This is a trivial test to see that converting to
-    // fixed_t then back to fixed_z gives the original bunch.
     dummy_populate(bunch);
     Bunch second_bunch(bunch);
     bunch.convert_to_state(Bunch::fixed_t);
+
+    BOOST_CHECK(bunch.get_state() == Bunch::fixed_t);
+    BOOST_CHECK(second_bunch.get_state() == Bunch::fixed_z);
+
+    // verify that transverse means are unaffected by state transformation
+    MArray1d accel_mean(Diagnostics::calculate_mean(second_bunch));
+    MArray1d bunch_mean(Diagnostics::calculate_mean(bunch));
+    const double tolerance_mean = 1.0e-15;
+    BOOST_CHECK_CLOSE(accel_mean[Bunch::x], bunch_mean[Bunch::x], tolerance_mean);
+    BOOST_CHECK_CLOSE(accel_mean[Bunch::xp], bunch_mean[Bunch::xp], tolerance_mean);
+    BOOST_CHECK_CLOSE(accel_mean[Bunch::y], bunch_mean[Bunch::y], tolerance_mean);
+    BOOST_CHECK_CLOSE(accel_mean[Bunch::yp], bunch_mean[Bunch::yp], tolerance_mean);
+
+    // verify that transverse std's are unaffected by state transformation
+    MArray1d accel_std(Diagnostics::calculate_std(second_bunch, accel_mean));
+    MArray1d bunch_std(Diagnostics::calculate_std(bunch, bunch_mean));
+    const double tolerance_std = 1.0e-15;
+    BOOST_CHECK_CLOSE(accel_std[Bunch::x], bunch_std[Bunch::x], tolerance_std);
+    BOOST_CHECK_CLOSE(accel_std[Bunch::xp], bunch_std[Bunch::xp], tolerance_std);
+    BOOST_CHECK_CLOSE(accel_std[Bunch::y], bunch_std[Bunch::y], tolerance_std);
+    BOOST_CHECK_CLOSE(accel_std[Bunch::yp], bunch_std[Bunch::yp], tolerance_std);
+
+    // verify that longitudinal std's are transformed as expected
+    double beta = bunch.get_reference_particle().get_beta();
+    double gamma = bunch.get_reference_particle().get_gamma();
+    BOOST_CHECK_CLOSE(gamma * beta * accel_std[Bunch::cdt],
+            bunch_std[Bunch::z], tolerance_std);
+
     bunch.convert_to_state(Bunch::fixed_z);
-    const double convert_tolerance = 1.0e-10;
+    const double convert_tolerance = 5.0e-8;
     compare_bunches(bunch, second_bunch, convert_tolerance);
 
 }

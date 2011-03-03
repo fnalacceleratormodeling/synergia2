@@ -22,8 +22,8 @@ public:
     static const int yp = 3;
     static const int z = 4;
     static const int zp = 5;
-    static const int t = 4;
-    static const int tp = 5;
+    static const int cdt = 4;
+    static const int dpop = 5;
     static const int id = 6;
 private:
     Reference_particle reference_particle;

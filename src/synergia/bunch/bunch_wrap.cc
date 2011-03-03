@@ -133,7 +133,7 @@ BOOST_PYTHON_MODULE(bunch)
     scope().attr("yp") = Bunch::yp;
     scope().attr("z") = Bunch::z;
     scope().attr("zp") = Bunch::zp;
-    scope().attr("t") = Bunch::t;
-    scope().attr("tp") = Bunch::tp;
+    scope().attr("cdt") = Bunch::cdt;
+    scope().attr("dpop") = Bunch::dpop;
     scope().attr("id") = Bunch::id;
 }

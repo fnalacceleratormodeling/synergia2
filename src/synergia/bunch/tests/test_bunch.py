@@ -100,7 +100,7 @@ def test_attrs():
     assert Bunch.yp == 3
     assert Bunch.z == 4
     assert Bunch.zp == 5
-    assert Bunch.t == 4
-    assert Bunch.tp == 5
+    assert Bunch.cdt == 4
+    assert Bunch.dpop == 5
     assert Bunch.id == 6
 

@@ -16,7 +16,7 @@ Fixed_t_z_zeroth::fixed_t_to_fixed_z(Bunch &bunch)
     MArray2d_ref particles = bunch.get_local_particles();
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         // ct in accelerator frame
-        particles[part][Bunch::t] = particles[part][Bunch::z] / (gamma * beta);
+        particles[part][Bunch::cdt] = particles[part][Bunch::z] / (gamma * beta);
 
         // p'_{x,y,z} in beam frame
         double pxp = particles[part][Bunch::xp] * p_ref;
@@ -28,7 +28,7 @@ Fixed_t_z_zeroth::fixed_t_to_fixed_z(Bunch &bunch)
         double pz = gamma * (pzp - beta * Epoc);
         // tp = (p - p_ref)/p_ref
         double p = std::sqrt(p_perp2 + pz * pz);
-        particles[part][Bunch::tp] = (p - p_ref) / p_ref;
+        particles[part][Bunch::dpop] = (p - p_ref) / p_ref;
     }
 }
 
@@ -42,10 +42,10 @@ Fixed_t_z_zeroth::fixed_z_to_fixed_t(Bunch &bunch)
     MArray2d_ref particles = bunch.get_local_particles();
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         // z in beam rest frame
-        particles[part][Bunch::z] = gamma * beta * particles[part][Bunch::t];
+        particles[part][Bunch::z] = gamma * beta * particles[part][Bunch::cdt];
 
         // total momentum in accelerator frame
-        double p = p_ref + particles[part][Bunch::tp] * p_ref;
+        double p = p_ref + particles[part][Bunch::dpop] * p_ref;
         // E/c in accelerator frame
         double Eoc = std::sqrt(p * p + m * m);
         // p_{x,y,z} in accelerator frame

@@ -9,8 +9,8 @@ const int Bunch::y;
 const int Bunch::yp;
 const int Bunch::z;
 const int Bunch::zp;
-const int Bunch::t;
-const int Bunch::tp;
+const int Bunch::cdt;
+const int Bunch::dpop;
 const int Bunch::id;
 
 class Particle_id_offset
