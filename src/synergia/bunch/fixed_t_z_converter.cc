@@ -26,7 +26,7 @@ Fixed_t_z_zeroth::fixed_t_to_fixed_z(Bunch &bunch)
         // E'/c in beam frame
         double Epoc = std::sqrt(p_perp2 + pzp * pzp + m * m);
         double pz = gamma * (pzp - beta * Epoc);
-        // tp = (p - p_ref)/p_ref
+        // dpop = (p - p_ref)/p_ref
         double p = std::sqrt(p_perp2 + pz * pz);
         particles[part][Bunch::dpop] = (p - p_ref) / p_ref;
     }
@@ -54,6 +54,10 @@ Fixed_t_z_zeroth::fixed_z_to_fixed_t(Bunch &bunch)
         double pz = std::sqrt(p * p - px * px - py * py);
         // zp = pz/p_{ref}^{total}
         particles[part][Bunch::zp] = gamma * (pz + beta * Eoc) / p_ref;
+
+        // n.b. in the zeroth approximation, the transformation from
+        //      t' = gamma cdt to t' = 0
+        //      is a no-op.
     }
 }
 

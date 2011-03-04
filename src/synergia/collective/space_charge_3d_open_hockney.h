@@ -18,6 +18,8 @@ private:
     Rectangular_grid_domain_sptr domain_sptr, doubled_domain_sptr;
     bool periodic_z;
     double z_period;
+    bool grid_entire_period;
+    bool longitudinal_kicks;
     Distributed_fft3d_sptr distributed_fft3d_sptr;
     Commxx comm2, comm1;
     std::vector<int > lowers1, lengths1;
@@ -31,14 +33,16 @@ private:
     void
     set_doubled_domain();
 public:
-    Space_charge_3d_open_hockney(std::vector<int > const & grid_shape,
-            bool periodic_z, Commxx const& comm, double z_period = 0.0,
-            double n_sigma = 8.0);
+    Space_charge_3d_open_hockney(Commxx const& comm,
+            std::vector<int > const & grid_shape, bool longitudinal_kicks =
+                    true, bool periodic_z = false, double z_period = 0.0,
+            bool grid_entire_period = false, double n_sigma = 8.0);
     /// Note: Use Space_charge_3d_open_hockney::get_internal_grid_shape for
     /// Distributed_fft3d.
-    Space_charge_3d_open_hockney(bool periodic_z,
-            Distributed_fft3d_sptr distributed_fft3d_sptr, double z_period =
-                    0.0, double n_sigma = 8.0);
+    Space_charge_3d_open_hockney(Distributed_fft3d_sptr distributed_fft3d_sptr,
+            bool longitudinal_kicks = true, bool periodic_z = false,
+            double z_period = 0.0, bool grid_entire_period = false,
+            double n_sigma = 8.0);
     double
     get_n_sigma() const;
     void

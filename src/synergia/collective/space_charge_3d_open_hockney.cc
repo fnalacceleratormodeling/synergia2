@@ -55,12 +55,15 @@ Space_charge_3d_open_hockney::setup_nondoubled_communication()
     comm1.set(mpi_comm1);
 }
 
-Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
-        std::vector<int > const & grid_shape, bool periodic_z,
-        Commxx const& comm, double z_period, double n_sigma) :
-    Collective_operator("space charge"), grid_shape(3), doubled_grid_shape(3),
-            padded_grid_shape(3), periodic_z(periodic_z), comm2(comm),
-            z_period(z_period), n_sigma(n_sigma), domain_fixed(false)
+Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(Commxx const& comm,
+        std::vector<int > const & grid_shape, bool longitudinal_kicks,
+        bool periodic_z, double z_period, bool grid_entire_period,
+        double n_sigma) :
+    Collective_operator("space charge 3D open hockney"), comm2(comm),
+            grid_shape(3), doubled_grid_shape(3), padded_grid_shape(3),
+            longitudinal_kicks(longitudinal_kicks), periodic_z(periodic_z),
+            z_period(z_period), grid_entire_period(grid_entire_period),
+            n_sigma(n_sigma), domain_fixed(false)
 {
     this->grid_shape[0] = grid_shape[2];
     this->grid_shape[1] = grid_shape[1];
@@ -74,14 +77,16 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
     setup_nondoubled_communication();
 }
 
-Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(bool periodic_z,
-        Distributed_fft3d_sptr distributed_fft3d_sptr, double z_period,
+Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
+        Distributed_fft3d_sptr distributed_fft3d_sptr, bool longitudinal_kicks,
+        bool periodic_z, double z_period, bool grid_entire_period,
         double n_sigma) :
     Collective_operator("space charge"), grid_shape(3), doubled_grid_shape(3),
-            padded_grid_shape(3), periodic_z(periodic_z),
-            distributed_fft3d_sptr(distributed_fft3d_sptr), comm2(
-                    distributed_fft3d_sptr->get_comm()), z_period(z_period),
-            n_sigma(n_sigma), domain_fixed(false)
+            padded_grid_shape(3), comm2(distributed_fft3d_sptr->get_comm()),
+            distributed_fft3d_sptr(distributed_fft3d_sptr), longitudinal_kicks(
+                    longitudinal_kicks), periodic_z(periodic_z), z_period(
+                    z_period), grid_entire_period(grid_entire_period), n_sigma(
+                    n_sigma), domain_fixed(false)
 {
     doubled_grid_shape = distributed_fft3d_sptr->get_shape();
     for (int i = 0; i < 3; ++i) {
@@ -237,7 +242,7 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
 {
     if (doubled_domain_sptr == NULL) {
         throw runtime_error(
-                "Space_charge_3d_open_hockney::get_green_fn2 called before domain specified");
+                "Space_charge_3d_open_hockney::get_green_fn2_pointlike called before domain specified");
     }
     int lower = distributed_fft3d_sptr->get_lower();
     int upper = distributed_fft3d_sptr->get_upper();
@@ -298,13 +303,18 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
                     G = 1.0 / sqrt(dx * dx + dy * dy + dz * dz);
                 }
                 if (periodic_z) {
-                    throw std::runtime_error(
-                            "Space_charge_3d_open_hockney::get_green_fn2: periodic_z not yet implemented");
                     for (int image = -num_images; image < num_images; ++image) {
-                        // fill me in!
+                        double dz_image = dz + image * z_period;
+                        const double tiny = 1.0e-9;
+                        if ((ix == 0) && (iy == 0) && (std::abs(dz_image)
+                                < tiny)) {
+                            G += G000;
+                        } else {
+                            G += 1.0 / sqrt(dx * dx + dy * dy + dz_image
+                                    * dz_image);
+                        }
                     }
                 }
-
                 G2->get_grid_points()[iz][iy][ix] = G;
                 // three mirror images
                 G2->get_grid_points()[iz][miy][ix] = G;
@@ -324,7 +334,7 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
 {
     if (doubled_domain_sptr == NULL) {
         throw runtime_error(
-                "Space_charge_3d_open_hockney::get_green_fn2 called before domain specified");
+                "Space_charge_3d_open_hockney::get_green_fn2_linear called before domain specified");
     }
     int lower = distributed_fft3d_sptr->get_lower();
     int upper = distributed_fft3d_sptr->get_upper();
@@ -410,7 +420,7 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
 
                 if (periodic_z) {
                     throw std::runtime_error(
-                            "Space_charge_3d_open_hockney::get_green_fn2: periodic_z not yet implemented");
+                            "Space_charge_3d_open_hockney::get_green_fn2_linear: periodic_z not yet implemented");
                     for (int image = -num_images; image < num_images; ++image) {
                         if (image != 0) {
                             double z_image = z + image * z_period;
