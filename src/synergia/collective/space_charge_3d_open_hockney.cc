@@ -65,6 +65,10 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(Commxx const& comm,
             z_period(z_period), grid_entire_period(grid_entire_period),
             n_sigma(n_sigma), domain_fixed(false)
 {
+    if (this->periodic_z && (this->z_period == 0.0)) {
+        throw std::runtime_error(
+                "Space_charge_3d_open_hockney: z_period cannot be 0 when periodic_z is true");
+    }
     this->grid_shape[0] = grid_shape[2];
     this->grid_shape[1] = grid_shape[1];
     this->grid_shape[2] = grid_shape[0];
@@ -303,15 +307,17 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
                     G = 1.0 / sqrt(dx * dx + dy * dy + dz * dz);
                 }
                 if (periodic_z) {
-                    for (int image = -num_images; image < num_images; ++image) {
-                        double dz_image = dz + image * z_period;
-                        const double tiny = 1.0e-9;
-                        if ((ix == 0) && (iy == 0) && (std::abs(dz_image)
-                                < tiny)) {
-                            G += G000;
-                        } else {
-                            G += 1.0 / sqrt(dx * dx + dy * dy + dz_image
-                                    * dz_image);
+                    for (int image = -num_images; image <= num_images; ++image) {
+                        if (image != 0) {
+                            double dz_image = dz + image * z_period;
+                            const double tiny = 1.0e-9;
+                            if ((ix == 0) && (iy == 0) && (std::abs(dz_image)
+                                    < tiny)) {
+                                G += G000;
+                            } else {
+                                G += 1.0 / sqrt(dx * dx + dy * dy + dz_image
+                                        * dz_image);
+                            }
                         }
                     }
                 }
