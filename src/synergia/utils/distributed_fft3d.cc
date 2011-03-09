@@ -156,11 +156,11 @@ Distributed_fft3d::get_padded_shape_complex() const
 void
 Distributed_fft3d::transform(MArray3d_ref & in, MArray3dc_ref & out)
 {
-    if (in.index_bases()[0] != lower) {
+    if (in.index_bases()[0] > lower) {
         throw std::runtime_error(
                 "Distributed_fft3d::transform found an incompatible first index offset in input array");
     }
-    if (in.shape()[0] != (upper - lower)) {
+    if ((in.index_bases()[0] + in.shape()[0]) < upper) {
         throw std::runtime_error(
                 "Distributed_fft3d::transform found an incompatible first dimension of input array");
     }
@@ -172,11 +172,11 @@ Distributed_fft3d::transform(MArray3d_ref & in, MArray3dc_ref & out)
         throw std::runtime_error(
                 "Distributed_fft3d::transform found an incompatible third dimension of input array");
     }
-    if (out.index_bases()[0] != lower) {
+    if (out.index_bases()[0] > lower) {
         throw std::runtime_error(
                 "Distributed_fft3d::transform found an incompatible first index offset in output array");
     }
-    if (out.shape()[0] != (upper - lower)) {
+    if ((out.index_bases()[0] + out.shape()[0]) < upper) {
         throw std::runtime_error(
                 "Distributed_fft3d::transform found an incompatible first dimension of output array");
     }
@@ -190,26 +190,26 @@ Distributed_fft3d::transform(MArray3d_ref & in, MArray3dc_ref & out)
     }
 #ifdef USE_FFTW2
     if (have_local_data) {
-      memcpy((void*) data,(void*) (in.origin() + lower * in.strides()[0]),
-	     local_size_real * sizeof(double));
+        memcpy((void*) data,(void*) (in.origin() + lower * in.strides()[0]),
+                local_size_real * sizeof(double));
     }
     rfftwnd_mpi(plan, 1, data, workspace, FFTW_NORMAL_ORDER);
     if (have_local_data) {
-      memcpy((void* ) (out.origin() + lower * out.strides()[0]),
-	     (void*) (workspace),
+        memcpy((void* ) (out.origin() + lower * out.strides()[0]),
+                (void*) (workspace),
                 local_size_complex * sizeof(std::complex<double >));
     }
 
 #else
     if (have_local_data) {
-      memcpy((void*) data,(void*) (in.origin() + lower * in.strides()[0]),
-	     local_size_real * sizeof(double));
+        memcpy((void*) data, (void*) (in.origin() + lower * in.strides()[0]),
+                local_size_real * sizeof(double));
     }
     fftw_execute(plan);
     if (have_local_data) {
-      memcpy((void* ) (out.origin() + lower * out.strides()[0]),
-	     (void*) (workspace),
-                local_size_complex * sizeof(std::complex<double >));
+        memcpy((void*) (out.origin() + lower * out.strides()[0]),
+                (void*) (workspace), local_size_complex * sizeof(std::complex<
+                        double >));
     }
 #endif //USE_FFTW2
 }
@@ -217,11 +217,11 @@ Distributed_fft3d::transform(MArray3d_ref & in, MArray3dc_ref & out)
 void
 Distributed_fft3d::inv_transform(MArray3dc_ref & in, MArray3d_ref & out)
 {
-    if (in.index_bases()[0] != lower) {
+    if (in.index_bases()[0] > lower) {
         throw std::runtime_error(
                 "Distributed_fft3d::inv_transform found an incompatible first index offset in input array");
     }
-    if (in.shape()[0] != (upper - lower)) {
+    if ((in.index_bases()[0] + in.shape()[0]) < upper) {
         throw std::runtime_error(
                 "Distributed_fft3d::inv_transform found an incompatible first dimension of input array");
     }
@@ -233,15 +233,11 @@ Distributed_fft3d::inv_transform(MArray3dc_ref & in, MArray3d_ref & out)
         throw std::runtime_error(
                 "Distributed_fft3d::inv_transform found an incompatible third dimension of input array");
     }
-    if (out.index_bases()[0] != lower) {
+    if (out.index_bases()[0] > lower) {
         throw std::runtime_error(
                 "Distributed_fft3d::inv_transform found an incompatible first index offset in output array");
     }
-    if (out.index_bases()[0] != lower) {
-        throw std::runtime_error(
-                "Distributed_fft3d::inv_transform found an incompatible first index offset in output array");
-    }
-    if (out.shape()[0] != (upper - lower)) {
+    if ((out.index_bases()[0] + out.shape()[0]) < upper) {
         throw std::runtime_error(
                 "Distributed_fft3d::inv_transform found an incompatible first dimension of output array");
     }
@@ -256,28 +252,28 @@ Distributed_fft3d::inv_transform(MArray3dc_ref & in, MArray3d_ref & out)
 
 #ifdef USE_FFTW2
     if (have_local_data) {
-      memcpy( (void*) workspace, (void*) (in.origin() + lower * in.strides()[0]),
-	      local_size_complex * sizeof(std::complex<double >));
+        memcpy( (void*) workspace, (void*) (in.origin() + lower * in.strides()[0]),
+                local_size_complex * sizeof(std::complex<double >));
     }
 
     rfftwnd_mpi(inv_plan, 1, data, workspace, FFTW_NORMAL_ORDER);
 
     if (have_local_data) {
-      memcpy( (void*)(out.origin() + lower * out.strides()[0]),
-	      (void*) data, local_size_real * sizeof(double));
+        memcpy( (void*)(out.origin() + lower * out.strides()[0]),
+                (void*) data, local_size_real * sizeof(double));
     }
 #else
     if (have_local_data) {
-      memcpy( (void*) workspace, (void*) (in.origin() + lower * in.strides()[0]),
-	      local_size_complex * sizeof(std::complex<double >));
+        memcpy((void*) workspace, (void*) (in.origin() + lower
+                * in.strides()[0]), local_size_complex * sizeof(std::complex<
+                double >));
     }
     fftw_execute(inv_plan);
     if (have_local_data) {
-      memcpy( (void*)(out.origin() + lower * out.strides()[0]),
-	      (void*) data, local_size_real * sizeof(double));
+        memcpy((void*) (out.origin() + lower * out.strides()[0]), (void*) data,
+                local_size_real * sizeof(double));
     }
 #endif //USE_FFTW2
-
 }
 
 double
