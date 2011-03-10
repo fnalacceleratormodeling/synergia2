@@ -438,9 +438,6 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_pointlike_periodic, Ellipsoidal_bunch_fixt
                         } else {
                             G += 1.0 / std::sqrt(dx * dx + dy * dy + dz_image
                                     * dz_image);
-                            std::cout << "jfat: " << i << " " << j << " " << k
-                                    << ": " << 1.0 / std::sqrt(dx * dx + dy
-                                    * dy + dz_image * dz_image) << std::endl;
                         }
                     }
                 }
