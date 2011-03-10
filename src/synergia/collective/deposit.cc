@@ -49,8 +49,8 @@ deposit_charge_rectangular_zyx(Rectangular_grid & rho_grid, Bunch const& bunch,
                             if (cellz >= 0) {
                                 cellz = cellz % rho.shape()[0];
                             } else {
-                                cellz = rho.shape()[0] - 1 + ((cellz + 1)
-                                        % rho.shape()[0]);
+                                int period = rho.shape()[0];
+                                cellz = period - ((-cellz) % period);
                             }
                             double weight = weight0 * (1 - i - (1 - 2 * i)
                                     * offx) * (1 - j - (1 - 2 * j) * offy) * (1

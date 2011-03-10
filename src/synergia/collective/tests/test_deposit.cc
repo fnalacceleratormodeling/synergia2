@@ -10,7 +10,7 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double mass = 100.0;
 const double total_energy = 125.0;
-const int total_num = 10;
+const int total_num = 21;
 const double real_num = 2.0e12;
 const double tolerance = 1.0e-12;
 const double domain_min = -2.0;
@@ -152,7 +152,6 @@ BOOST_FIXTURE_TEST_CASE(z_displaced_particle, Fixture)
     bunch.get_local_particles()[0][2] = 0;
     bunch.get_local_particles()[0][4]
             = rho_grid_sptr->get_domain_sptr()->get_cell_size()[0];
-    ;
 
     deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch);
 
@@ -160,6 +159,37 @@ BOOST_FIXTURE_TEST_CASE(z_displaced_particle, Fixture)
         for (int j = 1; j < 3; ++j) {
             for (int k = 1; k < 3; ++k) {
                 expected[i][j][k] = 0.125 * density_norm;
+            }
+        }
+    }
+
+    multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
+            tolerance);
+}
+
+BOOST_FIXTURE_TEST_CASE(z_displaced_particles_periodic, Fixture)
+{
+    rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
+            physical_offset, grid_shape, true));
+    const int left_periods = 10;
+    const int periods = 2 * left_periods + 1;
+    bunch.set_local_num(periods);
+    int n = 0;
+    for (int period = -left_periods; period < left_periods + 1; ++period) {
+        bunch.get_local_particles()[n][0] = 0;
+        bunch.get_local_particles()[n][2] = 0;
+        bunch.get_local_particles()[n][4]
+                = rho_grid_sptr->get_domain_sptr()->get_cell_size()[0] + period
+                        * physical_size[2];
+        ++n;
+    }
+
+    deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch);
+
+    for (int i = 2; i < 4; ++i) {
+        for (int j = 1; j < 3; ++j) {
+            for (int k = 1; k < 3; ++k) {
+                expected[i][j][k] = 0.125 * density_norm * periods;
             }
         }
     }
