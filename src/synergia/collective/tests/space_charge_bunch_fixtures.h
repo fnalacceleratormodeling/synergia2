@@ -92,6 +92,48 @@ struct Spherical_bunch_fixture
     std::vector<int > grid_shape;
 };
 
+struct Cylindrical_bunch_fixture
+{
+    Cylindrical_bunch_fixture() :
+        four_momentum(mass, total_energy), reference_particle(charge,
+                four_momentum), comm(MPI_COMM_WORLD), bunch(reference_particle,
+                total_num, real_num, comm), distribution(0, comm),
+                grid_shape(3)
+    {
+        BOOST_TEST_MESSAGE("setup Cylindrical bunch fixture");
+        MArray2d covariances(boost::extents[6][6]);
+        MArray1d means(boost::extents[6]);
+        for (int i = 0; i < 6; ++i) {
+            means[i] = 0.0;
+            for (int j = i; j < 6; ++j) {
+                covariances[i][j] = 0.0;
+            }
+        }
+        sigma = 1.3e-3;
+        covariances[0][0] = sigma * sigma;
+        covariances[2][2] = sigma * sigma;
+        covariances[4][4] = sigma * sigma * 1000;
+        covariances[1][1] = covariances[3][3] = covariances[5][5] = 1.0;
+        populate_6d(distribution, bunch, means, covariances);
+        grid_shape[0] = 16;
+        grid_shape[1] = 16;
+        grid_shape[2] = 16;
+    }
+
+    ~Cylindrical_bunch_fixture()
+    {
+        BOOST_TEST_MESSAGE("tear down Cylindrical bunch fixture");
+    }
+
+    Four_momentum four_momentum;
+    Reference_particle reference_particle;
+    Commxx comm;
+    Bunch bunch;
+    Random_distribution distribution;
+    double sigma;
+    std::vector<int > grid_shape;
+};
+
 const double domain_min = -2.0;
 const double domain_max = 2.0;
 const double domain_offset = 0.0;

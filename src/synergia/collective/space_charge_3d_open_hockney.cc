@@ -142,8 +142,13 @@ Space_charge_3d_open_hockney::update_domain(Bunch const& bunch)
         MArray1d std(Diagnostics::calculate_std(bunch, mean));
         std::vector<double > size(3);
         std::vector<double > offset(3);
-        offset[0] = mean[Bunch::z];
-        size[0] = n_sigma * std[Bunch::z];
+        if (grid_entire_period) {
+            offset[0] = 0.0;
+            size[0] = z_period;
+        } else {
+            offset[0] = mean[Bunch::z];
+            size[0] = n_sigma * std[Bunch::z];
+        }
         offset[1] = mean[Bunch::y];
         size[1] = n_sigma * std[Bunch::y];
         offset[2] = mean[Bunch::x];
