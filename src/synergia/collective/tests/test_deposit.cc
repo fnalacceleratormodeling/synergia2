@@ -303,6 +303,38 @@ BOOST_FIXTURE_TEST_CASE(zedge_particle_periodic, Fixture)
             tolerance);
 }
 
+BOOST_FIXTURE_TEST_CASE(zedge_particles_periodic, Fixture)
+{
+    rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
+            physical_offset, grid_shape, true));
+    const int left_periods = 10;
+    const int periods = 2 * left_periods + 1;
+    bunch.set_local_num(periods);
+    int n = 0;
+    for (int period = -left_periods; period < left_periods + 1; ++period) {
+        bunch.get_local_particles()[n][0] = 0;
+        bunch.get_local_particles()[n][2] = 0;
+        bunch.get_local_particles()[n][4] = domain_min + period
+                * physical_size[2];
+        ++n;
+    }
+
+    deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch);
+
+    expected[0][1][1] = 0.125 * density_norm * periods;
+    expected[0][1][2] = 0.125 * density_norm * periods;
+    expected[0][2][1] = 0.125 * density_norm * periods;
+    expected[0][2][2] = 0.125 * density_norm * periods;
+
+    expected[3][1][1] = 0.125 * density_norm * periods;
+    expected[3][1][2] = 0.125 * density_norm * periods;
+    expected[3][2][1] = 0.125 * density_norm * periods;
+    expected[3][2][2] = 0.125 * density_norm * periods;
+
+    multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
+            tolerance);
+}
+
 BOOST_FIXTURE_TEST_CASE(zrightedge_particle_periodic, Fixture)
 {
     rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
