@@ -60,7 +60,7 @@ get_linear_cylindrical_rho2(Space_charge_3d_open_hockney & space_charge,
 BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Cylindrical_bunch_fixture)
 {
     double z_period = 8 * sigma;
-    double r0 = 1.0 * sigma;
+    double r0 = 2.0 * sigma;
     Space_charge_3d_open_hockney space_charge(comm, grid_shape, false, true,
             z_period, true);
     Distributed_rectangular_grid_sptr rho2(get_linear_cylindrical_rho2(
@@ -122,9 +122,10 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Cylindrical_bunch_fixture)
 //    std::cout << "min_fractional_error = " << min_fractional_error << std::endl;
 
     // on the development machine, I get
-    //    max_fractional_error = 0.00157028
-    //    min_fractional_error = -0.00593886
-    const double solution_tolerance = 1.0e-2;
+    //    max_fractional_error = 0.000613108
+    //    min_fractional_error = -0.00104558
+
+    const double solution_tolerance = 2.0e-3;
     BOOST_CHECK(std::abs(max_fractional_error) < solution_tolerance);
     BOOST_CHECK(std::abs(min_fractional_error) < solution_tolerance);
 }
