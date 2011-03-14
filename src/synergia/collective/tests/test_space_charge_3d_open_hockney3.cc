@@ -118,8 +118,8 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Cylindrical_bunch_fixture)
             }
         }
     }
-//    std::cout << "max_fractional_error = " << max_fractional_error << std::endl;
-//    std::cout << "min_fractional_error = " << min_fractional_error << std::endl;
+    //    std::cout << "max_fractional_error = " << max_fractional_error << std::endl;
+    //    std::cout << "min_fractional_error = " << min_fractional_error << std::endl;
 
     // on the development machine, I get
     //    max_fractional_error = 0.000613108
@@ -215,76 +215,101 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Cylindrical_bunch_fixture)
 //        }
 //    }
 //}
-//
-//BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
-//        Spherical_bunch_fixture)
-//{
-//    Space_charge_3d_open_hockney space_charge(comm, grid_shape);
-//    Distributed_rectangular_grid_sptr rho2(get_gaussian_rho2(space_charge,
-//            bunch, sigma));
-//    double Q = bunch.get_real_num() * bunch.get_particle_charge()
-//            * pconstants::e;
-//    Distributed_rectangular_grid_sptr
-//            G2(space_charge.get_green_fn2_pointlike()); // [1/m]
-//    Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
-//            *rho2, *G2)); // [V]
-//    Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
-//            *phi2));
-//    phi->fill_guards(comm);
-//    for (int component = 0; component < 3; ++component) {
-//        Distributed_rectangular_grid_sptr local_En(
-//                space_charge.get_electric_field_component(*phi, component)); // [V/m]
-//        double max_fractional_error = -2.0;
-//        double min_fractional_error = 2.0;
-//        for (int i = local_En->get_lower(); i < local_En->get_upper(); ++i) {
-//            for (int j = 0; j
-//                    < local_En->get_domain_sptr()->get_grid_shape()[1]; ++j) {
-//                for (int k = 0; k
-//                        < local_En->get_domain_sptr()->get_grid_shape()[2]; ++k) {
-//                    double z, y, x;
-//                    local_En->get_domain_sptr()->get_cell_coordinates(i, j, k,
-//                            z, y, x);
-//                    double r = std::sqrt(x * x + y * y + z * z);
-//                    double var;
-//                    if (component == 0) {
-//                        var = z;
-//                    } else if (component == 1) {
-//                        var = y;
-//                    } else if (component == 2) {
-//                        var = x;
-//                    }
-//                    double En_exact_ijk = gaussian_electric_field_component(Q,
-//                            r, sigma, var);
-//                    double En_calc_ijk = local_En->get_grid_points()[i][j][k]
-//                            * local_En->get_normalization();
-//                    double fractional_error = (En_calc_ijk - En_exact_ijk)
-//                            / En_exact_ijk;
-//                    if (fractional_error > max_fractional_error) {
-//                        max_fractional_error = fractional_error;
-//                    }
-//                    if (fractional_error < min_fractional_error) {
-//                        min_fractional_error = fractional_error;
-//                    }
-//                }
-//            }
-//        }
-//        //std::cout << "max_fractional_error = " << max_fractional_error
-//        //        << std::endl;
-//        //std::cout << "min_fractional_error = " << min_fractional_error
-//        //        << std::endl;
-//        // on the development machine, I get
-//        //    max_fractional_error = 0.067946
-//        //    min_fractional_error = -0.00695024
-//        //    max_fractional_error = 0.0932745
-//        //    min_fractional_error = -0.0141639
-//        //    max_fractional_error = 0.148878
-//        //    min_fractional_error = -0.0393951
-//        const double field_tolerance[] = { 8.0e-2, 12.0e-2, 20.0e-2 };
-//        BOOST_CHECK(std::abs(max_fractional_error) < field_tolerance[component]);
-//        BOOST_CHECK(std::abs(min_fractional_error) < field_tolerance[component]);
-//    }
-//}
-//
+
+BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
+        Cylindrical_bunch_fixture)
+{
+    double z_period = 8 * sigma;
+    double r0 = 2.0 * sigma;
+    Space_charge_3d_open_hockney space_charge(comm, grid_shape, false, true,
+            z_period, true);
+    Distributed_rectangular_grid_sptr rho2(get_linear_cylindrical_rho2(
+            space_charge, bunch, r0, z_period));
+    Distributed_rectangular_grid_sptr
+            G2(space_charge.get_green_fn2_pointlike()); // [1/m]
+    Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
+            *rho2, *G2)); // [V]
+    Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
+            *phi2));
+    double lambda = bunch.get_real_num() * bunch.get_particle_charge()
+            * pconstants::e / z_period;
+    phi->fill_guards(comm);
+    for (int component = 0; component < 3; ++component) {
+        Distributed_rectangular_grid_sptr local_En(
+                space_charge.get_electric_field_component(*phi, component)); // [V/m]
+        std::string filename;
+        if (component == 0) {
+            filename = "ez.h5";
+        } else if (component == 1) {
+            filename = "ey.h5";
+        } else if (component == 2) {
+            filename = "ex.h5";
+        }
+        Hdf5_file f(filename);
+        f.write(local_En->get_grid_points(), "en");
+        f.write(local_En->get_normalization(), "ennorm");
+        double max_fractional_error = -2.0;
+        double min_fractional_error = 2.0;
+        for (int i = local_En->get_lower(); i < local_En->get_upper(); ++i) {
+            for (int j = 0; j
+                    < local_En->get_domain_sptr()->get_grid_shape()[1]; ++j) {
+                for (int k = 0; k
+                        < local_En->get_domain_sptr()->get_grid_shape()[2]; ++k) {
+                    double z, y, x;
+                    local_En->get_domain_sptr()->get_cell_coordinates(i, j, k,
+                            z, y, x);
+                    double r = std::sqrt(x * x + y * y);
+                    double var;
+                    double En_exact_ijk;
+                    if (component == 0) {
+                        En_exact_ijk = 0;
+                    } else {
+                        if (component == 1) {
+                            var = y;
+                        } else if (component == 2) {
+                            var = x;
+                        }
+                        En_exact_ijk
+                                = linear_cylindrical_electric_field_component(
+                                        lambda, r, r0, var);
+                    }
+                    double En_calc_ijk = local_En->get_grid_points()[i][j][k]
+                            * local_En->get_normalization();
+                    const double tiny = 1.0e-8;
+                    double fractional_error;
+                    if (std::abs(En_exact_ijk) < tiny) {
+                        fractional_error = En_calc_ijk - En_exact_ijk;
+                    } else {
+                        fractional_error = (En_calc_ijk - En_exact_ijk)
+                                / En_exact_ijk;
+                    }
+                    if (fractional_error > max_fractional_error) {
+                        max_fractional_error = fractional_error;
+                    }
+                    if (fractional_error < min_fractional_error) {
+                        min_fractional_error = fractional_error;
+                    }
+                }
+            }
+        }
+//        std::cout << "max_fractional_error = " << max_fractional_error
+//                << std::endl;
+//        std::cout << "min_fractional_error = " << min_fractional_error
+//                << std::endl;
+
+        // on the development machine, I get
+        //    max_fractional_error = 25655.1
+        //    min_fractional_error = -25655.1
+        //    max_fractional_error = 0.0779591
+        //    min_fractional_error = -0.0980308
+        //    max_fractional_error = 0.0779591
+        //    min_fractional_error = -0.0980308
+        const double field_tolerance[] = { 5.0e5, 12.0e-2, 20.0e-2 };
+        BOOST_CHECK(std::abs(max_fractional_error) < field_tolerance[component]);
+        BOOST_CHECK(std::abs(min_fractional_error) < field_tolerance[component]);
+    }
+}
+
 //BOOST_FIXTURE_TEST_CASE(get_global_electric_field_component_exact_rho,
 //        Spherical_bunch_fixture)
 //{
