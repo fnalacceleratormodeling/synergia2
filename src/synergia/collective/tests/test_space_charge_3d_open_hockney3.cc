@@ -310,33 +310,36 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
     }
 }
 
-//BOOST_FIXTURE_TEST_CASE(get_global_electric_field_component_exact_rho,
-//        Spherical_bunch_fixture)
-//{
-//    Space_charge_3d_open_hockney space_charge(comm, grid_shape);
-//    Distributed_rectangular_grid_sptr rho2(get_gaussian_rho2(space_charge,
-//            bunch, sigma));
-//    Distributed_rectangular_grid_sptr
-//            G2(space_charge.get_green_fn2_pointlike()); // [1/m]
-//    Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
-//            *rho2, *G2)); // [V]
-//    Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
-//            *phi2));
-//    phi->fill_guards(comm);
-//    for (int component = 0; component < 3; ++component) {
-//        Distributed_rectangular_grid_sptr local_En(
-//                space_charge.get_electric_field_component(*phi, component)); // [V/m]
-//        Rectangular_grid_sptr En(
-//                space_charge.get_global_electric_field_component(*local_En)); // [V/m]
-//        for (int i = local_En->get_lower(); i < local_En->get_upper(); ++i) {
-//            for (int j = 0; j
-//                    < local_En->get_domain_sptr()->get_grid_shape()[1]; ++j) {
-//                for (int k = 0; k
-//                        < local_En->get_domain_sptr()->get_grid_shape()[2]; ++k) {
-//                    BOOST_CHECK_CLOSE(local_En->get_grid_points()[i][j][k],
-//                            En->get_grid_points()[i][j][k], tolerance);
-//                }
-//            }
-//        }
-//    }
-//}
+BOOST_FIXTURE_TEST_CASE(get_global_electric_field_component_exact_rho,
+        Cylindrical_bunch_fixture)
+{
+    double z_period = 8 * sigma;
+    double r0 = 2.0 * sigma;
+    Space_charge_3d_open_hockney space_charge(comm, grid_shape, false, true,
+            z_period, true);
+    Distributed_rectangular_grid_sptr rho2(get_linear_cylindrical_rho2(
+            space_charge, bunch, r0, z_period));
+    Distributed_rectangular_grid_sptr
+            G2(space_charge.get_green_fn2_pointlike()); // [1/m]
+    Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
+            *rho2, *G2)); // [V]
+    Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
+            *phi2));
+    phi->fill_guards(comm);
+    for (int component = 0; component < 3; ++component) {
+        Distributed_rectangular_grid_sptr local_En(
+                space_charge.get_electric_field_component(*phi, component)); // [V/m]
+        Rectangular_grid_sptr En(
+                space_charge.get_global_electric_field_component(*local_En)); // [V/m]
+        for (int i = local_En->get_lower(); i < local_En->get_upper(); ++i) {
+            for (int j = 0; j
+                    < local_En->get_domain_sptr()->get_grid_shape()[1]; ++j) {
+                for (int k = 0; k
+                        < local_En->get_domain_sptr()->get_grid_shape()[2]; ++k) {
+                    BOOST_CHECK_CLOSE(local_En->get_grid_points()[i][j][k],
+                            En->get_grid_points()[i][j][k], tolerance);
+                }
+            }
+        }
+    }
+}
