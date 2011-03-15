@@ -45,3 +45,27 @@ populate_6d(Distribution &dist, Bunch &bunch, Const_MArray1d_ref means,
     }
     adjust_moments(bunch, means, covariances);
 }
+
+void
+populate_transverse_gaussian(Distribution &dist, Bunch &bunch,
+        Const_MArray1d_ref means, Const_MArray2d_ref covariances, double cdt)
+{
+    MArray2d_ref particles(bunch.get_local_particles());
+    for (int i = 0; i < 4; ++i) {
+        dist.fill_unit_gaussian(particles[boost::indices[range()][i]]);
+    }
+    dist.fill_uniform(particles[boost::indices[range()][4]], 0.0, 1.0);
+    dist.fill_unit_gaussian(particles[boost::indices[range()][5]]);
+
+    MArray1d means_modified(means);
+    means_modified[4] = 0.0;
+
+    // Symmetry requires no correlations with the cdt coordinate. Make a copy
+    // of the covariance matrix and manually set all correlations to zero.
+    MArray2d covariances_modified(covariances);
+    for (int k = 0; k < 6; ++k) {
+        covariances_modified[k][4] = covariances_modified[4][k] = 0.0;
+    }
+    covariances_modified[4][4] = cdt * cdt / 12.0;
+    adjust_moments(bunch, means_modified, covariances_modified);
+}
