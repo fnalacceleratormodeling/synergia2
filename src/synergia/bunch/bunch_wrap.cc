@@ -85,6 +85,7 @@ BOOST_PYTHON_MODULE(bunch)
 
     def("no_diagnostics", no_diagnostics);
     def("populate_6d", populate_6d);
+    def("populate_transverse_gaussian", populate_transverse_gaussian);
 
     typedef Reference_particle & (Bunch::*get_reference_particle_non_const_type)();
     typedef MArray2d_ref (Bunch::*get_local_particles_non_const_type)();
