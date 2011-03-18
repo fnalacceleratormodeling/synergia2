@@ -15,6 +15,14 @@ namespace pconstants
     const double mu0 = 4*mconstants::pi*1.0e-7; // Permittivity of free space [F/m]
     const double epsilon0 = 1.0/(c*c*mu0); // Permeability of free space [H/m]
 
+    // Classical radius of a particle = e^2/(4 pi epsilon0 m c^2)
+    const double re = e/(4*mconstants::pi*epsilon0*me*1.0e9); // Classical
+                                                   // radius of electron [m]
+    const double rp = e/(4*mconstants::pi*epsilon0*mp*1.0e9); // Classical
+                                                   // radius of proton [m]
+    const double rmu = e/(4*mconstants::pi*epsilon0*mmu*1.0e9); // Classical
+                                                   // radius of muon [m]
+
     const int proton_charge = 1; // Charge in units of e
     const int antiproton_charge = -1; // Charge in units of e
     const int electron_charge = -1; // Charge in units of e
