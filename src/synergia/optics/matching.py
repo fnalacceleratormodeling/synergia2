@@ -4,7 +4,7 @@ import numpy
 
 from one_turn_map import linear_one_turn_map
 from mpi4py import MPI
-from synergia.bunch import Bunch, populate_6d
+from synergia.bunch import Bunch, populate_6d, populate_transverse_gaussian
 from synergia.foundation import Random_distribution
 from math import acos, pi, sin, sqrt
 
@@ -161,4 +161,20 @@ def generate_matched_bunch_transverse(lattice_simulator, emit_x, emit_y,
                   num_macro_particles, num_real_particles, comm)
     dist = Random_distribution(seed, comm)
     populate_6d(dist, bunch, means, covariance_matrix)
+    return bunch
+
+def generate_matched_bunch_uniform_longitudinal(lattice_simulator, emit_x,
+                           emit_y, length_cdt, dpop, num_real_particles,
+                           num_macro_particles, seed=0, comm=None):
+
+    means, covariance_matrix = \
+        get_matched_bunch_transverse_parameters(lattice_simulator,
+                                                emit_x, emit_y, 1.0, dpop)
+    if comm == None:
+        comm = MPI.COMM_WORLD
+    bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
+                  num_macro_particles, num_real_particles, comm)
+    dist = Random_distribution(seed, comm)
+    populate_transverse_gaussian(dist, bunch, means, covariance_matrix,
+                                 length_cdt)
     return bunch
