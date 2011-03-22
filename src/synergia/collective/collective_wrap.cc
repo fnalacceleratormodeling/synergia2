@@ -11,10 +11,15 @@ BOOST_PYTHON_MODULE(collective)
         bases<Collective_operator > >("Space_charge_3d_open_hockney",
                 init<Commxx const&, std::vector<int > >())
                 .def(init<Commxx const&, std::vector<int >, bool >())
-//    class_<Space_charge_3d_open_hockney, Space_charge_3d_open_hockney_sptr>
-//        ("Space_charge_3d_open_hockney",
-//            init<std::vector<int > const &, bool, Commxx const&>())
-        .def("apply", &Space_charge_3d_open_hockney::apply)
+                .def(init<Commxx const&, std::vector<int >, bool, bool >())
+                .def(init<Commxx const&, std::vector<int >, bool, bool, double >())
+                .def(init<Commxx const&, std::vector<int >, bool, bool,
+                        double, bool >())
+                .def(init<Commxx const&, std::vector<int >, bool, bool,
+                        double, bool >())
+                .def(init<Commxx const&, std::vector<int >, bool, bool,
+                        double, bool, double >())
+                .def("apply", &Space_charge_3d_open_hockney::apply)
         ;
 
     class_<Space_charge_2d_bassetti_erskine, Space_charge_2d_bassetti_erskine_sptr,
