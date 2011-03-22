@@ -706,7 +706,13 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
     Distributed_rectangular_grid_sptr phi(extract_scalar_field(*phi2));
     phi2.reset();
     phi->fill_guards(comm1);
-    for (int component = 0; component < 3; ++component) {
+    int max_component;
+    if (longitudinal_kicks) {
+        max_component = 3;
+    } else {
+        max_component = 2;
+    }
+    for (int component = 0; component < max_component; ++component) {
         Distributed_rectangular_grid_sptr local_En(
                 get_electric_field_component(*phi, component)); // [V/m]
         Rectangular_grid_sptr
