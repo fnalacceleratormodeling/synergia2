@@ -139,3 +139,41 @@ BOOST_FIXTURE_TEST_CASE(populate_transverse_gaussian_general, Fixture)
     BOOST_CHECK_SMALL(sum5/num, 0.1);
     BOOST_CHECK_CLOSE(sum6/num, cdt*cdt*cdt*cdt*cdt*cdt/448.0, 5.0);
 }
+
+BOOST_FIXTURE_TEST_CASE(populate_uniform_cylinder_general, Fixture)
+{
+    const double radius = 2.718;
+    const double cdt = 3.14;
+    const double stdxp = 1.2e-3;
+    const double stdyp = 3.4e-3;
+    const double stddpop = 5.6e-4;
+    populate_uniform_cylinder(distribution, bunch, radius, cdt, stdxp, stdyp,
+            stddpop);
+    Diagnostics_full2 diagnostics(bunch);
+    // yes, this tolerance is very large. There are no corrections for
+    // finite statistics in populate_uniform_cylinder.
+    const double tolerance = 2.0;
+    for (int i = 0; i < 6; ++i) {
+        BOOST_CHECK_SMALL(diagnostics.get_mean()[i], tolerance);
+    }
+    BOOST_CHECK_CLOSE(diagnostics.get_std()[Bunch::xp], stdxp, tolerance);
+    BOOST_CHECK_CLOSE(diagnostics.get_std()[Bunch::yp], stdyp, tolerance);
+    BOOST_CHECK_CLOSE(diagnostics.get_std()[Bunch::dpop], stddpop, tolerance);
+
+    double sum = 0.0;
+    double max = 0.0;
+    MArray2d_ref particles(bunch.get_local_particles());
+    Hdf5_file f("cylparticles.h5");
+    f.write(particles, "particles");
+    int num = bunch.get_local_num();
+    for (int p = 0; p < num; ++p) {
+        double r = std::sqrt(particles[p][Bunch::x] * particles[p][Bunch::x]
+                + particles[p][Bunch::y] * particles[p][Bunch::y]);
+        if (r>max) {
+            max = r;
+        }
+        sum += r;
+    }
+    BOOST_CHECK_CLOSE(max, radius, tolerance);
+    BOOST_CHECK_CLOSE(sum/num, 2.0*radius/3.0, tolerance);
+}

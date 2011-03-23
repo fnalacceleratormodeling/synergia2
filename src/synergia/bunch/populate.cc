@@ -69,3 +69,25 @@ populate_transverse_gaussian(Distribution &dist, Bunch &bunch,
     covariances_modified[4][4] = cdt * cdt / 12.0;
     adjust_moments(bunch, means_modified, covariances_modified);
 }
+
+void
+populate_uniform_cylinder(Distribution &dist, Bunch &bunch, double radius,
+        double cdt, double stdxp, double stdyp, double stddpop)
+{
+    MArray2d_ref particles(bunch.get_local_particles());
+    dist.fill_unit_disk(particles[boost::indices[range()][Bunch::x]],
+            particles[boost::indices[range()][Bunch::y]]);
+    dist.fill_uniform(particles[boost::indices[range()][Bunch::cdt]], -cdt
+            / 2.0, cdt / 2.0);
+    dist.fill_unit_gaussian(particles[boost::indices[range()][Bunch::xp]]);
+    dist.fill_unit_gaussian(particles[boost::indices[range()][Bunch::yp]]);
+    dist.fill_unit_gaussian(particles[boost::indices[range()][Bunch::dpop]]);
+
+    for(int part=0; part< bunch.get_local_num(); ++part){
+        particles[part][Bunch::x] *= radius;
+        particles[part][Bunch::y] *= radius;
+        particles[part][Bunch::xp] *= stdxp;
+        particles[part][Bunch::yp] *= stdyp;
+        particles[part][Bunch::dpop] *= stddpop;
+    }
+}
