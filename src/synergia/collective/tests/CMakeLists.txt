@@ -57,6 +57,12 @@ target_link_libraries(test_space_charge_3d_open_hockney3 synergia_collective
     synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_space_charge_3d_open_hockney3 test_space_charge_3d_open_hockney3)
 
+add_executable(test_space_charge_3d_open_hockney4
+    test_space_charge_3d_open_hockney4.cc uniform_cylindrical_charge_density.cc)
+target_link_libraries(test_space_charge_3d_open_hockney4 synergia_collective
+    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_space_charge_3d_open_hockney4 test_space_charge_3d_open_hockney4)
+
 add_executable(test_space_charge_2d_bassetti_erskine test_space_charge_2d_bassetti_erskine.cc)
 target_link_libraries(test_space_charge_2d_bassetti_erskine synergia_collective
     synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
