@@ -209,10 +209,10 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
             }
         }
         //        f.write(exact_En->get_grid_points(), "enexact");
-//        std::cout << "max_fractional_error = " << max_fractional_error
-//                << std::endl;
-//        std::cout << "min_fractional_error = " << min_fractional_error
-//                << std::endl;
+        //        std::cout << "max_fractional_error = " << max_fractional_error
+        //                << std::endl;
+        //        std::cout << "min_fractional_error = " << min_fractional_error
+        //                << std::endl;
 
         // on the development machine, I get
         //                max_fractional_error = 25740.3
@@ -227,36 +227,81 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
     }
 }
 
-//BOOST_FIXTURE_TEST_CASE(get_global_electric_field_component_exact_rho,
-//        Cylindrical_bunch_fixture)
-//{
-//    double z_period = 8 * sigma;
-//    double r0 = 2.0 * sigma;
-//    Space_charge_3d_open_hockney space_charge(comm, grid_shape, false, true,
-//            z_period, true);
-//    Distributed_rectangular_grid_sptr rho2(get_uniform_cylindrical_rho2(
-//            space_charge, bunch, r0, z_period));
-//    Distributed_rectangular_grid_sptr
-//            G2(space_charge.get_green_fn2_pointlike()); // [1/m]
-//    Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
-//            *rho2, *G2)); // [V]
-//    Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
-//            *phi2));
-//    phi->fill_guards(comm);
-//    for (int component = 0; component < 3; ++component) {
-//        Distributed_rectangular_grid_sptr local_En(
-//                space_charge.get_electric_field_component(*phi, component)); // [V/m]
-//        Rectangular_grid_sptr En(
-//                space_charge.get_global_electric_field_component(*local_En)); // [V/m]
-//        for (int i = local_En->get_lower(); i < local_En->get_upper(); ++i) {
-//            for (int j = 0; j
-//                    < local_En->get_domain_sptr()->get_grid_shape()[1]; ++j) {
-//                for (int k = 0; k
-//                        < local_En->get_domain_sptr()->get_grid_shape()[2]; ++k) {
-//                    BOOST_CHECK_CLOSE(local_En->get_grid_points()[i][j][k],
-//                            En->get_grid_points()[i][j][k], tolerance);
-//                }
-//            }
-//        }
-//    }
-//}
+BOOST_FIXTURE_TEST_CASE(get_scalar_field2_particles, Cylindrical_bunch_fixture_fine)
+{
+    double z_period = 8 * sigma;
+    double r0 = 2.0 * sigma;
+    double stdqp = 1.0e-10; // not important...
+    populate_uniform_cylinder(distribution, bunch, r0, z_period, stdqp, stdqp,
+            stdqp);
+    Space_charge_3d_open_hockney space_charge(comm, grid_shape, false, true,
+            z_period, true);
+    Rectangular_grid_sptr local_rho(
+            space_charge.get_local_charge_density(bunch));
+    Distributed_rectangular_grid_sptr rho2(
+            space_charge.get_global_charge_density2(*local_rho));
+    Distributed_rectangular_grid_sptr
+            G2(space_charge.get_green_fn2_pointlike()); // [1/m]
+    Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
+            *rho2, *G2)); // [V]
+    Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
+            *phi2));
+    Distributed_rectangular_grid phi_exact(phi->get_domain_sptr(),
+            phi->get_lower(), phi->get_upper());
+
+    double lambda = bunch.get_real_num() * bunch.get_particle_charge()
+            * pconstants::e / z_period;
+
+    std::vector<int > nondoubled_shape(
+            space_charge.get_domain_sptr()->get_grid_shape());
+
+    // The potential has an arbitrary offset; take it from the middle
+    double z0, y0, x0;
+    int i0 = nondoubled_shape[0] / 2;
+    int j0 = nondoubled_shape[1] / 2;
+    int k0 = nondoubled_shape[2] / 2;
+    space_charge.get_domain_sptr()->get_cell_coordinates(i0, j0, k0, z0, y0, x0);
+    double roffset = std::sqrt(x0 * x0 + y0 * y0);
+    double offset = phi2->get_grid_points()[i0][j0][k0]
+            * phi2->get_normalization()
+            - uniform_cylindrical_electric_potential(lambda, roffset, r0);
+
+    double max_fractional_error = -2.0;
+    double min_fractional_error = 2.0;
+    for (int i = phi2->get_lower(); i < std::min(phi2->get_upper(),
+            nondoubled_shape[0]); ++i) {
+        for (int j = 0; j < nondoubled_shape[1]; ++j) {
+            for (int k = 0; k < nondoubled_shape[2]; ++k) {
+                double z, y, x;
+                space_charge.get_domain_sptr()->get_cell_coordinates(i, j, k,
+                        z, y, x);
+                double r = std::sqrt(x * x + y * y);
+                double phi_exact_ijk = uniform_cylindrical_electric_potential(
+                        lambda, r, r0) + offset;
+                phi_exact.get_grid_points()[i][j][k] = phi_exact_ijk;
+                double phi_calc_ijk = phi2->get_grid_points()[i][j][k]
+                        * phi2->get_normalization();
+                double fractional_error = (phi_calc_ijk - phi_exact_ijk)
+                        / phi_exact_ijk;
+                if (fractional_error > max_fractional_error) {
+                    max_fractional_error = fractional_error;
+                }
+                if (fractional_error < min_fractional_error) {
+                    min_fractional_error = fractional_error;
+                }
+                // BOOST_CHECK_CLOSE(phi_calc_ijk, phi_exact_ijk, solution_tolerance);
+            }
+        }
+    }
+    //        std::cout << "max_fractional_error = " << max_fractional_error << std::endl;
+    //        std::cout << "min_fractional_error = " << min_fractional_error << std::endl;
+
+    // on the development machine, I get
+    //        max_fractional_error = 0.00814816
+    //        min_fractional_error = -0.00462393
+
+    const double solution_tolerance = 1.0e-2;
+    BOOST_CHECK(std::abs(max_fractional_error) < solution_tolerance);
+    BOOST_CHECK(std::abs(min_fractional_error) < solution_tolerance);
+}
+

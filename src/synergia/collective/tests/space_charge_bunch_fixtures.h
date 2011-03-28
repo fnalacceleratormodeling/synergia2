@@ -134,12 +134,13 @@ struct Cylindrical_bunch_fixture
     std::vector<int > grid_shape;
 };
 
+const int fine_num_particles = 20000;
 struct Cylindrical_bunch_fixture_fine
 {
     Cylindrical_bunch_fixture_fine() :
         four_momentum(mass, total_energy), reference_particle(charge,
                 four_momentum), comm(MPI_COMM_WORLD), bunch(reference_particle,
-                total_num, real_num, comm), distribution(0, comm),
+                fine_num_particles, real_num, comm), distribution(0, comm),
                 grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup Cylindrical bunch fixture");
