@@ -154,7 +154,7 @@ struct Cylindrical_bunch_fixture_fine
         sigma = 1.3e-3;
         covariances[0][0] = sigma * sigma;
         covariances[2][2] = sigma * sigma;
-        covariances[4][4] = sigma * sigma * 1000;
+        covariances[4][4] = sigma * sigma;
         covariances[1][1] = covariances[3][3] = covariances[5][5] = 1.0;
         populate_6d(distribution, bunch, means, covariances);
         grid_shape[0] = 64;
