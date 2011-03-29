@@ -17,13 +17,14 @@ const int proton_charge = 1;
 const int total_num = 10000;
 const double real_num = 2.0e12;
 const double default_s = 123.4;
+const int seed = 987654321;
 
 struct Fixture
 {
     Fixture() :
         reference_particle(proton_charge, mass, total_energy), comm(
                 MPI_COMM_WORLD), bunch(reference_particle, total_num, real_num,
-                comm), distribution(0, comm), s(default_s)
+                comm), distribution(seed, comm), s(default_s)
     {
         BOOST_TEST_MESSAGE("setup fixture");
     }
