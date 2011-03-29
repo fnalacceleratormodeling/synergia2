@@ -305,3 +305,112 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_particles, Cylindrical_bunch_fixture_f
     BOOST_CHECK(std::abs(min_fractional_error) < solution_tolerance);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_particles,
+        Cylindrical_bunch_fixture_fine)
+{
+    double z_period = 8 * sigma;
+    double r0 = 2.0 * sigma;
+    double stdqp = 1.0e-10; // not important...
+    populate_uniform_cylinder(distribution, bunch, r0, z_period, stdqp, stdqp,
+            stdqp);
+    Space_charge_3d_open_hockney space_charge(comm, grid_shape, false, true,
+            z_period, true);
+    Rectangular_grid_sptr local_rho(
+            space_charge.get_local_charge_density(bunch));
+    Distributed_rectangular_grid_sptr rho2(
+            space_charge.get_global_charge_density2(*local_rho));
+    Distributed_rectangular_grid_sptr
+            G2(space_charge.get_green_fn2_pointlike()); // [1/m]
+    Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
+            *rho2, *G2)); // [V]
+    Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
+            *phi2));
+    double lambda = bunch.get_real_num() * bunch.get_particle_charge()
+            * pconstants::e / z_period;
+    phi->fill_guards(comm);
+    for (int component = 0; component < 3; ++component) {
+        Distributed_rectangular_grid_sptr local_En(
+                space_charge.get_electric_field_component(*phi, component)); // [V/m]
+//        Distributed_rectangular_grid exact_En(local_En->get_domain_sptr(),
+//                local_En->get_lower(), local_En->get_upper());
+//        std::string filename;
+//        if (component == 0) {
+//            filename = "ez.h5";
+//        } else if (component == 1) {
+//            filename = "ey.h5";
+//        } else if (component == 2) {
+//            filename = "ex.h5";
+//        }
+//        Hdf5_file f(filename);
+//        f.write(local_En->get_grid_points(), "en");
+//        f.write(local_En->get_normalization(), "ennorm");
+        double field_max = -1e30;
+        for (int i = local_En->get_lower(); i < local_En->get_upper(); ++i) {
+            for (int j = 0; j
+                    < local_En->get_domain_sptr()->get_grid_shape()[1]; ++j) {
+                for (int k = 0; k
+                        < local_En->get_domain_sptr()->get_grid_shape()[2]; ++k) {
+                    if (std::abs(local_En->get_grid_points()[i][j][k]) > field_max) {
+                        field_max = std::abs(local_En->get_grid_points()[i][j][k]);
+                    }
+                }
+            }
+        }
+        field_max *= local_En->get_normalization();
+        double max_scaled_error = -1e30;
+        double min_scaled_error = 1e30;
+        for (int i = local_En->get_lower(); i < local_En->get_upper(); ++i) {
+            for (int j = 0; j
+                    < local_En->get_domain_sptr()->get_grid_shape()[1]; ++j) {
+                for (int k = 0; k
+                        < local_En->get_domain_sptr()->get_grid_shape()[2]; ++k) {
+                    double z, y, x;
+                    local_En->get_domain_sptr()->get_cell_coordinates(i, j, k,
+                            z, y, x);
+                    double r = std::sqrt(x * x + y * y);
+                    double var;
+                    double En_exact_ijk;
+                    if (component == 0) {
+                        En_exact_ijk = 0;
+                    } else {
+                        if (component == 1) {
+                            var = y;
+                        } else if (component == 2) {
+                            var = x;
+                        }
+                        En_exact_ijk
+                                = uniform_cylindrical_electric_field_component(
+                                        lambda, r, r0, var);
+                    }
+//                    exact_En.get_grid_points()[i][j][k] = En_exact_ijk;
+                    double En_calc_ijk = local_En->get_grid_points()[i][j][k]
+                            * local_En->get_normalization();
+                    double scaled_error;
+
+                    scaled_error = (En_calc_ijk - En_exact_ijk) / field_max;
+                    if (scaled_error > max_scaled_error) {
+                        max_scaled_error = scaled_error;
+                    }
+                    if (scaled_error < min_scaled_error) {
+                        min_scaled_error = scaled_error;
+                    }
+                }
+            }
+        }
+//        f.write(exact_En.get_grid_points(), "enexact");
+//        std::cout << "max_scaled_error = " << max_scaled_error << std::endl;
+//        std::cout << "min_scaled_error = " << min_scaled_error << std::endl;
+
+        // on the development machine, I get
+        //        max_scaled_error = 0.931733
+        //        min_scaled_error = -1
+        //        max_scaled_error = 0.161769
+        //        min_scaled_error = -0.160674
+        //        max_scaled_error = 0.149345
+        //        min_scaled_error = -0.153463
+        const double field_tolerance[] = { 1.0001, 0.2, 0.2 };
+        BOOST_CHECK(std::abs(max_scaled_error) < field_tolerance[component]);
+        BOOST_CHECK(std::abs(min_scaled_error) < field_tolerance[component]);
+    }
+}
+
