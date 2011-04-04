@@ -662,6 +662,7 @@ Space_charge_3d_open_hockney::get_global_electric_field_component(
         throw std::runtime_error(
                 "MPI error in Space_charge_3d_open_hockney(MPI_Bcast)");
     }
+    global_field->set_normalization(dist_field.get_normalization());
     return global_field;
 }
 

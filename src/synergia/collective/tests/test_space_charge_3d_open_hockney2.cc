@@ -293,6 +293,8 @@ BOOST_FIXTURE_TEST_CASE(get_global_electric_field_component_exact_rho,
                 }
             }
         }
+        BOOST_CHECK_CLOSE(local_En->get_normalization(),
+                En->get_normalization(), tolerance);
     }
 }
 
