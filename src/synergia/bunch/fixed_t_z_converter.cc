@@ -16,7 +16,8 @@ Fixed_t_z_zeroth::fixed_t_to_fixed_z(Bunch &bunch)
     MArray2d_ref particles = bunch.get_local_particles();
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         // ct in accelerator frame
-        particles[part][Bunch::cdt] = particles[part][Bunch::z] / (gamma * beta);
+        particles[part][Bunch::cdt] = particles[part][Bunch::z]
+                / (gamma * beta);
 
         // p'_{x,y,z} in beam frame
         double pxp = particles[part][Bunch::xp] * p_ref;
@@ -51,7 +52,12 @@ Fixed_t_z_zeroth::fixed_z_to_fixed_t(Bunch &bunch)
         // p_{x,y,z} in accelerator frame
         double px = particles[part][Bunch::xp] * p_ref;
         double py = particles[part][Bunch::yp] * p_ref;
-        double pz = std::sqrt(p * p - px * px - py * py);
+        double pz2 = p * p - px * px - py * py;
+        if (pz2 < 0.0) {
+            throw std::runtime_error(
+                    "Fixed_t_z_zeroth::fixed_z_to_fixed_t: particle has negative pz^2");
+        }
+        double pz = std::sqrt(pz2);
         // zp = pz/p_{ref}^{total}
         particles[part][Bunch::zp] = gamma * (pz + beta * Eoc) / p_ref;
 

@@ -301,7 +301,22 @@ BOOST_FIXTURE_TEST_CASE(convert_to_state, Fixture)
     bunch.convert_to_state(Bunch::fixed_z);
     const double convert_tolerance = 5.0e-8;
     compare_bunches(bunch, second_bunch, convert_tolerance);
+}
 
+BOOST_FIXTURE_TEST_CASE(convert_to_fixed_t_bad_pz, Fixture)
+{
+    dummy_populate(bunch);
+    const int bad_particle_id = total_num / 2;
+    bunch.get_local_particles()[bad_particle_id][Bunch::xp] = 0.8;
+    bunch.get_local_particles()[bad_particle_id][Bunch::yp] = -0.7;
+    bool caught_error = false;
+    try {
+        bunch.convert_to_state(Bunch::fixed_t);
+    }
+    catch (std::runtime_error) {
+        caught_error = true;
+    }
+    BOOST_CHECK(caught_error);
 }
 
 class Fixed_t_z_dummy : public Fixed_t_z_converter
