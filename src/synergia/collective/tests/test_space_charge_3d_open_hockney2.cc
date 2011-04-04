@@ -297,11 +297,3 @@ BOOST_FIXTURE_TEST_CASE(get_global_electric_field_component_exact_rho,
                 En->get_normalization(), tolerance);
     }
 }
-
-BOOST_FIXTURE_TEST_CASE(apply, Ellipsoidal_bunch_fixture)
-{
-    Space_charge_3d_open_hockney space_charge(comm, grid_shape);
-    Step dummy_step(1.0);
-    space_charge.apply(bunch, 1.0, dummy_step);
-    // jfa : n.b. this test is incomplete
-}

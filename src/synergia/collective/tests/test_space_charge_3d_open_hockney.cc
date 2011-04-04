@@ -472,8 +472,26 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_no_domain, Ellipsoidal_bunch_fixture)
 
 BOOST_FIXTURE_TEST_CASE(apply, Ellipsoidal_bunch_fixture)
 {
+    MArray2d covariances(boost::extents[6][6]);
+    MArray1d means(boost::extents[6]);
+    for (int i = 0; i < 6; ++i) {
+        means[i] = 0.0;
+        for (int j = i; j < 6; ++j) {
+            covariances[i][j] = 0.0;
+        }
+    }
+    stdx = 1.1e-3;
+    stdy = 2.3e-3;
+    stdz = 3.5e-3;
+    covariances[0][0] = stdx * stdx;
+    covariances[2][2] = stdy * stdy;
+    covariances[4][4] = stdz * stdz;
+    covariances[1][1] = covariances[3][3] = covariances[5][5] = 1.0e-3;
+    populate_6d(distribution, bunch, means, covariances);
     Space_charge_3d_open_hockney space_charge(comm, grid_shape);
-    Step dummy_step(1.0);
-    space_charge.apply(bunch, 1.0, dummy_step);
+    const double time_fraction = 1.0;
+    Step dummy_step(time_fraction);
+    const double time_step = 0.3;
+    space_charge.apply(bunch, time_step, dummy_step);
     // jfa : n.b. this test is incomplete
 }
