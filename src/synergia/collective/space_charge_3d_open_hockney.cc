@@ -669,10 +669,10 @@ void
 Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
         Rectangular_grid const& En, double delta_t, int component)
 {
-    // $\delta \vec{p} = \vec{F} \delta t = q \delta t \vec{E}$
+    // $\delta \vec{p} = \vec{F} \delta t = q \vec{E} \delta t$
     double q = bunch.get_particle_charge() * pconstants::e; // [C]
     // delta_t_beam: [s] in beam frame
-    double delta_t_beam = delta_t * bunch.get_reference_particle().get_gamma();
+    double delta_t_beam = delta_t / bunch.get_reference_particle().get_gamma();
     // unit_conversion: [kg m/s] to [Gev/c]
     double unit_conversion = pconstants::c / (1.0e9 * pconstants::e);
     // scaled p = p/p_ref
@@ -741,4 +741,3 @@ Space_charge_3d_open_hockney::~Space_charge_3d_open_hockney()
     }
 
 }
-
