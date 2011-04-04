@@ -590,19 +590,31 @@ Distributed_rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_electric_field_component(
         Distributed_rectangular_grid const& phi, int component)
 {
+    int index;
+    if (component == 0) {
+        index = 2;
+    } else if (component == 1) {
+        index = 1;
+    } else if (component == 2) {
+        index = 0;
+    } else {
+        throw std::runtime_error(
+                "Space_charge_3d_open_hockney::get_electric_field_component: component must be 0, 1 or 2");
+    }
+
     Distributed_rectangular_grid_sptr En(new Distributed_rectangular_grid(
             domain_sptr, phi.get_lower(), phi.get_upper()));
     MArray3d_ref En_a(En->get_grid_points());
     MArray3d_ref phi_a(phi.get_grid_points());
     int lower_limit, upper_limit;
-    if (component == 0) {
+    if (index == 0) {
         lower_limit = En->get_lower_guard();
         upper_limit = En->get_upper_guard();
     } else {
         lower_limit = 0;
-        upper_limit = domain_sptr->get_grid_shape()[component];
+        upper_limit = domain_sptr->get_grid_shape()[index];
     }
-    double cell_size = domain_sptr->get_cell_size()[component];
+    double cell_size = domain_sptr->get_cell_size()[index];
     boost::array<MArray3d::index, 3 > center, left, right;
     for (int i = En->get_lower(); i < En->get_upper(); ++i) {
         left[0] = i;
@@ -618,18 +630,19 @@ Space_charge_3d_open_hockney::get_electric_field_component(
                 right[2] = k;
 
                 double delta;
-                if (center[component] == lower_limit) {
-                    right[component] = center[component] + 1;
+                if (center[index] == lower_limit) {
+                    right[index] = center[index] + 1;
                     delta = cell_size;
-                } else if (center[component] == upper_limit - 1) {
-                    left[component] = center[component] - 1;
+                } else if (center[index] == upper_limit - 1) {
+                    left[index] = center[index] - 1;
                     delta = cell_size;
                 } else {
-                    right[component] = center[component] + 1;
-                    left[component] = center[component] - 1;
+                    right[index] = center[index] + 1;
+                    left[index] = center[index] - 1;
                     delta = 2.0 * cell_size;
                 }
-                En_a(center) = (phi_a(right) - phi_a(left)) / delta;
+                // $\vec{E} = - \grad \phi$
+                En_a(center) = -(phi_a(right) - phi_a(left)) / delta;
             }
         }
     }

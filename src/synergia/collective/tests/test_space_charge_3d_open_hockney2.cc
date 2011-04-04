@@ -227,11 +227,11 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
                     double r = std::sqrt(x * x + y * y + z * z);
                     double var;
                     if (component == 0) {
-                        var = z;
+                        var = x;
                     } else if (component == 1) {
                         var = y;
                     } else if (component == 2) {
-                        var = x;
+                        var = z;
                     }
                     double En_exact_ijk = gaussian_electric_field_component(Q,
                             r, sigma, var);
@@ -248,18 +248,19 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
                 }
             }
         }
-        //std::cout << "max_fractional_error = " << max_fractional_error
-        //        << std::endl;
-        //std::cout << "min_fractional_error = " << min_fractional_error
-        //        << std::endl;
+        //        std::cout << "max_fractional_error = " << max_fractional_error
+        //                << std::endl;
+        //        std::cout << "min_fractional_error = " << min_fractional_error
+        //                << std::endl;
         // on the development machine, I get
-        //    max_fractional_error = 0.067946
-        //    min_fractional_error = -0.00695024
-        //    max_fractional_error = 0.0932745
-        //    min_fractional_error = -0.0141639
-        //    max_fractional_error = 0.148878
-        //    min_fractional_error = -0.0393951
-        const double field_tolerance[] = { 8.0e-2, 12.0e-2, 20.0e-2 };
+        //        max_fractional_error = 0.148878
+        //        min_fractional_error = -0.0393951
+        //        max_fractional_error = 0.0932745
+        //        min_fractional_error = -0.0141639
+        //        max_fractional_error = 0.067946
+        //        min_fractional_error = -0.00695024
+
+        const double field_tolerance[] = { 20.0e-2, 12.0e-2, 8.0e-2 };
         BOOST_CHECK(std::abs(max_fractional_error) < field_tolerance[component]);
         BOOST_CHECK(std::abs(min_fractional_error) < field_tolerance[component]);
     }

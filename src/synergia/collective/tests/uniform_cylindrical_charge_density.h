@@ -14,7 +14,7 @@ uniform_cylindrical_electric_potential(double lambda, double r, double r0);
 // Since both x- and y-components are the same, we don't pretend to distinguish
 // between them.
 double
-uniform_cylindrical_electric_field_component(double lambda, double r, double r0,
-        double x);
+uniform_cylindrical_electric_field_component(double lambda, double r,
+        double r0, double x);
 
 #endif /* UNIFORM_CYLINDRICAL_CHARGE_DENSITY_H_ */

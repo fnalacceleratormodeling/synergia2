@@ -176,13 +176,13 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
                     double r = std::sqrt(x * x + y * y);
                     double var;
                     double En_exact_ijk;
-                    if (component == 0) {
-                        En_exact_ijk = 0;
+                    if (component == 2) {
+                        En_exact_ijk = 0.0;
                     } else {
-                        if (component == 1) {
-                            var = y;
-                        } else if (component == 2) {
+                        if (component == 0) {
                             var = x;
+                        } else if (component == 1) {
+                            var = y;
                         }
                         En_exact_ijk
                                 = uniform_cylindrical_electric_field_component(
@@ -215,13 +215,13 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
         //                << std::endl;
 
         // on the development machine, I get
+        //                max_fractional_error = 0.193765
+        //                min_fractional_error = -0.0428391
+        //                max_fractional_error = 0.193765
+        //                min_fractional_error = -0.0428391
         //                max_fractional_error = 25740.3
         //                min_fractional_error = -25740.3
-        //                max_fractional_error = 0.193765
-        //                min_fractional_error = -0.0428391
-        //                max_fractional_error = 0.193765
-        //                min_fractional_error = -0.0428391
-        const double field_tolerance[] = { 5.0e5, 0.4, 0.4 };
+        const double field_tolerance[] = { 0.4, 0.4, 5.0e5 };
         BOOST_CHECK(std::abs(max_fractional_error) < field_tolerance[component]);
         BOOST_CHECK(std::abs(min_fractional_error) < field_tolerance[component]);
     }
@@ -331,27 +331,29 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_particles,
     for (int component = 0; component < 3; ++component) {
         Distributed_rectangular_grid_sptr local_En(
                 space_charge.get_electric_field_component(*phi, component)); // [V/m]
-//        Distributed_rectangular_grid exact_En(local_En->get_domain_sptr(),
-//                local_En->get_lower(), local_En->get_upper());
-//        std::string filename;
-//        if (component == 0) {
-//            filename = "ez.h5";
-//        } else if (component == 1) {
-//            filename = "ey.h5";
-//        } else if (component == 2) {
-//            filename = "ex.h5";
-//        }
-//        Hdf5_file f(filename);
-//        f.write(local_En->get_grid_points(), "en");
-//        f.write(local_En->get_normalization(), "ennorm");
+        //        Distributed_rectangular_grid exact_En(local_En->get_domain_sptr(),
+        //                local_En->get_lower(), local_En->get_upper());
+        //        std::string filename;
+        //        if (component == 0) {
+        //            filename = "ez.h5";
+        //        } else if (component == 1) {
+        //            filename = "ey.h5";
+        //        } else if (component == 2) {
+        //            filename = "ex.h5";
+        //        }
+        //        Hdf5_file f(filename);
+        //        f.write(local_En->get_grid_points(), "en");
+        //        f.write(local_En->get_normalization(), "ennorm");
         double field_max = -1e30;
         for (int i = local_En->get_lower(); i < local_En->get_upper(); ++i) {
             for (int j = 0; j
                     < local_En->get_domain_sptr()->get_grid_shape()[1]; ++j) {
                 for (int k = 0; k
                         < local_En->get_domain_sptr()->get_grid_shape()[2]; ++k) {
-                    if (std::abs(local_En->get_grid_points()[i][j][k]) > field_max) {
-                        field_max = std::abs(local_En->get_grid_points()[i][j][k]);
+                    if (std::abs(local_En->get_grid_points()[i][j][k])
+                            > field_max) {
+                        field_max = std::abs(
+                                local_En->get_grid_points()[i][j][k]);
                     }
                 }
             }
@@ -370,19 +372,19 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_particles,
                     double r = std::sqrt(x * x + y * y);
                     double var;
                     double En_exact_ijk;
-                    if (component == 0) {
-                        En_exact_ijk = 0;
+                    if (component == 2) {
+                        En_exact_ijk = 0.0;
                     } else {
-                        if (component == 1) {
-                            var = y;
-                        } else if (component == 2) {
+                        if (component == 0) {
                             var = x;
+                        } else if (component == 1) {
+                            var = y;
                         }
                         En_exact_ijk
                                 = uniform_cylindrical_electric_field_component(
                                         lambda, r, r0, var);
                     }
-//                    exact_En.get_grid_points()[i][j][k] = En_exact_ijk;
+                    //                    exact_En.get_grid_points()[i][j][k] = En_exact_ijk;
                     double En_calc_ijk = local_En->get_grid_points()[i][j][k]
                             * local_En->get_normalization();
                     double scaled_error;
@@ -397,18 +399,18 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_particles,
                 }
             }
         }
-//        f.write(exact_En.get_grid_points(), "enexact");
-//        std::cout << "max_scaled_error = " << max_scaled_error << std::endl;
-//        std::cout << "min_scaled_error = " << min_scaled_error << std::endl;
+        //        f.write(exact_En.get_grid_points(), "enexact");
+        //        std::cout << "max_scaled_error = " << max_scaled_error << std::endl;
+        //        std::cout << "min_scaled_error = " << min_scaled_error << std::endl;
 
         // on the development machine, I get
-        //        max_scaled_error = 0.931733
-        //        min_scaled_error = -1
-        //        max_scaled_error = 0.161769
-        //        min_scaled_error = -0.160674
         //        max_scaled_error = 0.149345
         //        min_scaled_error = -0.153463
-        const double field_tolerance[] = { 1.0001, 0.2, 0.2 };
+        //        max_scaled_error = 0.161769
+        //        min_scaled_error = -0.160674
+        //        max_scaled_error = 0.931733
+        //        min_scaled_error = -1
+        const double field_tolerance[] = { 0.2, 0.2, 1.0001 };
         BOOST_CHECK(std::abs(max_scaled_error) < field_tolerance[component]);
         BOOST_CHECK(std::abs(min_scaled_error) < field_tolerance[component]);
     }

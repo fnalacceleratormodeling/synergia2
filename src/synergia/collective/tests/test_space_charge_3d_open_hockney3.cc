@@ -261,13 +261,13 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
                     double r = std::sqrt(x * x + y * y);
                     double var;
                     double En_exact_ijk;
-                    if (component == 0) {
-                        En_exact_ijk = 0;
+                    if (component == 2) {
+                        En_exact_ijk = 0.0;
                     } else {
-                        if (component == 1) {
-                            var = y;
-                        } else if (component == 2) {
+                        if (component == 0) {
                             var = x;
+                        } else if (component == 1) {
+                            var = y;
                         }
                         En_exact_ijk
                                 = linear_cylindrical_electric_field_component(
@@ -292,19 +292,19 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
                 }
             }
         }
-//        std::cout << "max_fractional_error = " << max_fractional_error
-//                << std::endl;
-//        std::cout << "min_fractional_error = " << min_fractional_error
-//                << std::endl;
+        //        std::cout << "max_fractional_error = " << max_fractional_error
+        //                << std::endl;
+        //        std::cout << "min_fractional_error = " << min_fractional_error
+        //                << std::endl;
 
         // on the development machine, I get
+        //    max_fractional_error = 0.0779591
+        //    min_fractional_error = -0.0980308
+        //    max_fractional_error = 0.0779591
+        //    min_fractional_error = -0.0980308
         //    max_fractional_error = 25655.1
         //    min_fractional_error = -25655.1
-        //    max_fractional_error = 0.0779591
-        //    min_fractional_error = -0.0980308
-        //    max_fractional_error = 0.0779591
-        //    min_fractional_error = -0.0980308
-        const double field_tolerance[] = { 5.0e5, 12.0e-2, 20.0e-2 };
+        const double field_tolerance[] = { 20.0e-2, 12.0e-2, 5.0e5 };
         BOOST_CHECK(std::abs(max_fractional_error) < field_tolerance[component]);
         BOOST_CHECK(std::abs(min_fractional_error) < field_tolerance[component]);
     }

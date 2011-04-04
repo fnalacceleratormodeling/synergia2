@@ -40,11 +40,11 @@ linear_cylindrical_electric_field_component(double lambda, double r, double r0,
 {
     double retval;
     if (r < r0) {
-        retval = lambda / (mconstants::pi * pconstants::epsilon0) * (-1.0 / (12
-                * r0 * r0 * r0) * (18 * r * r0 - 12 * r * r)) * x / r;
+        retval = -lambda / (mconstants::pi * pconstants::epsilon0) * (-1.0
+                / (12 * r0 * r0 * r0) * (18 * r * r0 - 12 * r * r)) * x / r;
     } else {
-        retval = -lambda / (2 * mconstants::pi * pconstants::epsilon0)
-                * (1 / r) * x / r;
+        retval = lambda / (2 * mconstants::pi * pconstants::epsilon0) * (1 / r)
+                * x / r;
     }
     return retval;
 }

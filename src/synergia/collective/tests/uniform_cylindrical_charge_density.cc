@@ -39,11 +39,11 @@ uniform_cylindrical_electric_field_component(double lambda, double r,
 {
     double retval;
     if (r < r0) {
-        retval = -lambda
-                / (2 * mconstants::pi * pconstants::epsilon0 * r0 * r0) * x;
+        retval = lambda / (2 * mconstants::pi * pconstants::epsilon0 * r0 * r0)
+                * x;
     } else {
-        retval = -lambda / (2 * mconstants::pi * pconstants::epsilon0)
-                * (1 / r) * x / r;
+        retval = lambda / (2 * mconstants::pi * pconstants::epsilon0) * (1 / r)
+                * x / r;
     }
     return retval;
 }
