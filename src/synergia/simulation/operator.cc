@@ -135,8 +135,11 @@ void
 Independent_operator::print() const
 {
     Operator::print();
+    int count = 0;
     for (Lattice_element_slices::const_iterator it = slices.begin(); it
             != slices.end(); ++it) {
+        ++count;
+        std::cout << "slice " << count << ": ";
         (*it)->print();
     }
 }

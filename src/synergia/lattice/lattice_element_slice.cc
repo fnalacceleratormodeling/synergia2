@@ -91,13 +91,13 @@ void
 Lattice_element_slice::print() const
 {
     if (whole) {
-        std::cout << "[]";
+        std::cout << "[begin,end] ";
     } else if(left_edge) {
-        std::cout << "[," << right << "]";
+        std::cout << "[begin," << right << "] ";
     } else if(right_edge) {
-        std::cout << "[" << left << ",]";
+        std::cout << "[" << left << ",end] ";
     } else {
-        std::cout << "[" << left << "," << right << "]";
+        std::cout << "[" << left << "," << right << "] ";
     }
 
     element_ptr->print();
