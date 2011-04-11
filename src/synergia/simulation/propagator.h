@@ -16,12 +16,12 @@ public:
     Propagator(Stepper_sptr stepper_sptr);
     void
     propagate(Bunch & bunch, int num_turns,
-            Diagnostics_writer & per_step_diagnostics,
-            Diagnostics_writer & per_turn_diagnostics, bool verbose = false);
+            Diagnostics & per_step_diagnostics,
+            Diagnostics & per_turn_diagnostics, bool verbose = false);
     void
     propagate(Bunch & bunch, int num_turns,
-            Multi_diagnostics_writer & per_step_diagnostics,
-            Multi_diagnostics_writer & per_turn_diagnostics, bool verbose =
+            Multi_diagnostics & per_step_diagnostics,
+            Multi_diagnostics & per_turn_diagnostics, bool verbose =
                     false);
     ~Propagator();
 };

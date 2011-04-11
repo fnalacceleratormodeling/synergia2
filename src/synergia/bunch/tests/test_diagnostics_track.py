@@ -6,7 +6,7 @@ sys.path.append('../../convertors')
 from mpi4py import MPI
 from foundation import Reference_particle, Four_momentum
 from bunch import Bunch
-from bunch import Diagnostics_track, Diagnostics_writer
+from bunch import Diagnostics_track
 import convertors
 import numpy
 from nose.tools import *
@@ -29,16 +29,11 @@ particles = bunch.get_local_particles()
 particles[:, 0:6] = numpy.random.lognormal(size=[bunch.get_total_num(), 6])
 
 def test_construct():
-    diagnostics = Diagnostics_track(0)
+    diagnostics = Diagnostics_track(bunch, "dummy.h5", 0)
 
 def test_construct2():
-    diagnostics = Diagnostics_track(bunch, 0)
+    diagnostics = Diagnostics_track(bunch, "dummy.h5", 0)
 
 def test_update():
-    diagnostics = Diagnostics_track(bunch, 0)
-    diagnostics.update(bunch)
-
-def test_create_writer():
-    diagnostics = Diagnostics_track(bunch, 0)
-    diagnostics_writer = Diagnostics_writer("test_create_writer_track.h5",
-                                             diagnostics)
+    diagnostics = Diagnostics_track(bunch, "dummy.h5", 0)
+    diagnostics.update()

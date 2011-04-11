@@ -89,10 +89,10 @@ BOOST_PYTHON_MODULE(simulation)
     class_<Independent_stepper_elements, bases<Stepper > >("Independent_stepper_elements",
             init<Lattice_simulator const&, int >());
 
-    void (Propagator::*propagate1)(Bunch &, int, Diagnostics_writer &,
-            Diagnostics_writer &, bool) = &Propagator::propagate;
-    void (Propagator::*propagate2)(Bunch &, int, Multi_diagnostics_writer &,
-            Multi_diagnostics_writer &, bool) = &Propagator::propagate;
+    void (Propagator::*propagate1)(Bunch &, int, Diagnostics &,
+            Diagnostics &, bool) = &Propagator::propagate;
+    void (Propagator::*propagate2)(Bunch &, int, Multi_diagnostics &,
+            Multi_diagnostics &, bool) = &Propagator::propagate;
 
     class_<Propagator >("Propagator",init<Stepper_sptr >())
             .def("propagate", propagate1,

@@ -48,15 +48,47 @@ Diagnostics::calculate_std(Bunch const& bunch, MArray1d_ref const& mean)
     return std;
 }
 
-Diagnostics_basic::Diagnostics_basic() :
-    have_writers(false), mean(boost::extents[6]), std(boost::extents[6])
+MArray2d
+Diagnostics::calculate_mom2(Bunch const& bunch, MArray1d_ref const& mean)
 {
+    MArray2d mom2(boost::extents[6][6]);
+    MArray2d sum2(boost::extents[6][6]);
+
+    for (int i = 0; i < 6; ++i) {
+        for (int j = 0; j < 6; ++j) {
+            sum2[i][j] = 0.0;
+        }
+    }
+    Const_MArray2d_ref particles(bunch.get_local_particles());
+    for (int part = 0; part < bunch.get_local_num(); ++part) {
+        for (int i = 0; i < 6; ++i) {
+            double diff_i = particles[part][i] - mean[i];
+            for (int j = 0; j <= i; ++j) {
+                double diff_j = particles[part][j] - mean[j];
+                sum2[i][j] += diff_i * diff_j;
+            }
+        }
+    }
+    for (int i = 0; i < 5; ++i) {
+        for (int j = i + 1; j < 6; ++j) {
+            sum2[i][j] = sum2[j][i];
+        }
+    }
+    MPI_Allreduce(sum2.origin(), mom2.origin(), 36, MPI_DOUBLE, MPI_SUM,
+            bunch.get_comm().get());
+    for (int i = 0; i < 6; ++i) {
+        for (int j = i; j < 6; ++j) {
+            mom2[i][j] = mom2[j][i] = mom2[i][j] / bunch.get_total_num();
+        }
+    }
+    return mom2;
 }
 
-Diagnostics_basic::Diagnostics_basic(Bunch const& bunch) :
-    have_writers(false), mean(boost::extents[6]), std(boost::extents[6])
+Diagnostics_basic::Diagnostics_basic(Bunch_sptr bunch_sptr,
+        std::string const& filename) :
+    bunch_sptr(bunch_sptr), filename(filename), have_writers(false), mean(
+            boost::extents[6]), std(boost::extents[6])
 {
-    update(bunch);
 }
 
 bool
@@ -66,15 +98,16 @@ Diagnostics_basic::is_serial() const
 }
 
 void
-Diagnostics_basic::update(Bunch const& bunch)
+Diagnostics_basic::update()
 {
-    s = bunch.get_reference_particle().get_s();
-    repetition = bunch.get_reference_particle().get_repetition();
-    trajectory_length = bunch.get_reference_particle().get_trajectory_length();
-    num_particles = bunch.get_total_num();
-    real_num_particles = bunch.get_real_num();
-    mean = Diagnostics::calculate_mean(bunch);
-    std = Diagnostics::calculate_std(bunch, mean);
+    s = bunch_sptr->get_reference_particle().get_s();
+    repetition = bunch_sptr->get_reference_particle().get_repetition();
+    trajectory_length
+            = bunch_sptr->get_reference_particle().get_trajectory_length();
+    num_particles = bunch_sptr->get_total_num();
+    real_num_particles = bunch_sptr->get_real_num();
+    mean = Diagnostics::calculate_mean(*bunch_sptr);
+    std = Diagnostics::calculate_std(*bunch_sptr, mean);
 }
 
 double
@@ -165,7 +198,7 @@ Diagnostics_basic::~Diagnostics_basic()
 }
 
 void
-Diagnostics_full2::update_full2(Bunch const& bunch)
+Diagnostics_full2::update_full2()
 {
     MArray2d sum2(boost::extents[6][6]);
     for (int i = 0; i < 6; ++i) {
@@ -173,8 +206,8 @@ Diagnostics_full2::update_full2(Bunch const& bunch)
             sum2[i][j] = 0.0;
         }
     }
-    Const_MArray2d_ref particles(bunch.get_local_particles());
-    for (int part = 0; part < bunch.get_local_num(); ++part) {
+    Const_MArray2d_ref particles(bunch_sptr->get_local_particles());
+    for (int part = 0; part < bunch_sptr->get_local_num(); ++part) {
         for (int i = 0; i < 6; ++i) {
             double diff_i = particles[part][i] - mean[i];
             for (int j = 0; j <= i; ++j) {
@@ -189,10 +222,10 @@ Diagnostics_full2::update_full2(Bunch const& bunch)
         }
     }
     MPI_Allreduce(sum2.origin(), mom2.origin(), 36, MPI_DOUBLE, MPI_SUM,
-            bunch.get_comm().get());
+            bunch_sptr->get_comm().get());
     for (int i = 0; i < 6; ++i) {
         for (int j = i; j < 6; ++j) {
-            mom2[i][j] = mom2[j][i] = mom2[i][j] / bunch.get_total_num();
+            mom2[i][j] = mom2[j][i] = mom2[i][j] / bunch_sptr->get_total_num();
         }
         std[i] = std::sqrt(mom2[i][i]);
     }
@@ -215,17 +248,12 @@ Diagnostics_full2::update_emittances()
     emitxyz = mom2_matrix.determinant();
 }
 
-Diagnostics_full2::Diagnostics_full2() :
-    Diagnostics_basic(), have_writers(false), mom2(boost::extents[6][6]), corr(
+Diagnostics_full2::Diagnostics_full2(Bunch_sptr bunch_sptr,
+        std::string const& filename) :
+    bunch_sptr(bunch_sptr), filename(filename), Diagnostics_basic(bunch_sptr,
+            filename), have_writers(false), mom2(boost::extents[6][6]), corr(
             boost::extents[6][6])
 {
-}
-
-Diagnostics_full2::Diagnostics_full2(Bunch const& bunch) :
-    Diagnostics_basic(), have_writers(false), mom2(boost::extents[6][6]), corr(
-            boost::extents[6][6])
-{
-    update(bunch);
 }
 
 bool
@@ -235,15 +263,16 @@ Diagnostics_full2::is_serial() const
 }
 
 void
-Diagnostics_full2::update(Bunch const& bunch)
+Diagnostics_full2::update()
 {
-    s = bunch.get_reference_particle().get_s();
-    repetition = bunch.get_reference_particle().get_repetition();
-    trajectory_length = bunch.get_reference_particle().get_trajectory_length();
-    num_particles = bunch.get_total_num();
-    real_num_particles = bunch.get_real_num();
-    mean = calculate_mean(bunch);
-    update_full2(bunch);
+    s = bunch_sptr->get_reference_particle().get_s();
+    repetition = bunch_sptr->get_reference_particle().get_repetition();
+    trajectory_length
+            = bunch_sptr->get_reference_particle().get_trajectory_length();
+    num_particles = bunch_sptr->get_total_num();
+    real_num_particles = bunch_sptr->get_real_num();
+    mean = calculate_mean(*bunch_sptr);
+    update_full2();
     update_emittances();
 }
 
@@ -329,14 +358,10 @@ Diagnostics_full2::~Diagnostics_full2()
     }
 }
 
-Diagnostics_particles::Diagnostics_particles(int max_particles) :
-    bunch_ptr(0), max_particles(max_particles)
-{
-}
-
-Diagnostics_particles::Diagnostics_particles(Bunch const& bunch,
-        int max_particles) :
-    bunch_ptr(&bunch), max_particles(max_particles)
+Diagnostics_particles::Diagnostics_particles(Bunch_sptr bunch_sptr,
+        std::string const& filename, int max_particles) :
+    bunch_sptr(bunch_sptr), filename(filename), max_particles(max_particles),
+            have_writers(false)
 {
 }
 
@@ -347,57 +372,56 @@ Diagnostics_particles::is_serial() const
 }
 
 void
-Diagnostics_particles::update(Bunch const& bunch)
+Diagnostics_particles::update()
 {
-    bunch_ptr = &bunch;
 }
 
 void
 Diagnostics_particles::init_writers(hid_t & hdf5_file)
 {
     this->hdf5_file = hdf5_file;
+    have_writers = true;
 }
 
 // jfa: this method is not complete! It doesn't work on multiple processors
 void
 Diagnostics_particles::write_hdf5()
 {
+    if (!have_writers) {
+        throw(std::runtime_error(
+                "Diagnostics_particles::write_hdf5 called before Diagnostics_particles::init_writers"));
+    }
     Hdf5_writer<double > writer_pz(hdf5_file, "pz");
-    double pz = bunch_ptr->get_reference_particle().get_momentum();
+    double pz = bunch_sptr->get_reference_particle().get_momentum();
     writer_pz.write(pz);
     Hdf5_writer<double > writer_tlen(hdf5_file, "tlen");
-    double tlen = bunch_ptr->get_reference_particle().get_trajectory_length();
+    double tlen = bunch_sptr->get_reference_particle().get_trajectory_length();
     writer_tlen.write(tlen);
     Hdf5_writer<int > writer_rep(hdf5_file, "rep");
-    int rep = bunch_ptr->get_reference_particle().get_repetition();
+    int rep = bunch_sptr->get_reference_particle().get_repetition();
     writer_rep.write(rep);
     Hdf5_writer<double > writer_s(hdf5_file, "s");
-    double s = bunch_ptr->get_reference_particle().get_s();
+    double s = bunch_sptr->get_reference_particle().get_s();
     writer_s.write(s);
-    int local_num = bunch_ptr->get_local_num();
+    int local_num = bunch_sptr->get_local_num();
     Hdf5_chunked_array2d_writer
             writer_particles(hdf5_file, "particles",
-                    bunch_ptr->get_local_particles()[boost::indices[range(0,
+                    bunch_sptr->get_local_particles()[boost::indices[range(0,
                             local_num)][range()]]);
     writer_particles.write_chunk(
-            bunch_ptr->get_local_particles()[boost::indices[range(0, local_num)][range()]]);
+            bunch_sptr->get_local_particles()[boost::indices[range(0, local_num)][range()]]);
 }
 
 Diagnostics_particles::~Diagnostics_particles()
 {
 }
 
-Diagnostics_track::Diagnostics_track(int particle_id) :
-    have_writers(false), coords(boost::extents[6]), found(false), particle_id(
-            particle_id), last_index(-1)
+Diagnostics_track::Diagnostics_track(Bunch_sptr bunch_sptr,
+        std::string const& filename, int particle_id) :
+    bunch_sptr(bunch_sptr), filename(filename), have_writers(false), coords(
+            boost::extents[6]), found(false), particle_id(particle_id),
+            last_index(-1)
 {
-}
-
-Diagnostics_track::Diagnostics_track(Bunch const& bunch, int particle_id) :
-    have_writers(false), coords(boost::extents[6]), found(false), particle_id(
-            particle_id), last_index(-1)
-{
-    update(bunch);
 }
 
 bool
@@ -407,15 +431,16 @@ Diagnostics_track::is_serial() const
 }
 
 void
-Diagnostics_track::update(Bunch const& bunch)
+Diagnostics_track::update()
 {
-    repetition = bunch.get_reference_particle().get_repetition();
-    trajectory_length = bunch.get_reference_particle().get_trajectory_length();
+    repetition = bunch_sptr->get_reference_particle().get_repetition();
+    trajectory_length
+            = bunch_sptr->get_reference_particle().get_trajectory_length();
     int index;
     found = false;
-    if ((last_index > -1) && (last_index < bunch.get_local_num())) {
+    if ((last_index > -1) && (last_index < bunch_sptr->get_local_num())) {
         if (particle_id
-                == static_cast<int > (bunch.get_local_particles()[Bunch::id][last_index])) {
+                == static_cast<int > (bunch_sptr->get_local_particles()[Bunch::id][last_index])) {
             index = last_index;
             found = true;
         }
@@ -423,27 +448,27 @@ Diagnostics_track::update(Bunch const& bunch)
     if (!found) {
         index = 0;
         while ((particle_id
-                != static_cast<int > (bunch.get_local_particles()[index][Bunch::id]))
-                && (index < bunch.get_local_num())) {
+                != static_cast<int > (bunch_sptr->get_local_particles()[index][Bunch::id]))
+                && (index < bunch_sptr->get_local_num())) {
             index += 1;
         }
-        if (index < bunch.get_local_num()) {
+        if (index < bunch_sptr->get_local_num()) {
             found = true;
         } else {
             found = false;
         }
     }
     if (found) {
-        coords[0] = bunch.get_local_particles()[index][0];
-        coords[1] = bunch.get_local_particles()[index][1];
-        coords[2] = bunch.get_local_particles()[index][2];
-        coords[3] = bunch.get_local_particles()[index][3];
-        coords[4] = bunch.get_local_particles()[index][4];
-        coords[5] = bunch.get_local_particles()[index][5];
-        s = bunch.get_reference_particle().get_s();
-        repetition = bunch.get_reference_particle().get_repetition();
+        coords[0] = bunch_sptr->get_local_particles()[index][0];
+        coords[1] = bunch_sptr->get_local_particles()[index][1];
+        coords[2] = bunch_sptr->get_local_particles()[index][2];
+        coords[3] = bunch_sptr->get_local_particles()[index][3];
+        coords[4] = bunch_sptr->get_local_particles()[index][4];
+        coords[5] = bunch_sptr->get_local_particles()[index][5];
+        s = bunch_sptr->get_reference_particle().get_s();
+        repetition = bunch_sptr->get_reference_particle().get_repetition();
         trajectory_length
-                = bunch.get_reference_particle().get_trajectory_length();
+                = bunch_sptr->get_reference_particle().get_trajectory_length();
     }
 }
 

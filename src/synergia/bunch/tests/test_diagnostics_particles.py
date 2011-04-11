@@ -29,13 +29,7 @@ particles = bunch.get_local_particles()
 particles[:, 0:6] = numpy.random.lognormal(size=[bunch.get_total_num(), 6])
 
 def test_construct():
-    diagnostics = Diagnostics_particles()
+    diagnostics = Diagnostics_particles(bunch, "dummy.h5")
 
 def test_construct2():
-    diagnostics = Diagnostics_particles(max_particles)
-
-def test_construct3():
-    diagnostics = Diagnostics_particles(bunch)
-
-def test_construct4():
-    diagnostics = Diagnostics_particles(bunch, max_particles)
+    diagnostics = Diagnostics_particles(bunch, "dummy.h5", max_particles)

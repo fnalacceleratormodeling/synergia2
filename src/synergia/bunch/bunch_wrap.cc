@@ -34,8 +34,7 @@ BOOST_PYTHON_MODULE(bunch)
         ("Diagnostics", no_init);
 
     class_<Diagnostics_basic, Diagnostics_basic_sptr, bases<Diagnostics> >
-        ("Diagnostics_basic",init< >())
-        .def(init<Bunch const & >())
+        ("Diagnostics_basic",init<Bunch_sptr, std::string const& >())
         .def("update", &Diagnostics_basic::update)
         .def("get_s", &Diagnostics_basic::get_s)
         .def("get_repetition", &Diagnostics_basic::get_repetition)
@@ -45,8 +44,7 @@ BOOST_PYTHON_MODULE(bunch)
         ;
 
     class_<Diagnostics_full2, Diagnostics_full2_sptr, bases<Diagnostics_basic > >
-            ("Diagnostics_full2",init< >())
-        .def(init<Bunch const & >())
+            ("Diagnostics_full2",init<Bunch_sptr, std::string const& >())
         .def("get_mom2", &Diagnostics_full2::get_mom2)
         .def("get_corr", &Diagnostics_full2::get_corr)
         .def("get_emitx", &Diagnostics_full2::get_emitx)
@@ -57,30 +55,18 @@ BOOST_PYTHON_MODULE(bunch)
         ;
 
     class_<Diagnostics_track, Diagnostics_track_sptr, bases<Diagnostics > >
-        ("Diagnostics_track",init<int >())
-        .def(init<Bunch const &, int >())
+        ("Diagnostics_track",init<Bunch_sptr, std::string const&, int >())
         .def("update", &Diagnostics_track::update)
         ;
 
     class_<Diagnostics_particles, Diagnostics_particles_sptr, bases<Diagnostics > >
-            ("Diagnostics_particles",init< >())
-        .def(init<int >())
-        .def(init<Bunch const & >())
-        .def(init<Bunch const &, int>())
+            ("Diagnostics_particles",init<Bunch_sptr, std::string const& >())
+        .def(init<Bunch_sptr, std::string const&, int >())
         ;
 
-    class_<Diagnostics_writer, Diagnostics_writer_sptr >("Diagnostics_writer",
-            init<std::string const& , Diagnostics_sptr >())
-        .def(init< >())
-        .def("is_dummy", &Diagnostics_writer::is_dummy)
-        .def("get_diagnostics", &Diagnostics_writer::get_diagnostics_sptr)
-        .def("write", &Diagnostics_writer::write)
-        .def("update_and_write", &Diagnostics_writer::update_and_write)
-        ;
-
-    class_<Multi_diagnostics_writer >("Multi_diagnostics_writer",
+    class_<Multi_diagnostics>("Multi_diagnostics",
             init<>())
-        .def("append", &Multi_diagnostics_writer::append)
+        .def("append", &Multi_diagnostics::append)
         ;
 
     def("no_diagnostics", no_diagnostics);

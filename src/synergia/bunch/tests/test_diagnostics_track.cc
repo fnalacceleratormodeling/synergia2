@@ -27,13 +27,14 @@ dummy_populate_single(Bunch &bunch)
 struct Fixture
 {
     Fixture() :
-        reference_particle(pconstants::electron_charge, mass, total_energy),
-                comm(MPI_COMM_WORLD), bunch(reference_particle, 1, real_num,
-                        comm)
+        bunch_sptr(new Bunch(reference_particle, 1, real_num, comm)),
+                reference_particle(pconstants::electron_charge, mass,
+                        total_energy), comm(MPI_COMM_WORLD)
     {
         BOOST_TEST_MESSAGE("setup fixture");
-        dummy_populate_single(bunch);
-        bunch.get_reference_particle().set_trajectory(turns, turn_length, 0.0);
+        dummy_populate_single(*bunch_sptr);
+        bunch_sptr->get_reference_particle().set_trajectory(turns, turn_length,
+                0.0);
     }
     ~Fixture()
     {
@@ -42,28 +43,23 @@ struct Fixture
 
     Reference_particle reference_particle;
     Commxx comm;
-    Bunch bunch;
+    Bunch_sptr bunch_sptr;
 };
 
-BOOST_AUTO_TEST_CASE(construct)
+BOOST_FIXTURE_TEST_CASE(construct, Fixture)
 {
-    Diagnostics_track diagnostics(0);
+    Diagnostics_track diagnostics(bunch_sptr, "dummy.h5", 0);
 }
 
-BOOST_FIXTURE_TEST_CASE(construct2, Fixture)
+BOOST_FIXTURE_TEST_CASE(is_serial, Fixture)
 {
-    Diagnostics_track diagnostics(bunch, 0);
-}
-
-BOOST_AUTO_TEST_CASE(is_serial)
-{
-    Diagnostics_track diagnostics(0);
+    Diagnostics_track diagnostics(bunch_sptr, "dummy.h5", 0);
     BOOST_CHECK(diagnostics.is_serial());
 }
 
 BOOST_FIXTURE_TEST_CASE(init_writers, Fixture)
 {
-    Diagnostics_track diagnostics(bunch, 0);
+    Diagnostics_track diagnostics(bunch_sptr, "dummy.h5", 0);
     hid_t hdf5_file = H5Fcreate("test_track_a_00000.h5", H5F_ACC_TRUNC,
             H5P_DEFAULT, H5P_DEFAULT);
     diagnostics.init_writers(hdf5_file);
@@ -72,7 +68,7 @@ BOOST_FIXTURE_TEST_CASE(init_writers, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(write_hdf5_no_init, Fixture)
 {
-    Diagnostics_track diagnostics(bunch, 0);
+    Diagnostics_track diagnostics(bunch_sptr, "dummy.h5", 0);
     bool caught_error = false;
     try {
         diagnostics.write_hdf5();
@@ -85,7 +81,7 @@ BOOST_FIXTURE_TEST_CASE(write_hdf5_no_init, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(write_hdf5, Fixture)
 {
-    Diagnostics_track diagnostics(bunch, 0);
+    Diagnostics_track diagnostics(bunch_sptr, "dummy.h5", 0);
     hid_t hdf5_file = H5Fcreate("test_track_b_00000.h5", H5F_ACC_TRUNC,
             H5P_DEFAULT, H5P_DEFAULT);
     diagnostics.init_writers(hdf5_file);
@@ -95,18 +91,18 @@ BOOST_FIXTURE_TEST_CASE(write_hdf5, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(write_track_sin_x, Fixture)
 {
-    Diagnostics_track diagnostics(bunch, 0);
+    Diagnostics_track diagnostics(bunch_sptr, "dummy.h5", 0);
     hid_t hdf5_file = H5Fcreate("test_track_c_00000.h5", H5F_ACC_TRUNC,
             H5P_DEFAULT, H5P_DEFAULT);
     diagnostics.init_writers(hdf5_file);
     double length = 0.1;
     for (int i = 0; i < 200; ++i) {
-        bunch.get_reference_particle().increment_trajectory(length);
-        bunch.get_local_particles()[0][Bunch::x] = sin(
-                bunch.get_reference_particle().get_trajectory_length());
-        bunch.get_local_particles()[0][Bunch::xp] = cos(
-                bunch.get_reference_particle().get_trajectory_length());
-        diagnostics.update(bunch);
+        bunch_sptr->get_reference_particle().increment_trajectory(length);
+        bunch_sptr->get_local_particles()[0][Bunch::x] = sin(
+                bunch_sptr->get_reference_particle().get_trajectory_length());
+        bunch_sptr->get_local_particles()[0][Bunch::xp] = cos(
+                bunch_sptr->get_reference_particle().get_trajectory_length());
+        diagnostics.update();
         diagnostics.write_hdf5();
     }
     H5Fclose(hdf5_file);

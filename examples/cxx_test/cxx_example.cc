@@ -45,22 +45,20 @@ main(int argc, char **argv)
     Propagator propagator(stepper_sptr);
 
     Commxx comm(MPI_COMM_WORLD);
-    Bunch bunch(lattice_sptr->get_reference_particle(), num_macro_particles,
-            num_real_particles, comm);
+    Bunch_sptr bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(),
+            num_macro_particles, num_real_particles, comm));
     Random_distribution distribution(seed, comm);
     MArray1d means;
     xml_load(means, "cxx_means.xml");
     MArray2d covariances;
     xml_load(covariances, "cxx_covariance_matrix.xml");
-    populate_6d(distribution, bunch, means, covariances);
+    populate_6d(distribution, *bunch_sptr, means, covariances);
 
-    Diagnostics_basic_sptr diagnostics_sptr(new Diagnostics_basic);
-    Diagnostics_writer per_step_diagnostics("cxx_example_per_step.h5",
-            diagnostics_sptr);
-    Diagnostics_full2_sptr diagnostics_full2_sptr(new Diagnostics_full2);
-    Diagnostics_writer per_turn_diagnostics("cxx_example_per_turn.h5",
-            diagnostics_full2_sptr);
-    propagator.propagate(bunch, num_turns, per_step_diagnostics,
+    Diagnostics_basic per_step_diagnostics(bunch_sptr,
+            "cxx_example_per_step.h5");
+    Diagnostics_full2 per_turn_diagnostics(bunch_sptr,
+            "cxx_example_per_step.h5");
+    propagator.propagate(*bunch_sptr, num_turns, per_step_diagnostics,
             per_turn_diagnostics);
 
     MPI_Finalize();

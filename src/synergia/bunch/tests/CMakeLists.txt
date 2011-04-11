@@ -43,15 +43,10 @@ target_link_libraries(test_diagnostics_particles synergia_bunch ${Boost_UNIT_TES
 add_test(test_diagnostics_particles test_diagnostics_particles)
 add_test(test_diagnostics_particles_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_diagnostics_particles.py)
 
-add_executable(test_diagnostics_writer test_diagnostics_writer.cc)
-target_link_libraries(test_diagnostics_writer synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_diagnostics_writer test_diagnostics_writer)
-add_test(test_diagnostics_writer_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_diagnostics_writer.py)
-
-add_executable(test_multi_diagnostics_writer test_multi_diagnostics_writer.cc)
-target_link_libraries(test_multi_diagnostics_writer synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_multi_diagnostics_writer test_multi_diagnostics_writer)
-add_test(test_multi_diagnostics_writer_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_multi_diagnostics_writer.py)
+#add_executable(test_multi_diagnostics_writer test_multi_diagnostics_writer.cc)
+#target_link_libraries(test_multi_diagnostics_writer synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+#add_test(test_multi_diagnostics_writer test_multi_diagnostics_writer)
+#add_test(test_multi_diagnostics_writer_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_multi_diagnostics_writer.py)
 
 add_executable(test_populate test_populate.cc)
 target_link_libraries(test_populate synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})

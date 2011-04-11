@@ -30,14 +30,14 @@ struct Object_to_sptr_hack
 
 void
 Propagator::propagate(Bunch & bunch, int num_turns,
-        Diagnostics_writer & per_step_diagnostics,
-        Diagnostics_writer & per_turn_diagnostics, bool verbose)
+        Diagnostics & per_step_diagnostics,
+        Diagnostics & per_turn_diagnostics, bool verbose)
 {
-    Multi_diagnostics_writer multi_per_step_diagnostics;
-    multi_per_step_diagnostics.append(Diagnostics_writer_sptr(
+    Multi_diagnostics multi_per_step_diagnostics;
+    multi_per_step_diagnostics.append(Diagnostics_sptr(
             &per_step_diagnostics, Object_to_sptr_hack()));
-    Multi_diagnostics_writer multi_per_turn_diagnostics;
-    multi_per_turn_diagnostics.append(Diagnostics_writer_sptr(
+    Multi_diagnostics multi_per_turn_diagnostics;
+    multi_per_turn_diagnostics.append(Diagnostics_sptr(
             &per_turn_diagnostics, Object_to_sptr_hack()));
     propagate(bunch, num_turns, multi_per_step_diagnostics,
             multi_per_turn_diagnostics, verbose);
@@ -45,8 +45,8 @@ Propagator::propagate(Bunch & bunch, int num_turns,
 
 void
 Propagator::propagate(Bunch & bunch, int num_turns,
-        Multi_diagnostics_writer & per_step_diagnostics,
-        Multi_diagnostics_writer & per_turn_diagnostics, bool verbose)
+        Multi_diagnostics & per_step_diagnostics,
+        Multi_diagnostics & per_turn_diagnostics, bool verbose)
 {
     for (int turn = 0; turn < num_turns; ++turn) {
         if (verbose) {
@@ -54,18 +54,20 @@ Propagator::propagate(Bunch & bunch, int num_turns,
                     << std::endl;
         }
         bunch.get_reference_particle().start_repetition();
-        for (Multi_diagnostics_writer::iterator dit =
+        for (Multi_diagnostics::iterator dit =
                 per_turn_diagnostics.begin(); dit != per_turn_diagnostics.end(); ++dit) {
-            (*dit)->update_and_write(bunch);
+            std::cout << "jfa&egs: propagator is broken\n";
+//            (*dit)->update_and_write(bunch);
         }
         int step_count = 0;
         int num_steps = stepper_sptr->get_steps().size();
         for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
                 != stepper_sptr->get_steps().end(); ++it) {
-            for (Multi_diagnostics_writer::iterator dit =
+            for (Multi_diagnostics::iterator dit =
                     per_step_diagnostics.begin(); dit
                     != per_step_diagnostics.end(); ++dit) {
-                (*dit)->update_and_write(bunch);
+                std::cout << "jfa&egs: propagator is broken\n";
+//                (*dit)->update_and_write(bunch);
             }
             ++step_count;
             if (verbose) {
@@ -75,13 +77,16 @@ Propagator::propagate(Bunch & bunch, int num_turns,
             (*it)->apply(bunch);
         }
     }
-    for (Multi_diagnostics_writer::iterator it = per_step_diagnostics.begin(); it
+    for (Multi_diagnostics::iterator it = per_step_diagnostics.begin(); it
             != per_step_diagnostics.end(); ++it) {
-        (*it)->update_and_write(bunch);
+        std::cout << "jfa&egs: propagator is broken\n";
+
+        //        (*it)->update_and_write(bunch);
     }
-    for (Multi_diagnostics_writer::iterator it = per_turn_diagnostics.begin(); it
+    for (Multi_diagnostics::iterator it = per_turn_diagnostics.begin(); it
             != per_turn_diagnostics.end(); ++it) {
-        (*it)->update_and_write(bunch);
+        std::cout << "jfa&egs: propagator is broken\n";
+//        (*it)->update_and_write(bunch);
     }
 }
 

@@ -1,6 +1,7 @@
 #ifndef DIAGNOSTICS_H_
 #define DIAGNOSTICS_H_
 
+#include <string>
 #include <boost/shared_ptr.hpp>
 
 #include "synergia/bunch/bunch.h"
@@ -10,19 +11,6 @@
 class Diagnostics
 {
 public:
-    /// Create an empty Diagnostics object
-    Diagnostics()
-    {
-    }
-    ;
-
-    /// Create a Diagnostics object
-    /// @param bunch the Bunch
-    Diagnostics(Bunch const& bunch)
-    {
-    }
-    ;
-
     /// Multiple serial diagnostics can be written to a single file.
     virtual bool
     is_serial() const = 0;
@@ -30,13 +18,16 @@ public:
     /// Update the diagnostics
     /// @param bunch the Bunch
     virtual void
-    update(Bunch const& bunch) = 0;
+    update() = 0;
 
     static MArray1d
     calculate_mean(Bunch const& bunch);
 
     static MArray1d
     calculate_std(Bunch const& bunch, MArray1d_ref const& mean);
+
+    static MArray2d
+    calculate_mom2(Bunch const& bunch, MArray1d_ref const& mean);
 
     virtual void
     init_writers(hid_t & hdf5_file) = 0;
@@ -59,6 +50,8 @@ class Diagnostics_basic : public Diagnostics
 {
 private:
     bool have_writers;
+    std::string filename;
+    Bunch_sptr bunch_sptr;
 protected:
     double s;
     Hdf5_serial_writer<double > * writer_s;
@@ -75,12 +68,10 @@ protected:
     MArray1d std;
     Hdf5_serial_writer<MArray1d_ref > * writer_std;
 public:
-    /// Create an empty Diagnostics_basic object
-    Diagnostics_basic();
-
     /// Create a Diagnostics_basic object
     /// @param bunch the Bunch
-    Diagnostics_basic(Bunch const& bunch);
+    /// @param filename filename for output
+    Diagnostics_basic(Bunch_sptr bunch, std::string const& filename);
 
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_basic class is serial.
@@ -88,9 +79,8 @@ public:
     is_serial() const;
 
     /// Update the diagnostics
-    /// @param bunch the Bunch
     virtual void
-    update(Bunch const& bunch);
+    update();
 
     /// Get the distance from the origin along the reference trajectory in
     /// meters.
@@ -141,6 +131,8 @@ class Diagnostics_full2 : public Diagnostics_basic
 {
 private:
     bool have_writers;
+    std::string filename;
+    Bunch_sptr bunch_sptr;
 protected:
     MArray2d mom2;
     Hdf5_serial_writer<MArray2d_ref > * writer_mom2;
@@ -150,16 +142,14 @@ protected:
     Hdf5_serial_writer<double > *writer_emitx, *writer_emity, *writer_emitz,
             *writer_emitxy, *writer_emitxyz;
     virtual void
-    update_full2(Bunch const& bunch);
+    update_full2();
     virtual void
     update_emittances();
 public:
-    /// Create an empty Diagnostics_full2 object
-    Diagnostics_full2();
-
-    /// Create a Diagnostics object
+    /// Create a Diagnostics_basic object
     /// @param bunch the Bunch
-    Diagnostics_full2(Bunch const& bunch);
+    /// @param filename filename for output
+    Diagnostics_full2(Bunch_sptr bunch, std::string const& filename);
 
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_full2 class is serial.
@@ -167,9 +157,8 @@ public:
     is_serial() const;
 
     /// Update the diagnostics
-    /// @param bunch the Bunch
     virtual void
-    update(Bunch const& bunch);
+    update();
 
     /// Get a 6x6 matrix of the second moments of the phase-space coordinates.
     /// The units are Synergia units.
@@ -222,18 +211,19 @@ typedef boost::shared_ptr<Diagnostics_full2 > Diagnostics_full2_sptr;
 class Diagnostics_particles : public Diagnostics
 {
 private:
+    bool have_writers;
     hid_t hdf5_file;
-    Bunch const * bunch_ptr;
     int max_particles;
+    Bunch_sptr bunch_sptr;
+    std::string filename;
 public:
-    /// Create an empty Diagnostics_particles object
+    /// Create a Diagnostics_particles object
+    /// @param bunch_sptr the Bunch
+    /// @param filename the base name for file to write to (base names will have
+    ///        a numerical index inserted
     /// @param max_particles the maximum number of particles to save (0 for all)
-    Diagnostics_particles(int max_particles = 0);
-
-    /// Create a Diagnostics object
-    /// @param bunch the Bunch
-    /// @param max_particles the maximum number of particles to save (0 for all)
-    Diagnostics_particles(Bunch const& bunch, int max_particles = 0);
+    Diagnostics_particles(Bunch_sptr bunch_sptr, std::string const& filename,
+            int max_particles = 0);
 
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_particles class is not serial.
@@ -241,9 +231,8 @@ public:
     is_serial() const;
 
     /// Update the diagnostics
-    /// @param bunch the Bunch
     virtual void
-    update(Bunch const& bunch);
+    update();
 
     virtual void
     init_writers(hid_t & hdf5_file);
@@ -265,6 +254,8 @@ private:
     bool found;
     int last_index;
     int particle_id;
+    Bunch_sptr bunch_sptr;
+    std::string filename;
 protected:
     double s;
     Hdf5_serial_writer<double > * writer_s;
@@ -276,13 +267,11 @@ protected:
     Hdf5_serial_writer<MArray1d_ref > * writer_coords;
 public:
     /// Create an empty Diagnostics_track object
+    /// @param bunch_sptr the Bunch
+    /// @param filename the base name for file to write to (base names will have
+    ///        a numerical index inserted
     /// @param particle_id the particle ID to track
-    Diagnostics_track(int particle_id);
-
-    /// Create a Diagnostics_track object
-    /// @param bunch the Bunch
-    /// @param particle_id the particle ID to track
-    Diagnostics_track(Bunch const& bunch, int particle_id);
+    Diagnostics_track(Bunch_sptr bunch_sptr, std::string const& filename, int particle_id);
 
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_full2 class is serial.
@@ -290,9 +279,8 @@ public:
     is_serial() const;
 
     /// Update the diagnostics
-    /// @param bunch the Bunch
     virtual void
-    update(Bunch const& bunch);
+    update();
 
     virtual void
     init_writers(hid_t & hdf5_file);

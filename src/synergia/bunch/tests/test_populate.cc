@@ -49,9 +49,10 @@ BOOST_FIXTURE_TEST_CASE(populate_6d_diagonal, Fixture)
         covariances[i][i] = (i + 1) * (i + 1);
     }
     populate_6d(distribution, bunch, means, covariances);
-    Diagnostics_full2 diagnostics(bunch);
-    multi_array_check_equal(means, diagnostics.get_mean(), tolerance);
-    multi_array_check_equal(covariances, diagnostics.get_mom2(), tolerance);
+    MArray1d bunch_mean(Diagnostics::calculate_mean(bunch));
+    MArray2d bunch_mom2(Diagnostics::calculate_mom2(bunch, bunch_mean));
+    multi_array_check_equal(means, bunch_mean, tolerance);
+    multi_array_check_equal(covariances, bunch_mom2, tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(populate_6d_general, Fixture)
@@ -66,9 +67,10 @@ BOOST_FIXTURE_TEST_CASE(populate_6d_general, Fixture)
         covariances[i][i] *= 10.0; // this makes for a positive-definite matrix
     }
     populate_6d(distribution, bunch, means, covariances);
-    Diagnostics_full2 diagnostics(bunch);
-    multi_array_check_equal(means, diagnostics.get_mean(), tolerance);
-    multi_array_check_equal(covariances, diagnostics.get_mom2(), tolerance);
+    MArray1d bunch_mean(Diagnostics::calculate_mean(bunch));
+    MArray2d bunch_mom2(Diagnostics::calculate_mom2(bunch, bunch_mean));
+    multi_array_check_equal(means, bunch_mean, tolerance);
+    multi_array_check_equal(covariances, bunch_mom2, tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(populate_transverse_gaussian_general, Fixture)
@@ -84,30 +86,31 @@ BOOST_FIXTURE_TEST_CASE(populate_transverse_gaussian_general, Fixture)
     }
     const double cdt = 3.14;
     populate_transverse_gaussian(distribution, bunch, means, covariances, cdt);
-    Diagnostics_full2 diagnostics(bunch);
+    MArray1d bunch_mean(Diagnostics::calculate_mean(bunch));
+    MArray2d bunch_mom2(Diagnostics::calculate_mom2(bunch, bunch_mean));
     for (int i = 0; i < 4; ++i) {
         if (std::abs(means[i]) < 10 * tolerance) {
-            BOOST_CHECK_SMALL(diagnostics.get_mean()[i], tolerance);
+            BOOST_CHECK_SMALL(bunch_mean[i], tolerance);
         } else {
-            BOOST_CHECK_CLOSE(means[i], diagnostics.get_mean()[i], tolerance);
+            BOOST_CHECK_CLOSE(means[i], bunch_mean[i], tolerance);
         }
         for (int j = i; j < 4; ++j) {
-            BOOST_CHECK_CLOSE(covariances[i][j], diagnostics.get_mom2()[i][j],
+            BOOST_CHECK_CLOSE(covariances[i][j], bunch_mom2[i][j],
                     tolerance);
         }
     }
     for (int i = 0; i < 6; ++i) {
         if (i != 4) {
-            BOOST_CHECK_SMALL(diagnostics.get_mom2()[i][4], tolerance);
-            BOOST_CHECK_CLOSE(covariances[i][5], diagnostics.get_mom2()[i][5],
+            BOOST_CHECK_SMALL(bunch_mom2[i][4], tolerance);
+            BOOST_CHECK_CLOSE(covariances[i][5], bunch_mom2[i][5],
                     tolerance);
-            BOOST_CHECK_CLOSE(covariances[5][i], diagnostics.get_mom2()[5][i],
+            BOOST_CHECK_CLOSE(covariances[5][i], bunch_mom2[5][i],
                     tolerance);
         }
     }
-    BOOST_CHECK_SMALL(diagnostics.get_mean()[4], tolerance);
-    BOOST_CHECK_CLOSE(means[5], diagnostics.get_mean()[5], tolerance);
-    BOOST_CHECK_CLOSE(cdt*cdt/12.0, diagnostics.get_mom2()[4][4],
+    BOOST_CHECK_SMALL(bunch_mean[4], tolerance);
+    BOOST_CHECK_CLOSE(means[5], bunch_mean[5], tolerance);
+    BOOST_CHECK_CLOSE(cdt*cdt/12.0, bunch_mom2[4][4],
             tolerance);
 
     double sum2 = 0.0;
@@ -121,7 +124,7 @@ BOOST_FIXTURE_TEST_CASE(populate_transverse_gaussian_general, Fixture)
     int num = bunch.get_local_num();
     for (int p = 0; p < num; ++p) {
         double cdt = particles[p][Bunch::cdt]
-                - diagnostics.get_mean()[Bunch::cdt];
+                - bunch_mean[Bunch::cdt];
         double cdt2 = cdt * cdt;
         sum2 += cdt2;
         double cdt3 = cdt2 * cdt;
@@ -150,16 +153,17 @@ BOOST_FIXTURE_TEST_CASE(populate_uniform_cylinder_general, Fixture)
     const double stddpop = 5.6e-4;
     populate_uniform_cylinder(distribution, bunch, radius, cdt, stdxp, stdyp,
             stddpop);
-    Diagnostics_full2 diagnostics(bunch);
+    MArray1d bunch_mean(Diagnostics::calculate_mean(bunch));
+    MArray1d bunch_std(Diagnostics::calculate_std(bunch, bunch_mean));
     // yes, this tolerance is very large. There are no corrections for
     // finite statistics in populate_uniform_cylinder.
     const double tolerance = 2.0;
     for (int i = 0; i < 6; ++i) {
-        BOOST_CHECK_SMALL(diagnostics.get_mean()[i], tolerance);
+        BOOST_CHECK_SMALL(bunch_mean[i], tolerance);
     }
-    BOOST_CHECK_CLOSE(diagnostics.get_std()[Bunch::xp], stdxp, tolerance);
-    BOOST_CHECK_CLOSE(diagnostics.get_std()[Bunch::yp], stdyp, tolerance);
-    BOOST_CHECK_CLOSE(diagnostics.get_std()[Bunch::dpop], stddpop, tolerance);
+    BOOST_CHECK_CLOSE(bunch_std[Bunch::xp], stdxp, tolerance);
+    BOOST_CHECK_CLOSE(bunch_std[Bunch::yp], stdyp, tolerance);
+    BOOST_CHECK_CLOSE(bunch_std[Bunch::dpop], stddpop, tolerance);
 
     double sum = 0.0;
     double max = 0.0;
