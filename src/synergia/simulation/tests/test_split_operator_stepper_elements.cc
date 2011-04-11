@@ -69,12 +69,13 @@ BOOST_FIXTURE_TEST_CASE(construct17, Lattice_fixture2)
 }
 
 void
-verify_steps(Split_operator_stepper_elements & stepper, int slices_per_element)
+verify_steps(Split_operator_stepper_elements & stepper, int steps_per_element)
 {
     // jfa: remove print command after debugging
     stepper.print();
     const double end = -1;
     double last_right = end;
+    int slices_per_element = 2 * steps_per_element;
     for (Steps::iterator sit = stepper.get_steps().begin(); sit
             != stepper.get_steps().end(); ++sit) {
         Operators operators((*sit)->get_operators());

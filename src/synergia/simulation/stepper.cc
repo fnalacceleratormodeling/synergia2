@@ -339,17 +339,18 @@ Split_operator_stepper_elements::construct(
                 double middle = left + half_step_length;
                 double right = (i + 1) * step_length;
 
+                Step_sptr step(new Step(step_length));
+
                 //1st Half
                 Independent_operator_sptr
-                        ind_op(
+                        ind_op_first_half(
                                 new Independent_operator(
-                                        "step",
+                                        "first_half",
                                         this->lattice_simulator.get_operation_extractor_map_sptr()));
                 Lattice_element_slice_sptr slice_1st_half(new Lattice_element_slice(
                         *(*it), left, middle));
-                ind_op->append_slice(slice_1st_half);
-                Step_sptr step(new Step(step_length));
-                step->append(ind_op, 0.5);
+                ind_op_first_half->append_slice(slice_1st_half);
+                step->append(ind_op_first_half, 1.0);
 
                 //Collective Effects
                 for (Collective_operators::const_iterator coll_op_it =
@@ -359,11 +360,16 @@ Split_operator_stepper_elements::construct(
                 }
 
                 //2nd Half
+                Independent_operator_sptr
+                        ind_op_second_half(
+                                new Independent_operator(
+                                        "second_half",
+                                        this->lattice_simulator.get_operation_extractor_map_sptr()));
                 Lattice_element_slice_sptr slice_2nd_half(new Lattice_element_slice(
                         *(*it), middle, right));
                 //slice(new Lattice_element_slice(*(*it), middle, right));
-                ind_op->append_slice(slice_2nd_half);
-                step->append(ind_op, 0.5);
+                ind_op_second_half->append_slice(slice_2nd_half);
+                step->append(ind_op_second_half, 1.0);
 
                 get_steps().push_back(step);
 
