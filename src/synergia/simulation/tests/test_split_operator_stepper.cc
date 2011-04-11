@@ -65,7 +65,7 @@ verify_steps(Split_operator_stepper & stepper, Lattice & lattice, int num_steps)
 {
     const double end = -1;
     double last_right = end;
-    double expected_substep_length = lattice.get_length() / (2*num_steps);
+    double expected_substep_length = lattice.get_length() / (2 * num_steps);
     for (Steps::iterator sit = stepper.get_steps().begin(); sit
             != stepper.get_steps().end(); ++sit) {
         Operators operators((*sit)->get_operators());
@@ -81,6 +81,14 @@ verify_steps(Split_operator_stepper & stepper, Lattice & lattice, int num_steps)
             } else {
                 BOOST_CHECK((*oit)->get_type() == "collective");
             }
+            // Test 3: operators should have the correct names
+            if (operator_index == 1) {
+                BOOST_CHECK ((*oit)->get_name() == "first_half");
+            } else if (operator_index == 2) {
+                BOOST_CHECK ((*oit)->get_name() == "space_charge");
+            } else if (operator_index == 3) {
+                BOOST_CHECK ((*oit)->get_name() == "second_half");
+            }
             if ((*oit)->get_type() == "independent") {
                 double substep_length = 0.0;
                 Lattice_element_slices slices(boost::static_pointer_cast<
@@ -90,7 +98,7 @@ verify_steps(Split_operator_stepper & stepper, Lattice & lattice, int num_steps)
                     double slice_length = (*slit)->get_right()
                             - (*slit)->get_left();
                     substep_length += slice_length;
-                    // Test 3: slices should be continuous
+                    // Test 4: slices should be continuous
                     double slice_left = (*slit)->get_left();
                     if (last_right == end) {
                         BOOST_CHECK(slice_left == 0.0);
@@ -104,14 +112,13 @@ verify_steps(Split_operator_stepper & stepper, Lattice & lattice, int num_steps)
                         last_right = (*slit)->get_right();
                     }
                 }
-                // Test 4: substep should have the correct length
+                // Test 5: substep should have the correct length
                 const double substep_length_tolerance = 1.0e-12;
                 BOOST_CHECK_CLOSE(substep_length, expected_substep_length,
                         substep_length_tolerance);
             }
         }
-    }
-    // Test 5: we should end at the end of an element
+    }// Test 6: we should end at the end of an element
     BOOST_CHECK(last_right == end);
 }
 
