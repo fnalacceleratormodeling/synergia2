@@ -84,10 +84,17 @@ Diagnostics::calculate_mom2(Bunch const& bunch, MArray1d_ref const& mean)
     return mom2;
 }
 
+void
+Diagnostics::update_and_write()
+{
+    update();
+    write();
+}
+
 Diagnostics_basic::Diagnostics_basic(Bunch_sptr bunch_sptr,
         std::string const& filename) :
     bunch_sptr(bunch_sptr), filename(filename), have_writers(false), mean(
-            boost::extents[6]), std(boost::extents[6])
+            boost::extents[6]), std(boost::extents[6]), diagnostics_writer(this)
 {
 }
 
@@ -169,11 +176,11 @@ Diagnostics_basic::init_writers(hid_t & hdf5_file)
 }
 
 void
-Diagnostics_basic::write_hdf5()
+Diagnostics_basic::write()
 {
     if (!have_writers) {
         throw(std::runtime_error(
-                "Diagnostics_basic::write_hdf5 called before Diagnostics_basic::init_writers"));
+                "Diagnostics_basic::write called before Diagnostics_basic::init_writers"));
     }
     writer_s->append(s);
     writer_repetition->append(repetition);
@@ -333,9 +340,9 @@ Diagnostics_full2::init_writers(hid_t & hdf5_file)
 }
 
 void
-Diagnostics_full2::write_hdf5()
+Diagnostics_full2::write()
 {
-    Diagnostics_basic::write_hdf5();
+    Diagnostics_basic::write();
     writer_mom2->append(mom2);
     writer_corr->append(corr);
     writer_emitx->append(emitx);
@@ -385,11 +392,11 @@ Diagnostics_particles::init_writers(hid_t & hdf5_file)
 
 // jfa: this method is not complete! It doesn't work on multiple processors
 void
-Diagnostics_particles::write_hdf5()
+Diagnostics_particles::write()
 {
     if (!have_writers) {
         throw(std::runtime_error(
-                "Diagnostics_particles::write_hdf5 called before Diagnostics_particles::init_writers"));
+                "Diagnostics_particles::write called before Diagnostics_particles::init_writers"));
     }
     Hdf5_writer<double > writer_pz(hdf5_file, "pz");
     double pz = bunch_sptr->get_reference_particle().get_momentum();
@@ -484,11 +491,11 @@ Diagnostics_track::init_writers(hid_t & hdf5_file)
 }
 
 void
-Diagnostics_track::write_hdf5()
+Diagnostics_track::write()
 {
     if (!have_writers) {
         throw(std::runtime_error(
-                "Diagnostics_track::write_hdf5 called before Diagnostics::init_writers"));
+                "Diagnostics_track::write called before Diagnostics::init_writers"));
     }
     writer_coords->append(coords);
     writer_s->append(s);

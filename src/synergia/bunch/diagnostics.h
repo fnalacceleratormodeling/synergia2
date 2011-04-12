@@ -5,20 +5,32 @@
 #include <boost/shared_ptr.hpp>
 
 #include "synergia/bunch/bunch.h"
+#include "synergia/bunch/diagnostics_writer.h"
 #include "synergia/utils/hdf5_serial_writer.h"
 
 /// Diagnostics is an abstract base class for Diagnostics classes
 class Diagnostics
 {
+protected:
+    virtual void
+    init_writers(hid_t & hdf5_file) = 0;
+
 public:
     /// Multiple serial diagnostics can be written to a single file.
     virtual bool
     is_serial() const = 0;
 
     /// Update the diagnostics
-    /// @param bunch the Bunch
     virtual void
     update() = 0;
+
+    /// Write the diagnostics to the file
+    virtual void
+    write() = 0;
+
+    /// Update the diagnostics and write them to the file
+    virtual void
+    update_and_write();
 
     static MArray1d
     calculate_mean(Bunch const& bunch);
@@ -28,12 +40,6 @@ public:
 
     static MArray2d
     calculate_mom2(Bunch const& bunch, MArray1d_ref const& mean);
-
-    virtual void
-    init_writers(hid_t & hdf5_file) = 0;
-
-    virtual void
-    write_hdf5() = 0;
 
     virtual
     ~Diagnostics()
@@ -52,6 +58,8 @@ private:
     bool have_writers;
     std::string filename;
     Bunch_sptr bunch_sptr;
+    Diagnostics_writer diagnostics_writer;
+
 protected:
     double s;
     Hdf5_serial_writer<double > * writer_s;
@@ -67,6 +75,9 @@ protected:
     Hdf5_serial_writer<MArray1d_ref > * writer_mean;
     MArray1d std;
     Hdf5_serial_writer<MArray1d_ref > * writer_std;
+    virtual void
+    init_writers(hid_t & hdf5_file);
+
 public:
     /// Create a Diagnostics_basic object
     /// @param bunch the Bunch
@@ -114,10 +125,7 @@ public:
     get_std() const;
 
     virtual void
-    init_writers(hid_t & hdf5_file);
-
-    virtual void
-    write_hdf5();
+    write();
 
     virtual
     ~Diagnostics_basic();
@@ -133,6 +141,7 @@ private:
     bool have_writers;
     std::string filename;
     Bunch_sptr bunch_sptr;
+
 protected:
     MArray2d mom2;
     Hdf5_serial_writer<MArray2d_ref > * writer_mom2;
@@ -145,6 +154,9 @@ protected:
     update_full2();
     virtual void
     update_emittances();
+    virtual void
+    init_writers(hid_t & hdf5_file);
+
 public:
     /// Create a Diagnostics_basic object
     /// @param bunch the Bunch
@@ -196,10 +208,7 @@ public:
     get_emitxyz() const;
 
     virtual void
-    init_writers(hid_t & hdf5_file);
-
-    virtual void
-    write_hdf5();
+    write();
 
     virtual
     ~Diagnostics_full2();
@@ -216,6 +225,11 @@ private:
     int max_particles;
     Bunch_sptr bunch_sptr;
     std::string filename;
+
+protected:
+    virtual void
+    init_writers(hid_t & hdf5_file);
+
 public:
     /// Create a Diagnostics_particles object
     /// @param bunch_sptr the Bunch
@@ -235,10 +249,7 @@ public:
     update();
 
     virtual void
-    init_writers(hid_t & hdf5_file);
-
-    virtual void
-    write_hdf5();
+    write();
 
     virtual
     ~Diagnostics_particles();
@@ -256,6 +267,7 @@ private:
     int particle_id;
     Bunch_sptr bunch_sptr;
     std::string filename;
+
 protected:
     double s;
     Hdf5_serial_writer<double > * writer_s;
@@ -265,13 +277,17 @@ protected:
     Hdf5_serial_writer<double > * writer_trajectory_length;
     MArray1d coords;
     Hdf5_serial_writer<MArray1d_ref > * writer_coords;
+    virtual void
+    init_writers(hid_t & hdf5_file);
+
 public:
     /// Create an empty Diagnostics_track object
     /// @param bunch_sptr the Bunch
     /// @param filename the base name for file to write to (base names will have
     ///        a numerical index inserted
     /// @param particle_id the particle ID to track
-    Diagnostics_track(Bunch_sptr bunch_sptr, std::string const& filename, int particle_id);
+    Diagnostics_track(Bunch_sptr bunch_sptr, std::string const& filename,
+            int particle_id);
 
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_full2 class is serial.
@@ -283,10 +299,7 @@ public:
     update();
 
     virtual void
-    init_writers(hid_t & hdf5_file);
-
-    virtual void
-    write_hdf5();
+    write();
 
     virtual
     ~Diagnostics_track();

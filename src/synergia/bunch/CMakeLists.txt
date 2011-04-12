@@ -1,5 +1,5 @@
 add_library(synergia_bunch SHARED fixed_t_z_converter.cc bunch.cc
-    diagnostics.cc multi_diagnostics.cc populate.cc)
+    diagnostics.cc multi_diagnostics.cc diagnostics_writer.cc populate.cc)
 target_link_libraries(synergia_bunch synergia_parallel_utils
     synergia_hdf5_utils synergia_foundation)
 add_python_extension(bunch bunch_wrap.cc)

@@ -3,7 +3,7 @@
 
 #include "synergia/simulation/stepper.h"
 #include "synergia/bunch/bunch.h"
-#include "synergia/bunch/diagnostics_writer.h"
+#include "synergia/bunch/multi_diagnostics.h"
 
 class Propagator
 {

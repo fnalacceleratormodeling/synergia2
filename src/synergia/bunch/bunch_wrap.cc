@@ -1,6 +1,6 @@
 #include "bunch.h"
 #include "diagnostics.h"
-#include "diagnostics_writer.h"
+#include "multi_diagnostics.h"
 #include "populate.h"
 #include <boost/python.hpp>
 #include "synergia/utils/numpy_multi_ref_converter.h"
