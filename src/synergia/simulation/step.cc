@@ -53,6 +53,12 @@ Step::get_time_fractions() const
     return time_fractions;
 }
 
+double
+Step::get_length() const
+{
+    return length;
+}
+
 void
 Step::print(int index) const
 {

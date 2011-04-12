@@ -7,7 +7,7 @@
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-12;
-const double step_length  = 1.23;
+const double step_length = 1.23;
 
 BOOST_AUTO_TEST_CASE(construct)
 {
@@ -106,6 +106,13 @@ BOOST_AUTO_TEST_CASE(get_time_fractions)
     BOOST_CHECK_CLOSE(*it, 1.0, tolerance);
     ++it;
     BOOST_CHECK_CLOSE(*it, 0.25, tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(get_length)
+{
+    Step step(step_length);
+
+    BOOST_CHECK_CLOSE(step.get_length(), step_length, tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(print)
