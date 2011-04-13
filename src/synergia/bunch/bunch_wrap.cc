@@ -31,11 +31,14 @@ BOOST_PYTHON_MODULE(bunch)
             "Fixed_t_z_ballistic", init< > ());
 
     class_<Diagnostics, Diagnostics_sptr, boost::noncopyable >
-        ("Diagnostics", no_init);
+        ("Diagnostics", no_init)
+        .def("update", &Diagnostics::update)
+        .def("write", &Diagnostics::write)
+        .def("update_and_write", &Diagnostics::update_and_write)
+        ;
 
-    class_<Diagnostics_basic, Diagnostics_basic_sptr, bases<Diagnostics> >
+    class_<Diagnostics_basic, Diagnostics_basic_sptr, bases<Diagnostics > >
         ("Diagnostics_basic",init<Bunch_sptr, std::string const& >())
-        .def("update", &Diagnostics_basic::update)
         .def("get_s", &Diagnostics_basic::get_s)
         .def("get_repetition", &Diagnostics_basic::get_repetition)
         .def("get_trajectory_length", &Diagnostics_basic::get_trajectory_length)
@@ -43,8 +46,13 @@ BOOST_PYTHON_MODULE(bunch)
         .def("get_std", &Diagnostics_basic::get_std)
         ;
 
-    class_<Diagnostics_full2, Diagnostics_full2_sptr, bases<Diagnostics_basic > >
+    class_<Diagnostics_full2, Diagnostics_full2_sptr, bases<Diagnostics > >
             ("Diagnostics_full2",init<Bunch_sptr, std::string const& >())
+        .def("get_s", &Diagnostics_full2::get_s)
+        .def("get_repetition", &Diagnostics_full2::get_repetition)
+        .def("get_trajectory_length", &Diagnostics_full2::get_trajectory_length)
+        .def("get_mean", &Diagnostics_full2::get_mean)
+        .def("get_std", &Diagnostics_full2::get_std)
         .def("get_mom2", &Diagnostics_full2::get_mom2)
         .def("get_corr", &Diagnostics_full2::get_corr)
         .def("get_emitx", &Diagnostics_full2::get_emitx)
@@ -56,7 +64,6 @@ BOOST_PYTHON_MODULE(bunch)
 
     class_<Diagnostics_track, Diagnostics_track_sptr, bases<Diagnostics > >
         ("Diagnostics_track",init<Bunch_sptr, std::string const&, int >())
-        .def("update", &Diagnostics_track::update)
         ;
 
     class_<Diagnostics_particles, Diagnostics_particles_sptr, bases<Diagnostics > >

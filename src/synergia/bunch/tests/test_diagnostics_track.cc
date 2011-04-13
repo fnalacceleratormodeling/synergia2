@@ -57,44 +57,16 @@ BOOST_FIXTURE_TEST_CASE(is_serial, Fixture)
     BOOST_CHECK(diagnostics.is_serial());
 }
 
-BOOST_FIXTURE_TEST_CASE(init_writers, Fixture)
+BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 {
     Diagnostics_track diagnostics(bunch_sptr, "dummy.h5", 0);
-    hid_t hdf5_file = H5Fcreate("test_track_a_00000.h5", H5F_ACC_TRUNC,
-            H5P_DEFAULT, H5P_DEFAULT);
-    diagnostics.init_writers(hdf5_file);
-    H5Fclose(hdf5_file);
-}
-
-BOOST_FIXTURE_TEST_CASE(write_hdf5_no_init, Fixture)
-{
-    Diagnostics_track diagnostics(bunch_sptr, "dummy.h5", 0);
-    bool caught_error = false;
-    try {
-        diagnostics.write_hdf5();
-    }
-    catch (std::runtime_error) {
-        caught_error = true;
-    }
-    BOOST_CHECK(caught_error == true);
-}
-
-BOOST_FIXTURE_TEST_CASE(write_hdf5, Fixture)
-{
-    Diagnostics_track diagnostics(bunch_sptr, "dummy.h5", 0);
-    hid_t hdf5_file = H5Fcreate("test_track_b_00000.h5", H5F_ACC_TRUNC,
-            H5P_DEFAULT, H5P_DEFAULT);
-    diagnostics.init_writers(hdf5_file);
-    diagnostics.write_hdf5();
-    H5Fclose(hdf5_file);
+    diagnostics.update();
+    diagnostics.write();
 }
 
 BOOST_FIXTURE_TEST_CASE(write_track_sin_x, Fixture)
 {
     Diagnostics_track diagnostics(bunch_sptr, "dummy.h5", 0);
-    hid_t hdf5_file = H5Fcreate("test_track_c_00000.h5", H5F_ACC_TRUNC,
-            H5P_DEFAULT, H5P_DEFAULT);
-    diagnostics.init_writers(hdf5_file);
     double length = 0.1;
     for (int i = 0; i < 200; ++i) {
         bunch_sptr->get_reference_particle().increment_trajectory(length);
@@ -103,7 +75,6 @@ BOOST_FIXTURE_TEST_CASE(write_track_sin_x, Fixture)
         bunch_sptr->get_local_particles()[0][Bunch::xp] = cos(
                 bunch_sptr->get_reference_particle().get_trajectory_length());
         diagnostics.update();
-        diagnostics.write_hdf5();
+        diagnostics.write();
     }
-    H5Fclose(hdf5_file);
 }

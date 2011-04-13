@@ -5,7 +5,7 @@
 #include "hdf5.h"
 #include <boost/shared_ptr.hpp>
 
-class Diagnostics;
+#include "synergia/utils/commxx.h"
 
 /// The Diagnostics_writer is a helper class for Diagnostics objects.
 /// Serial Diagnostics_writers write many updates to a single file.
@@ -13,15 +13,18 @@ class Diagnostics;
 class Diagnostics_writer
 {
 private:
-    Diagnostics *diagnostics_ptr;
+    std::string filename;
+    bool serial;
+    Commxx commxx;
     hid_t file;
+    bool have_file;
     int count;
     std::string filename_base, filename_suffix;
     void
-    open_file_and_init();
+    open_file();
 public:
     /// Construct Diagnostics_writer
-    Diagnostics_writer(Diagnostics *diagnostics_ptr);
+    Diagnostics_writer(std::string const& filename, bool serial, Commxx const& commxx);
 
     /// Get the count for non-serial writers
     int
@@ -32,9 +35,14 @@ public:
     void
     set_count(int count);
 
-    /// Write the Diagnostics to the file
+    bool
+    write_locally();
+
+    hid_t &
+    get_hdf5_file();
+
     void
-    write();
+    finish_write();
 
     ~Diagnostics_writer();
 };

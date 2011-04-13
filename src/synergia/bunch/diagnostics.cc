@@ -94,7 +94,8 @@ Diagnostics::update_and_write()
 Diagnostics_basic::Diagnostics_basic(Bunch_sptr bunch_sptr,
         std::string const& filename) :
     bunch_sptr(bunch_sptr), filename(filename), have_writers(false), mean(
-            boost::extents[6]), std(boost::extents[6]), diagnostics_writer(this)
+            boost::extents[6]), std(boost::extents[6]), diagnostics_writer(
+            filename, true, bunch_sptr->get_comm())
 {
 }
 
@@ -162,33 +163,36 @@ Diagnostics_basic::get_std() const
 void
 Diagnostics_basic::init_writers(hid_t & hdf5_file)
 {
-    writer_s = new Hdf5_serial_writer<double > (hdf5_file, "s");
-    writer_repetition = new Hdf5_serial_writer<int > (hdf5_file, "repetition");
-    writer_trajectory_length = new Hdf5_serial_writer<double > (hdf5_file,
-            "trajectory_length");
-    writer_num_particles = new Hdf5_serial_writer<int > (hdf5_file,
-            "num_particles");
-    writer_real_num_particles = new Hdf5_serial_writer<double > (hdf5_file,
-            "real_num_particles");
-    writer_mean = new Hdf5_serial_writer<MArray1d_ref > (hdf5_file, "mean");
-    writer_std = new Hdf5_serial_writer<MArray1d_ref > (hdf5_file, "std");
-    have_writers = true;
+    if (!have_writers) {
+        writer_s = new Hdf5_serial_writer<double > (hdf5_file, "s");
+        writer_repetition = new Hdf5_serial_writer<int > (hdf5_file,
+                "repetition");
+        writer_trajectory_length = new Hdf5_serial_writer<double > (hdf5_file,
+                "trajectory_length");
+        writer_num_particles = new Hdf5_serial_writer<int > (hdf5_file,
+                "num_particles");
+        writer_real_num_particles = new Hdf5_serial_writer<double > (hdf5_file,
+                "real_num_particles");
+        writer_mean = new Hdf5_serial_writer<MArray1d_ref > (hdf5_file, "mean");
+        writer_std = new Hdf5_serial_writer<MArray1d_ref > (hdf5_file, "std");
+        have_writers = true;
+    }
 }
 
 void
 Diagnostics_basic::write()
 {
-    if (!have_writers) {
-        throw(std::runtime_error(
-                "Diagnostics_basic::write called before Diagnostics_basic::init_writers"));
+    if (diagnostics_writer.write_locally()) {
+        init_writers(diagnostics_writer.get_hdf5_file());
+        writer_s->append(s);
+        writer_repetition->append(repetition);
+        writer_trajectory_length->append(trajectory_length);
+        writer_num_particles->append(num_particles);
+        writer_real_num_particles->append(real_num_particles);
+        writer_mean->append(mean);
+        writer_std->append(std);
+        diagnostics_writer.finish_write();
     }
-    writer_s->append(s);
-    writer_repetition->append(repetition);
-    writer_trajectory_length->append(trajectory_length);
-    writer_num_particles->append(num_particles);
-    writer_real_num_particles->append(real_num_particles);
-    writer_mean->append(mean);
-    writer_std->append(std);
 }
 
 Diagnostics_basic::~Diagnostics_basic()
@@ -257,9 +261,10 @@ Diagnostics_full2::update_emittances()
 
 Diagnostics_full2::Diagnostics_full2(Bunch_sptr bunch_sptr,
         std::string const& filename) :
-    bunch_sptr(bunch_sptr), filename(filename), Diagnostics_basic(bunch_sptr,
-            filename), have_writers(false), mom2(boost::extents[6][6]), corr(
-            boost::extents[6][6])
+    bunch_sptr(bunch_sptr), filename(filename), have_writers(false), mean(
+            boost::extents[6]), std(boost::extents[6]), mom2(
+            boost::extents[6][6]), corr(boost::extents[6][6]),
+            diagnostics_writer(filename, true, bunch_sptr->get_comm())
 {
 }
 
@@ -281,6 +286,48 @@ Diagnostics_full2::update()
     mean = calculate_mean(*bunch_sptr);
     update_full2();
     update_emittances();
+}
+
+double
+Diagnostics_full2::get_s() const
+{
+    return s;
+}
+
+int
+Diagnostics_full2::get_repetition() const
+{
+    return repetition;
+}
+
+double
+Diagnostics_full2::get_trajectory_length() const
+{
+    return trajectory_length;
+}
+
+int
+Diagnostics_full2::get_num_particles() const
+{
+    return num_particles;
+}
+
+double
+Diagnostics_full2::get_real_num_particles() const
+{
+    return real_num_particles;
+}
+
+Const_MArray1d_ref
+Diagnostics_full2::get_mean() const
+{
+    return mean;
+}
+
+Const_MArray1d_ref
+Diagnostics_full2::get_std() const
+{
+    return std;
 }
 
 Const_MArray2d_ref
@@ -328,33 +375,62 @@ Diagnostics_full2::get_emitxyz() const
 void
 Diagnostics_full2::init_writers(hid_t & hdf5_file)
 {
-    Diagnostics_basic::init_writers(hdf5_file);
-    writer_mom2 = new Hdf5_serial_writer<MArray2d_ref > (hdf5_file, "mom2");
-    writer_corr = new Hdf5_serial_writer<MArray2d_ref > (hdf5_file, "corr");
-    writer_emitx = new Hdf5_serial_writer<double > (hdf5_file, "emitx");
-    writer_emity = new Hdf5_serial_writer<double > (hdf5_file, "emity");
-    writer_emitz = new Hdf5_serial_writer<double > (hdf5_file, "emitz");
-    writer_emitxy = new Hdf5_serial_writer<double > (hdf5_file, "emitxy");
-    writer_emitxyz = new Hdf5_serial_writer<double > (hdf5_file, "emitxyz");
-    have_writers = true;
+    if (!have_writers) {
+        writer_s = new Hdf5_serial_writer<double > (hdf5_file, "s");
+        writer_repetition = new Hdf5_serial_writer<int > (hdf5_file,
+                "repetition");
+        writer_trajectory_length = new Hdf5_serial_writer<double > (hdf5_file,
+                "trajectory_length");
+        writer_num_particles = new Hdf5_serial_writer<int > (hdf5_file,
+                "num_particles");
+        writer_real_num_particles = new Hdf5_serial_writer<double > (hdf5_file,
+                "real_num_particles");
+        writer_mean = new Hdf5_serial_writer<MArray1d_ref > (hdf5_file, "mean");
+        writer_std = new Hdf5_serial_writer<MArray1d_ref > (hdf5_file, "std");
+        writer_mom2 = new Hdf5_serial_writer<MArray2d_ref > (hdf5_file, "mom2");
+        writer_corr = new Hdf5_serial_writer<MArray2d_ref > (hdf5_file, "corr");
+        writer_emitx = new Hdf5_serial_writer<double > (hdf5_file, "emitx");
+        writer_emity = new Hdf5_serial_writer<double > (hdf5_file, "emity");
+        writer_emitz = new Hdf5_serial_writer<double > (hdf5_file, "emitz");
+        writer_emitxy = new Hdf5_serial_writer<double > (hdf5_file, "emitxy");
+        writer_emitxyz = new Hdf5_serial_writer<double > (hdf5_file, "emitxyz");
+        have_writers = true;
+    }
 }
 
 void
 Diagnostics_full2::write()
 {
-    Diagnostics_basic::write();
-    writer_mom2->append(mom2);
-    writer_corr->append(corr);
-    writer_emitx->append(emitx);
-    writer_emity->append(emity);
-    writer_emitz->append(emitz);
-    writer_emitxy->append(emitxy);
-    writer_emitxyz->append(emitxyz);
+    if (diagnostics_writer.write_locally()) {
+        init_writers(diagnostics_writer.get_hdf5_file());
+        writer_s->append(s);
+        writer_repetition->append(repetition);
+        writer_trajectory_length->append(trajectory_length);
+        writer_num_particles->append(num_particles);
+        writer_real_num_particles->append(real_num_particles);
+        writer_mean->append(mean);
+        writer_std->append(std);
+        writer_mom2->append(mom2);
+        writer_corr->append(corr);
+        writer_emitx->append(emitx);
+        writer_emity->append(emity);
+        writer_emitz->append(emitz);
+        writer_emitxy->append(emitxy);
+        writer_emitxyz->append(emitxyz);
+        diagnostics_writer.finish_write();
+    }
 }
 
 Diagnostics_full2::~Diagnostics_full2()
 {
     if (have_writers) {
+        delete writer_s;
+        delete writer_repetition;
+        delete writer_trajectory_length;
+        delete writer_num_particles;
+        delete writer_real_num_particles;
+        delete writer_mean;
+        delete writer_std;
         delete writer_mom2;
         delete writer_corr;
         delete writer_emitx;
@@ -368,7 +444,8 @@ Diagnostics_full2::~Diagnostics_full2()
 Diagnostics_particles::Diagnostics_particles(Bunch_sptr bunch_sptr,
         std::string const& filename, int max_particles) :
     bunch_sptr(bunch_sptr), filename(filename), max_particles(max_particles),
-            have_writers(false)
+            have_writers(false), diagnostics_writer(filename, false,
+                    bunch_sptr->get_comm())
 {
 }
 
@@ -386,37 +463,38 @@ Diagnostics_particles::update()
 void
 Diagnostics_particles::init_writers(hid_t & hdf5_file)
 {
-    this->hdf5_file = hdf5_file;
-    have_writers = true;
+    // initializing writers is performed for each write
 }
 
 // jfa: this method is not complete! It doesn't work on multiple processors
 void
 Diagnostics_particles::write()
 {
-    if (!have_writers) {
-        throw(std::runtime_error(
-                "Diagnostics_particles::write called before Diagnostics_particles::init_writers"));
+    if (diagnostics_writer.write_locally()) {
+        hid_t hdf5_file = diagnostics_writer.get_hdf5_file();
+        init_writers(hdf5_file);
+
+        Hdf5_writer<double > writer_pz(hdf5_file, "pz");
+        double pz = bunch_sptr->get_reference_particle().get_momentum();
+        writer_pz.write(pz);
+        Hdf5_writer<double > writer_tlen(hdf5_file, "tlen");
+        double tlen =
+                bunch_sptr->get_reference_particle().get_trajectory_length();
+        writer_tlen.write(tlen);
+        Hdf5_writer<int > writer_rep(hdf5_file, "rep");
+        int rep = bunch_sptr->get_reference_particle().get_repetition();
+        writer_rep.write(rep);
+        Hdf5_writer<double > writer_s(hdf5_file, "s");
+        double s = bunch_sptr->get_reference_particle().get_s();
+        writer_s.write(s);
+        int local_num = bunch_sptr->get_local_num();
+        Hdf5_chunked_array2d_writer writer_particles(hdf5_file, "particles",
+                bunch_sptr->get_local_particles()[boost::indices[range(0,
+                        local_num)][range()]]);
+        writer_particles.write_chunk(
+                bunch_sptr->get_local_particles()[boost::indices[range(0,
+                        local_num)][range()]]);
     }
-    Hdf5_writer<double > writer_pz(hdf5_file, "pz");
-    double pz = bunch_sptr->get_reference_particle().get_momentum();
-    writer_pz.write(pz);
-    Hdf5_writer<double > writer_tlen(hdf5_file, "tlen");
-    double tlen = bunch_sptr->get_reference_particle().get_trajectory_length();
-    writer_tlen.write(tlen);
-    Hdf5_writer<int > writer_rep(hdf5_file, "rep");
-    int rep = bunch_sptr->get_reference_particle().get_repetition();
-    writer_rep.write(rep);
-    Hdf5_writer<double > writer_s(hdf5_file, "s");
-    double s = bunch_sptr->get_reference_particle().get_s();
-    writer_s.write(s);
-    int local_num = bunch_sptr->get_local_num();
-    Hdf5_chunked_array2d_writer
-            writer_particles(hdf5_file, "particles",
-                    bunch_sptr->get_local_particles()[boost::indices[range(0,
-                            local_num)][range()]]);
-    writer_particles.write_chunk(
-            bunch_sptr->get_local_particles()[boost::indices[range(0, local_num)][range()]]);
 }
 
 Diagnostics_particles::~Diagnostics_particles()
@@ -427,7 +505,8 @@ Diagnostics_track::Diagnostics_track(Bunch_sptr bunch_sptr,
         std::string const& filename, int particle_id) :
     bunch_sptr(bunch_sptr), filename(filename), have_writers(false), coords(
             boost::extents[6]), found(false), particle_id(particle_id),
-            last_index(-1)
+            last_index(-1), diagnostics_writer(filename, true,
+                    bunch_sptr->get_comm())
 {
 }
 
@@ -482,25 +561,29 @@ Diagnostics_track::update()
 void
 Diagnostics_track::init_writers(hid_t & hdf5_file)
 {
-    writer_coords = new Hdf5_serial_writer<MArray1d_ref > (hdf5_file, "coords");
-    writer_s = new Hdf5_serial_writer<double > (hdf5_file, "s");
-    writer_repetition = new Hdf5_serial_writer<int > (hdf5_file, "repetition");
-    writer_trajectory_length = new Hdf5_serial_writer<double > (hdf5_file,
-            "trajectory_length");
-    have_writers = true;
+    if (!have_writers) {
+        writer_coords = new Hdf5_serial_writer<MArray1d_ref > (hdf5_file,
+                "coords");
+        writer_s = new Hdf5_serial_writer<double > (hdf5_file, "s");
+        writer_repetition = new Hdf5_serial_writer<int > (hdf5_file,
+                "repetition");
+        writer_trajectory_length = new Hdf5_serial_writer<double > (hdf5_file,
+                "trajectory_length");
+        have_writers = true;
+    }
 }
 
 void
 Diagnostics_track::write()
 {
-    if (!have_writers) {
-        throw(std::runtime_error(
-                "Diagnostics_track::write called before Diagnostics::init_writers"));
+    if (diagnostics_writer.write_locally()) {
+        init_writers(diagnostics_writer.get_hdf5_file());
+        writer_coords->append(coords);
+        writer_s->append(s);
+        writer_repetition->append(repetition);
+        writer_trajectory_length->append(trajectory_length);
+        diagnostics_writer.finish_write();
     }
-    writer_coords->append(coords);
-    writer_s->append(s);
-    writer_repetition->append(repetition);
-    writer_trajectory_length->append(trajectory_length);
 }
 
 Diagnostics_track::~Diagnostics_track()

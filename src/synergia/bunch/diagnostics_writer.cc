@@ -3,24 +3,28 @@
 #include <iomanip>
 
 void
-Diagnostics_writer::open_file_and_init()
+Diagnostics_writer::open_file()
 {
-    std::stringstream sstream;
-    sstream << filename_base;
-    if (!diagnostics_sptr->is_serial()) {
-        sstream << "_";
-        sstream << std::setw(4);
-        sstream << std::setfill('0');
-        sstream << count;
+    if (!have_file) {
+        std::stringstream sstream;
+        sstream << filename_base;
+        if (!serial) {
+            sstream << "_";
+            sstream << std::setw(4);
+            sstream << std::setfill('0');
+            sstream << count;
+        }
+        sstream << filename_suffix;
+        file = H5Fcreate(sstream.str().c_str(), H5F_ACC_TRUNC, H5P_DEFAULT,
+                H5P_DEFAULT);
+        have_file = true;
     }
-    sstream << filename_suffix;
-    file = H5Fcreate(sstream.str().c_str(), H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
-    diagnostics_sptr->init_writers(file);
-
 }
-Diagnostics_writer::Diagnostics_writer(Diagnostics *diagnostics_ptr) :
-    diagnostics_ptr(diagnostics_ptr), count(0)
+
+Diagnostics_writer::Diagnostics_writer(std::string const& filename,
+        bool serial, Commxx const& commxx) :
+    filename(filename), serial(serial), commxx(commxx), count(0), have_file(
+            false)
 {
     int idx = filename.rfind('.');
     if (idx == std::string::npos) {
@@ -30,8 +34,8 @@ Diagnostics_writer::Diagnostics_writer(Diagnostics *diagnostics_ptr) :
         filename_base = filename.substr(0, idx);
         filename_suffix = filename.substr(idx);
     }
-    if (diagnostics_ptr->is_serial()) {
-        open_file_and_init();
+    if (serial) {
+        open_file();
     }
 }
 
@@ -47,24 +51,35 @@ Diagnostics_writer::set_count(int count)
     this->count = count;
 }
 
-void
-Diagnostics_writer::write()
+bool
+Diagnostics_writer::write_locally()
 {
-    if (!diagnostics_sptr->is_serial()) {
-        open_file_and_init();
+    return commxx.get_rank() == 0;
+}
+
+hid_t &
+Diagnostics_writer::get_hdf5_file()
+{
+    if (!serial) {
+        open_file();
     }
-    diagnostics_ptr->write();
-    if (!diagnostics_sptr->is_serial()) {
+    return file;
+}
+
+void
+Diagnostics_writer::finish_write()
+{
+    if (!serial) {
         H5Fclose(file);
+        have_file = false;
     }
     ++count;
 }
 
 Diagnostics_writer::~Diagnostics_writer()
 {
-    if (!dummy) {
-        if (diagnostics_sptr->is_serial()) {
-            H5Fclose(file);
-        }
+    if (serial) {
+        H5Fclose(file);
+        have_file = false;
     }
 }

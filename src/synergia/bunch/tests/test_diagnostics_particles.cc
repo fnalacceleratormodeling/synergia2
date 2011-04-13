@@ -72,37 +72,9 @@ BOOST_FIXTURE_TEST_CASE(update, Fixture)
     diagnostics.update();
 }
 
-BOOST_FIXTURE_TEST_CASE(init_writers, Fixture)
+BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 {
     Diagnostics_particles diagnostics(bunch_sptr, "dummy.h5");
-    hid_t hdf5_file = H5Fcreate("test_init_writers_particles.h5",
-            H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    diagnostics.init_writers(hdf5_file);
-    H5Fclose(hdf5_file);
-}
-
-BOOST_FIXTURE_TEST_CASE(write_hdf5_no_init, Fixture)
-{
-    Diagnostics_particles diagnostics(bunch_sptr, "dummy.h5");
-    hid_t hdf5_file = H5Fcreate("test_write_hdf5_no_init_particles.h5",
-            H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    bool caught_error = false;
-    try {
-        diagnostics.write_hdf5();
-    }
-    catch (std::runtime_error) {
-        caught_error = true;
-    }
-    H5Fclose(hdf5_file);
-    BOOST_CHECK(caught_error == true);
-}
-
-BOOST_FIXTURE_TEST_CASE(write_hdf5, Fixture)
-{
-    Diagnostics_particles diagnostics(bunch_sptr, "dummy.h5");
-    hid_t hdf5_file = H5Fcreate("test_write_hdf5_particles.h5", H5F_ACC_TRUNC,
-            H5P_DEFAULT, H5P_DEFAULT);
-    diagnostics.init_writers(hdf5_file);
-    diagnostics.write_hdf5();
-    H5Fclose(hdf5_file);
+    diagnostics.update();
+    diagnostics.write();
 }

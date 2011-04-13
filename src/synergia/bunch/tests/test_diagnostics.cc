@@ -111,39 +111,11 @@ BOOST_FIXTURE_TEST_CASE(get_std, Fixture)
 #include "test_diagnostics_get_std.icc"
 }
 
-BOOST_FIXTURE_TEST_CASE(init_writers, Fixture)
+BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 {
     Diagnostics_basic diagnostics(bunch_sptr, "dummy.h5");
-    hid_t hdf5_file = H5Fcreate("test_init_writers.h5", H5F_ACC_TRUNC,
-            H5P_DEFAULT, H5P_DEFAULT);
-    diagnostics.init_writers(hdf5_file);
-    H5Fclose(hdf5_file);
-}
-
-BOOST_FIXTURE_TEST_CASE(write_hdf5_no_init, Fixture)
-{
-    Diagnostics_basic diagnostics(bunch_sptr, "dummy.h5");
-    hid_t hdf5_file = H5Fcreate("test_write_hdf5_no_init.h5", H5F_ACC_TRUNC,
-            H5P_DEFAULT, H5P_DEFAULT);
-    bool caught_error = false;
-    try {
-        diagnostics.write_hdf5();
-    }
-    catch (std::runtime_error) {
-        caught_error = true;
-    }
-    H5Fclose(hdf5_file);
-    BOOST_CHECK(caught_error == true);
-}
-
-BOOST_FIXTURE_TEST_CASE(write_hdf5, Fixture)
-{
-    Diagnostics_basic diagnostics(bunch_sptr, "dummy.h5");
-    hid_t hdf5_file = H5Fcreate("test_write_hdf5.h5", H5F_ACC_TRUNC,
-            H5P_DEFAULT, H5P_DEFAULT);
-    diagnostics.init_writers(hdf5_file);
-    diagnostics.write_hdf5();
-    H5Fclose(hdf5_file);
+    diagnostics.update();
+    diagnostics.write();
 }
 // test_note: We are not (yet) testing the content of the output file.
 
@@ -276,22 +248,10 @@ BOOST_FIXTURE_TEST_CASE(get_emitxyz_full2, Fixture)
 #include "test_diagnostics_get_emitxyz.icc"
 }
 
-BOOST_FIXTURE_TEST_CASE(init_writers_full2, Fixture)
+BOOST_FIXTURE_TEST_CASE(write_full2, Fixture)
 {
     Diagnostics_full2 diagnostics(bunch_sptr, "dummy.h5");
-    hid_t hdf5_file = H5Fcreate("test_init_writers_full2.h5", H5F_ACC_TRUNC,
-            H5P_DEFAULT, H5P_DEFAULT);
-    diagnostics.init_writers(hdf5_file);
-    H5Fclose(hdf5_file);
-}
-
-BOOST_FIXTURE_TEST_CASE(write_hdf5_full2, Fixture)
-{
-    Diagnostics_full2 diagnostics(bunch_sptr, "dummy.h5");
-    hid_t hdf5_file = H5Fcreate("test_write_hdf5_full2.h5", H5F_ACC_TRUNC,
-            H5P_DEFAULT, H5P_DEFAULT);
-    diagnostics.init_writers(hdf5_file);
-    diagnostics.write_hdf5();
-    H5Fclose(hdf5_file);
+    diagnostics.update();
+    diagnostics.write();
 }
 // test_note: We are not (yet) testing the content of the output file.

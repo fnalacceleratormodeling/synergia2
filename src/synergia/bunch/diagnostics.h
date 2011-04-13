@@ -11,9 +11,6 @@
 /// Diagnostics is an abstract base class for Diagnostics classes
 class Diagnostics
 {
-protected:
-    virtual void
-    init_writers(hid_t & hdf5_file) = 0;
 
 public:
     /// Multiple serial diagnostics can be written to a single file.
@@ -59,8 +56,6 @@ private:
     std::string filename;
     Bunch_sptr bunch_sptr;
     Diagnostics_writer diagnostics_writer;
-
-protected:
     double s;
     Hdf5_serial_writer<double > * writer_s;
     int repetition;
@@ -75,8 +70,6 @@ protected:
     Hdf5_serial_writer<MArray1d_ref > * writer_mean;
     MArray1d std;
     Hdf5_serial_writer<MArray1d_ref > * writer_std;
-    virtual void
-    init_writers(hid_t & hdf5_file);
 
 public:
     /// Create a Diagnostics_basic object
@@ -88,6 +81,9 @@ public:
     /// The Diagnostics_basic class is serial.
     virtual bool
     is_serial() const;
+
+    virtual void
+    init_writers(hid_t & hdf5_file);
 
     /// Update the diagnostics
     virtual void
@@ -135,14 +131,27 @@ typedef boost::shared_ptr<Diagnostics_basic > Diagnostics_basic_sptr;
 
 /// Diagnostics_full2 provides the full set of statistical
 /// quantities to be calculated for a Bunch up to the second moments.
-class Diagnostics_full2 : public Diagnostics_basic
+class Diagnostics_full2 : public Diagnostics
 {
 private:
     bool have_writers;
     std::string filename;
     Bunch_sptr bunch_sptr;
-
-protected:
+    Diagnostics_writer diagnostics_writer;
+    double s;
+    Hdf5_serial_writer<double > * writer_s;
+    int repetition;
+    Hdf5_serial_writer<int > * writer_repetition;
+    double trajectory_length;
+    Hdf5_serial_writer<double > * writer_trajectory_length;
+    int num_particles;
+    Hdf5_serial_writer<int > * writer_num_particles;
+    double real_num_particles;
+    Hdf5_serial_writer<double > * writer_real_num_particles;
+    MArray1d mean;
+    Hdf5_serial_writer<MArray1d_ref > * writer_mean;
+    MArray1d std;
+    Hdf5_serial_writer<MArray1d_ref > * writer_std;
     MArray2d mom2;
     Hdf5_serial_writer<MArray2d_ref > * writer_mom2;
     MArray2d corr;
@@ -154,14 +163,15 @@ protected:
     update_full2();
     virtual void
     update_emittances();
-    virtual void
-    init_writers(hid_t & hdf5_file);
 
 public:
     /// Create a Diagnostics_basic object
     /// @param bunch the Bunch
     /// @param filename filename for output
     Diagnostics_full2(Bunch_sptr bunch, std::string const& filename);
+
+    virtual void
+    init_writers(hid_t & hdf5_file);
 
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_full2 class is serial.
@@ -171,6 +181,37 @@ public:
     /// Update the diagnostics
     virtual void
     update();
+
+    /// Get the distance from the origin along the reference trajectory in
+    /// meters.
+    virtual double
+    get_s() const;
+
+    /// Get the number of complete repetitions.
+    virtual int
+    get_repetition() const;
+
+    /// Get the total distance along the reference trajectory in meters.
+    virtual double
+    get_trajectory_length() const;
+
+    /// Get the total number of macroparticles in the bunch
+    virtual int
+    get_num_particles() const;
+
+    /// Get the total number of real particles represented by the bunch
+    virtual double
+    get_real_num_particles() const;
+
+    /// Get a six-dimensional vector of the means of each phase-space
+    /// coordinate. The units are in Synergia units.
+    virtual Const_MArray1d_ref
+    get_mean() const;
+
+    /// Get a six-dimensional vector of the standard deviations of each
+    /// phase-space coordinate. The units are in Synergia units.
+    virtual Const_MArray1d_ref
+    get_std() const;
 
     /// Get a 6x6 matrix of the second moments of the phase-space coordinates.
     /// The units are Synergia units.
@@ -225,8 +266,7 @@ private:
     int max_particles;
     Bunch_sptr bunch_sptr;
     std::string filename;
-
-protected:
+    Diagnostics_writer diagnostics_writer;
     virtual void
     init_writers(hid_t & hdf5_file);
 
@@ -267,6 +307,7 @@ private:
     int particle_id;
     Bunch_sptr bunch_sptr;
     std::string filename;
+    Diagnostics_writer diagnostics_writer;
 
 protected:
     double s;
