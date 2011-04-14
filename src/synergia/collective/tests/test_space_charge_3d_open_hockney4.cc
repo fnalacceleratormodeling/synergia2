@@ -72,7 +72,7 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Cylindrical_bunch_fixture_f
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
             *phi2));
     Distributed_rectangular_grid phi_exact(phi->get_domain_sptr(),
-            phi->get_lower(), phi->get_upper());
+            phi->get_lower(), phi->get_upper(), Commxx());
 
     double lambda = bunch.get_real_num() * bunch.get_particle_charge()
             * pconstants::e / z_period;
@@ -247,7 +247,7 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_particles, Cylindrical_bunch_fixture_f
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
             *phi2));
     Distributed_rectangular_grid phi_exact(phi->get_domain_sptr(),
-            phi->get_lower(), phi->get_upper());
+            phi->get_lower(), phi->get_upper(), Commxx());
 
     double lambda = bunch.get_real_num() * bunch.get_particle_charge()
             * pconstants::e / z_period;

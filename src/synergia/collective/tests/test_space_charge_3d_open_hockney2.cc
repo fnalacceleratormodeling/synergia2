@@ -67,7 +67,7 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Spherical_bunch_fixture)
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
             *rho2, *G2)); // [V]
     Distributed_rectangular_grid phi_exact(phi2->get_domain_sptr(),
-            phi2->get_lower(), phi2->get_upper());
+            phi2->get_lower(), phi2->get_upper(), Commxx());
 
     double Q = bunch.get_real_num() * bunch.get_particle_charge()
             * pconstants::e;
@@ -124,7 +124,7 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2, Spherical_bunch_fixture)
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
             *rho2, *G2)); // [V]
     Distributed_rectangular_grid phi_exact(phi2->get_domain_sptr(),
-            phi2->get_lower(), phi2->get_upper());
+            phi2->get_lower(), phi2->get_upper(), Commxx());
 
     double Q = bunch.get_real_num() * bunch.get_particle_charge()
             * pconstants::e;

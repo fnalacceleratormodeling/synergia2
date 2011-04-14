@@ -28,7 +28,8 @@ Distributed_rectangular_grid::Distributed_rectangular_grid(
         std::vector<double > const & physical_size,
         std::vector<double > const & physical_offset,
         std::vector<int > const & grid_shape, bool periodic, int lower,
-        int upper)
+        int upper, Commxx const& commxx) :
+    commxx(commxx)
 {
     domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
             physical_size, physical_offset, grid_shape, periodic));
@@ -37,7 +38,8 @@ Distributed_rectangular_grid::Distributed_rectangular_grid(
 
 Distributed_rectangular_grid::Distributed_rectangular_grid(
         Rectangular_grid_domain_sptr rectangular_grid_domain_sptr, int lower,
-        int upper)
+        int upper, Commxx const& commxx) :
+    commxx(commxx)
 {
     domain_sptr = rectangular_grid_domain_sptr;
     construct(lower, upper, domain_sptr->get_grid_shape());
@@ -45,7 +47,8 @@ Distributed_rectangular_grid::Distributed_rectangular_grid(
 
 Distributed_rectangular_grid::Distributed_rectangular_grid(
         Rectangular_grid_domain_sptr rectangular_grid_domain_sptr, int lower,
-        int upper, std::vector<int > const & padded_shape)
+        int upper, std::vector<int > const & padded_shape, Commxx const& commxx) :
+    commxx(commxx)
 {
     domain_sptr = rectangular_grid_domain_sptr;
     construct(lower, upper, padded_shape);
@@ -169,11 +172,11 @@ Distributed_rectangular_grid::fill_guards(Commxx const & comm)
 
     if (send) {
         MPI_Send(send_buffer, message_size, MPI_DOUBLE, receiver, rank,
-                MPI_COMM_WORLD);
+                commxx.get());
     }
     if (receive) {
         MPI_Recv(recv_buffer, message_size, MPI_DOUBLE, sender, sender,
-                MPI_COMM_WORLD, &status);
+                commxx.get(), &status);
     }
 
     //send to the left
@@ -202,11 +205,11 @@ Distributed_rectangular_grid::fill_guards(Commxx const & comm)
 
     if (send) {
         MPI_Send(send_buffer, message_size, MPI_DOUBLE, receiver, rank,
-                MPI_COMM_WORLD);
+                commxx.get());
     }
     if (receive) {
         MPI_Recv(recv_buffer, message_size, MPI_DOUBLE, sender, sender,
-                MPI_COMM_WORLD, &status);
+                commxx.get(), &status);
     }
 
 }

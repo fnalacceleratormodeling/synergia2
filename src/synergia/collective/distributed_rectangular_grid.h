@@ -12,19 +12,21 @@ private:
     int lower, upper;
     int lower_guard, upper_guard;
     double normalization;
+    Commxx commxx;
     void
     construct(int lower, int upper, std::vector<int > const & array_shape);
 public:
     Distributed_rectangular_grid(std::vector<double > const & physical_size,
             std::vector<double > const & physical_offset,
             std::vector<int > const & grid_shape, bool periodic, int lower,
-            int upper);
+            int upper, Commxx const& commxx);
     Distributed_rectangular_grid(
             Rectangular_grid_domain_sptr rectangular_grid_domain_sptr,
-            int lower, int upper);
+            int lower, int upper, Commxx const& commxx);
     Distributed_rectangular_grid(
             Rectangular_grid_domain_sptr rectangular_grid_domain_sptr,
-            int lower, int upper, std::vector<int > const & padded_shape);
+            int lower, int upper, std::vector<int > const & padded_shape,
+            Commxx const& commxx);
     Rectangular_grid_domain_sptr
     get_domain_sptr() const;
     Rectangular_grid_domain_sptr
