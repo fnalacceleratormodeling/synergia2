@@ -4,6 +4,7 @@ test_diagnostics
 test_diagnostics_basic_mpi
 test_diagnostics_full2_mpi
 test_diagnostics_track
+test_diagnostics_track_mpi
 test_diagnostics_particles
 test_diagnostics_particles_mpi
 test_diagnostics_writer
@@ -14,3 +15,4 @@ dummy*.h5
 diagnostics*.h5
 particles.h5
 cylparticles.h5
+track*.h5

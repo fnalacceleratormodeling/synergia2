@@ -298,19 +298,21 @@ public:
 
 typedef boost::shared_ptr<Diagnostics_particles > Diagnostics_particles_sptr;
 
-/// Diagnostics_track records the phase space coordinates of a single particle
+/// Diagnostics_track records the phase space coordinates of a single particle.
+/// Particles will only be tracked if they stay on the same processor.
+/// Lost particles that are somehow restored or particles not available when
+/// the first update is called will also not be tracked.
 class Diagnostics_track : public Diagnostics
 {
 private:
     bool have_writers;
     bool found;
+    bool first_search;
     int last_index;
     int particle_id;
     Bunch_sptr bunch_sptr;
     std::string filename;
     Diagnostics_writer diagnostics_writer;
-
-protected:
     double s;
     Hdf5_serial_writer<double > * writer_s;
     int repetition;

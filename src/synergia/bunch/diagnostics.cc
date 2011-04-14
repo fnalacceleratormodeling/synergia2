@@ -560,9 +560,9 @@ Diagnostics_particles::~Diagnostics_particles()
 Diagnostics_track::Diagnostics_track(Bunch_sptr bunch_sptr,
         std::string const& filename, int particle_id) :
     bunch_sptr(bunch_sptr), filename(filename), have_writers(false), coords(
-            boost::extents[6]), found(false), particle_id(particle_id),
-            last_index(-1), diagnostics_writer(filename, true,
-                    bunch_sptr->get_comm())
+            boost::extents[6]), found(false), first_search(true), particle_id(
+            particle_id), last_index(-1), diagnostics_writer(filename, true,
+            bunch_sptr->get_comm())
 {
 }
 
@@ -578,39 +578,42 @@ Diagnostics_track::update()
     repetition = bunch_sptr->get_reference_particle().get_repetition();
     trajectory_length
             = bunch_sptr->get_reference_particle().get_trajectory_length();
-    int index;
-    found = false;
-    if ((last_index > -1) && (last_index < bunch_sptr->get_local_num())) {
-        if (particle_id
-                == static_cast<int > (bunch_sptr->get_local_particles()[Bunch::id][last_index])) {
-            index = last_index;
-            found = true;
+    if (found || first_search) {
+        int index;
+        found = false;
+        if ((last_index > -1) && (last_index < bunch_sptr->get_local_num())) {
+            if (particle_id
+                    == static_cast<int > (bunch_sptr->get_local_particles()[Bunch::id][last_index])) {
+                index = last_index;
+                found = true;
+            }
         }
-    }
-    if (!found) {
-        index = 0;
-        while ((particle_id
-                != static_cast<int > (bunch_sptr->get_local_particles()[index][Bunch::id]))
-                && (index < bunch_sptr->get_local_num())) {
-            index += 1;
+        if (!found) {
+            index = 0;
+            while ((index < bunch_sptr->get_local_num())
+                    && (particle_id
+                            != static_cast<int > (bunch_sptr->get_local_particles()[index][Bunch::id]))) {
+                index += 1;
+            }
+            if (index < bunch_sptr->get_local_num()) {
+                found = true;
+            } else {
+                found = false;
+            }
         }
-        if (index < bunch_sptr->get_local_num()) {
-            found = true;
-        } else {
-            found = false;
+        if (found) {
+            coords[0] = bunch_sptr->get_local_particles()[index][0];
+            coords[1] = bunch_sptr->get_local_particles()[index][1];
+            coords[2] = bunch_sptr->get_local_particles()[index][2];
+            coords[3] = bunch_sptr->get_local_particles()[index][3];
+            coords[4] = bunch_sptr->get_local_particles()[index][4];
+            coords[5] = bunch_sptr->get_local_particles()[index][5];
+            s = bunch_sptr->get_reference_particle().get_s();
+            repetition = bunch_sptr->get_reference_particle().get_repetition();
+            trajectory_length
+                    = bunch_sptr->get_reference_particle().get_trajectory_length();
         }
-    }
-    if (found) {
-        coords[0] = bunch_sptr->get_local_particles()[index][0];
-        coords[1] = bunch_sptr->get_local_particles()[index][1];
-        coords[2] = bunch_sptr->get_local_particles()[index][2];
-        coords[3] = bunch_sptr->get_local_particles()[index][3];
-        coords[4] = bunch_sptr->get_local_particles()[index][4];
-        coords[5] = bunch_sptr->get_local_particles()[index][5];
-        s = bunch_sptr->get_reference_particle().get_s();
-        repetition = bunch_sptr->get_reference_particle().get_repetition();
-        trajectory_length
-                = bunch_sptr->get_reference_particle().get_trajectory_length();
+        first_search = false;
     }
 }
 
@@ -632,7 +635,8 @@ Diagnostics_track::init_writers(hid_t & hdf5_file)
 void
 Diagnostics_track::write()
 {
-    if (diagnostics_writer.write_locally()) {
+
+    if (found) {
         init_writers(diagnostics_writer.get_hdf5_file());
         writer_coords->append(coords);
         writer_s->append(s);
