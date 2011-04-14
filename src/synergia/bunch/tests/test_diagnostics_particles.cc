@@ -74,7 +74,7 @@ BOOST_FIXTURE_TEST_CASE(update, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 {
-    Diagnostics_particles diagnostics(bunch_sptr, "dummy.h5");
+    Diagnostics_particles diagnostics(bunch_sptr, "diagnostics_particles_nompi.h5");
     diagnostics.update();
     diagnostics.write();
 }

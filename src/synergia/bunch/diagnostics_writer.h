@@ -13,6 +13,7 @@
 class Diagnostics_writer
 {
 private:
+    int writer_rank;
     std::string filename;
     bool serial;
     Commxx commxx;
@@ -37,6 +38,9 @@ public:
 
     bool
     write_locally();
+
+    int
+    get_writer_rank();
 
     hid_t &
     get_hdf5_file();

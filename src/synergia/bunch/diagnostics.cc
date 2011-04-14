@@ -461,18 +461,77 @@ Diagnostics_particles::update()
 }
 
 void
-Diagnostics_particles::init_writers(hid_t & hdf5_file)
+Diagnostics_particles::receive_other_local_particles(
+        std::vector<int > const& local_nums, hid_t & hdf5_file)
 {
-    // initializing writers is performed for each write
+    int myrank = bunch_sptr->get_comm().get_rank();
+    int size = bunch_sptr->get_comm().get_size();
+    Hdf5_chunked_array2d_writer writer_particles(hdf5_file, "particles",
+            bunch_sptr->get_local_particles()[boost::indices[range(0,
+                    local_nums[myrank])][range()]]);
+    for (int rank = 0; rank < size; ++rank) {
+        int local_num = local_nums[rank];
+        if (rank == myrank) {
+            writer_particles.write_chunk(
+                    bunch_sptr->get_local_particles()[boost::indices[range(0,
+                            local_num)][range()]]);
+        } else {
+            MPI_Status status;
+            MArray2d received(boost::extents[local_num][7]);
+            int message_size = 7 * local_num;
+            MPI_Comm comm = bunch_sptr->get_comm().get();
+            MPI_Recv((void*) received.origin(), message_size, MPI_DOUBLE, rank,
+                    rank, comm, &status);
+            if (status.MPI_ERROR != MPI_SUCCESS) {
+                throw std::runtime_error(
+                        "Diagnostics_particles::receive_other_local_particles: MPI_Recv failed.");
+            }
+            writer_particles.write_chunk(received);
+        }
+    }
 }
 
-// jfa: this method is not complete! It doesn't work on multiple processors
+void
+Diagnostics_particles::send_local_particles()
+{
+    int local_num = bunch_sptr->get_local_num();
+    void * send_buffer =
+            (void*) bunch_sptr->get_local_particles()[boost::indices[range(0,
+                    local_num)][range()]].origin();
+    int status;
+    int message_size = 7 * local_num;
+    int receiver = diagnostics_writer.get_writer_rank();
+    int rank = bunch_sptr->get_comm().get_rank();
+    MPI_Comm comm = bunch_sptr->get_comm().get();
+    status = MPI_Send(send_buffer, message_size, MPI_DOUBLE, receiver, rank,
+            comm);
+    if (status != MPI_SUCCESS) {
+        throw std::runtime_error(
+                "Diagnostics_particles::send_local_particles: MPI_Send failed.");
+    }
+}
+
 void
 Diagnostics_particles::write()
 {
+    int local_num = bunch_sptr->get_local_num();
+    void * local_num_buf = (void*) &local_num_buf;
+    int num_procs = bunch_sptr->get_comm().get_size();
+    std::vector<int > local_nums(num_procs);
+    void * local_nums_buf = (void *) &local_nums[0];
+    int root = diagnostics_writer.get_writer_rank();
+    MPI_Comm comm = bunch_sptr->get_comm().get();
+    int status;
+    status = MPI_Gather((void*) &local_num, 1, MPI_INT, local_nums_buf, 1,
+            MPI_INT, root, comm);
+    if (status != MPI_SUCCESS) {
+        throw std::runtime_error(
+                "Diagnostics_particles::write: MPI_Gather failed.");
+    }
+
     if (diagnostics_writer.write_locally()) {
         hid_t hdf5_file = diagnostics_writer.get_hdf5_file();
-        init_writers(hdf5_file);
+        receive_other_local_particles(local_nums, hdf5_file);
 
         Hdf5_writer<double > writer_pz(hdf5_file, "pz");
         double pz = bunch_sptr->get_reference_particle().get_momentum();
@@ -488,12 +547,9 @@ Diagnostics_particles::write()
         double s = bunch_sptr->get_reference_particle().get_s();
         writer_s.write(s);
         int local_num = bunch_sptr->get_local_num();
-        Hdf5_chunked_array2d_writer writer_particles(hdf5_file, "particles",
-                bunch_sptr->get_local_particles()[boost::indices[range(0,
-                        local_num)][range()]]);
-        writer_particles.write_chunk(
-                bunch_sptr->get_local_particles()[boost::indices[range(0,
-                        local_num)][range()]]);
+        diagnostics_writer.finish_write();
+    } else {
+        send_local_particles();
     }
 }
 

@@ -57,6 +57,13 @@ add_test(test_diagnostics_full2_mpi1 ${MPIEXEC} -np 1 test_diagnostics_full2_mpi
 add_test(test_diagnostics_full2_mpi2 ${MPIEXEC} -np 2 test_diagnostics_full2_mpi)
 add_test(test_diagnostics_full2_mpi4 ${MPIEXEC} -np 4 test_diagnostics_full2_mpi)
 
+add_executable(test_diagnostics_particles_mpi test_diagnostics_particles_mpi.cc)
+target_link_libraries(test_diagnostics_particles_mpi synergia_bunch
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_diagnostics_particles_mpi1 ${MPIEXEC} -np 1 test_diagnostics_particles_mpi)
+add_test(test_diagnostics_particles_mpi2 ${MPIEXEC} -np 2 test_diagnostics_particles_mpi)
+add_test(test_diagnostics_particles_mpi4 ${MPIEXEC} -np 4 test_diagnostics_particles_mpi)
+
 #add_executable(test_multi_diagnostics_writer test_multi_diagnostics_writer.cc)
 #target_link_libraries(test_multi_diagnostics_writer synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 #add_test(test_multi_diagnostics_writer test_multi_diagnostics_writer)

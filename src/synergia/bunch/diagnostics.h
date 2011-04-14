@@ -267,9 +267,10 @@ private:
     Bunch_sptr bunch_sptr;
     std::string filename;
     Diagnostics_writer diagnostics_writer;
-    virtual void
-    init_writers(hid_t & hdf5_file);
-
+    void
+    receive_other_local_particles(std::vector<int > const& local_nums, hid_t & hdf5_file);
+    void
+    send_local_particles();
 public:
     /// Create a Diagnostics_particles object
     /// @param bunch_sptr the Bunch

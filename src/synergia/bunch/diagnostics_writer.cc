@@ -23,8 +23,8 @@ Diagnostics_writer::open_file()
 
 Diagnostics_writer::Diagnostics_writer(std::string const& filename,
         bool serial, Commxx const& commxx) :
-    filename(filename), serial(serial), commxx(commxx), count(0), have_file(
-            false)
+    writer_rank(commxx.get_size() - 1), filename(filename), serial(serial),
+            commxx(commxx), count(0), have_file(false)
 {
     int idx = filename.rfind('.');
     if (idx == std::string::npos) {
@@ -54,7 +54,13 @@ Diagnostics_writer::set_count(int count)
 bool
 Diagnostics_writer::write_locally()
 {
-    return commxx.get_rank() == 0;
+    return commxx.get_rank() == writer_rank;
+}
+
+int
+Diagnostics_writer::get_writer_rank()
+{
+    return writer_rank;
 }
 
 hid_t &
