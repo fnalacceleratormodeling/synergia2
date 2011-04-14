@@ -225,7 +225,8 @@ Space_charge_3d_open_hockney::get_global_charge_density2(
             MPI_DOUBLE, MPI_SUM, comm2.get());
     Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr, real_lower,
-                    upper, distributed_fft3d_sptr->get_padded_shape_real()));
+                    upper, distributed_fft3d_sptr->get_padded_shape_real(),
+                    comm2));
     for (int i = real_lower; i < upper; ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
             for (int k = 0; k < doubled_grid_shape[2]; ++k) {
@@ -257,7 +258,7 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
     int upper = distributed_fft3d_sptr->get_upper();
     Distributed_rectangular_grid_sptr G2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr, lower, upper,
-                    distributed_fft3d_sptr->get_padded_shape_real()));
+                    distributed_fft3d_sptr->get_padded_shape_real(), comm2));
 
     double hx = domain_sptr->get_cell_size()[2];
     double hy = domain_sptr->get_cell_size()[1];
@@ -351,7 +352,7 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
     int upper = distributed_fft3d_sptr->get_upper();
     Distributed_rectangular_grid_sptr G2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr, lower, upper,
-                    distributed_fft3d_sptr->get_padded_shape_real()));
+                    distributed_fft3d_sptr->get_padded_shape_real(), comm2));
 
     double hx = domain_sptr->get_cell_size()[2];
     double hy = domain_sptr->get_cell_size()[1];
@@ -553,7 +554,7 @@ Space_charge_3d_open_hockney::get_scalar_field2(
 
     Distributed_rectangular_grid_sptr phi2(new Distributed_rectangular_grid(
             doubled_domain_sptr, lower, upper,
-            distributed_fft3d_sptr->get_padded_shape_real()));
+            distributed_fft3d_sptr->get_padded_shape_real(), comm2));
     distributed_fft3d_sptr->inv_transform(phi2hat, phi2->get_grid_points());
 
     normalization *= charge_density2.get_normalization();
@@ -571,7 +572,7 @@ Space_charge_3d_open_hockney::extract_scalar_field(
     int lower = std::min(phi2.get_lower(), grid_shape[0]);
     int upper = std::min(phi2.get_upper(), grid_shape[0]);
     Distributed_rectangular_grid_sptr phi(new Distributed_rectangular_grid(
-            domain_sptr, lower, upper));
+            domain_sptr, lower, upper, comm2));
 
     for (int i = lower; i < upper; ++i) {
         for (int j = 0; j < grid_shape[1]; ++j) {
@@ -603,7 +604,7 @@ Space_charge_3d_open_hockney::get_electric_field_component(
     }
 
     Distributed_rectangular_grid_sptr En(new Distributed_rectangular_grid(
-            domain_sptr, phi.get_lower(), phi.get_upper()));
+            domain_sptr, phi.get_lower(), phi.get_upper(), comm2));
     MArray3d_ref En_a(En->get_grid_points());
     MArray3d_ref phi_a(phi.get_grid_points());
     int lower_limit, upper_limit;

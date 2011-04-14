@@ -1,6 +1,6 @@
 #include "bunch.h"
 #include "diagnostics.h"
-#include "diagnostics_writer.h"
+#include "multi_diagnostics.h"
 #include "populate.h"
 #include <boost/python.hpp>
 #include "synergia/utils/numpy_multi_ref_converter.h"
@@ -31,12 +31,14 @@ BOOST_PYTHON_MODULE(bunch)
             "Fixed_t_z_ballistic", init< > ());
 
     class_<Diagnostics, Diagnostics_sptr, boost::noncopyable >
-        ("Diagnostics", no_init);
+        ("Diagnostics", no_init)
+        .def("update", &Diagnostics::update)
+        .def("write", &Diagnostics::write)
+        .def("update_and_write", &Diagnostics::update_and_write)
+        ;
 
-    class_<Diagnostics_basic, Diagnostics_basic_sptr, bases<Diagnostics> >
-        ("Diagnostics_basic",init< >())
-        .def(init<Bunch const & >())
-        .def("update", &Diagnostics_basic::update)
+    class_<Diagnostics_basic, Diagnostics_basic_sptr, bases<Diagnostics > >
+        ("Diagnostics_basic",init<Bunch_sptr, std::string const& >())
         .def("get_s", &Diagnostics_basic::get_s)
         .def("get_repetition", &Diagnostics_basic::get_repetition)
         .def("get_trajectory_length", &Diagnostics_basic::get_trajectory_length)
@@ -44,9 +46,13 @@ BOOST_PYTHON_MODULE(bunch)
         .def("get_std", &Diagnostics_basic::get_std)
         ;
 
-    class_<Diagnostics_full2, Diagnostics_full2_sptr, bases<Diagnostics_basic > >
-            ("Diagnostics_full2",init< >())
-        .def(init<Bunch const & >())
+    class_<Diagnostics_full2, Diagnostics_full2_sptr, bases<Diagnostics > >
+            ("Diagnostics_full2",init<Bunch_sptr, std::string const& >())
+        .def("get_s", &Diagnostics_full2::get_s)
+        .def("get_repetition", &Diagnostics_full2::get_repetition)
+        .def("get_trajectory_length", &Diagnostics_full2::get_trajectory_length)
+        .def("get_mean", &Diagnostics_full2::get_mean)
+        .def("get_std", &Diagnostics_full2::get_std)
         .def("get_mom2", &Diagnostics_full2::get_mom2)
         .def("get_corr", &Diagnostics_full2::get_corr)
         .def("get_emitx", &Diagnostics_full2::get_emitx)
@@ -57,30 +63,17 @@ BOOST_PYTHON_MODULE(bunch)
         ;
 
     class_<Diagnostics_track, Diagnostics_track_sptr, bases<Diagnostics > >
-        ("Diagnostics_track",init<int >())
-        .def(init<Bunch const &, int >())
-        .def("update", &Diagnostics_track::update)
+        ("Diagnostics_track",init<Bunch_sptr, std::string const&, int >())
         ;
 
     class_<Diagnostics_particles, Diagnostics_particles_sptr, bases<Diagnostics > >
-            ("Diagnostics_particles",init< >())
-        .def(init<int >())
-        .def(init<Bunch const & >())
-        .def(init<Bunch const &, int>())
+            ("Diagnostics_particles",init<Bunch_sptr, std::string const& >())
+        .def(init<Bunch_sptr, std::string const&, int >())
         ;
 
-    class_<Diagnostics_writer, Diagnostics_writer_sptr >("Diagnostics_writer",
-            init<std::string const& , Diagnostics_sptr >())
-        .def(init< >())
-        .def("is_dummy", &Diagnostics_writer::is_dummy)
-        .def("get_diagnostics", &Diagnostics_writer::get_diagnostics_sptr)
-        .def("write", &Diagnostics_writer::write)
-        .def("update_and_write", &Diagnostics_writer::update_and_write)
-        ;
-
-    class_<Multi_diagnostics_writer >("Multi_diagnostics_writer",
+    class_<Multi_diagnostics>("Multi_diagnostics",
             init<>())
-        .def("append", &Multi_diagnostics_writer::append)
+        .def("append", &Multi_diagnostics::append)
         ;
 
     def("no_diagnostics", no_diagnostics);

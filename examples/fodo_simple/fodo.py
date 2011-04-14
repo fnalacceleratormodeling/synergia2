@@ -10,13 +10,9 @@ bunch = synergia.optics.generate_matched_bunch_transverse(
               seed=opts.seed)
 stepper = synergia.simulation.Independent_stepper_elements(
                             lattice_simulator, opts.steps)
-diagnostics_writer_step = synergia.bunch.Diagnostics_writer(
-                                    "full2.h5",
-                                    synergia.bunch.Diagnostics_full2())
-diagnostics_writer_turn = synergia.bunch.Diagnostics_writer(
-                                    "particles.h5",
-                                    synergia.bunch.Diagnostics_particles())
+diagnostics_step = synergia.bunch.Diagnostics_full2(bunch, "full2.h5")
+diagnostics_turn = synergia.bunch.Diagnostics_particles(bunch, "particles.h5")
 propagator = synergia.simulation.Propagator(stepper)
 propagator.propagate(bunch, opts.turns,
-                     diagnostics_writer_step, diagnostics_writer_turn,
+                     diagnostics_step, diagnostics_turn,
                      opts.verbose)

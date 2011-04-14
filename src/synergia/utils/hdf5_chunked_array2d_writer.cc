@@ -13,9 +13,9 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(hid_t & file,
         chunk_dims[i] = initial_data.shape()[i];
         offset[i] = 0;
     }
-    size[0] = initial_data.shape()[0];
-    size[1] = 0;
-    max_dims[1] = H5S_UNLIMITED;
+    size[0] = 0;
+    size[1] = initial_data.shape()[1];
+    max_dims[0] = H5S_UNLIMITED;
     dataspace = H5Screate_simple(2, &dims[0], &max_dims[0]);
     cparms = H5Pcreate(H5P_DATASET_CREATE);
     herr_t status = H5Pset_chunk(cparms, 2, &chunk_dims[0]);
@@ -36,9 +36,9 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(hid_t & file,
         chunk_dims[i] = initial_data.shape()[i];
         offset[i] = 0;
     }
-    size[0] = initial_data.shape()[0];
-    size[1] = 0;
-    max_dims[1] = H5S_UNLIMITED;
+    size[0] = 0;
+    size[1] = initial_data.shape()[1];
+    max_dims[0] = H5S_UNLIMITED;
     dataspace = H5Screate_simple(2, &dims[0], &max_dims[0]);
     cparms = H5Pcreate(H5P_DATASET_CREATE);
     herr_t status = H5Pset_chunk(cparms, 2, &chunk_dims[0]);
@@ -60,7 +60,7 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_ref const & data)
     chunk_dims[1] = data.shape()[1];
     herr_t status = H5Pset_chunk(cparms, 2, &chunk_dims[0]);
     hdf5_error_check(status);
-    size[1] += data.shape()[1];
+    size[0] += data.shape()[0];
     status = H5Dextend(dataset, &size[0]);
     hdf5_error_check(status);
     filespace = H5Dget_space(dataset);
@@ -71,7 +71,7 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_ref const & data)
     status = H5Dwrite(dataset, hdf5_atomic_typename<double > (), dataspace,
             filespace, H5P_DEFAULT, data.origin());
     hdf5_error_check(status);
-    offset[1] += data.shape()[1];
+    offset[0] += data.shape()[0];
 }
 
 void
@@ -85,7 +85,7 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_view const & data)
     chunk_dims[1] = data.shape()[1];
     herr_t status = H5Pset_chunk(cparms, 2, &chunk_dims[0]);
     hdf5_error_check(status);
-    size[1] += data.shape()[1];
+    size[0] += data.shape()[0];
     status = H5Dextend(dataset, &size[0]);
     hdf5_error_check(status);
     filespace = H5Dget_space(dataset);
@@ -96,7 +96,7 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_view const & data)
     status = H5Dwrite(dataset, hdf5_atomic_typename<double > (), dataspace,
             filespace, H5P_DEFAULT, data.origin());
     hdf5_error_check(status);
-    offset[1] += data.shape()[1];
+    offset[0] += data.shape()[0];
 }
 
 void

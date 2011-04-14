@@ -29,10 +29,9 @@ struct Distributed_rectangular_grid_domain_fixture
         decompose_1d(comm, grid_shape[0], offsets, counts);
         int lower = offsets[comm.get_rank()];
         int upper = offsets[comm.get_rank()] + counts[comm.get_rank()];
-        distributed_rectangular_grid_sptr
-                = Distributed_rectangular_grid_sptr(
-                        new Distributed_rectangular_grid(rectangular_grid_domain_sptr,
-                                lower, upper));
+        distributed_rectangular_grid_sptr = Distributed_rectangular_grid_sptr(
+                new Distributed_rectangular_grid(rectangular_grid_domain_sptr,
+                        lower, upper, Commxx()));
     }
 
     ~Distributed_rectangular_grid_domain_fixture()
@@ -69,10 +68,9 @@ struct Distributed_rectangular_grid_domain_fixture_periodic
         decompose_1d(comm, grid_shape[0], offsets, counts);
         int lower = offsets[comm.get_rank()];
         int upper = offsets[comm.get_rank()] + counts[comm.get_rank()];
-        distributed_rectangular_grid_sptr
-                = Distributed_rectangular_grid_sptr(
-                        new Distributed_rectangular_grid(rectangular_grid_domain_sptr,
-                                lower, upper));
+        distributed_rectangular_grid_sptr = Distributed_rectangular_grid_sptr(
+                new Distributed_rectangular_grid(rectangular_grid_domain_sptr,
+                        lower, upper, Commxx()));
     }
 
     ~Distributed_rectangular_grid_domain_fixture_periodic()

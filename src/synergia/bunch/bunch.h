@@ -159,4 +159,6 @@ public:
     ~Bunch();
 };
 
+typedef boost::shared_ptr<Bunch > Bunch_sptr;
+
 #endif /* BUNCH_H_ */

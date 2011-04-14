@@ -13,16 +13,17 @@ void
 adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
         Const_MArray2d_ref covariances)
 {
-    Diagnostics_full2 diagnostics(bunch);
+    MArray1d bunch_mean(Diagnostics::calculate_mean(bunch));
+    MArray2d bunch_mom2(Diagnostics::calculate_mom2(bunch, bunch_mean));
     Matrix<double, 6, 6, Eigen::RowMajor > C(covariances.origin());
-    Matrix<double, 6, 6, Eigen::RowMajor > X(diagnostics.get_mom2().origin());
+    Matrix<double, 6, 6, Eigen::RowMajor > X(bunch_mom2.origin());
     Matrix<double, 6, 6, Eigen::RowMajor > A = C.llt().matrixL()
             * X.llt().matrixL().inverse();
 
     int num_particles = bunch.get_local_num();
     Eigen::Map<Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor > >
             rho7(bunch.get_local_particles().origin(), num_particles, 7);
-    Matrix<double, 1, 6 > rhobar6(diagnostics.get_mean().origin());
+    Matrix<double, 1, 6 > rhobar6(bunch_mean.origin());
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         rho7.block<1, 6 > (part, 0) -= rhobar6;
     }
@@ -83,7 +84,7 @@ populate_uniform_cylinder(Distribution &dist, Bunch &bunch, double radius,
     dist.fill_unit_gaussian(particles[boost::indices[range()][Bunch::yp]]);
     dist.fill_unit_gaussian(particles[boost::indices[range()][Bunch::dpop]]);
 
-    for(int part=0; part< bunch.get_local_num(); ++part){
+    for (int part = 0; part < bunch.get_local_num(); ++part) {
         particles[part][Bunch::x] *= radius;
         particles[part][Bunch::y] *= radius;
         particles[part][Bunch::xp] *= stdxp;
