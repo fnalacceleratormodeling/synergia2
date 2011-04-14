@@ -10,7 +10,7 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/foundation/distribution.h"
 #include "synergia/bunch/populate.h"
-#include "synergia/bunch/diagnostics_writer.h"
+#include "synergia/bunch/diagnostics.h"
 
 int
 main(int argc, char **argv)
