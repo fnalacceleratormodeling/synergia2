@@ -1,9 +1,9 @@
-#include "diagnostics_writer.h"
+#include "diagnostics_write_helper.h"
 #include <sstream>
 #include <iomanip>
 
 void
-Diagnostics_writer::open_file()
+Diagnostics_write_helper::open_file()
 {
     if (!have_file) {
         std::stringstream sstream;
@@ -21,7 +21,7 @@ Diagnostics_writer::open_file()
     }
 }
 
-Diagnostics_writer::Diagnostics_writer(std::string const& filename,
+Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
         bool serial, Commxx const& commxx) :
     writer_rank(commxx.get_size() - 1), filename(filename), serial(serial),
             commxx(commxx), count(0), have_file(false)
@@ -40,31 +40,31 @@ Diagnostics_writer::Diagnostics_writer(std::string const& filename,
 }
 
 int
-Diagnostics_writer::get_count() const
+Diagnostics_write_helper::get_count() const
 {
     return count;
 }
 
 void
-Diagnostics_writer::set_count(int count)
+Diagnostics_write_helper::set_count(int count)
 {
     this->count = count;
 }
 
 bool
-Diagnostics_writer::write_locally()
+Diagnostics_write_helper::write_locally()
 {
     return commxx.get_rank() == writer_rank;
 }
 
 int
-Diagnostics_writer::get_writer_rank()
+Diagnostics_write_helper::get_writer_rank()
 {
     return writer_rank;
 }
 
 hid_t &
-Diagnostics_writer::get_hdf5_file()
+Diagnostics_write_helper::get_hdf5_file()
 {
     if (!serial) {
         open_file();
@@ -73,7 +73,7 @@ Diagnostics_writer::get_hdf5_file()
 }
 
 void
-Diagnostics_writer::finish_write()
+Diagnostics_write_helper::finish_write()
 {
     if (!serial) {
         H5Fclose(file);
@@ -82,7 +82,7 @@ Diagnostics_writer::finish_write()
     ++count;
 }
 
-Diagnostics_writer::~Diagnostics_writer()
+Diagnostics_write_helper::~Diagnostics_write_helper()
 {
     if (serial) {
         H5Fclose(file);

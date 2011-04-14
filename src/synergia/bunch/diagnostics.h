@@ -5,7 +5,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "synergia/bunch/bunch.h"
-#include "synergia/bunch/diagnostics_writer.h"
+#include "synergia/bunch/diagnostics_write_helper.h"
 #include "synergia/utils/hdf5_serial_writer.h"
 
 /// Diagnostics is an abstract base class for Diagnostics classes
@@ -55,7 +55,7 @@ private:
     bool have_writers;
     std::string filename;
     Bunch_sptr bunch_sptr;
-    Diagnostics_writer diagnostics_writer;
+    Diagnostics_write_helper write_helper;
     double s;
     Hdf5_serial_writer<double > * writer_s;
     int repetition;
@@ -137,7 +137,7 @@ private:
     bool have_writers;
     std::string filename;
     Bunch_sptr bunch_sptr;
-    Diagnostics_writer diagnostics_writer;
+    Diagnostics_write_helper write_helper;
     double s;
     Hdf5_serial_writer<double > * writer_s;
     int repetition;
@@ -266,7 +266,7 @@ private:
     int max_particles;
     Bunch_sptr bunch_sptr;
     std::string filename;
-    Diagnostics_writer diagnostics_writer;
+    Diagnostics_write_helper write_helper;
     void
     receive_other_local_particles(std::vector<int > const& local_nums, hid_t & hdf5_file);
     void
@@ -312,7 +312,7 @@ private:
     int particle_id;
     Bunch_sptr bunch_sptr;
     std::string filename;
-    Diagnostics_writer diagnostics_writer;
+    Diagnostics_write_helper write_helper;
     double s;
     Hdf5_serial_writer<double > * writer_s;
     int repetition;

@@ -71,7 +71,7 @@ add_test(test_diagnostics_track_mpi1 ${MPIEXEC} -np 1 test_diagnostics_track_mpi
 add_test(test_diagnostics_track_mpi2 ${MPIEXEC} -np 2 test_diagnostics_track_mpi)
 add_test(test_diagnostics_track_mpi4 ${MPIEXEC} -np 4 test_diagnostics_track_mpi)
 
-#add_executable(test_multi_diagnostics_writer test_multi_diagnostics_writer.cc)
+#add_executable(test_multi_diagnostics_writer test_multi_diagnostics_write_helper.cc)
 #target_link_libraries(test_multi_diagnostics_writer synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 #add_test(test_multi_diagnostics_writer test_multi_diagnostics_writer)
 #add_test(test_multi_diagnostics_writer_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_multi_diagnostics_writer.py)

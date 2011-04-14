@@ -94,7 +94,7 @@ Diagnostics::update_and_write()
 Diagnostics_basic::Diagnostics_basic(Bunch_sptr bunch_sptr,
         std::string const& filename) :
     bunch_sptr(bunch_sptr), filename(filename), have_writers(false), mean(
-            boost::extents[6]), std(boost::extents[6]), diagnostics_writer(
+            boost::extents[6]), std(boost::extents[6]), write_helper(
             filename, true, bunch_sptr->get_comm())
 {
 }
@@ -182,8 +182,8 @@ Diagnostics_basic::init_writers(hid_t & hdf5_file)
 void
 Diagnostics_basic::write()
 {
-    if (diagnostics_writer.write_locally()) {
-        init_writers(diagnostics_writer.get_hdf5_file());
+    if (write_helper.write_locally()) {
+        init_writers(write_helper.get_hdf5_file());
         writer_s->append(s);
         writer_repetition->append(repetition);
         writer_trajectory_length->append(trajectory_length);
@@ -191,7 +191,7 @@ Diagnostics_basic::write()
         writer_real_num_particles->append(real_num_particles);
         writer_mean->append(mean);
         writer_std->append(std);
-        diagnostics_writer.finish_write();
+        write_helper.finish_write();
     }
 }
 
@@ -264,7 +264,7 @@ Diagnostics_full2::Diagnostics_full2(Bunch_sptr bunch_sptr,
     bunch_sptr(bunch_sptr), filename(filename), have_writers(false), mean(
             boost::extents[6]), std(boost::extents[6]), mom2(
             boost::extents[6][6]), corr(boost::extents[6][6]),
-            diagnostics_writer(filename, true, bunch_sptr->get_comm())
+            write_helper(filename, true, bunch_sptr->get_comm())
 {
 }
 
@@ -401,8 +401,8 @@ Diagnostics_full2::init_writers(hid_t & hdf5_file)
 void
 Diagnostics_full2::write()
 {
-    if (diagnostics_writer.write_locally()) {
-        init_writers(diagnostics_writer.get_hdf5_file());
+    if (write_helper.write_locally()) {
+        init_writers(write_helper.get_hdf5_file());
         writer_s->append(s);
         writer_repetition->append(repetition);
         writer_trajectory_length->append(trajectory_length);
@@ -417,7 +417,7 @@ Diagnostics_full2::write()
         writer_emitz->append(emitz);
         writer_emitxy->append(emitxy);
         writer_emitxyz->append(emitxyz);
-        diagnostics_writer.finish_write();
+        write_helper.finish_write();
     }
 }
 
@@ -444,7 +444,7 @@ Diagnostics_full2::~Diagnostics_full2()
 Diagnostics_particles::Diagnostics_particles(Bunch_sptr bunch_sptr,
         std::string const& filename, int max_particles) :
     bunch_sptr(bunch_sptr), filename(filename), max_particles(max_particles),
-            have_writers(false), diagnostics_writer(filename, false,
+            have_writers(false), write_helper(filename, false,
                     bunch_sptr->get_comm())
 {
 }
@@ -500,7 +500,7 @@ Diagnostics_particles::send_local_particles()
                     local_num)][range()]].origin();
     int status;
     int message_size = 7 * local_num;
-    int receiver = diagnostics_writer.get_writer_rank();
+    int receiver = write_helper.get_writer_rank();
     int rank = bunch_sptr->get_comm().get_rank();
     MPI_Comm comm = bunch_sptr->get_comm().get();
     status = MPI_Send(send_buffer, message_size, MPI_DOUBLE, receiver, rank,
@@ -519,7 +519,7 @@ Diagnostics_particles::write()
     int num_procs = bunch_sptr->get_comm().get_size();
     std::vector<int > local_nums(num_procs);
     void * local_nums_buf = (void *) &local_nums[0];
-    int root = diagnostics_writer.get_writer_rank();
+    int root = write_helper.get_writer_rank();
     MPI_Comm comm = bunch_sptr->get_comm().get();
     int status;
     status = MPI_Gather((void*) &local_num, 1, MPI_INT, local_nums_buf, 1,
@@ -529,8 +529,8 @@ Diagnostics_particles::write()
                 "Diagnostics_particles::write: MPI_Gather failed.");
     }
 
-    if (diagnostics_writer.write_locally()) {
-        hid_t hdf5_file = diagnostics_writer.get_hdf5_file();
+    if (write_helper.write_locally()) {
+        hid_t hdf5_file = write_helper.get_hdf5_file();
         receive_other_local_particles(local_nums, hdf5_file);
 
         Hdf5_writer<double > writer_pz(hdf5_file, "pz");
@@ -547,7 +547,7 @@ Diagnostics_particles::write()
         double s = bunch_sptr->get_reference_particle().get_s();
         writer_s.write(s);
         int local_num = bunch_sptr->get_local_num();
-        diagnostics_writer.finish_write();
+        write_helper.finish_write();
     } else {
         send_local_particles();
     }
@@ -561,7 +561,7 @@ Diagnostics_track::Diagnostics_track(Bunch_sptr bunch_sptr,
         std::string const& filename, int particle_id) :
     bunch_sptr(bunch_sptr), filename(filename), have_writers(false), coords(
             boost::extents[6]), found(false), first_search(true), particle_id(
-            particle_id), last_index(-1), diagnostics_writer(filename, true,
+            particle_id), last_index(-1), write_helper(filename, true,
             bunch_sptr->get_comm())
 {
 }
@@ -637,12 +637,12 @@ Diagnostics_track::write()
 {
 
     if (found) {
-        init_writers(diagnostics_writer.get_hdf5_file());
+        init_writers(write_helper.get_hdf5_file());
         writer_coords->append(coords);
         writer_s->append(s);
         writer_repetition->append(repetition);
         writer_trajectory_length->append(trajectory_length);
-        diagnostics_writer.finish_write();
+        write_helper.finish_write();
     }
 }
 
