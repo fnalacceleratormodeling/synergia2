@@ -48,10 +48,13 @@ Propagator::propagate(Bunch & bunch, int num_turns,
         Multi_diagnostics & per_step_diagnostics,
         Multi_diagnostics & per_turn_diagnostics, bool verbose)
 {
+    int rank = Commxx().get_rank();
     for (int turn = 0; turn < num_turns; ++turn) {
         if (verbose) {
-            std::cout << "Propagator: turn " << turn + 1 << "/" << num_turns
-                    << std::endl;
+            if (rank == 0) {
+                std::cout << "Propagator: turn " << turn + 1 << "/"
+                        << num_turns << std::endl;
+            }
         }
         bunch.get_reference_particle().start_repetition();
         for (Multi_diagnostics::iterator dit = per_turn_diagnostics.begin(); dit
@@ -68,8 +71,10 @@ Propagator::propagate(Bunch & bunch, int num_turns,
             }
             ++step_count;
             if (verbose) {
-                std::cout << "Propagator:   step " << step_count << "/"
-                        << num_steps << std::endl;
+                if (rank == 0) {
+                    std::cout << "Propagator:   step " << step_count << "/"
+                            << num_steps << std::endl;
+                }
             }
             (*it)->apply(bunch);
         }
