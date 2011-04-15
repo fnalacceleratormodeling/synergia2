@@ -5,6 +5,7 @@ from synergia.lattice import Mad8_parser
 from synergia.lattice import Lattice_element, Element_adaptor_map, Lattice
 from synergia.lattice import xml_save_lattice, xml_load_lattice
 from synergia.foundation import pconstants, Four_momentum, Reference_particle
+from mpi4py import MPI
 
 class Cache_entry:
     def __init__(self, time_stamp, index):
@@ -259,7 +260,9 @@ class Mad8_reader:
             self._extract_elements(self.parser.lines[line_name], [line_name], lattice)
             self._extract_reference_particle(lattice)
             if enable_cache_write:
-                lattice_cache.write(lattice)
+                MPI.COMM_WORLD.Barrier()
+                if MPI.COMM_WORLD.Get_rank() == 0:
+                    lattice_cache.write(lattice)
         return lattice
 
 if __name__ == "__main__":
