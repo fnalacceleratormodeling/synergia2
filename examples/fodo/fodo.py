@@ -31,36 +31,30 @@ else:
     sys.stderr.write("fodo.py: stepper must be either 'independent' or 'splitoperator'\n")
     sys.exit(1)
 
-multi_diagnostics_writer_step = synergia.bunch.Multi_diagnostics_writer()
+multi_diagnostics_step = synergia.bunch.Multi_diagnostics()
 for part in range(0, opts.step_tracks):
-    multi_diagnostics_writer_step.append(synergia.bunch.Diagnostics_writer(
-                                    "step_track_%02d.h5" % part,
-                                    synergia.bunch.Diagnostics_track(part)))
+    multi_diagnostics_step.append(synergia.bunch.Diagnostics_track(bunch,
+                                                                   "step_track_%02d.h5" % part,
+                                                                   part))
 if opts.step_full2:
-    multi_diagnostics_writer_step.append(synergia.bunch.Diagnostics_writer(
-                                    "step_full2.h5",
-                                    synergia.bunch.Diagnostics_full2()))
+    multi_diagnostics_step.append(synergia.bunch.Diagnostics_full2(bunch, "step_full2.h5"))
 if opts.step_particles:
-    multi_diagnostics_writer_step.append(synergia.bunch.Diagnostics_writer(
-                                    "step_particles.h5",
-                                    synergia.bunch.Diagnostics_particles()))
+    multi_diagnostics_step.append(synergia.bunch.Diagnostics_particles(bunch,
+                                                                       "step_particles.h5"))
 
-multi_diagnostics_writer_turn = synergia.bunch.Multi_diagnostics_writer()
+multi_diagnostics_turn = synergia.bunch.Multi_diagnostics()
 for part in range(0, opts.turn_tracks):
-    multi_diagnostics_writer_turn.append(synergia.bunch.Diagnostics_writer(
-                                    "turn_track_%02d.h5" % part,
-                                    synergia.bunch.Diagnostics_track(part)))
+    multi_diagnostics_turn.append(synergia.bunch.Diagnostics_track(bunch,
+                                                                   "turn_track_%02d.h5" % part,
+                                                                   part))
 if opts.turn_full2:
-    multi_diagnostics_writer_turn.append(synergia.bunch.Diagnostics_writer(
-                                    "turn_full2.h5",
-                                    synergia.bunch.Diagnostics_full2()))
+    multi_diagnostics_turn.append(synergia.bunch.Diagnostics_full2(bunch, "turn_full2.h5"))
 if opts.turn_particles:
-    multi_diagnostics_writer_turn.append(synergia.bunch.Diagnostics_writer(
-                                    "turn_particles.h5",
-                                    synergia.bunch.Diagnostics_particles()))
+    multi_diagnostics_turn.append(synergia.bunch.Diagnostics_particles(
+                                    "turn_particles.h5"))
 
 propagator = synergia.simulation.Propagator(stepper)
 propagator.propagate(bunch, opts.turns,
-                     multi_diagnostics_writer_step,
-                     multi_diagnostics_writer_turn,
+                     multi_diagnostics_step,
+                     multi_diagnostics_turn,
                      opts.verbose)
