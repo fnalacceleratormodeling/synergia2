@@ -57,7 +57,7 @@ main(int argc, char **argv)
     Diagnostics_basic per_step_diagnostics(bunch_sptr,
             "cxx_example_per_step.h5");
     Diagnostics_full2 per_turn_diagnostics(bunch_sptr,
-            "cxx_example_per_step.h5");
+            "cxx_example_per_turn.h5");
     propagator.propagate(*bunch_sptr, num_turns, per_step_diagnostics,
             per_turn_diagnostics);
 
