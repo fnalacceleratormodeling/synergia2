@@ -21,3 +21,12 @@ BOOST_FIXTURE_TEST_CASE(write_, Bunch_sptr_fixture)
     diagnostics.update();
     diagnostics.write();
 }
+
+BOOST_FIXTURE_TEST_CASE(write_several, Bunch_sptr_fixture)
+{
+    Diagnostics_basic diagnostics(bunch_sptr, "diagnostics_basic_mpi.h5");
+    diagnostics.update_and_write();
+    diagnostics.update_and_write();
+    diagnostics.update_and_write();
+    diagnostics.update_and_write();
+}
