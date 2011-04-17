@@ -202,7 +202,7 @@ Space_charge_3d_open_hockney::get_global_charge_density2(
     }
     for (int i = 1; i < comm2.get_size(); ++i) {
         if (uppers[i - 1] >= grid_shape[0]) {
-            real_lengths[i] == 0;
+            real_lengths[i] = 0;
         } else {
             real_lengths[i] == (uppers[i] - uppers[i - 1]) * grid_shape[1]
                     * grid_shape[2];
