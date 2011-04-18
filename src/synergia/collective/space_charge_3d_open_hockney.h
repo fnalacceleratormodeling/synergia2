@@ -28,6 +28,7 @@ private:
     MPI_Comm mpi_comm1;
     double n_sigma;
     bool domain_fixed;
+    bool have_domains;
     void
     setup_nondoubled_communication();
     void

@@ -125,6 +125,19 @@ BOOST_FIXTURE_TEST_CASE(get_domain, Ellipsoidal_bunch_fixture)
             grid_shape[0]);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_domain_nodomain, Ellipsoidal_bunch_fixture)
+{
+    Space_charge_3d_open_hockney space_charge(comm, grid_shape);
+    bool caught_error(false);
+    try {
+        Rectangular_grid_domain_sptr domain(space_charge.get_domain_sptr());
+    }
+    catch (std::runtime_error) {
+        caught_error = true;
+    }
+    BOOST_CHECK(caught_error);
+}
+
 BOOST_FIXTURE_TEST_CASE(get_doubled_domain, Ellipsoidal_bunch_fixture)
 {
     Space_charge_3d_open_hockney space_charge(comm, grid_shape);
@@ -135,6 +148,19 @@ BOOST_FIXTURE_TEST_CASE(get_doubled_domain, Ellipsoidal_bunch_fixture)
             2*grid_shape[1]);
     BOOST_CHECK_EQUAL(space_charge.get_doubled_domain_sptr()->get_grid_shape()[2],
             2*grid_shape[0]);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_doubled_domain_nodomain, Ellipsoidal_bunch_fixture)
+{
+    Space_charge_3d_open_hockney space_charge(comm, grid_shape);
+    bool caught_error(false);
+    try {
+        Rectangular_grid_domain_sptr domain(space_charge.get_doubled_domain_sptr());
+    }
+    catch (std::runtime_error) {
+        caught_error = true;
+    }
+    BOOST_CHECK(caught_error);
 }
 
 BOOST_FIXTURE_TEST_CASE(set_fixed_domain, Ellipsoidal_bunch_fixture)

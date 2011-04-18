@@ -63,7 +63,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(Commxx const& comm,
             grid_shape(3), doubled_grid_shape(3), padded_grid_shape(3),
             longitudinal_kicks(longitudinal_kicks), periodic_z(periodic_z),
             z_period(z_period), grid_entire_period(grid_entire_period),
-            n_sigma(n_sigma), domain_fixed(false)
+            n_sigma(n_sigma), domain_fixed(false), have_domains(false)
 {
     if (this->periodic_z && (this->z_period == 0.0)) {
         throw std::runtime_error(
@@ -90,7 +90,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
             distributed_fft3d_sptr(distributed_fft3d_sptr), longitudinal_kicks(
                     longitudinal_kicks), periodic_z(periodic_z), z_period(
                     z_period), grid_entire_period(grid_entire_period), n_sigma(
-                    n_sigma), domain_fixed(false)
+                    n_sigma), domain_fixed(false), have_domains(false)
 {
     doubled_grid_shape = distributed_fft3d_sptr->get_shape();
     for (int i = 0; i < 3; ++i) {
@@ -132,6 +132,7 @@ Space_charge_3d_open_hockney::set_fixed_domain(
     this->domain_sptr = domain_sptr;
     set_doubled_domain();
     domain_fixed = true;
+    have_domains = true;
 }
 
 void
@@ -156,18 +157,27 @@ Space_charge_3d_open_hockney::update_domain(Bunch const& bunch)
         domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
                 size, offset, grid_shape, periodic_z));
         set_doubled_domain();
+        have_domains = true;
     }
 }
 
 Rectangular_grid_domain_sptr
 Space_charge_3d_open_hockney::get_domain_sptr() const
 {
+    if (!have_domains) {
+        throw runtime_error(
+                "Space_charge_3d_open_hockney::get_domain_sptr: domain not set");
+    }
     return domain_sptr;
 }
 
 Rectangular_grid_domain_sptr
 Space_charge_3d_open_hockney::get_doubled_domain_sptr() const
 {
+    if (!have_domains) {
+        throw runtime_error(
+                "Space_charge_3d_open_hockney::get_doubled_domain_sptr: domain not set");
+    }
     return doubled_domain_sptr;
 }
 
