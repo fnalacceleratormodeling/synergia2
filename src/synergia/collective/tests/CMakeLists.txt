@@ -45,6 +45,13 @@ target_link_libraries(test_space_charge_3d_open_hockney synergia_collective
     synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_space_charge_3d_open_hockney test_space_charge_3d_open_hockney)
 
+add_executable(test_space_charge_3d_open_hockney_mpi
+    test_space_charge_3d_open_hockney_mpi.cc gaussian_charge_density.cc)
+target_link_libraries(test_space_charge_3d_open_hockney_mpi synergia_collective
+    synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_space_charge_3d_open_hockney_mpi1 ${MPIEXEC} -np 1 test_space_charge_3d_open_hockney_mpi)
+add_test(test_space_charge_3d_open_hockney_mpi2 ${MPIEXEC} -np 2 test_space_charge_3d_open_hockney_mpi)
+
 add_executable(test_space_charge_3d_open_hockney2
     test_space_charge_3d_open_hockney2.cc gaussian_charge_density.cc)
 target_link_libraries(test_space_charge_3d_open_hockney2 synergia_collective
