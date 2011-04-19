@@ -30,13 +30,19 @@ target_link_libraries(test_distributed_fft3d synergia_distributed_fft ${Boost_UN
 add_test(test_distributed_fft3d test_distributed_fft3d)
 
 add_executable(test_distributed_fft3d_mpi test_distributed_fft3d_mpi.cc)
-target_link_libraries(test_distributed_fft3d_mpi synergia_distributed_fft ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_distributed_fft3d_mpi synergia_distributed_fft
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_distributed_fft3d_mpi ${MPIEXEC} -np 2 test_distributed_fft3d_mpi)
 
 add_executable(test_xml_serialization test_xml_serialization.cc)
 target_link_libraries(test_xml_serialization ${Boost_SERIALIZATION_LIBRARY}
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_xml_serialization test_xml_serialization)
+
+add_executable(test_multi_array_offsets test_multi_array_offsets.cc)
+target_link_libraries(test_multi_array_offsets
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_multi_array_offsets test_multi_array_offsets)
 
 add_executable(test_multi_array_serialization test_multi_array_serialization.cc)
 target_link_libraries(test_multi_array_serialization ${Boost_SERIALIZATION_LIBRARY}
