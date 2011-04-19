@@ -381,14 +381,14 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_pointlike, Ellipsoidal_bunch_fixture)
             std::min(G2->get_domain_sptr()->get_cell_size()[1],
                     G2->get_domain_sptr()->get_cell_size()[2]));
 
-    int i_max = std::min(G2->get_upper(),
-            G2->get_domain_sptr()->get_grid_shape()[0] / 2);
-    for (int i = G2->get_lower(); i < i_max; ++i) {
-        dz = i * G2->get_domain_sptr()->get_cell_size()[0];
-        imirror = G2->get_domain_sptr()->get_grid_shape()[0] - i;
-        if (imirror == G2->get_domain_sptr()->get_grid_shape()[0]) {
-            imirror = i;
+    for (int i = G2->get_lower(); i < G2->get_upper(); ++i) {
+        int i_dz;
+        if (i < G2->get_domain_sptr()->get_grid_shape()[0] / 2) {
+            i_dz = i;
+        } else {
+            i_dz = G2->get_domain_sptr()->get_grid_shape()[0] - i;
         }
+        dz = i_dz * G2->get_domain_sptr()->get_cell_size()[0];
         for (int j = 0; j < G2->get_domain_sptr()->get_grid_shape()[1] / 2; ++j) {
             dy = j * G2->get_domain_sptr()->get_cell_size()[1];
             jmirror = G2->get_domain_sptr()->get_grid_shape()[1] - j;
@@ -408,10 +408,6 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_pointlike, Ellipsoidal_bunch_fixture)
                     G = 1 / std::sqrt(dx * dx + dy * dy + dz * dz);
                 }
                 BOOST_CHECK_CLOSE(G2_a[i][j][k]*norm, G, tolerance);
-//                BOOST_CHECK_CLOSE(G2_a[imirror][j][k]*norm, G, tolerance);
-//                BOOST_CHECK_CLOSE(G2_a[imirror][jmirror][k]*norm, G, tolerance);
-//                BOOST_CHECK_CLOSE(G2_a[imirror][jmirror][kmirror]*norm, G, tolerance);
-//                BOOST_CHECK_CLOSE(G2_a[imirror][j][kmirror]*norm, G, tolerance);
                 BOOST_CHECK_CLOSE(G2_a[i][jmirror][k]*norm, G, tolerance);
                 BOOST_CHECK_CLOSE(G2_a[i][jmirror][kmirror]*norm, G, tolerance);
                 BOOST_CHECK_CLOSE(G2_a[i][j][kmirror]*norm, G, tolerance);
