@@ -366,60 +366,60 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_simple)
     }
 }
 
-//BOOST_FIXTURE_TEST_CASE(get_green_fn2_pointlike, Ellipsoidal_bunch_fixture)
-//{
-//    Space_charge_3d_open_hockney space_charge(comm, grid_shape);
-//    space_charge.update_domain(bunch);
-//    Distributed_rectangular_grid_sptr
-//            G2(space_charge.get_green_fn2_pointlike());
-//    MArray3d_ref G2_a(G2->get_grid_points());
-//    double norm = G2->get_normalization();
-//    int imirror, jmirror, kmirror;
-//    double dz, dy, dx;
-//    const double coeff = 2.8;
-//    double G000 = coeff / std::min(G2->get_domain_sptr()->get_cell_size()[0],
-//            std::min(G2->get_domain_sptr()->get_cell_size()[1],
-//                    G2->get_domain_sptr()->get_cell_size()[2]));
-//
-//    int i_max = std::min(G2->get_upper(),
-//            G2->get_domain_sptr()->get_grid_shape()[0] / 2);
-//    for (int i = G2->get_lower(); i < i_max; ++i) {
-//        dz = i * G2->get_domain_sptr()->get_cell_size()[0];
-//        imirror = G2->get_domain_sptr()->get_grid_shape()[0] - i;
-//        if (imirror == G2->get_domain_sptr()->get_grid_shape()[0]) {
-//            imirror = i;
-//        }
-//        for (int j = 0; j < G2->get_domain_sptr()->get_grid_shape()[1] / 2; ++j) {
-//            dy = j * G2->get_domain_sptr()->get_cell_size()[1];
-//            jmirror = G2->get_domain_sptr()->get_grid_shape()[1] - j;
-//            if (jmirror == G2->get_domain_sptr()->get_grid_shape()[1]) {
-//                jmirror = j;
-//            }
-//            for (int k = 0; k < G2->get_domain_sptr()->get_grid_shape()[2] / 2; ++k) {
-//                dx = k * G2->get_domain_sptr()->get_cell_size()[2];
-//                kmirror = G2->get_domain_sptr()->get_grid_shape()[2] - k;
-//                if (kmirror == G2->get_domain_sptr()->get_grid_shape()[2]) {
-//                    kmirror = k;
-//                }
-//                double G;
-//                if ((i == 0) && (j == 0) && (k == 0)) {
-//                    G = G000;
-//                } else {
-//                    G = 1 / std::sqrt(dx * dx + dy * dy + dz * dz);
-//                }
-//                BOOST_CHECK_CLOSE(G2_a[i][j][k]*norm, G, tolerance);
-////                BOOST_CHECK_CLOSE(G2_a[imirror][j][k]*norm, G, tolerance);
-////                BOOST_CHECK_CLOSE(G2_a[imirror][jmirror][k]*norm, G, tolerance);
-////                BOOST_CHECK_CLOSE(G2_a[imirror][jmirror][kmirror]*norm, G, tolerance);
-////                BOOST_CHECK_CLOSE(G2_a[imirror][j][kmirror]*norm, G, tolerance);
-////                BOOST_CHECK_CLOSE(G2_a[i][jmirror][k]*norm, G, tolerance);
-////                BOOST_CHECK_CLOSE(G2_a[i][jmirror][kmirror]*norm, G, tolerance);
-////                BOOST_CHECK_CLOSE(G2_a[i][j][kmirror]*norm, G, tolerance);
-//            }
-//        }
-//    }
-//}
-//
+BOOST_FIXTURE_TEST_CASE(get_green_fn2_pointlike, Ellipsoidal_bunch_fixture)
+{
+    Space_charge_3d_open_hockney space_charge(comm, grid_shape);
+    space_charge.update_domain(bunch);
+    Distributed_rectangular_grid_sptr
+            G2(space_charge.get_green_fn2_pointlike());
+    MArray3d_ref G2_a(G2->get_grid_points());
+    double norm = G2->get_normalization();
+    int imirror, jmirror, kmirror;
+    double dz, dy, dx;
+    const double coeff = 2.8;
+    double G000 = coeff / std::min(G2->get_domain_sptr()->get_cell_size()[0],
+            std::min(G2->get_domain_sptr()->get_cell_size()[1],
+                    G2->get_domain_sptr()->get_cell_size()[2]));
+
+    int i_max = std::min(G2->get_upper(),
+            G2->get_domain_sptr()->get_grid_shape()[0] / 2);
+    for (int i = G2->get_lower(); i < i_max; ++i) {
+        dz = i * G2->get_domain_sptr()->get_cell_size()[0];
+        imirror = G2->get_domain_sptr()->get_grid_shape()[0] - i;
+        if (imirror == G2->get_domain_sptr()->get_grid_shape()[0]) {
+            imirror = i;
+        }
+        for (int j = 0; j < G2->get_domain_sptr()->get_grid_shape()[1] / 2; ++j) {
+            dy = j * G2->get_domain_sptr()->get_cell_size()[1];
+            jmirror = G2->get_domain_sptr()->get_grid_shape()[1] - j;
+            if (jmirror == G2->get_domain_sptr()->get_grid_shape()[1]) {
+                jmirror = j;
+            }
+            for (int k = 0; k < G2->get_domain_sptr()->get_grid_shape()[2] / 2; ++k) {
+                dx = k * G2->get_domain_sptr()->get_cell_size()[2];
+                kmirror = G2->get_domain_sptr()->get_grid_shape()[2] - k;
+                if (kmirror == G2->get_domain_sptr()->get_grid_shape()[2]) {
+                    kmirror = k;
+                }
+                double G;
+                if ((i == 0) && (j == 0) && (k == 0)) {
+                    G = G000;
+                } else {
+                    G = 1 / std::sqrt(dx * dx + dy * dy + dz * dz);
+                }
+                BOOST_CHECK_CLOSE(G2_a[i][j][k]*norm, G, tolerance);
+//                BOOST_CHECK_CLOSE(G2_a[imirror][j][k]*norm, G, tolerance);
+//                BOOST_CHECK_CLOSE(G2_a[imirror][jmirror][k]*norm, G, tolerance);
+//                BOOST_CHECK_CLOSE(G2_a[imirror][jmirror][kmirror]*norm, G, tolerance);
+//                BOOST_CHECK_CLOSE(G2_a[imirror][j][kmirror]*norm, G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[i][jmirror][k]*norm, G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[i][jmirror][kmirror]*norm, G, tolerance);
+                BOOST_CHECK_CLOSE(G2_a[i][j][kmirror]*norm, G, tolerance);
+            }
+        }
+    }
+}
+
 //BOOST_FIXTURE_TEST_CASE(get_green_fn2_pointlike_periodic, Ellipsoidal_bunch_fixture)
 //{
 //    double z_period = 10.0 * stdz;
