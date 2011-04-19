@@ -6,6 +6,7 @@ using mconstants::pi;
 using pconstants::epsilon0;
 #include "deposit.h"
 #include "interpolate_rectangular_zyx.h"
+#include "synergia/utils/multi_array_offsets.h"
 
 #include <algorithm>
 
@@ -198,62 +199,65 @@ Space_charge_3d_open_hockney::get_global_charge_density2(
     // in calculating a version of the charge density that is just global enough
     // to fill in the doubled global charge density
 
-    // semiglobal_rho stores the portion of global charge density needed on each
-    // processor. It has to have the same shape as the charge density in order
-    // to work with MPI_Reduce_scatter.
-    Rectangular_grid semiglobal_rho(local_charge_density.get_domain_sptr());
-    int upper = distributed_fft3d_sptr->get_upper();
-    std::vector<int > uppers(distributed_fft3d_sptr->get_uppers());
+    std::vector<int > real_uppers(distributed_fft3d_sptr->get_uppers());
     std::vector<int > real_lengths(distributed_fft3d_sptr->get_lengths());
-    if (uppers[0] > grid_shape[0]) {
-        real_lengths[0] = grid_shape[0] * grid_shape[1] * grid_shape[2];
-    } else {
-        real_lengths[0] = uppers[0] * grid_shape[1] * grid_shape[2];
-    }
-    for (int i = 1; i < comm2.get_size(); ++i) {
-        if (uppers[i - 1] >= grid_shape[0]) {
-            real_lengths[i] = 0;
+    for (int i = 0; i < comm2.get_size(); ++i) {
+        if (real_uppers[i] > grid_shape[0]) {
+            real_uppers[i] = grid_shape[0];
+        }
+        if (i == 0) {
+            real_lengths[0] = real_uppers[0] * grid_shape[1] * grid_shape[2];
         } else {
-            real_lengths[i] == (uppers[i] - uppers[i - 1]) * grid_shape[1]
-                    * grid_shape[2];
+            real_lengths[i] = (real_uppers[i] - real_uppers[i - 1])
+                    * grid_shape[1] * grid_shape[2];
         }
     }
     int real_lower;
-    if (comm2.get_rank() > 0) {
-        real_lower = uppers[comm2.get_rank() - 1];
+    int my_rank = comm2.get_rank();
+    if (my_rank > 0) {
+        real_lower = real_uppers[my_rank - 1];
     } else {
         real_lower = 0;
     }
     const double * source = local_charge_density.get_grid_points().origin();
 
-    // The destination for Reduce_scatter is the appropriate slice of semiglobal_rho
     double * dest;
-    MArray3d_ref dest_points(semiglobal_rho.get_grid_points());
-    dest = dest_points.origin() + (dest_points.index_bases()[0] + real_lower)
-            * dest_points.strides()[0];
+    // dest_array stores the portion of global charge density needed on each
+    // processor. It has to have the same shape in the non-distributed dimensions
+    // as the charge density in order to work with MPI_Reduce_scatter.
+    MArray3d dest_array(boost::extents[1][1][1]);
+    if (real_lengths[my_rank] > 0) {
+        dest_array.resize(boost::extents[extent_range(real_lower,
+                real_uppers[my_rank])][grid_shape[1]][grid_shape[2]]);
+    }
+    dest = multi_array_offset(dest_array, real_lower, 0, 0);
     MPI_Reduce_scatter((void *) source, (void *) dest, &real_lengths[0],
             MPI_DOUBLE, MPI_SUM, comm2.get());
+    int doubled_lower;
+    if (my_rank > 0) {
+        doubled_lower = distributed_fft3d_sptr->get_uppers()[my_rank - 1];
+    } else {
+        doubled_lower = 0;
+    }
+    int doubled_upper = distributed_fft3d_sptr->get_uppers()[my_rank];
     Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
-            new Distributed_rectangular_grid(doubled_domain_sptr, real_lower,
-                    upper, distributed_fft3d_sptr->get_padded_shape_real(),
-                    comm2));
-    for (int i = real_lower; i < upper; ++i) {
+            new Distributed_rectangular_grid(doubled_domain_sptr,
+                    doubled_lower, doubled_upper,
+                    distributed_fft3d_sptr->get_padded_shape_real(), comm2));
+    for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
             for (int k = 0; k < doubled_grid_shape[2]; ++k) {
                 rho2->get_grid_points()[i][j][k] = 0.0;
             }
         }
     }
-    int nonzero_i_max = (upper < grid_shape[0]) ? upper : grid_shape[0];
-    for (int i = real_lower; i < nonzero_i_max; ++i) {
+    for (int i = real_lower; i < real_uppers[my_rank]; ++i) {
         for (int j = 0; j < grid_shape[1]; ++j) {
             for (int k = 0; k < grid_shape[2]; ++k) {
-                rho2->get_grid_points()[i][j][k]
-                        = semiglobal_rho.get_grid_points()[i][j][k];
+                rho2->get_grid_points()[i][j][k] = dest_array[i][j][k];
             }
         }
     }
-
     return rho2;
 }
 
