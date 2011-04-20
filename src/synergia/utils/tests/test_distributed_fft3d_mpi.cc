@@ -8,9 +8,9 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 // n.b. We use 0,1,2 here instead of x,y,z because
 // we may use z,y,x ordering of arrays.
-const int shape0 = 4;
-const int shape1 = 2;
-const int shape2 = 2;
+const int shape0 = 16;
+const int shape1 = 4;
+const int shape2 = 4;
 
 struct Shape_struct
 {
