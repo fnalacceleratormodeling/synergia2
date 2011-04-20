@@ -1,4 +1,5 @@
 #include "distributed_rectangular_grid.h"
+#include "synergia/utils/multi_array_offsets.h"
 
 void
 Distributed_rectangular_grid::construct(int lower, int upper,
@@ -145,10 +146,10 @@ Distributed_rectangular_grid::fill_guards(Commxx const & comm)
     MPI_Status status;
     void *recv_buffer, *send_buffer;
     // send to the right
-    recv_buffer = (void*) (grid_points_sptr->origin() + lower_guard
-            * grid_points_sptr->strides()[0]);
-    send_buffer = (void*) (grid_points_sptr->origin() + (upper - 1)
-            * grid_points_sptr->strides()[0]);
+    recv_buffer = (void*) multi_array_offset(*grid_points_sptr, lower_guard, 0,
+            0);
+    send_buffer
+            = (void*) multi_array_offset(*grid_points_sptr, upper - 1, 0, 0);
     size_t message_size = grid_points_sptr->shape()[1]
             * grid_points_sptr->shape()[2];
     int sender = rank - 1;
@@ -180,10 +181,9 @@ Distributed_rectangular_grid::fill_guards(Commxx const & comm)
     }
 
     //send to the left
-    recv_buffer = (void*) (grid_points_sptr->origin() + (upper_guard - 1)
-            * grid_points_sptr->strides()[0]);
-    send_buffer = (void*) (grid_points_sptr->origin() + lower
-            * grid_points_sptr->strides()[0]);
+    recv_buffer = (void*) multi_array_offset(*grid_points_sptr,
+            upper_guard - 1, 0, 0);
+    send_buffer = (void*) multi_array_offset(*grid_points_sptr, lower, 0, 0);
     sender = rank + 1;
     send = true;
     receiver = rank - 1;
