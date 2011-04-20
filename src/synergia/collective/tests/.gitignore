@@ -9,6 +9,7 @@ test_space_charge_3d_open_hockney2
 test_space_charge_3d_open_hockney3
 test_space_charge_3d_open_hockney4
 test_space_charge_3d_open_hockney_mpi
+test_space_charge_3d_open_hockney2_mpi
 test_space_charge_2d_bassetti_erskine
 
 *.h5
