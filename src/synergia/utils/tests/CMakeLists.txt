@@ -32,7 +32,10 @@ add_test(test_distributed_fft3d test_distributed_fft3d)
 add_executable(test_distributed_fft3d_mpi test_distributed_fft3d_mpi.cc)
 target_link_libraries(test_distributed_fft3d_mpi synergia_distributed_fft
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_distributed_fft3d_mpi ${MPIEXEC} -np 2 test_distributed_fft3d_mpi)
+add_test(test_distributed_fft3d_mpi1 ${MPIEXEC} -np 1 test_distributed_fft3d_mpi)
+add_test(test_distributed_fft3d_mpi2 ${MPIEXEC} -np 2 test_distributed_fft3d_mpi)
+add_test(test_distributed_fft3d_mpi3 ${MPIEXEC} -np 3 test_distributed_fft3d_mpi)
+add_test(test_distributed_fft3d_mpi4 ${MPIEXEC} -np 4 test_distributed_fft3d_mpi)
 
 add_executable(test_xml_serialization test_xml_serialization.cc)
 target_link_libraries(test_xml_serialization ${Boost_SERIALIZATION_LIBRARY}
