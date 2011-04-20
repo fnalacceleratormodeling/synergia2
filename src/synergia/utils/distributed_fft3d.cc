@@ -1,7 +1,7 @@
 #include <iostream>
 #include <cstring>
 #include <stdexcept>
-
+#include "multi_array_offsets.h"
 #include "distributed_fft3d.h"
 
 Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
@@ -64,9 +64,15 @@ Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
             local_size_allocated = fftw_local_size;
         }
     }
-    data = (double *) fftw_malloc(sizeof(double) * local_size_allocated);
+    // GREAT BIG HACK. fftw sometimes crashes when memory_fudge_factor = 1. The test
+    // program test_distributed_fft3d_mpi fails when memory_fudge_factor = 1 and
+    // numproc = 3. This is either a bug in fftw3, or a failing of the documentation.
+    // The precise value "2" is just a guess.
+    const int memory_fudge_factor = 2;
+    data = (double *) fftw_malloc(sizeof(double) * local_size_allocated
+            * memory_fudge_factor);
     workspace = (fftw_complex *) fftw_malloc(sizeof(double)
-            * local_size_allocated);
+            * local_size_allocated * memory_fudge_factor);
     plan = fftw_mpi_plan_dft_r2c_3d(shape[0], shape[1], shape[2], data,
             workspace, comm.get(), planner_flags);
     inv_plan = fftw_mpi_plan_dft_c2r_3d(shape[0], shape[1], shape[2],
@@ -190,24 +196,24 @@ Distributed_fft3d::transform(MArray3d_ref & in, MArray3dc_ref & out)
     }
 #ifdef USE_FFTW2
     if (have_local_data) {
-        memcpy((void*) data,(void*) (in.origin() + lower * in.strides()[0]),
+        memcpy((void*) data,(void*) multi_array_offset(in, lower, 0, 0),
                 local_size_real * sizeof(double));
     }
     rfftwnd_mpi(plan, 1, data, workspace, FFTW_NORMAL_ORDER);
     if (have_local_data) {
-        memcpy((void* ) (out.origin() + lower * out.strides()[0]),
+        memcpy((void* ) multi_array_offset(out, lower, 0, 0),
                 (void*) (workspace),
                 local_size_complex * sizeof(std::complex<double >));
     }
 
 #else
     if (have_local_data) {
-        memcpy((void*) data, (void*) (in.origin() + lower * in.strides()[0]),
+        memcpy((void*) data, (void*) multi_array_offset(in, lower, 0, 0),
                 local_size_real * sizeof(double));
     }
     fftw_execute(plan);
     if (have_local_data) {
-        memcpy((void*) (out.origin() + lower * out.strides()[0]),
+        memcpy((void*) multi_array_offset(out, lower, 0, 0),
                 (void*) (workspace), local_size_complex * sizeof(std::complex<
                         double >));
     }
@@ -252,25 +258,24 @@ Distributed_fft3d::inv_transform(MArray3dc_ref & in, MArray3d_ref & out)
 
 #ifdef USE_FFTW2
     if (have_local_data) {
-        memcpy( (void*) workspace, (void*) (in.origin() + lower * in.strides()[0]),
+        memcpy( (void*) workspace, (void*) multi_array_offset(in, lower, 0, 0),
                 local_size_complex * sizeof(std::complex<double >));
     }
 
     rfftwnd_mpi(inv_plan, 1, data, workspace, FFTW_NORMAL_ORDER);
 
     if (have_local_data) {
-        memcpy( (void*)(out.origin() + lower * out.strides()[0]),
+        memcpy( (void*) multi_array_offset(out, lower, 0, 0),
                 (void*) data, local_size_real * sizeof(double));
     }
 #else
     if (have_local_data) {
-        memcpy((void*) workspace, (void*) (in.origin() + lower
-                * in.strides()[0]), local_size_complex * sizeof(std::complex<
-                double >));
+        memcpy((void*) workspace, (void*) multi_array_offset(in, lower, 0, 0),
+                local_size_complex * sizeof(std::complex<double >));
     }
     fftw_execute(inv_plan);
     if (have_local_data) {
-        memcpy((void*) (out.origin() + lower * out.strides()[0]), (void*) data,
+        memcpy((void*) multi_array_offset(out, lower, 0, 0), (void*) data,
                 local_size_real * sizeof(double));
     }
 #endif //USE_FFTW2
