@@ -57,10 +57,6 @@ Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
     } else {
         have_local_data = true;
         if (fftw_local_size > local_size_allocated) {
-            std::cout
-                    << "jfa: note: local_size_allocated had to be modified from "
-                    << local_size_allocated << " to " << fftw_local_size
-                    << " on rank " << comm.get_rank() << std::endl;
             local_size_allocated = fftw_local_size;
         }
     }
