@@ -11,6 +11,14 @@ multi_array_offset(MArray3d_ref & array, int i, int j, int k)
 }
 
 inline
+const double *
+multi_array_offset(MArray3d_ref const& array, int i, int j, int k)
+{
+    return array.origin() + i * array.strides()[0] + j * array.strides()[1] + k
+            * array.strides()[2];
+}
+
+inline
 std::complex<double > *
 multi_array_offset(MArray3dc_ref & array, int i, int j, int k)
 {
