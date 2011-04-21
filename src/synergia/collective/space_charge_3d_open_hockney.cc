@@ -15,10 +15,10 @@ Space_charge_3d_open_hockney::setup_nondoubled_communication()
 {
     std::vector<int > ranks1; // ranks with data from the undoubled domain
     in_group1 = false;
+    int lower = 0;
     for (int rank = 0; rank < comm2.get_size(); ++rank) {
         int uppers2 = distributed_fft3d_sptr->get_uppers()[rank];
         int uppers1 = std::min(uppers2, grid_shape[0]);
-        int lower = 0;
         if (uppers1 <= grid_shape[0]) {
             ranks1.push_back(rank);
             if (rank == comm2.get_rank()) {
@@ -33,6 +33,9 @@ Space_charge_3d_open_hockney::setup_nondoubled_communication()
             }
             lowers1.push_back(lower);
             int total_length = length0 * grid_shape[1] * grid_shape[2];
+            if (total_length < 0) {
+                total_length = 0;
+            }
             lengths1.push_back(total_length);
             lower += total_length;
         }
@@ -673,10 +676,11 @@ Space_charge_3d_open_hockney::get_global_electric_field_component(
     const int root = 0;
     int error;
     if (in_group1) {
+        int rank = comm1.get_rank();
         error = MPI_Gatherv((void *) (dist_field.get_grid_points().origin()
-                + lowers1[comm1.get_rank()]), lengths1[comm1.get_rank()],
-                MPI_DOUBLE, (void*) global_field->get_grid_points().origin(),
-                &lengths1[0], &lowers1[0], MPI_DOUBLE, root, comm1.get());
+                + lowers1[rank]), lengths1[rank], MPI_DOUBLE,
+                (void*) global_field->get_grid_points().origin(), &lengths1[0],
+                &lowers1[0], MPI_DOUBLE, root, comm1.get());
         if (error != MPI_SUCCESS) {
             throw std::runtime_error(
                     "MPI error in Space_charge_3d_open_hockney(MPI_Gatherv)");
