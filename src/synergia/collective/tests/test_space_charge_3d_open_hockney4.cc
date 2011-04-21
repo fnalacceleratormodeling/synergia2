@@ -300,7 +300,7 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_particles, Cylindrical_bunch_fixture_f
     //        max_fractional_error = 0.00814816
     //        min_fractional_error = -0.00462393
 
-    const double solution_tolerance = 1.0e-2;
+    const double solution_tolerance = 2.0e-2;
     BOOST_CHECK(std::abs(max_fractional_error) < solution_tolerance);
     BOOST_CHECK(std::abs(min_fractional_error) < solution_tolerance);
 }
