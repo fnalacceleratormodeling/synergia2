@@ -18,6 +18,10 @@ Distributed_rectangular_grid::construct(int lower, int upper,
     } else {
         upper_guard = upper + 1;
     }
+    if (lower == upper) {
+        lower_guard = lower;
+        upper_guard = upper;
+    }
     grid_points_sptr
             = boost::shared_ptr<MArray3d >(
                     new MArray3d(boost::extents[extent_range(lower_guard,
@@ -170,7 +174,14 @@ Distributed_rectangular_grid::fill_guards(Commxx const & comm)
             receive = false;
         }
     }
-
+    if (!domain_sptr->is_periodic()) {
+        if (upper >= domain_sptr->get_grid_shape()[0]) {
+            send = false;
+        }
+        if ((lower >= domain_sptr->get_grid_shape()[0])) {
+            receive = false;
+        }
+    }
     if (send) {
         MPI_Send(send_buffer, message_size, MPI_DOUBLE, receiver, rank,
                 commxx.get());
@@ -202,7 +213,14 @@ Distributed_rectangular_grid::fill_guards(Commxx const & comm)
             send = false;
         }
     }
-
+    if (!domain_sptr->is_periodic()) {
+        if (lower >= domain_sptr->get_grid_shape()[0]) {
+            send = false;
+        }
+        if ((upper >= domain_sptr->get_grid_shape()[0]) && !(rank == size - 1)) {
+            receive = false;
+        }
+    }
     if (send) {
         MPI_Send(send_buffer, message_size, MPI_DOUBLE, receiver, rank,
                 commxx.get());
