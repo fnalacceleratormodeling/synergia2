@@ -10,6 +10,7 @@ struct MPI_fixture
         int argc = boost::unit_test::framework::master_test_suite().argc;
         char** argv = boost::unit_test::framework::master_test_suite().argv;
         MPI_Init(&argc, &argv);
+        MPI_Comm_set_errhandler(MPI_COMM_WORLD, MPI_ERRORS_RETURN);
     }
     ~MPI_fixture()
     {
