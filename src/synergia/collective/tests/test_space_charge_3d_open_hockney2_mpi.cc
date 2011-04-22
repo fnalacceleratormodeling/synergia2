@@ -230,7 +230,6 @@ BOOST_FIXTURE_TEST_CASE(extract_scalar_field_with_guards, Spherical_bunch_fixtur
         std::cout << "phi->get_upper_guard() = " << phi->get_upper_guard()
                 << std::endl;
     }
-    phi->fill_guards(comm);
     double Q = bunch.get_real_num() * bunch.get_particle_charge()
             * pconstants::e;
     std::vector<int > nondoubled_shape(
@@ -291,7 +290,6 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
             *rho2, *G2)); // [V]
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
             *phi2));
-    phi->fill_guards(comm);
     bool have_points = false;
     for (int component = 0; component < 3; ++component) {
         Distributed_rectangular_grid_sptr local_En(
@@ -365,7 +363,6 @@ BOOST_FIXTURE_TEST_CASE(get_global_electric_field_component_exact_rho,
             *rho2, *G2)); // [V]
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
             *phi2));
-    phi->fill_guards(comm);
     for (int component = 0; component < 3; ++component) {
         Distributed_rectangular_grid_sptr local_En(
                 space_charge.get_electric_field_component(*phi, component)); // [V/m]

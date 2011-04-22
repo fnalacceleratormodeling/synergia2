@@ -596,7 +596,9 @@ Space_charge_3d_open_hockney::extract_scalar_field(
         }
     }
     phi->set_normalization(phi2.get_normalization());
-
+    if (in_group1) {
+        phi->fill_guards();
+    }
     return phi;
 }
 
@@ -734,9 +736,6 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
     G2.reset();
     Distributed_rectangular_grid_sptr phi(extract_scalar_field(*phi2));
     phi2.reset();
-    if (in_group1) {
-        phi->fill_guards(comm1);
-    }
     int max_component;
     if (longitudinal_kicks) {
         max_component = 3;

@@ -12,21 +12,21 @@ private:
     int lower, upper;
     int lower_guard, upper_guard;
     double normalization;
-    Commxx commxx;
+    Commxx comm;
     void
     construct(int lower, int upper, std::vector<int > const & array_shape);
 public:
     Distributed_rectangular_grid(std::vector<double > const & physical_size,
             std::vector<double > const & physical_offset,
             std::vector<int > const & grid_shape, bool periodic, int lower,
-            int upper, Commxx const& commxx);
+            int upper, Commxx const& comm);
     Distributed_rectangular_grid(
             Rectangular_grid_domain_sptr rectangular_grid_domain_sptr,
-            int lower, int upper, Commxx const& commxx);
+            int lower, int upper, Commxx const& comm);
     Distributed_rectangular_grid(
             Rectangular_grid_domain_sptr rectangular_grid_domain_sptr,
             int lower, int upper, std::vector<int > const & padded_shape,
-            Commxx const& commxx);
+            Commxx const& comm);
     Rectangular_grid_domain_sptr
     get_domain_sptr() const;
     Rectangular_grid_domain_sptr
@@ -48,7 +48,7 @@ public:
     double
     get_normalization() const;
     void
-    fill_guards(Commxx const & comm);
+    fill_guards();
 };
 
 typedef boost::shared_ptr<Distributed_rectangular_grid >

@@ -147,7 +147,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
             *phi2));
     double lambda = bunch.get_real_num() * bunch.get_particle_charge()
             * pconstants::e / z_period;
-    phi->fill_guards(comm);
+    phi->fill_guards();
     for (int component = 0; component < 3; ++component) {
         Distributed_rectangular_grid_sptr local_En(
                 space_charge.get_electric_field_component(*phi, component)); // [V/m]
@@ -327,7 +327,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_particles,
             *phi2));
     double lambda = bunch.get_real_num() * bunch.get_particle_charge()
             * pconstants::e / z_period;
-    phi->fill_guards(comm);
+    phi->fill_guards();
     for (int component = 0; component < 3; ++component) {
         Distributed_rectangular_grid_sptr local_En(
                 space_charge.get_electric_field_component(*phi, component)); // [V/m]

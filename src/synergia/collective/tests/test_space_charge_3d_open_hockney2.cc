@@ -210,7 +210,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
             *rho2, *G2)); // [V]
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
             *phi2));
-    phi->fill_guards(comm);
+    phi->fill_guards();
     for (int component = 0; component < 3; ++component) {
         Distributed_rectangular_grid_sptr local_En(
                 space_charge.get_electric_field_component(*phi, component)); // [V/m]
@@ -278,7 +278,7 @@ BOOST_FIXTURE_TEST_CASE(get_global_electric_field_component_exact_rho,
             *rho2, *G2)); // [V]
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
             *phi2));
-    phi->fill_guards(comm);
+    phi->fill_guards();
     for (int component = 0; component < 3; ++component) {
         Distributed_rectangular_grid_sptr local_En(
                 space_charge.get_electric_field_component(*phi, component)); // [V/m]

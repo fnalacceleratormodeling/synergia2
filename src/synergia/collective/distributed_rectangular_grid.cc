@@ -33,8 +33,8 @@ Distributed_rectangular_grid::Distributed_rectangular_grid(
         std::vector<double > const & physical_size,
         std::vector<double > const & physical_offset,
         std::vector<int > const & grid_shape, bool periodic, int lower,
-        int upper, Commxx const& commxx) :
-    commxx(commxx)
+        int upper, Commxx const& comm) :
+    comm(comm)
 {
     domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
             physical_size, physical_offset, grid_shape, periodic));
@@ -43,8 +43,8 @@ Distributed_rectangular_grid::Distributed_rectangular_grid(
 
 Distributed_rectangular_grid::Distributed_rectangular_grid(
         Rectangular_grid_domain_sptr rectangular_grid_domain_sptr, int lower,
-        int upper, Commxx const& commxx) :
-    commxx(commxx)
+        int upper, Commxx const& comm) :
+    comm(comm)
 {
     domain_sptr = rectangular_grid_domain_sptr;
     construct(lower, upper, domain_sptr->get_grid_shape());
@@ -52,8 +52,8 @@ Distributed_rectangular_grid::Distributed_rectangular_grid(
 
 Distributed_rectangular_grid::Distributed_rectangular_grid(
         Rectangular_grid_domain_sptr rectangular_grid_domain_sptr, int lower,
-        int upper, std::vector<int > const & padded_shape, Commxx const& commxx) :
-    commxx(commxx)
+        int upper, std::vector<int > const & padded_shape, Commxx const& comm) :
+    comm(comm)
 {
     domain_sptr = rectangular_grid_domain_sptr;
     construct(lower, upper, padded_shape);
@@ -120,7 +120,7 @@ Distributed_rectangular_grid::get_normalization() const
 }
 
 void
-Distributed_rectangular_grid::fill_guards(Commxx const & comm)
+Distributed_rectangular_grid::fill_guards()
 {
     int rank = comm.get_rank();
     int size = comm.get_size();
@@ -184,11 +184,11 @@ Distributed_rectangular_grid::fill_guards(Commxx const & comm)
     }
     if (send) {
         MPI_Send(send_buffer, message_size, MPI_DOUBLE, receiver, rank,
-                commxx.get());
+                comm.get());
     }
     if (receive) {
         MPI_Recv(recv_buffer, message_size, MPI_DOUBLE, sender, sender,
-                commxx.get(), &status);
+                comm.get(), &status);
     }
 
     //send to the left
@@ -223,11 +223,10 @@ Distributed_rectangular_grid::fill_guards(Commxx const & comm)
     }
     if (send) {
         MPI_Send(send_buffer, message_size, MPI_DOUBLE, receiver, rank,
-                commxx.get());
+                comm.get());
     }
     if (receive) {
         MPI_Recv(recv_buffer, message_size, MPI_DOUBLE, sender, sender,
-                commxx.get(), &status);
+                comm.get(), &status);
     }
-
 }

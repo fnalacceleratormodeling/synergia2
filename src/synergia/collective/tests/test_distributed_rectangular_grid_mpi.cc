@@ -215,7 +215,7 @@ BOOST_FIXTURE_TEST_CASE(fill_guards, Distributed_rectangular_grid_domain_fixture
         }
     }
 
-    distributed_rectangular_grid_sptr->fill_guards(comm);
+    distributed_rectangular_grid_sptr->fill_guards();
 
     for (int i = lower_guard; i < upper_guard; ++i) {
         for (int j = 0; j < grid_shape[1]; ++j) {
@@ -260,7 +260,7 @@ BOOST_FIXTURE_TEST_CASE(fill_guards_periodic,
         }
     }
 
-    distributed_rectangular_grid_sptr->fill_guards(comm);
+    distributed_rectangular_grid_sptr->fill_guards();
     for (int i = lower_guard; i < upper_guard; ++i) {
         for (int j = 0; j < grid_shape[1]; ++j) {
             for (int k = 0; k < grid_shape[2]; ++k) {
@@ -305,7 +305,7 @@ BOOST_FIXTURE_TEST_CASE(fill_guards_empty_processors,
         }
     }
 
-    distributed_rectangular_grid_sptr->fill_guards(comm);
+    distributed_rectangular_grid_sptr->fill_guards();
 
     for (int i = lower_guard; i < upper_guard; ++i) {
         for (int j = 0; j < grid_shape[1]; ++j) {
