@@ -49,26 +49,25 @@ Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
             shape[2], comm.get(), &local_nx, &local_x_start);
     local_size_real = local_nx * padded_shape[1] * padded_shape[2];
     local_size_complex = local_nx * padded_shape[1] * padded_shape2_complex;
-    local_size_allocated = local_size_real;
     if (local_nx == 0) {
         have_local_data = false;
-        // create dummy space large enough for one local slice
-        local_size_allocated = 1 * padded_shape[1] * padded_shape[2];
     } else {
         have_local_data = true;
-        if (fftw_local_size > local_size_allocated) {
-            local_size_allocated = fftw_local_size;
-        }
+    }
+    // MEDIUM HACK. fftw often (always?) returns a local size that is
+    // impossibly small. Adjust to the smallest possible size.
+    if (local_size_real > fftw_local_size) {
+        fftw_local_size = local_size_real;
     }
     // GREAT BIG HACK. fftw sometimes crashes when memory_fudge_factor = 1. The test
     // program test_distributed_fft3d_mpi fails when memory_fudge_factor = 1 and
     // numproc = 3. This is either a bug in fftw3, or a failing of the documentation.
     // The precise value "2" is just a guess.
     const int memory_fudge_factor = 2;
-    data = (double *) fftw_malloc(sizeof(double) * local_size_allocated
+    data = (double *) fftw_malloc(sizeof(double) * fftw_local_size
             * memory_fudge_factor);
-    workspace = (fftw_complex *) fftw_malloc(sizeof(double)
-            * local_size_allocated * memory_fudge_factor);
+    workspace = (fftw_complex *) fftw_malloc(sizeof(double) * fftw_local_size
+            * memory_fudge_factor);
     plan = fftw_mpi_plan_dft_r2c_3d(shape[0], shape[1], shape[2], data,
             workspace, comm.get(), planner_flags);
     inv_plan = fftw_mpi_plan_dft_c2r_3d(shape[0], shape[1], shape[2],
@@ -111,10 +110,10 @@ Distributed_fft3d::calculate_uppers_lengths()
         }
         lengths[0] = uppers[0] * shape[1] * shape[2];
         for (int i = 1; i < size; ++i) {
-            lengths[i] = (uppers[i] - uppers[i - 1]) * shape[1] * shape[2];
-            if (lengths[i] < 0) {
-                lengths[i] = 0;
+            if (uppers[i] == 0) {
+                uppers[i] = uppers[i - 1];
             }
+            lengths[i] = (uppers[i] - uppers[i - 1]) * shape[1] * shape[2];
         }
     }
 }
