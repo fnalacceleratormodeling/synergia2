@@ -157,37 +157,39 @@ Distributed_fft3d::get_padded_shape_complex() const
 void
 Distributed_fft3d::transform(MArray3d_ref & in, MArray3dc_ref & out)
 {
-    if (in.index_bases()[0] > lower) {
-        throw std::runtime_error(
-                "Distributed_fft3d::transform found an incompatible first index offset in input array");
-    }
-    if ((in.index_bases()[0] + in.shape()[0]) < upper) {
-        throw std::runtime_error(
-                "Distributed_fft3d::transform found an incompatible first dimension of input array");
-    }
-    if (in.shape()[1] != get_padded_shape_real()[1]) {
-        throw std::runtime_error(
-                "Distributed_fft3d::transform found an incompatible second dimension of input array");
-    }
-    if (in.shape()[2] != get_padded_shape_real()[2]) {
-        throw std::runtime_error(
-                "Distributed_fft3d::transform found an incompatible third dimension of input array");
-    }
-    if (out.index_bases()[0] > lower) {
-        throw std::runtime_error(
-                "Distributed_fft3d::transform found an incompatible first index offset in output array");
-    }
-    if ((out.index_bases()[0] + out.shape()[0]) < upper) {
-        throw std::runtime_error(
-                "Distributed_fft3d::transform found an incompatible first dimension of output array");
-    }
-    if (out.shape()[1] != get_padded_shape_complex()[1]) {
-        throw std::runtime_error(
-                "Distributed_fft3d::transform found an incompatible second dimension of output array");
-    }
-    if (out.shape()[2] != get_padded_shape_complex()[2]) {
-        throw std::runtime_error(
-                "Distributed_fft3d::transform found an incompatible third dimension of output array");
+    if (have_local_data) {
+        if (in.index_bases()[0] > lower) {
+            throw std::runtime_error(
+                    "Distributed_fft3d::transform found an incompatible first index offset in input array");
+        }
+        if ((in.index_bases()[0] + in.shape()[0]) < upper) {
+            throw std::runtime_error(
+                    "Distributed_fft3d::transform found an incompatible first dimension of input array");
+        }
+        if (in.shape()[1] != get_padded_shape_real()[1]) {
+            throw std::runtime_error(
+                    "Distributed_fft3d::transform found an incompatible second dimension of input array");
+        }
+        if (in.shape()[2] != get_padded_shape_real()[2]) {
+            throw std::runtime_error(
+                    "Distributed_fft3d::transform found an incompatible third dimension of input array");
+        }
+        if (out.index_bases()[0] > lower) {
+            throw std::runtime_error(
+                    "Distributed_fft3d::transform found an incompatible first index offset in output array");
+        }
+        if ((out.index_bases()[0] + out.shape()[0]) < upper) {
+            throw std::runtime_error(
+                    "Distributed_fft3d::transform found an incompatible first dimension of output array");
+        }
+        if (out.shape()[1] != get_padded_shape_complex()[1]) {
+            throw std::runtime_error(
+                    "Distributed_fft3d::transform found an incompatible second dimension of output array");
+        }
+        if (out.shape()[2] != get_padded_shape_complex()[2]) {
+            throw std::runtime_error(
+                    "Distributed_fft3d::transform found an incompatible third dimension of output array");
+        }
     }
 #ifdef USE_FFTW2
     if (have_local_data) {
@@ -218,39 +220,40 @@ Distributed_fft3d::transform(MArray3d_ref & in, MArray3dc_ref & out)
 void
 Distributed_fft3d::inv_transform(MArray3dc_ref & in, MArray3d_ref & out)
 {
-    if (in.index_bases()[0] > lower) {
-        throw std::runtime_error(
-                "Distributed_fft3d::inv_transform found an incompatible first index offset in input array");
+    if (have_local_data) {
+        if (in.index_bases()[0] > lower) {
+            throw std::runtime_error(
+                    "Distributed_fft3d::inv_transform found an incompatible first index offset in input array");
+        }
+        if ((in.index_bases()[0] + in.shape()[0]) < upper) {
+            throw std::runtime_error(
+                    "Distributed_fft3d::inv_transform found an incompatible first dimension of input array");
+        }
+        if (in.shape()[1] != get_padded_shape_complex()[1]) {
+            throw std::runtime_error(
+                    "Distributed_fft3d::inv_transform found an incompatible second dimension of input array");
+        }
+        if (in.shape()[2] != get_padded_shape_complex()[2]) {
+            throw std::runtime_error(
+                    "Distributed_fft3d::inv_transform found an incompatible third dimension of input array");
+        }
+        if (out.index_bases()[0] > lower) {
+            throw std::runtime_error(
+                    "Distributed_fft3d::inv_transform found an incompatible first index offset in output array");
+        }
+        if ((out.index_bases()[0] + out.shape()[0]) < upper) {
+            throw std::runtime_error(
+                    "Distributed_fft3d::inv_transform found an incompatible first dimension of output array");
+        }
+        if (out.shape()[1] != get_padded_shape_real()[1]) {
+            throw std::runtime_error(
+                    "Distributed_fft3d::inv_transform found an incompatible second dimension of output array");
+        }
+        if (out.shape()[2] != get_padded_shape_real()[2]) {
+            throw std::runtime_error(
+                    "Distributed_fft3d::inv_transform found an incompatible third dimension of output array");
+        }
     }
-    if ((in.index_bases()[0] + in.shape()[0]) < upper) {
-        throw std::runtime_error(
-                "Distributed_fft3d::inv_transform found an incompatible first dimension of input array");
-    }
-    if (in.shape()[1] != get_padded_shape_complex()[1]) {
-        throw std::runtime_error(
-                "Distributed_fft3d::inv_transform found an incompatible second dimension of input array");
-    }
-    if (in.shape()[2] != get_padded_shape_complex()[2]) {
-        throw std::runtime_error(
-                "Distributed_fft3d::inv_transform found an incompatible third dimension of input array");
-    }
-    if (out.index_bases()[0] > lower) {
-        throw std::runtime_error(
-                "Distributed_fft3d::inv_transform found an incompatible first index offset in output array");
-    }
-    if ((out.index_bases()[0] + out.shape()[0]) < upper) {
-        throw std::runtime_error(
-                "Distributed_fft3d::inv_transform found an incompatible first dimension of output array");
-    }
-    if (out.shape()[1] != get_padded_shape_real()[1]) {
-        throw std::runtime_error(
-                "Distributed_fft3d::inv_transform found an incompatible second dimension of output array");
-    }
-    if (out.shape()[2] != get_padded_shape_real()[2]) {
-        throw std::runtime_error(
-                "Distributed_fft3d::inv_transform found an incompatible third dimension of output array");
-    }
-
 #ifdef USE_FFTW2
     if (have_local_data) {
         memcpy( (void*) workspace, (void*) multi_array_offset(in, lower, 0, 0),
