@@ -63,7 +63,8 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(Commxx const& comm,
             grid_shape(3), doubled_grid_shape(3), padded_grid_shape(3),
             longitudinal_kicks(longitudinal_kicks), periodic_z(periodic_z),
             z_period(z_period), grid_entire_period(grid_entire_period),
-            n_sigma(n_sigma), domain_fixed(false), have_domains(false)
+            n_sigma(n_sigma), domain_fixed(false), have_domains(false),
+            green_fn_type(pointlike)
 {
     if (this->periodic_z && (this->z_period == 0.0)) {
         throw std::runtime_error(
@@ -90,7 +91,8 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
             distributed_fft3d_sptr(distributed_fft3d_sptr), longitudinal_kicks(
                     longitudinal_kicks), periodic_z(periodic_z), z_period(
                     z_period), grid_entire_period(grid_entire_period), n_sigma(
-                    n_sigma), domain_fixed(false), have_domains(false)
+                    n_sigma), domain_fixed(false), have_domains(false),
+            green_fn_type(pointlike)
 {
     doubled_grid_shape = distributed_fft3d_sptr->get_shape();
     for (int i = 0; i < 3; ++i) {
@@ -104,6 +106,18 @@ double
 Space_charge_3d_open_hockney::get_n_sigma() const
 {
     return n_sigma;
+}
+
+void
+Space_charge_3d_open_hockney::set_green_fn_type(Green_fn_type green_fn_type)
+{
+    this->green_fn_type = green_fn_type;
+}
+
+Space_charge_3d_open_hockney::Green_fn_type
+Space_charge_3d_open_hockney::get_green_fn_type() const
+{
+    return green_fn_type;
 }
 
 void
@@ -730,7 +744,14 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
     Distributed_rectangular_grid_sptr rho2(get_global_charge_density2(
             *local_rho)); // [C/m^3]
     local_rho.reset();
-    Distributed_rectangular_grid_sptr G2(get_green_fn2_pointlike()); // [1/m]
+    Distributed_rectangular_grid_sptr G2; // [1/m]
+    if (green_fn_type == pointlike) {
+        G2 = get_green_fn2_pointlike();
+    } else if(green_fn_type == linear) {
+        G2 = get_green_fn2_linear();
+    } else {
+        throw std::runtime_error("Space_charge_3d_open_hockney::apply: unknown green_fn_type");
+    }
     Distributed_rectangular_grid_sptr phi2(get_scalar_field2(*rho2, *G2)); // [V]
     rho2.reset();
     G2.reset();

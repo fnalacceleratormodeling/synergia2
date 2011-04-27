@@ -92,6 +92,22 @@ BOOST_AUTO_TEST_CASE(get_n_sigma)
     BOOST_CHECK_CLOSE(space_charge.get_n_sigma(), n_sigma, tolerance);
 }
 
+BOOST_FIXTURE_TEST_CASE(set_green_fn_type, Ellipsoidal_bunch_fixture)
+{
+    Space_charge_3d_open_hockney space_charge(comm, grid_shape);
+    space_charge.set_green_fn_type(Space_charge_3d_open_hockney::linear);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_green_fn_type, Ellipsoidal_bunch_fixture)
+{
+    Space_charge_3d_open_hockney space_charge(comm, grid_shape);
+    BOOST_CHECK_EQUAL(space_charge.get_green_fn_type(),
+            Space_charge_3d_open_hockney::pointlike);
+    space_charge.set_green_fn_type(Space_charge_3d_open_hockney::linear);
+    BOOST_CHECK_EQUAL(space_charge.get_green_fn_type(),
+            Space_charge_3d_open_hockney::linear);
+}
+
 BOOST_FIXTURE_TEST_CASE(update_domain, Ellipsoidal_bunch_fixture)
 {
     Space_charge_3d_open_hockney space_charge(comm, grid_shape);
