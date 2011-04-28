@@ -1,5 +1,5 @@
 #include <iostream>
-
+#include "synergia/utils/simple_timer.h"
 #include "operator.h"
 #include "aperture.h"
 
@@ -124,11 +124,15 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step)
     if (need_update()) {
         update_operations(bunch.get_reference_particle());
     }
+    double t;
+    simple_timer_reset(t);
     for (Independent_operations::iterator it = operations.begin(); it
             != operations.end(); ++it) {
         (*it)->apply(bunch);
     }
+    simple_timer_show(t,"indpendent-operation-apply");
     apply_circular_aperture(bunch, slices);
+    simple_timer_show(t,"indpendent-operation-aperture");
 }
 
 void

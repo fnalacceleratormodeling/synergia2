@@ -1,6 +1,35 @@
 #!/bin/sh
-cd @@jobdir@@ && \
-(time mpirun -np @@numproc@@ @@synergia_executable@@ @@script@@ @@args@@ ; \
-echo "synergia finished with exit status $?")
+#PBS -o synergia.out
+#PBS -e synergia.err
+#PBS -l nodes=@@numproc@@
+#PBS -q test_intel12
+#PBS -A mi
+
+
+# This script is an appropriate template for running PBS jobs on the
+# tev cluster.
+
+echo PBS_NODEFILE is "$PBS_NODEFILE"
+if [ -n "$PBS_NODEFILE" ]
+then
+    echo "begin nodes"
+    cat $PBS_NODEFILE
+    echo "end nodes"
+fi
+MPI_HOME=/usr/local/openmpi
+
+export PATH=${MPI_HOME}/bin:$PATH
+export PATH=/usr/local/python-2.7.0/bin:$PATH
+export LD_LIBRARY_PATH=${MPI_HOME}/lib:$LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/usr/local/python-2.7.0/lib:$LD_LIBRARY_PATH
+
+
+. "/home/amundson/work/synergia2-old_devel_1_0/setup.sh"
+
+cd $PBS_O_WORKDIR
+echo "Job start at `date`"
+${MPI_HOME}/bin/mpirun -np @@numproc@@ @@synergia_executable@@ @@script@@ @@args@@
+echo "Job end at `date`"
+
 
 

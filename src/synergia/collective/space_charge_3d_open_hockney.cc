@@ -7,6 +7,7 @@ using pconstants::epsilon0;
 #include "deposit.h"
 #include "interpolate_rectangular_zyx.h"
 #include "synergia/utils/multi_array_offsets.h"
+#include "synergia/utils/simple_timer.h"
 
 #include <algorithm>
 
@@ -725,16 +726,24 @@ void
 Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
         Step & step)
 {
+  double t;
+  simple_timer_reset(t);
     bunch.convert_to_state(Bunch::fixed_t);
+    simple_timer_show(t,"sc-convert-to-state");
     Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
+    simple_timer_show(t,"sc-get-local-rho");
     Distributed_rectangular_grid_sptr rho2(get_global_charge_density2(
             *local_rho)); // [C/m^3]
+    simple_timer_show(t,"sc-get-global-rho");
     local_rho.reset();
     Distributed_rectangular_grid_sptr G2(get_green_fn2_pointlike()); // [1/m]
+    simple_timer_show(t,"sc-get-green-fn");
     Distributed_rectangular_grid_sptr phi2(get_scalar_field2(*rho2, *G2)); // [V]
+    simple_timer_show(t,"sc-get-phi2");
     rho2.reset();
     G2.reset();
     Distributed_rectangular_grid_sptr phi(extract_scalar_field(*phi2));
+    simple_timer_show(t,"sc-get-phi");
     phi2.reset();
     int max_component;
     if (longitudinal_kicks) {
@@ -745,9 +754,12 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
     for (int component = 0; component < max_component; ++component) {
         Distributed_rectangular_grid_sptr local_En(
                 get_electric_field_component(*phi, component)); // [V/m]
+    simple_timer_show(t,"sc-get-local-en");
         Rectangular_grid_sptr
                 En(get_global_electric_field_component(*local_En)); // [V/m]
+    simple_timer_show(t,"sc-get-global-en");
         apply_kick(bunch, *En, time_step, component);
+    simple_timer_show(t,"sc-apply-kick");
     }
 }
 

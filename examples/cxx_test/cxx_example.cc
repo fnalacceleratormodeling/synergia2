@@ -19,9 +19,9 @@ void
 run()
 {
     std::vector<int > grid_shape(3);
-    grid_shape[0] = 16;
-    grid_shape[1] = 16;
-    grid_shape[2] = 16;
+    grid_shape[0] = 32;
+    grid_shape[1] = 32;
+    grid_shape[2] = 256;
     const int part_per_cell = 10;
     const int num_macro_particles = grid_shape[0] * grid_shape[1]
             * grid_shape[2] * part_per_cell;
@@ -64,9 +64,13 @@ run()
             "cxx_example_per_step.h5");
     Diagnostics_full2 per_turn_diagnostics(bunch_sptr,
             "cxx_example_per_turn.h5");
+    double t0 = MPI_Wtime();
     propagator.propagate(*bunch_sptr, num_turns, per_step_diagnostics,
             per_turn_diagnostics, true);
-
+    double t1 = MPI_Wtime();
+    if (comm.get_rank() == 0) {
+      std::cout << "propagate time = " << (t1-t0) << std::endl;
+    }
 }
 int
 main(int argc, char **argv)
