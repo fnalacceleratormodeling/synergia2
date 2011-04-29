@@ -50,8 +50,8 @@ for part in range(0, opts.turn_tracks):
 if opts.turn_full2:
     multi_diagnostics_turn.append(synergia.bunch.Diagnostics_full2(bunch, "turn_full2.h5"))
 if opts.turn_particles:
-    multi_diagnostics_turn.append(synergia.bunch.Diagnostics_particles(bunch,
-                                    "turn_particles.h5"))
+    multi_diagnostics_turn.append(synergia.bunch.Diagnostics_particles(
+                                    bunch, "turn_particles.h5"))
 
 propagator = synergia.simulation.Propagator(stepper)
 propagator.propagate(bunch, opts.turns,
