@@ -515,7 +515,6 @@ void
 Diagnostics_particles::write()
 {
     int local_num = bunch_sptr->get_local_num();
-    void * local_num_buf = (void*) &local_num_buf;
     int num_procs = bunch_sptr->get_comm().get_size();
     std::vector<int > local_nums(num_procs);
     void * local_nums_buf = (void *) &local_nums[0];
