@@ -47,6 +47,36 @@ BOOST_AUTO_TEST_CASE(typical)
     H5Fclose(file);
 }
 
+BOOST_AUTO_TEST_CASE(different_sizes)
+{
+    hid_t file = H5Fcreate("chunkedarray2d.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
+            H5P_DEFAULT);
+    const int dim1 = 33;
+    const int dim2 = 7;
+    MArray2d a(boost::extents[dim1][dim2]);
+    Hdf5_chunked_array2d_writer writer(file, "array2d", a);
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < dim1; ++j) {
+            for (int k = 0; k < dim2; ++k) {
+                a[j][k] = 1.1 * k + 10 * j + 100 * (i + 1);
+            }
+        }
+        writer.write_chunk(a);
+    }
+    const int dim1b = 30;
+    MArray2d b(boost::extents[dim1b][dim2]);
+    for (int i = 0; i < 5; ++i) {
+        for (int j = 0; j < dim1b; ++j) {
+            for (int k = 0; k < dim2; ++k) {
+                b[j][k] = 1.1 * k + 10 * j + 100 * (i + 1);
+            }
+        }
+        writer.write_chunk(b);
+    }
+    writer.close();
+    H5Fclose(file);
+}
+
 // ugh. no worky.
 //BOOST_AUTO_TEST_CASE(typical_view)
 //{
