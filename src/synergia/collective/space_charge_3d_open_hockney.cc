@@ -205,7 +205,7 @@ Space_charge_3d_open_hockney::get_local_charge_density(Bunch const& bunch)
 }
 
 Distributed_rectangular_grid_sptr
-Space_charge_3d_open_hockney::get_global_charge_density2(
+Space_charge_3d_open_hockney::get_global_charge_density2_reduce_scatter(
         Rectangular_grid const& local_charge_density)
 {
     // jfa: here is where we do something complicated, but (potentially) efficient
@@ -246,6 +246,66 @@ Space_charge_3d_open_hockney::get_global_charge_density2(
     dest = multi_array_offset(dest_array, real_lower, 0, 0);
     MPI_Reduce_scatter((void *) source, (void *) dest, &real_lengths[0],
             MPI_DOUBLE, MPI_SUM, comm2.get());
+    int doubled_lower;
+    if (my_rank > 0) {
+        doubled_lower = distributed_fft3d_sptr->get_uppers()[my_rank - 1];
+    } else {
+        doubled_lower = 0;
+    }
+    int doubled_upper = distributed_fft3d_sptr->get_uppers()[my_rank];
+    Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
+            new Distributed_rectangular_grid(doubled_domain_sptr,
+                    doubled_lower, doubled_upper,
+                    distributed_fft3d_sptr->get_padded_shape_real(), comm2));
+    for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
+        for (int j = 0; j < doubled_grid_shape[1]; ++j) {
+            for (int k = 0; k < doubled_grid_shape[2]; ++k) {
+                rho2->get_grid_points()[i][j][k] = 0.0;
+            }
+        }
+    }
+    for (int i = real_lower; i < real_uppers[my_rank]; ++i) {
+        for (int j = 0; j < grid_shape[1]; ++j) {
+            for (int k = 0; k < grid_shape[2]; ++k) {
+                rho2->get_grid_points()[i][j][k] = dest_array[i][j][k];
+            }
+        }
+    }
+    return rho2;
+}
+
+Distributed_rectangular_grid_sptr
+Space_charge_3d_open_hockney::get_global_charge_density2(
+        Rectangular_grid const& local_charge_density)
+{
+    void * source = (void*) local_charge_density.get_grid_points().origin();
+    MArray3d dest_array(
+            boost::extents[grid_shape[0]][grid_shape[1]][grid_shape[2]]);
+    void * dest = (void*) dest_array.origin();
+    int error;
+    error = MPI_Allreduce(source, dest, dest_array.num_elements(), MPI_DOUBLE,
+            MPI_SUM, comm2.get());
+
+    std::vector<int > real_uppers(distributed_fft3d_sptr->get_uppers());
+    std::vector<int > real_lengths(distributed_fft3d_sptr->get_lengths());
+    for (int i = 0; i < comm2.get_size(); ++i) {
+        if (real_uppers[i] > grid_shape[0]) {
+            real_uppers[i] = grid_shape[0];
+        }
+        if (i == 0) {
+            real_lengths[0] = real_uppers[0] * grid_shape[1] * grid_shape[2];
+        } else {
+            real_lengths[i] = (real_uppers[i] - real_uppers[i - 1])
+                    * grid_shape[1] * grid_shape[2];
+        }
+    }
+    int real_lower;
+    int my_rank = comm2.get_rank();
+    if (my_rank > 0) {
+        real_lower = real_uppers[my_rank - 1];
+    } else {
+        real_lower = 0;
+    }
     int doubled_lower;
     if (my_rank > 0) {
         doubled_lower = distributed_fft3d_sptr->get_uppers()[my_rank - 1];
@@ -747,10 +807,11 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
     Distributed_rectangular_grid_sptr G2; // [1/m]
     if (green_fn_type == pointlike) {
         G2 = get_green_fn2_pointlike();
-    } else if(green_fn_type == linear) {
+    } else if (green_fn_type == linear) {
         G2 = get_green_fn2_linear();
     } else {
-        throw std::runtime_error("Space_charge_3d_open_hockney::apply: unknown green_fn_type");
+        throw std::runtime_error(
+                "Space_charge_3d_open_hockney::apply: unknown green_fn_type");
     }
     Distributed_rectangular_grid_sptr phi2(get_scalar_field2(*rho2, *G2)); // [V]
     rho2.reset();
