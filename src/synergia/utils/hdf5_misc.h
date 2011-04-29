@@ -5,10 +5,10 @@
 #include "hdf5.h"
 
 inline void
-hdf5_error_check(hid_t status)
+hdf5_error_check(hid_t status, const char * message = "hdf5 error")
 {
     if (status != 0) {
-        throw(std::runtime_error("hdf5 error"));
+        throw(std::runtime_error(message));
     }
 }
 

@@ -13,6 +13,11 @@
 /// grid shape expects [x][y][z] order.
 class Space_charge_3d_open_hockney : public Collective_operator
 {
+public:
+    enum Green_fn_type
+    {
+        pointlike = 1, linear = 2
+    };
 private:
     std::vector<int > grid_shape, doubled_grid_shape, padded_grid_shape;
     Rectangular_grid_domain_sptr domain_sptr, doubled_domain_sptr;
@@ -20,6 +25,7 @@ private:
     double z_period;
     bool grid_entire_period;
     bool longitudinal_kicks;
+    Green_fn_type green_fn_type;
     Distributed_fft3d_sptr distributed_fft3d_sptr;
     Commxx comm2, comm1;
     std::vector<int > lowers1, lengths1;
@@ -47,6 +53,10 @@ public:
     double
     get_n_sigma() const;
     void
+    set_green_fn_type(Green_fn_type green_fn_type);
+    Green_fn_type
+    get_green_fn_type() const;
+    void
     set_fixed_domain(Rectangular_grid_domain_sptr domain_sptr);
     void
     update_domain(Bunch const& bunch);
@@ -57,6 +67,9 @@ public:
     /// Returns local charge density on original grid in [C/m^3]
     Rectangular_grid_sptr
     get_local_charge_density(Bunch const& bunch);
+    /// Returns global charge density on doubled grid in [C/m^3]
+    Distributed_rectangular_grid_sptr
+    get_global_charge_density2_reduce_scatter(Rectangular_grid const& local_charge_density);
     /// Returns global charge density on doubled grid in [C/m^3]
     Distributed_rectangular_grid_sptr
     get_global_charge_density2(Rectangular_grid const& local_charge_density);
