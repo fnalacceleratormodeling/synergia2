@@ -10,6 +10,59 @@ using pconstants::epsilon0;
 #include "synergia/utils/simple_timer.h"
 
 #include <algorithm>
+template<class T, size_t C>
+    struct Sortable2d
+    {
+        typedef T data_type;
+    };
+
+template<class T, size_t C>
+    struct Sortable2d<T*, C >
+    {
+        typedef T data_type;
+        typedef T arr_type[][C];
+        typedef T row_type[C];
+        struct Row
+        {
+            row_type data;
+        };
+        typedef Row cols_type[];
+
+        Sortable2d(double* t, size_t sz) :
+            ptr_(t), rows_(sz)
+        {
+        }
+
+        struct Less
+        {
+            bool
+            operator()(Row const& a, Row const& b)
+            {
+                return a.data[6] < b.data[6];
+            }
+        };
+
+        Row*
+        begin()
+        {
+            return (Row*) ptr_;
+        }
+        Row*
+        end()
+        {
+            return (Row*) (ptr_ + (rows_ * C));
+        }
+
+        double* ptr_;
+        size_t rows_;
+    };
+
+void
+sort_particles(MArray2d_ref particles, int local_num)
+{
+    Sortable2d<double*, 7 > sortable(particles.origin(), local_num);
+    sort(sortable.begin(), sortable.end(), Sortable2d<double*, 7 >::Less());
+}
 
 void
 Space_charge_3d_open_hockney::setup_nondoubled_communication()
@@ -58,8 +111,7 @@ Space_charge_3d_open_hockney::setup_nondoubled_communication()
 
 Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(Commxx const& comm,
         std::vector<int > const & grid_shape, bool longitudinal_kicks,
-        bool periodic_z, double z_period, bool grid_entire_period,
-        double n_sigma) :
+        bool periodic_z, double z_period, bool grid_entire_period, double n_sigma) :
     Collective_operator("space charge 3D open hockney"), comm2(comm),
             grid_shape(3), doubled_grid_shape(3), padded_grid_shape(3),
             longitudinal_kicks(longitudinal_kicks), periodic_z(periodic_z),
@@ -726,24 +778,26 @@ void
 Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
         Step & step)
 {
-  double t;
-  simple_timer_reset(t);
+    double t;
+    simple_timer_reset(t);
     bunch.convert_to_state(Bunch::fixed_t);
-    simple_timer_show(t,"sc-convert-to-state");
+    simple_timer_show(t, "sc-convert-to-state");
     Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
-    simple_timer_show(t,"sc-get-local-rho");
+    simple_timer_show(t, "sc-get-local-rho");
     Distributed_rectangular_grid_sptr rho2(get_global_charge_density2(
             *local_rho)); // [C/m^3]
-    simple_timer_show(t,"sc-get-global-rho");
+    simple_timer_show(t, "sc-get-global-rho");
     local_rho.reset();
     Distributed_rectangular_grid_sptr G2(get_green_fn2_pointlike()); // [1/m]
-    simple_timer_show(t,"sc-get-green-fn");
+    simple_timer_show(t, "sc-get-green-fn");
     Distributed_rectangular_grid_sptr phi2(get_scalar_field2(*rho2, *G2)); // [V]
-    simple_timer_show(t,"sc-get-phi2");
+    simple_timer_show(t, "sc-get-phi2");
     rho2.reset();
     G2.reset();
     Distributed_rectangular_grid_sptr phi(extract_scalar_field(*phi2));
-    simple_timer_show(t,"sc-get-phi");
+    simple_timer_show(t, "sc-get-phi");
+    sort_particles(bunch.get_local_particles(), bunch.get_local_num());
+    simple_timer_show(t, "sc-sort");
     phi2.reset();
     int max_component;
     if (longitudinal_kicks) {
@@ -754,12 +808,12 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
     for (int component = 0; component < max_component; ++component) {
         Distributed_rectangular_grid_sptr local_En(
                 get_electric_field_component(*phi, component)); // [V/m]
-    simple_timer_show(t,"sc-get-local-en");
+        simple_timer_show(t, "sc-get-local-en");
         Rectangular_grid_sptr
                 En(get_global_electric_field_component(*local_En)); // [V/m]
-    simple_timer_show(t,"sc-get-global-en");
+        simple_timer_show(t, "sc-get-global-en");
         apply_kick(bunch, *En, time_step, component);
-    simple_timer_show(t,"sc-apply-kick");
+        simple_timer_show(t, "sc-apply-kick");
     }
 }
 
