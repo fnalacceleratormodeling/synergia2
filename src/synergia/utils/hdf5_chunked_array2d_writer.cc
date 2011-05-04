@@ -59,18 +59,21 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_ref const & data)
     chunk_dims[0] = data.shape()[0];
     chunk_dims[1] = data.shape()[1];
     herr_t status = H5Pset_chunk(cparms, 2, &chunk_dims[0]);
-    hdf5_error_check(status);
+    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk: error in H5Pset_chunk");
     size[0] += data.shape()[0];
     status = H5Dextend(dataset, &size[0]);
-    hdf5_error_check(status);
+    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk: error in H5Dextend");
     filespace = H5Dget_space(dataset);
     have_filespace = true;
     status = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0], NULL,
-            &dims[0], NULL);
-    hdf5_error_check(status);
+            &chunk_dims[0], NULL);
+    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk: error in H5Sselect_hyperslab");
+    status = H5Sclose(dataspace);
+    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk: error in H5Sclose");
+    dataspace = H5Screate_simple(2, &chunk_dims[0], &max_dims[0]);
     status = H5Dwrite(dataset, hdf5_atomic_typename<double > (), dataspace,
             filespace, H5P_DEFAULT, data.origin());
-    hdf5_error_check(status);
+    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk: error in H5Dwrite");
     offset[0] += data.shape()[0];
 }
 
@@ -84,18 +87,21 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_view const & data)
     chunk_dims[0] = data.shape()[0];
     chunk_dims[1] = data.shape()[1];
     herr_t status = H5Pset_chunk(cparms, 2, &chunk_dims[0]);
-    hdf5_error_check(status);
+    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk[view]: error in H5Pset_chunk");
     size[0] += data.shape()[0];
     status = H5Dextend(dataset, &size[0]);
-    hdf5_error_check(status);
+    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk[view]: error in H5Dextend");
     filespace = H5Dget_space(dataset);
     have_filespace = true;
     status = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0], NULL,
-            &dims[0], NULL);
-    hdf5_error_check(status);
+            &chunk_dims[0], NULL);
+    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk[view]: error in H5Sselect_hyperslab");
+    status = H5Sclose(dataspace);
+    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk[view]: error in H5Sclose");
+    dataspace = H5Screate_simple(2, &chunk_dims[0], &max_dims[0]);
     status = H5Dwrite(dataset, hdf5_atomic_typename<double > (), dataspace,
             filespace, H5P_DEFAULT, data.origin());
-    hdf5_error_check(status);
+    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk[view]: error in H5Dwrite");
     offset[0] += data.shape()[0];
 }
 
