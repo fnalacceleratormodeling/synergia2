@@ -47,6 +47,7 @@ template<class T, size_t C>
         {
             return (Row*) ptr_;
         }
+
         Row*
         end()
         {
@@ -111,13 +112,15 @@ Space_charge_3d_open_hockney::setup_nondoubled_communication()
 
 Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(Commxx const& comm,
         std::vector<int > const & grid_shape, bool longitudinal_kicks,
-        bool periodic_z, double z_period, bool grid_entire_period, double n_sigma) :
+        bool periodic_z, double z_period, bool grid_entire_period,
+        double n_sigma) :
     Collective_operator("space charge 3D open hockney"), comm2(comm),
             grid_shape(3), doubled_grid_shape(3), padded_grid_shape(3),
             longitudinal_kicks(longitudinal_kicks), periodic_z(periodic_z),
             z_period(z_period), grid_entire_period(grid_entire_period),
             n_sigma(n_sigma), domain_fixed(false), have_domains(false),
-            green_fn_type(pointlike)
+            green_fn_type(pointlike), charge_density_comm(reducescatter),
+            e_field_comm(gatherv_bcast)
 {
     if (this->periodic_z && (this->z_period == 0.0)) {
         throw std::runtime_error(
@@ -145,7 +148,8 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
                     longitudinal_kicks), periodic_z(periodic_z), z_period(
                     z_period), grid_entire_period(grid_entire_period), n_sigma(
                     n_sigma), domain_fixed(false), have_domains(false),
-            green_fn_type(pointlike)
+            green_fn_type(pointlike), charge_density_comm(reducescatter),
+            e_field_comm(gatherv_bcast)
 {
     doubled_grid_shape = distributed_fft3d_sptr->get_shape();
     for (int i = 0; i < 3; ++i) {
@@ -171,6 +175,42 @@ Space_charge_3d_open_hockney::Green_fn_type
 Space_charge_3d_open_hockney::get_green_fn_type() const
 {
     return green_fn_type;
+}
+
+void
+Space_charge_3d_open_hockney::set_charge_density_comm(
+        Charge_density_comm charge_density_comm)
+{
+    this->charge_density_comm = charge_density_comm;
+}
+
+Space_charge_3d_open_hockney::Charge_density_comm
+Space_charge_3d_open_hockney::get_charge_density_comm() const
+{
+    return charge_density_comm;
+}
+
+void
+Space_charge_3d_open_hockney::set_e_field_comm(E_field_comm e_field_comm)
+{
+    this->e_field_comm = e_field_comm;
+}
+
+Space_charge_3d_open_hockney::E_field_comm
+Space_charge_3d_open_hockney::get_e_field_comm() const
+{
+    return e_field_comm;
+}
+
+void
+Space_charge_3d_open_hockney::comm_auto_tune(bool verbose)
+{
+    if (verbose) {
+        if (comm2.get_rank() == 0) {
+            std::cout
+                    << "comm_auto_tune should really do something, but it doesn't.\n";
+        }
+    }
 }
 
 void
@@ -794,7 +834,7 @@ Space_charge_3d_open_hockney::get_electric_field_component(
 }
 
 Rectangular_grid_sptr
-Space_charge_3d_open_hockney::get_global_electric_field_component(
+Space_charge_3d_open_hockney::get_global_electric_field_component_gatherv_bcast(
         Distributed_rectangular_grid const& dist_field)
 {
     Rectangular_grid_sptr global_field(new Rectangular_grid(domain_sptr));
@@ -821,6 +861,18 @@ Space_charge_3d_open_hockney::get_global_electric_field_component(
     }
     global_field->set_normalization(dist_field.get_normalization());
     return global_field;
+}
+
+Rectangular_grid_sptr
+Space_charge_3d_open_hockney::get_global_electric_field_component(
+        Distributed_rectangular_grid const& dist_field)
+{
+    if (e_field_comm == gatherv_bcast) {
+        return get_global_electric_field_component_gatherv_bcast(dist_field);
+    } else {
+        throw runtime_error(
+                "Space_charge_3d_open_hockney: undefined e_field_comm");
+    }
 }
 
 void
@@ -871,7 +923,7 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
         throw std::runtime_error(
                 "Space_charge_3d_open_hockney::apply: unknown green_fn_type");
     }
-    simple_timer_show(t,"sc-get-green-fn");
+    simple_timer_show(t, "sc-get-green-fn");
     Distributed_rectangular_grid_sptr phi2(get_scalar_field2(*rho2, *G2)); // [V]
     simple_timer_show(t, "sc-get-phi2");
     rho2.reset();

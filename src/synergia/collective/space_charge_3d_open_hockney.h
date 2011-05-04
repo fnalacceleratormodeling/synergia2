@@ -18,6 +18,14 @@ public:
     {
         pointlike = 1, linear = 2
     };
+    enum Charge_density_comm
+    {
+        reducescatter = 1, charge_allreduce = 2
+    };
+    enum E_field_comm
+    {
+        gatherv_bcast = 1, allgatherv = 2, efield_allreduce = 3
+    };
 private:
     std::vector<int > grid_shape, doubled_grid_shape, padded_grid_shape;
     Rectangular_grid_domain_sptr domain_sptr, doubled_domain_sptr;
@@ -26,6 +34,8 @@ private:
     bool grid_entire_period;
     bool longitudinal_kicks;
     Green_fn_type green_fn_type;
+    Charge_density_comm charge_density_comm;
+    E_field_comm e_field_comm;
     Distributed_fft3d_sptr distributed_fft3d_sptr;
     Commxx comm2, comm1;
     std::vector<int > lowers1, lengths1;
@@ -57,6 +67,16 @@ public:
     Green_fn_type
     get_green_fn_type() const;
     void
+    set_charge_density_comm(Charge_density_comm charge_density_comm);
+    Charge_density_comm
+    get_charge_density_comm() const;
+    void
+    set_e_field_comm(E_field_comm e_field_comm);
+    E_field_comm
+    get_e_field_comm() const;
+    void
+    comm_auto_tune(bool verbose = false);
+    void
     set_fixed_domain(Rectangular_grid_domain_sptr domain_sptr);
     void
     update_domain(Bunch const& bunch);
@@ -69,7 +89,8 @@ public:
     get_local_charge_density(Bunch const& bunch);
     /// Returns global charge density on doubled grid in [C/m^3]
     Distributed_rectangular_grid_sptr
-    get_global_charge_density2_reduce_scatter(Rectangular_grid const& local_charge_density);
+    get_global_charge_density2_reduce_scatter(
+            Rectangular_grid const& local_charge_density);
     /// Returns global charge density on doubled grid in [C/m^3]
     Distributed_rectangular_grid_sptr
     get_global_charge_density2(Rectangular_grid const& local_charge_density);
@@ -89,6 +110,9 @@ public:
     Distributed_rectangular_grid_sptr
     get_electric_field_component(
             Distributed_rectangular_grid const& scalar_field, int component);
+    Rectangular_grid_sptr
+    get_global_electric_field_component_gatherv_bcast(
+            Distributed_rectangular_grid const& dist_field);
     Rectangular_grid_sptr
     get_global_electric_field_component(
             Distributed_rectangular_grid const& dist_field);
