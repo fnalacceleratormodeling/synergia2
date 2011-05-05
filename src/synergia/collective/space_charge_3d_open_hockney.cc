@@ -120,7 +120,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(Commxx const& comm,
             z_period(z_period), grid_entire_period(grid_entire_period),
             n_sigma(n_sigma), domain_fixed(false), have_domains(false),
             green_fn_type(pointlike), charge_density_comm(reducescatter),
-            e_field_comm(allgatherv), calls_since_sort(10000)
+            e_field_comm(efield_allreduce), calls_since_sort(10000)
 {
     if (this->periodic_z && (this->z_period == 0.0)) {
         throw std::runtime_error(
@@ -149,7 +149,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
                     z_period), grid_entire_period(grid_entire_period), n_sigma(
                     n_sigma), domain_fixed(false), have_domains(false),
             green_fn_type(pointlike), charge_density_comm(reducescatter),
-            e_field_comm(allgatherv), calls_since_sort(10000)
+            e_field_comm(efield_allreduce), calls_since_sort(10000)
 {
     doubled_grid_shape = distributed_fft3d_sptr->get_shape();
     for (int i = 0; i < 3; ++i) {
@@ -880,15 +880,48 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_allgatherv(
             lengths12[rank] = 0;
         }
     }
-    int error;
     int rank = comm2.get_rank();
-    error = MPI_Allgatherv((void *) (dist_field.get_grid_points().origin()
+    int error = MPI_Allgatherv((void *) (dist_field.get_grid_points().origin()
             + lowers12[rank]), lengths12[rank], MPI_DOUBLE,
             (void*) global_field->get_grid_points().origin(), &lengths12[0],
             &lowers12[0], MPI_DOUBLE, comm2.get());
     if (error != MPI_SUCCESS) {
         throw std::runtime_error(
                 "MPI error in Space_charge_3d_open_hockney(MPI_Allgatherv)");
+    }
+    global_field->set_normalization(dist_field.get_normalization());
+    return global_field;
+}
+
+Rectangular_grid_sptr
+Space_charge_3d_open_hockney::get_global_electric_field_component_allreduce(
+        Distributed_rectangular_grid const& dist_field)
+{
+    Rectangular_grid_sptr global_field(new Rectangular_grid(domain_sptr));
+    for (int i = 0; i < grid_shape[0]; ++i) {
+        for (int j = 0; j < grid_shape[1]; ++j) {
+            for (int k = 0; k < grid_shape[2]; ++k) {
+                global_field->get_grid_points()[i][j][k] = 0.0;
+            }
+        }
+    }
+
+    for (int i = dist_field.get_lower(); i < dist_field.get_upper(); ++i) {
+        for (int j = 0; j < grid_shape[1]; ++j) {
+            for (int k = 0; k < grid_shape[2]; ++k) {
+                global_field->get_grid_points()[i][j][k]
+                        = dist_field.get_grid_points()[i][j][k];
+            }
+        }
+    }
+
+    int error = MPI_Allreduce(MPI_IN_PLACE,
+            (void*) global_field->get_grid_points().origin(),
+            global_field->get_grid_points().size(), MPI_DOUBLE, MPI_SUM,
+            comm2.get());
+    if (error != MPI_SUCCESS) {
+        throw std::runtime_error(
+                "MPI error in Space_charge_3d_open_hockney(MPI_Allreduce in get_global_electric_field_component_allreduce)");
     }
     global_field->set_normalization(dist_field.get_normalization());
     return global_field;
@@ -902,6 +935,8 @@ Space_charge_3d_open_hockney::get_global_electric_field_component(
         return get_global_electric_field_component_gatherv_bcast(dist_field);
     } else if (e_field_comm == allgatherv) {
         return get_global_electric_field_component_allgatherv(dist_field);
+    } else if (e_field_comm == efield_allreduce) {
+        return get_global_electric_field_component_allreduce(dist_field);
     } else {
         throw runtime_error(
                 "Space_charge_3d_open_hockney: undefined e_field_comm");
