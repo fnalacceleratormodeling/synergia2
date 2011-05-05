@@ -114,6 +114,9 @@ public:
     get_global_electric_field_component_gatherv_bcast(
             Distributed_rectangular_grid const& dist_field);
     Rectangular_grid_sptr
+    get_global_electric_field_component_allgatherv(
+            Distributed_rectangular_grid const& dist_field);
+    Rectangular_grid_sptr
     get_global_electric_field_component(
             Distributed_rectangular_grid const& dist_field);
     void
