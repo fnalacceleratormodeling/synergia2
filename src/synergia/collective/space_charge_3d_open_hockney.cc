@@ -38,7 +38,7 @@ template<class T, size_t C>
             bool
             operator()(Row const& a, Row const& b)
             {
-                return a.data[6] < b.data[6];
+                return a.data[4] < b.data[4];
             }
         };
 
@@ -117,7 +117,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(Commxx const& comm,
             longitudinal_kicks(longitudinal_kicks), periodic_z(periodic_z),
             z_period(z_period), grid_entire_period(grid_entire_period),
             n_sigma(n_sigma), domain_fixed(false), have_domains(false),
-            green_fn_type(pointlike)
+    green_fn_type(pointlike), calls_since_sort(10000)
 {
     if (this->periodic_z && (this->z_period == 0.0)) {
         throw std::runtime_error(
@@ -145,7 +145,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
                     longitudinal_kicks), periodic_z(periodic_z), z_period(
                     z_period), grid_entire_period(grid_entire_period), n_sigma(
                     n_sigma), domain_fixed(false), have_domains(false),
-            green_fn_type(pointlike)
+            green_fn_type(pointlike), calls_since_sort(10000)
 {
     doubled_grid_shape = distributed_fft3d_sptr->get_shape();
     for (int i = 0; i < 3; ++i) {
@@ -878,7 +878,11 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
     G2.reset();
     Distributed_rectangular_grid_sptr phi(extract_scalar_field(*phi2));
     simple_timer_show(t, "sc-get-phi");
-    sort_particles(bunch.get_local_particles(), bunch.get_local_num());
+      calls_since_sort++;
+    if (calls_since_sort > 100){
+      sort_particles(bunch.get_local_particles(), bunch.get_local_num());
+      calls_since_sort = 0;
+    }
     simple_timer_show(t, "sc-sort");
     phi2.reset();
     int max_component;
