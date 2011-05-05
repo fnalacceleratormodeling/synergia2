@@ -963,10 +963,10 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
     G2.reset();
     Distributed_rectangular_grid_sptr phi(extract_scalar_field(*phi2));
     simple_timer_show(t, "sc-get-phi");
-      calls_since_sort++;
-    if (calls_since_sort > 100){
-      sort_particles(bunch.get_local_particles(), bunch.get_local_num());
-      calls_since_sort = 0;
+    calls_since_sort++;
+    if (calls_since_sort > 100) {
+        sort_particles(bunch.get_local_particles(), bunch.get_local_num());
+        calls_since_sort = 0;
     }
     simple_timer_show(t, "sc-sort");
     phi2.reset();
