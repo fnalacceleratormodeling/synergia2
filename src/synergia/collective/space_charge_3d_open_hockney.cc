@@ -258,8 +258,10 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_charge_density2_reduce_scatter\n";
     }
+    MPI_Barrier(comm2.get());
     t0 = MPI_Wtime();
     get_global_charge_density2_reduce_scatter(fake_local_charge_density);
+    MPI_Barrier(comm2.get());
     t1 = MPI_Wtime();
     if (output) {
         std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: time = "
@@ -272,8 +274,10 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_charge_density2_allreduce\n";
     }
+    MPI_Barrier(comm2.get());
     t0 = MPI_Wtime();
     get_global_charge_density2_allreduce(fake_local_charge_density);
+    MPI_Barrier(comm2.get());
     t1 = MPI_Wtime();
     if (output) {
         std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: time = "
@@ -298,8 +302,10 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_electric_field_component_gatherv_bcast\n";
     }
+    MPI_Barrier(comm2.get());
     t0 = MPI_Wtime();
     get_global_electric_field_component_gatherv_bcast(fake_local_e_field);
+    MPI_Barrier(comm2.get());
     t1 = MPI_Wtime();
     if (output) {
         std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: time = "
@@ -312,8 +318,10 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_electric_field_component_allgatherv\n";
     }
+    MPI_Barrier(comm2.get());
     t0 = MPI_Wtime();
     get_global_electric_field_component_allgatherv(fake_local_e_field);
+    MPI_Barrier(comm2.get());
     t1 = MPI_Wtime();
     if (output) {
         std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: time = "
@@ -328,8 +336,10 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_electric_field_component_allreduce\n";
     }
+    MPI_Barrier(comm2.get());
     t0 = MPI_Wtime();
     get_global_electric_field_component_allreduce(fake_local_e_field);
+    MPI_Barrier(comm2.get());
     t1 = MPI_Wtime();
     if (output) {
         std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: time = "
@@ -337,6 +347,14 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
     }
     if ((t1 - t0) < best_time) {
         e_field_comm = e_field_allreduce;
+    }
+
+    if (output) {
+        std::cout
+                << "Space_charge_3d_open_hockney::auto_tune_comm: selected charge_density_comm = "
+                << charge_density_comm <<  std::endl
+                << "Space_charge_3d_open_hockney::auto_tune_comm: selected e_field_comm = "
+                << e_field_comm << std::endl;
     }
 }
 
