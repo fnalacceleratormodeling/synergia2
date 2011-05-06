@@ -49,7 +49,7 @@ Propagator::propagate(Bunch & bunch, int num_turns,
         Multi_diagnostics & per_step_diagnostics,
         Multi_diagnostics & per_turn_diagnostics, bool verbose)
 {
-  double t;
+    double t;
     int rank = Commxx().get_rank();
     for (int turn = 0; turn < num_turns; ++turn) {
         if (verbose) {
@@ -59,23 +59,23 @@ Propagator::propagate(Bunch & bunch, int num_turns,
             }
         }
         bunch.get_reference_particle().start_repetition();
-	simple_timer_reset(t);
+        t = simple_timer_current();
         for (Multi_diagnostics::iterator dit = per_turn_diagnostics.begin(); dit
                 != per_turn_diagnostics.end(); ++dit) {
             (*dit)->update_and_write();
         }
-	simple_timer_show(t,"diagnostics-turn");
+        t = simple_timer_show(t, "diagnostics-turn");
         int step_count = 0;
         int num_steps = stepper_sptr->get_steps().size();
         for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
                 != stepper_sptr->get_steps().end(); ++it) {
-	  simple_timer_reset(t);
+            t = simple_timer_current();
             for (Multi_diagnostics::iterator dit = per_step_diagnostics.begin(); dit
                     != per_step_diagnostics.end(); ++dit) {
                 (*dit)->update_and_write();
             }
-	simple_timer_show(t,"diagnostics-step");
-	    
+            t = simple_timer_show(t, "diagnostics-step");
+
             ++step_count;
             if (verbose) {
                 if (rank == 0) {
@@ -84,19 +84,19 @@ Propagator::propagate(Bunch & bunch, int num_turns,
                 }
             }
             (*it)->apply(bunch);
-	}
+        }
     }
-    simple_timer_reset(t);
+    t = simple_timer_current();
     for (Multi_diagnostics::iterator it = per_step_diagnostics.begin(); it
             != per_step_diagnostics.end(); ++it) {
         (*it)->update_and_write();
     }
-	simple_timer_show(t,"diagnostics-step");
+    t = simple_timer_show(t, "diagnostics-step");
     for (Multi_diagnostics::iterator it = per_turn_diagnostics.begin(); it
             != per_turn_diagnostics.end(); ++it) {
         (*it)->update_and_write();
     }
-	simple_timer_show(t,"diagnostics-turn");
+    t = simple_timer_show(t, "diagnostics-turn");
 }
 
 Propagator::~Propagator()

@@ -125,14 +125,14 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step)
         update_operations(bunch.get_reference_particle());
     }
     double t;
-    simple_timer_reset(t);
+    t = simple_timer_current();
     for (Independent_operations::iterator it = operations.begin(); it
             != operations.end(); ++it) {
         (*it)->apply(bunch);
     }
-    simple_timer_show(t,"indpendent-operation-apply");
+    t = simple_timer_show(t, "independent-operation-apply");
     apply_circular_aperture(bunch, slices);
-    simple_timer_show(t,"indpendent-operation-aperture");
+    t = simple_timer_show(t, "independent-operation-aperture");
 }
 
 void

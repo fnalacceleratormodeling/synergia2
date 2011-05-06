@@ -1,21 +1,29 @@
 #include "mpi.h"
 #include <iostream>
 
-inline void
-simple_timer_reset(double & t)
+inline double
+simple_timer_current()
 {
-  t = MPI_Wtime();
+#ifdef USE_SIMPLE_TIMER
+  return MPI_Wtime();
+#else
+  return 0.0;
+#endif // USE_SIMPLE_TIMER
 }
 
-inline void
-simple_timer_show(double & t, const char * label)
+inline double
+simple_timer_show(double t0, const char * label)
 {
+#ifdef USE_SIMPLE_TIMER
   double t1 = MPI_Wtime();
   int rank;
   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
   if (rank == 0) {
-    std::cout << label << ":" << (t1-t) << std::endl;
+    std::cout << label << ":" << (t1-t0) << std::endl;
   }
-  t = MPI_Wtime();
+  return MPI_Wtime();
+#else
+  return 0.0;
+#endif // USE_SIMPLE_TIMER
 }
-    
+
