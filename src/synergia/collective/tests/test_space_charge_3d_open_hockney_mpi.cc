@@ -92,6 +92,12 @@ BOOST_AUTO_TEST_CASE(get_n_sigma)
     BOOST_CHECK_CLOSE(space_charge.get_n_sigma(), n_sigma, tolerance);
 }
 
+BOOST_FIXTURE_TEST_CASE(auto_tune_comm, Ellipsoidal_bunch_fixture)
+{
+    Space_charge_3d_open_hockney space_charge(comm, grid_shape);
+    space_charge.auto_tune_comm(false);
+}
+
 BOOST_FIXTURE_TEST_CASE(update_domain, Ellipsoidal_bunch_fixture)
 {
     Space_charge_3d_open_hockney space_charge(comm, grid_shape);

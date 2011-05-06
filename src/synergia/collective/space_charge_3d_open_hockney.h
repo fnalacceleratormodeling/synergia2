@@ -20,7 +20,7 @@ public:
     };
     enum Charge_density_comm
     {
-        reducescatter = 1, charge_allreduce = 2
+        reduce_scatter = 1, charge_allreduce = 2
     };
     enum E_field_comm
     {

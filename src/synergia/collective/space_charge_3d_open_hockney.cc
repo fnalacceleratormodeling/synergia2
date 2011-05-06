@@ -114,7 +114,7 @@ void
 Space_charge_3d_open_hockney::setup_default_options()
 {
     set_green_fn_type(pointlike);
-    set_charge_density_comm(reducescatter);
+    set_charge_density_comm(reduce_scatter);
     set_e_field_comm(allgatherv);
 }
 
@@ -199,7 +199,7 @@ Space_charge_3d_open_hockney::set_charge_density_comm(
         Charge_density_comm charge_density_comm)
 {
     switch (charge_density_comm) {
-    case reducescatter:
+    case reduce_scatter:
         break;
     case charge_allreduce:
         break;
@@ -243,11 +243,100 @@ Space_charge_3d_open_hockney::get_e_field_comm() const
 void
 Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
 {
-    if (verbose) {
-        if (comm2.get_rank() == 0) {
-            std::cout
-                    << "comm_auto_tune should really do something, but it doesn't.\n";
-        }
+    bool output = verbose && (comm2.get_rank() == 0);
+    double t0, t1;
+
+    std::vector<double > size(3), offset(3);
+    size[0] = size[1] = size[2] = 1.0;
+    offset[0] = offset[1] = offset[2] = 0.0;
+
+    domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
+            size, offset, grid_shape, periodic_z));
+    set_doubled_domain();
+    Rectangular_grid fake_local_charge_density(domain_sptr);
+    if (output) {
+        std::cout
+                << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_charge_density2_reduce_scatter\n";
+    }
+    t0 = MPI_Wtime();
+    get_global_charge_density2_reduce_scatter(fake_local_charge_density);
+    t1 = MPI_Wtime();
+    if (output) {
+        std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: time = "
+                << t1 - t0 << " seconds\n";
+    }
+    double best_time = t1 - t0;
+    charge_density_comm = reduce_scatter;
+
+    if (output) {
+        std::cout
+                << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_charge_density2_allreduce\n";
+    }
+    t0 = MPI_Wtime();
+    get_global_charge_density2_allreduce(fake_local_charge_density);
+    t1 = MPI_Wtime();
+    if (output) {
+        std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: time = "
+                << t1 - t0 << " seconds\n";
+    }
+    if ((t1 - t0) < best_time) {
+        charge_density_comm = charge_allreduce;
+    }
+    int doubled_lower;
+    int my_rank = comm2.get_rank();
+    if (my_rank > 0) {
+        doubled_lower = distributed_fft3d_sptr->get_uppers()[my_rank - 1];
+    } else {
+        doubled_lower = 0;
+    }
+    int doubled_upper = distributed_fft3d_sptr->get_uppers()[my_rank];
+
+    Distributed_rectangular_grid fake_local_e_field(doubled_domain_sptr,
+            doubled_lower, doubled_upper,
+            distributed_fft3d_sptr->get_padded_shape_real(), comm2);
+    if (output) {
+        std::cout
+                << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_electric_field_component_gatherv_bcast\n";
+    }
+    t0 = MPI_Wtime();
+    get_global_electric_field_component_gatherv_bcast(fake_local_e_field);
+    t1 = MPI_Wtime();
+    if (output) {
+        std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: time = "
+                << t1 - t0 << " seconds\n";
+    }
+    best_time = t1 - t0;
+    e_field_comm = gatherv_bcast;
+
+    if (output) {
+        std::cout
+                << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_electric_field_component_allgatherv\n";
+    }
+    t0 = MPI_Wtime();
+    get_global_electric_field_component_allgatherv(fake_local_e_field);
+    t1 = MPI_Wtime();
+    if (output) {
+        std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: time = "
+                << t1 - t0 << " seconds\n";
+    }
+    if ((t1 - t0) < best_time) {
+        best_time = t1 - t0;
+        e_field_comm = allgatherv;
+    }
+
+    if (output) {
+        std::cout
+                << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_electric_field_component_allreduce\n";
+    }
+    t0 = MPI_Wtime();
+    get_global_electric_field_component_allreduce(fake_local_e_field);
+    t1 = MPI_Wtime();
+    if (output) {
+        std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: time = "
+                << t1 - t0 << " seconds\n";
+    }
+    if ((t1 - t0) < best_time) {
+        e_field_comm = e_field_allreduce;
     }
 }
 
@@ -470,7 +559,7 @@ Space_charge_3d_open_hockney::get_global_charge_density2(
         Rectangular_grid const& local_charge_density)
 {
     switch (charge_density_comm) {
-    case reducescatter:
+    case reduce_scatter:
         return get_global_charge_density2_reduce_scatter(local_charge_density);
     case charge_allreduce:
         return get_global_charge_density2_allreduce(local_charge_density);
@@ -959,7 +1048,8 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_allreduce(
         }
     }
 
-    for (int i = dist_field.get_lower(); i < dist_field.get_upper(); ++i) {
+    for (int i = dist_field.get_lower(); i < std::min(grid_shape[0],
+            dist_field.get_upper()); ++i) {
         for (int j = 0; j < grid_shape[1]; ++j) {
             for (int k = 0; k < grid_shape[2]; ++k) {
                 global_field->get_grid_points()[i][j][k]

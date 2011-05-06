@@ -128,7 +128,8 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn_type, Ellipsoidal_bunch_fixture)
 BOOST_FIXTURE_TEST_CASE(set_charge_density_comm, Ellipsoidal_bunch_fixture)
 {
     Space_charge_3d_open_hockney space_charge(comm, grid_shape);
-    space_charge.set_charge_density_comm(Space_charge_3d_open_hockney::reducescatter);
+    space_charge.set_charge_density_comm(
+            Space_charge_3d_open_hockney::reduce_scatter);
 }
 
 BOOST_FIXTURE_TEST_CASE(set_charge_density_comm_bad, Ellipsoidal_bunch_fixture)
@@ -150,10 +151,12 @@ BOOST_FIXTURE_TEST_CASE(set_charge_density_comm_bad, Ellipsoidal_bunch_fixture)
 BOOST_FIXTURE_TEST_CASE(get_charge_density_comm, Ellipsoidal_bunch_fixture)
 {
     Space_charge_3d_open_hockney space_charge(comm, grid_shape);
-    space_charge.set_charge_density_comm(Space_charge_3d_open_hockney::reducescatter);
+    space_charge.set_charge_density_comm(
+            Space_charge_3d_open_hockney::reduce_scatter);
     BOOST_CHECK_EQUAL(space_charge.get_charge_density_comm(),
-            Space_charge_3d_open_hockney::reducescatter);
-    space_charge.set_charge_density_comm(Space_charge_3d_open_hockney::charge_allreduce);
+            Space_charge_3d_open_hockney::reduce_scatter);
+    space_charge.set_charge_density_comm(
+            Space_charge_3d_open_hockney::charge_allreduce);
     BOOST_CHECK_EQUAL(space_charge.get_charge_density_comm(),
             Space_charge_3d_open_hockney::charge_allreduce);
 }
@@ -186,9 +189,16 @@ BOOST_FIXTURE_TEST_CASE(get_e_field_comm, Ellipsoidal_bunch_fixture)
     space_charge.set_e_field_comm(Space_charge_3d_open_hockney::gatherv_bcast);
     BOOST_CHECK_EQUAL(space_charge.get_e_field_comm(),
             Space_charge_3d_open_hockney::gatherv_bcast);
-    space_charge.set_e_field_comm(Space_charge_3d_open_hockney::e_field_allreduce);
+    space_charge.set_e_field_comm(
+            Space_charge_3d_open_hockney::e_field_allreduce);
     BOOST_CHECK_EQUAL(space_charge.get_e_field_comm(),
             Space_charge_3d_open_hockney::e_field_allreduce);
+}
+
+BOOST_FIXTURE_TEST_CASE(auto_tune_comm, Ellipsoidal_bunch_fixture)
+{
+    Space_charge_3d_open_hockney space_charge(comm, grid_shape);
+    space_charge.auto_tune_comm(false);
 }
 
 BOOST_FIXTURE_TEST_CASE(update_domain, Ellipsoidal_bunch_fixture)
