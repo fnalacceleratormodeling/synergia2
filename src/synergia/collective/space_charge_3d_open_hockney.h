@@ -24,7 +24,7 @@ public:
     };
     enum E_field_comm
     {
-        gatherv_bcast = 1, allgatherv = 2, efield_allreduce = 3
+        gatherv_bcast = 1, allgatherv = 2, e_field_allreduce = 3
     };
 private:
     std::vector<int > grid_shape, doubled_grid_shape, padded_grid_shape;
@@ -48,6 +48,8 @@ private:
     int calls_since_sort;
     void
     setup_nondoubled_communication();
+    void
+    setup_default_options();
     void
     set_doubled_domain();
 public:
@@ -76,7 +78,7 @@ public:
     E_field_comm
     get_e_field_comm() const;
     void
-    comm_auto_tune(bool verbose = false);
+    auto_tune_comm(bool verbose = false);
     void
     set_fixed_domain(Rectangular_grid_domain_sptr domain_sptr);
     void
@@ -85,13 +87,17 @@ public:
     get_domain_sptr() const;
     Rectangular_grid_domain_sptr
     get_doubled_domain_sptr() const;
-    /// Returns local charge density on original grid in [C/m^3]
-    Rectangular_grid_sptr
-    get_local_charge_density(Bunch const& bunch);
     /// Returns global charge density on doubled grid in [C/m^3]
     Distributed_rectangular_grid_sptr
     get_global_charge_density2_reduce_scatter(
             Rectangular_grid const& local_charge_density);
+    /// Returns global charge density on doubled grid in [C/m^3]
+    Distributed_rectangular_grid_sptr
+    get_global_charge_density2_allreduce(
+            Rectangular_grid const& local_charge_density);
+    /// Returns local charge density on original grid in [C/m^3]
+    Rectangular_grid_sptr
+    get_local_charge_density(Bunch const& bunch);
     /// Returns global charge density on doubled grid in [C/m^3]
     Distributed_rectangular_grid_sptr
     get_global_charge_density2(Rectangular_grid const& local_charge_density);

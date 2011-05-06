@@ -110,6 +110,14 @@ Space_charge_3d_open_hockney::setup_nondoubled_communication()
     comm1.set(mpi_comm1);
 }
 
+void
+Space_charge_3d_open_hockney::setup_default_options()
+{
+    set_green_fn_type(pointlike);
+    set_charge_density_comm(reducescatter);
+    set_e_field_comm(allgatherv);
+}
+
 Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(Commxx const& comm,
         std::vector<int > const & grid_shape, bool longitudinal_kicks,
         bool periodic_z, double z_period, bool grid_entire_period,
@@ -119,8 +127,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(Commxx const& comm,
             longitudinal_kicks(longitudinal_kicks), periodic_z(periodic_z),
             z_period(z_period), grid_entire_period(grid_entire_period),
             n_sigma(n_sigma), domain_fixed(false), have_domains(false),
-            green_fn_type(pointlike), charge_density_comm(reducescatter),
-            e_field_comm(efield_allreduce), calls_since_sort(10000)
+            calls_since_sort(10000)
 {
     if (this->periodic_z && (this->z_period == 0.0)) {
         throw std::runtime_error(
@@ -136,6 +143,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(Commxx const& comm,
             doubled_grid_shape, comm));
     padded_grid_shape = distributed_fft3d_sptr->get_padded_shape_real();
     setup_nondoubled_communication();
+    setup_default_options();
 }
 
 Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
@@ -148,8 +156,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
                     longitudinal_kicks), periodic_z(periodic_z), z_period(
                     z_period), grid_entire_period(grid_entire_period), n_sigma(
                     n_sigma), domain_fixed(false), have_domains(false),
-            green_fn_type(pointlike), charge_density_comm(reducescatter),
-            e_field_comm(efield_allreduce), calls_since_sort(10000)
+            calls_since_sort(10000)
 {
     doubled_grid_shape = distributed_fft3d_sptr->get_shape();
     for (int i = 0; i < 3; ++i) {
@@ -157,6 +164,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
     }
     padded_grid_shape = distributed_fft3d_sptr->get_padded_shape_real();
     setup_nondoubled_communication();
+    setup_default_options();
 }
 
 double
@@ -168,6 +176,15 @@ Space_charge_3d_open_hockney::get_n_sigma() const
 void
 Space_charge_3d_open_hockney::set_green_fn_type(Green_fn_type green_fn_type)
 {
+    switch (green_fn_type) {
+    case pointlike:
+        break;
+    case linear:
+        break;
+    default:
+        throw runtime_error(
+                "Space_charge_3d_open_hockney::set_green_fn_type: invalid green_fn_type");
+    }
     this->green_fn_type = green_fn_type;
 }
 
@@ -181,6 +198,15 @@ void
 Space_charge_3d_open_hockney::set_charge_density_comm(
         Charge_density_comm charge_density_comm)
 {
+    switch (charge_density_comm) {
+    case reducescatter:
+        break;
+    case charge_allreduce:
+        break;
+    default:
+        throw runtime_error(
+                "Space_charge_3d_open_hockney::set_charge_density_comm: invalid charge_density_comm");
+    }
     this->charge_density_comm = charge_density_comm;
 }
 
@@ -193,6 +219,18 @@ Space_charge_3d_open_hockney::get_charge_density_comm() const
 void
 Space_charge_3d_open_hockney::set_e_field_comm(E_field_comm e_field_comm)
 {
+    switch (e_field_comm) {
+    case gatherv_bcast:
+        break;
+    case allgatherv:
+        break;
+    case e_field_allreduce:
+        break;
+    default:
+        throw runtime_error(
+                "Space_charge_3d_open_hockney::set_e_field_comm: invalid e_field_comm");
+    }
+
     this->e_field_comm = e_field_comm;
 }
 
@@ -203,7 +241,7 @@ Space_charge_3d_open_hockney::get_e_field_comm() const
 }
 
 void
-Space_charge_3d_open_hockney::comm_auto_tune(bool verbose)
+Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
 {
     if (verbose) {
         if (comm2.get_rank() == 0) {
@@ -368,7 +406,7 @@ Space_charge_3d_open_hockney::get_global_charge_density2_reduce_scatter(
 }
 
 Distributed_rectangular_grid_sptr
-Space_charge_3d_open_hockney::get_global_charge_density2(
+Space_charge_3d_open_hockney::get_global_charge_density2_allreduce(
         Rectangular_grid const& local_charge_density)
 {
     void * source = (void*) local_charge_density.get_grid_points().origin();
@@ -425,6 +463,21 @@ Space_charge_3d_open_hockney::get_global_charge_density2(
         }
     }
     return rho2;
+}
+
+Distributed_rectangular_grid_sptr
+Space_charge_3d_open_hockney::get_global_charge_density2(
+        Rectangular_grid const& local_charge_density)
+{
+    switch (charge_density_comm) {
+    case reducescatter:
+        return get_global_charge_density2_reduce_scatter(local_charge_density);
+    case charge_allreduce:
+        return get_global_charge_density2_allreduce(local_charge_density);
+    default:
+        throw runtime_error(
+                "Space_charge_3d_open_hockney: invalid charge_density_comm");
+    }
 }
 
 Distributed_rectangular_grid_sptr
@@ -931,15 +984,16 @@ Rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_global_electric_field_component(
         Distributed_rectangular_grid const& dist_field)
 {
-    if (e_field_comm == gatherv_bcast) {
+    switch (e_field_comm) {
+    case gatherv_bcast:
         return get_global_electric_field_component_gatherv_bcast(dist_field);
-    } else if (e_field_comm == allgatherv) {
+    case allgatherv:
         return get_global_electric_field_component_allgatherv(dist_field);
-    } else if (e_field_comm == efield_allreduce) {
+    case e_field_allreduce:
         return get_global_electric_field_component_allreduce(dist_field);
-    } else {
+    default:
         throw runtime_error(
-                "Space_charge_3d_open_hockney: undefined e_field_comm");
+                "Space_charge_3d_open_hockney: invalid e_field_comm");
     }
 }
 
