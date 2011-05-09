@@ -352,7 +352,7 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
     if (output) {
         std::cout
                 << "Space_charge_3d_open_hockney::auto_tune_comm: selected charge_density_comm = "
-                << charge_density_comm <<  std::endl
+                << charge_density_comm << std::endl
                 << "Space_charge_3d_open_hockney::auto_tune_comm: selected e_field_comm = "
                 << e_field_comm << std::endl;
     }
@@ -516,13 +516,11 @@ Distributed_rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_global_charge_density2_allreduce(
         Rectangular_grid const& local_charge_density)
 {
-    void * source = (void*) local_charge_density.get_grid_points().origin();
-    MArray3d dest_array(
-            boost::extents[grid_shape[0]][grid_shape[1]][grid_shape[2]]);
-    void * dest = (void*) dest_array.origin();
     int error;
-    error = MPI_Allreduce(source, dest, dest_array.num_elements(), MPI_DOUBLE,
-            MPI_SUM, comm2.get());
+    error = MPI_Allreduce(MPI_IN_PLACE,
+            (void*) local_charge_density.get_grid_points().origin(),
+            local_charge_density.get_grid_points().size(), MPI_DOUBLE, MPI_SUM,
+            comm2.get());
 
     std::vector<int > real_uppers(distributed_fft3d_sptr->get_uppers());
     std::vector<int > real_lengths(distributed_fft3d_sptr->get_lengths());
@@ -565,7 +563,8 @@ Space_charge_3d_open_hockney::get_global_charge_density2_allreduce(
     for (int i = real_lower; i < real_uppers[my_rank]; ++i) {
         for (int j = 0; j < grid_shape[1]; ++j) {
             for (int k = 0; k < grid_shape[2]; ++k) {
-                rho2->get_grid_points()[i][j][k] = dest_array[i][j][k];
+                rho2->get_grid_points()[i][j][k]
+                        = local_charge_density.get_grid_points()[i][j][k];
             }
         }
     }
