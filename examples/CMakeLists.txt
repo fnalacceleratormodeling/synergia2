@@ -1,1 +1,2 @@
 add_subdirectory(cxx_test)
+add_subdirectory(cxx_benchmark)
