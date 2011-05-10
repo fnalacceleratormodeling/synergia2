@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="7">
+<object class_id="0" tracking_level="0" version="0">
+	<name>fodo</name>
+	<reference_particle_allocated>1</reference_particle_allocated>
+	<reference_particle_ptr class_id="1" tracking_level="1" version="0" object_id="_0">
+		<charge>1</charge>
+		<four_momentum class_id="2" tracking_level="0" version="0">
+			<mass>0.93827203000000003</mass>
+			<energy>1.5</energy>
+			<momentum>1.1703185881287534</momentum>
+			<gamma>1.5986834862806258</gamma>
+			<beta>0.7802123920858357</beta>
+		</four_momentum>
+		<state class_id="3" tracking_level="0" version="0">
+			<shape_0>6</shape_0>
+			<item>0</item>
+			<item>0</item>
+			<item>0</item>
+			<item>0</item>
+			<item>0</item>
+			<item>0</item>
+		</state>
+		<repetition>0</repetition>
+		<repetition_length>0</repetition_length>
+		<s>0</s>
+	</reference_particle_ptr>
+	<elements class_id="4" tracking_level="0" version="0">
+		<count>4</count>
+		<item_version>1</item_version>
+		<item class_id="5" tracking_level="0" version="1">
+			<px class_id="6" tracking_level="1" version="0" object_id="_1">
+				<type>quadrupole</type>
+				<name>f</name>
+				<ancestors class_id="7" tracking_level="0" version="0">
+					<count>1</count>
+					<item_version>0</item_version>
+					<item>fodo</item>
+				</ancestors>
+				<double_attributes class_id="8" tracking_level="0" version="0">
+					<count>2</count>
+					<item_version>0</item_version>
+					<item class_id="9" tracking_level="0" version="0">
+						<first>k1</first>
+						<second>0.071428571428571425</second>
+					</item>
+					<item>
+						<first>l</first>
+						<second>2</second>
+					</item>
+				</double_attributes>
+				<string_attributes class_id="10" tracking_level="0" version="0">
+					<count>0</count>
+					<item_version>0</item_version>
+				</string_attributes>
+				<length_attribute_name>l</length_attribute_name>
+				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+			</px>
+		</item>
+		<item>
+			<px class_id_reference="6" object_id="_2">
+				<type>drift</type>
+				<name>o</name>
+				<ancestors>
+					<count>1</count>
+					<item_version>0</item_version>
+					<item>fodo</item>
+				</ancestors>
+				<double_attributes>
+					<count>1</count>
+					<item_version>0</item_version>
+					<item>
+						<first>l</first>
+						<second>8</second>
+					</item>
+				</double_attributes>
+				<string_attributes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</string_attributes>
+				<length_attribute_name>l</length_attribute_name>
+				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+			</px>
+		</item>
+		<item>
+			<px class_id_reference="6" object_id="_3">
+				<type>quadrupole</type>
+				<name>d</name>
+				<ancestors>
+					<count>1</count>
+					<item_version>0</item_version>
+					<item>fodo</item>
+				</ancestors>
+				<double_attributes>
+					<count>2</count>
+					<item_version>0</item_version>
+					<item>
+						<first>k1</first>
+						<second>-0.071428571428571425</second>
+					</item>
+					<item>
+						<first>l</first>
+						<second>2</second>
+					</item>
+				</double_attributes>
+				<string_attributes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</string_attributes>
+				<length_attribute_name>l</length_attribute_name>
+				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+			</px>
+		</item>
+		<item>
+			<px class_id_reference="6" object_id="_4">
+				<type>drift</type>
+				<name>o</name>
+				<ancestors>
+					<count>1</count>
+					<item_version>0</item_version>
+					<item>fodo</item>
+				</ancestors>
+				<double_attributes>
+					<count>1</count>
+					<item_version>0</item_version>
+					<item>
+						<first>l</first>
+						<second>8</second>
+					</item>
+				</double_attributes>
+				<string_attributes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</string_attributes>
+				<length_attribute_name>l</length_attribute_name>
+				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+			</px>
+		</item>
+	</elements>
+</object>
