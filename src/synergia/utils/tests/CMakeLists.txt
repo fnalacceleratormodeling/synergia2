@@ -52,6 +52,11 @@ target_link_libraries(test_multi_array_serialization ${Boost_SERIALIZATION_LIBRA
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_multi_array_serialization test_multi_array_serialization)
 
+add_executable(test_command_line_arg test_command_line_arg.cc)
+target_link_libraries(test_command_line_arg synergia_command_line
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_command_line_arg test_command_line_arg)
+
 set(CLEAN_FILES
     array1d.h5
     array2d.h5

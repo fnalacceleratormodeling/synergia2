@@ -9,6 +9,8 @@ target_link_libraries(synergia_hdf5_utils ${HDF5_LIBRARIES})
 add_library(synergia_distributed_fft SHARED distributed_fft3d.cc)
 target_link_libraries(synergia_distributed_fft ${PARALLEL_FFTW_LIBRARIES} synergia_parallel_utils)
 
+add_library(synergia_command_line SHARED command_line_arg.cc)
+
 install(TARGETS
     synergia_parallel_utils
     synergia_hdf5_utils
@@ -17,6 +19,7 @@ install(TARGETS
 install(FILES
     boost_test_mpi_fixture.h
     comm_converter.h
+    command_line_arg.h
     commxx.h
     container_conversions.h
     distributed_fft3d.h

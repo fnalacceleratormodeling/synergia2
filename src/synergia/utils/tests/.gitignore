@@ -9,5 +9,6 @@ test_distributed_fft3d_mpi
 test_xml_serialization
 test_multi_array_offsets
 test_multi_array_serialization
+test_command_line_arg
 *.xml
 *.h5
