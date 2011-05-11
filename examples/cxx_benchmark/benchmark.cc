@@ -13,16 +13,18 @@
 #include "synergia/bunch/diagnostics.h"
 #include "synergia/collective/space_charge_3d_open_hockney.h"
 
+#include "benchmark_options.h"
+
 // We put the actual code in a separate function so that shared_ptr's can
 // be cleanup up properly before we call MPI_Finalize.
 void
-run()
+run(Benchmark_options const& opts)
 {
     std::vector<int > grid_shape(3);
-    grid_shape[0] = 16;
-    grid_shape[1] = 16;
-    grid_shape[2] = 16;
-    const int part_per_cell = 10;
+    grid_shape[0] = opts.gridx;
+    grid_shape[1] = opts.gridy;
+    grid_shape[2] = opts.gridz;
+    const int part_per_cell = opts.partpercell;
     const int num_macro_particles = grid_shape[0] * grid_shape[1]
             * grid_shape[2] * part_per_cell;
     const int seed = 4;
@@ -72,7 +74,8 @@ int
 main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
-    run();
+    Benchmark_options opts(argc, argv);
+    run(opts);
     MPI_Finalize();
     return 0;
 }
