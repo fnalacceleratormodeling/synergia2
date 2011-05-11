@@ -9,8 +9,12 @@ class _option:
         self.val_type = val_type
         if type(default_value) == type([]):
             self.length = len(default_value)
+            if self.val_type == None:
+                self.val_type = type(default_value[0])
         else:
             self.length = 1
+            if self.val_type == None:
+                self.val_type = type(default_value)
 
     def _apply_val_type(self, val):
         val = str(val)
@@ -57,7 +61,7 @@ class Options:
     def options_name(self):
         return self.name
 
-    def add(self, option, default_value, doc_string, val_type):
+    def add(self, option, default_value, doc_string, val_type = None):
         '''Add a new option definition'''
         if hasattr(self, option):
             raise RuntimeError('Options: option name "' + option +
