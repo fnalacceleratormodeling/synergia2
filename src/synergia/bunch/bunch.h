@@ -31,6 +31,7 @@ private:
     MArray2d *local_particles;
     int local_num, total_num;
     double real_num;
+    int sort_period, sort_counter;
     State state;
     Commxx comm;
     Fixed_t_z_converter *converter_ptr;
@@ -90,6 +91,22 @@ public:
     void
     update_total_num();
 
+    /// Set the period for periodic_sort and reset the counter
+    /// Periods less than zero will prohibit sorting.
+    /// @param period
+    void
+    set_sort_period(int period);
+
+    /// Sort the particles
+    /// @param index the particle index on which to sort
+    void
+    sort(int index);
+
+    /// Sort the particles every sort period calls
+    /// @param index the particle index on which to sort
+    void
+    periodic_sort(int index);
+
     /// Set the Fixed_t_z_converter class to be used when converting between
     /// fixed-t and fixed-z representations.
     /// @param converter the converter class
@@ -139,6 +156,10 @@ public:
     /// Get the total number of macroparticles.
     int
     get_total_num() const;
+
+    /// Get the period for periodic_sort
+    int
+    get_sort_period() const;
 
     /// Get the (fixed-t or fixed-z) state.
     State

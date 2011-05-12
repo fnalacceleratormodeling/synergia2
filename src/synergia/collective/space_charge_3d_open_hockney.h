@@ -45,7 +45,6 @@ private:
     double n_sigma;
     bool domain_fixed;
     bool have_domains;
-    int calls_since_sort;
     void
     setup_nondoubled_communication();
     void

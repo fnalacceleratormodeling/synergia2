@@ -1,5 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
+#include <cstdlib>
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/diagnostics.h"
@@ -47,6 +48,18 @@ dummy_populate(Bunch &bunch, int offset = 0)
             bunch.get_local_particles()[part][i] = 1e-4 * (10.0 * (part
                     + offset) + i);
         }
+    }
+}
+
+void
+random_populate(Bunch &bunch)
+{
+    for (int part = 0; part < bunch.get_local_num(); ++part) {
+        for (int i = 0; i < 6; i += 1) {
+            bunch.get_local_particles()[part][i] = double(std::rand())
+                    / RAND_MAX;
+        }
+        bunch.get_local_particles()[part][6] = part;
     }
 }
 
@@ -190,6 +203,70 @@ BOOST_FIXTURE_TEST_CASE(update_total_num, Fixture)
     bunch.update_total_num();
     BOOST_CHECK_EQUAL(bunch.get_total_num(),
             new_local_num*Commxx(MPI_COMM_WORLD).get_size());
+}
+
+BOOST_FIXTURE_TEST_CASE(set_get_sort_period, Fixture)
+{
+    const int new_period = 17;
+    bunch.set_sort_period(new_period);
+    BOOST_CHECK_EQUAL(bunch.get_sort_period(), new_period);
+}
+
+bool
+sorted(Bunch const& bunch, int index)
+{
+    bool retval = true;
+    for (int part = 1; part < bunch.get_local_num(); ++part) {
+        if (bunch.get_local_particles()[part][index]
+                < bunch.get_local_particles()[part - 1][index]) {
+            retval = false;
+        }
+    }
+    return retval;
+}
+
+BOOST_FIXTURE_TEST_CASE(sort, Fixture)
+{
+    random_populate(bunch);
+    for (int sort_index = 0; sort_index < 6; ++sort_index) {
+        bunch.sort(sort_index);
+        BOOST_CHECK(sorted(bunch, sort_index));
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(sort_bad, Fixture)
+{
+    bool caught_error = false;
+    try {
+        bunch.sort(-1);
+    }
+    catch (std::runtime_error) {
+        caught_error = true;
+    }
+    BOOST_CHECK(caught_error);
+
+    caught_error = false;
+    try {
+        bunch.sort(7);
+    }
+    catch (std::runtime_error) {
+        caught_error = true;
+    }
+    BOOST_CHECK(caught_error);
+}
+
+BOOST_FIXTURE_TEST_CASE(periodic_sort, Fixture)
+{
+    random_populate(bunch);
+    const int sort_index = 1;
+    const int sort_period = 7;
+    bunch.set_sort_period(sort_period);
+    for (int i = 0; i < sort_period; ++i) {
+        bunch.periodic_sort(sort_index);
+        BOOST_CHECK(!sorted(bunch, sort_index));
+    }
+    bunch.periodic_sort(sort_index);
+    BOOST_CHECK(sorted(bunch, sort_index));
 }
 
 BOOST_FIXTURE_TEST_CASE(get_reference_particle, Fixture)

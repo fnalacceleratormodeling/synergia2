@@ -2,6 +2,7 @@
 #include "synergia/utils/parallel_utils.h"
 #include <stdexcept>
 #include <cmath>
+#include <algorithm>
 
 const int Bunch::x;
 const int Bunch::xp;
@@ -54,9 +55,59 @@ Bunch::assign_ids(int local_offset)
     }
 }
 
+template<class T, size_t C, int I>
+    struct Sortable2d
+    {
+        typedef T data_type;
+    };
+
+template<class T, size_t C, int I>
+    struct Sortable2d<T*, C, I >
+    {
+        typedef T data_type;
+        typedef T arr_type[][C];
+        typedef T row_type[C];
+        struct Row
+        {
+            row_type data;
+        };
+        typedef Row cols_type[];
+
+        Sortable2d(double* t, size_t sz) :
+            ptr_(t), rows_(sz)
+        {
+        }
+
+        struct Less
+        {
+            bool
+            operator()(Row const& a, Row const& b)
+            {
+                return a.data[I] < b.data[I];
+            }
+        };
+
+        Row*
+        begin()
+        {
+            return (Row*) ptr_;
+        }
+
+        Row*
+        end()
+        {
+            return (Row*) (ptr_ + (rows_ * C));
+        }
+
+        double* ptr_;
+        size_t rows_;
+    };
+
 void
 Bunch::construct(int particle_charge, int total_num, double real_num)
 {
+    sort_counter = 0;
+    sort_period = 10000;
     this->particle_charge = particle_charge;
     this->total_num = total_num;
     this->real_num = real_num;
@@ -153,6 +204,63 @@ Bunch::update_total_num()
 }
 
 void
+Bunch::set_sort_period(int period)
+{
+    sort_period = period;
+    sort_counter = period;
+}
+
+void
+Bunch::sort(int index)
+{
+    if (index == 0) {
+        Sortable2d<double*, 7, 0 > sortable(local_particles->origin(),
+                local_num);
+        std::sort(sortable.begin(), sortable.end(),
+                Sortable2d<double*, 7, 0 >::Less());
+    } else if (index == 1) {
+        Sortable2d<double*, 7, 1 > sortable(local_particles->origin(),
+                local_num);
+        std::sort(sortable.begin(), sortable.end(),
+                Sortable2d<double*, 7, 1 >::Less());
+    } else if (index == 2) {
+        Sortable2d<double*, 7, 2 > sortable(local_particles->origin(),
+                local_num);
+        std::sort(sortable.begin(), sortable.end(),
+                Sortable2d<double*, 7, 2 >::Less());
+    } else if (index == 3) {
+        Sortable2d<double*, 7, 3 > sortable(local_particles->origin(),
+                local_num);
+        std::sort(sortable.begin(), sortable.end(),
+                Sortable2d<double*, 7, 3 >::Less());
+    } else if (index == 4) {
+        Sortable2d<double*, 7, 4 > sortable(local_particles->origin(),
+                local_num);
+        std::sort(sortable.begin(), sortable.end(),
+                Sortable2d<double*, 7, 4 >::Less());
+    } else if (index == 5) {
+        Sortable2d<double*, 7, 5 > sortable(local_particles->origin(),
+                local_num);
+        std::sort(sortable.begin(), sortable.end(),
+                Sortable2d<double*, 7, 5 >::Less());
+    } else {
+        throw std::runtime_error("Bunch::sort: invalid index");
+    }
+
+    sort_counter = sort_period;
+}
+
+void
+Bunch::periodic_sort(int index)
+{
+    if (sort_counter == 0) {
+        sort(index);
+    } else {
+        --sort_counter;
+    }
+}
+
+void
 Bunch::set_converter(Fixed_t_z_converter &converter)
 {
     this->converter_ptr = &converter;
@@ -226,6 +334,12 @@ int
 Bunch::get_total_num() const
 {
     return total_num;
+}
+
+int
+Bunch::get_sort_period() const
+{
+    return sort_period;
 }
 
 Bunch::State
