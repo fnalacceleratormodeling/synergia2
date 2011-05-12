@@ -1,0 +1,15 @@
+#!/bin/sh
+. "/home/amundson/work/synergia2-old_devel_1_0/setup.sh"
+
+cd `dirname "$0"`
+echo "job start at `date`"
+mpirun -np @@numproc@@ @@synergia_executable@@ @@script@@ @@args@@ > synergia.out 2> synergia.err
+retval=$?
+if [ x"$retval" != x"0" ]; then
+	echo "job failed with return value $retval"
+fi
+echo "job end at `date`."
+echo "output written to synergia.out and synergia.err"
+
+
+
