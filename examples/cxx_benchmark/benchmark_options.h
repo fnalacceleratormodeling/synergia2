@@ -9,10 +9,13 @@
 struct Benchmark_options
 {
     Benchmark_options(int argc, char **argv);
-    bool spacecharge;
     int partpercell;
     int gridy;
     int gridx;
     int gridz;
+    bool autotune;
+    int efieldcomm;
+    int chargecomm;
+    int sortperiod;
 };
 #endif /* BENCHMARK_OPTIONS_H_ */

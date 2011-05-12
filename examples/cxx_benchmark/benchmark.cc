@@ -47,6 +47,19 @@ run(Benchmark_options const& opts)
     }
     Space_charge_3d_open_hockney_sptr space_charge_sptr(
             new Space_charge_3d_open_hockney(Commxx(), grid_shape));
+    if (opts.autotune) {
+        space_charge_sptr->auto_tune_comm(true);
+    } else {
+        if (opts.chargecomm > 0) {
+            space_charge_sptr->set_charge_density_comm(
+                    Space_charge_3d_open_hockney::Charge_density_comm(
+                            opts.chargecomm));
+        }
+        if (opts.efieldcomm > 0) {
+            space_charge_sptr->set_e_field_comm(
+                    Space_charge_3d_open_hockney::E_field_comm(opts.efieldcomm));
+        }
+    }
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     Split_operator_stepper_sptr stepper_sptr(new Split_operator_stepper(
             lattice_simulator, space_charge_sptr, num_steps));
@@ -61,6 +74,10 @@ run(Benchmark_options const& opts)
     MArray2d covariances;
     xml_load(covariances, "cxx_covariance_matrix.xml");
     populate_6d(distribution, *bunch_sptr, means, covariances);
+    if (opts.sortperiod > 0) {
+        bunch_sptr->sort(Bunch::z);
+    }
+    bunch_sptr->set_sort_period(opts.sortperiod);
 
     Diagnostics_basic per_step_diagnostics(bunch_sptr,
             "cxx_example_per_step.h5");

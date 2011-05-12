@@ -6,18 +6,19 @@
 // DO NOT EDIT
 
 Benchmark_options::Benchmark_options(int argc, char **argv) :
-    spacecharge(true),
     partpercell(10),
     gridy(32),
     gridx(32),
-    gridz(64)
+    gridz(64),
+    autotune(true),
+    efieldcomm(0),
+    chargecomm(0),
+    sortperiod(1000)
 {
     for (int i = 1; i < argc; ++i) {
         Command_line_arg arg(argv[i]);
         if (arg.is_equal_pair()) {
-            if (arg.get_lhs() == "spacecharge") {
-                spacecharge = arg.extract_value<bool >();
-            } else if (arg.get_lhs() == "partpercell") {
+            if (arg.get_lhs() == "partpercell") {
                 partpercell = arg.extract_value<int >();
             } else if (arg.get_lhs() == "gridy") {
                 gridy = arg.extract_value<int >();
@@ -25,6 +26,14 @@ Benchmark_options::Benchmark_options(int argc, char **argv) :
                 gridx = arg.extract_value<int >();
             } else if (arg.get_lhs() == "gridz") {
                 gridz = arg.extract_value<int >();
+            } else if (arg.get_lhs() == "autotune") {
+                autotune = arg.extract_value<bool >();
+            } else if (arg.get_lhs() == "efieldcomm") {
+                efieldcomm = arg.extract_value<int >();
+            } else if (arg.get_lhs() == "chargecomm") {
+                chargecomm = arg.extract_value<int >();
+            } else if (arg.get_lhs() == "sortperiod") {
+                sortperiod = arg.extract_value<int >();
             } else if (arg.get_lhs() == "synergia_executable") {
                 // ignore
             } else if (arg.get_lhs() == "run") {
