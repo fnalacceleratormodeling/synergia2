@@ -46,6 +46,8 @@ Benchmark_options::Benchmark_options(int argc, char **argv) :
                 // ignore
             } else if (arg.get_lhs() == "procspernode") {
                 // ignore
+            } else if (arg.get_lhs() == "jobdir") {
+                // ignore
             } else {
                 throw std::runtime_error("Unknown argument " + arg.get_lhs());
             }
