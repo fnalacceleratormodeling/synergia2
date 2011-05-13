@@ -96,9 +96,12 @@ class Job_manager:
             job_mgr_opts.add("executable", script, "Name or path of standalone executable", str)
         self.opts = opts
         self.opts.add_suboptions(job_mgr_opts)
+        if len(self.argv) > 2:
+            if (self.argv[2] == "--create-cxx-options-source"):
+                self.create_cxx_options_source()
+                sys.exit(0)
         if len(self.argv) > 1:
-            if (self.argv[1] == "--create-cxx-options-source") or \
-                (self.argv[2] == "--create-cxx-options-source"):
+            if (self.argv[1] == "--create-cxx-options-source"):
                 self.create_cxx_options_source()
                 sys.exit(0)
             if self.argv[1] == "--strip-options-file":
