@@ -83,10 +83,15 @@ run(Benchmark_options const& opts)
             "cxx_example_per_step.h5");
     Diagnostics_full2 per_turn_diagnostics(bunch_sptr,
             "cxx_example_per_turn.h5");
+    double t0 = MPI_Wtime();
     propagator.propagate(*bunch_sptr, num_turns, per_step_diagnostics,
-            per_turn_diagnostics, true);
-
+			 per_turn_diagnostics, true);
+    double t1 = MPI_Wtime();
+    if (comm.get_rank() == 0) {
+      std::cout << "propagate time = " << (t1-t0) << std::endl;
+    }
 }
+
 int
 main(int argc, char **argv)
 {
