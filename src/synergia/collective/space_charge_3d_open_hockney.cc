@@ -194,6 +194,7 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
 
     domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
             size, offset, grid_shape, periodic_z));
+    this->domain_sptr = domain_sptr;
     set_doubled_domain();
     Rectangular_grid fake_local_charge_density(domain_sptr);
     if (output) {
@@ -298,6 +299,7 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
                 << "Space_charge_3d_open_hockney::auto_tune_comm: selected e_field_comm = "
                 << e_field_comm << std::endl;
     }
+    this->domain_sptr.reset();
 }
 
 void
