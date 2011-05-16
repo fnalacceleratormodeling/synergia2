@@ -237,9 +237,11 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
         doubled_lower = 0;
     }
     int doubled_upper = distributed_fft3d_sptr->get_uppers()[my_rank];
+    int lower = std::min(doubled_lower, grid_shape[0]);
+    int upper = std::min(doubled_upper, grid_shape[0]);
 
     Distributed_rectangular_grid fake_local_e_field(doubled_domain_sptr,
-            doubled_lower, doubled_upper,
+            lower, upper,
             distributed_fft3d_sptr->get_padded_shape_real(), comm2);
     if (output) {
         std::cout
