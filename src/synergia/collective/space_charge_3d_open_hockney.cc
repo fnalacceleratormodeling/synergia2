@@ -89,8 +89,8 @@ void
 Space_charge_3d_open_hockney::setup_default_options()
 {
     set_green_fn_type(pointlike);
-    set_charge_density_comm(reduce_scatter);
-    set_e_field_comm(allgatherv);
+    set_charge_density_comm(charge_allreduce);
+    set_e_field_comm(e_field_allreduce);
 }
 
 Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(Commxx const& comm,
