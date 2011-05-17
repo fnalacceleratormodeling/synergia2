@@ -39,6 +39,10 @@ private:
     Distributed_fft3d_sptr distributed_fft3d_sptr;
     Commxx comm2, comm1;
     std::vector<int > lowers1, lengths1;
+    int real_lower, real_upper, real_length;
+    std::vector<int > real_lengths;
+    int doubled_lower, doubled_upper;
+    int real_doubled_lower, real_doubled_upper;
     MPI_Group group2, group1;
     bool in_group1;
     MPI_Comm mpi_comm1;
