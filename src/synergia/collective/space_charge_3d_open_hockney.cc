@@ -321,6 +321,9 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
                 << "Space_charge_3d_open_hockney::auto_tune_comm: selected e_field_comm = "
                 << e_field_comm << std::endl;
     }
+    // this would be unset_fixed_domain(), if such a method existed
+    domain_fixed = false;
+    have_domains = false;
     this->domain_sptr.reset();
 }
 
