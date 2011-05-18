@@ -431,8 +431,12 @@ Space_charge_3d_open_hockney::get_global_charge_density2_reduce_scatter(
                 boost::extents[extent_range(real_lower, real_upper)][grid_shape[1]][grid_shape[2]]);
     }
     dest = multi_array_offset(dest_array, real_lower, 0, 0);
-    MPI_Reduce_scatter((void *) source, (void *) dest, &real_lengths[0],
-            MPI_DOUBLE, MPI_SUM, comm2.get());
+    int error = MPI_Reduce_scatter((void *) source, (void *) dest,
+            &real_lengths[0], MPI_DOUBLE, MPI_SUM, comm2.get());
+    if (error != MPI_SUCCESS) {
+        throw std::runtime_error(
+                "MPI error in Space_charge_3d_open_hockney::get_global_charge_density2_reduce_scatter");
+    }
     Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr,
                     doubled_lower, doubled_upper,
@@ -458,12 +462,14 @@ Distributed_rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_global_charge_density2_allreduce(
         Rectangular_grid const& local_charge_density)
 {
-    int error;
-    error = MPI_Allreduce(MPI_IN_PLACE,
+    int error = MPI_Allreduce(MPI_IN_PLACE,
             (void*) local_charge_density.get_grid_points().origin(),
-            local_charge_density.get_grid_points().size(), MPI_DOUBLE, MPI_SUM,
-            comm2.get());
-
+            local_charge_density.get_grid_points().num_elements(), MPI_DOUBLE,
+            MPI_SUM, comm2.get());
+    if (error != MPI_SUCCESS) {
+        throw std::runtime_error(
+                "MPI error in Space_charge_3d_open_hockney::get_global_charge_density2_allreduce");
+    }
     Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr,
                     doubled_lower, doubled_upper,
@@ -990,8 +996,8 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_allreduce(
 
     int error = MPI_Allreduce(MPI_IN_PLACE,
             (void*) global_field->get_grid_points().origin(),
-            global_field->get_grid_points().size(), MPI_DOUBLE, MPI_SUM,
-            comm2.get());
+            global_field->get_grid_points().num_elements(), MPI_DOUBLE,
+            MPI_SUM, comm2.get());
     if (error != MPI_SUCCESS) {
         throw std::runtime_error(
                 "MPI error in Space_charge_3d_open_hockney(MPI_Allreduce in get_global_electric_field_component_allreduce)");
