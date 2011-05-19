@@ -2,8 +2,8 @@
 #define RECTANGULAR_GRID_DOMAIN_H_
 
 #include <vector>
-#include <cmath>
 #include <boost/shared_ptr.hpp>
+#include "synergia/utils/fast_int_floor.h"
 
 class Rectangular_grid_domain
 {
@@ -37,15 +37,15 @@ public:
         double scaled_location;
 
         scaled_location = (x - left[0]) / cell_size[0] - 0.5;
-        ix = static_cast<int > (floor(scaled_location));
+        ix = fast_int_floor(scaled_location);
         offx = scaled_location - ix;
 
         scaled_location = (y - left[1]) / cell_size[1] - 0.5;
-        iy = static_cast<int > (floor(scaled_location));
+        iy = fast_int_floor(scaled_location);
         offy = scaled_location - iy;
 
         scaled_location = (z - left[2]) / cell_size[2] - 0.5;
-        iz = static_cast<int > (floor(scaled_location));
+        iz = fast_int_floor(scaled_location);
         offz = scaled_location - iz;
     }
 
