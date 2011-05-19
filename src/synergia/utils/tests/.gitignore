@@ -10,5 +10,6 @@ test_xml_serialization
 test_multi_array_offsets
 test_multi_array_serialization
 test_command_line_arg
+test_fast_int_floor
 *.xml
 *.h5

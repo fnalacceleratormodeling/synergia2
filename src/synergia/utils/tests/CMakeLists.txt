@@ -9,6 +9,10 @@ add_executable(test_floating_point test_floating_point.cc)
 target_link_libraries(test_floating_point ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_floating_point test_floating_point)
 
+add_executable(test_fast_int_floor test_fast_int_floor.cc)
+target_link_libraries(test_fast_int_floor ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_fast_int_floor test_fast_int_floor)
+
 add_executable(test_hdf5_writer test_hdf5_writer.cc)
 target_link_libraries(test_hdf5_writer synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_hdf5_writer test_hdf5_writer)
