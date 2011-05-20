@@ -30,7 +30,7 @@ public:
     get_cell_size() const;
     bool
     is_periodic() const;
-    inline void
+    inline bool
     get_leftmost_indices_offsets(double x, double y, double z, int &ix,
             int &iy, int&iz, double &offx, double &offy, double &offz) const
     {
@@ -47,6 +47,8 @@ public:
         scaled_location = (z - left[2]) / cell_size[2] - 0.5;
         iz = fast_int_floor(scaled_location);
         offz = scaled_location - iz;
+        return !((ix < 0) || (ix >= grid_shape[0] - 1) || (iy < 0) || (iy
+                >= grid_shape[1] - 1) || (iz < 0) || (iz >= grid_shape[2] - 1));
     }
 
     void
