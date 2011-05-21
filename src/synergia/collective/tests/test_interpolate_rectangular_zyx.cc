@@ -51,26 +51,26 @@ BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_basic)
     set_grid_constant(grid, 1.0);
     // outside grid
     BOOST_CHECK(interpolate_rectangular_zyx(z_left - cell_size[0],
-                    y_left, x_left, grid.get_domain_sptr(),
+                    y_left, x_left, *grid.get_domain_sptr(),
                     grid.get_grid_points()) == 0.0);
     BOOST_CHECK(interpolate_rectangular_zyx(z_left,
-                    y_left - cell_size[1], x_left, grid.get_domain_sptr(),
+                    y_left - cell_size[1], x_left, *grid.get_domain_sptr(),
                     grid.get_grid_points()) == 0.0);
     BOOST_CHECK(interpolate_rectangular_zyx(z_left,
-                    y_left, x_left - cell_size[2], grid.get_domain_sptr(),
+                    y_left, x_left - cell_size[2], *grid.get_domain_sptr(),
                     grid.get_grid_points()) == 0.0);
     BOOST_CHECK(interpolate_rectangular_zyx(
                     z_left + physical_size[0] + cell_size[0],
-                    y_left, x_left, grid.get_domain_sptr(),
+                    y_left, x_left, *grid.get_domain_sptr(),
                     grid.get_grid_points()) == 0.0);
     BOOST_CHECK(interpolate_rectangular_zyx(z_left,
                     y_left + physical_size[1] + cell_size[1],
-                    x_left, grid.get_domain_sptr(),
+                    x_left, *grid.get_domain_sptr(),
                     grid.get_grid_points()) == 0.0);
     BOOST_CHECK(interpolate_rectangular_zyx(z_left,
                     y_left,
                     x_left + physical_size[2] + cell_size[2],
-                    grid.get_domain_sptr(), grid.get_grid_points()) == 0.0);
+                    *grid.get_domain_sptr(), grid.get_grid_points()) == 0.0);
 
     // constant-value parallel planes in third coordinate of grid
     set_grid_constant(grid, 0.0);
@@ -87,12 +87,12 @@ BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_basic)
         double expected_val = left_val + dval_ds * ds;
         // value along edge of cube
         double val = interpolate_rectangular_zyx(x_left + ds, y_left, z_left,
-                grid.get_domain_sptr(), grid.get_grid_points());
+                *grid.get_domain_sptr(), grid.get_grid_points());
         BOOST_CHECK_CLOSE(val, expected_val, strict_tolerance);
         // value along center of cube
         val = interpolate_rectangular_zyx(x_left + ds,
                 (y_left + y_right) / 2.0, (z_left + z_right) / 2.0,
-                grid.get_domain_sptr(), grid.get_grid_points());
+                *grid.get_domain_sptr(), grid.get_grid_points());
         BOOST_CHECK_CLOSE(val, expected_val, strict_tolerance);
     }
 
@@ -111,11 +111,11 @@ BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_basic)
         double expected_val = left_val + dval_ds * ds;
         // value along edge of cube
         double val = interpolate_rectangular_zyx(x_left, y_left + ds, z_left,
-                grid.get_domain_sptr(), grid.get_grid_points());
+                *grid.get_domain_sptr(), grid.get_grid_points());
         BOOST_CHECK_CLOSE(val, expected_val, strict_tolerance);
         // value along center of cube
         val = interpolate_rectangular_zyx((x_left + x_right) / 2.0,
-                y_left + ds, (z_left + z_right) / 2.0, grid.get_domain_sptr(),
+                y_left + ds, (z_left + z_right) / 2.0, *grid.get_domain_sptr(),
                 grid.get_grid_points());
         BOOST_CHECK_CLOSE(val, expected_val, strict_tolerance);
     }
@@ -135,11 +135,11 @@ BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_basic)
         double expected_val = left_val + dval_ds * ds;
         // value along edge of cube
         double val = interpolate_rectangular_zyx(x_left, y_left, z_left + ds,
-                grid.get_domain_sptr(), grid.get_grid_points());
+                *grid.get_domain_sptr(), grid.get_grid_points());
         BOOST_CHECK_CLOSE(val, expected_val, strict_tolerance);
         // value along center of cube
         val = interpolate_rectangular_zyx((x_left + x_right) / 2.0, (y_left
-                + y_right) / 2.0, z_left + ds, grid.get_domain_sptr(),
+                + y_right) / 2.0, z_left + ds, *grid.get_domain_sptr(),
                 grid.get_grid_points());
         BOOST_CHECK_CLOSE(val, expected_val, strict_tolerance);
     }
@@ -199,7 +199,7 @@ BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_gaussian)
         z = z_left;
         r = std::sqrt(z * z + y * y + x * x);
         expected_val = gaussian_electric_field_component(Q, r, sigma, x);
-        val = interpolate_rectangular_zyx(x, y, z, grid.get_domain_sptr(),
+        val = interpolate_rectangular_zyx(x, y, z, *grid.get_domain_sptr(),
                 grid.get_grid_points());
         fractional_error = (val - expected_val) / expected_val;
         // std::cout << x << ", " << y << ", " << z << ": " << fractional_error << std::endl;
@@ -211,7 +211,7 @@ BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_gaussian)
         z = (z_left + z_right) / 2.0;
         r = std::sqrt(z * z + y * y + x * x);
         expected_val = gaussian_electric_field_component(Q, r, sigma, x);
-        val = interpolate_rectangular_zyx(x, y, z, grid.get_domain_sptr(),
+        val = interpolate_rectangular_zyx(x, y, z, *grid.get_domain_sptr(),
                 grid.get_grid_points());
         fractional_error = (val - expected_val) / expected_val;
         // std::cout << x << ", " << y << ", " << z << ": " << fractional_error << std::endl;
@@ -223,7 +223,7 @@ BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_gaussian)
         z = z_left;
         r = std::sqrt(z * z + y * y + x * x);
         expected_val = gaussian_electric_field_component(Q, r, sigma, x);
-        val = interpolate_rectangular_zyx(x, y, z, grid.get_domain_sptr(),
+        val = interpolate_rectangular_zyx(x, y, z, *grid.get_domain_sptr(),
                 grid.get_grid_points());
         fractional_error = (val - expected_val) / expected_val;
         // std::cout << x << ", " << y << ", " << z << ": " << fractional_error << std::endl;
@@ -235,7 +235,7 @@ BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_gaussian)
         z = (z_left + z_right) / 2.0;
         r = std::sqrt(z * z + y * y + x * x);
         expected_val = gaussian_electric_field_component(Q, r, sigma, x);
-        val = interpolate_rectangular_zyx(x, y, z, grid.get_domain_sptr(),
+        val = interpolate_rectangular_zyx(x, y, z, *grid.get_domain_sptr(),
                 grid.get_grid_points());
         fractional_error = (val - expected_val) / expected_val;
         // std::cout << x << ", " << y << ", " << z << ": " << fractional_error << std::endl;
@@ -247,7 +247,7 @@ BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_gaussian)
         z = z_left + ds;
         r = std::sqrt(z * z + y * y + x * x);
         expected_val = gaussian_electric_field_component(Q, r, sigma, x);
-        val = interpolate_rectangular_zyx(x, y, z, grid.get_domain_sptr(),
+        val = interpolate_rectangular_zyx(x, y, z, *grid.get_domain_sptr(),
                 grid.get_grid_points());
         fractional_error = (val - expected_val) / expected_val;
         // std::cout << x << ", " << y << ", " << z << ": " << fractional_error << std::endl;
@@ -259,7 +259,7 @@ BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_gaussian)
         z = z_left + ds;
         r = std::sqrt(z * z + y * y + x * x);
         expected_val = gaussian_electric_field_component(Q, r, sigma, x);
-        val = interpolate_rectangular_zyx(x, y, z, grid.get_domain_sptr(),
+        val = interpolate_rectangular_zyx(x, y, z, *grid.get_domain_sptr(),
                 grid.get_grid_points());
         fractional_error = (val - expected_val) / expected_val;
         // std::cout << x << ", " << y << ", " << z << ": " << fractional_error << std::endl;
