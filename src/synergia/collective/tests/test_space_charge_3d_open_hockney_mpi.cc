@@ -307,7 +307,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_charge_density, Toy_bunch_fixture)
             100 * tolerance);
 }
 
-BOOST_AUTO_TEST_CASE(get_global_charge_density2_simple)
+BOOST_AUTO_TEST_CASE(get_global_charge_density2_reduce_scatter)
 {
     Commxx comm;
 
@@ -341,7 +341,7 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_simple)
         }
     }
     Distributed_rectangular_grid_sptr rho2 =
-            space_charge.get_global_charge_density2(*local_rho); // [C/m^3]
+            space_charge.get_global_charge_density2_reduce_scatter(*local_rho); // [C/m^3]
     std::vector<int > nondoubled_shape(
             local_rho->get_domain_sptr()->get_grid_shape());
     std::vector<int > doubled_shape(rho2->get_domain_sptr()->get_grid_shape());
@@ -363,6 +363,146 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_simple)
                             rho2->get_normalization(),
                             local_rho->get_grid_points()[i][j][k]*
                             local_rho->get_normalization()*comm.get_size(),
+                            tolerance);
+                } else {
+                    BOOST_CHECK_EQUAL(rho2->get_grid_points()[i][j][k], 0.0);
+                }
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(get_global_charge_density2_allreduce)
+{
+    Commxx comm;
+
+    std::vector<int > grid_shape(3);
+    grid_shape[0] = 5;
+    grid_shape[1] = 6;
+    grid_shape[2] = 16;
+    std::vector<int > grid_shape_zyx(3);
+    grid_shape_zyx[0] = grid_shape[2];
+    grid_shape_zyx[1] = grid_shape[1];
+    grid_shape_zyx[2] = grid_shape[0];
+    std::vector<double > physical_size(3);
+    physical_size[0] = 1.0;
+    physical_size[1] = 1.0;
+    physical_size[2] = 1.0;
+    std::vector<double > physical_offset(3);
+    physical_offset[0] = 0.0;
+    physical_offset[1] = 0.0;
+    physical_offset[2] = 0.0;
+
+    Space_charge_3d_open_hockney space_charge(comm, grid_shape);
+    Rectangular_grid_domain_sptr domain_sptr(new Rectangular_grid_domain(
+            physical_size, physical_offset, grid_shape_zyx, false));
+    space_charge.set_fixed_domain(domain_sptr);
+    Rectangular_grid_sptr local_rho(new Rectangular_grid(domain_sptr));
+    // local_rho will be overwritten by the in-place allreduce, so we
+    // keep a copy for comparison.
+    Rectangular_grid_sptr local_rho_orig(new Rectangular_grid(domain_sptr));
+    for (int i = 0; i < grid_shape_zyx[0]; ++i) {
+        for (int j = 0; j < grid_shape_zyx[1]; ++j) {
+            for (int k = 0; k < grid_shape_zyx[2]; ++k) {
+                local_rho->get_grid_points()[i][j][k] = i + 100 * j + 1000 * k;
+                local_rho_orig->get_grid_points()[i][j][k] = i + 100 * j + 1000
+                        * k;
+            }
+        }
+    }
+    Distributed_rectangular_grid_sptr rho2 =
+            space_charge.get_global_charge_density2_allreduce(*local_rho); // [C/m^3]
+    std::vector<int > nondoubled_shape(
+            local_rho->get_domain_sptr()->get_grid_shape());
+    std::vector<int > doubled_shape(rho2->get_domain_sptr()->get_grid_shape());
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[0],
+            doubled_shape[0]);
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[1],
+            doubled_shape[1]);
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[2],
+            doubled_shape[2]);
+
+    int lower = rho2->get_lower();
+    int upper = rho2->get_upper();
+    for (int i = lower; i < upper; ++i) {
+        for (int j = 0; j < doubled_shape[1]; ++j) {
+            for (int k = 0; k < doubled_shape[2]; ++k) {
+                if ((i < nondoubled_shape[0]) && (j < nondoubled_shape[1])
+                        && (k < nondoubled_shape[2])) {
+                    BOOST_CHECK_CLOSE(rho2->get_grid_points()[i][j][k]*
+                            rho2->get_normalization(),
+                            local_rho_orig->get_grid_points()[i][j][k]*
+                            local_rho_orig->get_normalization()*comm.get_size(),
+                            tolerance);
+                } else {
+                    BOOST_CHECK_EQUAL(rho2->get_grid_points()[i][j][k], 0.0);
+                }
+            }
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(get_global_charge_density2_simple)
+{
+    Commxx comm;
+
+    std::vector<int > grid_shape(3);
+    grid_shape[0] = 5;
+    grid_shape[1] = 6;
+    grid_shape[2] = 16;
+    std::vector<int > grid_shape_zyx(3);
+    grid_shape_zyx[0] = grid_shape[2];
+    grid_shape_zyx[1] = grid_shape[1];
+    grid_shape_zyx[2] = grid_shape[0];
+    std::vector<double > physical_size(3);
+    physical_size[0] = 1.0;
+    physical_size[1] = 1.0;
+    physical_size[2] = 1.0;
+    std::vector<double > physical_offset(3);
+    physical_offset[0] = 0.0;
+    physical_offset[1] = 0.0;
+    physical_offset[2] = 0.0;
+
+    Space_charge_3d_open_hockney space_charge(comm, grid_shape);
+    Rectangular_grid_domain_sptr domain_sptr(new Rectangular_grid_domain(
+            physical_size, physical_offset, grid_shape_zyx, false));
+    space_charge.set_fixed_domain(domain_sptr);
+    Rectangular_grid_sptr local_rho(new Rectangular_grid(domain_sptr));
+    // local_rho will be overwritten by the in-place allreduce, so we
+    // keep a copy for comparison.
+    Rectangular_grid_sptr local_rho_orig(new Rectangular_grid(domain_sptr));
+    for (int i = 0; i < grid_shape_zyx[0]; ++i) {
+        for (int j = 0; j < grid_shape_zyx[1]; ++j) {
+            for (int k = 0; k < grid_shape_zyx[2]; ++k) {
+                local_rho->get_grid_points()[i][j][k] = i + 100 * j + 1000 * k;
+                local_rho_orig->get_grid_points()[i][j][k] = i + 100 * j + 1000
+                        * k;
+            }
+        }
+    }
+    Distributed_rectangular_grid_sptr rho2 =
+            space_charge.get_global_charge_density2(*local_rho); // [C/m^3]
+    std::vector<int > nondoubled_shape(
+            local_rho->get_domain_sptr()->get_grid_shape());
+    std::vector<int > doubled_shape(rho2->get_domain_sptr()->get_grid_shape());
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[0],
+            doubled_shape[0]);
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[1],
+            doubled_shape[1]);
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[2],
+            doubled_shape[2]);
+
+    int lower = rho2->get_lower();
+    int upper = rho2->get_upper();
+    for (int i = lower; i < upper; ++i) {
+        for (int j = 0; j < doubled_shape[1]; ++j) {
+            for (int k = 0; k < doubled_shape[2]; ++k) {
+                if ((i < nondoubled_shape[0]) && (j < nondoubled_shape[1])
+                        && (k < nondoubled_shape[2])) {
+                    BOOST_CHECK_CLOSE(rho2->get_grid_points()[i][j][k]*
+                            rho2->get_normalization(),
+                            local_rho_orig->get_grid_points()[i][j][k]*
+                            local_rho_orig->get_normalization()*comm.get_size(),
                             tolerance);
                 } else {
                     BOOST_CHECK_EQUAL(rho2->get_grid_points()[i][j][k], 0.0);

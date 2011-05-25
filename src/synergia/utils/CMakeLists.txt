@@ -23,6 +23,7 @@ install(FILES
     commxx.h
     container_conversions.h
     distributed_fft3d.h
+    fast_int_floor.h
     floating_point.h
     hdf5_chunked_array2d_writer.h
     hdf5_misc.h

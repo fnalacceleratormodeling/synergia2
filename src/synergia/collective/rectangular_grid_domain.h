@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include "synergia/utils/fast_int_floor.h"
 
 class Rectangular_grid_domain
 {
@@ -29,9 +30,27 @@ public:
     get_cell_size() const;
     bool
     is_periodic() const;
-    void
+    inline bool
     get_leftmost_indices_offsets(double x, double y, double z, int &ix,
-            int &iy, int&iz, double &offx, double &offy, double &offz) const;
+            int &iy, int&iz, double &offx, double &offy, double &offz) const
+    {
+        double scaled_location;
+
+        scaled_location = (x - left[0]) / cell_size[0] - 0.5;
+        ix = fast_int_floor(scaled_location);
+        offx = scaled_location - ix;
+
+        scaled_location = (y - left[1]) / cell_size[1] - 0.5;
+        iy = fast_int_floor(scaled_location);
+        offy = scaled_location - iy;
+
+        scaled_location = (z - left[2]) / cell_size[2] - 0.5;
+        iz = fast_int_floor(scaled_location);
+        offz = scaled_location - iz;
+        return !((ix < 0) || (ix >= grid_shape[0] - 1) || (iy < 0) || (iy
+                >= grid_shape[1] - 1) || (iz < 0) || (iz >= grid_shape[2] - 1));
+    }
+
     void
     get_cell_coordinates(int ix, int iy, int iz, double & x, double & y,
             double & z) const;
