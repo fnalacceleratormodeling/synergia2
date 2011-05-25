@@ -242,7 +242,17 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double angle = lattice_element.get_double_attribute("angle");
     double e1 = lattice_element.get_double_attribute("e1");
     double e2 = lattice_element.get_double_attribute("e2");
+    double k1 = lattice_element.get_double_attribute("k1");
+    double k2 = lattice_element.get_double_attribute("k2");
+    double k3 = lattice_element.get_double_attribute("k3");
+    double tilt = lattice_element.get_double_attribute("tilt");
 
+    bool simple = ((k1 != 0.0) || (k2 != 0.0) || (k3 != 0.0));
+
+/*
+*
+* Incomplete options, P.L., May 25 2011 
+* 
     if ((lattice_element.get_double_attribute("k1") != 0.0)
             || (lattice_element.get_double_attribute("k2") != 0.0)
             || (lattice_element.get_double_attribute("k3") != 0.0)
@@ -254,11 +264,41 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         throw(runtime_error(
                 "lattice_element_to_chef_sbend: non-zero element(s) of something not handled"));
     }
+*/ 
+    alignmentData aligner;
+    aligner.xOffset = 0.0;
+    aligner.yOffset = 0.0;
+    aligner.tilt    = tilt;
+    
+    if (simple) { 
 
-    ElmPtr elm(new sbend(lattice_element.get_name().c_str(), length, brho
+      ElmPtr elm(new sbend(lattice_element.get_name().c_str(), length, brho
             * angle / length, angle, e1, e2));
-    retval.push_back(elm);
-    return retval;
+      elm->setTag("SBEND");
+      if (tilt != 0.0 ) elm->setAlignment( aligner );
+      retval.push_back(elm);
+      return retval;
+    } else { 
+      bmlnElmnt* elm = new CF_sbend(lattice_element.get_name().c_str(), length, brho
+             *angle/length, angle, e1, e2 );
+      if (tilt != 0.0 ) elm->setAlignment( aligner );
+      double multipoleStrength = k1*brho*length;
+      if( multipoleStrength != 0.0 ) {
+          dynamic_cast<CF_sbend*>(elm)->setQuadrupole( multipoleStrength );
+      }
+      multipoleStrength = k2*brho*length/2.0;
+      if( multipoleStrength != 0.0 ) {
+         dynamic_cast<CF_sbend*>(elm)->setSextupole( multipoleStrength );
+      }  
+      multipoleStrength = k3*brho*length/6.0;
+      if( multipoleStrength != 0.0 ) {
+         dynamic_cast<CF_sbend*>(elm)->setOctupole( multipoleStrength );
+      }
+      ElmPtr elmP(elm);
+      retval.push_back(elmP);
+      return retval;
+    }
+  
 }
 
 Sbend_mad8_adaptor::~Sbend_mad8_adaptor()
@@ -299,7 +339,13 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double angle = lattice_element.get_double_attribute("angle");
     double e1 = lattice_element.get_double_attribute("e1");
     double e2 = lattice_element.get_double_attribute("e2");
+    double k1 = lattice_element.get_double_attribute("k1");
+    double k2 = lattice_element.get_double_attribute("k2");
+    double k3 = lattice_element.get_double_attribute("k3");
+    double tilt = lattice_element.get_double_attribute("tilt");
+    bool simple = ((k1 != 0.0) || (k2 != 0.0) || (k3 != 0.0) || (tilt != 0.0));
 
+/*
     if ((lattice_element.get_double_attribute("k1") != 0.0)
             || (lattice_element.get_double_attribute("k2") != 0.0)
             || (lattice_element.get_double_attribute("k3") != 0.0)
@@ -311,11 +357,56 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         throw(runtime_error(
                 "lattice_element_to_chef_sbend: non-zero element(s) of something not handled"));
     }
+*/
+  if( simple ) {
+    if( (0.0 == e1) && (0.0 == e2) ) {
+      ElmPtr elm(new rbend(lattice_element.get_name().c_str(), length, 
+                     brho*(2.0*sin(0.5*angle))/length, angle ));
+      elm->setTag("RBEND");
+      retval.push_back(elm);
+      return retval;
+     } else {
+      ElmPtr elm(new rbend(lattice_element.get_name().c_str(), length, 
+                     brho*(2.0*sin(0.5*angle))/length, angle, e1, e2 ));
+      elm->setTag("RBEND");
+      retval.push_back(elm);
+      return retval;
+    }
+  } else {
+   // Not so simple 
+     alignmentData aligner;
+     aligner.xOffset = 0.0;
+     aligner.yOffset = 0.0;
+     aligner.tilt    = tilt;
 
-    ElmPtr elm(new rbend(lattice_element.get_name().c_str(), length, brho
-            * (2.0 * sin(0.5 * angle)) / length, angle, e1, e2));
-    retval.push_back(elm);
-    return retval;
+     bmlnElmnt* elm;
+     if( (0.0 == e1) && (0.0 == e2) ) 
+       elm = new rbend(lattice_element.get_name().c_str(), length, 
+                        brho*(2.0*sin(0.5*angle))/length, angle );
+     else 
+       elm = new rbend(lattice_element.get_name().c_str(), length, 
+                        brho*(2.0*sin(0.5*angle))/length, angle, e1, e2 ); 
+      
+     elm->setTag("RBEND");
+     if (tilt != 0.0 ) elm->setAlignment( aligner );
+
+     double multipoleStrength = k1*brho*length;
+     if( multipoleStrength != 0.0 ) {
+        dynamic_cast<CF_rbend*>(elm)->setQuadrupole( multipoleStrength );
+     }
+     multipoleStrength = k2*brho*length/2.0;
+     if( multipoleStrength != 0.0 ) {
+        dynamic_cast<CF_rbend*>(elm)->setSextupole( multipoleStrength );
+     }
+     multipoleStrength = k3*brho*length/6.0;
+     if( multipoleStrength != 0.0 ) {
+      dynamic_cast<CF_rbend*>(elm)->setOctupole( multipoleStrength );
+     }
+
+     ElmPtr elmP(elm);
+     retval.push_back(elmP);
+     return retval;
+  }
 }
 
 Rbend_mad8_adaptor::~Rbend_mad8_adaptor()
