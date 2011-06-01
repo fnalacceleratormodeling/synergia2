@@ -18,6 +18,7 @@ Contents:
 	lattice
 	simulation
 	collective
+	CHEF
 
 Indices and tables
 ==================
