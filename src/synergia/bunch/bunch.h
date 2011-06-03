@@ -11,6 +11,7 @@
 /// in a communicator.
 class Bunch
 {
+public:
     /*! \enum State The state of the bunch is captured at a fixed  s (or z, longitudinal cordinate) 
      or at a fixed time.  In the former case, particles are found within a range of different time 
      coordinates while in the later case particles position along the beam axis do vary.
