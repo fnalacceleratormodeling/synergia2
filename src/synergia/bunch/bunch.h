@@ -7,11 +7,15 @@
 #include "synergia/utils/commxx.h"
 #include "synergia/bunch/fixed_t_z_converter.h"
 
-/// Bunch represents a macroparticle bunch distributed across the processors
+/// Represents a macroparticle bunch distributed across the processors
 /// in a communicator.
 class Bunch
 {
-public:
+    /*! \enum State The state of the bunch is captured at a fixed  s (or z, longitudinal cordinate) 
+     or at a fixed time.  In the former case, particles are found within a range of different time 
+     coordinates while in the later case particles position along the beam axis do vary.
+     A change of state is accomplish via the fixed_t_z_converter class.
+    */
     enum State
     {
         fixed_z = 1, fixed_t = 2
@@ -41,17 +45,22 @@ private:
     void
     construct(int particle_charge, int total_num, double real_num);
 public:
-    /// Construct a bunch. Allocates memory for the particles and assigns
-    /// particle ID's, but does not fill the phase space values in any way.
+    //!
+    //! Constructor:
+    //! Allocates memory for the particles and assigns particle ID's, 
+    //!    but does not fill the phase space values in any way. 
+    //!
+    //! To fill the bunch with particles, use the populate methods. 
     /// @param reference_particle the reference particle for the bunch.
     /// @param total_num the total number of macroparticles in the bunch
     /// @param real_num the number of real particles represented by the bunch.
     /// @param comm the communicator.
     Bunch(Reference_particle const& reference_particle, int total_num,
             double real_num, Commxx const& comm);
-
-    /// Construct a bunch. Allocates memory for the particles and assigns
-    /// partice ID's, but does not fill the phase space values in any way.
+    //!
+    //! Constructor with 5-parameter signature 
+    //! Same as above, but having the flexibility
+    //!    to redefine the charge of a particle.
     /// @param reference_particle the reference particle for the bunch.
     /// @param total_num the total number of macroparticles in the bunch
     /// @param real_num the number of real particles represented by the bunch.
@@ -60,20 +69,27 @@ public:
     Bunch(Reference_particle const& reference_particle, int total_num,
             double real_num, Commxx const& comm, int particle_charge);
 
+    //!
+    //! Copy constructor
     Bunch(Bunch const& bunch);
+    //!
+    //! Assignement constructor
     Bunch &
     operator=(Bunch const& bunch);
 
+    ///
     /// Set the particle charge
     /// @param particle_charge in units of e.
     void
     set_particle_charge(int particle_charge);
 
+    ///
     /// Set the number of real particles represented by the bunch.
     /// @param real_num the new real number of particles
     void
     set_real_num(double real_num);
 
+    ///
     /// Reduce (set) the number of particles on this processor. The number
     /// of particles can only be lowered by this member function. (In order
     /// to add new particles, create another Bunch and use the inject member.)
@@ -86,11 +102,13 @@ public:
     void
     set_local_num(int local_num);
 
+    ///
     /// Update the total number and real number of particles after the local
     /// number has been changed. Requires communication.
     void
     update_total_num();
 
+    ///
     /// Set the period for periodic_sort and reset the counter
     /// Periods less than zero will prohibit sorting.
     /// @param period
@@ -178,6 +196,7 @@ public:
 
     virtual
     ~Bunch();
+
 };
 
 typedef boost::shared_ptr<Bunch > Bunch_sptr;
