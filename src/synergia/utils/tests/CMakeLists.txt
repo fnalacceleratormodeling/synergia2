@@ -2,7 +2,7 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 
 add_executable(test_parallel_utils test_parallel_utils.cc)
 target_link_libraries(test_parallel_utils synergia_parallel_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_parallel_utils test_parallel_utils)
+add_test(test_parallel_utils ${MPIEXEC} -np 1 test_parallel_utils)
 add_test(test_parallel_utils_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_parallel_utils.py)
 
 add_executable(test_floating_point test_floating_point.cc)
@@ -31,7 +31,7 @@ add_test(test_hdf5_chunked_array2d_writer test_hdf5_chunked_array2d_writer)
 
 add_executable(test_distributed_fft3d test_distributed_fft3d.cc)
 target_link_libraries(test_distributed_fft3d synergia_distributed_fft ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_distributed_fft3d test_distributed_fft3d)
+add_test(test_distributed_fft3d ${MPIEXEC} -np 1 test_distributed_fft3d)
 
 add_executable(test_distributed_fft3d_mpi test_distributed_fft3d_mpi.cc)
 target_link_libraries(test_distributed_fft3d_mpi synergia_distributed_fft
