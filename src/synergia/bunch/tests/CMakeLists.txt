@@ -2,7 +2,7 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 
 add_executable(test_bunch test_bunch.cc)
 target_link_libraries(test_bunch synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_bunch test_bunch)
+add_test(test_bunch ${MPIEXEC} -np 1  test_bunch)
 add_test(test_bunch_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_bunch.py)
 
 add_custom_command(OUTPUT test_diagnostics_get_corr.icc
@@ -28,19 +28,19 @@ add_executable(test_diagnostics test_diagnostics.cc test_diagnostics_get_corr.ic
     test_diagnostics_get_random_particles.icc
     test_diagnostics_get_std.icc)
 target_link_libraries(test_diagnostics synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_diagnostics test_diagnostics)
+add_test(test_diagnostics ${MPIEXEC} -np 1 test_diagnostics)
 add_test(test_diagnostics_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_diagnostics.py)
 
 add_executable(test_diagnostics_track test_diagnostics_track.cc)
 target_link_libraries(test_diagnostics_track synergia_bunch
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_diagnostics_track test_diagnostics_track)
+add_test(test_diagnostics_track ${MPIEXEC} -np 1 test_diagnostics_track)
 add_test(test_diagnostics_track_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_diagnostics_track.py)
 
 add_executable(test_diagnostics_particles test_diagnostics_particles.cc)
 add_dependencies(test_diagnostics_particles test_diagnostics_particles_get_mean.icc)
 target_link_libraries(test_diagnostics_particles synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_diagnostics_particles test_diagnostics_particles)
+add_test(test_diagnostics_particles ${MPIEXEC} -np 1 test_diagnostics_particles)
 add_test(test_diagnostics_particles_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_diagnostics_particles.py)
 
 add_executable(test_diagnostics_basic_mpi test_diagnostics_basic_mpi.cc)
@@ -78,7 +78,7 @@ add_test(test_diagnostics_track_mpi4 ${MPIEXEC} -np 4 test_diagnostics_track_mpi
 
 add_executable(test_populate test_populate.cc)
 target_link_libraries(test_populate synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_populate test_populate)
+add_test(test_populate ${MPIEXEC} -np 1 test_populate)
 add_test(test_populate_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_populate.py)
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
