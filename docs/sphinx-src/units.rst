@@ -1,9 +1,15 @@
 Units
 =========
 
-Synergia2.1 uses CHEF's units internally. They are:
+Synergia2.1 uses CHEF's units internally, and when appropriate, the MAD_ units. They are: 
 
-(p_ref is the total momentum of the reference particle)
+Kinematics
+----------
+
+E    : Energy, in GeV 
+
+(p_ref is the total momentum of the reference particle, in GeV/c)
+
 
 In the fixed-z representation:
 
@@ -33,3 +39,15 @@ z    : [meters]
 
 zp   : pz/p_ref [unitless]
 
+Fields
+------
+
+Voltage across an RF cavity:  Volts
+
+Electric Field in Collective Effects:  Volts/m
+
+Magnetic (used internaly): Tesla
+
+
+
+.. _MAD: http://mad.home.cern.ch/mad/
