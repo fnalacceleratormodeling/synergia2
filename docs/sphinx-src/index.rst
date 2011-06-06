@@ -9,12 +9,14 @@ Contents:
 	:maxdepth: 2
 
 	overview
+	examples
 	units
 	code_conventions
 	tools
 	utils
 	foundation
 	bunch
+        Stepper
 	lattice
 	simulation
 	collective
