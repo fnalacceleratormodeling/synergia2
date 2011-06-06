@@ -29,7 +29,7 @@ tremendous difficulties in the optimization of tightly coupled, 6D, systems).  H
 libraries and procedures to build and run Synergia2 on single desktops are also fully
 supported.
 
-Familiarity with some basics of high energy accelerator science is strongly advised.  Using
+Familiarity with some basics of high energy accelerator_ science is strongly advised.  Using
 Synergia2 does not require advanced knowledge of Object Oriented (OO) methods, nor
 message-passing softwares.   Instead of filling a rigid set of input parameters, the Synergia2
 user will compose (or better, modify) a  Python script of a simple C++ to describe the problem
@@ -91,7 +91,7 @@ string attribute of the ``Lattice_element``.
 Synergia Steps
 --------------
 A Synergia simulation is performed in the time domain. That is, a Bunch_ propagates 
-through the machine in discretes time steps. Such actions are managed by Stepper objects.
+through the machine in discretes time steps. Such actions are managed by Stepper_ objects.
 Informations about what occured in a give step can be accessed from such Stepper objects, 
 of which several different types exist corresponding to different stepping algorithms.
 
@@ -101,7 +101,9 @@ Diagnostics on a per-step and per-turn basis.
 
 .. _MAD: http://mad.home.cern.ch/mad/
 .. _Bunch: ./bunch.html
+.. _Stepper: ./Stepper.html
 .. _CHEF: ./CHEF.html
+.. _accelerator: http://uspas.fnal.gov/
 
 .. rubric: Footnotes
 
