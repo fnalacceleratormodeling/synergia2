@@ -46,6 +46,8 @@ Voltage across an RF cavity:  Volts
 
 Electric Field in Collective Effects:  Volts/m
 
+Bend angle: radiants
+
 Magnetic (used internaly): Tesla
 
 
