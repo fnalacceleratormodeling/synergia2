@@ -1,9 +1,15 @@
 Command-line tools
 ==================
 
-* synergia
+ These are Python scripts based on the Synergia and CHEF libraries. While the user can link his own C++ code to
+ these libraries, add his own analysis code and run it, it might be more convenient to use our existing scripts.  
 
-The synergia script is really just a frontend to Python.
+synergia
+--------
+
+The synergia script is really just a frontend to Python. It is use for instance to convert MAD file 
+to a Synergia lattice file used in a C++ code. Evidently, it can also be used to drive a complet Synergia
+simulation. 
 
 usage: synergia <synergia_script> [arguments]
 
@@ -14,7 +20,8 @@ usage: synergia <synergia_script> [arguments]
 	--ipython for interactive mode with ipython
 
 
-* synbeamplot
+synbeamplot
+-----------
 
 Plots one- and two-dimensional density projections of a beam.
 
@@ -34,7 +41,8 @@ available coords are:
 
     x xp y yp z zp
 
-* syndiagplot
+syndiagplot
+-----------
 
 Plots one- or two-dimensional diagnostics vs trajectory length. Multiple plots
 can be performed at once.
@@ -53,7 +61,8 @@ available plots are:
 
     x_emit x_mean x_std x_xp_corr x_xp_mom2 x_y_corr x_y_mom2 x_yp_corr x_yp_mom2 x_z_corr x_z_mom2 x_zp_corr x_zp_mom2 xp_mean xp_std xp_y_corr xp_y_mom2 xp_yp_corr xp_yp_mom2 xp_z_corr xp_z_mom2 xp_zp_corr xp_zp_mom2 xy_emit xyz_emit y_emit y_mean y_std y_yp_corr y_yp_mom2 y_z_corr y_z_mom2 y_zp_corr y_zp_mom2 yp_mean yp_std yp_z_corr yp_z_mom2 yp_zp_corr yp_zp_mom2 z_emit z_mean z_std z_zp_corr z_zp_mom2 zp_mean zp_std
 
-* syntrackplot
+syntrackplot
+------------
 
 Plots particle tracks.
 
@@ -71,7 +80,8 @@ available coords are:
 
     x xp y yp z zp
 
-* synpoincareplot
+synpoincareplot
+---------------
 
 Performs Poincare plots of pairs of phase-space coordinates.
 
@@ -89,7 +99,8 @@ available coords are:
 
     x xp y yp z zp
 
-* syninspecth5
+syninspecth5
+------------
 
 Inspects HDF5 files.
 
@@ -97,17 +108,18 @@ usage:
 
      syninspecth5 <hdf5_file>
 
-         to list members
-or
+         to list members, or
 
      syninspecth5 <hdf5_file> <member>
 
            to display member
 
-* synmad8toxml
+synmad8toxml
+------------
 
 Converts Mad8 lattice files to Synergia XML files.
 
 usage: synmad8toxml <mad8 file> <line name> <xml file>
 
     Reads line <line name> from <mad8 file> and writes to <xml file>.
+
