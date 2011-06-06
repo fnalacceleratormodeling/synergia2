@@ -9,11 +9,6 @@ Classes
 .. doxygenclass:: Bunch
    :project: synergia
 
-.. doxygenenum:: State
-   :project: synergia
-
-State is an enum. Available values are fixed_t and fixed_z.
-
 .. doxygenclass:: Fixed_t_z_converter
     :project: synergia
 
@@ -35,9 +30,6 @@ State is an enum. Available values are fixed_t and fixed_z.
 .. doxygenclass:: Diagnostics_track
     :project: synergia
 
-.. doxygenclass:: Diagnostics_writer
-    :project: synergia
-
-.. doxygenclass:: Multi_diagnostics_writer
+.. doxygenclass:: Multi_diagnostics
     :project: synergia
 
