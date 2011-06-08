@@ -11,5 +11,8 @@ Default Steppers object are described in the appropriate classes listed in the s
 The user can also define his own stepper, should specialized process be simulated for a given type of
 elements. 
 
+
+
 .. _simulation: ./simulation.html
 
+.. _split: J. Comput. Phys.  (163) 2000 p. 434, Phys. Lett A (150) 1990, p. 262 
