@@ -62,17 +62,102 @@ A simple Python container class has the name in instantiated.  The option named 
 brief definition appears in the thrid argument and it's type is single precision (32 bit, on most machines) floating point. 
 It implies that any particles found at a radial distance of more than 10 cm will be lost. 
 
-These options are then used in the main script in file ``fodo.py``.  Our simulation plan starts by setting this aperture
-restriction::
+These options are then used in the main script in file ``fodo.py``.  Our simulation starts by reading the file containing
+information about the lattice::
+
+   lattice = synergia.lattice.Mad8_reader().get_lattice("fodo", "fodo.lat")
+
+Let us use the options previously declared, for instance one can set the aperture restrictions::
     
    for elem in lattice.get_elements():
        elem.set_double_attribute("aperture_radius", opts.radius)
 
 
-         
+So far, we have a list ofaccelerator (or a beam line) elements,  forming a lattice. Let us implement this lattice in memory, 
+with the relevant data structures instantiated, such that tracking can be done:: 
+
+    lattice_simulator = synergia.simulation.Lattice_simulator(lattice,
+                                                          opts.map_order)
+
+The ``map_oder`` is an integer stating the order at which the CHEF maps will be computed. One also needs a bunch_.  This collection
+must be matched to the machine.  That is, the correlation between ``x`` and ``xp`` (or ``y``, ``yp``) must be such that the betatron
+oscillations at injection will smoothly match those of a bunch circulating in the machine.  We also need to declare the emittances,
+the total charge in the bunch (i.e., the number of real particles) and the number of macro particles.  Since some stochastics
+processes will be simulated, specifying the seed for reproducibility is a good idea as well::
+
+    bunch = synergia.optics.generate_matched_bunch_transverse(
+              lattice_simulator, opts.emit, opts.emit, opts.stdz, opts.dpop,
+              opts.real_particles, opts.macro_particles,
+              seed=opts.seed)
+
+Next, the stepper_ is instantianted::
+
+     stepper = synergia.simulation.Independent_stepper_elements(
+                            lattice_simulator, opts.steps)
+
+Only one option, the simplest is reproduced in this documentation file. Our intend is first to simulate the propagation of a bunch
+in the machine without any collective effects.  One last declaration before starting the simulation: diagnostics. While optional
+this is of course highly recommended if we want to derive some observations for our run:
+
+    multi_diagnostics_turn.append(synergia.bunch.Diagnostics_full2(bunch, "turn_full2.h5"))
+
+Again, for sake of brevity, only one such diagnostic request is shown here.  We have diagnostics for what happens on a step by
+step or turn by turn basis.  Information about each macroparticles can also be obtained. See the ``Diagnostics`` class in the bunch_
+documentation for more details. Finally, let us define the propagator for this run::
+
+    propagator = synergia.simulation.Propagator(stepper)
+    propagator.propagate(bunch, opts.turns,
+                     multi_diagnostics_step,
+                     multi_diagnostics_turn,
+                     opts.verbose)
+ 
+
+There is an important subtelty in this last line: the number of turns is now defined. It is indeed assumed that the ``fodo`` line
+represent some kind of circular or repetitive system, where the bunch re-enters at the beginning of the lattice at each turns.  
+Let us run this script::
+
+    %synergia fodo.py
+    
+
+Two output files are produced `` step_full2.h5`` and  ``turn_full2.h5``.  These HDF5_ files contain the results of our simulation. 
+They typically contain multiple ``DATASET`` that can be accessed via a simple ``dump`` command::
+
+    %h5dump turn_full2.h5 
+    
+More sophistication is needed to extract meaningful information about the performance of the simulated accelerator. Here, the user
+is either welcome to write his own analysis modules in his prefered computer languages (Python, C++, F90).  Conversely, for simple
+task, specific Python scripts have been written to display, for instance, the emittance versus the turn number, or the position
+(i.e. mean over the macro-particle) of the bunch in 6D phase space
+
+Since our bunch is matched to the lattice, no collective effect, nor any kind of perturbation are applied, the emittance stays flat
+and the bunch is on axis.  A rather boring (but good!) result. So, let up postpone the display of these results,
+and re-inject the bunch, but let us displace this bunch on the horizontal plane by two milimeter.  After defining our original bunch, insert
+the following lines of code::
+ 
+    for part in range(0, bunch.get_local_num()):
+         bunch.get_local_particles()[part][0] += .002
+    	        
+
+Since this is a perfect, matched lattice, again, the emittance stays flat, but the bunch oscillates at the betatron betatron
+frequency.  To see this, let use the diagnostic and plot the the mean horizontal position at every step::
+
+    syndiagplot  step_full2.h5 x_mean
+
+The following plot should appear on your screen
+
+.. figure:: Fodo_xMean_2mm.png
+
+    The mean horizontal position for our displaced bunch. 
+
+Let us now inject a bunch with sufficient charge to observe space charge effects. 
+
+
 
 A. Via The C++ Interface. 
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
 .. _Syphers: http://home.fnal.gov/~syphers/Education/uspas/USPAS08/
+.. _bunch: ./bunch.html
+.. _stepper: ./Stepper.html
+.. _HDF5: http://www.hdfgroup.org/HDF5/
