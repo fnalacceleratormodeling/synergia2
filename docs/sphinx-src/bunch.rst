@@ -9,6 +9,15 @@ Classes
 .. doxygenclass:: Bunch
    :project: synergia
 
+.. doxygenfunction:: populate_6d
+   :project: synergia
+
+.. doxygenfunction:: populate_transverse_gaussian
+   :project: synergia
+
+.. doxygenfunction:: populate_uniform_cylinder
+   :project: synergia
+
 .. doxygenclass:: Fixed_t_z_converter
     :project: synergia
 
