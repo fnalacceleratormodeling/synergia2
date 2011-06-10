@@ -95,15 +95,15 @@ Next, the stepper_ is instantianted::
      stepper = synergia.simulation.Independent_stepper_elements(
                             lattice_simulator, opts.steps)
 
-Only one option, the simplest is reproduced in this documentation file. Our intend is first to simulate the propagation of a bunch
-in the machine without any collective effects.  One last declaration before starting the simulation: diagnostics. While optional
-this is of course highly recommended if we want to derive some observations for our run:
+Only one option, the simplest is reproduced in this documentation file. Our intend is first to simulate the propagation
+of a bunch in the machine without any collective effects.  One last declaration before starting the simulation:
+diagnostics. While optional this is of course highly recommended if we want to derive some observations for our run:
 
     multi_diagnostics_turn.append(synergia.bunch.Diagnostics_full2(bunch, "turn_full2.h5"))
 
-Again, for sake of brevity, only one such diagnostic request is shown here.  We have diagnostics for what happens on a step by
-step or turn by turn basis.  Information about each macroparticles can also be obtained. See the ``Diagnostics`` class in the bunch_
-documentation for more details. Finally, let us define the propagator for this run::
+Again, for sake of brevity, only one such diagnostic request is shown here.  We have diagnostics for what happens on a
+step by step or turn by turn basis.  Information about each macroparticles can also be obtained. See the ``Diagnostics``
+class in the bunch_ documentation for more details. Finally, let us define the propagator for this run::
 
     propagator = synergia.simulation.Propagator(stepper)
     propagator.propagate(bunch, opts.turns,
@@ -138,8 +138,8 @@ the following lines of code::
          bunch.get_local_particles()[part][0] += .002
     	        
 
-Since this is a perfect, matched lattice, again, the emittance stays flat, but the bunch oscillates at the betatron betatron
-frequency.  To see this, let use the diagnostic and plot the the mean horizontal position at every step::
+Since this is a perfect, matched lattice, again, the transverse emittances stay flat. However, the bunch oscillates on the
+horizontal plane. To see this, let use the diagnostic and plot the the mean horizontal position at every step::
 
     syndiagplot  step_full2.h5 x_mean
 
@@ -147,15 +147,59 @@ The following plot should appear on your screen
 
 .. figure:: Fodo_xMean_2mm.png
 
-    The mean horizontal position for our displaced bunch. 
+    The mean horizontal position for our displaced bunch. This is for 20 .  
 
-Let us now inject a bunch with sufficient charge to observe space charge effects. 
+The oscillation period is of the order of 125 meters.  
+The effective distance between quadrupoles, L, is 10 - 2 m, where 2 m is the length of the quadrupole. The focal length F
+is 7 m. Thus the betatron phase advance per cell, mu, is ~ 2 arcsin(L/2F) ~ 1.21 radians. Since the length of a cell is
+20 m, a period comprising 5.2 cells or 103 m is consistent with crude, visual estimate of this oscillation period. 
+ 
+Suggested exercise: Let us drastically increase the strength of the quadrupoles by reducing their focal length to 2 m. 
+Upon re-running the scripts, one then get the following run-time error::
+
+    failed to take the acos of -9.73125
+    Traceback (most recent call last):
+    File "fodo.py", line 18, in ?
+        seed=opts.seed)
+    File "/local/lebrun/Synergia/synergia2-refactor/install/lib/synergia/optics/matching.py", line 157, in generate_matched_bunch_transverse
+        emit_x, emit_y, rms_z, dpop)
+    File "/local/lebrun/Synergia/synergia2-refactor/install/lib/synergia/optics/matching.py", line 138, in get_matched_bunch_transverse_parameters
+        alpha, beta = get_alpha_beta(map)
+    File "/local/lebrun/Synergia/synergia2-refactor/install/lib/synergia/optics/matching.py", line 68, in get_alpha_beta
+        raise RuntimeError("get_alpha_beta: unstable map:\n" +
+    RuntimeError: get_alpha_beta: unstable map:
+    [[-23.82482746  45.43485312   0.           0.           0.           0.        ]
+    [ -2.30950137   4.36233404   0.           0.           0.           0.        ]
+    [  0.           0.         -14.11367696 -32.25435088   0.           0.        ]
+    [  0.           0.          -2.30950137  -5.34881646   0.           0.        ]
+    [  0.           0.           0.           0.           1.         -10.02979771]
+    [  0.           0.           0.           0.           0.           1.        ]]
+
+ 
+By rasing the quadrupole strength, we placed the lattice in the unstable region, where F < L/2.  Thus, the automated
+matching algorythm to create the adhoc bunch fails and a run-time error is issued. Thus Synergia and CHEF can and will
+fail for ill-posed problems.     
+
+
+Let us now inject a bunch with sufficient charge to observe space charge effects.  One needs to upgrade our simulation
+algorithm, by changing the Stepper from ``independent`` to  ``splitoperator``,  and inserting a real Collective element.
+The so-called 3D open Hockney class is chosen.  The corresponding Python code is::
+
+    grid = [32, 32, 256]
+    space_charge = synergia.collective.Space_charge_3d_open_hockney(bunch.get_comm(), grid)
+    stepper = synergia.simulation.Split_operator_stepper(
+                            lattice_simulator, space_charge, opts.steps)
+   
+The first line simply introduces the mandatory grid n which the particle in Cell simulation will be done. The 2nd line
+defines the Collective effect, and the third line redefine the stepper. See details in the stepper_ documentation. 
 
 
 
-A. Via The C++ Interface. 
+
+B. Via The C++ Interface. 
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
+The Python script above can be easily translated in C++.  
 
 .. _Syphers: http://home.fnal.gov/~syphers/Education/uspas/USPAS08/
 .. _bunch: ./bunch.html
