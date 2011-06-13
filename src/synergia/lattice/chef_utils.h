@@ -13,11 +13,14 @@ Particle
 reference_particle_to_chef_particle(
         Reference_particle const& reference_particle);
 
+Reference_particle
+chef_particle_to_reference_particle(Particle const& chef_particle);
+
 JetParticle
 reference_particle_to_chef_jet_particle(
         Reference_particle const& reference_particle, int map_order);
 
-void
+Reference_particle
 propagate_reference_particle(Reference_particle const& reference_particle,
         BmlPtr beamline_sptr);
 
