@@ -364,3 +364,117 @@ BOOST_FIXTURE_TEST_CASE(get_beamline_sptr_rbends_markers,
                     lattice_sptr->get_reference_particle()));
     BOOST_CHECK_CLOSE(synergia_length, chef_length, tolerance);
 }
+
+BOOST_FIXTURE_TEST_CASE(have_sliced_beamline, Fodo_fixture)
+{
+    Chef_lattice chef_lattice(lattice_sptr);
+    BOOST_CHECK(!chef_lattice.have_sliced_beamline());
+}
+
+BOOST_FIXTURE_TEST_CASE(get_sliced_beamline_sptr_no_construct, Fodo_fixture)
+{
+    Chef_lattice chef_lattice(lattice_sptr);
+    bool caught = false;
+    try {
+        BmlPtr beamline_sptr = chef_lattice.get_sliced_beamline_sptr();
+    }
+    catch (std::runtime_error) {
+        caught = true;
+    }
+    BOOST_CHECK(caught);
+}
+
+//BOOST_FIXTURE_TEST_CASE(get_sliced_beamline_sptr, Fodo_fixture)
+//{
+//    Chef_lattice chef_lattice(lattice_sptr);
+//    BmlPtr beamline_sptr = chef_lattice.get_sliced_beamline_sptr();
+//
+//    const double tolerance = 1.0e-14;
+//
+//    Reference_particle reference_particle(
+//            propagate_reference_particle(
+//                    lattice_sptr->get_reference_particle(), beamline_sptr));
+//    check_zero_reference_particle(reference_particle, tolerance);
+//
+//    double synergia_length = lattice_sptr->get_length();
+//    double chef_length = beamline_sptr->OrbitLength(
+//            reference_particle_to_chef_particle(
+//                    lattice_sptr->get_reference_particle()));
+//    BOOST_CHECK_CLOSE(synergia_length, chef_length, tolerance);
+//}
+
+//BOOST_FIXTURE_TEST_CASE(get_sliced_beamline_sptr_sbends, Fobodobo_sbend_fixture)
+//{
+//    Chef_lattice chef_lattice(lattice_sptr);
+//    BmlPtr beamline_sptr = chef_lattice.get_sliced_beamline_sptr();
+//    propagate_reference_particle(lattice_sptr->get_reference_particle(),
+//            beamline_sptr);
+//    const double tolerance = 1.0e-13;
+//
+//    Reference_particle reference_particle(
+//            propagate_reference_particle(
+//                    lattice_sptr->get_reference_particle(), beamline_sptr));
+//    check_zero_reference_particle(reference_particle, tolerance);
+//
+//    double synergia_length = lattice_sptr->get_length();
+//    double chef_length = beamline_sptr->OrbitLength(
+//            reference_particle_to_chef_particle(
+//                    lattice_sptr->get_reference_particle()));
+//    BOOST_CHECK_CLOSE(synergia_length, chef_length, tolerance);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(get_sliced_beamline_sptr_sbends_markers,
+//        Fobodobo_sbend_markers_fixture)
+//{
+//    Chef_lattice chef_lattice(lattice_sptr);
+//    BmlPtr beamline_sptr = chef_lattice.get_sliced_beamline_sptr();
+//    const double tolerance = 1.0e-13;
+//
+//    Reference_particle reference_particle(
+//            propagate_reference_particle(
+//                    lattice_sptr->get_reference_particle(), beamline_sptr));
+//    check_zero_reference_particle(reference_particle, tolerance);
+//
+//    double synergia_length = lattice_sptr->get_length();
+//    double chef_length = beamline_sptr->OrbitLength(
+//            reference_particle_to_chef_particle(
+//                    lattice_sptr->get_reference_particle()));
+//    BOOST_CHECK_CLOSE(synergia_length, chef_length, tolerance);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(get_sliced_beamline_sptr_rbends, Fobodobo_rbend_fixture)
+//{
+//    Chef_lattice chef_lattice(lattice_sptr);
+//    BmlPtr beamline_sptr = chef_lattice.get_sliced_beamline_sptr();
+//    const double tolerance = 1.0e-13;
+//
+//    Reference_particle reference_particle(
+//            propagate_reference_particle(
+//                    lattice_sptr->get_reference_particle(), beamline_sptr));
+//    check_zero_reference_particle(reference_particle, tolerance);
+//
+//    double synergia_length = lattice_sptr->get_length();
+//    double chef_length = beamline_sptr->OrbitLength(
+//            reference_particle_to_chef_particle(
+//                    lattice_sptr->get_reference_particle()));
+//    BOOST_CHECK_CLOSE(synergia_length, chef_length, tolerance);
+//}
+//
+//BOOST_FIXTURE_TEST_CASE(get_sliced_beamline_sptr_rbends_markers,
+//        Fobodobo_rbend_markers_fixture)
+//{
+//    Chef_lattice chef_lattice(lattice_sptr);
+//    BmlPtr beamline_sptr = chef_lattice.get_sliced_beamline_sptr();
+//    const double tolerance = 1.0e-13;
+//
+//    Reference_particle reference_particle(
+//            propagate_reference_particle(
+//                    lattice_sptr->get_reference_particle(), beamline_sptr));
+//    check_zero_reference_particle(reference_particle, tolerance);
+//
+//    double synergia_length = lattice_sptr->get_length();
+//    double chef_length = beamline_sptr->OrbitLength(
+//            reference_particle_to_chef_particle(
+//                    lattice_sptr->get_reference_particle()));
+//    BOOST_CHECK_CLOSE(synergia_length, chef_length, tolerance);
+//}

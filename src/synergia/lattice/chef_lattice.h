@@ -7,12 +7,13 @@
 
 class Chef_lattice
 {
+    friend class Chef_lattice_tester;
 private:
     Lattice_sptr lattice_sptr;
     Element_adaptor_map_sptr element_adaptor_map_sptr;
     BmlPtr beamline_sptr;
     BmlPtr sliced_beamline_sptr;
-    bool have_sliced_beamline;
+    bool have_sliced_beamline_;
     ElmPtr lattice_element_marker;
     std::map<const Lattice_element*, Chef_elements > element_map;
     std::map<const Lattice_element_slice*, Chef_elements > element_slice_map;
@@ -42,6 +43,8 @@ public:
     get_chef_elements(Lattice_element const& lattice_element);
     Chef_elements &
     get_chef_elements(Lattice_element_slice const& lattice_element_slice);
+    bool
+    have_sliced_beamline() const;
     void
     construct_sliced_beamline(Lattice_element_slices const& slices);
     BmlPtr
