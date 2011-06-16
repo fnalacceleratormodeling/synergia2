@@ -38,6 +38,12 @@ public:
     static MArray2d
     calculate_mom2(Bunch const& bunch, MArray1d_ref const& mean);
 
+    static MArray1d
+    calculate_bunchmin(Bunch const& bunch);
+    
+    static MArray1d
+    calculate_bunchmax(Bunch const& bunch);
+    
     virtual
     ~Diagnostics()
     {
@@ -119,6 +125,13 @@ public:
     /// phase-space coordinate. The units are in Synergia units.
     virtual Const_MArray1d_ref
     get_std() const;
+
+    virtual const MArray1d
+    get_bunchmin() const;
+  
+    virtual const MArray1d
+    get_bunchmax() const;
+
 
     virtual void
     write();
