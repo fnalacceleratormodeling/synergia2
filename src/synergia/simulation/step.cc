@@ -1,7 +1,14 @@
 #include <iostream>
-
 #include "step.h"
 #include "synergia/foundation/physical_constants.h"
+#include "synergia/bunch/diagnostics.h"
+#include "synergia/collective/impedance.h"
+#include <boost/shared_ptr.hpp>
+#include <boost/pointer_cast.hpp>
+#include <boost/scoped_ptr.hpp>
+#include <boost/get_pointer.hpp>
+#include "synergia/collective/impedance.h"
+
 
 Step::Step(double length) :
     operators(), time_fractions(), length(length)
@@ -36,6 +43,23 @@ Step::apply(Bunch & bunch)
         // time [s] in accelerator frame
         double time = length / (bunch.get_reference_particle().get_beta()
                 * pconstants::c);
+        if ((*it)->get_name()=="impedance") {
+           // std::cout<<"name ="<< (*it)->get_name()<<std::endl; 
+            MArray1d bunch_means=Diagnostics::calculate_mean(bunch);
+            Bunch_means bi;
+            bi.x_mean=bunch_means[0];
+            bi.y_mean=bunch_means[2];
+            bi.z_mean=bunch_means[4];
+            bi.n_part=bunch.get_total_num();
+            stored_bunches.push_front(bi);
+
+            int nstored=(reinterpret_cast<Impedance*>(boost::get_pointer(*it)))->get_nstored_turns();
+        
+            if (stored_bunches.size()>nstored) stored_bunches.pop_back();
+          //  std::cout<<"name ="<< (*it)->get_name()<<" stored dim "<<stored_bunches.size()<<std::endl; 
+           
+         }
+        
         (*it)->apply(bunch, (*fractions_it) * time, *this);
         ++fractions_it;
     }
@@ -58,6 +82,11 @@ Step::get_length() const
 {
     return length;
 }
+
+std::list<Bunch_means>  Step::get_stored_bunches() const
+{
+        return stored_bunches;
+ }
 
 void
 Step::print(int index) const

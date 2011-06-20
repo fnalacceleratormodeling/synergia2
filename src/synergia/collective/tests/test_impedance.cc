@@ -66,12 +66,12 @@ dummy_populate(Bunch &bunch, int offset = 0)
 
 BOOST_AUTO_TEST_CASE(test_constructor)
 {
-Impedance imped("test_wake.dat", orbit_length, bunch_spacing,zgrid, "circular");
+Impedance imped("test_wake.dat", orbit_length, bunch_spacing,zgrid, "circular",10);
 }
 
 BOOST_AUTO_TEST_CASE(wake_reading_circular)
 {
-Impedance imped("test_wake_cc.dat", orbit_length, bunch_spacing, zgrid, "circular"); // three columns file
+Impedance imped("test_wake_cc.dat", orbit_length, bunch_spacing, zgrid, "circular",10); // three columns file
 BOOST_CHECK_CLOSE(imped.get_z_coord()[0], 0.00614575, tolerance);
 BOOST_CHECK_CLOSE(imped.get_z_coord()[1], 0.0136406, tolerance);
 BOOST_CHECK_CLOSE(imped.get_z_coord()[2], 0.0241333, tolerance);
@@ -96,7 +96,7 @@ BOOST_CHECK_CLOSE(imped.get_y_wake()[3],   -9.39278e+10  , tolerance);
 
 BOOST_AUTO_TEST_CASE(wake_reading_parallel)
 {
-Impedance imped("test_wake.dat", orbit_length, bunch_spacing,zgrid, "circular"); // four columns file
+Impedance imped("test_wake.dat", orbit_length, bunch_spacing,zgrid, "circular",10); // four columns file
 BOOST_CHECK_CLOSE(imped.get_z_coord()[0], 0.00614575, tolerance);
 BOOST_CHECK_CLOSE(imped.get_z_coord()[1], 0.0136406, tolerance);
 BOOST_CHECK_CLOSE(imped.get_z_coord()[2], 0.0241333, tolerance);
@@ -125,6 +125,6 @@ BOOST_CHECK_CLOSE(imped.get_y_wake()[3],   -1.77089e+11  , tolerance);
     dummy_populate(bunch);
     Step step(step_length);
     double time_step=10.;
-    Impedance imped("test_wake.dat", orbit_length, bunch_spacing, zgrid, "circular"); // four columns file
+    Impedance imped("test_wake.dat", orbit_length, bunch_spacing, zgrid, "circular",10); // four columns file
     imped.apply(bunch, time_step, step);
   }

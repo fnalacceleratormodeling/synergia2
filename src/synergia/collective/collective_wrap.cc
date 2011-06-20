@@ -31,7 +31,7 @@ BOOST_PYTHON_MODULE(collective)
     
     class_<Impedance,Impedance_sptr,
         bases<Collective_operator > >("Impedance",
-                init<std::string const &, double const &,  double const &, int const &, std::string const &>())
+                init<std::string const &, double const &,  double const &, int const &, std::string const &, int const>())
         .def("apply", &Impedance::apply);    
         
         

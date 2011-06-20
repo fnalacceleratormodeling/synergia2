@@ -9,6 +9,7 @@ class Impedance : public Collective_operator
 private:
     std::string pipe_symmetry; 
     int z_grid;
+    int nstored_turns;
     double orbit_length;
     double wake_factor;
     double bunch_spacing;
@@ -20,7 +21,7 @@ private:
     
 public:
     
-    Impedance(std::string const & wake_file, double const & orbit_length, double const & bunchsp, int const  & zgrid, std::string const & pipe_symmetry);
+    Impedance(std::string const & wake_file, double const & orbit_length, double const & bunchsp, int const  & zgrid, std::string const & pipe_symmetry, int const nstored_turns);
   
     
     int get_z_grid() const;
@@ -33,6 +34,8 @@ public:
     std::vector<double> get_x_wake() const;
     std::vector<double> get_y_wake() const;
     std::vector<double> get_z_wake() const;
+    virtual
+    int get_nstored_turns() const;
     
    /* 
     get_n_sigma() const;

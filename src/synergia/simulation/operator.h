@@ -27,7 +27,6 @@ public:
     apply(Bunch & bunch, double time_step, Step & step) = 0;
     virtual void
     print() const;
-    virtual
     ~Operator();
 };
 typedef boost::shared_ptr<Operator > Operator_sptr;

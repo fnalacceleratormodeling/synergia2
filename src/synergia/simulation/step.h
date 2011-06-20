@@ -7,12 +7,22 @@
 #include "synergia/simulation/operator.h"
 #include "synergia/bunch/bunch.h"
 
+struct Bunch_means
+{
+double x_mean;
+double y_mean;
+double z_mean;
+double n_part;
+};
+
+
 class Step
 {
 private:
     Operators operators;
     std::list<double > time_fractions;
     double length;
+    std::list<Bunch_means> stored_bunches;
 public:
     Step(double length);
     void
@@ -27,6 +37,7 @@ public:
     get_time_fractions() const;
     double
     get_length() const;
+    std::list<Bunch_means>  get_stored_bunches() const;
     virtual void
     print(int index) const;
 };

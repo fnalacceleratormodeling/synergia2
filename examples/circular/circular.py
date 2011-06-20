@@ -75,9 +75,9 @@ print "beta z: ", bz
 
 
 no_op = synergia.simulation.Dummy_collective_operator("stub")
-bunchsp=3.
+bunchsp=lattice_length/opts.harmno #2.0*math.pi*self.get_beta()*physics_constants.PH_MKS_c/self.get_omega()
 zgrid=40
-imped= synergia.collective.Impedance("BoosterF_wake.dat",lattice_length, bunchsp,zgrid, "circular")
+imped= synergia.collective.Impedance("BoosterF_wake.dat",lattice_length, bunchsp,zgrid, "circular",7)
 #imped= synergia.collective.Space_charge_2d_bassetti_erskine()
 stepper = synergia.simulation.Split_operator_stepper(
                             lattice_simulator, imped, opts.num_steps)

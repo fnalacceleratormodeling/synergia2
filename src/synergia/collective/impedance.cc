@@ -8,10 +8,12 @@
 //      wake_factor=-4.*mconstants::pi*pconstants::rp/pconstants::c;
 // }
 
-Impedance::Impedance(std::string const & wake_file, double const & orbit_length, double const & bunchsp, int const & zgrid, std::string const & pipe_symmetry):
-     Collective_operator("impedance"), orbit_length(orbit_length), bunch_spacing(bunchsp), z_grid(zgrid), wake_file(wake_file)
+Impedance::Impedance(std::string const & wake_file, double const & orbit_length, double const & bunchsp, int const & zgrid, std::string const & pipe_symmetry, int const nstored_turns):
+     Collective_operator("impedance"), orbit_length(orbit_length), bunch_spacing(bunchsp), z_grid(zgrid), wake_file(wake_file),
+     nstored_turns(nstored_turns)
 {  
      wake_factor=-4.*mconstants::pi*pconstants::rp/pconstants::c;
+    // wake_factor=-4.*mconstants::pi*pconstants::rp;
      this->pipe_symmetry=pipe_symmetry;
      
      
@@ -177,10 +179,12 @@ calculate_moments_and_partitions(Bunch & bunch, MArray1d &zdensity,  MArray1d &x
 }   
 //*************************************************************************
  void 
- get_kicks(int z_grid, double line_length,double  N_factor, double  cell_size_z, std::vector<double> & zcoord, std::vector<double> & xwake, std::vector<double> & ywake, std::vector<double> & zwake, MArray1d & zdensity, MArray1d &  xmom, MArray1d & ymom, MArray1d & dipole_x, MArray1d &  dipole_y, MArray1d & quad_y, MArray1d & l_monopole)
+ get_kicks(int z_grid, double line_length,double  N_factor, double  cell_size_z, std::vector<double> & zcoord, std::vector<double> & xwake, std::vector<double> & ywake, std::vector<double> & zwake, MArray1d & zdensity, MArray1d &  xmom, MArray1d & ymom, double & bunch_sp, std::list<Bunch_means> & stored_bunches, MArray1d & dipole_x, MArray1d &  dipole_y, MArray1d & quad_y, MArray1d & l_monopole)
  {
     
     int zpoints=zcoord.size();
+    int registered_turns=stored_bunches.size();
+    std::cout<<" registred turns= "<<registered_turns<<std::endl; 
     for (int i = 0; i < z_grid; ++i){
       // in-bunch impedance  
         for (int j = i+1; j < z_grid; ++j){
@@ -202,6 +206,41 @@ calculate_moments_and_partitions(Bunch & bunch, MArray1d &zdensity,  MArray1d &x
          }
     
     }
+    
+//  impedance contribution from previous turns    
+    double xdipole=0.;
+    double ydipole=0.;
+    double quadcontrib=0.; 
+    double  lmonocontrib=0.;
+    
+    std::list<Bunch_means>::const_iterator it = stored_bunches.begin();
+    for (int iturn=1; iturn<registered_turns; ++iturn){         
+            it ++;
+            double zji=iturn*line_length; 
+            int iz=static_cast<int>(floor(sqrt((zji-zcoord[0])/(zcoord[1]-zcoord[0]))));
+            double wake_x(0.), wake_y(0.), wake_z(0.);
+            if (iz+1 <= zpoints) {                
+               wake_x=xwake[iz]+(zji-zcoord[iz])*(xwake[iz+1]-xwake[iz])/(zcoord[iz+1]-zcoord[iz]);
+               wake_y=ywake[iz]+(zji-zcoord[iz])*(ywake[iz+1]-ywake[iz])/(zcoord[iz+1]-zcoord[iz]);
+               wake_z=zwake[iz]+(zji-zcoord[iz])*(zwake[iz+1]-zwake[iz])/(zcoord[iz+1]-zcoord[iz]);               
+            } 
+             xdipole += (*it).n_part*(*it).x_mean*wake_x; 
+             ydipole += (*it).n_part*(*it).y_mean*wake_y; 
+             quadcontrib +=(*it).n_part*wake_x;
+             lmonocontrib += (*it).n_part*wake_z; 
+           //  xdipole += stored_bunchnp(ibunch,iturn)* stored_means(ibunch,iturn,0)*wake_x; 
+//             ydipole += stored_bunchnp(ibunch,iturn)* stored_means(ibunch,iturn,1)*wake_y;
+//             quadcontrib += stored_bunchnp(ibunch,iturn)*wake_x;
+//             lmonocontrib +=  stored_bunchnp(ibunch,iturn)*wake_z;
+        
+    }
+    
+    
+    for (int i = 0; i < z_grid; ++i){
+        dipole_x[i] +=xdipole;
+        dipole_y[i] +=ydipole;
+        quad_y[i] +=quadcontrib;
+        l_monopole[i] +=lmonocontrib;     
  }
 
 
@@ -274,8 +313,8 @@ Impedance::apply(Bunch & bunch, double time_step, Step & step)
     
     
      //std::vector<double> zcoord =get_z_coord();
-    
-    get_kicks(z_grid, orbit_length , N_factor, cell_size_z_lab, z_coord, x_wake, y_wake, z_wake, zdensity, xmom, ymom, dipole_x,  dipole_y, quad_y, l_monopole);
+    std::list<Bunch_means>  stored_bunches = step.get_stored_bunches();    
+    get_kicks(z_grid, orbit_length , N_factor, cell_size_z_lab, z_coord, x_wake, y_wake, z_wake, zdensity, xmom, ymom, bunch_spacing,stored_bunches, dipole_x,  dipole_y, quad_y, l_monopole);
    
  //   get_kicks(bunch_i, num_slices, N_factor, cell_size_z_lab, wake_function, zdensity, xmom, ymom, dipole_x, 
  //             dipole_y, quad_y, l_monopole, stored_means,stored_buckets,stored_bunchnp,bunch_sp,line_length); 
@@ -284,6 +323,9 @@ Impedance::apply(Bunch & bunch, double time_step, Step & step)
 
     double w_f=get_wake_factor()*time_step/gamma/beta;  // 1/gamma/beta  is the difference with the old version
                                                         // due to the different units  
+                                                        
+      
+                                                                                              
     impedance_kick(bunch,  w_f, bin_partition, dipole_x, dipole_y, quad_y,  l_monopole);
          
 }
@@ -298,6 +340,6 @@ std::vector<double> Impedance::get_z_coord() const { return z_coord;}
 std::vector<double> Impedance::get_x_wake() const { return x_wake;}
 std::vector<double> Impedance::get_y_wake() const { return y_wake;}
 std::vector<double> Impedance::get_z_wake() const { return z_wake;}
-
+int Impedance::get_nstored_turns() const { return nstored_turns;}
 
 Impedance::~Impedance(){}
