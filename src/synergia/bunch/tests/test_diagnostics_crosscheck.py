@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+from math import sqrt
 import numpy
 
 total_num = 9;
@@ -7,7 +7,7 @@ particles = numpy.zeros([total_num, 6], 'd')
 for part in range(0, total_num):
     for i in range(0, 6):
         particles[part, i] = 10.0 * part + (1.0 + part * part / 1000.0) * i
-        
+
 f = open("test_diagnostics_get_mean.icc", "w")
 for i in range(0, 6):
     f.write("BOOST_CHECK_CLOSE(diagnostics.get_mean()[%d], %0.15f, tolerance);\n" % \
@@ -71,21 +71,21 @@ random_mom2 = sum2 / total_num
 #f.close()
 f = open("test_diagnostics_get_emitx.icc","w")
 f.write("BOOST_CHECK_CLOSE(diagnostics.get_emitx(), %0.15f, tolerance_emit2d);\n" % \
-       numpy.linalg.det(random_mom2[0:2,0:2]))
+       sqrt(numpy.linalg.det(random_mom2[0:2,0:2])))
 f.close()
 f = open("test_diagnostics_get_emity.icc","w")
 f.write("BOOST_CHECK_CLOSE(diagnostics.get_emity(), %0.15f, tolerance_emit2d);\n" % \
-       numpy.linalg.det(random_mom2[2:4,2:4]))
+       sqrt(numpy.linalg.det(random_mom2[2:4,2:4])))
 f.close()
 f = open("test_diagnostics_get_emitz.icc","w")
 f.write("BOOST_CHECK_CLOSE(diagnostics.get_emitz(), %0.15f, tolerance_emit2d);\n" % \
-       numpy.linalg.det(random_mom2[4:6,4:6]))
+       sqrt(numpy.linalg.det(random_mom2[4:6,4:6])))
 f.close()
 f = open("test_diagnostics_get_emitxy.icc","w")
 f.write("BOOST_CHECK_CLOSE(diagnostics.get_emitxy(), %0.15f, tolerance_emit4d);\n" % \
-       numpy.linalg.det(random_mom2[0:4,0:4]))
+       sqrt(numpy.linalg.det(random_mom2[0:4,0:4])))
 f.close()
 f = open("test_diagnostics_get_emitxyz.icc","w")
 f.write("BOOST_CHECK_CLOSE(diagnostics.get_emitxyz(), %0.15f, tolerance_emit6d);\n" % \
-       numpy.linalg.det(random_mom2));
+       sqrt(numpy.linalg.det(random_mom2)))
 f.close()
