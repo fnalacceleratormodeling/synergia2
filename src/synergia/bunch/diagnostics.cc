@@ -84,6 +84,57 @@ Diagnostics::calculate_mom2(Bunch const& bunch, MArray1d_ref const& mean)
     return mom2;
 }
 
+
+MArray1d 
+Diagnostics::calculate_bunchmin(Bunch const& bunch)
+{ 
+  MArray1d bunchmin(boost::extents[3]);
+  double lmin[3]={1.0e100,1.0e100,1.0e100};
+  Const_MArray2d_ref particles(bunch.get_local_particles());
+  for (int part = 0; part < bunch.get_local_num(); ++part) {
+        if (particles[part][0] < lmin[0]) {
+	   lmin[0] =particles[part][0] ;
+         }
+        if (particles[part][2] < lmin[1]) {
+	   lmin[1] =particles[part][2] ;
+         } 
+        if (particles[part][4] < lmin[2]) {
+	   lmin[2] =particles[part][4] ;
+         }   
+       
+   }
+   MPI_Allreduce(lmin, bunchmin.origin(), 3, MPI_DOUBLE, MPI_MIN, bunch.get_comm().get());
+  
+  return bunchmin;    
+}
+  
+ 
+
+MArray1d 
+Diagnostics::calculate_bunchmax(Bunch const& bunch)
+{
+MArray1d bunchmax(boost::extents[3]);
+  double lmax[3]={-1.0e100,-1.0e100,-1.0e100};
+  Const_MArray2d_ref particles(bunch.get_local_particles());
+  for (int part = 0; part < bunch.get_local_num(); ++part) {
+        if (particles[part][0] >lmax[0]) {
+	   lmax[0] =particles[part][0] ;
+         }
+        if (particles[part][2] > lmax[1]) {
+	   lmax[1] =particles[part][2] ;
+         } 
+        if (particles[part][4] > lmax[2]) {
+	   lmax[2] =particles[part][4] ;
+         }   
+       
+   }
+   MPI_Allreduce(lmax, bunchmax.origin(), 3, MPI_DOUBLE, MPI_MAX, bunch.get_comm().get());
+  
+  return bunchmax; 
+}
+
+
+
 void
 Diagnostics::update_and_write()
 {
@@ -158,6 +209,23 @@ Const_MArray1d_ref
 Diagnostics_basic::get_std() const
 {
     return std;
+}
+
+
+const MArray1d
+Diagnostics_basic::get_bunchmin() const
+{   
+    MArray1d bunchmin;
+    bunchmin=Diagnostics::calculate_bunchmin(*bunch_sptr);
+    return bunchmin;
+}
+
+const MArray1d
+Diagnostics_basic::get_bunchmax() const
+{   
+    MArray1d bunchmax;
+    bunchmax=Diagnostics::calculate_bunchmax(*bunch_sptr);
+    return bunchmax;
 }
 
 void

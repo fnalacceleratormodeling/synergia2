@@ -75,13 +75,17 @@ print "beta z: ", bz
 
 
 no_op = synergia.simulation.Dummy_collective_operator("stub")
+bunchsp=3.
+zgrid=40
+imped= synergia.collective.Impedance("BoosterF_wake.dat",lattice_length, bunchsp,zgrid, "circular")
+#imped= synergia.collective.Space_charge_2d_bassetti_erskine()
 stepper = synergia.simulation.Split_operator_stepper(
-                            lattice_simulator, no_op, opts.num_steps)
+                            lattice_simulator, imped, opts.num_steps)
 
 emit = opts.norm_emit
 print "generating particles with transverse emittance: ", emit
 
-covar = synergia.optics.matching._get_correlation_matrix(map, np.sqrt(emit*bx), np.sqrt(emit*by), opts.stdz)
+covar = synergia.optics.matching._get_correlation_matrix(map, np.sqrt(emit*bx), np.sqrt(emit*by), opts.stdz,beta)
 print "covariance matrix"
 print np.array2string(covar,max_line_width=200)
 
@@ -109,9 +113,9 @@ print "generated std_z: ", np.std(particles[:,4])
 print "expected std(dpop): ", opts.stdz/bz
 print "generated std(dpop): ", np.std(particles[:,5])
 
-diagnostics_writer_step = synergia.bunch.Diagnostics_writer("circular_full2.h5",
-                                                            synergia.bunch.Diagnostics_full2())
-diagnostics_writer_turn = synergia.bunch.Diagnostics_writer("circular_particles.h5",
-                                                            synergia.bunch.Diagnostics_particles())
+diagnostics_writer_step = synergia.bunch.Diagnostics_full2(bunch, "circular_full2.h5")
+                                                          
+diagnostics_writer_turn = synergia.bunch.Diagnostics_particles(bunch,"circular_particles.h5")
+                                                           
 propagator = synergia.simulation.Propagator(stepper)
 propagator.propagate(bunch, opts.num_turns, diagnostics_writer_step, diagnostics_writer_turn, opts.verbose)

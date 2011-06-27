@@ -43,6 +43,11 @@ typedef boost::const_multi_array_ref<std::complex<double >, 3 >
 typedef boost::detail::multi_array::multi_array_view<std::complex<double >, 3 >
         MArray3dc_view;
 
+typedef boost::multi_array<int, 1 > MArray1int;
+typedef boost::multi_array_ref<int, 1 > MArray1int_ref;
+typedef boost::const_multi_array_ref<int, 1 > Const_MArray1int_ref;
+typedef boost::detail::multi_array::multi_array_view<int, 1 > MArray1int_view;
+
 typedef boost::multi_array_types::index_range range;
 typedef boost::multi_array_types::extent_range extent_range;
 

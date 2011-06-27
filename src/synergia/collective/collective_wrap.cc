@@ -1,5 +1,6 @@
 #include "space_charge_3d_open_hockney.h"
 #include "space_charge_2d_bassetti_erskine.h"
+#include "impedance.h"
 #include <boost/python.hpp>
 #include "synergia/utils/container_conversions.h"
 
@@ -27,4 +28,11 @@ BOOST_PYTHON_MODULE(collective)
                 init<>())
         .def("apply", &Space_charge_2d_bassetti_erskine::apply)
         ;
+    
+    class_<Impedance,Impedance_sptr,
+        bases<Collective_operator > >("Impedance",
+                init<std::string const &, double const &,  double const &, int const &, std::string const &>())
+        .def("apply", &Impedance::apply);    
+        
+        
 }
