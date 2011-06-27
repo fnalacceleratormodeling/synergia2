@@ -76,6 +76,12 @@ Element_adaptor_map::Element_adaptor_map()
             new Multipole_mad8_adaptor);
     adaptor_map["multipole"] = multipole_mad8_adaptor;
 
+#ifdef THINPOLE
+    boost::shared_ptr<Thinpole_mad8_adaptor > thinpole_mad8_adaptor(
+            new Thinpole_mad8_adaptor);
+    adaptor_map["thinpole"] = thinpole_mad8_adaptor;
+#endif /* THINPOLE */
+
     boost::shared_ptr<Solenoid_mad8_adaptor > solenoid_mad8_adaptor(
             new Solenoid_mad8_adaptor);
     adaptor_map["solenoid"] = solenoid_mad8_adaptor;
@@ -686,6 +692,89 @@ Multipole_mad8_adaptor::get_chef_elements(
 Multipole_mad8_adaptor::~Multipole_mad8_adaptor()
 {
 }
+
+#ifdef THINPOLE
+//------------------------------------------
+// thinpoles are an addon present only in CHEF
+// they have length 0, normal and skew multipole moments
+// they are specified by the kl factor of their enclosing dipole
+//   or quadrupole, and b_k, and a_k coefficients relative to the
+//   base element strength
+
+Thinpole_mad8_adaptor::Thinpole_mad8_adaptor()
+{
+}
+
+void
+Thinpole_mad8_adaptor::set_default_attributes(
+        Lattice_element & lattice_element)
+{
+  set_double_default(lattice_element, "kl", 0.0); // base strength/B-rho
+  set_double_default(lattice_element, "a1", 0.0); // skew quad
+  set_double_default(lattice_element, "a2", 0.0); // skew sextupole
+  set_double_default(lattice_element, "a3", 0.0); // skew octupole
+  set_double_default(lattice_element, "a4", 0.0); // skew decapole
+  set_double_default(lattice_element, "a5", 0.0); // skew dodecapole
+  set_double_default(lattice_element, "a6", 0.0); // skew tetradecapole
+  set_double_default(lattice_element, "a7", 0.0); // skew hexdecapole
+  set_double_default(lattice_element, "b1", 0.0); // quad
+  set_double_default(lattice_element, "b2", 0.0); // sextupole
+  set_double_default(lattice_element, "b3", 0.0); // octopole
+  set_double_default(lattice_element, "b4", 0.0); // decapole
+  set_double_default(lattice_element, "b5", 0.0); // dodecapole
+  set_double_default(lattice_element, "b6", 0.0); // tetradecapole
+  set_double_default(lattice_element, "b7", 0.0); // hexdecapole
+}
+
+Chef_elements
+Thinpole_mad8_adaptor::get_chef_elements(
+        Lattice_element const& lattice_element, double brho)
+{
+    Chef_elements retval;
+    double ak[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently a0-a7
+    double bk[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently a0-a7
+
+    // thinpole strengths
+    string a_attr_list[] = { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7"};
+    string b_attr_list[] = { "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7"};
+
+    // loop through possible attributes
+    for (int moment = 0; moment < 8; ++moment) {
+        if (lattice_element.has_double_attribute(a_attr_list[moment])) {
+	  ak[moment] = lattice_element.get_double_attribute(a_attr_list[moment]);
+	}
+	if (lattice_element.has_double_attribute(b_attr_list[moment])) {
+	  bk[moment] = lattice_element.get_double_attribute(b_attr_list[moment]);
+	}
+    }
+
+    double kl = lattice_element.get_double_attribute("kl");
+
+    // assemble chef elements
+    int thinpole_count = 0;
+    std::vector<std::complex<double>> c_moments;
+    for (int k=0; k<8; ++k) {
+      c_moments.push_back(std::complex<double> (bk[k],ak[k]));
+    }
+    
+    bmln_element = new ThinPole(lattice_element.get_name().c_str(),
+				brho * kl, c_moments);
+
+    retval.push_back(ElmPtr(bmln_element));
+
+    // put in a marker for this element
+    ElmPtr elm = ElmPtr(new marker(lattice_element.get_name().c_str()));
+    retval.push_back(elm);
+
+    return retval;
+}
+
+Thinpole_mad8_adaptor::~Thinpole_mad8_adaptor()
+{
+}
+
+//------------------------------------------
+#endif /* THINPOLE */
 
 Solenoid_mad8_adaptor::Solenoid_mad8_adaptor()
 {
