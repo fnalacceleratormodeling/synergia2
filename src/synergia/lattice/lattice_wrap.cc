@@ -4,10 +4,39 @@
 #include "chef_lattice.h"
 #include "chef_utils.h"
 #include <boost/python.hpp>
+#include <boost/python/dict.hpp>
 #include "synergia/utils/container_conversions.h"
 #include "synergia/utils/xml_serialization.h"
 
 using namespace boost::python;
+
+// jfa: ideally, this would be done through a container conversion.
+// This implementation is simpler, if less general.
+dict
+get_double_attributes_workaround(Lattice_element const& lattice_element)
+{
+    dict retval;
+    for (std::map<std::string, double >::const_iterator it =
+            lattice_element.get_double_attributes().begin(); it
+            != lattice_element.get_double_attributes().end(); ++it) {
+        retval[it->first] = it->second;
+    }
+    return retval;
+}
+
+// jfa: ideally, this would be done through a container conversion.
+// This implementation is simpler, if less general.
+dict
+get_string_attributes_workaround(Lattice_element const& lattice_element)
+{
+    dict retval;
+    for (std::map<std::string, string >::const_iterator it =
+            lattice_element.get_string_attributes().begin(); it
+            != lattice_element.get_string_attributes().end(); ++it) {
+        retval[it->first] = it->second;
+    }
+    return retval;
+}
 
 BOOST_PYTHON_MODULE(lattice)
 {
@@ -24,14 +53,12 @@ BOOST_PYTHON_MODULE(lattice)
         .def("set_double_attribute", &Lattice_element::set_double_attribute)
         .def("has_double_attribute", &Lattice_element::has_double_attribute)
         .def("get_double_attribute", &Lattice_element::get_double_attribute)
-//        .def("get_double_attributes", &Lattice_element::get_double_attributes,
-//                return_value_policy<copy_const_reference>())
+        .def("get_double_attributes", get_double_attributes_workaround)
         .def("set_string_attribute", &Lattice_element::set_string_attribute)
         .def("has_string_attribute", &Lattice_element::has_string_attribute)
         .def("get_string_attribute", &Lattice_element::get_string_attribute,
                 return_value_policy<copy_const_reference>())
-//        .def("get_string_attributes", &Lattice_element::get_string_attributes,
-//                return_value_policy<copy_const_reference>())
+        .def("get_string_attributes", get_string_attributes_workaround)
         .def("set_length_attribute_name", &Lattice_element::set_length_attribute_name)
         .def("set_bend_angle_attribute_name", &Lattice_element::set_bend_angle_attribute_name)
         .def("get_length", &Lattice_element::get_length)
