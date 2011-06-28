@@ -474,7 +474,7 @@ Sextupole_mad8_adaptor::get_chef_elements(
 
     double sexlen = lattice_element.get_double_attribute("l");
     double sexk2 = lattice_element.get_double_attribute("k2");
-    double sextilt = 0.0;
+    double sextilt;
 
     alignmentData aligner;
 
@@ -532,7 +532,7 @@ Octupole_mad8_adaptor::get_chef_elements(
 
     double octulen = lattice_element.get_double_attribute("l");
     double octuk2 = lattice_element.get_double_attribute("k3");
-    double octutilt = 0.0;
+    double octutilt;
 
     alignmentData aligner;
 
@@ -638,7 +638,7 @@ Multipole_mad8_adaptor::get_chef_elements(
     int multipole_count = 0;
     for (int moment = 0; moment < 10; ++moment) {
         if (knl[moment] != 0.0) {
-            bmlnElmnt* bmln_elmnt = 0;
+            bmlnElmnt* bmln_elmnt;
             ++multipole_count;
             switch (moment) {
 
@@ -740,6 +740,7 @@ Thinpole_mad8_adaptor::get_chef_elements(
     double kl = lattice_element.get_double_attribute("kl");
 
     // assemble chef elements
+    int thinpole_count = 0;
     std::vector<std::complex<double> > c_moments;
     for (int k=0; k<8; ++k) {
       c_moments.push_back(std::complex<double> (bk[k],ak[k]));
