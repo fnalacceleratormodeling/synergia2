@@ -9,7 +9,7 @@
 #include "synergia/lattice/lattice_element.h"
 #include "synergia/lattice/chef_elements.h"
 
-#define THINPOLE 0
+#define THINPOLE 1
 
 class Element_adaptor
 {
