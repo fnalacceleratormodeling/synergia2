@@ -1,0 +1,1 @@
+BOOST_CHECK_CLOSE(diagnostics.get_emitxyz(), 1.584918641203633, tolerance_emit6d);

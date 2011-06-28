@@ -1,5 +1,4 @@
 test_bunch
-*.icc
 test_diagnostics
 test_diagnostics_basic_mpi
 test_diagnostics_full2_mpi

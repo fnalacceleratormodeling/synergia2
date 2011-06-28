@@ -1,0 +1,6 @@
+BOOST_CHECK_CLOSE(diagnostics.get_std()[0], 25.819888974716111, tolerance);
+BOOST_CHECK_CLOSE(diagnostics.get_std()[1], 25.840545548076616, tolerance);
+BOOST_CHECK_CLOSE(diagnostics.get_std()[2], 25.861203443682886, tolerance);
+BOOST_CHECK_CLOSE(diagnostics.get_std()[3], 25.881862658368828, tolerance);
+BOOST_CHECK_CLOSE(diagnostics.get_std()[4], 25.902523188978243, tolerance);
+BOOST_CHECK_CLOSE(diagnostics.get_std()[5], 25.923185032364795, tolerance);
