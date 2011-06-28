@@ -76,7 +76,7 @@ Element_adaptor_map::Element_adaptor_map()
             new Multipole_mad8_adaptor);
     adaptor_map["multipole"] = multipole_mad8_adaptor;
 
-#ifdef THINPOLE
+#if THINPOLE
     boost::shared_ptr<Thinpole_mad8_adaptor > thinpole_mad8_adaptor(
             new Thinpole_mad8_adaptor);
     adaptor_map["thinpole"] = thinpole_mad8_adaptor;
@@ -474,7 +474,7 @@ Sextupole_mad8_adaptor::get_chef_elements(
 
     double sexlen = lattice_element.get_double_attribute("l");
     double sexk2 = lattice_element.get_double_attribute("k2");
-    double sextilt;
+    double sextilt = 0.0;
 
     alignmentData aligner;
 
@@ -532,7 +532,7 @@ Octupole_mad8_adaptor::get_chef_elements(
 
     double octulen = lattice_element.get_double_attribute("l");
     double octuk2 = lattice_element.get_double_attribute("k3");
-    double octutilt;
+    double octutilt = 0.0;
 
     alignmentData aligner;
 
@@ -638,7 +638,7 @@ Multipole_mad8_adaptor::get_chef_elements(
     int multipole_count = 0;
     for (int moment = 0; moment < 10; ++moment) {
         if (knl[moment] != 0.0) {
-            bmlnElmnt* bmln_elmnt;
+            bmlnElmnt* bmln_elmnt = 0;
             ++multipole_count;
             switch (moment) {
 
@@ -682,7 +682,7 @@ Multipole_mad8_adaptor::~Multipole_mad8_adaptor()
 {
 }
 
-#ifdef THINPOLE
+#if THINPOLE
 //------------------------------------------
 // thinpoles are an addon present only in CHEF
 // they have length 0, normal and skew multipole moments
@@ -740,16 +740,13 @@ Thinpole_mad8_adaptor::get_chef_elements(
     double kl = lattice_element.get_double_attribute("kl");
 
     // assemble chef elements
-    int thinpole_count = 0;
-    std::vector<std::complex<double>> c_moments;
+    std::vector<std::complex<double> > c_moments;
     for (int k=0; k<8; ++k) {
       c_moments.push_back(std::complex<double> (bk[k],ak[k]));
     }
     
-    bmln_element = new ThinPole(lattice_element.get_name().c_str(),
-				brho * kl, c_moments);
-
-    retval.push_back(ElmPtr(bmln_element));
+    retval.push_back(ElmPtr(new ThinPole(lattice_element.get_name().c_str(),
+					 brho * kl, c_moments)));
 
     // put in a marker for this element
     ElmPtr elm = ElmPtr(new marker(lattice_element.get_name().c_str()));
