@@ -76,7 +76,7 @@ Element_adaptor_map::Element_adaptor_map()
             new Multipole_mad8_adaptor);
     adaptor_map["multipole"] = multipole_mad8_adaptor;
 
-#if THINPOLE
+#ifdef THINPOLE
     boost::shared_ptr<Thinpole_mad8_adaptor > thinpole_mad8_adaptor(
             new Thinpole_mad8_adaptor);
     adaptor_map["thinpole"] = thinpole_mad8_adaptor;
@@ -682,7 +682,7 @@ Multipole_mad8_adaptor::~Multipole_mad8_adaptor()
 {
 }
 
-#if THINPOLE
+#ifdef THINPOLE
 //------------------------------------------
 // thinpoles are an addon present only in CHEF
 // they have length 0, normal and skew multipole moments
