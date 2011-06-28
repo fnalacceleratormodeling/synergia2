@@ -741,13 +741,15 @@ Thinpole_mad8_adaptor::get_chef_elements(
 
     // assemble chef elements
     int thinpole_count = 0;
-    std::vector<std::complex<double> > c_moments;
+    std::vector<std::complex<double>> c_moments;
     for (int k=0; k<8; ++k) {
       c_moments.push_back(std::complex<double> (bk[k],ak[k]));
     }
     
-    retval.push_back(ElmPtr(new ThinPole(lattice_element.get_name().c_str(),
-					 brho * kl, c_moments)));
+    bmln_element = new ThinPole(lattice_element.get_name().c_str(),
+				brho * kl, c_moments);
+
+    retval.push_back(ElmPtr(bmln_element));
 
     // put in a marker for this element
     ElmPtr elm = ElmPtr(new marker(lattice_element.get_name().c_str()));
