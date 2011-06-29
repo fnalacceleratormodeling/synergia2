@@ -8,6 +8,7 @@ target_link_libraries(bunch synergia_bunch ${Boost_LIBRARIES})
 install(TARGETS synergia_bunch DESTINATION lib)
 install(FILES bunch.h
     diagnostics.h
+    diagnostics_write_helper.h
     multi_diagnostics.h
     fixed_t_z_converter.h
     populate.h
