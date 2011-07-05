@@ -5,11 +5,15 @@ import numpy
 from one_turn_map import linear_one_turn_map
 from mpi4py import MPI
 from synergia.bunch import Bunch, populate_6d, populate_transverse_gaussian
-from synergia.foundation import Random_distribution
+from synergia.foundation import Random_distribution, pconstants
 from math import acos, pi, sin, sqrt
 
-def _get_correlation_matrix(map, rms_x, rms_y, rms_z, beta):
-    evals, evect_matrix = numpy.linalg.eig(map)
+
+def _get_correlation_matrix(linear_map,arms,brms,crms,beta,rms_index=[0,2,4],print_emittances=True):
+    '''here are 3 rms input parameters,arms, brms, crms, which corresponds to  indices rms _index[0], rms _index[1], rms _index[2] 
+        example: rms_index=[0,2,4]==> arms=xrms, brms=yrms, crms=zrms
+         units of rms should be  [xrms]=m, [pxrms]=Gev/c, [zrms]=m, [pzrms] = Gev/c,  ''' 
+    evals, evect_matrix = numpy.linalg.eig(linear_map)
     evects = []
     for i in range(0, 6):
         evects.append(evect_matrix[:, i])
@@ -33,26 +37,90 @@ def _get_correlation_matrix(map, rms_x, rms_y, rms_z, beta):
         tmp += numpy.outer(evects[conj],
             numpy.conjugate(evects[conj]))
         F[i] = tmp.real
-        # F[i] is effectively 2*e[i] cross e^H[i].
+        # F[i] is effectively 2*e[i] cross e^H[i].make install
 
     # The correlation matrix is a linear combination of F[i] with
     # appropriate coefficients such that the diagonal elements C[i,i] i=(0,2,4)
     # come out to be the desired 2nd moments.
-    S = numpy.zeros((3, 3), 'd')
-    for i in range(0, 3):
-        for j in range(0, 3):
-            S[i, j] = F[j][2 * i, 2 * i]
-
-    Sinv = numpy.linalg.inv(S)
-
-    C = numpy.zeros([6, 6], 'd')
-    cd1 = rms_x ** 2
-    cd2 = rms_y ** 2
-    rms_cdt = rms_z / beta
-    cd3 = rms_cdt ** 2
-
+    S=numpy.zeros((3,3),'d')
+    for i in range(0,3):
+        for j in range(0,3):
+            S[i,j]=F[j][rms_index[i],rms_index[i]]
+        
+    Sinv=numpy.linalg.inv(S)   
+    
+    
+    
+    gamma=1./numpy.sqrt(1.-beta*beta)
+    pz = gamma * beta *pconstants.mp
+    energy=pconstants.mp * gamma
+    Cxy=1.
+    Cxpyp=1./pz
+    Cz=1./beta
+    Czp=1./pz
+    units=[Cxy,Cxpyp,Cxy,Cxpyp,Cz, Czp] # transform from input units to Chef units
+ 
+    C = numpy.zeros([6, 6], 'd') 
+    cd1=arms*units[rms_index[0]]*arms*units[rms_index[0]]
+    cd2=brms*units[rms_index[1]]*brms*units[rms_index[1]]   
+    cd3=crms*units[rms_index[2]]*crms*units[rms_index[2]]  
+    #cd1 = rms_x ** 2
+    #cd2 = rms_y ** 2
+    #rms_cdt = rms_z / beta   
+    #cd3 = rms_cdt ** 2
+    
     for i in range(0, 3):
         C += F[i] * (Sinv[i, 0] * cd1 + Sinv[i, 1] * cd2 + Sinv[i, 2] * cd3)
+        
+          
+    if print_emittances:
+       
+        #emitx=sqrt(C[0,0]*C[1,1]-C[0,1]*C[1,0])*pz
+        #emity=sqrt(C[2,2]*C[3,3]-C[2,3]*C[3,2])*pz
+        #emitz=sqrt(C[4,4]*C[5,5]-C[4,5]*C[5,4])*pz*beta
+        emitx=sqrt(C[0,0]*C[1,1]-C[0,1]*C[1,0])/units[0]/units[1]
+        emity=sqrt(C[2,2]*C[3,3]-C[2,3]*C[3,2])/units[2]/units[3]
+        emitz=sqrt(C[4,4]*C[5,5]-C[4,5]*C[5,4])/units[4]/units[5]
+        if MPI.COMM_WORLD.Get_rank() ==0: 
+            print "************ BEAM MATCHED PARAMETERS *****************"
+            print "*    emitx=", emitx, " meters*GeV/c   =", emitx/pz, " meters*rad =", emitx/pz/pi, " pi*meters*rad"
+            print "*    emity=", emity, " meters*GeV/c   =", emity/pz, " meters*rad =", emity/pz/pi, " pi*meters*rad"
+            print "*    emitz=", emitz, " meters*GeV/c =", emitz*1.e9/(pconstants.c), " eV*s =" , emitz*beta*beta*energy/pz, " meters*GeV"
+            print " "  
+            print "*    90%emitx=",  4.605*pi*emitx/pz,"  meters*rad =", 4.605*emitx/pz, " pi*meters*rad"
+            print "*    90%emity=",  4.605*pi*emity/pz, " meters*rad =", 4.605*emity/pz, " pi*meters*rad"
+            print "*    90%emitz=",  4.605*pi*emitz*1.e9/(pconstants.c), " eV*s"
+            print " "
+            print " "  
+            print "*    95%emitx=",  5.991*pi*emitx/pz,"  meters*rad =", 5.991*emitx/pz, " pi*meters*rad"
+            print "*    95%emity=",  5.991*pi*emity/pz, " meters*rad =", 5.991*emity/pz, " pi*meters*rad"
+            print "*    95%emitz=",  5.991*pi*emitz*1.e9/(pconstants.c), " eV*s"
+            print " "
+            print "*    Normalized emitx=",  emitx*gamma*beta/pz, " meters*rad =", emitx*gamma*beta/pz/pi, " pi*meters*rad"
+            print "*    Normalized emity=",  emity*gamma*beta/pz, " meters*rad =", emity*gamma*beta/pz/pi, " pi*meters*rad"
+            print " " 
+            print "*    Normalized 90%emitx=",  4.605*pi*emitx*gamma*beta/pz,"  meters*rad =", 4.605*emitx*gamma*beta/pz, " pi*meters*rad"
+            print "*    Normalized 90%emity=",  4.605*pi*emity*gamma*beta/pz, " meters*rad =", 4.605*emity*gamma*beta/pz, " pi*meters*rad"
+            print " "  
+            print "*    Normalized 95%emitx=",  5.991*pi*emitx*gamma*beta/pz,"  meters*rad =", 5.991*emitx*gamma*beta/pz, " pi*meters*rad"
+            print "*    Normalized 95%emity=",  5.991*pi*emity*gamma*beta/pz, " meters*rad =", 5.991*emity*gamma*beta/pz, " pi*meters*rad"
+            print " "
+            print "*    xrms=",sqrt(C[0,0])/units[0] , " meters"
+            print "*    yrms=",sqrt(C[2,2])/units[2], " meters"
+            print "*    zrms=",sqrt(C[4,4])/units[4] , " meters=", 1e9*sqrt(C[4,4])/units[4]/pconstants.c/beta," ns  "
+           # ,=2.*pi*sqrt(C[4,4])/units[4]/beam_parameters.get_z_length(), " rad 
+            print "*    pxrms=",sqrt(C[1,1])/units[1] , " GeV/c,    dpx/p=",sqrt(C[1,1])
+            print "*    pyrms=",sqrt(C[3,3])/units[3] , " GeV/c,    dpy/p=",sqrt(C[3,3])
+            print "*    pzrms=",sqrt(C[5,5])/units[5] , " GeV/c,    dpz/p=",sqrt(C[5,5])
+            print "*    Erms=",sqrt(C[5,5])*beta*beta*energy, " GeV,  deoe=",sqrt(C[5,5])*beta*beta
+            #print "" 
+            #print "*    bucket length=",beam_parameters.get_z_length(),  " meters =",1e9*beam_parameters.get_z_length()/synergia.PH_MKS_c/beta," ns"
+            print "*    pz=",pz, "  GeV/c"
+            print "*    total energy=",energy,"GeV,   kinetic energy=", energy-pconstants.mp,"GeV"
+            print "****************************************************"
+             
+        
+        
     return C
 
 def get_alpha_beta(map):
@@ -116,13 +184,13 @@ def get_covariances(sigma, r):
         c[i, i + 1] = ri * sigma[i] * sigma[i + 1]
     return c
 
-def generate_matched_bunch(lattice_simulator, rms_x, rms_y, rms_z,
-                           num_real_particles, num_macro_particles, seed=0,
+def generate_matched_bunch(lattice_simulator, arms,brms,crms,
+                           num_real_particles, num_macro_particles, rms_index=[0,2,4],seed=0,
                            comm=None):
 
     map = linear_one_turn_map(lattice_simulator)
     beta = lattice_simulator.get_lattice().get_reference_particle().get_beta()
-    correlation_matrix = _get_correlation_matrix(map, rms_x, rms_y, rms_z, beta)
+    correlation_matrix = _get_correlation_matrix(map, arms,brms,crms,beta, rms_index)
     if comm == None:
         comm = MPI.COMM_WORLD
     bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),

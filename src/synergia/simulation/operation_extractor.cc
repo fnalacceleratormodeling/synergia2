@@ -95,7 +95,7 @@ Chef_propagate_operation_extractor::extract(
     Chef_propagate_operation_sptr chef_propagate_operation_sptr(
             new Chef_propagate_operation(chef_elements));
     Independent_operations retval;
-    retval.push_back(chef_propagate_operation_sptr);
+    retval.push_back(chef_propagate_operation_sptr);  
     return retval;
 }
 
@@ -126,7 +126,7 @@ Independent_operations
 Chef_mixed_operation_extractor::extract(
         Reference_particle const& reference_particle,
         Lattice_element_slices const& slices)
-{
+{    
     Independent_operations retval;
     Chef_elements group;
     bool is_rf(false), last_is_rf(false);

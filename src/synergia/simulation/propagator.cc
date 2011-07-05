@@ -80,7 +80,7 @@ Propagator::propagate(Bunch & bunch, int num_turns,
             if (verbose) {
                 if (rank == 0) {
                     std::cout << "Propagator:   step " << step_count << "/"
-                            << num_steps << std::endl;
+                            << num_steps <<" s= "<<bunch.get_reference_particle().get_s()<<" trajectory length="<<bunch.get_reference_particle().get_trajectory_length()<< std::endl;
                 }
             }
             (*it)->apply(bunch);

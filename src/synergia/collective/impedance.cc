@@ -12,8 +12,8 @@ Impedance::Impedance(std::string const & wake_file, double const & orbit_length,
      Collective_operator("impedance"), orbit_length(orbit_length), bunch_spacing(bunchsp), z_grid(zgrid), wake_file(wake_file),
      nstored_turns(nstored_turns)
 {  
-     wake_factor=-4.*mconstants::pi*pconstants::rp/pconstants::c;
-    // wake_factor=-4.*mconstants::pi*pconstants::rp;
+    // wake_factor=-4.*mconstants::pi*pconstants::rp/pconstants::c;
+     wake_factor=-4.*mconstants::pi*pconstants::rp;
      this->pipe_symmetry=pipe_symmetry;
      
      
@@ -55,19 +55,22 @@ Impedance::Impedance(std::string const & wake_file, double const & orbit_length,
                                 std::cout<<" the wake file should have 4 columns, z, W_x, W_y and W_z"<<std::endl;
                                                 abort(); 
                         }
-                    } 
-                    else {
+                 } 
+                 else {
                         z_coord.push_back(column1);
                         x_wake.push_back(column2);
                         y_wake.push_back(column3);
                         z_wake.push_back(column4);
                         
-                    }                                                          
+                }                                                          
          
           }    
       }
       rfile.close();
-      std::cout<<" wake reading from file done, the pipe symmetry is   " <<get_pipe_symmetry()<<std::endl;
+      
+      std::cout<<"  wake read from  "<<wake_file<<std::endl;
+      std::cout<<"  pipe symmetry  "<<get_pipe_symmetry()<<std::endl;
+      std::cout<<"  number of previous turns considered is  "<<get_nstored_turns()<<std::endl;
      // wakes read!
      
      
@@ -214,7 +217,7 @@ calculate_moments_and_partitions(Bunch & bunch, MArray1d &zdensity,  MArray1d &x
     double  lmonocontrib=0.;
     
     std::list<Bunch_means>::const_iterator it = stored_bunches.begin();
-    for (int iturn=1; iturn<registered_turns; ++iturn){         
+    for (int iturn=1; iturn<registered_turns; ++iturn){    
             it ++;
             double zji=iturn*line_length; 
             int iz=static_cast<int>(floor(sqrt((zji-zcoord[0])/(zcoord[1]-zcoord[0]))));
@@ -233,14 +236,17 @@ calculate_moments_and_partitions(Bunch & bunch, MArray1d &zdensity,  MArray1d &x
 //             quadcontrib += stored_bunchnp(ibunch,iturn)*wake_x;
 //             lmonocontrib +=  stored_bunchnp(ibunch,iturn)*wake_z;
         
+           
     }
-    
+     it++;
+     if (it != stored_bunches.end()) std::cout<<" aaaaaaaaaaaaaaa"<<std::endl;
     
     for (int i = 0; i < z_grid; ++i){
         dipole_x[i] +=xdipole;
         dipole_y[i] +=ydipole;
         quad_y[i] +=quadcontrib;
-        l_monopole[i] +=lmonocontrib;     
+        l_monopole[i] +=lmonocontrib; 
+       }    
  }
 
 

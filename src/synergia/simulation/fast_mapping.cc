@@ -169,6 +169,7 @@ Fast_mapping::get_length() const
 void
 Fast_mapping::apply(Bunch & bunch)
 {
+   // std::cout<<"fast mapping apply with length = "<<length<<std::endl;
     bunch.get_reference_particle().increment_trajectory(length);
     double temp[6];
     int local_num = bunch.get_local_num();

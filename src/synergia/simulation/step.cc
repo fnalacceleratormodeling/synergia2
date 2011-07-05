@@ -36,7 +36,8 @@ Step::append(Operators const& the_operators, double time_fraction)
 
 void
 Step::apply(Bunch & bunch)
-{
+{ 
+    
     std::list<double >::const_iterator fractions_it = time_fractions.begin();
     for (Operators::const_iterator it = operators.begin(); it
             != operators.end(); ++it) {
@@ -44,7 +45,6 @@ Step::apply(Bunch & bunch)
         double time = length / (bunch.get_reference_particle().get_beta()
                 * pconstants::c);
         if ((*it)->get_name()=="impedance") {
-           // std::cout<<"name ="<< (*it)->get_name()<<std::endl; 
             MArray1d bunch_means=Diagnostics::calculate_mean(bunch);
             Bunch_means bi;
             bi.x_mean=bunch_means[0];
@@ -53,13 +53,11 @@ Step::apply(Bunch & bunch)
             bi.n_part=bunch.get_total_num();
             stored_bunches.push_front(bi);
 
-            int nstored=(reinterpret_cast<Impedance*>(boost::get_pointer(*it)))->get_nstored_turns();
-        
+            int nstored=(reinterpret_cast<Impedance*>(boost::get_pointer(*it)))->get_nstored_turns(); 
             if (stored_bunches.size()>nstored) stored_bunches.pop_back();
           //  std::cout<<"name ="<< (*it)->get_name()<<" stored dim "<<stored_bunches.size()<<std::endl; 
            
          }
-        
         (*it)->apply(bunch, (*fractions_it) * time, *this);
         ++fractions_it;
     }

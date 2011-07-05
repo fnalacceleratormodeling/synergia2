@@ -11,14 +11,30 @@ Chef_propagator::Chef_propagator(Chef_elements const& chef_elements) :
 void
 Chef_propagator::apply(Bunch & bunch)
 {
+    
+   
+  
+    Particle particle(reference_particle_to_chef_particle(
+            bunch.get_reference_particle()));  
+    double length=0.0;
+    for (Chef_elements::iterator it = chef_elements.begin(); it
+                != chef_elements.end(); ++it) {
+            (*it)->propagate(particle);
+            length +=(*it)->OrbitLength(particle);
+        }        
+   // std::cout<<"chef operate apply with length= "<<length<<std::endl;
+    bunch.get_reference_particle().increment_trajectory(length);    
+    
+        
+        
     std::vector<double > u = chef_unit_conversion(
             bunch.get_reference_particle());
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
     Vector chef_state(6);
-    Particle particle(reference_particle_to_chef_particle(
-            bunch.get_reference_particle()));
+    
+  
     for (int part = 0; part < local_num; ++part) {
         for (int synergia_index = 0; synergia_index < 6; ++synergia_index) {
             int chef_idx = get_chef_index(synergia_index);
@@ -37,4 +53,5 @@ Chef_propagator::apply(Bunch & bunch)
                     * u[synergia_index];
         }
     }
+   
 }

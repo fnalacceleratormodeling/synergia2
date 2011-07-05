@@ -85,7 +85,7 @@ Independent_stepper::get_step(std::string const& name,
                 end_within_error = true;
             }
             Lattice_element_slice_sptr slice(new Lattice_element_slice(
-                    *(*lattice_it), left, right));
+                    *(*lattice_it), left, right));      
             retval->append_slice(slice);
             length += (right - left);
             if (end_within_error) {
