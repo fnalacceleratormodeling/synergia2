@@ -10,8 +10,11 @@ from nose.tools import *
 name = "foo"
 type = "bar"
 attr = "baz"
+attr2 = "qux"
 dblval = 2.71828
-strval = "qux"
+dblval2 = 3.1415
+strval = "quux"
+strval2 = "corge"
 
 def test_construct():
     lattice_element = Lattice_element(type, name)
@@ -34,6 +37,15 @@ def test_get_set_double_attribute():
     assert_equal(lattice_element.has_double_attribute(attr), True)
     assert_almost_equal(lattice_element.get_double_attribute(attr), dblval)
 
+def test_get_double_attributes():
+    lattice_element = Lattice_element(type, name)
+    lattice_element.set_double_attribute(attr, dblval)
+    lattice_element.set_double_attribute(attr2, dblval2)
+    double_attributes = lattice_element.get_double_attributes()
+    assert_equal(len(double_attributes), 2)
+    assert_almost_equal(double_attributes[attr], dblval)
+    assert_almost_equal(double_attributes[attr2], dblval2)
+
 def test_has_string_attribute():
     lattice_element = Lattice_element(type, name)
     assert_equal(lattice_element.has_string_attribute(attr), False)
@@ -43,6 +55,15 @@ def test_get_set_string_attribute():
     lattice_element.set_string_attribute(attr, strval)
     assert_equal(lattice_element.has_string_attribute(attr), True)
     assert_equal(lattice_element.get_string_attribute(attr), strval)
+
+def test_get_string_attributes():
+    lattice_element = Lattice_element(type, name)
+    lattice_element.set_string_attribute(attr, strval)
+    lattice_element.set_string_attribute(attr2, strval2)
+    string_attributes = lattice_element.get_string_attributes()
+    assert_equal(len(string_attributes), 2)
+    assert_equal(string_attributes[attr], strval)
+    assert_equal(string_attributes[attr2], strval2)
 
 def test_add_ancestor():
     lattice_element = Lattice_element(type, name)

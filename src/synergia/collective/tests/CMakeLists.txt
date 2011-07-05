@@ -89,7 +89,7 @@ add_test(test_space_charge_2d_bassetti_erskine ${MPIEXEC} -np 1 test_space_charg
 add_executable(test_impedance test_impedance.cc)
 target_link_libraries(test_impedance synergia_collective
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_impedance test_impedance)
+add_test(test_impedance ${MPIEXEC} -np 1 test_impedance)
 
 
 #set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES

@@ -37,8 +37,9 @@ Chef_lattice::construct_beamline()
 void
 Chef_lattice::register_beamline(beamline & the_beamline)
 {
-    Particle testpart(reference_particle_to_chef_particle(
-            lattice_sptr->get_reference_particle()));
+    Particle testpart(
+            reference_particle_to_chef_particle(
+                    lattice_sptr->get_reference_particle()));
     RefRegVisitor registrar(testpart);
     the_beamline.accept(registrar);
 }
@@ -96,7 +97,7 @@ Chef_lattice::construct()
 {
     lattice_sptr->set_default_attributes(*element_adaptor_map_sptr);
     sliced_beamline_sptr = BmlPtr(new beamline("sliced"));
-    have_sliced_beamline = false;
+    have_sliced_beamline_ = false;
     if (!lattice_sptr->has_reference_particle()) {
         throw(std::runtime_error(
                 "Chef_lattice: requires a reference particle in Lattice"));
@@ -109,8 +110,10 @@ Chef_lattice::construct()
 }
 
 Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr) :
-    lattice_sptr(lattice_sptr), beamline_sptr(), lattice_element_marker(
-            new marker("synergia_lattice_element_marker")),
+            lattice_sptr(lattice_sptr),
+            beamline_sptr(),
+            lattice_element_marker(
+                    new marker("synergia_lattice_element_marker")),
             element_adaptor_map_sptr(new Element_adaptor_map)
 {
     construct();
@@ -118,8 +121,10 @@ Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr) :
 
 Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr,
         Element_adaptor_map_sptr element_adaptor_map_sptr) :
-    lattice_sptr(lattice_sptr), beamline_sptr(), lattice_element_marker(
-            new marker("synergia_lattice_element_marker")),
+            lattice_sptr(lattice_sptr),
+            beamline_sptr(),
+            lattice_element_marker(
+                    new marker("synergia_lattice_element_marker")),
             element_adaptor_map_sptr(element_adaptor_map_sptr)
 {
     construct();
@@ -141,7 +146,7 @@ Chef_elements &
 Chef_lattice::get_chef_elements(
         Lattice_element_slice const& lattice_element_slice)
 {
-    if (!have_sliced_beamline) {
+    if (!have_sliced_beamline_) {
         throw std::runtime_error(
                 "get_chef_elements(Lattice_element_slice const&) called before construct_sliced_beamline\n");
     }
@@ -156,6 +161,9 @@ ElmPtr
 slice_chef_element(ElmPtr & elm, double left, double right, double tolerance)
 {
     double length = elm->Length();
+    std::cout << "jfa: slice_chef_element called on " << elm->Name()
+            << " of length " << length << ", left = " << left << ", right = "
+            << right << std::endl;
     ElmPtr retval, left_part, right_part;
     if (left == 0.0) {
         if (floating_point_equal(length, right, tolerance)) {
@@ -191,15 +199,19 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
     } else {
         const double tolerance = 1.0e-8;
         double left = slice.get_left();
+        std::cout << "jfa: get_chef_elements_from_slice: left = " << left
+                << std::endl;
         double right = slice.get_right();
         double s = 0.0;
         Chef_elements::iterator c_it = all_elements.begin();
         bool complete = false;
         double element_left, element_right;
+        element_left = left;
         double total_done = 0.0;
         while (!complete) {
             double chef_element_length = (*c_it)->Length();
             if (!floating_point_leq(left, s + chef_element_length, tolerance)) {
+                std::cout << "jfa abandon all hope\n";
                 s += chef_element_length;
                 ++c_it;
                 if (c_it == all_elements.end()) {
@@ -207,19 +219,28 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
                             "get_chef_elements_from_slice iterated beyond end of element list"));
                 }
             } else {
-                element_left = left - s;
+                std::cout << "jfa: left = " << left << ", s = " << s
+                        << ", right = " << right << ", chef_element_length = "
+                        << chef_element_length << std::endl;
+                //                element_left = left - s;
                 if (floating_point_leq(right, s + chef_element_length,
                         tolerance)) {
+                    // take part of element
                     element_right = right - s;
-                    retval.push_back(slice_chef_element(*c_it, element_left,
-                            element_right, tolerance));
+                    retval.push_back(
+                            slice_chef_element(*c_it, element_left,
+                                    element_right, tolerance));
                     total_done += element_right - element_left;
                 } else {
+                    // take whole element
                     element_right = chef_element_length;
-                    retval.push_back(slice_chef_element(*c_it, element_left,
-                            element_right, tolerance));
-                    s += chef_element_length;
+                    retval.push_back(
+                            slice_chef_element(*c_it, element_left,
+                                    element_right, tolerance));
+                    s += element_right - element_left;
+                    total_done += element_right - element_left;
                     ++c_it;
+                    element_left = 0.0;
                 }
                 if (floating_point_equal(element_right, chef_element_length,
                         tolerance)) {
@@ -239,6 +260,12 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
     return retval;
 }
 
+bool
+Chef_lattice::have_sliced_beamline() const
+{
+    return have_sliced_beamline_;
+}
+
 void
 Chef_lattice::construct_sliced_beamline(Lattice_element_slices const& slices)
 {
@@ -254,7 +281,7 @@ Chef_lattice::construct_sliced_beamline(Lattice_element_slices const& slices)
     }
     sliced_beamline_sptr = polish_beamline(unpolished_beamline_sptr);
     extract_element_slice_map(slices);
-    have_sliced_beamline = true;
+    have_sliced_beamline_ = true;
 }
 
 BmlPtr
@@ -266,6 +293,10 @@ Chef_lattice::get_beamline_sptr()
 BmlPtr
 Chef_lattice::get_sliced_beamline_sptr()
 {
+    if (!have_sliced_beamline_) {
+        throw std::runtime_error(
+                "get_sliced_beamline_sptr() called before construct_sliced_beamline\n");
+    }
     return sliced_beamline_sptr;
 }
 

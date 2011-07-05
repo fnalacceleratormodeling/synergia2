@@ -32,11 +32,13 @@ install(FILES
     hdf5_writer.h
     hdf5_writer.tcc
     multi_array_check_equal.h
+    multi_array_offsets.h
     multi_array_print.h
     multi_array_serialization.h
     multi_array_typedefs.h
     numpy_multi_ref_converter.h
     parallel_utils.h
+    simple_timer.h
     xml_serialization.h
     DESTINATION include/synergia/utils)
 install(FILES

@@ -30,6 +30,7 @@ public:
     get_cell_size() const;
     bool
     is_periodic() const;
+    // returns cell location and fractional offset
     inline bool
     get_leftmost_indices_offsets(double x, double y, double z, int &ix,
             int &iy, int&iz, double &offx, double &offy, double &offz) const
