@@ -111,17 +111,17 @@ BOOST_FIXTURE_TEST_CASE(get_std, Fixture)
 #include "test_diagnostics_get_std.icc"
 }
 
-BOOST_FIXTURE_TEST_CASE(get_bunchmin, Fixture)
-{
-    Diagnostics_basic diagnostics(bunch_sptr, "dummy.h5");  
-#include "test_diagnostics_get_bunchmin.icc"
-}
+// BOOST_FIXTURE_TEST_CASE(get_bunchmin, Fixture)
+// {
+//     Diagnostics_basic diagnostics(bunch_sptr, "dummy.h5");  
+// #include "test_diagnostics_get_bunchmin.icc"
+// }
 
-BOOST_FIXTURE_TEST_CASE(get_bunchmax, Fixture)
-{
-    Diagnostics_basic diagnostics(bunch_sptr, "dummy.h5");
-#include "test_diagnostics_get_bunchmax.icc"
-}
+//BOOST_FIXTURE_TEST_CASE(get_bunchmax, Fixture)
+//{
+//    Diagnostics_basic diagnostics(bunch_sptr, "dummy.h5");
+//#include "test_diagnostics_get_bunchmax.icc"
+//}
 
 
 BOOST_FIXTURE_TEST_CASE(write_, Fixture)

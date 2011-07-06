@@ -187,7 +187,7 @@ calculate_moments_and_partitions(Bunch & bunch, MArray1d &zdensity,  MArray1d &x
     
     int zpoints=zcoord.size();
     int registered_turns=stored_bunches.size();
-    std::cout<<" registred turns= "<<registered_turns<<std::endl; 
+  //  std::cout<<" registred turns= "<<registered_turns<<std::endl; 
     for (int i = 0; i < z_grid; ++i){
       // in-bunch impedance  
         for (int j = i+1; j < z_grid; ++j){
