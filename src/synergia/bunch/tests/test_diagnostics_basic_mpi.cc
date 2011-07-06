@@ -31,15 +31,15 @@ BOOST_FIXTURE_TEST_CASE(write_several, Bunch_sptr_fixture)
     diagnostics.update_and_write();
 }
 
-BOOST_FIXTURE_TEST_CASE(get_bunchmin,  Bunch_sptr_fixture)
-{
- Diagnostics_basic diagnostics(bunch_sptr, "diagnostics_basic_mpi.h5");  
-#include "test_diagnostics_get_bunchmin.icc"
-}
-
-
-BOOST_FIXTURE_TEST_CASE(get_bunchmax,  Bunch_sptr_fixture)
-{
-    Diagnostics_basic diagnostics(bunch_sptr, "diagnostics_basic_mpi.h5");
-#include "test_diagnostics_get_bunchmax_mpi.icc"
-}
+// BOOST_FIXTURE_TEST_CASE(get_bunchmin,  Bunch_sptr_fixture)
+// {
+//  Diagnostics_basic diagnostics(bunch_sptr, "diagnostics_basic_mpi.h5");  
+// #include "test_diagnostics_get_bunchmin.icc"
+// }
+// 
+// 
+// BOOST_FIXTURE_TEST_CASE(get_bunchmax,  Bunch_sptr_fixture)
+// {
+//     Diagnostics_basic diagnostics(bunch_sptr, "diagnostics_basic_mpi.h5");
+// #include "test_diagnostics_get_bunchmax_mpi.icc"
+// }
