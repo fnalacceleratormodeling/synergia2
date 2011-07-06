@@ -1,0 +1,4 @@
+BOOST_CHECK_CLOSE(diagnostics.get_bunchmax()[0], 80.0+1000 * bunch_sptr->get_comm().get_size(), tolerance);
+BOOST_CHECK_CLOSE(diagnostics.get_bunchmax()[1], 82.128+1000 * bunch_sptr->get_comm().get_size(), tolerance);
+BOOST_CHECK_CLOSE(diagnostics.get_bunchmax()[2], 84.256+1000 * bunch_sptr->get_comm().get_size(), tolerance);
+

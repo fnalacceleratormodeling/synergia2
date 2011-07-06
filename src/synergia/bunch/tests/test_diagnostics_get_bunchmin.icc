@@ -1,0 +1,4 @@
+BOOST_CHECK_CLOSE(diagnostics.get_bunchmin()[0], 5.0, tolerance);
+BOOST_CHECK_CLOSE(diagnostics.get_bunchmin()[1], 2.0, tolerance);
+BOOST_CHECK_CLOSE(diagnostics.get_bunchmin()[2], 4.0, tolerance);
+
