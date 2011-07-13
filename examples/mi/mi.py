@@ -99,7 +99,7 @@ print "expected std_y: ", np.sqrt(emit * by)
 print "expected std_z: ", opts.stdz
 print "expected std_dpop: ", opts.stdz / bz
 
-covar = synergia.optics.matching._get_correlation_matrix(map, np.sqrt(emit * bx), np.sqrt(emit * by), opts.stdz)
+covar = synergia.optics.matching._get_correlation_matrix(map, np.sqrt(emit * bx), np.sqrt(emit * by), opts.stdz, bz)
 print "covariance matrix"
 print np.array2string(covar, max_line_width=200)
 
@@ -120,10 +120,11 @@ particles[:, 0] = particles[:, 0] + opts.x_offset
 particles[:, 2] = particles[:, 2] + opts.y_offset
 particles[:, 4] = particles[:, 4] + opts.z_offset
 
-diagnostics_writer_step = synergia.bunch.Diagnostics_writer("full2.h5",
-                                                            synergia.bunch.Diagnostics_full2())
-diagnostics_writer_turn = synergia.bunch.Diagnostics_writer("particles.h5",
-                                                            synergia.bunch.Diagnostics_particles())
+multi_diagnostics_step = synergia.bunch.Multi_diagnostics()
+multi_diagnostics_turn = synergia.bunch.Multi_diagnostics()
+multi_diagnostics_turn.append(synergia.bunch.Diagnostics_full2(bunch, "mi_full2.h5"))
+multi_diagnostics_turn.append(synergia.bunch.Diagnostics_particles(bunch, "mi_particles.h5"))
+
 propagator = synergia.simulation.Propagator(stepper_noop)
-propagator.propagate(bunch, num_turns, diagnostics_writer_step,
-                      diagnostics_writer_turn, opts.verbose)
+propagator.propagate(bunch, num_turns, multi_diagnostics_step,
+                      multi_diagnostics_turn, opts.verbose)
