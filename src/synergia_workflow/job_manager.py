@@ -239,7 +239,7 @@ class Job_manager:
     def copy_extra_dirs(self, dirs, optional=False):
         for dir in dirs:
             if os.path.exists(dir):
-                shutil.copytree(dir, self.directory)
+                shutil.copytree(dir, self.directory+os.sep+dir)
             else:
                 if not optional:
                     raise RuntimeError("Job_manager: required directory " + dir + " not found")
