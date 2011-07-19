@@ -64,6 +64,7 @@ def generate_plotparams():
     plotparams['z_emit'] = Params('z_emit', 'trajectory_length', 'emitz')
     plotparams['xy_emit'] = Params('xy_emit', 'trajectory_length', 'emitxy')
     plotparams['xyz_emit'] = Params('xyz_emit', 'trajectory_length', 'emitxyz')
+    plotparams['particles'] = Params('particles', 'trajectory_length', 'num_particles')
     return plotparams
 
 class Options:
