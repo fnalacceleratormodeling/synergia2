@@ -1,5 +1,6 @@
 #include "stepper.h"
 #include "synergia/utils/floating_point.h"
+#include <cmath>
 
 Steps &
 Stepper::get_steps()
@@ -32,8 +33,9 @@ extract_slices(Steps const& steps)
                 != (*s_it)->get_operators().end(); ++o_it) {
             if ((*o_it)->get_type() == "independent") {
                 Lattice_element_slices
-                        element_slices(boost::static_pointer_cast<
-                                Independent_operator >(*o_it)->get_slices());
+                        element_slices(
+                                boost::static_pointer_cast<Independent_operator >(
+                                        *o_it)->get_slices());
                 all_slices.splice(all_slices.end(), element_slices);
             }
         }
@@ -47,23 +49,25 @@ Independent_stepper::get_step(std::string const& name,
         Lattice_elements::iterator const & lattice_end,
         const double step_length)
 {
-    Independent_operator_sptr retval(new Independent_operator(name,
-            lattice_simulator.get_operation_extractor_map_sptr()));
-    const double tolerance = 1.0e-8;
+    Independent_operator_sptr retval(
+            new Independent_operator(name,
+                    lattice_simulator.get_operation_extractor_map_sptr()));
+    const double tolerance = 1.0e-6;
     double length = 0.0;
     bool complete = false;
     while (!complete) {
         double right = (*lattice_it)->get_length();
         if (floating_point_leq(length + (right - left), step_length,
-                tolerance)) {
+                std::sqrt(retval->get_slices().size() + 1) * tolerance)) {
             // The rest of the element fits in the half step
-            Lattice_element_slice_sptr slice(new Lattice_element_slice(
-                    *(*lattice_it), left, right));
+            Lattice_element_slice_sptr slice(
+                    new Lattice_element_slice(*(*lattice_it), left, right));
             retval->append_slice(slice);
             length += (right - left);
             ++lattice_it;
             left = 0.0;
-            if (floating_point_equal(length, step_length, tolerance)) {
+            if (floating_point_equal(length, step_length,
+                    std::sqrt(retval->get_slices().size() + 1) * tolerance)) {
                 if ((lattice_it == lattice_end) || ((*lattice_it)->get_length()
                         != 0.0)) {
                     complete = true;
@@ -79,13 +83,14 @@ Independent_stepper::get_step(std::string const& name,
             bool end_within_error = false;
             double old_right = right;
             right = step_length - length + left;
-            if ((old_right - right) < retval->get_slices().size() * tolerance) {
+            if ((old_right - right)
+                    < std::sqrt(retval->get_slices().size() + 1) * tolerance) {
                 // ... unless we are within an accumulated tolerance of the end
                 right = old_right;
                 end_within_error = true;
             }
-            Lattice_element_slice_sptr slice(new Lattice_element_slice(
-                    *(*lattice_it), left, right));      
+            Lattice_element_slice_sptr slice(
+                    new Lattice_element_slice(*(*lattice_it), left, right));
             retval->append_slice(slice);
             length += (right - left);
             if (end_within_error) {
@@ -104,8 +109,9 @@ Independent_stepper::Independent_stepper(
         Lattice_simulator const& lattice_simulator, int num_steps) :
     lattice_simulator(lattice_simulator)
 {
-    double step_length = this->lattice_simulator.get_lattice_sptr()->get_length()
-            / num_steps;
+    double step_length =
+            this->lattice_simulator.get_lattice_sptr()->get_length()
+                    / num_steps;
 
     Lattice_elements::iterator lattice_it =
             this->lattice_simulator.get_lattice_sptr()->get_elements().begin();
@@ -116,8 +122,9 @@ Independent_stepper::Independent_stepper(
 
     for (int i = 0; i < num_steps; ++i) {
         Step_sptr step(new Step(step_length));
-        step->append(get_step("step", lattice_it, left, lattice_end,
-                step_length), 1.0);
+        step->append(
+                get_step("step", lattice_it, left, lattice_end, step_length),
+                1.0);
         get_steps().push_back(step);
     }
     if (lattice_it != lattice_end) {
@@ -167,8 +174,8 @@ Independent_stepper_elements::Independent_stepper_elements(
                                         this->lattice_simulator.get_operation_extractor_map_sptr()));
                 double left = i * step_length;
                 double right = (i + 1) * step_length;
-                Lattice_element_slice_sptr slice(new Lattice_element_slice(
-                        *(*it), left, right));
+                Lattice_element_slice_sptr slice(
+                        new Lattice_element_slice(*(*it), left, right));
                 ind_op->append_slice(slice);
                 Step_sptr step(new Step(step_length));
                 step->append(ind_op, 1.0);
@@ -185,7 +192,6 @@ Independent_stepper_elements::~Independent_stepper_elements()
 
 }
 
-
 //Split_operator_stepper
 
 // Return an Independent_operator for a half step, starting at the
@@ -197,23 +203,25 @@ Split_operator_stepper::get_half_step(std::string const& name,
         Lattice_elements::iterator const & lattice_end,
         const double half_step_length)
 {
-    Independent_operator_sptr retval(new Independent_operator(name,
-            lattice_simulator.get_operation_extractor_map_sptr()));
-    const double tolerance = 1.0e-8;
+    Independent_operator_sptr retval(
+            new Independent_operator(name,
+                    lattice_simulator.get_operation_extractor_map_sptr()));
+    const double tolerance = 1.0e-6;
     double length = 0.0;
     bool complete = false;
     while (!complete) {
         double right = (*lattice_it)->get_length();
         if (floating_point_leq(length + (right - left), half_step_length,
-                tolerance)) {
+                std::sqrt(retval->get_slices().size() + 1) * tolerance)) {
             // The rest of the element fits in the half step
-            Lattice_element_slice_sptr slice(new Lattice_element_slice(
-                    *(*lattice_it), left, right));
+            Lattice_element_slice_sptr slice(
+                    new Lattice_element_slice(*(*lattice_it), left, right));
             retval->append_slice(slice);
             length += (right - left);
             ++lattice_it;
             left = 0.0;
-            if (floating_point_equal(length, half_step_length, tolerance)) {
+            if (floating_point_equal(length, half_step_length,
+                    std::sqrt(retval->get_slices().size() + 1) * tolerance)) {
                 if ((lattice_it == lattice_end) || ((*lattice_it)->get_length()
                         != 0.0)) {
                     complete = true;
@@ -229,13 +237,14 @@ Split_operator_stepper::get_half_step(std::string const& name,
             bool end_within_error = false;
             double old_right = right;
             right = half_step_length - length + left;
-            if ((old_right - right) < retval->get_slices().size() * tolerance) {
+            if ((old_right - right)
+                    < std::sqrt(retval->get_slices().size() + 1) * tolerance) {
                 // ... unless we are within an accumulated tolerance of the end
                 right = old_right;
                 end_within_error = true;
             }
-            Lattice_element_slice_sptr slice(new Lattice_element_slice(
-                    *(*lattice_it), left, right));
+            Lattice_element_slice_sptr slice(
+                    new Lattice_element_slice(*(*lattice_it), left, right));
             retval->append_slice(slice);
             length += (right - left);
             if (end_within_error) {
@@ -264,15 +273,17 @@ Split_operator_stepper::construct(
     double left = 0.0;
     for (int i = 0; i < num_steps; ++i) {
         Step_sptr step(new Step(step_length));
-        step->append(get_half_step("first_half", lattice_it, left, lattice_end,
-                half_step_length), 0.5);
+        step->append(
+                get_half_step("first_half", lattice_it, left, lattice_end,
+                        half_step_length), 0.5);
         for (Collective_operators::const_iterator coll_op_it =
                 collective_operators.begin(); coll_op_it
                 != collective_operators.end(); ++coll_op_it) {
             step->append(*coll_op_it, 1.0);
         }
-        step->append(get_half_step("second_half", lattice_it, left,
-                lattice_end, half_step_length), 0.5);
+        step->append(
+                get_half_step("second_half", lattice_it, left, lattice_end,
+                        half_step_length), 0.5);
         get_steps().push_back(step);
     }
     if (lattice_it != lattice_end) {
@@ -308,8 +319,7 @@ Split_operator_stepper::~Split_operator_stepper()
 
 void
 Split_operator_stepper_elements::construct(
-        Collective_operators const& collective_operators,
-        int steps_per_element)
+        Collective_operators const& collective_operators, int steps_per_element)
 {
     if (steps_per_element < 1) {
         throw std::runtime_error(
@@ -323,13 +333,17 @@ Split_operator_stepper_elements::construct(
 
         //zero-length element
         if (length == 0.0) {
-            Independent_operator_sptr ind_op(new Independent_operator("step", this->lattice_simulator.get_operation_extractor_map_sptr()));
+            Independent_operator_sptr
+                    ind_op(
+                            new Independent_operator(
+                                    "step",
+                                    this->lattice_simulator.get_operation_extractor_map_sptr()));
             Lattice_element_slice_sptr slice(new Lattice_element_slice(*(*it)));
             ind_op->append_slice(slice);
             Step_sptr step(new Step(0.0));
             step->append(ind_op, 1.0);
             get_steps().push_back(step);
-        //else
+            //else
         } else {
             double step_length = length / steps_per_element;
             double half_step_length = 0.5 * step_length;
@@ -347,8 +361,8 @@ Split_operator_stepper_elements::construct(
                                 new Independent_operator(
                                         "first_half",
                                         this->lattice_simulator.get_operation_extractor_map_sptr()));
-                Lattice_element_slice_sptr slice_1st_half(new Lattice_element_slice(
-                        *(*it), left, middle));
+                Lattice_element_slice_sptr slice_1st_half(
+                        new Lattice_element_slice(*(*it), left, middle));
                 ind_op_first_half->append_slice(slice_1st_half);
                 step->append(ind_op_first_half, 1.0);
 
@@ -365,8 +379,8 @@ Split_operator_stepper_elements::construct(
                                 new Independent_operator(
                                         "second_half",
                                         this->lattice_simulator.get_operation_extractor_map_sptr()));
-                Lattice_element_slice_sptr slice_2nd_half(new Lattice_element_slice(
-                        *(*it), middle, right));
+                Lattice_element_slice_sptr slice_2nd_half(
+                        new Lattice_element_slice(*(*it), middle, right));
                 //slice(new Lattice_element_slice(*(*it), middle, right));
                 ind_op_second_half->append_slice(slice_2nd_half);
                 step->append(ind_op_second_half, 1.0);
@@ -375,8 +389,8 @@ Split_operator_stepper_elements::construct(
 
             }
         }
-     lattice_simulator.construct_sliced_chef_beamline(
-            extract_slices(get_steps()));
+        lattice_simulator.construct_sliced_chef_beamline(
+                extract_slices(get_steps()));
     }
 }
 
@@ -402,5 +416,4 @@ Split_operator_stepper_elements::~Split_operator_stepper_elements()
 {
 
 }
-
 
