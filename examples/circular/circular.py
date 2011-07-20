@@ -23,7 +23,8 @@ def map2twiss(csmap):
 
     return (alpha, beta, tune)
 
-lattice = synergia.lattice.Mad8_reader().get_lattice("model", "foborodobo_s.lat")
+#lattice = synergia.lattice.Mad8_reader().get_lattice("model", "foborodobo_s.lat")
+lattice = synergia.lattice.Mad8_reader().get_lattice("fullb", "simplebooster.mad")
 lattice_length = lattice.get_length()
 print "lattice length: ", lattice_length
 reference_particle = lattice.get_reference_particle()
@@ -41,7 +42,7 @@ freq = opts.harmno * beta * synergia.foundation.pconstants.c/lattice_length
 print "RF freq: ", freq
 
 # Don't need that?  Lattice has voltage set
-# rf cavity voltage, 
+# rf cavity voltage,
 for elem in lattice.get_elements():
     if elem.get_type() == "rfcavity":
         elem.set_double_attribute("volt", opts.rf_voltage)
@@ -95,7 +96,7 @@ bunch = synergia.optics.generate_matched_bunch(lattice_simulator,
                                                opts.num_real_particles,
                                                opts.num_macro_particles,
                                                seed=opts.seed)
-                                               
+
 # get particle bunch for examination
 particles = bunch.get_local_particles()
 
@@ -114,8 +115,6 @@ print "expected std(dpop): ", opts.stdz/bz
 print "generated std(dpop): ", np.std(particles[:,5])
 
 diagnostics_writer_step = synergia.bunch.Diagnostics_full2(bunch, "circular_full2.h5")
-                                                          
 diagnostics_writer_turn = synergia.bunch.Diagnostics_particles(bunch,"circular_particles.h5")
-                                                           
 propagator = synergia.simulation.Propagator(stepper)
-propagator.propagate(bunch, opts.num_turns, diagnostics_writer_step, diagnostics_writer_turn, opts.verbose)
+propagator.propagate(bunch, opts.num_turns, diagnostics_step, diagnostics_turn, opts.verbose)
