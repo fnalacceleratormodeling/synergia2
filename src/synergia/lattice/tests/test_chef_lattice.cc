@@ -475,26 +475,26 @@ BOOST_FIXTURE_TEST_CASE(get_sliced_beamline_sptr_sbends_markers,
     BOOST_CHECK_CLOSE(synergia_length, chef_length, tolerance);
 }
 
-BOOST_FIXTURE_TEST_CASE(get_sliced_beamline_sptr_rbends, Fobodobo_rbend_fixture)
-{
-    Chef_lattice chef_lattice(lattice_sptr);
-    const int slices_per_element = 2;
-    chef_lattice.construct_sliced_beamline(
-            slice_lattice(*lattice_sptr, slices_per_element));
-    BmlPtr beamline_sptr = chef_lattice.get_sliced_beamline_sptr();
-    const double tolerance = 1.0e-13;
-
-    Reference_particle reference_particle(
-            propagate_reference_particle(
-                    lattice_sptr->get_reference_particle(), beamline_sptr));
-    check_zero_reference_particle(reference_particle, tolerance);
-
-    double synergia_length = lattice_sptr->get_length();
-    double chef_length = beamline_sptr->OrbitLength(
-            reference_particle_to_chef_particle(
-                    lattice_sptr->get_reference_particle()));
-    BOOST_CHECK_CLOSE(synergia_length, chef_length, tolerance);
-}
+//BOOST_FIXTURE_TEST_CASE(get_sliced_beamline_sptr_rbends, Fobodobo_rbend_fixture)
+//{
+//    Chef_lattice chef_lattice(lattice_sptr);
+//    const int slices_per_element = 2;
+//    chef_lattice.construct_sliced_beamline(
+//            slice_lattice(*lattice_sptr, slices_per_element));
+//    BmlPtr beamline_sptr = chef_lattice.get_sliced_beamline_sptr();
+//    const double tolerance = 1.0e-13;
+//
+//    Reference_particle reference_particle(
+//            propagate_reference_particle(
+//                    lattice_sptr->get_reference_particle(), beamline_sptr));
+//    check_zero_reference_particle(reference_particle, tolerance);
+//
+//    double synergia_length = lattice_sptr->get_length();
+//    double chef_length = beamline_sptr->OrbitLength(
+//            reference_particle_to_chef_particle(
+//                    lattice_sptr->get_reference_particle()));
+//    BOOST_CHECK_CLOSE(synergia_length, chef_length, tolerance);
+//}
 
 //BOOST_FIXTURE_TEST_CASE(get_sliced_beamline_sptr_rbends_markers,
 //        Fobodobo_rbend_markers_fixture)

@@ -194,7 +194,6 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
             slice.get_lattice_element().get_type())->get_chef_elements(
             slice.get_lattice_element(), brho);
     Chef_elements retval;
-    std::cout << "jfa: 20\n";
     if (slice.is_whole()) {
         retval = all_elements;
     } else {
@@ -210,7 +209,6 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
         element_left = left;
         double total_done = 0.0;
         while (!complete) {
-            std::cout << "jfa: 30\n";
             double chef_element_length = (*c_it)->Length();
             if (!floating_point_leq(left, s + chef_element_length, tolerance)) {
                 std::cout << "jfa abandon all hope\n";
@@ -224,7 +222,7 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
                 std::cout << "jfa: left = " << left << ", s = " << s
                         << ", right = " << right << ", chef_element_length = "
                         << chef_element_length << std::endl;
-                element_left = left - s;
+                //                element_left = left - s;
                 if (floating_point_leq(right, s + chef_element_length,
                         tolerance)) {
                     // take part of element
@@ -274,7 +272,6 @@ Chef_lattice::construct_sliced_beamline(Lattice_element_slices const& slices)
     BmlPtr unpolished_beamline_sptr(new beamline());
     for (Lattice_element_slices::const_iterator it = slices.begin(); it
             != slices.end(); ++it) {
-        std::cout << "jfa: 10\n";
         Chef_elements chef_elements = get_chef_elements_from_slice(*(*it));
         for (Chef_elements::const_iterator c_it = chef_elements.begin(); c_it
                 != chef_elements.end(); ++c_it) {
