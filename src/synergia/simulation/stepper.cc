@@ -47,18 +47,17 @@ Independent_operator_sptr
 Independent_stepper::get_step(std::string const& name,
         Lattice_elements::iterator & lattice_it, double & left,
         Lattice_elements::iterator const & lattice_end,
-        const double step_length)
+        const double step_length, double & offset_fudge)
 {
     Independent_operator_sptr retval(
             new Independent_operator(name,
                     lattice_simulator.get_operation_extractor_map_sptr()));
-    const double tolerance = 1.0e-6;
-    double length = 0.0;
+    const double tolerance = 1.0e-8;
+    double length = offset_fudge;
     bool complete = false;
     while (!complete) {
         double right = (*lattice_it)->get_length();
-        if (floating_point_leq(length + (right - left), step_length,
-                std::sqrt(retval->get_slices().size() + 1) * tolerance)) {
+        if (floating_point_leq(length + (right - left), step_length, tolerance)) {
             // The rest of the element fits in the half step
             Lattice_element_slice_sptr slice(
                     new Lattice_element_slice(*(*lattice_it), left, right));
@@ -66,8 +65,7 @@ Independent_stepper::get_step(std::string const& name,
             length += (right - left);
             ++lattice_it;
             left = 0.0;
-            if (floating_point_equal(length, step_length,
-                    std::sqrt(retval->get_slices().size() + 1) * tolerance)) {
+            if (floating_point_equal(length, step_length, tolerance)) {
                 if ((lattice_it == lattice_end) || ((*lattice_it)->get_length()
                         != 0.0)) {
                     complete = true;
@@ -83,8 +81,7 @@ Independent_stepper::get_step(std::string const& name,
             bool end_within_error = false;
             double old_right = right;
             right = step_length - length + left;
-            if ((old_right - right)
-                    < std::sqrt(retval->get_slices().size() + 1) * tolerance) {
+            if ((old_right - right) < tolerance) {
                 // ... unless we are within an accumulated tolerance of the end
                 right = old_right;
                 end_within_error = true;
@@ -102,6 +99,7 @@ Independent_stepper::get_step(std::string const& name,
             complete = true;
         }
     }
+    offset_fudge = length - step_length;
     return retval;
 }
 
@@ -119,12 +117,12 @@ Independent_stepper::Independent_stepper(
             this->lattice_simulator.get_lattice_sptr()->get_elements().end();
 
     double left = 0.0;
-
+    double offset_fudge = 0.0;
     for (int i = 0; i < num_steps; ++i) {
         Step_sptr step(new Step(step_length));
         step->append(
-                get_step("step", lattice_it, left, lattice_end, step_length),
-                1.0);
+                get_step("step", lattice_it, left, lattice_end, step_length,
+                        offset_fudge), 1.0);
         get_steps().push_back(step);
     }
     if (lattice_it != lattice_end) {
@@ -201,18 +199,18 @@ Independent_operator_sptr
 Split_operator_stepper::get_half_step(std::string const& name,
         Lattice_elements::iterator & lattice_it, double & left,
         Lattice_elements::iterator const & lattice_end,
-        const double half_step_length)
+        const double half_step_length, double & offset_fudge)
 {
     Independent_operator_sptr retval(
             new Independent_operator(name,
                     lattice_simulator.get_operation_extractor_map_sptr()));
-    const double tolerance = 1.0e-6;
-    double length = 0.0;
+    const double tolerance = 1.0e-8;
+    double length = offset_fudge;
     bool complete = false;
     while (!complete) {
         double right = (*lattice_it)->get_length();
         if (floating_point_leq(length + (right - left), half_step_length,
-                std::sqrt(retval->get_slices().size() + 1) * tolerance)) {
+                tolerance)) {
             // The rest of the element fits in the half step
             Lattice_element_slice_sptr slice(
                     new Lattice_element_slice(*(*lattice_it), left, right));
@@ -220,8 +218,7 @@ Split_operator_stepper::get_half_step(std::string const& name,
             length += (right - left);
             ++lattice_it;
             left = 0.0;
-            if (floating_point_equal(length, half_step_length,
-                    std::sqrt(retval->get_slices().size() + 1) * tolerance)) {
+            if (floating_point_equal(length, half_step_length, tolerance)) {
                 if ((lattice_it == lattice_end) || ((*lattice_it)->get_length()
                         != 0.0)) {
                     complete = true;
@@ -237,8 +234,7 @@ Split_operator_stepper::get_half_step(std::string const& name,
             bool end_within_error = false;
             double old_right = right;
             right = half_step_length - length + left;
-            if ((old_right - right)
-                    < std::sqrt(retval->get_slices().size() + 1) * tolerance) {
+            if ((old_right - right) < tolerance) {
                 // ... unless we are within an accumulated tolerance of the end
                 right = old_right;
                 end_within_error = true;
@@ -256,6 +252,7 @@ Split_operator_stepper::get_half_step(std::string const& name,
             complete = true;
         }
     }
+    offset_fudge = length - half_step_length;
     return retval;
 }
 
@@ -271,11 +268,12 @@ Split_operator_stepper::construct(
     Lattice_elements::iterator lattice_end =
             lattice_simulator.get_lattice_sptr()->get_elements().end();
     double left = 0.0;
+    double offset_fudge = 0.0;
     for (int i = 0; i < num_steps; ++i) {
         Step_sptr step(new Step(step_length));
         step->append(
                 get_half_step("first_half", lattice_it, left, lattice_end,
-                        half_step_length), 0.5);
+                        half_step_length, offset_fudge), 0.5);
         for (Collective_operators::const_iterator coll_op_it =
                 collective_operators.begin(); coll_op_it
                 != collective_operators.end(); ++coll_op_it) {
@@ -283,7 +281,7 @@ Split_operator_stepper::construct(
         }
         step->append(
                 get_half_step("second_half", lattice_it, left, lattice_end,
-                        half_step_length), 0.5);
+                        half_step_length, offset_fudge), 0.5);
         get_steps().push_back(step);
     }
     if (lattice_it != lattice_end) {
