@@ -42,6 +42,7 @@ public:
     Independent_stepper(Lattice_simulator const& lattice_simulator,
             int num_steps);
 
+    virtual
     ~Independent_stepper();
 
 };
@@ -60,6 +61,7 @@ public:
     Independent_stepper_elements(Lattice_simulator const& lattice_simulator,
             int steps_per_element);
 
+    virtual
     ~Independent_stepper_elements();
 };
 
@@ -94,6 +96,7 @@ public:
     /// @param num_steps the number of steps to take in the Lattice
     Split_operator_stepper(Lattice_simulator const& lattice_simulator,
             Collective_operators const & collective_operators, int num_steps);
+    virtual
     ~Split_operator_stepper();
 };
 
@@ -128,6 +131,7 @@ public:
     Split_operator_stepper_elements(Lattice_simulator const& lattice_simulator,
             Collective_operators const & collective_operators,
             int steps_per_element);
+    virtual
     ~Split_operator_stepper_elements();
 };
 
