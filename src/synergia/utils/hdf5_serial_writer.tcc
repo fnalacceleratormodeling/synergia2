@@ -3,10 +3,14 @@
 #include <stdexcept>
 #include <iostream>
 
+#ifndef H5_NO_NAMESPACE
+using namespace H5;
+#endif
+
 template<typename T>
     void
     Hdf5_serial_writer<T >::setup(std::vector<int > const& data_dims,
-            hid_t const& h5_atomic_type)
+            H5::DataType h5_atomic_type)
     {
         this->h5_atomic_type = h5_atomic_type;
         dims.resize(data_rank + 1);
@@ -27,33 +31,32 @@ template<typename T>
         size[data_rank] = 0;
         offset[data_rank] = 0;
         chunk_dims[data_rank] = 1;
-        dataspace = H5Screate_simple(data_rank + 1, &dims[0], &max_dims[0]);
-        cparms = H5Pcreate(H5P_DATASET_CREATE);
-        status = H5Pset_chunk(cparms, data_rank + 1, &chunk_dims[0]);
-        hdf5_error_check(status);
-        dataset = H5Dcreate(file, name.c_str(), h5_atomic_type, dataspace,
-                H5P_DEFAULT, cparms, H5P_DEFAULT);
+        DSetCreatPropList cparms;
+        cparms.setChunk(data_rank + 1, &chunk_dims[0]);
+        DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
+        dataset = file.createDataSet(name.c_str(), h5_atomic_type, dataspace,
+                cparms);
         have_setup = true;
     }
 
 // this is the generic case, it will only work for atomic T's that have
 // hdf5_atomic_typename<T>() defined
 template<typename T>
-    Hdf5_serial_writer<T >::Hdf5_serial_writer(hid_t & file,
+    Hdf5_serial_writer<T >::Hdf5_serial_writer(H5::H5File & file,
             std::string const& name) :
         data_rank(0), name(name), file(file), have_setup(false)
     {
     }
 
 template<>
-    Hdf5_serial_writer<MArray1d_ref >::Hdf5_serial_writer(hid_t & file,
+    Hdf5_serial_writer<MArray1d_ref >::Hdf5_serial_writer(H5::H5File & file,
             std::string const& name);
 template<>
-    Hdf5_serial_writer<MArray2d_ref >::Hdf5_serial_writer(hid_t & file,
+    Hdf5_serial_writer<MArray2d_ref >::Hdf5_serial_writer(H5::H5File & file,
             std::string const& name);
 
 template<>
-    Hdf5_serial_writer<MArray3d_ref >::Hdf5_serial_writer(hid_t & file,
+    Hdf5_serial_writer<MArray3d_ref >::Hdf5_serial_writer(H5::H5File & file,
             std::string const& name);
 
 template<typename T>
@@ -63,20 +66,16 @@ template<typename T>
         if (!have_setup) {
             std::vector<int > data_dims(1); // dummy variable -- length really should
             // be 0, but that would not compile
-            setup(data_dims, hdf5_atomic_typename<T > ());
+            setup(data_dims, hdf5_atomic_data_type<T > ());
         }
+        DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
         ++size[data_rank];
-        status = H5Dextend(dataset, &size[0]);
-        hdf5_error_check(status);
+        dataset.extend(&size[0]);
 
-        filespace = H5Dget_space(dataset);
+        DataSpace filespace = dataset.getSpace();
         have_filespace = true;
-        status = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0],
-                NULL, &dims[0], NULL);
-        hdf5_error_check(status);
-        status = H5Dwrite(dataset, h5_atomic_type, dataspace, filespace,
-                H5P_DEFAULT, &data);
-        hdf5_error_check(status);
+        filespace.selectHyperslab(H5S_SELECT_SET, &dims[0], &offset[0]);
+        dataset.write(&data, h5_atomic_type, dataspace, filespace);
         ++offset[data_rank];
     }
 
@@ -95,16 +94,16 @@ template<>
 template<typename T>
     Hdf5_serial_writer<T >::~Hdf5_serial_writer()
     {
-        if (have_setup) {
-            status = H5Pclose(cparms);
-            hdf5_error_check(status);
-            status = H5Dclose(dataset);
-            hdf5_error_check(status);
-            status = H5Sclose(dataspace);
-            hdf5_error_check(status);
-            if (have_filespace) {
-                status = H5Sclose(filespace);
-                hdf5_error_check(status);
-            }
-        }
+//        if (have_setup) {
+//            status = H5Pclose(cparms);
+//            hdf5_error_check(status);
+//            status = H5Dclose(dataset);
+//            hdf5_error_check(status);
+//            status = H5Sclose(dataspace);
+//            hdf5_error_check(status);
+//            if (have_filespace) {
+//                status = H5Sclose(filespace);
+//                hdf5_error_check(status);
+//            }
+//        }
     }

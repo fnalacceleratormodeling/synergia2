@@ -2,7 +2,7 @@
 #define HDF5_SERIAL_WRITER_H_
 #include <vector>
 #include <string>
-#include "hdf5.h"
+#include "H5Cpp.h"
 
 template<typename T>
     class Hdf5_serial_writer
@@ -12,14 +12,15 @@ template<typename T>
         herr_t status;
         int data_rank;
         std::string name;
-        hid_t file, dataspace, cparms, dataset, filespace;
-        hid_t h5_atomic_type;
+        H5::H5File file;
+        H5::DataSet dataset;
+        H5::DataType h5_atomic_type;
         bool have_filespace;
         bool have_setup;
         void
-        setup(std::vector<int > const& data_dims, hid_t const& file);
+        setup(std::vector<int > const& data_dims, H5::DataType h5_atomic_type);
     public:
-        Hdf5_serial_writer(hid_t & file, std::string const& name);
+        Hdf5_serial_writer(H5::H5File & file, std::string const& name);
         void
         append(T & data);
         ~Hdf5_serial_writer();
