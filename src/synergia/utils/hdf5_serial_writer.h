@@ -9,7 +9,6 @@ template<typename T>
     {
     private:
         std::vector<hsize_t > dims, max_dims, size, offset, chunk_dims;
-        herr_t status;
         int data_rank;
         std::string name;
         H5::H5File file;

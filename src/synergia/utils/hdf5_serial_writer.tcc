@@ -94,16 +94,4 @@ template<>
 template<typename T>
     Hdf5_serial_writer<T >::~Hdf5_serial_writer()
     {
-//        if (have_setup) {
-//            status = H5Pclose(cparms);
-//            hdf5_error_check(status);
-//            status = H5Dclose(dataset);
-//            hdf5_error_check(status);
-//            status = H5Sclose(dataspace);
-//            hdf5_error_check(status);
-//            if (have_filespace) {
-//                status = H5Sclose(filespace);
-//                hdf5_error_check(status);
-//            }
-//        }
     }

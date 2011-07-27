@@ -40,10 +40,10 @@ public:
 
     static MArray1d
     calculate_bunchmin(Bunch const& bunch);
-    
+
     static MArray1d
     calculate_bunchmax(Bunch const& bunch);
-    
+
     virtual
     ~Diagnostics()
     {
@@ -89,7 +89,7 @@ public:
     is_serial() const;
 
     virtual void
-    init_writers(hid_t & hdf5_file);
+    init_writers(H5::H5File & file);
 
     /// Update the diagnostics
     virtual void
@@ -128,7 +128,7 @@ public:
 
     virtual const MArray1d
     get_bunchmin() const;
-  
+
     virtual const MArray1d
     get_bunchmax() const;
 
@@ -184,7 +184,7 @@ public:
     Diagnostics_full2(Bunch_sptr bunch, std::string const& filename);
 
     virtual void
-    init_writers(hid_t & hdf5_file);
+    init_writers(H5::H5File & file);
 
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_full2 class is serial.
@@ -275,13 +275,13 @@ class Diagnostics_particles : public Diagnostics
 {
 private:
     bool have_writers;
-    hid_t hdf5_file;
+    H5::H5File file;
     int max_particles;
     Bunch_sptr bunch_sptr;
     std::string filename;
     Diagnostics_write_helper write_helper;
     void
-    receive_other_local_particles(std::vector<int > const& local_nums, hid_t & hdf5_file);
+    receive_other_local_particles(std::vector<int > const& local_nums, H5::H5File & file);
     void
     send_local_particles();
 public:
@@ -335,7 +335,7 @@ private:
     MArray1d coords;
     Hdf5_serial_writer<MArray1d_ref > * writer_coords;
     virtual void
-    init_writers(hid_t & hdf5_file);
+    init_writers(H5::H5File & file);
 
 public:
     /// Create an empty Diagnostics_track object

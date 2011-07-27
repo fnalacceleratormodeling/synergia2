@@ -2,7 +2,7 @@
 #define HDF5_CHUNKED_ARRAY2D_WRITER_H_
 #include <vector>
 #include <string>
-#include "hdf5.h"
+#include "H5Cpp.h"
 #include "synergia/utils/multi_array_typedefs.h"
 
 class Hdf5_chunked_array2d_writer

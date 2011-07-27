@@ -8,39 +8,35 @@
 
 BOOST_AUTO_TEST_CASE(construct_integer)
 {
-    hid_t file = H5Fcreate("integer.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    H5::H5File file("integer.h5", H5F_ACC_TRUNC);
     Hdf5_serial_writer<int > writer(file, "i");
-    H5Fclose(file);
+    file.close();
 }
 
 BOOST_AUTO_TEST_CASE(integer)
 {
-    hid_t file = H5Fcreate("integer.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    H5::H5File file("integer.h5", H5F_ACC_TRUNC);
     Hdf5_serial_writer<int > writer(file, "i");
     for (int i = 0; i < 5; ++i) {
         writer.append(i);
     }
-    H5Fclose(file);
+    file.close();
 }
 
 BOOST_AUTO_TEST_CASE(double_float)
 {
-    hid_t file = H5Fcreate("double_float.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    H5::H5File file("double_float.h5", H5F_ACC_TRUNC);
     Hdf5_serial_writer<double > writer(file, "double_float");
     for (int i = 0; i < 5; ++i) {
         double x = 1.1 * i;
         writer.append(x);
     }
-    H5Fclose(file);
+    file.close();
 }
 
 BOOST_AUTO_TEST_CASE(array1d)
 {
-    hid_t file = H5Fcreate("array1d.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    H5::H5File file("array1d.h5", H5F_ACC_TRUNC);
     const int dim = 6;
     MArray1d a(boost::extents[dim]);
     Hdf5_serial_writer<MArray1d_ref > writer(file, "array1d");
@@ -50,13 +46,12 @@ BOOST_AUTO_TEST_CASE(array1d)
         }
         writer.append(a);
     }
-    H5Fclose(file);
+    file.close();
 }
 
 BOOST_AUTO_TEST_CASE(array2d)
 {
-    hid_t file = H5Fcreate("array2d.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    H5::H5File file("array2d.h5", H5F_ACC_TRUNC);
     const int dim1 = 2;
     const int dim2 = 3;
     MArray2d a(boost::extents[dim1][dim2]);
@@ -69,13 +64,12 @@ BOOST_AUTO_TEST_CASE(array2d)
         }
         writer.append(a);
     }
-    H5Fclose(file);
+    file.close();
 }
 
 BOOST_AUTO_TEST_CASE(array3d)
 {
-    hid_t file = H5Fcreate("array3d.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    H5::H5File file("array3d.h5", H5F_ACC_TRUNC);
     const int dim1 = 2;
     const int dim2 = 3;
     const int dim3 = 4;
@@ -91,5 +85,5 @@ BOOST_AUTO_TEST_CASE(array3d)
         }
         writer.append(a);
     }
-    H5Fclose(file);
+    file.close();
 }

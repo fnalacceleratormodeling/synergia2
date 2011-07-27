@@ -22,10 +22,8 @@ doit1e5(const char *filename)
 }
 
 int
-main()
+real_main(Simple_memory_tracker & memtracker)
 {
-    Simple_memory_tracker memtracker;
-    memtracker.print("start (absolute usage)");
 
     doit0("10.h5");
     memtracker.print("after doit0 (relative)");
@@ -48,5 +46,16 @@ main()
     doit1e5("23.h5");
     memtracker.print("after doit1e5 again (relative)");
 
+
+    return 0;
+}
+
+int
+main()
+{
+    Simple_memory_tracker memtracker;
+    memtracker.print("start (absolute usage)");
+    int retval = real_main(memtracker);
     memtracker.print("end (absolute)", false);
+    return retval;
 }

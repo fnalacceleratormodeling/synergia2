@@ -2,7 +2,7 @@
 #define DIAGNOSTICS_WRITE_HELPER_H_
 #include <string>
 #include <list>
-#include "hdf5.h"
+#include "H5Cpp.h"
 #include <boost/shared_ptr.hpp>
 
 #include "synergia/utils/commxx.h"
@@ -17,7 +17,7 @@ private:
     std::string filename;
     bool serial;
     Commxx commxx;
-    hid_t file;
+    H5::H5File file;
     bool have_file;
     int count;
     std::string filename_base, filename_suffix;
@@ -42,8 +42,8 @@ public:
     int
     get_writer_rank();
 
-    hid_t &
-    get_hdf5_file();
+    H5::H5File &
+    get_file();
 
     void
     finish_write();

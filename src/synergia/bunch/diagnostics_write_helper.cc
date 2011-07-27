@@ -15,8 +15,7 @@ Diagnostics_write_helper::open_file()
             sstream << count;
         }
         sstream << filename_suffix;
-        file = H5Fcreate(sstream.str().c_str(), H5F_ACC_TRUNC, H5P_DEFAULT,
-                H5P_DEFAULT);
+        file.openFile(sstream.str().c_str(), H5F_ACC_TRUNC);
         have_file = true;
     }
 }
@@ -63,8 +62,8 @@ Diagnostics_write_helper::get_writer_rank()
     return writer_rank;
 }
 
-hid_t &
-Diagnostics_write_helper::get_hdf5_file()
+H5::H5File &
+Diagnostics_write_helper::get_file()
 {
     if (!serial) {
         open_file();
@@ -76,7 +75,7 @@ void
 Diagnostics_write_helper::finish_write()
 {
     if (!serial) {
-        H5Fclose(file);
+        file.close();
         have_file = false;
     }
     ++count;
@@ -85,7 +84,7 @@ Diagnostics_write_helper::finish_write()
 Diagnostics_write_helper::~Diagnostics_write_helper()
 {
     if (serial) {
-        H5Fclose(file);
+        file.close();
         have_file = false;
     }
 }
