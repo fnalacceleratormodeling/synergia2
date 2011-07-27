@@ -13,11 +13,11 @@ template<typename T>
         std::string name;
         H5::H5File file;
         H5::DataSet dataset;
-        H5::DataType h5_atomic_type;
+        H5::DataType atomic_type;
         bool have_filespace;
         bool have_setup;
         void
-        setup(std::vector<int > const& data_dims, H5::DataType h5_atomic_type);
+        setup(std::vector<int > const& data_dims, H5::DataType atomic_type);
     public:
         Hdf5_serial_writer(H5::H5File & file, std::string const& name);
         void

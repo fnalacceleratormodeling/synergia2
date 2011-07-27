@@ -8,28 +8,25 @@
 
 BOOST_AUTO_TEST_CASE(integer)
 {
-    hid_t file = H5Fcreate("justinteger.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    H5::H5File file("justinteger.h5", H5F_ACC_TRUNC);
     Hdf5_writer<int > writer(file, "i");
     int data = 7;
     writer.write(data);
-    H5Fclose(file);
+    file.close();
 }
 
 BOOST_AUTO_TEST_CASE(double_float)
 {
-    hid_t file = H5Fcreate("justdouble.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    H5::H5File file("justdouble.h5", H5F_ACC_TRUNC);
     Hdf5_writer<double > writer(file, "double_float");
     double data = 2.71828;
     writer.write(data);
-    H5Fclose(file);
+    file.close();
 }
 
 BOOST_AUTO_TEST_CASE(array1d)
 {
-    hid_t file = H5Fcreate("justarray1d.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    H5::H5File file("justarray1d.h5", H5F_ACC_TRUNC);
     const int dim = 6;
     MArray1d a(boost::extents[dim]);
     Hdf5_writer<MArray1d_ref > writer(file, "array1d");
@@ -37,13 +34,12 @@ BOOST_AUTO_TEST_CASE(array1d)
         a[j] = 1.1 * j;
     }
     writer.write(a);
-    H5Fclose(file);
+    file.close();
 }
 
 BOOST_AUTO_TEST_CASE(array2d)
 {
-    hid_t file = H5Fcreate("justarray2d.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    H5::H5File file("justarray2d.h5", H5F_ACC_TRUNC);
     const int dim1 = 2;
     const int dim2 = 3;
     MArray2d a(boost::extents[dim1][dim2]);
@@ -54,13 +50,12 @@ BOOST_AUTO_TEST_CASE(array2d)
         }
     }
     writer.write(a);
-    H5Fclose(file);
+    file.close();
 }
 
 BOOST_AUTO_TEST_CASE(array3d)
 {
-    hid_t file = H5Fcreate("justarray3d.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    H5::H5File file("justarray3d.h5", H5F_ACC_TRUNC);
     const int dim1 = 2;
     const int dim2 = 3;
     const int dim3 = 4;
@@ -74,6 +69,6 @@ BOOST_AUTO_TEST_CASE(array3d)
         }
     }
     writer.write(a);
-    H5Fclose(file);
+    file.close();
 }
 

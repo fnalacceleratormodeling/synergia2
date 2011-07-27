@@ -42,7 +42,7 @@ template<>
         DataSpace filespace = dataset.getSpace();
         have_filespace = true;
         filespace.selectHyperslab(H5S_SELECT_SET, &dims[0], &offset[0]);
-        dataset.write(data.origin(), h5_atomic_type, dataspace, filespace);
+        dataset.write(data.origin(), atomic_type, dataspace, filespace);
         ++offset[data_rank];
     }
 
@@ -64,7 +64,7 @@ template<>
         DataSpace filespace = dataset.getSpace();
         have_filespace = true;
         filespace.selectHyperslab(H5S_SELECT_SET, &dims[0], &offset[0]);
-        dataset.write(data.origin(), h5_atomic_type, dataspace, filespace);
+        dataset.write(data.origin(), atomic_type, dataspace, filespace);
         ++offset[data_rank];
     }
 
@@ -86,6 +86,6 @@ template<>
         DataSpace filespace = dataset.getSpace();
         have_filespace = true;
         filespace.selectHyperslab(H5S_SELECT_SET, &dims[0], &offset[0]);
-        dataset.write(data.origin(), h5_atomic_type, dataspace, filespace);
+        dataset.write(data.origin(), atomic_type, dataspace, filespace);
         ++offset[data_rank];
     }

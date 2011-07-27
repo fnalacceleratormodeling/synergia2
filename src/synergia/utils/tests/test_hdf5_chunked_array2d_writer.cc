@@ -7,30 +7,27 @@
 
 BOOST_AUTO_TEST_CASE(construct)
 {
-    hid_t file = H5Fcreate("chunkedarray2d.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    H5::H5File file("chunkedarray2d.h5", H5F_ACC_TRUNC);
     const int dim1 = 2;
     const int dim2 = 3;
     MArray2d a(boost::extents[dim1][dim2]);
     Hdf5_chunked_array2d_writer writer(file, "array2d", a);
-    H5Fclose(file);
+    file.close();
 }
 
 BOOST_AUTO_TEST_CASE(manual_close)
 {
-    hid_t file = H5Fcreate("chunkedarray2d.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    H5::H5File file("chunkedarray2d.h5", H5F_ACC_TRUNC);
     const int dim1 = 2;
     const int dim2 = 3;
     MArray2d a(boost::extents[dim1][dim2]);
     Hdf5_chunked_array2d_writer writer(file, "array2d", a);
-    H5Fclose(file);
+    file.close();
 }
 
 BOOST_AUTO_TEST_CASE(typical)
 {
-    hid_t file = H5Fcreate("chunkedarray2d.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    H5::H5File file("chunkedarray2d.h5", H5F_ACC_TRUNC);
     const int dim1 = 2;
     const int dim2 = 3;
     MArray2d a(boost::extents[dim1][dim2]);
@@ -44,13 +41,12 @@ BOOST_AUTO_TEST_CASE(typical)
         writer.write_chunk(a);
     }
     writer.close();
-    H5Fclose(file);
+    file.close();
 }
 
 BOOST_AUTO_TEST_CASE(different_sizes)
 {
-    hid_t file = H5Fcreate("chunkedarray2d.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    H5::H5File file("chunkedarray2d.h5", H5F_ACC_TRUNC);
     const int dim1 = 33;
     const int dim2 = 7;
     MArray2d a(boost::extents[dim1][dim2]);
@@ -74,13 +70,13 @@ BOOST_AUTO_TEST_CASE(different_sizes)
         writer.write_chunk(b);
     }
     writer.close();
-    H5Fclose(file);
+    file.close();
 }
 
 // ugh. no worky.
 //BOOST_AUTO_TEST_CASE(typical_view)
 //{
-//    hid_t file = H5Fcreate("chunkedarray2dview.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
+//    H5::H5File file("chunkedarray2dview.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
 //            H5P_DEFAULT);
 //    const int dim1 = 2;
 //    const int dim2 = 3;
@@ -96,13 +92,12 @@ BOOST_AUTO_TEST_CASE(different_sizes)
 //        writer.write_chunk(a_view);
 //    }
 //    writer.close();
-//    H5Fclose(file);
+//    file.close();
 //}
 
 BOOST_AUTO_TEST_CASE(write_to_closed)
 {
-    hid_t file = H5Fcreate("chunkedarray2d.h5", H5F_ACC_TRUNC, H5P_DEFAULT,
-            H5P_DEFAULT);
+    H5::H5File file("chunkedarray2d.h5", H5F_ACC_TRUNC);
     const int dim1 = 2;
     const int dim2 = 3;
     MArray2d a(boost::extents[dim1][dim2]);
@@ -115,7 +110,7 @@ BOOST_AUTO_TEST_CASE(write_to_closed)
     catch (std::runtime_error) {
         caught_error = true;
     }
-    H5Fclose(file);
+    file.close();
     BOOST_CHECK(caught_error == true);
 }
 

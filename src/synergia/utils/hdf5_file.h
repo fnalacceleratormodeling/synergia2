@@ -1,21 +1,21 @@
 #ifndef HDF5_FILE_H_
 #define HDF5_FILE_H_
 #include <string>
-#include "hdf5.h"
+#include "H5Cpp.h"
 
 #include "synergia/utils/hdf5_writer.h"
 
 class Hdf5_file
 {
 private:
-    hid_t h5file;
+    H5::H5File file;
 public:
     Hdf5_file(std::string const& file_name);
     template<typename T>
         void
         write(T const& data, std::string const& name)
         {
-            Hdf5_writer<T > (h5file, name).write(data);
+            Hdf5_writer<T > (file, name).write(data);
         }
     ;
     ~Hdf5_file();

@@ -10,9 +10,9 @@ using namespace H5;
 template<typename T>
     void
     Hdf5_serial_writer<T >::setup(std::vector<int > const& data_dims,
-            H5::DataType h5_atomic_type)
+            H5::DataType atomic_type)
     {
-        this->h5_atomic_type = h5_atomic_type;
+        this->atomic_type = atomic_type;
         dims.resize(data_rank + 1);
         max_dims.resize(data_rank + 1);
         size.resize(data_rank + 1);
@@ -34,7 +34,7 @@ template<typename T>
         DSetCreatPropList cparms;
         cparms.setChunk(data_rank + 1, &chunk_dims[0]);
         DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
-        dataset = file.createDataSet(name.c_str(), h5_atomic_type, dataspace,
+        dataset = file.createDataSet(name.c_str(), atomic_type, dataspace,
                 cparms);
         have_setup = true;
     }
@@ -75,7 +75,7 @@ template<typename T>
         DataSpace filespace = dataset.getSpace();
         have_filespace = true;
         filespace.selectHyperslab(H5S_SELECT_SET, &dims[0], &offset[0]);
-        dataset.write(&data, h5_atomic_type, dataspace, filespace);
+        dataset.write(&data, atomic_type, dataspace, filespace);
         ++offset[data_rank];
     }
 

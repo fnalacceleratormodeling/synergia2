@@ -3,9 +3,14 @@
 #include <stdexcept>
 #include <iostream>
 
-Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(hid_t & file,
+#ifndef H5_NO_NAMESPACE
+using namespace H5;
+#endif
+
+Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(H5File & file,
         std::string const& name, Const_MArray2d_view const & initial_data) :
-    dims(2), max_dims(2), size(2), offset(2), chunk_dims(2)
+    file(file), dims(2), max_dims(2), size(2), offset(2), chunk_dims(2),
+            atomic_type(hdf5_atomic_data_type<double > ())
 {
     for (int i = 0; i < 2; ++i) {
         dims[i] = initial_data.shape()[i];
@@ -16,19 +21,18 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(hid_t & file,
     size[0] = 0;
     size[1] = initial_data.shape()[1];
     max_dims[0] = H5S_UNLIMITED;
-    dataspace = H5Screate_simple(2, &dims[0], &max_dims[0]);
-    cparms = H5Pcreate(H5P_DATASET_CREATE);
-    herr_t status = H5Pset_chunk(cparms, 2, &chunk_dims[0]);
-    hdf5_error_check(status);
-    dataset = H5Dcreate(file, name.c_str(), hdf5_atomic_typename<double > (),
-            dataspace, H5P_DEFAULT, cparms, H5P_DEFAULT);
+    DSetCreatPropList cparms;
+    cparms.setChunk(2, &chunk_dims[0]);
+    DataSpace dataspace(2, &dims[0], &max_dims[0]);
+    dataset = file.createDataSet(name.c_str(), atomic_type, dataspace, cparms);
     closed = false;
     have_filespace = false;
 }
 
-Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(hid_t & file,
+Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(H5File & file,
         std::string const& name, Const_MArray2d_ref const & initial_data) :
-    dims(2), max_dims(2), size(2), offset(2), chunk_dims(2)
+    file(file), dims(2), max_dims(2), size(2), offset(2), chunk_dims(2),
+            atomic_type(hdf5_atomic_data_type<double > ())
 {
     for (int i = 0; i < 2; ++i) {
         dims[i] = initial_data.shape()[i];
@@ -39,12 +43,10 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(hid_t & file,
     size[0] = 0;
     size[1] = initial_data.shape()[1];
     max_dims[0] = H5S_UNLIMITED;
-    dataspace = H5Screate_simple(2, &dims[0], &max_dims[0]);
-    cparms = H5Pcreate(H5P_DATASET_CREATE);
-    herr_t status = H5Pset_chunk(cparms, 2, &chunk_dims[0]);
-    hdf5_error_check(status);
-    dataset = H5Dcreate(file, name.c_str(), hdf5_atomic_typename<double > (),
-            dataspace, H5P_DEFAULT, cparms, H5P_DEFAULT);
+    DSetCreatPropList cparms;
+    cparms.setChunk(2, &chunk_dims[0]);
+    DataSpace dataspace(2, &dims[0], &max_dims[0]);
+    dataset = file.createDataSet(name.c_str(), atomic_type, dataspace, cparms);
     closed = false;
     have_filespace = false;
 }
@@ -58,22 +60,15 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_ref const & data)
     }
     chunk_dims[0] = data.shape()[0];
     chunk_dims[1] = data.shape()[1];
-    herr_t status = H5Pset_chunk(cparms, 2, &chunk_dims[0]);
-    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk: error in H5Pset_chunk");
+    DSetCreatPropList cparms;
+    cparms.setChunk(2, &chunk_dims[0]);
     size[0] += data.shape()[0];
-    status = H5Dextend(dataset, &size[0]);
-    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk: error in H5Dextend");
-    filespace = H5Dget_space(dataset);
+    dataset.extend(&size[0]);
+    DataSpace filespace = dataset.getSpace();
     have_filespace = true;
-    status = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0], NULL,
-            &chunk_dims[0], NULL);
-    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk: error in H5Sselect_hyperslab");
-    status = H5Sclose(dataspace);
-    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk: error in H5Sclose");
-    dataspace = H5Screate_simple(2, &chunk_dims[0], &max_dims[0]);
-    status = H5Dwrite(dataset, hdf5_atomic_typename<double > (), dataspace,
-            filespace, H5P_DEFAULT, data.origin());
-    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk: error in H5Dwrite");
+    filespace.selectHyperslab(H5S_SELECT_SET, &chunk_dims[0], &offset[0]);
+    DataSpace dataspace(2, &chunk_dims[0], &max_dims[0]);
+    dataset.write(data.origin(), atomic_type, dataspace, filespace);
     offset[0] += data.shape()[0];
 }
 
@@ -86,40 +81,21 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_view const & data)
     }
     chunk_dims[0] = data.shape()[0];
     chunk_dims[1] = data.shape()[1];
-    herr_t status = H5Pset_chunk(cparms, 2, &chunk_dims[0]);
-    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk[view]: error in H5Pset_chunk");
+    DSetCreatPropList cparms;
+    cparms.setChunk(2, &chunk_dims[0]);
     size[0] += data.shape()[0];
-    status = H5Dextend(dataset, &size[0]);
-    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk[view]: error in H5Dextend");
-    filespace = H5Dget_space(dataset);
+    dataset.extend(&size[0]);
+    DataSpace filespace = dataset.getSpace();
     have_filespace = true;
-    status = H5Sselect_hyperslab(filespace, H5S_SELECT_SET, &offset[0], NULL,
-            &chunk_dims[0], NULL);
-    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk[view]: error in H5Sselect_hyperslab");
-    status = H5Sclose(dataspace);
-    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk[view]: error in H5Sclose");
-    dataspace = H5Screate_simple(2, &chunk_dims[0], &max_dims[0]);
-    status = H5Dwrite(dataset, hdf5_atomic_typename<double > (), dataspace,
-            filespace, H5P_DEFAULT, data.origin());
-    hdf5_error_check(status, "Hdf5_chunked_array2d_writer::write_chunk[view]: error in H5Dwrite");
+    filespace.selectHyperslab(H5S_SELECT_SET, &chunk_dims[0], &offset[0]);
+    DataSpace dataspace(2, &chunk_dims[0], &max_dims[0]);
+    dataset.write(data.origin(), atomic_type, dataspace, filespace);
     offset[0] += data.shape()[0];
 }
 
 void
 Hdf5_chunked_array2d_writer::close()
 {
-    if (!closed) {
-        herr_t status = H5Pclose(cparms);
-        hdf5_error_check(status);
-        status = H5Dclose(dataset);
-        hdf5_error_check(status);
-        status = H5Sclose(dataspace);
-        hdf5_error_check(status);
-        if (have_filespace) {
-            status = H5Sclose(filespace);
-            hdf5_error_check(status);
-        }
-    }
     closed = true;
 }
 
