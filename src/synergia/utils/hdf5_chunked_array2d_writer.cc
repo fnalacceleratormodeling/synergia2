@@ -25,8 +25,6 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(H5File & file,
     cparms.setChunk(2, &chunk_dims[0]);
     DataSpace dataspace(2, &dims[0], &max_dims[0]);
     dataset = file.createDataSet(name.c_str(), atomic_type, dataspace, cparms);
-    closed = false;
-    have_filespace = false;
 }
 
 Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(H5File & file,
@@ -47,17 +45,11 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(H5File & file,
     cparms.setChunk(2, &chunk_dims[0]);
     DataSpace dataspace(2, &dims[0], &max_dims[0]);
     dataset = file.createDataSet(name.c_str(), atomic_type, dataspace, cparms);
-    closed = false;
-    have_filespace = false;
 }
 
 void
 Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_ref const & data)
 {
-    if (closed) {
-        throw std::runtime_error(
-                "Hdf5_chunked_array2d_writer: attempt to write_chunk to a closed writer");
-    }
     chunk_dims[0] = data.shape()[0];
     chunk_dims[1] = data.shape()[1];
     DSetCreatPropList cparms;
@@ -65,7 +57,6 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_ref const & data)
     size[0] += data.shape()[0];
     dataset.extend(&size[0]);
     DataSpace filespace = dataset.getSpace();
-    have_filespace = true;
     filespace.selectHyperslab(H5S_SELECT_SET, &chunk_dims[0], &offset[0]);
     DataSpace dataspace(2, &chunk_dims[0], &max_dims[0]);
     dataset.write(data.origin(), atomic_type, dataspace, filespace);
@@ -75,10 +66,6 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_ref const & data)
 void
 Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_view const & data)
 {
-    if (closed) {
-        throw std::runtime_error(
-                "Hdf5_chunked_array2d_writer: attempt to write_chunk to a closed writer");
-    }
     chunk_dims[0] = data.shape()[0];
     chunk_dims[1] = data.shape()[1];
     DSetCreatPropList cparms;
@@ -86,20 +73,12 @@ Hdf5_chunked_array2d_writer::write_chunk(Const_MArray2d_view const & data)
     size[0] += data.shape()[0];
     dataset.extend(&size[0]);
     DataSpace filespace = dataset.getSpace();
-    have_filespace = true;
     filespace.selectHyperslab(H5S_SELECT_SET, &chunk_dims[0], &offset[0]);
     DataSpace dataspace(2, &chunk_dims[0], &max_dims[0]);
     dataset.write(data.origin(), atomic_type, dataspace, filespace);
     offset[0] += data.shape()[0];
 }
 
-void
-Hdf5_chunked_array2d_writer::close()
-{
-    closed = true;
-}
-
 Hdf5_chunked_array2d_writer::~Hdf5_chunked_array2d_writer()
 {
-    close();
 }

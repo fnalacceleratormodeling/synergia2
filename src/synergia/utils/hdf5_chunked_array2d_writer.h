@@ -13,7 +13,6 @@ private:
     H5::H5File file;
     H5::DataSet dataset;
     H5::DataType atomic_type;
-    bool closed, have_filespace;
 public:
     Hdf5_chunked_array2d_writer(H5::H5File & file, std::string const& name,
             Const_MArray2d_view const & initial_data);
@@ -23,8 +22,6 @@ public:
     write_chunk(Const_MArray2d_ref const & data);
     void
     write_chunk(Const_MArray2d_view const & data);
-    void
-    close();
     ~Hdf5_chunked_array2d_writer();
 };
 
