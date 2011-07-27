@@ -14,7 +14,6 @@ template<typename T>
         H5::H5File file;
         H5::DataSet dataset;
         H5::DataType atomic_type;
-        bool have_filespace;
         bool have_setup;
         void
         setup(std::vector<int > const& data_dims, H5::DataType atomic_type);

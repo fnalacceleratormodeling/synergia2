@@ -18,7 +18,6 @@ template<typename T>
         size.resize(data_rank + 1);
         offset.resize(data_rank + 1);
         chunk_dims.resize(data_rank + 1);
-        have_filespace = false;
         for (int i = 0; i < data_rank; ++i) {
             dims[i] = data_dims.at(i);
             max_dims[i] = data_dims.at(i);
@@ -73,7 +72,6 @@ template<typename T>
         dataset.extend(&size[0]);
 
         DataSpace filespace = dataset.getSpace();
-        have_filespace = true;
         filespace.selectHyperslab(H5S_SELECT_SET, &dims[0], &offset[0]);
         dataset.write(&data, atomic_type, dataspace, filespace);
         ++offset[data_rank];
