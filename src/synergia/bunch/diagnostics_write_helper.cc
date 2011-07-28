@@ -15,7 +15,8 @@ Diagnostics_write_helper::open_file()
             sstream << count;
         }
         sstream << filename_suffix;
-        file.openFile(sstream.str().c_str(), H5F_ACC_TRUNC);
+        file_sptr = boost::shared_ptr<H5::H5File >(
+                new H5::H5File(sstream.str().c_str(), H5F_ACC_TRUNC));
         have_file = true;
     }
 }
@@ -68,14 +69,15 @@ Diagnostics_write_helper::get_file()
     if (!serial) {
         open_file();
     }
-    return file;
+    return *file_sptr;
 }
 
 void
 Diagnostics_write_helper::finish_write()
 {
     if (!serial) {
-        file.close();
+        file_sptr->close();
+        file_sptr.reset();
         have_file = false;
     }
     ++count;
@@ -84,7 +86,8 @@ Diagnostics_write_helper::finish_write()
 Diagnostics_write_helper::~Diagnostics_write_helper()
 {
     if (serial) {
-        file.close();
+        file_sptr->close();
+        file_sptr.reset();
         have_file = false;
     }
 }

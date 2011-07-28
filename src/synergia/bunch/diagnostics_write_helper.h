@@ -17,7 +17,7 @@ private:
     std::string filename;
     bool serial;
     Commxx commxx;
-    H5::H5File file;
+    boost::shared_ptr<H5::H5File> file_sptr;
     bool have_file;
     int count;
     std::string filename_base, filename_suffix;
