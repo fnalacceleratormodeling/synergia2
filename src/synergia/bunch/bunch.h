@@ -19,7 +19,7 @@ public:
     */
     enum State
     {
-        fixed_z = 1, fixed_t = 2
+        fixed_z = 1, fixed_t = 2, fixed_z_acc=1, fixed_t_beam=2, fixed_t_acc=3, fixed_z_beam=4
     };
     static const int x = 0;
     static const int xp = 1;
@@ -31,6 +31,8 @@ public:
     static const int dpop = 5;
     static const int id = 6;
 private:
+    double z_period_length;
+    bool z_periodic;
     Reference_particle reference_particle;
     int particle_charge;
     MArray2d *local_particles;
@@ -40,7 +42,9 @@ private:
     State state;
     Commxx comm;
     Fixed_t_z_converter *converter_ptr;
-    Fixed_t_z_zeroth default_converter;
+   // Fixed_t_z_zeroth default_converter;
+   // Fixed_t_z_alex default_converter;
+    Fixed_t_z_synergia20 default_converter;
     void
     assign_ids(int local_offset);
     void
@@ -69,6 +73,9 @@ public:
     /// @param particle_charge in units of e.
     Bunch(Reference_particle const& reference_particle, int total_num,
             double real_num, Commxx const& comm, int particle_charge);
+
+    Bunch(Reference_particle const& reference_particle, int total_num,
+        double real_num, Commxx const& comm, double z_period_length);
 
     //!
     //! Copy constructor
@@ -137,7 +144,8 @@ public:
     /// @param state convert to this state.
     void
     convert_to_state(State state);
-
+    
+     
     /// Return the reference particle
     Reference_particle &
     get_reference_particle();
@@ -167,6 +175,14 @@ public:
     /// Get the real number of particles represented by the bunch.
     double
     get_real_num() const;
+
+  /// Get the periodicity length of the bunch
+    double
+    get_z_period_length() const;
+
+   /// Is the bunch periodic?
+    bool 
+    is_z_periodic() const;
 
     /// Get the number of macroparticles stored on this processor.
     int

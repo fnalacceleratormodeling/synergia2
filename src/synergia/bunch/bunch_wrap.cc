@@ -106,6 +106,8 @@ BOOST_PYTHON_MODULE(bunch)
                     int, double, Commxx const& > ())
                 .def(init<Reference_particle const&, int, double,
                         Commxx const&, int >())
+                .def(init<Reference_particle const&, int, double,
+                        Commxx const&, double >())
                 .def("set_particle_charge", &Bunch::set_particle_charge)
                 .def("set_real_num", &Bunch::set_real_num)
                 .def("set_local_num", &Bunch::set_local_num)
@@ -125,6 +127,8 @@ BOOST_PYTHON_MODULE(bunch)
                 .def("get_local_num", &Bunch::get_local_num)
                 .def("get_total_num", &Bunch::get_total_num)
                 .def("get_state", &Bunch::get_state)
+                .def("get_z_period_length", &Bunch::get_z_period_length)
+                .def("is_periodic", &Bunch::is_z_periodic)
                 // jfa: the following implementation does not work for reasons I do
                 //      not understand.
 //                .def("get_comm",
@@ -137,6 +141,10 @@ BOOST_PYTHON_MODULE(bunch)
     enum_<Bunch::State > ("State")
         .value("fixed_z", Bunch::fixed_z)
         .value("fixed_t", Bunch::fixed_t)
+        .value("fixed_z_acc", Bunch::fixed_z_acc)
+        .value("fixed_t_acc", Bunch::fixed_t_acc)
+        .value("fixed_z_beam", Bunch::fixed_z_beam)
+        .value("fixed_t_beam", Bunch::fixed_t_beam)
         .export_values();
 
     scope().attr("x") = Bunch::x;

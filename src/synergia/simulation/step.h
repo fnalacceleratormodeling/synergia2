@@ -6,6 +6,7 @@
 
 #include "synergia/simulation/operator.h"
 #include "synergia/bunch/bunch.h"
+#include "synergia/bunch/multi_diagnostics.h"
 
 struct Bunch_means
 {
@@ -31,6 +32,8 @@ public:
     append(Operators const& operators, double time_fraction);
     virtual void
     apply(Bunch & bunch);
+    virtual void
+    apply(Bunch & bunch, Multi_diagnostics & diagnostics);
     Operators const&
     get_operators() const;
     std::list<double> const&
