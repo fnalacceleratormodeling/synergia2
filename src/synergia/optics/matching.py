@@ -84,9 +84,9 @@ def _get_correlation_matrix(linear_map,arms,brms,crms,beta,rms_index=[0,2,4],pri
         emitz=sqrt(C[4,4]*C[5,5]-C[4,5]*C[5,4])/units[4]/units[5]
         if MPI.COMM_WORLD.Get_rank() ==0: 
             print "************ BEAM MATCHED PARAMETERS *****************"
-            print "*    emitx=", emitx, " meters*GeV/c   =", emitx/pz, " meters*rad =", emitx/pz/pi, " pi*meters*rad"
-            print "*    emity=", emity, " meters*GeV/c   =", emity/pz, " meters*rad =", emity/pz/pi, " pi*meters*rad"
-            print "*    emitz=", emitz, " meters*GeV/c =", emitz*1.e9/(pconstants.c), " eV*s =" , emitz*beta*beta*energy/pz, " meters*GeV"
+            print "*    emitx=", emitx, " meters*GeV/c   =", emitx/pz, " meters*rad (synergia units)=", emitx/pz/pi, " pi*meters*rad"
+            print "*    emity=", emity, " meters*GeV/c   =", emity/pz, " meters*rad (synergia units)=", emity/pz/pi, " pi*meters*rad"
+            print "*    emitz=", emitz, " meters*GeV/c =", emitz*1.e9/(pconstants.c), " eV*s =" , emitz*beta*beta*energy/pz, " meters*GeV =", emitz/pz/beta, " [cdt*dp/p] (synergia units)"
             print " "  
             print "*    90%emitx=",  4.605*pi*emitx/pz,"  meters*rad =", 4.605*emitx/pz, " pi*meters*rad"
             print "*    90%emity=",  4.605*pi*emity/pz, " meters*rad =", 4.605*emity/pz, " pi*meters*rad"
@@ -195,7 +195,15 @@ def generate_matched_bunch(lattice_simulator, arms,brms,crms,
     correlation_matrix = _get_correlation_matrix(map, arms,brms,crms,beta, rms_index)
     if comm == None:
         comm = MPI.COMM_WORLD
-    bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
+    for elem in lattice_simulator.get_lattice().get_elements():
+        if elem.has_double_attribute("freq"):
+            freq=elem.get_double_attribute("freq")
+            z_period_length =beta*pconstants.c/freq
+            bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
+                  num_macro_particles, num_real_particles, comm, z_period_length);
+            break
+        else:
+            bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
                   num_macro_particles, num_real_particles, comm);
     dist = Random_distribution(seed, comm)
     populate_6d(dist, bunch, numpy.zeros((6,), 'd'), correlation_matrix)

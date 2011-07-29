@@ -332,7 +332,7 @@ Diagnostics_full2::Diagnostics_full2(Bunch_sptr bunch_sptr,
             mean(boost::extents[6]), std(boost::extents[6]),
             mom2(boost::extents[6][6]), corr(boost::extents[6][6]),
             write_helper(filename, true, bunch_sptr->get_comm())
-{
+{          
 }
 
 bool
@@ -343,7 +343,8 @@ Diagnostics_full2::is_serial() const
 
 void
 Diagnostics_full2::update()
-{
+{   
+    bunch_sptr->convert_to_state(bunch_sptr->fixed_z);
     s = bunch_sptr->get_reference_particle().get_s();
     repetition = bunch_sptr->get_reference_particle().get_repetition();
     trajectory_length

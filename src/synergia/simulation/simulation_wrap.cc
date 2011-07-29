@@ -62,9 +62,12 @@ BOOST_PYTHON_MODULE(simulation)
         .def("get_chef_lattice", &Lattice_simulator::get_chef_lattice_sptr)
         ;
 
+
+
+    void (Step::*apply1)(Bunch &) = &Step::apply;
     class_<Step, Step_sptr >("Step", init<double >())
 //            .def("append", remember how to overload methods...)
-            .def("apply",&Step::apply)
+            .def("apply",apply1)
             .def("get_operators",&Step::get_operators,
                     return_value_policy<copy_const_reference >())
             ;

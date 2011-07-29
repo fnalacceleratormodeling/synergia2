@@ -5,6 +5,7 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/diagnostics.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
+
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-14;
@@ -407,16 +408,31 @@ BOOST_FIXTURE_TEST_CASE(convert_to_fixed_t_bad_pz, Fixture)
 class Fixed_t_z_dummy : public Fixed_t_z_converter
 {
 public:
+ //   void
+ //   fixed_t_to_fixed_z(Bunch &bunch)
+ //   {
+ //   }
+ //   ;
+ //   void
+ //   fixed_z_to_fixed_t(Bunch &bunch)
+ //   {
+//    }
+  //  ;
+    
+  
+    
     void
-    fixed_t_to_fixed_z(Bunch &bunch)
-    {
-    }
-    ;
+    from_zacc_to_tacc(Bunch &bunch){};
+    
     void
-    fixed_z_to_fixed_t(Bunch &bunch)
-    {
-    }
-    ;
+    from_tacc_to_zacc(Bunch &bunch){};
+    
+    void
+    from_zacc_to_tbeam(Bunch &bunch){};
+    
+    void
+    from_tbeam_to_zacc(Bunch &bunch){};
+    
 };
 
 BOOST_FIXTURE_TEST_CASE(set_converter, Fixture)

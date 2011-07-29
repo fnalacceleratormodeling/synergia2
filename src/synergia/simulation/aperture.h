@@ -9,4 +9,5 @@ const double default_aperture_radius = 1000.0;
 void
 apply_circular_aperture(Bunch & bunch, Lattice_element_slices & slices);
 
+
 #endif /* APERTURE_H_ */
