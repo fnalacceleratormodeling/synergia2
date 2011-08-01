@@ -99,6 +99,41 @@ configure_file("${SYNERGIA2_SOURCE_DIR}/src/local_paths.py.in"
 
 include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src)
 
+# Set defaults for building python bindings (build bindings by default).
+if (NOT DEFINED BUILD_PYTHON_BINDINGS)
+  if (NOT $ENV{BUILD_PYTHON_BINDINGS} STREQUAL "")
+    set (BUILD_PYTHON_BINDINGS $ENV{BUILD_PYTHON_BINDINGS})
+  else ()
+    set (BUILD_PYTHON_BINDINGS TRUE)
+  endif ()
+endif ()
+
+if (NOT BUILD_PYTHON_BINDINGS)
+  message (STATUS "Not building python bindings")
+endif ()
+
+# Are we building shared or static (shared is the default)?
+if (NOT DEFINED BUILD_SHARED_LIBS)
+  if (NOT $ENV{BUILD_SHARED_LIBS} STREQUAL "")
+    set (BUILD_SHARED_LIBS $ENV{BUILD_SHARED_LIBS})
+  else ()
+    set (BUILD_SHARED_LIBS TRUE)
+  endif ()
+endif ()
+
+if (BUILD_SHARED_LIBS)
+  message (STATUS "Building shared libraries")
+else ()
+  message (STATUS "Building static libraries")
+endif ()
+
+# We should probably warn someone trying to build static libraries along with
+#  the python bindings since it won't work with python.
+# The python bindings will still be build shared.
+if ( (NOT BUILD_SHARED_LIBS) AND BUILD_PYTHON_BINDINGS )
+  message(WARNING "Static library build selected, ignored for python bindings")
+endif ()
+
 add_subdirectory(src)
 add_subdirectory(examples)
 add_subdirectory(docs)

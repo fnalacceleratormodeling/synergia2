@@ -1,4 +1,4 @@
-add_library(synergia_foundation SHARED four_momentum.cc reference_particle.cc distribution.cc)
+add_library(synergia_foundation four_momentum.cc reference_particle.cc distribution.cc)
 target_link_libraries(synergia_foundation ${GSL_CONFIG_LIBS} synergia_parallel_utils ${Boost_SERIALIZATION_LIBRARIES})
 add_python_extension(foundation foundation_wrap.cc)
 target_link_libraries(foundation synergia_foundation ${Boost_LIBRARIES})
