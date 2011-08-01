@@ -1,4 +1,4 @@
-add_library(synergia_bunch SHARED fixed_t_z_converter.cc bunch.cc
+add_library(synergia_bunch fixed_t_z_converter.cc bunch.cc
     diagnostics.cc multi_diagnostics.cc diagnostics_write_helper.cc populate.cc)
 target_link_libraries(synergia_bunch synergia_parallel_utils
     synergia_hdf5_utils synergia_foundation)
