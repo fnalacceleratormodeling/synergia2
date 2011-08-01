@@ -88,7 +88,7 @@ Space_charge_3d_open_hockney::setup_nondoubled_communication()
 void
 Space_charge_3d_open_hockney::setup_default_options()
 {
-    set_green_fn_type(pointlike);
+    set_green_fn_type(linear);
     set_charge_density_comm(charge_allreduce);
     set_e_field_comm(e_field_allreduce);
 }
@@ -773,7 +773,7 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
         }
     }
 
-    G2->set_normalization(1.0);
+    G2->set_normalization(1.0/(hz*hz));
 
     return G2;
 }

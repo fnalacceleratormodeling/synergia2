@@ -724,9 +724,9 @@ BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
     double avg_p_kick2 = total_p_kick2 / bunch.get_local_num();
 
     const double rough_tolerance = 50.0;
-    BOOST_CHECK_CLOSE(avg_x_kick2, 2.6e5, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_y_kick2, 3.4e5, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_p_kick2, 7.0e7, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_x_kick2, 8.2e4, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_y_kick2, 1.1e5, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_p_kick2, 7.2e6, rough_tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(apply_transverse, Ellipsoidal_bunch_fixture)
@@ -759,7 +759,7 @@ BOOST_FIXTURE_TEST_CASE(apply_transverse, Ellipsoidal_bunch_fixture)
     double avg_p_kick2 = total_p_kick2 / bunch.get_local_num();
 
     const double rough_tolerance = 50.0;
-    BOOST_CHECK_CLOSE(avg_x_kick2, 2.6e5, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_y_kick2, 3.4e5, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_x_kick2, 7.9e4, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_y_kick2, 1.1e5, rough_tolerance);
     BOOST_CHECK_CLOSE(avg_p_kick2, 7.1e4, rough_tolerance);
 }
