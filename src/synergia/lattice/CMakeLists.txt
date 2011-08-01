@@ -1,4 +1,4 @@
-add_library(synergia_lattice SHARED lattice_element.cc lattice_element_slice.cc
+add_library(synergia_lattice lattice_element.cc lattice_element_slice.cc
     lattice.cc chef_lattice.cc chef_utils.cc element_adaptor.cc)
 target_link_libraries(synergia_lattice synergia_foundation ${CHEF_LIBS} ${Boost_REGEX_LIBRARY}
     ${Boost_SERIALIZATION_LIBRARY})
