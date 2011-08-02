@@ -37,3 +37,11 @@ BOOST_FIXTURE_TEST_CASE(write_several, Bunch_sptr_fixture)
     diagnostics.update();
     diagnostics.write();
 }
+
+BOOST_FIXTURE_TEST_CASE(write_min_max, Bunch_sptr_fixture)
+{
+    Diagnostics_particles diagnostics(bunch_sptr,
+            "diagnostics_particles_mpi_35.h5", 3, 5);
+    diagnostics.update();
+    diagnostics.write();
+}

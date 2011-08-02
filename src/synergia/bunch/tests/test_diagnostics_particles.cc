@@ -31,7 +31,8 @@ dummy_populate(Bunch &bunch)
 struct Fixture
 {
     Fixture() :
-        bunch_sptr(new Bunch(reference_particle, total_num, real_num, comm)),
+                bunch_sptr(
+                        new Bunch(reference_particle, total_num, real_num, comm)),
                 reference_particle(pconstants::electron_charge, mass,
                         total_energy), comm(MPI_COMM_WORLD)
     {
@@ -74,7 +75,16 @@ BOOST_FIXTURE_TEST_CASE(update, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 {
-    Diagnostics_particles diagnostics(bunch_sptr, "diagnostics_particles_nompi.h5");
+    Diagnostics_particles diagnostics(bunch_sptr,
+            "diagnostics_particles_nompi.h5");
+    diagnostics.update();
+    diagnostics.write();
+}
+
+BOOST_FIXTURE_TEST_CASE(write_min_max, Fixture)
+{
+    Diagnostics_particles diagnostics(bunch_sptr,
+            "diagnostics_particles_nompi_35.h5", 3, 5);
     diagnostics.update();
     diagnostics.write();
 }

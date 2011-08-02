@@ -508,8 +508,9 @@ Diagnostics_full2::~Diagnostics_full2()
 }
 
 Diagnostics_particles::Diagnostics_particles(Bunch_sptr bunch_sptr,
-        std::string const& filename, int max_particles) :
-    bunch_sptr(bunch_sptr), filename(filename), max_particles(max_particles),
+        std::string const& filename, int min_particle_id, int max_particle_id) :
+    bunch_sptr(bunch_sptr), filename(filename),
+            min_particle_id(min_particle_id), max_particle_id(max_particle_id),
             have_writers(false),
             write_helper(filename, false, bunch_sptr->get_comm())
 {
@@ -526,6 +527,25 @@ Diagnostics_particles::update()
 {
 }
 
+// write_selected_particles is a local function
+void
+write_selected_particles(Hdf5_chunked_array2d_writer & writer,
+        MArray2d_ref const & particles, int local_num, int min_particle_id,
+        int max_particle_id)
+{
+    if ((min_particle_id == 0) && (max_particle_id == 0)) {
+        writer.write_chunk(
+                particles[boost::indices[range(0, local_num)][range()]]);
+    } else {
+        for (int part = 0; part < local_num; ++part) {
+            if ((part >= min_particle_id) && (part <= max_particle_id)) {
+                writer.write_chunk(
+                        particles[boost::indices[range(part, part + 1)][range()]]);
+            }
+        }
+    }
+}
+
 void
 Diagnostics_particles::receive_other_local_particles(
         std::vector<int > const& local_nums, H5::H5File & file)
@@ -540,9 +560,9 @@ Diagnostics_particles::receive_other_local_particles(
     for (int rank = 0; rank < size; ++rank) {
         int local_num = local_nums[rank];
         if (rank == myrank) {
-            writer_particles.write_chunk(
-                    bunch_sptr->get_local_particles()[boost::indices[range(0,
-                            local_num)][range()]]);
+            write_selected_particles(writer_particles,
+                    bunch_sptr->get_local_particles(), local_num,
+                    min_particle_id, max_particle_id);
         } else {
             MPI_Status status;
             MArray2d received(boost::extents[local_num][7]);
@@ -554,7 +574,8 @@ Diagnostics_particles::receive_other_local_particles(
                 throw std::runtime_error(
                         "Diagnostics_particles::receive_other_local_particles: MPI_Recv failed.");
             }
-            writer_particles.write_chunk(received);
+            write_selected_particles(writer_particles, received, local_num,
+                    min_particle_id, max_particle_id);
         }
     }
 }

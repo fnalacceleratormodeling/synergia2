@@ -275,7 +275,7 @@ class Diagnostics_particles : public Diagnostics
 private:
     bool have_writers;
     H5::H5File file;
-    int max_particles;
+    int min_particle_id, max_particle_id;
     Bunch_sptr bunch_sptr;
     std::string filename;
     Diagnostics_write_helper write_helper;
@@ -289,9 +289,10 @@ public:
     /// @param bunch_sptr the Bunch
     /// @param filename the base name for file to write to (base names will have
     ///        a numerical index inserted
-    /// @param max_particles the maximum number of particles to save (0 for all)
+    /// @param min_particle_id the lowest particle id to write (defaults to 0)
+    /// @param max_particle_id the highest particle id to write (0 indicates no limit, hence min,max = 0,0 writes all particles)
     Diagnostics_particles(Bunch_sptr bunch_sptr, std::string const& filename,
-            int max_particles = 0);
+            int min_particle_id = 0, int max_particle_id = 0);
 
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_particles class is not serial.
