@@ -229,8 +229,7 @@ Diagnostics_basic::init_writers(H5::H5File & file)
 {
     if (!have_writers) {
         writer_s = new Hdf5_serial_writer<double > (file, "s");
-        writer_repetition = new Hdf5_serial_writer<int > (file,
-                "repetition");
+        writer_repetition = new Hdf5_serial_writer<int > (file, "repetition");
         writer_trajectory_length = new Hdf5_serial_writer<double > (file,
                 "trajectory_length");
         writer_num_particles = new Hdf5_serial_writer<int > (file,
@@ -445,8 +444,7 @@ Diagnostics_full2::init_writers(H5::H5File & file)
 {
     if (!have_writers) {
         writer_s = new Hdf5_serial_writer<double > (file, "s");
-        writer_repetition = new Hdf5_serial_writer<int > (file,
-                "repetition");
+        writer_repetition = new Hdf5_serial_writer<int > (file, "repetition");
         writer_trajectory_length = new Hdf5_serial_writer<double > (file,
                 "trajectory_length");
         writer_num_particles = new Hdf5_serial_writer<int > (file,
@@ -690,11 +688,9 @@ void
 Diagnostics_track::init_writers(H5::H5File & file)
 {
     if (!have_writers) {
-        writer_coords = new Hdf5_serial_writer<MArray1d_ref > (file,
-                "coords");
+        writer_coords = new Hdf5_serial_writer<MArray1d_ref > (file, "coords");
         writer_s = new Hdf5_serial_writer<double > (file, "s");
-        writer_repetition = new Hdf5_serial_writer<int > (file,
-                "repetition");
+        writer_repetition = new Hdf5_serial_writer<int > (file, "repetition");
         writer_trajectory_length = new Hdf5_serial_writer<double > (file,
                 "trajectory_length");
         have_writers = true;

@@ -132,7 +132,6 @@ public:
     virtual const MArray1d
     get_bunchmax() const;
 
-
     virtual void
     write();
 
@@ -281,7 +280,8 @@ private:
     std::string filename;
     Diagnostics_write_helper write_helper;
     void
-    receive_other_local_particles(std::vector<int > const& local_nums, H5::H5File & file);
+    receive_other_local_particles(std::vector<int > const& local_nums,
+            H5::H5File & file);
     void
     send_local_particles();
 public:
