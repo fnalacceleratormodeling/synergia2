@@ -1,7 +1,5 @@
 #ifndef RECTANGULAR_GRID_H_
 #define RECTANGULAR_GRID_H_
-#include <iostream>
-#include <fstream>
 #include "synergia/collective/rectangular_grid_domain.h"
 #include "synergia/utils/multi_array_typedefs.h"
 
