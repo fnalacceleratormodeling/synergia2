@@ -209,9 +209,12 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
         element_left = left;
         double total_done = 0.0;
         while (!complete) {
+            std::cout << "jfa: not complete\n";
             double chef_element_length = (*c_it)->Length();
             if (!floating_point_leq(left, s + chef_element_length, tolerance)) {
-                std::cout << "jfa abandon all hope\n";
+                std::cout << "jfa abandon all hope: left = " << left
+                        << ", s = " << s << ", cel = " << chef_element_length
+                        << std::endl;
                 s += chef_element_length;
                 ++c_it;
                 if (c_it == all_elements.end()) {
@@ -222,7 +225,7 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
                 std::cout << "jfa: left = " << left << ", s = " << s
                         << ", right = " << right << ", chef_element_length = "
                         << chef_element_length << std::endl;
-                //                element_left = left - s;
+                element_left = left - s;
                 if (floating_point_leq(right, s + chef_element_length,
                         tolerance)) {
                     // take part of element
@@ -230,14 +233,15 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
                     retval.push_back(
                             slice_chef_element(*c_it, element_left,
                                     element_right, tolerance));
+                    s += element_right - element_left;
                     total_done += element_right - element_left;
                 } else {
-                    // take whole element
+                    // take rest of element
                     element_right = chef_element_length;
                     retval.push_back(
                             slice_chef_element(*c_it, element_left,
                                     element_right, tolerance));
-                    s += element_right - element_left;
+                    s += chef_element_length;
                     total_done += element_right - element_left;
                     ++c_it;
                     element_left = 0.0;
