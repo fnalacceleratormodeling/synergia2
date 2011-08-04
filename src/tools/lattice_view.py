@@ -27,7 +27,8 @@ def plot_element(element, x, y, angle, attributes):
             anglenew = angle
             pyplot.plot([x, xnew], [y, ynew], '-',
                         color=attributes[type].color,
-                        label=label)
+                        label=label,
+                        linewidth=attributes[type].width)
         else:
             num = 8
             xn = numpy.zeros([num + 1], numpy.float64)
@@ -43,18 +44,19 @@ def plot_element(element, x, y, angle, attributes):
             anglenew = angle
             pyplot.plot(xn, yn, '-',
                         color=attributes[type].color,
-                        label=label)
+                        label=label,
+                        linewidth=attributes[type].width)
     return xnew, ynew, anglenew
 
 class Attributes:
-    def __init__(self, color, width=1):
+    def __init__(self, color, width=2.0):
         self.color = color
         self.width = width
 
 def get_attributes():
     attributes = {}
-    attributes['drift'] = Attributes((0,0,0))
-    attributes['quadrupole'] = Attributes((1,0,1),2.0)
+    attributes['drift'] = Attributes((0.5,0.5,0.5))
+    attributes['quadrupole'] = Attributes((1,0,1))
     attributes['sbend'] = Attributes((0,1,0))
     attributes['rbend'] = Attributes((0,0,1))
     attributes['sextupole'] = Attributes((1,0,0))
@@ -101,16 +103,20 @@ def handle_args(args):
 def do_plot(options):
     lattice = synergia.lattice.Mad8_reader().get_lattice(options.lattice,
                                                          options.lattice_file)
-    print "total angle =", lattice.get_total_angle()
 
     attributes = get_attributes()
     x = 0.0
     y = 0.0
     angle = 0.0
+    count = 0
     for element in lattice.get_elements():
         x, y, angle = plot_element(element, x, y, angle, attributes)
+        count += 1
+    print "total number of elements =", count
+    print "total angle =", lattice.get_total_angle()
 
     pyplot.axes().set_aspect('equal', 'datalim')
+    pyplot.axes().margins(0.1,0.1)
     if options.legend:
         pyplot.legend()
     pyplot.show()
