@@ -119,8 +119,13 @@ BOOST_FIXTURE_TEST_CASE(extract1rf, Rf_lattice_fixture)
     chef_lattice_sptr->construct_sliced_beamline(slices);
     Independent_operations ops = mixed_chef_o_e.extract(b.reference_particle,
             slices);
-    BOOST_CHECK_EQUAL(ops.size(), 1);
-    BOOST_CHECK_EQUAL(ops.front()->get_type(), chef_propagate_type_name);
+    BOOST_CHECK_EQUAL(ops.size(), 3);
+    Independent_operations::const_iterator op_it = ops.begin();
+    BOOST_CHECK_EQUAL((*op_it)->get_type(), fast_mapping_type_name);
+    ++op_it;
+    BOOST_CHECK_EQUAL((*op_it)->get_type(), chef_propagate_type_name);
+    ++op_it;
+    BOOST_CHECK_EQUAL((*op_it)->get_type(), fast_mapping_type_name);
 }
 // test_note: we still need to check the extracted value
 
