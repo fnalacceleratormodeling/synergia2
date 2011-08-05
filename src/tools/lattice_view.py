@@ -64,10 +64,10 @@ class Attributes:
 def get_attributes():
     attributes = {}
     attributes['drift'] = Attributes((0.5, 0.5, 0.5))
-    attributes['quadrupole'] = Attributes((1, 0, 1))
-    attributes['sbend'] = Attributes((0, 1, 0))
-    attributes['rbend'] = Attributes((0, 0, 1))
-    attributes['sextupole'] = Attributes((1, 0, 0))
+    attributes['quadrupole'] = Attributes((1, 0, 0))
+    attributes['sbend'] = Attributes((0, 0, 1))
+    attributes['rbend'] = Attributes((0, 0, 0.5))
+    attributes['sextupole'] = Attributes((0, 0.5, 0.5))
     attributes['octupole'] = Attributes((1, 0.5, 0))
     attributes['monitor'] = Attributes((1, 1, 0))
     attributes['hmonitor'] = Attributes((0.5, 1, 0))
