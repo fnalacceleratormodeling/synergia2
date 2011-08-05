@@ -538,7 +538,9 @@ write_selected_particles(Hdf5_chunked_array2d_writer & writer,
                 particles[boost::indices[range(0, local_num)][range()]]);
     } else {
         for (int part = 0; part < local_num; ++part) {
-            if ((part >= min_particle_id) && (part <= max_particle_id)) {
+            int particle_id = particles[part][Bunch::id];
+            if ((particle_id >= min_particle_id) && (particle_id
+                    <= max_particle_id)) {
                 writer.write_chunk(
                         particles[boost::indices[range(part, part + 1)][range()]]);
             }
