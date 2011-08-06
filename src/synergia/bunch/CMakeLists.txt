@@ -2,8 +2,10 @@ add_library(synergia_bunch fixed_t_z_converter.cc bunch.cc
     diagnostics.cc multi_diagnostics.cc diagnostics_write_helper.cc populate.cc)
 target_link_libraries(synergia_bunch synergia_parallel_utils
     synergia_hdf5_utils synergia_foundation)
-add_python_extension(bunch bunch_wrap.cc)
-target_link_libraries(bunch synergia_bunch ${Boost_LIBRARIES})
+if (BUILD_PYTHON_BINDINGS)
+    add_python_extension(bunch bunch_wrap.cc)
+    target_link_libraries(bunch synergia_bunch ${Boost_LIBRARIES})
+endif ()
 
 install(TARGETS synergia_bunch DESTINATION lib)
 install(FILES bunch.h
@@ -13,11 +15,13 @@ install(FILES bunch.h
     fixed_t_z_converter.h
     populate.h
     DESTINATION include/synergia/bunch)
-install(FILES
-    __init__.py
-    DESTINATION lib/synergia/bunch)
-install(TARGETS
-    bunch
-    DESTINATION lib/synergia/bunch)
+if (BUILD_PYTHON_BINDINGS)
+    install(FILES
+        __init__.py
+        DESTINATION lib/synergia/bunch)
+    install(TARGETS
+        bunch
+        DESTINATION lib/synergia/bunch)
+endif ()
 
 add_subdirectory(tests)
