@@ -1,5 +1,10 @@
+set(CMAKE_EXE_LINKER_FLAGS
+     "${CMAKE_EXE_LINKER_FLAGS} -Wl,--allow-multiple-definition")
+
 add_subdirectory(utils)
-add_subdirectory(convertors)
+if (BUILD_PYTHON_BINDINGS)
+    add_subdirectory(convertors)
+endif ()
 add_subdirectory(foundation)
 add_subdirectory(bunch)
 add_subdirectory(lattice)
