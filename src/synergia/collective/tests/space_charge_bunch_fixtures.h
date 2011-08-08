@@ -92,6 +92,49 @@ struct Spherical_bunch_fixture
     std::vector<int > grid_shape;
 };
 
+struct Spherical_bunch_fixture_2d
+{
+    Spherical_bunch_fixture_2d() :
+        four_momentum(mass, total_energy), reference_particle(charge,
+                four_momentum), comm(MPI_COMM_WORLD), bunch(reference_particle,
+                total_num, real_num, comm), distribution(0, comm),
+                grid_shape(3)
+    {
+        BOOST_TEST_MESSAGE("setup Spherical bunch fixture");
+        MArray2d covariances(boost::extents[6][6]);
+        MArray1d means(boost::extents[6]);
+        for (int i = 0; i < 6; ++i) {
+            means[i] = 0.0;
+            for (int j = i; j < 6; ++j) {
+                covariances[i][j] = 0.0;
+            }
+        }
+        sigma = 1.3e-3;
+        sigmaz = 1.3e-2;
+        covariances[0][0] = sigma * sigma;
+        covariances[2][2] = sigma * sigma;
+        covariances[4][4] = sigmaz * sigmaz;
+        covariances[1][1] = covariances[3][3] = covariances[5][5] = 1.0;
+        populate_6d(distribution, bunch, means, covariances);
+        grid_shape[0] = 16;
+        grid_shape[1] = 24;
+        grid_shape[2] = 32;
+    }
+
+    ~Spherical_bunch_fixture_2d()
+    {
+        BOOST_TEST_MESSAGE("tear down Spherical bunch fixture");
+    }
+
+    Four_momentum four_momentum;
+    Reference_particle reference_particle;
+    Commxx comm;
+    Bunch bunch;
+    Random_distribution distribution;
+    double sigma, sigmaz;
+    std::vector<int > grid_shape;
+};
+
 struct Cylindrical_bunch_fixture
 {
     Cylindrical_bunch_fixture() :
@@ -229,6 +272,57 @@ struct Toy_bunch_fixture
     std::vector<int > grid_shape;
     Rectangular_grid_sptr rho_grid_sptr;
     MArray3d expected;
+};
+
+struct Toy_bunch_fixture_2d
+{
+    Toy_bunch_fixture_2d() :
+                four_momentum(mass, total_energy),
+                reference_particle(pconstants::proton_charge, four_momentum),
+                comm(MPI_COMM_WORLD),
+                bunch(reference_particle, total_num, toy_real_num, comm),
+                physical_size(3),
+                physical_offset(3),
+                cell_size(3),
+                grid_shape(3),
+                expected_2dc(boost::extents[2*toy_grid_shape[0]]
+                        [2*toy_grid_shape[1]]),
+                expected_1d(boost::extents[toy_grid_shape[2]])
+    {
+        for (int i = 0; i < 3; ++i) {
+            grid_shape[i] = toy_grid_shape[i];
+            physical_offset[i] = domain_offset;
+            physical_size[i] = domain_max - domain_min;
+            cell_size[i] = (domain_max - domain_min) / grid_shape[i];
+        }
+        for (unsigned int i = 0; i < expected_2dc.shape()[0]; ++i) {
+            for (unsigned int j = 0; j < expected_2dc.shape()[1]; ++j) {
+                expected_2dc[i][j] = 0.0;
+            }
+        }
+        for (unsigned int k = 0; k < expected_1d.shape()[0]; ++k) {
+            expected_1d[k] = 0.0;
+        }
+        density_norm_2d = (toy_real_num / total_num) * pconstants::e
+                / (cell_size[0] * cell_size[1]);
+        density_norm_1d = 1.0;
+    }
+
+    ~Toy_bunch_fixture_2d()
+    {
+    }
+
+    Four_momentum four_momentum;
+    Reference_particle reference_particle;
+    Commxx comm;
+    Bunch bunch;
+    double density_norm_2d, density_norm_1d;
+
+    std::vector<double > physical_size, physical_offset, cell_size;
+    std::vector<int > grid_shape;
+    Rectangular_grid_sptr rho_grid_sptr;
+    MArray2dc expected_2dc;
+    MArray1d expected_1d;
 };
 
 #endif /* SPACE_CHARGE_BUNCH_FIXTURES_H_ */
