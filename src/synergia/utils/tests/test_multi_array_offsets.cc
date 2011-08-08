@@ -45,3 +45,36 @@ BOOST_AUTO_TEST_CASE(simple)
     pointer = multi_array_offset(array, i, j, k);
     BOOST_CHECK_EQUAL(*pointer, fn(i,j,k));
 }
+
+double
+fn_2d(int i, int j)
+{
+    return 10 * i + j;
+}
+
+BOOST_AUTO_TEST_CASE(simple_2d)
+{   
+    MArray2d array(boost::extents[3][4]); 
+    for (int i = 0; i < array.shape()[0]; ++i) {
+        for (int j = 0; j < array.shape()[1]; ++j) {
+                array[i][j] = fn_2d(i, j);
+        }
+    }
+    double * pointer;
+    int i, j, k;
+
+    i = 2;
+    j = 0;
+    pointer = multi_array_offset(array, i, j);
+    BOOST_CHECK_EQUAL(*pointer, fn_2d(i,j));
+
+    i = 0;
+    j = 2;
+    pointer = multi_array_offset(array, i, j);
+    BOOST_CHECK_EQUAL(*pointer, fn_2d(i,j));
+
+    i = 2;
+    j = 3;
+    pointer = multi_array_offset(array, i, j);
+    BOOST_CHECK_EQUAL(*pointer, fn_2d(i,j));
+}
