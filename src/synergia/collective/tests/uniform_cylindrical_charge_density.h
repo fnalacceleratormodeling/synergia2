@@ -17,4 +17,8 @@ double
 uniform_cylindrical_electric_field_component(double lambda, double r,
         double r0, double x);
 
+double
+uniform_cylindrical_electric_force_component(double q, double lambda, double r,
+        double r0, double x);
+
 #endif /* UNIFORM_CYLINDRICAL_CHARGE_DENSITY_H_ */

@@ -48,3 +48,17 @@ uniform_cylindrical_electric_field_component(double lambda, double r,
     return retval;
 }
 
+double
+uniform_cylindrical_electric_force_component(double q, double lambda, double r,
+        double r0, double x)
+{
+    double retval;
+    if (r < r0) {
+        retval = q * lambda / (2 * mconstants::pi * pconstants::epsilon0 * r0
+                * r0) * x;
+    } else {
+        retval = q * lambda / (2 * mconstants::pi * pconstants::epsilon0)
+                * (1 / r) * x / r;
+    }
+    return retval;
+}
