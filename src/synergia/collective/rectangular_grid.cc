@@ -9,6 +9,10 @@ Rectangular_grid::Rectangular_grid(std::vector<double > const & physical_size,
             physical_size, physical_offset, grid_shape, periodic_z));
     grid_points_sptr = boost::shared_ptr<MArray3d >(new MArray3d(
             boost::extents[grid_shape[0]][grid_shape[1]][grid_shape[2]]));
+    grid_points_2dc_sptr = boost::shared_ptr<MArray2dc >(new MArray2dc(
+            boost::extents[grid_shape[0]][grid_shape[1]]));
+    grid_points_1d_sptr = boost::shared_ptr<MArray1d >(new MArray1d(
+            boost::extents[grid_shape[2]]));
 }
 
 Rectangular_grid::Rectangular_grid(
@@ -20,6 +24,10 @@ Rectangular_grid::Rectangular_grid(
             grid_shape(rectangular_grid_domain_sptr->get_grid_shape());
     grid_points_sptr = boost::shared_ptr<MArray3d >(new MArray3d(
             boost::extents[grid_shape[0]][grid_shape[1]][grid_shape[2]]));
+    grid_points_2dc_sptr = boost::shared_ptr<MArray2dc >(new MArray2dc(
+            boost::extents[grid_shape[0]][grid_shape[1]]));
+    grid_points_1d_sptr = boost::shared_ptr<MArray1d >(new MArray1d(
+            boost::extents[grid_shape[2]]));
 }
 
 Rectangular_grid_domain_sptr
@@ -44,6 +52,30 @@ MArray3d_ref &
 Rectangular_grid::get_grid_points()
 {
     return *grid_points_sptr;
+}
+
+MArray2dc_ref const&
+Rectangular_grid::get_grid_points_2dc() const
+{
+    return *grid_points_2dc_sptr;
+}
+
+MArray2dc_ref &
+Rectangular_grid::get_grid_points_2dc()
+{
+    return *grid_points_2dc_sptr;
+}
+
+MArray1d_ref const&
+Rectangular_grid::get_grid_points_1d() const
+{
+    return *grid_points_1d_sptr;
+}
+
+MArray1d_ref &
+Rectangular_grid::get_grid_points_1d()
+{
+    return *grid_points_1d_sptr;
 }
 
 void

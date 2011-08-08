@@ -8,6 +8,8 @@ class Rectangular_grid
 private:
     Rectangular_grid_domain_sptr domain_sptr;
     boost::shared_ptr<MArray3d > grid_points_sptr;
+    boost::shared_ptr<MArray2dc > grid_points_2dc_sptr;
+    boost::shared_ptr<MArray1d > grid_points_1d_sptr;
     double normalization;
 public:
     Rectangular_grid(std::vector<double > const & physical_size, std::vector<
@@ -23,6 +25,14 @@ public:
     get_grid_points() const;
     MArray3d_ref &
     get_grid_points();
+    MArray2dc_ref const&
+    get_grid_points_2dc() const;
+    MArray2dc_ref &
+    get_grid_points_2dc();
+    MArray1d_ref const&
+    get_grid_points_1d() const;
+    MArray1d_ref &
+    get_grid_points_1d();
     void
     set_normalization(double val);
     double
