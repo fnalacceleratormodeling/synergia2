@@ -7,15 +7,30 @@ cmake_minimum_required(VERSION 2.8)
 enable_testing()
 set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
 
+# Set defaults for building python bindings (build bindings by default).
+if (NOT DEFINED BUILD_PYTHON_BINDINGS)
+  if (NOT $ENV{BUILD_PYTHON_BINDINGS} STREQUAL "")
+    set (BUILD_PYTHON_BINDINGS $ENV{BUILD_PYTHON_BINDINGS})
+  else ()
+    set (BUILD_PYTHON_BINDINGS TRUE)
+  endif ()
+endif ()
+
+if (NOT BUILD_PYTHON_BINDINGS)
+  message (STATUS "Not building python bindings")
+endif ()
+
 # MPI
 FIND_PACKAGE(MPI REQUIRED)
 INCLUDE(CMakeForceCompiler)
 CMAKE_FORCE_CXX_COMPILER(${MPI_COMPILER} "MPI C++ Compiler")
 
 # python
-find_package(PythonInterp REQUIRED)
-find_package(PythonLibs REQUIRED)
-INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+if (BUILD_PYTHON_BINDINGS)
+    find_package(PythonInterp REQUIRED)
+    find_package(PythonLibs REQUIRED)
+    INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+endif()
 
 # boost
 SET(Boost_USE_STATIC_LIBS OFF)
@@ -33,13 +48,15 @@ find_package(CHEF REQUIRED)
 INCLUDE_DIRECTORIES(${CHEF_INCLUDE_DIRS})
 LINK_DIRECTORIES(${CHEF_LIBRARY_DIRS})
 
-# numpy
-find_package(NUMPY REQUIRED)
-include_directories(${NUMPY_INCLUDE_DIR})
+if (BUILD_PYTHON_BINDINGS)
+    # numpy
+    find_package(NUMPY REQUIRED)
+    include_directories(${NUMPY_INCLUDE_DIR})
 
-# mpi4py
-find_package(MPI4PY REQUIRED)
-include_directories(${MPI4PY_INCLUDE_DIR})
+    # mpi4py
+    find_package(MPI4PY REQUIRED)
+    include_directories(${MPI4PY_INCLUDE_DIR})
+endif()
 
 # misc
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/AddPythonExtension.cmake)
@@ -99,19 +116,6 @@ configure_file("${SYNERGIA2_SOURCE_DIR}/src/local_paths.py.in"
 
 include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src)
 
-# Set defaults for building python bindings (build bindings by default).
-if (NOT DEFINED BUILD_PYTHON_BINDINGS)
-  if (NOT $ENV{BUILD_PYTHON_BINDINGS} STREQUAL "")
-    set (BUILD_PYTHON_BINDINGS $ENV{BUILD_PYTHON_BINDINGS})
-  else ()
-    set (BUILD_PYTHON_BINDINGS TRUE)
-  endif ()
-endif ()
-
-if (NOT BUILD_PYTHON_BINDINGS)
-  message (STATUS "Not building python bindings")
-endif ()
-
 # Are we building shared or static (shared is the default)?
 if (NOT DEFINED BUILD_SHARED_LIBS)
   if (NOT $ENV{BUILD_SHARED_LIBS} STREQUAL "")
@@ -124,6 +128,9 @@ endif ()
 if (BUILD_SHARED_LIBS)
   message (STATUS "Building shared libraries")
 else ()
+    # This prevents multiple-definition errors.
+    set(CMAKE_EXE_LINKER_FLAGS
+         "${CMAKE_EXE_LINKER_FLAGS} -Wl,--allow-multiple-definition")
   message (STATUS "Building static libraries")
 endif ()
 
