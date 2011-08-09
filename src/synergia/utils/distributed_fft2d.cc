@@ -68,8 +68,12 @@ Distributed_fft2d::Distributed_fft2d(std::vector<int > const & shape,
     //inv_plan = fftw_mpi_plan_dft_c2r_2d(shape[0], shape[1], workspace, data, 
     //        comm.get(), planner_flags);
 
-    data = (fftw_complex *) fftw_malloc(sizeof(fftw_complex) * fftw_local_size);
-    workspace = (fftw_complex *) fftw_malloc(sizeof(fftw_complex) * fftw_local_size);
+
+    data = fftw_alloc_complex(fftw_local_size);
+    workspace = fftw_alloc_complex(fftw_local_size);
+
+    //data = (fftw_complex *) fftw_malloc(sizeof(fftw_complex) * fftw_local_size);
+    //workspace = (fftw_complex *) fftw_malloc(sizeof(fftw_complex) * fftw_local_size);
     plan = fftw_mpi_plan_dft_2d(shape[0], shape[1], data, workspace,
             comm.get(), FFTW_FORWARD, planner_flags);
     inv_plan = fftw_mpi_plan_dft_2d(shape[0], shape[1], workspace, data,
