@@ -1,11 +1,12 @@
 #include "diagnostics_write_helper.h"
 #include <sstream>
 #include <iomanip>
+#include <stdexcept>
 
 void
 Diagnostics_write_helper::open_file()
 {
-    if (!have_file) {
+    if (write_locally() && !have_file) {
         std::stringstream sstream;
         sstream << filename_base;
         if (!serial) {
@@ -66,6 +67,11 @@ Diagnostics_write_helper::get_writer_rank()
 H5::H5File &
 Diagnostics_write_helper::get_file()
 {
+    if (!write_locally()) {
+	throw std::runtime_error(
+	    "Diagnostics_write_helper::getfile() called on a non-writer rank.");
+    }
+
     if (!serial) {
         open_file();
     }
@@ -75,7 +81,7 @@ Diagnostics_write_helper::get_file()
 void
 Diagnostics_write_helper::finish_write()
 {
-    if (!serial) {
+    if (write_locally() && !serial) {
         file_sptr->close();
         file_sptr.reset();
         have_file = false;
@@ -85,7 +91,7 @@ Diagnostics_write_helper::finish_write()
 
 Diagnostics_write_helper::~Diagnostics_write_helper()
 {
-    if (serial) {
+    if (write_locally() && serial) {
         file_sptr->close();
         file_sptr.reset();
         have_file = false;
