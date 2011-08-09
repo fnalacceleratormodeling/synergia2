@@ -194,7 +194,7 @@ Distributed_fft2d::transform(MArray2dc_ref & in, MArray2dc_ref & out)
                     "Distributed_fft2d::transform found an incompatible second dimension of output array");
         }
     }
-    t = simple_timer_show(t, "sc-distibuted_fft2d-transform(error-check)");
+    t = simple_timer_show(t, "sc-distributed_fft2d-transform(error-check)");
 #ifdef USE_FFTW2
     if (have_local_data) {
         memcpy((void*) data,(void*) multi_array_offset(in, lower, 0),
@@ -212,15 +212,15 @@ Distributed_fft2d::transform(MArray2dc_ref & in, MArray2dc_ref & out)
         memcpy((void*) data, (void*) multi_array_offset(in, lower, 0),
                 local_size_real * sizeof(std::complex<double >));
     }
-    t = simple_timer_show(t, "sc-distibuted_fft2d-transform(memcpy-in)");
+    t = simple_timer_show(t, "sc-distributed_fft2d-transform(memcpy-in)");
     fftw_execute(plan);
-    t = simple_timer_show(t, "sc-distibuted_fft2d-transform(fftw_execute)");
+    t = simple_timer_show(t, "sc-distributed_fft2d-transform(fftw_execute)");
     if (have_local_data) {
         memcpy((void*) multi_array_offset(out, lower, 0),
                 (void*) (workspace), local_size_real * sizeof(std::complex<
                         double >));
     }
-    t = simple_timer_show(t, "sc-distibuted_fft2d-transform(memcpy-out)");
+    t = simple_timer_show(t, "sc-distributed_fft2d-transform(memcpy-out)");
 #endif //USE_FFTW2
 }
 
@@ -255,7 +255,7 @@ Distributed_fft2d::inv_transform(MArray2dc_ref & in, MArray2dc_ref & out)
                     "Distributed_fft2d::inv_transform found an incompatible second dimension of output array");
         }
     }
-    t = simple_timer_show(t, "sc-distibuted_fft2d-inv_transform(error-check)");
+    t = simple_timer_show(t, "sc-distributed_fft2d-inv_transform(error-check)");
 #ifdef USE_FFTW2
     if (have_local_data) {
         memcpy( (void*) workspace, (void*) multi_array_offset(in, lower, 0),
@@ -273,15 +273,15 @@ Distributed_fft2d::inv_transform(MArray2dc_ref & in, MArray2dc_ref & out)
         memcpy((void*) workspace, (void*) multi_array_offset(in, lower, 0),
                 local_size_real * sizeof(std::complex<double >));
     }
-    t = simple_timer_show(t, "sc-distibuted_fft2d-inv_transform(memcpy-in)");
+    t = simple_timer_show(t, "sc-distributed_fft2d-inv_transform(memcpy-in)");
     fftw_execute(inv_plan);
-    t = simple_timer_show(t, "sc-distibuted_fft2d-inv_transform(fftw_excute)");
+    t = simple_timer_show(t, "sc-distributed_fft2d-inv_transform(fftw_excute)");
 
     if (have_local_data) {
         memcpy((void*) multi_array_offset(out, lower, 0), (void*) data,
                 local_size_real * sizeof(std::complex<double >));
     }
-    t = simple_timer_show(t, "sc-distibuted_fft2d-inv_transform(memcpy-out)");
+    t = simple_timer_show(t, "sc-distributed_fft2d-inv_transform(memcpy-out)");
 #endif //USE_FFTW2
 }
 
