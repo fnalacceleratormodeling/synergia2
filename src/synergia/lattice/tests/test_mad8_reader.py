@@ -154,6 +154,48 @@ def test_get_lattice_ug_413():
     assert_element_names(elements,
                         ['c', 'g', 'h', 'd', 'c', 'g', 'h', 'd', 'e', 'f', 'e', 'f', 'd', 'h', 'g', 'c', 'b', 'a'])
 
+def test_minus_times():
+    reader = Mad8_reader()
+    reader.parse_string('''
+    a: drift, l=1.0
+    b: drift, l=1.0
+    c: drift, l=1.0
+    l: line=(2*(a,b))
+    m: line=(-l)
+    ''')
+    lattice = reader.get_lattice("m")
+    elements = lattice.get_elements()
+    assert_element_names(elements, ['b', 'a', 'b', 'a'])
+
+# A test loosely based on structures found in the Fermilab Debuncher.
+def test_debunch():
+    reader = Mad8_reader()
+    reader.parse_string('''
+    a: drift, l=1.0
+    b: drift, l=1.0
+    c: drift, l=1.0
+    d: drift, l=1.0
+    e: drift, l=1.0
+    f: drift, l=1.0
+    g: drift, l=1.0
+    h: drift, l=1.0
+
+    str: line = (a,b)
+    sup: line = (c,d)
+    fcell: line = (e,f)
+    hc: line =(g,h)
+    arc: line = (2*fcell,hc)
+    sext: line = (str, sup, arc)
+    msext: line = (-sext)
+    ''')
+    lattice = reader.get_lattice("sext")
+    elements = lattice.get_elements()
+    assert_element_names(elements, ['a', 'b', 'c', 'd', 'e', 'f', 'e', 'f', 'g', 'h'])
+
+    lattice = reader.get_lattice("msext")
+    elements = lattice.get_elements()
+    assert_element_names(elements, ['h', 'g', 'f', 'e', 'f', 'e', 'd', 'c', 'b', 'a'])
+
 def test_quad_tilt():
     reader = Mad8_reader()
     reader.parse_string('q: quad, l=1.0, tilt, k1=3.14')
