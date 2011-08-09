@@ -1,0 +1,142 @@
+#ifndef SPACE_CHARGE_2D_OPEN_HOCKNEY_H_
+#define SPACE_CHARGE_2D_OPEN_HOCKNEY_H_
+#include "synergia/simulation/operator.h"
+#include "synergia/simulation/step.h"
+#include "synergia/bunch/bunch.h"
+#include "synergia/collective/rectangular_grid_domain.h"
+#include "synergia/collective/rectangular_grid.h"
+#include "synergia/collective/distributed_rectangular_grid.h"
+#include "synergia/utils/commxx.h"
+#include "synergia/utils/distributed_fft2d.h"
+
+/// Note: internal grid is stored in [z][y][x] order, but
+/// grid shape expects [x][y][z] order.
+class Space_charge_2d_open_hockney : public Collective_operator
+{
+public:
+    enum Green_fn_type
+    {
+        pointlike = 1, bruteforce = 2
+    };
+    enum Charge_density_comm
+    {
+        reduce_scatter = 1, charge_allreduce = 2
+    };
+    enum E_force_comm
+    {
+        gatherv_bcast = 1, allgatherv = 2, e_force_allreduce = 3
+    };
+private:
+    std::vector<int > grid_shape, doubled_grid_shape;
+    Rectangular_grid_domain_sptr domain_sptr, doubled_domain_sptr;
+    bool periodic_z;
+    double z_period;
+    bool grid_entire_period;
+    Green_fn_type green_fn_type;
+    Charge_density_comm charge_density_comm;
+    E_force_comm e_force_comm;
+    Distributed_fft2d_sptr distributed_fft2d_sptr;
+    Commxx comm2, comm1;
+    std::vector<int > lowers1, lengths1;
+    int real_lower, real_upper, real_length;
+    std::vector<int > real_lengths;
+    std::vector<int > real_lengths_1d;
+    int doubled_lower, doubled_upper;
+    int real_doubled_lower, real_doubled_upper;
+    MPI_Group group2, group1;
+    bool in_group1;
+    MPI_Comm mpi_comm1;
+    double n_sigma;
+    // these are for normalization
+    double bunch_particle_charge, bunch_real_num, bunch_total_num;
+    bool domain_fixed;
+    bool have_domains;
+    void
+    setup_nondoubled_communication();
+    void
+    setup_default_options();
+    void
+    set_doubled_domain();
+public:
+    Space_charge_2d_open_hockney(Commxx const& comm,
+            std::vector<int > const & grid_shape, bool periodic_z = false, 
+            double z_period = 0.0, bool grid_entire_period = false, 
+            double n_sigma = 8.0);
+    /// Note: Use Space_charge_2d_open_hockney::get_internal_grid_shape for
+    /// Distributed_fft2d.
+    Space_charge_2d_open_hockney(Distributed_fft2d_sptr distributed_fft2d_sptr,
+            bool periodic_z = false, double z_period = 0.0, 
+            bool grid_entire_period = false, double n_sigma = 8.0);
+    double
+    get_n_sigma() const;
+    void
+    set_green_fn_type(Green_fn_type green_fn_type);
+    Green_fn_type
+    get_green_fn_type() const;
+    void
+    set_charge_density_comm(Charge_density_comm charge_density_comm);
+    Charge_density_comm
+    get_charge_density_comm() const;
+    void
+    set_e_force_comm(E_force_comm e_force_comm);
+    E_force_comm
+    get_e_force_comm() const;
+    void
+    auto_tune_comm(bool verbose = false);
+    void
+    set_fixed_domain(Rectangular_grid_domain_sptr domain_sptr);
+    void
+    update_domain(Bunch const& bunch);
+    Rectangular_grid_domain_sptr
+    get_domain_sptr() const;
+    Rectangular_grid_domain_sptr
+    get_doubled_domain_sptr() const;
+    /// Returns global charge density on doubled grid in [C/m^3]
+    Distributed_rectangular_grid_sptr
+    get_global_charge_density2_reduce_scatter(
+            Rectangular_grid const& local_charge_density);
+    /// Returns global charge density on doubled grid in [C/m^3]
+    Distributed_rectangular_grid_sptr
+    get_global_charge_density2_allreduce(
+            Rectangular_grid const& local_charge_density);
+    /// Returns local charge density on doubled grid in [C/m^3]
+    Rectangular_grid_sptr
+    get_local_charge_density(Bunch const& bunch);
+    /// Returns global charge density on doubled grid in [C/m^3]
+    Distributed_rectangular_grid_sptr
+    get_global_charge_density2(Rectangular_grid const& local_charge_density);
+    /// Returns Green function on the doubled grid in [1/m^3]
+    MArray1d
+    get_global_line_charge_density(
+            Distributed_rectangular_grid const& global_charge_density);
+    Distributed_rectangular_grid_sptr
+    get_green_fn2_pointlike();
+    Distributed_rectangular_grid_sptr
+    get_green_fn2_brute_force();
+    Distributed_rectangular_grid_sptr
+    get_local_force2(Distributed_rectangular_grid & charge_density2, 
+            Distributed_rectangular_grid & green_fn2);
+    Rectangular_grid_sptr
+    get_global_electric_force2_gatherv_bcast(
+            Distributed_rectangular_grid const& dist_force);
+    Rectangular_grid_sptr
+    get_global_electric_force2_allgatherv(
+            Distributed_rectangular_grid const& dist_force);
+    Rectangular_grid_sptr
+    get_global_electric_force2_allreduce(
+            Distributed_rectangular_grid const& dist_force);
+    Rectangular_grid_sptr
+    get_global_electric_force2(
+            Distributed_rectangular_grid const& dist_force);
+    void
+    apply_kick(Bunch & bunch, Distributed_rectangular_grid const& rho2_1d, 
+            Rectangular_grid const& Fn, double delta_tau); 
+    virtual void
+    apply(Bunch & bunch, double time_step, Step & step);
+    ~Space_charge_2d_open_hockney();
+};
+
+typedef boost::shared_ptr<Space_charge_2d_open_hockney >
+        Space_charge_2d_open_hockney_sptr;
+
+#endif /* SPACE_CHARGE_2D_OPEN_HOCKNEY_H_ */
