@@ -609,13 +609,13 @@ Space_charge_2d_open_hockney::get_local_force2(
     MArray2dc local_force2hat(
             boost::extents[extent_range(lower, upper)][doubled_grid_shape[1]]);
 
-    t = simple_timer_show(t, "sc_fft_setup");
+    t = simple_timer_show(t, "sc-fft-setup");
     // FFT
     distributed_fft2d_sptr->transform(charge_density2.get_grid_points_2dc(), 
             rho2hat);
     distributed_fft2d_sptr->transform(green_fn2.get_grid_points_2dc(), G2hat);
 
-    t = simple_timer_show(t, "sc_fft_transform");
+    t = simple_timer_show(t, "sc-fft-transform");
     for (int i = lower; i < upper; ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
             local_force2hat[i][j] = rho2hat[i][j] * G2hat[i][j];
@@ -629,17 +629,18 @@ Space_charge_2d_open_hockney::get_local_force2(
             local_force2->get_grid_points_2dc()[i][j] = 0.0;
         }
     }
-    t = simple_timer_show(t, "sc_fft_local_force2hat");
+    t = simple_timer_show(t, "sc-fft-multiplication/initialization");
     // inverse FFT
     distributed_fft2d_sptr->inv_transform(local_force2hat, 
             local_force2->get_grid_points_2dc());
-    for (int i = lower; i < upper; ++i) {
-        for (int j = 0; j < doubled_grid_shape[1]; ++j) {
-            local_force2->get_grid_points_2dc()[i][j]
-                    = local_force2->get_grid_points_2dc()[i][j];
-        }
-    }
-    t = simple_timer_show(t, "sc_fft_inv_transform");
+    t = simple_timer_show(t, "sc-fft-inv_transform");
+
+    //for (int i = lower; i < upper; ++i) {
+    //    for (int j = 0; j < doubled_grid_shape[1]; ++j) {
+    //        local_force2->get_grid_points_2dc()[i][j]
+    //                = local_force2->get_grid_points_2dc()[i][j];
+    //    }
+    //}
 
     double hx, hy, hz;
     hx = domain_sptr->get_cell_size()[0];
@@ -661,7 +662,7 @@ Space_charge_2d_open_hockney::get_local_force2(
     normalization *= green_fn2.get_normalization();
     normalization *= distributed_fft2d_sptr->get_roundtrip_normalization();
     local_force2->set_normalization(normalization);
-    t = simple_timer_show(t, "sc_fft_normalization");
+    t = simple_timer_show(t, "sc-fft-normalization");
 
     return local_force2;
 }

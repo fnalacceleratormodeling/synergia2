@@ -11,7 +11,7 @@
 #include "synergia/foundation/distribution.h"
 #include "synergia/bunch/populate.h"
 #include "synergia/bunch/diagnostics.h"
-#include "synergia/collective/space_charge_3d_open_hockney.h"
+#include "synergia/collective/space_charge_2d_open_hockney.h"
 
 #include "benchmark_options.h"
 
@@ -45,26 +45,26 @@ run(Benchmark_options const& opts)
         std::cerr << "Run cxx_example.py to generate cxx_lattice.xml\n";
         exit(1);
     }
-    Space_charge_3d_open_hockney_sptr space_charge_sptr(
-            new Space_charge_3d_open_hockney(Commxx(), grid_shape));
+    Space_charge_2d_open_hockney_sptr space_charge_sptr(
+            new Space_charge_2d_open_hockney(Commxx(), grid_shape));
     if (opts.autotune) {
         space_charge_sptr->auto_tune_comm(true);
     } else {
         if (opts.chargecomm > 0) {
             space_charge_sptr->set_charge_density_comm(
-                    Space_charge_3d_open_hockney::Charge_density_comm(
+                    Space_charge_2d_open_hockney::Charge_density_comm(
                             opts.chargecomm));
         }
-        #if 0
+        #if 1
         if (opts.eforcecomm > 0) {
             space_charge_sptr->set_e_force_comm(
-                    Space_charge_3d_open_hockney::E_force_comm(opts.eforcecomm));
+                    Space_charge_2d_open_hockney::E_force_comm(opts.eforcecomm));
         }
         #endif
-        #if 1
+        #if 0
         if (opts.efieldcomm > 0) {
             space_charge_sptr->set_e_field_comm(
-                    Space_charge_3d_open_hockney::E_field_comm(opts.efieldcomm));
+                    Space_charge_2d_open_hockney::E_field_comm(opts.efieldcomm));
         }
         #endif
     }
