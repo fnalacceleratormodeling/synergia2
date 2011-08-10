@@ -2,6 +2,7 @@
 #include "diagnostics.h"
 #include "multi_diagnostics.h"
 #include "populate.h"
+#include "analysis.h"
 #include <boost/python.hpp>
 #include "synergia/utils/numpy_multi_ref_converter.h"
 #include "synergia/utils/comm_converter.h"
@@ -68,7 +69,7 @@ BOOST_PYTHON_MODULE(bunch)
 
     class_<Diagnostics_particles, Diagnostics_particles_sptr, bases<Diagnostics > >
             ("Diagnostics_particles",init<Bunch_sptr, std::string const& >())
-        .def(init<Bunch_sptr, std::string const&, int >())
+        .def(init<Bunch_sptr, std::string const&, int, int >())
         ;
 
     class_<Multi_diagnostics>("Multi_diagnostics",
@@ -76,9 +77,26 @@ BOOST_PYTHON_MODULE(bunch)
         .def("append", &Multi_diagnostics::append)
         ;
 
+    class_<Analysis>("Analysis", init<std::string const&, int>())
+      .def("get_betatron_averaged_tune", &Analysis::get_betatron_averaged_tune)
+      .def("get_betatron_tune_spread", &Analysis::get_betatron_tune_spread)
+      .def("get_betatron_tunes", &Analysis::get_betatron_tunes)
+      .def("get_XCoords_forTunes", &Analysis::get_XCoords_forTunes)
+      .def("get_YCoords_forTunes", &Analysis::get_YCoords_forTunes)
+      .def("get_num_betatron_tune_found", &Analysis::get_num_betatron_tune_found)
+      .def("set_minimum_required_turn_Num", &Analysis::set_minimum_required_turn_Num)
+      .def("get_minimum_required_turn_Num", &Analysis::get_minimum_required_turn_Num)
+      .def("get_num_turns", &Analysis::get_num_turns)
+      .def("get_num_part_first_bunch", &Analysis::get_num_part_first_bunch)
+      .def("get_transverse_action_for_particle", &Analysis::get_transverse_action_for_particle)
+      .def("get_transverse_action_for_bunch", &Analysis::get_transverse_action_for_bunch)
+    ;
+    
     def("no_diagnostics", no_diagnostics);
     def("populate_6d", populate_6d);
     def("populate_transverse_gaussian", populate_transverse_gaussian);
+    def("populate_uniform_cylinder", populate_uniform_cylinder);
+    def("populate_transverse_KV_GaussLong", populate_transverse_KV_GaussLong);
 
     typedef Reference_particle & (Bunch::*get_reference_particle_non_const_type)();
     typedef MArray2d_ref (Bunch::*get_local_particles_non_const_type)();
@@ -130,4 +148,4 @@ BOOST_PYTHON_MODULE(bunch)
     scope().attr("cdt") = Bunch::cdt;
     scope().attr("dpop") = Bunch::dpop;
     scope().attr("id") = Bunch::id;
-}
+}    
