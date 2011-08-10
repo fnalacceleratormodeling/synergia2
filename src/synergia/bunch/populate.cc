@@ -92,3 +92,31 @@ populate_uniform_cylinder(Distribution &dist, Bunch &bunch, double radius,
         particles[part][Bunch::dpop] *= stddpop;
     }
 }
+void
+populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilMax,
+        double alpha_x, double beta_x, double alpha_y, double beta_y,
+        double cdt, double stddpop){
+    MArray2d_ref particles(bunch.get_local_particles());
+    for (int part = 0; part < bunch.get_local_num(); ++part) {
+      const double phi4 = 2.0*M_PI*dist.get(); // a Phase on the epsilX, epsilY plane. 
+      // (normal form, or almost there.) 
+      const double epsilX = std::abs(std::sqrt(2)*epsilMax*std::sin(phi4));
+      const double epsilY = std::abs(std::sqrt(2)*epsilMax*std::cos(phi4));
+      // epsilX*epsilX + epsilY*epsilY=1 is the KV constraints in 4d. 
+      // (a sphere in Normal form, 4 D, or radius epsilMax), up to a factor sqrt of 2, or so, 
+      // of course. 
+      const double phi2X = 2.0*M_PI*dist.get(); // a Phase on Normalized x, x' plane 
+      const double a2X = std::sqrt(epsilX*beta_x); // The amplitude.. 
+      particles[part][Bunch::x] = a2X*std::sin(phi2X);
+      particles[part][Bunch::xp] = (1.0/beta_x)*(a2X*std::cos(phi2X) - alpha_x*particles[part][Bunch::x]);
+      //  Repeat in y,y' plane 
+      const double phi2Y = 2.0*M_PI*dist.get(); // a Phase on Normalized x, x' plane 
+      const double a2Y = std::sqrt(epsilY*beta_y); // The amplitude.. 
+      particles[part][Bunch::y] = a2Y*std::sin(phi2Y);
+      particles[part][Bunch::yp] = (1.0/beta_y)*(a2Y*std::cos(phi2Y) - alpha_y*particles[part][Bunch::y]);
+    }
+    dist.fill_uniform(particles[boost::indices[range()][Bunch::cdt]], -cdt
+            / 2.0, cdt / 2.0);
+    dist.fill_unit_gaussian(particles[boost::indices[range()][Bunch::dpop]]);
+    for (int part = 0; part < bunch.get_local_num(); ++part) particles[part][Bunch::dpop] *= stddpop;
+}
