@@ -4,10 +4,12 @@ add_library(synergia_simulation operator.cc step.cc stepper.cc propagator.cc
 target_link_libraries(synergia_simulation synergia_foundation synergia_bunch
     synergia_lattice ${CHEF_LIBS} ${Boost_REGEX_LIBRARY})
 
-add_python_extension(simulation simulation_wrap.cc)
-target_link_libraries(simulation synergia_foundation synergia_bunch
-    synergia_lattice synergia_simulation
-    ${CHEF_LIBS} ${Boost_LIBRARIES})
+if (BUILD_PYTHON_BINDINGS)
+    add_python_extension(simulation simulation_wrap.cc)
+    target_link_libraries(simulation synergia_foundation synergia_bunch
+        synergia_lattice synergia_simulation
+        ${CHEF_LIBS} ${Boost_LIBRARIES})
+endif ()
 
 install(TARGETS synergia_simulation DESTINATION lib)
 install(FILES
@@ -21,11 +23,13 @@ install(FILES
     step.h
     stepper.h
     DESTINATION include/synergia/simulation)
-install(FILES
-    __init__.py
-    DESTINATION lib/synergia/simulation)
-install(TARGETS
-    simulation
-    DESTINATION lib/synergia/simulation)
+if (BUILD_PYTHON_BINDINGS)
+    install(FILES
+        __init__.py
+        DESTINATION lib/synergia/simulation)
+    install(TARGETS
+        simulation
+        DESTINATION lib/synergia/simulation)
+endif ()
 
 add_subdirectory(tests)

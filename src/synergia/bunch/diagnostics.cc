@@ -261,13 +261,13 @@ Diagnostics_basic::write()
 Diagnostics_basic::~Diagnostics_basic()
 {
     if (have_writers) {
-        delete writer_s;
-        delete writer_repetition;
-        delete writer_trajectory_length;
-        delete writer_num_particles;
-        delete writer_real_num_particles;
-        delete writer_mean;
         delete writer_std;
+        delete writer_mean;
+        delete writer_real_num_particles;
+        delete writer_num_particles;
+        delete writer_trajectory_length;
+        delete writer_repetition;
+        delete writer_s;
     }
 }
 
@@ -490,20 +490,20 @@ Diagnostics_full2::write()
 Diagnostics_full2::~Diagnostics_full2()
 {
     if (have_writers) {
-        delete writer_s;
-        delete writer_repetition;
-        delete writer_trajectory_length;
-        delete writer_num_particles;
-        delete writer_real_num_particles;
-        delete writer_mean;
-        delete writer_std;
-        delete writer_mom2;
-        delete writer_corr;
-        delete writer_emitx;
-        delete writer_emity;
-        delete writer_emitz;
-        delete writer_emitxy;
         delete writer_emitxyz;
+        delete writer_emitxy;
+        delete writer_emitz;
+        delete writer_emity;
+        delete writer_emitx;
+        delete writer_corr;
+        delete writer_mom2;
+        delete writer_std;
+        delete writer_mean;
+        delete writer_real_num_particles;
+        delete writer_num_particles;
+        delete writer_trajectory_length;
+        delete writer_repetition;
+        delete writer_s;
     }
 }
 
@@ -538,7 +538,9 @@ write_selected_particles(Hdf5_chunked_array2d_writer & writer,
                 particles[boost::indices[range(0, local_num)][range()]]);
     } else {
         for (int part = 0; part < local_num; ++part) {
-            if ((part >= min_particle_id) && (part <= max_particle_id)) {
+            int particle_id = particles[part][Bunch::id];
+            if ((particle_id >= min_particle_id) && (particle_id
+                    <= max_particle_id)) {
                 writer.write_chunk(
                         particles[boost::indices[range(part, part + 1)][range()]]);
             }
@@ -735,9 +737,9 @@ Diagnostics_track::write()
 Diagnostics_track::~Diagnostics_track()
 {
     if (have_writers) {
-        delete writer_coords;
-        delete writer_s;
-        delete writer_repetition;
         delete writer_trajectory_length;
+        delete writer_repetition;
+        delete writer_s;
+        delete writer_coords;
     }
 }

@@ -161,9 +161,6 @@ ElmPtr
 slice_chef_element(ElmPtr & elm, double left, double right, double tolerance)
 {
     double length = elm->Length();
-    std::cout << "jfa: slice_chef_element called on " << elm->Name()
-            << " of length " << length << ", left = " << left << ", right = "
-            << right << std::endl;
     ElmPtr retval, left_part, right_part;
     if (left == 0.0) {
         if (floating_point_equal(length, right, tolerance)) {
@@ -199,19 +196,17 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
     } else {
         const double tolerance = 1.0e-8;
         double left = slice.get_left();
-        std::cout << "jfa: get_chef_elements_from_slice: left = " << left
-                << std::endl;
         double right = slice.get_right();
         double s = 0.0;
         Chef_elements::iterator c_it = all_elements.begin();
         bool complete = false;
         double element_left, element_right;
-        element_left = left;
         double total_done = 0.0;
         while (!complete) {
+            element_left = left - s + total_done;
             double chef_element_length = (*c_it)->Length();
-            if (!floating_point_leq(left, s + chef_element_length, tolerance)) {
-                std::cout << "jfa abandon all hope\n";
+            if (floating_point_leq(chef_element_length, element_left, tolerance)
+                    && (total_done == 0.0)) {
                 s += chef_element_length;
                 ++c_it;
                 if (c_it == all_elements.end()) {
@@ -219,40 +214,40 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
                             "get_chef_elements_from_slice iterated beyond end of element list"));
                 }
             } else {
-                std::cout << "jfa: left = " << left << ", s = " << s
-                        << ", right = " << right << ", chef_element_length = "
-                        << chef_element_length << std::endl;
-                //                element_left = left - s;
-                if (floating_point_leq(right, s + chef_element_length,
-                        tolerance)) {
-                    // take part of element
-                    element_right = right - s;
-                    retval.push_back(
-                            slice_chef_element(*c_it, element_left,
-                                    element_right, tolerance));
-                    total_done += element_right - element_left;
-                } else {
-                    // take whole element
-                    element_right = chef_element_length;
-                    retval.push_back(
-                            slice_chef_element(*c_it, element_left,
-                                    element_right, tolerance));
-                    s += element_right - element_left;
-                    total_done += element_right - element_left;
+                if (chef_element_length == 0.0) {
+                    retval.push_back(*c_it);
                     ++c_it;
-                    element_left = 0.0;
-                }
-                if (floating_point_equal(element_right, chef_element_length,
-                        tolerance)) {
-                    while ((++c_it != all_elements.end()) && ((*c_it)->Length()
-                            == 0.0)) {
-                        retval.push_back(*c_it);
+                } else {
+                    if (floating_point_leq(right, s + chef_element_length,
+                            tolerance)) {
+                        // take part of element
+                        element_right = right - s;
+                        retval.push_back(
+                                slice_chef_element(*c_it, element_left,
+                                        element_right, tolerance));
+                        s += element_right - element_left;
+                        total_done += element_right - element_left;
+                    } else {
+                        // take rest of element
+                        element_right = chef_element_length;
+                        retval.push_back(
+                                slice_chef_element(*c_it, element_left,
+                                        element_right, tolerance));
+                        s += chef_element_length;
+                        total_done += element_right - element_left;
+                        ++c_it;
                     }
                 }
                 if (floating_point_equal(total_done, right - left, tolerance)) {
                     complete = true;
+                    if (floating_point_equal(element_right,
+                            chef_element_length, tolerance)) {
+                        while ((++c_it != all_elements.end())
+                                && ((*c_it)->Length() == 0.0)) {
+                            retval.push_back(*c_it);
+                        }
+                    }
                 }
-
             }
         }
     }

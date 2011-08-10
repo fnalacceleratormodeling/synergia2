@@ -7,6 +7,9 @@ from synergia.lattice import xml_save_lattice, xml_load_lattice
 from synergia.foundation import pconstants, Four_momentum, Reference_particle
 from mpi4py import MPI
 
+def islist(x):
+    return hasattr(x, "__iter__")
+
 class Cache_entry:
     def __init__(self, time_stamp, index):
         self.time_stamp = time_stamp
@@ -161,41 +164,61 @@ class Mad8_reader:
             element.add_ancestor(ancestor)
         lattice.append(element)
 
+    def _reverse(self, entries):
+        retval = []
+        if islist(entries):
+            index = 0
+            while index < len(entries):
+                entry = entries[index]
+                if islist(entry):
+                    retval.insert(0, self._reverse(entries[index]))
+                    index += 1
+                elif (entry[len(entry) - 1] == '*'):
+                    retval.insert(0, self._reverse(entries[index + 1]))
+                    retval.insert(0, entry)
+                    index += 2
+                else:
+                    retval.insert(0, entries[index])
+                    retval.insert(0, '-')
+                    index += 1
+        else:
+            retval = entries
+        return retval
+
     def _extract_elements(self, entries, ancestors, lattice, reverse=False):
-        repeat_num = 1
-        if type(entries) <> type([]):
+        if not islist(entries):
             entries = [entries]
-        for entry in entries:
-            if type(entry) == type([]):
+        i = 0
+        while i < len(entries):
+            entry = entries[i]
+            if islist(entry):
                 if reverse:
-                    entry.reverse()
-                for i in range(0, repeat_num):
-                    self._extract_elements(entry, ancestors, lattice, reverse)
-                if reverse:
-                    entry.reverse()
-                reverse = False
-                repeat_num = 1
+                    entry = self._reverse(entry)
+                self._extract_elements(entry, ancestors, lattice, reverse)
+                i += 1
             elif entry in self.parser.lines:
                 ancestors.append(entry)
                 subentry = self.parser.lines[entry]
                 if reverse:
-                    subentry.reverse()
-                for i in range(0, repeat_num):
-                    self._extract_elements(subentry, ancestors, lattice, reverse)
-                if reverse:
-                    subentry.reverse()
-                reverse = False
-                repeat_num = 1
+                    subentry = self._reverse(subentry)
+                self._extract_elements(subentry, ancestors, lattice, reverse)
                 ancestors.pop()
+                i += 1
             else:
-                if entry[len(entry) - 1] == '*':
+                if entry == '-':
+                    subentry = entries[i + 1]
+                    self._extract_elements(self._reverse(subentry), ancestors,
+                                            lattice, True)
+                    i += 2
+                elif entry[len(entry) - 1] == '*':
                     repeat_num = int(entry[0:(len(entry) - 1)])
-                elif entry == '-':
-                    reverse = True
+                    subentry = entries[i + 1]
+                    for repeat in range(0, repeat_num):
+                        self._extract_elements(subentry, ancestors, lattice, reverse)
+                    i += 2
                 else:
-                    for i in range(0, repeat_num):
-                        self._extract_element(entry, ancestors, lattice)
-                    repeat_num = 1
+                    self._extract_element(entry, ancestors, lattice)
+                    i += 1
 
     def _extract_reference_particle(self, lattice):
         for command in self.parser.commands:
@@ -274,6 +297,6 @@ if __name__ == "__main__":
         line = 'fodo'
         filename = 'fodo.lat'
 
-    lattice = Mad8_reader().get_lattice(line, filename)
+    lattice = Mad8_reader().get_lattice(line, filename, False, False)
     print "has reference particle:", lattice.has_reference_particle()
     lattice.print_()

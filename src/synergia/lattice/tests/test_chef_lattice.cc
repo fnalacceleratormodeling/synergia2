@@ -12,6 +12,8 @@ const double total_energy = 8.9;
 const double quad_length = 0.2;
 const double quad_strength = 0.07;
 const double drift_length = 3.0;
+const double rf_length = 2.0;
+const double rf_freq = 37.7e6;
 const double tolerance = 1.0e-12;
 
 struct Fodo_fixture
@@ -255,6 +257,30 @@ struct Chef_lattice_tester
     {
         return chef_lattice.get_chef_elements_from_slice(slice);
     }
+};
+
+struct RF_cavity_fixture
+{
+    RF_cavity_fixture() :
+        four_momentum(mass, total_energy),
+                reference_particle(charge, four_momentum),
+                lattice_sptr(new Lattice(name))
+    {
+        BOOST_TEST_MESSAGE("setup fixture");
+        lattice_sptr->set_reference_particle(reference_particle);
+        Lattice_element rf("rfcavity", "rf");
+        rf.set_double_attribute("l", rf_length);
+        rf.set_double_attribute("freq", rf_freq);
+        lattice_sptr->append(rf);
+    }
+    ~RF_cavity_fixture()
+    {
+        BOOST_TEST_MESSAGE("teardown fixture");
+    }
+
+    Four_momentum four_momentum;
+    Reference_particle reference_particle;
+    Lattice_sptr lattice_sptr;
 };
 
 BOOST_FIXTURE_TEST_CASE(construct, Fodo_fixture)
@@ -514,3 +540,166 @@ BOOST_FIXTURE_TEST_CASE(get_sliced_beamline_sptr_sbends_markers,
 //                    lattice_sptr->get_reference_particle()));
 //    BOOST_CHECK_CLOSE(synergia_length, chef_length, tolerance);
 //}
+
+double
+chef_elements_length(Chef_elements const & chef_elements,
+        Reference_particle const & reference_particle)
+{
+    double retval = 0.0;
+    for (Chef_elements::const_iterator it = chef_elements.begin(); it
+            != chef_elements.end(); ++it) {
+        retval += (*it)->OrbitLength(
+                reference_particle_to_chef_particle(reference_particle));
+    }
+    return retval;
+}
+
+BOOST_FIXTURE_TEST_CASE(get_chef_elements_from_slice1, Fodo_fixture)
+{
+    Chef_lattice_tester chef_lattice_tester(lattice_sptr);
+    Lattice_element quad(*(lattice_sptr->get_elements().front()));
+    Lattice_element_slice slice(quad);
+    Chef_elements chef_elements(
+            chef_lattice_tester.get_chef_elements_from_slice(slice));
+
+    BOOST_CHECK_CLOSE(quad_length, chef_elements_length(chef_elements,
+                    lattice_sptr->get_reference_particle()), tolerance);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_chef_elements_from_slice2, Fodo_fixture)
+{
+    Chef_lattice_tester chef_lattice_tester(lattice_sptr);
+    Lattice_element quad(*(lattice_sptr->get_elements().front()));
+    double begin = 0.0;
+    double end = 1.0 / 3;
+    Lattice_element_slice slice(quad, begin * quad_length, end * quad_length);
+    Chef_elements chef_elements(
+            chef_lattice_tester.get_chef_elements_from_slice(slice));
+
+    BOOST_CHECK_CLOSE(quad_length * (end - begin),
+            chef_elements_length(chef_elements,
+                    lattice_sptr->get_reference_particle()), tolerance);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_chef_elements_from_slice3, Fodo_fixture)
+{
+    Chef_lattice_tester chef_lattice_tester(lattice_sptr);
+    Lattice_element quad(*(lattice_sptr->get_elements().front()));
+    double begin = 1.0 / 3;
+    double end = 2.0 / 3;
+    Lattice_element_slice slice(quad, begin * quad_length, end * quad_length);
+    Chef_elements chef_elements(
+            chef_lattice_tester.get_chef_elements_from_slice(slice));
+
+    BOOST_CHECK_CLOSE(quad_length * (end - begin),
+            chef_elements_length(chef_elements,
+                    lattice_sptr->get_reference_particle()), tolerance);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_chef_elements_from_slice4, Fodo_fixture)
+{
+    Chef_lattice_tester chef_lattice_tester(lattice_sptr);
+    Lattice_element quad(*(lattice_sptr->get_elements().front()));
+    double begin = 2.0 / 3;
+    double end = 1.0;
+    Lattice_element_slice slice(quad, begin * quad_length, end * quad_length);
+    Chef_elements chef_elements(
+            chef_lattice_tester.get_chef_elements_from_slice(slice));
+
+    BOOST_CHECK_CLOSE(quad_length * (end - begin),
+            chef_elements_length(chef_elements,
+                    lattice_sptr->get_reference_particle()), tolerance);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_chef_elements_from_slice_compound1, RF_cavity_fixture)
+{
+    Chef_lattice_tester chef_lattice_tester(lattice_sptr);
+    Lattice_element rfcavity(*(lattice_sptr->get_elements().front()));
+    Lattice_element_slice slice(rfcavity);
+    Chef_elements chef_elements(
+            chef_lattice_tester.get_chef_elements_from_slice(slice));
+
+    BOOST_CHECK_CLOSE(rf_length, chef_elements_length(chef_elements,
+                    lattice_sptr->get_reference_particle()), tolerance);
+    BOOST_CHECK_EQUAL(chef_elements.size(), 3);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_chef_elements_from_slice_compound2, RF_cavity_fixture)
+{
+    Chef_lattice_tester chef_lattice_tester(lattice_sptr);
+    Lattice_element rfcavity(*(lattice_sptr->get_elements().front()));
+    double begin = 0.0;
+    double end = 1.0 / 3;
+    Lattice_element_slice slice(rfcavity, begin * rf_length, end * rf_length);
+    Chef_elements chef_elements(
+            chef_lattice_tester.get_chef_elements_from_slice(slice));
+
+    BOOST_CHECK_CLOSE(rf_length * (end - begin),
+            chef_elements_length(chef_elements,
+                    lattice_sptr->get_reference_particle()), tolerance);
+    BOOST_CHECK_EQUAL(chef_elements.size(), 1);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_chef_elements_from_slice_compound3, RF_cavity_fixture)
+{
+    Chef_lattice_tester chef_lattice_tester(lattice_sptr);
+    Lattice_element rfcavity(*(lattice_sptr->get_elements().front()));
+    double begin = 1.0 / 3;
+    double end = 2.0 / 3;
+    Lattice_element_slice slice(rfcavity, begin * rf_length, end * rf_length);
+    Chef_elements chef_elements(
+            chef_lattice_tester.get_chef_elements_from_slice(slice));
+
+    BOOST_CHECK_CLOSE(rf_length * (end - begin),
+            chef_elements_length(chef_elements,
+                    lattice_sptr->get_reference_particle()), tolerance);
+    BOOST_CHECK_EQUAL(chef_elements.size(), 3);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_chef_elements_from_slice_compound4, RF_cavity_fixture)
+{
+    Chef_lattice_tester chef_lattice_tester(lattice_sptr);
+    Lattice_element rfcavity(*(lattice_sptr->get_elements().front()));
+    double begin = 2.0 / 3;
+    double end = 1.0;
+    Lattice_element_slice slice(rfcavity, begin * rf_length, end * rf_length);
+    Chef_elements chef_elements(
+            chef_lattice_tester.get_chef_elements_from_slice(slice));
+
+    BOOST_CHECK_CLOSE(rf_length * (end - begin),
+            chef_elements_length(chef_elements,
+                    lattice_sptr->get_reference_particle()), tolerance);
+    BOOST_CHECK_EQUAL(chef_elements.size(), 1);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_chef_elements_from_slice_compound5, RF_cavity_fixture)
+{
+    Chef_lattice_tester chef_lattice_tester(lattice_sptr);
+    Lattice_element rfcavity(*(lattice_sptr->get_elements().front()));
+    double begin = 0.0;
+    double end = 0.5;
+    Lattice_element_slice slice(rfcavity, begin * rf_length, end * rf_length);
+    Chef_elements chef_elements(
+            chef_lattice_tester.get_chef_elements_from_slice(slice));
+
+    BOOST_CHECK_CLOSE(rf_length * (end - begin),
+            chef_elements_length(chef_elements,
+                    lattice_sptr->get_reference_particle()), tolerance);
+    BOOST_CHECK_EQUAL(chef_elements.size(), 2);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_chef_elements_from_slice_compound6, RF_cavity_fixture)
+{
+    Chef_lattice_tester chef_lattice_tester(lattice_sptr);
+    Lattice_element rfcavity(*(lattice_sptr->get_elements().front()));
+    double begin = 0.5;
+    double end = 1.0;
+    Lattice_element_slice slice(rfcavity, begin * rf_length, end * rf_length);
+    Chef_elements chef_elements(
+            chef_lattice_tester.get_chef_elements_from_slice(slice));
+
+    BOOST_CHECK_CLOSE(rf_length * (end - begin),
+            chef_elements_length(chef_elements,
+                    lattice_sptr->get_reference_particle()), tolerance);
+    BOOST_CHECK_EQUAL(chef_elements.size(), 1);
+}

@@ -869,8 +869,8 @@ Rfcavity_mad8_adaptor::get_chef_elements(
         }
     }
     double q = 0;
-    bmlnElmnt* bmln_elmnt;
     if (length == 0.0) {
+        bmlnElmnt *bmln_elmnt;
         bmln_elmnt = new thinrfcavity(
                 lattice_element.get_name().c_str(),
                 freq,
@@ -878,19 +878,29 @@ Rfcavity_mad8_adaptor::get_chef_elements(
                 lattice_element.get_double_attribute("lag") * (2.0
                         * mconstants::pi), q,
                 lattice_element.get_double_attribute("shunt"));
+        ElmPtr elm(bmln_elmnt);
+        retval.push_back(elm);
     } else {
-        bmln_elmnt = new rfcavity(
-                lattice_element.get_name().c_str(),
-                length,
+        bmlnElmnt *pre_drift, *kick, *post_drift;
+        pre_drift = new drift(
+                (lattice_element.get_name() + "_predrift").c_str(),
+                0.5 * length);
+        kick = new thinrfcavity(
+                (lattice_element.get_name() + "_kick").c_str(),
                 freq,
                 lattice_element.get_double_attribute("volt") * 1.0e6,
                 lattice_element.get_double_attribute("lag") * (2.0
                         * mconstants::pi), q,
                 lattice_element.get_double_attribute("shunt"));
+        post_drift = new drift(
+                (lattice_element.get_name() + "_postdrift").c_str(),
+                0.5 * length);
+        ElmPtr elm1(pre_drift), elm2(kick), elm3(post_drift);
+        retval.push_back(elm1);
+        retval.push_back(elm2);
+        retval.push_back(elm3);
     }
 
-    ElmPtr elm(bmln_elmnt);
-    retval.push_back(elm);
     return retval;
 }
 
