@@ -42,4 +42,23 @@ void
 populate_uniform_cylinder(Distribution &dist, Bunch &bunch, double radius,
         double cdt, double stdxp, double stdyp, double stddpop);
 
+/// Populate a bunch with a Kapichinskij and Vladimirskij (KV) distribution
+/// on the transverse plane, flat in cdt and Gaussian in dpop.
+/// Reference for KV distribution is J. D. Lawson, the Physics of 
+/// charged particle beam, 2nd edition, p 170. 
+/// @param dist the distribution generator for the Gaussian dp/p distribution. 
+/// @param bunch the bunch
+/// @param epsilmax: The maximum emittance (not normalized) to fill twoxtwo D ellipses. 
+/// @param aplha_x: Alpha Twiss parameter at the point of injection.
+/// @param beta_x: Beta Twiss parameter at the point of injection.
+/// @param aplha_y: Alpha Twiss parameter at the point of injection.
+/// @param beta_y: Beta Twiss parameter at the point of injection.
+/// @param cdt the total range of the longitudinal coordinate will be
+///  [-cdt/2,cdt/2] [m] (flatly distributed). 
+/// @param stddpop standard deviation of the dp/p distribution
+void
+populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilMax,
+        double alpha_x, double beta_x, double alpha_y, double beta_y,
+        double stddt, double stddpop);
+
 #endif /* POPULATE_H_ */
