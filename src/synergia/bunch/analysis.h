@@ -1,0 +1,72 @@
+#ifndef ANALYSIS_H_
+#define ANALYSIS_H_
+
+#include <string>
+#include <boost/shared_ptr.hpp>
+#include "synergia/utils/multi_array_typedefs.h"
+
+#include "synergia/bunch/bunch.h"
+#include "H5Cpp.h"
+
+#ifndef H5_NO_NAMESPACE
+    using namespace H5;
+#endif
+
+
+/// Read back the files produced by Diagnositics_particles 
+///  and obtain some variable of interest. 
+/// Currently implemented: just the Betatron Tune, based on the so-called "particle" files.  
+///
+
+class Analysis
+{
+
+private:
+    int maxNumberOfTurn; // The number of turn performed in the simulation. User intput
+    size_t seqCount;
+    std::string tokenname; // Token, not the full file name  
+    std::string filename; // the file name currently opened, volatile. 
+     
+    int numTurns;
+    int numParticles1rstBunch;
+    size_t selectedParticleId;
+    bool gotHorizontalTunes;
+    bool gotVerticalTunes;
+    size_t numXTunesFound;
+    MArray1d XTunes;
+    size_t numYTunesFound;
+    MArray1d YTunes;
+    size_t minimumRequiredTurnNum;  // The minimum number of turns to get a meaningfull tune 
+    MArray3d coords; // X and Y coordinates, for both transverse planes
+                     // [TurnNumber][ParticlesNumber][2], X or Y
+
+public:
+    Analysis(std::string const& filename, size_t maxTurn=0);
+    ~Analysis();
+    
+    double get_betatron_averaged_tune(bool isHorizontal);
+    double get_betatron_tune_spread(bool isHorizontal);
+    std::vector<double> get_betatron_tunes(bool isHorizontal);
+    std::vector<double> get_XCoords_forTunes(size_t selectedParticle) const ;
+    std::vector<double> get_YCoords_forTunes(size_t selectedParticle) const ;
+    inline size_t get_num_betatron_tune_found(bool isHorizontal) const {
+       if (isHorizontal) return numXTunesFound; else return numYTunesFound; return 0;
+    } 
+ 
+    inline void set_minimum_required_turn_Num(size_t n) {minimumRequiredTurnNum=n;}
+    inline size_t get_minimum_required_turn_Num() const {return minimumRequiredTurnNum;}
+    
+    inline int get_num_turns() const {return numTurns;}
+    inline int get_num_part_first_bunch() const {return numParticles1rstBunch;}
+    std::vector<double> get_transverse_action_for_particle(bool isH,  int selectedParticle,
+                                                           double alpha, double beta) const;
+    std::vector<double> get_transverse_action_for_bunch(bool isH,  size_t turnNumber, 
+                                                        double alpha, double beta) const;
+      
+private:
+    void uploadCoords();
+    void compute_betatron_tunes(bool isHorizontal);      
+
+};
+
+#endif
