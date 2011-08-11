@@ -531,16 +531,6 @@ Space_charge_2d_open_hockney::get_global_charge_density2(
     }
 }
 
-MArray1d
-Space_charge_2d_open_hockney::get_global_line_charge_density(
-        Distributed_rectangular_grid const& global_charge_density)
-{
-    MArray1d rho2_1d(boost::extents[doubled_grid_shape[2]]);
-    for (int k = 0; k < doubled_grid_shape[2]; ++k) {
-        rho2_1d[k] = global_charge_density.get_grid_points_1d()[k];
-    }
-}
-
 Distributed_rectangular_grid_sptr
 Space_charge_2d_open_hockney::get_green_fn2_pointlike()
 {

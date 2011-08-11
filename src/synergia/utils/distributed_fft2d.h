@@ -27,7 +27,7 @@ private:
 #endif //USE_FFTW2
     int lower, upper;
     std::vector<int> uppers, lengths, lengths_1d;
-    int local_size_real, local_size_complex;
+    int local_size_real;
     std::vector<int > shape;
     bool have_local_data;
     Commxx comm;

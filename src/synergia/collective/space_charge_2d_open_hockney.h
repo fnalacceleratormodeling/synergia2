@@ -106,9 +106,6 @@ public:
     Distributed_rectangular_grid_sptr
     get_global_charge_density2(Rectangular_grid const& local_charge_density);
     /// Returns Green function on the doubled grid in [1/m^3]
-    MArray1d
-    get_global_line_charge_density(
-            Distributed_rectangular_grid const& global_charge_density);
     Distributed_rectangular_grid_sptr
     get_green_fn2_pointlike();
     Distributed_rectangular_grid_sptr
