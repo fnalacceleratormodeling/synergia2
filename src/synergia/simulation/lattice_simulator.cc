@@ -10,18 +10,22 @@ Lattice_simulator::construct_extractor_map()
             chef_mixed_operation_extractor);
     extractor_map_sptr->set_extractor(chef_mixed_operation_extractor_name,
             chef_mixed_operation_extractor);
-    extractor_map_sptr->set_extractor(chef_propagate_operation_extractor_name,
-            Operation_extractor_sptr(new Chef_propagate_operation_extractor(
-                    chef_lattice_sptr, map_order)));
-    extractor_map_sptr->set_extractor(chef_map_operation_extractor_name,
-            Operation_extractor_sptr(new Chef_map_operation_extractor(
-                    chef_lattice_sptr, map_order)));
+    extractor_map_sptr->set_extractor(
+            chef_propagate_operation_extractor_name,
+            Operation_extractor_sptr(
+                    new Chef_propagate_operation_extractor(chef_lattice_sptr,
+                            map_order)));
+    extractor_map_sptr->set_extractor(
+            chef_map_operation_extractor_name,
+            Operation_extractor_sptr(
+                    new Chef_map_operation_extractor(chef_lattice_sptr,
+                            map_order)));
 }
 
-Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr,
-        int map_order) :
-    lattice_sptr(lattice_sptr), chef_lattice_sptr(new Chef_lattice(
-            lattice_sptr)), extractor_map_sptr(new Operation_extractor_map),
+Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
+    lattice_sptr(lattice_sptr),
+            chef_lattice_sptr(new Chef_lattice(lattice_sptr)),
+            extractor_map_sptr(new Operation_extractor_map),
             map_order(map_order)
 {
     construct_extractor_map();
