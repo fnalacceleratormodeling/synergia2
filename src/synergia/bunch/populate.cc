@@ -98,20 +98,38 @@ populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilM
         double cdt, double stddpop){
     MArray2d_ref particles(bunch.get_local_particles());
     for (int part = 0; part < bunch.get_local_num(); ++part) {
-      const double phi4 = 2.0*M_PI*dist.get(); // a Phase on the epsilX, epsilY plane. 
-      // (normal form, or almost there.) 
-      const double epsilX = std::abs(std::sqrt(2)*epsilMax*std::sin(phi4));
-      const double epsilY = std::abs(std::sqrt(2)*epsilMax*std::cos(phi4));
-      // epsilX*epsilX + epsilY*epsilY=1 is the KV constraints in 4d. 
-      // (a sphere in Normal form, 4 D, or radius epsilMax), up to a factor sqrt of 2, or so, 
-      // of course. 
-      const double phi2X = 2.0*M_PI*dist.get(); // a Phase on Normalized x, x' plane 
-      const double a2X = std::sqrt(epsilX*beta_x); // The amplitude.. 
+//
+// First part: generate uniformally distributed on a hypershere, dim=4
+// Algorith by marsaglia, found in the book by Wolfram,
+// see  http://mathworld.wolfram.com/HyperspherePointPicking.html
+//
+      double d12 = 2.;
+      double x1 = 0.; double x2=0.;
+// Pick first wo points within a 2D circle, flat distribution
+      while (d12 > 1.0) {
+        x1 = 2.0*dist.get() - 1.0;
+        x2 = 2.0*dist.get() - 1.0; 
+        d12 = std::sqrt(x1*x1 + x2*x2);
+      }
+// Two more       
+      double d34 = 2.;
+      double x3 = 0.; double x4=0.;
+      while (d34 > 1.0) {
+        x3 = 2.0*dist.get() - 1.0;
+        x4 = 2.0*dist.get() - 1.0; 
+        d34 = std::sqrt(x3*x3 + x4*x4);
+      }
+// The 4 points on the 4-sphere are x1, x2, z, w 
+      const double z = x3 * std::sqrt((1.0 - x1*x1 - x2*x2)/(x3*x3 + x4*x4));
+      const double w = x4 * std::sqrt((1.0 - x1*x1 - x2*x2)/(x3*x3 + x4*x4));
+// Now move from normal coordinate to physical using lattice functios
+      const double phi2X = std::atan2(x2,x1);
+      const double a2X = std::sqrt((x1*x1 + x2*x2) * epsilMax*beta_x); // The amplitude.. X physical plane
       particles[part][Bunch::x] = a2X*std::sin(phi2X);
       particles[part][Bunch::xp] = (1.0/beta_x)*(a2X*std::cos(phi2X) - alpha_x*particles[part][Bunch::x]);
       //  Repeat in y,y' plane 
-      const double phi2Y = 2.0*M_PI*dist.get(); // a Phase on Normalized x, x' plane 
-      const double a2Y = std::sqrt(epsilY*beta_y); // The amplitude.. 
+      const double phi2Y = std::atan2(w,z);
+      const double a2Y = std::sqrt((w*w + z*z)*epsilMax*beta_y); // The amplitude.. 
       particles[part][Bunch::y] = a2Y*std::sin(phi2Y);
       particles[part][Bunch::yp] = (1.0/beta_y)*(a2Y*std::cos(phi2Y) - alpha_y*particles[part][Bunch::y]);
     }
