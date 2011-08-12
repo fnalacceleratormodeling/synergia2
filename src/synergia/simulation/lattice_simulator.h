@@ -5,7 +5,19 @@
 #include "synergia/lattice/chef_lattice.h"
 #include "synergia/simulation/operation_extractor.h"
 #include "synergia/simulation/step.h"
+#include <physics_toolkit/LattFuncSage.h>
 #include <string>
+
+struct Lattice_functions
+{
+    Lattice_functions();
+    Lattice_functions(LattFuncSage::lattFunc const& latt_func);
+    double alpha_x, alpha_y;
+    double beta_x, beta_y;
+    double psi_x, psi_y;
+    double D_x, D_y;
+    double Dprime_x, Dprime_y;
+};
 
 class Lattice_simulator
 {
@@ -29,6 +41,8 @@ public:
     get_lattice_sptr();
     Chef_lattice_sptr
     get_chef_lattice_sptr();
+    void
+    calculate_lattice_functions();
     ~Lattice_simulator();
 };
 
