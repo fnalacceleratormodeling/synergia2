@@ -1,4 +1,5 @@
 #include "lattice_simulator.h"
+#include <stdexcept>
 
 Lattice_functions::Lattice_functions() :
     alpha_x(0.0), alpha_y(0.0), beta_x(0.0), beta_y(0.0), psi_x(0.0),
@@ -84,7 +85,38 @@ Lattice_simulator::calculate_lattice_functions()
     const int map_order = 1;
     JetParticle jet_particle = reference_particle_to_chef_jet_particle(
             lattice_sptr->get_reference_particle(), map_order);
-    int tune_calc_retval = latt_func_sage.TuneCalc(jet_particle);
+    int cslf_retval =
+            latt_func_sage.CourantSnyderLatticeFunctions(jet_particle);
+    if (cslf_retval != LattFuncSage::OK) {
+        std::string
+                message(
+                        "Lattice_simulator::calculate_lattice_functions failed with message: ");
+        if (cslf_retval == LattFuncSage::SLOTS_DETECTED) {
+            message += "slots detected";
+        } else if (cslf_retval == LattFuncSage::UNSTABLE) {
+            message += "unstable";
+        } else if (cslf_retval == LattFuncSage::INTEGER_TUNE) {
+            message += "integer tune";
+        } else if (cslf_retval == LattFuncSage::PHASE_ERROR) {
+            message += "phase error";
+        } else if (cslf_retval == LattFuncSage::WRONG_COUNT) {
+            message += "wrong count";
+        } else if (cslf_retval == LattFuncSage::NOT_WRITTEN) {
+            message += "not written";
+        } else if (cslf_retval == LattFuncSage::TOO_MANY_VECTORS) {
+            message += "too many vectors";
+        } else {
+            message += "(unknown message)";
+        }
+        throw std::runtime_error(message);
+    }
+    std::vector<LattFuncSage::lattFunc > latt_func(
+            latt_func_sage.getTwissArray());
+    for (int i = 0; i < latt_func.size(); ++i) {
+        Lattice_functions latttice_functions(latt_func.at(i));
+        std::cout << latt_func.at(i).arcLength << " "
+                << latttice_functions.beta_x << std::endl;
+    }
 }
 
 Lattice_simulator::~Lattice_simulator()
