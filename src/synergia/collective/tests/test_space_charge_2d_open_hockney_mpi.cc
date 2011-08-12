@@ -585,3 +585,63 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_no_domain, Ellipsoidal_bunch_fixture)
     }
     BOOST_CHECK(caught_error == true);
 }
+
+void
+simple_populate(Bunch & bunch, Random_distribution & distribution)
+{
+    MArray2d covariances(boost::extents[6][6]);
+    MArray1d means(boost::extents[6]);
+    for (int i = 0; i < 6; ++i) {
+        means[i] = 0.0;
+        for (int j = i; j < 6; ++j) {
+            covariances[i][j] = 0.0;
+        }
+    }
+    // This bunch shape is contrived to make longitudinal kicks be comparable
+    // to transverse kicks
+    double stdx = 1.1e-3;
+    double stdy = 2.3e-3;
+    double stdz = 3.5e-7;
+    covariances[0][0] = stdx * stdx;
+    covariances[2][2] = stdy * stdy;
+    covariances[4][4] = stdz * stdz;
+    covariances[1][1] = covariances[3][3] = covariances[5][5] = 1.0e-3;
+    populate_6d(distribution, bunch, means, covariances);
+
+}
+
+BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
+{
+    simple_populate(bunch, distribution);
+    Bunch original_bunch(bunch);
+    Space_charge_2d_open_hockney space_charge(comm, grid_shape);
+    const double time_fraction = 1.0;
+    Step dummy_step(time_fraction);
+    const double time_step = 0.3;
+    space_charge.apply(bunch, time_step, dummy_step);
+
+    double total_x_kick2 = 0.0;
+    double total_y_kick2 = 0.0;
+    double total_p_kick2 = 0.0;
+    for (int i = 0; i < bunch.get_local_num(); ++i) {
+        double kick;
+        kick = bunch.get_local_particles()[i][Bunch::xp]
+                - original_bunch.get_local_particles()[i][Bunch::xp];
+        total_x_kick2 += kick * kick;
+        kick = bunch.get_local_particles()[i][Bunch::yp]
+                - original_bunch.get_local_particles()[i][Bunch::yp];
+        total_y_kick2 += kick * kick;
+        kick = bunch.get_local_particles()[i][Bunch::dpop]
+                - original_bunch.get_local_particles()[i][Bunch::dpop];
+        total_p_kick2 += kick * kick;
+    }
+    double avg_x_kick2 = total_x_kick2 / bunch.get_local_num();
+    double avg_y_kick2 = total_y_kick2 / bunch.get_local_num();
+    double avg_p_kick2 = total_p_kick2 / bunch.get_local_num();
+
+    const double rough_tolerance = 10.0;
+    BOOST_CHECK_CLOSE(avg_x_kick2, 5.2e6, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_y_kick2, 5.2e6, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_p_kick2, 7.1e4, rough_tolerance);
+}
+

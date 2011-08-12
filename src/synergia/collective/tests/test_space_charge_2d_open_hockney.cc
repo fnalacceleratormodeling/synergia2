@@ -636,7 +636,7 @@ BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
     double avg_y_kick2 = total_y_kick2 / bunch.get_local_num();
     double avg_p_kick2 = total_p_kick2 / bunch.get_local_num();
 
-    const double rough_tolerance = 50.0;
+    const double rough_tolerance = 10.0;
     BOOST_CHECK_CLOSE(avg_x_kick2, 5.2e6, rough_tolerance);
     BOOST_CHECK_CLOSE(avg_y_kick2, 5.2e6, rough_tolerance);
     BOOST_CHECK_CLOSE(avg_p_kick2, 7.1e4, rough_tolerance);
