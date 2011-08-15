@@ -60,6 +60,8 @@ BOOST_PYTHON_MODULE(simulation)
                 &Lattice_simulator::get_operation_extractor_map_sptr)
         .def("get_lattice", &Lattice_simulator::get_lattice_sptr)
         .def("get_chef_lattice", &Lattice_simulator::get_chef_lattice_sptr)
+        .def("calculate_lattice_functions",
+                &Lattice_simulator::calculate_lattice_functions)
         ;
 
     class_<Step, Step_sptr >("Step", init<double >())
