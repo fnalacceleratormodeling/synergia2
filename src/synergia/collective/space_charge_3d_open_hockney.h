@@ -137,6 +137,7 @@ public:
             int component);
     virtual void
     apply(Bunch & bunch, double time_step, Step & step);
+    virtual
     ~Space_charge_3d_open_hockney();
 };
 

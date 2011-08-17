@@ -27,6 +27,7 @@ public:
     apply(Bunch & bunch, double time_step, Step & step) = 0;
     virtual void
     print() const;
+    virtual
     ~Operator();
 };
 typedef boost::shared_ptr<Operator > Operator_sptr;
@@ -38,6 +39,7 @@ public:
     Collective_operator(std::string const& name);
     virtual void
     apply(Bunch & bunch, double time_step, Step & step) = 0;
+    virtual
     ~Collective_operator();
 };
 
@@ -50,6 +52,7 @@ public:
     Dummy_collective_operator(std::string const& name);
     virtual void
     apply(Bunch & bunch, double time_step, Step & step);
+    virtual
     ~Dummy_collective_operator();
 };
 
@@ -79,6 +82,7 @@ public:
     apply(Bunch & bunch, double time_step, Step & step);
     virtual void
     print() const;
+    virtual
     ~Independent_operator();
 };
 

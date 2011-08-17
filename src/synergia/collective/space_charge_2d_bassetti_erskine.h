@@ -11,6 +11,7 @@ public:
     Space_charge_2d_bassetti_erskine();
     virtual void
     apply(Bunch & bunch, double time_step, Step & step);
+    virtual
     ~Space_charge_2d_bassetti_erskine();
 };
 

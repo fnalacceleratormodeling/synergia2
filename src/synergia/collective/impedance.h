@@ -7,23 +7,23 @@
 class Impedance : public Collective_operator
 {
 private:
-    std::string pipe_symmetry; 
+    std::string pipe_symmetry;
     int z_grid;
     int nstored_turns;
     double orbit_length;
     double wake_factor;
     double bunch_spacing;
     std::string wake_file;
-    std::vector<double> z_coord;   
+    std::vector<double> z_coord;
     std::vector<double>  x_wake;
     std::vector<double> y_wake;
     std::vector<double> z_wake;
-    
+
 public:
-    
+
     Impedance(std::string const & wake_file, double const & orbit_length, double const & bunchsp, int const  & zgrid, std::string const & pipe_symmetry, int const nstored_turns);
-  
-    
+
+
     int get_z_grid() const;
     double get_orbit_length() const;
     double get_wake_factor() const;
@@ -36,8 +36,8 @@ public:
     std::vector<double> get_z_wake() const;
     virtual
     int get_nstored_turns() const;
-    
-   /* 
+
+   /*
     get_n_sigma() const;
     void
     set_fixed_domain(Rectangular_grid_domain_sptr domain_sptr);
@@ -69,9 +69,10 @@ public:
     Rectangular_grid_sptr
     get_global_electric_field_component(
             Distributed_rectangular_grid const& dist_field); */
-   // void impedance_kick(Bunch & bunch, double delta_tau,); 
+   // void impedance_kick(Bunch & bunch, double delta_tau,);
     virtual void
     apply(Bunch & bunch, double time_step, Step & step);
+    virtual
     ~Impedance();
 };
 
