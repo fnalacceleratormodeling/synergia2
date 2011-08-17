@@ -76,7 +76,9 @@ BOOST_FIXTURE_TEST_CASE(get_chef_lattice_sptr, Lattice_fixture)
 
 BOOST_FIXTURE_TEST_CASE(calculate_lattice_functions, Fobodobo_sbend_fixture)
 {
+    const int map_order = 1;
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+    JetParticle::createStandardEnvironments(map_order);
     Lattice_element_slices slices;
     for (Lattice_elements::const_iterator it =
             lattice_sptr->get_elements().begin(); it
@@ -89,9 +91,6 @@ BOOST_FIXTURE_TEST_CASE(calculate_lattice_functions, Fobodobo_sbend_fixture)
         slices.push_back(first_half);
         slices.push_back(second_half);
     }
-    std::cout << "jfa test1\n";
     lattice_simulator.construct_sliced_chef_beamline(slices);
-    std::cout << "jfa test2\n";
     lattice_simulator.calculate_lattice_functions();
-    std::cout << "jfa test1\n";
 }

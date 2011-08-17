@@ -82,20 +82,12 @@ Lattice_simulator::get_chef_lattice_sptr()
 void
 Lattice_simulator::calculate_lattice_functions()
 {
-    std::cout << "jfa wtf1\n";
-    Particle chef_particle(reference_particle_to_chef_particle(lattice_sptr->get_reference_particle()));
-    std::cout << "jfa wtf1.1\n";
-    BmlPtr slice_beamline(chef_lattice_sptr->get_sliced_beamline_sptr());
-    std::cout << "jfa wtf1.2\n";
-    BeamlineContext beamline_context(chef_particle,slice_beamline);
-//    BeamlineContext beamline_context(
-//            reference_particle_to_chef_particle(
-//                    lattice_sptr->get_reference_particle()),
-//            chef_lattice_sptr->get_sliced_beamline_sptr());
-    std::cout << "jfa wtf2\n";
+    BeamlineContext beamline_context(
+            reference_particle_to_chef_particle(
+                    lattice_sptr->get_reference_particle()),
+            chef_lattice_sptr->get_sliced_beamline_sptr());
     std::vector<LattFuncSage::lattFunc > latt_func(
             beamline_context.getTwissArray());
-    std::cout << "jfa wtf3\n";
     for (int i = 0; i < latt_func.size(); ++i) {
         Lattice_functions latttice_functions(latt_func.at(i));
         std::cout << latt_func.at(i).arcLength << " "
