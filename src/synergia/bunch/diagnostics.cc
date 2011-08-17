@@ -557,8 +557,7 @@ Diagnostics_particles::receive_other_local_particles(
     Hdf5_chunked_array2d_writer writer_particles(
             file,
             "particles",
-            bunch_sptr->get_local_particles()[boost::indices[range(0,
-                    local_nums[myrank])][range()]]);
+            bunch_sptr->get_local_particles()[boost::indices[range(0,1)][range()]]);
     for (int rank = 0; rank < size; ++rank) {
         int local_num = local_nums[rank];
         if (rank == myrank) {
