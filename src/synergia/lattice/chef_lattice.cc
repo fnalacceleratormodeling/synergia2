@@ -276,6 +276,7 @@ Chef_lattice::construct_sliced_beamline(Lattice_element_slices const& slices)
     }
     sliced_beamline_sptr = polish_beamline(unpolished_beamline_sptr);
     extract_element_slice_map(slices);
+    lattice_element_slices = slices;
     have_sliced_beamline_ = true;
 }
 
@@ -293,6 +294,16 @@ Chef_lattice::get_sliced_beamline_sptr()
                 "get_sliced_beamline_sptr() called before construct_sliced_beamline\n");
     }
     return sliced_beamline_sptr;
+}
+
+Lattice_element_slices const&
+Chef_lattice::get_lattice_element_slices() const
+{
+    if (!have_sliced_beamline_) {
+        throw std::runtime_error(
+                "get_lattice_element_slices() called before construct_sliced_beamline\n");
+    }
+    return lattice_element_slices;
 }
 
 Chef_lattice::~Chef_lattice()

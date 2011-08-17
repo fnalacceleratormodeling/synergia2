@@ -13,6 +13,7 @@ private:
     Element_adaptor_map_sptr element_adaptor_map_sptr;
     BmlPtr beamline_sptr;
     BmlPtr sliced_beamline_sptr;
+    Lattice_element_slices lattice_element_slices;
     bool have_sliced_beamline_;
     ElmPtr lattice_element_marker;
     std::map<const Lattice_element*, Chef_elements > element_map;
@@ -51,6 +52,8 @@ public:
     get_beamline_sptr();
     BmlPtr
     get_sliced_beamline_sptr();
+    Lattice_element_slices const&
+    get_lattice_element_slices() const;
     ~Chef_lattice();
 };
 

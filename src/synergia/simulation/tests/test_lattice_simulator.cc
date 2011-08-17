@@ -89,6 +89,9 @@ BOOST_FIXTURE_TEST_CASE(calculate_lattice_functions, Fobodobo_sbend_fixture)
         slices.push_back(first_half);
         slices.push_back(second_half);
     }
+    std::cout << "jfa test1\n";
     lattice_simulator.construct_sliced_chef_beamline(slices);
+    std::cout << "jfa test2\n";
     lattice_simulator.calculate_lattice_functions();
+    std::cout << "jfa test1\n";
 }
