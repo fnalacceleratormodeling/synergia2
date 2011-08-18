@@ -472,10 +472,6 @@ Space_charge_2d_open_hockney::get_global_charge_density2_reduce_scatter(
         //rho2->get_grid_points_1d()[k] = dest_array_1d[k];
         rho2->get_grid_points_1d()[k] 
                 = local_charge_density.get_grid_points_1d()[k];
-        //std::cout << "rank[" << comm2.get_rank() << "]: " << k << "  " 
-        //        << local_charge_density.get_grid_points_1d()[k] << "  "
-        //        << dest_array_1d[k] 
-        //        << std::endl;
     }
     rho2->set_normalization(1.0);
     return rho2;
@@ -570,10 +566,7 @@ Space_charge_2d_open_hockney::get_green_fn2_pointlike()
                 Gx = dx / (dx * dx + dy * dy + hx * hy * epsilon * epsilon);
                 Gy = dy / (dx * dx + dy * dy + hx * hy * epsilon * epsilon);
             }
-
             G2->get_grid_points_2dc()[ix][iy] = std::complex<double >(Gx, Gy);
-
-            //std::cout << ix << "  " << iy << "  " << Gx << std::endl;
         }
     }
     G2->set_normalization(1.0);
@@ -624,13 +617,6 @@ Space_charge_2d_open_hockney::get_local_force2(
     distributed_fft2d_sptr->inv_transform(local_force2hat, 
             local_force2->get_grid_points_2dc());
     t = simple_timer_show(t, "sc-fft-inv_transform");
-
-    //for (int i = lower; i < upper; ++i) {
-    //    for (int j = 0; j < doubled_grid_shape[1]; ++j) {
-    //        local_force2->get_grid_points_2dc()[i][j]
-    //                = local_force2->get_grid_points_2dc()[i][j];
-    //    }
-    //}
 
     double hx, hy, hz;
     hx = domain_sptr->get_cell_size()[0];

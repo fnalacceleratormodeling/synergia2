@@ -184,16 +184,17 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles, Spherical_bunch_fixture_2d)
     double max_fractional_error = -2.0;
     double min_fractional_error = 2.0;
     bool have_points = false;
+    int rank = comm.get_rank();
 
     for (int component = 0; component < 2; ++component) {
         for (int i = local_force2->get_lower(); i < local_force2->get_upper();
                 ++i) {
-//            for (int j = 0; j < doubled_shape[1]; ++j) {
-//        for (int i = nondoubled_shape[0] / 2; i < 3 * nondoubled_shape[0] / 2;
-//                ++i) {
-            for (int j = nondoubled_shape[1] / 2; j < 3 * nondoubled_shape[1] 
-                    / 2; ++j) {
-                for (int k = 0; k < doubled_shape[2]; ++k) {
+//            for (int j = nondoubled_shape[1] / 2; j < 3 * nondoubled_shape[1] 
+//                    / 2; ++j) {
+//                for (int k = 0; k < doubled_shape[2]; ++k) {
+//                    int i = nondoubled_shape[0];
+                    int j = nondoubled_shape[1];
+                    int k = nondoubled_shape[2] / 2;
                     double x, y, z;
                     space_charge.get_doubled_domain_sptr()->get_cell_coordinates(i, j, k, x, y, z);
                     double r = std::sqrt(x * x + y * y + z * z);
@@ -231,10 +232,20 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles, Spherical_bunch_fixture_2d)
                     }
                     have_points = true;
 
+                    #if 1 //PRINT_FORCE
+                    if (rank == 0)
+                    std::cout << x << "  " << y << "  " << z << "  "
+                            << local_force2_exact_ijk << "  "
+                            << local_force2_calc_ijk << "  "
+                            << local_force2_exact_ijk_2 << "  "
+                            << fractional_error << " : rank[" << rank
+                            << "]" << std::endl;
+                    #endif
+
                     //BOOST_CHECK_CLOSE(local_force2_calc_ijk, local_force2_exact_ijk_2, solution_tolerance);
                     //BOOST_CHECK_CLOSE(local_force2_calc_ijk, local_force2_exact_ijk, solution_tolerance);
-                }
-            }
+//                }
+//            }
         }
         if (!have_points) {
             max_fractional_error = 0.0;
