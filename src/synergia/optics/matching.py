@@ -4,8 +4,9 @@ import numpy
 
 from one_turn_map import linear_one_turn_map
 from mpi4py import MPI
-from synergia.bunch import Bunch, populate_6d, populate_transverse_gaussian
+from synergia.bunch import Bunch, populate_6d, populate_transverse_gaussian, populate_transverse_KV_GaussLong
 from synergia.foundation import Random_distribution, pconstants
+from synergia.optics.one_turn_map import linear_one_turn_map
 from math import acos, pi, sin, sqrt
 
 
@@ -230,6 +231,22 @@ def generate_matched_bunch_transverse(lattice_simulator, emit_x, emit_y,
                   num_macro_particles, num_real_particles, comm)
     dist = Random_distribution(seed, comm)
     populate_6d(dist, bunch, means, covariance_matrix)
+    return bunch
+
+def generate_matchedKV_bunch_transverse(lattice_simulator, emitMax,
+                           cdt, dpop, num_real_particles,
+                           num_macro_particles, seed=0, comm=None):
+
+    map = linear_one_turn_map(lattice_simulator)
+    [[ax, ay], [bx, by]] = get_alpha_beta(map)
+
+    if comm == None:
+        comm = MPI.COMM_WORLD
+    bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
+                  num_macro_particles, num_real_particles, comm)
+    dist = Random_distribution(seed, comm)
+    populate_transverse_KV_GaussLong(dist, bunch, emitMax,
+        ax, bx, ay, by, cdt, dpop) 
     return bunch
 
 def generate_matched_bunch_uniform_longitudinal(lattice_simulator, emit_x,

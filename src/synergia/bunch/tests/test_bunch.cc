@@ -7,7 +7,7 @@
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
-const double tolerance = 1.0e-15;
+const double tolerance = 1.0e-14;
 
 const double mass = 100.0;
 const double total_energy = 125.0;
@@ -325,6 +325,14 @@ BOOST_FIXTURE_TEST_CASE(get_comm, Fixture)
 BOOST_FIXTURE_TEST_CASE(convert_to_state, Fixture)
 {
     dummy_populate(bunch);
+    // shift the bunch to have zero mean in all coordinates
+    MArray1d orig_bunch_mean(Diagnostics::calculate_mean(bunch));
+    for (int part = 0; part < bunch.get_local_num(); ++part) {
+        for (int i = 0; i < 6; ++i) {
+            bunch.get_local_particles()[part][i] -= orig_bunch_mean[i];
+        }
+    }
+
     Bunch second_bunch(bunch);
     bunch.convert_to_state(Bunch::fixed_t);
 

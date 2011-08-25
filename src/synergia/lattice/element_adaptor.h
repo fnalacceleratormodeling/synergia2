@@ -58,6 +58,7 @@ public:
     set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
+    virtual
     ~Marker_mad8_adaptor();
 };
 

@@ -261,13 +261,13 @@ Diagnostics_basic::write()
 Diagnostics_basic::~Diagnostics_basic()
 {
     if (have_writers) {
-        delete writer_s;
-        delete writer_repetition;
-        delete writer_trajectory_length;
-        delete writer_num_particles;
-        delete writer_real_num_particles;
-        delete writer_mean;
         delete writer_std;
+        delete writer_mean;
+        delete writer_real_num_particles;
+        delete writer_num_particles;
+        delete writer_trajectory_length;
+        delete writer_repetition;
+        delete writer_s;
     }
 }
 
@@ -490,20 +490,20 @@ Diagnostics_full2::write()
 Diagnostics_full2::~Diagnostics_full2()
 {
     if (have_writers) {
-        delete writer_s;
-        delete writer_repetition;
-        delete writer_trajectory_length;
-        delete writer_num_particles;
-        delete writer_real_num_particles;
-        delete writer_mean;
-        delete writer_std;
-        delete writer_mom2;
-        delete writer_corr;
-        delete writer_emitx;
-        delete writer_emity;
-        delete writer_emitz;
-        delete writer_emitxy;
         delete writer_emitxyz;
+        delete writer_emitxy;
+        delete writer_emitz;
+        delete writer_emity;
+        delete writer_emitx;
+        delete writer_corr;
+        delete writer_mom2;
+        delete writer_std;
+        delete writer_mean;
+        delete writer_real_num_particles;
+        delete writer_num_particles;
+        delete writer_trajectory_length;
+        delete writer_repetition;
+        delete writer_s;
     }
 }
 
@@ -557,8 +557,7 @@ Diagnostics_particles::receive_other_local_particles(
     Hdf5_chunked_array2d_writer writer_particles(
             file,
             "particles",
-            bunch_sptr->get_local_particles()[boost::indices[range(0,
-                    local_nums[myrank])][range()]]);
+            bunch_sptr->get_local_particles()[boost::indices[range(0,1)][range()]]);
     for (int rank = 0; rank < size; ++rank) {
         int local_num = local_nums[rank];
         if (rank == myrank) {
@@ -737,9 +736,9 @@ Diagnostics_track::write()
 Diagnostics_track::~Diagnostics_track()
 {
     if (have_writers) {
-        delete writer_coords;
-        delete writer_s;
-        delete writer_repetition;
         delete writer_trajectory_length;
+        delete writer_repetition;
+        delete writer_s;
+        delete writer_coords;
     }
 }
