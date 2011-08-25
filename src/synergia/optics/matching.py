@@ -26,18 +26,18 @@ def _get_correlation_matrix(linear_map,arms,brms,crms,beta,rms_index=[0,2,4],pri
         conj = -1
         for item in remaining:
             sum = evects[first] + evects[item]
-            if abs(numpy.max(sum.imag)) < best:
-                best = abs(numpy.max(sum.imag))
+            if numpy.max(abs(sum.imag)) < best:
+                best = numpy.max(abs(sum.imag))
                 conj = item
         if conj == -1:
-            raise RuntimeError, "failed to find a conjugate pair in ha_match"
+            raise RuntimeError, "failed to find a conjugate pair in _get_correlation_matrix"
         remaining.remove(conj)
         tmp = numpy.outer(evects[first],
             numpy.conjugate(evects[first]))
         tmp += numpy.outer(evects[conj],
             numpy.conjugate(evects[conj]))
         F[i] = tmp.real
-        # F[i] is effectively 2*e[i] cross e^H[i].make install
+        # F[i] is effectively 2*e[i] cross e^H[i].
 
     # The correlation matrix is a linear combination of F[i] with
     # appropriate coefficients such that the diagonal elements C[i,i] i=(0,2,4)
@@ -119,8 +119,9 @@ def _get_correlation_matrix(linear_map,arms,brms,crms,beta,rms_index=[0,2,4],pri
             print "*    total energy=",energy,"GeV,   kinetic energy=", energy-pconstants.mp,"GeV"
             print "****************************************************"
              
-        
-        
+            print "One Turn correlation matrix: "
+            print numpy.array2string(C, precision=3)
+
     return C
 
 def get_alpha_beta(map):
