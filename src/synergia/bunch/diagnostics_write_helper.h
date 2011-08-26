@@ -12,6 +12,8 @@
 /// Non-serial Diagnostics_write_helpers write each update to a new file.
 class Diagnostics_write_helper
 {
+public:
+    static const int default_rank = -999;
 private:
     int writer_rank;
     std::string filename;
@@ -25,7 +27,8 @@ private:
     open_file();
 public:
     /// Construct Diagnostics_write_helper
-    Diagnostics_write_helper(std::string const& filename, bool serial, Commxx const& commxx);
+    Diagnostics_write_helper(std::string const& filename, bool serial, Commxx const& commxx,
+            int writer_rank = default_rank);
 
     /// Get the count for non-serial writers
     int

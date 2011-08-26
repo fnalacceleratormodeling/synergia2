@@ -23,10 +23,15 @@ Diagnostics_write_helper::open_file()
 }
 
 Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
-        bool serial, Commxx const& commxx) :
-    writer_rank(commxx.get_size() - 1), filename(filename), serial(serial),
-            commxx(commxx), count(0), have_file(false)
+        bool serial, Commxx const& commxx, int writer_rank) :
+    filename(filename), serial(serial), commxx(commxx), count(0),
+            have_file(false)
 {
+    if (writer_rank == default_rank) {
+        this->writer_rank = commxx.get_size() - 1;
+    } else {
+        this->writer_rank = writer_rank;
+    }
     int idx = filename.rfind('.');
     if (idx == std::string::npos) {
         filename_base = filename;
@@ -68,8 +73,8 @@ H5::H5File &
 Diagnostics_write_helper::get_file()
 {
     if (!write_locally()) {
-	throw std::runtime_error(
-	    "Diagnostics_write_helper::getfile() called on a non-writer rank.");
+        throw std::runtime_error(
+                "Diagnostics_write_helper::getfile() called on a non-writer rank.");
     }
 
     if (!serial) {
