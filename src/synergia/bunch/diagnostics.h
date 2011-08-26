@@ -326,7 +326,7 @@ private:
     int particle_id;
     Bunch_sptr bunch_sptr;
     std::string filename;
-    Diagnostics_write_helper write_helper;
+    Diagnostics_write_helper_sptr write_helper_sptr;
     double s;
     Hdf5_serial_writer<double > * writer_s;
     int repetition;
