@@ -1,6 +1,9 @@
 add_library(synergia_parallel_utils parallel_utils.cc commxx.cc)
-add_python_extension(parallel_utils parallel_utils_wrap.cc)
-target_link_libraries(parallel_utils synergia_parallel_utils ${Boost_LIBRARIES})
+if (BUILD_PYTHON_BINDINGS)
+    add_python_extension(parallel_utils parallel_utils_wrap.cc)
+   target_link_libraries(parallel_utils synergia_parallel_utils
+        ${Boost_LIBRARIES})
+endif ()
 
 add_library(synergia_hdf5_utils hdf5_writer.cc hdf5_serial_writer.cc
     hdf5_chunked_array2d_writer.cc hdf5_file.cc)
@@ -43,11 +46,13 @@ install(FILES
     simple_timer.h
     xml_serialization.h
     DESTINATION include/synergia/utils)
-install(FILES
-    __init__.py
-    DESTINATION lib/synergia/utils)
-install(TARGETS
-    parallel_utils
-    DESTINATION lib/synergia/utils)
+if (BUILD_PYTHON_BINDINGS)
+    install(FILES
+        __init__.py
+        DESTINATION lib/synergia/utils)
+    install(TARGETS
+        parallel_utils
+        DESTINATION lib/synergia/utils)
+endif ()
 
 add_subdirectory(tests)
