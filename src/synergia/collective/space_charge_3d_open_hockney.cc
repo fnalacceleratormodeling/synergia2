@@ -113,8 +113,8 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(Commxx const& comm,
     for (int i = 0; i < 3; ++i) {
         doubled_grid_shape[i] = 2 * this->grid_shape[i];
     }
-    distributed_fft3d_sptr = Distributed_fft3d_sptr(new Distributed_fft3d(
-            doubled_grid_shape, comm));
+    distributed_fft3d_sptr = Distributed_fft3d_sptr(
+            new Distributed_fft3d(doubled_grid_shape, comm));
     padded_grid_shape = distributed_fft3d_sptr->get_padded_shape_real();
     setup_nondoubled_communication();
     setup_default_options();
@@ -126,10 +126,10 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
         double n_sigma) :
     Collective_operator("space charge"), grid_shape(3), doubled_grid_shape(3),
             padded_grid_shape(3), comm2(distributed_fft3d_sptr->get_comm()),
-            distributed_fft3d_sptr(distributed_fft3d_sptr), longitudinal_kicks(
-                    longitudinal_kicks), periodic_z(periodic_z), z_period(
-                    z_period), grid_entire_period(grid_entire_period), n_sigma(
-                    n_sigma), domain_fixed(false), have_domains(false)
+            distributed_fft3d_sptr(distributed_fft3d_sptr),
+            longitudinal_kicks(longitudinal_kicks), periodic_z(periodic_z),
+            z_period(z_period), grid_entire_period(grid_entire_period),
+            n_sigma(n_sigma), domain_fixed(false), have_domains(false)
 {
     doubled_grid_shape = distributed_fft3d_sptr->get_shape();
     for (int i = 0; i < 3; ++i) {
@@ -223,8 +223,8 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
     size[0] = size[1] = size[2] = 1.0;
     offset[0] = offset[1] = offset[2] = 0.0;
 
-    domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
-            size, offset, grid_shape, periodic_z));
+    domain_sptr = Rectangular_grid_domain_sptr(
+            new Rectangular_grid_domain(size, offset, grid_shape, periodic_z));
     set_fixed_domain(domain_sptr);
 
     Rectangular_grid fake_local_charge_density(domain_sptr);
@@ -356,6 +356,23 @@ Space_charge_3d_open_hockney::set_fixed_domain(
     have_domains = true;
 }
 
+// get_smallest_non_tiny is a local function
+double
+get_smallest_non_tiny(double val, double other1, double other2, double tiny)
+{
+    double retval;
+    if (val > tiny) {
+        retval = val;
+    } else {
+        if ((other1 > tiny) && (other2 > tiny)) {
+            retval = std::min(other1, other2);
+        } else {
+            retval = std::max(other1, other2);
+        }
+    }
+    return retval;
+}
+
 void
 Space_charge_3d_open_hockney::update_domain(Bunch const& bunch)
 {
@@ -364,19 +381,29 @@ Space_charge_3d_open_hockney::update_domain(Bunch const& bunch)
         MArray1d std(Diagnostics::calculate_std(bunch, mean));
         std::vector<double > size(3);
         std::vector<double > offset(3);
+        const double tiny = 1.0e-10;
+        if ((std[Bunch::x] < tiny) && (std[Bunch::y] < tiny) && (std[Bunch::z]
+                < tiny)) {
+            throw std::runtime_error(
+                    "Space_charge_3d_open_hockney::update_domain: all three spatial dimensions have neglible extent");
+        }
         if (grid_entire_period) {
             offset[0] = 0.0;
             size[0] = z_period;
         } else {
             offset[0] = mean[Bunch::z];
-            size[0] = n_sigma * std[Bunch::z];
+            size[0] = n_sigma * get_smallest_non_tiny(std[Bunch::z],
+                    std[Bunch::x], std[Bunch::y], tiny);
         }
         offset[1] = mean[Bunch::y];
-        size[1] = n_sigma * std[Bunch::y];
+        size[1] = n_sigma * get_smallest_non_tiny(std[Bunch::y], std[Bunch::x],
+                std[Bunch::z], tiny);
         offset[2] = mean[Bunch::x];
-        size[2] = n_sigma * std[Bunch::x];
-        domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
-                size, offset, grid_shape, periodic_z));
+        size[2] = n_sigma * get_smallest_non_tiny(std[Bunch::x], std[Bunch::y],
+                std[Bunch::z], tiny);
+        domain_sptr = Rectangular_grid_domain_sptr(
+                new Rectangular_grid_domain(size, offset, grid_shape,
+                        periodic_z));
         set_doubled_domain();
         have_domains = true;
     }
@@ -581,8 +608,10 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
                                     < tiny)) {
                                 G += G000;
                             } else {
-                                G += 1.0 / sqrt(dx * dx + dy * dy + dz_image
-                                        * dz_image);
+                                G += 1.0
+                                        / sqrt(
+                                                dx * dx + dy * dy + dz_image
+                                                        * dz_image);
                             }
                         }
                     }
@@ -653,16 +682,16 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
                         - sqrt(rr + (z + hz) * (z + hz));
                 double T1, T2, r1, r2;
                 if (z < -hz) {
-                    r1 = (sqrt((z - hz) * (z - hz) + rr) - z + hz) / (sqrt(z
-                            * z + rr) - z);
+                    r1 = (sqrt((z - hz) * (z - hz) + rr) - z + hz) / (sqrt(
+                            z * z + rr) - z);
                     T1 = (hz - z) * log(r1);
-                    r2 = (sqrt(z * z + rr) - z) / (sqrt((z + hz) * (z + hz)
-                            + rr) - z - hz);
+                    r2 = (sqrt(z * z + rr) - z) / (sqrt(
+                            (z + hz) * (z + hz) + rr) - z - hz);
                     T2 = (hz + z) * log(r2);
                     G += T1 + T2;
                 } else if (fabs(z + hz) < epsz) {
-                    r1 = (sqrt((z - hz) * (z - hz) + rr) - z + hz) / (sqrt(z
-                            * z + rr) - z);
+                    r1 = (sqrt((z - hz) * (z - hz) + rr) - z + hz) / (sqrt(
+                            z * z + rr) - z);
                     T1 = (hz - z) * log(r1);
                     G += T1;
                 } else if (fabs(z) < epsz) {
@@ -673,16 +702,16 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
                         G += 2. * hz * log(r1);
                     }
                 } else if (fabs(z - hz) < epsz) {
-                    r1 = (sqrt((z + hz) * (z + hz) + rr) + z + hz) / (sqrt(z
-                            * z + rr) + z);
+                    r1 = (sqrt((z + hz) * (z + hz) + rr) + z + hz) / (sqrt(
+                            z * z + rr) + z);
                     T1 = (hz + z) * log(r1);
                     G += T1;
                 } else if (z > hz) {
-                    r1 = (sqrt(z * z + rr) + z) / (sqrt((z - hz) * (z - hz)
-                            + rr) + z - hz);
+                    r1 = (sqrt(z * z + rr) + z) / (sqrt(
+                            (z - hz) * (z - hz) + rr) + z - hz);
                     T1 = (hz - z) * log(r1);
-                    r2 = (sqrt((z + hz) * (z + hz) + rr) + z + hz) / (sqrt(z
-                            * z + rr) + z);
+                    r2 = (sqrt((z + hz) * (z + hz) + rr) + z + hz) / (sqrt(
+                            z * z + rr) + z);
                     T2 = (hz + z) * log(r2);
                     G += T1 + T2;
                 } else {
@@ -699,24 +728,27 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
 
                             if (z_image < -hz) {
                                 r1
-                                        = (sqrt((z_image - hz) * (z_image - hz)
-                                                + rr) - z_image + hz) / (sqrt(
-                                                z_image * z_image + rr)
-                                                - z_image);
+                                        = (sqrt(
+                                                (z_image - hz) * (z_image - hz)
+                                                        + rr) - z_image + hz)
+                                                / (sqrt(z_image * z_image + rr)
+                                                        - z_image);
                                 T1 = (hz - z_image) * log(r1);
                                 r2 = (sqrt(z_image * z_image + rr) - z_image)
-                                        / (sqrt((z_image + hz) * (z_image + hz)
-                                                + rr) - z_image - hz);
+                                        / (sqrt(
+                                                (z_image + hz) * (z_image + hz)
+                                                        + rr) - z_image - hz);
                                 T2 = (hz + z_image) * log(r2);
                                 G += T1 + T2;
                             }
 
                             else if (fabs(z_image + hz) < epsz) {
                                 r1
-                                        = (sqrt((z_image - hz) * (z_image - hz)
-                                                + rr) - z_image + hz) / (sqrt(
-                                                z_image * z_image + rr)
-                                                - z_image);
+                                        = (sqrt(
+                                                (z_image - hz) * (z_image - hz)
+                                                        + rr) - z_image + hz)
+                                                / (sqrt(z_image * z_image + rr)
+                                                        - z_image);
                                 T1 = (hz - z_image) * log(r1);
                                 G += T1;
                             }
@@ -731,22 +763,25 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
                                 }
                             } else if (fabs(z_image - hz) < epsz) {
                                 r1
-                                        = (sqrt((z_image + hz) * (z_image + hz)
-                                                + rr) + z_image + hz) / (sqrt(
-                                                z_image * z_image + rr)
-                                                + z_image);
+                                        = (sqrt(
+                                                (z_image + hz) * (z_image + hz)
+                                                        + rr) + z_image + hz)
+                                                / (sqrt(z_image * z_image + rr)
+                                                        + z_image);
                                 T1 = (hz + z_image) * log(r1);
                                 G += T1;
                             } else if (z_image > hz) {
                                 r1 = (sqrt(z_image * z_image + rr) + z_image)
-                                        / (sqrt((z_image - hz) * (z_image - hz)
-                                                + rr) + z_image - hz);
+                                        / (sqrt(
+                                                (z_image - hz) * (z_image - hz)
+                                                        + rr) + z_image - hz);
                                 T1 = (hz - z_image) * log(r1);
                                 r2
-                                        = (sqrt((z_image + hz) * (z_image + hz)
-                                                + rr) + z_image + hz) / (sqrt(
-                                                z_image * z_image + rr)
-                                                + z_image);
+                                        = (sqrt(
+                                                (z_image + hz) * (z_image + hz)
+                                                        + rr) + z_image + hz)
+                                                / (sqrt(z_image * z_image + rr)
+                                                        + z_image);
                                 T2 = (hz + z_image) * log(r2);
                                 G += T1 + T2;
                             } else {
@@ -773,7 +808,7 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
         }
     }
 
-    G2->set_normalization(1.0/(hz*hz));
+    G2->set_normalization(1.0 / (hz * hz));
 
     return G2;
 }
@@ -812,9 +847,9 @@ Space_charge_3d_open_hockney::get_scalar_field2(
     double normalization = hx * hy * hz; // volume element in integral
     normalization *= 1.0 / (4.0 * pi * epsilon0);
 
-    Distributed_rectangular_grid_sptr phi2(new Distributed_rectangular_grid(
-            doubled_domain_sptr, lower, upper,
-            distributed_fft3d_sptr->get_padded_shape_real(), comm2));
+    Distributed_rectangular_grid_sptr phi2(
+            new Distributed_rectangular_grid(doubled_domain_sptr, lower, upper,
+                    distributed_fft3d_sptr->get_padded_shape_real(), comm2));
     distributed_fft3d_sptr->inv_transform(phi2hat, phi2->get_grid_points());
 
     normalization *= charge_density2.get_normalization();
@@ -829,8 +864,9 @@ Distributed_rectangular_grid_sptr
 Space_charge_3d_open_hockney::extract_scalar_field(
         Distributed_rectangular_grid const & phi2)
 {
-    Distributed_rectangular_grid_sptr phi(new Distributed_rectangular_grid(
-            domain_sptr, real_doubled_lower, real_doubled_upper, comm1));
+    Distributed_rectangular_grid_sptr phi(
+            new Distributed_rectangular_grid(domain_sptr, real_doubled_lower,
+                    real_doubled_upper, comm1));
 
     for (int i = real_doubled_lower; i < real_doubled_upper; ++i) {
         for (int j = 0; j < grid_shape[1]; ++j) {
@@ -863,8 +899,9 @@ Space_charge_3d_open_hockney::get_electric_field_component(
                 "Space_charge_3d_open_hockney::get_electric_field_component: component must be 0, 1 or 2");
     }
 
-    Distributed_rectangular_grid_sptr En(new Distributed_rectangular_grid(
-            domain_sptr, phi.get_lower(), phi.get_upper(), comm1));
+    Distributed_rectangular_grid_sptr En(
+            new Distributed_rectangular_grid(domain_sptr, phi.get_lower(),
+                    phi.get_upper(), comm1));
     MArray3d_ref En_a(En->get_grid_points());
     MArray3d_ref phi_a(phi.get_grid_points());
     int lower_limit, upper_limit;
@@ -920,10 +957,13 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_gatherv_bcast(
     int error;
     if (in_group1) {
         int rank = comm1.get_rank();
-        error = MPI_Gatherv((void *) (dist_field.get_grid_points().origin()
-                + lowers1[rank]), lengths1[rank], MPI_DOUBLE,
-                (void*) global_field->get_grid_points().origin(), &lengths1[0],
-                &lowers1[0], MPI_DOUBLE, root, comm1.get());
+        error
+                = MPI_Gatherv(
+                        (void *) (dist_field.get_grid_points().origin()
+                                + lowers1[rank]), lengths1[rank], MPI_DOUBLE,
+                        (void*) global_field->get_grid_points().origin(),
+                        &lengths1[0], &lowers1[0], MPI_DOUBLE, root,
+                        comm1.get());
         if (error != MPI_SUCCESS) {
             throw std::runtime_error(
                     "MPI error in Space_charge_3d_open_hockney(MPI_Gatherv)");
@@ -959,8 +999,9 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_allgatherv(
         }
     }
     int rank = comm2.get_rank();
-    int error = MPI_Allgatherv((void *) (dist_field.get_grid_points().origin()
-            + lowers12[rank]), lengths12[rank], MPI_DOUBLE,
+    int error = MPI_Allgatherv(
+            (void *) (dist_field.get_grid_points().origin() + lowers12[rank]),
+            lengths12[rank], MPI_DOUBLE,
             (void*) global_field->get_grid_points().origin(), &lengths12[0],
             &lowers12[0], MPI_DOUBLE, comm2.get());
     if (error != MPI_SUCCESS) {
@@ -1045,7 +1086,8 @@ Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
         double x = bunch.get_local_particles()[part][Bunch::x];
         double y = bunch.get_local_particles()[part][Bunch::y];
         double z = bunch.get_local_particles()[part][Bunch::z];
-        double grid_val = interpolate_rectangular_zyx(x, y, z, domain, grid_points);
+        double grid_val = interpolate_rectangular_zyx(x, y, z, domain,
+                grid_points);
         bunch.get_local_particles()[part][ps_component] += factor * grid_val;
     }
 }
@@ -1060,8 +1102,8 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
     t = simple_timer_show(t, "sc-convert-to-state");
     Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
     t = simple_timer_show(t, "sc-get-local-rho");
-    Distributed_rectangular_grid_sptr rho2(get_global_charge_density2(
-            *local_rho)); // [C/m^3]
+    Distributed_rectangular_grid_sptr rho2(
+            get_global_charge_density2(*local_rho)); // [C/m^3]
     t = simple_timer_show(t, "sc-get-global-rho");
     local_rho.reset();
     Distributed_rectangular_grid_sptr G2; // [1/m]
