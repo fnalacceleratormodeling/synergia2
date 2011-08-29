@@ -28,6 +28,7 @@ private:
     std::map<std::string, std::string > string_attributes;
     std::string length_attribute_name;
     std::string bend_angle_attribute_name;
+    long int revision;
 
 public:
     /// Construct a Lattice_element with an empty name and type.
@@ -117,6 +118,14 @@ public:
     /// Get the Lattice_element's bend angle
     double
     get_bend_angle() const;
+
+    /// Get the Lattice_element's revision number
+    long int
+    get_revision() const;
+
+    /// Increment the Lattice_element's revision number
+    void
+    increment_revision();
 
     /// Print a human-readable description of the Lattice_element
     /// The Python version of the function is named "print_".
