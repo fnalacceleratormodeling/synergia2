@@ -38,6 +38,16 @@ Element_adaptor::get_chef_elements(Lattice_element const& lattice_element,
             "Element_adaptor: " + lattice_element.get_type() + " not handled"));
 }
 
+void
+Element_adaptor::modify_attribute(Lattice_element & lattice_element,
+        Chef_elements & chef_elements, std::string const& attribute_name,
+        double value)
+{
+    throw(runtime_error(
+            "Element_adaptor: " + lattice_element.get_type()
+                    + " has no modifiable attributes"));
+}
+
 Element_adaptor::~Element_adaptor()
 {
 }
@@ -640,27 +650,27 @@ Multipole_mad8_adaptor::get_chef_elements(
             case 0:
                 element_name = lattice_element.get_name() + "_2pole";
                 bmln_elmnt = new thin2pole(element_name.c_str(),
-                                brho * knl[moment]);
+                        brho * knl[moment]);
                 break;
             case 1:
                 element_name = lattice_element.get_name() + "_4pole";
                 bmln_elmnt = new thinQuad(element_name.c_str(),
-                                brho * knl[moment]);
+                        brho * knl[moment]);
                 break;
             case 2:
                 element_name = lattice_element.get_name() + "_6pole";
                 bmln_elmnt = new thinSextupole(element_name.c_str(),
-                                brho * knl[moment] / 2.0);
+                        brho * knl[moment] / 2.0);
                 break;
             case 3:
                 element_name = lattice_element.get_name() + "_8pole";
                 bmln_elmnt = new thinOctupole(element_name.c_str(),
-                                brho * knl[moment] / 6.0);
+                        brho * knl[moment] / 6.0);
                 break;
             case 4:
                 element_name = lattice_element.get_name() + "_10pole";
                 bmln_elmnt = new thinDecapole(element_name.c_str(),
-                                brho * knl[moment] / 24.0);
+                        brho * knl[moment] / 24.0);
                 break;
             }
 

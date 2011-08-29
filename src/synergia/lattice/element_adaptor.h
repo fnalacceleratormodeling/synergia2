@@ -23,6 +23,9 @@ public:
     set_default_attributes(Lattice_element & lattice_element);
     virtual Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
+    virtual void
+    modify_attribute(Lattice_element & lattice_element, Chef_elements & chef_elements,
+            std::string const& attribute_name, double value);
     virtual
     ~Element_adaptor();
 };
