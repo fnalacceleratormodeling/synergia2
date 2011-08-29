@@ -15,3 +15,4 @@ diagnostics*.h5
 particles.h5
 cylparticles.h5
 track*.h5
+*.icc
