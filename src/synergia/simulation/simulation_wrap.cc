@@ -53,8 +53,8 @@ BOOST_PYTHON_MODULE(simulation)
 
     class_<Lattice_simulator >("Lattice_simulator",
             init<Lattice_sptr, int >())
-        .def("construct_sliced_chef_beamline",
-                &Lattice_simulator::construct_sliced_chef_beamline)
+        .def("set_slices",
+                &Lattice_simulator::set_slices)
         .def("get_map_order", &Lattice_simulator::get_map_order)
         .def("get_operation_extractor_map",
                 &Lattice_simulator::get_operation_extractor_map_sptr)

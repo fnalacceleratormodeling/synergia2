@@ -129,8 +129,7 @@ Independent_stepper::Independent_stepper(
         throw(std::runtime_error(
                 "internal error: Independent_stepper did not make it to the end of the lattice\n"));
     }
-    this->lattice_simulator.construct_sliced_chef_beamline(
-            extract_slices(get_steps()));
+    this->lattice_simulator.set_slices(extract_slices(get_steps()));
 }
 
 Independent_stepper::~Independent_stepper()
@@ -181,8 +180,7 @@ Independent_stepper_elements::Independent_stepper_elements(
             }
         }
     }
-    this->lattice_simulator.construct_sliced_chef_beamline(
-            extract_slices(get_steps()));
+    this->lattice_simulator.set_slices(extract_slices(get_steps()));
 }
 
 Independent_stepper_elements::~Independent_stepper_elements()
@@ -288,8 +286,7 @@ Split_operator_stepper::construct(
         throw(std::runtime_error(
                 "internal error: split_operator_stepper did not make it to the end of the lattice\n"));
     }
-    lattice_simulator.construct_sliced_chef_beamline(
-            extract_slices(get_steps()));
+    lattice_simulator.set_slices(extract_slices(get_steps()));
 }
 
 Split_operator_stepper::Split_operator_stepper(
@@ -387,8 +384,7 @@ Split_operator_stepper_elements::construct(
 
             }
         }
-        lattice_simulator.construct_sliced_chef_beamline(
-                extract_slices(get_steps()));
+        lattice_simulator.set_slices(extract_slices(get_steps()));
     }
 }
 
