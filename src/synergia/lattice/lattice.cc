@@ -60,12 +60,6 @@ Lattice::set_default_attributes(Element_adaptor_map const& element_adaptor_map)
     }
 }
 
-void
-Lattice::set_default_attributes()
-{
-    set_default_attributes(Element_adaptor_map());
-}
-
 Lattice_elements &
 Lattice::get_elements()
 {

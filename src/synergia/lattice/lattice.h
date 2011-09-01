@@ -61,11 +61,6 @@ public:
     void
     set_default_attributes(Element_adaptor_map const& element_adaptor_map);
 
-    /// Set the default Element_adaptor_map to be used for elements in the
-    /// Lattice to the global default Element_adaptor_map
-    void
-    set_default_attributes();
-
     /// Get the list of elements in the Lattice
     Lattice_elements &
     get_elements();
