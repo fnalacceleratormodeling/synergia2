@@ -100,6 +100,36 @@ BOOST_AUTO_TEST_CASE(get_string_attributes)
     BOOST_CHECK(lattice_element.get_string_attributes().count(attr) == 1);
 }
 
+BOOST_AUTO_TEST_CASE(get_needs_internal_derive)
+{
+    Lattice_element lattice_element(type, name);
+    BOOST_CHECK(!lattice_element.get_needs_internal_derive());
+}
+
+BOOST_AUTO_TEST_CASE(set_needs_internal_derive)
+{
+    Lattice_element lattice_element(type, name);
+    lattice_element.set_needs_internal_derive(true);
+    BOOST_CHECK(lattice_element.get_needs_internal_derive());
+    lattice_element.set_needs_internal_derive(false);
+    BOOST_CHECK(!lattice_element.get_needs_internal_derive());
+}
+
+BOOST_AUTO_TEST_CASE(get_needs_external_derive)
+{
+    Lattice_element lattice_element(type, name);
+    BOOST_CHECK(!lattice_element.get_needs_external_derive());
+}
+
+BOOST_AUTO_TEST_CASE(set_needs_external_derive)
+{
+    Lattice_element lattice_element(type, name);
+    lattice_element.set_needs_external_derive(true);
+    BOOST_CHECK(lattice_element.get_needs_external_derive());
+    lattice_element.set_needs_external_derive(false);
+    BOOST_CHECK(!lattice_element.get_needs_external_derive());
+}
+
 BOOST_AUTO_TEST_CASE(copy)
 {
     Lattice_element lattice_element(type, name);
@@ -108,6 +138,7 @@ BOOST_AUTO_TEST_CASE(copy)
     lattice_element.set_double_attribute("three", 3.0);
     lattice_element.set_string_attribute("foo", "foo");
     lattice_element.set_string_attribute("bar", "bar");
+    lattice_element.set_needs_external_derive(true);
     lattice_element.add_ancestor("ma");
     lattice_element.add_ancestor("grandma");
 
@@ -124,6 +155,8 @@ BOOST_AUTO_TEST_CASE(copy)
     BOOST_CHECK(std::equal(lattice_element.get_ancestors().begin(),
                     lattice_element.get_ancestors().end(),
                     copied_lattice_element.get_ancestors().begin()));
+    BOOST_CHECK_EQUAL(lattice_element.get_needs_external_derive(),
+            copied_lattice_element.get_needs_external_derive());
 }
 
 BOOST_AUTO_TEST_CASE(get_revision)

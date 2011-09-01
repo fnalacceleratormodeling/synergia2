@@ -29,6 +29,7 @@ private:
     std::string length_attribute_name;
     std::string bend_angle_attribute_name;
     long int revision;
+    bool needs_internal_derive, needs_external_derive;
 
 public:
     /// Construct a Lattice_element with an empty name and type.
@@ -110,6 +111,26 @@ public:
     /// Get the entire dictionary of string attributes
     std::map<std::string, std::string > const &
     get_string_attributes() const;
+
+    /// Set whether the element needs to determine some of its parameters
+    /// from its other parameters
+    void
+    set_needs_internal_derive(bool value);
+
+    /// Get whether the element needs to determine some of its parameters
+    /// from its other parameters
+    bool
+    get_needs_internal_derive() const;
+
+    /// Set whether the element needs to determine some of its parameters
+    /// from the lattice length and/or reference particle
+    void
+    set_needs_external_derive(bool value);
+
+    /// Get whether the element needs to determine some of its parameters
+    /// from the lattice length and/or reference particle
+    bool
+    get_needs_external_derive() const;
 
     /// Get the Lattice_element's length
     double

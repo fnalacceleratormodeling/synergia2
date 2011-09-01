@@ -6,7 +6,8 @@
 Lattice_element::Lattice_element() :
     type(""), name(""), ancestors(), double_attributes(), string_attributes(),
             length_attribute_name("l"), bend_angle_attribute_name("angle"),
-            revision(0)
+            revision(0), needs_internal_derive(false),
+            needs_external_derive(false)
 {
 
 }
@@ -15,7 +16,8 @@ Lattice_element::Lattice_element(std::string const& type,
         std::string const& name) :
     type(type), name(name), ancestors(), double_attributes(),
             string_attributes(), length_attribute_name("l"),
-            bend_angle_attribute_name("angle"), revision(0)
+            bend_angle_attribute_name("angle"), revision(0),
+            needs_internal_derive(false), needs_external_derive(false)
 {
 
 }
@@ -28,7 +30,9 @@ Lattice_element::Lattice_element(Lattice_element const& lattice_element) :
             string_attributes(),
             length_attribute_name(lattice_element.length_attribute_name),
             bend_angle_attribute_name(lattice_element.bend_angle_attribute_name),
-            revision(0)
+            revision(0),
+            needs_internal_derive(lattice_element.needs_internal_derive),
+            needs_external_derive(lattice_element.needs_external_derive)
 {
     std::copy(lattice_element.ancestors.begin(),
             lattice_element.ancestors.end(),
@@ -141,6 +145,30 @@ std::map<std::string, std::string > const &
 Lattice_element::get_string_attributes() const
 {
     return string_attributes;
+}
+
+void
+Lattice_element::set_needs_internal_derive(bool value)
+{
+    needs_internal_derive = value;
+}
+
+bool
+Lattice_element::get_needs_internal_derive() const
+{
+    return needs_internal_derive;
+}
+
+void
+Lattice_element::set_needs_external_derive(bool value)
+{
+    needs_external_derive = value;
+}
+
+bool
+Lattice_element::get_needs_external_derive() const
+{
+    return needs_external_derive;
 }
 
 double
