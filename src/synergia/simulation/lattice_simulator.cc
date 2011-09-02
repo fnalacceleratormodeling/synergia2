@@ -73,6 +73,16 @@ Lattice_simulator::get_chef_lattice_sptr()
     return chef_lattice_sptr;
 }
 
+void
+Lattice_simulator::update()
+{
+    chef_lattice_sptr = Chef_lattice_sptr(new Chef_lattice(lattice_sptr));
+    construct_extractor_map();
+    if (have_slices) {
+        construct_sliced_chef_beamline();
+    }
+}
+
 Lattice_simulator::~Lattice_simulator()
 {
 }

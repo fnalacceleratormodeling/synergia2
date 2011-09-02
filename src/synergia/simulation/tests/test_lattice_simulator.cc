@@ -73,3 +73,78 @@ BOOST_FIXTURE_TEST_CASE(get_chef_lattice_sptr, Lattice_fixture)
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     lattice_simulator.get_chef_lattice_sptr();
 }
+
+BOOST_AUTO_TEST_CASE(update)
+{
+    const double quad_length = 0.2;
+    const double quad_strength = 3.2;
+    const double drift_length = 3.0;
+    const double bend_length = 4.0;
+
+    Lattice_element f("quadrupole", "f");
+    f.set_double_attribute("l", quad_length);
+    f.set_double_attribute("k1", quad_strength);
+    Lattice_element o("drift", "o");
+    o.set_double_attribute("l", drift_length);
+    Lattice_element d("quadrupole", "d");
+    d.set_double_attribute("l", quad_length);
+    d.set_double_attribute("k1", quad_strength);
+
+    Lattice_sptr lattice_sptr(new Lattice(name));
+    lattice_sptr->append(f);
+    lattice_sptr->append(o);
+    lattice_sptr->append(d);
+    lattice_sptr->append(o);
+
+    const int charge = pconstants::proton_charge;
+    const double mass = pconstants::mp;
+    const double total_energy = 125.0;
+    Four_momentum four_momentum(mass, total_energy);
+    Reference_particle reference_particle(charge, four_momentum);
+    lattice_sptr->set_reference_particle(reference_particle);
+
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+    Lattice_element_slices slices;
+    for (Lattice_elements::const_iterator it =
+            lattice_sptr->get_elements().begin(); it
+            != lattice_sptr->get_elements().end(); ++it) {
+        double length = (*it)->get_length();
+        Lattice_element_slice_sptr first_half(
+                new Lattice_element_slice(*(*it), 0.0, 0.5 * length));
+        Lattice_element_slice_sptr second_half(
+                new Lattice_element_slice(*(*it), 0.5 * length, length));
+        slices.push_back(first_half);
+        slices.push_back(second_half);
+    }
+    lattice_simulator.set_slices(slices);
+
+    double orig_quad_strength;
+    for (beamline::deep_iterator
+            it =
+                    lattice_simulator.get_chef_lattice_sptr()->get_sliced_beamline_sptr()->deep_begin(); it
+            != lattice_simulator.get_chef_lattice_sptr()->get_sliced_beamline_sptr()->deep_end(); ++it) {
+        if (std::string((*it)->Type()) == "quadrupole") {
+            orig_quad_strength = (*it)->Strength();
+        }
+    }
+
+    for (Lattice_elements::iterator it = lattice_sptr->get_elements().begin(); it
+            != lattice_sptr->get_elements().end(); ++it) {
+        if ((*it)->get_type() == "quadrupole") {
+            (*it)->set_double_attribute("k1", 2 * quad_strength);
+        }
+    }
+
+    lattice_simulator.update();
+
+    double new_quad_strength;
+    for (beamline::deep_iterator
+            it =
+                    lattice_simulator.get_chef_lattice_sptr()->get_sliced_beamline_sptr()->deep_begin(); it
+            != lattice_simulator.get_chef_lattice_sptr()->get_sliced_beamline_sptr()->deep_end(); ++it) {
+        if (std::string((*it)->Type()) == "quadrupole") {
+            new_quad_strength = (*it)->Strength();
+        }
+    }
+    BOOST_CHECK_CLOSE(new_quad_strength, 2*orig_quad_strength, tolerance);
+}

@@ -33,6 +33,8 @@ public:
     get_lattice_sptr();
     Chef_lattice_sptr
     get_chef_lattice_sptr();
+    void
+    update();
     ~Lattice_simulator();
 };
 
