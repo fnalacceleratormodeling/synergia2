@@ -60,6 +60,55 @@ Lattice::set_default_attributes(Element_adaptor_map const& element_adaptor_map)
     }
 }
 
+void
+Lattice::derive_internal_attributes(
+        Element_adaptor_map const& element_adaptor_map)
+{
+    for (Lattice_elements::const_iterator it = elements.begin(); it
+            != elements.end(); ++it) {
+        if ((*it)->get_needs_internal_derive()) {
+            element_adaptor_map.get_adaptor((*it)->get_type())->set_derived_attributes_internal(
+                    *(*it));
+        }
+    }
+}
+
+void
+Lattice::derive_external_attributes(
+        Element_adaptor_map const& element_adaptor_map)
+{
+    bool needed = false;
+    for (Lattice_elements::const_iterator it = elements.begin(); it
+            != elements.end(); ++it) {
+        if ((*it)->get_needs_external_derive()) {
+            needed = true;
+        }
+    }
+    if (needed) {
+        if (!reference_particle_allocated) {
+            throw std::runtime_error(
+                    "Lattice::derive_external_attributes requires a reference_particle");
+        }
+        double beta = reference_particle_ptr->get_beta();
+        double lattice_length = get_length();
+        for (Lattice_elements::const_iterator it = elements.begin(); it
+                != elements.end(); ++it) {
+            if ((*it)->get_needs_external_derive()) {
+                element_adaptor_map.get_adaptor((*it)->get_type())->set_derived_attributes_external(
+                        *(*it), lattice_length, beta);
+            }
+        }
+    }
+}
+
+void
+Lattice::complete_attributes(Element_adaptor_map const& element_adaptor_map)
+{
+    set_default_attributes(element_adaptor_map);
+    derive_internal_attributes(element_adaptor_map);
+    derive_external_attributes(element_adaptor_map);
+}
+
 Lattice_elements &
 Lattice::get_elements()
 {
