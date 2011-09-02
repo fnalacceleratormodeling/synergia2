@@ -30,6 +30,18 @@ Element_adaptor::set_default_attributes(Lattice_element & lattice_element)
 {
 }
 
+void
+Element_adaptor::set_derived_attributes_internal(
+        Lattice_element & lattice_element)
+{
+}
+
+void
+Element_adaptor::set_derived_attributes_external(
+        Lattice_element & lattice_element, double lattice_length, double beta)
+{
+}
+
 Chef_elements
 Element_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
@@ -323,6 +335,19 @@ Rbend_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
             && !lattice_element.has_string_attribute("tilt")) {
         lattice_element.set_double_attribute("tilt", 0.0);
     }
+    lattice_element.set_length_attribute_name("arclength");
+    lattice_element.set_needs_internal_derive(true);
+}
+
+void
+Rbend_mad8_adaptor::set_derived_attributes_internal(
+        Lattice_element & lattice_element)
+{
+    double bend_angle = lattice_element.get_bend_angle();
+    double bend_length = lattice_element.get_double_attribute("l");
+    double arc_length = bend_angle * bend_length / (2
+            * std::sin(bend_angle / 2));
+    lattice_element.set_double_attribute("arclength", arc_length);
 }
 
 Chef_elements
