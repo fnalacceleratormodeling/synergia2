@@ -163,21 +163,19 @@ BOOST_AUTO_TEST_CASE(get_revision)
 {
     Lattice_element lattice_element(type, name);
     BOOST_CHECK_EQUAL(lattice_element.get_revision(), 0);
-}
-
-BOOST_AUTO_TEST_CASE(increment_revision)
-{
-    Lattice_element lattice_element(type, name);
-    lattice_element.increment_revision();
-    lattice_element.increment_revision();
+    lattice_element.set_double_attribute("a", 1.0);
+    BOOST_CHECK_EQUAL(lattice_element.get_revision(), 1);
+    lattice_element.set_double_attribute("b", 2.0);
+    BOOST_CHECK_EQUAL(lattice_element.get_revision(), 2);
+    lattice_element.set_double_attribute("c", 2.0, false);
     BOOST_CHECK_EQUAL(lattice_element.get_revision(), 2);
 }
 
 BOOST_AUTO_TEST_CASE(copy_revision)
 {
     Lattice_element lattice_element(type, name);
-    lattice_element.increment_revision();
-    lattice_element.increment_revision();
+    lattice_element.set_double_attribute("a", 1.0);
+    lattice_element.set_double_attribute("b", 2.0);
     Lattice_element copied_lattice_element(lattice_element);
     BOOST_CHECK_EQUAL(copied_lattice_element.get_revision(), 0);
 }

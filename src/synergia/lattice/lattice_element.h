@@ -63,8 +63,10 @@ public:
     /// Set the value of the named double attribute
     /// @param name attribute name
     /// @param value attribute value
+    /// @param increment_revision can be set to false for attributes that do not affect dynamics
     void
-    set_double_attribute(std::string const& name, double value);
+    set_double_attribute(std::string const& name, double value,
+            bool increment_revision = true);
 
     /// Check for the existence of the named double attribute
     /// @param name attribute name
@@ -83,8 +85,10 @@ public:
     /// Set the value of the named string attribute
     /// @param name attribute name
     /// @param value attribute value
+    /// @param increment_revision can be set to false for attributes that do not affect dynamics
     void
-    set_string_attribute(std::string const& name, std::string const& value);
+    set_string_attribute(std::string const& name, std::string const& value,
+            bool increment_revision = true);
 
     /// Check for the existence of the named string attribute
     /// @param name attribute name
@@ -144,10 +148,6 @@ public:
     long int
     get_revision() const;
 
-    /// Increment the Lattice_element's revision number
-    void
-    increment_revision();
-
     /// Print a human-readable description of the Lattice_element
     /// The Python version of the function is named "print_".
     void
@@ -162,7 +162,10 @@ public:
                     & BOOST_SERIALIZATION_NVP(double_attributes)
                     & BOOST_SERIALIZATION_NVP(string_attributes)
                     & BOOST_SERIALIZATION_NVP(length_attribute_name)
-                    & BOOST_SERIALIZATION_NVP(bend_angle_attribute_name);
+                    & BOOST_SERIALIZATION_NVP(bend_angle_attribute_name)
+                    & BOOST_SERIALIZATION_NVP(revision)
+                    & BOOST_SERIALIZATION_NVP(needs_internal_derive)
+                    & BOOST_SERIALIZATION_NVP(needs_external_derive);
         }
 };
 

@@ -70,9 +70,13 @@ Lattice_element::get_ancestors() const
 }
 
 void
-Lattice_element::set_double_attribute(std::string const& name, double value)
+Lattice_element::set_double_attribute(std::string const& name, double value,
+        bool increment_revision)
 {
     double_attributes[name] = value;
+    if (increment_revision) {
+        ++revision;
+    }
 }
 
 bool
@@ -103,9 +107,12 @@ Lattice_element::get_double_attributes() const
 
 void
 Lattice_element::set_string_attribute(std::string const& name,
-        std::string const& value)
+        std::string const& value, bool increment_revision)
 {
     string_attributes[name] = value;
+    if (increment_revision) {
+        ++revision;
+    }
 }
 
 bool
@@ -199,12 +206,6 @@ long int
 Lattice_element::get_revision() const
 {
     return revision;
-}
-
-void
-Lattice_element::increment_revision()
-{
-    ++revision;
 }
 
 void
