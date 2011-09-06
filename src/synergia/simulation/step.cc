@@ -38,9 +38,11 @@ void
 Step::apply(Bunch & bunch)
 { 
     
+   // int rank = Commxx().get_rank();
     std::list<double >::const_iterator fractions_it = time_fractions.begin();
     for (Operators::const_iterator it = operators.begin(); it
             != operators.end(); ++it) {
+        // if (rank==0) std::cout<<" operator name="<<(*it)->get_name()<<std::endl;
         // time [s] in accelerator frame
         double time = length / (bunch.get_reference_particle().get_beta()
                 * pconstants::c);
@@ -75,6 +77,7 @@ Step::apply(Bunch & bunch, Multi_diagnostics & diagnostics)
     std::list<double >::const_iterator fractions_it = time_fractions.begin();
     for (Operators::const_iterator it = operators.begin(); it
             != operators.end(); ++it) {
+        // if (rank==0) std::cout<<" operator name="<<(*it)->get_name()<<std::endl;
         // time [s] in accelerator frame
         double time = length / (bunch.get_reference_particle().get_beta()
                 * pconstants::c);
@@ -89,7 +92,7 @@ Step::apply(Bunch & bunch, Multi_diagnostics & diagnostics)
 
             int nstored=(reinterpret_cast<Impedance*>(boost::get_pointer(*it)))->get_nstored_turns(); 
             if (stored_bunches.size()>nstored) stored_bunches.pop_back();
-          //  std::cout<<"name ="<< (*it)->get_name()<<" stored dim "<<stored_bunches.size()<<std::endl; 
+           // std::cout<<"name ="<< (*it)->get_name()<<" stored dim "<<stored_bunches.size()<<std::endl; 
            
          }
          for (Multi_diagnostics::iterator itd = diagnostics.begin(); itd
@@ -98,6 +101,10 @@ Step::apply(Bunch & bunch, Multi_diagnostics & diagnostics)
                  (*itd)->update_and_write();
           }
         (*it)->apply(bunch, (*fractions_it) * time, *this);
+         if (bunch.is_z_periodic()){
+            double plength=bunch.get_z_period_length();
+            apply_longitudinal_periodicity(bunch, plength);
+        }     
         ++fractions_it;
     }
 }

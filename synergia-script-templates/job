@@ -2,7 +2,7 @@
 #PBS -o synergia.out
 #PBS -e synergia.err
 #PBS -l nodes=@@numnode@@
-##PBS -l walltime=00:30:00
+#PBS -l walltime=00:30:00
 #PBS -q intel12
 #PBS -A mu2e
 

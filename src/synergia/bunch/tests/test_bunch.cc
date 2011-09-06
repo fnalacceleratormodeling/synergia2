@@ -422,16 +422,16 @@ public:
   
     
     void
-    from_zacc_to_tacc(Bunch &bunch){};
+    from_z_lab_to_t_lab(Bunch &bunch){};
     
     void
-    from_tacc_to_zacc(Bunch &bunch){};
+    from_t_lab_to_z_lab(Bunch &bunch){};
     
     void
-    from_zacc_to_tbeam(Bunch &bunch){};
+    from_z_lab_to_t_bunch(Bunch &bunch){};
     
     void
-    from_tbeam_to_zacc(Bunch &bunch){};
+    from_t_bunch_to_z_lab(Bunch &bunch){};
     
 };
 

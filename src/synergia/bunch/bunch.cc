@@ -286,33 +286,34 @@ Bunch::set_converter(Fixed_t_z_converter &converter)
 void
 Bunch::convert_to_state(State state)
 {
-
-
     
     if (this->state != state) {
-        if (this->state==fixed_z_acc){
-            if (state==fixed_t_acc)  converter_ptr->from_zacc_to_tacc(*this);
-            else if ( state==fixed_t_beam) converter_ptr->from_zacc_to_tbeam(*this);
-           // else if ( state==fixed_z_beam) converter_ptr->from_zacc_to_zbeam(*this);
+        if (this->state==fixed_z_lab){
+            if (state==fixed_t_lab)  {
+                converter_ptr->from_z_lab_to_t_lab(*this);
+                }
+            else if ( state==fixed_t_bunch) converter_ptr->from_z_lab_to_t_bunch(*this);
+           // else if ( state==fixed_z_bunch) converter_ptr->from_z_lab_to_z_bunch(*this);
             else  throw std::runtime_error("Unknown state in Bunch::convert_to_state, 1");
         }
-        else if (this->state==fixed_z_beam){
-        throw std::runtime_error("state z_beam not implemented yet in Bunch::convert_to_state");
+        else if (this->state==fixed_z_bunch){
+        throw std::runtime_error("state z_bunch not implemented yet in Bunch::convert_to_state");
         }
-        else if (this->state==fixed_t_acc){
-           if (state==fixed_z_acc ) converter_ptr->from_tacc_to_zacc(*this);
-          // else if (state==fixed_z_beam)converter_ptr->from_tacc_to_zbeam(*this);
-          // else if (state==fixed_t_beam) converter_ptr->from_tacc_to_tbeam(*this);
+        else if (this->state==fixed_t_lab){
+           if (state==fixed_z_lab ) converter_ptr->from_t_lab_to_z_lab(*this);
+          // else if (state==fixed_z_bunch)converter_ptr->from_t_lab_to_z_bunch(*this);
+          // else if (state==fixed_t_bunch) converter_ptr->from_t_lab_to_t_bunch(*this);
            else  throw std::runtime_error("Unknown state in Bunch::convert_to_state, 2");           
         }
-        else if (this->state==fixed_t_beam){
-             if (state==fixed_z_acc ) converter_ptr->from_tbeam_to_zacc(*this);
-            // else if (state==fixed_z_beam ) converter_ptr->from_tbeam_to_zbeam(*this);
-            //else if (state==fixed_t_acc ) converter_ptr->from_tbeam_to_tacc(*this);
+        else if (this->state==fixed_t_bunch){
+             if (state==fixed_z_lab ) converter_ptr->from_t_bunch_to_z_lab(*this);
+            // else if (state==fixed_z_bunch ) converter_ptr->from_t_bunch_to_z_bunch(*this);
+            //else if (state==fixed_t_lab ) converter_ptr->from_t_bunch_to_t_lab(*this);
              else  throw std::runtime_error("Unknown state in Bunch::convert_to_state, 3");   
         }
     this->state =state;   
     }
+     
 }
 
 

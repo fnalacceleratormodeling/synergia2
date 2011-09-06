@@ -3,9 +3,9 @@
 import synergia_workflow
 
 opts = synergia_workflow.Options("circular")
-opts.add("num_macro_particles", 60192, "Number of macro particles", int)
+opts.add("num_macro_particles", 400192, "Number of macro particles", int)
 opts.add("seed", 0, "Pseudorandom number generator seed", int)
-opts.add("num_real_particles", 2e11, "Number of real particles", float)
+opts.add("num_real_particles", 2.e10, "Number of real particles", float)
 opts.add("verbose", True, "Verbose propagation", bool)
 opts.add("num_steps", 40, "Number of steps per turn", int)
 opts.add("num_turns", 10, "Number of turns", int)
@@ -20,4 +20,4 @@ opts.add("z_offset", 0.0, "Bunch offset in z", float)
 opts.add("impedance", 1, "", int)
 
 
-job_mgr = synergia_workflow.Job_manager("circular.py", opts, ["foborodobo_s.lat"])
+job_mgr = synergia_workflow.Job_manager("circular.py", opts, ["foborodobo_s.lat","BoosterF_wake.dat"], extra_opt_dirs=None)

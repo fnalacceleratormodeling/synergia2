@@ -50,8 +50,14 @@ Propagator::propagate(Bunch & bunch, int num_turns,
         Multi_diagnostics & per_turn_diagnostics, bool verbose)
 {
     double t;
+    double t_turn, t_turn1;
     int rank = Commxx().get_rank();
+    
+    std::ofstream logfile;
+     if (rank == 0) logfile.open("log");
+    
     for (int turn = 0; turn < num_turns; ++turn) {
+        t_turn=MPI_Wtime();
      //   if (verbose) {
             if (rank == 0) {
                 std::cout << "Propagator: turn " << turn + 1 << "/"
@@ -59,21 +65,22 @@ Propagator::propagate(Bunch & bunch, int num_turns,
             }
      //   }
         bunch.get_reference_particle().start_repetition();
-        t = simple_timer_current();
+        t = simple_timer_current();      
+        
         for (Multi_diagnostics::iterator dit = per_turn_diagnostics.begin(); dit
                 != per_turn_diagnostics.end(); ++dit) {
             (*dit)->update_and_write();
         }
         t = simple_timer_show(t, "diagnostics-turn");
         int step_count = 0;
-        int num_steps = stepper_sptr->get_steps().size();
-        for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
-                != stepper_sptr->get_steps().end(); ++it) {
-            t = simple_timer_current();
-            for (Multi_diagnostics::iterator dit = per_step_diagnostics.begin(); dit
-                    != per_step_diagnostics.end(); ++dit) {
-                (*dit)->update_and_write();
-            }
+        int num_steps = stepper_sptr->get_steps().size();  
+       for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
+               != stepper_sptr->get_steps().end(); ++it) {
+           t = simple_timer_current();
+           for (Multi_diagnostics::iterator dit = per_step_diagnostics.begin(); dit
+                   != per_step_diagnostics.end(); ++dit) {
+              (*dit)->update_and_write();
+           }
             t = simple_timer_show(t, "diagnostics-step");
 
             ++step_count;
@@ -83,8 +90,15 @@ Propagator::propagate(Bunch & bunch, int num_turns,
                             << num_steps <<" s= "<<bunch.get_reference_particle().get_s()<<" trajectory length="<<bunch.get_reference_particle().get_trajectory_length()<< std::endl;
                 }
             }       
-            //(*it)->apply(bunch); 
-             (*it)->apply(bunch, per_step_diagnostics);      
+            (*it)->apply(bunch); 
+            // (*it)->apply(bunch, per_step_diagnostics);  
+        }
+        
+       t_turn1= MPI_Wtime();
+       if (rank == 0) {
+        logfile<<" turn "<<turn + 1<<" : "<< t_turn1-t_turn<< " \n";
+        std::cout<<"  turn "<<turn + 1<<" : "<< t_turn1-t_turn<<std::endl;
+        logfile.flush();
         }
     }
     t = simple_timer_current();
@@ -95,9 +109,11 @@ Propagator::propagate(Bunch & bunch, int num_turns,
     t = simple_timer_show(t, "diagnostics-step");
     for (Multi_diagnostics::iterator it = per_turn_diagnostics.begin(); it
             != per_turn_diagnostics.end(); ++it) {
-        (*it)->update_and_write();
+       // (*it)->update_and_write();
     }
     t = simple_timer_show(t, "diagnostics-turn");
+     
+     if (rank == 0) logfile.close();    
 }
 
 Propagator::~Propagator()
