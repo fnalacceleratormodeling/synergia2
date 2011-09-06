@@ -50,16 +50,6 @@ Element_adaptor::get_chef_elements(Lattice_element const& lattice_element,
             "Element_adaptor: " + lattice_element.get_type() + " not handled"));
 }
 
-void
-Element_adaptor::modify_attribute(Lattice_element & lattice_element,
-        Chef_elements & chef_elements, std::string const& attribute_name,
-        double value)
-{
-    throw(runtime_error(
-            "Element_adaptor: " + lattice_element.get_type()
-                    + " has no modifiable attributes"));
-}
-
 Element_adaptor::~Element_adaptor()
 {
 }
