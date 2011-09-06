@@ -69,6 +69,7 @@ BOOST_PYTHON_MODULE(bunch)
 
     class_<Diagnostics_particles, Diagnostics_particles_sptr, bases<Diagnostics > >
             ("Diagnostics_particles",init<Bunch_sptr, std::string const& >())
+        .def(init<Bunch_sptr, std::string const&, int >())
         .def(init<Bunch_sptr, std::string const&, int, int >())
         ;
 
@@ -141,10 +142,10 @@ BOOST_PYTHON_MODULE(bunch)
     enum_<Bunch::State > ("State")
         .value("fixed_z", Bunch::fixed_z)
         .value("fixed_t", Bunch::fixed_t)
-        .value("fixed_z_acc", Bunch::fixed_z_acc)
-        .value("fixed_t_acc", Bunch::fixed_t_acc)
-        .value("fixed_z_beam", Bunch::fixed_z_beam)
-        .value("fixed_t_beam", Bunch::fixed_t_beam)
+        .value("fixed_z_lab", Bunch::fixed_z_lab)
+        .value("fixed_t_lab", Bunch::fixed_t_lab)
+        .value("fixed_z_bunch", Bunch::fixed_z_bunch)
+        .value("fixed_t_bunch", Bunch::fixed_t_bunch)
         .export_values();
 
     scope().attr("x") = Bunch::x;

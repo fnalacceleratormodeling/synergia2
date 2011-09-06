@@ -2,9 +2,8 @@
 
 void apply_longitudinal_periodicity (Bunch & bunch, double length)
 {
-
        Bunch::State state=bunch.get_state(); 
-       bunch.convert_to_state(Bunch::fixed_t_acc); 
+       bunch.convert_to_state(Bunch::fixed_t_lab); 
        double half_length=0.5*length;	
 
         MArray2d_ref particles(bunch.get_local_particles());

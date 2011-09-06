@@ -199,12 +199,16 @@ def generate_matched_bunch(lattice_simulator, arms,brms,crms,
         if elem.has_double_attribute("freq"):
             freq=elem.get_double_attribute("freq")
             z_period_length =beta*pconstants.c/freq
-            bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
-                  num_macro_particles, num_real_particles, comm, z_period_length);
             break
         else:
-            bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
-                  num_macro_particles, num_real_particles, comm);
+            z_period_length =None   
+    
+    if z_period_length == None:
+        bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
+                  num_macro_particles, num_real_particles, comm)
+    else:              
+        bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
+                  num_macro_particles, num_real_particles, comm, z_period_length)
     dist = Random_distribution(seed, comm)
     populate_6d(dist, bunch, numpy.zeros((6,), 'd'), correlation_matrix)
     return bunch

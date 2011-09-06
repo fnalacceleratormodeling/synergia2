@@ -50,7 +50,7 @@ for elem in lattice.get_elements():
     if elem.get_type() == "rfcavity":
         elem.set_double_attribute("volt", opts.rf_voltage)
         elem.set_double_attribute("freq", freq)
-        print" atributes=", elem.get_double_attributes()
+       # print" atributes=", elem.get_double_attributes()
         #elem.set_double_attribute("lag", 0.5)
 
 lattice_simulator = synergia.simulation.Lattice_simulator(lattice, opts.map_order)
@@ -117,7 +117,7 @@ print " bucket lenght=",bunch.get_z_period_length()
 no_op = synergia.simulation.Dummy_collective_operator("stub")
 bunchsp=bunch.get_z_period_length()
 zgrid=40
-imped= synergia.collective.Impedance("BoosterF_wake.dat",lattice_length, bunchsp,zgrid, "circular",8)
+imped= synergia.collective.Impedance("BoosterF_wake.dat",lattice_length, bunchsp,zgrid, "circular",60)
 #imped= synergia.simulation.Dummy_collective_operator("stub")
 impedance=opts.impedance
 if impedance:
@@ -150,7 +150,7 @@ print "generated std(dpop): ", np.std(particles[:,5])
 
 diagnostics_writer_step = synergia.bunch.Diagnostics_full2(bunch, "circular_full2.h5")
                                                           
-diagnostics_writer_turn = synergia.bunch.Diagnostics_particles(bunch,"circular_particles.h5")
+diagnostics_writer_turn = synergia.bunch.Diagnostics_particles(bunch,"circular_particles.h5",5,0)
                                                            
 propagator = synergia.simulation.Propagator(stepper)
 propagator.propagate(bunch, opts.num_turns, diagnostics_writer_step, diagnostics_writer_turn, opts.verbose)

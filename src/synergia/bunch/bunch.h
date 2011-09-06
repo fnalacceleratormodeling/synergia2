@@ -19,7 +19,7 @@ public:
     */
     enum State
     {
-        fixed_z = 1, fixed_t = 2, fixed_z_acc=1, fixed_t_beam=2, fixed_t_acc=3, fixed_z_beam=4
+        fixed_z = 1, fixed_t = 2, fixed_z_lab=1, fixed_t_bunch=2, fixed_t_lab=3, fixed_z_bunch=4
     };
     static const int x = 0;
     static const int xp = 1;
@@ -43,8 +43,8 @@ private:
     Commxx comm;
     Fixed_t_z_converter *converter_ptr;
    // Fixed_t_z_zeroth default_converter;
-   // Fixed_t_z_alex default_converter;
-    Fixed_t_z_synergia20 default_converter;
+    Fixed_t_z_alex default_converter;
+  //  Fixed_t_z_synergia20 default_converter;
     void
     assign_ids(int local_offset);
     void
