@@ -19,7 +19,4 @@ public:
     ~Propagate_actions();
 };
 
-Propagate_actions
-empty_propagate_actions();
-
 #endif /* PROPAGATE_ACTIONS_H_ */

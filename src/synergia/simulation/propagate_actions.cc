@@ -24,9 +24,3 @@ Propagate_actions::final_action(Stepper & stepper, Bunch & bunch)
 Propagate_actions::~Propagate_actions()
 {
 }
-
-Propagate_actions
-empty_propagate_actions()
-{
-    return Propagate_actions();
-}
