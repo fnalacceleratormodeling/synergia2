@@ -112,7 +112,6 @@ Independent_operator::need_update(Reference_particle const& reference_particle)
                 long int cached_revision = (*rev_it);
                 long int revision = (*it)->get_lattice_element().get_revision();
                 if (revision != cached_revision) {
-                    std::cout << "jfa: revision is not cached revision\n";
                     retval = true;
                 }
             }
@@ -149,7 +148,7 @@ Independent_operator::get_slices() const
 void
 Independent_operator::apply(Bunch & bunch, double time_step, Step & step)
 {
-    if (need_update(operations_reference_particle)) {
+    if (need_update(bunch.get_reference_particle())) {
         update_operations(bunch.get_reference_particle());
     }
     double t;
