@@ -35,11 +35,11 @@ Propagator::propagate(Bunch & bunch, int num_turns,
         bool verbose)
 {
     Multi_diagnostics multi_per_step_diagnostics;
-    multi_per_step_diagnostics.append(Diagnostics_sptr(&per_step_diagnostics,
-            Object_to_sptr_hack()));
+    multi_per_step_diagnostics.append(
+            Diagnostics_sptr(&per_step_diagnostics, Object_to_sptr_hack()));
     Multi_diagnostics multi_per_turn_diagnostics;
-    multi_per_turn_diagnostics.append(Diagnostics_sptr(&per_turn_diagnostics,
-            Object_to_sptr_hack()));
+    multi_per_turn_diagnostics.append(
+            Diagnostics_sptr(&per_turn_diagnostics, Object_to_sptr_hack()));
     propagate(bunch, num_turns, multi_per_step_diagnostics,
             multi_per_turn_diagnostics, verbose);
 }
@@ -90,7 +90,11 @@ Propagator::propagate(Bunch & bunch, int num_turns,
             if (verbose) {
                 if (rank == 0) {
                     std::cout << "Propagator:   step " << step_count << "/"
-                            << num_steps <<" s= "<<bunch.get_reference_particle().get_s()<<" trajectory length="<<bunch.get_reference_particle().get_trajectory_length()<< std::endl;
+                            << num_steps << " s= "
+                            << bunch.get_reference_particle().get_s()
+                            << " trajectory length="
+                            << bunch.get_reference_particle().get_trajectory_length()
+                            << std::endl;
                 }
             }       
             (*it)->apply(bunch); 
@@ -117,6 +121,65 @@ Propagator::propagate(Bunch & bunch, int num_turns,
     t = simple_timer_show(t, "diagnostics-turn");
      
      if (rank == 0) logfile.close();    
+}
+
+void
+Propagator::propagate(Bunch & bunch, int num_turns,
+        Propagate_actions & diagnostics_actions, int verbosity)
+{
+    Propagate_actions empty_propagate_actions;
+    propagate(bunch, num_turns, diagnostics_actions, empty_propagate_actions,
+            verbosity);
+}
+
+void
+Propagator::propagate(Bunch & bunch, int num_turns,
+        Propagate_actions & diagnostics_actions,
+        Propagate_actions & general_actions, int verbosity)
+{
+    double t;
+    int rank = Commxx().get_rank();
+    for (int turn = 0; turn < num_turns; ++turn) {
+        if (verbosity > 0) {
+            if (rank == 0) {
+                std::cout << "Propagator: turn " << turn + 1 << "/"
+                        << num_turns << std::endl;
+            }
+        }
+        bunch.get_reference_particle().start_repetition();
+        t = simple_timer_current();
+        diagnostics_actions.turn_start_action(*stepper_sptr, bunch, turn);
+        general_actions.turn_start_action(*stepper_sptr, bunch, turn);
+        t = simple_timer_show(t, "diagnostics-turn");
+        int step_count = 0;
+        int num_steps = stepper_sptr->get_steps().size();
+        for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
+                != stepper_sptr->get_steps().end(); ++it) {
+            t = simple_timer_current();
+            diagnostics_actions.step_start_action(*stepper_sptr, *(*it), bunch,
+                    turn, step_count);
+            general_actions.step_start_action(*stepper_sptr, *(*it), bunch,
+                    turn, step_count);
+            t = simple_timer_show(t, "diagnostics-step");
+
+            ++step_count;
+            if (verbosity > 2) {
+                if (rank == 0) {
+                    std::cout << "Propagator:   step " << step_count << "/"
+                            << num_steps << " s= "
+                            << bunch.get_reference_particle().get_s()
+                            << " trajectory length="
+                            << bunch.get_reference_particle().get_trajectory_length()
+                            << std::endl;
+                }
+            }
+            (*it)->apply(bunch);
+        }
+    }
+    t = simple_timer_current();
+    diagnostics_actions.final_action(*stepper_sptr, bunch);
+    general_actions.final_action(*stepper_sptr, bunch);
+    t = simple_timer_show(t, "diagnostics-final");
 }
 
 Propagator::~Propagator()

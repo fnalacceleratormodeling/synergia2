@@ -2,6 +2,7 @@
 #define PROPAGATOR_H_
 
 #include "synergia/simulation/stepper.h"
+#include "synergia/simulation/propagate_actions.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/multi_diagnostics.h"
 
@@ -15,14 +16,19 @@ private:
 public:
     Propagator(Stepper_sptr stepper_sptr);
     void
-    propagate(Bunch & bunch, int num_turns,
-            Diagnostics & per_step_diagnostics,
+    propagate(Bunch & bunch, int num_turns, Diagnostics & per_step_diagnostics,
             Diagnostics & per_turn_diagnostics, bool verbose = false);
     void
     propagate(Bunch & bunch, int num_turns,
             Multi_diagnostics & per_step_diagnostics,
-            Multi_diagnostics & per_turn_diagnostics, bool verbose =
-                    false);
+            Multi_diagnostics & per_turn_diagnostics, bool verbose = false);
+    void
+    propagate(Bunch & bunch, int num_turns,
+            Propagate_actions & diagnostics_actions, int verbosity = 0);
+    void
+    propagate(Bunch & bunch, int num_turns,
+            Propagate_actions & diagnostics_actions,
+            Propagate_actions & general_actions, int verbosity = 0);
     ~Propagator();
 };
 
