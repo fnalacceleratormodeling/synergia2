@@ -143,7 +143,6 @@ BOOST_FIXTURE_TEST_CASE(apply_accelerated, Bunch_fixture)
 
 BOOST_FIXTURE_TEST_CASE(apply_modified_lattice, Bunch_fixture)
 {
-    std::cout << "jfa: start apply_modified_lattice\n";
     Lattice_fixture l;
     Lattice_simulator lattice_simulator(l.lattice_sptr, map_order);
     Independent_operator independent_operator("test",
@@ -173,35 +172,10 @@ BOOST_FIXTURE_TEST_CASE(apply_modified_lattice, Bunch_fixture)
 
     Bunch orig_bunch(bunch);
 
-    std::cout << "jfa: bunch " << bunch.get_local_particles()[0][0] << " "
-            << bunch.get_local_particles()[0][1] << " "
-            << bunch.get_local_particles()[0][2] << " "
-            << bunch.get_local_particles()[0][3] << " "
-            << bunch.get_local_particles()[0][4] << " "
-            << bunch.get_local_particles()[0][5] << " " << std::endl;
-    std::cout << "jfa: orig_bunch " << orig_bunch.get_local_particles()[0][0]
-            << " " << orig_bunch.get_local_particles()[0][1] << " "
-            << orig_bunch.get_local_particles()[0][2] << " "
-            << orig_bunch.get_local_particles()[0][3] << " "
-            << orig_bunch.get_local_particles()[0][4] << " "
-            << orig_bunch.get_local_particles()[0][5] << " " << std::endl;
     independent_operator.apply(orig_bunch, step_length, stub_step);
     independent_operator.apply(bunch, step_length, stub_step);
     multi_array_check_equal(bunch.get_local_particles(),
             orig_bunch.get_local_particles(), tolerance);
-
-    std::cout << "jfa: a bunch " << bunch.get_local_particles()[0][0] << " "
-            << bunch.get_local_particles()[0][1] << " "
-            << bunch.get_local_particles()[0][2] << " "
-            << bunch.get_local_particles()[0][3] << " "
-            << bunch.get_local_particles()[0][4] << " "
-            << bunch.get_local_particles()[0][5] << " " << std::endl;
-    std::cout << "jfa: a orig_bunch " << orig_bunch.get_local_particles()[0][0]
-            << " " << orig_bunch.get_local_particles()[0][1] << " "
-            << orig_bunch.get_local_particles()[0][2] << " "
-            << orig_bunch.get_local_particles()[0][3] << " "
-            << orig_bunch.get_local_particles()[0][4] << " "
-            << orig_bunch.get_local_particles()[0][5] << " " << std::endl;
 
     independent_operator.apply(orig_bunch, step_length, stub_step);
 
@@ -209,20 +183,6 @@ BOOST_FIXTURE_TEST_CASE(apply_modified_lattice, Bunch_fixture)
     element_sptr->set_double_attribute("k1", 10*old_k1);
     lattice_simulator.update();
     independent_operator.apply(bunch, step_length, stub_step);
-
-    std::cout << "jfa: a2 bunch " << bunch.get_local_particles()[0][0] << " "
-            << bunch.get_local_particles()[0][1] << " "
-            << bunch.get_local_particles()[0][2] << " "
-            << bunch.get_local_particles()[0][3] << " "
-            << bunch.get_local_particles()[0][4] << " "
-            << bunch.get_local_particles()[0][5] << " " << std::endl;
-    std::cout << "jfa: a2 orig_bunch " << orig_bunch.get_local_particles()[0][0]
-            << " " << orig_bunch.get_local_particles()[0][1] << " "
-            << orig_bunch.get_local_particles()[0][2] << " "
-            << orig_bunch.get_local_particles()[0][3] << " "
-            << orig_bunch.get_local_particles()[0][4] << " "
-            << orig_bunch.get_local_particles()[0][5] << " " << std::endl;
-
 
     bool equal = true;
     MArray2d_ref p(bunch.get_local_particles());
