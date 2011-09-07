@@ -1,5 +1,5 @@
 add_library(synergia_simulation operator.cc step.cc stepper.cc
-    propagate_actions.cc propagator.cc
+    propagate_actions.cc standard_diagnostics_actions.cc propagator.cc
     fast_mapping.cc chef_propagator.cc independent_operation.cc
     lattice_simulator.cc operation_extractor.cc aperture.cc)
 target_link_libraries(synergia_simulation synergia_foundation synergia_bunch
