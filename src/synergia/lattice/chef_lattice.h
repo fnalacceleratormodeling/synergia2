@@ -51,10 +51,6 @@ public:
     get_beamline_sptr();
     BmlPtr
     get_sliced_beamline_sptr();
-    void
-    print_beamline() const;
-    void
-    print_sliced_beamline() const;
     ~Chef_lattice();
 };
 

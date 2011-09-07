@@ -295,33 +295,6 @@ Chef_lattice::get_sliced_beamline_sptr()
     return sliced_beamline_sptr;
 }
 
-void
-print_chef_beamline(BmlPtr const& chef_beamline,
-        Reference_particle const& reference_particle)
-{
-    Particle testpart(reference_particle_to_chef_particle(reference_particle));
-    for (beamline::deep_iterator it = chef_beamline->deep_begin(); it
-            != chef_beamline->deep_end(); ++it) {
-        std::cout << (*it)->Name() << ": " << (*it)->Type() << ", length = "
-                << (*it)->OrbitLength(testpart) << ", strength = "
-                << (*it)->Strength() << std::endl;
-        (*it)->propagate(testpart);
-    }
-}
-
-void
-Chef_lattice::print_beamline() const
-{
-    print_chef_beamline(beamline_sptr, lattice_sptr->get_reference_particle());
-}
-
-void
-Chef_lattice::print_sliced_beamline() const
-{
-    print_chef_beamline(sliced_beamline_sptr,
-            lattice_sptr->get_reference_particle());
-}
-
 Chef_lattice::~Chef_lattice()
 {
 
