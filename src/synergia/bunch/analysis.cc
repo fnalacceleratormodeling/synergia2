@@ -1,5 +1,6 @@
 #include "analysis.h"
 #include <cmath>
+#include <iostream>
 #include <stdexcept>
 #include <iomanip>
 #include <fftw3.h>
