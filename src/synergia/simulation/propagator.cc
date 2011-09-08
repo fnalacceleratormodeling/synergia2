@@ -157,7 +157,7 @@ Propagator::propagate(Bunch & bunch, int num_turns,
         for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
                 != stepper_sptr->get_steps().end(); ++it) {
             ++step_count;
-            if (verbosity > 2) {
+            if (verbosity > 1) {
                 if (rank == 0) {
                     std::cout << "Propagator:   step " << step_count << "/"
                             << num_steps << " s= "
