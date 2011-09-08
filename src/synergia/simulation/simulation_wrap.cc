@@ -9,6 +9,56 @@
 
 using namespace boost::python;
 
+struct Propagate_actions_callback : Propagate_actions
+{
+    Propagate_actions_callback(PyObject *p) :
+        Propagate_actions(), self(p)
+    {
+    }
+    Propagate_actions_callback(PyObject *p, const Propagate_actions& x) :
+        Propagate_actions(x), self(p)
+    {
+    }
+    void
+    first_action(Stepper & stepper, Bunch & bunch)
+    {
+        call_method<void > (self, "first_action", stepper, bunch);
+    }
+    static void
+    default_first_action(Propagate_actions& self_, Stepper & stepper,
+            Bunch & bunch)
+    {
+        self_.Propagate_actions::first_action(stepper, bunch);
+    }
+    void
+    turn_end_action(Stepper & stepper, Bunch & bunch, int turn_num)
+    {
+        call_method<void > (self, "turn_end_action", stepper, bunch, turn_num);
+    }
+    static void
+    default_turn_end_action(Propagate_actions& self_, Stepper & stepper,
+            Bunch & bunch, int turn_num)
+    {
+        self_.Propagate_actions::turn_end_action(stepper, bunch, turn_num);
+    }
+    void
+    step_end_action(Stepper & stepper, Step & step, Bunch & bunch,
+            int turn_num, int step_num)
+    {
+        call_method<void > (self, "step_end_action", stepper, step, bunch,
+                turn_num, step_num);
+    }
+    static void
+    default_step_end_action(Propagate_actions& self_, Stepper & stepper,
+            Step & step, Bunch & bunch, int turn_num, int step_num)
+    {
+        self_.Propagate_actions::step_end_action(stepper, step, bunch,
+                turn_num, step_num);
+    }
+private:
+    PyObject* self;
+};
+
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads34,
         Propagator::propagate, 3, 4);
 
@@ -100,10 +150,14 @@ BOOST_PYTHON_MODULE(simulation)
     class_<Independent_stepper_elements, bases<Stepper > >("Independent_stepper_elements",
             init<Lattice_simulator const&, int >());
 
-    class_<Propagate_actions >("Propagate_actions", init< >())
-            .def("first_action", &Propagate_actions::first_action)
-            .def("turn_end_action", &Propagate_actions::turn_end_action)
-            .def("step_end_action", &Propagate_actions::step_end_action)
+    class_<Propagate_actions, Propagate_actions_callback >("Propagate_actions",
+            init< >())
+            .def("first_action",
+                    &Propagate_actions_callback::default_first_action)
+            .def("turn_end_action",
+                    &Propagate_actions_callback::default_turn_end_action)
+            .def("step_end_action",
+                    &Propagate_actions_callback::default_step_end_action)
             ;
 
     class_<Standard_diagnostics_actions, bases<Propagate_actions > >(
