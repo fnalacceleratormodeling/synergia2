@@ -2,6 +2,8 @@
 #include "lattice_simulator.h"
 #include "stepper.h"
 #include "propagator.h"
+#include "propagate_actions.h"
+#include "standard_diagnostics_actions.h"
 #include <boost/python.hpp>
 #include "synergia/utils/container_conversions.h"
 
@@ -97,6 +99,22 @@ BOOST_PYTHON_MODULE(simulation)
 
     class_<Independent_stepper_elements, bases<Stepper > >("Independent_stepper_elements",
             init<Lattice_simulator const&, int >());
+
+    class_<Propagate_actions >("Propagate_actions", init< >())
+            .def("first_action", &Propagate_actions::first_action)
+            .def("turn_end_action", &Propagate_actions::turn_end_action)
+            .def("step_end_action", &Propagate_actions::step_end_action)
+            ;
+
+    class_<Standard_diagnostics_actions, bases<Propagate_actions > >(
+            "Standard_diagnostics_actions", init< >())
+            .def("add_per_turn", &Standard_diagnostics_actions::add_per_turn)
+            .def("add_per_step", &Standard_diagnostics_actions::add_per_step)
+            .def("update_and_write_all", &Standard_diagnostics_actions::update_and_write_all)
+            .def("first_action", &Standard_diagnostics_actions::first_action)
+            .def("turn_end_action", &Standard_diagnostics_actions::turn_end_action)
+            .def("step_end_action", &Standard_diagnostics_actions::step_end_action)
+            ;
 
     void (Propagator::*propagate1)(Bunch &, int, Propagate_actions &,
             int) = &Propagator::propagate;
