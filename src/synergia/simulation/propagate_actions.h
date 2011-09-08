@@ -9,12 +9,12 @@ class Propagate_actions
 public:
     Propagate_actions();
     virtual void
-    turn_start_action(Stepper & stepper, Bunch & bunch, int turn_num);
+    first_action(Stepper & stepper, Bunch & bunch);
     virtual void
-    step_start_action(Stepper & stepper, Step & step, Bunch & bunch,
+    turn_end_action(Stepper & stepper, Bunch & bunch, int turn_num);
+    virtual void
+    step_end_action(Stepper & stepper, Step & step, Bunch & bunch,
             int turn_num, int step_num);
-    virtual void
-    final_action(Stepper & stepper, Bunch & bunch);
     virtual
     ~Propagate_actions();
 };

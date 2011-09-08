@@ -5,16 +5,6 @@ Standard_diagnostics_actions::Standard_diagnostics_actions()
 }
 
 void
-Standard_diagnostics_actions::update_and_write_all(
-        std::list<Diagnostics_sptr > & diag_list)
-{
-    for (std::list<Diagnostics_sptr >::iterator it = diag_list.begin(); it
-            != diag_list.end(); ++it) {
-        (*it)->update_and_write();
-    }
-}
-
-void
 Standard_diagnostics_actions::add_per_turn(Diagnostics_sptr diagnostics_sptr)
 {
     per_turns.push_back(diagnostics_sptr);
@@ -27,23 +17,33 @@ Standard_diagnostics_actions::add_per_step(Diagnostics_sptr diagnostics_sptr)
 }
 
 void
-Standard_diagnostics_actions::turn_start_action(Stepper & stepper,
+Standard_diagnostics_actions::update_and_write_all(
+        std::list<Diagnostics_sptr > & diag_list)
+{
+    for (std::list<Diagnostics_sptr >::iterator it = diag_list.begin(); it
+            != diag_list.end(); ++it) {
+        (*it)->update_and_write();
+    }
+}
+
+void
+Standard_diagnostics_actions::first_action(Stepper & stepper, Bunch & bunch)
+{
+    update_and_write_all(per_turns);
+    update_and_write_all(per_steps);
+}
+
+void
+Standard_diagnostics_actions::turn_end_action(Stepper & stepper,
         Bunch & bunch, int turn_num)
 {
     update_and_write_all(per_turns);
 }
 
 void
-Standard_diagnostics_actions::step_start_action(Stepper & stepper, Step & step,
+Standard_diagnostics_actions::step_end_action(Stepper & stepper, Step & step,
         Bunch & bunch, int turn_num, int step_num)
 {
-    update_and_write_all(per_steps);
-}
-
-void
-Standard_diagnostics_actions::final_action(Stepper & stepper, Bunch & bunch)
-{
-    update_and_write_all(per_turns);
     update_and_write_all(per_steps);
 }
 

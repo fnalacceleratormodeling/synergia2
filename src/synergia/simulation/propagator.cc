@@ -139,6 +139,11 @@ Propagator::propagate(Bunch & bunch, int num_turns,
 {
     double t;
     int rank = Commxx().get_rank();
+    t = simple_timer_current();
+    diagnostics_actions.first_action(*stepper_sptr, bunch);
+    t = simple_timer_show(t, "diagnostics-first");
+    general_actions.first_action(*stepper_sptr, bunch);
+    t = simple_timer_show(t, "propagate-general_actions");
     for (int turn = 0; turn < num_turns; ++turn) {
         if (verbosity > 0) {
             if (rank == 0) {
@@ -147,21 +152,10 @@ Propagator::propagate(Bunch & bunch, int num_turns,
             }
         }
         bunch.get_reference_particle().start_repetition();
-        t = simple_timer_current();
-        diagnostics_actions.turn_start_action(*stepper_sptr, bunch, turn);
-        general_actions.turn_start_action(*stepper_sptr, bunch, turn);
-        t = simple_timer_show(t, "diagnostics-turn");
         int step_count = 0;
         int num_steps = stepper_sptr->get_steps().size();
         for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
                 != stepper_sptr->get_steps().end(); ++it) {
-            t = simple_timer_current();
-            diagnostics_actions.step_start_action(*stepper_sptr, *(*it), bunch,
-                    turn, step_count);
-            general_actions.step_start_action(*stepper_sptr, *(*it), bunch,
-                    turn, step_count);
-            t = simple_timer_show(t, "diagnostics-step");
-
             ++step_count;
             if (verbosity > 2) {
                 if (rank == 0) {
@@ -174,12 +168,20 @@ Propagator::propagate(Bunch & bunch, int num_turns,
                 }
             }
             (*it)->apply(bunch);
+            t = simple_timer_current();
+            diagnostics_actions.step_end_action(*stepper_sptr, *(*it), bunch,
+                    turn, step_count);
+            t = simple_timer_show(t, "diagnostics-step");
+            general_actions.step_end_action(*stepper_sptr, *(*it), bunch,
+                    turn, step_count);
+            t = simple_timer_show(t, "propagate-general_actions");
         }
+        t = simple_timer_current();
+        diagnostics_actions.turn_end_action(*stepper_sptr, bunch, turn);
+        t = simple_timer_show(t, "diagnostics-turn");
+        general_actions.turn_end_action(*stepper_sptr, bunch, turn);
+        t = simple_timer_show(t, "propagate-general_actions");
     }
-    t = simple_timer_current();
-    diagnostics_actions.final_action(*stepper_sptr, bunch);
-    general_actions.final_action(*stepper_sptr, bunch);
-    t = simple_timer_show(t, "diagnostics-final");
 }
 
 Propagator::~Propagator()
