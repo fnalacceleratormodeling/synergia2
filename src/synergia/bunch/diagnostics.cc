@@ -509,22 +509,13 @@ Diagnostics_full2::~Diagnostics_full2()
 }
 
 Diagnostics_particles::Diagnostics_particles(Bunch_sptr bunch_sptr,
-        std::string const& filename,  int max_particles) :
-    bunch_sptr(bunch_sptr), filename(filename), max_particles(max_particles),
-            have_writers(false), write_helper(filename, false,
-                    bunch_sptr->get_comm())
-{
-}
-
-Diagnostics_particles::Diagnostics_particles(Bunch_sptr bunch_sptr,
-        std::string const& filename, int write_skip, int max_particles) :
-    bunch_sptr(bunch_sptr), filename(filename), max_particles(max_particles),
+        std::string const& filename, int min_particle_id, int max_particle_id, int write_skip) :
+    bunch_sptr(bunch_sptr), filename(filename), min_particle_id(min_particle_id), 
+    max_particle_id(max_particle_id),
             have_writers(false), write_helper(filename, false, write_skip,
                     bunch_sptr->get_comm())
 {
 }
-
-
 
 
 bool
