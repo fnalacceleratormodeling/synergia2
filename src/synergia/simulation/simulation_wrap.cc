@@ -7,7 +7,10 @@
 
 using namespace boost::python;
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads,
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads34,
+        Propagator::propagate, 3, 4);
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads45,
         Propagator::propagate, 4, 5);
 
 BOOST_PYTHON_MODULE(simulation)
@@ -75,7 +78,9 @@ BOOST_PYTHON_MODULE(simulation)
     to_python_converter<Steps,
              container_conversions::to_tuple<Steps > >();
 
-    class_<Stepper >("Stepper",no_init)
+    class_<Stepper >("Stepper",init<Lattice_simulator const& >())
+        .def("get_lattice_simulator", &Stepper::get_lattice_simulator,
+                return_internal_reference< >())
         .def("get_steps", &Stepper::get_steps,
                 return_value_policy<copy_non_const_reference >())
         .def("print_", &Stepper::print)
@@ -93,15 +98,23 @@ BOOST_PYTHON_MODULE(simulation)
     class_<Independent_stepper_elements, bases<Stepper > >("Independent_stepper_elements",
             init<Lattice_simulator const&, int >());
 
-    void (Propagator::*propagate1)(Bunch &, int, Diagnostics &,
+    void (Propagator::*propagate1)(Bunch &, int, Propagate_actions &,
+            int) = &Propagator::propagate;
+    void (Propagator::*propagate2)(Bunch &, int, Propagate_actions &,
+            Propagate_actions &, int) = &Propagator::propagate;
+    void (Propagator::*propagate3)(Bunch &, int, Diagnostics &,
             Diagnostics &, bool) = &Propagator::propagate;
-    void (Propagator::*propagate2)(Bunch &, int, Multi_diagnostics &,
+    void (Propagator::*propagate4)(Bunch &, int, Multi_diagnostics &,
             Multi_diagnostics &, bool) = &Propagator::propagate;
 
     class_<Propagator >("Propagator",init<Stepper_sptr >())
             .def("propagate", propagate1,
-                    propagate_member_overloads())
+                    propagate_member_overloads34())
             .def("propagate", propagate2,
-                    propagate_member_overloads())
+                    propagate_member_overloads45())
+            .def("propagate", propagate3,
+                    propagate_member_overloads45())
+            .def("propagate", propagate4,
+                    propagate_member_overloads45())
             ;
 }
