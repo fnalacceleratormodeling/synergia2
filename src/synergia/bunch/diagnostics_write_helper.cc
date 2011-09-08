@@ -22,11 +22,15 @@ Diagnostics_write_helper::open_file()
     }
 }
 
-Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
-        bool serial, int write_skip, Commxx const& commxx, int writer_rank) :
-    filename(filename), serial(serial), commxx(commxx), count(0),
-            have_file(false), iwrite_skip(write_skip)
+void
+Diagnostics_write_helper::construct(std::string const& filename,
+        bool serial, int write_skip, Commxx const& commxx, int writer_rank)
 {
+    this->filename = filename;
+    this->commxx = commxx;
+    this->count = 0;
+    this->have_file = false;
+    this->iwrite_skip = write_skip;
     if (writer_rank == default_rank) {
         this->writer_rank = commxx.get_size() - 1;
     } else {
@@ -43,25 +47,22 @@ Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
     if (serial) {
         open_file();
     }
-    
-}         
+}
 
 
 Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
-         bool serial, int write_skip, Commxx const& commxx)
+         bool serial, int write_skip, Commxx const& commxx, int writer_rank)
 {
-   construct(filename, serial, write_skip, commxx);   
+   construct(filename, serial, write_skip, commxx, writer_rank);
 }   
 
 
 Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
-        bool serial, Commxx const& commxx)
+        bool serial, Commxx const& commxx, int writer_rank)
 {   
    int write_skip=1;
-   construct (filename, serial, write_skip, commxx);   
-}               
-
-      
+   construct (filename, serial, write_skip, commxx, writer_rank);
+}
 
 int
 Diagnostics_write_helper::get_count() const

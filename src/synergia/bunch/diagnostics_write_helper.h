@@ -26,12 +26,15 @@ private:
     std::string filename_base, filename_suffix;
     void
     open_file();
-    void 
+    void
     construct(std::string const& filename,
-         bool serial, int write_skip, Commxx const& commxx);
+        bool serial, int write_skip, Commxx const& commxx, int writer_rank);
 public:
     /// Construct Diagnostics_write_helper
     Diagnostics_write_helper(std::string const& filename, bool serial, int write_skip, Commxx const& commxx,
+            int writer_rank = default_rank);
+
+    Diagnostics_write_helper(std::string const& filename, bool serial, Commxx const& commxx,
             int writer_rank = default_rank);
 
     /// Get the count for non-serial writers
