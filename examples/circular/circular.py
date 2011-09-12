@@ -150,7 +150,7 @@ print "generated std(dpop): ", np.std(particles[:,5])
 
 diagnostics_writer_step = synergia.bunch.Diagnostics_full2(bunch, "circular_full2.h5")
                                                           
-diagnostics_writer_turn = synergia.bunch.Diagnostics_particles(bunch,"circular_particles.h5",5,0)
+diagnostics_writer_turn = synergia.bunch.Diagnostics_particles(bunch,"circular_particles.h5",0,0,3)
                                                            
 propagator = synergia.simulation.Propagator(stepper)
 propagator.propagate(bunch, opts.num_turns, diagnostics_writer_step, diagnostics_writer_turn, opts.verbose)
