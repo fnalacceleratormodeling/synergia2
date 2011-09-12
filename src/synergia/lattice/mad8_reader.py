@@ -64,7 +64,10 @@ class Lattice_cache:
         if self.is_readable():
             retval = Lattice()
             index = self.cache[self.line_name].index
-            xml_load_lattice(retval, self._xml_file_name(index))
+            try:
+                xml_load_lattice(retval, self._xml_file_name(index))
+            except RuntimeError, e:
+                retval = None
         return retval
 
     def write(self, lattice):
@@ -275,9 +278,10 @@ class Mad8_reader:
     def get_lattice(self, line_name, filename=None, enable_cache_write=True,
                     enable_cache_read=True):
         lattice_cache = Lattice_cache(filename, line_name)
+        lattice = None
         if enable_cache_read and lattice_cache.is_readable():
             lattice = lattice_cache.read()
-        else:
+        if not lattice:
             self._parser_check(filename, "get_lattice")
             lattice = Lattice(line_name)
             self._extract_elements(self.parser.lines[line_name], [line_name], lattice)
