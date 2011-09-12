@@ -16,7 +16,7 @@ Fixed_t_z_zeroth::fixed_t_to_fixed_z(Bunch &bunch)
     MArray2d_ref particles = bunch.get_local_particles();
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         // ct in accelerator frame
-        particles[part][Bunch::cdt] = particles[part][Bunch::z]
+        particles[part][Bunch::cdt] = -particles[part][Bunch::z]
                 / (gamma * beta);
 
         // p'_{x,y,z} in beam frame
@@ -26,7 +26,7 @@ Fixed_t_z_zeroth::fixed_t_to_fixed_z(Bunch &bunch)
         double p_perp2 = pxp * pxp + pyp * pyp;
         // E'/c in beam frame
         double Epoc = std::sqrt(p_perp2 + pzp * pzp + m * m);
-        double pz = gamma * (pzp - beta * Epoc);
+        double pz = gamma * (pzp + beta * Epoc);
         // dpop = (p - p_ref)/p_ref
         double p = std::sqrt(p_perp2 + pz * pz);
         particles[part][Bunch::dpop] = (p - p_ref) / p_ref;
