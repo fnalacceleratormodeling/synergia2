@@ -71,15 +71,18 @@ Propagator::propagate(Bunch & bunch, int num_turns,
                 != per_turn_diagnostics.end(); ++dit) {
             (*dit)->update_and_write();
         }
+
+
+ 
         t = simple_timer_show(t, "diagnostics-turn");
         int step_count = 0;
-        int num_steps = stepper_sptr->get_steps().size();  
+        int num_steps = stepper_sptr->get_steps().size();             
        for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
                != stepper_sptr->get_steps().end(); ++it) {
            t = simple_timer_current();
            for (Multi_diagnostics::iterator dit = per_step_diagnostics.begin(); dit
                    != per_step_diagnostics.end(); ++dit) {
-              (*dit)->update_and_write();
+              (*dit)->update_and_write();               
            }
             t = simple_timer_show(t, "diagnostics-step");
 
@@ -109,7 +112,7 @@ Propagator::propagate(Bunch & bunch, int num_turns,
     t = simple_timer_show(t, "diagnostics-step");
     for (Multi_diagnostics::iterator it = per_turn_diagnostics.begin(); it
             != per_turn_diagnostics.end(); ++it) {
-       // (*it)->update_and_write();
+           (*it)->update_and_write();
     }
     t = simple_timer_show(t, "diagnostics-turn");
      

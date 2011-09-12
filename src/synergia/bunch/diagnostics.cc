@@ -540,7 +540,7 @@ write_selected_particles(Hdf5_chunked_array2d_writer & writer,
                 particles[boost::indices[range(0, local_num)][range()]]);
     } else {
         for (int part = 0; part < local_num; ++part) {
-            int particle_id = particles[part][Bunch::id];
+            int particle_id = int(particles[part][Bunch::id]);
             if ((particle_id >= min_particle_id) && (particle_id
                     <= max_particle_id)) {
                 writer.write_chunk(
@@ -617,7 +617,6 @@ Diagnostics_particles::write()
 
 //    std::cout<<" icount ="<<icount<<"  count="<< write_helper.get_count() <<" on rank ="<< bunch_sptr->get_comm().get_rank()<<std::endl;
      
-     
     if (icount % write_helper.get_iwrite_skip() !=0 ) 
     {   
          if (write_helper.write_locally()) write_helper.increment_count();
@@ -639,11 +638,9 @@ Diagnostics_particles::write()
         throw std::runtime_error(
                 "Diagnostics_particles::write: MPI_Gather failed.");
     }
-
     if (write_helper.write_locally()) {
         H5::H5File file = write_helper.get_file();
         receive_other_local_particles(local_nums, file);
-
         Hdf5_writer<double > writer_pz(file, "pz");
         double pz = bunch_sptr->get_reference_particle().get_momentum();
         writer_pz.write(pz);
