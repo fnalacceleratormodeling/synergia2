@@ -41,7 +41,7 @@ struct Ellipsoidal_bunch_fixture
         covariances[0][0] = stdx * stdx;
         covariances[2][2] = stdy * stdy;
         covariances[4][4] = stdz * stdz;
-        covariances[1][1] = covariances[3][3] = covariances[5][5] = 1.0;
+        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;
         populate_6d(distribution, bunch, means, covariances);
         grid_shape[0] = 16;
         grid_shape[1] = 24;

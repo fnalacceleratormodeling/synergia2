@@ -48,6 +48,14 @@ BOOST_FIXTURE_TEST_CASE(populate_6d_diagonal, Fixture)
         means[i] = i * 0.1;
         covariances[i][i] = (i + 1) * (i + 1);
     }
+
+   covariances[1][1] *=0.00001;
+   covariances[3][3] *=0.00001;
+   covariances[5][5]*=0.00001;
+ 
+   
+    
+    
     populate_6d(distribution, bunch, means, covariances);
     MArray1d bunch_mean(Diagnostics::calculate_mean(bunch));
     MArray2d bunch_mom2(Diagnostics::calculate_mom2(bunch, bunch_mean));
@@ -66,6 +74,17 @@ BOOST_FIXTURE_TEST_CASE(populate_6d_general, Fixture)
         }
         covariances[i][i] *= 10.0; // this makes for a positive-definite matrix
     }
+    for (int i = 0; i < 6; ++i) {
+         covariances[1][i] *=0.001;
+         covariances[i][1] *=0.001;
+         covariances[3][i] *=0.001;
+         covariances[i][3] *=0.001;
+         covariances[5][i] *=0.001;
+         covariances[i][5] *=0.001;
+    }
+    
+    
+    
     populate_6d(distribution, bunch, means, covariances);
     MArray1d bunch_mean(Diagnostics::calculate_mean(bunch));
     MArray2d bunch_mom2(Diagnostics::calculate_mom2(bunch, bunch_mean));
