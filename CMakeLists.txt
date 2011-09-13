@@ -146,3 +146,4 @@ add_subdirectory(examples)
 add_subdirectory(docs)
 add_subdirectory(synergia-script-templates)
 
+# dummy comment -- please delete me
