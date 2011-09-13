@@ -8,7 +8,7 @@
 Distributed_fft2d::Distributed_fft2d(std::vector<int > const & shape,
         Commxx const& comm, int planner_flags,
         std::string const& wisdom_filename) :
-    shape(shape), comm(comm), uppers(0), lengths(0)
+    shape(shape), comm(comm), uppers(0), lengths(0), lengths_1d(0)
 {
     if (comm.get_size() / 2 >= shape[0] / 2) {
         throw std::runtime_error(
