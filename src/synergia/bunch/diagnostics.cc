@@ -5,6 +5,7 @@
 #include "synergia/utils/eigen2/Eigen/Core"
 #include "synergia/utils/eigen2/Eigen/LU"
 #include <stdexcept>
+#include "synergia/utils/simple_timer.h"
 
 // import most common Eigen types
 USING_PART_OF_NAMESPACE_EIGEN
@@ -20,8 +21,12 @@ Diagnostics::calculate_mean(Bunch const& bunch)
             sum[i] += particles[part][i];
         }
     }
+    double t;
+    t = simple_timer_current();
     MPI_Allreduce(sum, mean.origin(), 6, MPI_DOUBLE, MPI_SUM,
             bunch.get_comm().get());
+    t = simple_timer_show(t, "allmpireduce_in_diagnostic mean");  
+          
     for (int i = 0; i < 6; ++i) {
         mean[i] /= bunch.get_total_num();
     }

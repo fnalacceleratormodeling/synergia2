@@ -29,7 +29,7 @@ struct Ellipsoidal_bunch_fixture
         covariances[0][0] = stdx * stdx;
         covariances[2][2] = stdy * stdy;
         covariances[4][4] = stdz * stdz;
-        covariances[1][1] = covariances[3][3] = covariances[5][5] = 1.0;
+        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;;
         populate_6d(distribution, bunch, means, covariances);
         grid_shape[0] = 16;
         grid_shape[1] = 24;
@@ -71,7 +71,7 @@ struct Spherical_bunch_fixture
         covariances[0][0] = sigma * sigma;
         covariances[2][2] = sigma * sigma;
         covariances[4][4] = sigma * sigma;
-        covariances[1][1] = covariances[3][3] = covariances[5][5] = 1.0;
+        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;;
         populate_6d(distribution, bunch, means, covariances);
         grid_shape[0] = 16;
         grid_shape[1] = 24;
@@ -114,7 +114,7 @@ struct Spherical_bunch_fixture_2d
         covariances[0][0] = sigma * sigma;
         covariances[2][2] = sigma * sigma;
         covariances[4][4] = sigmaz * sigmaz;
-        covariances[1][1] = covariances[3][3] = covariances[5][5] = 1.0;
+        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;;
         populate_6d(distribution, bunch, means, covariances);
         grid_shape[0] = 16;
         grid_shape[1] = 24;
@@ -156,7 +156,7 @@ struct Cylindrical_bunch_fixture
         covariances[0][0] = sigma * sigma;
         covariances[2][2] = sigma * sigma;
         covariances[4][4] = sigma * sigma * 1000;
-        covariances[1][1] = covariances[3][3] = covariances[5][5] = 1.0;
+        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;;
         populate_6d(distribution, bunch, means, covariances);
         grid_shape[0] = 16;
         grid_shape[1] = 16;
@@ -199,7 +199,7 @@ struct Cylindrical_bunch_fixture_fine
         covariances[0][0] = sigma * sigma;
         covariances[2][2] = sigma * sigma;
         covariances[4][4] = sigma * sigma;
-        covariances[1][1] = covariances[3][3] = covariances[5][5] = 1.0;
+        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;;
         populate_6d(distribution, bunch, means, covariances);
         grid_shape[0] = 64;
         grid_shape[1] = 64;

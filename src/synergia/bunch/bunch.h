@@ -42,8 +42,8 @@ private:
     State state;
     Commxx comm;
     Fixed_t_z_converter *converter_ptr;
-   // Fixed_t_z_zeroth default_converter;
-    Fixed_t_z_alex default_converter;
+    Fixed_t_z_zeroth default_converter;
+   // Fixed_t_z_alex default_converter;
   //  Fixed_t_z_synergia20 default_converter;
     void
     assign_ids(int local_offset);
@@ -210,6 +210,8 @@ public:
     /// of the two bunches differ, the particles will be shifted accordingly.
     void
     inject(Bunch const& bunch);
+
+    void check_pz2_positive();
 
     virtual
     ~Bunch();

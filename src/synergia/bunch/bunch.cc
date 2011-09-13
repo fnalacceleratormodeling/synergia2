@@ -433,6 +433,24 @@ Bunch::inject(Bunch const& bunch)
     update_total_num();
 }
 
+void Bunch::check_pz2_positive()
+{ 
+    if (this->state == fixed_z_lab) {
+        int local_num = get_local_num();
+        MArray2d_ref particles = get_local_particles();
+        for (int part = 0; part < local_num; ++part) {
+            double  pzop2=(1.+particles[part][5])*(1.+particles[part][5])-
+                particles[part][1]*particles[part][1]-particles[part][3]*particles[part][3];
+            if (pzop2<0.)  {
+                std::cout<<"pzop^2="<<pzop2<<std::endl;
+                throw std::runtime_error( " check pz2:  pz square cannot be negative!");
+            }
+         
+        }
+    }
+}
+
+
 Bunch::~Bunch()
 {
     delete local_particles;

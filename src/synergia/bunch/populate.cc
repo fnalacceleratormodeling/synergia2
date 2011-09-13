@@ -45,6 +45,7 @@ populate_6d(Distribution &dist, Bunch &bunch, Const_MArray1d_ref means,
         dist.fill_unit_gaussian(particles[boost::indices[range()][i]]);
     }
     adjust_moments(bunch, means, covariances);
+    bunch.check_pz2_positive();    
 }
 
 void

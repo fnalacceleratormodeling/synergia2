@@ -24,7 +24,7 @@ void
 Fast_mapping_operation::apply(Bunch & bunch)
 { 
     // bunch.convert_to_state(Bunch::fixed_t);
-     bunch.convert_to_state(Bunch::fixed_z);     
+     bunch.convert_to_state(Bunch::fixed_z_lab);     
      mapping.apply(bunch);
 }
 
