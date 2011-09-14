@@ -17,6 +17,9 @@ using pconstants::epsilon0;
 #include "space_charge_bunch_fixtures.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
+// define DBGPRINT to get verbose output of test values
+#define DBGPRINT 0
+
 const double tolerance = 1.0e-12;
 
 Distributed_rectangular_grid_sptr
@@ -106,8 +109,10 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Spherical_bunch_fixture)
         max_fractional_error = 0.0;
         min_fractional_error = 0.0;
     }
-    //    std::cout << "max_fractional_error = " << max_fractional_error << std::endl;
-    //    std::cout << "min_fractional_error = " << min_fractional_error << std::endl;
+#if DBGPRINT
+    std::cout << "max_fractional_error = " << max_fractional_error << std::endl;
+    std::cout << "min_fractional_error = " << min_fractional_error << std::endl;
+#endif //DBGPRINT
 
     // on the development machine, I get
     //    max_fractional_error = 0.0134406
@@ -169,9 +174,10 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2, Spherical_bunch_fixture)
         max_fractional_error = 0.0;
         min_fractional_error = 0.0;
     }
-    //    std::cout << "max_fractional_error = " << max_fractional_error << std::endl;
-    //    std::cout << "min_fractional_error = " << min_fractional_error << std::endl;
-
+#if DBGPRINT
+    std::cout << "max_fractional_error = " << max_fractional_error << std::endl;
+    std::cout << "min_fractional_error = " << min_fractional_error << std::endl;
+#endif //DBGPRINT
     // on the development machine, I get (on one run)
     //        max_fractional_error = 0.0164322
     //        min_fractional_error = -0.0141608
@@ -265,8 +271,10 @@ BOOST_FIXTURE_TEST_CASE(extract_scalar_field_with_guards, Spherical_bunch_fixtur
         max_fractional_error = 0.0;
         min_fractional_error = 0.0;
     }
-    //    std::cout << "max_fractional_error = " << max_fractional_error << std::endl;
-    //    std::cout << "min_fractional_error = " << min_fractional_error << std::endl;
+#if DBGPRINT
+    std::cout << "max_fractional_error = " << max_fractional_error << std::endl;
+    std::cout << "min_fractional_error = " << min_fractional_error << std::endl;
+#endif
 
     // on the development machine, I get
     //    max_fractional_error = 0.0134406
@@ -333,10 +341,12 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
             max_fractional_error = 0.0;
             min_fractional_error = 0.0;
         }
-        //        std::cout << "max_fractional_error = " << max_fractional_error
-        //                << std::endl;
-        //        std::cout << "min_fractional_error = " << min_fractional_error
-        //                << std::endl;
+#if DBGPRINT
+	std::cout << "max_fractional_error = " << max_fractional_error
+		  << std::endl;
+	std::cout << "min_fractional_error = " << min_fractional_error
+		  << std::endl;
+#endif //DBGPRINT
         // on the development machine, I get
         //        max_fractional_error = 0.148878
         //        min_fractional_error = -0.0393951
