@@ -43,7 +43,7 @@ Fixed_t_z_zeroth::fixed_z_to_fixed_t(Bunch &bunch)
     MArray2d_ref particles = bunch.get_local_particles();
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         // z in beam rest frame
-        particles[part][Bunch::z] = gamma * beta * particles[part][Bunch::cdt];
+        particles[part][Bunch::z] = -1.0*gamma * beta * particles[part][Bunch::cdt];
 
         // total momentum in accelerator frame
         double p = p_ref + particles[part][Bunch::dpop] * p_ref;
@@ -59,7 +59,7 @@ Fixed_t_z_zeroth::fixed_z_to_fixed_t(Bunch &bunch)
         }
         double pz = std::sqrt(pz2);
         // zp = pz/p_{ref}^{total}
-        particles[part][Bunch::zp] = gamma * (pz + beta * Eoc) / p_ref;
+        particles[part][Bunch::zp] = gamma * (pz - beta * Eoc) / p_ref;
 
         // n.b. in the zeroth approximation, the transformation from
         //      t' = gamma cdt to t' = 0

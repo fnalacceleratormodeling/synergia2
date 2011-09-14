@@ -19,7 +19,8 @@ proton_charge = 1
 turns = 17;
 turn_length = 246.8
 partial_s = 123.4
-max_particles = 4
+min_particle_id = 2
+max_particle_id = 4
 
 reference_particle = Reference_particle(proton_charge, mass, total_energy)
 reference_particle.set_trajectory(turns, turn_length, partial_s)
@@ -32,4 +33,5 @@ def test_construct():
     diagnostics = Diagnostics_particles(bunch, "dummy.h5")
 
 def test_construct2():
-    diagnostics = Diagnostics_particles(bunch, "dummy.h5", max_particles)
+    diagnostics = Diagnostics_particles(bunch, "dummy.h5", min_particle_id,
+                                         max_particle_id)

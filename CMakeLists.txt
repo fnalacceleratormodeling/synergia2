@@ -48,11 +48,11 @@ find_package(CHEF REQUIRED)
 INCLUDE_DIRECTORIES(${CHEF_INCLUDE_DIRS})
 LINK_DIRECTORIES(${CHEF_LIBRARY_DIRS})
 
-if (BUILD_PYTHON_BINDINGS)
-    # numpy
-    find_package(NUMPY REQUIRED)
-    include_directories(${NUMPY_INCLUDE_DIR})
+# numpy
+find_package(NUMPY REQUIRED)
+include_directories(${NUMPY_INCLUDE_DIR})
 
+if (BUILD_PYTHON_BINDINGS)
     # mpi4py
     find_package(MPI4PY REQUIRED)
     include_directories(${MPI4PY_INCLUDE_DIR})

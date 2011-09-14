@@ -1,4 +1,5 @@
 #include "space_charge_3d_open_hockney.h"
+#include "space_charge_2d_open_hockney.h"
 #include "interpolate_rectangular_zyx.h"
 #include "space_charge_2d_bassetti_erskine.h"
 #include "impedance.h"
@@ -22,6 +23,18 @@ BOOST_PYTHON_MODULE(collective)
                 .def(init<Commxx const&, std::vector<int >, bool, bool,
                         double, bool, double >())
                 .def("apply", &Space_charge_3d_open_hockney::apply)
+        ;
+
+    class_<Space_charge_2d_open_hockney, Space_charge_2d_open_hockney_sptr,
+        bases<Collective_operator > >("Space_charge_2d_open_hockney",
+                init<Commxx const&, std::vector<int > >())
+                .def(init<Commxx const&, std::vector<int > >())
+                .def(init<Commxx const&, std::vector<int > >())
+                .def(init<Commxx const&, std::vector<int >, bool >())
+                .def(init<Commxx const&, std::vector<int >, bool, double >())
+                .def(init<Commxx const&, std::vector<int >, bool, double, bool >())
+                .def(init<Commxx const&, std::vector<int >, bool, double, bool, double >())
+                .def("apply", &Space_charge_2d_open_hockney::apply)
         ;
 
     class_<Space_charge_2d_bassetti_erskine, Space_charge_2d_bassetti_erskine_sptr,

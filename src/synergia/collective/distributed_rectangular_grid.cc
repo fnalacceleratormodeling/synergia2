@@ -26,6 +26,13 @@ Distributed_rectangular_grid::construct(int lower, int upper,
             = boost::shared_ptr<MArray3d >(
                     new MArray3d(boost::extents[extent_range(lower_guard,
                             upper_guard)][array_shape[1]][array_shape[2]]));
+    grid_points_2dc_sptr
+            = boost::shared_ptr<MArray2dc >(
+                    new MArray2dc(boost::extents[extent_range(lower_guard,
+                            upper_guard)][array_shape[1]]));
+    grid_points_1d_sptr
+            = boost::shared_ptr<MArray1d >(
+                    new MArray1d(boost::extents[array_shape[2]]));
     normalization = 1.0;
 }
 
@@ -105,6 +112,30 @@ MArray3d_ref &
 Distributed_rectangular_grid::get_grid_points()
 {
     return *grid_points_sptr;
+}
+
+MArray2dc_ref const&
+Distributed_rectangular_grid::get_grid_points_2dc() const
+{
+    return *grid_points_2dc_sptr;
+}
+
+MArray2dc_ref &
+Distributed_rectangular_grid::get_grid_points_2dc()
+{
+    return *grid_points_2dc_sptr;
+}
+
+MArray1d_ref const&
+Distributed_rectangular_grid::get_grid_points_1d() const
+{
+    return *grid_points_1d_sptr;
+}
+
+MArray1d_ref &
+Distributed_rectangular_grid::get_grid_points_1d()
+{
+    return *grid_points_1d_sptr;
 }
 
 void

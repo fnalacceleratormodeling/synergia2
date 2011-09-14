@@ -554,10 +554,11 @@ Diagnostics_particles::receive_other_local_particles(
 {
     int myrank = bunch_sptr->get_comm().get_rank();
     int size = bunch_sptr->get_comm().get_size();
-    Hdf5_chunked_array2d_writer writer_particles(
-            file,
-            "particles",
-            bunch_sptr->get_local_particles()[boost::indices[range(0,1)][range()]]);
+    Hdf5_chunked_array2d_writer
+            writer_particles(
+                    file,
+                    "particles",
+                    bunch_sptr->get_local_particles()[boost::indices[range(0, 1)][range()]]);
     for (int rank = 0; rank < size; ++rank) {
         int local_num = local_nums[rank];
         if (rank == myrank) {
@@ -650,8 +651,7 @@ Diagnostics_track::Diagnostics_track(Bunch_sptr bunch_sptr,
         std::string const& filename, int particle_id) :
     bunch_sptr(bunch_sptr), filename(filename), have_writers(false),
             coords(boost::extents[6]), found(false), first_search(true),
-            particle_id(particle_id), last_index(-1),
-            write_helper(filename, true, bunch_sptr->get_comm())
+            particle_id(particle_id), last_index(-1)
 {
 }
 
@@ -691,6 +691,12 @@ Diagnostics_track::update()
             }
         }
         if (found) {
+            if (first_search) {
+                write_helper_sptr = Diagnostics_write_helper_sptr(
+                        new Diagnostics_write_helper(filename, true,
+                                bunch_sptr->get_comm(),
+                                bunch_sptr->get_comm().get_rank()));
+            }
             coords[0] = bunch_sptr->get_local_particles()[index][0];
             coords[1] = bunch_sptr->get_local_particles()[index][1];
             coords[2] = bunch_sptr->get_local_particles()[index][2];
@@ -724,12 +730,12 @@ Diagnostics_track::write()
 {
 
     if (found) {
-        init_writers(write_helper.get_file());
+        init_writers(write_helper_sptr->get_file());
         writer_coords->append(coords);
         writer_s->append(s);
         writer_repetition->append(repetition);
         writer_trajectory_length->append(trajectory_length);
-        write_helper.finish_write();
+        write_helper_sptr->finish_write();
     }
 }
 

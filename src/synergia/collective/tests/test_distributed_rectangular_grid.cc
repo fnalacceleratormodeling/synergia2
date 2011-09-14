@@ -152,6 +152,25 @@ BOOST_FIXTURE_TEST_CASE(get_grid_points, Rectangular_grid_domain_fixture)
     BOOST_CHECK_EQUAL(grid_points.shape()[2], grid_size2);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_grid_points_2dc, Rectangular_grid_domain_fixture)
+{
+    Distributed_rectangular_grid distributed_rectangular_grid(
+            rectangular_grid_domain_sptr, 0, grid_size0, Commxx());
+    MArray2dc_ref grid_points(distributed_rectangular_grid.get_grid_points_2dc());
+
+    BOOST_CHECK_EQUAL(grid_points.shape()[0], grid_size0);
+    BOOST_CHECK_EQUAL(grid_points.shape()[1], grid_size1);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_grid_points_1d, Rectangular_grid_domain_fixture)
+{
+    Distributed_rectangular_grid distributed_rectangular_grid(
+            rectangular_grid_domain_sptr, 0, grid_size0, Commxx());
+    MArray1d_ref grid_points(distributed_rectangular_grid.get_grid_points_1d());
+
+    BOOST_CHECK_EQUAL(grid_points.shape()[0], grid_size2);
+}
+
 BOOST_FIXTURE_TEST_CASE(get_set_normalization, Rectangular_grid_domain_fixture)
 {
     Distributed_rectangular_grid distributed_rectangular_grid(

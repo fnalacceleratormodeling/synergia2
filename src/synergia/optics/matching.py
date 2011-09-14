@@ -4,7 +4,7 @@ import numpy
 
 from one_turn_map import linear_one_turn_map
 from mpi4py import MPI
-from synergia.bunch import Bunch, populate_6d, populate_transverse_gaussian, populate_transverse_KV_GaussLong
+from synergia.bunch import Bunch, populate_6d, populate_transverse_gaussian, populate_transverse_KV_GaussLong, populate_two_particles
 from synergia.foundation import Random_distribution, pconstants
 from synergia.optics.one_turn_map import linear_one_turn_map
 from math import acos, pi, sin, sqrt
@@ -27,18 +27,18 @@ def _get_correlation_matrix(linear_map,arms,brms,crms,beta,rms_index=[0,2,4],pri
         conj = -1
         for item in remaining:
             sum = evects[first] + evects[item]
-            if abs(numpy.max(sum.imag)) < best:
-                best = abs(numpy.max(sum.imag))
+            if numpy.max(abs(sum.imag)) < best:
+                best = numpy.max(abs(sum.imag))
                 conj = item
         if conj == -1:
-            raise RuntimeError, "failed to find a conjugate pair in ha_match"
+            raise RuntimeError, "failed to find a conjugate pair in _get_correlation_matrix"
         remaining.remove(conj)
         tmp = numpy.outer(evects[first],
             numpy.conjugate(evects[first]))
         tmp += numpy.outer(evects[conj],
             numpy.conjugate(evects[conj]))
         F[i] = tmp.real
-        # F[i] is effectively 2*e[i] cross e^H[i].make install
+        # F[i] is effectively 2*e[i] cross e^H[i].
 
     # The correlation matrix is a linear combination of F[i] with
     # appropriate coefficients such that the diagonal elements C[i,i] i=(0,2,4)
@@ -120,8 +120,9 @@ def _get_correlation_matrix(linear_map,arms,brms,crms,beta,rms_index=[0,2,4],pri
             print "*    total energy=",energy,"GeV,   kinetic energy=", energy-pconstants.mp,"GeV"
             print "****************************************************"
              
-        
-        
+            print "One Turn correlation matrix: "
+            print numpy.array2string(C, precision=3)
+
     return C
 
 def get_alpha_beta(map):
@@ -263,3 +264,15 @@ def generate_matched_bunch_uniform_longitudinal(lattice_simulator, emit_x,
     populate_transverse_gaussian(dist, bunch, means, covariance_matrix,
                                  length_cdt)
     return bunch
+
+def generate_two_particles(lattice_simulator, coordP1, coordP2, num_real_particles, comm=None):
+     if comm == None:
+         comm = MPI.COMM_WORLD
+     bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
+                  2, num_real_particles, comm)
+     populate_two_particles(bunch, 
+                            coordP1[0], coordP1[1], coordP1[2], coordP1[3], coordP1[4], coordP1[5],
+                            coordP2[0], coordP2[1], coordP2[2], coordP2[3], coordP2[4], coordP2[5])
+     return bunch
+
+		    

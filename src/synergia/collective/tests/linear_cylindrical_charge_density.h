@@ -17,4 +17,8 @@ double
 linear_cylindrical_electric_field_component(double lambda, double r, double r0,
         double x);
 
+double
+linear_cylindrical_electric_force_component(double q, double lambda, double r,
+        double r0, double x);
+
 #endif /* LINEAR_CYLINDRICAL_CHARGE_DENSITY_H_ */

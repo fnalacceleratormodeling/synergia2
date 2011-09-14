@@ -4,12 +4,15 @@ test_hdf5_writer
 test_hdf5_file
 test_hdf5_serial_writer
 test_distributed_fft3d
+test_distributed_fft2d
 test_hdf5_chunked_array2d_writer
 test_distributed_fft3d_mpi
+test_distributed_fft2d_mpi
 test_xml_serialization
 test_multi_array_offsets
 test_multi_array_serialization
 test_command_line_arg
 test_fast_int_floor
+test_complex_error_function
 *.xml
 *.h5

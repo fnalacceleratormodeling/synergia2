@@ -634,22 +634,33 @@ Multipole_mad8_adaptor::get_chef_elements(
         if (knl[moment] != 0.0) {
             bmlnElmnt* bmln_elmnt;
             ++multipole_count;
+            std::string element_name;
             switch (moment) {
 
             case 0:
-                bmln_elmnt = new thin2pole("", brho * knl[moment]);
+                element_name = lattice_element.get_name() + "_2pole";
+                bmln_elmnt = new thin2pole(element_name.c_str(),
+                                brho * knl[moment]);
                 break;
             case 1:
-                bmln_elmnt = new thinQuad("", brho * knl[moment]);
+                element_name = lattice_element.get_name() + "_4pole";
+                bmln_elmnt = new thinQuad(element_name.c_str(),
+                                brho * knl[moment]);
                 break;
             case 2:
-                bmln_elmnt = new thinSextupole("", brho * knl[moment] / 2.0);
+                element_name = lattice_element.get_name() + "_6pole";
+                bmln_elmnt = new thinSextupole(element_name.c_str(),
+                                brho * knl[moment] / 2.0);
                 break;
             case 3:
-                bmln_elmnt = new thinOctupole("", brho * knl[moment] / 6.0);
+                element_name = lattice_element.get_name() + "_8pole";
+                bmln_elmnt = new thinOctupole(element_name.c_str(),
+                                brho * knl[moment] / 6.0);
                 break;
             case 4:
-                bmln_elmnt = new thinDecapole("", brho * knl[moment] / 24.0);
+                element_name = lattice_element.get_name() + "_10pole";
+                bmln_elmnt = new thinDecapole(element_name.c_str(),
+                                brho * knl[moment] / 24.0);
                 break;
             }
 
@@ -665,10 +676,10 @@ Multipole_mad8_adaptor::get_chef_elements(
         }
     }
 
+    // csp: temporally or permanently disabled this part to avoid confusion.
     // put in a marker for this element
-    ElmPtr elm = ElmPtr(new marker(lattice_element.get_name().c_str()));
-    ;
-    retval.push_back(elm);
+    //ElmPtr elm = ElmPtr(new marker(lattice_element.get_name().c_str()));
+    //retval.push_back(elm);
     return retval;
 }
 
