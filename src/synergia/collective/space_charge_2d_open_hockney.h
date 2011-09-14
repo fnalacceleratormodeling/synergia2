@@ -130,6 +130,7 @@ public:
             Rectangular_grid const& Fn, double delta_tau); 
     virtual void
     apply(Bunch & bunch, double time_step, Step & step);
+    virtual
     ~Space_charge_2d_open_hockney();
 };
 

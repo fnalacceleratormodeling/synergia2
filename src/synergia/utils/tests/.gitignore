@@ -13,5 +13,6 @@ test_multi_array_offsets
 test_multi_array_serialization
 test_command_line_arg
 test_fast_int_floor
+test_complex_error_function
 *.xml
 *.h5

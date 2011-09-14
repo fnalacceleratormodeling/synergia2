@@ -199,7 +199,7 @@ Distributed_fft3d::transform(MArray3d_ref & in, MArray3dc_ref & out)
     rfftwnd_mpi(plan, 1, data, workspace, FFTW_NORMAL_ORDER);
     if (have_local_data) {
         memcpy((void* ) multi_array_offset(out, lower, 0, 0),
-                (void*) (workspace),
+                (void*) (data),
                 local_size_complex * sizeof(std::complex<double >));
     }
 
@@ -256,7 +256,7 @@ Distributed_fft3d::inv_transform(MArray3dc_ref & in, MArray3d_ref & out)
     }
 #ifdef USE_FFTW2
     if (have_local_data) {
-        memcpy( (void*) workspace, (void*) multi_array_offset(in, lower, 0, 0),
+        memcpy( (void*) data, (void*) multi_array_offset(in, lower, 0, 0),
                 local_size_complex * sizeof(std::complex<double >));
     }
 

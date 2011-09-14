@@ -58,6 +58,10 @@ target_link_libraries(test_xml_serialization ${Boost_SERIALIZATION_LIBRARY}
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_xml_serialization test_xml_serialization)
 
+add_executable(test_complex_error_function test_complex_error_function.cc)
+target_link_libraries(test_complex_error_function ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_complex_error_function test_complex_error_function)
+
 add_executable(test_multi_array_offsets test_multi_array_offsets.cc)
 target_link_libraries(test_multi_array_offsets
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
