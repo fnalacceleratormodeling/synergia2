@@ -765,7 +765,7 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
     double q = bunch.get_particle_charge() * pconstants::e; // [C]
     // delta_t_beam: [s] in beam frame
     double delta_t_beam = delta_t / bunch.get_reference_particle().get_gamma();
-    // unit_conversion: [N] = [kg m/s] to [Gev/c]
+    // unit_conversion: [N] = [kg m/s^2] to [Gev/c]
     double unit_conversion = pconstants::c / (1.0e9 * pconstants::e);
     // scaled p = p/p_ref
     double p_scale = 1.0 / bunch.get_reference_particle().get_momentum();
