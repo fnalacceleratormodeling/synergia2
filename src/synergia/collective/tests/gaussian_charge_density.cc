@@ -64,8 +64,8 @@ double
 gaussian_electric_field_component2(double Q, double x, double y, double z,
         double sigmax, double sigmay, double sigmaz, double var)
 {
-    double dt = 0.0001;
-    int NT = 10000;
+    double dt = 0.001;
+    int NT = 1000;
     double integral_part = 0.0;
     for (int i = 0; i < NT; ++i) {
         double t = dt * i;
@@ -80,14 +80,21 @@ gaussian_electric_field_component2(double Q, double x, double y, double z,
         double exponent_y = - y * y * lambda_square / (2.0 * lambda_sigma_y);
         double exponent_z = - z * z * lambda_square / (2.0 * lambda_sigma_z);
 
+        double lambda_sigma_var;
+        if (var == x) {
+            lambda_sigma_var = lambda_sigma_x;
+        } else if (var == y) {
+            lambda_sigma_var = lambda_sigma_y;
+        }
+
         // using the simpson's rule for the numerical integration
         if (i % 2 == 0) {
-             integral_part += 2.0 * (lambda_square / lambda_sigma_x) 
+             integral_part += 2.0 * (lambda_square / lambda_sigma_var) 
                 * exp(exponent_x) * exp(exponent_y) * exp(exponent_z) 
                 / sqrt(lambda_sigma_x * lambda_sigma_y * lambda_sigma_z) 
                 / ((1.0 - t) * (1.0 - t));;
         } else if (i % 2 == 1) {
-             integral_part += 4.0 * (lambda_square / lambda_sigma_x) 
+             integral_part += 4.0 * (lambda_square / lambda_sigma_var) 
                 * exp(exponent_x) * exp(exponent_y) * exp(exponent_z) 
                 / sqrt(lambda_sigma_x * lambda_sigma_y * lambda_sigma_z) 
                 / ((1.0 - t) * (1.0 - t));;

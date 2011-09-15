@@ -17,9 +17,9 @@ class Distributed_fft2d
 {
 private:
 #ifdef USE_FFTW2
-    rfftwnd_mpi_plan plan, inv_plan;
-    fftw_real *data;
-    fftw_real *workspace;
+    fftwnd_mpi_plan plan, inv_plan;
+    fftw_complex *data;
+    fftw_complex *workspace;
 #else
     fftw_plan plan, inv_plan;
     fftw_complex *data;
