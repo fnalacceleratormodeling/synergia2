@@ -761,5 +761,5 @@ BOOST_FIXTURE_TEST_CASE(apply_transverse, Ellipsoidal_bunch_fixture)
     const double rough_tolerance = 50.0;
     BOOST_CHECK_CLOSE(avg_x_kick2, 7.9e4, rough_tolerance);
     BOOST_CHECK_CLOSE(avg_y_kick2, 1.1e5, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_p_kick2, 7.1e4, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_p_kick2, 3.65e-2, rough_tolerance);
 }
