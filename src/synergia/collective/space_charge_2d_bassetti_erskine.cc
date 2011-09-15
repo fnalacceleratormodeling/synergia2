@@ -74,13 +74,11 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y)
                 retvec[0] = x * r;
                 retvec[1] = y * r;
                 retvec[2] = 0.0;
-                std::cout << "here1" << std::endl;
                 return retvec;
             } else {
                 retvec[0] = x / mean_sigma;
                 retvec[1] = y / mean_sigma;
                 retvec[2] = 0.0;
-                std::cout << "here2" << std::endl;
                 return retvec;
             }
         }
