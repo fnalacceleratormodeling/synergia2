@@ -6,6 +6,7 @@
 #include "synergia/bunch/diagnostics.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/foundation/math_constants.h"
+#include "synergia/utils/complex_error_function.h"
 
 typedef std::complex<double > Complex;
 
@@ -13,63 +14,31 @@ const Complex complex_1(1.0, 0.0);
 const Complex complex_0(0.0, 0.0);
 const Complex complex_i(0.0, 1.0);
 
-#include "basic_toolkit/MathConstants.h"
 
-class BasErs_field
+double const sigma_limit = 64.0;
+double const sigma_round = 0.1;
+
+Space_charge_2d_bassetti_erskine::Space_charge_2d_bassetti_erskine() :
+    Collective_operator("space charge")
 {
-private:
-    double sigma[2];
-public:
-    BasErs_field(double* = 0
-    /* pointer to an array containing
-     sigmax and sigmay [m] */
-    );
-    BasErs_field(const BasErs_field&);
-    ~BasErs_field();
-
-    char useRound; // By default = 1
-    // If 1: then round beam approximation
-    // used when horizontal and vertical
-    // sigmas approximately equal.
-
-    std::vector<double >
-    NormalizedEField(double x, double y);
-    /* returns the "normalized" electric field
-     in the rest frame of the bunch, in inverse
-     meters.  To get the field [V/m], this must
-     be multiplied by Q/(2 pi epsilon_o), where
-     Q is the line density of charge [C/m] (in
-     rest frame). */
-
-    void
-    GetSigma(double*);
-};
-
-double const SIGMA_LIMIT = 64.0;
-double const SIGMA_ROUND = 0.1;
-
-BasErs_field::BasErs_field(double* sigin)
-{
-    int i;
-
-    for (i = 0; i < 2; i++)
-        sigma[i] = sigin[i];
-
-    useRound = 1;
+    use_round = 1;
 }
 
-BasErs_field::~BasErs_field()
+void
+Space_charge_2d_bassetti_erskine::set_sigma(double * sigin)
 {
+    for (int i = 0; i < 3; i++)
+        sigma[i] = sigin[i];
 }
 
 std::vector<double >
-BasErs_field::NormalizedEField(double arg_x, double arg_y)
+Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y)
 {
     std::vector<double > retvec(3);
-    char normal;
-    std::complex<double > z;
     double x, y;
-    double sigmaX, sigmaY, ds, meanSigma;
+    bool normal;
+    std::complex<double > z;
+    double ds, mean_sigma;
     std::complex<double > arg1, arg2;
     double tmp1, r;
     std::complex<double > retarg1, retarg2;
@@ -80,22 +49,12 @@ BasErs_field::NormalizedEField(double arg_x, double arg_y)
 
     x = arg_x;
     y = arg_y;
-    sigmaX = sigma[0];
-    sigmaY = sigma[1];
-
-    //std::cout << "input " <<sigmaX<<" "<<sigmaY<<" "<<x<<" "<<y<<std::endl;
 
     // Asymptotic limit ...
-    if ((sigmaX == 0.0) && (sigmaY == 0.0)) {
+    if ((sigma[0] == 0.0) && (sigma[1] == 0.0)) {
         r = x * x + y * y;
         if (r < 1.0e-20) {
-            std::cerr << "\n";
-            std::cerr << "*** ERROR ***                                 \n";
-            std::cerr << "*** ERROR *** BasErs::NormalizedEField        \n";
-            std::cerr << "*** ERROR *** Asymptotic limit                \n";
-            std::cerr << "*** ERROR *** r seems too small.              \n";
-            std::cerr << "*** ERROR ***                                 \n";
-            std::exit(1);
+            throw std::runtime_error("Asymptotic limit r seems too small in Space_charge_2d_bassetti_erskine::normalized_efield.");
         }
         retvec[0] = x / r;
         retvec[1] = y / r;
@@ -104,22 +63,24 @@ BasErs_field::NormalizedEField(double arg_x, double arg_y)
     }
 
     // Round beam limit ...
-    if (useRound) {
-        if ((fabs((sigmaX - sigmaY) / (sigmaX + sigmaY)) < SIGMA_ROUND)
-                || ((pow(x / sigmaX, 2.0) + pow(y / sigmaY, 2.0)) > SIGMA_LIMIT)) {
+    if (use_round) {
+        if ((fabs((sigma[0] - sigma[1]) / (sigma[0] + sigma[1])) < sigma_round)
+                || ((pow(x / sigma[0], 2.0) + pow(y / sigma[1], 2.0)) > sigma_limit)) {
             r = x * x + y * y;
-            meanSigma = 2.0 * sigmaX * sigmaY;
+            mean_sigma = 2.0 * sigma[0] * sigma[1];
             // Test for small r .....
-            if (r > 1.0e-6 * meanSigma) {
-                r = (1.0 - exp(-r / meanSigma)) / r;
+            if (r > 1.0e-6 * mean_sigma) {
+                r = (1.0 - exp(-r / mean_sigma)) / r;
                 retvec[0] = x * r;
                 retvec[1] = y * r;
                 retvec[2] = 0.0;
+                std::cout << "here1" << std::endl;
                 return retvec;
             } else {
-                retvec[0] = x / meanSigma;
-                retvec[1] = y / meanSigma;
+                retvec[0] = x / mean_sigma;
+                retvec[1] = y / mean_sigma;
                 retvec[2] = 0.0;
+                std::cout << "here2" << std::endl;
                 return retvec;
             }
         }
@@ -149,33 +110,34 @@ BasErs_field::NormalizedEField(double arg_x, double arg_y)
     }
 
     // Check for normal processing ...
-    if (!(normal = (sigmaX > sigmaY))) {
-        tmp1 = sigmaX;
-        sigmaX = sigmaY;
-        sigmaY = tmp1;
+    normal = sigma[0] > sigma[1];
+    if (!normal) {
+        tmp1 = sigma[0];
+        sigma[0] = sigma[1];
+        sigma[1] = tmp1;
         tmp1 = x;
         x = y;
         y = tmp1;
     }
 
     // The calculation ...
-    ds = sqrt(2.0 * (sigmaX * sigmaX - sigmaY * sigmaY));
+    ds = sqrt(2.0 * (sigma[0] * sigma[0] - sigma[1] * sigma[1]));
     arg1 = x / ds + complex_i * y / ds;
-    r = sigmaY / sigmaX;
+    r = sigma[1] / sigma[0];
     arg2 = ((x * r) / ds) + complex_i * ((y / r) / ds);
 
-    retarg1 = w(arg1);
-    retarg2 = w(arg2);
+    retarg1 = wofz(arg1);
+    retarg2 = wofz(arg2);
 
     // Normalization ...
-    r = x / sigmaX;
+    r = x / sigma[0];
     r = r * r;
-    tmp1 = y / sigmaY;
+    tmp1 = y / sigma[1];
     r += tmp1 * tmp1;
 
     z = retarg1;
     z -= retarg2 * exp(-r / 2.0);
-    z *= -complex_i * MATH_SQRTPI / ds;
+    z *= -complex_i * sqrt(mconstants::pi) / ds;
 
     // And return ...
     retvec[2] = 0.0;
@@ -227,77 +189,47 @@ BasErs_field::NormalizedEField(double arg_x, double arg_y)
     return retvec; // This line should never be reached.
 }
 
-Space_charge_2d_bassetti_erskine::Space_charge_2d_bassetti_erskine() :
-    Collective_operator("space charge")
-{
-}
-
 void
-Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double time_step,
+Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
         Step & step)
 {
     // jfa: we should really convert to fixed_t state here and adjust
     //      factor accordingly.
-//    bunch.convert_to_state(Bunch::fixed_t);
-    double sigma[2];
+    bunch.convert_to_state(Bunch::fixed_t);
 
     MArray1d mean(Diagnostics::calculate_mean(bunch));
     MArray1d std(Diagnostics::calculate_std(bunch, mean));
     sigma[0] = std[Bunch::x];
     sigma[1] = std[Bunch::y];
-    double sigma_cdt = std[Bunch::z];
+    sigma[2] = std[Bunch::z];
 
-    BasErs_field bas_ers_field(sigma);
-
-    // Alex:
-    // In the lab frame  (Delta p) = q*E_eff* (Delta t) =factor*Efield*tau
-    //
-    //    what is factor=?
-    //
-    //1) the  arc length tau=beta*c* (Delta t), so (Delta t)= tau/(beta*c)
-    //
-    //2)   q=p/Brho=PH_CNV_brho_to_p
-    //    because p unit is [GeV/c], the charge is measured in  q=c*10e-9
-    //
-    //    3) in the bunch frame
-    //     E'= 1/(2*pi*eps0) *lambda'*Efield
-    //     where Efield=normalized field, see BasErs_field.h
-    //
-    //E' --electric field in the bunch frame
-    //    E=gamma* E' --electric field in the lab frame
-    //
-    //    E_eff=E-beta*B=E-Beta^2*E= E/gamma^2=E'/gamma
-    //
-    //4) charge density transformation:
-    //lambda=lambda'*gamma ===>lambda'=lambda/gamma
-    //
-    //    5) lambda= current/v=current/beta*c
-    //    or lambda=mbs.bunch_np*PH_MKS_e/mbs.z_length, but we did not defined mbs.z_length yet...
-    //
-    //6) Keep in mind the units used in the code p=p/p_ref_total.....
-
-    double beta = bunch.get_reference_particle().get_beta();
-    double gamma = bunch.get_reference_particle().get_gamma();
-    double p_ref_total = bunch.get_reference_particle().get_momentum();
-    double within_one_sigma_charge = bunch.get_real_num()
-            * bunch.get_particle_charge() * erf(1.0 / std::sqrt(2.0))
+    // $\delta \vec{p} = \vec{F} \delta t = q \vec{E} \delta t$
+    // point charge
+    double q = bunch.get_particle_charge() * pconstants::e; // [C]
+    // total charge
+    double q_total = bunch.get_real_num() * bunch.get_particle_charge()
             * pconstants::e;
-    double current = within_one_sigma_charge / (2 * sigma_cdt / pconstants::c);
-
-    double factor = PH_CNV_brho_to_p * current / (2.0 * mconstants::pi
-            * pconstants::epsilon0 * beta * pconstants::c); //point 2) and 5) above
-    factor = factor / (beta * pconstants::c); //         point 1) above
-    factor = factor / (gamma * gamma); // point  3) and 4) above
-    factor *= 1.0 / p_ref_total; // point 6)
+    // delta_t_beam: [s] in beam frame
+    double delta_t_beam = delta_t / bunch.get_reference_particle().get_gamma();
+    // unit_conversion: [N] = [kg m/s^2] to [Gev/c]
+    double unit_conversion = pconstants::c / (1.0e9 * pconstants::e);
+    // scaled p = p/p_ref
+    double p_scale = 1.0 / bunch.get_reference_particle().get_momentum();
+    double factor = unit_conversion * q * delta_t_beam * p_scale
+            / (2.0 * mconstants::pi * pconstants::epsilon0);
 
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         double x = bunch.get_local_particles()[part][Bunch::x];
         double y = bunch.get_local_particles()[part][Bunch::y];
-        std::vector<double > e_field(bas_ers_field.NormalizedEField(x, y));
-        bunch.get_local_particles()[part][Bunch::xp] += e_field[0] * time_step
-                * factor;
-        bunch.get_local_particles()[part][Bunch::yp] += e_field[1] * time_step
-                * factor;
+        double z = bunch.get_local_particles()[part][Bunch::z];
+        // csp: This line charge density works only for the gaussian charge 
+        //      distribution.
+        double line_charge_density = q_total * exp(-z * z /(2.0 * sigma[2]
+                * sigma[2])) / (sqrt(2.0 * mconstants::pi) * sigma[2]);
+        double factor2 = line_charge_density * factor;
+        std::vector<double > e_field(normalized_efield(x, y));
+        bunch.get_local_particles()[part][Bunch::xp] += e_field[0] * factor2;
+        bunch.get_local_particles()[part][Bunch::yp] += e_field[1] * factor2;
     }
 }
 
