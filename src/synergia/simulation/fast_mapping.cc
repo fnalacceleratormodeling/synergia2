@@ -169,12 +169,22 @@ Fast_mapping::get_length() const
 void
 Fast_mapping::apply(Bunch & bunch)
 {
-   // std::cout<<"fast mapping apply with length = "<<length<<std::endl;
+
     bunch.get_reference_particle().increment_trajectory(length);
     double temp[6];
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
     for (int part = 0; part < local_num; ++part) {
+//   check if  pz^2 is negative  
+      double  pzop2=(1.+particles[part][5])*(1.+particles[part][5])-
+      particles[part][1]*particles[part][1]-particles[part][3]*particles[part][3];
+      if (pzop2<0.)  {
+        std::cout<<"pzop^2="<<pzop2<<std::endl;
+        throw std::runtime_error( " Fast_mapping: pz square cannot be negative, before mapping");
+      }
+    
+    
+    
         for (int i = 0; i < 6; ++i) {
             temp[i] = 0.0;
             double term;
@@ -230,7 +240,13 @@ Fast_mapping::apply(Bunch & bunch)
             particles[ part][i] = temp[i];
         }
 #endif
+    //check if the approximation breaks down and yields a negative pz^2
+         pzop2=(1.+particles[part][5])*(1.+particles[part][5])-
+         particles[part][1]*particles[part][1]-particles[part][3]*particles[part][3];
+         if (pzop2<0.)  throw std::runtime_error( " Fast_mapping: pz square cannot be negative, after mapping");
     }
+   
+    
 }
 
 void

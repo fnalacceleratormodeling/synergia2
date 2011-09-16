@@ -84,7 +84,7 @@ struct Ellipsoidal_bunch_fixture
         covariances[0][0] = stdx * stdx;
         covariances[2][2] = stdy * stdy;
         covariances[4][4] = stdz * stdz;
-        covariances[1][1] = covariances[3][3] = covariances[5][5] = 1.0;
+        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;
         populate_6d(distribution, bunch, means, covariances);
     }
     
@@ -133,7 +133,7 @@ BOOST_FIXTURE_TEST_CASE(apply, Ellipsoidal_bunch_fixture)
     const double rough_tolerance = 5.0;
     BOOST_CHECK_CLOSE(avg_x_kick2, 2.4e6, rough_tolerance);
     BOOST_CHECK_CLOSE(avg_y_kick2, 1.3e7, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_p_kick2, 7.1e4, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_p_kick2, 3.65e-2, rough_tolerance);
 }
 
 struct Spherical_bunch_fixture

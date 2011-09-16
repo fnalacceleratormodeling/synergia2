@@ -22,9 +22,10 @@ Fast_mapping_operation::Fast_mapping_operation(Fast_mapping const& mapping) :
 
 void
 Fast_mapping_operation::apply(Bunch & bunch)
-{
-    bunch.convert_to_state(Bunch::fixed_z);
-    mapping.apply(bunch);
+{ 
+    // bunch.convert_to_state(Bunch::fixed_t);
+     bunch.convert_to_state(Bunch::fixed_z_lab);     
+     mapping.apply(bunch);
 }
 
 Fast_mapping_operation::~Fast_mapping_operation()
@@ -41,8 +42,8 @@ Chef_propagate_operation::Chef_propagate_operation(
 void
 Chef_propagate_operation::apply(Bunch & bunch)
 {
-    bunch.convert_to_state(Bunch::fixed_z);
-    chef_propagator.apply(bunch);
+    bunch.convert_to_state(Bunch::fixed_z); 
+    chef_propagator.apply(bunch);   
 }
 
 Chef_propagate_operation::~Chef_propagate_operation()

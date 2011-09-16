@@ -5,6 +5,7 @@
 #include "synergia/utils/eigen2/Eigen/Core"
 #include "synergia/utils/eigen2/Eigen/LU"
 #include <stdexcept>
+#include "synergia/utils/simple_timer.h"
 
 // import most common Eigen types
 USING_PART_OF_NAMESPACE_EIGEN
@@ -20,8 +21,12 @@ Diagnostics::calculate_mean(Bunch const& bunch)
             sum[i] += particles[part][i];
         }
     }
+    double t;
+    t = simple_timer_current();
     MPI_Allreduce(sum, mean.origin(), 6, MPI_DOUBLE, MPI_SUM,
             bunch.get_comm().get());
+    t = simple_timer_show(t, "allmpireduce_in_diagnostic mean");  
+          
     for (int i = 0; i < 6; ++i) {
         mean[i] /= bunch.get_total_num();
     }
@@ -332,7 +337,7 @@ Diagnostics_full2::Diagnostics_full2(Bunch_sptr bunch_sptr,
             mean(boost::extents[6]), std(boost::extents[6]),
             mom2(boost::extents[6][6]), corr(boost::extents[6][6]),
             write_helper(filename, true, bunch_sptr->get_comm())
-{
+{          
 }
 
 bool
@@ -343,7 +348,8 @@ Diagnostics_full2::is_serial() const
 
 void
 Diagnostics_full2::update()
-{
+{   
+    bunch_sptr->convert_to_state(bunch_sptr->fixed_z);
     s = bunch_sptr->get_reference_particle().get_s();
     repetition = bunch_sptr->get_reference_particle().get_repetition();
     trajectory_length
@@ -508,13 +514,14 @@ Diagnostics_full2::~Diagnostics_full2()
 }
 
 Diagnostics_particles::Diagnostics_particles(Bunch_sptr bunch_sptr,
-        std::string const& filename, int min_particle_id, int max_particle_id) :
-    bunch_sptr(bunch_sptr), filename(filename),
-            min_particle_id(min_particle_id), max_particle_id(max_particle_id),
-            have_writers(false),
-            write_helper(filename, false, bunch_sptr->get_comm())
+        std::string const& filename, int min_particle_id, int max_particle_id, int write_skip) :
+    bunch_sptr(bunch_sptr), filename(filename), min_particle_id(min_particle_id), 
+    max_particle_id(max_particle_id),
+            have_writers(false), write_helper(filename, false, write_skip,
+                    bunch_sptr->get_comm())
 {
 }
+
 
 bool
 Diagnostics_particles::is_serial() const
@@ -538,7 +545,7 @@ write_selected_particles(Hdf5_chunked_array2d_writer & writer,
                 particles[boost::indices[range(0, local_num)][range()]]);
     } else {
         for (int part = 0; part < local_num; ++part) {
-            int particle_id = particles[part][Bunch::id];
+            int particle_id = int(particles[part][Bunch::id]);
             if ((particle_id >= min_particle_id) && (particle_id
                     <= max_particle_id)) {
                 writer.write_chunk(
@@ -604,13 +611,31 @@ Diagnostics_particles::send_local_particles()
 
 void
 Diagnostics_particles::write()
-{
+{ 
+
+    int writer_rank= write_helper.get_writer_rank();
+    MPI_Comm comm = bunch_sptr->get_comm().get();
+    int icount;
+    icount=write_helper.get_count();
+    MPI_Bcast ((void *) &icount, 1, MPI_INT, writer_rank, comm );
+
+
+//    std::cout<<" icount ="<<icount<<"  count="<< write_helper.get_count() <<" on rank ="<< bunch_sptr->get_comm().get_rank()<<std::endl;
+     
+    if (icount % write_helper.get_iwrite_skip() !=0 ) 
+    {   
+         if (write_helper.write_locally()) write_helper.increment_count();
+         return;
+    }
+   
+  
+      
+   
     int local_num = bunch_sptr->get_local_num();
     int num_procs = bunch_sptr->get_comm().get_size();
     std::vector<int > local_nums(num_procs);
     void * local_nums_buf = (void *) &local_nums[0];
     int root = write_helper.get_writer_rank();
-    MPI_Comm comm = bunch_sptr->get_comm().get();
     int status;
     status = MPI_Gather((void*) &local_num, 1, MPI_INT, local_nums_buf, 1,
             MPI_INT, root, comm);
@@ -618,11 +643,9 @@ Diagnostics_particles::write()
         throw std::runtime_error(
                 "Diagnostics_particles::write: MPI_Gather failed.");
     }
-
     if (write_helper.write_locally()) {
         H5::H5File file = write_helper.get_file();
         receive_other_local_particles(local_nums, file);
-
         Hdf5_writer<double > writer_pz(file, "pz");
         double pz = bunch_sptr->get_reference_particle().get_momentum();
         writer_pz.write(pz);

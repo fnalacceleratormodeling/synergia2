@@ -8,7 +8,7 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/get_pointer.hpp>
 #include "synergia/collective/impedance.h"
-
+#include "synergia/bunch/period.h"
 
 Step::Step(double length) :
     operators(), time_fractions(), length(length)
@@ -38,9 +38,11 @@ void
 Step::apply(Bunch & bunch)
 { 
     
+   // int rank = Commxx().get_rank();
     std::list<double >::const_iterator fractions_it = time_fractions.begin();
     for (Operators::const_iterator it = operators.begin(); it
             != operators.end(); ++it) {
+        // if (rank==0) std::cout<<" operator name="<<(*it)->get_name()<<std::endl;
         // time [s] in accelerator frame
         double time = length / (bunch.get_reference_particle().get_beta()
                 * pconstants::c);
@@ -58,10 +60,55 @@ Step::apply(Bunch & bunch)
           //  std::cout<<"name ="<< (*it)->get_name()<<" stored dim "<<stored_bunches.size()<<std::endl; 
            
          }
+         
         (*it)->apply(bunch, (*fractions_it) * time, *this);
+        if (bunch.is_z_periodic()){
+            double plength=bunch.get_z_period_length();
+            apply_longitudinal_periodicity(bunch, plength);
+        }
         ++fractions_it;
     }
 }
+
+void
+Step::apply(Bunch & bunch, Multi_diagnostics & diagnostics)
+{ 
+    
+    std::list<double >::const_iterator fractions_it = time_fractions.begin();
+    for (Operators::const_iterator it = operators.begin(); it
+            != operators.end(); ++it) {
+        // if (rank==0) std::cout<<" operator name="<<(*it)->get_name()<<std::endl;
+        // time [s] in accelerator frame
+        double time = length / (bunch.get_reference_particle().get_beta()
+                * pconstants::c);
+        if ((*it)->get_name()=="impedance") {
+            MArray1d bunch_means=Diagnostics::calculate_mean(bunch);
+            Bunch_means bi;
+            bi.x_mean=bunch_means[0];
+            bi.y_mean=bunch_means[2];
+            bi.z_mean=bunch_means[4];
+            bi.n_part=bunch.get_total_num();
+            stored_bunches.push_front(bi);
+
+            int nstored=(reinterpret_cast<Impedance*>(boost::get_pointer(*it)))->get_nstored_turns(); 
+            if (stored_bunches.size()>nstored) stored_bunches.pop_back();
+           // std::cout<<"name ="<< (*it)->get_name()<<" stored dim "<<stored_bunches.size()<<std::endl; 
+           
+         }
+         for (Multi_diagnostics::iterator itd = diagnostics.begin(); itd
+            != diagnostics.end(); ++itd) {
+              
+                 (*itd)->update_and_write();
+          }
+        (*it)->apply(bunch, (*fractions_it) * time, *this);
+         if (bunch.is_z_periodic()){
+            double plength=bunch.get_z_period_length();
+            apply_longitudinal_periodicity(bunch, plength);
+        }     
+        ++fractions_it;
+    }
+}
+
 
 Operators const&
 Step::get_operators() const

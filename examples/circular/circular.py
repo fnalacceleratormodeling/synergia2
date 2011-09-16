@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import sys
 import synergia
 from circular_options import opts
 import numpy as np
@@ -40,12 +41,16 @@ print "reference particle gamma: ", gamma
 freq = opts.harmno * beta * synergia.foundation.pconstants.c/lattice_length
 print "RF freq: ", freq
 
+
+
+
 # Don't need that?  Lattice has voltage set
 # rf cavity voltage, 
 for elem in lattice.get_elements():
     if elem.get_type() == "rfcavity":
         elem.set_double_attribute("volt", opts.rf_voltage)
         elem.set_double_attribute("freq", freq)
+       # print" atributes=", elem.get_double_attributes()
         #elem.set_double_attribute("lag", 0.5)
 
 lattice_simulator = synergia.simulation.Lattice_simulator(lattice, opts.map_order)
@@ -74,27 +79,57 @@ print "alpha z (better be small): ", az
 print "beta z: ", bz
 
 
-no_op = synergia.simulation.Dummy_collective_operator("stub")
-bunchsp=lattice_length/opts.harmno #2.0*math.pi*self.get_beta()*physics_constants.PH_MKS_c/self.get_omega()
-zgrid=40
-imped= synergia.collective.Impedance("BoosterF_wake.dat",lattice_length, bunchsp,zgrid, "circular",7)
-#imped= synergia.collective.Space_charge_2d_bassetti_erskine()
-stepper = synergia.simulation.Split_operator_stepper(
-                            lattice_simulator, imped, opts.num_steps)
+
+
 
 emit = opts.norm_emit
 print "generating particles with transverse emittance: ", emit
 
-covar = synergia.optics.matching._get_correlation_matrix(map, np.sqrt(emit*bx), np.sqrt(emit*by), opts.stdz,beta)
+rms_index=[0,2,4]
+arms=np.sqrt(emit*bx)
+brms=np.sqrt(emit*by)
+crms=opts.stdz
+
+#rms_index=[1,3,5]
+#arms=0.002691405845277
+#brms=0.000691411827683
+#crms=4.84505679134e-06
+
+
+covar = synergia.optics.matching._get_correlation_matrix(map,arms,brms,crms,beta,rms_index)
 print "covariance matrix"
 print np.array2string(covar,max_line_width=200)
 
 
+
+
+print "stdx =",np.sqrt(emit*bx)," stdy= ", np.sqrt(emit*by)
 bunch = synergia.optics.generate_matched_bunch(lattice_simulator,
-                                               np.sqrt(emit*bx), np.sqrt(emit*by), opts.stdz,
+                                               arms,brms,crms,
                                                opts.num_real_particles,
-                                               opts.num_macro_particles,
+                                               opts.num_macro_particles,rms_index,
                                                seed=opts.seed)
+                                               
+print " bucket lenght=",bunch.get_z_period_length()
+
+
+
+no_op = synergia.simulation.Dummy_collective_operator("stub")
+bunchsp=bunch.get_z_period_length()
+zgrid=40
+imped= synergia.collective.Impedance("BoosterF_wake.dat",lattice_length, bunchsp,zgrid, "circular",60)
+#imped= synergia.simulation.Dummy_collective_operator("stub")
+impedance=opts.impedance
+if impedance:
+    stepper = synergia.simulation.Split_operator_stepper(
+                            lattice_simulator, imped, opts.num_steps)
+else:
+    stepper = synergia.simulation. Split_operator_stepper(
+                            lattice_simulator, no_op, opts.num_steps)                           
+    #stepper = synergia.simulation.Independent_stepper_elements(
+                            #lattice_simulator, opts.num_steps)
+
+
                                                
 # get particle bunch for examination
 particles = bunch.get_local_particles()
@@ -115,7 +150,7 @@ print "generated std(dpop): ", np.std(particles[:,5])
 
 diagnostics_writer_step = synergia.bunch.Diagnostics_full2(bunch, "circular_full2.h5")
                                                           
-diagnostics_writer_turn = synergia.bunch.Diagnostics_particles(bunch,"circular_particles.h5")
+diagnostics_writer_turn = synergia.bunch.Diagnostics_particles(bunch,"circular_particles.h5",0,0,3)
                                                            
 propagator = synergia.simulation.Propagator(stepper)
 propagator.propagate(bunch, opts.num_turns, diagnostics_writer_step, diagnostics_writer_turn, opts.verbose)

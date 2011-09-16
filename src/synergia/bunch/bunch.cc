@@ -123,17 +123,30 @@ Bunch::construct(int particle_charge, int total_num, double real_num)
 
 Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
         double real_num, Commxx const& comm) :
-    reference_particle(reference_particle), comm(comm), default_converter()
+    reference_particle(reference_particle), comm(comm), default_converter(),
+     z_period_length(0.0), z_periodic(0)
 {
     construct(reference_particle.get_charge(), total_num, real_num);
 }
 
 Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
         double real_num, Commxx const& comm, int particle_charge) :
-    reference_particle(reference_particle), comm(comm), default_converter()
+    reference_particle(reference_particle), comm(comm), default_converter(),
+    z_period_length(0.0), z_periodic(0)
 {
     construct(particle_charge, total_num, real_num);
 }
+
+Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
+        double real_num, Commxx const& comm, double z_period_length) :
+    reference_particle(reference_particle), comm(comm), default_converter(),
+    z_period_length(z_period_length), z_periodic(1)
+{
+    construct(reference_particle.get_charge(), total_num, real_num);
+}
+
+
+
 
 Bunch::Bunch(Bunch const& bunch) :
     reference_particle(bunch.reference_particle), comm(bunch.comm),
@@ -145,6 +158,8 @@ Bunch::Bunch(Bunch const& bunch) :
     local_num = bunch.local_num;
     local_particles = new MArray2d(*(bunch.local_particles));
     state = bunch.state;
+    z_period_length=bunch.z_period_length;
+    z_periodic=bunch.z_periodic;
     if (bunch.converter_ptr == &(bunch.default_converter)) {
         converter_ptr = &default_converter;
     } else {
@@ -164,6 +179,8 @@ Bunch::operator=(Bunch const& bunch)
         local_num = bunch.local_num;
         local_particles = new MArray2d(*(bunch.local_particles));
         state = bunch.state;
+        z_period_length=bunch.z_period_length;
+        z_periodic=bunch.z_periodic;
         if (bunch.converter_ptr == &(bunch.default_converter)) {
             converter_ptr = &default_converter;
         } else {
@@ -269,18 +286,37 @@ Bunch::set_converter(Fixed_t_z_converter &converter)
 void
 Bunch::convert_to_state(State state)
 {
+    
     if (this->state != state) {
-        if (state == fixed_t) {
-            converter_ptr->fixed_z_to_fixed_t(*this);
-            this->state = fixed_t;
-        } else if (state == fixed_z) {
-            converter_ptr->fixed_t_to_fixed_z(*this);
-            this->state = fixed_z;
-        } else {
-            throw std::runtime_error("Unknown state in Bunch::convert_to_state");
+        if (this->state==fixed_z_lab){
+            if (state==fixed_t_lab)  {
+                converter_ptr->from_z_lab_to_t_lab(*this);
+                }
+            else if ( state==fixed_t_bunch) converter_ptr->from_z_lab_to_t_bunch(*this);
+           // else if ( state==fixed_z_bunch) converter_ptr->from_z_lab_to_z_bunch(*this);
+            else  throw std::runtime_error("Unknown state in Bunch::convert_to_state, 1");
         }
+        else if (this->state==fixed_z_bunch){
+        throw std::runtime_error("state z_bunch not implemented yet in Bunch::convert_to_state");
+        }
+        else if (this->state==fixed_t_lab){
+           if (state==fixed_z_lab ) converter_ptr->from_t_lab_to_z_lab(*this);
+          // else if (state==fixed_z_bunch)converter_ptr->from_t_lab_to_z_bunch(*this);
+          // else if (state==fixed_t_bunch) converter_ptr->from_t_lab_to_t_bunch(*this);
+           else  throw std::runtime_error("Unknown state in Bunch::convert_to_state, 2");           
+        }
+        else if (this->state==fixed_t_bunch){
+             if (state==fixed_z_lab ) converter_ptr->from_t_bunch_to_z_lab(*this);
+            // else if (state==fixed_z_bunch ) converter_ptr->from_t_bunch_to_z_bunch(*this);
+            //else if (state==fixed_t_lab ) converter_ptr->from_t_bunch_to_t_lab(*this);
+             else  throw std::runtime_error("Unknown state in Bunch::convert_to_state, 3");   
+        }
+    this->state =state;   
     }
+     
 }
+
+
 
 Reference_particle &
 Bunch::get_reference_particle()
@@ -318,10 +354,25 @@ Bunch::get_mass() const
     return reference_particle.get_four_momentum().get_mass();
 }
 
+
+
 double
 Bunch::get_real_num() const
 {
     return real_num;
+}
+
+
+double
+ Bunch::get_z_period_length() const
+{
+    return z_period_length;
+}
+
+bool 
+ Bunch::is_z_periodic() const
+{
+    return z_periodic;
 }
 
 int
@@ -381,6 +432,24 @@ Bunch::inject(Bunch const& bunch)
     }
     update_total_num();
 }
+
+void Bunch::check_pz2_positive()
+{ 
+    if (this->state == fixed_z_lab) {
+        int local_num = get_local_num();
+        MArray2d_ref particles = get_local_particles();
+        for (int part = 0; part < local_num; ++part) {
+            double  pzop2=(1.+particles[part][5])*(1.+particles[part][5])-
+                particles[part][1]*particles[part][1]-particles[part][3]*particles[part][3];
+            if (pzop2<0.)  {
+                std::cout<<"pzop^2="<<pzop2<<std::endl;
+                throw std::runtime_error( " check pz2:  pz square cannot be negative!");
+            }
+         
+        }
+    }
+}
+
 
 Bunch::~Bunch()
 {

@@ -62,5 +62,6 @@ r: rfcavity,	l=cavlen, volt=hvoltage, harmon=harmno
 !fobodobo:  line=( f, o, b, o, d, o, b, o )
 fobrdobo:  line=( f, o, b, os, r, os, d, o, b, o)
 !fobrdobo:  line=( othreequart, f, o, b, os, r, os, d, o, b, oquart)
-model:     line=( 800*fobrdobo )
+!model:     line=( 800*fobrdobo )
+model:     line=( 8*fobrdobo )
 ! Doesn't work: model:     line=( n*fobodobo )

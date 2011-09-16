@@ -18,16 +18,30 @@ struct Bunch_fixture
                 four_momentum), comm(MPI_COMM_WORLD), bunch(reference_particle,
                 total_num, real_num, comm), distribution(0, comm)
     {
-        BOOST_TEST_MESSAGE("setup bunch fixture");
-        MArray2d covariances(boost::extents[6][6]);
-        MArray1d means(boost::extents[6]);
-        for (int i = 0; i < 6; ++i) {
-            means[i] = 0.0;
-            for (int j = i; j < 6; ++j) {
-                covariances[i][j] = covariances[j][i] = (i + 1) * (j + 1);
-            }
+    BOOST_TEST_MESSAGE("setup bunch fixture");
+    MArray2d covariances(boost::extents[6][6]);
+    MArray1d means(boost::extents[6]);
+    for (int i = 0; i < 6; ++i) {
+        means[i] = i * 7.2;
+        for (int j = i; j < 6; ++j) {
+            covariances[i][j] = covariances[j][i] = (i + 1) * (j + 1);
         }
-        populate_6d(distribution, bunch, means, covariances);
+        covariances[i][i] *= 10.0; // this makes for a positive-definite matrix
+    }
+    for (int i = 0; i < 6; ++i) {
+         covariances[1][i] *=0.001;
+         covariances[i][1] *=0.001;
+         covariances[3][i] *=0.001;
+         covariances[i][3] *=0.001;
+         covariances[5][i] *=0.001;
+         covariances[i][5] *=0.001;
+    }
+      
+    
+        
+        
+     populate_6d(distribution, bunch, means, covariances);
+        
     }
 
     ~Bunch_fixture()

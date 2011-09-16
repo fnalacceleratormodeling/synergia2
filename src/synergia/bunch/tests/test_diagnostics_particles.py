@@ -34,4 +34,4 @@ def test_construct():
 
 def test_construct2():
     diagnostics = Diagnostics_particles(bunch, "dummy.h5", min_particle_id,
-                                         max_particle_id)
+                                         max_particle_id,1)

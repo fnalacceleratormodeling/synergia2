@@ -291,8 +291,9 @@ public:
     ///        a numerical index inserted
     /// @param min_particle_id the lowest particle id to write (defaults to 0)
     /// @param max_particle_id the highest particle id to write (0 indicates no limit, hence min,max = 0,0 writes all particles)
+    /// @param write_skip write every write_skip turns
     Diagnostics_particles(Bunch_sptr bunch_sptr, std::string const& filename,
-            int min_particle_id = 0, int max_particle_id = 0);
+            int min_particle_id = 0, int max_particle_id = 0, int write_skip = 1);
 
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_particles class is not serial.
