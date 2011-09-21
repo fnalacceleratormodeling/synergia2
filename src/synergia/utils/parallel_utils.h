@@ -31,4 +31,21 @@ decompose_1d(Commxx comm, int length, std::vector<int > &offsets,
 int
 decompose_1d_local(Commxx comm, int length);
 
+/// Distribute elements across multiple processors. Where decompose assumes that
+/// each element will be assigned to a single processor, distribute assumes that
+/// elements may be shared among multiple processors.  The return value is a
+/// vector of length elements, each member of which is a vector containing the
+/// ranks for each element.
+/// @param processors is the number of processors.
+/// @param elements is the number of elements.
+std::vector<std::vector<int > >
+distribute_1d_raw(int processors, int elements);
+
+/// See distribute_1d_raw. The number of processors is extracted from the
+/// Commxx object.
+std::vector<std::vector<int > >
+distribute_1d(Commxx comm, int elements);
+
+
 #endif /* PARALLEL_UTILS_H_ */
+

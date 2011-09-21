@@ -14,7 +14,7 @@ private:
     Chef_lattice_sptr chef_lattice_sptr;
     Operation_extractor_map_sptr extractor_map_sptr;
     int map_order;
-
+    double bucket_length;
     void
     construct_extractor_map();
 public:
@@ -23,6 +23,12 @@ public:
     construct_sliced_chef_beamline(Lattice_element_slices const& slices);
     int
     get_map_order() const;
+    void 
+    set_bucket_length();
+    double 
+    get_bucket_length();
+    int 
+    get_number_buckets();
     Operation_extractor_map_sptr
     get_operation_extractor_map_sptr();
     Lattice_sptr

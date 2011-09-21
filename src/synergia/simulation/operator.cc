@@ -131,7 +131,7 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step)
         (*it)->apply(bunch);
     }
     t = simple_timer_show(t, "independent-operation-apply");
-    apply_circular_aperture(bunch, slices);
+   // apply_circular_aperture(bunch, slices);
     t = simple_timer_show(t, "independent-operation-aperture");
 }
 

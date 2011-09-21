@@ -10,6 +10,17 @@
 // import most common Eigen types
 USING_PART_OF_NAMESPACE_EIGEN
 
+Diagnostics::Diagnostics(std::string const& name): name(name)
+{
+}         
+ 
+ 
+std::string const &
+Diagnostics::get_name() const
+{
+return name;
+}
+
 MArray1d
 Diagnostics::calculate_mean(Bunch const& bunch)
 {
@@ -145,13 +156,16 @@ Diagnostics::update_and_write()
 }
 
 Diagnostics_basic::Diagnostics_basic(Bunch_sptr bunch_sptr,
-        std::string const& filename) :
+        std::string const& filename) : 
+    Diagnostics_basic::Diagnostics("diagnostics_basic"),       
     bunch_sptr(bunch_sptr), filename(filename), have_writers(false),
             mean(boost::extents[6]), std(boost::extents[6]),
             write_helper(filename, true, bunch_sptr->get_comm())
 {
 }
 
+
+    
 bool
 Diagnostics_basic::is_serial() const
 {
@@ -263,6 +277,15 @@ Diagnostics_basic::write()
     }
 }
 
+Bunch_sptr
+Diagnostics_basic::get_bunch_sptr() const
+{
+return this->bunch_sptr;
+}
+
+
+
+
 Diagnostics_basic::~Diagnostics_basic()
 {
     if (have_writers) {
@@ -333,6 +356,7 @@ Diagnostics_full2::update_emittances()
 
 Diagnostics_full2::Diagnostics_full2(Bunch_sptr bunch_sptr,
         std::string const& filename) :
+    Diagnostics_full2::Diagnostics("diagnostics_full2"),
     bunch_sptr(bunch_sptr), filename(filename), have_writers(false),
             mean(boost::extents[6]), std(boost::extents[6]),
             mom2(boost::extents[6][6]), corr(boost::extents[6][6]),
@@ -493,6 +517,13 @@ Diagnostics_full2::write()
     }
 }
 
+Bunch_sptr
+Diagnostics_full2::get_bunch_sptr() const
+{
+return this->bunch_sptr;
+}
+
+
 Diagnostics_full2::~Diagnostics_full2()
 {
     if (have_writers) {
@@ -515,6 +546,7 @@ Diagnostics_full2::~Diagnostics_full2()
 
 Diagnostics_particles::Diagnostics_particles(Bunch_sptr bunch_sptr,
         std::string const& filename, int min_particle_id, int max_particle_id, int write_skip) :
+         Diagnostics_particles::Diagnostics("diagnostics_particles"),
     bunch_sptr(bunch_sptr), filename(filename), min_particle_id(min_particle_id), 
     max_particle_id(max_particle_id),
             have_writers(false), write_helper(filename, false, write_skip,
@@ -666,12 +698,20 @@ Diagnostics_particles::write()
     }
 }
 
+Bunch_sptr
+Diagnostics_particles::get_bunch_sptr() const
+{
+return this->bunch_sptr;
+}
+
+
 Diagnostics_particles::~Diagnostics_particles()
 {
 }
 
 Diagnostics_track::Diagnostics_track(Bunch_sptr bunch_sptr,
         std::string const& filename, int particle_id) :
+         Diagnostics_track::Diagnostics("diagnostics_track"),
     bunch_sptr(bunch_sptr), filename(filename), have_writers(false),
             coords(boost::extents[6]), found(false), first_search(true),
             particle_id(particle_id), last_index(-1)
@@ -761,6 +801,14 @@ Diagnostics_track::write()
         write_helper_sptr->finish_write();
     }
 }
+
+Bunch_sptr
+Diagnostics_track::get_bunch_sptr() const
+{
+return this->bunch_sptr;
+}
+
+
 
 Diagnostics_track::~Diagnostics_track()
 {

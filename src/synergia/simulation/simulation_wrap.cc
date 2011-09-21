@@ -60,6 +60,8 @@ BOOST_PYTHON_MODULE(simulation)
                 &Lattice_simulator::get_operation_extractor_map_sptr)
         .def("get_lattice", &Lattice_simulator::get_lattice_sptr)
         .def("get_chef_lattice", &Lattice_simulator::get_chef_lattice_sptr)
+        .def("get_bucket_length", &Lattice_simulator::get_bucket_length)
+        .def("get_number_buckets",&Lattice_simulator::get_number_buckets)
         ;
 
 
@@ -92,15 +94,21 @@ BOOST_PYTHON_MODULE(simulation)
     class_<Independent_stepper_elements, bases<Stepper > >("Independent_stepper_elements",
             init<Lattice_simulator const&, int >());
 
-    void (Propagator::*propagate1)(Bunch &, int, Diagnostics &,
+    void (Propagator::*propagate1)(Bunch_with_diagnostics &, int, bool) 
+                                = &Propagator::propagate;
+    
+    void (Propagator::*propagate2)(Bunch &, int, Diagnostics &,
             Diagnostics &, bool) = &Propagator::propagate;
-    void (Propagator::*propagate2)(Bunch &, int, Multi_diagnostics &,
+    
+    void (Propagator::*propagate3)(Bunch &, int, Multi_diagnostics &,
             Multi_diagnostics &, bool) = &Propagator::propagate;
+            
 
     class_<Propagator >("Propagator",init<Stepper_sptr >())
-            .def("propagate", propagate1,
-                    propagate_member_overloads())
+            .def("propagate", propagate1)
             .def("propagate", propagate2,
+                    propagate_member_overloads())
+            .def("propagate", propagate3,
                     propagate_member_overloads())
             ;
 }

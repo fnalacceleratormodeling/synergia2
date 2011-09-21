@@ -3,7 +3,6 @@
 
 #include <string>
 #include <boost/shared_ptr.hpp>
-
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/diagnostics_write_helper.h"
 #include "synergia/utils/hdf5_serial_writer.h"
@@ -12,7 +11,17 @@
 class Diagnostics
 {
 
+private:
+    std::string name;
+    
 public:
+   
+    Diagnostics(std::string const& name);
+    
+    /// return diagnostics type
+    std::string const &
+    get_name() const;
+    
     /// Multiple serial diagnostics can be written to a single file.
     virtual bool
     is_serial() const = 0;
@@ -43,6 +52,9 @@ public:
 
     static MArray1d
     calculate_bunchmax(Bunch const& bunch);
+
+    virtual Bunch_sptr 
+    get_bunch_sptr() const=0;
 
     virtual
     ~Diagnostics()
@@ -82,6 +94,7 @@ public:
     /// @param bunch the Bunch
     /// @param filename filename for output
     Diagnostics_basic(Bunch_sptr bunch, std::string const& filename);
+
 
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_basic class is serial.
@@ -135,6 +148,9 @@ public:
     virtual void
     write();
 
+    virtual Bunch_sptr 
+     get_bunch_sptr() const;
+
     virtual
     ~Diagnostics_basic();
 };
@@ -181,6 +197,7 @@ public:
     /// @param bunch the Bunch
     /// @param filename filename for output
     Diagnostics_full2(Bunch_sptr bunch, std::string const& filename);
+
 
     virtual void
     init_writers(H5::H5File & file);
@@ -263,6 +280,10 @@ public:
     virtual void
     write();
 
+
+     virtual Bunch_sptr 
+     get_bunch_sptr() const;
+
     virtual
     ~Diagnostics_full2();
 };
@@ -295,6 +316,7 @@ public:
     Diagnostics_particles(Bunch_sptr bunch_sptr, std::string const& filename,
             int min_particle_id = 0, int max_particle_id = 0, int write_skip = 1);
 
+
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_particles class is not serial.
     virtual bool
@@ -306,7 +328,11 @@ public:
 
     virtual void
     write();
-
+    
+    virtual Bunch_sptr 
+    get_bunch_sptr() const;
+   
+    
     virtual
     ~Diagnostics_particles();
 };
@@ -348,6 +374,7 @@ public:
     Diagnostics_track(Bunch_sptr bunch_sptr, std::string const& filename,
             int particle_id);
 
+
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_full2 class is serial.
     virtual bool
@@ -359,6 +386,11 @@ public:
 
     virtual void
     write();
+    
+    virtual Bunch_sptr
+    get_bunch_sptr() const;
+
+
 
     virtual
     ~Diagnostics_track();

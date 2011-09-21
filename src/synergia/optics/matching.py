@@ -188,27 +188,20 @@ def get_covariances(sigma, r):
 
 def generate_matched_bunch(lattice_simulator, arms,brms,crms,
                            num_real_particles, num_macro_particles, rms_index=[0,2,4],seed=0,
-                           comm=None):
+                           comm=None, bunch_index=0):
 
     map = linear_one_turn_map(lattice_simulator)
     beta = lattice_simulator.get_lattice().get_reference_particle().get_beta()
     correlation_matrix = _get_correlation_matrix(map, arms,brms,crms,beta, rms_index)
     if comm == None:
         comm = MPI.COMM_WORLD
-    for elem in lattice_simulator.get_lattice().get_elements():
-        if elem.has_double_attribute("freq"):
-            freq=elem.get_double_attribute("freq")
-            z_period_length =beta*pconstants.c/freq
-            break
-        else:
-            z_period_length =None   
-    
-    if z_period_length == None:
+    z_period_length= lattice_simulator.get_bucket_length()        
+    if z_period_length == 0:
         bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
                   num_macro_particles, num_real_particles, comm)
     else:              
         bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
-                  num_macro_particles, num_real_particles, comm, z_period_length)
+                  num_macro_particles, num_real_particles, comm, z_period_length, bunch_index)
     dist = Random_distribution(seed, comm)
     populate_6d(dist, bunch, numpy.zeros((6,), 'd'), correlation_matrix)
     return bunch

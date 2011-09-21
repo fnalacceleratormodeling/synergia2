@@ -1,4 +1,5 @@
 #include "lattice_simulator.h"
+#include "synergia/foundation/physical_constants.h"
 
 void
 Lattice_simulator::construct_extractor_map()
@@ -25,6 +26,7 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr,
             map_order(map_order)
 {
     construct_extractor_map();
+    set_bucket_length(); 
 }
 
 void
@@ -57,6 +59,44 @@ Lattice_simulator::get_chef_lattice_sptr()
 {
     return chef_lattice_sptr;
 }
+
+void
+Lattice_simulator::set_bucket_length()
+{
+    double freq(0.);
+    for (Lattice_elements::const_iterator it= this->lattice_sptr->get_elements().begin();
+           it != this->lattice_sptr->get_elements().end(); ++it){
+        
+        if ((*it)->has_double_attribute("freq")) {
+                 freq=(*it)->get_double_attribute("freq");
+                 double beta=this->get_lattice_sptr()->get_reference_particle().get_beta();
+                 this->bucket_length=pconstants::c*beta/freq;
+                 break;
+        }
+        else {
+                this->bucket_length=0.0;
+        }
+    } 
+}
+
+double 
+Lattice_simulator::get_bucket_length()
+{
+    return this->bucket_length;
+}
+
+int
+Lattice_simulator::get_number_buckets()
+{
+double eps=1e-5;
+int number_buckets;
+double bl=get_bucket_length();
+double ol=this->get_lattice_sptr()->get_length();
+bl>eps ? number_buckets=int(ol/bl):number_buckets=1;
+return number_buckets;
+}
+
+
 
 Lattice_simulator::~Lattice_simulator()
 {

@@ -1,5 +1,7 @@
 #include "bunch.h"
+#include "bunch_train.h"
 #include "diagnostics.h"
+#include "bunch_with_diagnostics.h"
 #include "multi_diagnostics.h"
 #include "populate.h"
 #include "analysis.h"
@@ -98,20 +100,45 @@ BOOST_PYTHON_MODULE(bunch)
     def("populate_transverse_gaussian", populate_transverse_gaussian);
     def("populate_uniform_cylinder", populate_uniform_cylinder);
     def("populate_transverse_KV_GaussLong", populate_transverse_KV_GaussLong);
+    
+     class_<Bunch_with_diagnostics >("Bunch_with_diagnostics",
+             init<Bunch_sptr, Diagnostics_sptr, Diagnostics_sptr >())
+             .def(init<Bunch_sptr, Multi_diagnostics, Multi_diagnostics >())
+             .def("get_bunch_sptr", &Bunch_with_diagnostics::get_bunch_sptr)
+             ;
+    
+    
+    class_<Bunch_train >("Bunch_train",
+            init<int, double, Commxx const& >())
+            .def("get_num_bunches", &Bunch_train::get_num_bunches)
+            .def("get_bunch_separation", &Bunch_train::get_bunch_separation)
+            .def("get_master_comm", &Bunch_train::get_master_comm,
+                    return_value_policy<copy_const_reference>())
+            .def("get_comm", &Bunch_train::get_comm,
+                    return_value_policy<copy_const_reference>())
+            .def("is_on_this_rank", &Bunch_train::is_on_this_rank)
+            .def("get_bunch_sptr", &Bunch_train::get_bunch_sptr)
+            .def("set_bunch_sptr", &Bunch_train::set_bunch_sptr)
+            ;
+
+    
 
     typedef Reference_particle & (Bunch::*get_reference_particle_non_const_type)();
     typedef MArray2d_ref (Bunch::*get_local_particles_non_const_type)();
     scope
         Bunch_scope =
-            class_<Bunch > ("Bunch", init<Reference_particle const&,
+            class_<Bunch, Bunch_sptr > ("Bunch", init<Reference_particle const&,
                     int, double, Commxx const& > ())
                 .def(init<Reference_particle const&, int, double,
                         Commxx const&, int >())
                 .def(init<Reference_particle const&, int, double,
                         Commxx const&, double >())
+                .def(init<Reference_particle const&, int, double,
+                        Commxx const&, double, int >())
                 .def("set_particle_charge", &Bunch::set_particle_charge)
                 .def("set_real_num", &Bunch::set_real_num)
                 .def("set_local_num", &Bunch::set_local_num)
+                .def("set_bucket_index", &Bunch::set_bucket_index)
                 .def("update_total_num", &Bunch::update_total_num)
                 .def("set_converter", &Bunch::set_converter)
                 .def("convert_to_state", &Bunch::convert_to_state)
@@ -129,6 +156,7 @@ BOOST_PYTHON_MODULE(bunch)
                 .def("get_total_num", &Bunch::get_total_num)
                 .def("get_state", &Bunch::get_state)
                 .def("get_z_period_length", &Bunch::get_z_period_length)
+                .def("get_bucket_index", &Bunch::get_bucket_index)
                 .def("is_periodic", &Bunch::is_z_periodic)
                 // jfa: the following implementation does not work for reasons I do
                 //      not understand.
