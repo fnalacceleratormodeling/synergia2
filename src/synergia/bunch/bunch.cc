@@ -1,5 +1,6 @@
 #include "bunch.h"
 #include "synergia/utils/parallel_utils.h"
+#include <iostream>
 #include <stdexcept>
 #include <cmath>
 #include <algorithm>
