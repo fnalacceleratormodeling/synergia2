@@ -76,11 +76,9 @@ Element_adaptor_map::Element_adaptor_map()
             new Multipole_mad8_adaptor);
     adaptor_map["multipole"] = multipole_mad8_adaptor;
 
-#ifdef THINPOLE
     boost::shared_ptr<Thinpole_mad8_adaptor > thinpole_mad8_adaptor(
             new Thinpole_mad8_adaptor);
     adaptor_map["thinpole"] = thinpole_mad8_adaptor;
-#endif /* THINPOLE */
 
     boost::shared_ptr<Solenoid_mad8_adaptor > solenoid_mad8_adaptor(
             new Solenoid_mad8_adaptor);
@@ -693,7 +691,6 @@ Multipole_mad8_adaptor::~Multipole_mad8_adaptor()
 {
 }
 
-#ifdef THINPOLE
 //------------------------------------------
 // thinpoles are an addon present only in CHEF
 // they have length 0, normal and skew multipole moments
@@ -769,9 +766,6 @@ Thinpole_mad8_adaptor::get_chef_elements(
 Thinpole_mad8_adaptor::~Thinpole_mad8_adaptor()
 {
 }
-
-//------------------------------------------
-#endif /* THINPOLE */
 
 Solenoid_mad8_adaptor::Solenoid_mad8_adaptor()
 {

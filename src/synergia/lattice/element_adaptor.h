@@ -9,8 +9,6 @@
 #include "synergia/lattice/lattice_element.h"
 #include "synergia/lattice/chef_elements.h"
 
-#define THINPOLE 1
-
 class Element_adaptor
 {
 public:
@@ -148,7 +146,6 @@ public:
     ~Multipole_mad8_adaptor();
 };
 
-#ifdef THINPOLE
 // thinpoles are an CHEF addon not found in MAD8
 class Thinpole_mad8_adaptor : public Element_adaptor
 {
@@ -161,7 +158,6 @@ class Thinpole_mad8_adaptor : public Element_adaptor
   virtual
     ~Thinpole_mad8_adaptor();
 };
-#endif /* THINPOLE */
 
 class Solenoid_mad8_adaptor : public Element_adaptor
 {
