@@ -14,7 +14,7 @@ opts.add("norm_emit",5.89533703303356e-07, "Horizontal and vertical emittance [m
 opts.add("stdz", 0.0552288104292, "RMS longitudinal length [m]", float)
 opts.add("harmno",32,"Harmonic number", int)
 opts.add("rf_voltage", 1.0e-3, "RF cavity voltage in MV", float)
-opts.add("x_offset", 0.0, "Bunch offset in x", float)
+opts.add("x_offset", 0.02, "Bunch offset in x", float)
 opts.add("y_offset", 0.01, "Bunch offset in y", float)
 opts.add("z_offset", 0.0, "Bunch offset in z", float)
 opts.add("impedance", 1, "", int)
