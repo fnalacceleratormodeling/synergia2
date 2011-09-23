@@ -195,13 +195,13 @@ def generate_matched_bunch(lattice_simulator, arms,brms,crms,
     correlation_matrix = _get_correlation_matrix(map, arms,brms,crms,beta, rms_index)
     if comm == None:
         comm = MPI.COMM_WORLD
-    for elem in lattice_simulator.get_lattice().get_elements():
-        if elem.has_double_attribute("freq"):
-            freq=elem.get_double_attribute("freq")
-            z_period_length =beta*pconstants.c/freq
-            break
-        else:
-            z_period_length =None   
+   # for elem in lattice_simulator.get_lattice().get_elements():
+   #     if elem.has_double_attribute("freq"):
+   #         freq=elem.get_double_attribute("freq")
+   #         z_period_length =beta*pconstants.c/freq
+   #         break
+   #     else:
+    z_period_length =None   
     
     if z_period_length == None:
         bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
