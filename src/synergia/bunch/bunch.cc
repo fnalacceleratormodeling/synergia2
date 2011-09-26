@@ -287,7 +287,7 @@ Bunch::set_converter(Fixed_t_z_converter &converter)
 void
 Bunch::convert_to_state(State state)
 {
-    
+
     if (this->state != state) {
         if (this->state==fixed_z_lab){
             if (state==fixed_t_lab)  {
@@ -310,7 +310,7 @@ Bunch::convert_to_state(State state)
              if (state==fixed_z_lab ) converter_ptr->from_t_bunch_to_z_lab(*this);
             // else if (state==fixed_z_bunch ) converter_ptr->from_t_bunch_to_z_bunch(*this);
             //else if (state==fixed_t_lab ) converter_ptr->from_t_bunch_to_t_lab(*this);
-             else  throw std::runtime_error("Unknown state in Bunch::convert_to_state, 3");   
+             else  throw std::runtime_error("Unknown state in Bunch::convert_to_state, 3");         
         }
     this->state =state;   
     }
