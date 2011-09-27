@@ -128,6 +128,7 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step)
     t = simple_timer_current();
     for (Independent_operations::iterator it = operations.begin(); it
             != operations.end(); ++it) {
+     //  std::cout<<" opertor.cc operator name="<<(*it)->get_type()<<std::endl;
         (*it)->apply(bunch);
     }
     t = simple_timer_show(t, "independent-operation-apply");
@@ -135,6 +136,30 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step)
     t = simple_timer_show(t, "independent-operation-aperture");
 }
 
+void
+Independent_operator::apply(Bunch & bunch, double time_step, Step & step, Multi_diagnostics & diagnostics)
+{
+    if (need_update()) {
+        update_operations(bunch.get_reference_particle());
+    }
+    double t;
+    t = simple_timer_current();
+    for (Independent_operations::iterator it = operations.begin(); it
+            != operations.end(); ++it) {
+     //  std::cout<<" opertor.cc operator name="<<(*it)->get_type()<<std::endl;
+         for (Multi_diagnostics::iterator itd = diagnostics.begin(); itd
+            != diagnostics.end(); ++itd) {
+              
+                 (*itd)->update_and_write();
+          }
+        (*it)->apply(bunch);
+    }
+    t = simple_timer_show(t, "independent-operation-apply");
+   // apply_circular_aperture(bunch, slices);
+    t = simple_timer_show(t, "independent-operation-aperture");
+}       
+        
+        
 void
 Independent_operator::print() const
 {

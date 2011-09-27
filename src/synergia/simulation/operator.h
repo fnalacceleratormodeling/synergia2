@@ -10,6 +10,7 @@
 #include "synergia/lattice/chef_lattice.h"
 #include "synergia/simulation/independent_operation.h"
 #include "synergia/simulation/operation_extractor.h"
+#include "synergia/bunch/multi_diagnostics.h"
 
 class Step;
 
@@ -80,6 +81,8 @@ public:
     get_slices() const;
     virtual void
     apply(Bunch & bunch, double time_step, Step & step);
+    virtual void
+    apply(Bunch & bunch, double time_step, Step & step, Multi_diagnostics & diagnostics);
     virtual void
     print() const;
     virtual

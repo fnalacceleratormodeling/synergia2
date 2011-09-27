@@ -42,7 +42,7 @@ Step::apply(Bunch & bunch)
     std::list<double >::const_iterator fractions_it = time_fractions.begin();
     for (Operators::const_iterator it = operators.begin(); it
             != operators.end(); ++it) {
-         // if (rank==0) std::cout<<" operator name="<<(*it)->get_name()<<std::endl;
+       //  if (rank==0) std::cout<<" operator name="<<(*it)->get_name()<<std::endl;
         // time [s] in accelerator frame
         double time = length / (bunch.get_reference_particle().get_beta()
                 * pconstants::c);
@@ -58,7 +58,7 @@ Step::apply(Bunch & bunch)
             int nstored=(reinterpret_cast<Impedance*>(boost::get_pointer(*it)))->get_nstored_turns(); 
             if (stored_bunches.size()>nstored) stored_bunches.pop_back();
            
-         }
+         } 
         (*it)->apply(bunch, (*fractions_it) * time, *this);
         if (bunch.is_z_periodic()){
             double plength=bunch.get_z_period_length();
@@ -75,7 +75,7 @@ Step::apply(Bunch & bunch, Multi_diagnostics & diagnostics)
     std::list<double >::const_iterator fractions_it = time_fractions.begin();
     for (Operators::const_iterator it = operators.begin(); it
             != operators.end(); ++it) {
-        // if (rank==0) std::cout<<" operator name="<<(*it)->get_name()<<std::endl;
+         // std::cout<<" operator name="<<(*it)->get_name()<<std::endl;
         // time [s] in accelerator frame
         double time = length / (bunch.get_reference_particle().get_beta()
                 * pconstants::c);
@@ -98,7 +98,14 @@ Step::apply(Bunch & bunch, Multi_diagnostics & diagnostics)
               
                  (*itd)->update_and_write();
           }
-        (*it)->apply(bunch, (*fractions_it) * time, *this);
+        (*it)->apply(bunch, (*fractions_it) * time, *this); 
+         
+         for (Multi_diagnostics::iterator itd = diagnostics.begin(); itd
+            != diagnostics.end(); ++itd) {
+              
+                 (*itd)->update_and_write();
+          }    
+             
          if (bunch.is_z_periodic()){
             double plength=bunch.get_z_period_length();
             apply_longitudinal_periodicity(bunch, plength);

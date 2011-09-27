@@ -175,6 +175,7 @@ Diagnostics_basic::is_serial() const
 void
 Diagnostics_basic::update()
 {
+    bunch_sptr->convert_to_state(bunch_sptr->fixed_z_lab);
     s = bunch_sptr->get_reference_particle().get_s();
     repetition = bunch_sptr->get_reference_particle().get_repetition();
     trajectory_length
@@ -373,7 +374,7 @@ Diagnostics_full2::is_serial() const
 void
 Diagnostics_full2::update()
 {   
-    bunch_sptr->convert_to_state(bunch_sptr->fixed_z);
+    bunch_sptr->convert_to_state(Bunch::fixed_z_lab);
     s = bunch_sptr->get_reference_particle().get_s();
     repetition = bunch_sptr->get_reference_particle().get_repetition();
     trajectory_length
@@ -572,6 +573,7 @@ write_selected_particles(Hdf5_chunked_array2d_writer & writer,
         MArray2d_ref const & particles, int local_num, int min_particle_id,
         int max_particle_id)
 {
+
     if ((min_particle_id == 0) && (max_particle_id == 0)) {
         writer.write_chunk(
                 particles[boost::indices[range(0, local_num)][range()]]);
@@ -644,7 +646,7 @@ Diagnostics_particles::send_local_particles()
 void
 Diagnostics_particles::write()
 { 
-
+    bunch_sptr->convert_to_state(bunch_sptr->fixed_z_lab);
     int writer_rank= write_helper.get_writer_rank();
     MPI_Comm comm = bunch_sptr->get_comm().get();
     int icount;
@@ -727,6 +729,7 @@ Diagnostics_track::is_serial() const
 void
 Diagnostics_track::update()
 {
+    bunch_sptr->convert_to_state(bunch_sptr->fixed_z_lab);
     repetition = bunch_sptr->get_reference_particle().get_repetition();
     trajectory_length
             = bunch_sptr->get_reference_particle().get_trajectory_length();
@@ -791,7 +794,7 @@ Diagnostics_track::init_writers(H5::H5File & file)
 void
 Diagnostics_track::write()
 {
-
+    bunch_sptr->convert_to_state(bunch_sptr->fixed_z_lab);
     if (found) {
         init_writers(write_helper_sptr->get_file());
         writer_coords->append(coords);

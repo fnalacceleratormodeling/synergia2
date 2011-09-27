@@ -16,7 +16,7 @@ Impedance::Impedance(std::string const & wake_file, double const & orbit_length,
 {  
     // wake_factor=-4.*mconstants::pi*pconstants::rp/pconstants::c;
      wake_factor=-4.*mconstants::pi*pconstants::rp;   
-     std::cout<<" in impedance wake_factor="<<wake_factor<<std::endl;
+     //std::cout<<" in impedance wake_factor="<<wake_factor<<std::endl;
      this->pipe_symmetry=pipe_symmetry;
      
      
@@ -134,7 +134,7 @@ calculate_moments_and_partitions(Bunch & bunch, MArray1d &zdensity,  MArray1d &x
            "  "<<bunch.get_local_particles()[part][4]<<
            "  "<<bunch.get_local_particles()[part][5]<<std::endl;
            
-         std::cout<< "NNNNNNNNNN part="<<part<<std::endl; 
+         std::cout<< " particle's id ="<<part<<std::endl; 
          std::cout << "  z_length  "<<z_length<<"  rank= "<<rank<<std::endl;
          std::cout << "(mbs.local_particles(4,n)-z_left)= "<<(bunch.get_local_particles()[part][4]-z_left)<<"  rank= "<<rank<<std::endl;
          std::cout << "bin: " << bin<<"  z_num="<<z_num<< "  h=" << h <<"  rank= "<<rank<<std::endl;                
@@ -285,8 +285,8 @@ impedance_kick(Bunch & bunch, double wake_factor,  MArray1int & bin_partition, M
         bunch.get_local_particles()[part][3]  += wake_factor*ykick;
         bunch.get_local_particles()[part][5]  += wake_factor*zkick;
       
+      
     }
-    
 }
 
 

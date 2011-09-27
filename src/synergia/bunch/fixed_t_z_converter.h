@@ -56,10 +56,10 @@ class Fixed_t_z_zeroth : public Fixed_t_z_converter
 public:
      /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the accelerator frame.
     void
-    from_z_lab_to_t_lab(Bunch &bunch){};
+    from_z_lab_to_t_lab(Bunch &bunch);
     /// Convert from the fixed-t state in the accelerator frameto the fixed-z state in the accelerator frame.
     void
-    from_t_lab_to_z_lab(Bunch &bunch){};
+    from_t_lab_to_z_lab(Bunch &bunch);
     /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the beam frame.
     void
     from_z_lab_to_t_bunch(Bunch &bunch);

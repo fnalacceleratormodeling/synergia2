@@ -69,6 +69,22 @@ Fixed_t_z_zeroth::from_z_lab_to_t_bunch(Bunch &bunch)
 }
 
 void
+Fixed_t_z_zeroth::from_z_lab_to_t_lab(Bunch &bunch)
+{
+    throw std::runtime_error(
+                    "Fixed_t_z_zeroth::fixed_z_lab_to_fixed_t_lab: not implemented yet for zeroth converter, try other one!");
+}
+
+void
+Fixed_t_z_zeroth::from_t_lab_to_z_lab(Bunch &bunch)
+{
+throw std::runtime_error(
+                    "Fixed_t_z_zeroth::fixed_t_lab_to_fixed_z_lab: not implemented yet for zeroth converter, try other one!");
+}
+
+
+
+void
 Fixed_t_z_ballistic::from_t_bunch_to_z_lab(Bunch &bunch)
 {
     std::cout << "stub: ballistic fixed_t_to_fixed_z\n";

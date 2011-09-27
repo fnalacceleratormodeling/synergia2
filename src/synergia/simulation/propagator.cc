@@ -83,7 +83,7 @@ Propagator::propagate(Bunch_with_diagnostics & bunch_with_diagnostics,
                 }
             }      
              (*it)->apply(*bunch_sptr); 
-            // (*it)->apply(*bunch_sptr, bunch_with_diagnostics.get_full2_diagnostics());  
+            // (*it)->apply(*bunch_sptr, bunch_with_diagnostics.get_per_step_diagnostics());  
         }
         
        t_turn1= MPI_Wtime();
