@@ -3,6 +3,7 @@
 #include "synergia/simulation/fast_mapping.h"
 #include "fast_mapping_term_fixture.h"
 #include "mapping_fixture.h"
+#include "synergia/utils/xml_serialization.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
@@ -95,3 +96,13 @@ BOOST_FIXTURE_TEST_CASE(write_read_file, Mapping_fixture)
 //            is the same as the Fast_mapping written.
 //            For now, we can only diff the files test_fast_mapping.dat and
 //            test_fast_mapping2.dat
+
+BOOST_FIXTURE_TEST_CASE(serialize, Mapping_fixture)
+{
+    Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
+    fast_mapping.set_length(mapping_length);
+
+    xml_save<Fast_mapping>(fast_mapping,"test_fast_mapping.xml");
+    Fast_mapping fast_mapping2;
+    xml_load<Fast_mapping>(fast_mapping2,"test_fast_mapping.xml");
+}

@@ -11,6 +11,11 @@
 #include <fstream>
 #include <string>
 
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/array.hpp>
+#include <boost/serialization/vector.hpp>
+
 // The interface in this comment is out of date
 // A Fast_mapping_term represents one term in a polynomial expansion of order
 // "order". It contains a coefficient "coeff" and a c-style vector "i" of length
@@ -37,6 +42,8 @@ private:
 public:
     Fast_mapping_term(int order);
     Fast_mapping_term(std::ifstream & stream);
+    /// Default constructor for serialization use only
+    Fast_mapping_term();
     Fast_mapping_term(Fast_mapping_term const& fast_mapping_term);
     inline int
     order() const
@@ -70,6 +77,26 @@ public:
     ;
     void
     write_to_stream(std::ofstream & stream) const;
+    template<class Archive>
+        void
+        save(Archive & ar, const unsigned int version) const
+        {
+            ar & BOOST_SERIALIZATION_NVP(the_coeff);
+            ar & BOOST_SERIALIZATION_NVP(the_order);
+            ar & boost::serialization::make_nvp("i",
+                    boost::serialization::make_array(i, the_order + 1));
+        }
+    template<class Archive>
+        void
+        load(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(the_coeff);
+            ar & BOOST_SERIALIZATION_NVP(the_order);
+            i = new int[the_order + 1];
+            ar & boost::serialization::make_nvp("i",
+                    boost::serialization::make_array(i, the_order + 1));
+        }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
     ~Fast_mapping_term();
 };
 
@@ -134,6 +161,8 @@ public:
     Fast_mapping(std::string const& filename);
     Fast_mapping(Reference_particle const& reference_particle,
             Mapping const& chef_mapping, double mapping_length);
+    /// Default constructor for serialization use only
+    Fast_mapping();
     void
     set_length(double length);
     double
@@ -144,6 +173,14 @@ public:
     apply(Bunch & bunch);
     void
     write_to_file(std::string const& filename);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(terms);
+            ar & BOOST_SERIALIZATION_NVP(order);
+            ar & BOOST_SERIALIZATION_NVP(length);
+        }
 };
 
 #endif /* FAST_MAPPING_H_ */

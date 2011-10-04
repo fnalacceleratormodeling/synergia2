@@ -34,6 +34,10 @@ Fast_mapping_term::Fast_mapping_term(std::ifstream & stream)
     sstream >> the_coeff;
 }
 
+Fast_mapping_term::Fast_mapping_term()
+{
+}
+
 Fast_mapping_term::Fast_mapping_term(Fast_mapping_term const& t)
 {
     the_coeff = t.the_coeff;
@@ -98,10 +102,15 @@ Fast_mapping::Fast_mapping(std::string const& filename)
         }
     }
     if (read_line_ignoring_comments(file) != "end_fast_mapping") {
-        throw std::runtime_error("Fast_mapping::read_from_file(" + filename
-                + ") found a truncated file.");
+        throw std::runtime_error(
+                "Fast_mapping::read_from_file(" + filename
+                        + ") found a truncated file.");
     }
     file.close();
+}
+
+Fast_mapping::Fast_mapping()
+{
 }
 
 inline double

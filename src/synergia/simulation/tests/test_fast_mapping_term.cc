@@ -1,6 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "synergia/simulation/fast_mapping.h"
+#include "synergia/utils/xml_serialization.h"
 #include "fast_mapping_term_fixture.h"
 const double tolerance = 1.0e-14;
 
@@ -56,6 +57,20 @@ BOOST_FIXTURE_TEST_CASE(write_read_stream, Fast_mapping_term_fixture)
     ifstream in_file("test_fast_mapping_term.dat");
     Fast_mapping_term fast_mapping_term2(in_file);
     in_file.close();
+
+    BOOST_CHECK_EQUAL(fast_mapping_term.order(), fast_mapping_term2.order());
+    BOOST_CHECK_CLOSE(fast_mapping_term.coeff(), fast_mapping_term2.coeff(),
+            tolerance);
+    for (int i = 0; i < fast_mapping_term.order() + 1; ++i) {
+        BOOST_CHECK_EQUAL(fast_mapping_term.index(i), fast_mapping_term2.index(i));
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(serialize, Fast_mapping_term_fixture)
+{
+    xml_save<Fast_mapping_term > (fast_mapping_term, "fast_mapping_term.xml");
+    Fast_mapping_term fast_mapping_term2;
+    xml_load<Fast_mapping_term > (fast_mapping_term2, "fast_mapping_term.xml");
 
     BOOST_CHECK_EQUAL(fast_mapping_term.order(), fast_mapping_term2.order());
     BOOST_CHECK_CLOSE(fast_mapping_term.coeff(), fast_mapping_term2.coeff(),
