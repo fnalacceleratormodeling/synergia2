@@ -4,6 +4,8 @@
 #include <string>
 #include <list>
 #include <boost/shared_ptr.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/utility.hpp>
 
 #include "synergia/bunch/bunch.h"
 #include "synergia/lattice/lattice_element_slice.h"
@@ -22,6 +24,8 @@ private:
     std::string name, type;
 public:
     Operator(std::string const& name, std::string const& type);
+    /// Default constructor for serialization use only
+    Operator();
     std::string const&
     get_name() const;
     std::string const&
@@ -33,6 +37,13 @@ public:
             double time_step, Step & step);
     virtual void
     print() const;
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(name);
+            ar & BOOST_SERIALIZATION_NVP(type);
+        }
     virtual
     ~Operator();
 };
@@ -43,6 +54,8 @@ class Collective_operator : public Operator
 {
 public:
     Collective_operator(std::string const& name);
+    /// Default constructor for serialization use only
+    Collective_operator();
     virtual void
     apply(Bunch & bunch, double time_step, Step & step) = 0;
     virtual
@@ -56,6 +69,8 @@ class Dummy_collective_operator : public Collective_operator
 {
 public:
     Dummy_collective_operator(std::string const& name);
+    /// Default constructor for serialization use only;
+    Dummy_collective_operator();
     virtual void
     apply(Bunch & bunch, double time_step, Step & step);
     virtual

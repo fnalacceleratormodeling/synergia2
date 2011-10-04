@@ -8,6 +8,10 @@ Operator::Operator(std::string const& name, std::string const& type) :
 {
 }
 
+Operator::Operator()
+{
+}
+
 std::string const&
 Operator::get_name() const
 {
@@ -49,12 +53,20 @@ Collective_operator::Collective_operator(std::string const& name) :
 {
 }
 
+Collective_operator::Collective_operator()
+{
+}
+
 Collective_operator::~Collective_operator()
 {
 }
 
 Dummy_collective_operator::Dummy_collective_operator(std::string const& name) :
     Collective_operator(name)
+{
+}
+
+Dummy_collective_operator::Dummy_collective_operator()
 {
 }
 
