@@ -1,5 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
+
+#include "synergia/utils/xml_serialization.h"
 #include "synergia/lattice/lattice_element_slice.h"
 
 const std::string type("quadrupole");
@@ -135,4 +137,65 @@ BOOST_AUTO_TEST_CASE(get_lattice_element)
     lattice_element.set_double_attribute("l", length);
     Lattice_element_slice lattice_element_slice(lattice_element);
     BOOST_CHECK(&(lattice_element_slice.get_lattice_element()) == &lattice_element);
+}
+
+BOOST_AUTO_TEST_CASE(serialize)
+{
+    Lattice_element lattice_element(type, name);
+    lattice_element.set_double_attribute("l", length);
+    double left = 0.0;
+    double right = 0.5 * length;
+    Lattice_element_slice lattice_element_slice(lattice_element, left, right);
+
+    xml_save<Lattice_element_slice > (lattice_element_slice,
+            "lattice_element_slice.xml");
+
+    Lattice_element_slice loaded;
+    xml_load<Lattice_element_slice > (loaded, "lattice_element_slice.xml");
+}
+
+BOOST_AUTO_TEST_CASE(serialize_save_slices)
+{
+    Lattice_element lattice_element(type, name);
+    lattice_element.set_double_attribute("l", length);
+    const double old_parameter = 2.718;
+    lattice_element.set_double_attribute("parameter", old_parameter);
+    double left1 = 0.0;
+    double right1 = 0.5 * length;
+    Lattice_element_slice_sptr lattice_element_slice1_sptr(
+            new Lattice_element_slice(lattice_element, left1, right1));
+    double left2 = right1;
+    double right2 = length;
+    Lattice_element_slice_sptr lattice_element_slice2_sptr(
+            new Lattice_element_slice(lattice_element, left2, right2));
+
+    Lattice_element_slices slices;
+    slices.push_back(lattice_element_slice1_sptr);
+    slices.push_back(lattice_element_slice2_sptr);
+
+    xml_save<Lattice_element_slices > (slices, "lattice_element_slices.xml");
+
+    const double new_parameter = 4.6692;
+    slices.front()->get_lattice_element().set_double_attribute("parameter",
+            new_parameter);
+    for (Lattice_element_slices::const_iterator it = slices.begin(); it
+            != slices.end(); ++it) {
+        BOOST_CHECK_CLOSE((*it)->get_lattice_element().get_double_attribute("parameter"),
+                new_parameter, tolerance);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(serialize_load_slices)
+{
+    Lattice_element_slices slices;
+    xml_load<Lattice_element_slices >(slices,"lattice_element_slices.xml");
+
+    const double new_parameter = 4.6692;
+    slices.front()->get_lattice_element().set_double_attribute("parameter",
+            new_parameter);
+    for (Lattice_element_slices::const_iterator it = slices.begin(); it
+            != slices.end(); ++it) {
+        BOOST_CHECK_CLOSE((*it)->get_lattice_element().get_double_attribute("parameter"),
+                new_parameter, tolerance);
+    }
 }

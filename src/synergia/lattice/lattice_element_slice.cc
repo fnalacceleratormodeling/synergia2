@@ -45,6 +45,10 @@ Lattice_element_slice::Lattice_element_slice(Lattice_element & lattice_element,
     }
 }
 
+Lattice_element_slice::Lattice_element_slice()
+{
+}
+
 bool
 Lattice_element_slice::is_whole() const
 {
