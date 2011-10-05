@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 #include "synergia/simulation/independent_operation.h"
 #include "mapping_fixture.h"
+#include "synergia/utils/xml_serialization.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
@@ -30,3 +31,16 @@ BOOST_FIXTURE_TEST_CASE(apply, Mapping_fixture)
 }
 // test_note: We need to check that apply actual produces the correct results.
 //            As of this writing, it almost certainly doesn't
+
+BOOST_FIXTURE_TEST_CASE(serialize, Mapping_fixture)
+{
+    Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
+    Fast_mapping_operation fast_mapping_operation(fast_mapping);
+
+    xml_save<Fast_mapping_operation > (fast_mapping_operation,
+            "fast_mapping_operation.xml");
+
+    Fast_mapping_operation loaded;
+    xml_load<Fast_mapping_operation > (loaded, "fast_mapping_operation.xml");
+}
+

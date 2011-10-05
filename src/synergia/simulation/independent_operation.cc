@@ -5,6 +5,10 @@ Independent_operation::Independent_operation(std::string const& type) :
 {
 }
 
+Independent_operation::Independent_operation()
+{
+}
+
 std::string
 Independent_operation::get_type() const
 {
@@ -20,11 +24,15 @@ Fast_mapping_operation::Fast_mapping_operation(Fast_mapping const& mapping) :
 {
 }
 
+Fast_mapping_operation::Fast_mapping_operation()
+{
+}
+
 void
 Fast_mapping_operation::apply(Bunch & bunch)
-{ 
+{
     // bunch.convert_to_state(Bunch::fixed_t);
-     bunch.convert_to_state(Bunch::fixed_z_lab);     
+     bunch.convert_to_state(Bunch::fixed_z_lab);
      mapping.apply(bunch);
 }
 

@@ -1,13 +1,17 @@
 #ifndef INDEPENDENT_OPERATION_H_
 #define INDEPENDENT_OPERATION_H_
 
-#include "synergia/simulation/fast_mapping.h"
-#include "synergia/simulation/chef_propagator.h"
-#include "synergia/lattice/chef_lattice.h"
-#include "boost/shared_ptr.hpp"
 #include <list>
 #include <string>
 #include <map>
+
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/shared_ptr.hpp>
+
+#include "synergia/simulation/fast_mapping.h"
+#include "synergia/simulation/chef_propagator.h"
+#include "synergia/lattice/chef_lattice.h"
 
 class Independent_operation
 {
@@ -15,10 +19,18 @@ private:
     std::string type;
 public:
     Independent_operation(std::string const& type);
+    /// Default constructor for serialization use only
+    Independent_operation();
     std::string
     get_type() const;
     virtual void
     apply(Bunch & bunch) = 0;
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(type);
+        }
     virtual
     ~Independent_operation();
 };
@@ -34,8 +46,17 @@ private:
 
 public:
     Fast_mapping_operation(Fast_mapping const& mapping);
+    /// Default constructor for serialization use only
+    Fast_mapping_operation();
     virtual void
     apply(Bunch & bunch);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Independent_operation);
+            ar & BOOST_SERIALIZATION_NVP(mapping);
+        }
     virtual
     ~Fast_mapping_operation();
 };
