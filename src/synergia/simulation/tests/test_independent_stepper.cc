@@ -3,6 +3,7 @@
 #include "synergia/simulation/stepper.h"
 #include "synergia/foundation/physical_constants.h"
 #include "lattice_fixture.h"
+#include "synergia/utils/xml_serialization.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
@@ -153,3 +154,15 @@ BOOST_FIXTURE_TEST_CASE(has_sliced_chef_beamline, Lattice_fixture)
     BOOST_CHECK(
             ! lattice_simulator.get_chef_lattice_sptr()->get_sliced_beamline_sptr()->empty());
 }
+
+#if 0
+BOOST_FIXTURE_TEST_CASE(serialize, Lattice_fixture)
+{
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+    const int num_steps = 1;
+    Independent_stepper stepper(lattice_simulator, num_steps);
+
+    xml_save<Independent_stepper >(stepper, "independent_stepper.xml");
+}
+#endif

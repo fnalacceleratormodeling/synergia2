@@ -3,6 +3,12 @@
 
 #include <list>
 #include <boost/shared_ptr.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/version.hpp>
+#include <boost/serialization/base_object.hpp>
 
 #include "synergia/simulation/lattice_simulator.h"
 #include "synergia/simulation/operator.h"
@@ -30,6 +36,13 @@ public:
     virtual void
     print() const;
 
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(steps);
+        }
+
     virtual
     ~Stepper();
 };
@@ -46,6 +59,14 @@ public:
     /// @param num_steps the number of steps to take in the Lattice
     Independent_stepper(Lattice_simulator const& lattice_simulator,
             int num_steps);
+
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & boost::serialization::base_object<Stepper >(*this);
+//            ar & BOOST_SERIALIZATION_NVP(lattice_simulator);
+        }
 
     virtual
     ~Independent_stepper();
