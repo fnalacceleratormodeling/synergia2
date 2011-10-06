@@ -2,6 +2,7 @@
 #include "chef_utils.h"
 #include "synergia/utils/floating_point.h"
 #include "synergia/foundation/math_constants.h"
+#include "chef_lattice_section.h"
 #include <beamline/beamline_elements.h>
 #include <basic_toolkit/PhysicsConstants.h>
 #include <physics_toolkit/DriftConverter.h>
@@ -61,38 +62,33 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
     return converted_beamline_sptr;
 }
 
-void
-Chef_lattice::extract_element_map()
-{
-    Chef_elements chef_elements;
-    Lattice_elements::iterator le_it = lattice_sptr->get_elements().begin();
-    for (beamline::const_iterator b_it = beamline_sptr->begin(); b_it
-            != beamline_sptr->end(); ++b_it) {
-        if ((*b_it)->Name() == internal_marker_name) {
-            element_map[le_it->get()] = chef_elements;
-            chef_elements.clear();
-            ++le_it;
-        } else {
-            chef_elements.push_back(*b_it);
-        }
-    }
-}
-
+// jfa: rename me!
 void
 Chef_lattice::extract_element_slice_map(Lattice_element_slices const& slices)
 {
-    Chef_elements chef_elements;
-    Lattice_element_slices::const_iterator s_it = slices.begin();
-    for (beamline::const_iterator b_it = sliced_beamline_sptr->begin(); b_it
-            != sliced_beamline_sptr->end(); ++b_it) {
-        if ((*b_it)->Name() == internal_marker_name) {
-            element_slice_map[s_it->get()] = chef_elements;
-            chef_elements.clear();
-            ++s_it;
-        } else {
-            chef_elements.push_back(*b_it);
+    Lattice_element_slices::const_iterator slice_it = slices.begin();
+    Begin_end begin_end;
+    begin_end.begin = 0;
+    int size = sliced_beamline_sptr->countHowMany();
+    sliced_beamline_iterators.resize(size + 1);
+    sliced_beamline_const_iterators.resize(size + 1);
+    int index = 0;
+    beamline::const_iterator cit = sliced_beamline_sptr->begin();
+    for (beamline::iterator it = sliced_beamline_sptr->begin(); it
+            != sliced_beamline_sptr->end(); ++it) {
+        sliced_beamline_iterators.at(index) = it;
+        sliced_beamline_const_iterators.at(index) = cit;
+        if ((*it)->Name() == lattice_element_marker->Name()) {
+            begin_end.end = index;
+            element_slice_map[slice_it->get()] = begin_end;
+            begin_end.begin = index + 1;
+            ++slice_it;
         }
+        ++index;
+        ++cit;
     }
+    sliced_beamline_iterators.at(index) = sliced_beamline_sptr->end();
+    sliced_beamline_const_iterators.at(index) = sliced_beamline_sptr->end();
 }
 
 void
@@ -109,7 +105,6 @@ Chef_lattice::construct()
             / PH_CNV_brho_to_p;
 
     construct_beamline();
-    extract_element_map();
 }
 
 Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr) :
@@ -141,25 +136,22 @@ Chef_lattice::get_element_adaptor_map_sptr()
     return element_adaptor_map_sptr;
 }
 
-Chef_elements &
-Chef_lattice::get_chef_elements(Lattice_element const& lattice_element)
-{
-    return element_map[&lattice_element];
-}
-
-Chef_elements &
-Chef_lattice::get_chef_elements(
+Chef_lattice_section_sptr
+Chef_lattice::get_chef_section_sptr(
         Lattice_element_slice const& lattice_element_slice)
 {
     if (!have_sliced_beamline_) {
         throw std::runtime_error(
-                "get_chef_elements(Lattice_element_slice const&) called before construct_sliced_beamline\n");
+                "get_chef_section_sptr(Lattice_element_slice const&) called before construct_sliced_beamline\n");
     }
     if (element_slice_map.count(&lattice_element_slice) == 0) {
         throw std::runtime_error(
-                "get_chef_elements(Lattice_element_slice const&): slice not found\n");
+                "get_chef_section_sptr(Lattice_element_slice const&): slice not found\n");
     }
-    return element_slice_map[&lattice_element_slice];
+    Begin_end begin_end(element_slice_map[&lattice_element_slice]);
+    return Chef_lattice_section_sptr(
+            new Chef_lattice_section(shared_from_this(), begin_end.begin,
+                    begin_end.end));
 }
 
 ElmPtr
@@ -216,7 +208,7 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
                 ++c_it;
                 if (c_it == all_elements.end()) {
                     throw(std::runtime_error(
-                            "get_chef_elements_from_slice iterated beyond end of element list"));
+                            "get_chef_section_from_slice iterated beyond end of element list"));
                 }
             } else {
                 if (chef_element_length == 0.0) {
@@ -353,14 +345,16 @@ Chef_lattice::get_sliced_beamline_sptr()
     return sliced_beamline_sptr;
 }
 
-Lattice_element_slices const&
-Chef_lattice::get_lattice_element_slices() const
+beamline::iterator
+Chef_lattice::get_sliced_beamline_iterator(int index)
 {
-    if (!have_sliced_beamline_) {
-        throw std::runtime_error(
-                "get_lattice_element_slices() called before construct_sliced_beamline\n");
-    }
-    return lattice_element_slices;
+    return sliced_beamline_iterators.at(index);
+}
+
+beamline::const_iterator
+Chef_lattice::get_sliced_beamline_const_iterator(int index) const
+{
+    return sliced_beamline_const_iterators.at(index);
 }
 
 Chef_lattice::~Chef_lattice()

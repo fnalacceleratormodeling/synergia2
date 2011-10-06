@@ -70,7 +70,7 @@ private:
     Chef_propagator chef_propagator;
 
 public:
-    Chef_propagate_operation(Chef_elements const& elements);
+    Chef_propagate_operation(Chef_lattice_section_sptr chef_lattice_section_sptr);
     virtual void
     apply(Bunch & bunch);
     virtual

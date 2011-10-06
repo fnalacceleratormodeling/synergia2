@@ -1,23 +1,31 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "bunch_fixture.h"
-#include "chef_elements_fixture.h"
+#include "synergia/lattice/tests/chef_lattice_sptr_fixture.h"
+#include "synergia/simulation/chef_propagator.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-12;
 
-BOOST_FIXTURE_TEST_CASE(construct, Chef_elements_fixture)
+const int begin = 1;
+const int end = 2;
+
+BOOST_FIXTURE_TEST_CASE(construct, Chef_lattice_sptr_fixture)
 {
-    Chef_propagator chef_propagator(chef_elements);
+    Chef_lattice_section_sptr chef_lattice_section_sptr(
+            new Chef_lattice_section(chef_lattice_sptr, begin, end));
+    Chef_propagator chef_propagator(chef_lattice_section_sptr);
 }
 
 BOOST_AUTO_TEST_CASE(apply)
 {
-    Chef_elements_fixture c;
+    Chef_lattice_sptr_fixture c;
     Bunch_fixture b;
 
-    Chef_propagator chef_propagator(c.chef_elements);
+    Chef_lattice_section_sptr chef_lattice_section_sptr(
+            new Chef_lattice_section(c.chef_lattice_sptr, begin, end));
+    Chef_propagator chef_propagator(chef_lattice_section_sptr);
 
     //    multi_array_print(bunch.get_local_particles(),"particles before");
     chef_propagator.apply(b.bunch);

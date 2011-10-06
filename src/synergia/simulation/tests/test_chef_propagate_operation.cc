@@ -1,33 +1,43 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "synergia/simulation/independent_operation.h"
-#include "chef_elements_fixture.h"
+#include "synergia/lattice/tests/chef_lattice_sptr_fixture.h"
 #include "bunch_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-12;
 
-BOOST_FIXTURE_TEST_CASE(construct, Chef_elements_fixture)
+const int begin = 1;
+const int end = 2;
+
+BOOST_FIXTURE_TEST_CASE(construct, Chef_lattice_sptr_fixture)
 {
-    Chef_propagate_operation chef_propagate_operation(chef_elements);
+    Chef_lattice_section_sptr chef_lattice_section_sptr(
+            new Chef_lattice_section(chef_lattice_sptr, begin, end));
+    Chef_propagate_operation
+            chef_propagate_operation(chef_lattice_section_sptr);
 }
 
-BOOST_FIXTURE_TEST_CASE(get_type, Chef_elements_fixture)
+BOOST_FIXTURE_TEST_CASE(get_type, Chef_lattice_sptr_fixture)
 {
-    Chef_propagate_operation chef_propagate_operation(chef_elements);
+    Chef_lattice_section_sptr chef_lattice_section_sptr(
+            new Chef_lattice_section(chef_lattice_sptr, begin, end));
+    Chef_propagate_operation
+            chef_propagate_operation(chef_lattice_section_sptr);
+
     BOOST_CHECK_EQUAL(chef_propagate_operation.get_type(), "chef_propagate");
 }
 
-
-BOOST_FIXTURE_TEST_CASE(apply, Chef_elements_fixture)
+BOOST_FIXTURE_TEST_CASE(apply, Chef_lattice_sptr_fixture)
 {
     Bunch_fixture b;
 
-    Chef_propagate_operation chef_propagate_operation(chef_elements);
-    //    multi_array_print(b.bunch.get_local_particles(), "particles before");
+    Chef_lattice_section_sptr chef_lattice_section_sptr(
+            new Chef_lattice_section(chef_lattice_sptr, begin, end));
+    Chef_propagate_operation
+            chef_propagate_operation(chef_lattice_section_sptr);
+
     chef_propagate_operation.apply(b.bunch);
-    //    multi_array_print(b.bunch.get_local_particles(), "particles after");
 }
 // test_note: We need to check that apply actual produces the correct results.
-//            As of this writing, it almost certainly doesn't

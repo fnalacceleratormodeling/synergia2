@@ -3,14 +3,15 @@
 
 #include "synergia/bunch/bunch.h"
 #include "synergia/lattice/chef_lattice.h"
+#include "synergia/lattice/chef_lattice_section.h"
 
 class Chef_propagator
 {
 private:
-    Chef_elements chef_elements;
+    Chef_lattice_section_sptr chef_lattice_section_sptr;
 
 public:
-    Chef_propagator(Chef_elements const& chef_elements);
+    Chef_propagator(Chef_lattice_section_sptr chef_lattice_section_sptr);
     void
     apply(Bunch & bunch);
 };

@@ -28,6 +28,10 @@ target_link_libraries(test_chef_lattice synergia_lattice synergia_foundation ${B
 add_test(test_chef_lattice test_chef_lattice)
 # add_test(test_pylattice ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_lattice.py)
 
+add_executable(test_chef_lattice_section test_chef_lattice_section.cc)
+target_link_libraries(test_chef_lattice_section synergia_lattice synergia_foundation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_chef_lattice_section test_chef_lattice_section)
+
 add_test(test_mad8_parser ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_mad8_parser.py)
 add_test(test_expression_parser ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_expression_parser.py)
 add_test(test_mad8_reader ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_mad8_reader.py)
