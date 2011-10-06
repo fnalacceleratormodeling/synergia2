@@ -209,6 +209,10 @@ Independent_operator::Independent_operator(
 {
 }
 
+Independent_operator::Independent_operator()
+{
+}
+
 void
 Independent_operator::append_slice(Lattice_element_slice_sptr slice_sptr)
 {

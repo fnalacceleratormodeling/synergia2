@@ -6,6 +6,7 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/serialization/nvp.hpp>
 #include <boost/serialization/utility.hpp>
+#include <boost/serialization/assume_abstract.hpp>
 
 #include "synergia/bunch/bunch.h"
 #include "synergia/lattice/lattice_element_slice.h"
@@ -69,7 +70,7 @@ class Dummy_collective_operator : public Collective_operator
 {
 public:
     Dummy_collective_operator(std::string const& name);
-    /// Default constructor for serialization use only;
+    /// Default constructor for serialization use only
     Dummy_collective_operator();
     virtual void
     apply(Bunch & bunch, double time_step, Step & step);
@@ -115,6 +116,15 @@ public:
             Multi_diagnostics & diagnostics);
     virtual void
     print() const;
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operator);
+            ar & BOOST_SERIALIZATION_NVP(slices);
+            ar & BOOST_SERIALIZATION_NVP(operations);
+            ar & BOOST_SERIALIZATION_NVP(have_operations);
+        }
     virtual
     ~Independent_operator();
 };

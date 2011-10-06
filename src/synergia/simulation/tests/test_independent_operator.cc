@@ -6,6 +6,7 @@
 #include "bunch_fixture.h"
 #include "lattice_fixture.h"
 #include "synergia/utils/multi_array_check_equal.h"
+#include "synergia/utils/xml_serialization.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
@@ -205,4 +206,26 @@ BOOST_FIXTURE_TEST_CASE(apply_modified_lattice, Bunch_fixture)
         }
     }
     BOOST_CHECK(!equal);
+}
+
+BOOST_FIXTURE_TEST_CASE(serialize, Lattice_fixture)
+{
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+    Independent_operator independent_operator("test",
+            lattice_simulator.get_operation_extractor_map_sptr());
+
+    Lattice_element_sptr element_sptr = lattice_sptr->get_elements().front();
+    double length = element_sptr->get_length();
+    Lattice_element_slice_sptr first_half(
+            new Lattice_element_slice(*element_sptr, 0.0, 0.5 * length));
+    independent_operator.append_slice(first_half);
+    Lattice_element_slice_sptr second_half(
+            new Lattice_element_slice(*element_sptr, 0.5 * length, length));
+    independent_operator.append_slice(second_half);
+
+    xml_save<Independent_operator > (independent_operator,
+            "independent_operator.xml");
+
+    Independent_operator loaded;
+    xml_load<Independent_operator > (loaded, "independent_operator.xml");
 }
