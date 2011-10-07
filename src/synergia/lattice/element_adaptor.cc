@@ -252,7 +252,7 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double k3 = lattice_element.get_double_attribute("k3");
     double tilt = lattice_element.get_double_attribute("tilt");
 
-    bool simple = ((k1 != 0.0) || (k2 != 0.0) || (k3 != 0.0));
+    bool simple = ((k1 == 0.0) && (k2 == 0.0) && (k3 == 0.0));
 
     alignmentData aligner;
     aligner.xOffset = 0.0;
@@ -333,7 +333,7 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double k2 = lattice_element.get_double_attribute("k2");
     double k3 = lattice_element.get_double_attribute("k3");
     double tilt = lattice_element.get_double_attribute("tilt");
-    bool simple = ((k1 != 0.0) || (k2 != 0.0) || (k3 != 0.0) || (tilt != 0.0));
+    bool simple = ((k1 == 0.0) && (k2 == 0.0) && (k3 == 0.0) && (tilt == 0.0));
 
     if (simple) {
         if ((0.0 == e1) && (0.0 == e2)) {
