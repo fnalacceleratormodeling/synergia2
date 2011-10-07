@@ -71,17 +71,59 @@ Fixed_t_z_zeroth::from_z_lab_to_t_bunch(Bunch &bunch)
 void
 Fixed_t_z_zeroth::from_z_lab_to_t_lab(Bunch &bunch)
 {
-    throw std::runtime_error(
-                    "Fixed_t_z_zeroth::fixed_z_lab_to_fixed_t_lab: not implemented yet for zeroth converter, try other one!");
+    double m = bunch.get_mass();
+    double p_ref = bunch.get_reference_particle().get_momentum();
+    MArray2d_ref particles = bunch.get_local_particles();
+    for (int part = 0; part < bunch.get_local_num(); ++part) {  
+          // total momentum in accelerator frame
+        double p = p_ref + particles[part][Bunch::dpop] * p_ref;
+         // p_{x,y,z} in accelerator frame
+        double px = particles[part][Bunch::xp] * p_ref;
+        double py = particles[part][Bunch::yp] * p_ref;
+        double pz2 = p * p - px * px - py * py;
+        if (pz2 < 0.0) {
+            throw std::runtime_error(
+                    "Fixed_t_z_zeroth::fixed_z_to_fixed_t: particle has negative pz^2");
+        }
+        double pz = std::sqrt(pz2);          
+         // E/c in accelerator frame
+        double Eoc = std::sqrt(p * p + m * m);        
+
+        double  betaz_part=pz/Eoc; 
+        particles[part][Bunch::z] = - particles[part][Bunch::cdt]*betaz_part;
+
+        // zp = pz/p_{ref}^{total}
+         particles[part][Bunch::zp] =pz/p_ref;        
+
+    }
+
 }
 
 void
 Fixed_t_z_zeroth::from_t_lab_to_z_lab(Bunch &bunch)
 {
-throw std::runtime_error(
-                    "Fixed_t_z_zeroth::fixed_t_lab_to_fixed_z_lab: not implemented yet for zeroth converter, try other one!");
-}
 
+    double m = bunch.get_mass();
+    double p_ref = bunch.get_reference_particle().get_momentum();
+    MArray2d_ref particles = bunch.get_local_particles();
+
+    for (int part = 0; part < bunch.get_local_num(); ++part) {
+          // p'_{x,y,z} in beam rest frame
+        double px = particles[part][Bunch::xp]* p_ref; 
+        double py = particles[part][Bunch::yp]* p_ref;
+        double pz = particles[part][Bunch::zp]* p_ref;
+
+        double Eoc = std::sqrt(px*px + py*py + pz*pz + m * m);  
+        double p = std::sqrt(px * px + py * py + pz * pz);
+        particles[part][Bunch::dpop] = (p - p_ref) / p_ref;         
+
+        double  betaz_part=pz/Eoc;
+       // double  betax_part=pxp/Eoc;
+       // double  betay_part=pyp/Eoc;
+        particles[part][Bunch::cdt] = - particles[part][Bunch::z]/betaz_part;
+
+    }
+}
 
 
 void

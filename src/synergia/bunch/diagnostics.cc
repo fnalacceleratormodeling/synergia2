@@ -44,6 +44,20 @@ Diagnostics::calculate_mean(Bunch const& bunch)
     return mean;
 }
 
+double
+Diagnostics::calculate_z_mean(Bunch const& bunch)
+{
+    double sum=0;
+    double mean;
+    Const_MArray2d_ref particles(bunch.get_local_particles());
+    for (int part = 0; part < bunch.get_local_num(); ++part) {
+            sum += particles[part][4];        
+    }
+    MPI_Allreduce(&sum, &mean, 1, MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
+    mean /=bunch.get_total_num();
+    return mean;
+}
+
 MArray1d
 Diagnostics::calculate_std(Bunch const& bunch, MArray1d_ref const& mean)
 {

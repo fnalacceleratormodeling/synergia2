@@ -41,6 +41,9 @@ public:
     static MArray1d
     calculate_mean(Bunch const& bunch);
 
+    static double
+    calculate_z_mean(Bunch const& bunch);
+
     static MArray1d
     calculate_std(Bunch const& bunch, MArray1d_ref const& mean);
 

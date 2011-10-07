@@ -4,7 +4,6 @@
 #include <mpi.h>
 #include "boost/shared_ptr.hpp"
 #include "synergia/bunch/bunch.h"
-#include "synergia/bunch/diagnostics.h"
 #include "synergia/bunch/multi_diagnostics.h"
 
 class Bunch_with_diagnostics

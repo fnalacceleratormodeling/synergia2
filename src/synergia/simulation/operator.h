@@ -11,6 +11,7 @@
 #include "synergia/simulation/independent_operation.h"
 #include "synergia/simulation/operation_extractor.h"
 #include "synergia/bunch/multi_diagnostics.h"
+#include "synergia/bunch/train.h"
 
 class Step;
 
@@ -26,6 +27,8 @@ public:
     get_type() const;
     virtual void
     apply(Bunch & bunch, double time_step, Step & step) = 0;
+    virtual void
+    apply_train(Bunch_with_diagnostics_train & bunch_diag_train, double time_step, Step & step);
     virtual void
     print() const;
     virtual

@@ -25,6 +25,7 @@ public:
     get_map_order() const;
     void 
     set_bucket_length();
+    /// bucket length is in z_lab frame
     double 
     get_bucket_length();
     int 

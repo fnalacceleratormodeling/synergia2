@@ -4,7 +4,7 @@
 #include "synergia/simulation/stepper.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/bunch_with_diagnostics.h"
-#include "synergia/bunch/bunch_train.h"
+#include "synergia/bunch/train.h"
 #include "synergia/bunch/multi_diagnostics.h"
 
 class Propagator
@@ -20,7 +20,9 @@ public:
     void
     propagate(Bunch_with_diagnostics & bunch_with_diagnostics, int num_turns, 
               bool verbose = false);
-    
+     void
+     propagate(Bunch_with_diagnostics_train & bunch_diag_train, int num_turns,
+              bool verbose= false);
     
     void
     propagate(Bunch & bunch, int num_turns,
@@ -45,6 +47,7 @@ public:
            // std::vector<Multi_diagnostics_sptr > & per_step_diagnosticss,
            // std::vector<Multi_diagnostics_sptr > & per_turn_diagnosticss,
             bool verbose = false);
+    
                 
     ~Propagator();
 };

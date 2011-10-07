@@ -1,5 +1,5 @@
 #include "bunch.h"
-#include "bunch_train.h"
+#include "train.h"
 #include "diagnostics.h"
 #include "bunch_with_diagnostics.h"
 #include "multi_diagnostics.h"
@@ -108,20 +108,31 @@ BOOST_PYTHON_MODULE(bunch)
              ;
     
     
-    class_<Bunch_train >("Bunch_train",
+    class_<Train_comms, Train_comms_sptr, boost::noncopyable >
+        ("Train_comms", init<int, Commxx const& >())
+        .def("get_num_bunches", &Train_comms::get_num_bunches)
+        .def("get_master_comm", &Train_comms::get_master_comm,
+                    return_value_policy<copy_const_reference>())
+        .def("get_comm", &Train_comms::get_comm,
+                    return_value_policy<copy_const_reference>())
+        .def("is_on_this_rank", &Train_comms::is_on_this_rank)
+        ;
+        
+        
+    class_<Bunch_train, Bunch_train_sptr, bases<Train_comms > >("Bunch_train",
             init<int, double, Commxx const& >())
-            .def("get_num_bunches", &Bunch_train::get_num_bunches)
             .def("get_bunch_separation", &Bunch_train::get_bunch_separation)
-            .def("get_master_comm", &Bunch_train::get_master_comm,
-                    return_value_policy<copy_const_reference>())
-            .def("get_comm", &Bunch_train::get_comm,
-                    return_value_policy<copy_const_reference>())
-            .def("is_on_this_rank", &Bunch_train::is_on_this_rank)
             .def("get_bunch_sptr", &Bunch_train::get_bunch_sptr)
             .def("set_bunch_sptr", &Bunch_train::set_bunch_sptr)
             ;
 
-    
+    class_<Bunch_with_diagnostics_train, Bunch_with_diagnostics_train_sptr, bases<Train_comms > >("Bunch_with_diagnostics_train",
+            init<int, double, Commxx const& >())
+            .def("get_bunch_separation", &Bunch_with_diagnostics_train::get_bunch_separation)
+            .def("get_bunch_diag_sptr", &Bunch_with_diagnostics_train::get_bunch_diag_sptr)
+            .def("set_bunch_diag_sptr", &Bunch_with_diagnostics_train::set_bunch_diag_sptr)
+            ;
+
 
     typedef Reference_particle & (Bunch::*get_reference_particle_non_const_type)();
     typedef MArray2d_ref (Bunch::*get_local_particles_non_const_type)();

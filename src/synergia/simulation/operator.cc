@@ -26,6 +26,20 @@ Operator::print() const
     std::cout << type << " operator: " << name << std::endl;
 }
 
+
+void
+Operator::apply_train(Bunch_with_diagnostics_train & bunch_diag_train, double time_step, Step & step)
+{
+    for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {
+        if (bunch_diag_train.is_on_this_rank(index)) {
+            Bunch_sptr bunch_sptr=bunch_diag_train.get_bunch_diag_sptr(index)->get_bunch_sptr();
+            apply(*bunch_sptr, time_step, step);
+        }
+    }
+}
+
+
+
 Operator::~Operator()
 {
 }

@@ -14,6 +14,7 @@ const int Bunch::cdt;
 const int Bunch::dpop;
 const int Bunch::id;
 
+
 class Particle_id_offset
 {
 private:
@@ -25,18 +26,19 @@ public:
     }
 
     int
-    get(int request_num)
+    get(int request_num, Commxx const & comm)
     {
-        MPI_Bcast((void *) &offset, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Bcast((void *) &offset, 1, MPI_INT, 0, comm.get());
         int old_offset = offset;
         int total_num;
         MPI_Reduce((void*) &request_num, (void*) &total_num, 1, MPI_INT,
-                MPI_SUM, 0, MPI_COMM_WORLD);
+                MPI_SUM, 0, comm.get());
         offset += total_num;
         return old_offset;
     }
 
 };
+
 
 static Particle_id_offset particle_id_offset;
 
@@ -49,11 +51,13 @@ Bunch::assign_ids(int local_offset)
     } else {
         request_num = 0;
     }
-    global_offset = particle_id_offset.get(request_num);
+    global_offset = particle_id_offset.get(request_num, comm);
     for (int i = 0; i < local_num; ++i) {
         (*local_particles)[i][id] = i + local_offset + global_offset;
     }
 }
+
+
 
 template<class T, size_t C, int I>
     struct Sortable2d
@@ -106,6 +110,7 @@ template<class T, size_t C, int I>
 void
 Bunch::construct(int particle_charge, int total_num, double real_num)
 {
+    int rank = Commxx(MPI_COMM_WORLD).get_rank();
     sort_counter = 0;
     sort_period = 10000;
     this->particle_charge = particle_charge;

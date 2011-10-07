@@ -249,24 +249,42 @@ BOOST_AUTO_TEST_CASE(test_distribute_1d)
             distribute_1d(Commxx(MPI_COMM_WORLD), elements));
     verify_ranks_elms_gt_procs(elements, 1, ranks);
 }
+/*
+BOOST_AUTO_TEST_CASE(test_print_distribute_1d_raw1)
+{   
+//     const int elements = 6;
+//     const int procs = 32;
+            
+    const int elements = 5;
+    const int procs = 12;       
+            
+    std::vector<std::vector<int > > ranks(distribute_1d_raw(procs, elements));
+    BOOST_CHECK_EQUAL(ranks.size(), elements);        
+    std::cout<<" ranks size="<<ranks.size()<<std::endl;
+    for (int element = 0; element < elements; ++element) { 
+        std::cout<<" element="<<element<<" ranks size at element="<<ranks.at(element).size()<<std::endl;
+        std::cout<<"       ******** procs for element=";
+        for (int j = 0; j < ranks.at(element).size(); ++j) { 
+            std::cout<<ranks.at(element).at(j)<<"  ";
+        }
+        std::cout<<std::endl;
+    }       
+}*/
 
-// BOOST_AUTO_TEST_CASE(test_print_distribute_1d_raw1)
-// {   
-// //     const int elements = 6;
-// //     const int procs = 32;
-//             
-//     const int elements = 32;
-//     const int procs = 6;       
-//             
-//     std::vector<std::vector<int > > ranks(distribute_1d_raw(procs, elements));
-//     BOOST_CHECK_EQUAL(ranks.size(), elements);        
-//     std::cout<<" ranks size="<<ranks.size()<<std::endl;
-//     for (int element = 0; element < elements; ++element) { 
-//         std::cout<<" element="<<element<<" ranks size at element="<<ranks.at(element).size()<<std::endl;
-//         std::cout<<"       ******** procs for element=";
-//         for (int j = 0; j < ranks.at(element).size(); ++j) { 
-//             std::cout<<ranks.at(element).at(j)<<"  ";
-//         }
-//         std::cout<<std::endl;
-//     }       
-// }
+BOOST_AUTO_TEST_CASE(test_counts_and_offsets)
+{   
+//     const int elements = 5;
+//     const int procs = 12;
+            
+    const int elements = 5;
+    const int procs = 12;       
+    std::vector<int > counts(procs);
+    std::vector<int > offsets(procs);        
+    counts_and_offsets_for_impedance_raw(procs, elements,  offsets, counts);
+  //  for (int i = 0; i < procs; ++i){
+ //       std::cout<<" proc="<<i<<" count="<<counts[i]<<" offset="<<offsets[i]<<std::endl;
+ //   }
+            
+   
+}
+

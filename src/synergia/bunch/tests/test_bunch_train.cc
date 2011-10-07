@@ -1,6 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "synergia/bunch/bunch_train.h"
+#include "synergia/bunch/train.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
@@ -103,4 +103,5 @@ BOOST_AUTO_TEST_CASE(get_bunch_sptr_bad_index)
     }
     BOOST_CHECK(caught);
 }
+
 

@@ -103,12 +103,15 @@ BOOST_PYTHON_MODULE(simulation)
     void (Propagator::*propagate3)(Bunch &, int, Multi_diagnostics &,
             Multi_diagnostics &, bool) = &Propagator::propagate;
             
-
+    void (Propagator::*propagate4)(Bunch_with_diagnostics_train &, int, bool) 
+                                = &Propagator::propagate;
+                                
     class_<Propagator >("Propagator",init<Stepper_sptr >())
             .def("propagate", propagate1)
             .def("propagate", propagate2,
                     propagate_member_overloads())
             .def("propagate", propagate3,
                     propagate_member_overloads())
+            .def("propagate", propagate4)   
             ;
 }

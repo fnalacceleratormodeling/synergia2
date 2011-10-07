@@ -63,16 +63,25 @@ Lattice_simulator::get_chef_lattice_sptr()
 void
 Lattice_simulator::set_bucket_length()
 {
-    double freq(0.);
+    double freq(0.), freq2(0.);
+    int isw=0;
+    double eps=1e-6;
     for (Lattice_elements::const_iterator it= this->lattice_sptr->get_elements().begin();
            it != this->lattice_sptr->get_elements().end(); ++it){
         
         if ((*it)->has_double_attribute("freq")) {
                  freq=(*it)->get_double_attribute("freq");
-                 double beta=this->get_lattice_sptr()->get_reference_particle().get_beta();
-                 this->bucket_length=pconstants::c*beta/freq;
-                 break;
+                 if ((isw==1) && (fabs(freq-freq2) > eps)) {
+                    throw std::runtime_error(
+                         "set_bucket_length: rf elements with different frequencies found!!");
+                  }
+                 freq2=freq;
+                 isw=1;
         }
+        if (isw==1) {
+        double beta=this->get_lattice_sptr()->get_reference_particle().get_beta();
+                 this->bucket_length=pconstants::c*beta/freq;
+                 }
         else {
                 this->bucket_length=0.0;
         }

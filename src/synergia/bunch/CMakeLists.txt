@@ -1,7 +1,7 @@
 add_library(synergia_bunch fixed_t_z_converter.cc bunch.cc
     diagnostics.cc multi_diagnostics.cc  diagnostics_write_helper.cc 
-        bunch_with_diagnostics.cc populate.cc 
-	analysis.cc period.cc bunch_train.cc)
+        bunch_with_diagnostics.cc train.cc populate.cc 
+	analysis.cc period.cc)
 target_link_libraries(synergia_bunch synergia_parallel_utils synergia_distributed_fft
     synergia_hdf5_utils synergia_foundation)
 if (BUILD_PYTHON_BINDINGS)
@@ -14,12 +14,12 @@ install(FILES bunch.h
     diagnostics.h
     diagnostics_write_helper.h
     bunch_with_diagnostics.h
+    train.h
     multi_diagnostics.h
     fixed_t_z_converter.h
     populate.h
     analysis.h
-    period.h 
-    bunch_train.h   
+    period.h  
     DESTINATION include/synergia/bunch)
 if (BUILD_PYTHON_BINDINGS)
     install(FILES
