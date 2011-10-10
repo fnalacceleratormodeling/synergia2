@@ -141,7 +141,7 @@ if MPI.COMM_WORLD.Get_rank() ==0:
         
 
 bunchsp=lattice_simulator.get_bucket_length()
-num_bunches=3
+num_bunches=emit = opts.num_bunches
 #bunch_train=synergia.bunch.Bunch_train(num_bunches,bunchsp, MPI.COMM_WORLD)
 bunch_diag_train=synergia.bunch.Bunch_with_diagnostics_train(num_bunches,bunchsp, MPI.COMM_WORLD)
 for bunchnum in range(0,num_bunches):
@@ -150,7 +150,7 @@ for bunchnum in range(0,num_bunches):
         bunch= synergia.optics.generate_matched_bunch(lattice_simulator,
                                                 arms,brms,crms,
                                                 opts.num_real_particles*(bunchnum+1),
-                                                opts.num_macro_particles*(bunchnum+1),rms_index,
+                                                opts.num_macro_particles,rms_index,
                                                 seed=opts.seed, bunch_index=bunchnum,comm=commx, periodic=True)
         particles = bunch.get_local_particles()
         # apply offset to bunch
@@ -172,7 +172,7 @@ if MPI.COMM_WORLD.Get_rank() ==0:
 
 no_op = synergia.simulation.Dummy_collective_operator("stub")
 zgrid=40
-imped= synergia.collective.Impedance("BoosterF_wake.dat",lattice_length, bunchsp,zgrid, "circular",10)
+imped= synergia.collective.Impedance("BoosterF_wake.dat",lattice_length, bunchsp,zgrid, "circular",60)
 #imped= synergia.simulation.Dummy_collective_operator("stub")
 impedance=opts.impedance
 if impedance:

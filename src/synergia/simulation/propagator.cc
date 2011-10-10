@@ -168,7 +168,6 @@ Propagator::propagate(Bunch_with_diagnostics_train & bunch_diag_train,
             
             for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {
                 if (bunch_diag_train.is_on_this_rank(index)) {
-                   // std::cout<<" bunch ("<<index<<") on WORLD RANK="<<rank<<" with group rank="<<bunch_diag_train.get_comm(index).get_rank()<<" with group size="<<bunch_diag_train.get_comm(index).get_size()<<std::endl;
                   bunch_diag_train.get_bunch_diag_sptr(index)->get_bunch_sptr()->get_reference_particle().start_repetition();
                }
             }
