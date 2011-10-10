@@ -83,7 +83,8 @@ Propagator::propagate(Bunch_with_diagnostics & bunch_with_diagnostics,
                 }
             }      
              (*it)->apply(*bunch_sptr); 
-            // (*it)->apply(*bunch_sptr, bunch_with_diagnostics.get_per_step_diagnostics());  
+             /// apply with diagnostics only for testing purposes
+             //(*it)->apply(*bunch_sptr, bunch_with_diagnostics.get_per_step_diagnostics());  
         }
         
        t_turn1= MPI_Wtime();
@@ -205,7 +206,7 @@ Propagator::propagate(Bunch_with_diagnostics_train & bunch_diag_train,
                         std::cout << "Propagator:   step " << step_count << "/" << num_steps <<std::endl;
                     }
                 } 
-                (*it)->apply(bunch_diag_train); 
+                (*it)->apply(bunch_diag_train);                
             }    
           
             t_turn1= MPI_Wtime();                

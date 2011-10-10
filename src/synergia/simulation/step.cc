@@ -38,38 +38,8 @@ Step::append(Operators const& the_operators, double time_fraction)
 void
 Step::apply(Bunch & bunch)
 { 
-    
-   // int rank = Commxx().get_rank();
-    std::list<double >::const_iterator fractions_it = time_fractions.begin();
-    for (Operators::const_iterator it = operators.begin(); it
-            != operators.end(); ++it) {
-       //  if (rank==0) std::cout<<" operator name="<<(*it)->get_name()<<std::endl;
-        // time [s] in accelerator frame
-        double time = length / (bunch.get_reference_particle().get_beta()
-                * pconstants::c);
-        if ((*it)->get_name()=="impedance") {
-            MArray1d bunch_means=Diagnostics::calculate_mean(bunch);
-            Bunch_means bi;
-            std::vector<Bunch_means> vbi;
-            bi.x_mean=bunch_means[0];
-            bi.y_mean=bunch_means[2];
-            bi.z_mean=bunch_means[4];
-            bi.realnum=bunch.get_real_num();           
-            bi.bucket_index=bunch.get_bucket_index();
-            vbi.push_back(bi);
-            stored_vbunches.push_front(vbi);
-
-            int nstored=(reinterpret_cast<Impedance*>(boost::get_pointer(*it)))->get_nstored_turns(); 
-            if (stored_vbunches.size()>nstored) stored_vbunches.pop_back();
-           
-         } 
-        (*it)->apply(bunch, (*fractions_it) * time, *this);
-        if (bunch.is_z_periodic()){
-            double plength=bunch.get_z_period_length();
-            apply_longitudinal_periodicity(bunch, plength);
-        }
-        ++fractions_it;  
-    }
+    Multi_diagnostics   diagnostics; //create an empty list  
+    apply(bunch, diagnostics);    
 }
 
 void
@@ -121,6 +91,7 @@ Step::apply(Bunch & bunch, Multi_diagnostics & diagnostics)
         ++fractions_it;
     }
 }
+
 
 
 void
@@ -180,9 +151,22 @@ Step::apply(Bunch_with_diagnostics_train & bunch_diag_train)
 
             
         }
-                   
-          
         
+     int diagnostics_operator=0;   
+/// this diagnostics is only for testing purpose 
+      if  (diagnostics_operator) {
+        for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {
+                if (bunch_diag_train.is_on_this_rank(index)) {
+                    for (Multi_diagnostics::iterator itd =
+                        bunch_diag_train.get_bunch_diag_sptr(index)->get_per_step_diagnostics().begin();
+                        itd != bunch_diag_train.get_bunch_diag_sptr(index)->get_per_step_diagnostics().end();
+                        ++itd) {
+                        (*itd)->update_and_write();
+                    }  
+                }
+            }             
+       }  
+     
        for (int index = 0; index < numbunches; ++index) {
            if (bunch_diag_train.is_on_this_rank(index)) {
                Bunch_sptr bunch_sptr=bunch_diag_train.get_bunch_diag_sptr(index)->get_bunch_sptr();
@@ -192,6 +176,21 @@ Step::apply(Bunch_with_diagnostics_train & bunch_diag_train)
            }
        }
    
+/// this diagnostics is only for testing purpose
+       if  (diagnostics_operator) {
+        for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {
+                if (bunch_diag_train.is_on_this_rank(index)) {
+                    for (Multi_diagnostics::iterator itd =
+                        bunch_diag_train.get_bunch_diag_sptr(index)->get_per_step_diagnostics().begin();
+                        itd != bunch_diag_train.get_bunch_diag_sptr(index)->get_per_step_diagnostics().end();
+                        ++itd) {
+                        (*itd)->update_and_write();
+                    }  
+                }
+            }             
+       }           
+     
+              
         for (int index = 0; index < numbunches; ++index) {
             if (bunch_diag_train.is_on_this_rank(index)) {   
                 Bunch_sptr bunch_sptr=bunch_diag_train.get_bunch_diag_sptr(index)->get_bunch_sptr();
