@@ -288,6 +288,39 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     aligner.yOffset = 0.0;
     aligner.tilt = tilt;
 
+    double ak[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently a0-a7
+    double bk[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently b0-b7
+
+    // thinpole strengths
+    string a_attr_list[] = { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7"};
+    string b_attr_list[] = { "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7"};
+
+    bool has_multipoles = false;
+    int highest_order = 0;
+    // find any possible multipole moments
+    for (int moment = 0; moment < 8; ++moment) {
+        if (lattice_element.has_double_attribute(a_attr_list[moment])) {
+	  ak[moment] = lattice_element.get_double_attribute(a_attr_list[moment]);
+	  // no point in setting using multipole machinery ff the attributes are 0
+	  if (ak[moment] != 0.0) {
+	    has_multipoles = true;
+	    highest_order = moment;
+	  }
+	}
+	if (lattice_element.has_double_attribute(b_attr_list[moment])) {
+	  bk[moment] = lattice_element.get_double_attribute(b_attr_list[moment]);
+	  if (bk[moment] != 0.0) {
+	    has_multipoles = true;
+	    highest_order = moment;
+	  }
+	}
+    }
+
+    // being not simple or having a tilt precludes using multipoles
+    if ((!simple || (tilt != 0.0)) && has_multipoles) {
+      throw runtime_error("shouldn't use k1,k2,tilt and multipoles in one sbend");
+    }
+
     if (simple) {
 
         ElmPtr elm(
@@ -295,8 +328,22 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
                         brho * angle / length, angle, e1, e2));
         elm->setTag("SBEND");
         if (tilt != 0.0) elm->setAlignment(aligner);
-        retval.push_back(elm);
-        return retval;
+
+	// if there are no multipoles, I'm done.
+	if (! has_multipoles) {
+	  retval.push_back(elm);
+	  return retval;
+	} else {
+	  // split the sbend and insert a thinpole in between the halves
+	  ElmPtr sbptr1;
+	  ElmPtr sbptr2;
+	  (*elm)->Split(0.5, sbptr1, sbptr2);
+
+	  std::vector<std::complex<double> > c_moments;
+	  for (int k=0; k<=highest_order; ++k) {
+	    c_moments.push_back(std::complex<double> (bk[k],ak[k]));
+	  }
+
     } else {
         bmlnElmnt* elm = new CF_sbend(lattice_element.get_name().c_str(),
                 length, brho * angle / length, angle, e1, e2);
