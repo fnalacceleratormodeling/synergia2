@@ -28,6 +28,8 @@ private:
     std::map<std::string, std::string > string_attributes;
     std::string length_attribute_name;
     std::string bend_angle_attribute_name;
+    long int revision;
+    bool needs_internal_derive, needs_external_derive;
 
 public:
     /// Construct a Lattice_element with an empty name and type.
@@ -61,8 +63,10 @@ public:
     /// Set the value of the named double attribute
     /// @param name attribute name
     /// @param value attribute value
+    /// @param increment_revision can be set to false for attributes that do not affect dynamics
     void
-    set_double_attribute(std::string const& name, double value);
+    set_double_attribute(std::string const& name, double value,
+            bool increment_revision = true);
 
     /// Check for the existence of the named double attribute
     /// @param name attribute name
@@ -81,8 +85,10 @@ public:
     /// Set the value of the named string attribute
     /// @param name attribute name
     /// @param value attribute value
+    /// @param increment_revision can be set to false for attributes that do not affect dynamics
     void
-    set_string_attribute(std::string const& name, std::string const& value);
+    set_string_attribute(std::string const& name, std::string const& value,
+            bool increment_revision = true);
 
     /// Check for the existence of the named string attribute
     /// @param name attribute name
@@ -110,6 +116,26 @@ public:
     std::map<std::string, std::string > const &
     get_string_attributes() const;
 
+    /// Set whether the element needs to determine some of its parameters
+    /// from its other parameters
+    void
+    set_needs_internal_derive(bool value);
+
+    /// Get whether the element needs to determine some of its parameters
+    /// from its other parameters
+    bool
+    get_needs_internal_derive() const;
+
+    /// Set whether the element needs to determine some of its parameters
+    /// from the lattice length and/or reference particle
+    void
+    set_needs_external_derive(bool value);
+
+    /// Get whether the element needs to determine some of its parameters
+    /// from the lattice length and/or reference particle
+    bool
+    get_needs_external_derive() const;
+
     /// Get the Lattice_element's length
     double
     get_length() const;
@@ -117,6 +143,10 @@ public:
     /// Get the Lattice_element's bend angle
     double
     get_bend_angle() const;
+
+    /// Get the Lattice_element's revision number
+    long int
+    get_revision() const;
 
     /// Print a human-readable description of the Lattice_element
     /// The Python version of the function is named "print_".
@@ -132,7 +162,10 @@ public:
                     & BOOST_SERIALIZATION_NVP(double_attributes)
                     & BOOST_SERIALIZATION_NVP(string_attributes)
                     & BOOST_SERIALIZATION_NVP(length_attribute_name)
-                    & BOOST_SERIALIZATION_NVP(bend_angle_attribute_name);
+                    & BOOST_SERIALIZATION_NVP(bend_angle_attribute_name)
+                    & BOOST_SERIALIZATION_NVP(revision)
+                    & BOOST_SERIALIZATION_NVP(needs_internal_derive)
+                    & BOOST_SERIALIZATION_NVP(needs_external_derive);
         }
 };
 

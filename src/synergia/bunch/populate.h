@@ -60,5 +60,10 @@ void
 populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilMax,
         double alpha_x, double beta_x, double alpha_y, double beta_y,
         double stddt, double stddpop);
+	
+void 
+populate_two_particles(Bunch &bunch, 
+         double p1x, double p1xp, double p1y, double p1yp, double p1cdt, double p1dpop, 
+         double p2x, double p2xp, double p2y, double p2yp, double p2cdt, double p2dpop); 
 
 #endif /* POPULATE_H_ */

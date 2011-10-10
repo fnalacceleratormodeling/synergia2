@@ -1,7 +1,21 @@
 #!/usr/bin/env python
 import sys
 import synergia
-from fodo_options import opts
+from fodo_ramp_options import opts
+
+class Ramp_actions(synergia.simulation.Propagate_actions):
+    def __init__(self, multiplier):
+        synergia.simulation.Propagate_actions.__init__(self)
+        self.multiplier = multiplier
+    def turn_end_action(self, stepper, bunch, turn_num):
+        print "modifying lattice"
+        for element in stepper.get_lattice_simulator().get_lattice().get_elements():
+            if element.get_type() == "quadrupole":
+                old_k1 = element.get_double_attribute("k1")
+                element.set_double_attribute("k1", self.multiplier*old_k1)
+                print "  updated", element.get_name()
+        stepper.get_lattice_simulator().update()
+
 
 lattice = synergia.lattice.Mad8_reader().get_lattice("fodo", "fodo.lat")
 
@@ -52,7 +66,10 @@ if opts.turn_particles:
     diagnostics_actions.add_per_turn(synergia.bunch.Diagnostics_particles(
                                     bunch, "turn_particles.h5"))
 
+ramp_actions = Ramp_actions(1.1)
+
 propagator = synergia.simulation.Propagator(stepper)
 propagator.propagate(bunch, opts.turns,
                      diagnostics_actions,
+                     ramp_actions,
                      opts.verbosity)

@@ -139,3 +139,21 @@ populate_transverse_KV_GaussLong(Distribution &dist, Bunch &bunch, double epsilM
     dist.fill_unit_gaussian(particles[boost::indices[range()][Bunch::dpop]]);
     for (int part = 0; part < bunch.get_local_num(); ++part) particles[part][Bunch::dpop] *= stddpop;
 }
+void
+populate_two_particles(Bunch &bunch,
+         double p1x, double p1xp, double p1y, double p1yp, double p1cdt, double p1dpop, 
+         double p2x, double p2xp, double p2y, double p2yp, double p2cdt, double p2dpop) {
+    MArray2d_ref particles(bunch.get_local_particles());
+    if (bunch.get_local_num() !=2) {
+        std::ostringstream errMsgStream; errMsgStream << "Expecting only two particles when" 
+	                                              << bunch.get_local_num() << "generated";
+        std::string errMsg(errMsgStream.str());
+        throw std::runtime_error(errMsg.c_str());
+    }     
+    particles[0][Bunch::x] = p1x; particles[0][Bunch::xp] = p1xp;
+    particles[0][Bunch::y] = p1y; particles[0][Bunch::yp] = p1yp;
+    particles[0][Bunch::cdt] = p1cdt; particles[0][Bunch::dpop] = p1dpop;
+    particles[1][Bunch::x] = p2x; particles[1][Bunch::xp] = p2xp;
+    particles[1][Bunch::y] = p2y; particles[1][Bunch::yp] = p2yp;
+    particles[1][Bunch::cdt] = p2cdt; particles[1][Bunch::dpop] = p2dpop;
+} 

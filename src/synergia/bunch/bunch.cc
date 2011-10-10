@@ -1,5 +1,6 @@
 #include "bunch.h"
 #include "synergia/utils/parallel_utils.h"
+#include <iostream>
 #include <stdexcept>
 #include <cmath>
 #include <algorithm>
@@ -110,7 +111,6 @@ template<class T, size_t C, int I>
 void
 Bunch::construct(int particle_charge, int total_num, double real_num)
 {
-    int rank = Commxx(MPI_COMM_WORLD).get_rank();
     sort_counter = 0;
     sort_period = 10000;
     this->particle_charge = particle_charge;

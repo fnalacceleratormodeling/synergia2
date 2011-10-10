@@ -69,12 +69,14 @@ class Independent_operator : public Operator
 private:
     Lattice_element_slices slices;
     Independent_operations operations;
+    std::list<long int > operations_revisions;
+    Reference_particle operations_reference_particle;
     Operation_extractor_map_sptr operation_extractor_map_sptr;
     bool have_operations;
     void
     update_operations(Reference_particle const& reference_particle);
     bool
-    need_update();
+    need_update(Reference_particle const& reference_particle);
 public:
     Independent_operator(std::string const& name,
             Operation_extractor_map_sptr operation_extractor_map_sptr);

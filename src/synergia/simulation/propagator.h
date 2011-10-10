@@ -2,6 +2,7 @@
 #define PROPAGATOR_H_
 
 #include "synergia/simulation/stepper.h"
+#include "synergia/simulation/propagate_actions.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/bunch_with_diagnostics.h"
 #include "synergia/bunch/train.h"
@@ -25,28 +26,22 @@ public:
               bool verbose= false);
     
     void
-    propagate(Bunch & bunch, int num_turns,
-            Diagnostics & per_step_diagnostics,
+    propagate(Bunch & bunch, int num_turns, Diagnostics & per_step_diagnostics,
             Diagnostics & per_turn_diagnostics, bool verbose = false);
     void
     propagate(Bunch & bunch, int num_turns,
             Multi_diagnostics & per_step_diagnostics,
             Multi_diagnostics & per_turn_diagnostics, bool verbose =
                     false);
+    
     void
-    propagate(Bunch_train & bunch_train, int num_turns,
-            Diagnostics & per_step_diagnostics,
-            Diagnostics & per_turn_diagnostics,
-           // std::vector<Diagnostics_sptr > & per_step_diagnosticss,
-          //  std::vector<Diagnostics_sptr > & per_turn_diagnosticss,
-            bool verbose = false);
+    propagate(Bunch & bunch, int num_turns,
+            Propagate_actions & diagnostics_actions, int verbosity = 0);
     void
-    propagate(Bunch_train & bunch_train, int num_turns,
-            Multi_diagnostics & per_step_diagnostics,
-            Multi_diagnostics & per_turn_diagnostics,
-           // std::vector<Multi_diagnostics_sptr > & per_step_diagnosticss,
-           // std::vector<Multi_diagnostics_sptr > & per_turn_diagnosticss,
-            bool verbose = false);
+    propagate(Bunch & bunch, int num_turns,
+            Propagate_actions & diagnostics_actions,
+            Propagate_actions & general_actions, int verbosity = 0);
+
     
                 
     ~Propagator();

@@ -8,7 +8,7 @@
 Distributed_fft2d::Distributed_fft2d(std::vector<int > const & shape,
         Commxx const& comm, int planner_flags,
         std::string const& wisdom_filename) :
-    shape(shape), comm(comm), uppers(0), lengths(0)
+    shape(shape), comm(comm), uppers(0), lengths(0), lengths_1d(0)
 {
     if (comm.get_size() / 2 >= shape[0] / 2) {
         throw std::runtime_error(
@@ -16,23 +16,24 @@ Distributed_fft2d::Distributed_fft2d(std::vector<int > const & shape,
     }
     //n.b. : we aren't using the wisdom_filename yet
 #ifdef USE_FFTW2
-    plan = rfftwnd_mpi_create_plan(comm.get(), 3, &shape[0],
-            FFTW_REAL_TO_COMPLEX, planner_flags);
-    inv_plan = rfftwnd_mpi_create_plan(comm.get(), 3, &shape[0],
-            FFTW_COMPLEX_TO_REAL, planner_flags);
+    plan = fftwnd_mpi_create_plan(comm.get(), 2, &shape[0],
+            FFTW_FORWARD, planner_flags);
+    inv_plan = fftwnd_mpi_create_plan(comm.get(), 2, &shape[0],
+            FFTW_BACKWARD, planner_flags);
     // fftw2 mpi manual says to allocate data and workspace of
     // size total_local_size, not local_nx size.
     // http://www.fftw.org/fftw2_doc/fftw_4.html#SEC47
     int total_local_size;
     int local_nx, local_x_start;
     int local_ny_after_transpose, local_y_start_after_transpose;
-    rfftwnd_mpi_local_sizes(plan, &local_nx, &local_x_start,
+    fftwnd_mpi_local_sizes(plan, &local_nx, &local_x_start,
             &local_ny_after_transpose,
             &local_y_start_after_transpose,
             &total_local_size);
-    local_size_real = local_nx * padded_shape[1] * padded_shape[2];
-    data = (fftw_real *) malloc(total_local_size * sizeof(fftw_real));
-    workspace = (fftw_real *) malloc(total_local_size * sizeof(fftw_real));
+
+    data = (fftw_complex *) fftw_malloc(total_local_size * sizeof(fftw_complex));
+    workspace = (fftw_complex *) fftw_malloc(total_local_size * sizeof(fftw_complex));
+    local_size_real = local_nx * shape[1];
     if (local_size_real == 0) {
         have_local_data = false;
     } else {
@@ -188,15 +189,14 @@ Distributed_fft2d::transform(MArray2dc_ref & in, MArray2dc_ref & out)
 #ifdef USE_FFTW2
     if (have_local_data) {
         memcpy((void*) data, (void*) multi_array_offset(in, lower, 0),
-                local_size_real * sizeof(std::complex<double >));
+	       local_size_real * sizeof(std::complex<double >));
     }
     t = simple_timer_show(t, "sc-distributed_fft2d-transform(memcpy-in)");
-    rfftwnd_mpi(plan, 1, data, workspace, FFTW_NORMAL_ORDER);
+    fftwnd_mpi(plan, 1, data, workspace, FFTW_NORMAL_ORDER);
     t = simple_timer_show(t, "sc-distributed_fft2d-transform(fftw_execute)");
     if (have_local_data) {
         memcpy((void*) multi_array_offset(out, lower, 0),
-                (void*) (workspace), local_size_real * sizeof(std::complex<
-                        double >));
+	       (void*) (data), local_size_real * sizeof(std::complex<double >));
     }
     t = simple_timer_show(t, "sc-distributed_fft2d-transform(memcpy-out)");
 #else
@@ -250,16 +250,16 @@ Distributed_fft2d::inv_transform(MArray2dc_ref & in, MArray2dc_ref & out)
     t = simple_timer_show(t, "sc-distributed_fft2d-inv_transform(error-check)");
 #ifdef USE_FFTW2
     if (have_local_data) {
-        memcpy((void*) workspace, (void*) multi_array_offset(in, lower, 0),
-                local_size_real * sizeof(std::complex<double >));
+        memcpy((void*) data, (void*) multi_array_offset(in, lower, 0),
+	       local_size_real * sizeof(std::complex<double >));
     }
     t = simple_timer_show(t, "sc-distributed_fft2d-inv_transform(memcpy-in)");
-    rfftwnd_mpi(inv_plan, 1, data, workspace, FFTW_NORMAL_ORDER);
+    fftwnd_mpi(inv_plan, 1, data, workspace, FFTW_NORMAL_ORDER);
     t = simple_timer_show(t, "sc-distributed_fft2d-inv_transform(fftw_excute)");
 
     if (have_local_data) {
         memcpy((void*) multi_array_offset(out, lower, 0), (void*) data,
-                local_size_real * sizeof(std::complex<double >));
+	       local_size_real * sizeof(std::complex<double >));
     }
     t = simple_timer_show(t, "sc-distributed_fft2d-inv_transform(memcpy-out)");
 #else
@@ -288,8 +288,8 @@ Distributed_fft2d::get_roundtrip_normalization() const
 Distributed_fft2d::~Distributed_fft2d()
 {
 #ifdef USE_FFTW2
-    fftw_destroy_plan(plan);
-    fftw_destroy_plan(inv_plan);
+    fftwnd_mpi_destroy_plan(plan);
+    fftwnd_mpi_destroy_plan(inv_plan);
     fftw_free(data);
     fftw_free(workspace);
 #else

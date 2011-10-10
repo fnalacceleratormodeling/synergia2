@@ -46,6 +46,7 @@ void
 Step::apply(Bunch & bunch, Multi_diagnostics & diagnostics)
 { 
     
+   // int rank = Commxx().get_rank();
     std::list<double >::const_iterator fractions_it = time_fractions.begin();
     for (Operators::const_iterator it = operators.begin(); it
             != operators.end(); ++it) {

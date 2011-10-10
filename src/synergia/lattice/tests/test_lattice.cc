@@ -1,6 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "synergia/lattice/lattice.h"
+#include "synergia/foundation/math_constants.h"
 
 const std::string name("foo");
 const int charge = -1;
@@ -84,6 +85,23 @@ BOOST_AUTO_TEST_CASE(append_fodo)
     BOOST_CHECK((*it)->get_name() == "o");
     BOOST_CHECK((*it)->get_type() == "drift");
     BOOST_CHECK_CLOSE((*it)->get_double_attribute("l"), drift_length, tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(derive_internal_attributes)
+{
+    Lattice_element b("rbend", "b");
+    b.set_double_attribute("l", bend_length);
+    double bend_angle = 2 * mconstants::pi / 24;
+    b.set_double_attribute("angle", bend_angle);
+
+    Lattice lattice(name);
+    lattice.append(b);
+    lattice.set_default_attributes(Element_adaptor_map());
+    lattice.derive_internal_attributes(Element_adaptor_map());
+
+    double arc_length = bend_angle * bend_length / (2
+            * std::sin(bend_angle / 2));
+    BOOST_CHECK_CLOSE(lattice.get_length(), arc_length, tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(get_length)

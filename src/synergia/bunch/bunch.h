@@ -49,7 +49,6 @@ private:
     Fixed_t_z_zeroth default_converter;
    // Fixed_t_z_alex default_converter;
   //  Fixed_t_z_synergia20 default_converter;
-  //  void 
     void
     assign_ids(int local_offset);
     void

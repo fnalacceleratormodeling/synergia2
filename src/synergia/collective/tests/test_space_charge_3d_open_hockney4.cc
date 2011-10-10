@@ -17,6 +17,9 @@ using pconstants::epsilon0;
 #include "space_charge_bunch_fixtures.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
+// define DBGPRINT to get verbose output of test values
+#define DBGPRINT 0
+
 const double tolerance = 1.0e-12;
 
 Distributed_rectangular_grid_sptr
@@ -118,8 +121,10 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Cylindrical_bunch_fixture_f
             }
         }
     }
-    //    std::cout << "max_fractional_error = " << max_fractional_error << std::endl;
-    //    std::cout << "min_fractional_error = " << min_fractional_error << std::endl;
+#if DBGPRINT
+    std::cout << "max_fractional_error = " << max_fractional_error << std::endl;
+    std::cout << "min_fractional_error = " << min_fractional_error << std::endl;
+#endif //DBGPRINT
 
     // on the development machine, I get
     //    max_fractional_error = 4.83071e-05
@@ -208,11 +213,14 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
                 }
             }
         }
-        //        f.write(exact_En->get_grid_points(), "enexact");
-        //        std::cout << "max_fractional_error = " << max_fractional_error
-        //                << std::endl;
-        //        std::cout << "min_fractional_error = " << min_fractional_error
-        //                << std::endl;
+	// f.write(exact_En->get_grid_points(), "enexact");
+
+#if DBGPRINT
+	std::cout << "max_fractional_error = " << max_fractional_error
+		  << std::endl;
+	std::cout << "min_fractional_error = " << min_fractional_error
+		  << std::endl;
+#endif //DBGPRINT
 
         // on the development machine, I get
         //                max_fractional_error = 0.193765
@@ -400,8 +408,10 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_particles,
             }
         }
         //        f.write(exact_En.get_grid_points(), "enexact");
-        //        std::cout << "max_scaled_error = " << max_scaled_error << std::endl;
-        //        std::cout << "min_scaled_error = " << min_scaled_error << std::endl;
+#if DBGPRINT
+	std::cout << "max_scaled_error = " << max_scaled_error << std::endl;
+	std::cout << "min_scaled_error = " << min_scaled_error << std::endl;
+#endif // DBGPRINT
 
         // on the development machine, I get
         //        max_scaled_error = 0.149345
