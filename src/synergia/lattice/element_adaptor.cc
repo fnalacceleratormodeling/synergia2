@@ -337,14 +337,22 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 	  // split the sbend and insert a thinpole in between the halves
 	  ElmPtr sbptr1;
 	  ElmPtr sbptr2;
-	  (*elm)->Split(0.5, sbptr1, sbptr2);
+	  elm->Split(0.5, sbptr1, sbptr2);
 
 	  std::vector<std::complex<double> > c_moments;
 	  for (int k=0; k<=highest_order; ++k) {
 	    c_moments.push_back(std::complex<double> (bk[k],ak[k]));
 	  }
 
+	  retval.push_back(sbptr1);
+	  retval.push_back(ElmPtr(new ThinPole((lattice_element.get_name() + "_poles").c_str(),
+					       brho * angle, c_moments)));
+	  retval.push_back(sbptr2);
+
+	  return retval;
+	}
     } else {
+      // combined function element
         bmlnElmnt* elm = new CF_sbend(lattice_element.get_name().c_str(),
                 length, brho * angle / length, angle, e1, e2);
         if (tilt != 0.0) elm->setAlignment(aligner);
@@ -441,23 +449,78 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double tilt = lattice_element.get_double_attribute("tilt");
     bool simple = ((k1 == 0.0) && (k2 == 0.0) && (k3 == 0.0) && (tilt == 0.0));
 
+    double ak[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently a0-a7
+    double bk[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently b0-b7
+
+    // thinpole strengths
+    string a_attr_list[] = { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7"};
+    string b_attr_list[] = { "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7"};
+
+    bool has_multipoles = false;
+    int highest_order = 0;
+    // find any possible multipole moments
+    for (int moment = 0; moment < 8; ++moment) {
+        if (lattice_element.has_double_attribute(a_attr_list[moment])) {
+	  ak[moment] = lattice_element.get_double_attribute(a_attr_list[moment]);
+	  // no point in setting using multipole machinery ff the attributes are 0
+	  if (ak[moment] != 0.0) {
+	    has_multipoles = true;
+	    highest_order = moment;
+	  }
+	}
+	if (lattice_element.has_double_attribute(b_attr_list[moment])) {
+	  bk[moment] = lattice_element.get_double_attribute(b_attr_list[moment]);
+	  if (bk[moment] != 0.0) {
+	    has_multipoles = true;
+	    highest_order = moment;
+	  }
+	}
+    }
+
+    // being not simple precludes using multipoles
+    if (!simple && has_multipoles) {
+      throw runtime_error("shouldn't use k1,k2 and multipoles in one rbend");
+    }
+
     if (simple) {
-        if ((0.0 == e1) && (0.0 == e2)) {
-            ElmPtr elm(
-                    new rbend(lattice_element.get_name().c_str(), length,
-                            brho * (2.0 * sin(0.5 * angle)) / length, angle));
-            elm->setTag("RBEND");
-            retval.push_back(elm);
-            return retval;
-        } else {
-            ElmPtr elm(
-                    new rbend(lattice_element.get_name().c_str(), length,
-                            brho * (2.0 * sin(0.5 * angle)) / length, angle,
-                            e1, e2));
-            elm->setTag("RBEND");
-            retval.push_back(elm);
-            return retval;
-        }
+      bmlnElmnt * bmelmnt;
+
+      if ((0.0 == e1) && (0.0 == e2)) {
+	bmelmnt =
+	  new rbend(lattice_element.get_name().c_str(), length,
+		    brho * (2.0 * sin(0.5 * angle)) / length, angle);
+	bmelmnt->setTag("RBEND");
+      } else {
+	bmelmnt =
+	  new rbend(lattice_element.get_name().c_str(), length,
+		    brho * (2.0 * sin(0.5 * angle)) / length, angle,
+		    e1, e2);
+	bmelmnt->setTag("RBEND");
+      }
+      ElmPtr elm(bmelmnt);
+      // if there are no multipoles, I'm done.
+      if ( !has_multipoles) {
+	retval.push_back(elm);
+	return retval;
+      } else {
+	// split the sbend and insert a thinpole in between the halves
+	ElmPtr rbptr1;
+	ElmPtr rbptr2;
+	elm->Split(0.5, rbptr1, rbptr2);
+
+	std::vector<std::complex<double> > c_moments;
+	for (int k=0; k<=highest_order; ++k) {
+	  c_moments.push_back(std::complex<double> (bk[k],ak[k]));
+	}
+	
+	retval.push_back(rbptr1);
+	retval.push_back(ElmPtr(new ThinPole((lattice_element.get_name() + "_poles").c_str(),
+					     brho * (2.0 * sin(0.5 * angle)),
+					     c_moments)));
+	retval.push_back(rbptr2);
+	
+	return retval;
+      }
     } else {
         // Not so simple
         alignmentData aligner;
