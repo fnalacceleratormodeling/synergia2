@@ -28,6 +28,11 @@ public:
             double lattice_length, double beta);
     virtual Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+        }
     virtual
     ~Element_adaptor();
 };
@@ -156,13 +161,13 @@ public:
 // thinpoles are an CHEF addon not found in MAD8
 class Thinpole_mad8_adaptor : public Element_adaptor
 {
- public:
-  Thinpole_mad8_adaptor();
-  virtual void
+public:
+    Thinpole_mad8_adaptor();
+    virtual void
     set_default_attributes(Lattice_element & lattice_element);
-  Chef_elements
+    Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
-  virtual
+    virtual
     ~Thinpole_mad8_adaptor();
 };
 
@@ -299,6 +304,5 @@ public:
     virtual
     ~Rcollimator_mad8_adaptor();
 };
-
 
 #endif /* ELEMENT_ADAPTOR_H_ */
