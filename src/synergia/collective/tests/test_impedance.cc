@@ -119,7 +119,7 @@ BOOST_CHECK_CLOSE(imped.get_y_wake()[3],   -1.77089e+11  , tolerance);
 
 }
 
-  BOOST_FIXTURE_TEST_CASE(test_apply, Fixture)
+BOOST_FIXTURE_TEST_CASE(test_apply, Fixture)
   {
     Bunch bunch(reference_particle, total_num, real_num, comm);
     dummy_populate(bunch);
@@ -127,4 +127,4 @@ BOOST_CHECK_CLOSE(imped.get_y_wake()[3],   -1.77089e+11  , tolerance);
     double time_step=10.;
     Impedance imped("test_wake.dat", orbit_length, bunch_spacing, zgrid, "circular",10); // four columns file
     imped.apply(bunch, time_step, step);
-  }
+}

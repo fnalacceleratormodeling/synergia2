@@ -54,37 +54,40 @@ BOOST_FIXTURE_TEST_CASE(get_slices, Lattice_fixture)
     BOOST_CHECK_EQUAL(slices.size(), 2);
 }
 
-BOOST_FIXTURE_TEST_CASE(apply, Bunch_fixture)
-{
-    Lattice_fixture l;
-    Lattice_simulator lattice_simulator(l.lattice_sptr, map_order);
-    Independent_operator independent_operator("test",
-            lattice_simulator.get_operation_extractor_map_sptr());
+ BOOST_FIXTURE_TEST_CASE(apply, Bunch_fixture)
+ {
+     Lattice_fixture l;
+     Lattice_simulator lattice_simulator(l.lattice_sptr, map_order);
+     Independent_operator independent_operator("test",
+             lattice_simulator.get_operation_extractor_map_sptr());
+ 
+     Lattice_element_sptr element_sptr;
+     // find the first quad
+     for (Lattice_elements::iterator it = l.lattice_sptr->get_elements().begin(); it
+             != l.lattice_sptr->get_elements().end(); ++it) {
+         if ((*it)->get_type() == "quadrupole") {
+             element_sptr = *it;
+             break;
+         }
+     }
+     double length = element_sptr->get_length();
+     Lattice_element_slice_sptr first_half(
+             new Lattice_element_slice(*element_sptr, 0.0, 0.5 * length));
+     independent_operator.append_slice(first_half);
+     Lattice_element_slice_sptr second_half(
+             new Lattice_element_slice(*element_sptr, 0.5 * length, length));
+     independent_operator.append_slice(second_half);
+     lattice_simulator.set_slices(independent_operator.get_slices());
+ 
+     double step_length = 1.0;
+     Step stub_step(1.0);
+ 
+     independent_operator.apply(bunch, step_length, stub_step);
+ }
 
-    Lattice_element_sptr element_sptr;
-    // find the first quad
-    for (Lattice_elements::iterator it = l.lattice_sptr->get_elements().begin(); it
-            != l.lattice_sptr->get_elements().end(); ++it) {
-        if ((*it)->get_type() == "quadrupole") {
-            element_sptr = *it;
-            break;
-        }
-    }
 
-    double length = element_sptr->get_length();
-    Lattice_element_slice_sptr first_half(
-            new Lattice_element_slice(*element_sptr, 0.0, 0.5 * length));
-    independent_operator.append_slice(first_half);
-    Lattice_element_slice_sptr second_half(
-            new Lattice_element_slice(*element_sptr, 0.5 * length, length));
-    independent_operator.append_slice(second_half);
-    lattice_simulator.set_slices(independent_operator.get_slices());
 
-    double step_length = 1.0;
-    Step stub_step(1.0);
 
-    independent_operator.apply(bunch, step_length, stub_step);
-}
 
 BOOST_FIXTURE_TEST_CASE(apply_accelerated, Bunch_fixture)
 {
@@ -115,20 +118,22 @@ BOOST_FIXTURE_TEST_CASE(apply_accelerated, Bunch_fixture)
     double step_length = 1.0;
     Step stub_step(1.0);
 
+   
     Bunch orig_bunch(bunch);
 
+  
     independent_operator.apply(orig_bunch, step_length, stub_step);
     independent_operator.apply(bunch, step_length, stub_step);
 
     multi_array_check_equal(bunch.get_local_particles(),
             orig_bunch.get_local_particles(), tolerance);
-
+ 
     independent_operator.apply(orig_bunch, step_length, stub_step);
 
+    
     double old_total_energy = bunch.get_reference_particle().get_total_energy();
     bunch.get_reference_particle().set_total_energy(old_total_energy * 2.0);
     independent_operator.apply(bunch, step_length, stub_step);
-
     bool equal = true;
     MArray2d_ref p(bunch.get_local_particles());
     MArray2d_ref op(orig_bunch.get_local_particles());

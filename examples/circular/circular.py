@@ -168,12 +168,10 @@ for bunchnum in range(0,num_bunches):
         bucket_index=bunch_diag_train.get_bunch_diag_sptr(bunchnum).get_bunch_sptr().get_bucket_index()
         if commx.Get_rank() ==0:
             print "bunch # ",bunchnum ,"  number of particles= ",real_num, " bucket =", bucket_index
-
 if MPI.COMM_WORLD.Get_rank() ==0:
     print "train bunch space=",bunch_diag_train.get_bunch_separation()
 
 
-<<<<<<< HEAD
 no_op = synergia.simulation.Dummy_collective_operator("stub")
 zgrid=40
 imped= synergia.collective.Impedance("BoosterF_wake.dat",lattice_length, bunchsp,zgrid, "circular",60)
@@ -186,14 +184,8 @@ else:
     stepper = synergia.simulation. Split_operator_stepper(
                             lattice_simulator, no_op, opts.num_steps)                           
     #stepper = synergia.simulation.Independent_stepper_elements(
-                            #lattice_simulator, opts.num_steps)
-=======
 
 
->>>>>>> remotes/origin/ramping_merge
-
-
-<<<<<<< HEAD
 if MPI.COMM_WORLD.Get_rank() ==4:
     print "expect std_x: ", np.sqrt(emit*bx)
     print "generated std_x: ", np.std(particles[:,0])
@@ -216,75 +208,7 @@ if MPI.COMM_WORLD.Get_rank() ==4:
 
 
 
-=======
-rms_index=[0,2,4]
-arms=np.sqrt(emit*bx)
-brms=np.sqrt(emit*by)
-crms=opts.stdz
 
-#rms_index=[1,3,5]
-#arms=0.002691405845277
-#brms=0.000691411827683
-#crms=4.84505679134e-06
-
-
-covar = synergia.optics.matching._get_correlation_matrix(map,arms,brms,crms,beta,rms_index)
-print "covariance matrix"
-print np.array2string(covar,max_line_width=200)
-
-
-
-
-print "stdx =",np.sqrt(emit*bx)," stdy= ", np.sqrt(emit*by)
-bunch = synergia.optics.generate_matched_bunch(lattice_simulator,
-                                               arms,brms,crms,
-                                               opts.num_real_particles,
-                                               opts.num_macro_particles,rms_index,
-                                               seed=opts.seed)
-                                               
-print " bucket lenght=",bunch.get_z_period_length()
-
-
-
-no_op = synergia.simulation.Dummy_collective_operator("stub")
-bunchsp=bunch.get_z_period_length()
-zgrid=40
-imped= synergia.collective.Impedance("BoosterF_wake.dat",lattice_length, bunchsp,zgrid, "circular",60)
-#imped= synergia.simulation.Dummy_collective_operator("stub")
-impedance=opts.impedance
-if impedance:
-    stepper = synergia.simulation.Split_operator_stepper(
-                            lattice_simulator, imped, opts.num_steps)
-else:
-    stepper = synergia.simulation. Split_operator_stepper(
-                            lattice_simulator, no_op, opts.num_steps)                           
-    #stepper = synergia.simulation.Independent_stepper_elements(
-                            #lattice_simulator, opts.num_steps)
-
-
-                                               
-# get particle bunch for examination
-particles = bunch.get_local_particles()
-
-# apply offset to bunch
-particles[:,0] = particles[:,0]+opts.x_offset
-particles[:,2] = particles[:,2]+opts.y_offset
-particles[:,4] = particles[:,4]+opts.z_offset
-
-print "expect std_x: ", np.sqrt(emit*bx)
-print "generated std_x: ", np.std(particles[:,0])
-print "expect std_y: ", np.sqrt(emit*by)
-print "generated std_y: ", np.std(particles[:,2]);
-print "expected std_z: ", opts.stdz
-print "generated std_z: ", np.std(particles[:,4])
-print "expected std(dpop): ", opts.stdz/bz
-print "generated std(dpop): ", np.std(particles[:,5])
-
-diagnostics_writer_step = synergia.bunch.Diagnostics_full2(bunch, "circular_full2.h5")
-                                                          
-diagnostics_writer_turn = synergia.bunch.Diagnostics_particles(bunch,"circular_particles.h5",0,0,3)
-                                                           
->>>>>>> remotes/origin/ramping_merge
 propagator = synergia.simulation.Propagator(stepper)
 #propagator.propagate(bunch_with_diag, opts.num_turns, opts.verbose)
 propagator.propagate(bunch_diag_train, opts.num_turns, opts.verbose)

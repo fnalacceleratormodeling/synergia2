@@ -169,7 +169,7 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step)
     t = simple_timer_current();
     for (Independent_operations::iterator it = operations.begin(); it
             != operations.end(); ++it) {
-     //  std::cout<<" opertor.cc operator name="<<(*it)->get_type()<<std::endl;
+      // std::cout<<" opertor.cc operator name="<<(*it)->get_type()<<std::endl;
         (*it)->apply(bunch);
     }
     t = simple_timer_show(t, "independent-operation-apply");

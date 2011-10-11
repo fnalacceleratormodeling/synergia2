@@ -215,10 +215,10 @@ calculate_moments_and_partitions(Bunch & bunch, MArray1d &zdensity,  MArray1d &x
     
     int zpoints=zcoord.size();
     int registered_turns=stored_vbunches.size();
-    int numbunches=(*stored_vbunches.begin()).size();
-    //  std::cout<<" registred turns= "<<registered_turns<<std::endl; 
-    // std::cout<<" numbunches= "<<numbunches<<std::endl; 
-    
+    int numbunches;
+    registered_turns==0 ? numbunches=0 : numbunches=(*stored_vbunches.begin()).size();
+   // std::cout<<" registred turns= "<<registered_turns<<std::endl; 
+   // std::cout<<" numbunches= "<<numbunches<<std::endl; 
     for (int i = 0; i < z_grid; ++i){
       // in-bunch impedance  
         for (int j = i+1; j < z_grid; ++j){
@@ -246,8 +246,8 @@ calculate_moments_and_partitions(Bunch & bunch, MArray1d &zdensity,  MArray1d &x
         for (int ibunch= 0; ibunch<numbunches; ++ibunch){
             double wake_x(0.), wake_y(0.), wake_z(0.);
             int ibucket=(*it)[ibunch].bucket_index;
-            if(ibucket<bunch_bucket) {///  same turn, the leading buckets effect    
-            double  zji=z_to_edge+bunch_sp*(bunch_bucket-ibucket);// +((*it)[ibunch].z_mean-bunch_z_mean);
+             if(ibucket<bunch_bucket) {///  same turn, the leading buckets effect    
+             double  zji=z_to_edge+bunch_sp*(bunch_bucket-ibucket);// +((*it)[ibunch].z_mean-bunch_z_mean);
             int iz=static_cast<int>(floor(sqrt((zji-zcoord[0])/(zcoord[1]-zcoord[0]))));  
             if ((iz+1 <= zpoints) && (iz>0)) {
                         wake_x += xwake[iz]+(zji-zcoord[iz])*(xwake[iz+1]-xwake[iz])/(zcoord[iz+1]-zcoord[iz]);
@@ -256,10 +256,10 @@ calculate_moments_and_partitions(Bunch & bunch, MArray1d &zdensity,  MArray1d &x
                 }
             }
 
-            dipole_x[i] +=  (*it)[ibunch].realnum*(*it)[ibunch].x_mean*wake_x;
-            dipole_y[i] += (*it)[ibunch].realnum*(*it)[ibunch].y_mean*wake_y; 
-            quad_y[i] +=  (*it)[ibunch].realnum*wake_x;               
-            l_monopole[i] += (*it)[ibunch].realnum*wake_z;
+             dipole_x[i] +=  (*it)[ibunch].realnum*(*it)[ibunch].x_mean*wake_x;
+             dipole_y[i] += (*it)[ibunch].realnum*(*it)[ibunch].y_mean*wake_y; 
+             quad_y[i] +=  (*it)[ibunch].realnum*wake_x;               
+             l_monopole[i] += (*it)[ibunch].realnum*wake_z;
         } // ibunch loop
         
          if (registered_turns>1) {
@@ -403,21 +403,13 @@ Impedance::apply(Bunch & bunch, double time_step, Step & step)
     double gamma = bunch.get_reference_particle().get_gamma();
     double beta= bunch.get_reference_particle().get_beta();
     double cell_size_z= size_z/double(z_grid);
-    
-    
-    
-  
-   
+     
     get_kicks(bunch_bucket, bunch_z_mean, z_grid, orbit_length , N_factor, cell_size_z, z_coord, x_wake, y_wake, z_wake, zdensity, 
               xmom, ymom, bunch_spacing,
               step.get_stored_vbunches(), dipole_x,  dipole_y, quad_y, l_monopole);
-   
- 
-
 
     double w_f=get_wake_factor()*time_step/gamma;  // 1/gamma/beta  is the difference with the old version
-                                                        // due to the different units  
- 
+                                                        // due to the different units   
     impedance_kick(bunch,  w_f, bin_partition, dipole_x, dipole_y, quad_y,  l_monopole);
     t = simple_timer_show(t, "impedance apply");
 }

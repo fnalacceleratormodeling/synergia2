@@ -196,17 +196,15 @@ def get_covariances(sigma, r):
 def generate_matched_bunch(lattice_simulator, arms,brms,crms,
                            num_real_particles, num_macro_particles, rms_index=[0,2,4],seed=0,
                            bunch_index=0, comm=None, periodic=False):
-
     map = linear_one_turn_map(lattice_simulator)
     beta = lattice_simulator.get_lattice().get_reference_particle().get_beta()
     correlation_matrix = _get_correlation_matrix(map, arms,brms,crms,beta, rms_index) 
-    
     if comm == None:
        comm = MPI.COMM_WORLD  
   
-    #if comm.Get_rank() ==0:
-       #print "BUNCH INDEX=", bunch_index 
-       #print_matched_parameters(correlation_matrix,beta)  
+    if comm.Get_rank() ==0:
+       print "BUNCH INDEX=", bunch_index 
+       print_matched_parameters(correlation_matrix,beta)  
     
     z_period_length= lattice_simulator.get_bucket_length()        
     if ((z_period_length == 0) or (not(periodic))):
