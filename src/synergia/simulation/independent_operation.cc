@@ -47,6 +47,10 @@ Chef_propagate_operation::Chef_propagate_operation(
 {
 }
 
+Chef_propagate_operation::Chef_propagate_operation()
+{
+}
+
 void
 Chef_propagate_operation::apply(Bunch & bunch)
 {
