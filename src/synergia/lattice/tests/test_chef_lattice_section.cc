@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "synergia/lattice/chef_lattice_section.h"
+#include "synergia/utils/xml_serialization.h"
 
 #include "chef_lattice_sptr_fixture.h"
 
@@ -126,4 +127,14 @@ BOOST_FIXTURE_TEST_CASE(clear, Chef_lattice_sptr_fixture)
     chef_lattice_section.clear();
 
     BOOST_CHECK(chef_lattice_section.empty());
+}
+
+BOOST_FIXTURE_TEST_CASE(serialize, Chef_lattice_sptr_fixture)
+{
+    Chef_lattice_section chef_lattice_section(chef_lattice_sptr, begin, end);
+    xml_save<Chef_lattice_section > (chef_lattice_section,
+            "chef_lattice_section.xml");
+
+    Chef_lattice_section loaded;
+    xml_load<Chef_lattice_section > (loaded, "chef_lattice_section.xml");
 }

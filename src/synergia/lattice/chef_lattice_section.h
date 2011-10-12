@@ -40,6 +40,14 @@ public:
     empty() const;
     void
     clear();
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(begin_index);
+            ar & BOOST_SERIALIZATION_NVP(end_index);
+            ar & BOOST_SERIALIZATION_NVP(chef_lattice_sptr);
+        }
 };
 
 #endif /* CHEF_LATTICE_SECTION_H_ */
