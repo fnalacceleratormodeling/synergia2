@@ -15,5 +15,5 @@ BOOST_AUTO_TEST_CASE(serialize)
     xml_save<Element_adaptor > (element_adaptor, "element_adaptor.xml");
 
     Element_adaptor loaded;
-    xml_load<Element_adaptor>(loaded, "element_adaptor.xml");
+    xml_load<Element_adaptor > (loaded, "element_adaptor.xml");
 }

@@ -972,7 +972,7 @@ Thinpole_mad8_adaptor::get_chef_elements(
     for (int k=0; k<8; ++k) {
       c_moments.push_back(std::complex<double> (bk[k],ak[k]));
     }
-    
+
     retval.push_back(ElmPtr(new ThinPole(lattice_element.get_name().c_str(),
 					 brho * kl, c_moments)));
 

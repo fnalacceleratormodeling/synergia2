@@ -31,6 +31,11 @@ target_link_libraries(test_element_adaptor synergia_lattice synergia_foundation
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_element_adaptor test_element_adaptor)
 
+add_executable(test_element_adaptor_map test_element_adaptor_map.cc)
+target_link_libraries(test_element_adaptor_map synergia_lattice synergia_foundation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_element_adaptor_map test_element_adaptor_map)
+
 add_executable(test_chef_lattice test_chef_lattice.cc)
 target_link_libraries(test_chef_lattice synergia_lattice synergia_foundation
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
