@@ -3,6 +3,7 @@
 #include "synergia/lattice/chef_lattice.h"
 #include "synergia/lattice/chef_utils.h"
 #include "synergia/foundation/math_constants.h"
+#include "synergia/utils/xml_serialization.h"
 #include <basic_toolkit/PhysicsConstants.h>
 
 const std::string name("fodo");
@@ -752,4 +753,29 @@ BOOST_FIXTURE_TEST_CASE(get_lattice_element_slice, Fodo_fixture)
                     "marker");
         }
     }
+}
+
+BOOST_FIXTURE_TEST_CASE(serialize1, Fodo_fixture)
+{
+    Chef_lattice chef_lattice(lattice_sptr);
+    xml_save<Chef_lattice > (chef_lattice, "chef_lattice1.xml");
+
+    Chef_lattice loaded;
+    xml_load<Chef_lattice > (loaded, "chef_lattice1.xml");
+
+    BOOST_CHECK(!loaded.have_sliced_beamline());
+}
+
+BOOST_FIXTURE_TEST_CASE(serialize2, Fodo_fixture)
+{
+    Chef_lattice chef_lattice(lattice_sptr);
+    const int slices_per_element = 4;
+    chef_lattice.construct_sliced_beamline(
+            slice_lattice(*lattice_sptr, slices_per_element));
+    xml_save<Chef_lattice > (chef_lattice, "chef_lattice2.xml");
+
+    Chef_lattice loaded;
+    xml_load<Chef_lattice > (loaded, "chef_lattice2.xml");
+
+    BOOST_CHECK(loaded.have_sliced_beamline());
 }

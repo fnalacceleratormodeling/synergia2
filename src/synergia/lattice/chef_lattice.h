@@ -7,6 +7,7 @@
 #include "synergia/lattice/lattice_element_slice.h"
 #include "synergia/lattice/chef_elements.h"
 #include "synergia/lattice/chef_lattice_section_fwd.h"
+#include <beamline/beamline_elements.h>
 
 class Chef_lattice : public boost::enable_shared_from_this<Chef_lattice >
 {
@@ -15,9 +16,17 @@ private:
     struct Begin_end
     {
         int begin, end;
+        template<class Archive>
+            void
+            serialize(Archive & ar, const unsigned int version)
+            {
+                ar & BOOST_SERIALIZATION_NVP(begin);
+                ar & BOOST_SERIALIZATION_NVP(end);
+            }
     };
 
     Lattice_sptr lattice_sptr;
+    Lattice_element_slices slices;
     Element_adaptor_map_sptr element_adaptor_map_sptr;
     BmlPtr beamline_sptr;
     BmlPtr sliced_beamline_sptr;
@@ -49,6 +58,8 @@ public:
             Element_adaptor_map_sptr element_adaptor_map_sptr);
     double
     get_brho() const;
+    // Default constructor for serialization use only
+    Chef_lattice();
     Element_adaptor_map_sptr
     get_element_adaptor_map_sptr();
     Chef_lattice_section_sptr
@@ -65,6 +76,35 @@ public:
     get_sliced_beamline_iterator(int index);
     beamline::const_iterator
     get_sliced_beamline_const_iterator(int index) const;
+    template<class Archive>
+        void
+        save(Archive & ar, const unsigned int version) const
+        {
+            ar & BOOST_SERIALIZATION_NVP(lattice_sptr);
+            ar & BOOST_SERIALIZATION_NVP(slices);
+            ar & BOOST_SERIALIZATION_NVP(element_adaptor_map_sptr);
+            ar & BOOST_SERIALIZATION_NVP(have_sliced_beamline_);
+            ar & BOOST_SERIALIZATION_NVP(element_slice_map);
+            ar & BOOST_SERIALIZATION_NVP(brho);
+        }
+    template<class Archive>
+        void
+        load(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(lattice_sptr);
+            ar & BOOST_SERIALIZATION_NVP(slices);
+            ar & BOOST_SERIALIZATION_NVP(element_adaptor_map_sptr);
+            ar & BOOST_SERIALIZATION_NVP(have_sliced_beamline_);
+            ar & BOOST_SERIALIZATION_NVP(element_slice_map);
+            ar & BOOST_SERIALIZATION_NVP(brho);
+            lattice_element_marker = ElmPtr(
+                    new marker("synergia_lattice_element_marker"));
+            construct_beamline();
+            if (have_sliced_beamline_) {
+                construct_sliced_beamline(slices);
+            }
+        }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
     ~Chef_lattice();
     static const char internal_marker_name[];
 };

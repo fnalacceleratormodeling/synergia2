@@ -3,7 +3,6 @@
 #include "synergia/utils/floating_point.h"
 #include "synergia/foundation/math_constants.h"
 #include "chef_lattice_section.h"
-#include <beamline/beamline_elements.h>
 #include <basic_toolkit/PhysicsConstants.h>
 #include <physics_toolkit/DriftConverter.h>
 #include <beamline/RefRegVisitor.h>
@@ -128,6 +127,10 @@ double
 Chef_lattice::get_brho() const
 {
     return brho;
+}
+
+Chef_lattice::Chef_lattice()
+{
 }
 
 Element_adaptor_map_sptr
@@ -313,6 +316,7 @@ Chef_lattice::have_sliced_beamline() const
 void
 Chef_lattice::construct_sliced_beamline(Lattice_element_slices const& slices)
 {
+    this->slices = slices;
     BmlPtr unpolished_beamline_sptr(new beamline());
     for (Lattice_element_slices::const_iterator it = slices.begin(); it
             != slices.end(); ++it) {
