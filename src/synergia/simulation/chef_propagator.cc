@@ -7,6 +7,10 @@ Chef_propagator::Chef_propagator(
 {
 }
 
+Chef_propagator::Chef_propagator()
+{
+}
+
 // jfa: This routine is incorrect when passing through an accelerating element.
 // Please fix it.
 void

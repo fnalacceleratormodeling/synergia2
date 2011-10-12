@@ -28,3 +28,4 @@ test_polygon_aperture_operation
 test_split_operator_stepper_choice
 
 *.h5
+*.xml

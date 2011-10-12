@@ -12,8 +12,16 @@ private:
 
 public:
     Chef_propagator(Chef_lattice_section_sptr chef_lattice_section_sptr);
+    // Default constructor for serialization use only
+    Chef_propagator();
     void
     apply(Bunch & bunch);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(chef_lattice_section_sptr);
+        }
 };
 
 #endif /* CHEF_PROPAGATOR_H_ */
