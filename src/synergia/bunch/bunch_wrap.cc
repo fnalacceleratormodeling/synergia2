@@ -102,12 +102,11 @@ BOOST_PYTHON_MODULE(bunch)
     def("populate_transverse_KV_GaussLong", populate_transverse_KV_GaussLong);
     def("populate_two_particles", populate_two_particles);
 
+     
      class_<Bunch_with_diagnostics >("Bunch_with_diagnostics",
-             init<Bunch_sptr, Diagnostics_sptr, Diagnostics_sptr >())
-             .def(init<Bunch_sptr, Multi_diagnostics, Multi_diagnostics >())
-             .def("get_bunch_sptr", &Bunch_with_diagnostics::get_bunch_sptr)
-             ;
-    
+            init<Bunch_sptr, Propagate_actions_sptr >())
+            .def("get_bunch_sptr", &Bunch_with_diagnostics::get_bunch_sptr)
+            ;
     
     class_<Train_comms, Train_comms_sptr, boost::noncopyable >
         ("Train_comms", init<int, Commxx const& >())

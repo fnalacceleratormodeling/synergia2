@@ -156,7 +156,7 @@ Step::apply(Bunch_with_diagnostics_train & bunch_diag_train)
      int diagnostics_operator=0;   
 /// this diagnostics is only for testing purpose 
       if  (diagnostics_operator) {
-        for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {
+        /*for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {
                 if (bunch_diag_train.is_on_this_rank(index)) {
                     for (Multi_diagnostics::iterator itd =
                         bunch_diag_train.get_bunch_diag_sptr(index)->get_per_step_diagnostics().begin();
@@ -165,7 +165,7 @@ Step::apply(Bunch_with_diagnostics_train & bunch_diag_train)
                         (*itd)->update_and_write();
                     }  
                 }
-            }             
+            }       */      
        }  
      
        for (int index = 0; index < numbunches; ++index) {
@@ -179,7 +179,7 @@ Step::apply(Bunch_with_diagnostics_train & bunch_diag_train)
    
 /// this diagnostics is only for testing purpose
        if  (diagnostics_operator) {
-        for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {
+        /*for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {
                 if (bunch_diag_train.is_on_this_rank(index)) {
                     for (Multi_diagnostics::iterator itd =
                         bunch_diag_train.get_bunch_diag_sptr(index)->get_per_step_diagnostics().begin();
@@ -188,7 +188,7 @@ Step::apply(Bunch_with_diagnostics_train & bunch_diag_train)
                         (*itd)->update_and_write();
                     }  
                 }
-            }             
+            }       */      
        }           
      
               

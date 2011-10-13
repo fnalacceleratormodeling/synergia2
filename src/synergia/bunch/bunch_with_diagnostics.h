@@ -6,36 +6,43 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/multi_diagnostics.h"
 
+class Propagate_actions;
+typedef boost::shared_ptr<Propagate_actions > Propagate_actions_sptr;
+
 class Bunch_with_diagnostics
 { 
 private:
     Bunch_sptr bunch_sptr; 
-    Multi_diagnostics  per_step_diagnostics;
-    Multi_diagnostics  per_turn_diagnostics;
-    
-    void
-    check_bunch_pointer();
-    
-    void
-    construct(Multi_diagnostics diagnostics_step,
-                         Multi_diagnostics diagnostics_turn);
+    Propagate_actions_sptr diagnostics_actions_sptr;
+//     Multi_diagnostics  per_step_diagnostics;
+//     Multi_diagnostics  per_turn_diagnostics;
+//     
+//     void
+//     check_bunch_pointer();
+//     
+//     void
+//     construct(Multi_diagnostics diagnostics_step,
+//                          Multi_diagnostics diagnostics_turn);
 public:    
-     Bunch_with_diagnostics(Bunch_sptr bunch_sptr, Diagnostics_sptr diagnostics_step_sptr, 
-                        Diagnostics_sptr diagnostics_turn_sptr); 
+//      Bunch_with_diagnostics(Bunch_sptr bunch_sptr, Diagnostics_sptr diagnostics_step_sptr, 
+//                         Diagnostics_sptr diagnostics_turn_sptr); 
+//                         
+//      Bunch_with_diagnostics(Bunch_sptr bunch_sptr, Multi_diagnostics step_diagnostics,
+//                         Multi_diagnostics  turn_diagnostics);
                         
-     Bunch_with_diagnostics(Bunch_sptr bunch_sptr, Multi_diagnostics step_diagnostics,
-                        Multi_diagnostics  turn_diagnostics);
-                        
-    
+     Bunch_with_diagnostics(Bunch_sptr bunch_sptr,  Propagate_actions_sptr diagnostics_actions_sptr);
          
      Bunch_sptr 
      get_bunch_sptr();
-      
+     
+     Propagate_actions_sptr &
+     get_diagnostics_actions_sptr();
+     /*
      Multi_diagnostics &
      get_per_step_diagnostics();
      
      Multi_diagnostics &
-     get_per_turn_diagnostics();
+     get_per_turn_diagnostics();*/
      
      ~Bunch_with_diagnostics();  
 };

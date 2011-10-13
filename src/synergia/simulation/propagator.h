@@ -21,6 +21,10 @@ public:
     void
     propagate(Bunch_with_diagnostics & bunch_with_diagnostics, int num_turns, 
               bool verbose = false);
+    void
+    propagate(Bunch_with_diagnostics & bunch_with_diagnostics, int num_turns, 
+                Propagate_actions & general_actions, bool verbose = false);         
+              
      void
      propagate(Bunch_with_diagnostics_train & bunch_diag_train, int num_turns,
               bool verbose= false);
@@ -28,6 +32,7 @@ public:
     void
     propagate(Bunch & bunch, int num_turns, Diagnostics & per_step_diagnostics,
             Diagnostics & per_turn_diagnostics, bool verbose = false);
+    
     void
     propagate(Bunch & bunch, int num_turns,
             Multi_diagnostics & per_step_diagnostics,
@@ -37,10 +42,11 @@ public:
     void
     propagate(Bunch & bunch, int num_turns,
             Propagate_actions & diagnostics_actions, int verbosity = 0);
-    void
-    propagate(Bunch & bunch, int num_turns,
-            Propagate_actions & diagnostics_actions,
-            Propagate_actions & general_actions, int verbosity = 0);
+     
+     void
+     propagate(Bunch & bunch, int num_turns,
+             Propagate_actions & diagnostics_actions,
+             Propagate_actions & general_actions, int verbosity = 0);
 
     
                 

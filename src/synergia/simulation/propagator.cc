@@ -1,5 +1,6 @@
 #include "propagator.h"
 #include "synergia/utils/simple_timer.h"
+#include "synergia/simulation/standard_diagnostics_actions.h"
 
 //void
 //Propagator::construct()
@@ -29,22 +30,37 @@ struct Object_to_sptr_hack
     }
 };
 
+
 void
 Propagator::propagate(Bunch_with_diagnostics & bunch_with_diagnostics, 
              int num_turns, bool verbose)
 {
+    Propagate_actions empty_propagate_actions;
+    propagate(bunch_with_diagnostics, num_turns, empty_propagate_actions,  verbose);
+}             
+
+
+void
+Propagator::propagate(Bunch_with_diagnostics & bunch_with_diagnostics, 
+             int num_turns, Propagate_actions & general_actions, bool verbose)
+{
+
+
 
     double t;
     double t_turn, t_turn1;
     int rank = Commxx().get_rank();
-    
     Bunch_sptr bunch_sptr=bunch_with_diagnostics.get_bunch_sptr();
+   
     
     
-    
-   std::ofstream logfile;
+    std::ofstream logfile;
     if (rank == 0) logfile.open("log");
-    
+    t = simple_timer_current(); 
+    bunch_with_diagnostics.get_diagnostics_actions_sptr()->first_action(*stepper_sptr, *bunch_sptr);
+    t = simple_timer_show(t, "diagnostics_first");
+    general_actions.first_action(*stepper_sptr, *bunch_sptr);
+    t = simple_timer_show(t, "propagate-general_actions");
     for (int turn = 0; turn < num_turns; ++turn) {
         t_turn=MPI_Wtime();
         if (verbose) {
@@ -52,31 +68,14 @@ Propagator::propagate(Bunch_with_diagnostics & bunch_with_diagnostics,
                 std::cout << "Propagator: turn " << turn + 1 << "/"
                         << num_turns << std::endl;
             }
-       }
-         bunch_sptr->get_reference_particle().start_repetition();
-         t = simple_timer_current();      
-        
-        for (Multi_diagnostics::iterator dit = bunch_with_diagnostics.get_per_turn_diagnostics().begin(); dit
-                != bunch_with_diagnostics.get_per_turn_diagnostics().end(); ++dit) {
-            (*dit)->update_and_write();
         }
-
-
- 
-        t = simple_timer_show(t, "diagnostics-turn");
+        bunch_sptr->get_reference_particle().start_repetition();
         int step_count = 0;
         int num_steps = stepper_sptr->get_steps().size();             
-       for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
+        for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
                != stepper_sptr->get_steps().end(); ++it) {
-           t = simple_timer_current();
-          for (Multi_diagnostics::iterator dit = bunch_with_diagnostics.get_per_step_diagnostics().begin(); dit
-                  != bunch_with_diagnostics.get_per_step_diagnostics().end(); ++dit) {
-             (*dit)->update_and_write();               
-          }
-            t = simple_timer_show(t, "diagnostics-step");
-
             ++step_count;
-            if (verbose) {
+            if (verbose>0) {
                 if (rank == 0) {
                    std::cout << "Propagator:   step " << step_count << "/"
                            << num_steps <<" s= "<<bunch_sptr->get_reference_particle().get_s()<<" trajectory length="<<bunch_sptr->get_reference_particle().get_trajectory_length()<< std::endl;
@@ -84,7 +83,14 @@ Propagator::propagate(Bunch_with_diagnostics & bunch_with_diagnostics,
             }      
              (*it)->apply(*bunch_sptr); 
              /// apply with diagnostics only for testing purposes
-             //(*it)->apply(*bunch_sptr, bunch_with_diagnostics.get_per_step_diagnostics());  
+             //(*it)->apply(*bunch_sptr, bunch_with_diagnostics.get_per_step_diagnostics()); 
+            t = simple_timer_current(); 
+            bunch_with_diagnostics.get_diagnostics_actions_sptr()->step_end_action(*stepper_sptr, *(*it), *bunch_sptr,
+                   turn, step_count); 
+            t = simple_timer_show(t, "diagnostics-step"); 
+            general_actions.step_end_action(*stepper_sptr, *(*it),*bunch_sptr,
+                    turn, step_count);
+            t = simple_timer_show(t, "propagate-general_actions-step");      
         }
         
        t_turn1= MPI_Wtime();
@@ -92,25 +98,16 @@ Propagator::propagate(Bunch_with_diagnostics & bunch_with_diagnostics,
             logfile<<" turn "<<turn + 1<<" : "<< t_turn1-t_turn<< " \n";
             std::cout<<"  turn "<<turn + 1<<" : "<< t_turn1-t_turn<<std::endl;
             logfile.flush();
-         }
-    }
-    t = simple_timer_current();
-     for (Multi_diagnostics::iterator dit = bunch_with_diagnostics.get_per_step_diagnostics().begin(); dit
-                   != bunch_with_diagnostics.get_per_step_diagnostics().end(); ++dit) {
-              (*dit)->update_and_write();               
-     }
-    t = simple_timer_show(t, "diagnostics-step");
-    
-         for (Multi_diagnostics::iterator dit = bunch_with_diagnostics.get_per_turn_diagnostics().begin(); dit
-                != bunch_with_diagnostics.get_per_turn_diagnostics().end(); ++dit) {
-            (*dit)->update_and_write();
-     }
-
-    t = simple_timer_show(t, "diagnostics-turn");
-     
-     if (rank == 0) logfile.close();    
-
-
+        }
+        t = simple_timer_current();
+ 
+        bunch_with_diagnostics.get_diagnostics_actions_sptr()->turn_end_action(*stepper_sptr, *bunch_sptr, turn);
+        t = simple_timer_show(t, "diagnostics-turn");
+        general_actions.turn_end_action(*stepper_sptr, *bunch_sptr, turn);
+        t = simple_timer_show(t, "propagate-general_actions-turn");
+         
+    }     
+    if (rank == 0) logfile.close();    
 } 
 
 
@@ -121,16 +118,19 @@ Propagator::propagate(Bunch & bunch, int num_turns,
         Diagnostics & per_step_diagnostics, Diagnostics & per_turn_diagnostics,
         bool verbose)
 {
-    Multi_diagnostics multi_per_step_diagnostics;
-    multi_per_step_diagnostics.append(Diagnostics_sptr(&per_step_diagnostics,
-            Object_to_sptr_hack()));
-    Multi_diagnostics multi_per_turn_diagnostics;
-    multi_per_turn_diagnostics.append(Diagnostics_sptr(&per_turn_diagnostics,
-            Object_to_sptr_hack()));
-    Bunch_sptr bunch_sptr(&bunch,Object_to_sptr_hack());   
-         
-    Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr, multi_per_step_diagnostics, multi_per_turn_diagnostics);     
-    propagate( bunch_with_diagnostics, num_turns,verbose); 
+
+     Bunch_sptr bunch_sptr(&bunch,Object_to_sptr_hack());
+     
+     Standard_diagnostics_actions_sptr diagnostics_actions_sptr(new Standard_diagnostics_actions);  
+     
+     Diagnostics_sptr per_step_diagnostics_sptr(&per_step_diagnostics,Object_to_sptr_hack());
+     diagnostics_actions_sptr->add_per_step(per_step_diagnostics_sptr);
+    
+     Diagnostics_sptr per_turn_diagnostics_sptr(&per_turn_diagnostics,Object_to_sptr_hack());
+     diagnostics_actions_sptr->add_per_turn(per_turn_diagnostics_sptr);
+          
+     Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr, diagnostics_actions_sptr);     
+     propagate( bunch_with_diagnostics, num_turns,verbose); 
     
 }
 
@@ -140,10 +140,21 @@ Propagator::propagate(Bunch & bunch, int num_turns,
         Multi_diagnostics & per_turn_diagnostics, bool verbose)
 {
 
-    Bunch_sptr bunch_sptr(&bunch,Object_to_sptr_hack());
-    Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr, per_step_diagnostics, per_turn_diagnostics);
+     Bunch_sptr bunch_sptr(&bunch,Object_to_sptr_hack());
+     Standard_diagnostics_actions_sptr diagnostics_actions_sptr(new Standard_diagnostics_actions);  
+     
+     for (Multi_diagnostics::iterator dit = per_step_diagnostics.begin(); dit
+                !=  per_step_diagnostics.end(); ++dit) {
+            diagnostics_actions_sptr->add_per_step(*dit);    
+      }
+     for (Multi_diagnostics::iterator dit = per_turn_diagnostics.begin(); dit
+                !=  per_turn_diagnostics.end(); ++dit) {
+            diagnostics_actions_sptr->add_per_turn(*dit);    
+      }
 
+    Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr, diagnostics_actions_sptr);     
     propagate( bunch_with_diagnostics, num_turns,verbose); 
+   
 
 }
 
@@ -152,7 +163,7 @@ Propagator::propagate(Bunch_with_diagnostics_train & bunch_diag_train,
              int num_turns, bool verbose)
 {
 
-
+/*
     int rank = Commxx().get_rank();
     double t_turn, t_turn1;
     
@@ -237,7 +248,7 @@ Propagator::propagate(Bunch_with_diagnostics_train & bunch_diag_train,
         }
     }        
           
-     if (rank == 0) logfile.close();     
+     if (rank == 0) logfile.close();     */
 }
 
 void
@@ -249,57 +260,19 @@ Propagator::propagate(Bunch & bunch, int num_turns,
             verbosity);
 }
 
-void
-Propagator::propagate(Bunch & bunch, int num_turns,
-        Propagate_actions & diagnostics_actions,
-        Propagate_actions & general_actions, int verbosity)
-{
-    double t;
-    int rank = Commxx().get_rank();
-    t = simple_timer_current();
-    diagnostics_actions.first_action(*stepper_sptr, bunch);
-    t = simple_timer_show(t, "diagnostics-first");
-    general_actions.first_action(*stepper_sptr, bunch);
-    t = simple_timer_show(t, "propagate-general_actions");
-    for (int turn = 0; turn < num_turns; ++turn) {
-        if (verbosity > 0) {
-            if (rank == 0) {
-                std::cout << "Propagator: turn " << turn + 1 << "/"
-                        << num_turns << std::endl;
-            }
-        }
-        bunch.get_reference_particle().start_repetition();
-        int step_count = 0;
-        int num_steps = stepper_sptr->get_steps().size();
-        for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
-                != stepper_sptr->get_steps().end(); ++it) {
-            ++step_count;
-            if (verbosity > 1) {
-                if (rank == 0) {
-                    std::cout << "Propagator:   step " << step_count << "/"
-                            << num_steps << " s= "
-                            << bunch.get_reference_particle().get_s()
-                            << " trajectory length="
-                            << bunch.get_reference_particle().get_trajectory_length()
-                            << std::endl;
-                }
-            }
-            (*it)->apply(bunch);
-            t = simple_timer_current();
-            diagnostics_actions.step_end_action(*stepper_sptr, *(*it), bunch,
-                    turn, step_count);
-            t = simple_timer_show(t, "diagnostics-step");
-            general_actions.step_end_action(*stepper_sptr, *(*it), bunch,
-                    turn, step_count);
-            t = simple_timer_show(t, "propagate-general_actions");
-        }
-        t = simple_timer_current();
-        diagnostics_actions.turn_end_action(*stepper_sptr, bunch, turn);
-        t = simple_timer_show(t, "diagnostics-turn");
-        general_actions.turn_end_action(*stepper_sptr, bunch, turn);
-        t = simple_timer_show(t, "propagate-general_actions");
-    }
-}
+ void
+ Propagator::propagate(Bunch & bunch, int num_turns,
+         Propagate_actions & diagnostics_actions,
+         Propagate_actions & general_actions, int verbose)
+    {
+     
+        Bunch_sptr bunch_sptr(&bunch,Object_to_sptr_hack());
+        Propagate_actions_sptr diagnostics_actions_sptr(&diagnostics_actions,Object_to_sptr_hack());
+        Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr, diagnostics_actions_sptr);    
+            
+        propagate( bunch_with_diagnostics, num_turns,  general_actions, verbose);
+
+ }
 
 
 

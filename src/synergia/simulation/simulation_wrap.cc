@@ -180,34 +180,39 @@ BOOST_PYTHON_MODULE(simulation)
     void (Propagator::*propagate1)(Bunch_with_diagnostics &, int, bool) 
                                 = &Propagator::propagate;
 
-    void (Propagator::*propagate2)(Bunch_with_diagnostics_train &, int, bool) 
-                                = &Propagator::propagate;                                
+    void (Propagator::*propagate2)(Bunch_with_diagnostics &, int, Propagate_actions &,  bool) 
+                                = &Propagator::propagate; 
 
-    void (Propagator::*propagate3)(Bunch &, int, Diagnostics &,
+    void (Propagator::*propagate3)(Bunch_with_diagnostics_train &, int, bool) 
+                                = &Propagator::propagate;  
+ 
+    void (Propagator::*propagate4)(Bunch &, int, Diagnostics &,
             Diagnostics &, bool) = &Propagator::propagate;
 
-    void (Propagator::*propagate4)(Bunch &, int, Multi_diagnostics &,
+    void (Propagator::*propagate5)(Bunch &, int, Multi_diagnostics &,
             Multi_diagnostics &, bool) = &Propagator::propagate;
             
-    void (Propagator::*propagate5)(Bunch &, int, Propagate_actions &,
+    void (Propagator::*propagate6)(Bunch &, int, Propagate_actions &,
             int) = &Propagator::propagate; 
                
-    void (Propagator::*propagate6)(Bunch &, int, Propagate_actions &,
+    void (Propagator::*propagate7)(Bunch &, int, Propagate_actions &,
             Propagate_actions &, int) = &Propagator::propagate;               
                                 
     class_<Propagator >("Propagator",init<Stepper_sptr >())
             .def("propagate", propagate1,
                  propagate_member_overloads23())
             .def("propagate", propagate2,
-                    propagate_member_overloads23())
+                    propagate_member_overloads34())
             .def("propagate", propagate3,
-                    propagate_member_overloads45())
+                    propagate_member_overloads23())
             .def("propagate", propagate4,
                     propagate_member_overloads45())
              .def("propagate", propagate5,
-                    propagate_member_overloads34())
+                    propagate_member_overloads45())
             .def("propagate", propagate6,
-                    propagate_member_overloads45())          
+                    propagate_member_overloads34()) 
+            .def("propagate", propagate7,
+                    propagate_member_overloads45())             
             ;
 
 }

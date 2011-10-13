@@ -27,4 +27,5 @@ public:
     ~Standard_diagnostics_actions();
 
 };
+typedef boost::shared_ptr<Standard_diagnostics_actions > Standard_diagnostics_actions_sptr;
 #endif /* STANDARD_DIAGNOSTICS_ACTIONS_H_ */
