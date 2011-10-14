@@ -138,6 +138,10 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
     set_bucket_length();
 }
 
+Lattice_simulator::Lattice_simulator()
+{
+}
+
 void
 Lattice_simulator::set_slices(Lattice_element_slices const& slices)
 {

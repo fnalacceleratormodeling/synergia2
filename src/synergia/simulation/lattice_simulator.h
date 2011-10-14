@@ -1,6 +1,8 @@
 #ifndef LATTICE_SIMULATOR_H_
 #define LATTICE_SIMULATOR_H_
 
+#include <string>
+
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/lattice/lattice.h"
 #include "synergia/lattice/chef_lattice.h"
@@ -12,6 +14,7 @@
 #include <physics_toolkit/normalFormSage.h>
 
 #include <string>
+#include "synergia/utils/serialization.h"
 
 typedef boost::shared_ptr<normalFormSage> Normal_form_sage_sptr;
 
@@ -64,6 +67,8 @@ private:
     Normal_form_sage_sptr normal_form_sage_sptr;
 public:
     Lattice_simulator(Lattice_sptr lattice, int map_order);
+    // Default constructor for serialization use only
+    Lattice_simulator();
     void
     set_slices(Lattice_element_slices const& slices);
     int
@@ -109,6 +114,15 @@ public:
             Lattice_elements const& horizontal_correctors,
             Lattice_elements const& vertical_correctors,
             double tolerance = 1.0e-6);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(lattice_sptr);
+            ar & BOOST_SERIALIZATION_NVP(chef_lattice_sptr);
+            ar & BOOST_SERIALIZATION_NVP(extractor_map_sptr);
+            ar & BOOST_SERIALIZATION_NVP(map_order);
+        }
     ~Lattice_simulator();
 };
 
