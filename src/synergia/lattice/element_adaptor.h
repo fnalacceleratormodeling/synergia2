@@ -432,31 +432,7 @@ public:
         void
         serialize(Archive & ar, const unsigned int version)
         {
-            // jfa: putting these here is something of a hack.
-            // The BOOST_CLASS_EXPORT macro did not work with the shared
-            // library implementation we have.
-            ar.template register_type<Marker_mad8_adaptor > ();
-            ar.template register_type<Drift_mad8_adaptor > ();
-            ar.template register_type<Sbend_mad8_adaptor > ();
-            ar.template register_type<Rbend_mad8_adaptor > ();
-            ar.template register_type<Quadrupole_mad8_adaptor > ();
-            ar.template register_type<Sextupole_mad8_adaptor > ();
-            ar.template register_type<Octupole_mad8_adaptor > ();
-            ar.template register_type<Multipole_mad8_adaptor > ();
-            ar.template register_type<Thinpole_mad8_adaptor > ();
-            ar.template register_type<Solenoid_mad8_adaptor > ();
-            ar.template register_type<Hkicker_mad8_adaptor > ();
-            ar.template register_type<Vkicker_mad8_adaptor > ();
-            ar.template register_type<Kicker_mad8_adaptor > ();
-            ar.template register_type<Rfcavity_mad8_adaptor > ();
-            ar.template register_type<Elseparator_mad8_adaptor > ();
-            ar.template register_type<Hmonitor_mad8_adaptor > ();
-            ar.template register_type<Vmonitor_mad8_adaptor > ();
-            ar.template register_type<Monitor_mad8_adaptor > ();
-            ar.template register_type<Instrument_mad8_adaptor > ();
-            ar.template register_type<Ecollimator_mad8_adaptor > ();
-            ar.template register_type<Rcollimator_mad8_adaptor > ();
-            ar & BOOST_SERIALIZATION_NVP(adaptor_map);
+           ar & BOOST_SERIALIZATION_NVP(adaptor_map);
         }
     ~Element_adaptor_map();
 };
