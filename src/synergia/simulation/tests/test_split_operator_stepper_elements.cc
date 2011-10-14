@@ -11,8 +11,8 @@ const double tolerance = 1.0e-12;
 
 BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture2)
 {
-    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
-            "space_charge"));
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 1;
@@ -24,8 +24,8 @@ BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture2)
 
 BOOST_FIXTURE_TEST_CASE(construct_bad, Lattice_fixture2)
 {
-    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
-            "space_charge"));
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 0;
@@ -42,8 +42,8 @@ BOOST_FIXTURE_TEST_CASE(construct_bad, Lattice_fixture2)
 
 BOOST_FIXTURE_TEST_CASE(construct2, Lattice_fixture2)
 {
-    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
-            "space_charge"));
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 2;
@@ -56,8 +56,8 @@ BOOST_FIXTURE_TEST_CASE(construct2, Lattice_fixture2)
 
 BOOST_FIXTURE_TEST_CASE(construct17, Lattice_fixture2)
 {
-    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
-            "space_charge"));
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 17;
@@ -111,8 +111,9 @@ verify_steps(Split_operator_stepper_elements & stepper, int steps_per_element)
                 }
                 if ((*oit)->get_type() == "independent") {
                     double substep_length = 0.0;
-                    Lattice_element_slices slices(boost::static_pointer_cast<
-                            Independent_operator >(*oit)->get_slices());
+                    Lattice_element_slices slices(
+                            boost::static_pointer_cast<Independent_operator >(
+                                    *oit)->get_slices());
                     // Test 4b: only one slice per operator
                     BOOST_CHECK(slices.size() == 1);
                     for (Lattice_element_slices::iterator slit = slices.begin(); slit
@@ -148,8 +149,8 @@ verify_steps(Split_operator_stepper_elements & stepper, int steps_per_element)
 
 BOOST_FIXTURE_TEST_CASE(verify_steps1, Lattice_fixture2)
 {
-    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
-            "space_charge"));
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 1;
@@ -160,8 +161,8 @@ BOOST_FIXTURE_TEST_CASE(verify_steps1, Lattice_fixture2)
 
 BOOST_FIXTURE_TEST_CASE(verify_steps2, Lattice_fixture2)
 {
-    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
-            "space_charge"));
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 2;
@@ -172,8 +173,8 @@ BOOST_FIXTURE_TEST_CASE(verify_steps2, Lattice_fixture2)
 
 BOOST_FIXTURE_TEST_CASE(verify_steps17, Lattice_fixture2)
 {
-    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
-            "space_charge"));
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 17;
@@ -184,8 +185,8 @@ BOOST_FIXTURE_TEST_CASE(verify_steps17, Lattice_fixture2)
 
 BOOST_FIXTURE_TEST_CASE(has_sliced_chef_beamline, Lattice_fixture2)
 {
-    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
-            "space_charge"));
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 1;
@@ -195,3 +196,17 @@ BOOST_FIXTURE_TEST_CASE(has_sliced_chef_beamline, Lattice_fixture2)
             ! lattice_simulator.get_chef_lattice_sptr()->get_sliced_beamline_sptr()->empty());
 }
 
+BOOST_FIXTURE_TEST_CASE(serialize, Lattice_fixture2)
+{
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+    const int steps_per_element = 1;
+    Split_operator_stepper_elements stepper(lattice_simulator, space_charge,
+            steps_per_element);
+    xml_save(stepper, "split_operator_stepper_elements.xml");
+
+    Split_operator_stepper_elements loaded;
+    xml_load(loaded, "split_operator_stepper_elements.xml");
+}

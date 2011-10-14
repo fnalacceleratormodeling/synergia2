@@ -55,12 +55,15 @@ public:
     Independent_stepper(Lattice_simulator const& lattice_simulator,
             int num_steps);
 
+    /// Default constructor for serialization use only
+    Independent_stepper();
+
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)
         {
-            ar & boost::serialization::base_object<Stepper >(*this);
-//            ar & BOOST_SERIALIZATION_NVP(lattice_simulator);
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
+            ar & BOOST_SERIALIZATION_NVP(lattice_simulator);
         }
 
     virtual
@@ -79,6 +82,17 @@ public:
     /// @param steps_per_element the number of steps per thick element
     Independent_stepper_elements(Lattice_simulator const& lattice_simulator,
             int steps_per_element);
+
+    /// Default constructor for serialization use only
+    Independent_stepper_elements();
+
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
+            ar & BOOST_SERIALIZATION_NVP(lattice_simulator);
+        }
 
     virtual
     ~Independent_stepper_elements();
@@ -108,6 +122,17 @@ public:
     /// @param num_steps the number of steps to take in the Lattice
     Split_operator_stepper(Lattice_simulator const& lattice_simulator,
             Collective_operators const & collective_operators, int num_steps);
+
+    /// Default constructor for serialization use only
+    Split_operator_stepper();
+
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
+            ar & BOOST_SERIALIZATION_NVP(lattice_simulator);
+        }
     virtual
     ~Split_operator_stepper();
 };
@@ -142,6 +167,17 @@ public:
     Split_operator_stepper_elements(Lattice_simulator const& lattice_simulator,
             Collective_operators const & collective_operators,
             int steps_per_element);
+
+    /// Default constructor for serialization use only
+    Split_operator_stepper_elements();
+
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
+            ar & BOOST_SERIALIZATION_NVP(lattice_simulator);
+        }
     virtual
     ~Split_operator_stepper_elements();
 };

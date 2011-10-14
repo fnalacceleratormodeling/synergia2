@@ -149,3 +149,15 @@ BOOST_FIXTURE_TEST_CASE(has_sliced_chef_beamline, Lattice_fixture2)
     BOOST_CHECK(
             ! lattice_simulator.get_chef_lattice_sptr()->get_sliced_beamline_sptr()->empty());
 }
+
+BOOST_FIXTURE_TEST_CASE(serialize, Lattice_fixture2)
+{
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+    const int steps_per_element = 1;
+    Independent_stepper_elements stepper(lattice_simulator, steps_per_element);
+    xml_save(stepper, "independent_stepper_elements.xml");
+
+    Independent_stepper_elements loaded;
+    xml_load(loaded, "independent_stepper_elements.xml");
+}

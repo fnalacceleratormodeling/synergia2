@@ -163,3 +163,16 @@ BOOST_FIXTURE_TEST_CASE(has_sliced_chef_beamline, Lattice_fixture)
     BOOST_CHECK(
             ! lattice_simulator.get_chef_lattice_sptr()->get_sliced_beamline_sptr()->empty());
 }
+
+BOOST_FIXTURE_TEST_CASE(serialize, Lattice_fixture)
+{
+    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
+            "space_charge"));
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+    Split_operator_stepper stepper(lattice_simulator, space_charge, 1);
+    xml_save(stepper, "split_operator_stepper.xml");
+
+    Split_operator_stepper loaded;
+    xml_load(loaded, "split_operator_stepper.xml");
+}
