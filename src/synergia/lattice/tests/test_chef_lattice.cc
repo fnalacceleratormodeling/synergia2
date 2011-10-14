@@ -3,7 +3,7 @@
 #include "synergia/lattice/chef_lattice.h"
 #include "synergia/lattice/chef_utils.h"
 #include "synergia/foundation/math_constants.h"
-#include "synergia/utils/xml_serialization.h"
+#include "synergia/utils/serialization.h"
 #include <basic_toolkit/PhysicsConstants.h>
 
 const std::string name("fodo");

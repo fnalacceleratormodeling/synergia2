@@ -7,7 +7,7 @@
 #include <boost/python.hpp>
 #include <boost/python/dict.hpp>
 #include "synergia/utils/container_conversions.h"
-#include "synergia/utils/xml_serialization.h"
+#include "synergia/utils/serialization.h"
 
 using namespace boost::python;
 

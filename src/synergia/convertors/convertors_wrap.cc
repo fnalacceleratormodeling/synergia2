@@ -4,7 +4,7 @@
 #include "synergia/utils/numpy_multi_ref_converter.h"
 #include "synergia/utils/comm_converter.h"
 #include "synergia/utils/multi_array_serialization.h"
-#include "synergia/utils/xml_serialization.h"
+#include "synergia/utils/serialization.h"
 #include "synergia/utils/container_conversions.h"
 
 using namespace boost::python;

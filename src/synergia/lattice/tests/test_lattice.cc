@@ -9,7 +9,7 @@ const double mass = 100.0;
 const double total_energy = 125.0;
 const double tolerance = 1.0e-12;
 
-#include "synergia/utils/xml_serialization.h"
+#include "synergia/utils/serialization.h"
 
 BOOST_AUTO_TEST_CASE(construct_lattice)
 {

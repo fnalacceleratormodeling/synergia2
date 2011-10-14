@@ -3,7 +3,7 @@
 #include "bunch_fixture.h"
 #include "synergia/lattice/tests/chef_lattice_sptr_fixture.h"
 #include "synergia/simulation/chef_propagator.h"
-#include "synergia/utils/xml_serialization.h"
+#include "synergia/utils/serialization.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 

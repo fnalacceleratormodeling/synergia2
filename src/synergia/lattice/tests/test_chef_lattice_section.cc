@@ -2,7 +2,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "synergia/lattice/chef_lattice_section.h"
-#include "synergia/utils/xml_serialization.h"
+#include "synergia/utils/serialization.h"
 
 #include "chef_lattice_sptr_fixture.h"
 

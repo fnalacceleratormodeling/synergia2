@@ -4,11 +4,20 @@
 #include <fstream>
 #include <stdexcept>
 #include <string>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/version.hpp>
+
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+
+#include <boost/serialization/version.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/utility.hpp>
+#include <boost/serialization/assume_abstract.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/list.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/export.hpp>
 
 template<typename T>
     void

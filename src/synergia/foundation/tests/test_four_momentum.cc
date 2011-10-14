@@ -3,7 +3,7 @@
 #include <stdexcept>
 
 #include "synergia/foundation/four_momentum.h"
-#include "synergia/utils/xml_serialization.h"
+#include "synergia/utils/serialization.h"
 
 const double tolerance = 1.0e-15;
 

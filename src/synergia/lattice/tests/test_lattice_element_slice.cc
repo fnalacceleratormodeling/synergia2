@@ -1,7 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include "synergia/utils/xml_serialization.h"
+#include "synergia/utils/serialization.h"
 #include "synergia/lattice/lattice_element_slice.h"
 
 const std::string type("quadrupole");

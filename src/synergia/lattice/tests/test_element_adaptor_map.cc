@@ -2,7 +2,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "synergia/lattice/element_adaptor.h"
-#include "synergia/utils/xml_serialization.h"
+#include "synergia/utils/serialization.h"
 
 BOOST_AUTO_TEST_CASE(construct)
 {

@@ -2,7 +2,7 @@
 #include <boost/test/unit_test.hpp>
 #include "synergia/lattice/lattice_element.h"
 
-#include "synergia/utils/xml_serialization.h"
+#include "synergia/utils/serialization.h"
 
 const std::string name("foo");
 const std::string type("bar");

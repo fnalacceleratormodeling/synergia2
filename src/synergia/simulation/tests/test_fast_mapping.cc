@@ -3,7 +3,7 @@
 #include "synergia/simulation/fast_mapping.h"
 #include "fast_mapping_term_fixture.h"
 #include "mapping_fixture.h"
-#include "synergia/utils/xml_serialization.h"
+#include "synergia/utils/serialization.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 

@@ -2,7 +2,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include "synergia/foundation/reference_particle.h"
-#include "synergia/utils/xml_serialization.h"
+#include "synergia/utils/serialization.h"
 
 const double tolerance = 1.0e-13;
 const double mass = 100.0;

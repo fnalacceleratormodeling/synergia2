@@ -3,7 +3,7 @@
 #include "synergia/simulation/stepper.h"
 #include "synergia/foundation/physical_constants.h"
 #include "lattice_fixture.h"
-#include "synergia/utils/xml_serialization.h"
+#include "synergia/utils/serialization.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
