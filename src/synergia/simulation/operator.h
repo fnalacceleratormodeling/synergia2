@@ -59,6 +59,12 @@ public:
     Collective_operator();
     virtual void
     apply(Bunch & bunch, double time_step, Step & step) = 0;
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operator);
+        }
     virtual
     ~Collective_operator();
 };
@@ -74,6 +80,12 @@ public:
     Dummy_collective_operator();
     virtual void
     apply(Bunch & bunch, double time_step, Step & step);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
+        }
     virtual
     ~Dummy_collective_operator();
 };

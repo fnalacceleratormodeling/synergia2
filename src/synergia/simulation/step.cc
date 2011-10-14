@@ -14,7 +14,10 @@
 Step::Step(double length) :
     operators(), time_fractions(), length(length), stored_vbunches()
 {
+}
 
+Step::Step()
+{
 }
 
 void

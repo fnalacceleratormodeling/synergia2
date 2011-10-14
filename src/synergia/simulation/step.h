@@ -6,17 +6,30 @@
 #include "synergia/bunch/train.h"
 #include "synergia/simulation/operator.h"
 #include "synergia/bunch/bunch.h"
-#include "synergia/foundation/multi_diagnostics.h"
+#include "synergia/bunch/multi_diagnostics.h"
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
 
 struct Bunch_means
 {
-double x_mean;
-double y_mean;
-double z_mean;
-double realnum;
-int bucket_index;
+    double x_mean;
+    double y_mean;
+    double z_mean;
+    double realnum;
+    int bucket_index;
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(x_mean);
+            ar & BOOST_SERIALIZATION_NVP(y_mean);
+            ar & BOOST_SERIALIZATION_NVP(z_mean);
+            ar & BOOST_SERIALIZATION_NVP(realnum);
+            ar & BOOST_SERIALIZATION_NVP(bucket_index);
+        }
 };
-
 
 class Step
 {
@@ -31,6 +44,8 @@ private:
 
 public:
     Step(double length);
+    // Default constructor for serialization use only
+    Step();
     void
     append(Operator_sptr operator_sptr, double time_fraction);
     void
@@ -52,6 +67,15 @@ public:
     std::list< std::vector<Bunch_means> >  const& get_stored_vbunches() const;
     virtual void
     print(int index) const;
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(operators);
+            ar & BOOST_SERIALIZATION_NVP(time_fractions);
+            ar & BOOST_SERIALIZATION_NVP(length);
+            ar & BOOST_SERIALIZATION_NVP(stored_bunches);
+        }
 };
 
 typedef boost::shared_ptr<Step > Step_sptr;
