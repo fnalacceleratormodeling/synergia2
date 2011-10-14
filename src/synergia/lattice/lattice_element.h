@@ -7,11 +7,7 @@
 
 #include <boost/shared_ptr.hpp>
 
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/list.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/version.hpp>
+#include "synergia/utils/serialization.h"
 
 /// The Lattice_element class contains the description of a single
 /// lattice element. Each element has a name, a (string) type and

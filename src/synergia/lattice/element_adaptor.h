@@ -6,13 +6,7 @@
 #include <list>
 
 #include <boost/shared_ptr.hpp>
-#include <boost/serialization/map.hpp>
-#include <boost/serialization/string.hpp>
-#include <boost/serialization/version.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/export.hpp>
+#include "synergia/utils/serialization.h"
 
 #include "synergia/lattice/lattice_element.h"
 #include "synergia/lattice/chef_elements.h"

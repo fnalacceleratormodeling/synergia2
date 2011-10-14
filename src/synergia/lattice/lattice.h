@@ -9,11 +9,7 @@
 #include "synergia/foundation/reference_particle.h"
 #include <boost/shared_ptr.hpp>
 
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/list.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/version.hpp>
+#include "synergia/utils/serialization.h"
 
 /// The Lattice class contains an abstract representation of an ordered
 /// set of Lattice_elements. Each element of the Lattice is unique.

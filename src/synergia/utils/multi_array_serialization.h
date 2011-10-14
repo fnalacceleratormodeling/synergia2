@@ -2,9 +2,7 @@
 #define MULTI_ARRAY_SERIALIZATION_H_
 
 #include "boost/multi_array.hpp"
-#include "boost/serialization/nvp.hpp"
-#include "boost/serialization/utility.hpp"
-#include "boost/serialization/version.hpp"
+#include "synergia/utils/serialization.h"
 
 // n.b. Serialization of 3d arrays not yet implemented.
 

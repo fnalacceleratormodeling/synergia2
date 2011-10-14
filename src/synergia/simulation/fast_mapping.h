@@ -11,10 +11,7 @@
 #include <fstream>
 #include <string>
 
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/array.hpp>
-#include <boost/serialization/vector.hpp>
+#include "synergia/utils/serialization.h"
 
 // The interface in this comment is out of date
 // A Fast_mapping_term represents one term in a polynomial expansion of order

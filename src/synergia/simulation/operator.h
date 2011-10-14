@@ -4,9 +4,6 @@
 #include <string>
 #include <list>
 #include <boost/shared_ptr.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/assume_abstract.hpp>
 
 #include "synergia/bunch/bunch.h"
 #include "synergia/lattice/lattice_element_slice.h"
@@ -16,6 +13,7 @@
 #include "synergia/simulation/aperture_operation_extractor.h"
 #include "synergia/foundation/multi_diagnostics.h"
 #include "synergia/bunch/train.h"
+#include "synergia/utils/serialization.h"
 
 class Step;
 

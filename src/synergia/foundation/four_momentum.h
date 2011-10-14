@@ -1,9 +1,7 @@
 #ifndef FOUR_MOMENTUM_H_
 #define FOUR_MOMENTUM_H_
 
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/version.hpp>
+#include "synergia/utils/serialization.h"
 
 /// Four_momentum provides conversion between various relativistic kinematic
 /// parameters.

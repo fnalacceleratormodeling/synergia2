@@ -3,12 +3,9 @@
 
 #include <list>
 #include <boost/shared_ptr.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/utility.hpp>
-#include <boost/serialization/list.hpp>
-#include <boost/serialization/shared_ptr.hpp>
 
 #include "synergia/lattice/lattice_element.h"
+#include "synergia/utils/serialization.h"
 
 class Lattice_element_slice
 {

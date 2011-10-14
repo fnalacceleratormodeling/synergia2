@@ -3,8 +3,6 @@
 #include "operator.h"
 #include "aperture_operation.h"
 
-#include <boost/serialization/export.hpp>
-
 Operator::Operator(std::string const& name, std::string const& type) :
     name(name), type(type)
 {

@@ -5,13 +5,12 @@
 #include <string>
 #include <map>
 
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/utility.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include "synergia/simulation/fast_mapping.h"
 #include "synergia/simulation/chef_propagator.h"
 #include "synergia/lattice/chef_lattice.h"
+#include "synergia/utils/serialization.h"
 
 class Independent_operation
 {
