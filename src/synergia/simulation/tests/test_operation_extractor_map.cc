@@ -92,3 +92,12 @@ BOOST_FIXTURE_TEST_CASE(get_extractor_names, Lattice_fixture)
         BOOST_CHECK_EQUAL((*it), (*expected_it));
     }
 }
+
+BOOST_AUTO_TEST_CASE(serialize)
+{
+    Operation_extractor_map operation_extractor_map;
+    xml_save(operation_extractor_map, "operation_extractor_map.xml");
+
+    Operation_extractor_map loaded;
+    xml_load(loaded, "operation_extractor_map.xml");
+}

@@ -73,3 +73,13 @@ BOOST_FIXTURE_TEST_CASE(extract3, Lattice_fixture)
     BOOST_CHECK_EQUAL(ops.front()->get_type(), fast_mapping_type_name);
 }
 // test_note: we still need to check the extracted value
+
+BOOST_FIXTURE_TEST_CASE(serialize, Lattice_fixture)
+{
+    Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(lattice_sptr));
+    Chef_map_operation_extractor chef_map_o_e(chef_lattice_sptr, map_order);
+    xml_save(chef_map_o_e, "chef_map_operation_extractor.xml");
+
+    Chef_map_operation_extractor loaded;
+    xml_load(loaded, "chef_map_operation_extractor.xml");
+}
