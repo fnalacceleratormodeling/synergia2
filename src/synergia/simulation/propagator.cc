@@ -182,7 +182,7 @@ Propagator::propagate(Bunch_with_diagnostics_train & bunch_diag_train,
                 if (bunch_diag_train.is_on_this_rank(index)) {
                     Bunch_sptr bunch_sptr=bunch_diag_train.get_bunch_diag_sptr(index)->get_bunch_sptr();
                     bunch_diag_train.get_bunch_diag_sptr(index)->get_diagnostics_actions_sptr()->first_action(*stepper_sptr, *bunch_sptr);
-                  //  general_actions.first_action(*stepper_sptr, *bunch_sptr);
+                    general_actions.first_action(*stepper_sptr, *bunch_sptr);
                 }
      }      
     
@@ -214,14 +214,14 @@ Propagator::propagate(Bunch_with_diagnostics_train & bunch_diag_train,
                     }
                 } 
                 (*it)->apply(bunch_diag_train); 
-                /* for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {  
+                 for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {  
                    if (bunch_diag_train.is_on_this_rank(index)) {
                         Bunch_sptr bunch_sptr=bunch_diag_train.get_bunch_diag_sptr(index)->get_bunch_sptr();
                         bunch_diag_train.get_bunch_diag_sptr(index)->get_diagnostics_actions_sptr()
                                 ->step_end_action(*stepper_sptr, *(*it), *bunch_sptr, turn, step_count);
                         general_actions.step_end_action(*stepper_sptr,*(*it), *bunch_sptr, turn, step_count);
                    } 
-                }      */         
+                }               
             }    
             t_turn1= MPI_Wtime();                
             if (rank == 0) {
@@ -230,12 +230,12 @@ Propagator::propagate(Bunch_with_diagnostics_train & bunch_diag_train,
                 logfile.flush();
             } 
             for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {
-//                 if (bunch_diag_train.is_on_this_rank(index)) {
-//                         Bunch_sptr bunch_sptr=bunch_diag_train.get_bunch_diag_sptr(index)->get_bunch_sptr();
-//                         bunch_diag_train.get_bunch_diag_sptr(index)->get_diagnostics_actions_sptr()
-//                                 ->turn_end_action(*stepper_sptr, *bunch_sptr, turn);
-//                         general_actions.turn_end_action(*stepper_sptr,*bunch_sptr, turn);
-//                 }
+                if (bunch_diag_train.is_on_this_rank(index)) {
+                        Bunch_sptr bunch_sptr=bunch_diag_train.get_bunch_diag_sptr(index)->get_bunch_sptr();
+                        bunch_diag_train.get_bunch_diag_sptr(index)->get_diagnostics_actions_sptr()
+                                ->turn_end_action(*stepper_sptr, *bunch_sptr, turn);
+                        general_actions.turn_end_action(*stepper_sptr,*bunch_sptr, turn);
+                }
             }                  
     }
     if (rank == 0) logfile.close();     
