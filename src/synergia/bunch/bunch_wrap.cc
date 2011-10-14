@@ -104,8 +104,11 @@ BOOST_PYTHON_MODULE(bunch)
 
      
      class_<Bunch_with_diagnostics >("Bunch_with_diagnostics",
-            init<Bunch_sptr, Propagate_actions_sptr >())
+            init<Bunch_sptr, Standard_diagnostics_actions_sptr >())
             .def("get_bunch_sptr", &Bunch_with_diagnostics::get_bunch_sptr)
+            .def("check_bunch_pointer_in_diagnostics", &Bunch_with_diagnostics::check_bunch_pointer_in_diagnostics)
+            .def("add_per_step_diagnostics", &Bunch_with_diagnostics::add_per_step_diagnostics)
+            .def("add_per_turn_diagnostics", &Bunch_with_diagnostics::add_per_turn_diagnostics)
             ;
     
     class_<Train_comms, Train_comms_sptr, boost::noncopyable >

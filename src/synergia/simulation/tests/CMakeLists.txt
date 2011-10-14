@@ -73,5 +73,12 @@ add_executable(test_propagator test_propagator.cc)
 target_link_libraries(test_propagator synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_propagator ${MPIEXEC} -np 1 test_propagator)
 
+add_executable(test_propagator_mpi test_propagator_mpi.cc)
+target_link_libraries(test_propagator_mpi synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_propagator_mpi1 ${MPIEXEC} -np 1  test_propagator_mpi)
+add_test(test_propagator_mpi2 ${MPIEXEC} -np 2  test_propagator_mpi)
+add_test(test_propagator_mpi3 ${MPIEXEC} -np 3  test_propagator_mpi)
+add_test(test_propagator_mpi4 ${MPIEXEC} -np 4  test_propagator_mpi)
+
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
     "test_fast_mapping_term.dat;test_fast_mapping.dat;test_fast_mapping2.dat;test_propagate_per_step.h5;test_propagate_per_turn.h5")

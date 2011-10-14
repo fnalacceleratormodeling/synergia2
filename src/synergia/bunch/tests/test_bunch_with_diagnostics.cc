@@ -7,7 +7,9 @@
 #include "synergia/bunch/bunch_with_diagnostics.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 #include "synergia/simulation/tests/bunch_fixture.h"
-//#include "synergia/simulation/standard_diagnostics_actions.h"
+#include "synergia/simulation/standard_diagnostics_actions.h"
+#include "synergia/simulation/standard_diagnostics_actions.cc"
+#include "synergia/simulation/propagate_actions.cc"
 
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
@@ -21,67 +23,55 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 BOOST_FIXTURE_TEST_CASE(construct,Bunch_fixture)
 {    
-    // Bunch_sptr bunch_sptr(new Bunch(bunch));
-   //  Propagate_actions_sptr diagnostics_actions_sptr(new Standard_diagnostics_actions);
-// 
-//     
-//      Multi_diagnostics full2_diagnostics;
-//      Multi_diagnostics particle_diagnostics;
-//  
-//      Diagnostics_sptr step_full2_diag_sptr(new  Diagnostics_full2(bunch_sptr,"full2_per_step.h5"));
-//      full2_diagnostics.append(step_full2_diag_sptr);
-//     
-//     Diagnostics_sptr second_step_full2_diag_sptr(new  Diagnostics_full2(bunch_sptr,"second_full2_per_step.h5"));
-//     full2_diagnostics.append(second_step_full2_diag_sptr);
-//      
-//      Diagnostics_sptr turn_particles_diag_sptr(new  Diagnostics_particles(bunch_sptr,"particles_per_turn.h5"));
-//      particle_diagnostics.append(turn_particles_diag_sptr);
-//    
-//      Diagnostics_sptr second_turn_particles_diag_sptr(new  Diagnostics_particles(bunch_sptr,"second_particles_per_turn.h5"));
-//      particle_diagnostics.append(second_turn_particles_diag_sptr);
-//     
-//      
-     //  Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr, diagnostics_actions_sptr);
+     Bunch_sptr bunch_sptr(new Bunch(bunch));
+     Standard_diagnostics_actions_sptr diagnostics_actions_sptr(new Standard_diagnostics_actions);
+  
+      Diagnostics_sptr step_full2_diag_sptr(new  Diagnostics_full2(bunch_sptr,"full2_per_step.h5"));
+      diagnostics_actions_sptr->add_per_step(step_full2_diag_sptr);     
+      Diagnostics_sptr turn_particles_diag_sptr(new  Diagnostics_particles(bunch_sptr,"particles_per_turn.h5"));
+      diagnostics_actions_sptr->add_per_turn(turn_particles_diag_sptr);
+     
+      Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr, diagnostics_actions_sptr);
+      bunch_with_diagnostics.check_bunch_pointer_in_diagnostics();
+      
+      Bunch_sptr bsptr=bunch_with_diagnostics.get_bunch_sptr();
+      Propagate_actions_sptr  staptr=bunch_with_diagnostics.get_diagnostics_actions_sptr();
+      
 }
 
-// BOOST_FIXTURE_TEST_CASE(construct1,Bunch_fixture)
-// {    
-//     Bunch_sptr bunch_sptr(new Bunch(bunch));
-//     Diagnostics_sptr step_full2_diag_sptr(new  Diagnostics_full2(bunch_sptr,"test1_full2_per_step.h5"));
-//     Diagnostics_sptr turn_particles_diag_sptr(new  Diagnostics_particles(bunch_sptr,"test1_particles_per_turn.h5"));
-// 
-//     Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr,step_full2_diag_sptr, turn_particles_diag_sptr);
-// }
-// 
-// BOOST_FIXTURE_TEST_CASE(construct2,Bunch_fixture)
-// {    
-//     Bunch_sptr bunch_sptr(new Bunch(bunch));
-//     Diagnostics_sptr step_diag_sptr(new  Diagnostics_basic(bunch_sptr,"test_per_step.h5"));
-//     Diagnostics_sptr turn_diag_sptr(new  Diagnostics_basic(bunch_sptr,"test_per_turn.h5"));
-// 
-//     Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr,step_diag_sptr, turn_diag_sptr);
-// }
-
-/*BOOST_FIXTURE_TEST_CASE(construct2,Bunch_fixture)
+BOOST_FIXTURE_TEST_CASE(construct1,Bunch_fixture)
 {    
-   
-
-    
-     Multi_diagnostics full2_diagnostics;
-     Multi_diagnostics particle_diagnostics;
- 
-     Diagnostics_sptr step_full2_diag_sptr(new  Diagnostics_full2(bunch_sptr,"test2_full2_per_step.h5"));
-     full2_diagnostics.append(step_full2_diag_sptr);
-    
-    Diagnostics_sptr second_step_full2_diag_sptr(new  Diagnostics_full2(bunch_sptr,"test2_second_full2_per_step.h5"));
-    full2_diagnostics.append(second_step_full2_diag_sptr);
+     Bunch_sptr bunch_sptr(new Bunch(bunch));
+     Standard_diagnostics_actions_sptr diagnostics_actions_sptr(new Standard_diagnostics_actions);
+  
+      Diagnostics_sptr step_full2_diag_sptr(new  Diagnostics_full2(bunch_sptr,"full2_per_step.h5"));       
+      Diagnostics_sptr turn_particles_diag_sptr(new  Diagnostics_particles(bunch_sptr,"particles_per_turn.h5"));
+  
      
-     Diagnostics_sptr turn_particles_diag_sptr(new  Diagnostics_particles(bunch_sptr,"test2_particles_per_turn.h5"));
-     particle_diagnostics.append(turn_particles_diag_sptr);
-   
-     Diagnostics_sptr second_turn_particles_diag_sptr(new  Diagnostics_particles(bunch_sptr,"test2_second_particles_per_turn.h5"));
-     particle_diagnostics.append(second_turn_particles_diag_sptr);
-    
-     
-     Bunch_with_diagnostics bunch_with_diagnostics(bunch,full2_diagnostics, particle_diagnostics);
-}*/
+      Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr, diagnostics_actions_sptr);
+      
+      bunch_with_diagnostics.add_per_step_diagnostics(step_full2_diag_sptr);
+      bunch_with_diagnostics.add_per_turn_diagnostics(turn_particles_diag_sptr);
+      bunch_with_diagnostics.check_bunch_pointer_in_diagnostics(); 
+      
+      Bunch_sptr bsptr=bunch_with_diagnostics.get_bunch_sptr();
+      Propagate_actions_sptr  staptr=bunch_with_diagnostics.get_diagnostics_actions_sptr();
+      
+}
+// BOOST_FIXTURE_TEST_CASE(construct2,Bunch_fixture)
+// {    // it is supposed to fail, i.e. to throw an error 
+//      Bunch_sptr bunch_sptr(new Bunch(bunch));
+//      Bunch_sptr bunch1_sptr(new Bunch(bunch));
+//      Standard_diagnostics_actions_sptr diagnostics_actions_sptr(new Standard_diagnostics_actions);
+//   
+//       Diagnostics_sptr step_full2_diag_sptr(new  Diagnostics_full2(bunch_sptr,"full2_per_step.h5"));       
+//       Diagnostics_sptr turn_particles_diag_sptr(new  Diagnostics_particles(bunch_sptr,"particles_per_turn.h5"));
+//   
+//      
+//       Bunch_with_diagnostics bunch_with_diagnostics(bunch1_sptr, diagnostics_actions_sptr);
+//       
+//       bunch_with_diagnostics.add_per_step_diagnostics(step_full2_diag_sptr);
+//       bunch_with_diagnostics.add_per_turn_diagnostics(turn_particles_diag_sptr);
+//    
+//       
+// }

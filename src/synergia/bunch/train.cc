@@ -132,7 +132,9 @@ Bunch_train::get_bunch_separation() const
 void
 Bunch_train::set_bunch_sptr(int index, Bunch_sptr bunch_sptr)
 {
-    verify_index(index);
+    verify_index(index);    
+    if (bunch_sptr->get_comm().get() != get_comm(index).get()) throw 
+        std::runtime_error("Bunch_train::set_bunch_sptr-- the train and the bunch communicators are different");
     bunches[index] = bunch_sptr;
 }
 
@@ -163,6 +165,9 @@ void
 Bunch_with_diagnostics_train::set_bunch_diag_sptr(int index, Bunch_with_diagnostics_sptr bunch_diag_sptr)
 {
     verify_index(index);
+    bunch_diag_sptr->check_bunch_pointer_in_diagnostics();
+    if (bunch_diag_sptr->get_comm().get() != get_comm(index).get()) throw 
+        std::runtime_error("Bunch_with_diagnostics_train::set_bunch_diag_sptr-- the train and the bunch communicators are different");
     bunch_diags[index] = bunch_diag_sptr;
 }
 

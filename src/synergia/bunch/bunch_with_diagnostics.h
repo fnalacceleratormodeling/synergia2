@@ -6,43 +6,43 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/multi_diagnostics.h"
 
+
 class Propagate_actions;
 typedef boost::shared_ptr<Propagate_actions > Propagate_actions_sptr;
+class Standard_diagnostics_actions;
+typedef boost::shared_ptr<Standard_diagnostics_actions > Standard_diagnostics_actions_sptr;
 
 class Bunch_with_diagnostics
 { 
 private:
     Bunch_sptr bunch_sptr; 
-    Propagate_actions_sptr diagnostics_actions_sptr;
-//     Multi_diagnostics  per_step_diagnostics;
-//     Multi_diagnostics  per_turn_diagnostics;
-//     
-//     void
-//     check_bunch_pointer();
-//     
-//     void
-//     construct(Multi_diagnostics diagnostics_step,
-//                          Multi_diagnostics diagnostics_turn);
+    Standard_diagnostics_actions_sptr diagnostics_actions_sptr;
+
+     
+
 public:    
-//      Bunch_with_diagnostics(Bunch_sptr bunch_sptr, Diagnostics_sptr diagnostics_step_sptr, 
-//                         Diagnostics_sptr diagnostics_turn_sptr); 
-//                         
-//      Bunch_with_diagnostics(Bunch_sptr bunch_sptr, Multi_diagnostics step_diagnostics,
-//                         Multi_diagnostics  turn_diagnostics);
-                        
-     Bunch_with_diagnostics(Bunch_sptr bunch_sptr,  Propagate_actions_sptr diagnostics_actions_sptr);
+
+     void
+     check_bunch_pointer_in_diagnostics() const;    
+                  
+     Bunch_with_diagnostics(Bunch_sptr bunch_sptr,  Standard_diagnostics_actions_sptr diagnostics_actions_sptr);
          
-     Bunch_sptr 
+     void
+     add_per_step_diagnostics(Diagnostics_sptr diagnostics_sptr);    
+      
+     void
+     add_per_turn_diagnostics(Diagnostics_sptr diagnostics_sptr);       
+         
+     Bunch_sptr const
      get_bunch_sptr();
      
-     Propagate_actions_sptr &
-     get_diagnostics_actions_sptr();
-     /*
-     Multi_diagnostics &
-     get_per_step_diagnostics();
-     
-     Multi_diagnostics &
-     get_per_turn_diagnostics();*/
+     Standard_diagnostics_actions_sptr 
+     get_diagnostics_actions_sptr() const;
+ 
+ 
+    /// Get the bunch communicator
+     Commxx const&
+     get_comm() const;
      
      ~Bunch_with_diagnostics();  
 };

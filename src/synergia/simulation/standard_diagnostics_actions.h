@@ -14,6 +14,13 @@ public:
     add_per_turn(Diagnostics_sptr diagnostics_sptr);
     void
     add_per_step(Diagnostics_sptr diagnostics_sptr);
+    
+    std::list<Diagnostics_sptr > 
+    get_per_steps_diagnostics_list() const;
+    
+    std::list<Diagnostics_sptr > 
+    get_per_turns_diagnostics_list() const;
+    
     void
     update_and_write_all(std::list<Diagnostics_sptr > & diag_list);
     virtual void

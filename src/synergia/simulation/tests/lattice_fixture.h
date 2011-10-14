@@ -74,5 +74,10 @@ struct Lattice_fixture2
 
     Bunch_fixture b;
     Lattice_sptr lattice_sptr;
+    
+    
 };
+
+
+
 #endif /* LATTICE_FIXTURE_H_ */

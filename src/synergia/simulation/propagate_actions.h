@@ -1,8 +1,11 @@
 #ifndef PROPAGATE_ACTIONS_H_
 #define PROPAGATE_ACTIONS_H_
 
-#include "synergia/simulation/stepper.h"
+//#include "synergia/simulation/stepper.h"
 #include "synergia/bunch/bunch.h"
+
+class Stepper;
+class Step;
 
 class Propagate_actions
 {
@@ -18,5 +21,7 @@ public:
     virtual
     ~Propagate_actions();
 };
+
+typedef boost::shared_ptr<Propagate_actions > Propagate_actions_sptr;
 
 #endif /* PROPAGATE_ACTIONS_H_ */
