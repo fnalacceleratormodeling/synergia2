@@ -95,7 +95,7 @@ Chef_lattice::extract_element_slice_map(Lattice_element_slices const& slices)
 void
 Chef_lattice::construct()
 {
-    lattice_sptr->set_default_attributes(*element_adaptor_map_sptr);
+    lattice_sptr->complete_attributes(*element_adaptor_map_sptr);
     sliced_beamline_sptr = BmlPtr(new beamline("sliced"));
     have_sliced_beamline_ = false;
     if (!lattice_sptr->has_reference_particle()) {

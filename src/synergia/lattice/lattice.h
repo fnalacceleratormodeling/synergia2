@@ -61,10 +61,17 @@ public:
     void
     set_default_attributes(Element_adaptor_map const& element_adaptor_map);
 
-    /// Set the default Element_adaptor_map to be used for elements in the
-    /// Lattice to the global default Element_adaptor_map
+    /// Derive internal attributes where necessary
     void
-    set_default_attributes();
+    derive_internal_attributes(Element_adaptor_map const& element_adaptor_map);
+
+    /// Derive external attributes where necessary
+    void
+    derive_external_attributes(Element_adaptor_map const& element_adaptor_map);
+
+    /// Complete all attribute updates. Includes defaults and derivations.
+    void
+    complete_attributes(Element_adaptor_map const& element_adaptor_map);
 
     /// Get the list of elements in the Lattice
     Lattice_elements &

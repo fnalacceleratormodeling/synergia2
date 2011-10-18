@@ -2,7 +2,7 @@
 #include <boost/test/unit_test.hpp>
 #include "synergia/utils/boost_test_mpi_fixture.h"
 #include "synergia/utils/parallel_utils.h"
-
+#include <cmath>
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 BOOST_AUTO_TEST_CASE(test_Commxx_construct1)
@@ -12,7 +12,8 @@ BOOST_AUTO_TEST_CASE(test_Commxx_construct1)
 
 BOOST_AUTO_TEST_CASE(test_Commxx_construct2)
 {
-    Commxx comm();
+    Commxx
+    comm();
 }
 
 BOOST_AUTO_TEST_CASE(test_Commxx_get_rank)
@@ -135,7 +136,155 @@ BOOST_AUTO_TEST_CASE(test_decompose_1d)
 BOOST_AUTO_TEST_CASE(test_decompose_1d_local)
 {
     const int length = 17;
-    int local_length =
-            decompose_1d_local(Commxx(MPI_COMM_WORLD), length);
+    int local_length = decompose_1d_local(Commxx(MPI_COMM_WORLD), length);
     BOOST_CHECK_EQUAL(length,local_length);
 }
+
+void
+verify_ranks_elms_gt_procs(int elements, int procs,
+        std::vector<std::vector<int > > const& ranks)
+{
+    BOOST_CHECK_EQUAL(ranks.size(), elements);
+    std::vector<int > elements_on_proc(procs);
+    for (int i = 0; i < procs; ++i) {
+        elements_on_proc.at(i) = 0;
+    }
+    for (int element = 0; element < elements; ++element) {
+        BOOST_CHECK_EQUAL((ranks.at(element)).size(), 1);
+        ++elements_on_proc.at(ranks.at(element).at(0));
+    }
+    int max_on_proc = elements_on_proc.at(0);
+    int min_on_proc = elements_on_proc.at(0);
+    for (int i = 1; i < procs; ++i) {
+        if (elements_on_proc.at(i) > max_on_proc) {
+            max_on_proc = elements_on_proc.at(i);
+        }
+        if (elements_on_proc.at(i) < min_on_proc) {
+            min_on_proc = elements_on_proc.at(i);
+        }
+    }
+    BOOST_CHECK_EQUAL(max_on_proc, std::ceil((1.0*elements)/procs));
+    BOOST_CHECK_EQUAL(min_on_proc, std::floor(elements/procs));
+}
+
+BOOST_AUTO_TEST_CASE(test_distribute_1d_raw1)
+{
+    const int elements = 4;
+    const int procs = 1;
+    std::vector<std::vector<int > > ranks(distribute_1d_raw(procs, elements));
+    verify_ranks_elms_gt_procs(elements, procs, ranks);
+}
+
+BOOST_AUTO_TEST_CASE(test_distribute_1d_raw2)
+{
+    const int elements = 8;
+    const int procs = 2;
+    std::vector<std::vector<int > > ranks(distribute_1d_raw(procs, elements));
+    verify_ranks_elms_gt_procs(elements, procs, ranks);
+}
+
+BOOST_AUTO_TEST_CASE(test_distribute_1d_raw3)
+{
+    const int elements = 57;
+    const int procs = 13;
+    std::vector<std::vector<int > > ranks(distribute_1d_raw(procs, elements));
+    verify_ranks_elms_gt_procs(elements, procs, ranks);
+}
+
+void
+verify_ranks_elms_lt_procs(int elements, int procs,
+        std::vector<std::vector<int > > const& ranks)
+{
+    BOOST_CHECK_EQUAL(ranks.size(), elements);
+    std::vector<bool > used(procs);
+    for (int proc = 0; proc < procs; ++proc) {
+        used.at(proc) = false;
+    }
+    int max_size = ranks.at(0).size();
+    int min_size = ranks.at(0).size();
+    for (int element = 0; element < elements; ++element) {
+        if (ranks.at(element).size() > max_size) {
+            max_size = ranks.at(element).size();
+        }
+        if (ranks.at(element).size() < max_size) {
+            min_size = ranks.at(element).size();
+        }
+        for (int i = 0; i < ranks.at(element).size(); ++i) {
+            BOOST_CHECK(!used.at(ranks.at(element).at(i)));
+            used.at(ranks.at(element).at(i)) = true;
+        }
+    }
+    BOOST_CHECK_EQUAL(max_size, std::ceil((1.0*procs)/elements));
+    BOOST_CHECK_EQUAL(min_size, std::floor(procs/elements));
+}
+
+BOOST_AUTO_TEST_CASE(test_distribute_1d_raw4)
+{
+    const int elements = 1;
+    const int procs = 32;
+    std::vector<std::vector<int > > ranks(distribute_1d_raw(procs, elements));
+    verify_ranks_elms_lt_procs(elements, procs, ranks);
+}
+
+BOOST_AUTO_TEST_CASE(test_distribute_1d_raw5)
+{
+    const int elements = 8;
+    const int procs = 32;
+    std::vector<std::vector<int > > ranks(distribute_1d_raw(procs, elements));
+    verify_ranks_elms_lt_procs(elements, procs, ranks);
+}
+
+BOOST_AUTO_TEST_CASE(test_distribute_1d_raw6)
+{
+    const int elements = 17;
+    const int procs = 71;
+    std::vector<std::vector<int > > ranks(distribute_1d_raw(procs, elements));
+    verify_ranks_elms_lt_procs(elements, procs, ranks);
+}
+
+BOOST_AUTO_TEST_CASE(test_distribute_1d)
+{
+    const int elements = 17;
+    std::vector<std::vector<int > > ranks(
+            distribute_1d(Commxx(MPI_COMM_WORLD), elements));
+    verify_ranks_elms_gt_procs(elements, 1, ranks);
+}
+/*
+BOOST_AUTO_TEST_CASE(test_print_distribute_1d_raw1)
+{   
+//     const int elements = 6;
+//     const int procs = 32;
+            
+    const int elements = 5;
+    const int procs = 12;       
+            
+    std::vector<std::vector<int > > ranks(distribute_1d_raw(procs, elements));
+    BOOST_CHECK_EQUAL(ranks.size(), elements);        
+    std::cout<<" ranks size="<<ranks.size()<<std::endl;
+    for (int element = 0; element < elements; ++element) { 
+        std::cout<<" element="<<element<<" ranks size at element="<<ranks.at(element).size()<<std::endl;
+        std::cout<<"       ******** procs for element=";
+        for (int j = 0; j < ranks.at(element).size(); ++j) { 
+            std::cout<<ranks.at(element).at(j)<<"  ";
+        }
+        std::cout<<std::endl;
+    }       
+}*/
+
+BOOST_AUTO_TEST_CASE(test_counts_and_offsets)
+{   
+//     const int elements = 5;
+//     const int procs = 12;
+            
+    const int elements = 5;
+    const int procs = 12;       
+    std::vector<int > counts(procs);
+    std::vector<int > offsets(procs);        
+    counts_and_offsets_for_impedance_raw(procs, elements,  offsets, counts);
+  //  for (int i = 0; i < procs; ++i){
+ //       std::cout<<" proc="<<i<<" count="<<counts[i]<<" offset="<<offsets[i]<<std::endl;
+ //   }
+            
+   
+}
+

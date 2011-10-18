@@ -10,6 +10,8 @@
 #include "synergia/lattice/chef_lattice.h"
 #include "synergia/simulation/independent_operation.h"
 #include "synergia/simulation/operation_extractor.h"
+#include "synergia/bunch/multi_diagnostics.h"
+#include "synergia/bunch/train.h"
 
 class Step;
 
@@ -25,6 +27,8 @@ public:
     get_type() const;
     virtual void
     apply(Bunch & bunch, double time_step, Step & step) = 0;
+    virtual void
+    apply_train(Bunch_with_diagnostics_train & bunch_diag_train, double time_step, Step & step);
     virtual void
     print() const;
     virtual
@@ -65,12 +69,14 @@ class Independent_operator : public Operator
 private:
     Lattice_element_slices slices;
     Independent_operations operations;
+    std::list<long int > operations_revisions;
+    Reference_particle operations_reference_particle;
     Operation_extractor_map_sptr operation_extractor_map_sptr;
     bool have_operations;
     void
     update_operations(Reference_particle const& reference_particle);
     bool
-    need_update();
+    need_update(Reference_particle const& reference_particle);
 public:
     Independent_operator(std::string const& name,
             Operation_extractor_map_sptr operation_extractor_map_sptr);
@@ -80,6 +86,8 @@ public:
     get_slices() const;
     virtual void
     apply(Bunch & bunch, double time_step, Step & step);
+    virtual void
+    apply(Bunch & bunch, double time_step, Step & step, Multi_diagnostics & diagnostics);
     virtual void
     print() const;
     virtual

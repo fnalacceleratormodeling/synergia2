@@ -15,6 +15,7 @@ const int Bunch::cdt;
 const int Bunch::dpop;
 const int Bunch::id;
 
+
 class Particle_id_offset
 {
 private:
@@ -26,18 +27,19 @@ public:
     }
 
     int
-    get(int request_num)
+    get(int request_num, Commxx const & comm)
     {
-        MPI_Bcast((void *) &offset, 1, MPI_INT, 0, MPI_COMM_WORLD);
+        MPI_Bcast((void *) &offset, 1, MPI_INT, 0, comm.get());
         int old_offset = offset;
         int total_num;
         MPI_Reduce((void*) &request_num, (void*) &total_num, 1, MPI_INT,
-                MPI_SUM, 0, MPI_COMM_WORLD);
+                MPI_SUM, 0, comm.get());
         offset += total_num;
         return old_offset;
     }
 
 };
+
 
 static Particle_id_offset particle_id_offset;
 
@@ -50,11 +52,13 @@ Bunch::assign_ids(int local_offset)
     } else {
         request_num = 0;
     }
-    global_offset = particle_id_offset.get(request_num);
+    global_offset = particle_id_offset.get(request_num, comm);
     for (int i = 0; i < local_num; ++i) {
         (*local_particles)[i][id] = i + local_offset + global_offset;
     }
 }
+
+
 
 template<class T, size_t C, int I>
     struct Sortable2d
@@ -125,7 +129,7 @@ Bunch::construct(int particle_charge, int total_num, double real_num)
 Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
         double real_num, Commxx const& comm) :
     reference_particle(reference_particle), comm(comm), default_converter(),
-     z_period_length(0.0), z_periodic(0)
+     z_period_length(0.0), z_periodic(0), bucket_index(0)
 {
     construct(reference_particle.get_charge(), total_num, real_num);
 }
@@ -133,15 +137,15 @@ Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
 Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
         double real_num, Commxx const& comm, int particle_charge) :
     reference_particle(reference_particle), comm(comm), default_converter(),
-    z_period_length(0.0), z_periodic(0)
+    z_period_length(0.0), z_periodic(0), bucket_index(0)
 {
     construct(particle_charge, total_num, real_num);
 }
 
 Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
-        double real_num, Commxx const& comm, double z_period_length) :
+        double real_num, Commxx const& comm, double z_period_length, int bucket_index) :
     reference_particle(reference_particle), comm(comm), default_converter(),
-    z_period_length(z_period_length), z_periodic(1)
+    z_period_length(z_period_length), z_periodic(1), bucket_index(bucket_index)
 {
     construct(reference_particle.get_charge(), total_num, real_num);
 }
@@ -394,6 +398,22 @@ Bunch::get_sort_period() const
     return sort_period;
 }
 
+
+
+int
+Bunch::set_bucket_index(int index)
+{
+this->bucket_index=index;
+}
+    
+int
+Bunch::get_bucket_index() const 
+{
+return bucket_index;
+}
+
+
+
 Bunch::State
 Bunch::get_state() const
 {
@@ -450,6 +470,8 @@ void Bunch::check_pz2_positive()
         }
     }
 }
+
+
 
 
 Bunch::~Bunch()

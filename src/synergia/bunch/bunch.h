@@ -6,6 +6,9 @@
 #include "synergia/foundation/reference_particle.h"
 #include "synergia/utils/commxx.h"
 #include "synergia/bunch/fixed_t_z_converter.h"
+#include "boost/shared_ptr.hpp"
+
+
 
 /// Represents a macroparticle bunch distributed across the processors
 /// in a communicator.
@@ -38,6 +41,7 @@ private:
     MArray2d *local_particles;
     int local_num, total_num;
     double real_num;
+    int bucket_index;
     int sort_period, sort_counter;
     State state;
     Commxx comm;
@@ -59,6 +63,7 @@ public:
     /// @param reference_particle the reference particle for the bunch.
     /// @param total_num the total number of macroparticles in the bunch
     /// @param real_num the number of real particles represented by the bunch.
+    /// @param bucket_index the bucket number the  bunch occupies, used for multi-bunch simulations
     /// @param comm the communicator.
     Bunch(Reference_particle const& reference_particle, int total_num,
             double real_num, Commxx const& comm);
@@ -74,9 +79,11 @@ public:
     Bunch(Reference_particle const& reference_particle, int total_num,
             double real_num, Commxx const& comm, int particle_charge);
 
+ //   Bunch(Reference_particle const& reference_particle, int total_num,
+ //       double real_num, Commxx const& comm, double z_period_length);
+        
     Bunch(Reference_particle const& reference_particle, int total_num,
-        double real_num, Commxx const& comm, double z_period_length);
-
+        double real_num, Commxx const& comm, double z_period_length, int bucket_index=0);
     //!
     //! Copy constructor
     Bunch(Bunch const& bunch);
@@ -195,6 +202,13 @@ public:
     /// Get the period for periodic_sort
     int
     get_sort_period() const;
+    
+    int
+    set_bucket_index(int index); 
+    
+    int
+    get_bucket_index() const;
+    
 
     /// Get the (fixed-t or fixed-z) state.
     State
@@ -219,5 +233,7 @@ public:
 };
 
 typedef boost::shared_ptr<Bunch > Bunch_sptr;
+
+
 
 #endif /* BUNCH_H_ */

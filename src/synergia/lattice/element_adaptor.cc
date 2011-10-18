@@ -30,6 +30,18 @@ Element_adaptor::set_default_attributes(Lattice_element & lattice_element)
 {
 }
 
+void
+Element_adaptor::set_derived_attributes_internal(
+        Lattice_element & lattice_element)
+{
+}
+
+void
+Element_adaptor::set_derived_attributes_external(
+        Lattice_element & lattice_element, double lattice_length, double beta)
+{
+}
+
 Chef_elements
 Element_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
@@ -75,6 +87,10 @@ Element_adaptor_map::Element_adaptor_map()
     boost::shared_ptr<Multipole_mad8_adaptor > multipole_mad8_adaptor(
             new Multipole_mad8_adaptor);
     adaptor_map["multipole"] = multipole_mad8_adaptor;
+
+    boost::shared_ptr<Thinpole_mad8_adaptor > thinpole_mad8_adaptor(
+            new Thinpole_mad8_adaptor);
+    adaptor_map["thinpole"] = thinpole_mad8_adaptor;
 
     boost::shared_ptr<Solenoid_mad8_adaptor > solenoid_mad8_adaptor(
             new Solenoid_mad8_adaptor);
@@ -248,7 +264,7 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double k3 = lattice_element.get_double_attribute("k3");
     double tilt = lattice_element.get_double_attribute("tilt");
 
-    bool simple = ((k1 != 0.0) || (k2 != 0.0) || (k3 != 0.0));
+    bool simple = ((k1 == 0.0) && (k2 == 0.0) && (k3 == 0.0));
 
     alignmentData aligner;
     aligner.xOffset = 0.0;
@@ -313,6 +329,19 @@ Rbend_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
             && !lattice_element.has_string_attribute("tilt")) {
         lattice_element.set_double_attribute("tilt", 0.0);
     }
+    lattice_element.set_length_attribute_name("arclength");
+    lattice_element.set_needs_internal_derive(true);
+}
+
+void
+Rbend_mad8_adaptor::set_derived_attributes_internal(
+        Lattice_element & lattice_element)
+{
+    double bend_angle = lattice_element.get_bend_angle();
+    double bend_length = lattice_element.get_double_attribute("l");
+    double arc_length = bend_angle * bend_length / (2
+            * std::sin(bend_angle / 2));
+    lattice_element.set_double_attribute("arclength", arc_length);
 }
 
 Chef_elements
@@ -329,7 +358,7 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double k2 = lattice_element.get_double_attribute("k2");
     double k3 = lattice_element.get_double_attribute("k3");
     double tilt = lattice_element.get_double_attribute("tilt");
-    bool simple = ((k1 != 0.0) || (k2 != 0.0) || (k3 != 0.0) || (tilt != 0.0));
+    bool simple = ((k1 == 0.0) && (k2 == 0.0) && (k3 == 0.0) && (tilt == 0.0));
 
     if (simple) {
         if ((0.0 == e1) && (0.0 == e2)) {
@@ -468,7 +497,7 @@ Sextupole_mad8_adaptor::get_chef_elements(
 
     double sexlen = lattice_element.get_double_attribute("l");
     double sexk2 = lattice_element.get_double_attribute("k2");
-    double sextilt;
+    double sextilt = 0.0;
 
     alignmentData aligner;
 
@@ -526,7 +555,7 @@ Octupole_mad8_adaptor::get_chef_elements(
 
     double octulen = lattice_element.get_double_attribute("l");
     double octuk2 = lattice_element.get_double_attribute("k3");
-    double octutilt;
+    double octutilt = 0.0;
 
     alignmentData aligner;
 
@@ -632,7 +661,7 @@ Multipole_mad8_adaptor::get_chef_elements(
     int multipole_count = 0;
     for (int moment = 0; moment < 10; ++moment) {
         if (knl[moment] != 0.0) {
-            bmlnElmnt* bmln_elmnt;
+            bmlnElmnt* bmln_elmnt = 0;
             ++multipole_count;
             std::string element_name;
             switch (moment) {
@@ -640,27 +669,27 @@ Multipole_mad8_adaptor::get_chef_elements(
             case 0:
                 element_name = lattice_element.get_name() + "_2pole";
                 bmln_elmnt = new thin2pole(element_name.c_str(),
-                                brho * knl[moment]);
+                        brho * knl[moment]);
                 break;
             case 1:
                 element_name = lattice_element.get_name() + "_4pole";
                 bmln_elmnt = new thinQuad(element_name.c_str(),
-                                brho * knl[moment]);
+                        brho * knl[moment]);
                 break;
             case 2:
                 element_name = lattice_element.get_name() + "_6pole";
                 bmln_elmnt = new thinSextupole(element_name.c_str(),
-                                brho * knl[moment] / 2.0);
+                        brho * knl[moment] / 2.0);
                 break;
             case 3:
                 element_name = lattice_element.get_name() + "_8pole";
                 bmln_elmnt = new thinOctupole(element_name.c_str(),
-                                brho * knl[moment] / 6.0);
+                        brho * knl[moment] / 6.0);
                 break;
             case 4:
                 element_name = lattice_element.get_name() + "_10pole";
                 bmln_elmnt = new thinDecapole(element_name.c_str(),
-                                brho * knl[moment] / 24.0);
+                        brho * knl[moment] / 24.0);
                 break;
             }
 
@@ -684,6 +713,82 @@ Multipole_mad8_adaptor::get_chef_elements(
 }
 
 Multipole_mad8_adaptor::~Multipole_mad8_adaptor()
+{
+}
+
+//------------------------------------------
+// thinpoles are an addon present only in CHEF
+// they have length 0, normal and skew multipole moments
+// they are specified by the kl factor of their enclosing dipole
+//   or quadrupole, and b_k, and a_k coefficients relative to the
+//   base element strength
+
+Thinpole_mad8_adaptor::Thinpole_mad8_adaptor()
+{
+}
+
+void
+Thinpole_mad8_adaptor::set_default_attributes(
+        Lattice_element & lattice_element)
+{
+  set_double_default(lattice_element, "kl", 0.0); // base strength/B-rho
+  set_double_default(lattice_element, "a1", 0.0); // skew quad
+  set_double_default(lattice_element, "a2", 0.0); // skew sextupole
+  set_double_default(lattice_element, "a3", 0.0); // skew octupole
+  set_double_default(lattice_element, "a4", 0.0); // skew decapole
+  set_double_default(lattice_element, "a5", 0.0); // skew dodecapole
+  set_double_default(lattice_element, "a6", 0.0); // skew tetradecapole
+  set_double_default(lattice_element, "a7", 0.0); // skew hexdecapole
+  set_double_default(lattice_element, "b1", 0.0); // quad
+  set_double_default(lattice_element, "b2", 0.0); // sextupole
+  set_double_default(lattice_element, "b3", 0.0); // octopole
+  set_double_default(lattice_element, "b4", 0.0); // decapole
+  set_double_default(lattice_element, "b5", 0.0); // dodecapole
+  set_double_default(lattice_element, "b6", 0.0); // tetradecapole
+  set_double_default(lattice_element, "b7", 0.0); // hexdecapole
+}
+
+Chef_elements
+Thinpole_mad8_adaptor::get_chef_elements(
+        Lattice_element const& lattice_element, double brho)
+{
+    Chef_elements retval;
+    double ak[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently a0-a7
+    double bk[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently a0-a7
+
+    // thinpole strengths
+    string a_attr_list[] = { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7"};
+    string b_attr_list[] = { "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7"};
+
+    // loop through possible attributes
+    for (int moment = 0; moment < 8; ++moment) {
+        if (lattice_element.has_double_attribute(a_attr_list[moment])) {
+	  ak[moment] = lattice_element.get_double_attribute(a_attr_list[moment]);
+	}
+	if (lattice_element.has_double_attribute(b_attr_list[moment])) {
+	  bk[moment] = lattice_element.get_double_attribute(b_attr_list[moment]);
+	}
+    }
+
+    double kl = lattice_element.get_double_attribute("kl");
+
+    // assemble chef elements
+    std::vector<std::complex<double> > c_moments;
+    for (int k=0; k<8; ++k) {
+      c_moments.push_back(std::complex<double> (bk[k],ak[k]));
+    }
+    
+    retval.push_back(ElmPtr(new ThinPole(lattice_element.get_name().c_str(),
+					 brho * kl, c_moments)));
+
+    // put in a marker for this element
+    ElmPtr elm = ElmPtr(new marker(lattice_element.get_name().c_str()));
+    retval.push_back(elm);
+
+    return retval;
+}
+
+Thinpole_mad8_adaptor::~Thinpole_mad8_adaptor()
 {
 }
 

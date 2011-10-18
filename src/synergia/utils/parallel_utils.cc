@@ -1,6 +1,6 @@
 #include "parallel_utils.h"
 #include <cmath>
-
+#include <stdexcept>
 void
 decompose_1d_raw(int processors, int length, std::vector<int > &offsets,
         std::vector<int > &counts)
@@ -36,3 +36,71 @@ decompose_1d_local(Commxx comm, int length)
     decompose_1d_raw(size, length, offsets, counts);
     return counts[rank];
 }
+
+std::vector<std::vector<int > >
+distribute_1d_raw(int processors, int elements)
+{
+    std::vector<std::vector<int > > retval(elements);
+    std::vector<int > offsets(elements), counts(elements);
+    if (processors < elements) {
+        decompose_1d_raw(processors, elements, offsets, counts);
+        int element = 0;
+        for (int processor = 0; processor < processors; ++processor) {
+            for (int count = 0; count < counts.at(processor); ++count) {
+                retval.at(element).resize(1);
+                retval.at(element).at(0) = processor;
+                ++element;
+            }
+        }
+    } else {
+        decompose_1d_raw(elements, processors, offsets, counts);
+        for (int element = 0; element < elements; ++element) {
+            retval.at(element).resize(counts.at(element));
+            for (int count = 0; count < counts.at(element); ++count) {
+                retval.at(element).at(count) = offsets.at(element) + count;
+            }
+        }
+    }
+    return retval;
+}
+
+std::vector<std::vector<int > >
+distribute_1d(Commxx comm, int elements)
+{
+    return distribute_1d_raw(comm.get_size(), elements);
+}
+
+void 
+counts_and_offsets_for_impedance_raw(int  processors, int length, std::vector<int > &offsets,
+        std::vector<int > &counts)
+{
+
+ if (offsets.size() != processors)  throw std::runtime_error("parallel utilis:counts and offsets for imped, offsets size");
+ if (counts.size() != processors)  throw std::runtime_error("parallel utilis:counts and offsets for imped. counts size");
+ std::vector<std::vector<int > > ranks(
+            distribute_1d_raw(processors, length));
+            
+        int count=0;
+        int proc, proc_saved;
+        proc_saved=ranks[0][0];
+        for (int elm = 0; elm < length; ++elm) {
+            proc=ranks[elm][0];
+            counts[proc]+=1;
+            if (proc!= proc_saved) count += counts[proc_saved];
+            offsets[proc]=count;
+            proc_saved=proc;
+        }      
+            
+}
+   
+  
+void 
+counts_and_offsets_for_impedance(Commxx comm,int length, std::vector<int > &offsets,
+ std::vector<int > &counts)
+{
+  return  counts_and_offsets_for_impedance_raw( comm.get_size(), length, offsets, counts);           
+}
+ 
+ 
+
+

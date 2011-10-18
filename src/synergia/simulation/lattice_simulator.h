@@ -11,24 +11,37 @@ class Lattice_simulator
 {
 private:
     Lattice_sptr lattice_sptr;
+    Lattice_element_slices slices;
+    bool have_slices;
     Chef_lattice_sptr chef_lattice_sptr;
     Operation_extractor_map_sptr extractor_map_sptr;
     int map_order;
-
+    double bucket_length;
     void
     construct_extractor_map();
+    void
+    construct_sliced_chef_beamline();
 public:
     Lattice_simulator(Lattice_sptr lattice, int map_order);
     void
-    construct_sliced_chef_beamline(Lattice_element_slices const& slices);
+    set_slices(Lattice_element_slices const& slices);
     int
     get_map_order() const;
+    void 
+    set_bucket_length();
+    /// bucket length is in z_lab frame
+    double 
+    get_bucket_length();
+    int 
+    get_number_buckets();
     Operation_extractor_map_sptr
     get_operation_extractor_map_sptr();
     Lattice_sptr
     get_lattice_sptr();
     Chef_lattice_sptr
     get_chef_lattice_sptr();
+    void
+    update();
     ~Lattice_simulator();
 };
 

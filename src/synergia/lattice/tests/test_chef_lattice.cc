@@ -167,10 +167,6 @@ struct Fobodobo_rbend_fixture
         Lattice_element b("rbend", "b");
         b.set_double_attribute("l", bend_length);
         b.set_double_attribute("angle", bend_angle);
-        double arc_length = bend_angle * bend_length
-                / (2 * sin(bend_angle / 2));
-        b.set_double_attribute("arclength", arc_length);
-        b.set_length_attribute_name("arclength");
 
         lattice_sptr->append(f);
         lattice_sptr->append(o);
@@ -213,9 +209,6 @@ struct Fobodobo_rbend_markers_fixture
         Lattice_element b("rbend", "b");
         b.set_double_attribute("l", bend_length);
         b.set_double_attribute("angle", bend_angle);
-        double arclength = bend_angle * bend_length / (2 * sin(bend_angle / 2));
-        b.set_double_attribute("arclength", arclength);
-        b.set_length_attribute_name("arclength");
 
         Lattice_element m("marker", "marker");
 

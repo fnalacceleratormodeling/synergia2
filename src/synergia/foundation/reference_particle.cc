@@ -1,7 +1,9 @@
 #include "reference_particle.h"
 #include "synergia/utils/floating_point.h"
 
-Reference_particle::Reference_particle()
+Reference_particle::Reference_particle() :
+    charge(0), four_momentum(1.0, 1.0), state(boost::extents[6]),
+            repetition(0), repetition_length(0), s(0)
 {
 
 }
@@ -9,8 +11,7 @@ Reference_particle::Reference_particle()
 Reference_particle::Reference_particle(int charge, double mass,
         double total_energy) :
     charge(charge), four_momentum(mass, total_energy),
-            state(boost::extents[6]), repetition(0), repetition_length(0),
-            s(0)
+            state(boost::extents[6]), repetition(0), repetition_length(0), s(0)
 {
     for (int i = 0; i < 6; ++i) {
         state[i] = 0;
@@ -29,8 +30,8 @@ Reference_particle::Reference_particle(int charge,
 
 Reference_particle::Reference_particle(int charge,
         Four_momentum const & four_momentum_in, Const_MArray1d_ref state) :
-    charge(charge), four_momentum(four_momentum_in), state(state), repetition(
-            0), repetition_length(0), s(0)
+    charge(charge), four_momentum(four_momentum_in), state(state),
+            repetition(0), repetition_length(0), s(0)
 {
 }
 

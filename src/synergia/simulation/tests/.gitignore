@@ -19,4 +19,5 @@ test_independent_stepper
 test_independent_stepper_elements
 test_split_operator_stepper_elements
 test_propagator
-test*.h5
+test_propagator_mpi
+*.h5

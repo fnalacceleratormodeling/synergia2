@@ -34,8 +34,7 @@ public:
     std::vector<double> get_x_wake() const;
     std::vector<double> get_y_wake() const;
     std::vector<double> get_z_wake() const;
-    virtual
-    int get_nstored_turns() const;
+    virtual int get_nstored_turns() const;
 
    /*
     get_n_sigma() const;

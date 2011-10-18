@@ -8,6 +8,9 @@ test_diagnostics_particles
 test_diagnostics_particles_mpi
 test_diagnostics_writer
 test_multi_diagnostics_writer
+test_bunch_with_diagnostics
+test_bunch_train
+test_bunch_train_mpi
 test_populate
 test*.h5
 dummy*.h5

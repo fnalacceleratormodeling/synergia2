@@ -31,30 +31,28 @@ else:
     sys.stderr.write("fodo.py: stepper must be either 'independent' or 'splitoperator'\n")
     sys.exit(1)
 
-multi_diagnostics_step = synergia.bunch.Multi_diagnostics()
+diagnostics_actions = synergia.simulation.Standard_diagnostics_actions()
 for part in range(0, opts.step_tracks):
-    multi_diagnostics_step.append(synergia.bunch.Diagnostics_track(bunch,
+    diagnostics_actions.add_per_step(synergia.bunch.Diagnostics_track(bunch,
                                                                    "step_track_%02d.h5" % part,
                                                                    part))
 if opts.step_full2:
-    multi_diagnostics_step.append(synergia.bunch.Diagnostics_full2(bunch, "step_full2.h5"))
+    diagnostics_actions.add_per_step(synergia.bunch.Diagnostics_full2(bunch, "step_full2.h5"))
 if opts.step_particles:
-    multi_diagnostics_step.append(synergia.bunch.Diagnostics_particles(bunch,
+    diagnostics_actions.add_per_step(synergia.bunch.Diagnostics_particles(bunch,
                                                                        "step_particles.h5"))
 
-multi_diagnostics_turn = synergia.bunch.Multi_diagnostics()
 for part in range(0, opts.turn_tracks):
-    multi_diagnostics_turn.append(synergia.bunch.Diagnostics_track(bunch,
+    diagnostics_actions.add_per_turn(synergia.bunch.Diagnostics_track(bunch,
                                                                    "turn_track_%02d.h5" % part,
                                                                    part))
 if opts.turn_full2:
-    multi_diagnostics_turn.append(synergia.bunch.Diagnostics_full2(bunch, "turn_full2.h5"))
+    diagnostics_actions.add_per_turn(synergia.bunch.Diagnostics_full2(bunch, "turn_full2.h5"))
 if opts.turn_particles:
-    multi_diagnostics_turn.append(synergia.bunch.Diagnostics_particles(
+    diagnostics_actions.add_per_turn(synergia.bunch.Diagnostics_particles(
                                     bunch, "turn_particles.h5"))
 
 propagator = synergia.simulation.Propagator(stepper)
 propagator.propagate(bunch, opts.turns,
-                     multi_diagnostics_step,
-                     multi_diagnostics_turn,
-                     opts.verbose)
+                     diagnostics_actions,
+                     opts.verbosity)

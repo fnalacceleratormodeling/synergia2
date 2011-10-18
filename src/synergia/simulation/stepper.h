@@ -11,9 +11,13 @@
 class Stepper
 {
 private:
+    Lattice_simulator lattice_simulator;
     Steps steps;
 
 public:
+    Stepper(Lattice_simulator const& lattice_simulator);
+    Lattice_simulator &
+    get_lattice_simulator();
     Steps &
     get_steps();
     virtual void
@@ -30,7 +34,6 @@ typedef boost::shared_ptr<Stepper > Stepper_sptr;
 class Independent_stepper : public Stepper
 {
 private:
-    Lattice_simulator lattice_simulator;
     Independent_operator_sptr
     get_step(std::string const& name, Lattice_elements::iterator & lattice_it,
             double & left, Lattice_elements::iterator const & lattice_end,
@@ -52,8 +55,6 @@ public:
 /// a single step each. No collective effects are included.
 class Independent_stepper_elements : public Stepper
 {
-private:
-    Lattice_simulator lattice_simulator;
 public:
     /// Construct an Independent_stepper
     /// @param lattice_simulator the Lattice_simulator for the Lattice
@@ -74,7 +75,6 @@ typedef boost::shared_ptr<Independent_stepper_elements >
 class Split_operator_stepper : public Stepper
 {
 private:
-    Lattice_simulator lattice_simulator;
     Independent_operator_sptr
     get_half_step(std::string const& name,
             Lattice_elements::iterator & lattice_it, double & left,
@@ -109,7 +109,6 @@ typedef boost::shared_ptr<Split_operator_stepper > Split_operator_stepper_sptr;
 class Split_operator_stepper_elements : public Stepper
 {
 private:
-    Lattice_simulator lattice_simulator;
     void
     construct(Collective_operators const & collective_operators,
             int steps_per_element);

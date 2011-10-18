@@ -5,6 +5,7 @@
 
 const std::string name("foo");
 const double quad_length = 0.2;
+const double quad_strength = 2.718;
 const double drift_length = 3.0;
 const double bend_length = 4.0;
 
@@ -14,10 +15,12 @@ struct Lattice_fixture
         BOOST_TEST_MESSAGE("setup lattice fixture");
         Lattice_element f("quadrupole", "f");
         f.set_double_attribute("l", quad_length);
+        f.set_double_attribute("k1", quad_strength);
         Lattice_element o("drift", "o");
         o.set_double_attribute("l", drift_length);
         Lattice_element d("quadrupole", "d");
         d.set_double_attribute("l", quad_length);
+        d.set_double_attribute("k1", quad_strength);
         Lattice_element m("monitor", "m");
 
         lattice_sptr->append(m);
@@ -71,5 +74,10 @@ struct Lattice_fixture2
 
     Bunch_fixture b;
     Lattice_sptr lattice_sptr;
+    
+    
 };
+
+
+
 #endif /* LATTICE_FIXTURE_H_ */

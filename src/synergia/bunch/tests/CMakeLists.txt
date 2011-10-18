@@ -5,6 +5,28 @@ target_link_libraries(test_bunch synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBR
 add_test(test_bunch ${MPIEXEC} -np 1  test_bunch)
 add_test(test_bunch_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_bunch.py)
 
+add_executable(test_bunch_train test_bunch_train.cc)
+target_link_libraries(test_bunch_train synergia_bunch
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_bunch_train ${MPIEXEC} -np 1  test_bunch_train)
+#add_test(test_bunch_train_py
+#    ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()"
+#    test_bunch_train.py)
+
+add_executable(test_bunch_train_mpi test_bunch_train_mpi.cc)
+target_link_libraries(test_bunch_train_mpi synergia_bunch
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_bunch_train_mpi1 ${MPIEXEC} -np 1  test_bunch_train_mpi)
+add_test(test_bunch_train_mpi2 ${MPIEXEC} -np 2  test_bunch_train_mpi)
+add_test(test_bunch_train_mpi3 ${MPIEXEC} -np 3  test_bunch_train_mpi)
+add_test(test_bunch_train_mpi4 ${MPIEXEC} -np 4  test_bunch_train_mpi)
+
+add_executable(test_bunch_with_diagnostics test_bunch_with_diagnostics.cc)
+target_link_libraries(test_bunch_with_diagnostics synergia_bunch
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_bunch_with_diagnostics ${MPIEXEC} -np 1  test_bunch_train)
+
+
 add_custom_command(OUTPUT test_diagnostics_get_corr.icc
         test_diagnostics_get_emitx.icc
         test_diagnostics_get_emitxy.icc
