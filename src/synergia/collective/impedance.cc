@@ -242,7 +242,7 @@ calculate_moments_and_partitions(Bunch & bunch, MArray1d &zdensity,  MArray1d &x
             double wake_x(0.), wake_y(0.), wake_z(0.);
             int ibucket=(*it)[ibunch].bucket_index;
              if(ibucket<bunch_bucket) {///  same turn, the leading buckets effect    
-             double  zji=z_to_edge+bunch_sp*(bunch_bucket-ibucket);// +((*it)[ibunch].z_mean-bunch_z_mean);
+             double  zji=z_to_edge+bunch_sp*(bunch_bucket-ibucket) +((*it)[ibunch].z_mean-bunch_z_mean);
             int iz=static_cast<int>(floor(sqrt((zji-zcoord[0])/(zcoord[1]-zcoord[0]))));  
             if ((iz+1 <= zpoints) && (iz>0)) {
                         wake_x += xwake[iz]+(zji-zcoord[iz])*(xwake[iz+1]-xwake[iz])/(zcoord[iz+1]-zcoord[iz]);
@@ -263,7 +263,7 @@ calculate_moments_and_partitions(Bunch & bunch, MArray1d &zdensity,  MArray1d &x
                  double wake_x(0.), wake_y(0.), wake_z(0.);
                  int ibucket=(*it)[ibunch].bucket_index;
                  if(ibucket>=bunch_bucket) {///  following buckets effect    
-                    double  zji=z_to_edge+bunch_sp*(bunch_bucket-ibucket)+line_length;// +((*it)[ibunch].z_mean-bunch_z_mean);
+                    double  zji=z_to_edge+bunch_sp*(bunch_bucket-ibucket)+line_length +((*it)[ibunch].z_mean-bunch_z_mean);
                     int iz=static_cast<int>(floor(sqrt((zji-zcoord[0])/(zcoord[1]-zcoord[0]))));  
                     if ((iz+1 <= zpoints) && (iz>0)) {
                             wake_x += xwake[iz]+(zji-zcoord[iz])*(xwake[iz+1]-xwake[iz])/(zcoord[iz+1]-zcoord[iz]);
@@ -295,7 +295,7 @@ calculate_moments_and_partitions(Bunch & bunch, MArray1d &zdensity,  MArray1d &x
                 if(((ibucket<bunch_bucket) && (it==(++stored_vbunches.begin())))///  finishing the following turn
                                 ||  (it!=(++stored_vbunches.begin())))  /// previous turns effects
                 {
-                    double  zji=bunch_sp*(bunch_bucket-ibucket)+line_length*iturn;// +((*it)[ibunch].z_mean-bunch_z_mean);
+                    double  zji=bunch_sp*(bunch_bucket-ibucket)+line_length*iturn +((*it)[ibunch].z_mean-bunch_z_mean);
                     int iz=static_cast<int>(floor(sqrt((zji-zcoord[0])/(zcoord[1]-zcoord[0]))));  
                     if ((iz+1 <= zpoints) && (iz>0)) {
                                 double wake_x  = xwake[iz]+(zji-zcoord[iz])*(xwake[iz+1]-xwake[iz])/(zcoord[iz+1]-zcoord[iz]);
