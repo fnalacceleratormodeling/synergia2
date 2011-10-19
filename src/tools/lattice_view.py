@@ -117,6 +117,7 @@ def do_plot(options):
     lattice = synergia.lattice.Mad8_reader().get_lattice(options.lattice,
                                                          options.lattice_file)
     attributes = get_attributes()
+    pyplot.figure().canvas.set_window_title('Synergia Lattice Viewer')
     x = 0.0
     y = 0.0
     angle = 0.0

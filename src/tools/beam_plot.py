@@ -101,6 +101,7 @@ def handle_args(args):
 def do_plots(options):
     f = tables.openFile(options.inputfile, 'r')
     particles = f.root.particles.read()
+    pyplot.figure().canvas.set_window_title('Synergia Phase Space Distribution')
     plot_density(particles[:, coords[options.hcoord]],
                  particles[:, coords[options.vcoord]], 'foobar', options.bins)
     if options.outputfile:
