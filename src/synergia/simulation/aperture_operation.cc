@@ -1,0 +1,191 @@
+#include "aperture_operation.h"
+#include <stdexcept>
+#include <cmath>
+
+Circular_aperture_operation::Circular_aperture_operation(
+        Lattice_element const& element) :
+    Independent_operation(circular_aperture_type_name)
+{
+    if (element.has_double_attribute("circular_aperture_radius")) {
+        radius = element.get_double_attribute("circular_aperture_radius");
+    } else {
+        radius = default_circular_aperture_radius;
+    }
+}
+
+void
+Circular_aperture_operation::apply(Bunch & bunch)
+{
+    double radius2 = radius * radius;
+    MArray2d_ref particles(bunch.get_local_particles());
+    int kept = 0;
+    int discarded = 0;
+    int local_num = bunch.get_local_num();
+    for (int part = 0; part < local_num; ++part) {
+        bool try_discard = true;
+        while (try_discard) {
+            double r2 = particles[part][Bunch::x] * particles[part][Bunch::x]
+                    + particles[part][Bunch::y] * particles[part][Bunch::y];
+            if (r2 > radius2) {
+                ++discarded;
+                --local_num;
+                if (part == local_num) {
+                    // No more particles left
+                    try_discard = false;
+                } else {
+                    // Move the last particle into this newly empty position
+                    int last = local_num;
+                    particles[part][0] = particles[last][0];
+                    particles[part][1] = particles[last][1];
+                    particles[part][2] = particles[last][2];
+                    particles[part][3] = particles[last][3];
+                    particles[part][4] = particles[last][4];
+                    particles[part][5] = particles[last][5];
+                    particles[part][6] = particles[last][6];
+                }
+            } else {
+                ++kept;
+                try_discard = false;
+            }
+        }
+    }
+    //        std::cout << "kept = " << kept << ", discarded = " << discarded
+    //                << std::endl;
+    bunch.set_local_num(local_num);
+    bunch.update_total_num();
+}
+
+Circular_aperture_operation::~Circular_aperture_operation()
+{
+}
+
+Elliptical_aperture_operation::Elliptical_aperture_operation(
+        Lattice_element const& element) :
+    Independent_operation(elliptical_aperture_type_name)
+{
+    if (element.has_double_attribute("elliptical_aperture_horizontal_radius")) {
+        horizontal_radius = element.get_double_attribute(
+                "elliptical_aperture_horizontal_radius");
+    } else {
+        throw std::runtime_error(
+                "Elliptical_aperture_operation: elliptical_aperture requires an elliptical_aperture_horizontal_radius attribute");
+    }
+    if (element.has_double_attribute("elliptical_aperture_vertical_radius")) {
+        vertical_radius = element.get_double_attribute(
+                "elliptical_aperture_vertical_radius");
+    } else {
+        throw std::runtime_error(
+                "Elliptical_aperture_operation: elliptical_aperture requires an elliptical_aperture_vertical_radius attribute");
+    }
+}
+
+void
+Elliptical_aperture_operation::apply(Bunch & bunch)
+{
+    double h2 = horizontal_radius * horizontal_radius;
+    double v2 = vertical_radius * vertical_radius;
+    MArray2d_ref particles(bunch.get_local_particles());
+    int kept = 0;
+    int discarded = 0;
+    int local_num = bunch.get_local_num();
+    for (int part = 0; part < local_num; ++part) {
+        bool try_discard = true;
+        while (try_discard) {
+            double scaled_r2 = particles[part][Bunch::x]
+                    * particles[part][Bunch::x] / h2
+                    + particles[part][Bunch::y] * particles[part][Bunch::y]
+                            / v2;
+            if (scaled_r2 > 1.0) {
+                ++discarded;
+                --local_num;
+                if (part == local_num) {
+                    // No more particles left
+                    try_discard = false;
+                } else {
+                    // Move the last particle into this newly empty position
+                    int last = local_num;
+                    particles[part][0] = particles[last][0];
+                    particles[part][1] = particles[last][1];
+                    particles[part][2] = particles[last][2];
+                    particles[part][3] = particles[last][3];
+                    particles[part][4] = particles[last][4];
+                    particles[part][5] = particles[last][5];
+                    particles[part][6] = particles[last][6];
+                }
+            } else {
+                ++kept;
+                try_discard = false;
+            }
+        }
+    }
+    //        std::cout << "kept = " << kept << ", discarded = " << discarded
+    //                << std::endl;
+    bunch.set_local_num(local_num);
+    bunch.update_total_num();
+}
+
+Elliptical_aperture_operation::~Elliptical_aperture_operation()
+{
+}
+
+Rectangular_aperture_operation::Rectangular_aperture_operation(
+        Lattice_element const& element) :
+    Independent_operation(rectangular_aperture_type_name)
+{
+    if (element.has_double_attribute("rectangular_aperture_width")) {
+        width = element.get_double_attribute("rectangular_aperture_width");
+    } else {
+        throw std::runtime_error(
+                "Rectangular_aperture_operation: rectangular_aperture requires an rectangular_aperture_width attribute");
+    }
+    if (element.has_double_attribute("rectangular_aperture_height")) {
+        height = element.get_double_attribute("rectangular_aperture_height");
+    } else {
+        throw std::runtime_error(
+                "Rectangular_aperture_operation: rectangular_aperture requires an rectangular_aperture_height attribute");
+    }
+}
+
+void
+Rectangular_aperture_operation::apply(Bunch & bunch)
+{
+    MArray2d_ref particles(bunch.get_local_particles());
+    int kept = 0;
+    int discarded = 0;
+    int local_num = bunch.get_local_num();
+    for (int part = 0; part < local_num; ++part) {
+        bool try_discard = true;
+        while (try_discard) {
+            if ((std::abs(particles[part][Bunch::x]) > 0.5 * width)
+                    || (std::abs(particles[part][Bunch::y]) > 0.5 * height)) {
+                ++discarded;
+                --local_num;
+                if (part == local_num) {
+                    // No more particles left
+                    try_discard = false;
+                } else {
+                    // Move the last particle into this newly empty position
+                    int last = local_num;
+                    particles[part][0] = particles[last][0];
+                    particles[part][1] = particles[last][1];
+                    particles[part][2] = particles[last][2];
+                    particles[part][3] = particles[last][3];
+                    particles[part][4] = particles[last][4];
+                    particles[part][5] = particles[last][5];
+                    particles[part][6] = particles[last][6];
+                }
+            } else {
+                ++kept;
+                try_discard = false;
+            }
+        }
+    }
+    //        std::cout << "kept = " << kept << ", discarded = " << discarded
+    //                << std::endl;
+    bunch.set_local_num(local_num);
+    bunch.update_total_num();
+}
+
+Rectangular_aperture_operation::~Rectangular_aperture_operation()
+{
+}
