@@ -60,6 +60,28 @@ Lattice_simulator::get_tunes()
         vertical_tune = beamline_context.getVerticalFracTune();
         have_tunes = true;
     }
+
+void
+Lattice_simulator::construct_aperture_extractor_map()
+{
+    typedef Generic_aperture_extractor<Circular_aperture_operation >
+            Circular_extractor;
+    aperture_extractor_map_sptr->set_extractor(
+            Circular_aperture_operation::attribute_name,
+            boost::shared_ptr<Circular_extractor >(new Circular_extractor()));
+
+    typedef Generic_aperture_extractor<Elliptical_aperture_operation >
+            Elliptical_extractor;
+    aperture_extractor_map_sptr->set_extractor(
+            Elliptical_aperture_operation::attribute_name,
+            boost::shared_ptr<Elliptical_extractor >(new Elliptical_extractor()));
+
+    typedef Generic_aperture_extractor<Rectangular_aperture_operation >
+            Rectangular_extractor;
+    aperture_extractor_map_sptr->set_extractor(
+            Rectangular_aperture_operation::attribute_name,
+            boost::shared_ptr<Rectangular_extractor >(
+                    new Rectangular_extractor()));
 }
 
 Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
@@ -71,6 +93,7 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
             have_slice_lattice_functions(false), have_tunes(false)
 {
     construct_extractor_map();
+    construct_aperture_extractor_map();
     set_bucket_length();
 }
 
@@ -102,6 +125,12 @@ Operation_extractor_map_sptr
 Lattice_simulator::get_operation_extractor_map_sptr()
 {
     return extractor_map_sptr;
+}
+
+Aperture_operation_extractor_map_sptr
+Lattice_simulator::get_aperture_operation_extractor_map_sptr()
+{
+    return aperture_extractor_map_sptr;
 }
 
 Lattice_sptr
@@ -168,6 +197,7 @@ Lattice_simulator::update()
 {
     chef_lattice_sptr = Chef_lattice_sptr(new Chef_lattice(lattice_sptr));
     construct_extractor_map();
+    construct_aperture_extractor_map();
     if (have_slices) {
         construct_sliced_chef_beamline();
     }

@@ -4,6 +4,7 @@
 #include "synergia/lattice/lattice.h"
 #include "synergia/lattice/chef_lattice.h"
 #include "synergia/simulation/operation_extractor.h"
+#include "synergia/simulation/aperture_operation_extractor.h"
 #include "synergia/simulation/step.h"
 #include <physics_toolkit/LattFuncSage.h>
 #include <string>
@@ -28,10 +29,13 @@ private:
     bool have_slices;
     Chef_lattice_sptr chef_lattice_sptr;
     Operation_extractor_map_sptr extractor_map_sptr;
+    Aperture_operation_extractor_map_sptr aperture_extractor_map_sptr;
     int map_order;
     double bucket_length;
     void
     construct_extractor_map();
+    void
+    construct_aperture_extractor_map();
     void
     construct_sliced_chef_beamline();
     bool have_element_lattice_functions;
@@ -59,6 +63,8 @@ public:
     get_number_buckets();
     Operation_extractor_map_sptr
     get_operation_extractor_map_sptr();
+    Aperture_operation_extractor_map_sptr
+    get_aperture_operation_extractor_map_sptr();
     Lattice_sptr
     get_lattice_sptr();
     Chef_lattice_sptr
