@@ -103,8 +103,9 @@ BOOST_PYTHON_MODULE(bunch)
     def("populate_two_particles", populate_two_particles);
 
      
-     class_<Bunch_with_diagnostics >("Bunch_with_diagnostics",
+     class_<Bunch_with_diagnostics, Bunch_with_diagnostics_sptr >("Bunch_with_diagnostics",
             init<Bunch_sptr, Standard_diagnostics_actions_sptr >())
+            .def("get_comm", &Bunch_with_diagnostics::get_comm, return_value_policy<copy_const_reference>())
             .def("get_bunch_sptr", &Bunch_with_diagnostics::get_bunch_sptr)
             .def("check_bunch_pointer_in_diagnostics", &Bunch_with_diagnostics::check_bunch_pointer_in_diagnostics)
             .def("add_per_step_diagnostics", &Bunch_with_diagnostics::add_per_step_diagnostics)

@@ -146,7 +146,9 @@ BOOST_PYTHON_MODULE(simulation)
         ;
 
     class_<Split_operator_stepper, bases<Stepper > >("Split_operator_stepper",
-            init<Lattice_simulator const&, Collective_operator_sptr, int >());
+            init<Lattice_simulator const&, Collective_operator_sptr, int >())
+           .def(init<Lattice_simulator const&, Collective_operators, int >())
+            ;
 
     class_<Split_operator_stepper_elements, bases<Stepper > >("Split_operator_stepper_elements",
             init<Lattice_simulator const&, Collective_operator_sptr, int >());

@@ -2,6 +2,7 @@
 #include "space_charge_2d_open_hockney.h"
 #include "interpolate_rectangular_zyx.h"
 #include "space_charge_2d_bassetti_erskine.h"
+#include "space_charge_rectangular.h"
 #include "impedance.h"
 #include <boost/python.hpp>
 #include "synergia/utils/container_conversions.h"
@@ -41,6 +42,13 @@ BOOST_PYTHON_MODULE(collective)
         bases<Collective_operator > >("Space_charge_2d_bassetti_erskine",
                 init<>())
         .def("apply", &Space_charge_2d_bassetti_erskine::apply)
+        ;
+
+   class_<Space_charge_rectangular, Space_charge_rectangular_sptr,
+        bases<Collective_operator > >("Space_charge_rectangular",
+              //  init< std::vector<double >, std::vector<int > >())
+                init<double , double , double , std::vector<int > >())
+                .def("apply", &Space_charge_rectangular::apply)
         ;
 
     class_<Impedance,Impedance_sptr,

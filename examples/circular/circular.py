@@ -121,97 +121,116 @@ if MPI.COMM_WORLD.Get_rank() ==0:
     print "stdx =",np.sqrt(emit*bx)," stdy= ", np.sqrt(emit*by)
 
                                                
-#bunch= synergia.optics.generate_matched_bunch(lattice_simulator,
-                                               #arms,brms,crms,
-                                               #opts.num_real_particles,
-                                               #opts.num_macro_particles,rms_index,
-                                               #seed=opts.seed)
 
-
-
-
-
- #for bunchnum in range(0,numbunches):
-        #diag=synergia.Diagnostics(gourmet.get_initial_u(),short=True)
-        #bunchnp=bunchnp0#*(bunchnum+1)*0.5 # bucket_num =2 in front of bucket_num =3
-        #bunches.append(s2_fish.Macro_bunch.gaussian(bunchnp,num_particles,beam_parameters,diagnostics=diag,bucket_num=2*bunchnum,periodic=True))
-        #bunches[bunchnum].write_particles("begin-%02d"%bunchnum)
-        #print " bunch(",bunchnum,") periodicity=",bunches[bunchnum].periodic
-       ## print "  initial means bunch(",bunchnum,")=",numpy.array(bunches[bunchnum].diagnostics.get_means())
-
-    #print " **********************************************************************"  
-    #mbunches=s2_fish.Multiple_bunches(bunches, bunch_sp)
-        
 
 bunchsp=lattice_simulator.get_bucket_length()
 num_bunches=emit = opts.num_bunches
 
 
 
-bunch_diag_train=synergia.bunch.Bunch_with_diagnostics_train(num_bunches,bunchsp, MPI.COMM_WORLD)
-for bunchnum in range(0,num_bunches):
-    if bunch_diag_train.is_on_this_rank(bunchnum):
-        commx=bunch_diag_train.get_comm(bunchnum)
-        bunch= synergia.optics.generate_matched_bunch(lattice_simulator,
-                                                arms,brms,crms,
-                                                opts.num_real_particles*(bunchnum+1),
-                                                opts.num_macro_particles,rms_index,
-                                                seed=opts.seed, bunch_index=bunchnum,comm=commx, periodic=True)
-        particles = bunch.get_local_particles()
-        # apply offset to bunch
-        particles[:,0] = particles[:,0]+opts.x_offset
-        particles[:,2] = particles[:,2]+opts.y_offset
-        particles[:,4] = particles[:,4]+opts.z_offset 
-        diagnostics_actions = synergia.simulation.Standard_diagnostics_actions()
-        bunch_diag=synergia.bunch.Bunch_with_diagnostics(bunch, diagnostics_actions)
-        bunch_diag.add_per_step_diagnostics(synergia.bunch.Diagnostics_full2(bunch, "circular_full2-%02d.h5"%bunchnum))
-        bunch_diag.add_per_turn_diagnostics(synergia.bunch.Diagnostics_particles(bunch,"circular_particles-%02d.h5"%bunchnum,0,0,100))
-        bunch_diag_train.set_bunch_diag_sptr(bunchnum, bunch_diag)
-        real_num=bunch_diag_train.get_bunch_diag_sptr(bunchnum).get_bunch_sptr().get_real_num()
-        bucket_index=bunch_diag_train.get_bunch_diag_sptr(bunchnum).get_bunch_sptr().get_bucket_index()
-        if commx.Get_rank() ==0:
-            print "bunch # ",bunchnum ,"  number of particles= ",real_num, " bucket =", bucket_index
-if MPI.COMM_WORLD.Get_rank() ==0:
-    print "train bunch space=",bunch_diag_train.get_bunch_separation()
-
-
-#bunch= synergia.optics.generate_matched_bunch(lattice_simulator,
+#bunch_diag_train=synergia.bunch.Bunch_with_diagnostics_train(num_bunches,bunchsp, MPI.COMM_WORLD)
+#for bunchnum in range(0,num_bunches):
+    #if bunch_diag_train.is_on_this_rank(bunchnum):
+        #commx=bunch_diag_train.get_comm(bunchnum)
+        #bunch= synergia.optics.generate_matched_bunch(lattice_simulator,
                                                 #arms,brms,crms,
-                                                #opts.num_real_particles,
+                                                #opts.num_real_particles*(bunchnum+1),
                                                 #opts.num_macro_particles,rms_index,
-                                                #seed=opts.seed, periodic=True)
-#diagnostics_actions = synergia.simulation.Standard_diagnostics_actions()
+                                                #seed=opts.seed, bunch_index=bunchnum,comm=commx, periodic=True)
+        #particles = bunch.get_local_particles()
+        ## apply offset to bunch
+        #particles[:,0] = particles[:,0]+opts.x_offset
+        #particles[:,2] = particles[:,2]+opts.y_offset
+        #particles[:,4] = particles[:,4]+opts.z_offset 
+        #diagnostics_actions = synergia.simulation.Standard_diagnostics_actions()
+        #bunch_diag=synergia.bunch.Bunch_with_diagnostics(bunch, diagnostics_actions)
+        #bunch_diag.add_per_step_diagnostics(synergia.bunch.Diagnostics_full2(bunch, "circular_full2-%02d.h5"%bunchnum))
+        #bunch_diag.add_per_turn_diagnostics(synergia.bunch.Diagnostics_particles(bunch,"circular_particles-%02d.h5"%bunchnum,0,0,100))
+        #bunch_diag_train.set_bunch_diag_sptr(bunchnum, bunch_diag)
+        #real_num=bunch_diag_train.get_bunch_diag_sptr(bunchnum).get_bunch_sptr().get_real_num()
+        #bucket_index=bunch_diag_train.get_bunch_diag_sptr(bunchnum).get_bunch_sptr().get_bucket_index()
+        #if commx.Get_rank() ==0:
+            #print "bunch # ",bunchnum ,"  number of particles= ",real_num, " bucket =", bucket_index
+#if MPI.COMM_WORLD.Get_rank() ==0:
+    #print "train bunch space=",bunch_diag_train.get_bunch_separation()
+
+
+bunch= synergia.optics.generate_matched_bunch(lattice_simulator,
+                                                arms,brms,crms,
+                                                opts.num_real_particles,
+                                                opts.num_macro_particles,rms_index,
+                                                seed=opts.seed, periodic=True)
+particles = bunch.get_local_particles()
+particles[:,0] = particles[:,0]+opts.x_offset
+particles[:,2] = particles[:,2]+opts.y_offset
+particles[:,4] = particles[:,4]+opts.z_offset 
+
+#"""uncommnent for propagate(bunch,....)
+#diagnostics_writer_step = synergia.bunch.Diagnostics_full2(bunch, "circular_full2.h5") 
+#diagnostics_writer_turn = synergia.bunch.Diagnostics_particles(bunch,"circular_particles.h5",0,0,100)
+
+#'''uncomment for propagate(  , diagnostics_actions......                                               
+diagnostics_actions = synergia.simulation.Standard_diagnostics_actions()
+
+
 #diagnostics_actions.add_per_step(synergia.bunch.Diagnostics_full2(bunch, "step_full2a.h5"))
 #diagnostics_actions.add_per_turn(synergia.bunch.Diagnostics_particles(bunch, "turn_particles.h5a",0,0,100))
 #bunch_with_diag=synergia.bunch.Bunch_with_diagnostics(bunch, diagnostics_actions)
 #bunch_with_diag.check_bunch_pointer_in_diagnostics() 
 
 
-#bunch_with_diag=synergia.bunch.Bunch_with_diagnostics(bunch, diagnostics_actions)
-#bunch_with_diag.add_per_step_diagnostics(synergia.bunch.Diagnostics_full2(bunch, "step_full2b.h5"))
-#bunch_with_diag.add_per_turn_diagnostics(synergia.bunch.Diagnostics_particles(bunch, "turn_particlesb.h5",0,0,100))
-
-#diagnostics_writer_step = synergia.bunch.Diagnostics_full2(bunch, "circular_full2.h5") 
-#diagnostics_writer_turn = synergia.bunch.Diagnostics_particles(bunch,"circular_particles.h5",0,0,100)
+bunch_with_diag=synergia.bunch.Bunch_with_diagnostics(bunch, diagnostics_actions)
+bunch_with_diag.add_per_step_diagnostics(synergia.bunch.Diagnostics_full2(bunch, "step_full2.h5"))
+bunch_with_diag.add_per_turn_diagnostics(synergia.bunch.Diagnostics_particles(bunch, "turn_particles.h5",0,0,100))
 
 
 
 
-no_op = synergia.simulation.Dummy_collective_operator("stub")
-zgrid=40
-imped= synergia.collective.Impedance("BoosterF_wake.dat",lattice_length, bunchsp,zgrid, "circular",60)
-#imped= synergia.simulation.Dummy_collective_operator("stub")
+operators=[]
+
 impedance=opts.impedance
 if impedance:
-    stepper = synergia.simulation.Split_operator_stepper(
-                            lattice_simulator, imped, opts.num_steps)
-else:
-    stepper = synergia.simulation. Split_operator_stepper(
-                            lattice_simulator, no_op, opts.num_steps)                           
-    #stepper = synergia.simulation.Independent_stepper_elements(
+    zgrid=40
+    imped= synergia.collective.Impedance("BoosterF_wake.dat",lattice_length, bunchsp,zgrid, "circular",60)
+    operators.append(imped)
+
+space_charge=opts.space_charge
+if space_charge:
+    grid_shape=[16,16,16]
+    radiusx=0.029
+    radiusy=0.04    
+    size=[2.*radiusx, 2.*radiusy, lattice_simulator.get_bucket_length()]
+    print "size=",size
+    
+    
+    #size=np.zeros([3],np.float64)
+    #size[0]= 2.*radiusx 
+    #size[1]= 2.*radiusy   
+    #size[2] = lattice_simulator.get_bucket_length()
+    
+
+    spc=synergia.collective.Space_charge_rectangular(0.02, 0.02, 3., grid_shape)
+   # spc=synergia.simulation.Dummy_collective_operator("stub")
+    operators.append(spc)
 
 
-if MPI.COMM_WORLD.Get_rank() ==4:
+
+if ((not space_charge) and (not impedance)):
+    no_op = synergia.simulation.Dummy_collective_operator("stub")
+    operators.append(no_op)
+
+
+#spc=synergia.simulation.Dummy_collective_operator("stub")                         
+
+ 
+
+
+stepper = synergia.simulation.Split_operator_stepper(
+                            lattice_simulator, spc, opts.num_steps)
+
+
+
+if MPI.COMM_WORLD.Get_rank() ==0:
     print "expect std_x: ", np.sqrt(emit*bx)
     print "generated std_x: ", np.std(particles[:,0])
     print "expect std_y: ", np.sqrt(emit*by)
@@ -235,7 +254,7 @@ if MPI.COMM_WORLD.Get_rank() ==4:
 
 
 propagator = synergia.simulation.Propagator(stepper)
-#propagator.propagate(bunch_with_diag, opts.num_turns, opts.verbose)
-propagator.propagate(bunch_diag_train, opts.num_turns, opts.verbose)
+propagator.propagate(bunch_with_diag, opts.num_turns, opts.verbose)
+#propagator.propagate(bunch_diag_train, opts.num_turns, opts.verbose)
 #propagator.propagate(bunch, opts.num_turns, diagnostics_writer_step, diagnostics_writer_turn, opts.verbose)
 #propagator.propagate(bunch, opts.num_turns, diagnostics_actions, opts.verbose)

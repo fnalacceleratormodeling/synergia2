@@ -20,6 +20,7 @@ opts.add("x_offset", 0.02, "Bunch offset in x", float)
 opts.add("y_offset", 0.01, "Bunch offset in y", float)
 opts.add("z_offset", 0.0, "Bunch offset in z", float)
 opts.add("impedance", 1, "", int)
+opts.add("space_charge", 1, "", int)
 
 
 job_mgr = synergia_workflow.Job_manager("circular.py", opts, ["foborodobo_s.lat","BoosterF_wake.dat"], extra_opt_dirs=None)
