@@ -2,14 +2,27 @@
 #include <stdexcept>
 #include <cmath>
 
+Aperture_operation::Aperture_operation(Lattice_element const& element) :
+    Independent_operation("aperture")
+{
+}
+
+Aperture_operation::~Aperture_operation()
+{
+}
+
+const double Circular_aperture_operation::default_radius(1000.0);
+const char Circular_aperture_operation::type_name[] = "circular_aperture";
+const char Circular_aperture_operation::attribute_name[] = "circular";
+
 Circular_aperture_operation::Circular_aperture_operation(
         Lattice_element const& element) :
-    Independent_operation(circular_aperture_type_name)
+    Aperture_operation(element)
 {
     if (element.has_double_attribute("circular_aperture_radius")) {
         radius = element.get_double_attribute("circular_aperture_radius");
     } else {
-        radius = default_circular_aperture_radius;
+        radius = default_radius;
     }
 }
 
@@ -59,9 +72,12 @@ Circular_aperture_operation::~Circular_aperture_operation()
 {
 }
 
+const char Elliptical_aperture_operation::type_name[] = "elliptical_aperture";
+const char Elliptical_aperture_operation::attribute_name[] = "elliptical";
+
 Elliptical_aperture_operation::Elliptical_aperture_operation(
         Lattice_element const& element) :
-    Independent_operation(elliptical_aperture_type_name)
+    Aperture_operation(element)
 {
     if (element.has_double_attribute("elliptical_aperture_horizontal_radius")) {
         horizontal_radius = element.get_double_attribute(
@@ -128,9 +144,12 @@ Elliptical_aperture_operation::~Elliptical_aperture_operation()
 {
 }
 
+const char Rectangular_aperture_operation::type_name[] = "rectangular_aperture";
+const char Rectangular_aperture_operation::attribute_name[] = "rectangular";
+
 Rectangular_aperture_operation::Rectangular_aperture_operation(
         Lattice_element const& element) :
-    Independent_operation(rectangular_aperture_type_name)
+    Aperture_operation(element)
 {
     if (element.has_double_attribute("rectangular_aperture_width")) {
         width = element.get_double_attribute("rectangular_aperture_width");
