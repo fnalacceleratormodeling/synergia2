@@ -15,6 +15,8 @@ public:
     ~Aperture_operation();
 };
 
+typedef boost::shared_ptr<Aperture_operation > Aperture_operation_sptr;
+
 /// A circular aperture with radius in meters determined by the
 /// Lattice_element attribute "circular_aperture_radius".
 /// If the radius is not defined, the default value of 1000.0 m will
