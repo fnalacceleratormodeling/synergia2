@@ -26,6 +26,31 @@ Circular_aperture_operation::Circular_aperture_operation(
     }
 }
 
+const char *
+Circular_aperture_operation::get_type_name() const
+{
+    return type_name;
+}
+
+bool
+Circular_aperture_operation::operator==(
+        Aperture_operation const& aperture_operation) const
+{
+    if (type_name == aperture_operation.get_type_name()) {
+        return operator==(
+                *static_cast<Circular_aperture_operation const* > (&aperture_operation));
+    } else {
+        return false;
+    }
+}
+
+bool
+Circular_aperture_operation::operator==(
+        Circular_aperture_operation const& circular_aperture_operation) const
+{
+    return (radius == circular_aperture_operation.radius);
+}
+
 void
 Circular_aperture_operation::apply(Bunch & bunch)
 {
@@ -93,6 +118,25 @@ Elliptical_aperture_operation::Elliptical_aperture_operation(
         throw std::runtime_error(
                 "Elliptical_aperture_operation: elliptical_aperture requires an elliptical_aperture_vertical_radius attribute");
     }
+}
+
+const char *
+Elliptical_aperture_operation::get_type_name() const
+{
+    return type_name;
+}
+
+bool
+Elliptical_aperture_operation::operator==(
+        Aperture_operation const& aperture_operation) const
+{
+    return false;
+    //    if (type_name == aperture_operation.get_type_name()) {
+    //        return operator==(
+    //                dynamic_cast<Circular_aperture_operation > (aperture_operation));
+    //    } else {
+    //        return false;
+    //    }
 }
 
 void
@@ -163,6 +207,25 @@ Rectangular_aperture_operation::Rectangular_aperture_operation(
         throw std::runtime_error(
                 "Rectangular_aperture_operation: rectangular_aperture requires an rectangular_aperture_height attribute");
     }
+}
+
+const char *
+Rectangular_aperture_operation::get_type_name() const
+{
+    return type_name;
+}
+
+bool
+Rectangular_aperture_operation::operator==(
+        Aperture_operation const& aperture_operation) const
+{
+    return false;
+    //    if (type_name == aperture_operation.get_type_name()) {
+    //        return operator==(
+    //                dynamic_cast<Circular_aperture_operation > (aperture_operation));
+    //    } else {
+    //        return false;
+    //    }
 }
 
 void

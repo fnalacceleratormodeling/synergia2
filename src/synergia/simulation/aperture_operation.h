@@ -5,10 +5,12 @@
 
 class Aperture_operation : public Independent_operation
 {
-private:
-    double radius;
 public:
     Aperture_operation(Lattice_element const& element);
+    virtual const char *
+    get_type_name() const = 0;
+    virtual bool
+    operator==(Aperture_operation const& aperture_operation) const = 0;
     virtual void
     apply(Bunch & bunch)=0;
     virtual
@@ -30,6 +32,12 @@ public:
     static const char type_name[];
     static const char attribute_name[];
     Circular_aperture_operation(Lattice_element const& element);
+    virtual const char *
+    get_type_name() const;
+    virtual bool
+    operator==(Aperture_operation const& aperture_operation) const;
+    virtual bool
+    operator==(Circular_aperture_operation const& circular_aperture_operation) const;
     virtual void
     apply(Bunch & bunch);
     virtual
@@ -50,6 +58,10 @@ public:
     static const char type_name[];
     static const char attribute_name[];
     Elliptical_aperture_operation(Lattice_element const& element);
+    virtual const char *
+    get_type_name() const;
+    virtual bool
+    operator==(Aperture_operation const& aperture_operation) const;
     virtual void
     apply(Bunch & bunch);
     virtual
@@ -70,6 +82,10 @@ public:
     static const char type_name[];
     static const char attribute_name[];
     Rectangular_aperture_operation(Lattice_element const& element);
+    virtual const char *
+    get_type_name() const;
+    virtual bool
+    operator==(Aperture_operation const& aperture_operation) const;
     virtual void
     apply(Bunch & bunch);
     virtual
