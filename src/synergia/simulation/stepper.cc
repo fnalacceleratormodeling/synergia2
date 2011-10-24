@@ -65,7 +65,8 @@ Independent_stepper::get_step(std::string const& name,
             retval(
                     new Independent_operator(
                             name,
-                            get_lattice_simulator().get_operation_extractor_map_sptr()));
+                            get_lattice_simulator().get_operation_extractor_map_sptr(),
+                            get_lattice_simulator().get_aperture_operation_extractor_map_sptr()));
     const double tolerance = 1.0e-8;
     double length = offset_fudge;
     bool complete = false;
@@ -169,7 +170,8 @@ Independent_stepper_elements::Independent_stepper_elements(
                     ind_op(
                             new Independent_operator(
                                     "step",
-                                    get_lattice_simulator().get_operation_extractor_map_sptr()));
+                                    get_lattice_simulator().get_operation_extractor_map_sptr(),
+                                    get_lattice_simulator().get_aperture_operation_extractor_map_sptr()));
             Lattice_element_slice_sptr slice(new Lattice_element_slice(*(*it)));
             ind_op->append_slice(slice);
             Step_sptr step(new Step(0.0));
@@ -182,7 +184,8 @@ Independent_stepper_elements::Independent_stepper_elements(
                         ind_op(
                                 new Independent_operator(
                                         "step",
-                                        get_lattice_simulator().get_operation_extractor_map_sptr()));
+                                        get_lattice_simulator().get_operation_extractor_map_sptr(),
+                                        get_lattice_simulator().get_aperture_operation_extractor_map_sptr()));
                 double left = i * step_length;
                 double right = (i + 1) * step_length;
                 Lattice_element_slice_sptr slice(
@@ -217,7 +220,8 @@ Split_operator_stepper::get_half_step(std::string const& name,
             retval(
                     new Independent_operator(
                             name,
-                            get_lattice_simulator().get_operation_extractor_map_sptr()));
+                            get_lattice_simulator().get_operation_extractor_map_sptr(),
+                            get_lattice_simulator().get_aperture_operation_extractor_map_sptr()));
     const double tolerance = 1.0e-8;
     double length = offset_fudge;
     bool complete = false;
@@ -349,7 +353,8 @@ Split_operator_stepper_elements::construct(
                     ind_op(
                             new Independent_operator(
                                     "step",
-                                    get_lattice_simulator().get_operation_extractor_map_sptr()));
+                                    get_lattice_simulator().get_operation_extractor_map_sptr(),
+                                    get_lattice_simulator().get_aperture_operation_extractor_map_sptr()));
             Lattice_element_slice_sptr slice(new Lattice_element_slice(*(*it)));
             ind_op->append_slice(slice);
             Step_sptr step(new Step(0.0));
@@ -372,7 +377,8 @@ Split_operator_stepper_elements::construct(
                         ind_op_first_half(
                                 new Independent_operator(
                                         "first_half",
-                                        get_lattice_simulator().get_operation_extractor_map_sptr()));
+                                        get_lattice_simulator().get_operation_extractor_map_sptr(),
+                                        get_lattice_simulator().get_aperture_operation_extractor_map_sptr()));
                 Lattice_element_slice_sptr slice_1st_half(
                         new Lattice_element_slice(*(*it), left, middle));
                 ind_op_first_half->append_slice(slice_1st_half);
@@ -390,7 +396,8 @@ Split_operator_stepper_elements::construct(
                         ind_op_second_half(
                                 new Independent_operator(
                                         "second_half",
-                                        get_lattice_simulator().get_operation_extractor_map_sptr()));
+                                        get_lattice_simulator().get_operation_extractor_map_sptr(),
+                                        get_lattice_simulator().get_aperture_operation_extractor_map_sptr()));
                 Lattice_element_slice_sptr slice_2nd_half(
                         new Lattice_element_slice(*(*it), middle, right));
                 //slice(new Lattice_element_slice(*(*it), middle, right));

@@ -99,7 +99,8 @@ BOOST_PYTHON_MODULE(simulation)
 
     class_<Independent_operator, Independent_operator_sptr,
         bases<Operator > >("Independent_operator", init<std::string const&,
-                Operation_extractor_map_sptr>())
+                Operation_extractor_map_sptr,
+                Aperture_operation_extractor_map_sptr >())
 //        .def("get_name", &Collective_operator::get_name)
 //        .def("get_type", &Collective_operator::get_type)
 //        .def("apply", &Collective_operator::apply)
