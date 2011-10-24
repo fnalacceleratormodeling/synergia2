@@ -228,13 +228,20 @@ bool
 Rectangular_aperture_operation::operator==(
         Aperture_operation const& aperture_operation) const
 {
-    return false;
-    //    if (type_name == aperture_operation.get_type_name()) {
-    //        return operator==(
-    //                dynamic_cast<Circular_aperture_operation > (aperture_operation));
-    //    } else {
-    //        return false;
-    //    }
+    if (type_name == aperture_operation.get_type_name()) {
+        return operator==(
+                *static_cast<Rectangular_aperture_operation const* > (&aperture_operation));
+    } else {
+        return false;
+    }
+}
+
+bool
+Rectangular_aperture_operation::operator==(
+        Rectangular_aperture_operation const& rectangular_aperture_operation) const
+{
+    return ((width == rectangular_aperture_operation.width) && (height
+            == rectangular_aperture_operation.height));
 }
 
 void

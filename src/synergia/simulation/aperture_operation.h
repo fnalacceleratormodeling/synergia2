@@ -90,6 +90,9 @@ public:
     get_type_name() const;
     virtual bool
     operator==(Aperture_operation const& aperture_operation) const;
+    bool
+            operator==(
+                    Rectangular_aperture_operation const& rectangular_aperture_operation) const;
     virtual void
     apply(Bunch & bunch);
     virtual
