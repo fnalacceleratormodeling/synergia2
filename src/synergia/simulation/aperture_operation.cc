@@ -130,13 +130,22 @@ bool
 Elliptical_aperture_operation::operator==(
         Aperture_operation const& aperture_operation) const
 {
-    return false;
-    //    if (type_name == aperture_operation.get_type_name()) {
-    //        return operator==(
-    //                dynamic_cast<Circular_aperture_operation > (aperture_operation));
-    //    } else {
-    //        return false;
-    //    }
+    if (type_name == aperture_operation.get_type_name()) {
+        return operator==(
+                *static_cast<Elliptical_aperture_operation const* > (&aperture_operation));
+    } else {
+        return false;
+    }
+}
+
+bool
+Elliptical_aperture_operation::operator==(
+        Elliptical_aperture_operation const& elliptical_aperture_operation) const
+{
+    return ((horizontal_radius
+            == elliptical_aperture_operation.horizontal_radius)
+            && (vertical_radius
+                    == elliptical_aperture_operation.vertical_radius));
 }
 
 void

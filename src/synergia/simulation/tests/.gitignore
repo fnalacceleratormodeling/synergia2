@@ -18,6 +18,7 @@ test_split_operator_stepper
 test_independent_stepper
 test_independent_stepper_elements
 test_circular_aperture_operation
+test_elliptical_aperture_operation
 test_split_operator_stepper_elements
 test_propagator
 test_propagator_mpi

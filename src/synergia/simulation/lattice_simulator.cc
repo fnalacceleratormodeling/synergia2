@@ -88,9 +88,10 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
     lattice_sptr(lattice_sptr),
             chef_lattice_sptr(new Chef_lattice(lattice_sptr)),
             extractor_map_sptr(new Operation_extractor_map),
-            map_order(map_order), have_slices(false),
             have_element_lattice_functions(false),
             have_slice_lattice_functions(false), have_tunes(false)
+            aperture_extractor_map_sptr(new Aperture_operation_extractor_map),
+            map_order(map_order), have_slices(false),
 {
     construct_extractor_map();
     construct_aperture_extractor_map();

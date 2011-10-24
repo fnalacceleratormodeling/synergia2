@@ -36,8 +36,9 @@ public:
     get_type_name() const;
     virtual bool
     operator==(Aperture_operation const& aperture_operation) const;
-    virtual bool
-    operator==(Circular_aperture_operation const& circular_aperture_operation) const;
+    bool
+            operator==(
+                    Circular_aperture_operation const& circular_aperture_operation) const;
     virtual void
     apply(Bunch & bunch);
     virtual
@@ -62,6 +63,9 @@ public:
     get_type_name() const;
     virtual bool
     operator==(Aperture_operation const& aperture_operation) const;
+    bool
+            operator==(
+                    Elliptical_aperture_operation const& Elliptical_aperture_operation) const;
     virtual void
     apply(Bunch & bunch);
     virtual
