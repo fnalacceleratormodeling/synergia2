@@ -69,6 +69,9 @@ Lattice_simulator::construct_aperture_extractor_map()
     aperture_extractor_map_sptr->set_extractor(
             Circular_aperture_operation::attribute_name,
             boost::shared_ptr<Circular_extractor >(new Circular_extractor()));
+    aperture_extractor_map_sptr->set_extractor(
+            "default",
+            boost::shared_ptr<Circular_extractor >(new Circular_extractor()));
 
     typedef Generic_aperture_extractor<Elliptical_aperture_operation >
             Elliptical_extractor;
