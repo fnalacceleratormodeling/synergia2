@@ -97,3 +97,17 @@ set(CLEAN_FILES
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEAN_FILES}")
 
+add_library(wrap_containers wrap_containers.cc)
+add_python_extension(wrap_containers_python wrap_containers_wrap.cc)
+  target_link_libraries(wrap_containers_python wrap_containers ${Boost_LIBRARIES})
+add_test(test_container_conversions.py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_container_conversions.py)
+
+  
+#     wrap_containers.h
+#      DESTINATION include/synergia/utils/tests)
+#   install(TARGETS
+#           wrap_containers
+#           wrap_containers_python 
+#               DESTINATION lib/synergia/utils/tests)
+
+
