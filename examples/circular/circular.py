@@ -199,7 +199,8 @@ if space_charge:
     grid_shape=[16,16,16]
     radiusx=0.029
     radiusy=0.04    
-    size=[2.*radiusx, 2.*radiusy, lattice_simulator.get_bucket_length()]
+    #size=[2.*radiusx, 2.*radiusy, lattice_simulator.get_bucket_length()]
+    size=[5,4,7]
     print "size=",size
     
     
@@ -210,6 +211,8 @@ if space_charge:
     
 
     spc=synergia.collective.Space_charge_rectangular(0.02, 0.02, 3., grid_shape)
+    
+    #spc=synergia.collective.Space_charge_rectangular(size, grid_shape)
    # spc=synergia.simulation.Dummy_collective_operator("stub")
     operators.append(spc)
 

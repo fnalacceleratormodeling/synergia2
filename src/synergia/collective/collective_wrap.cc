@@ -46,7 +46,7 @@ BOOST_PYTHON_MODULE(collective)
 
    class_<Space_charge_rectangular, Space_charge_rectangular_sptr,
         bases<Collective_operator > >("Space_charge_rectangular",
-              //  init< std::vector<double >, std::vector<int > >())
+               // init< std::vector<int >, std::vector<int > >())
                 init<double , double , double , std::vector<int > >())
                 .def("apply", &Space_charge_rectangular::apply)
         ;
