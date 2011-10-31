@@ -59,6 +59,7 @@ public:
     Lattice_element_slices const&
     get_lattice_element_slices() const;
     ~Chef_lattice();
+    static const char internal_marker_name[];
 };
 
 typedef boost::shared_ptr<Chef_lattice > Chef_lattice_sptr;

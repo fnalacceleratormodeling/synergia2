@@ -9,6 +9,9 @@
 
 #include <stdexcept>
 
+const char Chef_lattice::internal_marker_name[] =
+        "_synergia_lattice_element_marker";
+
 void
 Chef_lattice::construct_beamline()
 {
@@ -65,7 +68,7 @@ Chef_lattice::extract_element_map()
     Lattice_elements::iterator le_it = lattice_sptr->get_elements().begin();
     for (beamline::const_iterator b_it = beamline_sptr->begin(); b_it
             != beamline_sptr->end(); ++b_it) {
-        if ((*b_it)->Name() == lattice_element_marker->Name()) {
+        if ((*b_it)->Name() == internal_marker_name) {
             element_map[le_it->get()] = chef_elements;
             chef_elements.clear();
             ++le_it;
@@ -82,7 +85,7 @@ Chef_lattice::extract_element_slice_map(Lattice_element_slices const& slices)
     Lattice_element_slices::const_iterator s_it = slices.begin();
     for (beamline::const_iterator b_it = sliced_beamline_sptr->begin(); b_it
             != sliced_beamline_sptr->end(); ++b_it) {
-        if ((*b_it)->Name() == lattice_element_marker->Name()) {
+        if ((*b_it)->Name() == internal_marker_name) {
             element_slice_map[s_it->get()] = chef_elements;
             chef_elements.clear();
             ++s_it;
@@ -110,10 +113,8 @@ Chef_lattice::construct()
 }
 
 Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr) :
-            lattice_sptr(lattice_sptr),
-            beamline_sptr(),
-            lattice_element_marker(
-                    new marker("synergia_lattice_element_marker")),
+    lattice_sptr(lattice_sptr), beamline_sptr(),
+            lattice_element_marker(new marker(internal_marker_name)),
             element_adaptor_map_sptr(new Element_adaptor_map)
 {
     construct();
@@ -121,10 +122,8 @@ Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr) :
 
 Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr,
         Element_adaptor_map_sptr element_adaptor_map_sptr) :
-            lattice_sptr(lattice_sptr),
-            beamline_sptr(),
-            lattice_element_marker(
-                    new marker("synergia_lattice_element_marker")),
+    lattice_sptr(lattice_sptr), beamline_sptr(),
+            lattice_element_marker(new marker(internal_marker_name)),
             element_adaptor_map_sptr(element_adaptor_map_sptr)
 {
     construct();

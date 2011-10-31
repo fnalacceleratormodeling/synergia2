@@ -721,7 +721,7 @@ BOOST_FIXTURE_TEST_CASE(get_lattice_element, Fodo_fixture)
         }
         catch (std::runtime_error) {
             BOOST_CHECK_EQUAL((*it)->Name(),
-                    "synergia_lattice_element_marker");
+                    Chef_lattice::internal_marker_name);
             BOOST_CHECK_EQUAL((*it)->Type(),
                     "marker");
         }
@@ -745,7 +745,7 @@ BOOST_FIXTURE_TEST_CASE(get_lattice_element_slice, Fodo_fixture)
         }
         catch (std::runtime_error) {
             BOOST_CHECK_EQUAL((*it)->Name(),
-                    "synergia_lattice_element_marker");
+                    Chef_lattice::internal_marker_name);
             BOOST_CHECK_EQUAL((*it)->Type(),
                     "marker");
         }
