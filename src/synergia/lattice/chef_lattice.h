@@ -44,6 +44,10 @@ public:
     get_chef_elements(Lattice_element const& lattice_element);
     Chef_elements &
     get_chef_elements(Lattice_element_slice const& lattice_element_slice);
+    Lattice_element const&
+    get_lattice_element(ElmPtr const& chef_element);
+    Lattice_element_slice const&
+    get_lattice_element_slice(ElmPtr const& chef_element);
     bool
     have_sliced_beamline() const;
     void

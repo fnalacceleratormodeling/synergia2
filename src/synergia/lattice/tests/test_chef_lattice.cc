@@ -703,3 +703,51 @@ BOOST_FIXTURE_TEST_CASE(get_chef_elements_from_slice_compound6, RF_cavity_fixtur
                     lattice_sptr->get_reference_particle()), tolerance);
     BOOST_CHECK_EQUAL(chef_elements.size(), 1);
 }
+
+BOOST_FIXTURE_TEST_CASE(get_lattice_element, Fodo_fixture)
+{
+    Chef_lattice chef_lattice(lattice_sptr);
+    BmlPtr beamline_sptr(chef_lattice.get_beamline_sptr());
+    for (beamline::const_iterator it = beamline_sptr->begin(); it
+            != beamline_sptr->end(); ++it) {
+        try {
+            Lattice_element lattice_element(
+                    chef_lattice.get_lattice_element(*it));
+            // n.b. this test isn't guaranteed to work with arbitrary
+            // elements, e.g., RF cavities, but it will work with the
+            // elements of the fodo cell.
+            BOOST_CHECK_EQUAL(lattice_element.get_name(),
+                    (*it)->Name());
+        }
+        catch (std::runtime_error) {
+            BOOST_CHECK_EQUAL((*it)->Name(),
+                    "synergia_lattice_element_marker");
+            BOOST_CHECK_EQUAL((*it)->Type(),
+                    "marker");
+        }
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(get_lattice_element_slice, Fodo_fixture)
+{
+    Chef_lattice chef_lattice(lattice_sptr);
+    const int slices_per_element = 3;
+    chef_lattice.construct_sliced_beamline(
+            slice_lattice(*lattice_sptr, slices_per_element));
+    BmlPtr beamline_sptr = chef_lattice.get_sliced_beamline_sptr();
+
+    for (beamline::const_iterator it = beamline_sptr->begin(); it
+            != beamline_sptr->end(); ++it) {
+        try {
+            Lattice_element_slice lattice_element_slice(
+                    chef_lattice.get_lattice_element_slice(*it));
+            // jfa: Not sure how to test this.
+        }
+        catch (std::runtime_error) {
+            BOOST_CHECK_EQUAL((*it)->Name(),
+                    "synergia_lattice_element_marker");
+            BOOST_CHECK_EQUAL((*it)->Type(),
+                    "marker");
+        }
+    }
+}
