@@ -51,6 +51,13 @@ BOOST_PYTHON_MODULE(simulation)
                 return_value_policy<copy_const_reference >())
         ;
 
+    Lattice_functions const&
+    (Lattice_simulator::*get_lattice_functions1)(Lattice_element &) =
+            &Lattice_simulator::get_lattice_functions;
+    Lattice_functions const&
+    (Lattice_simulator::*get_lattice_functions2)(Lattice_element_slice &) =
+            &Lattice_simulator::get_lattice_functions;
+
     class_<Lattice_simulator >("Lattice_simulator",
             init<Lattice_sptr, int >())
         .def("construct_sliced_chef_beamline",
@@ -60,8 +67,14 @@ BOOST_PYTHON_MODULE(simulation)
                 &Lattice_simulator::get_operation_extractor_map_sptr)
         .def("get_lattice", &Lattice_simulator::get_lattice_sptr)
         .def("get_chef_lattice", &Lattice_simulator::get_chef_lattice_sptr)
-        .def("calculate_lattice_functions",
-                &Lattice_simulator::calculate_lattice_functions)
+        .def("calculate_element_lattice_functions",
+                &Lattice_simulator::calculate_element_lattice_functions)
+        .def("calculate_slice_lattice_functions",
+                &Lattice_simulator::calculate_slice_lattice_functions)
+        .def("get_lattice_functions", get_lattice_functions1,
+                return_value_policy<copy_const_reference >())
+        .def("get_lattice_functions", get_lattice_functions2,
+                return_value_policy<copy_const_reference >())
         ;
 
     class_<Step, Step_sptr >("Step", init<double >())

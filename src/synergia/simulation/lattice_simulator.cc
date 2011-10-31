@@ -43,7 +43,8 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
     lattice_sptr(lattice_sptr),
             chef_lattice_sptr(new Chef_lattice(lattice_sptr)),
             extractor_map_sptr(new Operation_extractor_map),
-            map_order(map_order)
+            map_order(map_order), have_element_lattice_functions(false),
+            have_slice_lattice_functions(false)
 {
     construct_extractor_map();
 }
@@ -80,19 +81,69 @@ Lattice_simulator::get_chef_lattice_sptr()
 }
 
 void
-Lattice_simulator::calculate_lattice_functions()
+Lattice_simulator::calculate_element_lattice_functions()
 {
-    BeamlineContext beamline_context(
-            reference_particle_to_chef_particle(
-                    lattice_sptr->get_reference_particle()),
-            chef_lattice_sptr->get_sliced_beamline_sptr());
-    std::vector<LattFuncSage::lattFunc > latt_func(
-            beamline_context.getTwissArray());
-    for (int i = 0; i < latt_func.size(); ++i) {
-        Lattice_functions latttice_functions(latt_func.at(i));
-        std::cout << latt_func.at(i).arcLength << " "
-                << latttice_functions.beta_x << std::endl;
+    if (!have_element_lattice_functions) {
+        BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
+        BeamlineContext beamline_context(
+                reference_particle_to_chef_particle(
+                        lattice_sptr->get_reference_particle()), beamline_sptr);
+        std::vector<LattFuncSage::lattFunc > latt_func(
+                beamline_context.getTwissArray());
+        beamline::const_iterator it = beamline_sptr->begin();
+        for (int i = 0; i < latt_func.size(); ++i) {
+            ElmPtr chef_element(*it);
+            if (chef_element->Name() != Chef_lattice::internal_marker_name) {
+                Lattice_element lattice_element(
+                        chef_lattice_sptr->get_lattice_element(chef_element));
+                lattice_functions_element_map[&lattice_element] = latt_func.at(
+                        i);
+                ++it;
+            }
+        }
+        have_element_lattice_functions = true;
     }
+}
+
+void
+Lattice_simulator::calculate_slice_lattice_functions()
+{
+    if (!have_slice_lattice_functions) {
+        BmlPtr beamline_sptr(chef_lattice_sptr->get_sliced_beamline_sptr());
+        BeamlineContext beamline_context(
+                reference_particle_to_chef_particle(
+                        lattice_sptr->get_reference_particle()), beamline_sptr);
+        std::vector<LattFuncSage::lattFunc > latt_func(
+                beamline_context.getTwissArray());
+        beamline::const_iterator it = beamline_sptr->begin();
+        for (int i = 0; i < latt_func.size(); ++i) {
+            ElmPtr chef_element(*it);
+            if (chef_element->Name() != Chef_lattice::internal_marker_name) {
+                Lattice_element_slice lattice_element_slice(
+                        chef_lattice_sptr->get_lattice_element_slice(
+                                chef_element));
+                lattice_functions_slice_map[&lattice_element_slice]
+                        = latt_func.at(i);
+                ++it;
+            }
+        }
+        have_slice_lattice_functions = true;
+    }
+}
+
+Lattice_functions const&
+Lattice_simulator::get_lattice_functions(Lattice_element & lattice_element)
+{
+    calculate_element_lattice_functions();
+    return lattice_functions_element_map[&lattice_element];
+}
+
+Lattice_functions const&
+Lattice_simulator::get_lattice_functions(
+        Lattice_element_slice & lattice_element_slice)
+{
+    calculate_slice_lattice_functions();
+    return lattice_functions_slice_map[&lattice_element_slice];
 }
 
 Lattice_simulator::~Lattice_simulator()

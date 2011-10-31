@@ -26,7 +26,12 @@ private:
     Chef_lattice_sptr chef_lattice_sptr;
     Operation_extractor_map_sptr extractor_map_sptr;
     int map_order;
-
+    bool have_element_lattice_functions;
+    bool have_slice_lattice_functions;
+    std::map<Lattice_element*, Lattice_functions >
+            lattice_functions_element_map;
+    std::map<Lattice_element_slice*, Lattice_functions >
+            lattice_functions_slice_map;
     void
     construct_extractor_map();
 public:
@@ -42,7 +47,13 @@ public:
     Chef_lattice_sptr
     get_chef_lattice_sptr();
     void
-    calculate_lattice_functions();
+    calculate_element_lattice_functions();
+    void
+    calculate_slice_lattice_functions();
+    Lattice_functions const&
+    get_lattice_functions(Lattice_element & lattice_element);
+    Lattice_functions const&
+    get_lattice_functions(Lattice_element_slice & lattice_element_slice);
     ~Lattice_simulator();
 };
 
