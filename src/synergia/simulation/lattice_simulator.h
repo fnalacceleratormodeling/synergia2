@@ -62,6 +62,10 @@ public:
     get_horizontal_tune();
     double
     get_vertical_tune();
+    void
+    adjust_tunes(double horizontal_tune, double vertical_tune,
+            Lattice_elements & horizontal_correctors,
+            Lattice_elements & vertical_correctors);
     ~Lattice_simulator();
 };
 

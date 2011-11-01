@@ -1,6 +1,9 @@
 #include "lattice_simulator.h"
-#include "physics_toolkit/BeamlineContext.h"
+#include <physics_toolkit/BeamlineContext.h>
+#include <beamline/beamline_elements.h>
+#include <basic_toolkit/PhysicsConstants.h>
 #include <stdexcept>
+#include <cstring>
 
 Lattice_functions::Lattice_functions() :
     alpha_x(0.0), alpha_y(0.0), beta_x(0.0), beta_y(0.0), psi_x(0.0),
@@ -172,6 +175,71 @@ Lattice_simulator::get_vertical_tune()
 {
     get_tunes();
     return vertical_tune;
+}
+
+// set_chef_correctors is a local function
+void
+set_chef_correctors(Lattice_elements & correctors, Chef_lattice & chef_lattice,
+        BeamlineContext & beamline_context, bool horizontal)
+{
+    for (Lattice_elements::iterator le_it = correctors.begin(); le_it
+            != correctors.end(); ++le_it) {
+        Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*le_it)));
+        for (Chef_elements::iterator ce_it = chef_elements.begin(); ce_it
+                != chef_elements.end(); ++ce_it) {
+            if (std::strcmp((*ce_it)->Type(), "quadrupole") == 0) {
+                if (horizontal) {
+                    beamline_context.addHTuneCorrector(
+                            boost::dynamic_pointer_cast<quadrupole >(*ce_it));
+                } else {
+                    beamline_context.addVTuneCorrector(
+                            boost::dynamic_pointer_cast<quadrupole >(*ce_it));
+                }
+            } else if (std::strcmp((*ce_it)->Type(), "thinQuad") == 0) {
+                if (horizontal) {
+                    beamline_context.addHTuneCorrector(
+                            boost::dynamic_pointer_cast<thinQuad >(*ce_it));
+                } else {
+                    beamline_context .addVTuneCorrector(
+                            boost::dynamic_pointer_cast<thinQuad >(*ce_it));
+                }
+            } else {
+                std::string message(
+                        "Lattice_simulator::adjust_tunes: Lattice_element ");
+                message += (*le_it)->get_name();
+                message += " of type ";
+                message += (*le_it)->get_type();
+                message += " cannot be used as a corrector because it has a";
+                message += " chef element of type ";
+                message += (*ce_it)->Type();
+                throw std::runtime_error(message.c_str());
+            }
+        }
+    }
+
+}
+void
+Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
+        Lattice_elements & horizontal_correctors,
+        Lattice_elements & vertical_correctors)
+{
+    BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
+    BeamlineContext beamline_context(
+            reference_particle_to_chef_particle(
+                    lattice_sptr->get_reference_particle()), beamline_sptr);
+    set_chef_correctors(horizontal_correctors, *chef_lattice_sptr,
+            beamline_context, true);
+    set_chef_correctors(vertical_correctors, *chef_lattice_sptr,
+            beamline_context, false);
+    int status = beamline_context.changeTunesTo(horizontal_tune, vertical_tune);
+    if (status == BeamlineContext::NO_TUNE_ADJUSTER) {
+        throw std::runtime_error(
+                "Lattice_simulator::adjust_tunes: no corrector elements found");
+    } else if (status != BeamlineContext::OKAY) {
+        throw std::runtime_error(
+                "Lattice_simulator::adjust_tunes: failed with unknown status");
+    }
+
 }
 
 Lattice_simulator::~Lattice_simulator()
