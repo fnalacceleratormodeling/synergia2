@@ -137,3 +137,17 @@ BOOST_FIXTURE_TEST_CASE(get_slice_lattice_functions, Fobodobo_sbend_fixture)
         lattice_simulator.get_lattice_functions(*(*it));
     }
 }
+
+BOOST_FIXTURE_TEST_CASE(get_tunes, Fobodobo_sbend_fixture)
+{
+    const int map_order = 1;
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+    JetParticle::createStandardEnvironments(map_order);
+    const double tolerance = 1.0e-3;
+    const double expected_horizontal_tune = 0.70859;
+    const double expected_vertical_tune = 0.00865009;
+    BOOST_CHECK_CLOSE(lattice_simulator.get_horizontal_tune(),
+            expected_horizontal_tune, tolerance);
+    BOOST_CHECK_CLOSE(lattice_simulator.get_vertical_tune(),
+            expected_vertical_tune, tolerance);
+}

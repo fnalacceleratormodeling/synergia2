@@ -28,12 +28,16 @@ private:
     int map_order;
     bool have_element_lattice_functions;
     bool have_slice_lattice_functions;
+    double horizontal_tune, vertical_tune;
+    bool have_tunes;
     std::map<Lattice_element*, Lattice_functions >
             lattice_functions_element_map;
     std::map<Lattice_element_slice*, Lattice_functions >
             lattice_functions_slice_map;
     void
     construct_extractor_map();
+    void
+    get_tunes();
 public:
     Lattice_simulator(Lattice_sptr lattice, int map_order);
     void
@@ -54,6 +58,10 @@ public:
     get_lattice_functions(Lattice_element & lattice_element);
     Lattice_functions const&
     get_lattice_functions(Lattice_element_slice & lattice_element_slice);
+    double
+    get_horizontal_tune();
+    double
+    get_vertical_tune();
     ~Lattice_simulator();
 };
 

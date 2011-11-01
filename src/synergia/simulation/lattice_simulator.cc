@@ -39,12 +39,26 @@ Lattice_simulator::construct_extractor_map()
                             map_order)));
 }
 
+void
+Lattice_simulator::get_tunes()
+{
+    if (!have_tunes) {
+        BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
+        BeamlineContext beamline_context(
+                reference_particle_to_chef_particle(
+                        lattice_sptr->get_reference_particle()), beamline_sptr);
+        horizontal_tune = beamline_context.getHorizontalFracTune();
+        vertical_tune = beamline_context.getVerticalFracTune();
+        have_tunes = true;
+    }
+}
+
 Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
     lattice_sptr(lattice_sptr),
             chef_lattice_sptr(new Chef_lattice(lattice_sptr)),
             extractor_map_sptr(new Operation_extractor_map),
             map_order(map_order), have_element_lattice_functions(false),
-            have_slice_lattice_functions(false)
+            have_slice_lattice_functions(false), have_tunes(false)
 {
     construct_extractor_map();
 }
@@ -144,6 +158,20 @@ Lattice_simulator::get_lattice_functions(
 {
     calculate_slice_lattice_functions();
     return lattice_functions_slice_map[&lattice_element_slice];
+}
+
+double
+Lattice_simulator::get_horizontal_tune()
+{
+    get_tunes();
+    return horizontal_tune;
+}
+
+double
+Lattice_simulator::get_vertical_tune()
+{
+    get_tunes();
+    return vertical_tune;
 }
 
 Lattice_simulator::~Lattice_simulator()

@@ -75,6 +75,8 @@ BOOST_PYTHON_MODULE(simulation)
                 return_value_policy<copy_const_reference >())
         .def("get_lattice_functions", get_lattice_functions2,
                 return_value_policy<copy_const_reference >())
+        .def("get_horizontal_tune", &Lattice_simulator::get_horizontal_tune)
+        .def("get_vertical_tune", &Lattice_simulator::get_vertical_tune)
         ;
 
     class_<Step, Step_sptr >("Step", init<double >())
