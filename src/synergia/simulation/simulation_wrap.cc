@@ -111,6 +111,13 @@ BOOST_PYTHON_MODULE(simulation)
                 return_value_policy<copy_const_reference >())
         ;
 
+    Lattice_functions const&
+    (Lattice_simulator::*get_lattice_functions1)(Lattice_element &) =
+            &Lattice_simulator::get_lattice_functions;
+    Lattice_functions const&
+    (Lattice_simulator::*get_lattice_functions2)(Lattice_element_slice &) =
+            &Lattice_simulator::get_lattice_functions;
+
     class_<Lattice_simulator >("Lattice_simulator",
             init<Lattice_sptr, int >())
         .def("set_slices",
@@ -123,6 +130,16 @@ BOOST_PYTHON_MODULE(simulation)
         .def("get_bucket_length", &Lattice_simulator::get_bucket_length)
         .def("get_number_buckets",&Lattice_simulator::get_number_buckets)
         .def("update", &Lattice_simulator::update)
+        .def("calculate_element_lattice_functions",
+                &Lattice_simulator::calculate_element_lattice_functions)
+        .def("calculate_slice_lattice_functions",
+                &Lattice_simulator::calculate_slice_lattice_functions)
+        .def("get_lattice_functions", get_lattice_functions1,
+                return_value_policy<copy_const_reference >())
+        .def("get_lattice_functions", get_lattice_functions2,
+                return_value_policy<copy_const_reference >())
+        .def("get_horizontal_tune", &Lattice_simulator::get_horizontal_tune)
+        .def("get_vertical_tune", &Lattice_simulator::get_vertical_tune)
         ;
 
 

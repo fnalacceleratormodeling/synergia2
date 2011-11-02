@@ -5,7 +5,19 @@
 #include "synergia/lattice/chef_lattice.h"
 #include "synergia/simulation/operation_extractor.h"
 #include "synergia/simulation/step.h"
+#include <physics_toolkit/LattFuncSage.h>
 #include <string>
+
+struct Lattice_functions
+{
+    Lattice_functions();
+    Lattice_functions(LattFuncSage::lattFunc const& latt_func);
+    double alpha_x, alpha_y;
+    double beta_x, beta_y;
+    double psi_x, psi_y;
+    double D_x, D_y;
+    double Dprime_x, Dprime_y;
+};
 
 class Lattice_simulator
 {
@@ -21,18 +33,28 @@ private:
     construct_extractor_map();
     void
     construct_sliced_chef_beamline();
+    bool have_element_lattice_functions;
+    bool have_slice_lattice_functions;
+    double horizontal_tune, vertical_tune;
+    bool have_tunes;
+    std::map<Lattice_element*, Lattice_functions >
+            lattice_functions_element_map;
+    std::map<Lattice_element_slice*, Lattice_functions >
+            lattice_functions_slice_map;
+    void
+    get_tunes();
 public:
     Lattice_simulator(Lattice_sptr lattice, int map_order);
     void
     set_slices(Lattice_element_slices const& slices);
     int
     get_map_order() const;
-    void 
+    void
     set_bucket_length();
     /// bucket length is in z_lab frame
-    double 
+    double
     get_bucket_length();
-    int 
+    int
     get_number_buckets();
     Operation_extractor_map_sptr
     get_operation_extractor_map_sptr();
@@ -42,6 +64,22 @@ public:
     get_chef_lattice_sptr();
     void
     update();
+    void
+    calculate_element_lattice_functions();
+    void
+    calculate_slice_lattice_functions();
+    Lattice_functions const&
+    get_lattice_functions(Lattice_element & lattice_element);
+    Lattice_functions const&
+    get_lattice_functions(Lattice_element_slice & lattice_element_slice);
+    double
+    get_horizontal_tune();
+    double
+    get_vertical_tune();
+    void
+    adjust_tunes(double horizontal_tune, double vertical_tune,
+            Lattice_elements & horizontal_correctors,
+            Lattice_elements & vertical_correctors);
     ~Lattice_simulator();
 };
 
