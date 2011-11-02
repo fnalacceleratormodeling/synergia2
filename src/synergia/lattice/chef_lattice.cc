@@ -129,6 +129,12 @@ Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr,
     construct();
 }
 
+double
+Chef_lattice::get_brho() const
+{
+    return brho;
+}
+
 Element_adaptor_map_sptr
 Chef_lattice::get_element_adaptor_map_sptr()
 {

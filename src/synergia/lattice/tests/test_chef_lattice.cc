@@ -288,6 +288,15 @@ BOOST_FIXTURE_TEST_CASE(construct, Fodo_fixture)
     Chef_lattice chef_lattice(lattice_sptr);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_brho, Fodo_fixture)
+{
+    Chef_lattice chef_lattice(lattice_sptr);
+
+    double p = sqrt(total_energy * total_energy - mass * mass);
+    double brho = p / PH_CNV_brho_to_p;
+    BOOST_CHECK_CLOSE(chef_lattice.get_brho(), brho, tolerance);
+}
+
 void
 check_zero_reference_particle(Reference_particle const& reference_particle,
         double tolerance)
