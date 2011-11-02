@@ -216,8 +216,24 @@ set_chef_correctors(Lattice_elements & correctors, Chef_lattice & chef_lattice,
             }
         }
     }
-
 }
+
+// extract_quad_strengths is a local function
+void
+extract_quad_strengths(Lattice_elements & correctors,
+        Chef_lattice & chef_lattice)
+{
+    for (Lattice_elements::iterator le_it = correctors.begin(); le_it
+            != correctors.end(); ++le_it) {
+        Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*le_it)));
+        for (Chef_elements::iterator ce_it = chef_elements.begin(); ce_it
+                != chef_elements.end(); ++ce_it) {
+            double k1 = (*ce_it)->Strength() / chef_lattice.get_brho();
+            (*le_it)->set_double_attribute("k1", k1);
+        }
+    }
+}
+
 void
 Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
         Lattice_elements & horizontal_correctors,
@@ -239,7 +255,8 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
         throw std::runtime_error(
                 "Lattice_simulator::adjust_tunes: failed with unknown status");
     }
-
+    extract_quad_strengths(horizontal_correctors, *chef_lattice_sptr);
+    extract_quad_strengths(vertical_correctors, *chef_lattice_sptr);
 }
 
 Lattice_simulator::~Lattice_simulator()

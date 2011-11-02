@@ -173,12 +173,5 @@ BOOST_FIXTURE_TEST_CASE(adjust_tunes, Fobodobo_sbend_fixture)
     const double new_vertical_tune = 0.15;
     lattice_simulator.adjust_tunes(new_horizontal_tune, new_vertical_tune,
             horizontal_correctors, vertical_correctors);
-    //    const double tolerance = 1.0e-3;
-    //    const double expected_horizontal_tune = 0.70859;
-    //    const double expected_vertical_tune = 0.00865009;
-    //    BOOST_CHECK_CLOSE(lattice_simulator.get_horizontal_tune(),
-    //            expected_horizontal_tune, tolerance);
-    //    BOOST_CHECK_CLOSE(lattice_simulator.get_vertical_tune(),
-    //            expected_vertical_tune, tolerance);
-
+   //jfa: need to check new tunes
 }
