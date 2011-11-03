@@ -85,45 +85,45 @@ add_executable(test_space_charge_2d_open_hockney
     test_space_charge_2d_open_hockney.cc gaussian_charge_density.cc)
 target_link_libraries(test_space_charge_2d_open_hockney synergia_collective
     synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_space_charge_2d_open_hockney ${MPIEXEC} -np 1 test_space_charge_2d_open_hockney)
+add_test(test_space_charge_2d_open_hockney ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_space_charge_2d_open_hockney)
 
 add_executable(test_space_charge_2d_open_hockney_mpi
     test_space_charge_2d_open_hockney_mpi.cc gaussian_charge_density.cc)
 target_link_libraries(test_space_charge_2d_open_hockney_mpi
     synergia_collective
     synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_space_charge_2d_open_hockney_mpi1 ${MPIEXEC} -np 1 test_space_charge_2d_open_hockney_mpi)
-add_test(test_space_charge_2d_open_hockney_mpi2 ${MPIEXEC} -np 2 test_space_charge_2d_open_hockney_mpi)
-add_test(test_space_charge_2d_open_hockney_mpi3 ${MPIEXEC} -np 3 test_space_charge_2d_open_hockney_mpi)
-add_test(test_space_charge_2d_open_hockney_mpi4 ${MPIEXEC} -np 4 test_space_charge_2d_open_hockney_mpi)
+add_test(test_space_charge_2d_open_hockney_mpi1 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_space_charge_2d_open_hockney_mpi)
+add_test(test_space_charge_2d_open_hockney_mpi2 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 test_space_charge_2d_open_hockney_mpi)
+add_test(test_space_charge_2d_open_hockney_mpi3 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 test_space_charge_2d_open_hockney_mpi)
+add_test(test_space_charge_2d_open_hockney_mpi4 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 test_space_charge_2d_open_hockney_mpi)
 
 add_executable(test_space_charge_2d_open_hockney2
     test_space_charge_2d_open_hockney2.cc gaussian_charge_density.cc)
 target_link_libraries(test_space_charge_2d_open_hockney2 synergia_collective
     synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_space_charge_2d_open_hockney2 ${MPIEXEC} -np 1 test_space_charge_2d_open_hockney2)
+add_test(test_space_charge_2d_open_hockney2 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_space_charge_2d_open_hockney2)
 
 add_executable(test_space_charge_2d_open_hockney2_mpi
     test_space_charge_2d_open_hockney2_mpi.cc gaussian_charge_density.cc)
 target_link_libraries(test_space_charge_2d_open_hockney2_mpi
     synergia_collective
     synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_space_charge_2d_open_hockney2_mpi1 ${MPIEXEC} -np 1 test_space_charge_2d_open_hockney2_mpi)
-add_test(test_space_charge_2d_open_hockney2_mpi2 ${MPIEXEC} -np 2 test_space_charge_2d_open_hockney2_mpi)
-add_test(test_space_charge_2d_open_hockney2_mpi3 ${MPIEXEC} -np 3 test_space_charge_2d_open_hockney2_mpi)
-add_test(test_space_charge_2d_open_hockney2_mpi4 ${MPIEXEC} -np 4 test_space_charge_2d_open_hockney2_mpi)
+add_test(test_space_charge_2d_open_hockney2_mpi1 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_space_charge_2d_open_hockney2_mpi)
+add_test(test_space_charge_2d_open_hockney2_mpi2 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 test_space_charge_2d_open_hockney2_mpi)
+add_test(test_space_charge_2d_open_hockney2_mpi3 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 test_space_charge_2d_open_hockney2_mpi)
+add_test(test_space_charge_2d_open_hockney2_mpi4 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 test_space_charge_2d_open_hockney2_mpi)
 
 add_executable(test_space_charge_2d_open_hockney3
     test_space_charge_2d_open_hockney3.cc linear_cylindrical_charge_density.cc)
 target_link_libraries(test_space_charge_2d_open_hockney3 synergia_collective
     synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_space_charge_2d_open_hockney3 ${MPIEXEC} -np 1 test_space_charge_2d_open_hockney3)
+add_test(test_space_charge_2d_open_hockney3 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_space_charge_2d_open_hockney3)
 
 add_executable(test_space_charge_2d_open_hockney4
     test_space_charge_2d_open_hockney4.cc uniform_cylindrical_charge_density.cc)
 target_link_libraries(test_space_charge_2d_open_hockney4 synergia_collective
     synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_space_charge_2d_open_hockney3 ${MPIEXEC} -np 1 test_space_charge_2d_open_hockney4)
+add_test(test_space_charge_2d_open_hockney3 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_space_charge_2d_open_hockney4)
 
 add_executable(test_space_charge_2d_bassetti_erskine
 test_space_charge_2d_bassetti_erskine.cc gaussian_charge_density.cc)
