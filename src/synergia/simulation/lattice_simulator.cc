@@ -166,6 +166,11 @@ Lattice_simulator::update()
     if (have_slices) {
         construct_sliced_chef_beamline();
     }
+    have_element_lattice_functions = false;
+    lattice_functions_element_map.clear();
+    have_slice_lattice_functions = false;
+    lattice_functions_slice_map.clear();
+    have_tunes = false;
 }
 
 void
@@ -308,7 +313,7 @@ extract_quad_strengths(Lattice_elements & correctors,
 void
 Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
         Lattice_elements & horizontal_correctors,
-        Lattice_elements & vertical_correctors)
+        Lattice_elements & vertical_correctors, double tolerance)
 {
     BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
     BeamlineContext beamline_context(
@@ -318,16 +323,29 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
             beamline_context, true);
     set_chef_correctors(vertical_correctors, *chef_lattice_sptr,
             beamline_context, false);
-    int status = beamline_context.changeTunesTo(horizontal_tune, vertical_tune);
-    if (status == BeamlineContext::NO_TUNE_ADJUSTER) {
-        throw std::runtime_error(
-                "Lattice_simulator::adjust_tunes: no corrector elements found");
-    } else if (status != BeamlineContext::OKAY) {
-        throw std::runtime_error(
-                "Lattice_simulator::adjust_tunes: failed with unknown status");
+    const int max_iterations = 20;
+    int iteration = 0;
+    while ((std::abs(get_horizontal_tune() - horizontal_tune) > tolerance)
+            && (std::abs(get_vertical_tune() - vertical_tune) > tolerance)) {
+        ++iteration;
+        if (iteration > max_iterations) {
+            throw std::runtime_error(
+                    "Lattice_simulator::adjust_tunes: maximum number of iterations exceeded");
+        }
+        int status = beamline_context.changeTunesTo(horizontal_tune,
+                vertical_tune);
+        if (status == BeamlineContext::NO_TUNE_ADJUSTER) {
+            throw std::runtime_error(
+                    "Lattice_simulator::adjust_tunes: no corrector elements found");
+        } else if (status != BeamlineContext::OKAY) {
+            throw std::runtime_error(
+                    "Lattice_simulator::adjust_tunes: failed with unknown status");
+        }
+        have_tunes = false;
     }
     extract_quad_strengths(horizontal_correctors, *chef_lattice_sptr);
     extract_quad_strengths(vertical_correctors, *chef_lattice_sptr);
+    update();
 }
 
 Lattice_simulator::~Lattice_simulator()

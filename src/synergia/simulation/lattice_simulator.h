@@ -79,7 +79,7 @@ public:
     void
     adjust_tunes(double horizontal_tune, double vertical_tune,
             Lattice_elements & horizontal_correctors,
-            Lattice_elements & vertical_correctors);
+            Lattice_elements & vertical_correctors, double tolerance = 1.0e-6);
     ~Lattice_simulator();
 };
 
