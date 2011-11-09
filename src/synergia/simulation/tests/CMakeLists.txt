@@ -39,6 +39,7 @@ add_test(test_operation_extractor_map ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_
 add_executable(test_lattice_simulator test_lattice_simulator.cc)
 target_link_libraries(test_lattice_simulator synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_lattice_simulator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_lattice_simulator)
+add_test(test_pylattice_simulator ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_lattice_simulator.py)
 
 add_executable(test_collective_operator test_collective_operator.cc)
 target_link_libraries(test_collective_operator synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
