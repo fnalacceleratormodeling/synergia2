@@ -9,6 +9,7 @@ import synergia
 import numpy
 from nose.tools import *
 from wrap_containers_python  import *
+from convertors import *
 
 def list_to_std_vector_int():
     pylist=[4,3,6]

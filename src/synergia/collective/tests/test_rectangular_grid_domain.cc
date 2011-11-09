@@ -56,12 +56,17 @@ BOOST_FIXTURE_TEST_CASE(get_leftmost_indices_offsets, Rectangular_grid_domain_fi
 
     int ix, iy, iz;
     double offx, offy, offz;
-    double testx = domain_offset - 0.1, testy = domain_offset + 0.2, testz =
-            domain_offset + 0.9;
+   // double testx = domain_offset - 0.1, testy = domain_offset + 0.2, testz =
+   //         domain_offset + 0.9;
+            
+    double testx = domain_offset - 0.6, testy = domain_offset + 0.2, testz =
+            domain_offset + 0.9;        
     rectangular_grid_domain.get_leftmost_indices_offsets(testx, testy, testz,
             ix, iy, iz, offx, offy, offz);
-    BOOST_CHECK_EQUAL(ix,0);
-    BOOST_CHECK_CLOSE(offx, 0.4, tolerance);
+  //  BOOST_CHECK_EQUAL(ix,0);
+ //   BOOST_CHECK_CLOSE(offx, 0.4, tolerance);
+    BOOST_CHECK_EQUAL(ix,-1);
+    BOOST_CHECK_CLOSE(offx, 0.9, tolerance);
     BOOST_CHECK_EQUAL(iy,0);
     BOOST_CHECK_CLOSE(offy, 0.7, tolerance);
     BOOST_CHECK_EQUAL(iz,1);

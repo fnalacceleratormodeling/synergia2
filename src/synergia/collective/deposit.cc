@@ -95,10 +95,19 @@ void
 deposit_charge_rectangular_xyz(Rectangular_grid & rho_grid, Bunch const& bunch,
         bool zero_first)
 {
+// the particles close (i.e at a distance smaller than cell_size/2) to the grid edges are not deposited
+// they should aslo not be kicked by the electric field  
+    
+    std::vector<double > h(rho_grid.get_domain_sptr()->get_cell_size());
+    double weight0 = (bunch.get_real_num() / bunch.get_total_num())
+            * bunch.get_particle_charge() * pconstants::e
+            / (h[0] * h[1] * h[2]);
+            
+    
     MArray3d_ref rho(rho_grid.get_grid_points());
     Const_MArray2d_ref parts(bunch.get_local_particles());
-//    double total_charge_per_cell_vol = 0.0;
-    if (zero_first) {
+ //   double total_charge_per_cell_vol(0.);
+    if (zero_first) {    
         for (unsigned int i = 0; i < rho.shape()[0]; ++i) {
             for (unsigned int j = 0; j < rho.shape()[1]; ++j) {
                 for (unsigned int k = 0; k < rho.shape()[2]; ++k) {
@@ -106,55 +115,71 @@ deposit_charge_rectangular_xyz(Rectangular_grid & rho_grid, Bunch const& bunch,
                 }
             }
         }
-    }
-    std::vector<double > h(rho_grid.get_domain_sptr()->get_cell_size());
-    double weight0 = (bunch.get_real_num() / bunch.get_total_num())
-            * bunch.get_particle_charge() * pconstants::e
-            / (h[0] * h[1] * h[2]);
+    } 
+//     else {
+//         for (unsigned int i = 0; i < rho.shape()[0]; ++i) {
+//             for (unsigned int j = 0; j < rho.shape()[1]; ++j) {
+//                 for (unsigned int k = 0; k < rho.shape()[2]; ++k) {
+//                 total_charge_per_cell_vol += weight0*rho[i][j][k];
+//                 }
+//             }
+//         }
+//     }       
+             
+            
     int ix, iy, iz;
     double offx, offy, offz;
-    for (int n = 0; n < bunch.get_local_num(); ++n) {
-        rho_grid.get_domain_sptr()->get_leftmost_indices_offsets(
-                    parts[n][0], parts[n][2], parts[n][4], ix, iy, iz, offx, offy, offz);
-        for (int i = 0; i < 2; ++i) {
-            for (int j = 0; j < 2; ++j) {
-                for (int k = 0; k < 2; ++k) {
-                    int cellx = ix + i;
-                    int celly = iy + j;
-                    int cellz = iz + k;
-                    if((cellx > 0) && (cellx < rho.shape()[0]-1) 
-                     && (celly > 0) && (celly < rho.shape()[1]-1)// on the transverse grid edges no charge is deposited 
-                     && (cellz >= 0) && (cellz <= rho.shape()[2]-1)){ 
-                        double weight = weight0 * (1 - i - (1 - 2 * i) * offx) * 
-                                    (1 - j - (1 - 2 * j) * offy) *
-                                    (1 - k - (1 - 2 * k) * offz); 
-                        rho[cellx][celly][cellz] += weight;
-//                        total_charge_per_cell_vol += weight;
-                  }                   
+    if (rho_grid.get_domain_sptr()->is_periodic()) {
+        for (int n = 0; n < bunch.get_local_num(); ++n) {
+            if (rho_grid.get_domain_sptr()->get_leftmost_indices_offsets(
+                        parts[n][0], parts[n][2], parts[n][4], ix, iy, iz, offx, offy, offz)){
+                for (int i = 0; i < 2; ++i) {
+                    for (int j = 0; j < 2; ++j) {
+                        int cellx = ix + i;
+                        int celly = iy + j;
+                        for (int k = 0; k < 2; ++k) {
+                            int cellz = iz + k;
+                            if (cellz >= 0) {
+                                cellz = cellz % rho.shape()[2];
+                            }
+                            else{
+                                int period = rho.shape()[2];
+                                cellz = period - 1 - ((-cellz - 1) % period);
+                            } 
+                            double weight = weight0 * (1 - i - (1 - 2 * i) * offx) * 
+                                        (1 - j - (1 - 2 * j) * offy) *
+                                        (1 - k - (1 - 2 * k) * offz); 
+                            rho[cellx][celly][cellz] += weight;  
+                           // total_charge_per_cell_vol += weight;
+                       }
+                    }
                 }
-            }
-        }          
+            } 
+        }         
     }
-  
-    if (rho_grid.get_domain_sptr()->is_periodic()){
-        for (int i = 1; i < rho.shape()[0]-1; ++i) {
-            for (int j = 1; j < rho.shape()[1]-1; ++j) {
-               double sum= rho[i][j][0] +rho[i][j][rho.shape()[2] - 1];
-               rho[i][j][0]=sum;
-            }
-        }  
-    } 
     else{
-        for (int i = 1; i < rho.shape()[0]-1; ++i) {
-            for (int j = 1; j < rho.shape()[1]-1; ++j) {
-            //             total_charge_per_cell_vol -= rho[i][j][0] +rho[i][j][rho.shape()[2] - 1];
-            rho[i][j][0]=0.;
-            rho[i][j][rho.shape()[2] - 1]=0.;
-
-            }
-        }
-    }         
-   
+        for (int n = 0; n < bunch.get_local_num(); ++n) {
+            if (rho_grid.get_domain_sptr()->get_leftmost_indices_offsets(
+                        parts[n][0], parts[n][2], parts[n][4], ix, iy, iz, offx, offy, offz)){
+                for (int i = 0; i < 2; ++i) {
+                    for (int j = 0; j < 2; ++j) {
+                        for (int k = 0; k < 2; ++k) {
+                            int cellx = ix + i;
+                            int celly = iy + j;
+                            int cellz = iz + k;
+                            double weight = weight0 * (1 - i - (1 - 2 * i) * offx) * 
+                                        (1 - j - (1 - 2 * j) * offy) *
+                                        (1 - k - (1 - 2 * k) * offz); 
+                            rho[cellx][celly][cellz] += weight; 
+                       //     total_charge_per_cell_vol += weight; 
+                        }                   
+                    }
+                }
+            } 
+        }         
+    }    
+   //  rho_grid.set_normalization(total_charge_per_cell_vol*(h[0] * h[1] * h[2]));
+       
 }
 
 void

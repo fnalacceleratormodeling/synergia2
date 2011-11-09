@@ -12,8 +12,8 @@ namespace pconstants
 
     const double c = 299792458.0; // Speed of light [m/s]
 
-    const double mu0 = 4*mconstants::pi*1.0e-7; // Permittivity of free space [F/m]
-    const double epsilon0 = 1.0/(c*c*mu0); // Permeability of free space [H/m]
+    const double mu0 = 4*mconstants::pi*1.0e-7; // Permittivity of free space [H/m]
+    const double epsilon0 = 1.0/(c*c*mu0); // Permeability of free space [F/m]
 
     // Classical radius of a particle = e^2/(4 pi epsilon0 m c^2)
     const double re = e/(4*mconstants::pi*epsilon0*me*1.0e9); // Classical
