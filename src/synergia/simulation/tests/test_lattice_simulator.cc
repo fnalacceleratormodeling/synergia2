@@ -153,7 +153,6 @@ BOOST_FIXTURE_TEST_CASE(calculate_element_lattice_functions, Fobodobo_sbend_fixt
 {
     const int map_order = 1;
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-    JetParticle::createStandardEnvironments(map_order);
     lattice_simulator.calculate_element_lattice_functions();
 }
 
@@ -161,7 +160,6 @@ BOOST_FIXTURE_TEST_CASE(calculate_slice_lattice_functions, Fobodobo_sbend_fixtur
 {
     const int map_order = 1;
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-    JetParticle::createStandardEnvironments(map_order);
     Lattice_element_slices slices;
     for (Lattice_elements::const_iterator it =
             lattice_sptr->get_elements().begin(); it
@@ -182,7 +180,6 @@ BOOST_FIXTURE_TEST_CASE(get_element_lattice_functions, Fobodobo_sbend_fixture)
 {
     const int map_order = 1;
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-    JetParticle::createStandardEnvironments(map_order);
     for (Lattice_elements::iterator it = lattice_sptr->get_elements().begin(); it
             != lattice_sptr->get_elements().end(); ++it) {
         lattice_simulator.get_lattice_functions(*(*it));
@@ -193,7 +190,6 @@ BOOST_FIXTURE_TEST_CASE(get_slice_lattice_functions, Fobodobo_sbend_fixture)
 {
     const int map_order = 1;
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-    JetParticle::createStandardEnvironments(map_order);
     Lattice_element_slices slices;
     for (Lattice_elements::const_iterator it =
             lattice_sptr->get_elements().begin(); it
@@ -217,7 +213,6 @@ BOOST_FIXTURE_TEST_CASE(get_tunes, Fobodobo_sbend_fixture)
 {
     const int map_order = 1;
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-    JetParticle::createStandardEnvironments(map_order);
     const double tolerance = 1.0e-3;
     const double expected_horizontal_tune = 0.70859;
     const double expected_vertical_tune = 0.00865009;
@@ -231,7 +226,6 @@ BOOST_FIXTURE_TEST_CASE(adjust_tunes, Fobodobo_sbend_fixture)
 {
     const int map_order = 1;
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-    JetParticle::createStandardEnvironments(map_order);
 
     Lattice_elements horizontal_correctors, vertical_correctors;
     for (Lattice_elements::iterator it = lattice_sptr->get_elements().begin(); it

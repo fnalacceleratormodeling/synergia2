@@ -46,6 +46,9 @@ Lattice_simulator::construct_extractor_map()
 void
 Lattice_simulator::get_tunes()
 {
+    if (Jet__environment::getLastEnv() == 0) {
+        JetParticle::createStandardEnvironments(map_order);
+    }
     if (!have_tunes) {
         BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
         BeamlineContext beamline_context(
@@ -176,6 +179,9 @@ Lattice_simulator::update()
 void
 Lattice_simulator::calculate_element_lattice_functions()
 {
+    if (Jet__environment::getLastEnv() == 0) {
+        JetParticle::createStandardEnvironments(map_order);
+    }
     if (!have_element_lattice_functions) {
         BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
         BeamlineContext beamline_context(
@@ -201,6 +207,9 @@ Lattice_simulator::calculate_element_lattice_functions()
 void
 Lattice_simulator::calculate_slice_lattice_functions()
 {
+    if (Jet__environment::getLastEnv() == 0) {
+        JetParticle::createStandardEnvironments(map_order);
+    }
     if (!have_slice_lattice_functions) {
         BmlPtr beamline_sptr(chef_lattice_sptr->get_sliced_beamline_sptr());
         BeamlineContext beamline_context(
@@ -255,10 +264,11 @@ Lattice_simulator::get_vertical_tune()
 
 // set_chef_correctors is a local function
 void
-set_chef_correctors(Lattice_elements & correctors, Chef_lattice & chef_lattice,
-        BeamlineContext & beamline_context, bool horizontal)
+set_chef_correctors(Lattice_elements const& correctors,
+        Chef_lattice & chef_lattice, BeamlineContext & beamline_context,
+        bool horizontal)
 {
-    for (Lattice_elements::iterator le_it = correctors.begin(); le_it
+    for (Lattice_elements::const_iterator le_it = correctors.begin(); le_it
             != correctors.end(); ++le_it) {
         Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*le_it)));
         for (Chef_elements::iterator ce_it = chef_elements.begin(); ce_it
@@ -296,10 +306,10 @@ set_chef_correctors(Lattice_elements & correctors, Chef_lattice & chef_lattice,
 
 // extract_quad_strengths is a local function
 void
-extract_quad_strengths(Lattice_elements & correctors,
+extract_quad_strengths(Lattice_elements const& correctors,
         Chef_lattice & chef_lattice)
 {
-    for (Lattice_elements::iterator le_it = correctors.begin(); le_it
+    for (Lattice_elements::const_iterator le_it = correctors.begin(); le_it
             != correctors.end(); ++le_it) {
         Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*le_it)));
         for (Chef_elements::iterator ce_it = chef_elements.begin(); ce_it
@@ -312,9 +322,12 @@ extract_quad_strengths(Lattice_elements & correctors,
 
 void
 Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
-        Lattice_elements & horizontal_correctors,
-        Lattice_elements & vertical_correctors, double tolerance)
+        Lattice_elements const& horizontal_correctors,
+        Lattice_elements const& vertical_correctors, double tolerance)
 {
+    if (Jet__environment::getLastEnv() == 0) {
+        JetParticle::createStandardEnvironments(map_order);
+    }
     BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
     BeamlineContext beamline_context(
             reference_particle_to_chef_particle(

@@ -140,6 +140,7 @@ BOOST_PYTHON_MODULE(simulation)
                 return_value_policy<copy_const_reference >())
         .def("get_horizontal_tune", &Lattice_simulator::get_horizontal_tune)
         .def("get_vertical_tune", &Lattice_simulator::get_vertical_tune)
+        .def("adjust_tunes", &Lattice_simulator::adjust_tunes)
         ;
 
 
@@ -194,30 +195,30 @@ BOOST_PYTHON_MODULE(simulation)
             .def("step_end_action", &Standard_diagnostics_actions::step_end_action)
             ;
 
-    void (Propagator::*propagate1)(Bunch_with_diagnostics &, int, bool) 
+    void (Propagator::*propagate1)(Bunch_with_diagnostics &, int, bool)
                                 = &Propagator::propagate;
 
-    void (Propagator::*propagate2)(Bunch_with_diagnostics &, int, Propagate_actions &,  bool) 
-                                = &Propagator::propagate; 
-
-    void (Propagator::*propagate3)(Bunch_with_diagnostics_train &, int, Propagate_actions &, bool) 
-                                = &Propagator::propagate;  
- 
-    void (Propagator::*propagate4)(Bunch_with_diagnostics_train &, int, bool) 
+    void (Propagator::*propagate2)(Bunch_with_diagnostics &, int, Propagate_actions &,  bool)
                                 = &Propagator::propagate;
-    
+
+    void (Propagator::*propagate3)(Bunch_with_diagnostics_train &, int, Propagate_actions &, bool)
+                                = &Propagator::propagate;
+
+    void (Propagator::*propagate4)(Bunch_with_diagnostics_train &, int, bool)
+                                = &Propagator::propagate;
+
     void (Propagator::*propagate5)(Bunch &, int, Diagnostics &,
             Diagnostics &, bool) = &Propagator::propagate;
 
     void (Propagator::*propagate6)(Bunch &, int, Multi_diagnostics &,
             Multi_diagnostics &, bool) = &Propagator::propagate;
-            
+
     void (Propagator::*propagate7)(Bunch &, int, Standard_diagnostics_actions&,
-            int) = &Propagator::propagate; 
-               
+            int) = &Propagator::propagate;
+
     void (Propagator::*propagate8)(Bunch &, int, Standard_diagnostics_actions &,
-            Propagate_actions &, int) = &Propagator::propagate;               
-                                
+            Propagate_actions &, int) = &Propagator::propagate;
+
     class_<Propagator >("Propagator",init<Stepper_sptr >())
             .def("propagate", propagate1,
                  propagate_member_overloads23())
@@ -226,15 +227,15 @@ BOOST_PYTHON_MODULE(simulation)
             .def("propagate", propagate3,
                     propagate_member_overloads34())
             .def("propagate", propagate4,
-                    propagate_member_overloads23())      
+                    propagate_member_overloads23())
             .def("propagate", propagate5,
                     propagate_member_overloads45())
              .def("propagate", propagate6,
                     propagate_member_overloads45())
             .def("propagate", propagate7,
-                    propagate_member_overloads34()) 
+                    propagate_member_overloads34())
             .def("propagate", propagate8,
-                    propagate_member_overloads45())             
+                    propagate_member_overloads45())
             ;
 
 }
