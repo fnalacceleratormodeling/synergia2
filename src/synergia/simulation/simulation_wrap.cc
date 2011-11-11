@@ -111,6 +111,9 @@ BOOST_PYTHON_MODULE(simulation)
                 return_value_policy<copy_const_reference >())
         ;
 
+    to_python_converter<Operators,
+             container_conversions::to_tuple<Operators > >();
+
     Lattice_functions const&
     (Lattice_simulator::*get_lattice_functions1)(Lattice_element &) =
             &Lattice_simulator::get_lattice_functions;
@@ -144,12 +147,13 @@ BOOST_PYTHON_MODULE(simulation)
         ;
 
 
-
     void (Step::*apply1)(Bunch &) = &Step::apply;
     class_<Step, Step_sptr >("Step", init<double >())
 //            .def("append", remember how to overload methods...)
             .def("apply",apply1)
             .def("get_operators",&Step::get_operators,
+                    return_value_policy<copy_const_reference >())
+            .def("get_time_fractions",&Step::get_time_fractions,
                     return_value_policy<copy_const_reference >())
             ;
     to_python_converter<Steps,
