@@ -26,6 +26,8 @@ BOOST_PYTHON_MODULE(convertors)
 
     to_python_converter<std::vector<double >, container_conversions::to_tuple<
             std::vector<double > > > ();
+    to_python_converter<std::list<double >, container_conversions::to_tuple<
+            std::list<double > > > ();
 
     to_python_converter<std::list<std::string >,
             container_conversions::to_tuple<std::list<std::string > > > ();
