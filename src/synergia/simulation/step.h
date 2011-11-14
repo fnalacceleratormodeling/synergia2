@@ -3,7 +3,7 @@
 
 #include <list>
 #include <boost/shared_ptr.hpp>
-
+#include "synergia/bunch/train.h"
 #include "synergia/simulation/operator.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/multi_diagnostics.h"
@@ -13,7 +13,8 @@ struct Bunch_means
 double x_mean;
 double y_mean;
 double z_mean;
-double n_part;
+double realnum;
+int bucket_index;
 };
 
 
@@ -23,7 +24,11 @@ private:
     Operators operators;
     std::list<double > time_fractions;
     double length;
-    std::list<Bunch_means> stored_bunches;
+    /// a list which contains informations about prevoius turns, the last element is the last (the earliest) turn stored
+    /// it is updated at every step where impedance kick is applied
+    /// the element is a vector of size num_bunches. The vector elements correspund to different bunches
+    std::list< std::vector<Bunch_means> > stored_vbunches; 
+    
 public:
     Step(double length);
     void
@@ -34,13 +39,15 @@ public:
     apply(Bunch & bunch);
     virtual void
     apply(Bunch & bunch, Multi_diagnostics & diagnostics);
+    virtual void
+    apply(Bunch_with_diagnostics_train & bunch_diag_train);
     Operators const&
     get_operators() const;
     std::list<double> const&
     get_time_fractions() const;
     double
     get_length() const;
-    std::list<Bunch_means>  get_stored_bunches() const;
+    std::list< std::vector<Bunch_means> >  const& get_stored_vbunches() const;
     virtual void
     print(int index) const;
 };

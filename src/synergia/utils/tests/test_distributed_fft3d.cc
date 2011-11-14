@@ -424,8 +424,8 @@ BOOST_FIXTURE_TEST_CASE(transform_realtest, Fixture2)
     
     // All the numbers in the result should have a negligible complex part
     for (int i0=lower; i0<upper; ++i0) {
-      for (int i1=0; i1<rshape[1]; ++i1) {
-	for (int i2=0; i2<rshape[2]; ++i2) {
+      for (int i1=0; i1<cshape[1]; ++i1) {
+	for (int i2=0; i2<cshape[2]; ++i2) {
 	  BOOST_CHECK(std::abs(carray[i0][i1][i2].imag()) < fft_tolerance);
 #if DBGPRINT
 	  if (std::abs(carray[i0][i1][i2].imag()) >= fft_tolerance) {

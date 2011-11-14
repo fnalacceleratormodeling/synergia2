@@ -2,6 +2,18 @@
 #include "synergia/utils/floating_point.h"
 #include <cmath>
 
+Stepper::Stepper(Lattice_simulator const& lattice_simulator) :
+    lattice_simulator(lattice_simulator)
+{
+
+}
+
+Lattice_simulator &
+Stepper::get_lattice_simulator()
+{
+    return lattice_simulator;
+}
+
 Steps &
 Stepper::get_steps()
 {
@@ -49,9 +61,11 @@ Independent_stepper::get_step(std::string const& name,
         Lattice_elements::iterator const & lattice_end,
         const double step_length, double & offset_fudge)
 {
-    Independent_operator_sptr retval(
-            new Independent_operator(name,
-                    lattice_simulator.get_operation_extractor_map_sptr()));
+    Independent_operator_sptr
+            retval(
+                    new Independent_operator(
+                            name,
+                            get_lattice_simulator().get_operation_extractor_map_sptr()));
     const double tolerance = 1.0e-8;
     double length = offset_fudge;
     bool complete = false;
@@ -105,16 +119,16 @@ Independent_stepper::get_step(std::string const& name,
 
 Independent_stepper::Independent_stepper(
         Lattice_simulator const& lattice_simulator, int num_steps) :
-    lattice_simulator(lattice_simulator)
+    Stepper(lattice_simulator)
 {
     double step_length =
-            this->lattice_simulator.get_lattice_sptr()->get_length()
+            get_lattice_simulator().get_lattice_sptr()->get_length()
                     / num_steps;
 
     Lattice_elements::iterator lattice_it =
-            this->lattice_simulator.get_lattice_sptr()->get_elements().begin();
+            get_lattice_simulator().get_lattice_sptr()->get_elements().begin();
     Lattice_elements::iterator lattice_end =
-            this->lattice_simulator.get_lattice_sptr()->get_elements().end();
+            get_lattice_simulator().get_lattice_sptr()->get_elements().end();
 
     double left = 0.0;
     double offset_fudge = 0.0;
@@ -129,8 +143,7 @@ Independent_stepper::Independent_stepper(
         throw(std::runtime_error(
                 "internal error: Independent_stepper did not make it to the end of the lattice\n"));
     }
-    this->lattice_simulator.construct_sliced_chef_beamline(
-            extract_slices(get_steps()));
+    get_lattice_simulator().set_slices(extract_slices(get_steps()));
 }
 
 Independent_stepper::~Independent_stepper()
@@ -141,22 +154,22 @@ Independent_stepper::~Independent_stepper()
 //Independent_stepper_elements
 Independent_stepper_elements::Independent_stepper_elements(
         Lattice_simulator const& lattice_simulator, int steps_per_element) :
-    lattice_simulator(lattice_simulator)
+    Stepper(lattice_simulator)
 {
     if (steps_per_element < 1) {
         throw std::runtime_error(
                 "Independent_stepper_elements: steps_per_element must be >= 1");
     }
     for (Lattice_elements::iterator it =
-            this->lattice_simulator.get_lattice_sptr()->get_elements().begin(); it
-            != this->lattice_simulator.get_lattice_sptr()->get_elements().end(); ++it) {
+            get_lattice_simulator().get_lattice_sptr()->get_elements().begin(); it
+            != get_lattice_simulator().get_lattice_sptr()->get_elements().end(); ++it) {
         double length = (*it)->get_length();
         if (length == 0.0) {
             Independent_operator_sptr
                     ind_op(
                             new Independent_operator(
                                     "step",
-                                    this->lattice_simulator.get_operation_extractor_map_sptr()));
+                                    get_lattice_simulator().get_operation_extractor_map_sptr()));
             Lattice_element_slice_sptr slice(new Lattice_element_slice(*(*it)));
             ind_op->append_slice(slice);
             Step_sptr step(new Step(0.0));
@@ -169,7 +182,7 @@ Independent_stepper_elements::Independent_stepper_elements(
                         ind_op(
                                 new Independent_operator(
                                         "step",
-                                        this->lattice_simulator.get_operation_extractor_map_sptr()));
+                                        get_lattice_simulator().get_operation_extractor_map_sptr()));
                 double left = i * step_length;
                 double right = (i + 1) * step_length;
                 Lattice_element_slice_sptr slice(
@@ -181,8 +194,7 @@ Independent_stepper_elements::Independent_stepper_elements(
             }
         }
     }
-    this->lattice_simulator.construct_sliced_chef_beamline(
-            extract_slices(get_steps()));
+    get_lattice_simulator().set_slices(extract_slices(get_steps()));
 }
 
 Independent_stepper_elements::~Independent_stepper_elements()
@@ -201,9 +213,11 @@ Split_operator_stepper::get_half_step(std::string const& name,
         Lattice_elements::iterator const & lattice_end,
         const double half_step_length, double & offset_fudge)
 {
-    Independent_operator_sptr retval(
-            new Independent_operator(name,
-                    lattice_simulator.get_operation_extractor_map_sptr()));
+    Independent_operator_sptr
+            retval(
+                    new Independent_operator(
+                            name,
+                            get_lattice_simulator().get_operation_extractor_map_sptr()));
     const double tolerance = 1.0e-8;
     double length = offset_fudge;
     bool complete = false;
@@ -260,13 +274,14 @@ void
 Split_operator_stepper::construct(
         Collective_operators const& collective_operators, int num_steps)
 {
-    double step_length = lattice_simulator.get_lattice_sptr()->get_length()
-            / num_steps;
+    double step_length =
+            get_lattice_simulator().get_lattice_sptr()->get_length()
+                    / num_steps;
     double half_step_length = 0.5 * step_length;
     Lattice_elements::iterator lattice_it =
-            lattice_simulator.get_lattice_sptr()->get_elements().begin();
+            get_lattice_simulator().get_lattice_sptr()->get_elements().begin();
     Lattice_elements::iterator lattice_end =
-            lattice_simulator.get_lattice_sptr()->get_elements().end();
+            get_lattice_simulator().get_lattice_sptr()->get_elements().end();
     double left = 0.0;
     double offset_fudge = 0.0;
     for (int i = 0; i < num_steps; ++i) {
@@ -288,14 +303,13 @@ Split_operator_stepper::construct(
         throw(std::runtime_error(
                 "internal error: split_operator_stepper did not make it to the end of the lattice\n"));
     }
-    lattice_simulator.construct_sliced_chef_beamline(
-            extract_slices(get_steps()));
+    get_lattice_simulator().set_slices(extract_slices(get_steps()));
 }
 
 Split_operator_stepper::Split_operator_stepper(
         Lattice_simulator const& lattice_simulator,
         Collective_operator_sptr collective_operator, int num_steps) :
-    lattice_simulator(lattice_simulator)
+    Stepper(lattice_simulator)
 {
     Collective_operators collective_operators;
     collective_operators.push_back(collective_operator);
@@ -305,7 +319,7 @@ Split_operator_stepper::Split_operator_stepper(
 Split_operator_stepper::Split_operator_stepper(
         Lattice_simulator const& lattice_simulator,
         Collective_operators const& collective_operators, int num_steps) :
-    lattice_simulator(lattice_simulator)
+    Stepper(lattice_simulator)
 {
     construct(collective_operators, num_steps);
 }
@@ -325,8 +339,8 @@ Split_operator_stepper_elements::construct(
     }
 
     for (Lattice_elements::iterator it =
-            this->lattice_simulator.get_lattice_sptr()->get_elements().begin(); it
-            != this->lattice_simulator.get_lattice_sptr()->get_elements().end(); ++it) {
+            get_lattice_simulator().get_lattice_sptr()->get_elements().begin(); it
+            != get_lattice_simulator().get_lattice_sptr()->get_elements().end(); ++it) {
         double length = (*it)->get_length();
 
         //zero-length element
@@ -335,7 +349,7 @@ Split_operator_stepper_elements::construct(
                     ind_op(
                             new Independent_operator(
                                     "step",
-                                    this->lattice_simulator.get_operation_extractor_map_sptr()));
+                                    get_lattice_simulator().get_operation_extractor_map_sptr()));
             Lattice_element_slice_sptr slice(new Lattice_element_slice(*(*it)));
             ind_op->append_slice(slice);
             Step_sptr step(new Step(0.0));
@@ -358,7 +372,7 @@ Split_operator_stepper_elements::construct(
                         ind_op_first_half(
                                 new Independent_operator(
                                         "first_half",
-                                        this->lattice_simulator.get_operation_extractor_map_sptr()));
+                                        get_lattice_simulator().get_operation_extractor_map_sptr()));
                 Lattice_element_slice_sptr slice_1st_half(
                         new Lattice_element_slice(*(*it), left, middle));
                 ind_op_first_half->append_slice(slice_1st_half);
@@ -376,7 +390,7 @@ Split_operator_stepper_elements::construct(
                         ind_op_second_half(
                                 new Independent_operator(
                                         "second_half",
-                                        this->lattice_simulator.get_operation_extractor_map_sptr()));
+                                        get_lattice_simulator().get_operation_extractor_map_sptr()));
                 Lattice_element_slice_sptr slice_2nd_half(
                         new Lattice_element_slice(*(*it), middle, right));
                 //slice(new Lattice_element_slice(*(*it), middle, right));
@@ -387,15 +401,14 @@ Split_operator_stepper_elements::construct(
 
             }
         }
-        lattice_simulator.construct_sliced_chef_beamline(
-                extract_slices(get_steps()));
+        get_lattice_simulator().set_slices(extract_slices(get_steps()));
     }
 }
 
 Split_operator_stepper_elements::Split_operator_stepper_elements(
         Lattice_simulator const& lattice_simulator,
         Collective_operator_sptr collective_operator, int steps_per_element) :
-    lattice_simulator(lattice_simulator)
+    Stepper(lattice_simulator)
 {
     Collective_operators collective_operators;
     collective_operators.push_back(collective_operator);
@@ -405,7 +418,7 @@ Split_operator_stepper_elements::Split_operator_stepper_elements(
 Split_operator_stepper_elements::Split_operator_stepper_elements(
         Lattice_simulator const& lattice_simulator,
         Collective_operators const& collective_operators, int steps_per_element) :
-    lattice_simulator(lattice_simulator)
+    Stepper(lattice_simulator)
 {
     construct(collective_operators, steps_per_element);
 }

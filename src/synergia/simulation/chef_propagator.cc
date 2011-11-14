@@ -19,6 +19,7 @@ Chef_propagator::apply(Bunch & bunch)
                 != chef_elements.end(); ++it) {
             (*it)->propagate(particle);
             length +=(*it)->OrbitLength(particle);
+           // std::cout<<" element name="<<(*it)->Name()<<" type="<<(*it)->Type() <<"  length ="<<(*it)->OrbitLength(particle)<<std::endl;
         }        
    // std::cout<<"chef operate apply with length= "<<length<<std::endl;
     bunch.get_reference_particle().increment_trajectory(length);    
@@ -43,7 +44,7 @@ Chef_propagator::apply(Bunch & bunch)
        
         for (Chef_elements::iterator it = chef_elements.begin(); it
                 != chef_elements.end(); ++it) {            
-            (*it)->propagate(particle);           
+            (*it)->propagate(particle); 
         }   
          chef_state = particle.State();
             

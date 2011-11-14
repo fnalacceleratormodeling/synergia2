@@ -38,6 +38,12 @@ get_string_attributes_workaround(Lattice_element const& lattice_element)
     return retval;
 }
 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_set_double_attribute_overloads,
+        set_double_attribute, 2, 3);
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_set_string_attribute_overloads,
+        set_string_attribute, 2, 3);
+
 BOOST_PYTHON_MODULE(lattice)
 {
 //    import("pyconvertors");
@@ -50,11 +56,13 @@ BOOST_PYTHON_MODULE(lattice)
         .def("add_ancestor", &Lattice_element::add_ancestor)
         .def("get_ancestors", &Lattice_element::get_ancestors,
                 return_value_policy<copy_const_reference>())
-        .def("set_double_attribute", &Lattice_element::set_double_attribute)
+        .def("set_double_attribute", &Lattice_element::set_double_attribute,
+                Lattice_element_set_double_attribute_overloads())
         .def("has_double_attribute", &Lattice_element::has_double_attribute)
         .def("get_double_attribute", &Lattice_element::get_double_attribute)
         .def("get_double_attributes", get_double_attributes_workaround)
-        .def("set_string_attribute", &Lattice_element::set_string_attribute)
+        .def("set_string_attribute", &Lattice_element::set_string_attribute,
+                Lattice_element_set_string_attribute_overloads())
         .def("has_string_attribute", &Lattice_element::has_string_attribute)
         .def("get_string_attribute", &Lattice_element::get_string_attribute,
                 return_value_policy<copy_const_reference>())
@@ -63,10 +71,13 @@ BOOST_PYTHON_MODULE(lattice)
         .def("set_bend_angle_attribute_name", &Lattice_element::set_bend_angle_attribute_name)
         .def("get_length", &Lattice_element::get_length)
         .def("get_bend_angle", &Lattice_element::get_bend_angle)
+        .def("get_revision", &Lattice_element::get_revision)
        ;
 
     to_python_converter<std::list<Lattice_element_sptr >,
-             container_conversions::to_tuple<std::list<Lattice_element_sptr > > >();
+             container_conversions::to_tuple<Lattice_elements > >();
+    container_conversions::from_python_sequence<Lattice_elements,
+             container_conversions::variable_capacity_policy >();
 
     class_<Element_adaptor, Element_adaptor_sptr >("Element_adaptor", init<>())
             .def("set_double_default", &Element_adaptor::set_double_default)

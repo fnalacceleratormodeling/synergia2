@@ -30,6 +30,18 @@ Element_adaptor::set_default_attributes(Lattice_element & lattice_element)
 {
 }
 
+void
+Element_adaptor::set_derived_attributes_internal(
+        Lattice_element & lattice_element)
+{
+}
+
+void
+Element_adaptor::set_derived_attributes_external(
+        Lattice_element & lattice_element, double lattice_length, double beta)
+{
+}
+
 Chef_elements
 Element_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
@@ -252,7 +264,7 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double k3 = lattice_element.get_double_attribute("k3");
     double tilt = lattice_element.get_double_attribute("tilt");
 
-    bool simple = ((k1 != 0.0) || (k2 != 0.0) || (k3 != 0.0));
+    bool simple = ((k1 == 0.0) && (k2 == 0.0) && (k3 == 0.0));
 
     alignmentData aligner;
     aligner.xOffset = 0.0;
@@ -317,6 +329,19 @@ Rbend_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
             && !lattice_element.has_string_attribute("tilt")) {
         lattice_element.set_double_attribute("tilt", 0.0);
     }
+    lattice_element.set_length_attribute_name("arclength");
+    lattice_element.set_needs_internal_derive(true);
+}
+
+void
+Rbend_mad8_adaptor::set_derived_attributes_internal(
+        Lattice_element & lattice_element)
+{
+    double bend_angle = lattice_element.get_bend_angle();
+    double bend_length = lattice_element.get_double_attribute("l");
+    double arc_length = bend_angle * bend_length / (2
+            * std::sin(bend_angle / 2));
+    lattice_element.set_double_attribute("arclength", arc_length);
 }
 
 Chef_elements
@@ -333,7 +358,7 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double k2 = lattice_element.get_double_attribute("k2");
     double k3 = lattice_element.get_double_attribute("k3");
     double tilt = lattice_element.get_double_attribute("tilt");
-    bool simple = ((k1 != 0.0) || (k2 != 0.0) || (k3 != 0.0) || (tilt != 0.0));
+    bool simple = ((k1 == 0.0) && (k2 == 0.0) && (k3 == 0.0) && (tilt == 0.0));
 
     if (simple) {
         if ((0.0 == e1) && (0.0 == e2)) {
@@ -644,27 +669,27 @@ Multipole_mad8_adaptor::get_chef_elements(
             case 0:
                 element_name = lattice_element.get_name() + "_2pole";
                 bmln_elmnt = new thin2pole(element_name.c_str(),
-                                brho * knl[moment]);
+                        brho * knl[moment]);
                 break;
             case 1:
                 element_name = lattice_element.get_name() + "_4pole";
                 bmln_elmnt = new thinQuad(element_name.c_str(),
-                                brho * knl[moment]);
+                        brho * knl[moment]);
                 break;
             case 2:
                 element_name = lattice_element.get_name() + "_6pole";
                 bmln_elmnt = new thinSextupole(element_name.c_str(),
-                                brho * knl[moment] / 2.0);
+                        brho * knl[moment] / 2.0);
                 break;
             case 3:
                 element_name = lattice_element.get_name() + "_8pole";
                 bmln_elmnt = new thinOctupole(element_name.c_str(),
-                                brho * knl[moment] / 6.0);
+                        brho * knl[moment] / 6.0);
                 break;
             case 4:
                 element_name = lattice_element.get_name() + "_10pole";
                 bmln_elmnt = new thinDecapole(element_name.c_str(),
-                                brho * knl[moment] / 24.0);
+                        brho * knl[moment] / 24.0);
                 break;
             }
 

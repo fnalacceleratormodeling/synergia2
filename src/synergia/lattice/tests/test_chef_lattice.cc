@@ -167,10 +167,6 @@ struct Fobodobo_rbend_fixture
         Lattice_element b("rbend", "b");
         b.set_double_attribute("l", bend_length);
         b.set_double_attribute("angle", bend_angle);
-        double arc_length = bend_angle * bend_length
-                / (2 * sin(bend_angle / 2));
-        b.set_double_attribute("arclength", arc_length);
-        b.set_length_attribute_name("arclength");
 
         lattice_sptr->append(f);
         lattice_sptr->append(o);
@@ -213,9 +209,6 @@ struct Fobodobo_rbend_markers_fixture
         Lattice_element b("rbend", "b");
         b.set_double_attribute("l", bend_length);
         b.set_double_attribute("angle", bend_angle);
-        double arclength = bend_angle * bend_length / (2 * sin(bend_angle / 2));
-        b.set_double_attribute("arclength", arclength);
-        b.set_length_attribute_name("arclength");
 
         Lattice_element m("marker", "marker");
 
@@ -286,6 +279,15 @@ struct RF_cavity_fixture
 BOOST_FIXTURE_TEST_CASE(construct, Fodo_fixture)
 {
     Chef_lattice chef_lattice(lattice_sptr);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_brho, Fodo_fixture)
+{
+    Chef_lattice chef_lattice(lattice_sptr);
+
+    double p = sqrt(total_energy * total_energy - mass * mass);
+    double brho = p / PH_CNV_brho_to_p;
+    BOOST_CHECK_CLOSE(chef_lattice.get_brho(), brho, tolerance);
 }
 
 void
@@ -702,4 +704,52 @@ BOOST_FIXTURE_TEST_CASE(get_chef_elements_from_slice_compound6, RF_cavity_fixtur
             chef_elements_length(chef_elements,
                     lattice_sptr->get_reference_particle()), tolerance);
     BOOST_CHECK_EQUAL(chef_elements.size(), 1);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_lattice_element, Fodo_fixture)
+{
+    Chef_lattice chef_lattice(lattice_sptr);
+    BmlPtr beamline_sptr(chef_lattice.get_beamline_sptr());
+    for (beamline::const_iterator it = beamline_sptr->begin(); it
+            != beamline_sptr->end(); ++it) {
+        try {
+            Lattice_element lattice_element(
+                    chef_lattice.get_lattice_element(*it));
+            // n.b. this test isn't guaranteed to work with arbitrary
+            // elements, e.g., RF cavities, but it will work with the
+            // elements of the fodo cell.
+            BOOST_CHECK_EQUAL(lattice_element.get_name(),
+                    (*it)->Name());
+        }
+        catch (std::runtime_error) {
+            BOOST_CHECK_EQUAL((*it)->Name(),
+                    Chef_lattice::internal_marker_name);
+            BOOST_CHECK_EQUAL((*it)->Type(),
+                    "marker");
+        }
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(get_lattice_element_slice, Fodo_fixture)
+{
+    Chef_lattice chef_lattice(lattice_sptr);
+    const int slices_per_element = 3;
+    chef_lattice.construct_sliced_beamline(
+            slice_lattice(*lattice_sptr, slices_per_element));
+    BmlPtr beamline_sptr = chef_lattice.get_sliced_beamline_sptr();
+
+    for (beamline::const_iterator it = beamline_sptr->begin(); it
+            != beamline_sptr->end(); ++it) {
+        try {
+            Lattice_element_slice lattice_element_slice(
+                    chef_lattice.get_lattice_element_slice(*it));
+            // jfa: Not sure how to test this.
+        }
+        catch (std::runtime_error) {
+            BOOST_CHECK_EQUAL((*it)->Name(),
+                    Chef_lattice::internal_marker_name);
+            BOOST_CHECK_EQUAL((*it)->Type(),
+                    "marker");
+        }
+    }
 }

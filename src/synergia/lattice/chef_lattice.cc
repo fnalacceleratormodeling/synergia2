@@ -9,6 +9,9 @@
 
 #include <stdexcept>
 
+const char Chef_lattice::internal_marker_name[] =
+        "_synergia_lattice_element_marker";
+
 void
 Chef_lattice::construct_beamline()
 {
@@ -65,7 +68,7 @@ Chef_lattice::extract_element_map()
     Lattice_elements::iterator le_it = lattice_sptr->get_elements().begin();
     for (beamline::const_iterator b_it = beamline_sptr->begin(); b_it
             != beamline_sptr->end(); ++b_it) {
-        if ((*b_it)->Name() == lattice_element_marker->Name()) {
+        if ((*b_it)->Name() == internal_marker_name) {
             element_map[le_it->get()] = chef_elements;
             chef_elements.clear();
             ++le_it;
@@ -82,7 +85,7 @@ Chef_lattice::extract_element_slice_map(Lattice_element_slices const& slices)
     Lattice_element_slices::const_iterator s_it = slices.begin();
     for (beamline::const_iterator b_it = sliced_beamline_sptr->begin(); b_it
             != sliced_beamline_sptr->end(); ++b_it) {
-        if ((*b_it)->Name() == lattice_element_marker->Name()) {
+        if ((*b_it)->Name() == internal_marker_name) {
             element_slice_map[s_it->get()] = chef_elements;
             chef_elements.clear();
             ++s_it;
@@ -95,7 +98,7 @@ Chef_lattice::extract_element_slice_map(Lattice_element_slices const& slices)
 void
 Chef_lattice::construct()
 {
-    lattice_sptr->set_default_attributes(*element_adaptor_map_sptr);
+    lattice_sptr->complete_attributes(*element_adaptor_map_sptr);
     sliced_beamline_sptr = BmlPtr(new beamline("sliced"));
     have_sliced_beamline_ = false;
     if (!lattice_sptr->has_reference_particle()) {
@@ -110,10 +113,8 @@ Chef_lattice::construct()
 }
 
 Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr) :
-            lattice_sptr(lattice_sptr),
-            beamline_sptr(),
-            lattice_element_marker(
-                    new marker("synergia_lattice_element_marker")),
+    lattice_sptr(lattice_sptr), beamline_sptr(),
+            lattice_element_marker(new marker(internal_marker_name)),
             element_adaptor_map_sptr(new Element_adaptor_map)
 {
     construct();
@@ -121,13 +122,17 @@ Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr) :
 
 Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr,
         Element_adaptor_map_sptr element_adaptor_map_sptr) :
-            lattice_sptr(lattice_sptr),
-            beamline_sptr(),
-            lattice_element_marker(
-                    new marker("synergia_lattice_element_marker")),
+    lattice_sptr(lattice_sptr), beamline_sptr(),
+            lattice_element_marker(new marker(internal_marker_name)),
             element_adaptor_map_sptr(element_adaptor_map_sptr)
 {
     construct();
+}
+
+double
+Chef_lattice::get_brho() const
+{
+    return brho;
 }
 
 Element_adaptor_map_sptr
@@ -255,6 +260,58 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
     return retval;
 }
 
+Lattice_element const&
+Chef_lattice::get_lattice_element(ElmPtr const& chef_element)
+{
+    Lattice_element const* lattice_element_ptr;
+    bool found = false;
+    for (std::map<const Lattice_element*, Chef_elements >::iterator it =
+            element_map.begin(); it != element_map.end(); ++it) {
+        for (Chef_elements::iterator ce_it = it->second.begin(); ce_it
+                != it->second.end(); ++ce_it) {
+            if ((*ce_it) == chef_element) {
+                found = true;
+                lattice_element_ptr = it->first;
+                break;
+            }
+        }
+        if (found) {
+            break;
+        }
+    }
+    if (!found) {
+        throw std::runtime_error(
+                "Chef_lattice::get_lattice_element: no match for chef element");
+    }
+    return *lattice_element_ptr;
+}
+
+Lattice_element_slice const&
+Chef_lattice::get_lattice_element_slice(ElmPtr const& chef_element)
+{
+    Lattice_element_slice const* lattice_element_slice_ptr;
+    bool found = false;
+    for (std::map<const Lattice_element_slice*, Chef_elements >::iterator it =
+            element_slice_map.begin(); it != element_slice_map.end(); ++it) {
+        for (Chef_elements::iterator ce_it = it->second.begin(); ce_it
+                != it->second.end(); ++ce_it) {
+            if ((*ce_it) == chef_element) {
+                found = true;
+                lattice_element_slice_ptr = it->first;
+                break;
+            }
+        }
+        if (found) {
+            break;
+        }
+    }
+    if (!found) {
+        throw std::runtime_error(
+                "Chef_lattice::get_lattice_element_slice: no match for chef element");
+    }
+    return *lattice_element_slice_ptr;
+}
+
 bool
 Chef_lattice::have_sliced_beamline() const
 {
@@ -276,6 +333,7 @@ Chef_lattice::construct_sliced_beamline(Lattice_element_slices const& slices)
     }
     sliced_beamline_sptr = polish_beamline(unpolished_beamline_sptr);
     extract_element_slice_map(slices);
+    lattice_element_slices = slices;
     have_sliced_beamline_ = true;
 }
 
@@ -293,6 +351,16 @@ Chef_lattice::get_sliced_beamline_sptr()
                 "get_sliced_beamline_sptr() called before construct_sliced_beamline\n");
     }
     return sliced_beamline_sptr;
+}
+
+Lattice_element_slices const&
+Chef_lattice::get_lattice_element_slices() const
+{
+    if (!have_sliced_beamline_) {
+        throw std::runtime_error(
+                "get_lattice_element_slices() called before construct_sliced_beamline\n");
+    }
+    return lattice_element_slices;
 }
 
 Chef_lattice::~Chef_lattice()

@@ -2,13 +2,73 @@
 #include "lattice_simulator.h"
 #include "stepper.h"
 #include "propagator.h"
+#include "propagate_actions.h"
+#include "standard_diagnostics_actions.h"
 #include <boost/python.hpp>
 #include "synergia/utils/container_conversions.h"
 
 using namespace boost::python;
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads,
+struct Propagate_actions_callback : Propagate_actions
+{
+    Propagate_actions_callback(PyObject *p) :
+        Propagate_actions(), self(p)
+    {
+    }
+    Propagate_actions_callback(PyObject *p, const Propagate_actions& x) :
+        Propagate_actions(x), self(p)
+    {
+    }
+    void
+    first_action(Stepper & stepper, Bunch & bunch)
+    {
+        call_method<void > (self, "first_action", stepper, bunch);
+    }
+    static void
+    default_first_action(Propagate_actions& self_, Stepper & stepper,
+            Bunch & bunch)
+    {
+        self_.Propagate_actions::first_action(stepper, bunch);
+    }
+    void
+    turn_end_action(Stepper & stepper, Bunch & bunch, int turn_num)
+    {
+        call_method<void > (self, "turn_end_action", stepper, bunch, turn_num);
+    }
+    static void
+    default_turn_end_action(Propagate_actions& self_, Stepper & stepper,
+            Bunch & bunch, int turn_num)
+    {
+        self_.Propagate_actions::turn_end_action(stepper, bunch, turn_num);
+    }
+    void
+    step_end_action(Stepper & stepper, Step & step, Bunch & bunch,
+            int turn_num, int step_num)
+    {
+        call_method<void > (self, "step_end_action", stepper, step, bunch,
+                turn_num, step_num);
+    }
+    static void
+    default_step_end_action(Propagate_actions& self_, Stepper & stepper,
+            Step & step, Bunch & bunch, int turn_num, int step_num)
+    {
+        self_.Propagate_actions::step_end_action(stepper, step, bunch,
+                turn_num, step_num);
+    }
+private:
+    PyObject* self;
+};
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads23,
+        Propagator::propagate, 2, 3);
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads34,
+        Propagator::propagate, 3, 4);
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads45,
         Propagator::propagate, 4, 5);
+
+
 
 BOOST_PYTHON_MODULE(simulation)
 {
@@ -51,15 +111,36 @@ BOOST_PYTHON_MODULE(simulation)
                 return_value_policy<copy_const_reference >())
         ;
 
+    Lattice_functions const&
+    (Lattice_simulator::*get_lattice_functions1)(Lattice_element &) =
+            &Lattice_simulator::get_lattice_functions;
+    Lattice_functions const&
+    (Lattice_simulator::*get_lattice_functions2)(Lattice_element_slice &) =
+            &Lattice_simulator::get_lattice_functions;
+
     class_<Lattice_simulator >("Lattice_simulator",
             init<Lattice_sptr, int >())
-        .def("construct_sliced_chef_beamline",
-                &Lattice_simulator::construct_sliced_chef_beamline)
+        .def("set_slices",
+                &Lattice_simulator::set_slices)
         .def("get_map_order", &Lattice_simulator::get_map_order)
         .def("get_operation_extractor_map",
                 &Lattice_simulator::get_operation_extractor_map_sptr)
         .def("get_lattice", &Lattice_simulator::get_lattice_sptr)
         .def("get_chef_lattice", &Lattice_simulator::get_chef_lattice_sptr)
+        .def("get_bucket_length", &Lattice_simulator::get_bucket_length)
+        .def("get_number_buckets",&Lattice_simulator::get_number_buckets)
+        .def("update", &Lattice_simulator::update)
+        .def("calculate_element_lattice_functions",
+                &Lattice_simulator::calculate_element_lattice_functions)
+        .def("calculate_slice_lattice_functions",
+                &Lattice_simulator::calculate_slice_lattice_functions)
+        .def("get_lattice_functions", get_lattice_functions1,
+                return_value_policy<copy_const_reference >())
+        .def("get_lattice_functions", get_lattice_functions2,
+                return_value_policy<copy_const_reference >())
+        .def("get_horizontal_tune", &Lattice_simulator::get_horizontal_tune)
+        .def("get_vertical_tune", &Lattice_simulator::get_vertical_tune)
+        .def("adjust_tunes", &Lattice_simulator::adjust_tunes)
         ;
 
 
@@ -74,7 +155,9 @@ BOOST_PYTHON_MODULE(simulation)
     to_python_converter<Steps,
              container_conversions::to_tuple<Steps > >();
 
-    class_<Stepper >("Stepper",no_init)
+    class_<Stepper >("Stepper",init<Lattice_simulator const& >())
+        .def("get_lattice_simulator", &Stepper::get_lattice_simulator,
+                return_internal_reference< >())
         .def("get_steps", &Stepper::get_steps,
                 return_value_policy<copy_non_const_reference >())
         .def("print_", &Stepper::print)
@@ -92,15 +175,67 @@ BOOST_PYTHON_MODULE(simulation)
     class_<Independent_stepper_elements, bases<Stepper > >("Independent_stepper_elements",
             init<Lattice_simulator const&, int >());
 
-    void (Propagator::*propagate1)(Bunch &, int, Diagnostics &,
+    class_<Propagate_actions, Propagate_actions_callback >("Propagate_actions",
+            init< >())
+            .def("first_action",
+                    &Propagate_actions_callback::default_first_action)
+            .def("turn_end_action",
+                    &Propagate_actions_callback::default_turn_end_action)
+            .def("step_end_action",
+                    &Propagate_actions_callback::default_step_end_action)
+            ;
+
+    class_<Standard_diagnostics_actions, bases<Propagate_actions > >(
+            "Standard_diagnostics_actions", init< >())
+            .def("add_per_turn", &Standard_diagnostics_actions::add_per_turn)
+            .def("add_per_step", &Standard_diagnostics_actions::add_per_step)
+            .def("update_and_write_all", &Standard_diagnostics_actions::update_and_write_all)
+            .def("first_action", &Standard_diagnostics_actions::first_action)
+            .def("turn_end_action", &Standard_diagnostics_actions::turn_end_action)
+            .def("step_end_action", &Standard_diagnostics_actions::step_end_action)
+            ;
+
+    void (Propagator::*propagate1)(Bunch_with_diagnostics &, int, bool)
+                                = &Propagator::propagate;
+
+    void (Propagator::*propagate2)(Bunch_with_diagnostics &, int, Propagate_actions &,  bool)
+                                = &Propagator::propagate;
+
+    void (Propagator::*propagate3)(Bunch_with_diagnostics_train &, int, Propagate_actions &, bool)
+                                = &Propagator::propagate;
+
+    void (Propagator::*propagate4)(Bunch_with_diagnostics_train &, int, bool)
+                                = &Propagator::propagate;
+
+    void (Propagator::*propagate5)(Bunch &, int, Diagnostics &,
             Diagnostics &, bool) = &Propagator::propagate;
-    void (Propagator::*propagate2)(Bunch &, int, Multi_diagnostics &,
+
+    void (Propagator::*propagate6)(Bunch &, int, Multi_diagnostics &,
             Multi_diagnostics &, bool) = &Propagator::propagate;
+
+    void (Propagator::*propagate7)(Bunch &, int, Standard_diagnostics_actions&,
+            int) = &Propagator::propagate;
+
+    void (Propagator::*propagate8)(Bunch &, int, Standard_diagnostics_actions &,
+            Propagate_actions &, int) = &Propagator::propagate;
 
     class_<Propagator >("Propagator",init<Stepper_sptr >())
             .def("propagate", propagate1,
-                    propagate_member_overloads())
+                 propagate_member_overloads23())
             .def("propagate", propagate2,
-                    propagate_member_overloads())
+                    propagate_member_overloads34())
+            .def("propagate", propagate3,
+                    propagate_member_overloads34())
+            .def("propagate", propagate4,
+                    propagate_member_overloads23())
+            .def("propagate", propagate5,
+                    propagate_member_overloads45())
+             .def("propagate", propagate6,
+                    propagate_member_overloads45())
+            .def("propagate", propagate7,
+                    propagate_member_overloads34())
+            .def("propagate", propagate8,
+                    propagate_member_overloads45())
             ;
+
 }
