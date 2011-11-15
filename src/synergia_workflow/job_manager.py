@@ -227,7 +227,7 @@ class Job_manager:
         subs["procspernode"] = self.opts.get("procspernode")
         subs["numnode"] = numnode
         subs["synergia2dir"] = self.synergia_dir
-        subs["args"] = self._args_to_string(self.argv[1:], ["createjob"])
+        subs["args"] = self._args_to_string(self.argv[1:], job_mgr_opts.options())
         subs["jobdir"] = os.path.abspath(self.directory)
         if self.standalone:
             subs["synergia_executable"] = self.real_script
@@ -343,6 +343,8 @@ class Job_manager:
                          cxx_typename(opt.val_type) + ' >();\n')
             source.write('            }')
             count += 1
+# jfa: next section is redundant now that job_mgr opts are being stripped.
+#      fixme.
         source.write(''' else if (arg.get_lhs() == "synergia_executable") {
                 // ignore
             } else if (arg.get_lhs() == "run") {
@@ -413,7 +415,7 @@ def process_template(template_name, output_name, subs):
             var = match.group(1)
             have_var = False
             if subs.has_key(var):
-                if subs[var] != None:
+                if (subs[var] != None) and (subs[var] != False):
                     have_var = True
             if have_var:
                 replacement = match.group(2)
