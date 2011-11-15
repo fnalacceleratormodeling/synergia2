@@ -28,7 +28,7 @@ export LD_LIBRARY_PATH=/usr/local/python-2.7.0/lib:$LD_LIBRARY_PATH
 
 cd $PBS_O_WORKDIR
 echo "Job start at `date`"
-${MPI_HOME}/bin/mpirun -np @@numproc@@ @@synergia_executable@@ @@script@@ @@args@@
+${MPI_HOME}/bin/mpirun __loadbalance{{--loadbalance}}{{}}__ -np @@numproc@@ @@synergia_executable@@ @@script@@ @@args@@
 echo "Job end at `date`"
 
 
