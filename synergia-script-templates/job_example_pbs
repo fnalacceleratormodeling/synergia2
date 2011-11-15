@@ -1,0 +1,25 @@
+#!/bin/sh
+#PBS -o synergia.out
+#PBS -e synergia.err
+#PBS -l nodes=@@numproc@@
+__walltime{{#PBS -l walltime=@@walltime@@}}{{}}__
+__queue{{#PBS -q @@queue@@}}{{}}__
+__account{{#PBS -A @@account@@}}{{}}__
+
+echo PBS_NODEFILE is "$PBS_NODEFILE"
+if [ -n "$PBS_NODEFILE" ]
+then
+    echo "begin nodes"
+    cat $PBS_NODEFILE
+    echo "end nodes"
+fi
+
+. @@setupsh@@
+
+cd $PBS_O_WORKDIR
+echo "Job start at `date`"
+${MPI_HOME}/bin/mpirun -np @@numproc@@ @@synergia_executable@@ @@script@@ @@args@@
+echo "Job end at `date`"
+
+
+

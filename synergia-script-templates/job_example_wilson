@@ -2,9 +2,9 @@
 #PBS -o synergia.out
 #PBS -e synergia.err
 #PBS -l nodes=@@numproc@@
-#PBS -q test_intel12
-#PBS -A mi
-
+__walltime{{#PBS -l walltime=@@walltime@@}}{{}}__
+__queue{{#PBS -q @@queue@@}}{{}}__
+__account{{#PBS -A @@account@@}}{{}}__
 
 # This script is an appropriate template for running PBS jobs on the
 # wilson cluster.
@@ -24,7 +24,7 @@ export LD_LIBRARY_PATH=${MPI_HOME}/lib:$LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/usr/local/python-2.7.0/lib:$LD_LIBRARY_PATH
 
 
-. "/home/amundson/work/synergia2-old_devel_1_0/setup.sh"
+. @@setupsh@@
 
 cd $PBS_O_WORKDIR
 echo "Job start at `date`"
