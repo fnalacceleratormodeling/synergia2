@@ -11,12 +11,13 @@ private:
     boost::shared_ptr<MArray2dc > grid_points_2dc_sptr;
     boost::shared_ptr<MArray1d > grid_points_1d_sptr;
     double normalization;
+    storage3d storage;
 public:
     Rectangular_grid(std::vector<double > const & physical_size, std::vector<
             double > const & physical_offset,
-            std::vector<int > const & grid_shape, bool periodic_z);
+            std::vector<int > const & grid_shape, bool periodic_z, storage3d storage=boost::c_storage_order());
     Rectangular_grid(
-            Rectangular_grid_domain_sptr rectangular_grid_domain_sptr);
+            Rectangular_grid_domain_sptr rectangular_grid_domain_sptr, storage3d storage=boost::c_storage_order());
     Rectangular_grid_domain_sptr
     get_domain_sptr() const;
     Rectangular_grid_domain_sptr
@@ -37,6 +38,8 @@ public:
     set_normalization(double val);
     double
     get_normalization() const;
+    storage3d
+    get_storage() const;
     //
     // P.L. addition, Aug 3 2011 
     // 

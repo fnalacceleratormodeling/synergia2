@@ -13,22 +13,25 @@ private:
     boost::shared_ptr<MArray1d > grid_points_1d_sptr;
     int lower, upper;
     int lower_guard, upper_guard;
+    std::vector<int> uppers, lengths;
     double normalization;
-    Commxx comm;
+    Commxx comm;    
     void
-    construct(int lower, int upper, std::vector<int > const & array_shape);
+    construct_hockney(int lower, int upper, std::vector<int > const & array_shape);
+    void
+    construct_rectangular(int lower, int upper, std::vector<int > const & array_shape);
 public:
     Distributed_rectangular_grid(std::vector<double > const & physical_size,
             std::vector<double > const & physical_offset,
             std::vector<int > const & grid_shape, bool periodic, int lower,
-            int upper, Commxx const& comm);
+            int upper, Commxx const& comm, std::string const solver="hockney");
     Distributed_rectangular_grid(
             Rectangular_grid_domain_sptr rectangular_grid_domain_sptr,
-            int lower, int upper, Commxx const& comm);
+            int lower, int upper, Commxx const& comm, std::string const solver="hockney");
     Distributed_rectangular_grid(
             Rectangular_grid_domain_sptr rectangular_grid_domain_sptr,
             int lower, int upper, std::vector<int > const & padded_shape,
-            Commxx const& comm);
+            Commxx const& comm);        
     Rectangular_grid_domain_sptr
     get_domain_sptr() const;
     Rectangular_grid_domain_sptr

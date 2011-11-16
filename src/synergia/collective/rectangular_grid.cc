@@ -2,13 +2,13 @@
 
 Rectangular_grid::Rectangular_grid(std::vector<double > const & physical_size,
         std::vector<double > const & physical_offset,
-        std::vector<int > const & grid_shape, bool periodic_z) :
-    normalization(1.0)
+        std::vector<int > const & grid_shape, bool periodic_z, storage3d storage) :
+    normalization(1.0), storage(storage)
 {
     domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
             physical_size, physical_offset, grid_shape, periodic_z));
     grid_points_sptr = boost::shared_ptr<MArray3d >(new MArray3d(
-            boost::extents[grid_shape[0]][grid_shape[1]][grid_shape[2]]));
+            boost::extents[grid_shape[0]][grid_shape[1]][grid_shape[2]],storage));
     grid_points_2dc_sptr = boost::shared_ptr<MArray2dc >(new MArray2dc(
             boost::extents[grid_shape[0]][grid_shape[1]]));
     grid_points_1d_sptr = boost::shared_ptr<MArray1d >(new MArray1d(
@@ -16,14 +16,14 @@ Rectangular_grid::Rectangular_grid(std::vector<double > const & physical_size,
 }
 
 Rectangular_grid::Rectangular_grid(
-        Rectangular_grid_domain_sptr rectangular_grid_domain_sptr) :
-    normalization(1.0)
+        Rectangular_grid_domain_sptr rectangular_grid_domain_sptr, storage3d storage) :
+    normalization(1.0), storage(storage)
 {
     domain_sptr = rectangular_grid_domain_sptr;
     std::vector<int >
             grid_shape(rectangular_grid_domain_sptr->get_grid_shape());
     grid_points_sptr = boost::shared_ptr<MArray3d >(new MArray3d(
-            boost::extents[grid_shape[0]][grid_shape[1]][grid_shape[2]]));
+            boost::extents[grid_shape[0]][grid_shape[1]][grid_shape[2]],storage));
     grid_points_2dc_sptr = boost::shared_ptr<MArray2dc >(new MArray2dc(
             boost::extents[grid_shape[0]][grid_shape[1]]));
     grid_points_1d_sptr = boost::shared_ptr<MArray1d >(new MArray1d(
@@ -89,3 +89,10 @@ Rectangular_grid::get_normalization() const
 {
     return normalization;
 }
+
+storage3d
+Rectangular_grid::get_storage() const
+{
+    return storage;
+}
+
