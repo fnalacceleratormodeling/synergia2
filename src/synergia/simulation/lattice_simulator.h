@@ -37,9 +37,9 @@ private:
     bool have_slice_lattice_functions;
     double horizontal_tune, vertical_tune;
     bool have_tunes;
-    std::map<Lattice_element*, Lattice_functions >
+    std::map<Lattice_element const*, Lattice_functions >
             lattice_functions_element_map;
-    std::map<Lattice_element_slice*, Lattice_functions >
+    std::map<Lattice_element_slice const*, Lattice_functions >
             lattice_functions_slice_map;
     void
     get_tunes();

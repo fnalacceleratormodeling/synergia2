@@ -192,13 +192,16 @@ Lattice_simulator::calculate_element_lattice_functions()
         beamline::const_iterator it = beamline_sptr->begin();
         for (int i = 0; i < latt_func.size(); ++i) {
             ElmPtr chef_element(*it);
-            if (chef_element->Name() != Chef_lattice::internal_marker_name) {
-                Lattice_element lattice_element(
-                        chef_lattice_sptr->get_lattice_element(chef_element));
-                lattice_functions_element_map[&lattice_element] = latt_func.at(
-                        i);
-                ++it;
+            if (std::strcmp(chef_element->Name().c_str(),
+                    Chef_lattice::internal_marker_name)) {
+                Lattice_element const
+                        * lattice_element_ptr(
+                                &(chef_lattice_sptr->get_lattice_element(
+                                        chef_element)));
+                lattice_functions_element_map[lattice_element_ptr]
+                        = Lattice_functions(latt_func.at(i));
             }
+            ++it;
         }
         have_element_lattice_functions = true;
     }
@@ -220,14 +223,15 @@ Lattice_simulator::calculate_slice_lattice_functions()
         beamline::const_iterator it = beamline_sptr->begin();
         for (int i = 0; i < latt_func.size(); ++i) {
             ElmPtr chef_element(*it);
-            if (chef_element->Name() != Chef_lattice::internal_marker_name) {
-                Lattice_element_slice lattice_element_slice(
-                        chef_lattice_sptr->get_lattice_element_slice(
-                                chef_element));
-                lattice_functions_slice_map[&lattice_element_slice]
+            if (std::strcmp(chef_element->Name().c_str(),
+                    Chef_lattice::internal_marker_name)) {
+                Lattice_element_slice const * lattice_element_slice_ptr(
+                        &(chef_lattice_sptr->get_lattice_element_slice(
+                                chef_element)));
+                lattice_functions_slice_map[lattice_element_slice_ptr]
                         = latt_func.at(i);
-                ++it;
             }
+            ++it;
         }
         have_slice_lattice_functions = true;
     }

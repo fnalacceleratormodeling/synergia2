@@ -182,7 +182,7 @@ BOOST_FIXTURE_TEST_CASE(get_element_lattice_functions, Fobodobo_sbend_fixture)
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     for (Lattice_elements::iterator it = lattice_sptr->get_elements().begin(); it
             != lattice_sptr->get_elements().end(); ++it) {
-        lattice_simulator.get_lattice_functions(*(*it));
+        Lattice_functions f(lattice_simulator.get_lattice_functions(*(*it)));
     }
 }
 
@@ -205,7 +205,7 @@ BOOST_FIXTURE_TEST_CASE(get_slice_lattice_functions, Fobodobo_sbend_fixture)
     lattice_simulator.set_slices(slices);
     for (Lattice_element_slices::iterator it = slices.begin(); it
             != slices.end(); ++it) {
-        lattice_simulator.get_lattice_functions(*(*it));
+        Lattice_functions f(lattice_simulator.get_lattice_functions(*(*it)));
     }
 }
 
