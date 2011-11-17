@@ -90,6 +90,9 @@ BOOST_PYTHON_MODULE(simulation)
 //        .def("print_", &Collective_operator::print)
         ;
 
+    container_conversions::from_python_sequence<Collective_operators,
+             container_conversions::variable_capacity_policy >();
+
     class_<Dummy_collective_operator, Dummy_collective_operator_sptr,
         bases<Collective_operator> >("Dummy_collective_operator",
                 init<std::string const& >())

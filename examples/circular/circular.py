@@ -124,7 +124,7 @@ if MPI.COMM_WORLD.Get_rank() ==0:
 
 
 bunchsp=lattice_simulator.get_bucket_length()
-num_bunches=emit = opts.num_bunches
+num_bunches=opts.num_bunches
 
 
 
@@ -197,42 +197,24 @@ if impedance:
 space_charge=opts.space_charge
 if space_charge:
     grid_shape=[64,64,64]
-    radiusx=0.029
-    radiusy=0.04    
-    #size=[2.*radiusx, 2.*radiusy, lattice_simulator.get_bucket_length()]
-    size=[5,4,7]
-    print "size=",size
+    radiusx=0.2
+    radiusy=0.1    
+    pipe_size=[2.*radiusx, 2.*radiusy, lattice_simulator.get_bucket_length()]
+    if MPI.COMM_WORLD.Get_rank() ==0:
+        print "pipe_size=",pipe_size
+    spc=synergia.collective.Space_charge_rectangular(pipe_size, grid_shape)
+    #spc= synergia.collective.Space_charge_3d_open_hockney(bunch_with_diag.get_comm(), grid_shape);  
+    operators.append(spc)
     
-    
-    #size=np.zeros([3],np.float64)
-    #size[0]= 2.*radiusx 
-    #size[1]= 2.*radiusy   
-    #size[2] = lattice_simulator.get_bucket_length()
-    sizex=1.4
-    sizey=1.4
-    sizez=bunchsp
+    stepper = synergia.simulation.Split_operator_stepper(
+                            lattice_simulator, operators, opts.num_steps)
 
-    spc=synergia.collective.Space_charge_rectangular(sizex, sizey, sizez, grid_shape)
-    spch= synergia.collective.Space_charge_3d_open_hockney(bunch_with_diag.get_comm(), grid_shape);
-    
-    #spc=synergia.collective.Space_charge_rectangular(size, grid_shape)
-   # spc=synergia.simulation.Dummy_collective_operator("stub")
-   # operators.append(spc)
-
-
-
-if ((not space_charge) and (not impedance)):
-    no_op = synergia.simulation.Dummy_collective_operator("stub")
-    operators.append(no_op)
-
-
-#spc=synergia.simulation.Dummy_collective_operator("stub")                         
 
  
 
 if space_charge:
     stepper = synergia.simulation.Split_operator_stepper(
-                            lattice_simulator, spch, opts.num_steps)
+                            lattice_simulator, operators, opts.num_steps)
 else:
     stepper = synergia.simulation.Split_operator_stepper(
                             lattice_simulator, no_op, opts.num_steps)                            

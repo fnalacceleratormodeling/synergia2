@@ -13,15 +13,14 @@
 class Space_charge_rectangular : public Collective_operator
 {
 private:
-    std::vector<double > size; //pipe size, x,y,x meters
+    std::vector<double > pipe_size; //pipe size, x,y,x meters
     std::vector<int > grid_shape;
     Rectangular_grid_domain_sptr domain_sptr;
     void 
     fill_guards_pplanes(Distributed_rectangular_grid & phi, int lower, int upper, int lengthx,
                           MArray2d & g_lower, MArray2d &g_upper, Commxx const &comm);
 public:
-    Space_charge_rectangular(double  sizex, double  sizey,  double  sizez, std::vector<int > const & grid_shape);
-    Space_charge_rectangular(std::vector<double > const & size, std::vector<int > const & grid_shape);
+    Space_charge_rectangular(std::vector<double > const & pipe_size, std::vector<int > const & grid_shape);
    
    Rectangular_grid_domain_sptr 
    get_domain_sptr() const;

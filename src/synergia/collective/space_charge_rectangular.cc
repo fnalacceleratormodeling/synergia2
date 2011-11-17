@@ -8,31 +8,16 @@ using pconstants::epsilon0;
 #include <fftw3.h>
 #include <fftw3-mpi.h>
 
-
-Space_charge_rectangular::Space_charge_rectangular(
-//std::vector<int > const & size,
-double  sizex, double  sizey, double  sizez,
-std::vector<int > const & grid_shape):
-Collective_operator("space_charge_rectangular"),  grid_shape(grid_shape)// , size(size)
-{
-this->size.resize(3);
-this->size[0]= sizex;
-this->size[1]= sizey;
-this->size[2]= sizez;
-std::vector<double > offset(3,0.);
-this->domain_sptr = Rectangular_grid_domain_sptr(
-                new Rectangular_grid_domain(size, offset, grid_shape , true));
-}
  
 Space_charge_rectangular::Space_charge_rectangular(
-std::vector<double > const & size,
+std::vector<double > const & pipe_size,
 std::vector<int > const & grid_shape):
-Collective_operator("space_charge_rectangular"),  grid_shape(grid_shape) , size(size)
+Collective_operator("space_charge_rectangular"),  grid_shape(grid_shape) , pipe_size(pipe_size)
 {
 
 std::vector<double > offset(3,0.);
 this->domain_sptr = Rectangular_grid_domain_sptr(
-                new Rectangular_grid_domain(size, offset, grid_shape , true));
+                new Rectangular_grid_domain(pipe_size, offset, grid_shape , true));
 } 
  
  

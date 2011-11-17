@@ -6,7 +6,7 @@ opts = synergia_workflow.Options("circular")
 opts.add("num_macro_particles", 40192, "Number of macro particles", int)
 opts.add("seed", 0, "Pseudorandom number generator seed", int)
 
-opts.add("num_real_particles", 5.e13, "Number of real particles", float)
+opts.add("num_real_particles", 5.e10, "Number of real particles", float)
 opts.add("verbose", True, "Verbose propagation", bool)
 opts.add("num_steps", 40, "Number of steps per turn", int)
 opts.add("num_turns", 10, "Number of turns", int)

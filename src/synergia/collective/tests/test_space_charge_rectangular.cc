@@ -21,22 +21,19 @@ using pconstants::epsilon0;
  
  const double tolerance = 1.0e-12;
  
-BOOST_AUTO_TEST_CASE(construct1)
+BOOST_AUTO_TEST_CASE(construct)
 {
     std::vector<int > grid_shape(3);
     grid_shape[0] = 32;
     grid_shape[1] = 16;
     grid_shape[2] = 16;
-    double sizex=0.1;
-    double sizey=0.2;
-    double sizez=0.05;
-//     std::vector<double > size(3);
-//     size[0]=0.1;
-//     size[1]=0.2;
-//     size[2]=0.05;
-    
-    Space_charge_rectangular space_charge(sizex,sizey, sizex, grid_shape);
-  // Space_charge_rectangular space_charge(size, grid_shape);
+    std::vector<double > size(3);
+    size[0]=0.1;
+    size[1]=0.2;
+    size[2]=0.05;
+       
+    Space_charge_rectangular space_charge(size, grid_shape);
+ 
 }
 
  BOOST_FIXTURE_TEST_CASE(get_local_charge_density, Ellipsoidal_bunch_fixture)
