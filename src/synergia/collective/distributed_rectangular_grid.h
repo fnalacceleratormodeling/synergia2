@@ -20,6 +20,8 @@ private:
     construct_hockney(int lower, int upper, std::vector<int > const & array_shape);
     void
     construct_rectangular(int lower, int upper, std::vector<int > const & array_shape);
+    void
+    calculate_uppers_lengths();
 public:
     Distributed_rectangular_grid(std::vector<double > const & physical_size,
             std::vector<double > const & physical_offset,
@@ -44,6 +46,10 @@ public:
     get_lower_guard() const;
     int
     get_upper_guard() const;
+    std::vector<int > const&
+    get_uppers();
+    std::vector<int > const&
+    get_lengths();
     MArray3d_ref const&
     get_grid_points() const;
     MArray3d_ref &
