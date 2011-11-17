@@ -17,6 +17,7 @@ struct Lattice_functions
     double psi_x, psi_y;
     double D_x, D_y;
     double Dprime_x, Dprime_y;
+    double arc_length;
 };
 
 class Lattice_simulator

@@ -68,8 +68,6 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads34,
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads45,
         Propagator::propagate, 4, 5);
 
-
-
 BOOST_PYTHON_MODULE(simulation)
 {
     class_<Operator, Operator_sptr, boost::noncopyable >("Operator", no_init)
@@ -146,6 +144,20 @@ BOOST_PYTHON_MODULE(simulation)
         .def("adjust_tunes", &Lattice_simulator::adjust_tunes)
         ;
 
+    class_<Lattice_functions >("Lattice_functions",
+            init<LattFuncSage::lattFunc const& >())
+        .def_readonly("alpha_x", &Lattice_functions::alpha_x)
+        .def_readonly("alpha_y", &Lattice_functions::alpha_y)
+        .def_readonly("beta_x", &Lattice_functions::beta_x)
+        .def_readonly("beta_y", &Lattice_functions::beta_y)
+        .def_readonly("psi_x", &Lattice_functions::psi_x)
+        .def_readonly("psi_y", &Lattice_functions::psi_y)
+        .def_readonly("D_x", &Lattice_functions::D_x)
+        .def_readonly("D_y", &Lattice_functions::D_y)
+        .def_readonly("Dprime_x", &Lattice_functions::Dprime_x)
+        .def_readonly("Dprime_y", &Lattice_functions::Dprime_y)
+        .def_readonly("arc_length", &Lattice_functions::arc_length)
+        ;
 
     void (Step::*apply1)(Bunch &) = &Step::apply;
     class_<Step, Step_sptr >("Step", init<double >())

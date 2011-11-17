@@ -8,7 +8,8 @@
 
 Lattice_functions::Lattice_functions() :
     alpha_x(0.0), alpha_y(0.0), beta_x(0.0), beta_y(0.0), psi_x(0.0),
-            psi_y(0.0), D_x(0.0), D_y(0.0), Dprime_x(0.0), Dprime_y(0.0)
+            psi_y(0.0), D_x(0.0), D_y(0.0), Dprime_x(0.0), Dprime_y(0.0),
+            arc_length(0.0)
 {
 }
 
@@ -17,7 +18,8 @@ Lattice_functions::Lattice_functions(LattFuncSage::lattFunc const& latt_func) :
             beta_x(latt_func.beta.hor), beta_y(latt_func.beta.ver),
             psi_x(latt_func.psi.hor), psi_y(latt_func.psi.ver),
             D_x(latt_func.dispersion.hor), D_y(latt_func.dispersion.ver),
-            Dprime_x(latt_func.dPrime.hor), Dprime_y(latt_func.dPrime.ver)
+            Dprime_x(latt_func.dPrime.hor), Dprime_y(latt_func.dPrime.ver),
+            arc_length(latt_func.arcLength)
 {
 }
 
@@ -340,6 +342,56 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
             beamline_context, true);
     set_chef_correctors(vertical_correctors, *chef_lattice_sptr,
             beamline_context, false);
+    double nu_h = beamline_context.getHorizontalFracTune();
+    double nu_v = beamline_context.getVerticalFracTune();
+    double horizontal_final_tune = horizontal_tune - double(int(horizontal_tune));
+    double vertical_final_tune = vertical_tune - double(int(vertical_tune));
+    int rank = Commxx().get_rank();
+    if (rank == 0) {
+        std::cout << "        Initial tunes: horizontal    : " << nu_h
+                << std::endl;;
+        std::cout << "                       vertical      : " << nu_v
+                << std::endl;
+        std::cout << "        Final tunes: horizontal      : "
+                << horizontal_final_tune << std::endl;
+        std::cout << "                     vertical        : "
+                << vertical_final_tune << std::endl;
+    }
+#if 1
+    double adjuster_tune_step = 0.105;
+    double const dtune_h =  (horizontal_final_tune - nu_h) / double(1 + int((
+            std::abs(horizontal_final_tune - nu_h)) / adjuster_tune_step));
+
+    double horizontal_target_tune = nu_h + dtune_h;
+    double vertical_target_tune = vertical_final_tune;
+    int step = 1;
+    while ((10.0 * tolerance) < std::abs(horizontal_final_tune - nu_h)) {
+        if (rank == 0) std::cout << "\n        Step " << step << std::endl;
+        while (tolerance < std::abs( horizontal_target_tune - nu_h)) {
+            int status = beamline_context.changeTunesTo(horizontal_target_tune,
+                     vertical_target_tune);
+            if (status == BeamlineContext::NO_TUNE_ADJUSTER) {
+                throw std::runtime_error(
+                        "Lattice_simulator::adjust_tunes: no corrector elements found");
+            } else if (status != BeamlineContext::OKAY) {
+                throw std::runtime_error(
+                        "Lattice_simulator::adjust_tunes: failed with unknown status");
+        }
+            nu_h = beamline_context.getHorizontalFracTune();
+            nu_v = beamline_context.getVerticalFracTune();
+            if (rank == 0) {
+                std::cout << "        Tunes: horizontal: " << nu_h << " = "
+                        << horizontal_target_tune << " + "
+                        << nu_h - horizontal_target_tune << std::endl;
+                std::cout << "               vertical  : " << nu_v << std::endl;
+            }
+        }
+        have_tunes = false;
+        horizontal_target_tune += dtune_h;
+        ++step;
+    }
+#endif
+#if 0
     const int max_iterations = 20;
     int iteration = 0;
     while ((std::abs(get_horizontal_tune() - horizontal_tune) > tolerance)
@@ -360,6 +412,7 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
         }
         have_tunes = false;
     }
+#endif
     extract_quad_strengths(horizontal_correctors, *chef_lattice_sptr);
     extract_quad_strengths(vertical_correctors, *chef_lattice_sptr);
     update();
