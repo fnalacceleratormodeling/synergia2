@@ -18,8 +18,16 @@ Collective_operator("space_charge_rectangular"),  grid_shape(grid_shape) , pipe_
 std::vector<double > offset(3,0.);
 this->domain_sptr = Rectangular_grid_domain_sptr(
                 new Rectangular_grid_domain(pipe_size, offset, grid_shape , true));
+   fftw_mpi_init();              
 } 
+
  
+Space_charge_rectangular::~Space_charge_rectangular()
+{
+ fftw_mpi_cleanup();
+}
+
+
  
 Rectangular_grid_domain_sptr 
 Space_charge_rectangular::get_domain_sptr() const
@@ -27,10 +35,7 @@ Space_charge_rectangular::get_domain_sptr() const
 return domain_sptr;
 }
  
- 
-Space_charge_rectangular::~Space_charge_rectangular()
-{
-}
+
 
 Rectangular_grid_sptr
 Space_charge_rectangular::get_charge_density(Bunch const& bunch)
@@ -78,7 +83,6 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bu
         
     }
     Commxx comm(bunch.get_comm());
-//    int size=comm.get_size();
     int lrank=comm.get_rank();
 
    
@@ -90,30 +94,42 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bu
     
     
     
-    fftw_mpi_init();
+   
     ptrdiff_t local_nx, local_x_start; 
     ptrdiff_t fftw_local_size = fftw_mpi_local_size_2d(shape[0], shape[1], comm.get(), &local_nx, &local_x_start); 
   
     MArray3d rho_nmk_local(boost::extents[local_nx][shape[1]][shape[2]], storage);   
     fftw_plan  plan;
-    double *data =fftw_alloc_real(fftw_local_size);
+     double *data =fftw_alloc_real(fftw_local_size);
+
+
+
+/// A better way is probably to use the subroutine fftw_mpi_plan_many_r2r below
+/// instead of looping over k. It is not clear to me what iblock and oblock represent below, 
+/// and the documentation sucks!!! 
+//   plan=fftw_mpi_plan_many_r2r(int rnk, const ptrdiff_t *n,
+//                                       ptrdiff_t iblock, ptrdiff_t oblock,
+//                                       double *in, double *out,
+//                                       MPI_Comm comm, const fftw_r2r_kind *kind,
+//                                       unsigned flags);
   
-    for (int k=0; k < shape[2]; ++k){ 
-      //  data_in=rho_ref.origin()+k*shape[0]*shape[1]+local_x_start*shape[1];
-     //   data_out=rho_nmk_local.origin()+k*local_nx*shape[1];        
-        memcpy((void*) data, (void*) (rho_ref.origin()+k*shape[0]*shape[1]+local_x_start*shape[1]),
-                 local_nx*shape[1] * sizeof(double));
-        
-        
+   for (int k=0; k < shape[2]; ++k){ 
+     //  data_in=rho_ref.origin()+k*shape[0]*shape[1]+local_x_start*shape[1];
+     //  data_out=rho_nmk_local.origin()+k*local_nx*shape[1];      
+       memcpy((void*) data, (void*) (rho_ref.origin()+k*shape[0]*shape[1]+local_x_start*shape[1]),
+                local_nx*shape[1] * sizeof(double));
         plan = fftw_mpi_plan_r2r_2d(shape[0],shape[1], data, data,
                                 comm.get(), FFTW_RODFT10, FFTW_RODFT10, FFTW_ESTIMATE);
-        fftw_execute(plan); 
-        
-        memcpy((void*) (rho_nmk_local.origin()+k*local_nx*shape[1]),( void*) data,
-                 local_nx*shape[1] * sizeof(double));       
-    }
-    t = simple_timer_show(t, "get_phi_fftw_dst_direct");
+        fftw_execute(plan);
+       memcpy((void*) (rho_nmk_local.origin()+k*local_nx*shape[1]),( void*) data,
+                local_nx*shape[1] * sizeof(double));         
+        fftw_destroy_plan(plan);      
+  }
+     
     
+  
+    
+    t = simple_timer_show(t, "get_phi_fftw_dst_direct");
     
     const int memory_fudge_factor = 1;        
     fftw_complex *rho_nmp_local;  
@@ -127,18 +143,11 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bu
                                       local_nx*shape[1], 1,
                                       FFTW_ESTIMATE);
     fftw_execute(plan);
+    fftw_destroy_plan(plan); 
     t = simple_timer_show(t, "get_phi_fftw1d_direct");
     
         
     MArray3dc_ref rho_nmp_ref(reinterpret_cast<std::complex<double>*>(rho_nmp_local), boost::extents[local_nx][shape[1]][shape[2]/2+1], storage);  
- 
-  
-    fftw_complex *phi_nmp_local;  
-    phi_nmp_local= (fftw_complex*) fftw_malloc(sizeof(fftw_complex) *local_nx*shape[1]*(shape[2]/2+1)*memory_fudge_factor);  
-    MArray3dc_ref phi_nmp_ref(reinterpret_cast<std::complex<double>*>(phi_nmp_local), boost::extents[local_nx][shape[1]][shape[2]/2+1], storage);  
-    
-    
-   
     std::vector<double > pipe_size(rho.get_domain_sptr()->get_physical_size());
     for (int n=0; n < local_nx; ++n){
          int nt=n+1+local_x_start;
@@ -147,7 +156,7 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bu
              for (int p=0; p< shape[2]/2+1; ++p){
                  double denominator=pi*pi*
                      (nt*nt/(pipe_size[0]*pipe_size[0])+mt*mt/(pipe_size[1]*pipe_size[1])+4.*p*p/(pipe_size[2]*pipe_size[2]));
-                  phi_nmp_ref[n][m][p]= rho_nmp_ref[n][m][p]/denominator; // delta Phi =- rho
+                  rho_nmp_ref[n][m][p] /= denominator; // delta Phi =- rho
                  // phi_nmp_ref[n][m][p]= rho_nmp_ref[n][m][p];
              } 
          } 
@@ -155,12 +164,16 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bu
     t = simple_timer_show(t, "get_phi_loop_phi_nmp");
      
     plan=fftw_plan_many_dft_c2r(1, dim, local_nx*shape[1],
-                                        phi_nmp_local, NULL,
+                                        rho_nmp_local, NULL,
                                         local_nx*shape[1], 1,
                                         rho_nmk_local.origin(), NULL,
                                         local_nx*shape[1], 1,
                                         FFTW_ESTIMATE);
     fftw_execute(plan);
+    fftw_destroy_plan(plan);     
+    fftw_free(rho_nmp_local);  
+ 
+    
     t = simple_timer_show(t, "get_phi_fftw1d_inverse");
     
     for (int k=0; k < shape[2]; ++k){    
@@ -172,11 +185,16 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bu
                                 comm.get(), FFTW_RODFT01, FFTW_RODFT01, FFTW_ESTIMATE);
         fftw_execute(plan);
         memcpy((void*)(rho_nmk_local.origin()+k*local_nx*shape[1]), (void*) data, 
-                 local_nx*shape[1] * sizeof(double));         
-                 
+                 local_nx*shape[1] * sizeof(double));    
+                      
+        fftw_destroy_plan(plan);          
     } 
     t = simple_timer_show(t, "get_phi_fftw_dst_inverse");
     
+    fftw_free(data);
+       
+            
+    //fftw_mpi_cleanup(); // ! it make 
     
     std::vector<double > local_physical_size(domain_sptr->get_physical_size());
    // local_physical_size[0]=domain_sptr->get_cell_size()[0]*local_nx;
@@ -198,7 +216,7 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bu
     for (unsigned int i = 0; i < local_nx; ++i) {
         for (unsigned int j = 0; j < shape[1]; ++j) {
             for (unsigned int k = 0; k < shape[2]; ++k) {                   
-                phi_local_ref[i][j][k]= rho_nmk_local[i][j][k] ;                   
+                phi_local_ref[i][j][k]=rho_nmk_local[i][j][k] ;                   
             }
         }
     }
@@ -259,6 +277,9 @@ Space_charge_rectangular::get_En(Distributed_rectangular_grid &phi, Bunch const&
                 << ". Argument be in range 0<=component<=2";
         throw std::invalid_argument(message.str());
     }
+    double t;
+    t = simple_timer_current();
+    
     
     std::vector<int > shape_phi(phi.get_domain_sptr()->get_grid_shape());
     MArray3d E_local(boost::extents[shape_phi[0]][shape_phi[1]][shape_phi[2]]); 
@@ -366,6 +387,8 @@ Space_charge_rectangular::get_En(Distributed_rectangular_grid &phi, Bunch const&
         }
     }
       
+    t = simple_timer_show(t, "get_En -calculate E local"); 
+      
     Rectangular_grid_sptr En(new Rectangular_grid(domain_sptr));
     
      std::vector<int> uppers(phi.get_uppers());
@@ -384,7 +407,7 @@ Space_charge_rectangular::get_En(Distributed_rectangular_grid &phi, Bunch const&
             "MPI error in Space_charge_rectangular(MPI_Allgatherv in get_En: En_local)");
     }
 
-   
+    t = simple_timer_show(t, "get_En -gather En"); 
     En->set_normalization(phi.get_normalization()); // we should have here  \div $\vec{E}=rho/epsilon
     return En;
   
@@ -436,8 +459,10 @@ Space_charge_rectangular::apply(Bunch & bunch, double time_step, Step & step)
    
     for (int component = 0; component < max_component; ++component) {
        Rectangular_grid_sptr  En(get_En(*phi_local, bunch, component)); // E=-/grad phi; [E]=kg*m/(C*s^2)=N/C
+       t = simple_timer_show(t, "sc_get_En"); 
        apply_kick(bunch, *En, time_step, component);
+        t = simple_timer_show(t, "sc_apply_kick"); 
     }
-     t = simple_timer_show(t, "sc-aplly-kick and get En");
+    // t = simple_timer_show(t, "sc-aplly-kick and get En");
 }
 

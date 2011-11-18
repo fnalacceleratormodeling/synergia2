@@ -196,7 +196,7 @@ if impedance:
 
 space_charge=opts.space_charge
 if space_charge:
-    grid_shape=[64,64,64]
+    grid_shape=[512,512,64]
     radiusx=0.2
     radiusy=0.1    
     pipe_size=[2.*radiusx, 2.*radiusy, lattice_simulator.get_bucket_length()]
