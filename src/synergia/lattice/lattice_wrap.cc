@@ -75,7 +75,9 @@ BOOST_PYTHON_MODULE(lattice)
        ;
 
     to_python_converter<std::list<Lattice_element_sptr >,
-             container_conversions::to_tuple<std::list<Lattice_element_sptr > > >();
+             container_conversions::to_tuple<Lattice_elements > >();
+    container_conversions::from_python_sequence<Lattice_elements,
+             container_conversions::variable_capacity_policy >();
 
     class_<Element_adaptor, Element_adaptor_sptr >("Element_adaptor", init<>())
             .def("set_double_default", &Element_adaptor::set_double_default)

@@ -196,9 +196,9 @@ if impedance:
 
 space_charge=opts.space_charge
 if space_charge:
-    grid_shape=[1024,1024,64]
-    radiusx=1.2
-    radiusy=1.1    
+    grid_shape=[512,512,64]
+    radiusx=0.2
+    radiusy=0.2    
     pipe_size=[2.*radiusx, 2.*radiusy, lattice_simulator.get_bucket_length()]
     if MPI.COMM_WORLD.Get_rank() ==0:
         print "pipe_size=",pipe_size
@@ -216,6 +216,7 @@ if space_charge:
     stepper = synergia.simulation.Split_operator_stepper(
                             lattice_simulator, operators, opts.num_steps)
 else:
+    no_op = synergia.simulation.Dummy_collective_operator("stub")
     stepper = synergia.simulation.Split_operator_stepper(
                             lattice_simulator, no_op, opts.num_steps)                            
 

@@ -10,22 +10,29 @@ import re
 import options
 
 job_mgr_opts = options.Options("job_manager")
-job_mgr_opts.add("createjob", False, "Whether to create new job directory", bool)
+job_mgr_opts.add("template", "job",
+                 "Filename for job template to look for in search path")
+job_mgr_opts.add("templatepath", None, "Full path to a job template", str)
+job_mgr_opts.add("createjob", False, "Whether to create new job directory")
 #job_mgr_opts.add("resumejob", 0, "Whether to resume a previously checkpointed job", int)
-job_mgr_opts.add("jobdir", "run", "Job directory", str)
+job_mgr_opts.add("jobdir", "run", "Job directory")
 #job_mgr_opts.add("resumedir", "run", "Directory containing checkpointed files", str)
-job_mgr_opts.add("numproc", 1, "Number of processes", int)
-job_mgr_opts.add("procspernode", 1, "Number of processes per node", int)
-job_mgr_opts.add("submit", False, "Whether to immediately submit job", bool)
-job_mgr_opts.add("run", False, "Whether to immediately run job", bool)
-job_mgr_opts.add("overwrite", False, "Whether to overwrite existing job directory", bool)
-#job_mgr_opts.add("walltime", "00:30:00", "Limit job to given wall time", str)
-job_mgr_opts.add("synergia_executable", "synergia", "Name or path of synergia executable", str)
+job_mgr_opts.add("numproc", 1, "Number of processes")
+job_mgr_opts.add("procspernode", 1, "Number of processes per node")
+job_mgr_opts.add("submit", False, "Whether to immediately submit job")
+job_mgr_opts.add("queue", None, "Batch system queue", str)
+job_mgr_opts.add("account", None, "Batch system account", str)
+job_mgr_opts.add("run", False, "Whether to immediately run job")
+job_mgr_opts.add("setupsh", '"${HOME}/synergia2_old_devel_1_0/setup.sh"',
+                 "Path to Synergia2 setup.sh file")
+job_mgr_opts.add("overwrite", False, "Whether to overwrite existing job directory")
+job_mgr_opts.add("walltime", None, "Limit job to given wall time", str)
+job_mgr_opts.add("synergia_executable", "synergia", "Name or path of synergia executable")
 
 #job_mgr_opts.add("checkpoint", 0, "enable generation of checkpoint", int)
 #job_mgr_opts.add("checkpoint_freq", 100, "frequency of checkpoint generation", int)
 
-def get_synergia_directory(die_on_failure=1):
+def get_synergia_directory(die_on_failure=True):
     if os.environ.has_key("SYNERGIA2DIR"):
         synergia_dir = os.environ["SYNERGIA2DIR"]
     else:
@@ -51,32 +58,61 @@ def get_script_templates_dir():
     if os.environ.has_key('SYNERGIA2TEMPLATES'):
         return os.environ['SYNERGIA2TEMPLATES']
     else:
-        return os.path.join(get_synergia_directory(), 'synergia-script-templates')
+        return os.path.join(get_synergia_directory(),
+                            'synergia-script-templates')
+
+def search_job_manager_paths(filename):
+    found_path = None
+    here = os.path.join(os.getcwd(), filename)
+    if os.path.exists(here):
+        found_path = here
+    if not found_path:
+        if os.environ.has_key('SYNERGIA2TEMPLATES'):
+            env_path = os.path.join(os.environ['SYNERGIA2TEMPLATES'], filename)
+            if os.path.exists(env_path):
+                found_path = env_path
+    if not found_path:
+        if os.environ.has_key('HOME'):
+            home_path = os.path.join(os.environ['HOME'],
+                                     ".local",
+                                     "share",
+                                     "synergia", filename)
+            if os.path.exists(home_path):
+                found_path = home_path
+    if not found_path:
+        synergia_path = os.path.join(get_synergia_directory(),
+                                     'synergia-script-templates',
+                                     filename)
+        if os.path.exists(synergia_path):
+            found_path = synergia_path
+    if found_path:
+        found_path = os.path.abspath(found_path)
+    return found_path
 
 def get_default_script_templates_dir():
     return os.path.join(get_synergia_directory(), 'synergia-script-templates')
 
 def add_local_opts():
-    found_local_options = False
-    local_options_location = None
-    if os.path.exists(os.path.join(get_script_templates_dir(), 'local_opts.py')):
-        found_local_options = True
-        local_opts_location = get_script_templates_dir()
-    else:
-        if os.path.exists(os.path.join(get_default_script_templates_dir(), 'local_opts.py')):
-            found_local_options = True
-            local_opts_location = get_default_script_templates_dir()
-            if get_script_templates_dir() != get_default_script_templates_dir():
-                print "Note: using local_opts.py from", get_default_script_templates_dir()
-    if found_local_options:
-        sys.path.insert(0, local_opts_location)
+    local_options_path = search_job_manager_paths('local_opts.py')
+    if local_options_path:
+        print 'using local options from:', local_options_path
+        sys.path.insert(0, os.path.dirname(local_options_path))
         import local_opts
-        if hasattr(local_opts, 'opts'):
-            job_mgr_opts.add_suboptions(local_opts.opts)
-        else:
-            print 'Warning: local_opts.py found in'
-            print "%s," % local_opts_location
-            print "but no opts object was found there."
+        sys.path.pop(0)
+        found_options = False
+        for name in dir(local_opts):
+            is_options = False
+            object = getattr(local_opts, name)
+            if hasattr(object, "is_options"):
+                is_options = object.is_options
+            if is_options:
+                job_mgr_opts.add_suboptions(object)
+                found_options = True
+            if hasattr(object, "is_override"):
+                if object.is_override:
+                    job_mgr_opts.override(object)
+        if not found_options:
+            print 'warning: no options object(s) found in', local_opts.__file__
 
 class Job_manager:
     def __init__(self, script, opts, extra_files=None, extra_dirs=None,
@@ -130,13 +166,13 @@ class Job_manager:
                 self.argv.append("resumedir=" + real_resumedir)
 
         if self.opts.get("createjob"):
-            self.create_job(self.opts.get("jobdir"), extra_files, extra_dirs,
-                            extra_opt_files, extra_opt_dirs)
+            job_dir = self.create_job(self.opts.get("jobdir"), extra_files,
+                                      extra_dirs, extra_opt_files, extra_opt_dirs)
             if not opts.job_manager.run:
                 print "created",
                 if opts.get("submit"):
                     print "and submitted",
-                print "job in directory"
+                print "job in directory", job_dir
             sys.exit(0)
 
     def _args_to_string(self, args, strip=[None]):
@@ -157,23 +193,7 @@ class Job_manager:
                 retval += argout
         return retval
 
-    def create_script(self, template, name, directory, subs):
-        script_templates_dir = get_script_templates_dir()
-        default_script_templates_dir = get_default_script_templates_dir()
-        template_path = os.path.join(script_templates_dir, template)
-        if ((not os.path.exists(template_path)) and
-            (not script_templates_dir == default_script_templates_dir)):
-            template_path = os.path.join(default_script_templates_dir,
-                                         template)
-            print "Note: taking", template, "from default path", default_script_templates_dir
-        if not os.path.exists(template_path):
-            template_example = template + "_example"
-            print "Warning: using", template_example, "for", template, \
-                "template."
-            print "You should create a template for your system in"
-            print os.path.join(script_templates_dir, template)
-            template_path = os.path.join(default_script_templates_dir,
-                                        template_example)
+    def create_script(self, template_path, name, directory, subs):
         output_path = os.path.join(directory, name)
         process_template(template_path, output_path, subs)
 
@@ -191,6 +211,12 @@ class Job_manager:
         commandfile = open("command", "w")
         commandfile.write("%s\n" % self._args_to_string(self.argv))
         commandfile.close()
+        alloptionsfile = open("alloptions", "w")
+        keys = self.opts.options()
+        keys.sort()
+        for key in keys:
+            alloptionsfile.write(key + "=" + str(self.opts.get(key)) + "\n")
+        alloptionsfile.close()
         os.chdir(old_cwd)
         subs = {}
         for sub in job_mgr_opts.options():
@@ -201,7 +227,7 @@ class Job_manager:
         subs["procspernode"] = self.opts.get("procspernode")
         subs["numnode"] = numnode
         subs["synergia2dir"] = self.synergia_dir
-        subs["args"] = self._args_to_string(self.argv[1:], ["createjob"])
+        subs["args"] = self._args_to_string(self.argv[1:], job_mgr_opts.options())
         subs["jobdir"] = os.path.abspath(self.directory)
         if self.standalone:
             subs["synergia_executable"] = self.real_script
@@ -209,8 +235,22 @@ class Job_manager:
         else:
             subs["script"] = os.path.basename(self.real_script)
         job_name = os.path.basename(directory) + "_job"
-        self.create_script("job", job_name, directory, subs)
-        self.create_script("cleanup", "cleanup", directory, subs)
+        if self.opts.job_manager.templatepath:
+            job_template_path = self.opts.job_manager.templatepath
+            print "using job template:", job_template_path
+        else:
+            job_template_path = search_job_manager_paths(self.opts.job_manager.template)
+            if job_template_path:
+                print "using job template:", job_template_path
+            else:
+                job_template_path = os.path.join(get_script_templates_dir(),
+                                                 "job_example")
+                print "warning: using example job template:", job_template_path,
+                print "         because no job template was found in search path"
+
+        self.create_script(job_template_path, job_name, directory, subs)
+        self.create_script(search_job_manager_paths("cleanup"), "cleanup",
+                            directory, subs)
         if extra_files:
             self.copy_extra_files(extra_files)
         if extra_dirs:
@@ -227,6 +267,7 @@ class Job_manager:
             os.chdir(directory)
             os.system("./" + job_name)
             os.chdir(old_cwd)
+        return directory
 
     def copy_extra_files(self, files, optional=False):
         for file in files:
@@ -239,7 +280,7 @@ class Job_manager:
     def copy_extra_dirs(self, dirs, optional=False):
         for dir in dirs:
             if os.path.exists(dir):
-                shutil.copytree(dir, self.directory+os.sep+dir)
+                shutil.copytree(dir, self.directory + os.sep + dir)
             else:
                 if not optional:
                     raise RuntimeError("Job_manager: required directory " + dir + " not found")
@@ -298,10 +339,12 @@ class Job_manager:
             else:
                 source.write('            ')
             source.write('if (arg.get_lhs() == "' + optname + '") {\n')
-            source.write('                ' + optname + ' = arg.extract_value<' +\
+            source.write('                ' + optname + ' = arg.extract_value<' + \
                          cxx_typename(opt.val_type) + ' >();\n')
             source.write('            }')
             count += 1
+# jfa: next section is redundant now that job_mgr opts are being stripped.
+#      fixme.
         source.write(''' else if (arg.get_lhs() == "synergia_executable") {
                 // ignore
             } else if (arg.get_lhs() == "run") {
@@ -370,7 +413,11 @@ def process_template(template_name, output_name, subs):
         match = re.search("__([A-z0-9]+){{(.*)}}{{(.*)}}__", line)
         while match:
             var = match.group(1)
+            have_var = False
             if subs.has_key(var):
+                if (subs[var] != None) and (subs[var] != False):
+                    have_var = True
+            if have_var:
                 replacement = match.group(2)
             else:
                 replacement = match.group(3)
@@ -382,7 +429,7 @@ def process_template(template_name, output_name, subs):
             match = re.search("@@[A-z0-9]+@@", line)
         output.write(line)
     for var in unknown_vars:
-        print "process_template warning: variable \"%s\" unkown." % var
+        print "process_template warning: variable \"%s\" unknown." % var
     template.close()
     output.close()
     os.chmod(output_name, 0755)

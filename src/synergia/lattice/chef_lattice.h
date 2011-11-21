@@ -13,6 +13,7 @@ private:
     Element_adaptor_map_sptr element_adaptor_map_sptr;
     BmlPtr beamline_sptr;
     BmlPtr sliced_beamline_sptr;
+    Lattice_element_slices lattice_element_slices;
     bool have_sliced_beamline_;
     ElmPtr lattice_element_marker;
     std::map<const Lattice_element*, Chef_elements > element_map;
@@ -37,12 +38,18 @@ public:
     Chef_lattice(Lattice_sptr lattice_sptr);
     Chef_lattice(Lattice_sptr lattice_sptr,
             Element_adaptor_map_sptr element_adaptor_map_sptr);
+    double
+    get_brho() const;
     Element_adaptor_map_sptr
     get_element_adaptor_map_sptr();
     Chef_elements &
     get_chef_elements(Lattice_element const& lattice_element);
     Chef_elements &
     get_chef_elements(Lattice_element_slice const& lattice_element_slice);
+    Lattice_element const&
+    get_lattice_element(ElmPtr const& chef_element);
+    Lattice_element_slice const&
+    get_lattice_element_slice(ElmPtr const& chef_element);
     bool
     have_sliced_beamline() const;
     void
@@ -51,7 +58,10 @@ public:
     get_beamline_sptr();
     BmlPtr
     get_sliced_beamline_sptr();
+    Lattice_element_slices const&
+    get_lattice_element_slices() const;
     ~Chef_lattice();
+    static const char internal_marker_name[];
 };
 
 typedef boost::shared_ptr<Chef_lattice > Chef_lattice_sptr;

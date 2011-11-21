@@ -10,6 +10,7 @@
 #include "synergia/lattice/chef_lattice.h"
 #include "synergia/simulation/independent_operation.h"
 #include "synergia/simulation/operation_extractor.h"
+#include "synergia/simulation/aperture_operation_extractor.h"
 #include "synergia/bunch/multi_diagnostics.h"
 #include "synergia/bunch/train.h"
 
@@ -28,7 +29,8 @@ public:
     virtual void
     apply(Bunch & bunch, double time_step, Step & step) = 0;
     virtual void
-    apply_train(Bunch_with_diagnostics_train & bunch_diag_train, double time_step, Step & step);
+    apply_train(Bunch_with_diagnostics_train & bunch_diag_train,
+            double time_step, Step & step);
     virtual void
     print() const;
     virtual
@@ -72,14 +74,17 @@ private:
     std::list<long int > operations_revisions;
     Reference_particle operations_reference_particle;
     Operation_extractor_map_sptr operation_extractor_map_sptr;
+    Aperture_operation_extractor_map_sptr aperture_operation_extractor_map_sptr;
     bool have_operations;
     void
     update_operations(Reference_particle const& reference_particle);
     bool
     need_update(Reference_particle const& reference_particle);
 public:
-    Independent_operator(std::string const& name,
-            Operation_extractor_map_sptr operation_extractor_map_sptr);
+    Independent_operator(
+            std::string const& name,
+            Operation_extractor_map_sptr operation_extractor_map_sptr,
+            Aperture_operation_extractor_map_sptr aperture_operation_extractor_map_sptr);
     void
     append_slice(Lattice_element_slice_sptr slice_sptr);
     Lattice_element_slices const&
@@ -87,7 +92,8 @@ public:
     virtual void
     apply(Bunch & bunch, double time_step, Step & step);
     virtual void
-    apply(Bunch & bunch, double time_step, Step & step, Multi_diagnostics & diagnostics);
+    apply(Bunch & bunch, double time_step, Step & step,
+            Multi_diagnostics & diagnostics);
     virtual void
     print() const;
     virtual

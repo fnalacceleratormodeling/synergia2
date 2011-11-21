@@ -36,24 +36,24 @@ BOOST_AUTO_TEST_CASE(construct)
  
 }
 
- BOOST_FIXTURE_TEST_CASE(get_local_charge_density, Ellipsoidal_bunch_fixture)
- {
+BOOST_FIXTURE_TEST_CASE(get_local_charge_density, Ellipsoidal_bunch_fixture)
+{
  
-//     std::vector<int > grid_shape(3);
-//     grid_shape[0] = 32;
-//     grid_shape[1] = 16;
-//     grid_shape[2] = 16;
+    std::vector<int > grid_shape(3);
+    grid_shape[0] = 32;
+    grid_shape[1] = 16;
+    grid_shape[2] = 16;
     std::vector<double > size(3);
     size[0]=0.1;
     size[1]=0.2;
     size[2]=0.05;
-    
     Space_charge_rectangular space_charge(size, grid_shape);
     Rectangular_grid_sptr rho(space_charge.get_charge_density(bunch));
-   // double local_charge=bunch.get_local_num()*real_num*pconstants::e/total_num;
-   // BOOST_CHECK_CLOSE(local_rho->get_normalization(), local_charge, 100*tolerance);
+  
+  //double local_charge=bunch.get_local_num()*real_num*pconstants::e/total_num;
+  // BOOST_CHECK_CLOSE(local_rho->get_normalization(), local_charge, 100*tolerance);
 
- }
+}
 
 BOOST_FIXTURE_TEST_CASE(get_charge_density1, Toy_bunch_fixture_xyz)
 {
@@ -321,84 +321,3 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
 
 
 
-/*BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
-{
-
-    simple_populate(bunch, distribution);
-    Bunch original_bunch(bunch);
-    std::vector<int > grid_shape1(3);
-    std::vector<double > size(3);
-    size[0]=10.;
-    size[1]=10.;
-    size[2]=40.;
-    grid_shape1[0] =64;
-    grid_shape1[1] = 64;
-    grid_shape1[2] = 64;
-    
-    Space_charge_rectangular space_charge(size, grid_shape1);
-   
-    const double time_fraction = 1.0;
-    Step dummy_step(time_fraction);
-    const double time_step = 0.3;
-    space_charge.apply(bunch, time_step, dummy_step);
-    bunch.convert_to_state(Bunch::fixed_z_lab);
-
-    double total_x_kick2 = 0.0;
-    double total_y_kick2 = 0.0;
-    double total_p_kick2 = 0.0;
-    for (int i = 0; i < bunch.get_local_num(); ++i) {
-        double kick;
-        kick = bunch.get_local_particles()[i][Bunch::xp]
-                - original_bunch.get_local_particles()[i][Bunch::xp];
-        total_x_kick2 += kick * kick;
-        kick = bunch.get_local_particles()[i][Bunch::yp]
-                - original_bunch.get_local_particles()[i][Bunch::yp];
-        total_y_kick2 += kick * kick;
-        kick = bunch.get_local_particles()[i][Bunch::dpop]
-                - original_bunch.get_local_particles()[i][Bunch::dpop];
-        total_p_kick2 += kick * kick;
-    }
-    double avg_x_kick2 = total_x_kick2 / bunch.get_local_num();
-    double avg_y_kick2 = total_y_kick2 / bunch.get_local_num();
-    double avg_p_kick2 = total_p_kick2 / bunch.get_local_num();
-
-    const double rough_tolerance = 50.0;
-    BOOST_CHECK_CLOSE(avg_x_kick2, 8.2e4, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_y_kick2, 2.9e4, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_p_kick2, 7.2e6, rough_tolerance);
-}*/
-// 
-// BOOST_FIXTURE_TEST_CASE(apply_transverse, Ellipsoidal_bunch_fixture)
-// {
-//     simple_populate(bunch, distribution);
-//     Bunch original_bunch(bunch);
-//     Space_charge_3d_open_hockney space_charge(comm, grid_shape, false);
-//     const double time_fraction = 1.0;
-//     Step dummy_step(time_fraction);
-//     const double time_step = 0.3;
-//     space_charge.apply(bunch, time_step, dummy_step);
-// 
-//     double total_x_kick2 = 0.0;
-//     double total_y_kick2 = 0.0;
-//     double total_p_kick2 = 0.0;
-//     for (int i = 0; i < bunch.get_local_num(); ++i) {
-//         double kick;
-//         kick = bunch.get_local_particles()[i][Bunch::xp]
-//                 - original_bunch.get_local_particles()[i][Bunch::xp];
-//         total_x_kick2 += kick * kick;
-//         kick += bunch.get_local_particles()[i][Bunch::yp]
-//                 - original_bunch.get_local_particles()[i][Bunch::yp];
-//         total_y_kick2 += kick * kick;
-//         kick = bunch.get_local_particles()[i][Bunch::dpop]
-//                 - original_bunch.get_local_particles()[i][Bunch::dpop];
-//         total_p_kick2 += kick * kick;
-//     }
-//     double avg_x_kick2 = total_x_kick2 / bunch.get_local_num();
-//     double avg_y_kick2 = total_y_kick2 / bunch.get_local_num();
-//     double avg_p_kick2 = total_p_kick2 / bunch.get_local_num();
-// 
-//     const double rough_tolerance = 50.0;
-//     BOOST_CHECK_CLOSE(avg_x_kick2, 7.9e4, rough_tolerance);
-//     BOOST_CHECK_CLOSE(avg_y_kick2, 1.1e5, rough_tolerance);
-//     BOOST_CHECK_CLOSE(avg_p_kick2, 3.65e-2, rough_tolerance);
-// }

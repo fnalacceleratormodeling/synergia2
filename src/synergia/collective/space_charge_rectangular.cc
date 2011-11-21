@@ -24,7 +24,7 @@ this->domain_sptr = Rectangular_grid_domain_sptr(
  
 Space_charge_rectangular::~Space_charge_rectangular()
 {
- fftw_mpi_cleanup();
+ //fftw_mpi_cleanup();
 }
 
 

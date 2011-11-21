@@ -56,6 +56,9 @@
 				</string_attributes>
 				<length_attribute_name>l</length_attribute_name>
 				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+				<revision>0</revision>
+				<needs_internal_derive>0</needs_internal_derive>
+				<needs_external_derive>0</needs_external_derive>
 			</px>
 		</item>
 		<item>
@@ -81,6 +84,9 @@
 				</string_attributes>
 				<length_attribute_name>l</length_attribute_name>
 				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+				<revision>0</revision>
+				<needs_internal_derive>0</needs_internal_derive>
+				<needs_external_derive>0</needs_external_derive>
 			</px>
 		</item>
 		<item>
@@ -110,6 +116,9 @@
 				</string_attributes>
 				<length_attribute_name>l</length_attribute_name>
 				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+				<revision>0</revision>
+				<needs_internal_derive>0</needs_internal_derive>
+				<needs_external_derive>0</needs_external_derive>
 			</px>
 		</item>
 		<item>
@@ -135,6 +144,9 @@
 				</string_attributes>
 				<length_attribute_name>l</length_attribute_name>
 				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+				<revision>0</revision>
+				<needs_internal_derive>0</needs_internal_derive>
+				<needs_external_derive>0</needs_external_derive>
 			</px>
 		</item>
 	</elements>

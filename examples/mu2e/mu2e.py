@@ -2,7 +2,7 @@
 import sys
 import time
 import synergia
-import numpy as np
+import numpy
 import re
 import math
 from synergia.optics.one_turn_map import linear_one_turn_map
@@ -12,98 +12,6 @@ from basic_toolkit import *
 from mxyzptlk import *
 from beamline import *
 from physics_toolkit import *
-
-###############################################################################
-# Class for magnet ramping
-###############################################################################
-class Ramp_actions(synergia.simulation.Propagate_actions):
-    def __init__(self, ramp_turns, turns_to_extract, final_k2l, initial_k1,
-            final_k1):
-        synergia.simulation.Propagate_actions.__init__(self)
-        self.ramp_turns = ramp_turns
-        self.turns_to_extract = turns_to_extract
-        self.final_k2l = final_k2l
-        self.initial_k1 = initial_k1
-        self.final_k1 = final_k1
-    def turn_end_action(self, stepper, bunch, turn_num):
-        for element in stepper.get_lattice_simulator().get_lattice().get_elements():        
-            # sextupole ramping...
-            if turn_num <= ramp_turns:
-                index = 0
-                if element.get_type() == "multipole":
-                    new_k2l = self.final_k2l[index] * turn_num / ramp_turns
-                    element.set_double_attribute("k2l", new_k2l)
-                    index += 1
-                    if myrank == 0 and element.get_name() == "ddd_20_1" :
-                        print
-                        print "    turn                       :", turn_num
-                        print "    updated thinsSextupole     :", element.get_name()
-                        print "    initial k2l:               :", self.final_k2l[index - 1], "1/m^3"
-                        print "    new k2l:                   :", new_k2l, "1/m^3"
-            # quadrupole ramping...
-            if turn_num > ramp_turns:
-                index = 0
-                epsilon = 1.0 * (turn_num - self.ramp_turns) / self.turns_to_extract
-                if element.get_type() == "quadrupole":
-                    new_k1 = (1.0 - epsilon) * self.initial_k1[index] + epsilon * self.final_k1[index]
-                    element.set_double_attribute("k1", new_k1)
-                    index += 1
-                    if myrank == 0 and element.get_name() == "hqf1":
-                        print
-                        print "    turn                      :", turn_num
-                        print "    updated quadrupole        :", element.get_name()
-                        print "    epsilon                   :", epsilon
-                        print "    initial k1                :", self.initial_k1[index - 1], "1/m^2"
-                        print "    final k1                  :", self.final_k1[index - 1], "1/m^2"
-                        print "    new k1                    :", new_k1, "1/m^2"
-        stepper.get_lattice_simulator().update()
-
-###############################################################################
-#    adjust tune
-###############################################################################
-def adjust_tune(beamline_context, tune_h, tune_v, tolerance, tune_step):
-    nu_h = beamline_context.getHorizontalFracTune()
-    nu_v = beamline_context.getVerticalFracTune()
-    final_tune_h = tune_h - int(tune_h)
-    final_tune_v = tune_v - int(tune_v)
-
-    if myrank == 0: 
-        print "        Initial tunes: horizontal:", beamline_context.getHorizontalFracTune() 
-        print "                       vertical  :", beamline_context.getVerticalFracTune() 
-        print "        Final tunes:   horizontal:", final_tune_h
-        print "                       vertical  :", final_tune_v
-
-    dtune_h = (final_tune_h - nu_h) / (1 + int(np.abs(final_tune_h - nu_h)) / tune_step)
-    target_tune_h = nu_h + dtune_h
-    target_tune_v = final_tune_v
-
-    step = 1
-    while (np.abs(final_tune_h - nu_h) > 10.0 * tolerance):
-        if myrank == 0:
-            print "        Step", step
-        while (np.abs(final_tune_h - nu_h) > tolerance):
-            beamline_context.changeTunesBy(target_tune_h - nu_h, 0)
-            #if ( errorCode != BeamlineContext::OKAY ) {
-            #    if ( errorCode == BeamlineContext::NO_TUNE_ADJUSTER ) {
-            #        (*outstreamptr) << "\n\n*** ERROR *** No tune adjuster in the context!" << endl;
-            #    }
-            #    exit(-1);
-            #}
-            beamline_context.changeTunesBy(0, target_tune_v - nu_v);
-            #if ( errorCode != BeamlineContext::OKAY ) {
-            #    if ( errorCode == BeamlineContext::NO_TUNE_ADJUSTER ) {
-            #        (*outstreamptr) << "\n\n*** ERROR *** No tune adjuster in the context!" << endl;
-            #    }
-            #    exit(-1);
-            #}
-            nu_h = beamline_context.getHorizontalFracTune();
-            nu_v = beamline_context.getVerticalFracTune();
-            if myrank == 0:
-                print "        Tunes: horizontal:", nu_h, "=", target_tune_h,
-                print "+", nu_h - target_tune_h
-                print "             : vertical  :", nu_v
-        target_tune_h += dtune_h
-        step += 1
 
 ###############################################################################
 #   resonance sum
@@ -116,95 +24,111 @@ def nint(x):
     else:
         return int(lower)
 
-def resonance_sum(information, beamline, bhro):
-    g = np.zeros([2],dtype=complex)
+def resonance_sum(lattice_simulator, brho):
     imaginary_number = 1j
-    factor = imaginary_number / (24.0 * np.sqrt(2.0) * np.pi * brho)
+    factor = imaginary_number / ((6.0 * numpy.sqrt(2.0)) * (4.0 * numpy.pi) * brho)
 
-    num_elements = beamline.countHowMany()
-    circumference = information[num_elements - 1].arcLength
-    nu_x = information[num_elements - 1].psi.hor / (2.0 * np.pi)
+    synergia_elements = lattice_simulator.get_lattice().get_elements()
+    num_elements = len(synergia_elements)
+    last_element = synergia_elements[num_elements-1]
+    last_lattice_functions = lattice_simulator.get_lattice_functions(last_element)
+    nu_x = last_lattice_functions.psi_x / (2.0 * numpy.pi)
+    circumference = last_lattice_functions.arc_length
     harmonic = float(nint(3.0 * nu_x))
     delta = nu_x - harmonic / 3.0
 
     if myrank == 0:
-        print "        number of elements     :", num_elements
-        print "        circumference          :", circumference, "m"
-        print "        nu_x                   :", nu_x
-        print "        harmonic               :", harmonic
-        print "        delta                  :", delta
+        print "        number of elements           :", num_elements
+        print "        nu_x                         :", nu_x
+        print "        circumference                :", circumference, "m"
+        print "        harmonic                     :", harmonic
+        print "        delta                        :", delta
 
+    g = numpy.zeros([2],dtype=complex)
     index = 0
-    for element in beamline:
-        local_info = information[index]
-        if element.Type() == "thinSextupole":
-            theta = 2.0 * np.pi * local_info.arcLength / circumference
-            beta_x = local_info.beta.hor
-            psi_x = local_info.psi.hor
+    for element in synergia_elements:
+#lattice_simulator.get_lattice().get_elements():
+        if element.get_type() == "multipole":
+            lattice_functions = lattice_simulator.get_lattice_functions(element)
+            theta = 2.0 * numpy.pi * lattice_functions.arc_length / circumference
+            beta_x = lattice_functions.beta_x
+            beta32 = beta_x * numpy.sqrt(beta_x)
+            psi_x = lattice_functions.psi_x
             phase = 3.0 * (psi_x - delta * theta)
-            while np.pi < phase:
-                phase -= 2.0 * np.pi
-            while phase <= - np.pi:
-                phase += 2.0 * np.pi
+            while numpy.pi < phase:
+                phase -= 2.0 * numpy.pi
+            while phase <= - numpy.pi:
+                phase += 2.0 * numpy.pi
             if myrank == 0:
                 print
-                print "        index                  :", index
-                print "        type                   :", element.Type()
-                print "        name                   :", element.Name()
-                print "        strength               :", element.Strength()
-                print "        theta                  :", theta
-                print "        beta_x                 :", beta_x
-                print "        psi_x                  :", psi_x
-                print "        phase                  :", phase
-            beta32 = beta_x * np.sqrt(beta_x)
-            increment = beta32 * 2.0 * element.Strength() * (np.cos(phase) - np.sin(phase) * imaginary_number)
+                print "        index                        :", index
+                print "        type                         :", 
+                print element.get_type()
+                print "        name                         :", 
+                print element.get_name()
+                print "        strength                     :", 
+                print element.get_double_attribute("k2l")
+                print "        strength in chef unit        :",
+                print element.get_double_attribute("k2l") * brho / 2.0
+                print "        theta                        :", theta
+                print "        beta_x                       :", beta_x
+                print "        psi_x                        :", psi_x
+                print "        phase                        :", phase
+            increment = beta32 * brho \
+                    * element.get_double_attribute("k2l") \
+                    * (numpy.cos(phase) - numpy.sin(phase) * imaginary_number)
 
-            if re.search('ddd_50', element.Name()):
+            if re.search('ddd_50', element.get_name()):
                 g[0] += increment
-            elif re.search('ddd_20', element.Name()):
+            elif re.search('ddd_20', element.get_name()):
                 g[1] += increment
             else:
                 print "Incorrectly named harmonic sextupole, perhaps?"
-                sys.out(1)
+                sys.exit(1)
         index += 1
-
     g[0] *= factor
     g[1] *= factor
-
     return g
-
 ###############################################################################
-#   quick and dirty twiss parameter calculator from 2x2 Courant-Snyder map array
+#   quick and dirty twiss parameter calculator from 2x2 Courant-Snyder map 
+#   array by Eric
 ###############################################################################
 def map2twiss(csmap):
     cosmu = 0.5 * (csmap[0,0] + csmap[1,1])
     asinmu = 0.5 * (csmap[0,0] - csmap[1,1])
 
     if abs(cosmu) > 1.0:
-        print "error, map is unstable"
-    mu = np.arccos(cosmu)
+        if myrank == 0:
+            print "error, map is unstable"
+    mu = numpy.arccos(cosmu)
 
     # beta is positive
     if csmap[0,1] < 0.0:
-        mu = 2.0 * np.pi - mu
+        mu = 2.0 * numpy.pi - mu
 
-    beta = csmap[0,1]/np.sin(mu)
-    alpha = asinmu/np.sin(mu)
-    tune = mu/(2.0*np.pi)
+    beta = csmap[0,1]/numpy.sin(mu)
+    alpha = asinmu/numpy.sin(mu)
+    tune = mu/(2.0*numpy.pi) 
 
     return (alpha, beta, tune)
 
 ###############################################################################
-#   Mu2e Third Integer Resonant Extraction Simulation
+###############################################################################
+#                                                                             #
+#   Mu2e Third Integer Resonant Extraction Simulation                         #
+#                                                                             #
+###############################################################################
 ###############################################################################
 
-real_particles = opts.real_particles
 gridx = opts.gridx
 gridy = opts.gridy
 gridz = opts.gridz
 partpercell = opts.partpercell
-
-macro_particles = gridx * gridy * gridz * partpercell
+real_particles = opts.real_particles
+if opts.macro_particles:
+    macro_particles = opts.macro_particles
+else:
+    macro_particles = gridx * gridy * gridz * partpercell
 
 seed = 4
 grid = [gridx, gridy, gridz]
@@ -223,11 +147,12 @@ x_offset = opts.x_offset
 y_offset = opts.y_offset
 z_offset = opts.z_offset
 
+solver = opts.spacecharge
 verbose = opts.verbose
 
 myrank = MPI.COMM_WORLD.rank
 if myrank == 0:
-    print 
+    print
     print "Run Summary"
     print "    Macro particles                  :", macro_particles
     print "    Real particles                   :", real_particles
@@ -235,7 +160,8 @@ if myrank == 0:
     print "    num steps/turn                   :", num_steps
     print "    grid                             :", grid
     print "    map order                        :", map_order
-    print "    (normalized) transverse emittance:", opts.norm_emit * 1e6, "mm-mrad"
+    print "    (normalized) transverse emittance:", opts.norm_emit * 1e6, 
+    print "mm-mrad"
     print "    stdz                             :", stdz
     print "    bunch length                     :", bunchlen_sec * 1e9, "nsec"
     print "    Radius aperture                  :", radius, "m"
@@ -243,11 +169,11 @@ if myrank == 0:
     print "    X offset                         :", x_offset
     print "    Y offset                         :", y_offset
     print "    Z_offset                         :", z_offset
-    print "    Space Charge is", 
-    if opts.spacecharge:
+    print "    Space Charge                     :",
+    if solver == "2d" or solver == "2D" or solver == "3d" or solver == "3D":
         print "ON"
     else:
-        print "not ON"
+        print "OFF"
     print "    Generating diagnostics           :",
     if opts.turn_full2:
         print "turn_full2",
@@ -257,14 +183,14 @@ if myrank == 0:
         print "turn_tracks:", opts.turn_tracks,
     print
 
-synergia_lattice = synergia.lattice.Mad8_reader().get_lattice("debunch", 
+synergia_lattice = synergia.lattice.Mad8_reader().get_lattice("debunch",
                 "Debunch_modified_rf.lat")
 synergia_elements = synergia_lattice.get_elements()
 
 # with the aperture, all the particles are immediately eliminated
 if radius > 0.0:
-    for elem in synergia_elements:
-        elem.set_double_attribute("aperture_radius", radius)
+    for element in synergia_elements:
+        element.set_double_attribute("aperture_radius", radius)
 
 lattice_length = synergia_lattice.get_length()
 
@@ -272,7 +198,8 @@ reference_particle = synergia_lattice.get_reference_particle()
 energy = reference_particle.get_total_energy()
 beta = reference_particle.get_beta()
 gamma = reference_particle.get_gamma()
-brho = reference_particle.get_momentum() / (synergia.foundation.pconstants.c / 1e9)
+momentum = reference_particle.get_momentum()
+brho = momentum / (synergia.foundation.pconstants.c / 1e9)
 bunchlen_m = bunchlen_sec * beta * synergia.foundation.pconstants.c
 
 emitx /= (beta * gamma) * 6.0
@@ -281,6 +208,7 @@ emity /= (beta * gamma) * 6.0
 if myrank == 0:
     print "    lattice length                   :", lattice_length, "m"
     print "    brho                             :", brho, "T-m"
+    print "    momentum                         :", momentum, "GeV/c"
     print "    energy                           :", energy, "GeV"
     print "    beta                             :", beta
     print "    gamma                            :", gamma
@@ -295,15 +223,17 @@ if myrank == 0:
     print
     print "Begin setting RF voltage..."
 harmno = 4
-freq = harmno * beta * synergia.foundation.pconstants.c/lattice_length
+freq = harmno * beta * synergia.foundation.pconstants.c / lattice_length
 for element in synergia_elements:
     if element.get_type() == "rfcavity":
         element.set_double_attribute("volt", rf_voltage)
         element.set_double_attribute("freq", freq)
         if myrank == 0:
             print "    rfcavity                         :", element.get_name()
-            print "    rf voltage                       :", element.get_double_attribute("volt"), "MV"
-            print "    rf frequency                     :", element.get_double_attribute("freq") * 1e-6, "MHz"
+            print "    rf voltage                       :", 
+            print element.get_double_attribute("volt"), "MV"
+            print "    rf frequency                     :", 
+            print element.get_double_attribute("freq") * 1e-6, "MHz"
 
 ###############################################################################
 #   Set lattice_simulator and chef_lattice
@@ -320,36 +250,27 @@ chef_lattice = lattice_simulator.get_chef_lattice()
 #   Set the lattice for third integer resonant extraction
 ###############################################################################
 if myrank == 0:
-    print
+    print 
     print "Set the lattice for the third integer resonant extraction"
-#   Establish the Jet environment and initiate a beamline context
-    print
-    print "....Establish the Jet environment and initiate a beamline context"
-JetParticle.createStandardEnvironments(map_order)
-probe = Proton(energy)
-probe.setStateToZero()
-beamline = chef_lattice.get_beamline()
-beamline_context = BeamlineContext(probe, beamline) 
+t0 = time.time()
+chef_beamline = chef_lattice.get_beamline()
 
-#   Set up the tune control circuit
+#   Set up the tune control circuits
 if myrank == 0:
     print
-    print "....Set the tune control circuit"
-for element in beamline:
-    if re.search('hqf1', element.Name()) or re.search('hqf2', element.Name()):
-        beamline_context.addHTuneCorrectorQuadrupolePtr(element)
-    elif re.search('hqd1', element.Name()) or re.search('hqd2', element.Name()):
-        beamline_context.addVTuneCorrectorQuadrupolePtr(element)
-
-#   Calculate target emittance from invariant emittance
-#   (This is the area of a triangle tangent to a circle.)
-if myrank == 0:
-    print
-    print "....Calculate target emittance from invariant emittance"
-safety_factor = 1.05
-emittance_x = opts.norm_emit * np.pi / (beta * gamma)
-emittance_x *= safety_factor 
-emittance_x *= 3.0 * np.sqrt(3.0) / np.pi
+    print "....Set the tune control circuits"
+horizontal_correctors = []
+vertical_correctors = []
+htest = []
+index = 0
+for element in synergia_elements:
+    name = element.get_name()
+    type = element.get_type()
+    index += 1
+    if name == "hqf1" or name == "hqf2":
+        horizontal_correctors.append(element)
+    if name == "hqd1" or name == "hqd2":
+        vertical_correctors.append(element)
 
 #   Set initial tunes.
 if myrank == 0:
@@ -357,13 +278,14 @@ if myrank == 0:
     print "....Set initial tunes"
 bare_tune = [opts.tuneh, opts.tunev]
 
-#   Adjust Tunes
+#   Adjust Tunes (initial tunes)
 if myrank == 0:
     print
     print "....Adjust Tunes"
 tune_tolerance = 1.0e-8
 adjuster_tune_step = 0.005
-adjust_tune(beamline_context, bare_tune[0], bare_tune[1], tune_tolerance, adjuster_tune_step)
+
+lattice_simulator.adjust_tunes(bare_tune[0], bare_tune[1], horizontal_correctors, vertical_correctors, tune_tolerance)
 
 #   Store initial quad settings for initial tune
 if myrank == 0:
@@ -371,12 +293,29 @@ if myrank == 0:
     print "....Store initial quad settings for initial tune"
 initial_k1 = []
 index = 0
-for element in beamline:
-    if element.Type() == "quadrupole":
-        initial_k1.append(element.Strength() / brho)       # 1/m^2
+for element in synergia_elements:
+#lattice_simulator.get_lattice().get_elements():
+    if element.get_type() == "quadrupole":
+        initial_k1.append(element.get_double_attribute("k1"))
         index += 1
-        #if myrank == 0:
-        #    print "       ", element.Name(), initial_k1[index - 1], "=", element.Strength(), "/ brho"
+
+#   Output files for plotting
+if opts.twiss and myrank == 0:
+        twiss_file = ("twiss.txt")
+        twiss_log = open(twiss_file, "w")
+if opts.separatrix and myrank == 0:
+        separatrix_file = ("separatrix.txt")
+        separatrix_log = open(separatrix_file, "w")
+
+#   Calculate target emittance from invariant emittance
+#   (This is the area of a triangle tangent to a circle.)
+if myrank == 0:
+    print 
+    print "....Calculate target emittance from invariant emittance"
+safety_factor = 1.05
+emittance_x = opts.norm_emit * numpy.pi / (beta * gamma)
+emittance_x *= safety_factor 
+emittance_x *= 3.0 * numpy.sqrt(3.0) / numpy.pi
 
 #   Determine the target value of |g|
 if myrank == 0:
@@ -384,30 +323,39 @@ if myrank == 0:
     print "....Determine the target value of |g|"
 resonant_tune = opts.resonant_tune
 delta = bare_tune[0] - resonant_tune
-target_abs_g = np.abs(delta) / np.sqrt(2.0 * np.sqrt(3.0) * emittance_x)
-target_phase_g = opts.phase_g * np.pi / 180.0
-target_g = target_abs_g * (np.cos(target_phase_g) + 1j * np.sin(target_phase_g))
+target_abs_g = numpy.abs(delta) / numpy.sqrt(2.0 * numpy.sqrt(3.0) * emittance_x)
+target_phase_g = opts.phase_g * numpy.pi / 180.0
+target_g = target_abs_g * (numpy.cos(target_phase_g) + 1j * numpy.sin(target_phase_g))
 if myrank == 0:
-    print "        resonant tune          :", resonant_tune
-    print "        target |g|             :", target_abs_g
-    print "        target psi_g           :", opts.phase_g, "degree"
+    print "        resonant tune                :", resonant_tune
+    print "        starting tune                :", bare_tune[0]
+    print "        target |g|                   :", target_abs_g
+    print "        target psi_g                 :", opts.phase_g, "degree"
 
 #   Calculate current value of |g|
 if myrank == 0:
     print
     print "....Calculate current value of g"
     print "........Calling resonance_sum"
-    print 
-information = beamline_context.getTwissArray()
-g = np.zeros([2], dtype=complex)
-g = resonance_sum(information, beamline, brho)
+    print
+
+chef_beamline = lattice_simulator.get_chef_lattice().get_beamline()
+
+for element in synergia_elements:
+#lattice_simulator.get_lattice().get_elements():
+    name = element.get_name()
+    type = element.get_type()
+    lattice_function = lattice_simulator.get_lattice_functions(element)
+
+g = numpy.zeros([2], dtype=complex)
+g = resonance_sum(lattice_simulator, brho)
 total_g = g[0] + g[1]
-abs_g = np.abs(total_g)
+abs_g = numpy.abs(total_g)
 
 if myrank == 0:
-    print 
-    print "        current value: g       :", total_g
-    print "                      |g|      :", abs_g
+    print
+    print "        current value: g             :", total_g
+    print "                      |g|            :", abs_g
 
 #   Adjust harmonic sextupole strengths
 if myrank == 0:
@@ -415,65 +363,70 @@ if myrank == 0:
     print "....Adjust harmonic sextupole strengths: Setting (integrated) sextupole strengths"
     print "........Change polarity, if desired"
 if opts.flip:
-    for element in beamline:
-        if element.Type() == "thinSextupole":
-            element.setStrength(- element.Strength())
+    for element in chef_beamline:
+        if element.Type() == "multipole":
+            element.set_double_attribute("k2l", -1.0 * element.get_double_attribute("k2l"))
 
 ratio = target_abs_g / abs_g
-g *= ratio
 if myrank == 0:
-    print
+    print 
     print "........Scale to target value of harmonic coupling: Setting (integrated) sextupole strengths"
-    print "            ratio              :", ratio
-for element in beamline:
-    if element.Type() == "thinSextupole":
-        old_strength = element.Strength()
-        new_strength = element.Strength() * ratio
-        element.setStrength(new_strength)
+    print "            ratio                    :", ratio
+for element in synergia_elements:
+    if element.get_type() == "multipole":
+        old_strength = element.get_double_attribute("k2l")
+        new_strength = old_strength * ratio
+        element.set_double_attribute("k2l", new_strength)
         if myrank == 0:
             print 
-            print "            type               :", element.Type()
-            print "            name               :", element.Name()
-            print "            strength           :", old_strength, "->", new_strength, "T/m"
-            print "                               : B''l =", 2.0 * new_strength, "T/m"
+            print "            type                     :", element.get_type()
+            print "            name                     :", element.get_name()
+            print "            strength                 :", 
+            print old_strength * brho / 2.0,
+            print "->", new_strength * brho / 2.0, "T/m"
+            print "                                     : B''l =",
+            print 2.0 * new_strength * brho / 2.0, "T/m"
+g *= ratio
 
 if myrank == 0:
     print 
     print "........Rotate, if desired"
-denom = (np.conjugate(g[1]) * g[0]).imag
-s = np.zeros([2], 'd')
-s[0] = (np.conjugate(g[1]) * target_g).imag / denom;
-s[1] = -(np.conjugate(g[0]) * target_g).imag / denom;
+denom = (numpy.conjugate(g[1]) * g[0]).imag
+s = numpy.zeros([2], 'd')
+s[0] = (numpy.conjugate(g[1]) * target_g).imag / denom;
+s[1] = -(numpy.conjugate(g[0]) * target_g).imag / denom;
 if myrank == 0:
-    print "            g                  :", target_g
-    print "            g1                 :", g[0]
-    print "            g2                 :", g[1]
-    print "            s1                 :", s[0]
-    print "            s2                 :", s[1]
-    print "            target_g           :", np.abs(target_g)
-    print "            g                  :", np.abs(g[0] + g[1])
-    print "            target_phase_g     :", target_phase_g
-    print "            delta              :", delta
+    print "            g                        :", target_g
+    print "            g1                       :", g[0]
+    print "            g2                       :", g[1]
+    print "            s1                       :", s[0]
+    print "            s2                       :", s[1]
+    print "            target_g                 :", numpy.abs(target_g)
+    print "            g                        :", numpy.abs(g[0] + g[1])
+    print "            target_phase_g           :", target_phase_g
+    print "            delta                    :", delta
     print
     print "............Doing rotation"
-g[0] *= s[0]
-g[1] *= s[1]
-for element in beamline:
-    if element.Type() == "thinSextupole":
-        if re.search('ddd_50', element.Name()):
-            old_strength = element.Strength()
+for element in synergia_elements:
+    if element.get_type() == "multipole":
+        old_strength = element.get_double_attribute("k2l")
+
+        if re.search('ddd_50', element.get_name()):
             new_strength = old_strength * s[0]
-            element.setStrength(new_strength)
-        elif re.search('ddd_20', element.Name()):
-            old_strength = element.Strength()
+        elif re.search('ddd_20', element.get_name()):
             new_strength = old_strength * s[1]
-            element.setStrength(new_strength)
+        element.set_double_attribute("k2l", new_strength)
         if myrank == 0:
             print
-            print "            type               :", element.Type()
-            print "            name               :", element.Name()
-            print "            strength           :", old_strength, "->", new_strength, "T/m"
-            print "                               : B''l =", 2.0 * new_strength, "T/m"
+            print "            type                     :", element.get_type()
+            print "            name                     :", element.get_name()
+            print "            strength                 :", 
+            print old_strength * brho / 2.0,
+            print "->", new_strength * brho / 2.0, "T/m"
+            print "                                     : B''l =",
+            print 2.0 * new_strength * brho / 2.0, "T/m"
+g[0] *= s[0]
+g[1] *= s[1]
 
 #   Store final settings of harmonic sextupole circuits
 final_k2l = []
@@ -481,134 +434,56 @@ index = 0
 if myrank == 0:
     print
     print "........Store final settings of harmonic sextupole circuits"
-for element in beamline:
-    if element.Type() == "thinSextupole":
-        final_k2l.append(element.Strength() / brho)        # 1/m^3
+for element in synergia_elements:
+    if element.get_type() == "multipole":
+        strength = element.get_double_attribute("k2l") / 2.0
+        final_k2l.append(strength)        # 1/m^3
         index += 1
         if myrank == 0:
-            print 
-            print "            type               :", element.Type()
-            print "            name               :", element.Name()
-            print "            strength (k2l)     :", final_k2l[index-1], "1/m^3"
+            print
+            print "            type                     :", element.get_type()
+            print "            name                     :", element.get_name()
+            print "            strength (k2l)           :", final_k2l[index-1],
+            print "1/m^3"
+            print "                                     : B''l =",
+            print strength * brho, "T/m"
 
-#   Set resonant tune
-if myrank == 0:
-    print
-    print "....Set resonant tune"
-tune_h = resonant_tune
-adjust_tune(beamline_context, tune_h, bare_tune[1], tune_tolerance, adjuster_tune_step)
+sys.exit(1)
 
-#   Store final quad settings for resonant tune
-if myrank == 0:
-    print
-    print "....Store final quad settings for resonat tune"
-final_k1 = []
-index = 0
-for element in beamline:
-    if element.Type() == "quadrupole":
-        final_k1.append(element.Strength() / brho)         # 1/m^2
-        index += 1
-        #if myrank == 0:
-        #    print "       ", element.Name(), final_k1[index - 1], "=", element.Strength(), "/ brho"
 
-#   Testing
-if myrank == 0:
-    print
-    print "....Test: after setting final conditions"
-index = 0
-for element in beamline:
-    if element.Type() == "quadrupole":
-        element.setStrength(final_k1[index])
-        index += 1
-#beamline_context.reset()
-nu_h = beamline_context.getHorizontalEigenTune()
-nu_v = beamline_context.getVerticalEigenTune()
-fractional_tune = resonant_tune - int(resonant_tune)
-if myrank == 0:
-    print
-    print "        Fractional tunes: horizontal:", nu_h, "= resFracTune +", 
-    print nu_h - fractional_tune
-    print "                          vertical  :", nu_v
-    print
-    print "....Test: after setting initial conditions"
-index = 0
-for element in beamline:
-    if element.Type() == "quadrupole":
-        element.setStrength(initial_k1[index])
-        index += 1
-#beamline_context.reset()
-nu_h = beamline_context.getHorizontalEigenTune()
-nu_v = beamline_context.getVerticalEigenTune()
-fractional_tune = bare_tune[0] - int(bare_tune[0])
-resFracTune = resonant_tune - int(resonant_tune)
-if myrank == 0:
-    print
-    print "        Fractional tunes: horizontal:", nu_h, "= resFracTune +",
-    print nu_h - fractional_tune
-    print "                          vertical  :", nu_v
 
-#   Determine ramping turns
-ramp_turns = opts.rampturns
-extraction_fraction = opts.extraction_fraction
-turns_to_extract = int(extraction_fraction * beta * synergia.foundation.pconstants.c / lattice_length / 60.0 ) + ramp_turns
 
-if myrank == 0:
-    print
-    print "....Determine ramping turns"
-    print "        sextupole ramping turns:", ramp_turns
-    print "        extraction fraction    :", extraction_fraction
-    print "        turns to extract:      :", turns_to_extract
-    print "        final turn             :", num_turns
 
-ramp_actions = Ramp_actions(ramp_turns, turns_to_extract, final_k2l,
-                initial_k1, final_k1)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ###############################################################################
 #   Set initial element strengths for beam matching
 ###############################################################################
-if myrank == 0:
-    print
-    print "Set initial element strengths"
-    print
-    print "....Set initial quad strengths of the Synergia lattice"
-index = 0
-for element in synergia_elements:
-    if element.get_type() == "quadrupole":
-        element.set_double_attribute("k1", initial_k1[index])
-        index += 1
-if myrank == 0:
-    print
-    print "....Set initial quad strengths of the CHEF lattice"
-index = 0
-for element in beamline:
-    if element.Type() == "quadrupole":
-        element.setStrength(initial_k1[index] * brho)
-        index += 1
-
-if myrank == 0:
-    print
-    print "....Set initial sextupole strengths of the CHEF lattice"
-index = 0
-for element in beamline:
-    if element.Type() == "thinSextupole":
-        element.setStrength(0.0)
-        index += 1
 
 ###############################################################################
 #  CHEF One Turn Map 
 ###############################################################################
-if myrank == 0:
-    print
-    print "CHEF One Turn Map"
-JetParticle.createStandardEnvironments(map_order)
-jpr = JetProton(energy)
-#bml = chef_lattice.get_beamline()
-#bml.propagate(jpr)
-beamline.propagate(jpr)
-chefmap = jpr.State()
-chefoneturnmap = chefmap.jacobian()
-if myrank == 0:
-    print chefoneturnmap
+
 
 ###############################################################################
 #   One Turn Map from Synergia
@@ -616,17 +491,17 @@ if myrank == 0:
 map = linear_one_turn_map(lattice_simulator)
 if myrank == 0:
     print "One turn map from synergia2.5 infrastructure"
-    print np.array2string(map, max_line_width=200, precision=3)
-    print "    det(M) :", np.linalg.det(map)
+    print numpy.array2string(map, max_line_width=200, precision=3)
+    print "    det(M) :", numpy.linalg.det(map)
 
 # checking eigen vector and values of map
-#[l, v] = np.linalg.eig(map)
+#[l, v] = numpy.linalg.eig(map)
 #print "l:", l
 #print "v:", v
 #if myrank == 0:
 #    print "    eigenvalues:"
 #    for z in l: 
-#        print "    |z|:", abs(z), " z:", z, " tune:", np.log(z).imag/(2.0*np.pi)
+#        print "    |z|:", abs(z), " z:", z, " tune:", numpy.log(z).imag/(2.0*numpy.pi)
 
 [ax, bx, qx] = map2twiss(map[0:2, 0:2])
 [ay, by, qy] = map2twiss(map[2:4, 2:4])
@@ -657,8 +532,8 @@ if myrank == 0:
     print "Beam parameters for matching"
     print "    emitx                            :", emitx * 1e6, "mm-mrad"
     print "    emity                            :", emity * 1e6, "mm-mrad"
-    print "    xwidth                           :", np.sqrt(emitx * bx), "m"
-    print "    ywidth                           :", np.sqrt(emity * by), "m"
+    print "    xwidth                           :", numpy.sqrt(emitx * bx), "m"
+    print "    ywidth                           :", numpy.sqrt(emity * by), "m"
 
 if myrank == 0:
     print
@@ -667,7 +542,7 @@ if myrank == 0:
 #                emitx, emity, stdz, dpop, real_particles, macro_particles,
 #                seed=seed)
 bunch = synergia.optics.generate_matched_bunch(lattice_simulator,
-                np.sqrt(emitx * beta_twiss[0]), np.sqrt(emity * beta_twiss[1]),
+                numpy.sqrt(emitx * beta_twiss[0]), numpy.sqrt(emity * beta_twiss[1]),
                 bunchlen_m, real_particles, macro_particles, seed=seed)
 
 # apply offset to bunch
@@ -679,14 +554,13 @@ particles[:,4] = particles[:,4] + z_offset
 
 if myrank == 0:
     print
-    print "    expected stdx:", np.sqrt(emitx * bx), "(m) generated (on rank 0):", np.std(particles[:,0]), "(m)"
-    print "    expected stdy:", np.sqrt(emity * by), "(m) generated (on rank 0):", np.std(particles[:,2]), "(m)"
-    print "    expected stdz:", bunchlen_m, "   (m) generated (on rank 0):", np.std(particles[:,4]), "   (m)"
+    print "    expected stdx:", numpy.sqrt(emitx * bx), "(m) generated (on rank 0):", numpy.std(particles[:,0]), "(m)"
+    print "    expected stdy:", numpy.sqrt(emity * by), "(m) generated (on rank 0):", numpy.std(particles[:,2]), "(m)"
+    print "    expected stdz:", bunchlen_m, "   (m) generated (on rank 0):", numpy.std(particles[:,4]), "   (m)"
 
 ###############################################################################
 #   Collective operator
 ###############################################################################
-solver = opts.spacecharge
 if myrank == 0:
     print
     print "Set collective operator"
@@ -745,8 +619,8 @@ if myrank == 0:
 
 t0 = time.time()
 propagator = synergia.simulation.Propagator(stepper)
-propagator.propagate(bunch, num_turns, diagnostics_actions, ramp_actions, 
-                verbose)
+#propagator.propagate(bunch, num_turns, diagnostics_actions, ramp_actions, 
+#                verbose)
 t1 = time.time()
 
 if myrank == 0:
