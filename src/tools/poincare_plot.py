@@ -74,6 +74,7 @@ def handle_args(args):
     return options
 
 def do_plots(options):
+    pyplot.figure().canvas.set_window_title('Synergia Poincare Plot')
     for filename in options.inputfiles:
         f = tables.openFile(filename, 'r')
         particle_coords = getattr(f.root, "coords").read()

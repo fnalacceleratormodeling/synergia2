@@ -124,6 +124,7 @@ def handle_args(args, plotparams):
 def do_plots(options, plotparams):
     f = tables.openFile(options.inputfile, 'r')
     rows, cols = get_layout(len(options.plots))
+    pyplot.figure().canvas.set_window_title('Synergia Diagnostics')
     plot_index = 1
     for plot in options.plots:
         params = plotparams[plot]

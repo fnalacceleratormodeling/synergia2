@@ -1,5 +1,5 @@
+#include <stdexcept>
 #include "element_adaptor.h"
-
 #include <beamline/beamline_elements.h>
 #include "synergia/foundation/math_constants.h"
 
@@ -247,6 +247,22 @@ Sbend_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
             && !lattice_element.has_string_attribute("tilt")) {
         lattice_element.set_double_attribute("tilt", 0.0);
     }
+    // possible higher order multipole components
+    set_double_default(lattice_element, "kl", 0.0); // base strength/B-rho
+    set_double_default(lattice_element, "a1", 0.0); // skew quad
+    set_double_default(lattice_element, "a2", 0.0); // skew sextupole
+    set_double_default(lattice_element, "a3", 0.0); // skew octupole
+    set_double_default(lattice_element, "a4", 0.0); // skew decapole
+    set_double_default(lattice_element, "a5", 0.0); // skew dodecapole
+    set_double_default(lattice_element, "a6", 0.0); // skew tetradecapole
+    set_double_default(lattice_element, "a7", 0.0); // skew hexdecapole
+    set_double_default(lattice_element, "b1", 0.0); // quad
+    set_double_default(lattice_element, "b2", 0.0); // sextupole
+    set_double_default(lattice_element, "b3", 0.0); // octopole
+    set_double_default(lattice_element, "b4", 0.0); // decapole
+    set_double_default(lattice_element, "b5", 0.0); // dodecapole
+    set_double_default(lattice_element, "b6", 0.0); // tetradecapole
+    set_double_default(lattice_element, "b7", 0.0); // hexdecapole
 }
 
 Chef_elements
@@ -271,6 +287,39 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     aligner.yOffset = 0.0;
     aligner.tilt = tilt;
 
+    double ak[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently a0-a7
+    double bk[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently b0-b7
+
+    // thinpole strengths
+    string a_attr_list[] = { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7"};
+    string b_attr_list[] = { "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7"};
+
+    bool has_multipoles = false;
+    int highest_order = 0;
+    // find any possible multipole moments
+    for (int moment = 0; moment < 8; ++moment) {
+        if (lattice_element.has_double_attribute(a_attr_list[moment])) {
+	  ak[moment] = lattice_element.get_double_attribute(a_attr_list[moment]);
+	  // no point in setting using multipole machinery ff the attributes are 0
+	  if (ak[moment] != 0.0) {
+	    has_multipoles = true;
+	    highest_order = moment;
+	  }
+	}
+	if (lattice_element.has_double_attribute(b_attr_list[moment])) {
+	  bk[moment] = lattice_element.get_double_attribute(b_attr_list[moment]);
+	  if (bk[moment] != 0.0) {
+	    has_multipoles = true;
+	    highest_order = moment;
+	  }
+	}
+    }
+
+    // being not simple or having a tilt precludes using multipoles
+    if ((!simple || (tilt != 0.0)) && has_multipoles) {
+      throw runtime_error("shouldn't use k1,k2,tilt and multipoles in one sbend");
+    }
+
     if (simple) {
 
         ElmPtr elm(
@@ -278,9 +327,33 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
                         brho * angle / length, angle, e1, e2));
         elm->setTag("SBEND");
         if (tilt != 0.0) elm->setAlignment(aligner);
-        retval.push_back(elm);
-        return retval;
+
+	// if there are no multipoles, I'm done.
+	if (! has_multipoles) {
+	  retval.push_back(elm);
+	  return retval;
+	} else {
+	  // split the sbend and insert a thinpole in between the halves
+	  ElmPtr sbptr1;
+	  ElmPtr sbptr2;
+	  elm->Split(0.5, sbptr1, sbptr2);
+
+	  std::vector<std::complex<double> > c_moments;
+	  for (int k=0; k<=highest_order; ++k) {
+	    c_moments.push_back(std::complex<double> (bk[k],ak[k]));
+	  }
+
+	  retval.push_back(sbptr1);
+	  // angle may be negative, but it doesn't make sense to
+	  // scale the multipole by a negative strength
+	  retval.push_back(ElmPtr(new ThinPole((lattice_element.get_name() + "_poles").c_str(),
+					       brho * fabs(angle), c_moments)));
+	  retval.push_back(sbptr2);
+
+	  return retval;
+	}
     } else {
+      // combined function element
         bmlnElmnt* elm = new CF_sbend(lattice_element.get_name().c_str(),
                 length, brho * angle / length, angle, e1, e2);
         if (tilt != 0.0) elm->setAlignment(aligner);
@@ -329,6 +402,23 @@ Rbend_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
             && !lattice_element.has_string_attribute("tilt")) {
         lattice_element.set_double_attribute("tilt", 0.0);
     }
+    // possible higher order multipole components
+    set_double_default(lattice_element, "kl", 0.0); // base strength/B-rho
+    set_double_default(lattice_element, "a1", 0.0); // skew quad
+    set_double_default(lattice_element, "a2", 0.0); // skew sextupole
+    set_double_default(lattice_element, "a3", 0.0); // skew octupole
+    set_double_default(lattice_element, "a4", 0.0); // skew decapole
+    set_double_default(lattice_element, "a5", 0.0); // skew dodecapole
+    set_double_default(lattice_element, "a6", 0.0); // skew tetradecapole
+    set_double_default(lattice_element, "a7", 0.0); // skew hexdecapole
+    set_double_default(lattice_element, "b1", 0.0); // quad
+    set_double_default(lattice_element, "b2", 0.0); // sextupole
+    set_double_default(lattice_element, "b3", 0.0); // octopole
+    set_double_default(lattice_element, "b4", 0.0); // decapole
+    set_double_default(lattice_element, "b5", 0.0); // dodecapole
+    set_double_default(lattice_element, "b6", 0.0); // tetradecapole
+    set_double_default(lattice_element, "b7", 0.0); // hexdecapole
+
     lattice_element.set_length_attribute_name("arclength");
     lattice_element.set_needs_internal_derive(true);
 }
@@ -360,23 +450,80 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double tilt = lattice_element.get_double_attribute("tilt");
     bool simple = ((k1 == 0.0) && (k2 == 0.0) && (k3 == 0.0) && (tilt == 0.0));
 
+    double ak[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently a0-a7
+    double bk[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently b0-b7
+
+    // thinpole strengths
+    string a_attr_list[] = { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7"};
+    string b_attr_list[] = { "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7"};
+
+    bool has_multipoles = false;
+    int highest_order = 0;
+    // find any possible multipole moments
+    for (int moment = 0; moment < 8; ++moment) {
+        if (lattice_element.has_double_attribute(a_attr_list[moment])) {
+	  ak[moment] = lattice_element.get_double_attribute(a_attr_list[moment]);
+	  // no point in setting using multipole machinery ff the attributes are 0
+	  if (ak[moment] != 0.0) {
+	    has_multipoles = true;
+	    highest_order = moment;
+	  }
+	}
+	if (lattice_element.has_double_attribute(b_attr_list[moment])) {
+	  bk[moment] = lattice_element.get_double_attribute(b_attr_list[moment]);
+	  if (bk[moment] != 0.0) {
+	    has_multipoles = true;
+	    highest_order = moment;
+	  }
+	}
+    }
+
+    // being not simple precludes using multipoles
+    if (!simple && has_multipoles) {
+      throw runtime_error("shouldn't use k1,k2 and multipoles in one rbend");
+    }
+
     if (simple) {
-        if ((0.0 == e1) && (0.0 == e2)) {
-            ElmPtr elm(
-                    new rbend(lattice_element.get_name().c_str(), length,
-                            brho * (2.0 * sin(0.5 * angle)) / length, angle));
-            elm->setTag("RBEND");
-            retval.push_back(elm);
-            return retval;
-        } else {
-            ElmPtr elm(
-                    new rbend(lattice_element.get_name().c_str(), length,
-                            brho * (2.0 * sin(0.5 * angle)) / length, angle,
-                            e1, e2));
-            elm->setTag("RBEND");
-            retval.push_back(elm);
-            return retval;
-        }
+      bmlnElmnt * bmelmnt;
+
+      if ((0.0 == e1) && (0.0 == e2)) {
+	bmelmnt =
+	  new rbend(lattice_element.get_name().c_str(), length,
+		    brho * (2.0 * sin(0.5 * angle)) / length, angle);
+	bmelmnt->setTag("RBEND");
+      } else {
+	bmelmnt =
+	  new rbend(lattice_element.get_name().c_str(), length,
+		    brho * (2.0 * sin(0.5 * angle)) / length, angle,
+		    e1, e2);
+	bmelmnt->setTag("RBEND");
+      }
+      ElmPtr elm(bmelmnt);
+      // if there are no multipoles, I'm done.
+      if ( !has_multipoles) {
+	retval.push_back(elm);
+	return retval;
+      } else {
+	// split the sbend and insert a thinpole in between the halves
+	ElmPtr rbptr1;
+	ElmPtr rbptr2;
+	elm->Split(0.5, rbptr1, rbptr2);
+
+	std::vector<std::complex<double> > c_moments;
+	for (int k=0; k<=highest_order; ++k) {
+	  c_moments.push_back(std::complex<double> (bk[k],ak[k]));
+	}
+	
+	retval.push_back(rbptr1);
+	// angle may be negative, but it doesn't make sense to scale the
+	// multipole moments by a negative strength
+	retval.push_back(ElmPtr(new ThinPole((lattice_element.get_name() + "_poles").c_str(),
+					     brho * (2.0 * fabs(sin(0.5 * angle))),
+					     c_moments)));
+	retval.push_back(rbptr2);
+	
+	return retval;
+      }
     } else {
         // Not so simple
         alignmentData aligner;
@@ -431,7 +578,22 @@ Quadrupole_mad8_adaptor::set_default_attributes(
             && !lattice_element.has_string_attribute("tilt")) {
         lattice_element.set_double_attribute("tilt", 0.0);
     }
-
+    // possible higher order multipole components
+    set_double_default(lattice_element, "kl", 0.0); // base strength/B-rho
+    set_double_default(lattice_element, "a1", 0.0); // skew quad
+    set_double_default(lattice_element, "a2", 0.0); // skew sextupole
+    set_double_default(lattice_element, "a3", 0.0); // skew octupole
+    set_double_default(lattice_element, "a4", 0.0); // skew decapole
+    set_double_default(lattice_element, "a5", 0.0); // skew dodecapole
+    set_double_default(lattice_element, "a6", 0.0); // skew tetradecapole
+    set_double_default(lattice_element, "a7", 0.0); // skew hexdecapole
+    set_double_default(lattice_element, "b1", 0.0); // quad
+    set_double_default(lattice_element, "b2", 0.0); // sextupole
+    set_double_default(lattice_element, "b3", 0.0); // octopole
+    set_double_default(lattice_element, "b4", 0.0); // decapole
+    set_double_default(lattice_element, "b5", 0.0); // dodecapole
+    set_double_default(lattice_element, "b6", 0.0); // tetradecapole
+    set_double_default(lattice_element, "b7", 0.0); // hexdecapole
 }
 
 Chef_elements
@@ -444,11 +606,39 @@ Quadrupole_mad8_adaptor::get_chef_elements(
     alignmentData aligner;
     double length = lattice_element.get_double_attribute("l");
 
+    double ak[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently a0-a7
+    double bk[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently b0-b7
+
+    // thinpole strengths
+    string a_attr_list[] = { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7"};
+    string b_attr_list[] = { "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7"};
+
     // a string attribute implies default pi/4
     if (lattice_element.has_string_attribute("tilt")) {
         qtilt = M_PI / 4.0;
     } else {
         qtilt = lattice_element.get_double_attribute("tilt");
+    }
+
+    bool has_multipoles = false;
+    int highest_order = 0;
+    // find any possible multipole moments
+    for (int moment = 0; moment < 8; ++moment) {
+        if (lattice_element.has_double_attribute(a_attr_list[moment])) {
+	  ak[moment] = lattice_element.get_double_attribute(a_attr_list[moment]);
+	  // no point in setting using multipole machinery ff the attributes are 0
+	  if (ak[moment] != 0.0) {
+	    has_multipoles = true;
+	    highest_order = moment;
+	  }
+	}
+	if (lattice_element.has_double_attribute(b_attr_list[moment])) {
+	  bk[moment] = lattice_element.get_double_attribute(b_attr_list[moment]);
+	  if (bk[moment] != 0.0) {
+	    has_multipoles = true;
+	    highest_order = moment;
+	  }
+	}
     }
 
     bmlnElmnt* bmln_elmnt;
@@ -460,6 +650,11 @@ Quadrupole_mad8_adaptor::get_chef_elements(
                 brho * lattice_element.get_double_attribute("k1"));
     }
 
+    // using tilt and multipoles is a no-no
+    if (has_multipoles && (qtilt != 0.0)) {
+      throw runtime_error("shouldn't use tilt and multipoles in same element");
+    }
+
     if (qtilt != 0.0) {
         aligner.xOffset = 0.0;
         aligner.yOffset = 0.0;
@@ -467,8 +662,27 @@ Quadrupole_mad8_adaptor::get_chef_elements(
         bmln_elmnt->setAlignment(aligner);
     }
 
-    ElmPtr elm(bmln_elmnt);
-    retval.push_back(elm);
+    if (!has_multipoles) {
+      ElmPtr elm(bmln_elmnt);
+      retval.push_back(elm);
+    } else {
+      // split the quadrupole, insert thin multipole element in between halves
+      std::vector<std::complex<double> > c_moments;
+      for (int k=0; k<=highest_order; ++k) {
+	c_moments.push_back(std::complex<double> (bk[k],ak[k]));
+      }
+
+      double brkl = brho * length * lattice_element.get_double_attribute("k1");
+      ElmPtr qptr1;
+      ElmPtr qptr2;
+      bmln_elmnt->Split(0.5, qptr1, qptr2);
+
+      retval.push_back(qptr1);
+      retval.push_back(ElmPtr(new ThinPole((lattice_element.get_name() + "_poles").c_str(),
+					   brkl, c_moments )));
+      retval.push_back(qptr2);
+    }
+
     return retval;
 }
 
@@ -754,7 +968,7 @@ Thinpole_mad8_adaptor::get_chef_elements(
 {
     Chef_elements retval;
     double ak[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently a0-a7
-    double bk[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently a0-a7
+    double bk[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently b0-b7
 
     // thinpole strengths
     string a_attr_list[] = { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7"};

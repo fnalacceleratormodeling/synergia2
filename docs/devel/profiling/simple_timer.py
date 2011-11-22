@@ -9,7 +9,7 @@ def extract_times(filename):
     times_detail = {}
     propagate_time = None
     for line in f.readlines():
-        match = re.match('simple_timer:([^ ]*):([0-9].*)', line)
+        match = re.match('simple_timer:(.*):([0-9].*)', line)
         if match:
             label = match.group(1)
             time = float(match.group(2))

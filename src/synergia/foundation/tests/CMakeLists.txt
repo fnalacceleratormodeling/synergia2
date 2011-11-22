@@ -12,7 +12,7 @@ add_test(test_reference_particle_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "i
 
 add_executable(test_distribution test_distribution.cc)
 target_link_libraries(test_distribution synergia_foundation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_distribution ${MPIEXEC} -np 1 test_distribution)
+add_test(test_distribution ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_distribution)
 add_test(test_distribution_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_distribution.py)
 
 set(CLEAN_FILES

@@ -57,11 +57,12 @@ class Options:
         self.name = name
         self.dict = {}
         self.suboptions = []
+        self.is_options = True
 
     def options_name(self):
         return self.name
 
-    def add(self, option, default_value, doc_string, val_type = None):
+    def add(self, option, default_value, doc_string, val_type=None):
         '''Add a new option definition'''
         if hasattr(self, option):
             raise RuntimeError('Options: option name "' + option +
@@ -99,7 +100,7 @@ class Options:
                     return 1
         return 0
 
-    def options(self, include_suboptions=1):
+    def options(self, include_suboptions=True):
         '''Returns a list of all options, including suboptions'''
         list = self.dict.keys()
         if include_suboptions:
@@ -114,6 +115,14 @@ class Options:
                               '" already in use')
         setattr(self, name, suboptions)
         self.suboptions.append(suboptions)
+
+    def override(self, overrides):
+        for name in dir(overrides):
+            if (name[0] != '_') and (name != "is_override"):
+                if self.has_option(name):
+                    self.set(name, getattr(overrides, name))
+                else:
+                    print "warning: override", name, "not found in existing options"
 
 
     def usage(self):
@@ -183,6 +192,9 @@ class Options:
         sys.stderr.write("Error: unknown argument \"%s\"\n\n" % unknown_argument)
         sys.exit(1)
 
+class Override:
+    def __init__(self):
+        self.is_override = True
 
 if __name__ == "__main__":
     stupid = Options("stupid")

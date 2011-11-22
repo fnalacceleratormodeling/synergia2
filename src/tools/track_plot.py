@@ -92,6 +92,7 @@ def handle_args(args):
 def do_plots(options):
     f = tables.openFile(options.inputfile, 'r')
     rows, cols = get_layout(len(options.coords))
+    pyplot.figure().canvas.set_window_title('Synergia Track Viewer')
     plot_index = 1
     particle_coords = getattr(f.root, "coords").read()
     for coord in options.coords:
