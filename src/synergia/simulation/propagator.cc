@@ -245,8 +245,7 @@ try{
         }
         if (rank == 0) logfile.close();   
     }
-    catch (std::exception const& e)
-    {
+catch (std::exception const& e) {
         std::cout<<e.what()<<std::endl;   
         MPI_Abort(MPI_COMM_WORLD, 888);
     }
