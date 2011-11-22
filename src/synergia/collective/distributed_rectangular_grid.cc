@@ -2,7 +2,7 @@
 #include "synergia/utils/multi_array_offsets.h"
 
 void
-Distributed_rectangular_grid::construct(int lower, int upper,
+Distributed_rectangular_grid::construct_hockney(int lower, int upper,
         std::vector<int > const & array_shape)
 {
     std::vector<int > grid_shape(domain_sptr->get_grid_shape());
@@ -36,34 +36,84 @@ Distributed_rectangular_grid::construct(int lower, int upper,
     normalization = 1.0;
 }
 
+void
+Distributed_rectangular_grid::construct_rectangular(int lower, int upper,
+        std::vector<int > const & array_shape)
+{
+    std::vector<int > grid_shape(domain_sptr->get_grid_shape());
+    this->lower = lower;
+    this->upper = upper;
+    if (lower == 0)  {
+        lower_guard = 0;
+    } else {
+        lower_guard = lower - 1;
+    }
+    if (upper == grid_shape[0]) {
+        upper_guard = grid_shape[0];
+    } else {
+        upper_guard = upper + 1;
+    }
+    if (lower == upper) {
+        lower_guard = lower;
+        upper_guard = upper;
+    }
+
+
+    grid_points_sptr
+            = boost::shared_ptr<MArray3d >(
+                    new MArray3d(boost::extents[array_shape[0]][array_shape[1]][array_shape[2]]));  
+ 
+     grid_points_2dc_sptr
+              = boost::shared_ptr<MArray2dc >(
+                      new MArray2dc(boost::extents[array_shape[0]][array_shape[1]]));
+
+    grid_points_1d_sptr
+            = boost::shared_ptr<MArray1d >(
+                    new MArray1d(boost::extents[array_shape[2]]));
+    normalization = 1.0;
+}
+
+
+
 Distributed_rectangular_grid::Distributed_rectangular_grid(
         std::vector<double > const & physical_size,
         std::vector<double > const & physical_offset,
         std::vector<int > const & grid_shape, bool periodic, int lower,
-        int upper, Commxx const& comm) :
-    comm(comm)
+        int upper, Commxx const& comm, std::string const solver) :
+    comm(comm), uppers(0), lengths(0)
 {
     domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
             physical_size, physical_offset, grid_shape, periodic));
-    construct(lower, upper, domain_sptr->get_grid_shape());
+    if (solver=="hockney") {        
+        construct_hockney(lower, upper, domain_sptr->get_grid_shape());
+    }
+    else if  (solver=="rectangular"){    
+         construct_rectangular(lower, upper, domain_sptr->get_grid_shape());
+    }    
+
 }
 
 Distributed_rectangular_grid::Distributed_rectangular_grid(
         Rectangular_grid_domain_sptr rectangular_grid_domain_sptr, int lower,
-        int upper, Commxx const& comm) :
-    comm(comm)
+        int upper, Commxx const& comm, std::string const solver) :
+    comm(comm), uppers(0), lengths(0)
 {
     domain_sptr = rectangular_grid_domain_sptr;
-    construct(lower, upper, domain_sptr->get_grid_shape());
+    if (solver=="hockney") {
+        construct_hockney(lower, upper, domain_sptr->get_grid_shape());
+    }
+    else if  (solver=="rectangular"){    
+         construct_rectangular(lower, upper, domain_sptr->get_grid_shape());
+    }   
 }
 
 Distributed_rectangular_grid::Distributed_rectangular_grid(
         Rectangular_grid_domain_sptr rectangular_grid_domain_sptr, int lower,
         int upper, std::vector<int > const & padded_shape, Commxx const& comm) :
-    comm(comm)
+    comm(comm), uppers(0), lengths(0)
 {
     domain_sptr = rectangular_grid_domain_sptr;
-    construct(lower, upper, padded_shape);
+    construct_hockney(lower, upper, padded_shape);
 }
 
 Rectangular_grid_domain_sptr
@@ -101,6 +151,45 @@ Distributed_rectangular_grid::get_upper_guard() const
 {
     return upper_guard;
 }
+
+void
+Distributed_rectangular_grid::calculate_uppers_lengths()
+{
+    if (uppers.empty()) {
+        int size = comm.get_size();
+        uppers.resize(size);
+        lengths.resize(size);
+        if (size == 1) {
+            uppers[0] = upper;
+        } else {
+            MPI_Allgather((void*) (&upper), 1, MPI_INT, (void*) (&uppers[0]),
+                    1, MPI_INT, comm.get());
+        }
+        std::vector<int> shape(domain_sptr->get_grid_shape());
+        lengths[0] = uppers[0] * shape[1] * shape[2];
+        for (int i = 1; i < size; ++i) {
+            if (uppers[i] == 0) {
+                uppers[i] = uppers[i - 1];
+            }
+            lengths[i] = (uppers[i] - uppers[i - 1]) * shape[1] * shape[2];
+        }
+    }
+}
+
+std::vector<int > const&
+Distributed_rectangular_grid::get_uppers()
+{
+    calculate_uppers_lengths();
+    return uppers;
+}
+
+std::vector<int > const&
+Distributed_rectangular_grid::get_lengths()
+{
+    calculate_uppers_lengths();
+    return lengths;
+}
+
 
 MArray3d_ref const&
 Distributed_rectangular_grid::get_grid_points() const

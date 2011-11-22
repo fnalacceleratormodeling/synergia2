@@ -432,6 +432,12 @@ public:
     
     void
     from_t_bunch_to_z_lab(Bunch &bunch){};
+     
+    void
+    from_t_lab_to_t_bunch(Bunch &bunch){};
+    
+    void
+    from_t_bunch_to_t_lab(Bunch &bunch){}; 
     
 };
 

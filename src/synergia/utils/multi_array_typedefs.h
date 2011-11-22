@@ -9,6 +9,7 @@ typedef boost::multi_array_ref<double, 1 > MArray1d_ref;
 typedef boost::const_multi_array_ref<double, 1 > Const_MArray1d_ref;
 typedef boost::detail::multi_array::multi_array_view<double, 1 > MArray1d_view;
 
+
 typedef boost::multi_array<double, 2 > MArray2d;
 typedef boost::multi_array_ref<double, 2 > MArray2d_ref;
 typedef boost::const_multi_array_ref<double, 2 > Const_MArray2d_ref;
@@ -16,11 +17,13 @@ typedef boost::detail::multi_array::multi_array_view<double, 2 > MArray2d_view;
 typedef boost::detail::multi_array::multi_array_view<double, 2 > MArray2d_view;
 typedef boost::detail::multi_array::const_multi_array_view<double, 2 >
         Const_MArray2d_view;
+typedef boost::general_storage_order<2> storage2d;        
 
 typedef boost::multi_array<double, 3 > MArray3d;
 typedef boost::multi_array_ref<double, 3 > MArray3d_ref;
 typedef boost::const_multi_array_ref<double, 3 > Const_MArray3d_ref;
 typedef boost::detail::multi_array::multi_array_view<double, 3 > MArray3d_view;
+typedef boost::general_storage_order<3> storage3d;
 
 typedef boost::multi_array<std::complex<double >, 1 > MArray1dc;
 typedef boost::multi_array_ref<std::complex<double >, 1 > MArray1dc_ref;

@@ -42,7 +42,7 @@ Chef_propagate_operation::Chef_propagate_operation(
 void
 Chef_propagate_operation::apply(Bunch & bunch)
 {
-    bunch.convert_to_state(Bunch::fixed_z); 
+    bunch.convert_to_state(Bunch::fixed_z_lab); 
     chef_propagator.apply(bunch);   
 }
 
