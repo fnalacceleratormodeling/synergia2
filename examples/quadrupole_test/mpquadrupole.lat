@@ -1,0 +1,17 @@
+! File quadrupole.lat
+!
+! a single thin multipole with quadrupole component for testing
+
+length   :=   2.1336                 ! [m]     : quadrupole length
+
+strength := 3.0137e-2     ! [m**-2] : quadrupole strength
+                                  !         :   = B'/brho
+brho_at_8 =  29.6872044726
+
+s_times_l = strength*length
+
+beam, particle=proton, pc=8.9
+
+myquadp: multipole, type=isb, l=0.0, k1l = s_times_l/brho_at_8
+
+mylat2: line = (myquadp)
