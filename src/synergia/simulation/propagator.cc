@@ -95,8 +95,8 @@ try{
             
         t_turn1= MPI_Wtime();
         if (rank == 0) {
-                logfile<<" turn "<<turn + 1<<" : "<< t_turn1-t_turn<< " \n";
-                std::cout<<"  turn "<<turn + 1<<" : "<< t_turn1-t_turn<<std::endl;
+                logfile<<" turn "<<turn + 1<<" : "<< t_turn1-t_turn<<"   macroparticles="<<bunch_sptr->get_total_num()<< " \n";
+                std::cout<<"  turn "<<turn + 1<<" : "<< t_turn1-t_turn<<"   macroparticles="<<bunch_sptr->get_total_num()<<std::endl;
                 logfile.flush();
             }
             t = simple_timer_current();

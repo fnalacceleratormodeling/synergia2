@@ -72,6 +72,7 @@ BOOST_PYTHON_MODULE(lattice)
         .def("get_length", &Lattice_element::get_length)
         .def("get_bend_angle", &Lattice_element::get_bend_angle)
         .def("get_revision", &Lattice_element::get_revision)
+        .def("print_",&Lattice_element::print)
        ;
 
     to_python_converter<std::list<Lattice_element_sptr >,

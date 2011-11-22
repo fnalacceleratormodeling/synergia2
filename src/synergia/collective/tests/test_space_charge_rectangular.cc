@@ -31,8 +31,8 @@ BOOST_AUTO_TEST_CASE(construct)
     size[0]=0.1;
     size[1]=0.2;
     size[2]=0.05;
-       
-    Space_charge_rectangular space_charge(size, grid_shape);
+    Commxx comm_f(MPI_COMM_WORLD);  
+    Space_charge_rectangular space_charge(comm_f,size, grid_shape);
  
 }
 
@@ -48,6 +48,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_charge_density, Ellipsoidal_bunch_fixture)
     size[1]=0.2;
     size[2]=0.05;
     Space_charge_rectangular space_charge(size, grid_shape);
+    space_charge.set_fftw_helper(bunch.get_comm());
     Rectangular_grid_sptr rho(space_charge.get_charge_density(bunch));
   
   //double local_charge=bunch.get_local_num()*real_num*pconstants::e/total_num;
@@ -96,6 +97,8 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
     
     Space_charge_rectangular space_charge(size, grid_shape);
     Rectangular_grid_sptr rho(space_charge.get_charge_density(bunch));
+    
+    space_charge.set_fftw_helper(bunch.get_comm());
     Distributed_rectangular_grid_sptr phi_local(space_charge.get_phi_local(*rho, bunch));
  
 }
@@ -112,7 +115,7 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
      size[1]=0.1;
      size[2]=0.1;
      
-      Space_charge_rectangular space_charge(size, grid_shape1);
+     Space_charge_rectangular space_charge(size, grid_shape1);
      std::vector<double > hi(space_charge.get_domain_sptr()->get_cell_size());
      std::vector<int > shape(space_charge.get_domain_sptr()->get_grid_shape());
      
@@ -136,6 +139,7 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
      
     int size_com=bunch.get_comm().get_size();
     int lrank=bunch.get_comm().get_rank();
+    space_charge.set_fftw_helper(bunch.get_comm());
     Distributed_rectangular_grid_sptr phi_local(space_charge.get_phi_local(*rho_grid, bunch));
     std::vector<int> local_shape(phi_local->get_domain_sptr()->get_grid_shape());
      
@@ -229,6 +233,7 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
  
    std::vector<double > hi(space_charge.get_domain_sptr()->get_cell_size());
    
+   space_charge.set_fftw_helper(bunch.get_comm());
    Distributed_rectangular_grid_sptr phi_local(space_charge.get_phi_local(*rho_grid, bunch));  
     double xnt=pi*nt/size[0];
     double ymt=pi*mt/size[1];

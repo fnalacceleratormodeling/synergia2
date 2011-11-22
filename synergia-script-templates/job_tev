@@ -28,7 +28,7 @@ export LD_LIBRARY_PATH=/usr/local/python-2.7.0/lib:$LD_LIBRARY_PATH
 
 cd $PBS_O_WORKDIR
 echo "job start at `date`"
-mpirun -np @@numproc@@ @@synergia_executable@@ @@script@@ @@args@@ 
+mpirun --loadbalance -np @@numproc@@ @@synergia_executable@@ @@script@@ @@args@@ 
 retval=$?
 if [ x"$retval" != x"0" ]; then
 	echo "job failed with return value $retval"

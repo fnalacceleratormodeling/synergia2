@@ -1,0 +1,2092 @@
+! Modified version of boosterMADbyKIYOMI.lat (2011.12.01)
+! with combined function sbends
+! - Leo Michelotti
+!   December 5, 2011
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!     Sign of bending in the horizontal magnets is taken reverse to get a positive dispersion in a Booster 
+!     lattice and in the 0.4 GeV beam line from Linac to Booster. For geometry calculations we need to change 
+!     sign of bending in both lattices. 
+! 
+! Booster full lattice  (modified 03/07/03)
+! Version 1.0  10/23/01  A. Drozhdin
+! Version 1.1  10/25/01  A. Drozhdin  BPM names changed
+! Version 1.2  10/26/01  W. Chou      Body sextupoles added
+! Version 1.3  10/26/01  A. Drozhdin  Magnet rotations (March 1989, before move)
+
+! Version 1.4  10/26/01  A. Drozhdin. No magnet rotations. Position of extraction at long 03 
+!                        and long 13, injection at long 01, pinger, notcher and damper at 
+!                        long 09 and 11 and RF modules are added. Extraction dogleg magnets 
+!                        "DOG03_1, 2, 3, 4" and "DOG13_1, 2, 3, 4" are on only at injection. 
+!                        Chromaticity and harmonics sextupoles and octupoles are added. 
+
+! Version 1.5  10/26/01  A. Drozhdin. Lattice with magnet rotations. Position of extraction at 
+!                        long 03 and long 13, injection at long 01, pinger, notcher and damper 
+!                        at long 09 and 11 and RF modules are added. Bend angle of extraction 
+!                        dogleg magnets "DOG03_1, 2, 3, 4" and "DOG13_1, 2, 3, 4" and quadrupole 
+!                        and sextupole harmonics are done at injection. These magnets are CD. 
+!                        Chromaticity and harmonics sextupoles and octupoles are added. 
+
+! Version 1.6  06/11/02  A. Drozhdin. Lattice with magnet rotations. Extraction bump-magnets at 
+!                        long 03 and long 13, and injection at long 01 with "OBBUMPS" in their real 
+!                        positions and real strengths and functions (see. "bcel01" line below) 
+!                        (real "OBBUMPS" have strong sextupole and decapole harmonics of the magnetic field. 
+!      01/09/03          Measured harmonics are inserted as multipoles) (real orbit has a displacement 
+!                        in the Booster at injection by 8.8 mm with respect to the optical center 
+!                        line, in these set of the Booster parameters there is no orbit displacement by 8.8 mm), 
+!                        pinger, notcher and damper at long 09 and 11 and RF modules are added. Bend angle of 
+!                        extraction dogleg magnets "DOG03_1, 2, 3, 4" and "DOG13_1, 2, 3, 4" quadrupole 
+!                        and sextupole harmonics are done at injection (see. "bcel03" and "bcel13" lines below). 
+!                        These magnets are CD. Chromaticity and harmonics sextupoles and octupoles are added. 
+
+! Version 1.7a 02/25/03  A. Drozhdin. Dogleg magnets effective length and magnetic field are changed 
+!                        according to the measurements on 04/30/97:
+!                                             BL(03)=1.9896 kG.m (480A)   BL(13)=1.9059 kG.m (460A). 
+!                        Layout of Dogleg-03 and Dogleg-13 is corrected according to the mechanical drawing. 
+!
+! ***                    Sextupole and quadrupole harmonics are inserted to the second and third DogLeg magnets with 
+! ***                    displacement in a vertical plane corresponding to the beam orbit (as a function of Pc). 
+! ***                    This is done by a "multipole" with effective K0L,K1L and K2L in the center of magnet.
+!                        Main magnet body+end-pack sextupoles are corrected according to the dc chromaticity 
+!                        measurement at 400 MeV on 01/30/03:    ssf=-0.0030,  ssd=-0.0454 
+!                        Chromaticity sextupole setting at 400 MeV for dynamic aperture tracking:  
+!                                             SEXTS=0.233 (15A), SEXTL=0.0 (0 A)
+!                        Gamma-t jump quadrupoles setting (scaled from transition energy):
+!                                              k1(qgf ) = 0.1128 (at 2000A)
+!                                              k1(qgd) = -0.1128 (at 2000 A) 
+! -----------------------------------------------------------------------------------------------------------------                      
+! Version 1.7e 05/20/03  A. Drozhdin.                                                                             -
+!                        Layout of Dogleg-03 is changed according to new proposal to increase                     -
+!                        distance between magnet centers to 40", and to decrease current to 180 A.                -
+!                                BL(03)=1.9896 kG.m (480A)   BL(13)=1.9059 kG.m (460A) - current version          -
+!                                BL(03)=0.7461 kG.m (180A)   BL(13)=0.0 kG.m (0 A) - new version                  -
+!                                                                                                                 -
+!              12/08/03   New injection scheme is used with OrBump strength=0.2926T*0.4823m, angle=44.23mrad      -
+!                         Nonlinearities are increased by k=48/39.37 with respect to the old version.             -
+!                         Quadrupole correction No.2 is NOT used.                                                 -
+!                                                                                                                 -
+!     ATANTION  !!!!!    ATANTION  !!!!!    ATANTION  !!!!!    ATANTION  !!!!!    ATANTION  !!!!!                 -
+! See coefficient:    kpc=pc0/pc used for "body sextupole" and "dogleg" bump strength (pc0=0.954263 at injection) -
+!                     korbump=1.0 or 0.0   for injection or after injection                                       -
+!                     ekin=0.4 GeV  at injection, 8.0 GeV  at extraction, 4.174176 GeV  at transition             -
+! ISEXTS= 11.400                ! sext.correctors SEXTS current (A) (at 0.4 GeV)                                  -
+! ISEXTL=  0.000                ! sext.correctors SEXTL current (A) (at 0.4 GeV)                                  -
+! ISEXTS= 73.200                ! sext.correctors SEXTS current (A) (at 8 GeV)                                    -
+! ISEXTL=-80.000                ! sext.correctors SEXTL current (A) (at 8 GeV)                                    -
+! ----------------------------------------------------------------------------------------------------------------- 
+! 04/09/2010   A. Drozhdin                                                                                        -
+!                                                                                                                 -
+!            corrector packages were changed from:                                                                 -
+!                                                                                                                 -
+!   CPL01 :    line=(hlN,vlN,qlN,qslN),                                                                           -
+!   CPS24 :    line=(hsN,vsN,qsN,qssN), with each corrector length of 0.075m,    to                               -
+!                                                                                                                 -
+!   CPL01 :    line=(drift9,hlN,vlN,qlN,bpmsN,qslN,sxlN,sslN,drift9)                                              -
+!   CPS24 :    line=(drift9,hsN,vsN,qsN,bpmsN,qssN,sxsN,sssN,drift9),  with each corrector length of 0.024m,      -
+!                                                                      and drift9 length of 0.066m                -
+!   SEXTL, SEXTS   were changed to drift spaces with the same names                                               -
+!                                                                                                                 -
+!        Chromaticity is left the same, using strength of new sextupoles sxlN and sxsN                            -
+!                                                                                                                 -
+!      gamma-t quadrupoles are changed to drift spaces with the same names      qgf   : drift, l=Lqgf             -
+!                                                                               qgd   : drift, l=Lqgd             -
+!                                                                                                                 -
+! -----------------------------------------------------------------------------------------------------------------
+! 5/03/10   Jim Lackey
+!			Made several Corrections
+!
+!@L01	Put in Mark24D and Mark1 in bcel01
+!	Changed L01d to L01da & L01db 
+!	Put L01da,CPL01,L01db into bcel01
+!
+!@L03	Changed L03b to L03ba and L03bb
+!	Put L03b,CPL03,L03bb into bcel03
+!
+!@L05	Changed drift lengths of L05e1 and L05e2
+!	Added NOTCHER: vkicker, l=1.08, kick=0.0 & PINGER: hkicker, l=1.08, kick=0.0 to bcel05
+!
+!@L09	Replaced PINGER & NOTCHER with L09g and L09h
+!
+!@L13	Uncommented the CPL13 that defined the new L13 corrector package, commented out the other CPL13.  
+!
+! -----------------------------------------------------------------------------------------------------------------
+! 12/06/10   Jim Lackey
+!			Made one Correction 
+!
+!@L03	Uncommented the CPL03 that defined the new L03 corrector package, commented out the other CPL03.
+!          I thought I had done this the last time but apparently didn't!!
+!    
+! ----------------------------------------------------------------------------------------------------------------- 
+!02/16/11 Kiyomi Seiya
+!
+!Made each cell length = 19.7605 [m]
+!
+!Removed non existing componets and replaced to drif.
+!
+!Changed scale factor for the quad and skew quad on the new collectors from kquad= 0.02178 to 0.0025 
+!and from ksquad = 0.00889 to 0.004
+!
+!-----------------------------------------------------------------------------------------------------------------
+!
+!            Integrated Trim Magnets strength: 
+!
+!  outer dipole (V)     5.360E-04  T-m/A   (Max. current = ???? )
+!  inner dipole (H)     9.260E-04  T-m/A   (Max. current = ???? )
+!  skew quadrupole      8.889E-03  T/A     (Max. current = ???? )
+!  normal quadrupole    2.178E-02  T/A     (Max. current = ???? )
+!
+!         Chromaticity correction sextupoles: 
+!
+!         SEXTS (H)     1.487E-02  T/m/A   (Max. strength = 0.915 T/m   ?????)   (Max. current = ???? )
+!         SEXTL (H)     3.750E-02  T/m/A   (Max. strength = 2.318 T/m   ?????)   (Max. current = ???? )
+!
+!               Harmonic sextupoles:
+!
+!
+!  Sexl4, Sexl5, Sexl6, Sexl7   3.717E-03  T/m/A     (Max. current = ???? )
+!
+!  Octupole:              Oct   0.525E-03  T/m2/A   (Max. current = ???? )
+
+! CPLii        !  corrector package of ii period (long SS)
+! CPSii        !  corrector package of ii period (short SS)
+! HPiiL        !  horizontal BPM of ii period (long SS)
+! VPiiL        !    vertical BPM of ii period (long SS)
+! HPiiS        !  horizontal BPM of ii period (short SS)
+! VPiiS        !    vertical BPM of ii period (short SS)
+
+! BRHO := 3.3356405*0.954263=3.183078   !  Rigidity in Tm for kinetic energy 0.4 GeV (Pc=0.954263 GeV)
+! ____________________________________________________________________________________
+
+! time    :=     16.944860             ! time (msec)
+! igammt  :=        2000.0             ! gamma-t quadrupole current
+! ekin    :=      4.174176             ! Kinetic energy, GeV
+! korbump :=      0.000000             ! OrBump switch  (OrBump if OFF)
+! ISEXTS  :=      29.40                ! sext.correctors SEXTS current (A)
+! ISEXTL  :=      81.60                ! sext.correctors SEXTL current (A)
+!itunel   :=      0.000                !  long SS quadr.correctors ramp current (A)
+!itunes   :=      0.000                ! short SS quadr.correctors ramp current (A)
+!ssf      :=      0.0182               ! sextupole component of foc. magnet
+!ssd      :=     -0.0361               ! sextupole component of defoc. magnet
+! ____________________________________________________________________________________
+ time    :=      0.000000             ! time (msec)
+!!! time    :=     16.944860             ! time (msec) at transition
+!!! time    :=     33.300000             ! time (msec) (at 8 GeV)
+igammtF  :=           0.0             ! gamma-t quadrupole current (quad. if OFF)
+igammtD  :=           0.0             ! gamma-t quadrupole current (quad. if OFF)
+!!!igammtF  :=        1000.0             ! gamma-t quadrupole current (quad. if ON)
+!!!igammtD  :=        1000.0             ! gamma-t quadrupole current (quad. if ON)
+! korbump :=      0.000000             ! OrBump switch  (OrBump if OFF) (at 8 GeV)
+ korbump :=      1.000000             ! OrBump switch  (OrBump if ON) (at injection)
+ ekin    :=      0.400000             ! 0.4 GeV
+!!! ekin    :=      4.174176             ! Kinetic energy, GeV at transition
+!!! ekin    :=      8.000000             ! 8 GeV
+! ____________________________________________________________________________________
+
+!--------------------------------------
+! BEGIN mods
+! -------------------------------------
+erest   :=      0.93827203               ! proton mass; agrees with basic_toolkit/include/PhysicsConstants.h
+                                         ! However, more recent value is 0.938272013(23), according to
+                                         ! http://pdg.lbl.gov/2011/reviews/rpp2011-rev-phys-constants.pdf
+! -------------------------------------
+! erest   :=      0.938271998              ! proton mass = 0.938271998 GeV/c2
+!--------------------------------------
+! END mods
+! -------------------------------------
+c       :=      0.299792458              ! c=299792458 m/s
+etotal  :=      ekin + erest         ! proton total energy
+pc      :=      sqrt(etotal * etotal - erest * erest)     ! proton momentum
+pc0     :=      0.954263             ! proton momentum at ekin=0.4 GeV
+gamma   :=      etotal / erest                            ! gamma
+beta    :=      sqrt(1 - (1 / (gamma * gamma)))           ! beta
+brho    :=      pc/c                 !  Rigidity in Tm for kinetic energy 0.4 GeV (Pc=0.954263 GeV)
+kpc     :=      pc0/pc               ! pc0/pc 
+pct     :=      5.02561              ! Pc (GeV) at transition
+kpct    :=      pct/pc               ! pc0/pc 
+
+!--------------------------------------
+! BEGIN mods
+! -------------------------------------
+beam,   particle=proton, energy=etotal
+!--------------------------------------
+! END mods
+! -------------------------------------
+
+! ____________________________________________________________________________________
+qsd     :=     -0.0577069            !  body quadrupole component of defocusing magnet
+qsf     :=      0.0542195            !  body quadrupole component of focusing magnet
+
+ssf     := -0.0023 !  0.0280 - 0.0310*kpc     !  body sextupole component of focusing magnet    (new 03/07/03) at inject
+ssd     := -0.0426 ! -0.0680 + 0.0226*kpc     !  body sextupole component of defocusing magnet  (new 03/07/03) at inject
+!!! ssf      :=      0.0182               ! sextupole component of foc. magnet at transition
+!!! ssd      :=     -0.0361               ! sextupole component of defoc. magnet at transition
+!__________________________________________________________________________________________
+LSEXTS  :=  0.30
+LSEXTL  :=  0.42
+!!! SEXTS : sextupole, l=LSEXTS, k2= ISEXTS*0.01557*kpc   ! (setting at ISEXTS,A)
+!!! SEXTL : sextupole, l=LSEXTL, k2=-ISEXTL*0.02805*kpc   ! (setting at ISEXTL,A)
+! ____________________________________________________________________________________
+rhod    :=      48.034101            !  bending radius of defocusing magnet
+rhof    :=      40.847086            !  bending radius of focusing magnet
+blength :=      2.889612             !  bending length (along the equilibrium trajectory)
+angled  :=      blength/rhod         !  bending angle of defocusing magnet
+anglef  :=      blength/rhof         !  bending angle of focusing magnet
+
+kquad   :=     0.0025/(brho*0.075)  !  quadrupole correctors coefficient [k1=kquad*I(A)] !new corrector
+ksquad  :=     0.004/(brho*0.075) !  skew quadrupole correctors coefficient [k1=ksquad*I(A)] !new correcor
+!kquad   :=     0.02178/(brho*0.075)  !  quadrupole correctors coefficient [k1=kquad*I(A)]
+!ksquad  :=     0.008889/(brho*0.075) !  skew quadrupole correctors coefficient [k1=ksquad*I(A)]
+
+LIbex   :=  0.265
+LSexN   :=  0.30
+LOct    :=  0.42
+
+
+sa :      drift, l=.11
+sb :      drift, l=.19
+sc :      drift, l=.60
+miniS :      drift, l=.50
+drift9 :     drift, l=0.066
+
+
+ Sexl44 : sextupole, l=LSexN, k2=0.           ! harmonic sextupole
+ Sexl55 : sextupole, l=LSexN, k2=0.           ! harmonic sextupole
+ Sexl47 : sextupole, l=LSexN, k2=-0.          ! harmonic sextupole
+ Sexl58 : sextupole, l=LSexN, k2=-0.          ! harmonic sextupole
+
+ksexl  := 0.003717/(brho*LSexN)
+! Sexl44 : sextupole, l=LSexN, k2= 12.88*ksexl  ! harmonic sextupole
+! Sexl55 : sextupole, l=LSexN, k2= 13.50*ksexl  ! harmonic sextupole
+! Sexl47 : sextupole, l=LSexN, k2=-12.88*ksexl ! harmonic sextupole
+! Sexl58 : sextupole, l=LSexN, k2=-13.50*ksexl ! harmonic sextupole
+
+Sexl64 : sextupole, l=LSexN, k2=0.,tilt      ! harmonic skew sextupole
+Sexl75 : sextupole, l=LSexN, k2=0.,tilt      ! harmonic skew sextupole
+Sexl67 : sextupole, l=LSexN, k2=-0.,tilt     ! harmonic skew sextupole
+Sexl78 : sextupole, l=LSexN, k2=-0.,tilt     ! harmonic skew sextupole
+
+koct   := 0.000525/(brho*LOct)
+Oct   : octupole,  l=LOct,  k3=0.       ! octupole
+
+itunel  :=      0.0
+itunes  :=      -0.0
+
+!itunel  :=      0.0325230000000*0.
+!itunes  :=      -0.007054000000*0.
+
+ihl01   :=      0.0    !  horizontal dipole corrector strength (long SS)
+ihl02   :=      0.0
+ihl03   :=      0.0
+ihl04   :=      0.0
+ihl05   :=      0.0
+ihl06   :=      0.0
+ihl07   :=      0.0
+ihl08   :=      0.0
+ihl09   :=      0.0
+ihl10   :=      0.0
+ihl11   :=      0.0
+ihl12   :=      0.0
+ihl13   :=      0.0
+ihl14   :=      0.0
+ihl15   :=      0.0
+ihl16   :=      0.0
+ihl17   :=      0.0
+ihl18   :=      0.0
+ihl19   :=      0.0
+ihl20   :=      0.0
+ihl21   :=      0.0
+ihl22   :=      0.0
+ihl23   :=      0.0
+ihl24   :=      0.0
+
+ivl01   :=      0.0    !  vertical dipole corrector strength (long SS)
+ivl02   :=      0.0
+ivl03   :=      0.0
+ivl04   :=      0.0
+ivl05   :=      0.0
+ivl06   :=      0.0
+ivl07   :=      0.0
+ivl08   :=      0.0
+ivl09   :=      0.0
+ivl10   :=      0.0
+ivl11   :=      0.0
+ivl12   :=      0.0
+ivl13   :=      0.0
+ivl14   :=      0.0
+ivl15   :=      0.0
+ivl16   :=      0.0
+ivl17   :=      0.0
+ivl18   :=      0.0
+ivl19   :=      0.0
+ivl20   :=      0.0
+ivl21   :=      0.0
+ivl22   :=      0.0
+ivl23   :=      0.0
+ivl24   :=      0.0
+
+ihs01   :=      0.0    !  horizontal dipole corrector strength (short SS)
+ihs02   :=      0.0
+ihs03   :=      0.0
+ihs04   :=      0.0
+ihs05   :=      0.0
+ihs06   :=      0.0
+ihs07   :=      0.0
+ihs08   :=      0.0
+ihs09   :=      0.0
+ihs10   :=      0.0
+ihs11   :=      0.0
+ihs12   :=      0.0
+ihs13   :=      0.0
+ihs14   :=      0.0
+ihs15   :=      0.0
+ihs16   :=      0.0
+ihs17   :=      0.0
+ihs18   :=      0.0
+ihs19   :=      0.0
+ihs20   :=      0.0
+ihs21   :=      0.0
+ihs22   :=      0.0
+ihs23   :=      0.0
+ihs24   :=      0.0
+
+ivs01   :=      0.0    !  vertical dipole corrector strength (short SS)
+ivs02   :=      0.0
+ivs03   :=      0.0
+ivs04   :=      0.0
+ivs05   :=      0.0
+ivs06   :=      0.0
+ivs07   :=      0.0
+ivs08   :=      0.0
+ivs09   :=      0.0
+ivs10   :=      0.0
+ivs11   :=      0.0
+ivs12   :=      0.0
+ivs13   :=      0.0
+ivs14   :=      0.0
+ivs15   :=      0.0
+ivs16   :=      0.0
+ivs17   :=      0.0
+ivs18   :=      0.0
+ivs19   :=      0.0
+ivs20   :=      0.0
+ivs21   :=      0.0
+ivs22   :=      0.0
+ivs23   :=      0.0
+ivs24   :=      0.0
+
+!                     corr. No.2         Nov.20,03          corr. No.2            corr. No.1
+!                  with tunes as
+!                  in Nov.20,03
+!
+iql01   :=   0.0 !  0.000-0.261818   !  0.660+0.081346  !  0.000-0.261818   !  normal quadrupole corrector strength (long SS)
+iql02   :=   0.0 !  0.508-0.261818   ! -0.815+0.081346  !  0.508-0.261818   ! 
+iql03   :=   0.0 ! -0.264-0.261818   ! -0.264+0.081346  ! -0.264-0.261818   ! 
+iql04   :=   0.0 ! -0.148-0.261818   !  0.720+0.081346  ! -0.148-0.261818   ! 
+iql05   :=   0.0 !  0.280-0.261818   !  0.461+0.081346  !  0.280-0.261818   ! 
+iql06   :=   0.0 !  0.240-0.261818   ! -0.520+0.081346  !  0.240-0.261818   ! 
+iql07   :=   0.0 ! -0.493-0.261818   ! -0.312+0.081346  ! -0.493-0.261818   !   -0.478
+iql08   :=   0.0 ! -0.376-0.261818   !  0.235+0.081346  ! -0.376-0.261818   !   -0.296
+iql09   :=   0.0 !  0.343-0.261818   ! -0.515+0.081346  !  0.343-0.261818   !    0.265
+iql10   :=   0.0 !  0.794-0.261818   ! -0.645+0.081346  !  0.794-0.261818   !   -0.135
+iql11   :=   0.0 !  0.518-0.261818   !  0.005+0.081346  !  0.518-0.261818   !   -0.682
+iql12   :=   0.0 !  0.752-0.261818   ! -0.115+0.081346  !  0.752-0.261818   !   -0.301
+iql13   :=   0.0 !  0.003-0.261818   ! -0.105+0.081346  !  0.003-0.261818   !    0.413
+iql14   :=   0.0 !  0.722-0.261818   ! -0.395+0.081346  !  0.722-0.261818   !   -0.552
+iql15   :=   0.0 !  0.195-0.261818   ! -0.350+0.081346  !  0.195-0.261818   !   -0.563
+iql16   :=   0.0 !  0.248-0.261818   !  0.080+0.081346  !  0.248-0.261818   !    0.189
+iql17   :=   0.0 !  0.366-0.261818   ! -0.490+0.081346  !  0.366-0.261818   !    0.256
+iql18   :=   0.0 ! -0.459-0.261818   ! -0.310+0.081346  ! -0.459-0.261818   !   -0.698
+iql19   :=   0.0 !  0.758-0.261818   ! -0.270+0.081346  !  0.758-0.261818   !   -0.296
+iql20   :=   0.0 !  0.538-0.261818   !  0.350+0.081346  !  0.538-0.261818   !    0.445
+iql21   :=   0.0 ! -0.563-0.261818   ! -0.385+0.081346  ! -0.563-0.261818   !   -0.37 
+iql22   :=   0.0 ! -0.642-0.261818   ! -0.665+0.081346  ! -0.642-0.261818   !   -0.662
+iql23   :=   0.0 !  0.061-0.261818   !  0.705+0.081346  !  0.061-0.261818   !    0.235
+iql24   :=   0.0 ! -0.340-0.261818   ! -0.045+0.081346  ! -0.340-0.261818   !    0.497
+
+iqsl01   :=   0.0 !   0.320   !    0.0    !  skew quadrupole corrector strength (long SS)
+iqsl02   :=   0.0 !   0.345   !    0.0    !  Nov.20,03  
+iqsl03   :=   0.0 !   0.307   !    0.0
+iqsl04   :=   0.0 !   0.313   !    0.0
+iqsl05   :=   0.0 !   0.018   !    0.0
+iqsl06   :=   0.0 !   0.316   !    0.0
+iqsl07   :=   0.0 !   0.320   !    0.0
+iqsl08   :=   0.0 !   0.311   !    0.0
+iqsl09   :=   0.0 !   0.310   !    0.0
+iqsl10   :=   0.0 !   0.305   !    0.0
+iqsl11   :=   0.0 !   0.350   !    0.0
+iqsl12   :=   0.0 !   0.300   !    0.0
+iqsl13   :=   0.0 !   0.285   !    0.0
+iqsl14   :=   0.0 !   0.285   !    0.0
+iqsl15   :=   0.0 !   0.300   !    0.0
+iqsl16   :=   0.0 !   0.285   !    0.0
+iqsl17   :=   0.0 !   0.305   !    0.0
+iqsl18   :=   0.0 !   0.295   !    0.0
+iqsl19   :=   0.0 !   0.300   !    0.0
+iqsl20   :=   0.0 !   0.305   !    0.0
+iqsl21   :=   0.0 !   0.315   !    0.0
+iqsl22   :=   0.0 !   0.335   !    0.0
+iqsl23   :=   0.0 !   0.350   !    0.0
+iqsl24   :=   0.0 !   0.335   !    0.0
+
+!                     corr. No.2         Nov.20,03          corr. No.2            corr. No.1
+!                  with tunes as
+!                  in Nov.20,03
+!
+iqs01   :=   0.0 !  0.029+0.027471 !  0.430-0.016866  !  0.029+0.027471 !  normal quadrupole corrector strength (short SS)
+iqs02   :=   0.0 ! -0.101+0.027471 ! -0.330-0.016866  ! -0.101+0.027471 !  
+iqs03   :=   0.0 ! -0.217+0.027471 ! -0.517-0.016866  ! -0.217+0.027471 !  
+iqs04   :=   0.0 !  0.211+0.027471 !  0.513-0.016866  !  0.211+0.027471 !  
+iqs05   :=   0.0 ! -0.420+0.027471 ! -0.322-0.016866  ! -0.420+0.027471 !  
+iqs06   :=   0.0 ! -0.171+0.027471 ! -0.515-0.016866  ! -0.171+0.027471 !  
+iqs07   :=   0.0 !  0.418+0.027471 !  0.442-0.016866  !  0.418+0.027471 !    0.395
+iqs08   :=   0.0 ! -0.036+0.027471 !  0.415-0.016866  ! -0.036+0.027471 !    0.24 
+iqs09   :=   0.0 ! -0.126+0.027471 ! -0.270-0.016866  ! -0.126+0.027471 !   -0.403
+iqs10   :=   0.0 !  0.072+0.027471 !  0.085-0.016866  !  0.072+0.027471 !    0.173
+iqs11   :=   0.0 !  0.313+0.027471 !  0.445-0.016866  !  0.313+0.027471 !    0.308
+iqs12   :=   0.0 ! -0.500+0.027471 ! -0.180-0.016866  ! -0.500+0.027471 !   -0.318
+iqs13   :=   0.0 ! -0.210+0.027471 ! -0.055-0.016866  ! -0.210+0.027471 !   -0.386
+iqs14   :=   0.0 !  0.235+0.027471 !  0.260-0.016866  !  0.235+0.027471 !    0.372
+iqs15   :=   0.0 !  0.499+0.027471 ! -0.140-0.016866  !  0.499+0.027471 !    0.011
+iqs16   :=   0.0 ! -0.109+0.027471 ! -0.285-0.016866  ! -0.109+0.027471 !   -0.322
+iqs17   :=   0.0 !  0.490+0.027471 !  0.220-0.016866  !  0.490+0.027471 !    0.206
+iqs18   :=   0.0 !  0.378+0.027471 ! -0.055-0.016866  !  0.378+0.027471 !    0.624
+iqs19   :=   0.0 ! -0.378+0.027471 ! -0.065-0.016866  ! -0.378+0.027471 !   -0.247
+iqs20   :=   0.0 ! -0.481+0.027471 !  0.150-0.016866  ! -0.481+0.027471 !   -0.626
+iqs21   :=   0.0 !  0.262+0.027471 !  0.060-0.016866  !  0.262+0.027471 !    0.204
+iqs22   :=   0.0 ! -0.468+0.027471 ! -0.650-0.016866  ! -0.468+0.027471 !   -0.336
+iqs23   :=   0.0 ! -0.205+0.027471 !  0.025-0.016866  ! -0.205+0.027471 !   -0.133
+iqs24   :=   0.0 ! -0.202+0.027471 !  0.210-0.016866  ! -0.202+0.027471 !   -0.303
+
+iqss01   :=   0.0 !   -0.015    !   0.0    !  skew quadrupole corrector strength (short SS)
+iqss02   :=   0.0 !   -0.010    !   0.0    !  Nov.20,03
+iqss03   :=   0.0 !   -0.015    !   0.0
+iqss04   :=   0.0 !   -0.030    !   0.0
+iqss05   :=   0.0 !   -0.027    !   0.0
+iqss06   :=   0.0 !   -0.022    !   0.0
+iqss07   :=   0.0 !   -0.023    !   0.0
+iqss08   :=   0.0 !   -0.029    !   0.0
+iqss09   :=   0.0 !   -0.035    !   0.0
+iqss10   :=   0.0 !   -0.030    !   0.0
+iqss11   :=   0.0 !   -0.035    !   0.0
+iqss12   :=   0.0 !   -0.020    !   0.0
+iqss13   :=   0.0 !   -0.055    !   0.0
+iqss14   :=   0.0 !   -0.035    !   0.0
+iqss15   :=   0.0 !   -0.030    !   0.0
+iqss16   :=   0.0 !   -0.030    !   0.0
+iqss17   :=   0.0 !   -0.030    !   0.0
+iqss18   :=   0.0 !   -0.040    !   0.0
+iqss19   :=   0.0 !   -0.015    !   0.0
+iqss20   :=   0.0 !   -0.055    !   0.0
+iqss21   :=   0.0 !   -0.005    !   0.0
+iqss22   :=   0.0 !   -0.015    !   0.0
+iqss23   :=   0.0 !   -0.020    !   0.0
+iqss24   :=   0.0 !   -0.005    !   0.0
+
+isxs01   :=   0.0 !1.1105 !   -0.015    !   0.0    !  normal sextupole corrector strength (short SS)
+isxs02   :=   0.0 !1.1105 !   -0.010    !   0.0    !  Apr.2010
+isxs03   :=   0.0 !1.1105 !   -0.015    !   0.0
+isxs04   :=   0.0 !1.1105 !   -0.030    !   0.0
+isxs05   :=   0.0 !1.1105 !   -0.027    !   0.0
+isxs06   :=   0.0 !1.1105 !   -0.022    !   0.0
+isxs07   :=   0.0 !1.1105 !   -0.023    !   0.0
+isxs08   :=   0.0 !1.1105 !   -0.029    !   0.0
+isxs09   :=   0.0 !1.1105 !   -0.035    !   0.0
+isxs10   :=   0.0 !1.1105 !   -0.030    !   0.0
+isxs11   :=   0.0 !1.1105 !   -0.035    !   0.0
+isxs12   :=   0.0 !1.1105 !   -0.020    !   0.0
+isxs13   :=   0.0 !1.1105 !   -0.055    !   0.0
+isxs14   :=   0.0 !1.1105 !   -0.035    !   0.0
+isxs15   :=   0.0 !1.1105 !   -0.030    !   0.0
+isxs16   :=   0.0 !1.1105 !   -0.030    !   0.0
+isxs17   :=   0.0 !1.1105 !   -0.030    !   0.0
+isxs18   :=   0.0 !1.1105 !   -0.040    !   0.0
+isxs19   :=   0.0 !1.1105 !   -0.015    !   0.0
+isxs20   :=   0.0 !1.1105 !   -0.055    !   0.0
+isxs21   :=   0.0 !1.1105 !   -0.005    !   0.0
+isxs22   :=   0.0 !1.1105 !   -0.015    !   0.0
+isxs23   :=   0.0 !1.1105 !   -0.020    !   0.0
+isxs24   :=   0.0 !1.1105 !   -0.005    !   0.0
+
+isss01   :=   0.0 !   -0.015    !   0.0    !  skew sextupole corrector strength (short SS)
+isss02   :=   0.0 !   -0.010    !   0.0    !  Apr.2010
+isss03   :=   0.0 !   -0.015    !   0.0
+isss04   :=   0.0 !   -0.030    !   0.0
+isss05   :=   0.0 !   -0.027    !   0.0
+isss06   :=   0.0 !   -0.022    !   0.0
+isss07   :=   0.0 !   -0.023    !   0.0
+isss08   :=   0.0 !   -0.029    !   0.0
+isss09   :=   0.0 !   -0.035    !   0.0
+isss10   :=   0.0 !   -0.030    !   0.0
+isss11   :=   0.0 !   -0.035    !   0.0
+isss12   :=   0.0 !   -0.020    !   0.0
+isss13   :=   0.0 !   -0.055    !   0.0
+isss14   :=   0.0 !   -0.035    !   0.0
+isss15   :=   0.0 !   -0.030    !   0.0
+isss16   :=   0.0 !   -0.030    !   0.0
+isss17   :=   0.0 !   -0.030    !   0.0
+isss18   :=   0.0 !   -0.040    !   0.0
+isss19   :=   0.0 !   -0.015    !   0.0
+isss20   :=   0.0 !   -0.055    !   0.0
+isss21   :=   0.0 !   -0.005    !   0.0
+isss22   :=   0.0 !   -0.015    !   0.0
+isss23   :=   0.0 !   -0.020    !   0.0
+isss24   :=   0.0 !   -0.005    !   0.0
+
+isxl01   := 0.0 !-0.0012 !   -0.015    !   0.0    !  normal sextupole corrector strength (long SS)
+isxl02   := 0.0 !-0.0012 !   -0.010    !   0.0    !  Apr.2010
+isxl03   := 0.0 !-0.0012 !   -0.015    !   0.0
+isxl04   := 0.0 !-0.0012 !   -0.030    !   0.0
+isxl05   := 0.0 !-0.0012 !   -0.027    !   0.0
+isxl06   := 0.0 !-0.0012 !   -0.022    !   0.0
+isxl07   := 0.0 !-0.0012 !   -0.023    !   0.0
+isxl08   := 0.0 !-0.0012 !   -0.029    !   0.0
+isxl09   := 0.0 !-0.0012 !   -0.035    !   0.0
+isxl10   := 0.0 !-0.0012 !   -0.030    !   0.0
+isxl11   := 0.0 !-0.0012 !   -0.035    !   0.0
+isxl12   := 0.0 !-0.0012 !   -0.020    !   0.0
+isxl13   := 0.0 !-0.0012 !   -0.055    !   0.0
+isxl14   := 0.0 !-0.0012 !   -0.035    !   0.0
+isxl15   := 0.0 !-0.0012 !   -0.030    !   0.0
+isxl16   := 0.0 !-0.0012 !   -0.030    !   0.0
+isxl17   := 0.0 !-0.0012 !   -0.030    !   0.0
+isxl18   := 0.0 !-0.0012 !   -0.040    !   0.0
+isxl19   := 0.0 !-0.0012 !   -0.015    !   0.0
+isxl20   := 0.0 !-0.0012 !   -0.055    !   0.0
+isxl21   := 0.0 !-0.0012 !   -0.005    !   0.0
+isxl22   := 0.0 !-0.0012 !   -0.015    !   0.0
+isxl23   := 0.0 !-0.0012 !   -0.020    !   0.0
+isxl24   := 0.0 !-0.0012 !   -0.005    !   0.0
+
+issl01   :=   0.0 !   -0.015    !   0.0    !  skew sextupole corrector strength (long SS)
+issl02   :=   0.0 !   -0.010    !   0.0    !  Apr.2010
+issl03   :=   0.0 !   -0.015    !   0.0
+issl04   :=   0.0 !   -0.030    !   0.0
+issl05   :=   0.0 !   -0.027    !   0.0
+issl06   :=   0.0 !   -0.022    !   0.0
+issl07   :=   0.0 !   -0.023    !   0.0
+issl08   :=   0.0 !   -0.029    !   0.0
+issl09   :=   0.0 !   -0.035    !   0.0
+issl10   :=   0.0 !   -0.030    !   0.0
+issl11   :=   0.0 !   -0.035    !   0.0
+issl12   :=   0.0 !   -0.020    !   0.0
+issl13   :=   0.0 !   -0.055    !   0.0
+issl14   :=   0.0 !   -0.035    !   0.0
+issl15   :=   0.0 !   -0.030    !   0.0
+issl16   :=   0.0 !   -0.030    !   0.0
+issl17   :=   0.0 !   -0.030    !   0.0
+issl18   :=   0.0 !   -0.040    !   0.0
+issl19   :=   0.0 !   -0.015    !   0.0
+issl20   :=   0.0 !   -0.055    !   0.0
+issl21   :=   0.0 !   -0.005    !   0.0
+issl22   :=   0.0 !   -0.015    !   0.0
+issl23   :=   0.0 !   -0.020    !   0.0
+issl24   :=   0.0 !   -0.005    !   0.0
+ 
+
+
+
+!  MARKERs
+
+MARK1 : MARKER
+MARK2 : MARKER
+MARK3 : MARKER
+MARK4 : MARKER
+MARK5 : MARKER
+MARK6 : MARKER
+MARK7 : MARKER
+MARK8 : MARKER
+MARK9 : MARKER
+MARK10 : MARKER
+MARK11 : MARKER
+MARK12 : MARKER
+MARK13 : MARKER
+MARK14 : MARKER
+MARK15 : MARKER
+MARK16 : MARKER
+MARK17 : MARKER
+MARK18 : MARKER
+MARK19 : MARKER
+MARK20 : MARKER
+MARK21 : MARKER
+MARK22 : MARKER
+MARK23 : MARKER
+MARK24 : MARKER
+
+MARK1d : MARKER
+MARK2d : MARKER
+MARK3d : MARKER
+MARK4d : MARKER
+MARK5d : MARKER
+MARK6d : MARKER
+MARK7d : MARKER
+MARK8d : MARKER
+MARK9d : MARKER
+MARK10d : MARKER
+MARK11d : MARKER
+MARK12d : MARKER
+MARK13d : MARKER
+MARK14d : MARKER
+MARK15d : MARKER
+MARK16d : MARKER
+MARK17d : MARKER
+MARK18d : MARKER
+MARK19d : MARKER
+MARK20d : MARKER
+MARK21d : MARKER
+MARK22d : MARKER
+MARK23d : MARKER
+MARK24d : MARKER
+
+bpml01  :     drift, l=0.024
+bpml02  :     drift, l=0.024
+bpml03  :     drift, l=0.024
+bpml04  :     drift, l=0.024
+bpml05  :     drift, l=0.024
+bpml06  :     drift, l=0.024
+bpml07  :     drift, l=0.024
+bpml08  :     drift, l=0.024
+bpml09  :     drift, l=0.024
+bpml10  :     drift, l=0.024
+bpml11  :     drift, l=0.024
+bpml12  :     drift, l=0.024
+bpml13  :     drift, l=0.024
+bpml14  :     drift, l=0.024
+bpml15  :     drift, l=0.024
+bpml16  :     drift, l=0.024
+bpml17  :     drift, l=0.024
+bpml18  :     drift, l=0.024
+bpml19  :     drift, l=0.024
+bpml20  :     drift, l=0.024
+bpml21  :     drift, l=0.024
+bpml22  :     drift, l=0.024
+bpml23  :     drift, l=0.024
+bpml24  :     drift, l=0.024
+
+bpms01  :     drift, l=0.024
+bpms02  :     drift, l=0.024
+bpms03  :     drift, l=0.024
+bpms04  :     drift, l=0.024
+bpms05  :     drift, l=0.024
+bpms06  :     drift, l=0.024
+bpms07  :     drift, l=0.024
+bpms08  :     drift, l=0.024
+bpms09  :     drift, l=0.024
+bpms10  :     drift, l=0.024
+bpms11  :     drift, l=0.024
+bpms12  :     drift, l=0.024
+bpms13  :     drift, l=0.024
+bpms14  :     drift, l=0.024
+bpms15  :     drift, l=0.024
+bpms16  :     drift, l=0.024
+bpms17  :     drift, l=0.024
+bpms18  :     drift, l=0.024
+bpms19  :     drift, l=0.024
+bpms20  :     drift, l=0.024
+bpms21  :     drift, l=0.024
+bpms22  :     drift, l=0.024
+bpms23  :     drift, l=0.024
+bpms24  :     drift, l=0.024
+
+!****************************************************************
+! cell 1
+!****************************************************************
+hl01:           hkicker,    l=.024, kick=ihl01
+vl01:           vkicker,    l=.024, kick=ivl01
+ql01:           quadrupole, l=.024, k1=  (iql01+itunel)*kquad 
+qsl01:          quadrupole, l=.024, k1=  iqsl01*ksquad, TILT
+sxl01:          sextupole,  l=.024, k2=isxl01
+ssl01:          sextupole,  l=.024, k2=issl01, TILT
+
+hs24:           hkicker,    l=.024, kick=ihs24
+vs24:           vkicker,    l=.024, kick=ivs24
+qs24:           quadrupole, l=.024, k1=  (iqs24+itunes)*kquad
+qss24:          quadrupole, l=.024, k1=  iqss24*ksquad, TILT
+sxs24:          sextupole,  l=.024, k2=isxs24
+sss24:          sextupole,  l=.024, k2=isss24, TILT
+
+!---------------------------------------------------------------------------------------------------------
+!sa
+CPS24 :    line=(drift9,hs24,vs24,qs24,bpms24,qss24,sxs24,sss24,drift9)
+!sb
+fmagu01:    sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000285
+!miniS
+dmagu01:    sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000687
+
+L01a  :     drift, l=0.055
+!--------------------------------------
+! BEGIN mods
+! -------------------------------------
+ORBUMPa_1:  drift, l=.24115
+MULBUMP_1:  marker
+ORBUMP_1:   line=(ORBUMPa_1,MULBUMP_1,ORBUMPa_1)
+
+L01b  :     drift, l=2.00655
+
+ORBUMPa_2:  drift, l=.24115
+MULBUMP_2:  marker
+ORBUMP_2:   line=(ORBUMPa_2,MULBUMP_2,ORBUMPa_2)
+!--------------------------------------
+! ORBUMPa_1:  sbend, l=.24115,ANGLE=-0.011*korbump, &   !  half of orbit bump-magnet (injection)
+!             E1= 0.011*korbump/2,E2=-0.011*korbump/2, &
+!             K1=-0.0023173*korbump/.4823,K2= 0.10077*korbump/.4823, & 
+!             K3=-11.625*korbump/.4823
+! MULBUMP_1:  multipole, lrad=.4823, K4L=1049.5*korbump, & 
+!             K5L=-46803000.0*korbump,K6L=1625200.0*korbump
+! ORBUMP_1:   line=(ORBUMPa_1,MULBUMP_1,ORBUMPa_1)    !   total orbit bump-magnet (injection)
+! 
+! L01b  :     drift, l=2.00655
+! ORBUMPa_2:  sbend, l=.24115,ANGLE= 0.022*korbump, &  !  half of orbit bump-magnet (injection)
+!             E1=0.022*korbump/2,E2=-0.022*korbump/2, &
+!             K1= 0.0031418*korbump/.4823,K2=0.02218*korbump/.4823, & 
+!             K3= 3.3586*korbump/.4823
+! MULBUMP_2:  multipole, lrad=.4823, K4L= 135.01*korbump, & 
+!             K5L=-10305000.0*korbump,K6L=-3250500.0*korbump
+! ORBUMP_2:   line=(ORBUMPa_2,MULBUMP_2,ORBUMPa_2)    !   total orbit bump-magnet (injection)
+! -------------------------------------
+! END mods
+! -------------------------------------
+
+L01c  :     drift, l=0.179
+FOIL  :     drift, l=0.001    !  stripping foil (injection)
+L01d  :    drift, l=0.8948
+
+CPL01 :    line=(drift9,hl01,vl01,ql01,bpml01,qsl01,sxl01,ssl01,drift9)
+
+L01e  :    drift, l=0.76375
+! -------------------------------------
+! BEGIN mods
+! -------------------------------------
+ORBUMPa_4:  drift, l=.24115
+MULBUMP_4:  marker
+ORBUMP_4:   line=(ORBUMPa_4,MULBUMP_4,ORBUMPa_4)
+! -------------------------------------
+! ORBUMPa_4:  sbend, l=.24115,ANGLE=-0.011*korbump,  &  !  half of orbit bump-magnet (injection)
+!             E1=-0.011*korbump/2,E2=0.011*korbump/2, & 
+!             K1=-0.0023173*korbump/.4823,K2= 0.10077*korbump/.4823, & 
+!             K3=-11.625*korbump/.4823
+! MULBUMP_4:  multipole, lrad=.4823, K4L= 1049.5*korbump, & 
+!             K5L=-46803000.0*korbump,K6L= 1625200.0*korbump
+! ORBUMP_4:   line=(ORBUMPa_4,MULBUMP_4,ORBUMPa_4)    !   total orbit bump-magnet (injection)
+! -------------------------------------
+! END mods
+! -------------------------------------
+L01f  :    drift, l=0.353
+
+dmagd01:    sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000603
+!miniS
+fmagd01:    sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000905
+
+!sc
+
+!--------------------------------------------------------------------------------
+bcel01:   line=(sa,CPS24,sb,fmagu01,miniS,dmagu01,Mark24D,&
+  L01a,ORBUMP_1,L01b,ORBUMP_2,L01c,FOIL,L01d,CPL01,L01e,ORBUMP_4,L01f,&
+  dmagd01,miniS,fmagd01,sc,Mark1)
+!--------------------------------------------------------------------------------
+!*******************************************************************************
+! cell 2
+!*******************************************************************************
+hl02:           hkicker,    l=.024, kick=ihl02
+vl02:           vkicker,    l=.024, kick=ivl02
+ql02:           quadrupole, l=.024, k1=  (iql02+itunel)*kquad 
+qsl02:          quadrupole, l=.024, k1=  iqsl02*ksquad, TILT
+sxl02:          sextupole,  l=.024, k2=isxl02
+ssl02:          sextupole,  l=.024, k2=issl02, TILT
+
+hs01:           hkicker,    l=.024, kick=ihs01
+vs01:           vkicker,    l=.024, kick=ivs01
+qs01:           quadrupole, l=.024, k1=  (iqs01+itunes)*kquad
+qss01:          quadrupole, l=.024, k1=  iqss01*ksquad, TILT
+sxs01:          sextupole,  l=.024, k2=isxs01
+sss01:          sextupole,  l=.024, k2=isss01, TILT
+
+!-----------------------------------------------------------------------------------------------------------
+!sa
+CPS01 :   line=(drift9,hs01,vs01,qs01,bpms01,qss01,sxs01,sss01,drift9)	
+!sb
+
+fmagu02:  sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000905
+!miniS
+dmagu02:  sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000938
+
+L02a  :   drift, l=0.308
+! -------------------------------------
+! BEGIN mods
+! -------------------------------------
+MKS02_1 : drift, l=1.08
+! -------------------------------------
+! MKS02_1 : sbend, l=1.08, ANGLE=0.0000, tilt=1.570796   ! vertical extraction kicker
+! -------------------------------------
+! END mods
+! -------------------------------------
+
+L02b  :   drift, l=0.114
+! -------------------------------------
+! BEGIN mods
+! -------------------------------------
+MKS02_2 : drift, l=1.08
+! -------------------------------------
+! MKS02_2 : sbend, l=1.08, ANGLE=0.0000, tilt=1.570796   ! vertical extraction kicker
+! -------------------------------------
+! END mods
+! -------------------------------------
+
+L02c  :   drift, l=0.115
+! -------------------------------------
+! BEGIN mods
+! -------------------------------------
+Ibex02   : drift, l=LIbex
+! -------------------------------------
+! Ibex02   :sbend, l=LIbex, ANGLE=0.0000, tilt=1.570796   ! vertical bump-magnet
+! -------------------------------------
+! END mods
+! -------------------------------------
+
+L02d  :   drift, l=0.115
+! -------------------------------------
+! BEGIN mods
+! -------------------------------------
+MKS02_3 : drift, l=1.08
+! -------------------------------------
+! MKS02_3 : sbend, l=1.08, ANGLE=0.0000, tilt=1.570796   ! vertical extraction kicker
+! -------------------------------------
+! END mods
+! -------------------------------------
+
+L02e  :   drift, l=0.114
+! -------------------------------------
+! BEGIN mods
+! -------------------------------------
+MKS02_4 : drift, l=1.08
+! -------------------------------------
+! MKS02_4 : sbend, l=1.08, ANGLE=0.0000, tilt=1.570796   ! vertical extraction kicker
+! -------------------------------------
+! END mods
+! -------------------------------------
+
+L02f  :   drift, l=0.005
+HP02L  :  drift, l=0.095
+VP02L  :  drift, l=0.095
+CPL02 :   line=(drift9,hl02,vl02,ql02,bpml02,qsl02,sxl01,ssl01,drift9)
+L02g  :   drift, l=0.154
+
+dmagd02:  sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  001014
+!miniS
+fmagd02:  sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  001349
+
+!sc
+!-----------------------------------------------------------------------------------
+bcel02:  line=(sa,CPS01,sb,fmagu02,miniS,dmagu02,MARK1d,&
+               L02a,MKS02_1,L02b,MKS02_2,L02c,Ibex02,L02d,&
+               MKS02_3,L02e,MKS02_4,L02f,HP02L,VP02L,CPL02,L02g,&
+               dmagd02,miniS,fmagd02,sc,MARK2)
+!-----------------------------------------------------------------------------------
+!***********************************************************************************
+! cell 3
+!***********************************************************************************
+hl03:           hkicker,    l=.024, kick=ihl03
+vl03:           vkicker,    l=.024, kick=ivl03
+ql03:           quadrupole, l=.024, k1=  (iql03+itunel)*kquad 
+qsl03:          quadrupole, l=.024, k1=  iqsl03*ksquad, TILT
+sxl03:          sextupole,  l=.024, k2=isxl03
+ssl03:          sextupole,  l=.024, k2=issl03, TILT
+
+hs02:           hkicker,    l=.024, kick=ihs02
+vs02:           vkicker,    l=.024, kick=ivs02
+qs02:           quadrupole, l=.024, k1=  (iqs02+itunes)*kquad
+qss02:          quadrupole, l=.024, k1=  iqss02*ksquad, TILT
+sxs02:          sextupole,  l=.024, k2=isxs02
+sss02:          sextupole,  l=.024, k2=isss02, TILT
+!-----------------------------------------------------------------------------------------------------------
+!sa
+CPS02 : line=(drift9,hs02,vs02,qs02,bpms02,qss02,sxs02,sss02,drift9)
+!sb
+
+fmagu03: sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  002220
+!miniS
+dmagu03: sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000243
+
+! -------------------------------------
+! BEGIN mods
+! -------------------------------------
+L03a  :  drift, l=0.31505  !40344
+DOG03_1 : sbend, l=0.24722, angle= .02344*kpc, tilt=1.570796
+
+L03b  : drift, l=0.30039  !20998
+CPL03 :    line=(drift9,hl03,vl03,ql03,bpml03,qsl03,sxl03,ssl03,drift9)
+
+L03c  : drift, l=0.30039  !20998
+DOG03_2:  sbend, l=0.24722, angle=-.02344*kpc, tilt=1.570796
+! -------------------------------------
+! DOG03_1a :   sbend,l=0.24722/2,angle= .02344*kpc/2,&                       ! half DBL001  DogLeg magmet 
+!              tilt=1.570796,e1=-0.01172*kpc/2,e2= 0.01172*kpc/2,&               ! half DBL001  DogLeg magmet
+!              k1=-0.00007091*kpc/.24722,k2=0.045547*kpc/.24722,K3=0.19956*kpc/.24722   ! half DBL001  DogLeg magmet 
+! MULDG03_1  : multipole, lrad=.24722, K4L=-8.1984*kpc,T4=1.570796,&       ! multipole of DOG03_1
+!              K5L=-1506.3*kpc,T5=1.570796,K6L=-354750.0*kpc,T6=1.570796   ! multipole of DOG03_1
+! DOG03_1 : line=(DOG03_1a,MULDG03_1,DOG03_1a)                             ! total DBL001  DogLeg magmet
+! 
+! 
+! L03b  : drift, l=0.30039  !20998
+! CPL03 :    line=(drift9,hl03,vl03,ql03,bpml03,qsl03,sxl03,ssl03,drift9)
+! 
+! L03c  : drift, l=0.30039  !20998
+! DOG03_2a : sbend,l=0.24722/2,angle=-.02344*kpc/2,&                       ! half DBL002  DogLeg magmet 
+!            tilt=1.570796,e1=-0.01172*kpc/2,e2= 0.01172*kpc/2,&               ! half DBL002  DogLeg magmet
+!            k1=-0.000078369*kpc/.24722,k2=0.047016*kpc/.24722,K3=0.13622*kpc/.24722   ! half DBL002  DogLeg magmet 
+! MULDG03_2  : multipole, lrad=.24722, K4L=-30.061*kpc,T4=1.570796,&      ! multipole of DOG03_2
+!              K5L=1264.2*kpc,T5=1.570796,K6L=1074800.0*kpc,T6=1.570796        ! multipole of DOG03_2
+! DOG03_2:  line=(DOG03_2a,MULDG03_2,DOG03_2a)                             ! total DBL002  DogLeg magmet
+! -------------------------------------
+! END mods
+! -------------------------------------
+
+L03d  :    drift, l=0.21614  !41614
+! -------------------------------------
+! BEGIN mods
+! -------------------------------------
+SEPTU03  : drift, l=1.524/2
+! -------------------------------------
+! SEPTU03  : sbend, l=1.524/2, ANGLE=0.00000001, tilt=1.570796    !  septum, extraction to MI-8
+! -------------------------------------
+! END mods
+! -------------------------------------
+SEPTUM03  :line=(SEPTU03,SEPTU03)   !  septum, extraction to MI-8
+
+! -------------------------------------
+! BEGIN mods
+! -------------------------------------
+L03e  :    drift, l=0.62462  !1.22894
+DOG03_3: sbend,l=0.24722, angle=-.02344*kpc, tilt=1.570796
+
+L03f  : drift, l=0.76878  !20998
+DOG03_4: sbend, l=0.24722, angle= .02344*kpc, tilt=1.570796
+! -------------------------------------
+! L03e  :    drift, l=0.62462  !1.22894
+! DOG03_3a : sbend,l=0.24722/2,angle=-.02344*kpc/2,&                       ! half DBL004  DogLeg magmet
+!            tilt=1.570796,e1= 0.01172*kpc/2,e2=-0.01172*kpc/2,&               ! half DBL004  DogLeg magmet 
+!            k1=0.000057844*kpc/.24722,k2=0.04848*kpc/.24722,K3=0.05206*kpc/.24722    ! half DBL004  DogLeg magmet 
+! MULDG03_3 : multipole, lrad=.24722, K4L=8.1984*kpc,T4=1.570796,&        ! multipole of DOG03_3
+!             K5L=-2151.8*kpc,T5=1.570796,K6L=-561250.0*kpc,T6=1.570796       ! multipole of DOG03_3
+! DOG03_3:   line=(DOG03_3a,MULDG03_3,DOG03_3a)                             ! total DBL004  DogLeg magmet
+! 
+! L03f  : drift, l=0.76878  !20998
+! DOG03_4a : sbend,l=0.24722/2,angle= .02344*kpc/2,&                       ! half DBL005  DogLeg magmet 
+!            tilt=1.570796,e1= 0.01172*kpc/2,e2=-0.01172*kpc/2,&               ! half DBL005  DogLeg magmet
+!            k1=-0.00000093*kpc/.24722,k2=0.042608*kpc/.24722,K3=-0.0538*kpc/.24722   ! half DBL005  DogLeg magmet 
+! MULDG03_4  :multipole, lrad=.24722, K4L=4.0992*kpc,T4=1.570796,&        ! multipole of DOG03_4
+!            K5L=14794.0*kpc,T5=1.570796,K6L=-317690.0*kpc,T6=1.570796   ! multipole of DOG03_4
+! DOG03_4 :  line=(DOG03_4a,MULDG03_4,DOG03_4a)                             ! total DBL005  DogLeg magmet
+! -------------------------------------
+! END mods
+! -------------------------------------
+
+
+L03g  :    drift, l=0.2
+! -------------------------------------
+! BEGIN mods
+! -------------------------------------
+Ibex03   : drift, l=LIbex
+! -------------------------------------
+! Ibex03  :  sbend, l=LIbex, ANGLE=0.0000, tilt=1.570796       ! vertical bump-magnet
+! -------------------------------------
+! END mods
+! -------------------------------------
+
+L03h  :    drift, l=0.19675
+HP03L  :   drift, l=0.0
+VP03L  :   drift, l=0.0
+
+dmagd03:   sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  001609
+!miniS
+fmagd03:   sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000469
+
+!sc
+!-----------------------------------------------------------------------------------
+bcel03:   line=(sa,CPS02,sb,fmagu03,miniS,dmagu03,MARK2d,&
+                L03a,DOG03_1,L03b,CPL03,L03c,DOG03_2,L03d,SEPTUM03,L03e,&
+     DOG03_3,L03f,DOG03_4,L03g,Ibex03,L03h,HP03L,VP03L,&
+                dmagd03,miniS,fmagd03,sc,MARK3)
+!-----------------------------------------------------------------------------------
+!******************************************************************************************************
+!cell 4
+!******************************************************************************************************
+hl04:           hkicker,    l=.024, kick=ihl04
+vl04:           vkicker,    l=.024, kick=ivl04
+ql04:           quadrupole, l=.024, k1=  (iql04+itunel)*kquad 
+qsl04:          quadrupole, l=.024, k1=  iqsl04*ksquad, TILT
+sxl04:          sextupole,  l=.024, k2=isxl04
+ssl04:          sextupole,  l=.024, k2=issl04, TILT
+
+hs03:           hkicker,    l=.024, kick=ihs03
+vs03:           vkicker,    l=.024, kick=ivs03
+qs03:           quadrupole, l=.024, k1=  (iqs03+itunes)*kquad
+qss03:          quadrupole, l=.024, k1=  iqss03*ksquad, TILT
+sxs03:          sextupole,  l=.024, k2=isxs03
+sss03:          sextupole,  l=.024, k2=isss03, TILT
+!------------------------------------------------------------------------------------------------------
+!sa
+CPS03 :  line=(drift9,hs03,vs03,qs03,bpms03,qss03,sxs03,sss03,drift9)
+!sb
+
+fmagu04:  sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000268
+!miniS
+dmagu04:  sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  001441
+
+L04a  :  drift, l=0.64
+SEXTL :  drift, l=LSEXTL
+L04b  :  drift, l=0.01
+SEXTL :  drift, l=LSEXTL
+L04c  :  drift, l=0.11
+Sexl64 : sextupole, l=LSexN, k2=0.,tilt      ! harmonic skew sextupole
+L04d  :  drift, l=0.22
+Sexl44 : sextupole, l=LSexN, k2=0.           ! harmonic sextupole
+L04e  :  drift, l=1.02
+SEXTL :  drift, l=LSEXTL
+
+L04f  :  drift, l=0.4
+! -------------------------------------
+! BEGIN mods
+! -------------------------------------
+Ibex4   : drift, l=LIbex
+! -------------------------------------
+! Ibex4 :  sbend, l=LIbex, ANGLE=0.0000, tilt=1.570796  ! vertical bump-magnet
+! -------------------------------------
+! END mods
+! -------------------------------------
+
+L04g  :  drift, l=0.485
+HP04L  : drift, l=0.095
+VP04L  : drift, l=0.095
+
+L04h  :  drift, l=0.315
+CPL04 :  line=(drift9,hl04,vl04,ql04,bpml04,qsl04,sxl04,ssl04,drift9)
+L04i  :  drift, l=0.185
+
+dmagd04: sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  001273
+!miniS
+fmagd04: sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  001642
+
+!sc
+!----------------------------------------------------------------------------------------
+bcel04:  line=(sa,CPS03,sb,fmagu04,miniS,dmagu04,MARK3d,&
+              L04a,SEXTL,L04b,SEXTL,L04c,Sexl64,L04d,Sexl44,&
+        L04e,SEXTL,L04f,Ibex4,L04g,HP04L,VP04L,L04h,CPL04,L04i,&
+               dmagd04,miniS,fmagd04,sc,MARK4)
+!----------------------------------------------------------------------------------------
+!*****************************************************************************************
+!cell 5
+!*****************************************************************************************
+hl05:           hkicker,    l=.024, kick=ihl05
+vl05:           vkicker,    l=.024, kick=ivl05
+ql05:           quadrupole, l=.024, k1=  (iql05+itunel)*kquad 
+qsl05:          quadrupole, l=.024, k1=  iqsl05*ksquad, TILT
+sxl05:          sextupole,  l=.024, k2=isxl05
+ssl05:          sextupole,  l=.024, k2=issl05, TILT
+
+hs04:           hkicker,    l=.024, kick=ihs04
+vs04:           vkicker,    l=.024, kick=ivs04
+qs04:           quadrupole, l=.024, k1=  (iqs04+itunes)*kquad
+qss04:          quadrupole, l=.024, k1=  iqss04*ksquad, TILT
+sxs04:          sextupole,  l=.024, k2=isxs04
+sss04:          sextupole,  l=.024, k2=isss04, TILT
+!--------------------------------------------------------------------------------------
+!sa
+CPS04 :     line=(drift9,hs04,vs04,qs04,bpms04,qss04,sxs04,sss04,drift9)
+!sb
+
+fmagu05:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  001215
+!miniS
+dmagu05:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000318
+
+L05a  :     drift, l=0.43
+Sexl75 : sextupole, l=LSexN, k2=0.,tilt      ! harmonic skew sextupole
+L05b  :     drift, l=0.04
+Sexl55 : sextupole, l=LSexN, k2=0.           ! harmonic sextupole
+L05c  :     drift, l=1.0
+IPMh  :     drift, l=0.3     ! ionization profile monitor (horizontal)
+L05d  :     drift, l=0.3
+IPMv  :     drift, l=0.3     ! ionization profile monitor (vertical)
+L05e :     drift, l=0.03
+NOTCHER  :   vkicker, l=1.08, kick=0.0
+PINGER  :  hkicker, l=1.08, kick=0.0
+HP05L  :     drift, l=0.095
+VP05L  :     drift, l=0.095
+L05f  :     drift, l=0.165
+CPL05 :    line=(drift9,hl05,vl05,ql05,bpml05,qsl05,sxl05,ssl05,drift9)
+L05g  :     drift, l=0.185
+
+dmagd05:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000302
+half_sp :          drift,l=.24995
+Prim_H  :          drift,l=.0001   ! primary horizontal collimator
+half_sp :          drift,l=.24995
+fmagd05:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000268
+
+!sc
+!----------------------------------------------------------------------------------------
+bcel05:   line=(sa,CPS04,sb,fmagu05,miniS,dmagu05,MARK4d,&
+                L05a,Sexl75,L05b,Sexl55,L05c,IPMh,L05d,IPMv,&
+                L05e,NOTCHER,PINGER,HP05L,VP05L,L05f,CPL05,L05g,dmagd05,&
+       half_sp,Prim_H,half_sp,fmagd05,sc,MARK5)
+!----------------------------------------------------------------------------------------
+!***************************************************************************************
+! cell 6
+!***************************************************************************************
+hl06:           hkicker,    l=.024, kick=ihl06
+vl06:           vkicker,    l=.024, kick=ivl06
+ql06:           quadrupole, l=.024, k1=  (iql06+itunel)*kquad 
+qsl06:          quadrupole, l=.024, k1=  iqsl06*ksquad, TILT
+sxl06:          sextupole,  l=.024, k2=isxl06
+ssl06:          sextupole,  l=.024, k2=issl06, TILT
+
+hs05:           hkicker,    l=.024, kick=ihs05
+vs05:           vkicker,    l=.024, kick=ivs05
+qs05:           quadrupole, l=.024, k1=  (iqs05+itunes)*kquad
+qss05:          quadrupole, l=.024, k1=  iqss05*ksquad, TILT
+sxs05:          sextupole,  l=.024, k2=isxs05
+sss05:          sextupole,  l=.024, k2=isss05, TILT
+!------------------------------------------------------------------------------------
+!sa
+CPS05 :    line=(drift9,hs05,vs05,qs05,bpms05,qss05,sxs05,sss05,drift9)
+!sb
+
+fmagu06:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  001098
+half_sp :          drift,l=.24995
+Prim_V  :          drift, l=.0001   ! primary vertical collimator
+half_sp :          drift,l=.24995
+dmagu06:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000545
+
+L06a  :     drift, l=0.2
+SHCOL1  :   drift, l=.6   ! first secondary horizontal collimator
+L06b  :     drift, l=2.2
+SVCOL1  :   drift, l=.6   ! first secondary vertical collimator
+L06c  :     drift, l=0.3
+SHVCOL  :          drift, l=.6   ! supplementary collimator
+L06d  :     drift, l=0.51
+HP06L  :     drift, l=0.095
+VP06L  :     drift, l=0.095
+L06e  :     drift, l=0.315
+
+CPL06 :    line=(drift9,hl06,vl06,ql06,bpml06,qsl06,sxl06,ssl06,drift9)
+L06f  :     drift, l=0.185
+
+dmagd06:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000318
+!miniS
+fmagd06:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000084
+
+!sc
+!----------------------------------------------------------------------------------
+bcel06:  line=(sa,CPS05,sb,fmagu06,half_sp,Prim_V,half_sp,dmagu06,&
+        MARK5d,L06a,SHCOL1,L06b,SVCOL1,L06c,SHVCOL,L06d,HP06L,VP06L,L06e,&
+         CPL06,L06f,dmagd06,miniS,fmagd06,sc,MARK6)
+!---------------------------------------------------------------------------------
+!********************************************************************************
+! cell 7
+!********************************************************************************
+hl07:           hkicker,    l=.024, kick=ihl07
+vl07:           vkicker,    l=.024, kick=ivl07
+ql07:           quadrupole, l=.024, k1=  (iql07+itunel)*kquad 
+qsl07:          quadrupole, l=.024, k1=  iqsl07*ksquad, TILT
+sxl07:          sextupole,  l=.024, k2=isxl07
+ssl07:          sextupole,  l=.024, k2=issl07, TILT
+
+hs06:           hkicker,    l=.024, kick=ihs06
+vs06:           vkicker,    l=.024, kick=ivs06
+qs06:           quadrupole, l=.024, k1=  (iqs06+itunes)*kquad
+qss06:          quadrupole, l=.024, k1=  iqss06*ksquad, TILT
+sxs06:          sextupole,  l=.024, k2=isxs06
+sss06:          sextupole,  l=.024, k2=isss06, TILT
+!-------------------------------------------------------------------------------
+!sa
+CPS06 :    line=(drift9,hs06,vs06,qs06,bpms06,qss06,sxs06,sss06,drift9)
+!sb
+
+fmagu07:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  001131
+!miniS
+dmagu07:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000042
+
+L07a  :     drift, l=1.0
+SHCOL2  :          drift, l=.6   ! second secondary horizontal collimator
+L07b  :     drift, l=1.4
+SVCOL2  :          drift, l=.6   ! second secondary vertical collimator
+L07c  :     drift, l=0.51
+Sexl67 : sextupole, l=LSexN, k2=-0.,tilt     ! harmonic skew sextupole
+L07d  :     drift, l=0.15
+Sexl47 : sextupole, l=LSexN, k2=-0.          ! harmonic sextupole
+L07e  :     drift, l=0.15
+HP07L  :     drift, l=0.095
+VP07L  :     drift, l=0.095
+L07f  :     drift, l=0.315
+CPL07 :    line=(drift9,hl07,vl07,ql07,bpml07,qsl07,sxl07,ssl07,drift9)
+L07g  :     drift, l=0.185
+
+
+dmagd07:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000402
+!miniS
+fmagd07:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000117
+
+!sc
+!-------------------------------------------------------------------------------
+bcel07:   line=(sa,CPS06,sb,fmagu07,miniS,dmagu07,MARK6d,&
+                L07a,SHCOL2,L07b,SVCOL2,L07c,Sexl67,L07d,&
+                Sexl47,L07e,HP07L,VP07L,L07f,CPL07,L07g,&
+                dmagd07,miniS,fmagd07,sc,MARK7)
+!-------------------------------------------------------------------------------
+!***********************************************************************************
+! cell 8
+!**********************************************************************************
+hl08:           hkicker,    l=.024, kick=ihl08
+vl08:           vkicker,    l=.024, kick=ivl08
+ql08:           quadrupole, l=.024, k1=  (iql08+itunel)*kquad 
+qsl08:          quadrupole, l=.024, k1=  iqsl08*ksquad, TILT
+sxl08:          sextupole,  l=.024, k2=isxl08
+ssl08:          sextupole,  l=.024, k2=issl08, TILT
+
+hs07:           hkicker,    l=.024, kick=ihs07
+vs07:           vkicker,    l=.024, kick=ivs07
+qs07:           quadrupole, l=.024, k1=  (iqs07+itunes)*kquad
+qss07:          quadrupole, l=.024, k1=  iqss07*ksquad, TILT
+sxs07:          sextupole,  l=.024, k2=isxs07
+sss07:          sextupole,  l=.024, k2=isss07, TILT
+!----------------------------------------------------------------------------------
+!sa
+CPS07 :    line=(drift9,hs07,vs07,qs07,bpms07,qss07,sxs07,sss07,drift9)
+!sb
+
+fmagu08:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000293
+!miniS
+dmagu08:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=-0.  !  001433
+
+L08a  :     drift, l=0.46
+SEXTL :  drift, l=LSEXTL
+L08b  :     drift, l=0.02
+SEXTL :  drift, l=LSEXTL
+L08c  :     drift, l=0.02
+Sexl78 : sextupole, l=LSexN, k2=-0.,tilt     ! harmonic skew sextupole
+L08d  :     drift, l=0.31
+Sexl58 : sextupole, l=LSexN, k2=-0.          ! harmonic sextupole
+L08e  :     drift, l=0.12
+SEXTL :  drift, l=LSEXTL
+L08f  :     drift, l=0.1
+koct   := 0.000525/(brho*LOct)
+Oct   : octupole,  l=LOct,  k3=0.       ! octupole
+L08g  :     drift, l=0.04
+koct   := 0.000525/(brho*LOct)
+Oct   : octupole,  l=LOct,  k3=0.       ! octupole
+L08h  :     drift, l=0.04
+koct   := 0.000525/(brho*LOct)
+Oct   : octupole,  l=LOct,  k3=0.       ! octupole
+L08i  :     drift, l=0.06
+koct   := 0.000525/(brho*LOct)
+Oct   : octupole,  l=LOct,  k3=0.       ! octupole
+L08j  :     drift, l=0.3
+HP08L  :     drift, l=0.095
+VP08L  :     drift, l=0.095
+L08k  :     drift, l=0.315
+CPL08 :    line=(drift9,hl08,vl08,ql08,bpml08,qsl08,sxl08,ssl08,drift9)
+L08l  :     drift, l=0.185
+
+dmagd08:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  001098
+!miniS
+fmagd08:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  001475
+
+!sc
+!----------------------------------------------------------------------------------
+bcel08:  line=(sa,CPS07,sb,fmagu08,miniS,dmagu08,MARK7d,&
+               L08a,SEXTL,L08b,SEXTL,L08c,Sexl78,L08d,Sexl58,&
+               L08e,SEXTL,L08f,Oct,L08g,Oct,L08h,Oct,L08i,&
+               Oct,L08j,HP08L,VP08L,L08k,CPL08,L08l,&
+               dmagd08,miniS,fmagd08,sc,MARK8)
+!**********************************************************************************
+! cell 9
+!**********************************************************************************
+hl09:           hkicker,    l=.024, kick=ihl09
+vl09:           vkicker,    l=.024, kick=ivl09
+ql09:           quadrupole, l=.024, k1=  (iql09+itunel)*kquad 
+qsl09:          quadrupole, l=.024, k1=  iqsl09*ksquad, TILT
+sxl09:          sextupole,  l=.024, k2=isxl09
+ssl09:          sextupole,  l=.024, k2=issl09, TILT
+
+hs08:           hkicker,    l=.024, kick=ihs08
+vs08:           vkicker,    l=.024, kick=ivs08
+qs08:           quadrupole, l=.024, k1=  (iqs08+itunes)*kquad
+qss08:          quadrupole, l=.024, k1=  iqss08*ksquad, TILT
+sxs08:          sextupole,  l=.024, k2=isxs08
+sss08:          sextupole,  l=.024, k2=isss08, TILT
+!-------------------------------------------------------------------------------
+!sa
+CPS08 :    line=(drift9,hs08,vs08,qs08,bpms08,qss08,sxs08,sss08,drift9)
+!sb
+
+fmagu09:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000922
+!miniS
+dmagu09:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  002421
+
+L09a  :     drift, l=3.855
+HP09  :     drift, l=0.095
+VP09  :     drift, l=0.095
+
+HOR_DAMP   :   vkicker, l=1.27, kick=0.   !   horizontal damper
+
+L09b  :     drift, l=0.2
+CPL09 :    line=(drift9,hl09,vl09,ql09,bpml09,qsl09,sxl09,ssl09,drift9)
+L09c  :     drift, l=0.185
+
+dmagd09:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000536
+!miniS
+fmagd09:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000151
+
+!sc
+!-------------------------------------------------------------------------------
+bcel09:   line=(sa,CPS08,sb,fmagu09,miniS,dmagu09,MARK8d,&
+                L09a,HP09,VP09,HOR_DAMP,&
+                L09b,CPL09,L09c,&
+                dmagd09,miniS,fmagd09,sc,MARK9)
+!*******************************************************************************
+!cell 10
+!*******************************************************************************
+hl10:           hkicker,    l=.024, kick=ihl10
+vl10:           vkicker,    l=.024, kick=ivl10
+ql10:           quadrupole, l=.024, k1=  (iql10+itunel)*kquad 
+qsl10:          quadrupole, l=.024, k1=  iqsl10*ksquad, TILT
+sxl10:          sextupole,  l=.024, k2=isxl10
+ssl10:          sextupole,  l=.024, k2=issl10, TILT
+
+hs09:           hkicker,    l=.024, kick=ihs09
+vs09:           vkicker,    l=.024, kick=ivs09
+qs09:           quadrupole, l=.024, k1=  (iqs09+itunes)*kquad
+qss09:          quadrupole, l=.024, k1=  iqss09*ksquad, TILT
+sxs09:          sextupole,  l=.024, k2=isxs09
+sss09:          sextupole,  l=.024, k2=isss09, TILT
+!-------------------------------------------------------------------------------
+!sa
+CPS09 :    line=(drift9,hs09,vs09,qs09,bpms09,qss09,sxs09,sss09,drift9)
+!sb
+
+fmagu10:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  001106
+!miniS
+dmagu10:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  001165
+
+L10a  :     drift, l=0.3
+SEX_disc : sextupole, l=LSEXTL, k2=0.  ! - vertical chromaticity sextupole
+L10b  :     drift, l=0.3
+SEX_disc : sextupole, l=LSEXTL, k2=0.  ! - vertical chromaticity sextupole
+L10c  :     drift, l=0.3
+SEX_disc : sextupole, l=LSEXTL, k2=0.  ! - vertical chromaticity sextupole
+L10d  :     drift, l=2.85
+HP10L  :     drift, l=0.095
+VP10L  :     drift, l=0.095
+L10e  :     drift, l=0.315
+CPL10 :    line=(drift9,hl10,vl10,ql10,bpml10,qsl10,sxl10,ssl10,drift9)
+L10f  :     drift, l=0.185
+
+dmagd10:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  001257
+!miniS
+fmagd10:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000570
+
+!sc
+!------------------------------------------------------------------------------
+bcel10:  line=(sa,CPS09,sb,fmagu10,miniS,dmagu10,MARK9d,&
+               L10a,SEX_disc,L10b,SEX_disc,L10c,SEX_disc,&
+               L10d,HP10L,VP10L,L10e,CPL10,L10f,&
+               dmagd10,miniS,fmagd10,sc,MARK10)
+!*****************************************************************************
+! cell 11
+!*****************************************************************************
+hl11:           hkicker,    l=.024, kick=ihl11
+vl11:           vkicker,    l=.024, kick=ivl11
+ql11:           quadrupole, l=.024, k1=  (iql11+itunel)*kquad 
+qsl11:          quadrupole, l=.024, k1=  iqsl11*ksquad, TILT
+sxl11:          sextupole,  l=.024, k2=isxl11
+ssl11:          sextupole,  l=.024, k2=issl11, TILT
+
+hs10:           hkicker,    l=.024, kick=ihs10
+vs10:           vkicker,    l=.024, kick=ivs10
+qs10:           quadrupole, l=.024, k1=  (iqs10+itunes)*kquad
+qss10:          quadrupole, l=.024, k1=  iqss10*ksquad, TILT
+sxs10:          sextupole,  l=.024, k2=isxs10
+sss10:          sextupole,  l=.024, k2=isss10, TILT
+!-------------------------------------------------------------------------------
+!sa
+CPS10 :    line=(drift9,hs10,vs10,qs10,bpms10,qss10,sxs10,sss10,drift9)
+!sb
+
+fmagu11:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000721
+!miniS
+dmagu11:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000653
+
+L11a  :     drift, l=2.0
+VER_DAMP   :   vkicker, l=1.27, kick=0.   !   vertical damper
+L11b  :     drift, l=0.5
+PICK_UP    :   vkicker, l=0.5, kick=0.    !   pick-up
+L11c  :     drift, l=0.74
+HP11L  :     drift, l=0.095
+VP11L  :     drift, l=0.095
+L11d  :     drift, l=0.315
+CPL11 :    line=(drift9,hl11,vl11,ql11,bpml11,qsl11,sxl11,ssl11,drift9)
+L11e  :     drift, l=0.185
+
+dmagd11:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=-0.  !  001089
+!miniS
+fmagd11:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  001592
+
+!sc
+!-----------------------------------------------------------------------------------------
+bcel11:   line=(sa,CPS10,sb,fmagu11,miniS,dmagu11,MARK10d,&
+         L11a,VER_DAMP,L11b,PICK_UP,L11c,HP11L,VP11L,L11d,CPL11,L11e,&
+                dmagd11,miniS,fmagd11,sc,MARK11)
+!******************************************************************************************
+!cell 12
+!******************************************************************************************
+hl12:           hkicker,    l=.024, kick=ihl12
+vl12:           vkicker,    l=.024, kick=ivl12
+ql12:           quadrupole, l=.024, k1=  (iql12+itunel)*kquad 
+qsl12:          quadrupole, l=.024, k1=  iqsl12*ksquad, TILT
+sxl12:          sextupole,  l=.024, k2=isxl12
+ssl12:          sextupole,  l=.024, k2=issl12, TILT
+
+hs11:           hkicker,    l=.024, kick=ihs11
+vs11:           vkicker,    l=.024, kick=ivs11
+qs11:           quadrupole, l=.024, k1=  (iqs11+itunes)*kquad
+qss11:          quadrupole, l=.024, k1=  iqss11*ksquad, TILT
+sxs11:          sextupole,  l=.024, k2=isxs11
+sss11:          sextupole,  l=.024, k2=isss11, TILT
+!--------------------------------------------------------------------------------------
+!sa
+CPS11 :    line=(drift9,hs11,vs11,qs11,bpms11,qss11,sxs11,sss11,drift9)
+!sb
+
+fmagu12:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  002145
+!miniS
+dmagu12:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000335
+
+L12a  :     drift, l=0.285
+! -------------------------------------
+! BEGIN mods
+! -------------------------------------
+MKS12_1 :   drift, l=1.08
+! -------------------------------------
+! MKS12_1 :   sbend, l=1.08, ANGLE=0.0000, tilt=1.570796   ! vertical extraction kicker
+! -------------------------------------
+! END mods
+! -------------------------------------
+L12b  :     drift, l=0.11
+! -------------------------------------
+! BEGIN mods
+! -------------------------------------
+MKS12_2 :   drift, l=1.08
+! -------------------------------------
+! MKS12_2 :   sbend, l=1.08, ANGLE=0.0000, tilt=1.570796   ! vertical extraction kicker
+! -------------------------------------
+! END mods
+! -------------------------------------
+L12c  :     drift, l=0.115
+! -------------------------------------
+! BEGIN mods
+! -------------------------------------
+Ibex12   : drift, l=LIbex
+! -------------------------------------
+! Ibex12   :   sbend, l=LIbex, ANGLE=0.0000, tilt=1.570796  ! vertical bump-magnet
+! -------------------------------------
+! END mods
+! -------------------------------------
+L12d  :     drift, l=0.115
+! -------------------------------------
+! BEGIN mods
+! -------------------------------------
+MKS12_3 :   drift, l=1.08
+! -------------------------------------
+! MKS12_3 :   sbend, l=1.08, ANGLE=0.0000, tilt=1.570796   ! vertical extraction kicker
+! -------------------------------------
+! END mods
+! -------------------------------------
+L12e  :     drift, l=0.11
+! -------------------------------------
+! BEGIN mods
+! -------------------------------------
+MKS12_4 :   drift, l=1.08
+! -------------------------------------
+! MKS12_4 :   sbend, l=1.08, ANGLE=0.0000, tilt=1.570796   ! vertical extraction kicker
+! -------------------------------------
+! END mods
+! -------------------------------------
+L12f  :     drift, l=0.005
+HP12L  :     drift, l=0.095
+VP12L  :     drift, l=0.095
+CPL12 :    line=(drift9,hl12,vl12,ql12,bpml12,qsl12,sxl12,ssl12,drift9)
+L12g  :     drift, l=0.185
+
+dmagd12:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  002220
+!miniS
+fmagd12:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000821
+
+!sc
+!------------------------------------------------------------------------------------
+bcel12:  line=(sa,CPS11,sb,fmagu12,miniS,dmagu12,MARK11d,&
+               L12a,MKS12_1,L12b,MKS12_2,L12c,Ibex12,L12d,&
+               MKS12_3,L12e,MKS12_4,L12f,HP12L,VP12L,CPL12,L12g,&
+               dmagd12,miniS,fmagd12,sc,MARK12)
+!***********************************************************************************
+! cell 13
+!***********************************************************************************
+hl13:           hkicker,    l=.024, kick=ihl13
+vl13:           vkicker,    l=.024, kick=ivl13
+ql13:           quadrupole, l=.024, k1=  (iql13+itunel)*kquad 
+qsl13:          quadrupole, l=.024, k1=  iqsl13*ksquad, TILT
+sxl13:          sextupole,  l=.024, k2=isxl13
+ssl13:          sextupole,  l=.024, k2=issl13, TILT
+
+hs12:           hkicker,    l=.024, kick=ihs12
+vs12:           vkicker,    l=.024, kick=ivs12
+qs12:           quadrupole, l=.024, k1=  (iqs12+itunes)*kquad
+qss12:          quadrupole, l=.024, k1=  iqss12*ksquad, TILT
+sxs12:          sextupole,  l=.024, k2=isxs12
+sss12:          sextupole,  l=.024, k2=isss12, TILT
+!---------------------------------------------------------------------------------
+!sa
+CPS12 :    line=(drift9,hs12,vs12,qs12,bpms12,qss12,sxs12,sss12,drift9)
+!sb
+
+fmagu13:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  001885
+!miniS
+dmagu13:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000411
+
+L13a  :     drift, l=5.515  !40344
+CPL13 :    line=(drift9,hl13,vl13,ql13,bpml13,qsl13,sxl13,ssl13,drift9)
+L13b  :     drift, l=0.185
+
+dmagd13:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000000
+!miniS
+fmagd13:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000000
+
+!sc
+!---------------------------------------------------------------------------
+bcel13:   line=(sa,CPS12,sb,fmagu13,miniS,dmagu13,MARK12d,&
+                L13a,CPL13,L13b,&
+                dmagd13,miniS,fmagd13,sc,MARK13)
+!---------------------------------------------------------------------------
+hl14:           hkicker,    l=.024, kick=ihl14
+vl14:           vkicker,    l=.024, kick=ivl14
+ql14:           quadrupole, l=.024, k1=  (iql14+itunel)*kquad 
+qsl14:          quadrupole, l=.024, k1=  iqsl14*ksquad, TILT
+sxl14:          sextupole,  l=.024, k2=isxl14
+ssl14:          sextupole,  l=.024, k2=issl14, TILT
+
+hs13:           hkicker,    l=.024, kick=ihs13
+vs13:           vkicker,    l=.024, kick=ivs13
+qs13:           quadrupole, l=.024, k1=  (iqs13+itunes)*kquad
+qss13:          quadrupole, l=.024, k1=  iqss13*ksquad, TILT
+sxs13:          sextupole,  l=.024, k2=isxs13
+sss13:          sextupole,  l=.024, k2=isss13, TILT
+!----------------------------------------------------------------------------
+!sa
+CPS13 :    line=(drift9,hs13,vs13,qs13,bpms13,qss13,sxs13,sss13,drift9)
+!sb
+
+fmagu14:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000419
+!miniS
+dmagu14:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000503
+
+L14a  :     drift, l=0.1
+RF  :      drift, l=2.35         !   RF module
+L14b  :     drift, l=0.05
+RF  :      drift, l=2.35         !   RF module
+L14c  :     drift, l=0.06
+! -------------------------------------
+! BEGIN mods
+! -------------------------------------
+Ibex14   : drift, l=LIbex
+! -------------------------------------
+! Ibex14  :   sbend, l=LIbex, ANGLE=0.0000, tilt=1.570796   ! vertical bump-magnet
+! -------------------------------------
+! END mods
+! -------------------------------------
+L14d  :     drift, l=0.05
+HP14L  :     drift, l=0.095
+VP14L  :     drift, l=0.095
+L14e  :     drift, l=0.1
+CPL14 :    line=(drift9,hl14,vl14,ql14,bpml14,qsl14,sxl14,ssl14,drift9)
+L14f  :     drift, l=0.185
+
+dmagd14:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=-0.  !  000084
+!miniS
+fmagd14:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000385
+
+!sc
+!-------------------------------------------------------------------------------
+bcel14:  line=(sa,CPS13,sb,fmagu14,miniS,dmagu14,MARK13d,&
+        L14a,RF,L14b,RF,L14c,Ibex14,L14d,HP14L,VP14L,L14e,CPL14,L14f,&
+               dmagd14,miniS,fmagd14,sc,MARK14)
+!********************************************************************************
+! cell 15
+!********************************************************************************                              
+hl15:           hkicker,    l=.024, kick=ihl15
+vl15:           vkicker,    l=.024, kick=ivl15
+ql15:           quadrupole, l=.024, k1=  (iql15+itunel)*kquad 
+qsl15:          quadrupole, l=.024, k1=  iqsl15*ksquad, TILT
+sxl15:          sextupole,  l=.024, k2=isxl15
+ssl15:          sextupole,  l=.024, k2=issl15, TILT
+
+hs14:           hkicker,    l=.024, kick=ihs14
+vs14:           vkicker,    l=.024, kick=ivs14
+qs14:           quadrupole, l=.024, k1=  (iqs14+itunes)*kquad
+qss14:          quadrupole, l=.024, k1=  iqss14*ksquad, TILT
+sxs14:          sextupole,  l=.024, k2=isxs14
+sss14:          sextupole,  l=.024, k2=isss14, TILT
+!-------------------------------------------------------------------------------
+!sa
+CPS14 :    line=(drift9,hs14,vs14,qs14,bpms14,qss14,sxs14,sss14,drift9)
+!sb
+
+fmagu15:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000251
+!miniS
+dmagu15:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  001542
+
+L15a  :     drift, l=0.21
+RF  :      drift, l=2.35         !   RF module
+L15b  :     drift, l=0.12
+RF  :      drift, l=2.35         !   RF module
+L15c  :     drift, l=0.25
+HP15L  :     drift, l=0.095
+VP15L  :     drift, l=0.095
+L15d  :     drift, l=0.045
+CPL15 :    line=(drift9,hl15,vl15,ql15,bpml15,qsl15,sxl15,ssl15,drift9)
+L15e  :     drift, l=0.185
+
+dmagd15:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  001475
+!miniS
+fmagd15:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000385
+
+!sc
+!------------------------------------------------------------------------------
+bcel15:   line=(sa,CPS14,sb,fmagu15,miniS,dmagu15,MARK14d,&
+                L15a,RF,L15b,RF,L15c,HP15L,VP15L,L15d,CPL15,L15e,&
+                dmagd15,miniS,fmagd15,sc,MARK15)
+!******************************************************************************
+! cell 16
+!******************************************************************************
+hl16:           hkicker,    l=.024, kick=ihl16
+vl16:           vkicker,    l=.024, kick=ivl16
+ql16:           quadrupole, l=.024, k1=  (iql16+itunel)*kquad 
+qsl16:          quadrupole, l=.024, k1=  iqsl16*ksquad, TILT
+sxl16:          sextupole,  l=.024, k2=isxl16
+ssl16:          sextupole,  l=.024, k2=issl16, TILT
+
+hs15:           hkicker,    l=.024, kick=ihs15
+vs15:           vkicker,    l=.024, kick=ivs15
+qs15:           quadrupole, l=.024, k1=  (iqs15+itunes)*kquad
+qss15:          quadrupole, l=.024, k1=  iqss15*ksquad, TILT
+sxs15:          sextupole,  l=.024, k2=isxs15
+sss15:          sextupole,  l=.024, k2=isss15, TILT
+!------------------------------------------------------------------------------
+!sa
+CPS15 :    line=(drift9,hs15,vs15,qs15,bpms15,qss15,sxs15,sss15,drift9)
+!sb
+
+fmagu16:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000603
+!miniS
+dmagu16:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000788
+
+L16a  :     drift, l=0.21
+RF  :      drift, l=2.35         !   RF module
+L16b  :     drift, l=0.12
+RF  :      drift, l=2.35         !   RF module
+L16c  :     drift, l=0.25
+HP16L  :     drift, l=0.095
+VP16L  :     drift, l=0.095
+L16d  :     drift, l=0.045
+CPL16 :    line=(drift9,hl16,vl16,ql16,bpml16,qsl16,sxl16,ssl16,drift9)
+L16e  :     drift, l=0.185
+
+dmagd16:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  001408
+!miniS
+fmagd16:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000989
+
+!sc
+!------------------------------------------------------------------------------
+bcel16:   line=(sa,CPS15,sb,fmagu16,miniS,dmagu16,MARK15d,&
+                L16a,RF,L16b,RF,L16c,HP16L,VP16L,L16d,CPL16,L16e,&
+                dmagd16,miniS,fmagd16,sc,MARK16)
+!******************************************************************************
+! cell 17
+!******************************************************************************
+hl17:           hkicker,    l=.024, kick=ihl17
+vl17:           vkicker,    l=.024, kick=ivl17
+ql17:           quadrupole, l=.024, k1=  (iql17+itunel)*kquad 
+qsl17:          quadrupole, l=.024, k1=  iqsl17*ksquad, TILT
+sxl17:          sextupole,  l=.024, k2=isxl17
+ssl17:          sextupole,  l=.024, k2=issl17, TILT
+
+hs16:           hkicker,    l=.024, kick=ihs16
+vs16:           vkicker,    l=.024, kick=ivs16
+qs16:           quadrupole, l=.024, k1=  (iqs16+itunes)*kquad
+qss16:          quadrupole, l=.024, k1=  iqss16*ksquad, TILT
+sxs16:          sextupole,  l=.024, k2=isxs16
+sss16:          sextupole,  l=.024, k2=isss16, TILT
+!------------------------------------------------------------------------------
+!sa
+CPS16 :    line=(drift9,hs16,vs16,qs16,bpms16,qss16,sxs16,sss16,drift9)
+!sb
+
+fmagu17:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  001793
+!miniS
+dmagu17:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000838
+
+L17a  :     drift, l=0.21
+RF  :      drift, l=2.35         !   RF module
+L17b  :     drift, l=0.12
+RF  :      drift, l=2.35         !   RF module
+L17c  :     drift, l=0.25
+HP17L  :     drift, l=0.095
+VP17L  :     drift, l=0.095
+L17d  :     drift, l=0.045
+CPL17 :    line=(drift9,hl17,vl17,ql17,bpml17,qsl17,sxl17,ssl17,drift9)
+L17e  :     drift, l=0.185
+
+dmagd17:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000369
+!miniS
+fmagd17:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000838
+
+!sc
+!------------------------------------------------------------------------------
+bcel17:   line=(sa,CPS16,sb,fmagu17,miniS,dmagu17,MARK16d,&
+                L17a,RF,L17b,RF,L17c,HP17L,VP17L,L17d,CPL17,L17e,&
+                dmagd17,miniS,fmagd17,sc,MARK17)
+!******************************************************************************
+! cell 18
+!******************************************************************************
+hl18:           hkicker,    l=.024, kick=ihl18
+vl18:           vkicker,    l=.024, kick=ivl18
+ql18:           quadrupole, l=.024, k1=  (iql18+itunel)*kquad 
+qsl18:          quadrupole, l=.024, k1=  iqsl18*ksquad, TILT
+sxl18:          sextupole,  l=.024, k2=isxl18
+ssl18:          sextupole,  l=.024, k2=issl18, TILT
+
+hs17:           hkicker,    l=.024, kick=ihs17
+vs17:           vkicker,    l=.024, kick=ivs17
+qs17:           quadrupole, l=.024, k1=  (iqs17+itunes)*kquad
+qss17:          quadrupole, l=.024, k1=  iqss17*ksquad, TILT
+sxs17:          sextupole,  l=.024, k2=isxs17
+sss17:          sextupole,  l=.024, k2=isss17, TILT
+!-----------------------------------------------------------------------------
+!sa
+CPS17 :    line=(drift9,hs17,vs17,qs17,bpms17,qss17,sxs17,sss17,drift9)
+!sb
+
+fmagu18:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000905
+!miniS
+dmagu18:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000519
+
+L18a  :     drift, l=0.18
+RAD_POS_MON1 :  drift, l=0.19   !      radial position monitor
+L18b  :     drift, l=0.18
+RAD_POS_MON2 :  drift, l=0.19   !      radial position monitor
+L18c  :     drift, l=0.18
+SEXTL : drift, l=LSEXTL
+L18d  :     drift, l=0.04
+SEXTL : drift, l=LSEXTL
+L18e  :     drift, l=0.04
+SEXTL : drift, l=LSEXTL
+L18f  :     drift, l=0.3
+PHASE_DET    :  drift, l=0.5    !      phase detector
+L18g  :     drift, l=0.3
+LONG_DAMPER  :  drift, l=0.5    !   longitudinal damper pick-up
+L18h  :     drift, l=0.35
+WALL_MON  :  drift, l=0.5       !      wall monitor
+L18i  :     drift, l=0.3
+HP18L  :     drift, l=0.095
+VP18L  :     drift, l=0.095
+L18j  :     drift, l=0.315
+CPL18 :    line=(drift9,hl18,vl18,ql18,bpml18,qsl18,sxl18,ssl18,drift9)
+L18k  :     drift, l=0.185
+
+dmagd18:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000637
+!miniS
+fmagd18:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000620
+
+!sc
+!-----------------------------------------------------------------------------
+bcel18:  line=(sa,CPS17,sb,fmagu18,miniS,dmagu18,MARK17d,&
+               L18a,RAD_POS_MON1,L18b,RAD_POS_MON2,L18c,SEXTL,&
+               L18d,SEXTL,L18e,SEXTL,L18f,PHASE_DET,L18g,&
+           LONG_DAMPER,L18h,WALL_MON,L18i,HP18L,VP18L,L18j,CPL18,L18k,&
+               dmagd18,miniS,fmagd18,sc,MARK18)
+!*****************************************************************************
+! cell 19
+!****************************************************************************
+hl19:           hkicker,    l=.024, kick=ihl19
+vl19:           vkicker,    l=.024, kick=ivl19
+ql19:           quadrupole, l=.024, k1=  (iql19+itunel)*kquad 
+qsl19:          quadrupole, l=.024, k1=  iqsl19*ksquad, TILT
+sxl19:          sextupole,  l=.024, k2=isxl19
+ssl19:          sextupole,  l=.024, k2=issl19, TILT
+
+hs18:           hkicker,    l=.024, kick=ihs18
+vs18:           vkicker,    l=.024, kick=ivs18
+qs18:           quadrupole, l=.024, k1=  (iqs18+itunes)*kquad
+qss18:          quadrupole, l=.024, k1=  iqss18*ksquad, TILT
+sxs18:          sextupole,  l=.024, k2=isxs18
+sss18:          sextupole,  l=.024, k2=isss18, TILT
+!-----------------------------------------------------------------------------
+!sa
+CPS18 :    line=(drift9,hs18,vs18,qs18,bpms18,qss18,sxs18,sss18,drift9)
+!sb
+
+fmagu19:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000788
+!miniS
+dmagu19:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000620
+
+L19a  :     drift, l=0.21
+RF  :      drift, l=2.35         !   RF module
+L19b  :     drift, l=0.12
+RF  :      drift, l=2.35         !   RF module
+L19c  :     drift, l=0.25
+HP19L  :     drift, l=0.095
+VP19L  :     drift, l=0.095
+L19d  :     drift, l=0.045
+CPL19 :    line=(drift9,hl19,vl19,ql19,bpml19,qsl19,sxl19,ssl19,drift9)
+L19e  :     drift, l=0.185
+
+dmagd19:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000000
+!miniS
+fmagd19:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=-0.  !  000335
+
+!sc
+!-------------------------------------------------------------------------------
+bcel19:   line=(sa,CPS18,sb,fmagu19,miniS,dmagu19,MARK18d,&
+                L19a,RF,L19b,RF,L19c,HP19L,VP19L,L19d,CPL19,L19e,&
+                dmagd19,miniS,fmagd19,sc,MARK19)
+!******************************************************************************
+hl20:           hkicker,    l=.024, kick=ihl20
+vl20:           vkicker,    l=.024, kick=ivl20
+ql20:           quadrupole, l=.024, k1=  (iql20+itunel)*kquad 
+qsl20:          quadrupole, l=.024, k1=  iqsl20*ksquad, TILT
+sxl20:          sextupole,  l=.024, k2=isxl20
+ssl20:          sextupole,  l=.024, k2=issl20, TILT
+
+hs19:           hkicker,    l=.024, kick=ihs19
+vs19:           vkicker,    l=.024, kick=ivs19
+qs19:           quadrupole, l=.024, k1=  (iqs19+itunes)*kquad
+qss19:          quadrupole, l=.024, k1=  iqss19*ksquad, TILT
+sxs19:          sextupole,  l=.024, k2=isxs19
+sss19:          sextupole,  l=.024, k2=isss19, TILT
+!-----------------------------------------------------------------------------
+!sa
+CPS19 :    line=(drift9,hs19,vs19,qs19,bpms19,qss19,sxs19,sss19,drift9)
+!sb
+
+fmagu20:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000603
+!miniS
+dmagu20:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=-0.  !  000570
+
+L20a  :     drift, l=0.2
+Oct   : octupole,  l=LOct,  k3=0.       ! octupole
+L20b  :     drift, l=0.01
+Oct   : octupole,  l=LOct,  k3=0.       ! octupole
+L20c  :     drift, l=0.01
+Oct   : octupole,  l=LOct,  k3=0.       ! octupole
+L20d  :     drift, l=0.01
+Oct   : octupole,  l=LOct,  k3=0.       ! octupole
+L20e  :     drift, l=3.1
+HP20L  :     drift, l=0.095
+VP20L  :     drift, l=0.095
+L20f  :     drift, l=0.315
+CPL20 :    line=(drift9,hl20,vl20,ql20,bpml20,qsl20,sxl20,ssl20,drift9)
+L20g  :     drift, l=0.185
+
+dmagd20:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000553
+!miniS
+fmagd20:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000369
+
+!sc
+!------------------------------------------------------------------------------
+bcel20:  line=(sa,CPS19,sb,fmagu20,miniS,dmagu20,MARK19d,&
+               L20a,Oct,L20b,Oct,L20c,Oct,L20d,Oct,L20e,&
+               HP20L,VP20L,L20f,CPL20,L20g,&
+               dmagd20,miniS,fmagd20,sc,MARK20)
+!******************************************************************************
+! cell 21
+!******************************************************************************
+hl21:           hkicker,    l=.024, kick=ihl21
+vl21:           vkicker,    l=.024, kick=ivl21
+ql21:           quadrupole, l=.024, k1=  (iql21+itunel)*kquad 
+qsl21:          quadrupole, l=.024, k1=  iqsl21*ksquad, TILT
+sxl21:          sextupole,  l=.024, k2=isxl21
+ssl21:          sextupole,  l=.024, k2=issl21, TILT
+
+hs20:           hkicker,    l=.024, kick=ihs20
+vs20:           vkicker,    l=.024, kick=ivs20
+qs20:           quadrupole, l=.024, k1=  (iqs20+itunes)*kquad
+qss20:          quadrupole, l=.024, k1=  iqss20*ksquad, TILT
+sxs20:          sextupole,  l=.024, k2=isxs20
+sss20:          sextupole,  l=.024, k2=isss20, TILT
+!------------------------------------------------------------------------------
+!sa
+CPS20 :    line=(drift9,hs20,vs20,qs20,bpms20,qss20,sxs20,sss20,drift9)
+!sb
+
+fmagu21:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000653
+!miniS
+dmagu21:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000285
+
+L21a  :     drift, l=0.21
+RF  :      drift, l=2.35         
+L21b  :     drift, l=0.12
+RF  :      drift, l=2.35         
+L21c  :     drift, l=0.25
+HP21L  :     drift, l=0.095
+VP21L  :     drift, l=0.095
+L21d  :     drift, l=0.045
+CPL21 :    line=(drift9,hl21,vl21,ql21,bpml21,qsl21,sxl21,ssl21,drift9)
+L21e  :     drift, l=0.185
+
+dmagd21:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000436
+!miniS
+fmagd21:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000067
+
+!sc
+!-------------------------------------------------------------------------------
+bcel21:   line=(sa,CPS20,sb,fmagu21,miniS,dmagu21,MARK20d,&
+                L21a,RF,L21b,RF,L21c,HP21L,VP21L,L21d,CPL21,L21e,&
+                dmagd21,miniS,fmagd21,sc,MARK21)
+!******************************************************************************
+! cell 22
+!*****************************************************************************
+hl22:           hkicker,    l=.024, kick=ihl22
+vl22:           vkicker,    l=.024, kick=ivl22
+ql22:           quadrupole, l=.024, k1=  (iql22+itunel)*kquad 
+qsl22:          quadrupole, l=.024, k1=  iqsl22*ksquad, TILT
+sxl22:          sextupole,  l=.024, k2=isxl22
+ssl22:          sextupole,  l=.024, k2=issl22, TILT
+
+hs21:           hkicker,    l=.024, kick=ihs21
+vs21:           vkicker,    l=.024, kick=ivs21
+qs21:           quadrupole, l=.024, k1=  (iqs21+itunes)*kquad
+qss21:          quadrupole, l=.024, k1=  iqss21*ksquad, TILT
+sxs21:          sextupole,  l=.024, k2=isxs21
+sss21:          sextupole,  l=.024, k2=isss21, TILT
+!----------------------------------------------------------------------------
+!sa
+CPS21 :    line=(drift9,hs21,vs21,qs21,bpms21,qss21,sxs21,sss21,drift9)
+!sb
+
+fmagu22:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000687
+!miniS
+dmagu22:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000302
+
+L22a  :     drift, l=0.21
+RF  :      drift, l=2.35        
+L22b  :     drift, l=0.12
+RF  :      drift, l=2.35        
+L22c  :     drift, l=0.25
+HP22L  :     drift, l=0.095
+VP22L  :     drift, l=0.095
+L22d  :     drift, l=0.045
+CPL22 :    line=(drift9,hl22,vl22,ql22,bpml22,qsl22,sxl22,ssl22,drift9)
+L22e  :     drift, l=0.185
+
+dmagd22:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000000
+!miniS
+fmagd22:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000151
+
+!sc
+!----------------------------------------------------------------------------
+bcel22:   line=(sa,CPS21,sb,fmagu22,miniS,dmagu22,MARK21d,&
+                L22a,RF,L22b,RF,L22c,HP22L,VP22L,L22d,CPL22,L22e,&
+                dmagd22,miniS,fmagd22,sc,MARK22)
+!******************************************************************************
+! cell 23
+!******************************************************************************
+hl23:           hkicker,    l=.024, kick=ihl23
+vl23:           vkicker,    l=.024, kick=ivl23
+ql23:           quadrupole, l=.024, k1=  (iql23+itunel)*kquad 
+qsl23:          quadrupole, l=.024, k1=  iqsl23*ksquad, TILT
+sxl23:          sextupole,  l=.024, k2=isxl23
+ssl23:          sextupole,  l=.024, k2=issl23, TILT
+
+hs22:           hkicker,    l=.024, kick=ihs22
+vs22:           vkicker,    l=.024, kick=ivs22
+qs22:           quadrupole, l=.024, k1=  (iqs22+itunes)*kquad
+qss22:          quadrupole, l=.024, k1=  iqss22*ksquad, TILT
+sxs22:          sextupole,  l=.024, k2=isxs22
+sss22:          sextupole,  l=.024, k2=isss22, TILT
+!-----------------------------------------------------------------------------
+!sa
+CPS22 :    line=(drift9,hs22,vs22,qs22,bpms22,qss22,sxs22,sss22,drift9)
+!sb
+
+fmagu23:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=0.   !  000905
+!miniS
+dmagu23:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=0.   !  000034
+
+L23a  :     drift, l=0.21
+RF  :      drift, l=2.35        
+L23b  :     drift, l=0.12
+RF  :      drift, l=2.35        
+L23c  :     drift, l=0.25
+HP23L  :     drift, l=0.095
+VP23L  :     drift, l=0.095
+L23d  :     drift, l=0.045
+CPL23 :    line=(drift9,hl23,vl23,ql23,bpml23,qsl23,sxl23,ssl23,drift9)
+L23e  :     drift, l=0.185
+
+dmagd23:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=-0.  !  000704
+!miniS
+fmagd23:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=-0.  !  002027
+
+!sc
+!----------------------------------------------------------------------------
+bcel23:   line=(sa,CPS22,sb,fmagu23,miniS,dmagu23,MARK22d,&
+                L23a,RF,L23b,RF,L23c,HP23L,VP23L,L23d,CPL23,L23e,&
+                dmagd23,miniS,fmagd23,sc,MARK23)
+!****************************************************************************
+! cell 24
+!****************************************************************************
+hl24:           hkicker,    l=.024, kick=ihl24
+vl24:           vkicker,    l=.024, kick=ivl24
+ql24:           quadrupole, l=.024, k1=  (iql24+itunel)*kquad 
+qsl24:          quadrupole, l=.024, k1=  iqsl24*ksquad, TILT
+sxl24:          sextupole,  l=.024, k2=isxl24
+ssl24:          sextupole,  l=.024, k2=issl24, TILT
+
+hs23:           hkicker,    l=.024, kick=ihs23
+vs23:           vkicker,    l=.024, kick=ivs23
+qs23:           quadrupole, l=.024, k1=  (iqs23+itunes)*kquad
+qss23:          quadrupole, l=.024, k1=  iqss23*ksquad, TILT
+sxs23:          sextupole,  l=.024, k2=isxs23
+sss23:          sextupole,  l=.024, k2=isss23, TILT
+!------------------------------------------------------------------------------
+!sa
+CPS23 :    line=(drift9,hs23,vs23,qs23,bpms23,qss23,sxs23,sss23,drift9)
+!sb
+
+fmagu24:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=-0.  !  000335
+!miniS
+dmagu24:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=-0.  !  000335
+
+L24a  :     drift, l=0.21
+RF  :      drift, l=2.35        
+L24b  :     drift, l=0.12
+RF  :      drift, l=2.35        
+L24c  :     drift, l=0.25
+HP24L  :     drift, l=0.095
+VP24L  :     drift, l=0.095
+L24d  :     drift, l=0.045
+CPL24 :    line=(drift9,hl24,vl24,ql24,bpml24,qsl24,sxl24,ssl24,drift9)
+L24e  :     drift, l=0.185
+
+dmagd24:        sbend,l=blength,k1=qsd,angle=angled,k2=ssd,tilt=-0.  !  001692
+!miniS
+fmagd24:        sbend,l=blength,k1=qsf,angle=anglef,k2=ssf,tilt=-0.  !  000235
+
+!sc
+!----------------------------------------------------------------------------
+bcel24:   line=(sa,CPS23,sb,fmagu24,miniS,dmagu24,MARK23d,&
+                L24a,RF,L24b,RF,L24c,HP24L,VP24L,L24d,CPL24,L24e,&
+                dmagd24,miniS,fmagd24,sc,MARK24)
+!---------------------------------------------------------------------------
+
+booster:        line=(bcel01, bcel02, bcel03, bcel04, bcel05, bcel06,&
+                      bcel07, bcel08, bcel09, bcel10, bcel11, bcel12,&
+                      bcel13, bcel14, bcel15, bcel16, bcel17, bcel18,&
+                      bcel19, bcel20, bcel21, bcel22, bcel23, bcel24)
+
+! -----------------------------------------------------------------------------------

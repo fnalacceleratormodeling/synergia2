@@ -24,9 +24,9 @@ def linear_one_turn_map(lattice_simulator):
     map_order = lattice_simulator.get_map_order()
     JetParticle.createStandardEnvironments(map_order)
     jet_particle = JetProton(reference_particle.get_four_momentum().get_total_energy())
-#    jet_particle = reference_particle_to_chef_jet_particle(reference_particle,
-#                                                           map_order)
-    lattice_simulator.get_chef_lattice().get_beamline().propagateJetParticle(jet_particle)
+   # jet_particle = reference_particle_to_chef_jet_particle(reference_particle,
+   #                                                        map_order)
+    lattice_simulator.get_chef_lattice().get_beamline().propagateJetParticle(jet_particle)    
     return _convert_linear_map(jet_particle.State().jacobian(), reference_particle)
 
 

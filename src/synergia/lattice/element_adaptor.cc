@@ -533,30 +533,37 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         aligner.tilt = tilt;
 
         bmlnElmnt* elm;
-        if ((0.0 == e1) && (0.0 == e2)) elm = new rbend(
+        if ((0.0 == e1) && (0.0 == e2)) elm = new CF_rbend(
                 lattice_element.get_name().c_str(), length,
                 brho * (2.0 * sin(0.5 * angle)) / length, angle);
-        else elm = new rbend(lattice_element.get_name().c_str(), length,
+        else elm = new CF_rbend(lattice_element.get_name().c_str(), length,
                 brho * (2.0 * sin(0.5 * angle)) / length, angle, e1, e2);
 
         elm->setTag("RBEND");
         if (tilt != 0.0) elm->setAlignment(aligner);
+        
+        
 
         double multipoleStrength = k1 * brho * length;
         if (multipoleStrength != 0.0) {
             dynamic_cast<CF_rbend* > (elm)->setQuadrupole(multipoleStrength);
+           // elm->setQuadrupole(multipoleStrength);
         }
+          
+        
         multipoleStrength = k2 * brho * length / 2.0;
         if (multipoleStrength != 0.0) {
             dynamic_cast<CF_rbend* > (elm)->setSextupole(multipoleStrength);
+           // elm->setSextupole(multipoleStrength);
         }
         multipoleStrength = k3 * brho * length / 6.0;
         if (multipoleStrength != 0.0) {
             dynamic_cast<CF_rbend* > (elm)->setOctupole(multipoleStrength);
+           // elm->setOctupole(multipoleStrength);
         }
 
         ElmPtr elmP(elm);
-        retval.push_back(elmP);
+        retval.push_back(elmP);        
         return retval;
     }
 }
@@ -873,33 +880,67 @@ Multipole_mad8_adaptor::get_chef_elements(
         }
     }
 
-    // assemble chef thinpoles for each specified knl multipole moment
-    int multipole_count = 0;
-    for (int moment = 0; moment < 10; ++moment) {
-
-      if (knl[moment] != 0.0) {
-	bmlnElmnt* bmln_elmnt = 0;
-	alignmentData aligner;
-	++multipole_count;
-	std::stringstream element_name(stringstream::out);
-
-	element_name << lattice_element.get_name() << "_" << 2*moment+2 << "pole";
-	bmln_elmnt = new ThinPole(element_name.str().c_str(),
-				    brho * knl[moment]/nfactorial[moment],
-				    moment);
-
-	ElmPtr elm(bmln_elmnt);
-	// set tilt if necessary
-	if (tn[moment] != 0.0) {
-	  aligner.xOffset = 0.0;
-	  aligner.yOffset = 0.0;
-	  aligner.tilt = tn[moment];
-	  elm->setAlignment(aligner);
-	}
-	retval.push_back(elm);
-      }
+    // assemble chef elements
+    bool high_multipole=false;
+    for (int moment = 5; moment < 10; ++moment){
+        high_multipole=high_multipole || (knl[moment] != 0.0);
     }
+    if  (!high_multipole){
+        int multipole_count = 0;
+        for (int moment = 0; moment < 10; ++moment) {
+            if (knl[moment] != 0.0) {
+                bmlnElmnt* bmln_elmnt = 0;
+                ++multipole_count;
+                std::string element_name;
+                switch (moment) {
+    
+                case 0:
+                    element_name = lattice_element.get_name() + "_2pole";
+                    bmln_elmnt = new thin2pole(element_name.c_str(),
+                            brho * knl[moment]);                        
+                    break;
+                case 1:
+                    element_name = lattice_element.get_name() + "_4pole";
+                    bmln_elmnt = new thinQuad(element_name.c_str(),
+                            brho * knl[moment]);
+                    break;
+                case 2:
+                    element_name = lattice_element.get_name() + "_6pole";
+                    bmln_elmnt = new thinSextupole(element_name.c_str(),
+                            brho * knl[moment] / 2.0);
+                    break;
+                case 3:
+                    element_name = lattice_element.get_name() + "_8pole";
+                    bmln_elmnt = new thinOctupole(element_name.c_str(),
+                            brho * knl[moment] / 6.0);
+                    break;
+                case 4:
+                    element_name = lattice_element.get_name() + "_10pole";
+                    bmln_elmnt = new thinDecapole(element_name.c_str(),
+                            brho * knl[moment] / 24.0);
+                    break;
+                }    
+                ElmPtr elm(bmln_elmnt);
+                // set tilt if necessary
+                if (tn[moment] != 0.0) {
+                    aligner.xOffset = 0.0;
+                    aligner.yOffset = 0.0;
+                    aligner.tilt = tn[moment];
+                    elm->setAlignment(aligner);
+                }
+                retval.push_back(elm);
+            }
+        }
+    }
+    else {
+        bmlnElmnt*  bmln_elmnt=new marker(lattice_element.get_name().c_str());
+        ElmPtr elm(bmln_elmnt);
+        retval.push_back(elm);  
+        }
+       
+    
     // csp: temporally or permanently disabled this part to avoid confusion.
+    
     // put in a marker for this element
     //ElmPtr elm = ElmPtr(new marker(lattice_element.get_name().c_str()));
     //retval.push_back(elm);

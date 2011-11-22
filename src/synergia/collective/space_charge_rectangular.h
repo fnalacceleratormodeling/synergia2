@@ -6,7 +6,9 @@
 #include "synergia/collective/rectangular_grid_domain.h"
 #include "synergia/collective/rectangular_grid.h"
 #include "synergia/collective/distributed_rectangular_grid.h"
- #include "synergia/utils/commxx.h"
+#include "synergia/utils/commxx.h"
+#include  "synergia/collective/fftw_rectangular_helper.h"
+ 
 // #include "synergia/utils/distributed_fft3d.h"
 
 
@@ -16,11 +18,28 @@ private:
     std::vector<double > pipe_size; //pipe size, x,y,x meters
     std::vector<int > grid_shape;
     Rectangular_grid_domain_sptr domain_sptr;
+    Commxx comm_f;
+    Fftw_rectangular_helper_sptr fftw_helper_sptr; 
+    bool have_fftw_helper;
     void 
     fill_guards_pplanes(Distributed_rectangular_grid & phi, int lower, int upper, int lengthx,
-                          MArray2d & g_lower, MArray2d &g_upper, Commxx const &comm);
+                          MArray2d & g_lower, MArray2d &g_upper);
+    void                      
+    construct_fftw_helper(Commxx const & comm);
+        
 public:
+    
+    Space_charge_rectangular(Commxx const & comm_f, std::vector<double > const & pipe_size, std::vector<int > const & grid_shape);
     Space_charge_rectangular(std::vector<double > const & pipe_size, std::vector<int > const & grid_shape);
+    
+    void                      
+    set_fftw_helper(Commxx const & comm);
+    
+    std::vector<double >
+    get_pipe_size() const;
+    
+    std::vector<int >
+    get_grid_shape() const;
    
     std::vector<double >
     get_pipe_size() const;
@@ -30,6 +49,10 @@ public:
    
    Rectangular_grid_domain_sptr 
    get_domain_sptr() const;
+  
+   Fftw_rectangular_helper_sptr 
+   get_fftw_helper_sptr() const; 
+   
    
    Rectangular_grid_sptr 
    get_charge_density(Bunch const& bunch);

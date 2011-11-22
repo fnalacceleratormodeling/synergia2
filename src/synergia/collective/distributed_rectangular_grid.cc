@@ -239,6 +239,12 @@ Distributed_rectangular_grid::get_normalization() const
     return normalization;
 }
 
+Commxx const &
+Distributed_rectangular_grid::get_comm() const
+{
+return comm;
+}
+
 void
 Distributed_rectangular_grid::fill_guards()
 {

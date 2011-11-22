@@ -10,6 +10,7 @@ const double quad_length = 0.2;
 const double quad_strength = 0.07;
 const double drift_length = 3.0;
 const double bend_length = 4.0;
+const double drift_length_s = 0.1;
 
 struct Lattice_fixture
 {
@@ -89,6 +90,96 @@ struct Lattice_fixture2
     
     
 };
+
+struct Lattice_fixture3
+{
+    Lattice_fixture3() :
+        b(), lattice_sptr(new Lattice(name))
+    {
+        BOOST_TEST_MESSAGE("setup lattice fixture");
+        Lattice_element f("quadrupole", "f");
+        f.set_double_attribute("l", quad_length);
+        Lattice_element o("drift", "o");
+        o.set_double_attribute("l", drift_length);
+        Lattice_element d("quadrupole", "d");
+        d.set_double_attribute("l", quad_length);
+        Lattice_element m("monitor", "m");
+        
+        Lattice_element os("drift", "os");
+        os.set_double_attribute("l", drift_length_s);
+        
+
+        lattice_sptr->append(f);
+        lattice_sptr->append(o);
+        lattice_sptr->append(m);
+        lattice_sptr->append(os);
+        lattice_sptr->append(os);
+        lattice_sptr->append(d);
+        lattice_sptr->append(os);
+        lattice_sptr->append(o);
+        lattice_sptr->set_reference_particle(b.reference_particle);
+    }
+    ;
+
+    ~Lattice_fixture3()
+    {
+        BOOST_TEST_MESSAGE("teardown lattice fixture");
+
+    }
+    ;
+
+    Bunch_fixture b;
+    Lattice_sptr lattice_sptr;
+    
+    
+};
+struct Lattice_fixture4
+{
+    Lattice_fixture4() :
+        b(), lattice_sptr(new Lattice(name))
+    {
+        BOOST_TEST_MESSAGE("setup lattice fixture");
+        Lattice_element f("quadrupole", "f");
+        f.set_double_attribute("l", quad_length);
+        Lattice_element o("drift", "o");
+        o.set_double_attribute("l", drift_length);
+        Lattice_element d("quadrupole", "d");
+        d.set_double_attribute("l", quad_length);
+        Lattice_element m("monitor", "m");
+        
+        Lattice_element os("drift", "os");
+        os.set_double_attribute("l", drift_length_s);
+        
+        lattice_sptr->append(os);
+        lattice_sptr->append(f);
+        lattice_sptr->append(os);
+        lattice_sptr->append(d);
+        lattice_sptr->append(o);
+        lattice_sptr->append(m);
+        lattice_sptr->append(os);
+        lattice_sptr->append(os);
+        lattice_sptr->append(d);
+        lattice_sptr->append(os);
+        lattice_sptr->append(o);
+        lattice_sptr->append(f);
+        lattice_sptr->set_reference_particle(b.reference_particle);
+    }
+    ;
+
+    ~Lattice_fixture4()
+    {
+        BOOST_TEST_MESSAGE("teardown lattice fixture");
+
+    }
+    ;
+
+    Bunch_fixture b;
+    Lattice_sptr lattice_sptr;
+    
+    
+};
+
+
 
 struct Fobodobo_sbend_fixture
 {

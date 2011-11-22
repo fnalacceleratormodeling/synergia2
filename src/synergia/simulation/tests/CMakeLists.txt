@@ -70,6 +70,12 @@ target_link_libraries(test_split_operator_stepper_elements synergia_simulation
 synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_split_operator_stepper_elements ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_split_operator_stepper_elements)
 
+add_executable(test_split_operator_stepper_choice test_split_operator_stepper_choice.cc)
+target_link_libraries(test_split_operator_stepper_choice synergia_simulation
+synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_split_operator_stepper_choice ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_split_operator_stepper_choice)
+
+
 add_executable(test_propagator test_propagator.cc)
 target_link_libraries(test_propagator synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_propagator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_propagator)

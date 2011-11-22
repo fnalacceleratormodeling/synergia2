@@ -1,0 +1,801 @@
+! File: booster_classic.lat
+! 
+!   I do not know the original author of the
+! booster lattice file. This is a slightly
+! modified version of one provided by Norman
+! Gelfand on or about April 15, 1998. The original
+! is, of course, much older than that.
+! 
+! Leo Michelotti
+! June 16, 2004
+
+ekin    :=      0.40000
+erest   :=      0.93828
+c       :=      0.29979
+etotal  :=      ekin + erest
+pc      :=      sqrt(etotal * etotal - erest * erest)
+
+!gamma   :=      etotal / erest
+!beta    :=      sqrt(1 - (1 / (gamma * gamma)))
+!gammas  :=      gamma*gamma
+!t1      :=      1.0/gammas
+!t2      :=      1.0 - t1
+!beta    :=      sqrt(t2)
+
+brho    :=      pc/c
+
+beam,   particle=proton, energy=etotal
+
+rhod    :=      48.034
+rhof    :=      40.847
+qsd     :=     -0.0577069
+qsf     :=      0.0542195
+blength :=      2.889612
+angled  :=      blength/rhod
+anglef  :=      blength/rhof
+
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+! ATTN CHEF USERS 
+! 
+! NOTE: in this file, the entrance and exit edge angles e1,e2 are set to 0
+! and the bends are set to SBEND
+!  
+! If the angles are non-zero, slots will need to be generated. 
+! In that case, one must manually convert drifts to slots.
+! At the moment, this will fail if there are two magnet with edges following each other with no 
+! drift space in between
+!
+! -JFO
+!.
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+
+!ed      :=      angled/2.0
+!ef      :=      anglef/2.0
+
+ed      :=      0.0
+ef      :=      0.0
+
+
+! llonga  :=      3.0
+! llongb  :=      5.7-llonga
+
+space:          drift,l=.50
+short:          drift,l=.90
+! BPM Located in the middle of the short straight section.
+! hshort:         drift,l=0.5*short[l]
+hshort:         drift,l=0.5*0.90
+bpmshv:         monitor
+bpms  :         line=(hshort,bpmshv,hshort)
+! longa:          drift,l=llonga
+! longb:          drift,l=llongb
+longa:          drift,l=3.0
+longb:          drift,l=2.7
+! The BPM in the long straight section are located 19" upstream of the
+! D magnet. The correction coils have a total length of 0.3 meters 4*0.075
+! or 11.81" upstream of the D magnet. We therefore have to go 19" - 11.81"
+! or 7.19" (0.1826m) back into longb for the bpm position.
+! longbu: drift,l=longb[l]-0.1826
+longbu: drift,l=2.7-0.1826
+longbd: drift,l=0.1826
+bpmlhv: monitor
+bpml  : line=(longbu,bpmlhv,longbd)
+
+itunel  :=     -4.586240E-03 
+itunes  :=      -9.097933E-02
+
+ihl01   :=      0.000
+ihl02   :=      0.0
+ihl03   :=      0.0
+ihl04   :=      0.0
+ihl05   :=      0.00
+ihl06   :=      0.0
+ihl07   :=      0.0
+ihl08   :=      0.0
+ihl09   :=      0.0
+ihl10   :=      0.0
+ihl11   :=      0.0
+ihl12   :=      0.0
+ihl13   :=      0.0
+ihl14   :=      0.0
+ihl15   :=      0.0
+ihl16   :=      0.0
+ihl17   :=      0.0
+ihl18   :=      0.0
+ihl19   :=      0.0
+ihl20   :=      0.0
+ihl21   :=      0.0
+ihl22   :=      0.0
+ihl23   :=      0.0
+ihl24   :=      0.0
+
+ivl01   :=      0.0
+ivl02   :=      0.0
+ivl03   :=      0.0
+ivl04   :=      0.0
+ivl05   :=      0.0
+ivl06   :=      0.0
+ivl07   :=      0.0
+ivl08   :=      0.0
+ivl09   :=      0.0
+ivl10   :=      0.0
+ivl11   :=      0.0
+ivl12   :=      0.0
+ivl13   :=      0.0
+ivl14   :=      0.0
+ivl15   :=      0.0
+ivl16   :=      0.0
+ivl17   :=      0.0
+ivl18   :=      0.0
+ivl19   :=      0.0
+ivl20   :=      0.0
+ivl21   :=      0.0
+ivl22   :=      0.0
+ivl23   :=      0.0
+ivl24   :=      0.0
+
+iql01   :=      0.0
+iql02   :=      0.0
+iql03   :=      0.0
+iql04   :=      0.0
+iql05   :=      0.0
+iql06   :=      0.0
+iql07   :=      0.0
+iql08   :=      0.0
+iql09   :=      0.0
+iql10   :=      0.0
+iql11   :=      0.0
+iql12   :=      0.0
+iql13   :=      0.0
+iql14   :=      0.0
+iql15   :=      0.0
+iql16   :=      0.0
+iql17   :=      0.0
+iql18   :=      0.0
+iql19   :=      0.0
+iql20   :=      0.0
+iql21   :=      0.0
+iql22   :=      0.0
+iql23   :=      0.0
+iql24   :=      0.0
+
+isl01   :=      0.0
+isl02   :=      0.0
+isl03   :=      0.0
+isl04   :=      0.0
+isl05   :=      0.0
+isl06   :=      0.0
+isl07   :=      0.0
+isl08   :=      0.0
+isl09   :=      0.0
+isl10   :=      0.0
+isl11   :=      0.0
+isl12   :=      0.0
+isl13   :=      0.0
+isl14   :=      0.0
+isl15   :=      0.0
+isl16   :=      0.0
+isl17   :=      0.0
+isl18   :=      0.0
+isl19   :=      0.0
+isl20   :=      0.0
+isl21   :=      0.0
+isl22   :=      0.0
+isl23   :=      0.0
+isl24   :=      0.0
+
+ihs01   :=      0.0
+ihs02   :=      0.0
+ihs03   :=      0.0
+ihs04   :=      0.0
+ihs05   :=      0.0
+ihs06   :=      0.0
+ihs07   :=      0.0
+ihs08   :=      0.0
+ihs09   :=      0.0
+ihs10   :=      0.0
+ihs11   :=      0.0
+ihs12   :=      0.0
+ihs13   :=      0.0
+ihs14   :=      0.0
+ihs15   :=      0.0
+ihs16   :=      0.0
+ihs17   :=      0.0
+ihs18   :=      0.0
+ihs19   :=      0.0
+ihs20   :=      0.0
+ihs21   :=      0.0
+ihs22   :=      0.0
+ihs23   :=      0.0
+ihs24   :=      0.0
+
+ivs01   :=      0.0
+ivs02   :=      0.0
+ivs03   :=      0.0
+ivs04   :=      0.0
+ivs05   :=      0.0
+ivs06   :=      0.0
+ivs07   :=      0.0
+ivs08   :=      0.0
+ivs09   :=      0.0
+ivs10   :=      0.0
+ivs11   :=      0.0
+ivs12   :=      0.0
+ivs13   :=      0.0
+ivs14   :=      0.0
+ivs15   :=      0.0
+ivs16   :=      0.0
+ivs17   :=      0.0
+ivs18   :=      0.0
+ivs19   :=      0.0
+ivs20   :=      0.0
+ivs21   :=      0.0
+ivs22   :=      0.0
+ivs23   :=      0.0
+ivs24   :=      0.0
+
+iqs01   :=      0.0
+iqs02   :=      0.0
+iqs03   :=      0.0
+iqs04   :=      0.0
+iqs05   :=      0.0
+iqs06   :=      0.0
+iqs07   :=      0.0
+iqs08   :=      0.0
+iqs09   :=      0.0
+iqs10   :=      0.0
+iqs11   :=      0.0
+iqs12   :=     -0.0
+iqs13   :=     -0.0       
+iqs14   :=      0.0
+iqs15   :=      0.0
+iqs16   :=      0.0
+iqs17   :=      0.0
+iqs18   :=      0.0
+iqs19   :=      0.0
+iqs20   :=      0.0
+iqs21   :=      0.0
+iqs22   :=      0.0
+iqs23   :=      0.0
+iqs24   :=      0.0
+
+iss01   :=      0.0
+iss02   :=      0.0
+iss03   :=      0.0
+iss04   :=      0.0
+iss05   :=      0.0
+iss06   :=      0.0
+iss07   :=      0.0
+iss08   :=      0.0
+iss09   :=      0.0
+iss10   :=      0.0
+iss11   :=      0.0
+iss12   :=      0.0
+iss13   :=      0.0
+iss14   :=      0.0
+iss15   :=      0.0
+iss16   :=      0.0
+iss17   :=      0.0
+iss18   :=      0.0
+iss19   :=      0.0
+iss20   :=      0.0
+iss21   :=      0.0
+iss22   :=      0.0
+iss23   :=      0.0
+iss24   :=      0.0
+
+hl01:           hkicker,    l=.075, kick=ihl01
+vl01:           vkicker,    l=.075, kick=ivl01
+ql01:           quadrupole, l=.075, k1=  iql01+itunel 
+sl01:           quadrupole, l=.075, k1=  isl01, TILT
+
+hs01:           hkicker,    l=.075, kick=ihs01
+vs01:           vkicker,    l=.075, kick=ivs01
+qs01:           quadrupole, l=.075, k1=  iqs01+itunes
+ss01:           quadrupole, l=.075, k1=  iss01, TILT
+
+dmagu01:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu01:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd01:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd01:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel01:         line=(fmagu01,space,dmagu01,longa, bpml,&
+                      hl01,   vl01, ql01,   sl01,&
+                      dmagd01,space,fmagd01,bpms,&
+                      hs01,   vs01, qs01,   ss01)
+
+hl02:           hkicker,    l=.075, kick=ihl02
+vl02:           vkicker,    l=.075, kick=ivl02
+ql02:           quadrupole, l=.075, k1=  iql02+itunel 
+sl02:           quadrupole, l=.075, k1=  isl02, TILT
+
+hs02:           hkicker,    l=.075, kick=ihs02
+vs02:           vkicker,    l=.075, kick=ivs02
+qs02:           quadrupole, l=.075, k1=  iqs02+itunes
+ss02:           quadrupole, l=.075, k1=  iss02, TILT
+
+dmagu02:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu02:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd02:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd02:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel02:         line=(fmagu02,space,dmagu02,longa, bpml,&
+                      hl02,   vl02, ql02,   sl02,&
+                      dmagd02,space,fmagd02,bpms,&
+                      hs02,   vs02, qs02,   ss02)
+
+hl03:           hkicker,    l=.075, kick=ihl03
+vl03:           vkicker,    l=.075, kick=ivl03
+ql03:           quadrupole, l=.075, k1=  iql03+itunel 
+sl03:           quadrupole, l=.075, k1=  isl03, TILT
+
+hs03:           hkicker,    l=.075, kick=ihs03
+vs03:           vkicker,    l=.075, kick=ivs03
+qs03:           quadrupole, l=.075, k1=  iqs03+itunes
+ss03:           quadrupole, l=.075, k1=  iss03, TILT
+
+dmagu03:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu03:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd03:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd03:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel03:         line=(fmagu03,space,dmagu03,longa, bpml,&
+                      hl03,   vl03, ql03,   sl03,&
+                      dmagd03,space,fmagd03,bpms,&
+                      hs03,   vs03, qs03,   ss03)
+
+hl04:           hkicker,    l=.075, kick=ihl04
+vl04:           vkicker,    l=.075, kick=ivl04
+ql04:           quadrupole, l=.075, k1=  iql04+itunel 
+sl04:           quadrupole, l=.075, k1=  isl04, TILT
+
+hs04:           hkicker,    l=.075, kick=ihs04
+vs04:           vkicker,    l=.075, kick=ivs04
+qs04:           quadrupole, l=.075, k1=  iqs04+itunes
+ss04:           quadrupole, l=.075, k1=  iss04, TILT
+
+dmagu04:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu04:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd04:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd04:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel04:         line=(fmagu04,space,dmagu04,longa, bpml,&
+                      hl04,   vl04, ql04,   sl04,&
+                      dmagd04,space,fmagd04,bpms,&
+                      hs04,   vs04, qs04,   ss04)
+
+hl05:           hkicker,    l=.075, kick=ihl05
+vl05:           vkicker,    l=.075, kick=ivl05
+ql05:           quadrupole, l=.075, k1=  iql05+itunel 
+sl05:           quadrupole, l=.075, k1=  isl05, TILT
+
+hs05:           hkicker,    l=.075, kick=ihs05
+vs05:           vkicker,    l=.075, kick=ivs05
+qs05:           quadrupole, l=.075, k1=  iqs05+itunes
+ss05:           quadrupole, l=.075, k1=  iss05, TILT
+
+dmagu05:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu05:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd05:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd05:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel05:         line=(fmagu05,space,dmagu05,longa, bpml,&
+                      hl05,   vl05, ql05,   sl05,&
+                      dmagd05,space,fmagd05,bpms,&
+                      hs05,   vs05, qs05,   ss05)
+
+hl06:           hkicker,    l=.075, kick=ihl06
+vl06:           vkicker,    l=.075, kick=ivl06
+ql06:           quadrupole, l=.075, k1=  iql06+itunel 
+sl06:           quadrupole, l=.075, k1=  isl06, TILT
+
+hs06:           hkicker,    l=.075, kick=ihs06
+vs06:           vkicker,    l=.075, kick=ivs06
+qs06:           quadrupole, l=.075, k1=  iqs06+itunes
+ss06:           quadrupole, l=.075, k1=  iss06, TILT
+
+dmagu06:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu06:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd06:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd06:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel06:         line=(fmagu06,space,dmagu06,longa, bpml,&
+                      hl06,   vl06, ql06,   sl06,&
+                      dmagd06,space,fmagd06,bpms,&
+                      hs06,   vs06, qs06,   ss06)
+
+hl07:           hkicker,    l=.075, kick=ihl07
+vl07:           vkicker,    l=.075, kick=ivl07
+ql07:           quadrupole, l=.075, k1=  iql07+itunel 
+sl07:           quadrupole, l=.075, k1=  isl07, TILT
+
+hs07:           hkicker,    l=.075, kick=ihs07
+vs07:           vkicker,    l=.075, kick=ivs07
+qs07:           quadrupole, l=.075, k1=  iqs07+itunes
+ss07:           quadrupole, l=.075, k1=  iss07, TILT
+
+dmagu07:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu07:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd07:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd07:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel07:         line=(fmagu07,space,dmagu07,longa, bpml,&
+                      hl07,   vl07, ql07,   sl07,&
+                      dmagd07,space,fmagd07,bpms,&
+                      hs07,   vs07, qs07,   ss07)
+
+hl08:           hkicker,    l=.075, kick=ihl08
+vl08:           vkicker,    l=.075, kick=ivl08
+ql08:           quadrupole, l=.075, k1=  iql08+itunel 
+sl08:           quadrupole, l=.075, k1=  isl08, TILT
+
+hs08:           hkicker,    l=.075, kick=ihs08
+vs08:           vkicker,    l=.075, kick=ivs08
+qs08:           quadrupole, l=.075, k1=  iqs08+itunes
+ss08:           quadrupole, l=.075, k1=  iss08, TILT
+
+dmagu08:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu08:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd08:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd08:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel08:         line=(fmagu07,space,dmagu07,longa, bpml,&
+                      hl08,   vl08, ql08,   sl08,&
+                      dmagd07,space,fmagd07,bpms,&
+                      hs08,   vs08, qs08,   ss08)
+
+hl09:           hkicker,    l=.075, kick=ihl09
+vl09:           vkicker,    l=.075, kick=ivl09
+ql09:           quadrupole, l=.075, k1=  iql09+itunel 
+sl09:           quadrupole, l=.075, k1=  isl09, TILT
+
+hs09:           hkicker,    l=.075, kick=ihs09
+vs09:           vkicker,    l=.075, kick=ivs09
+qs09:           quadrupole, l=.075, k1=  iqs09+itunes
+ss09:           quadrupole, l=.075, k1=  iss09, TILT
+
+dmagu09:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu09:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd09:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd09:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel09:         line=(fmagu09,space,dmagu09,longa, bpml,&
+                      hl09,   vl09, ql09,   sl09,&
+                      dmagd09,space,fmagd09,bpms,&
+                      hs09,   vs09, qs09,   ss09)
+
+hl10:           hkicker,    l=.075, kick=ihl10
+vl10:           vkicker,    l=.075, kick=ivl10
+ql10:           quadrupole, l=.075, k1=  iql10+itunel 
+sl10:           quadrupole, l=.075, k1=  isl10, TILT
+
+hs10:           hkicker,    l=.075, kick=ihs10
+vs10:           vkicker,    l=.075, kick=ivs10
+qs10:           quadrupole, l=.075, k1=  iqs10+itunes
+ss10:           quadrupole, l=.075, k1=  iss10, TILT
+
+dmagu10:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu10:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd10:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd10:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel10:         line=(fmagu10,space,dmagu10,longa, bpml,&
+                      hl10,   vl10, ql10,   sl10,&
+                      dmagd10,space,fmagd10,bpms,&
+                      hs10,   vs10, qs10,   ss10)
+
+hl11:           hkicker,    l=.075, kick=ihl11
+vl11:           vkicker,    l=.075, kick=ivl11
+ql11:           quadrupole, l=.075, k1=  iql11+itunel 
+sl11:           quadrupole, l=.075, k1=  isl11, TILT
+
+hs11:           hkicker,    l=.075, kick=ihs11
+vs11:           vkicker,    l=.075, kick=ivs11
+qs11:           quadrupole, l=.075, k1=  iqs11+itunes
+ss11:           quadrupole, l=.075, k1=  iss11, TILT
+
+dmagu11:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu11:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd11:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd11:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel11:         line=(fmagu11,space,dmagu11,longa, bpml,&
+                      hl11,   vl11, ql11,   sl11,&
+                      dmagd11,space,fmagd11,bpms,&
+                      hs11,   vs11, qs11,   ss11)
+
+hl12:           hkicker,    l=.075, kick=ihl12
+vl12:           vkicker,    l=.075, kick=ivl12
+ql12:           quadrupole, l=.075, k1=  iql12+itunel 
+sl12:           quadrupole, l=.075, k1=  isl12, TILT
+
+hs12:           hkicker,    l=.075, kick=ihs12
+vs12:           vkicker,    l=.075, kick=ivs12
+qs12:           quadrupole, l=.075, k1=  iqs12+itunes
+ss12:           quadrupole, l=.075, k1=  iss12, TILT
+
+dmagu12:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu12:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd12:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd12:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel12:         line=(fmagu12,space,dmagu12,longa, bpml,&
+                      hl12,   vl12, ql12,   sl12,&
+                      dmagd12,space,fmagd12,bpms,&
+                      hs12,   vs12, qs12,   ss12)
+
+hl13:           hkicker,    l=.075, kick=ihl13
+vl13:           vkicker,    l=.075, kick=ivl13
+ql13:           quadrupole, l=.075, k1=  iql13+itunel 
+sl13:           quadrupole, l=.075, k1=  isl13, TILT
+
+hs13:           hkicker,    l=.075, kick=ihs13
+vs13:           vkicker,    l=.075, kick=ivs13
+qs13:           quadrupole, l=.075, k1=  iqs13+itunes
+ss13:           quadrupole, l=.075, k1=  iss13, TILT
+
+dmagu13:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu13:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd13:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd13:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel13:         line=(fmagu13,space,dmagu13,longa, bpml,&
+                      hl13,   vl13, ql13,   sl13,&
+                      dmagd13,space,fmagd13,bpms,&
+                      hs13,   vs13, qs13,   ss13)
+
+hl14:           hkicker,    l=.075, kick=ihl14
+vl14:           vkicker,    l=.075, kick=ivl14
+ql14:           quadrupole, l=.075, k1=  iql14+itunel 
+sl14:           quadrupole, l=.075, k1=  isl14, TILT
+
+hs14:           hkicker,    l=.075, kick=ihs14
+vs14:           vkicker,    l=.075, kick=ivs14
+qs14:           quadrupole, l=.075, k1=  iqs14+itunes
+ss14:           quadrupole, l=.075, k1=  iss14, TILT
+
+dmagu14:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu14:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd14:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd14:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel14:         line=(fmagu14,space,dmagu14,longa, bpml,&
+                      hl14,   vl14, ql14,   sl14,&
+                      dmagd14,space,fmagd14,bpms,&
+                     hs14,   vs14, qs14,   ss14)
+                               
+                               
+                               
+hl15:           hkicker,    l=.075, kick=ihl15
+vl15:           vkicker,    l=.075, kick=ivl15
+ql15:           quadrupole, l=.075, k1=  iql15+itunel 
+sl15:           quadrupole, l=.075, k1=  isl15, TILT
+
+hs15:           hkicker,    l=.075, kick=ihs15
+vs15:           vkicker,    l=.075, kick=ivs15
+qs15:           quadrupole, l=.075, k1=  iqs15+itunes
+ss15:           quadrupole, l=.075, k1=  iss15, TILT
+
+dmagu15:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu15:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd15:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd15:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel15:         line=(fmagu15,space,dmagu15,longa, bpml,&
+                      hl15,   vl15, ql15,   sl15,&
+                      dmagd15,space,fmagd15,bpms,&
+                      hs15,   vs15, qs15,   ss15)
+
+hl16:           hkicker,    l=.075, kick=ihl16
+vl16:           vkicker,    l=.075, kick=ivl16
+ql16:           quadrupole, l=.075, k1=  iql16+itunel 
+sl16:           quadrupole, l=.075, k1=  isl16, TILT
+
+hs16:           hkicker,    l=.075, kick=ihs16
+vs16:           vkicker,    l=.075, kick=ivs16
+qs16:           quadrupole, l=.075, k1=  iqs16+itunes
+ss16:           quadrupole, l=.075, k1=  iss16, TILT
+
+dmagu16:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu16:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd16:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd16:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel16:         line=(fmagu16,space,dmagu16,longa, bpml,&
+                      hl16,   vl16, ql16,   sl16,&
+                      dmagd16,space,fmagd16,bpms,&
+                      hs16,   vs16, qs16,   ss16)
+
+hl17:           hkicker,    l=.075, kick=ihl17
+vl17:           vkicker,    l=.075, kick=ivl17
+ql17:           quadrupole, l=.075, k1=  iql17+itunel 
+sl17:           quadrupole, l=.075, k1=  isl17, TILT
+
+hs17:           hkicker,    l=.075, kick=ihs17
+vs17:           vkicker,    l=.075, kick=ivs17
+qs17:           quadrupole, l=.075, k1=  iqs17+itunes
+ss17:           quadrupole, l=.075, k1=  iss17, TILT
+
+dmagu17:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu17:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd17:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd17:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel17:         line=(fmagu17,space,dmagu17,longa, bpml,&
+                      hl17,   vl17, ql17,   sl17,&
+                      dmagd17,space,fmagd17,bpms,&
+                      hs17,   vs17, qs17,   ss17)
+
+hl18:           hkicker,    l=.075, kick=ihl18
+vl18:           vkicker,    l=.075, kick=ivl18
+ql18:           quadrupole, l=.075, k1=  iql18+itunel 
+sl18:           quadrupole, l=.075, k1=  isl18, TILT
+
+hs18:           hkicker,    l=.075, kick=ihs18
+vs18:           vkicker,    l=.075, kick=ivs18
+qs18:           quadrupole, l=.075, k1=  iqs18+itunes
+ss18:           quadrupole, l=.075, k1=  iss18, TILT
+
+dmagu18:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu18:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd18:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd18:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel18:         line=(fmagu18,space,dmagu18,longa, bpml,&
+                      hl18,   vl18, ql18,   sl18,&
+                      dmagd18,space,fmagd18,bpms,&
+                      hs18,   vs18, qs18,   ss18)
+
+hl19:           hkicker,    l=.075, kick=ihl19
+vl19:           vkicker,    l=.075, kick=ivl19
+ql19:           quadrupole, l=.075, k1=  iql19+itunel 
+sl19:           quadrupole, l=.075, k1=  isl19, TILT
+
+hs19:           hkicker,    l=.075, kick=ihs19
+vs19:           vkicker,    l=.075, kick=ivs19
+qs19:           quadrupole, l=.075, k1=  iqs19+itunes
+ss19:           quadrupole, l=.075, k1=  iss19, TILT
+
+dmagu19:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu19:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd19:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd19:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel19:         line=(fmagu19,space,dmagu19,longa, bpml,&
+                      hl19,   vl19, ql19,   sl19,&
+                      dmagd19,space,fmagd19,bpms,&
+                      hs19,   vs19, qs19,   ss19)
+
+hl20:           hkicker,    l=.075, kick=ihl20
+vl20:           vkicker,    l=.075, kick=ivl20
+ql20:           quadrupole, l=.075, k1=  iql20+itunel 
+sl20:           quadrupole, l=.075, k1=  isl20, TILT
+
+hs20:           hkicker,    l=.075, kick=ihs20
+vs20:           vkicker,    l=.075, kick=ivs20
+qs20:           quadrupole, l=.075, k1=  iqs20+itunes
+ss20:           quadrupole, l=.075, k1=  iss20, TILT
+
+dmagu20:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu20:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd20:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd20:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel20:         line=(fmagu20,space,dmagu20,longa, bpml,&
+                      hl20,   vl20, ql20,   sl20,&
+                      dmagd20,space,fmagd20,bpms,&
+                      hs20,   vs20, qs20,   ss20)
+
+hl21:           hkicker,    l=.075, kick=ihl21
+vl21:           vkicker,    l=.075, kick=ivl21
+ql21:           quadrupole, l=.075, k1=  iql21+itunel 
+sl21:           quadrupole, l=.075, k1=  isl21, TILT
+
+hs21:           hkicker,    l=.075, kick=ihs21
+vs21:           vkicker,    l=.075, kick=ivs21
+qs21:           quadrupole, l=.075, k1=  iqs21+itunes
+ss21:           quadrupole, l=.075, k1=  iss21, TILT
+
+dmagu21:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu21:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd21:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd21:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel21:         line=(fmagu21,space,dmagu21,longa, bpml,&
+                      hl21,   vl21, ql21,   sl21,&
+                      dmagd21,space,fmagd21,bpms,&
+                      hs21,   vs21, qs21,   ss21)
+
+hl22:           hkicker,    l=.075, kick=ihl22
+vl22:           vkicker,    l=.075, kick=ivl22
+ql22:           quadrupole, l=.075, k1=  iql22+itunel 
+sl22:           quadrupole, l=.075, k1=  isl22, TILT
+
+hs22:           hkicker,    l=.075, kick=ihs22
+vs22:           vkicker,    l=.075, kick=ivs22
+qs22:           quadrupole, l=.075, k1=  iqs22+itunes
+ss22:           quadrupole, l=.075, k1=  iss22, TILT
+
+dmagu22:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu22:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd22:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd22:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel22:         line=(fmagu22,space,dmagu22,longa, bpml,&
+                      hl22,   vl22, ql22,   sl22,&
+                      dmagd22,space,fmagd22,bpms,&
+                      hs22,   vs22, qs22,   ss22)
+
+hl23:           hkicker,    l=.075, kick=ihl23
+vl23:           vkicker,    l=.075, kick=ivl23
+ql23:           quadrupole, l=.075, k1=  iql23+itunel 
+sl23:           quadrupole, l=.075, k1=  isl23, TILT
+
+hs23:           hkicker,    l=.075, kick=ihs23
+vs23:           vkicker,    l=.075, kick=ivs23
+qs23:           quadrupole, l=.075, k1=  iqs23+itunes
+ss23:           quadrupole, l=.075, k1=  iss23, TILT
+
+dmagu23:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu23:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd23:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd23:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel23:         line=(fmagu23,space,dmagu23,longa, bpml,&
+                      hl23,   vl23, ql23,   sl23,&
+                      dmagd23,space,fmagd23,bpms,&
+                      hs23,   vs23, qs23,   ss23)
+
+hl24:           hkicker,    l=.075, kick=ihl24
+vl24:           vkicker,    l=.075, kick=ivl24
+ql24:           quadrupole, l=.075, k1=  iql24+itunel 
+sl24:           quadrupole, l=.075, k1=  isl24, TILT
+
+hs24:           hkicker,    l=.075, kick=ihs24
+vs24:           vkicker,    l=.075, kick=ivs24
+qs24:           quadrupole, l=.075, k1=  iqs24+itunes
+ss24:           quadrupole, l=.075, k1=  iss24, TILT
+
+dmagu24:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagu24:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+dmagd24:        sbend,l=blength,k1=qsd,angle=angled,e1=ed,e2=ed
+fmagd24:        sbend,l=blength,k1=qsf,angle=anglef,e1=ef,e2=ef
+
+bcel24:         line=(fmagu24,space,dmagu24,longa, bpml,&
+                      hl24,   vl24, ql24,   sl24,&
+                      dmagd24,space,fmagd24,bpms,&
+                      hs24,   vs24, qs24,   ss24)
+
+
+! the length of bcel01a is 474.2/24-10.479
+bcel01a:        line =(fmagu01,space,dmagu01,longa)
+
+! the length of bcel01b is 10.479
+bcel01b:        line =(bpml, hl01,   vl01, ql01,sl01,dmagd01,space,fmagd01,&
+                       bpms,hs01, vs01, qs01,   ss01)
+
+
+bcelinj:        line=(bcel01b, bcel01a)
+
+booster:        line=(bcel01, bcel02, bcel03, bcel04, bcel05, bcel06,&
+                      bcel07, bcel08, bcel09, bcel10, bcel11, bcel12,&
+                      bcel13, bcel14, bcel15, bcel16, bcel17, bcel18,&
+                      bcel19, bcel20, bcel21, bcel22, bcel23, bcel24)
+
+!USE, booster
+!QH:=6.5
+!QV:=6.75
+!------------------------------------------------------------!
+!  Cell
+!  Vary, itunel, step=.00001, lower=-10.0, upper=10.0
+!  Vary, itunes, step=.00001, lower=-10.0, upper=10.0
+!  Constraint, Range=#E, MUX=QH, MUY=QV
+!  Simplex, calls=2000, Tolerance=1.0E-10
+!  Endmatch
+!
+!USE, booster
+!
+!SAVELINE, NAME=LATTICE, FILENAME=boosterout
+!stop

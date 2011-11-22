@@ -175,7 +175,7 @@ Fast_mapping::apply(Bunch & bunch)
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
     for (int part = 0; part < local_num; ++part) {
-#if 0
+#if 1
 //   check if  pz^2 is negative  
       double  pzop2=(1.+particles[part][5])*(1.+particles[part][5])-
       particles[part][1]*particles[part][1]-particles[part][3]*particles[part][3];
@@ -242,7 +242,7 @@ Fast_mapping::apply(Bunch & bunch)
             particles[ part][i] = temp[i];
         }
 #endif
-#if 0
+#if 1
     //check if the approximation breaks down and yields a negative pz^2
          pzop2=(1.+particles[part][5])*(1.+particles[part][5])-
          particles[part][1]*particles[part][1]-particles[part][3]*particles[part][3];

@@ -64,7 +64,7 @@ if MPI.COMM_WORLD.Get_rank() ==0:
     print "bucket length=",lattice_simulator.get_bucket_length()
     print "num of buckets=",lattice_simulator.get_number_buckets()
     print "Linear one turn map"
-    print np.array2string(map,max_line_width=200)
+    print np.array2string(map,precision=6,suppress_small=True,max_line_width=200)
 
 
 
@@ -202,12 +202,16 @@ if space_charge:
     pipe_size=[2.*radiusx, 2.*radiusy, lattice_simulator.get_bucket_length()]
     if MPI.COMM_WORLD.Get_rank() ==0:
         print "pipe_size=",pipe_size
+    
     spc=synergia.collective.Space_charge_rectangular(pipe_size, grid_shape)
-    #spc= synergia.collective.Space_charge_3d_open_hockney(bunch_with_diag.get_comm(), grid_shape);             
+    for bunchnum in range(0,num_bunches):
+        if bunch_diag_train.is_on_this_rank(bunchnum):
+            commx=bunch_diag_train.get_comm(bunchnum)
+            spc.set_fftw_helper(commx)
+    #spc= synergia.collective.Space_charge_3d_open_hockney(bunch_with_diag.get_comm(), grid_shape);      
     operators.append(spc)
     
-    stepper = synergia.simulation.Split_operator_stepper(
-                            lattice_simulator, operators, opts.num_steps)
+   
 
 
  

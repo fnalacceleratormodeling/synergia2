@@ -164,6 +164,50 @@ def get_alpha_beta(map):
     alpha_y = (myy - mypyp) / (2.0 * sin(mu))
 
     return [alpha_x, alpha_y], [beta_x, beta_y]
+    
+def  get_tunes(mymap):
+   
+   # print "mymap is "
+   # print numpy.array2string(mymap,max_line_width=200)
+    
+    u = numpy.ones([6])
+    mxx = mymap[0,0]
+    mxpxp = mymap[1,1]
+    mxxp = mymap[0,1]
+    cos_mu = (mxx+mxpxp)/2.0
+    mu = acos(cos_mu) 
+    if mxxp/sin(mu) < 0:
+       mu = 2*pi - mu
+    tune_x=mu/(2.*pi)
+    
+    
+    myy = mymap[2,2]
+    mypyp = mymap[3,3]
+    myyp = mymap[2,3]
+    cos_mu = (myy+mypyp)/2.0
+    mu = acos(cos_mu)
+    # beta function is positive
+    # use this to pick branch
+    if myyp/sin(mu) < 0:
+        mu = 2*pi - mu
+    tune_y=mu/(2.*pi) 
+    
+    mzz=mymap[4,4]
+    mzpzp = mymap[5,5]
+    mzzp = mymap[4,5]
+   # print "mzz= ",mzz, "mzpzp=  ",mzpzp, "mzzp=  ",mzzp
+    cos_mu = (mzz+mzpzp)/2.0
+    mu = acos(cos_mu) 
+    if mzzp/sin(mu) < 0:
+       mu = 2*pi - mu
+    tune_z=mu/(2.*pi)
+    
+    l,v = numpy.linalg.eig(mymap)
+    print "eigenvalues of one turn map: ", l
+    print "absolute values of eigenvalues (should all be 1): ", abs(l)
+    print "fractional tunes from eigenvalues: ", numpy.log(l).imag/(2.0*numpy.pi)
+ 
+    return (tune_x,tune_y, tune_z)    
 
 def match_transverse_twiss_emittance(emittance, alpha, beta):
     """Calculate input parameters for a matched beam of given width

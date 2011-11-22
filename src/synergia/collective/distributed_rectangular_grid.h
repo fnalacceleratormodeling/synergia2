@@ -66,6 +66,8 @@ public:
     set_normalization(double val);
     double
     get_normalization() const;
+    Commxx const &
+    get_comm() const;
     void
     fill_guards();
 };

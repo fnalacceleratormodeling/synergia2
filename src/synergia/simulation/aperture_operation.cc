@@ -91,6 +91,7 @@ Circular_aperture_operation::apply(Bunch & bunch)
     //                << std::endl;
     bunch.set_local_num(local_num);
     bunch.update_total_num();
+   // std::cout<<"circular aperture applied"<<std::endl;
 }
 
 Circular_aperture_operation::~Circular_aperture_operation()
@@ -282,6 +283,7 @@ Rectangular_aperture_operation::apply(Bunch & bunch)
     //                << std::endl;
     bunch.set_local_num(local_num);
     bunch.update_total_num();
+  //  std::cout<<"rectangular aperture applied"<<std::endl;
 }
 
 Rectangular_aperture_operation::~Rectangular_aperture_operation()

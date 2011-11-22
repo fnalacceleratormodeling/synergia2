@@ -19,22 +19,22 @@ Chef_lattice::construct_beamline()
     for (Lattice_elements::const_iterator latt_it =
             lattice_sptr->get_elements().begin(); latt_it
             != lattice_sptr->get_elements().end(); ++latt_it) {
-        std::string type((*latt_it)->get_type());
+        std::string type((*latt_it)->get_type());        
         if (!element_adaptor_map_sptr->has_adaptor(type)) {
             throw(runtime_error("Chef_lattice: " + type + " not handled"));
-        } else {
+        } else {  
             Chef_elements
                     celms =
                             element_adaptor_map_sptr->get_adaptor(type)->get_chef_elements(
-                                    *(*latt_it), brho);
+                                    *(*latt_it), brho);       
             for (Chef_elements::const_iterator cel_it = celms.begin(); cel_it
-                    != celms.end(); ++cel_it) {
+                    != celms.end(); ++cel_it) {                 
                 unpolished_beamline_sptr->append(*cel_it);
             }
             unpolished_beamline_sptr->append(lattice_element_marker);
-        }
-    }
-    beamline_sptr = polish_beamline(unpolished_beamline_sptr);
+        } 
+    }                
+    beamline_sptr = polish_beamline(unpolished_beamline_sptr);       
 }
 
 void
@@ -339,7 +339,7 @@ Chef_lattice::construct_sliced_beamline(Lattice_element_slices const& slices)
 
 BmlPtr
 Chef_lattice::get_beamline_sptr()
-{
+{    
     return beamline_sptr;
 }
 

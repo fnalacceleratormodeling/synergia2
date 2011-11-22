@@ -50,8 +50,8 @@ public:
         iy = fast_int_floor(scaled_location);
         offy = scaled_location - iy;
 
-        scaled_location = (z - left[2]) / cell_size[2] - 0.5;
-        iz = fast_int_floor(scaled_location);
+        scaled_location = (z - left[2]) / cell_size[2] - 0.5;        
+        iz =fast_int_floor(scaled_location);
         offz = scaled_location - iz;
         return ((ix>=0) && (ix<grid_shape[0] - 1) &&  (iy>=0) && (iy<grid_shape[1] - 1))
         && 

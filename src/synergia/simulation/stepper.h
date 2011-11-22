@@ -14,6 +14,13 @@ private:
     Lattice_simulator lattice_simulator;
     Steps steps;
 
+protected:    
+    Independent_operator_sptr
+    get_fixed_step(std::string const& name,
+        Lattice_elements::iterator & lattice_it, double & left,
+        Lattice_elements::iterator const & lattice_end,
+        const double step_length, double & offset_fudge);
+
 public:
     Stepper(Lattice_simulator const& lattice_simulator);
     Lattice_simulator &
@@ -33,11 +40,6 @@ typedef boost::shared_ptr<Stepper > Stepper_sptr;
 /// steps through a Lattice. No collective effects are included.
 class Independent_stepper : public Stepper
 {
-private:
-    Independent_operator_sptr
-    get_step(std::string const& name, Lattice_elements::iterator & lattice_it,
-            double & left, Lattice_elements::iterator const & lattice_end,
-            const double half_step_length, double & offset_fudge);
 public:
     /// Construct an Independent_stepper
     /// @param lattice_simulator the Lattice_simulator for the Lattice
@@ -74,12 +76,6 @@ typedef boost::shared_ptr<Independent_stepper_elements >
 /// step.
 class Split_operator_stepper : public Stepper
 {
-private:
-    Independent_operator_sptr
-    get_half_step(std::string const& name,
-            Lattice_elements::iterator & lattice_it, double & left,
-            Lattice_elements::iterator const & lattice_end,
-            const double half_step_length, double & offset_fudge);
     void
     construct(Collective_operators const & collective_operators, int num_steps);
 public:
@@ -140,5 +136,47 @@ public:
 //{
 //
 //};
+
+struct Kicks
+{
+    
+    Kicks():
+    num_steps(0)    
+    {
+    }; 
+    
+    Kicks(Collective_operators const& collective_operators, int num_steps):
+    collective_operators(collective_operators), num_steps(num_steps)
+    {
+    } 
+    
+    Collective_operators collective_operators; 
+    int num_steps;
+};
+
+typedef  std::map<std::string, Kicks >  List_choice_map;
+
+/// Generate steps according with a list 
+class Split_operator_stepper_choice: public Stepper
+{
+private:
+   List_choice_map list_choice_map; 
+   int num_steps_else;   
+   void                    
+   make_stepper_else(Lattice_elements::iterator const& begin, Lattice_elements::iterator const& end, double const & length_between, 
+                double const & max_step_length);
+   void
+   construct_per_element_else();
+   void
+   construct_split_else();
+public:  
+  
+  Split_operator_stepper_choice (Lattice_simulator const& lattice_simulator, List_choice_map const & list_choice_map, bool split_else=true);
+  Split_operator_stepper_choice (int num_steps_else, Lattice_simulator const& lattice_simulator, List_choice_map const & list_choice_map,  bool split_else=true);
+ 
+ 
+ virtual
+    ~Split_operator_stepper_choice(); 
+};
 
 #endif /* STEPPER_H_ */

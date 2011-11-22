@@ -9,68 +9,83 @@ Impedance::Impedance(std::string const & wake_file, double const & orbit_length,
      Collective_operator("impedance"), orbit_length(orbit_length), bunch_spacing(bunchsp), z_grid(zgrid), wake_file(wake_file),
      nstored_turns(nstored_turns)
 {  
-    // wake_factor=-4.*mconstants::pi*pconstants::rp/pconstants::c;
-     wake_factor=-4.*mconstants::pi*pconstants::rp;   
-     //std::cout<<" in impedance wake_factor="<<wake_factor<<std::endl;
-     this->pipe_symmetry=pipe_symmetry;
-     
-     
-     
-     
-     
-//  read the wakes from the file wake_file     
-// for parallel plates geometry wake file should be written as a four column file such, containing wakes functions such:
-//  z[m]        Wz_trx/Z_0/L[1/(m^2*s]       Wz_try/Z_0/L[1/(m^2*s]        Wz_l/Z_0/L[1/(ms)]   
-// the line starting with "#" in the file are skipped and can be  used for comments 
-     std::ifstream rfile;
-     std:: string line;
-     rfile.open(wake_file.c_str());
-      while (!rfile.eof() && rfile.is_open()) {
-          getline(rfile,line);       
-          if (line.substr(0,1) != "#" && !line.empty() ){
-                double column1, column2, column3, column4;
-                char * endword1, * endword2;
-                column1=strtod(line.c_str(), &endword1);
-                column2=strtod(endword1, &endword2);    
-                if (endword1 == endword2 ) { std::cout<<" the wake file should have at least 3 columns, z, W_transverse and W_z"<<std::endl;
-                                                abort();               
-                                            } 
-                // column2 read succesfully                                   
-                column3=strtod(endword2, &endword1);
-                if (endword1 == endword2  ) { std::cout<<" the wake file should have at least 3 columns, z, W_transverse and W_z"<<std::endl;
-                                                abort();               
-                                            }                                          
-                // column3 read succesfully   
-                column4=strtod(endword1, &endword2);                            
-                if (endword1 == endword2  )  { // there is no column 4, but can be OK  for circular pipe
-                        if (get_pipe_symmetry()=="circular") { 
-                            z_coord.push_back(column1);
-                            x_wake.push_back(column2);
-                            y_wake.push_back(column2);
-                            z_wake.push_back(column3);
-                        }  
-                        else {  std::cout<< " pipe symmetry is "<<get_pipe_symmetry()<<std::endl;
-                                std::cout<<" the wake file should have 4 columns, z, W_x, W_y and W_z"<<std::endl;
-                                                abort(); 
-                        }
-                 } 
-                 else {
-                        z_coord.push_back(column1);
-                        x_wake.push_back(column2);
-                        y_wake.push_back(column3);
-                        z_wake.push_back(column4);
-                        
-                }                                                          
+
+    try{    // wake_factor=-4.*mconstants::pi*pconstants::rp/pconstants::c;
+         wake_factor=-4.*mconstants::pi*pconstants::rp;   
+         //std::cout<<" in impedance wake_factor="<<wake_factor<<std::endl;
+         this->pipe_symmetry=pipe_symmetry;
          
-          }    
-      }
-      rfile.close();
-      
-      std::cout<<"  wake read from  "<<wake_file<<std::endl;
-      std::cout<<"  pipe symmetry  "<<get_pipe_symmetry()<<std::endl;
-      std::cout<<"  number of previous turns considered is  "<<get_nstored_turns()<<std::endl;
-     // wakes read!
-     
+         
+         
+         
+         
+    //  read the wakes from the file wake_file     
+    // for parallel plates geometry wake file should be written as a four column file such, containing wakes functions such:
+    //  z[m]        Wz_trx/Z_0/L[1/(m^2*s]       Wz_try/Z_0/L[1/(m^2*s]        Wz_l/Z_0/L[1/(ms)]   
+    // the lines starting with "#" in the file are skipped and can be  used for comments 
+         std::ifstream rfile;
+         std:: string line;
+         rfile.open(wake_file.c_str());
+          while (!rfile.eof() && rfile.is_open()) {
+              getline(rfile,line);  
+              if ( !line.empty() ){  
+                int pos=line.find_first_not_of(" \t\r\n");
+                if (pos !=std::string::npos){
+                    if (line.at(pos) != '#' ){
+                            double column1, column2, column3, column4;
+                            char * endword1, * endword2;
+                            column1=strtod(line.c_str(), &endword1);
+                            column2=strtod(endword1, &endword2);    
+                            if (endword1 == endword2 ) {  
+                                                std::cout<<" the wake file should have at least 3 columns, z, W_transverse and W_z: error 1"<<std::endl;
+                                                            abort();               
+                                                        } 
+                            // column2 read succesfully                                   
+                            column3=strtod(endword2, &endword1);
+                            if (endword1 == endword2  ) { std::cout<<" endword1="<<endword1<<" endword2="<<endword2<<std::endl;
+                                                    std::cout<<" the wake file should have at least 3 columns, z, W_transverse and W_z: error 2"<<std::endl;
+                                                            abort();               
+                                                        }                                          
+                            // column3 read succesfully   
+                            column4=strtod(endword1, &endword2);                            
+                            if (endword1 == endword2  )  { // there is no column 4, but can be OK  for circular pipe
+                                    if (get_pipe_symmetry()=="circular") { 
+                                        z_coord.push_back(column1);
+                                        x_wake.push_back(column2);
+                                        y_wake.push_back(column2);
+                                        z_wake.push_back(column3);
+                                    }  
+                                    else {  std::cout<< " pipe symmetry is "<<get_pipe_symmetry()<<std::endl;
+                                            std::cout<<" the wake file should have 4 columns, z, W_x, W_y and W_z"<<std::endl;
+                                                            abort(); 
+                                    }
+                             } 
+                             else {
+                                    z_coord.push_back(column1);
+                                    x_wake.push_back(column2);
+                                    y_wake.push_back(column3);
+                                    z_wake.push_back(column4);
+                                    
+                            }                                                          
+                     
+                      } 
+                  } 
+              }  // !line.empty()
+          }
+          rfile.close();
+          int rank;
+          MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+          if (rank==0){
+              std::cout<<"  impedance: wake read from  "<<wake_file<<std::endl;
+              std::cout<<"  impedance: pipe symmetry  "<<get_pipe_symmetry()<<std::endl;
+              std::cout<<"  impedance: number of previous turns considered is  "<<get_nstored_turns()<<std::endl;
+         // wakes read!
+        }
+    }
+    catch (std::exception const& e){
+        std::cout<<e.what()<<std::endl;   
+        MPI_Abort(MPI_COMM_WORLD, 777);
+    }      
      
 }
 
