@@ -206,21 +206,21 @@ def resonance_sum(lattice_simulator, brho):
                 phase -= 2.0 * numpy.pi
             while phase <= - numpy.pi:
                 phase += 2.0 * numpy.pi
-            if myrank == 0:
-                print
-                print "        index                        :", index
-                print "        type                         :", 
-                print element.get_type()
-                print "        name                         :", 
-                print element.get_name()
-                print "        strength                     :", 
-                print element.get_double_attribute("k2l"), "1/m^2"
-                print "        strength in chef unit        :",
-                print element.get_double_attribute("k2l") * brho / 2.0, "T/m"
-                print "        theta                        :", theta
-                print "        beta_x                       :", beta_x
-                print "        psi_x                        :", psi_x
-                print "        phase                        :", phase
+            #if myrank == 0:
+            #    print
+            #    print "        index                        :", index
+            #    print "        type                         :", 
+            #    print element.get_type()
+            #    print "        name                         :", 
+            #    print element.get_name()
+            #    print "        strength                     :", 
+            #    print element.get_double_attribute("k2l"), "1/m^2"
+            #    print "        strength in chef unit        :",
+            #    print element.get_double_attribute("k2l") * brho / 2.0, "T/m"
+            #    print "        theta                        :", theta
+            #    print "        beta_x                       :", beta_x
+            #    print "        psi_x                        :", psi_x
+            #    print "        phase                        :", phase
             increment = beta32 * brho \
                     * element.get_double_attribute("k2l") \
                     * (numpy.cos(phase) - numpy.sin(phase) * imaginary_number)
@@ -761,7 +761,7 @@ lattice_simulator = synergia.simulation.Lattice_simulator(synergia_lattice,
 ###############################################################################
 #   load/calculate initial and final magnet settings
 t0 = time.time()
-if opts.lattice_load == 1:
+if opts.lattice_load == 0:
     [initial_k1, final_k1, final_k2l] = load_lattice_settings()
 else:
     [initial_k1, final_k1, final_k2l] = calculate_lattice_settings()
