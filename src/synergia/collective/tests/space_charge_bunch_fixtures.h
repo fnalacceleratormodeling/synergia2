@@ -240,6 +240,7 @@ struct Toy_bunch_fixture
                 grid_shape(3),
                 expected(
                         boost::extents[toy_grid_shape[2]][toy_grid_shape[1]][toy_grid_shape[0]])
+                   
     {
         for (int i = 0; i < 3; ++i) {
             grid_shape[i] = toy_grid_shape[i];
@@ -273,6 +274,56 @@ struct Toy_bunch_fixture
     Rectangular_grid_sptr rho_grid_sptr;
     MArray3d expected;
 };
+
+const int toy_grid_shape_xyz[] = { 4, 6, 8 };
+struct Toy_bunch_fixture_xyz
+{
+    Toy_bunch_fixture_xyz() :
+                four_momentum(mass, total_energy),
+                reference_particle(pconstants::proton_charge, four_momentum),
+                comm(MPI_COMM_WORLD),
+                bunch(reference_particle, total_num, toy_real_num, comm),
+                physical_size(3),
+                physical_offset(3),
+                cell_size(3),
+                grid_shape(3),
+                expected(
+                        boost::extents[toy_grid_shape_xyz[0]][toy_grid_shape_xyz[1]][toy_grid_shape_xyz[2]])
+                   
+    {
+        for (int i = 0; i < 3; ++i) {
+            grid_shape[i] = toy_grid_shape_xyz[i];
+            physical_offset[i] = domain_offset;
+            physical_size[i] = domain_max - domain_min;
+            cell_size[i] = (domain_max - domain_min) / grid_shape[i];
+        }
+        for (unsigned int i = 0; i < expected.shape()[0]; ++i) {
+            for (unsigned int j = 0; j < expected.shape()[1]; ++j) {
+                for (unsigned int k = 0; k < expected.shape()[2]; ++k) {
+                    expected[i][j][k] = 0.0;
+                }
+            }
+        }
+        density_norm = (toy_real_num / total_num) * pconstants::e
+                / (cell_size[0] * cell_size[1] * cell_size[2]);
+    }
+
+    ~Toy_bunch_fixture_xyz()
+    {
+    }
+
+    Four_momentum four_momentum;
+    Reference_particle reference_particle;
+    Commxx comm;
+    Bunch bunch;
+    double density_norm;
+
+    std::vector<double > physical_size, physical_offset, cell_size;
+    std::vector<int > grid_shape;
+    Rectangular_grid_sptr rho_grid_sptr;
+    MArray3d expected;
+};
+
 
 struct Toy_bunch_fixture_2d
 {

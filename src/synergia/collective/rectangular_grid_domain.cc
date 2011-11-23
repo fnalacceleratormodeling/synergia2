@@ -62,6 +62,11 @@ Rectangular_grid_domain::is_periodic() const
 {
     return periodic_z;
 }
+std::vector<double > const&
+Rectangular_grid_domain::get_left() const
+{
+    return left;
+}
 
 void
 Rectangular_grid_domain::get_cell_coordinates(int ix, int iy, int iz,

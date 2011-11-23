@@ -92,6 +92,97 @@ deposit_charge_rectangular_zyx(Rectangular_grid & rho_grid, Bunch const& bunch,
 }
 
 void
+deposit_charge_rectangular_xyz(Rectangular_grid & rho_grid, Bunch const& bunch,
+        bool zero_first)
+{
+// the particles close (i.e at a distance smaller than cell_size/2) to the grid edges are not deposited
+// they should aslo not be kicked by the electric field  
+    
+    std::vector<double > h(rho_grid.get_domain_sptr()->get_cell_size());
+    double weight0 = (bunch.get_real_num() / bunch.get_total_num())
+            * bunch.get_particle_charge() * pconstants::e
+            / (h[0] * h[1] * h[2]);
+            
+    
+    MArray3d_ref rho(rho_grid.get_grid_points());
+    Const_MArray2d_ref parts(bunch.get_local_particles());
+ //   double total_charge_per_cell_vol(0.);
+    if (zero_first) {    
+        for (unsigned int i = 0; i < rho.shape()[0]; ++i) {
+            for (unsigned int j = 0; j < rho.shape()[1]; ++j) {
+                for (unsigned int k = 0; k < rho.shape()[2]; ++k) {
+                    rho[i][j][k] = 0.0;
+                }
+            }
+        }
+    } 
+//     else {
+//         for (unsigned int i = 0; i < rho.shape()[0]; ++i) {
+//             for (unsigned int j = 0; j < rho.shape()[1]; ++j) {
+//                 for (unsigned int k = 0; k < rho.shape()[2]; ++k) {
+//                 total_charge_per_cell_vol += weight0*rho[i][j][k];
+//                 }
+//             }
+//         }
+//     }       
+             
+            
+    int ix, iy, iz;
+    double offx, offy, offz;
+    if (rho_grid.get_domain_sptr()->is_periodic()) {
+        for (int n = 0; n < bunch.get_local_num(); ++n) {
+            if (rho_grid.get_domain_sptr()->get_leftmost_indices_offsets(
+                        parts[n][0], parts[n][2], parts[n][4], ix, iy, iz, offx, offy, offz)){
+                for (int i = 0; i < 2; ++i) {
+                    for (int j = 0; j < 2; ++j) {
+                        int cellx = ix + i;
+                        int celly = iy + j;
+                        for (int k = 0; k < 2; ++k) {
+                            int cellz = iz + k;
+                            if (cellz >= 0) {
+                                cellz = cellz % rho.shape()[2];
+                            }
+                            else{
+                                int period = rho.shape()[2];
+                                cellz = period - 1 - ((-cellz - 1) % period);
+                            } 
+                            double weight = weight0 * (1 - i - (1 - 2 * i) * offx) * 
+                                        (1 - j - (1 - 2 * j) * offy) *
+                                        (1 - k - (1 - 2 * k) * offz); 
+                            rho[cellx][celly][cellz] += weight;  
+                           // total_charge_per_cell_vol += weight;
+                       }
+                    }
+                }
+            } 
+        }         
+    }
+    else{
+        for (int n = 0; n < bunch.get_local_num(); ++n) {
+            if (rho_grid.get_domain_sptr()->get_leftmost_indices_offsets(
+                        parts[n][0], parts[n][2], parts[n][4], ix, iy, iz, offx, offy, offz)){
+                for (int i = 0; i < 2; ++i) {
+                    for (int j = 0; j < 2; ++j) {
+                        for (int k = 0; k < 2; ++k) {
+                            int cellx = ix + i;
+                            int celly = iy + j;
+                            int cellz = iz + k;
+                            double weight = weight0 * (1 - i - (1 - 2 * i) * offx) * 
+                                        (1 - j - (1 - 2 * j) * offy) *
+                                        (1 - k - (1 - 2 * k) * offz); 
+                            rho[cellx][celly][cellz] += weight; 
+                       //     total_charge_per_cell_vol += weight; 
+                        }                   
+                    }
+                }
+            } 
+        }         
+    }    
+   //  rho_grid.set_normalization(total_charge_per_cell_vol*(h[0] * h[1] * h[2]));
+       
+}
+
+void
 deposit_charge_rectangular_2d(Rectangular_grid & rho_grid, Bunch const& bunch,
         bool zero_first)
 {
@@ -142,3 +233,5 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid, Bunch const& bunch,
         }
     }
 }
+
+

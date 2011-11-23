@@ -1098,7 +1098,7 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
 {
     double t;
     t = simple_timer_current();
-    bunch.convert_to_state(Bunch::fixed_t);
+    bunch.convert_to_state(Bunch::fixed_t_bunch);
     t = simple_timer_show(t, "sc-convert-to-state");
     Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
     t = simple_timer_show(t, "sc-get-local-rho");

@@ -291,4 +291,29 @@ def generate_two_particles(lattice_simulator, coordP1, coordP2, num_real_particl
                             coordP2[0], coordP2[1], coordP2[2], coordP2[3], coordP2[4], coordP2[5])
      return bunch
 
+
+
+#def envelope_motion(widths_in,current,g,do_plot=0,do_match=0):
+  
+    
+    #(s,kx,ky) = g.get_strengths()        
+    #mass=g.get_mass() 
+    #kinetic_energy= g.get_initial_kinetic_energy()     
+    #gamma =1.0+kinetic_energy/mass
+    #beta = sqrt(1-1/gamma**2);    
+    #charge = 1.0  # electron charge in C
+    #A = 1.0; # atomic number
+    #lambd = current/(physics_constants.PH_MKS_e*beta*physics_constants.PH_MKS_c)	    
+    #xi=4.0*charge**2*physics_constants.PH_MKS_rp*lambd/(A*beta**2*gamma**3)
+    
+      
+    #retval=envelope_matching.envelope_match(widths_in, s, kx, ky,
+           #xi, accuracy=1.0e-9, verbose=True, integrator=4,do_map=do_match,do_plot=do_plot)
+      
+##     retval= [sigma_x, sigma_xprime, r_x, sigma_y,s igma_yprime, r_y]  
+                     
+   	     
+		     
+    #return retval
+
 		    

@@ -181,6 +181,7 @@ Fast_mapping::apply(Bunch & bunch)
       particles[part][1]*particles[part][1]-particles[part][3]*particles[part][3];
       if (pzop2<0.)  {
         std::cout<<"pzop^2="<<pzop2<<std::endl;
+        std::cout<<" pxop="<< particles[part][1]<<"  pyop="<<particles[part][3]<<"  dp_totop="<<particles[part][5]<<std::endl;
         throw std::runtime_error( " Fast_mapping: pz square cannot be negative, before mapping");
       }
 #endif    
