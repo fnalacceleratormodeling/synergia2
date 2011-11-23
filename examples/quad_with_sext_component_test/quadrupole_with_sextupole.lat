@@ -1,0 +1,19 @@
+! File quadrupole.lat
+!
+! a single thin quadrupole with sextupole component for testing
+
+brho_at_8 =  29.6872044726
+
+length   :=   2.1336                 ! [m]     : sextupole length
+
+strength := 3.0137e-2     ! [m**-2] : sextupole strength
+                                  !         :   = B'/brho
+
+s_times_l = strength*length
+
+beam, particle=proton, pc=8.9
+
+! add .1% sextupole component
+myquad: quadrupole, type=isa, l=length, k1 = strength, b2=.001
+
+mylat1: line = (myquad)
