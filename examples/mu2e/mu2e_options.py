@@ -28,6 +28,7 @@ opts.add("num_steps", 2, "Number of steps per turn", int)
 opts.add("num_turns", 1, "Number of turns", int)
 opts.add("map_order", 2, "Map order", int)
 opts.add("partpercell", 10, "macro particles per grid cell", int)
+opts.add("lattice_load", False, "load lattice setting", bool)
 
 # normalized geometric emittance of 19.09e-6 mm-mr at beta*gamma=9.4855
 # gives a beam spot with a half width of 14 mm at the ipm location with beta_x

@@ -393,7 +393,7 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
                 << vertical_final_tune << std::endl;
     }
 #if 1
-    double adjuster_tune_step = 0.105;
+    double adjuster_tune_step = 0.005;
     double const dtune_h =  (horizontal_final_tune - nu_h) / double(1 + int((
             std::abs(horizontal_final_tune - nu_h)) / adjuster_tune_step));
 
