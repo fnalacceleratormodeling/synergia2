@@ -177,6 +177,11 @@ def test_continuation3():
     assert_almost_equal(3.14,attributes['l'])
     assert_almost_equal(0.2,attributes['k1'])
 
+def test_continuation4():
+    mp = Mad8_parser()
+    mp.parse('''twiss, save,   betx=28.871,alfx=-0.069,mux=0.0,dx=2.682,dpx=-0.073 &
+               bety= 5.264,alfy=-0.006,muy=0.0,dy=0.0,dpy=0.0''')
+
 def test_line_multiplier():
     mp = Mad8_parser()
     mp.parse('fodo8: line=(8*(f,o,d,o))')
@@ -210,3 +215,7 @@ def test_range1():
 def test_range2():
     mp = Mad8_parser()
     mp.parse('select,optics #s/#e')
+
+def test_multi_value():
+    mp = Mad8_parser()
+    mp.parse('''plot, vmin=0,0''')

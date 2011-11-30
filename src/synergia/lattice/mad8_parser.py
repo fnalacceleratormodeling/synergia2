@@ -4,7 +4,7 @@ from __future__ import division
 from pyparsing import Word, alphas, ParseException, Literal, CaselessLiteral, \
 Combine, Optional, nums, Or, Forward, ZeroOrMore, StringEnd, alphanums, \
 restOfLine, empty, delimitedList, LineEnd, Group, QuotedString, dblQuotedString, \
-removeQuotes, sglQuotedString, OneOrMore
+removeQuotes, sglQuotedString, OneOrMore, ParserElement
 
 import sys
 import re
@@ -119,6 +119,7 @@ class Expression_parser:
                                Optional(e + integer)) | \
                        Optional(plusorminus) + Combine(point + number) + \
                         Optional(e + integer))
+        self.floatnumber = floatnumber
         ident = Word(alphas, alphanums + '_' + '.' + "'")
         self.ident = ident
         subscript_ident = Group(ident + lbrack + ident + rbrack)
@@ -173,7 +174,6 @@ class Expression_parser:
         self.stack.append(Stack_item(Stack_type.operator, toks[0]))
 
     def _push_range(self, strg, loc, toks):
-        print "jfa: _push_range:", strg, loc, toks
         self.stack.append(Stack_item(Stack_type.range, toks[0]))
 
     def evaluate_stack(self, s, variables={}, labels={}, constants=None):
@@ -238,6 +238,7 @@ class Command(Printable):
 
 class Mad8_parser:
     def __init__(self):
+        ParserElement.setDefaultWhitespaceChars(" \t")
         self.expression_parser = Expression_parser()
         self.bnf = self._construct_bnf()
         self.variables = {}
@@ -261,6 +262,7 @@ class Mad8_parser:
         ident = self.expression_parser.ident
         expr = self.expression_parser.bnf
         integer = self.expression_parser.integer
+        floatnumber = self.expression_parser.floatnumber
         range = self.expression_parser.range
 
         var_assign = (equals | colon + equals |
@@ -270,21 +272,21 @@ class Mad8_parser:
             sglQuotedString.setParseAction(removeQuotes)
         str.setParseAction(self._handle_str)
         attr_value = (str | expr)
-        attr = (ident + Optional(attr_assign + attr_value) | \
+        attr = ((ident | floatnumber)  + Optional(attr_assign + attr_value) | \
                 Group(Literal('-') + ident))
         attr.setParseAction(self._handle_attr)
         attr_delim = Literal(',').suppress()
         command = ident + Optional(attr_delim + \
                                    ((ident + range) | \
                                     range | \
-                                    delimitedList(attr)))
+                                    OneOrMore(delimitedList(attr))))
         command.setParseAction(self._handle_command)
 #signedmodifierdef = Group(Optional(Literal('-')) + ident) + Optional(Literal("=") + expr)
 #signedmodifierdef.setParseAction(handleModifier)
         var_assign = (ident + var_assign + expr)
         var_assign.setParseAction(self._handle_var_assign)
         labeled_command = (ident + colon + ident +
-                          Optional(attr_delim + delimitedList(attr)))
+                          Optional(attr_delim + OneOrMore(delimitedList(attr))))
         labeled_command.setParseAction(self._handle_labeled_command)
 
         multiple_ident = (Optional(minus) + Optional(Group(integer + times)) +
@@ -296,11 +298,12 @@ class Mad8_parser:
         labeled_line = (ident + colon + line)
         labeled_line.setParseAction(self._handle_labeled_line)
 
-        entry = (var_assign |
+        empty.setWhitespaceChars(" \t")
+        entry = ((var_assign |
                  labeled_line |
                  labeled_command |
                  command |
-                 empty + (semicolon | LineEnd()))
+                 empty) + (semicolon | LineEnd().suppress()))
 
         bnf = ZeroOrMore(entry) + StringEnd()
         comment = bang + restOfLine
@@ -341,13 +344,11 @@ class Mad8_parser:
                                                        toks[0]))
 
     def _handle_command(self, str, loc, toks):
-        print "jfa: _handle_command:", str, loc, toks
         name = toks[0].lower()
         self.commands.append(Command(name, self._attributes))
         self._attributes = {}
 
     def _handle_labeled_command(self, str, loc, toks):
-        print "jfa: _handle_labeled_command:", str, loc, toks
         label = toks[0].lower()
         name = toks[2].lower()
         self.labels[label] = Command(name, self._attributes)
