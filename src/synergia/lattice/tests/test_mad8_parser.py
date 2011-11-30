@@ -5,7 +5,7 @@ sys.path.append('..')
 
 from nose.tools import *
 from mad8_parser import Mad8_parser, ParseException
-from math import sqrt, log, exp, sin, cos, tan, asin    
+from math import sqrt, log, exp, sin, cos, tan, asin
 import math
 
 def test_construct():
@@ -24,7 +24,7 @@ def test_garbage():
         caught = True
     assert caught
 
-def test_comment():    
+def test_comment():
     mp = Mad8_parser()
     mp.parse('!your momma uses portions->of madx syntax')
 
@@ -32,25 +32,25 @@ def test_variable_assignment():
     mp = Mad8_parser()
     mp.parse('x=1')
     assert_equal(1,mp.variables['x'])
-    
+
 def test_mod_variable_assignment():
     mp = Mad8_parser()
     mp.parse('x:=1')
     assert_equal(1,mp.variables['x'])
-    
+
 def test_newline_separation():
     mp = Mad8_parser()
     mp.parse('''x=1
     y=2''')
     assert_equal(1,mp.variables['x'])
     assert_equal(2,mp.variables['y'])
-    
+
 def test_semicolon_separation():
     mp = Mad8_parser()
     mp.parse('''x=1;y=2''')
     assert_equal(1,mp.variables['x'])
     assert_equal(2,mp.variables['y'])
-    
+
 def test_variable_assignment_expression():
     mp = Mad8_parser()
     mp.parse('foo.bar=pi*sin(1.2d-4)^0.69')
@@ -60,7 +60,7 @@ def test_caps_variable_assignment():
     mp = Mad8_parser()
     mp.parse('X=1;Y=X')
     assert_equal(1,mp.variables['y'])
-    
+
 def test_command():
     mp = Mad8_parser()
     mp.parse('foo')
@@ -107,7 +107,7 @@ def test_command_particle_attr():
     attributes = command.attributes
     assert_equal(1,len(attributes))
     assert_equal('proton',attributes['particle'])
-    
+
 def test_command_assign():
     mp = Mad8_parser()
     mp.parse('q1: quadrupole,l=3.14')
@@ -123,7 +123,7 @@ def test_subscripted_ident():
     mp = Mad8_parser()
     mp.parse('foo: bar, a=1;x=foo[a]')
     assert_equal(1,mp.variables['x'])
-    
+
 def test_line():
     mp = Mad8_parser()
     mp.parse('''f:quad,l=1,k1=0.1
@@ -153,10 +153,23 @@ def test_continuation():
 
 def test_continuation2():
     mp = Mad8_parser()
-    mp.parse('''q1: quadrupole,l=& )junk)
+    mp.parse('''q2: quadrupole,l=& )junk)
     3.14,k1=0.2''')
     assert_equal(1,len(mp.labels))
-    key = 'q1'
+    key = 'q2'
+    command = mp.labels[key]
+    assert_equal('quadrupole',command.name)
+    attributes = command.attributes
+    assert_equal(2,len(attributes))
+    assert_almost_equal(3.14,attributes['l'])
+    assert_almost_equal(0.2,attributes['k1'])
+
+def test_continuation3():
+    mp = Mad8_parser()
+    mp.parse('''q3: quadrupole,l=3.14 &
+    k1=0.2''')
+    assert_equal(1,len(mp.labels))
+    key = 'q3'
     command = mp.labels[key]
     assert_equal('quadrupole',command.name)
     attributes = command.attributes
@@ -190,4 +203,10 @@ def test_line_unary_minus():
     assert_equal('d',mp.lines['odof'][1][2])
     assert_equal('o',mp.lines['odof'][1][3])
 
-    
+def test_range1():
+    mp = Mad8_parser()
+    mp.parse('print, #s/#e')
+
+def test_range2():
+    mp = Mad8_parser()
+    mp.parse('select,optics #s/#e')

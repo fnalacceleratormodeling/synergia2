@@ -4,7 +4,7 @@ from __future__ import division
 from pyparsing import Word, alphas, ParseException, Literal, CaselessLiteral, \
 Combine, Optional, nums, Or, Forward, ZeroOrMore, StringEnd, alphanums, \
 restOfLine, empty, delimitedList, LineEnd, Group, QuotedString, dblQuotedString, \
-removeQuotes, sglQuotedString
+removeQuotes, sglQuotedString, OneOrMore
 
 import sys
 import re
@@ -51,6 +51,7 @@ class Stack_type:
     unary_minus = 5
     str = 6
     subscript_ident = 7
+    range = 8
 
 class Stack_item(Printable):
     def __init__(self, type, value):
@@ -121,10 +122,15 @@ class Expression_parser:
         ident = Word(alphas, alphanums + '_' + '.' + "'")
         self.ident = ident
         subscript_ident = Group(ident + lbrack + ident + rbrack)
+        hash = Literal("#")
+        hashword = hash + Word(alphanums)
+        range = Combine(hashword + div + hashword)
+        self.range = range
 
         expr = Forward()
         atom = (Optional(minus) +
                 ((floatnumber)("floatnumber").setParseAction(self._push_floatnumber) | \
+                 (range)("range").setParseAction(self._push_range) | \
                  (ident + lpar + delimitedList(expr) + rpar)("function").setParseAction(self._push_function) | \
                  (subscript_ident)("subscript_ident").setParseAction(self._push_subscript_ident) | \
                  (ident)("ident").setParseAction(self._push_ident) | \
@@ -166,12 +172,16 @@ class Expression_parser:
     def _push_operator(self, strg, loc, toks):
         self.stack.append(Stack_item(Stack_type.operator, toks[0]))
 
+    def _push_range(self, strg, loc, toks):
+        print "jfa: _push_range:", strg, loc, toks
+        self.stack.append(Stack_item(Stack_type.range, toks[0]))
+
     def evaluate_stack(self, s, variables={}, labels={}, constants=None):
         if constants == None:
             constants = self.constants
         op = s.pop()
         if op.type == Stack_type.unary_minus:
-            return - self.evaluate_stack(s, variables, labels, constants)
+            return -self.evaluate_stack(s, variables, labels, constants)
         if op.type == Stack_type.floatnumber:
             return op.value
         if op.type == Stack_type.operator:
@@ -208,6 +218,8 @@ class Expression_parser:
                 raise RuntimeError, "Unknown subscript %s[%s]" % \
                     (op.value.ident, op.value.subscript)
             return retval
+        elif op.type == Stack_type.range:
+            retval = op.value
         else:
             raise RuntimeError, "Unhandled expression stack item %s" % op
 
@@ -233,7 +245,7 @@ class Mad8_parser:
         self.commands = []
         self.labels = {}
         self.lines = {}
-        self.no_eval_attributes = ['particle','type','filename']
+        self.no_eval_attributes = ['particle', 'type', 'filename']
 
     def _construct_bnf(self):
         colon = Literal(':')
@@ -249,6 +261,7 @@ class Mad8_parser:
         ident = self.expression_parser.ident
         expr = self.expression_parser.bnf
         integer = self.expression_parser.integer
+        range = self.expression_parser.range
 
         var_assign = (equals | colon + equals |
                       colon + CaselessLiteral('constant') + equals).suppress()
@@ -258,10 +271,13 @@ class Mad8_parser:
         str.setParseAction(self._handle_str)
         attr_value = (str | expr)
         attr = (ident + Optional(attr_assign + attr_value) | \
-                Group(Literal('-')+ident))
+                Group(Literal('-') + ident))
         attr.setParseAction(self._handle_attr)
         attr_delim = Literal(',').suppress()
-        command = ident + Optional(attr_delim + delimitedList(attr))
+        command = ident + Optional(attr_delim + \
+                                   ((ident + range) | \
+                                    range | \
+                                    delimitedList(attr)))
         command.setParseAction(self._handle_command)
 #signedmodifierdef = Group(Optional(Literal('-')) + ident) + Optional(Literal("=") + expr)
 #signedmodifierdef.setParseAction(handleModifier)
@@ -325,11 +341,13 @@ class Mad8_parser:
                                                        toks[0]))
 
     def _handle_command(self, str, loc, toks):
+        print "jfa: _handle_command:", str, loc, toks
         name = toks[0].lower()
         self.commands.append(Command(name, self._attributes))
         self._attributes = {}
 
     def _handle_labeled_command(self, str, loc, toks):
+        print "jfa: _handle_labeled_command:", str, loc, toks
         label = toks[0].lower()
         name = toks[2].lower()
         self.labels[label] = Command(name, self._attributes)
@@ -342,7 +360,7 @@ class Mad8_parser:
                 is_multiplier = False
                 if len(elem) == 2:
                     if elem[1] == '*':
-                        retval.append(elem[0]+'*')
+                        retval.append(elem[0] + '*')
                         is_multiplier = True
                 if not is_multiplier:
                     retval.append(self._downcase_nested_list(elem))
