@@ -1,4 +1,5 @@
 #include <stdexcept>
+#include <sstream>
 #include "element_adaptor.h"
 #include <beamline/beamline_elements.h>
 #include "synergia/foundation/math_constants.h"
@@ -842,17 +843,18 @@ Multipole_mad8_adaptor::get_chef_elements(
 {
     Chef_elements retval;
 
-    alignmentData aligner;
 
     // multipole strengths
-    string k_attr_list[] = { "k0l", "k1l", "k2l", "k3l", "k4l", "k5l", "k6l",
+    static string k_attr_list[] = { "k0l", "k1l", "k2l", "k3l", "k4l", "k5l", "k6l",
             "k7l", "k8l", "k9l" };
     // multipole tilts
-    string t_attr_list[] = { "t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7",
+    static string t_attr_list[] = { "t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7",
             "t8", "t9" };
 
     double knl[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     double tn[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
+    static double nfactorial[] = {1.0, 1.0, 2.0, 6.0, 24.0, 120.0, 720.0,
+			   5040.0, 40320.0, 362880.0};
 
     // loop through possible attributes
     for (int moment = 0; moment < 10; ++moment) {
@@ -871,58 +873,37 @@ Multipole_mad8_adaptor::get_chef_elements(
         }
     }
 
-    // assemble chef elements
+    // assemble chef thinpoles for each specified knl multipole moment
     int multipole_count = 0;
     for (int moment = 0; moment < 10; ++moment) {
-        if (knl[moment] != 0.0) {
-            bmlnElmnt* bmln_elmnt = 0;
-            ++multipole_count;
-            std::string element_name;
-            switch (moment) {
 
-            case 0:
-                element_name = lattice_element.get_name() + "_2pole";
-                bmln_elmnt = new thin2pole(element_name.c_str(),
-                        brho * knl[moment]);
-                break;
-            case 1:
-                element_name = lattice_element.get_name() + "_4pole";
-                bmln_elmnt = new thinQuad(element_name.c_str(),
-                        brho * knl[moment]);
-                break;
-            case 2:
-                element_name = lattice_element.get_name() + "_6pole";
-                bmln_elmnt = new thinSextupole(element_name.c_str(),
-                        brho * knl[moment] / 2.0);
-                break;
-            case 3:
-                element_name = lattice_element.get_name() + "_8pole";
-                bmln_elmnt = new thinOctupole(element_name.c_str(),
-                        brho * knl[moment] / 6.0);
-                break;
-            case 4:
-                element_name = lattice_element.get_name() + "_10pole";
-                bmln_elmnt = new thinDecapole(element_name.c_str(),
-                        brho * knl[moment] / 24.0);
-                break;
-            }
+      if (knl[moment] != 0.0) {
+	bmlnElmnt* bmln_elmnt = 0;
+	alignmentData aligner;
+	++multipole_count;
+	std::stringstream element_name(stringstream::out);
 
-            ElmPtr elm(bmln_elmnt);
-            // set tilt if necessary
-            if (tn[moment] != 0.0) {
-                aligner.xOffset = 0.0;
-                aligner.yOffset = 0.0;
-                aligner.tilt = tn[moment];
-                elm->setAlignment(aligner);
-            }
-            retval.push_back(elm);
-        }
+	element_name << lattice_element.get_name() << "_" << 2*moment+2 << "pole";
+	bmln_elmnt = new ThinPole(element_name.str().c_str(),
+				    brho * knl[moment]/nfactorial[moment],
+				    moment);
+
+	ElmPtr elm(bmln_elmnt);
+	// set tilt if necessary
+	if (tn[moment] != 0.0) {
+	  aligner.xOffset = 0.0;
+	  aligner.yOffset = 0.0;
+	  aligner.tilt = tn[moment];
+	  elm->setAlignment(aligner);
+	}
+	retval.push_back(elm);
+      }
     }
-
     // csp: temporally or permanently disabled this part to avoid confusion.
     // put in a marker for this element
     //ElmPtr elm = ElmPtr(new marker(lattice_element.get_name().c_str()));
     //retval.push_back(elm);
+
     return retval;
 }
 
