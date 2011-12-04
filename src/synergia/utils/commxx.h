@@ -1,7 +1,10 @@
 #ifndef COMMXX_H_
 #define COMMXX_H_
 
+#include <stdexcept>
 #include "mpi.h"
+
+#include "synergia/utils/serialization.h"
 
 /// Commxx is a thin wrapper around MPI communicator (MPI_Comm) objects.
 /// This is a C++-only class.
@@ -37,6 +40,25 @@ public:
     /// Extract the MPI_comm object wrapped by the Commxx instance.
     MPI_Comm
     get() const;
+
+    template<class Archive>
+        void
+        save(Archive & ar, const unsigned int version) const
+        {
+            int result;
+            MPI_Comm_compare(MPI_COMM_WORLD, comm, &result);
+            if (result != MPI_IDENT) {
+                throw std::runtime_error(
+                        "Commxx: can only serialize MPI_COMM_WORLD");
+            }
+        }
+    template<class Archive>
+        void
+        load(Archive & ar, const unsigned int version)
+        {
+            comm = MPI_COMM_WORLD;
+        }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 };
 
 #endif /* COMMXX_H_ */
