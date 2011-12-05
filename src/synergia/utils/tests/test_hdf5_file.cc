@@ -33,5 +33,27 @@ BOOST_AUTO_TEST_CASE(write_data)
         }
     }
     file.write(a3d, "a3d");
+}
 
+const double tolerance = 1.0e-13;
+BOOST_AUTO_TEST_CASE(read_write_data)
+{
+    const char * filename = "hdf5_file_read_write.h5";
+    const char * int_label = "int_data";
+    const char * double_label = "double_data";
+    int int_data = 7;
+    double double_data = 2.71828;
+    {
+        Hdf5_file write_file(filename);
+        write_file.write(int_data, int_label);
+        write_file.write(double_data, double_label);
+    }
+
+    {
+        Hdf5_file read_file(filename, true);
+        int int_read = read_file.read<int > (int_label);
+        BOOST_CHECK_EQUAL(int_read, int_data);
+        double double_read = read_file.read<double > (double_label);
+        BOOST_CHECK_CLOSE(double_read, double_data, tolerance);
+    }
 }
