@@ -1,6 +1,5 @@
 #ifndef FIXED_T_Z_CONVERTER_H_
 
-
 class Bunch;
 
 /// Fixed_t_z_converter is a virtual base class for converters
@@ -21,7 +20,6 @@ class Bunch;
 class Fixed_t_z_converter
 {
 public:
- 
     /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the accelerator frame.
     virtual void
     from_z_lab_to_t_lab(Bunch &bunch) = 0;
@@ -31,7 +29,7 @@ public:
     /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the beam frame.
     virtual void
     from_z_lab_to_t_bunch(Bunch &bunch) = 0;
-     /// Convert from the fixed-t state in the beam frame to the fixed-z state in the accelerator frame.
+    /// Convert from the fixed-t state in the beam frame to the fixed-z state in the accelerator frame.
     virtual void
     from_t_bunch_to_z_lab(Bunch &bunch) = 0;
 
@@ -46,14 +44,21 @@ public:
 //     fixed_z_lab_to_z_bunch(Bunch &bunch) = 0; 
 //     
     
-    
+    ///    not implemented yet
+    //     virtual void
+    //     fixed_z_lab_to_z_bunch(Bunch &bunch) = 0;
+    //
+    //     virtual void
+    //     fixed_z_lab_to_z_bunch(Bunch &bunch) = 0;
+    //
+
     /// Convert from the fixed-t state to the fixed-z state.
-   // virtual void
-   // fixed_t_to_fixed_z(Bunch &bunch) = 0;
+    // virtual void
+    // fixed_t_to_fixed_z(Bunch &bunch) = 0;
 
     /// Convert from the fixed-z state to the fixed-t state.
-  //  virtual void
-  //  fixed_z_to_fixed_t(Bunch &bunch) = 0;
+    //  virtual void
+    //  fixed_z_to_fixed_t(Bunch &bunch) = 0;
 
     virtual
     ~Fixed_t_z_converter()
@@ -68,19 +73,25 @@ public:
 class Fixed_t_z_zeroth : public Fixed_t_z_converter
 {
 public:
-     /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the accelerator frame.
+    /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the accelerator frame.
     void
-    from_z_lab_to_t_lab(Bunch &bunch);
+    from_z_lab_to_t_lab(Bunch &bunch)
+    {
+    }
+    ;
     /// Convert from the fixed-t state in the accelerator frameto the fixed-z state in the accelerator frame.
     void
-    from_t_lab_to_z_lab(Bunch &bunch);
+    from_t_lab_to_z_lab(Bunch &bunch)
+    {
+    }
+    ;
     /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the beam frame.
     void
     from_z_lab_to_t_bunch(Bunch &bunch);
     /// Convert from the fixed-t state in the beam frame to the fixed-z state in the accelerator frame.
     void
-    from_t_bunch_to_z_lab(Bunch &bunch);
-    
+    from_t_bunch_to_z_lab(Bunch &bunch);    
+
     void
     from_t_lab_to_t_bunch(Bunch &bunch); 
        
@@ -100,27 +111,37 @@ class Fixed_t_z_ballistic : public Fixed_t_z_converter
 public:
     /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the accelerator frame.
     void
-    from_z_lab_to_t_lab(Bunch &bunch){};
+    from_z_lab_to_t_lab(Bunch &bunch)
+    {
+    }
+    ;
     /// Convert from the fixed-t state in the accelerator frameto the fixed-z state in the accelerator frame.
     void
-    from_t_lab_to_z_lab(Bunch &bunch){};
+    from_t_lab_to_z_lab(Bunch &bunch)
+    {
+    }
+    ;
     /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the beam frame.
     void
     from_z_lab_to_t_bunch(Bunch &bunch);
     /// Convert from the fixed-t state in the beam frame to the fixed-z state in the accelerator frame.
     void
     from_t_bunch_to_z_lab(Bunch &bunch);
+<<<<<<< HEAD
     
     void
     from_t_lab_to_t_bunch(Bunch &bunch){}; 
     void
     from_t_bunch_to_t_lab(Bunch &bunch){}; 
     
+=======
+
+>>>>>>> whitespace
 };
 
 class Fixed_t_z_alex : public Fixed_t_z_converter
 {
-public:  
+public:
     /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the accelerator frame.
     void
     from_z_lab_to_t_lab(Bunch &bunch);
@@ -143,12 +164,11 @@ public:
      
 };
 
-
 /// transformation as in the old synergia....
 class Fixed_t_z_synergia20 : public Fixed_t_z_converter
 {
 public:
-   /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the accelerator frame.
+    /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the accelerator frame.
     void
     from_z_lab_to_t_lab(Bunch &bunch);
     /// Convert from the fixed-t state in the accelerator frameto the fixed-z state in the accelerator frame.
@@ -166,11 +186,8 @@ public:
     void
     from_t_bunch_to_t_lab(Bunch &bunch); 
 
-    
 };
 
-
 #define FIXED_T_Z_CONVERTER_H_
-
 
 #endif /* FIXED_T_Z_CONVERTER_H_ */
