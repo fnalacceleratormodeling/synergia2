@@ -1,28 +1,34 @@
 #ifndef BUNCH_H_
 #define BUNCH_H_
 
+#include <sstream>
+#include <iomanip>
 #include <mpi.h>
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/foundation/reference_particle.h"
 #include "synergia/utils/commxx.h"
 #include "synergia/bunch/fixed_t_z_converter.h"
 #include "boost/shared_ptr.hpp"
-
-
+#include "synergia/utils/hdf5_file.h"
 
 /// Represents a macroparticle bunch distributed across the processors
 /// in a communicator.
 class Bunch
 {
 public:
-    /*! \enum State The state of the bunch is captured at a fixed  s (or z, longitudinal cordinate) 
-     or at a fixed time.  In the former case, particles are found within a range of different time 
+    /*! \enum State The state of the bunch is captured at a fixed  s (or z, longitudinal coordinate)
+     or at a fixed time.  In the former case, particles are found within a range of different time
      coordinates while in the later case particles position along the beam axis do vary.
      A change of state is accomplish via the fixed_t_z_converter class.
-    */
+     */
     enum State
     {
-        fixed_z = 1, fixed_t = 2, fixed_z_lab=1, fixed_t_bunch=2, fixed_t_lab=3, fixed_z_bunch=4
+        fixed_z = 1,
+        fixed_t = 2,
+        fixed_z_lab = 1,
+        fixed_t_bunch = 2,
+        fixed_t_lab = 3,
+        fixed_z_bunch = 4
     };
     static const int x = 0;
     static const int xp = 1;
@@ -47,8 +53,8 @@ private:
     Commxx comm;
     Fixed_t_z_converter *converter_ptr;
     Fixed_t_z_zeroth default_converter;
-   // Fixed_t_z_alex default_converter;
-  //  Fixed_t_z_synergia20 default_converter;
+    // Fixed_t_z_alex default_converter;
+    //  Fixed_t_z_synergia20 default_converter;
     void
     assign_ids(int local_offset);
     void
@@ -56,10 +62,10 @@ private:
 public:
     //!
     //! Constructor:
-    //! Allocates memory for the particles and assigns particle ID's, 
-    //!    but does not fill the phase space values in any way. 
+    //! Allocates memory for the particles and assigns particle ID's,
+    //!    but does not fill the phase space values in any way.
     //!
-    //! To fill the bunch with particles, use the populate methods. 
+    //! To fill the bunch with particles, use the populate methods.
     /// @param reference_particle the reference particle for the bunch.
     /// @param total_num the total number of macroparticles in the bunch
     /// @param real_num the number of real particles represented by the bunch.
@@ -68,7 +74,7 @@ public:
     Bunch(Reference_particle const& reference_particle, int total_num,
             double real_num, Commxx const& comm);
     //!
-    //! Constructor with 5-parameter signature 
+    //! Constructor with 5-parameter signature
     //! Same as above, but having the flexibility
     //!    to redefine the charge of a particle.
     /// @param reference_particle the reference particle for the bunch.
@@ -84,11 +90,15 @@ public:
         
     Bunch(Reference_particle const& reference_particle, int total_num,
         double real_num, Commxx const& comm, double z_period_length, int bucket_index=0);
+
+    /// Default constructor for serialization use only
+    Bunch();
+
     //!
     //! Copy constructor
     Bunch(Bunch const& bunch);
     //!
-    //! Assignement constructor
+    //! Assignment constructor
     Bunch &
     operator=(Bunch const& bunch);
 
@@ -151,8 +161,7 @@ public:
     /// @param state convert to this state.
     void
     convert_to_state(State state);
-    
-     
+
     /// Return the reference particle
     Reference_particle &
     get_reference_particle();
@@ -183,12 +192,12 @@ public:
     double
     get_real_num() const;
 
-  /// Get the periodicity length of the bunch
+    /// Get the period length of the bunch
     double
     get_z_period_length() const;
 
-   /// Is the bunch periodic?
-    bool 
+    /// Is the bunch periodic?
+    bool
     is_z_periodic() const;
 
     /// Get the number of macroparticles stored on this processor.
@@ -225,11 +234,82 @@ public:
     void
     inject(Bunch const& bunch);
 
-    void check_pz2_positive();
+    void
+    check_pz2_positive();
+
+    //    double z_period_length;
+    //    bool z_periodic;
+    //    Reference_particle reference_particle;
+    //    int particle_charge;
+    //    MArray2d *local_particles;
+    //    int local_num, total_num;
+    //    double real_num;
+    //    int sort_period, sort_counter;
+    //    State state;
+    //    Commxx comm;
+    //    Fixed_t_z_converter *converter_ptr;
+    //    Fixed_t_z_zeroth default_converter;
+
+    template<class Archive>
+        void
+        save(Archive & ar, const unsigned int version) const
+        {
+            ar << BOOST_SERIALIZATION_NVP(z_period_length)
+                    << BOOST_SERIALIZATION_NVP(z_periodic)
+                    << BOOST_SERIALIZATION_NVP(reference_particle)
+                    << BOOST_SERIALIZATION_NVP(particle_charge)
+                    << BOOST_SERIALIZATION_NVP(total_num)
+                    << BOOST_SERIALIZATION_NVP(real_num)
+                    << BOOST_SERIALIZATION_NVP(sort_period)
+                    << BOOST_SERIALIZATION_NVP(sort_counter)
+                    << BOOST_SERIALIZATION_NVP(state)
+                    << BOOST_SERIALIZATION_NVP(comm)
+            // jfa: see workaround
+                    //                    << BOOST_SERIALIZATION_NVP(converter_ptr)
+                    << BOOST_SERIALIZATION_NVP(default_converter);
+            // jfa workaround:
+            if (converter_ptr != &default_converter) {
+                throw std::runtime_error(
+                        "Bunch: serializing non-default Fixed_t_z converters is not implemented");
+            }
+            std::stringstream local_filename;
+            local_filename << "serialized_local_particles_" << std::setw(6)
+                    << std::setfill('0') << comm.get_rank() << ".h5";
+            Hdf5_file file(local_filename.str(), false);
+            file.write(local_num, "local_num");
+            file.write(*local_particles, "local_particles");
+        }
+    template<class Archive>
+        void
+        load(Archive & ar, const unsigned int version)
+        {
+            ar >> BOOST_SERIALIZATION_NVP(z_period_length)
+                    >> BOOST_SERIALIZATION_NVP(z_periodic)
+                    >> BOOST_SERIALIZATION_NVP(reference_particle)
+                    >> BOOST_SERIALIZATION_NVP(particle_charge)
+                    >> BOOST_SERIALIZATION_NVP(total_num)
+                    >> BOOST_SERIALIZATION_NVP(real_num)
+                    >> BOOST_SERIALIZATION_NVP(sort_period)
+                    >> BOOST_SERIALIZATION_NVP(sort_counter)
+                    >> BOOST_SERIALIZATION_NVP(state)
+                    >> BOOST_SERIALIZATION_NVP(comm)
+            // jfa: see workaround above and below
+                    //                    >> BOOST_SERIALIZATION_NVP(converter_ptr)
+                    >> BOOST_SERIALIZATION_NVP(default_converter);
+            // jfa workaround:
+            converter_ptr = &default_converter;
+            std::stringstream local_filename;
+            local_filename << "serialized_local_particles_" << std::setw(6)
+                    << std::setfill('0') << comm.get_rank() << ".h5";
+            Hdf5_file file(local_filename.str(), true);
+            local_num = file.read<int > ("local_num");
+            local_particles = new MArray2d(
+                    file.read<MArray2d > ("local_particles"));
+        }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     virtual
     ~Bunch();
-
 };
 
 typedef boost::shared_ptr<Bunch > Bunch_sptr;

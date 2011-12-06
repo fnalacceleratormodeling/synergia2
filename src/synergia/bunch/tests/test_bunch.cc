@@ -418,18 +418,18 @@ public:
  //   {
 //    }
   //  ;
-    
-  
-    
+
+
+
     void
     from_z_lab_to_t_lab(Bunch &bunch){};
-    
+
     void
     from_t_lab_to_z_lab(Bunch &bunch){};
-    
+
     void
     from_z_lab_to_t_bunch(Bunch &bunch){};
-    
+
     void
     from_t_bunch_to_z_lab(Bunch &bunch){};
      
@@ -482,4 +482,15 @@ BOOST_FIXTURE_TEST_CASE(inject_mismatched_weights, Fixture)
         caught_error = true;
     }
     BOOST_CHECK(caught_error);
+}
+
+BOOST_FIXTURE_TEST_CASE(serialize, Fixture)
+{
+    dummy_populate(bunch);
+    xml_save(bunch, "bunch.xml");
+
+    Bunch loaded;
+    xml_load(loaded, "bunch.xml");
+
+    compare_bunches(bunch, loaded);
 }

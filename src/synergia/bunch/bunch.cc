@@ -150,7 +150,9 @@ Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
     construct(reference_particle.get_charge(), total_num, real_num);
 }
 
-
+Bunch::Bunch()
+{
+}
 
 
 Bunch::Bunch(Bunch const& bunch) :
@@ -291,7 +293,7 @@ Bunch::set_converter(Fixed_t_z_converter &converter)
 void
 Bunch::convert_to_state(State state)
 {
-    
+
     if (this->state != state) {
         if (this->state==fixed_z_lab){
             if (state==fixed_t_lab)  {
@@ -332,9 +334,9 @@ Bunch::convert_to_state(State state)
                 throw std::runtime_error("Unknown state in Bunch::convert_to_state, case 3");
              }      
         }
-    this->state =state;   
+    this->state =state;
     }
-     
+
 }
 
 
@@ -390,7 +392,7 @@ double
     return z_period_length;
 }
 
-bool 
+bool
  Bunch::is_z_periodic() const
 {
     return z_periodic;
@@ -471,7 +473,7 @@ Bunch::inject(Bunch const& bunch)
 }
 
 void Bunch::check_pz2_positive()
-{ 
+{
     if (this->state == fixed_z_lab) {
         int local_num = get_local_num();
         MArray2d_ref particles = get_local_particles();
@@ -482,7 +484,7 @@ void Bunch::check_pz2_positive()
                 std::cout<<"pzop^2="<<pzop2<<std::endl;
                 throw std::runtime_error( " check pz2:  pz square cannot be negative!");
             }
-         
+
         }
     }
 }

@@ -1,5 +1,6 @@
 #ifndef FIXED_T_Z_CONVERTER_H_
 
+#include "synergia/utils/serialization.h"
 class Bunch;
 
 /// Fixed_t_z_converter is a virtual base class for converters
@@ -60,12 +61,19 @@ public:
     //  virtual void
     //  fixed_z_to_fixed_t(Bunch &bunch) = 0;
 
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+        }
     virtual
     ~Fixed_t_z_converter()
     {
     }
     ;
 };
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Fixed_t_z_converter);
 
 /// Fixed_t_z_zeroth implements a fixed-t-fixed-z converter using
 /// the simplest approximation: longitudinal coordinates are transformed,
@@ -98,6 +106,13 @@ public:
     void
     from_t_bunch_to_t_lab(Bunch &bunch); 
 
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar &
+            BOOST_SERIALIZATION_BASE_OBJECT_NVP(Fixed_t_z_converter);
+        }
 };
 
 /// Fixed_t_z_zeroth implements a fixed-t-fixed-z converter using
@@ -126,17 +141,19 @@ public:
     from_z_lab_to_t_bunch(Bunch &bunch);
     /// Convert from the fixed-t state in the beam frame to the fixed-z state in the accelerator frame.
     void
-    from_t_bunch_to_z_lab(Bunch &bunch);
-<<<<<<< HEAD
-    
+    from_t_bunch_to_z_lab(Bunch &bunch);    
     void
     from_t_lab_to_t_bunch(Bunch &bunch){}; 
     void
     from_t_bunch_to_t_lab(Bunch &bunch){}; 
-    
-=======
 
->>>>>>> whitespace
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar &
+            BOOST_SERIALIZATION_BASE_OBJECT_NVP(Fixed_t_z_converter);
+        }
 };
 
 class Fixed_t_z_alex : public Fixed_t_z_converter
@@ -154,14 +171,19 @@ public:
     /// Convert from the fixed-t state in the beam frame to the fixed-z state in the accelerator frame.
     void
     from_t_bunch_to_z_lab(Bunch &bunch);
-    
-    
      void
      from_t_lab_to_t_bunch(Bunch &bunch);   
      
      void
      from_t_bunch_to_t_lab(Bunch &bunch); 
      
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar &
+            BOOST_SERIALIZATION_BASE_OBJECT_NVP(Fixed_t_z_converter);
+        }
 };
 
 /// transformation as in the old synergia....
@@ -180,12 +202,18 @@ public:
     /// Convert from the fixed-t state in the beam frame to the fixed-z state in the accelerator frame.
     void
     from_t_bunch_to_z_lab(Bunch &bunch);
-    
     void
     from_t_lab_to_t_bunch(Bunch &bunch); 
     void
     from_t_bunch_to_t_lab(Bunch &bunch); 
 
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar &
+            BOOST_SERIALIZATION_BASE_OBJECT_NVP(Fixed_t_z_converter);
+        }
 };
 
 #define FIXED_T_Z_CONVERTER_H_
