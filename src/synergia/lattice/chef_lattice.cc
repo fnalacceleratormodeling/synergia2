@@ -61,7 +61,34 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
     return converted_beamline_sptr;
 }
 
-// jfa: rename me!
+void
+Chef_lattice::extract_element_map()
+{
+    Lattice_elements::const_iterator elem_it = lattice_sptr->get_elements().begin();
+    Begin_end begin_end;
+    begin_end.begin = 0;
+    int size = beamline_sptr->countHowMany();
+//    sliced_beamline_iterators.resize(size + 1);
+//    sliced_beamline_const_iterators.resize(size + 1);
+    int index = 0;
+    beamline::const_iterator cit = beamline_sptr->begin();
+    for (beamline::iterator it = beamline_sptr->begin(); it
+            != beamline_sptr->end(); ++it) {
+//        sliced_beamline_iterators.at(index) = it;
+//        sliced_beamline_const_iterators.at(index) = cit;
+        if ((*it)->Name() == lattice_element_marker->Name()) {
+            begin_end.end = index;
+            element_map[elem_it->get()] = begin_end;
+            begin_end.begin = index + 1;
+            ++elem_it;
+        }
+        ++index;
+        ++cit;
+    }
+//    sliced_beamline_iterators.at(index) = sliced_beamline_sptr->end();
+//    sliced_beamline_const_iterators.at(index) = sliced_beamline_sptr->end();
+}
+
 void
 Chef_lattice::extract_element_slice_map(Lattice_element_slices const& slices)
 {
@@ -255,57 +282,57 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
     return retval;
 }
 
-Lattice_element const&
-Chef_lattice::get_lattice_element(ElmPtr const& chef_element)
-{
-    Lattice_element const* lattice_element_ptr;
-    bool found = false;
-    for (std::map<const Lattice_element*, Chef_elements >::iterator it =
-            element_map.begin(); it != element_map.end(); ++it) {
-        for (Chef_elements::iterator ce_it = it->second.begin(); ce_it
-                != it->second.end(); ++ce_it) {
-            if ((*ce_it) == chef_element) {
-                found = true;
-                lattice_element_ptr = it->first;
-                break;
-            }
-        }
-        if (found) {
-            break;
-        }
-    }
-    if (!found) {
-        throw std::runtime_error(
-                "Chef_lattice::get_lattice_element: no match for chef element");
-    }
-    return *lattice_element_ptr;
-}
-
-Lattice_element_slice const&
-Chef_lattice::get_lattice_element_slice(ElmPtr const& chef_element)
-{
-    Lattice_element_slice const* lattice_element_slice_ptr;
-    bool found = false;
-    for (std::map<const Lattice_element_slice*, Chef_elements >::iterator it =
-            element_slice_map.begin(); it != element_slice_map.end(); ++it) {
-        for (Chef_elements::iterator ce_it = it->second.begin(); ce_it
-                != it->second.end(); ++ce_it) {
-            if ((*ce_it) == chef_element) {
-                found = true;
-                lattice_element_slice_ptr = it->first;
-                break;
-            }
-        }
-        if (found) {
-            break;
-        }
-    }
-    if (!found) {
-        throw std::runtime_error(
-                "Chef_lattice::get_lattice_element_slice: no match for chef element");
-    }
-    return *lattice_element_slice_ptr;
-}
+//Lattice_element const&
+//Chef_lattice::get_lattice_element(ElmPtr const& chef_element)
+//{
+//    Lattice_element const* lattice_element_ptr;
+//    bool found = false;
+//    for (std::map<const Lattice_element*, Chef_elements >::iterator it =
+//            element_map.begin(); it != element_map.end(); ++it) {
+//        for (Chef_elements::iterator ce_it = it->second.begin(); ce_it
+//                != it->second.end(); ++ce_it) {
+//            if ((*ce_it) == chef_element) {
+//                found = true;
+//                lattice_element_ptr = it->first;
+//                break;
+//            }
+//        }
+//        if (found) {
+//            break;
+//        }
+//    }
+//    if (!found) {
+//        throw std::runtime_error(
+//                "Chef_lattice::get_lattice_element: no match for chef element");
+//    }
+//    return *lattice_element_ptr;
+//}
+//
+//Lattice_element_slice const&
+//Chef_lattice::get_lattice_element_slice(ElmPtr const& chef_element)
+//{
+//    Lattice_element_slice const* lattice_element_slice_ptr;
+//    bool found = false;
+//    for (std::map<const Lattice_element_slice*, Chef_elements >::iterator it =
+//            element_slice_map.begin(); it != element_slice_map.end(); ++it) {
+//        for (Chef_elements::iterator ce_it = it->second.begin(); ce_it
+//                != it->second.end(); ++ce_it) {
+//            if ((*ce_it) == chef_element) {
+//                found = true;
+//                lattice_element_slice_ptr = it->first;
+//                break;
+//            }
+//        }
+//        if (found) {
+//            break;
+//        }
+//    }
+//    if (!found) {
+//        throw std::runtime_error(
+//                "Chef_lattice::get_lattice_element_slice: no match for chef element");
+//    }
+//    return *lattice_element_slice_ptr;
+//}
 
 bool
 Chef_lattice::have_sliced_beamline() const

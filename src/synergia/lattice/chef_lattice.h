@@ -35,6 +35,7 @@ private:
     std::vector<beamline::iterator > sliced_beamline_iterators;
     std::vector<beamline::const_iterator > sliced_beamline_const_iterators;
     ElmPtr lattice_element_marker;
+    std::map<const Lattice_element*, Begin_end > element_map;
     std::map<const Lattice_element_slice*, Begin_end > element_slice_map;
     double brho;
 
@@ -63,7 +64,13 @@ public:
     Element_adaptor_map_sptr
     get_element_adaptor_map_sptr();
     Chef_lattice_section_sptr
+    get_chef_section_sptr(Lattice_element const& lattice_element_slice);
+    Chef_lattice_section_sptr
     get_chef_section_sptr(Lattice_element_slice const& lattice_element_slice);
+//    Lattice_element const&
+//    get_lattice_element(ElmPtr const& chef_element);
+//    Lattice_element_slice const&
+//    get_lattice_element_slice(ElmPtr const& chef_element);
     bool
     have_sliced_beamline() const;
     void
