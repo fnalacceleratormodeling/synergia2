@@ -309,6 +309,31 @@ BOOST_FIXTURE_TEST_CASE(yz_displaced_particle_periodic, Fixture)
             tolerance);
 }
 
+
+BOOST_FIXTURE_TEST_CASE(yz_displaced_particle_periodic1, Fixture)
+{
+    rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
+            physical_offset, grid_shape, true));
+    bunch.set_local_num(1);
+    bunch.get_local_particles()[0][0] = 0;
+    bunch.get_local_particles()[0][2] = -rho_grid_sptr->get_domain_sptr()->get_physical_size()[1]/2.
+        +rho_grid_sptr->get_domain_sptr()->get_cell_size()[1];
+    bunch.get_local_particles()[0][4] = -rho_grid_sptr->get_domain_sptr()->get_physical_size()[2]/2.-8*rho_grid_sptr->get_domain_sptr()->get_cell_size()[2];
+      
+
+    deposit_charge_rectangular_xyz(*rho_grid_sptr, bunch);
+    
+    for (int i = 3; i < 5; ++i) { 
+                expected[i][1][0] = 0.125 * density_norm;
+                expected[i][1][7] = 0.125 * density_norm; 
+                expected[i][0][0] = 0.125 * density_norm;
+                expected[i][0][7] = 0.125 * density_norm;      
+    }
+    
+    multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
+            tolerance);
+}
+
 BOOST_FIXTURE_TEST_CASE(additive_deposit, Fixture)
 {
     rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
