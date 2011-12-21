@@ -15,3 +15,5 @@ add_custom_target(doc)
 add_dependencies(doc sphinx)
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES xml html doctrees)
+
+add_subdirectory(devel/profiling)
