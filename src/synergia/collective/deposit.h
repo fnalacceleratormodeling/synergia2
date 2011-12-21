@@ -22,12 +22,14 @@ interpolate_rectangular_xyz(double x, double y, double z,
         Rectangular_grid_domain const& domain, MArray3d_ref const& a)
 {
     // tri-linear interpolation
-    int ix, iy, iz;
+    int ix, iy, iz, iz1;
     double offx, offy, offz;
-    bool in_domain = domain.get_leftmost_indices_offsets(x, y, z, ix, iy, iz,
+    bool in_domain = domain.get_leftmost_indices_offsets(x, y, z, ix, iy, iz1,
             offx, offy, offz);
     double val;
     if (in_domain) {
+        int period= domain.get_grid_shape()[2];       
+        iz=(iz1%period)*int(iz1>=0)+  (period - 1 - ((-iz1 - 1) % period))*int(iz1 < 0); 
         val = ((1.0 - offx) * (1.0 - offy) * (1.0 - offz) * a[ix][iy][iz]+
                   offx * (1.0 - offy) * (1.0 - offz) * a[ix + 1][iy][iz] + 
                   (1.0 - offx) * offy * (1.0 - offz) * a[ix][iy + 1][iz] +        

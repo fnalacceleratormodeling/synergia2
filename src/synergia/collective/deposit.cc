@@ -139,13 +139,14 @@ deposit_charge_rectangular_xyz(Rectangular_grid & rho_grid, Bunch const& bunch,
                         int celly = iy + j;
                         for (int k = 0; k < 2; ++k) {
                             int cellz = iz + k;
-                            if (cellz >= 0) {
-                                cellz = cellz % rho.shape()[2];
-                            }
-                            else{
-                                int period = rho.shape()[2];
-                                cellz = period - 1 - ((-cellz - 1) % period);
-                            } 
+                            int period = rho.shape()[2];
+                            cellz = (cellz % period)*(cellz >= 0)+(period - 1 - ((-cellz - 1) % period))*(cellz < 0);
+//                             if (cellz >= 0) {
+//                                 cellz = cellz % period;
+//                             }
+//                             else{
+//                                 cellz = period - 1 - ((-cellz - 1) % period);
+//                             } 
                             double weight = weight0 * (1 - i - (1 - 2 * i) * offx) * 
                                         (1 - j - (1 - 2 * j) * offy) *
                                         (1 - k - (1 - 2 * k) * offz); 
