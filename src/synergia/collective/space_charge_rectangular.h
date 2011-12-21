@@ -22,6 +22,12 @@ private:
 public:
     Space_charge_rectangular(std::vector<double > const & pipe_size, std::vector<int > const & grid_shape);
    
+    std::vector<double >
+    get_pipe_size() const;
+    
+    std::vector<int >
+    get_grid_shape() const;
+   
    Rectangular_grid_domain_sptr 
    get_domain_sptr() const;
    

@@ -120,10 +120,8 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
      int mt=1;
      int pt=2;
       
-    boost::multi_array<int,3>::size_type ordering[] = {1,0,2};
-    bool ascending[] = {true,true,true};
-    storage3d storage_rho(ordering,ascending);
-    Rectangular_grid_sptr rho_grid(new Rectangular_grid(space_charge.get_domain_sptr(), storage_rho));
+  
+    Rectangular_grid_sptr rho_grid(new Rectangular_grid(space_charge.get_domain_sptr()));
     
     MArray3d_ref rho(rho_grid->get_grid_points());
     for (unsigned int i = 0; i < shape[0]; ++i) {
@@ -215,10 +213,8 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
     int mt=3;
     int pt=4;
     
-    boost::multi_array<int,3>::size_type ordering[] = {1,0,2};
-    bool ascending[] = {true,true,true};
-    storage3d storage_rho(ordering,ascending);
-    Rectangular_grid_sptr rho_grid(new Rectangular_grid(space_charge.get_domain_sptr(), storage_rho));
+    
+    Rectangular_grid_sptr rho_grid(new Rectangular_grid(space_charge.get_domain_sptr()));
     std::vector<int > shape(space_charge.get_domain_sptr()->get_grid_shape()); 
     
     MArray3d_ref rho(rho_grid->get_grid_points());
