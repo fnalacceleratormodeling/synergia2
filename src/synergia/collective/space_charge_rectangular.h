@@ -34,12 +34,6 @@ public:
     
     void                      
     set_fftw_helper(Commxx const & comm);
-    
-    std::vector<double >
-    get_pipe_size() const;
-    
-    std::vector<int >
-    get_grid_shape() const;
    
     std::vector<double >
     get_pipe_size() const;

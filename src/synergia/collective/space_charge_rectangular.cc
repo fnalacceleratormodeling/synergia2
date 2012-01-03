@@ -410,7 +410,6 @@ Space_charge_rectangular::get_En(Distributed_rectangular_grid &phi, Bunch const&
     }
       
   //  t = simple_timer_show(t, "get_En: calculate E local"); 
->>>>>>> booster implemented
       
     Rectangular_grid_sptr En(new Rectangular_grid(domain_sptr));
     
