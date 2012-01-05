@@ -24,6 +24,8 @@ protected:
 
 public:
     Stepper(Lattice_simulator const& lattice_simulator);
+    /// Default constructor for serialization use only
+    Stepper();
     Lattice_simulator &
     get_lattice_simulator();
     Steps &
@@ -36,6 +38,7 @@ public:
         serialize(Archive & ar, const unsigned int version)
         {
             ar & BOOST_SERIALIZATION_NVP(steps);
+            ar & BOOST_SERIALIZATION_NVP(lattice_simulator);
         }
 
     virtual
@@ -63,7 +66,6 @@ public:
         serialize(Archive & ar, const unsigned int version)
         {
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
-            ar & BOOST_SERIALIZATION_NVP(lattice_simulator);
         }
 
     virtual
@@ -91,7 +93,6 @@ public:
         serialize(Archive & ar, const unsigned int version)
         {
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
-            ar & BOOST_SERIALIZATION_NVP(lattice_simulator);
         }
 
     virtual
@@ -131,8 +132,8 @@ public:
         serialize(Archive & ar, const unsigned int version)
         {
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
-            ar & BOOST_SERIALIZATION_NVP(lattice_simulator);
         }
+
     virtual
     ~Split_operator_stepper();
 };
@@ -176,8 +177,8 @@ public:
         serialize(Archive & ar, const unsigned int version)
         {
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
-            ar & BOOST_SERIALIZATION_NVP(lattice_simulator);
         }
+
     virtual
     ~Split_operator_stepper_elements();
 };
