@@ -107,6 +107,8 @@ public:
             std::string const& name,
             Operation_extractor_map_sptr operation_extractor_map_sptr,
             Aperture_operation_extractor_map_sptr aperture_operation_extractor_map_sptr);
+    /// Default constructor for serialization use only
+    Independent_operator();
     void
     append_slice(Lattice_element_slice_sptr slice_sptr);
     Lattice_element_slices const&
