@@ -45,14 +45,7 @@ public:
 //     fixed_z_lab_to_z_bunch(Bunch &bunch) = 0; 
 //     
     
-    ///    not implemented yet
-    //     virtual void
-    //     fixed_z_lab_to_z_bunch(Bunch &bunch) = 0;
-    //
-    //     virtual void
-    //     fixed_z_lab_to_z_bunch(Bunch &bunch) = 0;
-    //
-
+    
     /// Convert from the fixed-t state to the fixed-z state.
     // virtual void
     // fixed_t_to_fixed_z(Bunch &bunch) = 0;
@@ -66,6 +59,7 @@ public:
         serialize(Archive & ar, const unsigned int version)
         {
         }
+
     virtual
     ~Fixed_t_z_converter()
     {
@@ -83,23 +77,17 @@ class Fixed_t_z_zeroth : public Fixed_t_z_converter
 public:
     /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the accelerator frame.
     void
-    from_z_lab_to_t_lab(Bunch &bunch)
-    {
-    }
-    ;
-    /// Convert from the fixed-t state in the accelerator frame to the fixed-z state in the accelerator frame.
+    from_z_lab_to_t_lab(Bunch &bunch);
+    /// Convert from the fixed-t state in the accelerator frameto the fixed-z state in the accelerator frame.
     void
-    from_t_lab_to_z_lab(Bunch &bunch)
-    {
-    }
-    ;
+    from_t_lab_to_z_lab(Bunch &bunch);
     /// Convert from the fixed-z state in the accelerator frame to the fixed-t state in the beam frame.
     void
     from_z_lab_to_t_bunch(Bunch &bunch);
     /// Convert from the fixed-t state in the beam frame to the fixed-z state in the accelerator frame.
     void
-    from_t_bunch_to_z_lab(Bunch &bunch);    
-
+    from_t_bunch_to_z_lab(Bunch &bunch);
+    
     void
     from_t_lab_to_t_bunch(Bunch &bunch); 
        
