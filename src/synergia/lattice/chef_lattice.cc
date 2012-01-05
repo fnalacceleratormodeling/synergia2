@@ -282,57 +282,59 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
     return retval;
 }
 
-//Lattice_element const&
-//Chef_lattice::get_lattice_element(ElmPtr const& chef_element)
-//{
-//    Lattice_element const* lattice_element_ptr;
-//    bool found = false;
-//    for (std::map<const Lattice_element*, Chef_elements >::iterator it =
-//            element_map.begin(); it != element_map.end(); ++it) {
-//        for (Chef_elements::iterator ce_it = it->second.begin(); ce_it
-//                != it->second.end(); ++ce_it) {
-//            if ((*ce_it) == chef_element) {
-//                found = true;
-//                lattice_element_ptr = it->first;
-//                break;
-//            }
-//        }
-//        if (found) {
-//            break;
-//        }
-//    }
-//    if (!found) {
-//        throw std::runtime_error(
-//                "Chef_lattice::get_lattice_element: no match for chef element");
-//    }
-//    return *lattice_element_ptr;
-//}
-//
-//Lattice_element_slice const&
-//Chef_lattice::get_lattice_element_slice(ElmPtr const& chef_element)
-//{
-//    Lattice_element_slice const* lattice_element_slice_ptr;
-//    bool found = false;
-//    for (std::map<const Lattice_element_slice*, Chef_elements >::iterator it =
-//            element_slice_map.begin(); it != element_slice_map.end(); ++it) {
-//        for (Chef_elements::iterator ce_it = it->second.begin(); ce_it
-//                != it->second.end(); ++ce_it) {
-//            if ((*ce_it) == chef_element) {
-//                found = true;
-//                lattice_element_slice_ptr = it->first;
-//                break;
-//            }
-//        }
-//        if (found) {
-//            break;
-//        }
-//    }
-//    if (!found) {
-//        throw std::runtime_error(
-//                "Chef_lattice::get_lattice_element_slice: no match for chef element");
-//    }
-//    return *lattice_element_slice_ptr;
-//}
+Lattice_element const&
+Chef_lattice::get_lattice_element(ElmPtr const& chef_element)
+{
+    Lattice_element const* lattice_element_ptr;
+    bool found = false;
+    for (std::map<const Lattice_element*, Begin_end >::iterator it =
+            element_map.begin(); it != element_map.end(); ++it) {
+    	Chef_lattice_section lattice_section(shared_from_this(), it->second.begin, it->second.end);
+        for (Chef_lattice_section::iterator ls_it = lattice_section.begin(); ls_it
+                != lattice_section.end(); ++ls_it) {
+            if ((*ls_it) == chef_element) {
+                found = true;
+                lattice_element_ptr = it->first;
+                break;
+            }
+        }
+        if (found) {
+            break;
+        }
+    }
+    if (!found) {
+        throw std::runtime_error(
+                "Chef_lattice::get_lattice_element: no match for chef element");
+    }
+    return *lattice_element_ptr;
+}
+
+Lattice_element_slice const&
+Chef_lattice::get_lattice_element_slice(ElmPtr const& chef_element)
+{
+    Lattice_element_slice const* lattice_element_slice_ptr;
+    bool found = false;
+    for (std::map<const Lattice_element_slice*, Begin_end >::iterator it =
+            element_slice_map.begin(); it != element_slice_map.end(); ++it) {
+    	Chef_lattice_section lattice_section(shared_from_this(), it->second.begin, it->second.end);
+        for (Chef_lattice_section::iterator ls_it = lattice_section.begin(); ls_it
+                != lattice_section.end(); ++ls_it) {
+            if ((*ls_it) == chef_element) {
+                found = true;
+                lattice_element_slice_ptr = it->first;
+                break;
+            }
+        }
+        if (found) {
+            break;
+        }
+    }
+    if (!found) {
+        throw std::runtime_error(
+                "Chef_lattice::get_lattice_element_slice: no match for chef element");
+    }
+    return *lattice_element_slice_ptr;
+}
 
 bool
 Chef_lattice::have_sliced_beamline() const

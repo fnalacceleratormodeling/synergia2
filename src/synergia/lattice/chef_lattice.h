@@ -67,10 +67,10 @@ public:
     get_chef_section_sptr(Lattice_element const& lattice_element_slice);
     Chef_lattice_section_sptr
     get_chef_section_sptr(Lattice_element_slice const& lattice_element_slice);
-//    Lattice_element const&
-//    get_lattice_element(ElmPtr const& chef_element);
-//    Lattice_element_slice const&
-//    get_lattice_element_slice(ElmPtr const& chef_element);
+    Lattice_element const&
+    get_lattice_element(ElmPtr const& chef_element);
+    Lattice_element_slice const&
+    get_lattice_element_slice(ElmPtr const& chef_element);
     bool
     have_sliced_beamline() const;
     void
