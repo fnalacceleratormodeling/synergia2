@@ -74,7 +74,6 @@ public:
             ar & BOOST_SERIALIZATION_NVP(operators);
             ar & BOOST_SERIALIZATION_NVP(time_fractions);
             ar & BOOST_SERIALIZATION_NVP(length);
-            ar & BOOST_SERIALIZATION_NVP(stored_bunches);
         }
 };
 
