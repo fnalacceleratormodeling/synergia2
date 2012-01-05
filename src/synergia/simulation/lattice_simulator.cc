@@ -86,6 +86,12 @@ Lattice_simulator::construct_aperture_extractor_map()
             Rectangular_aperture_operation::attribute_name,
             boost::shared_ptr<Rectangular_extractor >(
                     new Rectangular_extractor()));
+
+    typedef Generic_aperture_extractor<Polygon_aperture_operation >
+            Polygon_extractor;
+    aperture_extractor_map_sptr->set_extractor(
+            Polygon_aperture_operation::attribute_name,
+            boost::shared_ptr<Polygon_extractor >(new Polygon_extractor()));
 }
 
 Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :

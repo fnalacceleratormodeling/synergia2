@@ -25,6 +25,17 @@ for element in lattice.get_elements():
         element.set_string_attribute("aperture_type","rectangular")
         element.set_double_attribute("rectangular_aperture_width", 2*0.005)
         element.set_double_attribute("rectangular_aperture_height", 2*0.002)
+    elif opts.aperture == "polygon":
+        element.set_string_attribute("aperture_type","polygon")
+        element.set_double_attribute("the_number_of_vertices", 4);
+        element.set_double_attribute("pax1", 0.005);
+        element.set_double_attribute("pay1", 0.0);
+        element.set_double_attribute("pax2", 0.0);
+        element.set_double_attribute("pay2", 0.005);
+        element.set_double_attribute("pax3", -0.005);
+        element.set_double_attribute("pay3", 0.0);
+        element.set_double_attribute("pax4", 0.0);
+        element.set_double_attribute("pay4", -0.005);
     else:
         print "unknown aperture type '%s'" % opts.aperture
         sys.exit(1)

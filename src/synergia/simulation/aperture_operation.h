@@ -99,4 +99,33 @@ public:
     ~Rectangular_aperture_operation();
 };
 
+/// A polygon aperture with vertices
+/// determined by the Lattice_element_attributes
+/// "pax1", "pay1", "pax2", and so on.
+/// And it also requires "the_number_of_vertices", which determines the number 
+/// of vertices and must be greter than and equal to 3.
+/// Must have at least 3 vertcies. Failing to do so will cause an
+/// exception
+class Polygon_aperture_operation : public Aperture_operation
+{
+private:
+    int vertices_num;
+    std::vector<std::complex<double > > vertices;
+public:
+    static const char type_name[];
+    static const char attribute_name[];
+    Polygon_aperture_operation(Lattice_element const& element);
+    virtual const char *
+    get_type_name() const;
+    virtual bool
+    operator==(Aperture_operation const& aperture_operation) const;
+    bool
+            operator==(
+                    Polygon_aperture_operation const& polygon_aperture_operation) const;
+    virtual void
+    apply(Bunch & bunch);
+    virtual
+    ~Polygon_aperture_operation();
+};
+
 #endif /* APERTURE_OPERATION_H_ */
