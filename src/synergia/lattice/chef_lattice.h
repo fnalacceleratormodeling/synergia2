@@ -64,7 +64,7 @@ public:
     Element_adaptor_map_sptr
     get_element_adaptor_map_sptr();
     Chef_lattice_section_sptr
-    get_chef_section_sptr(Lattice_element const& lattice_element_slice);
+    get_chef_section_sptr(Lattice_element const& lattice_element);
     Chef_lattice_section_sptr
     get_chef_section_sptr(Lattice_element_slice const& lattice_element_slice);
     Lattice_element const&
@@ -91,7 +91,6 @@ public:
             ar & BOOST_SERIALIZATION_NVP(slices);
             ar & BOOST_SERIALIZATION_NVP(element_adaptor_map_sptr);
             ar & BOOST_SERIALIZATION_NVP(have_sliced_beamline_);
-            ar & BOOST_SERIALIZATION_NVP(element_slice_map);
             ar & BOOST_SERIALIZATION_NVP(brho);
         }
     template<class Archive>
@@ -102,7 +101,6 @@ public:
             ar & BOOST_SERIALIZATION_NVP(slices);
             ar & BOOST_SERIALIZATION_NVP(element_adaptor_map_sptr);
             ar & BOOST_SERIALIZATION_NVP(have_sliced_beamline_);
-            ar & BOOST_SERIALIZATION_NVP(element_slice_map);
             ar & BOOST_SERIALIZATION_NVP(brho);
             lattice_element_marker = ElmPtr(
                     new marker("synergia_lattice_element_marker"));
