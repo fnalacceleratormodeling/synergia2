@@ -215,7 +215,7 @@ BOOST_FIXTURE_TEST_CASE(extract4thinrf, Thinrf_lattice_fixture)
 }
 // test_note: we still need to check the extracted value
 
-BOOST_FIXTURE_TEST_CASE(serialize, Lattice_fixture)
+BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture)
 {
     Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(lattice_sptr));
     Chef_mixed_operation_extractor mixed_chef_o_e(chef_lattice_sptr, map_order);

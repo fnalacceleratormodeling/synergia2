@@ -35,7 +35,7 @@ BOOST_AUTO_TEST_CASE(apply)
 // test_note: the apply test just verifies that the method doesn't crash.
 //            At least one quantitative test would be desirable.
 
-BOOST_FIXTURE_TEST_CASE(serialize, Chef_lattice_sptr_fixture)
+BOOST_FIXTURE_TEST_CASE(serialize_xml, Chef_lattice_sptr_fixture)
 {
     Chef_lattice_section_sptr chef_lattice_section_sptr(
             new Chef_lattice_section(chef_lattice_sptr, begin, end));

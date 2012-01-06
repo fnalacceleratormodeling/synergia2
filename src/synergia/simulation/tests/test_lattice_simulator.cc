@@ -412,7 +412,7 @@ BOOST_FIXTURE_TEST_CASE(check_linear_normal_form, Foborodobo32_fixture)
   BOOST_CHECK(lattice_simulator.check_linear_normal_form());
 }
 
-BOOST_FIXTURE_TEST_CASE(serialize, Lattice_fixture)
+BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture)
 {
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     xml_save(lattice_simulator, "lattice_simulator1.xml");
@@ -436,7 +436,7 @@ BOOST_FIXTURE_TEST_CASE(serialize_sliced_chef_beamline, Lattice_fixture)
         slices.push_back(first_half);
         slices.push_back(second_half);
     }
-    lattice_simulator.construct_sliced_chef_beamline(slices);
+    lattice_simulator.set_slices(slices);
 
     xml_save(lattice_simulator, "lattice_simulator2.xml");
 

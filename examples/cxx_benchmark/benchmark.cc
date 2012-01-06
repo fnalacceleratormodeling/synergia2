@@ -2,7 +2,7 @@
 #include <stdexcept>
 
 #include "synergia/lattice/lattice.h"
-#include "synergia/utils/xml_serialization.h"
+#include "synergia/utils/serialization.h"
 #include "synergia/simulation/operator.h"
 #include "synergia/simulation/lattice_simulator.h"
 #include "synergia/simulation/stepper.h"

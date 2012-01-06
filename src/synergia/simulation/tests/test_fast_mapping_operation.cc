@@ -32,7 +32,7 @@ BOOST_FIXTURE_TEST_CASE(apply, Mapping_fixture)
 // test_note: We need to check that apply actual produces the correct results.
 //            As of this writing, it almost certainly doesn't
 
-BOOST_FIXTURE_TEST_CASE(serialize, Mapping_fixture)
+BOOST_FIXTURE_TEST_CASE(serialize_xml, Mapping_fixture)
 {
     Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
     Fast_mapping_operation fast_mapping_operation(fast_mapping);

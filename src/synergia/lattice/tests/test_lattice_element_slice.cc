@@ -139,7 +139,7 @@ BOOST_AUTO_TEST_CASE(get_lattice_element)
     BOOST_CHECK(&(lattice_element_slice.get_lattice_element()) == &lattice_element);
 }
 
-BOOST_AUTO_TEST_CASE(serialize)
+BOOST_AUTO_TEST_CASE(serialize_xml)
 {
     Lattice_element lattice_element(type, name);
     lattice_element.set_double_attribute("l", length);

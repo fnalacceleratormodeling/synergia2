@@ -23,7 +23,7 @@ BOOST_FIXTURE_TEST_CASE(apply, Bunch_fixture)
     collective_operator.apply(bunch, step_length, stub_step);
 }
 
-BOOST_AUTO_TEST_CASE(serialize)
+BOOST_AUTO_TEST_CASE(serialize_xml)
 {
     Dummy_collective_operator collective_operator("test");
     xml_save<Dummy_collective_operator > (collective_operator,

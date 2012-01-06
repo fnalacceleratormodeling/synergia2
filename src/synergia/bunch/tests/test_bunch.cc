@@ -484,7 +484,7 @@ BOOST_FIXTURE_TEST_CASE(inject_mismatched_weights, Fixture)
     BOOST_CHECK(caught_error);
 }
 
-BOOST_FIXTURE_TEST_CASE(serialize, Fixture)
+BOOST_FIXTURE_TEST_CASE(serialize_xml, Fixture)
 {
     dummy_populate(bunch);
     xml_save(bunch, "bunch.xml");

@@ -168,6 +168,24 @@ Chef_lattice::get_element_adaptor_map_sptr()
 
 Chef_lattice_section_sptr
 Chef_lattice::get_chef_section_sptr(
+        Lattice_element const& lattice_element)
+{
+    if (!have_sliced_beamline_) {
+        throw std::runtime_error(
+                "get_chef_section_sptr(Lattice_element const&) called before construct_sliced_beamline\n");
+    }
+    if (element_map.count(&lattice_element) == 0) {
+        throw std::runtime_error(
+                "get_chef_section_sptr(Lattice_element const&): slice not found\n");
+    }
+    Begin_end begin_end(element_map[&lattice_element]);
+    return Chef_lattice_section_sptr(
+            new Chef_lattice_section(shared_from_this(), begin_end.begin,
+                    begin_end.end));
+}
+
+Chef_lattice_section_sptr
+Chef_lattice::get_chef_section_sptr(
         Lattice_element_slice const& lattice_element_slice)
 {
     if (!have_sliced_beamline_) {

@@ -9,7 +9,7 @@ BOOST_AUTO_TEST_CASE(construct)
     Element_adaptor element_adaptor;
 }
 
-BOOST_AUTO_TEST_CASE(serialize)
+BOOST_AUTO_TEST_CASE(serialize_xml)
 {
     Element_adaptor element_adaptor;
     xml_save<Element_adaptor > (element_adaptor, "element_adaptor.xml");

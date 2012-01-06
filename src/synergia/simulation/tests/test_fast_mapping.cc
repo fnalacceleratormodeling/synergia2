@@ -97,7 +97,7 @@ BOOST_FIXTURE_TEST_CASE(write_read_file, Mapping_fixture)
 //            For now, we can only diff the files test_fast_mapping.dat and
 //            test_fast_mapping2.dat
 
-BOOST_FIXTURE_TEST_CASE(serialize, Mapping_fixture)
+BOOST_FIXTURE_TEST_CASE(serialize_xml, Mapping_fixture)
 {
     Fast_mapping fast_mapping(b.reference_particle, mapping, mapping_length);
     fast_mapping.set_length(mapping_length);

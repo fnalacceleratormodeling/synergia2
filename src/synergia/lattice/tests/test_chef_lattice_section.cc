@@ -129,7 +129,7 @@ BOOST_FIXTURE_TEST_CASE(clear, Chef_lattice_sptr_fixture)
     BOOST_CHECK(chef_lattice_section.empty());
 }
 
-BOOST_FIXTURE_TEST_CASE(serialize, Chef_lattice_sptr_fixture)
+BOOST_FIXTURE_TEST_CASE(serialize_xml, Chef_lattice_sptr_fixture)
 {
     Chef_lattice_section chef_lattice_section(chef_lattice_sptr, begin, end);
     xml_save<Chef_lattice_section > (chef_lattice_section,

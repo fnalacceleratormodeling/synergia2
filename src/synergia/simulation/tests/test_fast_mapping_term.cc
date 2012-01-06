@@ -66,7 +66,7 @@ BOOST_FIXTURE_TEST_CASE(write_read_stream, Fast_mapping_term_fixture)
     }
 }
 
-BOOST_FIXTURE_TEST_CASE(serialize, Fast_mapping_term_fixture)
+BOOST_FIXTURE_TEST_CASE(serialize_xml, Fast_mapping_term_fixture)
 {
     xml_save<Fast_mapping_term > (fast_mapping_term, "fast_mapping_term.xml");
     Fast_mapping_term fast_mapping_term2;

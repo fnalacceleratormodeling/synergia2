@@ -134,7 +134,7 @@ BOOST_AUTO_TEST_CASE(print)
     step.print(1);
 }
 
-BOOST_AUTO_TEST_CASE(serialize)
+BOOST_AUTO_TEST_CASE(serialize_xml)
 {
     Step step(step_length);
     Operators operators;

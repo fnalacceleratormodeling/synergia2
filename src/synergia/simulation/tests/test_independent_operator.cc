@@ -208,11 +208,12 @@ BOOST_FIXTURE_TEST_CASE(apply_modified_lattice, Bunch_fixture)
     BOOST_CHECK(!equal);
 }
 
-BOOST_FIXTURE_TEST_CASE(serialize, Lattice_fixture)
+BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture)
 {
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     Independent_operator independent_operator("test",
-            lattice_simulator.get_operation_extractor_map_sptr());
+            lattice_simulator.get_operation_extractor_map_sptr(),
+            lattice_simulator.get_aperture_operation_extractor_map_sptr());
 
     Lattice_element_sptr element_sptr = lattice_sptr->get_elements().front();
     double length = element_sptr->get_length();

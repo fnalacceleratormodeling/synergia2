@@ -196,7 +196,7 @@ BOOST_FIXTURE_TEST_CASE(has_sliced_chef_beamline, Lattice_fixture2)
             ! lattice_simulator.get_chef_lattice_sptr()->get_sliced_beamline_sptr()->empty());
 }
 
-BOOST_FIXTURE_TEST_CASE(serialize, Lattice_fixture2)
+BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture2)
 {
     Dummy_collective_operator_sptr space_charge(
             new Dummy_collective_operator("space_charge"));

@@ -155,7 +155,7 @@ BOOST_FIXTURE_TEST_CASE(has_sliced_chef_beamline, Lattice_fixture)
             ! lattice_simulator.get_chef_lattice_sptr()->get_sliced_beamline_sptr()->empty());
 }
 
-BOOST_FIXTURE_TEST_CASE(serialize, Lattice_fixture)
+BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture)
 {
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
