@@ -35,7 +35,7 @@ interpolate_rectangular_xyz(double x, double y, double z,
         val = ((1.0 - offx) * (1.0 - offy) * (1.0 - offz) * a[ix][iy][iz]+
                   offx * (1.0 - offy) * (1.0 - offz) * a[ix + 1][iy][iz] + 
                   (1.0 - offx) * offy * (1.0 - offz) * a[ix][iy + 1][iz] +        
-                + (1.0 - offx) * (1.0 - offy) * offz * a[ix][iy][iz + 1] + 
+                + (1.0 - offx) * (1.0 - offy) * offz * a[ix][iy][izp1] + 
                        offx* offy * (1.0 - offz) * a[ix + 1][iy + 1][iz] + 
                        offx * (1.0- offy) * offz * a[ix + 1][iy][izp1] +
                        (1.0 - offx) * offy* offz * a[ix][iy + 1][izp1] +         
