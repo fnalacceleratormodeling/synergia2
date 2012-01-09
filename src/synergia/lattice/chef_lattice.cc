@@ -32,9 +32,10 @@ Chef_lattice::construct_beamline()
                 unpolished_beamline_sptr->append(*cel_it);
             }
             unpolished_beamline_sptr->append(lattice_element_marker);
-        } 
-    }                
-    beamline_sptr = polish_beamline(unpolished_beamline_sptr);       
+        }
+    }
+    beamline_sptr = polish_beamline(unpolished_beamline_sptr);
+    extract_element_map();
 }
 
 void
@@ -64,29 +65,24 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
 void
 Chef_lattice::extract_element_map()
 {
-    Lattice_elements::const_iterator elem_it = lattice_sptr->get_elements().begin();
+    Lattice_elements::const_iterator le_it = lattice_sptr->get_elements().begin();
     Begin_end begin_end;
     begin_end.begin = 0;
     int size = beamline_sptr->countHowMany();
-//    sliced_beamline_iterators.resize(size + 1);
-//    sliced_beamline_const_iterators.resize(size + 1);
+    beamline_iterators.resize(size + 1);
     int index = 0;
-    beamline::const_iterator cit = beamline_sptr->begin();
     for (beamline::iterator it = beamline_sptr->begin(); it
             != beamline_sptr->end(); ++it) {
-//        sliced_beamline_iterators.at(index) = it;
-//        sliced_beamline_const_iterators.at(index) = cit;
+        beamline_iterators.at(index) = it;
         if ((*it)->Name() == lattice_element_marker->Name()) {
             begin_end.end = index;
-            element_map[elem_it->get()] = begin_end;
+            element_map[le_it->get()] = begin_end;
             begin_end.begin = index + 1;
-            ++elem_it;
+            ++le_it;
         }
         ++index;
-        ++cit;
     }
-//    sliced_beamline_iterators.at(index) = sliced_beamline_sptr->end();
-//    sliced_beamline_const_iterators.at(index) = sliced_beamline_sptr->end();
+    beamline_iterators.at(index) = beamline_sptr->end();
 }
 
 void
@@ -307,10 +303,8 @@ Chef_lattice::get_lattice_element(ElmPtr const& chef_element)
     bool found = false;
     for (std::map<const Lattice_element*, Begin_end >::iterator it =
             element_map.begin(); it != element_map.end(); ++it) {
-    	Chef_lattice_section lattice_section(shared_from_this(), it->second.begin, it->second.end);
-        for (Chef_lattice_section::iterator ls_it = lattice_section.begin(); ls_it
-                != lattice_section.end(); ++ls_it) {
-            if ((*ls_it) == chef_element) {
+    	for (int index=it->second.begin; index != it->second.end; ++index) {
+    		if ((*beamline_iterators.at(index)) == chef_element) {
                 found = true;
                 lattice_element_ptr = it->first;
                 break;
@@ -334,10 +328,8 @@ Chef_lattice::get_lattice_element_slice(ElmPtr const& chef_element)
     bool found = false;
     for (std::map<const Lattice_element_slice*, Begin_end >::iterator it =
             element_slice_map.begin(); it != element_slice_map.end(); ++it) {
-    	Chef_lattice_section lattice_section(shared_from_this(), it->second.begin, it->second.end);
-        for (Chef_lattice_section::iterator ls_it = lattice_section.begin(); ls_it
-                != lattice_section.end(); ++ls_it) {
-            if ((*ls_it) == chef_element) {
+    	for (int index=it->second.begin; index != it->second.end; ++index) {
+    		if ((*sliced_beamline_iterators.at(index)) == chef_element) {
                 found = true;
                 lattice_element_slice_ptr = it->first;
                 break;

@@ -32,7 +32,7 @@ private:
     BmlPtr sliced_beamline_sptr;
     Lattice_element_slices lattice_element_slices;
     bool have_sliced_beamline_;
-    std::vector<beamline::iterator > sliced_beamline_iterators;
+    std::vector<beamline::iterator > beamline_iterators, sliced_beamline_iterators;
     std::vector<beamline::const_iterator > sliced_beamline_const_iterators;
     ElmPtr lattice_element_marker;
     std::map<const Lattice_element*, Begin_end > element_map;
