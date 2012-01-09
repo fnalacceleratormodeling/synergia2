@@ -1,4 +1,6 @@
 #include "aperture_operation.h"
+#include "synergia/foundation/math_constants.h"
+#include <boost/lexical_cast.hpp>
 #include <stdexcept>
 #include <cmath>
 
@@ -87,11 +89,11 @@ Circular_aperture_operation::apply(Bunch & bunch)
             }
         }
     }
-    //        std::cout << "kept = " << kept << ", discarded = " << discarded
-    //                << std::endl;
+    //std::cout << "kept = " << kept << ", discarded = " << discarded
+    //        << std::endl;
     bunch.set_local_num(local_num);
     bunch.update_total_num();
-   // std::cout<<"circular aperture applied"<<std::endl;
+    //std::cout<<"circular aperture applied"<<std::endl;
 }
 
 Circular_aperture_operation::~Circular_aperture_operation()
@@ -188,8 +190,8 @@ Elliptical_aperture_operation::apply(Bunch & bunch)
             }
         }
     }
-    //        std::cout << "kept = " << kept << ", discarded = " << discarded
-    //                << std::endl;
+    //std::cout << "kept = " << kept << ", discarded = " << discarded
+    //        << std::endl;
     bunch.set_local_num(local_num);
     bunch.update_total_num();
 }
@@ -279,13 +281,123 @@ Rectangular_aperture_operation::apply(Bunch & bunch)
             }
         }
     }
-    //        std::cout << "kept = " << kept << ", discarded = " << discarded
-    //                << std::endl;
+    //std::cout << "kept = " << kept << ", discarded = " << discarded
+    //        << std::endl;
     bunch.set_local_num(local_num);
     bunch.update_total_num();
-  //  std::cout<<"rectangular aperture applied"<<std::endl;
+    //std::cout<<"rectangular aperture applied"<<std::endl;
 }
 
 Rectangular_aperture_operation::~Rectangular_aperture_operation()
+{
+}
+
+const char Polygon_aperture_operation::type_name[] = "polygon_aperture";
+const char Polygon_aperture_operation::attribute_name[] = "polygon";
+
+Polygon_aperture_operation::Polygon_aperture_operation(
+        Lattice_element const& element) :
+    Aperture_operation(element)
+{
+    if (element.has_double_attribute("the_number_of_vertices")) {
+        vertices_num = int(element.get_double_attribute("the_number_of_vertices"));
+        if (vertices_num < 3)
+                throw std::runtime_error(
+                        "Polygon_aperture_operation: polygon_aperture requires at least 3 vertices");
+    } else {
+        throw std::runtime_error(
+                "Polygon_aperture_operation: polygon_aperture requires the_number_of vertices attribute");
+    }
+    for (int index = 0; index < vertices_num; ++index) {
+        std::string ss = boost::lexical_cast<std::string>(index + 1);
+        std::string x = "pax" + ss;
+        std::string y = "pay" + ss;
+        if ((element.has_double_attribute(x)) && (element.has_double_attribute(y))) {
+            vertices.push_back(std::complex<double > (element.get_double_attribute(x), element.get_double_attribute(y)));
+        } else {
+            throw std::runtime_error(
+                "Polygon_aperture_operation: polygon_aperture requires x and y coordinate attributes for each vertex");
+        }
+    }
+}
+
+const char *
+Polygon_aperture_operation::get_type_name() const
+{
+    return type_name;
+}
+
+bool
+Polygon_aperture_operation::operator==(
+        Aperture_operation const& aperture_operation) const
+{
+    if (type_name == aperture_operation.get_type_name()) {
+        return operator==(
+                *static_cast<Polygon_aperture_operation const* > (&aperture_operation));
+    } else {
+        return false;
+    }
+}
+
+bool
+Polygon_aperture_operation::operator==(
+        Polygon_aperture_operation const& polygon_aperture_operation) const
+{
+    return (vertices == polygon_aperture_operation.vertices);
+}
+
+void
+Polygon_aperture_operation::apply(Bunch & bunch)
+{
+    MArray2d_ref particles(bunch.get_local_particles());
+    int kept = 0;
+    int discarded = 0;
+    int local_num = bunch.get_local_num();
+    for (int part = 0; part < local_num; ++part) {
+        bool try_discard = true;
+        while (try_discard) {
+            std::complex<double > u(particles[part][Bunch::x], particles[part][Bunch::y]);
+            int index = 0;
+            int size = vertices.size();
+            double theta_sum = 0.0;
+            while (index < size) {
+                int index2 = index + 1;
+                if (size == index2) index2 = 0;
+                std::complex<double > v(vertices[index]);
+                std::complex<double > w(vertices[index2]);
+                double theta = arg((w - u) * conj(v - u));
+                theta_sum += theta;
+                ++index;
+            }
+            if (theta_sum / (2.0 * mconstants::pi) < 1.0e-12) {
+                ++discarded;
+                --local_num;
+                if (part == local_num) {
+                    // No more particles left
+                    try_discard = false;
+                } else {
+                    // Move the last particle into this newly empty position
+                    int last = local_num;
+                    particles[part][0] = particles[last][0];
+                    particles[part][1] = particles[last][1];
+                    particles[part][2] = particles[last][2];
+                    particles[part][3] = particles[last][3];
+                    particles[part][4] = particles[last][4];
+                    particles[part][5] = particles[last][5];
+                    particles[part][6] = particles[last][6];
+                }
+            } else {
+                ++kept;
+                try_discard = false;
+            }
+        }
+    }
+    //std::cout << "kept = " << kept << ", discarded = " << discarded
+    //        << std::endl;
+    bunch.set_local_num(local_num);
+    bunch.update_total_num();
+}
+
+Polygon_aperture_operation::~Polygon_aperture_operation()
 {
 }

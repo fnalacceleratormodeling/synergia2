@@ -4,7 +4,7 @@ import synergia_workflow
 
 opts = synergia_workflow.Options("cold_fodo")
 opts.add("macro_particles", 10000, "Number of macro particles", int)
-opts.add("aperture", "elliptical", "Aperture type (either 'circular', 'elliptical', or 'rectangular'")
+opts.add("aperture", "elliptical", "Aperture type (either 'circular', 'elliptical', 'rectangular', or 'polygon'")
 opts.add("seed", 0, "Pseudorandom number generator seed", int)
 opts.add("real_particles", 1.2e12, "Number of real particles", float)
 opts.add("verbose", True, "Verbose propagation", bool)
