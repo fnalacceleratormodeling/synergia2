@@ -489,10 +489,10 @@ set_chef_correctors(Lattice_elements const& correctors,
 {
     for (Lattice_elements::const_iterator le_it = correctors.begin(); le_it
             != correctors.end(); ++le_it) {
-        Chef_lattice_section_sptr lattice_section_sptr(chef_lattice.get_chef_section_sptr(*(*le_it)));
-        for (Chef_lattice_section::const_iterator ls_it = lattice_section_sptr->begin(); ls_it
-                != lattice_section_sptr->end(); ++ls_it) {
-            if (std::strcmp((*ls_it)->Type(), "quadrupole") == 0) {
+        Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*le_it)));
+        for (Chef_elements::iterator ce_it = chef_elements.begin(); ce_it
+                != chef_elements.end(); ++ce_it) {
+            if (std::strcmp((*ce_it)->Type(), "quadrupole") == 0) {
                 if (horizontal) {
                     beamline_context_sptr->addHTuneCorrector(
                             boost::dynamic_pointer_cast<quadrupole >(*ls_it));
@@ -500,7 +500,7 @@ set_chef_correctors(Lattice_elements const& correctors,
                     beamline_context_sptr->addVTuneCorrector(
                             boost::dynamic_pointer_cast<quadrupole >(*ls_it));
                 }
-            } else if (std::strcmp((*ls_it)->Type(), "thinQuad") == 0) {
+            } else if (std::strcmp((*ce_it)->Type(), "thinQuad") == 0) {
                 if (horizontal) {
                     beamline_context_sptr->addHTuneCorrector(
                             boost::dynamic_pointer_cast<thinQuad >(*ls_it));
@@ -516,7 +516,7 @@ set_chef_correctors(Lattice_elements const& correctors,
                 message += (*le_it)->get_type();
                 message += " cannot be used as a corrector because it has a";
                 message += " chef element of type ";
-                message += (*ls_it)->Type();
+                message += (*ce_it)->Type();
                 throw std::runtime_error(message.c_str());
             }
         }
@@ -530,10 +530,10 @@ extract_quad_strengths(Lattice_elements const& correctors,
 {
     for (Lattice_elements::const_iterator le_it = correctors.begin(); le_it
             != correctors.end(); ++le_it) {
-        Chef_lattice_section_sptr lattice_section_sptr(chef_lattice.get_chef_section_sptr(*(*le_it)));
-        for (Chef_lattice_section::const_iterator ls_it = lattice_section_sptr->begin(); ls_it
-                != lattice_section_sptr->end(); ++ls_it) {
-            double k1 = (*ls_it)->Strength() / chef_lattice.get_brho();
+        Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*le_it)));
+        for (Chef_elements::iterator ce_it = chef_elements.begin(); ce_it
+                != chef_elements.end(); ++ce_it) {
+            double k1 = (*ce_it)->Strength() / chef_lattice.get_brho();
             (*le_it)->set_double_attribute("k1", k1);
         }
     }

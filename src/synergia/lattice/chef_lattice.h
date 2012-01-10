@@ -63,8 +63,8 @@ public:
     Chef_lattice();
     Element_adaptor_map_sptr
     get_element_adaptor_map_sptr();
-    Chef_lattice_section_sptr
-    get_chef_section_sptr(Lattice_element const& lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element const& lattice_element);
     Chef_lattice_section_sptr
     get_chef_section_sptr(Lattice_element_slice const& lattice_element_slice);
     Lattice_element const&
