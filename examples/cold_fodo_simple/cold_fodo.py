@@ -12,7 +12,6 @@ bunch = synergia.optics.generate_matched_bunch_transverse(
 # make the beam cold in the transverse dimensions
 bunch.get_local_particles()[:,1] = 1.0e-10
 bunch.get_local_particles()[:,3] = 1.0e-10
-
 for element in lattice.get_elements():
     if opts.aperture == "circular":
         element.set_string_attribute("aperture_type","circular")
@@ -27,15 +26,16 @@ for element in lattice.get_elements():
         element.set_double_attribute("rectangular_aperture_height", 2*0.002)
     elif opts.aperture == "polygon":
         element.set_string_attribute("aperture_type","polygon")
-        element.set_double_attribute("the_number_of_vertices", 4);
-        element.set_double_attribute("pax1", 0.005);
-        element.set_double_attribute("pay1", 0.0);
-        element.set_double_attribute("pax2", 0.0);
-        element.set_double_attribute("pay2", 0.005);
-        element.set_double_attribute("pax3", -0.005);
-        element.set_double_attribute("pay3", 0.0);
-        element.set_double_attribute("pax4", 0.0);
-        element.set_double_attribute("pay4", -0.005);
+        element.set_double_attribute("the_number_of_vertices", 4)
+
+        element.set_double_attribute("pax1", 0.005)
+        element.set_double_attribute("pay1", 0.0)
+        element.set_double_attribute("pax2", 0.0)
+        element.set_double_attribute("pay2", 0.005)
+        element.set_double_attribute("pax3", -0.005)
+        element.set_double_attribute("pay3", 0.0)
+        element.set_double_attribute("pax4", 0.0)
+        element.set_double_attribute("pay4", -0.005)
     else:
         print "unknown aperture type '%s'" % opts.aperture
         sys.exit(1)
