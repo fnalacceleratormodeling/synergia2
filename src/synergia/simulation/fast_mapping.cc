@@ -175,18 +175,6 @@ Fast_mapping::apply(Bunch & bunch)
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
     for (int part = 0; part < local_num; ++part) {
-#if 1
-//   check if  pz^2 is negative  
-      double  pzop2=(1.+particles[part][5])*(1.+particles[part][5])-
-      particles[part][1]*particles[part][1]-particles[part][3]*particles[part][3];
-      if (pzop2<0.)  {
-        std::cout<<"pzop^2="<<pzop2<<std::endl;
-        std::cout<<" pxop="<< particles[part][1]<<"  pyop="<<particles[part][3]<<"  dp_totop="<<particles[part][5]<<std::endl;
-        throw std::runtime_error( " Fast_mapping: pz square cannot be negative, before mapping");
-      }
-#endif    
-    
-    
         for (int i = 0; i < 6; ++i) {
             temp[i] = 0.0;
             double term;
@@ -242,19 +230,9 @@ Fast_mapping::apply(Bunch & bunch)
             particles[ part][i] = temp[i];
         }
 #endif
-#if 1
-    //check if the approximation breaks down and yields a negative pz^2
-         pzop2=(1.+particles[part][5])*(1.+particles[part][5])-
-         particles[part][1]*particles[part][1]-particles[part][3]*particles[part][3];
-         if (pzop2<0.) {
-             std::cout<<"pzop^2="<<pzop2<<std::endl;
-            std::cout<<" pxop="<< particles[part][1]<<"  pyop="<<particles[part][3]<<"  dp_totop="<<particles[part][5]<<std::endl;
-             throw std::runtime_error( " Fast_mapping: pz square cannot be negative, after mapping");
-         }
-#endif
     }
-   
-    
+
+
 }
 
 void
