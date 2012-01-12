@@ -1,0 +1,31 @@
+! File fodo.lat
+!
+! Written for the January, 2007 USPAS.
+! To be used in conjunction with CHEF.
+!
+! Send complaints to the author: Leo Michelotti
+!
+! Modified by James Amundson to increase the quadrupole length.
+! ------------------
+! Parameters
+! ------------------
+focus    :=   7                   ! [m]     : focal length of equivalent
+                                  !         :   thin quad
+sepn     :=  10                   ! [m]     : distance between quad centers
+length   :=   2.0                 ! [m]     : quadrupole length
+strength := 1/(focus*length)      ! [m**-2] : quadrupole strength
+                                  !         :   = B'/brho
+beam, particle=proton, energy=1.5
+
+! ------------------
+! Elements
+! ------------------
+o: drift, l=( sepn - length )
+f: quadrupole, l=length, k1=strength
+d: quadrupole, l=length, k1=(-strength)
+e_septum: marker
+
+! ------------------
+! Lattice
+! ------------------
+fodo:  line=( f, o, d, o, e_septum, f, o, d, o )

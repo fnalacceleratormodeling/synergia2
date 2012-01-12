@@ -101,11 +101,11 @@ public:
 
 /// A polygon aperture with vertices
 /// determined by the Lattice_element_attributes
-/// "pax1", "pay1", "pax2", and so on.
+/// "pax1", "pay1", "pax2", "pay2", and so on.
 /// And it also requires "the_number_of_vertices", which determines the number 
 /// of vertices and must be greter than and equal to 3.
 /// Must have at least 3 vertcies. Failing to do so will cause an
-/// exception
+/// exception.
 class Polygon_aperture_operation : public Aperture_operation
 {
 private:
@@ -126,6 +126,38 @@ public:
     apply(Bunch & bunch);
     virtual
     ~Polygon_aperture_operation();
+};
+
+/// An wire_elliptical aperture with horizontal and vertical radii in meters
+/// determined by the Lattice_element_attributes
+/// "wire_elliptical_aperture_horizontal_radius" and
+/// "wire_elliptical_aperture_vertical_radius", respectively.
+/// Both radii must be specified.
+/// Also needs Lattice_element_attributes
+/// "wire_elliptical_aperture_wire_x",
+/// "wire_elliptical_aperture_wire_width", and
+/// "wire_elliptical_aperture_gap." Failing to do so will cause an
+/// exception.
+class Wire_elliptical_aperture_operation : public Aperture_operation
+{
+private:
+    double horizontal_radius, vertical_radius;
+    double wire_x, wire_width, gap;
+public:
+    static const char type_name[];
+    static const char attribute_name[];
+    Wire_elliptical_aperture_operation(Lattice_element const& element);
+    virtual const char *
+    get_type_name() const;
+    virtual bool
+    operator==(Aperture_operation const& aperture_operation) const;
+    bool
+            operator==(
+                    Wire_elliptical_aperture_operation const& Wire_elliptical_aperture_operation) const;
+    virtual void
+    apply(Bunch & bunch);
+    virtual
+    ~Wire_elliptical_aperture_operation();
 };
 
 #endif /* APERTURE_OPERATION_H_ */
