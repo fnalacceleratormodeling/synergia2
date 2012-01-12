@@ -74,47 +74,31 @@ Independent_operator::update_operations(
     operations.clear();
     operations_revisions.clear();
 
+    std::string aperture_type("");
+    bool need_left_aperture, need_right_aperture;
+    std::string extractor_type(""), last_extractor_type("");
     // Group slices of equal extractor_type and pass to operation_extractor
     // to get operations.
     Lattice_element_slices group;
-    std::string aperture_type("");
-    Aperture_operation *last_aperture_ptr = 0;
     for (Lattice_element_slices::const_iterator it = slices.begin(); it
             != slices.end(); ++it) {
         if ((*it)->get_lattice_element().has_string_attribute("aperture_type")) {
             aperture_type = (*it)->get_lattice_element().get_string_attribute(
                     "aperture_type");
+            need_left_aperture = (*it)->has_left_edge();
+            need_right_aperture = (*it)->has_right_edge();
         } else {
-            aperture_type = "default";
+            need_left_aperture = false;
+            need_right_aperture = false;
         }
-        Aperture_operation_extractor_sptr extractor(
-                aperture_operation_extractor_map_sptr->get_extractor(
-                        aperture_type));
-        Aperture_operation_sptr aperture_operation_sptr(
-                extractor->extract((*it)->get_lattice_element()));
-        bool keep = false;
-        if (last_aperture_ptr == 0) {
-            keep = true;
-        } else if (!(*aperture_operation_sptr == *last_aperture_ptr)) {
-            keep = true;
-        }
-        if (keep) {
-            operations.push_back(aperture_operation_sptr);
-            operations_revisions.push_back(
-                    (*it)->get_lattice_element().get_revision());
-            last_aperture_ptr = aperture_operation_sptr.get();
-        }
-    }
-    std::string extractor_type(""), last_extractor_type("");
-    for (Lattice_element_slices::const_iterator it = slices.begin(); it
-            != slices.end(); ++it) {
         if ((*it)->get_lattice_element().has_string_attribute("extractor_type")) {
             extractor_type = (*it)->get_lattice_element().get_string_attribute(
                     "extractor_type");
         } else {
             extractor_type = "default";
         }
-        if ((extractor_type != last_extractor_type) && (!group.empty())) {
+        if (((extractor_type != last_extractor_type) || need_left_aperture)
+                && (!group.empty())) {
             Independent_operations
                     group_operations =
                             operation_extractor_map_sptr->get_extractor(
@@ -123,8 +107,32 @@ Independent_operator::update_operations(
             operations.splice(operations.end(), group_operations);
             group.clear();
         }
+        if (need_left_aperture) {
+            Aperture_operation_extractor_sptr extractor(
+                    aperture_operation_extractor_map_sptr->get_extractor(
+                            aperture_type));
+            Aperture_operation_sptr aperture_operation_sptr(
+                    extractor->extract((*it)->get_lattice_element()));
+            operations.push_back(aperture_operation_sptr);
+
+        }
         group.push_back(*it);
         last_extractor_type = extractor_type;
+        if (need_right_aperture) {
+            Aperture_operation_extractor_sptr extractor(
+                    aperture_operation_extractor_map_sptr->get_extractor(
+                            aperture_type));
+            Aperture_operation_sptr aperture_operation_sptr(
+                    extractor->extract((*it)->get_lattice_element()));
+            operations.push_back(aperture_operation_sptr);
+            Independent_operations
+                    group_operations =
+                            operation_extractor_map_sptr->get_extractor(
+                                    extractor_type)->extract(
+                                    reference_particle, group);
+            operations.splice(operations.end(), group_operations);
+            group.clear();
+        }
         operations_revisions.push_back(
                 (*it)->get_lattice_element().get_revision());
     }
@@ -134,6 +142,13 @@ Independent_operator::update_operations(
                         extractor_type)->extract(reference_particle, group);
         operations.splice(operations.end(), group_operations);
     }
+    Aperture_operation_extractor_sptr extractor(
+            aperture_operation_extractor_map_sptr->get_extractor("default"));
+    Lattice_element dummy_element;
+    Aperture_operation_sptr aperture_operation_sptr(
+            extractor->extract(dummy_element));
+    operations.push_back(aperture_operation_sptr);
+
     have_operations = true;
     operations_reference_particle = reference_particle;
 }
