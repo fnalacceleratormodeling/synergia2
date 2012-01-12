@@ -886,7 +886,7 @@ Multipole_mad8_adaptor::get_chef_elements(
 	element_name << lattice_element.get_name() << "_" << 2*moment+2 << "pole";
 	bmln_elmnt = new ThinPole(element_name.str().c_str(),
 				    brho * knl[moment]/nfactorial[moment],
-				    moment);
+				    2*moment+2);
 
 	ElmPtr elm(bmln_elmnt);
 	// set tilt if necessary
