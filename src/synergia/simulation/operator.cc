@@ -170,7 +170,9 @@ Independent_operator::need_update(Reference_particle const& reference_particle)
                 long int revision = (*it)->get_lattice_element().get_revision();
                 if (revision != cached_revision) {
                     retval = true;
+                    break;
                 }
+                ++rev_it;
             }
         } else {
             retval = true;
@@ -209,17 +211,20 @@ Independent_operator::get_slices() const
 void
 Independent_operator::apply(Bunch & bunch, double time_step, Step & step)
 {
-    if (need_update(bunch.get_reference_particle())) {
-        update_operations(bunch.get_reference_particle());
-    }
     double t;
     t = simple_timer_current();
+    bool do_update = need_update(bunch.get_reference_particle());
+    t = simple_timer_show(t, "independent-operator-test_update");
+    if (do_update) {
+        update_operations(bunch.get_reference_particle());
+        t = simple_timer_show(t, "independent-operator-update");
+    }
     for (Independent_operations::iterator it = operations.begin(); it
             != operations.end(); ++it) {
         // std::cout<<" opertor.cc operator name="<<(*it)->get_type()<<std::endl;
         (*it)->apply(bunch);
     }
-    t = simple_timer_show(t, "independent-operation-apply");
+    t = simple_timer_show(t, "independent-operator-apply");
 }
 
 void
@@ -243,7 +248,7 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step,
         }
         (*it)->apply(bunch);
     }
-    t = simple_timer_show(t, "independent-operation-apply");
+    t = simple_timer_show(t, "independent-operator-apply");
 }
 
 void
