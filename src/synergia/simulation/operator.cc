@@ -148,6 +148,9 @@ Independent_operator::update_operations(
     Aperture_operation_sptr aperture_operation_sptr(
             extractor->extract(dummy_element));
     operations.push_back(aperture_operation_sptr);
+    Aperture_operation_sptr finite_aperture_operation_sptr(
+            new Finite_aperture_operation(dummy_element));
+    operations.push_back(finite_aperture_operation_sptr);
 
     have_operations = true;
     operations_reference_particle = reference_particle;
