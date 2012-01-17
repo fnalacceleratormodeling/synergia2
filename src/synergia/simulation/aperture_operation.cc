@@ -92,7 +92,6 @@ Circular_aperture_operation::apply(Bunch & bunch)
     //std::cout << "kept = " << kept << ", discarded = " << discarded
     //        << std::endl;
     bunch.set_local_num(local_num);
-    bunch.update_total_num();
     //std::cout<<"circular aperture applied"<<std::endl;
 }
 
@@ -193,7 +192,6 @@ Elliptical_aperture_operation::apply(Bunch & bunch)
     //std::cout << "kept = " << kept << ", discarded = " << discarded
     //        << std::endl;
     bunch.set_local_num(local_num);
-    bunch.update_total_num();
 }
 
 Elliptical_aperture_operation::~Elliptical_aperture_operation()
@@ -284,7 +282,6 @@ Rectangular_aperture_operation::apply(Bunch & bunch)
     //std::cout << "kept = " << kept << ", discarded = " << discarded
     //        << std::endl;
     bunch.set_local_num(local_num);
-    bunch.update_total_num();
     //std::cout<<"rectangular aperture applied"<<std::endl;
 }
 
@@ -400,7 +397,6 @@ Polygon_aperture_operation::apply(Bunch & bunch)
     //std::cout << "kept = " << kept << ", discarded = " << discarded
     //        << std::endl;
     bunch.set_local_num(local_num);
-    bunch.update_total_num();
 }
 
 Polygon_aperture_operation::~Polygon_aperture_operation()
@@ -481,7 +477,7 @@ Wire_elliptical_aperture_operation::operator==(
                     == wire_elliptical_aperture_operation.wire_x)
             && (wire_width
                     == wire_elliptical_aperture_operation.wire_width)
-            && (gap 
+            && (gap
                     == wire_elliptical_aperture_operation.gap));
 }
 
@@ -563,7 +559,6 @@ Wire_elliptical_aperture_operation::apply(Bunch & bunch)
     //std::cout << "kept = " << kept << ", discarded = " << discarded
     //        << std::endl;
     bunch.set_local_num(local_num);
-    bunch.update_total_num();
 }
 
 Wire_elliptical_aperture_operation::~Wire_elliptical_aperture_operation()

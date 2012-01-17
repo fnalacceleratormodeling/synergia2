@@ -224,6 +224,7 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step)
         // std::cout<<" opertor.cc operator name="<<(*it)->get_type()<<std::endl;
         (*it)->apply(bunch);
     }
+    bunch.update_total_num();
     t = simple_timer_show(t, "independent-operator-apply");
 }
 
