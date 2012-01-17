@@ -1,6 +1,7 @@
 #include "aperture_operation.h"
 #include "synergia/foundation/math_constants.h"
 #include <boost/lexical_cast.hpp>
+#include <boost/math/special_functions/fpclassify.hpp>
 #include <stdexcept>
 #include <cmath>
 
@@ -10,6 +11,77 @@ Aperture_operation::Aperture_operation(Lattice_element const& element) :
 }
 
 Aperture_operation::~Aperture_operation()
+{
+}
+
+const char Finite_aperture_operation::type_name[] = "finite_aperture";
+
+Finite_aperture_operation::Finite_aperture_operation(
+        Lattice_element const& element) :
+    Aperture_operation(element)
+{
+}
+
+const char *
+Finite_aperture_operation::get_type_name() const
+{
+    return type_name;
+}
+
+bool
+Finite_aperture_operation::operator==(
+        Aperture_operation const& aperture_operation) const
+{
+    return (type_name == aperture_operation.get_type_name());
+}
+
+void
+Finite_aperture_operation::apply(Bunch & bunch)
+{
+    MArray2d_ref particles(bunch.get_local_particles());
+    int kept = 0;
+    int discarded = 0;
+    int local_num = bunch.get_local_num();
+    for (int part = 0; part < local_num; ++part) {
+        bool try_discard = true;
+        while (try_discard) {
+            bool keep = true;
+            if (!boost::math::isfinite(particles[part][0])) keep = false;
+            if (!boost::math::isfinite(particles[part][1])) keep = false;
+            if (!boost::math::isfinite(particles[part][2])) keep = false;
+            if (!boost::math::isfinite(particles[part][3])) keep = false;
+            if (!boost::math::isfinite(particles[part][4])) keep = false;
+            if (!boost::math::isfinite(particles[part][5])) keep = false;
+            if (!keep) {
+                ++discarded;
+                --local_num;
+                if (part == local_num) {
+                    // No more particles left
+                    try_discard = false;
+                } else {
+                    // Move the last particle into this newly empty position
+                    int last = local_num;
+                    particles[part][0] = particles[last][0];
+                    particles[part][1] = particles[last][1];
+                    particles[part][2] = particles[last][2];
+                    particles[part][3] = particles[last][3];
+                    particles[part][4] = particles[last][4];
+                    particles[part][5] = particles[last][5];
+                    particles[part][6] = particles[last][6];
+                }
+            } else {
+                ++kept;
+                try_discard = false;
+            }
+        }
+    }
+//    std::cout << "kept = " << kept << ", discarded = " << discarded
+//            << std::endl;
+    bunch.set_local_num(local_num);
+//    std::cout<<"finite aperture applied"<<std::endl;
+}
+
+Finite_aperture_operation::~Finite_aperture_operation()
 {
 }
 

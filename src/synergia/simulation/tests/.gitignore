@@ -17,6 +17,7 @@ test_step
 test_split_operator_stepper
 test_independent_stepper
 test_independent_stepper_elements
+test_finite_aperture_operation
 test_circular_aperture_operation
 test_elliptical_aperture_operation
 test_rectangular_aperture_operation
