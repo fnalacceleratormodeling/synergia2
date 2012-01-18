@@ -11,6 +11,9 @@ public:
     get_type_name() const = 0;
     virtual bool
     operator==(Aperture_operation const& aperture_operation) const = 0;
+    template<typename T>
+        void
+        apply_impl(T& t, Bunch & bunch);
     virtual void
     apply(Bunch & bunch)=0;
     virtual
@@ -32,6 +35,8 @@ public:
     get_type_name() const;
     virtual bool
     operator==(Aperture_operation const& aperture_operation) const;
+    bool
+    operator()(MArray2d_ref & particles, int part);
     virtual void
     apply(Bunch & bunch);
     virtual
@@ -45,7 +50,7 @@ public:
 class Circular_aperture_operation : public Aperture_operation
 {
 private:
-    double radius;
+    double radius, radius2;
 public:
     static const double default_radius;
     static const char type_name[];
@@ -58,6 +63,8 @@ public:
     bool
             operator==(
                     Circular_aperture_operation const& circular_aperture_operation) const;
+    bool
+    operator()(MArray2d_ref & particles, int part);
     virtual void
     apply(Bunch & bunch);
     virtual
@@ -74,6 +81,7 @@ class Elliptical_aperture_operation : public Aperture_operation
 {
 private:
     double horizontal_radius, vertical_radius;
+    double h2, v2;
 public:
     static const char type_name[];
     static const char attribute_name[];
@@ -85,6 +93,8 @@ public:
     bool
             operator==(
                     Elliptical_aperture_operation const& Elliptical_aperture_operation) const;
+    bool
+    operator()(MArray2d_ref & particles, int part);
     virtual void
     apply(Bunch & bunch);
     virtual
@@ -112,6 +122,8 @@ public:
     bool
             operator==(
                     Rectangular_aperture_operation const& rectangular_aperture_operation) const;
+    bool
+    operator()(MArray2d_ref & particles, int part);
     virtual void
     apply(Bunch & bunch);
     virtual
@@ -141,6 +153,8 @@ public:
     bool
             operator==(
                     Polygon_aperture_operation const& polygon_aperture_operation) const;
+    bool
+    operator()(MArray2d_ref & particles, int part);
     virtual void
     apply(Bunch & bunch);
     virtual
@@ -161,6 +175,7 @@ class Wire_elliptical_aperture_operation : public Aperture_operation
 {
 private:
     double horizontal_radius, vertical_radius;
+    double h2, v2;
     double wire_x, wire_width, gap;
 public:
     static const char type_name[];
@@ -173,10 +188,14 @@ public:
     bool
             operator==(
                     Wire_elliptical_aperture_operation const& Wire_elliptical_aperture_operation) const;
+    bool
+    operator()(MArray2d_ref & particles, int part);
     virtual void
     apply(Bunch & bunch);
     virtual
     ~Wire_elliptical_aperture_operation();
 };
+
+#include "synergia/simulation/aperture_operation.tcc"
 
 #endif /* APERTURE_OPERATION_H_ */
