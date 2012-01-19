@@ -128,7 +128,7 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
             have_slice_lattice_functions(false), have_tunes(false),
             have_beamline_context(false),
             aperture_extractor_map_sptr(new Aperture_operation_extractor_map),
-            map_order(map_order), have_slices(false)
+    map_order(map_order), have_slices(false)
 {
     construct_extractor_map();
     construct_aperture_extractor_map();
@@ -311,6 +311,86 @@ Lattice_simulator::get_lattice_functions(
     return lattice_functions_slice_map[&lattice_element_slice];
 }
 
+void
+Lattice_simulator::calculate_normal_form()
+{
+  // make sure we have a good environment
+  if (Jet__environment::getLastEnv() == 0) {
+    JetParticle::createStandardEnvironments(map_order);
+  }
+  // a BeamlineContext object can help by calculating maps and
+  // closed orbits
+  BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
+  BeamlineContext beamline_context(reference_particle_to_chef_particle(lattice_sptr->get_reference_particle()), beamline_sptr);
+  // we need a ring-like beamline in order to make a normal form
+  if (!beamline_context.isTreatedAsRing()) {
+    beamline_context.handleAsRing();
+  }
+  // does it actually work as a ring?
+  if (!beamline_context.isRing()) {
+    throw std::runtime_error("Line passed to Lattice_simulator::calculate_normal_form() is not actually a ring");
+  }
+  Mapping one_turn_map = beamline_context.getOneTurnMap();
+  normal_form_sage_sptr = Normal_form_sage_sptr(new normalFormSage(one_turn_map, reference_particle_to_chef_jet_particle(lattice_sptr->get_reference_particle(),map_order), map_order));
+}
+
+// converts a MArray2d of particle coordinates in synergia ordering into
+// an MArray2d of complex normal form coordinates stored as a0.real, a0.imag,
+//  a1.real,a1.imag, a2.real, a2.imag.
+
+void
+Lattice_simulator::convert_human_to_normal(MArray2d_ref coords)
+{
+  const MArray2d::size_type *coords_shape = coords.shape();
+  const MArray2d::index *coords_bases = coords.index_bases();
+
+  if ((coords_shape[0] != 7) || (coords_bases[0] != 0)) {
+    throw std::runtime_error("Lattice_simulator::convert_normal_to_human expected [0:7]xn array");
+  }
+
+  for (int i=coords_bases[1]; i!=coords_bases[1]+coords_shape[1]; ++i) {
+    Vector w(6);
+    VectorC a(6);
+
+    for (int j=0; j<6; ++j) {
+      w(get_chef_index(j)) = coords[j][i];
+    }
+    normal_form_sage_sptr->cnvDataToNormalForm(w, a);
+    for (int j=0; j<3; ++j) {
+      coords[2*j][i] = a(j).real();
+      coords[2*j+1][i] = a(j).imag();
+    }
+  }
+}
+
+// converts a MArray2d of complex normal form particle coordinates into
+// human space coordinates in synergia order.
+void
+Lattice_simulator::convert_normal_to_human(MArray2d_ref coords)
+{
+  const MArray2d::size_type *coords_shape = coords.shape();
+  const MArray2d::index *coords_bases = coords.index_bases();
+
+  if ((coords_shape[0] != 7) || (coords_bases[0] != 0)) {
+    throw std::runtime_error("Lattice_simulator::convert_normal_to_human expected [0:7]xn array");
+  }
+  for (int i=coords_bases[1]; i!=coords_bases[1]+coords_shape[1]; ++i) {
+    Vector w(6);
+    VectorC a(6);
+    
+    for (int j=0; j<3; ++j) {
+      a(j) = std::complex<double>(coords[2*j][i],coords[2*j+1][i]);
+      a(j+3) = std::conj(a(j));
+    }
+    // convert to human form in CHEF order
+    normal_form_sage_sptr->cnvDataFromNormalForm(a, w);
+    // write back into synergia ordering
+    for (int j=0; j<6; ++j) {
+      coords[get_synergia_index(j)][i] = w(j);
+    }
+  }
+}
+				   
 double
 Lattice_simulator::get_horizontal_tune()
 {

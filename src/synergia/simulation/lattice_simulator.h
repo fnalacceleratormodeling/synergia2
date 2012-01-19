@@ -1,6 +1,7 @@
 #ifndef LATTICE_SIMULATOR_H_
 #define LATTICE_SIMULATOR_H_
 
+#include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/lattice/lattice.h"
 #include "synergia/lattice/chef_lattice.h"
 #include "synergia/simulation/operation_extractor.h"
@@ -8,7 +9,10 @@
 #include "synergia/simulation/step.h"
 #include <physics_toolkit/LattFuncSage.h>
 #include <physics_toolkit/BeamlineContext.h>
+#include <physics_toolkit/normalFormSage.h>
 #include <string>
+
+typedef boost::shared_ptr<normalFormSage> Normal_form_sage_sptr;
 
 struct Lattice_functions
 {
@@ -55,6 +59,7 @@ private:
     get_beamline_context();
     void
     get_tunes();
+    Normal_form_sage_sptr normal_form_sage_sptr;
 public:
     Lattice_simulator(Lattice_sptr lattice, int map_order);
     void
@@ -90,6 +95,9 @@ public:
     get_horizontal_tune();
     double
     get_vertical_tune();
+    void calculate_normal_form();
+    void convert_human_to_normal(MArray2d_ref coords);
+    void convert_normal_to_human(MArray2d_ref coords);
     void
     adjust_tunes(double horizontal_tune, double vertical_tune,
             Lattice_elements const& horizontal_correctors,

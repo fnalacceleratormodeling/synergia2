@@ -36,5 +36,10 @@ get_chef_index(int synergia_index)
 {
     return synergia_index / 2 + 3 * (synergia_index % 2);
 }
-
+inline
+int
+get_synergia_index(int chef_index)
+{
+  return 2*(chef_index%3) + chef_index%3;
+}
 #endif /* CHEF_UTILS_H_ */
