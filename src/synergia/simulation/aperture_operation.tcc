@@ -10,7 +10,6 @@ template<typename T>
     Aperture_operation::apply_impl(T & t, Bunch & bunch)
     {
         MArray2d_ref particles(bunch.get_local_particles());
-        int kept = 0;
         int discarded = 0;
         int local_num = bunch.get_local_num();
         for (int part = 0; part < local_num; ++part) {
@@ -34,11 +33,12 @@ template<typename T>
                         particles[part][6] = particles[last][6];
                     }
                 } else {
-                    ++kept;
                     try_discard = false;
                 }
             }
         }
+        deposited_charge += discarded * bunch.get_real_num()
+                / bunch.get_total_num();
         bunch.set_local_num(local_num);
     }
 

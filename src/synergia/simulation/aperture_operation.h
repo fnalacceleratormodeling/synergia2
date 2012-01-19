@@ -5,6 +5,8 @@
 
 class Aperture_operation : public Independent_operation
 {
+private:
+    double deposited_charge;
 public:
     Aperture_operation(Lattice_element const& element);
     virtual const char *
@@ -16,6 +18,12 @@ public:
         apply_impl(T& t, Bunch & bunch);
     virtual void
     apply(Bunch & bunch)=0;
+    void
+    reset_deposited_charge();
+    void
+    increase_deposited_charge(double charge);
+    double
+    get_deposited_charge() const;
     virtual
     ~Aperture_operation();
 };

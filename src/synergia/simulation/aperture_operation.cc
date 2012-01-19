@@ -5,8 +5,26 @@
 #include <cmath>
 
 Aperture_operation::Aperture_operation(Lattice_element const& element) :
-    Independent_operation("aperture")
+    Independent_operation("aperture"), deposited_charge(0.0)
 {
+}
+
+void
+Aperture_operation::reset_deposited_charge()
+{
+    deposited_charge = 0.0;
+}
+
+void
+Aperture_operation::increase_deposited_charge(double charge)
+{
+    deposited_charge += charge;
+}
+
+double
+Aperture_operation::get_deposited_charge() const
+{
+    return deposited_charge;
 }
 
 Aperture_operation::~Aperture_operation()
