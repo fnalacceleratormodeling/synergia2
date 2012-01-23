@@ -168,17 +168,18 @@ BOOST_PYTHON_MODULE(simulation)
         ;
 
     void (Step::*apply1)(Bunch &) = &Step::apply;
+    Operators& (Step::*get_operators1)() = &Step::get_operators;
     class_<Step, Step_sptr >("Step", init<double >())
 //            .def("append", remember how to overload methods...)
             .def("apply",apply1)
-            .def("get_operators",&Step::get_operators,
-                    return_value_policy<copy_const_reference >())
+            .def("get_operators",get_operators1,
+                    return_value_policy<copy_non_const_reference >())
             .def("get_time_fractions",&Step::get_time_fractions,
                     return_value_policy<copy_const_reference >())
-            .def("print_", &Step::print) 
-            .def("get_length", &Step::get_length)      
+            .def("print_", &Step::print)
+            .def("get_length", &Step::get_length)
             ;
-            
+
     to_python_converter<Steps,
              container_conversions::to_tuple<Steps > >();
 
@@ -197,21 +198,21 @@ BOOST_PYTHON_MODULE(simulation)
 
     class_<Split_operator_stepper_elements, bases<Stepper > >("Split_operator_stepper_elements",
             init<Lattice_simulator const&, Collective_operator_sptr, int >());
-            
+
     class_<Kicks >("Kicks", init< >())
             .def(init<Collective_operators const& , int >())
             ;
-    
+
     class_<List_choice_map >("List_choice_map")
         .def(map_indexing_suite<std::map<std::string, Kicks> >() );
-        ;       
+        ;
 
     class_<Split_operator_stepper_choice, bases<Stepper > >("Split_operator_stepper_choice",
             init<Lattice_simulator const&, List_choice_map const&, optional<bool > >())
            .def(init< int, Lattice_simulator const&, List_choice_map const&, optional<bool > >())
            //.def(init<Lattice_simulator const&, List_choice_map const&, int>())
          //  .def(init<Lattice_simulator const&, List_choice_map const& >())
-           ;        
+           ;
 
     class_<Independent_stepper, bases<Stepper > >("Independent_stepper",
             init<Lattice_simulator const&, int >());
