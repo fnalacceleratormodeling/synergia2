@@ -31,7 +31,7 @@ Aperture_operation::~Aperture_operation()
 {
 }
 
-const char Finite_aperture_operation::type_name[] = "finite_aperture";
+const char Finite_aperture_operation::aperture_type[] = "finite";
 
 Finite_aperture_operation::Finite_aperture_operation(
         Lattice_element const& element) :
@@ -40,16 +40,16 @@ Finite_aperture_operation::Finite_aperture_operation(
 }
 
 const char *
-Finite_aperture_operation::get_type_name() const
+Finite_aperture_operation::get_aperture_type() const
 {
-    return type_name;
+    return aperture_type;
 }
 
 bool
 Finite_aperture_operation::operator==(
         Aperture_operation const& aperture_operation) const
 {
-    return (type_name == aperture_operation.get_type_name());
+    return (aperture_type == aperture_operation.get_aperture_type());
 }
 
 void
@@ -63,7 +63,7 @@ Finite_aperture_operation::~Finite_aperture_operation()
 }
 
 const double Circular_aperture_operation::default_radius(1000.0);
-const char Circular_aperture_operation::type_name[] = "circular_aperture";
+const char Circular_aperture_operation::aperture_type[] = "circular";
 const char Circular_aperture_operation::attribute_name[] = "circular";
 
 Circular_aperture_operation::Circular_aperture_operation(
@@ -79,16 +79,16 @@ Circular_aperture_operation::Circular_aperture_operation(
 }
 
 const char *
-Circular_aperture_operation::get_type_name() const
+Circular_aperture_operation::get_aperture_type() const
 {
-    return type_name;
+    return aperture_type;
 }
 
 bool
 Circular_aperture_operation::operator==(
         Aperture_operation const& aperture_operation) const
 {
-    if (type_name == aperture_operation.get_type_name()) {
+    if (aperture_type == aperture_operation.get_aperture_type()) {
         return operator==(
                 *static_cast<Circular_aperture_operation const* > (&aperture_operation));
     } else {
@@ -113,7 +113,7 @@ Circular_aperture_operation::~Circular_aperture_operation()
 {
 }
 
-const char Elliptical_aperture_operation::type_name[] = "elliptical_aperture";
+const char Elliptical_aperture_operation::aperture_type[] = "elliptical";
 const char Elliptical_aperture_operation::attribute_name[] = "elliptical";
 
 Elliptical_aperture_operation::Elliptical_aperture_operation(
@@ -139,16 +139,16 @@ Elliptical_aperture_operation::Elliptical_aperture_operation(
 }
 
 const char *
-Elliptical_aperture_operation::get_type_name() const
+Elliptical_aperture_operation::get_aperture_type() const
 {
-    return type_name;
+    return aperture_type;
 }
 
 bool
 Elliptical_aperture_operation::operator==(
         Aperture_operation const& aperture_operation) const
 {
-    if (type_name == aperture_operation.get_type_name()) {
+    if (aperture_type == aperture_operation.get_aperture_type()) {
         return operator==(
                 *static_cast<Elliptical_aperture_operation const* > (&aperture_operation));
     } else {
@@ -176,7 +176,7 @@ Elliptical_aperture_operation::~Elliptical_aperture_operation()
 {
 }
 
-const char Rectangular_aperture_operation::type_name[] = "rectangular_aperture";
+const char Rectangular_aperture_operation::aperture_type[] = "rectangular";
 const char Rectangular_aperture_operation::attribute_name[] = "rectangular";
 
 Rectangular_aperture_operation::Rectangular_aperture_operation(
@@ -198,16 +198,16 @@ Rectangular_aperture_operation::Rectangular_aperture_operation(
 }
 
 const char *
-Rectangular_aperture_operation::get_type_name() const
+Rectangular_aperture_operation::get_aperture_type() const
 {
-    return type_name;
+    return aperture_type;
 }
 
 bool
 Rectangular_aperture_operation::operator==(
         Aperture_operation const& aperture_operation) const
 {
-    if (type_name == aperture_operation.get_type_name()) {
+    if (aperture_type == aperture_operation.get_aperture_type()) {
         return operator==(
                 *static_cast<Rectangular_aperture_operation const* > (&aperture_operation));
     } else {
@@ -233,7 +233,7 @@ Rectangular_aperture_operation::~Rectangular_aperture_operation()
 {
 }
 
-const char Polygon_aperture_operation::type_name[] = "polygon_aperture";
+const char Polygon_aperture_operation::aperture_type[] = "polygon";
 const char Polygon_aperture_operation::attribute_name[] = "polygon";
 
 Polygon_aperture_operation::Polygon_aperture_operation(
@@ -268,16 +268,16 @@ Polygon_aperture_operation::Polygon_aperture_operation(
 }
 
 const char *
-Polygon_aperture_operation::get_type_name() const
+Polygon_aperture_operation::get_aperture_type() const
 {
-    return type_name;
+    return aperture_type;
 }
 
 bool
 Polygon_aperture_operation::operator==(
         Aperture_operation const& aperture_operation) const
 {
-    if (type_name == aperture_operation.get_type_name()) {
+    if (aperture_type == aperture_operation.get_aperture_type()) {
         return operator==(
                 *static_cast<Polygon_aperture_operation const* > (&aperture_operation));
     } else {
@@ -302,8 +302,8 @@ Polygon_aperture_operation::~Polygon_aperture_operation()
 {
 }
 
-const char Wire_elliptical_aperture_operation::type_name[] =
-        "wire_elliptical_aperture";
+const char Wire_elliptical_aperture_operation::aperture_type[] =
+        "wire_elliptical";
 const char Wire_elliptical_aperture_operation::attribute_name[] =
         "wire_elliptical";
 
@@ -352,16 +352,16 @@ Wire_elliptical_aperture_operation::Wire_elliptical_aperture_operation(
 }
 
 const char *
-Wire_elliptical_aperture_operation::get_type_name() const
+Wire_elliptical_aperture_operation::get_aperture_type() const
 {
-    return type_name;
+    return aperture_type;
 }
 
 bool
 Wire_elliptical_aperture_operation::operator==(
         Aperture_operation const& aperture_operation) const
 {
-    if (type_name == aperture_operation.get_type_name()) {
+    if (aperture_type == aperture_operation.get_aperture_type()) {
         return operator==(
                 *static_cast<Wire_elliptical_aperture_operation const* > (&aperture_operation));
     } else {

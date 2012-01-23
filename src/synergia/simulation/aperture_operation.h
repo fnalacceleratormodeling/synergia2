@@ -10,7 +10,7 @@ private:
 public:
     Aperture_operation(Lattice_element const& element);
     virtual const char *
-    get_type_name() const = 0;
+    get_aperture_type() const = 0;
     virtual bool
     operator==(Aperture_operation const& aperture_operation) const = 0;
     template<typename T>
@@ -29,6 +29,7 @@ public:
 };
 
 typedef boost::shared_ptr<Aperture_operation > Aperture_operation_sptr;
+typedef std::list<Aperture_operation_sptr > Aperture_operation_sptrs;
 
 /// An aperture to remove all particles with infinite and/or NaN coordinates.
 class Finite_aperture_operation : public Aperture_operation
@@ -36,11 +37,11 @@ class Finite_aperture_operation : public Aperture_operation
 private:
     double radius;
 public:
-    static const char type_name[];
+    static const char aperture_type[];
     static const char attribute_name[];
     Finite_aperture_operation(Lattice_element const& element);
     virtual const char *
-    get_type_name() const;
+    get_aperture_type() const;
     virtual bool
     operator==(Aperture_operation const& aperture_operation) const;
     bool
@@ -61,11 +62,11 @@ private:
     double radius, radius2;
 public:
     static const double default_radius;
-    static const char type_name[];
+    static const char aperture_type[];
     static const char attribute_name[];
     Circular_aperture_operation(Lattice_element const& element);
     virtual const char *
-    get_type_name() const;
+    get_aperture_type() const;
     virtual bool
     operator==(Aperture_operation const& aperture_operation) const;
     bool
@@ -91,11 +92,11 @@ private:
     double horizontal_radius, vertical_radius;
     double h2, v2;
 public:
-    static const char type_name[];
+    static const char aperture_type[];
     static const char attribute_name[];
     Elliptical_aperture_operation(Lattice_element const& element);
     virtual const char *
-    get_type_name() const;
+    get_aperture_type() const;
     virtual bool
     operator==(Aperture_operation const& aperture_operation) const;
     bool
@@ -120,11 +121,11 @@ class Rectangular_aperture_operation : public Aperture_operation
 private:
     double width, height;
 public:
-    static const char type_name[];
+    static const char aperture_type[];
     static const char attribute_name[];
     Rectangular_aperture_operation(Lattice_element const& element);
     virtual const char *
-    get_type_name() const;
+    get_aperture_type() const;
     virtual bool
     operator==(Aperture_operation const& aperture_operation) const;
     bool
@@ -151,11 +152,11 @@ private:
     int vertices_num;
     std::vector<std::complex<double > > vertices;
 public:
-    static const char type_name[];
+    static const char aperture_type[];
     static const char attribute_name[];
     Polygon_aperture_operation(Lattice_element const& element);
     virtual const char *
-    get_type_name() const;
+    get_aperture_type() const;
     virtual bool
     operator==(Aperture_operation const& aperture_operation) const;
     bool
@@ -186,11 +187,11 @@ private:
     double h2, v2;
     double wire_x, wire_width, gap;
 public:
-    static const char type_name[];
+    static const char aperture_type[];
     static const char attribute_name[];
     Wire_elliptical_aperture_operation(Lattice_element const& element);
     virtual const char *
-    get_type_name() const;
+    get_aperture_type() const;
     virtual bool
     operator==(Aperture_operation const& aperture_operation) const;
     bool
