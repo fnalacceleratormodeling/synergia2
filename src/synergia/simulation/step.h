@@ -27,8 +27,8 @@ private:
     /// a list which contains informations about prevoius turns, the last element is the last (the earliest) turn stored
     /// it is updated at every step where impedance kick is applied
     /// the element is a vector of size num_bunches. The vector elements correspund to different bunches
-    std::list< std::vector<Bunch_means> > stored_vbunches; 
-    
+    std::list< std::vector<Bunch_means> > stored_vbunches;
+
 public:
     Step(double length);
     void
@@ -43,6 +43,8 @@ public:
     apply(Bunch_with_diagnostics_train & bunch_diag_train);
     Operators const&
     get_operators() const;
+    Operators &
+    get_operators();
     std::list<double> const&
     get_time_fractions() const;
     double
