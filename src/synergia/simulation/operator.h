@@ -76,10 +76,6 @@ private:
     Operation_extractor_map_sptr operation_extractor_map_sptr;
     Aperture_operation_extractor_map_sptr aperture_operation_extractor_map_sptr;
     bool have_operations;
-    void
-    update_operations(Reference_particle const& reference_particle);
-    bool
-    need_update(Reference_particle const& reference_particle);
 public:
     Independent_operator(
             std::string const& name,
@@ -89,6 +85,14 @@ public:
     append_slice(Lattice_element_slice_sptr slice_sptr);
     Lattice_element_slices const&
     get_slices() const;
+    void
+    update_operations(Reference_particle const& reference_particle);
+    bool
+    need_update(Reference_particle const& reference_particle);
+    Independent_operations const&
+    get_operations() const;
+    Independent_operations &
+    get_operations();
     virtual void
     apply(Bunch & bunch, double time_step, Step & step);
     virtual void

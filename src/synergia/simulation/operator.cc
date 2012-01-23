@@ -211,6 +211,18 @@ Independent_operator::get_slices() const
     return slices;
 }
 
+Independent_operations const&
+Independent_operator::get_operations() const
+{
+    return operations;
+}
+
+Independent_operations &
+Independent_operator::get_operations()
+{
+    return operations;
+}
+
 void
 Independent_operator::apply(Bunch & bunch, double time_step, Step & step)
 {
