@@ -7,8 +7,9 @@ class Aperture_operation : public Independent_operation
 {
 private:
     double deposited_charge;
+    Lattice_element_slice_sptr slice;
 public:
-    Aperture_operation(Lattice_element const& element);
+    Aperture_operation(Lattice_element_slice_sptr slice);
     virtual const char *
     get_aperture_type() const = 0;
     virtual bool
@@ -39,7 +40,7 @@ private:
 public:
     static const char aperture_type[];
     static const char attribute_name[];
-    Finite_aperture_operation(Lattice_element const& element);
+    Finite_aperture_operation(Lattice_element_slice_sptr slice);
     virtual const char *
     get_aperture_type() const;
     virtual bool
@@ -64,7 +65,7 @@ public:
     static const double default_radius;
     static const char aperture_type[];
     static const char attribute_name[];
-    Circular_aperture_operation(Lattice_element const& element);
+    Circular_aperture_operation(Lattice_element_slice_sptr slice);
     virtual const char *
     get_aperture_type() const;
     virtual bool
@@ -94,7 +95,7 @@ private:
 public:
     static const char aperture_type[];
     static const char attribute_name[];
-    Elliptical_aperture_operation(Lattice_element const& element);
+    Elliptical_aperture_operation(Lattice_element_slice_sptr slice);
     virtual const char *
     get_aperture_type() const;
     virtual bool
@@ -123,7 +124,7 @@ private:
 public:
     static const char aperture_type[];
     static const char attribute_name[];
-    Rectangular_aperture_operation(Lattice_element const& element);
+    Rectangular_aperture_operation(Lattice_element_slice_sptr slice);
     virtual const char *
     get_aperture_type() const;
     virtual bool
@@ -154,7 +155,7 @@ private:
 public:
     static const char aperture_type[];
     static const char attribute_name[];
-    Polygon_aperture_operation(Lattice_element const& element);
+    Polygon_aperture_operation(Lattice_element_slice_sptr slice);
     virtual const char *
     get_aperture_type() const;
     virtual bool
@@ -189,7 +190,7 @@ private:
 public:
     static const char aperture_type[];
     static const char attribute_name[];
-    Wire_elliptical_aperture_operation(Lattice_element const& element);
+    Wire_elliptical_aperture_operation(Lattice_element_slice_sptr slice);
     virtual const char *
     get_aperture_type() const;
     virtual bool

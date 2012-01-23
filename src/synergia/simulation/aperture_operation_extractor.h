@@ -8,7 +8,7 @@ class Aperture_operation_extractor
 public:
     Aperture_operation_extractor();
     virtual Aperture_operation_sptr
-    extract(Lattice_element const& element) = 0;
+    extract(Lattice_element_slice_sptr slice) = 0;
     virtual
     ~Aperture_operation_extractor();
 };
@@ -24,9 +24,9 @@ template<typename T>
         {
         }
         virtual Aperture_operation_sptr
-        extract(Lattice_element const& element)
+        extract(Lattice_element_slice_sptr slice)
         {
-            return boost::shared_ptr<T >(new T(element));
+            return boost::shared_ptr<T >(new T(slice));
         }
         virtual
         ~Generic_aperture_extractor()

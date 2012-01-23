@@ -80,7 +80,7 @@ Independent_operator::update_operations(
     // Group slices of equal extractor_type and pass to operation_extractor
     // to get operations.
     Lattice_element_slices group;
-    for (Lattice_element_slices::const_iterator it = slices.begin(); it
+    for (Lattice_element_slices::iterator it = slices.begin(); it
             != slices.end(); ++it) {
         if ((*it)->get_lattice_element().has_string_attribute("aperture_type")) {
             aperture_type = (*it)->get_lattice_element().get_string_attribute(
@@ -112,7 +112,7 @@ Independent_operator::update_operations(
                     aperture_operation_extractor_map_sptr->get_extractor(
                             aperture_type));
             Aperture_operation_sptr aperture_operation_sptr(
-                    extractor->extract((*it)->get_lattice_element()));
+                    extractor->extract(*it));
             operations.push_back(aperture_operation_sptr);
 
         }
@@ -123,7 +123,7 @@ Independent_operator::update_operations(
                     aperture_operation_extractor_map_sptr->get_extractor(
                             aperture_type));
             Aperture_operation_sptr aperture_operation_sptr(
-                    extractor->extract((*it)->get_lattice_element()));
+                    extractor->extract(*it));
             operations.push_back(aperture_operation_sptr);
             Independent_operations
                     group_operations =
@@ -144,12 +144,11 @@ Independent_operator::update_operations(
     }
     Aperture_operation_extractor_sptr extractor(
             aperture_operation_extractor_map_sptr->get_extractor("default"));
-    Lattice_element dummy_element;
     Aperture_operation_sptr aperture_operation_sptr(
-            extractor->extract(dummy_element));
+            extractor->extract(slices.back()));
     operations.push_back(aperture_operation_sptr);
     Aperture_operation_sptr finite_aperture_operation_sptr(
-            new Finite_aperture_operation(dummy_element));
+            new Finite_aperture_operation(slices.back()));
     operations.push_back(finite_aperture_operation_sptr);
 
     have_operations = true;
