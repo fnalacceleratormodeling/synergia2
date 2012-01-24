@@ -10,6 +10,7 @@
 #include <physics_toolkit/LattFuncSage.h>
 #include <physics_toolkit/BeamlineContext.h>
 #include <physics_toolkit/normalFormSage.h>
+
 #include <string>
 
 typedef boost::shared_ptr<normalFormSage> Normal_form_sage_sptr;
