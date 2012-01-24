@@ -37,8 +37,7 @@ template<typename T>
                 }
             }
         }
-        deposited_charge += discarded * bunch.get_real_num()
-                / bunch.get_total_num();
+        deposit_charge(discarded * bunch.get_real_num() / bunch.get_total_num());
         bunch.set_local_num(local_num);
     }
 

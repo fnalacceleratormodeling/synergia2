@@ -17,37 +17,17 @@ BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture)
     Finite_aperture_operation finite_aperture_operation(slice_sptr);
 }
 
-BOOST_FIXTURE_TEST_CASE(get_deposited_charge, Lattice_fixture)
+BOOST_FIXTURE_TEST_CASE(deposited_charge, Lattice_fixture)
 {
     Lattice_element_sptr element_sptr(lattice_sptr->get_elements().front());
     Lattice_element_slice_sptr slice_sptr(
             new Lattice_element_slice(*element_sptr));
     Finite_aperture_operation finite_aperture_operation(slice_sptr);
-    BOOST_CHECK(finite_aperture_operation.get_deposited_charge() == 0.0);
-}
-
-BOOST_FIXTURE_TEST_CASE(increment_deposited_charge, Lattice_fixture)
-{
-    Lattice_element_sptr element_sptr(lattice_sptr->get_elements().front());
-    Lattice_element_slice_sptr slice_sptr(
-            new Lattice_element_slice(*element_sptr));
-    Finite_aperture_operation finite_aperture_operation(slice_sptr);
-    const double dummy_deposited_charge = 2.71828;
-    finite_aperture_operation.increase_deposited_charge(dummy_deposited_charge);
-    BOOST_CHECK_CLOSE(finite_aperture_operation.get_deposited_charge(), dummy_deposited_charge,
-            tolerance);
-}
-
-BOOST_FIXTURE_TEST_CASE(reset_deposited_charge, Lattice_fixture)
-{
-    Lattice_element_sptr element_sptr(lattice_sptr->get_elements().front());
-    Lattice_element_slice_sptr slice_sptr(
-            new Lattice_element_slice(*element_sptr));
-    Finite_aperture_operation finite_aperture_operation(slice_sptr);
-    const double dummy_deposited_charge = 2.71828;
-    finite_aperture_operation.increase_deposited_charge(dummy_deposited_charge);
-    finite_aperture_operation.reset_deposited_charge();
-    BOOST_CHECK(finite_aperture_operation.get_deposited_charge() == 0.0);
+    const double charge = 4.66920160910299067185320382;
+    finite_aperture_operation.deposit_charge(charge);
+    BOOST_CHECK_CLOSE(
+            element_sptr->get_double_attribute(Aperture_operation::charge_attribute),
+            charge, tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(apply, Lattice_fixture)
@@ -66,8 +46,9 @@ BOOST_FIXTURE_TEST_CASE(apply, Lattice_fixture)
     finite_aperture_operation.apply(b.bunch);
     const int num_lost = 6;
     BOOST_CHECK_EQUAL(b.bunch.get_local_num(), orig_local_num - num_lost);
-    BOOST_CHECK_CLOSE(finite_aperture_operation.get_deposited_charge(), num_lost*
-            b.bunch.get_real_num()/b.bunch.get_total_num(), tolerance);
+    BOOST_CHECK_CLOSE(
+            element_sptr->get_double_attribute(Aperture_operation::charge_attribute),
+            num_lost* b.bunch.get_real_num()/b.bunch.get_total_num(), tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(operatorequals, Lattice_fixture)

@@ -4,27 +4,25 @@
 #include <stdexcept>
 #include <cmath>
 
-Aperture_operation::Aperture_operation(Lattice_element_slice_sptr slice) :
-    Independent_operation("aperture"), slice(slice), deposited_charge(0.0)
+const char Aperture_operation::charge_attribute[] = "deposited_charge";
+
+Aperture_operation::Aperture_operation(Lattice_element_slice_sptr slice_sptr) :
+    Independent_operation("aperture"), slice_sptr(slice_sptr)
 {
 }
 
 void
-Aperture_operation::reset_deposited_charge()
+Aperture_operation::deposit_charge(double charge)
 {
-    deposited_charge = 0.0;
-}
-
-void
-Aperture_operation::increase_deposited_charge(double charge)
-{
+    double deposited_charge(0.0);
+    if (slice_sptr->get_lattice_element().has_double_attribute(charge_attribute)) {
+        deposited_charge
+                = slice_sptr->get_lattice_element().get_double_attribute(
+                        charge_attribute);
+    }
     deposited_charge += charge;
-}
-
-double
-Aperture_operation::get_deposited_charge() const
-{
-    return deposited_charge;
+    slice_sptr->get_lattice_element().set_double_attribute(charge_attribute,
+            deposited_charge);
 }
 
 Aperture_operation::~Aperture_operation()
@@ -34,8 +32,8 @@ Aperture_operation::~Aperture_operation()
 const char Finite_aperture_operation::aperture_type[] = "finite";
 
 Finite_aperture_operation::Finite_aperture_operation(
-        Lattice_element_slice_sptr slice) :
-    Aperture_operation(slice)
+        Lattice_element_slice_sptr slice_sptr) :
+    Aperture_operation(slice_sptr)
 {
 }
 
@@ -67,13 +65,13 @@ const char Circular_aperture_operation::aperture_type[] = "circular";
 const char Circular_aperture_operation::attribute_name[] = "circular";
 
 Circular_aperture_operation::Circular_aperture_operation(
-        Lattice_element_slice_sptr slice) :
-    Aperture_operation(slice)
+        Lattice_element_slice_sptr slice_sptr) :
+    Aperture_operation(slice_sptr)
 {
 
-    if (slice->get_lattice_element().has_double_attribute(
+    if (slice_sptr->get_lattice_element().has_double_attribute(
             "circular_aperture_radius")) {
-        radius = slice->get_lattice_element().get_double_attribute(
+        radius = slice_sptr->get_lattice_element().get_double_attribute(
                 "circular_aperture_radius");
     } else {
         radius = default_radius;
@@ -120,21 +118,23 @@ const char Elliptical_aperture_operation::aperture_type[] = "elliptical";
 const char Elliptical_aperture_operation::attribute_name[] = "elliptical";
 
 Elliptical_aperture_operation::Elliptical_aperture_operation(
-        Lattice_element_slice_sptr slice) :
-    Aperture_operation(slice)
+        Lattice_element_slice_sptr slice_sptr) :
+    Aperture_operation(slice_sptr)
 {
-    if (slice->get_lattice_element().has_double_attribute(
+    if (slice_sptr->get_lattice_element().has_double_attribute(
             "elliptical_aperture_horizontal_radius")) {
-        horizontal_radius = slice->get_lattice_element().get_double_attribute(
-                "elliptical_aperture_horizontal_radius");
+        horizontal_radius
+                = slice_sptr->get_lattice_element().get_double_attribute(
+                        "elliptical_aperture_horizontal_radius");
     } else {
         throw std::runtime_error(
                 "Elliptical_aperture_operation: elliptical_aperture requires an elliptical_aperture_horizontal_radius attribute");
     }
-    if (slice->get_lattice_element().has_double_attribute(
+    if (slice_sptr->get_lattice_element().has_double_attribute(
             "elliptical_aperture_vertical_radius")) {
-        vertical_radius = slice->get_lattice_element().get_double_attribute(
-                "elliptical_aperture_vertical_radius");
+        vertical_radius
+                = slice_sptr->get_lattice_element().get_double_attribute(
+                        "elliptical_aperture_vertical_radius");
     } else {
         throw std::runtime_error(
                 "Elliptical_aperture_operation: elliptical_aperture requires an elliptical_aperture_vertical_radius attribute");
@@ -185,20 +185,20 @@ const char Rectangular_aperture_operation::aperture_type[] = "rectangular";
 const char Rectangular_aperture_operation::attribute_name[] = "rectangular";
 
 Rectangular_aperture_operation::Rectangular_aperture_operation(
-        Lattice_element_slice_sptr slice) :
-    Aperture_operation(slice)
+        Lattice_element_slice_sptr slice_sptr) :
+    Aperture_operation(slice_sptr)
 {
-    if (slice->get_lattice_element().has_double_attribute(
+    if (slice_sptr->get_lattice_element().has_double_attribute(
             "rectangular_aperture_width")) {
-        width = slice->get_lattice_element().get_double_attribute(
+        width = slice_sptr->get_lattice_element().get_double_attribute(
                 "rectangular_aperture_width");
     } else {
         throw std::runtime_error(
                 "Rectangular_aperture_operation: rectangular_aperture requires an rectangular_aperture_width attribute");
     }
-    if (slice->get_lattice_element().has_double_attribute(
+    if (slice_sptr->get_lattice_element().has_double_attribute(
             "rectangular_aperture_height")) {
-        height = slice->get_lattice_element().get_double_attribute(
+        height = slice_sptr->get_lattice_element().get_double_attribute(
                 "rectangular_aperture_height");
     } else {
         throw std::runtime_error(
@@ -246,13 +246,13 @@ const char Polygon_aperture_operation::aperture_type[] = "polygon";
 const char Polygon_aperture_operation::attribute_name[] = "polygon";
 
 Polygon_aperture_operation::Polygon_aperture_operation(
-        Lattice_element_slice_sptr slice) :
-    Aperture_operation(slice)
+        Lattice_element_slice_sptr slice_sptr) :
+    Aperture_operation(slice_sptr)
 {
-    if (slice->get_lattice_element().has_double_attribute(
+    if (slice_sptr->get_lattice_element().has_double_attribute(
             "the_number_of_vertices")) {
         vertices_num = int(
-                slice->get_lattice_element().get_double_attribute(
+                slice_sptr->get_lattice_element().get_double_attribute(
                         "the_number_of_vertices"));
         if (vertices_num < 3) throw std::runtime_error(
                 "Polygon_aperture_operation: polygon_aperture requires at least 3 vertices");
@@ -264,14 +264,16 @@ Polygon_aperture_operation::Polygon_aperture_operation(
         std::string ss = boost::lexical_cast<std::string >(index + 1);
         std::string x = "pax" + ss;
         std::string y = "pay" + ss;
-        if ((slice->get_lattice_element().has_double_attribute(x))
-                && (slice->get_lattice_element().has_double_attribute(y))) {
+        if ((slice_sptr->get_lattice_element().has_double_attribute(x))
+                && (slice_sptr->get_lattice_element().has_double_attribute(y))) {
             vertices.push_back(
                     std::complex<double >(
-                            slice->get_lattice_element().get_double_attribute(x),
-                            slice->get_lattice_element().get_double_attribute(y)));
-            //std::cout << index << "  " << slice->get_lattice_element().get_double_attribute(x)
-            //        << "  " << slice->get_lattice_element().get_double_attribute(y) << std::endl;
+                            slice_sptr->get_lattice_element().get_double_attribute(
+                                    x),
+                            slice_sptr->get_lattice_element().get_double_attribute(
+                                    y)));
+            //std::cout << index << "  " << slice_sptr->get_lattice_element().get_double_attribute(x)
+            //        << "  " << slice_sptr->get_lattice_element().get_double_attribute(y) << std::endl;
         } else {
             throw std::runtime_error(
                     "Polygon_aperture_operation: polygon_aperture requires x and y coordinate attributes for each vertex");
@@ -320,44 +322,46 @@ const char Wire_elliptical_aperture_operation::attribute_name[] =
         "wire_elliptical";
 
 Wire_elliptical_aperture_operation::Wire_elliptical_aperture_operation(
-        Lattice_element_slice_sptr slice) :
-    Aperture_operation(slice)
+        Lattice_element_slice_sptr slice_sptr) :
+    Aperture_operation(slice_sptr)
 {
-    if (slice->get_lattice_element().has_double_attribute(
+    if (slice_sptr->get_lattice_element().has_double_attribute(
             "wire_elliptical_aperture_horizontal_radius")) {
-        horizontal_radius = slice->get_lattice_element().get_double_attribute(
-                "wire_elliptical_aperture_horizontal_radius");
+        horizontal_radius
+                = slice_sptr->get_lattice_element().get_double_attribute(
+                        "wire_elliptical_aperture_horizontal_radius");
     } else {
         throw std::runtime_error(
                 "wire_elliptical_aperture_operation: wire_elliptical_aperture requires an wire_elliptical_aperture_horizontal_radius attribute");
     }
-    if (slice->get_lattice_element().has_double_attribute(
+    if (slice_sptr->get_lattice_element().has_double_attribute(
             "wire_elliptical_aperture_vertical_radius")) {
-        vertical_radius = slice->get_lattice_element().get_double_attribute(
-                "wire_elliptical_aperture_vertical_radius");
+        vertical_radius
+                = slice_sptr->get_lattice_element().get_double_attribute(
+                        "wire_elliptical_aperture_vertical_radius");
     } else {
         throw std::runtime_error(
                 "Wire_elliptical_aperture_operation: wire_elliptical_aperture requires an wire_elliptical_aperture_vertical_radius attribute");
     }
-    if (slice->get_lattice_element().has_double_attribute(
+    if (slice_sptr->get_lattice_element().has_double_attribute(
             "wire_elliptical_aperture_wire_x")) {
-        wire_x = slice->get_lattice_element().get_double_attribute(
+        wire_x = slice_sptr->get_lattice_element().get_double_attribute(
                 "wire_elliptical_aperture_wire_x");
     } else {
         throw std::runtime_error(
                 "wire_elliptical_aperture_operation: wire_elliptical_aperture requires an wire_elliptical_aperture_wire_x attribute");
     }
-    if (slice->get_lattice_element().has_double_attribute(
+    if (slice_sptr->get_lattice_element().has_double_attribute(
             "wire_elliptical_aperture_wire_width")) {
-        wire_width = slice->get_lattice_element().get_double_attribute(
+        wire_width = slice_sptr->get_lattice_element().get_double_attribute(
                 "wire_elliptical_aperture_wire_width");
     } else {
         throw std::runtime_error(
                 "wire_elliptical_aperture_operation: wire_elliptical_aperture requires an wire_elliptical_aperture_wire_width attribute");
     }
-    if (slice->get_lattice_element().has_double_attribute(
+    if (slice_sptr->get_lattice_element().has_double_attribute(
             "wire_elliptical_aperture_gap")) {
-        gap = slice->get_lattice_element().get_double_attribute(
+        gap = slice_sptr->get_lattice_element().get_double_attribute(
                 "wire_elliptical_aperture_gap");
     } else {
         throw std::runtime_error(
