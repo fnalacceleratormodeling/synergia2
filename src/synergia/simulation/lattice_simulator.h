@@ -7,6 +7,7 @@
 #include "synergia/simulation/aperture_operation_extractor.h"
 #include "synergia/simulation/step.h"
 #include <physics_toolkit/LattFuncSage.h>
+#include <physics_toolkit/BeamlineContext.h>
 #include <string>
 
 struct Lattice_functions
@@ -30,6 +31,8 @@ private:
     Chef_lattice_sptr chef_lattice_sptr;
     Operation_extractor_map_sptr extractor_map_sptr;
     Aperture_operation_extractor_map_sptr aperture_extractor_map_sptr;
+    bool have_beamline_context;
+    BmlContextPtr beamline_context_sptr;
     int map_order;
     double bucket_length;
     void
@@ -46,6 +49,10 @@ private:
             lattice_functions_element_map;
     std::map<Lattice_element_slice const*, Lattice_functions >
             lattice_functions_slice_map;
+    void
+    calculate_beamline_context();
+    BmlContextPtr
+    get_beamline_context();
     void
     get_tunes();
 public:

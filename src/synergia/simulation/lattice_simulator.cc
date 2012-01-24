@@ -1,7 +1,7 @@
 #include "lattice_simulator.h"
 #include "synergia/foundation/physical_constants.h"
-#include <physics_toolkit/BeamlineContext.h>
 #include <beamline/beamline_elements.h>
+#include <physics_toolkit/Sage.h>
 #include <basic_toolkit/PhysicsConstants.h>
 #include <stdexcept>
 #include <cstring>
@@ -46,18 +46,38 @@ Lattice_simulator::construct_extractor_map()
 }
 
 void
-Lattice_simulator::get_tunes()
+Lattice_simulator::calculate_beamline_context()
 {
     if (Jet__environment::getLastEnv() == 0) {
         JetParticle::createStandardEnvironments(map_order);
     }
-    if (!have_tunes) {
-        BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
-        BeamlineContext beamline_context(
+    BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
+    beamline_context_sptr = BmlContextPtr (new BeamlineContext(
                 reference_particle_to_chef_particle(
-                        lattice_sptr->get_reference_particle()), beamline_sptr);
-        horizontal_tune = beamline_context.getHorizontalFracTune();
-        vertical_tune = beamline_context.getVerticalFracTune();
+                        lattice_sptr->get_reference_particle()), beamline_sptr));
+    if (!Sage::isRing(beamline_sptr)) {
+        beamline_context_sptr->handleAsRing();
+    }
+}
+
+BmlContextPtr
+Lattice_simulator::get_beamline_context()
+{
+    if (!have_beamline_context) {
+        std::cout << "no beamline_context" << std::endl;
+        calculate_beamline_context();
+        have_beamline_context = true;
+    }
+    return beamline_context_sptr;
+}
+
+void
+Lattice_simulator::get_tunes()
+{
+    if (!have_tunes) {
+        get_beamline_context();
+        horizontal_tune = beamline_context_sptr->getHorizontalFracTune();
+        vertical_tune = beamline_context_sptr->getVerticalFracTune();
         have_tunes = true;
     }
 }
@@ -106,6 +126,7 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
             extractor_map_sptr(new Operation_extractor_map),
             have_element_lattice_functions(false),
             have_slice_lattice_functions(false), have_tunes(false),
+            have_beamline_context(false),
             aperture_extractor_map_sptr(new Aperture_operation_extractor_map),
             map_order(map_order), have_slices(false)
 {
@@ -223,21 +244,16 @@ Lattice_simulator::update()
     have_slice_lattice_functions = false;
     lattice_functions_slice_map.clear();
     have_tunes = false;
+    have_beamline_context = false;
 }
 
 void
 Lattice_simulator::calculate_element_lattice_functions()
 {
-    if (Jet__environment::getLastEnv() == 0) {
-        JetParticle::createStandardEnvironments(map_order);
-    }
     if (!have_element_lattice_functions) {
         BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
-        BeamlineContext beamline_context(
-                reference_particle_to_chef_particle(
-                        lattice_sptr->get_reference_particle()), beamline_sptr);
         std::vector<LattFuncSage::lattFunc > latt_func(
-                beamline_context.getTwissArray());
+                get_beamline_context()->getTwissArray());
         beamline::const_iterator it = beamline_sptr->begin();
         for (int i = 0; i < latt_func.size(); ++i) {
             ElmPtr chef_element(*it);
@@ -259,16 +275,10 @@ Lattice_simulator::calculate_element_lattice_functions()
 void
 Lattice_simulator::calculate_slice_lattice_functions()
 {
-    if (Jet__environment::getLastEnv() == 0) {
-        JetParticle::createStandardEnvironments(map_order);
-    }
     if (!have_slice_lattice_functions) {
         BmlPtr beamline_sptr(chef_lattice_sptr->get_sliced_beamline_sptr());
-        BeamlineContext beamline_context(
-                reference_particle_to_chef_particle(
-                        lattice_sptr->get_reference_particle()), beamline_sptr);
         std::vector<LattFuncSage::lattFunc > latt_func(
-                beamline_context.getTwissArray());
+                get_beamline_context()->getTwissArray());
         beamline::const_iterator it = beamline_sptr->begin();
         for (int i = 0; i < latt_func.size(); ++i) {
             ElmPtr chef_element(*it);
@@ -318,7 +328,7 @@ Lattice_simulator::get_vertical_tune()
 // set_chef_correctors is a local function
 void
 set_chef_correctors(Lattice_elements const& correctors,
-        Chef_lattice & chef_lattice, BeamlineContext & beamline_context,
+        Chef_lattice & chef_lattice, BmlContextPtr & beamline_context_sptr,
         bool horizontal)
 {
     for (Lattice_elements::const_iterator le_it = correctors.begin(); le_it
@@ -328,18 +338,18 @@ set_chef_correctors(Lattice_elements const& correctors,
                 != chef_elements.end(); ++ce_it) {
             if (std::strcmp((*ce_it)->Type(), "quadrupole") == 0) {
                 if (horizontal) {
-                    beamline_context.addHTuneCorrector(
+                    beamline_context_sptr->addHTuneCorrector(
                             boost::dynamic_pointer_cast<quadrupole >(*ce_it));
                 } else {
-                    beamline_context.addVTuneCorrector(
+                    beamline_context_sptr->addVTuneCorrector(
                             boost::dynamic_pointer_cast<quadrupole >(*ce_it));
                 }
             } else if (std::strcmp((*ce_it)->Type(), "thinQuad") == 0) {
                 if (horizontal) {
-                    beamline_context.addHTuneCorrector(
+                    beamline_context_sptr->addHTuneCorrector(
                             boost::dynamic_pointer_cast<thinQuad >(*ce_it));
                 } else {
-                    beamline_context .addVTuneCorrector(
+                    beamline_context_sptr->addVTuneCorrector(
                             boost::dynamic_pointer_cast<thinQuad >(*ce_it));
                 }
             } else {
@@ -378,19 +388,14 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
         Lattice_elements const& horizontal_correctors,
         Lattice_elements const& vertical_correctors, double tolerance)
 {
-    if (Jet__environment::getLastEnv() == 0) {
-        JetParticle::createStandardEnvironments(map_order);
-    }
     BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
-    BeamlineContext beamline_context(
-            reference_particle_to_chef_particle(
-                    lattice_sptr->get_reference_particle()), beamline_sptr);
+    get_beamline_context();
     set_chef_correctors(horizontal_correctors, *chef_lattice_sptr,
-            beamline_context, true);
+            beamline_context_sptr, true);
     set_chef_correctors(vertical_correctors, *chef_lattice_sptr,
-            beamline_context, false);
-    double nu_h = beamline_context.getHorizontalFracTune();
-    double nu_v = beamline_context.getVerticalFracTune();
+            beamline_context_sptr, false);
+    double nu_h = beamline_context_sptr->getHorizontalFracTune();
+    double nu_v = beamline_context_sptr->getVerticalFracTune();
     double horizontal_final_tune = horizontal_tune - double(int(horizontal_tune));
     double vertical_final_tune = vertical_tune - double(int(vertical_tune));
     int rank = Commxx().get_rank();
@@ -415,8 +420,8 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
     while ((10.0 * tolerance) < std::abs(horizontal_final_tune - nu_h)) {
         if (rank == 0) std::cout << "\n        Step " << step << std::endl;
         while (tolerance < std::abs( horizontal_target_tune - nu_h)) {
-            int status = beamline_context.changeTunesTo(horizontal_target_tune,
-                     vertical_target_tune);
+            int status = beamline_context_sptr->changeTunesTo(
+                            horizontal_target_tune, vertical_target_tune);
             if (status == BeamlineContext::NO_TUNE_ADJUSTER) {
                 throw std::runtime_error(
                         "Lattice_simulator::adjust_tunes: no corrector elements found");
@@ -424,8 +429,8 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
                 throw std::runtime_error(
                         "Lattice_simulator::adjust_tunes: failed with unknown status");
         }
-            nu_h = beamline_context.getHorizontalFracTune();
-            nu_v = beamline_context.getVerticalFracTune();
+            nu_h = beamline_context_sptr->getHorizontalFracTune();
+            nu_v = beamline_context_sptr->getVerticalFracTune();
             if (rank == 0) {
                 std::cout << "        Tunes: horizontal: " << nu_h << " = "
                         << horizontal_target_tune << " + "
@@ -448,7 +453,7 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
             throw std::runtime_error(
                     "Lattice_simulator::adjust_tunes: maximum number of iterations exceeded");
         }
-        int status = beamline_context.changeTunesTo(horizontal_tune,
+        int status = beamline_context_sptr->changeTunesTo(horizontal_tune,
                 vertical_tune);
         if (status == BeamlineContext::NO_TUNE_ADJUSTER) {
             throw std::runtime_error(
