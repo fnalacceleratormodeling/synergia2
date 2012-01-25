@@ -1,6 +1,8 @@
 test_lattice
 test_lattice_element
+test_lattice_diagnostics
+test_lattice_diagnostics_mpi
 test_lattice_element_slice
 test_chef_lattice
 *.xml
-
+*.h5
