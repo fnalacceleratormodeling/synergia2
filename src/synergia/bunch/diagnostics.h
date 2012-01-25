@@ -4,7 +4,7 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include "synergia/bunch/bunch.h"
-#include "synergia/bunch/diagnostics_write_helper.h"
+#include "synergia/foundation/diagnostics_write_helper.h"
 #include "synergia/utils/hdf5_serial_writer.h"
 
 /// Diagnostics is an abstract base class for Diagnostics classes
@@ -13,15 +13,15 @@ class Diagnostics
 
 private:
     std::string name;
-    
+
 public:
-   
+
     Diagnostics(std::string const& name);
-    
+
     /// return diagnostics type
     std::string const &
     get_name() const;
-    
+
     /// Multiple serial diagnostics can be written to a single file.
     virtual bool
     is_serial() const = 0;
@@ -56,7 +56,7 @@ public:
     static MArray1d
     calculate_bunchmax(Bunch const& bunch);
 
-    virtual Bunch_sptr 
+    virtual Bunch_sptr
     get_bunch_sptr() const=0;
 
     virtual
@@ -151,7 +151,7 @@ public:
     virtual void
     write();
 
-    virtual Bunch_sptr 
+    virtual Bunch_sptr
      get_bunch_sptr() const;
 
     virtual
@@ -284,7 +284,7 @@ public:
     write();
 
 
-     virtual Bunch_sptr 
+     virtual Bunch_sptr
      get_bunch_sptr() const;
 
     virtual
@@ -331,11 +331,11 @@ public:
 
     virtual void
     write();
-    
-    virtual Bunch_sptr 
+
+    virtual Bunch_sptr
     get_bunch_sptr() const;
-   
-    
+
+
     virtual
     ~Diagnostics_particles();
 };
@@ -389,7 +389,7 @@ public:
 
     virtual void
     write();
-    
+
     virtual Bunch_sptr
     get_bunch_sptr() const;
 

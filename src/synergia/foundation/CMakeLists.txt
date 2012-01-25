@@ -1,5 +1,7 @@
-add_library(synergia_foundation four_momentum.cc reference_particle.cc distribution.cc)
-target_link_libraries(synergia_foundation ${GSL_CONFIG_LIBS} synergia_parallel_utils ${Boost_SERIALIZATION_LIBRARIES})
+add_library(synergia_foundation four_momentum.cc reference_particle.cc
+    distribution.cc diagnostics_write_helper.cc)
+target_link_libraries(synergia_foundation ${GSL_CONFIG_LIBS}
+    synergia_parallel_utils synergia_hdf5_utils ${Boost_SERIALIZATION_LIBRARIES})
 if (BUILD_PYTHON_BINDINGS)
     add_python_extension(foundation foundation_wrap.cc)
     target_link_libraries(foundation synergia_foundation ${Boost_LIBRARIES})
