@@ -14,7 +14,6 @@ typedef boost::multi_array<double, 2 > MArray2d;
 typedef boost::multi_array_ref<double, 2 > MArray2d_ref;
 typedef boost::const_multi_array_ref<double, 2 > Const_MArray2d_ref;
 typedef boost::detail::multi_array::multi_array_view<double, 2 > MArray2d_view;
-typedef boost::detail::multi_array::multi_array_view<double, 2 > MArray2d_view;
 typedef boost::detail::multi_array::const_multi_array_view<double, 2 >
         Const_MArray2d_view;
 typedef boost::general_storage_order<2> storage2d;        
