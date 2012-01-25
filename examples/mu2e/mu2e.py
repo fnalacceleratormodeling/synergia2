@@ -194,7 +194,6 @@ def resonance_sum(lattice_simulator, brho):
     g = numpy.zeros([2],dtype=complex)
     index = 0
     for element in synergia_elements:
-#lattice_simulator.get_lattice().get_elements():
         if element.get_type() == "multipole":
             lattice_functions = lattice_simulator.get_lattice_functions(element)
             theta = 2.0 * numpy.pi * lattice_functions.arc_length / circumference
@@ -687,10 +686,18 @@ synergia_lattice = synergia.lattice.Mad8_reader().get_lattice("debunch",
                 "Debunch_modified_rf.lat")
 synergia_elements = synergia_lattice.get_elements()
 
+#method = "chef_propagate"
+#method = "chef_map"
+method = "chef_mixed"
+for element in synergia_elements:
+    element.set_string_attribute("extractor_type", method)
+
 # with the aperture, all the particles are immediately eliminated
 if radius > 0.0:
     for element in synergia_elements:
-        element.set_double_attribute("aperture_radius", radius)
+#        element.set_double_attribute("aperture_radius", radius)
+        element.set_string_attribute("aperture_type","circular")
+        element.set_double_attribute("circular_aperture_radius", radius)
 
 lattice_length = synergia_lattice.get_length()
 
@@ -755,6 +762,13 @@ if myrank == 0:
 
 lattice_simulator = synergia.simulation.Lattice_simulator(synergia_lattice, 
                 map_order)
+
+#if myrank == 0:
+#    index = 0
+#    for element in lattice_simulator.get_chef_lattice().get_beamline():
+#        index += 1
+#        print index, element.Name()
+#sys.exit(1)
 
 ###############################################################################
 #   Ramping Actions
