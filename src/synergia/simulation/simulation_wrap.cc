@@ -252,8 +252,8 @@ BOOST_PYTHON_MODULE(simulation)
     void (Propagator::*propagate4)(Bunch_with_diagnostics_train &, int, bool)
                                 = &Propagator::propagate;
 
-    void (Propagator::*propagate5)(Bunch &, int, Diagnostics &,
-            Diagnostics &, bool) = &Propagator::propagate;
+    void (Propagator::*propagate5)(Bunch &, int, Generalized_diagnostics &,
+            Generalized_diagnostics &, bool) = &Propagator::propagate;
 
     void (Propagator::*propagate6)(Bunch &, int, Multi_diagnostics &,
             Multi_diagnostics &, bool) = &Propagator::propagate;

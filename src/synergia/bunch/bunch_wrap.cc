@@ -2,7 +2,6 @@
 #include "train.h"
 #include "diagnostics.h"
 #include "bunch_with_diagnostics.h"
-#include "multi_diagnostics.h"
 #include "populate.h"
 #include "analysis.h"
 #include <boost/python.hpp>
@@ -33,7 +32,8 @@ BOOST_PYTHON_MODULE(bunch)
     class_<Fixed_t_z_ballistic, bases<Fixed_t_z_converter > > (
             "Fixed_t_z_ballistic", init< > ());
 
-    class_<Diagnostics, Diagnostics_sptr, boost::noncopyable >
+    class_<Diagnostics, Diagnostics_sptr, boost::noncopyable,
+            bases<Generalized_diagnostics > >
         ("Diagnostics", no_init)
         .def("update", &Diagnostics::update)
         .def("write", &Diagnostics::write)
@@ -94,7 +94,7 @@ BOOST_PYTHON_MODULE(bunch)
       .def("get_transverse_action_for_particle", &Analysis::get_transverse_action_for_particle)
       .def("get_transverse_action_for_bunch", &Analysis::get_transverse_action_for_bunch)
     ;
-    
+
     def("no_diagnostics", no_diagnostics);
     def("populate_6d", populate_6d);
     def("populate_transverse_gaussian", populate_transverse_gaussian);
@@ -102,7 +102,7 @@ BOOST_PYTHON_MODULE(bunch)
     def("populate_transverse_KV_GaussLong", populate_transverse_KV_GaussLong);
     def("populate_two_particles", populate_two_particles);
 
-     
+
      class_<Bunch_with_diagnostics, Bunch_with_diagnostics_sptr >("Bunch_with_diagnostics",
             init<Bunch_sptr, Standard_diagnostics_actions_sptr >())
             .def("get_comm", &Bunch_with_diagnostics::get_comm, return_value_policy<copy_const_reference>())
@@ -111,7 +111,7 @@ BOOST_PYTHON_MODULE(bunch)
             .def("add_per_step_diagnostics", &Bunch_with_diagnostics::add_per_step_diagnostics)
             .def("add_per_turn_diagnostics", &Bunch_with_diagnostics::add_per_turn_diagnostics)
             ;
-    
+
     class_<Train_comms, Train_comms_sptr, boost::noncopyable >
         ("Train_comms", init<int, Commxx const& >())
         .def("get_num_bunches", &Train_comms::get_num_bunches)
@@ -121,8 +121,8 @@ BOOST_PYTHON_MODULE(bunch)
                     return_value_policy<copy_const_reference>())
         .def("is_on_this_rank", &Train_comms::is_on_this_rank)
         ;
-        
-        
+
+
     class_<Bunch_train, Bunch_train_sptr, bases<Train_comms > >("Bunch_train",
             init<int, double, Commxx const& >())
             .def("get_bunch_separation", &Bunch_train::get_bunch_separation)
@@ -200,4 +200,4 @@ BOOST_PYTHON_MODULE(bunch)
     scope().attr("cdt") = Bunch::cdt;
     scope().attr("dpop") = Bunch::dpop;
     scope().attr("id") = Bunch::id;
-}    
+}

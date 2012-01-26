@@ -5,27 +5,27 @@ Standard_diagnostics_actions::Standard_diagnostics_actions()
 }
 
 void
-Standard_diagnostics_actions::add_per_turn(Diagnostics_sptr diagnostics_sptr)
+Standard_diagnostics_actions::add_per_turn(Generalized_diagnostics_sptr diagnostics_sptr)
 {
     per_turns.push_back(diagnostics_sptr);
 }
 
 void
-Standard_diagnostics_actions::add_per_step(Diagnostics_sptr diagnostics_sptr)
+Standard_diagnostics_actions::add_per_step(Generalized_diagnostics_sptr diagnostics_sptr)
 {
     per_steps.push_back(diagnostics_sptr);
 }
 
 
 
-std::list<Diagnostics_sptr > 
+std::list<Generalized_diagnostics_sptr >
 Standard_diagnostics_actions::get_per_steps_diagnostics_list() const
 {
     return per_steps;
 }
 
 
-std::list<Diagnostics_sptr > 
+std::list<Generalized_diagnostics_sptr >
 Standard_diagnostics_actions::get_per_turns_diagnostics_list() const
 {
     return per_turns;
@@ -35,9 +35,9 @@ Standard_diagnostics_actions::get_per_turns_diagnostics_list() const
 
 void
 Standard_diagnostics_actions::update_and_write_all(
-        std::list<Diagnostics_sptr > & diag_list)
+        std::list<Generalized_diagnostics_sptr > & diag_list)
 {
-    for (std::list<Diagnostics_sptr >::iterator it = diag_list.begin(); it
+    for (std::list<Generalized_diagnostics_sptr >::iterator it = diag_list.begin(); it
             != diag_list.end(); ++it) {
         (*it)->update_and_write();
     }

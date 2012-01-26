@@ -122,7 +122,7 @@ catch (std::exception const& e){
 
 void
 Propagator::propagate(Bunch & bunch, int num_turns,
-        Diagnostics & per_step_diagnostics, Diagnostics & per_turn_diagnostics,
+        Generalized_diagnostics & per_step_diagnostics, Generalized_diagnostics & per_turn_diagnostics,
         bool verbose)
 {
 
@@ -130,10 +130,10 @@ Propagator::propagate(Bunch & bunch, int num_turns,
 
      Standard_diagnostics_actions_sptr diagnostics_actions_sptr(new Standard_diagnostics_actions);
 
-     Diagnostics_sptr per_step_diagnostics_sptr(&per_step_diagnostics,Object_to_sptr_hack());
+     Generalized_diagnostics_sptr per_step_diagnostics_sptr(&per_step_diagnostics,Object_to_sptr_hack());
      diagnostics_actions_sptr->add_per_step(per_step_diagnostics_sptr);
 
-     Diagnostics_sptr per_turn_diagnostics_sptr(&per_turn_diagnostics,Object_to_sptr_hack());
+     Generalized_diagnostics_sptr per_turn_diagnostics_sptr(&per_turn_diagnostics,Object_to_sptr_hack());
      diagnostics_actions_sptr->add_per_turn(per_turn_diagnostics_sptr);
 
      Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr, diagnostics_actions_sptr);

@@ -10,15 +10,9 @@
 // import most common Eigen types
 USING_PART_OF_NAMESPACE_EIGEN
 
-Diagnostics::Diagnostics(std::string const& name): name(name)
+Diagnostics::Diagnostics(std::string const& name) :
+    Generalized_diagnostics(name)
 {
-}         
- 
- 
-std::string const &
-Diagnostics::get_name() const
-{
-return name;
 }
 
 MArray1d
@@ -36,8 +30,8 @@ Diagnostics::calculate_mean(Bunch const& bunch)
     t = simple_timer_current();
     MPI_Allreduce(sum, mean.origin(), 6, MPI_DOUBLE, MPI_SUM,
             bunch.get_comm().get());
-    t = simple_timer_show(t, "allmpireduce_in_diagnostic mean");  
-          
+    t = simple_timer_show(t, "allmpireduce_in_diagnostic mean");
+
     for (int i = 0; i < 6; ++i) {
         mean[i] /= bunch.get_total_num();
     }
@@ -47,14 +41,14 @@ Diagnostics::calculate_mean(Bunch const& bunch)
 double
 Diagnostics::calculate_z_mean(Bunch const& bunch)
 {
-    double sum=0;
+    double sum = 0;
     double mean;
     Const_MArray2d_ref particles(bunch.get_local_particles());
     for (int part = 0; part < bunch.get_local_num(); ++part) {
-            sum += particles[part][4];        
+        sum += particles[part][4];
     }
     MPI_Allreduce(&sum, &mean, 1, MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
-    mean /=bunch.get_total_num();
+    mean /= bunch.get_total_num();
     return mean;
 }
 
@@ -162,24 +156,15 @@ Diagnostics::calculate_bunchmax(Bunch const& bunch)
     return bunchmax;
 }
 
-void
-Diagnostics::update_and_write()
-{
-    update();
-    write();
-}
-
 Diagnostics_basic::Diagnostics_basic(Bunch_sptr bunch_sptr,
-        std::string const& filename) : 
-    Diagnostics_basic::Diagnostics("diagnostics_basic"),       
-    bunch_sptr(bunch_sptr), filename(filename), have_writers(false),
+        std::string const& filename) :
+    Diagnostics_basic::Diagnostics("diagnostics_basic"),
+            bunch_sptr(bunch_sptr), filename(filename), have_writers(false),
             mean(boost::extents[6]), std(boost::extents[6]),
             write_helper(filename, true, bunch_sptr->get_comm())
 {
 }
 
-
-    
 bool
 Diagnostics_basic::is_serial() const
 {
@@ -295,11 +280,8 @@ Diagnostics_basic::write()
 Bunch_sptr
 Diagnostics_basic::get_bunch_sptr() const
 {
-return this->bunch_sptr;
+    return this->bunch_sptr;
 }
-
-
-
 
 Diagnostics_basic::~Diagnostics_basic()
 {
@@ -372,11 +354,11 @@ Diagnostics_full2::update_emittances()
 Diagnostics_full2::Diagnostics_full2(Bunch_sptr bunch_sptr,
         std::string const& filename) :
     Diagnostics_full2::Diagnostics("diagnostics_full2"),
-    bunch_sptr(bunch_sptr), filename(filename), have_writers(false),
+            bunch_sptr(bunch_sptr), filename(filename), have_writers(false),
             mean(boost::extents[6]), std(boost::extents[6]),
             mom2(boost::extents[6][6]), corr(boost::extents[6][6]),
             write_helper(filename, true, bunch_sptr->get_comm())
-{          
+{
 }
 
 bool
@@ -387,7 +369,7 @@ Diagnostics_full2::is_serial() const
 
 void
 Diagnostics_full2::update()
-{   
+{
     bunch_sptr->convert_to_state(Bunch::fixed_z_lab);
     s = bunch_sptr->get_reference_particle().get_s();
     repetition = bunch_sptr->get_reference_particle().get_repetition();
@@ -535,9 +517,8 @@ Diagnostics_full2::write()
 Bunch_sptr
 Diagnostics_full2::get_bunch_sptr() const
 {
-return this->bunch_sptr;
+    return this->bunch_sptr;
 }
-
 
 Diagnostics_full2::~Diagnostics_full2()
 {
@@ -560,15 +541,15 @@ Diagnostics_full2::~Diagnostics_full2()
 }
 
 Diagnostics_particles::Diagnostics_particles(Bunch_sptr bunch_sptr,
-        std::string const& filename, int min_particle_id, int max_particle_id, int write_skip) :
-         Diagnostics_particles::Diagnostics("diagnostics_particles"),
-    bunch_sptr(bunch_sptr), filename(filename), min_particle_id(min_particle_id), 
-    max_particle_id(max_particle_id),
-            have_writers(false), write_helper(filename, false, write_skip,
-                    bunch_sptr->get_comm())
+        std::string const& filename, int min_particle_id, int max_particle_id,
+        int write_skip) :
+    Diagnostics_particles::Diagnostics("diagnostics_particles"),
+            bunch_sptr(bunch_sptr), filename(filename),
+            min_particle_id(min_particle_id), max_particle_id(max_particle_id),
+            have_writers(false),
+            write_helper(filename, false, write_skip, bunch_sptr->get_comm())
 {
 }
-
 
 bool
 Diagnostics_particles::is_serial() const
@@ -659,26 +640,21 @@ Diagnostics_particles::send_local_particles()
 
 void
 Diagnostics_particles::write()
-{ 
+{
     bunch_sptr->convert_to_state(bunch_sptr->fixed_z_lab);
-    int writer_rank= write_helper.get_writer_rank();
+    int writer_rank = write_helper.get_writer_rank();
     MPI_Comm comm = bunch_sptr->get_comm().get();
     int icount;
-    icount=write_helper.get_count();
-    MPI_Bcast ((void *) &icount, 1, MPI_INT, writer_rank, comm );
+    icount = write_helper.get_count();
+    MPI_Bcast((void *) &icount, 1, MPI_INT, writer_rank, comm);
 
+    //    std::cout<<" icount ="<<icount<<"  count="<< write_helper.get_count() <<" on rank ="<< bunch_sptr->get_comm().get_rank()<<std::endl;
 
-//    std::cout<<" icount ="<<icount<<"  count="<< write_helper.get_count() <<" on rank ="<< bunch_sptr->get_comm().get_rank()<<std::endl;
-     
-    if (icount % write_helper.get_iwrite_skip() !=0 ) 
-    {   
-         if (write_helper.write_locally()) write_helper.increment_count();
-         return;
+    if (icount % write_helper.get_iwrite_skip() != 0) {
+        if (write_helper.write_locally()) write_helper.increment_count();
+        return;
     }
-   
-  
-      
-   
+
     int local_num = bunch_sptr->get_local_num();
     int num_procs = bunch_sptr->get_comm().get_size();
     std::vector<int > local_nums(num_procs);
@@ -717,9 +693,8 @@ Diagnostics_particles::write()
 Bunch_sptr
 Diagnostics_particles::get_bunch_sptr() const
 {
-return this->bunch_sptr;
+    return this->bunch_sptr;
 }
-
 
 Diagnostics_particles::~Diagnostics_particles()
 {
@@ -727,8 +702,8 @@ Diagnostics_particles::~Diagnostics_particles()
 
 Diagnostics_track::Diagnostics_track(Bunch_sptr bunch_sptr,
         std::string const& filename, int particle_id) :
-         Diagnostics_track::Diagnostics("diagnostics_track"),
-    bunch_sptr(bunch_sptr), filename(filename), have_writers(false),
+    Diagnostics_track::Diagnostics("diagnostics_track"),
+            bunch_sptr(bunch_sptr), filename(filename), have_writers(false),
             coords(boost::extents[6]), found(false), first_search(true),
             particle_id(particle_id), last_index(-1)
 {
@@ -822,10 +797,8 @@ Diagnostics_track::write()
 Bunch_sptr
 Diagnostics_track::get_bunch_sptr() const
 {
-return this->bunch_sptr;
+    return this->bunch_sptr;
 }
-
-
 
 Diagnostics_track::~Diagnostics_track()
 {

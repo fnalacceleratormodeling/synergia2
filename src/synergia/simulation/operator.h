@@ -11,7 +11,7 @@
 #include "synergia/simulation/independent_operation.h"
 #include "synergia/simulation/operation_extractor.h"
 #include "synergia/simulation/aperture_operation_extractor.h"
-#include "synergia/bunch/multi_diagnostics.h"
+#include "synergia/foundation/multi_diagnostics.h"
 #include "synergia/bunch/train.h"
 
 class Step;

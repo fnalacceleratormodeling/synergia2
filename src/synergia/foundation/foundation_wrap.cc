@@ -1,6 +1,7 @@
 #include "four_momentum.h"
 #include "reference_particle.h"
 #include "distribution.h"
+#include "generalized_diagnostics.h"
 #include <boost/python.hpp>
 #include "synergia/utils/numpy_multi_ref_converter.h"
 #include "synergia/utils/comm_converter.h"
@@ -98,6 +99,14 @@ BOOST_PYTHON_MODULE(foundation)
         .def_readonly("positron_charge", pconstants::positron_charge)
         .def_readonly("muon_charge", pconstants::muon_charge)
         .def_readonly("antimuon_charge", pconstants::antimuon_charge)
+        ;
+
+    class_<Generalized_diagnostics, Generalized_diagnostics_sptr,
+            boost::noncopyable >
+        ("Generalized_diagnostics", no_init)
+        .def("update", &Generalized_diagnostics::update)
+        .def("write", &Generalized_diagnostics::write)
+        .def("update_and_write", &Generalized_diagnostics::update_and_write)
         ;
 
     //    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_default_seed_overloads, get_default_seed, 0, 1);

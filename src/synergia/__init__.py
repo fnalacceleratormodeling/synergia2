@@ -5,8 +5,8 @@ from mpi4py import MPI
 
 from version import __version__, major_version, minor_version, subminor_version
 import convertors
-import bunch
 import foundation
+import bunch
 import lattice
 import optics
 import simulation

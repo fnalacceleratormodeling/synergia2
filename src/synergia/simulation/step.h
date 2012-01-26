@@ -6,7 +6,7 @@
 #include "synergia/bunch/train.h"
 #include "synergia/simulation/operator.h"
 #include "synergia/bunch/bunch.h"
-#include "synergia/bunch/multi_diagnostics.h"
+#include "synergia/foundation/multi_diagnostics.h"
 
 struct Bunch_means
 {
