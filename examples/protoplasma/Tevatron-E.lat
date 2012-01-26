@@ -1,0 +1,182 @@
+! File: Tevatron-E.lat
+!
+! 15 standard cells;
+! 2 low beta straight sections;  
+! 3 normal straight sections;    
+! 1 high beta straight section.  
+! 
+! Adjust 17 locations: remove two dipoles.
+! Include 11 dipoles in each straight section.
+!
+! Leo Michelotti
+! July 23, 2003
+! 
+! Patch 1: shifted dipoles in "17" locations upstream 
+!   by 16.50 inches
+! 
+! Leo Michelotti
+! July 26, 2004
+! 
+! Patch 2: shifted cell boundaries and moved long
+!   straight sections approx. 30 cm relative to the arcs.
+! 
+! Leo Michelotti
+! July 29, 2004
+
+
+momentum  := 150.0                ! GeV/c
+beam, pc=momentum, particle=proton
+
+
+brho      := momentum/0.299792458 ! T-m
+
+twopi     := 6.2831853072
+nbends    := ((4.0*30.0)-2.0+11.0)*6.0  ! = 720 - 12 + 66 = 774
+!              |         |   |     |
+!              |         |   |     * 6 sectors
+!              |         |   11 bends in each straight section
+!              |         only 2 dipoles in the X17 half-cells
+!              4 dipoles in each of 30 standard half-cells per arc
+bendangle := twopi/nbends
+
+
+! Strengths of main bus quads.
+! Units are in m^-2 ( or kG/m / BRHO )
+! This corresponds to 76.0 T/m at 1 TeV.
+mainbusf := 0.0227724747
+mainbusd := -mainbusf
+
+! Standard lengths between quads and bends
+dqb: drift, l=2.14028
+dbq: drift, l=0.30019
+dbb: drift, l=0.27940
+dqq: drift, l=3.85191
+
+
+! Standard quads and bends (for normal cells)
+B: sbend,      l=6.1214,  angle=bendangle
+F: quadrupole, l=1.67894, k1=mainbusf
+D: quadrupole, l=1.67894, k1=mainbusd
+
+
+! Half-cells, including the X17 half-cell
+inches := 0.0254
+spacer: drift, l=(dqb[l]+2*(B[l]+dbb[l]))-(16.5*inches)
+dbx: drift, l=dbq[l]+(16.5*inches)
+
+halfcellf:   line=(dbq,F,dqb,B,dbb,B,dbb,B,dbb,B,dbq)
+halfcelld:   line=(dbq,D,dqb,B,dbb,B,dbb,B,dbb,B,dbq)
+halfcell_17: line=(dbq,F,    spacer,     B,dbb,B,dbx)
+
+
+! An arc consists of 15 cells
+cell:        line=(halfcellf,halfcelld)
+arc:         line=(2*cell, halfcell_17,halfcelld, 12*cell)
+arc_screen:  line = (2 * cell, halfcell_17)
+
+! Construct a high beta straight section (A0)
+! The total length is 154.89555120 m
+
+d1: drift, l=0.46068
+d2: drift, l=7.979994
+d4: drift, l=53.19395
+d6: drift, l=1.579194
+d7: drift, l=0.1397+d1[l]-dbq[l]
+
+hquad5f: quadrupole, l=0.6477, k1=mainbusf
+hquad4d: quadrupole, l=2.2908, k1=mainbusd
+hquad1f: quadrupole, l=2.5248, k1=mainbusf
+hquad1d: quadrupole, l=2.5248, k1=mainbusd
+hquad4f: quadrupole, l=2.2908, k1=mainbusf
+hquad5d: quadrupole, l=0.6477, k1=mainbusd
+
+hi_beta_straight: line=(dbq, hquad5f,             &
+                        d2,  B,dbb,B,dbb,B,       &
+                        dbq,dbq, hquad4d,dqq,hquad1f, &
+                        d4,  hquad1d,dqq,hquad4f, &
+                        d6,  B,dbb,B,dbb,B,dbb,B, &
+                        dbq,dbq, hquad5d,             &
+                        dqb, B,dbb,B,dbb,B,dbb,B, &
+                        d7)
+
+
+! Construct a low beta straight section (B0,D0)
+! The total length is 154.89555120 m
+
+ddd1:  drift, l=0.167462-d1[l]+dbq[l]
+ddd2a: drift, l=7.74164
+ddd2b: drift, l=13.668121
+ddd3:  drift, l=0.8763
+ddd5:  drift, l=15.24635
+ddd8a: drift, l=14.702638
+ddd8b: drift, l=0.307162
+ddd9:  drift, l=1.846402
+
+cd0q5d: quadrupole, l=1.401826, k1=(3.9684393625279042/brho)
+cd0q2f: quadrupole, l=3.3528, k1=(20.031521861740011/brho)
+cd0q3d: quadrupole, l=5.8928, k1=(-20.014821857408947/brho)
+cd0q4f: quadrupole, l=3.3528, k1=(20.031521861740011/brho)
+cd0q4d: quadrupole, l=3.3528, k1=(-20.031521861740011/brho)
+cd0q3f: quadrupole, l=5.8928, k1=(20.014821857408947/brho)
+cd0q2d: quadrupole, l=3.3528, k1=(-20.031521861740011/brho)
+cd0q5f: quadrupole, l=1.401826, k1=(-3.9684393625279042/brho)
+
+lo_beta_straight: line=(ddd1,  cd0q5d, &
+                        ddd2a, B,dbb,B,dbb,B, &
+                        ddd2b, cd0q2f,ddd3,cd0q3d,ddd3,cd0q4f, &
+                        ddd5,  cd0q4d,ddd3,cd0q3f,ddd3,cd0q2d, &
+                        ddd8a, B,dbb,B,dbb,B,dbb,B, &
+                        ddd8b, cd0q5f, &
+                        ddd9,  B,dbb,B,dbb,B,dbb,B, &
+                        d7)
+
+
+! Construct a normal straight section (E0, F0)
+! The total length is 154.89555120 m
+
+dd2: drift, l=8.035442
+dd3: drift, l=3.819144
+dd6: drift, l=1.634795
+
+hquad3f: quadrupole, l=0.814578, k1=mainbusf
+hquad2f: quadrupole, l=2.101088, k1=mainbusf
+hquad1d: quadrupole, l=2.5248,   k1=mainbusd
+hquad1f: quadrupole, l=2.5248,   k1=mainbusf
+hquad2d: quadrupole, l=2.101088, k1=mainbusd
+hquad3d: quadrupole, l=0.814578, k1=mainbusd
+
+normal_straight: line=(dbq, hquad3f, &
+                       dd2, B,dbb,B,dbb,B, &
+                       dbq,dbq, hquad2f,dd3,hquad1d, &
+                       d4,  hquad1f,dd3,hquad2d, &
+                       dd6, B,dbb,B,dbb,B,dbb,B, &
+                       dbq,dbq, hquad3d, &
+                       dqb, B,dbb,B,dbb,B,dbb,B &
+                       d7)
+
+
+! OPTIONAL: Combine straights and arcs into sextants
+! for anyone who wants to look at lattice functions
+! one sextant at a time.
+hi_beta_sextant:  line=(hi_beta_straight,arc)
+lo_beta_sextant:  line=(lo_beta_straight,arc)
+normal_sextant:   line=(normal_straight, arc)
+
+
+! Glue a fictitious "normal" Tevatron together
+normal_tevatron: line=(6*normal_sextant)
+
+
+! Glue the Tevatron together
+tevatron: line=(hi_beta_straight, arc &
+                lo_beta_straight, arc &
+                normal_straight,  arc &
+                lo_beta_straight, arc &
+                normal_straight,  arc &
+                normal_straight,  arc )
+
+
+! Lattice test
+protoplasma: line = (lo_beta_straight, arc)
+
+USE, normal_tevatron
