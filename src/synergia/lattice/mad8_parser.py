@@ -238,7 +238,7 @@ class Command(Printable):
 
 class Mad8_parser:
     def __init__(self):
-        ParserElement.setDefaultWhitespaceChars(" \t")
+        ParserElement.setDefaultWhitespaceChars(" \t\r")
         self.expression_parser = Expression_parser()
         self.bnf = self._construct_bnf()
         self.variables = {}
