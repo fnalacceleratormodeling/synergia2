@@ -3,6 +3,7 @@
 #include "synergia/utils/distributed_fft3d.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 #include "synergia/utils/multi_array_check_equal.h"
+#include "synergia/foundation/math_constants.h"
 #include <complex>
 #include <cmath>
 
@@ -396,9 +397,9 @@ BOOST_FIXTURE_TEST_CASE(transform_realtest, Fixture2)
 	    x2 -= shape[2]*dx2;
 	  }
 	  orig[i0][i1][i2] =
-	    cos(2.0*M_PI*freq0*x0) *
-	    cos(2.0*M_PI*freq1*x1) *
-	    cos(2.0*M_PI*freq2*x2);
+	    cos(2.0*mconstants::pi*freq0*x0) *
+	    cos(2.0*mconstants::pi*freq1*x1) *
+	    cos(2.0*mconstants::pi*freq2*x2);
 #if FAILME
 	  orig[i0][i1][i2] *= 1.1;
 	  if (i0 > shape[0]/2) {

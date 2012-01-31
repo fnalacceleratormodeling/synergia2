@@ -3,6 +3,7 @@
 #include "synergia/utils/distributed_fft2d.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 #include "synergia/utils/multi_array_check_equal.h"
+#include "synergia/foundation/math_constants.h"
 #include <complex>
 #include <cmath>
 
@@ -351,10 +352,10 @@ BOOST_FIXTURE_TEST_CASE(transform_realtest, Fixture2)
 	// will with exp(2*pi*i*freq0*x0)*exp(2*pi*i*freq1*x1) which is
 	// a delta function in frequency space
 	orig[i0][i1] =
-	  std::complex<double >( (cos(2.0*M_PI*freq0*x0)*cos(2.0*M_PI*freq1*x1) -
-			 sin(2.0*M_PI*freq0*x0)*sin(2.0*M_PI*freq1*x1)) ,
-			(sin(2.0*M_PI*freq0*x0)*cos(2.0*M_PI*freq1*x1) +
-			 cos(2.0*M_PI*freq0*x0)*sin(2.0*M_PI*freq1*x1)) );
+	  std::complex<double >( (cos(2.0*mconstants::pi*freq0*x0)*cos(2.0*mconstants::pi*freq1*x1) -
+			 sin(2.0*mconstants::pi*freq0*x0)*sin(2.0*mconstants::pi*freq1*x1)) ,
+			(sin(2.0*mconstants::pi*freq0*x0)*cos(2.0*mconstants::pi*freq1*x1) +
+			 cos(2.0*mconstants::pi*freq0*x0)*sin(2.0*mconstants::pi*freq1*x1)) );
 #if FAILME
 	orig[i0][i1] *= 1.1;
 #endif

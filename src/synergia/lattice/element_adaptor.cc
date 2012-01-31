@@ -616,7 +616,7 @@ Quadrupole_mad8_adaptor::get_chef_elements(
 
     // a string attribute implies default pi/4
     if (lattice_element.has_string_attribute("tilt")) {
-        qtilt = M_PI / 4.0;
+        qtilt = mconstants::pi / 4.0;
     } else {
         qtilt = lattice_element.get_double_attribute("tilt");
     }
@@ -731,7 +731,7 @@ Sextupole_mad8_adaptor::get_chef_elements(
     } else if (lattice_element.has_string_attribute("tilt")) {
         // if this is a string, assume just tilt specified with no
         // value so use pi/6.
-        sextilt = M_PI / 6.0;
+        sextilt = mconstants::pi / 6.0;
     }
 
     if (sextilt != 0.0) {
@@ -789,7 +789,7 @@ Octupole_mad8_adaptor::get_chef_elements(
     } else if (lattice_element.has_string_attribute("tilt")) {
         // if this is a string, assume just tilt specified with no
         // value so use pi/8.
-        octutilt = M_PI / 8.0;
+        octutilt = mconstants::pi / 8.0;
     }
 
     if (octutilt != 0.0) {
