@@ -1,5 +1,9 @@
 #include "aperture_operation_extractor.h"
 
+BOOST_CLASS_EXPORT(Circular_extractor)
+BOOST_CLASS_EXPORT(Elliptical_extractor)
+BOOST_CLASS_EXPORT(Rectangular_extractor)
+
 Aperture_operation_extractor::Aperture_operation_extractor()
 {
 }
