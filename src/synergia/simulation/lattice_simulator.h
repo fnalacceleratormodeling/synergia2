@@ -28,6 +28,22 @@ struct Lattice_functions
     double D_x, D_y;
     double Dprime_x, Dprime_y;
     double arc_length;
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(alpha_x);
+            ar & BOOST_SERIALIZATION_NVP(alpha_y);
+            ar & BOOST_SERIALIZATION_NVP(beta_x);
+            ar & BOOST_SERIALIZATION_NVP(beta_y);
+            ar & BOOST_SERIALIZATION_NVP(psi_x);
+            ar & BOOST_SERIALIZATION_NVP(psi_y);
+            ar & BOOST_SERIALIZATION_NVP(D_x);
+            ar & BOOST_SERIALIZATION_NVP(D_y);
+            ar & BOOST_SERIALIZATION_NVP(Dprime_x);
+            ar & BOOST_SERIALIZATION_NVP(Dprime_y);
+            ar & BOOST_SERIALIZATION_NVP(arc_length);
+        }
 };
 
 class Lattice_simulator
@@ -43,12 +59,6 @@ private:
     BmlContextPtr beamline_context_sptr;
     int map_order;
     double bucket_length;
-    void
-    construct_extractor_map();
-    void
-    construct_aperture_extractor_map();
-    void
-    construct_sliced_chef_beamline();
     bool have_element_lattice_functions;
     bool have_slice_lattice_functions;
     double horizontal_tune, vertical_tune;
@@ -58,10 +68,16 @@ private:
     std::map<Lattice_element_slice const*, Lattice_functions >
             lattice_functions_slice_map;
     MArray2d linear_one_turn_map;
+	void
+    construct_extractor_map();
+    void
+    construct_aperture_extractor_map();
     void
     calculate_beamline_context();
     BmlContextPtr
     get_beamline_context();
+    void
+    construct_sliced_chef_beamline();
     void
     get_tunes();
     Normal_form_sage_sptr normal_form_sage_sptr;
@@ -118,10 +134,35 @@ public:
         void
         serialize(Archive & ar, const unsigned int version)
         {
+    	std::cout << "jfa: 01\n";
             ar & BOOST_SERIALIZATION_NVP(lattice_sptr);
+        	std::cout << "jfa: 02\n";
+            ar & BOOST_SERIALIZATION_NVP(slices);
+        	std::cout << "jfa: 03\n";
             ar & BOOST_SERIALIZATION_NVP(chef_lattice_sptr);
+        	std::cout << "jfa: 04\n";
             ar & BOOST_SERIALIZATION_NVP(extractor_map_sptr);
+        	std::cout << "jfa: 05\n";
+            ar & BOOST_SERIALIZATION_NVP(aperture_extractor_map_sptr);
+        	std::cout << "jfa: 06\n";
             ar & BOOST_SERIALIZATION_NVP(map_order);
+        	std::cout << "jfa: 07\n";
+            ar & BOOST_SERIALIZATION_NVP(bucket_length);
+        	std::cout << "jfa: 08\n";
+            ar & BOOST_SERIALIZATION_NVP(have_element_lattice_functions);
+        	std::cout << "jfa: 09\n";
+            ar & BOOST_SERIALIZATION_NVP(have_slice_lattice_functions);
+        	std::cout << "jfa: 10\n";
+            ar & BOOST_SERIALIZATION_NVP(horizontal_tune);
+        	std::cout << "jfa: 11\n";
+            ar & BOOST_SERIALIZATION_NVP(vertical_tune);
+        	std::cout << "jfa: 12\n";
+            ar & BOOST_SERIALIZATION_NVP(have_tunes);
+        	std::cout << "jfa: 13\n";
+            ar & BOOST_SERIALIZATION_NVP(lattice_functions_element_map);
+        	std::cout << "jfa: 14\n";
+//            ar & BOOST_SERIALIZATION_NVP(lattice_functions_slice_map);
+//        	std::cout << "jfa: 15\n";
         }
     ~Lattice_simulator();
 };

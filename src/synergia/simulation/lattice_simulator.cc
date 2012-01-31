@@ -87,8 +87,6 @@ Lattice_simulator::get_tunes()
 void
 Lattice_simulator::construct_aperture_extractor_map()
 {
-    typedef Generic_aperture_extractor<Circular_aperture_operation >
-            Circular_extractor;
     aperture_extractor_map_sptr->set_extractor(
             Circular_aperture_operation::attribute_name,
             boost::shared_ptr<Circular_extractor >(new Circular_extractor()));
@@ -96,14 +94,10 @@ Lattice_simulator::construct_aperture_extractor_map()
             "default",
             boost::shared_ptr<Circular_extractor >(new Circular_extractor()));
 
-    typedef Generic_aperture_extractor<Elliptical_aperture_operation >
-            Elliptical_extractor;
     aperture_extractor_map_sptr->set_extractor(
             Elliptical_aperture_operation::attribute_name,
             boost::shared_ptr<Elliptical_extractor >(new Elliptical_extractor()));
 
-    typedef Generic_aperture_extractor<Rectangular_aperture_operation >
-            Rectangular_extractor;
     aperture_extractor_map_sptr->set_extractor(
             Rectangular_aperture_operation::attribute_name,
             boost::shared_ptr<Rectangular_extractor >(
