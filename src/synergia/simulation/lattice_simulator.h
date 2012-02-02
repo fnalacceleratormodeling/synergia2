@@ -134,35 +134,20 @@ public:
         void
         serialize(Archive & ar, const unsigned int version)
         {
-    	std::cout << "jfa: 01\n";
             ar & BOOST_SERIALIZATION_NVP(lattice_sptr);
-        	std::cout << "jfa: 02\n";
             ar & BOOST_SERIALIZATION_NVP(slices);
-        	std::cout << "jfa: 03\n";
             ar & BOOST_SERIALIZATION_NVP(chef_lattice_sptr);
-        	std::cout << "jfa: 04\n";
             ar & BOOST_SERIALIZATION_NVP(extractor_map_sptr);
-        	std::cout << "jfa: 05\n";
             ar & BOOST_SERIALIZATION_NVP(aperture_extractor_map_sptr);
-        	std::cout << "jfa: 06\n";
             ar & BOOST_SERIALIZATION_NVP(map_order);
-        	std::cout << "jfa: 07\n";
             ar & BOOST_SERIALIZATION_NVP(bucket_length);
-        	std::cout << "jfa: 08\n";
             ar & BOOST_SERIALIZATION_NVP(have_element_lattice_functions);
-        	std::cout << "jfa: 09\n";
             ar & BOOST_SERIALIZATION_NVP(have_slice_lattice_functions);
-        	std::cout << "jfa: 10\n";
             ar & BOOST_SERIALIZATION_NVP(horizontal_tune);
-        	std::cout << "jfa: 11\n";
             ar & BOOST_SERIALIZATION_NVP(vertical_tune);
-        	std::cout << "jfa: 12\n";
             ar & BOOST_SERIALIZATION_NVP(have_tunes);
-        	std::cout << "jfa: 13\n";
             ar & BOOST_SERIALIZATION_NVP(lattice_functions_element_map);
-        	std::cout << "jfa: 14\n";
             ar & BOOST_SERIALIZATION_NVP(lattice_functions_slice_map);
-        	std::cout << "jfa: 15\n";
         }
     ~Lattice_simulator();
 };
