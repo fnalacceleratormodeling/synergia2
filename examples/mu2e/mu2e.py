@@ -98,9 +98,10 @@ class Ramp_actions(synergia.simulation.Propagate_actions):
     
         # One Turn Map Calculations
         # Synergia One Turn Map
-        map_turn = linear_one_turn_map(stepper.get_lattice_simulator())
-        twiss_x = map2twiss(map_turn[0:2, 0:2])
-        twiss_y = map2twiss(map_turn[2:4, 2:4])
+        if opts.twiss:
+            map_turn = linear_one_turn_map(stepper.get_lattice_simulator())
+            twiss_x = map2twiss(map_turn[0:2, 0:2])
+            twiss_y = map2twiss(map_turn[2:4, 2:4])
         #if myrank == 0:
         #    print 
         #    print "    alpah_x                          :", twiss_x[0]
@@ -960,6 +961,11 @@ propagator = synergia.simulation.Propagator(stepper)
 propagator.propagate(bunch, num_turns, diagnostics_actions, ramp_actions, 
                 verbose)
 t1 = time.time()
+
+lattice_diagnostics = synergia.lattice.Lattice_diagnostics(synergia_lattice,
+                                                            "lattice_deposited_charge.h5",
+                                                            "deposited_charge")
+lattice_diagnostics.update_and_write()
 
 if myrank == 0:
     print
