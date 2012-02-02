@@ -163,7 +163,7 @@ Chef_lattice::get_element_adaptor_map_sptr()
 }
 
 Chef_elements
-Chef_lattice::get_chef_elements(Lattice_element const& lattice_element)
+Chef_lattice::get_chef_elements(Lattice_element & lattice_element)
 {
 	Chef_elements retval;
     Begin_end begin_end(element_map[&lattice_element]);
@@ -175,7 +175,7 @@ Chef_lattice::get_chef_elements(Lattice_element const& lattice_element)
 
 Chef_lattice_section_sptr
 Chef_lattice::get_chef_section_sptr(
-        Lattice_element_slice const& lattice_element_slice)
+        Lattice_element_slice & lattice_element_slice)
 {
     if (!have_sliced_beamline_) {
         throw std::runtime_error(
@@ -289,12 +289,12 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
     return retval;
 }
 
-Lattice_element const&
+Lattice_element &
 Chef_lattice::get_lattice_element(ElmPtr const& chef_element)
 {
-    Lattice_element const* lattice_element_ptr;
+    Lattice_element * lattice_element_ptr;
     bool found = false;
-    for (std::map<const Lattice_element*, Begin_end >::iterator it =
+    for (std::map<Lattice_element*, Begin_end >::iterator it =
             element_map.begin(); it != element_map.end(); ++it) {
     	for (int index=it->second.begin; index != it->second.end; ++index) {
     		if ((*beamline_iterators.at(index)) == chef_element) {
@@ -314,12 +314,12 @@ Chef_lattice::get_lattice_element(ElmPtr const& chef_element)
     return *lattice_element_ptr;
 }
 
-Lattice_element_slice const&
+Lattice_element_slice &
 Chef_lattice::get_lattice_element_slice(ElmPtr const& chef_element)
 {
-    Lattice_element_slice const* lattice_element_slice_ptr;
+    Lattice_element_slice * lattice_element_slice_ptr;
     bool found = false;
-    for (std::map<const Lattice_element_slice*, Begin_end >::iterator it =
+    for (std::map<Lattice_element_slice*, Begin_end >::iterator it =
             element_slice_map.begin(); it != element_slice_map.end(); ++it) {
     	for (int index=it->second.begin; index != it->second.end; ++index) {
     		if ((*sliced_beamline_iterators.at(index)) == chef_element) {

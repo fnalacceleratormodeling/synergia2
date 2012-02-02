@@ -63,9 +63,9 @@ private:
     bool have_slice_lattice_functions;
     double horizontal_tune, vertical_tune;
     bool have_tunes;
-    std::map<Lattice_element const*, Lattice_functions >
+    std::map<Lattice_element *, Lattice_functions >
             lattice_functions_element_map;
-    std::map<Lattice_element_slice const*, Lattice_functions >
+    std::map<Lattice_element_slice *, Lattice_functions >
             lattice_functions_slice_map;
     MArray2d linear_one_turn_map;
 	void
@@ -161,8 +161,8 @@ public:
         	std::cout << "jfa: 13\n";
             ar & BOOST_SERIALIZATION_NVP(lattice_functions_element_map);
         	std::cout << "jfa: 14\n";
-//            ar & BOOST_SERIALIZATION_NVP(lattice_functions_slice_map);
-//        	std::cout << "jfa: 15\n";
+            ar & BOOST_SERIALIZATION_NVP(lattice_functions_slice_map);
+        	std::cout << "jfa: 15\n";
         }
     ~Lattice_simulator();
 };
