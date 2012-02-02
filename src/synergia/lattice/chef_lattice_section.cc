@@ -31,9 +31,6 @@ Chef_lattice_section::extend(int begin_index, int end_index)
     } else {
         if ((begin_index != this->end_index) && (begin_index != this->end_index
                 + 1)) {
-            std::cout << "jfa: Chef_lattice_section::extend begin_index = "
-                    << begin_index << " this->end_index = " << this->end_index
-                    << std::endl;
             throw std::runtime_error(
                     "Chef_lattice_section::extend: invalid begin_index");
         } else {
