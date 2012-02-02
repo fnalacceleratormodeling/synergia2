@@ -1,6 +1,7 @@
 #include "lattice_element.h"
 #include "element_adaptor.h"
 #include "lattice.h"
+#include "lattice_diagnostics.h"
 #include "chef_lattice.h"
 #include "chef_utils.h"
 #include <boost/python.hpp>
@@ -117,6 +118,21 @@ BOOST_PYTHON_MODULE(lattice)
             .def("get_beamline", &Chef_lattice::get_beamline_sptr)
             .def("get_sliced_beamline", &Chef_lattice::get_sliced_beamline_sptr)
             ;
+
+    class_<Lattice_diagnostics, Lattice_diagnostics_sptr, bases<Generalized_diagnostics > >
+        ("Lattice_diagnostics",init<Lattice_sptr, std::string const&,
+                std::string const& >())
+        .def("set_default_value", &Lattice_diagnostics::set_default_value)
+        .def("get_default_value", &Lattice_diagnostics::get_default_value)
+        .def("set_reduce", &Lattice_diagnostics::set_reduce)
+        .def("get_reduce", &Lattice_diagnostics::get_reduce)
+//        .def("set_reduce_op", &Lattice_diagnostics::set_reduce_op)
+//        .def("get_reduce_op", &Lattice_diagnostics::get_reduce_op)
+        .def("update", &Lattice_diagnostics::update)
+        .def("write", &Lattice_diagnostics::write)
+        .def("update_and_write", &Lattice_diagnostics::update_and_write)
+        ;
+
     def("print_chef_beamline", print_chef_beamline);
     def("reference_particle_to_chef_particle",
             reference_particle_to_chef_particle);
