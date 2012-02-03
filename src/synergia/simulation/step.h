@@ -6,7 +6,7 @@
 #include "synergia/bunch/train.h"
 #include "synergia/simulation/operator.h"
 #include "synergia/bunch/bunch.h"
-#include "synergia/bunch/multi_diagnostics.h"
+#include "synergia/foundation/multi_diagnostics.h"
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -74,6 +74,7 @@ public:
             ar & BOOST_SERIALIZATION_NVP(operators);
             ar & BOOST_SERIALIZATION_NVP(time_fractions);
             ar & BOOST_SERIALIZATION_NVP(length);
+            ar & BOOST_SERIALIZATION_NVP(stored_vbunches);
         }
 };
 
