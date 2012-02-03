@@ -169,7 +169,7 @@ Independent_stepper::~Independent_stepper()
 
 }
 
-//BOOST_CLASS_EXPORT(Independent_stepper)
+BOOST_CLASS_EXPORT(Independent_stepper)
 
 //Independent_stepper_elements
 Independent_stepper_elements::Independent_stepper_elements(
@@ -229,7 +229,7 @@ Independent_stepper_elements::~Independent_stepper_elements()
 
 }
 
-//BOOST_CLASS_EXPORT(Independent_stepper_elements)
+BOOST_CLASS_EXPORT(Independent_stepper_elements)
 
 //Split_operator_stepper
 
@@ -300,7 +300,7 @@ Split_operator_stepper::~Split_operator_stepper()
 
 }
 
-//BOOST_CLASS_EXPORT(Split_operator_stepper)
+BOOST_CLASS_EXPORT(Split_operator_stepper)
 
 void
 Split_operator_stepper_elements::construct(
@@ -409,7 +409,7 @@ Split_operator_stepper_elements::~Split_operator_stepper_elements()
 
 }
 
-//BOOST_CLASS_EXPORT(Split_operator_stepper_elements)
+BOOST_CLASS_EXPORT(Split_operator_stepper_elements)
 
 void                    
 Split_operator_stepper_choice::construct_per_element_else()
