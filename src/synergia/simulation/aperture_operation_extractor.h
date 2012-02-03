@@ -38,6 +38,10 @@ public:
 typedef Generic_aperture_extractor<Circular_aperture_operation> Circular_extractor;
 typedef Generic_aperture_extractor<Elliptical_aperture_operation> Elliptical_extractor;
 typedef Generic_aperture_extractor<Rectangular_aperture_operation> Rectangular_extractor;
+typedef Generic_aperture_extractor<Polygon_aperture_operation >
+        Polygon_extractor;
+typedef Generic_aperture_extractor<Wire_elliptical_aperture_operation >
+        Wire_elliptical_extractor;
 
 class Aperture_operation_extractor_map {
 private:
@@ -61,3 +65,4 @@ public:
 typedef boost::shared_ptr<Aperture_operation_extractor_map> Aperture_operation_extractor_map_sptr;
 
 #endif /* APERTURE_OPERATION_EXTRACTOR_H_ */
+

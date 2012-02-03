@@ -3,6 +3,8 @@
 BOOST_CLASS_EXPORT(Circular_extractor)
 BOOST_CLASS_EXPORT(Elliptical_extractor)
 BOOST_CLASS_EXPORT(Rectangular_extractor)
+BOOST_CLASS_EXPORT(Polygon_extractor)
+BOOST_CLASS_EXPORT(Wire_elliptical_extractor)
 
 Aperture_operation_extractor::Aperture_operation_extractor()
 {
