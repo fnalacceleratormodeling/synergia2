@@ -69,7 +69,7 @@ private:
             lattice_functions_slice_map;
     MArray2d linear_one_turn_map;
 	void
-    construct_extractor_map();
+==  construct_extractor_map();
     void
     construct_aperture_extractor_map();
     void
@@ -132,13 +132,15 @@ public:
             double tolerance = 1.0e-6);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
+        save(Archive & ar, const unsigned int version) const
         {
             ar & BOOST_SERIALIZATION_NVP(lattice_sptr);
             ar & BOOST_SERIALIZATION_NVP(slices);
+            ar & BOOST_SERIALIZATION_NVP(have_slices);
             ar & BOOST_SERIALIZATION_NVP(chef_lattice_sptr);
             ar & BOOST_SERIALIZATION_NVP(extractor_map_sptr);
             ar & BOOST_SERIALIZATION_NVP(aperture_extractor_map_sptr);
+            ar & BOOST_SERIALIZATION_NVP(have_beamline_context);
             ar & BOOST_SERIALIZATION_NVP(map_order);
             ar & BOOST_SERIALIZATION_NVP(bucket_length);
             ar & BOOST_SERIALIZATION_NVP(have_element_lattice_functions);
@@ -149,6 +151,31 @@ public:
             ar & BOOST_SERIALIZATION_NVP(lattice_functions_element_map);
             ar & BOOST_SERIALIZATION_NVP(lattice_functions_slice_map);
         }
+    template<class Archive>
+        void
+        load(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(lattice_sptr);
+            ar & BOOST_SERIALIZATION_NVP(slices);
+            ar & BOOST_SERIALIZATION_NVP(have_slices);
+            ar & BOOST_SERIALIZATION_NVP(chef_lattice_sptr);
+            ar & BOOST_SERIALIZATION_NVP(extractor_map_sptr);
+            ar & BOOST_SERIALIZATION_NVP(aperture_extractor_map_sptr);
+            ar & BOOST_SERIALIZATION_NVP(have_beamline_context);
+            ar & BOOST_SERIALIZATION_NVP(map_order);
+            ar & BOOST_SERIALIZATION_NVP(bucket_length);
+            ar & BOOST_SERIALIZATION_NVP(have_element_lattice_functions);
+            ar & BOOST_SERIALIZATION_NVP(have_slice_lattice_functions);
+            ar & BOOST_SERIALIZATION_NVP(horizontal_tune);
+            ar & BOOST_SERIALIZATION_NVP(vertical_tune);
+            ar & BOOST_SERIALIZATION_NVP(have_tunes);
+            ar & BOOST_SERIALIZATION_NVP(lattice_functions_element_map);
+            ar & BOOST_SERIALIZATION_NVP(lattice_functions_slice_map);
+            if (have_beamline_context) {
+                calculate_beamline_context();
+            }
+        }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
     ~Lattice_simulator();
 };
 
