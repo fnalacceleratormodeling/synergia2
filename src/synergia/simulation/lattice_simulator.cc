@@ -90,6 +90,7 @@ Lattice_simulator::construct_aperture_extractor_map()
     aperture_extractor_map_sptr->set_extractor(
             Circular_aperture_operation::attribute_name,
             boost::shared_ptr<Circular_extractor >(new Circular_extractor()));
+
     aperture_extractor_map_sptr->set_extractor(
             "default",
             boost::shared_ptr<Circular_extractor >(new Circular_extractor()));
@@ -103,14 +104,10 @@ Lattice_simulator::construct_aperture_extractor_map()
             boost::shared_ptr<Rectangular_extractor >(
                     new Rectangular_extractor()));
 
-    typedef Generic_aperture_extractor<Polygon_aperture_operation >
-            Polygon_extractor;
     aperture_extractor_map_sptr->set_extractor(
             Polygon_aperture_operation::attribute_name,
             boost::shared_ptr<Polygon_extractor >(new Polygon_extractor()));
 
-    typedef Generic_aperture_extractor<Wire_elliptical_aperture_operation >
-            Wire_elliptical_extractor;
     aperture_extractor_map_sptr->set_extractor(
             Wire_elliptical_aperture_operation::attribute_name,
             boost::shared_ptr<Wire_elliptical_extractor >(new Wire_elliptical_extractor()));
@@ -489,18 +486,18 @@ set_chef_correctors(Lattice_elements const& correctors,
             if (std::strcmp((*ce_it)->Type(), "quadrupole") == 0) {
                 if (horizontal) {
                     beamline_context_sptr->addHTuneCorrector(
-                            boost::dynamic_pointer_cast<quadrupole >(*ls_it));
+                            boost::dynamic_pointer_cast<quadrupole >(*ce_it));
                 } else {
                     beamline_context_sptr->addVTuneCorrector(
-                            boost::dynamic_pointer_cast<quadrupole >(*ls_it));
+                            boost::dynamic_pointer_cast<quadrupole >(*ce_it));
                 }
             } else if (std::strcmp((*ce_it)->Type(), "thinQuad") == 0) {
                 if (horizontal) {
                     beamline_context_sptr->addHTuneCorrector(
-                            boost::dynamic_pointer_cast<thinQuad >(*ls_it));
+                            boost::dynamic_pointer_cast<thinQuad >(*ce_it));
                 } else {
                     beamline_context_sptr->addVTuneCorrector(
-                            boost::dynamic_pointer_cast<thinQuad >(*ls_it));
+                            boost::dynamic_pointer_cast<thinQuad >(*ce_it));
                 }
             } else {
                 std::string message(
