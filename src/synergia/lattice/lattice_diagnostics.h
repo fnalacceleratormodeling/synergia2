@@ -57,4 +57,6 @@ public:
     ~Lattice_diagnostics();
 };
 
+typedef boost::shared_ptr<Lattice_diagnostics > Lattice_diagnostics_sptr;
+
 #endif /* LATTICE_DIAGNOSTICS_H_ */
