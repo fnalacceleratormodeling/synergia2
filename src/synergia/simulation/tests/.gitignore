@@ -24,4 +24,7 @@ test_rectangular_aperture_operation
 test_split_operator_stepper_elements
 test_propagator
 test_propagator_mpi
+test_polygon_aperture_operation
+test_split_operator_stepper_choice
+
 *.h5
