@@ -4,5 +4,9 @@ test_lattice_diagnostics
 test_lattice_diagnostics_mpi
 test_lattice_element_slice
 test_chef_lattice
+test_chef_lattice_section
+test_element_adaptor
+test_element_adaptor_map
+
 *.xml
 *.h5

@@ -12,10 +12,6 @@ test_bunch_with_diagnostics
 test_bunch_train
 test_bunch_train_mpi
 test_populate
-test*.h5
-dummy*.h5
-diagnostics*.h5
-particles.h5
-cylparticles.h5
-track*.h5
+
+*.h5
 *.icc
