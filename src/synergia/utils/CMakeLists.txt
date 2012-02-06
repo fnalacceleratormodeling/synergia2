@@ -45,7 +45,7 @@ install(FILES
     numpy_multi_ref_converter.h
     parallel_utils.h
     simple_timer.h
-    xml_serialization.h
+    serialization.h
     DESTINATION include/synergia/utils)
 if (BUILD_PYTHON_BINDINGS)
     install(FILES
