@@ -36,3 +36,12 @@ BOOST_AUTO_TEST_CASE(serialize_xml)
     BOOST_CHECK_EQUAL(loaded.get_type(), "collective");
 }
 
+BOOST_AUTO_TEST_CASE(serialize2_xml)
+{
+    Operator_sptr operator_sptr(new Dummy_collective_operator("test"));
+    xml_save(operator_sptr, "collective_operator2.xml");
+
+    Operator_sptr loaded;
+    xml_load(loaded, "collective_operator2.xml");
+}
+

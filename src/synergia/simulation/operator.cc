@@ -60,7 +60,7 @@ Collective_operator::Collective_operator()
 Collective_operator::~Collective_operator()
 {
 }
-BOOST_CLASS_EXPORT(Collective_operator)
+BOOST_CLASS_EXPORT_IMPLEMENT(Collective_operator)
 
 Dummy_collective_operator::Dummy_collective_operator(std::string const& name) :
     Collective_operator(name)
@@ -79,7 +79,7 @@ Dummy_collective_operator::apply(Bunch & bunch, double time_step, Step & step)
 Dummy_collective_operator::~Dummy_collective_operator()
 {
 }
-BOOST_CLASS_EXPORT(Dummy_collective_operator)
+BOOST_CLASS_EXPORT_IMPLEMENT(Dummy_collective_operator)
 
 void
 Independent_operator::update_operations(
@@ -301,4 +301,4 @@ Independent_operator::~Independent_operator()
 {
 
 }
-BOOST_CLASS_EXPORT(Independent_operator)
+BOOST_CLASS_EXPORT_IMPLEMENT(Independent_operator)
