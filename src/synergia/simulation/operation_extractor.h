@@ -44,6 +44,7 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operation_extractor);
 	}
 };
+BOOST_CLASS_EXPORT_KEY(Chef_map_operation_extractor);
 
 class Chef_propagate_operation_extractor: public Operation_extractor {
 public:
@@ -59,6 +60,7 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operation_extractor);
 	}
 };
+BOOST_CLASS_EXPORT_KEY(Chef_propagate_operation_extractor);
 
 class Chef_mixed_operation_extractor: public Operation_extractor {
 public:
@@ -74,6 +76,7 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operation_extractor);
 	}
 };
+BOOST_CLASS_EXPORT_KEY(Chef_mixed_operation_extractor);
 
 class Operation_extractor_map {
 private:

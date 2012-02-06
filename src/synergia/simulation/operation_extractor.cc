@@ -84,7 +84,7 @@ Chef_map_operation_extractor::extract(
     retval.push_back(fast_mapping_operation_sptr);
     return retval;
 }
-BOOST_CLASS_EXPORT(Chef_map_operation_extractor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Chef_map_operation_extractor)
 
 Chef_propagate_operation_extractor::Chef_propagate_operation_extractor(
         Chef_lattice_sptr chef_lattice_sptr, int map_order) :
@@ -115,7 +115,7 @@ Chef_propagate_operation_extractor::extract(
     retval.push_back(chef_propagate_operation_sptr);
     return retval;
 }
-BOOST_CLASS_EXPORT(Chef_propagate_operation_extractor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Chef_propagate_operation_extractor)
 
 Chef_mixed_operation_extractor::Chef_mixed_operation_extractor(
         Chef_lattice_sptr chef_lattice_sptr, int map_order) :
@@ -181,7 +181,7 @@ Chef_mixed_operation_extractor::extract(
 
     return retval;
 }
-BOOST_CLASS_EXPORT(Chef_mixed_operation_extractor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Chef_mixed_operation_extractor)
 
 Operation_extractor_map::Operation_extractor_map()
 {
