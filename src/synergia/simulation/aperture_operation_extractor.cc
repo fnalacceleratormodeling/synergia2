@@ -1,10 +1,10 @@
 #include "aperture_operation_extractor.h"
 
-BOOST_CLASS_EXPORT(Circular_extractor)
-BOOST_CLASS_EXPORT(Elliptical_extractor)
-BOOST_CLASS_EXPORT(Rectangular_extractor)
-BOOST_CLASS_EXPORT(Polygon_extractor)
-BOOST_CLASS_EXPORT(Wire_elliptical_extractor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Circular_extractor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Elliptical_extractor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Rectangular_extractor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Polygon_extractor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Wire_elliptical_extractor)
 
 Aperture_operation_extractor::Aperture_operation_extractor()
 {

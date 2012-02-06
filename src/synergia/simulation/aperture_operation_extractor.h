@@ -36,12 +36,21 @@ public:
 };
 
 typedef Generic_aperture_extractor<Circular_aperture_operation> Circular_extractor;
+BOOST_CLASS_EXPORT_KEY(Circular_extractor);
+
 typedef Generic_aperture_extractor<Elliptical_aperture_operation> Elliptical_extractor;
+BOOST_CLASS_EXPORT_KEY(Elliptical_extractor);
+
 typedef Generic_aperture_extractor<Rectangular_aperture_operation> Rectangular_extractor;
+BOOST_CLASS_EXPORT_KEY(Rectangular_extractor);
+
 typedef Generic_aperture_extractor<Polygon_aperture_operation >
         Polygon_extractor;
+BOOST_CLASS_EXPORT_KEY(Polygon_extractor);
+
 typedef Generic_aperture_extractor<Wire_elliptical_aperture_operation >
         Wire_elliptical_extractor;
+BOOST_CLASS_EXPORT_KEY(Wire_elliptical_extractor);
 
 class Aperture_operation_extractor_map {
 private:
