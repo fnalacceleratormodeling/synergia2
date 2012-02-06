@@ -44,7 +44,6 @@ public:
     virtual
     ~Stepper();
 };
-
 typedef boost::shared_ptr<Stepper > Stepper_sptr;
 
 /// The Independent_stepper class generates evenly-spaced Independent_operator
@@ -72,6 +71,8 @@ public:
     ~Independent_stepper();
 
 };
+BOOST_CLASS_EXPORT_KEY(Independent_stepper);
+typedef boost::shared_ptr<Independent_stepper > Independent_stepper_sptr;
 
 /// The Independent_stepper_elements class generates a constant number of
 /// Independent_operator steps per thick element. Thin elements are assigned
@@ -98,7 +99,7 @@ public:
     virtual
     ~Independent_stepper_elements();
 };
-
+BOOST_CLASS_EXPORT_KEY(Independent_stepper_elements);
 typedef boost::shared_ptr<Independent_stepper_elements >
         Independent_stepper_elements_sptr;
 
@@ -137,7 +138,7 @@ public:
     virtual
     ~Split_operator_stepper();
 };
-
+BOOST_CLASS_EXPORT_KEY(Split_operator_stepper);
 typedef boost::shared_ptr<Split_operator_stepper > Split_operator_stepper_sptr;
 
 /// The Split_operator_stepper_elements class generates a constant number of
@@ -182,6 +183,9 @@ public:
     virtual
     ~Split_operator_stepper_elements();
 };
+BOOST_CLASS_EXPORT_KEY(Split_operator_stepper_elements);
+typedef boost::shared_ptr<Split_operator_stepper_elements >
+        Split_operator_stepper_elements_sptr;
 
 /// Generate steps through lattice based on envelope shape.
 /// Includes collective effects.

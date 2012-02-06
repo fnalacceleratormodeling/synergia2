@@ -169,7 +169,7 @@ Independent_stepper::~Independent_stepper()
 
 }
 
-BOOST_CLASS_EXPORT(Independent_stepper)
+BOOST_CLASS_EXPORT_IMPLEMENT(Independent_stepper)
 
 //Independent_stepper_elements
 Independent_stepper_elements::Independent_stepper_elements(
@@ -229,7 +229,7 @@ Independent_stepper_elements::~Independent_stepper_elements()
 
 }
 
-BOOST_CLASS_EXPORT(Independent_stepper_elements)
+BOOST_CLASS_EXPORT_IMPLEMENT(Independent_stepper_elements)
 
 //Split_operator_stepper
 
@@ -300,7 +300,7 @@ Split_operator_stepper::~Split_operator_stepper()
 
 }
 
-BOOST_CLASS_EXPORT(Split_operator_stepper)
+BOOST_CLASS_EXPORT_IMPLEMENT(Split_operator_stepper)
 
 void
 Split_operator_stepper_elements::construct(
@@ -408,8 +408,6 @@ Split_operator_stepper_elements::~Split_operator_stepper_elements()
 {
 
 }
-
-BOOST_CLASS_EXPORT(Split_operator_stepper_elements)
 
 void                    
 Split_operator_stepper_choice::construct_per_element_else()
@@ -575,6 +573,8 @@ Split_operator_stepper_choice::construct_per_element_else()
      }                            
                                 
 }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(Split_operator_stepper_elements);
 
 
 
@@ -796,6 +796,3 @@ Stepper(lattice_simulator),    list_choice_map(list_choice_map), num_steps_else(
 Split_operator_stepper_choice::~Split_operator_stepper_choice()
 {
 }
-                    
-  
- 

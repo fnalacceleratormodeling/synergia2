@@ -84,8 +84,10 @@ verify_steps(Independent_stepper & stepper, Lattice & lattice, int num_steps)
                 != operators.end(); ++oit) {
             // Test 2: the operator should be an Independent_operator
             BOOST_CHECK((*oit)->get_type() == "independent");
-            Lattice_element_slices slices(boost::static_pointer_cast<
-                    Independent_operator >(*oit)->get_slices());
+            Lattice_element_slices
+                    slices(
+                            boost::static_pointer_cast<Independent_operator >(
+                                    *oit)->get_slices());
             for (Lattice_element_slices::iterator slit = slices.begin(); slit
                     != slices.end(); ++slit) {
                 double slice_length = (*slit)->get_right()
@@ -164,5 +166,18 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture)
     xml_save(stepper, "independent_stepper.xml");
 
     Independent_stepper loaded;
-    xml_load(stepper, "independent_stepper.xml");
+    xml_load(loaded, "independent_stepper.xml");
+}
+
+BOOST_FIXTURE_TEST_CASE(serialize2_xml, Lattice_fixture)
+{
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+    const int num_steps = 2;
+    Stepper_sptr stepper_sptr(
+            new Independent_stepper(lattice_simulator, num_steps));
+    xml_save(stepper_sptr, "independent_stepper2.xml");
+
+    Stepper_sptr loaded;
+    xml_load(loaded, "independent_stepper2.xml");
 }

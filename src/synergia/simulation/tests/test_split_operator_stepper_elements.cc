@@ -210,3 +210,19 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture2)
     Split_operator_stepper_elements loaded;
     xml_load(loaded, "split_operator_stepper_elements.xml");
 }
+
+BOOST_FIXTURE_TEST_CASE(serialize2_xml, Lattice_fixture2)
+{
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+    const int steps_per_element = 1;
+    Stepper_sptr stepper_sptr(
+            new Split_operator_stepper_elements(lattice_simulator,
+                    space_charge, steps_per_element));
+    xml_save(stepper_sptr, "split_operator_stepper_elements2.xml");
+
+    Stepper_sptr loaded;
+    xml_load(loaded, "split_operator_stepper_elements2.xml");
+}
