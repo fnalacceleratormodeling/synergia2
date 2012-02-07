@@ -39,6 +39,7 @@ Fast_mapping_operation::apply(Bunch & bunch)
 Fast_mapping_operation::~Fast_mapping_operation()
 {
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Fast_mapping_operation);
 
 Chef_propagate_operation::Chef_propagate_operation(
         Chef_lattice_section_sptr chef_lattice_section_sptr) :
@@ -54,10 +55,11 @@ Chef_propagate_operation::Chef_propagate_operation()
 void
 Chef_propagate_operation::apply(Bunch & bunch)
 {
-    bunch.convert_to_state(Bunch::fixed_z_lab); 
-    chef_propagator.apply(bunch);   
+    bunch.convert_to_state(Bunch::fixed_z_lab);
+    chef_propagator.apply(bunch);
 }
 
 Chef_propagate_operation::~Chef_propagate_operation()
 {
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Chef_propagate_operation);

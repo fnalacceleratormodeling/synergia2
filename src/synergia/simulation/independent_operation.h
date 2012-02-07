@@ -59,7 +59,7 @@ public:
     virtual
     ~Fast_mapping_operation();
 };
-
+BOOST_CLASS_EXPORT_KEY(Fast_mapping_operation);
 typedef boost::shared_ptr<Fast_mapping_operation > Fast_mapping_operation_sptr;
 
 const char chef_propagate_type_name[] = "chef_propagate";
@@ -84,7 +84,7 @@ public:
     virtual
     ~Chef_propagate_operation();
 };
-
+BOOST_CLASS_EXPORT_KEY(Chef_propagate_operation);
 typedef boost::shared_ptr<Chef_propagate_operation >
         Chef_propagate_operation_sptr;
 
