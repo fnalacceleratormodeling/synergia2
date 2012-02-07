@@ -28,6 +28,7 @@ Aperture_operation::deposit_charge(double charge)
 Aperture_operation::~Aperture_operation()
 {
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Aperture_operation);
 
 const char Finite_aperture_operation::aperture_type[] = "finite";
 
@@ -79,6 +80,10 @@ Circular_aperture_operation::Circular_aperture_operation(
     radius2 = radius * radius;
 }
 
+Circular_aperture_operation::Circular_aperture_operation()
+{
+}
+
 const char *
 Circular_aperture_operation::get_aperture_type() const
 {
@@ -113,6 +118,7 @@ Circular_aperture_operation::apply(Bunch & bunch)
 Circular_aperture_operation::~Circular_aperture_operation()
 {
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Circular_aperture_operation);
 
 const char Elliptical_aperture_operation::aperture_type[] = "elliptical";
 const char Elliptical_aperture_operation::attribute_name[] = "elliptical";
@@ -141,6 +147,10 @@ Elliptical_aperture_operation::Elliptical_aperture_operation(
     }
     h2 = horizontal_radius * horizontal_radius;
     v2 = vertical_radius * vertical_radius;
+}
+
+Elliptical_aperture_operation::Elliptical_aperture_operation()
+{
 }
 
 const char *
@@ -180,6 +190,7 @@ Elliptical_aperture_operation::apply(Bunch & bunch)
 Elliptical_aperture_operation::~Elliptical_aperture_operation()
 {
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Elliptical_aperture_operation);
 
 const char Rectangular_aperture_operation::aperture_type[] = "rectangular";
 const char Rectangular_aperture_operation::attribute_name[] = "rectangular";
@@ -204,6 +215,10 @@ Rectangular_aperture_operation::Rectangular_aperture_operation(
         throw std::runtime_error(
                 "Rectangular_aperture_operation: rectangular_aperture requires an rectangular_aperture_height attribute");
     }
+}
+
+Rectangular_aperture_operation::Rectangular_aperture_operation()
+{
 }
 
 const char *
@@ -411,3 +426,4 @@ Wire_elliptical_aperture_operation::apply(Bunch & bunch)
 Wire_elliptical_aperture_operation::~Wire_elliptical_aperture_operation()
 {
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Rectangular_aperture_operation);

@@ -10,6 +10,8 @@ private:
 public:
     static const char charge_attribute[];
     Aperture_operation(Lattice_element_slice_sptr slice_sptr);
+    // Default constructor for serialization use only
+    Aperture_operation();
     virtual const char *
     get_aperture_type() const = 0;
     virtual bool
@@ -21,9 +23,16 @@ public:
     apply(Bunch & bunch)=0;
     void
     deposit_charge(double charge);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Independent_operation);
+        }
     virtual
     ~Aperture_operation();
 };
+BOOST_CLASS_EXPORT_KEY(Aperture_operation)
 
 typedef boost::shared_ptr<Aperture_operation > Aperture_operation_sptr;
 typedef std::list<Aperture_operation_sptr > Aperture_operation_sptrs;
@@ -62,6 +71,8 @@ public:
     static const char aperture_type[];
     static const char attribute_name[];
     Circular_aperture_operation(Lattice_element_slice_sptr slice_sptr);
+    // Default constructor for serialization use only
+    Circular_aperture_operation();
     virtual const char *
     get_aperture_type() const;
     virtual bool
@@ -73,9 +84,17 @@ public:
     operator()(MArray2d_ref & particles, int part);
     virtual void
     apply(Bunch & bunch);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
+            ar & BOOST_SERIALIZATION_NVP(radius);
+        }
     virtual
     ~Circular_aperture_operation();
 };
+BOOST_CLASS_EXPORT_KEY(Circular_aperture_operation)
 
 /// An elliptical aperture with horizontal and vertical radii in meters
 /// determined by the Lattice_element_attributes
@@ -92,6 +111,8 @@ public:
     static const char aperture_type[];
     static const char attribute_name[];
     Elliptical_aperture_operation(Lattice_element_slice_sptr slice_sptr);
+    // Default constructor for serialization use only
+    Elliptical_aperture_operation();
     virtual const char *
     get_aperture_type() const;
     virtual bool
@@ -103,9 +124,19 @@ public:
     operator()(MArray2d_ref & particles, int part);
     virtual void
     apply(Bunch & bunch);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
+            ar & BOOST_SERIALIZATION_NVP(horizontal_radius);
+            ar & BOOST_SERIALIZATION_NVP(vertical_radius);
+        }
     virtual
     ~Elliptical_aperture_operation();
 };
+BOOST_CLASS_EXPORT_KEY(Elliptical_aperture_operation)
+;
 
 /// A rectangular aperture with horizontal and vertical dimensions in meters
 /// determined by the Lattice_element_attributes
@@ -121,6 +152,8 @@ public:
     static const char aperture_type[];
     static const char attribute_name[];
     Rectangular_aperture_operation(Lattice_element_slice_sptr slice_sptr);
+    // Default constructor for serialization use only
+    Rectangular_aperture_operation();
     virtual const char *
     get_aperture_type() const;
     virtual bool
@@ -132,9 +165,19 @@ public:
     operator()(MArray2d_ref & particles, int part);
     virtual void
     apply(Bunch & bunch);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
+            ar & BOOST_SERIALIZATION_NVP(width);
+            ar & BOOST_SERIALIZATION_NVP(height);
+        }
     virtual
     ~Rectangular_aperture_operation();
 };
+BOOST_CLASS_EXPORT_KEY(Rectangular_aperture_operation)
+;
 
 /// A polygon aperture with vertices
 /// determined by the Lattice_element_attributes
