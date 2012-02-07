@@ -200,7 +200,7 @@ Marker_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 Marker_mad8_adaptor::~Marker_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Marker_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Marker_mad8_adaptor)
 
 Drift_mad8_adaptor::Drift_mad8_adaptor()
 {
@@ -226,7 +226,7 @@ Drift_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 Drift_mad8_adaptor::~Drift_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Drift_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Drift_mad8_adaptor)
 
 Sbend_mad8_adaptor::Sbend_mad8_adaptor()
 {
@@ -382,7 +382,7 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 Sbend_mad8_adaptor::~Sbend_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Sbend_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Sbend_mad8_adaptor)
 
 Rbend_mad8_adaptor::Rbend_mad8_adaptor()
 {
@@ -517,7 +517,7 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 	for (int k=0; k<=highest_order; ++k) {
 	  c_moments.push_back(std::complex<double> (bk[k],ak[k]));
 	}
-	
+
 	retval.push_back(rbptr1);
 	// angle may be negative, but it doesn't make sense to scale the
 	// multipole moments by a negative strength
@@ -525,7 +525,7 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 					     brho * (2.0 * fabs(sin(0.5 * angle))),
 					     c_moments)));
 	retval.push_back(rbptr2);
-	
+
 	return retval;
       }
     } else {
@@ -567,7 +567,7 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 Rbend_mad8_adaptor::~Rbend_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Rbend_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Rbend_mad8_adaptor)
 
 Quadrupole_mad8_adaptor::Quadrupole_mad8_adaptor()
 {
@@ -694,7 +694,7 @@ Quadrupole_mad8_adaptor::get_chef_elements(
 Quadrupole_mad8_adaptor::~Quadrupole_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Quadrupole_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Quadrupole_mad8_adaptor)
 
 Sextupole_mad8_adaptor::Sextupole_mad8_adaptor()
 {
@@ -754,7 +754,7 @@ Sextupole_mad8_adaptor::get_chef_elements(
 Sextupole_mad8_adaptor::~Sextupole_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Sextupole_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Sextupole_mad8_adaptor)
 
 Octupole_mad8_adaptor::Octupole_mad8_adaptor()
 {
@@ -813,7 +813,7 @@ Octupole_mad8_adaptor::get_chef_elements(
 Octupole_mad8_adaptor::~Octupole_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Octupole_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Octupole_mad8_adaptor)
 
 Multipole_mad8_adaptor::Multipole_mad8_adaptor()
 {
@@ -918,7 +918,7 @@ Multipole_mad8_adaptor::get_chef_elements(
 Multipole_mad8_adaptor::~Multipole_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Multipole_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Multipole_mad8_adaptor)
 
 //------------------------------------------
 // thinpoles are an addon present only in CHEF
@@ -995,7 +995,7 @@ Thinpole_mad8_adaptor::get_chef_elements(
 Thinpole_mad8_adaptor::~Thinpole_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Thinpole_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Thinpole_mad8_adaptor)
 
 Solenoid_mad8_adaptor::Solenoid_mad8_adaptor()
 {
@@ -1011,7 +1011,7 @@ Solenoid_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 Solenoid_mad8_adaptor::~Solenoid_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Solenoid_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Solenoid_mad8_adaptor)
 
 Hkicker_mad8_adaptor::Hkicker_mad8_adaptor()
 {
@@ -1058,7 +1058,7 @@ Hkicker_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 Hkicker_mad8_adaptor::~Hkicker_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Hkicker_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Hkicker_mad8_adaptor)
 
 Vkicker_mad8_adaptor::Vkicker_mad8_adaptor()
 {
@@ -1105,7 +1105,7 @@ Vkicker_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 Vkicker_mad8_adaptor::~Vkicker_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Vkicker_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Vkicker_mad8_adaptor)
 
 Kicker_mad8_adaptor::Kicker_mad8_adaptor()
 {
@@ -1157,7 +1157,7 @@ Kicker_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 Kicker_mad8_adaptor::~Kicker_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Kicker_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Kicker_mad8_adaptor)
 
 Rfcavity_mad8_adaptor::Rfcavity_mad8_adaptor()
 {
@@ -1232,7 +1232,7 @@ Rfcavity_mad8_adaptor::get_chef_elements(
 Rfcavity_mad8_adaptor::~Rfcavity_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Rfcavity_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Rfcavity_mad8_adaptor)
 
 Elseparator_mad8_adaptor::Elseparator_mad8_adaptor()
 {
@@ -1250,7 +1250,7 @@ Elseparator_mad8_adaptor::set_default_attributes(
 Elseparator_mad8_adaptor::~Elseparator_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Elseparator_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Elseparator_mad8_adaptor)
 
 Hmonitor_mad8_adaptor::Hmonitor_mad8_adaptor()
 {
@@ -1285,7 +1285,7 @@ Hmonitor_mad8_adaptor::get_chef_elements(
 Hmonitor_mad8_adaptor::~Hmonitor_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Hmonitor_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Hmonitor_mad8_adaptor)
 
 Vmonitor_mad8_adaptor::Vmonitor_mad8_adaptor()
 {
@@ -1320,7 +1320,7 @@ Vmonitor_mad8_adaptor::get_chef_elements(
 Vmonitor_mad8_adaptor::~Vmonitor_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Vmonitor_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Vmonitor_mad8_adaptor)
 
 Monitor_mad8_adaptor::Monitor_mad8_adaptor()
 {
@@ -1355,7 +1355,7 @@ Monitor_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 Monitor_mad8_adaptor::~Monitor_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Monitor_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Monitor_mad8_adaptor)
 
 Instrument_mad8_adaptor::Instrument_mad8_adaptor()
 {
@@ -1371,7 +1371,7 @@ Instrument_mad8_adaptor::set_default_attributes(
 Instrument_mad8_adaptor::~Instrument_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Instrument_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Instrument_mad8_adaptor)
 
 Ecollimator_mad8_adaptor::Ecollimator_mad8_adaptor()
 {
@@ -1389,7 +1389,7 @@ Ecollimator_mad8_adaptor::set_default_attributes(
 Ecollimator_mad8_adaptor::~Ecollimator_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Ecollimator_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Ecollimator_mad8_adaptor)
 
 Rcollimator_mad8_adaptor::Rcollimator_mad8_adaptor()
 {
@@ -1407,5 +1407,5 @@ Rcollimator_mad8_adaptor::set_default_attributes(
 Rcollimator_mad8_adaptor::~Rcollimator_mad8_adaptor()
 {
 }
-BOOST_CLASS_EXPORT(Rcollimator_mad8_adaptor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Rcollimator_mad8_adaptor)
 

@@ -58,6 +58,7 @@ public:
     virtual
     ~Marker_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Marker_mad8_adaptor);
 
 class Drift_mad8_adaptor : public Element_adaptor
 {
@@ -76,6 +77,7 @@ public:
     virtual
     ~Drift_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Drift_mad8_adaptor);
 
 class Sbend_mad8_adaptor : public Element_adaptor
 {
@@ -94,6 +96,7 @@ public:
     virtual
     ~Sbend_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Sbend_mad8_adaptor);
 
 class Rbend_mad8_adaptor : public Element_adaptor
 {
@@ -114,6 +117,7 @@ public:
     virtual
     ~Rbend_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Rbend_mad8_adaptor);
 
 class Quadrupole_mad8_adaptor : public Element_adaptor
 {
@@ -132,6 +136,7 @@ public:
     virtual
     ~Quadrupole_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Quadrupole_mad8_adaptor);
 
 class Sextupole_mad8_adaptor : public Element_adaptor
 {
@@ -150,6 +155,7 @@ public:
     virtual
     ~Sextupole_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Sextupole_mad8_adaptor);
 
 class Octupole_mad8_adaptor : public Element_adaptor
 {
@@ -168,6 +174,7 @@ public:
     virtual
     ~Octupole_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Octupole_mad8_adaptor);
 
 class Multipole_mad8_adaptor : public Element_adaptor
 {
@@ -186,6 +193,7 @@ public:
     virtual
     ~Multipole_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Multipole_mad8_adaptor);
 
 // thinpoles are an CHEF addon not found in MAD8
 class Thinpole_mad8_adaptor : public Element_adaptor
@@ -205,6 +213,7 @@ public:
     virtual
     ~Thinpole_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Thinpole_mad8_adaptor);
 
 class Solenoid_mad8_adaptor : public Element_adaptor
 {
@@ -221,6 +230,7 @@ public:
     virtual
     ~Solenoid_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Solenoid_mad8_adaptor);
 
 class Hkicker_mad8_adaptor : public Element_adaptor
 {
@@ -239,6 +249,7 @@ public:
     virtual
     ~Hkicker_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Hkicker_mad8_adaptor);
 
 class Vkicker_mad8_adaptor : public Element_adaptor
 {
@@ -257,6 +268,7 @@ public:
     virtual
     ~Vkicker_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Vkicker_mad8_adaptor);
 
 class Kicker_mad8_adaptor : public Element_adaptor
 {
@@ -275,6 +287,7 @@ public:
     virtual
     ~Kicker_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Kicker_mad8_adaptor);
 
 class Rfcavity_mad8_adaptor : public Element_adaptor
 {
@@ -293,6 +306,7 @@ public:
     virtual
     ~Rfcavity_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Rfcavity_mad8_adaptor);
 
 class Elseparator_mad8_adaptor : public Element_adaptor
 {
@@ -309,6 +323,7 @@ public:
     virtual
     ~Elseparator_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Elseparator_mad8_adaptor);
 
 class Hmonitor_mad8_adaptor : public Element_adaptor
 {
@@ -327,6 +342,7 @@ public:
     virtual
     ~Hmonitor_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Hmonitor_mad8_adaptor);
 
 class Vmonitor_mad8_adaptor : public Element_adaptor
 {
@@ -345,6 +361,7 @@ public:
     virtual
     ~Vmonitor_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Vmonitor_mad8_adaptor);
 
 class Monitor_mad8_adaptor : public Element_adaptor
 {
@@ -363,6 +380,7 @@ public:
     virtual
     ~Monitor_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Monitor_mad8_adaptor);
 
 class Instrument_mad8_adaptor : public Element_adaptor
 {
@@ -379,6 +397,7 @@ public:
     virtual
     ~Instrument_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Instrument_mad8_adaptor);
 
 class Ecollimator_mad8_adaptor : public Element_adaptor
 {
@@ -395,6 +414,7 @@ public:
     virtual
     ~Ecollimator_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Ecollimator_mad8_adaptor);
 
 class Rcollimator_mad8_adaptor : public Element_adaptor
 {
@@ -411,6 +431,7 @@ public:
     virtual
     ~Rcollimator_mad8_adaptor();
 };
+BOOST_CLASS_EXPORT_KEY(Rcollimator_mad8_adaptor);
 
 class Element_adaptor_map
 {
