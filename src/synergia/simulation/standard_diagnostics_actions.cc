@@ -16,22 +16,17 @@ Standard_diagnostics_actions::add_per_step(Generalized_diagnostics_sptr diagnost
     per_steps.push_back(diagnostics_sptr);
 }
 
-
-
 std::list<Generalized_diagnostics_sptr >
 Standard_diagnostics_actions::get_per_steps_diagnostics_list() const
 {
     return per_steps;
 }
 
-
 std::list<Generalized_diagnostics_sptr >
 Standard_diagnostics_actions::get_per_turns_diagnostics_list() const
 {
     return per_turns;
 }
-
-
 
 void
 Standard_diagnostics_actions::update_and_write_all(
@@ -51,8 +46,8 @@ Standard_diagnostics_actions::first_action(Stepper & stepper, Bunch & bunch)
 }
 
 void
-Standard_diagnostics_actions::turn_end_action(Stepper & stepper,
-        Bunch & bunch, int turn_num)
+Standard_diagnostics_actions::turn_end_action(Stepper & stepper, Bunch & bunch,
+        int turn_num)
 {
     update_and_write_all(per_turns);
 }
@@ -67,3 +62,5 @@ Standard_diagnostics_actions::step_end_action(Stepper & stepper, Step & step,
 Standard_diagnostics_actions::~Standard_diagnostics_actions()
 {
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Standard_diagnostics_actions)
+

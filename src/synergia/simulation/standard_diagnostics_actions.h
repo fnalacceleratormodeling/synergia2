@@ -31,9 +31,18 @@ public:
     virtual void
     step_end_action(Stepper & stepper, Step & step, Bunch & bunch,
             int turn_num, int step_num);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Propagate_actions);
+            ar & BOOST_SERIALIZATION_NVP(per_turns);
+            ar & BOOST_SERIALIZATION_NVP(per_steps);
+        }
     virtual
     ~Standard_diagnostics_actions();
 
 };
+BOOST_CLASS_EXPORT_KEY(Standard_diagnostics_actions);
 typedef boost::shared_ptr<Standard_diagnostics_actions > Standard_diagnostics_actions_sptr;
 #endif /* STANDARD_DIAGNOSTICS_ACTIONS_H_ */
