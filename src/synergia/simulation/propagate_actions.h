@@ -18,6 +18,11 @@ public:
     virtual void
     step_end_action(Stepper & stepper, Step & step, Bunch & bunch,
             int turn_num, int step_num);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+        }
     virtual
     ~Propagate_actions();
 };
