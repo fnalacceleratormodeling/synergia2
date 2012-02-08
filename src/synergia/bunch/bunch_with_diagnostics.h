@@ -26,6 +26,7 @@ public:
 
      Bunch_with_diagnostics(Bunch_sptr bunch_sptr,  Standard_diagnostics_actions_sptr diagnostics_actions_sptr);
 
+     Bunch_with_diagnostics();
      void
      add_per_step_diagnostics(Diagnostics_sptr diagnostics_sptr);
 
@@ -43,6 +44,13 @@ public:
      Commxx const&
      get_comm() const;
 
+     template<class Archive>
+         void
+         serialize(Archive & ar, const unsigned int version)
+         {
+             ar & BOOST_SERIALIZATION_NVP(bunch_sptr);
+             ar & BOOST_SERIALIZATION_NVP(diagnostics_actions_sptr);
+         }
      ~Bunch_with_diagnostics();
 };
 

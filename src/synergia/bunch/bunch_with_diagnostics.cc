@@ -9,6 +9,10 @@ Bunch_with_diagnostics::Bunch_with_diagnostics(Bunch_sptr bunch_sptr,
 {
 }
 
+Bunch_with_diagnostics::Bunch_with_diagnostics()
+{
+}
+
 void
 Bunch_with_diagnostics::check_bunch_pointer_in_diagnostics() const
 {
