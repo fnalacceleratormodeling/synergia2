@@ -11,6 +11,11 @@ Aperture_operation::Aperture_operation(Lattice_element_slice_sptr slice_sptr) :
 {
 }
 
+Aperture_operation::Aperture_operation() :
+    Independent_operation("aperture")
+{
+}
+
 void
 Aperture_operation::deposit_charge(double charge)
 {
