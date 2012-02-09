@@ -66,6 +66,10 @@ Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
    construct (filename, serial, write_skip, commxx, writer_rank);
 }
 
+Diagnostics_write_helper::Diagnostics_write_helper()
+{
+}
+
 int
 Diagnostics_write_helper::get_count() const
 {

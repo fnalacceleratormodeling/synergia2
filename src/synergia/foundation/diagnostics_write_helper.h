@@ -37,6 +37,9 @@ public:
     Diagnostics_write_helper(std::string const& filename, bool serial, Commxx const& commxx,
             int writer_rank = default_rank);
 
+    // Default constructor for serialization use only
+    Diagnostics_write_helper();
+
     /// Get the count for non-serial writers
     int
     get_count() const;
