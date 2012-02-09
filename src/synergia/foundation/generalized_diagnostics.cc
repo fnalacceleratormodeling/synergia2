@@ -5,6 +5,10 @@ Generalized_diagnostics::Generalized_diagnostics(std::string const& name) :
 {
 }
 
+Generalized_diagnostics::Generalized_diagnostics()
+{
+}
+
 std::string const &
 Generalized_diagnostics::get_name() const
 {

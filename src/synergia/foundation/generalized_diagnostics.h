@@ -3,6 +3,7 @@
 
 #include <string>
 #include "boost/shared_ptr.hpp"
+#include "synergia/utils/serialization.h"
 
 /// Generalized_diagnostics is an abstract base class for bunch and lattice
 /// diagnostics classes
@@ -12,6 +13,8 @@ private:
     std::string name;
 public:
     Generalized_diagnostics(std::string const& name);
+    // Default constructor for serialization use only
+    Generalized_diagnostics();
     /// return diagnostics type
     std::string const &
     get_name() const;
@@ -27,6 +30,12 @@ public:
     /// Update the diagnostics and write them to the file
     virtual void
     update_and_write();
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(name);
+        }
     virtual
     ~Generalized_diagnostics()
     {
