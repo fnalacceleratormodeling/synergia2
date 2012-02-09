@@ -1,5 +1,4 @@
 #include "populate_stationary.h"
-#include "diagnostics.h"
 
 #include <iostream>
 

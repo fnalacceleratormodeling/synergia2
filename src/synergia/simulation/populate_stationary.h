@@ -2,7 +2,6 @@
 #define POPULATE_STATIONARY_H_
 
 #include "synergia/foundation/distribution.h"
-#include "synergia/bunch/bunch.h"
 #include "synergia/simulation/lattice_simulator.h"
 
 
