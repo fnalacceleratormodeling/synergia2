@@ -249,3 +249,57 @@ BOOST_FIXTURE_TEST_CASE(adjust_tunes, Fobodobo_sbend_fixture)
                     new_vertical_tune) < tolerance);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map, Foborodobo32_fixture)
+{
+  const int map_order = 3;
+  const double tolerance = 1.0e-10;
+  Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+  const double precalc_map[6][6] =
+    {
+      {-2.19357606231182,32.9385623645925,0,0,-1.4054233434823e-05,2.10370267288137},
+      {-0.198000820312684,2.51728079667732,0,0,-8.82549898338248e-06,0.225090567963238},
+      {0,0,1.07033464770303,1.26550130626506,0,0},
+      {0,0,-0.043725938974272,0.882588234565397,0,0},
+      {-0.0775786650504149,2.12744968170199,0,0,0.999233925701437,4.90707629572777},
+      {-4.46685405256861e-06,-7.77964143853632e-05,0,0,-0.000157079632679488,1.00001075119391}
+    }
+  ;
+
+  MArray2d gotten_map(lattice_simulator.get_linear_one_turn_map());
+  for (int i=0; i<6; ++i) {
+    for (int j=0; j<6; ++j) {
+      BOOST_CHECK_CLOSE(gotten_map[i][j], precalc_map[i][j],tolerance);
+    }
+  }
+}
+
+BOOST_FIXTURE_TEST_CASE(linear_human_normal_human, Foborodobo32_fixture)
+{
+  const int map_order = 1;
+  const double tolerance = 1.0e-12;
+  Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+  // in the linear case, this should just be a matrix multiplication
+  // and be very good
+
+  const double precalc_map[6][6] =
+    {
+      {-2.19357606231182,32.9385623645925,0,0,-1.4054233434823e-05,2.10370267288137},
+      {-0.198000820312684,2.51728079667732,0,0,-8.82549898338248e-06,0.225090567963238},
+      {0,0,1.07033464770303,1.26550130626506,0,0},
+      {0,0,-0.043725938974272,0.882588234565397,0,0},
+      {-0.0775786650504149,2.12744968170199,0,0,0.999233925701437,4.90707629572777},
+      {-4.46685405256861e-06,-7.77964143853632e-05,0,0,-0.000157079632679488,1.00001075119391}
+    }
+  ;
+
+  MArray2d gotten_map(lattice_simulator.get_linear_one_turn_map());
+  for (int i=0; i<6; ++i) {
+    for (int j=0; j<6; ++j) {
+      BOOST_CHECK_CLOSE(gotten_map[i][j], precalc_map[i][j],tolerance);
+    }
+  }
+}
+
+

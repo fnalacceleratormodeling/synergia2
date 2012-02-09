@@ -6,6 +6,8 @@
 #include <stdexcept>
 #include <cstring>
 
+#include <iostream>
+
 Lattice_functions::Lattice_functions() :
     alpha_x(0.0), alpha_y(0.0), beta_x(0.0), beta_y(0.0), psi_x(0.0),
             psi_y(0.0), D_x(0.0), D_y(0.0), Dprime_x(0.0), Dprime_y(0.0),
@@ -245,6 +247,7 @@ Lattice_simulator::update()
     lattice_functions_slice_map.clear();
     have_tunes = false;
     have_beamline_context = false;
+    normal_form_sage_sptr.reset();
 }
 
 void
@@ -311,27 +314,25 @@ Lattice_simulator::get_lattice_functions(
     return lattice_functions_slice_map[&lattice_element_slice];
 }
 
+// calculate the normal form sage object, leave a shared pointer to this object
+// in the lattice_simulator class member normal_form_sage_sptr
 void
 Lattice_simulator::calculate_normal_form()
 {
-  // make sure we have a good environment
-  if (Jet__environment::getLastEnv() == 0) {
-    JetParticle::createStandardEnvironments(map_order);
-  }
-  // a BeamlineContext object can help by calculating maps and
-  // closed orbits
-  BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
-  BeamlineContext beamline_context(reference_particle_to_chef_particle(lattice_sptr->get_reference_particle()), beamline_sptr);
-  // we need a ring-like beamline in order to make a normal form
-  if (!beamline_context.isTreatedAsRing()) {
-    beamline_context.handleAsRing();
-  }
-  // does it actually work as a ring?
-  if (!beamline_context.isRing()) {
-    throw std::runtime_error("Line passed to Lattice_simulator::calculate_normal_form() is not actually a ring");
-  }
-  Mapping one_turn_map = beamline_context.getOneTurnMap();
+  get_beamline_context();
+  Mapping one_turn_map = beamline_context_sptr->getOneTurnMap();
   normal_form_sage_sptr = Normal_form_sage_sptr(new normalFormSage(one_turn_map, reference_particle_to_chef_jet_particle(lattice_sptr->get_reference_particle(),map_order), map_order));
+}
+
+// checkLinearNormalForm
+// check the linear part of the normal form calculation
+bool
+Lattice_simulator::check_linear_normal_form()
+{
+  if (! normal_form_sage_sptr) {
+    calculate_normal_form();
+  }
+  return normal_form_sage_sptr->checkLinearNormalForm();
 }
 
 // converts a MArray2d of particle coordinates in synergia ordering into
@@ -341,24 +342,28 @@ Lattice_simulator::calculate_normal_form()
 void
 Lattice_simulator::convert_human_to_normal(MArray2d_ref coords)
 {
+  if (!normal_form_sage_sptr) {
+    calculate_normal_form();
+  }
+
   const MArray2d::size_type *coords_shape = coords.shape();
   const MArray2d::index *coords_bases = coords.index_bases();
 
-  if ((coords_shape[0] != 7) || (coords_bases[0] != 0)) {
-    throw std::runtime_error("Lattice_simulator::convert_normal_to_human expected [0:7]xn array");
+  if ((coords_shape[1] != 7) || (coords_bases[1] != 0)) {
+    throw std::runtime_error("Lattice_simulator::convert_human_to_normal expected nx[0:7] array");
   }
 
-  for (int i=coords_bases[1]; i!=coords_bases[1]+coords_shape[1]; ++i) {
+  for (int i=coords_bases[0]; i!=coords_bases[0]+coords_shape[0]; ++i) {
     Vector w(6);
     VectorC a(6);
 
     for (int j=0; j<6; ++j) {
-      w(get_chef_index(j)) = coords[j][i];
+      w(get_chef_index(j)) = coords[i][j];
     }
     normal_form_sage_sptr->cnvDataToNormalForm(w, a);
     for (int j=0; j<3; ++j) {
-      coords[2*j][i] = a(j).real();
-      coords[2*j+1][i] = a(j).imag();
+      coords[i][2*j] = a(j).real();
+      coords[i][2*j+1] = a(j).imag();
     }
   }
 }
@@ -368,29 +373,72 @@ Lattice_simulator::convert_human_to_normal(MArray2d_ref coords)
 void
 Lattice_simulator::convert_normal_to_human(MArray2d_ref coords)
 {
+  if (!normal_form_sage_sptr) {
+    calculate_normal_form();
+  }
+
   const MArray2d::size_type *coords_shape = coords.shape();
   const MArray2d::index *coords_bases = coords.index_bases();
 
-  if ((coords_shape[0] != 7) || (coords_bases[0] != 0)) {
-    throw std::runtime_error("Lattice_simulator::convert_normal_to_human expected [0:7]xn array");
+  if ((coords_shape[1] != 7) || (coords_bases[1] != 0)) {
+    throw std::runtime_error("Lattice_simulator::convert_normal_to_human expected nx[0:7] array");
   }
-  for (int i=coords_bases[1]; i!=coords_bases[1]+coords_shape[1]; ++i) {
+  for (int i=coords_bases[0]; i!=coords_bases[0]+coords_shape[0]; ++i) {
     Vector w(6);
     VectorC a(6);
-    
+
     for (int j=0; j<3; ++j) {
-      a(j) = std::complex<double>(coords[2*j][i],coords[2*j+1][i]);
+      a(j) = std::complex<double>(coords[i][2*j],coords[i][2*j+1]);
       a(j+3) = std::conj(a(j));
     }
+    std::cout << "normal form particle " << i << ": " << a << std::endl;
+    std::cout << " magnitudes: ";
+    for (int j=0; j<6; ++j) {
+      if (j != 0) {
+	std::cout << ",  ";
+      }
+      std::cout << abs(a(j));
+    }
+    std::cout << std::endl;
+
     // convert to human form in CHEF order
     normal_form_sage_sptr->cnvDataFromNormalForm(a, w);
     // write back into synergia ordering
     for (int j=0; j<6; ++j) {
-      coords[get_synergia_index(j)][i] = w(j);
+      coords[i][get_synergia_index(j)] = w(j);
     }
   }
 }
 				   
+// return a vector of the mean actions that will generate a stationary
+// beam distribution having the specified standard deviations in each
+// of the three planes.
+std::vector<double> Lattice_simulator::get_stationary_actions(const double stdx, const double stdy, const double stdz)
+{
+  if (!normal_form_sage_sptr) {
+    calculate_normal_form();
+  }
+
+  return normal_form_sage_sptr->stationaryActions(stdx, stdy, stdz);
+}
+
+// returns the linear one turn map for the lattice and beam parameters
+// for this lattice_simulator
+MArray2d
+Lattice_simulator::get_linear_one_turn_map()
+{
+
+  get_beamline_context();
+  MatrixD lin_one_turn_map = beamline_context_sptr->getOneTurnMap().Jacobian();
+  MArray2d linmap(boost::extents[6][6]);
+  for (int i=0; i<6; ++i) {
+    for (int j=0; j<6; ++j) {
+      linmap[i][j] = lin_one_turn_map(get_chef_index(i),get_chef_index(j));
+    }
+  }
+  return linmap;
+}
+
 double
 Lattice_simulator::get_horizontal_tune()
 {
