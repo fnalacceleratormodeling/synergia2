@@ -15,6 +15,10 @@ Diagnostics::Diagnostics(std::string const& name) :
 {
 }
 
+Diagnostics::Diagnostics()
+{
+}
+
 MArray1d
 Diagnostics::calculate_mean(Bunch const& bunch)
 {
@@ -155,6 +159,7 @@ Diagnostics::calculate_bunchmax(Bunch const& bunch)
 
     return bunchmax;
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics)
 
 Diagnostics_basic::Diagnostics_basic(Bunch_sptr bunch_sptr,
         std::string const& filename) :
@@ -162,6 +167,10 @@ Diagnostics_basic::Diagnostics_basic(Bunch_sptr bunch_sptr,
             bunch_sptr(bunch_sptr), filename(filename), have_writers(false),
             mean(boost::extents[6]), std(boost::extents[6]),
             write_helper(filename, true, bunch_sptr->get_comm())
+{
+}
+
+Diagnostics_basic::Diagnostics_basic()
 {
 }
 
@@ -295,6 +304,7 @@ Diagnostics_basic::~Diagnostics_basic()
         delete writer_s;
     }
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_basic)
 
 void
 Diagnostics_full2::update_full2()
@@ -358,6 +368,10 @@ Diagnostics_full2::Diagnostics_full2(Bunch_sptr bunch_sptr,
             mean(boost::extents[6]), std(boost::extents[6]),
             mom2(boost::extents[6][6]), corr(boost::extents[6][6]),
             write_helper(filename, true, bunch_sptr->get_comm())
+{
+}
+
+Diagnostics_full2::Diagnostics_full2()
 {
 }
 
@@ -539,6 +553,7 @@ Diagnostics_full2::~Diagnostics_full2()
         delete writer_s;
     }
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_full2)
 
 Diagnostics_particles::Diagnostics_particles(Bunch_sptr bunch_sptr,
         std::string const& filename, int min_particle_id, int max_particle_id,
@@ -548,6 +563,10 @@ Diagnostics_particles::Diagnostics_particles(Bunch_sptr bunch_sptr,
             min_particle_id(min_particle_id), max_particle_id(max_particle_id),
             have_writers(false),
             write_helper(filename, false, write_skip, bunch_sptr->get_comm())
+{
+}
+
+Diagnostics_particles::Diagnostics_particles()
 {
 }
 
@@ -699,6 +718,7 @@ Diagnostics_particles::get_bunch_sptr() const
 Diagnostics_particles::~Diagnostics_particles()
 {
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_particles)
 
 Diagnostics_track::Diagnostics_track(Bunch_sptr bunch_sptr,
         std::string const& filename, int particle_id) :
@@ -706,6 +726,10 @@ Diagnostics_track::Diagnostics_track(Bunch_sptr bunch_sptr,
             bunch_sptr(bunch_sptr), filename(filename), have_writers(false),
             coords(boost::extents[6]), found(false), first_search(true),
             particle_id(particle_id), last_index(-1)
+{
+}
+
+Diagnostics_track::Diagnostics_track()
 {
 }
 
@@ -809,3 +833,4 @@ Diagnostics_track::~Diagnostics_track()
         delete writer_coords;
     }
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_track)

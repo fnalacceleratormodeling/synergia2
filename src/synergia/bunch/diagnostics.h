@@ -19,6 +19,9 @@ public:
 
     Diagnostics(std::string const& name);
 
+    // Default constructor for serialization use only
+    Diagnostics();
+
     static MArray1d
     calculate_mean(Bunch const& bunch);
 
@@ -39,14 +42,20 @@ public:
 
     virtual Bunch_sptr
     get_bunch_sptr() const=0;
-
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Generalized_diagnostics);
+            ar & BOOST_SERIALIZATION_NVP(name);
+        }
     virtual
     ~Diagnostics()
     {
     }
     ;
 };
-
+BOOST_CLASS_EXPORT_KEY(Diagnostics)
 typedef boost::shared_ptr<Diagnostics > Diagnostics_sptr;
 
 /// Diagnostics_basic provides the minimal set of statistical
@@ -78,6 +87,9 @@ public:
     /// @param bunch the Bunch
     /// @param filename filename for output
     Diagnostics_basic(Bunch_sptr bunch, std::string const& filename);
+
+    // Default constructor for serialization use only
+    Diagnostics_basic();
 
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_basic class is serial.
@@ -134,10 +146,18 @@ public:
     virtual Bunch_sptr
     get_bunch_sptr() const;
 
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
+            //incomplete
+        }
+
     virtual
     ~Diagnostics_basic();
 };
-
+BOOST_CLASS_EXPORT_KEY(Diagnostics_basic)
 typedef boost::shared_ptr<Diagnostics_basic > Diagnostics_basic_sptr;
 
 /// Diagnostics_full2 provides the full set of statistical
@@ -180,6 +200,9 @@ public:
     /// @param bunch the Bunch
     /// @param filename filename for output
     Diagnostics_full2(Bunch_sptr bunch, std::string const& filename);
+
+    // Default constructor for serialization use only
+    Diagnostics_full2();
 
     virtual void
     init_writers(H5::H5File & file);
@@ -265,10 +288,18 @@ public:
     virtual Bunch_sptr
     get_bunch_sptr() const;
 
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
+            //incomplete
+        }
+
     virtual
     ~Diagnostics_full2();
 };
-
+BOOST_CLASS_EXPORT_KEY(Diagnostics_full2)
 typedef boost::shared_ptr<Diagnostics_full2 > Diagnostics_full2_sptr;
 
 /// Diagnostics_particles dumps the state of particles in a bunch
@@ -298,6 +329,9 @@ public:
             int min_particle_id = 0, int max_particle_id = 0,
             int write_skip = 1);
 
+    // Default constructor for serialization use only
+    Diagnostics_particles();
+
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_particles class is not serial.
     virtual bool
@@ -313,10 +347,18 @@ public:
     virtual Bunch_sptr
     get_bunch_sptr() const;
 
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
+            //incomplete
+        }
+
     virtual
     ~Diagnostics_particles();
 };
-
+BOOST_CLASS_EXPORT_KEY(Diagnostics_particles)
 typedef boost::shared_ptr<Diagnostics_particles > Diagnostics_particles_sptr;
 
 /// Diagnostics_track records the phase space coordinates of a single particle.
@@ -354,6 +396,9 @@ public:
     Diagnostics_track(Bunch_sptr bunch_sptr, std::string const& filename,
             int particle_id);
 
+    // Default constructor for serialization use only
+    Diagnostics_track();
+
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_full2 class is serial.
     virtual bool
@@ -369,10 +414,18 @@ public:
     virtual Bunch_sptr
     get_bunch_sptr() const;
 
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
+            //incomplete
+        }
+
     virtual
     ~Diagnostics_track();
 };
-
+BOOST_CLASS_EXPORT_KEY(Diagnostics_track)
 typedef boost::shared_ptr<Diagnostics_track > Diagnostics_track_sptr;
 
 #endif /* DIAGNOSTICS_H_ */
