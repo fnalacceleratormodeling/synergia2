@@ -123,5 +123,31 @@ BOOST_FIXTURE_TEST_CASE(propagate2, Lattice_fixture)
             per_turn_diagnostics);
 }
 
+BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture)
+{
+    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
+            "space_charge"));
+    Lattice_simulator lattice_simulator(lattice_sptr, 2);
+
+    Split_operator_stepper_sptr stepper_sptr(new Split_operator_stepper(
+            lattice_simulator, space_charge, 7));
+
+    Propagator propagator(stepper_sptr);
+    xml_save(propagator, "propagator.xml");
+
+    Bunch_sptr bunch_sptr(new Bunch(b.bunch));
+
+    Diagnostics_particles per_turn_diagnostics(bunch_sptr,
+            "test_propagate_per_turn.h5");
+    Diagnostics_basic per_step_diagnostics(bunch_sptr,
+            "test_propagate_per_step.h5");
+    int num_turns = 4;
+    propagator.propagate(*bunch_sptr, num_turns, per_step_diagnostics,
+            per_turn_diagnostics);
+    xml_save(propagator, "propagator2.xml");
+
+    Propagator loaded;
+    xml_load(propagator, "propagator.xml");
+}
 
 

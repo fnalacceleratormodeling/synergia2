@@ -7,6 +7,7 @@
 #include "synergia/bunch/bunch_with_diagnostics.h"
 #include "synergia/bunch/train.h"
 #include "synergia/foundation/multi_diagnostics.h"
+#include "synergia/utils/serialization.h"
 
 class Propagator
 {
@@ -16,7 +17,33 @@ private:
     void
     construct();
 public:
+    struct State
+    {
+        Bunch_with_diagnostics & bunch_with_diagnostics;
+        int num_turns;
+        int first_turn;
+        Propagate_actions & general_actions;
+        bool verbose;
+        State(Bunch_with_diagnostics & bunch_with_diagnostics, int num_turns,
+                int first_turn, Propagate_actions & propagate_actions, bool verbose);
+        template<class Archive>
+            void
+            serialize(Archive & ar, const unsigned int version)
+            {
+                ar & BOOST_SERIALIZATION_NVP(bunch_with_diagnostics);
+                ar & BOOST_SERIALIZATION_NVP(num_turns);
+                ar & BOOST_SERIALIZATION_NVP(first_turn);
+                ar & BOOST_SERIALIZATION_NVP(general_actions);
+                ar & BOOST_SERIALIZATION_NVP(verbose);
+            }
+    };
     Propagator(Stepper_sptr stepper_sptr);
+
+    // Default propagator for serialization use only
+    Propagator();
+
+    void
+    propagate(State & state);
 
     void
     propagate(Bunch_with_diagnostics & bunch_with_diagnostics, int num_turns,
@@ -54,6 +81,14 @@ public:
     propagate(Bunch & bunch, int num_turns,
             Standard_diagnostics_actions & diagnostics_actions,
             Propagate_actions & general_actions, int verbosity = 0);
+
+     template<class Archive>
+         void
+         serialize(Archive & ar, const unsigned int version)
+         {
+             ar & BOOST_SERIALIZATION_NVP(stepper_sptr);
+         }
+
 
     ~Propagator();
 };
