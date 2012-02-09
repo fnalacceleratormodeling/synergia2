@@ -15,6 +15,7 @@
 #include <boost/serialization/utility.hpp>
 #include <boost/serialization/assume_abstract.hpp>
 #include <boost/serialization/nvp.hpp>
+#include <boost/serialization/complex.hpp>
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/vector.hpp>

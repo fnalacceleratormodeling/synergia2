@@ -43,6 +43,10 @@ Finite_aperture_operation::Finite_aperture_operation(
 {
 }
 
+Finite_aperture_operation::Finite_aperture_operation()
+{
+}
+
 const char *
 Finite_aperture_operation::get_aperture_type() const
 {
@@ -65,6 +69,7 @@ Finite_aperture_operation::apply(Bunch & bunch)
 Finite_aperture_operation::~Finite_aperture_operation()
 {
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Finite_aperture_operation);
 
 const double Circular_aperture_operation::default_radius(1000.0);
 const char Circular_aperture_operation::aperture_type[] = "circular";
@@ -261,6 +266,7 @@ Rectangular_aperture_operation::apply(Bunch & bunch)
 Rectangular_aperture_operation::~Rectangular_aperture_operation()
 {
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Rectangular_aperture_operation);
 
 const char Polygon_aperture_operation::aperture_type[] = "polygon";
 const char Polygon_aperture_operation::attribute_name[] = "polygon";
@@ -301,6 +307,10 @@ Polygon_aperture_operation::Polygon_aperture_operation(
     }
 }
 
+Polygon_aperture_operation::Polygon_aperture_operation()
+{
+}
+
 const char *
 Polygon_aperture_operation::get_aperture_type() const
 {
@@ -335,6 +345,7 @@ Polygon_aperture_operation::apply(Bunch & bunch)
 Polygon_aperture_operation::~Polygon_aperture_operation()
 {
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Polygon_aperture_operation);
 
 const char Wire_elliptical_aperture_operation::aperture_type[] =
         "wire_elliptical";
@@ -391,6 +402,10 @@ Wire_elliptical_aperture_operation::Wire_elliptical_aperture_operation(
     v2 = vertical_radius * vertical_radius;
 }
 
+Wire_elliptical_aperture_operation::Wire_elliptical_aperture_operation()
+{
+}
+
 const char *
 Wire_elliptical_aperture_operation::get_aperture_type() const
 {
@@ -431,4 +446,4 @@ Wire_elliptical_aperture_operation::apply(Bunch & bunch)
 Wire_elliptical_aperture_operation::~Wire_elliptical_aperture_operation()
 {
 }
-BOOST_CLASS_EXPORT_IMPLEMENT(Rectangular_aperture_operation);
+BOOST_CLASS_EXPORT_IMPLEMENT(Wire_elliptical_aperture_operation);

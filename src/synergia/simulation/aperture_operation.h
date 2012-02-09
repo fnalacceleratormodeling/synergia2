@@ -46,6 +46,8 @@ public:
     static const char aperture_type[];
     static const char attribute_name[];
     Finite_aperture_operation(Lattice_element_slice_sptr slice_sptr);
+    // Default constructor for serialization use only
+    Finite_aperture_operation();
     virtual const char *
     get_aperture_type() const;
     virtual bool
@@ -54,9 +56,16 @@ public:
     operator()(MArray2d_ref & particles, int part);
     virtual void
     apply(Bunch & bunch);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
+        }
     virtual
     ~Finite_aperture_operation();
 };
+BOOST_CLASS_EXPORT_KEY(Finite_aperture_operation)
 
 /// A circular aperture with radius in meters determined by the
 /// Lattice_element attribute "circular_aperture_radius".
@@ -195,6 +204,8 @@ public:
     static const char aperture_type[];
     static const char attribute_name[];
     Polygon_aperture_operation(Lattice_element_slice_sptr slice_sptr);
+    // Default constructor for serialization use only
+    Polygon_aperture_operation();
     virtual const char *
     get_aperture_type() const;
     virtual bool
@@ -206,9 +217,18 @@ public:
     operator()(MArray2d_ref & particles, int part);
     virtual void
     apply(Bunch & bunch);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
+            ar & BOOST_SERIALIZATION_NVP(vertices_num);
+            ar & BOOST_SERIALIZATION_NVP(vertices);
+        }
     virtual
     ~Polygon_aperture_operation();
 };
+BOOST_CLASS_EXPORT_KEY(Polygon_aperture_operation)
 
 /// An wire_elliptical aperture with horizontal and vertical radii in meters
 /// determined by the Lattice_element_attributes
@@ -230,6 +250,8 @@ public:
     static const char aperture_type[];
     static const char attribute_name[];
     Wire_elliptical_aperture_operation(Lattice_element_slice_sptr slice_sptr);
+    // Default constructor for serialization use only
+    Wire_elliptical_aperture_operation();
     virtual const char *
     get_aperture_type() const;
     virtual bool
@@ -244,6 +266,7 @@ public:
     virtual
     ~Wire_elliptical_aperture_operation();
 };
+BOOST_CLASS_EXPORT_KEY(Wire_elliptical_aperture_operation)
 
 #include "synergia/simulation/aperture_operation.tcc"
 
