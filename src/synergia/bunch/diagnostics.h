@@ -4,24 +4,13 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include "synergia/bunch/bunch.h"
-#include "synergia/foundation/generalized_diagnostics.h"
+//#include "synergia/foundation/generalized_diagnostics.h"
 #include "synergia/foundation/diagnostics_write_helper.h"
 #include "synergia/utils/hdf5_serial_writer.h"
 
 /// Diagnostics is an abstract base class for bunch diagnostics classes
-class Diagnostics : public Generalized_diagnostics
+struct Core_diagnostics
 {
-
-private:
-    std::string name;
-
-public:
-
-    Diagnostics(std::string const& name);
-
-    // Default constructor for serialization use only
-    Diagnostics();
-
     static MArray1d
     calculate_mean(Bunch const& bunch);
 
@@ -39,14 +28,37 @@ public:
 
     static MArray1d
     calculate_bunchmax(Bunch const& bunch);
+};
 
+class Diagnostics
+{
+private:
+    std::string name;
+
+public:
+
+    Diagnostics(std::string const& name);
+
+    // Default constructor for serialization use only
+    Diagnostics();
+    /// Multiple serial diagnostics can be written to a single file.
+    virtual bool
+    is_serial() const = 0;
+    /// Update the diagnostics
+    virtual void
+    update() = 0;
+    /// Write the diagnostics to the file
+    virtual void
+    write() = 0;
+    /// Update the diagnostics and write them to the file
+    virtual void
+    update_and_write(){update();write();}
     virtual Bunch_sptr
     get_bunch_sptr() const=0;
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)
         {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Generalized_diagnostics);
             ar & BOOST_SERIALIZATION_NVP(name);
         }
     virtual
@@ -427,5 +439,4 @@ public:
 };
 BOOST_CLASS_EXPORT_KEY(Diagnostics_track)
 typedef boost::shared_ptr<Diagnostics_track > Diagnostics_track_sptr;
-
 #endif /* DIAGNOSTICS_H_ */

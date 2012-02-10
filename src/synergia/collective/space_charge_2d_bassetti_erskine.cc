@@ -195,8 +195,8 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
     //      factor accordingly.
     bunch.convert_to_state(Bunch::fixed_t);
 
-    MArray1d mean(Diagnostics::calculate_mean(bunch));
-    MArray1d std(Diagnostics::calculate_std(bunch, mean));
+    MArray1d mean(Core_diagnostics::calculate_mean(bunch));
+    MArray1d std(Core_diagnostics::calculate_std(bunch, mean));
     sigma[0] = std[Bunch::x];
     sigma[1] = std[Bunch::y];
     sigma[2] = std[Bunch::z];
@@ -220,7 +220,7 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
         double x = bunch.get_local_particles()[part][Bunch::x];
         double y = bunch.get_local_particles()[part][Bunch::y];
         double z = bunch.get_local_particles()[part][Bunch::z];
-        // csp: This line charge density works only for the gaussian charge 
+        // csp: This line charge density works only for the gaussian charge
         //      distribution.
         double line_charge_density = q_total * exp(-z * z /(2.0 * sigma[2]
                 * sigma[2])) / (sqrt(2.0 * mconstants::pi) * sigma[2]);

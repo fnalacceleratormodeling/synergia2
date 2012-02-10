@@ -57,8 +57,8 @@ BOOST_FIXTURE_TEST_CASE(populate_6d_diagonal, Fixture)
     
     
     populate_6d(distribution, bunch, means, covariances);
-    MArray1d bunch_mean(Diagnostics::calculate_mean(bunch));
-    MArray2d bunch_mom2(Diagnostics::calculate_mom2(bunch, bunch_mean));
+    MArray1d bunch_mean(Core_diagnostics::calculate_mean(bunch));
+    MArray2d bunch_mom2(Core_diagnostics::calculate_mom2(bunch, bunch_mean));
     multi_array_check_equal(means, bunch_mean, tolerance);
     multi_array_check_equal(covariances, bunch_mom2, tolerance);
 }
@@ -86,8 +86,8 @@ BOOST_FIXTURE_TEST_CASE(populate_6d_general, Fixture)
     
     
     populate_6d(distribution, bunch, means, covariances);
-    MArray1d bunch_mean(Diagnostics::calculate_mean(bunch));
-    MArray2d bunch_mom2(Diagnostics::calculate_mom2(bunch, bunch_mean));
+    MArray1d bunch_mean(Core_diagnostics::calculate_mean(bunch));
+    MArray2d bunch_mom2(Core_diagnostics::calculate_mom2(bunch, bunch_mean));
     multi_array_check_equal(means, bunch_mean, tolerance);
     multi_array_check_equal(covariances, bunch_mom2, tolerance);
 }
@@ -105,8 +105,8 @@ BOOST_FIXTURE_TEST_CASE(populate_transverse_gaussian_general, Fixture)
     }
     const double cdt = 3.14;
     populate_transverse_gaussian(distribution, bunch, means, covariances, cdt);
-    MArray1d bunch_mean(Diagnostics::calculate_mean(bunch));
-    MArray2d bunch_mom2(Diagnostics::calculate_mom2(bunch, bunch_mean));
+    MArray1d bunch_mean(Core_diagnostics::calculate_mean(bunch));
+    MArray2d bunch_mom2(Core_diagnostics::calculate_mom2(bunch, bunch_mean));
     for (int i = 0; i < 4; ++i) {
         if (std::abs(means[i]) < 10 * tolerance) {
             BOOST_CHECK_SMALL(bunch_mean[i], tolerance);
@@ -172,8 +172,8 @@ BOOST_FIXTURE_TEST_CASE(populate_uniform_cylinder_general, Fixture)
     const double stddpop = 5.6e-4;
     populate_uniform_cylinder(distribution, bunch, radius, cdt, stdxp, stdyp,
             stddpop);
-    MArray1d bunch_mean(Diagnostics::calculate_mean(bunch));
-    MArray1d bunch_std(Diagnostics::calculate_std(bunch, bunch_mean));
+    MArray1d bunch_mean(Core_diagnostics::calculate_mean(bunch));
+    MArray1d bunch_std(Core_diagnostics::calculate_std(bunch, bunch_mean));
     // yes, this tolerance is very large. There are no corrections for
     // finite statistics in populate_uniform_cylinder.
     const double tolerance = 2.0;

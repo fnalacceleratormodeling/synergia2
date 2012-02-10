@@ -13,8 +13,8 @@ void
 adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
         Const_MArray2d_ref covariances)
 {
-    MArray1d bunch_mean(Diagnostics::calculate_mean(bunch));
-    MArray2d bunch_mom2(Diagnostics::calculate_mom2(bunch, bunch_mean));
+    MArray1d bunch_mean(Core_diagnostics::calculate_mean(bunch));
+    MArray2d bunch_mom2(Core_diagnostics::calculate_mom2(bunch, bunch_mean));
     Matrix<double, 6, 6, Eigen::RowMajor > C(covariances.origin());
     Matrix<double, 6, 6, Eigen::RowMajor > X(bunch_mom2.origin());
     Matrix<double, 6, 6, Eigen::RowMajor > A = C.llt().matrixL()

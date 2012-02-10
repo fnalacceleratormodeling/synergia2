@@ -58,7 +58,7 @@ Step::apply(Bunch & bunch, Multi_diagnostics & diagnostics)
         double time = length / (bunch.get_reference_particle().get_beta()
                 * pconstants::c);
         if ((*it)->get_name()=="impedance") {
-            MArray1d bunch_means=Diagnostics::calculate_mean(bunch);
+            MArray1d bunch_means=Core_diagnostics::calculate_mean(bunch);
             Bunch_means bi;
             std::vector<Bunch_means> vbi;
             bi.x_mean=bunch_means[0];
@@ -113,7 +113,7 @@ Step::apply(Bunch_with_diagnostics_train & bunch_diag_train)
             for (int index = 0; index < numbunches; ++index) {
                 if (bunch_diag_train.is_on_this_rank(index)) {
                     Bunch_sptr bunch_sptr=bunch_diag_train.get_bunch_diag_sptr(index)->get_bunch_sptr();
-                    MArray1d bunch_means=Diagnostics::calculate_mean(*bunch_sptr);
+                    MArray1d bunch_means=Core_diagnostics::calculate_mean(*bunch_sptr);
                     bi.x_mean=bunch_means[0];
                     bi.y_mean=bunch_means[2];
                     bi.z_mean=bunch_means[4];

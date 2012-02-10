@@ -327,7 +327,7 @@ BOOST_FIXTURE_TEST_CASE(convert_to_state, Fixture)
 {
     dummy_populate(bunch);
     // shift the bunch to have zero mean in all coordinates
-    MArray1d orig_bunch_mean(Diagnostics::calculate_mean(bunch));
+    MArray1d orig_bunch_mean(Core_diagnostics::calculate_mean(bunch));
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         for (int i = 0; i < 6; ++i) {
             bunch.get_local_particles()[part][i] -= orig_bunch_mean[i];
@@ -341,8 +341,8 @@ BOOST_FIXTURE_TEST_CASE(convert_to_state, Fixture)
     BOOST_CHECK(second_bunch.get_state() == Bunch::fixed_z);
 
     // verify that transverse means are unaffected by state transformation
-    MArray1d accel_mean(Diagnostics::calculate_mean(second_bunch));
-    MArray1d bunch_mean(Diagnostics::calculate_mean(bunch));
+    MArray1d accel_mean(Core_diagnostics::calculate_mean(second_bunch));
+    MArray1d bunch_mean(Core_diagnostics::calculate_mean(bunch));
     const double tolerance_mean = 1.0e-15;
     BOOST_CHECK_CLOSE(accel_mean[Bunch::x], bunch_mean[Bunch::x], tolerance_mean);
     BOOST_CHECK_CLOSE(accel_mean[Bunch::xp], bunch_mean[Bunch::xp], tolerance_mean);
@@ -350,8 +350,8 @@ BOOST_FIXTURE_TEST_CASE(convert_to_state, Fixture)
     BOOST_CHECK_CLOSE(accel_mean[Bunch::yp], bunch_mean[Bunch::yp], tolerance_mean);
 
     // verify that transverse std's are unaffected by state transformation
-    MArray1d accel_std(Diagnostics::calculate_std(second_bunch, accel_mean));
-    MArray1d bunch_std(Diagnostics::calculate_std(bunch, bunch_mean));
+    MArray1d accel_std(Core_diagnostics::calculate_std(second_bunch, accel_mean));
+    MArray1d bunch_std(Core_diagnostics::calculate_std(bunch, bunch_mean));
     const double tolerance_std = 1.0e-15;
     BOOST_CHECK_CLOSE(accel_std[Bunch::x], bunch_std[Bunch::x], tolerance_std);
     BOOST_CHECK_CLOSE(accel_std[Bunch::xp], bunch_std[Bunch::xp], tolerance_std);

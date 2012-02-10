@@ -63,8 +63,8 @@ public:
 
     void
     propagate(Bunch & bunch, int num_turns,
-            Generalized_diagnostics & per_step_diagnostics,
-            Generalized_diagnostics & per_turn_diagnostics,
+            Diagnostics & per_step_diagnostics,
+            Diagnostics & per_turn_diagnostics,
             bool verbose = false);
 
     void

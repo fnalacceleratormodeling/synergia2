@@ -377,8 +377,8 @@ void
 Space_charge_3d_open_hockney::update_domain(Bunch const& bunch)
 {
     if (!domain_fixed) {
-        MArray1d mean(Diagnostics::calculate_mean(bunch));
-        MArray1d std(Diagnostics::calculate_std(bunch, mean));
+        MArray1d mean(Core_diagnostics::calculate_mean(bunch));
+        MArray1d std(Core_diagnostics::calculate_std(bunch, mean));
         std::vector<double > size(3);
         std::vector<double > offset(3);
         const double tiny = 1.0e-10;

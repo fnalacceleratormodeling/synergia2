@@ -17,10 +17,10 @@ void
 Bunch_with_diagnostics::check_bunch_pointer_in_diagnostics() const
 {
 
-    const std::list<Generalized_diagnostics_sptr > steps_list =
+    const std::list<Diagnostics_sptr > steps_list =
             get_diagnostics_actions_sptr()->get_per_steps_diagnostics_list();
     if (!steps_list.empty()) {
-        for (std::list<Generalized_diagnostics_sptr >::const_iterator it =
+        for (std::list<Diagnostics_sptr >::const_iterator it =
                 steps_list.begin(); it != steps_list.end(); ++it) {
             Diagnostics_sptr diagnostics_sptr(
                     boost::dynamic_pointer_cast<Diagnostics >(*it));
@@ -31,10 +31,10 @@ Bunch_with_diagnostics::check_bunch_pointer_in_diagnostics() const
 
     }
 
-    const std::list<Generalized_diagnostics_sptr > turns_list =
+    const std::list<Diagnostics_sptr > turns_list =
             get_diagnostics_actions_sptr()->get_per_turns_diagnostics_list();
     if (!turns_list.empty()) {
-        for (std::list<Generalized_diagnostics_sptr >::const_iterator it =
+        for (std::list<Diagnostics_sptr >::const_iterator it =
                 turns_list.begin(); it != turns_list.end(); ++it) {
             Diagnostics_sptr diagnostics_sptr(
                     boost::dynamic_pointer_cast<Diagnostics >(*it));

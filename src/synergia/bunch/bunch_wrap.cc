@@ -32,8 +32,7 @@ BOOST_PYTHON_MODULE(bunch)
     class_<Fixed_t_z_ballistic, bases<Fixed_t_z_converter > > (
             "Fixed_t_z_ballistic", init< > ());
 
-    class_<Diagnostics, Diagnostics_sptr, boost::noncopyable,
-            bases<Generalized_diagnostics > >
+    class_<Diagnostics, Diagnostics_sptr, boost::noncopyable >
         ("Diagnostics", no_init)
         .def("update", &Diagnostics::update)
         .def("write", &Diagnostics::write)

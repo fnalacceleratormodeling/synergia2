@@ -2,28 +2,28 @@
 #define STANDARD_DIAGNOSTICS_ACTIONS_H_
 
 #include "synergia/simulation/propagate_actions.h"
-#include "synergia/foundation/generalized_diagnostics.h"
+#include "synergia/bunch/diagnostics.h"
 #include <list>
 
 class Standard_diagnostics_actions : public Propagate_actions
 {
 private:
-    std::list<Generalized_diagnostics_sptr > per_turns, per_steps;
+    std::list<Diagnostics_sptr > per_turns, per_steps;
 public:
     Standard_diagnostics_actions();
     void
-    add_per_turn(Generalized_diagnostics_sptr diagnostics_sptr);
+    add_per_turn(Diagnostics_sptr diagnostics_sptr);
     void
-    add_per_step(Generalized_diagnostics_sptr diagnostics_sptr);
+    add_per_step(Diagnostics_sptr diagnostics_sptr);
 
-    std::list<Generalized_diagnostics_sptr >
+    std::list<Diagnostics_sptr >
     get_per_steps_diagnostics_list() const;
 
-    std::list<Generalized_diagnostics_sptr >
+    std::list<Diagnostics_sptr >
     get_per_turns_diagnostics_list() const;
 
     void
-    update_and_write_all(std::list<Generalized_diagnostics_sptr > & diag_list);
+    update_and_write_all(std::list<Diagnostics_sptr > & diag_list);
     virtual void
     first_action(Stepper & stepper, Bunch & bunch);
     virtual void

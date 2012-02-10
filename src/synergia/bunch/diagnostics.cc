@@ -11,7 +11,7 @@
 USING_PART_OF_NAMESPACE_EIGEN
 
 Diagnostics::Diagnostics(std::string const& name) :
-    Generalized_diagnostics(name)
+    name(name)
 {
 }
 
@@ -20,7 +20,7 @@ Diagnostics::Diagnostics()
 }
 
 MArray1d
-Diagnostics::calculate_mean(Bunch const& bunch)
+Core_diagnostics::calculate_mean(Bunch const& bunch)
 {
     MArray1d mean(boost::extents[6]);
     double sum[6] = { 0, 0, 0, 0, 0, 0 };
@@ -43,7 +43,7 @@ Diagnostics::calculate_mean(Bunch const& bunch)
 }
 
 double
-Diagnostics::calculate_z_mean(Bunch const& bunch)
+Core_diagnostics::calculate_z_mean(Bunch const& bunch)
 {
     double sum = 0;
     double mean;
@@ -57,7 +57,7 @@ Diagnostics::calculate_z_mean(Bunch const& bunch)
 }
 
 MArray1d
-Diagnostics::calculate_std(Bunch const& bunch, MArray1d_ref const& mean)
+Core_diagnostics::calculate_std(Bunch const& bunch, MArray1d_ref const& mean)
 {
     MArray1d std(boost::extents[6]);
     double sum[6] = { 0, 0, 0, 0, 0, 0 };
@@ -77,7 +77,7 @@ Diagnostics::calculate_std(Bunch const& bunch, MArray1d_ref const& mean)
 }
 
 MArray2d
-Diagnostics::calculate_mom2(Bunch const& bunch, MArray1d_ref const& mean)
+Core_diagnostics::calculate_mom2(Bunch const& bunch, MArray1d_ref const& mean)
 {
     MArray2d mom2(boost::extents[6][6]);
     MArray2d sum2(boost::extents[6][6]);
@@ -113,7 +113,7 @@ Diagnostics::calculate_mom2(Bunch const& bunch, MArray1d_ref const& mean)
 }
 
 MArray1d
-Diagnostics::calculate_bunchmin(Bunch const& bunch)
+Core_diagnostics::calculate_bunchmin(Bunch const& bunch)
 {
     MArray1d bunchmin(boost::extents[3]);
     double lmin[3] = { 1.0e100, 1.0e100, 1.0e100 };
@@ -137,7 +137,7 @@ Diagnostics::calculate_bunchmin(Bunch const& bunch)
 }
 
 MArray1d
-Diagnostics::calculate_bunchmax(Bunch const& bunch)
+Core_diagnostics::calculate_bunchmax(Bunch const& bunch)
 {
     MArray1d bunchmax(boost::extents[3]);
     double lmax[3] = { -1.0e100, -1.0e100, -1.0e100 };
@@ -190,8 +190,8 @@ Diagnostics_basic::update()
             = bunch_sptr->get_reference_particle().get_trajectory_length();
     num_particles = bunch_sptr->get_total_num();
     real_num_particles = bunch_sptr->get_real_num();
-    mean = Diagnostics::calculate_mean(*bunch_sptr);
-    std = Diagnostics::calculate_std(*bunch_sptr, mean);
+    mean = Core_diagnostics::calculate_mean(*bunch_sptr);
+    std = Core_diagnostics::calculate_std(*bunch_sptr, mean);
 }
 
 double
@@ -240,7 +240,7 @@ const MArray1d
 Diagnostics_basic::get_bunchmin() const
 {
     MArray1d bunchmin;
-    bunchmin = Diagnostics::calculate_bunchmin(*bunch_sptr);
+    bunchmin = Core_diagnostics::calculate_bunchmin(*bunch_sptr);
     return bunchmin;
 }
 
@@ -248,7 +248,7 @@ const MArray1d
 Diagnostics_basic::get_bunchmax() const
 {
     MArray1d bunchmax;
-    bunchmax = Diagnostics::calculate_bunchmax(*bunch_sptr);
+    bunchmax = Core_diagnostics::calculate_bunchmax(*bunch_sptr);
     return bunchmax;
 }
 
@@ -391,7 +391,7 @@ Diagnostics_full2::update()
             = bunch_sptr->get_reference_particle().get_trajectory_length();
     num_particles = bunch_sptr->get_total_num();
     real_num_particles = bunch_sptr->get_real_num();
-    mean = calculate_mean(*bunch_sptr);
+    mean = Core_diagnostics::calculate_mean(*bunch_sptr);
     update_full2();
     update_emittances();
 }

@@ -9,14 +9,14 @@ Multi_diagnostics::Multi_diagnostics() :
 
 void
 Multi_diagnostics::append(
-        Generalized_diagnostics_sptr diagnostics_sptr)
+        Diagnostics_sptr diagnostics_sptr)
 {
     diagnostics.push_back(diagnostics_sptr);
 }
 
 void
 Multi_diagnostics::push_back(
-        Generalized_diagnostics_sptr diagnostics_sptr)
+        Diagnostics_sptr diagnostics_sptr)
 {
     diagnostics.push_back(diagnostics_sptr);
 }

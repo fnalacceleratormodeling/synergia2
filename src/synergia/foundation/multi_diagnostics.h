@@ -1,31 +1,31 @@
 #ifndef MULTI_DIAGNOSTICS_H_
 #define MULTI_DIAGNOSTICS_H_
-#include "synergia/foundation/generalized_diagnostics.h"
+#include "synergia/bunch/diagnostics.h"
 #include <string>
 #include <list>
 
-/// Multi_diagnostics contains a list of Generalized_diagnostics_sptrs
+/// Multi_diagnostics contains a list of Diagnostics_sptrs
 class Multi_diagnostics
 {
 private:
-    std::list<Generalized_diagnostics_sptr > diagnostics;
+    std::list<Diagnostics_sptr > diagnostics;
 public:
-    /// Construct an empty list of Generalized_diagnostics_sptrs
+    /// Construct an empty list of Diagnostics_sptrs
     Multi_diagnostics();
 
-    /// Append a Generalized_diagnostics_sptr to the list
-    /// @param diagnostics_sptr the Generalized_diagnostics_sptr
+    /// Append a Diagnostics_sptr to the list
+    /// @param diagnostics_sptr the Diagnostics_sptr
     void
-    append(Generalized_diagnostics_sptr diagnostics_sptr);
+    append(Diagnostics_sptr diagnostics_sptr);
 
     /// The same as append -- included for notational consistency with C++
-    /// @param diagnostics_sptr the Generalized_diagnostics_sptr
+    /// @param diagnostics_sptr the Diagnostics_sptr
     void
-    push_back(Generalized_diagnostics_sptr diagnostics_sptr);
+    push_back(Diagnostics_sptr diagnostics_sptr);
 
     /// A convenience definition of the list iterator. Not relevant for
     /// Python.
-    typedef std::list<Generalized_diagnostics_sptr >::iterator iterator;
+    typedef std::list<Diagnostics_sptr >::iterator iterator;
 
     /// A convenience definition of the list iterator begin. Not relevant for
     /// Python.
