@@ -2,25 +2,25 @@
 
 template<>
     Hdf5_serial_writer<MArray1d_ref >::Hdf5_serial_writer(H5File & file,
-            std::string const& name) :
+            std::string const& name, bool resume) :
         data_rank(MArray1d_ref::dimensionality), name(name), file(file),
-                have_setup(false)
+                have_setup(false), resume(resume)
     {
     }
 
 template<>
     Hdf5_serial_writer<MArray2d_ref >::Hdf5_serial_writer(H5File & file,
-            std::string const& name) :
+            std::string const& name, bool resume) :
         data_rank(MArray2d_ref::dimensionality), name(name), file(file),
-                have_setup(false)
+                have_setup(false), resume(resume)
     {
     }
 
 template<>
     Hdf5_serial_writer<MArray3d_ref >::Hdf5_serial_writer(H5File & file,
-            std::string const& name) :
+            std::string const& name, bool resume) :
         data_rank(MArray3d_ref::dimensionality), name(name), file(file),
-                have_setup(false)
+                have_setup(false), resume(resume)
     {
     }
 

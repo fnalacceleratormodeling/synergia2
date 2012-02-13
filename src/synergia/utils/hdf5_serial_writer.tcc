@@ -25,16 +25,30 @@ template<typename T>
             chunk_dims[i] = data_dims.at(i);
             offset[i] = 0;
         }
-        dims[data_rank] = 1;
         max_dims[data_rank] = H5S_UNLIMITED;
-        size[data_rank] = 0;
-        offset[data_rank] = 0;
-        chunk_dims[data_rank] = 1;
-        DSetCreatPropList cparms;
-        cparms.setChunk(data_rank + 1, &chunk_dims[0]);
-        DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
-        dataset = file.createDataSet(name.c_str(), atomic_type, dataspace,
-                cparms);
+        if (resume) {
+            dataset = file.openDataSet(name.c_str());
+            DataSpace dataspace = dataset.getSpace();
+            int file_rank = dataspace.getSimpleExtentNdims();
+            if (file_rank != data_rank+1) {
+                throw std::runtime_error(
+                        "Hdf5_serial_writer::resumed data has wrong rank");
+            }
+            dataspace.getSimpleExtentDims(&dims[0], NULL);
+            size[data_rank] = dims[data_rank];
+            offset[data_rank] = dims[data_rank];
+            dims[data_rank] = 1;
+        } else {
+            size[data_rank] = 0;
+            offset[data_rank] = 0;
+            dims[data_rank] = 1;
+            chunk_dims[data_rank] = 1;
+            DSetCreatPropList cparms;
+            cparms.setChunk(data_rank + 1, &chunk_dims[0]);
+            DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
+            dataset = file.createDataSet(name.c_str(), atomic_type, dataspace,
+                    cparms);
+        }
         have_setup = true;
     }
 
@@ -42,21 +56,21 @@ template<typename T>
 // hdf5_atomic_typename<T>() defined
 template<typename T>
     Hdf5_serial_writer<T >::Hdf5_serial_writer(H5::H5File & file,
-            std::string const& name) :
-        data_rank(0), name(name), file(file), have_setup(false)
+            std::string const& name, bool resume) :
+        data_rank(0), name(name), file(file), have_setup(false), resume(resume)
     {
     }
 
 template<>
     Hdf5_serial_writer<MArray1d_ref >::Hdf5_serial_writer(H5::H5File & file,
-            std::string const& name);
+            std::string const& name, bool resume);
 template<>
     Hdf5_serial_writer<MArray2d_ref >::Hdf5_serial_writer(H5::H5File & file,
-            std::string const& name);
+            std::string const& name, bool resume);
 
 template<>
     Hdf5_serial_writer<MArray3d_ref >::Hdf5_serial_writer(H5::H5File & file,
-            std::string const& name);
+            std::string const& name, bool resume);
 
 template<typename T>
     void
@@ -67,6 +81,9 @@ template<typename T>
             // be 0, but that would not compile
             setup(data_dims, hdf5_atomic_data_type<T > ());
         }
+        std::cout << "jfa: size = " << size[0] << " " << size[1] << std::endl;
+        std::cout << "jfa: offset = " << offset[0] << " " << offset[1] << std::endl;
+        std::cout << "jfa: dims = " << dims[0] << " " << dims[1] << std::endl;
         DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
         ++size[data_rank];
         dataset.extend(&size[0]);

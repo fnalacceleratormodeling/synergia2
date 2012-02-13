@@ -15,10 +15,12 @@ template<typename T>
         H5::DataSet dataset;
         H5::DataType atomic_type;
         bool have_setup;
+        bool resume;
         void
         setup(std::vector<int > const& data_dims, H5::DataType atomic_type);
     public:
-        Hdf5_serial_writer(H5::H5File & file, std::string const& name);
+        Hdf5_serial_writer(H5::H5File & file, std::string const& name,
+                bool resume = false);
         void
         append(T & data);
         ~Hdf5_serial_writer();
