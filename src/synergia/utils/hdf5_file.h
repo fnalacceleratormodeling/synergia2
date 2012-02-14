@@ -7,10 +7,23 @@
 
 class Hdf5_file
 {
-private:
-    H5::H5File file;
 public:
-    Hdf5_file(std::string const& file_name, bool read_only = false);
+    enum Flag
+    {
+        truncate, read_write, read_only
+    };
+private:
+    std::string file_name;
+    H5::H5File * h5file_ptr;
+    bool is_open;
+public:
+    Hdf5_file(std::string const& file_name, Flag flag);
+    void
+    open(Flag flag);
+    void
+    close();
+    H5::H5File &
+    get_h5file();
     template<typename T>
         void
         write(T const& data, std::string const& name);

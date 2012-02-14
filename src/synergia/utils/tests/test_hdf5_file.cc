@@ -6,12 +6,12 @@
 
 BOOST_AUTO_TEST_CASE(construct)
 {
-    Hdf5_file file("hdf5_file_empty.h5");
+    Hdf5_file file("hdf5_file_empty.h5", Hdf5_file::truncate);
 }
 
 BOOST_AUTO_TEST_CASE(write_data)
 {
-    Hdf5_file file("hdf5_file_write.h5");
+    Hdf5_file file("hdf5_file_write.h5", Hdf5_file::truncate);
     int int_data = 7;
     file.write(int_data, "int_data");
     double double_data = 2.71828;
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(read_write_data)
     }
 
     {
-        Hdf5_file write_file(filename);
+        Hdf5_file write_file(filename, Hdf5_file::truncate);
         write_file.write(int_data, int_label);
         write_file.write(double_data, double_label);
         write_file.write(a1d, array1d_label);
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(read_write_data)
     }
 
     {
-        Hdf5_file read_file(filename, true);
+        Hdf5_file read_file(filename, Hdf5_file::read_only);
         int int_read = read_file.read<int > (int_label);
         BOOST_CHECK_EQUAL(int_read, int_data);
         double double_read = read_file.read<double > (double_label);

@@ -7,7 +7,7 @@ template<typename T>
     void
     Hdf5_file::write(T const& data, std::string const& name)
     {
-        Hdf5_writer<T > (file, name).write(data);
+        Hdf5_writer<T > (*h5file_ptr, name).write(data);
     }
 
 template<typename T>
@@ -15,7 +15,7 @@ template<typename T>
     Hdf5_file::read(std::string const& name)
     {
         T retval;
-        DataSet dataset = file.openDataSet(name.c_str());
+        DataSet dataset = h5file_ptr->openDataSet(name.c_str());
         H5::DataType atomic_type = hdf5_atomic_data_type<T > ();
         std::vector<hsize_t > dims(1);
         dims.at(0) = 1;
