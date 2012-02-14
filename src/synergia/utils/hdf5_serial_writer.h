@@ -10,7 +10,7 @@ template<typename T>
     class Hdf5_serial_writer
     {
     private:
-        std::vector<hsize_t > dims, max_dims, size, offset, chunk_dims;
+        std::vector<hsize_t > dims, max_dims, size, offset;
         int data_rank;
         std::string name;
         Hdf5_file_sptr file_sptr;

@@ -12,12 +12,13 @@ template<typename T>
     Hdf5_serial_writer<T >::setup(std::vector<int > const& data_dims,
             H5::DataType atomic_type)
     {
+        std::vector<hsize_t > chunk_dims(data_rank + 1);
+
         this->atomic_type = atomic_type;
         dims.resize(data_rank + 1);
         max_dims.resize(data_rank + 1);
         size.resize(data_rank + 1);
         offset.resize(data_rank + 1);
-        chunk_dims.resize(data_rank + 1);
         for (int i = 0; i < data_rank; ++i) {
             dims[i] = data_dims.at(i);
             max_dims[i] = data_dims.at(i);
