@@ -32,8 +32,6 @@ private:
     construct(std::string const& filename,
         bool serial, int write_skip, Commxx const& commxx, int writer_rank);
 public:
-    void
-    reopen_file();
     /// Construct Diagnostics_write_helper
     Diagnostics_write_helper(std::string const& filename, bool serial, int write_skip, Commxx const& commxx,
             int writer_rank = default_rank);
@@ -65,6 +63,12 @@ public:
 
     H5::H5File &
     get_file();
+
+    void
+    close_file();
+
+    void
+    reopen_file();
 
     void
     finish_write();

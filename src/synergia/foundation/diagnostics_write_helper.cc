@@ -29,16 +29,6 @@ Diagnostics_write_helper::open_file()
 }
 
 void
-Diagnostics_write_helper::reopen_file()
-{
-    if (write_locally() && !have_file) {
-        file_sptr = boost::shared_ptr<H5::H5File >(
-                new H5::H5File(get_filename().c_str(), H5F_ACC_RDWR));
-        have_file = true;
-    }
-}
-
-void
 Diagnostics_write_helper::construct(std::string const& filename, bool serial,
         int write_skip, Commxx const& commxx, int writer_rank)
 {
@@ -61,9 +51,6 @@ Diagnostics_write_helper::construct(std::string const& filename, bool serial,
         filename_base = filename.substr(0, idx);
         filename_suffix = filename.substr(idx);
     }
-    //    if (serial) {
-    //        open_file();
-    //    }
 }
 
 Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
@@ -127,10 +114,30 @@ Diagnostics_write_helper::get_file()
         throw std::runtime_error(
                 "Diagnostics_write_helper::getfile() called on a non-writer rank.");
     }
-    //    if (!serial) {
     open_file();
-    //    }
     return *file_sptr;
+}
+
+void
+Diagnostics_write_helper::close_file()
+{
+    if (write_locally()) {
+        if (have_file) {
+            file_sptr->close();
+            file_sptr.reset();
+            have_file = false;
+        }
+    }
+}
+
+void
+Diagnostics_write_helper::reopen_file()
+{
+    if (write_locally() && !have_file) {
+        file_sptr = boost::shared_ptr<H5::H5File >(
+                new H5::H5File(get_filename().c_str(), H5F_ACC_RDWR));
+        have_file = true;
+    }
 }
 
 void

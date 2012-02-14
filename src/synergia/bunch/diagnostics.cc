@@ -239,6 +239,7 @@ Diagnostics_basic::get_std() const
 const MArray1d
 Diagnostics_basic::get_bunchmin() const
 {
+    // jfa: FIXME: NO CALCULATION HERE
     MArray1d bunchmin;
     bunchmin = Core_diagnostics::calculate_bunchmin(*bunch_sptr);
     return bunchmin;
@@ -247,6 +248,7 @@ Diagnostics_basic::get_bunchmin() const
 const MArray1d
 Diagnostics_basic::get_bunchmax() const
 {
+    // jfa: FIXME: NO CALCULATION HERE
     MArray1d bunchmax;
     bunchmax = Core_diagnostics::calculate_bunchmax(*bunch_sptr);
     return bunchmax;

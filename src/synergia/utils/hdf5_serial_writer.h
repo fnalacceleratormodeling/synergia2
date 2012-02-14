@@ -22,6 +22,10 @@ template<typename T>
         Hdf5_serial_writer(H5::H5File & file, std::string const& name,
                 bool resume = false);
         void
+        close_file();
+        void
+        update_file(H5::H5File & file);
+        void
         append(T & data);
         ~Hdf5_serial_writer();
     };

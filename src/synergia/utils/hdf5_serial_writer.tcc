@@ -73,6 +73,20 @@ template<>
             std::string const& name, bool resume);
 
 template<typename T>
+void
+Hdf5_serial_writer<T>::close_file()
+{
+    file.close();
+}
+
+template<typename T>
+void
+Hdf5_serial_writer<T>::update_file(H5::H5File & new_file)
+{
+    file = new_file;
+}
+
+template<typename T>
     void
     Hdf5_serial_writer<T >::append(T & data)
     {
@@ -81,9 +95,6 @@ template<typename T>
             // be 0, but that would not compile
             setup(data_dims, hdf5_atomic_data_type<T > ());
         }
-        std::cout << "jfa: size = " << size[0] << " " << size[1] << std::endl;
-        std::cout << "jfa: offset = " << offset[0] << " " << offset[1] << std::endl;
-        std::cout << "jfa: dims = " << dims[0] << " " << dims[1] << std::endl;
         DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
         ++size[data_rank];
         dataset.extend(&size[0]);
