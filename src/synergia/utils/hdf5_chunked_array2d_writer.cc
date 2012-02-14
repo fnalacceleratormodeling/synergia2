@@ -7,9 +7,9 @@
 using namespace H5;
 #endif
 
-Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(H5File & file,
+Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(H5File * file_ptr,
         std::string const& name, Const_MArray2d_view const & initial_data) :
-    file(file), dims(2), max_dims(2), size(2), offset(2), chunk_dims(2),
+    file_ptr(file_ptr), dims(2), max_dims(2), size(2), offset(2), chunk_dims(2),
             atomic_type(hdf5_atomic_data_type<double > ())
 {
     for (int i = 0; i < 2; ++i) {
@@ -24,12 +24,13 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(H5File & file,
     DSetCreatPropList cparms;
     cparms.setChunk(2, &chunk_dims[0]);
     DataSpace dataspace(2, &dims[0], &max_dims[0]);
-    dataset = file.createDataSet(name.c_str(), atomic_type, dataspace, cparms);
+    dataset = file_ptr->createDataSet(name.c_str(), atomic_type, dataspace,
+            cparms);
 }
 
-Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(H5File & file,
+Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(H5File * file_ptr,
         std::string const& name, Const_MArray2d_ref const & initial_data) :
-    file(file), dims(2), max_dims(2), size(2), offset(2), chunk_dims(2),
+    file_ptr(file_ptr), dims(2), max_dims(2), size(2), offset(2), chunk_dims(2),
             atomic_type(hdf5_atomic_data_type<double > ())
 {
     for (int i = 0; i < 2; ++i) {
@@ -44,7 +45,8 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(H5File & file,
     DSetCreatPropList cparms;
     cparms.setChunk(2, &chunk_dims[0]);
     DataSpace dataspace(2, &dims[0], &max_dims[0]);
-    dataset = file.createDataSet(name.c_str(), atomic_type, dataspace, cparms);
+    dataset = file_ptr->createDataSet(name.c_str(), atomic_type, dataspace,
+            cparms);
 }
 
 void

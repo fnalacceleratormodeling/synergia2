@@ -11,7 +11,7 @@ BOOST_AUTO_TEST_CASE(construct)
     const int dim1 = 2;
     const int dim2 = 3;
     MArray2d a(boost::extents[dim1][dim2]);
-    Hdf5_chunked_array2d_writer writer(file, "array2d", a);
+    Hdf5_chunked_array2d_writer writer(&file, "array2d", a);
     file.close();
 }
 
@@ -21,7 +21,7 @@ BOOST_AUTO_TEST_CASE(typical)
     const int dim1 = 2;
     const int dim2 = 3;
     MArray2d a(boost::extents[dim1][dim2]);
-    Hdf5_chunked_array2d_writer writer(file, "array2d", a);
+    Hdf5_chunked_array2d_writer writer(&file, "array2d", a);
     for (int i = 0; i < 5; ++i) {
         for (int j = 0; j < dim1; ++j) {
             for (int k = 0; k < dim2; ++k) {
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE(different_sizes)
     const int dim1 = 33;
     const int dim2 = 7;
     MArray2d a(boost::extents[dim1][dim2]);
-    Hdf5_chunked_array2d_writer writer(file, "array2d", a);
+    Hdf5_chunked_array2d_writer writer(&file, "array2d", a);
     for (int i = 0; i < 5; ++i) {
         for (int j = 0; j < dim1; ++j) {
             for (int k = 0; k < dim2; ++k) {
@@ -69,7 +69,7 @@ BOOST_AUTO_TEST_CASE(different_sizes)
 //    const int dim1 = 2;
 //    const int dim2 = 3;
 //    MArray2d a(boost::extents[dim1][dim2]);
-//    Hdf5_chunked_array2d_writer writer(file, "array2d", a);
+//    Hdf5_chunked_array2d_writer writer(&file, "array2d", a);
 //    MArray2d_view a_view = a[boost::indices[range()][range(0,2)]];
 //    for (int i = 0; i < 5; ++i) {
 //        for (int j = 0; j < dim1; ++j) {
