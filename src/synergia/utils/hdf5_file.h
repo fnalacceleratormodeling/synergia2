@@ -2,6 +2,7 @@
 #define HDF5_FILE_H_
 #include <string>
 #include "H5Cpp.h"
+#include <boost/shared_ptr.hpp>
 
 #include "synergia/utils/hdf5_writer.h"
 
@@ -32,6 +33,8 @@ public:
         read(std::string const& name);
     ~Hdf5_file();
 };
+
+typedef boost::shared_ptr<Hdf5_file > Hdf5_file_sptr;
 
 #include "synergia/utils/hdf5_file.tcc"
 

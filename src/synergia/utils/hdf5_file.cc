@@ -53,6 +53,12 @@ Hdf5_file::close()
     }
 }
 
+H5::H5File &
+Hdf5_file::get_h5file()
+{
+    return *h5file_ptr;
+}
+
 Hdf5_file::~Hdf5_file()
 {
     close();

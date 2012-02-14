@@ -27,10 +27,10 @@ template<typename T>
         }
         max_dims[data_rank] = H5S_UNLIMITED;
         if (resume) {
-            dataset = file.openDataSet(name.c_str());
+            dataset = file_sptr->get_h5file().openDataSet(name.c_str());
             DataSpace dataspace = dataset.getSpace();
             int file_rank = dataspace.getSimpleExtentNdims();
-            if (file_rank != data_rank+1) {
+            if (file_rank != data_rank + 1) {
                 throw std::runtime_error(
                         "Hdf5_serial_writer::resumed data has wrong rank");
             }
@@ -46,8 +46,8 @@ template<typename T>
             DSetCreatPropList cparms;
             cparms.setChunk(data_rank + 1, &chunk_dims[0]);
             DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
-            dataset = file.createDataSet(name.c_str(), atomic_type, dataspace,
-                    cparms);
+            dataset = file_sptr->get_h5file().createDataSet(name.c_str(),
+                    atomic_type, dataspace, cparms);
         }
         have_setup = true;
     }
@@ -55,36 +55,23 @@ template<typename T>
 // this is the generic case, it will only work for atomic T's that have
 // hdf5_atomic_typename<T>() defined
 template<typename T>
-    Hdf5_serial_writer<T >::Hdf5_serial_writer(H5::H5File & file,
+    Hdf5_serial_writer<T >::Hdf5_serial_writer(Hdf5_file_sptr file_sptr,
             std::string const& name, bool resume) :
-        data_rank(0), name(name), file(file), have_setup(false), resume(resume)
+        data_rank(0), name(name), file_sptr(file_sptr), have_setup(false),
+                resume(resume)
     {
     }
 
 template<>
-    Hdf5_serial_writer<MArray1d_ref >::Hdf5_serial_writer(H5::H5File & file,
-            std::string const& name, bool resume);
+    Hdf5_serial_writer<MArray1d_ref >::Hdf5_serial_writer(
+            Hdf5_file_sptr file_sptr, std::string const& name, bool resume);
 template<>
-    Hdf5_serial_writer<MArray2d_ref >::Hdf5_serial_writer(H5::H5File & file,
-            std::string const& name, bool resume);
+    Hdf5_serial_writer<MArray2d_ref >::Hdf5_serial_writer(
+            Hdf5_file_sptr file_sptr, std::string const& name, bool resume);
 
 template<>
-    Hdf5_serial_writer<MArray3d_ref >::Hdf5_serial_writer(H5::H5File & file,
-            std::string const& name, bool resume);
-
-template<typename T>
-void
-Hdf5_serial_writer<T>::close_file()
-{
-    file.close();
-}
-
-template<typename T>
-void
-Hdf5_serial_writer<T>::update_file(H5::H5File & new_file)
-{
-    file = new_file;
-}
+    Hdf5_serial_writer<MArray3d_ref >::Hdf5_serial_writer(
+            Hdf5_file_sptr file_sptr, std::string const& name, bool resume);
 
 template<typename T>
     void
