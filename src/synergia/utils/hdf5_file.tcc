@@ -7,7 +7,7 @@ template<typename T>
     void
     Hdf5_file::write(T const& data, std::string const& name)
     {
-        Hdf5_writer<T > (*h5file_ptr, name).write(data);
+        Hdf5_writer<T > (h5file_ptr, name).write(data);
     }
 
 template<typename T>
