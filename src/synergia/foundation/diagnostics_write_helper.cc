@@ -108,11 +108,11 @@ Diagnostics_write_helper::get_writer_rank()
 }
 
 Hdf5_file_sptr
-Diagnostics_write_helper::get_hdf5_file()
+Diagnostics_write_helper::get_hdf5_file_sptr()
 {
     if (!write_locally()) {
         throw std::runtime_error(
-                "Diagnostics_write_helper::get_hdf5_file() called on a non-writer rank.");
+                "Diagnostics_write_helper::get_hdf5_file_sptr() called on a non-writer rank.");
     }
     open_file();
     return file_sptr;

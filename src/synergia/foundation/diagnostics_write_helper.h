@@ -63,7 +63,7 @@ public:
     get_writer_rank();
 
     Hdf5_file_sptr
-    get_hdf5_file();
+    get_hdf5_file_sptr();
 
     void
     finish_write();

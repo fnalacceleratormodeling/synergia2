@@ -82,9 +82,9 @@ Lattice_diagnostics::write()
                 ss[index] = s;
                 ++index;
             }
-            write_helper.get_hdf5_file()->write(ss, "s");
+            write_helper.get_hdf5_file_sptr()->write(ss, "s");
             writer = new Hdf5_serial_writer<MArray1d_ref > (
-                    write_helper.get_hdf5_file(), attribute);
+                    write_helper.get_hdf5_file_sptr(), attribute);
         }
         first_time = false;
     }

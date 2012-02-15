@@ -277,7 +277,7 @@ void
 Diagnostics_basic::write()
 {
     if (write_helper.write_locally()) {
-        init_writers(write_helper.get_hdf5_file());
+        init_writers(write_helper.get_hdf5_file_sptr());
         writer_s->append(s);
         writer_repetition->append(repetition);
         writer_trajectory_length->append(trajectory_length);
@@ -513,7 +513,7 @@ void
 Diagnostics_full2::write()
 {
     if (write_helper.write_locally()) {
-        init_writers(write_helper.get_hdf5_file());
+        init_writers(write_helper.get_hdf5_file_sptr());
         writer_s->append(s);
         writer_repetition->append(repetition);
         writer_trajectory_length->append(trajectory_length);
@@ -691,7 +691,7 @@ Diagnostics_particles::write()
                 "Diagnostics_particles::write: MPI_Gather failed.");
     }
     if (write_helper.write_locally()) {
-        Hdf5_file_sptr file_sptr = write_helper.get_hdf5_file();
+        Hdf5_file_sptr file_sptr = write_helper.get_hdf5_file_sptr();
         receive_other_local_particles(local_nums, file_sptr);
         double pz = bunch_sptr->get_reference_particle().get_momentum();
         file_sptr->write(pz, "pz");
@@ -808,7 +808,7 @@ Diagnostics_track::write()
 {
     bunch_sptr->convert_to_state(bunch_sptr->fixed_z_lab);
     if (found) {
-        init_writers(write_helper_sptr->get_hdf5_file());
+        init_writers(write_helper_sptr->get_hdf5_file_sptr());
         writer_coords->append(coords);
         writer_s->append(s);
         writer_repetition->append(repetition);
