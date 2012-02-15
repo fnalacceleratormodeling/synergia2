@@ -85,7 +85,7 @@ def handle_args(args):
             if arg == '--help':
                 do_help()
             elif arg == '--nohist':
-                options.hist = false
+                options.hist = False
             elif arg.find('--bins') == 0:
                 options.bins = int(arg.split('=')[1])
             elif arg == '--show':
@@ -101,6 +101,7 @@ def handle_args(args):
 def do_plots(options):
     f = tables.openFile(options.inputfile, 'r')
     particles = f.root.particles.read()
+    f.close()
     pyplot.figure().canvas.set_window_title('Synergia Phase Space Distribution')
     plot_density(particles[:, coords[options.hcoord]],
                  particles[:, coords[options.vcoord]], 'foobar', options.bins)
