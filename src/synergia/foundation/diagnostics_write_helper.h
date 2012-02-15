@@ -6,6 +6,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "synergia/utils/commxx.h"
+#include "synergia/utils/hdf5_file.h"
 
 /// The Diagnostics_write_helper is a helper class for Diagnostics objects.
 /// Serial Diagnostics_write_helpers write many updates to a single file.
@@ -19,7 +20,7 @@ private:
     std::string filename;
     bool serial;
     Commxx commxx;
-    boost::shared_ptr<H5::H5File> file_sptr;
+    Hdf5_file_sptr file_sptr;
     bool have_file;
     int count;
     int iwrite_skip; // skip writing iwrite_skip turns or steps
@@ -61,14 +62,8 @@ public:
     int
     get_writer_rank();
 
-    H5::H5File &
-    get_file();
-
-    void
-    close_file();
-
-    void
-    reopen_file();
+    Hdf5_file_sptr
+    get_hdf5_file();
 
     void
     finish_write();
