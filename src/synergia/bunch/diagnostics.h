@@ -109,7 +109,7 @@ public:
     is_serial() const;
 
     virtual void
-    init_writers(H5::H5File & file);
+    init_writers(Hdf5_file_sptr file_sptr);
 
     /// Update the diagnostics
     virtual void
@@ -217,7 +217,7 @@ public:
     Diagnostics_full2();
 
     virtual void
-    init_writers(H5::H5File & file);
+    init_writers(Hdf5_file_sptr file_sptr);
 
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_full2 class is serial.
@@ -319,14 +319,13 @@ class Diagnostics_particles : public Diagnostics
 {
 private:
     bool have_writers;
-    H5::H5File file;
     int min_particle_id, max_particle_id;
     Bunch_sptr bunch_sptr;
     std::string filename;
     Diagnostics_write_helper write_helper;
     void
     receive_other_local_particles(std::vector<int > const& local_nums,
-            H5::H5File & file);
+            Hdf5_file_sptr file_sptr);
     void
     send_local_particles();
 public:
@@ -397,7 +396,7 @@ private:
     MArray1d coords;
     Hdf5_serial_writer<MArray1d_ref > * writer_coords;
     virtual void
-    init_writers(H5::H5File & file);
+    init_writers(Hdf5_file_sptr file_sptr);
 
 public:
     /// Create an empty Diagnostics_track object

@@ -72,7 +72,6 @@ Lattice_diagnostics::write()
     }
     if (first_time) {
         if (write_helper.write_locally()) {
-            Hdf5_writer<MArray1d_ref > s_writer(write_helper.get_file(), "s");
             MArray1d ss(boost::extents[lattice_size]);
             int index = 0;
             double s = 0.0;
@@ -83,9 +82,9 @@ Lattice_diagnostics::write()
                 ss[index] = s;
                 ++index;
             }
-            s_writer.write(ss);
+            write_helper.get_hdf5_file()->write(ss, "s");
             writer = new Hdf5_serial_writer<MArray1d_ref > (
-                    write_helper.get_file(), attribute);
+                    write_helper.get_hdf5_file(), attribute);
         }
         first_time = false;
     }

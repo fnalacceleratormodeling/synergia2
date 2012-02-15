@@ -52,10 +52,10 @@ BOOST_FIXTURE_TEST_CASE(populate_6d_diagonal, Fixture)
    covariances[1][1] *=0.00001;
    covariances[3][3] *=0.00001;
    covariances[5][5]*=0.00001;
- 
-   
-    
-    
+
+
+
+
     populate_6d(distribution, bunch, means, covariances);
     MArray1d bunch_mean(Core_diagnostics::calculate_mean(bunch));
     MArray2d bunch_mom2(Core_diagnostics::calculate_mom2(bunch, bunch_mean));
@@ -82,9 +82,9 @@ BOOST_FIXTURE_TEST_CASE(populate_6d_general, Fixture)
          covariances[5][i] *=0.001;
          covariances[i][5] *=0.001;
     }
-    
-    
-    
+
+
+
     populate_6d(distribution, bunch, means, covariances);
     MArray1d bunch_mean(Core_diagnostics::calculate_mean(bunch));
     MArray2d bunch_mom2(Core_diagnostics::calculate_mom2(bunch, bunch_mean));
@@ -138,7 +138,7 @@ BOOST_FIXTURE_TEST_CASE(populate_transverse_gaussian_general, Fixture)
     double sum5 = 0.0;
     double sum6 = 0.0;
     MArray2d_ref particles(bunch.get_local_particles());
-    Hdf5_file f("particles.h5");
+    Hdf5_file f("particles.h5", Hdf5_file::truncate);
     f.write(particles, "particles");
     int num = bunch.get_local_num();
     for (int p = 0; p < num; ++p) {
@@ -187,7 +187,7 @@ BOOST_FIXTURE_TEST_CASE(populate_uniform_cylinder_general, Fixture)
     double sum = 0.0;
     double max = 0.0;
     MArray2d_ref particles(bunch.get_local_particles());
-    Hdf5_file f("cylparticles.h5");
+    Hdf5_file f("cylparticles.h5", Hdf5_file::truncate);
     f.write(particles, "particles");
     int num = bunch.get_local_num();
     for (int p = 0; p < num; ++p) {

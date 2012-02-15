@@ -87,7 +87,7 @@ public:
 
  //   Bunch(Reference_particle const& reference_particle, int total_num,
  //       double real_num, Commxx const& comm, double z_period_length);
-        
+
     Bunch(Reference_particle const& reference_particle, int total_num,
         double real_num, Commxx const& comm, double z_period_length, int bucket_index=0);
 
@@ -211,13 +211,13 @@ public:
     /// Get the period for periodic_sort
     int
     get_sort_period() const;
-    
+
     int
-    set_bucket_index(int index); 
-    
+    set_bucket_index(int index);
+
     int
     get_bucket_index() const;
-    
+
 
     /// Get the (fixed-t or fixed-z) state.
     State
@@ -275,7 +275,7 @@ public:
             std::stringstream local_filename;
             local_filename << "serialized_local_particles_" << std::setw(6)
                     << std::setfill('0') << comm.get_rank() << ".h5";
-            Hdf5_file file(local_filename.str(), false);
+            Hdf5_file file(local_filename.str(), Hdf5_file::truncate);
             file.write(local_num, "local_num");
             file.write(*local_particles, "local_particles");
         }
@@ -301,7 +301,7 @@ public:
             std::stringstream local_filename;
             local_filename << "serialized_local_particles_" << std::setw(6)
                     << std::setfill('0') << comm.get_rank() << ".h5";
-            Hdf5_file file(local_filename.str(), true);
+            Hdf5_file file(local_filename.str(), Hdf5_file::read_only);
             local_num = file.read<int > ("local_num");
             local_particles = new MArray2d(
                     file.read<MArray2d > ("local_particles"));

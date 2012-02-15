@@ -248,7 +248,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
         } else if (component == 2) {
             filename = "ex.h5";
         }
-        Hdf5_file f(filename);
+        Hdf5_file f(filename, Hdf5_file::truncate);
         f.write(local_En->get_grid_points(), "en");
         f.write(local_En->get_normalization(), "ennorm");
         double max_fractional_error = -2.0;

@@ -255,19 +255,20 @@ Diagnostics_basic::get_bunchmax() const
 }
 
 void
-Diagnostics_basic::init_writers(H5::H5File & file)
+Diagnostics_basic::init_writers(Hdf5_file_sptr file_sptr)
 {
     if (!have_writers) {
-        writer_s = new Hdf5_serial_writer<double > (file, "s");
-        writer_repetition = new Hdf5_serial_writer<int > (file, "repetition");
-        writer_trajectory_length = new Hdf5_serial_writer<double > (file,
+        writer_s = new Hdf5_serial_writer<double > (file_sptr, "s");
+        writer_repetition = new Hdf5_serial_writer<int > (file_sptr,
+                "repetition");
+        writer_trajectory_length = new Hdf5_serial_writer<double > (file_sptr,
                 "trajectory_length");
-        writer_num_particles = new Hdf5_serial_writer<int > (file,
+        writer_num_particles = new Hdf5_serial_writer<int > (file_sptr,
                 "num_particles");
-        writer_real_num_particles = new Hdf5_serial_writer<double > (file,
+        writer_real_num_particles = new Hdf5_serial_writer<double > (file_sptr,
                 "real_num_particles");
-        writer_mean = new Hdf5_serial_writer<MArray1d_ref > (file, "mean");
-        writer_std = new Hdf5_serial_writer<MArray1d_ref > (file, "std");
+        writer_mean = new Hdf5_serial_writer<MArray1d_ref > (file_sptr, "mean");
+        writer_std = new Hdf5_serial_writer<MArray1d_ref > (file_sptr, "std");
         have_writers = true;
     }
 }
@@ -276,7 +277,7 @@ void
 Diagnostics_basic::write()
 {
     if (write_helper.write_locally()) {
-        init_writers(write_helper.get_file());
+        init_writers(write_helper.get_hdf5_file());
         writer_s->append(s);
         writer_repetition->append(repetition);
         writer_trajectory_length->append(trajectory_length);
@@ -483,26 +484,27 @@ Diagnostics_full2::get_emitxyz() const
 }
 
 void
-Diagnostics_full2::init_writers(H5::H5File & file)
+Diagnostics_full2::init_writers(Hdf5_file_sptr file_sptr)
 {
     if (!have_writers) {
-        writer_s = new Hdf5_serial_writer<double > (file, "s");
-        writer_repetition = new Hdf5_serial_writer<int > (file, "repetition");
-        writer_trajectory_length = new Hdf5_serial_writer<double > (file,
+        writer_s = new Hdf5_serial_writer<double > (file_sptr, "s");
+        writer_repetition = new Hdf5_serial_writer<int > (file_sptr,
+                "repetition");
+        writer_trajectory_length = new Hdf5_serial_writer<double > (file_sptr,
                 "trajectory_length");
-        writer_num_particles = new Hdf5_serial_writer<int > (file,
+        writer_num_particles = new Hdf5_serial_writer<int > (file_sptr,
                 "num_particles");
-        writer_real_num_particles = new Hdf5_serial_writer<double > (file,
+        writer_real_num_particles = new Hdf5_serial_writer<double > (file_sptr,
                 "real_num_particles");
-        writer_mean = new Hdf5_serial_writer<MArray1d_ref > (file, "mean");
-        writer_std = new Hdf5_serial_writer<MArray1d_ref > (file, "std");
-        writer_mom2 = new Hdf5_serial_writer<MArray2d_ref > (file, "mom2");
-        writer_corr = new Hdf5_serial_writer<MArray2d_ref > (file, "corr");
-        writer_emitx = new Hdf5_serial_writer<double > (file, "emitx");
-        writer_emity = new Hdf5_serial_writer<double > (file, "emity");
-        writer_emitz = new Hdf5_serial_writer<double > (file, "emitz");
-        writer_emitxy = new Hdf5_serial_writer<double > (file, "emitxy");
-        writer_emitxyz = new Hdf5_serial_writer<double > (file, "emitxyz");
+        writer_mean = new Hdf5_serial_writer<MArray1d_ref > (file_sptr, "mean");
+        writer_std = new Hdf5_serial_writer<MArray1d_ref > (file_sptr, "std");
+        writer_mom2 = new Hdf5_serial_writer<MArray2d_ref > (file_sptr, "mom2");
+        writer_corr = new Hdf5_serial_writer<MArray2d_ref > (file_sptr, "corr");
+        writer_emitx = new Hdf5_serial_writer<double > (file_sptr, "emitx");
+        writer_emity = new Hdf5_serial_writer<double > (file_sptr, "emity");
+        writer_emitz = new Hdf5_serial_writer<double > (file_sptr, "emitz");
+        writer_emitxy = new Hdf5_serial_writer<double > (file_sptr, "emitxy");
+        writer_emitxyz = new Hdf5_serial_writer<double > (file_sptr, "emitxyz");
         have_writers = true;
     }
 }
@@ -511,7 +513,7 @@ void
 Diagnostics_full2::write()
 {
     if (write_helper.write_locally()) {
-        init_writers(write_helper.get_file());
+        init_writers(write_helper.get_hdf5_file());
         writer_s->append(s);
         writer_repetition->append(repetition);
         writer_trajectory_length->append(trajectory_length);
@@ -607,13 +609,13 @@ write_selected_particles(Hdf5_chunked_array2d_writer & writer,
 
 void
 Diagnostics_particles::receive_other_local_particles(
-        std::vector<int > const& local_nums, H5::H5File & file)
+        std::vector<int > const& local_nums, Hdf5_file_sptr file_sptr)
 {
     int myrank = bunch_sptr->get_comm().get_rank();
     int size = bunch_sptr->get_comm().get_size();
     Hdf5_chunked_array2d_writer
             writer_particles(
-                    file,
+                    &(file_sptr->get_h5file()),
                     "particles",
                     bunch_sptr->get_local_particles()[boost::indices[range(0, 1)][range()]]);
     for (int rank = 0; rank < size; ++rank) {
@@ -689,22 +691,17 @@ Diagnostics_particles::write()
                 "Diagnostics_particles::write: MPI_Gather failed.");
     }
     if (write_helper.write_locally()) {
-        H5::H5File file = write_helper.get_file();
-        receive_other_local_particles(local_nums, file);
-        Hdf5_writer<double > writer_pz(file, "pz");
+        Hdf5_file_sptr file_sptr = write_helper.get_hdf5_file();
+        receive_other_local_particles(local_nums, file_sptr);
         double pz = bunch_sptr->get_reference_particle().get_momentum();
-        writer_pz.write(pz);
-        Hdf5_writer<double > writer_tlen(file, "tlen");
+        file_sptr->write(pz, "pz");
         double tlen =
                 bunch_sptr->get_reference_particle().get_trajectory_length();
-        writer_tlen.write(tlen);
-        Hdf5_writer<int > writer_rep(file, "rep");
+        file_sptr->write(tlen, "tlen");
         int rep = bunch_sptr->get_reference_particle().get_repetition();
-        writer_rep.write(rep);
-        Hdf5_writer<double > writer_s(file, "s");
+        file_sptr->write(rep, "rep");
         double s = bunch_sptr->get_reference_particle().get_s();
-        writer_s.write(s);
-        int local_num = bunch_sptr->get_local_num();
+        file_sptr->write(s, "s");
         write_helper.finish_write();
     } else {
         send_local_particles();
@@ -794,13 +791,13 @@ Diagnostics_track::update()
 }
 
 void
-Diagnostics_track::init_writers(H5::H5File & file)
+Diagnostics_track::init_writers(Hdf5_file_sptr file_sptr)
 {
     if (!have_writers) {
-        writer_coords = new Hdf5_serial_writer<MArray1d_ref > (file, "coords");
-        writer_s = new Hdf5_serial_writer<double > (file, "s");
-        writer_repetition = new Hdf5_serial_writer<int > (file, "repetition");
-        writer_trajectory_length = new Hdf5_serial_writer<double > (file,
+        writer_coords = new Hdf5_serial_writer<MArray1d_ref > (file_sptr, "coords");
+        writer_s = new Hdf5_serial_writer<double > (file_sptr, "s");
+        writer_repetition = new Hdf5_serial_writer<int > (file_sptr, "repetition");
+        writer_trajectory_length = new Hdf5_serial_writer<double > (file_sptr,
                 "trajectory_length");
         have_writers = true;
     }
@@ -811,7 +808,7 @@ Diagnostics_track::write()
 {
     bunch_sptr->convert_to_state(bunch_sptr->fixed_z_lab);
     if (found) {
-        init_writers(write_helper_sptr->get_file());
+        init_writers(write_helper_sptr->get_hdf5_file());
         writer_coords->append(coords);
         writer_s->append(s);
         writer_repetition->append(repetition);
