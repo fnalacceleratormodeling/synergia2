@@ -16,7 +16,7 @@ add_test(test_distribution ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_distributio
 add_test(test_distribution_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_distribution.py)
 
 add_executable(test_diagnostics_write_helper test_diagnostics_write_helper.cc)
-target_link_libraries(test_diagnostics_write_helper synergia_hdf5_utils synergia_foundation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_diagnostics_write_helper synergia_hdf5_utils synergia_foundation synergia_serialization ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_diagnostics_write_helper ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_diagnostics_write_helper)
 
 set(CLEAN_FILES

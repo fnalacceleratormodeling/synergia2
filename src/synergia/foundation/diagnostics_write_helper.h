@@ -68,6 +68,22 @@ public:
     void
     finish_write();
 
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(writer_rank)
+                    & BOOST_SERIALIZATION_NVP(filename)
+                    & BOOST_SERIALIZATION_NVP(serial)
+                    & BOOST_SERIALIZATION_NVP(commxx)
+                    & BOOST_SERIALIZATION_NVP(file_sptr)
+                    & BOOST_SERIALIZATION_NVP(have_file)
+                    & BOOST_SERIALIZATION_NVP(count)
+                    & BOOST_SERIALIZATION_NVP(iwrite_skip)
+                    & BOOST_SERIALIZATION_NVP(filename_base)
+                    & BOOST_SERIALIZATION_NVP(filename_suffix);
+        }
+
     ~Diagnostics_write_helper();
 };
 
