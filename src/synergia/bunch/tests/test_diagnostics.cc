@@ -30,7 +30,8 @@ dummy_populate(Bunch &bunch)
 struct Fixture
 {
     Fixture() :
-        bunch_sptr(new Bunch(reference_particle, total_num, real_num, comm)),
+                bunch_sptr(
+                        new Bunch(reference_particle, total_num, real_num, comm)),
                 reference_particle(pconstants::electron_charge, mass,
                         total_energy), comm(MPI_COMM_WORLD)
     {
@@ -113,7 +114,7 @@ BOOST_FIXTURE_TEST_CASE(get_std, Fixture)
 
 // BOOST_FIXTURE_TEST_CASE(get_bunchmin, Fixture)
 // {
-//     Diagnostics_basic diagnostics(bunch_sptr, "dummy.h5");  
+//     Diagnostics_basic diagnostics(bunch_sptr, "dummy.h5");
 // #include "test_diagnostics_get_bunchmin.icc"
 // }
 
@@ -133,6 +134,17 @@ BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 // test_note: We are not (yet) testing the content of the output file.
 
 // n.b. no test for update because it is called internally for other tests.
+BOOST_FIXTURE_TEST_CASE(serialize_basic, Fixture)
+{
+    Diagnostics_basic diagnostics(bunch_sptr, "dummy.h5");
+    diagnostics.update();
+    diagnostics.write();
+
+    xml_save(diagnostics, "diagnostics_basic.xml");
+
+    Diagnostics_basic loaded;
+    xml_load(loaded, "diagnostics_basic.xml");
+}
 
 BOOST_FIXTURE_TEST_CASE(construct_full2, Fixture)
 {
@@ -191,8 +203,8 @@ BOOST_FIXTURE_TEST_CASE(get_mom2_full2, Fixture)
 BOOST_FIXTURE_TEST_CASE(get_corr_full2, Fixture)
 {
     const double tolerance_corr = 1.0e-10;
-    Bunch_sptr bunch2_sptr(new Bunch(reference_particle, total_num, real_num,
-            comm));
+    Bunch_sptr bunch2_sptr(
+            new Bunch(reference_particle, total_num, real_num, comm));
     MArray2d_ref particles(bunch2_sptr->get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
     Diagnostics_full2 diagnostics(bunch2_sptr, "dummy.h5");
@@ -214,15 +226,15 @@ const double tolerance_emit2d = 1.0e-11;
 // }
 
 /*BOOST_FIXTURE_TEST_CASE(get_emity_full2, Fixture)
-{
-    Bunch_sptr bunch2_sptr(new Bunch(reference_particle, total_num, real_num,
-            comm));
-    MArray2d_ref particles(bunch2_sptr->get_local_particles());
-#include "test_diagnostics_get_random_particles.icc"
-    Diagnostics_full2 diagnostics(bunch2_sptr, "dummy.h5");
-    diagnostics.update();
-#include "test_diagnostics_get_emity.icc"
-}*/
+ {
+ Bunch_sptr bunch2_sptr(new Bunch(reference_particle, total_num, real_num,
+ comm));
+ MArray2d_ref particles(bunch2_sptr->get_local_particles());
+ #include "test_diagnostics_get_random_particles.icc"
+ Diagnostics_full2 diagnostics(bunch2_sptr, "dummy.h5");
+ diagnostics.update();
+ #include "test_diagnostics_get_emity.icc"
+ }*/
 
 // BOOST_FIXTURE_TEST_CASE(get_emitz_full2, Fixture)
 // {
@@ -236,7 +248,7 @@ const double tolerance_emit2d = 1.0e-11;
 // }
 
 // const double tolerance_emit4d = 1.0e-11;
-// 
+//
 // BOOST_FIXTURE_TEST_CASE(get_emitxy_full2, Fixture)
 // {
 //     Bunch_sptr bunch2_sptr(new Bunch(reference_particle, total_num, real_num,
@@ -247,9 +259,9 @@ const double tolerance_emit2d = 1.0e-11;
 //     diagnostics.update();
 // #include "test_diagnostics_get_emitxy.icc"
 // }
-// 
+//
 // const double tolerance_emit6d = 1.0e-10;
-// 
+//
 // BOOST_FIXTURE_TEST_CASE(get_emitxyz_full2, Fixture)
 // {
 //     Bunch_sptr bunch2_sptr(new Bunch(reference_particle, total_num, real_num,
@@ -260,11 +272,23 @@ const double tolerance_emit2d = 1.0e-11;
 //     diagnostics.update();
 // #include "test_diagnostics_get_emitxyz.icc"
 // }
-
 BOOST_FIXTURE_TEST_CASE(write_full2, Fixture)
 {
     Diagnostics_full2 diagnostics(bunch_sptr, "dummy.h5");
     diagnostics.update();
     diagnostics.write();
 }
+
+BOOST_FIXTURE_TEST_CASE(serialize_full2, Fixture)
+{
+    Diagnostics_full2 diagnostics(bunch_sptr, "dummy.h5");
+    diagnostics.update();
+    diagnostics.write();
+
+    xml_save(diagnostics, "full2.xml");
+
+    Diagnostics_full2 loaded;
+    xml_load(loaded, "full2.xml");
+}
+
 // test_note: We are not (yet) testing the content of the output file.
