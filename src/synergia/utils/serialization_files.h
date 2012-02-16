@@ -3,6 +3,12 @@
 
 #include <string>
 
+// copy_file_overwrite_if_exists provides portability across
+// Boost Filesystem versions 2 and 3
+void
+copy_file_overwrite_if_exists(std::string const & source,
+        std::string const & dest);
+
 std::string
 get_serialization_directory();
 

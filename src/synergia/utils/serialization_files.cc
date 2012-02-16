@@ -3,6 +3,18 @@
 
 const std::string serialization_directory("serialization");
 
+using namespace boost::filesystem;
+
+void
+copy_file_overwrite_if_exists(std::string const & source,
+        std::string const & dest)
+{
+    if (exists(dest)) {
+        remove(dest);
+    }
+    copy_file(source, dest);
+}
+
 std::string
 get_serialization_directory()
 {
@@ -12,8 +24,8 @@ get_serialization_directory()
 void
 ensure_serialization_directory_exists()
 {
-    if (!boost::filesystem::is_directory(get_serialization_directory())) {
-        boost::filesystem::create_directories(get_serialization_directory());
+    if (!is_directory(get_serialization_directory())) {
+        create_directories(get_serialization_directory());
     }
 }
 
@@ -27,14 +39,12 @@ void
 copy_to_serialization_directory(std::string const& file_name)
 {
     ensure_serialization_directory_exists();
-    boost::filesystem::copy_file(file_name, get_serialization_path(file_name),
-            boost::filesystem::copy_option::overwrite_if_exists);
+    copy_file_overwrite_if_exists(file_name, get_serialization_path(file_name));
 }
 
 void
 copy_from_serialization_directory(std::string const& file_name)
 {
     ensure_serialization_directory_exists();
-    boost::filesystem::copy_file(get_serialization_path(file_name), file_name,
-            boost::filesystem::copy_option::overwrite_if_exists);
+    copy_file_overwrite_if_exists(get_serialization_path(file_name), file_name);
 }
