@@ -88,7 +88,7 @@ BOOST_AUTO_TEST_CASE(read_write_data)
 }
 
 
-BOOST_AUTO_TEST_CASE(serialize)
+BOOST_AUTO_TEST_CASE(test_serialize)
 {
     const std::string file_name("hdf5_file_serialized.h5");
     const std::string serialize_file_name("hdf5_file.xml");
