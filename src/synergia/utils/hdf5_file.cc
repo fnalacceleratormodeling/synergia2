@@ -2,27 +2,15 @@
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/utils/hdf5_misc.h"
 
-// flag_to_h5_flags is a local function
-unsigned int
-flag_to_h5_flags(Hdf5_file::Flag flag)
-{
-    unsigned int retval;
-    if (flag == Hdf5_file::truncate) {
-        retval = H5F_ACC_TRUNC;
-    } else if (flag == Hdf5_file::read_write) {
-        retval = H5F_ACC_RDWR;
-    } else if (flag == Hdf5_file::read_only) {
-        retval = H5F_ACC_RDONLY;
-    } else {
-        retval = 0;
-    }
-    return retval;
-}
-
 Hdf5_file::Hdf5_file(std::string const& file_name, Flag flag) :
     file_name(file_name), h5file_ptr(0), is_open(false)
 {
     open(flag);
+    current_flag = flag;
+}
+
+Hdf5_file::Hdf5_file() : h5file_ptr(0)
+{
 }
 
 void
@@ -31,15 +19,7 @@ Hdf5_file::open(Flag flag)
     if (is_open) {
         close();
     }
-    unsigned int h5_flag;
-    if (flag == Hdf5_file::truncate) {
-        h5_flag = H5F_ACC_TRUNC;
-    } else if (flag == Hdf5_file::read_write) {
-        h5_flag = H5F_ACC_RDWR;
-    } else if (flag == Hdf5_file::read_only) {
-        h5_flag = H5F_ACC_RDONLY;
-    }
-    h5file_ptr = new H5::H5File(file_name.c_str(), h5_flag);
+    h5file_ptr = new H5::H5File(file_name.c_str(), flag_to_h5_flags(flag));
     is_open = true;
 }
 

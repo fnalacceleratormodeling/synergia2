@@ -18,7 +18,7 @@ target_link_libraries(test_hdf5_writer synergia_hdf5_utils ${Boost_UNIT_TEST_FRA
 add_test(test_hdf5_writer test_hdf5_writer)
 
 add_executable(test_hdf5_file test_hdf5_file.cc)
-target_link_libraries(test_hdf5_file synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_hdf5_file synergia_hdf5_utils synergia_serialization ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_hdf5_file test_hdf5_file)
 
 add_executable(test_hdf5_serial_writer test_hdf5_serial_writer.cc)
@@ -102,12 +102,12 @@ set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEAN_FILES}"
 #   target_link_libraries(wrap_containers_python wrap_containers ${Boost_LIBRARIES})
 # add_test(test_container_conversions.py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_container_conversions.py)
 
-  
+
 #     wrap_containers.h
 #      DESTINATION include/synergia/utils/tests)
 #   install(TARGETS
 #           wrap_containers
-#           wrap_containers_python 
+#           wrap_containers_python
 #               DESTINATION lib/synergia/utils/tests)
 
 

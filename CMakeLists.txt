@@ -35,7 +35,8 @@ endif()
 # boost
 SET(Boost_USE_STATIC_LIBS OFF)
 SET(Boost_USE_MULTITHREAD ON)
-FIND_PACKAGE(Boost COMPONENTS python regex unit_test_framework serialization REQUIRED)
+FIND_PACKAGE(Boost COMPONENTS python regex unit_test_framework serialization
+    filesystem system REQUIRED)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 

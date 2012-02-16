@@ -87,3 +87,25 @@ BOOST_AUTO_TEST_CASE(read_write_data)
     }
 }
 
+
+BOOST_AUTO_TEST_CASE(serialize)
+{
+    const std::string file_name("hdf5_file_serialized.h5");
+    const std::string serialize_file_name("hdf5_file.xml");
+    {
+        Hdf5_file file(file_name, Hdf5_file::truncate);
+        file.write(1, "one");
+        xml_save<Hdf5_file > (file, serialize_file_name.c_str());
+    }
+
+    {
+        Hdf5_file file_resumed;
+        xml_load<Hdf5_file > (file_resumed, serialize_file_name.c_str());
+        BOOST_CHECK_EQUAL(1,file_resumed.read<int>("one"));
+        file_resumed.write(2, "two");
+    }
+
+    Hdf5_file final_file(file_name, Hdf5_file::read_only);
+    BOOST_CHECK_EQUAL(1,final_file.read<int>("one"));
+    BOOST_CHECK_EQUAL(2,final_file.read<int>("two"));
+}

@@ -5,6 +5,8 @@
 #include <boost/shared_ptr.hpp>
 
 #include "synergia/utils/hdf5_writer.h"
+#include "synergia/utils/serialization.h"
+#include "synergia/utils/serialization_files.h"
 
 class Hdf5_file
 {
@@ -17,8 +19,26 @@ private:
     std::string file_name;
     H5::H5File * h5file_ptr;
     bool is_open;
+    Flag current_flag;
+    unsigned int
+    flag_to_h5_flags(Flag flag)
+    {
+        unsigned int retval;
+        if (flag == Hdf5_file::truncate) {
+            retval = H5F_ACC_TRUNC;
+        } else if (flag == Hdf5_file::read_write) {
+            retval = H5F_ACC_RDWR;
+        } else if (flag == Hdf5_file::read_only) {
+            retval = H5F_ACC_RDONLY;
+        } else {
+            retval = 0;
+        }
+        return retval;
+    }
 public:
     Hdf5_file(std::string const& file_name, Flag flag);
+    // Default constructor for serialization use only
+    Hdf5_file();
     void
     open(Flag flag);
     void
@@ -31,6 +51,39 @@ public:
     template<typename T>
         T
         read(std::string const& name);
+    template<class Archive>
+        void
+        save(Archive & ar, const unsigned int version) const
+        {
+            ar << BOOST_SERIALIZATION_NVP(file_name)
+                    << BOOST_SERIALIZATION_NVP(is_open)
+                    << BOOST_SERIALIZATION_NVP(current_flag);
+            if (is_open) {
+                h5file_ptr->flush(H5F_SCOPE_GLOBAL);
+                copy_to_serialization_directory(file_name);
+            }
+        }
+    template<class Archive>
+        void
+        load(Archive & ar, const unsigned int version)
+        {
+            ar >> BOOST_SERIALIZATION_NVP(file_name)
+                    >> BOOST_SERIALIZATION_NVP(is_open)
+                    >> BOOST_SERIALIZATION_NVP(current_flag);
+            if (is_open) {
+                copy_from_serialization_directory(file_name);
+                Flag flag;
+                if (current_flag == read_only) {
+                    flag = read_only;
+                } else {
+                    flag = read_write;
+                }
+                is_open = false; // will be changed to true by open
+                open(flag);
+            }
+        }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+
     ~Hdf5_file();
 };
 
