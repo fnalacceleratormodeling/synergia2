@@ -78,3 +78,16 @@ BOOST_FIXTURE_TEST_CASE(write_track_sin_x, Fixture)
         diagnostics.write();
     }
 }
+
+BOOST_FIXTURE_TEST_CASE(serialize_, Fixture)
+{
+    Diagnostics_track diagnostics(bunch_sptr, "dummy.h5", 0);
+    diagnostics.update();
+    diagnostics.write();
+
+    xml_save(diagnostics, "diagnostics_track.xml");
+
+    Diagnostics_track loaded;
+    xml_load(loaded, "diagnostics_track.xml");
+}
+

@@ -88,3 +88,15 @@ BOOST_FIXTURE_TEST_CASE(write_min_max, Fixture)
     diagnostics.update();
     diagnostics.write();
 }
+
+BOOST_FIXTURE_TEST_CASE(serialize_, Fixture)
+{
+    Diagnostics_particles diagnostics(bunch_sptr, "dummy.h5");
+    diagnostics.update();
+    diagnostics.write();
+
+    xml_save(diagnostics, "diagnostics_particles.xml");
+
+    Diagnostics_particles loaded;
+    xml_load(loaded, "diagnostics_particles.xml");
+}
