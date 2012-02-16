@@ -34,12 +34,15 @@ inline
 int
 get_chef_index(int synergia_index)
 {
-    return synergia_index / 2 + 3 * (synergia_index % 2);
+    const int chef_index[] = {0, 3, 1, 4, 2, 5};
+    return chef_index[synergia_index];
 }
+
 inline
 int
 get_synergia_index(int chef_index)
 {
-  return 2*(chef_index%3) + chef_index%3;
+  const int synergia_index[] = {0, 2, 4, 1, 3, 5};
+  return synergia_index[chef_index];
 }
 #endif /* CHEF_UTILS_H_ */

@@ -324,15 +324,25 @@ Lattice_simulator::calculate_normal_form()
   normal_form_sage_sptr = Normal_form_sage_sptr(new normalFormSage(one_turn_map, reference_particle_to_chef_jet_particle(lattice_sptr->get_reference_particle(),map_order), map_order));
 }
 
+// return the normal_form_sage_sptr if it exists, otherwise calculate
+// it first and then return it.
+Normal_form_sage_sptr Lattice_simulator::get_normal_form_sptr()
+{
+  if (normal_form_sage_sptr) {
+    return normal_form_sage_sptr;
+  } else {
+    calculate_normal_form();
+    return normal_form_sage_sptr;
+  }
+}
+
 // checkLinearNormalForm
 // check the linear part of the normal form calculation
 bool
 Lattice_simulator::check_linear_normal_form()
 {
-  if (! normal_form_sage_sptr) {
-    calculate_normal_form();
-  }
-  return normal_form_sage_sptr->checkLinearNormalForm();
+  Normal_form_sage_sptr nf_sptr(get_normal_form_sptr());
+  return nf_sptr->checkLinearNormalForm();
 }
 
 // converts a MArray2d of particle coordinates in synergia ordering into
@@ -342,12 +352,26 @@ Lattice_simulator::check_linear_normal_form()
 void
 Lattice_simulator::convert_human_to_normal(MArray2d_ref coords)
 {
-  if (!normal_form_sage_sptr) {
-    calculate_normal_form();
-  }
+  Normal_form_sage_sptr nf_sptr(get_normal_form_sptr());
 
+#if 0
+  std::cout << "chef->synergia indices:" << std::endl;
+  for (int j=0; j<6; ++j) {
+    std::cout << j << " ->  " << get_synergia_index(j) << std::endl;
+  }
+  std::cout << std::endl;
+  std::cout << "synergia->chef indices:" << std::endl;
+  for (int j=0; j<6; ++j) {
+    std::cout << j << " ->  " << get_chef_index(j) << std::endl;
+  }
+#endif
   const MArray2d::size_type *coords_shape = coords.shape();
   const MArray2d::index *coords_bases = coords.index_bases();
+
+#if 0
+  std::cout << "coords_shape: " << coords_shape[0] << ", " << coords_shape[1] << std::endl;
+  std::cout << "coords_bases: " << coords_bases[0] << ", " << coords_bases[1] << std::endl;
+#endif
 
   if ((coords_shape[1] != 7) || (coords_bases[1] != 0)) {
     throw std::runtime_error("Lattice_simulator::convert_human_to_normal expected nx[0:7] array");
@@ -360,7 +384,14 @@ Lattice_simulator::convert_human_to_normal(MArray2d_ref coords)
     for (int j=0; j<6; ++j) {
       w(get_chef_index(j)) = coords[i][j];
     }
-    normal_form_sage_sptr->cnvDataToNormalForm(w, a);
+#if 0
+    std::cout << "human->normal human(chef): " << w << std::endl;
+#endif
+    nf_sptr->cnvDataToNormalForm(w, a);
+#if 0
+    std::cout << "human->normal normal(chef): " << a << std::endl;
+#endif
+
     for (int j=0; j<3; ++j) {
       coords[i][2*j] = a(j).real();
       coords[i][2*j+1] = a(j).imag();
@@ -373,9 +404,7 @@ Lattice_simulator::convert_human_to_normal(MArray2d_ref coords)
 void
 Lattice_simulator::convert_normal_to_human(MArray2d_ref coords)
 {
-  if (!normal_form_sage_sptr) {
-    calculate_normal_form();
-  }
+  Normal_form_sage_sptr nf_sptr(get_normal_form_sptr());
 
   const MArray2d::size_type *coords_shape = coords.shape();
   const MArray2d::index *coords_bases = coords.index_bases();
@@ -391,18 +420,10 @@ Lattice_simulator::convert_normal_to_human(MArray2d_ref coords)
       a(j) = std::complex<double>(coords[i][2*j],coords[i][2*j+1]);
       a(j+3) = std::conj(a(j));
     }
-    std::cout << "normal form particle " << i << ": " << a << std::endl;
-    std::cout << " magnitudes: ";
-    for (int j=0; j<6; ++j) {
-      if (j != 0) {
-	std::cout << ",  ";
-      }
-      std::cout << abs(a(j));
-    }
-    std::cout << std::endl;
 
     // convert to human form in CHEF order
-    normal_form_sage_sptr->cnvDataFromNormalForm(a, w);
+    nf_sptr->cnvDataFromNormalForm(a, w);
+
     // write back into synergia ordering
     for (int j=0; j<6; ++j) {
       coords[i][get_synergia_index(j)] = w(j);
@@ -415,11 +436,18 @@ Lattice_simulator::convert_normal_to_human(MArray2d_ref coords)
 // of the three planes.
 std::vector<double> Lattice_simulator::get_stationary_actions(const double stdx, const double stdy, const double stdz)
 {
-  if (!normal_form_sage_sptr) {
-    calculate_normal_form();
-  }
+  Normal_form_sage_sptr nf_sptr(get_normal_form_sptr());
+  // stationaryActions wants the second moments of the canonical variables
+  // which are x,y,t.  Convert z into t.
+  std::cout << "get_stationary_actions() requested stds: " << stdx << ", " << stdy << ", " << stdz << std::endl;
 
-  return normal_form_sage_sptr->stationaryActions(stdx, stdy, stdz);
+  double beta = this->get_lattice_sptr()->get_reference_particle().get_beta();
+  double stdt = stdz/(beta*pconstants::c);
+  std::cout << "get_stationary_actions() passing stds to CHEF: " << stdx << ", " << stdy << ", " << stdt << std::endl;
+
+  std::vector<double> v(nf_sptr->stationaryActions(stdx, stdy, stdt));
+  std::cout << "returned actions: " << v[0] << ", " << v[1] << ", " << v[2] << std::endl;
+  return v;
 }
 
 // returns the linear one turn map for the lattice and beam parameters

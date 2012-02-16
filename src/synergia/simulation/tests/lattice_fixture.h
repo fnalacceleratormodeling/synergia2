@@ -244,7 +244,7 @@ struct Fobodobo_sbend_fixture
     Lattice_sptr lattice_sptr;
 };
 
-const int num_macro_particles = 1024;
+const int num_macro_particles = 4096;
 const double num_real_particles = 1.0e11;
 struct Foborodobo32_fixture
 {

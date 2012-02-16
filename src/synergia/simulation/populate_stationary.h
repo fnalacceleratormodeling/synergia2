@@ -12,12 +12,11 @@
 /// limited statistics) if there is no other physics.
 /// @param dist the distribution generator
 /// @param bunch the bunch
-/// @param I0 Action variable for 0 coordinate
-/// @param I1 Action variable for 1 coordinate
-/// @param I2 Action variable for 2 coordinate
+/// @param actions std::vector<double> (3) the three mean actions
 void
-populate_6d_stationary_torus(Distribution &dist, Bunch &bunch, double I0,
-			     double I1, double I2, Lattice_simulator& lattice_simulator);
+populate_6d_stationary_torus(Distribution &dist, Bunch &bunch, std::vector<double> actions, Lattice_simulator& lattice_simulator);
 
+void
+populate_6d_stationary_gaussian(Distribution &dist, Bunch &bunch, std::vector<double> actions, Lattice_simulator& lattice_simulator);
 
 #endif /* POPULATE_STATIONARY_H_ */
