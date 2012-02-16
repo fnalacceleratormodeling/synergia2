@@ -63,6 +63,11 @@ template<typename T>
     {
     }
 
+template<typename T>
+    Hdf5_serial_writer<T >::Hdf5_serial_writer()
+    {
+    }
+
 template<>
     Hdf5_serial_writer<MArray1d_ref >::Hdf5_serial_writer(
             Hdf5_file_sptr file_sptr, std::string const& name, bool resume);

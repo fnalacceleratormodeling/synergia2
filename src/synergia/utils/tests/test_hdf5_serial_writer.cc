@@ -81,3 +81,40 @@ BOOST_AUTO_TEST_CASE(array3d)
         writer.append(a);
     }
 }
+
+BOOST_AUTO_TEST_CASE(test_serialize)
+{
+    const char h5_file_name[] = "serialize_serial.h5";
+    const char xml_file_name[] = "serial_writer.xml";
+    const std::string label("val");
+    const double midpodouble = 3;
+    const double last = 5;
+    {
+        Hdf5_file_sptr file_sptr(
+                new Hdf5_file(h5_file_name, Hdf5_file::truncate));
+        Hdf5_serial_writer<double > writer(file_sptr, label);
+        for (int i = 0; i < midpodouble; ++i) {
+            double val = i*1.0;
+            writer.append(val);
+        }
+        xml_save<Hdf5_serial_writer<double > > (writer, xml_file_name);
+    }
+
+    {
+        Hdf5_serial_writer<double > resume_writer;
+        xml_load<Hdf5_serial_writer<double > > (resume_writer, xml_file_name);
+        for (int i = midpodouble; i < last; ++i) {
+            double val = i*1.0;
+            resume_writer.append(val);
+        }
+    }
+
+    Hdf5_file file(h5_file_name, Hdf5_file::read_only);
+    MArray1d read_data(file.read<MArray1d > (label));
+    const double tolerance = 1.0e-12;
+    for (int i = 0; i < last; ++i) {
+        BOOST_CHECK_CLOSE(read_data[i], i, tolerance);
+    }
+
+}
+

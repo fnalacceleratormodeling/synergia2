@@ -5,6 +5,7 @@
 #include "H5Cpp.h"
 
 #include "synergia/utils/hdf5_file.h"
+#include "synergia/utils/serialization.h"
 
 template<typename T>
     class Hdf5_serial_writer
@@ -23,8 +24,29 @@ template<typename T>
     public:
         Hdf5_serial_writer(Hdf5_file_sptr file_sptr, std::string const& name,
                 bool resume = false);
+        // Default constructor for serialization use only
+        Hdf5_serial_writer();
         void
         append(T & data);
+        template<class Archive>
+            void
+            save(Archive & ar, const unsigned int version) const
+            {
+                ar & BOOST_SERIALIZATION_NVP(name);
+                ar & BOOST_SERIALIZATION_NVP(offset);
+                ar & BOOST_SERIALIZATION_NVP(file_sptr);
+            }
+        template<class Archive>
+            void
+            load(Archive & ar, const unsigned int version)
+            {
+                ar & BOOST_SERIALIZATION_NVP(name);
+                ar & BOOST_SERIALIZATION_NVP(offset);
+                ar & BOOST_SERIALIZATION_NVP(file_sptr);
+                resume = true;
+                have_setup = false;
+            }
+        BOOST_SERIALIZATION_SPLIT_MEMBER()
         ~Hdf5_serial_writer();
     };
 
