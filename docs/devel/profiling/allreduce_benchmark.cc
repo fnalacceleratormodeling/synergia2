@@ -3,7 +3,10 @@
 #include "synergia/utils/commxx.h"
 #include "synergia/utils/multi_array_typedefs.h"
 
+#ifndef USE_SIMPLE_TIMER
 #define USE_SIMPLE_TIMER true
+#endif // USE_SIMPLE_TIMER
+
 #include "synergia/utils/simple_timer.h"
 
 #include "allreduce_benchmark_options.h"
