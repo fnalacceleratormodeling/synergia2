@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE(construct)
     Diagnostics_write_helper d(filename, serial, write_skip, commxx);
 }
 
-BOOST_AUTO_TEST_CASE(serialize)
+BOOST_AUTO_TEST_CASE(serialize_)
 {
     std::string filename("test_write_helper2.h5");
     bool serial = true;
