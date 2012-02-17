@@ -20,8 +20,8 @@ dummy_populate(Bunch &bunch)
 {
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         for (int i = 0; i < 6; i += 1) {
-            bunch.get_local_particles()[part][i] = 10.0 * part + (1.0 + part
-                    * part / 1000.0) * i;
+            bunch.get_local_particles()[part][i] = 10.0 * part
+                    + (1.0 + part * part / 1000.0) * i;
         }
         bunch.get_local_particles()[part][Bunch::id] = part;
     }
@@ -30,10 +30,10 @@ dummy_populate(Bunch &bunch)
 struct Fixture
 {
     Fixture() :
-                bunch_sptr(
-                        new Bunch(reference_particle, total_num, real_num, comm)),
-                reference_particle(pconstants::electron_charge, mass,
-                        total_energy), comm(MPI_COMM_WORLD)
+            bunch_sptr(
+                    new Bunch(reference_particle, total_num, real_num, comm)), reference_particle(
+                    pconstants::electron_charge, mass, total_energy), comm(
+                    MPI_COMM_WORLD)
     {
         BOOST_TEST_MESSAGE("setup fixture");
         dummy_populate(*bunch_sptr);
@@ -124,7 +124,6 @@ BOOST_FIXTURE_TEST_CASE(get_std, Fixture)
 //#include "test_diagnostics_get_bunchmax.icc"
 //}
 
-
 BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 {
     Diagnostics_basic diagnostics(bunch_sptr, "dummy.h5");
@@ -136,11 +135,13 @@ BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 // n.b. no test for update because it is called internally for other tests.
 BOOST_FIXTURE_TEST_CASE(serialize_basic, Fixture)
 {
-    Diagnostics_basic diagnostics(bunch_sptr, "dummy.h5");
-    diagnostics.update();
-    diagnostics.write();
+    {
+        Diagnostics_basic diagnostics(bunch_sptr, "dummy.h5");
+        diagnostics.update();
+        diagnostics.write();
 
-    xml_save(diagnostics, "diagnostics_basic.xml");
+        xml_save(diagnostics, "diagnostics_basic.xml");
+    }
 
     Diagnostics_basic loaded;
     xml_load(loaded, "diagnostics_basic.xml");
@@ -246,7 +247,6 @@ const double tolerance_emit2d = 1.0e-11;
 //     diagnostics.update();
 // #include "test_diagnostics_get_emitz.icc"
 // }
-
 // const double tolerance_emit4d = 1.0e-11;
 //
 // BOOST_FIXTURE_TEST_CASE(get_emitxy_full2, Fixture)
@@ -272,21 +272,14 @@ const double tolerance_emit2d = 1.0e-11;
 //     diagnostics.update();
 // #include "test_diagnostics_get_emitxyz.icc"
 // }
-BOOST_FIXTURE_TEST_CASE(write_full2, Fixture)
-{
-    Diagnostics_full2 diagnostics(bunch_sptr, "dummy.h5");
-    diagnostics.update();
-    diagnostics.write();
-}
-
 BOOST_FIXTURE_TEST_CASE(serialize_full2, Fixture)
 {
-    Diagnostics_full2 diagnostics(bunch_sptr, "dummy.h5");
-    diagnostics.update();
-    diagnostics.write();
-
-    xml_save(diagnostics, "full2.xml");
-
+    {
+        Diagnostics_full2 diagnostics(bunch_sptr, "dummy_full2.h5");
+        diagnostics.update();
+        diagnostics.write();
+        xml_save(diagnostics, "full2.xml");
+    }
     Diagnostics_full2 loaded;
     xml_load(loaded, "full2.xml");
 }
