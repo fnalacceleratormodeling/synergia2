@@ -96,18 +96,9 @@ IF(CMAKE_COMPILER_IS_GNUCXX)
 ENDIF(CMAKE_COMPILER_IS_GNUCXX)
 
 set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -DBOOST_DISABLE_ASSERTS")
-
 if(USE_SIMPLE_TIMER)
     message("-- Simple timer profiling enabled")
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_SIMPLE_TIMER")
-    if(USE_SIMPLE_TIMER_NO_BARRIER)
-        message("-- Simple timer MPI_Barrier disabled")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_SIMPLE_TIMER_NO_BARRIER")
-    endif(USE_SIMPLE_TIMER_NO_BARRIER)
-    if(USE_SIMPLE_TIMER_MEM)
-        message("-- Simple timer memory profiling enabled")
-        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DUSE_SIMPLE_TIMER_MEM")
-    endif(USE_SIMPLE_TIMER_MEM)
 endif(USE_SIMPLE_TIMER)
 
 # External libraries generate many warnings
