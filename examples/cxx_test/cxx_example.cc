@@ -19,9 +19,9 @@ void
 run()
 {
     std::vector<int > grid_shape(3);
-    grid_shape[0] = 32;
-    grid_shape[1] = 32;
-    grid_shape[2] = 256;
+    grid_shape[0] = 8;
+    grid_shape[1] = 8;
+    grid_shape[2] = 16;
     const int part_per_cell = 10;
     const int num_macro_particles = grid_shape[0] * grid_shape[1]
             * grid_shape[2] * part_per_cell;
