@@ -66,6 +66,7 @@ public:
             bool longitudinal_kicks = true, bool periodic_z = false,
             double z_period = 0.0, bool grid_entire_period = false,
             double n_sigma = 8.0);
+    Space_charge_3d_open_hockney();
     double
     get_n_sigma() const;
     void
@@ -137,9 +138,16 @@ public:
             int component);
     virtual void
     apply(Bunch & bunch, double time_step, Step & step);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
+        }
     virtual
     ~Space_charge_3d_open_hockney();
 };
+BOOST_CLASS_EXPORT_KEY(Space_charge_3d_open_hockney);
 
 typedef boost::shared_ptr<Space_charge_3d_open_hockney >
         Space_charge_3d_open_hockney_sptr;
