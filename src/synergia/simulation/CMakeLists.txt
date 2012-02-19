@@ -19,6 +19,7 @@ install(FILES
     fast_mapping.h
     independent_operation.h
     aperture_operation.h
+    aperture_operation.tcc
     aperture_operation_extractor.h
     lattice_simulator.h
     operation_extractor.h
