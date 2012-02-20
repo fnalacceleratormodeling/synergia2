@@ -1,11 +1,11 @@
 #ifndef STANDARD_DIAGNOSTICS_ACTIONS_H_
 #define STANDARD_DIAGNOSTICS_ACTIONS_H_
 
-#include "synergia/simulation/propagate_actions.h"
+#include "synergia/simulation/diagnostic_actions.h"
 #include "synergia/bunch/diagnostics.h"
 #include <list>
 
-class Standard_diagnostics_actions : public Propagate_actions
+class Standard_diagnostics_actions : public Diagnostic_actions
 {
 private:
     std::list<Diagnostics_sptr > per_turns, per_steps;
@@ -35,7 +35,7 @@ public:
         void
         serialize(Archive & ar, const unsigned int version)
         {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Propagate_actions);
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostic_actions);
             ar & BOOST_SERIALIZATION_NVP(per_turns);
             ar & BOOST_SERIALIZATION_NVP(per_steps);
         }
