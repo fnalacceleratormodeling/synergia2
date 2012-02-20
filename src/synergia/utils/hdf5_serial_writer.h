@@ -35,6 +35,7 @@ template<typename T>
                 ar & BOOST_SERIALIZATION_NVP(name);
                 ar & BOOST_SERIALIZATION_NVP(offset);
                 ar & BOOST_SERIALIZATION_NVP(file_sptr);
+                ar & BOOST_SERIALIZATION_NVP(data_rank);
             }
         template<class Archive>
             void
@@ -43,6 +44,7 @@ template<typename T>
                 ar & BOOST_SERIALIZATION_NVP(name);
                 ar & BOOST_SERIALIZATION_NVP(offset);
                 ar & BOOST_SERIALIZATION_NVP(file_sptr);
+                ar & BOOST_SERIALIZATION_NVP(data_rank);
                 resume = true;
                 have_setup = false;
             }
