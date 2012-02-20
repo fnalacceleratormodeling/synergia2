@@ -16,11 +16,11 @@
 //    chef_lattice.construct_sliced_beamline(all_slices);
 //}
 
-Propagator::State::State(Bunch_with_diagnostics & bunch_with_diagnostics,
-        int num_turns, int first_turn, Propagate_actions & general_actions,
+Propagator::State::State(Bunch_with_diagnostics * bunch_with_diagnostics_ptr,
+        int num_turns, int first_turn, Propagate_actions * general_actions_ptr,
         bool verbose) :
-    bunch_with_diagnostics(bunch_with_diagnostics), num_turns(num_turns),
-            first_turn(first_turn), general_actions(general_actions),
+    bunch_with_diagnostics_ptr(bunch_with_diagnostics_ptr), num_turns(num_turns),
+            first_turn(first_turn), general_actions_ptr(general_actions_ptr),
             verbose(verbose)
 {
 }
@@ -68,15 +68,15 @@ try{
         t_total = simple_timer_current();
 
         int rank = Commxx().get_rank();
-        Bunch_sptr bunch_sptr = state.bunch_with_diagnostics.get_bunch_sptr();
+        Bunch_sptr bunch_sptr = state.bunch_with_diagnostics_ptr->get_bunch_sptr();
 
         std::ofstream logfile;
         if (rank == 0) logfile.open("log");
         t = simple_timer_current();
-        state.bunch_with_diagnostics.get_diagnostics_actions_sptr()->first_action(
+        state.bunch_with_diagnostics_ptr->get_diagnostics_actions_sptr()->first_action(
                 *stepper_sptr, *bunch_sptr);
         t = simple_timer_show(t, "diagnostics_first");
-        state.general_actions.first_action(*stepper_sptr, *bunch_sptr);
+        state.general_actions_ptr->first_action(*stepper_sptr, *bunch_sptr);
         t = simple_timer_show(t, "propagate-general_actions");
         for (int turn = state.first_turn; turn < state.num_turns; ++turn) {
             t_turn=MPI_Wtime();
@@ -106,33 +106,35 @@ try{
                 /// apply with diagnostics only for testing purposes
                 //(*it)->apply(*bunch_sptr, bunch_with_diagnostics.get_per_step_diagnostics());
                 t = simple_timer_current();
-                state.bunch_with_diagnostics.get_diagnostics_actions_sptr()->step_end_action(
+                state.bunch_with_diagnostics_ptr->get_diagnostics_actions_sptr()->step_end_action(
                         *stepper_sptr, *(*it), *bunch_sptr, turn, step_count);
                 t = simple_timer_show(t, "diagnostics-step");
-                state.general_actions.step_end_action(*stepper_sptr, *(*it),
+                state.general_actions_ptr->step_end_action(*stepper_sptr, *(*it),
                         *bunch_sptr, turn, step_count);
                 t = simple_timer_show(t, "propagate-general_actions-step");
             }
 
         t_turn1= MPI_Wtime();
         if (rank == 0) {
-                logfile<<" turn "<<turn + 1<<" : "<< t_turn1-t_turn<<"   macroparticles="<<state.bunch_with_diagnostics.get_bunch_sptr()->get_total_num()<< " \n";
-                std::cout<<"  turn "<<turn + 1<<" : "<< t_turn1-t_turn<<"   macroparticles="<<state.bunch_with_diagnostics.get_bunch_sptr()->get_total_num()<<std::endl;
+                logfile<<" turn "<<turn + 1<<" : "<< t_turn1-t_turn<<"   macroparticles="<<state.bunch_with_diagnostics_ptr->get_bunch_sptr()->get_total_num()<< " \n";
+                std::cout<<"  turn "<<turn + 1<<" : "<< t_turn1-t_turn<<"   macroparticles="<<state.bunch_with_diagnostics_ptr->get_bunch_sptr()->get_total_num()<<std::endl;
                 logfile.flush();
             }
             t = simple_timer_current();
 
-            state.bunch_with_diagnostics.get_diagnostics_actions_sptr()->turn_end_action(
+            state.bunch_with_diagnostics_ptr->get_diagnostics_actions_sptr()->turn_end_action(
                     *stepper_sptr, *bunch_sptr, turn);
             t = simple_timer_show(t, "diagnostics-turn");
-            state.general_actions.turn_end_action(*stepper_sptr, *bunch_sptr,
+            state.general_actions_ptr->turn_end_action(*stepper_sptr, *bunch_sptr,
                     turn);
             t = simple_timer_show(t, "propagate-general_actions-turn");
 
             if (turn == 2) {
                 std::cout << "jfa: checkpointing!\n";
                 xml_save(*this, "propagator.xml");
+                std::cout << "jfa: done with propagator!\n";
                 xml_save(state, "state.xml");
+                std::cout << "jfa: done with state!\n";
 //                std::cout << "jfa: new checkpointing!\n";
 //                checkpoint(stepper_sptr);
             }
@@ -150,7 +152,7 @@ void
 Propagator::propagate(Bunch_with_diagnostics & bunch_with_diagnostics,
         int num_turns, Propagate_actions & general_actions, bool verbose)
 {
-    State state(bunch_with_diagnostics, num_turns, 0, general_actions, verbose);
+    State state(&bunch_with_diagnostics, num_turns, 0, &general_actions, verbose);
     propagate(state);
 }
 
