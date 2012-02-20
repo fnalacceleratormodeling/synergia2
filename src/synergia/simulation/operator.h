@@ -135,6 +135,10 @@ public:
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operator);
             ar & BOOST_SERIALIZATION_NVP(slices);
             ar & BOOST_SERIALIZATION_NVP(operations);
+            ar & BOOST_SERIALIZATION_NVP(operations_revisions);
+            ar & BOOST_SERIALIZATION_NVP(operations_reference_particle);
+            ar & BOOST_SERIALIZATION_NVP(operation_extractor_map_sptr);
+            ar & BOOST_SERIALIZATION_NVP(aperture_operation_extractor_map_sptr);
             ar & BOOST_SERIALIZATION_NVP(have_operations);
         }
     virtual
