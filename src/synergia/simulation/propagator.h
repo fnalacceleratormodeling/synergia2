@@ -3,6 +3,7 @@
 
 #include "synergia/simulation/stepper.h"
 #include "synergia/simulation/propagate_actions.h"
+#include "synergia/simulation/bunch_simulator.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/bunch_with_diagnostics.h"
 #include "synergia/bunch/train.h"
@@ -19,19 +20,22 @@ private:
 public:
     struct State
     {
-        Bunch_with_diagnostics * bunch_with_diagnostics_ptr;
+        Bunch_simulator * bunch_simulator_ptr;
         int num_turns;
         int first_turn;
         Propagate_actions * general_actions_ptr;
         bool verbose;
-        State(Bunch_with_diagnostics * bunch_with_diagnostics_ptr, int num_turns,
-                int first_turn, Propagate_actions * propagate_actions_ptr, bool verbose);
-        State(){}
+        State(Bunch_simulator * bunch_simulator_ptr, int num_turns,
+                int first_turn, Propagate_actions * propagate_actions_ptr,
+                bool verbose);
+        State()
+        {
+        }
         template<class Archive>
             void
             serialize(Archive & ar, const unsigned int version)
             {
-                ar & BOOST_SERIALIZATION_NVP(bunch_with_diagnostics_ptr);
+                ar & BOOST_SERIALIZATION_NVP(bunch_simulator_ptr);
                 ar & BOOST_SERIALIZATION_NVP(num_turns);
                 ar & BOOST_SERIALIZATION_NVP(first_turn);
                 ar & BOOST_SERIALIZATION_NVP(general_actions_ptr);
@@ -47,11 +51,11 @@ public:
     propagate(State & state);
 
     void
-    propagate(Bunch_with_diagnostics & bunch_with_diagnostics, int num_turns,
+    propagate(Bunch_simulator & bunch_simulator, int num_turns,
             bool verbose = false);
 
     void
-    propagate(Bunch_with_diagnostics & bunch_with_diagnostics, int num_turns,
+    propagate(Bunch_simulator & bunch_simulator, int num_turns,
             Propagate_actions & general_actions, bool verbose = false);
 
     void
@@ -63,33 +67,30 @@ public:
             Propagate_actions & general_actions, bool verbose = false);
 
     void
-    propagate(Bunch & bunch, int num_turns,
-            Diagnostics & per_step_diagnostics,
-            Diagnostics & per_turn_diagnostics,
-            bool verbose = false);
+    propagate(Bunch & bunch, int num_turns, Diagnostics & per_step_diagnostics,
+            Diagnostics & per_turn_diagnostics, bool verbose = false);
 
-    void
-    propagate(Bunch & bunch, int num_turns,
-            Multi_diagnostics & per_step_diagnostics,
-            Multi_diagnostics & per_turn_diagnostics, bool verbose = false);
+//    void
+//    propagate(Bunch & bunch, int num_turns,
+//            Multi_diagnostics & per_step_diagnostics,
+//            Multi_diagnostics & per_turn_diagnostics, bool verbose = false);
 
-    void
-    propagate(Bunch & bunch, int num_turns,
-            Standard_diagnostics_actions & diagnostics_actions,
-            int verbosity = 0);
+//    void
+//    propagate(Bunch & bunch, int num_turns,
+//            Standard_diagnostics_actions & diagnostics_actions,
+//            int verbosity = 0);
 
-    void
-    propagate(Bunch & bunch, int num_turns,
-            Standard_diagnostics_actions & diagnostics_actions,
-            Propagate_actions & general_actions, int verbosity = 0);
+//    void
+//    propagate(Bunch & bunch, int num_turns,
+//            Standard_diagnostics_actions & diagnostics_actions,
+//            Propagate_actions & general_actions, int verbosity = 0);
 
-     template<class Archive>
-         void
-         serialize(Archive & ar, const unsigned int version)
-         {
-             ar & BOOST_SERIALIZATION_NVP(stepper_sptr);
-         }
-
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(stepper_sptr);
+        }
 
     ~Propagator();
 };
