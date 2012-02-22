@@ -44,6 +44,8 @@ public:
     open(Flag flag);
     void
     close();
+    void
+    flush() const;
     H5::H5File &
     get_h5file();
     template<typename T>
@@ -60,7 +62,7 @@ public:
                     << BOOST_SERIALIZATION_NVP(is_open)
                     << BOOST_SERIALIZATION_NVP(current_flag);
             if (is_open) {
-                h5file_ptr->flush(H5F_SCOPE_GLOBAL);
+                flush();
                 copy_to_serialization_directory(file_name);
             }
         }

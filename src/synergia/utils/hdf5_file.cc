@@ -33,6 +33,12 @@ Hdf5_file::close()
     }
 }
 
+void
+Hdf5_file::flush() const
+{
+    h5file_ptr->flush(H5F_SCOPE_GLOBAL);
+}
+
 H5::H5File &
 Hdf5_file::get_h5file()
 {
