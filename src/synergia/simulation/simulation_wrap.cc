@@ -1,5 +1,6 @@
 #include "operator.h"
 #include "lattice_simulator.h"
+#include "populate_stationary.h"
 #include "stepper.h"
 #include "propagator.h"
 #include "propagate_actions.h"
@@ -7,6 +8,7 @@
 #include <boost/python.hpp>
 #include "synergia/utils/container_conversions.h"
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
+#include "synergia/utils/numpy_multi_ref_converter.h"
 
 
 using namespace boost::python;
@@ -74,6 +76,8 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads45,
 
 BOOST_PYTHON_MODULE(simulation)
 {
+    import_array();
+
     class_<Operator, Operator_sptr, boost::noncopyable >("Operator", no_init)
         .def("get_name", &Operator::get_name,
                 return_value_policy<copy_const_reference >())
@@ -150,7 +154,15 @@ BOOST_PYTHON_MODULE(simulation)
         .def("get_horizontal_tune", &Lattice_simulator::get_horizontal_tune)
         .def("get_vertical_tune", &Lattice_simulator::get_vertical_tune)
         .def("adjust_tunes", &Lattice_simulator::adjust_tunes)
+      .def("get_linear_one_turn_map", &Lattice_simulator::get_linear_one_turn_map)
+      .def("check_linear_normal_form", &Lattice_simulator::check_linear_normal_form)
+      .def("convert_normal_to_human", &Lattice_simulator::convert_normal_to_human)
+      .def("convert_human_to_normal", &Lattice_simulator::convert_human_to_normal)
+      .def("get_stationary_actions", &Lattice_simulator::get_stationary_actions)
         ;
+
+    def("populate_6d_stationary_torus", &populate_6d_stationary_torus);
+    def("populate_6d_stationary_gaussian", &populate_6d_stationary_gaussian);
 
     class_<Lattice_functions >("Lattice_functions",
             init<LattFuncSage::lattFunc const& >())

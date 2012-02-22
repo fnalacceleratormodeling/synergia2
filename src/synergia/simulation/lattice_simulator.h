@@ -54,6 +54,7 @@ private:
             lattice_functions_element_map;
     std::map<Lattice_element_slice const*, Lattice_functions >
             lattice_functions_slice_map;
+    MArray2d linear_one_turn_map;
     void
     calculate_beamline_context();
     BmlContextPtr
@@ -98,7 +99,7 @@ public:
     get_vertical_tune();
     void calculate_normal_form();
     Normal_form_sage_sptr get_normal_form_sptr();
-    MArray2d get_linear_one_turn_map();
+    Const_MArray2d_ref get_linear_one_turn_map();
     void convert_human_to_normal(MArray2d_ref coords);
     void convert_normal_to_human(MArray2d_ref coords);
     bool check_linear_normal_form();

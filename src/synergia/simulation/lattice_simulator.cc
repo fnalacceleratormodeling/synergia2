@@ -127,6 +127,7 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
             chef_lattice_sptr(new Chef_lattice(lattice_sptr)),
             extractor_map_sptr(new Operation_extractor_map),
             have_element_lattice_functions(false),
+    linear_one_turn_map(boost::extents[6][6]),
             have_slice_lattice_functions(false), have_tunes(false),
             have_beamline_context(false),
             aperture_extractor_map_sptr(new Aperture_operation_extractor_map),
@@ -452,19 +453,18 @@ std::vector<double> Lattice_simulator::get_stationary_actions(const double stdx,
 
 // returns the linear one turn map for the lattice and beam parameters
 // for this lattice_simulator
-MArray2d
+Const_MArray2d_ref
 Lattice_simulator::get_linear_one_turn_map()
 {
 
   get_beamline_context();
   MatrixD lin_one_turn_map = beamline_context_sptr->getOneTurnMap().Jacobian();
-  MArray2d linmap(boost::extents[6][6]);
   for (int i=0; i<6; ++i) {
     for (int j=0; j<6; ++j) {
-      linmap[i][j] = lin_one_turn_map(get_chef_index(i),get_chef_index(j));
+      linear_one_turn_map[i][j] = lin_one_turn_map(get_chef_index(i),get_chef_index(j));
     }
   }
-  return linmap;
+  return linear_one_turn_map;
 }
 
 double
