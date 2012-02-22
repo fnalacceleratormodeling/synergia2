@@ -15,6 +15,7 @@ class Diagnostics_write_helper
 {
 public:
     static const int default_rank = -999;
+    static const int flush_period = 100;
 private:
     int writer_rank;
     std::string filename;

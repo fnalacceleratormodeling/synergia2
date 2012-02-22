@@ -126,6 +126,11 @@ Diagnostics_write_helper::finish_write()
         have_file = false;
     }
     ++count;
+    if (write_locally() && serial) {
+        if (count % flush_period == 0) {
+            file_sptr->flush();
+        }
+    }
 }
 
 Diagnostics_write_helper::~Diagnostics_write_helper()
