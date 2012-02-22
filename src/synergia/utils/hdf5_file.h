@@ -7,6 +7,7 @@
 #include "synergia/utils/hdf5_writer.h"
 #include "synergia/utils/serialization.h"
 #include "synergia/utils/serialization_files.h"
+#include "synergia/utils/commxx.h"
 
 class Hdf5_file
 {

@@ -166,7 +166,10 @@ Diagnostics_basic::Diagnostics_basic(Bunch_sptr bunch_sptr,
     Diagnostics_basic::Diagnostics("diagnostics_basic"),
             bunch_sptr(bunch_sptr), filename(filename), have_writers(false),
             mean(boost::extents[6]), std(boost::extents[6]),
-            write_helper(filename, true, bunch_sptr->get_comm())
+            write_helper(filename, true, bunch_sptr->get_comm()), writer_s(0),
+            writer_repetition(0), writer_trajectory_length(0),
+            writer_num_particles(0), writer_real_num_particles(0),
+            writer_mean(0), writer_std(0)
 {
 }
 
@@ -370,7 +373,13 @@ Diagnostics_full2::Diagnostics_full2(Bunch_sptr bunch_sptr,
             bunch_sptr(bunch_sptr), filename(filename), have_writers(false),
             mean(boost::extents[6]), std(boost::extents[6]),
             mom2(boost::extents[6][6]), corr(boost::extents[6][6]),
-            write_helper(filename, true, bunch_sptr->get_comm())
+            write_helper(filename, true, bunch_sptr->get_comm()), writer_s(0),
+            writer_repetition(0), writer_trajectory_length(0),
+            writer_num_particles(0), writer_real_num_particles(0),
+            writer_mean(0), writer_std(0), writer_mom2(0), writer_corr(0),
+            writer_emitx(0), writer_emity(0), writer_emitz(0),
+            writer_emitxy(0), writer_emitxyz(0)
+
 {
 }
 
@@ -794,9 +803,11 @@ void
 Diagnostics_track::init_writers(Hdf5_file_sptr file_sptr)
 {
     if (!have_writers) {
-        writer_coords = new Hdf5_serial_writer<MArray1d_ref > (file_sptr, "coords");
+        writer_coords = new Hdf5_serial_writer<MArray1d_ref > (file_sptr,
+                "coords");
         writer_s = new Hdf5_serial_writer<double > (file_sptr, "s");
-        writer_repetition = new Hdf5_serial_writer<int > (file_sptr, "repetition");
+        writer_repetition = new Hdf5_serial_writer<int > (file_sptr,
+                "repetition");
         writer_trajectory_length = new Hdf5_serial_writer<double > (file_sptr,
                 "trajectory_length");
         have_writers = true;

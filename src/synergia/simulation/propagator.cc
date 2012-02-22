@@ -1,6 +1,8 @@
 #include "propagator.h"
 #include "synergia/utils/simple_timer.h"
 #include "synergia/simulation/standard_diagnostics_actions.h"
+#include "synergia/utils/serialization_files.h"
+#include <boost/filesystem.hpp>
 
 //void
 //Propagator::construct()
@@ -123,19 +125,9 @@ Propagator::propagate(State & state)
             state.general_actions_ptr->turn_end_action(*stepper_sptr,
                     *bunch_sptr, turn);
             t = simple_timer_show(t, "propagate-general_actions-turn");
-            state.first_turn = turn+1;
+            state.first_turn = turn + 1;
             if (turn == 2) {
-                std::cout << "jfa: checkpointing!\n";
-                binary_save(*this, "propagator.binary");
-                xml_save(*this, "propagator.xml");
-                text_save(*this, "propagator.text");
-                std::cout << "jfa: done with propagator!\n";
-                binary_save(state, "state.binary");
-                xml_save(state, "state.xml");
-                text_save(state, "state.text");
-                std::cout << "jfa: done with state!\n";
-                //                std::cout << "jfa: new checkpointing!\n";
-                //                checkpoint(stepper_sptr);
+                checkpoint(state);
             }
         }
         if (rank == 0) logfile.close();
@@ -145,6 +137,31 @@ Propagator::propagate(State & state)
         std::cout << e.what() << std::endl;
         MPI_Abort(MPI_COMM_WORLD, 888);
     }
+}
+
+const char Propagator::checkpoint_dir[] = "checkpoint";
+
+void
+Propagator::checkpoint(State & state)
+{
+    using namespace boost::filesystem;
+    remove_serialization_directory();
+    ensure_serialization_directory_exists();
+    binary_save(*this, get_serialization_path("propagator.bina").c_str());
+    binary_save(state, get_serialization_path("state.bina").c_str());
+    rename_serialization_directory(checkpoint_dir);
+}
+
+void
+Propagator::resume(const char * checkpoint_directory)
+{
+    using namespace boost::filesystem;
+    Propagator::State state;
+    remove_serialization_directory();
+    symlink_serialization_directory(checkpoint_directory);
+    binary_load(state, get_combined_path(checkpoint_directory, "state.bina").c_str());
+    unlink_serialization_directory();
+    propagate(state);
 }
 
 void

@@ -13,10 +13,29 @@ std::string
 get_serialization_directory();
 
 void
+remove_directory(std::string const & name);
+
+void
+remove_serialization_directory();
+
+void
+rename_serialization_directory(std::string const& new_name);
+
+void
 ensure_serialization_directory_exists();
 
+void
+symlink_serialization_directory(std::string const& existing_dir);
+
+void
+unlink_serialization_directory();
+
 std::string
-get_serialization_path(std::string const& base_name);
+get_combined_path(std::string const& directory, std::string const& base_name,
+        bool parallel = true);
+
+std::string
+get_serialization_path(std::string const& base_name, bool parallel = true);
 
 void
 copy_to_serialization_directory(std::string const& file_name);

@@ -272,10 +272,8 @@ public:
                 throw std::runtime_error(
                         "Bunch: serializing non-default Fixed_t_z converters is not implemented");
             }
-            std::stringstream local_filename;
-            local_filename << "serialized_local_particles_" << std::setw(6)
-                    << std::setfill('0') << comm.get_rank() << ".h5";
-            Hdf5_file file(local_filename.str(), Hdf5_file::truncate);
+            ensure_serialization_directory_exists();
+            Hdf5_file file(get_serialization_path("local_particles.h5"), Hdf5_file::truncate);
             file.write(local_num, "local_num");
             file.write(*local_particles, "local_particles");
         }
@@ -298,10 +296,7 @@ public:
                     >> BOOST_SERIALIZATION_NVP(default_converter);
             // jfa workaround:
             converter_ptr = &default_converter;
-            std::stringstream local_filename;
-            local_filename << "serialized_local_particles_" << std::setw(6)
-                    << std::setfill('0') << comm.get_rank() << ".h5";
-            Hdf5_file file(local_filename.str(), Hdf5_file::read_only);
+            Hdf5_file file(get_serialization_path("local_particles.h5"), Hdf5_file::read_only);
             local_num = file.read<int > ("local_num");
             local_particles = new MArray2d(
                     file.read<MArray2d > ("local_particles"));

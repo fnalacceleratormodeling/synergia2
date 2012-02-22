@@ -1,13 +1,13 @@
-add_library(synergia_serialization serialization_files.cc)
-target_link_libraries(synergia_serialization ${Boost_FILESYSTEM_LIBRARIES}
-    ${Boost_SYSTEM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARIES})
-
 add_library(synergia_parallel_utils parallel_utils.cc commxx.cc)
 if (BUILD_PYTHON_BINDINGS)
     add_python_extension(parallel_utils parallel_utils_wrap.cc)
    target_link_libraries(parallel_utils synergia_parallel_utils
         ${Boost_LIBRARIES})
 endif ()
+
+add_library(synergia_serialization serialization_files.cc)
+target_link_libraries(synergia_serialization ${Boost_FILESYSTEM_LIBRARIES}
+    ${Boost_SYSTEM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARIES} synergia_parallel_utils)
 
 add_library(synergia_hdf5_utils hdf5_writer.cc hdf5_serial_writer.cc
     hdf5_chunked_array2d_writer.cc hdf5_file.cc)

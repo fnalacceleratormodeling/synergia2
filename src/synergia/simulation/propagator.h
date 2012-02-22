@@ -44,11 +44,19 @@ public:
     };
     Propagator(Stepper_sptr stepper_sptr);
 
-    // Default propagator for serialization use only
+    // Default constructor for serialization use only
     Propagator();
+
+    static const char checkpoint_dir[];
 
     void
     propagate(State & state);
+
+    void
+    checkpoint(State & state);
+
+    void
+    resume(const char * checkpoint_directory = checkpoint_dir);
 
     void
     propagate(Bunch_simulator & bunch_simulator, int num_turns,
