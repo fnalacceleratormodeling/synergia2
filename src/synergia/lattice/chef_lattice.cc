@@ -174,9 +174,13 @@ Chef_lattice::get_chef_elements(Lattice_element & lattice_element)
 }
 
 Chef_lattice_section_sptr
-Chef_lattice::get_chef_section_sptr(
+Chef_lattice::get_chef_section_sptr(Chef_lattice_sptr this_chef_lattice_sptr,
         Lattice_element_slice & lattice_element_slice)
 {
+    if (this_chef_lattice_sptr.get() != this) {
+        throw std::runtime_error(
+                "get_chef_section_sptr requires a shared pointer to its parent instance in the first argument\n");
+    }
     if (!have_sliced_beamline_) {
         throw std::runtime_error(
                 "get_chef_section_sptr(Lattice_element_slice const&) called before construct_sliced_beamline\n");
@@ -187,7 +191,7 @@ Chef_lattice::get_chef_section_sptr(
     }
     Begin_end begin_end(element_slice_map[&lattice_element_slice]);
     return Chef_lattice_section_sptr(
-            new Chef_lattice_section(shared_from_this(), begin_end.begin,
+            new Chef_lattice_section(this_chef_lattice_sptr, begin_end.begin,
                     begin_end.end));
 }
 

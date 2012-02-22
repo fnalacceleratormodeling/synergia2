@@ -9,7 +9,14 @@
 #include "synergia/lattice/chef_lattice_section_fwd.h"
 #include <beamline/beamline_elements.h>
 
-class Chef_lattice : public boost::enable_shared_from_this<Chef_lattice >
+class Chef_lattice;
+typedef boost::shared_ptr<Chef_lattice > Chef_lattice_sptr;
+
+// jfa: enabled_shared_from_this is disabled because of a bug in Boost <=1.42
+//      see get_chef_section_sptr below
+//class Chef_lattice : public boost::enable_shared_from_this<Chef_lattice >
+
+class Chef_lattice
 {
     friend class Chef_lattice_tester;
 private:
@@ -65,8 +72,13 @@ public:
     get_element_adaptor_map_sptr();
     Chef_elements
     get_chef_elements(Lattice_element & lattice_element);
+// jfa: the following method tickles a bug in Boost <= 1.42
+//    Chef_lattice_section_sptr
+//    get_chef_section_sptr(Lattice_element_slice & lattice_element_slice);
+// jfa: this is a workaround for the Boost bug mentioned above
     Chef_lattice_section_sptr
-    get_chef_section_sptr(Lattice_element_slice & lattice_element_slice);
+    get_chef_section_sptr(Chef_lattice_sptr this_chef_lattice_sptr,
+            Lattice_element_slice & lattice_element_slice);
     Lattice_element &
     get_lattice_element(ElmPtr const& chef_element);
     Lattice_element_slice &
@@ -113,8 +125,6 @@ public:
     ~Chef_lattice();
     static const char internal_marker_name[];
 };
-
-typedef boost::shared_ptr<Chef_lattice > Chef_lattice_sptr;
 
 Particle
 reference_particle_to_chef_particle(

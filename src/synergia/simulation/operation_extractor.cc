@@ -74,7 +74,8 @@ Chef_map_operation_extractor::extract(
     for (Lattice_element_slices::const_iterator les_it = slices.begin(); les_it
             != slices.end(); ++les_it) {
         Chef_lattice_section_sptr slice_section_sptr(
-                get_chef_lattice_sptr()->get_chef_section_sptr(*(*les_it)));
+                get_chef_lattice_sptr()->get_chef_section_sptr(get_chef_lattice_sptr(),
+                        *(*les_it)));
         entire_section_sptr->extend(*slice_section_sptr);
     }
     Fast_mapping_operation_sptr fast_mapping_operation_sptr =
@@ -106,7 +107,8 @@ Chef_propagate_operation_extractor::extract(
     for (Lattice_element_slices::const_iterator les_it = slices.begin(); les_it
             != slices.end(); ++les_it) {
         Chef_lattice_section_sptr slice_section_sptr(
-                get_chef_lattice_sptr()->get_chef_section_sptr(*(*les_it)));
+                get_chef_lattice_sptr()->get_chef_section_sptr(get_chef_lattice_sptr(),
+                        *(*les_it)));
         entire_section_sptr->extend(*slice_section_sptr);
     }
     Chef_propagate_operation_sptr chef_propagate_operation_sptr(
@@ -157,7 +159,8 @@ Chef_mixed_operation_extractor::extract(
     for (Lattice_element_slices::const_iterator les_it = slices.begin(); les_it
             != slices.end(); ++les_it) {
         Chef_lattice_section_sptr slice_section_sptr(
-                get_chef_lattice_sptr()->get_chef_section_sptr(*(*les_it)));
+                get_chef_lattice_sptr()->get_chef_section_sptr(get_chef_lattice_sptr(),
+                        *(*les_it)));
         int index = slice_section_sptr->get_begin_index();
         for (Chef_lattice_section::const_iterator cls_it =
                 slice_section_sptr->begin(); cls_it
