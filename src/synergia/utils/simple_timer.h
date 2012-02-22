@@ -21,12 +21,12 @@ simple_timer_current()
 inline double
 simple_timer_show(double t0, const char * label)
 {
-#ifdef USE_SIMPLE_TIMER
-    double t1 = MPI_Wtime();
-    int rank;
 #ifndef USE_SIMPLE_TIMER_NO_BARRIER
     MPI_Barrier(MPI_COMM_WORLD);
 #endif // USE_SIMPLE_TIMER_NO_BARRIER
+#ifdef USE_SIMPLE_TIMER
+    double t1 = MPI_Wtime();
+    int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
         std::cout << "simple_timer:" << label << ":" << (t1-t0) << std::endl;
