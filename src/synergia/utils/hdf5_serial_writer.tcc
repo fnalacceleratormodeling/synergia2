@@ -43,7 +43,7 @@ template<typename T>
             size[data_rank] = 0;
             offset[data_rank] = 0;
             dims[data_rank] = 1;
-            chunk_dims[data_rank] = 1;
+            chunk_dims[data_rank] = 1000;
             DSetCreatPropList cparms;
             cparms.setChunk(data_rank + 1, &chunk_dims[0]);
             DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
