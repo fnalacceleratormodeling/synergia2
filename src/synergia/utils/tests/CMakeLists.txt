@@ -19,11 +19,11 @@ add_test(test_hdf5_writer test_hdf5_writer)
 
 add_executable(test_hdf5_file test_hdf5_file.cc)
 target_link_libraries(test_hdf5_file synergia_hdf5_utils synergia_serialization ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_hdf5_file test_hdf5_file)
+add_test(test_hdf5_file ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_hdf5_file)
 
 add_executable(test_hdf5_serial_writer test_hdf5_serial_writer.cc)
 target_link_libraries(test_hdf5_serial_writer synergia_hdf5_utils synergia_serialization ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_hdf5_serial_writer test_hdf5_serial_writer)
+add_test(test_hdf5_serial_writer ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_hdf5_serial_writer)
 
 add_executable(test_hdf5_chunked_array2d_writer test_hdf5_chunked_array2d_writer.cc)
 target_link_libraries(test_hdf5_chunked_array2d_writer synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
