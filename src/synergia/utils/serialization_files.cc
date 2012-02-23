@@ -38,8 +38,18 @@ remove_directory(std::string const & name)
 void
 remove_serialization_directory()
 {
-    //jfa: check for link!!!!!!!
-    remove_directory(get_serialization_directory());
+    Commxx commxx;
+    MPI_Barrier(commxx.get());
+    if (commxx.get_rank() == 0) {
+        if (is_symlink(get_serialization_directory())) {
+            remove(get_serialization_directory());
+        } else {
+            if (exists(get_serialization_directory())) {
+                remove_all(get_serialization_directory());
+            }
+        }
+    }
+    MPI_Barrier(commxx.get());
 }
 
 void
@@ -135,13 +145,11 @@ get_serialization_path(std::string const& base_name, bool parallel)
 void
 copy_to_serialization_directory(std::string const& file_name)
 {
-    //    ensure_serialization_directory_exists();
     copy_file_overwrite_if_exists(file_name, get_serialization_path(file_name));
 }
 
 void
 copy_from_serialization_directory(std::string const& file_name)
 {
-//    ensure_serialization_directory_exists();
     copy_file_overwrite_if_exists(get_serialization_path(file_name), file_name);
 }
