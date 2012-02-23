@@ -3,6 +3,9 @@
 #include "synergia/simulation/fast_mapping.h"
 #include "synergia/utils/serialization.h"
 #include "fast_mapping_term_fixture.h"
+#include "synergia/utils/boost_test_mpi_fixture.h"
+BOOST_GLOBAL_FIXTURE(MPI_fixture)
+
 const double tolerance = 1.0e-14;
 
 BOOST_AUTO_TEST_CASE(construct)

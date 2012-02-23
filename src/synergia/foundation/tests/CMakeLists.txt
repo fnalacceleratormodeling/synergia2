@@ -2,12 +2,12 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 
 add_executable(test_four_momentum test_four_momentum.cc)
 target_link_libraries(test_four_momentum synergia_foundation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_four_momentum test_four_momentum)
+add_test(test_four_momentum ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_four_momentum)
 add_test(test_four_momentum_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_four_momentum.py)
 
 add_executable(test_reference_particle test_reference_particle.cc)
 target_link_libraries(test_reference_particle synergia_foundation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_reference_particle test_reference_particle)
+add_test(test_reference_particle ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_reference_particle)
 add_test(test_reference_particle_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_reference_particle.py)
 
 add_executable(test_distribution test_distribution.cc)
@@ -16,7 +16,7 @@ add_test(test_distribution ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_distributio
 add_test(test_distribution_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_distribution.py)
 
 add_executable(test_diagnostics_write_helper test_diagnostics_write_helper.cc)
-target_link_libraries(test_diagnostics_write_helper synergia_hdf5_utils synergia_foundation synergia_serialization ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+target_link_libraries(test_diagnostics_write_helper synergia_hdf5_utils synergia_foundation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_diagnostics_write_helper ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_diagnostics_write_helper)
 
 set(CLEAN_FILES

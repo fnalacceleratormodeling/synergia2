@@ -5,6 +5,7 @@
 #include "synergia/utils/comm_converter.h"
 #include "synergia/utils/multi_array_serialization.h"
 #include "synergia/utils/serialization.h"
+#include "synergia/utils/serialization_files.h"
 #include "synergia/utils/container_conversions.h"
 
 using namespace boost::python;

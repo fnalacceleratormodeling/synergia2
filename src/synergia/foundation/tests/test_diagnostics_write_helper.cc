@@ -4,6 +4,8 @@
 #include <boost/test/unit_test.hpp>
 #include "synergia/foundation/diagnostics_write_helper.h"
 #include "synergia/utils/hdf5_serial_writer.h"
+#include "synergia/utils/serialization_files.h"
+
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 

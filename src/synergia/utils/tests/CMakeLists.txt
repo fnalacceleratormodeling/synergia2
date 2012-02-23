@@ -54,9 +54,9 @@ add_test(test_distributed_fft2d_mpi3 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 test_d
 add_test(test_distributed_fft2d_mpi4 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 test_distributed_fft2d_mpi)
 
 add_executable(test_xml_serialization test_xml_serialization.cc)
-target_link_libraries(test_xml_serialization ${Boost_SERIALIZATION_LIBRARY}
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_xml_serialization test_xml_serialization)
+target_link_libraries(test_xml_serialization synergia_serialization
+    ${Boost_SERIALIZATION_LIBRARY} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_xml_serialization ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_xml_serialization)
 
 add_executable(test_complex_error_function test_complex_error_function.cc)
 target_link_libraries(test_complex_error_function ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
@@ -68,9 +68,9 @@ target_link_libraries(test_multi_array_offsets
 add_test(test_multi_array_offsets test_multi_array_offsets)
 
 add_executable(test_multi_array_serialization test_multi_array_serialization.cc)
-target_link_libraries(test_multi_array_serialization ${Boost_SERIALIZATION_LIBRARY}
-    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_multi_array_serialization test_multi_array_serialization)
+target_link_libraries(test_multi_array_serialization synergia_serialization
+    ${Boost_SERIALIZATION_LIBRARY} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_multi_array_serialization ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_multi_array_serialization)
 
 add_executable(test_command_line_arg test_command_line_arg.cc)
 target_link_libraries(test_command_line_arg synergia_command_line

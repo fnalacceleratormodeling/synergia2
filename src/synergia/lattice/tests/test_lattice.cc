@@ -2,14 +2,16 @@
 #include <boost/test/unit_test.hpp>
 #include "synergia/lattice/lattice.h"
 #include "synergia/foundation/math_constants.h"
+#include "synergia/utils/serialization.h"
+#include "synergia/utils/serialization_files.h"
+#include "synergia/utils/boost_test_mpi_fixture.h"
+BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const std::string name("foo");
 const int charge = -1;
 const double mass = 100.0;
 const double total_energy = 125.0;
 const double tolerance = 1.0e-12;
-
-#include "synergia/utils/serialization.h"
 
 BOOST_AUTO_TEST_CASE(construct_lattice)
 {

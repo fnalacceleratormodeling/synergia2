@@ -1,8 +1,10 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "synergia/lattice/lattice_element.h"
-
 #include "synergia/utils/serialization.h"
+#include "synergia/utils/serialization_files.h"
+#include "synergia/utils/boost_test_mpi_fixture.h"
+BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const std::string name("foo");
 const std::string type("bar");

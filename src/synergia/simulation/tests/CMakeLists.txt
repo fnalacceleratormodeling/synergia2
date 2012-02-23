@@ -6,7 +6,7 @@ add_test(test_chef_propagator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_chef_pro
 
 add_executable(test_fast_mapping_term test_fast_mapping_term.cc)
 target_link_libraries(test_fast_mapping_term synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_fast_mapping_term test_fast_mapping_term)
+add_test(test_fast_mapping_term ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_fast_mapping_term)
 
 add_executable(test_fast_mapping test_fast_mapping.cc)
 target_link_libraries(test_fast_mapping synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})

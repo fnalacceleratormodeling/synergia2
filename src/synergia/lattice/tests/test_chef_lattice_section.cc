@@ -3,6 +3,9 @@
 
 #include "synergia/lattice/chef_lattice_section.h"
 #include "synergia/utils/serialization.h"
+#include "synergia/utils/serialization_files.h"
+#include "synergia/utils/boost_test_mpi_fixture.h"
+BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 #include "chef_lattice_sptr_fixture.h"
 

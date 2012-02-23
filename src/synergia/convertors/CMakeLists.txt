@@ -1,5 +1,6 @@
 add_python_extension(convertors convertors_wrap.cc)
-target_link_libraries(convertors synergia_parallel_utils ${Boost_LIBRARIES})
+target_link_libraries(convertors synergia_parallel_utils synergia_serialization
+    ${Boost_LIBRARIES})
 
 install(FILES
     __init__.py
