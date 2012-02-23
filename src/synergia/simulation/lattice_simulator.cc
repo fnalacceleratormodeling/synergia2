@@ -440,14 +440,10 @@ std::vector<double> Lattice_simulator::get_stationary_actions(const double stdx,
   Normal_form_sage_sptr nf_sptr(get_normal_form_sptr());
   // stationaryActions wants the second moments of the canonical variables
   // which are x,y,t.  Convert z into t.
-  std::cout << "get_stationary_actions() requested stds: " << stdx << ", " << stdy << ", " << stdz << std::endl;
-
   double beta = this->get_lattice_sptr()->get_reference_particle().get_beta();
   double stdt = stdz/(beta*pconstants::c);
-  std::cout << "get_stationary_actions() passing stds to CHEF: " << stdx << ", " << stdy << ", " << stdt << std::endl;
 
   std::vector<double> v(nf_sptr->stationaryActions(stdx, stdy, stdt));
-  std::cout << "returned actions: " << v[0] << ", " << v[1] << ", " << v[2] << std::endl;
   return v;
 }
 
