@@ -85,11 +85,12 @@ public:
     Bunch(Reference_particle const& reference_particle, int total_num,
             double real_num, Commxx const& comm, int particle_charge);
 
- //   Bunch(Reference_particle const& reference_particle, int total_num,
- //       double real_num, Commxx const& comm, double z_period_length);
+    //   Bunch(Reference_particle const& reference_particle, int total_num,
+    //       double real_num, Commxx const& comm, double z_period_length);
 
     Bunch(Reference_particle const& reference_particle, int total_num,
-        double real_num, Commxx const& comm, double z_period_length, int bucket_index=0);
+            double real_num, Commxx const& comm, double z_period_length,
+            int bucket_index = 0);
 
     /// Default constructor for serialization use only
     Bunch();
@@ -218,7 +219,6 @@ public:
     int
     get_bucket_index() const;
 
-
     /// Get the (fixed-t or fixed-z) state.
     State
     get_state() const;
@@ -264,16 +264,10 @@ public:
                     << BOOST_SERIALIZATION_NVP(sort_counter)
                     << BOOST_SERIALIZATION_NVP(state)
                     << BOOST_SERIALIZATION_NVP(comm)
-            // jfa: see workaround
-                    //                    << BOOST_SERIALIZATION_NVP(converter_ptr)
-                    << BOOST_SERIALIZATION_NVP(default_converter);
-            // jfa workaround:
-            if (converter_ptr != &default_converter) {
-                throw std::runtime_error(
-                        "Bunch: serializing non-default Fixed_t_z converters is not implemented");
-            }
-            ensure_serialization_directory_exists();
-            Hdf5_file file(get_serialization_path("local_particles.h5"), Hdf5_file::truncate);
+                    << BOOST_SERIALIZATION_NVP(default_converter)
+                    << BOOST_SERIALIZATION_NVP(converter_ptr);
+            Hdf5_file file(get_serialization_path("local_particles.h5"),
+                    Hdf5_file::truncate);
             file.write(local_num, "local_num");
             file.write(*local_particles, "local_particles");
         }
@@ -291,12 +285,10 @@ public:
                     >> BOOST_SERIALIZATION_NVP(sort_counter)
                     >> BOOST_SERIALIZATION_NVP(state)
                     >> BOOST_SERIALIZATION_NVP(comm)
-            // jfa: see workaround above and below
-                    //                    >> BOOST_SERIALIZATION_NVP(converter_ptr)
-                    >> BOOST_SERIALIZATION_NVP(default_converter);
-            // jfa workaround:
-            converter_ptr = &default_converter;
-            Hdf5_file file(get_serialization_path("local_particles.h5"), Hdf5_file::read_only);
+                    >> BOOST_SERIALIZATION_NVP(default_converter)
+                    >> BOOST_SERIALIZATION_NVP(converter_ptr);
+            Hdf5_file file(get_serialization_path("local_particles.h5"),
+                    Hdf5_file::read_only);
             local_num = file.read<int > ("local_num");
             local_particles = new MArray2d(
                     file.read<MArray2d > ("local_particles"));
@@ -308,7 +300,5 @@ public:
 };
 
 typedef boost::shared_ptr<Bunch > Bunch_sptr;
-
-
 
 #endif /* BUNCH_H_ */
