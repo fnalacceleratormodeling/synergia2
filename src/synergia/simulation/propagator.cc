@@ -146,7 +146,6 @@ Propagator::checkpoint(State & state)
 {
     using namespace boost::filesystem;
     remove_serialization_directory();
-    ensure_serialization_directory_exists();
     binary_save(*this, get_serialization_path("propagator.bina").c_str());
     binary_save(state, get_serialization_path("state.bina").c_str());
     rename_serialization_directory(checkpoint_dir);
