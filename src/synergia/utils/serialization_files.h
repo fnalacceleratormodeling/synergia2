@@ -56,13 +56,13 @@ template<typename T, typename A>
     void
     archive_save(T const& object, std::string const& filename)
     {
+        ensure_serialization_directory_exists();
         std::ofstream output_stream(filename.c_str());
         if (!output_stream.good()) {
             std::string message("<archive>_save: unable to open ");
             message += filename;
             throw std::runtime_error(message);
         }
-        ensure_serialization_directory_exists();
         A output_archive(output_stream);
         output_archive << BOOST_SERIALIZATION_NVP(object);
         output_stream.close();
