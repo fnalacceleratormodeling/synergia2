@@ -20,12 +20,12 @@ run()
 {
     Propagator propagator;
     remove_serialization_directory();
-    symlink_serialization_directory(Propagator::checkpoint_dir);
+    symlink_serialization_directory(Propagator::default_checkpoint_dir);
     binary_load(
             propagator,
-            get_combined_path(Propagator::checkpoint_dir, "propagator.bina").c_str());
+            get_combined_path(Propagator::default_checkpoint_dir, "propagator.bina").c_str());
     unlink_serialization_directory();
-    propagator.resume(Propagator::checkpoint_dir);
+    propagator.resume(Propagator::default_checkpoint_dir);
 }
 
 int

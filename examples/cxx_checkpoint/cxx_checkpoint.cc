@@ -60,13 +60,17 @@ run()
     xml_load(covariances, "cxx_covariance_matrix.xml");
     populate_6d(distribution, *bunch_sptr, means, covariances);
 
-    Diagnostics_basic per_step_diagnostics(bunch_sptr,
-            "cxx_example_per_step.h5");
-    Diagnostics_full2 per_turn_diagnostics(bunch_sptr,
-            "cxx_example_per_turn.h5");
+    Bunch_simulator bunch_simulator(bunch_sptr);
+    bunch_simulator.get_diagnostics_actions().add_per_step(
+            Diagnostics_sptr(
+                    new Diagnostics_basic(bunch_sptr, "cxx_example_per_step.h5")));
+    bunch_simulator.get_diagnostics_actions().add_per_turn(
+            Diagnostics_sptr(
+                    new Diagnostics_full2(bunch_sptr, "cxx_example_per_turn.h5")));
+
+    propagator.set_checkpoint_period(2);
     double t0 = MPI_Wtime();
-    propagator.propagate(*bunch_sptr, num_turns, per_step_diagnostics,
-            per_turn_diagnostics, true);
+    propagator.propagate(bunch_simulator, num_turns, true);
     double t1 = MPI_Wtime();
     if (comm.get_rank() == 0) {
       std::cout << "propagate time = " << (t1-t0) << std::endl;
