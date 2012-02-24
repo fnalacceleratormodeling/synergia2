@@ -269,7 +269,7 @@ BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map, Foborodobo32_fixture)
   MArray2d gotten_map(lattice_simulator.get_linear_one_turn_map());
   for (int i=0; i<6; ++i) {
     for (int j=0; j<6; ++j) {
-      BOOST_CHECK_CLOSE(gotten_map[i][j], precalc_map[i][j],tolerance);
+      BOOST_CHECK(floating_point_equal(gotten_map[i][j], precalc_map[i][j],tolerance));
     }
   }
 }
