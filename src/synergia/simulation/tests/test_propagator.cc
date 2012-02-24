@@ -10,8 +10,6 @@
 #include "lattice_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 #include "synergia/simulation/standard_diagnostics_actions.h"
-
-
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-12;
@@ -26,46 +24,111 @@ struct Object_to_sptr_hack
 
 BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture)
 {
-    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
-            "space_charge"));
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, 2);
 
-    Split_operator_stepper_sptr stepper_sptr(new Split_operator_stepper(
-            lattice_simulator, space_charge, 7));
+    Split_operator_stepper_sptr stepper_sptr(
+            new Split_operator_stepper(lattice_simulator, space_charge, 7));
 
     Propagator propagator(stepper_sptr);
 }
 
-//BOOST_FIXTURE_TEST_CASE(propagate, Lattice_fixture)
-// {
-//  Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
-//            "space_charge"));
-//
-//    Lattice_simulator lattice_simulator(lattice_sptr, 2);
-//
-//    Split_operator_stepper_sptr stepper_sptr(new Split_operator_stepper(
-//            lattice_simulator, space_charge, 4));
-//    Propagator propagator(stepper_sptr);
-//
-//    Bunch_sptr bunch_sptr(new Bunch(b.bunch));
-//    Standard_diagnostics_actions_sptr diagnostics_actions_sptr(new Standard_diagnostics_actions);
-//    Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr, diagnostics_actions_sptr);
-//
-//    Diagnostics_sptr first_step_full2_diag_sptr(new  Diagnostics_full2(bunch_sptr,"first_full2_per_step.h5"));
-//    Diagnostics_sptr second_step_full2_diag_sptr(new  Diagnostics_full2(bunch_sptr,"second_full2_per_step.h5"));
-//    bunch_with_diagnostics.add_per_step_diagnostics(first_step_full2_diag_sptr);
-//    bunch_with_diagnostics.add_per_step_diagnostics(second_step_full2_diag_sptr);
-//
-//    Diagnostics_sptr first_turn_particles_diag_sptr(new  Diagnostics_particles(bunch_sptr,"first_particles_per_turn.h5"));
-//    Diagnostics_sptr second_turn_particles_diag_sptr(new  Diagnostics_particles(bunch_sptr,"second_particles_per_turn.h5"));
-//    bunch_with_diagnostics.add_per_turn_diagnostics(first_turn_particles_diag_sptr);
-//    bunch_with_diagnostics.add_per_turn_diagnostics(second_turn_particles_diag_sptr);
-//
-//    int num_turns = 4;
-//    propagator.propagate(bunch_with_diagnostics, num_turns);
-//
-// }
+BOOST_FIXTURE_TEST_CASE(propagate, Lattice_fixture)
+{
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
 
+    Lattice_simulator lattice_simulator(lattice_sptr, 2);
+
+    Split_operator_stepper_sptr stepper_sptr(
+            new Split_operator_stepper(lattice_simulator, space_charge, 4));
+    Propagator propagator(stepper_sptr);
+
+    Bunch_sptr bunch_sptr(new Bunch(b.bunch));
+    Bunch_simulator bunch_simulator(bunch_sptr);
+
+    Standard_diagnostics_actions_sptr diagnostics_actions_sptr(
+            new Standard_diagnostics_actions);
+    Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr,
+            diagnostics_actions_sptr);
+
+    Diagnostics_sptr first_step_full2_diag_sptr(
+            new Diagnostics_full2(bunch_sptr, "first_full2_per_step.h5"));
+    Diagnostics_sptr second_step_full2_diag_sptr(
+            new Diagnostics_full2(bunch_sptr, "second_full2_per_step.h5"));
+    bunch_simulator.get_diagnostics_actions().add_per_step(
+            first_step_full2_diag_sptr);
+    bunch_simulator.get_diagnostics_actions().add_per_step(
+            second_step_full2_diag_sptr);
+
+    Diagnostics_sptr
+            first_turn_particles_diag_sptr(
+                    new Diagnostics_particles(bunch_sptr,
+                            "first_particles_per_turn.h5"));
+    Diagnostics_sptr second_turn_particles_diag_sptr(
+            new Diagnostics_particles(bunch_sptr,
+                    "second_particles_per_turn.h5"));
+    bunch_simulator.get_diagnostics_actions().add_per_turn(
+            first_turn_particles_diag_sptr);
+    bunch_simulator.get_diagnostics_actions().add_per_turn(
+            second_turn_particles_diag_sptr);
+
+    int num_turns = 4;
+    propagator.propagate(bunch_simulator, num_turns);
+
+}
+
+BOOST_FIXTURE_TEST_CASE(propagate_max_turns, Lattice_fixture)
+{
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
+
+    Lattice_simulator lattice_simulator(lattice_sptr, 2);
+
+    Split_operator_stepper_sptr stepper_sptr(
+            new Split_operator_stepper(lattice_simulator, space_charge, 4));
+    Propagator propagator(stepper_sptr);
+
+    Bunch_sptr bunch_sptr(new Bunch(b.bunch));
+    Bunch_simulator bunch_simulator(bunch_sptr);
+
+    Standard_diagnostics_actions_sptr diagnostics_actions_sptr(
+            new Standard_diagnostics_actions);
+    Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr,
+            diagnostics_actions_sptr);
+
+    Diagnostics_sptr first_step_full2_diag_sptr(
+            new Diagnostics_full2(bunch_sptr, "first_full2_per_step.h5"));
+    Diagnostics_sptr second_step_full2_diag_sptr(
+            new Diagnostics_full2(bunch_sptr, "second_full2_per_step.h5"));
+    bunch_simulator.get_diagnostics_actions().add_per_step(
+            first_step_full2_diag_sptr);
+    bunch_simulator.get_diagnostics_actions().add_per_step(
+            second_step_full2_diag_sptr);
+
+    Diagnostics_sptr
+            first_turn_particles_diag_sptr(
+                    new Diagnostics_particles(bunch_sptr,
+                            "first_particles_per_turn.h5"));
+    Diagnostics_sptr second_turn_particles_diag_sptr(
+            new Diagnostics_particles(bunch_sptr,
+                    "second_particles_per_turn.h5"));
+    bunch_simulator.get_diagnostics_actions().add_per_turn(
+            first_turn_particles_diag_sptr);
+    bunch_simulator.get_diagnostics_actions().add_per_turn(
+            second_turn_particles_diag_sptr);
+
+    int num_turns = 4;
+    int max_turns = 1;
+    propagator.propagate(bunch_simulator, num_turns, max_turns);
+
+    const char second_checkpoint[] = "second_checkpoint";
+    propagator.set_checkpoint_dir(second_checkpoint);
+    propagator.resume(Propagator::default_checkpoint_dir);
+
+    propagator.resume(second_checkpoint, 2);
+}
 
 //BOOST_FIXTURE_TEST_CASE(propagate1, Lattice_fixture)
 //{
@@ -102,52 +165,55 @@ BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture)
 //
 //}
 
-BOOST_FIXTURE_TEST_CASE(propagate2, Lattice_fixture)
-{
-    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
-            "space_charge"));
-    Lattice_simulator lattice_simulator(lattice_sptr, 2);
-
-    Split_operator_stepper_sptr stepper_sptr(new Split_operator_stepper(
-            lattice_simulator, space_charge, 4));
-    Propagator propagator(stepper_sptr);
-
-    Bunch_sptr bunch_sptr(new Bunch(b.bunch));
-
-    Diagnostics_particles per_turn_diagnostics(bunch_sptr,
-            "test_propagate_per_turn.h5");
-    Diagnostics_basic per_step_diagnostics(bunch_sptr,
-            "test_propagate_per_step.h5");
-    int num_turns = 4;
-    propagator.propagate(*bunch_sptr, num_turns, per_step_diagnostics,
-            per_turn_diagnostics);
-}
-
+//BOOST_FIXTURE_TEST_CASE(propagate2, Lattice_fixture)
+//{
+//    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
+//            "space_charge"));
+//    Lattice_simulator lattice_simulator(lattice_sptr, 2);
+//
+//    Split_operator_stepper_sptr stepper_sptr(new Split_operator_stepper(
+//            lattice_simulator, space_charge, 4));
+//    Propagator propagator(stepper_sptr);
+//
+//    Bunch_sptr bunch_sptr(new Bunch(b.bunch));
+//
+//    Diagnostics_particles per_turn_diagnostics(bunch_sptr,
+//            "test_propagate_per_turn.h5");
+//    Diagnostics_basic per_step_diagnostics(bunch_sptr,
+//            "test_propagate_per_step.h5");
+//    int num_turns = 4;
+//    propagator.propagate(*bunch_sptr, num_turns, per_step_diagnostics,
+//            per_turn_diagnostics);
+//}
 BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture)
 {
-    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
-            "space_charge"));
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
     Lattice_simulator lattice_simulator(lattice_sptr, 2);
 
-    Split_operator_stepper_sptr stepper_sptr(new Split_operator_stepper(
-            lattice_simulator, space_charge, 7));
+    Split_operator_stepper_sptr stepper_sptr(
+            new Split_operator_stepper(lattice_simulator, space_charge, 7));
 
     Propagator propagator(stepper_sptr);
     xml_save(propagator, "propagator.xml");
 
     Bunch_sptr bunch_sptr(new Bunch(b.bunch));
+    Bunch_simulator bunch_simulator(bunch_sptr);
 
-    Diagnostics_particles per_turn_diagnostics(bunch_sptr,
-            "test_propagate_per_turn.h5");
-    Diagnostics_basic per_step_diagnostics(bunch_sptr,
-            "test_propagate_per_step.h5");
+    bunch_simulator.get_diagnostics_actions().add_per_turn(
+            Diagnostics_sptr(
+                    new Diagnostics_particles(bunch_sptr,
+                            "test_propagate_per_turn.h5")));
+    bunch_simulator.get_diagnostics_actions().add_per_step(
+            Diagnostics_sptr(
+                    new Diagnostics_basic(bunch_sptr,
+                            "test_propagate_per_step.h5")));
+
     int num_turns = 4;
-    propagator.propagate(*bunch_sptr, num_turns, per_step_diagnostics,
-            per_turn_diagnostics);
+    propagator.propagate(bunch_simulator, num_turns);
     xml_save(propagator, "propagator2.xml");
 
     Propagator loaded;
     xml_load(propagator, "propagator.xml");
 }
-
 

@@ -63,16 +63,14 @@ private:
     PyObject* self;
 };
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads23,
-        Propagator::propagate, 2, 3);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads24,
+        Propagator::propagate, 2, 4);
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads34,
-        Propagator::propagate, 3, 4);
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads35,
+        Propagator::propagate, 3, 5);
 
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads45,
-        Propagator::propagate, 4, 5);
-
-
+//BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads45,
+//        Propagator::propagate, 4, 5);
 
 BOOST_PYTHON_MODULE(simulation)
 {
@@ -252,11 +250,17 @@ BOOST_PYTHON_MODULE(simulation)
             .def("step_end_action", &Standard_diagnostics_actions::step_end_action)
             ;
 
-    void (Propagator::*propagate1)(Bunch_simulator &, int, bool)
+    void (Propagator::*propagate1)(Bunch_simulator &, int, int, bool)
                                 = &Propagator::propagate;
 
-    void (Propagator::*propagate2)(Bunch_simulator &, int, Propagate_actions &,  bool)
+    void (Propagator::*propagate2)(Bunch_simulator &, Propagate_actions &, int, int, bool)
                                 = &Propagator::propagate;
+
+    void (Propagator::*resume1)(std::string const&)
+                                = &Propagator::resume;
+
+    void (Propagator::*resume2)(std::string const&, int)
+                                = &Propagator::resume;
 
 //    void (Propagator::*propagate3)(Bunch_with_diagnostics_train &, int, Propagate_actions &, bool)
 //                                = &Propagator::propagate;
@@ -264,8 +268,8 @@ BOOST_PYTHON_MODULE(simulation)
 //    void (Propagator::*propagate4)(Bunch_with_diagnostics_train &, int, bool)
 //                                = &Propagator::propagate;
 
-    void (Propagator::*propagate5)(Bunch &, int, Diagnostics &,
-            Diagnostics &, bool) = &Propagator::propagate;
+//    void (Propagator::*propagate5)(Bunch &, int, Diagnostics &,
+//            Diagnostics &, bool) = &Propagator::propagate;
 
 //    void (Propagator::*propagate6)(Bunch &, int, Multi_diagnostics &,
 //            Multi_diagnostics &, bool) = &Propagator::propagate;
@@ -277,16 +281,25 @@ BOOST_PYTHON_MODULE(simulation)
 //            Propagate_actions &, int) = &Propagator::propagate;
 
     class_<Propagator >("Propagator",init<Stepper_sptr >())
+            .def("set_checkpoint_period", &Propagator::set_checkpoint_period)
+            .def("get_checkpoint_period", &Propagator::get_checkpoint_period)
+            .def("set_checkpoint_dir", &Propagator::set_checkpoint_dir)
+            .def("get_checkpoint_dir", &Propagator::get_checkpoint_dir,
+                    return_value_policy<copy_const_reference >())
             .def("propagate", propagate1,
-                 propagate_member_overloads23())
+                 propagate_member_overloads24())
             .def("propagate", propagate2,
-                    propagate_member_overloads34())
+                    propagate_member_overloads35())
+            .def("resume", resume1)
+            .def("resume", resume2)
+//            .def("resume", &Propagator::resume,
+//                    resume_member_overloads())
 //            .def("propagate", propagate3,
 //                    propagate_member_overloads34())
 //            .def("propagate", propagate4,
 //                    propagate_member_overloads23())
-            .def("propagate", propagate5,
-                    propagate_member_overloads45())
+//            .def("propagate", propagate5,
+//                    propagate_member_overloads45())
 //             .def("propagate", propagate6,
 //                    propagate_member_overloads45())
 //            .def("propagate", propagate7,

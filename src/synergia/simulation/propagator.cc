@@ -18,21 +18,47 @@
 //    chef_lattice.construct_sliced_beamline(all_slices);
 //}
 
-Propagator::State::State(Bunch_simulator * bunch_simulator_ptr, int num_turns,
-        int first_turn, Propagate_actions * general_actions_ptr, bool verbose) :
-    bunch_simulator_ptr(bunch_simulator_ptr), num_turns(num_turns),
-            first_turn(first_turn), general_actions_ptr(general_actions_ptr),
-            verbose(verbose)
+Propagator::State::State(Bunch_simulator * bunch_simulator_ptr,
+        Propagate_actions * propagate_actions_ptr, int num_turns,
+        int first_turn, int max_turns, bool verbose) :
+    bunch_simulator_ptr(bunch_simulator_ptr),
+            propagate_actions_ptr(propagate_actions_ptr), num_turns(num_turns),
+            first_turn(first_turn), max_turns(max_turns), verbose(verbose)
 {
 }
 
 Propagator::Propagator(Stepper_sptr stepper_sptr) :
-    stepper_sptr(stepper_sptr)
+    stepper_sptr(stepper_sptr), checkpoint_period(10),
+            checkpoint_dir(default_checkpoint_dir)
 {
 }
 
 Propagator::Propagator()
 {
+}
+
+void
+Propagator::set_checkpoint_period(int period)
+{
+    checkpoint_period = period;
+}
+
+int
+Propagator::get_checkpoint_period() const
+{
+    return checkpoint_period;
+}
+
+void
+Propagator::set_checkpoint_dir(std::string const& directory_name)
+{
+    checkpoint_dir = directory_name;
+}
+
+std::string const&
+Propagator::get_checkpoint_dir() const
+{
+    return checkpoint_dir;
 }
 
 // Object_to_sptr_hack is a local struct
@@ -50,8 +76,6 @@ struct Object_to_sptr_hack
 void
 Propagator::propagate(State & state)
 {
-
-    std::cout << "jfa is here!\n";
     try {
         double t, t_total;
         double t_turn, t_turn1;
@@ -64,11 +88,13 @@ Propagator::propagate(State & state)
         std::ofstream logfile;
         if (rank == 0) logfile.open("log");
         t = simple_timer_current();
-        state.bunch_simulator_ptr->get_diagnostics_actions_sptr()->first_action(
+        state.bunch_simulator_ptr->get_diagnostics_actions().first_action(
                 *stepper_sptr, *bunch_sptr);
         t = simple_timer_show(t, "diagnostics_first");
-        state.general_actions_ptr->first_action(*stepper_sptr, *bunch_sptr);
+        state.propagate_actions_ptr->first_action(*stepper_sptr, *bunch_sptr);
         t = simple_timer_show(t, "propagate-general_actions");
+        int turns_since_checkpoint = 0;
+        int orig_first_turn = state.first_turn;
         for (int turn = state.first_turn; turn < state.num_turns; ++turn) {
             t_turn = MPI_Wtime();
             if (state.verbose) {
@@ -97,10 +123,10 @@ Propagator::propagate(State & state)
                 /// apply with diagnostics only for testing purposes
                 //(*it)->apply(*bunch_sptr, bunch_simulator.get_per_step_diagnostics());
                 t = simple_timer_current();
-                state.bunch_simulator_ptr->get_diagnostics_actions_sptr()->step_end_action(
+                state.bunch_simulator_ptr->get_diagnostics_actions().step_end_action(
                         *stepper_sptr, *(*it), *bunch_sptr, turn, step_count);
                 t = simple_timer_show(t, "diagnostics-step");
-                state.general_actions_ptr->step_end_action(*stepper_sptr,
+                state.propagate_actions_ptr->step_end_action(*stepper_sptr,
                         *(*it), *bunch_sptr, turn, step_count);
                 t = simple_timer_show(t, "propagate-general_actions-step");
             }
@@ -109,25 +135,37 @@ Propagator::propagate(State & state)
             if (rank == 0) {
                 logfile << " turn " << turn + 1 << " : " << t_turn1 - t_turn
                         << "   macroparticles="
-                        << state.bunch_simulator_ptr->get_bunch_sptr()->get_total_num()
+                        << state.bunch_simulator_ptr->get_bunch().get_total_num()
                         << " \n";
                 std::cout << "  turn " << turn + 1 << " : " << t_turn1 - t_turn
                         << "   macroparticles="
-                        << state.bunch_simulator_ptr->get_bunch_sptr()->get_total_num()
+                        << state.bunch_simulator_ptr->get_bunch().get_total_num()
                         << std::endl;
                 logfile.flush();
             }
             t = simple_timer_current();
 
-            state.bunch_simulator_ptr->get_diagnostics_actions_sptr()->turn_end_action(
+            state.bunch_simulator_ptr->get_diagnostics_actions().turn_end_action(
                     *stepper_sptr, *bunch_sptr, turn);
             t = simple_timer_show(t, "diagnostics-turn");
-            state.general_actions_ptr->turn_end_action(*stepper_sptr,
+            state.propagate_actions_ptr->turn_end_action(*stepper_sptr,
                     *bunch_sptr, turn);
             t = simple_timer_show(t, "propagate-general_actions-turn");
             state.first_turn = turn + 1;
-            if (turn == 2) {
+            ++turns_since_checkpoint;
+            if (turns_since_checkpoint == checkpoint_period) {
                 checkpoint(state);
+                turns_since_checkpoint = 0;
+            }
+            if (((turn - orig_first_turn + 1) == state.max_turns) && (turn
+                    != (state.num_turns - 1))) {
+                if (turns_since_checkpoint > 0) {
+                    checkpoint(state);
+                }
+                if (rank == 0) {
+                    std::cout << "Maximum number of turns reached\n";
+                }
+                break;
             }
         }
         if (rank == 0) logfile.close();
@@ -139,69 +177,99 @@ Propagator::propagate(State & state)
     }
 }
 
-const char Propagator::checkpoint_dir[] = "checkpoint";
+const char Propagator::default_checkpoint_dir[] = "checkpoint";
 
 void
 Propagator::checkpoint(State & state)
 {
+    if (state.verbose) {
+        if (Commxx().get_rank() == 0) {
+            std::cout << "Propagator::checkpoint: ";
+        }
+    }
+    double t0 = MPI_Wtime();
     using namespace boost::filesystem;
     remove_serialization_directory();
     binary_save(*this, get_serialization_path("propagator.bina").c_str());
     binary_save(state, get_serialization_path("state.bina").c_str());
     rename_serialization_directory(checkpoint_dir);
+    if (state.verbose) {
+        if (Commxx().get_rank() == 0) {
+            std::cout << "written to \"" << checkpoint_dir << "\" in "
+                    << MPI_Wtime() - t0 << "s\n";
+        }
+    }
 }
 
-void
-Propagator::resume(const char * checkpoint_directory)
+Propagator::State
+Propagator::get_resume_state(std::string const& checkpoint_directory)
 {
     using namespace boost::filesystem;
-    Propagator::State state;
+    State state;
     remove_serialization_directory();
     symlink_serialization_directory(checkpoint_directory);
-    binary_load(state, get_combined_path(checkpoint_directory, "state.bina").c_str());
+    binary_load(state,
+            get_combined_path(checkpoint_directory, "state.bina").c_str());
     unlink_serialization_directory();
+    return state;
+}
+void
+Propagator::resume(std::string const& checkpoint_directory)
+{
+    State state(get_resume_state(checkpoint_directory));
+    propagate(state);
+}
+
+void
+Propagator::resume(std::string const& checkpoint_directory, int max_turns)
+{
+    State state(get_resume_state(checkpoint_directory));
+    state.max_turns = max_turns;
     propagate(state);
 }
 
 void
 Propagator::propagate(Bunch_simulator & bunch_simulator, int num_turns,
-        bool verbose)
+        int max_turns, bool verbose)
 {
     Propagate_actions empty_propagate_actions;
-    propagate(bunch_simulator, num_turns, empty_propagate_actions, verbose);
+    propagate(bunch_simulator, empty_propagate_actions, num_turns, max_turns,
+            verbose);
 }
 
 void
-Propagator::propagate(Bunch_simulator & bunch_simulator, int num_turns,
-        Propagate_actions & general_actions, bool verbose)
+Propagator::propagate(Bunch_simulator & bunch_simulator,
+        Propagate_actions & general_actions, int num_turns, int max_turns,
+        bool verbose)
 {
-    State state(&bunch_simulator, num_turns, 0, &general_actions, verbose);
+    State state(&bunch_simulator, &general_actions, num_turns, 0, max_turns,
+            verbose);
     propagate(state);
 }
 
-void
-Propagator::propagate(Bunch & bunch, int num_turns,
-        Diagnostics & per_step_diagnostics, Diagnostics & per_turn_diagnostics,
-        bool verbose)
-{
-
-    Bunch_sptr bunch_sptr(&bunch, Object_to_sptr_hack());
-
-    Bunch_simulator bunch_simulator(bunch_sptr);
-
-    Diagnostics_sptr per_step_diagnostics_sptr(&per_step_diagnostics,
-            Object_to_sptr_hack());
-    bunch_simulator.get_diagnostics_actions_sptr()->add_per_step(
-            per_step_diagnostics_sptr);
-
-    Diagnostics_sptr per_turn_diagnostics_sptr(&per_turn_diagnostics,
-            Object_to_sptr_hack());
-    bunch_simulator.get_diagnostics_actions_sptr()->add_per_turn(
-            per_turn_diagnostics_sptr);
-
-    propagate(bunch_simulator, num_turns, verbose);
-
-}
+//void
+//Propagator::propagate(Bunch & bunch, int num_turns,
+//        Diagnostics & per_step_diagnostics, Diagnostics & per_turn_diagnostics,
+//        bool verbose)
+//{
+//
+//    Bunch_sptr bunch_sptr(&bunch, Object_to_sptr_hack());
+//
+//    Bunch_simulator bunch_simulator(bunch_sptr);
+//
+//    Diagnostics_sptr per_step_diagnostics_sptr(&per_step_diagnostics,
+//            Object_to_sptr_hack());
+//    bunch_simulator.get_diagnostics_actions_sptr()->add_per_step(
+//            per_step_diagnostics_sptr);
+//
+//    Diagnostics_sptr per_turn_diagnostics_sptr(&per_turn_diagnostics,
+//            Object_to_sptr_hack());
+//    bunch_simulator.get_diagnostics_actions_sptr()->add_per_turn(
+//            per_turn_diagnostics_sptr);
+//
+//    propagate(bunch_simulator, num_turns, verbose);
+//
+//}
 
 //void
 //Propagator::propagate(Bunch & bunch, int num_turns,
