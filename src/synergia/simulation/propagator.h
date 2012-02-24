@@ -124,6 +124,7 @@ public:
         {
             ar & BOOST_SERIALIZATION_NVP(stepper_sptr);
             ar & BOOST_SERIALIZATION_NVP(checkpoint_period);
+            ar & BOOST_SERIALIZATION_NVP(checkpoint_dir);
         }
 
     ~Propagator();

@@ -153,17 +153,20 @@ Propagator::propagate(State & state)
             t = simple_timer_show(t, "propagate-general_actions-turn");
             state.first_turn = turn + 1;
             ++turns_since_checkpoint;
-            if (turns_since_checkpoint == checkpoint_period) {
+            if ((turns_since_checkpoint == checkpoint_period) && (turn
+                    != (state.num_turns - 1))) {
                 checkpoint(state);
                 turns_since_checkpoint = 0;
             }
             if (((turn - orig_first_turn + 1) == state.max_turns) && (turn
                     != (state.num_turns - 1))) {
+                if (rank == 0) {
+                    std::cout << "Maximum number of turns reached " << turn
+                            << ", " << state.max_turns << std::endl;
+                    ;
+                }
                 if (turns_since_checkpoint > 0) {
                     checkpoint(state);
-                }
-                if (rank == 0) {
-                    std::cout << "Maximum number of turns reached\n";
                 }
                 break;
             }
