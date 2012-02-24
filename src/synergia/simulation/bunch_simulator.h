@@ -16,8 +16,12 @@ public:
             Standard_diagnostics_actions_sptr diagnostics_actions_sptr);
     // Default constructor for serialization use only
     Bunch_simulator();
+    Bunch &
+    get_bunch();
     Bunch_sptr
     get_bunch_sptr();
+    Standard_diagnostics_actions &
+    get_diagnostics_actions();
     Standard_diagnostics_actions_sptr
     get_diagnostics_actions_sptr();
     template<class Archive>

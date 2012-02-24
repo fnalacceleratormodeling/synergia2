@@ -17,10 +17,22 @@ Bunch_simulator::Bunch_simulator()
 {
 }
 
+Bunch &
+Bunch_simulator::get_bunch()
+{
+    return *bunch_sptr;
+}
+
 Bunch_sptr
 Bunch_simulator::get_bunch_sptr()
 {
     return bunch_sptr;
+}
+
+Standard_diagnostics_actions &
+Bunch_simulator::get_diagnostics_actions()
+{
+    return *diagnostics_actions_sptr;
 }
 
 Standard_diagnostics_actions_sptr
