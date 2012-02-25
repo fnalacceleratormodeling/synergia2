@@ -14,7 +14,7 @@
 #include "synergia/collective/space_charge_3d_open_hockney.h"
 
 // We put the actual code in a separate function so that shared_ptr's can
-// be cleanup up properly before we call MPI_Finalize.
+// be cleaned up properly before we call MPI_Finalize.
 void
 run()
 {
