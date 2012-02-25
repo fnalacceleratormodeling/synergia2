@@ -18,6 +18,10 @@
 //    chef_lattice.construct_sliced_beamline(all_slices);
 //}
 
+const char Propagator::default_checkpoint_dir[] = "checkpoint";
+const char Propagator::propagator_archive_name[] = "propagator.bina";
+const char Propagator::state_archive_name[] = "state.bina";
+
 Propagator::State::State(Bunch_simulator * bunch_simulator_ptr,
         Propagate_actions * propagate_actions_ptr, int num_turns,
         int first_turn, int max_turns, bool verbose) :
@@ -161,9 +165,7 @@ Propagator::propagate(State & state)
             if (((turn - orig_first_turn + 1) == state.max_turns) && (turn
                     != (state.num_turns - 1))) {
                 if (rank == 0) {
-                    std::cout << "Maximum number of turns reached " << turn
-                            << ", " << state.max_turns << std::endl;
-                    ;
+                    std::cout << "Maximum number of turns reached\n";
                 }
                 if (turns_since_checkpoint > 0) {
                     checkpoint(state);
@@ -180,7 +182,6 @@ Propagator::propagate(State & state)
     }
 }
 
-const char Propagator::default_checkpoint_dir[] = "checkpoint";
 
 void
 Propagator::checkpoint(State & state)
@@ -193,8 +194,8 @@ Propagator::checkpoint(State & state)
     double t0 = MPI_Wtime();
     using namespace boost::filesystem;
     remove_serialization_directory();
-    binary_save(*this, get_serialization_path("propagator.bina").c_str());
-    binary_save(state, get_serialization_path("state.bina").c_str());
+    binary_save(*this, get_serialization_path(propagator_archive_name).c_str());
+    binary_save(state, get_serialization_path(state_archive_name).c_str());
     rename_serialization_directory(checkpoint_dir);
     if (state.verbose) {
         if (Commxx().get_rank() == 0) {
@@ -212,7 +213,7 @@ Propagator::get_resume_state(std::string const& checkpoint_directory)
     remove_serialization_directory();
     symlink_serialization_directory(checkpoint_directory);
     binary_load(state,
-            get_combined_path(checkpoint_directory, "state.bina").c_str());
+            get_combined_path(checkpoint_directory, state_archive_name).c_str());
     unlink_serialization_directory();
     return state;
 }

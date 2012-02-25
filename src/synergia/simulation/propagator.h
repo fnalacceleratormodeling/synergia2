@@ -13,6 +13,10 @@
 class Propagator
 {
 public:
+    static const char default_checkpoint_dir[];
+    static const char propagator_archive_name[];
+    static const char state_archive_name[];
+
     struct State
     {
         Bunch_simulator * bunch_simulator_ptr;
@@ -67,8 +71,6 @@ public:
 
     std::string const&
     get_checkpoint_dir() const;
-
-    static const char default_checkpoint_dir[];
 
     void
     propagate(State & state);
