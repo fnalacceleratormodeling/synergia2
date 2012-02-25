@@ -240,7 +240,7 @@ BOOST_PYTHON_MODULE(simulation)
                     &Propagate_actions_callback::default_step_end_action)
             ;
 
-    class_<Standard_diagnostics_actions, bases<Propagate_actions > >(
+    class_<Standard_diagnostics_actions, Standard_diagnostics_actions_sptr >(
             "Standard_diagnostics_actions", init< >())
             .def("add_per_turn", &Standard_diagnostics_actions::add_per_turn)
             .def("add_per_step", &Standard_diagnostics_actions::add_per_step)
@@ -248,6 +248,12 @@ BOOST_PYTHON_MODULE(simulation)
             .def("first_action", &Standard_diagnostics_actions::first_action)
             .def("turn_end_action", &Standard_diagnostics_actions::turn_end_action)
             .def("step_end_action", &Standard_diagnostics_actions::step_end_action)
+            ;
+
+    class_<Bunch_simulator > ("Bunch_simulator", init<Bunch_sptr>())
+            .def(init<Bunch_sptr, Standard_diagnostics_actions_sptr>())
+            .def("get_bunch", &Bunch_simulator::get_bunch_sptr)
+            .def("get_diagnostics_actions", &Bunch_simulator::get_diagnostics_actions_sptr)
             ;
 
     void (Propagator::*propagate1)(Bunch_simulator &, int, int, bool)
