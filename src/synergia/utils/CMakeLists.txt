@@ -24,6 +24,7 @@ install(TARGETS
     synergia_parallel_utils
     synergia_hdf5_utils
     synergia_distributed_fft
+    synergia_serialization
     DESTINATION lib)
 install(FILES
     boost_test_mpi_fixture.h
@@ -51,6 +52,7 @@ install(FILES
     parallel_utils.h
     simple_timer.h
     serialization.h
+    serialization_files.h
     DESTINATION include/synergia/utils)
 if (BUILD_PYTHON_BINDINGS)
     install(FILES
