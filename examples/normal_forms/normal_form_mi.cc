@@ -98,21 +98,20 @@ run()
 #else
     populate_6d_stationary_gaussian(distribution, *bunch_sptr, actions, lattice_simulator);
     #endif
-    
-    Diagnostics_basic_sptr per_step_diagnostics(new Diagnostics_basic(bunch_sptr,
+
+    Diagnostics_sptr per_step_diagnostics(new Diagnostics_basic(bunch_sptr,
 								  "nf_per_step.h5"));
 
-    Diagnostics_full2_sptr per_turn_diagnostics(new Diagnostics_full2(bunch_sptr,
+    Diagnostics_sptr per_turn_diagnostics(new Diagnostics_full2(bunch_sptr,
 								  "mi_per_turn.h5"));
 
-    Diagnostics_particles_sptr diag_particles(new Diagnostics_particles(bunch_sptr, "mi_particles_initial.h5", 0, 32768));
+    Diagnostics_sptr diag_particles(new Diagnostics_particles(bunch_sptr, "mi_particles_initial.h5", 0, 32768));
 
-    Multi_diagnostics md;
-    Multi_diagnostics md_step;
-    md_step.append(per_step_diagnostics);
+    Bunch_simulator bunch_simulator(bunch_sptr);
 
-    md.append(per_turn_diagnostics);
-    md.append(diag_particles);
+    bunch_simulator.get_diagnostics_actions().add_per_step(per_step_diagnostics);
+    bunch_simulator.get_diagnostics_actions().add_per_turn(per_turn_diagnostics);
+    bunch_simulator.get_diagnostics_actions().add_per_turn(diag_particles);
 
 #if 0
     diag_particles_i.update_and_write();
@@ -123,8 +122,7 @@ run()
     propagator.propagate(*bunch_sptr, num_turns, per_step_diagnostics,
             per_turn_diagnostics, true);
 #endif
-    propagator.propagate(*bunch_sptr, num_turns, md_step,
-            md, true);
+    propagator.propagate(bunch_simulator, num_turns);
 
     double t1 = MPI_Wtime();
     if (comm.get_rank() == 0) {

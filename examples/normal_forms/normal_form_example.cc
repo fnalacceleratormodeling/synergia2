@@ -63,7 +63,7 @@ run()
 	samplepoints[i][j] = 0.0;
       }
     }
-    // with this lattice, beta_x=33.379, beta_y = 5.867, beta_z =89.31 
+    // with this lattice, beta_x=33.379, beta_y = 5.867, beta_z =89.31
     // full bucket length = 5.0
     // get particle with maximum extent in x and dp/p
     samplepoints[0][0] = 1.0e-3;
@@ -110,18 +110,21 @@ run()
     #endif
     std::cout << "after populate" << std::endl;
 
-    Diagnostics_basic per_step_diagnostics(bunch_sptr,
-            "nf_per_step.h5");
+    Diagnostics_sptr  per_step_diagnostics(new Diagnostics_basic(bunch_sptr,
+            "nf_per_step.h5"));
 
-    Diagnostics_full2 per_turn_diagnostics(bunch_sptr,
-							"nf_per_turn.h5");
+    Diagnostics_sptr per_turn_diagnostics(new Diagnostics_full2(bunch_sptr,
+							"nf_per_turn.h5"));
 
     Diagnostics_particles diag_particles_i(bunch_sptr, "nf_particles_initial.h5", 0, 32768);
 
     diag_particles_i.update_and_write();
+
+    Bunch_simulator bunch_simulator(bunch_sptr);
+    bunch_simulator.get_diagnostics_actions().add_per_step(per_step_diagnostics);
+    bunch_simulator.get_diagnostics_actions().add_per_turn(per_turn_diagnostics);
     double t0 = MPI_Wtime();
-    propagator.propagate(*bunch_sptr, num_turns, per_step_diagnostics,
-            per_turn_diagnostics, true);
+    propagator.propagate(bunch_simulator, num_turns);
     double t1 = MPI_Wtime();
     if (comm.get_rank() == 0) {
       std::cout << "propagate time = " << (t1-t0) << std::endl;
