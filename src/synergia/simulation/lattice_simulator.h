@@ -69,7 +69,7 @@ private:
             lattice_functions_slice_map;
     MArray2d linear_one_turn_map;
 	void
-==  construct_extractor_map();
+	construct_extractor_map();
     void
     construct_aperture_extractor_map();
     void
