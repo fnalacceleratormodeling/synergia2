@@ -31,7 +31,9 @@ else:
     sys.stderr.write("fodo.py: stepper must be either 'independent' or 'splitoperator'\n")
     sys.exit(1)
 
-diagnostics_actions = synergia.simulation.Standard_diagnostics_actions()
+bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
+diagnostics_actions = bunch_simulator.get_diagnostics_actions()
+
 for part in range(0, opts.step_tracks):
     diagnostics_actions.add_per_step(synergia.bunch.Diagnostics_track(bunch,
                                                                    "step_track_%02d.h5" % part,
@@ -53,6 +55,4 @@ if opts.turn_particles:
                                     bunch, "turn_particles.h5"))
 
 propagator = synergia.simulation.Propagator(stepper)
-propagator.propagate(bunch, opts.turns,
-                     diagnostics_actions,
-                     opts.verbosity)
+propagator.propagate(bunch_simulator, opts.turns, opts.max_turns, opts.verbosity)
