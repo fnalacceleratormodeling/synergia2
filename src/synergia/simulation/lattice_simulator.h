@@ -150,6 +150,7 @@ public:
             ar & BOOST_SERIALIZATION_NVP(have_tunes);
             ar & BOOST_SERIALIZATION_NVP(lattice_functions_element_map);
             ar & BOOST_SERIALIZATION_NVP(lattice_functions_slice_map);
+            ar & BOOST_SERIALIZATION_NVP(linear_one_turn_map);
         }
     template<class Archive>
         void
@@ -171,9 +172,11 @@ public:
             ar & BOOST_SERIALIZATION_NVP(have_tunes);
             ar & BOOST_SERIALIZATION_NVP(lattice_functions_element_map);
             ar & BOOST_SERIALIZATION_NVP(lattice_functions_slice_map);
+            ar & BOOST_SERIALIZATION_NVP(linear_one_turn_map);
             if (have_beamline_context) {
                 calculate_beamline_context();
             }
+            normal_form_sage_sptr.reset();
         }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
     ~Lattice_simulator();
