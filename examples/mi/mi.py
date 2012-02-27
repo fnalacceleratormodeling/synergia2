@@ -2,7 +2,6 @@
 import sys
 import synergia
 import numpy as np
-from synergia.optics.one_turn_map import linear_one_turn_map
 from mi_options import opts
 import mpi4py.MPI as MPI
 #from basic_toolkit import *
@@ -233,7 +232,7 @@ lattice_simulator = synergia.simulation.Lattice_simulator(lattice, map_order)
 
 #sys.exit(10)
 
-map = linear_one_turn_map(lattice_simulator)
+map = lattice_simulator.get_linear_one_turn_map()
 if myrank==0:
     print "one turn map from synergia2.5 infrastructure"
     print np.array2string(map, max_line_width=200)
