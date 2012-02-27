@@ -3,7 +3,7 @@ import os, stat, sys
 
 from synergia.lattice import Mad8_parser
 from synergia.lattice import Lattice_element, Element_adaptor_map, Lattice
-from synergia.lattice import xml_save_lattice, xml_load_lattice
+from synergia.lattice import binary_save_lattice, binary_load_lattice
 from synergia.foundation import pconstants, Four_momentum, Reference_particle
 from mpi4py import MPI
 
@@ -56,8 +56,8 @@ class Lattice_cache:
             readable = self.cache[self.line_name].time_stamp == self._get_time_stamp()
         return readable
 
-    def _xml_file_name(self, index):
-        return self.cache_file_name + ("_xml%d" % index)
+    def _binary_file_name(self, index):
+        return self.cache_file_name + ("_binary%d" % index)
 
     def read(self):
         retval = None
@@ -65,7 +65,7 @@ class Lattice_cache:
             retval = Lattice()
             index = self.cache[self.line_name].index
             try:
-                xml_load_lattice(retval, self._xml_file_name(index))
+                binary_load_lattice(retval, self._binary_file_name(index))
             except RuntimeError, e:
                 retval = None
         return retval
@@ -95,7 +95,7 @@ class Lattice_cache:
                 cache_file.write('%d\n' % self.cache[line_name].time_stamp)
                 cache_file.write('%d\n' % self.cache[line_name].index)
             cache_file.close()
-            xml_save_lattice(lattice, self._xml_file_name(index))
+            binary_save_lattice(lattice, self._binary_file_name(index))
 
 class Mad8_reader:
     def __init__(self, element_adaptor_map=None):

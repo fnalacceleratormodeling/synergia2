@@ -145,6 +145,8 @@ BOOST_PYTHON_MODULE(lattice)
 
    def("xml_save_lattice", xml_save<Lattice > );
    def("xml_load_lattice", xml_load<Lattice > );
+   def("binary_save_lattice", binary_save<Lattice > );
+   def("binary_load_lattice", binary_load<Lattice > );
 
 }
 
