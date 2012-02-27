@@ -3,7 +3,7 @@
 
 #include "bunch_fixture.h"
 #include "synergia/foundation/physical_constants.h"
-#include "synergia/utils/xml_serialization.h"
+#include "synergia/utils/serialization_files.h"
 #include <cmath>
 
 const std::string name("foo");
