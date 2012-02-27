@@ -5,10 +5,10 @@ import numpy as np
 from synergia.optics.one_turn_map import linear_one_turn_map
 from mi_options import opts
 import mpi4py.MPI as MPI
-from basic_toolkit import *
-from mxyzptlk import *
-from beamline import *
-from physics_toolkit import *
+#from basic_toolkit import *
+#from mxyzptlk import *
+#from beamline import *
+#from physics_toolkit import *
 
 #####################################
 
@@ -76,7 +76,7 @@ if myrank == 0:
     print "X offset: ", x_offset
     print "Y offset: ", y_offset
     print "Z_offset: ", z_offset
-    print "Space Charge is ", 
+    print "Space Charge is ",
     if opts.spacecharge:
         print "ON"
     else:
@@ -109,7 +109,7 @@ for elem in orig_elements:
         old_name = elem.get_name()
         old_length = elem.get_length()
         new_length = old_length/2.0
-        
+
         # first half of split quadrupole
         new_elem1 = synergia.lattice.Lattice_element(elem.get_type(),
                                                      old_name+"_1")
@@ -164,7 +164,7 @@ if radius > 0.0:
 if myrank == 0:
     print "Finished constructing lattice"
 
-lattice_length = lattice.get_length()          
+lattice_length = lattice.get_length()
 
 reference_particle = lattice.get_reference_particle()
 energy = reference_particle.get_total_energy()
@@ -198,16 +198,20 @@ if myrank == 0:
 
 lattice_simulator = synergia.simulation.Lattice_simulator(lattice, map_order)
 
-chef_lattice = lattice_simulator.get_chef_lattice()
-#print "dir(chef_lattice): ", dir(chef_lattice)
-bml = chef_lattice.get_beamline()
-proton = Proton(energy)
-proton.setStateToZero()
-if myrank==0:
-    print "original proton state: ", proton.State()
-bml.propagate(proton)
-if myrank==0:
-    print "propagated proton: ", proton.State()
+# jfa: following block commented out for two reaons:
+# !1) the functionality should be available from synergia (i.e., not require chef)
+# (2) recent updates seem to have broken the chef python bindings (!)
+#
+#chef_lattice = lattice_simulator.get_chef_lattice()
+##print "dir(chef_lattice): ", dir(chef_lattice)
+#bml = chef_lattice.get_beamline()
+#proton = Proton(energy)
+#proton.setStateToZero()
+#if myrank==0:
+#    print "original proton state: ", proton.State()
+#bml.propagate(proton)
+#if myrank==0:
+#    print "propagated proton: ", proton.State()
 
 #jpr = JetProton(energy)
 #print "after create jpr"
@@ -258,26 +262,27 @@ if myrank == 0:
     print "beta_z: ", bz
     print "delta p/p: ", dpop
 
-pr1 = Proton(energy)
-pr1p = Proton(energy)
-pr2 = Proton(energy)
-pr2p = Proton(energy)
-pr3 = Proton(energy)
-pr3p = Proton(energy)
-pr1.set_x(1.0e-4)
-pr1p.set_npx(1.0e-4/bx)
-pr2.set_y(1.0e-4)
-pr2p.set_npy(1.0e-4/by)
-
-bml.propagate(pr1)
-bml.propagate(pr1p)
-bml.propagate(pr2)
-bml.propagate(pr2p)
-if myrank == 0:
-    print "propagated pr1: ", pr1.State()
-    print "propagated pr1p: ", pr1p.State()
-    print "propagated pr2: ", pr2.State()
-    print "propagated pr2p: ", pr2p.State()
+# jfa: see previous "jfa" comment
+#pr1 = Proton(energy)
+#pr1p = Proton(energy)
+#pr2 = Proton(energy)
+#pr2p = Proton(energy)
+#pr3 = Proton(energy)
+#pr3p = Proton(energy)
+#pr1.set_x(1.0e-4)
+#pr1p.set_npx(1.0e-4/bx)
+#pr2.set_y(1.0e-4)
+#pr2p.set_npy(1.0e-4/by)
+#
+#bml.propagate(pr1)
+#bml.propagate(pr1p)
+#bml.propagate(pr2)
+#bml.propagate(pr2p)
+#if myrank == 0:
+#    print "propagated pr1: ", pr1.State()
+#    print "propagated pr1p: ", pr1p.State()
+#    print "propagated pr2: ", pr2.State()
+#    print "propagated pr2p: ", pr2p.State()
 
 emitx /= (beta*gamma)
 emity /= (beta*gamma)
@@ -315,28 +320,32 @@ else:
     no_op = synergia.simulation.Dummy_collective_operator("stub")
     stepper = synergia.simulation.Split_operator_stepper(lattice_simulator, no_op,num_steps)
 
-multi_diagnostics_step = synergia.bunch.Multi_diagnostics()
+
+bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
+#multi_diagnostics_step = synergia.bunch.Multi_diagnostics()
 # not doing step diagnostics
 #multi_diagnostics_step.append(synergia.bunch.Diagnostics_full2(bunch, "mi_step_full2.h5"))
 
-multi_diagnostics_turn = synergia.bunch.Multi_diagnostics()
+#multi_diagnostics_turn = synergia.bunch.Multi_diagnostics()
 
 if opts.turn_full2:
-    multi_diagnostics_turn.append(synergia.bunch.Diagnostics_full2(bunch,"mi_full2.h5"))
+    bunch_simulator.get_diagnostics_actions().add_per_turn(synergia.bunch.Diagnostics_full2(bunch,"mi_full2.h5"))
 
 if opts.turn_particles:
-    multi_diagnostics_turn.append(synergia.bunch.Diagnostics_particles(bunch, "mi_particles.h5"))
+    bunch_simulator.get_diagnostics_actions().add_per_turn(synergia.bunch.Diagnostics_particles(bunch, "mi_particles.h5"))
 
 # enable track saving
 for part in range(0, opts.turn_tracks):
-    multi_diagnostics_turn.append(synergia.bunch.Diagnostics_track(bunch,"turn_track_%02d.h5"%part,part))
+    bunch_simulator.get_diagnostics_actions().add_per_turn(synergia.bunch.Diagnostics_track(bunch,"turn_track_%02d.h5"%part,part))
 
 if myrank == 0:
     print "Begin propagate..."
 
 propagator = synergia.simulation.Propagator(stepper)
-propagator.propagate(bunch, num_turns, multi_diagnostics_step,
-                     multi_diagnostics_turn, verbose)
+max_turns = 0
+propagator.propagate(bunch_simulator, num_turns, max_turns, verbose)
+#propagator.propagate(bunch, num_turns, multi_diagnostics_step,
+#                     multi_diagnostics_turn, verbose)
 
 if myrank == 0:
     print "Finish propagate"
