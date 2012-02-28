@@ -64,7 +64,7 @@ for elem in lattice.get_elements():
         # of 2.0*pi
         elem.set_double_attribute("lag", 0.5)
 
-synergia.lattice.xml_save_lattice(lattice, "cxx_lattice.xml")
+synergia.lattice.xml_save_lattice(lattice, "foborodobo32.xml")
 
 lattice_simulator = synergia.simulation.Lattice_simulator(lattice, map_order)
 
