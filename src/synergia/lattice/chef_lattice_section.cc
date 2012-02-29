@@ -29,12 +29,16 @@ Chef_lattice_section::extend(int begin_index, int end_index)
     if (this->begin_index == no_index) {
         this->begin_index = begin_index;
     } else {
-        if ((begin_index != this->end_index) && (begin_index != this->end_index
-                + 1)) {
-            throw std::runtime_error(
-                    "Chef_lattice_section::extend: invalid begin_index");
-        } else {
-            this->begin_index = begin_index;
+        if (begin_index != this->end_index) {
+            if ((begin_index == this->end_index + 1)
+                    && ((*chef_lattice_sptr->get_sliced_beamline_const_iterator(
+                            this->end_index))->Name()
+                            == Chef_lattice::internal_marker_name)) {
+                // OK, we will allow skipping the internal marker
+            } else {
+                throw std::runtime_error(
+                        "Chef_lattice_section::extend: invalid begin_index");
+            }
         }
     }
 

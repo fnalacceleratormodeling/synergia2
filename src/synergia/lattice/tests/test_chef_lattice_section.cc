@@ -28,6 +28,8 @@ BOOST_FIXTURE_TEST_CASE(extend1, Chef_lattice_sptr_fixture)
     Chef_lattice_section chef_lattice_section1(chef_lattice_sptr);
     Chef_lattice_section chef_lattice_section2(chef_lattice_sptr, begin, end);
     chef_lattice_section1.extend(chef_lattice_section2);
+    BOOST_CHECK_EQUAL(chef_lattice_section1.get_begin_index(), begin);
+    BOOST_CHECK_EQUAL(chef_lattice_section1.get_end_index(), end);
 }
 
 BOOST_FIXTURE_TEST_CASE(extend2, Chef_lattice_sptr_fixture)
@@ -35,12 +37,16 @@ BOOST_FIXTURE_TEST_CASE(extend2, Chef_lattice_sptr_fixture)
     Chef_lattice_section chef_lattice_section2(chef_lattice_sptr, begin, end);
     Chef_lattice_section chef_lattice_section3(chef_lattice_sptr, end, end2);
     chef_lattice_section2.extend(chef_lattice_section3);
+    BOOST_CHECK_EQUAL(chef_lattice_section2.get_begin_index(), begin);
+    BOOST_CHECK_EQUAL(chef_lattice_section2.get_end_index(), end2);
 }
 
 BOOST_FIXTURE_TEST_CASE(extend3, Chef_lattice_sptr_fixture)
 {
     Chef_lattice_section chef_lattice_section(chef_lattice_sptr, begin, end);
     chef_lattice_section.extend(end, end2);
+    BOOST_CHECK_EQUAL(chef_lattice_section.get_begin_index(), begin);
+    BOOST_CHECK_EQUAL(chef_lattice_section.get_end_index(), end2);
 }
 
 BOOST_FIXTURE_TEST_CASE(extend_invalid1, Chef_lattice_sptr_fixture)
