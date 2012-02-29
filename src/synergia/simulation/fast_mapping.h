@@ -73,7 +73,7 @@ public:
     }
     ;
     void
-    write_to_stream(std::ofstream & stream) const;
+    write_to_stream(std::ostream & stream) const;
     template<class Archive>
         void
         save(Archive & ar, const unsigned int version) const
@@ -168,6 +168,8 @@ public:
     add_term(int index, Fast_mapping_term const& term);
     void
     apply(Bunch & bunch);
+    std::string
+    as_string() const;
     void
     write_to_file(std::string const& filename);
     template<class Archive>

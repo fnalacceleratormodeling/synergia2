@@ -49,7 +49,7 @@ Fast_mapping_term::Fast_mapping_term(Fast_mapping_term const& t)
 }
 
 void
-Fast_mapping_term::write_to_stream(std::ofstream& stream) const
+Fast_mapping_term::write_to_stream(std::ostream& stream) const
 {
     stream << the_order << " ";
     for (int j = 0; j < the_order + 1; ++j) {
@@ -244,31 +244,39 @@ Fast_mapping::apply(Bunch & bunch)
 
 }
 
+std::string
+Fast_mapping::as_string() const
+{
+    std::stringstream sstream;
+    sstream << "# order:\n";
+    sstream << order << std::endl;
+    sstream << "# length:\n";
+    sstream << length << std::endl;
+    for (int index = 0; index < 6; ++index) {
+        for (int order = 0; order <= this->order; ++order) {
+            sstream << "# index=" << index << ", order=" << order << std::endl;
+            sstream << "# num:\n";
+            sstream << terms[index][order].size() << std::endl;
+            if (terms[index][order].size() > 0) {
+                sstream << "# terms:\n";
+                Fast_mapping_terms::const_iterator telem;
+                for (telem = terms[index][order].begin(); telem
+                        != terms[index][order].end(); ++telem) {
+                    telem->write_to_stream(sstream);
+                }
+            }
+        }
+    }
+    return sstream.str();
+}
+
 void
 Fast_mapping::write_to_file(std::string const& filename)
 {
     std::ofstream file(filename.c_str());
     file << "# Synergia Fast_mapping\n";
     file << "# file format=1.0\n";
-    file << "# order:\n";
-    file << order << std::endl;
-    file << "# length:\n";
-    file << length << std::endl;
-    for (int index = 0; index < 6; ++index) {
-        for (int order = 0; order <= this->order; ++order) {
-            file << "# index=" << index << ", order=" << order << std::endl;
-            file << "# num:\n";
-            file << terms[index][order].size() << std::endl;
-            if (terms[index][order].size() > 0) {
-                file << "# terms:\n";
-                Fast_mapping_terms::const_iterator telem;
-                for (telem = terms[index][order].begin(); telem
-                        != terms[index][order].end(); ++telem) {
-                    telem->write_to_stream(file);
-                }
-            }
-        }
-    }
+    file << as_string();
     file << "end_fast_mapping\n";
     file.close();
 }
