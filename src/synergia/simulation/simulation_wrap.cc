@@ -130,6 +130,37 @@ BOOST_PYTHON_MODULE(simulation)
     to_python_converter<Operators,
              container_conversions::to_tuple<Operators > >();
 
+    class_<Independent_operation, Independent_operation_sptr,
+        boost::noncopyable >("Independent_operation", no_init)
+        .def("get_type", &Independent_operation::get_type,
+                return_value_policy<copy_const_reference >())
+        .def("apply", &Independent_operation::apply)
+        ;
+
+    to_python_converter<Independent_operations,
+             container_conversions::to_tuple<Independent_operations > >();
+
+    class_<Fast_mapping >("Fast_mapping", init<int >())
+            .def(init<std::string const& >())
+            .def("set_length", &Fast_mapping::set_length)
+            .def("get_length", &Fast_mapping::get_length)
+            .def("apply", &Fast_mapping::apply)
+            .def("as_string", &Fast_mapping::as_string)
+            .def("write_to_file", &Fast_mapping::write_to_file)
+            ;
+
+    class_<Fast_mapping_operation, Fast_mapping_operation_sptr,
+        bases<Independent_operation > >("Fast_mapping_operation", no_init)
+        .def("get_fast_mapping", &Fast_mapping_operation::get_fast_mapping,
+                return_value_policy<copy_const_reference >())
+        ;
+
+    def("as_fast_mapping_operation", as_fast_mapping_operation);
+
+    class_<Chef_propagate_operation, Chef_propagate_operation_sptr,
+        bases<Independent_operation > >("Chef_propagate_operation", no_init)
+        ;
+
     Lattice_functions const&
     (Lattice_simulator::*get_lattice_functions1)(Lattice_element &) =
             &Lattice_simulator::get_lattice_functions;
