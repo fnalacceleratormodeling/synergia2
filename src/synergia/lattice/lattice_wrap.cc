@@ -81,6 +81,17 @@ BOOST_PYTHON_MODULE(lattice)
     container_conversions::from_python_sequence<Lattice_elements,
              container_conversions::variable_capacity_policy >();
 
+    class_<Lattice_element_slice, Lattice_element_slice_sptr >("Lattice_element_slice",
+            init<Lattice_element & >())
+            .def(init<Lattice_element &, double, double >())
+            .def("print_", &Lattice_element_slice::print)
+            ;
+
+    to_python_converter<std::list<Lattice_element_slice_sptr >,
+             container_conversions::to_tuple<Lattice_element_slices > >();
+    container_conversions::from_python_sequence<Lattice_element_slices,
+             container_conversions::variable_capacity_policy >();
+
     class_<Element_adaptor, Element_adaptor_sptr >("Element_adaptor", init<>())
             .def("set_double_default", &Element_adaptor::set_double_default)
             .def("set_string_default", &Element_adaptor::set_string_default)
