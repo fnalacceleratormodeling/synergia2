@@ -129,6 +129,12 @@ Fast_mapping::add_term(int index, Fast_mapping_term const& term)
     terms.at(index).at(term.order()).push_back(term);
 }
 
+std::vector<std::vector<Fast_mapping_terms > > const&
+Fast_mapping::get_terms() const
+{
+    return terms;
+}
+
 Fast_mapping::Fast_mapping(Reference_particle const& reference_particle,
         Mapping const& chef_mapping, double mapping_length)
 {

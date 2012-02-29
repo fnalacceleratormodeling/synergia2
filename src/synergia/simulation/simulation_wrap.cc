@@ -5,6 +5,7 @@
 #include "propagator.h"
 #include "propagate_actions.h"
 #include "standard_diagnostics_actions.h"
+#include "dense_mapping.h"
 #include <boost/python.hpp>
 #include "synergia/utils/container_conversions.h"
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
@@ -147,6 +148,11 @@ BOOST_PYTHON_MODULE(simulation)
             .def("apply", &Fast_mapping::apply)
             .def("as_string", &Fast_mapping::as_string)
             .def("write_to_file", &Fast_mapping::write_to_file)
+            ;
+
+    class_<Dense_mapping >("Dense_mapping", init<Fast_mapping const& >())
+            .def("get_constant_term", &Dense_mapping::get_constant_term)
+            .def("get_linear_term", &Dense_mapping::get_linear_term)
             ;
 
     class_<Fast_mapping_operation, Fast_mapping_operation_sptr,

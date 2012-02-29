@@ -166,6 +166,8 @@ public:
     get_length() const;
     void
     add_term(int index, Fast_mapping_term const& term);
+    std::vector<std::vector<Fast_mapping_terms > > const&
+    get_terms() const;
     void
     apply(Bunch & bunch);
     std::string
