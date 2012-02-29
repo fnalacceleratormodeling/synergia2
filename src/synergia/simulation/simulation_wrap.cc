@@ -72,6 +72,12 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads35,
 //BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads45,
 //        Propagator::propagate, 4, 5);
 
+Independent_operator_sptr
+as_independent_operator(Operator_sptr & operator_sptr)
+{
+    return boost::dynamic_pointer_cast<Independent_operator >(operator_sptr);
+}
+
 BOOST_PYTHON_MODULE(simulation)
 {
     import_array();
@@ -118,6 +124,8 @@ BOOST_PYTHON_MODULE(simulation)
         .def("get_slices", &Independent_operator::get_slices,
                 return_value_policy<copy_const_reference >())
         ;
+
+    def("as_independent_operator", as_independent_operator);
 
     to_python_converter<Operators,
              container_conversions::to_tuple<Operators > >();
