@@ -9,7 +9,7 @@ Independent_operation::Independent_operation()
 {
 }
 
-std::string
+std::string const&
 Independent_operation::get_type() const
 {
     return type;

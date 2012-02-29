@@ -20,7 +20,7 @@ public:
     Independent_operation(std::string const& type);
     /// Default constructor for serialization use only
     Independent_operation();
-    std::string
+    std::string const&
     get_type() const;
     virtual void
     apply(Bunch & bunch) = 0;
