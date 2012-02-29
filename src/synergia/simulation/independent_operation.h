@@ -49,6 +49,8 @@ public:
     Fast_mapping_operation();
     virtual void
     apply(Bunch & bunch);
+    Fast_mapping const&
+    get_fast_mapping() const;
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)

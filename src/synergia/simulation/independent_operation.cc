@@ -36,6 +36,12 @@ Fast_mapping_operation::apply(Bunch & bunch)
      mapping.apply(bunch);
 }
 
+Fast_mapping const&
+Fast_mapping_operation::get_fast_mapping() const
+{
+    return mapping;
+}
+
 Fast_mapping_operation::~Fast_mapping_operation()
 {
 }
