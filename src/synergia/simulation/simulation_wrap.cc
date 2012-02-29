@@ -79,6 +79,12 @@ as_independent_operator(Operator_sptr & operator_sptr)
     return boost::dynamic_pointer_cast<Independent_operator >(operator_sptr);
 }
 
+Fast_mapping_operation_sptr
+as_fast_mapping_operation(Independent_operation_sptr & independent_operation_sptr)
+{
+    return boost::dynamic_pointer_cast<Fast_mapping_operation >(independent_operation_sptr);
+}
+
 BOOST_PYTHON_MODULE(simulation)
 {
     import_array();
@@ -113,6 +119,10 @@ BOOST_PYTHON_MODULE(simulation)
 //        .def("print_", &Collective_operator::print)
         ;
 
+    Independent_operations &
+    (Independent_operator::*get_operations1)() =
+            &Independent_operator::get_operations;
+
     class_<Independent_operator, Independent_operator_sptr,
         bases<Operator > >("Independent_operator", init<std::string const&,
                 Operation_extractor_map_sptr,
@@ -124,6 +134,8 @@ BOOST_PYTHON_MODULE(simulation)
         .def("append_slice", &Independent_operator::append_slice)
         .def("get_slices", &Independent_operator::get_slices,
                 return_value_policy<copy_const_reference >())
+        .def("get_operations", get_operations1,
+                return_value_policy<copy_non_const_reference >())
         ;
 
     def("as_independent_operator", as_independent_operator);
