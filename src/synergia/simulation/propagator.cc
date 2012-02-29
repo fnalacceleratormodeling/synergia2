@@ -99,6 +99,7 @@ Propagator::propagate(State & state)
         t = simple_timer_show(t, "propagate-general_actions");
         int turns_since_checkpoint = 0;
         int orig_first_turn = state.first_turn;
+        bool out_of_particles = false;
         for (int turn = state.first_turn; turn < state.num_turns; ++turn) {
             t_turn = MPI_Wtime();
             if (state.verbose) {
@@ -133,8 +134,17 @@ Propagator::propagate(State & state)
                 state.propagate_actions_ptr->step_end_action(*stepper_sptr,
                         *(*it), *bunch_sptr, turn, step_count);
                 t = simple_timer_show(t, "propagate-general_actions-step");
+                if (state.bunch_simulator_ptr->get_bunch().get_total_num() == 0) {
+                    if (rank == 0) {
+                        std::cout << "Propagator::propagate: No particles left in bunch. Exiting.\n";
+                    }
+                    out_of_particles = true;
+                    break;
+                }
             }
-
+            if (out_of_particles) {
+                break;
+            }
             t_turn1 = MPI_Wtime();
             if (rank == 0) {
                 logfile << " turn " << turn + 1 << " : " << t_turn1 - t_turn
