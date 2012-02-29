@@ -74,6 +74,10 @@ BOOST_PYTHON_MODULE(bunch)
         .def(init<Bunch_sptr, std::string const&, int, int, int >())
         ;
 
+    class_<Diagnostics_reference_particle, Diagnostics_reference_particle_sptr, bases<Diagnostics > >
+        ("Diagnostics_reference_particle",init<Bunch_sptr, std::string const& >())
+        ;
+
     class_<Multi_diagnostics>("Multi_diagnostics",
             init<>())
         .def("append", &Multi_diagnostics::append)
