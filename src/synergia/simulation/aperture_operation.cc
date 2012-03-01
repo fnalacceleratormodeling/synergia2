@@ -27,7 +27,7 @@ Aperture_operation::deposit_charge(double charge)
     }
     deposited_charge += charge;
     slice_sptr->get_lattice_element().set_double_attribute(charge_attribute,
-            deposited_charge);
+            deposited_charge, false);
 }
 
 Aperture_operation::~Aperture_operation()
