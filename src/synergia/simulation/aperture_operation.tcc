@@ -51,6 +51,15 @@ Finite_aperture_operation::operator()(MArray2d_ref & particles, int part)
     if (!boost::math::isfinite(particles[part][3])) keep = false;
     if (!boost::math::isfinite(particles[part][4])) keep = false;
     if (!boost::math::isfinite(particles[part][5])) keep = false;
+    // negative pz^2 will give rise to non-finite numbers in fixed-t frames
+    double p_scaled = 1.0 + particles[part][Bunch::dpop];
+    double px_scaled = particles[part][Bunch::xp];
+    double py_scaled = particles[part][Bunch::yp];
+    double pz2_scaled = p_scaled * p_scaled - px_scaled * px_scaled - py_scaled
+            * py_scaled;
+    if (pz2_scaled < 0.0) {
+        keep = false;
+    }
     return !keep;
 }
 
