@@ -73,6 +73,13 @@ Lattice_simulator::get_beamline_context()
     return beamline_context_sptr;
 }
 
+bool
+Lattice_simulator::is_ring()
+{
+  get_beamline_context();
+  return (beamline_context_sptr->isRing());
+}
+
 void
 Lattice_simulator::get_tunes()
 {

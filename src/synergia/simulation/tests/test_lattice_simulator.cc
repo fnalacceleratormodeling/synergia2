@@ -274,17 +274,22 @@ BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map, Foborodobo32_fixture)
   }
 }
 
+BOOST_FIXTURE_TEST_CASE(is_ring, Foborodobo32_fixture)
+{
+  const int map_order = 5;
+  Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+  BOOST_CHECK(lattice_simulator.is_ring());
+}
+
 BOOST_FIXTURE_TEST_CASE(linear_human_normal_human, Foborodobo32_fixture)
 {
   const int map_order = 3;
   const double tolerance = 1.0e-12;
   Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
-  std::cout << "in linear_human_normal_human" << std::endl;
-
   // in the linear case, this should just be a matrix multiplication
   // and be very good
-
     
     // fill the bunch with three points each direction
     const double test_points[] = {1.0e-3, 1.0e-4, 1.0e-3, 1.0e-4, 0.1, 0.1/200};
@@ -359,8 +364,6 @@ BOOST_FIXTURE_TEST_CASE(normal_human_normal, Foborodobo32_fixture)
   const double tolerance = 1.0e-12;
   Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
-  std::cout << "in normal_human_normal" << std::endl;
-    
   // fill the bunch with three points at fixed action each
   // direction but angles uniformly spread around 2*pi
 
@@ -407,8 +410,6 @@ BOOST_FIXTURE_TEST_CASE(check_linear_normal_form, Foborodobo32_fixture)
   const double tolerance = 1.0e-10;
   Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
-  std::cout << "in check_linear_normal_form" << std::endl;
-  lattice_simulator.calculate_normal_form();
   BOOST_CHECK(lattice_simulator.check_linear_normal_form());
 }
 

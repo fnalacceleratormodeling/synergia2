@@ -80,6 +80,7 @@ private:
     construct_sliced_chef_beamline();
     void
     get_tunes();
+    void calculate_normal_form();
     Normal_form_sage_sptr normal_form_sage_sptr;
 public:
     Lattice_simulator(Lattice_sptr lattice, int map_order);
@@ -118,7 +119,8 @@ public:
     get_horizontal_tune();
     double
     get_vertical_tune();
-    void calculate_normal_form();
+    bool
+    is_ring();
     Normal_form_sage_sptr get_normal_form_sptr();
     Const_MArray2d_ref get_linear_one_turn_map();
     void convert_human_to_normal(MArray2d_ref coords);
