@@ -1100,50 +1100,52 @@ void
 Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
         Step & step)
 {
-    double t;
-    t = simple_timer_current();
-    bunch.convert_to_state(Bunch::fixed_t_bunch);
-    t = simple_timer_show(t, "sc-convert-to-state");
-    Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
-    t = simple_timer_show(t, "sc-get-local-rho");
-    Distributed_rectangular_grid_sptr rho2(
-            get_global_charge_density2(*local_rho)); // [C/m^3]
-    t = simple_timer_show(t, "sc-get-global-rho");
-    local_rho.reset();
-    Distributed_rectangular_grid_sptr G2; // [1/m]
-    if (green_fn_type == pointlike) {
-        G2 = get_green_fn2_pointlike();
-    } else if (green_fn_type == linear) {
-        G2 = get_green_fn2_linear();
-    } else {
-        throw std::runtime_error(
-                "Space_charge_3d_open_hockney::apply: unknown green_fn_type");
-    }
-    t = simple_timer_show(t, "sc-get-green-fn");
-    Distributed_rectangular_grid_sptr phi2(get_scalar_field2(*rho2, *G2)); // [V]
-    t = simple_timer_show(t, "sc-get-phi2");
-    rho2.reset();
-    G2.reset();
-    Distributed_rectangular_grid_sptr phi(extract_scalar_field(*phi2));
-    t = simple_timer_show(t, "sc-get-phi");
-    bunch.periodic_sort(Bunch::z);
-    t = simple_timer_show(t, "sc-sort");
-    phi2.reset();
-    int max_component;
-    if (longitudinal_kicks) {
-        max_component = 3;
-    } else {
-        max_component = 2;
-    }
-    for (int component = 0; component < max_component; ++component) {
-        Distributed_rectangular_grid_sptr local_En(
-                get_electric_field_component(*phi, component)); // [V/m]
-        t = simple_timer_show(t, "sc-get-local-en");
-        Rectangular_grid_sptr
-                En(get_global_electric_field_component(*local_En)); // [V/m]
-        t = simple_timer_show(t, "sc-get-global-en");
-        apply_kick(bunch, *En, time_step, component);
-        t = simple_timer_show(t, "sc-apply-kick");
+    if (bunch.get_total_num() > 1) {
+        double t;
+        t = simple_timer_current();
+        bunch.convert_to_state(Bunch::fixed_t_bunch);
+        t = simple_timer_show(t, "sc-convert-to-state");
+        Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
+        t = simple_timer_show(t, "sc-get-local-rho");
+        Distributed_rectangular_grid_sptr rho2(
+                get_global_charge_density2(*local_rho)); // [C/m^3]
+        t = simple_timer_show(t, "sc-get-global-rho");
+        local_rho.reset();
+        Distributed_rectangular_grid_sptr G2; // [1/m]
+        if (green_fn_type == pointlike) {
+            G2 = get_green_fn2_pointlike();
+        } else if (green_fn_type == linear) {
+            G2 = get_green_fn2_linear();
+        } else {
+            throw std::runtime_error(
+                    "Space_charge_3d_open_hockney::apply: unknown green_fn_type");
+        }
+        t = simple_timer_show(t, "sc-get-green-fn");
+        Distributed_rectangular_grid_sptr phi2(get_scalar_field2(*rho2, *G2)); // [V]
+        t = simple_timer_show(t, "sc-get-phi2");
+        rho2.reset();
+        G2.reset();
+        Distributed_rectangular_grid_sptr phi(extract_scalar_field(*phi2));
+        t = simple_timer_show(t, "sc-get-phi");
+        bunch.periodic_sort(Bunch::z);
+        t = simple_timer_show(t, "sc-sort");
+        phi2.reset();
+        int max_component;
+        if (longitudinal_kicks) {
+            max_component = 3;
+        } else {
+            max_component = 2;
+        }
+        for (int component = 0; component < max_component; ++component) {
+            Distributed_rectangular_grid_sptr local_En(
+                    get_electric_field_component(*phi, component)); // [V/m]
+            t = simple_timer_show(t, "sc-get-local-en");
+            Rectangular_grid_sptr En(
+                    get_global_electric_field_component(*local_En)); // [V/m]
+            t = simple_timer_show(t, "sc-get-global-en");
+            apply_kick(bunch, *En, time_step, component);
+            t = simple_timer_show(t, "sc-apply-kick");
+        }
     }
 }
 
