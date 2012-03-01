@@ -26,18 +26,37 @@ Chef_lattice_section::extend(Chef_lattice_section const& chef_lattice_section)
 void
 Chef_lattice_section::extend(int begin_index, int end_index)
 {
+//    std::cout << "jfa: cls:e: old " << this->begin_index << ", "
+//            << this->end_index << std::endl;
+//    std::cout << "jfa: cls:e: new " << begin_index << ", " << end_index
+//            << std::endl;
     if (this->begin_index == no_index) {
         this->begin_index = begin_index;
     } else {
         if (begin_index != this->end_index) {
+//            std::cout << "jfa: wtf: "
+//                    << (*chef_lattice_sptr->get_sliced_beamline_const_iterator(
+//                            this->end_index))->Name() << " "
+//                    << (*chef_lattice_sptr->get_sliced_beamline_const_iterator(
+//                            this->end_index + 1))->Name() << std::endl;
             if ((begin_index == this->end_index + 1)
                     && ((*chef_lattice_sptr->get_sliced_beamline_const_iterator(
                             this->end_index))->Name()
                             == Chef_lattice::internal_marker_name)) {
                 // OK, we will allow skipping the internal marker
             } else {
-                throw std::runtime_error(
-                        "Chef_lattice_section::extend: invalid begin_index");
+                if ((begin_index == this->end_index + 2)
+                        && ((*chef_lattice_sptr->get_sliced_beamline_const_iterator(
+                                this->end_index))->Name()
+                                == Chef_lattice::internal_marker_name)
+                        && ((*chef_lattice_sptr->get_sliced_beamline_const_iterator(
+                                this->end_index + 1))->Name()
+                                == Chef_lattice::internal_marker_name)) {
+                    // still OK, I guess
+                } else {
+                    throw std::runtime_error(
+                            "Chef_lattice_section::extend: invalid begin_index");
+                }
             }
         }
     }
