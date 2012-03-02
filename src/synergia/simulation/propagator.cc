@@ -204,8 +204,8 @@ Propagator::checkpoint(State & state)
     double t0 = MPI_Wtime();
     using namespace boost::filesystem;
     remove_serialization_directory();
-    binary_save(*this, get_serialization_path(propagator_archive_name).c_str());
-    binary_save(state, get_serialization_path(state_archive_name).c_str());
+    binary_save(*this, get_serialization_path(propagator_archive_name).c_str(), true);
+    binary_save(state, get_serialization_path(state_archive_name).c_str(), true);
     rename_serialization_directory(checkpoint_dir);
     if (state.verbose) {
         if (Commxx().get_rank() == 0) {

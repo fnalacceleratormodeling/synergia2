@@ -6,6 +6,33 @@ const std::string serialization_directory("serialization");
 
 using namespace boost::filesystem;
 
+class Parallel_helper
+{
+private:
+    bool parallel;
+public:
+    Parallel_helper(bool parallel) :
+        parallel(parallel)
+    {
+    }
+    void
+    barrier()
+    {
+        if (parallel) {
+            MPI_Barrier(Commxx().get());
+        }
+    }
+    bool
+    operate_locally()
+    {
+        if (parallel) {
+            return Commxx().get_rank() == 0;
+        } else {
+            return true;
+        }
+    }
+};
+
 void
 copy_file_overwrite_if_exists(std::string const & source,
         std::string const & dest)
@@ -23,24 +50,24 @@ get_serialization_directory()
 }
 
 void
-remove_directory(std::string const & name)
+remove_directory(std::string const & name, bool parallel)
 {
-    Commxx commxx;
-    MPI_Barrier(commxx.get());
-    if (commxx.get_rank() == 0) {
+    Parallel_helper parallel_helper(parallel);
+    parallel_helper.barrier();
+    if (parallel_helper.operate_locally()) {
         if (exists(name)) {
             remove_all(name);
         }
     }
-    MPI_Barrier(commxx.get());
+    parallel_helper.barrier();
 }
 
 void
-remove_serialization_directory()
+remove_serialization_directory(bool parallel)
 {
-    Commxx commxx;
-    MPI_Barrier(commxx.get());
-    if (commxx.get_rank() == 0) {
+    Parallel_helper parallel_helper(parallel);
+    parallel_helper.barrier();
+    if (parallel_helper.operate_locally()) {
         if (is_symlink(get_serialization_directory())) {
             remove(get_serialization_directory());
         } else {
@@ -49,58 +76,58 @@ remove_serialization_directory()
             }
         }
     }
-    MPI_Barrier(commxx.get());
+    parallel_helper.barrier();
 }
 
 void
-ensure_serialization_directory_exists()
+ensure_serialization_directory_exists(bool parallel)
 {
-    Commxx commxx;
-    MPI_Barrier(commxx.get());
-    if (commxx.get_rank() == 0) {
+    Parallel_helper parallel_helper(parallel);
+    parallel_helper.barrier();
+    if (parallel_helper.operate_locally()) {
         if (!is_directory(get_serialization_directory())) {
             create_directories(get_serialization_directory());
         }
     }
-    MPI_Barrier(commxx.get());
+    parallel_helper.barrier();
 }
 
 void
-rename_serialization_directory(std::string const& new_name)
+rename_serialization_directory(std::string const& new_name, bool parallel)
 {
-    Commxx commxx;
-    MPI_Barrier(commxx.get());
-    if (commxx.get_rank() == 0) {
+    Parallel_helper parallel_helper(parallel);
+    parallel_helper.barrier();
+    if (parallel_helper.operate_locally()) {
         if (exists(new_name)) {
             remove_all(new_name);
         }
         rename(get_serialization_directory(), new_name);
     }
-    MPI_Barrier(commxx.get());
+    parallel_helper.barrier();
 }
 
 void
-symlink_serialization_directory(std::string const& existing_dir)
+symlink_serialization_directory(std::string const& existing_dir, bool parallel)
 {
-    Commxx commxx;
-    MPI_Barrier(commxx.get());
-    if (commxx.get_rank() == 0) {
+    Parallel_helper parallel_helper(parallel);
+    parallel_helper.barrier();
+    if (parallel_helper.operate_locally()) {
         create_symlink(existing_dir, get_serialization_directory());
     }
-    MPI_Barrier(commxx.get());
+    parallel_helper.barrier();
 }
 
 void
-unlink_serialization_directory()
+unlink_serialization_directory(bool parallel)
 {
-    Commxx commxx;
-    MPI_Barrier(commxx.get());
-    if (commxx.get_rank() == 0) {
+    Parallel_helper parallel_helper(parallel);
+    parallel_helper.barrier();
+    if (parallel_helper.operate_locally()) {
         if (exists(get_serialization_directory())) {
             remove(get_serialization_directory());
         }
     }
-    MPI_Barrier(commxx.get());
+    parallel_helper.barrier();
 }
 
 // digits is a local function

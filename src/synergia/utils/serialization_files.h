@@ -22,22 +22,24 @@ std::string
 get_serialization_directory();
 
 void
-remove_directory(std::string const & name);
+remove_directory(std::string const & name, bool parallel = true);
 
 void
-remove_serialization_directory();
+remove_serialization_directory(bool parallel = true);
 
 void
-rename_serialization_directory(std::string const& new_name);
+rename_serialization_directory(std::string const& new_name,
+        bool parallel = true);
 
 void
-ensure_serialization_directory_exists();
+ensure_serialization_directory_exists(bool parallel = true);
 
 void
-symlink_serialization_directory(std::string const& existing_dir);
+symlink_serialization_directory(std::string const& existing_dir,
+        bool parallel = true);
 
 void
-unlink_serialization_directory();
+unlink_serialization_directory(bool parallel = true);
 
 std::string
 get_combined_path(std::string const& directory, std::string const& base_name,
@@ -54,9 +56,10 @@ copy_from_serialization_directory(std::string const& file_name);
 
 template<typename T, typename A>
     void
-    archive_save(T const& object, std::string const& filename)
+    archive_save(T const& object, std::string const& filename,
+            bool parallel = false)
     {
-        ensure_serialization_directory_exists();
+        ensure_serialization_directory_exists(parallel);
         std::ofstream output_stream(filename.c_str());
         if (!output_stream.good()) {
             std::string message("<archive>_save: unable to open ");
@@ -85,9 +88,11 @@ template<typename T, typename A>
 
 template<typename T>
     void
-    binary_save(T const& object, std::string const& filename)
+    binary_save(T const& object, std::string const& filename,
+            bool parallel = false)
     {
-        archive_save<T, boost::archive::binary_oarchive > (object, filename);
+        archive_save<T, boost::archive::binary_oarchive > (object, filename,
+                parallel);
     }
 
 template<typename T>
@@ -99,9 +104,11 @@ template<typename T>
 
 template<typename T>
     void
-    text_save(T const& object, std::string const& filename)
+    text_save(T const& object, std::string const& filename,
+            bool parallel = false)
     {
-        archive_save<T, boost::archive::text_oarchive > (object, filename);
+        archive_save<T, boost::archive::text_oarchive > (object, filename,
+                parallel);
     }
 
 template<typename T>
@@ -113,9 +120,11 @@ template<typename T>
 
 template<typename T>
     void
-    xml_save(T const& object, std::string const& filename)
+    xml_save(T const& object, std::string const& filename,
+            bool parallel = false)
     {
-        archive_save<T, boost::archive::xml_oarchive > (object, filename);
+        archive_save<T, boost::archive::xml_oarchive > (object, filename,
+                parallel);
     }
 
 template<typename T>
