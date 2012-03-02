@@ -12,7 +12,6 @@ endif ()
 install(TARGETS synergia_bunch DESTINATION lib)
 install(FILES bunch.h
     diagnostics.h
-    bunch_with_diagnostics.h
     train.h
     fixed_t_z_converter.h
     populate.h
