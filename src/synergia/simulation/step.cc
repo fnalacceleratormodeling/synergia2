@@ -97,7 +97,7 @@ Step::apply(Bunch & bunch, Multi_diagnostics & diagnostics)
 }
 
 
-
+#if 0
 void
 Step::apply(Bunch_with_diagnostics_train & bunch_diag_train)
 {
@@ -207,6 +207,7 @@ Step::apply(Bunch_with_diagnostics_train & bunch_diag_train)
       ++fractions_it;
   }
 }
+#endif
 
 Operators const&
 Step::get_operators() const

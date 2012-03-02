@@ -310,6 +310,7 @@ Propagator::propagate(Bunch_simulator & bunch_simulator,
 //
 //}
 
+#if 0
 void
 Propagator::propagate(Bunch_with_diagnostics_train & bunch_diag_train,
         int num_turns, bool verbose)
@@ -407,6 +408,7 @@ Propagator::propagate(Bunch_with_diagnostics_train & bunch_diag_train,
         MPI_Abort(MPI_COMM_WORLD, 888);
     }
 }
+#endif
 
 //void
 //Propagator::propagate(Bunch & bunch, int num_turns,

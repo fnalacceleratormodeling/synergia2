@@ -6,7 +6,6 @@
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/lattice/chef_utils.h"
 #include "synergia/bunch/bunch.h"
-#include "synergia/bunch/bunch_with_diagnostics.h"
 #include "lattice_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 #include "synergia/simulation/standard_diagnostics_actions.h"

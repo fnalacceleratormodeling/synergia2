@@ -5,7 +5,6 @@
 #include "synergia/simulation/propagate_actions.h"
 #include "synergia/simulation/bunch_simulator.h"
 #include "synergia/bunch/bunch.h"
-#include "synergia/bunch/bunch_with_diagnostics.h"
 #include "synergia/bunch/train.h"
 #include "synergia/foundation/multi_diagnostics.h"
 #include "synergia/utils/serialization.h"
@@ -93,6 +92,7 @@ public:
             Propagate_actions & general_actions, int num_turns,
             int max_turns = 0, bool verbose = true);
 
+#if 0
     void
     propagate(Bunch_with_diagnostics_train & bunch_diag_train, int num_turns,
             bool verbose = false);
@@ -100,7 +100,7 @@ public:
     void
     propagate(Bunch_with_diagnostics_train & bunch_diag_train, int num_turns,
             Propagate_actions & general_actions, bool verbose = true);
-
+#endif
     //    void
     //    propagate(Bunch & bunch, int num_turns, Diagnostics & per_step_diagnostics,
     //            Diagnostics & per_turn_diagnostics, bool verbose = false);

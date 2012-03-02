@@ -31,9 +31,11 @@ public:
     get_type() const;
     virtual void
     apply(Bunch & bunch, double time_step, Step & step) = 0;
+#if 0
     virtual void
     apply_train(Bunch_with_diagnostics_train & bunch_diag_train,
             double time_step, Step & step);
+#endif
     virtual void
     print() const;
     template<class Archive>

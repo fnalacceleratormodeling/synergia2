@@ -6,7 +6,6 @@
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/lattice/chef_utils.h"
 #include "synergia/bunch/bunch.h"
-#include "synergia/bunch/bunch_with_diagnostics.h"
 #include "lattice_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 #include "synergia/simulation/standard_diagnostics_actions.h"
@@ -48,11 +47,6 @@ BOOST_FIXTURE_TEST_CASE(propagate, Lattice_fixture)
     Bunch_sptr bunch_sptr(new Bunch(b.bunch));
     Bunch_simulator bunch_simulator(bunch_sptr);
 
-    Standard_diagnostics_actions_sptr diagnostics_actions_sptr(
-            new Standard_diagnostics_actions);
-    Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr,
-            diagnostics_actions_sptr);
-
     Diagnostics_sptr first_step_full2_diag_sptr(
             new Diagnostics_full2(bunch_sptr, "first_full2_per_step.h5"));
     Diagnostics_sptr second_step_full2_diag_sptr(
@@ -92,11 +86,6 @@ BOOST_FIXTURE_TEST_CASE(propagate_max_turns, Lattice_fixture)
 
     Bunch_sptr bunch_sptr(new Bunch(b.bunch));
     Bunch_simulator bunch_simulator(bunch_sptr);
-
-    Standard_diagnostics_actions_sptr diagnostics_actions_sptr(
-            new Standard_diagnostics_actions);
-    Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr,
-            diagnostics_actions_sptr);
 
     Diagnostics_sptr first_step_full2_diag_sptr(
             new Diagnostics_full2(bunch_sptr, "first_full2_per_step.h5"));

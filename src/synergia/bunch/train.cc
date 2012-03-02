@@ -7,7 +7,7 @@ Train_comms::Train_comms(int num_bunches, const Commxx & master_comm) :
     comms(num_bunches), groups(num_bunches),proc_counts(master_comm.get_size(),0),
     proc_offsets(master_comm.get_size(),0)
 {
-   
+
 
     int error;
     error = MPI_Comm_group(master_comm.get(), &master_group);
@@ -36,10 +36,10 @@ Train_comms::Train_comms(int num_bunches, const Commxx & master_comm) :
                     "MPI error in Train(MPI_Comm_create)");
         }
         comms[bunch].set(bunch_comm);
-         
+
     }
 
-     counts_and_offsets_for_impedance(master_comm,num_bunches,proc_offsets,proc_counts); 
+     counts_and_offsets_for_impedance(master_comm,num_bunches,proc_offsets,proc_counts);
 
 }
 
@@ -73,7 +73,7 @@ Train_comms::get_comm(int index) const
     return comms[index];
 }
 
-    
+
 bool
 Train_comms::is_on_this_rank(int index) const
 {
@@ -82,13 +82,13 @@ Train_comms::is_on_this_rank(int index) const
 }
 
 
-std::vector< int> 
+std::vector< int>
 Train_comms::get_proc_counts() const
 {
  return proc_counts;
 }
 
-std::vector< int> 
+std::vector< int>
 Train_comms::get_proc_offsets() const
 {
 return proc_offsets;
@@ -118,10 +118,10 @@ Train_comms::~Train_comms()
 //*******************************************************************************
 
 Bunch_train::Bunch_train(int num_bunches, double bunch_separation,
-        const Commxx & master_comm) : Train_comms(num_bunches, master_comm), 
+        const Commxx & master_comm) : Train_comms(num_bunches, master_comm),
         bunches(num_bunches), bunch_separation(bunch_separation)
 {
-}        
+}
 
 double
 Bunch_train::get_bunch_separation() const
@@ -132,8 +132,8 @@ Bunch_train::get_bunch_separation() const
 void
 Bunch_train::set_bunch_sptr(int index, Bunch_sptr bunch_sptr)
 {
-    verify_index(index);    
-    if (bunch_sptr->get_comm().get() != get_comm(index).get()) throw 
+    verify_index(index);
+    if (bunch_sptr->get_comm().get() != get_comm(index).get()) throw
         std::runtime_error("Bunch_train::set_bunch_sptr-- the train and the bunch communicators are different");
     bunches[index] = bunch_sptr;
 }
@@ -148,12 +148,12 @@ Bunch_train::get_bunch_sptr(int index)
 
 //*******************************************************************************
 
-
+#if 0
 Bunch_with_diagnostics_train::Bunch_with_diagnostics_train(int num_bunches, double bunch_separation,
         const Commxx & master_comm) : Train_comms(num_bunches,  master_comm),
         bunch_diags(num_bunches), bunch_separation(bunch_separation)
 {
-}        
+}
 
 
 double
@@ -166,7 +166,7 @@ Bunch_with_diagnostics_train::set_bunch_diag_sptr(int index, Bunch_with_diagnost
 {
     verify_index(index);
     bunch_diag_sptr->check_bunch_pointer_in_diagnostics();
-    if (bunch_diag_sptr->get_comm().get() != get_comm(index).get()) throw 
+    if (bunch_diag_sptr->get_comm().get() != get_comm(index).get()) throw
         std::runtime_error("Bunch_with_diagnostics_train::set_bunch_diag_sptr-- the train and the bunch communicators are different");
     bunch_diags[index] = bunch_diag_sptr;
 }
@@ -177,3 +177,4 @@ Bunch_with_diagnostics_train::get_bunch_diag_sptr(int index)
      verify_index(index);
      return bunch_diags[index];
 }
+#endif

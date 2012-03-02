@@ -30,6 +30,7 @@ Operator::print() const
     std::cout << type << " operator: " << name << std::endl;
 }
 
+#if 0
 void
 Operator::apply_train(Bunch_with_diagnostics_train & bunch_diag_train,
         double time_step, Step & step)
@@ -43,6 +44,7 @@ Operator::apply_train(Bunch_with_diagnostics_train & bunch_diag_train,
         }
     }
 }
+#endif
 
 Operator::~Operator()
 {

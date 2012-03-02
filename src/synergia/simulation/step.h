@@ -54,8 +54,10 @@ public:
     apply(Bunch & bunch);
     virtual void
     apply(Bunch & bunch, Multi_diagnostics & diagnostics);
+#if 0
     virtual void
     apply(Bunch_with_diagnostics_train & bunch_diag_train);
+#endif
     Operators const&
     get_operators() const;
     Operators &
