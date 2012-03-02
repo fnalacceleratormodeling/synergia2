@@ -45,6 +45,12 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_set_double_attribute_over
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_set_string_attribute_overloads,
         set_string_attribute, 2, 3);
 
+BOOST_PYTHON_FUNCTION_OVERLOADS(xml_save_lattice_overloads23,
+        xml_save<Lattice >, 2, 3)
+
+BOOST_PYTHON_FUNCTION_OVERLOADS(binary_save_lattice_overloads23,
+        binary_save<Lattice >, 2, 3)
+
 BOOST_PYTHON_MODULE(lattice)
 {
 //    import("pyconvertors");
@@ -154,9 +160,11 @@ BOOST_PYTHON_MODULE(lattice)
    def("chef_unit_conversion", chef_unit_conversion);
    def("get_chef_index",get_chef_index);
 
-   def("xml_save_lattice", xml_save<Lattice > );
+   def("xml_save_lattice", xml_save<Lattice >,
+           xml_save_lattice_overloads23());
    def("xml_load_lattice", xml_load<Lattice > );
-   def("binary_save_lattice", binary_save<Lattice > );
+   def("binary_save_lattice", binary_save<Lattice >,
+           binary_save_lattice_overloads23());
    def("binary_load_lattice", binary_load<Lattice > );
 
 }
