@@ -28,6 +28,7 @@ public:
         serialize(Archive & ar, const unsigned int version)
         {
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Independent_operation);
+            ar & BOOST_SERIALIZATION_NVP(slice_sptr);
         }
     virtual
     ~Aperture_operation();
@@ -61,6 +62,7 @@ public:
         serialize(Archive & ar, const unsigned int version)
         {
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
+            ar & BOOST_SERIALIZATION_NVP(radius);
         }
     virtual
     ~Finite_aperture_operation();
@@ -99,6 +101,7 @@ public:
         {
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
             ar & BOOST_SERIALIZATION_NVP(radius);
+            ar & BOOST_SERIALIZATION_NVP(radius2);
         }
     virtual
     ~Circular_aperture_operation();
@@ -140,6 +143,8 @@ public:
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
             ar & BOOST_SERIALIZATION_NVP(horizontal_radius);
             ar & BOOST_SERIALIZATION_NVP(vertical_radius);
+            ar & BOOST_SERIALIZATION_NVP(h2);
+            ar & BOOST_SERIALIZATION_NVP(v2);
         }
     virtual
     ~Elliptical_aperture_operation();
