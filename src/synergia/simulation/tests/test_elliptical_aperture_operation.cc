@@ -18,7 +18,7 @@ BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture)
     element_sptr->set_double_attribute("elliptical_aperture_vertical_radius",
             vertical_radius);
     Lattice_element_slice_sptr slice_sptr(
-            new Lattice_element_slice(*element_sptr));
+            new Lattice_element_slice(element_sptr));
     Elliptical_aperture_operation elliptical_aperture_operation(slice_sptr);
 }
 
@@ -26,7 +26,7 @@ BOOST_FIXTURE_TEST_CASE(construct_bad, Lattice_fixture)
 {
     Lattice_element_sptr element_sptr(lattice_sptr->get_elements().front());
     Lattice_element_slice_sptr slice_sptr(
-            new Lattice_element_slice(*element_sptr));
+            new Lattice_element_slice(element_sptr));
     bool caught = false;
     try {
         Elliptical_aperture_operation elliptical_aperture_operation(
@@ -70,7 +70,7 @@ BOOST_FIXTURE_TEST_CASE(apply, Lattice_fixture)
     element_sptr->set_double_attribute("elliptical_aperture_vertical_radius",
             vertical_radius);
     Lattice_element_slice_sptr slice_sptr(
-            new Lattice_element_slice(*element_sptr));
+            new Lattice_element_slice(element_sptr));
     Elliptical_aperture_operation elliptical_aperture_operation(slice_sptr);
 }
 
@@ -83,7 +83,7 @@ BOOST_FIXTURE_TEST_CASE(operatorequals, Lattice_fixture)
     element1_sptr->set_double_attribute("elliptical_aperture_vertical_radius",
             vertical_radius);
     Lattice_element_slice_sptr slice1_sptr(
-            new Lattice_element_slice(*element1_sptr));
+            new Lattice_element_slice(element1_sptr));
     Elliptical_aperture_operation
             elliptical_aperture_operation1(slice1_sptr);
 
@@ -94,7 +94,7 @@ BOOST_FIXTURE_TEST_CASE(operatorequals, Lattice_fixture)
     element2_sptr->set_double_attribute("elliptical_aperture_vertical_radius",
             vertical_radius);
     Lattice_element_slice_sptr slice2_sptr(
-            new Lattice_element_slice(*element2_sptr));
+            new Lattice_element_slice(element2_sptr));
     Elliptical_aperture_operation
             elliptical_aperture_operation2(slice2_sptr);
     BOOST_CHECK(elliptical_aperture_operation1 == elliptical_aperture_operation2);
@@ -106,7 +106,7 @@ BOOST_FIXTURE_TEST_CASE(operatorequals, Lattice_fixture)
     element3_sptr->set_double_attribute("elliptical_aperture_vertical_radius",
             vertical_radius);
     Lattice_element_slice_sptr slice3_sptr(
-            new Lattice_element_slice(*element3_sptr));
+            new Lattice_element_slice(element3_sptr));
     Elliptical_aperture_operation
             elliptical_aperture_operation3(slice3_sptr);
     BOOST_CHECK(!(elliptical_aperture_operation1 == elliptical_aperture_operation3));
@@ -118,7 +118,7 @@ BOOST_FIXTURE_TEST_CASE(operatorequals, Lattice_fixture)
     element4_sptr->set_double_attribute("elliptical_aperture_vertical_radius",
             2 * vertical_radius);
     Lattice_element_slice_sptr slice4_sptr(
-            new Lattice_element_slice(*element4_sptr));
+            new Lattice_element_slice(element4_sptr));
     Elliptical_aperture_operation
             elliptical_aperture_operation4(slice4_sptr);
     BOOST_CHECK(!(elliptical_aperture_operation1 == elliptical_aperture_operation4));

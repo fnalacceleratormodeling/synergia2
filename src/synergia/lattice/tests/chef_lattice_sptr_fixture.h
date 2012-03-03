@@ -58,9 +58,9 @@ struct Chef_lattice_sptr_fixture
                 != fodo_fixture.lattice_sptr->get_elements().end(); ++it) {
             double length = (*it)->get_length();
             Lattice_element_slice_sptr slice1_sptr(
-                    new Lattice_element_slice(*(*it), 0.0, 0.5 * length));
+                    new Lattice_element_slice(*it, 0.0, 0.5 * length));
             Lattice_element_slice_sptr slice2_sptr(
-                    new Lattice_element_slice(*(*it), 0.5 * length, length));
+                    new Lattice_element_slice(*it, 0.5 * length, length));
             slices.push_back(slice1_sptr);
             slices.push_back(slice2_sptr);
         }

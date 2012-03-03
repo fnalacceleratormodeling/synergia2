@@ -10,7 +10,7 @@
 class Lattice_element_slice
 {
 private:
-    Lattice_element * element_ptr;
+    Lattice_element_sptr element_sptr;
     bool whole;
     bool left_edge;
     bool right_edge;
@@ -18,8 +18,8 @@ private:
     double right;
 
 public:
-    Lattice_element_slice(Lattice_element & lattice_element);
-    Lattice_element_slice(Lattice_element & lattice_element, double left,
+    Lattice_element_slice(Lattice_element_sptr lattice_element_sptr);
+    Lattice_element_slice(Lattice_element_sptr lattice_element_sptr, double left,
             double right);
     // Default constructor for serialization use only
     Lattice_element_slice();
@@ -43,7 +43,7 @@ public:
         void
         serialize(Archive & ar, const unsigned int version)
         {
-            ar & BOOST_SERIALIZATION_NVP(element_ptr);
+            ar & BOOST_SERIALIZATION_NVP(element_sptr);
             ar & BOOST_SERIALIZATION_NVP(whole);
             ar & BOOST_SERIALIZATION_NVP(left_edge);
             ar & BOOST_SERIALIZATION_NVP(right_edge);

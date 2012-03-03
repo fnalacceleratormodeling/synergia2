@@ -13,29 +13,29 @@ double tolerance = 1.0e-12;
 
 BOOST_AUTO_TEST_CASE(construct)
 {
-    Lattice_element lattice_element(type, name);
-    lattice_element.set_double_attribute("l", length);
-    Lattice_element_slice lattice_element_slice(lattice_element);
+    Lattice_element_sptr lattice_element_sptr(new Lattice_element(type, name));
+    lattice_element_sptr->set_double_attribute("l", length);
+    Lattice_element_slice lattice_element_slice(lattice_element_sptr);
 }
 
 BOOST_AUTO_TEST_CASE(construct2)
 {
-    Lattice_element lattice_element(type, name);
-    lattice_element.set_double_attribute("l", length);
+    Lattice_element_sptr lattice_element_sptr(new Lattice_element(type, name));
+    lattice_element_sptr->set_double_attribute("l", length);
     double left = 0.0;
     double right = length;
-    Lattice_element_slice lattice_element_slice(lattice_element, left, right);
+    Lattice_element_slice lattice_element_slice(lattice_element_sptr, left, right);
 }
 
 BOOST_AUTO_TEST_CASE(construct2_negative_left)
 {
-    Lattice_element lattice_element(type, name);
-    lattice_element.set_double_attribute("l", length);
+    Lattice_element_sptr lattice_element_sptr(new Lattice_element(type, name));
+    lattice_element_sptr->set_double_attribute("l", length);
     double left = -1.0;
     double right = length;
     bool caught = false;
     try {
-        Lattice_element_slice lattice_element_slice(lattice_element, left,
+        Lattice_element_slice lattice_element_slice(lattice_element_sptr, left,
                 right);
     }
     catch (std::range_error) {
@@ -46,13 +46,13 @@ BOOST_AUTO_TEST_CASE(construct2_negative_left)
 
 BOOST_AUTO_TEST_CASE(construct2_beyond_right)
 {
-    Lattice_element lattice_element(type, name);
-    lattice_element.set_double_attribute("l", length);
+    Lattice_element_sptr lattice_element_sptr(new Lattice_element(type, name));
+    lattice_element_sptr->set_double_attribute("l", length);
     double left = 0.0;
     double right = length * 1.1;
     bool caught = false;
     try {
-        Lattice_element_slice lattice_element_slice(lattice_element, left,
+        Lattice_element_slice lattice_element_slice(lattice_element_sptr, left,
                 right);
     }
     catch (std::range_error) {
@@ -63,71 +63,71 @@ BOOST_AUTO_TEST_CASE(construct2_beyond_right)
 
 BOOST_AUTO_TEST_CASE(is_whole_true)
 {
-    Lattice_element lattice_element(type, name);
-    lattice_element.set_double_attribute("l", length);
+    Lattice_element_sptr lattice_element_sptr(new Lattice_element(type, name));
+    lattice_element_sptr->set_double_attribute("l", length);
     double left = 0.0;
     double right = length;
-    Lattice_element_slice lattice_element_slice(lattice_element, left, right);
+    Lattice_element_slice lattice_element_slice(lattice_element_sptr, left, right);
     BOOST_CHECK(lattice_element_slice.is_whole());
 }
 
 BOOST_AUTO_TEST_CASE(is_whole_false)
 {
-    Lattice_element lattice_element(type, name);
-    lattice_element.set_double_attribute("l", length);
+    Lattice_element_sptr lattice_element_sptr(new Lattice_element(type, name));
+    lattice_element_sptr->set_double_attribute("l", length);
     double left = 0.0;
     double right = 0.5 * length;
-    Lattice_element_slice lattice_element_slice(lattice_element, left, right);
+    Lattice_element_slice lattice_element_slice(lattice_element_sptr, left, right);
     BOOST_CHECK(!lattice_element_slice.is_whole());
 }
 
 BOOST_AUTO_TEST_CASE(has_left_edge_true)
 {
-    Lattice_element lattice_element(type, name);
-    lattice_element.set_double_attribute("l", length);
+    Lattice_element_sptr lattice_element_sptr(new Lattice_element(type, name));
+    lattice_element_sptr->set_double_attribute("l", length);
     double left = 0.0;
     double right = length;
-    Lattice_element_slice lattice_element_slice(lattice_element, left, right);
+    Lattice_element_slice lattice_element_slice(lattice_element_sptr, left, right);
     BOOST_CHECK(lattice_element_slice.has_left_edge());
 }
 
 BOOST_AUTO_TEST_CASE(has_left_edge_false)
 {
-    Lattice_element lattice_element(type, name);
-    lattice_element.set_double_attribute("l", length);
+    Lattice_element_sptr lattice_element_sptr(new Lattice_element(type, name));
+    lattice_element_sptr->set_double_attribute("l", length);
     double left = 0.5 * length;
     double right = length;
-    Lattice_element_slice lattice_element_slice(lattice_element, left, right);
+    Lattice_element_slice lattice_element_slice(lattice_element_sptr, left, right);
     BOOST_CHECK(!lattice_element_slice.has_left_edge());
 }
 
 BOOST_AUTO_TEST_CASE(has_right_edge_true)
 {
-    Lattice_element lattice_element(type, name);
-    lattice_element.set_double_attribute("l", length);
+    Lattice_element_sptr lattice_element_sptr(new Lattice_element(type, name));
+    lattice_element_sptr->set_double_attribute("l", length);
     double left = 0.0;
     double right = length;
-    Lattice_element_slice lattice_element_slice(lattice_element, left, right);
+    Lattice_element_slice lattice_element_slice(lattice_element_sptr, left, right);
     BOOST_CHECK(lattice_element_slice.has_right_edge());
 }
 
 BOOST_AUTO_TEST_CASE(has_right_edge_false)
 {
-    Lattice_element lattice_element(type, name);
-    lattice_element.set_double_attribute("l", length);
+    Lattice_element_sptr lattice_element_sptr(new Lattice_element(type, name));
+    lattice_element_sptr->set_double_attribute("l", length);
     double left = 0.0;
     double right = 0.5 * length;
-    Lattice_element_slice lattice_element_slice(lattice_element, left, right);
+    Lattice_element_slice lattice_element_slice(lattice_element_sptr, left, right);
     BOOST_CHECK(!lattice_element_slice.has_right_edge());
 }
 
 BOOST_AUTO_TEST_CASE(get_left_right)
 {
-    Lattice_element lattice_element(type, name);
-    lattice_element.set_double_attribute("l", length);
+    Lattice_element_sptr lattice_element_sptr(new Lattice_element(type, name));
+    lattice_element_sptr->set_double_attribute("l", length);
     const double arbitrary_left(1.1);
     const double arbitrary_right(2.2);
-    Lattice_element_slice lattice_element_slice(lattice_element,
+    Lattice_element_slice lattice_element_slice(lattice_element_sptr,
             arbitrary_left, arbitrary_right);
     BOOST_CHECK_CLOSE(arbitrary_left, lattice_element_slice.get_left(), tolerance);
     BOOST_CHECK_CLOSE(arbitrary_right, lattice_element_slice.get_right(), tolerance);
@@ -135,19 +135,19 @@ BOOST_AUTO_TEST_CASE(get_left_right)
 
 BOOST_AUTO_TEST_CASE(get_lattice_element)
 {
-    Lattice_element lattice_element(type, name);
-    lattice_element.set_double_attribute("l", length);
-    Lattice_element_slice lattice_element_slice(lattice_element);
-    BOOST_CHECK(&(lattice_element_slice.get_lattice_element()) == &lattice_element);
+    Lattice_element_sptr lattice_element_sptr(new Lattice_element(type, name));
+    lattice_element_sptr->set_double_attribute("l", length);
+    Lattice_element_slice lattice_element_slice(lattice_element_sptr);
+    BOOST_CHECK(&(lattice_element_slice.get_lattice_element()) == lattice_element_sptr.get());
 }
 
 BOOST_AUTO_TEST_CASE(serialize_xml)
 {
-    Lattice_element lattice_element(type, name);
-    lattice_element.set_double_attribute("l", length);
+    Lattice_element_sptr lattice_element_sptr(new Lattice_element(type, name));
+    lattice_element_sptr->set_double_attribute("l", length);
     double left = 0.0;
     double right = 0.5 * length;
-    Lattice_element_slice lattice_element_slice(lattice_element, left, right);
+    Lattice_element_slice lattice_element_slice(lattice_element_sptr, left, right);
 
     xml_save<Lattice_element_slice > (lattice_element_slice,
             "lattice_element_slice.xml");
@@ -158,18 +158,18 @@ BOOST_AUTO_TEST_CASE(serialize_xml)
 
 BOOST_AUTO_TEST_CASE(serialize_save_slices)
 {
-    Lattice_element lattice_element(type, name);
-    lattice_element.set_double_attribute("l", length);
+    Lattice_element_sptr lattice_element_sptr(new Lattice_element(type, name));
+    lattice_element_sptr->set_double_attribute("l", length);
     const double old_parameter = 2.718;
-    lattice_element.set_double_attribute("parameter", old_parameter);
+    lattice_element_sptr->set_double_attribute("parameter", old_parameter);
     double left1 = 0.0;
     double right1 = 0.5 * length;
     Lattice_element_slice_sptr lattice_element_slice1_sptr(
-            new Lattice_element_slice(lattice_element, left1, right1));
+            new Lattice_element_slice(lattice_element_sptr, left1, right1));
     double left2 = right1;
     double right2 = length;
     Lattice_element_slice_sptr lattice_element_slice2_sptr(
-            new Lattice_element_slice(lattice_element, left2, right2));
+            new Lattice_element_slice(lattice_element_sptr, left2, right2));
 
     Lattice_element_slices slices;
     slices.push_back(lattice_element_slice1_sptr);

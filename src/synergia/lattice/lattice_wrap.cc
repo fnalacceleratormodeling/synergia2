@@ -88,8 +88,8 @@ BOOST_PYTHON_MODULE(lattice)
              container_conversions::variable_capacity_policy >();
 
     class_<Lattice_element_slice, Lattice_element_slice_sptr >("Lattice_element_slice",
-            init<Lattice_element & >())
-            .def(init<Lattice_element &, double, double >())
+            init<Lattice_element_sptr >())
+            .def(init<Lattice_element_sptr, double, double >())
             .def("print_", &Lattice_element_slice::print)
             ;
 

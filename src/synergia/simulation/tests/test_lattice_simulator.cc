@@ -23,9 +23,9 @@ BOOST_FIXTURE_TEST_CASE(set_slices, Lattice_fixture)
             != lattice_sptr->get_elements().end(); ++it) {
         double length = (*it)->get_length();
         Lattice_element_slice_sptr first_half(
-                new Lattice_element_slice(*(*it), 0.0, 0.5 * length));
+                new Lattice_element_slice(*it, 0.0, 0.5 * length));
         Lattice_element_slice_sptr second_half(
-                new Lattice_element_slice(*(*it), 0.5 * length, length));
+                new Lattice_element_slice(*it, 0.5 * length, length));
         slices.push_back(first_half);
         slices.push_back(second_half);
     }
@@ -111,9 +111,9 @@ BOOST_AUTO_TEST_CASE(update)
             != lattice_sptr->get_elements().end(); ++it) {
         double length = (*it)->get_length();
         Lattice_element_slice_sptr first_half(
-                new Lattice_element_slice(*(*it), 0.0, 0.5 * length));
+                new Lattice_element_slice(*it, 0.0, 0.5 * length));
         Lattice_element_slice_sptr second_half(
-                new Lattice_element_slice(*(*it), 0.5 * length, length));
+                new Lattice_element_slice(*it, 0.5 * length, length));
         slices.push_back(first_half);
         slices.push_back(second_half);
     }
@@ -167,9 +167,9 @@ BOOST_FIXTURE_TEST_CASE(calculate_slice_lattice_functions, Fobodobo_sbend_fixtur
             != lattice_sptr->get_elements().end(); ++it) {
         double length = (*it)->get_length();
         Lattice_element_slice_sptr first_half(
-                new Lattice_element_slice(*(*it), 0.0, 0.5 * length));
+                new Lattice_element_slice(*it, 0.0, 0.5 * length));
         Lattice_element_slice_sptr second_half(
-                new Lattice_element_slice(*(*it), 0.5 * length, length));
+                new Lattice_element_slice(*it, 0.5 * length, length));
         slices.push_back(first_half);
         slices.push_back(second_half);
     }
@@ -197,9 +197,9 @@ BOOST_FIXTURE_TEST_CASE(get_slice_lattice_functions, Fobodobo_sbend_fixture)
             != lattice_sptr->get_elements().end(); ++it) {
         double length = (*it)->get_length();
         Lattice_element_slice_sptr first_half(
-                new Lattice_element_slice(*(*it), 0.0, 0.5 * length));
+                new Lattice_element_slice(*it, 0.0, 0.5 * length));
         Lattice_element_slice_sptr second_half(
-                new Lattice_element_slice(*(*it), 0.5 * length, length));
+                new Lattice_element_slice(*it, 0.5 * length, length));
         slices.push_back(first_half);
         slices.push_back(second_half);
     }
@@ -290,7 +290,7 @@ BOOST_FIXTURE_TEST_CASE(linear_human_normal_human, Foborodobo32_fixture)
 
   // in the linear case, this should just be a matrix multiplication
   // and be very good
-    
+
     // fill the bunch with three points each direction
     const double test_points[] = {1.0e-3, 1.0e-4, 1.0e-3, 1.0e-4, 0.1, 0.1/200};
 
@@ -431,9 +431,9 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture)
 //            != lattice_sptr->get_elements().end(); ++it) {
 //        double length = (*it)->get_length();
 //        Lattice_element_slice_sptr first_half(
-//                new Lattice_element_slice(*(*it), 0.0, 0.5 * length));
+//                new Lattice_element_slice(*it, 0.0, 0.5 * length));
 //        Lattice_element_slice_sptr second_half(
-//                new Lattice_element_slice(*(*it), 0.5 * length, length));
+//                new Lattice_element_slice(*it, 0.5 * length, length));
 //        slices.push_back(first_half);
 //        slices.push_back(second_half);
 //    }

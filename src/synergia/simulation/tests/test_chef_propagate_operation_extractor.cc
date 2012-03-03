@@ -25,7 +25,7 @@ BOOST_FIXTURE_TEST_CASE(extract1, Lattice_fixture)
     double fraction = 0.5;
     double slice_end = elements.front()->get_length() * fraction;
     Lattice_element_slice_sptr slice_sptr(new Lattice_element_slice(
-            *(elements.front()), 0, slice_end));
+            elements.front(), 0, slice_end));
     Lattice_element_slices slices;
     slices.push_back(slice_sptr);
     chef_lattice_sptr->construct_sliced_beamline(slices);
@@ -51,13 +51,13 @@ BOOST_FIXTURE_TEST_CASE(extract3, Lattice_fixture)
     double first_fraction = 0.2;
     double first_length = (*it)->get_length();
     double first_begin = (1 - first_fraction) * first_length;
-    Lattice_element_slice_sptr slice_sptr1(new Lattice_element_slice(*(*it),
+    Lattice_element_slice_sptr slice_sptr1(new Lattice_element_slice(*it,
             first_begin, first_length));
     slices.push_back(slice_sptr1);
 
     // ... the entire second element
     ++it;
-    Lattice_element_slice_sptr slice_sptr2(new Lattice_element_slice(*(*it)));
+    Lattice_element_slice_sptr slice_sptr2(new Lattice_element_slice(*it));
     slices.push_back(slice_sptr2);
 
     /// the first third_fraction of the third element
@@ -65,7 +65,7 @@ BOOST_FIXTURE_TEST_CASE(extract3, Lattice_fixture)
     double third_fraction = 0.3;
     double third_length = (*it)->get_length();
     double third_end = third_fraction * third_length;
-    Lattice_element_slice_sptr slice_sptr3(new Lattice_element_slice(*(*it), 0,
+    Lattice_element_slice_sptr slice_sptr3(new Lattice_element_slice(*it, 0,
             third_end));
     slices.push_back(slice_sptr3);
 

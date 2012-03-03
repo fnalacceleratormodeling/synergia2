@@ -31,10 +31,10 @@ BOOST_FIXTURE_TEST_CASE(append_slice, Lattice_fixture)
     Lattice_element_sptr element_sptr = lattice_sptr->get_elements().front();
     double length = element_sptr->get_length();
     Lattice_element_slice_sptr first_half(
-            new Lattice_element_slice(*element_sptr, 0.0, 0.5 * length));
+            new Lattice_element_slice(element_sptr, 0.0, 0.5 * length));
     independent_operator.append_slice(first_half);
     Lattice_element_slice_sptr second_half(
-            new Lattice_element_slice(*element_sptr, 0.5 * length, length));
+            new Lattice_element_slice(element_sptr, 0.5 * length, length));
     independent_operator.append_slice(second_half);
 }
 
@@ -48,10 +48,10 @@ BOOST_FIXTURE_TEST_CASE(get_slices, Lattice_fixture)
     Lattice_element_sptr element_sptr = lattice_sptr->get_elements().front();
     double length = element_sptr->get_length();
     Lattice_element_slice_sptr first_half(
-            new Lattice_element_slice(*element_sptr, 0.0, 0.5 * length));
+            new Lattice_element_slice(element_sptr, 0.0, 0.5 * length));
     independent_operator.append_slice(first_half);
     Lattice_element_slice_sptr second_half(
-            new Lattice_element_slice(*element_sptr, 0.5 * length, length));
+            new Lattice_element_slice(element_sptr, 0.5 * length, length));
     independent_operator.append_slice(second_half);
 
     Lattice_element_slices slices(independent_operator.get_slices());
@@ -77,10 +77,10 @@ BOOST_FIXTURE_TEST_CASE(apply, Bunch_fixture)
     }
     double length = element_sptr->get_length();
     Lattice_element_slice_sptr first_half(
-            new Lattice_element_slice(*element_sptr, 0.0, 0.5 * length));
+            new Lattice_element_slice(element_sptr, 0.0, 0.5 * length));
     independent_operator.append_slice(first_half);
     Lattice_element_slice_sptr second_half(
-            new Lattice_element_slice(*element_sptr, 0.5 * length, length));
+            new Lattice_element_slice(element_sptr, 0.5 * length, length));
     independent_operator.append_slice(second_half);
     lattice_simulator.set_slices(independent_operator.get_slices());
 
@@ -110,10 +110,10 @@ BOOST_FIXTURE_TEST_CASE(apply_accelerated, Bunch_fixture)
 
     double length = element_sptr->get_length();
     Lattice_element_slice_sptr first_half(
-            new Lattice_element_slice(*element_sptr, 0.0, 0.5 * length));
+            new Lattice_element_slice(element_sptr, 0.0, 0.5 * length));
     independent_operator.append_slice(first_half);
     Lattice_element_slice_sptr second_half(
-            new Lattice_element_slice(*element_sptr, 0.5 * length, length));
+            new Lattice_element_slice(element_sptr, 0.5 * length, length));
     independent_operator.append_slice(second_half);
     lattice_simulator.set_slices(independent_operator.get_slices());
 
@@ -165,10 +165,10 @@ BOOST_FIXTURE_TEST_CASE(apply_modified_lattice, Bunch_fixture)
 
     double length = element_sptr->get_length();
     Lattice_element_slice_sptr first_half(
-            new Lattice_element_slice(*element_sptr, 0.0, 0.5 * length));
+            new Lattice_element_slice(element_sptr, 0.0, 0.5 * length));
     independent_operator.append_slice(first_half);
     Lattice_element_slice_sptr second_half(
-            new Lattice_element_slice(*element_sptr, 0.5 * length, length));
+            new Lattice_element_slice(element_sptr, 0.5 * length, length));
     independent_operator.append_slice(second_half);
     lattice_simulator.set_slices(independent_operator.get_slices());
 
@@ -211,10 +211,10 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture)
     Lattice_element_sptr element_sptr = lattice_sptr->get_elements().front();
     double length = element_sptr->get_length();
     Lattice_element_slice_sptr first_half(
-            new Lattice_element_slice(*element_sptr, 0.0, 0.5 * length));
+            new Lattice_element_slice(element_sptr, 0.0, 0.5 * length));
     independent_operator.append_slice(first_half);
     Lattice_element_slice_sptr second_half(
-            new Lattice_element_slice(*element_sptr, 0.5 * length, length));
+            new Lattice_element_slice(element_sptr, 0.5 * length, length));
     independent_operator.append_slice(second_half);
 
     xml_save<Independent_operator > (independent_operator,
