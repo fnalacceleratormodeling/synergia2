@@ -27,7 +27,8 @@ struct Resume_options
     static const char unspecified_str[];
 
     Resume_options(int argc, char **argv) :
-        directory(unspecified_str), new_checkpoint_directory(unspecified_str),
+        directory(Propagator::default_checkpoint_dir),
+                new_checkpoint_directory(unspecified_str),
                 checkpoint_period(unspecified_int), max_turns(unspecified_int)
     {
         for (int i = 1; i < argc; ++i) {
@@ -66,6 +67,32 @@ const char Resume_options::unspecified_str[] = "";
 void
 run(Resume_options &opts)
 {
+#if 0
+    std::cout << "about to load from " << opts.directory << std::endl;
+    Resume resume(opts.directory);
+    std::cout << "jfa minor success\n";
+
+    if (opts.checkpoint_period != Resume_options::unspecified_int) {
+        resume.set_checkpoint_period(opts.checkpoint_period);
+    }
+    if (opts.new_checkpoint_directory != Resume_options::unspecified_str) {
+        resume.set_new_checkpoint_dir(opts.new_checkpoint_directory);
+    }
+    if (opts.max_turns == Resume_options::unspecified_int) {
+        std::cout << "jfa 00\n";
+        resume.propagate();
+    } else {
+        resume.propagate(opts.max_turns);
+    }
+#endif
+    Propagator propagator;
+    remove_serialization_directory();
+    symlink_serialization_directory(Propagator::default_checkpoint_dir);
+    binary_load(
+            propagator,
+            get_combined_path(Propagator::default_checkpoint_dir, "propagator.bina").c_str());
+    unlink_serialization_directory();
+    propagator.resume(Propagator::default_checkpoint_dir);
 
 }
 
