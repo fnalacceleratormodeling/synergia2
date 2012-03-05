@@ -8,6 +8,7 @@
 #include "synergia/bunch/train.h"
 #include "synergia/foundation/multi_diagnostics.h"
 #include "synergia/utils/serialization.h"
+#include "synergia/utils/logger.h"
 
 class Propagator
 {
@@ -15,6 +16,9 @@ public:
     static const char default_checkpoint_dir[];
     static const char propagator_archive_name[];
     static const char state_archive_name[];
+    static const char log_file_name[];
+    static const char stop_file_name[];
+    static const char alt_stop_file_name[];
 
     struct State
     {
@@ -23,10 +27,10 @@ public:
         int num_turns;
         int first_turn;
         int max_turns;
-        bool verbose;
+        int verbosity;
         State(Bunch_simulator * bunch_simulator_ptr,
                 Propagate_actions * propagate_actions_ptr, int num_turns,
-                int first_turn, int max_turns, bool verbose);
+                int first_turn, int max_turns, int verbosity);
         State()
         {
         }
@@ -39,7 +43,7 @@ public:
                 ar & BOOST_SERIALIZATION_NVP(num_turns);
                 ar & BOOST_SERIALIZATION_NVP(first_turn);
                 ar & BOOST_SERIALIZATION_NVP(max_turns);
-                ar & BOOST_SERIALIZATION_NVP(verbose);
+                ar & BOOST_SERIALIZATION_NVP(verbosity);
             }
     };
 
@@ -52,7 +56,8 @@ private:
     construct();
     State
     get_resume_state(std::string const& checkpoint_directory);
-
+    void
+    checkpoint(State & state, Logger & logger, double & t);
 public:
     Propagator(Stepper_sptr stepper_sptr);
 
@@ -75,9 +80,6 @@ public:
     propagate(State & state);
 
     void
-    checkpoint(State & state);
-
-    void
     resume(std::string const& checkpoint_dir);
 
     void
@@ -85,12 +87,12 @@ public:
 
     void
     propagate(Bunch_simulator & bunch_simulator, int num_turns,
-            int max_turns = 0, bool verbose = true);
+            int max_turns = 0, int verbosity = 1);
 
     void
     propagate(Bunch_simulator & bunch_simulator,
             Propagate_actions & general_actions, int num_turns,
-            int max_turns = 0, bool verbose = true);
+            int max_turns = 0, int verbosity = 1);
 
 #if 0
     void

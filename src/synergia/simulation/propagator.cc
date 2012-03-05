@@ -2,18 +2,23 @@
 #include "synergia/utils/simple_timer.h"
 #include "synergia/simulation/standard_diagnostics_actions.h"
 #include "synergia/utils/serialization_files.h"
+#include "synergia/utils/logger.h"
+#include "synergia/utils/digits.h"
 #include <boost/filesystem.hpp>
 
 const char Propagator::default_checkpoint_dir[] = "checkpoint";
 const char Propagator::propagator_archive_name[] = "propagator.bina";
 const char Propagator::state_archive_name[] = "state.bina";
+const char Propagator::log_file_name[] = "log";
+const char Propagator::stop_file_name[] = "stop";
+const char Propagator::alt_stop_file_name[] = "stopthistimeImeanit";
 
 Propagator::State::State(Bunch_simulator * bunch_simulator_ptr,
         Propagate_actions * propagate_actions_ptr, int num_turns,
-        int first_turn, int max_turns, bool verbose) :
+        int first_turn, int max_turns, int verbosity) :
     bunch_simulator_ptr(bunch_simulator_ptr),
             propagate_actions_ptr(propagate_actions_ptr), num_turns(num_turns),
-            first_turn(first_turn), max_turns(max_turns), verbose(verbose)
+            first_turn(first_turn), max_turns(max_turns), verbosity(verbosity)
 {
 }
 
@@ -64,16 +69,13 @@ void
 Propagator::propagate(State & state)
 {
     try {
+        Logger logger(0, log_file_name);
         double t, t_total;
-        double t_turn, t_turn1;
+        double t_turn0, t_turn1;
 
         t_total = simple_timer_current();
-
         int rank = Commxx().get_rank();
         Bunch_sptr bunch_sptr = state.bunch_simulator_ptr->get_bunch_sptr();
-
-        std::ofstream logfile;
-        if (rank == 0) logfile.open("log");
         t = simple_timer_current();
         if (state.first_turn == 0) {
             state.bunch_simulator_ptr->get_diagnostics_actions().first_action(
@@ -86,30 +88,19 @@ Propagator::propagate(State & state)
         int turns_since_checkpoint = 0;
         int orig_first_turn = state.first_turn;
         bool out_of_particles = false;
+        if (state.verbosity > 0) {
+            logger << "Propagator: starting" << std::endl;
+        }
         for (int turn = state.first_turn; turn < state.num_turns; ++turn) {
-            t_turn = MPI_Wtime();
-            if (state.verbose) {
-                if (rank == 0) {
-                    std::cout << "Propagator: turn " << turn + 1 << "/"
-                            << state.num_turns << std::endl;
-                }
-            }
+            t_turn0 = MPI_Wtime();
             bunch_sptr->get_reference_particle().start_repetition();
             int step_count = 0;
             int num_steps = stepper_sptr->get_steps().size();
             for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
                     != stepper_sptr->get_steps().end(); ++it) {
                 ++step_count;
-                if (state.verbose > 0) {
-                    if (rank == 0) {
-                        std::cout << "Propagator:   step " << step_count << "/"
-                                << num_steps << " s= "
-                                << bunch_sptr->get_reference_particle().get_s()
-                                << " trajectory length="
-                                << bunch_sptr->get_reference_particle().get_trajectory_length()
-                                << std::endl;
-                    }
-                }
+                double t_step0, t_step1;
+                t_step0 = MPI_Wtime();
                 (*it)->apply(*bunch_sptr);
                 /// apply with diagnostics only for testing purposes
                 //(*it)->apply(*bunch_sptr, bunch_simulator.get_per_step_diagnostics());
@@ -120,6 +111,18 @@ Propagator::propagate(State & state)
                 state.propagate_actions_ptr->step_end_action(*stepper_sptr,
                         *(*it), *bunch_sptr, turn, step_count);
                 t = simple_timer_show(t, "propagate-general_actions-step");
+                t_step1 = MPI_Wtime();
+                if (state.verbosity > 1) {
+                    logger << "Propagator:";
+                    logger << "     step " << std::setw(digits(num_steps))
+                            << step_count << "/" << num_steps;
+                    logger << ", macroparticles = "
+                            << state.bunch_simulator_ptr->get_bunch().get_total_num();
+                    logger << ", time = " << std::fixed << std::setprecision(3)
+                            << t_step1 - t_step0 << "s";
+                    ;
+                    logger << std::endl;
+                }
                 if (state.bunch_simulator_ptr->get_bunch().get_total_num() == 0) {
                     if (rank == 0) {
                         std::cout
@@ -132,18 +135,6 @@ Propagator::propagate(State & state)
             if (out_of_particles) {
                 break;
             }
-            t_turn1 = MPI_Wtime();
-            if (rank == 0) {
-                logfile << " turn " << turn + 1 << " : " << t_turn1 - t_turn
-                        << "   macroparticles="
-                        << state.bunch_simulator_ptr->get_bunch().get_total_num()
-                        << " \n";
-                std::cout << "  turn " << turn + 1 << " : " << t_turn1 - t_turn
-                        << "   macroparticles="
-                        << state.bunch_simulator_ptr->get_bunch().get_total_num()
-                        << std::endl;
-                logfile.flush();
-            }
             t = simple_timer_current();
 
             state.bunch_simulator_ptr->get_diagnostics_actions().turn_end_action(
@@ -153,39 +144,46 @@ Propagator::propagate(State & state)
                     *bunch_sptr, turn);
             t = simple_timer_show(t, "propagate-general_actions-turn");
             state.first_turn = turn + 1;
+            t_turn1 = MPI_Wtime();
+            if (state.verbosity > 0) {
+                logger << "Propagator:";
+                logger << " turn " << std::setw(digits(state.num_turns))
+                        << turn + 1 << "/" << state.num_turns;
+                logger << ", macroparticles = "
+                        << state.bunch_simulator_ptr->get_bunch().get_total_num();
+                logger << ", time = " << std::fixed << std::setprecision(2)
+                        << t_turn1 - t_turn0 << "s";
+                logger << std::endl;
+            }
             ++turns_since_checkpoint;
             if ((turns_since_checkpoint == checkpoint_period) && (turn
                     != (state.num_turns - 1))) {
-                checkpoint(state);
+                checkpoint(state, logger, t);
                 turns_since_checkpoint = 0;
             }
             if (((turn - orig_first_turn + 1) == state.max_turns) && (turn
                     != (state.num_turns - 1))) {
-                if (rank == 0) {
-                    std::cout << "Maximum number of turns reached\n";
-                }
+                logger << "Maximum number of turns reached\n";
                 if (turns_since_checkpoint > 0) {
-                    checkpoint(state);
+                    checkpoint(state, logger, t);
                 }
                 break;
             }
         }
-        if (rank == 0) logfile.close();
         simple_timer_show(t_total, "propagate-total");
     }
     catch (std::exception const& e) {
-        std::cout << e.what() << std::endl;
+        std::cerr << e.what() << std::endl;
         MPI_Abort(MPI_COMM_WORLD, 888);
     }
 }
 
 void
-Propagator::checkpoint(State & state)
+Propagator::checkpoint(State & state, Logger & logger, double & t)
 {
-    if (state.verbose) {
-        if (Commxx().get_rank() == 0) {
-            std::cout << "Propagator::checkpoint: ";
-        }
+    if (state.verbosity > 0) {
+        logger << "Propagator: checkpoint";
+        logger.flush();
     }
     double t0 = MPI_Wtime();
     using namespace boost::filesystem;
@@ -194,12 +192,15 @@ Propagator::checkpoint(State & state)
             true);
     binary_save(state, get_serialization_path(state_archive_name).c_str(), true);
     rename_serialization_directory(checkpoint_dir);
-    if (state.verbose) {
-        if (Commxx().get_rank() == 0) {
-            std::cout << "written to \"" << checkpoint_dir << "\" in "
-                    << MPI_Wtime() - t0 << "s\n";
-        }
+    double t_checkpoint = MPI_Wtime() - t0;
+    if (state.verbosity > 0) {
+        logger << " written to \"" << checkpoint_dir << "\"";
+        logger << ", time = " << std::fixed << std::setprecision(3)
+                << t_checkpoint << "s";
+        ;
+        logger << std::endl;
     }
+    t = simple_timer_show(t, "checkpoint");
 }
 
 Propagator::State
@@ -231,20 +232,20 @@ Propagator::resume(std::string const& checkpoint_directory, int max_turns)
 
 void
 Propagator::propagate(Bunch_simulator & bunch_simulator, int num_turns,
-        int max_turns, bool verbose)
+        int max_turns, int verbosity)
 {
     Propagate_actions empty_propagate_actions;
     propagate(bunch_simulator, empty_propagate_actions, num_turns, max_turns,
-            verbose);
+            verbosity);
 }
 
 void
 Propagator::propagate(Bunch_simulator & bunch_simulator,
         Propagate_actions & general_actions, int num_turns, int max_turns,
-        bool verbose)
+        int verbosity)
 {
     State state(&bunch_simulator, &general_actions, num_turns, 0, max_turns,
-            verbose);
+            verbosity);
     propagate(state);
 }
 

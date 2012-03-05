@@ -314,10 +314,10 @@ BOOST_PYTHON_MODULE(simulation)
             .def("get_diagnostics_actions", &Bunch_simulator::get_diagnostics_actions_sptr)
             ;
 
-    void (Propagator::*propagate1)(Bunch_simulator &, int, int, bool)
+    void (Propagator::*propagate1)(Bunch_simulator &, int, int, int)
                                 = &Propagator::propagate;
 
-    void (Propagator::*propagate2)(Bunch_simulator &, Propagate_actions &, int, int, bool)
+    void (Propagator::*propagate2)(Bunch_simulator &, Propagate_actions &, int, int, int)
                                 = &Propagator::propagate;
 
     void (Propagator::*resume1)(std::string const&)
