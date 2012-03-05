@@ -16,5 +16,8 @@ test_fast_int_floor
 test_complex_error_function
 test_distributed_fft2d
 test_distributed_fft2d_mpi
+test_logger
+test_logger_mpi
 *.xml
 *.h5
+logger-log*
