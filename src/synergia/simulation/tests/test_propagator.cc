@@ -114,9 +114,9 @@ BOOST_FIXTURE_TEST_CASE(propagate_max_turns, Lattice_fixture)
 
     const char second_checkpoint[] = "second_checkpoint";
     propagator.set_checkpoint_dir(second_checkpoint);
-    propagator.resume(Propagator::default_checkpoint_dir);
+    propagator.resume(Propagator::default_checkpoint_dir, false, 0, false, 0);
 
-    propagator.resume(second_checkpoint, 2);
+    propagator.resume(second_checkpoint, true, 2, false, 0);
 }
 
 //BOOST_FIXTURE_TEST_CASE(propagate1, Lattice_fixture)

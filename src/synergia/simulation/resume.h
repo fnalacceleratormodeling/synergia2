@@ -10,7 +10,9 @@ private:
     std::string checkpoint_dir;
     Propagator propagator;
 public:
-    Resume(std::string const& checkpoint_dir = Propagator::default_checkpoint_dir);
+    Resume(
+            std::string const& checkpoint_dir =
+                    Propagator::default_checkpoint_dir);
 
     void
     set_checkpoint_period(int period);
@@ -25,10 +27,14 @@ public:
     get_new_checkpoint_dir() const;
 
     void
-    propagate();
+    set_verbosity(int period);
+
+    int
+    get_verbosity() const;
 
     void
-    propagate(int max_turns);
+    propagate(bool new_max_turns, int max_turns, bool new_verbosity,
+            int verbosity);
 
     ~Resume();
 };

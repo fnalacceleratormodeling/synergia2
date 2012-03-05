@@ -320,12 +320,6 @@ BOOST_PYTHON_MODULE(simulation)
     void (Propagator::*propagate2)(Bunch_simulator &, Propagate_actions &, int, int, int)
                                 = &Propagator::propagate;
 
-    void (Propagator::*resume1)(std::string const&)
-                                = &Propagator::resume;
-
-    void (Propagator::*resume2)(std::string const&, int)
-                                = &Propagator::resume;
-
 //    void (Propagator::*propagate3)(Bunch_with_diagnostics_train &, int, Propagate_actions &, bool)
 //                                = &Propagator::propagate;
 //
@@ -354,8 +348,7 @@ BOOST_PYTHON_MODULE(simulation)
                  propagate_member_overloads24())
             .def("propagate", propagate2,
                     propagate_member_overloads35())
-            .def("resume", resume1)
-            .def("resume", resume2)
+            .def("resume", &Propagator::resume)
 //            .def("resume", &Propagator::resume,
 //                    resume_member_overloads())
 //            .def("propagate", propagate3,

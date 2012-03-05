@@ -80,10 +80,8 @@ public:
     propagate(State & state);
 
     void
-    resume(std::string const& checkpoint_dir);
-
-    void
-    resume(std::string const& checkpoint_dir, int max_turns);
+    resume(std::string const& checkpoint_dir, bool new_max_turns,
+            int max_turns, bool new_verbosity, int verbosity);
 
     void
     propagate(Bunch_simulator & bunch_simulator, int num_turns,

@@ -37,15 +37,11 @@ Resume::get_new_checkpoint_dir() const
 }
 
 void
-Resume::propagate()
+Resume::propagate(bool new_max_turns, int max_turns, bool new_verbosity,
+        int verbosity)
 {
-    propagator.resume(checkpoint_dir);
-}
-
-void
-Resume::propagate(int max_turns)
-{
-    propagator.resume(checkpoint_dir, max_turns);
+    propagator.resume(checkpoint_dir, new_max_turns, max_turns, new_verbosity,
+            verbosity);
 }
 
 Resume::~Resume()

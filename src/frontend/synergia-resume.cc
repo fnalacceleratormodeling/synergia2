@@ -12,6 +12,7 @@ usage(int retval)
             << "    --new-dir=<dir>: directory name to use for subsequent checkpointing\n";
     std::cout << "    --period=<period>: period for subsequent checkpointing\n";
     std::cout << "    --max=<num>: maximum number of turns for this run\n";
+    std::cout << "    --verbosity=<num>: verbosity for this run\n";
     std::cout << "\n";
     exit(retval);
 }
@@ -22,6 +23,7 @@ struct Resume_options
     std::string new_checkpoint_directory;
     int checkpoint_period;
     int max_turns;
+    int verbosity;
 
     static const int unspecified_int = -1;
     static const char unspecified_str[];
@@ -29,7 +31,8 @@ struct Resume_options
     Resume_options(int argc, char **argv) :
         directory(Propagator::default_checkpoint_dir),
                 new_checkpoint_directory(unspecified_str),
-                checkpoint_period(unspecified_int), max_turns(unspecified_int)
+                checkpoint_period(unspecified_int), max_turns(unspecified_int),
+                verbosity(unspecified_int)
     {
         for (int i = 1; i < argc; ++i) {
             if (std::string(argv[i]) == "--help") {
@@ -44,6 +47,8 @@ struct Resume_options
                         checkpoint_period = arg.extract_value<int > ();
                     } else if (arg.get_lhs() == "--max") {
                         max_turns = arg.extract_value<int > ();
+                    } else if (arg.get_lhs() == "--verbosity") {
+                        verbosity = arg.extract_value<int > ();
                     } else {
                         std::cout << "Unknown argument " << arg.get_lhs()
                                 << std::endl;
@@ -75,11 +80,10 @@ run(Resume_options &opts)
     if (opts.new_checkpoint_directory != Resume_options::unspecified_str) {
         resume.set_new_checkpoint_dir(opts.new_checkpoint_directory);
     }
-    if (opts.max_turns == Resume_options::unspecified_int) {
-        resume.propagate();
-    } else {
-        resume.propagate(opts.max_turns);
-    }
+    bool new_max_turns = (opts.max_turns == Resume_options::unspecified_int);
+    bool new_verbosity = (opts.verbosity == Resume_options::unspecified_int);
+    resume.propagate(new_max_turns, opts.max_turns, new_verbosity,
+            opts.verbosity);
 }
 
 int

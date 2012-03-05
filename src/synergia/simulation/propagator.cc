@@ -89,7 +89,8 @@ Propagator::propagate(State & state)
         int orig_first_turn = state.first_turn;
         bool out_of_particles = false;
         if (state.verbosity > 0) {
-            logger << "Propagator: starting turn " << state.first_turn +1  << std::endl;
+            logger << "Propagator: starting turn " << state.first_turn + 1
+                    << std::endl;
         }
         for (int turn = state.first_turn; turn < state.num_turns; ++turn) {
             t_turn0 = MPI_Wtime();
@@ -223,18 +224,18 @@ Propagator::get_resume_state(std::string const& checkpoint_directory)
     unlink_serialization_directory();
     return state;
 }
-void
-Propagator::resume(std::string const& checkpoint_directory)
-{
-    State state(get_resume_state(checkpoint_directory));
-    propagate(state);
-}
 
 void
-Propagator::resume(std::string const& checkpoint_directory, int max_turns)
+Propagator::resume(std::string const& checkpoint_directory, bool new_max_turns,
+        int max_turns, bool new_verbosity, int verbosity)
 {
     State state(get_resume_state(checkpoint_directory));
-    state.max_turns = max_turns;
+    if (new_max_turns) {
+        state.max_turns = max_turns;
+    }
+    if (new_verbosity) {
+        state.verbosity = verbosity;
+    }
     propagate(state);
 }
 
