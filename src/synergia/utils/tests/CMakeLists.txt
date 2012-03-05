@@ -8,7 +8,7 @@ add_test(test_parallel_utils_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "impor
 add_executable(test_logger test_logger.cc)
 target_link_libraries(test_logger synergia_parallel_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_logger ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_logger)
-#add_test(test_logger_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_logger.py)
+add_test(test_logger_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_logger.py)
 
 add_executable(test_logger_mpi test_logger_mpi.cc)
 target_link_libraries(test_logger_mpi synergia_parallel_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})

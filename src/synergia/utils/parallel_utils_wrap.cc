@@ -2,6 +2,7 @@
 #include <boost/python.hpp>
 #include "synergia/utils/container_conversions.h"
 #include "synergia/utils/comm_converter.h"
+#include "synergia/utils/logger.h"
 
 using namespace boost::python;
 
@@ -42,4 +43,12 @@ BOOST_PYTHON_MODULE(parallel_utils)
     def("decompose_1d", decompose_1d_wrap);
     def("decompose_1d_local", decompose_1d_local);
 
+    class_<Logger >("Logger", init<int >())
+            .def(init<int, std::string const& >())
+            .def(init<std::string const& >())
+            .def("write", &Logger::write,
+                    return_internal_reference<>())
+            .def("flush", &Logger::flush,
+                    return_internal_reference<>())
+            ;
 }
