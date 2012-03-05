@@ -70,7 +70,7 @@ run()
 
     propagator.set_checkpoint_period(2);
     double t0 = MPI_Wtime();
-    propagator.propagate(bunch_simulator, num_turns);
+    propagator.propagate(bunch_simulator, num_turns, 0, 2);
     double t1 = MPI_Wtime();
     if (comm.get_rank() == 0) {
       std::cout << "propagate time = " << (t1-t0) << std::endl;
