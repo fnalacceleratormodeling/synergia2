@@ -11,7 +11,7 @@ const char Propagator::propagator_archive_name[] = "propagator.bina";
 const char Propagator::state_archive_name[] = "state.bina";
 const char Propagator::log_file_name[] = "log";
 const char Propagator::stop_file_name[] = "stop";
-const char Propagator::alt_stop_file_name[] = "stopthistimeImeanit";
+const char Propagator::alt_stop_file_name[] = "STOPTHISTIMEIMEANIT";
 
 Propagator::State::State(Bunch_simulator * bunch_simulator_ptr,
         Propagate_actions * propagate_actions_ptr, int num_turns,
@@ -89,7 +89,7 @@ Propagator::propagate(State & state)
         int orig_first_turn = state.first_turn;
         bool out_of_particles = false;
         if (state.verbosity > 0) {
-            logger << "Propagator: starting" << std::endl;
+            logger << "Propagator: starting turn " << state.first_turn +1  << std::endl;
         }
         for (int turn = state.first_turn; turn < state.num_turns; ++turn) {
             t_turn0 = MPI_Wtime();
@@ -163,7 +163,15 @@ Propagator::propagate(State & state)
             }
             if (((turn - orig_first_turn + 1) == state.max_turns) && (turn
                     != (state.num_turns - 1))) {
-                logger << "Maximum number of turns reached\n";
+                logger << "Propagator: maximum number of turns reached\n";
+                if (turns_since_checkpoint > 0) {
+                    checkpoint(state, logger, t);
+                }
+                break;
+            }
+            if (boost::filesystem::exists(stop_file_name)
+                    || boost::filesystem::exists(alt_stop_file_name)) {
+                logger << "Propagator: stop file detected\n";
                 if (turns_since_checkpoint > 0) {
                     checkpoint(state, logger, t);
                 }
