@@ -4,20 +4,6 @@
 #include "synergia/utils/serialization_files.h"
 #include <boost/filesystem.hpp>
 
-//void
-//Propagator::construct()
-//{
-//    Lattice_element_slices all_slices;
-//    for (Steps::const_iterator s_it = stepper.get_steps().begin(); s_it
-//            != stepper.get_steps().end(); ++s_it) {
-//        for (Operators::const_iterator o_it = (*s_it)->get_operators().begin(); o_it
-//                != (*s_it)->get_operators().end(); ++o_it) {
-//            all_slices.splice(all_slices.end(), (*o_it)->get_slices());
-//        }
-//    }
-//    chef_lattice.construct_sliced_beamline(all_slices);
-//}
-
 const char Propagator::default_checkpoint_dir[] = "checkpoint";
 const char Propagator::propagator_archive_name[] = "propagator.bina";
 const char Propagator::state_archive_name[] = "state.bina";
@@ -74,9 +60,6 @@ struct Object_to_sptr_hack
     }
 };
 
-//void
-//Propagator::propagate(Bunch_with_diagnostics & bunch_with_diagnostics,
-//        int num_turns, Propagate_actions & general_actions, bool verbose)
 void
 Propagator::propagate(State & state)
 {
@@ -265,55 +248,6 @@ Propagator::propagate(Bunch_simulator & bunch_simulator,
     propagate(state);
 }
 
-//void
-//Propagator::propagate(Bunch & bunch, int num_turns,
-//        Diagnostics & per_step_diagnostics, Diagnostics & per_turn_diagnostics,
-//        bool verbose)
-//{
-//
-//    Bunch_sptr bunch_sptr(&bunch, Object_to_sptr_hack());
-//
-//    Bunch_simulator bunch_simulator(bunch_sptr);
-//
-//    Diagnostics_sptr per_step_diagnostics_sptr(&per_step_diagnostics,
-//            Object_to_sptr_hack());
-//    bunch_simulator.get_diagnostics_actions_sptr()->add_per_step(
-//            per_step_diagnostics_sptr);
-//
-//    Diagnostics_sptr per_turn_diagnostics_sptr(&per_turn_diagnostics,
-//            Object_to_sptr_hack());
-//    bunch_simulator.get_diagnostics_actions_sptr()->add_per_turn(
-//            per_turn_diagnostics_sptr);
-//
-//    propagate(bunch_simulator, num_turns, verbose);
-//
-//}
-
-//void
-//Propagator::propagate(Bunch & bunch, int num_turns,
-//        Multi_diagnostics & per_step_diagnostics,
-//        Multi_diagnostics & per_turn_diagnostics, bool verbose)
-//{
-//
-//    Bunch_sptr bunch_sptr(&bunch, Object_to_sptr_hack());
-//    Standard_diagnostics_actions_sptr diagnostics_actions_sptr(
-//            new Standard_diagnostics_actions);
-//
-//    for (Multi_diagnostics::iterator dit = per_step_diagnostics.begin(); dit
-//            != per_step_diagnostics.end(); ++dit) {
-//        diagnostics_actions_sptr->add_per_step(*dit);
-//    }
-//    for (Multi_diagnostics::iterator dit = per_turn_diagnostics.begin(); dit
-//            != per_turn_diagnostics.end(); ++dit) {
-//        diagnostics_actions_sptr->add_per_turn(*dit);
-//    }
-//
-//    Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr,
-//            diagnostics_actions_sptr);
-//    propagate(bunch_with_diagnostics, num_turns, verbose);
-//
-//}
-
 #if 0
 void
 Propagator::propagate(Bunch_with_diagnostics_train & bunch_diag_train,
@@ -413,31 +347,6 @@ Propagator::propagate(Bunch_with_diagnostics_train & bunch_diag_train,
     }
 }
 #endif
-
-//void
-//Propagator::propagate(Bunch & bunch, int num_turns,
-//        Standard_diagnostics_actions & diagnostics_actions, int verbosity)
-//{
-//    Propagate_actions empty_propagate_actions;
-//    propagate(bunch, num_turns, diagnostics_actions, empty_propagate_actions,
-//            verbosity);
-//}
-
-//void
-//Propagator::propagate(Bunch & bunch, int num_turns,
-//        Standard_diagnostics_actions & diagnostics_actions,
-//        Propagate_actions & general_actions, int verbose)
-//{
-//
-//    Bunch_sptr bunch_sptr(&bunch, Object_to_sptr_hack());
-//    Standard_diagnostics_actions_sptr diagnostics_actions_sptr(
-//            &diagnostics_actions, Object_to_sptr_hack());
-//    Bunch_with_diagnostics bunch_with_diagnostics(bunch_sptr,
-//            diagnostics_actions_sptr);
-//
-//    propagate(bunch_with_diagnostics, num_turns, general_actions, verbose);
-//
-//}
 
 Propagator::~Propagator()
 {
