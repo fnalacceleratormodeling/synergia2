@@ -1,5 +1,6 @@
 #include "serialization_files.h"
 #include "commxx.h"
+#include "digits.h"
 #include <boost/filesystem.hpp>
 
 const std::string serialization_directory("serialization");
@@ -128,21 +129,6 @@ unlink_serialization_directory(bool parallel)
         }
     }
     parallel_helper.barrier();
-}
-
-// digits is a local function
-long int
-digits(long int val)
-{
-    long int retval = 1;
-    long int base = 1;
-    for (int i = 0; i < 9; ++i) {
-        base *= 10;
-        if (val > base) {
-            retval += 1;
-        }
-    }
-    return retval;
 }
 
 std::string
