@@ -92,11 +92,14 @@ Propagator::propagate(State & state)
         std::ofstream logfile;
         if (rank == 0) logfile.open("log");
         t = simple_timer_current();
-        state.bunch_simulator_ptr->get_diagnostics_actions().first_action(
-                *stepper_sptr, *bunch_sptr);
-        t = simple_timer_show(t, "diagnostics_first");
-        state.propagate_actions_ptr->first_action(*stepper_sptr, *bunch_sptr);
-        t = simple_timer_show(t, "propagate-general_actions");
+        if (state.first_turn == 0) {
+            state.bunch_simulator_ptr->get_diagnostics_actions().first_action(
+                    *stepper_sptr, *bunch_sptr);
+            t = simple_timer_show(t, "diagnostics_first");
+            state.propagate_actions_ptr->first_action(*stepper_sptr,
+                    *bunch_sptr);
+            t = simple_timer_show(t, "propagate-general_actions");
+        }
         int turns_since_checkpoint = 0;
         int orig_first_turn = state.first_turn;
         bool out_of_particles = false;
@@ -136,7 +139,8 @@ Propagator::propagate(State & state)
                 t = simple_timer_show(t, "propagate-general_actions-step");
                 if (state.bunch_simulator_ptr->get_bunch().get_total_num() == 0) {
                     if (rank == 0) {
-                        std::cout << "Propagator::propagate: No particles left in bunch. Exiting.\n";
+                        std::cout
+                                << "Propagator::propagate: No particles left in bunch. Exiting.\n";
                     }
                     out_of_particles = true;
                     break;
@@ -192,7 +196,6 @@ Propagator::propagate(State & state)
     }
 }
 
-
 void
 Propagator::checkpoint(State & state)
 {
@@ -204,7 +207,8 @@ Propagator::checkpoint(State & state)
     double t0 = MPI_Wtime();
     using namespace boost::filesystem;
     remove_serialization_directory();
-    binary_save(*this, get_serialization_path(propagator_archive_name).c_str(), true);
+    binary_save(*this, get_serialization_path(propagator_archive_name).c_str(),
+            true);
     binary_save(state, get_serialization_path(state_archive_name).c_str(), true);
     rename_serialization_directory(checkpoint_dir);
     if (state.verbose) {
@@ -345,7 +349,7 @@ Propagator::propagate(Bunch_with_diagnostics_train & bunch_diag_train,
             if (verbose) {
                 if (rank == 0) {
                     std::cout << "Propagator: turn " << turn + 1 << "/"
-                            << num_turns << std::endl;
+                    << num_turns << std::endl;
                 }
             }
 
@@ -363,16 +367,16 @@ Propagator::propagate(Bunch_with_diagnostics_train & bunch_diag_train,
                 if (verbose) {
                     if (rank == 0) {
                         std::cout << "Propagator:   step " << step_count << "/"
-                                << num_steps << std::endl;
+                        << num_steps << std::endl;
                     }
                 }
                 (*it)->apply(bunch_diag_train);
                 for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {
                     if (bunch_diag_train.is_on_this_rank(index)) {
                         Bunch_sptr
-                                bunch_sptr =
-                                        bunch_diag_train.get_bunch_diag_sptr(
-                                                index)->get_bunch_sptr();
+                        bunch_sptr =
+                        bunch_diag_train.get_bunch_diag_sptr(
+                                index)->get_bunch_sptr();
                         bunch_diag_train.get_bunch_diag_sptr(index)->get_diagnostics_actions_sptr() ->step_end_action(
                                 *stepper_sptr, *(*it), *bunch_sptr, turn,
                                 step_count);
@@ -384,16 +388,16 @@ Propagator::propagate(Bunch_with_diagnostics_train & bunch_diag_train,
             t_turn1 = MPI_Wtime();
             if (rank == 0) {
                 logfile << " turn " << turn + 1 << " : " << t_turn1 - t_turn
-                        << " \n";
+                << " \n";
                 std::cout << "  turn " << turn + 1 << " : " << t_turn1 - t_turn
-                        << std::endl;
+                << std::endl;
                 logfile.flush();
             }
             for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {
                 if (bunch_diag_train.is_on_this_rank(index)) {
                     Bunch_sptr
-                            bunch_sptr = bunch_diag_train.get_bunch_diag_sptr(
-                                    index)->get_bunch_sptr();
+                    bunch_sptr = bunch_diag_train.get_bunch_diag_sptr(
+                            index)->get_bunch_sptr();
                     bunch_diag_train.get_bunch_diag_sptr(index)->get_diagnostics_actions_sptr() ->turn_end_action(
                             *stepper_sptr, *bunch_sptr, turn);
                     general_actions.turn_end_action(*stepper_sptr, *bunch_sptr,
