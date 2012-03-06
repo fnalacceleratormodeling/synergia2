@@ -13,7 +13,6 @@ usage(int retval)
     std::cout << "    --period=<period>: period for subsequent checkpointing\n";
     std::cout << "    --max=<num>: maximum number of turns for this run\n";
     std::cout << "    --verbosity=<num>: verbosity for this run\n";
-    std::cout << "\n";
     exit(retval);
 }
 
@@ -50,13 +49,13 @@ struct Resume_options
                     } else if (arg.get_lhs() == "--verbosity") {
                         verbosity = arg.extract_value<int > ();
                     } else {
-                        std::cout << "Unknown argument " << arg.get_lhs()
+                        std::cerr << "Unknown argument " << arg.get_lhs()
                                 << std::endl;
                         usage(1);
                     }
                 } else {
                     if (argv[i][0] == '-') {
-                        std::cout << "Unknown argument " << argv[i]
+                        std::cerr << "Unknown argument " << argv[i]
                                 << std::endl;
                         usage(1);
                     }
