@@ -23,3 +23,4 @@ test_interpolate_rectangular_xyz
 test_space_charge_rectangular
 
 *.h5
+*.xml
