@@ -15,3 +15,4 @@ test_populate
 
 *.h5
 *.icc
+*.xml
