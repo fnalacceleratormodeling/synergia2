@@ -14,6 +14,7 @@ class Propagator
 {
 public:
     static const char default_checkpoint_dir[];
+    static const char description_file_name[];
     static const char propagator_archive_name[];
     static const char state_archive_name[];
     static const char log_file_name[];

@@ -7,6 +7,7 @@
 #include <boost/filesystem.hpp>
 
 const char Propagator::default_checkpoint_dir[] = "checkpoint";
+const char Propagator::description_file_name[] = "checkpoint_description.txt";
 const char Propagator::propagator_archive_name[] = "propagator.bina";
 const char Propagator::state_archive_name[] = "state.bina";
 const char Propagator::log_file_name[] = "log";
@@ -200,6 +201,13 @@ Propagator::checkpoint(State & state, Logger & logger, double & t)
     binary_save(*this, get_serialization_path(propagator_archive_name).c_str(),
             true);
     binary_save(state, get_serialization_path(state_archive_name).c_str(), true);
+    if (Commxx().get_rank() == 0) {
+        std::ofstream description(
+                get_serialization_path(description_file_name, false).c_str());
+        description << "last_turn = " << state.first_turn << std::endl;
+        description << "mpi_size = " << Commxx().get_size() << std::endl;
+        description.close();
+    }
     rename_serialization_directory(checkpoint_dir);
     double t_checkpoint = MPI_Wtime() - t0;
     if (state.verbosity > 0) {
