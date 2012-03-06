@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, stat, sys
+import os, stat, sys, hashlib
 
 from synergia.lattice import Mad8_parser
 from synergia.lattice import Lattice_element, Element_adaptor_map, Lattice
@@ -11,8 +11,8 @@ def islist(x):
     return hasattr(x, "__iter__")
 
 class Cache_entry:
-    def __init__(self, time_stamp, index):
-        self.time_stamp = time_stamp
+    def __init__(self, hash_hex, index):
+        self.hash_hex = hash_hex
         self.index = index
 
 class Lattice_cache:
@@ -21,15 +21,18 @@ class Lattice_cache:
         self.real_file = (file_name != None)
         if self.real_file:
             self.line_name = line_name
-            self.cache_dir = os.path.join(os.path.dirname(file_name), "lattice_cache")
+            self.cache_dir = os.path.join(os.path.dirname(file_name),
+                                           "lattice_cache")
+            cache_file_basename = os.path.basename(file_name)
+            cache_file_basename = cache_file_basename.replace('.','_') + "_cache"
             self.cache_file_name = os.path.join(self.cache_dir,
-                                                os.path.basename(file_name) + "_cache")
+                                                cache_file_basename)
             self.cache = None
             self.max_index = 0
 
-    def _get_time_stamp(self):
-        stat_output = os.stat(self.file_name)
-        return stat_output[stat.ST_MTIME]
+    def _get_hash_hex(self):
+        hash = hashlib.sha1(open(self.file_name, 'r').read())
+        return hash.hexdigest()
 
     def _read_cache(self):
         self.cache = {}
@@ -37,11 +40,11 @@ class Lattice_cache:
             cache_file = open(self.cache_file_name, 'r')
             line_name = cache_file.readline().rstrip()
             while line_name:
-                time_stamp = int(cache_file.readline().rstrip())
+                hash_hex = cache_file.readline().rstrip()
                 index = int(cache_file.readline().rstrip())
                 if (index > self.max_index):
                     self.max_index = index
-                self.cache[line_name] = Cache_entry(time_stamp, index)
+                self.cache[line_name] = Cache_entry(hash_hex, index)
                 line_name = cache_file.readline().rstrip()
             cache_file.close()
 
@@ -53,11 +56,11 @@ class Lattice_cache:
         readable = False
         exists = self.cache.has_key(self.line_name)
         if exists:
-            readable = self.cache[self.line_name].time_stamp == self._get_time_stamp()
+            readable = self.cache[self.line_name].hash_hex == self._get_hash_hex()
         return readable
 
     def _binary_file_name(self, index):
-        return self.cache_file_name + ("_binary%d" % index)
+        return self.cache_file_name + ("_%d.bina" % index)
 
     def read(self):
         retval = None
@@ -75,24 +78,24 @@ class Lattice_cache:
             return
         if not self.cache:
             self._read_cache()
-        time_stamp = self._get_time_stamp()
+        hash_hex = self._get_hash_hex()
         index = None
         need_to_write = True
         if self.cache.has_key(self.line_name):
             index = self.cache[self.line_name].index
-            if self.cache[self.line_name].time_stamp == time_stamp:
+            if self.cache[self.line_name].hash_hex == hash_hex:
                 need_to_write = False
         if index == None:
             self.max_index += 1
             index = self.max_index
         if need_to_write:
-            self.cache[self.line_name] = Cache_entry(time_stamp, index)
+            self.cache[self.line_name] = Cache_entry(hash_hex, index)
             if not os.path.exists(self.cache_dir):
                 os.mkdir(self.cache_dir)
             cache_file = open(self.cache_file_name, 'w')
             for line_name in self.cache.keys():
                 cache_file.write(line_name + '\n')
-                cache_file.write('%d\n' % self.cache[line_name].time_stamp)
+                cache_file.write('%s\n' % self.cache[line_name].hash_hex)
                 cache_file.write('%d\n' % self.cache[line_name].index)
             cache_file.close()
             binary_save_lattice(lattice, self._binary_file_name(index))
