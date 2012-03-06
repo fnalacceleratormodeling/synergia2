@@ -29,4 +29,5 @@ test_split_operator_stepper_choice
 
 *.h5
 *.xml
+!foborodobo32.xml
 second_checkpoint
