@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
-<boost_serialization signature="serialization::archive" version="6">
-<object class_id="0" tracking_level="0" version="0">
+<boost_serialization signature="serialization::archive" version="9">
+<num_objects>1</num_objects>
+<object_typename>7Lattice</object_typename>
+<object class_id="0" tracking_level="1" version="0" object_id="_0">
 	<name>model</name>
 	<reference_particle_allocated>1</reference_particle_allocated>
-	<reference_particle_ptr class_id="1" tracking_level="1" version="0" object_id="_0">
+	<reference_particle_ptr class_id="1" tracking_level="1" version="0" object_id="_1">
 		<charge>1</charge>
 		<four_momentum class_id="2" tracking_level="0" version="0">
 			<mass>0.93827203000000003</mass>
@@ -30,7 +32,7 @@
 		<count>258</count>
 		<item_version>1</item_version>
 		<item class_id="5" tracking_level="0" version="1">
-			<px class_id="6" tracking_level="1" version="0" object_id="_1">
+			<px class_id="6" tracking_level="1" version="0" object_id="_2">
 				<type>quadrupole</type>
 				<name>f</name>
 				<ancestors class_id="7" tracking_level="0" version="0">
@@ -63,7 +65,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_2">
+			<px class_id_reference="6" object_id="_3">
 				<type>drift</type>
 				<name>o</name>
 				<ancestors>
@@ -92,7 +94,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_3">
+			<px class_id_reference="6" object_id="_4">
 				<type>sbend</type>
 				<name>b</name>
 				<ancestors>
@@ -125,7 +127,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_4">
+			<px class_id_reference="6" object_id="_5">
 				<type>drift</type>
 				<name>os</name>
 				<ancestors>
@@ -154,7 +156,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_5">
+			<px class_id_reference="6" object_id="_6">
 				<type>rfcavity</type>
 				<name>r</name>
 				<ancestors>
@@ -199,7 +201,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_6">
+			<px class_id_reference="6" object_id="_7">
 				<type>drift</type>
 				<name>os</name>
 				<ancestors>
@@ -228,7 +230,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_7">
+			<px class_id_reference="6" object_id="_8">
 				<type>quadrupole</type>
 				<name>d</name>
 				<ancestors>
@@ -247,35 +249,6 @@
 					<item>
 						<first>l</first>
 						<second>0.20000000000000001</second>
-					</item>
-				</double_attributes>
-				<string_attributes>
-					<count>0</count>
-					<item_version>0</item_version>
-				</string_attributes>
-				<length_attribute_name>l</length_attribute_name>
-				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
-				<revision>0</revision>
-				<needs_internal_derive>0</needs_internal_derive>
-				<needs_external_derive>0</needs_external_derive>
-			</px>
-		</item>
-		<item>
-			<px class_id_reference="6" object_id="_8">
-				<type>drift</type>
-				<name>o</name>
-				<ancestors>
-					<count>2</count>
-					<item_version>0</item_version>
-					<item>model</item>
-					<item>fobrdobo</item>
-				</ancestors>
-				<double_attributes>
-					<count>1</count>
-					<item_version>0</item_version>
-					<item>
-						<first>l</first>
-						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -291,8 +264,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_9">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -300,15 +273,11 @@
 					<item>fobrdobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -324,6 +293,39 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_10">
+				<type>sbend</type>
+				<name>b</name>
+				<ancestors>
+					<count>2</count>
+					<item_version>0</item_version>
+					<item>model</item>
+					<item>fobrdobo</item>
+				</ancestors>
+				<double_attributes>
+					<count>2</count>
+					<item_version>0</item_version>
+					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
+						<first>l</first>
+						<second>3.9200000000000004</second>
+					</item>
+				</double_attributes>
+				<string_attributes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</string_attributes>
+				<length_attribute_name>l</length_attribute_name>
+				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+				<revision>0</revision>
+				<needs_internal_derive>0</needs_internal_derive>
+				<needs_external_derive>0</needs_external_derive>
+			</px>
+		</item>
+		<item>
+			<px class_id_reference="6" object_id="_11">
 				<type>drift</type>
 				<name>o</name>
 				<ancestors>
@@ -352,7 +354,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_11">
+			<px class_id_reference="6" object_id="_12">
 				<type>quadrupole</type>
 				<name>f</name>
 				<ancestors>
@@ -371,35 +373,6 @@
 					<item>
 						<first>l</first>
 						<second>0.20000000000000001</second>
-					</item>
-				</double_attributes>
-				<string_attributes>
-					<count>0</count>
-					<item_version>0</item_version>
-				</string_attributes>
-				<length_attribute_name>l</length_attribute_name>
-				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
-				<revision>0</revision>
-				<needs_internal_derive>0</needs_internal_derive>
-				<needs_external_derive>0</needs_external_derive>
-			</px>
-		</item>
-		<item>
-			<px class_id_reference="6" object_id="_12">
-				<type>drift</type>
-				<name>o</name>
-				<ancestors>
-					<count>2</count>
-					<item_version>0</item_version>
-					<item>model</item>
-					<item>fobodobo</item>
-				</ancestors>
-				<double_attributes>
-					<count>1</count>
-					<item_version>0</item_version>
-					<item>
-						<first>l</first>
-						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -415,8 +388,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_13">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -424,15 +397,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -448,8 +417,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_14">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -457,11 +426,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -477,8 +450,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_15">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -486,15 +459,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -510,8 +479,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_16">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -519,11 +488,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -539,8 +512,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_17">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -548,15 +521,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -572,8 +541,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_18">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -581,11 +550,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -601,8 +574,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_19">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -610,15 +583,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -634,8 +603,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_20">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -643,11 +612,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -663,8 +636,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_21">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -672,15 +645,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -696,8 +665,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_22">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -705,11 +674,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -725,8 +698,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_23">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -734,15 +707,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -758,8 +727,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_24">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -767,11 +736,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -787,8 +760,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_25">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -796,15 +769,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -820,8 +789,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_26">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -829,11 +798,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -849,8 +822,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_27">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -858,15 +831,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -882,8 +851,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_28">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -891,11 +860,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -911,8 +884,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_29">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -920,15 +893,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -944,8 +913,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_30">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -953,11 +922,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -973,8 +946,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_31">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -982,15 +955,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1006,8 +975,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_32">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1015,11 +984,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1035,8 +1008,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_33">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1044,15 +1017,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1068,8 +1037,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_34">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1077,11 +1046,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1097,8 +1070,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_35">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1106,15 +1079,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1130,8 +1099,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_36">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1139,11 +1108,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1159,8 +1132,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_37">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1168,15 +1141,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1192,8 +1161,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_38">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1201,11 +1170,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1221,8 +1194,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_39">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1230,15 +1203,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1254,8 +1223,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_40">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1263,11 +1232,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1283,8 +1256,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_41">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1292,15 +1265,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1316,8 +1285,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_42">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1325,11 +1294,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1345,8 +1318,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_43">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1354,15 +1327,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1378,8 +1347,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_44">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1387,11 +1356,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1407,8 +1380,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_45">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1416,15 +1389,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1440,8 +1409,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_46">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1449,11 +1418,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1469,8 +1442,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_47">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1478,15 +1451,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1502,8 +1471,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_48">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1511,11 +1480,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1531,8 +1504,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_49">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1540,15 +1513,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1564,8 +1533,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_50">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1573,11 +1542,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1593,8 +1566,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_51">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1602,15 +1575,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1626,8 +1595,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_52">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1635,11 +1604,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1655,8 +1628,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_53">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1664,15 +1637,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1688,8 +1657,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_54">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1697,11 +1666,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1717,8 +1690,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_55">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1726,15 +1699,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1750,8 +1719,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_56">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1759,11 +1728,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1779,8 +1752,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_57">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1788,15 +1761,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1812,8 +1781,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_58">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1821,11 +1790,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1841,8 +1814,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_59">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1850,15 +1823,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1874,8 +1843,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_60">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1883,11 +1852,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1903,8 +1876,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_61">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1912,15 +1885,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1936,8 +1905,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_62">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1945,11 +1914,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1965,8 +1938,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_63">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1974,15 +1947,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -1998,8 +1967,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_64">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2007,11 +1976,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2027,8 +2000,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_65">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2036,15 +2009,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2060,8 +2029,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_66">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2069,11 +2038,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2089,8 +2062,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_67">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2098,15 +2071,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2122,8 +2091,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_68">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2131,11 +2100,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2151,8 +2124,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_69">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2160,15 +2133,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2184,8 +2153,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_70">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2193,11 +2162,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2213,8 +2186,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_71">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2222,15 +2195,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2246,8 +2215,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_72">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2255,11 +2224,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2275,8 +2248,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_73">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2284,15 +2257,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2308,8 +2277,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_74">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2317,11 +2286,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2337,8 +2310,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_75">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2346,15 +2319,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2370,8 +2339,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_76">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2379,11 +2348,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2399,8 +2372,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_77">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2408,15 +2381,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2432,8 +2401,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_78">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2441,11 +2410,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2461,8 +2434,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_79">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2470,15 +2443,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2494,8 +2463,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_80">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2503,11 +2472,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2523,8 +2496,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_81">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2532,15 +2505,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2556,8 +2525,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_82">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2565,11 +2534,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2585,8 +2558,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_83">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2594,15 +2567,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2618,8 +2587,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_84">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2627,11 +2596,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2647,8 +2620,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_85">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2656,15 +2629,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2680,8 +2649,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_86">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2689,11 +2658,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2709,8 +2682,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_87">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2718,15 +2691,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2742,8 +2711,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_88">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2751,11 +2720,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2771,8 +2744,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_89">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2780,15 +2753,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2804,8 +2773,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_90">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2813,11 +2782,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2833,8 +2806,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_91">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2842,15 +2815,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2866,8 +2835,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_92">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2875,11 +2844,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2895,8 +2868,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_93">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2904,15 +2877,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2928,8 +2897,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_94">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2937,11 +2906,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2957,8 +2930,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_95">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2966,15 +2939,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -2990,8 +2959,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_96">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2999,11 +2968,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3019,8 +2992,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_97">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3028,15 +3001,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3052,8 +3021,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_98">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3061,11 +3030,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3081,8 +3054,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_99">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3090,15 +3063,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3114,8 +3083,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_100">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3123,11 +3092,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3143,8 +3116,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_101">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3152,15 +3125,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3176,8 +3145,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_102">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3185,11 +3154,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3205,8 +3178,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_103">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3214,15 +3187,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3238,8 +3207,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_104">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3247,11 +3216,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3267,8 +3240,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_105">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3276,15 +3249,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3300,8 +3269,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_106">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3309,11 +3278,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3329,8 +3302,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_107">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3338,15 +3311,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3362,8 +3331,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_108">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3371,11 +3340,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3391,8 +3364,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_109">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3400,15 +3373,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3424,8 +3393,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_110">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3433,11 +3402,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3453,8 +3426,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_111">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3462,15 +3435,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3486,8 +3455,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_112">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3495,11 +3464,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3515,8 +3488,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_113">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3524,15 +3497,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3548,8 +3517,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_114">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3557,11 +3526,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3577,8 +3550,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_115">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3586,15 +3559,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3610,8 +3579,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_116">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3619,11 +3588,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3639,8 +3612,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_117">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3648,15 +3621,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3672,8 +3641,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_118">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3681,11 +3650,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3701,8 +3674,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_119">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3710,15 +3683,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3734,8 +3703,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_120">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3743,11 +3712,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3763,8 +3736,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_121">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3772,15 +3745,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3796,8 +3765,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_122">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3805,11 +3774,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3825,8 +3798,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_123">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3834,15 +3807,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3858,8 +3827,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_124">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3867,11 +3836,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3887,8 +3860,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_125">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3896,15 +3869,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3920,8 +3889,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_126">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3929,11 +3898,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3949,8 +3922,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_127">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3958,15 +3931,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -3982,8 +3951,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_128">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3991,11 +3960,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4011,8 +3984,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_129">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4020,15 +3993,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4044,8 +4013,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_130">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4053,11 +4022,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4073,8 +4046,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_131">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4082,15 +4055,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4106,8 +4075,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_132">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4115,11 +4084,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4135,8 +4108,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_133">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4144,15 +4117,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4168,8 +4137,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_134">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4177,11 +4146,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4197,8 +4170,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_135">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4206,15 +4179,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4230,8 +4199,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_136">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4239,11 +4208,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4259,8 +4232,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_137">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4268,15 +4241,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4292,8 +4261,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_138">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4301,11 +4270,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4321,8 +4294,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_139">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4330,15 +4303,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4354,8 +4323,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_140">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4363,11 +4332,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4383,8 +4356,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_141">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4392,15 +4365,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4416,8 +4385,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_142">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4425,11 +4394,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4445,8 +4418,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_143">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4454,15 +4427,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4478,8 +4447,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_144">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4487,11 +4456,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4507,8 +4480,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_145">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4516,15 +4489,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4540,8 +4509,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_146">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4549,11 +4518,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4569,8 +4542,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_147">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4578,15 +4551,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4602,8 +4571,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_148">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4611,11 +4580,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4631,8 +4604,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_149">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4640,15 +4613,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4664,8 +4633,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_150">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4673,11 +4642,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4693,8 +4666,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_151">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4702,15 +4675,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4726,8 +4695,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_152">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4735,11 +4704,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4755,8 +4728,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_153">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4764,15 +4737,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4788,8 +4757,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_154">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4797,11 +4766,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4817,8 +4790,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_155">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4826,15 +4799,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4850,8 +4819,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_156">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4859,11 +4828,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4879,8 +4852,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_157">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4888,15 +4861,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4912,8 +4881,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_158">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4921,11 +4890,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4941,8 +4914,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_159">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4950,15 +4923,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -4974,8 +4943,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_160">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4983,11 +4952,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5003,8 +4976,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_161">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5012,15 +4985,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5036,8 +5005,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_162">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5045,11 +5014,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5065,8 +5038,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_163">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5074,15 +5047,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5098,8 +5067,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_164">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5107,11 +5076,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5127,8 +5100,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_165">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5136,15 +5109,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5160,8 +5129,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_166">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5169,11 +5138,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5189,8 +5162,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_167">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5198,15 +5171,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5222,8 +5191,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_168">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5231,11 +5200,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5251,8 +5224,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_169">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5260,15 +5233,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5284,8 +5253,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_170">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5293,11 +5262,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5313,8 +5286,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_171">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5322,15 +5295,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5346,8 +5315,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_172">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5355,11 +5324,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5375,8 +5348,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_173">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5384,15 +5357,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5408,8 +5377,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_174">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5417,11 +5386,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5437,8 +5410,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_175">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5446,15 +5419,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5470,8 +5439,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_176">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5479,11 +5448,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5499,8 +5472,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_177">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5508,15 +5481,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5532,8 +5501,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_178">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5541,11 +5510,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5561,8 +5534,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_179">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5570,15 +5543,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5594,8 +5563,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_180">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5603,11 +5572,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5623,8 +5596,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_181">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5632,15 +5605,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5656,8 +5625,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_182">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5665,11 +5634,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5685,8 +5658,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_183">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5694,15 +5667,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5718,8 +5687,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_184">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5727,11 +5696,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5747,8 +5720,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_185">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5756,15 +5729,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5780,8 +5749,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_186">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5789,11 +5758,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5809,8 +5782,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_187">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5818,15 +5791,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5842,8 +5811,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_188">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5851,11 +5820,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5871,8 +5844,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_189">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5880,15 +5853,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5904,8 +5873,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_190">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5913,11 +5882,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5933,8 +5906,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_191">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5942,15 +5915,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5966,8 +5935,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_192">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5975,11 +5944,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -5995,8 +5968,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_193">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6004,15 +5977,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6028,8 +5997,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_194">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6037,11 +6006,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6057,8 +6030,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_195">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6066,15 +6039,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6090,8 +6059,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_196">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6099,11 +6068,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6119,8 +6092,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_197">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6128,15 +6101,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6152,8 +6121,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_198">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6161,11 +6130,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6181,8 +6154,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_199">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6190,15 +6163,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6214,8 +6183,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_200">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6223,11 +6192,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6243,8 +6216,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_201">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6252,15 +6225,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6276,8 +6245,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_202">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6285,11 +6254,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6305,8 +6278,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_203">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6314,15 +6287,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6338,8 +6307,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_204">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6347,11 +6316,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6367,8 +6340,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_205">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6376,15 +6349,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6400,8 +6369,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_206">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6409,11 +6378,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6429,8 +6402,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_207">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6438,15 +6411,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6462,8 +6431,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_208">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6471,11 +6440,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6491,8 +6464,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_209">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6500,15 +6473,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6524,8 +6493,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_210">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6533,11 +6502,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6553,8 +6526,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_211">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6562,15 +6535,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6586,8 +6555,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_212">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6595,11 +6564,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6615,8 +6588,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_213">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6624,15 +6597,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6648,8 +6617,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_214">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6657,11 +6626,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6677,8 +6650,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_215">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6686,15 +6659,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6710,8 +6679,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_216">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6719,11 +6688,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6739,8 +6712,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_217">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6748,15 +6721,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6772,8 +6741,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_218">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6781,11 +6750,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6801,8 +6774,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_219">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6810,15 +6783,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6834,8 +6803,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_220">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6843,11 +6812,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6863,8 +6836,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_221">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6872,15 +6845,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6896,8 +6865,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_222">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6905,11 +6874,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6925,8 +6898,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_223">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6934,15 +6907,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6958,8 +6927,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_224">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6967,11 +6936,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -6987,8 +6960,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_225">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6996,15 +6969,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7020,8 +6989,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_226">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7029,11 +6998,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7049,8 +7022,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_227">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7058,15 +7031,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7082,8 +7051,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_228">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7091,11 +7060,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7111,8 +7084,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_229">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7120,15 +7093,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7144,8 +7113,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_230">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7153,11 +7122,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7173,8 +7146,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_231">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7182,15 +7155,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7206,8 +7175,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_232">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7215,11 +7184,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7235,8 +7208,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_233">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7244,15 +7217,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7268,8 +7237,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_234">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7277,11 +7246,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7297,8 +7270,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_235">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7306,15 +7279,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7330,8 +7299,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_236">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>f</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7339,11 +7308,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7359,8 +7332,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_237">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7368,15 +7341,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7392,8 +7361,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_238">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7401,11 +7370,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7421,8 +7394,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_239">
-				<type>quadrupole</type>
-				<name>d</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7430,15 +7403,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7454,8 +7423,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_240">
-				<type>drift</type>
-				<name>o</name>
+				<type>quadrupole</type>
+				<name>d</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7463,11 +7432,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>0.20000000000000001</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7483,8 +7456,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_241">
-				<type>sbend</type>
-				<name>b</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7492,15 +7465,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>3.9200000000000004</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7516,8 +7485,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_242">
-				<type>drift</type>
-				<name>o</name>
+				<type>sbend</type>
+				<name>b</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7525,11 +7494,15 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>1</count>
+					<count>2</count>
 					<item_version>0</item_version>
 					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
 						<first>l</first>
-						<second>2.9400000000000004</second>
+						<second>3.9200000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7545,8 +7518,8 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_243">
-				<type>quadrupole</type>
-				<name>f</name>
+				<type>drift</type>
+				<name>o</name>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7554,15 +7527,11 @@
 					<item>fobodobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>2</count>
+					<count>1</count>
 					<item_version>0</item_version>
 					<item>
-						<first>k1</first>
-						<second>0.71428571428571419</second>
-					</item>
-					<item>
 						<first>l</first>
-						<second>0.20000000000000001</second>
+						<second>2.9400000000000004</second>
 					</item>
 				</double_attributes>
 				<string_attributes>
@@ -7578,221 +7547,6 @@
 		</item>
 		<item>
 			<px class_id_reference="6" object_id="_244">
-				<type>drift</type>
-				<name>o</name>
-				<ancestors>
-					<count>2</count>
-					<item_version>0</item_version>
-					<item>model</item>
-					<item>fobodobo</item>
-				</ancestors>
-				<double_attributes>
-					<count>1</count>
-					<item_version>0</item_version>
-					<item>
-						<first>l</first>
-						<second>2.9400000000000004</second>
-					</item>
-				</double_attributes>
-				<string_attributes>
-					<count>0</count>
-					<item_version>0</item_version>
-				</string_attributes>
-				<length_attribute_name>l</length_attribute_name>
-				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
-				<revision>0</revision>
-				<needs_internal_derive>0</needs_internal_derive>
-				<needs_external_derive>0</needs_external_derive>
-			</px>
-		</item>
-		<item>
-			<px class_id_reference="6" object_id="_245">
-				<type>sbend</type>
-				<name>b</name>
-				<ancestors>
-					<count>2</count>
-					<item_version>0</item_version>
-					<item>model</item>
-					<item>fobodobo</item>
-				</ancestors>
-				<double_attributes>
-					<count>2</count>
-					<item_version>0</item_version>
-					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
-						<first>l</first>
-						<second>3.9200000000000004</second>
-					</item>
-				</double_attributes>
-				<string_attributes>
-					<count>0</count>
-					<item_version>0</item_version>
-				</string_attributes>
-				<length_attribute_name>l</length_attribute_name>
-				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
-				<revision>0</revision>
-				<needs_internal_derive>0</needs_internal_derive>
-				<needs_external_derive>0</needs_external_derive>
-			</px>
-		</item>
-		<item>
-			<px class_id_reference="6" object_id="_246">
-				<type>drift</type>
-				<name>o</name>
-				<ancestors>
-					<count>2</count>
-					<item_version>0</item_version>
-					<item>model</item>
-					<item>fobodobo</item>
-				</ancestors>
-				<double_attributes>
-					<count>1</count>
-					<item_version>0</item_version>
-					<item>
-						<first>l</first>
-						<second>2.9400000000000004</second>
-					</item>
-				</double_attributes>
-				<string_attributes>
-					<count>0</count>
-					<item_version>0</item_version>
-				</string_attributes>
-				<length_attribute_name>l</length_attribute_name>
-				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
-				<revision>0</revision>
-				<needs_internal_derive>0</needs_internal_derive>
-				<needs_external_derive>0</needs_external_derive>
-			</px>
-		</item>
-		<item>
-			<px class_id_reference="6" object_id="_247">
-				<type>quadrupole</type>
-				<name>d</name>
-				<ancestors>
-					<count>2</count>
-					<item_version>0</item_version>
-					<item>model</item>
-					<item>fobodobo</item>
-				</ancestors>
-				<double_attributes>
-					<count>2</count>
-					<item_version>0</item_version>
-					<item>
-						<first>k1</first>
-						<second>-0.71428571428571419</second>
-					</item>
-					<item>
-						<first>l</first>
-						<second>0.20000000000000001</second>
-					</item>
-				</double_attributes>
-				<string_attributes>
-					<count>0</count>
-					<item_version>0</item_version>
-				</string_attributes>
-				<length_attribute_name>l</length_attribute_name>
-				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
-				<revision>0</revision>
-				<needs_internal_derive>0</needs_internal_derive>
-				<needs_external_derive>0</needs_external_derive>
-			</px>
-		</item>
-		<item>
-			<px class_id_reference="6" object_id="_248">
-				<type>drift</type>
-				<name>o</name>
-				<ancestors>
-					<count>2</count>
-					<item_version>0</item_version>
-					<item>model</item>
-					<item>fobodobo</item>
-				</ancestors>
-				<double_attributes>
-					<count>1</count>
-					<item_version>0</item_version>
-					<item>
-						<first>l</first>
-						<second>2.9400000000000004</second>
-					</item>
-				</double_attributes>
-				<string_attributes>
-					<count>0</count>
-					<item_version>0</item_version>
-				</string_attributes>
-				<length_attribute_name>l</length_attribute_name>
-				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
-				<revision>0</revision>
-				<needs_internal_derive>0</needs_internal_derive>
-				<needs_external_derive>0</needs_external_derive>
-			</px>
-		</item>
-		<item>
-			<px class_id_reference="6" object_id="_249">
-				<type>sbend</type>
-				<name>b</name>
-				<ancestors>
-					<count>2</count>
-					<item_version>0</item_version>
-					<item>model</item>
-					<item>fobodobo</item>
-				</ancestors>
-				<double_attributes>
-					<count>2</count>
-					<item_version>0</item_version>
-					<item>
-						<first>angle</first>
-						<second>0.098174770424681035</second>
-					</item>
-					<item>
-						<first>l</first>
-						<second>3.9200000000000004</second>
-					</item>
-				</double_attributes>
-				<string_attributes>
-					<count>0</count>
-					<item_version>0</item_version>
-				</string_attributes>
-				<length_attribute_name>l</length_attribute_name>
-				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
-				<revision>0</revision>
-				<needs_internal_derive>0</needs_internal_derive>
-				<needs_external_derive>0</needs_external_derive>
-			</px>
-		</item>
-		<item>
-			<px class_id_reference="6" object_id="_250">
-				<type>drift</type>
-				<name>o</name>
-				<ancestors>
-					<count>2</count>
-					<item_version>0</item_version>
-					<item>model</item>
-					<item>fobodobo</item>
-				</ancestors>
-				<double_attributes>
-					<count>1</count>
-					<item_version>0</item_version>
-					<item>
-						<first>l</first>
-						<second>2.9400000000000004</second>
-					</item>
-				</double_attributes>
-				<string_attributes>
-					<count>0</count>
-					<item_version>0</item_version>
-				</string_attributes>
-				<length_attribute_name>l</length_attribute_name>
-				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
-				<revision>0</revision>
-				<needs_internal_derive>0</needs_internal_derive>
-				<needs_external_derive>0</needs_external_derive>
-			</px>
-		</item>
-		<item>
-			<px class_id_reference="6" object_id="_251">
 				<type>quadrupole</type>
 				<name>f</name>
 				<ancestors>
@@ -7825,7 +7579,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_252">
+			<px class_id_reference="6" object_id="_245">
 				<type>drift</type>
 				<name>o</name>
 				<ancestors>
@@ -7854,7 +7608,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_253">
+			<px class_id_reference="6" object_id="_246">
 				<type>sbend</type>
 				<name>b</name>
 				<ancestors>
@@ -7887,7 +7641,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_254">
+			<px class_id_reference="6" object_id="_247">
 				<type>drift</type>
 				<name>o</name>
 				<ancestors>
@@ -7916,7 +7670,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_255">
+			<px class_id_reference="6" object_id="_248">
 				<type>quadrupole</type>
 				<name>d</name>
 				<ancestors>
@@ -7949,7 +7703,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_256">
+			<px class_id_reference="6" object_id="_249">
 				<type>drift</type>
 				<name>o</name>
 				<ancestors>
@@ -7978,7 +7732,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_257">
+			<px class_id_reference="6" object_id="_250">
 				<type>sbend</type>
 				<name>b</name>
 				<ancestors>
@@ -8011,7 +7765,255 @@
 			</px>
 		</item>
 		<item>
+			<px class_id_reference="6" object_id="_251">
+				<type>drift</type>
+				<name>o</name>
+				<ancestors>
+					<count>2</count>
+					<item_version>0</item_version>
+					<item>model</item>
+					<item>fobodobo</item>
+				</ancestors>
+				<double_attributes>
+					<count>1</count>
+					<item_version>0</item_version>
+					<item>
+						<first>l</first>
+						<second>2.9400000000000004</second>
+					</item>
+				</double_attributes>
+				<string_attributes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</string_attributes>
+				<length_attribute_name>l</length_attribute_name>
+				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+				<revision>0</revision>
+				<needs_internal_derive>0</needs_internal_derive>
+				<needs_external_derive>0</needs_external_derive>
+			</px>
+		</item>
+		<item>
+			<px class_id_reference="6" object_id="_252">
+				<type>quadrupole</type>
+				<name>f</name>
+				<ancestors>
+					<count>2</count>
+					<item_version>0</item_version>
+					<item>model</item>
+					<item>fobodobo</item>
+				</ancestors>
+				<double_attributes>
+					<count>2</count>
+					<item_version>0</item_version>
+					<item>
+						<first>k1</first>
+						<second>0.71428571428571419</second>
+					</item>
+					<item>
+						<first>l</first>
+						<second>0.20000000000000001</second>
+					</item>
+				</double_attributes>
+				<string_attributes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</string_attributes>
+				<length_attribute_name>l</length_attribute_name>
+				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+				<revision>0</revision>
+				<needs_internal_derive>0</needs_internal_derive>
+				<needs_external_derive>0</needs_external_derive>
+			</px>
+		</item>
+		<item>
+			<px class_id_reference="6" object_id="_253">
+				<type>drift</type>
+				<name>o</name>
+				<ancestors>
+					<count>2</count>
+					<item_version>0</item_version>
+					<item>model</item>
+					<item>fobodobo</item>
+				</ancestors>
+				<double_attributes>
+					<count>1</count>
+					<item_version>0</item_version>
+					<item>
+						<first>l</first>
+						<second>2.9400000000000004</second>
+					</item>
+				</double_attributes>
+				<string_attributes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</string_attributes>
+				<length_attribute_name>l</length_attribute_name>
+				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+				<revision>0</revision>
+				<needs_internal_derive>0</needs_internal_derive>
+				<needs_external_derive>0</needs_external_derive>
+			</px>
+		</item>
+		<item>
+			<px class_id_reference="6" object_id="_254">
+				<type>sbend</type>
+				<name>b</name>
+				<ancestors>
+					<count>2</count>
+					<item_version>0</item_version>
+					<item>model</item>
+					<item>fobodobo</item>
+				</ancestors>
+				<double_attributes>
+					<count>2</count>
+					<item_version>0</item_version>
+					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
+						<first>l</first>
+						<second>3.9200000000000004</second>
+					</item>
+				</double_attributes>
+				<string_attributes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</string_attributes>
+				<length_attribute_name>l</length_attribute_name>
+				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+				<revision>0</revision>
+				<needs_internal_derive>0</needs_internal_derive>
+				<needs_external_derive>0</needs_external_derive>
+			</px>
+		</item>
+		<item>
+			<px class_id_reference="6" object_id="_255">
+				<type>drift</type>
+				<name>o</name>
+				<ancestors>
+					<count>2</count>
+					<item_version>0</item_version>
+					<item>model</item>
+					<item>fobodobo</item>
+				</ancestors>
+				<double_attributes>
+					<count>1</count>
+					<item_version>0</item_version>
+					<item>
+						<first>l</first>
+						<second>2.9400000000000004</second>
+					</item>
+				</double_attributes>
+				<string_attributes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</string_attributes>
+				<length_attribute_name>l</length_attribute_name>
+				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+				<revision>0</revision>
+				<needs_internal_derive>0</needs_internal_derive>
+				<needs_external_derive>0</needs_external_derive>
+			</px>
+		</item>
+		<item>
+			<px class_id_reference="6" object_id="_256">
+				<type>quadrupole</type>
+				<name>d</name>
+				<ancestors>
+					<count>2</count>
+					<item_version>0</item_version>
+					<item>model</item>
+					<item>fobodobo</item>
+				</ancestors>
+				<double_attributes>
+					<count>2</count>
+					<item_version>0</item_version>
+					<item>
+						<first>k1</first>
+						<second>-0.71428571428571419</second>
+					</item>
+					<item>
+						<first>l</first>
+						<second>0.20000000000000001</second>
+					</item>
+				</double_attributes>
+				<string_attributes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</string_attributes>
+				<length_attribute_name>l</length_attribute_name>
+				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+				<revision>0</revision>
+				<needs_internal_derive>0</needs_internal_derive>
+				<needs_external_derive>0</needs_external_derive>
+			</px>
+		</item>
+		<item>
+			<px class_id_reference="6" object_id="_257">
+				<type>drift</type>
+				<name>o</name>
+				<ancestors>
+					<count>2</count>
+					<item_version>0</item_version>
+					<item>model</item>
+					<item>fobodobo</item>
+				</ancestors>
+				<double_attributes>
+					<count>1</count>
+					<item_version>0</item_version>
+					<item>
+						<first>l</first>
+						<second>2.9400000000000004</second>
+					</item>
+				</double_attributes>
+				<string_attributes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</string_attributes>
+				<length_attribute_name>l</length_attribute_name>
+				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+				<revision>0</revision>
+				<needs_internal_derive>0</needs_internal_derive>
+				<needs_external_derive>0</needs_external_derive>
+			</px>
+		</item>
+		<item>
 			<px class_id_reference="6" object_id="_258">
+				<type>sbend</type>
+				<name>b</name>
+				<ancestors>
+					<count>2</count>
+					<item_version>0</item_version>
+					<item>model</item>
+					<item>fobodobo</item>
+				</ancestors>
+				<double_attributes>
+					<count>2</count>
+					<item_version>0</item_version>
+					<item>
+						<first>angle</first>
+						<second>0.098174770424681035</second>
+					</item>
+					<item>
+						<first>l</first>
+						<second>3.9200000000000004</second>
+					</item>
+				</double_attributes>
+				<string_attributes>
+					<count>0</count>
+					<item_version>0</item_version>
+				</string_attributes>
+				<length_attribute_name>l</length_attribute_name>
+				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+				<revision>0</revision>
+				<needs_internal_derive>0</needs_internal_derive>
+				<needs_external_derive>0</needs_external_derive>
+			</px>
+		</item>
+		<item>
+			<px class_id_reference="6" object_id="_259">
 				<type>drift</type>
 				<name>o</name>
 				<ancestors>
