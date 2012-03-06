@@ -4,6 +4,7 @@
 #include <fstream>
 #include <stdexcept>
 #include <string>
+#include <typeinfo>
 
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
@@ -67,6 +68,10 @@ template<typename T, typename A>
             throw std::runtime_error(message);
         }
         A output_archive(output_stream);
+        int num_objects = 1;
+        output_archive << BOOST_SERIALIZATION_NVP(num_objects);
+        std::string object_typename(typeid(object).name());
+        output_archive << BOOST_SERIALIZATION_NVP(object_typename);
         output_archive << BOOST_SERIALIZATION_NVP(object);
         output_stream.close();
     }
@@ -82,6 +87,10 @@ template<typename T, typename A>
             throw std::runtime_error(message);
         }
         A input_archive(input_stream);
+        int num_objects;
+        input_archive >> BOOST_SERIALIZATION_NVP(num_objects);
+        std::string object_typename;
+        input_archive >> BOOST_SERIALIZATION_NVP(object_typename);
         input_archive >> BOOST_SERIALIZATION_NVP(object);
         input_stream.close();
     }
