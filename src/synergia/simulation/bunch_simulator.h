@@ -24,6 +24,16 @@ public:
     get_diagnostics_actions();
     Standard_diagnostics_actions_sptr
     get_diagnostics_actions_sptr();
+    void
+    add_per_turn(Diagnostics_sptr diagnostics_sptr, int period = 1);
+    void
+    add_per_turn(Diagnostics_sptr diagnostics_sptr,
+            std::list<int > const& turn_numbers);
+    void
+    add_per_step(Diagnostics_sptr diagnostics_sptr, int period = 1);
+    void
+    add_per_step(Diagnostics_sptr diagnostics_sptr,
+            std::list<int > const& step_numbers, int turn_period = 1);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)

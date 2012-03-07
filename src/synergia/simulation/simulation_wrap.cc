@@ -102,6 +102,23 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_per_step_member_overloads12,
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_per_step_member_overloads23,
         Standard_diagnostics_actions::add_per_step, 2, 3)
 
+void (Bunch_simulator::*bs_add_per_turn1)(Diagnostics_sptr, int)
+                            = &Bunch_simulator::add_per_turn;
+void (Bunch_simulator::*bs_add_per_turn2)(Diagnostics_sptr,
+        std::list<int > const&)
+                            = &Bunch_simulator::add_per_turn;
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bs_add_per_turn_member_overloads12,
+        Bunch_simulator::add_per_turn, 1, 2)
+void (Bunch_simulator::*bs_add_per_step1)(Diagnostics_sptr, int)
+                            = &Bunch_simulator::add_per_step;
+void (Bunch_simulator::*bs_add_per_step2)(Diagnostics_sptr,
+        std::list<int > const&, int)
+                            = &Bunch_simulator::add_per_step;
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bs_add_per_step_member_overloads12,
+        Bunch_simulator::add_per_step, 1, 2)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bs_add_per_step_member_overloads23,
+        Bunch_simulator::add_per_step, 2, 3)
+
 BOOST_PYTHON_MODULE(simulation)
 {
     import_array();
@@ -324,7 +341,6 @@ BOOST_PYTHON_MODULE(simulation)
                     add_per_turn_member_overloads12())
             .def("add_per_turn", add_per_step2,
                     add_per_step_member_overloads23())
-//            .def("add_per_step", &Standard_diagnostics_actions::add_per_step)
             .def("first_action", &Standard_diagnostics_actions::first_action)
             .def("turn_end_action", &Standard_diagnostics_actions::turn_end_action)
             .def("step_end_action", &Standard_diagnostics_actions::step_end_action)
@@ -334,6 +350,13 @@ BOOST_PYTHON_MODULE(simulation)
             .def(init<Bunch_sptr, Standard_diagnostics_actions_sptr>())
             .def("get_bunch", &Bunch_simulator::get_bunch_sptr)
             .def("get_diagnostics_actions", &Bunch_simulator::get_diagnostics_actions_sptr)
+            .def("add_per_turn", bs_add_per_turn1,
+                    bs_add_per_turn_member_overloads12())
+            .def("add_per_turn", bs_add_per_turn2)
+            .def("add_per_turn", bs_add_per_step1,
+                    bs_add_per_turn_member_overloads12())
+            .def("add_per_turn", bs_add_per_step2,
+                    bs_add_per_step_member_overloads23())
             ;
 
     void (Propagator::*propagate1)(Bunch_simulator &, int, int, int)

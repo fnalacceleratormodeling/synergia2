@@ -41,6 +41,33 @@ Bunch_simulator::get_diagnostics_actions_sptr()
     return diagnostics_actions_sptr;
 }
 
+void
+Bunch_simulator::add_per_turn(Diagnostics_sptr diagnostics_sptr, int period)
+{
+    diagnostics_actions_sptr->add_per_turn(diagnostics_sptr, period);
+}
+
+void
+Bunch_simulator::add_per_turn(Diagnostics_sptr diagnostics_sptr,
+        std::list<int > const& turn_numbers)
+{
+    diagnostics_actions_sptr->add_per_turn(diagnostics_sptr, turn_numbers);
+}
+
+void
+Bunch_simulator::add_per_step(Diagnostics_sptr diagnostics_sptr, int period)
+{
+    diagnostics_actions_sptr->add_per_step(diagnostics_sptr, period);
+}
+
+void
+Bunch_simulator::add_per_step(Diagnostics_sptr diagnostics_sptr,
+        std::list<int > const& step_numbers, int turn_period)
+{
+    diagnostics_actions_sptr->add_per_step(diagnostics_sptr, step_numbers,
+            turn_period);
+}
+
 Bunch_simulator::~Bunch_simulator()
 {
 }
