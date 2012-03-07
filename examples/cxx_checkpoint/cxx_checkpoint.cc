@@ -46,13 +46,15 @@ run()
     Space_charge_3d_open_hockney_sptr space_charge_sptr(
             new Space_charge_3d_open_hockney(Commxx(), grid_shape));
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-    Split_operator_stepper_sptr stepper_sptr(new Split_operator_stepper(
-            lattice_simulator, space_charge_sptr, num_steps));
+    Split_operator_stepper_sptr stepper_sptr(
+            new Split_operator_stepper(lattice_simulator, space_charge_sptr,
+                    num_steps));
     Propagator propagator(stepper_sptr);
 
     Commxx comm(MPI_COMM_WORLD);
-    Bunch_sptr bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(),
-            num_macro_particles, num_real_particles, comm));
+    Bunch_sptr bunch_sptr(
+            new Bunch(lattice_sptr->get_reference_particle(),
+                    num_macro_particles, num_real_particles, comm));
     Random_distribution distribution(seed, comm);
     MArray1d means;
     xml_load(means, "cxx_means.xml");
@@ -61,10 +63,10 @@ run()
     populate_6d(distribution, *bunch_sptr, means, covariances);
 
     Bunch_simulator bunch_simulator(bunch_sptr);
-    bunch_simulator.get_diagnostics_actions().add_per_step(
+    bunch_simulator.add_per_step(
             Diagnostics_sptr(
                     new Diagnostics_basic(bunch_sptr, "cxx_example_per_step.h5")));
-    bunch_simulator.get_diagnostics_actions().add_per_turn(
+    bunch_simulator.add_per_turn(
             Diagnostics_sptr(
                     new Diagnostics_full2(bunch_sptr, "cxx_example_per_turn.h5")));
 
@@ -73,7 +75,7 @@ run()
     propagator.propagate(bunch_simulator, num_turns, 0, 2);
     double t1 = MPI_Wtime();
     if (comm.get_rank() == 0) {
-      std::cout << "propagate time = " << (t1-t0) << std::endl;
+        std::cout << "propagate time = " << (t1 - t0) << std::endl;
     }
 }
 int
