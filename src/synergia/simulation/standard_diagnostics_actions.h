@@ -1,11 +1,13 @@
 #ifndef STANDARD_DIAGNOSTICS_ACTIONS_H_
 #define STANDARD_DIAGNOSTICS_ACTIONS_H_
 
-#include "synergia/simulation/diagnostic_actions.h"
-#include "synergia/bunch/diagnostics.h"
 #include <list>
 
-class Standard_diagnostics_actions : public Diagnostic_actions
+#include "synergia/bunch/bunch.h"
+#include "synergia/bunch/diagnostics.h"
+#include "synergia/simulation/stepper.h"
+
+class Standard_diagnostics_actions
 {
 public:
     struct Periodic
@@ -113,7 +115,6 @@ public:
         void
         serialize(Archive & ar, const unsigned int version)
         {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostic_actions);
             ar & BOOST_SERIALIZATION_NVP(per_turn_periodic);
             ar & BOOST_SERIALIZATION_NVP(per_step_periodic);
             ar & BOOST_SERIALIZATION_NVP(per_turn_listed);
@@ -123,8 +124,6 @@ public:
     ~Standard_diagnostics_actions();
 };
 
-BOOST_CLASS_EXPORT_KEY(Standard_diagnostics_actions)
-;
 typedef boost::shared_ptr<Standard_diagnostics_actions >
         Standard_diagnostics_actions_sptr;
 #endif /* STANDARD_DIAGNOSTICS_ACTIONS_H_ */

@@ -105,5 +105,4 @@ Standard_diagnostics_actions::step_end_action(Stepper & stepper, Step & step,
 Standard_diagnostics_actions::~Standard_diagnostics_actions()
 {
 }
-BOOST_CLASS_EXPORT_IMPLEMENT(Standard_diagnostics_actions)
 
