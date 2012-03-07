@@ -142,7 +142,7 @@ for bunchnum in range(0,num_bunches):
         particles[:,0] = particles[:,0]+opts.x_offset
         particles[:,2] = particles[:,2]+opts.y_offset
         particles[:,4] = particles[:,4]+opts.z_offset 
-        diagnostics_actions = synergia.simulation.Standard_diagnostics_actions()
+        diagnostics_actions = synergia.simulation.Diagnostics_actions()
         bunch_diag=synergia.bunch.Bunch_with_diagnostics(bunch, diagnostics_actions)
         bunch_diag.add_per_step_diagnostics(synergia.bunch.Diagnostics_full2(bunch, "circular_full2-%02d.h5"%bunchnum))
         bunch_diag.add_per_turn_diagnostics(synergia.bunch.Diagnostics_particles(bunch,"circular_particles-%02d.h5"%bunchnum,0,0,100))
@@ -170,7 +170,7 @@ if MPI.COMM_WORLD.Get_rank() ==0:
 #diagnostics_writer_turn = synergia.bunch.Diagnostics_particles(bunch,"circular_particles.h5",0,0,100)
 
 #'''uncomment for propagate(  , diagnostics_actions......                                               
-#diagnostics_actions = synergia.simulation.Standard_diagnostics_actions()
+#diagnostics_actions = synergia.simulation.Diagnostics_actions()
 
 
 #diagnostics_actions.add_per_step(synergia.bunch.Diagnostics_full2(bunch, "step_full2a.h5"))

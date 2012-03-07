@@ -4,7 +4,7 @@
 #include "stepper.h"
 #include "propagator.h"
 #include "propagate_actions.h"
-#include "standard_diagnostics_actions.h"
+#include "diagnostics_actions.h"
 #include "dense_mapping.h"
 #include <boost/python.hpp>
 #include "synergia/utils/container_conversions.h"
@@ -85,22 +85,22 @@ as_fast_mapping_operation(Independent_operation_sptr & independent_operation_spt
     return boost::dynamic_pointer_cast<Fast_mapping_operation >(independent_operation_sptr);
 }
 
-void (Standard_diagnostics_actions::*add_per_turn1)(Diagnostics_sptr, int)
-                            = &Standard_diagnostics_actions::add_per_turn;
-void (Standard_diagnostics_actions::*add_per_turn2)(Diagnostics_sptr,
+void (Diagnostics_actions::*add_per_turn1)(Diagnostics_sptr, int)
+                            = &Diagnostics_actions::add_per_turn;
+void (Diagnostics_actions::*add_per_turn2)(Diagnostics_sptr,
         std::list<int > const&)
-                            = &Standard_diagnostics_actions::add_per_turn;
+                            = &Diagnostics_actions::add_per_turn;
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_per_turn_member_overloads12,
-        Standard_diagnostics_actions::add_per_turn, 1, 2)
-void (Standard_diagnostics_actions::*add_per_step1)(Diagnostics_sptr, int)
-                            = &Standard_diagnostics_actions::add_per_step;
-void (Standard_diagnostics_actions::*add_per_step2)(Diagnostics_sptr,
+        Diagnostics_actions::add_per_turn, 1, 2)
+void (Diagnostics_actions::*add_per_step1)(Diagnostics_sptr, int)
+                            = &Diagnostics_actions::add_per_step;
+void (Diagnostics_actions::*add_per_step2)(Diagnostics_sptr,
         std::list<int > const&, int)
-                            = &Standard_diagnostics_actions::add_per_step;
+                            = &Diagnostics_actions::add_per_step;
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_per_step_member_overloads12,
-        Standard_diagnostics_actions::add_per_step, 1, 2)
+        Diagnostics_actions::add_per_step, 1, 2)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_per_step_member_overloads23,
-        Standard_diagnostics_actions::add_per_step, 2, 3)
+        Diagnostics_actions::add_per_step, 2, 3)
 
 void (Bunch_simulator::*bs_add_per_turn1)(Diagnostics_sptr, int)
                             = &Bunch_simulator::add_per_turn;
@@ -332,8 +332,8 @@ BOOST_PYTHON_MODULE(simulation)
                     &Propagate_actions_callback::default_step_end_action)
             ;
 
-    class_<Standard_diagnostics_actions, Standard_diagnostics_actions_sptr >(
-            "Standard_diagnostics_actions", init< >())
+    class_<Diagnostics_actions, Diagnostics_actions_sptr >(
+            "Diagnostics_actions", init< >())
             .def("add_per_turn", add_per_turn1,
                     add_per_turn_member_overloads12())
             .def("add_per_turn", add_per_turn2)
@@ -341,13 +341,13 @@ BOOST_PYTHON_MODULE(simulation)
                     add_per_turn_member_overloads12())
             .def("add_per_turn", add_per_step2,
                     add_per_step_member_overloads23())
-            .def("first_action", &Standard_diagnostics_actions::first_action)
-            .def("turn_end_action", &Standard_diagnostics_actions::turn_end_action)
-            .def("step_end_action", &Standard_diagnostics_actions::step_end_action)
+            .def("first_action", &Diagnostics_actions::first_action)
+            .def("turn_end_action", &Diagnostics_actions::turn_end_action)
+            .def("step_end_action", &Diagnostics_actions::step_end_action)
             ;
 
     class_<Bunch_simulator > ("Bunch_simulator", init<Bunch_sptr>())
-            .def(init<Bunch_sptr, Standard_diagnostics_actions_sptr>())
+            .def(init<Bunch_sptr, Diagnostics_actions_sptr>())
             .def("get_bunch", &Bunch_simulator::get_bunch_sptr)
             .def("get_diagnostics_actions", &Bunch_simulator::get_diagnostics_actions_sptr)
             .def("add_per_turn", bs_add_per_turn1,
@@ -377,10 +377,10 @@ BOOST_PYTHON_MODULE(simulation)
 //    void (Propagator::*propagate6)(Bunch &, int, Multi_diagnostics &,
 //            Multi_diagnostics &, bool) = &Propagator::propagate;
 //
-//    void (Propagator::*propagate7)(Bunch &, int, Standard_diagnostics_actions&,
+//    void (Propagator::*propagate7)(Bunch &, int, Diagnostics_actions&,
 //            int) = &Propagator::propagate;
 //
-//    void (Propagator::*propagate8)(Bunch &, int, Standard_diagnostics_actions &,
+//    void (Propagator::*propagate8)(Bunch &, int, Diagnostics_actions &,
 //            Propagate_actions &, int) = &Propagator::propagate;
 
     class_<Propagator >("Propagator",init<Stepper_sptr >())

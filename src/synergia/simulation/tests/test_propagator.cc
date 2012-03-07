@@ -8,7 +8,7 @@
 #include "synergia/bunch/bunch.h"
 #include "lattice_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
-#include "synergia/simulation/standard_diagnostics_actions.h"
+#include "synergia/simulation/diagnostics_actions.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-12;

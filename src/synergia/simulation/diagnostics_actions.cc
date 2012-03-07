@@ -1,32 +1,32 @@
-#include "standard_diagnostics_actions.h"
+#include "diagnostics_actions.h"
 #include <algorithm>
 
-Standard_diagnostics_actions::Standard_diagnostics_actions()
+Diagnostics_actions::Diagnostics_actions()
 {
 }
 
 void
-Standard_diagnostics_actions::add_per_turn(Diagnostics_sptr diagnostics_sptr,
+Diagnostics_actions::add_per_turn(Diagnostics_sptr diagnostics_sptr,
         int period)
 {
     per_turn_periodic.push_back(Periodic(period, diagnostics_sptr));
 }
 
 void
-Standard_diagnostics_actions::add_per_turn(Diagnostics_sptr diagnostics_sptr,
+Diagnostics_actions::add_per_turn(Diagnostics_sptr diagnostics_sptr,
         std::list<int > const& turn_numbers)
 {
     per_turn_listed.push_back(Listed(turn_numbers, diagnostics_sptr));
 }
 
 void
-Standard_diagnostics_actions::add_per_step(Diagnostics_sptr diagnostics_sptr,
+Diagnostics_actions::add_per_step(Diagnostics_sptr diagnostics_sptr,
         int period)
 {
     per_step_periodic.push_back(Periodic(period, diagnostics_sptr));
 }
 void
-Standard_diagnostics_actions::add_per_step(Diagnostics_sptr diagnostics_sptr,
+Diagnostics_actions::add_per_step(Diagnostics_sptr diagnostics_sptr,
         std::list<int > const& step_numbers, int turn_period)
 {
     per_step_periodic_listed.push_back(
@@ -34,7 +34,7 @@ Standard_diagnostics_actions::add_per_step(Diagnostics_sptr diagnostics_sptr,
 }
 
 void
-Standard_diagnostics_actions::update_and_write_periodics(Periodics & periodics,
+Diagnostics_actions::update_and_write_periodics(Periodics & periodics,
         int num)
 {
     for (Periodics::iterator it = periodics.begin(); it != periodics.end(); ++it) {
@@ -45,7 +45,7 @@ Standard_diagnostics_actions::update_and_write_periodics(Periodics & periodics,
 }
 
 void
-Standard_diagnostics_actions::update_and_write_listeds(Listeds & listeds,
+Diagnostics_actions::update_and_write_listeds(Listeds & listeds,
         int num)
 {
     for (Listeds::iterator it = listeds.begin(); it != listeds.end(); ++it) {
@@ -59,7 +59,7 @@ Standard_diagnostics_actions::update_and_write_listeds(Listeds & listeds,
 }
 
 void
-Standard_diagnostics_actions::update_and_write_periodic_listeds(
+Diagnostics_actions::update_and_write_periodic_listeds(
         Periodic_listeds & periodic_listeds, int step, int turn)
 {
     for (Periodic_listeds::iterator it = periodic_listeds.begin(); it
@@ -76,7 +76,7 @@ Standard_diagnostics_actions::update_and_write_periodic_listeds(
 }
 
 void
-Standard_diagnostics_actions::first_action(Stepper & stepper, Bunch & bunch)
+Diagnostics_actions::first_action(Stepper & stepper, Bunch & bunch)
 {
 
     update_and_write_periodics(per_turn_periodic, 0);
@@ -86,7 +86,7 @@ Standard_diagnostics_actions::first_action(Stepper & stepper, Bunch & bunch)
 }
 
 void
-Standard_diagnostics_actions::turn_end_action(Stepper & stepper, Bunch & bunch,
+Diagnostics_actions::turn_end_action(Stepper & stepper, Bunch & bunch,
         int turn_num)
 {
     update_and_write_periodics(per_turn_periodic, turn_num);
@@ -94,7 +94,7 @@ Standard_diagnostics_actions::turn_end_action(Stepper & stepper, Bunch & bunch,
 }
 
 void
-Standard_diagnostics_actions::step_end_action(Stepper & stepper, Step & step,
+Diagnostics_actions::step_end_action(Stepper & stepper, Step & step,
         Bunch & bunch, int turn_num, int step_num)
 {
     update_and_write_periodics(per_step_periodic, step_num);
@@ -102,7 +102,7 @@ Standard_diagnostics_actions::step_end_action(Stepper & stepper, Step & step,
             turn_num);
 }
 
-Standard_diagnostics_actions::~Standard_diagnostics_actions()
+Diagnostics_actions::~Diagnostics_actions()
 {
 }
 

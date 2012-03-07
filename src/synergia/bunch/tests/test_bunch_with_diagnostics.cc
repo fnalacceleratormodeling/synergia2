@@ -7,8 +7,8 @@
 #include "synergia/bunch/bunch_with_diagnostics.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 #include "synergia/simulation/tests/bunch_fixture.h"
-#include "synergia/simulation/standard_diagnostics_actions.h"
-#include "synergia/simulation/standard_diagnostics_actions.cc"
+#include "synergia/simulation/diagnostics_actions.h"
+#include "synergia/simulation/diagnostics_actions.cc"
 //#include "synergia/simulation/propagate_actions.cc"
 
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
@@ -24,7 +24,7 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture)
 BOOST_FIXTURE_TEST_CASE(construct,Bunch_fixture)
 {
      Bunch_sptr bunch_sptr(new Bunch(bunch));
-     Standard_diagnostics_actions_sptr diagnostics_actions_sptr(new Standard_diagnostics_actions);
+     Diagnostics_actions_sptr diagnostics_actions_sptr(new Diagnostics_actions);
 
       Diagnostics_sptr step_full2_diag_sptr(new  Diagnostics_full2(bunch_sptr,"full2_per_step.h5"));
       diagnostics_actions_sptr->add_per_step(step_full2_diag_sptr);
@@ -35,14 +35,14 @@ BOOST_FIXTURE_TEST_CASE(construct,Bunch_fixture)
       bunch_with_diagnostics.check_bunch_pointer_in_diagnostics();
 
       Bunch_sptr bsptr=bunch_with_diagnostics.get_bunch_sptr();
-      Standard_diagnostics_actions_sptr  staptr=bunch_with_diagnostics.get_diagnostics_actions_sptr();
+      Diagnostics_actions_sptr  staptr=bunch_with_diagnostics.get_diagnostics_actions_sptr();
 
 }
 
 BOOST_FIXTURE_TEST_CASE(construct1,Bunch_fixture)
 {
      Bunch_sptr bunch_sptr(new Bunch(bunch));
-     Standard_diagnostics_actions_sptr diagnostics_actions_sptr(new Standard_diagnostics_actions);
+     Diagnostics_actions_sptr diagnostics_actions_sptr(new Diagnostics_actions);
 
       Diagnostics_sptr step_full2_diag_sptr(new  Diagnostics_full2(bunch_sptr,"full2_per_step.h5"));
       Diagnostics_sptr turn_particles_diag_sptr(new  Diagnostics_particles(bunch_sptr,"particles_per_turn.h5"));
@@ -55,14 +55,14 @@ BOOST_FIXTURE_TEST_CASE(construct1,Bunch_fixture)
       bunch_with_diagnostics.check_bunch_pointer_in_diagnostics();
 
       Bunch_sptr bsptr=bunch_with_diagnostics.get_bunch_sptr();
-      Standard_diagnostics_actions_sptr  staptr=bunch_with_diagnostics.get_diagnostics_actions_sptr();
+      Diagnostics_actions_sptr  staptr=bunch_with_diagnostics.get_diagnostics_actions_sptr();
 
 }
 // BOOST_FIXTURE_TEST_CASE(construct2,Bunch_fixture)
 // {    // it is supposed to fail, i.e. to throw an error
 //      Bunch_sptr bunch_sptr(new Bunch(bunch));
 //      Bunch_sptr bunch1_sptr(new Bunch(bunch));
-//      Standard_diagnostics_actions_sptr diagnostics_actions_sptr(new Standard_diagnostics_actions);
+//      Diagnostics_actions_sptr diagnostics_actions_sptr(new Diagnostics_actions);
 //
 //       Diagnostics_sptr step_full2_diag_sptr(new  Diagnostics_full2(bunch_sptr,"full2_per_step.h5"));
 //       Diagnostics_sptr turn_particles_diag_sptr(new  Diagnostics_particles(bunch_sptr,"particles_per_turn.h5"));

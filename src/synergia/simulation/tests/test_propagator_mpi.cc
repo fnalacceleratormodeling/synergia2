@@ -8,7 +8,7 @@
 #include "synergia/bunch/bunch.h"
 #include "lattice_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
-#include "synergia/simulation/standard_diagnostics_actions.h"
+#include "synergia/simulation/diagnostics_actions.h"
 
 
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
@@ -71,7 +71,7 @@ struct Object_to_sptr_hack
 //            Random_distribution distribution(0,commx);
 //            populate_6d(distribution, *bunch_sptr, means, covariances);
 //
-//            Standard_diagnostics_actions_sptr diagnostics_actions_sptr(new Standard_diagnostics_actions);
+//            Diagnostics_actions_sptr diagnostics_actions_sptr(new Diagnostics_actions);
 //            Bunch_with_diagnostics_sptr bunch_with_diagnostics_sptr(new Bunch_with_diagnostics(bunch_sptr, diagnostics_actions_sptr));
 //
 //            std::string ss =boost::lexical_cast<std::string>(bunchnum);

@@ -1,5 +1,5 @@
 add_library(synergia_simulation operator.cc step.cc stepper.cc
-    propagate_actions.cc standard_diagnostics_actions.cc propagator.cc
+    propagate_actions.cc diagnostics_actions.cc propagator.cc
     fast_mapping.cc chef_propagator.cc independent_operation.cc
     lattice_simulator.cc operation_extractor.cc aperture.cc
     aperture_operation.cc aperture_operation_extractor.cc populate_stationary.cc bunch_simulator.cc
@@ -18,7 +18,7 @@ install(TARGETS synergia_simulation DESTINATION lib)
 install(FILES
     bunch_simulator.h
     chef_propagator.h
-    diagnostic_actions.h
+    diagnostics_actions.h
     fast_mapping.h
     independent_operation.h
     aperture_operation.h

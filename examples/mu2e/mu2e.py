@@ -927,7 +927,7 @@ else:
 ###############################################################################
 #   Diagnostics
 ###############################################################################
-diagnostics_actions = synergia.simulation.Standard_diagnostics_actions()
+diagnostics_actions = synergia.simulation.Diagnostics_actions()
 #diagnostics per step
 for part in range(0, opts.step_tracks):
     diagnostics_actions.add_per_step(synergia.bunch.Diagnostics_track(bunch,

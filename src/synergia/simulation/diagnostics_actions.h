@@ -1,5 +1,5 @@
-#ifndef STANDARD_DIAGNOSTICS_ACTIONS_H_
-#define STANDARD_DIAGNOSTICS_ACTIONS_H_
+#ifndef DIAGNOSTICS_ACTIONS_H_
+#define DIAGNOSTICS_ACTIONS_H_
 
 #include <list>
 
@@ -7,7 +7,7 @@
 #include "synergia/bunch/diagnostics.h"
 #include "synergia/simulation/stepper.h"
 
-class Standard_diagnostics_actions
+class Diagnostics_actions
 {
 public:
     struct Periodic
@@ -93,7 +93,7 @@ private:
             int step, int turn);
 
 public:
-    Standard_diagnostics_actions();
+    Diagnostics_actions();
     virtual void
     add_per_turn(Diagnostics_sptr diagnostics_sptr, int period = 1);
     virtual void
@@ -121,9 +121,9 @@ public:
             ar & BOOST_SERIALIZATION_NVP(per_step_periodic_listed);
         }
     virtual
-    ~Standard_diagnostics_actions();
+    ~Diagnostics_actions();
 };
 
-typedef boost::shared_ptr<Standard_diagnostics_actions >
-        Standard_diagnostics_actions_sptr;
-#endif /* STANDARD_DIAGNOSTICS_ACTIONS_H_ */
+typedef boost::shared_ptr<Diagnostics_actions >
+        Diagnostics_actions_sptr;
+#endif /* DIAGNOSTICS_ACTIONS_H_ */

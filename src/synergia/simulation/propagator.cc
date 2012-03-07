@@ -1,6 +1,6 @@
 #include "propagator.h"
 #include "synergia/utils/simple_timer.h"
-#include "synergia/simulation/standard_diagnostics_actions.h"
+#include "synergia/simulation/diagnostics_actions.h"
 #include "synergia/utils/serialization_files.h"
 #include "synergia/utils/logger.h"
 #include "synergia/utils/digits.h"

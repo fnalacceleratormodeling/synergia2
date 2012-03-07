@@ -45,7 +45,7 @@ else:
     sys.stderr.write("fodo.py: stepper must be either 'independent' or 'splitoperator'\n")
     sys.exit(1)
 
-diagnostics_actions = synergia.simulation.Standard_diagnostics_actions()
+diagnostics_actions = synergia.simulation.Diagnostics_actions()
 for part in range(0, opts.step_tracks):
     diagnostics_actions.add_per_step(synergia.bunch.Diagnostics_track(bunch,
                                                                    "step_track_%02d.h5" % part,
