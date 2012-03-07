@@ -85,6 +85,23 @@ as_fast_mapping_operation(Independent_operation_sptr & independent_operation_spt
     return boost::dynamic_pointer_cast<Fast_mapping_operation >(independent_operation_sptr);
 }
 
+void (Standard_diagnostics_actions::*add_per_turn1)(Diagnostics_sptr, int)
+                            = &Standard_diagnostics_actions::add_per_turn;
+void (Standard_diagnostics_actions::*add_per_turn2)(Diagnostics_sptr,
+        std::list<int > const&)
+                            = &Standard_diagnostics_actions::add_per_turn;
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_per_turn_member_overloads12,
+        Standard_diagnostics_actions::add_per_turn, 1, 2)
+void (Standard_diagnostics_actions::*add_per_step1)(Diagnostics_sptr, int)
+                            = &Standard_diagnostics_actions::add_per_step;
+void (Standard_diagnostics_actions::*add_per_step2)(Diagnostics_sptr,
+        std::list<int > const&, int)
+                            = &Standard_diagnostics_actions::add_per_step;
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_per_step_member_overloads12,
+        Standard_diagnostics_actions::add_per_step, 1, 2)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_per_step_member_overloads23,
+        Standard_diagnostics_actions::add_per_step, 2, 3)
+
 BOOST_PYTHON_MODULE(simulation)
 {
     import_array();
@@ -300,9 +317,14 @@ BOOST_PYTHON_MODULE(simulation)
 
     class_<Standard_diagnostics_actions, Standard_diagnostics_actions_sptr >(
             "Standard_diagnostics_actions", init< >())
-            .def("add_per_turn", &Standard_diagnostics_actions::add_per_turn)
-            .def("add_per_step", &Standard_diagnostics_actions::add_per_step)
-            .def("update_and_write_all", &Standard_diagnostics_actions::update_and_write_all)
+            .def("add_per_turn", add_per_turn1,
+                    add_per_turn_member_overloads12())
+            .def("add_per_turn", add_per_turn2)
+            .def("add_per_turn", add_per_step1,
+                    add_per_turn_member_overloads12())
+            .def("add_per_turn", add_per_step2,
+                    add_per_step_member_overloads23())
+//            .def("add_per_step", &Standard_diagnostics_actions::add_per_step)
             .def("first_action", &Standard_diagnostics_actions::first_action)
             .def("turn_end_action", &Standard_diagnostics_actions::turn_end_action)
             .def("step_end_action", &Standard_diagnostics_actions::step_end_action)
