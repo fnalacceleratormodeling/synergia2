@@ -65,10 +65,10 @@ run()
     Bunch_simulator bunch_simulator(bunch_sptr);
     bunch_simulator.add_per_step(
             Diagnostics_sptr(
-                    new Diagnostics_basic(bunch_sptr, "cxx_example_per_step.h5")));
+                    new Diagnostics_basic("cxx_example_per_step.h5")));
     bunch_simulator.add_per_turn(
             Diagnostics_sptr(
-                    new Diagnostics_full2(bunch_sptr, "cxx_example_per_turn.h5")));
+                    new Diagnostics_full2("cxx_example_per_turn.h5")));
 
     propagator.set_checkpoint_period(2);
     double t0 = MPI_Wtime();

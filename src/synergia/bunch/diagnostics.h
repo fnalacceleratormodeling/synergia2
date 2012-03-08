@@ -24,23 +24,52 @@ struct Core_diagnostics
     calculate_mom2(Bunch const& bunch, MArray1d_ref const& mean);
 
     static MArray1d
-    calculate_bunchmin(Bunch const& bunch);
+    calculate_min(Bunch const& bunch);
 
     static MArray1d
-    calculate_bunchmax(Bunch const& bunch);
+    calculate_max(Bunch const& bunch);
 };
 
 class Diagnostics
 {
 private:
     std::string name;
+    std::string filename;
+    Bunch_sptr bunch_sptr;
+    bool have_bunch_;
+    Diagnostics_write_helper * write_helper_ptr;
+    bool have_write_helper_;
 
 public:
 
-    Diagnostics(std::string const& name);
+    Diagnostics(std::string const& name, std::string const& filename);
 
     // Default constructor for serialization use only
     Diagnostics();
+
+    virtual std::string const&
+    get_filename() const;
+
+    virtual void
+    set_bunch_sptr(Bunch_sptr bunch_sptr);
+
+    virtual bool
+    have_bunch() const;
+
+    virtual void
+    delete_write_helper_ptr();
+
+    virtual Diagnostics_write_helper *
+    new_write_helper_ptr();
+
+    virtual bool
+    have_write_helper() const;
+
+    virtual Diagnostics_write_helper *
+    get_write_helper_ptr();
+
+    Bunch &
+    get_bunch();
     /// Multiple serial diagnostics can be written to a single file.
     virtual bool
     is_serial() const = 0;
@@ -57,19 +86,19 @@ public:
         update();
         write();
     }
-    virtual Bunch_sptr
-    get_bunch_sptr() const=0;
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)
         {
             ar & BOOST_SERIALIZATION_NVP(name);
+            ar & BOOST_SERIALIZATION_NVP(filename);
+            ar & BOOST_SERIALIZATION_NVP(bunch_sptr);
+            ar & BOOST_SERIALIZATION_NVP(have_bunch_);
+            ar & BOOST_SERIALIZATION_NVP(write_helper_ptr);
+            ar & BOOST_SERIALIZATION_NVP(have_write_helper_);
         }
     virtual
-    ~Diagnostics()
-    {
-    }
-    ;
+    ~Diagnostics();
 };
 BOOST_CLASS_EXPORT_KEY(Diagnostics)
 typedef boost::shared_ptr<Diagnostics > Diagnostics_sptr;
@@ -80,9 +109,6 @@ class Diagnostics_basic : public Diagnostics
 {
 private:
     bool have_writers;
-    std::string filename;
-    Bunch_sptr bunch_sptr;
-    Diagnostics_write_helper write_helper;
     double s;
     Hdf5_serial_writer<double > * writer_s;
     int repetition;
@@ -97,12 +123,16 @@ private:
     Hdf5_serial_writer<MArray1d_ref > * writer_mean;
     MArray1d std;
     Hdf5_serial_writer<MArray1d_ref > * writer_std;
+    MArray1d min;
+    Hdf5_serial_writer<MArray1d_ref > * writer_min;
+    MArray1d max;
+    Hdf5_serial_writer<MArray1d_ref > * writer_max;
+
 
 public:
     /// Create a Diagnostics_basic object
-    /// @param bunch the Bunch
     /// @param filename filename for output
-    Diagnostics_basic(Bunch_sptr bunch, std::string const& filename);
+    Diagnostics_basic(std::string const& filename);
 
     // Default constructor for serialization use only
     Diagnostics_basic();
@@ -151,40 +181,38 @@ public:
     get_std() const;
 
     virtual const MArray1d
-    get_bunchmin() const;
+    get_min() const;
 
     virtual const MArray1d
-    get_bunchmax() const;
+    get_max() const;
 
     virtual void
     write();
-
-    virtual Bunch_sptr
-    get_bunch_sptr() const;
 
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)
         {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics)
-                    & BOOST_SERIALIZATION_NVP(have_writers)
-                    & BOOST_SERIALIZATION_NVP(filename)
-                    & BOOST_SERIALIZATION_NVP(bunch_sptr)
-                    & BOOST_SERIALIZATION_NVP(write_helper)
-                    & BOOST_SERIALIZATION_NVP(s)
-                    & BOOST_SERIALIZATION_NVP(writer_s)
-                    & BOOST_SERIALIZATION_NVP(repetition)
-                    & BOOST_SERIALIZATION_NVP(writer_repetition)
-                    & BOOST_SERIALIZATION_NVP(trajectory_length)
-                    & BOOST_SERIALIZATION_NVP(writer_trajectory_length)
-                    & BOOST_SERIALIZATION_NVP(num_particles)
-                    & BOOST_SERIALIZATION_NVP(writer_num_particles)
-                    & BOOST_SERIALIZATION_NVP(real_num_particles)
-                    & BOOST_SERIALIZATION_NVP(writer_real_num_particles)
-                    & BOOST_SERIALIZATION_NVP(mean)
-                    & BOOST_SERIALIZATION_NVP(writer_mean)
-                    & BOOST_SERIALIZATION_NVP(std)
-                    & BOOST_SERIALIZATION_NVP(writer_std);
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
+            ar & BOOST_SERIALIZATION_NVP(have_writers);
+            ar & BOOST_SERIALIZATION_NVP(s);
+            ar & BOOST_SERIALIZATION_NVP(writer_s);
+            ar & BOOST_SERIALIZATION_NVP(repetition);
+            ar & BOOST_SERIALIZATION_NVP(writer_repetition);
+            ar & BOOST_SERIALIZATION_NVP(trajectory_length);
+            ar & BOOST_SERIALIZATION_NVP(writer_trajectory_length);
+            ar & BOOST_SERIALIZATION_NVP(num_particles);
+            ar & BOOST_SERIALIZATION_NVP(writer_num_particles);
+            ar & BOOST_SERIALIZATION_NVP(real_num_particles);
+            ar & BOOST_SERIALIZATION_NVP(writer_real_num_particles);
+            ar & BOOST_SERIALIZATION_NVP(mean);
+            ar & BOOST_SERIALIZATION_NVP(writer_mean);
+            ar & BOOST_SERIALIZATION_NVP(std);
+            ar & BOOST_SERIALIZATION_NVP(writer_std);
+            ar & BOOST_SERIALIZATION_NVP(min);
+            ar & BOOST_SERIALIZATION_NVP(writer_min);
+            ar & BOOST_SERIALIZATION_NVP(max);
+            ar & BOOST_SERIALIZATION_NVP(writer_max);
         }
 
     virtual
@@ -199,9 +227,6 @@ class Diagnostics_full2 : public Diagnostics
 {
 private:
     bool have_writers;
-    std::string filename;
-    Bunch_sptr bunch_sptr;
-    Diagnostics_write_helper write_helper;
     double s;
     Hdf5_serial_writer<double > * writer_s;
     int repetition;
@@ -216,6 +241,10 @@ private:
     Hdf5_serial_writer<MArray1d_ref > * writer_mean;
     MArray1d std;
     Hdf5_serial_writer<MArray1d_ref > * writer_std;
+    MArray1d min;
+    Hdf5_serial_writer<MArray1d_ref > * writer_min;
+    MArray1d max;
+    Hdf5_serial_writer<MArray1d_ref > * writer_max;
     MArray2d mom2;
     Hdf5_serial_writer<MArray2d_ref > * writer_mom2;
     MArray2d corr;
@@ -232,7 +261,7 @@ public:
     /// Create a Diagnostics_basic object
     /// @param bunch the Bunch
     /// @param filename filename for output
-    Diagnostics_full2(Bunch_sptr bunch, std::string const& filename);
+    Diagnostics_full2(std::string const& filename);
 
     // Default constructor for serialization use only
     Diagnostics_full2();
@@ -280,6 +309,12 @@ public:
     virtual Const_MArray1d_ref
     get_std() const;
 
+    virtual const MArray1d
+    get_min() const;
+
+    virtual const MArray1d
+    get_max() const;
+
     /// Get a 6x6 matrix of the second moments of the phase-space coordinates.
     /// The units are Synergia units.
     virtual Const_MArray2d_ref
@@ -318,18 +353,12 @@ public:
     virtual void
     write();
 
-    virtual Bunch_sptr
-    get_bunch_sptr() const;
-
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)
         {
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics)
                     & BOOST_SERIALIZATION_NVP(have_writers)
-                    & BOOST_SERIALIZATION_NVP(filename)
-                    & BOOST_SERIALIZATION_NVP(bunch_sptr)
-                    & BOOST_SERIALIZATION_NVP(write_helper)
                     & BOOST_SERIALIZATION_NVP(s)
                     & BOOST_SERIALIZATION_NVP(writer_s)
                     & BOOST_SERIALIZATION_NVP(repetition)
@@ -344,6 +373,10 @@ public:
                     & BOOST_SERIALIZATION_NVP(writer_mean)
                     & BOOST_SERIALIZATION_NVP(std)
                     & BOOST_SERIALIZATION_NVP(writer_std)
+                    & BOOST_SERIALIZATION_NVP(min)
+                    & BOOST_SERIALIZATION_NVP(writer_min)
+                    & BOOST_SERIALIZATION_NVP(max)
+                    & BOOST_SERIALIZATION_NVP(writer_max)
                     & BOOST_SERIALIZATION_NVP(mom2)
                     & BOOST_SERIALIZATION_NVP(writer_mom2)
                     & BOOST_SERIALIZATION_NVP(corr)
@@ -372,9 +405,6 @@ class Diagnostics_particles : public Diagnostics
 private:
     bool have_writers;
     int min_particle_id, max_particle_id;
-    Bunch_sptr bunch_sptr;
-    std::string filename;
-    Diagnostics_write_helper write_helper;
     void
     receive_other_local_particles(std::vector<int > const& local_nums,
             Hdf5_file_sptr file_sptr);
@@ -388,9 +418,8 @@ public:
     /// @param min_particle_id the lowest particle id to write (defaults to 0)
     /// @param max_particle_id the highest particle id to write (0 indicates no limit, hence min,max = 0,0 writes all particles)
     /// @param write_skip write every write_skip turns
-    Diagnostics_particles(Bunch_sptr bunch_sptr, std::string const& filename,
-            int min_particle_id = 0, int max_particle_id = 0,
-            int write_skip = 1);
+    Diagnostics_particles(std::string const& filename, int min_particle_id = 0,
+            int max_particle_id = 0, int write_skip = 1);
 
     // Default constructor for serialization use only
     Diagnostics_particles();
@@ -407,19 +436,13 @@ public:
     virtual void
     write();
 
-    virtual Bunch_sptr
-    get_bunch_sptr() const;
-
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)
         {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics)
-                    & BOOST_SERIALIZATION_NVP(have_writers)
-                    & BOOST_SERIALIZATION_NVP(max_particle_id)
-                    & BOOST_SERIALIZATION_NVP(bunch_sptr)
-                    & BOOST_SERIALIZATION_NVP(filename)
-                    & BOOST_SERIALIZATION_NVP(write_helper);
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
+            ar & BOOST_SERIALIZATION_NVP(have_writers);
+            ar & BOOST_SERIALIZATION_NVP(max_particle_id);
         }
 
     virtual
@@ -440,9 +463,6 @@ private:
     bool first_search;
     int last_index;
     int particle_id;
-    Bunch_sptr bunch_sptr;
-    std::string filename;
-    Diagnostics_write_helper_sptr write_helper_sptr;
     double s;
     Hdf5_serial_writer<double > * writer_s;
     int repetition;
@@ -460,11 +480,14 @@ public:
     /// @param filename the base name for file to write to (base names will have
     ///        a numerical index inserted
     /// @param particle_id the particle ID to track
-    Diagnostics_track(Bunch_sptr bunch_sptr, std::string const& filename,
+    Diagnostics_track(std::string const& filename,
             int particle_id);
 
     // Default constructor for serialization use only
     Diagnostics_track();
+
+    virtual Diagnostics_write_helper *
+    new_write_helper_ptr();
 
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_full2 class is serial.
@@ -478,9 +501,6 @@ public:
     virtual void
     write();
 
-    virtual Bunch_sptr
-    get_bunch_sptr() const;
-
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)
@@ -491,9 +511,6 @@ public:
                     & BOOST_SERIALIZATION_NVP(first_search)
                     & BOOST_SERIALIZATION_NVP(last_index)
                     & BOOST_SERIALIZATION_NVP(particle_id)
-                    & BOOST_SERIALIZATION_NVP(bunch_sptr)
-                    & BOOST_SERIALIZATION_NVP(filename)
-                    & BOOST_SERIALIZATION_NVP(write_helper_sptr)
                     & BOOST_SERIALIZATION_NVP(s)
                     & BOOST_SERIALIZATION_NVP(writer_s)
                     & BOOST_SERIALIZATION_NVP(repetition)
@@ -514,9 +531,6 @@ class Diagnostics_reference_particle : public Diagnostics
 {
 private:
     bool have_writers;
-    std::string filename;
-    Bunch_sptr bunch_sptr;
-    Diagnostics_write_helper write_helper;
     Hdf5_serial_writer<double > * writer_beta;
     Hdf5_serial_writer<double > * writer_gamma;
     Hdf5_serial_writer<MArray1d_ref > * writer_state;
@@ -526,7 +540,8 @@ public:
     /// Create a Diagnostics_reference_particle object
     /// @param bunch the Bunch
     /// @param filename filename for output
-    Diagnostics_reference_particle(Bunch_sptr bunch, std::string const& filename);
+    Diagnostics_reference_particle(
+            std::string const& filename);
 
     // Default constructor for serialization use only
     Diagnostics_reference_particle();
@@ -546,18 +561,12 @@ public:
     virtual void
     write();
 
-    virtual Bunch_sptr
-    get_bunch_sptr() const;
-
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)
         {
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics)
                     & BOOST_SERIALIZATION_NVP(have_writers)
-                    & BOOST_SERIALIZATION_NVP(filename)
-                    & BOOST_SERIALIZATION_NVP(bunch_sptr)
-                    & BOOST_SERIALIZATION_NVP(write_helper)
                     & BOOST_SERIALIZATION_NVP(writer_beta)
                     & BOOST_SERIALIZATION_NVP(writer_gamma)
                     & BOOST_SERIALIZATION_NVP(writer_state)
@@ -568,6 +577,7 @@ public:
     ~Diagnostics_reference_particle();
 };
 BOOST_CLASS_EXPORT_KEY(Diagnostics_reference_particle)
-typedef boost::shared_ptr<Diagnostics_reference_particle > Diagnostics_reference_particle_sptr;
+typedef boost::shared_ptr<Diagnostics_reference_particle >
+        Diagnostics_reference_particle_sptr;
 
 #endif /* DIAGNOSTICS_H_ */

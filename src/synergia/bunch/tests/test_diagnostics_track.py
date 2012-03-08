@@ -29,11 +29,12 @@ particles = bunch.get_local_particles()
 particles[:, 0:6] = numpy.random.lognormal(size=[bunch.get_total_num(), 6])
 
 def test_construct():
-    diagnostics = Diagnostics_track(bunch, "dummy.h5", 0)
+    diagnostics = Diagnostics_track("dummy.h5", 0)
 
 def test_construct2():
-    diagnostics = Diagnostics_track(bunch, "dummy.h5", 0)
+    diagnostics = Diagnostics_track("dummy.h5", 0)
 
 def test_update():
-    diagnostics = Diagnostics_track(bunch, "dummy.h5", 0)
+    diagnostics = Diagnostics_track("dummy.h5", 0)
+    diagnostics.set_bunch(bunch)
     diagnostics.update()

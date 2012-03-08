@@ -49,18 +49,19 @@ struct Fixture
 
 BOOST_FIXTURE_TEST_CASE(construct, Fixture)
 {
-    Diagnostics_track diagnostics(bunch_sptr, "track_mpi.h5", 0);
+    Diagnostics_track diagnostics("track_mpi.h5", 0);
 }
 
 BOOST_FIXTURE_TEST_CASE(is_serial, Fixture)
 {
-    Diagnostics_track diagnostics(bunch_sptr, "track_mpi.h5", 0);
+    Diagnostics_track diagnostics("track_mpi.h5", 0);
     BOOST_CHECK(diagnostics.is_serial());
 }
 
 BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 {
-    Diagnostics_track diagnostics(bunch_sptr, "track_mpi.h5", 0);
+    Diagnostics_track diagnostics("track_mpi.h5", 0);
+    diagnostics.set_bunch_sptr(bunch_sptr);
     diagnostics.update();
     diagnostics.write();
 }
@@ -68,7 +69,8 @@ BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 BOOST_FIXTURE_TEST_CASE(write_track_sin_x, Fixture)
 {
     int particle_id = bunch_sptr->get_comm().get_size() - 1;
-    Diagnostics_track diagnostics(bunch_sptr, "track_mpi_last.h5", particle_id);
+    Diagnostics_track diagnostics("track_mpi_last.h5", particle_id);
+    diagnostics.set_bunch_sptr(bunch_sptr);
     double length = 0.1;
     for (int i = 0; i < 200; ++i) {
         bunch_sptr->get_reference_particle().increment_trajectory(length);

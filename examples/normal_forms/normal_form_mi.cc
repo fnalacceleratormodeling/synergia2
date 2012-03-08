@@ -99,13 +99,13 @@ run()
     populate_6d_stationary_gaussian(distribution, *bunch_sptr, actions, lattice_simulator);
     #endif
 
-    Diagnostics_sptr per_step_diagnostics(new Diagnostics_basic(bunch_sptr,
+    Diagnostics_sptr per_step_diagnostics(new Diagnostics_basic(
 								  "nf_per_step.h5"));
 
-    Diagnostics_sptr per_turn_diagnostics(new Diagnostics_full2(bunch_sptr,
+    Diagnostics_sptr per_turn_diagnostics(new Diagnostics_full2(
 								  "mi_per_turn.h5"));
 
-    Diagnostics_sptr diag_particles(new Diagnostics_particles(bunch_sptr, "mi_particles_initial.h5", 0, 32768));
+    Diagnostics_sptr diag_particles(new Diagnostics_particles("mi_particles_initial.h5", 0, 32768));
 
     Bunch_simulator bunch_simulator(bunch_sptr);
 
@@ -114,6 +114,7 @@ run()
     bunch_simulator.get_diagnostics_actions().add_per_turn(diag_particles);
 
 #if 0
+    diag_particles_i.set_bunch_sptr(bunch_sptr);
     diag_particles_i.update_and_write();
 #endif
 
@@ -131,6 +132,7 @@ run()
 
 #if 0
     Diagnostics_particles diag_particles_f(bunch_sptr, "mi_particles_final.h5", 0, 32768);
+    diag_particles_f.set_bunch_sptr(bunch_sptr);
     diag_particles_f.update_and_write();
 #endif
 

@@ -1,14 +1,51 @@
 #include "diagnostics_actions.h"
 #include <algorithm>
 
-Diagnostics_actions::Diagnostics_actions()
+Diagnostics_actions::Diagnostics_actions() :
+    have_bunch_sptr_(false)
 {
 }
 
+// set_bunches is a local function (template)
+template<typename T>
+    void
+    set_bunch_sptr_all(T & t, Bunch_sptr bunch_sptr)
+    {
+        for (typename T::iterator it = t.begin(); it != t.end(); ++it) {
+            it->diagnostics_sptr->set_bunch_sptr(bunch_sptr);
+        }
+
+    }
 void
-Diagnostics_actions::add_per_turn(Diagnostics_sptr diagnostics_sptr,
-        int period)
+Diagnostics_actions::set_bunch_sptr(Bunch_sptr bunch_sptr)
 {
+    this->bunch_sptr = bunch_sptr;
+    have_bunch_sptr_ = true;
+
+    set_bunch_sptr_all(per_turn_periodic, bunch_sptr);
+    set_bunch_sptr_all(per_step_periodic, bunch_sptr);
+    set_bunch_sptr_all(per_turn_listed, bunch_sptr);
+    set_bunch_sptr_all(per_step_periodic_listed, bunch_sptr);
+}
+
+bool
+Diagnostics_actions::have_bunch_sptr() const
+{
+    return have_bunch_sptr_;
+}
+
+Bunch_sptr
+Diagnostics_actions::get_bunch_sptr()
+{
+    return bunch_sptr;
+}
+
+void
+Diagnostics_actions::add_per_turn(Diagnostics_sptr diagnostics_sptr, int period)
+{
+    if (have_bunch_sptr()) {
+        diagnostics_sptr->set_bunch_sptr(get_bunch_sptr());
+    }
     per_turn_periodic.push_back(Periodic(period, diagnostics_sptr));
 }
 
@@ -16,26 +53,33 @@ void
 Diagnostics_actions::add_per_turn(Diagnostics_sptr diagnostics_sptr,
         std::list<int > const& turn_numbers)
 {
+    if (have_bunch_sptr()) {
+        diagnostics_sptr->set_bunch_sptr(get_bunch_sptr());
+    }
     per_turn_listed.push_back(Listed(turn_numbers, diagnostics_sptr));
 }
 
 void
-Diagnostics_actions::add_per_step(Diagnostics_sptr diagnostics_sptr,
-        int period)
+Diagnostics_actions::add_per_step(Diagnostics_sptr diagnostics_sptr, int period)
 {
+    if (have_bunch_sptr()) {
+        diagnostics_sptr->set_bunch_sptr(get_bunch_sptr());
+    }
     per_step_periodic.push_back(Periodic(period, diagnostics_sptr));
 }
 void
 Diagnostics_actions::add_per_step(Diagnostics_sptr diagnostics_sptr,
         std::list<int > const& step_numbers, int turn_period)
 {
+    if (have_bunch_sptr()) {
+        diagnostics_sptr->set_bunch_sptr(get_bunch_sptr());
+    }
     per_step_periodic_listed.push_back(
             Periodic_listed(turn_period, step_numbers, diagnostics_sptr));
 }
 
 void
-Diagnostics_actions::update_and_write_periodics(Periodics & periodics,
-        int num)
+Diagnostics_actions::update_and_write_periodics(Periodics & periodics, int num)
 {
     for (Periodics::iterator it = periodics.begin(); it != periodics.end(); ++it) {
         if (num % it->period == 0) {
@@ -45,8 +89,7 @@ Diagnostics_actions::update_and_write_periodics(Periodics & periodics,
 }
 
 void
-Diagnostics_actions::update_and_write_listeds(Listeds & listeds,
-        int num)
+Diagnostics_actions::update_and_write_listeds(Listeds & listeds, int num)
 {
     for (Listeds::iterator it = listeds.begin(); it != listeds.end(); ++it) {
         Numbers::iterator pos;
@@ -78,7 +121,6 @@ Diagnostics_actions::update_and_write_periodic_listeds(
 void
 Diagnostics_actions::first_action(Stepper & stepper, Bunch & bunch)
 {
-
     update_and_write_periodics(per_turn_periodic, 0);
     update_and_write_periodics(per_step_periodic, 0);
     update_and_write_listeds(per_turn_listed, 0);

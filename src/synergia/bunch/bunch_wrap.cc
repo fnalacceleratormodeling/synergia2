@@ -34,27 +34,40 @@ BOOST_PYTHON_MODULE(bunch)
 
     class_<Diagnostics, Diagnostics_sptr, boost::noncopyable >
         ("Diagnostics", no_init)
+        .def("get_filename", &Diagnostics::get_filename,
+                return_value_policy<copy_const_reference >())
+        .def("set_bunch", &Diagnostics::set_bunch_sptr)
+        .def("have_bunch", &Diagnostics::have_bunch)
+        .def("get_bunch", &Diagnostics::get_bunch,
+                return_internal_reference< >())
+        .def("is_serial", &Diagnostics::is_serial)
         .def("update", &Diagnostics::update)
         .def("write", &Diagnostics::write)
         .def("update_and_write", &Diagnostics::update_and_write)
         ;
 
     class_<Diagnostics_basic, Diagnostics_basic_sptr, bases<Diagnostics > >
-        ("Diagnostics_basic",init<Bunch_sptr, std::string const& >())
+        ("Diagnostics_basic",init<std::string const& >())
+        .def("set_bunch", &Diagnostics_basic::set_bunch_sptr)
         .def("get_s", &Diagnostics_basic::get_s)
         .def("get_repetition", &Diagnostics_basic::get_repetition)
         .def("get_trajectory_length", &Diagnostics_basic::get_trajectory_length)
         .def("get_mean", &Diagnostics_basic::get_mean)
         .def("get_std", &Diagnostics_basic::get_std)
+        .def("get_min", &Diagnostics_basic::get_min)
+        .def("get_max", &Diagnostics_basic::get_max)
         ;
 
     class_<Diagnostics_full2, Diagnostics_full2_sptr, bases<Diagnostics > >
-            ("Diagnostics_full2",init<Bunch_sptr, std::string const& >())
+            ("Diagnostics_full2",init<std::string const& >())
+        .def("set_bunch", &Diagnostics_full2::set_bunch_sptr)
         .def("get_s", &Diagnostics_full2::get_s)
         .def("get_repetition", &Diagnostics_full2::get_repetition)
         .def("get_trajectory_length", &Diagnostics_full2::get_trajectory_length)
         .def("get_mean", &Diagnostics_full2::get_mean)
         .def("get_std", &Diagnostics_full2::get_std)
+        .def("get_min", &Diagnostics_basic::get_min)
+        .def("get_max", &Diagnostics_basic::get_max)
         .def("get_mom2", &Diagnostics_full2::get_mom2)
         .def("get_corr", &Diagnostics_full2::get_corr)
         .def("get_emitx", &Diagnostics_full2::get_emitx)
@@ -65,17 +78,20 @@ BOOST_PYTHON_MODULE(bunch)
         ;
 
     class_<Diagnostics_track, Diagnostics_track_sptr, bases<Diagnostics > >
-        ("Diagnostics_track",init<Bunch_sptr, std::string const&, int >())
+            ("Diagnostics_track",init<std::string const&, int >())
+        .def("set_bunch", &Diagnostics_track::set_bunch_sptr)
         ;
 
     class_<Diagnostics_particles, Diagnostics_particles_sptr, bases<Diagnostics > >
-            ("Diagnostics_particles",init<Bunch_sptr, std::string const& >())
+            ("Diagnostics_particles",init<std::string const& >())
        // .def(init<Bunch_sptr, std::string const&, int >())
-        .def(init<Bunch_sptr, std::string const&, int, int, int >())
+        .def(init<std::string const&, int, int, int >())
+        .def("set_bunch", &Diagnostics_particles::set_bunch_sptr)
         ;
 
     class_<Diagnostics_reference_particle, Diagnostics_reference_particle_sptr, bases<Diagnostics > >
-        ("Diagnostics_reference_particle",init<Bunch_sptr, std::string const& >())
+        ("Diagnostics_reference_particle",init<std::string const& >())
+        .def("set_bunch", &Diagnostics_reference_particle::set_bunch_sptr)
         ;
 
     class_<Multi_diagnostics>("Multi_diagnostics",

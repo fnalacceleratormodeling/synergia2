@@ -90,10 +90,10 @@ run(Benchmark_options const& opts)
     Bunch_simulator bunch_simulator(bunch_sptr);
     bunch_simulator.get_diagnostics_actions().add_per_step(
             Diagnostics_sptr(
-                    new Diagnostics_basic(bunch_sptr, "cxx_example_per_step.h5")));
+                    new Diagnostics_basic("cxx_example_per_step.h5")));
     bunch_simulator.get_diagnostics_actions().add_per_turn(
             Diagnostics_sptr(
-                    new Diagnostics_full2(bunch_sptr, "cxx_example_per_turn.h5")));
+                    new Diagnostics_full2("cxx_example_per_turn.h5")));
     double t0 = MPI_Wtime();
     propagator.propagate(bunch_simulator, num_turns, true);
     double t1 = MPI_Wtime();

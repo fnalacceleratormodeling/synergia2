@@ -110,26 +110,27 @@ run()
     #endif
     std::cout << "after populate" << std::endl;
 
-    Diagnostics_sptr  per_step_diagnostics(new Diagnostics_basic(bunch_sptr,
+    Diagnostics_sptr  per_step_diagnostics(new Diagnostics_basic(
             "nf_per_step.h5"));
 
-    Diagnostics_sptr per_turn_diagnostics(new Diagnostics_full2(bunch_sptr,
+    Diagnostics_sptr per_turn_diagnostics(new Diagnostics_full2(
 							"nf_per_turn.h5"));
 
-    Diagnostics_particles diag_particles_i(bunch_sptr, "nf_particles_initial.h5", 0, 32768);
-
+    Diagnostics_particles diag_particles_i("nf_particles_initial.h5", 0, 32768);
+    diag_particles_i.set_bunch_sptr(bunch_sptr);
     diag_particles_i.update_and_write();
 
     Bunch_simulator bunch_simulator(bunch_sptr);
-    bunch_simulator.get_diagnostics_actions().add_per_step(per_step_diagnostics);
-    bunch_simulator.get_diagnostics_actions().add_per_turn(per_turn_diagnostics);
+    bunch_simulator.add_per_step(per_step_diagnostics);
+    bunch_simulator.add_per_turn(per_turn_diagnostics);
     double t0 = MPI_Wtime();
     propagator.propagate(bunch_simulator, num_turns);
     double t1 = MPI_Wtime();
     if (comm.get_rank() == 0) {
       std::cout << "propagate time = " << (t1-t0) << std::endl;
     }
-    Diagnostics_particles diag_particles_f(bunch_sptr, "nf_particles_final.h5", 0, 32768);
+    Diagnostics_particles diag_particles_f("nf_particles_final.h5", 0, 32768);
+    diag_particles_f.set_bunch_sptr(bunch_sptr);
     diag_particles_f.update_and_write();
 
 }

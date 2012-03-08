@@ -53,45 +53,49 @@ struct Fixture
 
 BOOST_FIXTURE_TEST_CASE(construct, Fixture)
 {
-    Diagnostics_particles diagnostics(bunch_sptr, "dummy.h5");
+    Diagnostics_particles diagnostics("dummy.h5");
 }
 
 BOOST_FIXTURE_TEST_CASE(construct2, Fixture)
 {
-    Diagnostics_particles diagnostics(bunch_sptr, "dummy.h5", max_particles);
+    Diagnostics_particles diagnostics("dummy.h5", max_particles);
 }
 
 BOOST_FIXTURE_TEST_CASE(is_serial, Fixture)
 {
-    Diagnostics_particles diagnostics(bunch_sptr, "dummy.h5");
+    Diagnostics_particles diagnostics("dummy.h5");
     BOOST_CHECK(!diagnostics.is_serial());
 }
 
 BOOST_FIXTURE_TEST_CASE(update, Fixture)
 {
-    Diagnostics_particles diagnostics(bunch_sptr, "dummy.h5");
+    Diagnostics_particles diagnostics("dummy.h5");
+    diagnostics.set_bunch_sptr(bunch_sptr);
     diagnostics.update();
 }
 
 BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 {
-    Diagnostics_particles diagnostics(bunch_sptr,
+    Diagnostics_particles diagnostics(
             "diagnostics_particles_nompi.h5");
+    diagnostics.set_bunch_sptr(bunch_sptr);
     diagnostics.update();
     diagnostics.write();
 }
 
 BOOST_FIXTURE_TEST_CASE(write_min_max, Fixture)
 {
-    Diagnostics_particles diagnostics(bunch_sptr,
+    Diagnostics_particles diagnostics(
             "diagnostics_particles_nompi_35.h5", 3, 5);
+    diagnostics.set_bunch_sptr(bunch_sptr);
     diagnostics.update();
     diagnostics.write();
 }
 
 BOOST_FIXTURE_TEST_CASE(serialize_, Fixture)
 {
-    Diagnostics_particles diagnostics(bunch_sptr, "dummy.h5");
+    Diagnostics_particles diagnostics("dummy.h5");
+    diagnostics.set_bunch_sptr(bunch_sptr);
     diagnostics.update();
     diagnostics.write();
 

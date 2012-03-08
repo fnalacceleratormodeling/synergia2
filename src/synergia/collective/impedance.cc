@@ -375,8 +375,8 @@ Impedance::apply(Bunch & bunch, double time_step, Step & step)
 
     bunch.convert_to_state(Bunch::fixed_t_lab);
 
-     MArray1d bunchmin(Core_diagnostics::calculate_bunchmin(bunch));
-     MArray1d bunchmax (Core_diagnostics::calculate_bunchmax(bunch));
+     MArray1d bunchmin(Core_diagnostics::calculate_min(bunch));
+     MArray1d bunchmax (Core_diagnostics::calculate_max(bunch));
      double size_z=bunchmax[2]-bunchmin[2];
      MArray1d  zdensity(boost::extents[z_grid]);
      MArray1d  xmom(boost::extents[z_grid]);

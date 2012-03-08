@@ -48,24 +48,24 @@ BOOST_FIXTURE_TEST_CASE(propagate, Lattice_fixture)
     Bunch_simulator bunch_simulator(bunch_sptr);
 
     Diagnostics_sptr first_step_full2_diag_sptr(
-            new Diagnostics_full2(bunch_sptr, "first_full2_per_step.h5"));
+            new Diagnostics_full2("first_full2_per_step.h5"));
     Diagnostics_sptr second_step_full2_diag_sptr(
-            new Diagnostics_full2(bunch_sptr, "second_full2_per_step.h5"));
-    bunch_simulator.get_diagnostics_actions().add_per_step(
+            new Diagnostics_full2("second_full2_per_step.h5"));
+    bunch_simulator.add_per_step(
             first_step_full2_diag_sptr);
-    bunch_simulator.get_diagnostics_actions().add_per_step(
+    bunch_simulator.add_per_step(
             second_step_full2_diag_sptr);
 
     Diagnostics_sptr
             first_turn_particles_diag_sptr(
-                    new Diagnostics_particles(bunch_sptr,
+                    new Diagnostics_particles(
                             "first_particles_per_turn.h5"));
     Diagnostics_sptr second_turn_particles_diag_sptr(
-            new Diagnostics_particles(bunch_sptr,
+            new Diagnostics_particles(
                     "second_particles_per_turn.h5"));
-    bunch_simulator.get_diagnostics_actions().add_per_turn(
+    bunch_simulator.add_per_turn(
             first_turn_particles_diag_sptr);
-    bunch_simulator.get_diagnostics_actions().add_per_turn(
+    bunch_simulator.add_per_turn(
             second_turn_particles_diag_sptr);
 
     int num_turns = 4;
@@ -88,24 +88,24 @@ BOOST_FIXTURE_TEST_CASE(propagate_max_turns, Lattice_fixture)
     Bunch_simulator bunch_simulator(bunch_sptr);
 
     Diagnostics_sptr first_step_full2_diag_sptr(
-            new Diagnostics_full2(bunch_sptr, "first_full2_per_step.h5"));
+            new Diagnostics_full2("first_full2_per_step.h5"));
     Diagnostics_sptr second_step_full2_diag_sptr(
-            new Diagnostics_full2(bunch_sptr, "second_full2_per_step.h5"));
-    bunch_simulator.get_diagnostics_actions().add_per_step(
+            new Diagnostics_full2("second_full2_per_step.h5"));
+    bunch_simulator.add_per_step(
             first_step_full2_diag_sptr);
-    bunch_simulator.get_diagnostics_actions().add_per_step(
+    bunch_simulator.add_per_step(
             second_step_full2_diag_sptr);
 
     Diagnostics_sptr
             first_turn_particles_diag_sptr(
-                    new Diagnostics_particles(bunch_sptr,
+                    new Diagnostics_particles(
                             "first_particles_per_turn.h5"));
     Diagnostics_sptr second_turn_particles_diag_sptr(
-            new Diagnostics_particles(bunch_sptr,
+            new Diagnostics_particles(
                     "second_particles_per_turn.h5"));
-    bunch_simulator.get_diagnostics_actions().add_per_turn(
+    bunch_simulator.add_per_turn(
             first_turn_particles_diag_sptr);
-    bunch_simulator.get_diagnostics_actions().add_per_turn(
+    bunch_simulator.add_per_turn(
             second_turn_particles_diag_sptr);
 
     int num_turns = 4;
@@ -189,13 +189,13 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture)
     Bunch_sptr bunch_sptr(new Bunch(b.bunch));
     Bunch_simulator bunch_simulator(bunch_sptr);
 
-    bunch_simulator.get_diagnostics_actions().add_per_turn(
+    bunch_simulator.add_per_turn(
             Diagnostics_sptr(
-                    new Diagnostics_particles(bunch_sptr,
+                    new Diagnostics_particles(
                             "test_propagate_per_turn.h5")));
-    bunch_simulator.get_diagnostics_actions().add_per_step(
+    bunch_simulator.add_per_step(
             Diagnostics_sptr(
-                    new Diagnostics_basic(bunch_sptr,
+                    new Diagnostics_basic(
                             "test_propagate_per_step.h5")));
 
     int num_turns = 4;

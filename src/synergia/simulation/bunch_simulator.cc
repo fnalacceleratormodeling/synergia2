@@ -5,12 +5,14 @@ Bunch_simulator::Bunch_simulator(Bunch_sptr bunch_sptr) :
     bunch_sptr(bunch_sptr),
             diagnostics_actions_sptr(new Diagnostics_actions)
 {
+    diagnostics_actions_sptr->set_bunch_sptr(bunch_sptr);
 }
 
 Bunch_simulator::Bunch_simulator(Bunch_sptr bunch_sptr,
         Diagnostics_actions_sptr diagnostics_actions_sptr) :
     bunch_sptr(bunch_sptr), diagnostics_actions_sptr(diagnostics_actions_sptr)
 {
+    diagnostics_actions_sptr->set_bunch_sptr(bunch_sptr);
 }
 
 Bunch_simulator::Bunch_simulator()

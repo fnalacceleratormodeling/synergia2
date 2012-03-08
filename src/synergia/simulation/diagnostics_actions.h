@@ -80,6 +80,8 @@ public:
     typedef std::list<Periodic_listed > Periodic_listeds;
 
 private:
+    Bunch_sptr bunch_sptr;
+    bool have_bunch_sptr_;
     Periodics per_turn_periodic, per_step_periodic;
     Listeds per_turn_listed;
     Periodic_listeds per_step_periodic_listed;
@@ -94,6 +96,12 @@ private:
 
 public:
     Diagnostics_actions();
+    virtual void
+    set_bunch_sptr(Bunch_sptr bunch_sptr);
+    virtual bool
+    have_bunch_sptr() const;
+    virtual Bunch_sptr
+    get_bunch_sptr();
     virtual void
     add_per_turn(Diagnostics_sptr diagnostics_sptr, int period = 1);
     virtual void
@@ -115,7 +123,8 @@ public:
         void
         serialize(Archive & ar, const unsigned int version)
         {
-            ar & BOOST_SERIALIZATION_NVP(per_turn_periodic);
+            ar & BOOST_SERIALIZATION_NVP(bunch_sptr);
+            ar & BOOST_SERIALIZATION_NVP(have_bunch_sptr_);
             ar & BOOST_SERIALIZATION_NVP(per_step_periodic);
             ar & BOOST_SERIALIZATION_NVP(per_turn_listed);
             ar & BOOST_SERIALIZATION_NVP(per_step_periodic_listed);
