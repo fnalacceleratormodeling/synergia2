@@ -1,0 +1,14 @@
+#!/bin/sh +x
+
+instructions()
+{
+    echo
+    echo "eclipse project generated in `pwd`"
+    echo 'use File->Import, then select import source "General/Existing Projects into Workspace"'
+}
+    
+cd `dirname $0` && \
+echo `pwd`
+cd ../../.. && \
+cmake -G"Eclipse CDT4 - Unix Makefiles" `pwd` && \
+instructions
