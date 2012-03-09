@@ -4,7 +4,6 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include "synergia/bunch/bunch.h"
-//#include "synergia/foundation/generalized_diagnostics.h"
 #include "synergia/foundation/diagnostics_write_helper.h"
 #include "synergia/utils/hdf5_serial_writer.h"
 
