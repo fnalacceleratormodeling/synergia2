@@ -189,7 +189,7 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y)
 
 void
 Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
-        Step & step)
+        Step & step, int verbosity, Logger & logger)
 {
     // jfa: we should really convert to fixed_t state here and adjust
     //      factor accordingly.

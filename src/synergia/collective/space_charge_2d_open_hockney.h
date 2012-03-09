@@ -59,13 +59,13 @@ private:
     set_doubled_domain();
 public:
     Space_charge_2d_open_hockney(Commxx const& comm,
-            std::vector<int > const & grid_shape, bool periodic_z = false, 
-            double z_period = 0.0, bool grid_entire_period = false, 
+            std::vector<int > const & grid_shape, bool periodic_z = false,
+            double z_period = 0.0, bool grid_entire_period = false,
             double n_sigma = 8.0);
     /// Note: Use Space_charge_2d_open_hockney::get_internal_grid_shape for
     /// Distributed_fft2d.
     Space_charge_2d_open_hockney(Distributed_fft2d_sptr distributed_fft2d_sptr,
-            bool periodic_z = false, double z_period = 0.0, 
+            bool periodic_z = false, double z_period = 0.0,
             bool grid_entire_period = false, double n_sigma = 8.0);
     double
     get_n_sigma() const;
@@ -111,7 +111,7 @@ public:
     Distributed_rectangular_grid_sptr
     get_green_fn2_brute_force();
     Distributed_rectangular_grid_sptr
-    get_local_force2(Distributed_rectangular_grid & charge_density2, 
+    get_local_force2(Distributed_rectangular_grid & charge_density2,
             Distributed_rectangular_grid & green_fn2);
     Rectangular_grid_sptr
     get_global_electric_force2_gatherv_bcast(
@@ -126,10 +126,10 @@ public:
     get_global_electric_force2(
             Distributed_rectangular_grid const& dist_force);
     void
-    apply_kick(Bunch & bunch, Distributed_rectangular_grid const& rho2_1d, 
-            Rectangular_grid const& Fn, double delta_tau); 
+    apply_kick(Bunch & bunch, Distributed_rectangular_grid const& rho2_1d,
+            Rectangular_grid const& Fn, double delta_tau);
     virtual void
-    apply(Bunch & bunch, double time_step, Step & step);
+    apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
     virtual
     ~Space_charge_2d_open_hockney();
 };

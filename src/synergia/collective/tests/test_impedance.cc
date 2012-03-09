@@ -126,5 +126,7 @@ BOOST_FIXTURE_TEST_CASE(test_apply, Fixture)
     Step step(step_length);
     double time_step=10.;
     Impedance imped("test_wake.dat", orbit_length, bunch_spacing, zgrid, "circular",10); // four columns file
-    imped.apply(bunch, time_step, step);
+    const int verbosity = 4;
+    Logger logger(0);
+    imped.apply(bunch, time_step, step, verbosity, logger);
 }

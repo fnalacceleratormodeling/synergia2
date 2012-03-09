@@ -21,7 +21,7 @@ private:
 
 public:
 
-    Impedance(std::string const & wake_file, double const & orbit_length, double const & bunchsp, 
+    Impedance(std::string const & wake_file, double const & orbit_length, double const & bunchsp,
                 int const  & zgrid, std::string const & pipe_symmetry, int const nstored_turns);
 
 
@@ -35,10 +35,10 @@ public:
     std::vector<double> get_x_wake() const;
     std::vector<double> get_y_wake() const;
     std::vector<double> get_z_wake() const;
-    virtual int 
+    virtual int
     get_nstored_turns() const;
     virtual void
-    apply(Bunch & bunch, double time_step, Step & step);
+    apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
     virtual
     ~Impedance();
 };

@@ -22,7 +22,7 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const int charge = pconstants::proton_charge;
 const double mass = pconstants::mp;
-const double real_num = 1.7e11; 
+const double real_num = 1.7e11;
 const int total_num = 10000;
 const double total_energy = 125.0;
 
@@ -73,7 +73,7 @@ struct Ellipsoidal_bunch_fixture
         MArray2d covariances(boost::extents[6][6]);
         MArray1d means(boost::extents[6]);
         for (int i = 0; i < 6; ++i) {
-            means[i] = 0.0; 
+            means[i] = 0.0;
             for (int j = i; j < 6; ++j) {
                 covariances[i][j] = 0.0;
             }
@@ -87,7 +87,7 @@ struct Ellipsoidal_bunch_fixture
         covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;
         populate_6d(distribution, bunch, means, covariances);
     }
-    
+
     ~Ellipsoidal_bunch_fixture()
     {
         BOOST_TEST_MESSAGE("tear down ellipsoidal bunch fixture");
@@ -109,7 +109,9 @@ BOOST_FIXTURE_TEST_CASE(apply, Ellipsoidal_bunch_fixture)
     const double time_fraction = 1.0;
     Step dummy_step(time_fraction);
     const double time_step = 0.3;
-    space_charge.apply(bunch, time_step, dummy_step);
+    const int verbosity = 4;
+    Logger logger(0);
+    space_charge.apply(bunch, time_step, dummy_step, verbosity, logger);
 
     double total_x_kick2 = 0.0;
     double total_y_kick2 = 0.0;
@@ -217,7 +219,7 @@ BOOST_FIXTURE_TEST_CASE(efield_particles, Spherical_bunch_fixture)
                                         var);
                         efield_calc = space_charge_bs.normalized_efield(x,y)[0]
                                 / (2.0 * mconstants::pi * pconstants::epsilon0)
-                                * line_charge_density; 
+                                * line_charge_density;
                     } else if (component == 1) {
                         var = y;
                         efield_exact = gaussian_electric_field_component2(Q,
@@ -225,7 +227,7 @@ BOOST_FIXTURE_TEST_CASE(efield_particles, Spherical_bunch_fixture)
                                         var);
                         efield_calc = space_charge_bs.normalized_efield(x,y)[1]
                                 / (2.0 * mconstants::pi * pconstants::epsilon0)
-                                * line_charge_density; 
+                                * line_charge_density;
                     }
 
 
@@ -301,12 +303,12 @@ BOOST_FIXTURE_TEST_CASE(efield_particles, Spherical_bunch_fixture)
 //    Distributed_rectangular_grid_sptr
 //            G2_3d(space_charge_3d.get_green_fn2_linear()); // [1/m]
 //    Distributed_rectangular_grid_sptr phi2(space_charge_3d.get_scalar_field2(
-//            *rho2_3d, *G2_3d)); // [V] 
+//            *rho2_3d, *G2_3d)); // [V]
 //    Distributed_rectangular_grid_sptr phi(space_charge_3d.extract_scalar_field(
 //            *phi2));
 //    phi->fill_guards();
 //    t = simple_timer_show(t, "3D construct");
-//    
+//
 //    double Q = bunch.get_real_num() * bunch.get_particle_charge()
 //            * pconstants::e;
 //    double q = bunch.get_particle_charge() * pconstants::e;
@@ -325,7 +327,7 @@ BOOST_FIXTURE_TEST_CASE(efield_particles, Spherical_bunch_fixture)
 //                space_charge_3d.get_global_electric_field_component(*local_En));
 //        for (int i = nondoubled_shape[0] / 2; i < 3 * nondoubled_shape[0] / 2;
 //                ++i) {
-////            for (int j = nondoubled_shape[1] / 2; j < 3 * nondoubled_shape[1] 
+////            for (int j = nondoubled_shape[1] / 2; j < 3 * nondoubled_shape[1]
 ////                    / 2; ++j) {
 ////                for (int k = 0; k < doubled_shape[2]; ++k) {
 ////                    int i = nondoubled_shape[0];
@@ -346,8 +348,8 @@ BOOST_FIXTURE_TEST_CASE(efield_particles, Spherical_bunch_fixture)
 //                    double efield_exact, efield_calc3, efield_calc4;
 //                    double efield_calc5, efield_calc6;
 //
-//                    double line_charge_density1 = Q * exp(-z * z /(2.0 
-//                            * sigin[2] * sigin[2])) / (sqrt(2.0 
+//                    double line_charge_density1 = Q * exp(-z * z /(2.0
+//                            * sigin[2] * sigin[2])) / (sqrt(2.0
 //                            * mconstants::pi) * sigin[2]);
 //                    double line_charge_density2 =  bunch.get_real_num()
 //                            / bunch.get_total_num()

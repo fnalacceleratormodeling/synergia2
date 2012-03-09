@@ -74,7 +74,8 @@ Dummy_collective_operator::Dummy_collective_operator()
 }
 
 void
-Dummy_collective_operator::apply(Bunch & bunch, double time_step, Step & step)
+Dummy_collective_operator::apply(Bunch & bunch, double time_step, Step & step, int verbosity,
+        Logger & logger)
 {
 }
 
@@ -243,7 +244,8 @@ Independent_operator::get_operations()
 }
 
 void
-Independent_operator::apply(Bunch & bunch, double time_step, Step & step)
+Independent_operator::apply(Bunch & bunch, double time_step, Step & step, int verbosity,
+        Logger & logger)
 {
     double t;
     t = simple_timer_current();
@@ -263,8 +265,8 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step)
 }
 
 void
-Independent_operator::apply(Bunch & bunch, double time_step, Step & step,
-        Multi_diagnostics & diagnostics)
+Independent_operator::apply(Bunch & bunch, double time_step, Step & step, int verbosity,
+        Logger & logger, Multi_diagnostics & diagnostics)
 {
 
     if (need_update(bunch.get_reference_particle())) {

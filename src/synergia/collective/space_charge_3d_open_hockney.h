@@ -138,7 +138,7 @@ public:
     apply_kick(Bunch & bunch, Rectangular_grid const& En, double delta_tau,
             int component);
     virtual void
-    apply(Bunch & bunch, double time_step, Step & step);
+    apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
     template<class Archive>
         void
         save(Archive & ar, const unsigned int version) const

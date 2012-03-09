@@ -709,7 +709,9 @@ BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
     const double time_fraction = 1.0;
     Step dummy_step(time_fraction);
     const double time_step = 0.3;
-    space_charge.apply(bunch, time_step, dummy_step);
+    const int verbosity = 4;
+    Logger logger(0);
+    space_charge.apply(bunch, time_step, dummy_step, verbosity, logger);
 
     double total_x_kick2 = 0.0;
     double total_y_kick2 = 0.0;
@@ -744,7 +746,9 @@ BOOST_FIXTURE_TEST_CASE(apply_transverse, Ellipsoidal_bunch_fixture)
     const double time_fraction = 1.0;
     Step dummy_step(time_fraction);
     const double time_step = 0.3;
-    space_charge.apply(bunch, time_step, dummy_step);
+    const int verbosity = 4;
+    Logger logger(0);
+    space_charge.apply(bunch, time_step, dummy_step, verbosity, logger);
 
     double total_x_kick2 = 0.0;
     double total_y_kick2 = 0.0;
@@ -785,7 +789,9 @@ BOOST_FIXTURE_TEST_CASE(serialize_, Ellipsoidal_bunch_fixture)
     const double time_fraction = 1.0;
     Step dummy_step(time_fraction);
     const double time_step = 0.3;
-    loaded.apply(bunch, time_step, dummy_step);
+    const int verbosity = 4;
+    Logger logger(0);
+    loaded.apply(bunch, time_step, dummy_step, verbosity, logger);
 
     double total_x_kick2 = 0.0;
     double total_y_kick2 = 0.0;

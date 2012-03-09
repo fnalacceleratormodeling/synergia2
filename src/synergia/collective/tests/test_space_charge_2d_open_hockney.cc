@@ -81,7 +81,7 @@ BOOST_AUTO_TEST_CASE(get_n_sigma)
     bool grid_entire_period(true);
     double n_sigma(7.0);
 
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape, periodic_z, 
+    Space_charge_2d_open_hockney space_charge(comm, grid_shape, periodic_z,
             z_period, grid_entire_period, n_sigma);
     BOOST_CHECK_CLOSE(space_charge.get_n_sigma(), n_sigma, tolerance);
 }
@@ -287,7 +287,7 @@ BOOST_FIXTURE_TEST_CASE(set_fixed_domain, Ellipsoidal_bunch_fixture)
     }
     Rectangular_grid_domain_sptr new_domain_sptr =
             Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
-                    scaled_size, shifted_offset, domain_sptr->get_grid_shape(), 
+                    scaled_size, shifted_offset, domain_sptr->get_grid_shape(),
                     domain_sptr->is_periodic()));
     space_charge.set_fixed_domain(new_domain_sptr);
     BOOST_CHECK_CLOSE(space_charge.get_domain_sptr()->get_physical_size()[0],
@@ -347,7 +347,7 @@ BOOST_FIXTURE_TEST_CASE(set_fixed_domain_bad_shape, Ellipsoidal_bunch_fixture)
     Rectangular_grid_domain_sptr not_bad_domain_sptr =
             Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
                     domain_sptr->get_physical_size(),
-                    domain_sptr->get_physical_offset(), bad_shape, 
+                    domain_sptr->get_physical_offset(), bad_shape,
                     domain_sptr->is_periodic()));
     space_charge.set_fixed_domain(not_bad_domain_sptr);
 
@@ -358,7 +358,7 @@ BOOST_FIXTURE_TEST_CASE(set_fixed_domain_bad_shape, Ellipsoidal_bunch_fixture)
     Rectangular_grid_domain_sptr bad0_domain_sptr =
             Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
                     domain_sptr->get_physical_size(),
-                    domain_sptr->get_physical_offset(), bad_shape, 
+                    domain_sptr->get_physical_offset(), bad_shape,
                     domain_sptr->is_periodic()));
     try {
         space_charge.set_fixed_domain(bad0_domain_sptr);
@@ -436,7 +436,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_charge_density, Toy_bunch_fixture_2d)
     }
     multi_complex_array_check_equal(local_charge_density->get_grid_points_2dc(),
             expected_2dc, 1.0 * tolerance);
-    multi_array_check_equal(local_charge_density->get_grid_points_1d(), 
+    multi_array_check_equal(local_charge_density->get_grid_points_1d(),
             expected_1d, 1.0 * tolerance);
 }
 
@@ -561,7 +561,7 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_pointlike, Ellipsoidal_bunch_fixture)
             BOOST_CHECK_CLOSE(G2_a[i][j].real()*norm, Gx, tolerance);
             BOOST_CHECK_CLOSE(G2_a[i][j].imag()*norm, Gy, tolerance);
             //std::cout << "(i = " << i << ", j = " << j << "): "
-            //          << "G2 = " << G2_a[i][j].real()*norm 
+            //          << "G2 = " << G2_a[i][j].real()*norm
             //          << "Gx = " << Gx << std::endl;
         }
     }
@@ -615,7 +615,9 @@ BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
     const double time_fraction = 1.0;
     Step dummy_step(time_fraction);
     const double time_step = 0.3;
-    space_charge.apply(bunch, time_step, dummy_step);
+    const int verbosity = 4;
+    Logger logger(0);
+    space_charge.apply(bunch, time_step, dummy_step, verbosity, logger);
 
     double total_x_kick2 = 0.0;
     double total_y_kick2 = 0.0;

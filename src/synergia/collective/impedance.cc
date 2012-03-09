@@ -366,7 +366,7 @@ impedance_kick(Bunch & bunch, double wake_factor,  MArray1int & bin_partition, M
 
 
 void
-Impedance::apply(Bunch & bunch, double time_step, Step & step)
+Impedance::apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger)
 {
 
 

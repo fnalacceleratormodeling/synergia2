@@ -14,6 +14,7 @@
 #include "synergia/foundation/multi_diagnostics.h"
 #include "synergia/bunch/train.h"
 #include "synergia/utils/serialization.h"
+#include "synergia/utils/logger.h"
 
 class Step;
 
@@ -30,7 +31,8 @@ public:
     std::string const&
     get_type() const;
     virtual void
-    apply(Bunch & bunch, double time_step, Step & step) = 0;
+    apply(Bunch & bunch, double time_step, Step & step, int verbosity,
+            Logger & logger) = 0;
 #if 0
     virtual void
     apply_train(Bunch_with_diagnostics_train & bunch_diag_train,
@@ -58,7 +60,8 @@ public:
     /// Default constructor for serialization use only
     Collective_operator();
     virtual void
-    apply(Bunch & bunch, double time_step, Step & step) = 0;
+    apply(Bunch & bunch, double time_step, Step & step, int verbosity,
+            Logger & logger) = 0;
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)
@@ -79,7 +82,7 @@ public:
     /// Default constructor for serialization use only
     Dummy_collective_operator();
     virtual void
-    apply(Bunch & bunch, double time_step, Step & step);
+    apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)
@@ -124,10 +127,11 @@ public:
     Independent_operations &
     get_operations();
     virtual void
-    apply(Bunch & bunch, double time_step, Step & step);
+    apply(Bunch & bunch, double time_step, Step & step, int verbosity,
+            Logger & logger);
     virtual void
-    apply(Bunch & bunch, double time_step, Step & step,
-            Multi_diagnostics & diagnostics);
+    apply(Bunch & bunch, double time_step, Step & step, int verbosity,
+            Logger & logger, Multi_diagnostics & diagnostics);
     virtual void
     print() const;
     template<class Archive>

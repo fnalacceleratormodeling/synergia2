@@ -82,7 +82,7 @@ Step::apply(Bunch & bunch, int verbosity, Logger & logger,
             logger << "Step: operator: name = " << (*it)->get_name()
                     << ", type = " << (*it)->get_type() << std::endl;
         }
-        (*it)->apply(bunch, (*fractions_it) * time, *this);
+        (*it)->apply(bunch, (*fractions_it) * time, *this, verbosity, logger);
 
          for (Multi_diagnostics::iterator itd = diagnostics.begin(); itd
             != diagnostics.end(); ++itd) {

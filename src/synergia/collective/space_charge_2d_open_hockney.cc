@@ -787,7 +787,7 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
 
 void
 Space_charge_2d_open_hockney::apply(Bunch & bunch, double time_step,
-        Step & step)
+        Step & step, int verbosity, Logger & logger)
 {
     double t;
     t = simple_timer_current();

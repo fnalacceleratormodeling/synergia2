@@ -1098,7 +1098,7 @@ Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
 
 void
 Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
-        Step & step)
+        Step & step, int verbosity, Logger & logger)
 {
     if (bunch.get_total_num() > 1) {
         double t;

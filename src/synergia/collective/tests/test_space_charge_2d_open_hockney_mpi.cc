@@ -384,7 +384,7 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_reduce_scatter)
                 local_rho_orig->get_grid_points_1d()[k]
                 * local_rho_orig->get_normalization()
                 * comm.get_size(), tolerance);
-        //std::cout << "rank[" << comm.get_rank() << "]: " << k << "  " 
+        //std::cout << "rank[" << comm.get_rank() << "]: " << k << "  "
         //        << rho2->get_grid_points_1d()[k] << "  "
         //        << local_rho_orig->get_grid_points_1d()[k] * comm.get_size()
         //        << std::endl;
@@ -566,7 +566,7 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_pointlike, Ellipsoidal_bunch_fixture)
             BOOST_CHECK_CLOSE(G2_a[i][j].real()*norm, Gx, tolerance);
             BOOST_CHECK_CLOSE(G2_a[i][j].imag()*norm, Gy, tolerance);
             //std::cout << "(i = " << i << ", j = " << j << "): "
-            //          << "G2 = " << G2_a[i][j].real()*norm 
+            //          << "G2 = " << G2_a[i][j].real()*norm
             //          << "Gx = " << Gx << std::endl;
         }
     }
@@ -618,7 +618,9 @@ BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
     const double time_fraction = 1.0;
     Step dummy_step(time_fraction);
     const double time_step = 0.3;
-    space_charge.apply(bunch, time_step, dummy_step);
+    const int verbosity = 4;
+    Logger logger(0);
+    space_charge.apply(bunch, time_step, dummy_step, verbosity, logger);
 
     double total_x_kick2 = 0.0;
     double total_y_kick2 = 0.0;

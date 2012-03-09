@@ -20,7 +20,9 @@ BOOST_FIXTURE_TEST_CASE(apply, Bunch_fixture)
     double step_length = 1.0;
     Step stub_step(1.0);
 
-    collective_operator.apply(bunch, step_length, stub_step);
+    const int verbosity = 4;
+    Logger logger(0);
+    collective_operator.apply(bunch, step_length, stub_step, verbosity, logger);
 }
 
 BOOST_AUTO_TEST_CASE(serialize_xml)

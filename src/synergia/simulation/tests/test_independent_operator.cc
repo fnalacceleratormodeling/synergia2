@@ -87,7 +87,9 @@ BOOST_FIXTURE_TEST_CASE(apply, Bunch_fixture)
     double step_length = 1.0;
     Step stub_step(1.0);
 
-    independent_operator.apply(bunch, step_length, stub_step);
+    const int verbosity = 4;
+    Logger logger(0);
+    independent_operator.apply(bunch, step_length, stub_step, verbosity, logger);
 }
 
 BOOST_FIXTURE_TEST_CASE(apply_accelerated, Bunch_fixture)
@@ -122,17 +124,19 @@ BOOST_FIXTURE_TEST_CASE(apply_accelerated, Bunch_fixture)
 
     Bunch orig_bunch(bunch);
 
-    independent_operator.apply(orig_bunch, step_length, stub_step);
-    independent_operator.apply(bunch, step_length, stub_step);
+    const int verbosity = 4;
+    Logger logger(0);
+    independent_operator.apply(orig_bunch, step_length, stub_step, verbosity, logger);
+    independent_operator.apply(bunch, step_length, stub_step, verbosity, logger);
 
     multi_array_check_equal(bunch.get_local_particles(),
             orig_bunch.get_local_particles(), tolerance);
 
-    independent_operator.apply(orig_bunch, step_length, stub_step);
+    independent_operator.apply(orig_bunch, step_length, stub_step, verbosity, logger);
 
     double old_total_energy = bunch.get_reference_particle().get_total_energy();
     bunch.get_reference_particle().set_total_energy(old_total_energy * 2.0);
-    independent_operator.apply(bunch, step_length, stub_step);
+    independent_operator.apply(bunch, step_length, stub_step, verbosity, logger);
     bool equal = true;
     MArray2d_ref p(bunch.get_local_particles());
     MArray2d_ref op(orig_bunch.get_local_particles());
@@ -177,17 +181,19 @@ BOOST_FIXTURE_TEST_CASE(apply_modified_lattice, Bunch_fixture)
 
     Bunch orig_bunch(bunch);
 
-    independent_operator.apply(orig_bunch, step_length, stub_step);
-    independent_operator.apply(bunch, step_length, stub_step);
+    const int verbosity = 4;
+    Logger logger(0);
+    independent_operator.apply(orig_bunch, step_length, stub_step, verbosity, logger);
+    independent_operator.apply(bunch, step_length, stub_step, verbosity, logger);
     multi_array_check_equal(bunch.get_local_particles(),
             orig_bunch.get_local_particles(), tolerance);
 
-    independent_operator.apply(orig_bunch, step_length, stub_step);
+    independent_operator.apply(orig_bunch, step_length, stub_step, verbosity, logger);
 
     double old_k1 = element_sptr->get_double_attribute("k1");
     element_sptr->set_double_attribute("k1", 10 * old_k1);
     lattice_simulator.update();
-    independent_operator.apply(bunch, step_length, stub_step);
+    independent_operator.apply(bunch, step_length, stub_step, verbosity, logger);
 
     bool equal = true;
     MArray2d_ref p(bunch.get_local_particles());
