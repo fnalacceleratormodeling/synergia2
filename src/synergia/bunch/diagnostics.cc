@@ -230,8 +230,10 @@ Core_diagnostics::calculate_max(Bunch const& bunch)
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics)
 
+const char Diagnostics_basic::name[] = "diagnostics_basic";
+
 Diagnostics_basic::Diagnostics_basic(std::string const& filename) :
-    Diagnostics_basic::Diagnostics("diagnostics_basic", filename),
+    Diagnostics_basic::Diagnostics(Diagnostics_basic::name, filename),
             have_writers(false), mean(boost::extents[6]),
             std(boost::extents[6]),
             min(boost::extents[3]), max(boost::extents[3]),
@@ -377,6 +379,8 @@ Diagnostics_basic::~Diagnostics_basic()
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_basic)
 
+const char Diagnostics_full2::name[] = "diagnostics_full2";
+
 void
 Diagnostics_full2::update_full2()
 {
@@ -433,7 +437,7 @@ Diagnostics_full2::update_emittances()
 }
 
 Diagnostics_full2::Diagnostics_full2(std::string const& filename) :
-    Diagnostics_full2::Diagnostics("diagnostics_full2", filename),
+    Diagnostics_full2::Diagnostics(Diagnostics_full2::name, filename),
             have_writers(false), mean(boost::extents[6]),
             std(boost::extents[6]),
             min(boost::extents[3]), max(boost::extents[3]),
@@ -646,10 +650,12 @@ Diagnostics_full2::~Diagnostics_full2()
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_full2)
 
+const char Diagnostics_particles::name[] = "diagnostics_particles";
+
 Diagnostics_particles::Diagnostics_particles(
         std::string const& filename, int min_particle_id, int max_particle_id,
         int write_skip) :
-    Diagnostics_particles::Diagnostics("diagnostics_particles", filename),
+    Diagnostics_particles::Diagnostics(Diagnostics_particles::name, filename),
             min_particle_id(min_particle_id), max_particle_id(max_particle_id),
             have_writers(false)
 {
@@ -798,9 +804,11 @@ Diagnostics_particles::~Diagnostics_particles()
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_particles)
 
+const char Diagnostics_track::name[] = "diagnostics_track";
+
 Diagnostics_track::Diagnostics_track(
         std::string const& filename, int particle_id) :
-    Diagnostics("diagnostics_track", filename), have_writers(false),
+    Diagnostics(Diagnostics_track::name, filename), have_writers(false),
             coords(boost::extents[6]), found(false), first_search(true),
             particle_id(particle_id), last_index(-1)
 {
@@ -913,10 +921,12 @@ Diagnostics_track::~Diagnostics_track()
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_track)
 
+const char Diagnostics_reference_particle::name[] = "diagnostics_reference_particle";
+
 Diagnostics_reference_particle::Diagnostics_reference_particle(
         std::string const& filename) :
             Diagnostics_reference_particle::Diagnostics(
-                    "diagnostics_reference_particle", filename),
+                    Diagnostics_reference_particle::name, filename),
             have_writers(false), writer_beta(0), writer_gamma(0),
             writer_state(0), writer_s(0)
 {

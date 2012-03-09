@@ -106,6 +106,8 @@ typedef boost::shared_ptr<Diagnostics > Diagnostics_sptr;
 /// quantities to be calculated for a Bunch.
 class Diagnostics_basic : public Diagnostics
 {
+public:
+    static const char name[];
 private:
     bool have_writers;
     double s;
@@ -224,6 +226,8 @@ typedef boost::shared_ptr<Diagnostics_basic > Diagnostics_basic_sptr;
 /// quantities to be calculated for a Bunch up to the second moments.
 class Diagnostics_full2 : public Diagnostics
 {
+public:
+    static const char name[];
 private:
     bool have_writers;
     double s;
@@ -401,6 +405,8 @@ typedef boost::shared_ptr<Diagnostics_full2 > Diagnostics_full2_sptr;
 /// Diagnostics_particles dumps the state of particles in a bunch
 class Diagnostics_particles : public Diagnostics
 {
+public:
+    static const char name[];
 private:
     bool have_writers;
     int min_particle_id, max_particle_id;
@@ -456,6 +462,8 @@ typedef boost::shared_ptr<Diagnostics_particles > Diagnostics_particles_sptr;
 /// the first update is called will also not be tracked.
 class Diagnostics_track : public Diagnostics
 {
+public:
+    static const char name[];
 private:
     bool have_writers;
     bool found;
@@ -528,6 +536,8 @@ typedef boost::shared_ptr<Diagnostics_track > Diagnostics_track_sptr;
 
 class Diagnostics_reference_particle : public Diagnostics
 {
+public:
+    static const char name[];
 private:
     bool have_writers;
     Hdf5_serial_writer<double > * writer_beta;
