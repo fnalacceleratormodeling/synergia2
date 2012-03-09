@@ -64,8 +64,8 @@ public:
     virtual bool
     have_write_helper() const;
 
-    virtual Diagnostics_write_helper *
-    get_write_helper_ptr();
+    virtual Diagnostics_write_helper &
+    get_write_helper();
 
     Bunch &
     get_bunch();

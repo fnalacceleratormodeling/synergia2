@@ -67,14 +67,14 @@ Diagnostics::have_write_helper() const
     return have_write_helper_;
 }
 
-Diagnostics_write_helper *
-Diagnostics::get_write_helper_ptr()
+Diagnostics_write_helper &
+Diagnostics::get_write_helper()
 {
     if (!have_write_helper_) {
         write_helper_ptr = new_write_helper_ptr();
         have_write_helper_ = true;
     }
-    return write_helper_ptr;
+    return *write_helper_ptr;
 }
 
 Diagnostics::Diagnostics()
@@ -346,8 +346,8 @@ Diagnostics_basic::init_writers(Hdf5_file_sptr file_sptr)
 void
 Diagnostics_basic::write()
 {
-    if (get_write_helper_ptr()->write_locally()) {
-        init_writers(get_write_helper_ptr()->get_hdf5_file_sptr());
+    if (get_write_helper().write_locally()) {
+        init_writers(get_write_helper().get_hdf5_file_sptr());
         writer_s->append(s);
         writer_repetition->append(repetition);
         writer_trajectory_length->append(trajectory_length);
@@ -357,7 +357,7 @@ Diagnostics_basic::write()
         writer_std->append(std);
         writer_min->append(min);
         writer_max->append(max);
-        get_write_helper_ptr()->finish_write();
+        get_write_helper().finish_write();
     }
 }
 
@@ -601,8 +601,8 @@ Diagnostics_full2::init_writers(Hdf5_file_sptr file_sptr)
 void
 Diagnostics_full2::write()
 {
-    if (get_write_helper_ptr()->write_locally()) {
-        init_writers(get_write_helper_ptr()->get_hdf5_file_sptr());
+    if (get_write_helper().write_locally()) {
+        init_writers(get_write_helper().get_hdf5_file_sptr());
         writer_s->append(s);
         writer_repetition->append(repetition);
         writer_trajectory_length->append(trajectory_length);
@@ -619,7 +619,7 @@ Diagnostics_full2::write()
         writer_emitz->append(emitz);
         writer_emitxy->append(emitxy);
         writer_emitxyz->append(emitxyz);
-        get_write_helper_ptr()->finish_write();
+        get_write_helper().finish_write();
     }
 }
 
@@ -735,7 +735,7 @@ Diagnostics_particles::send_local_particles()
                     local_num)][range()]].origin();
     int status;
     int message_size = 7 * local_num;
-    int receiver = get_write_helper_ptr()->get_writer_rank();
+    int receiver = get_write_helper().get_writer_rank();
     int rank = get_bunch().get_comm().get_rank();
     MPI_Comm comm = get_bunch().get_comm().get();
     status = MPI_Send(send_buffer, message_size, MPI_DOUBLE, receiver, rank,
@@ -750,16 +750,16 @@ void
 Diagnostics_particles::write()
 {
     get_bunch().convert_to_state(get_bunch().fixed_z_lab);
-    int writer_rank = get_write_helper_ptr()->get_writer_rank();
+    int writer_rank = get_write_helper().get_writer_rank();
     MPI_Comm comm = get_bunch().get_comm().get();
     int icount;
-    icount = get_write_helper_ptr()->get_count();
+    icount = get_write_helper().get_count();
     MPI_Bcast((void *) &icount, 1, MPI_INT, writer_rank, comm);
 
-    //    std::cout<<" icount ="<<icount<<"  count="<< get_write_helper_ptr()->get_count() <<" on rank ="<< get_bunch().get_comm().get_rank()<<std::endl;
+    //    std::cout<<" icount ="<<icount<<"  count="<< get_write_helper().get_count() <<" on rank ="<< get_bunch().get_comm().get_rank()<<std::endl;
 
-    if (icount % get_write_helper_ptr()->get_iwrite_skip() != 0) {
-        if (get_write_helper_ptr()->write_locally()) get_write_helper_ptr()->increment_count();
+    if (icount % get_write_helper().get_iwrite_skip() != 0) {
+        if (get_write_helper().write_locally()) get_write_helper().increment_count();
         return;
     }
 
@@ -767,7 +767,7 @@ Diagnostics_particles::write()
     int num_procs = get_bunch().get_comm().get_size();
     std::vector<int > local_nums(num_procs);
     void * local_nums_buf = (void *) &local_nums[0];
-    int root = get_write_helper_ptr()->get_writer_rank();
+    int root = get_write_helper().get_writer_rank();
     int status;
     status = MPI_Gather((void*) &local_num, 1, MPI_INT, local_nums_buf, 1,
             MPI_INT, root, comm);
@@ -775,8 +775,8 @@ Diagnostics_particles::write()
         throw std::runtime_error(
                 "Diagnostics_particles::write: MPI_Gather failed.");
     }
-    if (get_write_helper_ptr()->write_locally()) {
-        Hdf5_file_sptr file_sptr = get_write_helper_ptr()->get_hdf5_file_sptr();
+    if (get_write_helper().write_locally()) {
+        Hdf5_file_sptr file_sptr = get_write_helper().get_hdf5_file_sptr();
         receive_other_local_particles(local_nums, file_sptr);
         double pz = get_bunch().get_reference_particle().get_momentum();
         file_sptr->write(pz, "pz");
@@ -787,7 +787,7 @@ Diagnostics_particles::write()
         file_sptr->write(rep, "rep");
         double s = get_bunch().get_reference_particle().get_s();
         file_sptr->write(s, "s");
-        get_write_helper_ptr()->finish_write();
+        get_write_helper().finish_write();
     } else {
         send_local_particles();
     }
@@ -856,7 +856,7 @@ Diagnostics_track::update()
         }
         if (found) {
             if (first_search) {
-                get_write_helper_ptr();
+                get_write_helper();
             }
             coords[0] = get_bunch().get_local_particles()[index][0];
             coords[1] = get_bunch().get_local_particles()[index][1];
@@ -893,12 +893,12 @@ Diagnostics_track::write()
 {
     get_bunch().convert_to_state(get_bunch().fixed_z_lab);
     if (found) {
-        init_writers(get_write_helper_ptr()->get_hdf5_file_sptr());
+        init_writers(get_write_helper().get_hdf5_file_sptr());
         writer_coords->append(coords);
         writer_s->append(s);
         writer_repetition->append(repetition);
         writer_trajectory_length->append(trajectory_length);
-        get_write_helper_ptr()->finish_write();
+        get_write_helper().finish_write();
     }
 }
 
@@ -953,8 +953,8 @@ Diagnostics_reference_particle::init_writers(Hdf5_file_sptr file_sptr)
 void
 Diagnostics_reference_particle::write()
 {
-    if (get_write_helper_ptr()->write_locally()) {
-        init_writers(get_write_helper_ptr()->get_hdf5_file_sptr());
+    if (get_write_helper().write_locally()) {
+        init_writers(get_write_helper().get_hdf5_file_sptr());
         double beta = get_bunch().get_reference_particle().get_beta();
         writer_beta->append(beta);
         double gamma = get_bunch().get_reference_particle().get_gamma();
@@ -963,7 +963,7 @@ Diagnostics_reference_particle::write()
         writer_state->append(state);
         double s = get_bunch().get_reference_particle().get_s();
         writer_s->append(s);
-        get_write_helper_ptr()->finish_write();
+        get_write_helper().finish_write();
     }
 }
 
