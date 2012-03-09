@@ -173,7 +173,8 @@ Independent_operator::update_operations(
 }
 
 bool
-Independent_operator::need_update(Reference_particle const& reference_particle)
+Independent_operator::need_update(Reference_particle const& reference_particle,
+        int verbosity, Logger & logger)
 {
     const double reference_particle_tolerance = 1.0e-8;
     bool retval;
@@ -188,15 +189,31 @@ Independent_operator::need_update(Reference_particle const& reference_particle)
                 long int cached_revision = (*rev_it);
                 long int revision = (*it)->get_lattice_element().get_revision();
                 if (revision != cached_revision) {
+                    if (verbosity > 4) {
+                        logger
+                            << "Independent_operator: needs update because lattice element "
+                            << (*it)->get_lattice_element().get_name() << " has changed"
+                            << std::endl;
+                    }
                     retval = true;
                     break;
                 }
                 ++rev_it;
             }
         } else {
+            if (verbosity > 4) {
+                logger
+                    << "Independent_operator: needs update because reference particle has changed"
+                    << std::endl;
+            }
             retval = true;
         }
     } else {
+        if (verbosity > 4) {
+            logger
+                << "Independent_operator: needs update because does not have operations"
+                << std::endl;
+        }
         retval = true;
     }
     return retval;
@@ -249,15 +266,22 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step, int ve
 {
     double t;
     t = simple_timer_current();
-    bool do_update = need_update(bunch.get_reference_particle());
+    bool do_update = need_update(bunch.get_reference_particle(), verbosity, logger);
     t = simple_timer_show(t, "independent-operator-test_update");
     if (do_update) {
+        if (verbosity > 3) {
+                    logger << "Independent_operator: updating operations" << std::endl;
+                }
         update_operations(bunch.get_reference_particle());
         t = simple_timer_show(t, "independent-operator-update");
     }
     for (Independent_operations::iterator it = operations.begin(); it
             != operations.end(); ++it) {
         // std::cout<<" opertor.cc operator name="<<(*it)->get_type()<<std::endl;
+        if (verbosity > 3) {
+            logger << "Independent_operator: operation type = " <<
+                    (*it)->get_type() << std::endl;
+        }
         (*it)->apply(bunch);
     }
     bunch.update_total_num();
@@ -269,7 +293,7 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step, int ve
         Logger & logger, Multi_diagnostics & diagnostics)
 {
 
-    if (need_update(bunch.get_reference_particle())) {
+    if (need_update(bunch.get_reference_particle(), verbosity, logger)) {
         update_operations(bunch.get_reference_particle());
     }
 

@@ -121,7 +121,8 @@ public:
     void
     update_operations(Reference_particle const& reference_particle);
     bool
-    need_update(Reference_particle const& reference_particle);
+    need_update(Reference_particle const& reference_particle, int verbosity,
+            Logger & logger);
     Independent_operations const&
     get_operations() const;
     Independent_operations &
