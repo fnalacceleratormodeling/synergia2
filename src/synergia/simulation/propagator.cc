@@ -103,7 +103,7 @@ Propagator::propagate(State & state)
                 ++step_count;
                 double t_step0, t_step1;
                 t_step0 = MPI_Wtime();
-                (*it)->apply(*bunch_sptr);
+                (*it)->apply(*bunch_sptr, state.verbosity, logger);
                 /// apply with diagnostics only for testing purposes
                 //(*it)->apply(*bunch_sptr, bunch_simulator.get_per_step_diagnostics());
                 t = simple_timer_current();

@@ -39,21 +39,19 @@ Step::append(Operators const& the_operators, double time_fraction)
 }
 
 void
-Step::apply(Bunch & bunch)
+Step::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
     Multi_diagnostics   diagnostics; //create an empty list
-    apply(bunch, diagnostics);
+    apply(bunch, verbosity, logger, diagnostics);
 }
 
 void
-Step::apply(Bunch & bunch, Multi_diagnostics & diagnostics)
+Step::apply(Bunch & bunch, int verbosity, Logger & logger,
+        Multi_diagnostics & diagnostics)
 {
-
-   // int rank = Commxx().get_rank();
     std::list<double >::const_iterator fractions_it = time_fractions.begin();
     for (Operators::const_iterator it = operators.begin(); it
             != operators.end(); ++it) {
-         // std::cout<<" operator name="<<(*it)->get_name()<<std::endl;
         // time [s] in accelerator frame
         double time = length / (bunch.get_reference_particle().get_beta()
                 * pconstants::c);
@@ -80,6 +78,10 @@ Step::apply(Bunch & bunch, Multi_diagnostics & diagnostics)
 
                  (*itd)->update_and_write();
           }
+         if (verbosity > 2) {
+            logger << "Step: operator: name = " << (*it)->get_name()
+                    << ", type = " << (*it)->get_type() << std::endl;
+        }
         (*it)->apply(bunch, (*fractions_it) * time, *this);
 
          for (Multi_diagnostics::iterator itd = diagnostics.begin(); itd
