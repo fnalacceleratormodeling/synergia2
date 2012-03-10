@@ -29,7 +29,7 @@ Fast_mapping_operation::Fast_mapping_operation()
 }
 
 void
-Fast_mapping_operation::apply(Bunch & bunch)
+Fast_mapping_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
     // bunch.convert_to_state(Bunch::fixed_t);
      bunch.convert_to_state(Bunch::fixed_z_lab);
@@ -59,7 +59,7 @@ Chef_propagate_operation::Chef_propagate_operation()
 }
 
 void
-Chef_propagate_operation::apply(Bunch & bunch)
+Chef_propagate_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
     bunch.convert_to_state(Bunch::fixed_z_lab);
     chef_propagator.apply(bunch);

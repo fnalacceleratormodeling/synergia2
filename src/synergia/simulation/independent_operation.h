@@ -11,6 +11,7 @@
 #include "synergia/simulation/chef_propagator.h"
 #include "synergia/lattice/chef_lattice.h"
 #include "synergia/utils/serialization.h"
+#include "synergia/utils/logger.h"
 
 class Independent_operation
 {
@@ -23,7 +24,7 @@ public:
     std::string const&
     get_type() const;
     virtual void
-    apply(Bunch & bunch) = 0;
+    apply(Bunch & bunch, int verbosity, Logger & logger) = 0;
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)
@@ -48,7 +49,7 @@ public:
     /// Default constructor for serialization use only
     Fast_mapping_operation();
     virtual void
-    apply(Bunch & bunch);
+    apply(Bunch & bunch, int verbosity, Logger & logger);
     Fast_mapping const&
     get_fast_mapping() const;
     template<class Archive>
@@ -75,7 +76,7 @@ public:
     /// Default constructor for serialization use only
     Chef_propagate_operation();
     virtual void
-    apply(Bunch & bunch);
+    apply(Bunch & bunch, int verbosity, Logger & logger);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)

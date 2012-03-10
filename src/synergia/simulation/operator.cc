@@ -282,7 +282,7 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step, int ve
             logger << "Independent_operator: operation type = " <<
                     (*it)->get_type() << std::endl;
         }
-        (*it)->apply(bunch);
+        (*it)->apply(bunch, verbosity, logger);
     }
     bunch.update_total_num();
     t = simple_timer_show(t, "independent-operator-apply");
@@ -307,7 +307,7 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step, int ve
 
             (*itd)->update_and_write();
         }
-        (*it)->apply(bunch);
+        (*it)->apply(bunch, verbosity, logger);
     }
     t = simple_timer_show(t, "independent-operator-apply");
 }

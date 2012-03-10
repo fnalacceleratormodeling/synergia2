@@ -43,7 +43,9 @@ BOOST_FIXTURE_TEST_CASE(apply, Lattice_fixture)
     b.bunch.get_local_particles()[3][3] *= -std::sqrt(-1.0);
     b.bunch.get_local_particles()[4][4] *= std::log(-1.0);
     b.bunch.get_local_particles()[5][5] *= -std::log(-1.0);
-    finite_aperture_operation.apply(b.bunch);
+    const int verbosity = 5;
+    Logger logger(0);
+    finite_aperture_operation.apply(b.bunch, verbosity, logger);
     const int num_lost = 6;
     BOOST_CHECK_EQUAL(b.bunch.get_local_num(), orig_local_num - num_lost);
     BOOST_CHECK_CLOSE(

@@ -74,16 +74,19 @@ Step::apply(Bunch & bunch, int verbosity, Logger & logger,
 
          }
          for (Multi_diagnostics::iterator itd = diagnostics.begin(); itd
-            != diagnostics.end(); ++itd) {
+                != diagnostics.end(); ++itd) {
 
-                 (*itd)->update_and_write();
-          }
-         if (verbosity > 2) {
-            logger << "Step: operator: name = " << (*it)->get_name()
-                    << ", type = " << (*it)->get_type() << std::endl;
+            (*itd)->update_and_write();
         }
+        double t0 = MPI_Wtime();
         (*it)->apply(bunch, (*fractions_it) * time, *this, verbosity, logger);
-
+        double t1 = MPI_Wtime();
+        if (verbosity > 2) {
+            logger << "Step: operator: name = " << (*it)->get_name()
+                    << ", type = " << (*it)->get_type() << ", time = "
+                    << std::fixed << std::setprecision(3) << t1 - t0
+                    << "s" << std::endl;
+        }
          for (Multi_diagnostics::iterator itd = diagnostics.begin(); itd
             != diagnostics.end(); ++itd) {
 

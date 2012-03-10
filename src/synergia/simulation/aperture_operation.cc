@@ -61,9 +61,9 @@ Finite_aperture_operation::operator==(
 }
 
 void
-Finite_aperture_operation::apply(Bunch & bunch)
+Finite_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
-    apply_impl(*this, bunch);
+    apply_impl(*this, bunch, verbosity, logger);
 }
 
 Finite_aperture_operation::~Finite_aperture_operation()
@@ -120,9 +120,9 @@ Circular_aperture_operation::operator==(
 }
 
 void
-Circular_aperture_operation::apply(Bunch & bunch)
+Circular_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
-    apply_impl(*this, bunch);
+    apply_impl(*this, bunch, verbosity, logger);
 }
 
 Circular_aperture_operation::~Circular_aperture_operation()
@@ -192,9 +192,9 @@ Elliptical_aperture_operation::operator==(
 }
 
 void
-Elliptical_aperture_operation::apply(Bunch & bunch)
+Elliptical_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
-    apply_impl(*this, bunch);
+    apply_impl(*this, bunch, verbosity, logger);
 }
 
 Elliptical_aperture_operation::~Elliptical_aperture_operation()
@@ -258,9 +258,9 @@ Rectangular_aperture_operation::operator==(
 }
 
 void
-Rectangular_aperture_operation::apply(Bunch & bunch)
+Rectangular_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
-    apply_impl(*this, bunch);
+    apply_impl(*this, bunch, verbosity, logger);
 }
 
 Rectangular_aperture_operation::~Rectangular_aperture_operation()
@@ -337,9 +337,9 @@ Polygon_aperture_operation::operator==(
 }
 
 void
-Polygon_aperture_operation::apply(Bunch & bunch)
+Polygon_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
-    apply_impl(*this, bunch);
+    apply_impl(*this, bunch, verbosity, logger);
 }
 
 Polygon_aperture_operation::~Polygon_aperture_operation()
@@ -438,9 +438,9 @@ Wire_elliptical_aperture_operation::operator==(
 }
 
 void
-Wire_elliptical_aperture_operation::apply(Bunch & bunch)
+Wire_elliptical_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
-    apply_impl(*this, bunch);
+    apply_impl(*this, bunch, verbosity, logger);
 }
 
 Wire_elliptical_aperture_operation::~Wire_elliptical_aperture_operation()

@@ -39,7 +39,9 @@ BOOST_FIXTURE_TEST_CASE(apply, Chef_lattice_sptr_fixture)
     Chef_propagate_operation
             chef_propagate_operation(chef_lattice_section_sptr);
 
-    chef_propagate_operation.apply(b.bunch);
+    const int verbosity = 5;
+    Logger logger(0);
+    chef_propagate_operation.apply(b.bunch, verbosity, logger);
 }
 // test_note: We need to check that apply actual produces the correct results.
 

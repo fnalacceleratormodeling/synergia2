@@ -25,7 +25,9 @@ BOOST_FIXTURE_TEST_CASE(apply, Lattice_fixture)
     Lattice_element_slice_sptr slice_sptr(
             new Lattice_element_slice(element_sptr));
     Circular_aperture_operation circular_aperture_operation(slice_sptr);
-    circular_aperture_operation.apply(b.bunch);
+    const int verbosity = 5;
+    Logger logger(0);
+    circular_aperture_operation.apply(b.bunch, verbosity, logger);
 }
 
 BOOST_FIXTURE_TEST_CASE(operatorequals, Lattice_fixture)

@@ -109,7 +109,9 @@ BOOST_FIXTURE_TEST_CASE(apply, Lattice_fixture)
     element_sptr->set_double_attribute("pax4", pax4);
     element_sptr->set_double_attribute("pay4", pay4);
     Polygon_aperture_operation polygon_aperture_operation(slice_sptr);
-    polygon_aperture_operation.apply(b.bunch);
+    const int verbosity = 5;
+    Logger logger(0);
+    polygon_aperture_operation.apply(b.bunch, verbosity, logger);
 }
 
 BOOST_FIXTURE_TEST_CASE(operatorequals, Lattice_fixture)

@@ -18,9 +18,9 @@ public:
     operator==(Aperture_operation const& aperture_operation) const = 0;
     template<typename T>
         void
-        apply_impl(T& t, Bunch & bunch);
+        apply_impl(T & t, Bunch & bunch, int verbosity, Logger & logger);
     virtual void
-    apply(Bunch & bunch)=0;
+    apply(Bunch & bunch, int verbosity, Logger & logger)=0;
     void
     deposit_charge(double charge);
     template<class Archive>
@@ -56,7 +56,7 @@ public:
     bool
     operator()(MArray2d_ref & particles, int part);
     virtual void
-    apply(Bunch & bunch);
+    apply(Bunch & bunch, int verbosity, Logger & logger);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)
@@ -94,7 +94,7 @@ public:
     bool
     operator()(MArray2d_ref & particles, int part);
     virtual void
-    apply(Bunch & bunch);
+    apply(Bunch & bunch, int verbosity, Logger & logger);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)
@@ -135,7 +135,7 @@ public:
     bool
     operator()(MArray2d_ref & particles, int part);
     virtual void
-    apply(Bunch & bunch);
+    apply(Bunch & bunch, int verbosity, Logger & logger);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)
@@ -178,7 +178,7 @@ public:
     bool
     operator()(MArray2d_ref & particles, int part);
     virtual void
-    apply(Bunch & bunch);
+    apply(Bunch & bunch, int verbosity, Logger & logger);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)
@@ -221,7 +221,7 @@ public:
     bool
     operator()(MArray2d_ref & particles, int part);
     virtual void
-    apply(Bunch & bunch);
+    apply(Bunch & bunch, int verbosity, Logger & logger);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version)
@@ -267,7 +267,7 @@ public:
     bool
     operator()(MArray2d_ref & particles, int part);
     virtual void
-    apply(Bunch & bunch);
+    apply(Bunch & bunch, int verbosity, Logger & logger);
     virtual
     ~Wire_elliptical_aperture_operation();
 };

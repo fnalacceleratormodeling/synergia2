@@ -7,8 +7,9 @@
 
 template<typename T>
     void
-    Aperture_operation::apply_impl(T & t, Bunch & bunch)
+    Aperture_operation::apply_impl(T & t, Bunch & bunch, int verbosity, Logger & logger)
     {
+        double t0 = MPI_Wtime();
         MArray2d_ref particles(bunch.get_local_particles());
         int discarded = 0;
         int local_num = bunch.get_local_num();
@@ -39,6 +40,13 @@ template<typename T>
         }
         deposit_charge(discarded * bunch.get_real_num() / bunch.get_total_num());
         bunch.set_local_num(local_num);
+        double t1 = MPI_Wtime();
+        if (verbosity > 5) {
+            logger << "Aperture_operation: type = " << get_aperture_type()
+                    << ", time = " << std::fixed << std::setprecision(3) << t1
+                    - t0 << "s" << std::endl;
+        }
+
     }
 
 inline bool
