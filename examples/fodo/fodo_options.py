@@ -15,7 +15,7 @@ opts.add("step_particles", False, "Whether to save all particles each step", boo
 opts.add("turn_tracks", 0, "Number of particles to track each turn", int)
 opts.add("turn_full2", True, "Whether to do full2 diagnostics each turn", bool)
 opts.add("turn_particles", False, "Whether to save all particles each turn", bool)
-opts.add("verbosity", 0, "Verbosity of propagation", int)
+opts.add("verbosity", 2, "Verbosity of propagation", int)
 opts.add("steps", 8, "Number of steps per turn", int)
 opts.add("turns", 4, "Number of turns", int)
 opts.add("max_turns", 0, "Maximum number of turns to run before checkpointing and quitting", int)

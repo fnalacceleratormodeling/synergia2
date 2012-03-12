@@ -34,27 +34,22 @@ try:
         sys.exit(1)
 
     bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
-    diagnostics_actions = bunch_simulator.get_diagnostics_actions()
 
     for part in range(0, opts.step_tracks):
-        diagnostics_actions.add_per_step(synergia.bunch.Diagnostics_track(bunch,
-                                                                       "step_track_%02d.h5" % part,
+        bunch_simulator.add_per_step(synergia.bunch.Diagnostics_track("step_track_%02d.h5" % part,
                                                                        part))
     if opts.step_full2:
-        diagnostics_actions.add_per_step(synergia.bunch.Diagnostics_full2(bunch, "step_full2.h5"))
+        bunch_simulator.add_per_step(synergia.bunch.Diagnostics_full2("step_full2.h5"))
     if opts.step_particles:
-        diagnostics_actions.add_per_step(synergia.bunch.Diagnostics_particles(bunch,
-                                                                           "step_particles.h5"))
+        bunch_simulator.add_per_step(synergia.bunch.Diagnostics_particles("step_particles.h5"))
 
     for part in range(0, opts.turn_tracks):
-        diagnostics_actions.add_per_turn(synergia.bunch.Diagnostics_track(bunch,
-                                                                       "turn_track_%02d.h5" % part,
+        bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_track("turn_track_%02d.h5" % part,
                                                                        part))
     if opts.turn_full2:
-        diagnostics_actions.add_per_turn(synergia.bunch.Diagnostics_full2(bunch, "turn_full2.h5"))
+        bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_full2("turn_full2.h5"))
     if opts.turn_particles:
-        diagnostics_actions.add_per_turn(synergia.bunch.Diagnostics_particles(
-                                        bunch, "turn_particles.h5"))
+        bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_particles("turn_particles.h5"))
 
     propagator = synergia.simulation.Propagator(stepper)
     propagator.propagate(bunch_simulator, opts.turns, opts.max_turns, opts.verbosity)
