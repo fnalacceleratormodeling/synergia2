@@ -52,7 +52,8 @@ try:
         bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_particles("turn_particles.h5"))
 
     propagator = synergia.simulation.Propagator(stepper)
-    propagator.propagate(bunch_simulator, opts.turns, opts.max_turns, opts.verbosity)
+    propagator.set_checkpoint_period(opts.checkpointperiod)
+    propagator.propagate(bunch_simulator, opts.turns, opts.maxturns, opts.verbosity)
 except Exception, e:
     sys.stderr.write(str(e) + '\n')
     MPI.COMM_WORLD.Abort(777)
