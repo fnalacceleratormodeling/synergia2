@@ -337,9 +337,9 @@ BOOST_PYTHON_MODULE(simulation)
             .def("add_per_turn", add_per_turn1,
                     add_per_turn_member_overloads12())
             .def("add_per_turn", add_per_turn2)
-            .def("add_per_turn", add_per_step1,
+            .def("add_per_step", add_per_step1,
                     add_per_turn_member_overloads12())
-            .def("add_per_turn", add_per_step2,
+            .def("add_per_step", add_per_step2,
                     add_per_step_member_overloads23())
             .def("first_action", &Diagnostics_actions::first_action)
             .def("turn_end_action", &Diagnostics_actions::turn_end_action)
@@ -353,9 +353,9 @@ BOOST_PYTHON_MODULE(simulation)
             .def("add_per_turn", bs_add_per_turn1,
                     bs_add_per_turn_member_overloads12())
             .def("add_per_turn", bs_add_per_turn2)
-            .def("add_per_turn", bs_add_per_step1,
+            .def("add_per_step", bs_add_per_step1,
                     bs_add_per_turn_member_overloads12())
-            .def("add_per_turn", bs_add_per_step2,
+            .def("add_per_step", bs_add_per_step2,
                     bs_add_per_step_member_overloads23())
             ;
 
