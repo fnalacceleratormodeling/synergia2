@@ -18,6 +18,8 @@ opts.add("turn_particles", False, "Whether to save all particles each turn", boo
 opts.add("verbosity", 0, "Verbosity of propagation", int)
 opts.add("steps", 8, "Number of steps per turn", int)
 opts.add("turns", 4, "Number of turns", int)
+opts.add("checkpointperiod", 2, "Number of turns to run between checkpoints", int)
+opts.add("maxturns", 0, "Maximum number of turns to run before checkpointing and quitting", int)
 opts.add("map_order", 2, "Map order", int)
 opts.add("emit", 1e-6, "Horizontal and vertical emittance [m rad]", float)
 opts.add("stdz", 0.01, "RMS longitudinal length [m]", float)

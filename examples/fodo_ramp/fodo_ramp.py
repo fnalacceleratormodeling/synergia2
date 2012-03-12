@@ -45,31 +45,26 @@ else:
     sys.stderr.write("fodo.py: stepper must be either 'independent' or 'splitoperator'\n")
     sys.exit(1)
 
-diagnostics_actions = synergia.simulation.Diagnostics_actions()
+bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
 for part in range(0, opts.step_tracks):
-    diagnostics_actions.add_per_step(synergia.bunch.Diagnostics_track(bunch,
-                                                                   "step_track_%02d.h5" % part,
+    bunch_simulator.add_per_step(synergia.bunch.Diagnostics_track("step_track_%02d.h5" % part,
                                                                    part))
 if opts.step_full2:
-    diagnostics_actions.add_per_step(synergia.bunch.Diagnostics_full2(bunch, "step_full2.h5"))
+    bunch_simulator.add_per_step(synergia.bunch.Diagnostics_full2("step_full2.h5"))
 if opts.step_particles:
-    diagnostics_actions.add_per_step(synergia.bunch.Diagnostics_particles(bunch,
-                                                                       "step_particles.h5"))
+    bunch_simulator.add_per_step(synergia.bunch.Diagnostics_particles("step_particles.h5"))
 
 for part in range(0, opts.turn_tracks):
-    diagnostics_actions.add_per_turn(synergia.bunch.Diagnostics_track(bunch,
-                                                                   "turn_track_%02d.h5" % part,
+    bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_track("turn_track_%02d.h5" % part,
                                                                    part))
 if opts.turn_full2:
-    diagnostics_actions.add_per_turn(synergia.bunch.Diagnostics_full2(bunch, "turn_full2.h5"))
+    bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_full2("turn_full2.h5"))
 if opts.turn_particles:
-    diagnostics_actions.add_per_turn(synergia.bunch.Diagnostics_particles(
-                                    bunch, "turn_particles.h5"))
+    bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_particles("turn_particles.h5"))
 
 ramp_actions = Ramp_actions(1.1)
 
 propagator = synergia.simulation.Propagator(stepper)
-propagator.propagate(bunch, opts.turns,
-                     diagnostics_actions,
-                     ramp_actions,
-                     opts.verbosity)
+propagator.set_checkpoint_period(opts.checkpointperiod)
+propagator.propagate(bunch_simulator, ramp_actions,
+                     opts.turns, opts.maxturns,opts.verbosity)
