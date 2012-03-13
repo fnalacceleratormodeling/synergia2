@@ -14,7 +14,7 @@
 /// expected.
 class Commxx
 {
-private:
+protected:
     MPI_Comm comm;
 public:
     /// Construct a Commxx object from an MPI_Comm communicator
@@ -25,20 +25,20 @@ public:
     Commxx();
 
     /// Get communicator rank.
-    int
+    virtual int
     get_rank() const;
 
     /// Get communicator size
-    int
+    virtual int
     get_size() const;
 
     /// Change the underlying communicator
     /// @param comm is an MPI communicator, e.g., MPI_COMM_WORLD
-    void
+    virtual void
     set(MPI_Comm comm);
 
     /// Extract the MPI_comm object wrapped by the Commxx instance.
-    MPI_Comm
+    virtual MPI_Comm
     get() const;
 
     template<class Archive>

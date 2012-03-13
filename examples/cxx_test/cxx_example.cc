@@ -3,6 +3,7 @@
 
 #include "synergia/lattice/lattice.h"
 #include "synergia/utils/serialization.h"
+#include "synergia/utils/commxx_per_host.h"
 #include "synergia/simulation/operator.h"
 #include "synergia/simulation/lattice_simulator.h"
 #include "synergia/simulation/stepper.h"
@@ -44,7 +45,7 @@ run()
         exit(1);
     }
     Space_charge_3d_open_hockney_sptr space_charge_sptr(
-            new Space_charge_3d_open_hockney(Commxx(), grid_shape));
+            new Space_charge_3d_open_hockney(Commxx_per_host(), grid_shape));
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     Split_operator_stepper_sptr stepper_sptr(
             new Split_operator_stepper(lattice_simulator, space_charge_sptr,

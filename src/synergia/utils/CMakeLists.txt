@@ -1,4 +1,5 @@
-add_library(synergia_parallel_utils parallel_utils.cc commxx.cc logger.cc)
+add_library(synergia_parallel_utils parallel_utils.cc commxx.cc logger.cc
+commxx_per_host.cc)
 if (BUILD_PYTHON_BINDINGS)
     add_python_extension(parallel_utils parallel_utils_wrap.cc)
    target_link_libraries(parallel_utils synergia_parallel_utils
@@ -31,6 +32,7 @@ install(FILES
     comm_converter.h
     command_line_arg.h
     commxx.h
+    commxx_per_host.h
     container_conversions.h
     distributed_fft3d.h
     distributed_fft2d.h
