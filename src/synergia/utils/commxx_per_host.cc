@@ -5,7 +5,9 @@
 
 static size_t hash(const char * s)
 {
-  return (*(size_t*)s) >> 2;
+  size_t h = 37062913;
+  while(*s) h = h*101 + (unsigned char) *s++;
+  return h;
 }
 
 Commxx_per_host::Commxx_per_host()
