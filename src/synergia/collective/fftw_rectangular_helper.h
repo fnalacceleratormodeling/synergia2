@@ -6,7 +6,7 @@
 #include "synergia/utils/commxx.h"
 #include <vector>
 #include <stdexcept>
-#include <string.h>
+#include <string.h> // needed for memcpy on hopper <string> won't work
 #include "synergia/utils/multi_array_typedefs.h"
 
 class Fftw_rectangular_helper
