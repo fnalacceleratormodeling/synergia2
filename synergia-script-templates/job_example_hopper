@@ -1,10 +1,12 @@
 #PBS -o synergia.out
 #PBS -e synergia.err
 #PBS -l mppwidth=@@numproc@@
-#PBS -l walltime=24:00:00
-#PBS -q regular
-#PBS -m abe
-#PBS -M egstern@fnal.gov
+__walltime{{#PBS -l walltime=@@walltime@@}}{{}}__
+__queue{{#PBS -q @@queue@@}}{{}}__
+__account{{#PBS -A @@account@@}}{{}}__
+## adjust an uncomment below to receive email job notifications
+##PBS -m abe
+##PBS -M your_emailn@youlab.gov
 
 # this example script is tailored for the hopper machine at NERSC
 # numproc is the number of mpi tasks to initiate.  The number of nodes
@@ -21,15 +23,13 @@ cd $PBS_O_WORKDIR
 
 export CRAY_ROOTFS=DSL
 
-SYNERGIA2DIR=/global/homes/e/egstern/hopper/synergia2-refactor
-export SYNERGIA2DIR
 
-# add fftw2 libraries to LD_LIBRARY_PATH
-LD_LIBRARY_PATH=/opt/fftw/2.1.5.2/lib:${LD_LIBRARY_PATH}
+. @@setupsh@@
+export SYNERGIA2DIR=@@synergia2dir@@
 
-. /global/homes/e/egstern/hopper/synergia2-refactor/setup.sh
-
-PYTHONPATH=${SYNERGIA2DIR}/install/lib:$PYTHONPATH
+LD_LIBRARY_PATH=$(synergia --ldlibrarypath)
+PYTHONPATH=$(synergia --pythonpath)
+export LD_LIBRARY_PATH PYTHONPATH
 
 export HDF5_DISABLE_VERSION_CHECK=2
 

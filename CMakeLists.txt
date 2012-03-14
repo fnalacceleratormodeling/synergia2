@@ -62,6 +62,7 @@ endif()
 # misc
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/AddPythonExtension.cmake)
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindGSL.cmake)
+include_directories(${GSL_INCLUDE_DIR})
 
 # fftw3 (and, possibly, fftw2)
 find_package(FFTW3 REQUIRED)
