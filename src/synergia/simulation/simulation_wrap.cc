@@ -18,17 +18,21 @@ using namespace boost::python;
 struct Propagate_actions_callback : Propagate_actions
 {
     Propagate_actions_callback(PyObject *p) :
-        Propagate_actions(), self(p)
+        Propagate_actions(), self(handle< > (borrowed(p)))
     {
     }
     Propagate_actions_callback(PyObject *p, const Propagate_actions& x) :
-        Propagate_actions(x), self(p)
+        Propagate_actions(x), self(handle< > (borrowed(p)))
+    {
+    }
+    // default constructor needed for serialization
+    Propagate_actions_callback(): Propagate_actions(), self()
     {
     }
     void
     first_action(Stepper & stepper, Bunch & bunch)
     {
-        call_method<void > (self, "first_action", stepper, bunch);
+        call_method<void > (self.ptr(), "first_action", stepper, bunch);
     }
     static void
     default_first_action(Propagate_actions& self_, Stepper & stepper,
@@ -39,7 +43,7 @@ struct Propagate_actions_callback : Propagate_actions
     void
     turn_end_action(Stepper & stepper, Bunch & bunch, int turn_num)
     {
-        call_method<void > (self, "turn_end_action", stepper, bunch, turn_num);
+        call_method<void > (self.ptr(), "turn_end_action", stepper, bunch, turn_num);
     }
     static void
     default_turn_end_action(Propagate_actions& self_, Stepper & stepper,
@@ -51,7 +55,7 @@ struct Propagate_actions_callback : Propagate_actions
     step_end_action(Stepper & stepper, Step & step, Bunch & bunch,
             int turn_num, int step_num)
     {
-        call_method<void > (self, "step_end_action", stepper, step, bunch,
+        call_method<void > (self.ptr(), "step_end_action", stepper, step, bunch,
                 turn_num, step_num);
     }
     static void
@@ -61,9 +65,33 @@ struct Propagate_actions_callback : Propagate_actions
         self_.Propagate_actions::step_end_action(stepper, step, bunch,
                 turn_num, step_num);
     }
+    template<class Archive>
+        void
+        save(Archive & ar, const unsigned int version) const
+        {
+            ar &
+            BOOST_SERIALIZATION_BASE_OBJECT_NVP(Propagate_actions);
+            std::string pickled_object(
+                    extract<std::string > (
+                            import("cPickle").attr("dumps")(self)));
+            ar & BOOST_SERIALIZATION_NVP(pickled_object);
+        }
+    template<class Archive>
+        void
+        load(Archive & ar, const unsigned int version)
+        {
+            ar &
+            BOOST_SERIALIZATION_BASE_OBJECT_NVP(Propagate_actions);
+            std::string pickled_object;
+            ar & BOOST_SERIALIZATION_NVP(pickled_object);
+            str pickle_str(pickled_object);
+            self = import("cPickle").attr("loads")(pickle_str);
+        }
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
 private:
-    PyObject* self;
+    object self;
 };
+BOOST_CLASS_EXPORT_GUID(Propagate_actions_callback, "Propagate_actions_callback")
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(propagate_member_overloads24,
         Propagator::propagate, 2, 4);
@@ -331,6 +359,7 @@ BOOST_PYTHON_MODULE(simulation)
                     &Propagate_actions_callback::default_turn_end_action)
             .def("step_end_action",
                     &Propagate_actions_callback::default_step_end_action)
+            .enable_pickling()
             ;
 
     class_<Diagnostics_actions, Diagnostics_actions_sptr >(
