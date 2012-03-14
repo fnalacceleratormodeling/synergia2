@@ -6,6 +6,7 @@
 #include "propagate_actions.h"
 #include "diagnostics_actions.h"
 #include "dense_mapping.h"
+#include "resume.h"
 #include <boost/python.hpp>
 #include "synergia/utils/container_conversions.h"
 #include <boost/python/suite/indexing/map_indexing_suite.hpp>
@@ -410,4 +411,8 @@ BOOST_PYTHON_MODULE(simulation)
 //                    propagate_member_overloads45())
             ;
 
+    class_<Resume >("Resume", init<>())
+            .def(init<std::string const& >())
+            .def("propagate", &Resume::propagate)
+            ;
 }
