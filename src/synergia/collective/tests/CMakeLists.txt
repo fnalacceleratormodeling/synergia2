@@ -15,7 +15,7 @@ add_test(test_deposit ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_deposit)
 add_executable(test_deposit_xyz test_deposit_xyz.cc)
 target_link_libraries(test_deposit_xyz synergia_collective
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_deposit_xyz ${MPIEXEC} -np 1 test_deposit_xyz)
+add_test(test_deposit_xyz ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_deposit_xyz)
 #add_test(test_bunch_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_bunch.py)
 
 
@@ -41,13 +41,13 @@ add_test(test_distributed_rectangular_grid_mpi4 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLA
 #add_test(test_bunch_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_bunch.py)
 
 add_executable(test_space_charge_rectangular
-    test_space_charge_rectangular.cc gaussian_charge_density.cc) 
+    test_space_charge_rectangular.cc gaussian_charge_density.cc)
 target_link_libraries(test_space_charge_rectangular synergia_collective
     synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_space_charge_rectangular ${MPIEXEC} -np 1 test_space_charge_rectangular)
-add_test(test_space_charge_rectangular_mpi2 ${MPIEXEC} -np 2 test_space_charge_rectangular)
-add_test(test_space_charge_rectangular_mpi3 ${MPIEXEC} -np 3 test_space_charge_rectangular)
-add_test(test_space_charge_rectangular_mpi4 ${MPIEXEC} -np 4 test_space_charge_rectangular)
+add_test(test_space_charge_rectangular ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_space_charge_rectangular)
+add_test(test_space_charge_rectangular_mpi2 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 test_space_charge_rectangular)
+add_test(test_space_charge_rectangular_mpi3 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 test_space_charge_rectangular)
+add_test(test_space_charge_rectangular_mpi4 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 test_space_charge_rectangular)
 
 add_executable(test_interpolate_rectangular_zyx
     test_interpolate_rectangular_zyx.cc gaussian_charge_density.cc)

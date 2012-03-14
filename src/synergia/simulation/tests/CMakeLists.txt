@@ -82,23 +82,23 @@ add_test(test_propagator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_propagator)
 
 add_executable(test_finite_aperture_operation test_finite_aperture_operation.cc)
 target_link_libraries(test_finite_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_finite_aperture_operation ${MPIEXEC} -np 1 test_finite_aperture_operation)
+add_test(test_finite_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_finite_aperture_operation)
 
 add_executable(test_circular_aperture_operation test_circular_aperture_operation.cc)
 target_link_libraries(test_circular_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_circular_aperture_operation ${MPIEXEC} -np 1 test_circular_aperture_operation)
+add_test(test_circular_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_circular_aperture_operation)
 
 add_executable(test_elliptical_aperture_operation test_elliptical_aperture_operation.cc)
 target_link_libraries(test_elliptical_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_elliptical_aperture_operation ${MPIEXEC} -np 1 test_elliptical_aperture_operation)
+add_test(test_elliptical_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_elliptical_aperture_operation)
 
 add_executable(test_rectangular_aperture_operation test_rectangular_aperture_operation.cc)
 target_link_libraries(test_rectangular_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_rectangular_aperture_operation ${MPIEXEC} -np 1 test_rectangular_aperture_operation)
+add_test(test_rectangular_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_rectangular_aperture_operation)
 
 add_executable(test_polygon_aperture_operation test_polygon_aperture_operation.cc)
 target_link_libraries(test_polygon_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_polygon_aperture_operation ${MPIEXEC} -np 1 test_polygon_aperture_operation)
+add_test(test_polygon_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_polygon_aperture_operation)
 
 add_executable(test_propagator_mpi test_propagator_mpi.cc)
 target_link_libraries(test_propagator_mpi synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
