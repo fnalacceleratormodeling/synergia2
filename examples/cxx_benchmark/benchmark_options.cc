@@ -8,6 +8,7 @@
 Benchmark_options::Benchmark_options(int argc, char **argv) :
     partpercell(10),
     verbosity(1),
+    avoid(true),
     gridy(32),
     gridx(32),
     gridz(64),
@@ -23,6 +24,8 @@ Benchmark_options::Benchmark_options(int argc, char **argv) :
                 partpercell = arg.extract_value<int >();
             } else if (arg.get_lhs() == "verbosity") {
                 verbosity = arg.extract_value<int >();
+            } else if (arg.get_lhs() == "avoid") {
+                avoid = arg.extract_value<bool >();
             } else if (arg.get_lhs() == "gridy") {
                 gridy = arg.extract_value<int >();
             } else if (arg.get_lhs() == "gridx") {

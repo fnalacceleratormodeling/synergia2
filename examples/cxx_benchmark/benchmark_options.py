@@ -12,6 +12,7 @@ opts.add("sortperiod", 1000, "sort period")
 opts.add("autotune", True, "automatically tune communication routines")
 opts.add("chargecomm", 0, "charge density comm parameter if autotune false, 0 for default")
 opts.add("efieldcomm", 0, "electric field comm parameter if autotune false, 0 for default")
+opts.add("avoid", True, "whether to use communication avoidance")
 opts.add("verbosity", 1, "verbosity (0=minimal output ... 6=detailed output)")
 job_mgr = Job_manager("benchmark", opts,
                       ["cxx_covariance_matrix.xml", "cxx_lattice.xml",
