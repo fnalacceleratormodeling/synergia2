@@ -10,11 +10,13 @@ struct Benchmark_options
 {
     Benchmark_options(int argc, char **argv);
     int partpercell;
-    int eforcecomm;
+    int verbosity;
+    bool avoid;
     int gridy;
     int gridx;
     int gridz;
     bool autotune;
+    int efieldcomm;
     int chargecomm;
     int sortperiod;
 };

@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
-<boost_serialization signature="serialization::archive" version="7">
+<boost_serialization signature="serialization::archive" version="6">
+<num_objects>1</num_objects>
+<object_typename>N5boost11multi_arrayIdLm2ESaIdEEE</object_typename>
 <object class_id="0" tracking_level="0" version="0">
 	<shape_0>6</shape_0>
 	<shape_1>6</shape_1>
