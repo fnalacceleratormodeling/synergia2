@@ -46,6 +46,7 @@ run()
     }
     Space_charge_3d_open_hockney_sptr space_charge_sptr(
             new Space_charge_3d_open_hockney(Commxx_per_host(), grid_shape));
+    space_charge_sptr->set_charge_density_comm(Space_charge_3d_open_hockney::charge_allreduce);
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     Split_operator_stepper_sptr stepper_sptr(
             new Split_operator_stepper(lattice_simulator, space_charge_sptr,
@@ -71,7 +72,9 @@ run()
             Diagnostics_sptr(
                     new Diagnostics_full2("cxx_example_per_turn.h5")));
     double t0 = MPI_Wtime();
-    propagator.propagate(bunch_simulator, num_turns, true);
+    const int max_turns = 0;
+    const int verbosity = 2;
+    propagator.propagate(bunch_simulator, num_turns, max_turns, verbosity);
     double t1 = MPI_Wtime();
     if (comm.get_rank() == 0) {
         std::cout << "propagate time = " << (t1 - t0) << std::endl;
