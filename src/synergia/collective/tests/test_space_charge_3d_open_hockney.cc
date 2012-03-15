@@ -449,7 +449,7 @@ BOOST_FIXTURE_TEST_CASE(get_global_charge_density2_reduce_scatter,
     Rectangular_grid_sptr local_rho = space_charge.get_local_charge_density(
             bunch); // [C/m^3]
     Distributed_rectangular_grid_sptr rho2 =
-            space_charge.get_global_charge_density2_reduce_scatter(*local_rho); // [C/m^3]
+            space_charge.get_global_charge_density2_reduce_scatter(*local_rho, comm); // [C/m^3]
     std::vector<int > nondoubled_shape(
             local_rho->get_domain_sptr()->get_grid_shape());
     std::vector<int > doubled_shape(rho2->get_domain_sptr()->get_grid_shape());
@@ -481,7 +481,7 @@ BOOST_FIXTURE_TEST_CASE(get_global_charge_density2_allreduce,
     Rectangular_grid_sptr local_rho = space_charge.get_local_charge_density(
             bunch); // [C/m^3]
     Distributed_rectangular_grid_sptr rho2 =
-            space_charge.get_global_charge_density2_allreduce(*local_rho); // [C/m^3]
+            space_charge.get_global_charge_density2_allreduce(*local_rho, comm); // [C/m^3]
     std::vector<int > nondoubled_shape(
             local_rho->get_domain_sptr()->get_grid_shape());
     std::vector<int > doubled_shape(rho2->get_domain_sptr()->get_grid_shape());
@@ -512,7 +512,7 @@ BOOST_FIXTURE_TEST_CASE(get_global_charge_density2, Ellipsoidal_bunch_fixture)
     Rectangular_grid_sptr local_rho = space_charge.get_local_charge_density(
             bunch); // [C/m^3]
     Distributed_rectangular_grid_sptr rho2 =
-            space_charge.get_global_charge_density2(*local_rho); // [C/m^3]
+            space_charge.get_global_charge_density2(*local_rho, comm); // [C/m^3]
     std::vector<int > nondoubled_shape(
             local_rho->get_domain_sptr()->get_grid_shape());
     std::vector<int > doubled_shape(rho2->get_domain_sptr()->get_grid_shape());

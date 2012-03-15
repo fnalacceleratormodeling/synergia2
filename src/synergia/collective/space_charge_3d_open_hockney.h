@@ -95,17 +95,18 @@ public:
     /// Returns global charge density on doubled grid in [C/m^3]
     Distributed_rectangular_grid_sptr
     get_global_charge_density2_reduce_scatter(
-            Rectangular_grid const& local_charge_density);
+            Rectangular_grid const& local_charge_density, Commxx const& comm);
     /// Returns global charge density on doubled grid in [C/m^3]
     Distributed_rectangular_grid_sptr
     get_global_charge_density2_allreduce(
-            Rectangular_grid const& local_charge_density);
+            Rectangular_grid const& local_charge_density, Commxx const& comm);
     /// Returns local charge density on original grid in [C/m^3]
     Rectangular_grid_sptr
     get_local_charge_density(Bunch const& bunch);
     /// Returns global charge density on doubled grid in [C/m^3]
     Distributed_rectangular_grid_sptr
-    get_global_charge_density2(Rectangular_grid const& local_charge_density);
+    get_global_charge_density2(Rectangular_grid const& local_charge_density,
+            Commxx const& comm);
     /// Returns Green function on the doubled grid in [1/m^3]
     Distributed_rectangular_grid_sptr
     get_green_fn2_pointlike();
@@ -138,7 +139,8 @@ public:
     apply_kick(Bunch & bunch, Rectangular_grid const& En, double delta_tau,
             int component);
     virtual void
-    apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
+    apply(Bunch & bunch, double time_step, Step & step, int verbosity,
+            Logger & logger);
     template<class Archive>
         void
         save(Archive & ar, const unsigned int version) const
@@ -187,7 +189,6 @@ public:
 };
 BOOST_CLASS_EXPORT_KEY(Space_charge_3d_open_hockney)
 
-typedef boost::shared_ptr<Space_charge_3d_open_hockney >
-        Space_charge_3d_open_hockney_sptr;
+typedef boost::shared_ptr<Space_charge_3d_open_hockney > Space_charge_3d_open_hockney_sptr;
 
 #endif /* SPACE_CHARGE_3D_OPEN_HOCKNEY_H_ */

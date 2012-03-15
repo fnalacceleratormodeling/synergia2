@@ -32,7 +32,7 @@ get_gaussian_rho2(Space_charge_3d_open_hockney & space_charge, Bunch & bunch,
             bunch); // [C/m^3]
 
     Distributed_rectangular_grid_sptr rho2 =
-            space_charge.get_global_charge_density2(*local_rho); // [C/m^3]
+            space_charge.get_global_charge_density2(*local_rho, bunch.get_comm()); // [C/m^3]
     std::vector<int > doubled_shape(rho2->get_domain_sptr()->get_grid_shape());
     for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_shape[1]; ++j) {
@@ -130,7 +130,7 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2, Spherical_bunch_fixture)
     Rectangular_grid_sptr local_rho(
             space_charge.get_local_charge_density(bunch)); // [C/m^3]
     Distributed_rectangular_grid_sptr rho2(
-            space_charge.get_global_charge_density2(*local_rho)); // [C/m^3]
+            space_charge.get_global_charge_density2(*local_rho, comm)); // [C/m^3]
     Distributed_rectangular_grid_sptr
             G2(space_charge.get_green_fn2_pointlike()); // [1/m]
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
@@ -192,7 +192,7 @@ BOOST_FIXTURE_TEST_CASE(extract_scalar_field, Ellipsoidal_bunch_fixture)
     Rectangular_grid_sptr local_rho(
             space_charge.get_local_charge_density(bunch)); // [C/m^3]
     Distributed_rectangular_grid_sptr rho2(
-            space_charge.get_global_charge_density2(*local_rho)); // [C/m^3]
+            space_charge.get_global_charge_density2(*local_rho, comm)); // [C/m^3]
     local_rho.reset();
     Distributed_rectangular_grid_sptr
             G2(space_charge.get_green_fn2_pointlike()); // [1/m]
@@ -560,7 +560,7 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_G2linear_particles,
     Rectangular_grid_sptr local_rho(
             space_charge.get_local_charge_density(bunch)); // [C/m^3]
     Distributed_rectangular_grid_sptr rho2(
-            space_charge.get_global_charge_density2(*local_rho)); // [C/m^3]
+            space_charge.get_global_charge_density2(*local_rho, comm)); // [C/m^3]
     Distributed_rectangular_grid_sptr
             G2(space_charge.get_green_fn2_linear()); // [1/m]
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
@@ -622,7 +622,7 @@ BOOST_FIXTURE_TEST_CASE(extract_scalar_field_G2linear,
     Rectangular_grid_sptr local_rho(
             space_charge.get_local_charge_density(bunch)); // [C/m^3]
     Distributed_rectangular_grid_sptr rho2(
-            space_charge.get_global_charge_density2(*local_rho)); // [C/m^3]
+            space_charge.get_global_charge_density2(*local_rho, comm)); // [C/m^3]
     local_rho.reset();
     Distributed_rectangular_grid_sptr
             G2(space_charge.get_green_fn2_linear()); // [1/m]

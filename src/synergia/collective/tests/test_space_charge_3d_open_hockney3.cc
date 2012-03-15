@@ -32,7 +32,7 @@ get_linear_cylindrical_rho2(Space_charge_3d_open_hockney & space_charge,
             bunch); // [C/m^3]
 
     Distributed_rectangular_grid_sptr rho2 =
-            space_charge.get_global_charge_density2(*local_rho); // [C/m^3]
+            space_charge.get_global_charge_density2(*local_rho, bunch.get_comm()); // [C/m^3]
     std::vector<int > doubled_shape(rho2->get_domain_sptr()->get_grid_shape());
     for (int i = 0; i < doubled_shape[0]; ++i) {
         for (int j = 0; j < doubled_shape[1]; ++j) {
