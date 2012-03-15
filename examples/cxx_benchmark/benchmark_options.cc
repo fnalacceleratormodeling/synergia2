@@ -7,11 +7,12 @@
 
 Benchmark_options::Benchmark_options(int argc, char **argv) :
     partpercell(10),
-    eforcecomm(0),
+    verbosity(1),
     gridy(32),
     gridx(32),
     gridz(64),
     autotune(true),
+    efieldcomm(0),
     chargecomm(0),
     sortperiod(1000)
 {
@@ -20,8 +21,8 @@ Benchmark_options::Benchmark_options(int argc, char **argv) :
         if (arg.is_equal_pair()) {
             if (arg.get_lhs() == "partpercell") {
                 partpercell = arg.extract_value<int >();
-            } else if (arg.get_lhs() == "eforcecomm") {
-                eforcecomm = arg.extract_value<int >();
+            } else if (arg.get_lhs() == "verbosity") {
+                verbosity = arg.extract_value<int >();
             } else if (arg.get_lhs() == "gridy") {
                 gridy = arg.extract_value<int >();
             } else if (arg.get_lhs() == "gridx") {
@@ -30,6 +31,8 @@ Benchmark_options::Benchmark_options(int argc, char **argv) :
                 gridz = arg.extract_value<int >();
             } else if (arg.get_lhs() == "autotune") {
                 autotune = arg.extract_value<bool >();
+            } else if (arg.get_lhs() == "efieldcomm") {
+                efieldcomm = arg.extract_value<int >();
             } else if (arg.get_lhs() == "chargecomm") {
                 chargecomm = arg.extract_value<int >();
             } else if (arg.get_lhs() == "sortperiod") {

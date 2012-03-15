@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
-<boost_serialization signature="serialization::archive" version="7">
-<object class_id="0" tracking_level="0" version="0">
+<boost_serialization signature="serialization::archive" version="6">
+<num_objects>1</num_objects>
+<object_typename>7Lattice</object_typename>
+<object class_id="0" tracking_level="1" version="0" object_id="_0">
 	<name>fodo</name>
 	<reference_particle_allocated>1</reference_particle_allocated>
-	<reference_particle_ptr class_id="1" tracking_level="1" version="0" object_id="_0">
+	<reference_particle_ptr class_id="1" tracking_level="1" version="0" object_id="_1">
 		<charge>1</charge>
 		<four_momentum class_id="2" tracking_level="0" version="0">
 			<mass>0.93827203000000003</mass>
@@ -30,7 +32,7 @@
 		<count>4</count>
 		<item_version>1</item_version>
 		<item class_id="5" tracking_level="0" version="1">
-			<px class_id="6" tracking_level="1" version="0" object_id="_1">
+			<px class_id="6" tracking_level="1" version="0" object_id="_2">
 				<type>quadrupole</type>
 				<name>f</name>
 				<ancestors class_id="7" tracking_level="0" version="0">
@@ -62,7 +64,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_2">
+			<px class_id_reference="6" object_id="_3">
 				<type>drift</type>
 				<name>o</name>
 				<ancestors>
@@ -90,7 +92,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_3">
+			<px class_id_reference="6" object_id="_4">
 				<type>quadrupole</type>
 				<name>d</name>
 				<ancestors>
@@ -122,7 +124,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_4">
+			<px class_id_reference="6" object_id="_5">
 				<type>drift</type>
 				<name>o</name>
 				<ancestors>
