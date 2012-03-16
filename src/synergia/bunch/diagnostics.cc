@@ -445,6 +445,7 @@ Diagnostics_full2::Diagnostics_full2(std::string const& filename) :
             corr(boost::extents[6][6]), writer_s(0), writer_repetition(0),
             writer_trajectory_length(0), writer_num_particles(0),
             writer_real_num_particles(0), writer_mean(0), writer_std(0),
+            writer_min(0), writer_max(0),
             writer_mom2(0), writer_corr(0), writer_emitx(0), writer_emity(0),
             writer_emitz(0), writer_emitxy(0), writer_emitxyz(0)
 
