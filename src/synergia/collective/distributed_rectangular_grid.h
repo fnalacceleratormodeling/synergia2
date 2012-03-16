@@ -15,7 +15,7 @@ private:
     int lower_guard, upper_guard;
     std::vector<int> uppers, lengths;
     double normalization;
-    Commxx comm;    
+    Commxx comm;
     void
     construct_hockney(int lower, int upper, std::vector<int > const & array_shape);
     void
@@ -33,7 +33,17 @@ public:
     Distributed_rectangular_grid(
             Rectangular_grid_domain_sptr rectangular_grid_domain_sptr,
             int lower, int upper, std::vector<int > const & padded_shape,
-            Commxx const& comm);        
+            Commxx const& comm);
+    Rectangular_grid_domain const&
+    get_domain() const
+    {
+        return *domain_sptr;
+    }
+    Rectangular_grid_domain &
+    get_domain()
+    {
+        return *domain_sptr;
+    }
     Rectangular_grid_domain_sptr
     get_domain_sptr() const;
     Rectangular_grid_domain_sptr

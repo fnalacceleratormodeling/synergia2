@@ -41,6 +41,12 @@ public:
     std::vector<int >
     get_grid_shape() const;
 
+   Rectangular_grid_domain const&
+   get_domain() const
+   {
+       return *domain_sptr;
+   }
+
    Rectangular_grid_domain_sptr
    get_domain_sptr() const;
 

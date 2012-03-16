@@ -22,7 +22,7 @@ deposit_charge_rectangular_zyx(Rectangular_grid & rho_grid, Bunch const& bunch,
             }
         }
     }
-    std::vector<double > h(rho_grid.get_domain_sptr()->get_cell_size());
+    std::vector<double > h(rho_grid.get_domain().get_cell_size());
     double weight0 = (bunch.get_real_num() / bunch.get_total_num())
             * bunch.get_particle_charge() * pconstants::e
             / (h[0] * h[1] * h[2]);
@@ -30,11 +30,11 @@ deposit_charge_rectangular_zyx(Rectangular_grid & rho_grid, Bunch const& bunch,
     double offx, offy, offz;
     // jfa: This is probably a premature optimization. Two versions of the
     // deposit loop -- one for periodic, one for non-periodic.
-    if (rho_grid.get_domain_sptr()->is_periodic()) {
+    if (rho_grid.get_domain().is_periodic()) {
         for (int n = 0; n < bunch.get_local_num(); ++n) {
             // domain doesn't know about xyz->zyx transformation, so we
             // do it in the order of arguments here
-            rho_grid.get_domain_sptr()->get_leftmost_indices_offsets(
+            rho_grid.get_domain().get_leftmost_indices_offsets(
                     parts[n][4], parts[n][2], parts[n][0], iz, iy, ix, offz,
                     offy, offx);
             for (int i = 0; i < 2; ++i) {
@@ -65,7 +65,7 @@ deposit_charge_rectangular_zyx(Rectangular_grid & rho_grid, Bunch const& bunch,
         for (int n = 0; n < bunch.get_local_num(); ++n) {
             // domain doesn't know about xyz->zyx transformation, so we
             // do it in the order of arguments here
-            rho_grid.get_domain_sptr()->get_leftmost_indices_offsets(
+            rho_grid.get_domain().get_leftmost_indices_offsets(
                     parts[n][4], parts[n][2], parts[n][0], iz, iy, ix, offz,
                     offy, offx);
             for (int i = 0; i < 2; ++i) {
@@ -98,7 +98,7 @@ deposit_charge_rectangular_xyz(Rectangular_grid & rho_grid, Bunch const& bunch,
 // the particles close (i.e at a distance smaller than cell_size/2) to the grid edges are not deposited
 // they should aslo not be kicked by the electric field  
     
-    std::vector<double > h(rho_grid.get_domain_sptr()->get_cell_size());
+    std::vector<double > h(rho_grid.get_domain().get_cell_size());
     double weight0 = (bunch.get_real_num() / bunch.get_total_num())
             * bunch.get_particle_charge() * pconstants::e
             / (h[0] * h[1] * h[2]);
@@ -129,9 +129,9 @@ deposit_charge_rectangular_xyz(Rectangular_grid & rho_grid, Bunch const& bunch,
             
     int ix, iy, iz;
     double offx, offy, offz;
-    if (rho_grid.get_domain_sptr()->is_periodic()) {
+    if (rho_grid.get_domain().is_periodic()) {
         for (int n = 0; n < bunch.get_local_num(); ++n) {
-            if (rho_grid.get_domain_sptr()->get_leftmost_indices_offsets(
+            if (rho_grid.get_domain().get_leftmost_indices_offsets(
                         parts[n][0], parts[n][2], parts[n][4], ix, iy, iz, offx, offy, offz)){
                 for (int i = 0; i < 2; ++i) {
                     for (int j = 0; j < 2; ++j) {
@@ -160,7 +160,7 @@ deposit_charge_rectangular_xyz(Rectangular_grid & rho_grid, Bunch const& bunch,
     }
     else{
         for (int n = 0; n < bunch.get_local_num(); ++n) {
-            if (rho_grid.get_domain_sptr()->get_leftmost_indices_offsets(
+            if (rho_grid.get_domain().get_leftmost_indices_offsets(
                         parts[n][0], parts[n][2], parts[n][4], ix, iy, iz, offx, offy, offz)){
                 for (int i = 0; i < 2; ++i) {
                     for (int j = 0; j < 2; ++j) {
@@ -200,7 +200,7 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid, Bunch const& bunch,
             rho_1d[k] = 0.0;
         }
     }
-    std::vector<double > h(rho_grid.get_domain_sptr()->get_cell_size());
+    std::vector<double > h(rho_grid.get_domain().get_cell_size());
     double weight0 = (bunch.get_real_num() / bunch.get_total_num())
             * bunch.get_particle_charge() * pconstants::e
             / (h[0] * h[1] * h[2]);
@@ -208,7 +208,7 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid, Bunch const& bunch,
     double offx, offy, offz;
     for (int n = 0; n < bunch.get_local_num(); ++n) {
         // no xyz->zyx transformation
-        rho_grid.get_domain_sptr()->get_leftmost_indices_offsets(
+        rho_grid.get_domain().get_leftmost_indices_offsets(
                 parts[n][0], parts[n][2], parts[n][4], ix, iy, iz, offx,
                 offy, offz);
         for (int i = 0; i < 2; ++i) {

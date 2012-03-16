@@ -99,27 +99,27 @@ BOOST_FIXTURE_TEST_CASE(in_domain, Fixture)
 {
     rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
             physical_offset, grid_shape, false));
-    double hy= rho_grid_sptr->get_domain_sptr()->get_cell_size()[1];       
+    double hy= rho_grid_sptr->get_domain().get_cell_size()[1];       
     bunch.set_local_num(2);
     bunch.get_local_particles()[0][0]=0.;
     bunch.get_local_particles()[0][2] =  physical_offset[1]+(grid_shape[1]/2*hy-0.49991*hy); //particle close to the left physicsl edge
     
-  //  rho_grid_sptr->get_domain_sptr()->get_left()[1]+physical_size[1]-0.6*hy;
+  //  rho_grid_sptr->get_domain().get_left()[1]+physical_size[1]-0.6*hy;
    //
     bunch.get_local_particles()[0][4] = 0.;
     bunch.get_local_particles()[1][0]=0.;
-    bunch.get_local_particles()[1][2] = physical_offset[1]-(grid_shape[1]/2*hy-0.49991*hy);//particle close to the right physicsl edge //rho_grid_sptr->get_domain_sptr()->get_left()[1]+0.6*hy;
+    bunch.get_local_particles()[1][2] = physical_offset[1]-(grid_shape[1]/2*hy-0.49991*hy);//particle close to the right physicsl edge //rho_grid_sptr->get_domain().get_left()[1]+0.6*hy;
    
     bunch.get_local_particles()[1][4] = 0.;
     int ix, iy, iz;
     double offx, offy, offz;
     bool in_domain_r, in_domain_l;
     Const_MArray2d_ref parts(bunch.get_local_particles());   
-    in_domain_r=rho_grid_sptr->get_domain_sptr()->get_leftmost_indices_offsets(
+    in_domain_r=rho_grid_sptr->get_domain().get_leftmost_indices_offsets(
                     parts[0][4], parts[0][2], parts[0][0], iz, iy, ix, offz,
                     offy, offx);
   //  std::cout<<" right index iy="<<iy<<std::endl;                 
-    in_domain_l=rho_grid_sptr->get_domain_sptr()->get_leftmost_indices_offsets(
+    in_domain_l=rho_grid_sptr->get_domain().get_leftmost_indices_offsets(
                     parts[1][4], parts[1][2], parts[1][0], iz, iy, ix, offz,
                     offy, offx);
    // std::cout<<" left index iy="<<iy<<std::endl;                 
@@ -137,7 +137,7 @@ BOOST_FIXTURE_TEST_CASE(x_displaced_particle, Fixture)
             physical_offset, grid_shape, false));
     bunch.set_local_num(1);
     bunch.get_local_particles()[0][0]
-            = rho_grid_sptr->get_domain_sptr()->get_cell_size()[2];
+            = rho_grid_sptr->get_domain().get_cell_size()[2];
     bunch.get_local_particles()[0][2] = 0;
     bunch.get_local_particles()[0][4] = 0;
 
@@ -162,7 +162,7 @@ BOOST_FIXTURE_TEST_CASE(y_displaced_particle, Fixture)
     bunch.set_local_num(1);
     bunch.get_local_particles()[0][0] = 0;
     bunch.get_local_particles()[0][2]
-            = rho_grid_sptr->get_domain_sptr()->get_cell_size()[1];
+            = rho_grid_sptr->get_domain().get_cell_size()[1];
     bunch.get_local_particles()[0][4] = 0;
 
     deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch);
@@ -187,7 +187,7 @@ BOOST_FIXTURE_TEST_CASE(z_displaced_particle, Fixture)
     bunch.get_local_particles()[0][0] = 0;
     bunch.get_local_particles()[0][2] = 0;
     bunch.get_local_particles()[0][4]
-            = rho_grid_sptr->get_domain_sptr()->get_cell_size()[0];
+            = rho_grid_sptr->get_domain().get_cell_size()[0];
 
     deposit_charge_rectangular_zyx(*rho_grid_sptr, bunch);
 
@@ -215,7 +215,7 @@ BOOST_FIXTURE_TEST_CASE(z_displaced_particles_periodic, Fixture)
         bunch.get_local_particles()[n][0] = 0;
         bunch.get_local_particles()[n][2] = 0;
         bunch.get_local_particles()[n][4]
-                = rho_grid_sptr->get_domain_sptr()->get_cell_size()[0] + period
+                = rho_grid_sptr->get_domain().get_cell_size()[0] + period
                         * physical_size[2];
         ++n;
     }

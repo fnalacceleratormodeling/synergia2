@@ -313,10 +313,10 @@ BOOST_FIXTURE_TEST_CASE(efield_particles, Spherical_bunch_fixture)
 //            * pconstants::e;
 //    double q = bunch.get_particle_charge() * pconstants::e;
 //    std::vector<int > nondoubled_shape(
-//             space_charge_2d.get_domain_sptr()->get_grid_shape());
+//             space_charge_2d.get_domain().get_grid_shape());
 //    std::vector<int > doubled_shape(
 //             space_charge_2d.get_doubled_domain_sptr()->get_grid_shape());
-//    double hz = space_charge_2d.get_domain_sptr()->get_cell_size()[2];
+//    double hz = space_charge_2d.get_domain().get_cell_size()[2];
 //
 //    for (int component = 0; component < 1; ++component) {
 //        double max_fractional_error = -2.0;
@@ -340,7 +340,7 @@ BOOST_FIXTURE_TEST_CASE(efield_particles, Spherical_bunch_fixture)
 //                    int jp = nondoubled_shape[1] / 2;
 //                    int kp = nondoubled_shape[2] / 2;
 //                    double xp, yp , zp;
-//                    space_charge_3d.get_domain_sptr()->get_cell_coordinates(
+//                    space_charge_3d.get_domain().get_cell_coordinates(
 //                            kp, jp, ip, zp, yp, xp);
 //
 //                    double r = std::sqrt(x * x + y * y + z * z);

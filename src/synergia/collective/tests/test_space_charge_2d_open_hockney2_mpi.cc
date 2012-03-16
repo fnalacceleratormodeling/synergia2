@@ -30,7 +30,7 @@ get_gaussian_rho2(Space_charge_2d_open_hockney & space_charge, Bunch & bunch,
 
     Distributed_rectangular_grid_sptr rho2 =
             space_charge.get_global_charge_density2(*local_rho); // [C/m^3]
-    std::vector<int > doubled_shape(rho2->get_domain_sptr()->get_grid_shape());
+    std::vector<int > doubled_shape(rho2->get_domain().get_grid_shape());
     for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_shape[1]; ++j) {
             rho2->get_grid_points_2dc()[i][j] = 0.0;
@@ -42,13 +42,13 @@ get_gaussian_rho2(Space_charge_2d_open_hockney & space_charge, Bunch & bunch,
 
     double Q = bunch.get_real_num() * bunch.get_particle_charge()
             * pconstants::e;
-    std::vector<double > h(rho2->get_domain_sptr()->get_cell_size());
+    std::vector<double > h(rho2->get_domain().get_cell_size());
     double factor = Q / bunch.get_total_num() / (h[0] * h[1] * h[2]);
     for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_shape[1]; ++j) {
             for (int k = 0; k < doubled_shape[2]; ++k) {
                 double x, y, z;
-                local_rho->get_domain_sptr()->get_cell_coordinates(i, j, k, x,
+                local_rho->get_domain().get_cell_coordinates(i, j, k, x,
                         y, z);
                 double r2 = x * x + y * y + z * z;
                 //double val = gaussian_charge_density(Q, r2, sigma);
@@ -82,7 +82,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho, Spherical_bunch_fixture_2d)
     // charge of the single particle
     double q = bunch.get_particle_charge() * pconstants::e;
     std::vector<int > nondoubled_shape(
-             space_charge.get_domain_sptr()->get_grid_shape());
+             space_charge.get_domain().get_grid_shape());
     std::vector<int > doubled_shape(
              space_charge.get_doubled_domain_sptr()->get_grid_shape());
     double max_fractional_error = -2.0;
@@ -180,7 +180,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles, Spherical_bunch_fixture_2d)
     std::vector<int > doubled_shape(
              space_charge.get_doubled_domain_sptr()->get_grid_shape());
     std::vector<int > nondoubled_shape(
-             space_charge.get_domain_sptr()->get_grid_shape());
+             space_charge.get_domain().get_grid_shape());
     double max_fractional_error = -2.0;
     double min_fractional_error = 2.0;
     bool have_points = false;

@@ -116,8 +116,8 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
      size[2]=0.1;
      
      Space_charge_rectangular space_charge(size, grid_shape1);
-     std::vector<double > hi(space_charge.get_domain_sptr()->get_cell_size());
-     std::vector<int > shape(space_charge.get_domain_sptr()->get_grid_shape());
+     std::vector<double > hi(space_charge.get_domain().get_cell_size());
+     std::vector<int > shape(space_charge.get_domain().get_grid_shape());
      
      int nt=18;
      int mt=1;
@@ -141,7 +141,7 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
     int lrank=bunch.get_comm().get_rank();
     space_charge.set_fftw_helper(bunch.get_comm());
     Distributed_rectangular_grid_sptr phi_local(space_charge.get_phi_local(*rho_grid, bunch));
-    std::vector<int> local_shape(phi_local->get_domain_sptr()->get_grid_shape());
+    std::vector<int> local_shape(phi_local->get_domain().get_grid_shape());
      
     // std::cout<<" local_shape="<<local_shape[0]<<" rank="<<lrank<<std::endl;
     
@@ -219,7 +219,7 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
     
     
     Rectangular_grid_sptr rho_grid(new Rectangular_grid(space_charge.get_domain_sptr()));
-    std::vector<int > shape(space_charge.get_domain_sptr()->get_grid_shape()); 
+    std::vector<int > shape(space_charge.get_domain().get_grid_shape()); 
     
     MArray3d_ref rho(rho_grid->get_grid_points());
     for (unsigned int i = 0; i < shape[0]; ++i) {
@@ -231,7 +231,7 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
         }
    
  
-   std::vector<double > hi(space_charge.get_domain_sptr()->get_cell_size());
+   std::vector<double > hi(space_charge.get_domain().get_cell_size());
    
    space_charge.set_fftw_helper(bunch.get_comm());
    Distributed_rectangular_grid_sptr phi_local(space_charge.get_phi_local(*rho_grid, bunch));  
@@ -265,9 +265,9 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
    Rectangular_grid_sptr  Ex(space_charge.get_En(*phi_local, bunch, 0));
    Rectangular_grid_sptr  Ey(space_charge.get_En(*phi_local, bunch, 1)); 
    Rectangular_grid_sptr  Ez(space_charge.get_En(*phi_local, bunch, 2)); 
-   BOOST_CHECK_EQUAL(Ex->get_domain_sptr()->get_grid_shape()[0], space_charge.get_domain_sptr()->get_grid_shape()[0]);
-   BOOST_CHECK_EQUAL(Ex->get_domain_sptr()->get_grid_shape()[1], space_charge.get_domain_sptr()->get_grid_shape()[1]);
-   BOOST_CHECK_EQUAL(Ex->get_domain_sptr()->get_grid_shape()[2], space_charge.get_domain_sptr()->get_grid_shape()[2]);
+   BOOST_CHECK_EQUAL(Ex->get_domain().get_grid_shape()[0], space_charge.get_domain().get_grid_shape()[0]);
+   BOOST_CHECK_EQUAL(Ex->get_domain().get_grid_shape()[1], space_charge.get_domain().get_grid_shape()[1]);
+   BOOST_CHECK_EQUAL(Ex->get_domain().get_grid_shape()[2], space_charge.get_domain().get_grid_shape()[2]);
    
    
    

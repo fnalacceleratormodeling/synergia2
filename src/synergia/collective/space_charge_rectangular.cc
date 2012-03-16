@@ -209,7 +209,7 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bu
 
 
     MArray3dc_ref rho_nmp_ref(reinterpret_cast<std::complex<double>*>(rho_nmp_local), boost::extents[local_nx][shape[1]][shape[2]/2+1]);
-    std::vector<double > pipe_size(rho.get_domain_sptr()->get_physical_size());
+    std::vector<double > pipe_size(rho.get_domain().get_physical_size());
     for (int n=0; n < local_nx; ++n){
          int nt=n+1+local_x_start;
          for (int m=0; m< shape[1]; ++m){
@@ -257,7 +257,7 @@ Space_charge_rectangular::fill_guards_pplanes(Distributed_rectangular_grid & phi
 
     int size=comm_f.get_size();
     int lrank=comm_f.get_rank();
-    std::vector<int > shape_phi(phi.get_domain_sptr()->get_grid_shape());
+    std::vector<int > shape_phi(phi.get_domain().get_grid_shape());
     int message_size = shape_phi[1] * shape_phi[2];
     int shapex=upper-lower;
 
@@ -303,7 +303,7 @@ Space_charge_rectangular::get_En(Distributed_rectangular_grid &phi, Bunch const&
     t = simple_timer_current();
 
 
-    std::vector<int > shape_phi(phi.get_domain_sptr()->get_grid_shape());
+    std::vector<int > shape_phi(phi.get_domain().get_grid_shape());
     MArray3d E_local(boost::extents[shape_phi[0]][shape_phi[1]][shape_phi[2]]);
     std::vector<double > hi(domain_sptr->get_cell_size());
     double h(hi[component]);

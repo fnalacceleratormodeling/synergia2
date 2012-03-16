@@ -88,6 +88,11 @@ public:
     set_fixed_domain(Rectangular_grid_domain_sptr domain_sptr);
     void
     update_domain(Bunch const& bunch);
+    Rectangular_grid_domain const&
+    get_domain() const
+    {
+        return *domain_sptr;
+    }
     Rectangular_grid_domain_sptr
     get_domain_sptr() const;
     Rectangular_grid_domain_sptr

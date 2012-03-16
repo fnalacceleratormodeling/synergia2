@@ -30,7 +30,7 @@ get_uniform_cylindrical_rho2(Space_charge_2d_open_hockney & space_charge,
 
     Distributed_rectangular_grid_sptr rho2 =
             space_charge.get_global_charge_density2(*local_rho); // [C/m^3]
-    std::vector<int > doubled_shape(rho2->get_domain_sptr()->get_grid_shape());
+    std::vector<int > doubled_shape(rho2->get_domain().get_grid_shape());
     for (int i = 0; i < doubled_shape[0]; ++i) {
         for (int j = 0; j < doubled_shape[1]; ++j) {
             rho2->get_grid_points_2dc()[i][j] = 0.0;
@@ -41,18 +41,18 @@ get_uniform_cylindrical_rho2(Space_charge_2d_open_hockney & space_charge,
     }
 
     std::vector<int > nondoubled_shape(
-            space_charge.get_domain_sptr()->get_grid_shape());
+            space_charge.get_domain().get_grid_shape());
     double lambda = bunch.get_real_num() * bunch.get_particle_charge()
             * pconstants::e / z_period;
     double Q = bunch.get_real_num() * bunch.get_particle_charge()
             * pconstants::e;
-    std::vector<double > h(rho2->get_domain_sptr()->get_cell_size());
+    std::vector<double > h(rho2->get_domain().get_cell_size());
     double factor = Q / bunch.get_total_num() / (h[0] * h[1] * h[2]);
     for (int i = 0; i < doubled_shape[0]; ++i) {
         for (int j = 0; j < doubled_shape[1]; ++j) {
             for (int k = 0; k < doubled_shape[2]; ++k) {
                 double x, y, z;
-                local_rho->get_domain_sptr()->get_cell_coordinates(i, j, k, x,
+                local_rho->get_domain().get_cell_coordinates(i, j, k, x,
                         y, z);
                 double r = std::sqrt(x * x + y * y);
                 double val = uniform_cylindrical_charge_density(lambda, r, r0);
@@ -82,7 +82,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho,
     double lambda = bunch.get_real_num() * bunch.get_particle_charge()
             * pconstants::e / z_period;
     std::vector<int > nondoubled_shape(
-            space_charge.get_domain_sptr()->get_grid_shape());
+            space_charge.get_domain().get_grid_shape());
     std::vector<int > doubled_shape(
              space_charge.get_doubled_domain_sptr()->get_grid_shape());
 
@@ -101,7 +101,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho,
 //                    int j = nondoubled_shape[1];
 //                    int k = nondoubled_shape[2];
                     double x, y, z;
-                    local_force2->get_domain_sptr()->get_cell_coordinates(i, j,
+                    local_force2->get_domain().get_cell_coordinates(i, j,
                             k, x, y, z);
                     double r = std::sqrt(x * x + y * y);
                     double var;
@@ -191,7 +191,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles,
     double lambda = bunch.get_real_num() * bunch.get_particle_charge()
             * pconstants::e / z_period;
     std::vector<int > nondoubled_shape(
-            space_charge.get_domain_sptr()->get_grid_shape());
+            space_charge.get_domain().get_grid_shape());
     std::vector<int > doubled_shape(
              space_charge.get_doubled_domain_sptr()->get_grid_shape());
 
@@ -210,7 +210,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles,
 //                    int j = nondoubled_shape[1];
 //                    int k = nondoubled_shape[2];
                     double x, y, z;
-                    local_force2->get_domain_sptr()->get_cell_coordinates(i, j,
+                    local_force2->get_domain().get_cell_coordinates(i, j,
                             k, x, y, z);
                     double r = std::sqrt(x * x + y * y);
                     double var;
@@ -297,7 +297,7 @@ BOOST_FIXTURE_TEST_CASE(get_global_force2_exact_rho,
         for (int i = local_force2->get_lower(); i < local_force2->get_upper();
                 ++i) {
             for (int j = 0; j
-                    < local_force2->get_domain_sptr()->get_grid_shape()[1];
+                    < local_force2->get_domain().get_grid_shape()[1];
                     ++j) {
                 // Fx
                 BOOST_CHECK_CLOSE(

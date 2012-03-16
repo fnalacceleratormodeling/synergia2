@@ -101,7 +101,7 @@ BOOST_FIXTURE_TEST_CASE(x_displaced_particle, Fixture)
     rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
             physical_offset, grid_shape, false));
     bunch.set_local_num(1);
-    bunch.get_local_particles()[0][0] = -rho_grid_sptr->get_domain_sptr()->get_cell_size()[0];
+    bunch.get_local_particles()[0][0] = -rho_grid_sptr->get_domain().get_cell_size()[0];
     bunch.get_local_particles()[0][2] = 0;
     bunch.get_local_particles()[0][4] = 0;
 
@@ -124,8 +124,8 @@ BOOST_FIXTURE_TEST_CASE(x_displaced_particle1, Fixture)
     rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
             physical_offset, grid_shape, false));
     bunch.set_local_num(1);
-    bunch.get_local_particles()[0][0] = -rho_grid_sptr->get_domain_sptr()->get_physical_size()[0]/2.
-        +rho_grid_sptr->get_domain_sptr()->get_cell_size()[0];
+    bunch.get_local_particles()[0][0] = -rho_grid_sptr->get_domain().get_physical_size()[0]/2.
+        +rho_grid_sptr->get_domain().get_cell_size()[0];
     bunch.get_local_particles()[0][2] = 0;
     bunch.get_local_particles()[0][4] = 0;
 
@@ -148,8 +148,8 @@ BOOST_FIXTURE_TEST_CASE(x_displaced_particle2, Fixture)
     rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
             physical_offset, grid_shape, false));
     bunch.set_local_num(1);
-    bunch.get_local_particles()[0][0] = -rho_grid_sptr->get_domain_sptr()->get_physical_size()[0]/2.
-        +rho_grid_sptr->get_domain_sptr()->get_cell_size()[0]*0.499;
+    bunch.get_local_particles()[0][0] = -rho_grid_sptr->get_domain().get_physical_size()[0]/2.
+        +rho_grid_sptr->get_domain().get_cell_size()[0]*0.499;
     bunch.get_local_particles()[0][2] = 0;
     bunch.get_local_particles()[0][4] = 0;
 
@@ -165,8 +165,8 @@ BOOST_FIXTURE_TEST_CASE(y_displaced_particle1, Fixture)
             physical_offset, grid_shape, false));
     bunch.set_local_num(1);
     bunch.get_local_particles()[0][0] = 0;
-    bunch.get_local_particles()[0][2] = -rho_grid_sptr->get_domain_sptr()->get_physical_size()[1]/2.
-        +rho_grid_sptr->get_domain_sptr()->get_cell_size()[1];
+    bunch.get_local_particles()[0][2] = -rho_grid_sptr->get_domain().get_physical_size()[1]/2.
+        +rho_grid_sptr->get_domain().get_cell_size()[1];
     bunch.get_local_particles()[0][4] = 0;
 
     deposit_charge_rectangular_xyz(*rho_grid_sptr, bunch);
@@ -189,8 +189,8 @@ BOOST_FIXTURE_TEST_CASE(y_displaced_particle2, Fixture)
             physical_offset, grid_shape, false));
     bunch.set_local_num(1);
     bunch.get_local_particles()[0][0] = 0;
-    bunch.get_local_particles()[0][2] = -rho_grid_sptr->get_domain_sptr()->get_physical_size()[1]/2.
-        +rho_grid_sptr->get_domain_sptr()->get_cell_size()[1]*0.4999;
+    bunch.get_local_particles()[0][2] = -rho_grid_sptr->get_domain().get_physical_size()[1]/2.
+        +rho_grid_sptr->get_domain().get_cell_size()[1]*0.4999;
     bunch.get_local_particles()[0][4] = 0;
 
     deposit_charge_rectangular_xyz(*rho_grid_sptr, bunch);
@@ -206,7 +206,7 @@ BOOST_FIXTURE_TEST_CASE(z_displaced_particle1, Fixture)
     bunch.set_local_num(1);
     bunch.get_local_particles()[0][0] = 0;
     bunch.get_local_particles()[0][2] =0;
-    bunch.get_local_particles()[0][4] = rho_grid_sptr->get_domain_sptr()->get_cell_size()[2]/2.;
+    bunch.get_local_particles()[0][4] = rho_grid_sptr->get_domain().get_cell_size()[2]/2.;
 
     deposit_charge_rectangular_xyz(*rho_grid_sptr, bunch);
 
@@ -229,8 +229,8 @@ BOOST_FIXTURE_TEST_CASE(z_displaced_particle2, Fixture)
     bunch.set_local_num(1);
     bunch.get_local_particles()[0][0] = 0;
     bunch.get_local_particles()[0][2] = 0;
-    bunch.get_local_particles()[0][4] = -rho_grid_sptr->get_domain_sptr()->get_physical_size()[2]/2.
-        +rho_grid_sptr->get_domain_sptr()->get_cell_size()[2]*0.4999;;
+    bunch.get_local_particles()[0][4] = -rho_grid_sptr->get_domain().get_physical_size()[2]/2.
+        +rho_grid_sptr->get_domain().get_cell_size()[2]*0.4999;;
 
     deposit_charge_rectangular_xyz(*rho_grid_sptr, bunch);
 
@@ -245,8 +245,8 @@ BOOST_FIXTURE_TEST_CASE(z_displaced_particle_periodic, Fixture)
     bunch.set_local_num(1);
     bunch.get_local_particles()[0][0] = 0;
     bunch.get_local_particles()[0][2] = 0;
-    bunch.get_local_particles()[0][4] = -rho_grid_sptr->get_domain_sptr()->get_physical_size()[2]/2.
-        +rho_grid_sptr->get_domain_sptr()->get_cell_size()[2]*0.5;;
+    bunch.get_local_particles()[0][4] = -rho_grid_sptr->get_domain().get_physical_size()[2]/2.
+        +rho_grid_sptr->get_domain().get_cell_size()[2]*0.5;;
 
     deposit_charge_rectangular_xyz(*rho_grid_sptr, bunch);
     
@@ -269,7 +269,7 @@ BOOST_FIXTURE_TEST_CASE(z_displaced_particle_periodic1, Fixture)
     bunch.set_local_num(1);
     bunch.get_local_particles()[0][0] = 0;
     bunch.get_local_particles()[0][2] = 0;
-    bunch.get_local_particles()[0][4] = -rho_grid_sptr->get_domain_sptr()->get_physical_size()[2]/2.;
+    bunch.get_local_particles()[0][4] = -rho_grid_sptr->get_domain().get_physical_size()[2]/2.;
       
 
     deposit_charge_rectangular_xyz(*rho_grid_sptr, bunch);
@@ -291,9 +291,9 @@ BOOST_FIXTURE_TEST_CASE(yz_displaced_particle_periodic, Fixture)
             physical_offset, grid_shape, true));
     bunch.set_local_num(1);
     bunch.get_local_particles()[0][0] = 0;
-    bunch.get_local_particles()[0][2] = -rho_grid_sptr->get_domain_sptr()->get_physical_size()[1]/2.
-        +rho_grid_sptr->get_domain_sptr()->get_cell_size()[1];
-    bunch.get_local_particles()[0][4] = -rho_grid_sptr->get_domain_sptr()->get_physical_size()[2]/2.;
+    bunch.get_local_particles()[0][2] = -rho_grid_sptr->get_domain().get_physical_size()[1]/2.
+        +rho_grid_sptr->get_domain().get_cell_size()[1];
+    bunch.get_local_particles()[0][4] = -rho_grid_sptr->get_domain().get_physical_size()[2]/2.;
       
 
     deposit_charge_rectangular_xyz(*rho_grid_sptr, bunch);
@@ -316,9 +316,9 @@ BOOST_FIXTURE_TEST_CASE(yz_displaced_particle_periodic1, Fixture)
             physical_offset, grid_shape, true));
     bunch.set_local_num(1);
     bunch.get_local_particles()[0][0] = 0;
-    bunch.get_local_particles()[0][2] = -rho_grid_sptr->get_domain_sptr()->get_physical_size()[1]/2.
-        +rho_grid_sptr->get_domain_sptr()->get_cell_size()[1];
-    bunch.get_local_particles()[0][4] = -rho_grid_sptr->get_domain_sptr()->get_physical_size()[2]/2.-8*rho_grid_sptr->get_domain_sptr()->get_cell_size()[2];
+    bunch.get_local_particles()[0][2] = -rho_grid_sptr->get_domain().get_physical_size()[1]/2.
+        +rho_grid_sptr->get_domain().get_cell_size()[1];
+    bunch.get_local_particles()[0][4] = -rho_grid_sptr->get_domain().get_physical_size()[2]/2.-8*rho_grid_sptr->get_domain().get_cell_size()[2];
       
 
     deposit_charge_rectangular_xyz(*rho_grid_sptr, bunch);

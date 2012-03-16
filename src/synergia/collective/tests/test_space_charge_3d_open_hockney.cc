@@ -211,26 +211,26 @@ BOOST_FIXTURE_TEST_CASE(get_domain, Ellipsoidal_bunch_fixture)
 {
     Space_charge_3d_open_hockney space_charge(comm, grid_shape);
     space_charge.update_domain(bunch);
-    BOOST_CHECK_CLOSE(space_charge.get_domain_sptr()->get_physical_size()[0],
+    BOOST_CHECK_CLOSE(space_charge.get_domain().get_physical_size()[0],
             space_charge.get_n_sigma() * stdz, tolerance);
-    BOOST_CHECK_CLOSE(space_charge.get_domain_sptr()->get_physical_size()[1],
+    BOOST_CHECK_CLOSE(space_charge.get_domain().get_physical_size()[1],
             space_charge.get_n_sigma() * stdy, tolerance);
-    BOOST_CHECK_CLOSE(space_charge.get_domain_sptr()->get_physical_size()[2],
+    BOOST_CHECK_CLOSE(space_charge.get_domain().get_physical_size()[2],
             space_charge.get_n_sigma() * stdx, tolerance);
     BOOST_CHECK(floating_point_equal(
-                    space_charge.get_domain_sptr()->get_physical_offset()[0],
+                    space_charge.get_domain().get_physical_offset()[0],
                     0.0, tolerance));
     BOOST_CHECK(floating_point_equal(
-                    space_charge.get_domain_sptr()->get_physical_offset()[1],
+                    space_charge.get_domain().get_physical_offset()[1],
                     0.0, tolerance));
     BOOST_CHECK(floating_point_equal(
-                    space_charge.get_domain_sptr()->get_physical_offset()[2],
+                    space_charge.get_domain().get_physical_offset()[2],
                     0.0, tolerance));
-    BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_grid_shape()[0],
+    BOOST_CHECK_EQUAL(space_charge.get_domain().get_grid_shape()[0],
             grid_shape[2]);
-    BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_grid_shape()[1],
+    BOOST_CHECK_EQUAL(space_charge.get_domain().get_grid_shape()[1],
             grid_shape[1]);
-    BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_grid_shape()[2],
+    BOOST_CHECK_EQUAL(space_charge.get_domain().get_grid_shape()[2],
             grid_shape[0]);
 }
 
@@ -291,50 +291,50 @@ BOOST_FIXTURE_TEST_CASE(set_fixed_domain, Ellipsoidal_bunch_fixture)
                             domain_sptr->get_grid_shape(),
                             domain_sptr->is_periodic()));
     space_charge.set_fixed_domain(new_domain_sptr);
-    BOOST_CHECK_CLOSE(space_charge.get_domain_sptr()->get_physical_size()[0],
+    BOOST_CHECK_CLOSE(space_charge.get_domain().get_physical_size()[0],
             scaled_size[0], tolerance);
-    BOOST_CHECK_CLOSE(space_charge.get_domain_sptr()->get_physical_size()[1],
+    BOOST_CHECK_CLOSE(space_charge.get_domain().get_physical_size()[1],
             scaled_size[1], tolerance);
-    BOOST_CHECK_CLOSE(space_charge.get_domain_sptr()->get_physical_size()[2],
+    BOOST_CHECK_CLOSE(space_charge.get_domain().get_physical_size()[2],
             scaled_size[2], tolerance);
     BOOST_CHECK(floating_point_equal(
-                    space_charge.get_domain_sptr()->get_physical_offset()[0],
+                    space_charge.get_domain().get_physical_offset()[0],
                     shifted_offset[0], tolerance));
     BOOST_CHECK(floating_point_equal(
-                    space_charge.get_domain_sptr()->get_physical_offset()[1],
+                    space_charge.get_domain().get_physical_offset()[1],
                     shifted_offset[1], tolerance));
     BOOST_CHECK(floating_point_equal(
-                    space_charge.get_domain_sptr()->get_physical_offset()[2],
+                    space_charge.get_domain().get_physical_offset()[2],
                     shifted_offset[2], tolerance));
-    BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_grid_shape()[0],
+    BOOST_CHECK_EQUAL(space_charge.get_domain().get_grid_shape()[0],
             grid_shape[2]);
-    BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_grid_shape()[1],
+    BOOST_CHECK_EQUAL(space_charge.get_domain().get_grid_shape()[1],
             grid_shape[1]);
-    BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_grid_shape()[2],
+    BOOST_CHECK_EQUAL(space_charge.get_domain().get_grid_shape()[2],
             grid_shape[0]);
 
     // make sure that update domain has no effect
     space_charge.update_domain(bunch);
-    BOOST_CHECK_CLOSE(space_charge.get_domain_sptr()->get_physical_size()[0],
+    BOOST_CHECK_CLOSE(space_charge.get_domain().get_physical_size()[0],
             scaled_size[0], tolerance);
-    BOOST_CHECK_CLOSE(space_charge.get_domain_sptr()->get_physical_size()[1],
+    BOOST_CHECK_CLOSE(space_charge.get_domain().get_physical_size()[1],
             scaled_size[1], tolerance);
-    BOOST_CHECK_CLOSE(space_charge.get_domain_sptr()->get_physical_size()[2],
+    BOOST_CHECK_CLOSE(space_charge.get_domain().get_physical_size()[2],
             scaled_size[2], tolerance);
     BOOST_CHECK(floating_point_equal(
-                    space_charge.get_domain_sptr()->get_physical_offset()[0],
+                    space_charge.get_domain().get_physical_offset()[0],
                     shifted_offset[0], tolerance));
     BOOST_CHECK(floating_point_equal(
-                    space_charge.get_domain_sptr()->get_physical_offset()[1],
+                    space_charge.get_domain().get_physical_offset()[1],
                     shifted_offset[1], tolerance));
     BOOST_CHECK(floating_point_equal(
-                    space_charge.get_domain_sptr()->get_physical_offset()[2],
+                    space_charge.get_domain().get_physical_offset()[2],
                     shifted_offset[2], tolerance));
-    BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_grid_shape()[0],
+    BOOST_CHECK_EQUAL(space_charge.get_domain().get_grid_shape()[0],
             grid_shape[2]);
-    BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_grid_shape()[1],
+    BOOST_CHECK_EQUAL(space_charge.get_domain().get_grid_shape()[1],
             grid_shape[1]);
-    BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_grid_shape()[2],
+    BOOST_CHECK_EQUAL(space_charge.get_domain().get_grid_shape()[2],
             grid_shape[0]);
 }
 
@@ -451,13 +451,13 @@ BOOST_FIXTURE_TEST_CASE(get_global_charge_density2_reduce_scatter,
     Distributed_rectangular_grid_sptr rho2 =
             space_charge.get_global_charge_density2_reduce_scatter(*local_rho, comm); // [C/m^3]
     std::vector<int > nondoubled_shape(
-            local_rho->get_domain_sptr()->get_grid_shape());
-    std::vector<int > doubled_shape(rho2->get_domain_sptr()->get_grid_shape());
-    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[0],
+            local_rho->get_domain().get_grid_shape());
+    std::vector<int > doubled_shape(rho2->get_domain().get_grid_shape());
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain().get_grid_shape()[0],
             doubled_shape[0]);
-    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[1],
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain().get_grid_shape()[1],
             doubled_shape[1]);
-    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[2],
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain().get_grid_shape()[2],
             doubled_shape[2]);
     for (int i = 0; i < doubled_shape[0]; ++i) {
         for (int j = 0; j < doubled_shape[1]; ++j) {
@@ -483,13 +483,13 @@ BOOST_FIXTURE_TEST_CASE(get_global_charge_density2_allreduce,
     Distributed_rectangular_grid_sptr rho2 =
             space_charge.get_global_charge_density2_allreduce(*local_rho, comm); // [C/m^3]
     std::vector<int > nondoubled_shape(
-            local_rho->get_domain_sptr()->get_grid_shape());
-    std::vector<int > doubled_shape(rho2->get_domain_sptr()->get_grid_shape());
-    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[0],
+            local_rho->get_domain().get_grid_shape());
+    std::vector<int > doubled_shape(rho2->get_domain().get_grid_shape());
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain().get_grid_shape()[0],
             doubled_shape[0]);
-    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[1],
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain().get_grid_shape()[1],
             doubled_shape[1]);
-    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[2],
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain().get_grid_shape()[2],
             doubled_shape[2]);
     for (int i = 0; i < doubled_shape[0]; ++i) {
         for (int j = 0; j < doubled_shape[1]; ++j) {
@@ -514,13 +514,13 @@ BOOST_FIXTURE_TEST_CASE(get_global_charge_density2, Ellipsoidal_bunch_fixture)
     Distributed_rectangular_grid_sptr rho2 =
             space_charge.get_global_charge_density2(*local_rho, comm); // [C/m^3]
     std::vector<int > nondoubled_shape(
-            local_rho->get_domain_sptr()->get_grid_shape());
-    std::vector<int > doubled_shape(rho2->get_domain_sptr()->get_grid_shape());
-    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[0],
+            local_rho->get_domain().get_grid_shape());
+    std::vector<int > doubled_shape(rho2->get_domain().get_grid_shape());
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain().get_grid_shape()[0],
             doubled_shape[0]);
-    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[1],
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain().get_grid_shape()[1],
             doubled_shape[1]);
-    BOOST_CHECK_EQUAL(2*local_rho->get_domain_sptr()->get_grid_shape()[2],
+    BOOST_CHECK_EQUAL(2*local_rho->get_domain().get_grid_shape()[2],
             doubled_shape[2]);
     for (int i = 0; i < doubled_shape[0]; ++i) {
         for (int j = 0; j < doubled_shape[1]; ++j) {
@@ -549,28 +549,28 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_pointlike, Ellipsoidal_bunch_fixture)
     double dz, dy, dx;
     const double coeff = 2.8;
     double G000 = coeff / std::min(
-            G2->get_domain_sptr()->get_cell_size()[0],
-            std::min(G2->get_domain_sptr()->get_cell_size()[1],
-                    G2->get_domain_sptr()->get_cell_size()[2]));
+            G2->get_domain().get_cell_size()[0],
+            std::min(G2->get_domain().get_cell_size()[1],
+                    G2->get_domain().get_cell_size()[2]));
 
     int i_max = std::min(G2->get_upper(),
-            G2->get_domain_sptr()->get_grid_shape()[0] / 2);
+            G2->get_domain().get_grid_shape()[0] / 2);
     for (int i = G2->get_lower(); i < i_max; ++i) {
-        dz = i * G2->get_domain_sptr()->get_cell_size()[0];
-        imirror = G2->get_domain_sptr()->get_grid_shape()[0] - i;
-        if (imirror == G2->get_domain_sptr()->get_grid_shape()[0]) {
+        dz = i * G2->get_domain().get_cell_size()[0];
+        imirror = G2->get_domain().get_grid_shape()[0] - i;
+        if (imirror == G2->get_domain().get_grid_shape()[0]) {
             imirror = i;
         }
-        for (int j = 0; j < G2->get_domain_sptr()->get_grid_shape()[1] / 2; ++j) {
-            dy = j * G2->get_domain_sptr()->get_cell_size()[1];
-            jmirror = G2->get_domain_sptr()->get_grid_shape()[1] - j;
-            if (jmirror == G2->get_domain_sptr()->get_grid_shape()[1]) {
+        for (int j = 0; j < G2->get_domain().get_grid_shape()[1] / 2; ++j) {
+            dy = j * G2->get_domain().get_cell_size()[1];
+            jmirror = G2->get_domain().get_grid_shape()[1] - j;
+            if (jmirror == G2->get_domain().get_grid_shape()[1]) {
                 jmirror = j;
             }
-            for (int k = 0; k < G2->get_domain_sptr()->get_grid_shape()[2] / 2; ++k) {
-                dx = k * G2->get_domain_sptr()->get_cell_size()[2];
-                kmirror = G2->get_domain_sptr()->get_grid_shape()[2] - k;
-                if (kmirror == G2->get_domain_sptr()->get_grid_shape()[2]) {
+            for (int k = 0; k < G2->get_domain().get_grid_shape()[2] / 2; ++k) {
+                dx = k * G2->get_domain().get_cell_size()[2];
+                kmirror = G2->get_domain().get_grid_shape()[2] - k;
+                if (kmirror == G2->get_domain().get_grid_shape()[2]) {
                     kmirror = k;
                 }
                 double G;
@@ -606,28 +606,28 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_pointlike_periodic, Ellipsoidal_bunch_fixt
     double dz, dy, dx;
     const double coeff = 2.8;
     double G000 = coeff / std::min(
-            G2->get_domain_sptr()->get_cell_size()[0],
-            std::min(G2->get_domain_sptr()->get_cell_size()[1],
-                    G2->get_domain_sptr()->get_cell_size()[2]));
+            G2->get_domain().get_cell_size()[0],
+            std::min(G2->get_domain().get_cell_size()[1],
+                    G2->get_domain().get_cell_size()[2]));
     const int num_images = 8;
     int i_max = std::min(G2->get_upper(),
-            G2->get_domain_sptr()->get_grid_shape()[0] / 2);
+            G2->get_domain().get_grid_shape()[0] / 2);
     for (int i = G2->get_lower(); i < i_max; ++i) {
-        dz = i * G2->get_domain_sptr()->get_cell_size()[0];
-        imirror = G2->get_domain_sptr()->get_grid_shape()[0] - i;
-        if (imirror == G2->get_domain_sptr()->get_grid_shape()[0]) {
+        dz = i * G2->get_domain().get_cell_size()[0];
+        imirror = G2->get_domain().get_grid_shape()[0] - i;
+        if (imirror == G2->get_domain().get_grid_shape()[0]) {
             imirror = i;
         }
-        for (int j = 0; j < G2->get_domain_sptr()->get_grid_shape()[1] / 2; ++j) {
-            dy = j * G2->get_domain_sptr()->get_cell_size()[1];
-            jmirror = G2->get_domain_sptr()->get_grid_shape()[1] - j;
-            if (jmirror == G2->get_domain_sptr()->get_grid_shape()[1]) {
+        for (int j = 0; j < G2->get_domain().get_grid_shape()[1] / 2; ++j) {
+            dy = j * G2->get_domain().get_cell_size()[1];
+            jmirror = G2->get_domain().get_grid_shape()[1] - j;
+            if (jmirror == G2->get_domain().get_grid_shape()[1]) {
                 jmirror = j;
             }
-            for (int k = 0; k < G2->get_domain_sptr()->get_grid_shape()[2] / 2; ++k) {
-                dx = k * G2->get_domain_sptr()->get_cell_size()[2];
-                kmirror = G2->get_domain_sptr()->get_grid_shape()[2] - k;
-                if (kmirror == G2->get_domain_sptr()->get_grid_shape()[2]) {
+            for (int k = 0; k < G2->get_domain().get_grid_shape()[2] / 2; ++k) {
+                dx = k * G2->get_domain().get_cell_size()[2];
+                kmirror = G2->get_domain().get_grid_shape()[2] - k;
+                if (kmirror == G2->get_domain().get_grid_shape()[2]) {
                     kmirror = k;
                 }
                 double G;

@@ -54,14 +54,14 @@ BOOST_FIXTURE_TEST_CASE(periodic_true, Rectangular_grid_domain_fixture)
 {
     Distributed_rectangular_grid distributed_rectangular_grid(physical_size,
             physical_offset, grid_shape, true, 0, grid_size0, Commxx());
-    BOOST_CHECK_EQUAL(distributed_rectangular_grid.get_domain_sptr()->is_periodic(), true);
+    BOOST_CHECK_EQUAL(distributed_rectangular_grid.get_domain().is_periodic(), true);
 }
 
 BOOST_FIXTURE_TEST_CASE(periodic_false, Rectangular_grid_domain_fixture)
 {
     Distributed_rectangular_grid distributed_rectangular_grid(physical_size,
             physical_offset, grid_shape, false, 0, grid_size0, Commxx());
-    BOOST_CHECK_EQUAL(distributed_rectangular_grid.get_domain_sptr()->is_periodic(), false);
+    BOOST_CHECK_EQUAL(distributed_rectangular_grid.get_domain().is_periodic(), false);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_lower, Rectangular_grid_domain_fixture)

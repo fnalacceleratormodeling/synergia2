@@ -9,9 +9,9 @@
 void
 set_grid_constant(Rectangular_grid & grid, double val)
 {
-    for (int i = 0; i < grid.get_domain_sptr()->get_grid_shape()[0]; ++i) {
-        for (int j = 0; j < grid.get_domain_sptr()->get_grid_shape()[1]; ++j) {
-            for (int k = 0; k < grid.get_domain_sptr()->get_grid_shape()[2]; ++k) {
+    for (int i = 0; i < grid.get_domain().get_grid_shape()[0]; ++i) {
+        for (int j = 0; j < grid.get_domain().get_grid_shape()[1]; ++j) {
+            for (int k = 0; k < grid.get_domain().get_grid_shape()[2]; ++k) {
                 grid.get_grid_points()[i][j][k] = val;
             }
         }
@@ -34,13 +34,13 @@ BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_basic)
     grid_shape[2] = 4;
 
     Rectangular_grid grid(physical_size, physical_offset, grid_shape, false);
-    std::vector<double > cell_size(grid.get_domain_sptr()->get_cell_size());
+    std::vector<double > cell_size(grid.get_domain().get_cell_size());
 
     double z_left, y_left, x_left;
-    grid.get_domain_sptr()->get_cell_coordinates(0, 0, 0, z_left, y_left,
+    grid.get_domain().get_cell_coordinates(0, 0, 0, z_left, y_left,
             x_left);
     double z_right, y_right, x_right;
-    grid.get_domain_sptr()->get_cell_coordinates(1, 1, 1, z_right, y_right,
+    grid.get_domain().get_cell_coordinates(1, 1, 1, z_right, y_right,
             x_right);
     double left_val = 2.0;
     double right_val = 10.0;
@@ -168,7 +168,7 @@ BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_gaussian)
         for (int j = 0; j < grid_shape[1]; ++j) {
             for (int k = 0; k < grid_shape[2]; ++k) {
                 double z, y, x;
-                grid.get_domain_sptr()->get_cell_coordinates(i, j, k, z, y, x);
+                grid.get_domain().get_cell_coordinates(i, j, k, z, y, x);
                 double r = std::sqrt(z * z + y * y + x * x);
                 grid.get_grid_points()[i][j][k]
                         = gaussian_electric_field_component(Q, r, sigma, x);
@@ -176,13 +176,13 @@ BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_gaussian)
         }
     }
 
-    std::vector<double > cell_size(grid.get_domain_sptr()->get_cell_size());
+    std::vector<double > cell_size(grid.get_domain().get_cell_size());
 
     double z_left, y_left, x_left;
-    grid.get_domain_sptr()->get_cell_coordinates(8, 8, 8, z_left, y_left,
+    grid.get_domain().get_cell_coordinates(8, 8, 8, z_left, y_left,
             x_left);
     double z_right, y_right, x_right;
-    grid.get_domain_sptr()->get_cell_coordinates(9, 9, 9, z_right, y_right,
+    grid.get_domain().get_cell_coordinates(9, 9, 9, z_right, y_right,
             x_right);
 
     const int num_steps = 4;
