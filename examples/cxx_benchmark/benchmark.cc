@@ -48,13 +48,12 @@ run(Benchmark_options const& opts)
     }
     Commxx * sc_comm;
     if (opts.avoid) {
-      sc_comm = new Commxx_per_host;
+        sc_comm = new Commxx_per_host;
     } else {
-      sc_comm = new Commxx;
+        sc_comm = new Commxx;
     }
-    Space_charge_3d_open_hockney_sptr space_charge_sptr(new 
-							Space_charge_3d_open_hockney(*sc_comm,
-										     grid_shape));
+    Space_charge_3d_open_hockney_sptr space_charge_sptr(
+            new Space_charge_3d_open_hockney(*sc_comm, grid_shape));
     if (opts.autotune) {
         space_charge_sptr->auto_tune_comm(true);
     } else {
@@ -65,20 +64,24 @@ run(Benchmark_options const& opts)
         }
         if (opts.efieldcomm > 0) {
             space_charge_sptr->set_e_field_comm(
-                    Space_charge_3d_open_hockney::E_field_comm(opts.efieldcomm));
+                    Space_charge_3d_open_hockney::E_field_comm(
+                            opts.efieldcomm));
         }
     }
     if (opts.avoid) {
-        space_charge_sptr->set_charge_density_comm(Space_charge_3d_open_hockney::charge_allreduce);
+        space_charge_sptr->set_charge_density_comm(
+                Space_charge_3d_open_hockney::charge_allreduce);
     }
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-    Split_operator_stepper_sptr stepper_sptr(new Split_operator_stepper(
-            lattice_simulator, space_charge_sptr, num_steps));
+    Split_operator_stepper_sptr stepper_sptr(
+            new Split_operator_stepper(lattice_simulator, space_charge_sptr,
+                    num_steps));
     Propagator propagator(stepper_sptr);
 
     Commxx comm(MPI_COMM_WORLD);
-    Bunch_sptr bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(),
-            num_macro_particles, num_real_particles, comm));
+    Bunch_sptr bunch_sptr(
+            new Bunch(lattice_sptr->get_reference_particle(),
+                    num_macro_particles, num_real_particles, comm));
     Random_distribution distribution(seed, comm);
     MArray1d means;
     xml_load(means, "cxx_means.xml");
@@ -91,18 +94,20 @@ run(Benchmark_options const& opts)
     bunch_sptr->set_sort_period(opts.sortperiod);
 
     Bunch_simulator bunch_simulator(bunch_sptr);
-    bunch_simulator.get_diagnostics_actions().add_per_step(
-            Diagnostics_sptr(
-                    new Diagnostics_basic("cxx_example_per_step.h5")));
-    bunch_simulator.get_diagnostics_actions().add_per_turn(
-            Diagnostics_sptr(
-                    new Diagnostics_full2("cxx_example_per_turn.h5")));
+    if (opts.diagnostics) {
+        bunch_simulator.get_diagnostics_actions().add_per_step(
+                Diagnostics_sptr(
+                        new Diagnostics_basic("cxx_example_per_step.h5")));
+        bunch_simulator.get_diagnostics_actions().add_per_turn(
+                Diagnostics_sptr(
+                        new Diagnostics_full2("cxx_example_per_turn.h5")));
+    }
     double t0 = MPI_Wtime();
     const int max_turns = 0;
     propagator.propagate(bunch_simulator, num_turns, max_turns, opts.verbosity);
     double t1 = MPI_Wtime();
     if (comm.get_rank() == 0) {
-      std::cout << "propagate time = " << (t1-t0) << std::endl;
+        std::cout << "propagate time = " << (t1 - t0) << std::endl;
     }
     delete sc_comm;
 }

@@ -18,6 +18,7 @@ struct Benchmark_options
     bool autotune;
     int efieldcomm;
     int chargecomm;
+    bool diagnostics;
     int sortperiod;
 };
 #endif /* BENCHMARK_OPTIONS_H_ */

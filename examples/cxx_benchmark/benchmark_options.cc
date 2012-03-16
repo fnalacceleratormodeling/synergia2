@@ -15,6 +15,7 @@ Benchmark_options::Benchmark_options(int argc, char **argv) :
     autotune(true),
     efieldcomm(0),
     chargecomm(0),
+    diagnostics(false),
     sortperiod(1000)
 {
     for (int i = 1; i < argc; ++i) {
@@ -38,6 +39,8 @@ Benchmark_options::Benchmark_options(int argc, char **argv) :
                 efieldcomm = arg.extract_value<int >();
             } else if (arg.get_lhs() == "chargecomm") {
                 chargecomm = arg.extract_value<int >();
+            } else if (arg.get_lhs() == "diagnostics") {
+                diagnostics = arg.extract_value<bool >();
             } else if (arg.get_lhs() == "sortperiod") {
                 sortperiod = arg.extract_value<int >();
             } else if (arg.get_lhs() == "synergia_executable") {
