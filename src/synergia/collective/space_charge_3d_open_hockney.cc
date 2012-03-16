@@ -223,6 +223,7 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
 {
     bool output = verbose && (comm2.get_rank() == 0);
     double t0, t1;
+    const int repetitions = 3;
 
     std::vector<double > size(3), offset(3);
     size[0] = size[1] = size[2] = 1.0;
@@ -237,14 +238,17 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_charge_density2_reduce_scatter\n";
     }
-    MPI_Barrier(comm2.get());
-    t0 = MPI_Wtime();
-    get_global_charge_density2_reduce_scatter(fake_local_charge_density, comm2);
-    MPI_Barrier(comm2.get());
-    t1 = MPI_Wtime();
-    if (output) {
-        std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: time = "
-                << t1 - t0 << " seconds\n";
+    for (int i = 0; i < repetitions; ++i) {
+        MPI_Barrier(comm2.get());
+        t0 = MPI_Wtime();
+        get_global_charge_density2_reduce_scatter(fake_local_charge_density,
+                comm2);
+        MPI_Barrier(comm2.get());
+        t1 = MPI_Wtime();
+        if (output) {
+            std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: rep = "
+                    << i << ", time = " << t1 - t0 << " seconds\n";
+        }
     }
     double best_time = t1 - t0;
     charge_density_comm = reduce_scatter;
@@ -253,14 +257,16 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_charge_density2_allreduce\n";
     }
-    MPI_Barrier(comm2.get());
-    t0 = MPI_Wtime();
-    get_global_charge_density2_allreduce(fake_local_charge_density, comm2);
-    MPI_Barrier(comm2.get());
-    t1 = MPI_Wtime();
-    if (output) {
-        std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: time = "
-                << t1 - t0 << " seconds\n";
+    for (int i = 0; i < repetitions; ++i) {
+        MPI_Barrier(comm2.get());
+        t0 = MPI_Wtime();
+        get_global_charge_density2_allreduce(fake_local_charge_density, comm2);
+        MPI_Barrier(comm2.get());
+        t1 = MPI_Wtime();
+        if (output) {
+            std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: rep = "
+                    << i << ", time = " << t1 - t0 << " seconds\n";
+        }
     }
     if ((t1 - t0) < best_time) {
         charge_density_comm = charge_allreduce;
@@ -272,14 +278,16 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_electric_field_component_gatherv_bcast\n";
     }
-    MPI_Barrier(comm2.get());
-    t0 = MPI_Wtime();
-    get_global_electric_field_component_gatherv_bcast(fake_local_e_field);
-    MPI_Barrier(comm2.get());
-    t1 = MPI_Wtime();
-    if (output) {
-        std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: time = "
-                << t1 - t0 << " seconds\n";
+    for (int i = 0; i < repetitions; ++i) {
+        MPI_Barrier(comm2.get());
+        t0 = MPI_Wtime();
+        get_global_electric_field_component_gatherv_bcast(fake_local_e_field);
+        MPI_Barrier(comm2.get());
+        t1 = MPI_Wtime();
+        if (output) {
+            std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: rep = "
+                    << i << ", time = " << t1 - t0 << " seconds\n";
+        }
     }
     best_time = t1 - t0;
     e_field_comm = gatherv_bcast;
@@ -288,14 +296,17 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_electric_field_component_allgatherv\n";
     }
-    MPI_Barrier(comm2.get());
-    t0 = MPI_Wtime();
-    get_global_electric_field_component_allgatherv(fake_local_e_field);
-    MPI_Barrier(comm2.get());
-    t1 = MPI_Wtime();
-    if (output) {
-        std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: time = "
-                << t1 - t0 << " seconds\n";
+    for (int i = 0; i < repetitions; ++i) {
+
+        MPI_Barrier(comm2.get());
+        t0 = MPI_Wtime();
+        get_global_electric_field_component_allgatherv(fake_local_e_field);
+        MPI_Barrier(comm2.get());
+        t1 = MPI_Wtime();
+        if (output) {
+            std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: rep = "
+                    << i << ", time = " << t1 - t0 << " seconds\n";
+        }
     }
     if ((t1 - t0) < best_time) {
         best_time = t1 - t0;
@@ -306,18 +317,23 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_electric_field_component_allreduce\n";
     }
-    MPI_Barrier(comm2.get());
-    t0 = MPI_Wtime();
-    get_global_electric_field_component_allreduce(fake_local_e_field);
-    MPI_Barrier(comm2.get());
-    t1 = MPI_Wtime();
-    if (output) {
-        std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: time = "
-                << t1 - t0 << " seconds\n";
+    for (int i = 0; i < repetitions; ++i) {
+        MPI_Barrier(comm2.get());
+        t0 = MPI_Wtime();
+        get_global_electric_field_component_allreduce(fake_local_e_field);
+        MPI_Barrier(comm2.get());
+        t1 = MPI_Wtime();
+        if (output) {
+            std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: rep = "
+                    << i << ", time = " << t1 - t0 << " seconds\n";
+        }
     }
     if ((t1 - t0) < best_time) {
         e_field_comm = e_field_allreduce;
     }
+
+    MPI_Bcast(&charge_density_comm, 1, MPI_INT, 0, comm2.get());
+    MPI_Bcast(&e_field_comm, 1, MPI_INT, 0, comm2.get());
 
     if (output) {
         std::cout
@@ -326,7 +342,7 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
                 << "Space_charge_3d_open_hockney::auto_tune_comm: selected e_field_comm = "
                 << e_field_comm << std::endl;
     }
-    // this would be unset_fixed_domain(), if such a method existed
+// this would be unset_fixed_domain(), if such a method existed
     domain_fixed = false;
     have_domains = false;
     this->domain_sptr.reset();
@@ -450,16 +466,16 @@ Distributed_rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_global_charge_density2_reduce_scatter(
         Rectangular_grid const& local_charge_density, Commxx const& comm)
 {
-    // jfa: here is where we do something complicated, but (potentially) efficient
-    // in calculating a version of the charge density that is just global enough
-    // to fill in the doubled global charge density
+// jfa: here is where we do something complicated, but (potentially) efficient
+// in calculating a version of the charge density that is just global enough
+// to fill in the doubled global charge density
 
     const double * source = local_charge_density.get_grid_points().origin();
 
     double * dest;
-    // dest_array stores the portion of global charge density needed on each
-    // processor. It has to have the same shape in the non-distributed dimensions
-    // as the charge density in order to work with MPI_Reduce_scatter.
+// dest_array stores the portion of global charge density needed on each
+// processor. It has to have the same shape in the non-distributed dimensions
+// as the charge density in order to work with MPI_Reduce_scatter.
     MArray3d dest_array(boost::extents[1][1][1]);
     if (real_length > 0) {
         dest_array.resize(
@@ -560,18 +576,18 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
     double hy = domain_sptr->get_cell_size()[1];
     double hz = domain_sptr->get_cell_size()[0];
 
-    // G000 is naively infinite. In the correct approach, it should be
-    // the value which gives the proper integral when convolved with the
-    // charge density. Even assuming a constant charge density, the proper
-    // value for G000 cannot be computed in closed form. Fortunately,
-    // the solver results are insensitive to the exact value of G000.
-    // I make the following argument: G000 should be greater than any of
-    // the neighboring values of G. The form
-    //    G000 = coeff/min(hx,hy,hz),
-    // with
-    //    coeff > 1
-    // satisfies the criterion. An empirical study (see the 3d_open_hockney.py
-    // script in docs/devel/solvers) gives coeff = 2.8.
+// G000 is naively infinite. In the correct approach, it should be
+// the value which gives the proper integral when convolved with the
+// charge density. Even assuming a constant charge density, the proper
+// value for G000 cannot be computed in closed form. Fortunately,
+// the solver results are insensitive to the exact value of G000.
+// I make the following argument: G000 should be greater than any of
+// the neighboring values of G. The form
+//    G000 = coeff/min(hx,hy,hz),
+// with
+//    coeff > 1
+// satisfies the criterion. An empirical study (see the 3d_open_hockney.py
+// script in docs/devel/solvers) gives coeff = 2.8.
     const double coeff = 2.8;
     double G000 = coeff / std::min(hx, std::min(hy, hz));
 
@@ -579,12 +595,12 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
     int mix, miy; // mirror indices for x- and y-planes
     double dx, dy, dz, G;
 
-    // In the following loops we use mirroring for ix and iy, but
-    // calculate all iz values separately because the mirror points in
-    // iz may be on another processor.
-    // Note that the doubling algorithm is not quite symmetric. For
-    // example, the doubled grid for 4 points in 1d looks like
-    //    0 1 2 3 4 3 2 1
+// In the following loops we use mirroring for ix and iy, but
+// calculate all iz values separately because the mirror points in
+// iz may be on another processor.
+// Note that the doubling algorithm is not quite symmetric. For
+// example, the doubled grid for 4 points in 1d looks like
+//    0 1 2 3 4 3 2 1
     for (int iz = lower; iz < upper; ++iz) {
         if (iz > grid_shape[0]) {
             dz = (doubled_grid_shape[0] - iz) * hz;
@@ -1069,13 +1085,13 @@ void
 Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
         Rectangular_grid const& En, double delta_t, int component)
 {
-    // $\delta \vec{p} = \vec{F} \delta t = q \vec{E} \delta t$
+// $\delta \vec{p} = \vec{F} \delta t = q \vec{E} \delta t$
     double q = bunch.get_particle_charge() * pconstants::e; // [C]
-    // delta_t_beam: [s] in beam frame
+// delta_t_beam: [s] in beam frame
     double delta_t_beam = delta_t / bunch.get_reference_particle().get_gamma();
-    // unit_conversion: [kg m/s] to [Gev/c]
+// unit_conversion: [kg m/s] to [Gev/c]
     double unit_conversion = pconstants::c / (1.0e9 * pconstants::e);
-    // scaled p = p/p_ref
+// scaled p = p/p_ref
     double p_scale = 1.0 / bunch.get_reference_particle().get_momentum();
     double factor = unit_conversion * q * delta_t_beam * En.get_normalization()
             * p_scale;
