@@ -384,7 +384,7 @@ BOOST_PYTHON_MODULE(simulation)
                     bs_add_per_turn_member_overloads12())
             .def("add_per_turn", bs_add_per_turn2)
             .def("add_per_step", bs_add_per_step1,
-                    bs_add_per_turn_member_overloads12())
+                    bs_add_per_step_member_overloads12())
             .def("add_per_step", bs_add_per_step2,
                     bs_add_per_step_member_overloads23())
             ;
