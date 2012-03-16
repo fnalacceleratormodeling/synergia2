@@ -125,6 +125,7 @@ public:
         {
             ar & BOOST_SERIALIZATION_NVP(bunch_sptr);
             ar & BOOST_SERIALIZATION_NVP(have_bunch_sptr_);
+            ar & BOOST_SERIALIZATION_NVP(per_turn_periodic);
             ar & BOOST_SERIALIZATION_NVP(per_step_periodic);
             ar & BOOST_SERIALIZATION_NVP(per_turn_listed);
             ar & BOOST_SERIALIZATION_NVP(per_step_periodic_listed);
