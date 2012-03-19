@@ -79,7 +79,7 @@ run(Resume_options &opts)
     if (opts.new_checkpoint_directory != Resume_options::unspecified_str) {
         resume.set_new_checkpoint_dir(opts.new_checkpoint_directory);
     }
-    bool new_max_turns = (opts.max_turns == Resume_options::unspecified_int);
+    bool new_max_turns = (opts.max_turns != Resume_options::unspecified_int);
     bool new_verbosity = (opts.verbosity != Resume_options::unspecified_int);
     resume.propagate(new_max_turns, opts.max_turns, new_verbosity,
             opts.verbosity);
