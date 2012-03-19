@@ -347,10 +347,8 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 	  }
 
 	  retval.push_back(sbptr1);
-	  // angle may be negative, but it doesn't make sense to
-	  // scale the multipole by a negative strength
 	  retval.push_back(ElmPtr(new ThinPole((lattice_element.get_name() + "_poles").c_str(),
-					       brho * fabs(angle), c_moments)));
+					       brho * angle, c_moments)));
 	  retval.push_back(sbptr2);
 
 	  return retval;
@@ -519,10 +517,8 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 	}
 
 	retval.push_back(rbptr1);
-	// angle may be negative, but it doesn't make sense to scale the
-	// multipole moments by a negative strength
 	retval.push_back(ElmPtr(new ThinPole((lattice_element.get_name() + "_poles").c_str(),
-					     brho * (2.0 * fabs(sin(0.5 * angle))),
+					     brho * (2.0 * sin(0.5 * angle)),
 					     c_moments)));
 	retval.push_back(rbptr2);
 
