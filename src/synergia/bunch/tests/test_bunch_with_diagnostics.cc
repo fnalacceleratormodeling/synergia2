@@ -4,6 +4,7 @@
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/diagnostics.h"
+#include "synergia/bunch/diagnostics_full2.h"
 #include "synergia/bunch/bunch_with_diagnostics.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 #include "synergia/simulation/tests/bunch_fixture.h"
