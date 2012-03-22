@@ -4,6 +4,7 @@
 #include "diagnostics_basic.h"
 #include "diagnostics_full2.h"
 #include "diagnostics_particles.h"
+#include "diagnostics_track.h"
 #include "populate.h"
 #include "analysis.h"
 #include <boost/python.hpp>
