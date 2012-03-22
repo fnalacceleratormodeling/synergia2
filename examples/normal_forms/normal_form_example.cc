@@ -10,7 +10,9 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/foundation/distribution.h"
 #include "synergia/simulation/populate_stationary.h"
-#include "synergia/bunch/diagnostics.h"
+#include "synergia/bunch/diagnostics_basic.h"
+#include "synergia/bunch/diagnostics_full2.h"
+#include "synergia/bunch/diagnostics_particles.h"
 #include "synergia/collective/space_charge_3d_open_hockney.h"
 
 // We put the actual code in a separate function so that shared_ptr's can
