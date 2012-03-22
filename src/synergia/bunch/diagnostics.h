@@ -4,31 +4,11 @@
 #include <string>
 #include <boost/shared_ptr.hpp>
 #include "synergia/bunch/bunch.h"
+#include "synergia/bunch/core_diagnostics.h"
 #include "synergia/foundation/diagnostics_write_helper.h"
 #include "synergia/utils/hdf5_serial_writer.h"
 
 /// Diagnostics is an abstract base class for bunch diagnostics classes
-struct Core_diagnostics
-{
-    static MArray1d
-    calculate_mean(Bunch const& bunch);
-
-    static double
-    calculate_z_mean(Bunch const& bunch);
-
-    static MArray1d
-    calculate_std(Bunch const& bunch, MArray1d_ref const& mean);
-
-    static MArray2d
-    calculate_mom2(Bunch const& bunch, MArray1d_ref const& mean);
-
-    static MArray1d
-    calculate_min(Bunch const& bunch);
-
-    static MArray1d
-    calculate_max(Bunch const& bunch);
-};
-
 class Diagnostics
 {
 private:

@@ -1,5 +1,5 @@
 #include "space_charge_2d_open_hockney.h"
-#include "synergia/bunch/diagnostics.h"
+#include "synergia/bunch/core_diagnostics.h"
 #include "synergia/foundation/math_constants.h"
 using mconstants::pi;
 #include "synergia/foundation/physical_constants.h"

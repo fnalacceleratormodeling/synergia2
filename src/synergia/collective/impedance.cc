@@ -1,5 +1,5 @@
 #include "impedance.h"
-#include "synergia/bunch/diagnostics.h"
+#include "synergia/bunch/core_diagnostics.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/period.h"
 #include "synergia/utils/simple_timer.h"

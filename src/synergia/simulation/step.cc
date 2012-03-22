@@ -1,7 +1,7 @@
 #include <iostream>
 #include "step.h"
 #include "synergia/foundation/physical_constants.h"
-#include "synergia/bunch/diagnostics.h"
+#include "synergia/bunch/core_diagnostics.h"
 #include "synergia/collective/impedance.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/pointer_cast.hpp>

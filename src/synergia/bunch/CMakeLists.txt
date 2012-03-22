@@ -1,5 +1,5 @@
 add_library(synergia_bunch fixed_t_z_converter.cc bunch.cc
-    diagnostics.cc
+    diagnostics.cc core_diagnostics.cc
         train.cc populate.cc
 	analysis.cc period.cc)
 target_link_libraries(synergia_bunch synergia_parallel_utils synergia_distributed_fft

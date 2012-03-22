@@ -3,7 +3,7 @@
 #include <complex>
 #include <vector>
 
-#include "synergia/bunch/diagnostics.h"
+#include "synergia/bunch/core_diagnostics.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/foundation/math_constants.h"
 #include "synergia/utils/complex_error_function.h"

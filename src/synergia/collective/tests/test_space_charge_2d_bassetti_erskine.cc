@@ -14,7 +14,7 @@ using pconstants::epsilon0;
 #include "synergia/utils/floating_point.h"
 #include "synergia/utils/multi_array_check_equal.h"
 #include "synergia/utils/hdf5_writer.h"
-#include "synergia/bunch/diagnostics.h"
+#include "synergia/bunch/core_diagnostics.h"
 #include "gaussian_charge_density.h"
 //#include "space_charge_bunch_fixtures.h"
 //#include "synergia/utils/simple_timer.h"
