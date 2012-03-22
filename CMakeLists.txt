@@ -152,6 +152,20 @@ if ( (NOT BUILD_SHARED_LIBS) AND BUILD_PYTHON_BINDINGS )
   message(WARNING "Static library build selected, ignored for python bindings")
 endif ()
 
+function(add_test_executable name)
+  add_executable(${name} EXCLUDE_FROM_ALL ${ARGN})
+  if(NOT TARGET test-exes)
+    add_custom_target(test-exes)
+  endif()
+  add_dependencies(test-exes ${name})
+endfunction()
+
+add_custom_target(check
+  COMMAND ${CMAKE_CTEST_COMMAND}
+  WORKING_DIRECTORY ${CMAKE_BINARY_DIR}
+  COMMENT "Running ctest")
+add_dependencies(check test-exes)
+
 add_subdirectory(src)
 add_subdirectory(examples)
 add_subdirectory(docs)

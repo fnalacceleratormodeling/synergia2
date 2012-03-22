@@ -1,106 +1,106 @@
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
-add_executable(test_chef_propagator test_chef_propagator.cc)
+add_test_executable(test_chef_propagator test_chef_propagator.cc)
 target_link_libraries(test_chef_propagator synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_chef_propagator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_chef_propagator)
 
-add_executable(test_fast_mapping_term test_fast_mapping_term.cc)
+add_test_executable(test_fast_mapping_term test_fast_mapping_term.cc)
 target_link_libraries(test_fast_mapping_term synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_fast_mapping_term ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_fast_mapping_term)
 
-add_executable(test_fast_mapping test_fast_mapping.cc)
+add_test_executable(test_fast_mapping test_fast_mapping.cc)
 target_link_libraries(test_fast_mapping synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_fast_mapping ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_fast_mapping)
 
-add_executable(test_fast_mapping_operation test_fast_mapping_operation.cc)
+add_test_executable(test_fast_mapping_operation test_fast_mapping_operation.cc)
 target_link_libraries(test_fast_mapping_operation synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_fast_mapping_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_fast_mapping_operation)
 
-add_executable(test_chef_propagate_operation test_chef_propagate_operation.cc)
+add_test_executable(test_chef_propagate_operation test_chef_propagate_operation.cc)
 target_link_libraries(test_chef_propagate_operation synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_chef_propagate_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_chef_propagate_operation)
 
-add_executable(test_chef_map_operation_extractor test_chef_map_operation_extractor.cc)
+add_test_executable(test_chef_map_operation_extractor test_chef_map_operation_extractor.cc)
 target_link_libraries(test_chef_map_operation_extractor synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_chef_map_operation_extractor ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_chef_map_operation_extractor)
 
-add_executable(test_chef_propagate_operation_extractor test_chef_propagate_operation_extractor.cc)
+add_test_executable(test_chef_propagate_operation_extractor test_chef_propagate_operation_extractor.cc)
 target_link_libraries(test_chef_propagate_operation_extractor synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_chef_propagate_operation_extractor ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_chef_propagate_operation_extractor)
 
-add_executable(test_chef_mixed_operation_extractor test_chef_mixed_operation_extractor.cc)
+add_test_executable(test_chef_mixed_operation_extractor test_chef_mixed_operation_extractor.cc)
 target_link_libraries(test_chef_mixed_operation_extractor synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_chef_mixed_operation_extractor ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_chef_mixed_operation_extractor)
 
-add_executable(test_operation_extractor_map test_operation_extractor_map.cc)
+add_test_executable(test_operation_extractor_map test_operation_extractor_map.cc)
 target_link_libraries(test_operation_extractor_map synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_operation_extractor_map ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_operation_extractor_map)
 
-add_executable(test_lattice_simulator test_lattice_simulator.cc)
+add_test_executable(test_lattice_simulator test_lattice_simulator.cc)
 target_link_libraries(test_lattice_simulator synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_lattice_simulator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_lattice_simulator)
 add_test(test_pylattice_simulator ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_lattice_simulator.py)
 
-add_executable(test_collective_operator test_collective_operator.cc)
+add_test_executable(test_collective_operator test_collective_operator.cc)
 target_link_libraries(test_collective_operator synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_collective_operator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_collective_operator)
 
-add_executable(test_independent_operator test_independent_operator.cc)
+add_test_executable(test_independent_operator test_independent_operator.cc)
 target_link_libraries(test_independent_operator synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_independent_operator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_independent_operator)
 
-add_executable(test_step test_step.cc)
+add_test_executable(test_step test_step.cc)
 target_link_libraries(test_step synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_step ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_step)
 
-add_executable(test_split_operator_stepper test_split_operator_stepper.cc)
+add_test_executable(test_split_operator_stepper test_split_operator_stepper.cc)
 target_link_libraries(test_split_operator_stepper synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_split_operator_stepper ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_split_operator_stepper)
 
-add_executable(test_independent_stepper test_independent_stepper.cc)
+add_test_executable(test_independent_stepper test_independent_stepper.cc)
 target_link_libraries(test_independent_stepper synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_independent_stepper ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_independent_stepper)
 
-add_executable(test_independent_stepper_elements test_independent_stepper_elements.cc)
+add_test_executable(test_independent_stepper_elements test_independent_stepper_elements.cc)
 target_link_libraries(test_independent_stepper_elements synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_independent_stepper_elements ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_independent_stepper_elements)
 
-add_executable(test_split_operator_stepper_elements test_split_operator_stepper_elements.cc)
+add_test_executable(test_split_operator_stepper_elements test_split_operator_stepper_elements.cc)
 target_link_libraries(test_split_operator_stepper_elements synergia_simulation
 synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_split_operator_stepper_elements ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_split_operator_stepper_elements)
 
-add_executable(test_split_operator_stepper_choice test_split_operator_stepper_choice.cc)
+add_test_executable(test_split_operator_stepper_choice test_split_operator_stepper_choice.cc)
 target_link_libraries(test_split_operator_stepper_choice synergia_simulation
 synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_split_operator_stepper_choice ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_split_operator_stepper_choice)
 
 
-add_executable(test_propagator test_propagator.cc)
+add_test_executable(test_propagator test_propagator.cc)
 target_link_libraries(test_propagator synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_propagator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_propagator)
 
-add_executable(test_finite_aperture_operation test_finite_aperture_operation.cc)
+add_test_executable(test_finite_aperture_operation test_finite_aperture_operation.cc)
 target_link_libraries(test_finite_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_finite_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_finite_aperture_operation)
 
-add_executable(test_circular_aperture_operation test_circular_aperture_operation.cc)
+add_test_executable(test_circular_aperture_operation test_circular_aperture_operation.cc)
 target_link_libraries(test_circular_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_circular_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_circular_aperture_operation)
 
-add_executable(test_elliptical_aperture_operation test_elliptical_aperture_operation.cc)
+add_test_executable(test_elliptical_aperture_operation test_elliptical_aperture_operation.cc)
 target_link_libraries(test_elliptical_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_elliptical_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_elliptical_aperture_operation)
 
-add_executable(test_rectangular_aperture_operation test_rectangular_aperture_operation.cc)
+add_test_executable(test_rectangular_aperture_operation test_rectangular_aperture_operation.cc)
 target_link_libraries(test_rectangular_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_rectangular_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_rectangular_aperture_operation)
 
-add_executable(test_polygon_aperture_operation test_polygon_aperture_operation.cc)
+add_test_executable(test_polygon_aperture_operation test_polygon_aperture_operation.cc)
 target_link_libraries(test_polygon_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_polygon_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_polygon_aperture_operation)
 
-add_executable(test_propagator_mpi test_propagator_mpi.cc)
+add_test_executable(test_propagator_mpi test_propagator_mpi.cc)
 target_link_libraries(test_propagator_mpi synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_propagator_mpi1 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1  test_propagator_mpi)
 add_test(test_propagator_mpi2 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2  test_propagator_mpi)
