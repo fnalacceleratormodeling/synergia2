@@ -24,7 +24,8 @@
 ! July 29, 2004
 
 
-momentum  := 150.0                ! GeV/c
+!momentum  := 128.890377797                ! GeV/c
+momentum   := 150.0                        ! GeV/c
 beam, pc=momentum, particle=proton
 
 
@@ -112,7 +113,9 @@ ddd8a: drift, l=14.702638
 ddd8b: drift, l=0.307162
 ddd9:  drift, l=1.846402
 
-ddd5_2: drift, l=(15.24635 - 0.532) / 2.0
+pcolumn := 1.0643
+plasma: drift, l=pcolumn
+ddd5_2: drift, l=(15.24635 - pcolumn) / 2.0
 
 cd0q5d: quadrupole, l=1.401826, k1=(3.9684393625279042/brho)
 
@@ -199,23 +202,32 @@ tevatron: line=(hi_beta_straight, arc &
                 lo_beta_straight, arc &
                 normal_straight,  arc &
                 normal_straight,  arc )
-!make a protoplasma line
+
+!for generating matched beam
 injection: line=(hi_beta_straight, arc)
-plasma: line=(ddd1,  cd0q5d, &
-                        ddd2a, B,dbb,B,dbb,B, &
-                        ddd2b, cd0q2f,ddd3,cd0q3d,ddd3,cd0q4f, &
-                        ddd5,  modq4d,ddd3,modq3f,ddd3,modq2d, &
-                        ddd8a, B,dbb,B,dbb,B,dbb,B, &
-                        ddd8b, cd0q5f, &
-                        ddd9,  B,dbb,B,dbb,B,dbb,B, &
-                        d7,2*cell, halfcell_17,dbq)
 
-plasma2: line= (ddd5_2, modq4d,ddd3,modq3f,ddd3,modq2d, &
-                        ddd8a, B,dbb,B,dbb,B,dbb,B, &
-                        ddd8b, cd0q5f, &
-                        ddd9,  B,dbb,B,dbb,B,dbb,B, &
-                        d7,2*cell, halfcell_17,dbq)
+!make protoplamsa beamlines
+!upstream of plasma column
+protoplasma1: line=(ddd1, cd0q5d, ddd2a, B, dbb, B, dbb, B, ddd2b, &
+                    cd0q2f, ddd3, cd0q3d, ddd3, cd0q4f, ddd5_2)
 
+!up to plasma column
+protoplasma2: line=(protoplasma1, plasma)
+
+!downstream of plasma column
+protoplasma3: line=(ddd5_2, modq4d, ddd3, modq3f, ddd3, modq2d, &
+                    ddd8a, B, dbb, B, dbb, B, dbb, B, &
+                    ddd8b, cd0q5f, ddd9, B, dbb, B, dbb, B, dbb, B, &
+                    d7, 2*cell, halfcell_17, dbq)
+
+!protoplamsa beam line = low_beta_straight section + hi_dispersion section
+protoplasma4: line=(protoplasma1, plasma, protoplasma3)
 ! for 188
-!                        d7,2*cell, halfcell_17,halfcelld, 4*cell)
+!                    d7,2*cell, halfcell_17,halfcelld, 4*cell)
 
+protoplasma5: line=(protoplasma2, &
+                    ddd5_2, modq4d, ddd3, modq3f, ddd3, modq2d, &
+                    ddd8a, B, dbb, B, dbb, B, dbb, B, &
+                    ddd8b, cd0q5f, ddd9, B, dbb, B, dbb, B, dbb, B, &
+                    d7, &
+                    arc)
