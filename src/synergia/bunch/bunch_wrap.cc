@@ -1,6 +1,7 @@
 #include "bunch.h"
 #include "train.h"
 #include "diagnostics.h"
+#include "diagnostics_basic.h"
 #include "populate.h"
 #include "analysis.h"
 #include <boost/python.hpp>
