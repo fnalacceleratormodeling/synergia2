@@ -3,9 +3,8 @@
 
 const char Diagnostics_particles::name[] = "diagnostics_particles";
 
-Diagnostics_particles::Diagnostics_particles(
-        std::string const& filename, int min_particle_id, int max_particle_id,
-        int write_skip) :
+Diagnostics_particles::Diagnostics_particles(std::string const& filename,
+        int min_particle_id, int max_particle_id, int write_skip) :
     Diagnostics_particles::Diagnostics(Diagnostics_particles::name, filename),
             min_particle_id(min_particle_id), max_particle_id(max_particle_id),
             have_writers(false)
@@ -71,9 +70,9 @@ Diagnostics_particles::receive_other_local_particles(
             MArray2d received(boost::extents[local_num][7]);
             int message_size = 7 * local_num;
             MPI_Comm comm = get_bunch().get_comm().get();
-            MPI_Recv((void*) received.origin(), message_size, MPI_DOUBLE, rank,
-                    rank, comm, &status);
-            if (status.MPI_ERROR != MPI_SUCCESS) {
+            int error = MPI_Recv((void*) received.origin(), message_size,
+                    MPI_DOUBLE, rank, rank, comm, &status);
+            if (error != MPI_SUCCESS) {
                 throw std::runtime_error(
                         "Diagnostics_particles::receive_other_local_particles: MPI_Recv failed.");
             }
