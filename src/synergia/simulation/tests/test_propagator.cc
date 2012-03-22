@@ -8,6 +8,7 @@
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/diagnostics_basic.h"
 #include "synergia/bunch/diagnostics_full2.h"
+#include "synergia/bunch/diagnostics_particles.h"
 #include "lattice_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 #include "synergia/simulation/diagnostics_actions.h"

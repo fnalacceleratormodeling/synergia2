@@ -9,6 +9,7 @@
 #include "lattice_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 #include "synergia/simulation/diagnostics_actions.h"
+#include "synergia/bunch/diagnostics_particles.h"
 
 
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
