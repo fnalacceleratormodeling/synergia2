@@ -5,46 +5,6 @@
 #include <cmath>
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
-BOOST_AUTO_TEST_CASE(test_Commxx_construct1)
-{
-    Commxx comm(MPI_COMM_WORLD);
-}
-
-BOOST_AUTO_TEST_CASE(test_Commxx_construct2)
-{
-    Commxx
-    comm();
-}
-
-BOOST_AUTO_TEST_CASE(test_Commxx_get_rank)
-{
-    int rank = Commxx(MPI_COMM_WORLD).get_rank();
-    BOOST_CHECK_EQUAL(rank,0);
-}
-
-BOOST_AUTO_TEST_CASE(test_Commxx_get_size)
-{
-    int size = Commxx(MPI_COMM_WORLD).get_size();
-    BOOST_CHECK_EQUAL(size,1);
-}
-
-BOOST_AUTO_TEST_CASE(test_Commxx_get)
-{
-    MPI_Comm comm = Commxx(MPI_COMM_WORLD).get();
-    BOOST_CHECK_EQUAL(comm,MPI_COMM_WORLD);
-}
-
-BOOST_AUTO_TEST_CASE(test_Commxx_set_get)
-{
-    MPI_Comm new_comm;
-    MPI_Comm_dup(MPI_COMM_WORLD, &new_comm);
-    Commxx commxx;
-    commxx.set(new_comm);
-    MPI_Comm comm = commxx.get();
-    BOOST_CHECK(comm != MPI_COMM_WORLD);
-    BOOST_CHECK_EQUAL(comm, new_comm);
-}
-
 BOOST_AUTO_TEST_CASE(test_decompose_1d_raw1)
 {
     // Test counts and offsets when length is a multiple of
@@ -128,7 +88,7 @@ BOOST_AUTO_TEST_CASE(test_decompose_1d)
     const int procs = 1;
     std::vector<int > offsets(procs), counts(procs);
     const int length = 17;
-    decompose_1d(Commxx(MPI_COMM_WORLD), length, offsets, counts);
+    decompose_1d(Commxx(), length, offsets, counts);
     BOOST_CHECK_EQUAL(0,offsets.at(0));
     BOOST_CHECK_EQUAL(length,counts.at(0));
 }
@@ -136,7 +96,7 @@ BOOST_AUTO_TEST_CASE(test_decompose_1d)
 BOOST_AUTO_TEST_CASE(test_decompose_1d_local)
 {
     const int length = 17;
-    int local_length = decompose_1d_local(Commxx(MPI_COMM_WORLD), length);
+    int local_length = decompose_1d_local(Commxx(), length);
     BOOST_CHECK_EQUAL(length,local_length);
 }
 
@@ -246,45 +206,45 @@ BOOST_AUTO_TEST_CASE(test_distribute_1d)
 {
     const int elements = 17;
     std::vector<std::vector<int > > ranks(
-            distribute_1d(Commxx(MPI_COMM_WORLD), elements));
+            distribute_1d(Commxx(), elements));
     verify_ranks_elms_gt_procs(elements, 1, ranks);
 }
 /*
 BOOST_AUTO_TEST_CASE(test_print_distribute_1d_raw1)
-{   
+{
 //     const int elements = 6;
 //     const int procs = 32;
-            
+
     const int elements = 5;
-    const int procs = 12;       
-            
+    const int procs = 12;
+
     std::vector<std::vector<int > > ranks(distribute_1d_raw(procs, elements));
-    BOOST_CHECK_EQUAL(ranks.size(), elements);        
+    BOOST_CHECK_EQUAL(ranks.size(), elements);
     std::cout<<" ranks size="<<ranks.size()<<std::endl;
-    for (int element = 0; element < elements; ++element) { 
+    for (int element = 0; element < elements; ++element) {
         std::cout<<" element="<<element<<" ranks size at element="<<ranks.at(element).size()<<std::endl;
         std::cout<<"       ******** procs for element=";
-        for (int j = 0; j < ranks.at(element).size(); ++j) { 
+        for (int j = 0; j < ranks.at(element).size(); ++j) {
             std::cout<<ranks.at(element).at(j)<<"  ";
         }
         std::cout<<std::endl;
-    }       
+    }
 }*/
 
 BOOST_AUTO_TEST_CASE(test_counts_and_offsets)
-{   
+{
 //     const int elements = 5;
 //     const int procs = 12;
-            
+
     const int elements = 5;
-    const int procs = 12;       
+    const int procs = 12;
     std::vector<int > counts(procs);
-    std::vector<int > offsets(procs);        
+    std::vector<int > offsets(procs);
     counts_and_offsets_for_impedance_raw(procs, elements,  offsets, counts);
   //  for (int i = 0; i < procs; ++i){
  //       std::cout<<" proc="<<i<<" count="<<counts[i]<<" offset="<<offsets[i]<<std::endl;
  //   }
-            
-   
+
+
 }
 

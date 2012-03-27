@@ -1,14 +1,109 @@
 #include "commxx.h"
 #include <stdexcept>
+#include <climits>
 
-Commxx::Commxx(MPI_Comm comm)
+// hash is a local function
+static size_t
+hash(const char * s)
 {
-    this->comm = comm;
+    size_t h = 37062913;
+    while (*s)
+        h = h * 101 + (unsigned char) *s++;
+    return h;
 }
 
-Commxx::Commxx()
+void
+Commxx::construct(MPI_Comm const& parent_mpi_comm)
 {
-    this->comm = MPI_COMM_WORLD;
+    MPI_Comm temp_comm;
+    int error;
+    if (ranks.size() > 0) {
+        MPI_Group parent_group, group;
+        error = MPI_Comm_group(parent_mpi_comm, &parent_group);
+        if (error != MPI_SUCCESS) {
+            throw std::runtime_error("MPI error in Commxx(MPI_Comm_group)");
+        }
+        error = MPI_Group_incl(parent_group, ranks.size(), &ranks[0], &group);
+        if (error != MPI_SUCCESS) {
+            throw std::runtime_error("MPI error in Commxx(MPI_Group_incl)");
+        }
+        error = MPI_Comm_create(parent_mpi_comm, group, &temp_comm);
+        if (error != MPI_SUCCESS) {
+            throw std::runtime_error("MPI error in Commxx(MPI_Comm_create)");
+        }
+        error = MPI_Group_free(&parent_group);
+        if (error != MPI_SUCCESS) {
+            throw std::runtime_error(
+                    "MPI error in Commxx(MPI_Group_free(parent))");
+        }
+        error = MPI_Group_free(&group);
+        if (error != MPI_SUCCESS) {
+            throw std::runtime_error("MPI error in Commxx(MPI_Group_free)");
+        }
+
+        has_this_rank_ = false;
+        const int no_rank = -1;
+        int this_rank = no_rank;
+        if (!parent_sptr) {
+            this_rank = Commxx().get_rank();
+        } else {
+            if (parent_sptr->has_this_rank()) {
+                this_rank = parent_sptr->get_rank();
+            }
+        }
+        if (this_rank != no_rank) {
+            for (std::vector<int >::const_iterator it = ranks.begin(); it
+                    != ranks.end(); ++it) {
+                if ((*it) == this_rank) {
+                    has_this_rank_ = true;
+                }
+            }
+        }
+
+    } else {
+        temp_comm = parent_mpi_comm;
+        has_this_rank_ = true;
+    }
+
+    if (per_host && has_this_rank_) {
+        char name[MPI_MAX_PROCESSOR_NAME];
+        int name_len;
+        MPI_Get_processor_name(name, &name_len);
+
+        int color = hash(name) % INT_MAX;
+
+        int result = MPI_Comm_split(temp_comm, color, 0, &comm);
+        if (result != MPI_SUCCESS) throw std::runtime_error(
+                "MPI error in MPI_Comm_split");
+        if (ranks.size() > 0) {
+            error = MPI_Comm_free(&temp_comm);
+            if (error != MPI_SUCCESS) {
+                throw std::runtime_error(
+                        "MPI error in Commxx(MPI_Comm_free(temp_comm))");
+            }
+        }
+    } else {
+        comm = temp_comm;
+    }
+}
+
+Commxx::Commxx() :
+    comm(MPI_COMM_WORLD), parent_sptr(), ranks(0), per_host(false),
+            has_this_rank_(true)
+{
+}
+
+Commxx::Commxx(bool per_host) :
+    parent_sptr(), ranks(0), per_host(per_host)
+{
+    construct(MPI_COMM_WORLD);
+}
+
+Commxx::Commxx(Commxx_sptr parent_sptr, std::vector<int > const& ranks,
+        bool per_host) :
+    parent_sptr(parent_sptr), ranks(ranks), per_host(per_host)
+{
+    construct(parent_sptr->get());
 }
 
 int
@@ -33,14 +128,24 @@ Commxx::get_size() const
     return size;
 }
 
-void
-Commxx::set(MPI_Comm comm)
+bool
+Commxx::has_this_rank() const
 {
-    this->comm = comm;
+    return has_this_rank_;
 }
 
 MPI_Comm
 Commxx::get() const
 {
     return comm;
+}
+
+Commxx::~Commxx()
+{
+    if (((ranks.size() > 0) || per_host) && has_this_rank_) {
+        int error = MPI_Comm_free(&comm);
+        if (error != MPI_SUCCESS) {
+            throw std::runtime_error("MPI error in Commxx(MPI_Comm_free)");
+        }
+    }
 }

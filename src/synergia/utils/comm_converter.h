@@ -4,8 +4,8 @@
 // begin workaround for using mpi4py using MPI-1
 #include <mpi.h>
 #if MPI_VERSION < 2
-  typedef void* MPI_Win;
-  typedef void* MPI_File;
+typedef void* MPI_Win;
+typedef void* MPI_File;
 #endif
 // end workaround
 
@@ -20,14 +20,14 @@ struct comm_converter
     register_to_and_from_python()
     {
         register_from_python();
-        register_to_python();
+        //        register_to_python();
     }
 
-    static void
-    register_to_python()
-    {
-        boost::python::to_python_converter<Commxx, comm_converter >();
-    }
+    //    static void
+    //    register_to_python()
+    //    {
+    //        boost::python::to_python_converter<Commxx, comm_converter >();
+    //    }
 
     static void
     register_from_python()
@@ -57,24 +57,33 @@ struct comm_converter
         if (comm_p == NULL) {
             throw_error_already_set();
         }
+        int error, result;
+        error = MPI_Comm_compare(*comm_p, MPI_COMM_WORLD, &result);
+        if (error != MPI_SUCCESS) {
+            throw std::runtime_error("MPI error in comm_converter::construct");
+        }
+        if (result != MPI_IDENT) {
+            throw std::runtime_error(
+                    "comm_converter::construct only MPI_COMM_WORLD may be automatically converted to Commxx");
+        }
         void
                 *storage =
                         ((converter::rvalue_from_python_storage<Commxx >*) data)->storage.bytes;
 
-        new (storage) Commxx(*comm_p);
+        new (storage) Commxx;
         data->convertible = storage;
     }
 
-    static PyObject *
-    convert(Commxx const& comm)
-    {
-        using namespace boost::python;
-        PyObject *retval;
-        MPI_Comm mpi_comm;
-        mpi_comm = comm.get();
-        retval = PyMPIComm_New(mpi_comm);
-        return retval;
-    }
+    //    static PyObject *
+    //    convert(Commxx const& comm)
+    //    {
+    //        using namespace boost::python;
+    //        PyObject *retval;
+    //        MPI_Comm mpi_comm;
+    //        mpi_comm = comm.get();
+    //        retval = PyMPIComm_New(mpi_comm);
+    //        return retval;
+    //    }
 };
 
 #endif /* COMM_CONVERTER_H_ */

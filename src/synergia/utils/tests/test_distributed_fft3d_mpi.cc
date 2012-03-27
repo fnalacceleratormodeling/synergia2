@@ -44,8 +44,7 @@ struct Shape_struct
 struct Fixture
 {
     Fixture() :
-        shape(shape_struct.shape), distributed_fft3d(shape, Commxx(
-                MPI_COMM_WORLD))
+        shape(shape_struct.shape), distributed_fft3d(shape, Commxx())
     {
     }
     ~Fixture()
@@ -75,8 +74,7 @@ struct Shape_struct2
 struct Fixture2
 {
     Fixture2() :
-        shape(shape_struct2.shape), distributed_fft3d(shape, Commxx(
-                MPI_COMM_WORLD))
+        shape(shape_struct2.shape), distributed_fft3d(shape, Commxx())
     {
     }
     ~Fixture2()
@@ -264,7 +262,7 @@ BOOST_FIXTURE_TEST_CASE(transform_realtest, Fixture2)
     const double freq0 = double(loc0)/shape[0];
     const double freq1 = double(loc1)/shape[1];
     const double freq2 = double(loc2)/shape[2];
-    
+
     const double dx0 = 1.0;
     const double dx1 = 1.0;
     const double dx2 = 1.0;
@@ -303,15 +301,15 @@ BOOST_FIXTURE_TEST_CASE(transform_realtest, Fixture2)
     }
 
     distributed_fft3d.transform(orig, carray);
-    
+
     // it's over 8 because the single frequency spike is reflected 8 times, even
     // though we only see four of them (because we're looking at the
     // half-complex transform result.)
     double norm = double(shape[0] * shape[1] * shape[2]/8);
-    
+
     // I see deviations of a few *1e12
     double fft_tolerance = 1.0e-11;
-    
+
     // All the numbers in the result should have a negligible complex part
     for (int i0=lower; i0<upper; ++i0) {
       for (int i1=0; i1<cshape[1]; ++i1) {
