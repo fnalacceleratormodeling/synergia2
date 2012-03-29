@@ -20,8 +20,8 @@ struct Fixture
     Fixture() :
         four_momentum(mass, total_energy), reference_particle(
                 pconstants::proton_charge, four_momentum),
-                comm(MPI_COMM_WORLD), bunch(reference_particle, total_num,
-                        real_num, comm)
+                comm_sptr(new Commxx()), bunch(reference_particle, total_num,
+                        real_num, comm_sptr)
     {
         BOOST_TEST_MESSAGE("setup fixture");
     }
@@ -32,7 +32,7 @@ struct Fixture
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Bunch bunch;
 };
 
@@ -107,14 +107,14 @@ BOOST_FIXTURE_TEST_CASE(construct, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(construct2, Fixture)
 {
-    Bunch electron_bunch(reference_particle, total_num, real_num, comm,
+    Bunch electron_bunch(reference_particle, total_num, real_num, comm_sptr,
             pconstants::electron_charge);
 }
 
 BOOST_FIXTURE_TEST_CASE(check_ids, Fixture)
 {
     double offset = bunch.get_local_particles()[0][Bunch::id];
-    if (comm.get_rank() == 0) {
+    if (comm_sptr->get_rank() == 0) {
         for (int part = 0; part < bunch.get_local_num(); ++part) {
             BOOST_CHECK_CLOSE(part + offset, bunch.get_local_particles()[part][Bunch::id], tolerance);
         }
@@ -123,7 +123,7 @@ BOOST_FIXTURE_TEST_CASE(check_ids, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(check_ids2, Fixture)
 {
-    Bunch second_bunch(reference_particle, total_num, real_num, comm);
+    Bunch second_bunch(reference_particle, total_num, real_num, comm_sptr);
     BOOST_CHECK( static_cast<int>(second_bunch.get_local_particles()[0][Bunch::id]
                     - bunch.get_local_particles()[0][Bunch::id]) == total_num);
 }
@@ -137,7 +137,7 @@ BOOST_FIXTURE_TEST_CASE(copy_construct, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(assign, Fixture)
 {
-    Bunch second_bunch(reference_particle, total_num + 10, real_num * 2, comm);
+    Bunch second_bunch(reference_particle, total_num + 10, real_num * 2, comm_sptr);
     dummy_populate(bunch);
     second_bunch = bunch;
     compare_bunches(bunch, second_bunch);
@@ -150,7 +150,7 @@ BOOST_FIXTURE_TEST_CASE(get_particle_charge, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_particle_charge2, Fixture)
 {
-    Bunch electron_bunch(reference_particle, total_num, real_num, comm,
+    Bunch electron_bunch(reference_particle, total_num, real_num, comm_sptr,
             pconstants::electron_charge);
     BOOST_CHECK_EQUAL(electron_bunch.get_particle_charge(),
             pconstants::electron_charge);
@@ -187,7 +187,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_num, Fixture)
 
 BOOST_FIXTURE_TEST_CASE(set_local_num, Fixture)
 {
-    int new_local_num = total_num / comm.get_size() - 5;
+    int new_local_num = total_num / comm_sptr->get_size() - 5;
     bunch.set_local_num(new_local_num);
     BOOST_CHECK_EQUAL(bunch.get_local_num(), new_local_num);
 }
@@ -203,7 +203,7 @@ BOOST_FIXTURE_TEST_CASE(update_total_num, Fixture)
     bunch.set_local_num(new_local_num);
     bunch.update_total_num();
     BOOST_CHECK_EQUAL(bunch.get_total_num(),
-            new_local_num*Commxx(MPI_COMM_WORLD).get_size());
+            new_local_num*Commxx().get_size());
 }
 
 BOOST_FIXTURE_TEST_CASE(set_get_sort_period, Fixture)
@@ -432,13 +432,13 @@ public:
 
     void
     from_t_bunch_to_z_lab(Bunch &bunch){};
-     
+
     void
     from_t_lab_to_t_bunch(Bunch &bunch){};
-    
+
     void
-    from_t_bunch_to_t_lab(Bunch &bunch){}; 
-    
+    from_t_bunch_to_t_lab(Bunch &bunch){};
+
 };
 
 BOOST_FIXTURE_TEST_CASE(set_converter, Fixture)

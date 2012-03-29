@@ -13,9 +13,8 @@ void
 Space_charge_2d_open_hockney::setup_nondoubled_communication()
 {
     std::vector<int > ranks1; // ranks with data from the undoubled domain
-    in_group1 = false;
     int lower = 0;
-    for (int rank = 0; rank < comm2.get_size(); ++rank) {
+    for (int rank = 0; rank < comm2_sptr->get_size(); ++rank) {
         int uppers2 = distributed_fft2d_sptr->get_uppers()[rank];
         int uppers1 = std::min(uppers2, doubled_grid_shape[0]);
         int length0;
@@ -26,37 +25,18 @@ Space_charge_2d_open_hockney::setup_nondoubled_communication()
         }
         if (length0 > 0) {
             ranks1.push_back(rank);
-            if (rank == comm2.get_rank()) {
-                in_group1 = true;
-            }
             lowers1.push_back(lower);
             int total_length = length0 * doubled_grid_shape[1];
             lengths1.push_back(total_length);
             lower += total_length;
         }
     }
-    int error;
-    error = MPI_Comm_group(comm2.get(), &group2);
-    if (error != MPI_SUCCESS) {
-        throw std::runtime_error(
-                "MPI error in Space_charge_2d_open_hockney(MPI_Comm_group)");
-    }
-    error = MPI_Group_incl(group2, ranks1.size(), &ranks1[0], &group1);
-    if (error != MPI_SUCCESS) {
-        throw std::runtime_error(
-                "MPI error in Space_charge_2d_open_hockney(MPI_Group_incl)");
-    }
-    error = MPI_Comm_create(comm2.get(), group1, &mpi_comm1);
-    if (error != MPI_SUCCESS) {
-        throw std::runtime_error(
-                "MPI error in Space_charge_2d_open_hockney(MPI_Comm_create)");
-    }
-    comm1.set(mpi_comm1);
+    comm1_sptr = Commxx_sptr(new Commxx(comm2_sptr, ranks1));
 
     std::vector<int > real_uppers(distributed_fft2d_sptr->get_uppers());
     real_lengths = distributed_fft2d_sptr->get_lengths();
     real_lengths_1d = distributed_fft2d_sptr->get_lengths_1d();
-    for (int i = 0; i < comm2.get_size(); ++i) {
+    for (int i = 0; i < comm2_sptr->get_size(); ++i) {
         if (i == 0) {
             real_lengths[0] = real_uppers[0] * doubled_grid_shape[1];
             real_lengths_1d[0] = doubled_grid_shape[2];
@@ -66,7 +46,7 @@ Space_charge_2d_open_hockney::setup_nondoubled_communication()
             real_lengths_1d[i] = doubled_grid_shape[2];
         }
     }
-    int my_rank = comm2.get_rank();
+    int my_rank = comm2_sptr->get_rank();
     if (my_rank > 0) {
         real_lower = real_uppers[my_rank - 1];
     } else {
@@ -92,10 +72,10 @@ Space_charge_2d_open_hockney::setup_default_options()
     set_e_force_comm(e_force_allreduce);
 }
 
-Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(Commxx const& comm,
+Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(Commxx_sptr comm_sptr,
         std::vector<int > const & grid_shape, bool periodic_z, double z_period,
         bool grid_entire_period, double n_sigma) :
-    Collective_operator("space charge 3D open hockney"), comm2(comm),
+    Collective_operator("space charge 3D open hockney"), comm2_sptr(comm_sptr),
             grid_shape(3), doubled_grid_shape(3), periodic_z(periodic_z),
             z_period(z_period), grid_entire_period(grid_entire_period),
             n_sigma(n_sigma), domain_fixed(false), have_domains(false)
@@ -111,7 +91,7 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(Commxx const& comm,
     }
     doubled_grid_shape[2] = this->grid_shape[2];
     distributed_fft2d_sptr = Distributed_fft2d_sptr(new Distributed_fft2d(
-            doubled_grid_shape, comm));
+            doubled_grid_shape, comm_sptr));
     setup_nondoubled_communication();
     setup_default_options();
 }
@@ -120,7 +100,7 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
         Distributed_fft2d_sptr distributed_fft2d_sptr, bool periodic_z,
         double z_period, bool grid_entire_period, double n_sigma) :
     Collective_operator("space charge"), grid_shape(3), doubled_grid_shape(3),
-            comm2(distributed_fft2d_sptr->get_comm()),
+            comm2_sptr(distributed_fft2d_sptr->get_comm_sptr()),
             distributed_fft2d_sptr(distributed_fft2d_sptr),
             periodic_z(periodic_z), z_period(z_period),
             grid_entire_period(grid_entire_period), n_sigma(n_sigma),
@@ -215,7 +195,7 @@ Space_charge_2d_open_hockney::get_e_force_comm() const
 void
 Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
 {
-    bool output = verbose && (comm2.get_rank() == 0);
+    bool output = verbose && (comm2_sptr->get_rank() == 0);
     double t0, t1;
 
     std::vector<double > size(3), offset(3);
@@ -230,10 +210,10 @@ Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_2d_open_hockney::auto_tune_comm: trying get_global_charge_density2_reduce_scatter\n";
     }
-    MPI_Barrier(comm2.get());
+    MPI_Barrier(comm2_sptr->get());
     t0 = MPI_Wtime();
     get_global_charge_density2_reduce_scatter(fake_local_charge_density);
-    MPI_Barrier(comm2.get());
+    MPI_Barrier(comm2_sptr->get());
     t1 = MPI_Wtime();
     if (output) {
         std::cout << "Space_charge_2d_open_hockney::auto_tune_comm: time = "
@@ -246,10 +226,10 @@ Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_2d_open_hockney::auto_tune_comm: trying get_global_charge_density2_allreduce\n";
     }
-    MPI_Barrier(comm2.get());
+    MPI_Barrier(comm2_sptr->get());
     t0 = MPI_Wtime();
     get_global_charge_density2_allreduce(fake_local_charge_density);
-    MPI_Barrier(comm2.get());
+    MPI_Barrier(comm2_sptr->get());
     t1 = MPI_Wtime();
     if (output) {
         std::cout << "Space_charge_2d_open_hockney::auto_tune_comm: time = "
@@ -260,17 +240,17 @@ Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
     }
 
     Distributed_rectangular_grid fake_local_e_force(doubled_domain_sptr,
-            doubled_lower, doubled_upper, comm2);
+            doubled_lower, doubled_upper, comm2_sptr);
 
 #if 1
     if (output) {
         std::cout
                 << "Space_charge_2d_open_hockney::auto_tune_comm: trying get_global_electric_force2_gatherv_bcast\n";
     }
-    MPI_Barrier(comm2.get());
+    MPI_Barrier(comm2_sptr->get());
     t0 = MPI_Wtime();
     get_global_electric_force2_gatherv_bcast(fake_local_e_force);
-    MPI_Barrier(comm2.get());
+    MPI_Barrier(comm2_sptr->get());
     t1 = MPI_Wtime();
     if (output) {
         std::cout << "Space_charge_2d_open_hockney::auto_tune_comm: time = "
@@ -284,10 +264,10 @@ Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_2d_open_hockney::auto_tune_comm: trying get_global_electric_force2_allgatherv\n";
     }
-    MPI_Barrier(comm2.get());
+    MPI_Barrier(comm2_sptr->get());
     t0 = MPI_Wtime();
     get_global_electric_force2_allgatherv(fake_local_e_force);
-    MPI_Barrier(comm2.get());
+    MPI_Barrier(comm2_sptr->get());
     t1 = MPI_Wtime();
     if (output) {
         std::cout << "Space_charge_2d_open_hockney::auto_tune_comm: time = "
@@ -302,10 +282,10 @@ Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_2d_open_hockney::auto_tune_comm: trying get_global_electric_force2_allreduce\n";
     }
-    MPI_Barrier(comm2.get());
+    MPI_Barrier(comm2_sptr->get());
     t0 = MPI_Wtime();
     get_global_electric_force2_allreduce(fake_local_e_force);
-    MPI_Barrier(comm2.get());
+    MPI_Barrier(comm2_sptr->get());
     t1 = MPI_Wtime();
     if (output) {
         std::cout << "Space_charge_2d_open_hockney::auto_tune_comm: time = "
@@ -438,12 +418,12 @@ Space_charge_2d_open_hockney::get_global_charge_density2_reduce_scatter(
             doubled_upper)][doubled_grid_shape[1]]);
     dest_2dc = multi_array_offset(dest_array_2dc, doubled_lower, 0);
     int error_2dc = MPI_Reduce_scatter((void *) source_2dc, (void *) dest_2dc,
-            &real_lengths[0], MPI_DOUBLE_COMPLEX, MPI_SUM, comm2.get());
+            &real_lengths[0], MPI_DOUBLE_COMPLEX, MPI_SUM, comm2_sptr->get());
 
     int error_1d = MPI_Allreduce(MPI_IN_PLACE,
             (void*) local_charge_density.get_grid_points_1d().origin(),
             local_charge_density.get_grid_points_1d().num_elements(),
-            MPI_DOUBLE, MPI_SUM, comm2.get());
+            MPI_DOUBLE, MPI_SUM, comm2_sptr->get());
 #if 0
     const double * source_1d
             = local_charge_density.get_grid_points_1d().origin();
@@ -453,7 +433,7 @@ Space_charge_2d_open_hockney::get_global_charge_density2_reduce_scatter(
     dest_1d = multi_array_offset(dest_array_1d, 0);
 
     int error_1d = MPI_Reduce_scatter((void *) source_1d, (void *) dest_1d,
-            &real_lengths_1d[0], MPI_DOUBLE, MPI_SUM, comm2.get());
+            &real_lengths_1d[0], MPI_DOUBLE, MPI_SUM, comm2_sptr->get());
 #endif
 
     if ((error_2dc != MPI_SUCCESS) || (error_1d != MPI_SUCCESS)) {
@@ -462,7 +442,7 @@ Space_charge_2d_open_hockney::get_global_charge_density2_reduce_scatter(
     }
     Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr,
-                    doubled_lower, doubled_upper, doubled_grid_shape, comm2));
+                    doubled_lower, doubled_upper, doubled_grid_shape, comm2_sptr));
     for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
             rho2->get_grid_points_2dc()[i][j] = dest_array_2dc[i][j];
@@ -484,11 +464,11 @@ Space_charge_2d_open_hockney::get_global_charge_density2_allreduce(
     int error_2d = MPI_Allreduce(MPI_IN_PLACE,
             (void*) local_charge_density.get_grid_points_2dc().origin(),
             local_charge_density.get_grid_points_2dc().num_elements(),
-            MPI_DOUBLE_COMPLEX, MPI_SUM, comm2.get());
+            MPI_DOUBLE_COMPLEX, MPI_SUM, comm2_sptr->get());
     int error_1d = MPI_Allreduce(MPI_IN_PLACE,
             (void*) local_charge_density.get_grid_points_1d().origin(),
             local_charge_density.get_grid_points_1d().num_elements(),
-            MPI_DOUBLE, MPI_SUM, comm2.get());
+            MPI_DOUBLE, MPI_SUM, comm2_sptr->get());
 
     if ((error_2d != MPI_SUCCESS) || (error_1d != MPI_SUCCESS)) {
         throw std::runtime_error(
@@ -496,7 +476,7 @@ Space_charge_2d_open_hockney::get_global_charge_density2_allreduce(
     }
     Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr,
-                    doubled_lower, doubled_upper, doubled_grid_shape, comm2));
+                    doubled_lower, doubled_upper, doubled_grid_shape, comm2_sptr));
     for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
             rho2->get_grid_points_2dc()[i][j]
@@ -538,7 +518,7 @@ Space_charge_2d_open_hockney::get_green_fn2_pointlike()
     int upper = distributed_fft2d_sptr->get_upper();
     Distributed_rectangular_grid_sptr G2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr,
-                    lower, upper, doubled_grid_shape, comm2));
+                    lower, upper, doubled_grid_shape, comm2_sptr));
 
     double hx = domain_sptr->get_cell_size()[0];
     double hy = domain_sptr->get_cell_size()[1];
@@ -606,7 +586,7 @@ Space_charge_2d_open_hockney::get_local_force2(
     }
     Distributed_rectangular_grid_sptr local_force2(
             new Distributed_rectangular_grid(doubled_domain_sptr,
-                    lower, upper, doubled_grid_shape, comm2));
+                    lower, upper, doubled_grid_shape, comm2_sptr));
     for (int i = lower; i < upper; ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
             local_force2->get_grid_points_2dc()[i][j] = 0.0;
@@ -651,13 +631,13 @@ Space_charge_2d_open_hockney::get_global_electric_force2_gatherv_bcast(
             doubled_domain_sptr));
     const int root = 0;
     int error;
-    if (in_group1) {
-        int rank = comm2.get_rank();
+    if (comm1_sptr->has_this_rank()) {
+        int rank = comm2_sptr->get_rank();
         error = MPI_Gatherv((void *) (dist_force.get_grid_points_2dc().origin()
                 + lowers1[rank]), lengths1[rank], MPI_DOUBLE_COMPLEX,
                 (void*) global_force2->get_grid_points_2dc().origin(),
                 &lengths1[0], &lowers1[0], MPI_DOUBLE_COMPLEX, root,
-                comm1.get());
+                comm1_sptr->get());
         if (error != MPI_SUCCESS) {
             throw std::runtime_error(
                     "MPI error in Space_charge_2d_open_hockney(MPI_Gatherv)");
@@ -665,7 +645,7 @@ Space_charge_2d_open_hockney::get_global_electric_force2_gatherv_bcast(
     }
     int total_length = doubled_grid_shape[0] * doubled_grid_shape[1];
     error = MPI_Bcast(global_force2->get_grid_points_2dc().origin(),
-            total_length, MPI_DOUBLE_COMPLEX, root, comm2.get());
+            total_length, MPI_DOUBLE_COMPLEX, root, comm2_sptr->get());
     if (error != MPI_SUCCESS) {
         throw std::runtime_error(
                 "MPI error in Space_charge_2d_open_hockney(MPI_Bcast)");
@@ -681,10 +661,10 @@ Space_charge_2d_open_hockney::get_global_electric_force2_allgatherv(
 {
     Rectangular_grid_sptr global_force2(new Rectangular_grid(
             doubled_domain_sptr));
-    std::vector<int > lowers12(comm2.get_size());  // lowers1 on comm2
-    std::vector<int > lengths12(comm2.get_size()); // lengths1 on comm2
+    std::vector<int > lowers12(comm2_sptr->get_size());  // lowers1 on comm2
+    std::vector<int > lengths12(comm2_sptr->get_size()); // lengths1 on comm2
     int size1 = lowers1.size();
-    for (int rank = 0; rank < comm2.get_size(); ++rank) {
+    for (int rank = 0; rank < comm2_sptr->get_size(); ++rank) {
         if (rank < size1) {
             lowers12[rank] = lowers1[rank];
             lengths12[rank] = lengths1[rank];
@@ -693,12 +673,12 @@ Space_charge_2d_open_hockney::get_global_electric_force2_allgatherv(
             lengths12[rank] = 0;
         }
     }
-    int rank = comm2.get_rank();
+    int rank = comm2_sptr->get_rank();
     int error = MPI_Allgatherv((void *) (
             dist_force.get_grid_points_2dc().origin() + lowers12[rank]),
             lengths12[rank], MPI_DOUBLE_COMPLEX,
             (void*) global_force2->get_grid_points_2dc().origin(),
-            &lengths12[0], &lowers12[0], MPI_DOUBLE_COMPLEX, comm2.get());
+            &lengths12[0], &lowers12[0], MPI_DOUBLE_COMPLEX, comm2_sptr->get());
     if (error != MPI_SUCCESS) {
         throw std::runtime_error(
                 "MPI error in Space_charge_2d_open_hockney(MPI_Allgatherv)");
@@ -729,7 +709,7 @@ Space_charge_2d_open_hockney::get_global_electric_force2_allreduce(
     int error = MPI_Allreduce(MPI_IN_PLACE,
             (void*) global_force2->get_grid_points_2dc().origin(),
             global_force2->get_grid_points_2dc().num_elements(),
-            MPI_DOUBLE_COMPLEX, MPI_SUM, comm2.get());
+            MPI_DOUBLE_COMPLEX, MPI_SUM, comm2_sptr->get());
     if (error != MPI_SUCCESS) {
         throw std::runtime_error(
                 "MPI error in Space_charge_2d_open_hockney(MPI_Allreduce in get_global_electric_force2_allreduce)");
@@ -819,23 +799,4 @@ Space_charge_2d_open_hockney::apply(Bunch & bunch, double time_step,
 
 Space_charge_2d_open_hockney::~Space_charge_2d_open_hockney()
 {
-    int error;
-    if (in_group1) {
-        error = MPI_Comm_free(&mpi_comm1);
-        if (error != MPI_SUCCESS) {
-            throw std::runtime_error(
-                    "MPI error in Space_charge_2d_open_hockney(MPI_Comm_free)");
-        }
-    }
-    error = MPI_Group_free(&group1);
-    if (error != MPI_SUCCESS) {
-        throw std::runtime_error(
-                "MPI error in Space_charge_2d_open_hockney(MPI_Group_free(1))");
-    }
-    error = MPI_Group_free(&group2);
-    if (error != MPI_SUCCESS) {
-        throw std::runtime_error(
-                "MPI error in Space_charge_2d_open_hockney(MPI_Group_free(2))");
-    }
-
 }

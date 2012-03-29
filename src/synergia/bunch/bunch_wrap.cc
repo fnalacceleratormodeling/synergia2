@@ -127,7 +127,7 @@ BOOST_PYTHON_MODULE(bunch)
     def("populate_two_particles", populate_two_particles);
 
     class_<Train_comms, Train_comms_sptr, boost::noncopyable >
-        ("Train_comms", init<int, Commxx const& >())
+        ("Train_comms", init<int, Commxx_sptr >())
         .def("get_num_bunches", &Train_comms::get_num_bunches)
         .def("get_master_comm", &Train_comms::get_master_comm,
                     return_value_policy<copy_const_reference>())
@@ -138,7 +138,7 @@ BOOST_PYTHON_MODULE(bunch)
 
 
     class_<Bunch_train, Bunch_train_sptr, bases<Train_comms > >("Bunch_train",
-            init<int, double, Commxx const& >())
+            init<int, double, Commxx_sptr >())
             .def("get_bunch_separation", &Bunch_train::get_bunch_separation)
             .def("get_bunch_sptr", &Bunch_train::get_bunch_sptr)
             .def("set_bunch_sptr", &Bunch_train::set_bunch_sptr)
@@ -146,7 +146,7 @@ BOOST_PYTHON_MODULE(bunch)
 
 #if 0
     class_<Bunch_with_diagnostics_train, Bunch_with_diagnostics_train_sptr, bases<Train_comms > >("Bunch_with_diagnostics_train",
-            init<int, double, Commxx const& >())
+            init<int, double, Commxx_sptr >())
             .def("get_bunch_separation", &Bunch_with_diagnostics_train::get_bunch_separation)
             .def("get_bunch_diag_sptr", &Bunch_with_diagnostics_train::get_bunch_diag_sptr)
             .def("set_bunch_diag_sptr", &Bunch_with_diagnostics_train::set_bunch_diag_sptr)
@@ -158,13 +158,13 @@ BOOST_PYTHON_MODULE(bunch)
     scope
         Bunch_scope =
             class_<Bunch, Bunch_sptr > ("Bunch", init<Reference_particle const&,
-                    int, double, Commxx const& > ())
+                    int, double, Commxx_sptr > ())
                 .def(init<Reference_particle const&, int, double,
-                        Commxx const&, int >())
+                        Commxx_sptr, int >())
                 .def(init<Reference_particle const&, int, double,
-                        Commxx const&, double >())
+                        Commxx_sptr, double >())
                 .def(init<Reference_particle const&, int, double,
-                        Commxx const&, double, int >())
+                        Commxx_sptr, double, int >())
                 .def("set_particle_charge", &Bunch::set_particle_charge)
                 .def("set_real_num", &Bunch::set_real_num)
                 .def("set_local_num", &Bunch::set_local_num)

@@ -48,8 +48,9 @@ run()
 #if 0
     lattice_sptr->print();
 #endif
+    Commxx_sptr comm_sptr(new Commxx);
     Space_charge_3d_open_hockney_sptr space_charge_sptr(
-            new Space_charge_3d_open_hockney(Commxx(), grid_shape));
+            new Space_charge_3d_open_hockney(comm_sptr, grid_shape));
 
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
@@ -88,10 +89,9 @@ run()
     //      lattice_simulator, space_charge_sptr, num_steps));
     Propagator propagator(stepper_sptr);
 
-    Commxx comm(MPI_COMM_WORLD);
     Bunch_sptr bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(),
-            num_macro_particles, num_real_particles, comm));
-    Random_distribution distribution(seed, comm);
+            num_macro_particles, num_real_particles, comm_sptr));
+    Random_distribution distribution(seed, *comm_sptr);
 
     // get actions
 
@@ -128,7 +128,7 @@ run()
     double t0 = MPI_Wtime();
     propagator.propagate(bunch_simulator, num_turns);
     double t1 = MPI_Wtime();
-    if (comm.get_rank() == 0) {
+    if (comm_sptr->get_rank() == 0) {
       std::cout << "propagate time = " << (t1-t0) << std::endl;
     }
     Diagnostics_particles diag_particles_f("nf_particles_final.h5", 0, 32768);

@@ -7,16 +7,13 @@
 #include "synergia/foundation/math_constants.h"
 #include <complex>
 #include <cmath>
-
 // set DBGPRINT to 1 to print values for tolerance failures
 #define DBGPRINT 0
 #if DBGPRINT
 #include <iostream>
 #endif
-
 // define FAILME to force failures
 #define FAILME 0
-
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 // n.b. We use 0,1,2 here instead of x,y,z because
@@ -44,7 +41,8 @@ struct Shape_struct
 struct Fixture
 {
     Fixture() :
-        shape(shape_struct.shape), distributed_fft3d(shape, Commxx())
+        shape(shape_struct.shape),
+                distributed_fft3d(shape, Commxx_sptr(new Commxx))
     {
     }
     ~Fixture()
@@ -74,7 +72,8 @@ struct Shape_struct2
 struct Fixture2
 {
     Fixture2() :
-        shape(shape_struct2.shape), distributed_fft3d(shape, Commxx())
+        shape(shape_struct2.shape),
+                distributed_fft3d(shape, Commxx_sptr(new Commxx))
     {
     }
     ~Fixture2()
@@ -155,8 +154,9 @@ BOOST_FIXTURE_TEST_CASE(transform_bad_in_offset, Fixture)
     int lower = distributed_fft3d.get_lower();
     int upper = distributed_fft3d.get_upper();
     std::vector<int > rshape(distributed_fft3d.get_padded_shape_real());
-    MArray3d rarray(
-            boost::extents[extent_range(lower-1, upper-1)][rshape[1]][rshape[2]]);
+    MArray3d
+            rarray(
+                    boost::extents[extent_range(lower - 1, upper - 1)][rshape[1]][rshape[2]]);
     std::vector<int > cshape(distributed_fft3d.get_padded_shape_complex());
     MArray3dc carray(
             boost::extents[extent_range(lower, upper)][cshape[1]][cshape[2]]);
@@ -180,8 +180,9 @@ BOOST_FIXTURE_TEST_CASE(transform_bad_out_offset, Fixture)
     MArray3d rarray(
             boost::extents[extent_range(lower, upper)][rshape[1]][rshape[2]]);
     std::vector<int > cshape(distributed_fft3d.get_padded_shape_complex());
-    MArray3dc carray(
-            boost::extents[extent_range(lower-1, upper-1)][cshape[1]][cshape[2]]);
+    MArray3dc
+            carray(
+                    boost::extents[extent_range(lower - 1, upper - 1)][cshape[1]][cshape[2]]);
 
     bool caught_error = false;
     try {
@@ -202,8 +203,9 @@ BOOST_FIXTURE_TEST_CASE(inv_transform_bad_in_offset, Fixture)
     MArray3d rarray(
             boost::extents[extent_range(lower, upper)][rshape[1]][rshape[2]]);
     std::vector<int > cshape(distributed_fft3d.get_padded_shape_complex());
-    MArray3dc carray(
-            boost::extents[extent_range(lower-1, upper-1)][cshape[1]][cshape[2]]);
+    MArray3dc
+            carray(
+                    boost::extents[extent_range(lower - 1, upper - 1)][cshape[1]][cshape[2]]);
 
     bool caught_error = false;
     try {
@@ -221,8 +223,9 @@ BOOST_FIXTURE_TEST_CASE(inv_transform_bad_out_offset, Fixture)
     int lower = distributed_fft3d.get_lower();
     int upper = distributed_fft3d.get_upper();
     std::vector<int > rshape(distributed_fft3d.get_padded_shape_real());
-    MArray3d rarray(
-            boost::extents[extent_range(lower-1, upper-1)][rshape[1]][rshape[2]]);
+    MArray3d
+            rarray(
+                    boost::extents[extent_range(lower - 1, upper - 1)][rshape[1]][rshape[2]]);
     std::vector<int > cshape(distributed_fft3d.get_padded_shape_complex());
     MArray3dc carray(
             boost::extents[extent_range(lower, upper)][cshape[1]][cshape[2]]);
@@ -259,45 +262,44 @@ BOOST_FIXTURE_TEST_CASE(transform_realtest, Fixture2)
     const int loc2 = 2;
 
     // The frequency corresponding to the array position
-    const double freq0 = double(loc0)/shape[0];
-    const double freq1 = double(loc1)/shape[1];
-    const double freq2 = double(loc2)/shape[2];
+    const double freq0 = double(loc0) / shape[0];
+    const double freq1 = double(loc1) / shape[1];
+    const double freq2 = double(loc2) / shape[2];
 
     const double dx0 = 1.0;
     const double dx1 = 1.0;
     const double dx2 = 1.0;
 
     // fill the input array
-    double x0 = double(lower)*dx0;
-    for (int i0=lower; i0<upper; ++i0) {
-      if (i0 >= shape[0]/2) {
-	x0 -= shape[0]*dx0;
-      }
-      double x1 = 0.0;
-      for (int i1=0; i1<shape[1]; ++i1) {
-	if (i1 >= shape[1]/2) {
-	  x1 -= shape[1]*dx1;
-	}
-	double x2 = 0.0;
-	for (int i2=0; i2<shape[2]; ++i2) {
-	  if (i2 >= shape[2]/2) {
-	    x2 -= shape[2]*dx2;
-	  }
-	  orig[i0][i1][i2] =
-	    cos(2.0*mconstants::pi*freq0*x0) *
-	    cos(2.0*mconstants::pi*freq1*x1) *
-	    cos(2.0*mconstants::pi*freq2*x2);
+    double x0 = double(lower) * dx0;
+    for (int i0 = lower; i0 < upper; ++i0) {
+        if (i0 >= shape[0] / 2) {
+            x0 -= shape[0] * dx0;
+        }
+        double x1 = 0.0;
+        for (int i1 = 0; i1 < shape[1]; ++i1) {
+            if (i1 >= shape[1] / 2) {
+                x1 -= shape[1] * dx1;
+            }
+            double x2 = 0.0;
+            for (int i2 = 0; i2 < shape[2]; ++i2) {
+                if (i2 >= shape[2] / 2) {
+                    x2 -= shape[2] * dx2;
+                }
+                orig[i0][i1][i2] = cos(2.0 * mconstants::pi * freq0 * x0)
+                        * cos(2.0 * mconstants::pi * freq1 * x1) * cos(
+                        2.0 * mconstants::pi * freq2 * x2);
 #if FAILME
-	  orig[i0][i1][i2] *= 1.1;
-	  if (i0 > shape[0]/2) {
-	    orig[i0][i1][i2] = 0.0;
-	  }
+                orig[i0][i1][i2] *= 1.1;
+                if (i0 > shape[0]/2) {
+                    orig[i0][i1][i2] = 0.0;
+                }
 #endif
-	  x2 += dx2;
-	}
-	x1 += dx1;
-      }
-      x0 += dx0;
+                x2 += dx2;
+            }
+            x1 += dx1;
+        }
+        x0 += dx0;
     }
 
     distributed_fft3d.transform(orig, carray);
@@ -305,53 +307,54 @@ BOOST_FIXTURE_TEST_CASE(transform_realtest, Fixture2)
     // it's over 8 because the single frequency spike is reflected 8 times, even
     // though we only see four of them (because we're looking at the
     // half-complex transform result.)
-    double norm = double(shape[0] * shape[1] * shape[2]/8);
+    double norm = double(shape[0] * shape[1] * shape[2] / 8);
 
     // I see deviations of a few *1e12
     double fft_tolerance = 1.0e-11;
 
     // All the numbers in the result should have a negligible complex part
-    for (int i0=lower; i0<upper; ++i0) {
-      for (int i1=0; i1<cshape[1]; ++i1) {
-	for (int i2=0; i2<cshape[2]; ++i2) {
-	  BOOST_CHECK(std::abs(carray[i0][i1][i2].imag()) < fft_tolerance);
+    for (int i0 = lower; i0 < upper; ++i0) {
+        for (int i1 = 0; i1 < cshape[1]; ++i1) {
+            for (int i2 = 0; i2 < cshape[2]; ++i2) {
+                BOOST_CHECK(std::abs(carray[i0][i1][i2].imag()) < fft_tolerance);
 #if DBGPRINT
-	  if (std::abs(carray[i0][i1][i2].imag()) >= fft_tolerance) {
-	    std::cout << "imaginary part non-zero failure at (" <<
-	      i0 << "," << i1 << "," << i2 << "): " << std::abs(carray[i0][i1][i2].imag()) << std::endl;
-	  }
+                if (std::abs(carray[i0][i1][i2].imag()) >= fft_tolerance) {
+                    std::cout << "imaginary part non-zero failure at (" <<
+                    i0 << "," << i1 << "," << i2 << "): " << std::abs(carray[i0][i1][i2].imag()) << std::endl;
+                }
 #endif // DBGPRINT
-	}
-      }
+            }
+        }
     }
 
     // check the real parts.  All of them should be negligible except for
     // the ones corresponding to the location and the mirrors.
-    for (int i0=lower; i0<upper; ++i0) {
-      for (int i1=0; i1<cshape[1]; ++i1) {
-	for (int i2=0; i2<cshape[2]; ++i2) {
-	  if ( (i0==loc0)&&(i1==loc1)&&(i2==loc2) ||
-	       (i0==loc0)&&(i1==(shape[1]-loc1))&&(i2==loc2) ||
-	       (i0==(shape[0]-loc0))&&(i1==loc1)&&(i2==loc2) ||
-	       (i0==(shape[0]-loc0))&&(i1==(shape[1]-loc1))&&(i2==loc2) ) {
-	    BOOST_CHECK(std::abs(carray[i0][i1][i2].real()-norm) < fft_tolerance);
+    for (int i0 = lower; i0 < upper; ++i0) {
+        for (int i1 = 0; i1 < cshape[1]; ++i1) {
+            for (int i2 = 0; i2 < cshape[2]; ++i2) {
+                if ((i0 == loc0) && (i1 == loc1) && (i2 == loc2)
+                        || (i0 == loc0) && (i1 == (shape[1] - loc1)) && (i2
+                                == loc2) || (i0 == (shape[0] - loc0)) && (i1
+                        == loc1) && (i2 == loc2) || (i0 == (shape[0] - loc0))
+                        && (i1 == (shape[1] - loc1)) && (i2 == loc2)) {
+                    BOOST_CHECK(std::abs(carray[i0][i1][i2].real()-norm) < fft_tolerance);
 #if DBGPRINT
-	    if (std::abs(carray[i0][i1][i2].real()-norm) >= fft_tolerance) {
-	      std::cout << "real part not correct failure at (" <<
-		i0 << "," << i1 << "," << i2 << "): " << carray[i0][i1][i2].real() << std::endl;
-	    }
+                    if (std::abs(carray[i0][i1][i2].real()-norm) >= fft_tolerance) {
+                        std::cout << "real part not correct failure at (" <<
+                        i0 << "," << i1 << "," << i2 << "): " << carray[i0][i1][i2].real() << std::endl;
+                    }
 #endif // DBGPRINT
-	  } else {
-	    BOOST_CHECK(std::abs(carray[i0][i1][i2].real()) < fft_tolerance);
+                } else {
+                    BOOST_CHECK(std::abs(carray[i0][i1][i2].real()) < fft_tolerance);
 #if DBGPRINT
-	    if (std::abs(carray[i0][i1][i2].real()) >= fft_tolerance) {
-	      std::cout << "real part not negligible failure at (" <<
-		i0 << "," << i1 << "," << i2 << "): " << carray[i0][i1][i2].real() << std::endl;
-	    }
+                    if (std::abs(carray[i0][i1][i2].real()) >= fft_tolerance) {
+                        std::cout << "real part not negligible failure at (" <<
+                        i0 << "," << i1 << "," << i2 << "): " << carray[i0][i1][i2].real() << std::endl;
+                    }
 #endif // DBGPRINT
-	  }
-	}
-      }
+                }
+            }
+        }
     }
 }
 

@@ -30,13 +30,15 @@ private:
     int local_size_real, local_size_complex;
     std::vector<int > shape;
     bool have_local_data;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     void
     calculate_uppers_lengths();
 public:
-    Distributed_fft3d(std::vector<int > const& shape, Commxx const& comm,
+    Distributed_fft3d(std::vector<int > const& shape, Commxx_sptr comm_sptr,
             int planner_flags = FFTW_ESTIMATE,
             std::string const& wisdom_filename = "");
+    Commxx_sptr
+    get_comm_sptr();
     Commxx &
     get_comm();
     int

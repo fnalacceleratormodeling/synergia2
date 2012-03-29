@@ -15,7 +15,7 @@ private:
     int lower_guard, upper_guard;
     std::vector<int> uppers, lengths;
     double normalization;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     void
     construct_hockney(int lower, int upper, std::vector<int > const & array_shape);
     void
@@ -26,14 +26,14 @@ public:
     Distributed_rectangular_grid(std::vector<double > const & physical_size,
             std::vector<double > const & physical_offset,
             std::vector<int > const & grid_shape, bool periodic, int lower,
-            int upper, Commxx const& comm, std::string const solver="hockney");
+            int upper, Commxx_sptr comm_sptr, std::string const solver="hockney");
     Distributed_rectangular_grid(
             Rectangular_grid_domain_sptr rectangular_grid_domain_sptr,
-            int lower, int upper, Commxx const& comm, std::string const solver="hockney");
+            int lower, int upper, Commxx_sptr comm_sptr, std::string const solver="hockney");
     Distributed_rectangular_grid(
             Rectangular_grid_domain_sptr rectangular_grid_domain_sptr,
             int lower, int upper, std::vector<int > const & padded_shape,
-            Commxx const& comm);
+            Commxx_sptr comm_sptr);
     Rectangular_grid_domain const&
     get_domain() const
     {
@@ -78,6 +78,8 @@ public:
     get_normalization() const;
     Commxx const &
     get_comm() const;
+    Commxx_sptr
+    get_comm_sptr() const;
     void
     fill_guards();
 };

@@ -12,7 +12,7 @@
 #include "synergia/utils/hdf5_file.h"
 
 /// Represents a macroparticle bunch distributed across the processors
-/// in a communicator.
+/// in a comm_sptrunicator.
 class Bunch
 {
 public:
@@ -50,7 +50,7 @@ private:
     int bucket_index;
     int sort_period, sort_counter;
     State state;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Fixed_t_z_converter *converter_ptr;
     Fixed_t_z_zeroth default_converter;
     // Fixed_t_z_alex default_converter;
@@ -70,9 +70,9 @@ public:
     /// @param total_num the total number of macroparticles in the bunch
     /// @param real_num the number of real particles represented by the bunch.
     /// @param bucket_index the bucket number the  bunch occupies, used for multi-bunch simulations
-    /// @param comm the communicator.
+    /// @param comm_sptr the comm_sptrunicator.
     Bunch(Reference_particle const& reference_particle, int total_num,
-            double real_num, Commxx const& comm);
+            double real_num, Commxx_sptr comm_sptr);
     //!
     //! Constructor with 5-parameter signature
     //! Same as above, but having the flexibility
@@ -80,16 +80,16 @@ public:
     /// @param reference_particle the reference particle for the bunch.
     /// @param total_num the total number of macroparticles in the bunch
     /// @param real_num the number of real particles represented by the bunch.
-    /// @param comm the communicator.
+    /// @param comm_sptr the comm_sptrunicator.
     /// @param particle_charge in units of e.
     Bunch(Reference_particle const& reference_particle, int total_num,
-            double real_num, Commxx const& comm, int particle_charge);
+            double real_num, Commxx_sptr comm_sptr, int particle_charge);
 
     //   Bunch(Reference_particle const& reference_particle, int total_num,
-    //       double real_num, Commxx const& comm, double z_period_length);
+    //       double real_num, Commxx_sptr comm_sptr, double z_period_length);
 
     Bunch(Reference_particle const& reference_particle, int total_num,
-            double real_num, Commxx const& comm, double z_period_length,
+            double real_num, Commxx_sptr comm_sptr, double z_period_length,
             int bucket_index = 0);
 
     /// Default constructor for serialization use only
@@ -130,7 +130,7 @@ public:
 
     ///
     /// Update the total number and real number of particles after the local
-    /// number has been changed. Requires communication.
+    /// number has been changed. Requires comm_sptrunication.
     void
     update_total_num();
 
@@ -227,6 +227,10 @@ public:
     Commxx const&
     get_comm() const;
 
+    /// Get the communicator
+    Commxx_sptr
+    get_comm_sptr() const;
+
     /// Add a copy of the particles in bunch to the current bunch. The
     /// injected bunch must have the same macroparticle weight, i.e.,
     /// real_num/total_num. If the state vectors of the reference particles
@@ -246,7 +250,7 @@ public:
     //    double real_num;
     //    int sort_period, sort_counter;
     //    State state;
-    //    Commxx comm;
+    //    Commxx comm_sptr;
     //    Fixed_t_z_converter *converter_ptr;
     //    Fixed_t_z_zeroth default_converter;
 
@@ -263,7 +267,7 @@ public:
                     << BOOST_SERIALIZATION_NVP(sort_period)
                     << BOOST_SERIALIZATION_NVP(sort_counter)
                     << BOOST_SERIALIZATION_NVP(state)
-                    << BOOST_SERIALIZATION_NVP(comm)
+                    << BOOST_SERIALIZATION_NVP(comm_sptr)
                     << BOOST_SERIALIZATION_NVP(default_converter)
                     << BOOST_SERIALIZATION_NVP(converter_ptr);
             Hdf5_file file(get_serialization_path("local_particles.h5"),
@@ -284,7 +288,7 @@ public:
                     >> BOOST_SERIALIZATION_NVP(sort_period)
                     >> BOOST_SERIALIZATION_NVP(sort_counter)
                     >> BOOST_SERIALIZATION_NVP(state)
-                    >> BOOST_SERIALIZATION_NVP(comm)
+                    >> BOOST_SERIALIZATION_NVP(comm_sptr)
                     >> BOOST_SERIALIZATION_NVP(default_converter)
                     >> BOOST_SERIALIZATION_NVP(converter_ptr);
             Hdf5_file file(get_serialization_path("local_particles.h5"),

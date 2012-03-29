@@ -9,8 +9,8 @@ using pconstants::epsilon0;
 #include <fftw3-mpi.h>
 
 
-Space_charge_rectangular::Space_charge_rectangular(Commxx const & comm_f, std::vector<double > const & pipe_size, std::vector<int > const & grid_shape):
-Collective_operator("space_charge_rectangular"),  comm_f(comm_f), grid_shape(grid_shape)
+Space_charge_rectangular::Space_charge_rectangular(Commxx_sptr comm_f_sptr, std::vector<double > const & pipe_size, std::vector<int > const & grid_shape):
+Collective_operator("space_charge_rectangular"),  comm_f_sptr(comm_f_sptr), grid_shape(grid_shape)
 {
 
  try{
@@ -18,7 +18,7 @@ Collective_operator("space_charge_rectangular"),  comm_f(comm_f), grid_shape(gri
     this->domain_sptr = Rectangular_grid_domain_sptr(
                     new Rectangular_grid_domain(pipe_size, offset, grid_shape , true));
     this->have_fftw_helper=false;
-    construct_fftw_helper(comm_f);
+    construct_fftw_helper(comm_f_sptr);
 
  }
  catch (std::exception const& e){
@@ -52,11 +52,11 @@ Space_charge_rectangular::~Space_charge_rectangular()
 }
 
 void
-Space_charge_rectangular::construct_fftw_helper(Commxx const & comm)
+Space_charge_rectangular::construct_fftw_helper(Commxx_sptr comm_sptr)
 {
     if (!have_fftw_helper){
-        this->fftw_helper_sptr=  Fftw_rectangular_helper_sptr (  new   Fftw_rectangular_helper(grid_shape, comm));
-        this->comm_f=comm;
+        this->fftw_helper_sptr=  Fftw_rectangular_helper_sptr (  new   Fftw_rectangular_helper(grid_shape, comm_sptr));
+        this->comm_f_sptr=comm_sptr;
         this->have_fftw_helper=true;
     }
     else {
@@ -67,16 +67,16 @@ Space_charge_rectangular::construct_fftw_helper(Commxx const & comm)
 
 
 void
-Space_charge_rectangular::set_fftw_helper(Commxx const & comm)
+Space_charge_rectangular::set_fftw_helper(Commxx_sptr comm_sptr)
 {
 
  try{
     if (!have_fftw_helper){
-            construct_fftw_helper(comm);
+            construct_fftw_helper(comm_sptr);
         }
         else {
-            this->fftw_helper_sptr->reset_comm_f(comm);
-            this->comm_f=comm;
+            this->fftw_helper_sptr->reset_comm_f(comm_sptr);
+            this->comm_f_sptr=comm_sptr;
         }
     }
  catch (std::exception const& e){
@@ -157,7 +157,7 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bu
                 "Space_charge_rectangular::get_phi_local  space_charge does not have have_fftw_helper defined");
 
     double t;
-    int lrank=comm_f.get_rank();
+    int lrank=comm_f_sptr->get_rank();
     t = simple_timer_current();
 
 
@@ -180,7 +180,7 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bu
     shape_local[0]=local_nx;
     Distributed_rectangular_grid_sptr phi_local(
         new Distributed_rectangular_grid(local_physical_size, local_physical_offset, shape_local,
-            true, lower, upper, comm_f, solver)
+            true, lower, upper, comm_f_sptr, solver)
             );
 
 
@@ -250,13 +250,13 @@ Space_charge_rectangular::fill_guards_pplanes(Distributed_rectangular_grid & phi
                           MArray2d & g_lower, MArray2d &g_upper)
 {
     int mpi_compare;
-    MPI_Comm_compare(phi.get_comm().get(), comm_f.get(), &mpi_compare) ;
+    MPI_Comm_compare(phi.get_comm().get(), comm_f_sptr->get(), &mpi_compare) ;
     if  (mpi_compare != MPI_IDENT)    {
         throw std::runtime_error("space charge rectangular, phi comm is not the same as space_charge comm_f");
     }
 
-    int size=comm_f.get_size();
-    int lrank=comm_f.get_rank();
+    int size=comm_f_sptr->get_size();
+    int lrank=comm_f_sptr->get_rank();
     std::vector<int > shape_phi(phi.get_domain().get_grid_shape());
     int message_size = shape_phi[1] * shape_phi[2];
     int shapex=upper-lower;
@@ -268,24 +268,24 @@ Space_charge_rectangular::fill_guards_pplanes(Distributed_rectangular_grid & phi
 
     if ((upper < lengthx) &&  (upper >0)) {
         send_buffer=reinterpret_cast<void*>(phi.get_grid_points().origin()+(shapex-1)*message_size);
-        MPI_Send(send_buffer, message_size, MPI_DOUBLE, lrank + 1, lrank, comm_f.get());
+        MPI_Send(send_buffer, message_size, MPI_DOUBLE, lrank + 1, lrank, comm_f_sptr->get());
     }
     if (lower > 0) {
         recv_buffer=reinterpret_cast<void*>(g_lower.data());
         MPI_Recv(recv_buffer, message_size, MPI_DOUBLE, lrank - 1, lrank - 1,
-                 comm_f.get(), &status);
+                 comm_f_sptr->get(), &status);
     }
  // send to the left
 
     if (lower > 0) {
         send_buffer=reinterpret_cast<void*>(phi.get_grid_points().origin());
         MPI_Send(send_buffer, message_size, MPI_DOUBLE, lrank - 1, lrank,
-                 comm_f.get());
+                 comm_f_sptr->get());
     }
     if ((upper < lengthx) &&  (upper >0)){
         recv_buffer=reinterpret_cast<void*>(g_upper.data());
         MPI_Recv(recv_buffer, message_size, MPI_DOUBLE, lrank + 1, lrank + 1,
-                 comm_f.get(), &status);
+                 comm_f_sptr->get(), &status);
     }
 }
 
@@ -309,8 +309,8 @@ Space_charge_rectangular::get_En(Distributed_rectangular_grid &phi, Bunch const&
     double h(hi[component]);
 
 
-    int size=comm_f.get_size();
-    int lrank=comm_f.get_rank();
+    int size=comm_f_sptr->get_size();
+    int lrank=comm_f_sptr->get_rank();
     std::vector<int > shape(domain_sptr->get_grid_shape());
 
     int lower =  phi.get_lower();
@@ -423,7 +423,7 @@ Space_charge_rectangular::get_En(Distributed_rectangular_grid &phi, Bunch const&
     int error = MPI_Allgatherv(reinterpret_cast<void*>(En_local_a.origin()),
                receive_counts[lrank], MPI_DOUBLE,
                reinterpret_cast<void*>(En->get_grid_points().origin()),
-                                       &receive_counts[0], &receive_offsets[0], MPI_DOUBLE, comm_f.get());
+                                       &receive_counts[0], &receive_offsets[0], MPI_DOUBLE, comm_f_sptr->get());
 
     if (error != MPI_SUCCESS) {
         throw std::runtime_error(

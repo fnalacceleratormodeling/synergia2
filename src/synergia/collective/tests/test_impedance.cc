@@ -27,9 +27,9 @@ struct Fixture
     Fixture() :
         four_momentum(mass, total_energy), reference_particle(
                 pconstants::proton_charge, four_momentum),
-                comm(MPI_COMM_WORLD),
+                comm_sptr(new Commxx),
                  bunch(reference_particle, total_num,
-                        real_num, comm), step(step_length)
+                        real_num, comm_sptr), step(step_length)
     {
         BOOST_TEST_MESSAGE("setup fixture");
     }
@@ -40,7 +40,7 @@ struct Fixture
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Bunch bunch;
     Step step;
 };
@@ -121,7 +121,7 @@ BOOST_CHECK_CLOSE(imped.get_y_wake()[3],   -1.77089e+11  , tolerance);
 
 BOOST_FIXTURE_TEST_CASE(test_apply, Fixture)
   {
-    Bunch bunch(reference_particle, total_num, real_num, comm);
+    Bunch bunch(reference_particle, total_num, real_num, comm_sptr);
     dummy_populate(bunch);
     Step step(step_length);
     double time_step=10.;

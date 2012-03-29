@@ -32,10 +32,10 @@ dummy_populate(Bunch &bunch)
 struct Fixture
 {
     Fixture() :
+            reference_particle(pconstants::electron_charge, mass,
+                    total_energy), comm_sptr(new Commxx),
                 bunch_sptr(
-                        new Bunch(reference_particle, total_num, real_num, comm)),
-                reference_particle(pconstants::electron_charge, mass,
-                        total_energy), comm(MPI_COMM_WORLD)
+                        new Bunch(reference_particle, total_num, real_num, comm_sptr))
     {
         BOOST_TEST_MESSAGE("setup fixture");
         dummy_populate(*bunch_sptr);
@@ -48,7 +48,7 @@ struct Fixture
     }
 
     Reference_particle reference_particle;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Bunch_sptr bunch_sptr;
 };
 

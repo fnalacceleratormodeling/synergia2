@@ -61,8 +61,8 @@ Distributed_rectangular_grid::construct_rectangular(int lower, int upper,
 
     grid_points_sptr
             = boost::shared_ptr<MArray3d >(
-                    new MArray3d(boost::extents[array_shape[0]][array_shape[1]][array_shape[2]]));  
- 
+                    new MArray3d(boost::extents[array_shape[0]][array_shape[1]][array_shape[2]]));
+
      grid_points_2dc_sptr
               = boost::shared_ptr<MArray2dc >(
                       new MArray2dc(boost::extents[array_shape[0]][array_shape[1]]));
@@ -79,38 +79,38 @@ Distributed_rectangular_grid::Distributed_rectangular_grid(
         std::vector<double > const & physical_size,
         std::vector<double > const & physical_offset,
         std::vector<int > const & grid_shape, bool periodic, int lower,
-        int upper, Commxx const& comm, std::string const solver) :
-    comm(comm), uppers(0), lengths(0)
+        int upper, Commxx_sptr comm_sptr, std::string const solver) :
+    comm_sptr(comm_sptr), uppers(0), lengths(0)
 {
     domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
             physical_size, physical_offset, grid_shape, periodic));
-    if (solver=="hockney") {        
+    if (solver=="hockney") {
         construct_hockney(lower, upper, domain_sptr->get_grid_shape());
     }
-    else if  (solver=="rectangular"){    
+    else if  (solver=="rectangular"){
          construct_rectangular(lower, upper, domain_sptr->get_grid_shape());
-    }    
+    }
 
 }
 
 Distributed_rectangular_grid::Distributed_rectangular_grid(
         Rectangular_grid_domain_sptr rectangular_grid_domain_sptr, int lower,
-        int upper, Commxx const& comm, std::string const solver) :
-    comm(comm), uppers(0), lengths(0)
+        int upper, Commxx_sptr comm_sptr, std::string const solver) :
+    comm_sptr(comm_sptr), uppers(0), lengths(0)
 {
     domain_sptr = rectangular_grid_domain_sptr;
     if (solver=="hockney") {
         construct_hockney(lower, upper, domain_sptr->get_grid_shape());
     }
-    else if  (solver=="rectangular"){    
+    else if  (solver=="rectangular"){
          construct_rectangular(lower, upper, domain_sptr->get_grid_shape());
-    }   
+    }
 }
 
 Distributed_rectangular_grid::Distributed_rectangular_grid(
         Rectangular_grid_domain_sptr rectangular_grid_domain_sptr, int lower,
-        int upper, std::vector<int > const & padded_shape, Commxx const& comm) :
-    comm(comm), uppers(0), lengths(0)
+        int upper, std::vector<int > const & padded_shape, Commxx_sptr comm_sptr) :
+    comm_sptr(comm_sptr), uppers(0), lengths(0)
 {
     domain_sptr = rectangular_grid_domain_sptr;
     construct_hockney(lower, upper, padded_shape);
@@ -156,14 +156,14 @@ void
 Distributed_rectangular_grid::calculate_uppers_lengths()
 {
     if (uppers.empty()) {
-        int size = comm.get_size();
+        int size = comm_sptr->get_size();
         uppers.resize(size);
         lengths.resize(size);
         if (size == 1) {
             uppers[0] = upper;
         } else {
             MPI_Allgather((void*) (&upper), 1, MPI_INT, (void*) (&uppers[0]),
-                    1, MPI_INT, comm.get());
+                    1, MPI_INT, comm_sptr->get());
         }
         std::vector<int> shape(domain_sptr->get_grid_shape());
         lengths[0] = uppers[0] * shape[1] * shape[2];
@@ -242,14 +242,20 @@ Distributed_rectangular_grid::get_normalization() const
 Commxx const &
 Distributed_rectangular_grid::get_comm() const
 {
-return comm;
+    return *comm_sptr;
+}
+
+Commxx_sptr
+Distributed_rectangular_grid::get_comm_sptr() const
+{
+    return comm_sptr;
 }
 
 void
 Distributed_rectangular_grid::fill_guards()
 {
-    int rank = comm.get_rank();
-    int size = comm.get_size();
+    int rank = comm_sptr->get_rank();
+    int size = comm_sptr->get_size();
     if (size == 1) {
         if (domain_sptr->is_periodic()) {
             int max0 = domain_sptr->get_grid_shape()[0];
@@ -310,11 +316,11 @@ Distributed_rectangular_grid::fill_guards()
     }
     if (send) {
         MPI_Send(send_buffer, message_size, MPI_DOUBLE, receiver, rank,
-                comm.get());
+                comm_sptr->get());
     }
     if (receive) {
         MPI_Recv(recv_buffer, message_size, MPI_DOUBLE, sender, sender,
-                comm.get(), &status);
+                comm_sptr->get(), &status);
     }
 
     //send to the left
@@ -349,10 +355,10 @@ Distributed_rectangular_grid::fill_guards()
     }
     if (send) {
         MPI_Send(send_buffer, message_size, MPI_DOUBLE, receiver, rank,
-                comm.get());
+                comm_sptr->get());
     }
     if (receive) {
         MPI_Recv(recv_buffer, message_size, MPI_DOUBLE, sender, sender,
-                comm.get(), &status);
+                comm_sptr->get(), &status);
     }
 }

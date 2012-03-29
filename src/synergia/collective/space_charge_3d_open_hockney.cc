@@ -13,9 +13,8 @@ void
 Space_charge_3d_open_hockney::setup_nondoubled_communication()
 {
     std::vector<int > ranks1; // ranks with data from the undoubled domain
-    in_group1 = false;
     int lower = 0;
-    for (int rank = 0; rank < comm2.get_size(); ++rank) {
+    for (int rank = 0; rank < comm2_sptr->get_size(); ++rank) {
         int uppers2 = distributed_fft3d_sptr->get_uppers()[rank];
         int uppers1 = std::min(uppers2, grid_shape[0]);
         int length0;
@@ -26,36 +25,17 @@ Space_charge_3d_open_hockney::setup_nondoubled_communication()
         }
         if (length0 > 0) {
             ranks1.push_back(rank);
-            if (rank == comm2.get_rank()) {
-                in_group1 = true;
-            }
             lowers1.push_back(lower);
             int total_length = length0 * grid_shape[1] * grid_shape[2];
             lengths1.push_back(total_length);
             lower += total_length;
         }
     }
-    int error;
-    error = MPI_Comm_group(comm2.get(), &group2);
-    if (error != MPI_SUCCESS) {
-        throw std::runtime_error(
-                "MPI error in Space_charge_3d_open_hockney(MPI_Comm_group)");
-    }
-    error = MPI_Group_incl(group2, ranks1.size(), &ranks1[0], &group1);
-    if (error != MPI_SUCCESS) {
-        throw std::runtime_error(
-                "MPI error in Space_charge_3d_open_hockney(MPI_Group_incl)");
-    }
-    error = MPI_Comm_create(comm2.get(), group1, &mpi_comm1);
-    if (error != MPI_SUCCESS) {
-        throw std::runtime_error(
-                "MPI error in Space_charge_3d_open_hockney(MPI_Comm_create)");
-    }
-    comm1.set(mpi_comm1);
+    comm1_sptr = Commxx_sptr(new Commxx(comm2_sptr, ranks1));
 
     std::vector<int > real_uppers(distributed_fft3d_sptr->get_uppers());
     real_lengths = distributed_fft3d_sptr->get_lengths();
-    for (int i = 0; i < comm2.get_size(); ++i) {
+    for (int i = 0; i < comm2_sptr->get_size(); ++i) {
         if (real_uppers[i] > grid_shape[0]) {
             real_uppers[i] = grid_shape[0];
         }
@@ -66,7 +46,7 @@ Space_charge_3d_open_hockney::setup_nondoubled_communication()
                     * grid_shape[1] * grid_shape[2];
         }
     }
-    int my_rank = comm2.get_rank();
+    int my_rank = comm2_sptr->get_rank();
     if (my_rank > 0) {
         real_lower = real_uppers[my_rank - 1];
     } else {
@@ -93,11 +73,11 @@ Space_charge_3d_open_hockney::setup_default_options()
     set_e_field_comm(e_field_allreduce);
 }
 
-Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(Commxx const& comm,
+Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(Commxx_sptr comm_sptr,
         std::vector<int > const & grid_shape, bool longitudinal_kicks,
         bool periodic_z, double z_period, bool grid_entire_period,
         double n_sigma) :
-        Collective_operator("space charge 3D open hockney"), comm2(comm), grid_shape(
+        Collective_operator("space charge 3D open hockney"), comm2_sptr(comm_sptr), grid_shape(
                 3), doubled_grid_shape(3), padded_grid_shape(3), longitudinal_kicks(
                 longitudinal_kicks), periodic_z(periodic_z), z_period(z_period), grid_entire_period(
                 grid_entire_period), n_sigma(n_sigma), domain_fixed(false), have_domains(
@@ -114,7 +94,7 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(Commxx const& comm,
         doubled_grid_shape[i] = 2 * this->grid_shape[i];
     }
     distributed_fft3d_sptr = Distributed_fft3d_sptr(
-            new Distributed_fft3d(doubled_grid_shape, comm));
+            new Distributed_fft3d(doubled_grid_shape, comm_sptr));
     padded_grid_shape = distributed_fft3d_sptr->get_padded_shape_real();
     setup_nondoubled_communication();
     setup_default_options();
@@ -125,8 +105,8 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
         bool periodic_z, double z_period, bool grid_entire_period,
         double n_sigma) :
         Collective_operator("space charge"), grid_shape(3), doubled_grid_shape(
-                3), padded_grid_shape(3), comm2(
-                distributed_fft3d_sptr->get_comm()), distributed_fft3d_sptr(
+                3), padded_grid_shape(3), comm2_sptr(
+                distributed_fft3d_sptr->get_comm_sptr()), distributed_fft3d_sptr(
                 distributed_fft3d_sptr), longitudinal_kicks(longitudinal_kicks), periodic_z(
                 periodic_z), z_period(z_period), grid_entire_period(
                 grid_entire_period), n_sigma(n_sigma), domain_fixed(false), have_domains(
@@ -221,7 +201,7 @@ Space_charge_3d_open_hockney::get_e_field_comm() const
 void
 Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
 {
-    bool output = verbose && (comm2.get_rank() == 0);
+    bool output = verbose && (comm2_sptr->get_rank() == 0);
     double t0, t1;
     const int repetitions = 3;
 
@@ -239,11 +219,11 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
                 << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_charge_density2_reduce_scatter\n";
     }
     for (int i = 0; i < repetitions; ++i) {
-        MPI_Barrier(comm2.get());
+        MPI_Barrier(comm2_sptr->get());
         t0 = MPI_Wtime();
         get_global_charge_density2_reduce_scatter(fake_local_charge_density,
-                comm2);
-        MPI_Barrier(comm2.get());
+                comm2_sptr);
+        MPI_Barrier(comm2_sptr->get());
         t1 = MPI_Wtime();
         if (output) {
             std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: rep = "
@@ -258,10 +238,10 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
                 << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_charge_density2_allreduce\n";
     }
     for (int i = 0; i < repetitions; ++i) {
-        MPI_Barrier(comm2.get());
+        MPI_Barrier(comm2_sptr->get());
         t0 = MPI_Wtime();
-        get_global_charge_density2_allreduce(fake_local_charge_density, comm2);
-        MPI_Barrier(comm2.get());
+        get_global_charge_density2_allreduce(fake_local_charge_density, comm2_sptr);
+        MPI_Barrier(comm2_sptr->get());
         t1 = MPI_Wtime();
         if (output) {
             std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: rep = "
@@ -273,16 +253,16 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
     }
 
     Distributed_rectangular_grid fake_local_e_field(domain_sptr,
-            real_doubled_lower, real_doubled_upper, comm1);
+            real_doubled_lower, real_doubled_upper, comm1_sptr);
     if (output) {
         std::cout
                 << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_electric_field_component_gatherv_bcast\n";
     }
     for (int i = 0; i < repetitions; ++i) {
-        MPI_Barrier(comm2.get());
+        MPI_Barrier(comm2_sptr->get());
         t0 = MPI_Wtime();
         get_global_electric_field_component_gatherv_bcast(fake_local_e_field);
-        MPI_Barrier(comm2.get());
+        MPI_Barrier(comm2_sptr->get());
         t1 = MPI_Wtime();
         if (output) {
             std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: rep = "
@@ -298,10 +278,10 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
     }
     for (int i = 0; i < repetitions; ++i) {
 
-        MPI_Barrier(comm2.get());
+        MPI_Barrier(comm2_sptr->get());
         t0 = MPI_Wtime();
         get_global_electric_field_component_allgatherv(fake_local_e_field);
-        MPI_Barrier(comm2.get());
+        MPI_Barrier(comm2_sptr->get());
         t1 = MPI_Wtime();
         if (output) {
             std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: rep = "
@@ -318,10 +298,10 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
                 << "Space_charge_3d_open_hockney::auto_tune_comm: trying get_global_electric_field_component_allreduce\n";
     }
     for (int i = 0; i < repetitions; ++i) {
-        MPI_Barrier(comm2.get());
+        MPI_Barrier(comm2_sptr->get());
         t0 = MPI_Wtime();
         get_global_electric_field_component_allreduce(fake_local_e_field);
-        MPI_Barrier(comm2.get());
+        MPI_Barrier(comm2_sptr->get());
         t1 = MPI_Wtime();
         if (output) {
             std::cout << "Space_charge_3d_open_hockney::auto_tune_comm: rep = "
@@ -332,8 +312,8 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
         e_field_comm = e_field_allreduce;
     }
 
-    MPI_Bcast(&charge_density_comm, 1, MPI_INT, 0, comm2.get());
-    MPI_Bcast(&e_field_comm, 1, MPI_INT, 0, comm2.get());
+    MPI_Bcast(&charge_density_comm, 1, MPI_INT, 0, comm2_sptr->get());
+    MPI_Bcast(&e_field_comm, 1, MPI_INT, 0, comm2_sptr->get());
 
     if (output) {
         std::cout
@@ -464,7 +444,7 @@ Space_charge_3d_open_hockney::get_local_charge_density(Bunch const& bunch)
 
 Distributed_rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_global_charge_density2_reduce_scatter(
-        Rectangular_grid const& local_charge_density, Commxx const& comm)
+        Rectangular_grid const& local_charge_density, Commxx_sptr comm_sptr)
 {
 // jfa: here is where we do something complicated, but (potentially) efficient
 // in calculating a version of the charge density that is just global enough
@@ -483,7 +463,7 @@ Space_charge_3d_open_hockney::get_global_charge_density2_reduce_scatter(
     }
     dest = multi_array_offset(dest_array, real_lower, 0, 0);
     int error = MPI_Reduce_scatter((void *) source, (void *) dest,
-            &real_lengths[0], MPI_DOUBLE, MPI_SUM, comm.get());
+            &real_lengths[0], MPI_DOUBLE, MPI_SUM, comm_sptr->get());
     if (error != MPI_SUCCESS) {
         throw std::runtime_error(
                 "MPI error in Space_charge_3d_open_hockney::get_global_charge_density2_reduce_scatter");
@@ -491,7 +471,7 @@ Space_charge_3d_open_hockney::get_global_charge_density2_reduce_scatter(
     Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr, doubled_lower,
                     doubled_upper,
-                    distributed_fft3d_sptr->get_padded_shape_real(), comm));
+                    distributed_fft3d_sptr->get_padded_shape_real(), comm_sptr));
     for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
             for (int k = 0; k < doubled_grid_shape[2]; ++k) {
@@ -511,12 +491,12 @@ Space_charge_3d_open_hockney::get_global_charge_density2_reduce_scatter(
 
 Distributed_rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_global_charge_density2_allreduce(
-        Rectangular_grid const& local_charge_density, Commxx const& comm)
+        Rectangular_grid const& local_charge_density, Commxx_sptr comm_sptr)
 {
     int error = MPI_Allreduce(MPI_IN_PLACE,
             (void*) local_charge_density.get_grid_points().origin(),
             local_charge_density.get_grid_points().num_elements(), MPI_DOUBLE,
-            MPI_SUM, comm.get());
+            MPI_SUM, comm_sptr->get());
     if (error != MPI_SUCCESS) {
         throw std::runtime_error(
                 "MPI error in Space_charge_3d_open_hockney::get_global_charge_density2_allreduce");
@@ -524,7 +504,7 @@ Space_charge_3d_open_hockney::get_global_charge_density2_allreduce(
     Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr, doubled_lower,
                     doubled_upper,
-                    distributed_fft3d_sptr->get_padded_shape_real(), comm));
+                    distributed_fft3d_sptr->get_padded_shape_real(), comm_sptr));
     for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
             for (int k = 0; k < doubled_grid_shape[2]; ++k) {
@@ -545,14 +525,14 @@ Space_charge_3d_open_hockney::get_global_charge_density2_allreduce(
 
 Distributed_rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_global_charge_density2(
-        Rectangular_grid const& local_charge_density, Commxx const& comm)
+        Rectangular_grid const& local_charge_density, Commxx_sptr comm_sptr)
 {
     switch (charge_density_comm) {
     case reduce_scatter:
         return get_global_charge_density2_reduce_scatter(local_charge_density,
-                comm);
+                comm_sptr);
     case charge_allreduce:
-        return get_global_charge_density2_allreduce(local_charge_density, comm);
+        return get_global_charge_density2_allreduce(local_charge_density, comm_sptr);
     default:
         throw runtime_error(
                 "Space_charge_3d_open_hockney: invalid charge_density_comm");
@@ -570,7 +550,7 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
     int upper = distributed_fft3d_sptr->get_upper();
     Distributed_rectangular_grid_sptr G2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr, lower, upper,
-                    distributed_fft3d_sptr->get_padded_shape_real(), comm2));
+                    distributed_fft3d_sptr->get_padded_shape_real(), comm2_sptr));
 
     double hx = domain_sptr->get_cell_size()[2];
     double hy = domain_sptr->get_cell_size()[1];
@@ -667,7 +647,7 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
     int upper = distributed_fft3d_sptr->get_upper();
     Distributed_rectangular_grid_sptr G2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr, lower, upper,
-                    distributed_fft3d_sptr->get_padded_shape_real(), comm2));
+                    distributed_fft3d_sptr->get_padded_shape_real(), comm2_sptr));
 
     double hx = domain_sptr->get_cell_size()[2];
     double hy = domain_sptr->get_cell_size()[1];
@@ -866,7 +846,7 @@ Space_charge_3d_open_hockney::get_scalar_field2(
 
     Distributed_rectangular_grid_sptr phi2(
             new Distributed_rectangular_grid(doubled_domain_sptr, lower, upper,
-                    distributed_fft3d_sptr->get_padded_shape_real(), comm2));
+                    distributed_fft3d_sptr->get_padded_shape_real(), comm2_sptr));
     distributed_fft3d_sptr->inv_transform(phi2hat, phi2->get_grid_points());
 
     normalization *= charge_density2.get_normalization();
@@ -883,7 +863,7 @@ Space_charge_3d_open_hockney::extract_scalar_field(
 {
     Distributed_rectangular_grid_sptr phi(
             new Distributed_rectangular_grid(domain_sptr, real_doubled_lower,
-                    real_doubled_upper, comm1));
+                    real_doubled_upper, comm1_sptr));
 
     for (int i = real_doubled_lower; i < real_doubled_upper; ++i) {
         for (int j = 0; j < grid_shape[1]; ++j) {
@@ -894,7 +874,7 @@ Space_charge_3d_open_hockney::extract_scalar_field(
         }
     }
     phi->set_normalization(phi2.get_normalization());
-    if (in_group1) {
+    if (comm1_sptr->has_this_rank()) {
         phi->fill_guards();
     }
     return phi;
@@ -918,7 +898,7 @@ Space_charge_3d_open_hockney::get_electric_field_component(
 
     Distributed_rectangular_grid_sptr En(
             new Distributed_rectangular_grid(domain_sptr, phi.get_lower(),
-                    phi.get_upper(), comm1));
+                    phi.get_upper(), comm1_sptr));
     MArray3d_ref En_a(En->get_grid_points());
     MArray3d_ref phi_a(phi.get_grid_points());
     int lower_limit, upper_limit;
@@ -972,15 +952,15 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_gatherv_bcast(
     Rectangular_grid_sptr global_field(new Rectangular_grid(domain_sptr));
     const int root = 0;
     int error;
-    if (in_group1) {
-        int rank = comm1.get_rank();
+    if (comm1_sptr->has_this_rank()) {
+        int rank = comm1_sptr->get_rank();
         error =
                 MPI_Gatherv(
                         (void *) (dist_field.get_grid_points().origin()
                                 + lowers1[rank]), lengths1[rank], MPI_DOUBLE,
                         (void*) global_field->get_grid_points().origin(),
                         &lengths1[0], &lowers1[0], MPI_DOUBLE, root,
-                        comm1.get());
+                        comm1_sptr->get());
         if (error != MPI_SUCCESS) {
             throw std::runtime_error(
                     "MPI error in Space_charge_3d_open_hockney(MPI_Gatherv)");
@@ -989,7 +969,7 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_gatherv_bcast(
     }
     int total_length = grid_shape[0] * grid_shape[1] * grid_shape[2];
     error = MPI_Bcast(global_field->get_grid_points().origin(), total_length,
-            MPI_DOUBLE, root, comm2.get());
+            MPI_DOUBLE, root, comm2_sptr->get());
     if (error != MPI_SUCCESS) {
         throw std::runtime_error(
                 "MPI error in Space_charge_3d_open_hockney(MPI_Bcast)");
@@ -1003,10 +983,10 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_allgatherv(
         Distributed_rectangular_grid const& dist_field)
 {
     Rectangular_grid_sptr global_field(new Rectangular_grid(domain_sptr));
-    std::vector<int > lowers12(comm2.get_size()); // lowers1 on comm2
-    std::vector<int > lengths12(comm2.get_size()); // lengths1 on comm2
+    std::vector<int > lowers12(comm2_sptr->get_size()); // lowers1 on comm2
+    std::vector<int > lengths12(comm2_sptr->get_size()); // lengths1 on comm2
     int size1 = lowers1.size();
-    for (int rank = 0; rank < comm2.get_size(); ++rank) {
+    for (int rank = 0; rank < comm2_sptr->get_size(); ++rank) {
         if (rank < size1) {
             lowers12[rank] = lowers1[rank];
             lengths12[rank] = lengths1[rank];
@@ -1015,12 +995,12 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_allgatherv(
             lengths12[rank] = 0;
         }
     }
-    int rank = comm2.get_rank();
+    int rank = comm2_sptr->get_rank();
     int error = MPI_Allgatherv(
             (void *) (dist_field.get_grid_points().origin() + lowers12[rank]),
             lengths12[rank], MPI_DOUBLE,
             (void*) global_field->get_grid_points().origin(), &lengths12[0],
-            &lowers12[0], MPI_DOUBLE, comm2.get());
+            &lowers12[0], MPI_DOUBLE, comm2_sptr->get());
     if (error != MPI_SUCCESS) {
         throw std::runtime_error(
                 "MPI error in Space_charge_3d_open_hockney(MPI_Allgatherv)");
@@ -1055,7 +1035,7 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_allreduce(
     int error = MPI_Allreduce(MPI_IN_PLACE,
             (void*) global_field->get_grid_points().origin(),
             global_field->get_grid_points().num_elements(), MPI_DOUBLE, MPI_SUM,
-            comm2.get());
+            comm2_sptr->get());
     if (error != MPI_SUCCESS) {
         throw std::runtime_error(
                 "MPI error in Space_charge_3d_open_hockney(MPI_Allreduce in get_global_electric_field_component_allreduce)");
@@ -1115,7 +1095,7 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
 {
     if (bunch.get_total_num() > 1) {
         int comm_compare;
-        MPI_Comm_compare(comm2.get(), bunch.get_comm().get(), &comm_compare);
+        MPI_Comm_compare(comm2_sptr->get(), bunch.get_comm().get(), &comm_compare);
         if ((comm_compare == MPI_UNEQUAL)
                 && (charge_density_comm != charge_allreduce)) {
             throw std::runtime_error(
@@ -1128,7 +1108,7 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
         Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
         t = simple_timer_show(t, "sc-get-local-rho");
         Distributed_rectangular_grid_sptr rho2(
-                get_global_charge_density2(*local_rho, bunch.get_comm())); // [C/m^3]
+                get_global_charge_density2(*local_rho, bunch.get_comm_sptr())); // [C/m^3]
         t = simple_timer_show(t, "sc-get-global-rho");
         local_rho.reset();
         Distributed_rectangular_grid_sptr G2; // [1/m]
@@ -1171,25 +1151,6 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
 
 Space_charge_3d_open_hockney::~Space_charge_3d_open_hockney()
 {
-    int error;
-    if (in_group1) {
-        error = MPI_Comm_free(&mpi_comm1);
-        if (error != MPI_SUCCESS) {
-            throw std::runtime_error(
-                    "MPI error in Space_charge_3d_open_hockney(MPI_Comm_free)");
-        }
-    }
-    error = MPI_Group_free(&group1);
-    if (error != MPI_SUCCESS) {
-        throw std::runtime_error(
-                "MPI error in Space_charge_3d_open_hockney(MPI_Group_free(1))");
-    }
-    error = MPI_Group_free(&group2);
-    if (error != MPI_SUCCESS) {
-        throw std::runtime_error(
-                "MPI error in Space_charge_3d_open_hockney(MPI_Group_free(2))");
-    }
-
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Space_charge_3d_open_hockney)
 

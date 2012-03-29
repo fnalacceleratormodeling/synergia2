@@ -32,10 +32,11 @@ dummy_populate(Bunch &bunch)
 struct Fixture
 {
     Fixture() :
+        comm_sptr(new Commxx),
+        reference_particle(
+                            pconstants::electron_charge, mass, total_energy),
             bunch_sptr(
-                    new Bunch(reference_particle, total_num, real_num, comm)), reference_particle(
-                    pconstants::electron_charge, mass, total_energy), comm(
-                    MPI_COMM_WORLD)
+                    new Bunch(reference_particle, total_num, real_num, comm_sptr))
     {
         BOOST_TEST_MESSAGE("setup fixture");
         dummy_populate(*bunch_sptr);
@@ -48,7 +49,7 @@ struct Fixture
     }
 
     Reference_particle reference_particle;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Bunch_sptr bunch_sptr;
 };
 
@@ -222,7 +223,7 @@ BOOST_FIXTURE_TEST_CASE(get_corr_full2, Fixture)
 {
     const double tolerance_corr = 1.0e-10;
     Bunch_sptr bunch2_sptr(
-            new Bunch(reference_particle, total_num, real_num, comm));
+            new Bunch(reference_particle, total_num, real_num, comm_sptr));
     MArray2d_ref particles(bunch2_sptr->get_local_particles());
 #include "test_diagnostics_get_random_particles.icc"
     Diagnostics_full2 diagnostics("dummy.h5");

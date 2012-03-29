@@ -40,7 +40,8 @@ struct Shape_struct
 struct Fixture
 {
     Fixture() :
-        shape(shape_struct.shape), distributed_fft2d(shape, Commxx())
+        shape(shape_struct.shape), commxx_sptr(new Commxx()),
+        distributed_fft2d(shape, commxx_sptr)
     {
     }
     ~Fixture()
@@ -48,6 +49,7 @@ struct Fixture
     }
     Shape_struct shape_struct;
     std::vector<int > shape;
+    Commxx_sptr commxx_sptr;
     Distributed_fft2d distributed_fft2d;
 };
 
@@ -69,7 +71,8 @@ struct Shape_struct2
 struct Fixture2
 {
     Fixture2() :
-        shape(shape_struct2.shape), distributed_fft2d(shape, Commxx())
+        shape(shape_struct2.shape), commxx_sptr(new Commxx()),
+        distributed_fft2d(shape, commxx_sptr)
     {
     }
     ~Fixture2()
@@ -77,6 +80,7 @@ struct Fixture2
     }
     Shape_struct2 shape_struct2;
     std::vector<int > shape;
+    Commxx_sptr commxx_sptr;
     Distributed_fft2d distributed_fft2d;
 };
 

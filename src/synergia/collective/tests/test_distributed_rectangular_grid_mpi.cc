@@ -13,9 +13,9 @@ int grid_midpoint0 = grid_size0 / 2;
 struct Distributed_rectangular_grid_domain_fixture
 {
     Distributed_rectangular_grid_domain_fixture() :
-        physical_size(3), physical_offset(3), grid_shape(3), comm(
-                MPI_COMM_WORLD), offsets(comm.get_size()), counts(
-                comm.get_size())
+        physical_size(3), physical_offset(3), grid_shape(3), comm_sptr(
+                new Commxx), offsets(comm_sptr->get_size()), counts(
+                comm_sptr->get_size())
     {
         for (int i = 0; i < 3; ++i) {
             physical_offset[i] = domain_offset;
@@ -27,12 +27,12 @@ struct Distributed_rectangular_grid_domain_fixture
         rectangular_grid_domain_sptr = Rectangular_grid_domain_sptr(
                 new Rectangular_grid_domain(physical_size, physical_offset,
                         grid_shape, false));
-        decompose_1d(comm, grid_shape[0], offsets, counts);
-        int lower = offsets[comm.get_rank()];
-        int upper = offsets[comm.get_rank()] + counts[comm.get_rank()];
+        decompose_1d(*comm_sptr, grid_shape[0], offsets, counts);
+        int lower = offsets[comm_sptr->get_rank()];
+        int upper = offsets[comm_sptr->get_rank()] + counts[comm_sptr->get_rank()];
         distributed_rectangular_grid_sptr = Distributed_rectangular_grid_sptr(
                 new Distributed_rectangular_grid(rectangular_grid_domain_sptr,
-                        lower, upper, comm));
+                        lower, upper, comm_sptr));
     }
 
     ~Distributed_rectangular_grid_domain_fixture()
@@ -41,7 +41,7 @@ struct Distributed_rectangular_grid_domain_fixture
 
     std::vector<double > physical_size, physical_offset;
     std::vector<int > grid_shape;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     std::vector<int > offsets, counts;
     Rectangular_grid_domain_sptr rectangular_grid_domain_sptr;
     Distributed_rectangular_grid_sptr distributed_rectangular_grid_sptr;
@@ -50,9 +50,9 @@ struct Distributed_rectangular_grid_domain_fixture
 struct Distributed_rectangular_grid_domain_with_empty_fixture
 {
     Distributed_rectangular_grid_domain_with_empty_fixture() :
-        physical_size(3), physical_offset(3), grid_shape(3), comm(
-                MPI_COMM_WORLD), offsets(comm.get_size()), counts(
-                comm.get_size())
+        physical_size(3), physical_offset(3), grid_shape(3), comm_sptr(
+                new Commxx), offsets(comm_sptr->get_size()), counts(
+                comm_sptr->get_size())
     {
         for (int i = 0; i < 3; ++i) {
             physical_offset[i] = domain_offset;
@@ -64,14 +64,14 @@ struct Distributed_rectangular_grid_domain_with_empty_fixture
         rectangular_grid_domain_sptr = Rectangular_grid_domain_sptr(
                 new Rectangular_grid_domain(physical_size, physical_offset,
                         grid_shape, false));
-        decompose_1d(comm, 2 * grid_shape[0], offsets, counts);
-        int lower = std::min(offsets[comm.get_rank()], grid_shape[0]);
+        decompose_1d(*comm_sptr, 2 * grid_shape[0], offsets, counts);
+        int lower = std::min(offsets[comm_sptr->get_rank()], grid_shape[0]);
         int upper = std::min(
-                offsets[comm.get_rank()] + counts[comm.get_rank()],
+                offsets[comm_sptr->get_rank()] + counts[comm_sptr->get_rank()],
                 grid_shape[0]);
         distributed_rectangular_grid_sptr = Distributed_rectangular_grid_sptr(
                 new Distributed_rectangular_grid(rectangular_grid_domain_sptr,
-                        lower, upper, comm));
+                        lower, upper, comm_sptr));
     }
 
     ~Distributed_rectangular_grid_domain_with_empty_fixture()
@@ -80,7 +80,7 @@ struct Distributed_rectangular_grid_domain_with_empty_fixture
 
     std::vector<double > physical_size, physical_offset;
     std::vector<int > grid_shape;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     std::vector<int > offsets, counts;
     Rectangular_grid_domain_sptr rectangular_grid_domain_sptr;
     Distributed_rectangular_grid_sptr distributed_rectangular_grid_sptr;
@@ -91,9 +91,9 @@ struct Distributed_rectangular_grid_domain_with_empty_fixture
 struct Distributed_rectangular_grid_domain_fixture_periodic
 {
     Distributed_rectangular_grid_domain_fixture_periodic() :
-        physical_size(3), physical_offset(3), grid_shape(3), comm(
-                MPI_COMM_WORLD), offsets(comm.get_size()), counts(
-                comm.get_size())
+        physical_size(3), physical_offset(3), grid_shape(3), comm_sptr(
+                new Commxx), offsets(comm_sptr->get_size()), counts(
+                comm_sptr->get_size())
     {
         for (int i = 0; i < 3; ++i) {
             physical_offset[i] = domain_offset;
@@ -105,12 +105,12 @@ struct Distributed_rectangular_grid_domain_fixture_periodic
         rectangular_grid_domain_sptr = Rectangular_grid_domain_sptr(
                 new Rectangular_grid_domain(physical_size, physical_offset,
                         grid_shape, true));
-        decompose_1d(comm, grid_shape[0], offsets, counts);
-        int lower = offsets[comm.get_rank()];
-        int upper = offsets[comm.get_rank()] + counts[comm.get_rank()];
+        decompose_1d(*comm_sptr, grid_shape[0], offsets, counts);
+        int lower = offsets[comm_sptr->get_rank()];
+        int upper = offsets[comm_sptr->get_rank()] + counts[comm_sptr->get_rank()];
         distributed_rectangular_grid_sptr = Distributed_rectangular_grid_sptr(
                 new Distributed_rectangular_grid(rectangular_grid_domain_sptr,
-                        lower, upper, comm));
+                        lower, upper, comm_sptr));
     }
 
     ~Distributed_rectangular_grid_domain_fixture_periodic()
@@ -119,7 +119,7 @@ struct Distributed_rectangular_grid_domain_fixture_periodic
 
     std::vector<double > physical_size, physical_offset;
     std::vector<int > grid_shape;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     std::vector<int > offsets, counts;
     Rectangular_grid_domain_sptr rectangular_grid_domain_sptr;
     Distributed_rectangular_grid_sptr distributed_rectangular_grid_sptr;
@@ -128,9 +128,9 @@ struct Distributed_rectangular_grid_domain_fixture_periodic
 struct Distributed_rectangular_grid_domain_fixture_rectangular
 {
     Distributed_rectangular_grid_domain_fixture_rectangular() :
-        physical_size(3), physical_offset(3), grid_shape(3), comm(
-                MPI_COMM_WORLD), offsets(comm.get_size()), counts(
-                comm.get_size())
+        physical_size(3), physical_offset(3), grid_shape(3), comm_sptr(
+                new Commxx), offsets(comm_sptr->get_size()), counts(
+                comm_sptr->get_size())
     {
         for (int i = 0; i < 3; ++i) {
             physical_offset[i] = domain_offset;
@@ -142,13 +142,13 @@ struct Distributed_rectangular_grid_domain_fixture_rectangular
         rectangular_grid_domain_sptr = Rectangular_grid_domain_sptr(
                 new Rectangular_grid_domain(physical_size, physical_offset,
                         grid_shape, true));
-        decompose_1d(comm, grid_shape[0], offsets, counts);
-        int lower = offsets[comm.get_rank()];
-        int upper = offsets[comm.get_rank()] + counts[comm.get_rank()];
+        decompose_1d(*comm_sptr, grid_shape[0], offsets, counts);
+        int lower = offsets[comm_sptr->get_rank()];
+        int upper = offsets[comm_sptr->get_rank()] + counts[comm_sptr->get_rank()];
         std::string solver("rectangular");
         distributed_rectangular_grid_sptr = Distributed_rectangular_grid_sptr(
                 new Distributed_rectangular_grid(rectangular_grid_domain_sptr,
-                        lower, upper, comm, solver));
+                        lower, upper, comm_sptr, solver));
     }
 
     ~Distributed_rectangular_grid_domain_fixture_rectangular()
@@ -157,7 +157,7 @@ struct Distributed_rectangular_grid_domain_fixture_rectangular
 
     std::vector<double > physical_size, physical_offset;
     std::vector<int > grid_shape;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     std::vector<int > offsets, counts;
     Rectangular_grid_domain_sptr rectangular_grid_domain_sptr;
     Distributed_rectangular_grid_sptr distributed_rectangular_grid_sptr;
@@ -217,9 +217,9 @@ BOOST_FIXTURE_TEST_CASE(construct_periodic, Distributed_rectangular_grid_domain_
 BOOST_FIXTURE_TEST_CASE(get_upper_lower, Distributed_rectangular_grid_domain_fixture)
 {
     BOOST_CHECK_EQUAL(distributed_rectangular_grid_sptr->get_lower(),
-            offsets[comm.get_rank()]);
+            offsets[comm_sptr->get_rank()]);
     BOOST_CHECK_EQUAL(distributed_rectangular_grid_sptr->get_upper(),
-            offsets[comm.get_rank()] + counts[comm.get_rank()]);
+            offsets[comm_sptr->get_rank()] + counts[comm_sptr->get_rank()]);
 }
 
 BOOST_FIXTURE_TEST_CASE(fill_guards, Distributed_rectangular_grid_domain_fixture)

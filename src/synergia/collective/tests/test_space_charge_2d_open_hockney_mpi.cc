@@ -25,9 +25,9 @@ BOOST_AUTO_TEST_CASE(construct1)
     grid_shape[0] = 16;
     grid_shape[1] = 16;
     grid_shape[2] = 16;
-    Commxx comm(MPI_COMM_WORLD);
+    Commxx_sptr comm_sptr(new Commxx);
 
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
 }
 
 BOOST_AUTO_TEST_CASE(construct2)
@@ -36,13 +36,13 @@ BOOST_AUTO_TEST_CASE(construct2)
     grid_shape[0] = 16;
     grid_shape[1] = 16;
     grid_shape[2] = 16;
-    Commxx comm(MPI_COMM_WORLD);
+    Commxx_sptr comm_sptr(new Commxx);
     bool periodic_z(false);
     double z_period(1.1);
     bool grid_entire_period(true);
     double n_sigma(7.0);
 
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape, periodic_z,
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, periodic_z,
             z_period, grid_entire_period, n_sigma);
 }
 
@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(construct_bad_period)
     grid_shape[0] = 16;
     grid_shape[1] = 16;
     grid_shape[2] = 16;
-    Commxx comm(MPI_COMM_WORLD);
+    Commxx_sptr comm_sptr(new Commxx);
     bool periodic_z(true);
     double z_period(1.1);
     bool grid_entire_period(true);
@@ -60,7 +60,7 @@ BOOST_AUTO_TEST_CASE(construct_bad_period)
 
     bool caught_error(false);
     try {
-        Space_charge_2d_open_hockney space_charge(comm, grid_shape, periodic_z,
+        Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, periodic_z,
                 z_period, grid_entire_period, n_sigma);
     }
     catch (std::runtime_error) {
@@ -75,33 +75,33 @@ BOOST_AUTO_TEST_CASE(get_n_sigma)
     grid_shape[0] = 16;
     grid_shape[1] = 16;
     grid_shape[2] = 16;
-    Commxx comm(MPI_COMM_WORLD);
+    Commxx_sptr comm_sptr(new Commxx);
     bool periodic_z(false);
     double z_period(1.1);
     bool grid_entire_period(true);
     double n_sigma(7.0);
 
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape, periodic_z,
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, periodic_z,
             z_period, grid_entire_period, n_sigma);
     BOOST_CHECK_CLOSE(space_charge.get_n_sigma(), n_sigma, tolerance);
 }
 
 
-BOOST_FIXTURE_TEST_CASE(auto_tune_comm, Ellipsoidal_bunch_fixture)
+BOOST_FIXTURE_TEST_CASE(auto_tune_comm_sptr, Ellipsoidal_bunch_fixture)
 {
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
     space_charge.auto_tune_comm(false);
 }
 
 BOOST_FIXTURE_TEST_CASE(update_domain, Ellipsoidal_bunch_fixture)
 {
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
     space_charge.update_domain(bunch);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_domain, Ellipsoidal_bunch_fixture)
 {
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
     space_charge.update_domain(bunch);
     BOOST_CHECK_CLOSE(space_charge.get_domain().get_physical_size()[0],
             space_charge.get_n_sigma() * stdx, tolerance);
@@ -128,7 +128,7 @@ BOOST_FIXTURE_TEST_CASE(get_domain, Ellipsoidal_bunch_fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_doubled_domain, Ellipsoidal_bunch_fixture)
 {
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
     space_charge.update_domain(bunch);
     BOOST_CHECK_EQUAL(
             space_charge.get_doubled_domain_sptr()->get_grid_shape()[0],
@@ -143,7 +143,7 @@ BOOST_FIXTURE_TEST_CASE(get_doubled_domain, Ellipsoidal_bunch_fixture)
 
 BOOST_FIXTURE_TEST_CASE(set_fixed_domain, Ellipsoidal_bunch_fixture)
 {
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
     space_charge.update_domain(bunch);
     Rectangular_grid_domain_sptr domain_sptr = space_charge.get_domain_sptr();
     double scale = 1.23;
@@ -207,7 +207,7 @@ BOOST_FIXTURE_TEST_CASE(set_fixed_domain, Ellipsoidal_bunch_fixture)
 
 BOOST_FIXTURE_TEST_CASE(set_fixed_domain_bad_shape, Ellipsoidal_bunch_fixture)
 {
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
     space_charge.update_domain(bunch);
     Rectangular_grid_domain_sptr domain_sptr = space_charge.get_domain_sptr();
     std::vector<int > bad_shape(domain_sptr->get_grid_shape());
@@ -273,7 +273,7 @@ BOOST_FIXTURE_TEST_CASE(set_fixed_domain_bad_shape, Ellipsoidal_bunch_fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_local_charge_density, Toy_bunch_fixture_2d)
 {
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
     std::vector<int > grid_shape_xyz(3);
     grid_shape_xyz[0] = grid_shape[0];
     grid_shape_xyz[1] = grid_shape[1];
@@ -320,7 +320,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_charge_density, Toy_bunch_fixture_2d)
 
 BOOST_AUTO_TEST_CASE(get_global_charge_density2_reduce_scatter)
 {
-    Commxx comm;
+    Commxx_sptr comm_sptr(new Commxx);
 
     std::vector<int > grid_shape(3);
     grid_shape[0] = 5;
@@ -335,7 +335,7 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_reduce_scatter)
     physical_offset[1] = 0.0;
     physical_offset[2] = 0.0;
 
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
     Rectangular_grid_domain_sptr domain_sptr(new Rectangular_grid_domain(
             physical_size, physical_offset, grid_shape, false));
     space_charge.set_fixed_domain(domain_sptr);
@@ -374,7 +374,7 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_reduce_scatter)
             BOOST_CHECK_CLOSE(rho2->get_grid_points_2dc()[i][j].real()
                     * rho2->get_normalization(),
                     local_rho->get_grid_points_2dc()[i][j].real()
-                    * local_rho->get_normalization() * comm.get_size(),
+                    * local_rho->get_normalization() * comm_sptr->get_size(),
                     tolerance);
         }
     }
@@ -383,17 +383,17 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_reduce_scatter)
                 * rho2->get_normalization(),
                 local_rho_orig->get_grid_points_1d()[k]
                 * local_rho_orig->get_normalization()
-                * comm.get_size(), tolerance);
-        //std::cout << "rank[" << comm.get_rank() << "]: " << k << "  "
+                * comm_sptr->get_size(), tolerance);
+        //std::cout << "rank[" << comm_sptr->get_rank() << "]: " << k << "  "
         //        << rho2->get_grid_points_1d()[k] << "  "
-        //        << local_rho_orig->get_grid_points_1d()[k] * comm.get_size()
+        //        << local_rho_orig->get_grid_points_1d()[k] * comm_sptr->get_size()
         //        << std::endl;
     }
 }
 
 BOOST_AUTO_TEST_CASE(get_global_charge_density2_allreduce)
 {
-    Commxx comm;
+    Commxx_sptr comm_sptr(new Commxx);
 
     std::vector<int > grid_shape(3);
     grid_shape[0] = 5;
@@ -408,7 +408,7 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_allreduce)
     physical_offset[1] = 0.0;
     physical_offset[2] = 0.0;
 
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
     Rectangular_grid_domain_sptr domain_sptr(new Rectangular_grid_domain(
             physical_size, physical_offset, grid_shape, false));
     space_charge.set_fixed_domain(domain_sptr);
@@ -446,7 +446,7 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_allreduce)
                     * rho2->get_normalization(),
                     local_rho_orig->get_grid_points_2dc()[i][j].real()
                     * local_rho_orig->get_normalization()
-                    * comm.get_size(), tolerance);
+                    * comm_sptr->get_size(), tolerance);
         }
     }
     for (int k = 0; k < doubled_shape[2]; ++k) {
@@ -454,13 +454,13 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_allreduce)
                 * rho2->get_normalization(),
                 local_rho_orig->get_grid_points_1d()[k]
                 * local_rho_orig->get_normalization()
-                * comm.get_size(), tolerance);
+                * comm_sptr->get_size(), tolerance);
     }
 }
 
 BOOST_AUTO_TEST_CASE(get_global_charge_density2_simple)
 {
-    Commxx comm;
+    Commxx_sptr comm_sptr(new Commxx);
 
     std::vector<int > grid_shape(3);
     grid_shape[0] = 5;
@@ -475,7 +475,7 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_simple)
     physical_offset[1] = 0.0;
     physical_offset[2] = 0.0;
 
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
     Rectangular_grid_domain_sptr domain_sptr(new Rectangular_grid_domain(
             physical_size, physical_offset, grid_shape, false));
     space_charge.set_fixed_domain(domain_sptr);
@@ -513,7 +513,7 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_simple)
                     * rho2->get_normalization(),
                     local_rho_orig->get_grid_points_2dc()[i][j].real()
                     * local_rho_orig->get_normalization()
-                    * comm.get_size(), tolerance);
+                    * comm_sptr->get_size(), tolerance);
         }
     }
     for (int k = 0; k < doubled_shape[2]; ++k) {
@@ -521,13 +521,13 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_simple)
                 * rho2->get_normalization(),
                 local_rho_orig->get_grid_points_1d()[k]
                 * local_rho_orig->get_normalization()
-                * comm.get_size(), tolerance);
+                * comm_sptr->get_size(), tolerance);
     }
 }
 
 BOOST_FIXTURE_TEST_CASE(get_green_fn2_pointlike, Ellipsoidal_bunch_fixture)
 {
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
     space_charge.update_domain(bunch);
     Distributed_rectangular_grid_sptr
             G2(space_charge.get_green_fn2_pointlike());
@@ -574,7 +574,7 @@ BOOST_FIXTURE_TEST_CASE(get_green_fn2_pointlike, Ellipsoidal_bunch_fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_green_fn2_no_domain, Ellipsoidal_bunch_fixture)
 {
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
     bool caught_error = false;
     try {
         Distributed_rectangular_grid_sptr G2(
@@ -614,7 +614,7 @@ BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
 {
     simple_populate(bunch, distribution);
     Bunch original_bunch(bunch);
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
     const double time_fraction = 1.0;
     Step dummy_step(time_fraction);
     const double time_step = 0.3;

@@ -15,7 +15,7 @@ struct Bunch_fixture
 {
     Bunch_fixture() :
         four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), comm(MPI_COMM_WORLD), bunch(reference_particle,
+                four_momentum), comm(), bunch(reference_particle,
                 total_num, real_num, comm), distribution(0, comm)
     {
         BOOST_TEST_MESSAGE("setup bunch fixture");

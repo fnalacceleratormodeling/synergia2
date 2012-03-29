@@ -8,11 +8,8 @@ class Train_comms
 {
 private:
     int num_bunches;
-    std::vector<bool > on_this_rank;
-    Commxx master_comm;
-    std::vector<Commxx > comms;
-    MPI_Group master_group;
-    std::vector<MPI_Group > groups;
+    Commxx_sptr master_comm_sptr;
+    std::vector<Commxx_sptr > comms;
     std::vector< int> proc_counts;
     std::vector< int> proc_offsets;
 protected:
@@ -22,7 +19,7 @@ public:
     /// @param num_bunches the number of bunches in the train
     /// @param bunch_separation the spatial separation between adjacent bunches [m]
     /// @param master_comm the communicator for the entire train
-    Train_comms(int num_bunches, Commxx const& master_comm);
+    Train_comms(int num_bunches, Commxx_sptr master_comm_sptr);
     /// Get the number of bunches in the train
     int
     get_num_bunches() const;
@@ -56,7 +53,7 @@ public:
    /// @param num_bunches the number of bunches in the train
    /// @param bunch_separation the spatial separation between adjacent bunches [m]
    /// @param master_comm the communicator for the entire train
-       Bunch_train(int num_bunches, double bunch_separation, Commxx const& master_comm);
+       Bunch_train(int num_bunches, double bunch_separation, Commxx_sptr master_comm_sptr);
    /// Get the spatial separation between adjacent bunches [m]
    double
    get_bunch_separation() const;

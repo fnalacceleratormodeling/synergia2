@@ -15,8 +15,8 @@ struct Bunch_fixture
 {
     Bunch_fixture() :
         four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), comm(MPI_COMM_WORLD), bunch(reference_particle,
-                total_num, real_num, comm), distribution(0, comm)
+                four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
+                total_num, real_num, comm_sptr), distribution(0, *comm_sptr)
     {
     BOOST_TEST_MESSAGE("setup bunch fixture");
     MArray2d covariances(boost::extents[6][6]);
@@ -28,7 +28,7 @@ struct Bunch_fixture
         }
          covariances[i][i] *= 10.0; // this makes for a positive-definite matrix
     }
- 
+
     for (int i = 0; i < 6; ++i) {
          covariances[1][i] *=0.01;
          covariances[i][1] *=0.01;
@@ -37,12 +37,12 @@ struct Bunch_fixture
          covariances[5][i] *=0.01;
          covariances[i][5] *=0.01;
     }
-   
-    
-        
-        
+
+
+
+
      populate_6d(distribution, bunch, means, covariances);
-        
+
     }
 
     ~Bunch_fixture()
@@ -52,7 +52,7 @@ struct Bunch_fixture
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Bunch bunch;
     Random_distribution distribution;
 };

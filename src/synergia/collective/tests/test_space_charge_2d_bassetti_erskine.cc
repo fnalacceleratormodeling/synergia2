@@ -66,8 +66,8 @@ struct Ellipsoidal_bunch_fixture
 {
     Ellipsoidal_bunch_fixture() :
         four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), comm(MPI_COMM_WORLD), bunch(reference_particle,
-                total_num, real_num, comm), distribution(0, comm)
+                four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
+                total_num, real_num, comm_sptr), distribution(0, *comm_sptr)
     {
         BOOST_TEST_MESSAGE("setup ellipsoidal bunch fixture");
         MArray2d covariances(boost::extents[6][6]);
@@ -95,7 +95,7 @@ struct Ellipsoidal_bunch_fixture
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Bunch bunch;
     Random_distribution distribution;
     double stdx, stdy, stdz;
@@ -142,8 +142,8 @@ struct Spherical_bunch_fixture
 {
     Spherical_bunch_fixture() :
         four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), comm(MPI_COMM_WORLD), bunch(reference_particle,
-                total_num, real_num, comm), distribution(0, comm)
+                four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
+                total_num, real_num, comm_sptr), distribution(0, *comm_sptr)
     {
         BOOST_TEST_MESSAGE("setup Spherical bunch fixture");
         MArray2d covariances(boost::extents[6][6]);
@@ -171,7 +171,7 @@ struct Spherical_bunch_fixture
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Bunch bunch;
     Random_distribution distribution;
     double sigmax, sigmay, sigmaz;

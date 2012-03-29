@@ -88,8 +88,8 @@ struct Lattice_fixture2
 
     Bunch_fixture b;
     Lattice_sptr lattice_sptr;
-    
-    
+
+
 };
 
 struct Lattice_fixture3
@@ -105,10 +105,10 @@ struct Lattice_fixture3
         Lattice_element d("quadrupole", "d");
         d.set_double_attribute("l", quad_length);
         Lattice_element m("monitor", "m");
-        
+
         Lattice_element os("drift", "os");
         os.set_double_attribute("l", drift_length_s);
-        
+
 
         lattice_sptr->append(f);
         lattice_sptr->append(o);
@@ -131,8 +131,8 @@ struct Lattice_fixture3
 
     Bunch_fixture b;
     Lattice_sptr lattice_sptr;
-    
-    
+
+
 };
 struct Lattice_fixture4
 {
@@ -147,10 +147,10 @@ struct Lattice_fixture4
         Lattice_element d("quadrupole", "d");
         d.set_double_attribute("l", quad_length);
         Lattice_element m("monitor", "m");
-        
+
         Lattice_element os("drift", "os");
         os.set_double_attribute("l", drift_length_s);
-        
+
         lattice_sptr->append(os);
         lattice_sptr->append(f);
         lattice_sptr->append(os);
@@ -176,8 +176,8 @@ struct Lattice_fixture4
 
     Bunch_fixture b;
     Lattice_sptr lattice_sptr;
-    
-    
+
+
 };
 
 
@@ -249,25 +249,24 @@ const double num_real_particles = 1.0e11;
 struct Foborodobo32_fixture
 {
 Foborodobo32_fixture() :
-  comm(MPI_COMM_WORLD),
-    lattice_sptr(new Lattice("foborodobo32")), bunch_sptr()
+  comm(),
+    lattice_sptr(new Lattice("foborodobo32")), comm_sptr(new Commxx),
+    bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(),
+                        num_macro_particles, num_real_particles, comm_sptr))
   {
     BOOST_TEST_MESSAGE("setup Foborodobo_fixture");
     xml_load(*lattice_sptr, "foborodobo32_lattice.xml");
-    Bunch_sptr bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(),
-				    num_macro_particles, num_real_particles, comm));
   }
-  ;
-  
+
   ~Foborodobo32_fixture()
   {
     BOOST_TEST_MESSAGE("teardown Foborodobo32 fixture");
-    
+
   }
-  ;
-  
+
   Commxx comm;
   Lattice_sptr lattice_sptr;
+  Commxx_sptr comm_sptr;
   Bunch_sptr bunch_sptr;
 };
 

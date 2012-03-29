@@ -5,11 +5,11 @@
 #include "distributed_fft3d.h"
 
 Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
-        Commxx const& comm, int planner_flags,
+        Commxx_sptr comm_sptr, int planner_flags,
         std::string const& wisdom_filename) :
-    shape(shape), comm(comm), uppers(0), lengths(0)
+    shape(shape), comm_sptr(comm_sptr), uppers(0), lengths(0)
 {
-    if (comm.get_size() / 2 >= shape[0] / 2) {
+    if (comm_sptr->get_size() / 2 >= shape[0] / 2) {
         throw std::runtime_error(
                 "Distributed_fft3d: (number of processors)/2 must be <= shape[0]/2");
     }
@@ -19,9 +19,9 @@ Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
 
     //n.b. : we aren't using the wisdom_filename yet
 #ifdef USE_FFTW2
-    plan = rfftwnd_mpi_create_plan(comm.get(), 3, &shape[0],
+    plan = rfftwnd_mpi_create_plan(comm_sptr->get(), 3, &shape[0],
             FFTW_REAL_TO_COMPLEX, planner_flags);
-    inv_plan = rfftwnd_mpi_create_plan(comm.get(), 3, &shape[0],
+    inv_plan = rfftwnd_mpi_create_plan(comm_sptr->get(), 3, &shape[0],
             FFTW_COMPLEX_TO_REAL, planner_flags);
     // fftw2 mpi manual says to allocate data and workspace of
     // size total_local_size, not local_nx size.
@@ -46,7 +46,7 @@ Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
     fftw_mpi_init();
     ptrdiff_t local_nx, local_x_start;
     ptrdiff_t fftw_local_size = fftw_mpi_local_size_3d(shape[0], shape[1],
-            shape[2], comm.get(), &local_nx, &local_x_start);
+            shape[2], comm_sptr->get(), &local_nx, &local_x_start);
     local_size_real = local_nx * padded_shape[1] * padded_shape[2];
     local_size_complex = local_nx * padded_shape[1] * padded_shape2_complex;
     if (local_nx == 0) {
@@ -69,18 +69,24 @@ Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
     workspace = (fftw_complex *) fftw_malloc(sizeof(double) * fftw_local_size
             * memory_fudge_factor);
     plan = fftw_mpi_plan_dft_r2c_3d(shape[0], shape[1], shape[2], data,
-            workspace, comm.get(), planner_flags);
+            workspace, comm_sptr->get(), planner_flags);
     inv_plan = fftw_mpi_plan_dft_c2r_3d(shape[0], shape[1], shape[2],
-            workspace, data, comm.get(), planner_flags);
+            workspace, data, comm_sptr->get(), planner_flags);
 #endif //USE_FFTW2
     lower = local_x_start;
     upper = lower + local_nx;
 }
 
+Commxx_sptr
+Distributed_fft3d::get_comm_sptr()
+{
+    return comm_sptr;
+}
+
 Commxx &
 Distributed_fft3d::get_comm()
 {
-    return comm;
+    return *comm_sptr;
 }
 
 int
@@ -99,14 +105,14 @@ void
 Distributed_fft3d::calculate_uppers_lengths()
 {
     if (uppers.empty()) {
-        int size = comm.get_size();
+        int size = comm_sptr->get_size();
         uppers.resize(size);
         lengths.resize(size);
         if (size == 1) {
             uppers[0] = upper;
         } else {
             MPI_Allgather((void*) (&upper), 1, MPI_INT, (void*) (&uppers[0]),
-                    1, MPI_INT, comm.get());
+                    1, MPI_INT, comm_sptr->get());
         }
         lengths[0] = uppers[0] * shape[1] * shape[2];
         for (int i = 1; i < size; ++i) {

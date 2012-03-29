@@ -15,29 +15,29 @@ class Fftw_rectangular_helper
     ptrdiff_t local_nx, local_x_start;
     ptrdiff_t fftw_local_size;
     double *data;
-    Commxx comm_f;
-    bool have_local_data; 
-    
-   
+    Commxx_sptr comm_f_sptr;
+    bool have_local_data;
+
+
 public:
-    
-    Fftw_rectangular_helper( std::vector<int >  const & grid_shape, Commxx const &comm_f);
-    
+
+    Fftw_rectangular_helper( std::vector<int >  const & grid_shape, Commxx_sptr comm_f_sptr);
+
     void
-    reset_comm_f(Commxx const & comm);  
-     
-    ptrdiff_t 
+    reset_comm_f(Commxx_sptr comm_sptr);
+
+    ptrdiff_t
     get_local_nx() const;
-    
-    ptrdiff_t 
+
+    ptrdiff_t
     get_local_x_start() const;
-    
+
     void
     transform(MArray3d_ref & in, MArray3d_ref & out);
-    
+
     void
     inv_transform(MArray3d_ref & in, MArray3d_ref & out);
-    
+
     ~Fftw_rectangular_helper();
 };
 

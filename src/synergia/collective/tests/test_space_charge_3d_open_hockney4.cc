@@ -32,7 +32,7 @@ get_uniform_cylindrical_rho2(Space_charge_3d_open_hockney & space_charge,
             bunch); // [C/m^3]
 
     Distributed_rectangular_grid_sptr rho2 =
-            space_charge.get_global_charge_density2(*local_rho, bunch.get_comm()); // [C/m^3]
+            space_charge.get_global_charge_density2(*local_rho, bunch.get_comm_sptr()); // [C/m^3]
     std::vector<int > doubled_shape(rho2->get_domain().get_grid_shape());
     for (int i = 0; i < doubled_shape[0]; ++i) {
         for (int j = 0; j < doubled_shape[1]; ++j) {
@@ -64,7 +64,7 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Cylindrical_bunch_fixture_f
 {
     double z_period = 8 * sigma;
     double r0 = 2.0 * sigma;
-    Space_charge_3d_open_hockney space_charge(comm, grid_shape, false, true,
+    Space_charge_3d_open_hockney space_charge(comm_sptr, grid_shape, false, true,
             z_period, true);
     Distributed_rectangular_grid_sptr rho2(get_uniform_cylindrical_rho2(
             space_charge, bunch, r0, z_period));
@@ -75,7 +75,7 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_exact_rho, Cylindrical_bunch_fixture_f
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
             *phi2));
     Distributed_rectangular_grid phi_exact(phi->get_domain_sptr(),
-            phi->get_lower(), phi->get_upper(), Commxx());
+            phi->get_lower(), phi->get_upper(), comm_sptr);
 
     double lambda = bunch.get_real_num() * bunch.get_particle_charge()
             * pconstants::e / z_period;
@@ -140,7 +140,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
 {
     double z_period = 8 * sigma;
     double r0 = 2.0 * sigma;
-    Space_charge_3d_open_hockney space_charge(comm, grid_shape, false, true,
+    Space_charge_3d_open_hockney space_charge(comm_sptr, grid_shape, false, true,
             z_period, true);
     Distributed_rectangular_grid_sptr rho2(get_uniform_cylindrical_rho2(
             space_charge, bunch, r0, z_period));
@@ -242,12 +242,12 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_particles, Cylindrical_bunch_fixture_f
     double stdqp = 1.0e-10; // not important...
     populate_uniform_cylinder(distribution, bunch, r0, z_period, stdqp, stdqp,
             stdqp);
-    Space_charge_3d_open_hockney space_charge(comm, grid_shape, false, true,
+    Space_charge_3d_open_hockney space_charge(comm_sptr, grid_shape, false, true,
             z_period, true);
     Rectangular_grid_sptr local_rho(
             space_charge.get_local_charge_density(bunch));
     Distributed_rectangular_grid_sptr rho2(
-            space_charge.get_global_charge_density2(*local_rho, comm));
+            space_charge.get_global_charge_density2(*local_rho, comm_sptr));
     Distributed_rectangular_grid_sptr
             G2(space_charge.get_green_fn2_pointlike()); // [1/m]
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(
@@ -255,7 +255,7 @@ BOOST_FIXTURE_TEST_CASE(get_scalar_field2_particles, Cylindrical_bunch_fixture_f
     Distributed_rectangular_grid_sptr phi(space_charge.extract_scalar_field(
             *phi2));
     Distributed_rectangular_grid phi_exact(phi->get_domain_sptr(),
-            phi->get_lower(), phi->get_upper(), Commxx());
+            phi->get_lower(), phi->get_upper(), comm_sptr);
 
     double lambda = bunch.get_real_num() * bunch.get_particle_charge()
             * pconstants::e / z_period;
@@ -321,12 +321,12 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_particles,
     double stdqp = 1.0e-10; // not important...
     populate_uniform_cylinder(distribution, bunch, r0, z_period, stdqp, stdqp,
             stdqp);
-    Space_charge_3d_open_hockney space_charge(comm, grid_shape, false, true,
+    Space_charge_3d_open_hockney space_charge(comm_sptr, grid_shape, false, true,
             z_period, true);
     Rectangular_grid_sptr local_rho(
             space_charge.get_local_charge_density(bunch));
     Distributed_rectangular_grid_sptr rho2(
-            space_charge.get_global_charge_density2(*local_rho, comm));
+            space_charge.get_global_charge_density2(*local_rho, comm_sptr));
     Distributed_rectangular_grid_sptr
             G2(space_charge.get_green_fn2_pointlike()); // [1/m]
     Distributed_rectangular_grid_sptr phi2(space_charge.get_scalar_field2(

@@ -10,8 +10,8 @@ struct Ellipsoidal_bunch_fixture
 {
     Ellipsoidal_bunch_fixture() :
         four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), comm(MPI_COMM_WORLD), bunch(reference_particle,
-                total_num, real_num, comm), distribution(0, comm),
+                four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
+                total_num, real_num, comm_sptr), distribution(0, *comm_sptr),
                 grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup ellipsoidal bunch fixture");
@@ -43,7 +43,7 @@ struct Ellipsoidal_bunch_fixture
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Bunch bunch;
     Random_distribution distribution;
     double stdx, stdy, stdz;
@@ -54,8 +54,8 @@ struct Spherical_bunch_fixture
 {
     Spherical_bunch_fixture() :
         four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), comm(MPI_COMM_WORLD), bunch(reference_particle,
-                total_num, real_num, comm), distribution(0, comm),
+                four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
+                total_num, real_num, comm_sptr), distribution(0, *comm_sptr),
                 grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup Spherical bunch fixture");
@@ -85,7 +85,7 @@ struct Spherical_bunch_fixture
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Bunch bunch;
     Random_distribution distribution;
     double sigma;
@@ -96,8 +96,8 @@ struct Spherical_bunch_fixture_2d
 {
     Spherical_bunch_fixture_2d() :
         four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), comm(MPI_COMM_WORLD), bunch(reference_particle,
-                total_num, real_num, comm), distribution(0, comm),
+                four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
+                total_num, real_num, comm_sptr), distribution(0, *comm_sptr),
                 grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup Spherical bunch fixture");
@@ -128,7 +128,7 @@ struct Spherical_bunch_fixture_2d
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Bunch bunch;
     Random_distribution distribution;
     double sigma, sigmaz;
@@ -139,8 +139,8 @@ struct Cylindrical_bunch_fixture
 {
     Cylindrical_bunch_fixture() :
         four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), comm(MPI_COMM_WORLD), bunch(reference_particle,
-                total_num, real_num, comm), distribution(0, comm),
+                four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
+                total_num, real_num, comm_sptr), distribution(0, *comm_sptr),
                 grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup Cylindrical bunch fixture");
@@ -170,7 +170,7 @@ struct Cylindrical_bunch_fixture
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Bunch bunch;
     Random_distribution distribution;
     double sigma;
@@ -182,8 +182,8 @@ struct Cylindrical_bunch_fixture_fine
 {
     Cylindrical_bunch_fixture_fine() :
         four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), comm(MPI_COMM_WORLD), bunch(reference_particle,
-                fine_num_particles, real_num, comm), distribution(0, comm),
+                four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
+                fine_num_particles, real_num, comm_sptr), distribution(0, *comm_sptr),
                 grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup Cylindrical bunch fixture");
@@ -213,7 +213,7 @@ struct Cylindrical_bunch_fixture_fine
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Bunch bunch;
     Random_distribution distribution;
     double sigma;
@@ -232,15 +232,15 @@ struct Toy_bunch_fixture
     Toy_bunch_fixture() :
                 four_momentum(mass, total_energy),
                 reference_particle(pconstants::proton_charge, four_momentum),
-                comm(MPI_COMM_WORLD),
-                bunch(reference_particle, total_num, toy_real_num, comm),
+                comm_sptr(new Commxx),
+                bunch(reference_particle, total_num, toy_real_num, comm_sptr),
                 physical_size(3),
                 physical_offset(3),
                 cell_size(3),
                 grid_shape(3),
                 expected(
                         boost::extents[toy_grid_shape[2]][toy_grid_shape[1]][toy_grid_shape[0]])
-                   
+
     {
         for (int i = 0; i < 3; ++i) {
             grid_shape[i] = toy_grid_shape[i];
@@ -265,7 +265,7 @@ struct Toy_bunch_fixture
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Bunch bunch;
     double density_norm;
 
@@ -281,15 +281,15 @@ struct Toy_bunch_fixture_xyz
     Toy_bunch_fixture_xyz() :
                 four_momentum(mass, total_energy),
                 reference_particle(pconstants::proton_charge, four_momentum),
-                comm(MPI_COMM_WORLD),
-                bunch(reference_particle, total_num, toy_real_num, comm),
+                comm_sptr(new Commxx),
+                bunch(reference_particle, total_num, toy_real_num, comm_sptr),
                 physical_size(3),
                 physical_offset(3),
                 cell_size(3),
                 grid_shape(3),
                 expected(
                         boost::extents[toy_grid_shape_xyz[0]][toy_grid_shape_xyz[1]][toy_grid_shape_xyz[2]])
-                   
+
     {
         for (int i = 0; i < 3; ++i) {
             grid_shape[i] = toy_grid_shape_xyz[i];
@@ -314,7 +314,7 @@ struct Toy_bunch_fixture_xyz
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Bunch bunch;
     double density_norm;
 
@@ -330,8 +330,8 @@ struct Toy_bunch_fixture_2d
     Toy_bunch_fixture_2d() :
                 four_momentum(mass, total_energy),
                 reference_particle(pconstants::proton_charge, four_momentum),
-                comm(MPI_COMM_WORLD),
-                bunch(reference_particle, total_num, toy_real_num, comm),
+                comm_sptr(new Commxx),
+                bunch(reference_particle, total_num, toy_real_num, comm_sptr),
                 physical_size(3),
                 physical_offset(3),
                 cell_size(3),
@@ -365,7 +365,7 @@ struct Toy_bunch_fixture_2d
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Bunch bunch;
     double density_norm_2d, density_norm_1d;
 

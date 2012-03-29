@@ -65,9 +65,9 @@ run()
 
     double total_energy = refpart.get_total_energy();
 
-
+    Commxx_sptr comm_sptr(new Commxx);
     Space_charge_3d_open_hockney_sptr space_charge_sptr(
-            new Space_charge_3d_open_hockney(Commxx(), grid_shape));
+            new Space_charge_3d_open_hockney(comm_sptr, grid_shape));
 
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
@@ -81,10 +81,9 @@ run()
     //      lattice_simulator, space_charge_sptr, num_steps));
     Propagator propagator(stepper_sptr);
 
-    Commxx comm(MPI_COMM_WORLD);
     Bunch_sptr bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(),
-            num_macro_particles, num_real_particles, comm));
-    Random_distribution distribution(seed, comm);
+            num_macro_particles, num_real_particles, comm_sptr));
+    Random_distribution distribution(seed, *comm_sptr);
 
     // get actions
     std::vector<double> actions(lattice_simulator.get_stationary_actions(1.44e-3, 3.45e-3, 1.00) );
@@ -128,7 +127,7 @@ run()
     propagator.propagate(bunch_simulator, num_turns);
 
     double t1 = MPI_Wtime();
-    if (comm.get_rank() == 0) {
+    if (comm_sptr->get_rank() == 0) {
       std::cout << "propagate time = " << (t1-t0) << std::endl;
     }
 

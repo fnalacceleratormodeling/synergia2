@@ -47,14 +47,9 @@ run(Benchmark_options const& opts)
         std::cerr << "Run cxx_example.py to generate cxx_lattice.xml\n";
         exit(1);
     }
-    Commxx * sc_comm;
-    if (opts.avoid) {
-        sc_comm = new Commxx_per_host;
-    } else {
-        sc_comm = new Commxx;
-    }
+    Commxx_sptr sc_comm_sptr(new Commxx(opts.avoid));
     Space_charge_3d_open_hockney_sptr space_charge_sptr(
-            new Space_charge_3d_open_hockney(*sc_comm, grid_shape));
+            new Space_charge_3d_open_hockney(sc_comm_sptr, grid_shape));
     if (opts.autotune) {
         space_charge_sptr->auto_tune_comm(true);
     } else {
@@ -79,11 +74,11 @@ run(Benchmark_options const& opts)
                     num_steps));
     Propagator propagator(stepper_sptr);
 
-    Commxx comm(MPI_COMM_WORLD);
+    Commxx_sptr comm_sptr(new Commxx);
     Bunch_sptr bunch_sptr(
             new Bunch(lattice_sptr->get_reference_particle(),
-                    num_macro_particles, num_real_particles, comm));
-    Random_distribution distribution(seed, comm);
+                    num_macro_particles, num_real_particles, comm_sptr));
+    Random_distribution distribution(seed, *comm_sptr);
     MArray1d means;
     xml_load(means, "cxx_means.xml");
     MArray2d covariances;
@@ -107,10 +102,9 @@ run(Benchmark_options const& opts)
     const int max_turns = 0;
     propagator.propagate(bunch_simulator, num_turns, max_turns, opts.verbosity);
     double t1 = MPI_Wtime();
-    if (comm.get_rank() == 0) {
+    if (comm_sptr->get_rank() == 0) {
         std::cout << "propagate time = " << (t1 - t0) << std::endl;
     }
-    delete sc_comm;
 }
 
 int

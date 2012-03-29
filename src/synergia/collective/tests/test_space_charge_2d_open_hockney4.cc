@@ -70,7 +70,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho,
 {
     double z_period = 8 * sigma;
     double r0 = 2.0 * sigma;
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape, false, 
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, false,
             z_period, true);
     Distributed_rectangular_grid_sptr rho2(get_uniform_cylindrical_rho2(
             space_charge, bunch, r0, z_period));
@@ -94,7 +94,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho,
 //            for (int j = 0; j < doubled_shape[1]; ++j) {
         for (int i = nondoubled_shape[0] / 2; i < 3 * nondoubled_shape[0] / 2;
                 ++i) {
-            for (int j = nondoubled_shape[1] / 2; j < 3 * nondoubled_shape[0] 
+            for (int j = nondoubled_shape[1] / 2; j < 3 * nondoubled_shape[0]
                     / 2; ++j) {
                 for (int k = 0; k < doubled_shape[2]; ++k) {
 //                    int i = nondoubled_shape[0];
@@ -120,7 +120,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho,
                                 * local_force2->get_normalization();
                     }
                     force2_exact_ijk
-                            = uniform_cylindrical_electric_force_component(q, 
+                            = uniform_cylindrical_electric_force_component(q,
                                     lambda, r, r0, var);
                     const double tiny = 1.0e-8;
                     double fractional_error;
@@ -138,15 +138,15 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho,
                     }
 
                     #if PRINT_FORCE
-                    std::cout << x << "  " << y << "  " << z << "  " 
-                            << force2_exact_ijk << "  " 
-                            << force2_calc_ijk << "  " 
+                    std::cout << x << "  " << y << "  " << z << "  "
+                            << force2_exact_ijk << "  "
+                            << force2_calc_ijk << "  "
                             << fractional_error << std::endl;
                     #endif
                     #if PRINT_ELECTRIC_FIELD
                     std::cout << x << "  " << y << "  " << z << "  "
                             << force2_exact_ijk / q << "  "
-                            << force2_calc_ijk / q << "  "     
+                            << force2_calc_ijk / q << "  "
                             << fractional_error << std::endl;
                     #endif
 
@@ -177,7 +177,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles,
     double stdqp = 1.0e-10; // not important...
     populate_uniform_cylinder(distribution, bunch, r0, z_period, stdqp, stdqp,
             stdqp);
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape, false, 
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, false,
             z_period, true);
     Rectangular_grid_sptr local_rho(
             space_charge.get_local_charge_density(bunch));
@@ -203,7 +203,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles,
 //            for (int j = 0; j < doubled_shape[1]; ++j) {
         for (int i = nondoubled_shape[0] / 2; i < 3 * nondoubled_shape[0] / 2;
                 ++i) {
-            for (int j = nondoubled_shape[1] / 2; j < 3 * nondoubled_shape[0] 
+            for (int j = nondoubled_shape[1] / 2; j < 3 * nondoubled_shape[0]
                     / 2; ++j) {
                 for (int k = 0; k < doubled_shape[2]; ++k) {
 //                    int i = nondoubled_shape[0];
@@ -229,7 +229,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles,
                                 * local_force2->get_normalization();
                     }
                     force2_exact_ijk
-                            = uniform_cylindrical_electric_force_component(q, 
+                            = uniform_cylindrical_electric_force_component(q,
                                     lambda, r, r0, var);
                     const double tiny = 1.0e-8;
                     double fractional_error;
@@ -247,15 +247,15 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles,
                     }
 
                     #if PRINT_FORCE
-                    std::cout << x << "  " << y << "  " << z << "  " 
-                            << force2_exact_ijk << "  " 
-                            << force2_calc_ijk << "  " 
+                    std::cout << x << "  " << y << "  " << z << "  "
+                            << force2_exact_ijk << "  "
+                            << force2_calc_ijk << "  "
                             << fractional_error << std::endl;
                     #endif
                     #if PRINT_ELECTRIC_FIELD
                     std::cout << x << "  " << y << "  " << z << "  "
                             << force2_exact_ijk / q << "  "
-                            << force2_calc_ijk / q << "  "     
+                            << force2_calc_ijk / q << "  "
                             << fractional_error << std::endl;
                     #endif
 
@@ -283,7 +283,7 @@ BOOST_FIXTURE_TEST_CASE(get_global_force2_exact_rho,
 {
     double z_period = 8 * sigma;
     double r0 = 2.0 * sigma;
-    Space_charge_2d_open_hockney space_charge(comm, grid_shape, false, 
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, false,
             z_period, true);
     Distributed_rectangular_grid_sptr rho2(get_uniform_cylindrical_rho2(
             space_charge, bunch, r0, z_period));

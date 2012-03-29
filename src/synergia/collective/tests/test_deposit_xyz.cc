@@ -23,8 +23,8 @@ struct Fixture
     Fixture() :
         four_momentum(mass, total_energy), reference_particle(
                 pconstants::proton_charge, four_momentum),
-                comm(MPI_COMM_WORLD), bunch(reference_particle, total_num,
-                        real_num, comm), physical_size(3), physical_offset(3),
+                comm_sptr(new Commxx), bunch(reference_particle, total_num,
+                        real_num, comm_sptr), physical_size(3), physical_offset(3),
                 grid_shape(3), expected(
                         boost::extents[grid_size][grid_size][grid_size])
     {
@@ -51,7 +51,7 @@ struct Fixture
 
     Four_momentum four_momentum;
     Reference_particle reference_particle;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Bunch bunch;
     double density_norm;
 
@@ -249,7 +249,7 @@ BOOST_FIXTURE_TEST_CASE(z_displaced_particle_periodic, Fixture)
         +rho_grid_sptr->get_domain().get_cell_size()[2]*0.5;;
 
     deposit_charge_rectangular_xyz(*rho_grid_sptr, bunch);
-    
+
     for (int i = 3; i < 5; ++i) {
         for (int j = 3; j < 5; ++j) {
             for (int k = 0; k < 1; ++k) {
@@ -257,7 +257,7 @@ BOOST_FIXTURE_TEST_CASE(z_displaced_particle_periodic, Fixture)
             }
         }
     }
-    
+
     multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
             tolerance);
 }
@@ -270,17 +270,17 @@ BOOST_FIXTURE_TEST_CASE(z_displaced_particle_periodic1, Fixture)
     bunch.get_local_particles()[0][0] = 0;
     bunch.get_local_particles()[0][2] = 0;
     bunch.get_local_particles()[0][4] = -rho_grid_sptr->get_domain().get_physical_size()[2]/2.;
-      
+
 
     deposit_charge_rectangular_xyz(*rho_grid_sptr, bunch);
-    
+
     for (int i = 3; i < 5; ++i) {
         for (int j = 3; j < 5; ++j) {
                 expected[i][j][0] = 0.125 * density_norm;
                 expected[i][j][7] = 0.125 * density_norm;
         }
     }
-    
+
     multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
             tolerance);
 }
@@ -294,17 +294,17 @@ BOOST_FIXTURE_TEST_CASE(yz_displaced_particle_periodic, Fixture)
     bunch.get_local_particles()[0][2] = -rho_grid_sptr->get_domain().get_physical_size()[1]/2.
         +rho_grid_sptr->get_domain().get_cell_size()[1];
     bunch.get_local_particles()[0][4] = -rho_grid_sptr->get_domain().get_physical_size()[2]/2.;
-      
+
 
     deposit_charge_rectangular_xyz(*rho_grid_sptr, bunch);
-    
-    for (int i = 3; i < 5; ++i) { 
+
+    for (int i = 3; i < 5; ++i) {
                 expected[i][1][0] = 0.125 * density_norm;
-                expected[i][1][7] = 0.125 * density_norm; 
+                expected[i][1][7] = 0.125 * density_norm;
                 expected[i][0][0] = 0.125 * density_norm;
-                expected[i][0][7] = 0.125 * density_norm;      
+                expected[i][0][7] = 0.125 * density_norm;
     }
-    
+
     multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
             tolerance);
 }
@@ -319,17 +319,17 @@ BOOST_FIXTURE_TEST_CASE(yz_displaced_particle_periodic1, Fixture)
     bunch.get_local_particles()[0][2] = -rho_grid_sptr->get_domain().get_physical_size()[1]/2.
         +rho_grid_sptr->get_domain().get_cell_size()[1];
     bunch.get_local_particles()[0][4] = -rho_grid_sptr->get_domain().get_physical_size()[2]/2.-8*rho_grid_sptr->get_domain().get_cell_size()[2];
-      
+
 
     deposit_charge_rectangular_xyz(*rho_grid_sptr, bunch);
-    
-    for (int i = 3; i < 5; ++i) { 
+
+    for (int i = 3; i < 5; ++i) {
                 expected[i][1][0] = 0.125 * density_norm;
-                expected[i][1][7] = 0.125 * density_norm; 
+                expected[i][1][7] = 0.125 * density_norm;
                 expected[i][0][0] = 0.125 * density_norm;
-                expected[i][0][7] = 0.125 * density_norm;      
+                expected[i][0][7] = 0.125 * density_norm;
     }
-    
+
     multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
             tolerance);
 }

@@ -103,24 +103,24 @@ verify_unit_disk_distribution(MArray1d_ref const& x, MArray1d_ref const& y)
 
 BOOST_AUTO_TEST_CASE(construct_random)
 {
-    Random_distribution distribution(0, Commxx(MPI_COMM_WORLD));
+    Random_distribution distribution(0, Commxx());
 }
 
 BOOST_AUTO_TEST_CASE(construct2_random)
 {
-    Random_distribution distribution(test_seed, Commxx(MPI_COMM_WORLD),
+    Random_distribution distribution(test_seed, Commxx(),
             Random_distribution::ranlxd2);
 }
 
 BOOST_AUTO_TEST_CASE(construct3_random)
 {
-    Random_distribution distribution(test_seed, Commxx(MPI_COMM_WORLD),
+    Random_distribution distribution(test_seed, Commxx(),
             Random_distribution::mt19937);
 }
 
 BOOST_AUTO_TEST_CASE(get_original_seed_random)
 {
-    Random_distribution distribution(test_seed, Commxx(MPI_COMM_WORLD));
+    Random_distribution distribution(test_seed, Commxx());
     BOOST_CHECK_EQUAL(test_seed, distribution.get_original_seed());
 }
 
@@ -137,13 +137,13 @@ BOOST_AUTO_TEST_CASE(get_default_seed2_random)
 BOOST_AUTO_TEST_CASE(get_random)
 {
     // Admittedly, this is a stupid test
-    Random_distribution distribution(0, Commxx(MPI_COMM_WORLD));
+    Random_distribution distribution(0, Commxx());
     BOOST_CHECK(distribution.get() != distribution.get());
 }
 
 BOOST_AUTO_TEST_CASE(fill_uniform_random)
 {
-    Random_distribution distribution(0, Commxx(MPI_COMM_WORLD));
+    Random_distribution distribution(0, Commxx());
     MArray1d array(boost::extents[array_length]);
     distribution.fill_uniform(array, default_min, default_max);
     verify_uniform_distribution(array, default_min, default_max);
@@ -151,7 +151,7 @@ BOOST_AUTO_TEST_CASE(fill_uniform_random)
 
 BOOST_AUTO_TEST_CASE(fill_unit_gaussian_random)
 {
-    Random_distribution distribution(0, Commxx(MPI_COMM_WORLD));
+    Random_distribution distribution(0, Commxx());
     MArray1d array(boost::extents[array_length]);
     distribution.fill_unit_gaussian(array);
     verify_unit_gaussian_distribution(array);
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE(fill_unit_gaussian_random)
 
 BOOST_AUTO_TEST_CASE(fill_unit_disk_random)
 {
-    Random_distribution distribution(0, Commxx(MPI_COMM_WORLD));
+    Random_distribution distribution(0, Commxx());
     MArray1d x_array(boost::extents[array_length]);
     MArray1d y_array(boost::extents[array_length]);
     distribution.fill_unit_disk(x_array, y_array);

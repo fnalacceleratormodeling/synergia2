@@ -47,12 +47,12 @@ void
 Bunch::assign_ids(int local_offset)
 {
     int global_offset, request_num;
-    if (comm.get_rank() == 0) {
+    if (comm_sptr->get_rank() == 0) {
         request_num = total_num;
     } else {
         request_num = 0;
     }
-    global_offset = particle_id_offset.get(request_num, comm);
+    global_offset = particle_id_offset.get(request_num, *comm_sptr);
     for (int i = 0; i < local_num; ++i) {
         (*local_particles)[i][id] = i + local_offset + global_offset;
     }
@@ -118,33 +118,33 @@ Bunch::construct(int particle_charge, int total_num, double real_num)
     this->real_num = real_num;
     state = fixed_z;
     converter_ptr = &default_converter;
-    local_num = decompose_1d_local(comm, total_num);
-    std::vector<int > offsets(comm.get_size()), counts(comm.get_size());
-    decompose_1d(comm, total_num, offsets, counts);
-    local_num = counts[comm.get_rank()];
+    local_num = decompose_1d_local(*comm_sptr, total_num);
+    std::vector<int > offsets(comm_sptr->get_size()), counts(comm_sptr->get_size());
+    decompose_1d(*comm_sptr, total_num, offsets, counts);
+    local_num = counts[comm_sptr->get_rank()];
     local_particles = new MArray2d(boost::extents[local_num][7]);
-    assign_ids(offsets[comm.get_rank()]);
+    assign_ids(offsets[comm_sptr->get_rank()]);
 }
 
 Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
-        double real_num, Commxx const& comm) :
-    reference_particle(reference_particle), comm(comm), default_converter(),
+        double real_num, Commxx_sptr comm_sptr) :
+    reference_particle(reference_particle), comm_sptr(comm_sptr), default_converter(),
      z_period_length(0.0), z_periodic(0), bucket_index(0)
 {
     construct(reference_particle.get_charge(), total_num, real_num);
 }
 
 Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
-        double real_num, Commxx const& comm, int particle_charge) :
-    reference_particle(reference_particle), comm(comm), default_converter(),
+        double real_num, Commxx_sptr comm_sptr, int particle_charge) :
+    reference_particle(reference_particle), comm_sptr(comm_sptr), default_converter(),
     z_period_length(0.0), z_periodic(0), bucket_index(0)
 {
     construct(particle_charge, total_num, real_num);
 }
 
 Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
-        double real_num, Commxx const& comm, double z_period_length, int bucket_index) :
-    reference_particle(reference_particle), comm(comm), default_converter(),
+        double real_num, Commxx_sptr comm_sptr, double z_period_length, int bucket_index) :
+    reference_particle(reference_particle), comm_sptr(comm_sptr), default_converter(),
     z_period_length(z_period_length), z_periodic(1), bucket_index(bucket_index)
 {
     construct(reference_particle.get_charge(), total_num, real_num);
@@ -156,7 +156,7 @@ Bunch::Bunch()
 
 
 Bunch::Bunch(Bunch const& bunch) :
-    reference_particle(bunch.reference_particle), comm(bunch.comm),
+    reference_particle(bunch.reference_particle), comm_sptr(bunch.comm_sptr),
             default_converter()
 {
     particle_charge = bunch.particle_charge;
@@ -179,7 +179,7 @@ Bunch::operator=(Bunch const& bunch)
 {
     if (this != &bunch) {
         reference_particle = bunch.reference_particle;
-        comm = bunch.comm;
+        comm_sptr = bunch.comm_sptr;
         particle_charge = bunch.particle_charge;
         total_num = bunch.total_num;
         real_num = bunch.real_num;
@@ -223,7 +223,7 @@ void
 Bunch::update_total_num()
 {
     int old_total_num = total_num;
-    MPI_Allreduce(&local_num, &total_num, 1, MPI_INT, MPI_SUM, comm.get());
+    MPI_Allreduce(&local_num, &total_num, 1, MPI_INT, MPI_SUM, comm_sptr->get());
     real_num = (total_num * real_num) / old_total_num;
 }
 
@@ -301,9 +301,9 @@ Bunch::convert_to_state(State state)
                 }
             else if ( state==fixed_t_bunch) converter_ptr->from_z_lab_to_t_bunch(*this);
            // else if ( state==fixed_z_bunch) converter_ptr->from_z_lab_to_z_bunch(*this);
-            else { 
+            else {
                 std::cout<<" state to convert to="<<state<<std::endl;
-                std::cout<<" initial state ="<<this->state<<std::endl; 
+                std::cout<<" initial state ="<<this->state<<std::endl;
                 throw std::runtime_error("Unknown state in Bunch::convert_to_state, case 1");
             }
         }
@@ -313,26 +313,26 @@ Bunch::convert_to_state(State state)
         else if (this->state==fixed_t_lab){
             if (state==fixed_z_lab ) converter_ptr->from_t_lab_to_z_lab(*this);
           // else if (state==fixed_z_bunch)converter_ptr->from_t_lab_to_z_bunch(*this);
-            else if (state==fixed_t_bunch){ 
+            else if (state==fixed_t_bunch){
                 converter_ptr->from_t_lab_to_t_bunch(*this);
             }
-            else{ 
+            else{
                 std::cout<<" state to convert to="<<state<<std::endl;
-                std::cout<<" initial state ="<<this->state<<std::endl; 
+                std::cout<<" initial state ="<<this->state<<std::endl;
                 throw std::runtime_error("Unknown state in Bunch::convert_to_state, case 2");
-           }           
+           }
         }
         else if (this->state==fixed_t_bunch){
-             if (state==fixed_z_lab ) converter_ptr->from_t_bunch_to_z_lab(*this);             
+             if (state==fixed_z_lab ) converter_ptr->from_t_bunch_to_z_lab(*this);
             // else if (state==fixed_z_bunch ) converter_ptr->from_t_bunch_to_z_bunch(*this);
              else if (state==fixed_t_lab ) {
                 converter_ptr->from_t_bunch_to_t_lab(*this);
              }
-             else{ 
+             else{
                 std::cout<<" state to convert to="<<state<<std::endl;
-                std::cout<<" initial state ="<<this->state<<std::endl; 
+                std::cout<<" initial state ="<<this->state<<std::endl;
                 throw std::runtime_error("Unknown state in Bunch::convert_to_state, case 3");
-             }      
+             }
         }
     this->state =state;
     }
@@ -423,9 +423,9 @@ Bunch::set_bucket_index(int index)
 {
 this->bucket_index=index;
 }
-    
+
 int
-Bunch::get_bucket_index() const 
+Bunch::get_bucket_index() const
 {
 return bucket_index;
 }
@@ -441,7 +441,13 @@ Bunch::get_state() const
 Commxx const&
 Bunch::get_comm() const
 {
-    return comm;
+    return *comm_sptr;
+}
+
+Commxx_sptr
+Bunch::get_comm_sptr() const
+{
+    return comm_sptr;
 }
 
 void

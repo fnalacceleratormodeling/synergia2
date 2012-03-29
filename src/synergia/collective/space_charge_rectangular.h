@@ -18,22 +18,22 @@ private:
     std::vector<double > pipe_size; //pipe size, x,y,x meters
     std::vector<int > grid_shape;
     Rectangular_grid_domain_sptr domain_sptr;
-    Commxx comm_f;
+    Commxx_sptr comm_f_sptr;
     Fftw_rectangular_helper_sptr fftw_helper_sptr;
     bool have_fftw_helper;
     void
     fill_guards_pplanes(Distributed_rectangular_grid & phi, int lower, int upper, int lengthx,
                           MArray2d & g_lower, MArray2d &g_upper);
     void
-    construct_fftw_helper(Commxx const & comm);
+    construct_fftw_helper(Commxx_sptr comm_sptr);
 
 public:
 
-    Space_charge_rectangular(Commxx const & comm_f, std::vector<double > const & pipe_size, std::vector<int > const & grid_shape);
+    Space_charge_rectangular(Commxx_sptr comm_f_sptr, std::vector<double > const & pipe_size, std::vector<int > const & grid_shape);
     Space_charge_rectangular(std::vector<double > const & pipe_size, std::vector<int > const & grid_shape);
 
     void
-    set_fftw_helper(Commxx const & comm);
+    set_fftw_helper(Commxx_sptr comm_sptr);
 
     std::vector<double >
     get_pipe_size() const;

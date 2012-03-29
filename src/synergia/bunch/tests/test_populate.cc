@@ -22,9 +22,9 @@ const int seed = 987654321;
 struct Fixture
 {
     Fixture() :
-        reference_particle(proton_charge, mass, total_energy), comm(
-                MPI_COMM_WORLD), bunch(reference_particle, total_num, real_num,
-                comm), distribution(seed, comm), s(default_s)
+        reference_particle(proton_charge, mass, total_energy), comm_sptr(
+                new Commxx), bunch(reference_particle, total_num, real_num,
+                comm_sptr), distribution(seed, *comm_sptr), s(default_s)
     {
         BOOST_TEST_MESSAGE("setup fixture");
     }
@@ -34,7 +34,7 @@ struct Fixture
     }
 
     Reference_particle reference_particle;
-    Commxx comm;
+    Commxx_sptr comm_sptr;
     Bunch bunch;
     Random_distribution distribution;
     double s;

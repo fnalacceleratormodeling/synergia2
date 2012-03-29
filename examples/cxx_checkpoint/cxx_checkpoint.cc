@@ -44,19 +44,19 @@ run()
         std::cerr << "Run cxx_example.py to generate cxx_lattice.xml\n";
         exit(1);
     }
+    Commxx_sptr comm_sptr(new Commxx);
     Space_charge_3d_open_hockney_sptr space_charge_sptr(
-            new Space_charge_3d_open_hockney(Commxx(), grid_shape));
+            new Space_charge_3d_open_hockney(comm_sptr, grid_shape));
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     Split_operator_stepper_sptr stepper_sptr(
             new Split_operator_stepper(lattice_simulator, space_charge_sptr,
                     num_steps));
     Propagator propagator(stepper_sptr);
 
-    Commxx comm(MPI_COMM_WORLD);
     Bunch_sptr bunch_sptr(
             new Bunch(lattice_sptr->get_reference_particle(),
-                    num_macro_particles, num_real_particles, comm));
-    Random_distribution distribution(seed, comm);
+                    num_macro_particles, num_real_particles, comm_sptr));
+    Random_distribution distribution(seed, *comm_sptr);
     MArray1d means;
     xml_load(means, "cxx_means.xml");
     MArray2d covariances;
@@ -75,7 +75,7 @@ run()
     double t0 = MPI_Wtime();
     propagator.propagate(bunch_simulator, num_turns, 0, 9999);
     double t1 = MPI_Wtime();
-    if (comm.get_rank() == 0) {
+    if (comm_sptr->get_rank() == 0) {
         std::cout << "propagate time = " << (t1 - t0) << std::endl;
     }
 }

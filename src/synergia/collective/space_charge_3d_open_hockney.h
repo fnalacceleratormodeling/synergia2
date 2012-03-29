@@ -37,15 +37,12 @@ private:
     Charge_density_comm charge_density_comm;
     E_field_comm e_field_comm;
     Distributed_fft3d_sptr distributed_fft3d_sptr;
-    Commxx comm2, comm1;
+    Commxx_sptr comm2_sptr, comm1_sptr;
     std::vector<int > lowers1, lengths1;
     int real_lower, real_upper, real_length;
     std::vector<int > real_lengths;
     int doubled_lower, doubled_upper;
     int real_doubled_lower, real_doubled_upper;
-    MPI_Group group2, group1;
-    bool in_group1;
-    MPI_Comm mpi_comm1;
     double n_sigma;
     bool domain_fixed;
     bool have_domains;
@@ -56,7 +53,7 @@ private:
     void
     set_doubled_domain();
 public:
-    Space_charge_3d_open_hockney(Commxx const& comm,
+    Space_charge_3d_open_hockney(Commxx_sptr comm_sptr,
             std::vector<int > const & grid_shape,
             bool longitudinal_kicks = true, bool periodic_z = false,
             double z_period = 0.0, bool grid_entire_period = false,
@@ -100,18 +97,18 @@ public:
     /// Returns global charge density on doubled grid in [C/m^3]
     Distributed_rectangular_grid_sptr
     get_global_charge_density2_reduce_scatter(
-            Rectangular_grid const& local_charge_density, Commxx const& comm);
+            Rectangular_grid const& local_charge_density, Commxx_sptr comm_sptr);
     /// Returns global charge density on doubled grid in [C/m^3]
     Distributed_rectangular_grid_sptr
     get_global_charge_density2_allreduce(
-            Rectangular_grid const& local_charge_density, Commxx const& comm);
+            Rectangular_grid const& local_charge_density, Commxx_sptr comm_sptr);
     /// Returns local charge density on original grid in [C/m^3]
     Rectangular_grid_sptr
     get_local_charge_density(Bunch const& bunch);
     /// Returns global charge density on doubled grid in [C/m^3]
     Distributed_rectangular_grid_sptr
     get_global_charge_density2(Rectangular_grid const& local_charge_density,
-            Commxx const& comm);
+            Commxx_sptr comm_sptr);
     /// Returns Green function on the doubled grid in [1/m^3]
     Distributed_rectangular_grid_sptr
     get_green_fn2_pointlike();
@@ -151,7 +148,7 @@ public:
         save(Archive & ar, const unsigned int version) const
         {
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
-            ar & BOOST_SERIALIZATION_NVP(comm2)
+            ar & BOOST_SERIALIZATION_NVP(comm2_sptr)
                     & BOOST_SERIALIZATION_NVP(grid_shape)
                     & BOOST_SERIALIZATION_NVP(doubled_grid_shape)
                     & BOOST_SERIALIZATION_NVP(longitudinal_kicks)
@@ -170,7 +167,7 @@ public:
         load(Archive & ar, const unsigned int version)
         {
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
-            ar & BOOST_SERIALIZATION_NVP(comm2)
+            ar & BOOST_SERIALIZATION_NVP(comm2_sptr)
                     & BOOST_SERIALIZATION_NVP(grid_shape)
                     & BOOST_SERIALIZATION_NVP(doubled_grid_shape)
                     & BOOST_SERIALIZATION_NVP(longitudinal_kicks)
@@ -184,7 +181,7 @@ public:
                     & BOOST_SERIALIZATION_NVP(charge_density_comm)
                     & BOOST_SERIALIZATION_NVP(e_field_comm);
             distributed_fft3d_sptr = Distributed_fft3d_sptr(
-                    new Distributed_fft3d(doubled_grid_shape, comm2));
+                    new Distributed_fft3d(doubled_grid_shape, comm2_sptr));
             padded_grid_shape = distributed_fft3d_sptr->get_padded_shape_real();
             setup_nondoubled_communication();
         }
