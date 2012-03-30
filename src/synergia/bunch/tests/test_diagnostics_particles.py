@@ -1,5 +1,6 @@
 import sys
 sys.path.append('..')
+sys.path.append('../..')
 sys.path.append('../../foundation')
 sys.path.append('../../convertors')
 
@@ -7,6 +8,7 @@ from mpi4py import MPI
 from foundation import Reference_particle, Four_momentum
 from bunch import Bunch
 from bunch import Diagnostics_particles
+from utils import Commxx
 import convertors
 import numpy
 from nose.tools import *
@@ -24,7 +26,7 @@ max_particle_id = 4
 
 reference_particle = Reference_particle(proton_charge, mass, total_energy)
 reference_particle.set_trajectory(turns, turn_length, partial_s)
-comm = MPI.COMM_WORLD
+comm = Commxx()
 bunch = Bunch(reference_particle, total_num, real_num, comm)
 particles = bunch.get_local_particles()
 particles[:, 0:6] = numpy.random.lognormal(size=[bunch.get_total_num(), 6])

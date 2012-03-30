@@ -2,14 +2,17 @@
 
 import sys
 sys.path.append('..')
+sys.path.append('../..')
 sys.path.append('../../foundation')
 sys.path.append('../../convertors')
+sys.path.append('../../utils')
 
 from mpi4py import MPI
 from foundation import Reference_particle, Four_momentum, Distribution, \
     Random_distribution
 from bunch import Bunch, Fixed_t_z_zeroth, Fixed_t_z_ballistic, populate_6d, \
     populate_transverse_gaussian
+from utils import Commxx
 import convertors
 import numpy
 from nose.tools import *
@@ -24,8 +27,8 @@ seed = 987654321
 
 def test_6d():
     bunch = Bunch(reference_particle, total_num, real_num,
-               MPI.COMM_WORLD)
-    distribution = Random_distribution(seed, MPI.COMM_WORLD)
+               Commxx())
+    distribution = Random_distribution(seed, Commxx())
     means = numpy.zeros((6,), 'd')
     covariances = numpy.zeros((6, 6), 'd')
     for i in range(0, 6):
@@ -34,8 +37,8 @@ def test_6d():
 
 def test_transverse_gaussian():
     bunch = Bunch(reference_particle, total_num, real_num,
-               MPI.COMM_WORLD)
-    distribution = Random_distribution(seed, MPI.COMM_WORLD)
+               Commxx())
+    distribution = Random_distribution(seed, Commxx())
     means = numpy.zeros((6,), 'd')
     covariances = numpy.zeros((6, 6), 'd')
     for i in range(0, 6):
