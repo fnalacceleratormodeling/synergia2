@@ -66,7 +66,6 @@ BmlContextPtr
 Lattice_simulator::get_beamline_context()
 {
     if (!have_beamline_context) {
-        std::cout << "no beamline_context" << std::endl;
         calculate_beamline_context();
         have_beamline_context = true;
     }
@@ -433,7 +432,7 @@ Lattice_simulator::convert_normal_to_human(MArray2d_ref coords)
     }
   }
 }
-				   
+
 // return a vector of the mean actions that will generate a stationary
 // beam distribution having the specified standard deviations in each
 // of the three planes.
