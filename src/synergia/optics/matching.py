@@ -6,14 +6,15 @@ from one_turn_map import linear_one_turn_map
 from mpi4py import MPI
 from synergia.bunch import Bunch, populate_6d, populate_transverse_gaussian, populate_transverse_KV_GaussLong, populate_two_particles
 from synergia.foundation import Random_distribution, pconstants
+from synergia.utils import Commxx
 from synergia.optics.one_turn_map import linear_one_turn_map
 from math import acos, pi, sin, sqrt
 
 
 def _get_correlation_matrix(linear_map,arms,brms,crms,beta,rms_index=[0,2,4]):
-    '''here are 3 rms input parameters,arms, brms, crms, which corresponds to  indices rms _index[0], rms _index[1], rms _index[2] 
+    '''here are 3 rms input parameters,arms, brms, crms, which corresponds to  indices rms _index[0], rms _index[1], rms _index[2]
         example: rms_index=[0,2,4]==> arms=xrms, brms=yrms, crms=zrms
-         units of rms should be  [xrms]=m, [pxrms]=Gev/c, [zrms]=m, [pzrms] = Gev/c,  ''' 
+         units of rms should be  [xrms]=m, [pxrms]=Gev/c, [zrms]=m, [pzrms] = Gev/c,  '''
     evals, evect_matrix = numpy.linalg.eig(linear_map)
     evects = []
     for i in range(0, 6):
@@ -47,11 +48,11 @@ def _get_correlation_matrix(linear_map,arms,brms,crms,beta,rms_index=[0,2,4]):
     for i in range(0,3):
         for j in range(0,3):
             S[i,j]=F[j][rms_index[i],rms_index[i]]
-        
-    Sinv=numpy.linalg.inv(S)   
-    
-    
-    
+
+    Sinv=numpy.linalg.inv(S)
+
+
+
     gamma=1./numpy.sqrt(1.-beta*beta)
     pz = gamma * beta *pconstants.mp
     energy=pconstants.mp * gamma
@@ -60,26 +61,26 @@ def _get_correlation_matrix(linear_map,arms,brms,crms,beta,rms_index=[0,2,4]):
     Cz=1./beta
     Czp=1./pz
     units=[Cxy,Cxpyp,Cxy,Cxpyp,Cz, Czp] # transform from input units to Chef units
- 
-    C = numpy.zeros([6, 6], 'd') 
+
+    C = numpy.zeros([6, 6], 'd')
     cd1=arms*units[rms_index[0]]*arms*units[rms_index[0]]
-    cd2=brms*units[rms_index[1]]*brms*units[rms_index[1]]   
-    cd3=crms*units[rms_index[2]]*crms*units[rms_index[2]]  
+    cd2=brms*units[rms_index[1]]*brms*units[rms_index[1]]
+    cd3=crms*units[rms_index[2]]*crms*units[rms_index[2]]
     #cd1 = rms_x ** 2
     #cd2 = rms_y ** 2
-    #rms_cdt = rms_z / beta   
+    #rms_cdt = rms_z / beta
     #cd3 = rms_cdt ** 2
-    
+
     for i in range(0, 3):
         C += F[i] * (Sinv[i, 0] * cd1 + Sinv[i, 1] * cd2 + Sinv[i, 2] * cd3)
-        
+
 
     return C
 
 def  print_matched_parameters(C,beta):
      print "One Turn correlation matrix: "
      print numpy.array2string(C, precision=3)
-  
+
      gamma=1./numpy.sqrt(1.-beta*beta)
      pz = gamma * beta *pconstants.mp
      energy=pconstants.mp * gamma
@@ -97,40 +98,40 @@ def  print_matched_parameters(C,beta):
      print "*    emitx=", emitx, " meters*GeV/c   =", emitx/pz, " meters*rad (synergia units)=", emitx/pz/pi, " pi*meters*rad"
      print "*    emity=", emity, " meters*GeV/c   =", emity/pz, " meters*rad (synergia units)=", emity/pz/pi, " pi*meters*rad"
      print "*    emitz=", emitz, " meters*GeV/c =", emitz*1.e9/(pconstants.c), " eV*s =" , emitz*beta*beta*energy/pz, " meters*GeV =", emitz/pz/beta, " [cdt*dp/p] (synergia units)"
-     print " "  
+     print " "
      print "*    90%emitx=",  4.605*pi*emitx/pz,"  meters*rad =", 4.605*emitx/pz, " pi*meters*rad"
      print "*    90%emity=",  4.605*pi*emity/pz, " meters*rad =", 4.605*emity/pz, " pi*meters*rad"
      print "*    90%emitz=",  4.605*pi*emitz*1.e9/(pconstants.c), " eV*s"
      print " "
-     print " "  
+     print " "
      print "*    95%emitx=",  5.991*pi*emitx/pz,"  meters*rad =", 5.991*emitx/pz, " pi*meters*rad"
      print "*    95%emity=",  5.991*pi*emity/pz, " meters*rad =", 5.991*emity/pz, " pi*meters*rad"
      print "*    95%emitz=",  5.991*pi*emitz*1.e9/(pconstants.c), " eV*s"
      print " "
      print "*    Normalized emitx=",  emitx*gamma*beta/pz, " meters*rad =", emitx*gamma*beta/pz/pi, " pi*meters*rad"
      print "*    Normalized emity=",  emity*gamma*beta/pz, " meters*rad =", emity*gamma*beta/pz/pi, " pi*meters*rad"
-     print " " 
+     print " "
      print "*    Normalized 90%emitx=",  4.605*pi*emitx*gamma*beta/pz,"  meters*rad =", 4.605*emitx*gamma*beta/pz, " pi*meters*rad"
      print "*    Normalized 90%emity=",  4.605*pi*emity*gamma*beta/pz, " meters*rad =", 4.605*emity*gamma*beta/pz, " pi*meters*rad"
-     print " "  
+     print " "
      print "*    Normalized 95%emitx=",  5.991*pi*emitx*gamma*beta/pz,"  meters*rad =", 5.991*emitx*gamma*beta/pz, " pi*meters*rad"
      print "*    Normalized 95%emity=",  5.991*pi*emity*gamma*beta/pz, " meters*rad =", 5.991*emity*gamma*beta/pz, " pi*meters*rad"
      print " "
      print "*    xrms=",sqrt(C[0,0])/units[0] , " meters"
      print "*    yrms=",sqrt(C[2,2])/units[2], " meters"
      print "*    zrms=",sqrt(C[4,4])/units[4] , " meters=", 1e9*sqrt(C[4,4])/units[4]/pconstants.c/beta," ns  "
-    # ,=2.*pi*sqrt(C[4,4])/units[4]/beam_parameters.get_z_length(), " rad 
+    # ,=2.*pi*sqrt(C[4,4])/units[4]/beam_parameters.get_z_length(), " rad
      print "*    pxrms=",sqrt(C[1,1])/units[1] , " GeV/c,    dpx/p=",sqrt(C[1,1])
      print "*    pyrms=",sqrt(C[3,3])/units[3] , " GeV/c,    dpy/p=",sqrt(C[3,3])
      print "*    pzrms=",sqrt(C[5,5])/units[5] , " GeV/c,    dpz/p=",sqrt(C[5,5])
      print "*    Erms=",sqrt(C[5,5])*beta*beta*energy, " GeV,  deoe=",sqrt(C[5,5])*beta*beta
-    #print "" 
+    #print ""
     #print "*    bucket length=",beam_parameters.get_z_length(),  " meters =",1e9*beam_parameters.get_z_length()/synergia.PH_MKS_c/beta," ns"
      print "*    pz=",pz, "  GeV/c"
      print "*    total energy=",energy,"GeV,   kinetic energy=", energy-pconstants.mp,"GeV"
      print "****************************************************"
-            
-       
+
+
 
 def get_alpha_beta(map):
     u = numpy.ones([6])
@@ -164,23 +165,23 @@ def get_alpha_beta(map):
     alpha_y = (myy - mypyp) / (2.0 * sin(mu))
 
     return [alpha_x, alpha_y], [beta_x, beta_y]
-    
+
 def  get_tunes(mymap):
-   
+
    # print "mymap is "
    # print numpy.array2string(mymap,max_line_width=200)
-    
+
     u = numpy.ones([6])
     mxx = mymap[0,0]
     mxpxp = mymap[1,1]
     mxxp = mymap[0,1]
     cos_mu = (mxx+mxpxp)/2.0
-    mu = acos(cos_mu) 
+    mu = acos(cos_mu)
     if mxxp/sin(mu) < 0:
        mu = 2*pi - mu
     tune_x=mu/(2.*pi)
-    
-    
+
+
     myy = mymap[2,2]
     mypyp = mymap[3,3]
     myyp = mymap[2,3]
@@ -190,24 +191,24 @@ def  get_tunes(mymap):
     # use this to pick branch
     if myyp/sin(mu) < 0:
         mu = 2*pi - mu
-    tune_y=mu/(2.*pi) 
-    
+    tune_y=mu/(2.*pi)
+
     mzz=mymap[4,4]
     mzpzp = mymap[5,5]
     mzzp = mymap[4,5]
    # print "mzz= ",mzz, "mzpzp=  ",mzpzp, "mzzp=  ",mzzp
     cos_mu = (mzz+mzpzp)/2.0
-    mu = acos(cos_mu) 
+    mu = acos(cos_mu)
     if mzzp/sin(mu) < 0:
        mu = 2*pi - mu
     tune_z=mu/(2.*pi)
-    
+
     l,v = numpy.linalg.eig(mymap)
     print "eigenvalues of one turn map: ", l
     print "absolute values of eigenvalues (should all be 1): ", abs(l)
     print "fractional tunes from eigenvalues: ", numpy.log(l).imag/(2.0*numpy.pi)
- 
-    return (tune_x,tune_y, tune_z)    
+
+    return (tune_x,tune_y, tune_z)
 
 def match_transverse_twiss_emittance(emittance, alpha, beta):
     """Calculate input parameters for a matched beam of given width
@@ -242,21 +243,21 @@ def generate_matched_bunch(lattice_simulator, arms,brms,crms,
                            bunch_index=0, comm=None, periodic=False):
     map = linear_one_turn_map(lattice_simulator)
     beta = lattice_simulator.get_lattice().get_reference_particle().get_beta()
-    correlation_matrix = _get_correlation_matrix(map, arms,brms,crms,beta, rms_index) 
+    correlation_matrix = _get_correlation_matrix(map, arms,brms,crms,beta, rms_index)
     if comm == None:
-       comm = MPI.COMM_WORLD  
-  
+       comm = Commxx()
+
     if comm.Get_rank() ==0:
-       print "BUNCH INDEX=", bunch_index 
-       print_matched_parameters(correlation_matrix,beta)  
-    
-    z_period_length= lattice_simulator.get_bucket_length()        
+       print "BUNCH INDEX=", bunch_index
+       print_matched_parameters(correlation_matrix,beta)
+
+    z_period_length= lattice_simulator.get_bucket_length()
     if ((z_period_length == 0) or (not(periodic))):
         bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
                   num_macro_particles, num_real_particles, comm)
-    else:            
+    else:
         bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
-                  num_macro_particles, num_real_particles, comm, z_period_length, bunch_index)     
+                  num_macro_particles, num_real_particles, comm, z_period_length, bunch_index)
     dist = Random_distribution(seed, comm)
     populate_6d(dist, bunch, numpy.zeros((6,), 'd'), correlation_matrix)
     return bunch
@@ -286,7 +287,7 @@ def generate_matched_bunch_transverse(lattice_simulator, emit_x, emit_y,
         get_matched_bunch_transverse_parameters(lattice_simulator,
                                                 emit_x, emit_y, rms_z, dpop)
     if comm == None:
-        comm = MPI.COMM_WORLD
+        comm = Commxx()
     bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
                   num_macro_particles, num_real_particles, comm)
     dist = Random_distribution(seed, comm)
@@ -301,12 +302,12 @@ def generate_matchedKV_bunch_transverse(lattice_simulator, emitMax,
     [[ax, ay], [bx, by]] = get_alpha_beta(map)
 
     if comm == None:
-        comm = MPI.COMM_WORLD
+        comm = Commxx()
     bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
                   num_macro_particles, num_real_particles, comm)
     dist = Random_distribution(seed, comm)
     populate_transverse_KV_GaussLong(dist, bunch, emitMax,
-        ax, bx, ay, by, cdt, dpop) 
+        ax, bx, ay, by, cdt, dpop)
     return bunch
 
 def generate_matched_bunch_uniform_longitudinal(lattice_simulator, emit_x,
@@ -317,7 +318,7 @@ def generate_matched_bunch_uniform_longitudinal(lattice_simulator, emit_x,
         get_matched_bunch_transverse_parameters(lattice_simulator,
                                                 emit_x, emit_y, 1.0, dpop)
     if comm == None:
-        comm = MPI.COMM_WORLD
+        comm = Commxx()
     bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
                   num_macro_particles, num_real_particles, comm)
     dist = Random_distribution(seed, comm)
@@ -327,10 +328,10 @@ def generate_matched_bunch_uniform_longitudinal(lattice_simulator, emit_x,
 
 def generate_two_particles(lattice_simulator, coordP1, coordP2, num_real_particles, comm=None):
      if comm == None:
-         comm = MPI.COMM_WORLD
+         comm = Commxx()
      bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
                   2, num_real_particles, comm)
-     populate_two_particles(bunch, 
+     populate_two_particles(bunch,
                             coordP1[0], coordP1[1], coordP1[2], coordP1[3], coordP1[4], coordP1[5],
                             coordP2[0], coordP2[1], coordP2[2], coordP2[3], coordP2[4], coordP2[5])
      return bunch
@@ -338,26 +339,26 @@ def generate_two_particles(lattice_simulator, coordP1, coordP2, num_real_particl
 
 
 #def envelope_motion(widths_in,current,g,do_plot=0,do_match=0):
-  
-    
-    #(s,kx,ky) = g.get_strengths()        
-    #mass=g.get_mass() 
-    #kinetic_energy= g.get_initial_kinetic_energy()     
+
+
+    #(s,kx,ky) = g.get_strengths()
+    #mass=g.get_mass()
+    #kinetic_energy= g.get_initial_kinetic_energy()
     #gamma =1.0+kinetic_energy/mass
-    #beta = sqrt(1-1/gamma**2);    
+    #beta = sqrt(1-1/gamma**2);
     #charge = 1.0  # electron charge in C
     #A = 1.0; # atomic number
-    #lambd = current/(physics_constants.PH_MKS_e*beta*physics_constants.PH_MKS_c)	    
+    #lambd = current/(physics_constants.PH_MKS_e*beta*physics_constants.PH_MKS_c)
     #xi=4.0*charge**2*physics_constants.PH_MKS_rp*lambd/(A*beta**2*gamma**3)
-    
-      
+
+
     #retval=envelope_matching.envelope_match(widths_in, s, kx, ky,
            #xi, accuracy=1.0e-9, verbose=True, integrator=4,do_map=do_match,do_plot=do_plot)
-      
-##     retval= [sigma_x, sigma_xprime, r_x, sigma_y,s igma_yprime, r_y]  
-                     
-   	     
-		     
+
+##     retval= [sigma_x, sigma_xprime, r_x, sigma_y,s igma_yprime, r_y]
+
+
+
     #return retval
 
-		    
+

@@ -50,7 +50,7 @@ if MPI.COMM_WORLD.Get_rank() ==0:
 
 
 # Don't need that?  Lattice has voltage set
-# rf cavity voltage, 
+# rf cavity voltage,
 for elem in lattice.get_elements():
     if elem.get_type() == "rfcavity":
         elem.set_double_attribute("volt", opts.rf_voltage)
@@ -120,7 +120,7 @@ if MPI.COMM_WORLD.Get_rank() ==0:
    # print np.array2string(covar,max_line_width=200)
     print "stdx =",np.sqrt(emit*bx)," stdy= ", np.sqrt(emit*by)
 
-                                               
+
 
 
 bunchsp=lattice_simulator.get_bucket_length()
@@ -128,7 +128,7 @@ num_bunches=opts.num_bunches
 
 
 
-bunch_diag_train=synergia.bunch.Bunch_with_diagnostics_train(num_bunches,bunchsp, MPI.COMM_WORLD)
+bunch_diag_train=synergia.bunch.Bunch_with_diagnostics_train(num_bunches,bunchsp, synergia.utils.Commxx())
 for bunchnum in range(0,num_bunches):
     if bunch_diag_train.is_on_this_rank(bunchnum):
         commx=bunch_diag_train.get_comm(bunchnum)
@@ -141,7 +141,7 @@ for bunchnum in range(0,num_bunches):
         # apply offset to bunch
         particles[:,0] = particles[:,0]+opts.x_offset
         particles[:,2] = particles[:,2]+opts.y_offset
-        particles[:,4] = particles[:,4]+opts.z_offset 
+        particles[:,4] = particles[:,4]+opts.z_offset
         diagnostics_actions = synergia.simulation.Diagnostics_actions()
         bunch_diag=synergia.bunch.Bunch_with_diagnostics(bunch, diagnostics_actions)
         bunch_diag.add_per_step_diagnostics(synergia.bunch.Diagnostics_full2(bunch, "circular_full2-%02d.h5"%bunchnum))
@@ -163,20 +163,20 @@ if MPI.COMM_WORLD.Get_rank() ==0:
 #particles = bunch.get_local_particles()
 #particles[:,0] = particles[:,0]+opts.x_offset
 #particles[:,2] = particles[:,2]+opts.y_offset
-#particles[:,4] = particles[:,4]+opts.z_offset 
+#particles[:,4] = particles[:,4]+opts.z_offset
 
 #"""uncommnent for propagate(bunch,....)
-#diagnostics_writer_step = synergia.bunch.Diagnostics_full2(bunch, "circular_full2.h5") 
+#diagnostics_writer_step = synergia.bunch.Diagnostics_full2(bunch, "circular_full2.h5")
 #diagnostics_writer_turn = synergia.bunch.Diagnostics_particles(bunch,"circular_particles.h5",0,0,100)
 
-#'''uncomment for propagate(  , diagnostics_actions......                                               
+#'''uncomment for propagate(  , diagnostics_actions......
 #diagnostics_actions = synergia.simulation.Diagnostics_actions()
 
 
 #diagnostics_actions.add_per_step(synergia.bunch.Diagnostics_full2(bunch, "step_full2a.h5"))
 #diagnostics_actions.add_per_turn(synergia.bunch.Diagnostics_particles(bunch, "turn_particles.h5a",0,0,100))
 #bunch_with_diag=synergia.bunch.Bunch_with_diagnostics(bunch, diagnostics_actions)
-#bunch_with_diag.check_bunch_pointer_in_diagnostics() 
+#bunch_with_diag.check_bunch_pointer_in_diagnostics()
 
 
 #bunch_with_diag=synergia.bunch.Bunch_with_diagnostics(bunch, diagnostics_actions)
@@ -198,23 +198,23 @@ space_charge=opts.space_charge
 if space_charge:
     grid_shape=[512,512,64]
     radiusx=0.2
-    radiusy=0.2    
+    radiusy=0.2
     pipe_size=[2.*radiusx, 2.*radiusy, lattice_simulator.get_bucket_length()]
     if MPI.COMM_WORLD.Get_rank() ==0:
         print "pipe_size=",pipe_size
-    
+
     spc=synergia.collective.Space_charge_rectangular(pipe_size, grid_shape)
     for bunchnum in range(0,num_bunches):
         if bunch_diag_train.is_on_this_rank(bunchnum):
             commx=bunch_diag_train.get_comm(bunchnum)
             spc.set_fftw_helper(commx)
-    #spc= synergia.collective.Space_charge_3d_open_hockney(bunch_with_diag.get_comm(), grid_shape);      
+    #spc= synergia.collective.Space_charge_3d_open_hockney(bunch_with_diag.get_comm(), grid_shape);
     operators.append(spc)
-    
-   
 
 
- 
+
+
+
 
 if space_charge:
     stepper = synergia.simulation.Split_operator_stepper(
@@ -222,7 +222,7 @@ if space_charge:
 else:
     no_op = synergia.simulation.Dummy_collective_operator("stub")
     stepper = synergia.simulation.Split_operator_stepper(
-                            lattice_simulator, no_op, opts.num_steps)                            
+                            lattice_simulator, no_op, opts.num_steps)
 
 
 

@@ -111,8 +111,8 @@ zpcoords = np.array([0.0],'d')
 npart_test_bunch = len(xcoords) * len(xpcoords) * len(ycoords) * len(ypcoords) * len(zcoords) * len(zpcoords)
 
 # construct a bunch
-bunch1 = synergia.bunch.Bunch(lattice1.get_reference_particle(), npart_test_bunch, 1.0e11, synergia.MPI.COMM_WORLD)
-                    
+bunch1 = synergia.bunch.Bunch(lattice1.get_reference_particle(), npart_test_bunch, 1.0e11, synergia.utils.Commxx())
+
 particles1 = bunch1.get_local_particles()
 
 pindx = 0

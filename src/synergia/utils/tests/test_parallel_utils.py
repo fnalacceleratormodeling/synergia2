@@ -5,6 +5,7 @@ sys.path.append('../../..')
 import local_paths
 
 from mpi4py import MPI
+from synergia.utils import Commxx
 import synergia
 import numpy
 from nose.tools import *
@@ -22,11 +23,11 @@ def test_decompose_1d_raw():
 
 def test_decompose_1d():
     length = 23
-    offsets,counts = synergia.utils.decompose_1d(MPI.COMM_WORLD,length)
+    offsets,counts = synergia.utils.decompose_1d(Commxx(),length)
     assert_equal(offsets[0],0)
     assert_equal(counts[0],length)
 
 def test_decompose_1d_local():
     length = 17
-    local_length = synergia.utils.decompose_1d_local(MPI.COMM_WORLD,length)
+    local_length = synergia.utils.decompose_1d_local(Commxx(),length)
     assert_equal(length,local_length)
