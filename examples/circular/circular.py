@@ -149,7 +149,7 @@ for bunchnum in range(0,num_bunches):
         bunch_diag_train.set_bunch_diag_sptr(bunchnum, bunch_diag)
         real_num=bunch_diag_train.get_bunch_diag_sptr(bunchnum).get_bunch_sptr().get_real_num()
         bucket_index=bunch_diag_train.get_bunch_diag_sptr(bunchnum).get_bunch_sptr().get_bucket_index()
-        if commx.Get_rank() ==0:
+        if commx.get_rank() ==0:
             print "bunch # ",bunchnum ,"  number of particles= ",real_num, " bucket =", bucket_index
 if MPI.COMM_WORLD.Get_rank() ==0:
     print "train bunch space=",bunch_diag_train.get_bunch_separation()
