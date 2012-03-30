@@ -247,7 +247,7 @@ def generate_matched_bunch(lattice_simulator, arms,brms,crms,
     if comm == None:
        comm = Commxx()
 
-    if comm.Get_rank() ==0:
+    if comm.get_rank() == 0:
        print "BUNCH INDEX=", bunch_index
        print_matched_parameters(correlation_matrix,beta)
 
