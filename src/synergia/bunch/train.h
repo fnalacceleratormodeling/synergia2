@@ -30,6 +30,10 @@ public:
     /// @param index which bunch
     Commxx const &
     get_comm(int index) const;
+    /// Get the communicator for a bunch
+    /// @param index which bunch
+    Commxx_sptr
+    get_comm_sptr(int index) const;
     /// Return true if bunch with index index overlaps with the current processor
     /// @param index which bunch
     bool

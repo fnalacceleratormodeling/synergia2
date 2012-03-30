@@ -49,6 +49,13 @@ Train_comms::get_comm(int index) const
     return *comms[index];
 }
 
+Commxx_sptr
+Train_comms::get_comm_sptr(int index) const
+{
+    verify_index(index);
+    return comms[index];
+}
+
 
 bool
 Train_comms::is_on_this_rank(int index) const
