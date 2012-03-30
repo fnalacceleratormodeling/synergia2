@@ -15,14 +15,6 @@
 
 using namespace boost::python;
 
-PyObject *
-bunch_get_comm_workaround(Bunch const& bunch)
-{
-    PyObject *retval;
-    retval = PyMPIComm_New(bunch.get_comm().get());
-    return retval;
-}
-
 BOOST_PYTHON_MODULE(bunch)
 {
     import_array();
@@ -131,8 +123,7 @@ BOOST_PYTHON_MODULE(bunch)
         .def("get_num_bunches", &Train_comms::get_num_bunches)
         .def("get_master_comm", &Train_comms::get_master_comm,
                     return_value_policy<copy_const_reference>())
-        .def("get_comm", &Train_comms::get_comm,
-                    return_value_policy<copy_const_reference>())
+        .def("get_comm", &Train_comms::get_comm_sptr)
         .def("is_on_this_rank", &Train_comms::is_on_this_rank)
         ;
 
@@ -188,12 +179,7 @@ BOOST_PYTHON_MODULE(bunch)
                 .def("get_z_period_length", &Bunch::get_z_period_length)
                 .def("get_bucket_index", &Bunch::get_bucket_index)
                 .def("is_periodic", &Bunch::is_z_periodic)
-                // jfa: the following implementation does not work for reasons I do
-                //      not understand.
-//                .def("get_comm",
-//                            &Bunch::get_comm, return_internal_reference< > ())
-                .def("get_comm",
-                            &bunch_get_comm_workaround)
+                .def("get_comm", &Bunch::get_comm_sptr)
                 .def("inject", &Bunch::inject)
                 ;
 
