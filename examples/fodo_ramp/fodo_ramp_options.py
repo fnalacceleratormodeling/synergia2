@@ -25,5 +25,5 @@ opts.add("emit", 1e-6, "Horizontal and vertical emittance [m rad]", float)
 opts.add("stdz", 0.01, "RMS longitudinal length [m]", float)
 opts.add("dpop", 1e-4, "delta p / p", float)
 
-job_mgr = synergia_workflow.Job_manager("fodo_ramp.py", opts, ["fodo.lat"])
+job_mgr = synergia_workflow.Job_manager("fodo_ramp.py", opts, ["fodo.lat", "ramp_module.py"])
 
