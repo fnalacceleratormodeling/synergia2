@@ -278,14 +278,15 @@ class Mad8_reader:
                 reference_particle = Reference_particle(charge, four_momentum)
                 lattice.set_reference_particle(reference_particle)
 
-    def get_lattice(self, line_name, filename=None, enable_cache_write=True,
+
+    def get_possibly_cached_lattice(self, line_name, filename=None, enable_cache_write=True,
                     enable_cache_read=True):
         lattice_cache = Lattice_cache(filename, line_name)
         lattice = None
         if enable_cache_read and lattice_cache.is_readable():
             lattice = lattice_cache.read()
         if not lattice:
-            self._parser_check(filename, "get_lattice")
+            self._parser_check(filename, "get_possibly_cached_lattice")
             lattice = Lattice(line_name)
             self._extract_elements(self.parser.lines[line_name], [line_name], lattice)
             self._extract_reference_particle(lattice)
@@ -294,6 +295,21 @@ class Mad8_reader:
                 if MPI.COMM_WORLD.Get_rank() == 0:
                     lattice_cache.write(lattice)
         return lattice
+
+    def get_lattice(self, line_names, filename=None, enable_cache_write=True,
+                    enable_cache_read=True):
+        if not islist(line_names):
+            return self.get_possibly_cached_lattice(line_names,
+                                               filename,enable_cache_write,
+                                               enable_cache_read)
+        else:
+            lattices = []
+            for theline in line_names:
+                lattices.append(
+                    self.get_possibly_cached_lattice(theline,filename,
+                                                enable_cache_write,
+                                                enable_cache_read))
+            return lattices
 
 if __name__ == "__main__":
     import sys
