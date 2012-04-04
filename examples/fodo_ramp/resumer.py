@@ -3,4 +3,5 @@
 import synergia
 
 r = synergia.simulation.Resume()
-r.propagate(1,1,2,2)
+# these arguments will tell Resume to use the original options
+r.propagate(False, -1, False, -1)
