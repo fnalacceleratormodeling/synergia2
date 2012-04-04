@@ -234,3 +234,4 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
 Space_charge_2d_bassetti_erskine::~Space_charge_2d_bassetti_erskine()
 {
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Space_charge_2d_bassetti_erskine)

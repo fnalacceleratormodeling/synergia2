@@ -5,6 +5,8 @@
 #include "synergia/simulation/step.h"
 #include "synergia/bunch/bunch.h"
 
+#include "synergia/utils/serialization.h"
+
 class Space_charge_2d_bassetti_erskine : public Collective_operator
 {
 private:
@@ -30,7 +32,16 @@ public:
     apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
     virtual
     ~Space_charge_2d_bassetti_erskine();
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
+	    ar & BOOST_SERIALIZATION_NVP(sigma)
+		& BOOST_SERIALIZATION_NVP(use_round);
+        }
 };
+BOOST_CLASS_EXPORT_KEY(Space_charge_2d_bassetti_erskine)
 
 typedef boost::shared_ptr<Space_charge_2d_bassetti_erskine >
         Space_charge_2d_bassetti_erskine_sptr;
