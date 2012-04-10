@@ -10,8 +10,6 @@
 #include "synergia/foundation/multi_diagnostics.h"
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
 
 struct Bunch_means
 {

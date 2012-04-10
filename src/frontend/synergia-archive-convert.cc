@@ -72,7 +72,6 @@ struct Convert_options
                 << "usage: synergia-archive-convert <archive> <new archive>\n";
         std::cout << "       archive types are inferred from file suffixes:\n";
         std::cout << "           .bina : binary\n";
-        std::cout << "           .txta : text\n";
         std::cout << "           .xml  : xml\n";
         std::cout << "  options:\n";
         std::cout << "    --help: this message\n";
@@ -138,43 +137,19 @@ void
 run(Convert_options &opts)
 {
     if (opts.input_suffix == "bina") {
-        if (opts.output_suffix == "txta") {
-            convert<boost::archive::binary_iarchive,
-                    boost::archive::text_oarchive > (opts.input_file,
-                    opts.output_file);
-        } else {
             if (opts.output_suffix == "xml") {
                 convert<boost::archive::binary_iarchive,
                         boost::archive::xml_oarchive > (opts.input_file,
                         opts.output_file);
             }
-        }
-    }
-    if (opts.input_suffix == "txta") {
-        if (opts.output_suffix == "bina") {
-            convert<boost::archive::text_iarchive,
-                    boost::archive::binary_oarchive > (opts.input_file,
-                    opts.output_file);
-        } else {
-            if (opts.output_suffix == "xml") {
-                convert<boost::archive::text_iarchive,
-                        boost::archive::xml_oarchive > (opts.input_file,
-                        opts.output_file);
-            }
-        }
     }
     if (opts.input_suffix == "xml") {
-        if (opts.output_suffix == "txta") {
-            convert<boost::archive::xml_iarchive, boost::archive::text_oarchive > (
-                    opts.input_file, opts.output_file);
-        } else {
             if (opts.output_suffix == "bina") {
                 convert<boost::archive::xml_iarchive,
                         boost::archive::binary_oarchive > (opts.input_file,
                         opts.output_file);
             }
         }
-    }
 }
 
 int

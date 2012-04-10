@@ -8,8 +8,6 @@
 
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 
@@ -109,22 +107,6 @@ template<typename T>
     binary_load(T & object, std::string const& filename)
     {
         archive_load<T, boost::archive::binary_iarchive > (object, filename);
-    }
-
-template<typename T>
-    void
-    text_save(T const& object, std::string const& filename,
-            bool parallel = false)
-    {
-        archive_save<T, boost::archive::text_oarchive > (object, filename,
-                parallel);
-    }
-
-template<typename T>
-    void
-    text_load(T & object, std::string const& filename)
-    {
-        archive_load<T, boost::archive::text_iarchive > (object, filename);
     }
 
 template<typename T>
