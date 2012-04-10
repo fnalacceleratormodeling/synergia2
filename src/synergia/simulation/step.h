@@ -8,8 +8,7 @@
 #include "synergia/simulation/operator.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/foundation/multi_diagnostics.h"
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
+#include "synergia/utils/serialization.h"
 
 struct Bunch_means
 {
