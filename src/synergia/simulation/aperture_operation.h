@@ -19,6 +19,9 @@ public:
     template<typename T>
         void
         apply_impl(T & t, Bunch & bunch, int verbosity, Logger & logger);
+    template<typename T>
+        void
+        dump_particles(T & t, Bunch & bunch, int verbosity, Logger & logger);
     virtual void
     apply(Bunch & bunch, int verbosity, Logger & logger)=0;
     void
@@ -268,10 +271,60 @@ public:
     operator()(MArray2d_ref & particles, int part);
     virtual void
     apply(Bunch & bunch, int verbosity, Logger & logger);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
+            ar & BOOST_SERIALIZATION_NVP(horizontal_radius);
+            ar & BOOST_SERIALIZATION_NVP(vertical_radius);
+            ar & BOOST_SERIALIZATION_NVP(h2);
+            ar & BOOST_SERIALIZATION_NVP(v2);
+            ar & BOOST_SERIALIZATION_NVP(wire_x);
+            ar & BOOST_SERIALIZATION_NVP(wire_width);
+            ar & BOOST_SERIALIZATION_NVP(gap);
+        }
     virtual
     ~Wire_elliptical_aperture_operation();
 };
 BOOST_CLASS_EXPORT_KEY(Wire_elliptical_aperture_operation)
+
+/// A Lambertson aperture with radius in meters determined by the
+/// Lattice_element attribute "lambertson_aperture_radius".
+/// If the radius is not defined, the default value of 1000.0 m will
+/// be used.
+class Lambertson_aperture_operation : public Aperture_operation
+{
+private:
+    double radius;
+public:
+    static const char aperture_type[];
+    static const char attribute_name[];
+    Lambertson_aperture_operation(Lattice_element_slice_sptr slice_sptr);
+    // Default constructor for serialization use only
+    Lambertson_aperture_operation();
+    virtual const char *
+    get_aperture_type() const;
+    virtual bool
+    operator==(Aperture_operation const& aperture_operation) const;
+    bool
+            operator==(
+                    Lambertson_aperture_operation const& lambertson_aperture_operation) const;
+    bool
+    operator()(MArray2d_ref & particles, int part);
+    virtual void
+    apply(Bunch & bunch, int verbosit, Logger & logger);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
+            ar & BOOST_SERIALIZATION_NVP(radius);
+        }
+    virtual
+    ~Lambertson_aperture_operation();
+};
+BOOST_CLASS_EXPORT_KEY(Lambertson_aperture_operation)
 
 #include "synergia/simulation/aperture_operation.tcc"
 

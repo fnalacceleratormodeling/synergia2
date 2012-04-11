@@ -52,6 +52,10 @@ typedef Generic_aperture_extractor<Wire_elliptical_aperture_operation >
         Wire_elliptical_extractor;
 BOOST_CLASS_EXPORT_KEY(Wire_elliptical_extractor);
 
+typedef Generic_aperture_extractor<Lambertson_aperture_operation >
+        Lambertson_extractor;
+BOOST_CLASS_EXPORT_KEY(Lambertson_extractor);
+
 class Aperture_operation_extractor_map {
 private:
 	std::map<std::string, Aperture_operation_extractor_sptr> extractor_map;

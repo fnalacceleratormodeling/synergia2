@@ -119,6 +119,10 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
     setup_default_options();
 }
 
+Space_charge_2d_open_hockney::Space_charge_2d_open_hockney()
+{
+}
+
 double
 Space_charge_2d_open_hockney::get_n_sigma() const
 {
@@ -800,3 +804,4 @@ Space_charge_2d_open_hockney::apply(Bunch & bunch, double time_step,
 Space_charge_2d_open_hockney::~Space_charge_2d_open_hockney()
 {
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Space_charge_2d_open_hockney)

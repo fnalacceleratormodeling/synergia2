@@ -191,9 +191,11 @@ dr67_b     : drift, l = 3.549659/2.0
 ! rf cavities
 lrf	 := 0.0     !0.8382
 vrf	 := 0.000
-rf1      : rfcavity, l = lrf, volt = 0.0, lag = twopi/2.0, harmon = 4
-rf3      : drift,    l = lrf !, volt = 0.0, lag = twopi/2.0, harmon = 4
-rf5      : drift,    l = lrf !, volt = 0.0, lag = twopi/2.0, harmon = 4
+rf1      : rfcavity, l = lrf, volt = 0.0, lag = 0.5, harmon = 4
+rf3      : drift, l = lrf
+rf5      : drift, l = lrf
+!rf3      : rfcavity, l = lrf, volt = 0.0, lag = 0.5, harmon = 4
+!rf5      : rfcavity, l = lrf, volt = 0.0, lag = 0.5, harmon = 4
 drbc_a   : drift, l = (1.074740-lrf)/2.0
 drbc_b   : drift, l = (1.074740-lrf)/2.0
 
@@ -239,7 +241,7 @@ marker05  : marker
 marker06  : marker
 marker07  : marker
 marker08  : marker
-marker09  : marker
+lambertson : marker
 marker10  : marker
 marker11  : marker
 marker12  : marker
@@ -249,7 +251,7 @@ marker15  : marker
 marker16  : marker
 marker17  : marker
 marker18  : marker
-lambertson  : marker
+marker19  : marker
 marker20  : marker
 
 ldr45_b      := 3.549659/2.0/7.0
@@ -285,28 +287,30 @@ new_new_marker4  : marker
 ! Sextant Components:
 
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+straight60 : line = (           hqf1,           hbpm,           dr14,                                 hqd1, &
+                                hqd1,           vbpm,           dr14,   e_septum,                     hqf2, &
+                      marker01, hqf2, marker02, hbpm, marker03, dr14_a, marker04,   dr14_b, marker05, hqd2, &
+                      marker06, hqd2, marker07, vbpm, marker08, dr45_a, lambertson, dr45_b, marker10, hqf3, &
+                      marker11, hqf3, marker12, hbpm, marker13, dr56_a, marker14,   dr56_b, marker15, hqd3, &
+                      marker16, hqd3, marker17, vbpm, marker18, dr67_a, marker19,   dr67_b, marker20, hqf )
 
-! In this straight section (straight60), the septum is located 
-! at the upstream of a defocusing quad.
+!starting at the septum
+straight61 : line = (                                                   e_septum,                     hqf2, &
+                      marker01, hqf2, marker02, hbpm, marker03, dr14_a, marker04,   dr14_b, marker05, hqd2, &
+                      marker06, hqd2, marker07, vbpm, marker08, dr45_a, lambertson, dr45_b, marker10, hqf3, &
+                      marker11, hqf3, marker12, hbpm, marker13, dr56_a, marker14,   dr56_b, marker15, hqd3, &
+                      marker16, hqd3, marker17, vbpm, marker18, dr67_a, marker19,   dr67_b, marker20, hqf )
+septum_line : line = (          hqf1,           hbpm,           dr14,                                 hqd1, &
+                                hqd1,           vbpm,           dr14)
 
-!straight60 : line = (           hqf1,           hbpm,           dr14,   e_septum,                   hqd1, &
-!                      marker01,  hqd1, marker02,  vbpm, marker03,  dr14_a, marker04,  dr14_b, marker05,  hqf2, & 
-!                      marker06,  hqf2, marker07,  hbpm, marker08,  dr14_a, marker09,  dr14_b, marker10, hqd2, &
-!                      marker11, hqd2, marker12, vbpm, marker13, dr45_a, marker14, dr45_b, marker15, hqf3, & 
-!                      marker16, hqf3, marker17, hbpm, marker18, dr56_a, lambertson, dr56_b, marker20, hqd3, & 
-!                      marker21, hqd3, marker22, vbpm, marker23, dr67_a, marker24, dr67_b, marker25, hqf )      
-
-!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-
-! In this straight section (straight60), the septum is located
-! at the upstream of a focusing quad.
-
-straight60 : line = (           hqf1,           hbpm,           dr14,                               hqd1, &
-                                hqd1,           vbpm,           dr14,   e_septum,                   hqf2, &
-                      marker01,  hqf2, marker02,  hbpm, marker03,  dr14_a, marker04,  dr14_b, marker05,  hqd2, &
-                      marker06,  hqd2, marker07,  vbpm, marker08,  dr45_a, marker09,  dr45_b, marker10, hqf3, &
-                      marker11, hqf3, marker12, hbpm, marker13, dr56_a, marker14, dr56_b, marker15, hqd3, &
-                      marker16, hqd3, marker17, vbpm, marker18, dr67_a, lambertson, dr67_b, marker20, hqf )
+!starting at the lambertson
+straight62 : line = (                                                   lambertson, dr45_b, marker10, hqf3, &
+                      marker11, hqf3, marker12, hbpm, marker13, dr56_a, marker14,   dr56_b, marker15, hqd3, &
+                      marker16, hqd3, marker17, vbpm, marker18, dr67_a, marker19,   dr67_b, marker20, hqf )
+lambertson_line : line = (      hqf1,           hbpm,           dr14,                                 hqd1, &
+                                hqd1,           vbpm,           dr14,   e_septum,                     hqf2, &
+                      marker01, hqf2, marker02, hbpm, marker03, dr14_a, marker04,   dr14_b, marker05, hqd2, &
+                      marker06, hqd2, marker07, vbpm, marker08, dr45_a)
 
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
@@ -349,7 +353,8 @@ sextant30  : line = ( straight30, r3_suppress, arc )
 sextant40  : line = ( straight40,    suppress, arc )
 sextant50  : line = ( straight50, r5_suppress, arc )
 sextant60  : line = ( straight60,    suppress, arc )
-
+sextant61  : line = ( straight61,    suppress, arc )
+sextant62  : line = ( straight62,    suppress, arc )
 
 !-----------------------------------------------------------------------------
 
@@ -358,9 +363,17 @@ sextant60  : line = ( straight60,    suppress, arc )
 mstr     : marker
 marc     : marker
 
-debunch  : line = ( mstr, sextant60, marc, -sextant50, &
+debunch0 : line = ( mstr, sextant60, marc, -sextant50, &
                     mstr, sextant40, marc, -sextant30, &
-                    mstr, sextant20, marc, -sextant10 )
+                    mstr, sextant20, marc, -sextant10)
+
+debunch1 : line = ( mstr, sextant61, marc, -sextant50, &
+                    mstr, sextant40, marc, -sextant30, &
+                    mstr, sextant20, marc, -sextant10, septum_line )
+
+debunch2 : line = ( mstr, sextant62, marc, -sextant50, &
+                    mstr, sextant40, marc, -sextant30, &
+                    mstr, sextant20, marc, -sextant10, lambertson_line )
 
 !=============================================================================
 

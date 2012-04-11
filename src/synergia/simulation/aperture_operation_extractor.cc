@@ -5,6 +5,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Elliptical_extractor)
 BOOST_CLASS_EXPORT_IMPLEMENT(Rectangular_extractor)
 BOOST_CLASS_EXPORT_IMPLEMENT(Polygon_extractor)
 BOOST_CLASS_EXPORT_IMPLEMENT(Wire_elliptical_extractor)
+BOOST_CLASS_EXPORT_IMPLEMENT(Lambertson_extractor)
 
 Aperture_operation_extractor::Aperture_operation_extractor()
 {

@@ -447,3 +447,61 @@ Wire_elliptical_aperture_operation::~Wire_elliptical_aperture_operation()
 {
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Wire_elliptical_aperture_operation);
+
+const char Lambertson_aperture_operation::aperture_type[] = "lambertson";
+const char Lambertson_aperture_operation::attribute_name[] = "lambertson";
+
+Lambertson_aperture_operation::Lambertson_aperture_operation(
+        Lattice_element_slice_sptr slice_sptr) :
+    Aperture_operation(slice_sptr)
+{
+    if (slice_sptr->get_lattice_element().has_double_attribute(
+            "lambertson_aperture_radius")) {
+        radius = slice_sptr->get_lattice_element().get_double_attribute(
+                "lambertson_aperture_radius");
+    } else {
+        throw std::runtime_error(
+                "lambertson_aperture_operation: lambertson_aperture requires an lambertson_aperture_radius attribute");
+    }
+}
+
+Lambertson_aperture_operation::Lambertson_aperture_operation()
+{
+}
+
+const char *
+Lambertson_aperture_operation::get_aperture_type() const
+{
+    return aperture_type;
+}
+
+bool
+Lambertson_aperture_operation::operator==(
+        Aperture_operation const& aperture_operation) const
+{
+    if (aperture_type == aperture_operation.get_aperture_type()) {
+        return operator==(
+                *static_cast<Lambertson_aperture_operation const* > (&aperture_operation));
+    } else {
+        return false;
+    }
+}
+
+bool
+Lambertson_aperture_operation::operator==(
+        Lambertson_aperture_operation const& lambertson_aperture_operation) const
+{
+    return (radius == lambertson_aperture_operation.radius);
+}
+
+void
+Lambertson_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
+{
+    dump_particles(*this, bunch, verbosity, logger);
+    //apply_impl(*this, bunch, verbosity, logger);
+}
+
+Lambertson_aperture_operation::~Lambertson_aperture_operation()
+{
+}
+BOOST_CLASS_EXPORT_IMPLEMENT(Lambertson_aperture_operation)

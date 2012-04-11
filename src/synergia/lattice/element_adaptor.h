@@ -433,6 +433,46 @@ public:
 };
 BOOST_CLASS_EXPORT_KEY(Rcollimator_mad8_adaptor);
 
+// Septum is an CHEF addon not found in MAD8
+class Septum_mad8_adaptor : public Element_adaptor
+{
+public:
+    Septum_mad8_adaptor();
+    virtual void
+    set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+        }
+    virtual
+    ~Septum_mad8_adaptor();
+};
+BOOST_CLASS_EXPORT_KEY(Septum_mad8_adaptor);
+
+// Lambertson is an CHEF addon not found in MAD8
+class Lambertson_mad8_adaptor : public Element_adaptor
+{
+public:
+    Lambertson_mad8_adaptor();
+    virtual void
+    set_default_attributes(Lattice_element & lattice_element);
+    Chef_elements
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+        }
+    virtual
+    ~Lambertson_mad8_adaptor();
+};
+BOOST_CLASS_EXPORT_KEY(Lambertson_mad8_adaptor);
+
 class Element_adaptor_map
 {
 private:

@@ -140,6 +140,14 @@ Element_adaptor_map::Element_adaptor_map()
     boost::shared_ptr<Rcollimator_mad8_adaptor > rcollimator_mad8_adaptor(
             new Rcollimator_mad8_adaptor);
     adaptor_map["rcollimator"] = rcollimator_mad8_adaptor;
+
+    boost::shared_ptr<Septum_mad8_adaptor > septum_mad8_adaptor(
+            new Septum_mad8_adaptor);
+    adaptor_map["e_septum"] = septum_mad8_adaptor;
+
+    boost::shared_ptr<Lambertson_mad8_adaptor > lambertson_mad8_adaptor(
+            new Lambertson_mad8_adaptor);
+    adaptor_map["lambertson"] = lambertson_mad8_adaptor;
 }
 
 void
@@ -1405,3 +1413,84 @@ Rcollimator_mad8_adaptor::~Rcollimator_mad8_adaptor()
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Rcollimator_mad8_adaptor)
 
+Septum_mad8_adaptor::Septum_mad8_adaptor()
+{
+}
+
+void
+Septum_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
+{
+    set_double_default(lattice_element, "positive_strength", 0.0);
+    set_double_default(lattice_element, "negative_strength", 0.0);
+    set_double_default(lattice_element, "wire_position", 0.0);
+    set_double_default(lattice_element, "wire_width", 0.0);
+    set_double_default(lattice_element, "gap_size", 0.0);
+}
+
+Chef_elements
+Septum_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
+{   
+    Chef_elements retval;
+
+    double positive_strength = lattice_element.get_double_attribute("positive_strength");
+    double negative_strength = lattice_element.get_double_attribute("negative_strength");
+    double wire_position = lattice_element.get_double_attribute("wire_position");
+    double wire_width = lattice_element.get_double_attribute("wire_width");
+    double gap_size = lattice_element.get_double_attribute("gap_size");
+
+    //bmlnElmnt * bmln_elmnt;
+    //bmln_elmnt = new thinSeptum(lattice_element.get_name().c_str(),
+    //        positive_strength, negative_strength, wire_position);
+    //bmln_elmnt->setStrengths(positive_strength, negative_strength);
+    //bmln_elmnt->setWire(wire_position);
+    //bmln_elmnt->setWireWidth(wire_width);
+    //bmln_elmnt->setGap(gap_size);
+    //ElmPtr elm(bmln_elmnt);
+
+    ThinSeptumPtr es_septum( new thinSeptum(lattice_element.get_name().c_str(),
+            positive_strength, negative_strength, wire_position));
+    es_septum->setStrengths(positive_strength, negative_strength);
+    es_septum->setWire(wire_position);
+    es_septum->setWireWidth(wire_width);
+    es_septum->setGap(gap_size);
+    ElmPtr elm(es_septum);
+
+    retval.push_back(elm);
+
+    return retval;
+}
+
+Septum_mad8_adaptor::~Septum_mad8_adaptor()
+{
+}
+BOOST_CLASS_EXPORT_IMPLEMENT(Septum_mad8_adaptor)
+
+Lambertson_mad8_adaptor::Lambertson_mad8_adaptor()
+{
+}
+
+void
+Lambertson_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
+{
+}
+
+Chef_elements
+Lambertson_mad8_adaptor::get_chef_elements(
+        Lattice_element const& lattice_element, double brho)
+{
+    Chef_elements retval;
+
+    bmlnElmnt * bmln_elmnt;
+    bmln_elmnt = new thinLamb(lattice_element.get_name().c_str());
+    ElmPtr elm(bmln_elmnt);
+
+    retval.push_back(elm);
+
+    return retval;
+}
+
+Lambertson_mad8_adaptor::~Lambertson_mad8_adaptor()
+{
+}
+BOOST_CLASS_EXPORT_IMPLEMENT(Lambertson_mad8_adaptor)
