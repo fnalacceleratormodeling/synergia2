@@ -1,0 +1,392 @@
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+!
+! File      : Debunch_modified.lat  (starting from Debunch_20081112.lat)
+!
+! MAD v.8 input file.
+! Debuncher design based on the description given in:
+!             Design Report Tevatron I Project
+!             September, 1984
+!             Sections 4-2, 4-4, 4-5, Appendix D
+!
+! Written by: John A. Johnstone
+!             November 12, 2008
+!
+!------------------------------------------------------------------------------
+! Comments on the Debuncher lattice description (2008.11.12 - JAJ)
+!------------------------------------------------------------------------------
+!
+! * The following minimal Debuncher lattice model is based predominantly
+! on the description in the Tev 1 Design Report (especially the SYNCH file
+! and output in Appendix D). However, the magnet lengths used in the SYNCH 
+! run are obviously incorrect. More realistic lengths for all quadrupoles
+! and dipoles were obtained from the 'gold' OPTIM Debuncher lattice located
+! in the FNAL lattice respository (2007.12.04):
+!
+!   http://lattices.fnal.gov/aid_repository/listall.php?lattices/debuncher
+!
+! * The design Debuncher lattice has a period of 3 with mirror symmetry in
+! each period:
+!                       3 x 2 x 17 SQC quadrupoles
+!                       3 x 2 x  2 SQD quadrupoles
+!                       3 x 2 x 11 SDD dipoles
+!                       3 x 2 x 23     sextupoles
+! The lattice has a regular FODO structure with 60o cells in the arcs and
+! simple "missing dipole" dispersion suppressor cells. In the long straight
+! sections there are 6 adjustable quad circuits available to adjust the 
+! machine tunes and match optics between sextants.
+!
+! * Since the magnet lengths appearing below differ slightly from those
+! in the Appendix D SYNCH file, it was not possible to reproduce the
+! lattice functions exactly everywhere in the machine. The choices made were
+! to maintain zero dispersion through the straight sections, reproduce the 
+! x, y tunes - 9.73, 9.77, and to reproduce beta_x, beta_y at the symmetry 
+! point in the middle of the long straights {where beta_x reaches the maximum
+! value in the ring [beta_x(max) = 17.833m, beta_y(max) = 16.760m]}. 
+! On the other hand, because of the slightly revised dipole length, the machine 
+! circumference was matched to the OPTIM value (which differs from the SYNCH
+! result by 0.4mm).
+!
+! * The design features of zero dispersion straights, small betas, and the
+! choice of machine tunes were all driven by considerations of implementing
+! stochastic cooling. In the future, with proton operation, these constraints
+! vanish and, in particular, the horizontal tune can be shifted to facilitate
+! resonant extraction.
+!
+! * Finally, note that the parameter "bang := -twopi/nbend" describes protons
+! circulating counter-clockwise.
+!
+!
+! 2008.12.05  (lpjm)
+! * In process of adding 3rd harmonic sextupoles and septa.
+!   NOT FINISHED
+! 
+! 2009.02.13  (lpjm)
+! * Put septum marker, E_SEPTUM, upstream of quad rather than downstream.
+!
+! 2010.07.07  (csp)
+! * Put 3 rf cavities on sextant10, sextant30, and sextant50
+!
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+twopi    := 6.28318530718
+
+mproton  := 0.93827231                            ! GeV/c^2
+momentum := 8.827385                              ! GeV/c
+tenergy  := 8.87710994
+kenergy  := 7.93883763                            ! GeV
+brho     := 3.335641 * momentum                   ! T-m
+
+BEAM, PARTICLE=PROTON, PC=momentum
+
+! Magnet Lengths:
+lSDD     :=  1.616075                             ! 63.625" SDD arc length
+lSQC_2   :=  0.333375                             ! 0.5*26.25" SQC quad length
+lSQD_2   :=  0.396875                             ! 0.5*31.25" SQD quad length
+lSX      :=  0.187325                             ! 7.375"    sextupole length
+  
+! Dipoles:
+nbend    :=  66                                   ! Dipole #
+bang     := -twopi/nbend                          ! Bend angle per dipole
+bdb      :   sbend, l = lSDD,  angle = bang,   &
+                    e1 = bang/2.,  e2 = bang/2.
+! Quadrupoles: 
+!        tunes: mux = 9.730, muy = 9.770
+!        gradients:
+gf       :=  10.46322                             ! T/m
+gd       := -10.38121
+
+! gf1      :=  11.39456
+! gd1      := -10.40220
+! gf2      :=  10.91268
+! gd2      := -11.26577    
+! gf3      :=   9.80173  
+! gd3      :=  -9.54533 
+
+gf1      :=  11.43055
+gd1      := -11.47986
+gf2      :=  11.20483
+gd2      := -10.97557
+gf3      :=   9.139009
+gd3      :=  -8.592637
+
+kf       :=   gf / brho                           ! 1/m^2
+kd       :=   gd / brho 
+kf1      :=  gf1 / brho 
+kd1      :=  gd1 / brho 
+kf2      :=  gf2 / brho 
+kd2      :=  gd2 / brho 
+kf3      :=  gf3 / brho 
+kd3      :=  gd3 / brho 
+
+hqf      : quadrupole, l = lSQC_2, k1 = kf
+hqd      : quadrupole, l = lSQC_2, k1 = kd
+hqf1     : quadrupole, l = lSQC_2, k1 = kf1
+hqd1     : quadrupole, l = lSQC_2, k1 = kd1
+hqf2     : quadrupole, l = lSQC_2, k1 = kf2
+hqd2     : quadrupole, l = lSQC_2, k1 = kd2
+hqf3     : quadrupole, l = lSQD_2, k1 = kf3
+hqd3     : quadrupole, l = lSQD_2, k1 = kd3
+
+! Chromaticity Sextupoles: 
+!        chromaticities : Cx ~ Cy ~ 0.
+!        d"By/dx" fields:
+b2f      := -21.06823                            ! T/m^2
+b2d      :=  32.28239
+
+k2f      :=  b2f / brho                          ! 1/m^3
+k2d      :=  b2d / brho
+
+! BEGIN DIAGNOSTIC
+sf       : sextupole, l = lSX, k2 = k2f
+sd       : sextupole, l = lSX, k2 = k2d
+! BEGIN DIAGNOSTIC
+! BEGIN DIAGNOSTIC
+! sf       : sextupole, l = lSX, k2 = 0
+! sd       : sextupole, l = lSX, k2 = 0
+! END   DIAGNOSTIC
+
+! 3rd harmonic sextupoles
+! Original strawman: ddd_str    := b2d*lsX / brho
+ddd_str    := 200.0/brho     ! T/m
+
+ddd_20_3   : multipole, k2l = -ddd_str
+ddd_20_2   : multipole, k2l =  ddd_str
+ddd_20_1   : multipole, k2l = -ddd_str
+ddd_50_1   : multipole, k2l = -ddd_str
+ddd_50_2   : multipole, k2l =  ddd_str
+ddd_50_3   : multipole, k2l = -ddd_str
+
+! Monitors:
+hbpm     : hmonitor, l = 0.1524
+vbpm     : vmonitor, l = 0.1524
+
+! Septum and lambertson markers
+
+e_septum   : marker
+!lambertson : marker
+msep       : marker
+
+! Drifts:
+dr14     : drift, l = 3.613159 
+dr45     : drift, l = 3.549659 
+dr56     : drift, l = 3.486159 
+dr67     : drift, l = 3.549659 
+drds     : drift, l = 0.922342 
+drb      : drift, l = 1.074740 
+drmt     : drift, l = 2.940109 
+drba     : drift, l = 0.655667 
+drbb     : drift, l = 0.668367 
+drms     : drift, l = 0.079350
+drsq     : drift, l = 0.219050
+
+dr14_a     : drift, l = 3.613159/2.0
+dr14_b     : drift, l = 3.613159/2.0
+dr45_a     : drift, l = 3.549659/2.0
+dr45_b     : drift, l = 3.549659/2.0
+dr56_a     : drift, l = 3.486159/2.0
+dr56_b     : drift, l = 3.486159/2.0
+dr67_a     : drift, l = 3.549659/2.0
+dr67_b     : drift, l = 3.549659/2.0
+
+! rf cavities
+lrf	 := 0.0     !0.8382
+vrf	 := 0.000
+rf1      : rfcavity, l = lrf, volt = 0.0, lag = 0.5, harmon = 4
+rf3      : drift, l = lrf
+rf5      : drift, l = lrf
+!rf3      : rfcavity, l = lrf, volt = 0.0, lag = 0.5, harmon = 4
+!rf5      : rfcavity, l = lrf, volt = 0.0, lag = 0.5, harmon = 4
+drbc_a   : drift, l = (1.074740-lrf)/2.0
+drbc_b   : drift, l = (1.074740-lrf)/2.0
+
+! "Missing Magnet" Dispersion Suppressor Cells
+
+hcfdmt   : line = ( hqf, hbpm, drms, sf, drmt, sd, drsq, hqd )
+hcdfmt   : line = ( hqd, vbpm, drms, sd, drmt, sf, drsq, hqf )
+fmtcell  : line = ( hcfdmt, hcdfmt )
+
+hcfdds    : line = ( hqf,             hbpm, drds, bdb, drb,                 hqd )
+sp_hcfdds : line = ( hqf, e_septum,   hbpm, drds, bdb, drb,                 hqd )
+!lm_hcfdds : line = ( hqf, lambertson, hbpm, drds, bdb, drb,                 hqd )
+r1_hcfdds : line = ( hqf,             hbpm, drds, bdb, drbc_b, rf1, drbc_a, hqd )
+r3_hcfdds : line = ( hqf,             hbpm, drds, bdb, drbc_b, rf3, drbc_a, hqd )
+r5_hcfdds : line = ( hqf,             hbpm, drds, bdb, drbc_b, rf5, drbc_a, hqd )
+hcdfds    : line = ( hqd,             vbpm, drds, bdb, drbb,   sf,  drsq,   hqf )
+
+fdscell   : line = (    hcfdds, hcdfds )
+sp_fdscell: line = ( sp_hcfdds, hcdfds )
+lm_fdscell: line = ( lm_hcfdds, hcdfds )
+r1_fdscell: line = ( r1_hcfdds, hcdfds )
+r3_fdscell: line = ( r3_hcfdds, hcdfds )
+r5_fdscell: line = ( r5_hcfdds, hcdfds )
+
+
+! Standard Arc Cells
+
+hcfd     : line = ( hqf, hbpm, drms, sf, drba, bdb, drbb, sd, drsq, hqd )
+hcdf     : line = ( hqd, vbpm, drms, sd, drba, bdb, drbb, sf, drsq, hqf )
+fcell    : line = ( hcfd, hcdf )
+dcell    : line = ( hcdf, hcfd )
+
+!        non-standard Q19-Q20 half-cell
+!       (only very slightly 'non-standard' -- BPM's at both U/S & D/S ends)
+
+hcfd1920 : line = ( hqf,hbpm, drms, sf, drba, bdb, drba, sd, drms, vbpm,hqd )
+
+marker01  : marker
+marker02  : marker
+marker03  : marker
+marker04  : marker
+marker05  : marker
+marker06  : marker
+marker07  : marker
+marker08  : marker
+lambertson : marker
+marker10  : marker
+marker11  : marker
+marker12  : marker
+marker13  : marker
+marker14  : marker
+marker15  : marker
+marker16  : marker
+marker17  : marker
+marker18  : marker
+marker19  : marker
+marker20  : marker
+
+ldr45_b      := 3.549659/2.0/7.0
+dr45_b_1     : drift, l = ldr45_b
+dr45_b_2     : drift, l = ldr45_b
+dr45_b_3     : drift, l = ldr45_b
+dr45_b_4     : drift, l = ldr45_b
+dr45_b_5     : drift, l = ldr45_b
+dr45_b_6     : drift, l = ldr45_b
+dr45_b_7     : drift, l = ldr45_b
+
+dr45_b_6_1   : drift, l = ldr45_b/5.0
+dr45_b_6_2   : drift, l = ldr45_b/5.0
+dr45_b_6_3   : drift, l = ldr45_b/5.0
+dr45_b_6_4   : drift, l = ldr45_b/5.0
+dr45_b_6_5   : drift, l = ldr45_b/5.0
+
+new_marker1  : marker
+new_marker2  : marker
+new_marker3  : marker
+new_marker4  : marker
+new_marker5  : marker
+new_marker6  : marker
+
+new_new_marker1  : marker
+new_new_marker2  : marker
+new_new_marker3  : marker
+new_new_marker4  : marker
+
+
+!-----------------------------------------------------------------------------
+
+! Sextant Components:
+
+!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+straight60 : line = (           hqf1,           hbpm,           dr14,                                 hqd1, &
+                                hqd1,           vbpm,           dr14,   e_septum,                     hqf2, &
+                      marker01, hqf2, marker02, hbpm, marker03, dr14_a, marker04,   dr14_b, marker05, hqd2, &
+                      marker06, hqd2, marker07, vbpm, marker08, dr45_a, lambertson, dr45_b, marker10, hqf3, &
+                      marker11, hqf3, marker12, hbpm, marker13, dr56_a, marker14,   dr56_b, marker15, hqd3, &
+                      marker16, hqd3, marker17, vbpm, marker18, dr67_a, marker19,   dr67_b, marker20, hqf )
+
+!starting at the septum
+straight61 : line = (                                                   e_septum,                     hqf2, &
+                      marker01, hqf2, marker02, hbpm, marker03, dr14_a, marker04,   dr14_b, marker05, hqd2, &
+                      marker06, hqd2, marker07, vbpm, marker08, dr45_a, lambertson, dr45_b, marker10, hqf3, &
+                      marker11, hqf3, marker12, hbpm, marker13, dr56_a, marker14,   dr56_b, marker15, hqd3, &
+                      marker16, hqd3, marker17, vbpm, marker18, dr67_a, marker19,   dr67_b, marker20, hqf )
+septum_line : line = (          hqf1,           hbpm,           dr14,                                 hqd1, &
+                                hqd1,           vbpm,           dr14)
+
+!starting at the lambertson
+straight62 : line = (                                                   lambertson, dr45_b, marker10, hqf3, &
+                      marker11, hqf3, marker12, hbpm, marker13, dr56_a, marker14,   dr56_b, marker15, hqd3, &
+                      marker16, hqd3, marker17, vbpm, marker18, dr67_a, marker19,   dr67_b, marker20, hqf )
+lambertson_line : line = (      hqf1,           hbpm,           dr14,                                 hqd1, &
+                                hqd1,           vbpm,           dr14,   e_septum,                     hqf2, &
+                      marker01, hqf2, marker02, hbpm, marker03, dr14_a, marker04,   dr14_b, marker05, hqd2, &
+                      marker06, hqd2, marker07, vbpm, marker08, dr45_a)
+
+!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+straight50 : line = ( hqf1, hbpm, ddd_50_1, dr14, hqd1, hqd1, vbpm, dr14,                       hqf2, & 
+                      hqf2, hbpm, ddd_50_2, dr14, hqd2, hqd2, vbpm, dr45,                       hqf3, & 
+                      hqf3, hbpm, ddd_50_3, dr56, hqd3, hqd3, vbpm, dr67,                       hqf )      
+
+straight40 : line = ( hqf1, hbpm,           dr14, hqd1, hqd1, vbpm, dr14,                       hqf2, & 
+                      hqf2, hbpm,           dr14, hqd2, hqd2, vbpm, dr45,                       hqf3, & 
+                      hqf3, hbpm,           dr56, hqd3, hqd3, vbpm, dr67,                       hqf )      
+
+straight30 : line = ( hqf1, hbpm,           dr14, hqd1, hqd1, vbpm, dr14,                       hqf2, &
+                      hqf2, hbpm,           dr14, hqd2, hqd2, vbpm, dr45,                       hqf3, &
+                      hqf3, hbpm,           dr56, hqd3, hqd3, vbpm, dr67,                       hqf )      
+
+straight20 : line = ( hqf1, hbpm, ddd_20_1, dr14, hqd1, hqd1, vbpm, dr14,                       hqf2, &
+                      hqf2, hbpm, ddd_20_2, dr14, hqd2, hqd2, vbpm, dr45,                       hqf3, &
+                      hqf3, hbpm, ddd_20_3, dr56, hqd3, hqd3, vbpm, dr67,                       hqf )
+
+straight10 : line = ( hqf1, hbpm, dr14, hqd1, &
+                      hqd1, vbpm, dr14, hqf2, &
+                      hqf2, hbpm, dr14, hqd2, &
+                      hqd2, vbpm, dr45, hqf3, &
+                      hqf3, hbpm, dr56, hqd3, &
+                      hqd3, vbpm, dr67, hqf )      
+
+suppress   : line = (    fdscell, fmtcell )
+sp_suppress: line = ( sp_fdscell, fmtcell )
+lm_suppress: line = ( lm_fdscell, fmtcell )
+r1_suppress: line = ( r1_fdscell, fmtcell )
+r3_suppress: line = ( r3_fdscell, fmtcell )
+r5_suppress: line = ( r5_fdscell, fmtcell )
+
+arc      : line = ( 4*fcell, hcfd1920 )
+
+sextant10  : line = ( straight10, r1_suppress, arc )
+sextant20  : line = ( straight20,    suppress, arc )
+sextant30  : line = ( straight30, r3_suppress, arc )
+sextant40  : line = ( straight40,    suppress, arc )
+sextant50  : line = ( straight50, r5_suppress, arc )
+sextant60  : line = ( straight60,    suppress, arc )
+sextant61  : line = ( straight61,    suppress, arc )
+sextant62  : line = ( straight62,    suppress, arc )
+
+!-----------------------------------------------------------------------------
+
+! Ring:
+
+mstr     : marker
+marc     : marker
+
+debunch0 : line = ( mstr, sextant60, marc, -sextant50, &
+                    mstr, sextant40, marc, -sextant30, &
+                    mstr, sextant20, marc, -sextant10)
+
+debunch1 : line = ( mstr, sextant61, marc, -sextant50, &
+                    mstr, sextant40, marc, -sextant30, &
+                    mstr, sextant20, marc, -sextant10, septum_line )
+
+debunch2 : line = ( mstr, sextant62, marc, -sextant50, &
+                    mstr, sextant40, marc, -sextant30, &
+                    mstr, sextant20, marc, -sextant10, lambertson_line )
+
+test: line = (hqf1)
+!=============================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
