@@ -496,7 +496,68 @@ void Bunch::check_pz2_positive()
 }
 
 
+template<class Archive>
+    void
+    Bunch::save(Archive & ar, const unsigned int version) const
+    {
+        ar << BOOST_SERIALIZATION_NVP(z_period_length)
+                << BOOST_SERIALIZATION_NVP(z_periodic)
+                << BOOST_SERIALIZATION_NVP(reference_particle)
+                << BOOST_SERIALIZATION_NVP(particle_charge)
+                << BOOST_SERIALIZATION_NVP(total_num)
+                << BOOST_SERIALIZATION_NVP(real_num)
+                << BOOST_SERIALIZATION_NVP(sort_period)
+                << BOOST_SERIALIZATION_NVP(sort_counter)
+                << BOOST_SERIALIZATION_NVP(state)
+                << BOOST_SERIALIZATION_NVP(comm_sptr)
+                << BOOST_SERIALIZATION_NVP(default_converter)
+                << BOOST_SERIALIZATION_NVP(converter_ptr);
+        Hdf5_file file(get_serialization_path("local_particles.h5"),
+                Hdf5_file::truncate);
+        file.write(local_num, "local_num");
+        file.write(*local_particles, "local_particles");
+    }
 
+template<class Archive>
+    void
+    Bunch::load(Archive & ar, const unsigned int version)
+    {
+        ar >> BOOST_SERIALIZATION_NVP(z_period_length)
+                >> BOOST_SERIALIZATION_NVP(z_periodic)
+                >> BOOST_SERIALIZATION_NVP(reference_particle)
+                >> BOOST_SERIALIZATION_NVP(particle_charge)
+                >> BOOST_SERIALIZATION_NVP(total_num)
+                >> BOOST_SERIALIZATION_NVP(real_num)
+                >> BOOST_SERIALIZATION_NVP(sort_period)
+                >> BOOST_SERIALIZATION_NVP(sort_counter)
+                >> BOOST_SERIALIZATION_NVP(state)
+                >> BOOST_SERIALIZATION_NVP(comm_sptr)
+                >> BOOST_SERIALIZATION_NVP(default_converter)
+                >> BOOST_SERIALIZATION_NVP(converter_ptr);
+        Hdf5_file file(get_serialization_path("local_particles.h5"),
+                Hdf5_file::read_only);
+        local_num = file.read<int > ("local_num");
+        local_particles
+                = new MArray2d(file.read<MArray2d > ("local_particles"));
+    }
+
+template
+void
+Bunch::save<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version) const;
+template
+void
+Bunch::save<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version) const;
+
+template
+void
+Bunch::load<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+template
+void
+Bunch::load<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Bunch::~Bunch()
 {

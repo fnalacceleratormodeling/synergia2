@@ -256,47 +256,10 @@ public:
 
     template<class Archive>
         void
-        save(Archive & ar, const unsigned int version) const
-        {
-            ar << BOOST_SERIALIZATION_NVP(z_period_length)
-                    << BOOST_SERIALIZATION_NVP(z_periodic)
-                    << BOOST_SERIALIZATION_NVP(reference_particle)
-                    << BOOST_SERIALIZATION_NVP(particle_charge)
-                    << BOOST_SERIALIZATION_NVP(total_num)
-                    << BOOST_SERIALIZATION_NVP(real_num)
-                    << BOOST_SERIALIZATION_NVP(sort_period)
-                    << BOOST_SERIALIZATION_NVP(sort_counter)
-                    << BOOST_SERIALIZATION_NVP(state)
-                    << BOOST_SERIALIZATION_NVP(comm_sptr)
-                    << BOOST_SERIALIZATION_NVP(default_converter)
-                    << BOOST_SERIALIZATION_NVP(converter_ptr);
-            Hdf5_file file(get_serialization_path("local_particles.h5"),
-                    Hdf5_file::truncate);
-            file.write(local_num, "local_num");
-            file.write(*local_particles, "local_particles");
-        }
+        save(Archive & ar, const unsigned int version) const;
     template<class Archive>
         void
-        load(Archive & ar, const unsigned int version)
-        {
-            ar >> BOOST_SERIALIZATION_NVP(z_period_length)
-                    >> BOOST_SERIALIZATION_NVP(z_periodic)
-                    >> BOOST_SERIALIZATION_NVP(reference_particle)
-                    >> BOOST_SERIALIZATION_NVP(particle_charge)
-                    >> BOOST_SERIALIZATION_NVP(total_num)
-                    >> BOOST_SERIALIZATION_NVP(real_num)
-                    >> BOOST_SERIALIZATION_NVP(sort_period)
-                    >> BOOST_SERIALIZATION_NVP(sort_counter)
-                    >> BOOST_SERIALIZATION_NVP(state)
-                    >> BOOST_SERIALIZATION_NVP(comm_sptr)
-                    >> BOOST_SERIALIZATION_NVP(default_converter)
-                    >> BOOST_SERIALIZATION_NVP(converter_ptr);
-            Hdf5_file file(get_serialization_path("local_particles.h5"),
-                    Hdf5_file::read_only);
-            local_num = file.read<int > ("local_num");
-            local_particles = new MArray2d(
-                    file.read<MArray2d > ("local_particles"));
-        }
+        load(Archive & ar, const unsigned int version);
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     virtual
