@@ -59,27 +59,10 @@ public:
 
     template<class Archive>
         void
-        save(Archive & ar, const unsigned int version) const
-        {
-            ar & BOOST_SERIALIZATION_NVP(per_host);
-            ar & BOOST_SERIALIZATION_NVP(ranks);
-            ar & BOOST_SERIALIZATION_NVP(parent_sptr);
-            ar & BOOST_SERIALIZATION_NVP(has_this_rank_);
-        }
+        save(Archive & ar, const unsigned int version) const;
     template<class Archive>
         void
-        load(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(per_host);
-            ar & BOOST_SERIALIZATION_NVP(ranks);
-            ar & BOOST_SERIALIZATION_NVP(parent_sptr);
-            ar & BOOST_SERIALIZATION_NVP(has_this_rank_);
-            if (parent_sptr) {
-                construct(parent_sptr->get());
-            } else {
-                construct(MPI_COMM_WORLD);
-            }
-        }
+        load(Archive & ar, const unsigned int version);
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     ~Commxx();

@@ -4,19 +4,20 @@ if (BUILD_PYTHON_BINDINGS)
    target_link_libraries(parallel_utils synergia_parallel_utils
         ${Boost_LIBRARIES})
 endif ()
+target_link_libraries(parallel_utils)
 
 add_library(synergia_serialization serialization_files.cc)
 target_link_libraries(synergia_serialization ${Boost_FILESYSTEM_LIBRARIES}
-    ${Boost_SYSTEM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARIES} synergia_parallel_utils)
+    ${Boost_SYSTEM_LIBRARIES} ${Boost_SERIALIZATION_LIBRARY} synergia_parallel_utils)
 
 add_library(synergia_hdf5_utils hdf5_writer.cc hdf5_serial_writer.cc
     hdf5_chunked_array2d_writer.cc hdf5_file.cc)
-target_link_libraries(synergia_hdf5_utils ${HDF5_LIBRARIES} ${Boost_SERIALIZATION})
+target_link_libraries(synergia_hdf5_utils ${HDF5_LIBRARIES} synergia_serialization)
 
 add_library(synergia_distributed_fft distributed_fft3d.cc
     distributed_fft2d.cc)
 target_link_libraries(synergia_distributed_fft ${PARALLEL_FFTW_LIBRARIES}
-    synergia_parallel_utils)
+    synergia_serialization synergia_parallel_utils)
 
 add_library(synergia_command_line command_line_arg.cc)
 

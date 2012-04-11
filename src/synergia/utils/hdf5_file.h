@@ -56,35 +56,10 @@ public:
         read(std::string const& name);
     template<class Archive>
         void
-        save(Archive & ar, const unsigned int version) const
-        {
-            ar << BOOST_SERIALIZATION_NVP(file_name)
-                    << BOOST_SERIALIZATION_NVP(is_open)
-                    << BOOST_SERIALIZATION_NVP(current_flag);
-            if (is_open) {
-                flush();
-                copy_to_serialization_directory(file_name);
-            }
-        }
+        save(Archive & ar, const unsigned int version) const;
     template<class Archive>
         void
-        load(Archive & ar, const unsigned int version)
-        {
-            ar >> BOOST_SERIALIZATION_NVP(file_name)
-                    >> BOOST_SERIALIZATION_NVP(is_open)
-                    >> BOOST_SERIALIZATION_NVP(current_flag);
-            if (is_open) {
-                copy_from_serialization_directory(file_name);
-                Flag flag;
-                if (current_flag == read_only) {
-                    flag = read_only;
-                } else {
-                    flag = read_write;
-                }
-                is_open = false; // will be changed to true by open
-                open(flag);
-            }
-        }
+        load(Archive & ar, const unsigned int version);
     BOOST_SERIALIZATION_SPLIT_MEMBER()
 
     ~Hdf5_file();

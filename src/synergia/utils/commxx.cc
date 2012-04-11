@@ -140,6 +140,49 @@ Commxx::get() const
     return comm;
 }
 
+template<class Archive>
+    void
+    Commxx::save(Archive & ar, const unsigned int version) const
+    {
+        ar & BOOST_SERIALIZATION_NVP(per_host);
+        ar & BOOST_SERIALIZATION_NVP(ranks);
+        ar & BOOST_SERIALIZATION_NVP(parent_sptr);
+        ar & BOOST_SERIALIZATION_NVP(has_this_rank_);
+    }
+
+template<class Archive>
+    void
+    Commxx::load(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(per_host);
+        ar & BOOST_SERIALIZATION_NVP(ranks);
+        ar & BOOST_SERIALIZATION_NVP(parent_sptr);
+        ar & BOOST_SERIALIZATION_NVP(has_this_rank_);
+        if (parent_sptr) {
+            construct(parent_sptr->get());
+        } else {
+            construct(MPI_COMM_WORLD);
+        }
+    }
+
+template
+void
+Commxx::save<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version) const;
+template
+void
+Commxx::save<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version) const;
+
+template
+void
+Commxx::load<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+template
+void
+Commxx::load<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Commxx::~Commxx()
 {
     if (((ranks.size() > 0) || per_host) && has_this_rank_) {
