@@ -15,7 +15,7 @@
 
 // The interface in this comment is out of date
 // A Fast_mapping_term represents one term in a polynomial expansion of order
-// "order". It contains a coefficient "coeff" and a c-style vector "i" of length
+// "order". It contains a coefficient "coeff" and a vector "i" of length
 // "order" containing the vector indices of the dependent variable.
 //
 // Examples:
@@ -34,7 +34,7 @@ class Fast_mapping_term
 {
 private:
     double the_coeff;
-    int *i;
+    std::vector<int > i;
     int the_order;
 public:
     Fast_mapping_term(int order);
@@ -76,24 +76,12 @@ public:
     write_to_stream(std::ostream & stream) const;
     template<class Archive>
         void
-        save(Archive & ar, const unsigned int version) const
+        serialize(Archive & ar, const unsigned int version)
         {
             ar & BOOST_SERIALIZATION_NVP(the_coeff);
             ar & BOOST_SERIALIZATION_NVP(the_order);
-            ar & boost::serialization::make_nvp("i",
-                    boost::serialization::make_array(i, the_order + 1));
+            ar & BOOST_SERIALIZATION_NVP(i);
         }
-    template<class Archive>
-        void
-        load(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(the_coeff);
-            ar & BOOST_SERIALIZATION_NVP(the_order);
-            i = new int[the_order + 1];
-            ar & boost::serialization::make_nvp("i",
-                    boost::serialization::make_array(i, the_order + 1));
-        }
-    BOOST_SERIALIZATION_SPLIT_MEMBER()
     ~Fast_mapping_term();
 };
 

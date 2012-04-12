@@ -17,9 +17,8 @@ read_line_ignoring_comments(std::ifstream &file)
     return line;
 }
 
-Fast_mapping_term::Fast_mapping_term(int order)
+Fast_mapping_term::Fast_mapping_term(int order) : i(order + 1)
 {
-    i = new int[order + 1];
     this->the_order = order;
 }
 
@@ -27,7 +26,7 @@ Fast_mapping_term::Fast_mapping_term(std::ifstream & stream)
 {
     std::stringstream sstream(read_line_ignoring_comments(stream));
     sstream >> the_order;
-    i = new int[the_order + 1];
+    i.resize(the_order + 1);
     for (int j = 0; j < the_order + 1; ++j) {
         sstream >> i[j];
     }
@@ -38,11 +37,11 @@ Fast_mapping_term::Fast_mapping_term()
 {
 }
 
-Fast_mapping_term::Fast_mapping_term(Fast_mapping_term const& t)
+Fast_mapping_term::Fast_mapping_term(Fast_mapping_term const& t) :
+        i(t.the_order + 1)
 {
     the_coeff = t.the_coeff;
     the_order = t.the_order;
-    i = new int[the_order + 1];
     for (int j = 0; j < the_order + 1; ++j) {
         i[j] = t.i[j];
     }
@@ -61,7 +60,6 @@ Fast_mapping_term::write_to_stream(std::ostream& stream) const
 
 Fast_mapping_term::~Fast_mapping_term()
 {
-    delete[] i;
 }
 
 void
