@@ -1,5 +1,6 @@
 #include "stepper.h"
 #include "synergia/utils/floating_point.h"
+#include "synergia/bunch/bunch.h"
 #include <cmath>
 
 Stepper::Stepper(Lattice_simulator const& lattice_simulator) :
@@ -23,6 +24,30 @@ Steps &
 Stepper::get_steps()
 {
     return steps;
+}
+
+void
+Stepper::force_update_operations_no_collective()
+{
+    int total_num = 1;
+    double real_num = 1.0;
+    Commxx_sptr commxx_sptr;
+    Bunch bunch(lattice_simulator.get_lattice_sptr()->get_reference_particle(),
+            total_num, real_num, commxx_sptr);
+    int verbosity = 0;
+    Logger logger(0);
+    double time_step = 1.0;
+    for (int i = 0; i < 6; ++i) {
+        bunch.get_local_particles()[0][i] = 0.0;
+    }
+    for (Steps::iterator sit = steps.begin(); sit != steps.end(); ++sit) {
+        for (Operators::iterator oit = (*sit)->get_operators().begin(); oit
+                != (*sit)->get_operators().end(); ++oit) {
+            if ((*oit)->get_type() == Independent_operator::type_name) {
+                (*oit)->apply(bunch, time_step, **sit, verbosity, logger);
+            }
+        }
+    }
 }
 
 void
