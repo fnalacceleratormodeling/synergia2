@@ -31,7 +31,7 @@ Stepper::force_update_operations_no_collective()
 {
     int total_num = 1;
     double real_num = 1.0;
-    Commxx_sptr commxx_sptr;
+    Commxx_sptr commxx_sptr(new Commxx);
     Bunch bunch(lattice_simulator.get_lattice_sptr()->get_reference_particle(),
             total_num, real_num, commxx_sptr);
     int verbosity = 0;
