@@ -50,8 +50,11 @@ Operator::~Operator()
 {
 }
 
+const char
+Collective_operator::type_name[] = "collective";
+
 Collective_operator::Collective_operator(std::string const& name) :
-    Operator(name, "collective")
+    Operator(name, type_name)
 {
 }
 
@@ -219,11 +222,14 @@ Independent_operator::need_update(Reference_particle const& reference_particle,
     return retval;
 }
 
+const char
+Independent_operator::type_name[] = "independent";
+
 Independent_operator::Independent_operator(
         std::string const& name,
         Operation_extractor_map_sptr operation_extractor_map_sptr,
         Aperture_operation_extractor_map_sptr aperture_operation_extractor_map_sptr) :
-            Operator(name, "independent"),
+            Operator(name, type_name),
             operation_extractor_map_sptr(operation_extractor_map_sptr),
             aperture_operation_extractor_map_sptr(
                     aperture_operation_extractor_map_sptr),

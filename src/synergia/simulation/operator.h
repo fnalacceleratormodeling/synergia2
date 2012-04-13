@@ -68,6 +68,7 @@ public:
         {
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operator);
         }
+    static const char type_name[];
     virtual
     ~Collective_operator();
 };
@@ -148,6 +149,7 @@ public:
             ar & BOOST_SERIALIZATION_NVP(aperture_operation_extractor_map_sptr);
             ar & BOOST_SERIALIZATION_NVP(have_operations);
         }
+    static const char type_name[];
     virtual
     ~Independent_operator();
 };
