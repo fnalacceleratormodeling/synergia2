@@ -5,7 +5,8 @@ set(tools
     syntrackplot
     synpoincareplot
     synbeamplot
-    synlatticeview)
+    synlatticeview
+    synprintmaps)
 
 foreach(tool ${tools})
     configure_file("${SYNERGIA2_SOURCE_DIR}/src/tools/${tool}.in"
@@ -21,4 +22,5 @@ install(FILES
     poincare_plot.py
     beam_plot.py
     lattice_view.py
+    print_maps.py
     DESTINATION lib/synergia_tools)
