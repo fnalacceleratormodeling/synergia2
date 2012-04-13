@@ -115,7 +115,7 @@ public:
             ar & BOOST_SERIALIZATION_NVP(have_sliced_beamline_);
             ar & BOOST_SERIALIZATION_NVP(brho);
             lattice_element_marker = ElmPtr(
-                    new marker("synergia_lattice_element_marker"));
+                    new marker(internal_marker_name));
             construct_beamline();
             if (have_sliced_beamline_) {
                 construct_sliced_beamline(slices);
