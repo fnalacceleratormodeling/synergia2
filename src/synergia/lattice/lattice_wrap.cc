@@ -87,9 +87,13 @@ BOOST_PYTHON_MODULE(lattice)
     container_conversions::from_python_sequence<Lattice_elements,
              container_conversions::variable_capacity_policy >();
 
+    typedef Lattice_element & (Lattice_element_slice::*get_lattice_element_non_const_type)();
     class_<Lattice_element_slice, Lattice_element_slice_sptr >("Lattice_element_slice",
             init<Lattice_element_sptr >())
             .def(init<Lattice_element_sptr, double, double >())
+            .def("get_lattice_element",
+                    get_lattice_element_non_const_type(&Lattice_element_slice::get_lattice_element),
+                    return_internal_reference< >())
             .def("print_", &Lattice_element_slice::print)
             ;
 
