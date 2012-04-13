@@ -319,6 +319,8 @@ BOOST_PYTHON_MODULE(simulation)
                 return_internal_reference< >())
         .def("get_steps", &Stepper::get_steps,
                 return_value_policy<copy_non_const_reference >())
+        .def("force_update_operations_no_collective",
+                &Stepper::force_update_operations_no_collective)
         .def("print_", &Stepper::print)
         ;
 
