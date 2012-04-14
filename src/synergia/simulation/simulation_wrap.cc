@@ -32,7 +32,8 @@ struct Propagate_actions_callback : Propagate_actions
     void
     first_action(Stepper & stepper, Bunch & bunch)
     {
-        call_method<void > (self.ptr(), "first_action", stepper, bunch);
+        call_method<void > (self.ptr(), "first_action", boost::ref(stepper),
+                boost::ref(bunch));
     }
     static void
     default_first_action(Propagate_actions& self_, Stepper & stepper,
@@ -43,7 +44,8 @@ struct Propagate_actions_callback : Propagate_actions
     void
     turn_end_action(Stepper & stepper, Bunch & bunch, int turn_num)
     {
-        call_method<void > (self.ptr(), "turn_end_action", stepper, bunch, turn_num);
+        call_method<void > (self.ptr(), "turn_end_action", boost::ref(stepper),
+                boost::ref(bunch), turn_num);
     }
     static void
     default_turn_end_action(Propagate_actions& self_, Stepper & stepper,
@@ -55,7 +57,8 @@ struct Propagate_actions_callback : Propagate_actions
     step_end_action(Stepper & stepper, Step & step, Bunch & bunch,
             int turn_num, int step_num)
     {
-        call_method<void > (self.ptr(), "step_end_action", stepper, step, bunch,
+        call_method<void > (self.ptr(), "step_end_action", boost::ref(stepper),
+                boost::ref(step), boost::ref(bunch),
                 turn_num, step_num);
     }
     static void
