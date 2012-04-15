@@ -14,6 +14,8 @@ install(TARGETS synergia_lattice DESTINATION lib)
 install(FILES
     chef_elements.h
     chef_lattice.h
+    chef_lattice_section.h
+    chef_lattice_section_fwd.h
     chef_utils.h
     element_adaptor.h
     lattice_element.h

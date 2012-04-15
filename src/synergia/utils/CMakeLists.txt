@@ -39,6 +39,8 @@ install(FILES
     floating_point.h
     hdf5_chunked_array2d_writer.h
     hdf5_misc.h
+    hdf5_file.h
+    hdf5_file.tcc
     hdf5_serial_writer.h
     hdf5_serial_writer.tcc
     hdf5_writer.h
