@@ -139,43 +139,7 @@ public:
 
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics)
-                    & BOOST_SERIALIZATION_NVP(have_writers)
-                    & BOOST_SERIALIZATION_NVP(s)
-                    & BOOST_SERIALIZATION_NVP(writer_s)
-                    & BOOST_SERIALIZATION_NVP(repetition)
-                    & BOOST_SERIALIZATION_NVP(writer_repetition)
-                    & BOOST_SERIALIZATION_NVP(trajectory_length)
-                    & BOOST_SERIALIZATION_NVP(writer_trajectory_length)
-                    & BOOST_SERIALIZATION_NVP(num_particles)
-                    & BOOST_SERIALIZATION_NVP(writer_num_particles)
-                    & BOOST_SERIALIZATION_NVP(real_num_particles)
-                    & BOOST_SERIALIZATION_NVP(writer_real_num_particles)
-                    & BOOST_SERIALIZATION_NVP(mean)
-                    & BOOST_SERIALIZATION_NVP(writer_mean)
-                    & BOOST_SERIALIZATION_NVP(std)
-                    & BOOST_SERIALIZATION_NVP(writer_std)
-                    & BOOST_SERIALIZATION_NVP(min)
-                    & BOOST_SERIALIZATION_NVP(writer_min)
-                    & BOOST_SERIALIZATION_NVP(max)
-                    & BOOST_SERIALIZATION_NVP(writer_max)
-                    & BOOST_SERIALIZATION_NVP(mom2)
-                    & BOOST_SERIALIZATION_NVP(writer_mom2)
-                    & BOOST_SERIALIZATION_NVP(corr)
-                    & BOOST_SERIALIZATION_NVP(writer_corr)
-                    & BOOST_SERIALIZATION_NVP(emitx)
-                    & BOOST_SERIALIZATION_NVP(emity)
-                    & BOOST_SERIALIZATION_NVP(emitz)
-                    & BOOST_SERIALIZATION_NVP(emitxy)
-                    & BOOST_SERIALIZATION_NVP(emitxyz)
-                    & BOOST_SERIALIZATION_NVP(writer_emitx)
-                    & BOOST_SERIALIZATION_NVP(writer_emity)
-                    & BOOST_SERIALIZATION_NVP(writer_emitz)
-                    & BOOST_SERIALIZATION_NVP(writer_emitxy)
-                    & BOOST_SERIALIZATION_NVP(writer_emitxyz);
-        }
+        serialize(Archive & ar, const unsigned int version);
 
     virtual
     ~Diagnostics_full2();
