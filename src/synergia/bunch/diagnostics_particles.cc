@@ -149,6 +149,35 @@ Diagnostics_particles::write()
     }
 }
 
+template<class Archive>
+    void
+    Diagnostics_particles::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
+        ar & BOOST_SERIALIZATION_NVP(have_writers);
+        ar & BOOST_SERIALIZATION_NVP(max_particle_id);
+    }
+
+template
+void
+Diagnostics_particles::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_particles::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_particles::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_particles::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Diagnostics_particles::~Diagnostics_particles()
 {
 }

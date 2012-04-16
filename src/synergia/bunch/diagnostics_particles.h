@@ -44,12 +44,7 @@ public:
 
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
-            ar & BOOST_SERIALIZATION_NVP(have_writers);
-            ar & BOOST_SERIALIZATION_NVP(max_particle_id);
-        }
+        serialize(Archive & ar, const unsigned int version);
 
     virtual
     ~Diagnostics_particles();
