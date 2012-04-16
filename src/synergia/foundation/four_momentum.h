@@ -82,14 +82,7 @@ public:
     /// Serialization support
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(mass)
-                    & BOOST_SERIALIZATION_NVP(energy)
-                    & BOOST_SERIALIZATION_NVP(momentum)
-                    & BOOST_SERIALIZATION_NVP(gamma)
-                    & BOOST_SERIALIZATION_NVP(beta);
-        }
+        serialize(Archive & ar, const unsigned int version);
 };
 
 #endif /* FOUR_MOMENTUM_H_ */

@@ -123,3 +123,34 @@ Four_momentum::equal(Four_momentum const& four_momentum, double tolerance) const
     }
     return true;
 }
+
+template<class Archive>
+    void
+    Four_momentum::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(mass)
+                & BOOST_SERIALIZATION_NVP(energy)
+                & BOOST_SERIALIZATION_NVP(momentum)
+                & BOOST_SERIALIZATION_NVP(gamma)
+                & BOOST_SERIALIZATION_NVP(beta);
+    }
+
+template
+void
+Four_momentum::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Four_momentum::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Four_momentum::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Four_momentum::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
