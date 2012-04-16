@@ -57,23 +57,7 @@ public:
 
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics)
-                    & BOOST_SERIALIZATION_NVP(have_writers)
-                    & BOOST_SERIALIZATION_NVP(found)
-                    & BOOST_SERIALIZATION_NVP(first_search)
-                    & BOOST_SERIALIZATION_NVP(last_index)
-                    & BOOST_SERIALIZATION_NVP(particle_id)
-                    & BOOST_SERIALIZATION_NVP(s)
-                    & BOOST_SERIALIZATION_NVP(writer_s)
-                    & BOOST_SERIALIZATION_NVP(repetition)
-                    & BOOST_SERIALIZATION_NVP(writer_repetition)
-                    & BOOST_SERIALIZATION_NVP(trajectory_length)
-                    & BOOST_SERIALIZATION_NVP(writer_trajectory_length)
-                    & BOOST_SERIALIZATION_NVP(coords)
-                    & BOOST_SERIALIZATION_NVP(writer_coords);
-        }
+        serialize(Archive & ar, const unsigned int version);
 
     virtual
     ~Diagnostics_track();

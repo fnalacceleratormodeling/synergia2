@@ -107,6 +107,46 @@ Diagnostics_track::write()
     }
 }
 
+template<class Archive>
+    void
+    Diagnostics_track::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics)
+                & BOOST_SERIALIZATION_NVP(have_writers)
+                & BOOST_SERIALIZATION_NVP(found)
+                & BOOST_SERIALIZATION_NVP(first_search)
+                & BOOST_SERIALIZATION_NVP(last_index)
+                & BOOST_SERIALIZATION_NVP(particle_id)
+                & BOOST_SERIALIZATION_NVP(s)
+                & BOOST_SERIALIZATION_NVP(writer_s)
+                & BOOST_SERIALIZATION_NVP(repetition)
+                & BOOST_SERIALIZATION_NVP(writer_repetition)
+                & BOOST_SERIALIZATION_NVP(trajectory_length)
+                & BOOST_SERIALIZATION_NVP(writer_trajectory_length)
+                & BOOST_SERIALIZATION_NVP(coords)
+                & BOOST_SERIALIZATION_NVP(writer_coords);
+    }
+
+template
+void
+Diagnostics_track::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_track::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_track::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_track::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Diagnostics_track::~Diagnostics_track()
 {
     if (have_writers) {
