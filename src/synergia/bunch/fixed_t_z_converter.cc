@@ -7,6 +7,32 @@
 #include <iostream>
 #include <cmath>
 
+template<class Archive>
+    void
+    Fixed_t_z_converter::serialize(Archive & ar, const unsigned int version)
+    {
+    }
+
+template
+void
+Fixed_t_z_converter::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Fixed_t_z_converter::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Fixed_t_z_converter::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Fixed_t_z_converter::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 //*********************Fixed_t_z_zeroth*****************************************
 
 void
@@ -161,6 +187,35 @@ Fixed_t_z_zeroth::from_t_bunch_to_t_lab(Bunch &bunch)
         particles[part][Bunch::dpop] = pz / p_ref;
     }
 }
+
+template<class Archive>
+    void
+    Fixed_t_z_zeroth::serialize(Archive & ar, const unsigned int version)
+    {
+        ar &
+        BOOST_SERIALIZATION_BASE_OBJECT_NVP(Fixed_t_z_converter);
+    }
+
+template
+void
+Fixed_t_z_zeroth::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Fixed_t_z_zeroth::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Fixed_t_z_zeroth::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Fixed_t_z_zeroth::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Fixed_t_z_zeroth)
 //*********************Fixed_t_z_zeroth end*****************************************
 
@@ -175,6 +230,34 @@ Fixed_t_z_ballistic::from_z_lab_to_t_bunch(Bunch &bunch)
 {
     std::cout << "stub: ballistic fixed_z_to_fixed_t\n";
 }
+
+template<class Archive>
+    void
+    Fixed_t_z_ballistic::serialize(Archive & ar, const unsigned int version)
+    {
+        ar &
+        BOOST_SERIALIZATION_BASE_OBJECT_NVP(Fixed_t_z_converter);
+    }
+
+template
+void
+Fixed_t_z_ballistic::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Fixed_t_z_ballistic::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Fixed_t_z_ballistic::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Fixed_t_z_ballistic::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 BOOST_CLASS_EXPORT_IMPLEMENT(Fixed_t_z_ballistic)
 
@@ -371,6 +454,35 @@ Fixed_t_z_alex::from_t_bunch_to_t_lab(Bunch &bunch)
         particles[part][Bunch::dpop] = pz / p_ref;
     }
 }
+
+template<class Archive>
+    void
+    Fixed_t_z_alex::serialize(Archive & ar, const unsigned int version)
+    {
+        ar &
+        BOOST_SERIALIZATION_BASE_OBJECT_NVP(Fixed_t_z_converter);
+    }
+
+template
+void
+Fixed_t_z_alex::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Fixed_t_z_alex::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Fixed_t_z_alex::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Fixed_t_z_alex::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Fixed_t_z_alex)
 
 //*********************Fixed_t_z_alex end*********************************************
@@ -535,6 +647,35 @@ Fixed_t_z_synergia20::from_t_bunch_to_t_lab(Bunch &bunch)
 
     }
 }
+
+template<class Archive>
+    void
+    Fixed_t_z_synergia20::serialize(Archive & ar, const unsigned int version)
+    {
+        ar &
+        BOOST_SERIALIZATION_BASE_OBJECT_NVP(Fixed_t_z_converter);
+    }
+
+template
+void
+Fixed_t_z_synergia20::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Fixed_t_z_synergia20::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Fixed_t_z_synergia20::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Fixed_t_z_synergia20::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Fixed_t_z_synergia20)
 
 

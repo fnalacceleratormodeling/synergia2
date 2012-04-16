@@ -56,9 +56,7 @@ public:
 
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-        }
+        serialize(Archive & ar, const unsigned int version);
 
     virtual
     ~Fixed_t_z_converter()
@@ -96,11 +94,7 @@ public:
 
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar &
-            BOOST_SERIALIZATION_BASE_OBJECT_NVP(Fixed_t_z_converter);
-        }
+        serialize(Archive & ar, const unsigned int version);
 };
 BOOST_CLASS_EXPORT_KEY(Fixed_t_z_zeroth)
 
@@ -138,11 +132,7 @@ public:
 
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar &
-            BOOST_SERIALIZATION_BASE_OBJECT_NVP(Fixed_t_z_converter);
-        }
+        serialize(Archive & ar, const unsigned int version);
 };
 BOOST_CLASS_EXPORT_KEY(Fixed_t_z_ballistic)
 
@@ -169,11 +159,7 @@ public:
 
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar &
-            BOOST_SERIALIZATION_BASE_OBJECT_NVP(Fixed_t_z_converter);
-        }
+        serialize(Archive & ar, const unsigned int version);
 };
 BOOST_CLASS_EXPORT_KEY(Fixed_t_z_alex)
 
@@ -200,11 +186,7 @@ public:
 
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar &
-            BOOST_SERIALIZATION_BASE_OBJECT_NVP(Fixed_t_z_converter);
-        }
+        serialize(Archive & ar, const unsigned int version);
 };
 BOOST_CLASS_EXPORT_KEY(Fixed_t_z_synergia20)
 
