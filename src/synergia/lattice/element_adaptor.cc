@@ -51,6 +51,32 @@ Element_adaptor::get_chef_elements(Lattice_element const& lattice_element,
             "Element_adaptor: " + lattice_element.get_type() + " not handled"));
 }
 
+template<class Archive>
+    void
+    Element_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+    }
+
+template
+void
+Element_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Element_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Element_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Element_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Element_adaptor::~Element_adaptor()
 {
 }
@@ -182,6 +208,33 @@ Element_adaptor_map::get_adaptor_names() const
     return retval;
 }
 
+template<class Archive>
+    void
+    Element_adaptor_map::serialize(Archive & ar, const unsigned int version)
+    {
+       ar & BOOST_SERIALIZATION_NVP(adaptor_map);
+    }
+
+template
+void
+Element_adaptor_map::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Element_adaptor_map::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Element_adaptor_map::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Element_adaptor_map::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Element_adaptor_map::~Element_adaptor_map()
 {
 }
@@ -204,6 +257,33 @@ Marker_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     retval.push_back(elm);
     return retval;
 }
+
+template<class Archive>
+    void
+    Marker_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Marker_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Marker_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Marker_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Marker_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Marker_mad8_adaptor::~Marker_mad8_adaptor()
 {
@@ -230,6 +310,33 @@ Drift_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     retval.push_back(elm);
     return retval;
 }
+
+template<class Archive>
+    void
+    Drift_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Drift_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Drift_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Drift_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Drift_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Drift_mad8_adaptor::~Drift_mad8_adaptor()
 {
@@ -384,6 +491,33 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     }
 
 }
+
+template<class Archive>
+    void
+    Sbend_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Sbend_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Sbend_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Sbend_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Sbend_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Sbend_mad8_adaptor::~Sbend_mad8_adaptor()
 {
@@ -568,6 +702,33 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     }
 }
 
+template<class Archive>
+    void
+    Rbend_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Rbend_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Rbend_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Rbend_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Rbend_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Rbend_mad8_adaptor::~Rbend_mad8_adaptor()
 {
 }
@@ -695,6 +856,33 @@ Quadrupole_mad8_adaptor::get_chef_elements(
     return retval;
 }
 
+template<class Archive>
+    void
+    Quadrupole_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Quadrupole_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Quadrupole_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Quadrupole_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Quadrupole_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Quadrupole_mad8_adaptor::~Quadrupole_mad8_adaptor()
 {
 }
@@ -755,6 +943,33 @@ Sextupole_mad8_adaptor::get_chef_elements(
     return retval;
 }
 
+template<class Archive>
+    void
+    Sextupole_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Sextupole_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Sextupole_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Sextupole_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Sextupole_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Sextupole_mad8_adaptor::~Sextupole_mad8_adaptor()
 {
 }
@@ -813,6 +1028,33 @@ Octupole_mad8_adaptor::get_chef_elements(
     retval.push_back(elm);
     return retval;
 }
+
+template<class Archive>
+    void
+    Octupole_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Octupole_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Octupole_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Octupole_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Octupole_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Octupole_mad8_adaptor::~Octupole_mad8_adaptor()
 {
@@ -919,6 +1161,33 @@ Multipole_mad8_adaptor::get_chef_elements(
     return retval;
 }
 
+template<class Archive>
+    void
+    Multipole_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Multipole_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Multipole_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Multipole_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Multipole_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Multipole_mad8_adaptor::~Multipole_mad8_adaptor()
 {
 }
@@ -996,6 +1265,33 @@ Thinpole_mad8_adaptor::get_chef_elements(
     return retval;
 }
 
+template<class Archive>
+    void
+    Thinpole_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Thinpole_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Thinpole_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Thinpole_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Thinpole_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Thinpole_mad8_adaptor::~Thinpole_mad8_adaptor()
 {
 }
@@ -1011,6 +1307,33 @@ Solenoid_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
     set_double_default(lattice_element, "l", 0.0);
     set_double_default(lattice_element, "ks", 0.0);
 }
+
+template<class Archive>
+    void
+    Solenoid_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Solenoid_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Solenoid_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Solenoid_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Solenoid_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Solenoid_mad8_adaptor::~Solenoid_mad8_adaptor()
 {
@@ -1059,6 +1382,33 @@ Hkicker_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     return retval;
 }
 
+template<class Archive>
+    void
+    Hkicker_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Hkicker_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Hkicker_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Hkicker_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Hkicker_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Hkicker_mad8_adaptor::~Hkicker_mad8_adaptor()
 {
 }
@@ -1105,6 +1455,33 @@ Vkicker_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     retval.push_back(elm);
     return retval;
 }
+
+template<class Archive>
+    void
+    Vkicker_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Vkicker_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Vkicker_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Vkicker_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Vkicker_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Vkicker_mad8_adaptor::~Vkicker_mad8_adaptor()
 {
@@ -1157,6 +1534,33 @@ Kicker_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     retval.push_back(elm);
     return retval;
 }
+
+template<class Archive>
+    void
+    Kicker_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Kicker_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Kicker_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Kicker_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Kicker_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Kicker_mad8_adaptor::~Kicker_mad8_adaptor()
 {
@@ -1233,6 +1637,33 @@ Rfcavity_mad8_adaptor::get_chef_elements(
     return retval;
 }
 
+template<class Archive>
+    void
+    Rfcavity_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Rfcavity_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Rfcavity_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Rfcavity_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Rfcavity_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Rfcavity_mad8_adaptor::~Rfcavity_mad8_adaptor()
 {
 }
@@ -1250,6 +1681,33 @@ Elseparator_mad8_adaptor::set_default_attributes(
     set_double_default(lattice_element, "e", 0.0);
     set_double_default(lattice_element, "tilt", 0.0);
 }
+
+template<class Archive>
+    void
+    Elseparator_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Elseparator_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Elseparator_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Elseparator_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Elseparator_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Elseparator_mad8_adaptor::~Elseparator_mad8_adaptor()
 {
@@ -1286,6 +1744,33 @@ Hmonitor_mad8_adaptor::get_chef_elements(
     return retval;
 }
 
+template<class Archive>
+    void
+    Hmonitor_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Hmonitor_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Hmonitor_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Hmonitor_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Hmonitor_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Hmonitor_mad8_adaptor::~Hmonitor_mad8_adaptor()
 {
 }
@@ -1320,6 +1805,33 @@ Vmonitor_mad8_adaptor::get_chef_elements(
 
     return retval;
 }
+
+template<class Archive>
+    void
+    Vmonitor_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Vmonitor_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Vmonitor_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Vmonitor_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Vmonitor_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Vmonitor_mad8_adaptor::~Vmonitor_mad8_adaptor()
 {
@@ -1356,6 +1868,33 @@ Monitor_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     return retval;
 }
 
+template<class Archive>
+    void
+    Monitor_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Monitor_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Monitor_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Monitor_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Monitor_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Monitor_mad8_adaptor::~Monitor_mad8_adaptor()
 {
 }
@@ -1371,6 +1910,33 @@ Instrument_mad8_adaptor::set_default_attributes(
 {
     set_double_default(lattice_element, "l", 0.0);
 }
+
+template<class Archive>
+    void
+    Instrument_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Instrument_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Instrument_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Instrument_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Instrument_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Instrument_mad8_adaptor::~Instrument_mad8_adaptor()
 {
@@ -1390,6 +1956,33 @@ Ecollimator_mad8_adaptor::set_default_attributes(
     set_double_default(lattice_element, "ysize", 0.0);
 }
 
+template<class Archive>
+    void
+    Ecollimator_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Ecollimator_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Ecollimator_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Ecollimator_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Ecollimator_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Ecollimator_mad8_adaptor::~Ecollimator_mad8_adaptor()
 {
 }
@@ -1407,6 +2000,33 @@ Rcollimator_mad8_adaptor::set_default_attributes(
     set_double_default(lattice_element, "xsize", 0.0);
     set_double_default(lattice_element, "ysize", 0.0);
 }
+
+template<class Archive>
+    void
+    Rcollimator_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Rcollimator_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Rcollimator_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Rcollimator_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Rcollimator_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Rcollimator_mad8_adaptor::~Rcollimator_mad8_adaptor()
 {

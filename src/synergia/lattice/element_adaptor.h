@@ -32,9 +32,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Element_adaptor();
 };
@@ -51,10 +49,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Marker_mad8_adaptor();
 };
@@ -70,10 +65,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Drift_mad8_adaptor();
 };
@@ -89,10 +81,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Sbend_mad8_adaptor();
 };
@@ -110,10 +99,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Rbend_mad8_adaptor();
 };
@@ -129,10 +115,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Quadrupole_mad8_adaptor();
 };
@@ -148,10 +131,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Sextupole_mad8_adaptor();
 };
@@ -167,10 +147,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Octupole_mad8_adaptor();
 };
@@ -186,10 +163,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Multipole_mad8_adaptor();
 };
@@ -206,10 +180,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Thinpole_mad8_adaptor();
 };
@@ -223,10 +194,7 @@ public:
     set_default_attributes(Lattice_element & lattice_element);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Solenoid_mad8_adaptor();
 };
@@ -242,10 +210,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Hkicker_mad8_adaptor();
 };
@@ -261,10 +226,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Vkicker_mad8_adaptor();
 };
@@ -280,10 +242,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Kicker_mad8_adaptor();
 };
@@ -299,10 +258,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Rfcavity_mad8_adaptor();
 };
@@ -316,10 +272,7 @@ public:
     set_default_attributes(Lattice_element & lattice_element);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Elseparator_mad8_adaptor();
 };
@@ -335,10 +288,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Hmonitor_mad8_adaptor();
 };
@@ -354,10 +304,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Vmonitor_mad8_adaptor();
 };
@@ -373,10 +320,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Monitor_mad8_adaptor();
 };
@@ -390,10 +334,7 @@ public:
     set_default_attributes(Lattice_element & lattice_element);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Instrument_mad8_adaptor();
 };
@@ -407,10 +348,7 @@ public:
     set_default_attributes(Lattice_element & lattice_element);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Ecollimator_mad8_adaptor();
 };
@@ -424,10 +362,7 @@ public:
     set_default_attributes(Lattice_element & lattice_element);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Rcollimator_mad8_adaptor();
 };
@@ -491,10 +426,7 @@ public:
     get_adaptor_names() const;
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-           ar & BOOST_SERIALIZATION_NVP(adaptor_map);
-        }
+        serialize(Archive & ar, const unsigned int version);
     ~Element_adaptor_map();
 };
 
