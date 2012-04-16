@@ -92,29 +92,7 @@ public:
 
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
-            ar & BOOST_SERIALIZATION_NVP(have_writers);
-            ar & BOOST_SERIALIZATION_NVP(s);
-            ar & BOOST_SERIALIZATION_NVP(writer_s);
-            ar & BOOST_SERIALIZATION_NVP(repetition);
-            ar & BOOST_SERIALIZATION_NVP(writer_repetition);
-            ar & BOOST_SERIALIZATION_NVP(trajectory_length);
-            ar & BOOST_SERIALIZATION_NVP(writer_trajectory_length);
-            ar & BOOST_SERIALIZATION_NVP(num_particles);
-            ar & BOOST_SERIALIZATION_NVP(writer_num_particles);
-            ar & BOOST_SERIALIZATION_NVP(real_num_particles);
-            ar & BOOST_SERIALIZATION_NVP(writer_real_num_particles);
-            ar & BOOST_SERIALIZATION_NVP(mean);
-            ar & BOOST_SERIALIZATION_NVP(writer_mean);
-            ar & BOOST_SERIALIZATION_NVP(std);
-            ar & BOOST_SERIALIZATION_NVP(writer_std);
-            ar & BOOST_SERIALIZATION_NVP(min);
-            ar & BOOST_SERIALIZATION_NVP(writer_min);
-            ar & BOOST_SERIALIZATION_NVP(max);
-            ar & BOOST_SERIALIZATION_NVP(writer_max);
-        }
+        serialize(Archive & ar, const unsigned int version);
 
     virtual
     ~Diagnostics_basic();

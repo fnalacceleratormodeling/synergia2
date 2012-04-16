@@ -135,6 +135,52 @@ Diagnostics_basic::write()
     }
 }
 
+template<class Archive>
+    void
+    Diagnostics_basic::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
+        ar & BOOST_SERIALIZATION_NVP(have_writers);
+        ar & BOOST_SERIALIZATION_NVP(s);
+        ar & BOOST_SERIALIZATION_NVP(writer_s);
+        ar & BOOST_SERIALIZATION_NVP(repetition);
+        ar & BOOST_SERIALIZATION_NVP(writer_repetition);
+        ar & BOOST_SERIALIZATION_NVP(trajectory_length);
+        ar & BOOST_SERIALIZATION_NVP(writer_trajectory_length);
+        ar & BOOST_SERIALIZATION_NVP(num_particles);
+        ar & BOOST_SERIALIZATION_NVP(writer_num_particles);
+        ar & BOOST_SERIALIZATION_NVP(real_num_particles);
+        ar & BOOST_SERIALIZATION_NVP(writer_real_num_particles);
+        ar & BOOST_SERIALIZATION_NVP(mean);
+        ar & BOOST_SERIALIZATION_NVP(writer_mean);
+        ar & BOOST_SERIALIZATION_NVP(std);
+        ar & BOOST_SERIALIZATION_NVP(writer_std);
+        ar & BOOST_SERIALIZATION_NVP(min);
+        ar & BOOST_SERIALIZATION_NVP(writer_min);
+        ar & BOOST_SERIALIZATION_NVP(max);
+        ar & BOOST_SERIALIZATION_NVP(writer_max);
+    }
+
+template
+void
+Diagnostics_basic::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_basic::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_basic::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_basic::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Diagnostics_basic::~Diagnostics_basic()
 {
     if (have_writers) {
