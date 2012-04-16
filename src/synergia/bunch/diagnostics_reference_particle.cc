@@ -56,6 +56,39 @@ Diagnostics_reference_particle::write()
     }
 }
 
+template<class Archive>
+    void
+    Diagnostics_reference_particle::serialize(Archive & ar,
+            const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics)
+                & BOOST_SERIALIZATION_NVP(have_writers)
+                & BOOST_SERIALIZATION_NVP(writer_beta)
+                & BOOST_SERIALIZATION_NVP(writer_gamma)
+                & BOOST_SERIALIZATION_NVP(writer_state)
+                & BOOST_SERIALIZATION_NVP(writer_s);
+    }
+
+template
+void
+Diagnostics_reference_particle::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_reference_particle::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_reference_particle::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_reference_particle::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Diagnostics_reference_particle::~Diagnostics_reference_particle()
 {
     if (have_writers) {
