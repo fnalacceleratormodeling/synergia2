@@ -25,11 +25,7 @@ private:
         int begin, end;
         template<class Archive>
             void
-            serialize(Archive & ar, const unsigned int version)
-            {
-                ar & BOOST_SERIALIZATION_NVP(begin);
-                ar & BOOST_SERIALIZATION_NVP(end);
-            }
+            serialize(Archive & ar, const unsigned int version);
     };
 
     Lattice_sptr lattice_sptr;
@@ -97,30 +93,10 @@ public:
     get_sliced_beamline_const_iterator(int index) const;
     template<class Archive>
         void
-        save(Archive & ar, const unsigned int version) const
-        {
-            ar & BOOST_SERIALIZATION_NVP(lattice_sptr);
-            ar & BOOST_SERIALIZATION_NVP(slices);
-            ar & BOOST_SERIALIZATION_NVP(element_adaptor_map_sptr);
-            ar & BOOST_SERIALIZATION_NVP(have_sliced_beamline_);
-            ar & BOOST_SERIALIZATION_NVP(brho);
-        }
+        save(Archive & ar, const unsigned int version) const;
     template<class Archive>
         void
-        load(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(lattice_sptr);
-            ar & BOOST_SERIALIZATION_NVP(slices);
-            ar & BOOST_SERIALIZATION_NVP(element_adaptor_map_sptr);
-            ar & BOOST_SERIALIZATION_NVP(have_sliced_beamline_);
-            ar & BOOST_SERIALIZATION_NVP(brho);
-            lattice_element_marker = ElmPtr(
-                    new marker(internal_marker_name));
-            construct_beamline();
-            if (have_sliced_beamline_) {
-                construct_sliced_beamline(slices);
-            }
-        }
+        load(Archive & ar, const unsigned int version);
     BOOST_SERIALIZATION_SPLIT_MEMBER()
     ~Chef_lattice();
     static const char internal_marker_name[];

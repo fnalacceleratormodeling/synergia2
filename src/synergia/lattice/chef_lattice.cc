@@ -9,6 +9,34 @@
 
 #include <stdexcept>
 
+template<class Archive>
+    void
+    Chef_lattice::Begin_end::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(begin);
+        ar & BOOST_SERIALIZATION_NVP(end);
+    }
+
+template
+void
+Chef_lattice::Begin_end::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Chef_lattice::Begin_end::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Chef_lattice::Begin_end::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Chef_lattice::Begin_end::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 const char Chef_lattice::internal_marker_name[] =
         "_synergia_lattice_element_marker";
 
@@ -19,16 +47,16 @@ Chef_lattice::construct_beamline()
     for (Lattice_elements::const_iterator latt_it =
             lattice_sptr->get_elements().begin(); latt_it
             != lattice_sptr->get_elements().end(); ++latt_it) {
-        std::string type((*latt_it)->get_type());        
+        std::string type((*latt_it)->get_type());
         if (!element_adaptor_map_sptr->has_adaptor(type)) {
             throw(runtime_error("Chef_lattice: " + type + " not handled"));
-        } else {  
+        } else {
             Chef_elements
                     celms =
                             element_adaptor_map_sptr->get_adaptor(type)->get_chef_elements(
-                                    *(*latt_it), brho);       
+                                    *(*latt_it), brho);
             for (Chef_elements::const_iterator cel_it = celms.begin(); cel_it
-                    != celms.end(); ++cel_it) {                 
+                    != celms.end(); ++cel_it) {
                 unpolished_beamline_sptr->append(*cel_it);
             }
             unpolished_beamline_sptr->append(lattice_element_marker);
@@ -371,7 +399,7 @@ Chef_lattice::construct_sliced_beamline(Lattice_element_slices const& slices)
 
 BmlPtr
 Chef_lattice::get_beamline_sptr()
-{    
+{
     return beamline_sptr;
 }
 
@@ -396,6 +424,52 @@ Chef_lattice::get_sliced_beamline_const_iterator(int index) const
 {
     return sliced_beamline_const_iterators.at(index);
 }
+
+template<class Archive>
+    void
+    Chef_lattice::save(Archive & ar, const unsigned int version) const
+    {
+        ar & BOOST_SERIALIZATION_NVP(lattice_sptr);
+        ar & BOOST_SERIALIZATION_NVP(slices);
+        ar & BOOST_SERIALIZATION_NVP(element_adaptor_map_sptr);
+        ar & BOOST_SERIALIZATION_NVP(have_sliced_beamline_);
+        ar & BOOST_SERIALIZATION_NVP(brho);
+    }
+
+template<class Archive>
+    void
+    Chef_lattice::load(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(lattice_sptr);
+        ar & BOOST_SERIALIZATION_NVP(slices);
+        ar & BOOST_SERIALIZATION_NVP(element_adaptor_map_sptr);
+        ar & BOOST_SERIALIZATION_NVP(have_sliced_beamline_);
+        ar & BOOST_SERIALIZATION_NVP(brho);
+        lattice_element_marker = ElmPtr(
+                new marker(internal_marker_name));
+        construct_beamline();
+        if (have_sliced_beamline_) {
+            construct_sliced_beamline(slices);
+        }
+    }
+
+template
+void
+Chef_lattice::save<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version) const;
+template
+void
+Chef_lattice::save<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version) const;
+
+template
+void
+Chef_lattice::load<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+template
+void
+Chef_lattice::load<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Chef_lattice::~Chef_lattice()
 {
