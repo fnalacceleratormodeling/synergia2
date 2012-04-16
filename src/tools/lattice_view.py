@@ -3,7 +3,7 @@
 import sys
 import synergia
 from matplotlib import pyplot
-from math import sin, cos
+from math import sin, cos, pi
 import numpy
 
 used_legends = []
@@ -127,10 +127,15 @@ def do_plot(options):
                                    options.highlight)
         count += 1
     print "total number of elements =", count
-    print "total angle =", lattice.get_total_angle()
+    print "total angle =", lattice.get_total_angle(),"rad (%g degrees)" % \
+        (lattice.get_total_angle()*180.0/pi)
 
     pyplot.axes().set_aspect('equal', 'datalim')
-    pyplot.axes().margins(0.1, 0.1)
+    try:
+        pyplot.axes().margins(0.1, 0.1)
+    except:
+        # margins not available in older versions of Matplotlib
+        pass
     if options.legend:
         pyplot.legend()
     pyplot.show()
