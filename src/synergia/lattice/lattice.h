@@ -88,15 +88,7 @@ public:
     print() const;
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(name)
-                    & BOOST_SERIALIZATION_NVP(reference_particle_allocated);
-            if (reference_particle_allocated) {
-                ar & BOOST_SERIALIZATION_NVP(reference_particle_ptr);
-            }
-            ar & BOOST_SERIALIZATION_NVP(elements);
-        }
+        serialize(Archive & ar, const unsigned int version);
     ~Lattice();
 };
 

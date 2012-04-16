@@ -106,3 +106,35 @@ Lattice_element_slice::print() const
 
     element_sptr->print();
 }
+
+template<class Archive>
+    void
+    Lattice_element_slice::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(element_sptr);
+        ar & BOOST_SERIALIZATION_NVP(whole);
+        ar & BOOST_SERIALIZATION_NVP(left_edge);
+        ar & BOOST_SERIALIZATION_NVP(right_edge);
+        ar & BOOST_SERIALIZATION_NVP(left);
+        ar & BOOST_SERIALIZATION_NVP(right);
+    }
+
+template
+void
+Lattice_element_slice::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Lattice_element_slice::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Lattice_element_slice::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Lattice_element_slice::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);

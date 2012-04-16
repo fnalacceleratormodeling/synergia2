@@ -41,15 +41,7 @@ public:
     print() const;
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(element_sptr);
-            ar & BOOST_SERIALIZATION_NVP(whole);
-            ar & BOOST_SERIALIZATION_NVP(left_edge);
-            ar & BOOST_SERIALIZATION_NVP(right_edge);
-            ar & BOOST_SERIALIZATION_NVP(left);
-            ar & BOOST_SERIALIZATION_NVP(right);
-        }
+        serialize(Archive & ar, const unsigned int version);
 };
 
 typedef boost::shared_ptr<Lattice_element_slice > Lattice_element_slice_sptr;
