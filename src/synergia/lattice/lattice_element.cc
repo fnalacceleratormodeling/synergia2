@@ -238,3 +238,38 @@ Lattice_element::print() const
     }
     std::cout << std::endl;
 }
+
+template<class Archive>
+    void
+    Lattice_element::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(type) & BOOST_SERIALIZATION_NVP(name)
+                & BOOST_SERIALIZATION_NVP(ancestors)
+                & BOOST_SERIALIZATION_NVP(double_attributes)
+                & BOOST_SERIALIZATION_NVP(string_attributes)
+                & BOOST_SERIALIZATION_NVP(length_attribute_name)
+                & BOOST_SERIALIZATION_NVP(bend_angle_attribute_name)
+                & BOOST_SERIALIZATION_NVP(revision)
+                & BOOST_SERIALIZATION_NVP(needs_internal_derive)
+                & BOOST_SERIALIZATION_NVP(needs_external_derive);
+    }
+
+template
+void
+Lattice_element::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Lattice_element::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Lattice_element::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Lattice_element::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);

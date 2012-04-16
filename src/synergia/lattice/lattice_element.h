@@ -151,18 +151,7 @@ public:
 
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(type) & BOOST_SERIALIZATION_NVP(name)
-                    & BOOST_SERIALIZATION_NVP(ancestors)
-                    & BOOST_SERIALIZATION_NVP(double_attributes)
-                    & BOOST_SERIALIZATION_NVP(string_attributes)
-                    & BOOST_SERIALIZATION_NVP(length_attribute_name)
-                    & BOOST_SERIALIZATION_NVP(bend_angle_attribute_name)
-                    & BOOST_SERIALIZATION_NVP(revision)
-                    & BOOST_SERIALIZATION_NVP(needs_internal_derive)
-                    & BOOST_SERIALIZATION_NVP(needs_external_derive);
-        }
+        serialize(Archive & ar, const unsigned int version);
 };
 
 typedef boost::shared_ptr<Lattice_element > Lattice_element_sptr;
