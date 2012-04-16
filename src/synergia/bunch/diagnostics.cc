@@ -81,6 +81,38 @@ Diagnostics::Diagnostics()
 {
 }
 
+template<class Archive>
+    void
+    Diagnostics::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(name);
+        ar & BOOST_SERIALIZATION_NVP(filename);
+        ar & BOOST_SERIALIZATION_NVP(bunch_sptr);
+        ar & BOOST_SERIALIZATION_NVP(have_bunch_);
+        ar & BOOST_SERIALIZATION_NVP(write_helper_ptr);
+        ar & BOOST_SERIALIZATION_NVP(have_write_helper_);
+    }
+
+template
+void
+Diagnostics::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Diagnostics::~Diagnostics()
 {
     if (have_write_helper_) {

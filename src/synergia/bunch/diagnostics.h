@@ -67,15 +67,7 @@ public:
     }
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(name);
-            ar & BOOST_SERIALIZATION_NVP(filename);
-            ar & BOOST_SERIALIZATION_NVP(bunch_sptr);
-            ar & BOOST_SERIALIZATION_NVP(have_bunch_);
-            ar & BOOST_SERIALIZATION_NVP(write_helper_ptr);
-            ar & BOOST_SERIALIZATION_NVP(have_write_helper_);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Diagnostics();
 };
