@@ -129,15 +129,7 @@ public:
     /// Serialization support
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(charge)
-                    & BOOST_SERIALIZATION_NVP(four_momentum)
-                    & BOOST_SERIALIZATION_NVP(state)
-                    & BOOST_SERIALIZATION_NVP(repetition)
-                    & BOOST_SERIALIZATION_NVP(repetition_length)
-                    & BOOST_SERIALIZATION_NVP(s);
-        }
+        serialize(Archive & ar, const unsigned int version);
 };
 
 #endif /* REFERENCE_PARTICLE_H_ */
