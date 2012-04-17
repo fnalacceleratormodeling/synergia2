@@ -11,8 +11,7 @@ public:
 	virtual
 	~Aperture_operation_extractor();
 	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version) {
-	}
+	void serialize(Archive & ar, const unsigned int version);
 };
 
 typedef boost::shared_ptr<Aperture_operation_extractor> Aperture_operation_extractor_sptr;
@@ -70,9 +69,7 @@ public:
 	get_extractor_names() const;
 	~Aperture_operation_extractor_map();
 	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version) {
-		ar & BOOST_SERIALIZATION_NVP(extractor_map);
-	}
+	void serialize(Archive & ar, const unsigned int version);
 };
 
 typedef boost::shared_ptr<Aperture_operation_extractor_map> Aperture_operation_extractor_map_sptr;
