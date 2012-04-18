@@ -19,14 +19,7 @@ struct Bunch_means
     int bucket_index;
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(x_mean);
-            ar & BOOST_SERIALIZATION_NVP(y_mean);
-            ar & BOOST_SERIALIZATION_NVP(z_mean);
-            ar & BOOST_SERIALIZATION_NVP(realnum);
-            ar & BOOST_SERIALIZATION_NVP(bucket_index);
-        }
+        serialize(Archive & ar, const unsigned int version);
 };
 
 class Step
@@ -70,13 +63,7 @@ public:
     print(int index) const;
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(operators);
-            ar & BOOST_SERIALIZATION_NVP(time_fractions);
-            ar & BOOST_SERIALIZATION_NVP(length);
-            ar & BOOST_SERIALIZATION_NVP(stored_vbunches);
-        }
+        serialize(Archive & ar, const unsigned int version);
 };
 
 typedef boost::shared_ptr<Step > Step_sptr;

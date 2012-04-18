@@ -10,6 +10,36 @@
 #include "synergia/collective/impedance.h"
 #include "synergia/bunch/period.h"
 
+template<class Archive>
+    void
+    Bunch_means::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(x_mean);
+        ar & BOOST_SERIALIZATION_NVP(y_mean);
+        ar & BOOST_SERIALIZATION_NVP(z_mean);
+        ar & BOOST_SERIALIZATION_NVP(realnum);
+        ar & BOOST_SERIALIZATION_NVP(bucket_index);
+    }
+
+template
+void
+Bunch_means::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Bunch_means::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Bunch_means::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Bunch_means::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Step::Step(double length) :
     operators(), time_fractions(), length(length), stored_vbunches()
@@ -256,3 +286,33 @@ Step::print(int index) const
         (*it)->print();
     }
 }
+
+template<class Archive>
+    void
+    Step::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(operators);
+        ar & BOOST_SERIALIZATION_NVP(time_fractions);
+        ar & BOOST_SERIALIZATION_NVP(length);
+        ar & BOOST_SERIALIZATION_NVP(stored_vbunches);
+    }
+
+template
+void
+Step::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Step::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Step::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Step::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
