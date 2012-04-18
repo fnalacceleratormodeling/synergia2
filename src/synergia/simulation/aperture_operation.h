@@ -28,11 +28,7 @@ public:
     deposit_charge(double charge);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Independent_operation);
-            ar & BOOST_SERIALIZATION_NVP(slice_sptr);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Aperture_operation();
 };
@@ -62,11 +58,7 @@ public:
     apply(Bunch & bunch, int verbosity, Logger & logger);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
-            ar & BOOST_SERIALIZATION_NVP(radius);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Finite_aperture_operation();
 };
@@ -100,12 +92,7 @@ public:
     apply(Bunch & bunch, int verbosity, Logger & logger);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
-            ar & BOOST_SERIALIZATION_NVP(radius);
-            ar & BOOST_SERIALIZATION_NVP(radius2);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Circular_aperture_operation();
 };
@@ -141,14 +128,7 @@ public:
     apply(Bunch & bunch, int verbosity, Logger & logger);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
-            ar & BOOST_SERIALIZATION_NVP(horizontal_radius);
-            ar & BOOST_SERIALIZATION_NVP(vertical_radius);
-            ar & BOOST_SERIALIZATION_NVP(h2);
-            ar & BOOST_SERIALIZATION_NVP(v2);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Elliptical_aperture_operation();
 };
@@ -184,12 +164,7 @@ public:
     apply(Bunch & bunch, int verbosity, Logger & logger);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
-            ar & BOOST_SERIALIZATION_NVP(width);
-            ar & BOOST_SERIALIZATION_NVP(height);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Rectangular_aperture_operation();
 };
@@ -227,12 +202,7 @@ public:
     apply(Bunch & bunch, int verbosity, Logger & logger);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
-            ar & BOOST_SERIALIZATION_NVP(vertices_num);
-            ar & BOOST_SERIALIZATION_NVP(vertices);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Polygon_aperture_operation();
 };

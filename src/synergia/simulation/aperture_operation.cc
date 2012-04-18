@@ -30,6 +30,34 @@ Aperture_operation::deposit_charge(double charge)
             deposited_charge, false);
 }
 
+template<class Archive>
+    void
+    Aperture_operation::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Independent_operation);
+        ar & BOOST_SERIALIZATION_NVP(slice_sptr);
+    }
+
+template
+void
+Aperture_operation::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Aperture_operation::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Aperture_operation::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Aperture_operation::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Aperture_operation::~Aperture_operation()
 {
 }
@@ -65,6 +93,34 @@ Finite_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
     apply_impl(*this, bunch, verbosity, logger);
 }
+
+template<class Archive>
+    void
+    Finite_aperture_operation::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
+        ar & BOOST_SERIALIZATION_NVP(radius);
+    }
+
+template
+void
+Finite_aperture_operation::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Finite_aperture_operation::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Finite_aperture_operation::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Finite_aperture_operation::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Finite_aperture_operation::~Finite_aperture_operation()
 {
@@ -124,6 +180,35 @@ Circular_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger
 {
     apply_impl(*this, bunch, verbosity, logger);
 }
+
+template<class Archive>
+    void
+    Circular_aperture_operation::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
+        ar & BOOST_SERIALIZATION_NVP(radius);
+        ar & BOOST_SERIALIZATION_NVP(radius2);
+    }
+
+template
+void
+Circular_aperture_operation::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Circular_aperture_operation::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Circular_aperture_operation::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Circular_aperture_operation::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Circular_aperture_operation::~Circular_aperture_operation()
 {
@@ -197,6 +282,37 @@ Elliptical_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logg
     apply_impl(*this, bunch, verbosity, logger);
 }
 
+template<class Archive>
+    void
+    Elliptical_aperture_operation::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
+        ar & BOOST_SERIALIZATION_NVP(horizontal_radius);
+        ar & BOOST_SERIALIZATION_NVP(vertical_radius);
+        ar & BOOST_SERIALIZATION_NVP(h2);
+        ar & BOOST_SERIALIZATION_NVP(v2);
+    }
+
+template
+void
+Elliptical_aperture_operation::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Elliptical_aperture_operation::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Elliptical_aperture_operation::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Elliptical_aperture_operation::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Elliptical_aperture_operation::~Elliptical_aperture_operation()
 {
 }
@@ -262,6 +378,35 @@ Rectangular_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & log
 {
     apply_impl(*this, bunch, verbosity, logger);
 }
+
+template<class Archive>
+    void
+    Rectangular_aperture_operation::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
+        ar & BOOST_SERIALIZATION_NVP(width);
+        ar & BOOST_SERIALIZATION_NVP(height);
+    }
+
+template
+void
+Rectangular_aperture_operation::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Rectangular_aperture_operation::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Rectangular_aperture_operation::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Rectangular_aperture_operation::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Rectangular_aperture_operation::~Rectangular_aperture_operation()
 {
@@ -341,6 +486,35 @@ Polygon_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
     apply_impl(*this, bunch, verbosity, logger);
 }
+
+template<class Archive>
+    void
+    Polygon_aperture_operation::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
+        ar & BOOST_SERIALIZATION_NVP(vertices_num);
+        ar & BOOST_SERIALIZATION_NVP(vertices);
+    }
+
+template
+void
+Polygon_aperture_operation::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Polygon_aperture_operation::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Polygon_aperture_operation::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Polygon_aperture_operation::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Polygon_aperture_operation::~Polygon_aperture_operation()
 {
