@@ -231,6 +231,36 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
     }
 }
 
+template<class Archive>
+    void
+    Space_charge_2d_bassetti_erskine::serialize(Archive & ar,
+            const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
+        ar & BOOST_SERIALIZATION_NVP(sigma)
+                & BOOST_SERIALIZATION_NVP(use_round);
+    }
+
+template
+void
+Space_charge_2d_bassetti_erskine::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Space_charge_2d_bassetti_erskine::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Space_charge_2d_bassetti_erskine::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Space_charge_2d_bassetti_erskine::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Space_charge_2d_bassetti_erskine::~Space_charge_2d_bassetti_erskine()
 {
 }

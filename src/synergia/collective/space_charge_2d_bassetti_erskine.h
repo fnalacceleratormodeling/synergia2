@@ -34,12 +34,7 @@ public:
     ~Space_charge_2d_bassetti_erskine();
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
-	    ar & BOOST_SERIALIZATION_NVP(sigma)
-		& BOOST_SERIALIZATION_NVP(use_round);
-        }
+        serialize(Archive & ar, const unsigned int version);
 };
 BOOST_CLASS_EXPORT_KEY(Space_charge_2d_bassetti_erskine)
 
