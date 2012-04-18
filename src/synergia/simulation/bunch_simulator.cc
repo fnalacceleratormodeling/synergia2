@@ -70,6 +70,34 @@ Bunch_simulator::add_per_step(Diagnostics_sptr diagnostics_sptr,
             turn_period);
 }
 
+template<class Archive>
+    void
+    Bunch_simulator::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(bunch_sptr);
+        ar & BOOST_SERIALIZATION_NVP(diagnostics_actions_sptr);
+    }
+
+template
+void
+Bunch_simulator::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Bunch_simulator::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Bunch_simulator::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Bunch_simulator::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Bunch_simulator::~Bunch_simulator()
 {
 }

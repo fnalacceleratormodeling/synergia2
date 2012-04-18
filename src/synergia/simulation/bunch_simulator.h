@@ -36,11 +36,7 @@ public:
             std::list<int > const& step_numbers, int turn_period = 1);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(bunch_sptr);
-            ar & BOOST_SERIALIZATION_NVP(diagnostics_actions_sptr);
-        }
+        serialize(Archive & ar, const unsigned int version);
     ~Bunch_simulator();
 };
 #endif /* BUNCH_SIMULATOR_H_ */
