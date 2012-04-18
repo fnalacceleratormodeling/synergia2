@@ -46,6 +46,34 @@ Operator::apply_train(Bunch_with_diagnostics_train & bunch_diag_train,
 }
 #endif
 
+template<class Archive>
+    void
+    Operator::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(name);
+        ar & BOOST_SERIALIZATION_NVP(type);
+    }
+
+template
+void
+Operator::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Operator::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Operator::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Operator::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Operator::~Operator()
 {
 }
@@ -61,6 +89,33 @@ Collective_operator::Collective_operator(std::string const& name) :
 Collective_operator::Collective_operator()
 {
 }
+
+template<class Archive>
+    void
+    Collective_operator::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operator);
+    }
+
+template
+void
+Collective_operator::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Collective_operator::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Collective_operator::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Collective_operator::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Collective_operator::~Collective_operator()
 {
@@ -81,6 +136,33 @@ Dummy_collective_operator::apply(Bunch & bunch, double time_step, Step & step, i
         Logger & logger)
 {
 }
+
+template<class Archive>
+    void
+    Dummy_collective_operator::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
+    }
+
+template
+void
+Dummy_collective_operator::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Dummy_collective_operator::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Dummy_collective_operator::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Dummy_collective_operator::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Dummy_collective_operator::~Dummy_collective_operator()
 {
@@ -330,6 +412,40 @@ Independent_operator::print() const
         (*it)->print();
     }
 }
+
+template<class Archive>
+    void
+    Independent_operator::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operator);
+        ar & BOOST_SERIALIZATION_NVP(slices);
+        ar & BOOST_SERIALIZATION_NVP(operations);
+        ar & BOOST_SERIALIZATION_NVP(operations_revisions);
+        ar & BOOST_SERIALIZATION_NVP(operations_reference_particle);
+        ar & BOOST_SERIALIZATION_NVP(operation_extractor_map_sptr);
+        ar & BOOST_SERIALIZATION_NVP(aperture_operation_extractor_map_sptr);
+        ar & BOOST_SERIALIZATION_NVP(have_operations);
+    }
+
+template
+void
+Independent_operator::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Independent_operator::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Independent_operator::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Independent_operator::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Independent_operator::~Independent_operator()
 {

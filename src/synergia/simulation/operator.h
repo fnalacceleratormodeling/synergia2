@@ -42,11 +42,7 @@ public:
     print() const;
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(name);
-            ar & BOOST_SERIALIZATION_NVP(type);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Operator();
 };
@@ -64,10 +60,7 @@ public:
             Logger & logger) = 0;
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operator);
-        }
+        serialize(Archive & ar, const unsigned int version);
     static const char type_name[];
     virtual
     ~Collective_operator();
@@ -86,10 +79,7 @@ public:
     apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Dummy_collective_operator();
 };
@@ -138,17 +128,7 @@ public:
     print() const;
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operator);
-            ar & BOOST_SERIALIZATION_NVP(slices);
-            ar & BOOST_SERIALIZATION_NVP(operations);
-            ar & BOOST_SERIALIZATION_NVP(operations_revisions);
-            ar & BOOST_SERIALIZATION_NVP(operations_reference_particle);
-            ar & BOOST_SERIALIZATION_NVP(operation_extractor_map_sptr);
-            ar & BOOST_SERIALIZATION_NVP(aperture_operation_extractor_map_sptr);
-            ar & BOOST_SERIALIZATION_NVP(have_operations);
-        }
+        serialize(Archive & ar, const unsigned int version);
     static const char type_name[];
     virtual
     ~Independent_operator();
