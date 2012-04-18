@@ -18,10 +18,7 @@ public:
     apply(Bunch & bunch);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(chef_lattice_section_sptr);
-        }
+        serialize(Archive & ar, const unsigned int version);
 };
 
 #endif /* CHEF_PROPAGATOR_H_ */
