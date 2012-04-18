@@ -28,6 +28,34 @@ Operation_extractor::get_map_order() const
     return map_order;
 }
 
+template<class Archive>
+    void
+    Operation_extractor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(chef_lattice_sptr);
+        ar & BOOST_SERIALIZATION_NVP(map_order);
+    }
+
+template
+void
+Operation_extractor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Operation_extractor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Operation_extractor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Operation_extractor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Operation_extractor::~Operation_extractor()
 {
 }
@@ -85,6 +113,35 @@ Chef_map_operation_extractor::extract(
     retval.push_back(fast_mapping_operation_sptr);
     return retval;
 }
+
+template<class Archive>
+    void
+    Chef_map_operation_extractor::serialize(Archive & ar,
+            const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operation_extractor);
+    }
+
+template
+void
+Chef_map_operation_extractor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Chef_map_operation_extractor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Chef_map_operation_extractor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Chef_map_operation_extractor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Chef_map_operation_extractor)
 
 Chef_propagate_operation_extractor::Chef_propagate_operation_extractor(
@@ -117,6 +174,35 @@ Chef_propagate_operation_extractor::extract(
     retval.push_back(chef_propagate_operation_sptr);
     return retval;
 }
+
+template<class Archive>
+    void
+    Chef_propagate_operation_extractor::serialize(Archive & ar,
+            const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operation_extractor);
+    }
+
+template
+void
+Chef_propagate_operation_extractor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Chef_propagate_operation_extractor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Chef_propagate_operation_extractor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Chef_propagate_operation_extractor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Chef_propagate_operation_extractor)
 
 Chef_mixed_operation_extractor::Chef_mixed_operation_extractor(
@@ -184,6 +270,34 @@ Chef_mixed_operation_extractor::extract(
 
     return retval;
 }
+
+template<class Archive>
+    void
+    Chef_mixed_operation_extractor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operation_extractor);
+    }
+
+template
+void
+Chef_mixed_operation_extractor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Chef_mixed_operation_extractor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Chef_mixed_operation_extractor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Chef_mixed_operation_extractor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 BOOST_CLASS_EXPORT_IMPLEMENT(Chef_mixed_operation_extractor)
 
 Operation_extractor_map::Operation_extractor_map()
@@ -213,6 +327,31 @@ Operation_extractor_map::get_extractor_names() const
     }
     return retval;
 }
+
+template<class Archive>
+void Operation_extractor_map::serialize(Archive & ar, const unsigned int version) {
+    ar & BOOST_SERIALIZATION_NVP(extractor_map);
+}
+
+template
+void
+Operation_extractor_map::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Operation_extractor_map::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Operation_extractor_map::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Operation_extractor_map::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Operation_extractor_map::~Operation_extractor_map()
 {

@@ -20,10 +20,8 @@ public:
 	extract(Reference_particle const& reference_particle,
 			Lattice_element_slices const& slices) = 0;
 	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version) {
-		ar & BOOST_SERIALIZATION_NVP(chef_lattice_sptr);
-		ar & BOOST_SERIALIZATION_NVP(map_order);
-	}
+        void
+        serialize(Archive & ar, const unsigned int version);
 	virtual
 	~Operation_extractor();
 };
@@ -40,9 +38,8 @@ public:
 	extract(Reference_particle const& reference_particle,
 			Lattice_element_slices const& slices);
 	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version) {
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operation_extractor);
-	}
+        void
+        serialize(Archive & ar, const unsigned int version);
 };
 BOOST_CLASS_EXPORT_KEY(Chef_map_operation_extractor);
 
@@ -56,9 +53,8 @@ public:
 	extract(Reference_particle const& reference_particle,
 			Lattice_element_slices const& slices);
 	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version) {
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operation_extractor);
-	}
+        void
+        serialize(Archive & ar, const unsigned int version);
 };
 BOOST_CLASS_EXPORT_KEY(Chef_propagate_operation_extractor);
 
@@ -72,9 +68,8 @@ public:
 	extract(Reference_particle const& reference_particle,
 			Lattice_element_slices const& slices);
 	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version) {
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operation_extractor);
-	}
+        void
+        serialize(Archive & ar, const unsigned int version);
 };
 BOOST_CLASS_EXPORT_KEY(Chef_mixed_operation_extractor);
 
@@ -91,9 +86,7 @@ public:
 	std::list<std::string>
 	get_extractor_names() const;
 	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version) {
-		ar & BOOST_SERIALIZATION_NVP(extractor_map);
-	}
+	void serialize(Archive & ar, const unsigned int version);
 	~Operation_extractor_map();
 };
 
