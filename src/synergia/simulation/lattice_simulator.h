@@ -30,20 +30,7 @@ struct Lattice_functions
     double arc_length;
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(alpha_x);
-            ar & BOOST_SERIALIZATION_NVP(alpha_y);
-            ar & BOOST_SERIALIZATION_NVP(beta_x);
-            ar & BOOST_SERIALIZATION_NVP(beta_y);
-            ar & BOOST_SERIALIZATION_NVP(psi_x);
-            ar & BOOST_SERIALIZATION_NVP(psi_y);
-            ar & BOOST_SERIALIZATION_NVP(D_x);
-            ar & BOOST_SERIALIZATION_NVP(D_y);
-            ar & BOOST_SERIALIZATION_NVP(Dprime_x);
-            ar & BOOST_SERIALIZATION_NVP(Dprime_y);
-            ar & BOOST_SERIALIZATION_NVP(arc_length);
-        }
+        serialize(Archive & ar, const unsigned int version);
 };
 
 class Lattice_simulator
@@ -134,52 +121,10 @@ public:
             double tolerance = 1.0e-6);
     template<class Archive>
         void
-        save(Archive & ar, const unsigned int version) const
-        {
-            ar & BOOST_SERIALIZATION_NVP(lattice_sptr);
-            ar & BOOST_SERIALIZATION_NVP(slices);
-            ar & BOOST_SERIALIZATION_NVP(have_slices);
-            ar & BOOST_SERIALIZATION_NVP(chef_lattice_sptr);
-            ar & BOOST_SERIALIZATION_NVP(extractor_map_sptr);
-            ar & BOOST_SERIALIZATION_NVP(aperture_extractor_map_sptr);
-            ar & BOOST_SERIALIZATION_NVP(have_beamline_context);
-            ar & BOOST_SERIALIZATION_NVP(map_order);
-            ar & BOOST_SERIALIZATION_NVP(bucket_length);
-            ar & BOOST_SERIALIZATION_NVP(have_element_lattice_functions);
-            ar & BOOST_SERIALIZATION_NVP(have_slice_lattice_functions);
-            ar & BOOST_SERIALIZATION_NVP(horizontal_tune);
-            ar & BOOST_SERIALIZATION_NVP(vertical_tune);
-            ar & BOOST_SERIALIZATION_NVP(have_tunes);
-            ar & BOOST_SERIALIZATION_NVP(lattice_functions_element_map);
-            ar & BOOST_SERIALIZATION_NVP(lattice_functions_slice_map);
-            ar & BOOST_SERIALIZATION_NVP(linear_one_turn_map);
-        }
+        save(Archive & ar, const unsigned int version) const;
     template<class Archive>
         void
-        load(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(lattice_sptr);
-            ar & BOOST_SERIALIZATION_NVP(slices);
-            ar & BOOST_SERIALIZATION_NVP(have_slices);
-            ar & BOOST_SERIALIZATION_NVP(chef_lattice_sptr);
-            ar & BOOST_SERIALIZATION_NVP(extractor_map_sptr);
-            ar & BOOST_SERIALIZATION_NVP(aperture_extractor_map_sptr);
-            ar & BOOST_SERIALIZATION_NVP(have_beamline_context);
-            ar & BOOST_SERIALIZATION_NVP(map_order);
-            ar & BOOST_SERIALIZATION_NVP(bucket_length);
-            ar & BOOST_SERIALIZATION_NVP(have_element_lattice_functions);
-            ar & BOOST_SERIALIZATION_NVP(have_slice_lattice_functions);
-            ar & BOOST_SERIALIZATION_NVP(horizontal_tune);
-            ar & BOOST_SERIALIZATION_NVP(vertical_tune);
-            ar & BOOST_SERIALIZATION_NVP(have_tunes);
-            ar & BOOST_SERIALIZATION_NVP(lattice_functions_element_map);
-            ar & BOOST_SERIALIZATION_NVP(lattice_functions_slice_map);
-            ar & BOOST_SERIALIZATION_NVP(linear_one_turn_map);
-            if (have_beamline_context) {
-                calculate_beamline_context();
-            }
-            normal_form_sage_sptr.reset();
-        }
+        load(Archive & ar, const unsigned int version);
     BOOST_SERIALIZATION_SPLIT_MEMBER()
     ~Lattice_simulator();
 };
