@@ -60,6 +60,34 @@ Stepper::print() const
     }
 }
 
+template<class Archive>
+    void
+    Stepper::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(steps);
+        ar & BOOST_SERIALIZATION_NVP(lattice_simulator);
+    }
+
+template
+void
+Stepper::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Stepper::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Stepper::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Stepper::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Stepper::~Stepper()
 {
 
@@ -189,6 +217,33 @@ Independent_stepper::Independent_stepper()
 
 }
 
+template<class Archive>
+    void
+    Independent_stepper::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
+    }
+
+template
+void
+Independent_stepper::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Independent_stepper::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Independent_stepper::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Independent_stepper::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Independent_stepper::~Independent_stepper()
 {
 
@@ -248,6 +303,34 @@ Independent_stepper_elements::Independent_stepper_elements()
 {
 
 }
+
+
+template<class Archive>
+    void
+    Independent_stepper_elements::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
+    }
+
+template
+void
+Independent_stepper_elements::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Independent_stepper_elements::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Independent_stepper_elements::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Independent_stepper_elements::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Independent_stepper_elements::~Independent_stepper_elements()
 {
@@ -319,6 +402,33 @@ Split_operator_stepper::Split_operator_stepper()
 {
 
 }
+
+template<class Archive>
+    void
+    Split_operator_stepper::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
+    }
+
+template
+void
+Split_operator_stepper::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Split_operator_stepper::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Split_operator_stepper::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Split_operator_stepper::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Split_operator_stepper::~Split_operator_stepper()
 {
@@ -428,6 +538,34 @@ Split_operator_stepper_elements::Split_operator_stepper_elements()
 {
 
 }
+
+
+template<class Archive>
+    void
+    Split_operator_stepper_elements::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
+    }
+
+template
+void
+Split_operator_stepper_elements::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Split_operator_stepper_elements::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Split_operator_stepper_elements::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Split_operator_stepper_elements::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Split_operator_stepper_elements::~Split_operator_stepper_elements()
 {

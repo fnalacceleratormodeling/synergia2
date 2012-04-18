@@ -37,11 +37,7 @@ public:
 
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(steps);
-            ar & BOOST_SERIALIZATION_NVP(lattice_simulator);
-        }
+        serialize(Archive & ar, const unsigned int version);
 
     virtual
     ~Stepper();
@@ -64,10 +60,7 @@ public:
 
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
-        }
+        serialize(Archive & ar, const unsigned int version);
 
     virtual
     ~Independent_stepper();
@@ -93,10 +86,7 @@ public:
 
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
-        }
+        serialize(Archive & ar, const unsigned int version);
 
     virtual
     ~Independent_stepper_elements();
@@ -132,10 +122,7 @@ public:
 
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
-        }
+        serialize(Archive & ar, const unsigned int version);
 
     virtual
     ~Split_operator_stepper();
@@ -177,11 +164,7 @@ public:
 
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
-        }
-
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Split_operator_stepper_elements();
 };
