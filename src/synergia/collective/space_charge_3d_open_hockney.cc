@@ -1149,6 +1149,67 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
     }
 }
 
+template<class Archive>
+    void
+    Space_charge_3d_open_hockney::save(Archive & ar, const unsigned int version) const
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
+        ar & BOOST_SERIALIZATION_NVP(comm2_sptr)
+                & BOOST_SERIALIZATION_NVP(grid_shape)
+                & BOOST_SERIALIZATION_NVP(doubled_grid_shape)
+                & BOOST_SERIALIZATION_NVP(longitudinal_kicks)
+                & BOOST_SERIALIZATION_NVP(periodic_z)
+                & BOOST_SERIALIZATION_NVP(z_period)
+                & BOOST_SERIALIZATION_NVP(grid_entire_period)
+                & BOOST_SERIALIZATION_NVP(n_sigma)
+                & BOOST_SERIALIZATION_NVP(domain_fixed)
+                & BOOST_SERIALIZATION_NVP(have_domains)
+                & BOOST_SERIALIZATION_NVP(green_fn_type)
+                & BOOST_SERIALIZATION_NVP(charge_density_comm)
+                & BOOST_SERIALIZATION_NVP(e_field_comm);
+    }
+template<class Archive>
+    void
+    Space_charge_3d_open_hockney::load(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
+        ar & BOOST_SERIALIZATION_NVP(comm2_sptr)
+                & BOOST_SERIALIZATION_NVP(grid_shape)
+                & BOOST_SERIALIZATION_NVP(doubled_grid_shape)
+                & BOOST_SERIALIZATION_NVP(longitudinal_kicks)
+                & BOOST_SERIALIZATION_NVP(periodic_z)
+                & BOOST_SERIALIZATION_NVP(z_period)
+                & BOOST_SERIALIZATION_NVP(grid_entire_period)
+                & BOOST_SERIALIZATION_NVP(n_sigma)
+                & BOOST_SERIALIZATION_NVP(domain_fixed)
+                & BOOST_SERIALIZATION_NVP(have_domains)
+                & BOOST_SERIALIZATION_NVP(green_fn_type)
+                & BOOST_SERIALIZATION_NVP(charge_density_comm)
+                & BOOST_SERIALIZATION_NVP(e_field_comm);
+        distributed_fft3d_sptr = Distributed_fft3d_sptr(
+                new Distributed_fft3d(doubled_grid_shape, comm2_sptr));
+        padded_grid_shape = distributed_fft3d_sptr->get_padded_shape_real();
+        setup_nondoubled_communication();
+    }
+
+template
+void
+Space_charge_3d_open_hockney::save<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version) const;
+template
+void
+Space_charge_3d_open_hockney::save<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version) const;
+
+template
+void
+Space_charge_3d_open_hockney::load<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+template
+void
+Space_charge_3d_open_hockney::load<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Space_charge_3d_open_hockney::~Space_charge_3d_open_hockney()
 {
 }

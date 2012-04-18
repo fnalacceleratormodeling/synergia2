@@ -145,46 +145,10 @@ public:
             Logger & logger);
     template<class Archive>
         void
-        save(Archive & ar, const unsigned int version) const
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
-            ar & BOOST_SERIALIZATION_NVP(comm2_sptr)
-                    & BOOST_SERIALIZATION_NVP(grid_shape)
-                    & BOOST_SERIALIZATION_NVP(doubled_grid_shape)
-                    & BOOST_SERIALIZATION_NVP(longitudinal_kicks)
-                    & BOOST_SERIALIZATION_NVP(periodic_z)
-                    & BOOST_SERIALIZATION_NVP(z_period)
-                    & BOOST_SERIALIZATION_NVP(grid_entire_period)
-                    & BOOST_SERIALIZATION_NVP(n_sigma)
-                    & BOOST_SERIALIZATION_NVP(domain_fixed)
-                    & BOOST_SERIALIZATION_NVP(have_domains)
-                    & BOOST_SERIALIZATION_NVP(green_fn_type)
-                    & BOOST_SERIALIZATION_NVP(charge_density_comm)
-                    & BOOST_SERIALIZATION_NVP(e_field_comm);
-        }
+        save(Archive & ar, const unsigned int version) const;
     template<class Archive>
         void
-        load(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
-            ar & BOOST_SERIALIZATION_NVP(comm2_sptr)
-                    & BOOST_SERIALIZATION_NVP(grid_shape)
-                    & BOOST_SERIALIZATION_NVP(doubled_grid_shape)
-                    & BOOST_SERIALIZATION_NVP(longitudinal_kicks)
-                    & BOOST_SERIALIZATION_NVP(periodic_z)
-                    & BOOST_SERIALIZATION_NVP(z_period)
-                    & BOOST_SERIALIZATION_NVP(grid_entire_period)
-                    & BOOST_SERIALIZATION_NVP(n_sigma)
-                    & BOOST_SERIALIZATION_NVP(domain_fixed)
-                    & BOOST_SERIALIZATION_NVP(have_domains)
-                    & BOOST_SERIALIZATION_NVP(green_fn_type)
-                    & BOOST_SERIALIZATION_NVP(charge_density_comm)
-                    & BOOST_SERIALIZATION_NVP(e_field_comm);
-            distributed_fft3d_sptr = Distributed_fft3d_sptr(
-                    new Distributed_fft3d(doubled_grid_shape, comm2_sptr));
-            padded_grid_shape = distributed_fft3d_sptr->get_padded_shape_real();
-            setup_nondoubled_communication();
-        }
+        load(Archive & ar, const unsigned int version);
     BOOST_SERIALIZATION_SPLIT_MEMBER()
     virtual
     ~Space_charge_3d_open_hockney();
