@@ -23,6 +23,38 @@ Propagator::State::State(Bunch_simulator * bunch_simulator_ptr,
 {
 }
 
+template<class Archive>
+    void
+    Propagator::State::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(bunch_simulator_ptr);
+        ar & BOOST_SERIALIZATION_NVP(propagate_actions_ptr);
+        ar & BOOST_SERIALIZATION_NVP(num_turns);
+        ar & BOOST_SERIALIZATION_NVP(first_turn);
+        ar & BOOST_SERIALIZATION_NVP(max_turns);
+        ar & BOOST_SERIALIZATION_NVP(verbosity);
+    }
+
+template
+void
+Propagator::State::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Propagator::State::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Propagator::State::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Propagator::State::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Propagator::Propagator(Stepper_sptr stepper_sptr) :
     stepper_sptr(stepper_sptr), checkpoint_period(10),
             checkpoint_dir(default_checkpoint_dir)
@@ -365,6 +397,35 @@ Propagator::propagate(Bunch_with_diagnostics_train & bunch_diag_train,
     }
 }
 #endif
+
+template<class Archive>
+    void
+    Propagator::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(stepper_sptr);
+        ar & BOOST_SERIALIZATION_NVP(checkpoint_period);
+        ar & BOOST_SERIALIZATION_NVP(checkpoint_dir);
+    }
+
+template
+void
+Propagator::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Propagator::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Propagator::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Propagator::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Propagator::~Propagator()
 {

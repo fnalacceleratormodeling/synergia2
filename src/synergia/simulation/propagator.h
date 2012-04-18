@@ -37,15 +37,7 @@ public:
         }
         template<class Archive>
             void
-            serialize(Archive & ar, const unsigned int version)
-            {
-                ar & BOOST_SERIALIZATION_NVP(bunch_simulator_ptr);
-                ar & BOOST_SERIALIZATION_NVP(propagate_actions_ptr);
-                ar & BOOST_SERIALIZATION_NVP(num_turns);
-                ar & BOOST_SERIALIZATION_NVP(first_turn);
-                ar & BOOST_SERIALIZATION_NVP(max_turns);
-                ar & BOOST_SERIALIZATION_NVP(verbosity);
-            }
+            serialize(Archive & ar, const unsigned int version);
     };
 
 private:
@@ -105,12 +97,7 @@ public:
 
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(stepper_sptr);
-            ar & BOOST_SERIALIZATION_NVP(checkpoint_period);
-            ar & BOOST_SERIALIZATION_NVP(checkpoint_dir);
-        }
+        serialize(Archive & ar, const unsigned int version);
 
     ~Propagator();
 };
