@@ -76,12 +76,7 @@ public:
     write_to_stream(std::ostream & stream) const;
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(the_coeff);
-            ar & BOOST_SERIALIZATION_NVP(the_order);
-            ar & BOOST_SERIALIZATION_NVP(i);
-        }
+        serialize(Archive & ar, const unsigned int version);
     ~Fast_mapping_term();
 };
 
@@ -164,12 +159,7 @@ public:
     write_to_file(std::string const& filename);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(terms);
-            ar & BOOST_SERIALIZATION_NVP(order);
-            ar & BOOST_SERIALIZATION_NVP(length);
-        }
+        serialize(Archive & ar, const unsigned int version);
 };
 
 #endif /* FAST_MAPPING_H_ */

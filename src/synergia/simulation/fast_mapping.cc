@@ -58,6 +58,35 @@ Fast_mapping_term::write_to_stream(std::ostream& stream) const
     stream << the_coeff << std::endl;
 }
 
+template<class Archive>
+    void
+    Fast_mapping_term::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(the_coeff);
+        ar & BOOST_SERIALIZATION_NVP(the_order);
+        ar & BOOST_SERIALIZATION_NVP(i);
+    }
+
+template
+void
+Fast_mapping_term::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Fast_mapping_term::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Fast_mapping_term::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Fast_mapping_term::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Fast_mapping_term::~Fast_mapping_term()
 {
 }
@@ -284,3 +313,32 @@ Fast_mapping::write_to_file(std::string const& filename)
     file << "end_fast_mapping\n";
     file.close();
 }
+
+template<class Archive>
+    void
+    Fast_mapping::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(terms);
+        ar & BOOST_SERIALIZATION_NVP(order);
+        ar & BOOST_SERIALIZATION_NVP(length);
+    }
+
+template
+void
+Fast_mapping::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Fast_mapping::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Fast_mapping::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Fast_mapping::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
