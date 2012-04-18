@@ -23,11 +23,7 @@ public:
         }
         template<class Archive>
             void
-            serialize(Archive & ar, const unsigned int version)
-            {
-                ar & BOOST_SERIALIZATION_NVP(period);
-                ar & BOOST_SERIALIZATION_NVP(diagnostics_sptr);
-            }
+            serialize(Archive & ar, const unsigned int version);
     };
     typedef std::list<Periodic > Periodics;
 
@@ -46,11 +42,7 @@ public:
         }
         template<class Archive>
             void
-            serialize(Archive & ar, const unsigned int version)
-            {
-                ar & BOOST_SERIALIZATION_NVP(numbers);
-                ar & BOOST_SERIALIZATION_NVP(diagnostics_sptr);
-            }
+            serialize(Archive & ar, const unsigned int version);
     };
     typedef std::list<Listed > Listeds;
 
@@ -70,12 +62,7 @@ public:
         }
         template<class Archive>
             void
-            serialize(Archive & ar, const unsigned int version)
-            {
-                ar & BOOST_SERIALIZATION_NVP(turn_period);
-                ar & BOOST_SERIALIZATION_NVP(step_numbers);
-                ar & BOOST_SERIALIZATION_NVP(diagnostics_sptr);
-            }
+            serialize(Archive & ar, const unsigned int version);
     };
     typedef std::list<Periodic_listed > Periodic_listeds;
 
@@ -121,15 +108,7 @@ public:
             int turn_num, int step_num);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(bunch_sptr);
-            ar & BOOST_SERIALIZATION_NVP(have_bunch_sptr_);
-            ar & BOOST_SERIALIZATION_NVP(per_turn_periodic);
-            ar & BOOST_SERIALIZATION_NVP(per_step_periodic);
-            ar & BOOST_SERIALIZATION_NVP(per_turn_listed);
-            ar & BOOST_SERIALIZATION_NVP(per_step_periodic_listed);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Diagnostics_actions();
 };

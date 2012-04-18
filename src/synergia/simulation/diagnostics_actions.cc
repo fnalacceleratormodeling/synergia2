@@ -1,10 +1,96 @@
 #include "diagnostics_actions.h"
 #include <algorithm>
 
+template<class Archive>
+    void
+    Diagnostics_actions::Periodic::serialize(Archive & ar,
+            const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(period);
+        ar & BOOST_SERIALIZATION_NVP(diagnostics_sptr);
+    }
+
+template
+void
+Diagnostics_actions::Periodic::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_actions::Periodic::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_actions::Periodic::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_actions::Periodic::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Diagnostics_actions::Diagnostics_actions() :
     have_bunch_sptr_(false)
 {
 }
+
+template<class Archive>
+    void
+    Diagnostics_actions::Listed::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(numbers);
+        ar & BOOST_SERIALIZATION_NVP(diagnostics_sptr);
+    }
+
+template
+void
+Diagnostics_actions::Listed::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_actions::Listed::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_actions::Listed::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_actions::Listed::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+template<class Archive>
+    void
+    Diagnostics_actions::Periodic_listed::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(turn_period);
+        ar & BOOST_SERIALIZATION_NVP(step_numbers);
+        ar & BOOST_SERIALIZATION_NVP(diagnostics_sptr);
+    }
+
+template
+void
+Diagnostics_actions::Periodic_listed::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_actions::Periodic_listed::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_actions::Periodic_listed::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_actions::Periodic_listed::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 // set_bunches is a local function (template)
 template<typename T>
@@ -143,6 +229,38 @@ Diagnostics_actions::step_end_action(Stepper & stepper, Step & step,
     update_and_write_periodic_listeds(per_step_periodic_listed, step_num,
             turn_num);
 }
+
+template<class Archive>
+    void
+    Diagnostics_actions::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(bunch_sptr);
+        ar & BOOST_SERIALIZATION_NVP(have_bunch_sptr_);
+        ar & BOOST_SERIALIZATION_NVP(per_turn_periodic);
+        ar & BOOST_SERIALIZATION_NVP(per_step_periodic);
+        ar & BOOST_SERIALIZATION_NVP(per_turn_listed);
+        ar & BOOST_SERIALIZATION_NVP(per_step_periodic_listed);
+    }
+
+template
+void
+Diagnostics_actions::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_actions::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_actions::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Diagnostics_actions::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Diagnostics_actions::~Diagnostics_actions()
 {
