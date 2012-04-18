@@ -27,10 +27,7 @@ public:
     apply(Bunch & bunch, int verbosity, Logger & logger) = 0;
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(type);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Independent_operation();
 };
@@ -54,11 +51,7 @@ public:
     get_fast_mapping() const;
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Independent_operation);
-            ar & BOOST_SERIALIZATION_NVP(mapping);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Fast_mapping_operation();
 };
@@ -79,11 +72,7 @@ public:
     apply(Bunch & bunch, int verbosity, Logger & logger);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Independent_operation);
-            ar & BOOST_SERIALIZATION_NVP(chef_propagator);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Chef_propagate_operation();
 };

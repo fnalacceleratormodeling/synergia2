@@ -15,6 +15,33 @@ Independent_operation::get_type() const
     return type;
 }
 
+template<class Archive>
+    void
+    Independent_operation::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(type);
+    }
+
+template
+void
+Independent_operation::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Independent_operation::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Independent_operation::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Independent_operation::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Independent_operation::~Independent_operation()
 {
 }
@@ -42,6 +69,34 @@ Fast_mapping_operation::get_fast_mapping() const
     return mapping;
 }
 
+template<class Archive>
+    void
+    Fast_mapping_operation::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Independent_operation);
+        ar & BOOST_SERIALIZATION_NVP(mapping);
+    }
+
+template
+void
+Fast_mapping_operation::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Fast_mapping_operation::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Fast_mapping_operation::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Fast_mapping_operation::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Fast_mapping_operation::~Fast_mapping_operation()
 {
 }
@@ -64,6 +119,34 @@ Chef_propagate_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
     bunch.convert_to_state(Bunch::fixed_z_lab);
     chef_propagator.apply(bunch);
 }
+
+template<class Archive>
+    void
+    Chef_propagate_operation::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Independent_operation);
+        ar & BOOST_SERIALIZATION_NVP(chef_propagator);
+    }
+
+template
+void
+Chef_propagate_operation::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Chef_propagate_operation::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Chef_propagate_operation::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Chef_propagate_operation::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Chef_propagate_operation::~Chef_propagate_operation()
 {
