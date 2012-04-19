@@ -9,7 +9,9 @@
 const char Propagator::default_checkpoint_dir[] = "checkpoint";
 const char Propagator::description_file_name[] = "checkpoint_description.txt";
 const char Propagator::propagator_archive_name[] = "propagator.bina";
+const char Propagator::propagator_xml_archive_name[] = "propagator.xml";
 const char Propagator::state_archive_name[] = "state.bina";
+const char Propagator::state_xml_archive_name[] = "state.xml";
 const char Propagator::log_file_name[] = "log";
 const char Propagator::stop_file_name[] = "stop";
 const char Propagator::alt_stop_file_name[] = "STOPTHISTIMEIMEANIT";
@@ -57,7 +59,7 @@ Propagator::State::serialize<boost::archive::xml_iarchive >(
 
 Propagator::Propagator(Stepper_sptr stepper_sptr) :
     stepper_sptr(stepper_sptr), checkpoint_period(10),
-            checkpoint_dir(default_checkpoint_dir)
+            checkpoint_dir(default_checkpoint_dir), checkpoint_with_xml(true)
 {
 }
 
@@ -75,6 +77,18 @@ int
 Propagator::get_checkpoint_period() const
 {
     return checkpoint_period;
+}
+
+void
+Propagator::set_checkpoint_with_xml(bool with_xml)
+{
+    checkpoint_with_xml = with_xml;
+}
+
+bool
+Propagator::get_checkpoint_with_xml() const
+{
+    return checkpoint_with_xml;
 }
 
 void
@@ -233,6 +247,13 @@ Propagator::checkpoint(State & state, Logger & logger, double & t)
     binary_save(*this, get_serialization_path(propagator_archive_name).c_str(),
             true);
     binary_save(state, get_serialization_path(state_archive_name).c_str(), true);
+    if (checkpoint_with_xml) {
+        xml_save(*this,
+                get_serialization_path(propagator_xml_archive_name).c_str(),
+                true);
+        xml_save(state, get_serialization_path(state_xml_archive_name).c_str(),
+                true);
+    }
     if (Commxx().get_rank() == 0) {
         std::ofstream description(
                 get_serialization_path(description_file_name, false).c_str());
@@ -405,6 +426,7 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(stepper_sptr);
         ar & BOOST_SERIALIZATION_NVP(checkpoint_period);
         ar & BOOST_SERIALIZATION_NVP(checkpoint_dir);
+        ar & BOOST_SERIALIZATION_NVP(checkpoint_with_xml);
     }
 
 template

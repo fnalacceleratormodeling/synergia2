@@ -424,6 +424,8 @@ BOOST_PYTHON_MODULE(simulation)
             .def("set_checkpoint_dir", &Propagator::set_checkpoint_dir)
             .def("get_checkpoint_dir", &Propagator::get_checkpoint_dir,
                     return_value_policy<copy_const_reference >())
+            .def("set_checkpoint_with_xml", &Propagator::set_checkpoint_with_xml)
+            .def("get_checkpoint_with_xml", &Propagator::get_checkpoint_with_xml)
             .def("propagate", propagate1,
                  propagate_member_overloads24())
             .def("propagate", propagate2,

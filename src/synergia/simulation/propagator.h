@@ -16,7 +16,9 @@ public:
     static const char default_checkpoint_dir[];
     static const char description_file_name[];
     static const char propagator_archive_name[];
+    static const char propagator_xml_archive_name[];
     static const char state_archive_name[];
+    static const char state_xml_archive_name[];
     static const char log_file_name[];
     static const char stop_file_name[];
     static const char alt_stop_file_name[];
@@ -44,6 +46,7 @@ private:
     Stepper_sptr stepper_sptr;
     int checkpoint_period;
     std::string checkpoint_dir;
+    bool checkpoint_with_xml;
 
     void
     construct();
@@ -68,6 +71,12 @@ public:
 
     std::string const&
     get_checkpoint_dir() const;
+
+    void
+    set_checkpoint_with_xml(bool with_xml);
+
+    bool
+    get_checkpoint_with_xml() const;
 
     void
     propagate(State & state);

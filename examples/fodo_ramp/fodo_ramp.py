@@ -53,5 +53,6 @@ ramp_actions = Ramp_actions(1.1)
 
 propagator = synergia.simulation.Propagator(stepper)
 propagator.set_checkpoint_period(opts.checkpointperiod)
+propagator.set_checkpoint_with_xml(True)
 propagator.propagate(bunch_simulator, ramp_actions,
                      opts.turns, opts.maxturns,opts.verbosity)
