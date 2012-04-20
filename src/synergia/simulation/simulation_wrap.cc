@@ -458,6 +458,11 @@ BOOST_PYTHON_MODULE(simulation)
 
     class_<Resume >("Resume", init<>())
             .def(init<std::string const& >())
+            .def("set_checkpoint_period", &Resume::set_checkpoint_period)
+            .def("get_checkpoint_period", &Resume::get_checkpoint_period)
+            .def("set_new_checkpoint_dir", &Resume::set_new_checkpoint_dir)
+            .def("get_new_checkpoint_dir", &Resume::get_new_checkpoint_dir,
+                    return_value_policy<copy_const_reference >())
             .def("propagate", &Resume::propagate)
             ;
 }
