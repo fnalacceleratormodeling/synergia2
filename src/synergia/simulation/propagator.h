@@ -13,15 +13,15 @@
 class Propagator
 {
 public:
-    static const char default_checkpoint_dir[];
-    static const char description_file_name[];
-    static const char propagator_archive_name[];
-    static const char propagator_xml_archive_name[];
-    static const char state_archive_name[];
-    static const char state_xml_archive_name[];
-    static const char log_file_name[];
-    static const char stop_file_name[];
-    static const char alt_stop_file_name[];
+    static const std::string default_checkpoint_dir;
+    static const std::string description_file_name;
+    static const std::string propagator_archive_name;
+    static const std::string propagator_xml_archive_name;
+    static const std::string state_archive_name;
+    static const std::string state_xml_archive_name;
+    static const std::string log_file_name;
+    static const std::string stop_file_name;
+    static const std::string alt_stop_file_name;
 
     struct State
     {

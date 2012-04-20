@@ -6,15 +6,15 @@
 #include "synergia/utils/digits.h"
 #include <boost/filesystem.hpp>
 
-const char Propagator::default_checkpoint_dir[] = "checkpoint";
-const char Propagator::description_file_name[] = "checkpoint_description.txt";
-const char Propagator::propagator_archive_name[] = "propagator.bina";
-const char Propagator::propagator_xml_archive_name[] = "propagator.xml";
-const char Propagator::state_archive_name[] = "state.bina";
-const char Propagator::state_xml_archive_name[] = "state.xml";
-const char Propagator::log_file_name[] = "log";
-const char Propagator::stop_file_name[] = "stop";
-const char Propagator::alt_stop_file_name[] = "STOPTHISTIMEIMEANIT";
+const std::string Propagator::default_checkpoint_dir = "checkpoint";
+const std::string Propagator::description_file_name = "checkpoint_description.txt";
+const std::string Propagator::propagator_archive_name = "propagator.bina";
+const std::string Propagator::propagator_xml_archive_name = "propagator.xml";
+const std::string Propagator::state_archive_name = "state.bina";
+const std::string Propagator::state_xml_archive_name = "state.xml";
+const std::string Propagator::log_file_name = "log";
+const std::string Propagator::stop_file_name = "stop";
+const std::string Propagator::alt_stop_file_name = "STOPTHISTIMEIMEANIT";
 
 Propagator::State::State(Bunch_simulator * bunch_simulator_ptr,
         Propagate_actions * propagate_actions_ptr, int num_turns,
