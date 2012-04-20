@@ -161,15 +161,14 @@ Lattice_simulator::construct_aperture_extractor_map()
 }
 
 Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
-    lattice_sptr(lattice_sptr),
-            chef_lattice_sptr(new Chef_lattice(lattice_sptr)),
-            extractor_map_sptr(new Operation_extractor_map),
-            have_element_lattice_functions(false),
-    linear_one_turn_map(boost::extents[6][6]),
-            have_slice_lattice_functions(false), have_tunes(false),
-            have_beamline_context(false),
-            aperture_extractor_map_sptr(new Aperture_operation_extractor_map),
-    map_order(map_order), have_slices(false)
+        lattice_sptr(lattice_sptr), chef_lattice_sptr(
+                new Chef_lattice(lattice_sptr)), extractor_map_sptr(
+                new Operation_extractor_map), have_element_lattice_functions(
+                false), linear_one_turn_map(boost::extents[6][6]), have_slice_lattice_functions(
+                false), horizontal_tune(0.0), vertical_tune(0.0), have_tunes(
+                false), have_beamline_context(false), aperture_extractor_map_sptr(
+                new Aperture_operation_extractor_map), map_order(map_order), have_slices(
+                false)
 {
     construct_extractor_map();
     construct_aperture_extractor_map();
