@@ -30,7 +30,6 @@ class Ramp_actions(synergia.simulation.Propagate_actions, Pickle_helper):
         # sextupole ramping
         if turn_num <= self.ramp_turns:
             index = 0
-            id = 0
             for element in synergia_elements:
                 if element.get_type() == "multipole":
                     new_k2l = self.final_k2l[index] * turn_num / self.ramp_turns
@@ -40,7 +39,7 @@ class Ramp_actions(synergia.simulation.Propagate_actions, Pickle_helper):
                         print
                         print "    turn                             :", 
                         print turn_num
-                        print "    updated multipole           :", 
+                        print "    updated multipole                :", 
                         print element.get_name()
                         print "    final k2l                        :", 
                         print self.final_k2l[index - 1], "1/m^2"
@@ -48,10 +47,6 @@ class Ramp_actions(synergia.simulation.Propagate_actions, Pickle_helper):
                         print new_k2l, "1/m^2"
                         print "    new_k2l (real)                   :", 
                         print element.get_double_attribute("k2l"), "1/m^2"
-                #if element.get_name() == "hqf1" or element.get_name() == "hqf2":
-                #    id += 1
-                #    if myrank == 0:
-                #        print id, element.get_double_attribute("k1")
         # quadrupole ramping...
         if turn_num > self.ramp_turns:
             epsilon = 1.0 * (turn_num - self.ramp_turns) / self.turns_to_extract
@@ -62,24 +57,20 @@ class Ramp_actions(synergia.simulation.Propagate_actions, Pickle_helper):
                             + epsilon * self.final_k1[index]
                     element.set_double_attribute("k1", new_k1)
                     index += 1
-                    #if myrank == 0:
-                    #    print
-                    #    print "    turn                             :", 
-                    #    print turn_num
-                    #    print "    updated quadrupole               :", 
-                    #    print element.get_name()
-                    #    print "    epsilon                          :", epsilon
-                    #    print "    initial k1                       :", 
-                    #    print self.initial_k1[index - 1], "1/m"
-                    #    print "    final k1                         :", 
-                    #    print self.final_k1[index - 1], "1/m"
-                    #    print "    new k1                           :", 
-                    #    print new_k1, "1/m"
-                    #    print "    new k1 (real)                    :", 
-                    #    print element.get_double_attribute("k1"), "1/m"
+                    if myrank == 0:
+                        print
+                        print "    turn                             :", 
+                        print turn_num
+                        print "    updated quadrupole               :", 
+                        print element.get_name()
+                        print "    epsilon                          :", epsilon
+                        print "    initial k1                       :", 
+                        print self.initial_k1[index - 1], "1/m"
+                        print "    final k1                         :", 
+                        print self.final_k1[index - 1], "1/m"
+                        print "    new k1                           :", 
+                        print new_k1, "1/m"
+                        print "    new k1 (real)                    :", 
+                        print element.get_double_attribute("k1"), "1/m"
         stepper.get_lattice_simulator().update()
-        #map = synergia.optics.one_turn_map.linear_one_turn_map(stepper.get_lattice_simulator())
-        #if myrank == 0:
-        #    print numpy.array2string(map, max_line_width=200, precision=3)
-
 

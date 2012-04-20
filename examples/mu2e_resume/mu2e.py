@@ -973,6 +973,7 @@ if myrank == 0:
 t0 = time.time()
 propagator = synergia.simulation.Propagator(stepper)
 propagator.set_checkpoint_period(opts.checkpointperiod)
+propagator.set_checkpoint_with_xml(True)
 propagator.propagate(bunch_simulator, ramp_actions, num_turns, opts.max_turns, 
                 opts.verbosity)
 t1 = time.time()

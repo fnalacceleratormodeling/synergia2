@@ -616,6 +616,40 @@ Wire_elliptical_aperture_operation::apply(Bunch & bunch, int verbosity, Logger &
     apply_impl(*this, bunch, verbosity, logger);
 }
 
+template<class Archive>
+    void
+    Wire_elliptical_aperture_operation::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
+        ar & BOOST_SERIALIZATION_NVP(horizontal_radius);
+        ar & BOOST_SERIALIZATION_NVP(vertical_radius);
+        ar & BOOST_SERIALIZATION_NVP(h2);
+        ar & BOOST_SERIALIZATION_NVP(v2);
+        ar & BOOST_SERIALIZATION_NVP(wire_x);
+        ar & BOOST_SERIALIZATION_NVP(wire_width);
+        ar & BOOST_SERIALIZATION_NVP(gap);
+    }
+
+template
+void
+Wire_elliptical_aperture_operation::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Wire_elliptical_aperture_operation::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Wire_elliptical_aperture_operation::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Wire_elliptical_aperture_operation::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Wire_elliptical_aperture_operation::~Wire_elliptical_aperture_operation()
 {
 }
@@ -673,6 +707,34 @@ Lambertson_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logg
     dump_particles(*this, bunch, verbosity, logger);
     //apply_impl(*this, bunch, verbosity, logger);
 }
+
+template<class Archive>
+    void
+    Lambertson_aperture_operation::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
+        ar & BOOST_SERIALIZATION_NVP(radius);
+    }
+
+template
+void
+Lambertson_aperture_operation::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Lambertson_aperture_operation::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+    
+template
+void
+Lambertson_aperture_operation::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Lambertson_aperture_operation::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Lambertson_aperture_operation::~Lambertson_aperture_operation()
 {

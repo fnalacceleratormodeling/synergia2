@@ -11,10 +11,10 @@ else
 fi
 
 voltage=0.032 #0.01066667
-turn=200
+turn=1100
 maxturn=100
-ramping=50
-chkperiod=20
+ramping=100
+chkperiod=10
 tgrid=32
 lgrid=128
 np=1000
@@ -36,6 +36,7 @@ do
             numproc=$numprocs \
             lattice_load=1 \
             turn_particles=1 \
+            step_particles=0 \
             map_order=4 \
             spacecharge=$solver \
             num_steps=$steps \
@@ -49,6 +50,6 @@ do
             tunev=$nu_v \
             wire_x=$wire \
             rf_voltage=$voltage \
-            walltime=00:30:00
+            walltime=01:30:00
 done
 

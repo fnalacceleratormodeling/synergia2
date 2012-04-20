@@ -241,17 +241,7 @@ public:
     apply(Bunch & bunch, int verbosity, Logger & logger);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
-            ar & BOOST_SERIALIZATION_NVP(horizontal_radius);
-            ar & BOOST_SERIALIZATION_NVP(vertical_radius);
-            ar & BOOST_SERIALIZATION_NVP(h2);
-            ar & BOOST_SERIALIZATION_NVP(v2);
-            ar & BOOST_SERIALIZATION_NVP(wire_x);
-            ar & BOOST_SERIALIZATION_NVP(wire_width);
-            ar & BOOST_SERIALIZATION_NVP(gap);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Wire_elliptical_aperture_operation();
 };
@@ -284,11 +274,7 @@ public:
     apply(Bunch & bunch, int verbosit, Logger & logger);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
-            ar & BOOST_SERIALIZATION_NVP(radius);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Lambertson_aperture_operation();
 };

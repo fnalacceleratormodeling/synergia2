@@ -15,7 +15,7 @@ output_path=/data/cspark/results/mu2e
 for solver in nosc #2d 3d
 do
     dir=$output_path/checkpoint
-    resume=$output_path/checkpoint.09
+    resume=$output_path/checkpoint.102
     synergia resumer.py createjob=1 submit=1 jobdir=$dir \
             verbosity=-1 \
             queue=$q \
