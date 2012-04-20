@@ -27,12 +27,6 @@ public:
     get_new_checkpoint_dir() const;
 
     void
-    set_verbosity(int period);
-
-    int
-    get_verbosity() const;
-
-    void
     propagate(bool new_max_turns, int max_turns, bool new_verbosity,
             int verbosity);
 
