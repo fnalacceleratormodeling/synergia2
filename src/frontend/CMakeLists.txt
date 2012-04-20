@@ -1,6 +1,9 @@
 configure_file("${SYNERGIA2_SOURCE_DIR}/src/frontend/synergia.in"
     "${SYNERGIA2_BINARY_DIR}/src/frontend/synergia" IMMEDIATE)
 
+configure_file("${SYNERGIA2_SOURCE_DIR}/src/frontend/synergia-pyresume.in"
+    "${SYNERGIA2_BINARY_DIR}/src/frontend/synergia-pyresume" IMMEDIATE)
+
 add_executable(synergia-resume synergia-resume.cc)
 target_link_libraries(synergia-resume synergia_simulation synergia_command_line synergia_collective)
 
@@ -9,4 +12,9 @@ target_link_libraries(synergia-archive-convert synergia_simulation synergia_comm
 
 install(PROGRAMS "${SYNERGIA2_BINARY_DIR}/src/frontend/synergia" DESTINATION bin)
 install(PROGRAMS "${SYNERGIA2_BINARY_DIR}/src/frontend/synergia-resume" DESTINATION bin)
+install(PROGRAMS "${SYNERGIA2_BINARY_DIR}/src/frontend/synergia-pyresume" DESTINATION bin)
 install(PROGRAMS "${SYNERGIA2_BINARY_DIR}/src/frontend/synergia-archive-convert" DESTINATION bin)
+
+install(FILES
+    synergia_resume.py
+    DESTINATION lib/synergia_tools)
