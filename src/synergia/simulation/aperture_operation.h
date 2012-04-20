@@ -40,8 +40,6 @@ typedef std::list<Aperture_operation_sptr > Aperture_operation_sptrs;
 /// An aperture to remove all particles with infinite and/or NaN coordinates.
 class Finite_aperture_operation : public Aperture_operation
 {
-private:
-    double radius;
 public:
     static const char aperture_type[];
     static const char attribute_name[];

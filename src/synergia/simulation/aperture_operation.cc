@@ -99,7 +99,6 @@ template<class Archive>
     Finite_aperture_operation::serialize(Archive & ar, const unsigned int version)
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
-        ar & BOOST_SERIALIZATION_NVP(radius);
     }
 
 template
