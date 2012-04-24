@@ -7,7 +7,7 @@ struct Diag_track_status {
   bool found;
   int last_index;
   int particle_id;
-}
+};
 
 /// Diagnostics_bulk_track records the phase space coordinates of a multiple
 /// particles.

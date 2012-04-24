@@ -6,9 +6,12 @@ Diagnostics_bulk_track::Diagnostics_bulk_track(
         std::string const& filename, int num_tracks) :
   Diagnostics(Diagnostics_bulk_track::name, filename), num_tracks(num_tracks),
   have_writers(false), first_search(true), diag_track_status(),
-  tracks_coords(boost::extents[num_tracks][7])
+  track_coords(boost::extents[num_tracks][7])
   
 {
+  if (num_tracks > get_bunch().get_local_num()) {
+    num_tracks = get_bunch().get_local_num();
+  }
 }
 
 Diagnostics_bulk_track::Diagnostics_bulk_track()
@@ -29,6 +32,7 @@ Diagnostics_bulk_track::new_write_helper_ptr()
     sstream << get_filename();
     sstream << "_";
     sstream << std::setw(4);
+
     sstream << std::setfill('0');
     sstream << get_bunch().get_comm().get_rank();
     return new Diagnostics_write_helper(sstream.str(), true,
@@ -40,61 +44,71 @@ Diagnostics_bulk_track::update()
 {
   if (diag_track_status.empty()) {
     for (int idxtrk=0; idxtrk<num_tracks; ++idxtrk) {
-      Diag_track_status new_diag_status(true, //found,
-					idxtrk, // last_index
-					static_cast<int > (get_bunch().get_local_particles()[idxtrk][Bunch::id]));
-      diag_track_status.push_back(new_diag_status);
+      Diag_track_status dts;
+      dts.found = true;
+      dts.last_index = idxtrk;
+      dts.particle_id = static_cast<int > (get_bunch().get_local_particles()[idxtrk][Bunch::id]);
+      diag_track_status.push_back(dts);
     }
-
-    get_bunch().convert_to_state(get_bunch().fixed_z_lab);
-    repetition = get_bunch().get_reference_particle().get_repetition();
-    trajectory_length
-            = get_bunch().get_reference_particle().get_trajectory_length();
-    for (int idxtrk=0; idxtrk<num_tracks; ++idxtrk) {
-
-      Diag_track_status *dtsptr = &diag_track_status[idxtrk];
-      if (dtsptr->found || first_search) {
-        int index;
-        dtsptr->found = false;
-        if ((dtsptr->last_index > -1) &&
-	    (dtsptr->last_index < get_bunch().get_local_num())) {
-            if (dtsptr->particle_id
-                    == static_cast<int > (get_bunch().get_local_particles()[Bunch::id][last_index])) {
-                index = dtsptr->last_index;
-                dtsptr->found = true;
-            }
-        }
-        if (!(dtsptr->found)) {
-	    index = 0;
-            while ((index < get_bunch().get_local_num())
-                    && (dtsptr->particle_id
-                            != static_cast<int > (get_bunch().get_local_particles()[index][Bunch::id]))) {
-                index += 1;
-            }
-            if (index < get_bunch().get_local_num()) {
-                dtsptr->found = true;
-            } else {
-                dtsptr->found = false;
-            }
-        }
-        if (dtsptr->found) {
-            if (first_search) {
-                get_write_helper();
-            }
-            track_coords[idxtrk][0] = get_bunch().get_local_particles()[index][0];
-            track_coords[idxtrk][1] = get_bunch().get_local_particles()[index][1];
-            track_coords[idxtrk][2] = get_bunch().get_local_particles()[index][2];
-            track_coords[idxtrk][3] = get_bunch().get_local_particles()[index][3];
-            track_coords[idxtrk][4] = get_bunch().get_local_particles()[index][4];
-            track_coords[idxtrk][5] = get_bunch().get_local_particles()[index][5];
-	    track_coords[idxtrk][6] = get_bunch().get_local_particles()[index][6];
-            s = get_bunch().get_reference_particle().get_s();
-            repetition = get_bunch().get_reference_particle().get_repetition();
-            trajectory_length
-                    = get_bunch().get_reference_particle().get_trajectory_length();
-        }
-        first_search = false;
+  }
+  get_bunch().convert_to_state(get_bunch().fixed_z_lab);
+  repetition = get_bunch().get_reference_particle().get_repetition();
+  trajectory_length
+    = get_bunch().get_reference_particle().get_trajectory_length();
+  for (int idxtrk=0; idxtrk<num_tracks; ++idxtrk) {
+    Diag_track_status *dtsptr = &diag_track_status[idxtrk];
+    if (dtsptr->found || first_search) {
+      int index;
+      dtsptr->found = false;
+      if ((dtsptr->last_index > -1) &&
+	  (dtsptr->last_index < get_bunch().get_local_num())) {
+	if (dtsptr->particle_id
+	    == static_cast<int > (get_bunch().get_local_particles()[Bunch::id][dtsptr->last_index])) {
+	  index = dtsptr->last_index;
+	  dtsptr->found = true;
+	}
+      }
+      if (!(dtsptr->found)) {
+	index = 0;
+	while ((index < get_bunch().get_local_num())
+	       && (dtsptr->particle_id
+		   != static_cast<int > (get_bunch().get_local_particles()[index][Bunch::id]))) {
+	  index += 1;
+	}
+	if (index < get_bunch().get_local_num()) {
+	  dtsptr->found = true;
+	  dtsptr->last_index = index;
+	} else {
+	  dtsptr->found = false;
+	}
+      }
+      if (dtsptr->found) {
+	if (first_search) {
+	  get_write_helper();
+	}
+	track_coords[idxtrk][0] = get_bunch().get_local_particles()[index][0];
+	track_coords[idxtrk][1] = get_bunch().get_local_particles()[index][1];
+	track_coords[idxtrk][2] = get_bunch().get_local_particles()[index][2];
+	track_coords[idxtrk][3] = get_bunch().get_local_particles()[index][3];
+	track_coords[idxtrk][4] = get_bunch().get_local_particles()[index][4];
+	track_coords[idxtrk][5] = get_bunch().get_local_particles()[index][5];
+	track_coords[idxtrk][6] = get_bunch().get_local_particles()[index][6];
+      } else {
+	track_coords[idxtrk][0] = 0.0;
+	track_coords[idxtrk][1] = 0.0;
+	track_coords[idxtrk][2] = 0.0;
+	track_coords[idxtrk][3] = 0.0;
+	track_coords[idxtrk][4] = 0.0;
+	track_coords[idxtrk][5] = 0.0;
+	track_coords[idxtrk][6] = -static_cast <double>(dtsptr->particle_id);
+      }	
+      s = get_bunch().get_reference_particle().get_s();
+      repetition = get_bunch().get_reference_particle().get_repetition();
+      trajectory_length
+	= get_bunch().get_reference_particle().get_trajectory_length();
+      first_search = false;
     }
+  }
 }
 
 void
@@ -116,14 +130,12 @@ void
 Diagnostics_bulk_track::write()
 {
     get_bunch().convert_to_state(get_bunch().fixed_z_lab);
-    if (found) {
-        init_writers(get_write_helper().get_hdf5_file_sptr());
-        writer_coords->append(track_coords);
-        writer_s->append(s);
-        writer_repetition->append(repetition);
-        writer_trajectory_length->append(trajectory_length);
-        get_write_helper().finish_write();
-    }
+    init_writers(get_write_helper().get_hdf5_file_sptr());
+    writer_coords->append(track_coords);
+    writer_s->append(s);
+    writer_repetition->append(repetition);
+    writer_trajectory_length->append(trajectory_length);
+    get_write_helper().finish_write();
 }
 
 template<class Archive>
@@ -144,6 +156,36 @@ template<class Archive>
                 & BOOST_SERIALIZATION_NVP(writer_coords);
     }
 
+template<class Archive>
+    void
+    Diag_track_status::serialize(Archive & ar, const unsigned int version)
+    {
+      ar & BOOST_SERIALIZATION_NVP(found) &
+	BOOST_SERIALIZATION_NVP(last_index) &
+	BOOST_SERIALIZATION_NVP(particle_id);
+    }
+
+template
+void
+Diag_track_status::serialize<boost::archive::binary_oarchive >(
+							       boost::archive::binary_oarchive &ar, const unsigned int version);
+
+template
+void
+Diag_track_status::serialize<boost::archive::xml_oarchive >(
+							       boost::archive::xml_oarchive &ar, const unsigned int version);
+
+template
+void
+Diag_track_status::serialize<boost::archive::binary_iarchive >(
+							       boost::archive::binary_iarchive &ar, const unsigned int version);
+
+template
+void
+Diag_track_status::serialize<boost::archive::xml_iarchive >(
+							       boost::archive::xml_iarchive &ar, const unsigned int version);
+
+
 template
 void
 Diagnostics_bulk_track::serialize<boost::archive::binary_oarchive >(
@@ -161,7 +203,7 @@ Diagnostics_bulk_track::serialize<boost::archive::binary_iarchive >(
 
 template
 void
-Diagnostics__bulk_track::serialize<boost::archive::xml_iarchive >(
+Diagnostics_bulk_track::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Diagnostics_bulk_track::~Diagnostics_bulk_track()
