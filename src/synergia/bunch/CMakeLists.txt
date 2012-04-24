@@ -1,7 +1,7 @@
 add_library(synergia_bunch fixed_t_z_converter.cc bunch.cc
     diagnostics.cc core_diagnostics.cc diagnostics_basic.cc
     diagnostics_full2.cc diagnostics_particles.cc diagnostics_track.cc
-    diagnostics_reference_particle.cc
+    diagnostics_reference_particle.cc diagnostics_bulk_track.cc
         train.cc populate.cc
 	analysis.cc period.cc)
 target_link_libraries(synergia_bunch synergia_parallel_utils synergia_distributed_fft
@@ -17,6 +17,8 @@ install(FILES bunch.h
     diagnostics.h
     diagnostics_basic.h
     diagnostics_full2.h
+    diagnostics_track.h
+    diagnostics_bulk_track.h
     train.h
     fixed_t_z_converter.h
     populate.h
