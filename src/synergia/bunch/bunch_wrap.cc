@@ -5,6 +5,7 @@
 #include "diagnostics_full2.h"
 #include "diagnostics_particles.h"
 #include "diagnostics_track.h"
+#include "diagnostics_bulk_track.h"
 #include "diagnostics_reference_particle.h"
 #include "populate.h"
 #include "analysis.h"
@@ -78,6 +79,11 @@ BOOST_PYTHON_MODULE(bunch)
             ("Diagnostics_track",init<std::string const&, int >())
         .def("set_bunch", &Diagnostics_track::set_bunch_sptr)
         ;
+
+    class_<Diagnostics_bulk_track, Diagnostics_bulk_track_sptr, bases<Diagnostics> >
+      ("Diagnostics_bulk_track",init<std::string const&, int >())
+      .def("set_bunch", &Diagnostics_bulk_track::set_bunch_sptr)
+      ;
 
     class_<Diagnostics_particles, Diagnostics_particles_sptr, bases<Diagnostics > >
             ("Diagnostics_particles",init<std::string const& >())

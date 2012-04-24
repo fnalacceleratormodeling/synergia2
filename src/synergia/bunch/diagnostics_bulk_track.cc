@@ -9,9 +9,6 @@ Diagnostics_bulk_track::Diagnostics_bulk_track(
   track_coords(boost::extents[num_tracks][7])
   
 {
-  if (num_tracks > get_bunch().get_local_num()) {
-    num_tracks = get_bunch().get_local_num();
-  }
 }
 
 Diagnostics_bulk_track::Diagnostics_bulk_track()
@@ -35,6 +32,7 @@ Diagnostics_bulk_track::new_write_helper_ptr()
 
     sstream << std::setfill('0');
     sstream << get_bunch().get_comm().get_rank();
+    sstream << ".h5";
     return new Diagnostics_write_helper(sstream.str(), true,
             get_bunch().get_comm(), get_bunch().get_comm().get_rank());
 }
@@ -43,8 +41,11 @@ void
 Diagnostics_bulk_track::update()
 {
   if (diag_track_status.empty()) {
+    if (num_tracks > get_bunch().get_local_num()) {
+      num_tracks = get_bunch().get_local_num();
+    }
     for (int idxtrk=0; idxtrk<num_tracks; ++idxtrk) {
-      Diag_track_status dts;
+      Track_status dts;
       dts.found = true;
       dts.last_index = idxtrk;
       dts.particle_id = static_cast<int > (get_bunch().get_local_particles()[idxtrk][Bunch::id]);
@@ -56,7 +57,7 @@ Diagnostics_bulk_track::update()
   trajectory_length
     = get_bunch().get_reference_particle().get_trajectory_length();
   for (int idxtrk=0; idxtrk<num_tracks; ++idxtrk) {
-    Diag_track_status *dtsptr = &diag_track_status[idxtrk];
+    Track_status *dtsptr = &diag_track_status[idxtrk];
     if (dtsptr->found || first_search) {
       int index;
       dtsptr->found = false;
@@ -158,7 +159,7 @@ template<class Archive>
 
 template<class Archive>
     void
-    Diag_track_status::serialize(Archive & ar, const unsigned int version)
+    Diagnostics_bulk_track::Track_status::serialize(Archive & ar, const unsigned int version)
     {
       ar & BOOST_SERIALIZATION_NVP(found) &
 	BOOST_SERIALIZATION_NVP(last_index) &
@@ -167,22 +168,22 @@ template<class Archive>
 
 template
 void
-Diag_track_status::serialize<boost::archive::binary_oarchive >(
+Diagnostics_bulk_track::Track_status::serialize<boost::archive::binary_oarchive >(
 							       boost::archive::binary_oarchive &ar, const unsigned int version);
 
 template
 void
-Diag_track_status::serialize<boost::archive::xml_oarchive >(
+Diagnostics_bulk_track::Track_status::serialize<boost::archive::xml_oarchive >(
 							       boost::archive::xml_oarchive &ar, const unsigned int version);
 
 template
 void
-Diag_track_status::serialize<boost::archive::binary_iarchive >(
+Diagnostics_bulk_track::Track_status::serialize<boost::archive::binary_iarchive >(
 							       boost::archive::binary_iarchive &ar, const unsigned int version);
 
 template
 void
-Diag_track_status::serialize<boost::archive::xml_iarchive >(
+Diagnostics_bulk_track::Track_status::serialize<boost::archive::xml_iarchive >(
 							       boost::archive::xml_iarchive &ar, const unsigned int version);
 
 

@@ -3,11 +3,6 @@
 
 #include "synergia/bunch/diagnostics.h"
 
-struct Diag_track_status {
-  bool found;
-  int last_index;
-  int particle_id;
-};
 
 /// Diagnostics_bulk_track records the phase space coordinates of a multiple
 /// particles.
@@ -19,10 +14,19 @@ class Diagnostics_bulk_track : public Diagnostics
 public:
     static const char name[];
 private:
+    struct Track_status {
+      bool found;
+      int last_index;
+      int particle_id;
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version);
+    };
+
     int num_tracks;
     bool have_writers;
     bool first_search;
-    std::vector<Diag_track_status > diag_track_status;
+    std::vector<Track_status > diag_track_status;
     double s;
     Hdf5_serial_writer<double > * writer_s;
     int repetition;
