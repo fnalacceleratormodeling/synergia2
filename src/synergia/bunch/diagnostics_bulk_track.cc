@@ -1,3 +1,5 @@
+#include <string>
+#include <iostream>
 #include "diagnostics_bulk_track.h"
 
 const char Diagnostics_bulk_track::name[] = "diagnostics_bulk_track";
@@ -26,13 +28,24 @@ Diagnostics_bulk_track::new_write_helper_ptr()
 {
     delete_write_helper_ptr();
     std::stringstream sstream;
-    sstream << get_filename();
+    std::string filename(get_filename());
+    int idx = filename.rfind('.');
+    std::string filename_base, filename_suffix;
+    if (idx == std::string::npos) {
+      filename_base = filename;
+      filename_suffix = "";
+    } else {
+      filename_base = filename.substr(0,idx);
+      filename_suffix = filename.substr(idx);
+    }
+
+    sstream << filename_base;
     sstream << "_";
     sstream << std::setw(4);
 
     sstream << std::setfill('0');
     sstream << get_bunch().get_comm().get_rank();
-    sstream << ".h5";
+    sstream << filename_suffix;
     return new Diagnostics_write_helper(sstream.str(), true,
             get_bunch().get_comm(), get_bunch().get_comm().get_rank());
 }

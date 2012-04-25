@@ -73,15 +73,27 @@ def handle_args(args):
             do_error('Unknown coord "%s"' % coord)
     return options
 
+def single_plot(options, particle_coords):
+    x = particle_coords[coords[options.coords[0]], :]
+    y = particle_coords[coords[options.coords[1]], :]
+    plot2d(x, y, options)
+
 def do_plots(options):
     pyplot.figure().canvas.set_window_title('Synergia Poincare Plot')
     for filename in options.inputfiles:
         f = tables.openFile(filename, 'r')
-        particle_coords = getattr(f.root, "coords").read()
-        x = particle_coords[coords[options.coords[0]], :]
-        y = particle_coords[coords[options.coords[1]], :]
-        plot2d(x, y, options)
-        f.close()
+        if "coords" in dir(f.root):
+            particle_coords = getattr(f.root, "coords").read()
+            f.close()
+            single_plot(options, particle_coords)
+        elif "track_coords" in dir(f.root):
+            track_coords = getattr(f.root, "track_coords").read()
+            f.close()
+            ntracks = track_coords.shape[0]
+            for trk in range(ntracks):
+                particle_coords = track_coords[trk,0:6,:]
+                single_plot(options, particle_coords)
+
     pyplot.xlabel(options.coords[0])
     pyplot.ylabel(options.coords[1])
     if options.outputfile:

@@ -35,17 +35,17 @@ try:
 
     bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
 
-    for part in range(0, opts.step_tracks):
-        bunch_simulator.add_per_step(synergia.bunch.Diagnostics_track("step_track_%02d.h5" % part,
-                                                                       part))
+    if opts.step_tracks:
+        bunch_simulator.add_per_step(synergia.bunch.Diagnostics_bulk_track("step_tracks.h5", opts.turn_tracks/MPI.COMM_WORLD.size))
+
     if opts.step_full2:
         bunch_simulator.add_per_step(synergia.bunch.Diagnostics_full2("step_full2.h5"))
     if opts.step_particles:
         bunch_simulator.add_per_step(synergia.bunch.Diagnostics_particles("step_particles.h5"))
 
-    for part in range(0, opts.turn_tracks):
-        bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_track("turn_track_%02d.h5" % part,
-                                                                       part))
+    if opts.turn_tracks:
+        bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_bulk_track("turn_tracks.h5", opts.turn_tracks/MPI.COMM_WORLD.size))
+
     if opts.turn_full2:
         bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_full2("turn_full2.h5"))
     if opts.turn_particles:
