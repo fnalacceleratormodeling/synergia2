@@ -2,36 +2,39 @@
 #include <sstream>
 #include "digits.h"
 
-Logger::Logger(int rank) :
+Logger::Logger(int rank, bool log) :
     stream_ptr(&std::cout), have_stream(false), fstream_ptr(0), have_fstream(false)
 {
-    if (Commxx().get_rank() == rank) {
+    if ((Commxx().get_rank() == rank) && log) {
         have_stream = true;
     }
 }
 
-Logger::Logger(int rank, std::string const& filename) :
+Logger::Logger(int rank, std::string const& filename, bool log) :
     stream_ptr(&std::cout), have_stream(false), fstream_ptr(0), have_fstream(false)
 {
-    if (Commxx().get_rank() == rank) {
+    if ((Commxx().get_rank() == rank) && log) {
         have_stream = true;
         fstream_ptr = new std::ofstream(filename.c_str());
         have_fstream = true;
     }
 }
 
-Logger::Logger(std::string const& filename_base) :
-    stream_ptr(&std::cout), have_stream(false), fstream_ptr(0), have_fstream(false)
+Logger::Logger(std::string const& filename_base, bool log) :
+        stream_ptr(&std::cout), have_stream(false), fstream_ptr(0), have_fstream(
+                false)
 {
-    Commxx commxx;
-    std::stringstream sstream;
-    sstream << filename_base;
-    sstream << "_";
-    sstream << std::setw(digits(commxx.get_size()));
-    sstream << std::setfill('0');
-    sstream << commxx.get_rank();
-    fstream_ptr = new std::ofstream(sstream.str().c_str());
-    have_fstream = true;
+    if (log) {
+        Commxx commxx;
+        std::stringstream sstream;
+        sstream << filename_base;
+        sstream << "_";
+        sstream << std::setw(digits(commxx.get_size()));
+        sstream << std::setfill('0');
+        sstream << commxx.get_rank();
+        fstream_ptr = new std::ofstream(sstream.str().c_str());
+        have_fstream = true;
+    }
 }
 
 Logger &

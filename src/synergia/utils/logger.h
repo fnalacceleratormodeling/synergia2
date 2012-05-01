@@ -14,11 +14,11 @@ private:
     bool have_fstream;
 public:
     /// Log to screen on a single rank
-    Logger(int rank);
+    Logger(int rank, bool log = true);
     /// Log to screen and file on a single rank
-    Logger(int rank, std::string const& filename);
+    Logger(int rank, std::string const& filename, bool log = true);
     /// Log to a separate file on each rank
-    Logger(std::string const& filename_base);
+    Logger(std::string const& filename_base, bool log = true);
     Logger &
     set_stream(std::ostream & stream);
     Logger &
