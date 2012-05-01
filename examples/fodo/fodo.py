@@ -53,6 +53,7 @@ try:
 
     propagator = synergia.simulation.Propagator(stepper)
     propagator.set_checkpoint_period(opts.checkpointperiod)
+    propagator.set_concurrent_io(opts.concurrentio)
     propagator.propagate(bunch_simulator, opts.turns, opts.maxturns, opts.verbosity)
 except Exception, e:
     sys.stderr.write(str(e) + '\n')
