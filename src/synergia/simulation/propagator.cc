@@ -244,22 +244,43 @@ Propagator::checkpoint(State & state, Logger & logger, double & t)
     double t0 = MPI_Wtime();
     using namespace boost::filesystem;
     remove_serialization_directory();
-    binary_save(*this, get_serialization_path(propagator_archive_name).c_str(),
-            true);
-    binary_save(state, get_serialization_path(state_archive_name).c_str(), true);
-    if (checkpoint_with_xml) {
-        xml_save(*this,
-                get_serialization_path(propagator_xml_archive_name).c_str(),
-                true);
-        xml_save(state, get_serialization_path(state_xml_archive_name).c_str(),
-                true);
-    }
-    if (Commxx().get_rank() == 0) {
+    Commxx commxx_world;
+    if (commxx_world.get_rank() == 0) {
         std::ofstream description(
                 get_serialization_path(description_file_name, false).c_str());
         description << "last_turn = " << state.first_turn << std::endl;
         description << "mpi_size = " << Commxx().get_size() << std::endl;
         description.close();
+    }
+    const int verbosity_threshold = 2;
+    Logger iocclog("iocycle_checkpoint", state.verbosity > verbosity_threshold);
+    const int max_writers = 2;
+    int num_cycles = (commxx_world.get_size() + max_writers - 1) / max_writers;
+    for (int cycle = 0; cycle < num_cycles; ++cycle) {
+        if (state.verbosity > verbosity_threshold) {
+            iocclog << "start cycle " << cycle << std::endl;
+        }
+        int cycle_min = cycle * max_writers;
+        int cycle_max = (cycle + 1) * max_writers;
+        if ((commxx_world.get_rank() >= cycle_min)
+                && (commxx_world.get_rank() < cycle_max)) {
+            iocclog << "start write" << std::endl;
+            binary_save(*this,
+                    get_serialization_path(propagator_archive_name).c_str(),
+                    true);
+            binary_save(state,
+                    get_serialization_path(state_archive_name).c_str(), true);
+            if (checkpoint_with_xml) {
+                xml_save(*this,
+                        get_serialization_path(propagator_xml_archive_name).c_str(),
+                        true);
+                xml_save(state,
+                        get_serialization_path(state_xml_archive_name).c_str(),
+                        true);
+            }
+                iocclog << "end write" << std::endl;
+        }
+        MPI_Barrier(commxx_world.get());
     }
     rename_serialization_directory(checkpoint_dir);
     double t_checkpoint = MPI_Wtime() - t0;
