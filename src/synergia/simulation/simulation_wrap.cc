@@ -435,6 +435,8 @@ BOOST_PYTHON_MODULE(simulation)
                     return_value_policy<copy_const_reference >())
             .def("set_checkpoint_with_xml", &Propagator::set_checkpoint_with_xml)
             .def("get_checkpoint_with_xml", &Propagator::get_checkpoint_with_xml)
+            .def("set_concurrent_io", &Propagator::set_concurrent_io)
+            .def("get_concurrent_io", &Propagator::get_concurrent_io)
             .def("propagate", propagate1,
                  propagate_member_overloads24())
             .def("propagate", propagate2,

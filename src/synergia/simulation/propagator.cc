@@ -59,7 +59,7 @@ Propagator::State::serialize<boost::archive::xml_iarchive >(
 
 Propagator::Propagator(Stepper_sptr stepper_sptr) :
     stepper_sptr(stepper_sptr), checkpoint_period(10),
-            checkpoint_dir(default_checkpoint_dir), checkpoint_with_xml(false)
+            checkpoint_dir(default_checkpoint_dir), checkpoint_with_xml(false), concurrent_io(8)
 {
 }
 
@@ -111,6 +111,18 @@ struct Object_to_sptr_hack
     {
     }
 };
+
+void
+Propagator::set_concurrent_io(int max)
+{
+    concurrent_io = max;
+}
+
+int
+Propagator::get_concurrent_io() const
+{
+    return concurrent_io;
+}
 
 void
 Propagator::propagate(State & state)
@@ -254,7 +266,7 @@ Propagator::checkpoint(State & state, Logger & logger, double & t)
     }
     const int verbosity_threshold = 2;
     Logger iocclog("iocycle_checkpoint", state.verbosity > verbosity_threshold);
-    const int max_writers = 2;
+    int max_writers = concurrent_io;
     int num_cycles = (commxx_world.get_size() + max_writers - 1) / max_writers;
     for (int cycle = 0; cycle < num_cycles; ++cycle) {
         if (state.verbosity > verbosity_threshold) {
@@ -448,6 +460,7 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(checkpoint_period);
         ar & BOOST_SERIALIZATION_NVP(checkpoint_dir);
         ar & BOOST_SERIALIZATION_NVP(checkpoint_with_xml);
+        ar & BOOST_SERIALIZATION_NVP(concurrent_io);
     }
 
 template

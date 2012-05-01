@@ -47,6 +47,7 @@ private:
     int checkpoint_period;
     std::string checkpoint_dir;
     bool checkpoint_with_xml;
+    int concurrent_io;
 
     void
     construct();
@@ -77,6 +78,11 @@ public:
 
     bool
     get_checkpoint_with_xml() const;
+
+    void set_concurrent_io(int max);
+
+    int
+    get_concurrent_io() const;
 
     void
     propagate(State & state);
