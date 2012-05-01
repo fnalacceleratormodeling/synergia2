@@ -266,12 +266,15 @@ Propagator::checkpoint(State & state, Logger & logger, double & t)
     }
     const int verbosity_threshold = 2;
     Logger iocclog("iocycle_checkpoint", state.verbosity > verbosity_threshold);
-    int max_writers = concurrent_io;
+    int max_writers;
+    if (concurrent_io == 0) {
+        max_writers = commxx_world.get_size();
+    } else {
+        max_writers = concurrent_io;
+    }
     int num_cycles = (commxx_world.get_size() + max_writers - 1) / max_writers;
     for (int cycle = 0; cycle < num_cycles; ++cycle) {
-        if (state.verbosity > verbosity_threshold) {
-            iocclog << "start cycle " << cycle << std::endl;
-        }
+        iocclog << "start cycle " << cycle << std::endl;
         int cycle_min = cycle * max_writers;
         int cycle_max = (cycle + 1) * max_writers;
         if ((commxx_world.get_rank() >= cycle_min)
@@ -290,7 +293,7 @@ Propagator::checkpoint(State & state, Logger & logger, double & t)
                         get_serialization_path(state_xml_archive_name).c_str(),
                         true);
             }
-                iocclog << "end write" << std::endl;
+            iocclog << "end write" << std::endl;
         }
         MPI_Barrier(commxx_world.get());
     }
