@@ -180,7 +180,6 @@ Propagator::propagate(State & state)
                             << state.bunch_simulator_ptr->get_bunch().get_total_num();
                     logger << ", time = " << std::fixed << std::setprecision(3)
                             << t_step1 - t_step0 << "s";
-                    ;
                     logger << std::endl;
                 }
                 if (state.bunch_simulator_ptr->get_bunch().get_total_num() == 0) {
