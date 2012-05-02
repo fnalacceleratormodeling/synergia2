@@ -215,8 +215,8 @@ Propagator::propagate(State & state)
                 logger << std::endl;
             }
             ++turns_since_checkpoint;
-            if ((turns_since_checkpoint == checkpoint_period) && (turn
-                    != (state.num_turns - 1))) {
+            if ((turns_since_checkpoint == checkpoint_period) || (turn
+                    == (state.num_turns - 1))) {
                 checkpoint(state, logger, t);
                 turns_since_checkpoint = 0;
             }
