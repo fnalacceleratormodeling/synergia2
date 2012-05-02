@@ -256,13 +256,6 @@ Propagator::checkpoint(State & state, Logger & logger, double & t)
     using namespace boost::filesystem;
     remove_serialization_directory();
     Commxx commxx_world;
-    if (commxx_world.get_rank() == 0) {
-        std::ofstream description(
-                get_serialization_path(description_file_name, false).c_str());
-        description << "last_turn = " << state.first_turn << std::endl;
-        description << "mpi_size = " << Commxx().get_size() << std::endl;
-        description.close();
-    }
     const int verbosity_threshold = 2;
     Logger iocclog("iocycle_checkpoint", state.verbosity > verbosity_threshold);
     int max_writers;
@@ -295,6 +288,13 @@ Propagator::checkpoint(State & state, Logger & logger, double & t)
             iocclog << "end write" << std::endl;
         }
         MPI_Barrier(commxx_world.get());
+    }
+    if (commxx_world.get_rank() == 0) {
+        std::ofstream description(
+                get_serialization_path(description_file_name, false).c_str());
+        description << "last_turn = " << state.first_turn << std::endl;
+        description << "mpi_size = " << Commxx().get_size() << std::endl;
+        description.close();
     }
     rename_serialization_directory(checkpoint_dir);
     double t_checkpoint = MPI_Wtime() - t0;
