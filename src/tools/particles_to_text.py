@@ -67,16 +67,12 @@ def do_conversion(options):
         for col in ['x', 'xp', 'y', 'py', 'cdt', 'dp', 'id']:
             ofile.write('%24s' % col)
         ofile.write('\n')
-    particles = ifile.root.particles.read()
-    for part in particles:
+    for part in ifile.root.particles.iterrows():
         ofile.write(' ')
         for coord in part:
             ofile.write('%24.16e' % coord)
         ofile.write('\n')
     ofile.close()
-
-
-
 
 if __name__ == '__main__':
     options = handle_args(sys.argv[1:])
