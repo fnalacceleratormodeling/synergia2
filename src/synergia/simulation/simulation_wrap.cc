@@ -418,6 +418,8 @@ BOOST_PYTHON_MODULE(simulation)
 //    void (Propagator::*propagate8)(Bunch &, int, Diagnostics_actions &,
 //            Propagate_actions &, int) = &Propagator::propagate;
 
+    {
+    scope propagator_scope(
     class_<Propagator >("Propagator",init<Stepper_sptr >())
             .def_readonly("default_checkpoint_dir", &Propagator::default_checkpoint_dir)
             .def_readonly("description_file_name", &Propagator::description_file_name)
@@ -428,6 +430,7 @@ BOOST_PYTHON_MODULE(simulation)
             .def_readonly("log_file_name", &Propagator::log_file_name)
             .def_readonly("stop_file_name", &Propagator::stop_file_name)
             .def_readonly("alt_stop_file_name", &Propagator::alt_stop_file_name)
+            .def("get_stepper", &Propagator::get_stepper_sptr)
             .def("set_checkpoint_period", &Propagator::set_checkpoint_period)
             .def("get_checkpoint_period", &Propagator::get_checkpoint_period)
             .def("set_checkpoint_dir", &Propagator::set_checkpoint_dir)
@@ -441,6 +444,7 @@ BOOST_PYTHON_MODULE(simulation)
                  propagate_member_overloads24())
             .def("propagate", propagate2,
                     propagate_member_overloads35())
+            .def("get_resume_state", &Propagator::get_resume_state)
             .def("resume", &Propagator::resume)
 //            .def("resume", &Propagator::resume,
 //                    resume_member_overloads())
@@ -456,8 +460,21 @@ BOOST_PYTHON_MODULE(simulation)
 //                    propagate_member_overloads34())
 //            .def("propagate", propagate8,
 //                    propagate_member_overloads45())
+    );
+
+    class_<Propagator::State>("State", no_init)
+            .def_readwrite("bunch_simulator", &Propagator::State::bunch_simulator_ptr)
+            .def_readwrite("propagate_actions", &Propagator::State::propagate_actions_ptr)
+            .def_readwrite("num_turns", &Propagator::State::num_turns)
+            .def_readwrite("first_turn", &Propagator::State::first_turn)
+            .def_readwrite("max_turns", &Propagator::State::max_turns)
+            .def_readwrite("verbosity", &Propagator::State::verbosity)
             ;
 
+    }
+
+    {
+    scope resume_scope(
     class_<Resume >("Resume", init<>())
             .def(init<std::string const& >())
             .def("set_checkpoint_period", &Resume::set_checkpoint_period)
@@ -465,6 +482,14 @@ BOOST_PYTHON_MODULE(simulation)
             .def("set_new_checkpoint_dir", &Resume::set_new_checkpoint_dir)
             .def("get_new_checkpoint_dir", &Resume::get_new_checkpoint_dir,
                     return_value_policy<copy_const_reference >())
+            .def("get_content", &Resume::get_content)
             .def("propagate", &Resume::propagate)
+    );
+
+    class_<Resume::Content>("Content", no_init)
+            .def_readwrite("bunch", &Resume::Content::bunch_sptr)
+            .def_readwrite("stepper", &Resume::Content::stepper_sptr)
+            .def_readwrite("lattice", &Resume::Content::lattice_sptr)
             ;
+    }
 }
