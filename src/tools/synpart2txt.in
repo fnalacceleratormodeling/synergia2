@@ -1,0 +1,3 @@
+#!/bin/sh
+
+exec synergia "${CMAKE_INSTALL_PREFIX}/lib/synergia_tools/particles_to_text.py" "$@"
