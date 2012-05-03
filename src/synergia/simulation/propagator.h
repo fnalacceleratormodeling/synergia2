@@ -22,6 +22,7 @@ public:
     static const std::string log_file_name;
     static const std::string stop_file_name;
     static const std::string alt_stop_file_name;
+    static const int default_concurrent_io = 8;
 
     struct State
     {
@@ -51,8 +52,6 @@ private:
 
     void
     construct();
-    State
-    get_resume_state(std::string const& checkpoint_directory);
     void
     checkpoint(State & state, Logger & logger, double & t);
 public:
@@ -60,6 +59,9 @@ public:
 
     // Default constructor for serialization use only
     Propagator();
+
+    Stepper_sptr
+    get_stepper_sptr();
 
     void
     set_checkpoint_period(int period);
@@ -86,6 +88,9 @@ public:
 
     void
     propagate(State & state);
+
+    State
+    get_resume_state(std::string const& checkpoint_dir);
 
     void
     resume(std::string const& checkpoint_dir, bool new_max_turns,

@@ -58,13 +58,20 @@ Propagator::State::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Propagator::Propagator(Stepper_sptr stepper_sptr) :
-    stepper_sptr(stepper_sptr), checkpoint_period(10),
-            checkpoint_dir(default_checkpoint_dir), checkpoint_with_xml(false), concurrent_io(8)
+        stepper_sptr(stepper_sptr), checkpoint_period(10), checkpoint_dir(
+                default_checkpoint_dir), checkpoint_with_xml(false), concurrent_io(
+                default_concurrent_io)
 {
 }
 
 Propagator::Propagator()
 {
+}
+
+Stepper_sptr
+Propagator::get_stepper_sptr()
+{
+    return stepper_sptr;
 }
 
 void
