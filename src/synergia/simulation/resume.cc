@@ -1,5 +1,14 @@
 #include "resume.h"
 
+Resume::Content::Content(Bunch_simulator * bunch_simulator_ptr,
+        Stepper_sptr stepper_sptr) :
+        bunch_sptr(bunch_simulator_ptr->get_bunch_sptr()), stepper_sptr(
+                stepper_sptr), lattice_sptr(
+                stepper_sptr->get_lattice_simulator().get_lattice_sptr())
+{
+}
+
+
 Resume::Resume(std::string const& checkpoint_dir) :
     checkpoint_dir(checkpoint_dir), propagator()
 {
@@ -34,6 +43,14 @@ std::string const&
 Resume::get_new_checkpoint_dir() const
 {
     return propagator.get_checkpoint_dir();
+}
+
+Resume::Content
+Resume::get_content()
+{
+    Propagator::State state(propagator.get_resume_state(checkpoint_dir));
+    Content content(state.bunch_simulator_ptr, propagator.get_stepper_sptr());
+    return content;
 }
 
 void

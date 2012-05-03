@@ -6,6 +6,16 @@
 
 class Resume
 {
+public:
+    struct Content
+    {
+        Bunch_sptr bunch_sptr;
+        Stepper_sptr stepper_sptr;
+        Lattice_sptr lattice_sptr;
+        Content(Bunch_simulator * bunch_simulator_ptr,
+                Stepper_sptr stepper_sptr);
+    };
+
 private:
     std::string checkpoint_dir;
     Propagator propagator;
@@ -25,6 +35,9 @@ public:
 
     std::string const&
     get_new_checkpoint_dir() const;
+
+    Content
+    get_content();
 
     void
     propagate(bool new_max_turns, int max_turns, bool new_verbosity,
