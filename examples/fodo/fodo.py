@@ -9,7 +9,7 @@ try:
 
     # Set the same aperture radius for all elements
     for elem in lattice.get_elements():
-        elem.set_double_attribute("aperture_radius", opts.radius)
+        elem.set_double_attribute("circular_aperture_radius", opts.radius)
 
     lattice_simulator = synergia.simulation.Lattice_simulator(lattice,
                                                               opts.map_order)
