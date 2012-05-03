@@ -5,8 +5,9 @@
 const char Diagnostics_bulk_track::name[] = "diagnostics_bulk_track";
 
 Diagnostics_bulk_track::Diagnostics_bulk_track(
-        std::string const& filename, int num_tracks) :
+    std::string const& filename, int num_tracks, bool iocc_verbose) :
   Diagnostics(Diagnostics_bulk_track::name, filename), num_tracks(num_tracks),
+  iocc_verbose(iocc_verbose),
   have_writers(false), first_search(true), diag_track_status(),
   track_coords(boost::extents[num_tracks][7])
   
@@ -143,13 +144,29 @@ Diagnostics_bulk_track::init_writers(Hdf5_file_sptr file_sptr)
 void
 Diagnostics_bulk_track::write()
 {
-    get_bunch().convert_to_state(get_bunch().fixed_z_lab);
-    init_writers(get_write_helper().get_hdf5_file_sptr());
-    writer_coords->append(track_coords);
-    writer_s->append(s);
-    writer_repetition->append(repetition);
-    writer_trajectory_length->append(trajectory_length);
-    get_write_helper().finish_write();
+    const int max_writers = 8; // for now, may be dynamic in future
+    int num_cycles = (get_bunch().get_comm().get_size() + max_writers - 1) / max_writers;
+    Logger iocclog("iocycle_bulk_track", iocc_verbose);
+
+    for (int cycle = 0; cycle<num_cycles; ++cycle) {
+	iocclog << "start cycle " << cycle << std::endl;
+        int cycle_min = cycle * max_writers;
+        int cycle_max = (cycle + 1) * max_writers;
+        if ((get_bunch().get_comm().get_rank() >= cycle_min)
+	    && (get_bunch().get_comm().get_rank() < cycle_max)) {
+            iocclog << "start write" << std::endl;
+
+	    get_bunch().convert_to_state(get_bunch().fixed_z_lab);
+	    init_writers(get_write_helper().get_hdf5_file_sptr());
+	    writer_coords->append(track_coords);
+	    writer_s->append(s);
+	    writer_repetition->append(repetition);
+	    writer_trajectory_length->append(trajectory_length);
+	    get_write_helper().finish_write();
+	}
+	iocclog << "end write" << std::endl;
+	MPI_Barrier(get_bunch().get_comm().get());
+    }
 }
 
 template<class Archive>
@@ -157,6 +174,8 @@ template<class Archive>
     Diagnostics_bulk_track::serialize(Archive & ar, const unsigned int version)
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics)
+	    & BOOST_SERIALIZATION_NVP(num_tracks)
+	    & BOOST_SERIALIZATION_NVP(iocc_verbose)
                 & BOOST_SERIALIZATION_NVP(have_writers)
                 & BOOST_SERIALIZATION_NVP(first_search)
 	  & BOOST_SERIALIZATION_NVP(diag_track_status)

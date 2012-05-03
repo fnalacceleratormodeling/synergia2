@@ -2,7 +2,7 @@
 #define DIAGNOSTICS_BULK_TRACK_H_
 
 #include "synergia/bunch/diagnostics.h"
-
+#include "synergia/utils/logger.h"
 
 /// Diagnostics_bulk_track records the phase space coordinates of a multiple
 /// particles.
@@ -24,6 +24,7 @@ private:
     };
 
     int num_tracks;
+    bool iocc_verbose;
     bool have_writers;
     bool first_search;
     std::vector<Track_status > diag_track_status;
@@ -44,8 +45,9 @@ public:
     /// @param filename the base name for file to write to (base names will have
     ///        a numerical index inserted
     /// @param num_tracks the number of local particles to track
+    /// @iocc_verbose is true to log iocycle operations
     Diagnostics_bulk_track(std::string const& filename,
-            int num_tracks);
+			   int num_tracks, bool iocc_verbose=false);
 
     // Default constructor for serialization use only
     Diagnostics_bulk_track();
