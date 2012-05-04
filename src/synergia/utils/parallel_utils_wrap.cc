@@ -52,9 +52,10 @@ BOOST_PYTHON_MODULE(parallel_utils)
     def("decompose_1d_local", decompose_1d_local);
 
     class_<Logger >("Logger", init<int >())
-            .def(init<bool >())
+            .def(init<int, bool >())
             .def(init<int, std::string const& >())
             .def(init<int, std::string const&, bool >())
+            .def(init<std::string const& >())
             .def(init<std::string const&, bool >())
             .def("write", &Logger::write,
                     return_internal_reference<>())
