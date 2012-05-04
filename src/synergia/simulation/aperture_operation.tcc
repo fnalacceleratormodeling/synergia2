@@ -23,12 +23,12 @@ template<typename T>
                         // No more particles left
                         try_discard = false;
                     } else {
-                        std::cout << "lost: " << part
-                                << "  " << particles[part][Bunch::x]
-                                << "  " << particles[part][Bunch::xp]
-                                << "  " << particles[part][Bunch::y]
-                                << "  " << particles[part][Bunch::yp]
-                                << std::endl;
+//                        std::cout << "lost: " << part
+//                                << "  " << particles[part][Bunch::x]
+//                                << "  " << particles[part][Bunch::xp]
+//                                << "  " << particles[part][Bunch::y]
+//                                << "  " << particles[part][Bunch::yp]
+//                                << std::endl;
                         // Move the last particle into this newly empty position
                         int last = local_num;
                         particles[part][0] = particles[last][0];
