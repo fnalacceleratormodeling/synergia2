@@ -125,6 +125,8 @@ BOOST_PYTHON_MODULE(lattice)
             .def("get_reference_particle", &Lattice::get_reference_particle,
                     return_value_policy<return_by_value >()) // jfa: not sure return_by_value is correct
             .def("append", &Lattice::append)
+            .def("set_all_double_attribute", &Lattice::set_all_double_attribute)
+            .def("set_all_string_attribute", &Lattice::set_all_string_attribute)
             .def("get_elements", &Lattice::get_elements,
                     return_value_policy<copy_non_const_reference >())
             .def("get_length", &Lattice::get_length)

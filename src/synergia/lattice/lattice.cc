@@ -109,6 +109,24 @@ Lattice::complete_attributes(Element_adaptor_map const& element_adaptor_map)
     derive_external_attributes(element_adaptor_map);
 }
 
+void
+Lattice::set_all_double_attribute(std::string const& name, double value,
+        bool increment_revision)
+{
+    for (Lattice_elements::iterator it = elements.begin(); it != elements.end(); ++it) {
+        (*it)->set_double_attribute(name, value, increment_revision);
+    }
+}
+
+void
+Lattice::set_all_string_attribute(std::string const& name,
+        std::string const& value, bool increment_revision)
+{
+    for (Lattice_elements::iterator it = elements.begin(); it != elements.end(); ++it) {
+        (*it)->set_string_attribute(name, value, increment_revision);
+    }
+}
+
 Lattice_elements &
 Lattice::get_elements()
 {

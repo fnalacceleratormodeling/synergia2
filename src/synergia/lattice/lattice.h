@@ -69,6 +69,22 @@ public:
     void
     complete_attributes(Element_adaptor_map const& element_adaptor_map);
 
+    /// Set the value of the named double attribute on all elements
+    /// @param name attribute name
+    /// @param value attribute value
+    /// @param increment_revision can be set to false for attributes that do not affect dynamics
+    void
+    set_all_double_attribute(std::string const& name, double value,
+            bool increment_revision = true);
+
+    /// Set the value of the named string attribute on all elements
+    /// @param name attribute name
+    /// @param value attribute value
+    /// @param increment_revision can be set to false for attributes that do not affect dynamics
+    void
+    set_all_string_attribute(std::string const& name, std::string const& value,
+            bool increment_revision = true);
+
     /// Get the list of elements in the Lattice
     Lattice_elements &
     get_elements();
