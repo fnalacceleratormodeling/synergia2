@@ -252,6 +252,47 @@ BOOST_PYTHON_MODULE(simulation)
     (Lattice_simulator::*get_lattice_functions2)(Lattice_element_slice &) =
             &Lattice_simulator::get_lattice_functions;
 
+    class_<Aperture_operation_extractor, boost::noncopyable >
+            Aperture_operation_extractor_("Aperture_operation_extractor_",
+                    no_init);
+    Aperture_operation_extractor_.def("extract",
+            &Aperture_operation_extractor::extract);
+
+    class_<Circular_extractor, bases<Aperture_operation_extractor > >
+            Circular_extractor_("Circular_extractor", init< > ());
+    Circular_extractor_.def("extract", &Circular_extractor::extract);
+
+    class_<Elliptical_extractor, bases<Aperture_operation_extractor > >
+            Elliptical_extractor_("Elliptical_extractor", init< > ());
+    Elliptical_extractor_.def("extract", &Elliptical_extractor::extract);
+
+    class_<Rectangular_extractor, bases<Aperture_operation_extractor > >
+            Rectangular_extractor_("Rectangular_extractor", init< > ());
+    Rectangular_extractor_.def("extract", &Rectangular_extractor::extract);
+
+    class_<Polygon_extractor, bases<Aperture_operation_extractor > >
+            Polygon_extractor_("Polygon_extractor", init< > ());
+    Polygon_extractor_.def("extract", &Polygon_extractor::extract);
+
+    class_<Wire_elliptical_extractor, bases<Aperture_operation_extractor > >
+            Wire_elliptical_extractor_("Wire_elliptical_extractor", init< > ());
+    Wire_elliptical_extractor_.def("extract", &Wire_elliptical_extractor::extract);
+
+    class_<Lambertson_extractor, bases<Aperture_operation_extractor > >
+            Lambertson_extractor_("Lambertson_extractor", init< > ());
+    Lambertson_extractor_.def("extract", &Lambertson_extractor::extract);
+
+    class_<Aperture_operation_extractor_map,
+            Aperture_operation_extractor_map_sptr >
+            Aperture_operation_extractor_map_(
+                    "Aperture_operation_extractor_map", init< > ());
+    Aperture_operation_extractor_map_.def("set_extractor",
+            &Aperture_operation_extractor_map::set_extractor);
+    Aperture_operation_extractor_map_.def("get_extractor",
+            &Aperture_operation_extractor_map::get_extractor);
+    Aperture_operation_extractor_map_.def("get_extractor_names",
+            &Aperture_operation_extractor_map::get_extractor_names);
+
     class_<Lattice_simulator >("Lattice_simulator",
             init<Lattice_sptr, int >())
         .def("set_slices",
@@ -259,6 +300,8 @@ BOOST_PYTHON_MODULE(simulation)
         .def("get_map_order", &Lattice_simulator::get_map_order)
         .def("get_operation_extractor_map",
                 &Lattice_simulator::get_operation_extractor_map_sptr)
+        .def("get_aperture_operation_extractor_map",
+                &Lattice_simulator::get_aperture_operation_extractor_map_sptr)
         .def("get_lattice", &Lattice_simulator::get_lattice_sptr)
         .def("get_chef_lattice", &Lattice_simulator::get_chef_lattice_sptr)
         .def("get_bucket_length", &Lattice_simulator::get_bucket_length)
