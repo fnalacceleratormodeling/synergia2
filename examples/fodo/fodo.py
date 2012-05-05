@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+from math import sqrt
 import synergia
 from fodo_options import opts
 from mpi4py import MPI
@@ -13,6 +14,15 @@ try:
 
     lattice_simulator = synergia.simulation.Lattice_simulator(lattice,
                                                               opts.map_order)
+
+    if opts.elliptical:
+        aperture_operation_extractor_map = lattice_simulator.get_aperture_operation_extractor_map()
+        aperture_operation_extractor_map.set_extractor("default",
+                                                       synergia.simulation.Elliptical_extractor())
+        lattice.set_all_double_attribute("elliptical_aperture_horizontal_radius",
+                                     opts.radius*sqrt(opts.aspect))
+        lattice.set_all_double_attribute("elliptical_aperture_vertical_radius",
+                                     opts.radius/sqrt(opts.aspect))
 
     bunch = synergia.optics.generate_matched_bunch_transverse(
                   lattice_simulator, opts.emit, opts.emit, opts.stdz, opts.dpop,

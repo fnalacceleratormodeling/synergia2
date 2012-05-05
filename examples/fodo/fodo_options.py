@@ -4,6 +4,8 @@ import synergia_workflow
 
 opts = synergia_workflow.Options("fodo")
 opts.add("radius", 0.1, "aperture radius [m]", float)
+opts.add("elliptical", False, "Use elliptical aperture")
+opts.add("aspect", 2.0, "aspect ratio (h/v) for elliptical aperture")
 opts.add("macro_particles", 320, "Number of macro particles", int)
 opts.add("seed", 0, "Pseudorandom number generator seed", int)
 opts.add("real_particles", 1.2e12, "Number of real particles", float)
