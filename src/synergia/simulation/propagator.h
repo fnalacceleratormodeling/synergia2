@@ -22,7 +22,7 @@ public:
     static const std::string log_file_name;
     static const std::string stop_file_name;
     static const std::string alt_stop_file_name;
-    static const int default_concurrent_io = 8;
+    static const int default_concurrent_io = 1;
 
     struct State
     {
