@@ -144,7 +144,7 @@ Diagnostics_bulk_track::init_writers(Hdf5_file_sptr file_sptr)
 void
 Diagnostics_bulk_track::write()
 {
-    const int max_writers = 4; // for now, may be dynamic in future
+    const int max_writers = 1; // for now, may be dynamic in future
     int num_cycles = (get_bunch().get_comm().get_size() + max_writers - 1) / max_writers;
     Logger iocclog("iocycle_bulk_track", iocc_verbose);
 
