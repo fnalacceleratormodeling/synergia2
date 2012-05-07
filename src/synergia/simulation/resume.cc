@@ -10,14 +10,24 @@ Resume::Content::Content(Bunch_simulator * bunch_simulator_ptr,
 
 
 Resume::Resume(std::string const& checkpoint_dir) :
-    checkpoint_dir(checkpoint_dir), propagator()
+        checkpoint_dir(checkpoint_dir), propagator()
 {
     remove_serialization_directory();
     symlink_serialization_directory(checkpoint_dir);
-    binary_load(
-            propagator,
-            get_combined_path(checkpoint_dir,
-                    Propagator::propagator_archive_name).c_str());
+    Commxx commxx_world;
+    int max_writers = 1;
+    int num_cycles = (commxx_world.get_size() + max_writers - 1) / max_writers;
+    for (int cycle = 0; cycle < num_cycles; ++cycle) {
+        int cycle_min = cycle * max_writers;
+        int cycle_max = (cycle + 1) * max_writers;
+        if ((commxx_world.get_rank() >= cycle_min)
+                && (commxx_world.get_rank() < cycle_max)) {
+            binary_load(propagator,
+                    get_combined_path(checkpoint_dir,
+                            Propagator::propagator_archive_name).c_str());
+        }
+        MPI_Barrier(commxx_world.get());
+    }
     unlink_serialization_directory();
 }
 
