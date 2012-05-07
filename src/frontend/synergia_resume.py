@@ -43,6 +43,8 @@ def handle_args(args):
                 options.verbosity = int(arg.split('=')[1])
             else:
                 do_error('Unknown argument "%s"' % arg)
+        else:
+            options.directory = arg
     return options
 
 def run(options):
