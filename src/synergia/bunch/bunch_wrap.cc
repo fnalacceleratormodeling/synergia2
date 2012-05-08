@@ -81,7 +81,8 @@ BOOST_PYTHON_MODULE(bunch)
         ;
 
     class_<Diagnostics_bulk_track, Diagnostics_bulk_track_sptr, bases<Diagnostics> >
-      ("Diagnostics_bulk_track",init<std::string const&, int >())
+      ("Diagnostics_bulk_track",init<std::string const&, int>())
+      .def(init<std::string const&, int, int >())
       .def("set_bunch", &Diagnostics_bulk_track::set_bunch_sptr)
       ;
 

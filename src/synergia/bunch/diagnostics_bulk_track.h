@@ -23,8 +23,8 @@ private:
         serialize(Archive & ar, const unsigned int version);
     };
 
-    int num_tracks;
-    bool iocc_verbose;
+    int num_tracks, local_num_tracks;
+    int offset, local_offset;
     bool have_writers;
     bool first_search;
     std::vector<Track_status > diag_track_status;
@@ -38,22 +38,25 @@ private:
     Hdf5_serial_writer<MArray2d_ref > * writer_coords;
     virtual void
     init_writers(Hdf5_file_sptr file_sptr);
-
+    void
+    receive_other_local_coords(std::vector<int > const& local_nums);
+    void
+    send_local_coords();
 public:
     /// Create an empty Diagnostics_bulk_track object
     /// @param bunch_sptr the Bunch
     /// @param filename the base name for file to write to (base names will have
     ///        a numerical index inserted
     /// @param num_tracks the number of local particles to track
-    /// @iocc_verbose is true to log iocycle operations
+    /// @param offset id offset for first particle to track
     Diagnostics_bulk_track(std::string const& filename,
-			   int num_tracks, bool iocc_verbose=false);
+			   int num_tracks, int offset=0);
 
     // Default constructor for serialization use only
     Diagnostics_bulk_track();
 
-    virtual Diagnostics_write_helper *
-    new_write_helper_ptr();
+//    virtual Diagnostics_write_helper *
+//    new_write_helper_ptr();
 
     /// Multiple serial diagnostics can be written to a single file.
     /// The Diagnostics_bulk_track class is serial.
