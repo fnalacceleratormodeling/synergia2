@@ -1,5 +1,4 @@
 #include "resume.h"
-#include "synergia/utils/logger.h"
 
 Resume::Content::Content(Bunch_simulator * bunch_simulator_ptr,
         Stepper_sptr stepper_sptr) :
@@ -13,27 +12,12 @@ Resume::Content::Content(Bunch_simulator * bunch_simulator_ptr,
 Resume::Resume(std::string const& checkpoint_dir) :
         checkpoint_dir(checkpoint_dir), propagator()
 {
-    Logger resume_log(0, "resume_log", true);
-    resume_log << "start" << std::endl;
     remove_serialization_directory();
-    resume_log << "after remove_serialization_directory" << std::endl;
     symlink_serialization_directory(checkpoint_dir);
-    resume_log << "after symlink_serialization_directory" << std::endl;
-    Commxx commxx_world;
-    int max_writers = 1;
-    int num_cycles = (commxx_world.get_size() + max_writers - 1) / max_writers;
-    for (int cycle = 0; cycle < num_cycles; ++cycle) {
-        resume_log << "start cycle " << cycle << "/" << num_cycles << std::endl;
-        int cycle_min = cycle * max_writers;
-        int cycle_max = (cycle + 1) * max_writers;
-        if ((commxx_world.get_rank() >= cycle_min)
-                && (commxx_world.get_rank() < cycle_max)) {
-            binary_load(propagator,
+    binary_load(
+            propagator,
                     get_combined_path(checkpoint_dir,
                             Propagator::propagator_archive_name).c_str());
-        }
-        MPI_Barrier(commxx_world.get());
-    }
     unlink_serialization_directory();
 }
 
