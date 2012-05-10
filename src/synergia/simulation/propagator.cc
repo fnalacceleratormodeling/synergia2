@@ -60,7 +60,7 @@ Propagator::State::serialize<boost::archive::xml_iarchive >(
 Propagator::Propagator(Stepper_sptr stepper_sptr) :
         stepper_sptr(stepper_sptr), checkpoint_period(10), checkpoint_dir(
                 default_checkpoint_dir), checkpoint_with_xml(false), concurrent_io(
-                default_concurrent_io)
+										   default_concurrent_io), final_checkpoint(true)
 {
 }
 
@@ -96,6 +96,18 @@ bool
 Propagator::get_checkpoint_with_xml() const
 {
     return checkpoint_with_xml;
+}
+
+void
+Propagator::set_final_checkpoint(bool final_checkpoint)
+{
+  this->final_checkpoint = final_checkpoint;
+}
+
+bool
+Propagator::get_final_checkpoint() const
+{
+  return final_checkpoint;
 }
 
 void
@@ -222,8 +234,8 @@ Propagator::propagate(State & state)
                 logger << std::endl;
             }
             ++turns_since_checkpoint;
-            if ((turns_since_checkpoint == checkpoint_period) || (turn
-                    == (state.num_turns - 1))) {
+            if ((turns_since_checkpoint == checkpoint_period) || ((turn
+								   == (state.num_turns - 1)) && final_checkpoint)) {
                 checkpoint(state, logger, t);
                 turns_since_checkpoint = 0;
             }
