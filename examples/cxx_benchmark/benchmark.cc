@@ -47,6 +47,7 @@ run(Benchmark_options const& opts)
         std::cerr << "Run cxx_example.py to generate cxx_lattice.xml\n";
         exit(1);
     }
+    lattice_sptr->set_all_string_attribute("extractor_type","chef_propagate");
     Commxx_sptr sc_comm_sptr(new Commxx(opts.avoid));
     Space_charge_3d_open_hockney_sptr space_charge_sptr(
             new Space_charge_3d_open_hockney(sc_comm_sptr, grid_shape));
@@ -73,6 +74,7 @@ run(Benchmark_options const& opts)
             new Split_operator_stepper(lattice_simulator, space_charge_sptr,
                     num_steps));
     Propagator propagator(stepper_sptr);
+    propagator.set_final_checkpoint(false);
 
     Commxx_sptr comm_sptr(new Commxx);
     Bunch_sptr bunch_sptr(
