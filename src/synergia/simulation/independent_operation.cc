@@ -59,8 +59,12 @@ void
 Fast_mapping_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
     // bunch.convert_to_state(Bunch::fixed_t);
-     bunch.convert_to_state(Bunch::fixed_z_lab);
-     mapping.apply(bunch);
+    bunch.convert_to_state(Bunch::fixed_z_lab);
+    if (verbosity > 4) {
+        logger << "Fast_mapping_operation: length = " << mapping.get_length()
+                << ", order = " << mapping.get_order() << std::endl;
+    }
+    mapping.apply(bunch);
 }
 
 Fast_mapping const&
@@ -117,7 +121,7 @@ void
 Chef_propagate_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
     bunch.convert_to_state(Bunch::fixed_z_lab);
-    chef_propagator.apply(bunch);
+    chef_propagator.apply(bunch, verbosity, logger);
 }
 
 template<class Archive>

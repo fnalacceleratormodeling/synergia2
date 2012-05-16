@@ -208,6 +208,12 @@ Fast_mapping::get_length() const
     return length;
 }
 
+int
+Fast_mapping::get_order() const
+{
+    return order;
+}
+
 void
 Fast_mapping::apply(Bunch & bunch)
 {

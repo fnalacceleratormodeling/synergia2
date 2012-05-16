@@ -1,6 +1,7 @@
 #ifndef CHEF_PROPAGATOR_H_
 #define CHEF_PROPAGATOR_H_
 
+#include "synergia/utils/logger.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/lattice/chef_lattice.h"
 #include "synergia/lattice/chef_lattice_section.h"
@@ -15,7 +16,7 @@ public:
     // Default constructor for serialization use only
     Chef_propagator();
     void
-    apply(Bunch & bunch);
+    apply(Bunch & bunch, int verbosity, Logger & logger);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);

@@ -349,9 +349,16 @@ Independent_operator::get_operations()
 }
 
 void
-Independent_operator::apply(Bunch & bunch, double time_step, Step & step, int verbosity,
-        Logger & logger)
+Independent_operator::apply(Bunch & bunch, double time_step, Step & step,
+        int verbosity, Logger & logger)
 {
+    if (verbosity > 4) {
+        logger << "Independent_operator: slice(s) = " << std::endl;
+        for (Lattice_element_slices::const_iterator it = slices.begin();
+                it != slices.end(); ++it) {
+            logger << "    " << (*it)->as_string() << std::endl;
+        }
+    }
     double t;
     t = simple_timer_current();
     bool do_update = need_update(bunch.get_reference_particle(), verbosity, logger);

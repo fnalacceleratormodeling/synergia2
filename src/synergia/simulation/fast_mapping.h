@@ -147,6 +147,8 @@ public:
     set_length(double length);
     double
     get_length() const;
+    int
+    get_order() const;
     void
     add_term(int index, Fast_mapping_term const& term);
     std::vector<std::vector<Fast_mapping_terms > > const&

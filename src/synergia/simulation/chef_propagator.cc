@@ -14,7 +14,7 @@ Chef_propagator::Chef_propagator()
 // jfa: This routine is incorrect when passing through an accelerating element.
 // Please fix it.
 void
-Chef_propagator::apply(Bunch & bunch)
+Chef_propagator::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
 
     Particle
@@ -25,7 +25,12 @@ Chef_propagator::apply(Bunch & bunch)
     for (Chef_lattice_section::iterator it = chef_lattice_section_sptr->begin(); it
             != chef_lattice_section_sptr->end(); ++it) {
         (*it)->propagate(particle);
-        length += (*it)->OrbitLength(particle);
+        double this_length = (*it)->OrbitLength(particle);
+        length += this_length;
+        if (verbosity > 4) {
+            logger << "Chef_propagator: name = " << (*it)->Name() << ", type = " <<
+                    (*it)->Type() << ", length = " << this_length << std::endl;
+        }
     }
     // std::cout<<"chef operate apply with length= "<<length<<std::endl;
     bunch.get_reference_particle().increment_trajectory(length);

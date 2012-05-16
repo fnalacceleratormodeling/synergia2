@@ -29,7 +29,9 @@ BOOST_AUTO_TEST_CASE(apply)
     Chef_propagator chef_propagator(chef_lattice_section_sptr);
 
     //    multi_array_print(bunch.get_local_particles(),"particles before");
-    chef_propagator.apply(b.bunch);
+    Logger logger(0);
+    int verbosity = 5;
+    chef_propagator.apply(b.bunch, verbosity, logger);
     //    multi_array_print(bunch.get_local_particles(),"particles after");
 }
 // test_note: the apply test just verifies that the method doesn't crash.
