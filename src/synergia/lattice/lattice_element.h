@@ -144,6 +144,10 @@ public:
     long int
     get_revision() const;
 
+    /// Return a human-readable description of the Lattice_element
+    std::string
+    as_string() const;
+
     /// Print a human-readable description of the Lattice_element
     /// The Python version of the function is named "print_".
     void

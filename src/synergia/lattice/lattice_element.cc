@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
+#include <sstream>
 
 Lattice_element::Lattice_element() :
     type(""), name(""), ancestors(), double_attributes(), string_attributes(),
@@ -208,35 +209,42 @@ Lattice_element::get_revision() const
     return revision;
 }
 
-void
-Lattice_element::print() const
+std::string
+Lattice_element::as_string() const
 {
+    std::stringstream sstream;
     for (std::list<std::string >::const_iterator it = ancestors.begin(); it
             != ancestors.end(); ++it) {
-        std::cout << (*it) << ":";
+        sstream << (*it) << ":";
     }
-    std::cout << " " << type << " ";
-    std::cout << name << ": ";
+    sstream << " " << type << " ";
+    sstream << name << ": ";
     bool first_attr = true;
     for (std::map<std::string, double >::const_iterator it =
             double_attributes.begin(); it != double_attributes.end(); ++it) {
         if (first_attr) {
             first_attr = false;
         } else {
-            std::cout << ", ";
+            sstream << ", ";
         }
-        std::cout << it->first << "=" << it->second;
+        sstream << it->first << "=" << it->second;
     }
     for (std::map<std::string, std::string >::const_iterator it =
             string_attributes.begin(); it != string_attributes.end(); ++it) {
         if (first_attr) {
             first_attr = false;
         } else {
-            std::cout << ", ";
+            sstream << ", ";
         }
-        std::cout << it->first << "=" << it->second;
+        sstream << it->first << "=" << it->second;
     }
-    std::cout << std::endl;
+    return sstream.str();
+}
+
+void
+Lattice_element::print() const
+{
+    std::cout << as_string() << std::endl;
 }
 
 template<class Archive>
