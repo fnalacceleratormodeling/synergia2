@@ -1,6 +1,20 @@
 #include "chef_utils.h"
 #include <iostream>
+#include <sstream>
 #include "synergia/utils/floating_point.h"
+
+std::string
+chef_beamline_as_string(BmlPtr beamline_sptr)
+{
+    std::stringstream sstream;
+    for (beamline::const_iterator it = beamline_sptr->begin(); it
+            != beamline_sptr->end(); ++it) {
+        sstream << (*it)->Name() << "(" << (*it)->Type() << "): Length="
+                << (*it)->Length() << ", Strength=" << (*it)->Strength()
+                << std::endl;
+    }
+    return sstream.str();
+}
 
 void
 print_chef_beamline(BmlPtr beamline_sptr)

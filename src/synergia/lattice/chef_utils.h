@@ -6,6 +6,9 @@
 #include <beamline/JetParticle.h>
 #include "synergia/foundation/reference_particle.h"
 
+std::string
+chef_beamline_as_string(BmlPtr beamline_sptr);
+
 void
 print_chef_beamline(BmlPtr beamline_sptr);
 
