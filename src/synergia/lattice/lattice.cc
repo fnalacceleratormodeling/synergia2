@@ -1,6 +1,7 @@
 #include "lattice.h"
 
 #include <iostream>
+#include <sstream>
 #include <stdexcept>
 
 Lattice::Lattice() :
@@ -155,15 +156,25 @@ Lattice::get_total_angle() const
     return angle;
 }
 
+std::string
+Lattice::as_string() const
+{
+    std::stringstream sstream;
+    sstream << name << ":\n";
+    for (Lattice_elements::const_iterator it = elements.begin(); it
+            != elements.end(); ++it) {
+        sstream << (*it)->as_string();
+        sstream << std::endl;
+    }
+    return sstream.str();
+}
+
 void
 Lattice::print() const
 {
-    std::cout << name << ":\n";
-    for (Lattice_elements::const_iterator it = elements.begin(); it
-            != elements.end(); ++it) {
-        (*it)->print();
-    }
+    std::cout << as_string() << std::endl;
 }
+
 Lattice::~Lattice()
 {
     if (reference_particle_allocated) {

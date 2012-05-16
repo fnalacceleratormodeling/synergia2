@@ -98,6 +98,10 @@ public:
     double
     get_total_angle() const;
 
+    /// Return a human-readable summary of the elements in the Lattice.
+    std::string
+    as_string() const;
+
     /// Print a human-readable summary of the elements in the Lattice.
     /// The Python version of this function is named "print_".
     void
