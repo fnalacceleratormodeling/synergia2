@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <sstream>
 
 const double split_element_tolerance = 1.0e-9;
 
@@ -91,20 +92,28 @@ Lattice_element_slice::get_lattice_element()
     return *element_sptr;
 }
 
+std::string
+Lattice_element_slice::as_string() const
+{
+    std::stringstream sstream;
+    if (whole) {
+        sstream << "[begin,end] ";
+    } else if(left_edge) {
+        sstream << "[begin," << right << "] ";
+    } else if(right_edge) {
+        sstream << "[" << left << ",end] ";
+    } else {
+        sstream << "[" << left << "," << right << "] ";
+    }
+
+    sstream << element_sptr->as_string();
+    return sstream.str();
+}
+
 void
 Lattice_element_slice::print() const
 {
-    if (whole) {
-        std::cout << "[begin,end] ";
-    } else if(left_edge) {
-        std::cout << "[begin," << right << "] ";
-    } else if(right_edge) {
-        std::cout << "[" << left << ",end] ";
-    } else {
-        std::cout << "[" << left << "," << right << "] ";
-    }
-
-    element_sptr->print();
+    std::cout << as_string() << std::endl;
 }
 
 template<class Archive>

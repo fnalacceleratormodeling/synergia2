@@ -37,6 +37,8 @@ public:
     get_lattice_element() const;
     Lattice_element &
     get_lattice_element();
+    std::string
+    as_string() const;
     void
     print() const;
     template<class Archive>
