@@ -128,6 +128,8 @@ Chef_lattice::extract_element_slice_map(Lattice_element_slices const& slices)
             != sliced_beamline_sptr->end(); ++it) {
         sliced_beamline_iterators.at(index) = it;
         sliced_beamline_const_iterators.at(index) = cit;
+        std::cout << "jfa: sliced_beamline_const_iterators.at("
+                << index<<") = " << (*cit)->Name() << std::endl;
         if ((*it)->Name() == lattice_element_marker->Name()) {
             begin_end.end = index;
             element_slice_map[slice_it->get()] = begin_end;
