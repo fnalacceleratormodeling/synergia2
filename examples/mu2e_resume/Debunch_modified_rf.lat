@@ -191,6 +191,7 @@ dr67_b     : drift, l = 3.549659/2.0
 ! rf cavities
 lrf	 := 0.0     !0.8382
 vrf	 := 0.000
+!rf1      : drift, l = lrf
 rf1      : rfcavity, l = lrf, volt = 0.0, lag = 0.5, harmon = 4
 rf3      : drift, l = lrf
 rf5      : drift, l = lrf
