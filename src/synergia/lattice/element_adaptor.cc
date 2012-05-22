@@ -1173,6 +1173,11 @@ Multipole_mad8_adaptor::get_chef_elements(
 	  elm->setAlignment(aligner);
 	}
 	retval.push_back(elm);
+      } else {
+        std::stringstream element_name(stringstream::out);
+        element_name << lattice_element.get_name() << "_" << 2*moment+2 << "pole_marker";
+        ElmPtr elm = ElmPtr(new marker(element_name.str().c_str()));
+        retval.push_back(elm);
       }
     }
     // csp: temporally or permanently disabled this part to avoid confusion.
