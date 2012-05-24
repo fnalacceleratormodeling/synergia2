@@ -9,7 +9,7 @@ Distributed_fft3d::Distributed_fft3d(std::vector<int > const & shape,
         std::string const& wisdom_filename) :
     shape(shape), comm_sptr(comm_sptr), uppers(0), lengths(0)
 {
-    if (comm_sptr->get_size() / 2 >= shape[0] / 2) {
+    if (comm_sptr->get_size() / 2 > shape[0] / 2) {
         throw std::runtime_error(
                 "Distributed_fft3d: (number of processors)/2 must be <= shape[0]/2");
     }
