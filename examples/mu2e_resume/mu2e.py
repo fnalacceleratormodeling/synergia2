@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+import os
 import time
 import synergia
 import numpy
@@ -725,6 +726,17 @@ for element in orig_elements:
 synergia_elements = synergia_lattice.get_elements()
 synergia_lattice.set_reference_particle(orig_lattice.get_reference_particle())
 
+#index = 0
+#length = 0
+#for element in synergia_elements:
+#    index += 1
+#    name = element.get_name()
+#    type = element.get_type()
+#    length += element.get_length()
+#    if myrank == 0:
+#        print index, name, type, length
+#sys.exit(1)
+
 lattice_length = synergia_lattice.get_length()
 reference_particle = synergia_lattice.get_reference_particle()
 energy = reference_particle.get_total_energy()
@@ -984,16 +996,39 @@ if myrank == 0:
 t0 = time.time()
 propagator = synergia.simulation.Propagator(stepper)
 propagator.set_checkpoint_period(opts.checkpointperiod)
-propagator.set_checkpoint_with_xml(True)
-propagator.propagate(bunch_simulator, ramp_actions, num_turns, opts.max_turns, 
+#propagator.set_checkpoint_with_xml(True)
+#propagator.propagate(bunch_simulator, ramp_actions, num_turns, 
+#                opts.max_turns, opts.verbosity)
+propagator.propagate(bunch_simulator, ramp_actions, num_turns, ramp_turns,
                 opts.verbosity)
 t1 = time.time()
 
 lattice_diagnostics = synergia.lattice.Lattice_diagnostics(synergia_lattice,
+                "lattice_deposited_charge_turn100.h5", "deposited_charge")
+lattice_diagnostics.update_and_write()
+del lattice_diagnostics
+if myrank == 0:
+    os.system("mv log log.ramp")
+
+if myrank == 0:
+    print
+    print "Propagate setupole ramping finished"
+    print "Propagate time =", t1 - t0
+
+t2 = time.time()
+
+resume = synergia.simulation.Resume()
+content = resume.get_content()
+resume.propagate(True, opts.max_turns, False, opts.verbosity)
+
+t3 = time.time()
+
+lattice_diagnostics = synergia.lattice.Lattice_diagnostics(content.lattice,
                 "lattice_deposited_charge.h5", "deposited_charge")
 lattice_diagnostics.update_and_write()
 
 if myrank == 0:
     print
-    print "propagate time =", t1 - t0
+    print "Finish propagate turns"
+    print "Propagate time =", t3 - t2
 

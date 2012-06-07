@@ -7,7 +7,7 @@ opts = synergia_workflow.Options("mu2e")
 
 opts.add("seed", 3, "Pseudorandom number generator seed", int)
 opts.add("radius", 0.04171696, "aperture radius [m]", float)
-opts.add("real_particles", 3.0e12, "Number of real particles", float)
+opts.add("real_particles", 1.0e12, "Number of real particles", float)
 opts.add("macro_particles", 0, "Number of macro particles", int)
 opts.add("rampturns", 100, "sextupole ramping turns", int)
 opts.add("extraction_fraction", 7.0/8.0, "extraction fraction", float)
