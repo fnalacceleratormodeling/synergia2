@@ -30,12 +30,7 @@ class Ramp_actions(synergia.simulation.Propagate_actions, Pickle_helper):
         # sextupole ramping
         if turn_num <= self.ramp_turns:
             index = 0
-            length = 0
             for element in synergia_elements:
-                if (turn_num == 50 or turn_num == 51):
-                    length += element.get_length()
-                    if myrank == 0:
-                        print "%5d %10s %10g" % (turn_num, element.get_name(), length)
                 if element.get_type() == "multipole":
                     new_k2l = self.final_k2l[index] * turn_num / self.ramp_turns
                     element.set_double_attribute("k2l", new_k2l)
