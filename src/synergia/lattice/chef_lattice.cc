@@ -125,17 +125,10 @@ Chef_lattice::extract_element_slice_map(Lattice_element_slices const& slices)
     sliced_beamline_const_iterators.resize(size + 1);
     int index = 0;
     beamline::const_iterator cit = sliced_beamline_sptr->begin();
-    if (Commxx().get_rank() == 0) {
-        std::cout << "jfa: start sliced_beamline_const_iterators" << std::endl;
-    }
     for (beamline::iterator it = sliced_beamline_sptr->begin(); it
             != sliced_beamline_sptr->end(); ++it) {
         sliced_beamline_iterators.at(index) = it;
         sliced_beamline_const_iterators.at(index) = cit;
-        if (Commxx().get_rank() == 0) {
-            std::cout << "jfa: sliced_beamline_const_iterators.at(" << index
-                    << ") = " << (*cit)->Name() << std::endl;
-        }
         if ((*it)->Name() == lattice_element_marker->Name()) {
             begin_end.end = index;
             element_slice_map[slice_it->get()] = begin_end;
@@ -147,9 +140,6 @@ Chef_lattice::extract_element_slice_map(Lattice_element_slices const& slices)
     }
     sliced_beamline_iterators.at(index) = sliced_beamline_sptr->end();
     sliced_beamline_const_iterators.at(index) = sliced_beamline_sptr->end();
-    if (Commxx().get_rank() == 0) {
-        std::cout << "jfa: end sliced_beamline_const_iterators" << std::endl;
-    }
 }
 
 void

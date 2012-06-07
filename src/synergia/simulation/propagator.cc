@@ -147,7 +147,6 @@ void
 Propagator::propagate(State & state)
 {
     try {
-        //Logger logger(0, log_file_name);
         Logger logger(log_file_name);
         double t, t_total;
         double t_turn0, t_turn1;
@@ -222,21 +221,6 @@ Propagator::propagate(State & state)
             state.propagate_actions_ptr->turn_end_action(*stepper_sptr,
                     *bunch_sptr, turn);
             t = simple_timer_show(t, "propagate-general_actions-turn");
-            if (turn == state.first_turn) {
-                logger << "jfa start debug\n";
-                logger << "Synergia lattice:\n";
-                logger
-                        << stepper_sptr->get_lattice_simulator().get_lattice_sptr()->as_string()
-                        << std::endl;
-                logger << "CHEF sliced beamline:\n";
-                logger
-                        << chef_beamline_as_string(
-                                stepper_sptr->get_lattice_simulator().get_chef_lattice_sptr()->get_sliced_beamline_sptr())
-                        << std::endl;
-                logger << "jfa end debug\n";
-            } else {
-                logger << "jfa " << turn << " " << state.first_turn << std::endl;
-            }
             state.first_turn = turn + 1;
             t_turn1 = MPI_Wtime();
             if (state.verbosity > 0) {
