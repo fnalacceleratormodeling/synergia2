@@ -62,6 +62,7 @@ opts.add("gap", 0.014, "Septum wire gap (m)", float)
 
 #opts.add("spacecharge", True, "Use hockney 3d open space charge", bool)
 opts.add("spacecharge", "no_op", "Use hockney 3d open space charge", str) 
+opts.add("comm_avoid", False, "Communication avoidance for space charge solver", bool)
 
 opts.add("gridx", 32, "size of transverse grid for solver", int)
 opts.add("gridy", 32, "size of transverse grid for solver", int)

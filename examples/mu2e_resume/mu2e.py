@@ -938,11 +938,18 @@ bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
 if myrank == 0:
     print
     print "Set collective operator"
+
+if opts.comm_avoid:
+    collective_comm = synergia.utils.Commxx(True)
+else:
+    collective_comm = synergia.utils.Commxx()
+
 if solver == "3d" or solver == "3D":
     if myrank == 0:
         print "    using 3D Open Hockney space charge solver"
     space_charge = synergia.collective.Space_charge_3d_open_hockney(
                     bunch.get_comm(), grid, False)
+#                    collective_comm, grid, False)
     stepper = synergia.simulation.Split_operator_stepper(lattice_simulator,
                     space_charge, num_steps)
 elif solver == "2d" or solver == "2D":
