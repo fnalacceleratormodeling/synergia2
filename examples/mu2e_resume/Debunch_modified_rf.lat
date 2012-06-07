@@ -376,7 +376,6 @@ debunch2 : line = ( mstr, sextant62, marc, -sextant50, &
                     mstr, sextant40, marc, -sextant30, &
                     mstr, sextant20, marc, -sextant10, lambertson_line )
 
-test: line = (hqf1)
 !=============================================================================
 
 
