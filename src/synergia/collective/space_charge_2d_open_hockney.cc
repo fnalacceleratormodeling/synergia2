@@ -776,39 +776,40 @@ void
 Space_charge_2d_open_hockney::apply(Bunch & bunch, double time_step,
         Step & step, int verbosity, Logger & logger)
 {
-    int comm_compare;
-    MPI_Comm_compare(comm2_sptr->get(), bunch.get_comm().get(), &comm_compare); 
-    if ((comm_compare == MPI_UNEQUAL)
-            && (charge_density_comm != charge_allreduce)) {
-        throw std::runtime_error(
-                "Space_charge_2d_open_hockney: set_charge_density_comm(charge_allreduce) required when comm != bunch comm");
+    if (bunch.get_total_num() > 1) {
+        int comm_compare;
+        MPI_Comm_compare(comm2_sptr->get(), bunch.get_comm().get(), &comm_compare); 
+        if ((comm_compare == MPI_UNEQUAL)
+                && (charge_density_comm != charge_allreduce)) {
+            throw std::runtime_error(
+                    "Space_charge_2d_open_hockney: set_charge_density_comm(charge_allreduce) required when comm != bunch comm");
+        }
+        double t;
+        t = simple_timer_current();
+        bunch.convert_to_state(Bunch::fixed_t);
+        t = simple_timer_show(t, "sc-convert-to-state");
+        Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
+        t = simple_timer_show(t, "sc-get-local-rho");
+        Distributed_rectangular_grid_sptr rho2(
+                get_global_charge_density2(*local_rho, bunch.get_comm_sptr())); // [C/m^3]
+        local_rho.reset();
+        t = simple_timer_show(t, "sc-get-global-rho");
+        Distributed_rectangular_grid_sptr G2(get_green_fn2_pointlike());
+        t = simple_timer_show(t, "sc-get-green-fn");
+        Distributed_rectangular_grid_sptr local_force2(get_local_force2(*rho2,
+                *G2));        // [N]
+        G2.reset();
+        t = simple_timer_show(t, "sc-get-local_force");
+        Rectangular_grid_sptr Fn(get_global_electric_force2(*local_force2)); // [N]
+        local_force2.reset();
+        t = simple_timer_show(t, "sc-get-global-force");
+        bunch.periodic_sort(Bunch::z);
+        t = simple_timer_show(t, "sc-sort");
+        apply_kick(bunch, *rho2, *Fn, time_step);
+        rho2.reset();
+        Fn.reset();
+        t = simple_timer_show(t, "sc-apply-kick");
     }
-    double t;
-    t = simple_timer_current();
-    bunch.convert_to_state(Bunch::fixed_t);
-    t = simple_timer_show(t, "sc-convert-to-state");
-    Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
-    t = simple_timer_show(t, "sc-get-local-rho");
-    Distributed_rectangular_grid_sptr rho2(
-            get_global_charge_density2(*local_rho, bunch.get_comm_sptr())); // [C/m^3]
-    local_rho.reset();
-    t = simple_timer_show(t, "sc-get-global-rho");
-    Distributed_rectangular_grid_sptr G2(get_green_fn2_pointlike());
-    t = simple_timer_show(t, "sc-get-green-fn");
-    Distributed_rectangular_grid_sptr local_force2(get_local_force2(*rho2,
-            *G2));        // [N]
-    //rho2.reset();
-    G2.reset();
-    t = simple_timer_show(t, "sc-get-local_force");
-    Rectangular_grid_sptr Fn(get_global_electric_force2(*local_force2)); // [N]
-    local_force2.reset();
-    t = simple_timer_show(t, "sc-get-global-force");
-    bunch.periodic_sort(Bunch::z);
-    t = simple_timer_show(t, "sc-sort");
-    apply_kick(bunch, *rho2, *Fn, time_step);
-    rho2.reset();
-    Fn.reset();
-    t = simple_timer_show(t, "sc-apply-kick");
 }
 
 Space_charge_2d_open_hockney::~Space_charge_2d_open_hockney()
