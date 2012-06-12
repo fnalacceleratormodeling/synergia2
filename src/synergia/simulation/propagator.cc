@@ -147,7 +147,7 @@ void
 Propagator::propagate(State & state)
 {
     try {
-        Logger logger(log_file_name);
+        Logger logger(0, log_file_name);
         double t, t_total;
         double t_turn0, t_turn1;
 
