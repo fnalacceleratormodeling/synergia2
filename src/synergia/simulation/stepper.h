@@ -11,6 +11,9 @@
 
 class Stepper
 {
+public:
+    static const std::string force_diagnostics_attribute;
+
 private:
     Lattice_simulator lattice_simulator;
     Steps steps;

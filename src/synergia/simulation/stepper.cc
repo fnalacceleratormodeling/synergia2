@@ -3,6 +3,8 @@
 #include "synergia/bunch/bunch.h"
 #include <cmath>
 
+const std::string Stepper::force_diagnostics_attribute("force_diagnostics");
+
 Stepper::Stepper(Lattice_simulator const& lattice_simulator) :
     lattice_simulator(lattice_simulator)
 {
