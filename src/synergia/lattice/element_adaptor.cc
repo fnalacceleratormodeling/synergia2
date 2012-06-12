@@ -748,6 +748,8 @@ Quadrupole_mad8_adaptor::set_default_attributes(
             && !lattice_element.has_string_attribute("tilt")) {
         lattice_element.set_double_attribute("tilt", 0.0);
     }
+    set_double_default(lattice_element, "hoffset", 0.0);
+    set_double_default(lattice_element, "voffset", 0.0);
     // possible higher order multipole components
     set_double_default(lattice_element, "kl", 0.0); // base strength/B-rho
     set_double_default(lattice_element, "a1", 0.0); // skew quad
@@ -771,6 +773,7 @@ Quadrupole_mad8_adaptor::get_chef_elements(
         Lattice_element const& lattice_element, double brho)
 {
     double qtilt;
+
     Chef_elements retval;
 
     alignmentData aligner;
@@ -782,6 +785,9 @@ Quadrupole_mad8_adaptor::get_chef_elements(
     // thinpole strengths
     string a_attr_list[] = { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7"};
     string b_attr_list[] = { "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7"};
+
+    double xoffset = lattice_element.get_double_attribute("hoffset");
+    double yoffset = lattice_element.get_double_attribute("voffset");
 
     // a string attribute implies default pi/4
     if (lattice_element.has_string_attribute("tilt")) {
@@ -825,14 +831,20 @@ Quadrupole_mad8_adaptor::get_chef_elements(
       throw runtime_error("shouldn't use tilt and multipoles in same element");
     }
 
-    if (qtilt != 0.0) {
-        aligner.xOffset = 0.0;
-        aligner.yOffset = 0.0;
+    bool needs_aligner;
+    if ((qtilt != 0.0) || (xoffset != 0.0) || (yoffset != 0.0)) {
+	needs_aligner = true;
+        aligner.xOffset = xoffset;
+        aligner.yOffset = yoffset;
         aligner.tilt = qtilt;
-        bmln_elmnt->setAlignment(aligner);
+    } else {
+      needs_aligner = false;
     }
 
     if (!has_multipoles) {
+      if (needs_aligner) {
+        bmln_elmnt->setAlignment(aligner);
+      }
       ElmPtr elm(bmln_elmnt);
       retval.push_back(elm);
     } else {
@@ -847,9 +859,19 @@ Quadrupole_mad8_adaptor::get_chef_elements(
       ElmPtr qptr2;
       bmln_elmnt->Split(0.5, qptr1, qptr2);
 
+      if (needs_aligner) {
+	qptr1->setAlignment(aligner);
+      }
       retval.push_back(qptr1);
-      retval.push_back(ElmPtr(new ThinPole((lattice_element.get_name() + "_poles").c_str(),
-					   brkl, c_moments )));
+      bmlnElmnt* thinpoleptr = new ThinPole((lattice_element.get_name() + "_poles").c_str(),
+					    brkl, c_moments );
+      if (needs_aligner) {
+	thinpoleptr->setAlignment(aligner);
+      }
+      retval.push_back(ElmPtr(thinpoleptr));
+      if (needs_aligner) {
+	qptr2->setAlignment(aligner);
+      }
       retval.push_back(qptr2);
     }
 
