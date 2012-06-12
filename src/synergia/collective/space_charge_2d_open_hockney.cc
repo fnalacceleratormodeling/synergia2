@@ -201,6 +201,7 @@ Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
 {
     bool output = verbose && (comm2_sptr->get_rank() == 0);
     double t0, t1;
+    const int repetitions = 3;
 
     std::vector<double > size(3), offset(3);
     size[0] = size[1] = size[2] = 1.0;
@@ -214,15 +215,17 @@ Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_2d_open_hockney::auto_tune_comm: trying get_global_charge_density2_reduce_scatter\n";
     }
-    MPI_Barrier(comm2_sptr->get());
-    t0 = MPI_Wtime();
-    get_global_charge_density2_reduce_scatter(fake_local_charge_density,
-            comm2_sptr);
-    MPI_Barrier(comm2_sptr->get());
-    t1 = MPI_Wtime();
-    if (output) {
-        std::cout << "Space_charge_2d_open_hockney::auto_tune_comm: time = "
-                << t1 - t0 << " seconds\n";
+    for (int i = 0; i < repetitions; ++i) {
+        MPI_Barrier(comm2_sptr->get());
+        t0 = MPI_Wtime();
+        get_global_charge_density2_reduce_scatter(fake_local_charge_density,
+                comm2_sptr);
+        MPI_Barrier(comm2_sptr->get());
+        t1 = MPI_Wtime();
+        if (output) {
+            std::cout << "Space_charge_2d_open_hockney::auto_tune_comm: rep = "
+                    << i << ", time = " << t1 - t0 << " seconds\n";
+        }
     }
     double best_time = t1 - t0;
     charge_density_comm = reduce_scatter;
@@ -231,14 +234,17 @@ Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_2d_open_hockney::auto_tune_comm: trying get_global_charge_density2_allreduce\n";
     }
-    MPI_Barrier(comm2_sptr->get());
-    t0 = MPI_Wtime();
-    get_global_charge_density2_allreduce(fake_local_charge_density, comm2_sptr);
-    MPI_Barrier(comm2_sptr->get());
-    t1 = MPI_Wtime();
-    if (output) {
-        std::cout << "Space_charge_2d_open_hockney::auto_tune_comm: time = "
-                << t1 - t0 << " seconds\n";
+    for (int i = 0; i < repetitions; ++i) {
+        MPI_Barrier(comm2_sptr->get());
+        t0 = MPI_Wtime();
+        get_global_charge_density2_allreduce(fake_local_charge_density, 
+                comm2_sptr);
+        MPI_Barrier(comm2_sptr->get());
+        t1 = MPI_Wtime();
+        if (output) {
+            std::cout << "Space_charge_2d_open_hockney::auto_tune_comm: rep = "
+                    << i << ", time = " << t1 - t0 << " seconds\n";
+        }
     }
     if ((t1 - t0) < best_time) {
         charge_density_comm = charge_allreduce;
@@ -251,14 +257,16 @@ Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_2d_open_hockney::auto_tune_comm: trying get_global_electric_force2_gatherv_bcast\n";
     }
-    MPI_Barrier(comm2_sptr->get());
-    t0 = MPI_Wtime();
-    get_global_electric_force2_gatherv_bcast(fake_local_e_force);
-    MPI_Barrier(comm2_sptr->get());
-    t1 = MPI_Wtime();
-    if (output) {
-        std::cout << "Space_charge_2d_open_hockney::auto_tune_comm: time = "
-                << t1 - t0 << " seconds\n";
+    for (int i = 0; i < repetitions; ++i) {
+        MPI_Barrier(comm2_sptr->get());
+        t0 = MPI_Wtime();
+        get_global_electric_force2_gatherv_bcast(fake_local_e_force);
+        MPI_Barrier(comm2_sptr->get());
+        t1 = MPI_Wtime();
+        if (output) {
+            std::cout << "Space_charge_2d_open_hockney::auto_tune_comm: rep = "
+                    << i << ", time = " << t1 - t0 << " seconds\n";
+        }
     }
     best_time = t1 - t0;
     e_force_comm = gatherv_bcast;
@@ -267,14 +275,16 @@ Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_2d_open_hockney::auto_tune_comm: trying get_global_electric_force2_allgatherv\n";
     }
-    MPI_Barrier(comm2_sptr->get());
-    t0 = MPI_Wtime();
-    get_global_electric_force2_allgatherv(fake_local_e_force);
-    MPI_Barrier(comm2_sptr->get());
-    t1 = MPI_Wtime();
-    if (output) {
-        std::cout << "Space_charge_2d_open_hockney::auto_tune_comm: time = "
-                << t1 - t0 << " seconds\n";
+    for (int i = 0; i < repetitions; ++i) {
+        MPI_Barrier(comm2_sptr->get());
+        t0 = MPI_Wtime();
+        get_global_electric_force2_allgatherv(fake_local_e_force);
+        MPI_Barrier(comm2_sptr->get());
+        t1 = MPI_Wtime();
+        if (output) {
+            std::cout << "Space_charge_2d_open_hockney::auto_tune_comm: rep = "
+                    << i << ", time = " << t1 - t0 << " seconds\n";
+        }
     }
     if ((t1 - t0) < best_time) {
         best_time = t1 - t0;
@@ -285,14 +295,16 @@ Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
         std::cout
                 << "Space_charge_2d_open_hockney::auto_tune_comm: trying get_global_electric_force2_allreduce\n";
     }
-    MPI_Barrier(comm2_sptr->get());
-    t0 = MPI_Wtime();
-    get_global_electric_force2_allreduce(fake_local_e_force);
-    MPI_Barrier(comm2_sptr->get());
-    t1 = MPI_Wtime();
-    if (output) {
-        std::cout << "Space_charge_2d_open_hockney::auto_tune_comm: time = "
-                << t1 - t0 << " seconds\n";
+    for (int i = 0; i < repetitions; ++i) {
+        MPI_Barrier(comm2_sptr->get());
+        t0 = MPI_Wtime();
+        get_global_electric_force2_allreduce(fake_local_e_force);
+        MPI_Barrier(comm2_sptr->get());
+        t1 = MPI_Wtime();
+        if (output) {
+            std::cout << "Space_charge_2d_open_hockney::auto_tune_comm: rep = "
+                    << i << ", time = " << t1 - t0 << " seconds\n";
+        }
     }
     if ((t1 - t0) < best_time) {
         e_force_comm = e_force_allreduce;
