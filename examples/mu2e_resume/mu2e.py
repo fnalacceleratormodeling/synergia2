@@ -948,15 +948,14 @@ if solver == "3d" or solver == "3D":
     if myrank == 0:
         print "    using 3D Open Hockney space charge solver"
     space_charge = synergia.collective.Space_charge_3d_open_hockney(
-                    bunch.get_comm(), grid, False)
-#                    collective_comm, grid, False)
+                    collective_comm, grid, False)
     stepper = synergia.simulation.Split_operator_stepper(lattice_simulator,
                     space_charge, num_steps)
 elif solver == "2d" or solver == "2D":
     if myrank == 0:
         print "    using 2D Open Hockney space charge solver"
     space_charge = synergia.collective.Space_charge_2d_open_hockney(
-                    bunch.get_comm(), grid)
+                    collective_comm, grid, False)
     stepper = synergia.simulation.Split_operator_stepper(lattice_simulator,
                     space_charge, num_steps)
 else:
@@ -1019,7 +1018,7 @@ if myrank == 0:
 
 if myrank == 0:
     print
-    print "Propagate setupole ramping finished"
+    print "Propagate sextupole ramping finished"
     print "Propagate time =", t1 - t0
 
 t2 = time.time()
