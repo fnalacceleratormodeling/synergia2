@@ -361,7 +361,7 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_reduce_scatter)
     std::cout << "============================================" << std::endl;
 
     Distributed_rectangular_grid_sptr rho2 =
-            space_charge.get_global_charge_density2_reduce_scatter(*local_rho);
+            space_charge.get_global_charge_density2_reduce_scatter(*local_rho, comm_sptr);
     std::vector<int > doubled_shape(rho2->get_domain().get_grid_shape());
     BOOST_CHECK_EQUAL(doubled_grid_shape[0], doubled_shape[0]);
     BOOST_CHECK_EQUAL(doubled_grid_shape[1], doubled_shape[1]);
@@ -432,7 +432,7 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_allreduce)
         local_rho_orig->get_grid_points_1d()[k] = 11 * k;
     }
     Distributed_rectangular_grid_sptr rho2 =
-            space_charge.get_global_charge_density2_allreduce(*local_rho); // [C/m^3]
+            space_charge.get_global_charge_density2_allreduce(*local_rho, comm_sptr); // [C/m^3]
     std::vector<int > doubled_shape(rho2->get_domain().get_grid_shape());
     BOOST_CHECK_EQUAL(doubled_grid_shape[0], doubled_shape[0]);
     BOOST_CHECK_EQUAL(doubled_grid_shape[1], doubled_shape[1]);
@@ -499,7 +499,7 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_simple)
         local_rho_orig->get_grid_points_1d()[k] = 11 * k;
     }
     Distributed_rectangular_grid_sptr rho2 =
-            space_charge.get_global_charge_density2(*local_rho); // [C/m^3]
+            space_charge.get_global_charge_density2(*local_rho, comm_sptr); // [C/m^3]
     std::vector<int > doubled_shape(rho2->get_domain().get_grid_shape());
     BOOST_CHECK_EQUAL(doubled_grid_shape[0], doubled_shape[0]);
     BOOST_CHECK_EQUAL(doubled_grid_shape[1], doubled_shape[1]);
@@ -641,7 +641,7 @@ BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
     double avg_y_kick2 = total_y_kick2 / bunch.get_local_num();
     double avg_p_kick2 = total_p_kick2 / bunch.get_local_num();
 
-    const double rough_tolerance = 10.0;
+    const double rough_tolerance = 20.0;
     BOOST_CHECK_CLOSE(avg_x_kick2, 5.2e6, rough_tolerance);
     BOOST_CHECK_CLOSE(avg_y_kick2, 5.2e6, rough_tolerance);
     BOOST_CHECK_CLOSE(avg_p_kick2, 3.65e-2, rough_tolerance);

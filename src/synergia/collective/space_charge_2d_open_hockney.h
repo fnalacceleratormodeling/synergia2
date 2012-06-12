@@ -97,17 +97,18 @@ public:
     /// Returns global charge density on doubled grid in [C/m^3]
     Distributed_rectangular_grid_sptr
     get_global_charge_density2_reduce_scatter(
-            Rectangular_grid const& local_charge_density);
+            Rectangular_grid const& local_charge_density, Commxx_sptr comm_sptr);
     /// Returns global charge density on doubled grid in [C/m^3]
     Distributed_rectangular_grid_sptr
     get_global_charge_density2_allreduce(
-            Rectangular_grid const& local_charge_density);
+            Rectangular_grid const& local_charge_density, Commxx_sptr comm_sptr);
     /// Returns local charge density on doubled grid in [C/m^3]
     Rectangular_grid_sptr
     get_local_charge_density(Bunch const& bunch);
     /// Returns global charge density on doubled grid in [C/m^3]
     Distributed_rectangular_grid_sptr
-    get_global_charge_density2(Rectangular_grid const& local_charge_density);
+    get_global_charge_density2(Rectangular_grid const& local_charge_density,
+            Commxx_sptr comm_sptr);
     /// Returns Green function on the doubled grid in [1/m^3]
     Distributed_rectangular_grid_sptr
     get_green_fn2_pointlike();

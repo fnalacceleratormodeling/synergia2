@@ -29,7 +29,7 @@ get_gaussian_rho2(Space_charge_2d_open_hockney & space_charge, Bunch & bunch,
             bunch); // [C/m^3]
 
     Distributed_rectangular_grid_sptr rho2 =
-            space_charge.get_global_charge_density2(*local_rho); // [C/m^3]
+            space_charge.get_global_charge_density2(*local_rho, bunch.get_comm_sptr()); // [C/m^3]
     std::vector<int > doubled_shape(rho2->get_domain().get_grid_shape());
     for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_shape[1]; ++j) {
@@ -166,7 +166,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles, Spherical_bunch_fixture_2d)
     Rectangular_grid_sptr local_rho(
             space_charge.get_local_charge_density(bunch)); // [C/m^3]
     Distributed_rectangular_grid_sptr rho2 =
-            space_charge.get_global_charge_density2(*local_rho); // [C/m^3]
+            space_charge.get_global_charge_density2(*local_rho, comm_sptr); // [C/m^3]
     Distributed_rectangular_grid_sptr
             G2(space_charge.get_green_fn2_pointlike()); // [1/m]
     Distributed_rectangular_grid_sptr local_force2(
@@ -405,7 +405,7 @@ BOOST_FIXTURE_TEST_CASE(get_global_force2, Spherical_bunch_fixture_2d)
     Rectangular_grid_sptr local_rho(
             space_charge.get_local_charge_density(bunch)); // [C/m^3]
     Distributed_rectangular_grid_sptr rho2 =
-            space_charge.get_global_charge_density2(*local_rho); // [C/m^3]
+            space_charge.get_global_charge_density2(*local_rho, comm_sptr); // [C/m^3]
     Distributed_rectangular_grid_sptr
             G2(space_charge.get_green_fn2_pointlike()); // [1/m]
     Distributed_rectangular_grid_sptr local_force2(
