@@ -27,6 +27,7 @@ opts.add("map_order", 2, "Map order", int)
 opts.add("emit", 1e-6, "Horizontal and vertical emittance [m rad]", float)
 opts.add("stdz", 0.01, "RMS longitudinal length [m]", float)
 opts.add("dpop", 1e-4, "delta p / p", float)
+opts.add("xoffset", 0.0, "x offset", float)
 
 job_mgr = synergia_workflow.Job_manager("fodo.py", opts, ["fodo.lat"])
 
