@@ -75,7 +75,7 @@ Space_charge_2d_open_hockney::setup_default_options()
 Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(Commxx_sptr comm_sptr,
         std::vector<int > const & grid_shape, bool periodic_z, double z_period,
         bool grid_entire_period, double n_sigma) :
-    Collective_operator("space charge 3D open hockney"), comm2_sptr(comm_sptr),
+    Collective_operator("space charge 2D open hockney"), comm2_sptr(comm_sptr),
             grid_shape(3), doubled_grid_shape(3), periodic_z(periodic_z),
             z_period(z_period), grid_entire_period(grid_entire_period),
             n_sigma(n_sigma), domain_fixed(false), have_domains(false)
@@ -90,8 +90,8 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(Commxx_sptr comm_sptr
         doubled_grid_shape[i] = 2 * this->grid_shape[i];
     }
     doubled_grid_shape[2] = this->grid_shape[2];
-    distributed_fft2d_sptr = Distributed_fft2d_sptr(new Distributed_fft2d(
-            doubled_grid_shape, comm_sptr));
+    distributed_fft2d_sptr = Distributed_fft2d_sptr(
+            new Distributed_fft2d(doubled_grid_shape, comm_sptr));
     setup_nondoubled_communication();
     setup_default_options();
 }
@@ -216,7 +216,8 @@ Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
     }
     MPI_Barrier(comm2_sptr->get());
     t0 = MPI_Wtime();
-    get_global_charge_density2_reduce_scatter(fake_local_charge_density);
+    get_global_charge_density2_reduce_scatter(fake_local_charge_density,
+            comm2_sptr);
     MPI_Barrier(comm2_sptr->get());
     t1 = MPI_Wtime();
     if (output) {
@@ -232,7 +233,7 @@ Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
     }
     MPI_Barrier(comm2_sptr->get());
     t0 = MPI_Wtime();
-    get_global_charge_density2_allreduce(fake_local_charge_density);
+    get_global_charge_density2_allreduce(fake_local_charge_density, comm2_sptr);
     MPI_Barrier(comm2_sptr->get());
     t1 = MPI_Wtime();
     if (output) {
@@ -246,7 +247,6 @@ Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
     Distributed_rectangular_grid fake_local_e_force(doubled_domain_sptr,
             doubled_lower, doubled_upper, comm2_sptr);
 
-#if 1
     if (output) {
         std::cout
                 << "Space_charge_2d_open_hockney::auto_tune_comm: trying get_global_electric_force2_gatherv_bcast\n";
@@ -262,7 +262,6 @@ Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
     }
     best_time = t1 - t0;
     e_force_comm = gatherv_bcast;
-#endif
 
     if (output) {
         std::cout
@@ -406,7 +405,7 @@ Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
 
 Distributed_rectangular_grid_sptr
 Space_charge_2d_open_hockney::get_global_charge_density2_reduce_scatter(
-        Rectangular_grid const& local_charge_density)
+        Rectangular_grid const& local_charge_density, Commxx_sptr comm_sptr)
 {
     // jfa: here is where we do something complicated, but (potentially) efficient
     // in calculating a version of the charge density that is just global enough
@@ -422,12 +421,12 @@ Space_charge_2d_open_hockney::get_global_charge_density2_reduce_scatter(
             doubled_upper)][doubled_grid_shape[1]]);
     dest_2dc = multi_array_offset(dest_array_2dc, doubled_lower, 0);
     int error_2dc = MPI_Reduce_scatter((void *) source_2dc, (void *) dest_2dc,
-            &real_lengths[0], MPI_DOUBLE_COMPLEX, MPI_SUM, comm2_sptr->get());
+            &real_lengths[0], MPI_DOUBLE_COMPLEX, MPI_SUM, comm_sptr->get());
 
     int error_1d = MPI_Allreduce(MPI_IN_PLACE,
             (void*) local_charge_density.get_grid_points_1d().origin(),
             local_charge_density.get_grid_points_1d().num_elements(),
-            MPI_DOUBLE, MPI_SUM, comm2_sptr->get());
+            MPI_DOUBLE, MPI_SUM, comm_sptr->get());
 #if 0
     const double * source_1d
             = local_charge_density.get_grid_points_1d().origin();
@@ -446,7 +445,8 @@ Space_charge_2d_open_hockney::get_global_charge_density2_reduce_scatter(
     }
     Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr,
-                    doubled_lower, doubled_upper, doubled_grid_shape, comm2_sptr));
+                    doubled_lower, doubled_upper, doubled_grid_shape, 
+                    comm_sptr));
     for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
             rho2->get_grid_points_2dc()[i][j] = dest_array_2dc[i][j];
@@ -463,16 +463,16 @@ Space_charge_2d_open_hockney::get_global_charge_density2_reduce_scatter(
 
 Distributed_rectangular_grid_sptr
 Space_charge_2d_open_hockney::get_global_charge_density2_allreduce(
-        Rectangular_grid const& local_charge_density)
+        Rectangular_grid const& local_charge_density, Commxx_sptr comm_sptr)
 {
     int error_2d = MPI_Allreduce(MPI_IN_PLACE,
             (void*) local_charge_density.get_grid_points_2dc().origin(),
             local_charge_density.get_grid_points_2dc().num_elements(),
-            MPI_DOUBLE_COMPLEX, MPI_SUM, comm2_sptr->get());
+            MPI_DOUBLE_COMPLEX, MPI_SUM, comm_sptr->get());
     int error_1d = MPI_Allreduce(MPI_IN_PLACE,
             (void*) local_charge_density.get_grid_points_1d().origin(),
             local_charge_density.get_grid_points_1d().num_elements(),
-            MPI_DOUBLE, MPI_SUM, comm2_sptr->get());
+            MPI_DOUBLE, MPI_SUM, comm_sptr->get());
 
     if ((error_2d != MPI_SUCCESS) || (error_1d != MPI_SUCCESS)) {
         throw std::runtime_error(
@@ -480,7 +480,8 @@ Space_charge_2d_open_hockney::get_global_charge_density2_allreduce(
     }
     Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr,
-                    doubled_lower, doubled_upper, doubled_grid_shape, comm2_sptr));
+                    doubled_lower, doubled_upper, doubled_grid_shape, 
+                    comm_sptr));
     for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
             rho2->get_grid_points_2dc()[i][j]
@@ -498,13 +499,15 @@ Space_charge_2d_open_hockney::get_global_charge_density2_allreduce(
 
 Distributed_rectangular_grid_sptr
 Space_charge_2d_open_hockney::get_global_charge_density2(
-        Rectangular_grid const& local_charge_density)
+        Rectangular_grid const& local_charge_density, Commxx_sptr comm_sptr)
 {
     switch (charge_density_comm) {
     case reduce_scatter:
-        return get_global_charge_density2_reduce_scatter(local_charge_density);
+        return get_global_charge_density2_reduce_scatter(local_charge_density,
+                comm_sptr);
     case charge_allreduce:
-        return get_global_charge_density2_allreduce(local_charge_density);
+        return get_global_charge_density2_allreduce(local_charge_density, 
+                comm_sptr);
     default:
         throw runtime_error(
                 "Space_charge_2d_open_hockney: invalid charge_density_comm");
@@ -773,14 +776,21 @@ void
 Space_charge_2d_open_hockney::apply(Bunch & bunch, double time_step,
         Step & step, int verbosity, Logger & logger)
 {
+    int comm_compare;
+    MPI_Comm_compare(comm2_sptr->get(), bunch.get_comm().get(), &comm_compare); 
+    if ((comm_compare == MPI_UNEQUAL)
+            && (charge_density_comm != charge_allreduce)) {
+        throw std::runtime_error(
+                "Space_charge_2d_open_hockney: set_charge_density_comm(charge_allreduce) required when comm != bunch comm");
+    }
     double t;
     t = simple_timer_current();
     bunch.convert_to_state(Bunch::fixed_t);
     t = simple_timer_show(t, "sc-convert-to-state");
     Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
     t = simple_timer_show(t, "sc-get-local-rho");
-    Distributed_rectangular_grid_sptr rho2(get_global_charge_density2(
-            *local_rho)); // [C/m^3]
+    Distributed_rectangular_grid_sptr rho2(
+            get_global_charge_density2(*local_rho, bunch.get_comm_sptr())); // [C/m^3]
     local_rho.reset();
     t = simple_timer_show(t, "sc-get-global-rho");
     Distributed_rectangular_grid_sptr G2(get_green_fn2_pointlike());
