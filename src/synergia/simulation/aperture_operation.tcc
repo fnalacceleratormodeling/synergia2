@@ -129,31 +129,39 @@ Finite_aperture_operation::operator()(MArray2d_ref & particles, int part)
 inline bool
 Circular_aperture_operation::operator()(MArray2d_ref & particles, int part)
 {
-    double r2 = particles[part][Bunch::x] * particles[part][Bunch::x]
-            + particles[part][Bunch::y] * particles[part][Bunch::y];
+    double xrel = particles[part][Bunch::x] - get_x_offset();
+    double yrel = particles[part][Bunch::y] - get_y_offset();
+
+    double r2 = xrel * xrel + yrel * yrel;
     return (r2 > radius2);
 }
 
 inline bool
 Elliptical_aperture_operation::operator()(MArray2d_ref & particles, int part)
 {
-    double scaled_r2 = particles[part][Bunch::x] * particles[part][Bunch::x]
-            / h2 + particles[part][Bunch::y] * particles[part][Bunch::y] / v2;
+    double xrel = particles[part][Bunch::x] - get_x_offset();
+    double yrel = particles[part][Bunch::y] - get_y_offset();
+
+    double scaled_r2 = xrel * xrel / h2 + yrel * yrel / v2;
     return (scaled_r2 > 1.0);
 }
 
 inline bool
 Rectangular_aperture_operation::operator()(MArray2d_ref & particles, int part)
 {
-    return ((std::abs(particles[part][Bunch::x]) > 0.5 * width) || (std::abs(
-            particles[part][Bunch::y]) > 0.5 * height));
+    double xrel = particles[part][Bunch::x] - get_x_offset();
+    double yrel = particles[part][Bunch::y] - get_y_offset();
+
+    return ((std::abs(xrel) > 0.5 * width) || (std::abs(yrel) > 0.5 * height));
 }
 
 inline bool
 Polygon_aperture_operation::operator()(MArray2d_ref & particles, int part)
 {
-    std::complex<double > u(particles[part][Bunch::x],
-            particles[part][Bunch::y]);
+    double xrel = particles[part][Bunch::x] - get_x_offset();
+    double yrel = particles[part][Bunch::y] - get_y_offset();
+
+    std::complex<double > u(xrel, yrel);
     int index = 0;
     int size = vertices.size();
     double theta_sum = 0.0;
@@ -174,16 +182,17 @@ inline bool
 Wire_elliptical_aperture_operation::operator()(MArray2d_ref & particles,
         int part)
 {
-    double x = particles[part][Bunch::x];
-    double y = particles[part][Bunch::y];
-    double scaled_r2 = x * x / h2 + y * y / v2;
+    double xrel = particles[part][Bunch::x] - get_x_offset();
+    double yrel = particles[part][Bunch::y] - get_y_offset();
+
+    double scaled_r2 = xrel * xrel / h2 + yrel * yrel / v2;
     bool retval;
     if (wire_x > 0.0) {
-        retval = (scaled_r2 > 1.0) || ((x >= wire_x)
-            && (x <= wire_x + wire_width)) || (x >= wire_x + wire_width + gap);
+        retval = (scaled_r2 > 1.0) || ((xrel >= wire_x)
+            && (xrel <= wire_x + wire_width)) || (xrel >= wire_x + wire_width + gap);
     } else if (wire_x < 0.0) {
-        retval = (scaled_r2 > 1.0) || ((x <= wire_x)
-            && (x >= wire_x - wire_width)) || (x <= wire_x - wire_width - gap);
+        retval = (scaled_r2 > 1.0) || ((xrel <= wire_x)
+            && (xrel >= wire_x - wire_width)) || (xrel <= wire_x - wire_width - gap);
     } else {
         throw std::runtime_error(
                 "wire_elliptical_aperture_operation: wire_x and gap should not be zero");
@@ -194,11 +203,13 @@ Wire_elliptical_aperture_operation::operator()(MArray2d_ref & particles,
 inline bool
 Lambertson_aperture_operation::operator()(MArray2d_ref & particles, int part)
 {
+    double xrel = particles[part][Bunch::x] - get_x_offset();
+
     bool retval;
     if (radius > 0.0) {
-        retval = (particles[part][Bunch::x] >= radius);
+        retval = (xrel >= radius);
     } else if (radius < 0.0) {
-        retval = (particles[part][Bunch::x] <= radius);
+        retval = (xrel <= radius);
     } else {
         throw std::runtime_error(
                 "lambertson_aperture_operation: lambertson_aperture_radius should not be zero");

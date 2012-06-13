@@ -9,6 +9,16 @@ const char Aperture_operation::charge_attribute[] = "deposited_charge";
 Aperture_operation::Aperture_operation(Lattice_element_slice_sptr slice_sptr) :
     Independent_operation("aperture"), slice_sptr(slice_sptr)
 {
+    if (slice_sptr->get_lattice_element().has_double_attribute("hoffset")) {
+        x_offset = slice_sptr->get_lattice_element().get_double_attribute("hoffset");
+    } else {
+        x_offset = 0.0;
+    }
+    if (slice_sptr->get_lattice_element().has_double_attribute("voffset")) {
+        y_offset = slice_sptr->get_lattice_element().get_double_attribute("voffset");
+    } else {
+        y_offset = 0.0;
+    }
 }
 
 Aperture_operation::Aperture_operation() :
