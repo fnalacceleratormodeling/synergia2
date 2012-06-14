@@ -1,5 +1,6 @@
 #include "stepper.h"
 #include "synergia/utils/floating_point.h"
+#include "synergia/utils/string_utils.h"
 #include "synergia/bunch/bunch.h"
 #include <cmath>
 
@@ -102,8 +103,10 @@ Independent_operator_sptr
 Stepper::get_fixed_step(std::string const& name,
         Lattice_elements::iterator & lattice_it, double & left,
         Lattice_elements::iterator const & lattice_end,
-        const double step_length, double & offset_fudge)
+        const double step_length, double & offset_fudge,
+        bool end_on_force_diagnostics)
 {
+//    std::cout << "jfa: start at " << (void *) lattice_it << std::endl;
     Independent_operator_sptr
             retval(
                     new Independent_operator(
@@ -123,6 +126,17 @@ Stepper::get_fixed_step(std::string const& name,
             length += (right - left);
             ++lattice_it;
             left = 0.0;
+            std::cout << "jfa: length = " << length << ", step_length = "
+                    << step_length << std::endl;
+            if (end_on_force_diagnostics && slice->has_right_edge()
+                    && (*lattice_it)->has_string_attribute(
+                            force_diagnostics_attribute)) {
+                if (!false_string(
+                        (*lattice_it)->get_string_attribute(
+                                force_diagnostics_attribute))) {
+                    complete = true;
+                }
+            }
             if (floating_point_equal(length, step_length, tolerance)) {
                 if ((lattice_it == lattice_end) || ((*lattice_it)->get_length()
                         != 0.0)) {
@@ -158,6 +172,7 @@ Stepper::get_fixed_step(std::string const& name,
         }
     }
     offset_fudge = length - step_length;
+    std::cout << "jfa: end get_fixed_step\n";
     return retval;
 }
 
@@ -201,11 +216,67 @@ Independent_stepper::Independent_stepper(
     double left = 0.0;
     double offset_fudge = 0.0;
     for (int i = 0; i < num_steps; ++i) {
-        Step_sptr step(new Step(step_length));
-        step->append(
-                Stepper::get_fixed_step("step", lattice_it, left, lattice_end, step_length,
-                        offset_fudge), 1.0);
-        get_steps().push_back(step);
+        Lattice_elements::iterator substep_lattice_it = lattice_it;
+        double substep_left = left;
+        double substep_offset_fudge = offset_fudge;
+
+        Independent_operator_sptr full_step_op_sptr(
+                Stepper::get_fixed_step("step", lattice_it, left, lattice_end,
+                        step_length, offset_fudge, false));
+
+        double substep_length = 0.0;
+        double all_substeps_length = 0.0;
+        bool found_force = false;
+        for (Lattice_element_slices::const_iterator it =
+                full_step_op_sptr->get_slices().begin();
+                it != full_step_op_sptr->get_slices().end(); ++it) {
+            substep_length += (*it)->get_right() - (*it)->get_left();
+            // jfa: I don't know of a simpler way to skip the last element of a
+            //      container
+            Lattice_element_slices::const_iterator tmp_it(it);
+            ++tmp_it;
+            if (tmp_it != full_step_op_sptr->get_slices().end()) {
+                if ((*it)->has_right_edge()
+                        && (*it)->get_lattice_element().has_string_attribute(
+                                Stepper::force_diagnostics_attribute)) {
+                    if (!false_string(
+                            (*it)->get_lattice_element().get_string_attribute(
+                                    Stepper::force_diagnostics_attribute))) {
+                        //jfa is here
+                        found_force = true;
+                        all_substeps_length += substep_length;
+                        std::cout << "jfa: get substep\n";
+                        Independent_operator_sptr substep_op_sptr(
+                                Stepper::get_fixed_step("step",
+                                        substep_lattice_it, substep_left,
+                                        lattice_end, substep_length,
+                                        substep_offset_fudge, true));
+                        Step_sptr substep(new Step(substep_length));
+                        get_steps().push_back(substep);
+                        substep_length = 0.0;
+                    }
+                }
+            } else {
+                if (found_force) {
+                    double remain_length = step_length - all_substeps_length;
+                    Independent_operator_sptr remain_op_sptr(
+                            Stepper::get_fixed_step("step", substep_lattice_it,
+                                    substep_left, lattice_end, remain_length,
+                                    substep_offset_fudge, false));
+                    Step_sptr remain_step(new Step(remain_length));
+                    get_steps().push_back(remain_step);
+                    if (substep_lattice_it != lattice_it) {
+                        throw(std::runtime_error(
+                                "internal error: Independent_stepper created an inconsistent force_diagnostics step"));
+                    }
+                }
+            }
+        }
+        if (!found_force) {
+            Step_sptr step(new Step(step_length));
+            step->append(full_step_op_sptr, 1.0);
+            get_steps().push_back(step);
+        }
     }
     if (lattice_it != lattice_end) {
         throw(std::runtime_error(
@@ -364,7 +435,7 @@ Split_operator_stepper::construct(
         Step_sptr step(new Step(step_length));
         step->append(
                  Stepper::get_fixed_step("first_half", lattice_it, left, lattice_end,
-                        half_step_length, offset_fudge), 0.5);
+                        half_step_length, offset_fudge, false), 0.5);
         for (Collective_operators::const_iterator coll_op_it =
                 collective_operators.begin(); coll_op_it
                 != collective_operators.end(); ++coll_op_it) {
@@ -372,7 +443,7 @@ Split_operator_stepper::construct(
         }
         step->append(
                 Stepper::get_fixed_step("second_half", lattice_it, left, lattice_end,
-                        half_step_length, offset_fudge), 0.5);
+                        half_step_length, offset_fudge, false), 0.5);
         get_steps().push_back(step);
     }
     if (lattice_it != lattice_end) {
@@ -760,7 +831,7 @@ make_stepper_else(Lattice_elements::iterator const& begin, Lattice_elements::ite
         Step_sptr step(new Step(step_length));
         step->append(
                 Stepper::get_fixed_step("first_half_else", lattice_it, left, end,
-                       half_step_length, offset_fudge), 0.5);
+                       half_step_length, offset_fudge, false), 0.5);
 
 
 
@@ -771,7 +842,7 @@ make_stepper_else(Lattice_elements::iterator const& begin, Lattice_elements::ite
         }
         step->append(
                 Stepper::get_fixed_step("second_half_else", lattice_it, left, end,
-                        half_step_length, offset_fudge), 0.5);
+                        half_step_length, offset_fudge, false), 0.5);
         get_steps().push_back(step);
     }
     if (lattice_it != end) {
