@@ -124,8 +124,6 @@ Stepper::get_fixed_step(std::string const& name,
                     new Lattice_element_slice(*lattice_it, left, right));
             retval->append_slice(slice);
             length += (right - left);
-            ++lattice_it;
-            left = 0.0;
             std::cout << "jfa: length = " << length << ", step_length = "
                     << step_length << std::endl;
             if (end_on_force_diagnostics && slice->has_right_edge()
@@ -137,6 +135,8 @@ Stepper::get_fixed_step(std::string const& name,
                     complete = true;
                 }
             }
+            ++lattice_it;
+            left = 0.0;
             if (floating_point_equal(length, step_length, tolerance)) {
                 if ((lattice_it == lattice_end) || ((*lattice_it)->get_length()
                         != 0.0)) {
@@ -239,10 +239,11 @@ Independent_stepper::Independent_stepper(
                 if ((*it)->has_right_edge()
                         && (*it)->get_lattice_element().has_string_attribute(
                                 Stepper::force_diagnostics_attribute)) {
+                    std::cout << "jfa:checking value of force_diagnostics_attribute\n";
                     if (!false_string(
                             (*it)->get_lattice_element().get_string_attribute(
                                     Stepper::force_diagnostics_attribute))) {
-                        //jfa is here
+                        std::cout << "jfa: not false!\n";
                         found_force = true;
                         all_substeps_length += substep_length;
                         std::cout << "jfa: get substep\n";
@@ -251,8 +252,9 @@ Independent_stepper::Independent_stepper(
                                         substep_lattice_it, substep_left,
                                         lattice_end, substep_length,
                                         substep_offset_fudge, true));
-                        Step_sptr substep(new Step(substep_length));
-                        get_steps().push_back(substep);
+                        Step_sptr substep_sptr(new Step(substep_length));
+                        substep_sptr->append(substep_op_sptr, 1.0);
+                        get_steps().push_back(substep_sptr);
                         substep_length = 0.0;
                     }
                 }
@@ -263,8 +265,9 @@ Independent_stepper::Independent_stepper(
                             Stepper::get_fixed_step("step", substep_lattice_it,
                                     substep_left, lattice_end, remain_length,
                                     substep_offset_fudge, false));
-                    Step_sptr remain_step(new Step(remain_length));
-                    get_steps().push_back(remain_step);
+                    Step_sptr remain_step_sptr(new Step(remain_length));
+                    remain_step_sptr->append(remain_op_sptr, 1.0);
+                    get_steps().push_back(remain_step_sptr);
                     if (substep_lattice_it != lattice_it) {
                         throw(std::runtime_error(
                                 "internal error: Independent_stepper created an inconsistent force_diagnostics step"));
@@ -273,9 +276,9 @@ Independent_stepper::Independent_stepper(
             }
         }
         if (!found_force) {
-            Step_sptr step(new Step(step_length));
-            step->append(full_step_op_sptr, 1.0);
-            get_steps().push_back(step);
+            Step_sptr step_sptr(new Step(step_length));
+            step_sptr->append(full_step_op_sptr, 1.0);
+            get_steps().push_back(step_sptr);
         }
     }
     if (lattice_it != lattice_end) {
