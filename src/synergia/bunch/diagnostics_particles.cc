@@ -32,7 +32,6 @@ write_selected_particles(Hdf5_chunked_array2d_writer & writer,
         MArray2d_ref const & particles, int local_num, int min_particle_id,
         int max_particle_id)
 {
-
     if ((min_particle_id == 0) && (max_particle_id == 0)) {
         writer.write_chunk(
                 particles[boost::indices[range(0, local_num)][range()]]);
@@ -155,6 +154,7 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
         ar & BOOST_SERIALIZATION_NVP(have_writers);
+        ar & BOOST_SERIALIZATION_NVP(min_particle_id);
         ar & BOOST_SERIALIZATION_NVP(max_particle_id);
     }
 
