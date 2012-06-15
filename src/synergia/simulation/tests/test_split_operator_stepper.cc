@@ -2,6 +2,7 @@
 #include <boost/test/unit_test.hpp>
 #include "synergia/simulation/stepper.h"
 #include "synergia/foundation/physical_constants.h"
+#include "synergia/utils/string_utils.h"
 #include "lattice_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
@@ -152,6 +153,109 @@ BOOST_FIXTURE_TEST_CASE(verify_steps7, Lattice_fixture)
 
     Split_operator_stepper stepper(lattice_simulator, space_charge, 7);
     verify_steps(stepper, *lattice_sptr, 7);
+}
+
+const double forced_diagnostics_tolerance = 1.0e-12;
+
+void
+verify_forced_diagnostics(Split_operator_stepper & stepper,
+        std::string const& forced_name, Lattice_sptr lattice_sptr)
+{
+    std::cout << "jfa: start verify_forced_diagnostics, forced_name = " << forced_name << std::endl;
+    double total_length = 0.0;
+    double total_right_edges = 0;
+    int step_num = 0;
+    for (Steps::const_iterator it = stepper.get_steps().begin();
+            it != stepper.get_steps().end(); ++it) {
+        ++step_num;
+        std::cout << "jfa: step_length = " << (*it)->get_length() << ": ";
+        (*it)->print(step_num); // jfa deleteme
+        double step_length = (*it)->get_length();
+        if (step_length > 0.0) {
+            BOOST_CHECK(step_length > Stepper::fixed_step_tolerance);
+        }
+        total_length += step_length;
+        int forced_element_end_count = 0;
+        int first_half_count = 0;
+        int second_half_count = 0;
+        bool last_right_edge = false;
+        std::string last_name;
+        for (Operators::iterator oit = (*it)->get_operators().begin();
+                oit != (*it)->get_operators().end(); ++oit) {
+            bool in_first_half = false;
+            bool in_second_half = false;
+            if ((*oit)->get_name() == "first_half") {
+                ++first_half_count;
+                in_first_half = true;
+            } else if ((*oit)->get_name() == "second_half") {
+                ++second_half_count;
+                in_second_half = true;
+            }
+            if (in_first_half || in_second_half) {
+                Lattice_element_slices slices(
+                        boost::static_pointer_cast<Independent_operator >(*oit)->get_slices());
+                for (Lattice_element_slices::iterator slit = slices.begin();
+                        slit != slices.end(); ++slit) {
+                    if ((*slit)->has_right_edge()) {
+                        ++total_right_edges;
+                    }
+                    last_right_edge = (*slit)->has_right_edge();
+                    last_name = (*slit)->get_lattice_element().get_name();
+                    if ((*slit)->has_right_edge()
+                            && (*slit)->get_lattice_element().has_string_attribute(
+                                    Stepper::force_diagnostics_attribute)) {
+                        if (!false_string(
+                                (*slit)->get_lattice_element().get_string_attribute(
+                                        Stepper::force_diagnostics_attribute))) {
+                            forced_element_end_count += 1;
+                        }
+                    }
+                }
+            }
+            if (in_first_half) {
+                BOOST_CHECK(forced_element_end_count == 0);
+            }
+        }
+        BOOST_CHECK(first_half_count == 1);
+        BOOST_CHECK(second_half_count == 1);
+        BOOST_CHECK(forced_element_end_count < 2);
+        if (forced_element_end_count == 1) {
+            BOOST_CHECK(last_right_edge);
+            BOOST_CHECK(last_name == forced_name);
+        }
+    }
+    BOOST_CHECK_CLOSE(total_length, lattice_sptr->get_length(),
+            forced_diagnostics_tolerance);
+    BOOST_CHECK(total_right_edges == lattice_sptr->get_elements().size());
+}
+
+BOOST_FIXTURE_TEST_CASE(force_diagnostics0, Lattice_fixture)
+{
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+    Split_operator_stepper stepper(lattice_simulator, space_charge, 2);
+    verify_forced_diagnostics(stepper, "do not find me", lattice_sptr);
+}
+
+
+BOOST_FIXTURE_TEST_CASE(force_diagnostics1, Lattice_fixture)
+{
+    std::string forced_name("f");
+    for (Lattice_elements::iterator it = lattice_sptr->get_elements().begin();
+            it != lattice_sptr->get_elements().end(); ++it) {
+        if ((*it)->get_name() == forced_name) {
+            (*it)->set_string_attribute(Stepper::force_diagnostics_attribute,
+                    "true");
+        }
+    }
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+    Split_operator_stepper stepper(lattice_simulator, space_charge, 2);
+    verify_forced_diagnostics(stepper, forced_name, lattice_sptr);
 }
 
 BOOST_FIXTURE_TEST_CASE(has_sliced_chef_beamline, Lattice_fixture)
