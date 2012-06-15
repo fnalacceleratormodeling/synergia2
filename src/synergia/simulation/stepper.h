@@ -13,6 +13,7 @@ class Stepper
 {
 public:
     static const std::string force_diagnostics_attribute;
+    static const double fixed_step_tolerance;
 
 private:
     Lattice_simulator lattice_simulator;

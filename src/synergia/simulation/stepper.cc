@@ -5,6 +5,7 @@
 #include <cmath>
 
 const std::string Stepper::force_diagnostics_attribute("force_diagnostics");
+const double Stepper::fixed_step_tolerance = 1.0e-8;
 
 Stepper::Stepper(Lattice_simulator const& lattice_simulator) :
     lattice_simulator(lattice_simulator)
@@ -113,15 +114,15 @@ Stepper::get_fixed_step(std::string const& name,
                             name,
                             get_lattice_simulator().get_operation_extractor_map_sptr(),
                             get_lattice_simulator().get_aperture_operation_extractor_map_sptr()));
-    const double tolerance = 1.0e-8;
     double length = offset_fudge;
     bool complete = false;
     while (!complete) {
         double right = (*lattice_it)->get_length();
-        if (floating_point_leq(length + (right - left), step_length, tolerance)) {
+        if (floating_point_leq(length + (right - left), step_length, fixed_step_tolerance)) {
             // The rest of the element fits in the half step
             Lattice_element_slice_sptr slice(
                     new Lattice_element_slice(*lattice_it, left, right));
+            std::cout << "jfa: in true  : " << slice->get_lattice_element().get_name() << " " << slice->has_right_edge() << std::endl;
             retval->append_slice(slice);
             length += (right - left);
             std::cout << "jfa: length = " << length << ", step_length = "
@@ -137,7 +138,7 @@ Stepper::get_fixed_step(std::string const& name,
             }
             ++lattice_it;
             left = 0.0;
-            if (floating_point_equal(length, step_length, tolerance)) {
+            if (floating_point_equal(length, step_length, fixed_step_tolerance)) {
                 if ((lattice_it == lattice_end) || ((*lattice_it)->get_length()
                         != 0.0)) {
                     complete = true;
@@ -153,13 +154,14 @@ Stepper::get_fixed_step(std::string const& name,
             bool end_within_error = false;
             double old_right = right;
             right = step_length - length + left;
-            if ((old_right - right) < tolerance) {
+            if ((old_right - right) < fixed_step_tolerance) {
                 // ... unless we are within an accumulated tolerance of the end
                 right = old_right;
                 end_within_error = true;
             }
             Lattice_element_slice_sptr slice(
                     new Lattice_element_slice(*lattice_it, left, right));
+            std::cout << "jfa: in else: " << slice->get_lattice_element().get_name() << " " << slice->has_right_edge() << std::endl;
             retval->append_slice(slice);
             length += (right - left);
             if (end_within_error) {
@@ -261,6 +263,9 @@ Independent_stepper::Independent_stepper(
             } else {
                 if (found_force) {
                     double remain_length = step_length - all_substeps_length;
+                    if (remain_length <= fixed_step_tolerance) {
+                        remain_length = 0.0;
+                    }
                     Independent_operator_sptr remain_op_sptr(
                             Stepper::get_fixed_step("step", substep_lattice_it,
                                     substep_left, lattice_end, remain_length,
