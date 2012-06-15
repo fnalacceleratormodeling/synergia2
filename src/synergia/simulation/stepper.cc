@@ -107,26 +107,21 @@ Stepper::get_fixed_step(std::string const& name,
         const double step_length, double & offset_fudge,
         bool end_on_force_diagnostics)
 {
-//    std::cout << "jfa: start at " << (void *) lattice_it << std::endl;
-    Independent_operator_sptr
-            retval(
-                    new Independent_operator(
-                            name,
-                            get_lattice_simulator().get_operation_extractor_map_sptr(),
-                            get_lattice_simulator().get_aperture_operation_extractor_map_sptr()));
+    Independent_operator_sptr retval(
+            new Independent_operator(name,
+                    get_lattice_simulator().get_operation_extractor_map_sptr(),
+                    get_lattice_simulator().get_aperture_operation_extractor_map_sptr()));
     double length = offset_fudge;
     bool complete = false;
     while (!complete) {
         double right = (*lattice_it)->get_length();
-        if (floating_point_leq(length + (right - left), step_length, fixed_step_tolerance)) {
+        if (floating_point_leq(length + (right - left), step_length,
+                fixed_step_tolerance)) {
             // The rest of the element fits in the half step
             Lattice_element_slice_sptr slice(
                     new Lattice_element_slice(*lattice_it, left, right));
-            std::cout << "jfa: in true  : " << slice->get_lattice_element().get_name() << " " << slice->has_right_edge() << std::endl;
             retval->append_slice(slice);
             length += (right - left);
-            std::cout << "jfa: length = " << length << ", step_length = "
-                    << step_length << std::endl;
             if (end_on_force_diagnostics && slice->has_right_edge()
                     && (*lattice_it)->has_string_attribute(
                             force_diagnostics_attribute)) {
@@ -138,9 +133,10 @@ Stepper::get_fixed_step(std::string const& name,
             }
             ++lattice_it;
             left = 0.0;
-            if (floating_point_equal(length, step_length, fixed_step_tolerance)) {
-                if ((lattice_it == lattice_end) || ((*lattice_it)->get_length()
-                        != 0.0)) {
+            if (floating_point_equal(length, step_length,
+                    fixed_step_tolerance)) {
+                if ((lattice_it == lattice_end)
+                        || ((*lattice_it)->get_length() != 0.0)) {
                     complete = true;
                 }
             } else {
@@ -161,7 +157,6 @@ Stepper::get_fixed_step(std::string const& name,
             }
             Lattice_element_slice_sptr slice(
                     new Lattice_element_slice(*lattice_it, left, right));
-            std::cout << "jfa: in else: " << slice->get_lattice_element().get_name() << " " << slice->has_right_edge() << std::endl;
             retval->append_slice(slice);
             length += (right - left);
             if (end_within_error) {
@@ -174,7 +169,6 @@ Stepper::get_fixed_step(std::string const& name,
         }
     }
     offset_fudge = length - step_length;
-    std::cout << "jfa: end get_fixed_step\n";
     return retval;
 }
 
@@ -204,7 +198,7 @@ extract_slices(Steps const& steps)
 
 Independent_stepper::Independent_stepper(
         Lattice_simulator const& lattice_simulator, int num_steps) :
-    Stepper(lattice_simulator)
+        Stepper(lattice_simulator)
 {
     double step_length =
             get_lattice_simulator().get_lattice_sptr()->get_length()
@@ -241,14 +235,11 @@ Independent_stepper::Independent_stepper(
                 if ((*it)->has_right_edge()
                         && (*it)->get_lattice_element().has_string_attribute(
                                 Stepper::force_diagnostics_attribute)) {
-                    std::cout << "jfa:checking value of force_diagnostics_attribute\n";
                     if (!false_string(
                             (*it)->get_lattice_element().get_string_attribute(
                                     Stepper::force_diagnostics_attribute))) {
-                        std::cout << "jfa: not false!\n";
                         found_force = true;
                         all_substeps_length += substep_length;
-                        std::cout << "jfa: get substep\n";
                         Independent_operator_sptr substep_op_sptr(
                                 Stepper::get_fixed_step("step",
                                         substep_lattice_it, substep_left,
