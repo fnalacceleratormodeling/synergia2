@@ -148,7 +148,7 @@ BOOST_FIXTURE_TEST_CASE(verify_steps17, Lattice_fixture)
     verify_steps(stepper, *lattice_sptr, num_steps);
 }
 
-const double forced_diagnostics_tolerance = 1.0e-10;
+const double forced_diagnostics_tolerance = 1.0e-12;
 
 void
 verify_forced_diagnostics(Independent_stepper & stepper,
