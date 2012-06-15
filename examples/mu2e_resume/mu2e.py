@@ -814,6 +814,7 @@ if myrank == 0:
     print
     print "....Lattice setting time =", t1 - t0
 
+max_turns = opts.max_turns
 ramp_turns = opts.rampturns
 extraction_fraction = opts.extraction_fraction
 #~Below is the old method to calculate the number of turns to extract the 
@@ -999,42 +1000,45 @@ if myrank == 0:
     print
     print "Begin propagate..."
 
+if max_turns <= ramp_turns:
+    ramp_max_turns = opts.max_turns
+else:
+    ramp_max_turns = ramp_turns
+
+
 t0 = time.time()
 propagator = synergia.simulation.Propagator(stepper)
 propagator.set_checkpoint_period(opts.checkpointperiod)
 #propagator.set_checkpoint_with_xml(True)
-#propagator.propagate(bunch_simulator, ramp_actions, num_turns, 
-#                opts.max_turns, opts.verbosity)
-propagator.propagate(bunch_simulator, ramp_actions, num_turns, ramp_turns,
+propagator.propagate(bunch_simulator, ramp_actions, num_turns, ramp_max_turns,
                 opts.verbosity)
 t1 = time.time()
 
 lattice_diagnostics = synergia.lattice.Lattice_diagnostics(synergia_lattice,
-                "lattice_deposited_charge_turn100.h5", "deposited_charge")
+                "lattice_deposited_charge_ramp.h5", "deposited_charge")
 lattice_diagnostics.update_and_write()
-del lattice_diagnostics
-if myrank == 0:
-    os.system("mv log log.ramp")
 
-if myrank == 0:
-    print
-    print "Propagate sextupole ramping finished"
-    print "Propagate time =", t1 - t0
+if max_turns > ramp_turns:
+    del lattice_diagnostics
+    if myrank == 0:
+        os.system("mv log log_ramp")
 
-t2 = time.time()
+    if myrank == 0:
+        print
+        print "Propagate sextupole ramping finished"
+        print "Propagate time =", t1 - t0
 
-resume = synergia.simulation.Resume()
-content = resume.get_content()
-resume.propagate(True, opts.max_turns, False, opts.verbosity)
+    resume = synergia.simulation.Resume()
+    content = resume.get_content()
+    resume.propagate(True, max_turns-ramp_turns, False, opts.verbosity)
 
-t3 = time.time()
+    t1 = time.time()
 
-lattice_diagnostics = synergia.lattice.Lattice_diagnostics(content.lattice,
-                "lattice_deposited_charge.h5", "deposited_charge")
-lattice_diagnostics.update_and_write()
+    lattice_diagnostics = synergia.lattice.Lattice_diagnostics(content.lattice,
+                    "lattice_deposited_charge.h5", "deposited_charge")
+    lattice_diagnostics.update_and_write()
 
 if myrank == 0:
     print
     print "Finish propagate turns"
-    print "Propagate time =", t3 - t2
-
+    print "Propagate time =", t1 - t0
