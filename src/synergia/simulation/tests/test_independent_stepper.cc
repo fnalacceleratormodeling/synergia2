@@ -156,6 +156,7 @@ verify_forced_diagnostics(Independent_stepper & stepper,
         std::string const& forced_name, Lattice_sptr lattice_sptr)
 {
     double total_length = 0.0;
+    double total_right_edges = 0;
     for (Steps::const_iterator it = stepper.get_steps().begin();
             it != stepper.get_steps().end(); ++it) {
         double step_length = (*it)->get_length();
@@ -174,6 +175,9 @@ verify_forced_diagnostics(Independent_stepper & stepper,
                     boost::static_pointer_cast<Independent_operator >(*oit)->get_slices());
             for (Lattice_element_slices::iterator slit = slices.begin();
                     slit != slices.end(); ++slit) {
+                if ((*slit)->has_right_edge()) {
+                    ++total_right_edges;
+                }
                 last_right_edge = (*slit)->has_right_edge();
                 last_name = (*slit)->get_lattice_element().get_name();
                 if ((*slit)->has_right_edge()
@@ -196,6 +200,7 @@ verify_forced_diagnostics(Independent_stepper & stepper,
     }
     BOOST_CHECK_CLOSE(total_length, lattice_sptr->get_length(),
             forced_diagnostics_tolerance);
+    BOOST_CHECK(total_right_edges == lattice_sptr->get_elements().size());
 }
 
 BOOST_FIXTURE_TEST_CASE(force_diagnostics0, Lattice_fixture)
