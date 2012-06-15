@@ -447,7 +447,7 @@ Split_operator_stepper::construct(
         bool found_force = false;
         Lattice_element_slices all_slices(first_half_op_sptr->get_slices());
         Lattice_element_slices tmp_copy(second_half_op_sptr->get_slices());
-        all_slices.splice(all_slices.end(),tmp_copy);
+        all_slices.splice(all_slices.end(), tmp_copy);
         for (Lattice_element_slices::const_iterator it = all_slices.begin();
                 it != all_slices.end(); ++it) {
             substep_length += (*it)->get_right() - (*it)->get_left();
@@ -464,26 +464,35 @@ Split_operator_stepper::construct(
                                     Stepper::force_diagnostics_attribute))) {
                         found_force = true;
                         all_substeps_length += substep_length;
-                        double half_substep_length = 0.5 * substep_length;
-                        Independent_operator_sptr subfirst_half_op_sptr(
-                                Stepper::get_fixed_step("first_half",
-                                        substep_lattice_it, substep_left,
-                                        lattice_end, half_substep_length,
-                                        substep_offset_fudge, false));
-                        Independent_operator_sptr subsecond_half_op_sptr(
-                                Stepper::get_fixed_step("second_half",
-                                        substep_lattice_it, substep_left,
-                                        lattice_end, half_substep_length,
-                                        substep_offset_fudge, true));
                         Step_sptr substep_sptr(new Step(substep_length));
-                        substep_sptr->append(subfirst_half_op_sptr, 0.5);
-                        for (Collective_operators::const_iterator coll_op_it =
-                                collective_operators.begin();
-                                coll_op_it != collective_operators.end();
-                                ++coll_op_it) {
-                            substep_sptr->append(*coll_op_it, 1.0);
+                        if (substep_length == 0.0) {
+                            Independent_operator_sptr zero_len_op_sptr(
+                                    Stepper::get_fixed_step("zero_length",
+                                            substep_lattice_it, substep_left,
+                                            lattice_end, 0.0,
+                                            substep_offset_fudge, true));
+                            substep_sptr->append(zero_len_op_sptr, 1.0);
+                        } else {
+                            double half_substep_length = 0.5 * substep_length;
+                            Independent_operator_sptr subfirst_half_op_sptr(
+                                    Stepper::get_fixed_step("first_half",
+                                            substep_lattice_it, substep_left,
+                                            lattice_end, half_substep_length,
+                                            substep_offset_fudge, false));
+                            Independent_operator_sptr subsecond_half_op_sptr(
+                                    Stepper::get_fixed_step("second_half",
+                                            substep_lattice_it, substep_left,
+                                            lattice_end, half_substep_length,
+                                            substep_offset_fudge, true));
+                            substep_sptr->append(subfirst_half_op_sptr, 0.5);
+                            for (Collective_operators::const_iterator coll_op_it =
+                                    collective_operators.begin();
+                                    coll_op_it != collective_operators.end();
+                                    ++coll_op_it) {
+                                substep_sptr->append(*coll_op_it, 1.0);
+                            }
+                            substep_sptr->append(subsecond_half_op_sptr, 0.5);
                         }
-                        substep_sptr->append(subsecond_half_op_sptr, 0.5);
                         get_steps().push_back(substep_sptr);
                         substep_length = 0.0;
                     }
@@ -491,29 +500,39 @@ Split_operator_stepper::construct(
             } else {
                 if (found_force) {
                     double remain_length = step_length - all_substeps_length;
+                    Step_sptr remain_sptr(new Step(remain_length));
                     if (remain_length <= fixed_step_tolerance) {
                         remain_length = 0.0;
                     }
-                    double half_remain_length = 0.5 * remain_length;
-                    Independent_operator_sptr remain_first_half_op_sptr(
-                            Stepper::get_fixed_step("first_half",
-                                    substep_lattice_it, substep_left,
-                                    lattice_end, half_remain_length,
-                                    substep_offset_fudge, false));
-                    Independent_operator_sptr remain_second_half_op_sptr(
-                            Stepper::get_fixed_step("second_half",
-                                    substep_lattice_it, substep_left,
-                                    lattice_end, half_remain_length,
-                                    substep_offset_fudge, true));
-                    Step_sptr remain_sptr(new Step(remain_length));
-                    remain_sptr->append(remain_first_half_op_sptr, 0.5);
-                    for (Collective_operators::const_iterator coll_op_it =
-                            collective_operators.begin();
-                            coll_op_it != collective_operators.end();
-                            ++coll_op_it) {
-                        remain_sptr->append(*coll_op_it, 1.0);
+                    if (remain_length == 0.0) {
+                        Independent_operator_sptr zero_len_op_sptr(
+                                Stepper::get_fixed_step("zero_length",
+                                        substep_lattice_it, substep_left,
+                                        lattice_end, 0.0, substep_offset_fudge,
+                                        true));
+                        remain_sptr->append(zero_len_op_sptr, 1.0);
+
+                    } else {
+                        double half_remain_length = 0.5 * remain_length;
+                        Independent_operator_sptr remain_first_half_op_sptr(
+                                Stepper::get_fixed_step("first_half",
+                                        substep_lattice_it, substep_left,
+                                        lattice_end, half_remain_length,
+                                        substep_offset_fudge, false));
+                        Independent_operator_sptr remain_second_half_op_sptr(
+                                Stepper::get_fixed_step("second_half",
+                                        substep_lattice_it, substep_left,
+                                        lattice_end, half_remain_length,
+                                        substep_offset_fudge, true));
+                        remain_sptr->append(remain_first_half_op_sptr, 0.5);
+                        for (Collective_operators::const_iterator coll_op_it =
+                                collective_operators.begin();
+                                coll_op_it != collective_operators.end();
+                                ++coll_op_it) {
+                            remain_sptr->append(*coll_op_it, 1.0);
+                        }
+                        remain_sptr->append(remain_second_half_op_sptr, 0.5);
                     }
-                    remain_sptr->append(remain_second_half_op_sptr, 0.5);
                     get_steps().push_back(remain_sptr);
                     if (substep_lattice_it != lattice_it) {
                         throw(std::runtime_error(

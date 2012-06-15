@@ -161,7 +161,8 @@ void
 verify_forced_diagnostics(Split_operator_stepper & stepper,
         std::string const& forced_name, Lattice_sptr lattice_sptr)
 {
-    std::cout << "jfa: start verify_forced_diagnostics, forced_name = " << forced_name << std::endl;
+    std::cout << "\n\n\njfa: start verify_forced_diagnostics, forced_name = "
+            << forced_name << std::endl;
     double total_length = 0.0;
     double total_right_edges = 0;
     int step_num = 0;
@@ -178,20 +179,25 @@ verify_forced_diagnostics(Split_operator_stepper & stepper,
         int forced_element_end_count = 0;
         int first_half_count = 0;
         int second_half_count = 0;
+        int zero_length_count = 0;
         bool last_right_edge = false;
         std::string last_name;
         for (Operators::iterator oit = (*it)->get_operators().begin();
                 oit != (*it)->get_operators().end(); ++oit) {
             bool in_first_half = false;
             bool in_second_half = false;
+            bool in_zero_length = false;
             if ((*oit)->get_name() == "first_half") {
                 ++first_half_count;
                 in_first_half = true;
             } else if ((*oit)->get_name() == "second_half") {
                 ++second_half_count;
                 in_second_half = true;
+            } else if ((*oit)->get_name() == "zero_length") {
+                ++zero_length_count;
+                in_zero_length = true;
             }
-            if (in_first_half || in_second_half) {
+            if (in_first_half || in_second_half || in_zero_length) {
                 Lattice_element_slices slices(
                         boost::static_pointer_cast<Independent_operator >(*oit)->get_slices());
                 for (Lattice_element_slices::iterator slit = slices.begin();
@@ -216,8 +222,11 @@ verify_forced_diagnostics(Split_operator_stepper & stepper,
                 BOOST_CHECK(forced_element_end_count == 0);
             }
         }
-        BOOST_CHECK(first_half_count == 1);
-        BOOST_CHECK(second_half_count == 1);
+        BOOST_CHECK(zero_length_count < 2);
+        if (zero_length_count == 0) {
+            BOOST_CHECK(first_half_count == 1);
+            BOOST_CHECK(second_half_count == 1);
+        }
         BOOST_CHECK(forced_element_end_count < 2);
         if (forced_element_end_count == 1) {
             BOOST_CHECK(last_right_edge);
@@ -243,6 +252,42 @@ BOOST_FIXTURE_TEST_CASE(force_diagnostics0, Lattice_fixture)
 BOOST_FIXTURE_TEST_CASE(force_diagnostics1, Lattice_fixture)
 {
     std::string forced_name("f");
+    for (Lattice_elements::iterator it = lattice_sptr->get_elements().begin();
+            it != lattice_sptr->get_elements().end(); ++it) {
+        if ((*it)->get_name() == forced_name) {
+            (*it)->set_string_attribute(Stepper::force_diagnostics_attribute,
+                    "true");
+        }
+    }
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+    Split_operator_stepper stepper(lattice_simulator, space_charge, 2);
+    verify_forced_diagnostics(stepper, forced_name, lattice_sptr);
+}
+
+BOOST_FIXTURE_TEST_CASE(force_diagnostics2, Lattice_fixture)
+{
+    std::string forced_name("o");
+    for (Lattice_elements::iterator it = lattice_sptr->get_elements().begin();
+            it != lattice_sptr->get_elements().end(); ++it) {
+        if ((*it)->get_name() == forced_name) {
+            (*it)->set_string_attribute(Stepper::force_diagnostics_attribute,
+                    "true");
+        }
+    }
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+    Split_operator_stepper stepper(lattice_simulator, space_charge, 2);
+    verify_forced_diagnostics(stepper, forced_name, lattice_sptr);
+}
+
+BOOST_FIXTURE_TEST_CASE(force_diagnostics3, Lattice_fixture)
+{
+    std::string forced_name("m");
     for (Lattice_elements::iterator it = lattice_sptr->get_elements().begin();
             it != lattice_sptr->get_elements().end(); ++it) {
         if ((*it)->get_name() == forced_name) {
