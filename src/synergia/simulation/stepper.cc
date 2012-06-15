@@ -500,10 +500,10 @@ Split_operator_stepper::construct(
             } else {
                 if (found_force) {
                     double remain_length = step_length - all_substeps_length;
-                    Step_sptr remain_sptr(new Step(remain_length));
                     if (remain_length <= fixed_step_tolerance) {
                         remain_length = 0.0;
                     }
+                    Step_sptr remain_sptr(new Step(remain_length));
                     if (remain_length == 0.0) {
                         Independent_operator_sptr zero_len_op_sptr(
                                 Stepper::get_fixed_step("zero_length",
