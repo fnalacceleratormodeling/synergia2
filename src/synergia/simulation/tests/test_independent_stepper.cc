@@ -11,7 +11,7 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture)
 const double tolerance = 1.0e-12;
 
 const int map_order = 1;
-#if 0
+
 BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture)
 {
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
@@ -147,7 +147,6 @@ BOOST_FIXTURE_TEST_CASE(verify_steps17, Lattice_fixture)
 
     verify_steps(stepper, *lattice_sptr, num_steps);
 }
-#endif
 
 const double forced_diagnostics_tolerance = 1.0e-10;
 
@@ -278,7 +277,6 @@ BOOST_FIXTURE_TEST_CASE(force_diagnostics4, Lattice_fixture)
     verify_forced_diagnostics(stepper, forced_name, lattice_sptr);
 }
 
-#if 0
 BOOST_FIXTURE_TEST_CASE(has_sliced_chef_beamline, Lattice_fixture)
 {
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
@@ -313,4 +311,3 @@ BOOST_FIXTURE_TEST_CASE(serialize2_xml, Lattice_fixture)
     Stepper_sptr loaded;
     xml_load(loaded, "independent_stepper2.xml");
 }
-#endif
