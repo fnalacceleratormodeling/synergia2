@@ -447,7 +447,7 @@ Split_operator_stepper::construct(
         bool found_force = false;
         Lattice_element_slices all_slices(first_half_op_sptr->get_slices());
         Lattice_element_slices tmp_copy(second_half_op_sptr->get_slices());
-        all_slices.merge(tmp_copy);
+        all_slices.splice(all_slices.end(),tmp_copy);
         for (Lattice_element_slices::const_iterator it = all_slices.begin();
                 it != all_slices.end(); ++it) {
             substep_length += (*it)->get_right() - (*it)->get_left();
@@ -469,7 +469,7 @@ Split_operator_stepper::construct(
                                 Stepper::get_fixed_step("first_half",
                                         substep_lattice_it, substep_left,
                                         lattice_end, half_substep_length,
-                                        substep_offset_fudge, true));
+                                        substep_offset_fudge, false));
                         Independent_operator_sptr subsecond_half_op_sptr(
                                 Stepper::get_fixed_step("second_half",
                                         substep_lattice_it, substep_left,
@@ -499,7 +499,7 @@ Split_operator_stepper::construct(
                             Stepper::get_fixed_step("first_half",
                                     substep_lattice_it, substep_left,
                                     lattice_end, half_remain_length,
-                                    substep_offset_fudge, true));
+                                    substep_offset_fudge, false));
                     Independent_operator_sptr remain_second_half_op_sptr(
                             Stepper::get_fixed_step("second_half",
                                     substep_lattice_it, substep_left,
