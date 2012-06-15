@@ -161,16 +161,10 @@ void
 verify_forced_diagnostics(Split_operator_stepper & stepper,
         std::string const& forced_name, Lattice_sptr lattice_sptr)
 {
-    std::cout << "\n\n\njfa: start verify_forced_diagnostics, forced_name = "
-            << forced_name << std::endl;
     double total_length = 0.0;
     double total_right_edges = 0;
-    int step_num = 0;
     for (Steps::const_iterator it = stepper.get_steps().begin();
             it != stepper.get_steps().end(); ++it) {
-        ++step_num;
-        std::cout << "jfa: step_length = " << (*it)->get_length() << ": ";
-        (*it)->print(step_num); // jfa deleteme
         double step_length = (*it)->get_length();
         if (step_length > 0.0) {
             BOOST_CHECK(step_length > Stepper::fixed_step_tolerance);
@@ -300,6 +294,42 @@ BOOST_FIXTURE_TEST_CASE(force_diagnostics3, Lattice_fixture)
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     Split_operator_stepper stepper(lattice_simulator, space_charge, 2);
+    verify_forced_diagnostics(stepper, forced_name, lattice_sptr);
+}
+
+BOOST_FIXTURE_TEST_CASE(force_diagnostics4, Lattice_fixture)
+{
+    std::string forced_name("f");
+    for (Lattice_elements::iterator it = lattice_sptr->get_elements().begin();
+            it != lattice_sptr->get_elements().end(); ++it) {
+        if ((*it)->get_name() == forced_name) {
+            (*it)->set_string_attribute(Stepper::force_diagnostics_attribute,
+                    "true");
+        }
+    }
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+    Split_operator_stepper stepper(lattice_simulator, space_charge, 7);
+    verify_forced_diagnostics(stepper, forced_name, lattice_sptr);
+}
+
+BOOST_FIXTURE_TEST_CASE(force_diagnostics5, Lattice_fixture)
+{
+    std::string forced_name("o");
+    for (Lattice_elements::iterator it = lattice_sptr->get_elements().begin();
+            it != lattice_sptr->get_elements().end(); ++it) {
+        if ((*it)->get_name() == forced_name) {
+            (*it)->set_string_attribute(Stepper::force_diagnostics_attribute,
+                    "true");
+        }
+    }
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+    Split_operator_stepper stepper(lattice_simulator, space_charge, 7);
     verify_forced_diagnostics(stepper, forced_name, lattice_sptr);
 }
 
