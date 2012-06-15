@@ -1,4 +1,5 @@
 #include "diagnostics_actions.h"
+#include "synergia/utils/string_utils.h"
 #include <algorithm>
 
 template<class Archive>
@@ -110,6 +111,7 @@ Diagnostics_actions::set_bunch_sptr(Bunch_sptr bunch_sptr)
 
     set_bunch_sptr_all(per_turn_periodic, bunch_sptr);
     set_bunch_sptr_all(per_step_periodic, bunch_sptr);
+    set_bunch_sptr_all(per_forced_step_periodic, bunch_sptr);
     set_bunch_sptr_all(per_turn_listed, bunch_sptr);
     set_bunch_sptr_all(per_step_periodic_listed, bunch_sptr);
 }
@@ -127,12 +129,13 @@ Diagnostics_actions::get_bunch_sptr()
 }
 
 void
-Diagnostics_actions::add_per_turn(Diagnostics_sptr diagnostics_sptr, int period)
+Diagnostics_actions::add_per_turn(Diagnostics_sptr diagnostics_sptr,
+        int turn_period)
 {
     if (have_bunch_sptr()) {
         diagnostics_sptr->set_bunch_sptr(get_bunch_sptr());
     }
-    per_turn_periodic.push_back(Periodic(period, diagnostics_sptr));
+    per_turn_periodic.push_back(Periodic(turn_period, diagnostics_sptr));
 }
 
 void
@@ -146,13 +149,15 @@ Diagnostics_actions::add_per_turn(Diagnostics_sptr diagnostics_sptr,
 }
 
 void
-Diagnostics_actions::add_per_step(Diagnostics_sptr diagnostics_sptr, int period)
+Diagnostics_actions::add_per_step(Diagnostics_sptr diagnostics_sptr,
+        int step_period)
 {
     if (have_bunch_sptr()) {
         diagnostics_sptr->set_bunch_sptr(get_bunch_sptr());
     }
-    per_step_periodic.push_back(Periodic(period, diagnostics_sptr));
+    per_step_periodic.push_back(Periodic(step_period, diagnostics_sptr));
 }
+
 void
 Diagnostics_actions::add_per_step(Diagnostics_sptr diagnostics_sptr,
         std::list<int > const& step_numbers, int turn_period)
@@ -162,6 +167,16 @@ Diagnostics_actions::add_per_step(Diagnostics_sptr diagnostics_sptr,
     }
     per_step_periodic_listed.push_back(
             Periodic_listed(turn_period, step_numbers, diagnostics_sptr));
+}
+
+void
+Diagnostics_actions::add_per_forced_diagnostics_step(
+        Diagnostics_sptr diagnostics_sptr, int turn_period)
+{
+    if (have_bunch_sptr()) {
+        diagnostics_sptr->set_bunch_sptr(get_bunch_sptr());
+    }
+    per_forced_step_periodic.push_back(Periodic(turn_period, diagnostics_sptr));
 }
 
 void
@@ -228,6 +243,32 @@ Diagnostics_actions::step_end_action(Stepper & stepper, Step & step,
     update_and_write_periodics(per_step_periodic, step_num);
     update_and_write_periodic_listeds(per_step_periodic_listed, step_num,
             turn_num);
+
+    if (per_forced_step_periodic.size() > 0) {
+        bool force_diagnostics = false;
+        for (Operators::iterator oit = step.get_operators().begin();
+                oit != step.get_operators().end(); ++oit) {
+            if ((*oit)->get_type() == "independent") {
+                Lattice_element_slices slices(
+                        boost::static_pointer_cast<Independent_operator >(*oit)->get_slices());
+                for (Lattice_element_slices::iterator slit = slices.begin();
+                        slit != slices.end(); ++slit) {
+                    if ((*slit)->has_right_edge()
+                            && (*slit)->get_lattice_element().has_string_attribute(
+                                    Stepper::force_diagnostics_attribute)) {
+                        if (!false_string(
+                                (*slit)->get_lattice_element().get_string_attribute(
+                                        Stepper::force_diagnostics_attribute))) {
+                            force_diagnostics = true;
+                        }
+                    }
+                }
+            }
+        }
+        if (force_diagnostics) {
+            update_and_write_periodics(per_forced_step_periodic, turn_num);
+        }
+    }
 }
 
 template<class Archive>
@@ -238,6 +279,7 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(have_bunch_sptr_);
         ar & BOOST_SERIALIZATION_NVP(per_turn_periodic);
         ar & BOOST_SERIALIZATION_NVP(per_step_periodic);
+        ar & BOOST_SERIALIZATION_NVP(per_forced_step_periodic);
         ar & BOOST_SERIALIZATION_NVP(per_turn_listed);
         ar & BOOST_SERIALIZATION_NVP(per_step_periodic_listed);
     }
