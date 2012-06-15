@@ -30,7 +30,7 @@ BOOST_FIXTURE_TEST_CASE(construct_bad, Lattice_fixture)
     try {
         Independent_stepper stepper(lattice_simulator, num_steps);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error &) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error);
