@@ -150,7 +150,6 @@ BOOST_FIXTURE_TEST_CASE(verify_steps17, Lattice_fixture)
 #endif
 
 const double forced_diagnostics_tolerance = 1.0e-10;
-const double step_length_fuzz = 5.0e-9; // half of the tolerance in Stepper::get_fixed_step
 
 void
 verify_forced_diagnostics(Independent_stepper & stepper,
@@ -161,7 +160,7 @@ verify_forced_diagnostics(Independent_stepper & stepper,
             it != stepper.get_steps().end(); ++it) {
         double step_length = (*it)->get_length();
         if (step_length > 0.0) {
-            BOOST_CHECK(step_length > step_length_fuzz);
+            BOOST_CHECK(step_length > Stepper::fixed_step_tolerance);
         }
         total_length += step_length;
         int forced_element_end_count = 0;
