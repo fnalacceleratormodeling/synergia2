@@ -70,6 +70,14 @@ Bunch_simulator::add_per_step(Diagnostics_sptr diagnostics_sptr,
             turn_period);
 }
 
+void
+Bunch_simulator::add_per_forced_diagnostics_step(
+        Diagnostics_sptr diagnostics_sptr, int turn_period)
+{
+    diagnostics_actions_sptr->add_per_forced_diagnostics_step(diagnostics_sptr,
+            turn_period);
+}
+
 template<class Archive>
     void
     Bunch_simulator::serialize(Archive & ar, const unsigned int version)
