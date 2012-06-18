@@ -69,7 +69,7 @@ public:
 private:
     Bunch_sptr bunch_sptr;
     bool have_bunch_sptr_;
-    Periodics per_turn_periodic, per_step_periodic;
+    Periodics per_turn_periodic, per_step_periodic, per_forced_step_periodic;
     Listeds per_turn_listed;
     Periodic_listeds per_step_periodic_listed;
 
@@ -90,15 +90,18 @@ public:
     virtual Bunch_sptr
     get_bunch_sptr();
     virtual void
-    add_per_turn(Diagnostics_sptr diagnostics_sptr, int period = 1);
+    add_per_turn(Diagnostics_sptr diagnostics_sptr, int turn_period = 1);
     virtual void
     add_per_turn(Diagnostics_sptr diagnostics_sptr,
             std::list<int > const& turn_numbers);
     virtual void
-    add_per_step(Diagnostics_sptr diagnostics_sptr, int period = 1);
+    add_per_step(Diagnostics_sptr diagnostics_sptr, int step_period = 1);
     virtual void
     add_per_step(Diagnostics_sptr diagnostics_sptr,
             std::list<int > const& step_numbers, int turn_period = 1);
+    virtual void
+    add_per_forced_diagnostics_step(Diagnostics_sptr diagnostics_sptr,
+            int turn_period = 1);
     virtual void
     first_action(Stepper & stepper, Bunch & bunch);
     virtual void

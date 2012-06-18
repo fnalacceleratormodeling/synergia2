@@ -133,6 +133,8 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_per_step_member_overloads12,
         Diagnostics_actions::add_per_step, 1, 2)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_per_step_member_overloads23,
         Diagnostics_actions::add_per_step, 2, 3)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(add_per_forced_diagnostics_step_member_overloads12,
+        Diagnostics_actions::add_per_forced_diagnostics_step, 1, 2)
 
 void (Bunch_simulator::*bs_add_per_turn1)(Diagnostics_sptr, int)
                             = &Bunch_simulator::add_per_turn;
@@ -150,6 +152,8 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bs_add_per_step_member_overloads12,
         Bunch_simulator::add_per_step, 1, 2)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bs_add_per_step_member_overloads23,
         Bunch_simulator::add_per_step, 2, 3)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bs_add_per_forced_diagnostics_step_member_overloads12,
+                Bunch_simulator::add_per_forced_diagnostics_step, 1, 2)
 
 BOOST_PYTHON_MODULE(simulation)
 {
@@ -419,6 +423,9 @@ BOOST_PYTHON_MODULE(simulation)
                     add_per_turn_member_overloads12())
             .def("add_per_step", add_per_step2,
                     add_per_step_member_overloads23())
+            .def("add_per_forced_diagnostics_step",
+                    &Diagnostics_actions::add_per_forced_diagnostics_step,
+                    add_per_forced_diagnostics_step_member_overloads12())
             .def("first_action", &Diagnostics_actions::first_action)
             .def("turn_end_action", &Diagnostics_actions::turn_end_action)
             .def("step_end_action", &Diagnostics_actions::step_end_action)
@@ -435,6 +442,9 @@ BOOST_PYTHON_MODULE(simulation)
                     bs_add_per_step_member_overloads12())
             .def("add_per_step", bs_add_per_step2,
                     bs_add_per_step_member_overloads23())
+            .def("add_per_forced_diagnostics_step",
+                    &Bunch_simulator::add_per_forced_diagnostics_step,
+                    bs_add_per_forced_diagnostics_step_member_overloads12())
             ;
 
     void (Propagator::*propagate1)(Bunch_simulator &, int, int, int)

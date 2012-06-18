@@ -46,6 +46,8 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Independent_operation);
         ar & BOOST_SERIALIZATION_NVP(slice_sptr);
+        ar & BOOST_SERIALIZATION_NVP(x_offset);
+        ar & BOOST_SERIALIZATION_NVP(y_offset);
     }
 
 template

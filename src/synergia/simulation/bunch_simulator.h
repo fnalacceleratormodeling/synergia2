@@ -34,6 +34,9 @@ public:
     void
     add_per_step(Diagnostics_sptr diagnostics_sptr,
             std::list<int > const& step_numbers, int turn_period = 1);
+    void
+    add_per_forced_diagnostics_step(Diagnostics_sptr diagnostics_sptr,
+            int turn_period = 1);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
