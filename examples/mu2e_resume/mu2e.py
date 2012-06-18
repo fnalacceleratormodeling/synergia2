@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 import sys
+import os
 import time
 import synergia
 import numpy
@@ -635,36 +636,9 @@ for element in orig_elements:
     #~index += 1
     #~if myrank == 0:
     #~    print index, name, type, length
-    if name == "e_septum":
-        # generate new element for e_septum
-        septum = synergia.lattice.Lattice_element("e_septum", name)
-        # extractor type: e_septum must use Chef_propatator
-        septum.set_string_attribute("extractor_type", "chef_propagate")
-        # aperture type: e_septum uses wire_elliptical_aperture
-        septum.set_string_attribute("aperture_type", "wire_elliptical")
-        septum.set_double_attribute("wire_elliptical_aperture_horizontal_radius", radius)
-        septum.set_double_attribute("wire_elliptical_aperture_vertical_radius", radius)
-        septum.set_double_attribute("wire_elliptical_aperture_wire_x", -wire_x)
-        septum.set_double_attribute("wire_elliptical_aperture_wire_width", wire_width)
-        septum.set_double_attribute("wire_elliptical_aperture_gap", gap)
-        # settings for e_septum wire and kick
-        septum.set_double_attribute("positive_strength", 0.0);
-        septum.set_double_attribute("negative_strength", kick);
-        septum.set_double_attribute("wire_position", wire_x);
-        septum.set_double_attribute("wire_width", wire_width);
-        septum.set_double_attribute("gap_size", gap);
-        synergia_lattice.append(septum)
-    elif name == "lambertson":
-        # generate new element for lambertson
-        lambertson = synergia.lattice.Lattice_element("lambertson", name)
-        # extractor type: lambertson must use Chef_propatator
-        lambertson.set_string_attribute("extractor_type", "chef_propagate")
-        # aperture type: lambertson uses lambertson_aprture
-        lambertson.set_string_attribute("aperture_type", "lambertson")
-        lambertson.set_double_attribute("lambertson_aperture_radius", -wire_x)
-        synergia_lattice.append(lambertson)
-    elif type == "quadrupole":
-        element.set_string_attribute("extractor_type", "chef_mixed")
+
+    if type == "quadrupole":
+        element.set_string_attribute("extractor_type", "chef_map")
         element.set_string_attribute("aperture_type","polygon")
         element.set_double_attribute("the_number_of_vertices", 72)
 
@@ -705,14 +679,63 @@ for element in orig_elements:
             element.set_double_attribute(pay, -y[16-i])
 
         synergia_lattice.append(element)
+    elif name == "e_septum":
+        # generate new element for e_septum
+        septum = synergia.lattice.Lattice_element("e_septum", name)
+        # extractor type: e_septum must use Chef_propatator
+        septum.set_string_attribute("extractor_type", "chef_propagate")
+        # aperture type: e_septum uses wire_elliptical_aperture
+        septum.set_string_attribute("aperture_type", "wire_elliptical")
+        septum.set_double_attribute("wire_elliptical_aperture_horizontal_radius", radius)
+        septum.set_double_attribute("wire_elliptical_aperture_vertical_radius", radius)
+        septum.set_double_attribute("wire_elliptical_aperture_wire_x", -wire_x)
+        septum.set_double_attribute("wire_elliptical_aperture_wire_width", wire_width)
+        septum.set_double_attribute("wire_elliptical_aperture_gap", gap)
+        # settings for e_septum wire and kick
+        septum.set_double_attribute("positive_strength", 0.0);
+        septum.set_double_attribute("negative_strength", kick);
+        septum.set_double_attribute("wire_position", wire_x);
+        septum.set_double_attribute("wire_width", wire_width);
+        septum.set_double_attribute("gap_size", gap);
+        synergia_lattice.append(septum)
+    elif name == "lambertson":
+        # generate new element for lambertson
+        lambertson = synergia.lattice.Lattice_element("lambertson", name)
+        # extractor type: lambertson must use Chef_propatator
+        lambertson.set_string_attribute("extractor_type", "chef_propagate")
+        # aperture type: lambertson uses lambertson_aprture
+        lambertson.set_string_attribute("aperture_type", "lambertson")
+        lambertson.set_double_attribute("lambertson_aperture_radius", -wire_x)
+        synergia_lattice.append(lambertson)
+    elif type == "multipole":
+        element.set_string_attribute("extractor_type", "chef_map")
+        element.set_string_attribute("aperture_type","circular")
+        element.set_double_attribute("circular_aperture_radius", radius)
+        synergia_lattice.append(element)
+    elif type == "rfcavity":
+        element.set_string_attribute("extractor_type", "chef_map")
+        element.set_string_attribute("aperture_type","circular")
+        element.set_double_attribute("circular_aperture_radius", radius)
+        synergia_lattice.append(element)
     else:
-        element.set_string_attribute("extractor_type", "chef_mixed")
+        element.set_string_attribute("extractor_type", "chef_map")
         element.set_string_attribute("aperture_type","circular")
         element.set_double_attribute("circular_aperture_radius", radius)
         synergia_lattice.append(element)
 
 synergia_elements = synergia_lattice.get_elements()
 synergia_lattice.set_reference_particle(orig_lattice.get_reference_particle())
+
+#index = 0
+#length = 0
+#for element in synergia_elements:
+#    index += 1
+#    name = element.get_name()
+#    type = element.get_type()
+#    length += element.get_length()
+#    if myrank == 0:
+#        print index, name, type, length
+#sys.exit(1)
 
 lattice_length = synergia_lattice.get_length()
 reference_particle = synergia_lattice.get_reference_particle()
@@ -791,6 +814,7 @@ if myrank == 0:
     print
     print "....Lattice setting time =", t1 - t0
 
+max_turns = opts.max_turns
 ramp_turns = opts.rampturns
 extraction_fraction = opts.extraction_fraction
 #~Below is the old method to calculate the number of turns to extract the 
@@ -915,18 +939,24 @@ bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
 if myrank == 0:
     print
     print "Set collective operator"
+
+if opts.comm_avoid:
+    collective_comm = synergia.utils.Commxx(True)
+else:
+    collective_comm = synergia.utils.Commxx()
+
 if solver == "3d" or solver == "3D":
     if myrank == 0:
         print "    using 3D Open Hockney space charge solver"
     space_charge = synergia.collective.Space_charge_3d_open_hockney(
-                    bunch.get_comm(), grid, False)
+                    collective_comm, grid, False)
     stepper = synergia.simulation.Split_operator_stepper(lattice_simulator,
                     space_charge, num_steps)
 elif solver == "2d" or solver == "2D":
     if myrank == 0:
         print "    using 2D Open Hockney space charge solver"
     space_charge = synergia.collective.Space_charge_2d_open_hockney(
-                    bunch.get_comm(), grid)
+                    collective_comm, grid, False)
     stepper = synergia.simulation.Split_operator_stepper(lattice_simulator,
                     space_charge, num_steps)
 else:
@@ -970,19 +1000,45 @@ if myrank == 0:
     print
     print "Begin propagate..."
 
+if max_turns <= ramp_turns:
+    ramp_max_turns = opts.max_turns
+else:
+    ramp_max_turns = ramp_turns
+
+
 t0 = time.time()
 propagator = synergia.simulation.Propagator(stepper)
 propagator.set_checkpoint_period(opts.checkpointperiod)
-propagator.set_checkpoint_with_xml(True)
-propagator.propagate(bunch_simulator, ramp_actions, num_turns, opts.max_turns, 
+#propagator.set_checkpoint_with_xml(True)
+propagator.propagate(bunch_simulator, ramp_actions, num_turns, ramp_max_turns,
                 opts.verbosity)
 t1 = time.time()
 
 lattice_diagnostics = synergia.lattice.Lattice_diagnostics(synergia_lattice,
-                "lattice_deposited_charge.h5", "deposited_charge")
+                "lattice_deposited_charge_ramp.h5", "deposited_charge")
 lattice_diagnostics.update_and_write()
+
+if max_turns > ramp_turns:
+    del lattice_diagnostics
+    if myrank == 0:
+        os.system("mv log log_ramp")
+
+    if myrank == 0:
+        print
+        print "Propagate sextupole ramping finished"
+        print "Propagate time =", t1 - t0
+
+    resume = synergia.simulation.Resume()
+    content = resume.get_content()
+    resume.propagate(True, max_turns-ramp_turns, False, opts.verbosity)
+
+    t1 = time.time()
+
+    lattice_diagnostics = synergia.lattice.Lattice_diagnostics(content.lattice,
+                    "lattice_deposited_charge.h5", "deposited_charge")
+    lattice_diagnostics.update_and_write()
 
 if myrank == 0:
     print
-    print "propagate time =", t1 - t0
-
+    print "Finish propagate turns"
+    print "Propagate time =", t1 - t0

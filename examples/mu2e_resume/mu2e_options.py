@@ -7,7 +7,7 @@ opts = synergia_workflow.Options("mu2e")
 
 opts.add("seed", 3, "Pseudorandom number generator seed", int)
 opts.add("radius", 0.04171696, "aperture radius [m]", float)
-opts.add("real_particles", 3.0e12, "Number of real particles", float)
+opts.add("real_particles", 1.0e12, "Number of real particles", float)
 opts.add("macro_particles", 0, "Number of macro particles", int)
 opts.add("rampturns", 100, "sextupole ramping turns", int)
 opts.add("extraction_fraction", 7.0/8.0, "extraction fraction", float)
@@ -62,6 +62,7 @@ opts.add("gap", 0.014, "Septum wire gap (m)", float)
 
 #opts.add("spacecharge", True, "Use hockney 3d open space charge", bool)
 opts.add("spacecharge", "no_op", "Use hockney 3d open space charge", str) 
+opts.add("comm_avoid", False, "Communication avoidance for space charge solver", bool)
 
 opts.add("gridx", 32, "size of transverse grid for solver", int)
 opts.add("gridy", 32, "size of transverse grid for solver", int)

@@ -1,6 +1,7 @@
 #ifndef COMMXX_H_
 #define COMMXX_H_
 
+#include <vector>
 #include <stdexcept>
 #include <boost/shared_ptr.hpp>
 #include "mpi.h"

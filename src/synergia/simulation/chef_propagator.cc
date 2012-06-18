@@ -22,6 +22,12 @@ Chef_propagator::apply(Bunch & bunch, int verbosity, Logger & logger)
                     reference_particle_to_chef_particle(
                             bunch.get_reference_particle()));
     double length = 0.0;
+    if (verbosity > 4) {
+        logger << "Chef_propagator: begin_index = "
+                << chef_lattice_section_sptr->get_begin_index()
+                << ", end_index = "
+                << chef_lattice_section_sptr->get_end_index() << std::endl;
+    }
     for (Chef_lattice_section::iterator it = chef_lattice_section_sptr->begin(); it
             != chef_lattice_section_sptr->end(); ++it) {
         (*it)->propagate(particle);

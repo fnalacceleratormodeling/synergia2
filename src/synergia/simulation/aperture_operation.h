@@ -7,6 +7,7 @@ class Aperture_operation : public Independent_operation
 {
 private:
     Lattice_element_slice_sptr slice_sptr;
+    double x_offset, y_offset;
 public:
     static const char charge_attribute[];
     Aperture_operation(Lattice_element_slice_sptr slice_sptr);
@@ -22,6 +23,16 @@ public:
     template<typename T>
         void
         dump_particles(T & t, Bunch & bunch, int verbosity, Logger & logger);
+    inline double
+    get_x_offset() const
+    {
+        return x_offset;
+    }
+    inline double
+    get_y_offset() const
+    {
+        return y_offset;
+    }
     virtual void
     apply(Bunch & bunch, int verbosity, Logger & logger)=0;
     void

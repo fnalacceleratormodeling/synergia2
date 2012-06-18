@@ -6,6 +6,7 @@
 #include <basic_toolkit/PhysicsConstants.h>
 #include <physics_toolkit/DriftConverter.h>
 #include <beamline/RefRegVisitor.h>
+#include "synergia/utils/commxx.h"
 
 #include <stdexcept>
 
