@@ -16,7 +16,7 @@ main(int argc, char **argv)
 {
     double t = simple_timer_current();
 
-    int ierr = MPI_Init(&argc, &argv);
+    MPI_Init(&argc, &argv);
     Allreduce_benchmark_options opts(argc, argv);
 
     Commxx comm;
@@ -35,11 +35,11 @@ main(int argc, char **argv)
 
     t = simple_timer_show(t, "startup");
     for (int iter = 0; iter < opts.iterations; ++iter) {
-        ierr = MPI_Allreduce(MPI_IN_PLACE, (void*) array.origin(),
+        MPI_Allreduce(MPI_IN_PLACE, (void*) array.origin(),
                 array.num_elements(), MPI_DOUBLE, MPI_SUM, comm.get());
         t = simple_timer_show(t, "allreduce");
     }
 
-    ierr = MPI_Finalize();
+    MPI_Finalize();
     return 0;
 }
