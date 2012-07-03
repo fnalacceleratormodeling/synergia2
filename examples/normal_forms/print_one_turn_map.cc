@@ -23,14 +23,7 @@ run()
     grid_shape[1] = 32;
     grid_shape[2] = 256;
     const int part_per_cell = 10;
-    const int num_macro_particles = grid_shape[0] * grid_shape[1]
-            * grid_shape[2] * part_per_cell;
-    const int seed = 4;
-    const double num_real_particles = 1e13;
-    const int num_steps = 8;
-    const int num_turns = 4;
     const int map_order = 3;
-    const double trans_emit = 1e-6;
 
     Lattice_sptr lattice_sptr(new Lattice());
     try {
