@@ -128,24 +128,26 @@ Bunch::construct(int particle_charge, int total_num, double real_num)
 
 Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
         double real_num, Commxx_sptr comm_sptr) :
-    reference_particle(reference_particle), comm_sptr(comm_sptr), default_converter(),
-     z_period_length(0.0), z_periodic(0), bucket_index(0)
+        z_period_length(0.0), z_periodic(0), reference_particle(
+                reference_particle), bucket_index(0), comm_sptr(comm_sptr), default_converter()
 {
     construct(reference_particle.get_charge(), total_num, real_num);
 }
 
 Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
         double real_num, Commxx_sptr comm_sptr, int particle_charge) :
-    reference_particle(reference_particle), comm_sptr(comm_sptr), default_converter(),
-    z_period_length(0.0), z_periodic(0), bucket_index(0)
+        z_period_length(0.0), z_periodic(0), reference_particle(
+                reference_particle), bucket_index(0), comm_sptr(comm_sptr), default_converter()
 {
     construct(particle_charge, total_num, real_num);
 }
 
 Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
-        double real_num, Commxx_sptr comm_sptr, double z_period_length, int bucket_index) :
-    reference_particle(reference_particle), comm_sptr(comm_sptr), default_converter(),
-    z_period_length(z_period_length), z_periodic(1), bucket_index(bucket_index)
+        double real_num, Commxx_sptr comm_sptr, double z_period_length,
+        int bucket_index) :
+        z_period_length(z_period_length), z_periodic(true), reference_particle(
+                reference_particle), bucket_index(bucket_index), comm_sptr(
+                comm_sptr), default_converter()
 {
     construct(reference_particle.get_charge(), total_num, real_num);
 }
@@ -418,10 +420,10 @@ Bunch::get_sort_period() const
 
 
 
-int
+void
 Bunch::set_bucket_index(int index)
 {
-this->bucket_index=index;
+    this->bucket_index=index;
 }
 
 int

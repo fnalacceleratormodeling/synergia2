@@ -213,7 +213,7 @@ public:
     int
     get_sort_period() const;
 
-    int
+    void
     set_bucket_index(int index);
 
     int
