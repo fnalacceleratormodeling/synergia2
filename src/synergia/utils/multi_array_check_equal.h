@@ -8,7 +8,7 @@ multi_array_check_equal(Const_MArray1d_ref const& a,
 {
     BOOST_CHECK_EQUAL(a.index_bases()[0], b.index_bases()[0]);
     BOOST_CHECK_EQUAL(a.shape()[0], b.shape()[0]);
-    for (int i = a.index_bases()[0]; i < a.index_bases()[0] + a.shape()[0]; ++i) {
+    for (unsigned int i = a.index_bases()[0]; i < a.index_bases()[0] + a.shape()[0]; ++i) {
         BOOST_CHECK_MESSAGE(floating_point_equal(a[i], b[i], tolerance), "a["
                 << i << "] = " << a[i] << ", b[" << i << "] = " << b[i]
                 << ", a-b = " << a[i] - b[i] << ", tolerance = " << tolerance);
@@ -23,8 +23,8 @@ multi_array_check_equal(Const_MArray2d_ref const& a,
     BOOST_CHECK_EQUAL(a.index_bases()[1], b.index_bases()[1]);
     BOOST_CHECK_EQUAL(a.shape()[0], b.shape()[0]);
     BOOST_CHECK_EQUAL(a.shape()[1], b.shape()[1]);
-    for (int i = a.index_bases()[0]; i < a.index_bases()[0] + a.shape()[0]; ++i) {
-        for (int j = a.index_bases()[1]; j < a.index_bases()[1] + a.shape()[1]; ++j) {
+    for (unsigned int i = a.index_bases()[0]; i < a.index_bases()[0] + a.shape()[0]; ++i) {
+        for (unsigned int j = a.index_bases()[1]; j < a.index_bases()[1] + a.shape()[1]; ++j) {
             BOOST_CHECK_MESSAGE(floating_point_equal(a[i][j], b[i][j],
                     tolerance), "a[" << i << "][" << j << "] = " << a[i][j]
                     << ", b[" << i << "][" << j << "] = " << b[i][j]
@@ -42,12 +42,13 @@ multi_complex_array_check_equal(Const_MArray2dc_ref const& a,
     BOOST_CHECK_EQUAL(a.index_bases()[1], b.index_bases()[1]);
     BOOST_CHECK_EQUAL(a.shape()[0], b.shape()[0]);
     BOOST_CHECK_EQUAL(a.shape()[1], b.shape()[1]);
-    for (int i = a.index_bases()[0]; i < a.index_bases()[0] + a.shape()[0];
-++i) {
-        for (int j = a.index_bases()[1]; j < a.index_bases()[1] +
-a.shape()[1]; ++j) {
+    for (unsigned int i = a.index_bases()[0];
+            i < a.index_bases()[0] + a.shape()[0]; ++i) {
+        for (unsigned int j = a.index_bases()[1];
+                j < a.index_bases()[1] + a.shape()[1]; ++j) {
             //if (abs(a[i][j]) < tolerance) {
-            BOOST_CHECK_MESSAGE(complex_floating_point_equal(a[i][j], b[i][j],
+            BOOST_CHECK_MESSAGE(
+                    complex_floating_point_equal(a[i][j], b[i][j],
                     tolerance), "a[" << i << "][" << j << "] = " << a[i][j]
                     << ", b[" << i << "][" << j << "] = " << b[i][j]
                     << ", |a-b| = " << abs(a[i][j] - b[i][j])
@@ -73,9 +74,9 @@ multi_array_check_equal(Const_MArray3d_ref const& a,
     BOOST_CHECK_EQUAL(a.shape()[0], b.shape()[0]);
     BOOST_CHECK_EQUAL(a.shape()[1], b.shape()[1]);
     BOOST_CHECK_EQUAL(a.shape()[2], b.shape()[2]);
-    for (int i = a.index_bases()[0]; i < a.index_bases()[0] + a.shape()[0]; ++i) {
-        for (int j = a.index_bases()[1]; j < a.index_bases()[1] + a.shape()[1]; ++j) {
-            for (int k = a.index_bases()[2]; k < a.index_bases()[2]
+    for (unsigned int i = a.index_bases()[0]; i < a.index_bases()[0] + a.shape()[0]; ++i) {
+        for (unsigned int j = a.index_bases()[1]; j < a.index_bases()[1] + a.shape()[1]; ++j) {
+            for (unsigned int k = a.index_bases()[2]; k < a.index_bases()[2]
                     + a.shape()[2]; ++k) {
                 BOOST_CHECK_MESSAGE(floating_point_equal(a[i][j][k],
                         b[i][j][k], tolerance), "a[" << i << "][" << j << "]["
