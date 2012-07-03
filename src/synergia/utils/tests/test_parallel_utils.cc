@@ -160,8 +160,8 @@ verify_ranks_elms_lt_procs(int elements, int procs,
     for (int proc = 0; proc < procs; ++proc) {
         used.at(proc) = false;
     }
-    int max_size = ranks.at(0).size();
-    int min_size = ranks.at(0).size();
+    unsigned int max_size = ranks.at(0).size();
+    unsigned int min_size = ranks.at(0).size();
     for (int element = 0; element < elements; ++element) {
         if (ranks.at(element).size() > max_size) {
             max_size = ranks.at(element).size();
@@ -169,7 +169,7 @@ verify_ranks_elms_lt_procs(int elements, int procs,
         if (ranks.at(element).size() < max_size) {
             min_size = ranks.at(element).size();
         }
-        for (int i = 0; i < ranks.at(element).size(); ++i) {
+        for (unsigned int i = 0; i < ranks.at(element).size(); ++i) {
             BOOST_CHECK(!used.at(ranks.at(element).at(i)));
             used.at(ranks.at(element).at(i)) = true;
         }

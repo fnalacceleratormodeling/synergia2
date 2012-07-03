@@ -52,7 +52,7 @@ std::vector<std::vector<int > >
 distribute_1d(Commxx comm, int elements);
 
 void 
-counts_and_offsets_for_impedance_raw(int  processors, int length, std::vector<int > &offsets,
+counts_and_offsets_for_impedance_raw(unsigned int  processors, int length, std::vector<int > &offsets,
  std::vector<int > &counts);
  
 void 
