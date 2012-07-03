@@ -31,12 +31,9 @@ run()
             * grid_shape[2] * part_per_cell;
     const int seed = 4;
     const double num_real_particles = 1.0e13;
-    const int num_steps = 8;
     const int num_turns = 10;
 
     const int map_order = 1;
-
-    const double trans_emit = 1e-6;
 
     Lattice_sptr lattice_sptr(new Lattice());
     try {
@@ -62,8 +59,6 @@ run()
     double freq = 588.0 * refpart.get_beta() * pconstants::c/lattice_sptr->get_length();
     std::cout << "    nominal frequency for harmonic number 588: " << freq <<
       std::endl;
-
-    double total_energy = refpart.get_total_energy();
 
     Commxx_sptr comm_sptr(new Commxx);
     Space_charge_3d_open_hockney_sptr space_charge_sptr(
