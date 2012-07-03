@@ -16,7 +16,6 @@ Space_charge_2d_open_hockney::setup_nondoubled_communication()
     int lower = 0;
     for (int rank = 0; rank < comm2_sptr->get_size(); ++rank) {
         int uppers2 = distributed_fft2d_sptr->get_uppers()[rank];
-        int uppers1 = std::min(uppers2, doubled_grid_shape[0]);
         int length0;
         if (rank > 0) {
             length0 = uppers2 - distributed_fft2d_sptr->get_uppers()[rank - 1];
@@ -72,13 +71,14 @@ Space_charge_2d_open_hockney::setup_default_options()
     set_e_force_comm(e_force_allreduce);
 }
 
-Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(Commxx_sptr comm_sptr,
-        std::vector<int > const & grid_shape, bool periodic_z, double z_period,
-        bool grid_entire_period, double n_sigma) :
-    Collective_operator("space charge 2D open hockney"), comm2_sptr(comm_sptr),
-            grid_shape(3), doubled_grid_shape(3), periodic_z(periodic_z),
-            z_period(z_period), grid_entire_period(grid_entire_period),
-            n_sigma(n_sigma), domain_fixed(false), have_domains(false)
+Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
+        Commxx_sptr comm_sptr, std::vector<int > const & grid_shape,
+        bool periodic_z, double z_period, bool grid_entire_period,
+        double n_sigma) :
+        Collective_operator("space charge 2D open hockney"), grid_shape(3), doubled_grid_shape(
+                3), periodic_z(periodic_z), z_period(z_period), grid_entire_period(
+                grid_entire_period), comm2_sptr(comm_sptr), n_sigma(n_sigma), domain_fixed(
+                false), have_domains(false)
 {
     if (this->periodic_z) {
         throw std::runtime_error(
@@ -99,12 +99,12 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(Commxx_sptr comm_sptr
 Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
         Distributed_fft2d_sptr distributed_fft2d_sptr, bool periodic_z,
         double z_period, bool grid_entire_period, double n_sigma) :
-    Collective_operator("space charge"), grid_shape(3), doubled_grid_shape(3),
-            comm2_sptr(distributed_fft2d_sptr->get_comm_sptr()),
-            distributed_fft2d_sptr(distributed_fft2d_sptr),
-            periodic_z(periodic_z), z_period(z_period),
-            grid_entire_period(grid_entire_period), n_sigma(n_sigma),
-            domain_fixed(false), have_domains(false)
+        Collective_operator("space charge"), grid_shape(3), doubled_grid_shape(
+                3), periodic_z(periodic_z), z_period(z_period), grid_entire_period(
+                grid_entire_period), distributed_fft2d_sptr(
+                distributed_fft2d_sptr), comm2_sptr(
+                distributed_fft2d_sptr->get_comm_sptr()), n_sigma(n_sigma), domain_fixed(
+                false), have_domains(false)
 {
     if (this->periodic_z) {
         throw std::runtime_error(
@@ -541,7 +541,6 @@ Space_charge_2d_open_hockney::get_green_fn2_pointlike()
 
     double hx = domain_sptr->get_cell_size()[0];
     double hy = domain_sptr->get_cell_size()[1];
-    double hz = domain_sptr->get_cell_size()[2];
 
     const double epsilon = 0.01;
     double dx, dy, Gx, Gy;
@@ -761,7 +760,6 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
         Rectangular_grid const& Fn, double delta_t)
 {
     // $\delta \vec{p} = \vec{F} \delta t = q \vec{E} \delta t$
-    double q = bunch.get_particle_charge() * pconstants::e; // [C]
     // delta_t_beam: [s] in beam frame
     double delta_t_beam = delta_t / bunch.get_reference_particle().get_gamma();
     // unit_conversion: [N] = [kg m/s^2] to [Gev/c]
