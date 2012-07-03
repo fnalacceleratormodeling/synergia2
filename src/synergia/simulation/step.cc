@@ -97,7 +97,7 @@ Step::apply(Bunch & bunch, int verbosity, Logger & logger,
             vbi.push_back(bi);
             stored_vbunches.push_front(vbi);
 
-            int nstored=(reinterpret_cast<Impedance*>(boost::get_pointer(*it)))->get_nstored_turns();
+            unsigned int nstored=(reinterpret_cast<Impedance*>(boost::get_pointer(*it)))->get_nstored_turns();
              if (stored_vbunches.size()>nstored) stored_vbunches.pop_back();
 
            // std::cout<<"name ="<< (*it)->get_name()<<" stored dim "<<stored_bunches.size()<<std::endl;
