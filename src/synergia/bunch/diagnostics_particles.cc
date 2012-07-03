@@ -5,9 +5,9 @@ const char Diagnostics_particles::name[] = "diagnostics_particles";
 
 Diagnostics_particles::Diagnostics_particles(std::string const& filename,
         int min_particle_id, int max_particle_id, int write_skip) :
-    Diagnostics_particles::Diagnostics(Diagnostics_particles::name, filename),
-            min_particle_id(min_particle_id), max_particle_id(max_particle_id),
-            have_writers(false)
+        Diagnostics_particles::Diagnostics(Diagnostics_particles::name,
+                filename), have_writers(false), min_particle_id(
+                min_particle_id), max_particle_id(max_particle_id)
 {
 }
 
