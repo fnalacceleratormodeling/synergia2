@@ -80,7 +80,6 @@ BOOST_AUTO_TEST_CASE(update)
     const double quad_length = 0.2;
     const double quad_strength = 3.2;
     const double drift_length = 3.0;
-    const double bend_length = 4.0;
 
     Lattice_element f("quadrupole", "f");
     f.set_double_attribute("l", quad_length);
@@ -119,7 +118,7 @@ BOOST_AUTO_TEST_CASE(update)
     }
     lattice_simulator.set_slices(slices);
 
-    double orig_quad_strength;
+    double orig_quad_strength = 0.0;
     for (beamline::deep_iterator
             it =
                     lattice_simulator.get_chef_lattice_sptr()->get_sliced_beamline_sptr()->deep_begin(); it
@@ -407,7 +406,6 @@ BOOST_FIXTURE_TEST_CASE(normal_human_normal, Foborodobo32_fixture)
 BOOST_FIXTURE_TEST_CASE(check_linear_normal_form, Foborodobo32_fixture)
 {
   const int map_order = 3;
-  const double tolerance = 1.0e-10;
   Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
   BOOST_CHECK(lattice_simulator.check_linear_normal_form());
