@@ -47,8 +47,8 @@ wofz(Complex z)
     double xquad = xabs * xabs - yabs * yabs;
     double yquad = 2.0 * xabs * yabs;
 
-    double u, v;
-    double u1, u2, v1, v2;
+    double u=0.0, v=0.0;
+    double u1, u2 = 0.0, v1, v2=0.0;
 
     if (qrho < 0.085264) {
     // If (qrho < 0.085264) then the Faddeeva function is evaluated using a 
@@ -74,7 +74,7 @@ wofz(Complex z)
         v = u1 * v2 + v1 * u2;
         }
     } else {
-        double h, h2, qlambda;
+        double h, h2=0.0, qlambda=0.0;
         int kapn, nu;
         if (qrho > 1.0) {
         // If (qrho > 1.0) then w(z) is evaluated using the Laplace Continued 
