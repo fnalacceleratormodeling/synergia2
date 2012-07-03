@@ -73,15 +73,15 @@ Space_charge_3d_open_hockney::setup_default_options()
     set_e_field_comm(e_field_allreduce);
 }
 
-Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(Commxx_sptr comm_sptr,
-        std::vector<int > const & grid_shape, bool longitudinal_kicks,
-        bool periodic_z, double z_period, bool grid_entire_period,
-        double n_sigma) :
-        Collective_operator("space charge 3D open hockney"), comm2_sptr(comm_sptr), grid_shape(
-                3), doubled_grid_shape(3), padded_grid_shape(3), longitudinal_kicks(
-                longitudinal_kicks), periodic_z(periodic_z), z_period(z_period), grid_entire_period(
-                grid_entire_period), n_sigma(n_sigma), domain_fixed(false), have_domains(
-                false)
+Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
+        Commxx_sptr comm_sptr, std::vector<int > const & grid_shape,
+        bool longitudinal_kicks, bool periodic_z, double z_period,
+        bool grid_entire_period, double n_sigma) :
+        Collective_operator("space charge 3D open hockney"), grid_shape(3), doubled_grid_shape(
+                3), padded_grid_shape(3), periodic_z(periodic_z), z_period(
+                z_period), grid_entire_period(grid_entire_period), longitudinal_kicks(
+                longitudinal_kicks), comm2_sptr(comm_sptr), n_sigma(n_sigma), domain_fixed(
+                false), have_domains(false)
 {
     if (this->periodic_z && (this->z_period == 0.0)) {
         throw std::runtime_error(
@@ -105,12 +105,12 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
         bool periodic_z, double z_period, bool grid_entire_period,
         double n_sigma) :
         Collective_operator("space charge"), grid_shape(3), doubled_grid_shape(
-                3), padded_grid_shape(3), comm2_sptr(
-                distributed_fft3d_sptr->get_comm_sptr()), distributed_fft3d_sptr(
-                distributed_fft3d_sptr), longitudinal_kicks(longitudinal_kicks), periodic_z(
-                periodic_z), z_period(z_period), grid_entire_period(
-                grid_entire_period), n_sigma(n_sigma), domain_fixed(false), have_domains(
-                false)
+                3), padded_grid_shape(3), periodic_z(periodic_z), z_period(
+                z_period), grid_entire_period(grid_entire_period), longitudinal_kicks(
+                longitudinal_kicks), distributed_fft3d_sptr(
+                distributed_fft3d_sptr), comm2_sptr(
+                distributed_fft3d_sptr->get_comm_sptr()), n_sigma(n_sigma), domain_fixed(
+                false), have_domains(false)
 {
     doubled_grid_shape = distributed_fft3d_sptr->get_shape();
     for (int i = 0; i < 3; ++i) {
