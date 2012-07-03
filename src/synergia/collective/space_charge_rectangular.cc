@@ -10,7 +10,7 @@ using pconstants::epsilon0;
 
 
 Space_charge_rectangular::Space_charge_rectangular(Commxx_sptr comm_f_sptr, std::vector<double > const & pipe_size, std::vector<int > const & grid_shape):
-Collective_operator("space_charge_rectangular"),  comm_f_sptr(comm_f_sptr), grid_shape(grid_shape)
+Collective_operator("space_charge_rectangular"), grid_shape(grid_shape),  comm_f_sptr(comm_f_sptr)
 {
 
  try{
@@ -156,9 +156,8 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bu
     if (!have_fftw_helper)  throw std::runtime_error(
                 "Space_charge_rectangular::get_phi_local  space_charge does not have have_fftw_helper defined");
 
-    double t;
-    int lrank=comm_f_sptr->get_rank();
-    t = simple_timer_current();
+//    double t;
+//    t = simple_timer_current();
 
 
     MArray3d_ref rho_ref(rho.get_grid_points());
@@ -187,7 +186,7 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bu
     MArray3d_ref phi_local_ref(phi_local->get_grid_points());
     MArray3d_ref rho_local_ref(rho_ref.origin()+local_x_start*shape[1]*shape[2],boost::extents[local_nx][shape[1]][shape[2]]);
 
-    t = simple_timer_current();
+    // t = simple_timer_current();
     get_fftw_helper_sptr()->transform(rho_local_ref, phi_local_ref);
 
    // t = simple_timer_show(t, "sc_get_phi_local: fftw_dst_direct");
@@ -232,7 +231,7 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bu
 
 
     //t = simple_timer_show(t, "sc_get_phi_local: fftw1d_inverse");
-    t = simple_timer_current();
+    //t = simple_timer_current();
     get_fftw_helper_sptr()->inv_transform(phi_local_ref,phi_local_ref);
    // t = simple_timer_show(t, "sc_get_phi_local: fftw_dst_inverse");
 
@@ -255,7 +254,6 @@ Space_charge_rectangular::fill_guards_pplanes(Distributed_rectangular_grid & phi
         throw std::runtime_error("space charge rectangular, phi comm is not the same as space_charge comm_f");
     }
 
-    int size=comm_f_sptr->get_size();
     int lrank=comm_f_sptr->get_rank();
     std::vector<int > shape_phi(phi.get_domain().get_grid_shape());
     int message_size = shape_phi[1] * shape_phi[2];
