@@ -41,8 +41,8 @@ struct Bunch_sptr_fixture
         BOOST_TEST_MESSAGE("teardown fixture");
     }
 
-    Reference_particle reference_particle;
     Commxx_sptr comm_sptr;
+    Reference_particle reference_particle;
     Bunch_sptr bunch_sptr;
 };
 
