@@ -95,6 +95,7 @@ BOOST_FIXTURE_TEST_CASE(begin_iterator, Chef_lattice_sptr_fixture)
     Chef_lattice_section chef_lattice_section(chef_lattice_sptr, begin, end);
 
     beamline::iterator it = chef_lattice_section.begin();
+    BOOST_CHECK(it != chef_lattice_section.end());
 }
 
 BOOST_FIXTURE_TEST_CASE(end_iterator, Chef_lattice_sptr_fixture)
@@ -102,6 +103,7 @@ BOOST_FIXTURE_TEST_CASE(end_iterator, Chef_lattice_sptr_fixture)
     Chef_lattice_section chef_lattice_section(chef_lattice_sptr, begin, end);
 
     beamline::iterator it = chef_lattice_section.end();
+    BOOST_CHECK(it != chef_lattice_section.begin());
 }
 
 BOOST_FIXTURE_TEST_CASE(begin_const_iterator, Chef_lattice_sptr_fixture)
@@ -109,6 +111,7 @@ BOOST_FIXTURE_TEST_CASE(begin_const_iterator, Chef_lattice_sptr_fixture)
     Chef_lattice_section chef_lattice_section(chef_lattice_sptr, begin, end);
 
     beamline::const_iterator it = chef_lattice_section.begin();
+    BOOST_CHECK(it != chef_lattice_section.end());
 }
 
 BOOST_FIXTURE_TEST_CASE(end_const_iterator, Chef_lattice_sptr_fixture)
@@ -116,6 +119,7 @@ BOOST_FIXTURE_TEST_CASE(end_const_iterator, Chef_lattice_sptr_fixture)
     Chef_lattice_section chef_lattice_section(chef_lattice_sptr, begin, end);
 
     beamline::const_iterator it = chef_lattice_section.end();
+    BOOST_CHECK(it != chef_lattice_section.begin());
 }
 
 BOOST_FIXTURE_TEST_CASE(empty, Chef_lattice_sptr_fixture)
