@@ -22,7 +22,6 @@ run()
     grid_shape[0] = 32;
     grid_shape[1] = 32;
     grid_shape[2] = 256;
-    const int part_per_cell = 10;
     const int map_order = 3;
 
     Lattice_sptr lattice_sptr(new Lattice());
