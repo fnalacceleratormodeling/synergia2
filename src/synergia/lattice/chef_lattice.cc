@@ -271,6 +271,7 @@ Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
         double total_done = 0.0;
         while (!complete) {
             element_left = left - s + total_done;
+            element_right = 0.0;
             double chef_element_length = (*c_it)->Length();
             if (floating_point_leq(chef_element_length, element_left, tolerance)
                     && (total_done == 0.0)) {
