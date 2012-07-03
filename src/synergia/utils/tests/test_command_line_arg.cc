@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(extract_value_double)
 {
     Command_line_arg arg("foo=2.718");
     const double tolerance = 1.0e-13;
-    BOOST_CHECK_EQUAL(arg.extract_value<double >(), 2.718);
+    BOOST_CHECK_CLOSE(arg.extract_value<double >(), 2.718, tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(extract_value_bool)
