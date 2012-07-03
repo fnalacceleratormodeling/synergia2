@@ -64,7 +64,6 @@ void Analysis::uploadCoords() {
      H5::DataSet bunch_ds = file.openDataSet("particles");
      H5::FloatType datatypeDble(H5::PredType::NATIVE_DOUBLE);
      H5::DataSpace spaceBunch = bunch_ds.getSpace();
-     int ndims = spaceBunch.getSimpleExtentDims( dims_out, NULL);
      size_t nTotalEntries = (size_t) dims_out[0];
 //     std::cerr << " Number of particle at turn " << numTurns << " is " << nTotalEntries << std::endl;
      hsize_t      countVect[2]={1,7};    // size of the hyperslab in the file
@@ -79,7 +78,7 @@ void Analysis::uploadCoords() {
 	   }
 	 }
      }
-     int nEntry=0;
+     size_t nEntry=0;
      int nGoodParticles=0;
      while (nEntry < nTotalEntries) { // Slow and tedious get every X or y position, 
        offset[0] = nEntry;
@@ -131,9 +130,9 @@ std::vector<double> Analysis::get_YCoords_forTunes(size_t selectedParticle) cons
 // need to loop again over all files. 
 // 
 std::vector<double> Analysis::get_transverse_action_for_particle(bool isH,  
-                                   int partNumber, double alpha, double beta) const {
+                                   size_t partNumber, double alpha, double beta) const {
   std::vector<double> cVals;
-  int nTurns=0;
+  size_t nTurns=0;
   hsize_t      offset[2]={0,0};   // hyperslab offset in the file
   hsize_t      dims_out[2]={0,0};   // the whole thing.
   double gamma = (1. + alpha*alpha)/beta;
@@ -151,12 +150,11 @@ std::vector<double> Analysis::get_transverse_action_for_particle(bool isH,
      H5::DataSet bunch_ds = file.openDataSet("particles");
      H5::FloatType datatypeDble(H5::PredType::NATIVE_DOUBLE);
      H5::DataSpace spaceBunch = bunch_ds.getSpace();
-     int ndims = spaceBunch.getSimpleExtentDims( dims_out, NULL);
      size_t nTotalEntries = (size_t) dims_out[0];
      hsize_t      countVect[2]={1,7};    // size of the hyperslab in the file
      H5::DataSpace  memspace(2, countVect);
      MArray1d aPartCoord(boost::extents[7]); // coordinate values.
-     int nEntry=0;
+     size_t nEntry=0;
      while (nEntry < nTotalEntries) { // Slow and tedious get every X or y position, 
        offset[0] = nEntry;
        spaceBunch.selectHyperslab( H5S_SELECT_SET, countVect, offset );
@@ -186,7 +184,6 @@ std::vector<double> Analysis::get_transverse_action_for_particle(bool isH,
 std::vector<double> Analysis::get_transverse_action_for_bunch(bool isH,  
                                    size_t iTurn, double alpha, double beta) const {
   std::vector<double> cVals;
-  int nTurns=0;
   std::ostringstream sstream;
   sstream << tokenname << "_" << std::setw(4) << std::setfill('0') << iTurn << ".h5";
   std::string fullname(sstream.str());
@@ -202,18 +199,16 @@ std::vector<double> Analysis::get_transverse_action_for_bunch(bool isH,
   H5::DataSpace spaceBunch = bunch_ds.getSpace();
   hsize_t	offset[2]={0,0};   // hyperslab offset in the file
   hsize_t      dims_out[2]={0,0};   // the whole thing.
-  int ndims = spaceBunch.getSimpleExtentDims( dims_out, NULL);
   size_t nTotalEntries = (size_t) dims_out[0];
   hsize_t	countVect[2]={1,7};    // size of the hyperslab in the file
   H5::DataSpace  memspace(2, countVect);
-  int nEntry=0;
+  size_t nEntry=0;
   double gamma = (1. + alpha*alpha)/beta;
   MArray1d aPartCoord(boost::extents[7]); // coordinate values.
   while (nEntry < nTotalEntries) { // Slow and tedious get every X or y position, 
     offset[0] = nEntry;
     spaceBunch.selectHyperslab( H5S_SELECT_SET, countVect, offset );
     bunch_ds.read(&aPartCoord[0], datatypeDble, memspace, spaceBunch );
-    size_t partNum = (size_t) ( (int) aPartCoord[Bunch::id]);
     double action=0;
     if (isH) action = beta*aPartCoord[Bunch::xp]*aPartCoord[Bunch::xp] + 
         			 2.0*alpha*aPartCoord[Bunch::x]*aPartCoord[Bunch::xp] +
@@ -275,7 +270,7 @@ void Analysis::compute_betatron_tunes(bool isH) {
     else numYTunesFound=0;
     size_t numTunes=0;
     for (size_t partNum=0; partNum != numParticles1rstBunch; partNum++) {
-      int lastTurn=0;
+      size_t lastTurn=0;
       for(size_t iTurn=0; iTurn!=coords.shape()[0]; iTurn++) {
         if ((isH) && (coords[iTurn][partNum][0] == FLT_MAX)) break;
         if ((!isH) && (coords[iTurn][partNum][1] == FLT_MAX)) break;

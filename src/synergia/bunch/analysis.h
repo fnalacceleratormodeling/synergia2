@@ -22,13 +22,13 @@ class Analysis
 {
 
 private:
-    int maxNumberOfTurn; // The number of turn performed in the simulation. User intput
+    size_t maxNumberOfTurn; // The number of turn performed in the simulation. User intput
     size_t seqCount;
     std::string tokenname; // Token, not the full file name  
     std::string filename; // the file name currently opened, volatile. 
      
-    int numTurns;
-    int numParticles1rstBunch;
+    size_t numTurns;
+    size_t numParticles1rstBunch;
     size_t selectedParticleId;
     bool gotHorizontalTunes;
     bool gotVerticalTunes;
@@ -58,7 +58,7 @@ public:
     
     inline int get_num_turns() const {return numTurns;}
     inline int get_num_part_first_bunch() const {return numParticles1rstBunch;}
-    std::vector<double> get_transverse_action_for_particle(bool isH,  int selectedParticle,
+    std::vector<double> get_transverse_action_for_particle(bool isH,  size_t selectedParticle,
                                                            double alpha, double beta) const;
     std::vector<double> get_transverse_action_for_bunch(bool isH,  size_t turnNumber, 
                                                         double alpha, double beta) const;
