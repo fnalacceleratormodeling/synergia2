@@ -159,18 +159,18 @@ Chef_lattice::construct()
 }
 
 Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr) :
-    lattice_sptr(lattice_sptr), beamline_sptr(),
-            lattice_element_marker(new marker(internal_marker_name)),
-            element_adaptor_map_sptr(new Element_adaptor_map)
+        lattice_sptr(lattice_sptr), element_adaptor_map_sptr(
+                new Element_adaptor_map), beamline_sptr(), lattice_element_marker(
+                new marker(internal_marker_name))
 {
     construct();
 }
 
 Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr,
         Element_adaptor_map_sptr element_adaptor_map_sptr) :
-    lattice_sptr(lattice_sptr), beamline_sptr(),
-            lattice_element_marker(new marker(internal_marker_name)),
-            element_adaptor_map_sptr(element_adaptor_map_sptr)
+        lattice_sptr(lattice_sptr), element_adaptor_map_sptr(
+                element_adaptor_map_sptr), beamline_sptr(), lattice_element_marker(
+                new marker(internal_marker_name))
 {
     construct();
 }
