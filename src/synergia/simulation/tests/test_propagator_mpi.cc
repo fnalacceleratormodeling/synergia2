@@ -38,13 +38,8 @@ struct Object_to_sptr_hack
             lattice_simulator, space_charge, 4));
     Propagator propagator(stepper_sptr);
 
-    const int num_bunches=3;
-    const double bunch_separation = 1.7;
     Reference_particle reference_particle=b.bunch.get_reference_particle() ;
     /// bunches with different comms has to be generated
-    int total_num=b.bunch.get_total_num();
-    double real_num=b.bunch.get_real_num();
-    int particle_charge=b.bunch.get_particle_charge();
     MArray2d covariances(boost::extents[6][6]);
     MArray1d means(boost::extents[6]);
     for (int i = 0; i < 6; ++i) {
