@@ -332,11 +332,11 @@ BOOST_FIXTURE_TEST_CASE(transform_realtest, Fixture2)
     for (int i0 = lower; i0 < upper; ++i0) {
         for (int i1 = 0; i1 < cshape[1]; ++i1) {
             for (int i2 = 0; i2 < cshape[2]; ++i2) {
-                if ((i0 == loc0) && (i1 == loc1) && (i2 == loc2)
-                        || (i0 == loc0) && (i1 == (shape[1] - loc1)) && (i2
-                                == loc2) || (i0 == (shape[0] - loc0)) && (i1
-                        == loc1) && (i2 == loc2) || (i0 == (shape[0] - loc0))
-                        && (i1 == (shape[1] - loc1)) && (i2 == loc2)) {
+                if (((i0 == loc0) && (i1 == loc1) && (i2 == loc2))
+                        || ((i0 == loc0) && (i1 == (shape[1] - loc1)) && (i2
+                                == loc2)) || ((i0 == (shape[0] - loc0)) && (i1
+                        == loc1) && (i2 == loc2)) || ((i0 == (shape[0] - loc0))
+                        && (i1 == (shape[1] - loc1)) && (i2 == loc2))) {
                     BOOST_CHECK(std::abs(carray[i0][i1][i2].real()-norm) < fft_tolerance);
 #if DBGPRINT
                     if (std::abs(carray[i0][i1][i2].real()-norm) >= fft_tolerance) {
