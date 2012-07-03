@@ -11,9 +11,9 @@ fn(int i, int j, int k)
 BOOST_AUTO_TEST_CASE(simple)
 {
     MArray3d array(boost::extents[3][4][5]);
-    for (int i = 0; i < array.shape()[0]; ++i) {
-        for (int j = 0; j < array.shape()[1]; ++j) {
-            for (int k = 0; k < array.shape()[2]; ++k) {
+    for (unsigned int i = 0; i < array.shape()[0]; ++i) {
+        for (unsigned int j = 0; j < array.shape()[1]; ++j) {
+            for (unsigned int k = 0; k < array.shape()[2]; ++k) {
                 array[i][j][k] = fn(i, j, k);
             }
         }
@@ -55,13 +55,13 @@ fn_2d(int i, int j)
 BOOST_AUTO_TEST_CASE(simple_2d)
 {   
     MArray2d array(boost::extents[3][4]); 
-    for (int i = 0; i < array.shape()[0]; ++i) {
-        for (int j = 0; j < array.shape()[1]; ++j) {
+    for (unsigned int i = 0; i < array.shape()[0]; ++i) {
+        for (unsigned int j = 0; j < array.shape()[1]; ++j) {
                 array[i][j] = fn_2d(i, j);
         }
     }
     double * pointer;
-    int i, j, k;
+    int i, j;
 
     i = 2;
     j = 0;
