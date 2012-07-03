@@ -3,8 +3,15 @@
 
 #include "synergia/foundation/reference_particle.h"
 #include "synergia/bunch/bunch.h"
-#include "mxyzptlk/Mapping.h"
 #include "synergia/lattice/chef_utils.h"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsequence-point"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#include "mxyzptlk/Mapping.h"
+#pragma GCC diagnostic pop
 
 #include <vector>
 #include <list>
