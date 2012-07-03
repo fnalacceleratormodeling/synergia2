@@ -5,9 +5,12 @@
 #include "synergia/utils/simple_timer.h"
 
 
-Impedance::Impedance(std::string const & wake_file, double const & orbit_length, double const & bunchsp, int const & zgrid, std::string const & pipe_symmetry, int const nstored_turns):
-     Collective_operator("impedance"), orbit_length(orbit_length), bunch_spacing(bunchsp), z_grid(zgrid), wake_file(wake_file),
-     nstored_turns(nstored_turns)
+Impedance::Impedance(std::string const & wake_file, double const & orbit_length,
+        double const & bunchsp, int const & zgrid,
+        std::string const & pipe_symmetry, int const nstored_turns) :
+        Collective_operator("impedance"), z_grid(zgrid), nstored_turns(
+                nstored_turns), orbit_length(orbit_length), bunch_spacing(
+                bunchsp), wake_file(wake_file)
 {
 
     try{    // wake_factor=-4.*mconstants::pi*pconstants::rp/pconstants::c;
@@ -29,7 +32,7 @@ Impedance::Impedance(std::string const & wake_file, double const & orbit_length,
           while (!rfile.eof() && rfile.is_open()) {
               getline(rfile,line);
               if ( !line.empty() ){
-                int pos=line.find_first_not_of(" \t\r\n");
+                unsigned int pos=line.find_first_not_of(" \t\r\n");
                 if (pos !=std::string::npos){
                     if (line.at(pos) != '#' ){
                             double column1, column2, column3, column4;
@@ -407,10 +410,8 @@ Impedance::apply(Bunch & bunch, double time_step, Step & step, int verbosity, Lo
 
     int bunch_bucket=bunch.get_bucket_index();
     double bunch_z_mean=Core_diagnostics::calculate_z_mean(bunch);
-    double bunchsp=get_bunch_spacing();
     double N_factor=bunch.get_real_num()/bunch.get_total_num();
     double gamma = bunch.get_reference_particle().get_gamma();
-    double beta= bunch.get_reference_particle().get_beta();
     double cell_size_z= size_z/double(z_grid);
 
     get_kicks(bunch_bucket, bunch_z_mean, z_grid, orbit_length , N_factor, cell_size_z, z_coord, x_wake, y_wake, z_wake, zdensity,
