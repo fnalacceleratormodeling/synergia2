@@ -52,7 +52,7 @@ BOOST_AUTO_TEST_CASE(get_nonexistent_double_attribute)
     BOOST_CHECK(lattice_element.has_double_attribute(attr) == false);
     bool caught = false;
     try {
-        double val = lattice_element.get_double_attribute(attr);
+        lattice_element.get_double_attribute(attr);
     }
     catch (std::runtime_error) {
         caught = true;
