@@ -48,7 +48,6 @@ get_gaussian_rho2(Space_charge_2d_open_hockney & space_charge, Bunch & bunch,
                 double x, y, z;
                 local_rho->get_domain().get_cell_coordinates(i, j, k, x,
                         y, z);
-                double r2 = x * x + y * y + z * z;
                 //double val = gaussian_charge_density(Q, r2, sigma);
                 double val = gaussian_charge_density2(Q, x, y, z, sigma, sigmaz);
                 rho2->get_grid_points_2dc()[i][j] += val;
