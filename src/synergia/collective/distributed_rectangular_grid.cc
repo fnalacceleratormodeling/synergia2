@@ -80,15 +80,15 @@ Distributed_rectangular_grid::Distributed_rectangular_grid(
         std::vector<double > const & physical_offset,
         std::vector<int > const & grid_shape, bool periodic, int lower,
         int upper, Commxx_sptr comm_sptr, std::string const solver) :
-    comm_sptr(comm_sptr), uppers(0), lengths(0)
+        uppers(0), lengths(0), comm_sptr(comm_sptr)
 {
-    domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
-            physical_size, physical_offset, grid_shape, periodic));
-    if (solver=="hockney") {
+    domain_sptr = Rectangular_grid_domain_sptr(
+            new Rectangular_grid_domain(physical_size, physical_offset,
+                    grid_shape, periodic));
+    if (solver == "hockney") {
         construct_hockney(lower, upper, domain_sptr->get_grid_shape());
-    }
-    else if  (solver=="rectangular"){
-         construct_rectangular(lower, upper, domain_sptr->get_grid_shape());
+    } else if (solver == "rectangular") {
+        construct_rectangular(lower, upper, domain_sptr->get_grid_shape());
     }
 
 }
@@ -96,21 +96,21 @@ Distributed_rectangular_grid::Distributed_rectangular_grid(
 Distributed_rectangular_grid::Distributed_rectangular_grid(
         Rectangular_grid_domain_sptr rectangular_grid_domain_sptr, int lower,
         int upper, Commxx_sptr comm_sptr, std::string const solver) :
-    comm_sptr(comm_sptr), uppers(0), lengths(0)
+        uppers(0), lengths(0), comm_sptr(comm_sptr)
 {
     domain_sptr = rectangular_grid_domain_sptr;
-    if (solver=="hockney") {
+    if (solver == "hockney") {
         construct_hockney(lower, upper, domain_sptr->get_grid_shape());
-    }
-    else if  (solver=="rectangular"){
-         construct_rectangular(lower, upper, domain_sptr->get_grid_shape());
+    } else if (solver == "rectangular") {
+        construct_rectangular(lower, upper, domain_sptr->get_grid_shape());
     }
 }
 
 Distributed_rectangular_grid::Distributed_rectangular_grid(
         Rectangular_grid_domain_sptr rectangular_grid_domain_sptr, int lower,
-        int upper, std::vector<int > const & padded_shape, Commxx_sptr comm_sptr) :
-    comm_sptr(comm_sptr), uppers(0), lengths(0)
+        int upper, std::vector<int > const & padded_shape,
+        Commxx_sptr comm_sptr) :
+        uppers(0), lengths(0), comm_sptr(comm_sptr)
 {
     domain_sptr = rectangular_grid_domain_sptr;
     construct_hockney(lower, upper, padded_shape);
