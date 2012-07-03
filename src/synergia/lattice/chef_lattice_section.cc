@@ -2,14 +2,14 @@
 #include <stdexcept>
 
 Chef_lattice_section::Chef_lattice_section(Chef_lattice_sptr chef_lattice_sptr) :
-    chef_lattice_sptr(chef_lattice_sptr), begin_index(no_index),
-            end_index(no_index)
+        begin_index(no_index), end_index(no_index), chef_lattice_sptr(
+                chef_lattice_sptr)
 {
 }
 
 Chef_lattice_section::Chef_lattice_section(Chef_lattice_sptr chef_lattice_sptr,
         int begin, int end) :
-    chef_lattice_sptr(chef_lattice_sptr), begin_index(begin), end_index(end)
+        begin_index(begin), end_index(end), chef_lattice_sptr(chef_lattice_sptr)
 {
 }
 
