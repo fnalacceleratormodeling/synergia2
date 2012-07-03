@@ -786,8 +786,6 @@ Split_operator_stepper_choice::construct_per_element_else()
 
     double step_length_else = length_else/this->num_steps_else;
 
-    double  half_step_length_else=0.5*step_length_else;
-
     for (Lattice_elements::iterator it =
             get_lattice_simulator().get_lattice_sptr()->get_elements().begin(); it
             != get_lattice_simulator().get_lattice_sptr()->get_elements().end(); ++it){
@@ -913,7 +911,7 @@ Split_operator_stepper_choice::construct_per_element_else()
      if (rank==0){
           std::cout<<" stepper_choice per element:"<<std::endl;
           std::cout<<"                total number of steps=  "<<this->get_steps().size()<<std::endl;
-          std:cout<<" time: stepper choice done in "<<t_turn1-t_turn<<std::endl;
+          std::cout<<" time: stepper choice done in "<<t_turn1-t_turn<<std::endl;
      }
 
 }
@@ -995,7 +993,6 @@ Split_operator_stepper_choice::construct_split_else()
 
 
     double step_length_else = length_else/this->num_steps_else;
-    double  half_step_length_else=0.5*step_length_else;
     if (rank==0) std::cout<<" length_else="<< length_else<<" step_length_else="<< step_length_else<<std::endl;
 
     double  length_between=0.; // length between chosen elements
@@ -1095,7 +1092,7 @@ Split_operator_stepper_choice::construct_split_else()
      if (rank==0){
           std::cout<<" stepper_choice split_else:"<<std::endl;
           std::cout<<"                total number of steps=  "<<this->get_steps().size()<<std::endl;
-          std:cout<<" time: stepper choice done in "<<t_turn1-t_turn<<std::endl;
+          std::cout<<" time: stepper choice done in "<<t_turn1-t_turn<<std::endl;
      }
 
 }
