@@ -3,11 +3,11 @@
 
 const char Diagnostics_track::name[] = "diagnostics_track";
 
-Diagnostics_track::Diagnostics_track(
-        std::string const& filename, int particle_id) :
-    Diagnostics(Diagnostics_track::name, filename), have_writers(false),
-            coords(boost::extents[6]), found(false), first_search(true),
-            particle_id(particle_id), last_index(-1)
+Diagnostics_track::Diagnostics_track(std::string const& filename,
+        int particle_id) :
+        Diagnostics(Diagnostics_track::name, filename), have_writers(false), found(
+                false), first_search(true), last_index(-1), particle_id(
+                particle_id), coords(boost::extents[6])
 {
 }
 
@@ -37,7 +37,7 @@ Diagnostics_track::update()
     trajectory_length
             = get_bunch().get_reference_particle().get_trajectory_length();
     if (found || first_search) {
-        int index;
+        int index = 0;
         found = false;
         if ((last_index > -1) && (last_index < get_bunch().get_local_num())) {
             if (particle_id
