@@ -34,7 +34,7 @@ BOOST_FIXTURE_TEST_CASE(construct_bad, Lattice_fixture2)
         Split_operator_stepper_elements stepper(lattice_simulator,
                 space_charge, steps_per_element);
     }
-    catch (std::runtime_error) {
+    catch (std::runtime_error &) {
         caught_error = true;
     }
     BOOST_CHECK(caught_error);
@@ -110,7 +110,6 @@ verify_steps(Split_operator_stepper_elements & stepper, int steps_per_element)
                     BOOST_CHECK ((*oit)->get_name() == "second_half");
                 }
                 if ((*oit)->get_type() == "independent") {
-                    double substep_length = 0.0;
                     Lattice_element_slices slices(
                             boost::static_pointer_cast<Independent_operator >(
                                     *oit)->get_slices());
