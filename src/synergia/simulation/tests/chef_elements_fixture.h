@@ -1,8 +1,15 @@
 #ifndef CHEF_ELEMENTS_FIXTURE_H_
 #define CHEF_ELEMENTS_FIXTURE_H_
-#include <beamline/beamline_elements.h>
 #include "synergia/simulation/chef_propagator.h"
 #include "synergia/lattice/chef_utils.h"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsequence-point"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#include <beamline/beamline_elements.h>
+#pragma GCC diagnostic pop
 
 const double drift_length = 1.2;
 const double quad_length = 0.3;
