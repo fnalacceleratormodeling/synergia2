@@ -86,8 +86,9 @@ Train_comms::~Train_comms()
 //*******************************************************************************
 
 Bunch_train::Bunch_train(int num_bunches, double bunch_separation,
-        Commxx_sptr master_comm_sptr) : Train_comms(num_bunches, master_comm_sptr),
-        bunches(num_bunches), bunch_separation(bunch_separation)
+        Commxx_sptr master_comm_sptr) :
+        Train_comms(num_bunches, master_comm_sptr), bunch_separation(
+                bunch_separation), bunches(num_bunches)
 {
 }
 
