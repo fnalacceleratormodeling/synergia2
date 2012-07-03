@@ -88,20 +88,20 @@ Commxx::construct(MPI_Comm const& parent_mpi_comm)
 }
 
 Commxx::Commxx() :
-    comm(MPI_COMM_WORLD), parent_sptr(), ranks(0), per_host(false),
-            has_this_rank_(true)
+        comm(MPI_COMM_WORLD ), per_host(false), ranks(0), parent_sptr(), has_this_rank_(
+                true)
 {
 }
 
 Commxx::Commxx(bool per_host) :
-    parent_sptr(), ranks(0), per_host(per_host)
+        per_host(per_host), ranks(0), parent_sptr()
 {
-    construct(MPI_COMM_WORLD);
+    construct(MPI_COMM_WORLD );
 }
 
 Commxx::Commxx(Commxx_sptr parent_sptr, std::vector<int > const& ranks,
         bool per_host) :
-    parent_sptr(parent_sptr), ranks(ranks), per_host(per_host)
+        per_host(per_host), ranks(ranks), parent_sptr(parent_sptr)
 {
     construct(parent_sptr->get());
 }
