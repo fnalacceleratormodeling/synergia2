@@ -12,9 +12,8 @@ Diagnostics_bulk_track::Diagnostics_bulk_track(std::string const& filename,
         Diagnostics(Diagnostics_bulk_track::name, filename), num_tracks(
                 num_tracks), local_num_tracks(no_local_num_tracks), offset(
                 offset), local_offset(no_local_num_tracks), have_writers(false), first_search(
-                true), diag_track_status(), track_coords(boost::extents[1][7]), writer_s(
-                0), writer_repetition(0), writer_trajectory_length(0), writer_coords(
-                0)
+                true), diag_track_status(), writer_s(0), writer_repetition(0), writer_trajectory_length(
+                0), track_coords(boost::extents[1][7]), writer_coords(0)
 {
 }
 
@@ -84,7 +83,7 @@ Diagnostics_bulk_track::update()
     for (int idxtrk = local_offset; idxtrk < local_num_tracks+local_offset; ++idxtrk) {
         Track_status *dtsptr = &diag_track_status[idxtrk-local_offset];
         if (dtsptr->found || first_search) {
-            int index;
+            int index = 0;
             dtsptr->found = false;
             if ((dtsptr->last_index > -1)
                     && (dtsptr->last_index < get_bunch().get_local_num())) {
@@ -195,7 +194,6 @@ Diagnostics_bulk_track::receive_other_local_coords(
 void
 Diagnostics_bulk_track::send_local_coords()
 {
-    int local_num = get_bunch().get_local_num();
     void * send_buffer =
             (void*) track_coords.origin();
     int status;
