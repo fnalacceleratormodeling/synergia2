@@ -184,7 +184,6 @@ struct Lattice_fixture4
 
 struct Fobodobo_sbend_fixture
 {
-    int n_cells;
     Fobodobo_sbend_fixture() :
                 total_momentum(7.9447872893040543119),
                 total_energy(
@@ -197,7 +196,6 @@ struct Fobodobo_sbend_fixture
     {
         BOOST_TEST_MESSAGE("setup fixture");
         lattice_sptr->set_reference_particle(reference_particle);
-        double momentum = reference_particle.get_momentum();
         double bendangle = 2 * mconstants::pi / (2 * n_cells);
         double focus = 7;
 
@@ -242,6 +240,7 @@ struct Fobodobo_sbend_fixture
     Four_momentum four_momentum;
     Reference_particle reference_particle;
     Lattice_sptr lattice_sptr;
+    int n_cells;
 };
 
 const int num_macro_particles = 4096;
