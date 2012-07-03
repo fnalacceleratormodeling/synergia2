@@ -100,7 +100,6 @@ Fixed_t_z_zeroth::from_t_bunch_to_z_lab(Bunch &bunch)
 void
 Fixed_t_z_zeroth::from_z_lab_to_t_lab(Bunch &bunch)
 {
-    double m = bunch.get_mass();
     double beta = bunch.get_reference_particle().get_beta();
     double p_ref = bunch.get_reference_particle().get_momentum();
     MArray2d_ref particles = bunch.get_local_particles();
@@ -128,8 +127,6 @@ Fixed_t_z_zeroth::from_z_lab_to_t_lab(Bunch &bunch)
 void
 Fixed_t_z_zeroth::from_t_lab_to_z_lab(Bunch &bunch)
 {
-
-    double m = bunch.get_mass();
     double beta = bunch.get_reference_particle().get_beta();
     double p_ref = bunch.get_reference_particle().get_momentum();
     MArray2d_ref particles = bunch.get_local_particles();
@@ -494,7 +491,6 @@ void
 Fixed_t_z_synergia20::from_z_lab_to_t_bunch(Bunch &bunch)
 {
     double gamma=bunch.get_reference_particle().get_gamma();
-    double gamma_inv = 1.0/gamma;
     double beta = bunch.get_reference_particle().get_beta();
     double m = bunch.get_mass();
     double p_ref = bunch.get_reference_particle().get_momentum();
