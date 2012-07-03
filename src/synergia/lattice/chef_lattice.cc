@@ -1,12 +1,19 @@
 #include "chef_lattice.h"
 #include "chef_utils.h"
+#include "synergia/utils/commxx.h"
 #include "synergia/utils/floating_point.h"
 #include "synergia/foundation/math_constants.h"
 #include "chef_lattice_section.h"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsequence-point"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #include <basic_toolkit/PhysicsConstants.h>
 #include <physics_toolkit/DriftConverter.h>
 #include <beamline/RefRegVisitor.h>
-#include "synergia/utils/commxx.h"
+#pragma GCC diagnostic pop
 
 #include <stdexcept>
 

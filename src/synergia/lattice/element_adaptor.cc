@@ -1,8 +1,15 @@
 #include <stdexcept>
 #include <sstream>
 #include "element_adaptor.h"
-#include <beamline/beamline_elements.h>
 #include "synergia/foundation/math_constants.h"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsequence-point"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#include <beamline/beamline_elements.h>
+#pragma GCC diagnostic pop
 
 Element_adaptor::Element_adaptor()
 {
