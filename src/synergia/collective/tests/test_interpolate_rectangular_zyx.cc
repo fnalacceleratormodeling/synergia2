@@ -186,12 +186,10 @@ BOOST_AUTO_TEST_CASE(interpolate_rectangular_zyx_gaussian)
             x_right);
 
     const int num_steps = 4;
-    const double strict_tolerance = 1.0e-14;
 
     for (double ds = 0.0; ds <= cell_size[2]; ds += cell_size[2] / num_steps) {
         double x, y, z, r, expected_val, val, fractional_error;
         const double max_edge_fractional_error = 0.005;
-        const double max_center_fractional_error = 0.003;
 
         // value along edge of cube
         x = x_left + ds;
