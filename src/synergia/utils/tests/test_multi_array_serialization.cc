@@ -14,7 +14,7 @@ const double tolerance = 1.0e-14;
 BOOST_AUTO_TEST_CASE(test1d)
 {
     MArray1d a(boost::extents[7]);
-    for (int i = 0; i < a.shape()[0]; ++i) {
+    for (unsigned int i = 0; i < a.shape()[0]; ++i) {
         a[i] = 1.1 * i;
     }
     xml_save<MArray1d > (a, "multi_array1d.xml");
@@ -26,8 +26,8 @@ BOOST_AUTO_TEST_CASE(test1d)
 BOOST_AUTO_TEST_CASE(test2d)
 {
     MArray2d a(boost::extents[7][9]);
-    for (int i = 0; i < a.shape()[0]; ++i) {
-        for (int j = 0; j < a.shape()[1]; ++j) {
+    for (unsigned int i = 0; i < a.shape()[0]; ++i) {
+        for (unsigned int j = 0; j < a.shape()[1]; ++j) {
             a[i][j] = 11.1 * i + 0.93 * j;
         }
     }
