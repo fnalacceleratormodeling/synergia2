@@ -1,8 +1,9 @@
 #include "fftw_rectangular_helper.h"
 #include "synergia/utils/simple_timer.h"
 
-Fftw_rectangular_helper::Fftw_rectangular_helper(std::vector<int > const & grid_shape, Commxx_sptr comm_f_sptr):
-    comm_f_sptr(comm_f_sptr), grid_shape( grid_shape)
+Fftw_rectangular_helper::Fftw_rectangular_helper(
+        std::vector<int > const & grid_shape, Commxx_sptr comm_f_sptr) :
+        grid_shape(grid_shape), comm_f_sptr(comm_f_sptr)
 {
     if (grid_shape.size() !=3) throw std::runtime_error(
                 "Fftw_rectangular_helper: grid_shape does not have 3 elements");
@@ -89,15 +90,15 @@ Fftw_rectangular_helper::transform(MArray3d_ref & in, MArray3d_ref & out){
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     if (have_local_data) {
-        if (in.shape()[0] != local_nx) {
+        if (static_cast<int >(in.shape()[0]) != local_nx) {
             throw std::runtime_error(
                     "Fftw_rectangular_helper::transformfound an incompatible first dimension of input array");
         }
-        if (in.shape()[1] != grid_shape[1]) {
+        if (static_cast<int >(in.shape()[1]) != grid_shape[1]) {
             throw std::runtime_error(
                     "Fftw_rectangular_helper::transformfound an incompatible second dimension of input array");
         }
-        if (in.shape()[2] != grid_shape[2]) {
+        if (static_cast<int >(in.shape()[2]) != grid_shape[2]) {
             throw std::runtime_error(
                     "Fftw_rectangular_helper::transform found an incompatible third dimension of input array");
         }
@@ -119,15 +120,15 @@ Fftw_rectangular_helper::inv_transform(MArray3d_ref & in, MArray3d_ref & out){
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
 
     if (have_local_data) {
-        if (in.shape()[0] != local_nx) {
+        if (static_cast<int >(in.shape()[0]) != local_nx) {
             throw std::runtime_error(
                     "Fftw_rectangular_helper::transformfound an incompatible first dimension of input array");
         }
-        if (in.shape()[1] != grid_shape[1]) {
+        if (static_cast<int >(in.shape()[1]) != grid_shape[1]) {
             throw std::runtime_error(
                     "Fftw_rectangular_helper::transformfound an incompatible second dimension of input array");
         }
-        if (in.shape()[2] != grid_shape[2]) {
+        if (static_cast<int >(in.shape()[2]) != grid_shape[2]) {
             throw std::runtime_error(
                     "Fftw_rectangular_helper::transform found an incompatible third dimension of input array");
         }
