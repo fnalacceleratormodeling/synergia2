@@ -122,7 +122,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho,
                     force2_exact_ijk
                             = uniform_cylindrical_electric_force_component(q,
                                     lambda, r, r0, var);
-                    const double tiny = 1.0e-8;
+//                    const double tiny = 1.0e-8;
                     double fractional_error;
                     //if (std::abs(force2_exact_ijk) < tiny) {
                     //    fractional_error = force2_calc_ijk - force2_exact_ijk;
@@ -231,7 +231,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles,
                     force2_exact_ijk
                             = uniform_cylindrical_electric_force_component(q,
                                     lambda, r, r0, var);
-                    const double tiny = 1.0e-8;
+//                    const double tiny = 1.0e-8;
                     double fractional_error;
                     //if (std::abs(force2_exact_ijk) < tiny) {
                     //    fractional_error = force2_calc_ijk - force2_exact_ijk;
