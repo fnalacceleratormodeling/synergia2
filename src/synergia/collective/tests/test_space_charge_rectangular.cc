@@ -127,9 +127,9 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
     Rectangular_grid_sptr rho_grid(new Rectangular_grid(space_charge.get_domain_sptr()));
 
     MArray3d_ref rho(rho_grid->get_grid_points());
-    for (unsigned int i = 0; i < shape[0]; ++i) {
-            for (unsigned int j = 0; j < shape[1]; ++j) {
-                for (unsigned int k = 0; k < shape[2]; ++k) {
+    for (int i = 0; i < shape[0]; ++i) {
+            for (int j = 0; j < shape[1]; ++j) {
+                for (int k = 0; k < shape[2]; ++k) {
                    rho[i][j][k] =  sin(nt*(i+0.5)*pi/double(shape[0]))*sin(mt*(j+0.5)*pi/double(shape[1]))*cos((2.*pi*pt*k)/double(shape[2]));
 
                 }
@@ -155,10 +155,10 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
      int offset=phi_local->get_lower();
      MArray3d  rhocheck_local(boost::extents[local_shape[0]][shape[1]][shape[2]]);
      MArray3d  phicheck_local(boost::extents[local_shape[0]][shape[1]][shape[2]]);
-     for (unsigned int i = 0; i < local_shape[0]; ++i) {
+     for (int i = 0; i < local_shape[0]; ++i) {
            int i_local=i+offset;
-            for (unsigned int j = 0; j < shape[1]; ++j) {
-                for (unsigned int k = 0; k < shape[2]; ++k) {
+            for (int j = 0; j < shape[1]; ++j) {
+                for (int k = 0; k < shape[2]; ++k) {
                    rhocheck_local[i][j][k] = rho[i_local][j][k];
                    phicheck_local[i][j][k] = -Cnmp* phi_local->get_grid_points()[i][j][k]*phi_local->get_normalization()*epsilon0;
                 }
@@ -188,9 +188,9 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
     }
 
     MArray3d  phicheck(boost::extents[shape[0]][shape[1]][shape[2]]);
-    for (unsigned int i = 0; i < shape[0]; ++i) {
-            for (unsigned int j = 0; j < shape[1]; ++j) {
-                for (unsigned int k = 0; k < shape[2]; ++k) {
+    for (int i = 0; i < shape[0]; ++i) {
+            for (int j = 0; j < shape[1]; ++j) {
+                for (int k = 0; k < shape[2]; ++k) {
                     phicheck[i][j][k] = -Cnmp* phi_global[i][j][k]*phi_local->get_normalization()*epsilon0;
                 }
             }
@@ -222,9 +222,9 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
     std::vector<int > shape(space_charge.get_domain().get_grid_shape());
 
     MArray3d_ref rho(rho_grid->get_grid_points());
-    for (unsigned int i = 0; i < shape[0]; ++i) {
-            for (unsigned int j = 0; j < shape[1]; ++j) {
-                for (unsigned int k = 0; k < shape[2]; ++k) {
+    for (int i = 0; i < shape[0]; ++i) {
+            for (int j = 0; j < shape[1]; ++j) {
+                for (int k = 0; k < shape[2]; ++k) {
                    rho[i][j][k] = sin(nt*(i+0.5)*pi/double(shape[0]))*sin(mt*(j+0.5)*pi/double(shape[1])) *cos((2.*pi*pt*k)/double(shape[2]));
                 }
             }
@@ -244,14 +244,13 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
     double sxnt=sin(pi*nt/double(shape[0]))/hi[0];
     double symt=sin(pi*mt/double(shape[1]))/hi[1];
     double szpt=sin(2.*pi*pt/double(shape[2]))/hi[2];
-    double Dnmp=-(sxnt*sxnt+symt*symt+szpt*szpt);
 
 
     MArray3d  rhocheck(boost::extents[shape[0]][shape[1]][shape[2]]);
   //  MArray3d  phi_check(boost::extents[shape[0]][shape[1]][shape[2]]);
-    for (unsigned int i = 0; i < shape[0]; ++i) {
-            for (unsigned int j = 0; j < shape[1]; ++j) {
-                for (unsigned int k = 0; k < shape[2]; ++k) {
+    for (int i = 0; i < shape[0]; ++i) {
+            for (int j = 0; j < shape[1]; ++j) {
+                for (int k = 0; k < shape[2]; ++k) {
                     rhocheck[i][j][k]=-rho[i][j][k]/(Cnmp*epsilon0);
                  //   phi_check[i][j][k] = phi_local->get_grid_points()[i][j][k]*phi_local->get_normalization();//epsilon0;
                 }
@@ -274,9 +273,9 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
    MArray3d_ref Exa(Ex->get_grid_points());
    MArray3d_ref Eya(Ey->get_grid_points());
    MArray3d_ref Eza(Ez->get_grid_points());
-   for (unsigned int i = 0; i < shape[0]; ++i) {
-            for (unsigned int j = 0; j < shape[1]; ++j) {
-                for (unsigned int k = 0; k < shape[2]; ++k) {
+   for (int i = 0; i < shape[0]; ++i) {
+            for (int j = 0; j < shape[1]; ++j) {
+                for (int k = 0; k < shape[2]; ++k) {
                     Exa[i][j][k] *= Ex->get_normalization();
                     Eya[i][j][k] *= Ey->get_normalization();
                     Eza[i][j][k] *= Ez->get_normalization();
@@ -295,9 +294,9 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
    MArray3d  Excheck(boost::extents[shape[0]][shape[1]][shape[2]]);
    MArray3d  Eycheck(boost::extents[shape[0]][shape[1]][shape[2]]);
    MArray3d  Ezcheck(boost::extents[shape[0]][shape[1]][shape[2]]);
-   for (unsigned int i = 0; i < shape[0]; ++i) {
-            for (unsigned int j = 0; j < shape[1]; ++j) {
-                for (unsigned int k = 0; k < shape[2]; ++k) {
+   for (int i = 0; i < shape[0]; ++i) {
+            for (int j = 0; j < shape[1]; ++j) {
+                for (int k = 0; k < shape[2]; ++k) {
                     Excheck[i][j][k]=Exa[i][j][k]*sin(nt*(i+0.5)*pi/double(shape[0]))/((-sxnt)*cos(nt*(i+0.5)*pi/double(shape[0])));
                     Eycheck[i][j][k]=Eya[i][j][k]*sin(mt*(j+0.5)*pi/double(shape[1]))/((-symt)*cos(mt*(j+0.5)*pi/double(shape[1])));
                     ((k==shape[2]/2) || (k==0)) ? Ezcheck[i][j][k]= rhocheck[i][j][k]:
