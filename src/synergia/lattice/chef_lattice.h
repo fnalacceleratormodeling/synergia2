@@ -7,7 +7,14 @@
 #include "synergia/lattice/lattice_element_slice.h"
 #include "synergia/lattice/chef_elements.h"
 #include "synergia/lattice/chef_lattice_section_fwd.h"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsequence-point"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #include <beamline/beamline_elements.h>
+#pragma GCC diagnostic pop
 
 class Chef_lattice;
 typedef boost::shared_ptr<Chef_lattice > Chef_lattice_sptr;
