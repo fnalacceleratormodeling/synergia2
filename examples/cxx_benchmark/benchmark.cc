@@ -34,9 +34,6 @@ run(Benchmark_options const& opts)
     const int num_steps = 8;
     const int num_turns = 4;
     const int map_order = 2;
-    const double emit = 1e-6;
-    const double stdz = 0.01;
-    const double dpop = 1e-4;
 
     Lattice_sptr lattice_sptr(new Lattice());
     try {
