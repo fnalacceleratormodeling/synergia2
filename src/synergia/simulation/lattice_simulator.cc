@@ -1,11 +1,18 @@
 #include "lattice_simulator.h"
 #include "synergia/foundation/physical_constants.h"
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsequence-point"
+#pragma GCC diagnostic ignored "-Wunused-variable"
+#pragma GCC diagnostic ignored "-Wsign-compare"
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #include <beamline/beamline_elements.h>
 #include <physics_toolkit/Sage.h>
 #include <basic_toolkit/PhysicsConstants.h>
+#pragma GCC diagnostic pop
+
 #include <stdexcept>
 #include <cstring>
-
 #include <iostream>
 
 Lattice_functions::Lattice_functions() :
@@ -161,14 +168,14 @@ Lattice_simulator::construct_aperture_extractor_map()
 }
 
 Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
-        lattice_sptr(lattice_sptr), chef_lattice_sptr(
+        lattice_sptr(lattice_sptr), have_slices(false), chef_lattice_sptr(
                 new Chef_lattice(lattice_sptr)), extractor_map_sptr(
-                new Operation_extractor_map), have_element_lattice_functions(
-                false), linear_one_turn_map(boost::extents[6][6]), have_slice_lattice_functions(
-                false), horizontal_tune(0.0), vertical_tune(0.0), have_tunes(
-                false), have_beamline_context(false), aperture_extractor_map_sptr(
-                new Aperture_operation_extractor_map), map_order(map_order), have_slices(
-                false)
+                new Operation_extractor_map), aperture_extractor_map_sptr(
+                new Aperture_operation_extractor_map), have_beamline_context(
+                false), map_order(map_order), have_element_lattice_functions(
+                false), have_slice_lattice_functions(false), horizontal_tune(
+                0.0), vertical_tune(0.0), have_tunes(false), linear_one_turn_map(
+                boost::extents[6][6])
 {
     construct_extractor_map();
     construct_aperture_extractor_map();
@@ -300,7 +307,7 @@ Lattice_simulator::calculate_element_lattice_functions()
         std::vector<LattFuncSage::lattFunc > latt_func(
                 get_beamline_context()->getTwissArray());
         beamline::const_iterator it = beamline_sptr->begin();
-        for (int i = 0; i < latt_func.size(); ++i) {
+        for (unsigned int i = 0; i < latt_func.size(); ++i) {
             ElmPtr chef_element(*it);
             if (std::strcmp(chef_element->Name().c_str(),
                     Chef_lattice::internal_marker_name)) {
@@ -325,7 +332,7 @@ Lattice_simulator::calculate_slice_lattice_functions()
         std::vector<LattFuncSage::lattFunc > latt_func(
                 get_beamline_context()->getTwissArray());
         beamline::const_iterator it = beamline_sptr->begin();
-        for (int i = 0; i < latt_func.size(); ++i) {
+        for (unsigned int i = 0; i < latt_func.size(); ++i) {
             ElmPtr chef_element(*it);
             if (std::strcmp(chef_element->Name().c_str(),
                     Chef_lattice::internal_marker_name)) {
@@ -419,7 +426,7 @@ Lattice_simulator::convert_human_to_normal(MArray2d_ref coords)
     throw std::runtime_error("Lattice_simulator::convert_human_to_normal expected nx[0:7] array");
   }
 
-  for (int i=coords_bases[0]; i!=coords_bases[0]+coords_shape[0]; ++i) {
+  for (unsigned int i=coords_bases[0]; i!=coords_bases[0]+coords_shape[0]; ++i) {
     Vector w(6);
     VectorC a(6);
 
@@ -454,7 +461,7 @@ Lattice_simulator::convert_normal_to_human(MArray2d_ref coords)
   if ((coords_shape[1] != 7) || (coords_bases[1] != 0)) {
     throw std::runtime_error("Lattice_simulator::convert_normal_to_human expected nx[0:7] array");
   }
-  for (int i=coords_bases[0]; i!=coords_bases[0]+coords_shape[0]; ++i) {
+  for (unsigned int i=coords_bases[0]; i!=coords_bases[0]+coords_shape[0]; ++i) {
     Vector w(6);
     VectorC a(6);
 
