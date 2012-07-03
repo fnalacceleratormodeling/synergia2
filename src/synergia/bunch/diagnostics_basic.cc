@@ -5,14 +5,12 @@
 const char Diagnostics_basic::name[] = "diagnostics_basic";
 
 Diagnostics_basic::Diagnostics_basic(std::string const& filename) :
-    Diagnostics_basic::Diagnostics(Diagnostics_basic::name, filename),
-            have_writers(false), mean(boost::extents[6]),
-            std(boost::extents[6]),
-            min(boost::extents[3]), max(boost::extents[3]),
-            writer_s(0), writer_repetition(0),
-            writer_trajectory_length(0), writer_num_particles(0),
-            writer_real_num_particles(0), writer_mean(0), writer_std(0),
-            writer_min(0), writer_max(0)
+        Diagnostics_basic::Diagnostics(Diagnostics_basic::name, filename), have_writers(
+                false), writer_s(0), writer_repetition(0), writer_trajectory_length(
+                0), writer_num_particles(0), writer_real_num_particles(0), mean(
+                boost::extents[6]), writer_mean(0), std(boost::extents[6]), writer_std(
+                0), min(boost::extents[3]), writer_min(0), max(
+                boost::extents[3]), writer_max(0)
 {
 }
 
