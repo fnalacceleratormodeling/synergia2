@@ -32,7 +32,7 @@ Impedance::Impedance(std::string const & wake_file, double const & orbit_length,
           while (!rfile.eof() && rfile.is_open()) {
               getline(rfile,line);
               if ( !line.empty() ){
-                unsigned int pos=line.find_first_not_of(" \t\r\n");
+		std::string::size_type pos=line.find_first_not_of(" \t\r\n");
                 if (pos !=std::string::npos){
                     if (line.at(pos) != '#' ){
                             double column1, column2, column3, column4;
