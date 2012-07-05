@@ -1,5 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
+#include <limits>
 #include "synergia/simulation/aperture_operation.h"
 #include "lattice_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
@@ -37,8 +38,8 @@ BOOST_FIXTURE_TEST_CASE(apply, Lattice_fixture)
             new Lattice_element_slice(element_sptr));
     Finite_aperture_operation finite_aperture_operation(slice_sptr);
     int orig_local_num = b.bunch.get_local_num();
-    b.bunch.get_local_particles()[0][0] *= 1.0 / 0.0;
-    b.bunch.get_local_particles()[1][1] *= -1.0 / 0.0;
+    b.bunch.get_local_particles()[0][0] *= std::numeric_limits<double >::infinity();
+    b.bunch.get_local_particles()[1][1] *= -std::numeric_limits<double >::infinity();
     b.bunch.get_local_particles()[2][2] *= std::sqrt(-1.0);
     b.bunch.get_local_particles()[3][3] *= -std::sqrt(-1.0);
     b.bunch.get_local_particles()[4][4] *= std::log(-1.0);
