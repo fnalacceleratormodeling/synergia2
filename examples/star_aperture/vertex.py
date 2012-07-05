@@ -33,5 +33,5 @@ def vertex():
 
 if __name__ == "__main__":
     (x, y) = vertex()
-    pyplot.plot(u, v)
+    pyplot.plot(x, y)
     pyplot.show()

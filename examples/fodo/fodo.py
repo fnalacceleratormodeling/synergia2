@@ -8,9 +8,12 @@ from mpi4py import MPI
 try:
     lattice = synergia.lattice.Mad8_reader().get_lattice("fodo", "fodo.lat")
 
+    xoffset = opts.xoffset
+
     # Set the same aperture radius for all elements
     for elem in lattice.get_elements():
         elem.set_double_attribute("circular_aperture_radius", opts.radius)
+        elem.set_double_attribute("hoffset", xoffset)
 
     lattice_simulator = synergia.simulation.Lattice_simulator(lattice,
                                                               opts.map_order)
@@ -28,6 +31,9 @@ try:
                   lattice_simulator, opts.emit, opts.emit, opts.stdz, opts.dpop,
                   opts.real_particles, opts.macro_particles,
                   seed=opts.seed)
+
+    local_particles = bunch.get_local_particles()
+    local_particles[:,0] += xoffset
 
     if opts.stepper == "splitoperator":
         # Use the Split operator stepper with a dummy collective operator

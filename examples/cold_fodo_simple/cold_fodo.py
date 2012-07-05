@@ -12,6 +12,7 @@ bunch = synergia.optics.generate_matched_bunch_transverse(
 # make the beam cold in the transverse dimensions
 bunch.get_local_particles()[:,1] = 1.0e-10
 bunch.get_local_particles()[:,3] = 1.0e-10
+bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
 for element in lattice.get_elements():
     if opts.aperture == "circular":
         element.set_string_attribute("aperture_type","circular")
@@ -48,9 +49,10 @@ lattice_simulator.update()
 
 stepper = synergia.simulation.Independent_stepper_elements(
                             lattice_simulator, opts.steps)
-diagnostics_step = synergia.bunch.Diagnostics_full2(bunch, "full2.h5")
-diagnostics_turn = synergia.bunch.Diagnostics_particles(bunch, "particles.h5")
+diagnostics_step = synergia.bunch.Diagnostics_full2("full2.h5")
+diagnostics_turn = synergia.bunch.Diagnostics_particles("particles.h5")
+bunch_simulator.add_per_step(diagnostics_step)
+bunch_simulator.add_per_turn(diagnostics_turn)
 propagator = synergia.simulation.Propagator(stepper)
-propagator.propagate(bunch, opts.turns,
-                     diagnostics_step, diagnostics_turn,
+propagator.propagate(bunch_simulator, opts.turns, opts.turns,
                      opts.verbose)
