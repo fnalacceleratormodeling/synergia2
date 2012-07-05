@@ -89,8 +89,8 @@ BOOST_AUTO_TEST_CASE(test_serialize)
     const char h5_file_name[] = "serialize_serial.h5";
     const char xml_file_name[] = "serial_writer.xml";
     const std::string label("val");
-    const double midpodouble = 3;
-    const double last = 5;
+    const int midpodouble = 3;
+    const int last = 5;
     {
         Hdf5_file_sptr file_sptr(
                 new Hdf5_file(h5_file_name, Hdf5_file::truncate));
