@@ -51,7 +51,7 @@ struct Convert_options
     get_suffix(std::string const& filename)
     {
         std::string suffix;
-        unsigned int idx = filename.rfind('.');
+	std::string::size_type idx = filename.rfind('.');
         if (idx == std::string::npos) {
             suffix = "";
         } else {
