@@ -80,7 +80,7 @@ gaussian_electric_field_component2(double Q, double x, double y, double z,
         double exponent_y = - y * y * lambda_square / (2.0 * lambda_sigma_y);
         double exponent_z = - z * z * lambda_square / (2.0 * lambda_sigma_z);
 
-        double lambda_sigma_var;
+        double lambda_sigma_var = 0.0;
         if (var == x) {
             lambda_sigma_var = lambda_sigma_x;
         } else if (var == y) {
