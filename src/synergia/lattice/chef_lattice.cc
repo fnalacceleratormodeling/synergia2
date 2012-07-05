@@ -5,7 +5,9 @@
 #include "synergia/foundation/math_constants.h"
 #include "chef_lattice_section.h"
 
+#if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic push
+#endif
 #pragma GCC diagnostic ignored "-Wsequence-point"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wsign-compare"
@@ -13,7 +15,9 @@
 #include <basic_toolkit/PhysicsConstants.h>
 #include <physics_toolkit/DriftConverter.h>
 #include <beamline/RefRegVisitor.h>
+#if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic pop
+#endif
 
 #include <stdexcept>
 

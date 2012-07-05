@@ -1,7 +1,9 @@
 #ifndef CHEF_UTILS_H_
 #define CHEF_UTILS_H_
 
+#if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic push
+#endif
 #pragma GCC diagnostic ignored "-Wsequence-point"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wsign-compare"
@@ -9,7 +11,9 @@
 #include <beamline/beamline.h>
 #include <beamline/Particle.h>
 #include <beamline/JetParticle.h>
+#if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic pop
+#endif
 
 #include "synergia/foundation/reference_particle.h"
 

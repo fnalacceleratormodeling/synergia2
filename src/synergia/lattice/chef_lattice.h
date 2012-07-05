@@ -8,13 +8,17 @@
 #include "synergia/lattice/chef_elements.h"
 #include "synergia/lattice/chef_lattice_section_fwd.h"
 
+#if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic push
+#endif
 #pragma GCC diagnostic ignored "-Wsequence-point"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wsign-compare"
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #include <beamline/beamline_elements.h>
+#if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic pop
+#endif
 
 class Chef_lattice;
 typedef boost::shared_ptr<Chef_lattice > Chef_lattice_sptr;

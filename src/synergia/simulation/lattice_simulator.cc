@@ -1,7 +1,9 @@
 #include "lattice_simulator.h"
 #include "synergia/foundation/physical_constants.h"
 
+#if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic push
+#endif
 #pragma GCC diagnostic ignored "-Wsequence-point"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wsign-compare"
@@ -9,7 +11,9 @@
 #include <beamline/beamline_elements.h>
 #include <physics_toolkit/Sage.h>
 #include <basic_toolkit/PhysicsConstants.h>
+#if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic pop
+#endif
 
 #include <stdexcept>
 #include <cstring>
