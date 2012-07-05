@@ -104,7 +104,7 @@ chef_particle_to_reference_particle(Particle const& chef_particle)
     Four_momentum four_momentum(chef_particle.Mass());
     four_momentum.set_momentum(chef_particle.Momentum());
     Reference_particle
-            reference_particle(chef_particle.Charge(), four_momentum);
+        reference_particle(static_cast<int >(chef_particle.Charge()), four_momentum);
     MArray1d state(boost::extents[6]);
     state[0] = chef_particle.State()[0];
     state[1] = chef_particle.State()[3];
