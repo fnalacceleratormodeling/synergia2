@@ -43,7 +43,7 @@ Diagnostics_write_helper::construct(std::string const& filename, bool serial,
     } else {
         this->writer_rank = writer_rank;
     }
-    unsigned int idx = filename.rfind('.');
+    std::string::size_type idx = filename.rfind('.');
     if (idx == std::string::npos) {
         filename_base = filename;
         filename_suffix = "";
