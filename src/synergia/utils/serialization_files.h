@@ -5,6 +5,8 @@
 #include <stdexcept>
 #include <string>
 #include <typeinfo>
+#include <cerrno>
+#include <cstring>
 
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
@@ -63,6 +65,9 @@ template<typename T, typename A>
         if (!output_stream.good()) {
             std::string message("<archive>_save: unable to open ");
             message += filename;
+            message += ": \"";
+            message += std::strerror(errno);
+            message += "\"";
             throw std::runtime_error(message);
         }
         A output_archive(output_stream);
@@ -82,6 +87,9 @@ template<typename T, typename A>
         if (!input_stream.good()) {
             std::string message("<archive>_load: unable to open ");
             message += filename;
+            message += ": \"";
+            message += std::strerror(errno);
+            message += "\"";
             throw std::runtime_error(message);
         }
         A input_archive(input_stream);
