@@ -192,13 +192,27 @@ Diagnostics_actions::update_and_write_periodics(Periodics & periodics, int num)
 void
 Diagnostics_actions::update_and_write_listeds(Listeds & listeds, int num)
 {
-    for (Listeds::iterator it = listeds.begin(); it != listeds.end(); ++it) {
-        Numbers::iterator pos;
-        pos = std::find(it->numbers.begin(), it->numbers.end(), num);
-        if (pos != it->numbers.end()) {
-            it->diagnostics_sptr->update_and_write();
+    Listeds::iterator it = listeds.begin();
+    while (it != listeds.end()) {
+        // what is the maximum turn in this Listed instance?
+        int maxturn = -1;
+        for (Numbers::iterator tlit=it->numbers.begin();
+             tlit!=it->numbers.end(); ++tlit) {
+            if (*tlit > maxturn) maxturn = *tlit;
         }
-
+        // remove this particular Listed instance if we have already gone
+        // past its maximum turn
+        if (num > maxturn) {
+            it->diagnostics_sptr->delete_write_helper_ptr(); // close file
+            listeds.erase(it++); // erase on a list  preserves existing iterators
+        } else {
+            Numbers::iterator pos;
+            pos = std::find(it->numbers.begin(), it->numbers.end(), num);
+            if (pos != it->numbers.end()) {
+                it->diagnostics_sptr->update_and_write();
+            }
+            ++it;
+        }
     }
 }
 
