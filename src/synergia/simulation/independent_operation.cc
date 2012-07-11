@@ -1,4 +1,5 @@
 #include "independent_operation.h"
+#include "synergia/utils/simple_timer.h"
 
 Independent_operation::Independent_operation(std::string const& type) :
     type(type)
@@ -59,12 +60,15 @@ void
 Fast_mapping_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
     // bunch.convert_to_state(Bunch::fixed_t);
+    double t;
+    t = simple_timer_current();
     bunch.convert_to_state(Bunch::fixed_z_lab);
     if (verbosity > 4) {
         logger << "Fast_mapping_operation: length = " << mapping.get_length()
                 << ", order = " << mapping.get_order() << std::endl;
     }
     mapping.apply(bunch);
+    t = simple_timer_show(t, "fast-mapping-apply");
 }
 
 Fast_mapping const&
