@@ -370,6 +370,8 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step,
         update_operations(bunch.get_reference_particle());
         t = simple_timer_show(t, "independent-operator-update");
     }
+    double t1;
+    t1 = simple_timer_current();
     for (Independent_operations::iterator it = operations.begin(); it
             != operations.end(); ++it) {
         // std::cout<<" opertor.cc operator name="<<(*it)->get_type()<<std::endl;
@@ -378,6 +380,8 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step,
                     (*it)->get_type() << std::endl;
         }
         (*it)->apply(bunch, verbosity, logger);
+        std::string label("independent-operation-" +(*it)->get_type() + "-apply");
+        t1 = simple_timer_show(t1, label.c_str());
     }
     bunch.update_total_num();
     t = simple_timer_show(t, "independent-operator-apply");
