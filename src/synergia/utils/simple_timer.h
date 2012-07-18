@@ -1,5 +1,6 @@
 #include "mpi.h"
 #include <iostream>
+#include <iomanip>
 #ifdef USE_SIMPLE_TIMER_MEM
 #include <fstream>
 #include <string>
@@ -29,7 +30,11 @@ simple_timer_show(double t0, const char * label)
     int rank;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     if (rank == 0) {
-        std::cout << "simple_timer:" << label << ":" << (t1-t0) << std::endl;
+        std::ios_base::fmtflags old_flags(std::cout.flags());
+        std::cout << "simple_timer:" << label << ":";
+        std::cout << std::scientific << std::setprecision(8);
+        std::cout << (t1-t0) << std::endl;
+        std::cout.flags(old_flags);
     }
 #ifdef USE_SIMPLE_TIMER_MEM
     // the order of fields in this file is vmsize, vmrss, "shared", "code",
