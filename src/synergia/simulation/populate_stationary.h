@@ -19,4 +19,7 @@ populate_6d_stationary_torus(Distribution &dist, Bunch &bunch, std::vector<doubl
 void
 populate_6d_stationary_gaussian(Distribution &dist, Bunch &bunch, std::vector<double> actions, Lattice_simulator& lattice_simulator);
 
+void
+populate_6d_stationary_truncated_longitudinal_gaussian(Distribution &dist, Bunch &bunch, std::vector<double> actions, double n_sigma, Lattice_simulator& lattice_simulator);
+
 #endif /* POPULATE_STATIONARY_H_ */
