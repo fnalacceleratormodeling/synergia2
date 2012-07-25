@@ -22,4 +22,19 @@ populate_6d_stationary_gaussian(Distribution &dist, Bunch &bunch, std::vector<do
 void
 populate_6d_stationary_truncated_longitudinal_gaussian(Distribution &dist, Bunch &bunch, std::vector<double> actions, double n_sigma, Lattice_simulator& lattice_simulator);
 
+void
+populate_6d_stationary_clipped_longitudinal_gaussian(Distribution &dist,
+                                                     Bunch &bunch,
+                                                     const std::vector<double> actions,
+                                                     double z_min, double z_max_,
+                                                     Lattice_simulator& lattice_simulator);
+
+
+// helper functions for populate stationary*
+void
+fill_6d_normal_form_coords(Distribution &dist, MArray2d_ref nf_particles, const std::vector<double> actions);
+
+void
+fill_6d_normal_form_coords(Distribution &dist, MArray2d_view nf_particles, const std::vector<double> actions);
+
 #endif /* POPULATE_STATIONARY_H_ */

@@ -336,6 +336,7 @@ BOOST_PYTHON_MODULE(simulation)
     def("populate_6d_stationary_torus", &populate_6d_stationary_torus);
     def("populate_6d_stationary_gaussian", &populate_6d_stationary_gaussian);
     def("populate_6d_stationary_truncated_longitudinal_gaussian", &populate_6d_stationary_truncated_longitudinal_gaussian);
+    def("populate_6d_stationary_clipped_longitudinal_gaussian", &populate_6d_stationary_clipped_longitudinal_gaussian);
 
     class_<Lattice_functions >("Lattice_functions",
             init<LattFuncSage::lattFunc const& >())
