@@ -50,6 +50,7 @@ add_test(test_chef_lattice_section ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_che
 add_test(test_mad8_parser ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_mad8_parser.py)
 add_test(test_expression_parser ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_expression_parser.py)
 add_test(test_mad8_reader ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_mad8_reader.py)
+add_test(test_simplify ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_simplify.py)
 
 set(CLEAN_FILES
     lattice_element.xml

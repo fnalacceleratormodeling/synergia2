@@ -27,6 +27,7 @@ if (BUILD_PYTHON_BINDINGS)
         __init__.py
         mad8_parser.py
         mad8_reader.py
+        simplify.py
         DESTINATION lib/synergia/lattice)
     install(TARGETS
         lattice
