@@ -91,9 +91,15 @@ BOOST_PYTHON_MODULE(lattice)
     class_<Lattice_element_slice, Lattice_element_slice_sptr >("Lattice_element_slice",
             init<Lattice_element_sptr >())
             .def(init<Lattice_element_sptr, double, double >())
+            .def("is_whole", &Lattice_element_slice::is_whole)
+            .def("has_left_edge", &Lattice_element_slice::has_left_edge)
+            .def("has_right_edge", &Lattice_element_slice::has_right_edge)
+            .def("get_left", &Lattice_element_slice::get_left)
+            .def("get_right", &Lattice_element_slice::get_right)
             .def("get_lattice_element",
                     get_lattice_element_non_const_type(&Lattice_element_slice::get_lattice_element),
                     return_internal_reference< >())
+            .def("as_string", &Lattice_element_slice::as_string)
             .def("print_", &Lattice_element_slice::print)
             ;
 
