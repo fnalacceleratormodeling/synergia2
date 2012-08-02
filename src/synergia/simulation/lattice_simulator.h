@@ -42,8 +42,8 @@ private:
     Chef_lattice_sptr chef_lattice_sptr;
     Operation_extractor_map_sptr extractor_map_sptr;
     Aperture_operation_extractor_map_sptr aperture_extractor_map_sptr;
-    bool have_beamline_context;
-    BmlContextPtr beamline_context_sptr;
+    bool have_beamline_context, have_sliced_beamline_context;
+    BmlContextPtr beamline_context_sptr, sliced_beamline_context_sptr;
     int map_order;
     double bucket_length;
     bool have_element_lattice_functions;
@@ -61,8 +61,12 @@ private:
     construct_aperture_extractor_map();
     void
     calculate_beamline_context();
+    void
+    calculate_sliced_beamline_context();
     BmlContextPtr
     get_beamline_context();
+    BmlContextPtr
+    get_sliced_beamline_context();
     void
     construct_sliced_chef_beamline();
     void
@@ -75,6 +79,8 @@ public:
     Lattice_simulator();
     void
     set_slices(Lattice_element_slices const& slices);
+    Lattice_element_slices const&
+    get_slices() const;
     int
     get_map_order() const;
     void

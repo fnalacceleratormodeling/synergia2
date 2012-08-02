@@ -110,6 +110,25 @@ Lattice_simulator::calculate_beamline_context()
     }
 }
 
+void
+Lattice_simulator::calculate_sliced_beamline_context()
+{
+    if (!have_slices) {
+        throw std::runtime_error(
+                "Lattice_simulator::calculate_sliced_beamline_context called before set_slices");
+    }
+    if (Jet__environment::getLastEnv() == 0) {
+        JetParticle::createStandardEnvironments(map_order);
+    }
+    BmlPtr beamline_sptr(chef_lattice_sptr->get_sliced_beamline_sptr());
+    sliced_beamline_context_sptr = BmlContextPtr (new BeamlineContext(
+                reference_particle_to_chef_particle(
+                        lattice_sptr->get_reference_particle()), beamline_sptr));
+    if (!Sage::isRing(beamline_sptr)) {
+        sliced_beamline_context_sptr->handleAsRing();
+    }
+}
+
 BmlContextPtr
 Lattice_simulator::get_beamline_context()
 {
@@ -118,6 +137,16 @@ Lattice_simulator::get_beamline_context()
         have_beamline_context = true;
     }
     return beamline_context_sptr;
+}
+
+BmlContextPtr
+Lattice_simulator::get_sliced_beamline_context()
+{
+    if (!have_sliced_beamline_context) {
+        calculate_sliced_beamline_context();
+        have_sliced_beamline_context = true;
+    }
+    return sliced_beamline_context_sptr;
 }
 
 bool
@@ -176,10 +205,10 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
                 new Chef_lattice(lattice_sptr)), extractor_map_sptr(
                 new Operation_extractor_map), aperture_extractor_map_sptr(
                 new Aperture_operation_extractor_map), have_beamline_context(
-                false), map_order(map_order), have_element_lattice_functions(
-                false), have_slice_lattice_functions(false), horizontal_tune(
-                0.0), vertical_tune(0.0), have_tunes(false), linear_one_turn_map(
-                boost::extents[6][6])
+                false), have_sliced_beamline_context(false), map_order(
+                map_order), have_element_lattice_functions(false), have_slice_lattice_functions(
+                false), horizontal_tune(0.0), vertical_tune(0.0), have_tunes(
+                false), linear_one_turn_map(boost::extents[6][6])
 {
     construct_extractor_map();
     construct_aperture_extractor_map();
@@ -196,6 +225,16 @@ Lattice_simulator::set_slices(Lattice_element_slices const& slices)
     this->slices = slices;
     have_slices = true;
     construct_sliced_chef_beamline();
+}
+
+Lattice_element_slices const&
+Lattice_simulator::get_slices() const
+{
+    if (!have_slices) {
+        throw std::runtime_error(
+                "Lattice_simulator::get_slices called before set_slices");
+    }
+    return slices;
 }
 
 void
@@ -334,7 +373,7 @@ Lattice_simulator::calculate_slice_lattice_functions()
     if (!have_slice_lattice_functions) {
         BmlPtr beamline_sptr(chef_lattice_sptr->get_sliced_beamline_sptr());
         std::vector<LattFuncSage::lattFunc > latt_func(
-                get_beamline_context()->getTwissArray());
+                get_sliced_beamline_context()->getTwissArray());
         beamline::const_iterator it = beamline_sptr->begin();
         for (unsigned int i = 0; i < latt_func.size(); ++i) {
             ElmPtr chef_element(*it);

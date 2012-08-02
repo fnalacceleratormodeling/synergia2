@@ -301,6 +301,9 @@ BOOST_PYTHON_MODULE(simulation)
             init<Lattice_sptr, int >())
         .def("set_slices",
                 &Lattice_simulator::set_slices)
+        .def("get_slices",
+                &Lattice_simulator::get_slices,
+                return_value_policy<copy_const_reference >())
         .def("get_map_order", &Lattice_simulator::get_map_order)
         .def("get_operation_extractor_map",
                 &Lattice_simulator::get_operation_extractor_map_sptr)
