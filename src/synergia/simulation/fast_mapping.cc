@@ -165,7 +165,6 @@ Fast_mapping::get_terms() const
 Fast_mapping::Fast_mapping(Reference_particle const& reference_particle,
         Mapping const& chef_mapping, double mapping_length)
 {
-    std::vector<double > u = chef_unit_conversion(reference_particle);
     order = chef_mapping.Weight();
     init(order);
     length = mapping_length;
@@ -179,7 +178,7 @@ Fast_mapping::Fast_mapping(Reference_particle const& reference_particle,
             } else {
                 int term_order = jet_it->exponents(env).Sum();
                 Fast_mapping_term tmp_term(term_order);
-                tmp_term.coeff() = jet_it->coefficient() * u[i];
+                tmp_term.coeff() = jet_it->coefficient();
                 int which = 0;
                 for (int index = 0; index < 6; ++index) {
                     int chef_i2 = get_chef_index(index);
@@ -188,7 +187,6 @@ Fast_mapping::Fast_mapping(Reference_particle const& reference_particle,
                         tmp_term.index(which) = index;
                         ++which;
                     }
-                    tmp_term.coeff() *= 1.0 / quickpow(u[index], expt);
                 }
                 add_term(i, tmp_term);
             }
