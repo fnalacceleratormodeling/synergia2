@@ -366,7 +366,7 @@ def calculate_lattice_settings():
         print
         print "....Saving final lattice configurations"
 
-    final_setting = ("../%s/final_setting_%g_%g.xml" % (latt_dir, opts.tuneh, opts.tunev))
+    final_setting = ("/data/cspark/results/mu2e/%s/final_setting_tunes_%g_%g_phase_%g.xml" % (latt_dir, opts.tuneh, opts.tunev, opts.phase_g))
     synergia.lattice.xml_save_lattice(lattice_simulator.get_lattice(), 
             final_setting)
 
@@ -400,7 +400,7 @@ def calculate_lattice_settings():
         print
         print "....Saving initial lattice configuations"
 
-    initial_setting = ("../%s/initial_setting_%g_%g.xml" % (latt_dir, opts.tuneh, opts.tunev))
+    initial_setting = ("/data/cspark/results/mu2e/%s/initial_setting_tunes_%g_%g_phase_%g.xml" % (latt_dir, opts.tuneh, opts.tunev, opts.phase_g))
     synergia.lattice.xml_save_lattice(lattice_simulator.get_lattice(),
             initial_setting)
 
@@ -410,7 +410,7 @@ def calculate_lattice_settings():
 #   load pre-calculated lattice settings for third integer resonant extraction
 ###############################################################################
 def load_lattice_settings():
-    initial_setting = ("../%s/initial_setting_%g_%g.xml" % (latt_dir, opts.tuneh, opts.tunev))
+    initial_setting = ("/data/cspark/results/mu2e/%s/initial_setting_tunes_%g_%g_phase_%g.xml" % (latt_dir, opts.tuneh, opts.tunev, opts.phase_g))
     initial_synergia_lattice = synergia.lattice.Lattice()
     synergia.lattice.xml_load_lattice(initial_synergia_lattice, initial_setting)
     initial_synergia_elements = initial_synergia_lattice.get_elements()
@@ -428,7 +428,7 @@ def load_lattice_settings():
             #    print "       ", element.get_name(), initial_k1[index - 1], 
             #    print "1/m"
 
-    final_setting = ("../%s/final_setting_%g_%g.xml" % (latt_dir, opts.tuneh, opts.tunev))
+    final_setting = ("/data/cspark/results/mu2e/%s/final_setting_tunes_%g_%g_phase_%g.xml" % (latt_dir, opts.tuneh, opts.tunev, opts.phase_g))
     final_synergia_lattice = synergia.lattice.Lattice()
     synergia.lattice.xml_load_lattice(final_synergia_lattice, final_setting)
     final_synergia_elements = final_synergia_lattice.get_elements()
@@ -986,6 +986,7 @@ if opts.step_particles:
 for part in range(0, opts.turn_tracks):
     bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_track(
                             "mu2e_turn_track_%02d.h5" % part, part))
+
 if opts.turn_full2:
     bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_full2(
                             "mu2e_turn_full2.h5"))
