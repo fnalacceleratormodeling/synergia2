@@ -237,7 +237,7 @@ Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
     for (int i = 0; i < repetitions; ++i) {
         MPI_Barrier(comm2_sptr->get());
         t0 = MPI_Wtime();
-        get_global_charge_density2_allreduce(fake_local_charge_density, 
+        get_global_charge_density2_allreduce(fake_local_charge_density,
                 comm2_sptr);
         MPI_Barrier(comm2_sptr->get());
         t1 = MPI_Wtime();
@@ -457,7 +457,7 @@ Space_charge_2d_open_hockney::get_global_charge_density2_reduce_scatter(
     }
     Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr,
-                    doubled_lower, doubled_upper, doubled_grid_shape, 
+                    doubled_lower, doubled_upper, doubled_grid_shape,
                     comm_sptr));
     for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
@@ -492,7 +492,7 @@ Space_charge_2d_open_hockney::get_global_charge_density2_allreduce(
     }
     Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr,
-                    doubled_lower, doubled_upper, doubled_grid_shape, 
+                    doubled_lower, doubled_upper, doubled_grid_shape,
                     comm_sptr));
     for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
@@ -518,7 +518,7 @@ Space_charge_2d_open_hockney::get_global_charge_density2(
         return get_global_charge_density2_reduce_scatter(local_charge_density,
                 comm_sptr);
     case charge_allreduce:
-        return get_global_charge_density2_allreduce(local_charge_density, 
+        return get_global_charge_density2_allreduce(local_charge_density,
                 comm_sptr);
     default:
         throw runtime_error(
@@ -590,11 +590,15 @@ Space_charge_2d_open_hockney::get_local_force2(
     MArray2dc local_force2hat(
             boost::extents[extent_range(lower, upper)][doubled_grid_shape[1]]);
 
-    t = simple_timer_show(t, "sc-fft-setup");
+    //~t = simple_timer_show(t, "sc-fft-setup");
+    t = simple_timer_show(t, "get_local_force-fft_setup");
+
     // FFT
     distributed_fft2d_sptr->transform(charge_density2.get_grid_points_2dc(),
             rho2hat);
+    t = simple_timer_show(t, "get_local_force-get_rhohat");
     distributed_fft2d_sptr->transform(green_fn2.get_grid_points_2dc(), G2hat);
+    t = simple_timer_show(t, "get_local_force-get_Ghat");
 
     t = simple_timer_show(t, "sc-fft-transform");
     for (int i = lower; i < upper; ++i) {
@@ -605,12 +609,15 @@ Space_charge_2d_open_hockney::get_local_force2(
     Distributed_rectangular_grid_sptr local_force2(
             new Distributed_rectangular_grid(doubled_domain_sptr,
                     lower, upper, doubled_grid_shape, comm2_sptr));
+    t = simple_timer_show(t, "get_local_force-construct_local_force2");
+
     for (int i = lower; i < upper; ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
             local_force2->get_grid_points_2dc()[i][j] = 0.0;
         }
     }
-    t = simple_timer_show(t, "sc-fft-multiplication/initialization");
+    t = simple_timer_show(t, "get_local_force-convolution");
+
     // inverse FFT
     distributed_fft2d_sptr->inv_transform(local_force2hat,
             local_force2->get_grid_points_2dc());
@@ -636,7 +643,7 @@ Space_charge_2d_open_hockney::get_local_force2(
     normalization *= green_fn2.get_normalization();
     normalization *= distributed_fft2d_sptr->get_roundtrip_normalization();
     local_force2->set_normalization(normalization);
-    t = simple_timer_show(t, "sc-fft-normalization");
+    t = simple_timer_show(t, "get_local_force-get_force");
 
     return local_force2;
 }
@@ -788,37 +795,40 @@ Space_charge_2d_open_hockney::apply(Bunch & bunch, double time_step,
 {
     if (bunch.get_total_num() > 1) {
         int comm_compare;
-        MPI_Comm_compare(comm2_sptr->get(), bunch.get_comm().get(), &comm_compare); 
+        MPI_Comm_compare(comm2_sptr->get(), bunch.get_comm().get(), &comm_compare);
         if ((comm_compare == MPI_UNEQUAL)
                 && (charge_density_comm != charge_allreduce)) {
             throw std::runtime_error(
                     "Space_charge_2d_open_hockney: set_charge_density_comm(charge_allreduce) required when comm != bunch comm");
         }
-        double t;
-        t = simple_timer_current();
+        double t, t_total;
+        t_total = simple_timer_current();
+        t = t_total;
         bunch.convert_to_state(Bunch::fixed_t);
-        t = simple_timer_show(t, "sc-convert-to-state");
+        t = simple_timer_show(t, "sc2doh-convert_to_state");
         Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
-        t = simple_timer_show(t, "sc-get-local-rho");
+        t = simple_timer_show(t, "sc2doh-get_local_rho");
         Distributed_rectangular_grid_sptr rho2(
                 get_global_charge_density2(*local_rho, bunch.get_comm_sptr())); // [C/m^3]
         local_rho.reset();
-        t = simple_timer_show(t, "sc-get-global-rho");
+        t = simple_timer_show(t, "sc2doh-get_global_rho");
         Distributed_rectangular_grid_sptr G2(get_green_fn2_pointlike());
-        t = simple_timer_show(t, "sc-get-green-fn");
+        t = simple_timer_show(t, "sc2doh-get_green_fn");
         Distributed_rectangular_grid_sptr local_force2(get_local_force2(*rho2,
                 *G2));        // [N]
         G2.reset();
-        t = simple_timer_show(t, "sc-get-local_force");
+        t = simple_timer_show(t, "sc2doh-get_local_force");
         Rectangular_grid_sptr Fn(get_global_electric_force2(*local_force2)); // [N]
         local_force2.reset();
-        t = simple_timer_show(t, "sc-get-global-force");
+        t = simple_timer_show(t, "sc2doh-get_global_force");
         bunch.periodic_sort(Bunch::z);
-        t = simple_timer_show(t, "sc-sort");
+        t = simple_timer_show(t, "sc2doh-sort");
         apply_kick(bunch, *rho2, *Fn, time_step);
+        t = simple_timer_show(t, "sc2doh-apply_kick");
         rho2.reset();
         Fn.reset();
-        t = simple_timer_show(t, "sc-apply-kick");
+        t = simple_timer_show(t, "sc2doh-finalize");
+        t_total = simple_timer_show(t_total, "collective_operator_apply-sc2doh");
     }
 }
 
