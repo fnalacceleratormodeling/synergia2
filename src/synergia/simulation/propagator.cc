@@ -158,10 +158,10 @@ Propagator::propagate(State & state)
         if (state.first_turn == 0) {
             state.bunch_simulator_ptr->get_diagnostics_actions().first_action(
                     *stepper_sptr, *bunch_sptr);
-            t = simple_timer_show(t, "diagnostics_first");
+            t = simple_timer_show(t, "propagate-diagnostics_actions_first");
             state.propagate_actions_ptr->first_action(*stepper_sptr,
                     *bunch_sptr);
-            t = simple_timer_show(t, "propagate-general_actions");
+            t = simple_timer_show(t, "propagate-general_actions_first");
         }
         int turns_since_checkpoint = 0;
         int orig_first_turn = state.first_turn;
@@ -180,16 +180,15 @@ Propagator::propagate(State & state)
                 ++step_count;
                 double t_step0, t_step1;
                 t_step0 = MPI_Wtime();
-                (*it)->apply(*bunch_sptr, state.verbosity, logger);
-                /// apply with diagnostics only for testing purposes
-                //(*it)->apply(*bunch_sptr, bunch_simulator.get_per_step_diagnostics());
                 t = simple_timer_current();
+                (*it)->apply(*bunch_sptr, state.verbosity, logger);
+                t = simple_timer_show(t, "propagate-step_apply");
                 state.bunch_simulator_ptr->get_diagnostics_actions().step_end_action(
                         *stepper_sptr, *(*it), *bunch_sptr, turn, step_count);
-                t = simple_timer_show(t, "diagnostics-step");
+                t = simple_timer_show(t, "propagate-diagnostics_actions_step");
                 state.propagate_actions_ptr->step_end_action(*stepper_sptr,
                         *(*it), *bunch_sptr, turn, step_count);
-                t = simple_timer_show(t, "propagate-general_actions-step");
+                t = simple_timer_show(t, "propagate-general_actions_step");
                 t_step1 = MPI_Wtime();
                 if (state.verbosity > 1) {
                     logger << "Propagator:";
@@ -214,13 +213,12 @@ Propagator::propagate(State & state)
                 break;
             }
             t = simple_timer_current();
-
             state.bunch_simulator_ptr->get_diagnostics_actions().turn_end_action(
                     *stepper_sptr, *bunch_sptr, turn);
-            t = simple_timer_show(t, "diagnostics-turn");
+            t = simple_timer_show(t, "propagate-diagnostics_turn");
             state.propagate_actions_ptr->turn_end_action(*stepper_sptr,
                     *bunch_sptr, turn);
-            t = simple_timer_show(t, "propagate-general_actions-turn");
+            t = simple_timer_show(t, "propagate-general_actions_turn");
             state.first_turn = turn + 1;
             t_turn1 = MPI_Wtime();
             if (state.verbosity > 0) {
@@ -236,14 +234,18 @@ Propagator::propagate(State & state)
             ++turns_since_checkpoint;
             if ((turns_since_checkpoint == checkpoint_period) || ((turn
 								   == (state.num_turns - 1)) && final_checkpoint)) {
+                t = simple_timer_current();
                 checkpoint(state, logger, t);
+                t = simple_timer_show(t, "propagate-checkpoint_period");
                 turns_since_checkpoint = 0;
             }
             if (((turn - orig_first_turn + 1) == state.max_turns) && (turn
                     != (state.num_turns - 1))) {
                 logger << "Propagator: maximum number of turns reached\n";
                 if (turns_since_checkpoint > 0) {
+                    t = simple_timer_current();
                     checkpoint(state, logger, t);
+                    t = simple_timer_show(t, "propagate-checkpoint_max");
                 }
                 break;
             }
@@ -251,7 +253,9 @@ Propagator::propagate(State & state)
                     || boost::filesystem::exists(alt_stop_file_name)) {
                 logger << "Propagator: stop file detected\n";
                 if (turns_since_checkpoint > 0) {
+                    t = simple_timer_current();
                     checkpoint(state, logger, t);
+                    t = simple_timer_show(t, "propagate-checkpoint_stop");
                 }
                 break;
             }

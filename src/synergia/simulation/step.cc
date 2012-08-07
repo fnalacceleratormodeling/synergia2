@@ -1,5 +1,6 @@
 #include <iostream>
 #include "step.h"
+#include "synergia/utils/simple_timer.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/core_diagnostics.h"
 #include "synergia/collective/impedance.h"
@@ -79,6 +80,7 @@ void
 Step::apply(Bunch & bunch, int verbosity, Logger & logger,
         Multi_diagnostics & diagnostics)
 {
+    double t_total = simple_timer_current();
     std::list<double >::const_iterator fractions_it = time_fractions.begin();
     for (Operators::const_iterator it = operators.begin(); it
             != operators.end(); ++it) {
@@ -109,7 +111,10 @@ Step::apply(Bunch & bunch, int verbosity, Logger & logger,
             (*itd)->update_and_write();
         }
         double t0 = MPI_Wtime();
+        double t = simple_timer_current();
         (*it)->apply(bunch, (*fractions_it) * time, *this, verbosity, logger);
+        std::string label("step_apply-" + (*it)->get_type() + "_operator_apply");
+        t = simple_timer_show(t, label.c_str());
         double t1 = MPI_Wtime();
         if (verbosity > 2) {
             logger << "Step: operator: name = " << (*it)->get_name()
@@ -129,6 +134,7 @@ Step::apply(Bunch & bunch, int verbosity, Logger & logger,
         }
         ++fractions_it;
     }
+    t_total = simple_timer_show(t_total, "step_apply-total");
 }
 
 

@@ -352,6 +352,7 @@ void
 Independent_operator::apply(Bunch & bunch, double time_step, Step & step,
         int verbosity, Logger & logger)
 {
+    double t_total = simple_timer_current();
     if (verbosity > 4) {
         logger << "Independent_operator: slice(s) = " << std::endl;
         for (Lattice_element_slices::const_iterator it = slices.begin();
@@ -359,32 +360,32 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step,
             logger << "    " << (*it)->as_string() << std::endl;
         }
     }
-    double t;
-    t = simple_timer_current();
-    bool do_update = need_update(bunch.get_reference_particle(), verbosity, logger);
-    t = simple_timer_show(t, "independent-operator-test_update");
+    double t = simple_timer_current();
+    bool do_update = need_update(bunch.get_reference_particle(), verbosity,
+            logger);
+    t = simple_timer_show(t, "independent_operator_apply-test_update");
     if (do_update) {
         if (verbosity > 3) {
-                    logger << "Independent_operator: updating operations" << std::endl;
-                }
+            logger << "Independent_operator: updating operations" << std::endl;
+        }
         update_operations(bunch.get_reference_particle());
-        t = simple_timer_show(t, "independent-operator-update");
+        t = simple_timer_show(t, "independent_operator_apply-update_operations");
     }
-    double t1;
-    t1 = simple_timer_current();
-    for (Independent_operations::iterator it = operations.begin(); it
-            != operations.end(); ++it) {
+    for (Independent_operations::iterator it = operations.begin();
+            it != operations.end(); ++it) {
         // std::cout<<" opertor.cc operator name="<<(*it)->get_type()<<std::endl;
         if (verbosity > 3) {
-            logger << "Independent_operator: operation type = " <<
-                    (*it)->get_type() << std::endl;
+            logger << "Independent_operator: operation type = "
+                    << (*it)->get_type() << std::endl;
         }
         (*it)->apply(bunch, verbosity, logger);
-        std::string label("independent-operation-" +(*it)->get_type() + "-apply");
-        t1 = simple_timer_show(t1, label.c_str());
+        std::string label(
+                "independent_operator_apply-" + (*it)->get_type() + "_operation_apply");
+        t = simple_timer_show(t, label.c_str());
     }
     bunch.update_total_num();
-    t = simple_timer_show(t, "independent-operator-apply");
+    t = simple_timer_show(t, "independent_operator_apply-bunch_update_total_num");
+    t_total = simple_timer_show(t_total, "independent_operator_apply-total");
 }
 
 void
@@ -408,7 +409,7 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step, int ve
         }
         (*it)->apply(bunch, verbosity, logger);
     }
-    t = simple_timer_show(t, "independent-operator-apply");
+    t = simple_timer_show(t, "independent_operator_apply2");
 }
 
 void
