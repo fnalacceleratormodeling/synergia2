@@ -115,7 +115,6 @@ fill_6d_normal_form_coords(Distribution &dist, MArray2d_view nf_particles,
             // actions[c] according to -mean*log(1-r) where r is random number
             // [0,1).  We need the square root of the action for the normal form
             // coordinate according to Eq. 13.
-            std::cout << "    column: " << 2*c << std::endl;
             double square_root_action = sqrt(-actions[c]*log(1.0-nf_particles[part][2*c]));
             double phase = nf_particles[part][2*c+1];
             nf_particles[part][2*c] = square_root_action * sin(phase);
@@ -157,8 +156,6 @@ populate_6d_stationary_clipped_longitudinal_gaussian(Distribution &dist,
                 // convert to human form and then check
                 lattice_simulator.convert_normal_to_human(test_particle);
 
-                std::cout << test_particle[0][0] << " " << test_particle[0][1] << " " << test_particle[0][2] << " " << test_particle[0][3] << " " << test_particle[0][4] << " " << test_particle[0][5] << std::endl;
-
                 if ((test_particle[0][Bunch::cdt] < z_min) ||
                     (test_particle[0][Bunch::cdt] > z_max)) {
 
@@ -178,7 +175,6 @@ populate_6d_stationary_clipped_longitudinal_gaussian(Distribution &dist,
                 break; // all right!  I have a good one
             }
 
-            std::cout << "no good particles this time, try again" << std::endl;
             ++curr_try;  // otherwise I'm going around to try a different normal form particle
 
         }
