@@ -1,5 +1,6 @@
 #include "aperture_operation.h"
 #include "synergia/foundation/math_constants.h"
+#include "synergia/utils/simple_timer.h"
 #include <boost/lexical_cast.hpp>
 #include <stdexcept>
 #include <cmath>
@@ -103,7 +104,10 @@ Finite_aperture_operation::operator==(
 void
 Finite_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
+    double t;
+    //t = simple_timer_current();
     apply_impl(*this, bunch, verbosity, logger);
+    //t = simple_timer_show(t, "finite_aperture-apply");
 }
 
 template<class Archive>
@@ -189,7 +193,10 @@ Circular_aperture_operation::operator==(
 void
 Circular_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
+    double t;
+    //t = simple_timer_current();
     apply_impl(*this, bunch, verbosity, logger);
+    //t = simple_timer_show(t, "circular_aperture-apply");
 }
 
 template<class Archive>
@@ -290,7 +297,10 @@ Elliptical_aperture_operation::operator==(
 void
 Elliptical_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
+    double t;
+    //t = simple_timer_current();
     apply_impl(*this, bunch, verbosity, logger);
+    //t = simple_timer_show(t, "elliptical_aperture-apply");
 }
 
 template<class Archive>
@@ -387,7 +397,10 @@ Rectangular_aperture_operation::operator==(
 void
 Rectangular_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
+    double t;
+    //t = simple_timer_current();
     apply_impl(*this, bunch, verbosity, logger);
+    //t = simple_timer_show(t, "rectangular_aperture-apply");
 }
 
 template<class Archive>
@@ -433,16 +446,23 @@ Polygon_aperture_operation::Polygon_aperture_operation(
 {
     if (slice_sptr->get_lattice_element().has_double_attribute(
             "the_number_of_vertices")) {
-        vertices_num = int(
+        num_vertices = int(
                 slice_sptr->get_lattice_element().get_double_attribute(
                         "the_number_of_vertices"));
-        if (vertices_num < 3) throw std::runtime_error(
+        if (num_vertices < 3) throw std::runtime_error(
                 "Polygon_aperture_operation: polygon_aperture requires at least 3 vertices");
     } else {
         throw std::runtime_error(
                 "Polygon_aperture_operation: polygon_aperture requires the_number_of vertices attribute");
     }
-    for (int index = 0; index < vertices_num; ++index) {
+    if (slice_sptr->get_lattice_element().has_double_attribute(
+            "min_radius2")) {
+        min_radius2 = slice_sptr->get_lattice_element().get_double_attribute(
+                        "min_radius2");
+    } else {
+        min_radius2 = 0.0;
+    }
+    for (int index = 0; index < num_vertices; ++index) {
         std::string ss = boost::lexical_cast<std::string >(index + 1);
         std::string x = "pax" + ss;
         std::string y = "pay" + ss;
@@ -454,8 +474,6 @@ Polygon_aperture_operation::Polygon_aperture_operation(
                                     x),
                             slice_sptr->get_lattice_element().get_double_attribute(
                                     y)));
-            //std::cout << index << "  " << slice_sptr->get_lattice_element().get_double_attribute(x)
-            //        << "  " << slice_sptr->get_lattice_element().get_double_attribute(y) << std::endl;
         } else {
             throw std::runtime_error(
                     "Polygon_aperture_operation: polygon_aperture requires x and y coordinate attributes for each vertex");
@@ -489,13 +507,17 @@ bool
 Polygon_aperture_operation::operator==(
         Polygon_aperture_operation const& polygon_aperture_operation) const
 {
-    return (vertices == polygon_aperture_operation.vertices);
+    return ((vertices == polygon_aperture_operation.vertices)
+            && (min_radius2 == polygon_aperture_operation.min_radius2));
 }
 
 void
 Polygon_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
+    double t;
+    //t = simple_timer_current();
     apply_impl(*this, bunch, verbosity, logger);
+    //t = simple_timer_show(t, "polygon_aperture-apply");
 }
 
 template<class Archive>
@@ -503,8 +525,9 @@ template<class Archive>
     Polygon_aperture_operation::serialize(Archive & ar, const unsigned int version)
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
-        ar & BOOST_SERIALIZATION_NVP(vertices_num);
+        ar & BOOST_SERIALIZATION_NVP(num_vertices);
         ar & BOOST_SERIALIZATION_NVP(vertices);
+        ar & BOOST_SERIALIZATION_NVP(min_radius2);
     }
 
 template
@@ -625,7 +648,10 @@ Wire_elliptical_aperture_operation::operator==(
 void
 Wire_elliptical_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
+    double t;
+    //t = simple_timer_current();
     apply_impl(*this, bunch, verbosity, logger);
+    //t = simple_timer_show(t, "wire_elliptical_aperture-apply");
 }
 
 template<class Archive>
@@ -716,8 +742,11 @@ Lambertson_aperture_operation::operator==(
 void
 Lambertson_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
+    double t;
+    //t = simple_timer_current();
     dump_particles(*this, bunch, verbosity, logger);
     //apply_impl(*this, bunch, verbosity, logger);
+    //t = simple_timer_show(t, "lambertson_aperture-apply");
 }
 
 template<class Archive>

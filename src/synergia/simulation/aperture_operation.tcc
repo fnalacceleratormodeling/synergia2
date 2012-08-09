@@ -23,12 +23,12 @@ template<typename T>
                         // No more particles left
                         try_discard = false;
                     } else {
-//                        std::cout << "lost: " << part
-//                                << "  " << particles[part][Bunch::x]
-//                                << "  " << particles[part][Bunch::xp]
-//                                << "  " << particles[part][Bunch::y]
-//                                << "  " << particles[part][Bunch::yp]
-//                                << std::endl;
+                        //std::cout << "lost: " << part
+                        //        << "  " << particles[part][Bunch::x]
+                        //        << "  " << particles[part][Bunch::xp]
+                        //        << "  " << particles[part][Bunch::y]
+                        //        << "  " << particles[part][Bunch::yp]
+                        //        << std::endl;
                         // Move the last particle into this newly empty position
                         int last = local_num;
                         particles[part][0] = particles[last][0];
@@ -159,22 +159,27 @@ Polygon_aperture_operation::operator()(MArray2d_ref & particles, int part)
 {
     double xrel = particles[part][Bunch::x] - get_x_offset();
     double yrel = particles[part][Bunch::y] - get_y_offset();
+    double r2 = xrel * xrel + yrel * yrel;
 
-    std::complex<double > u(xrel, yrel);
-    int index = 0;
-    int size = vertices.size();
-    double theta_sum = 0.0;
-    while (index < size) {
-        int index2 = index + 1;
-        if (size == index2) index2 = 0;
-        std::complex<double > v(vertices[index]);
-        std::complex<double > w(vertices[index2]);
-        double theta = arg((w - u) * conj(v - u));
-        theta_sum += theta;
-        ++index;
+    bool keep = true;
+    if (r2 > min_radius2) {
+        std::complex<double > u(xrel, yrel);
+        int index = 0;
+        int size = vertices.size();
+        double theta_sum = 0.0;
+        while (index < size) {
+            int index2 = index + 1;
+            if (size == index2) index2 = 0;
+            std::complex<double > v(vertices[index]);
+            std::complex<double > w(vertices[index2]);
+            double theta = arg((w - u) * conj(v - u));
+            theta_sum += theta;
+            ++index;
+        }
+        const double tiny = 1.0e-12;
+        if (theta_sum / (2.0 * mconstants::pi) < tiny) keep = false;
     }
-    const double tiny = 1.0e-12;
-    return (theta_sum / (2.0 * mconstants::pi) < tiny);
+    return (!keep);
 }
 
 inline bool

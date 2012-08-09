@@ -190,8 +190,9 @@ BOOST_CLASS_EXPORT_KEY(Rectangular_aperture_operation)
 class Polygon_aperture_operation : public Aperture_operation
 {
 private:
-    int vertices_num;
+    int num_vertices;
     std::vector<std::complex<double > > vertices;
+    double min_radius2;
 public:
     static const char aperture_type[];
     static const char attribute_name[];

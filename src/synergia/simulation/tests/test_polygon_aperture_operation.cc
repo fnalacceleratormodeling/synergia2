@@ -91,7 +91,6 @@ BOOST_FIXTURE_TEST_CASE(construct_bad, Lattice_fixture)
         caught = true;
     }
     BOOST_CHECK(!caught);
-
 }
 
 BOOST_FIXTURE_TEST_CASE(apply, Lattice_fixture)
@@ -162,4 +161,21 @@ BOOST_FIXTURE_TEST_CASE(operatorequals, Lattice_fixture)
     element3_sptr->set_double_attribute("pay4", pay4 / 2.0);
     Polygon_aperture_operation polygon_aperture_operation3(slice3_sptr);
     BOOST_CHECK(!(polygon_aperture_operation1 == polygon_aperture_operation3));
+
+    ++it;
+    Lattice_element_sptr element4_sptr(*it);
+    Lattice_element_slice_sptr slice4_sptr(
+            new Lattice_element_slice(element4_sptr));
+    element4_sptr->set_double_attribute("the_number_of_vertices", 4);
+    element4_sptr->set_double_attribute("pax1", pax1);
+    element4_sptr->set_double_attribute("pay1", pay1);
+    element4_sptr->set_double_attribute("pax2", pax2);
+    element4_sptr->set_double_attribute("pay2", pay2);
+    element4_sptr->set_double_attribute("pax3", pax3);
+    element4_sptr->set_double_attribute("pay3", pay3);
+    element4_sptr->set_double_attribute("pax4", pax4);
+    element4_sptr->set_double_attribute("pay4", pay4);
+    element4_sptr->set_double_attribute("min_radius2", 0.5);
+    Polygon_aperture_operation polygon_aperture_operation4(slice4_sptr);
+    BOOST_CHECK(!(polygon_aperture_operation1 == polygon_aperture_operation4));
 }
