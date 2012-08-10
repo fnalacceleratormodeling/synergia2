@@ -17,6 +17,7 @@
 
 #include <stdexcept>
 #include <cstring>
+#include <cmath>
 #include <iostream>
 
 Lattice_functions::Lattice_functions() :
@@ -652,62 +653,38 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
         std::cout << "                     vertical        : "
                 << vertical_final_tune << std::endl;
     }
-#if 1
-    double adjuster_tune_step = 0.005;
-    double const dtune_h =  (horizontal_final_tune - nu_h) / double(1 + int((
-            std::abs(horizontal_final_tune - nu_h)) / adjuster_tune_step));
 
-    double horizontal_target_tune = nu_h + dtune_h;
-    double vertical_target_tune = vertical_final_tune;
-    int step = 1;
-    while ((10.0 * tolerance) < std::abs(horizontal_final_tune - nu_h)) {
+    int step = 0;
+    bool in_tolerance =
+        sqrt(pow((nu_h - horizontal_final_tune), 2) +
+             pow((nu_v - vertical_final_tune), 2)) < tolerance;
+         
+    while (!in_tolerance && (step < 20)) {
         if (rank == 0) std::cout << "\n        Step " << step << std::endl;
-        while (tolerance < std::abs( horizontal_target_tune - nu_h)) {
-            int status = beamline_context_sptr->changeTunesTo(
-                            horizontal_target_tune, vertical_target_tune);
-            if (status == BeamlineContext::NO_TUNE_ADJUSTER) {
-                throw std::runtime_error(
-                        "Lattice_simulator::adjust_tunes: no corrector elements found");
-            } else if (status != BeamlineContext::OKAY) {
-                throw std::runtime_error(
-                        "Lattice_simulator::adjust_tunes: failed with unknown status");
+        int status = beamline_context_sptr->changeTunesTo(
+                            horizontal_final_tune, vertical_final_tune);
+        if (status == BeamlineContext::NO_TUNE_ADJUSTER) {
+            throw std::runtime_error("Lattice_simulator::adjust_tunes: no corrector elements found");
+        } else if (status != BeamlineContext::OKAY) {
+            throw std::runtime_error("Lattice_simulator::adjust_tunes: failed with unknown status");
         }
-            nu_h = beamline_context_sptr->getHorizontalFracTune();
-            nu_v = beamline_context_sptr->getVerticalFracTune();
-            if (rank == 0) {
-                std::cout << "        Tunes: horizontal: " << nu_h << " = "
-                        << horizontal_target_tune << " + "
-                        << nu_h - horizontal_target_tune << std::endl;
-                std::cout << "               vertical  : " << nu_v << std::endl;
-            }
+        nu_h = beamline_context_sptr->getHorizontalFracTune();
+        nu_v = beamline_context_sptr->getVerticalFracTune();
+        if (rank == 0) {
+            std::cout << "        Step tunes: horizontal: " << nu_h
+                       << ", error "
+                      << horizontal_final_tune - nu_h << std::endl;
+            std::cout << "                    vertical  : " << nu_v
+                      << ", error "
+                      << vertical_final_tune - nu_v << std::endl;
         }
-        have_tunes = false;
-        horizontal_target_tune += dtune_h;
+        in_tolerance = sqrt(pow((nu_h - horizontal_final_tune), 2) +
+                            pow((nu_v - vertical_final_tune), 2)) < tolerance;
         ++step;
     }
-#endif
-#if 0
-    const int max_iterations = 20;
-    int iteration = 0;
-    while ((std::abs(get_horizontal_tune() - horizontal_tune) > tolerance)
-            && (std::abs(get_vertical_tune() - vertical_tune) > tolerance)) {
-        ++iteration;
-        if (iteration > max_iterations) {
-            throw std::runtime_error(
-                    "Lattice_simulator::adjust_tunes: maximum number of iterations exceeded");
-        }
-        int status = beamline_context_sptr->changeTunesTo(horizontal_tune,
-                vertical_tune);
-        if (status == BeamlineContext::NO_TUNE_ADJUSTER) {
-            throw std::runtime_error(
-                    "Lattice_simulator::adjust_tunes: no corrector elements found");
-        } else if (status != BeamlineContext::OKAY) {
-            throw std::runtime_error(
-                    "Lattice_simulator::adjust_tunes: failed with unknown status");
-        }
-        have_tunes = false;
+    if (!in_tolerance) {
+        std::cout << "Error, did not meet final tolerance within 20 steps" << std::endl;
     }
-#endif
     extract_quad_strengths(horizontal_correctors, *chef_lattice_sptr);
     extract_quad_strengths(vertical_correctors, *chef_lattice_sptr);
     update();
