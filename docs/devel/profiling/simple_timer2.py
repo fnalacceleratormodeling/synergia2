@@ -43,7 +43,7 @@ def recursive_print(file, format, level0, level0s, items, times):
                 if not next in nexts:
                     nexts.append(next)
     if total in items[level0]:
-        file.write(format % (key, times[key]) + '\n')
+        file.write(format % (total, times[total]) + '\n')
     if len(items[level0])>1:
         file.write(format % ('** ' + level0 + ' sum', sum) + ' **\n')
     file.write('\n')
