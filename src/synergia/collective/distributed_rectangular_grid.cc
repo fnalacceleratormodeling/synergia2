@@ -23,16 +23,16 @@ Distributed_rectangular_grid::construct_hockney(int lower, int upper,
         upper_guard = upper;
     }
     grid_points_sptr
-            = boost::shared_ptr<MArray3d >(
-                    new MArray3d(boost::extents[extent_range(lower_guard,
+            = boost::shared_ptr<Raw_MArray3d >(
+                    new Raw_MArray3d(boost::extents[extent_range(lower_guard,
                             upper_guard)][array_shape[1]][array_shape[2]]));
     grid_points_2dc_sptr
-            = boost::shared_ptr<MArray2dc >(
-                    new MArray2dc(boost::extents[extent_range(lower_guard,
+            = boost::shared_ptr<Raw_MArray2dc >(
+                    new Raw_MArray2dc(boost::extents[extent_range(lower_guard,
                             upper_guard)][array_shape[1]]));
     grid_points_1d_sptr
-            = boost::shared_ptr<MArray1d >(
-                    new MArray1d(boost::extents[array_shape[2]]));
+            = boost::shared_ptr<Raw_MArray1d >(
+                    new Raw_MArray1d(boost::extents[array_shape[2]]));
     normalization = 1.0;
 }
 
@@ -60,16 +60,16 @@ Distributed_rectangular_grid::construct_rectangular(int lower, int upper,
 
 
     grid_points_sptr
-            = boost::shared_ptr<MArray3d >(
-                    new MArray3d(boost::extents[array_shape[0]][array_shape[1]][array_shape[2]]));
+            = boost::shared_ptr<Raw_MArray3d >(
+                    new Raw_MArray3d(boost::extents[array_shape[0]][array_shape[1]][array_shape[2]]));
 
-     grid_points_2dc_sptr
-              = boost::shared_ptr<MArray2dc >(
-                      new MArray2dc(boost::extents[array_shape[0]][array_shape[1]]));
+    grid_points_2dc_sptr
+              = boost::shared_ptr<Raw_MArray2dc >(
+                      new Raw_MArray2dc(boost::extents[array_shape[0]][array_shape[1]]));
 
     grid_points_1d_sptr
-            = boost::shared_ptr<MArray1d >(
-                    new MArray1d(boost::extents[array_shape[2]]));
+            = boost::shared_ptr<Raw_MArray1d >(
+                    new Raw_MArray1d(boost::extents[array_shape[2]]));
     normalization = 1.0;
 }
 
@@ -194,37 +194,37 @@ Distributed_rectangular_grid::get_lengths()
 MArray3d_ref const&
 Distributed_rectangular_grid::get_grid_points() const
 {
-    return *grid_points_sptr;
+    return grid_points_sptr->m;
 }
 
 MArray3d_ref &
 Distributed_rectangular_grid::get_grid_points()
 {
-    return *grid_points_sptr;
+    return grid_points_sptr->m;
 }
 
 MArray2dc_ref const&
 Distributed_rectangular_grid::get_grid_points_2dc() const
 {
-    return *grid_points_2dc_sptr;
+    return grid_points_2dc_sptr->m;
 }
 
 MArray2dc_ref &
 Distributed_rectangular_grid::get_grid_points_2dc()
 {
-    return *grid_points_2dc_sptr;
+    return grid_points_2dc_sptr->m;
 }
 
 MArray1d_ref const&
 Distributed_rectangular_grid::get_grid_points_1d() const
 {
-    return *grid_points_1d_sptr;
+    return grid_points_1d_sptr->m;
 }
 
 MArray1d_ref &
 Distributed_rectangular_grid::get_grid_points_1d()
 {
-    return *grid_points_1d_sptr;
+    return grid_points_1d_sptr->m;
 }
 
 void
@@ -263,14 +263,14 @@ Distributed_rectangular_grid::fill_guards()
             int max2 = domain_sptr->get_grid_shape()[2];
             for (int j = 0; j < max1; ++j) {
                 for (int k = 0; k < max2; ++k) {
-                    (*grid_points_sptr)[-1][j][k] = (*grid_points_sptr)[max0
+                    (grid_points_sptr->m)[-1][j][k] = (grid_points_sptr->m)[max0
                             - 1][j][k];
                 }
             }
             for (int j = 0; j < max1; ++j) {
                 for (int k = 0; k < max2; ++k) {
-                    (*grid_points_sptr)[max0][j][k]
-                            = (*grid_points_sptr)[0][j][k];
+                    (grid_points_sptr->m)[max0][j][k]
+                            = (grid_points_sptr->m)[0][j][k];
                 }
             }
             return;
@@ -282,12 +282,12 @@ Distributed_rectangular_grid::fill_guards()
     MPI_Status status;
     void *recv_buffer, *send_buffer;
     // send to the right
-    recv_buffer = (void*) multi_array_offset(*grid_points_sptr, lower_guard, 0,
+    recv_buffer = (void*) multi_array_offset(grid_points_sptr->m, lower_guard, 0,
             0);
     send_buffer
-            = (void*) multi_array_offset(*grid_points_sptr, upper - 1, 0, 0);
-    size_t message_size = grid_points_sptr->shape()[1]
-            * grid_points_sptr->shape()[2];
+            = (void*) multi_array_offset(grid_points_sptr->m, upper - 1, 0, 0);
+    size_t message_size = grid_points_sptr->m.shape()[1]
+            * grid_points_sptr->m.shape()[2];
     int sender = rank - 1;
     bool send = true;
     int receiver = rank + 1;
@@ -324,9 +324,9 @@ Distributed_rectangular_grid::fill_guards()
     }
 
     //send to the left
-    recv_buffer = (void*) multi_array_offset(*grid_points_sptr,
+    recv_buffer = (void*) multi_array_offset(grid_points_sptr->m,
             upper_guard - 1, 0, 0);
-    send_buffer = (void*) multi_array_offset(*grid_points_sptr, lower, 0, 0);
+    send_buffer = (void*) multi_array_offset(grid_points_sptr->m, lower, 0, 0);
     sender = rank + 1;
     send = true;
     receiver = rank - 1;
