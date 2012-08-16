@@ -7,9 +7,9 @@ class Rectangular_grid
 {
 private:
     Rectangular_grid_domain_sptr domain_sptr;
-    boost::shared_ptr<MArray3d > grid_points_sptr;
-    boost::shared_ptr<MArray2dc > grid_points_2dc_sptr;
-    boost::shared_ptr<MArray1d > grid_points_1d_sptr;
+    boost::shared_ptr<Raw_MArray3d > grid_points_sptr;
+    boost::shared_ptr<Raw_MArray2dc > grid_points_2dc_sptr;
+    boost::shared_ptr<Raw_MArray1d > grid_points_1d_sptr;
     double normalization;
     storage3d storage;
 public:
