@@ -427,11 +427,9 @@ Space_charge_2d_open_hockney::get_global_charge_density2_reduce_scatter(
     // dimensions as the charge density in order to work with MPI_Reduce_scatter.
     const std::complex<double > * source_2dc
             = local_charge_density.get_grid_points_2dc().origin();
-    std::complex<double > * dest_2dc;
-    MArray2dc dest_array_2dc(boost::extents[1][1]);
-    dest_array_2dc.resize(boost::extents[extent_range(doubled_lower,
+    Raw_MArray2dc dest_array_2dc(boost::extents[extent_range(doubled_lower,
             doubled_upper)][doubled_grid_shape[1]]);
-    dest_2dc = multi_array_offset(dest_array_2dc, doubled_lower, 0);
+    std::complex<double > * dest_2dc = multi_array_offset(dest_array_2dc.m, doubled_lower, 0);
     int error_2dc = MPI_Reduce_scatter((void *) source_2dc, (void *) dest_2dc,
             &real_lengths[0], MPI_DOUBLE_COMPLEX, MPI_SUM, comm_sptr->get());
 
@@ -461,7 +459,7 @@ Space_charge_2d_open_hockney::get_global_charge_density2_reduce_scatter(
                     comm_sptr));
     for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
-            rho2->get_grid_points_2dc()[i][j] = dest_array_2dc[i][j];
+            rho2->get_grid_points_2dc()[i][j] = dest_array_2dc.m[i][j];
         }
     }
     for (int k = 0; k < doubled_grid_shape[2]; ++k) {
@@ -583,11 +581,11 @@ Space_charge_2d_open_hockney::get_local_force2(
     int lower = distributed_fft2d_sptr->get_lower();
     int upper = distributed_fft2d_sptr->get_upper();
 
-    MArray2dc rho2hat(
+    Raw_MArray2dc rho2hat(
             boost::extents[extent_range(lower, upper)][doubled_grid_shape[1]]);
-    MArray2dc G2hat(
+    Raw_MArray2dc G2hat(
             boost::extents[extent_range(lower, upper)][doubled_grid_shape[1]]);
-    MArray2dc local_force2hat(
+    Raw_MArray2dc local_force2hat(
             boost::extents[extent_range(lower, upper)][doubled_grid_shape[1]]);
 
     //~t = simple_timer_show(t, "sc-fft-setup");
@@ -595,15 +593,14 @@ Space_charge_2d_open_hockney::get_local_force2(
 
     // FFT
     distributed_fft2d_sptr->transform(charge_density2.get_grid_points_2dc(),
-            rho2hat);
+            rho2hat.m);
     t = simple_timer_show(t, "get_local_force-get_rhohat");
-    distributed_fft2d_sptr->transform(green_fn2.get_grid_points_2dc(), G2hat);
+    distributed_fft2d_sptr->transform(green_fn2.get_grid_points_2dc(), G2hat.m);
     t = simple_timer_show(t, "get_local_force-get_Ghat");
 
-    t = simple_timer_show(t, "sc-fft-transform");
     for (int i = lower; i < upper; ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
-            local_force2hat[i][j] = rho2hat[i][j] * G2hat[i][j];
+            local_force2hat.m[i][j] = rho2hat.m[i][j] * G2hat.m[i][j];
         }
     }
     Distributed_rectangular_grid_sptr local_force2(
@@ -619,9 +616,9 @@ Space_charge_2d_open_hockney::get_local_force2(
     t = simple_timer_show(t, "get_local_force-convolution");
 
     // inverse FFT
-    distributed_fft2d_sptr->inv_transform(local_force2hat,
+    distributed_fft2d_sptr->inv_transform(local_force2hat.m,
             local_force2->get_grid_points_2dc());
-    t = simple_timer_show(t, "sc-fft-inv_transform");
+    t = simple_timer_show(t, "get_local_force-get_local_force2");
 
     double hx, hy, hz;
     hx = domain_sptr->get_cell_size()[0];
