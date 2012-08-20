@@ -51,6 +51,35 @@ BOOST_FIXTURE_TEST_CASE(set_get, Lattice_fixture)
             chef_propagate_operation_extractor.get());
 }
 
+BOOST_FIXTURE_TEST_CASE(get_nonexistent, Lattice_fixture)
+{
+    Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(lattice_sptr));
+    const int map_order = 3;
+
+    Operation_extractor_sptr chef_map_operation_extractor(
+            new Chef_map_operation_extractor(chef_lattice_sptr, map_order));
+    Operation_extractor_sptr
+            chef_propagate_operation_extractor(
+                    new Chef_propagate_operation_extractor(chef_lattice_sptr,
+                            map_order));
+    Operation_extractor_sptr chef_mixed_operation_extractor(
+            new Chef_mixed_operation_extractor(chef_lattice_sptr, map_order));
+
+    Operation_extractor_map operation_extractor_map;
+    operation_extractor_map.set_extractor(default_operation_extractor_name,
+            chef_mixed_operation_extractor);
+
+    bool caught = false;
+    try {
+        std::string unknown_name("foobar");
+        operation_extractor_map.get_extractor(unknown_name);
+    }
+    catch (std::runtime_error) {
+        caught = true;
+    }
+    BOOST_CHECK(caught);
+}
+
 BOOST_FIXTURE_TEST_CASE(get_extractor_names, Lattice_fixture)
 {
     Chef_lattice_sptr chef_lattice_sptr(new Chef_lattice(lattice_sptr));

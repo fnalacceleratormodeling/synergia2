@@ -314,6 +314,18 @@ Operation_extractor_map::set_extractor(std::string const& name,
 Operation_extractor_sptr &
 Operation_extractor_map::get_extractor(std::string const& name)
 {
+    if (extractor_map.find(name) == extractor_map.end()) {
+        std::string message("Operation_extractor_map: unknown extractor \"");
+        message += name;
+        message += "\"";
+        message += "\nknown extractors:\n";
+        std::list<std::string > extractor_names(get_extractor_names());
+        for(std::list<std::string >::const_iterator it = extractor_names.begin();
+                it!=extractor_names.end(); ++it) {
+            message += "    " + *it + "\n";
+        }
+        throw std::runtime_error(message);
+    }
     return extractor_map[name];
 }
 
