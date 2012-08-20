@@ -57,4 +57,56 @@ interpolate_rectangular_2d(double x, double y, double z,
     return val;
 }
 
+inline std::complex<double >
+interpolate_rectangular_2_5d(double x, double y, double z,
+        Rectangular_grid_domain const& domain, MArray2dc_ref const& a,
+        MArray1d_ref const& b)
+{
+    // bi-linear interpolation
+    int ix, iy, iz;
+    double offx, offy, offz;
+    bool in_domain = domain.get_leftmost_indices_offsets(x, y, z, ix, iy, iz,
+            offx, offy, offz);
+    std::complex<double > val;
+    if (in_domain) {
+        double line_density = ((1.0 - offz) * b[iz] + offz * b[iz + 1]);
+        val = line_density * ((1.0 - offx) * (1.0 - offy) * a[ix][iy]
+                + offx * (1.0 - offy) * a[ix + 1][iy]
+                + (1.0 - offx) * offy * a[ix][iy + 1]
+                + offx * offy * a[ix + 1][iy + 1]);
+    }
+    return val;
+}
+
+inline std::complex<double >
+interpolate_rectangular_2_5d(MArray1d_ref const& bin,
+        std::vector<int > const& grid_shape, bool periodic_z,
+        MArray2dc_ref const& a, MArray1d_ref const& b)
+{
+    // bi-linear interpolation
+    int ix, iy, iz;
+    double offx, offy, offz;
+    double aoffx, aoffy, aoffz;
+    ix = fast_int_floor(bin[0]);
+    iy = fast_int_floor(bin[2]);
+    iz = fast_int_floor(bin[4]);
+    offx = bin[1];
+    offy = bin[3];
+    offz = bin[5];
+    //aoffx = 1.0 - offx;
+    //aoffy = 1.0 - offy;
+    //aoffz = 1.0 - offz;
+    //std::vector<double > val(2);
+    std::complex<double > val;
+    if (((ix>=0) && (ix<grid_shape[0] - 1) && (iy>=0) && (iy<grid_shape[1] - 1))
+        && (periodic_z || ((iz>=0) && (iz<grid_shape[2] - 1)))) {
+        double line_density = ((1.0 - offz) * b[iz] + offz * b[iz + 1]);
+        val = line_density * ((1.0 - offx) * (1.0 - offy) * a[ix][iy]
+                + offx * (1.0 - offy) * a[ix + 1][iy]
+                + (1.0 - offx) * offy * a[ix][iy + 1]
+                + offx * offy * a[ix + 1][iy + 1]);
+    }
+    return val;
+}
+
 #endif /* INTERPOLATE_RECTANGULAR_ZYX_H_ */
