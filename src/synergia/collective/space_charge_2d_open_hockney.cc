@@ -422,12 +422,12 @@ Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
     gamma = bunch.get_reference_particle().get_gamma();
 
     Rectangular_grid_sptr local_rho_sptr(new Rectangular_grid(doubled_domain_sptr));
-    deposit_charge_rectangular_2d(*local_rho_sptr, bunch);
+    //deposit_charge_rectangular_2d(*local_rho_sptr, bunch);
 
-    //particle_bin_sptr
-    //        = boost::shared_ptr<MArray2d >(
-    //                new MArray2d(boost::extents[int(bunch.get_local_num())][6]));
-    //deposit_charge_rectangular_2d(*local_rho_sptr, *particle_bin_sptr, bunch);
+    particle_bin_sptr
+            = boost::shared_ptr<Raw_MArray2d >(
+                    new Raw_MArray2d(boost::extents[int(bunch.get_local_num())][6]));
+    deposit_charge_rectangular_2d(*local_rho_sptr, *particle_bin_sptr, bunch);
 
     return local_rho_sptr;
 }
@@ -626,10 +626,16 @@ Space_charge_2d_open_hockney::get_local_force2(
 
     for (int i = lower; i < upper; ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
-            local_force2->get_grid_points_2dc()[i][j] = 0.0;
+            local_force2hat.m[i][j] = rho2hat.m[i][j] * G2hat.m[i][j];
         }
     }
     t = simple_timer_show(t, "get_local_force-convolution");
+    //for (int i = lower; i < upper; ++i) {
+    //    for (int j = 0; j < doubled_grid_shape[1]; ++j) {
+    //        local_force2_sptr->get_grid_points_2dc()[i][j] = 0.0;
+    //    }
+    //}
+    //t = simple_timer_show(t, "get_local_force-local_force2_initialization");
 
     // inverse FFT
     distributed_fft2d_sptr->inv_transform(local_force2hat.m,
@@ -792,18 +798,18 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
     Rectangular_grid_domain & domain(*Fn.get_domain_sptr());
     MArray2dc_ref grid_points(Fn.get_grid_points_2dc());
     MArray1d_ref grid_points_1d(rho2.get_grid_points_1d());
-    MArray1d bin(boost::extents[6]);
+    Raw_MArray1d bin(boost::extents[6]);
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         double x = bunch.get_local_particles()[part][Bunch::x];
         double y = bunch.get_local_particles()[part][Bunch::y];
         double z = bunch.get_local_particles()[part][Bunch::z];
-#if 1
+#if 0
         std::complex<double > grid_val = interpolate_rectangular_2d(x, y, z,
                 domain, grid_points, grid_points_1d);
 #endif
-#if 0
+#if 1
         for (int i = 0; i < 6; ++i) {
-            bin[i] = (*particle_bin_sptr)[part][i];
+            bin.m[i] = (*particle_bin_sptr).m[part][i];
         }
         std::complex<double > grid_val = interpolate_rectangular_2d(bin,
                 doubled_grid_shape, periodic_z, grid_points, grid_points_1d);

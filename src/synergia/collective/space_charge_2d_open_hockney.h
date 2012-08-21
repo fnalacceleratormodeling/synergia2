@@ -67,7 +67,7 @@ private:
 //    MArray2dc G2hat;
 //    MArray2dc local_force2hat;
 
-    boost::shared_ptr<MArray2d > particle_bin_sptr;
+    boost::shared_ptr<Raw_MArray2d > particle_bin_sptr;
 
 public:
     Space_charge_2d_open_hockney(Commxx_sptr comm_sptr,

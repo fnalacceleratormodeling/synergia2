@@ -18,7 +18,7 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid, Bunch const& bunch,
 
 void
 deposit_charge_rectangular_2d(Rectangular_grid & rho_grid,
-        MArray2d & particle_bin, Bunch const& bunch, bool zero_first = true);
+        Raw_MArray2d & particle_bin, Bunch const& bunch, bool zero_first = true);
 
 inline double
 interpolate_rectangular_xyz(double x, double y, double z,

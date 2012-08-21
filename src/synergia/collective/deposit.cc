@@ -237,7 +237,7 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid, Bunch const& bunch,
 
 void
 deposit_charge_rectangular_2d(Rectangular_grid & rho_grid,
-        MArray2d & particle_bin, Bunch const& bunch, bool zero_first)
+        Raw_MArray2d & particle_bin, Bunch const& bunch, bool zero_first)
 {
     MArray2dc_ref rho_2dc(rho_grid.get_grid_points_2dc());
     MArray1d_ref rho_1d(rho_grid.get_grid_points_1d());
@@ -263,12 +263,12 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid,
         rho_grid.get_domain().get_leftmost_indices_offsets(
                 parts[n][0], parts[n][2], parts[n][4], ix, iy, iz, offx,
                 offy, offz);
-        particle_bin[n][0] = ix;
-        particle_bin[n][1] = offx;
-        particle_bin[n][2] = iy;
-        particle_bin[n][3] = offy;
-        particle_bin[n][4] = iz;
-        particle_bin[n][5] = offz;
+        particle_bin.m[n][0] = ix;
+        particle_bin.m[n][1] = offx;
+        particle_bin.m[n][2] = iy;
+        particle_bin.m[n][3] = offy;
+        particle_bin.m[n][4] = iz;
+        particle_bin.m[n][5] = offz;
         int cellx1, cellx2, celly1, celly2;
         cellx1 = ix;
         cellx2 = cellx1 + 1;

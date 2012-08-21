@@ -51,7 +51,7 @@ interpolate_rectangular_2d(double x, double y, double z,
 }
 
 inline std::complex<double >
-interpolate_rectangular_2d(MArray1d_ref const& bin,
+interpolate_rectangular_2d(Raw_MArray1d const& bin,
         std::vector<int > const& grid_shape, bool periodic_z,
         MArray2dc_ref const& a, MArray1d_ref const& b)
 {
@@ -59,12 +59,12 @@ interpolate_rectangular_2d(MArray1d_ref const& bin,
     int ix, iy, iz;
     double offx, offy, offz;
     double aoffx, aoffy, aoffz;
-    ix = fast_int_floor(bin[0]);
-    iy = fast_int_floor(bin[2]);
-    iz = fast_int_floor(bin[4]);
-    offx = bin[1];
-    offy = bin[3];
-    offz = bin[5];
+    ix = fast_int_floor(bin.m[0]);
+    iy = fast_int_floor(bin.m[2]);
+    iz = fast_int_floor(bin.m[4]);
+    offx = bin.m[1];
+    offy = bin.m[3];
+    offz = bin.m[5];
     std::complex<double > val;
     if (((ix>=0) && (ix<grid_shape[0] - 1) && (iy>=0) && (iy<grid_shape[1] - 1))
         && (periodic_z || ((iz>=0) && (iz<grid_shape[2] - 1)))) {
