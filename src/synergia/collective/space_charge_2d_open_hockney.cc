@@ -75,11 +75,13 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
         Commxx_sptr comm_sptr, std::vector<int > const & grid_shape,
         bool need_state_conversion, bool periodic_z, double z_period,
         bool grid_entire_period, double n_sigma) :
-        Collective_operator("space charge 2D open hockney"), grid_shape(3), doubled_grid_shape(
-                3), periodic_z(periodic_z), z_period(z_period), grid_entire_period(
-                grid_entire_period), comm2_sptr(comm_sptr), n_sigma(n_sigma), domain_fixed(
-                false), have_domains(false),
-                need_state_conversion(need_state_conversion)
+        Collective_operator("space charge 2D open hockney"), grid_shape(3),
+                doubled_grid_shape(3), periodic_z(periodic_z),
+                z_period(z_period), grid_entire_period(grid_entire_period),
+                comm2_sptr(comm_sptr), n_sigma(n_sigma), domain_fixed(false),
+                have_domains(false),
+                need_state_conversion(need_state_conversion),
+                use_cell_coords(true)
 {
     if (this->periodic_z) {
         throw std::runtime_error(
@@ -101,13 +103,14 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
         Distributed_fft2d_sptr distributed_fft2d_sptr,
         bool need_state_conversion, bool periodic_z, double z_period,
         bool grid_entire_period, double n_sigma) :
-        Collective_operator("space charge"), grid_shape(3), doubled_grid_shape(
-                3), periodic_z(periodic_z), z_period(z_period), grid_entire_period(
-                grid_entire_period), distributed_fft2d_sptr(
-                distributed_fft2d_sptr), comm2_sptr(
-                distributed_fft2d_sptr->get_comm_sptr()), n_sigma(n_sigma), domain_fixed(
-                false), have_domains(false),
-                need_state_conversion(need_state_conversion)
+        Collective_operator("space charge"), grid_shape(3),
+                doubled_grid_shape(3), periodic_z(periodic_z),
+                z_period(z_period), grid_entire_period(grid_entire_period),
+                distributed_fft2d_sptr(distributed_fft2d_sptr),
+                comm2_sptr(distributed_fft2d_sptr->get_comm_sptr()),
+                n_sigma(n_sigma), domain_fixed(false), have_domains(false),
+                need_state_conversion(need_state_conversion),
+                use_cell_coords(true)
 {
     if (this->periodic_z) {
         throw std::runtime_error(
@@ -422,12 +425,15 @@ Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
     gamma = bunch.get_reference_particle().get_gamma();
 
     Rectangular_grid_sptr local_rho_sptr(new Rectangular_grid(doubled_domain_sptr));
-    //deposit_charge_rectangular_2d(*local_rho_sptr, bunch);
-
-    particle_bin_sptr
-            = boost::shared_ptr<Raw_MArray2d >(
-                    new Raw_MArray2d(boost::extents[int(bunch.get_local_num())][6]));
-    deposit_charge_rectangular_2d(*local_rho_sptr, *particle_bin_sptr, bunch);
+    if (!use_cell_coords) {
+        deposit_charge_rectangular_2d(*local_rho_sptr, bunch);
+    } else {
+        particle_bin_sptr
+                = boost::shared_ptr<Raw_MArray2d >(
+                        new Raw_MArray2d(boost::extents[int(bunch.get_local_num())][6]));
+        deposit_charge_rectangular_2d(*local_rho_sptr, *particle_bin_sptr, 
+                bunch);
+    }
 
     return local_rho_sptr;
 }
@@ -800,20 +806,20 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
     MArray1d_ref grid_points_1d(rho2.get_grid_points_1d());
     Raw_MArray1d bin(boost::extents[6]);
     for (int part = 0; part < bunch.get_local_num(); ++part) {
-        double x = bunch.get_local_particles()[part][Bunch::x];
-        double y = bunch.get_local_particles()[part][Bunch::y];
-        double z = bunch.get_local_particles()[part][Bunch::z];
-#if 0
-        std::complex<double > grid_val = interpolate_rectangular_2d(x, y, z,
-                domain, grid_points, grid_points_1d);
-#endif
-#if 1
-        for (int i = 0; i < 6; ++i) {
-            bin.m[i] = (*particle_bin_sptr).m[part][i];
+        std::complex<double > grid_val;
+        if (!use_cell_coords) {
+            double x = bunch.get_local_particles()[part][Bunch::x];
+            double y = bunch.get_local_particles()[part][Bunch::y];
+            double z = bunch.get_local_particles()[part][Bunch::z];
+            grid_val = interpolate_rectangular_2d(x, y, z, domain, grid_points,
+                            grid_points_1d);
+        } else {
+            for (int i = 0; i < 6; ++i) {
+                bin.m[i] = (*particle_bin_sptr).m[part][i];
+            }
+            grid_val = interpolate_rectangular_2d(bin, doubled_grid_shape, 
+                            periodic_z, grid_points, grid_points_1d);
         }
-        std::complex<double > grid_val = interpolate_rectangular_2d(bin,
-                doubled_grid_shape, periodic_z, grid_points, grid_points_1d);
-#endif
         bunch.get_local_particles()[part][1] += factor * grid_val.real();
         bunch.get_local_particles()[part][3] += factor * grid_val.imag();
     }

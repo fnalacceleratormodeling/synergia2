@@ -44,9 +44,9 @@ private:
     int doubled_lower, doubled_upper;
     int real_doubled_lower, real_doubled_upper;
     double n_sigma;
-    // these are for normalization
     double bunch_particle_charge, bunch_total_num;
     double beta, gamma;
+    bool use_cell_coords;
     bool need_state_conversion;
     bool domain_fixed;
     bool have_domains;
@@ -56,17 +56,6 @@ private:
     setup_default_options();
     void
     set_doubled_domain();
-
-//    Rectangular_grid_sptr local_rho_sptr;
-//    Rectangular_grid_sptr global_force2_sptr;
-//    Distributed_rectangular_grid_sptr rho2_sptr;
-//    Distributed_rectangular_grid_sptr G2_sptr;
-//    Distributed_rectangular_grid_sptr local_force2_sptr;
-
-//    MArray2dc rho2hat;
-//    MArray2dc G2hat;
-//    MArray2dc local_force2hat;
-
     boost::shared_ptr<Raw_MArray2d > particle_bin_sptr;
 
 public:
@@ -161,6 +150,7 @@ public:
             ar & BOOST_SERIALIZATION_NVP(comm2_sptr)
                     & BOOST_SERIALIZATION_NVP(grid_shape)
                     & BOOST_SERIALIZATION_NVP(doubled_grid_shape)
+                    & BOOST_SERIALIZATION_NVP(use_cell_coords)
                     & BOOST_SERIALIZATION_NVP(need_state_conversion)
                     & BOOST_SERIALIZATION_NVP(periodic_z)
                     & BOOST_SERIALIZATION_NVP(grid_entire_period)
@@ -179,6 +169,7 @@ public:
             ar & BOOST_SERIALIZATION_NVP(comm2_sptr)
                     & BOOST_SERIALIZATION_NVP(grid_shape)
                     & BOOST_SERIALIZATION_NVP(doubled_grid_shape)
+                    & BOOST_SERIALIZATION_NVP(use_cell_coords)
                     & BOOST_SERIALIZATION_NVP(need_state_conversion)
                     & BOOST_SERIALIZATION_NVP(periodic_z)
                     & BOOST_SERIALIZATION_NVP(grid_entire_period)
