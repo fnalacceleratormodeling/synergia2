@@ -37,13 +37,15 @@ BOOST_AUTO_TEST_CASE(construct2)
     grid_shape[1] = 16;
     grid_shape[2] = 16;
     Commxx_sptr comm_sptr(new Commxx);
+    bool need_state_conversion(true);
     bool periodic_z(false);
     double z_period(1.1);
     bool grid_entire_period(true);
     double n_sigma(7.0);
 
-    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, periodic_z,
-            z_period, grid_entire_period, n_sigma);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, 
+            need_state_conversion, periodic_z, z_period, grid_entire_period,
+            n_sigma);
 }
 
 BOOST_AUTO_TEST_CASE(construct_bad_period)
@@ -53,6 +55,7 @@ BOOST_AUTO_TEST_CASE(construct_bad_period)
     grid_shape[1] = 16;
     grid_shape[2] = 16;
     Commxx_sptr comm_sptr(new Commxx);
+    bool need_state_conversion(true);
     bool periodic_z(true);
     double z_period(1.1);
     bool grid_entire_period(true);
@@ -60,8 +63,9 @@ BOOST_AUTO_TEST_CASE(construct_bad_period)
 
     bool caught_error(false);
     try {
-        Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, periodic_z,
-                z_period, grid_entire_period, n_sigma);
+        Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, 
+                need_state_conversion, periodic_z, z_period, 
+                grid_entire_period, n_sigma);
     }
     catch (std::runtime_error) {
         caught_error = true;
@@ -76,13 +80,15 @@ BOOST_AUTO_TEST_CASE(get_n_sigma)
     grid_shape[1] = 16;
     grid_shape[2] = 16;
     Commxx_sptr comm_sptr(new Commxx);
+    bool need_state_conversion(true);
     bool periodic_z(false);
     double z_period(1.1);
     bool grid_entire_period(true);
     double n_sigma(7.0);
 
-    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, periodic_z,
-            z_period, grid_entire_period, n_sigma);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, 
+            need_state_conversion, periodic_z, z_period, grid_entire_period, 
+            n_sigma);
     BOOST_CHECK_CLOSE(space_charge.get_n_sigma(), n_sigma, tolerance);
 }
 
@@ -639,7 +645,7 @@ BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
     double avg_p_kick2 = total_p_kick2 / bunch.get_local_num();
 
     const double rough_tolerance = 10.0;
-    BOOST_CHECK_CLOSE(avg_x_kick2, 5.2e6, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_y_kick2, 5.2e6, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_p_kick2, 3.65e-2, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_x_kick2, 6.5e6, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_y_kick2, 6.7e6, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_p_kick2, 3.67e-2, rough_tolerance);
 }

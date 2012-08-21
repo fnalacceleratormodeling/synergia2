@@ -73,12 +73,13 @@ Space_charge_2d_open_hockney::setup_default_options()
 
 Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
         Commxx_sptr comm_sptr, std::vector<int > const & grid_shape,
-        bool periodic_z, double z_period, bool grid_entire_period,
-        double n_sigma) :
+        bool need_state_conversion, bool periodic_z, double z_period,
+        bool grid_entire_period, double n_sigma) :
         Collective_operator("space charge 2D open hockney"), grid_shape(3), doubled_grid_shape(
                 3), periodic_z(periodic_z), z_period(z_period), grid_entire_period(
                 grid_entire_period), comm2_sptr(comm_sptr), n_sigma(n_sigma), domain_fixed(
-                false), have_domains(false)
+                false), have_domains(false),
+                need_state_conversion(need_state_conversion)
 {
     if (this->periodic_z) {
         throw std::runtime_error(
@@ -97,14 +98,16 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
 }
 
 Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
-        Distributed_fft2d_sptr distributed_fft2d_sptr, bool periodic_z,
-        double z_period, bool grid_entire_period, double n_sigma) :
+        Distributed_fft2d_sptr distributed_fft2d_sptr,
+        bool need_state_conversion, bool periodic_z, double z_period,
+        bool grid_entire_period, double n_sigma) :
         Collective_operator("space charge"), grid_shape(3), doubled_grid_shape(
                 3), periodic_z(periodic_z), z_period(z_period), grid_entire_period(
                 grid_entire_period), distributed_fft2d_sptr(
                 distributed_fft2d_sptr), comm2_sptr(
                 distributed_fft2d_sptr->get_comm_sptr()), n_sigma(n_sigma), domain_fixed(
-                false), have_domains(false)
+                false), have_domains(false),
+                need_state_conversion(need_state_conversion)
 {
     if (this->periodic_z) {
         throw std::runtime_error(
@@ -121,6 +124,12 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
 
 Space_charge_2d_open_hockney::Space_charge_2d_open_hockney()
 {
+}
+
+bool
+Space_charge_2d_open_hockney::get_need_state_conversion()
+{
+    return need_state_conversion;
 }
 
 double
@@ -408,10 +417,18 @@ Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
 {
     update_domain(bunch);
     bunch_particle_charge = bunch.get_particle_charge();
-    bunch_real_num = bunch.get_real_num();
     bunch_total_num = bunch.get_total_num();
+    beta = bunch.get_reference_particle().get_beta();
+    gamma = bunch.get_reference_particle().get_gamma();
+
     Rectangular_grid_sptr local_rho_sptr(new Rectangular_grid(doubled_domain_sptr));
     deposit_charge_rectangular_2d(*local_rho_sptr, bunch);
+
+    //particle_bin_sptr
+    //        = boost::shared_ptr<MArray2d >(
+    //                new MArray2d(boost::extents[int(bunch.get_local_num())][6]));
+    //deposit_charge_rectangular_2d(*local_rho_sptr, *particle_bin_sptr, bunch);
+
     return local_rho_sptr;
 }
 
@@ -588,7 +605,6 @@ Space_charge_2d_open_hockney::get_local_force2(
     Raw_MArray2dc local_force2hat(
             boost::extents[extent_range(lower, upper)][doubled_grid_shape[1]]);
 
-    //~t = simple_timer_show(t, "sc-fft-setup");
     t = simple_timer_show(t, "get_local_force-fft_setup");
 
     // FFT
@@ -627,14 +643,15 @@ Space_charge_2d_open_hockney::get_local_force2(
     double normalization = hx * hy;  // volume element in integral
     normalization *= 1.0 / (4.0 * pi * epsilon0);
     normalization *= hz;             // dummy factor from weight0 of deposit.cc
-    // normalizations for the lamabda factor
-
     // average line density for real particles
     normalization *= 1.0 / doubled_domain_sptr->get_physical_size()[2];
     // average line density for macro particles
     normalization *= 2.0 * doubled_domain_sptr->get_physical_size()[2]
             / (hz * bunch_total_num);
-
+    // additional normlization factor for non-state-conversion
+    if (!need_state_conversion) {
+        normalization *= 1.0 / (beta * gamma);
+    }
     normalization *= bunch_particle_charge * pconstants::e;
     normalization *= charge_density2.get_normalization();
     normalization *= green_fn2.get_normalization();
@@ -775,14 +792,24 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
     Rectangular_grid_domain & domain(*Fn.get_domain_sptr());
     MArray2dc_ref grid_points(Fn.get_grid_points_2dc());
     MArray1d_ref grid_points_1d(rho2.get_grid_points_1d());
+    MArray1d bin(boost::extents[6]);
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         double x = bunch.get_local_particles()[part][Bunch::x];
         double y = bunch.get_local_particles()[part][Bunch::y];
         double z = bunch.get_local_particles()[part][Bunch::z];
-        std::vector<double > grid_val = interpolate_rectangular_2d(x, y, z,
+#if 1
+        std::complex<double > grid_val = interpolate_rectangular_2d(x, y, z,
                 domain, grid_points, grid_points_1d);
-        bunch.get_local_particles()[part][1] += factor * grid_val[0];
-        bunch.get_local_particles()[part][3] += factor * grid_val[1];
+#endif
+#if 0
+        for (int i = 0; i < 6; ++i) {
+            bin[i] = (*particle_bin_sptr)[part][i];
+        }
+        std::complex<double > grid_val = interpolate_rectangular_2d(bin,
+                doubled_grid_shape, periodic_z, grid_points, grid_points_1d);
+#endif
+        bunch.get_local_particles()[part][1] += factor * grid_val.real();
+        bunch.get_local_particles()[part][3] += factor * grid_val.imag();
     }
 }
 
@@ -801,8 +828,10 @@ Space_charge_2d_open_hockney::apply(Bunch & bunch, double time_step,
         double t, t_total;
         t_total = simple_timer_current();
         t = t_total;
-        bunch.convert_to_state(Bunch::fixed_t);
-        t = simple_timer_show(t, "sc2doh-convert_to_state");
+        if (need_state_conversion) {
+            bunch.convert_to_state(Bunch::fixed_t);
+            t = simple_timer_show(t, "sc2doh-convert_to_state");
+        }
         Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
         t = simple_timer_show(t, "sc2doh-get_local_rho");
         Distributed_rectangular_grid_sptr rho2(

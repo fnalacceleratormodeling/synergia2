@@ -467,34 +467,60 @@ def load_lattice_settings():
 ###############################################################################
 #   calculate vertices for the star chamber
 ###############################################################################
-def get_vertices():
+def get_vertices(a, b):
     (u0, u1) = (2.2355, 0.0)
     (v0, v1) = (2.811, 2.811)
     (r0, r1) = (0.5755, 2.250 + 0.0435)
     (ang1, ang2) = (78.43, 66.86)
     d2r = numpy.pi / 180.0
 
-    x = numpy.zeros(20,'d')
-    y = numpy.zeros(20,'d')
+    np = a + b + a - 1
+    x = numpy.zeros(np,'d')
+    y = numpy.zeros(np,'d')
 
-    for i in range (0, 4):
+    for i in range (0, a):
         j = i
-        rot_ang = (i + 1) * ang1 / 4
+        rot_ang = (i + 1) * ang1 / a
         x[j] = u0 + r0 * numpy.cos(rot_ang * d2r)
         y[j] = u1 + r0 * numpy.sin(rot_ang * d2r)
 
-    for i in range(0, 10):
-        j = i + 4
-        rot_ang = (270 - (90 - ang1)) - (i + 1) * ang2 / 10
+    for i in range(0, b):
+        j = i + a
+        rot_ang = (270 - (90 - ang1)) - (i + 1) * ang2 / b
         x[j] = v0 + r1 * numpy.cos(rot_ang * d2r)
         y[j] = v1 + r1 * numpy.sin(rot_ang * d2r)
 
-    for i in range (0, 3):
-        j = i + 14
-        rot_ang = (90- ang1) + (i + 1) * ang1 / 4
+    for i in range (0, a-1):
+        j = i + a + b
+        rot_ang = (90- ang1) + (i + 1) * ang1 / a
         x[j] = u1 + r0 * numpy.cos(rot_ang * d2r)
         y[j] = u0 + r0 * numpy.sin(rot_ang * d2r)
+
     return x * 0.0254, y * 0.0254
+
+def get_all_vertices(x, y):
+    a = 2.811 * 0.0254
+    np_quad = x.size
+    np = np_quad * 4 + 4
+    xp = numpy.zeros(np,'d')
+    yp = numpy.zeros(np,'d')
+    (xp[0], yp[0])  = (a, 0.0)
+    (xp[np_quad+1], yp[np_quad+1])  = (0.0, a)
+    (xp[np_quad*2+2], yp[np_quad*2+2])  = (-a, 0.0)
+    (xp[np_quad*3+3], yp[np_quad*3+3])  = (0.0, -a)
+    for i in range(0, np_quad):
+        index = i + np_quad * 0 + 1
+        (xp[index], yp[index]) = (x[i], y[i])
+    for i in range(0, np_quad):
+        index = i + np_quad * 1 + 2
+        (xp[index], yp[index]) = (-x[np_quad-i-1], y[np_quad-i-1])
+    for i in range(0, np_quad):
+        index = i + np_quad * 2 + 3
+        (xp[index], yp[index]) = (-x[i], -y[i])
+    for i in range(0, np_quad):
+        index = i + np_quad * 3 + 4
+        (xp[index], yp[index]) = (x[np_quad-i-1], -y[np_quad-i-1])
+    return xp, yp
 
 ###############################################################################
 ###############################################################################
@@ -606,78 +632,30 @@ synergia_lattice = synergia.lattice.Lattice()
 #~    print "    det(M) :", numpy.linalg.det(lambertson_map)
 #~sys.exit(1)
 
-#~septum_line = synergia.lattice.Mad8_reader().get_lattice("test",
-#~                "Debunch_modified_rf.lat")
-#~septum_lattice_simulator = synergia.simulation.Lattice_simulator(
-#~                septum_line, map_order)
-#~septum_map = linear_one_turn_map(septum_lattice_simulator)
-#~if myrank == 0:
-#~    print "Transfer map for septum line"
-#~    print numpy.array2string(septum_map, max_line_width=200, precision=3)
-#~    print "    det(M) :", numpy.linalg.det(septum_map) 
-#~sys.exit(1)
-
-#   Setting apertures for elements and setting septum and lambertson magnet
+#   Element setup: apertures, septum, and lambertson
 if myrank == 0:
     print
     print "Initial Element Setup"
 
-(x, y) = get_vertices()
-u = 2.811 * 0.0254
-v = 0.0
+np1 = 4
+np2 = 10
+total_np = (2*np1+np2-1)*4+4
+(x, y) = get_vertices(np1, np2)
+(u, v) = get_all_vertices(x, y)
+pamr2 = numpy.min(u*u+v*v)
 
 # Options for extractor type: "chef_propagate", "chef_map", or "chef_mixed"
-#~index = 0
-#~length = 0.0
 for element in orig_elements:
     name = element.get_name()
     type = element.get_type()
-    #~length += element.get_length()
-    #~index += 1
-    #~if myrank == 0:
-    #~    print index, name, type, length
-
     if type == "quadrupole":
         element.set_string_attribute("extractor_type", "chef_map")
         element.set_string_attribute("aperture_type","polygon")
-        element.set_double_attribute("the_number_of_vertices", 72)
-
-        element.set_double_attribute("pax1", u)
-        element.set_double_attribute("pay1", v)
-
-        for i in range(0, 17):
-            pax = "pax" + str(i + 17 * 0 + 2)
-            pay = "pay" + str(i + 17 * 0 + 2)
-            element.set_double_attribute(pax, x[i])
-            element.set_double_attribute(pay, y[i])
-
-        element.set_double_attribute("pax19", v)
-        element.set_double_attribute("pay19", u)
-
-        for i in range(0, 17):
-            pax = "pax" + str(i + 17 * 1 + 3)
-            pay = "pay" + str(i + 17 * 1 + 3)
-            element.set_double_attribute(pax, -x[16-i])
-            element.set_double_attribute(pay, y[16-i])
-
-        element.set_double_attribute("pax37", -u)
-        element.set_double_attribute("pay37", v)
-
-        for i in range(0, 17):
-            pax = "pax" + str(i + 17 * 2 + 4)
-            pay = "pay" + str(i + 17 * 2 + 4)
-            element.set_double_attribute(pax, -x[i])
-            element.set_double_attribute(pay, -y[i])
-
-        element.set_double_attribute("pax55", v)
-        element.set_double_attribute("pay55", -u)
-
-        for i in range(0, 17):
-            pax = "pax" + str(i + 17 * 3 + 5)
-            pay = "pay" + str(i + 17 * 3 + 5)
-            element.set_double_attribute(pax, x[16-i])
-            element.set_double_attribute(pay, -y[16-i])
-
+        element.set_double_attribute("the_number_of_vertices", total_np)
+        element.set_double_attribute("min_radius2", pamr2)
+        for i in range(0, total_np):
+            element.set_double_attribute("pax%d" % (i+1), u[i])
+            element.set_double_attribute("pay%d" % (i+1), v[i])
         synergia_lattice.append(element)
     elif name == "e_septum":
         # generate new element for e_septum
@@ -697,6 +675,7 @@ for element in orig_elements:
         septum.set_double_attribute("wire_position", wire_x);
         septum.set_double_attribute("wire_width", wire_width);
         septum.set_double_attribute("gap_size", gap);
+        septum.set_string_attribute("force_diagnostics", "true")
         synergia_lattice.append(septum)
     elif name == "lambertson":
         # generate new element for lambertson
@@ -706,19 +685,25 @@ for element in orig_elements:
         # aperture type: lambertson uses lambertson_aprture
         lambertson.set_string_attribute("aperture_type", "lambertson")
         lambertson.set_double_attribute("lambertson_aperture_radius", -wire_x)
+        lambertson.set_string_attribute("force_diagnostics", "true")
         synergia_lattice.append(lambertson)
     elif type == "multipole":
-        element.set_string_attribute("extractor_type", "chef_map")
+        element.set_string_attribute("extractor_type", "chef_propagate")
         element.set_string_attribute("aperture_type","circular")
         element.set_double_attribute("circular_aperture_radius", radius)
         synergia_lattice.append(element)
-    elif type == "rfcavity":
-        element.set_string_attribute("extractor_type", "chef_map")
+    elif type == "sextupole":
+        element.set_string_attribute("extractor_type", "chef_propagate")
+        element.set_string_attribute("aperture_type","circular")
+        element.set_double_attribute("circular_aperture_radius", radius)
+        synergia_lattice.append(element)
+    elif type == "sbend":
+        element.set_string_attribute("extractor_type", "chef_propagate")
         element.set_string_attribute("aperture_type","circular")
         element.set_double_attribute("circular_aperture_radius", radius)
         synergia_lattice.append(element)
     else:
-        element.set_string_attribute("extractor_type", "chef_map")
+        element.set_string_attribute("extractor_type", "chef_propagate")
         element.set_string_attribute("aperture_type","circular")
         element.set_double_attribute("circular_aperture_radius", radius)
         synergia_lattice.append(element)
@@ -982,17 +967,21 @@ if opts.step_full2:
 if opts.step_particles:
     bunch_simulator.add_per_step(synergia.bunch.Diagnostics_particles(
                             "mu2e_step_particles.h5"))
+if opts.forced_diagnostics:
+    bunch_simulator.add_per_forced_diagnostics_step(
+                            synergia.bunch.Diagnostics_full2("mu2e_forced_full2.h5"))
+
 # diagnostics per turn
 for part in range(0, opts.turn_tracks):
     bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_track(
                             "mu2e_turn_track_%02d.h5" % part, part))
-
 if opts.turn_full2:
     bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_full2(
                             "mu2e_turn_full2.h5"))
+
 if opts.turn_particles:
     bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_particles(
-                            "mu2e_turn_particles.h5"))
+                            "mu2e_turn_particles.h5"), opts.particles_period)
 
 ###############################################################################
 #   Propagate and track particles

@@ -70,8 +70,8 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho,
 {
     double z_period = 8 * sigma;
     double r0 = 2.0 * sigma;
-    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, false,
-            z_period, true);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, true,
+            false, z_period, true);
     Distributed_rectangular_grid_sptr rho2(get_uniform_cylindrical_rho2(
             space_charge, bunch, r0, z_period));
     Distributed_rectangular_grid_sptr
@@ -177,8 +177,8 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles,
     double stdqp = 1.0e-10; // not important...
     populate_uniform_cylinder(distribution, bunch, r0, z_period, stdqp, stdqp,
             stdqp);
-    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, false,
-            z_period, true);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, true,
+            false, z_period, true);
     Rectangular_grid_sptr local_rho(
             space_charge.get_local_charge_density(bunch));
     Distributed_rectangular_grid_sptr rho2(
@@ -283,8 +283,8 @@ BOOST_FIXTURE_TEST_CASE(get_global_force2_exact_rho,
 {
     double z_period = 8 * sigma;
     double r0 = 2.0 * sigma;
-    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, false,
-            z_period, true);
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape, true,
+            false, z_period, true);
     Distributed_rectangular_grid_sptr rho2(get_uniform_cylindrical_rho2(
             space_charge, bunch, r0, z_period));
     Distributed_rectangular_grid_sptr

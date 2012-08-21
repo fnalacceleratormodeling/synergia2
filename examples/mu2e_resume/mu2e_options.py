@@ -21,6 +21,9 @@ opts.add("step_particles", False, "Whether to save all particles each step", boo
 opts.add("turn_tracks", 0, "Number of particles to track each turn", int)
 opts.add("turn_full2", True, "Whether to do full2 diagnostics each turn", bool)
 opts.add("turn_particles", False, "Whether to save all particles each turn", bool)
+opts.add("particles_period", 100, "period to save particles", int)
+opts.add("forced_diagnostics", True, "Forced diagnostics", bool)
+
 #opts.add("twiss", False, "Whether to save twiss parameters each turn", bool)
 #opts.add("separatrix", False, "Whether to save SFP points of separatrix lines each turn", bool)
 
@@ -62,6 +65,7 @@ opts.add("gap", 0.014, "Septum wire gap (m)", float)
 
 #opts.add("spacecharge", True, "Use hockney 3d open space charge", bool)
 opts.add("spacecharge", "no_op", "Use hockney 3d open space charge", str) 
+opts.add("convert_state", False, "need to convert state", bool)
 opts.add("comm_avoid", False, "Communication avoidance for space charge solver", bool)
 
 opts.add("gridx", 32, "size of transverse grid for solver", int)

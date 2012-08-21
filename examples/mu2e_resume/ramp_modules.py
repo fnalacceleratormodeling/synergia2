@@ -48,7 +48,7 @@ class Ramp_actions(synergia.simulation.Propagate_actions, Pickle_helper):
                     #    print "    new_k2l (real)                   :", 
                     #    print element.get_double_attribute("k2l"), "1/m^2"
         # quadrupole ramping...
-        if turn_num > self.ramp_turns:
+        if turn_num > self.ramp_turns and turn_num <= self.turns_to_extract:
             epsilon = 1.0 * (turn_num - self.ramp_turns) / self.turns_to_extract
             index = 0
             for element in synergia_elements:

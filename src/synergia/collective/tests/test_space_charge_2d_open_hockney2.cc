@@ -58,7 +58,7 @@ get_gaussian_rho2(Space_charge_2d_open_hockney & space_charge, Bunch & bunch,
     return rho2;
 }
 
-#if 1
+#if 0
 BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho, Spherical_bunch_fixture_2d)
 {
     std::vector<int > grid_shape_xyz(3);
@@ -167,7 +167,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho, Spherical_bunch_fixture_2d)
 }
 #endif
 
-#if 0
+#if 1
 BOOST_FIXTURE_TEST_CASE(get_local_force2_particles, Spherical_bunch_fixture_2d)
 {
     Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
