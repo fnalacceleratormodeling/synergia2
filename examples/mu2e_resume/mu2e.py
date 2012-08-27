@@ -941,7 +941,7 @@ elif solver == "2d" or solver == "2D":
     if myrank == 0:
         print "    using 2D Open Hockney space charge solver"
     space_charge = synergia.collective.Space_charge_2d_open_hockney(
-                    collective_comm, grid, False)
+                    collective_comm, grid, opts.convert_state, False)
     stepper = synergia.simulation.Split_operator_stepper(lattice_simulator,
                     space_charge, num_steps)
 else:

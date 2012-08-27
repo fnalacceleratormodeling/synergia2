@@ -372,21 +372,18 @@ void
 Space_charge_2d_open_hockney::update_domain(Bunch const& bunch)
 {
     if (!domain_fixed) {
-        MArray1d mean(Core_diagnostics::calculate_mean(bunch));
-        MArray1d std(Core_diagnostics::calculate_std(bunch, mean));
+        MArray1d mean(Core_diagnostics::calculate_spatial_mean(bunch));
+        MArray1d std(Core_diagnostics::calculate_spatial_std(bunch, mean));
         std::vector<double > size(3);
         std::vector<double > offset(3);
         // domain is in xyz order
-        offset[0] = mean[Bunch::x];
-        size[0] = n_sigma * std[Bunch::x];
-        offset[1] = mean[Bunch::y];
-        size[1] = n_sigma * std[Bunch::y];
+        for (int i = 0; i < 3; ++i) {
+            offset[i] = mean[i];
+            size[i] = n_sigma * std[i];
+        }
         if (grid_entire_period) {
             offset[2] = 0.0;
             size[2] = z_period;
-        } else {
-            offset[2] = mean[Bunch::z];
-            size[2] = n_sigma * std[Bunch::z];
         }
         domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
                 size, offset, grid_shape, periodic_z));
@@ -418,22 +415,27 @@ Space_charge_2d_open_hockney::get_doubled_domain_sptr() const
 Rectangular_grid_sptr
 Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
 {
+    double t;
+    t = simple_timer_current();
     update_domain(bunch);
+    t = simple_timer_show(t, "get_local_rho-update_domain");
     bunch_particle_charge = bunch.get_particle_charge();
     bunch_total_num = bunch.get_total_num();
     beta = bunch.get_reference_particle().get_beta();
     gamma = bunch.get_reference_particle().get_gamma();
 
     Rectangular_grid_sptr local_rho_sptr(new Rectangular_grid(doubled_domain_sptr));
+    t = simple_timer_show(t, "get_local_rho-setup");
     if (!use_cell_coords) {
         deposit_charge_rectangular_2d(*local_rho_sptr, bunch);
     } else {
         particle_bin_sptr
                 = boost::shared_ptr<Raw_MArray2d >(
-                        new Raw_MArray2d(boost::extents[int(bunch.get_local_num())][6]));
+                        new Raw_MArray2d(boost::extents[bunch.get_local_num()][6]));
         deposit_charge_rectangular_2d(*local_rho_sptr, *particle_bin_sptr, 
                 bunch);
     }
+    t = simple_timer_show(t, "get_local_rho-deposit");
 
     return local_rho_sptr;
 }

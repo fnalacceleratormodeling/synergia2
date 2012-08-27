@@ -45,6 +45,29 @@ Core_diagnostics::calculate_z_mean(Bunch const& bunch)
 }
 
 MArray1d
+Core_diagnostics::calculate_spatial_mean(Bunch const& bunch)
+{
+    MArray1d mean(boost::extents[3]);
+    double sum[3] = { 0, 0, 0 };
+    Const_MArray2d_ref particles(bunch.get_local_particles());
+    for (int part = 0; part < bunch.get_local_num(); ++part) {
+        for (int i = 0; i < 3; ++i) {
+            sum[i] += particles[part][i * 2];
+        }
+    }
+    double t;
+    t = simple_timer_current();
+    MPI_Allreduce(sum, mean.origin(), 3, MPI_DOUBLE, MPI_SUM,
+            bunch.get_comm().get());
+    t = simple_timer_show(t, "allmpireduce_in_diagnostic mean");
+
+    for (int i = 0; i < 3; ++i) {
+        mean[i] /= bunch.get_total_num();
+    }
+    return mean;
+}
+
+MArray1d
 Core_diagnostics::calculate_std(Bunch const& bunch, MArray1d_ref const& mean)
 {
     MArray1d std(boost::extents[6]);
@@ -59,6 +82,26 @@ Core_diagnostics::calculate_std(Bunch const& bunch, MArray1d_ref const& mean)
     MPI_Allreduce(sum, std.origin(), 6, MPI_DOUBLE, MPI_SUM,
             bunch.get_comm().get());
     for (int i = 0; i < 6; ++i) {
+        std[i] = std::sqrt(std[i] / bunch.get_total_num());
+    }
+    return std;
+}
+
+MArray1d
+Core_diagnostics::calculate_spatial_std(Bunch const& bunch, MArray1d_ref const& mean)
+{
+    MArray1d std(boost::extents[3]);
+    double sum[3] = { 0, 0, 0 };
+    Const_MArray2d_ref particles(bunch.get_local_particles());
+    for (int part = 0; part < bunch.get_local_num(); ++part) {
+        for (int i = 0; i < 3; ++i) {
+            double diff = particles[part][i * 2] - mean[i];
+            sum[i] += diff * diff;
+        }
+    }
+    MPI_Allreduce(sum, std.origin(), 3, MPI_DOUBLE, MPI_SUM,
+            bunch.get_comm().get());
+    for (int i = 0; i < 3; ++i) {
         std[i] = std::sqrt(std[i] / bunch.get_total_num());
     }
     return std;
