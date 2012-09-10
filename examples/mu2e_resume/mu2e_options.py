@@ -51,20 +51,21 @@ opts.add("flip", False, "Whether to change polarity of harmonic circuits", bool)
 # RF voltage is 32 kV divided among 3 cavities
 # rf cavity voltage, is 32.0 kV total distributed over 3 cavities. 
 # MAD8 expects cavities voltages in  units of MV.
-opts.add("rf_voltage", 0.0, "RF cavity voltage in MV", float)
+opts.add("rf_voltage", 0.0, "RF cavity voltage (MV)", float)
 
 opts.add("x_offset", 0.0, "Bunch offset in x", float)
 opts.add("y_offset", 0.0, "Bunch offset in y", float)
 opts.add("z_offset", 0.0, "Bunch offset in z", float)
 
 # Septum parameters
-opts.add("kick", -0.001, "Septum kick strength (rad)", float)
+opts.add("kick", -0.00122061, "Septum kick strength (rad)", float)
 opts.add("wire_x", 0.016, "Septum wire position (m)", float)
 opts.add("wire_width", 0.0001, "Septum wire width (m)", float)
 opts.add("gap", 0.014, "Septum wire gap (m)", float)
+opts.add("septum_voltage", 100.0, "septum wire voltage (kV)", float)
 
 #opts.add("spacecharge", True, "Use hockney 3d open space charge", bool)
-opts.add("spacecharge", "no_op", "Use hockney 3d open space charge", str) 
+opts.add("spacecharge", "no_op", "space charge solver: 2d, 3d, or no_op", str) 
 opts.add("convert_state", False, "need to convert state", bool)
 opts.add("comm_avoid", False, "Communication avoidance for space charge solver", bool)
 

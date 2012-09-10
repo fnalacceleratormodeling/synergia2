@@ -162,9 +162,13 @@ vbpm     : vmonitor, l = 0.1524
 
 ! Septum and lambertson markers
 
-e_septum   : marker
-!lambertson : marker
-msep       : marker
+l_septum1  := 1.5
+l_septum2  := 1.5
+septum1    : drift, l = l_septum1
+septum2    : drift, l = l_septum2
+!septum1    : marker
+!septum2    : marker
+lambertson : marker
 
 ! Drifts:
 dr14     : drift, l = 3.613159 
@@ -179,14 +183,16 @@ drbb     : drift, l = 0.668367
 drms     : drift, l = 0.079350
 drsq     : drift, l = 0.219050
 
-dr14_a     : drift, l = 3.613159/2.0
-dr14_b     : drift, l = 3.613159/2.0
-dr45_a     : drift, l = 3.549659/2.0
-dr45_b     : drift, l = 3.549659/2.0
-dr56_a     : drift, l = 3.486159/2.0
-dr56_b     : drift, l = 3.486159/2.0
-dr67_a     : drift, l = 3.549659/2.0
-dr67_b     : drift, l = 3.549659/2.0
+g2kicker : drift, l = 1.5
+dr14_a   : drift, l = 0.460759 !+ 1.5 + 0.1524
+dr14_b   : drift, l = (1.5 - l_septum1) + 0.1524
+dr14_c   : drift, l = 3.613159 - l_septum2
+dr45_a   : drift, l = 3.549659/2.0
+dr45_b   : drift, l = 3.549659/2.0
+dr56_a   : drift, l = 3.486159/2.0
+dr56_b   : drift, l = 3.486159/2.0
+dr67_a   : drift, l = 3.549659/2.0
+dr67_b   : drift, l = 3.549659/2.0
 
 ! rf cavities
 lrf	 := 0.0     !0.8382
@@ -207,16 +213,12 @@ hcdfmt   : line = ( hqd, vbpm, drms, sd, drmt, sf, drsq, hqf )
 fmtcell  : line = ( hcfdmt, hcdfmt )
 
 hcfdds    : line = ( hqf,             hbpm, drds, bdb, drb,                 hqd )
-sp_hcfdds : line = ( hqf, e_septum,   hbpm, drds, bdb, drb,                 hqd )
-!lm_hcfdds : line = ( hqf, lambertson, hbpm, drds, bdb, drb,                 hqd )
 r1_hcfdds : line = ( hqf,             hbpm, drds, bdb, drbc_b, rf1, drbc_a, hqd )
 r3_hcfdds : line = ( hqf,             hbpm, drds, bdb, drbc_b, rf3, drbc_a, hqd )
 r5_hcfdds : line = ( hqf,             hbpm, drds, bdb, drbc_b, rf5, drbc_a, hqd )
 hcdfds    : line = ( hqd,             vbpm, drds, bdb, drbb,   sf,  drsq,   hqf )
 
 fdscell   : line = (    hcfdds, hcdfds )
-sp_fdscell: line = ( sp_hcfdds, hcdfds )
-lm_fdscell: line = ( lm_hcfdds, hcdfds )
 r1_fdscell: line = ( r1_hcfdds, hcdfds )
 r3_fdscell: line = ( r3_hcfdds, hcdfds )
 r5_fdscell: line = ( r5_hcfdds, hcdfds )
@@ -234,27 +236,6 @@ dcell    : line = ( hcdf, hcfd )
 
 hcfd1920 : line = ( hqf,hbpm, drms, sf, drba, bdb, drba, sd, drms, vbpm,hqd )
 
-marker01  : marker
-marker02  : marker
-marker03  : marker
-marker04  : marker
-marker05  : marker
-marker06  : marker
-marker07  : marker
-marker08  : marker
-lambertson : marker
-marker10  : marker
-marker11  : marker
-marker12  : marker
-marker13  : marker
-marker14  : marker
-marker15  : marker
-marker16  : marker
-marker17  : marker
-marker18  : marker
-marker19  : marker
-marker20  : marker
-
 ldr45_b      := 3.549659/2.0/7.0
 dr45_b_1     : drift, l = ldr45_b
 dr45_b_2     : drift, l = ldr45_b
@@ -270,78 +251,54 @@ dr45_b_6_3   : drift, l = ldr45_b/5.0
 dr45_b_6_4   : drift, l = ldr45_b/5.0
 dr45_b_6_5   : drift, l = ldr45_b/5.0
 
-new_marker1  : marker
-new_marker2  : marker
-new_marker3  : marker
-new_marker4  : marker
-new_marker5  : marker
-new_marker6  : marker
-
-new_new_marker1  : marker
-new_new_marker2  : marker
-new_new_marker3  : marker
-new_new_marker4  : marker
-
-
 !-----------------------------------------------------------------------------
 
 ! Sextant Components:
 
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-straight60 : line = (           hqf1,           hbpm,           dr14,                                 hqd1, &
-                                hqd1,           vbpm,           dr14,   e_septum,                     hqf2, &
-                      marker01, hqf2, marker02, hbpm, marker03, dr14_a, marker04,   dr14_b, marker05, hqd2, &
-                      marker06, hqd2, marker07, vbpm, marker08, dr45_a, lambertson, dr45_b, marker10, hqf3, &
-                      marker11, hqf3, marker12, hbpm, marker13, dr56_a, marker14,   dr56_b, marker15, hqd3, &
-                      marker16, hqd3, marker17, vbpm, marker18, dr67_a, marker19,   dr67_b, marker20, hqf )
+straight60 : line = ( hqf1, hbpm,           dr14,                       hqd1, &
+                      hqd1, vbpm, g2kicker, dr14_a, septum1,    dr14_b, hqf2, &
+                      hqf2, hbpm, septum2,  dr14_c,                     hqd2, &
+                      hqd2, vbpm,           dr45_a, lambertson, dr45_b, hqf3, &
+                      hqf3, hbpm,           dr56,                       hqd3, &
+                      hqd3, vbpm,           dr67,                       hqf )
 
-!starting at the septum
-straight61 : line = (                                                   e_septum,                     hqf2, &
-                      marker01, hqf2, marker02, hbpm, marker03, dr14_a, marker04,   dr14_b, marker05, hqd2, &
-                      marker06, hqd2, marker07, vbpm, marker08, dr45_a, lambertson, dr45_b, marker10, hqf3, &
-                      marker11, hqf3, marker12, hbpm, marker13, dr56_a, marker14,   dr56_b, marker15, hqd3, &
-                      marker16, hqd3, marker17, vbpm, marker18, dr67_a, marker19,   dr67_b, marker20, hqf )
-septum_line : line = (          hqf1,           hbpm,           dr14,                                 hqd1, &
-                                hqd1,           vbpm,           dr14)
+straight50 : line = ( hqf1, hbpm, ddd_50_1, dr14,                       hqd1, &
+                      hqd1, vbpm,           dr14,                       hqf2, &
+                      hqf2, hbpm, ddd_50_2, dr14,                       hqd2, &
+                      hqd2, vbpm,           dr45,                       hqf3, &
+                      hqf3, hbpm, ddd_50_3, dr56,                       hqd3, &
+                      hqd3, vbpm,           dr67,                       hqf )
 
-!starting at the lambertson
-straight62 : line = (                                                   lambertson, dr45_b, marker10, hqf3, &
-                      marker11, hqf3, marker12, hbpm, marker13, dr56_a, marker14,   dr56_b, marker15, hqd3, &
-                      marker16, hqd3, marker17, vbpm, marker18, dr67_a, marker19,   dr67_b, marker20, hqf )
-lambertson_line : line = (      hqf1,           hbpm,           dr14,                                 hqd1, &
-                                hqd1,           vbpm,           dr14,   e_septum,                     hqf2, &
-                      marker01, hqf2, marker02, hbpm, marker03, dr14_a, marker04,   dr14_b, marker05, hqd2, &
-                      marker06, hqd2, marker07, vbpm, marker08, dr45_a)
+straight40 : line = ( hqf1, hbpm,           dr14,                       hqd1, &
+                      hqd1, vbpm,           dr14,                       hqf2, &
+                      hqf2, hbpm,           dr14,                       hqd2, &
+                      hqd2, vbpm,           dr45,                       hqf3, &
+                      hqf3, hbpm,           dr56,                       hqd3, &
+                      hqd3, vbpm,           dr67,                       hqf )
 
-!++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+straight30 : line = ( hqf1, hbpm,           dr14,                       hqd1, &
+                      hqd1, vbpm,           dr14,                       hqf2, &
+                      hqf2, hbpm,           dr14,                       hqd2, &
+                      hqd2, vbpm,           dr45,                       hqf3, &
+                      hqf3, hbpm,           dr56,                       hqd3, &
+                      hqd3, vbpm,           dr67,                       hqf )
 
+straight20 : line = ( hqf1, hbpm, ddd_20_1, dr14,                       hqd1, &
+                      hqd1, vbpm,           dr14,                       hqf2, &
+                      hqf2, hbpm, ddd_20_2, dr14,                       hqd2, &
+                      hqd2, vbpm,           dr45,                       hqf3, &
+                      hqf3, hbpm, ddd_20_3, dr56,                       hqd3, &
+                      hqd3, vbpm,           dr67,                       hqf )
 
-straight50 : line = ( hqf1, hbpm, ddd_50_1, dr14, hqd1, hqd1, vbpm, dr14,                       hqf2, & 
-                      hqf2, hbpm, ddd_50_2, dr14, hqd2, hqd2, vbpm, dr45,                       hqf3, & 
-                      hqf3, hbpm, ddd_50_3, dr56, hqd3, hqd3, vbpm, dr67,                       hqf )      
-
-straight40 : line = ( hqf1, hbpm,           dr14, hqd1, hqd1, vbpm, dr14,                       hqf2, & 
-                      hqf2, hbpm,           dr14, hqd2, hqd2, vbpm, dr45,                       hqf3, & 
-                      hqf3, hbpm,           dr56, hqd3, hqd3, vbpm, dr67,                       hqf )      
-
-straight30 : line = ( hqf1, hbpm,           dr14, hqd1, hqd1, vbpm, dr14,                       hqf2, &
-                      hqf2, hbpm,           dr14, hqd2, hqd2, vbpm, dr45,                       hqf3, &
-                      hqf3, hbpm,           dr56, hqd3, hqd3, vbpm, dr67,                       hqf )      
-
-straight20 : line = ( hqf1, hbpm, ddd_20_1, dr14, hqd1, hqd1, vbpm, dr14,                       hqf2, &
-                      hqf2, hbpm, ddd_20_2, dr14, hqd2, hqd2, vbpm, dr45,                       hqf3, &
-                      hqf3, hbpm, ddd_20_3, dr56, hqd3, hqd3, vbpm, dr67,                       hqf )
-
-straight10 : line = ( hqf1, hbpm, dr14, hqd1, &
-                      hqd1, vbpm, dr14, hqf2, &
-                      hqf2, hbpm, dr14, hqd2, &
-                      hqd2, vbpm, dr45, hqf3, &
-                      hqf3, hbpm, dr56, hqd3, &
-                      hqd3, vbpm, dr67, hqf )      
+straight10 : line = ( hqf1, hbpm,           dr14,                       hqd1, &
+                      hqd1, vbpm,           dr14,                       hqf2, &
+                      hqf2, hbpm,           dr14,                       hqd2, &
+                      hqd2, vbpm,           dr45,                       hqf3, &
+                      hqf3, hbpm,           dr56,                       hqd3, &
+                      hqd3, vbpm,           dr67,                       hqf )
 
 suppress   : line = (    fdscell, fmtcell )
-sp_suppress: line = ( sp_fdscell, fmtcell )
-lm_suppress: line = ( lm_fdscell, fmtcell )
 r1_suppress: line = ( r1_fdscell, fmtcell )
 r3_suppress: line = ( r3_fdscell, fmtcell )
 r5_suppress: line = ( r5_fdscell, fmtcell )
@@ -354,8 +311,6 @@ sextant30  : line = ( straight30, r3_suppress, arc )
 sextant40  : line = ( straight40,    suppress, arc )
 sextant50  : line = ( straight50, r5_suppress, arc )
 sextant60  : line = ( straight60,    suppress, arc )
-sextant61  : line = ( straight61,    suppress, arc )
-sextant62  : line = ( straight62,    suppress, arc )
 
 !-----------------------------------------------------------------------------
 
@@ -364,29 +319,8 @@ sextant62  : line = ( straight62,    suppress, arc )
 mstr     : marker
 marc     : marker
 
-debunch0 : line = ( mstr, sextant60, marc, -sextant50, &
-                    mstr, sextant40, marc, -sextant30, &
-                    mstr, sextant20, marc, -sextant10)
-
-debunch1 : line = ( mstr, sextant61, marc, -sextant50, &
-                    mstr, sextant40, marc, -sextant30, &
-                    mstr, sextant20, marc, -sextant10, septum_line )
-
-debunch2 : line = ( mstr, sextant62, marc, -sextant50, &
-                    mstr, sextant40, marc, -sextant30, &
-                    mstr, sextant20, marc, -sextant10, lambertson_line )
+debunch : line = ( mstr, sextant60, marc, -sextant50, &
+                   mstr, sextant40, marc, -sextant30, &
+                   mstr, sextant20, marc, -sextant10)
 
 !=============================================================================
-
-
-
-
-
-
-
-
-
-
-
-
-

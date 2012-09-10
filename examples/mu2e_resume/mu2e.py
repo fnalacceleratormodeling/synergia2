@@ -366,7 +366,7 @@ def calculate_lattice_settings():
         print
         print "....Saving final lattice configurations"
 
-    final_setting = ("/data/cspark/results/mu2e/%s/final_setting_tunes_%g_%g_phase_%g.xml" % (latt_dir, opts.tuneh, opts.tunev, opts.phase_g))
+    final_setting = ("/data/cspark/results/mu2e/%s/final_setting_tunes_%g_%g_phase_%g_4.xml" % (latt_dir, opts.tuneh, opts.tunev, opts.phase_g))
     synergia.lattice.xml_save_lattice(lattice_simulator.get_lattice(), 
             final_setting)
 
@@ -400,7 +400,7 @@ def calculate_lattice_settings():
         print
         print "....Saving initial lattice configuations"
 
-    initial_setting = ("/data/cspark/results/mu2e/%s/initial_setting_tunes_%g_%g_phase_%g.xml" % (latt_dir, opts.tuneh, opts.tunev, opts.phase_g))
+    initial_setting = ("/data/cspark/results/mu2e/%s/initial_setting_tunes_%g_%g_phase_%g_4.xml" % (latt_dir, opts.tuneh, opts.tunev, opts.phase_g))
     synergia.lattice.xml_save_lattice(lattice_simulator.get_lattice(),
             initial_setting)
 
@@ -410,7 +410,7 @@ def calculate_lattice_settings():
 #   load pre-calculated lattice settings for third integer resonant extraction
 ###############################################################################
 def load_lattice_settings():
-    initial_setting = ("/data/cspark/results/mu2e/%s/initial_setting_tunes_%g_%g_phase_%g.xml" % (latt_dir, opts.tuneh, opts.tunev, opts.phase_g))
+    initial_setting = ("/data/cspark/results/mu2e/%s/initial_setting_tunes_%g_%g_phase_%g_4.xml" % (latt_dir, opts.tuneh, opts.tunev, opts.phase_g))
     initial_synergia_lattice = synergia.lattice.Lattice()
     synergia.lattice.xml_load_lattice(initial_synergia_lattice, initial_setting)
     initial_synergia_elements = initial_synergia_lattice.get_elements()
@@ -428,7 +428,7 @@ def load_lattice_settings():
             #    print "       ", element.get_name(), initial_k1[index - 1], 
             #    print "1/m"
 
-    final_setting = ("/data/cspark/results/mu2e/%s/final_setting_tunes_%g_%g_phase_%g.xml" % (latt_dir, opts.tuneh, opts.tunev, opts.phase_g))
+    final_setting = ("/data/cspark/results/mu2e/%s/final_setting_tunes_%g_%g_phase_%g_4.xml" % (latt_dir, opts.tuneh, opts.tunev, opts.phase_g))
     final_synergia_lattice = synergia.lattice.Lattice()
     synergia.lattice.xml_load_lattice(final_synergia_lattice, final_setting)
     final_synergia_elements = final_synergia_lattice.get_elements()
@@ -551,9 +551,9 @@ emity = opts.norm_emit
 bunchlen_sec = opts.bunchlen * 1e-9
 rf_voltage = opts.rf_voltage
 if rf_voltage == 0:
-    latt_dir = "lattice_cache_norf_checkpoint"
+    latt_dir = "lattice_cache_norf"
 else:
-    latt_dir = "lattice_cache_rf_checkpoint"
+    latt_dir = "lattice_cache_rf"
 
 x_offset = opts.x_offset
 y_offset = opts.y_offset
@@ -563,6 +563,7 @@ kick = opts.kick
 wire_x = opts.wire_x
 wire_width = opts.wire_width
 gap = opts.gap
+septum_voltage = opts.septum_voltage
 
 solver = opts.spacecharge
 
@@ -605,7 +606,7 @@ if myrank == 0:
         print "turn_tracks:", opts.turn_tracks,
     print
 
-orig_lattice = synergia.lattice.Mad8_reader().get_lattice("debunch0",
+orig_lattice = synergia.lattice.Mad8_reader().get_lattice("debunch",
                 "Debunch_modified_rf.lat")
 orig_elements = orig_lattice.get_elements()
 synergia_lattice = synergia.lattice.Lattice()
@@ -657,7 +658,7 @@ for element in orig_elements:
             element.set_double_attribute("pax%d" % (i+1), u[i])
             element.set_double_attribute("pay%d" % (i+1), v[i])
         synergia_lattice.append(element)
-    elif name == "e_septum":
+    elif name == "septum1":
         # generate new element for e_septum
         septum = synergia.lattice.Lattice_element("e_septum", name)
         # extractor type: e_septum must use Chef_propatator
@@ -670,12 +671,36 @@ for element in orig_elements:
         septum.set_double_attribute("wire_elliptical_aperture_wire_width", wire_width)
         septum.set_double_attribute("wire_elliptical_aperture_gap", gap)
         # settings for e_septum wire and kick
-        septum.set_double_attribute("positive_strength", 0.0);
-        septum.set_double_attribute("negative_strength", kick);
-        septum.set_double_attribute("wire_position", wire_x);
-        septum.set_double_attribute("wire_width", wire_width);
-        septum.set_double_attribute("gap_size", gap);
-        septum.set_string_attribute("force_diagnostics", "true")
+        septum.set_double_attribute("l", element.get_length())
+        septum.set_double_attribute("voltage", septum_voltage)
+        septum.set_double_attribute("gap", gap)
+        septum.set_double_attribute("wire_position", wire_x)
+        septum.set_double_attribute("wire_width", wire_width)
+        septum.set_double_attribute("positive_strength", 0.0)
+        septum.set_double_attribute("negative_strength", kick)
+        septum.set_string_attribute("force_diagnostics", "false")
+        synergia_lattice.append(septum)
+    elif name == "septum2":
+        # generate new element for e_septum
+        septum = synergia.lattice.Lattice_element("e_septum", name)
+        # extractor type: e_septum must use Chef_propatator
+        septum.set_string_attribute("extractor_type", "chef_propagate")
+        # aperture type: e_septum uses wire_elliptical_aperture
+        septum.set_string_attribute("aperture_type", "wire_elliptical")
+        septum.set_double_attribute("wire_elliptical_aperture_horizontal_radius", radius)
+        septum.set_double_attribute("wire_elliptical_aperture_vertical_radius", radius)
+        septum.set_double_attribute("wire_elliptical_aperture_wire_x", -wire_x)
+        septum.set_double_attribute("wire_elliptical_aperture_wire_width", wire_width)
+        septum.set_double_attribute("wire_elliptical_aperture_gap", gap)
+        # settings for e_septum wire and kick
+        septum.set_double_attribute("l", element.get_length())
+        septum.set_double_attribute("voltage", septum_voltage)
+        septum.set_double_attribute("gap", gap)
+        septum.set_double_attribute("wire_position", wire_x)
+        septum.set_double_attribute("wire_width", wire_width)
+        septum.set_double_attribute("positive_strength", 0.0)
+        septum.set_double_attribute("negative_strength", kick)
+        septum.set_string_attribute("force_diagnostics", "false")
         synergia_lattice.append(septum)
     elif name == "lambertson":
         # generate new element for lambertson
@@ -684,8 +709,8 @@ for element in orig_elements:
         lambertson.set_string_attribute("extractor_type", "chef_propagate")
         # aperture type: lambertson uses lambertson_aprture
         lambertson.set_string_attribute("aperture_type", "lambertson")
-        lambertson.set_double_attribute("lambertson_aperture_radius", -wire_x)
-        lambertson.set_string_attribute("force_diagnostics", "true")
+        lambertson.set_double_attribute("lambertson_aperture_radius", -wire_x-0.004)
+        lambertson.set_string_attribute("force_diagnostics", "false")
         synergia_lattice.append(lambertson)
     elif type == "multipole":
         element.set_string_attribute("extractor_type", "chef_propagate")
@@ -712,14 +737,15 @@ synergia_elements = synergia_lattice.get_elements()
 synergia_lattice.set_reference_particle(orig_lattice.get_reference_particle())
 
 #index = 0
-#length = 0
+#accumulated_length = 0
 #for element in synergia_elements:
 #    index += 1
 #    name = element.get_name()
 #    type = element.get_type()
-#    length += element.get_length()
+#    length = element.get_length()
+#    accumulated_length += length
 #    if myrank == 0:
-#        print index, name, type, length
+#        print "%5d %11s %11s %9.5f %5.3f" %(index, name, type, accumulated_length, length)
 #sys.exit(1)
 
 lattice_length = synergia_lattice.get_length()
@@ -777,14 +803,6 @@ if myrank == 0:
 lattice_simulator = synergia.simulation.Lattice_simulator(synergia_lattice, 
                 map_order)
 
-#if myrank == 0:
-#    index = 0
-#    for element in lattice_simulator.get_chef_lattice().get_beamline():
-#        index += 1
-#        if element.Type() != "marker":
-#            print index, element.Length(), element.Name()
-#sys.exit(1)
-
 ###############################################################################
 #   Ramping Actions
 ###############################################################################
@@ -829,13 +847,15 @@ if myrank == 0:
     print "Set initial element strengths"
     print
     print "....Set initial settings for the Synergia lattice"
-index = 0
+index_q = 0
+index_s = 0
 for element in synergia_elements:
     if element.get_type() == "quadrupole":
-        element.set_double_attribute("k1", initial_k1[index])
-        index += 1
+        element.set_double_attribute("k1", initial_k1[index_q])
+        index_q += 1
     if element.get_type() == "multipole":
-        element.set_double_attribute("k2l", 0.0)
+        element.set_double_attribute("k2l", 0.0) #final_k2l[index_s])
+        index_s += 1
 lattice_simulator.update()
 
 ###############################################################################
@@ -951,6 +971,13 @@ else:
     stepper = synergia.simulation.Split_operator_stepper(lattice_simulator,
                     no_op, num_steps)
 
+#index = 0
+#for element in lattice_simulator.get_chef_lattice().get_sliced_beamline():
+#    if myrank == 0:
+#        print "%5d %35s %11s" % (index, element.Name(), element.Type())
+#    index += 1
+#sys.exit(1)
+
 ###############################################################################
 #   Diagnostics
 ###############################################################################
@@ -990,43 +1017,17 @@ if myrank == 0:
     print
     print "Begin propagate..."
 
-if max_turns <= ramp_turns:
-    ramp_max_turns = opts.max_turns
-else:
-    ramp_max_turns = ramp_turns
-
-
 t0 = time.time()
 propagator = synergia.simulation.Propagator(stepper)
 propagator.set_checkpoint_period(opts.checkpointperiod)
 #propagator.set_checkpoint_with_xml(True)
-propagator.propagate(bunch_simulator, ramp_actions, num_turns, ramp_max_turns,
+propagator.propagate(bunch_simulator, ramp_actions, num_turns, max_turns,
                 opts.verbosity)
 t1 = time.time()
 
 lattice_diagnostics = synergia.lattice.Lattice_diagnostics(synergia_lattice,
-                "lattice_deposited_charge_ramp.h5", "deposited_charge")
+                "lattice_deposited_charge.h5", "deposited_charge")
 lattice_diagnostics.update_and_write()
-
-if max_turns > ramp_turns:
-    del lattice_diagnostics
-    if myrank == 0:
-        os.system("mv log log_ramp")
-
-    if myrank == 0:
-        print
-        print "Propagate sextupole ramping finished"
-        print "Propagate time =", t1 - t0
-
-    resume = synergia.simulation.Resume()
-    content = resume.get_content()
-    resume.propagate(True, max_turns-ramp_turns, False, opts.verbosity)
-
-    t1 = time.time()
-
-    lattice_diagnostics = synergia.lattice.Lattice_diagnostics(content.lattice,
-                    "lattice_deposited_charge.h5", "deposited_charge")
-    lattice_diagnostics.update_and_write()
 
 if myrank == 0:
     print
