@@ -255,6 +255,10 @@ slice_chef_element(ElmPtr & elm, double left, double right, double tolerance)
             ElmPtr second_left_part, second_right_part;
             right_part->Split((right - left) / (length - left),
                     second_left_part, second_right_part);
+            int index = int(left / (right - left)) + 1;
+            std::stringstream element_name(stringstream::out);
+            element_name << elm->Name() << "_1_" << index;
+            second_left_part->rename(element_name.str().c_str());
             retval = second_left_part;
         }
     }
