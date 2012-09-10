@@ -379,10 +379,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Septum_mad8_adaptor();
 };
@@ -399,10 +396,7 @@ public:
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
-        }
+        serialize(Archive & ar, const unsigned int version);
     virtual
     ~Lambertson_mad8_adaptor();
 };

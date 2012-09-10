@@ -2078,11 +2078,13 @@ Septum_mad8_adaptor::Septum_mad8_adaptor()
 void
 Septum_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 {
-    set_double_default(lattice_element, "positive_strength", 0.0);
-    set_double_default(lattice_element, "negative_strength", 0.0);
+    set_double_default(lattice_element, "l", 0.0);
+    set_double_default(lattice_element, "voltage", 0.0);
+    set_double_default(lattice_element, "gap", 0.0);
     set_double_default(lattice_element, "wire_position", 0.0);
     set_double_default(lattice_element, "wire_width", 0.0);
-    set_double_default(lattice_element, "gap_size", 0.0);
+    set_double_default(lattice_element, "positive_strength", 0.0);
+    set_double_default(lattice_element, "negative_strength", 0.0);
 }
 
 Chef_elements
@@ -2091,33 +2093,69 @@ Septum_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 {   
     Chef_elements retval;
 
-    double positive_strength = lattice_element.get_double_attribute("positive_strength");
-    double negative_strength = lattice_element.get_double_attribute("negative_strength");
+    double length = lattice_element.get_double_attribute("l");
+    double voltage = lattice_element.get_double_attribute("voltage");
+    double gap = lattice_element.get_double_attribute("gap");
     double wire_position = lattice_element.get_double_attribute("wire_position");
     double wire_width = lattice_element.get_double_attribute("wire_width");
-    double gap_size = lattice_element.get_double_attribute("gap_size");
+    double positive_strength = lattice_element.get_double_attribute("positive_strength");
+    double negative_strength = lattice_element.get_double_attribute("negative_strength");
 
-    //bmlnElmnt * bmln_elmnt;
-    //bmln_elmnt = new thinSeptum(lattice_element.get_name().c_str(),
-    //        positive_strength, negative_strength, wire_position);
-    //bmln_elmnt->setStrengths(positive_strength, negative_strength);
-    //bmln_elmnt->setWire(wire_position);
-    //bmln_elmnt->setWireWidth(wire_width);
-    //bmln_elmnt->setGap(gap_size);
-    //ElmPtr elm(bmln_elmnt);
-
-    ThinSeptumPtr es_septum( new thinSeptum(lattice_element.get_name().c_str(),
-            positive_strength, negative_strength, wire_position));
-    es_septum->setStrengths(positive_strength, negative_strength);
-    es_septum->setWire(wire_position);
-    es_septum->setWireWidth(wire_width);
-    es_septum->setGap(gap_size);
-    ElmPtr elm(es_septum);
-
-    retval.push_back(elm);
-
+    if (length == 0.0) {
+        ThinSeptumPtr es_septum( new thinSeptum(
+                lattice_element.get_name().c_str(), positive_strength,
+                negative_strength, wire_position));
+        es_septum->setStrengths(positive_strength, negative_strength);
+        es_septum->setWire(wire_position);
+        es_septum->setWireWidth(wire_width);
+        es_septum->setGap(gap);
+        ElmPtr elm(es_septum);
+        //TODO: below doesn't work. why?
+        //bmlnElmnt * bmln_elmnt;
+        //bmln_elmnt = new thinSeptum(lattice_element.get_name().c_str(),
+        //        positive_strength, negative_strength, wire_position);
+        //bmln_elmnt->setStrengths(positive_strength, negative_strength);
+        //bmln_elmnt->setWire(wire_position);
+        //bmln_elmnt->setWireWidth(wire_width);
+        //bmln_elmnt->setGap(gap);
+        //ElmPtr elm(bmln_elmnt);
+        retval.push_back(elm);
+    } else {
+        SeptumPtr es_septum( new septum(
+                lattice_element.get_name().c_str(), length, voltage, gap,
+                wire_position, wire_width));
+        ElmPtr elm(es_septum);
+        retval.push_back(elm);
+    }
     return retval;
 }
+
+template<class Archive>
+    void
+    Septum_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Septum_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Septum_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Septum_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Septum_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Septum_mad8_adaptor::~Septum_mad8_adaptor()
 {
@@ -2142,11 +2180,36 @@ Lambertson_mad8_adaptor::get_chef_elements(
     bmlnElmnt * bmln_elmnt;
     bmln_elmnt = new thinLamb(lattice_element.get_name().c_str());
     ElmPtr elm(bmln_elmnt);
-
     retval.push_back(elm);
-
     return retval;
 }
+
+template<class Archive>
+    void
+    Lambertson_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Lambertson_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Lambertson_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Lambertson_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Lambertson_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Lambertson_mad8_adaptor::~Lambertson_mad8_adaptor()
 {
