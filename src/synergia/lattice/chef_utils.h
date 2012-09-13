@@ -30,6 +30,9 @@ reference_particle_to_chef_particle(
 Reference_particle
 chef_particle_to_reference_particle(Particle const& chef_particle);
 
+void
+ensure_jet_environment(int map_order);
+
 JetParticle
 reference_particle_to_chef_jet_particle(
         Reference_particle const& reference_particle, int map_order);

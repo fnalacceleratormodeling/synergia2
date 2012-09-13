@@ -1,3 +1,4 @@
+test_chef_utils
 test_lattice
 test_lattice_element
 test_lattice_diagnostics

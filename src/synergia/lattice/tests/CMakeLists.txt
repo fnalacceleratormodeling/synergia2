@@ -1,5 +1,10 @@
 add_definitions(-DBOOST_TEST_DYN_LINK)
 
+add_test_executable(test_chef_utils test_chef_utils.cc)
+target_link_libraries(test_chef_utils synergia_lattice synergia_foundation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_chef_utils test_chef_utils)
+
 add_test_executable(test_lattice_element test_lattice_element.cc)
 target_link_libraries(test_lattice_element synergia_lattice
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
