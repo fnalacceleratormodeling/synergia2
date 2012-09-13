@@ -7,8 +7,8 @@ std::string
 chef_beamline_as_string(BmlPtr beamline_sptr)
 {
     std::stringstream sstream;
-    for (beamline::const_iterator it = beamline_sptr->begin(); it
-            != beamline_sptr->end(); ++it) {
+    for (beamline::const_iterator it = beamline_sptr->begin();
+            it != beamline_sptr->end(); ++it) {
         sstream << (*it)->Name() << "(" << (*it)->Type() << "): Length="
                 << (*it)->Length() << ", Strength=" << (*it)->Strength()
                 << std::endl;
@@ -19,8 +19,8 @@ chef_beamline_as_string(BmlPtr beamline_sptr)
 void
 print_chef_beamline(BmlPtr beamline_sptr)
 {
-    for (beamline::const_iterator it = beamline_sptr->begin(); it
-            != beamline_sptr->end(); ++it) {
+    for (beamline::const_iterator it = beamline_sptr->begin();
+            it != beamline_sptr->end(); ++it) {
         std::cout << (*it)->Name() << "(" << (*it)->Type() << "): Length="
                 << (*it)->Length() << ", Strength=" << (*it)->Strength()
                 << std::endl;
@@ -80,7 +80,8 @@ reference_particle_to_chef_particle(
                     electron.State() = chef_state;
                     return electron;
                 } else {
-                    if (floating_point_equal(mass, PH_NORM_mmu, mass_tolerance)) {
+                    if (floating_point_equal(mass, PH_NORM_mmu,
+                            mass_tolerance)) {
                         Muon muon;
                         muon.SetReferenceMomentum(momentum);
                         muon.State() = chef_state;
@@ -103,8 +104,8 @@ chef_particle_to_reference_particle(Particle const& chef_particle)
 {
     Four_momentum four_momentum(chef_particle.Mass());
     four_momentum.set_momentum(chef_particle.Momentum());
-    Reference_particle
-        reference_particle(static_cast<int >(chef_particle.Charge()), four_momentum);
+    Reference_particle reference_particle(
+            static_cast<int >(chef_particle.Charge()), four_momentum);
     MArray1d state(boost::extents[6]);
     state[0] = chef_particle.State()[0];
     state[1] = chef_particle.State()[3];
@@ -116,13 +117,21 @@ chef_particle_to_reference_particle(Particle const& chef_particle)
     return reference_particle;
 }
 
+void
+ensure_jet_environment(int map_order)
+{
+    if (Jet__environment::getLastEnv() == 0) {
+        JetParticle::createStandardEnvironments(map_order);
+    } else if (Jet__environment::getLastEnv()->maxWeight() != map_order) {
+        JetParticle::createStandardEnvironments(map_order);
+    }
+}
+
 JetParticle
 reference_particle_to_chef_jet_particle(
         Reference_particle const& reference_particle, int map_order)
 {
-    if (Jet__environment::getLastEnv() == 0) {
-        JetParticle::createStandardEnvironments(map_order);
-    }
+    ensure_jet_environment(map_order);
     return JetParticle(reference_particle_to_chef_particle(reference_particle));
 }
 

@@ -99,9 +99,7 @@ Lattice_simulator::construct_extractor_map()
 void
 Lattice_simulator::calculate_beamline_context()
 {
-    if (Jet__environment::getLastEnv() == 0) {
-        JetParticle::createStandardEnvironments(map_order);
-    }
+    ensure_jet_environment(map_order);
     BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
     beamline_context_sptr = BmlContextPtr (new BeamlineContext(
                 reference_particle_to_chef_particle(
@@ -118,9 +116,7 @@ Lattice_simulator::calculate_sliced_beamline_context()
         throw std::runtime_error(
                 "Lattice_simulator::calculate_sliced_beamline_context called before set_slices");
     }
-    if (Jet__environment::getLastEnv() == 0) {
-        JetParticle::createStandardEnvironments(map_order);
-    }
+    ensure_jet_environment(map_order);
     BmlPtr beamline_sptr(chef_lattice_sptr->get_sliced_beamline_sptr());
     sliced_beamline_context_sptr = BmlContextPtr (new BeamlineContext(
                 reference_particle_to_chef_particle(
@@ -658,7 +654,7 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
     bool in_tolerance =
         sqrt(pow((nu_h - horizontal_final_tune), 2) +
              pow((nu_v - vertical_final_tune), 2)) < tolerance;
-         
+
     while (!in_tolerance && (step < 20)) {
         if (rank == 0) std::cout << "\n        Step " << step << std::endl;
         int status = beamline_context_sptr->changeTunesTo(
