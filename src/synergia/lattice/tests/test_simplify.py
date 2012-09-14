@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 
+# see also: test_simplify2.py in the simulation module
+
 import sys
 sys.path.append('../../..')
 import local_paths
