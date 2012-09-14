@@ -252,7 +252,7 @@ Foborodobo32_fixture() :
     bunch_sptr()
   {
     BOOST_TEST_MESSAGE("setup Foborodobo_fixture");
-    xml_load(*lattice_sptr, "foborodobo32_lattice.xml");
+    xml_load(*lattice_sptr, "lattices/foborodobo32_lattice.xml");
     bunch_sptr = Bunch_sptr(new Bunch(lattice_sptr->get_reference_particle(),
 				    num_macro_particles, num_real_particles, comm_sptr));
   }
