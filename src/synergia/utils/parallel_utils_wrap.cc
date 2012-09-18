@@ -47,6 +47,8 @@ BOOST_PYTHON_MODULE(parallel_utils)
             .def("has_this_rank", &Commxx::has_this_rank)
             ;
 
+    def("generate_subcomms", generate_subcomms);
+
     def("decompose_1d_raw", decompose_1d_raw_wrap);
     def("decompose_1d", decompose_1d_wrap);
     def("decompose_1d_local", decompose_1d_local);
