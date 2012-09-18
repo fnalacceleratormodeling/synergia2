@@ -107,5 +107,7 @@ add_test(test_propagator_mpi2 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2  test_propaga
 add_test(test_propagator_mpi3 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3  test_propagator_mpi)
 add_test(test_propagator_mpi4 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4  test_propagator_mpi)
 
+add_test(test_simplify2 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_simplify2.py)
+
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
     "test_fast_mapping_term.dat;test_fast_mapping.dat;test_fast_mapping2.dat;test_propagate_per_step.h5;test_propagate_per_turn.h5")
