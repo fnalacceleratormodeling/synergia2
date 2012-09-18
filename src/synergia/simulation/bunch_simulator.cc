@@ -1,5 +1,4 @@
 #include "bunch_simulator.h"
-#include "diagnostics_actions.h"
 
 Bunch_simulator::Bunch_simulator(Bunch_sptr bunch_sptr) :
     bunch_sptr(bunch_sptr),
