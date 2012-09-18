@@ -69,4 +69,9 @@ public:
     ~Commxx();
 };
 
+typedef std::vector<Commxx_sptr > Commxxs;
+
+Commxxs
+generate_subcomms(int count);
+
 #endif /* COMMXX_H_ */
