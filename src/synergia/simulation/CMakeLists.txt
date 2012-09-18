@@ -3,7 +3,7 @@ add_library(synergia_simulation operator.cc step.cc stepper.cc
     fast_mapping.cc chef_propagator.cc independent_operation.cc
     lattice_simulator.cc operation_extractor.cc aperture.cc
     aperture_operation.cc aperture_operation_extractor.cc populate_stationary.cc bunch_simulator.cc
-    resume.cc dense_mapping.cc)
+    bunch_train_simulator.cc resume.cc dense_mapping.cc)
 target_link_libraries(synergia_simulation synergia_foundation synergia_bunch
     synergia_lattice ${CHEF_LIBS} ${Boost_REGEX_LIBRARY})
 
@@ -17,6 +17,7 @@ endif ()
 install(TARGETS synergia_simulation DESTINATION lib)
 install(FILES
     bunch_simulator.h
+    bunch_train_simulator.h
     chef_propagator.h
     diagnostics_actions.h
     fast_mapping.h
