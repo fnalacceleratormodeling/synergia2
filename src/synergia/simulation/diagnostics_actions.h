@@ -118,4 +118,7 @@ public:
 
 typedef boost::shared_ptr<Diagnostics_actions >
         Diagnostics_actions_sptr;
+
+typedef std::vector<Diagnostics_actions_sptr > Diagnostics_actionss;
+
 #endif /* DIAGNOSTICS_ACTIONS_H_ */
