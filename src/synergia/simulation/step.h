@@ -46,10 +46,8 @@ public:
     virtual void
     apply(Bunch & bunch, int verbosity, Logger & logger,
             Multi_diagnostics & diagnostics);
-#if 0
     virtual void
-    apply(Bunch_with_diagnostics_train & bunch_diag_train);
-#endif
+    apply(Bunch_train & bunch_train, int verbosity, Logger & logger);
     Operators const&
     get_operators() const;
     Operators &

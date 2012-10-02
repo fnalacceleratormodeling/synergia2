@@ -131,6 +131,35 @@ Step::apply(Bunch & bunch, int verbosity, Logger & logger,
     }
 }
 
+void
+Step::apply(Bunch_train & bunch_train, int verbosity, Logger & logger)
+{
+    // time [s] in accelerator frame
+    double time = length
+            / (bunch_train.get_bunches()[0]->get_reference_particle().get_beta()
+                    * pconstants::c);
+    std::list<double >::const_iterator fractions_it = time_fractions.begin();
+    for (Operators::const_iterator it = operators.begin();
+            it != operators.end(); ++it) {
+        double t0 = MPI_Wtime();
+        (*it)->apply(bunch_train, (*fractions_it) * time, *this, verbosity,
+                logger);
+        double t1 = MPI_Wtime();
+        if (verbosity > 2) {
+            logger << "Step: operator: name = " << (*it)->get_name()
+                    << ", type = " << (*it)->get_type() << ", time = "
+                    << std::fixed << std::setprecision(3) << t1 - t0 << "s"
+                    << std::endl;
+        }
+        // jfa: what should we do here? Move particles between bunches?
+//         if (bunch.is_z_periodic()){
+//            double plength=bunch.get_z_period_length();
+//            apply_longitudinal_periodicity(bunch, plength);
+//        }
+        ++fractions_it;
+    }
+}
+
 
 #if 0
 void
