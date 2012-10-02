@@ -12,6 +12,7 @@
 #include <boost/python.hpp>
 #include "synergia/utils/numpy_multi_ref_converter.h"
 #include "synergia/utils/comm_converter.h"
+#include "synergia/utils/container_conversions.h"
 #include "synergia/foundation/multi_diagnostics.h"
 
 using namespace boost::python;
@@ -124,6 +125,12 @@ BOOST_PYTHON_MODULE(bunch)
     def("populate_uniform_cylinder", populate_uniform_cylinder);
     def("populate_transverse_KV_GaussLong", populate_transverse_KV_GaussLong);
     def("populate_two_particles", populate_two_particles);
+
+    container_conversions::from_python_sequence<std::vector<Bunch_sptr >,
+            container_conversions::variable_capacity_policy >();
+
+    to_python_converter<std::vector<Bunch_sptr >,
+            container_conversions::to_tuple<std::vector<Bunch_sptr > > >();
 
     class_<Bunch_train, Bunch_train_sptr >("Bunch_train",
             init<Bunches, double >())
