@@ -33,11 +33,9 @@ public:
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Logger & logger) = 0;
-#if 0
     virtual void
-    apply_train(Bunch_with_diagnostics_train & bunch_diag_train,
-            double time_step, Step & step);
-#endif
+    apply(Bunch_train & bunch_train, double time_step, Step & step, int verbosity,
+            Logger & logger);
     virtual void
     print() const;
     template<class Archive>

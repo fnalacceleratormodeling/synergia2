@@ -4,7 +4,7 @@
 #include "aperture_operation.h"
 
 Operator::Operator(std::string const& name, std::string const& type) :
-    name(name), type(type)
+        name(name), type(type)
 {
 }
 
@@ -25,6 +25,18 @@ Operator::get_type() const
 }
 
 void
+Operator::apply(Bunch_train & bunch_train, double time_step, Step & step,
+        int verbosity, Logger & logger)
+{
+    Bunches bunches(bunch_train.get_bunches());
+    for (Bunches::iterator it = bunches.begin(); it != bunches.end(); ++it) {
+        if ((*it)->get_comm().has_this_rank()) {
+            apply(**it, time_step, step, verbosity, logger);
+        }
+    }
+}
+
+void
 Operator::print() const
 {
     std::cout << type << " operator: " << name << std::endl;
@@ -38,8 +50,8 @@ Operator::apply_train(Bunch_with_diagnostics_train & bunch_diag_train,
     for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {
         if (bunch_diag_train.is_on_this_rank(index)) {
             Bunch_sptr
-                    bunch_sptr =
-                            bunch_diag_train.get_bunch_diag_sptr(index)->get_bunch_sptr();
+            bunch_sptr =
+            bunch_diag_train.get_bunch_diag_sptr(index)->get_bunch_sptr();
             apply(*bunch_sptr, time_step, step);
         }
     }
@@ -78,11 +90,10 @@ Operator::~Operator()
 {
 }
 
-const char
-Collective_operator::type_name[] = "collective";
+const char Collective_operator::type_name[] = "collective";
 
 Collective_operator::Collective_operator(std::string const& name) :
-    Operator(name, type_name)
+        Operator(name, type_name)
 {
 }
 
@@ -94,7 +105,8 @@ template<class Archive>
     void
     Collective_operator::serialize(Archive & ar, const unsigned int version)
     {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operator);
+        ar &
+        BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operator);
     }
 
 template
@@ -120,10 +132,10 @@ Collective_operator::serialize<boost::archive::xml_iarchive >(
 Collective_operator::~Collective_operator()
 {
 }
-BOOST_CLASS_EXPORT_IMPLEMENT(Collective_operator)
+BOOST_CLASS_EXPORT_IMPLEMENT (Collective_operator)
 
 Dummy_collective_operator::Dummy_collective_operator(std::string const& name) :
-    Collective_operator(name)
+        Collective_operator(name)
 {
 }
 
@@ -132,16 +144,18 @@ Dummy_collective_operator::Dummy_collective_operator()
 }
 
 void
-Dummy_collective_operator::apply(Bunch & bunch, double time_step, Step & step, int verbosity,
-        Logger & logger)
+Dummy_collective_operator::apply(Bunch & bunch, double time_step, Step & step,
+        int verbosity, Logger & logger)
 {
 }
 
 template<class Archive>
     void
-    Dummy_collective_operator::serialize(Archive & ar, const unsigned int version)
+    Dummy_collective_operator::serialize(Archive & ar,
+            const unsigned int version)
     {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
+        ar &
+        BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
     }
 
 template
@@ -167,7 +181,7 @@ Dummy_collective_operator::serialize<boost::archive::xml_iarchive >(
 Dummy_collective_operator::~Dummy_collective_operator()
 {
 }
-BOOST_CLASS_EXPORT_IMPLEMENT(Dummy_collective_operator)
+BOOST_CLASS_EXPORT_IMPLEMENT (Dummy_collective_operator)
 
 void
 Independent_operator::update_operations(
@@ -182,9 +196,10 @@ Independent_operator::update_operations(
     // Group slices of equal extractor_type and pass to operation_extractor
     // to get operations.
     Lattice_element_slices group;
-    for (Lattice_element_slices::iterator it = slices.begin(); it
-            != slices.end(); ++it) {
-        if ((*it)->get_lattice_element().has_string_attribute("aperture_type")) {
+    for (Lattice_element_slices::iterator it = slices.begin();
+            it != slices.end(); ++it) {
+        if ((*it)->get_lattice_element().has_string_attribute(
+                "aperture_type")) {
             aperture_type = (*it)->get_lattice_element().get_string_attribute(
                     "aperture_type");
             need_left_aperture = (*it)->has_left_edge();
@@ -193,7 +208,8 @@ Independent_operator::update_operations(
             need_left_aperture = false;
             need_right_aperture = false;
         }
-        if ((*it)->get_lattice_element().has_string_attribute("extractor_type")) {
+        if ((*it)->get_lattice_element().has_string_attribute(
+                "extractor_type")) {
             extractor_type = (*it)->get_lattice_element().get_string_attribute(
                     "extractor_type");
         } else {
@@ -201,11 +217,9 @@ Independent_operator::update_operations(
         }
         if (((extractor_type != last_extractor_type) || need_left_aperture)
                 && (!group.empty())) {
-            Independent_operations
-                    group_operations =
-                            operation_extractor_map_sptr->get_extractor(
-                                    extractor_type)->extract(
-                                    reference_particle, group);
+            Independent_operations group_operations =
+                    operation_extractor_map_sptr->get_extractor(extractor_type)->extract(
+                            reference_particle, group);
             operations.splice(operations.end(), group_operations);
             group.clear();
         }
@@ -227,11 +241,9 @@ Independent_operator::update_operations(
             Aperture_operation_sptr aperture_operation_sptr(
                     extractor->extract(*it));
             operations.push_back(aperture_operation_sptr);
-            Independent_operations
-                    group_operations =
-                            operation_extractor_map_sptr->get_extractor(
-                                    extractor_type)->extract(
-                                    reference_particle, group);
+            Independent_operations group_operations =
+                    operation_extractor_map_sptr->get_extractor(extractor_type)->extract(
+                            reference_particle, group);
             operations.splice(operations.end(), group_operations);
             group.clear();
         }
@@ -239,9 +251,9 @@ Independent_operator::update_operations(
                 (*it)->get_lattice_element().get_revision());
     }
     if (!group.empty()) {
-        Independent_operations
-                group_operations = operation_extractor_map_sptr->get_extractor(
-                        extractor_type)->extract(reference_particle, group);
+        Independent_operations group_operations =
+                operation_extractor_map_sptr->get_extractor(extractor_type)->extract(
+                        reference_particle, group);
         operations.splice(operations.end(), group_operations);
     }
     Aperture_operation_extractor_sptr extractor(
@@ -269,16 +281,16 @@ Independent_operator::need_update(Reference_particle const& reference_particle,
                 reference_particle_tolerance)) {
             std::list<long int >::const_iterator rev_it =
                     operations_revisions.begin();
-            for (Lattice_element_slices::const_iterator it = slices.begin(); it
-                    != slices.end(); ++it) {
+            for (Lattice_element_slices::const_iterator it = slices.begin();
+                    it != slices.end(); ++it) {
                 long int cached_revision = (*rev_it);
                 long int revision = (*it)->get_lattice_element().get_revision();
                 if (revision != cached_revision) {
                     if (verbosity > 4) {
                         logger
-                            << "Independent_operator: needs update because lattice element "
-                            << (*it)->get_lattice_element().get_name() << " has changed"
-                            << std::endl;
+                                << "Independent_operator: needs update because lattice element "
+                                << (*it)->get_lattice_element().get_name()
+                                << " has changed" << std::endl;
                     }
                     retval = true;
                     break;
@@ -288,34 +300,30 @@ Independent_operator::need_update(Reference_particle const& reference_particle,
         } else {
             if (verbosity > 4) {
                 logger
-                    << "Independent_operator: needs update because reference particle has changed"
-                    << std::endl;
+                        << "Independent_operator: needs update because reference particle has changed"
+                        << std::endl;
             }
             retval = true;
         }
     } else {
         if (verbosity > 4) {
             logger
-                << "Independent_operator: needs update because does not have operations"
-                << std::endl;
+                    << "Independent_operator: needs update because does not have operations"
+                    << std::endl;
         }
         retval = true;
     }
     return retval;
 }
 
-const char
-Independent_operator::type_name[] = "independent";
+const char Independent_operator::type_name[] = "independent";
 
-Independent_operator::Independent_operator(
-        std::string const& name,
+Independent_operator::Independent_operator(std::string const& name,
         Operation_extractor_map_sptr operation_extractor_map_sptr,
         Aperture_operation_extractor_map_sptr aperture_operation_extractor_map_sptr) :
-            Operator(name, type_name),
-            operation_extractor_map_sptr(operation_extractor_map_sptr),
-            aperture_operation_extractor_map_sptr(
-                    aperture_operation_extractor_map_sptr),
-            have_operations(false)
+        Operator(name, type_name), operation_extractor_map_sptr(
+                operation_extractor_map_sptr), aperture_operation_extractor_map_sptr(
+                aperture_operation_extractor_map_sptr), have_operations(false)
 {
 }
 
@@ -361,26 +369,28 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step,
     }
     double t;
     t = simple_timer_current();
-    bool do_update = need_update(bunch.get_reference_particle(), verbosity, logger);
+    bool do_update = need_update(bunch.get_reference_particle(), verbosity,
+            logger);
     t = simple_timer_show(t, "independent-operator-test_update");
     if (do_update) {
         if (verbosity > 3) {
-                    logger << "Independent_operator: updating operations" << std::endl;
-                }
+            logger << "Independent_operator: updating operations" << std::endl;
+        }
         update_operations(bunch.get_reference_particle());
         t = simple_timer_show(t, "independent-operator-update");
     }
     double t1;
     t1 = simple_timer_current();
-    for (Independent_operations::iterator it = operations.begin(); it
-            != operations.end(); ++it) {
+    for (Independent_operations::iterator it = operations.begin();
+            it != operations.end(); ++it) {
         // std::cout<<" opertor.cc operator name="<<(*it)->get_type()<<std::endl;
         if (verbosity > 3) {
-            logger << "Independent_operator: operation type = " <<
-                    (*it)->get_type() << std::endl;
+            logger << "Independent_operator: operation type = "
+                    << (*it)->get_type() << std::endl;
         }
         (*it)->apply(bunch, verbosity, logger);
-        std::string label("independent-operation-" +(*it)->get_type() + "-apply");
+        std::string label(
+                "independent-operation-" + (*it)->get_type() + "-apply");
         t1 = simple_timer_show(t1, label.c_str());
     }
     bunch.update_total_num();
@@ -388,8 +398,8 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step,
 }
 
 void
-Independent_operator::apply(Bunch & bunch, double time_step, Step & step, int verbosity,
-        Logger & logger, Multi_diagnostics & diagnostics)
+Independent_operator::apply(Bunch & bunch, double time_step, Step & step,
+        int verbosity, Logger & logger, Multi_diagnostics & diagnostics)
 {
 
     if (need_update(bunch.get_reference_particle(), verbosity, logger)) {
@@ -398,11 +408,11 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step, int ve
 
     double t;
     t = simple_timer_current();
-    for (Independent_operations::iterator it = operations.begin(); it
-            != operations.end(); ++it) {
+    for (Independent_operations::iterator it = operations.begin();
+            it != operations.end(); ++it) {
         //  std::cout<<" opertor.cc operator name="<<(*it)->get_type()<<std::endl;
-        for (Multi_diagnostics::iterator itd = diagnostics.begin(); itd
-                != diagnostics.end(); ++itd) {
+        for (Multi_diagnostics::iterator itd = diagnostics.begin();
+                itd != diagnostics.end(); ++itd) {
 
             (*itd)->update_and_write();
         }
@@ -416,8 +426,8 @@ Independent_operator::print() const
 {
     Operator::print();
     int count = 0;
-    for (Lattice_element_slices::const_iterator it = slices.begin(); it
-            != slices.end(); ++it) {
+    for (Lattice_element_slices::const_iterator it = slices.begin();
+            it != slices.end(); ++it) {
         ++count;
         std::cout << "slice " << count << ": ";
         (*it)->print();
@@ -428,7 +438,8 @@ template<class Archive>
     void
     Independent_operator::serialize(Archive & ar, const unsigned int version)
     {
-        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operator);
+        ar &
+        BOOST_SERIALIZATION_BASE_OBJECT_NVP(Operator);
         ar & BOOST_SERIALIZATION_NVP(slices);
         ar & BOOST_SERIALIZATION_NVP(operations);
         ar & BOOST_SERIALIZATION_NVP(operations_revisions);

@@ -155,6 +155,13 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bs_add_per_step_member_overloads23,
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bs_add_per_forced_diagnostics_step_member_overloads12,
                 Bunch_simulator::add_per_forced_diagnostics_step, 1, 2)
 
+void
+(Operator::*apply_bunch)(Bunch &, double, Step &, int,
+        Logger &) = &Operator::apply;
+void
+(Operator::*apply_bunch_train)(Bunch_train &, double, Step &, int,
+        Logger &) = &Operator::apply;
+
 BOOST_PYTHON_MODULE(simulation)
 {
     import_array();
@@ -164,7 +171,8 @@ BOOST_PYTHON_MODULE(simulation)
                 return_value_policy<copy_const_reference >())
         .def("get_type", &Operator::get_type,
                 return_value_policy<copy_const_reference >())
-        .def("apply", &Operator::apply)
+        .def("apply", apply_bunch)
+        .def("apply", apply_bunch_train)
         .def("print_", &Operator::print)
         ;
 
