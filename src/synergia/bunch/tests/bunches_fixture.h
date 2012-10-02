@@ -12,33 +12,13 @@ struct Bunches_fixture
         BOOST_TEST_MESSAGE("setup fixture");
         Commxxs commxxs(generate_subcomms(num_bunches));
         for (int i = 0; i < num_bunches; ++i) {
-            std::cout << "jfa1\n";
-            std::cout << "jfa wtf: " << local_num << std::endl;
             Bunch_sptr bs(
                     new Bunch(reference_particle, local_num, real_num,
                             commxxs.at(i)));
-            std::cout << "jfa1.1\n";
             bunches.push_back(
                     bs);
-            std::cout << "jfa2\n";
             dummy_populate(*(bunches.back()));
         }
-//        for (Commxxs::const_iterator it = commxxs.begin(); it != commxxs.end();
-//                ++it) {
-//            std::cout << "jfa1\n";
-//            std::cout << "jfa wtf: " <<local_num << std::endl;
-//            Bunch_sptr bs(new Bunch(reference_particle,
-//                                    local_num * (*it)->get_size(), real_num,
-//                                    Commxx_sptr(new Commxx)));
-//            std::cout << "jfa1.1\n";
-//            bunches.push_back(
-//                    Bunch_sptr(
-//                            new Bunch(reference_particle,
-//                                    local_num * (*it)->get_size(), real_num,
-//                                    *it)));
-//            std::cout << "jfa2\n";
-//            dummy_populate(*(bunches.back()));
-//        }
     }
     ~Bunches_fixture()
     {

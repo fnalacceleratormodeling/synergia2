@@ -9,20 +9,17 @@ add_test_executable(test_bunch_train test_bunch_train.cc)
 target_link_libraries(test_bunch_train synergia_bunch
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_bunch_train ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1  test_bunch_train)
-add_test(test_bunch_train2 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2  test_bunch_train)
-add_test(test_bunch_train3 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3  test_bunch_train)
-add_test(test_bunch_train4 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4  test_bunch_train)
 #add_test(test_bunch_train_py
 #    ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()"
 #    test_bunch_train.py)
 
-#add_test_executable(test_bunch_train_mpi test_bunch_train_mpi.cc)
-#target_link_libraries(test_bunch_train_mpi synergia_bunch
-#    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-#add_test(test_bunch_train_mpi1 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1  test_bunch_train_mpi)
-#add_test(test_bunch_train_mpi2 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2  test_bunch_train_mpi)
-#add_test(test_bunch_train_mpi3 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3  test_bunch_train_mpi)
-#add_test(test_bunch_train_mpi4 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4  test_bunch_train_mpi)
+add_test_executable(test_bunch_train_mpi test_bunch_train_mpi.cc)
+target_link_libraries(test_bunch_train_mpi synergia_bunch
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_bunch_train_mpi1 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1  test_bunch_train_mpi)
+add_test(test_bunch_train_mpi2 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2  test_bunch_train_mpi)
+add_test(test_bunch_train_mpi3 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3  test_bunch_train_mpi)
+add_test(test_bunch_train_mpi4 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4  test_bunch_train_mpi)
 
 #add_test_executable(test_bunch_with_diagnostics test_bunch_with_diagnostics.cc)
 #target_link_libraries(test_bunch_with_diagnostics synergia_bunch
