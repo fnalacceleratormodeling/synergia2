@@ -118,12 +118,18 @@ Bunch::construct(int particle_charge, int total_num, double real_num)
     this->real_num = real_num;
     state = fixed_z;
     converter_ptr = &default_converter;
-    local_num = decompose_1d_local(*comm_sptr, total_num);
-    std::vector<int > offsets(comm_sptr->get_size()), counts(comm_sptr->get_size());
-    decompose_1d(*comm_sptr, total_num, offsets, counts);
-    local_num = counts[comm_sptr->get_rank()];
-    local_particles = new MArray2d(boost::extents[local_num][7]);
-    assign_ids(offsets[comm_sptr->get_rank()]);
+    if (comm_sptr->has_this_rank()) {
+        local_num = decompose_1d_local(*comm_sptr, total_num);
+        std::vector<int > offsets(comm_sptr->get_size()), counts(
+                comm_sptr->get_size());
+        decompose_1d(*comm_sptr, total_num, offsets, counts);
+        local_num = counts[comm_sptr->get_rank()];
+        local_particles = new MArray2d(boost::extents[local_num][7]);
+        assign_ids(offsets[comm_sptr->get_rank()]);
+    } else {
+        local_num = 0;
+        local_particles = new MArray2d(boost::extents[local_num][7]);
+    }
 }
 
 Bunch::Bunch(Reference_particle const& reference_particle, int total_num,
