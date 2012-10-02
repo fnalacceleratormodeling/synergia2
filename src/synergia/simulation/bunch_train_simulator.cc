@@ -1,45 +1,25 @@
 #include "bunch_train_simulator.h"
 
-Bunch_train_simulator::Bunch_train_simulator(Bunches const& bunches,
-        double spacing) :
-        bunches(bunches), spacings(
-                std::vector<double >(bunches.size() - 1, spacing)), diagnostics_actionss(
-                bunches.size())
+Bunch_train_simulator::Bunch_train_simulator(Bunch_train_sptr bunch_train_sptr) :
+        bunch_train_sptr(bunch_train_sptr), diagnostics_actionss(
+                bunch_train_sptr->get_size())
 {
-}
-
-Bunch_train_simulator::Bunch_train_simulator(Bunches const& bunches,
-        std::vector<double > const& spacings) :
-        bunches(bunches), spacings(spacings), diagnostics_actionss(
-                bunches.size())
-{
-    if (spacings.size() != bunches.size() - 1) {
-        throw std::runtime_error(
-                "Bunch_train_simulator:: spacings must have length (length(bunches)-1)");
-    }
 }
 
 Bunch_train_simulator::Bunch_train_simulator()
 {
 }
 
-size_t
-Bunch_train_simulator::get_size() const
+Bunch_train &
+Bunch_train_simulator::get_bunch_train()
 {
-    return bunches.size();
+    return *bunch_train_sptr;
 }
 
-Bunches &
-Bunch_train_simulator::get_bunches()
+Bunch_train_sptr
+Bunch_train_simulator::get_bunch_train_sptr()
 {
-    return bunches;
-}
-
-
-std::vector<double > &
-Bunch_train_simulator::get_spacings()
-{
-    return spacings;
+    return bunch_train_sptr;
 }
 
 Diagnostics_actionss &
@@ -49,29 +29,31 @@ Bunch_train_simulator::get_diagnostics_actionss()
 }
 
 void
-Bunch_train_simulator::add_per_turn(int which, Diagnostics_sptr diagnostics_sptr,
-        int period)
+Bunch_train_simulator::add_per_turn(int which,
+        Diagnostics_sptr diagnostics_sptr, int period)
 {
     diagnostics_actionss.at(which)->add_per_turn(diagnostics_sptr, period);
 }
 
 void
-Bunch_train_simulator::add_per_turn(int which, Diagnostics_sptr diagnostics_sptr,
-        std::list<int > const& turn_numbers)
+Bunch_train_simulator::add_per_turn(int which,
+        Diagnostics_sptr diagnostics_sptr, std::list<int > const& turn_numbers)
 {
-    diagnostics_actionss.at(which)->add_per_turn(diagnostics_sptr, turn_numbers);
+    diagnostics_actionss.at(which)->add_per_turn(diagnostics_sptr,
+            turn_numbers);
 }
 
 void
-Bunch_train_simulator::add_per_step(int which, Diagnostics_sptr diagnostics_sptr,
-        int period)
+Bunch_train_simulator::add_per_step(int which,
+        Diagnostics_sptr diagnostics_sptr, int period)
 {
     diagnostics_actionss.at(which)->add_per_step(diagnostics_sptr, period);
 }
 
 void
-Bunch_train_simulator::add_per_step(int which, Diagnostics_sptr diagnostics_sptr,
-        std::list<int > const& step_numbers, int turn_period)
+Bunch_train_simulator::add_per_step(int which,
+        Diagnostics_sptr diagnostics_sptr, std::list<int > const& step_numbers,
+        int turn_period)
 {
     diagnostics_actionss.at(which)->add_per_step(diagnostics_sptr, step_numbers,
             turn_period);
@@ -81,16 +63,15 @@ void
 Bunch_train_simulator::add_per_forced_diagnostics_step(int which,
         Diagnostics_sptr diagnostics_sptr, int turn_period)
 {
-    diagnostics_actionss.at(which)->add_per_forced_diagnostics_step(diagnostics_sptr,
-            turn_period);
+    diagnostics_actionss.at(which)->add_per_forced_diagnostics_step(
+            diagnostics_sptr, turn_period);
 }
 
 template<class Archive>
     void
     Bunch_train_simulator::serialize(Archive & ar, const unsigned int version)
     {
-        ar & BOOST_SERIALIZATION_NVP(bunches);
-        ar & BOOST_SERIALIZATION_NVP(spacings);
+        ar & BOOST_SERIALIZATION_NVP(bunch_train_sptr);
         ar & BOOST_SERIALIZATION_NVP(diagnostics_actionss);
     }
 

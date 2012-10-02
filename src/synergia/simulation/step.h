@@ -4,9 +4,9 @@
 #include <list>
 #include <boost/shared_ptr.hpp>
 #include "synergia/utils/logger.h"
-#include "synergia/bunch/train.h"
 #include "synergia/simulation/operator.h"
 #include "synergia/bunch/bunch.h"
+#include "synergia/bunch/bunch_train.h"
 #include "synergia/foundation/multi_diagnostics.h"
 #include "synergia/utils/serialization.h"
 

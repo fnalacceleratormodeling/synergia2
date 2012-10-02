@@ -1,28 +1,23 @@
 #ifndef BUNCH_TRAIN_SIMULATOR_H_
 #define BUNCH_TRAIN_SIMULATOR_H_
 
-#include "synergia/bunch/bunch.h"
+#include "synergia/bunch/bunch_train.h"
 #include "synergia/simulation/diagnostics_actions.h"
 
 class Bunch_train_simulator
 {
 private:
-    Bunches bunches;
-    std::vector<double > spacings;
+    Bunch_train_sptr bunch_train_sptr;
     Diagnostics_actionss diagnostics_actionss;
 
 public:
-    Bunch_train_simulator(Bunches const& bunches, double spacing);
-    Bunch_train_simulator(Bunches const& bunches,
-            std::vector<double > const& spacings);
+    Bunch_train_simulator(Bunch_train_sptr bunch_train_sptr);
     // Default constructor for serialization use only
     Bunch_train_simulator();
-    size_t
-    get_size() const;
-    Bunches &
-    get_bunches();
-    std::vector<double > &
-    get_spacings();
+    Bunch_train &
+    get_bunch_train();
+    Bunch_train_sptr
+    get_bunch_train_sptr();
     Diagnostics_actionss &
     get_diagnostics_actionss();
     void

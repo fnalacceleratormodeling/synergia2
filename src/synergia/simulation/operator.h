@@ -6,13 +6,13 @@
 #include <boost/shared_ptr.hpp>
 
 #include "synergia/bunch/bunch.h"
+#include "synergia/bunch/bunch_train.h"
 #include "synergia/lattice/lattice_element_slice.h"
 #include "synergia/lattice/chef_lattice.h"
 #include "synergia/simulation/independent_operation.h"
 #include "synergia/simulation/operation_extractor.h"
 #include "synergia/simulation/aperture_operation_extractor.h"
 #include "synergia/foundation/multi_diagnostics.h"
-#include "synergia/bunch/train.h"
 #include "synergia/utils/serialization.h"
 #include "synergia/utils/logger.h"
 
