@@ -47,6 +47,12 @@ BOOST_PYTHON_MODULE(parallel_utils)
             .def("has_this_rank", &Commxx::has_this_rank)
             ;
 
+    container_conversions::from_python_sequence<std::vector<Commxx_sptr >,
+            container_conversions::variable_capacity_policy >();
+
+    to_python_converter<std::vector<Commxx_sptr >,
+            container_conversions::to_tuple<std::vector<Commxx_sptr > > >();
+
     def("generate_subcomms", generate_subcomms);
 
     def("decompose_1d_raw", decompose_1d_raw_wrap);
