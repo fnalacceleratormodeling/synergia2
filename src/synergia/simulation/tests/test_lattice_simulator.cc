@@ -281,127 +281,122 @@ BOOST_FIXTURE_TEST_CASE(is_ring, Foborodobo32_fixture)
   BOOST_CHECK(lattice_simulator.is_ring());
 }
 
-BOOST_FIXTURE_TEST_CASE(linear_human_normal_human, Foborodobo32_fixture)
+BOOST_FIXTURE_TEST_CASE(human_normal_human, Foborodobo32_fixture)
 {
-    //jfa: map_order = 1 below is a temporary hack. Should be at least 3!!
-  const int map_order = 1;
-  const double tolerance = 1.0e-12;
-  Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+    const int map_order = 4;
+    // tolerance in transverse coordinates can be stricter than
+    // longitudinal coordinates because the longitudinal coordinate
+    // has the explicit sine wave which blows up when truncated.
+    const double trans_tolerance = 1.0e-5;
+    const double long_tolerance = 1.0e-3;
 
-  // in the linear case, this should just be a matrix multiplication
-  // and be very good
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     // fill the bunch with three points each direction
-    const double test_points[] = {1.0e-3, 1.0e-4, 1.0e-3, 1.0e-4, 0.1, 0.1/200};
+    const double test_points[] = {1.0e-4, 7.76e-6, 1.0e-4, 1.86e-5, 1.0e-4, 1.0e-6};
 
     int pidx=0;
-#if 1
     const int num_macro_particles = 3*3*3*3*3*3;
     MArray2d particles(boost::extents[num_macro_particles][7]);
-    for (int i0= -1; i0!=2; ++i0) {
-      for (int i1= -1; i1!=2; ++i1) {
-	for (int i2= -1; i2!=2; ++i2) {
-	  for (int i3= -1; i3!=2; ++i3) {
-	    for (int i4= -1; i4!=2; ++i4) {
-	      for (int i5= -1; i5!=2; ++i5) {
-		particles[pidx][0] = test_points[0]*i0;
-		particles[pidx][1] = test_points[1]*i1;
-		particles[pidx][2] = test_points[2]*i2;
-		particles[pidx][3] = test_points[3]*i3;
-		particles[pidx][4] = test_points[4]*i4;
-		particles[pidx][5] = test_points[5]*i5;
-		++pidx;
-	      }
-	    }
-	  }
-	}
-      }
-    }
-#else
-    const int num_macro_particles = 1;
-    MArray2d particles(boost::extents[num_macro_particles][7]);
 
-    for (int i=0; i<num_macro_particles; ++i) {
-      for (int j=0; j<6; ++j) {
-	particles[i][j] = 0.0;
-      }
-      particles[i][pidx] = test_points[pidx];
-      ++pidx;
+    for (int i0= -1; i0!=2; ++i0) {
+        for (int i1= -1; i1!=2; ++i1) {
+            for (int i2= -1; i2!=2; ++i2) {
+                for (int i3= -1; i3!=2; ++i3) {
+                    for (int i4= -1; i4!=2; ++i4) {
+                        for (int i5= -1; i5!=2; ++i5) {
+                            particles[pidx][0] = test_points[0]*i0;
+                            particles[pidx][1] = test_points[1]*i1;
+                            particles[pidx][2] = test_points[2]*i2;
+                            particles[pidx][3] = test_points[3]*i3;
+                            particles[pidx][4] = test_points[4]*i4;
+                            particles[pidx][5] = test_points[5]*i5;
+                            ++pidx;
+                        }
+                    }
+                }
+            }
+        }
     }
-#endif
 
     MArray2d particles_orig(particles);
 
-#if 0
-    std::cout << "particles[0][]: " <<
-      particles[0][0] << ", " << particles[0][1] << ", " << particles[0][2] << ", " << particles[0][3] << ", " << particles[0][4] << ", " << particles[0][5] << std::endl;
-#endif
-
     lattice_simulator.convert_human_to_normal(particles);
-
-#if 0
-    std::cout << "normal particles[0][]: " <<
-      particles[0][0] << ", " << particles[0][1] << ", " << particles[0][2] << ", " << particles[0][3] << ", " << particles[0][4] << ", " << particles[0][5] << std::endl;
-#endif
-
     lattice_simulator.convert_normal_to_human(particles);
 
-#if 0
-    std::cout << "human particles[0][]: " <<
-      particles[0][0] << ", " << particles[0][1] << ", " << particles[0][2] << ", " << particles[0][3] << ", " << particles[0][4] << ", " << particles[0][5] << std::endl;
-#endif
-
     for (int i=0; i<num_macro_particles; ++i) {
-      for (int j=0; j<6; ++j) {
-	BOOST_CHECK(floating_point_equal(particles[i][j], particles_orig[i][j], tolerance));
-      }
+        for (int j=0; j<6; ++j) {
+            if (j < 4) {
+                BOOST_CHECK(floating_point_equal(particles[i][j], particles_orig[i][j], trans_tolerance));
+            } else {
+                BOOST_CHECK(floating_point_equal(particles[i][j], particles_orig[i][j], long_tolerance));
+            }
+        }
     }
 }
 
 BOOST_FIXTURE_TEST_CASE(normal_human_normal, Foborodobo32_fixture)
 {
-    //jfa: map_order = 1 below is a temporary hack. Should be at least 3!!
-  const int map_order = 1;
-  const double tolerance = 1.0e-12;
-  Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+    const int map_order = 3;
+    // tolerance in transverse coordinates can be stricter than
+    // longitudinal coordinates because the longitudinal coordinate
+    // has the explicit sine wave which blows up when truncated.
+    const double trans_tolerance = 1.0e-4;
+    const double long_tolerance = 1.0e-3;
 
-  // fill the bunch with three points at fixed action each
-  // direction but angles uniformly spread around 2*pi
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
-  const int n_angles = 24;
-  // this is the square-root of the action
-  const double test_actions[] = {1.0e-4, 1.0e-4, 1.0e-4};
-
+    // fill the bunch with three points at fixed action each
+    // direction but angles uniformly spread around 2*pi
+    
+    const int n_angles = 24;
+    
+    // three sets of actions
+    // this is the square-root of the action
+    const double action_sets[][3] = {
+        {6.0e-8, 0.0, 2.5e-9},
+        {0.0, 6.0e-8, 0.0},
+        {1.9e-9, 0.0, 4.0e-8}};
+    
+    int nsets = sizeof(action_sets)/(3*sizeof(double));
     int pidx=0;
-
-    const int num_macro_particles = n_angles*n_angles*n_angles;
+    
+    const int num_macro_particles = nsets*n_angles*n_angles*n_angles;
     MArray2d particles(boost::extents[num_macro_particles][7]);
-
-    for (int iph0=0; iph0<n_angles; ++iph0) {
-      double phase0 = (2.0*mconstants::pi/(2.0*n_angles)) * (2*iph0+1);
-      for (int iph1=0; iph1<n_angles; ++iph1) {
-	double phase1 = (2.0* mconstants::pi/(2.0*n_angles)) * (2*iph1+1);
-	for (int iph2=0; iph2<n_angles; ++iph2) {
-	  double phase2 = (2.0*mconstants::pi/(2.0*n_angles)) * (2*iph2+1);
-	  particles[pidx][0] = test_actions[0]*sin(phase0);
-	  particles[pidx][1] = -test_actions[0]*cos(phase0);
-	  particles[pidx][2] = test_actions[1]*sin(phase1);
-	  particles[pidx][3] = -test_actions[1]*cos(phase1);
-	  particles[pidx][4] = test_actions[2]*sin(phase2);
-	  particles[pidx][5] = -test_actions[2]*cos(phase2);
-	  ++pidx;
-	}
-      }
+    
+    for (int aset=0; aset<nsets; ++aset) {
+        for (int iph0=0; iph0<n_angles; ++iph0) {
+            double phase0 = (2.0*mconstants::pi/(2.0*n_angles)) * (2*iph0+1);
+            for (int iph1=0; iph1<n_angles; ++iph1) {
+                double phase1 = (2.0* mconstants::pi/(2.0*n_angles)) * (2*iph1+1);
+                for (int iph2=0; iph2<n_angles; ++iph2) {
+                    double phase2 = (2.0*mconstants::pi/(2.0*n_angles)) * (2*iph2+1);
+                    particles[pidx][0] = action_sets[aset][0]*sin(phase0);
+                    particles[pidx][1] = -action_sets[aset][0]*cos(phase0);
+                    particles[pidx][2] = action_sets[aset][1]*sin(phase1);
+                    particles[pidx][3] = -action_sets[aset][1]*cos(phase1);
+                    particles[pidx][4] = action_sets[aset][2]*sin(phase2);
+                    particles[pidx][5] = -action_sets[aset][2]*cos(phase2);
+                    ++pidx;
+                }
+            }
+        }
     }
+    
     MArray2d particles_orig(particles);
 
     lattice_simulator.convert_normal_to_human(particles);
     lattice_simulator.convert_human_to_normal(particles);
 
     for (int i=0; i<num_macro_particles; ++i) {
-      for (int j=0; j<6; ++j) {
-	BOOST_CHECK(floating_point_equal(particles[i][j], particles_orig[i][j], tolerance));
-      }
+        for (int j=0; j<6; ++j) {
+            if (j < 4) {
+                BOOST_CHECK(floating_point_equal(particles[i][j], particles_orig
+[i][j], trans_tolerance));
+            } else {
+                BOOST_CHECK(floating_point_equal(particles[i][j], particles_orig[i][j], long_tolerance));
+            }
+        }
     }
 }
 
