@@ -4,10 +4,6 @@ import synergia
 import numpy as np
 from mi_options import opts
 import mpi4py.MPI as MPI
-#from basic_toolkit import *
-#from mxyzptlk import *
-#from beamline import *
-#from physics_toolkit import *
 
 #####################################
 
@@ -45,9 +41,7 @@ grid = [gridx, gridy, gridz]
 real_particles = real_particles
 num_steps = opts.num_steps
 num_turns = opts.num_turns
-map_order = opts.map_order
 
-radius = opts.radius
 emitx = opts.norm_emit
 emity = opts.norm_emit
 stdz = opts.stdz
@@ -67,10 +61,8 @@ if myrank == 0:
     print "num_turns: ", num_turns
     print "num steps/turn: ", num_steps
     print "grid: ", grid
-    print "map order: ", map_order
     print "(normalized) transverse emittance: ", opts.norm_emit
     print "stdz: ", stdz
-    print "Radius cut: ", radius
     print "RF Voltage: ", rf_voltage
     print "X offset: ", x_offset
     print "Y offset: ", y_offset
@@ -91,79 +83,25 @@ if myrank == 0:
 
 harmno = 588
 
-orig_lattice = synergia.lattice.Mad8_reader().get_lattice("ring_p_q605", "mi20-egs-thinrf.lat")
-orig_lattice_length = orig_lattice.get_length()
-if myrank == 0:
-    print "original lattice length: ", orig_lattice_length
+lattice = synergia.lattice.Mad8_reader().get_lattice("ring_p_q605", "mi20-egs-thinrf.lat")
+lattice_length = lattice.get_length()
 
-# go through lattice splitting each quadrupole and inserting the thin
-# multipole object building the new lattice
+# set all elements to use chef_propagate
+# and MI elliptical aperture
 if myrank == 0:
     print "Begin constructing lattice... "
-orig_elements = orig_lattice.get_elements()
-lattice = synergia.lattice.Lattice()
-for elem in orig_elements:
-    # quadrupole splitting for multipole insertion disabled
-    if elem.get_type() == "xxxquadrupole":
-        old_name = elem.get_name()
-        old_length = elem.get_length()
-        new_length = old_length/2.0
+for elem in lattice.get_elements():
+    elem.set_string_attribute("extractor_type", "chef_propagate")
 
-        # first half of split quadrupole
-        new_elem1 = synergia.lattice.Lattice_element(elem.get_type(),
-                                                     old_name+"_1")
-        string_attrs = elem.get_string_attributes()
-        double_attrs = elem.get_double_attributes()
-        for k in string_attrs.keys():
-            new_elem1.set_string_attribute(k, string_attrs[k])
-        for k in double_attrs.keys():
-            new_elem1.set_double_attribute(k, double_attrs[k])
-        new_elem1.set_double_attribute("l", new_length)
-
-        # second half of split quadrupole
-        new_elem2 = synergia.lattice.Lattice_element(elem.get_type(),
-                                                     old_name+"_2")
-        for k in string_attrs.keys():
-            new_elem2.set_string_attribute(k, string_attrs[k])
-        for k in double_attrs.keys():
-            new_elem2.set_double_attribute(k, double_attrs[k])
-        new_elem2.set_double_attribute("l", new_length)
-
-        # extract kl for enclosing quadrupole for normalizing the thin
-        # multipole object
-        kl = old_length * elem.get_double_attribute("k1")
-        thinpole_elem = synergia.lattice.Lattice_element("thinpole",
-                                                         old_name+"_poles")
-        thinpole_elem.set_double_attribute("kl", kl)
-        if not multipoles.has_key(old_name):
-            if  myrank == 0:
-                pass
-                #print "Quadrupole ",old_name," has no entry in multipoles file"
-            else:
-                pass
-        else:
-            mcoeff = multipoles[old_name]
-            for k in mcoeff.keys():
-                thinpole_elem.set_double_attribute(k, mcoeff[k])
-
-        lattice.append(new_elem1)
-        lattice.append(thinpole_elem)
-        lattice.append(new_elem2)
-
-    else:
-        lattice.append(elem)
-
-lattice.set_reference_particle(orig_lattice.get_reference_particle())
-
-# with the aperture, all the particles are immediately eliminated
-if radius > 0.0:
-    for elem in lattice.get_elements():
-        elem.set_double_attribute("aperture_radius", radius)
+    # these aperture sizes come from _Main_Injector_Transverse_Apertures_,
+    # Bruce C. Brown, 03/13/2006.
+    elem.set_string_attribute("aperture_type", "elliptical")
+    elem.set_double_attribute("elliptical_aperture_horizontal_radius", 60.26/1000.0)
+    elem.set_double_attribute("elliptical_aperture_vertical_radius", 23.69/1000.0)
 
 if myrank == 0:
     print "Finished constructing lattice"
 
-lattice_length = lattice.get_length()
 
 reference_particle = lattice.get_reference_particle()
 energy = reference_particle.get_total_energy()
@@ -195,42 +133,7 @@ for elem in lattice.get_elements():
 if myrank == 0:
     print "Finish setting RF voltage..."
 
-lattice_simulator = synergia.simulation.Lattice_simulator(lattice, map_order)
-
-# jfa: following block commented out for two reaons:
-# !1) the functionality should be available from synergia (i.e., not require chef)
-# (2) recent updates seem to have broken the chef python bindings (!)
-#
-#chef_lattice = lattice_simulator.get_chef_lattice()
-##print "dir(chef_lattice): ", dir(chef_lattice)
-#bml = chef_lattice.get_beamline()
-#proton = Proton(energy)
-#proton.setStateToZero()
-#if myrank==0:
-#    print "original proton state: ", proton.State()
-#bml.propagate(proton)
-#if myrank==0:
-#    print "propagated proton: ", proton.State()
-
-#jpr = JetProton(energy)
-#print "after create jpr"
-#bml.propagate(jpr)
-#chefmap = jpr.State()
-#print "chefmap: ", chefmap
-#chefoneturnmap = Jacobian(chefmap)
-
-#print "chefoneturnmap: ", chefoneturnmap
-
-#sys.exit(10)
-
-#chef_part = synergia.lattice.reference_particle_to_chef_particle(reference_particle)
-#print "dir(chef_part): ", dir(chef_part)
-#sys.exit(10)
-#print "orig chef_part state: ", chef_part.State()
-#chef_lattice.propagate(chef_part)
-#print "propagated chef_part state: ", chef_part.State()
-
-#sys.exit(10)
+lattice_simulator = synergia.simulation.Lattice_simulator(lattice, 1)
 
 map = lattice_simulator.get_linear_one_turn_map()
 if myrank==0:
@@ -239,9 +142,6 @@ if myrank==0:
 
 
 [l, v] = np.linalg.eig(map)
-
-#print "l: ", l
-#print "v: ", v
 
 if myrank==0:
     print "eigenvalues: "
@@ -261,44 +161,17 @@ if myrank == 0:
     print "beta_z: ", bz
     print "delta p/p: ", dpop
 
-# jfa: see previous "jfa" comment
-#pr1 = Proton(energy)
-#pr1p = Proton(energy)
-#pr2 = Proton(energy)
-#pr2p = Proton(energy)
-#pr3 = Proton(energy)
-#pr3p = Proton(energy)
-#pr1.set_x(1.0e-4)
-#pr1p.set_npx(1.0e-4/bx)
-#pr2.set_y(1.0e-4)
-#pr2p.set_npy(1.0e-4/by)
-#
-#bml.propagate(pr1)
-#bml.propagate(pr1p)
-#bml.propagate(pr2)
-#bml.propagate(pr2p)
-#if myrank == 0:
-#    print "propagated pr1: ", pr1.State()
-#    print "propagated pr1p: ", pr1p.State()
-#    print "propagated pr2: ", pr2.State()
-#    print "propagated pr2p: ", pr2p.State()
-
 emitx /= (beta*gamma)
 emity /= (beta*gamma)
 
 if myrank == 0:
     print "Begin generating bunch..."
 
-#bunch = synergia.optics.generate_matched_bunch_transverse(lattice_simulator, emitx, emity, stdz, dpop,
-#                                        real_particles, macro_particles,
-#                                        seed=seed)
-
 bunch = synergia.optics.generate_matched_bunch(lattice_simulator, np.sqrt(emitx * bx), np.sqrt(emity * by), stdz, real_particles, macro_particles,
                                         seed=seed)
 
 # apply offset to bunch
 particles = bunch.get_local_particles()
-
 
 particles[:,0] = particles[:,0] + x_offset
 particles[:,2] = particles[:,2] + y_offset
@@ -321,21 +194,16 @@ else:
 
 
 bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
-#multi_diagnostics_step = synergia.bunch.Multi_diagnostics()
-# not doing step diagnostics
-#multi_diagnostics_step.append(synergia.bunch.Diagnostics_full2(bunch, "mi_step_full2.h5"))
-
-#multi_diagnostics_turn = synergia.bunch.Multi_diagnostics()
 
 if opts.turn_full2:
-    bunch_simulator.get_diagnostics_actions().add_per_turn(synergia.bunch.Diagnostics_full2(bunch,"mi_full2.h5"))
+    bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_full2("mi_full2.h5"))
 
 if opts.turn_particles:
-    bunch_simulator.get_diagnostics_actions().add_per_turn(synergia.bunch.Diagnostics_particles(bunch, "mi_particles.h5"))
+    bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_particles("mi_particles.h5"))
 
-# enable track saving
-for part in range(0, opts.turn_tracks):
-    bunch_simulator.get_diagnostics_actions().add_per_turn(synergia.bunch.Diagnostics_track(bunch,"turn_track_%02d.h5"%part,part))
+# enable track saving for the first 100 turns
+if  opts.turn_tracks:
+    bunch_simulator.add_per_turn(synergia.bunch.Diagnostics_bulk_track("turn_track.h5", opts.turn_tracks), range(100))
 
 if myrank == 0:
     print "Begin propagate..."
@@ -343,8 +211,6 @@ if myrank == 0:
 propagator = synergia.simulation.Propagator(stepper)
 max_turns = 0
 propagator.propagate(bunch_simulator, num_turns, max_turns, verbose)
-#propagator.propagate(bunch, num_turns, multi_diagnostics_step,
-#                     multi_diagnostics_turn, verbose)
 
 if myrank == 0:
     print "Finish propagate"
