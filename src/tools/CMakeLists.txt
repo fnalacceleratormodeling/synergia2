@@ -7,7 +7,8 @@ set(tools
     synbeamplot
     synlatticeview
     synprintmaps
-    synpart2txt)
+    synpart2txt
+    syntrack2txt)
 
 foreach(tool ${tools})
     configure_file("${SYNERGIA2_SOURCE_DIR}/src/tools/${tool}.in"
@@ -25,4 +26,5 @@ install(FILES
     lattice_view.py
     print_maps.py
     particles_to_text.py
+    tracks_to_text.py
     DESTINATION lib/synergia_tools)
