@@ -36,7 +36,7 @@ def handle_args(args):
                 options.header = 2
             elif arg == '--short-header':
                 options.header = 1
-            elif arg == '--short-header':
+            elif arg == '--no-header':
                 options.header = 0
             else:
                 do_error('Unknown argument "%s"' % arg)
