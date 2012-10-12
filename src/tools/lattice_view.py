@@ -18,7 +18,11 @@ def plot_element(element, x, y, angle, attributes, highlight):
     else:
         ancestors = element.get_ancestors()
         type = element.get_type()
-        color = list(attributes[type].color)
+        if attributes.has_key(type):
+            attribute = attributes[type]
+        else:
+            attribute = attributes['default']
+        color = list(attribute.color)
         if (ancestors.count(highlight) == 0) and (highlight != None):
             offset = 0.75
             color[0] = offset + (1.0 - offset) * color[0]
@@ -35,7 +39,7 @@ def plot_element(element, x, y, angle, attributes, highlight):
             pyplot.plot([x, xnew], [y, ynew], '-',
                         color=color,
                         label=label,
-                        linewidth=attributes[type].width)
+                        linewidth=attribute.width)
         else:
             num = 8
             xn = numpy.zeros([num + 1], numpy.float64)
@@ -52,7 +56,7 @@ def plot_element(element, x, y, angle, attributes, highlight):
             pyplot.plot(xn, yn, '-',
                         color=color,
                         label=label,
-                        linewidth=attributes[type].width)
+                        linewidth=attribute.width)
 
     return xnew, ynew, anglenew
 
@@ -75,6 +79,8 @@ def get_attributes():
     attributes['kicker'] = Attributes((0, 1, 1))
     attributes['hkicker'] = Attributes((0, 1, 0.5))
     attributes['vkicker'] = Attributes((0, 0.5, 1))
+    attributes['rfcavity'] = Attributes((0.5,0,0.5))
+    attributes['default'] = Attributes((0,0,0),1.0)
     return attributes
 
 class Options:
