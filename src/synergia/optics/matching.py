@@ -42,26 +42,38 @@ def _get_correlation_matrix(linear_map,arms,brms,crms,beta,rms_index=[0,2,4]):
         # F[i] is effectively 2*e[i] cross e^H[i].
 
     # The correlation matrix is a linear combination of F[i] with
-    # appropriate coefficients such that the diagonal elements C[i,i] i in [rms_index[k] for k in range(3)]]
+    # appropriate coefficients such that the diagonal elements C[i,i] i=(0,2,4)
     # come out to be the desired 2nd moments.
     S=numpy.zeros((3,3),'d')
     for i in range(0,3):
         for j in range(0,3):
             S[i,j]=F[j][rms_index[i],rms_index[i]]
 
-    # C is going to be  ccoef[0]*F[0] + ccoef[1]*F[1] + ccoef[2]*F[2]
-    # S[i,j] is the F[j]'s contribution to the rms**2 for
-    # coordinate i.  Set up a system of linear equations
-    # to solve for ccoef
-
     Sinv=numpy.linalg.inv(S)
 
-    rmstargetsq = numpy.array([arms**2, brms**2, crms**2])
-    ccoef = numpy.dot(Sinv, rmstargetsq)
+
+
+    gamma=1./numpy.sqrt(1.-beta*beta)
+    pz = gamma * beta *pconstants.mp
+    energy=pconstants.mp * gamma
+    Cxy=1.
+    Cxpyp=1./pz
+    Cz=1./beta
+    Czp=1./pz
+    units=[Cxy,Cxpyp,Cxy,Cxpyp,Cz, Czp] # transform from input units to Chef units
 
     C = numpy.zeros([6, 6], 'd')
-    for i in range(3):
-        C += ccoef[i]*F[i]
+    cd1=arms*units[rms_index[0]]*arms*units[rms_index[0]]
+    cd2=brms*units[rms_index[1]]*brms*units[rms_index[1]]
+    cd3=crms*units[rms_index[2]]*crms*units[rms_index[2]]
+    #cd1 = rms_x ** 2
+    #cd2 = rms_y ** 2
+    #rms_cdt = rms_z / beta
+    #cd3 = rms_cdt ** 2
+
+    for i in range(0, 3):
+        C += F[i] * (Sinv[i, 0] * cd1 + Sinv[i, 1] * cd2 + Sinv[i, 2] * cd3)
+
 
     return C
 
