@@ -98,7 +98,7 @@ void
 counts_and_offsets_for_impedance(Commxx const& comm,int length, std::vector<int > &offsets,
  std::vector<int > &counts)
 {
-  return  counts_and_offsets_for_impedance_raw( comm.get_size(), length, offsets, counts);
+  counts_and_offsets_for_impedance_raw( comm.get_size(), length, offsets, counts);
 }
 
 
