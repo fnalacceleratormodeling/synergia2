@@ -36,8 +36,8 @@ BOOST_PYTHON_MODULE(convertors)
     }
     comm_converter::register_to_and_from_python();
 
-    numpy_multi_array_converter<double, 1 >::register_to_and_from_python();
-    numpy_multi_array_converter<double, 2 >::register_to_and_from_python();
+    numpy_multi_array_converter<double, 1 >::register_to_python();
+    numpy_multi_array_converter<double, 2 >::register_to_python();
 
     numpy_multi_array_ref_converter<double, 1 >::register_to_and_from_python();
     numpy_const_multi_array_ref_converter<double, 1 >::register_to_and_from_python();

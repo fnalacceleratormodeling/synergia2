@@ -10,26 +10,10 @@ template<typename ValueType, int Dimension>
         typedef std::vector<std::size_t > shape_t;
 
         static void
-        register_to_and_from_python()
-        {
-            register_from_python();
-            register_to_python();
-        }
-
-        static void
         register_to_python()
         {
             boost::python::to_python_converter<multi_array_t,
                     numpy_multi_array_converter<ValueType, Dimension > >();
-        }
-
-        static void
-        register_from_python()
-        {
-            boost::python::converter::registry::push_back(
-                    &numpy_multi_array_converter<ValueType, Dimension >::convertible,
-                    &numpy_multi_array_converter<ValueType, Dimension >::construct,
-                    boost::python::type_id<multi_array_t >());
         }
 
         static
@@ -46,27 +30,6 @@ template<typename ValueType, int Dimension>
                 return 0;
             }
             return obj;
-        }
-
-        static
-        void
-        construct(PyObject* obj,
-                boost::python::converter::rvalue_from_python_stage1_data* data)
-        {
-            throw std::runtime_error("jfa: no worky!");
-            using namespace boost::python;
-
-            //get the storage
-            typedef converter::rvalue_from_python_storage<multi_array_t > storage_t;
-            storage_t * the_storage = reinterpret_cast<storage_t * >(data);
-            void * memory_chunk = the_storage->storage.bytes;
-
-            //new placement
-            object py_obj(handle< >(borrowed(obj)));
-            shape_t shape;
-            get_shape(py_obj, shape);
-            new (memory_chunk) multi_array_t(shape);
-            data->convertible = memory_chunk;
         }
 
         static PyObject *
