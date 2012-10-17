@@ -127,7 +127,7 @@ void
 populate_6d_stationary_clipped_longitudinal_gaussian(Distribution &dist,
                                                      Bunch &bunch,
                                                      const std::vector<double> actions,
-                                                     double z_min, double z_max,
+                                                     double cdt_min, double cdt_max,
                                                      Lattice_simulator& lattice_simulator)
 {
     const int max_tries = 100;  // throw if I don't converge in this many tries
@@ -156,8 +156,8 @@ populate_6d_stationary_clipped_longitudinal_gaussian(Distribution &dist,
                 // convert to human form and then check
                 lattice_simulator.convert_normal_to_human(test_particle);
 
-                if ((test_particle[0][Bunch::cdt] < z_min) ||
-                    (test_particle[0][Bunch::cdt] > z_max)) {
+                if ((test_particle[0][Bunch::cdt] < cdt_min) ||
+                    (test_particle[0][Bunch::cdt] > cdt_max)) {
 
                     good_particle = false;
                     break; // bad particle, quit now and try again

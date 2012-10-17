@@ -523,13 +523,13 @@ Lattice_simulator::convert_normal_to_human(MArray2d_ref coords)
 // return a vector of the mean actions that will generate a stationary
 // beam distribution having the specified standard deviations in each
 // of the three planes.
-std::vector<double> Lattice_simulator::get_stationary_actions(const double stdx, const double stdy, const double stdz)
+std::vector<double> Lattice_simulator::get_stationary_actions(const double stdx, const double stdy, const double std_cdt)
 {
   Normal_form_sage_sptr nf_sptr(get_normal_form_sptr());
   // stationaryActions wants the second moments of the canonical variables
-  // which are x,y,t.  Convert z into t.
-  double beta = this->get_lattice_sptr()->get_reference_particle().get_beta();
-  double stdt = stdz/(beta*pconstants::c);
+  // which are x,y,t.  Note that the input longitudinal variaable is std_cdt.
+  // Convert that into stdt.
+  double stdt = std_cdt/pconstants::c;
 
   std::vector<double> v(nf_sptr->stationaryActions(stdx, stdy, stdt));
   return v;

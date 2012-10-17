@@ -119,7 +119,7 @@ public:
     void convert_human_to_normal(MArray2d_ref coords);
     void convert_normal_to_human(MArray2d_ref coords);
     bool check_linear_normal_form();
-    std::vector<double> get_stationary_actions(const double stdx, const double stdy, const double stdz);
+    std::vector<double> get_stationary_actions(const double stdx, const double stdy, const double std_cdt);
     void
     adjust_tunes(double horizontal_tune, double vertical_tune,
             Lattice_elements const& horizontal_correctors,

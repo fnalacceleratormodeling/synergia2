@@ -26,7 +26,7 @@ void
 populate_6d_stationary_clipped_longitudinal_gaussian(Distribution &dist,
                                                      Bunch &bunch,
                                                      const std::vector<double> actions,
-                                                     double z_min, double z_max_,
+                                                     double cdt_min, double cdt_max,
                                                      Lattice_simulator& lattice_simulator);
 
 
