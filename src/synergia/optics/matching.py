@@ -57,9 +57,9 @@ def _get_correlation_matrix(linear_map,arms,brms,crms,beta,rms_index=[0,2,4]):
     pz = gamma * beta *pconstants.mp
     energy=pconstants.mp * gamma
     Cxy=1.
-    Cxpyp=1./pz
+    Cxpyp=1.0
     Cz=1./beta
-    Czp=1./pz
+    Czp=1.0
     units=[Cxy,Cxpyp,Cxy,Cxpyp,Cz, Czp] # transform from input units to Chef units
 
     C = numpy.zeros([6, 6], 'd')
