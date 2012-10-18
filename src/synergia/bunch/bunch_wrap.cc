@@ -103,6 +103,28 @@ BOOST_PYTHON_MODULE(bunch)
         .def("append", &Multi_diagnostics::append)
         ;
 
+    class_<Core_diagnostics >
+    ("Core_diagnostics", init<>())
+    		.def("calculate_mean", &Core_diagnostics::calculate_mean)
+    		.staticmethod("calculate_mean")
+    		.def("calculate_z_mean", &Core_diagnostics::calculate_z_mean)
+    		.staticmethod("calculate_z_mean")
+    		.def("calculate_spatial_mean", &Core_diagnostics::calculate_spatial_mean)
+    		.staticmethod("calculate_spatial_mean")
+    		.def("calculate_std", &Core_diagnostics::calculate_std)
+    		.staticmethod("calculate_std")
+    		.def("calculate_spatial_std", &Core_diagnostics::calculate_spatial_std)
+    		.staticmethod("calculate_spatial_std")
+    		.def("calculate_mom2", &Core_diagnostics::calculate_mom2)
+    		.staticmethod("calculate_mom2")
+    		.def("calculate_min", &Core_diagnostics::calculate_min)
+    		.staticmethod("calculate_min")
+    		.def("calculate_max", &Core_diagnostics::calculate_max)
+    		.staticmethod("calculate_max")
+    		;
+
+
+
     class_<Analysis>("Analysis", init<std::string const&, int>())
       .def("get_betatron_averaged_tune", &Analysis::get_betatron_averaged_tune)
       .def("get_betatron_tune_spread", &Analysis::get_betatron_tune_spread)
