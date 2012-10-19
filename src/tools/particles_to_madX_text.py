@@ -52,7 +52,7 @@ def handle_args(args):
 
 def do_conversion(options):
     ifile = tables.openFile(options.filename, 'r')
-    ofilename = os.path.splitext(options.filename)[0] + '-madX.txt'
+    ofilename = os.path.splitext(options.filename)[0] + '_madX.txt'
     ofile = open(ofilename, 'w')
     if options.header > 1:
         ofile.write('''# units:
