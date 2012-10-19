@@ -8,7 +8,8 @@ set(tools
     synlatticeview
     synprintmaps
     synpart2txt
-    syntrack2txt)
+    syntrack2txt
+    synpart2madxtxt)
 
 foreach(tool ${tools})
     configure_file("${SYNERGIA2_SOURCE_DIR}/src/tools/${tool}.in"
@@ -27,4 +28,5 @@ install(FILES
     print_maps.py
     particles_to_text.py
     tracks_to_text.py
+    particles_to_madX_text.py
     DESTINATION lib/synergia_tools)

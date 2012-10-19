@@ -133,7 +133,12 @@ Diagnostics_particles::write()
     if (get_write_helper().write_locally()) {
         Hdf5_file_sptr file_sptr = get_write_helper().get_hdf5_file_sptr();
         receive_other_local_particles(local_nums, file_sptr);
-        double pz = get_bunch().get_reference_particle().get_momentum();
+        Four_momentum fourp( get_bunch().get_reference_particle().get_four_momentum() );
+        int chg = get_bunch().get_reference_particle().get_charge();
+        file_sptr->write(chg, "charge");
+        double pmass = fourp.get_mass();
+        file_sptr->write(pmass, "mass");
+        double pz = fourp.get_momentum();
         file_sptr->write(pz, "pz");
         double tlen =
                 get_bunch().get_reference_particle().get_trajectory_length();

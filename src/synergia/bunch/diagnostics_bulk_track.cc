@@ -88,7 +88,7 @@ Diagnostics_bulk_track::update()
             if ((dtsptr->last_index > -1)
                     && (dtsptr->last_index < get_bunch().get_local_num())) {
                 if (dtsptr->particle_id
-                        == static_cast<int >(get_bunch().get_local_particles()[Bunch::id][dtsptr->last_index])) {
+                        == static_cast<int >(get_bunch().get_local_particles()[dtsptr->last_index][Bunch::id])) {
                     index = dtsptr->last_index;
                     dtsptr->found = true;
                 }
@@ -148,6 +148,14 @@ void
 Diagnostics_bulk_track::init_writers(Hdf5_file_sptr file_sptr)
 {
     if (!have_writers) {
+        Four_momentum fourp( get_bunch().get_reference_particle().get_four_momentum() );
+        int chg = get_bunch().get_reference_particle().get_charge();
+        file_sptr->write(chg, "charge");
+        double pmass = fourp.get_mass();
+        file_sptr->write(pmass, "mass");
+        double pz = fourp.get_momentum();
+        file_sptr->write(pz, "pz");
+
         writer_coords = new Hdf5_serial_writer<MArray2d_ref >(file_sptr,
                 "track_coords");
         writer_s = new Hdf5_serial_writer<double >(file_sptr, "s");

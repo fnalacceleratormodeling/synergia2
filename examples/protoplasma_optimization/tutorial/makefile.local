@@ -1,0 +1,19 @@
+.SUFFIXES: .o .cpp .cc
+
+C++        = g++ -g
+
+INSTALLDIR = /home/cspark/synergia2-checkpoint4/install
+
+INCS       = -I$(INSTALLDIR)/include 
+
+LIBS       = -L$(INSTALLDIR)/lib \
+             -lnlopt
+
+SYSLIBS    = -lm -lnsl
+
+.cc :
+	$(C++) $(INCS) -o $@ $< $(LIBS) $(SYSLIBS)
+
+.cc.o:
+	$(C++) -c $(INCS) -o $@ $<
+

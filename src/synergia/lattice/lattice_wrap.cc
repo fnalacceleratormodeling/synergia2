@@ -80,6 +80,7 @@ BOOST_PYTHON_MODULE(lattice)
         .def("get_bend_angle", &Lattice_element::get_bend_angle)
         .def("get_revision", &Lattice_element::get_revision)
         .def("print_",&Lattice_element::print)
+        .def("as_string", &Lattice_element::as_string)
        ;
 
     to_python_converter<std::list<Lattice_element_sptr >,
@@ -138,6 +139,7 @@ BOOST_PYTHON_MODULE(lattice)
             .def("get_length", &Lattice::get_length)
             .def("get_total_angle", &Lattice::get_total_angle)
             .def("print_", &Lattice::print)
+            .def("as_string", &Lattice::as_string)
             ;
 
     class_<Chef_lattice, Chef_lattice_sptr >("Chef_lattice", init<Lattice_sptr>())

@@ -82,6 +82,14 @@ void
 Diagnostics_track::init_writers(Hdf5_file_sptr file_sptr)
 {
     if (!have_writers) {
+        Four_momentum fourp( get_bunch().get_reference_particle().get_four_momentum() );
+        int chg = get_bunch().get_reference_particle().get_charge();
+        file_sptr->write(chg, "charge");
+        double pmass = fourp.get_mass();
+        file_sptr->write(pmass, "mass");
+        double pz = fourp.get_momentum();
+        file_sptr->write(pz, "pz");
+
         writer_coords = new Hdf5_serial_writer<MArray1d_ref > (file_sptr,
                 "coords");
         writer_s = new Hdf5_serial_writer<double > (file_sptr, "s");

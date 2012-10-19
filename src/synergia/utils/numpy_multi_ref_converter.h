@@ -6,7 +6,7 @@
 template<typename ValueType, int Dimension>
     struct numpy_multi_array_ref_converter
     {
-        typedef boost::multi_array_ref<ValueType, Dimension > multi_array_t;
+        typedef boost::multi_array_ref<ValueType, Dimension > multi_array_ref_t;
         typedef std::vector<std::size_t > shape_t;
 
         static void
@@ -19,7 +19,7 @@ template<typename ValueType, int Dimension>
         static void
         register_to_python()
         {
-            boost::python::to_python_converter<multi_array_t,
+            boost::python::to_python_converter<multi_array_ref_t,
                     numpy_multi_array_ref_converter<ValueType, Dimension > >();
         }
 
@@ -29,7 +29,7 @@ template<typename ValueType, int Dimension>
             boost::python::converter::registry::push_back(
                     &numpy_multi_array_ref_converter<ValueType, Dimension >::convertible,
                     &numpy_multi_array_ref_converter<ValueType, Dimension >::construct,
-                    boost::python::type_id<multi_array_t >());
+                    boost::python::type_id<multi_array_ref_t >());
         }
 
         static
@@ -40,7 +40,7 @@ template<typename ValueType, int Dimension>
             try {
                 shape_t shape;
                 get_shape(object(handle< > (borrowed(obj))), shape);
-                if (multi_array_t::dimensionality != shape.size()) return 0;
+                if (multi_array_ref_t::dimensionality != shape.size()) return 0;
             }
             catch (...) {
                 return 0;
@@ -56,7 +56,7 @@ template<typename ValueType, int Dimension>
             using namespace boost::python;
 
             //get the storage
-            typedef converter::rvalue_from_python_storage<multi_array_t >
+            typedef converter::rvalue_from_python_storage<multi_array_ref_t >
                     storage_t;
             storage_t * the_storage = reinterpret_cast<storage_t * > (data);
             void * memory_chunk = the_storage->storage.bytes;
@@ -65,13 +65,13 @@ template<typename ValueType, int Dimension>
             object py_obj(handle< > (borrowed(obj)));
             shape_t shape;
             get_shape(py_obj, shape);
-            new (memory_chunk) multi_array_t(
+            new (memory_chunk) multi_array_ref_t(
                     reinterpret_cast<ValueType* > (PyArray_DATA(obj)), shape);
             data->convertible = memory_chunk;
         }
 
         static PyObject *
-        convert(const multi_array_t & c_array)
+        convert(const multi_array_ref_t & c_array)
         {
             using namespace boost::python;
             PyObject *retval;
@@ -108,7 +108,7 @@ template<typename ValueType, int Dimension>
     struct numpy_const_multi_array_ref_converter
     {
         typedef boost::const_multi_array_ref<ValueType, Dimension >
-                const_multi_array_t;
+                const_multi_array_ref_t;
         typedef std::vector<std::size_t > shape_t;
 
         static void
@@ -121,7 +121,7 @@ template<typename ValueType, int Dimension>
         static void
         register_to_python()
         {
-            boost::python::to_python_converter<const_multi_array_t,
+            boost::python::to_python_converter<const_multi_array_ref_t,
                     numpy_const_multi_array_ref_converter<ValueType, Dimension > >();
         }
 
@@ -131,7 +131,7 @@ template<typename ValueType, int Dimension>
             boost::python::converter::registry::push_back(
                     &numpy_const_multi_array_ref_converter<ValueType, Dimension >::convertible,
                     &numpy_const_multi_array_ref_converter<ValueType, Dimension >::construct,
-                    boost::python::type_id<const_multi_array_t >());
+                    boost::python::type_id<const_multi_array_ref_t >());
         }
 
         static
@@ -142,7 +142,7 @@ template<typename ValueType, int Dimension>
             try {
                 shape_t shape;
                 get_shape(object(handle< > (borrowed(obj))), shape);
-                if (const_multi_array_t::dimensionality != shape.size()) return 0;
+                if (const_multi_array_ref_t::dimensionality != shape.size()) return 0;
             }
             catch (...) {
                 return 0;
@@ -158,7 +158,7 @@ template<typename ValueType, int Dimension>
             using namespace boost::python;
 
             //get the storage
-            typedef converter::rvalue_from_python_storage<const_multi_array_t >
+            typedef converter::rvalue_from_python_storage<const_multi_array_ref_t >
                     storage_t;
             storage_t * the_storage = reinterpret_cast<storage_t * > (data);
             void * memory_chunk = the_storage->storage.bytes;
@@ -167,13 +167,13 @@ template<typename ValueType, int Dimension>
             object py_obj(handle< > (borrowed(obj)));
             shape_t shape;
             get_shape(py_obj, shape);
-            new (memory_chunk) const_multi_array_t(
+            new (memory_chunk) const_multi_array_ref_t(
                     reinterpret_cast<ValueType* > (PyArray_DATA(obj)), shape);
             data->convertible = memory_chunk;
         }
 
         static PyObject *
-        convert(const const_multi_array_t & c_array)
+        convert(const const_multi_array_ref_t & c_array)
         {
             using namespace boost::python;
             PyObject *retval;
