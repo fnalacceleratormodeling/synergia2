@@ -1,4 +1,5 @@
 #define BOOST_TEST_MAIN
+#include <iostream>
 #include <boost/test/unit_test.hpp>
 #include "synergia/collective/rectangular_grid.h"
 #include "rectangular_grid_domain_fixture.h"
@@ -81,10 +82,16 @@ BOOST_FIXTURE_TEST_CASE(interpolate_coord, Rectangular_grid_domain_fixture)
     
     MArray3d_ref a(rectangular_grid.get_grid_points());
     
+    std::vector<double> cellS(3,0.);
+    for (int k=0; k != 3; k++) cellS[k] = (domain_max - domain_min)/((double) a.shape()[k]);
+    const double left = domain_offset - 0.5*(domain_max - domain_min);
     for (int ix = 0; ix != grid_size0; ix++) {
+      const double x = left +  ix*cellS[0];
       for (int iy = 0; iy != grid_size1; iy++) {
+        const double y = left +  iy*cellS[1];
         for (int iz = 0; iz != grid_size2; iz++) {
-	  a[ix][iy][iz] = 5.0 + ix*2. + iy*iy*3. + iz*iz*iz*4.;
+          const double z = left +  iz*cellS[2];
+	  a[ix][iy][iz] = 5.0 + x*2. + y*y*3. + z*z*z*4.;
 	}
       }
     }
@@ -98,11 +105,7 @@ BOOST_FIXTURE_TEST_CASE(interpolate_coord, Rectangular_grid_domain_fixture)
     // not so trivial 
     //
     std::vector<double> goodCoords(3, domain_offset);
-    std::vector<double> cellS(3,0.);
-    MArray3d_ref grid_points(rectangular_grid.get_grid_points());
-    for (int k=0; k != 3; k++) cellS[k] = (domain_max - domain_min)/((double) grid_points.shape()[k]);
     for (int k=0; k !=3; k++) goodCoords[k] += 0.25*cellS[k];
-    const double left = domain_offset - 0.5*(domain_max - domain_min);
     const double sclX = (goodCoords[0] - left) / cellS[0] - 0.5;
     const double sclY = (goodCoords[1] - left) / cellS[1] - 0.5;
     const double sclZ = (goodCoords[2] - left) / cellS[2] - 0.5;
@@ -124,5 +127,37 @@ BOOST_FIXTURE_TEST_CASE(interpolate_coord, Rectangular_grid_domain_fixture)
        
     BOOST_CHECK_CLOSE(rectangular_grid.get_interpolated_coord(goodCoords[0], goodCoords[1], goodCoords[2]), 
                                          aVal, tolerance);
+    // 
+    // Not so trivial test based on derivatives. 
+    //
+    const double ddx = 1.267*cellS[0];
+    const double ddy = 1.453*cellS[1];
+    const double ddz = 0.234*cellS[2];
+    const double y1 = domain_offset + 0.123*cellS[1];
+    const double z1 = domain_offset + 0.245*cellS[2];
+    const double xx1 = domain_offset - ddx;
+    const double xx2 = domain_offset + ddx;
+    const double dfx1 = (rectangular_grid.get_interpolated_coord(xx2, y1, z1) - 
+                        rectangular_grid.get_interpolated_coord(xx1, y1, z1))/(2.0*ddx);
+			
+    const double dfx1Pred = 2.;
+//    std::cerr << " cell size " << cellS[0] << " f2 " << rectangular_grid.get_interpolated_coord(xx2, y1, z1)
+//                               << " f1 " << rectangular_grid.get_interpolated_coord(xx1, y1, z1) 
+//			       << " dfx1 " << dfx1 << " Pred " << dfx1Pred << std::endl;
+    BOOST_CHECK_CLOSE(dfx1, dfx1Pred,  0.1);
+    //
+    //			
+    const double x1 = domain_offset + 0.1*cellS[0];
+    const double yy1 = domain_offset - ddy;
+    const double yy2 = domain_offset + ddy;
+    const double dfy1 = (rectangular_grid.get_interpolated_coord(x1, yy2, z1) - 
+                        rectangular_grid.get_interpolated_coord(x1, yy1, z1))/(2.0*ddy);
+			
+    const double dfy1Pred = 6.*domain_offset;
+//    std::cerr << " cell size " << cellS[1] << " f2 " << rectangular_grid.get_interpolated_coord(x1, yy2, z1)
+//                               << " f1 " << rectangular_grid.get_interpolated_coord(x1, yy1, z1) << std::endl;
+    BOOST_CHECK_CLOSE(dfy1, dfy1Pred,  5.); // nonlinearities on discrete lattice. .. 
+    //
+    
     
 }
