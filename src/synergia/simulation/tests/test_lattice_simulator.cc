@@ -273,6 +273,35 @@ BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map, Foborodobo32_fixture)
   }
 }
 
+BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map_after_get_tunes, Foborodobo32_fixture)
+{
+  const int map_order = 5;
+  const double tolerance = 1.0e-10;
+  Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+  // This test fails before update() is added to the get_xxxxx_tune() routine.
+  const double expected_tune = 0.224126196916268;
+  double horizontal_tune = lattice_simulator.get_horizontal_tune();
+  BOOST_CHECK_CLOSE(horizontal_tune, expected_tune, tolerance);
+
+  const double precalc_map[6][6] =
+    {
+      {-2.19357726128732,32.9385414827834,0,0,-5.62169337392918e-05,2.1037055586748},
+      {-0.198001573221548,2.51726768373267,0,0,-3.53019959335299e-05,0.225092380126584},
+      {0,0,1.07033464770303,1.26550130626506,0,0},
+      {0,0,-0.043725938974272,0.882588234565397,0,0},
+      {-0.077644019330161,2.12631144692458,0,0,0.996935702805962,4.9072335958152},
+      {-1.78674162102745e-05,-0.000311185657541453,0,0,-0.000628318530717954,1.00004300477563}
+    };
+
+  MArray2d gotten_map(lattice_simulator.get_linear_one_turn_map());
+  for (int i=0; i<6; ++i) {
+    for (int j=0; j<6; ++j) {
+      BOOST_CHECK(floating_point_equal(gotten_map[i][j], precalc_map[i][j],tolerance));
+    }
+  }
+}
+
 BOOST_FIXTURE_TEST_CASE(is_ring, Foborodobo32_fixture)
 {
   const int map_order = 5;
