@@ -108,6 +108,8 @@ public:
     get_lattice_functions(Lattice_element & lattice_element);
     Lattice_functions const&
     get_lattice_functions(Lattice_element_slice & lattice_element_slice);
+    std::pair<double, double>
+    get_both_tunes();
     double
     get_horizontal_tune();
     double

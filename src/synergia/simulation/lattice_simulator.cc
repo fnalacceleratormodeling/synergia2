@@ -551,10 +551,20 @@ Lattice_simulator::get_linear_one_turn_map()
   return linear_one_turn_map;
 }
 
+// this method should be used instead of the get_horizontal_tune() and get_vertical_tune()
+std::pair<double, double>
+Lattice_simulator::get_both_tunes()
+{
+    get_tunes();
+    update(); // remake CHEF beamline to restore RF turned off by getHorizontalFracTune()
+    return std::pair<double, double>(horizontal_tune, vertical_tune);
+}
+
 double
 Lattice_simulator::get_horizontal_tune()
 {
     get_tunes();
+    update(); // remake CHEF beamline to restore RF turned off by getHorizontalFracTune()
     return horizontal_tune;
 }
 
@@ -562,6 +572,7 @@ double
 Lattice_simulator::get_vertical_tune()
 {
     get_tunes();
+    update(); // remake CHEF beamline to restore RF turned off by getHorizontalFracTune()
     return vertical_tune;
 }
 
