@@ -220,6 +220,9 @@ BOOST_FIXTURE_TEST_CASE(get_tunes, Fobodobo_sbend_fixture)
             expected_horizontal_tune, tolerance);
     BOOST_CHECK_CLOSE(lattice_simulator.get_vertical_tune(),
             expected_vertical_tune, tolerance);
+    std::pair<double, double>the_tunes = lattice_simulator.get_both_tunes();
+    BOOST_CHECK_CLOSE(the_tunes.first, expected_horizontal_tune, tolerance);
+    BOOST_CHECK_CLOSE(the_tunes.second, expected_vertical_tune, tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(adjust_tunes, Fobodobo_sbend_fixture)
