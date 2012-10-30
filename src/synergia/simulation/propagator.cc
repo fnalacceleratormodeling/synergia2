@@ -19,7 +19,16 @@ const std::string Propagator::alt_stop_file_name = "STOPTHISTIMEIMEANIT";
 Propagator::State::State(Bunch_simulator * bunch_simulator_ptr,
         Propagate_actions * propagate_actions_ptr, int num_turns,
         int first_turn, int max_turns, int verbosity) :
-    bunch_simulator_ptr(bunch_simulator_ptr),
+    bunch_simulator_ptr(bunch_simulator_ptr), bunch_train_simulator_ptr(0),
+            propagate_actions_ptr(propagate_actions_ptr), num_turns(num_turns),
+            first_turn(first_turn), max_turns(max_turns), verbosity(verbosity)
+{
+}
+
+Propagator::State::State(Bunch_train_simulator * bunch_train_simulator_ptr,
+        Propagate_actions * propagate_actions_ptr, int num_turns,
+        int first_turn, int max_turns, int verbosity) :
+    bunch_simulator_ptr(0), bunch_train_simulator_ptr(bunch_train_simulator_ptr),
             propagate_actions_ptr(propagate_actions_ptr), num_turns(num_turns),
             first_turn(first_turn), max_turns(max_turns), verbosity(verbosity)
 {
@@ -30,6 +39,7 @@ template<class Archive>
     Propagator::State::serialize(Archive & ar, const unsigned int version)
     {
         ar & BOOST_SERIALIZATION_NVP(bunch_simulator_ptr);
+        ar & BOOST_SERIALIZATION_NVP(bunch_train_simulator_ptr);
         ar & BOOST_SERIALIZATION_NVP(propagate_actions_ptr);
         ar & BOOST_SERIALIZATION_NVP(num_turns);
         ar & BOOST_SERIALIZATION_NVP(first_turn);

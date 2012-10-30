@@ -26,12 +26,16 @@ public:
     struct State
     {
         Bunch_simulator * bunch_simulator_ptr;
+        Bunch_train_simulator * bunch_train_simulator_ptr;
         Propagate_actions * propagate_actions_ptr;
         int num_turns;
         int first_turn;
         int max_turns;
         int verbosity;
         State(Bunch_simulator * bunch_simulator_ptr,
+                Propagate_actions * propagate_actions_ptr, int num_turns,
+                int first_turn, int max_turns, int verbosity);
+        State(Bunch_train_simulator * bunch_train_simulator_ptr,
                 Propagate_actions * propagate_actions_ptr, int num_turns,
                 int first_turn, int max_turns, int verbosity);
         State()
