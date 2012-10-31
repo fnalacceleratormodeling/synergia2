@@ -297,6 +297,9 @@ BOOST_PYTHON_MODULE(simulation)
     Aperture_operation_extractor_map_.def("get_extractor_names",
             &Aperture_operation_extractor_map::get_extractor_names);
 
+    to_python_converter <std::pair<double,double >,
+    container_conversions::PairToTupleConverter<double, double > >();
+
     class_<Lattice_simulator >("Lattice_simulator",
             init<Lattice_sptr, int >())
         .def("set_slices",
@@ -324,6 +327,7 @@ BOOST_PYTHON_MODULE(simulation)
                 return_value_policy<copy_const_reference >())
         .def("get_horizontal_tune", &Lattice_simulator::get_horizontal_tune)
         .def("get_vertical_tune", &Lattice_simulator::get_vertical_tune)
+        .def("get_both_tunes", &Lattice_simulator::get_both_tunes)
         .def("adjust_tunes", &Lattice_simulator::adjust_tunes)
       .def("is_ring", &Lattice_simulator::is_ring)
       .def("get_linear_one_turn_map", &Lattice_simulator::get_linear_one_turn_map)

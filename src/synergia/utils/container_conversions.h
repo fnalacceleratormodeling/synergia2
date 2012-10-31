@@ -269,6 +269,12 @@ typedef                typename ContainerType::const_iterator const_iter;
             }
         };
 
+        template<class T1, class T2>
+        struct PairToTupleConverter {
+          static PyObject* convert(const std::pair<T1, T2>& pair) {
+            return incref(make_tuple(pair.first, pair.second).ptr());
+          }
+        };
     }
 
 #endif /* CONTAINER_CONVERSIONS_H_ */
