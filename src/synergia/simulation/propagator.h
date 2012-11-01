@@ -54,10 +54,19 @@ private:
     int concurrent_io;
   bool final_checkpoint;
 
-    void
-    construct();
-    void
-    checkpoint(State & state, Logger & logger, double & t);
+	void
+	construct();
+	void
+	do_before_start(State & state, double & t, Logger & logger);
+	void
+	do_step(Step & step, int step_count, int num_steps, int turn, State & state,
+			double & t, Logger & logger);
+	bool
+	check_out_of_particles(State & state, Logger & logger);
+	void
+	checkpoint(State & state, Logger & logger, double & t);
+	void
+	do_turn_end(int turn, State & state, double & t, double t_turn0, Logger & logger);
 public:
     Propagator(Stepper_sptr stepper_sptr);
 
@@ -115,15 +124,14 @@ public:
             Propagate_actions & general_actions, int num_turns,
             int max_turns = 0, int verbosity = 1);
 
-#if 0
     void
-    propagate(Bunch_with_diagnostics_train & bunch_diag_train, int num_turns,
-            bool verbose = false);
+    propagate(Bunch_train_simulator & bunch_train_simulator, int num_turns,
+            int max_turns = 0, int verbosity = 1);
 
     void
-    propagate(Bunch_with_diagnostics_train & bunch_diag_train, int num_turns,
-            Propagate_actions & general_actions, bool verbose = true);
-#endif
+    propagate(Bunch_train_simulator & bunch_train_simulator,
+            Propagate_actions & general_actions, int num_turns,
+            int max_turns = 0, int verbosity = 1);
 
     template<class Archive>
         void

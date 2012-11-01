@@ -154,25 +154,92 @@ Propagator::get_concurrent_io() const
 }
 
 void
+Propagator::do_before_start(State & state, double & t, Logger & logger) {
+    if (state.first_turn == 0) {
+        state.bunch_simulator_ptr->get_diagnostics_actions().first_action(
+                *stepper_sptr, *(state.bunch_simulator_ptr->get_bunch_sptr()));
+        t = simple_timer_show(t, "diagnostics_first");
+        state.propagate_actions_ptr->first_action(*stepper_sptr,
+        		*(state.bunch_simulator_ptr->get_bunch_sptr()));
+        t = simple_timer_show(t, "propagate-general_actions");
+    }
+}
+
+void
+Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
+		Propagator::State & state, double & t, Logger & logger) {
+    Bunch & bunch(*(state.bunch_simulator_ptr->get_bunch_sptr()));
+    double t_step0 = MPI_Wtime();
+    step.apply(bunch, state.verbosity, logger);
+    /// apply with diagnostics only for testing purposes
+    //(*it)->apply(*bunch_sptr, bunch_simulator.get_per_step_diagnostics());
+    t = simple_timer_current();
+    state.bunch_simulator_ptr->get_diagnostics_actions().step_end_action(
+            *stepper_sptr, step, bunch, turn, step_count);
+    t = simple_timer_show(t, "diagnostics-step");
+    state.propagate_actions_ptr->step_end_action(*stepper_sptr,
+            step, bunch, turn, step_count);
+    t = simple_timer_show(t, "propagate-general_actions-step");
+    double t_step1 = MPI_Wtime();
+    if (state.verbosity > 1) {
+        logger << "Propagator:";
+        logger << "     step " << std::setw(digits(num_steps))
+                << step_count << "/" << num_steps;
+        logger << ", macroparticles = "
+                << state.bunch_simulator_ptr->get_bunch().get_total_num();
+        logger << ", time = " << std::fixed << std::setprecision(3)
+                << t_step1 - t_step0 << "s";
+        logger << std::endl;
+    }
+}
+
+bool
+Propagator::check_out_of_particles(State & state, Logger & logger) {
+	bool retval = false;
+	if (state.bunch_simulator_ptr->get_bunch().get_total_num() == 0) {
+		logger
+				<< "Propagator::propagate: No particles left in bunch. Exiting.\n";
+		retval = true;
+	}
+	return retval;
+}
+
+void
+Propagator::do_turn_end(int turn, State & state, double & t, double t_turn0,
+		Logger & logger) {
+	t = simple_timer_current();
+	state.bunch_simulator_ptr->get_diagnostics_actions().turn_end_action(
+			*stepper_sptr, state.bunch_simulator_ptr->get_bunch(), turn);
+	t = simple_timer_show(t, "diagnostics-turn");
+	state.propagate_actions_ptr->turn_end_action(*stepper_sptr,
+			state.bunch_simulator_ptr->get_bunch(),
+			turn);
+	t = simple_timer_show(t, "propagate-general_actions-turn");
+	state.first_turn = turn + 1;
+	double t_turn1 = MPI_Wtime();
+	if (state.verbosity > 0) {
+		logger << "Propagator:";
+		logger << " turn " << std::setw(digits(state.num_turns)) << turn + 1
+				<< "/" << state.num_turns;
+		logger << ", macroparticles = "
+				<< state.bunch_simulator_ptr->get_bunch().get_total_num();
+		logger << ", time = " << std::fixed << std::setprecision(2)
+				<< t_turn1 - t_turn0 << "s";
+		logger << std::endl;
+	}
+}
+
+void
 Propagator::propagate(State & state)
 {
     try {
         Logger logger(0, log_file_name);
-        double t, t_total;
-        double t_turn0, t_turn1;
-
-        t_total = simple_timer_current();
-        int rank = Commxx().get_rank();
         Bunch_sptr bunch_sptr = state.bunch_simulator_ptr->get_bunch_sptr();
-        t = simple_timer_current();
-        if (state.first_turn == 0) {
-            state.bunch_simulator_ptr->get_diagnostics_actions().first_action(
-                    *stepper_sptr, *bunch_sptr);
-            t = simple_timer_show(t, "diagnostics_first");
-            state.propagate_actions_ptr->first_action(*stepper_sptr,
-                    *bunch_sptr);
-            t = simple_timer_show(t, "propagate-general_actions");
-        }
+        double t_total = simple_timer_current();
+        double t = simple_timer_current();
+
+        do_before_start(state, t, logger);
+
         int turns_since_checkpoint = 0;
         int orig_first_turn = state.first_turn;
         bool out_of_particles = false;
@@ -181,69 +248,25 @@ Propagator::propagate(State & state)
                     << std::endl;
         }
         for (int turn = state.first_turn; turn < state.num_turns; ++turn) {
-            t_turn0 = MPI_Wtime();
+            double t_turn0 = MPI_Wtime();
             bunch_sptr->get_reference_particle().start_repetition();
             int step_count = 0;
             int num_steps = stepper_sptr->get_steps().size();
             for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
                     != stepper_sptr->get_steps().end(); ++it) {
                 ++step_count;
-                double t_step0, t_step1;
-                t_step0 = MPI_Wtime();
-                (*it)->apply(*bunch_sptr, state.verbosity, logger);
-                /// apply with diagnostics only for testing purposes
-                //(*it)->apply(*bunch_sptr, bunch_simulator.get_per_step_diagnostics());
-                t = simple_timer_current();
-                state.bunch_simulator_ptr->get_diagnostics_actions().step_end_action(
-                        *stepper_sptr, *(*it), *bunch_sptr, turn, step_count);
-                t = simple_timer_show(t, "diagnostics-step");
-                state.propagate_actions_ptr->step_end_action(*stepper_sptr,
-                        *(*it), *bunch_sptr, turn, step_count);
-                t = simple_timer_show(t, "propagate-general_actions-step");
-                t_step1 = MPI_Wtime();
-                if (state.verbosity > 1) {
-                    logger << "Propagator:";
-                    logger << "     step " << std::setw(digits(num_steps))
-                            << step_count << "/" << num_steps;
-                    logger << ", macroparticles = "
-                            << state.bunch_simulator_ptr->get_bunch().get_total_num();
-                    logger << ", time = " << std::fixed << std::setprecision(3)
-                            << t_step1 - t_step0 << "s";
-                    logger << std::endl;
-                }
-                if (state.bunch_simulator_ptr->get_bunch().get_total_num() == 0) {
-                    if (rank == 0) {
-                        std::cout
-                                << "Propagator::propagate: No particles left in bunch. Exiting.\n";
-                    }
-                    out_of_particles = true;
+            	do_step(*(*it), step_count, num_steps, turn, state, t, logger);
+                out_of_particles = check_out_of_particles(state, logger);
+                if (out_of_particles) {
                     break;
                 }
             }
             if (out_of_particles) {
                 break;
             }
-            t = simple_timer_current();
 
-            state.bunch_simulator_ptr->get_diagnostics_actions().turn_end_action(
-                    *stepper_sptr, *bunch_sptr, turn);
-            t = simple_timer_show(t, "diagnostics-turn");
-            state.propagate_actions_ptr->turn_end_action(*stepper_sptr,
-                    *bunch_sptr, turn);
-            t = simple_timer_show(t, "propagate-general_actions-turn");
-            state.first_turn = turn + 1;
-            t_turn1 = MPI_Wtime();
-            if (state.verbosity > 0) {
-                logger << "Propagator:";
-                logger << " turn " << std::setw(digits(state.num_turns))
-                        << turn + 1 << "/" << state.num_turns;
-                logger << ", macroparticles = "
-                        << state.bunch_simulator_ptr->get_bunch().get_total_num();
-                logger << ", time = " << std::fixed << std::setprecision(2)
-                        << t_turn1 - t_turn0 << "s";
-                logger << std::endl;
-            }
             ++turns_since_checkpoint;
+            do_turn_end(turn, state, t, t_turn0, logger);
             if ((turns_since_checkpoint == checkpoint_period) || ((turn
 								   == (state.num_turns - 1)) && final_checkpoint)) {
                 checkpoint(state, logger, t);
@@ -383,105 +406,24 @@ Propagator::propagate(Bunch_simulator & bunch_simulator,
     propagate(state);
 }
 
-#if 0
 void
-Propagator::propagate(Bunch_with_diagnostics_train & bunch_diag_train,
-        int num_turns, bool verbose)
+Propagator::propagate(Bunch_train_simulator & bunch_train_simulator, int num_turns,
+        int max_turns, int verbosity)
 {
     Propagate_actions empty_propagate_actions;
-    propagate(bunch_diag_train, num_turns, empty_propagate_actions, verbose);
+    propagate(bunch_train_simulator, empty_propagate_actions, num_turns, max_turns,
+            verbosity);
 }
 
 void
-Propagator::propagate(Bunch_with_diagnostics_train & bunch_diag_train,
-        int num_turns, Propagate_actions & general_actions, bool verbose)
+Propagator::propagate(Bunch_train_simulator & bunch_train_simulator,
+        Propagate_actions & general_actions, int num_turns, int max_turns,
+        int verbosity)
 {
-
-    try {
-        int rank = Commxx().get_rank();
-        double t_turn, t_turn1;
-
-        std::ofstream logfile;
-        if (rank == 0) logfile.open("log");
-        for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {
-            if (bunch_diag_train.is_on_this_rank(index)) {
-                Bunch_sptr bunch_sptr = bunch_diag_train.get_bunch_diag_sptr(
-                        index)->get_bunch_sptr();
-                bunch_diag_train.get_bunch_diag_sptr(index)->get_diagnostics_actions_sptr()->first_action(
-                        *stepper_sptr, *bunch_sptr);
-                general_actions.first_action(*stepper_sptr, *bunch_sptr);
-            }
-        }
-
-        for (int turn = 0; turn < num_turns; ++turn) {
-            t_turn = MPI_Wtime();
-            if (verbose) {
-                if (rank == 0) {
-                    std::cout << "Propagator: turn " << turn + 1 << "/"
-                    << num_turns << std::endl;
-                }
-            }
-
-            for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {
-                if (bunch_diag_train.is_on_this_rank(index)) {
-                    bunch_diag_train.get_bunch_diag_sptr(index)->get_bunch_sptr()->get_reference_particle().start_repetition();
-                }
-            }
-
-            int step_count = 0;
-            int num_steps = stepper_sptr->get_steps().size();
-            for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
-                    != stepper_sptr->get_steps().end(); ++it) {
-                ++step_count;
-                if (verbose) {
-                    if (rank == 0) {
-                        std::cout << "Propagator:   step " << step_count << "/"
-                        << num_steps << std::endl;
-                    }
-                }
-                (*it)->apply(bunch_diag_train);
-                for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {
-                    if (bunch_diag_train.is_on_this_rank(index)) {
-                        Bunch_sptr
-                        bunch_sptr =
-                        bunch_diag_train.get_bunch_diag_sptr(
-                                index)->get_bunch_sptr();
-                        bunch_diag_train.get_bunch_diag_sptr(index)->get_diagnostics_actions_sptr() ->step_end_action(
-                                *stepper_sptr, *(*it), *bunch_sptr, turn,
-                                step_count);
-                        general_actions.step_end_action(*stepper_sptr, *(*it),
-                                *bunch_sptr, turn, step_count);
-                    }
-                }
-            }
-            t_turn1 = MPI_Wtime();
-            if (rank == 0) {
-                logfile << " turn " << turn + 1 << " : " << t_turn1 - t_turn
-                << " \n";
-                std::cout << "  turn " << turn + 1 << " : " << t_turn1 - t_turn
-                << std::endl;
-                logfile.flush();
-            }
-            for (int index = 0; index < bunch_diag_train.get_num_bunches(); ++index) {
-                if (bunch_diag_train.is_on_this_rank(index)) {
-                    Bunch_sptr
-                    bunch_sptr = bunch_diag_train.get_bunch_diag_sptr(
-                            index)->get_bunch_sptr();
-                    bunch_diag_train.get_bunch_diag_sptr(index)->get_diagnostics_actions_sptr() ->turn_end_action(
-                            *stepper_sptr, *bunch_sptr, turn);
-                    general_actions.turn_end_action(*stepper_sptr, *bunch_sptr,
-                            turn);
-                }
-            }
-        }
-        if (rank == 0) logfile.close();
-    }
-    catch (std::exception const& e) {
-        std::cout << e.what() << std::endl;
-        MPI_Abort(MPI_COMM_WORLD, 888);
-    }
+    State state(&bunch_train_simulator, &general_actions, num_turns, 0, max_turns,
+            verbosity);
+    propagate(state);
 }
-#endif
 
 template<class Archive>
     void
