@@ -61,6 +61,8 @@ private:
 	void
 	do_step(Step & step, int step_count, int num_steps, int turn, State & state,
 			double & t, Logger & logger);
+	void
+	do_start_repetition(State & state);
 	bool
 	check_out_of_particles(State & state, Logger & logger);
 	void

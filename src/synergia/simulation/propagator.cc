@@ -166,6 +166,21 @@ Propagator::do_before_start(State & state, double & t, Logger & logger) {
 }
 
 void
+Propagator::do_start_repetition(State & state)
+{
+    if (state.bunch_simulator_ptr) {
+        state.bunch_simulator_ptr->get_bunch_sptr()->get_reference_particle().start_repetition();
+    } else {
+        Bunches & bunches(
+                state.bunch_train_simulator_ptr->get_bunch_train().get_bunches());
+        for (Bunches::iterator it = bunches.begin(); it != bunches.end();
+                ++it) {
+            (*it)->get_reference_particle().start_repetition();
+        }
+    }
+}
+
+void
 Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
 		Propagator::State & state, double & t, Logger & logger) {
     Bunch & bunch(*(state.bunch_simulator_ptr->get_bunch_sptr()));
@@ -234,7 +249,6 @@ Propagator::propagate(State & state)
 {
     try {
         Logger logger(0, log_file_name);
-        Bunch_sptr bunch_sptr = state.bunch_simulator_ptr->get_bunch_sptr();
         double t_total = simple_timer_current();
         double t = simple_timer_current();
 
@@ -249,7 +263,7 @@ Propagator::propagate(State & state)
         }
         for (int turn = state.first_turn; turn < state.num_turns; ++turn) {
             double t_turn0 = MPI_Wtime();
-            bunch_sptr->get_reference_particle().start_repetition();
+            do_start_repetition(state);
             int step_count = 0;
             int num_steps = stepper_sptr->get_steps().size();
             for (Steps::const_iterator it = stepper_sptr->get_steps().begin(); it
@@ -264,7 +278,6 @@ Propagator::propagate(State & state)
             if (out_of_particles) {
                 break;
             }
-
             ++turns_since_checkpoint;
             do_turn_end(turn, state, t, t_turn0, logger);
             if ((turns_since_checkpoint == checkpoint_period) || ((turn
