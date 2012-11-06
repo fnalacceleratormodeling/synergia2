@@ -25,7 +25,7 @@ install(FILES
     space_charge_rectangular.h
     impedance.h
     ecloud_from_vorpal.h
-    ecloud_Field_vorpal2d.h
+    ecloud_field_vorpal2d.h
     DESTINATION include/synergia/collective)
 if (BUILD_PYTHON_BINDINGS)
     install(FILES
