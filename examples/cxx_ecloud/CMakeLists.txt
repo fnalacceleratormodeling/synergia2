@@ -1,5 +1,5 @@
-add_executable(cxx_example cxx_example.cc)
-target_link_libraries(cxx_example synergia_simulation synergia_collective)
+add_executable(cxx_ecloudexample cxx_example.cc)
+target_link_libraries(cxx_ecloudexample synergia_simulation synergia_collective)
 
 set(CLEAN_FILES
     cxx_covariance_matrix.xml
