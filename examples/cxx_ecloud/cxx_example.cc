@@ -14,11 +14,15 @@
 #include "synergia/bunch/diagnostics_basic.h"
 #include "synergia/bunch/diagnostics_full2.h"
 #include "synergia/collective/space_charge_3d_open_hockney.h"
-
+#include "synergia/collective/ecloud_from_vorpal.h"
+//
+// test example for e-cloud collective effect. Cloned and adapted from cxx_test.cc 
+// 
+ 
 // We put the actual code in a separate function so that shared_ptr's can
 // be cleanup up properly before we call MPI_Finalize.
 void
-run()
+run(bool do_space_charge, bool do_ecloud, const std::string &file_name_ecloud)
 {
     std::vector<int > grid_shape(3);
     grid_shape[0] = 32;
@@ -38,18 +42,38 @@ run()
         xml_load(*lattice_sptr, "cxx_lattice.xml");
     }
     catch (std::runtime_error) {
-        std::cerr << "cxx_example: failed to find cxx_lattice.xml\n";
-        std::cerr << "Run cxx_example.py to generate cxx_lattice.xml\n";
+        std::cerr << "cxx_ecloudexample: failed to find cxx_lattice.xml\n";
+        std::cerr << "Run cxx_ecloudexample.py to generate cxx_lattice.xml\n";
         exit(1);
     }
+    Split_operator_stepper_sptr stepper_sptr;
+    
     Commxx_sptr commxx_per_host_sptr(new Commxx(true));
-    Space_charge_3d_open_hockney_sptr space_charge_sptr(
-            new Space_charge_3d_open_hockney(commxx_per_host_sptr, grid_shape));
-    space_charge_sptr->set_charge_density_comm(Space_charge_3d_open_hockney::charge_allreduce);
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-    Split_operator_stepper_sptr stepper_sptr(
-            new Split_operator_stepper(lattice_simulator, space_charge_sptr,
-                    num_steps));
+    
+    if (do_space_charge && (!do_ecloud)) {
+      Space_charge_3d_open_hockney_sptr space_charge_sptr(
+            new Space_charge_3d_open_hockney(commxx_per_host_sptr, grid_shape));
+      space_charge_sptr->set_charge_density_comm(Space_charge_3d_open_hockney::charge_allreduce);
+      stepper_sptr = Split_operator_stepper_sptr(new Split_operator_stepper(lattice_simulator, space_charge_sptr, num_steps));
+    } else if ((!do_space_charge) && (do_ecloud)) {
+      std::cerr << " About to instantiate the collective operator for e cloud from file " << file_name_ecloud << std::endl;
+      Ecloud_from_vorpal_sptr  e_cloud_sptr(new Ecloud_from_vorpal(commxx_per_host_sptr, file_name_ecloud));
+      stepper_sptr = Split_operator_stepper_sptr(new Split_operator_stepper(lattice_simulator, e_cloud_sptr, num_steps));
+    }else if (do_space_charge && do_ecloud) {    
+      Space_charge_3d_open_hockney_sptr space_charge_sptr(
+            new Space_charge_3d_open_hockney(commxx_per_host_sptr, grid_shape));
+      space_charge_sptr->set_charge_density_comm(Space_charge_3d_open_hockney::charge_allreduce);
+      Ecloud_from_vorpal_sptr  e_cloud_sptr(new Ecloud_from_vorpal(commxx_per_host_sptr, file_name_ecloud));
+      Collective_operators two_ops;
+      two_ops.push_back(space_charge_sptr);
+      two_ops.push_back(e_cloud_sptr);       
+      stepper_sptr = Split_operator_stepper_sptr(new Split_operator_stepper(lattice_simulator, two_ops, num_steps));
+    } else {
+       std::cerr << " We not doing space charge nor e cloud... Confusing.. No collective to do, quit " << std::endl;
+       exit(1);
+     }	    
+		    
     Propagator propagator(stepper_sptr);
 
     Commxx_sptr comm_sptr(new Commxx);
@@ -82,8 +106,11 @@ run()
 int
 main(int argc, char **argv)
 {
+    bool do_space_charge = false;
+    bool do_ecloud = true;    
     MPI_Init(&argc, &argv);
-    run();
+    std::string name=std::string("/data/lebrun/Synergia/ECloudMaps/Efield_MI2D-S2-V2f-a7.bin");    
+    run(do_space_charge, do_ecloud, name);
     MPI_Finalize();
     return 0;
 }
