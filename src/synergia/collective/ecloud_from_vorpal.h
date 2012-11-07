@@ -18,7 +18,7 @@ private:
 public: 
     // Constructor takes a comm pointer, the file name where the Field is, and a a device Name. 
     // if none provided, assume the entire ring is subjected to the e-cloud. 
-    Ecloud_from_vorpal(Commxx_sptr comm_sptr, std::string &file_name_archive, const std::string aDeviceName=std::string("all")); 
+    Ecloud_from_vorpal(Commxx_sptr comm_sptr, const std::string &file_name_archive, const std::string aDeviceName=std::string("all")); 
     Ecloud_from_vorpal(); // Empty collective operator 
     
     virtual void
