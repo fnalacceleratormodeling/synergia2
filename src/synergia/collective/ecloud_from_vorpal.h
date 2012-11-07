@@ -36,3 +36,6 @@ public:
     inline void add_device(const std::string &device) { subjectedDevices.push_back(device);}						    					   
 };
 #endif // ECLOUD_FROM_VORPAL_H
+BOOST_CLASS_EXPORT_KEY(Ecloud_from_vorpal)
+
+typedef boost::shared_ptr<Ecloud_from_vorpal > Ecloud_from_vorpal_sptr;
