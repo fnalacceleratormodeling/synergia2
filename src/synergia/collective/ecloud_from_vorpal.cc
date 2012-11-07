@@ -11,7 +11,7 @@ field_name("blank")
 ;
 }
 Ecloud_from_vorpal::Ecloud_from_vorpal(Commxx_sptr comm_sptr_in, 
-                                       std::string &f_name_archive, const std::string aDeviceName):
+                                       const std::string &f_name_archive, const std::string aDeviceName):
 file_name_archive(f_name_archive),
 comm_sptr(comm_sptr_in),
 e_field(comm_sptr_in, f_name_archive.c_str()),
