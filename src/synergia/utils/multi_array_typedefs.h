@@ -3,6 +3,7 @@
 
 #include <complex>
 #include "boost/multi_array.hpp"
+#include "boost/shared_array.hpp"
 
 typedef boost::multi_array_types::index_range range;
 typedef boost::multi_array_types::extent_range extent_range;
@@ -12,7 +13,7 @@ template<typename T, size_t N_dims>
     {
         boost::const_multi_array_ref<T, N_dims > * dummy;
         typedef typename boost::const_multi_array_ref<T, N_dims >::storage_order_type storage_order_type;
-        T * p;
+        boost::shared_array<T > p;
         boost::multi_array_ref<T, N_dims > m;
         template<class ExtentList>
             explicit
@@ -21,13 +22,12 @@ template<typename T, size_t N_dims>
                     dummy(
                             new boost::const_multi_array_ref<T, N_dims >(
                                     static_cast<T* >(0L), extents, store)), p(
-                            new T[dummy->num_elements()]), m(p, extents)
+                            new T[dummy->num_elements()]), m(p.get(), extents)
             {
                 delete dummy;
             }
         ~Raw_multi_array()
         {
-            delete[] p;
         }
     };
 
