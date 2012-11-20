@@ -32,9 +32,9 @@ run(bool do_space_charge, bool do_ecloud, const std::string &file_name_ecloud)
     const int num_macro_particles = grid_shape[0] * grid_shape[1]
             * grid_shape[2] * part_per_cell;
     const int seed = 4;
-    const double num_real_particles = 1e13;
+    const double num_real_particles = 3e13;
     const int num_steps = 8;
-    const int num_turns = 4;
+    const int num_turns = 50;
     const int map_order = 2;
 
     Lattice_sptr lattice_sptr(new Lattice());
@@ -46,21 +46,25 @@ run(bool do_space_charge, bool do_ecloud, const std::string &file_name_ecloud)
         std::cerr << "Run cxx_ecloudexample.py to generate cxx_lattice.xml\n";
         exit(1);
     }
-    Split_operator_stepper_sptr stepper_sptr;
+    Stepper_sptr stepper_sptr;
     
     Commxx_sptr commxx_per_host_sptr(new Commxx(true));
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+    std::string file_name_out("./cxx_eCloud_");
     
     if (do_space_charge && (!do_ecloud)) {
+      file_name_out += std::string("SpaceChargeMD");
       Space_charge_3d_open_hockney_sptr space_charge_sptr(
             new Space_charge_3d_open_hockney(commxx_per_host_sptr, grid_shape));
       space_charge_sptr->set_charge_density_comm(Space_charge_3d_open_hockney::charge_allreduce);
       stepper_sptr = Split_operator_stepper_sptr(new Split_operator_stepper(lattice_simulator, space_charge_sptr, num_steps));
     } else if ((!do_space_charge) && (do_ecloud)) {
+      file_name_out += std::string("ECloud");
       std::cerr << " About to instantiate the collective operator for e cloud from file " << file_name_ecloud << std::endl;
       Ecloud_from_vorpal_sptr  e_cloud_sptr(new Ecloud_from_vorpal(commxx_per_host_sptr, file_name_ecloud));
       stepper_sptr = Split_operator_stepper_sptr(new Split_operator_stepper(lattice_simulator, e_cloud_sptr, num_steps));
     }else if (do_space_charge && do_ecloud) {    
+      file_name_out += std::string("SpaceChargeMDECloud");
       Space_charge_3d_open_hockney_sptr space_charge_sptr(
             new Space_charge_3d_open_hockney(commxx_per_host_sptr, grid_shape));
       space_charge_sptr->set_charge_density_comm(Space_charge_3d_open_hockney::charge_allreduce);
@@ -70,10 +74,12 @@ run(bool do_space_charge, bool do_ecloud, const std::string &file_name_ecloud)
       two_ops.push_back(e_cloud_sptr);       
       stepper_sptr = Split_operator_stepper_sptr(new Split_operator_stepper(lattice_simulator, two_ops, num_steps));
     } else {
-       std::cerr << " We not doing space charge nor e cloud... Confusing.. No collective to do, quit " << std::endl;
-       exit(1);
+       file_name_out += std::string("none");
+       stepper_sptr = Stepper_sptr(new Stepper(lattice_simulator));
      }	    
-		    
+     
+    file_name_out += std::string(".h5");
+    	    
     Propagator propagator(stepper_sptr);
 
     Commxx_sptr comm_sptr(new Commxx);
@@ -88,12 +94,14 @@ run(bool do_space_charge, bool do_ecloud, const std::string &file_name_ecloud)
     populate_6d(distribution, *bunch_sptr, means, covariances);
 
     Bunch_simulator bunch_simulator(bunch_sptr);
-    bunch_simulator.get_diagnostics_actions().add_per_step(
-            Diagnostics_sptr(
-                    new Diagnostics_basic("cxx_example_per_step.h5")));
+//    bunch_simulator.get_diagnostics_actions().add_per_step(
+//            Diagnostics_sptr(
+//                    new Diagnostics_basic("cxx_example_per_step.h5")));
     bunch_simulator.get_diagnostics_actions().add_per_turn(
             Diagnostics_sptr(
-                    new Diagnostics_full2("cxx_example_per_turn.h5")));
+                    new Diagnostics_full2(file_name_out.c_str())));
+    propagator.set_checkpoint_period(20000000);
+    propagator.set_final_checkpoint(false);
     double t0 = MPI_Wtime();
     const int max_turns = 0;
     const int verbosity = 2;
@@ -106,7 +114,7 @@ run(bool do_space_charge, bool do_ecloud, const std::string &file_name_ecloud)
 int
 main(int argc, char **argv)
 {
-    bool do_space_charge = false;
+    bool do_space_charge = true;
     bool do_ecloud = true;    
     MPI_Init(&argc, &argv);
     std::string name=std::string("/data/lebrun/Synergia/ECloudMaps/Efield_MI2D-S2-V2f-a7.bin");    
