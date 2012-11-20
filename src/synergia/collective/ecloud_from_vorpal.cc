@@ -27,7 +27,9 @@ Ecloud_from_vorpal::~Ecloud_from_vorpal() { ; }
 void Ecloud_from_vorpal::apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Logger & logger) {
 //
-// Find if we have an electron cloud in this device. 
+// Find if we have an electron cloud in this device. Done above!! 
+
+   bunch.convert_to_state(Bunch::fixed_z_lab); 
 //
 // Actually, we are already in a device where the e-cloud is present. 
 // 
@@ -41,8 +43,8 @@ void Ecloud_from_vorpal::apply(Bunch & bunch, double time_step, Step & step, int
     Commxx myComm; // The communicator 
     int my_rank= myComm.get_rank();
     int partDump = 3*bunch.get_local_num()/4;
-//    if (my_rank == 0) std::cerr << " Ecloud_from_vorpal::apply p_ref = " << p_ref << " lStep " << lStep 
-//                                 << " kinetics at particle "  << partDump << std::endl;
+    if (my_rank == 0) std::cerr << " Ecloud_from_vorpal::apply p_ref = " << p_ref << " lStep " << lStep 
+                                 << " kinetics at particle "  << partDump << std::endl;
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         const double x = bunch.get_local_particles()[part][Bunch::x];
         const double y = bunch.get_local_particles()[part][Bunch::y];
@@ -57,9 +59,9 @@ void Ecloud_from_vorpal::apply(Bunch & bunch, double time_step, Step & step, int
 	py += unit_conversion*delta_py; // adding in GeV/c 
 	bunch.get_local_particles()[part][Bunch::xp] = px/p_ref;
 	bunch.get_local_particles()[part][Bunch::yp] = py/p_ref;
-//	if ((part == partDump) && (my_rank == 0)) 
-//	  std::cerr << " Ex= " << e_field.GetFieldEX(x, y, dz) << " y " << e_field.GetFieldEY(x, y, dz) 
-//	            << " after kick px " << px << " py " << py << std::endl;
+	if ((part == partDump) && (my_rank == 0)) 
+	  std::cerr << " Ex= " << e_field.GetFieldEX(x, y, dz) << " y " << e_field.GetFieldEY(x, y, dz) 
+	            << " after kick px " << px << " py " << py << std::endl;
    }  	    
 	    
 	    
