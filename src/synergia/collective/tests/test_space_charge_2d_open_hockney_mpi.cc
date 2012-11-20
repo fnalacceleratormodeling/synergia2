@@ -382,7 +382,8 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_reduce_scatter)
                     local_rho->get_grid_points_2dc()[i][j].real()
                     * local_rho->get_normalization() * comm_sptr->get_size(),
                     tolerance);
-        }
+            BOOST_CHECK_EQUAL(rho2->get_grid_points_2dc()[i][j].imag(), 0.0);
+         }
     }
     for (int k = 0; k < doubled_shape[2]; ++k) {
         BOOST_CHECK_CLOSE(rho2->get_grid_points_1d()[k]
@@ -453,6 +454,7 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_allreduce)
                     local_rho_orig->get_grid_points_2dc()[i][j].real()
                     * local_rho_orig->get_normalization()
                     * comm_sptr->get_size(), tolerance);
+            BOOST_CHECK_EQUAL(rho2->get_grid_points_2dc()[i][j].imag(), 0.0);
         }
     }
     for (int k = 0; k < doubled_shape[2]; ++k) {
@@ -520,6 +522,7 @@ BOOST_AUTO_TEST_CASE(get_global_charge_density2_simple)
                     local_rho_orig->get_grid_points_2dc()[i][j].real()
                     * local_rho_orig->get_normalization()
                     * comm_sptr->get_size(), tolerance);
+            BOOST_CHECK_EQUAL(rho2->get_grid_points_2dc()[i][j].imag(), 0.0);
         }
     }
     for (int k = 0; k < doubled_shape[2]; ++k) {

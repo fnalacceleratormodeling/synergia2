@@ -468,12 +468,16 @@ BOOST_FIXTURE_TEST_CASE(get_global_charge_density2_reduce_scatter,
     BOOST_CHECK_EQUAL(rho2->get_domain().get_grid_shape()[2],
             doubled_shape[2]);
     for (int i = 0; i < doubled_shape[0]; ++i) {
-        for (int j = 0; j < doubled_shape[1]; ++j) {
-            for (int k = 0; k < doubled_shape[2]; ++k) {
-                BOOST_CHECK_CLOSE(rho2->get_grid_points()[i][j][k],
-                        local_rho->get_grid_points()[i][j][k], tolerance);
-            }
-        }
+    	for (int j = 0; j < doubled_shape[1]; ++j) {
+    		BOOST_CHECK_CLOSE(rho2->get_grid_points_2dc()[i][j].real(),
+    				local_rho->get_grid_points_2dc()[i][j].real(), tolerance);
+    		BOOST_CHECK_CLOSE(rho2->get_grid_points_2dc()[i][j].imag(),
+    				local_rho->get_grid_points_2dc()[i][j].imag(), tolerance);
+    	}
+    }
+    for (int k = 0; k < doubled_shape[2]; ++k) {
+    	BOOST_CHECK_CLOSE(rho2->get_grid_points_1d()[k],
+    			local_rho->get_grid_points_1d()[k], tolerance);
     }
 }
 
@@ -493,12 +497,16 @@ BOOST_FIXTURE_TEST_CASE(get_global_charge_density2_allreduce,
     BOOST_CHECK_EQUAL(local_rho->get_domain().get_grid_shape()[2],
             doubled_shape[2]);
     for (int i = 0; i < doubled_shape[0]; ++i) {
-        for (int j = 0; j < doubled_shape[1]; ++j) {
-            for (int k = 0; k < doubled_shape[2]; ++k) {
-                BOOST_CHECK_CLOSE(rho2->get_grid_points()[i][j][k],
-                        local_rho->get_grid_points()[i][j][k], tolerance);
-            }
-        }
+    	for (int j = 0; j < doubled_shape[1]; ++j) {
+    		BOOST_CHECK_CLOSE(rho2->get_grid_points_2dc()[i][j].real(),
+    				local_rho->get_grid_points_2dc()[i][j].real(), tolerance);
+    		BOOST_CHECK_CLOSE(rho2->get_grid_points_2dc()[i][j].imag(),
+    				local_rho->get_grid_points_2dc()[i][j].imag(), tolerance);
+    	}
+    }
+    for (int k = 0; k < doubled_shape[2]; ++k) {
+    	BOOST_CHECK_CLOSE(rho2->get_grid_points_1d()[k],
+    			local_rho->get_grid_points_1d()[k], tolerance);
     }
 }
 
@@ -517,12 +525,16 @@ BOOST_FIXTURE_TEST_CASE(get_global_charge_density2, Ellipsoidal_bunch_fixture)
     BOOST_CHECK_EQUAL(local_rho->get_domain().get_grid_shape()[2],
             doubled_shape[2]);
     for (int i = 0; i < doubled_shape[0]; ++i) {
-        for (int j = 0; j < doubled_shape[1]; ++j) {
-            for (int k = 0; k < doubled_shape[2]; ++k) {
-                BOOST_CHECK_CLOSE(rho2->get_grid_points()[i][j][k],
-                        local_rho->get_grid_points()[i][j][k], tolerance);
-            }
-        }
+    	for (int j = 0; j < doubled_shape[1]; ++j) {
+    		BOOST_CHECK_CLOSE(rho2->get_grid_points_2dc()[i][j].real(),
+    				local_rho->get_grid_points_2dc()[i][j].real(), tolerance);
+    		BOOST_CHECK_CLOSE(rho2->get_grid_points_2dc()[i][j].imag(),
+    				local_rho->get_grid_points_2dc()[i][j].imag(), tolerance);
+    	}
+    }
+    for (int k = 0; k < doubled_shape[2]; ++k) {
+    	BOOST_CHECK_CLOSE(rho2->get_grid_points_1d()[k],
+    			local_rho->get_grid_points_1d()[k], tolerance);
     }
 }
 
