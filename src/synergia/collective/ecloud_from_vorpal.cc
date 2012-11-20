@@ -43,8 +43,8 @@ void Ecloud_from_vorpal::apply(Bunch & bunch, double time_step, Step & step, int
     Commxx myComm; // The communicator 
     int my_rank= myComm.get_rank();
     int partDump = 3*bunch.get_local_num()/4;
-    if (my_rank == 0 && verbosity > 3 ) std::cerr << " Ecloud_from_vorpal::apply p_ref = " << p_ref << " lStep " << lStep 
-                                 << " kinetics at particle "  << partDump << std::endl;
+    if ((my_rank == 0) && (verbosity > 3) ) std::cerr << " Ecloud_from_vorpal::apply p_ref = " << p_ref << " lStep " << lStep 
+                                 << " kinetics at particle "  << partDump << " verbosity " << verbosity << std::endl;
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         const double x = bunch.get_local_particles()[part][Bunch::x];
         const double y = bunch.get_local_particles()[part][Bunch::y];
