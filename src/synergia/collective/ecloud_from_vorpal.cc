@@ -27,8 +27,9 @@ Ecloud_from_vorpal::~Ecloud_from_vorpal() { ; }
 void Ecloud_from_vorpal::apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Logger & logger) {
 //
-// Find if we have an electron cloud in this device. Done above!! 
-
+// Find if we have an electron cloud in this device. Done above!!  But we learn how to check where we are.. 
+//
+   
    bunch.convert_to_state(Bunch::fixed_z_lab); 
 //
 // Actually, we are already in a device where the e-cloud is present. 
@@ -43,8 +44,8 @@ void Ecloud_from_vorpal::apply(Bunch & bunch, double time_step, Step & step, int
     Commxx myComm; // The communicator 
     int my_rank= myComm.get_rank();
     int partDump = 3*bunch.get_local_num()/4;
-    if ((my_rank == 0) && (verbosity > 3) ) std::cerr << " Ecloud_from_vorpal::apply p_ref = " << p_ref << " lStep " << lStep 
-                                 << " kinetics at particle "  << partDump << " verbosity " << verbosity << std::endl;
+    if ((my_rank == 1) && (verbosity > 3) ) std::cerr << " Rank 1; Ecloud_from_vorpal::apply p_ref = " << p_ref << " lStep " << lStep 
+                    << "  Num Particle " <<   bunch.get_local_num() << " kinetics at particle "  << partDump << " verbosity " << verbosity << std::endl;
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         const double x = bunch.get_local_particles()[part][Bunch::x];
         const double y = bunch.get_local_particles()[part][Bunch::y];
@@ -66,3 +67,49 @@ void Ecloud_from_vorpal::apply(Bunch & bunch, double time_step, Step & step, int
 	    
 	    
 }
+template<class Archive>
+        void
+        Ecloud_from_vorpal::save(Archive & ar, const unsigned int version) const
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
+            ar & BOOST_SERIALIZATION_NVP(comm_sptr)
+	       & BOOST_SERIALIZATION_NVP(file_name_archive)
+	       & BOOST_SERIALIZATION_NVP(field_name);
+	       // We do not archive the field map, already archived. And it can't change. 
+        }
+template<class Archive>
+        void
+        Ecloud_from_vorpal::load(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
+            ar & BOOST_SERIALIZATION_NVP(comm_sptr)
+	       & BOOST_SERIALIZATION_NVP(file_name_archive)
+	       & BOOST_SERIALIZATION_NVP(field_name);
+	       std::cerr << " Reloading e_field...from file  " <<file_name_archive << std::endl;
+	       e_field = ECloudEFieldVORPAL2D(comm_sptr, file_name_archive.c_str()); 
+	       std::cerr << " Reloading e_field.Ex at relevant pts " 
+	                 <<  e_field.GetFieldEX(-0.00877598, -0.00401517, -0.489653) << std::endl;
+//		std::cerr << " And quit for now ... " << std::endl;
+//		MPI_Abort(MPI_COMM_WORLD, 111);	 exit(2);
+        }
+
+template
+void
+Ecloud_from_vorpal::save<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version) const;
+template
+void
+Ecloud_from_vorpal::save<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version) const;
+
+template
+void
+Ecloud_from_vorpal::load<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+template
+void
+Ecloud_from_vorpal::load<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+
+BOOST_CLASS_EXPORT_IMPLEMENT(Ecloud_from_vorpal);
