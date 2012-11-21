@@ -63,6 +63,18 @@ emityECSCHD <- c( 1e-06, 1.07682e-06, 1.07926e-06, 1.02622e-06, 1.09894e-06,
        1.18746e-06, 1.19172e-06, 1.18753e-06, 1.19401e-06, 1.19283e-06,
        1.19369e-06);
 #       
+emityECSCMDSms <- c( 1e-06, 1.00943e-06, 1.0066e-06, 1.00985e-06, 1.01339e-06,
+       1.00464e-06, 1.01249e-06, 1.00565e-06, 1.01189e-06, 1.01282e-06,
+       1.01059e-06, 1.01695e-06, 1.00985e-06, 1.01744e-06, 1.0126e-06,
+       1.01694e-06, 1.01705e-06, 1.01608e-06, 1.02035e-06, 1.01607e-06,
+       1.02214e-06, 1.01798e-06, 1.0229e-06, 1.02126e-06, 1.0231e-06,
+       1.02473e-06, 1.02362e-06, 1.02773e-06, 1.02506e-06, 1.02978e-06,
+       1.02763e-06, 1.0313e-06, 1.0313e-06, 1.03275e-06, 1.03499e-06,
+       1.03425e-06, 1.03807e-06, 1.0368e-06, 1.04076e-06, 1.04048e-06,
+       1.04295e-06, 1.04439e-06, 1.0451e-06, 1.04808e-06, 1.04797e-06,
+       1.05128e-06, 1.05159e-06, 1.05418e-06, 1.05564e-06, 1.05701e-06,
+       1.05954e-06);
+#
 emHDMax <- 1.0e6*max( emityECSCHD, emityEC, emitySCHD);
 aPdf <- pdf("./plotsNov12/EmittyHD.pdf", width=5., height=5., family="serif", useDingbats=F);
 plot(turns, 1.0e6*emityEC, type='b', pch=15, col="blue", ylim=c(1., 1.05*emHDMax), ylab = "Vertical emittance [microns]");
@@ -81,5 +93,13 @@ legend(x="topleft", c("E-Cloud only", "Space Charge Only", "ECloud+SpaceCharge")
 dev.off();   
 #
 
-       
+ emMDMax <- 1.0e6*max( emityECSCMD, emityECSCMDSms);
+aPdf <- pdf("./plotsNov12/EmittyMDSms.pdf", width=5., height=5., family="serif", useDingbats=F);
+plot(turns, 1.0e6*emityECSCMD, type='b', pch=15, col="magenta", ylim=c(1., emMDMax), ylab = "Vertical emittance [microns]");
+lines(turns,1.0e6*emityECSCMDSms, type='b', pch=16, col="forestgreen");
+legend(x="topleft", c("ECloud+SpaceCharge, step size = 2.5 m", "ECloud+SpaceCharge, step size = 0.25 m"), 
+col=c("magenta", "forestgreen" ), lty=c(1,1,1), pch=c(15,16));
+dev.off();   
+#
+      
        
