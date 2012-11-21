@@ -85,21 +85,19 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho,
             space_charge.get_domain().get_grid_shape());
     std::vector<int > doubled_shape(
              space_charge.get_doubled_domain_sptr()->get_grid_shape());
-
+    double max_fractional_error = -2.0;
+    double min_fractional_error = 2.0;
     for (int component = 0; component < 2; ++component) {
-        double max_fractional_error = -2.0;
-        double min_fractional_error = 2.0;
-//        for (int i = local_force2->get_lower(); i < local_force2->get_upper();
-//                ++i) {
-//            for (int j = 0; j < doubled_shape[1]; ++j) {
-        for (int i = nondoubled_shape[0] / 2; i < 3 * nondoubled_shape[0] / 2;
+        for (int i = std::max(nondoubled_shape[0] / 2,
+                local_force2->get_lower()); i < std::min(
+                        3 * nondoubled_shape[0] / 2, local_force2->get_upper());
                 ++i) {
             for (int j = nondoubled_shape[1] / 2; j < 3 * nondoubled_shape[0]
                     / 2; ++j) {
-                for (int k = 0; k < doubled_shape[2]; ++k) {
+//                for (int k = 0; k < doubled_shape[2]; ++k) {
 //                    int i = nondoubled_shape[0];
 //                    int j = nondoubled_shape[1];
-//                    int k = nondoubled_shape[2];
+                    int k = nondoubled_shape[2] / 2;
                     double x, y, z;
                     local_force2->get_domain().get_cell_coordinates(i, j,
                             k, x, y, z);
@@ -136,7 +134,6 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho,
                     if (fractional_error < min_fractional_error) {
                         min_fractional_error = fractional_error;
                     }
-
                     #if PRINT_FORCE
                     std::cout << x << "  " << y << "  " << z << "  "
                             << force2_exact_ijk << "  "
@@ -149,11 +146,11 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho,
                             << force2_calc_ijk / q << "  "
                             << fractional_error << std::endl;
                     #endif
-
-                }
+//                }
             }
         }
         //        f.write(exact_force2->get_grid_points(), "enexact");
+        std::cout << "get_local_force2_exact_rho" << std::endl;
         std::cout << "max_fractional_error = " << max_fractional_error
                 << std::endl;
         std::cout << "min_fractional_error = " << min_fractional_error
@@ -163,7 +160,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho,
         //                min_fractional_error = -0.039785
         //                max_fractional_error = -0.0481198
         //                min_fractional_error = -0.039785
-        const double field_tolerance[] = { 2.0, 2.0 };
+        const double field_tolerance[] = { 0.05, 0.05 };
         BOOST_CHECK(std::abs(max_fractional_error) < field_tolerance[component]);
         BOOST_CHECK(std::abs(min_fractional_error) < field_tolerance[component]);
     }
@@ -194,21 +191,19 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles,
             space_charge.get_domain().get_grid_shape());
     std::vector<int > doubled_shape(
              space_charge.get_doubled_domain_sptr()->get_grid_shape());
-
+    double max_fractional_error = -2.0;
+    double min_fractional_error = 2.0;
     for (int component = 0; component < 2; ++component) {
-        double max_fractional_error = -2.0;
-        double min_fractional_error = 2.0;
-//        for (int i = local_force2->get_lower(); i < local_force2->get_upper();
-//                ++i) {
-//            for (int j = 0; j < doubled_shape[1]; ++j) {
-        for (int i = nondoubled_shape[0] / 2; i < 3 * nondoubled_shape[0] / 2;
+        for (int i = std::max(nondoubled_shape[0] / 2,
+                local_force2->get_lower()); i < std::min(
+                        3 * nondoubled_shape[0] / 2, local_force2->get_upper());
                 ++i) {
             for (int j = nondoubled_shape[1] / 2; j < 3 * nondoubled_shape[0]
                     / 2; ++j) {
-                for (int k = 0; k < doubled_shape[2]; ++k) {
+//                for (int k = 0; k < doubled_shape[2]; ++k) {
 //                    int i = nondoubled_shape[0];
 //                    int j = nondoubled_shape[1];
-//                    int k = nondoubled_shape[2];
+                    int k = nondoubled_shape[2] / 2;
                     double x, y, z;
                     local_force2->get_domain().get_cell_coordinates(i, j,
                             k, x, y, z);
@@ -245,7 +240,6 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles,
                     if (fractional_error < min_fractional_error) {
                         min_fractional_error = fractional_error;
                     }
-
                     #if PRINT_FORCE
                     std::cout << x << "  " << y << "  " << z << "  "
                             << force2_exact_ijk << "  "
@@ -258,21 +252,21 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles,
                             << force2_calc_ijk / q << "  "
                             << fractional_error << std::endl;
                     #endif
-
-                }
+//                }
             }
         }
         //        f.write(exact_force2->get_grid_points(), "enexact");
+        std::cout << "get_local_force2_particles" << std::endl;
         std::cout << "max_fractional_error = " << max_fractional_error
                 << std::endl;
         std::cout << "min_fractional_error = " << min_fractional_error
                 << std::endl;
-        // on the development machine, I get (on one run)
-        //        max_fractional_error = 0.5625
-        //        min_fractional_error = -0.589528
-        //        max_fractional_error = 0.92252
-        //        min_fractional_error = -0.792327
-        const double field_tolerance[] = { 2.0, 2.0 };
+        // on the development machine, I get
+        //        max_fractional_error = 0.521387
+        //        min_fractional_error = -0.36895
+        //        max_fractional_error = 0.521387
+        //        min_fractional_error = -0.68181
+        const double field_tolerance[] = { 1.5, 1.5 };
         BOOST_CHECK(std::abs(max_fractional_error) < field_tolerance[component]);
         BOOST_CHECK(std::abs(min_fractional_error) < field_tolerance[component]);
     }
