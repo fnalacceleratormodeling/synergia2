@@ -34,7 +34,7 @@ run(bool do_space_charge, bool do_ecloud, const std::string &file_name_ecloud)
     const int seed = 4;
     const double num_real_particles = 3e13;
     const int num_steps = 8;
-    const int num_turns = 50;
+    const int num_turns = 30;
     const int map_order = 2;
 
     Lattice_sptr lattice_sptr(new Lattice());
@@ -50,21 +50,21 @@ run(bool do_space_charge, bool do_ecloud, const std::string &file_name_ecloud)
     
     Commxx_sptr commxx_per_host_sptr(new Commxx(true));
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-    std::string file_name_out("./cxx_eCloud_");
+    std::string file_name_out("cxx_eCloud_");
     
     if (do_space_charge && (!do_ecloud)) {
-      file_name_out += std::string("SpaceChargeMD");
+      file_name_out += std::string("SpaceChargeMDxxx");
       Space_charge_3d_open_hockney_sptr space_charge_sptr(
             new Space_charge_3d_open_hockney(commxx_per_host_sptr, grid_shape));
       space_charge_sptr->set_charge_density_comm(Space_charge_3d_open_hockney::charge_allreduce);
       stepper_sptr = Split_operator_stepper_sptr(new Split_operator_stepper(lattice_simulator, space_charge_sptr, num_steps));
     } else if ((!do_space_charge) && (do_ecloud)) {
-      file_name_out += std::string("ECloud");
+      file_name_out += std::string("ECloudxxx");
       std::cerr << " About to instantiate the collective operator for e cloud from file " << file_name_ecloud << std::endl;
       Ecloud_from_vorpal_sptr  e_cloud_sptr(new Ecloud_from_vorpal(commxx_per_host_sptr, file_name_ecloud));
       stepper_sptr = Split_operator_stepper_sptr(new Split_operator_stepper(lattice_simulator, e_cloud_sptr, num_steps));
     }else if (do_space_charge && do_ecloud) {    
-      file_name_out += std::string("SpaceChargeMDECloud");
+      file_name_out += std::string("SpaceChargeMDECloudxxx");
       Space_charge_3d_open_hockney_sptr space_charge_sptr(
             new Space_charge_3d_open_hockney(commxx_per_host_sptr, grid_shape));
       space_charge_sptr->set_charge_density_comm(Space_charge_3d_open_hockney::charge_allreduce);
@@ -100,8 +100,9 @@ run(bool do_space_charge, bool do_ecloud, const std::string &file_name_ecloud)
     bunch_simulator.get_diagnostics_actions().add_per_turn(
             Diagnostics_sptr(
                     new Diagnostics_full2(file_name_out.c_str())));
-    propagator.set_checkpoint_period(20000000);
-    propagator.set_final_checkpoint(false);
+
+    propagator.set_checkpoint_period(2);
+    propagator.set_final_checkpoint(true);
     double t0 = MPI_Wtime();
     const int max_turns = 0;
     const int verbosity = 2;
