@@ -78,6 +78,6 @@ public:
     ~Diagnostics_bulk_track();
 };
 BOOST_CLASS_EXPORT_KEY(Diagnostics_bulk_track)
-typedef boost::shared_ptr<Diagnostics_bulk_track > Diagnostics_bulk_track_sptr;
+typedef boost::shared_ptr<Diagnostics_bulk_track > Diagnostics_bulk_track_sptr; // syndoc:include
 
 #endif /* DIAGNOSTICS_BULK_TRACK_H_ */
