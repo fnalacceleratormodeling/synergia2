@@ -21,7 +21,7 @@
 #endif
 
 class Chef_lattice;
-typedef boost::shared_ptr<Chef_lattice > Chef_lattice_sptr;
+typedef boost::shared_ptr<Chef_lattice > Chef_lattice_sptr; // syndoc:include
 
 // jfa: enabled_shared_from_this is disabled because of a bug in Boost <=1.42
 //      see get_chef_section_sptr below
