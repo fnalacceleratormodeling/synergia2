@@ -1,0 +1,9 @@
+#!/bin/sh
+
+cd "`dirname $0`"
+for module in utils foundation bunch lattice simulation collective
+do
+	echo "$module:"
+	./generate-module-rst.py --verbose ../src/synergia/$module sphinx-src/$module.rst
+	echo
+done
