@@ -155,6 +155,6 @@ public:
 };
 BOOST_CLASS_EXPORT_KEY(Space_charge_3d_open_hockney)
 
-typedef boost::shared_ptr<Space_charge_3d_open_hockney > Space_charge_3d_open_hockney_sptr;
+typedef boost::shared_ptr<Space_charge_3d_open_hockney > Space_charge_3d_open_hockney_sptr; // syndoc:include
 
 #endif /* SPACE_CHARGE_3D_OPEN_HOCKNEY_H_ */
