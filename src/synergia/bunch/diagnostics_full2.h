@@ -145,6 +145,6 @@ public:
     ~Diagnostics_full2();
 };
 BOOST_CLASS_EXPORT_KEY(Diagnostics_full2)
-typedef boost::shared_ptr<Diagnostics_full2 > Diagnostics_full2_sptr;
+typedef boost::shared_ptr<Diagnostics_full2 > Diagnostics_full2_sptr; // syndoc:include
 
 #endif /* DIAGNOSTICS_FULL2_H_ */
