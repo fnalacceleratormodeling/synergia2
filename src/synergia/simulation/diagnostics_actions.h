@@ -25,9 +25,9 @@ public:
             void
             serialize(Archive & ar, const unsigned int version);
     };
-    typedef std::list<Periodic > Periodics;
+    typedef std::list<Periodic > Periodics; // syndoc:include
 
-    typedef std::list<int > Numbers;
+    typedef std::list<int > Numbers; // syndoc:include
 
     struct Listed
     {
@@ -44,7 +44,7 @@ public:
             void
             serialize(Archive & ar, const unsigned int version);
     };
-    typedef std::list<Listed > Listeds;
+    typedef std::list<Listed > Listeds; // syndoc:include
 
     struct Periodic_listed
     {
@@ -64,7 +64,7 @@ public:
             void
             serialize(Archive & ar, const unsigned int version);
     };
-    typedef std::list<Periodic_listed > Periodic_listeds;
+    typedef std::list<Periodic_listed > Periodic_listeds; // syndoc:include
 
 private:
     Bunch_sptr bunch_sptr;
@@ -117,5 +117,5 @@ public:
 };
 
 typedef boost::shared_ptr<Diagnostics_actions >
-        Diagnostics_actions_sptr;
+        Diagnostics_actions_sptr;  // syndoc:include
 #endif /* DIAGNOSTICS_ACTIONS_H_ */
