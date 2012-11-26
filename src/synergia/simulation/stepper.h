@@ -47,7 +47,7 @@ public:
     virtual
     ~Stepper();
 };
-typedef boost::shared_ptr<Stepper > Stepper_sptr;
+typedef boost::shared_ptr<Stepper > Stepper_sptr; // syndoc:include
 
 /// The Independent_stepper class generates evenly-spaced Independent_operator
 /// steps through a Lattice. No collective effects are included.
@@ -72,7 +72,7 @@ public:
 
 };
 BOOST_CLASS_EXPORT_KEY(Independent_stepper);
-typedef boost::shared_ptr<Independent_stepper > Independent_stepper_sptr;
+typedef boost::shared_ptr<Independent_stepper > Independent_stepper_sptr; // syndoc:include
 
 /// The Independent_stepper_elements class generates a constant number of
 /// Independent_operator steps per thick element. Thin elements are assigned
@@ -98,7 +98,7 @@ public:
 };
 BOOST_CLASS_EXPORT_KEY(Independent_stepper_elements);
 typedef boost::shared_ptr<Independent_stepper_elements >
-        Independent_stepper_elements_sptr;
+        Independent_stepper_elements_sptr; // syndoc:include
 
 /// The Split_operator_stepper class generates evenly-spaced split-operator
 /// steps through a Lattice. One or more collective effects are included per
@@ -133,7 +133,7 @@ public:
     ~Split_operator_stepper();
 };
 BOOST_CLASS_EXPORT_KEY(Split_operator_stepper);
-typedef boost::shared_ptr<Split_operator_stepper > Split_operator_stepper_sptr;
+typedef boost::shared_ptr<Split_operator_stepper > Split_operator_stepper_sptr; // syndoc:include
 
 /// The Split_operator_stepper_elements class generates a constant number of
 /// split-operator steps per thick element. Thin elements are assigned
@@ -175,7 +175,7 @@ public:
 };
 BOOST_CLASS_EXPORT_KEY(Split_operator_stepper_elements);
 typedef boost::shared_ptr<Split_operator_stepper_elements >
-        Split_operator_stepper_elements_sptr;
+        Split_operator_stepper_elements_sptr; // syndoc:include
 
 /// Generate steps through lattice based on envelope shape.
 /// Includes collective effects.
@@ -201,7 +201,7 @@ struct Kicks
     int num_steps;
 };
 
-typedef  std::map<std::string, Kicks >  List_choice_map;
+typedef  std::map<std::string, Kicks >  List_choice_map; // syndoc:include
 
 /// Generate steps according with a list
 class Split_operator_stepper_choice: public Stepper
