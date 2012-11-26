@@ -50,11 +50,11 @@ public:
         iy = fast_int_floor(scaled_location);
         offy = scaled_location - iy;
 
-        scaled_location = (z - left[2]) / cell_size[2] - 0.5;        
+        scaled_location = (z - left[2]) / cell_size[2] - 0.5;
         iz =fast_int_floor(scaled_location);
         offz = scaled_location - iz;
         return ((ix>=0) && (ix<grid_shape[0] - 1) &&  (iy>=0) && (iy<grid_shape[1] - 1))
-        && 
+        &&
         (periodic_z   ||   ((iz>=0) && (iz<grid_shape[2] - 1))    );
     }
 
@@ -64,6 +64,6 @@ public:
 };
 
 typedef boost::shared_ptr<Rectangular_grid_domain >
-        Rectangular_grid_domain_sptr;
+        Rectangular_grid_domain_sptr;  // syndoc:include
 
 #endif /* RECTANGULAR_GRID_DOMAIN_H_ */
