@@ -43,7 +43,7 @@ public:
     ~Impedance();
 };
 
-typedef boost::shared_ptr<Impedance> Impedance_sptr;
+typedef boost::shared_ptr<Impedance> Impedance_sptr; // syndoc:include
 
 #endif /* IMPEDANCE_H_ */
 
