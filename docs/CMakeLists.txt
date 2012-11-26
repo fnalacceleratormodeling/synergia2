@@ -12,7 +12,7 @@ add_custom_target(update_modules_rst
 add_custom_target(sphinx
     /bin/rm -rf html doctrees
     COMMAND sphinx-build -a -b html -d doctrees sphinx-src html)
-add_dependencies(sphinx doxygen update_module_rst)
+add_dependencies(sphinx doxygen update_modules_rst)
 
 add_custom_target(doc)
 add_dependencies(doc sphinx)
