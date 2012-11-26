@@ -158,7 +158,7 @@ public:
         serialize(Archive & ar, const unsigned int version);
 };
 
-typedef boost::shared_ptr<Lattice_element > Lattice_element_sptr;
-typedef std::list<Lattice_element_sptr > Lattice_elements;
+typedef boost::shared_ptr<Lattice_element > Lattice_element_sptr; // syndoc:include
+typedef std::list<Lattice_element_sptr > Lattice_elements; // syndoc:include
 
 #endif /* LATTICE_ELEMENT_H_ */
