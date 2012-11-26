@@ -63,6 +63,6 @@ public:
     ~Diagnostics_track();
 };
 BOOST_CLASS_EXPORT_KEY(Diagnostics_track)
-typedef boost::shared_ptr<Diagnostics_track > Diagnostics_track_sptr;
+typedef boost::shared_ptr<Diagnostics_track > Diagnostics_track_sptr; // syndoc:include
 
 #endif /* DIAGNOSTICS_TRACK_H_ */
