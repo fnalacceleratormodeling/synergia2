@@ -72,6 +72,6 @@ public:
     ~Diagnostics();
 };
 BOOST_CLASS_EXPORT_KEY(Diagnostics)
-typedef boost::shared_ptr<Diagnostics > Diagnostics_sptr;
+typedef boost::shared_ptr<Diagnostics > Diagnostics_sptr; // syndoc:include
 
 #endif /* DIAGNOSTICS_H_ */
