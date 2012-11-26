@@ -44,6 +44,6 @@ public:
 };
 
 typedef boost::shared_ptr<Generalized_diagnostics >
-        Generalized_diagnostics_sptr;
+        Generalized_diagnostics_sptr; // syndoc:include
 
 #endif /* GENERALIZED_DIAGNOSTICS_H_ */
