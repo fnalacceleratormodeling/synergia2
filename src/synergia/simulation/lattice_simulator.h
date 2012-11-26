@@ -16,7 +16,7 @@
 #include <string>
 #include "synergia/utils/serialization.h"
 
-typedef boost::shared_ptr<normalFormSage> Normal_form_sage_sptr;
+typedef boost::shared_ptr<normalFormSage> Normal_form_sage_sptr; // syndoc:include
 
 struct Lattice_functions
 {
