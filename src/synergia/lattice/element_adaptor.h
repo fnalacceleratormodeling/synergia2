@@ -37,7 +37,7 @@ public:
     ~Element_adaptor();
 };
 
-typedef boost::shared_ptr<Element_adaptor > Element_adaptor_sptr;
+typedef boost::shared_ptr<Element_adaptor > Element_adaptor_sptr; // syndoc:include
 
 class Marker_mad8_adaptor : public Element_adaptor
 {
@@ -424,6 +424,6 @@ public:
     ~Element_adaptor_map();
 };
 
-typedef boost::shared_ptr<Element_adaptor_map > Element_adaptor_map_sptr;
+typedef boost::shared_ptr<Element_adaptor_map > Element_adaptor_map_sptr; // syndoc:include
 
 #endif /* ELEMENT_ADAPTOR_H_ */
