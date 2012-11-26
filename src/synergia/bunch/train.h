@@ -45,7 +45,7 @@ public:
     ~Train_comms();
 };
 
-typedef boost::shared_ptr<Train_comms > Train_comms_sptr;
+typedef boost::shared_ptr<Train_comms > Train_comms_sptr; // syndoc:include
 
 /// Represents a train of bunches separated by a fixed distance
 class Bunch_train: public Train_comms
@@ -73,7 +73,7 @@ public:
 
 };
 
-typedef boost::shared_ptr<Bunch_train > Bunch_train_sptr;
+typedef boost::shared_ptr<Bunch_train > Bunch_train_sptr; // syndoc:include
 
 
 #if 0
@@ -99,7 +99,7 @@ public:
 
 };
 
-typedef boost::shared_ptr<Bunch_with_diagnostics_train > Bunch_with_diagnostics_train_sptr;
+typedef boost::shared_ptr<Bunch_with_diagnostics_train > Bunch_with_diagnostics_train_sptr; // syndoc:include
 #endif
 
 #endif /* BUNCH_DIAG_TRAIN_H_ */
