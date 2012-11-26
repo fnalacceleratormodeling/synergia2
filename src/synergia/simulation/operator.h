@@ -46,8 +46,8 @@ public:
     virtual
     ~Operator();
 };
-typedef boost::shared_ptr<Operator > Operator_sptr;
-typedef std::list<Operator_sptr > Operators;
+typedef boost::shared_ptr<Operator > Operator_sptr; // syndoc:include
+typedef std::list<Operator_sptr > Operators; // syndoc:include
 
 class Collective_operator : public Operator
 {
@@ -66,8 +66,8 @@ public:
     ~Collective_operator();
 };
 BOOST_CLASS_EXPORT_KEY(Collective_operator);
-typedef boost::shared_ptr<Collective_operator > Collective_operator_sptr;
-typedef std::list<Collective_operator_sptr > Collective_operators;
+typedef boost::shared_ptr<Collective_operator > Collective_operator_sptr; // syndoc:include
+typedef std::list<Collective_operator_sptr > Collective_operators; // syndoc:include
 
 class Dummy_collective_operator : public Collective_operator
 {
@@ -85,8 +85,8 @@ public:
 };
 BOOST_CLASS_EXPORT_KEY(Dummy_collective_operator);
 typedef boost::shared_ptr<Dummy_collective_operator >
-        Dummy_collective_operator_sptr;
-typedef std::list<Dummy_collective_operator_sptr > Dummy_collective_operators;
+        Dummy_collective_operator_sptr; // syndoc:include
+typedef std::list<Dummy_collective_operator_sptr > Dummy_collective_operators; // syndoc:include
 
 class Independent_operator : public Operator
 {
@@ -134,7 +134,7 @@ public:
     ~Independent_operator();
 };
 BOOST_CLASS_EXPORT_KEY(Independent_operator);
-typedef boost::shared_ptr<Independent_operator > Independent_operator_sptr;
-typedef std::list<Independent_operator_sptr > Independent_operators;
+typedef boost::shared_ptr<Independent_operator > Independent_operator_sptr; // syndoc:include
+typedef std::list<Independent_operator_sptr > Independent_operators; // syndoc:include
 
 #endif /* OPERATOR_H_ */
