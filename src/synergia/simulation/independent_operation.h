@@ -32,8 +32,8 @@ public:
     ~Independent_operation();
 };
 
-typedef boost::shared_ptr<Independent_operation > Independent_operation_sptr;
-typedef std::list<Independent_operation_sptr > Independent_operations;
+typedef boost::shared_ptr<Independent_operation > Independent_operation_sptr; // syndoc:include
+typedef std::list<Independent_operation_sptr > Independent_operations; // syndoc:include
 
 const char fast_mapping_type_name[] = "fast_mapping";
 class Fast_mapping_operation : public Independent_operation
@@ -56,7 +56,7 @@ public:
     ~Fast_mapping_operation();
 };
 BOOST_CLASS_EXPORT_KEY(Fast_mapping_operation);
-typedef boost::shared_ptr<Fast_mapping_operation > Fast_mapping_operation_sptr;
+typedef boost::shared_ptr<Fast_mapping_operation > Fast_mapping_operation_sptr; // syndoc:include
 
 const char chef_propagate_type_name[] = "chef_propagate";
 class Chef_propagate_operation : public Independent_operation
@@ -78,6 +78,6 @@ public:
 };
 BOOST_CLASS_EXPORT_KEY(Chef_propagate_operation);
 typedef boost::shared_ptr<Chef_propagate_operation >
-        Chef_propagate_operation_sptr;
+        Chef_propagate_operation_sptr; // syndoc:include
 
 #endif /* INDEPENDENT_OPERATION_H_ */
