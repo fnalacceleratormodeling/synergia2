@@ -19,6 +19,7 @@ template<typename T>
         H5::DataType atomic_type;
         bool have_setup;
         bool resume;
+        size_t data_size;
         void
         setup(std::vector<int > const& data_dims, H5::DataType atomic_type);
     public:
@@ -36,6 +37,7 @@ template<typename T>
                 ar & BOOST_SERIALIZATION_NVP(offset);
                 ar & BOOST_SERIALIZATION_NVP(file_sptr);
                 ar & BOOST_SERIALIZATION_NVP(data_rank);
+                ar & BOOST_SERIALIZATION_NVP(data_size);
             }
         template<class Archive>
             void
@@ -45,6 +47,7 @@ template<typename T>
                 ar & BOOST_SERIALIZATION_NVP(offset);
                 ar & BOOST_SERIALIZATION_NVP(file_sptr);
                 ar & BOOST_SERIALIZATION_NVP(data_rank);
+                ar & BOOST_SERIALIZATION_NVP(data_size);
                 resume = true;
                 have_setup = false;
             }
