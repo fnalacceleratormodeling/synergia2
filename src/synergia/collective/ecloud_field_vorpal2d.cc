@@ -49,17 +49,16 @@ yUp(2.2),
 data(0),
 tCheb(0)
 {
-   MPI_Barrier(myComm.get()); // Might not be needed.
-   int my_rank= myComm.get_rank();
+   MPI_Barrier(myComm_sptr->get()); // Might not be needed.
+   int my_rank= myComm_sptr->get_rank();
    if (my_rank == 0)  loadFromFile(archiveName); 
    int numProc=1;
-   MPI_Comm_size(myComm.get(), &numProc);     
+   MPI_Comm_size(myComm_sptr->get(), &numProc);     
    if (numProc > 1) broadcastIt();
      
 }
 ECloudEFieldVORPAL2D::ECloudEFieldVORPAL2D(Commxx_sptr comm_sptr, const char *archiveName):
-myComm(comm_sptr),
-// myComm() // default constructor, takes over the whole MPI world
+myComm_sptr(comm_sptr),
 version("1.0"),
 VORPALJobName("none"),
 verticalChebychevOrder(16),
@@ -68,14 +67,62 @@ yUp(2.2),
 data(0),
 tCheb(0)
 {
-   MPI_Barrier(myComm.get()); // Might not be needed.
-   int my_rank= myComm.get_rank();
+   MPI_Barrier(myComm_sptr->get()); // Might not be needed.
+   int my_rank= myComm_sptr->get_rank();
    if (my_rank == 0)  loadFromFile(archiveName); 
    int numProc=1;
-   MPI_Comm_size(myComm.get(), &numProc);     
+   MPI_Comm_size(myComm_sptr->get(), &numProc);     
    if (numProc > 1) broadcastIt();
      
+}    
+ECloudEFieldVORPAL2D::ECloudEFieldVORPAL2D( const ECloudEFieldVORPAL2D &c) {
+     myComm_sptr = c.getComm(); // The communicator 
+     version = c.getVersion();  // I'll probably change my mind, so there it is..
+     VORPALJobName = c.getVORPALJobName(); // strictly ofr experts..
+     verticalChebychevOrder = c.getVerticalChebychevOrder(); // the order for the Chebyshev
+     yLow = c.getYLow(); // the lower limit of the map
+     yUp = c.getYUp();  // the upper limit of the map.
+     data = c.getData();  // vector along z. 
+     if (tCheb != 0) {
+       tCheb->c=0; // Pointing to our vector 
+       if (tCheb->f != 0) free(tCheb->f); tCheb->f = 0;
+       free(tCheb);
+       tCheb=0;
+     }
+     tCheb = gsl_cheb_alloc ((size_t) verticalChebychevOrder);
+//  std::cerr << " verticalChebychevOrder from file " << verticalChebychevOrder << std::endl;
+//  std::cerr << " Freeing coefficients after upload file, with order   .. " << tCheb->order << std::endl;
+     free(tCheb->c); tCheb->c=0; // We will always point to our std::vector
+     if (tCheb->f != 0) free(tCheb->f); tCheb->f = 0;
+//  std::cerr << " Done  .. " << tCheb->order << std::endl;
+     tCheb->a = yLow;
+     tCheb->b = yUp;
 }
+ECloudEFieldVORPAL2D& ECloudEFieldVORPAL2D::operator=(const ECloudEFieldVORPAL2D &c) {
+
+     myComm_sptr = c.getComm(); // The communicator 
+     version = c.getVersion();  // I'll probably change my mind, so there it is..
+     VORPALJobName = c.getVORPALJobName(); // strictly ofr experts..
+     verticalChebychevOrder = c.getVerticalChebychevOrder(); // the order for the Chebyshev
+     yLow = c.getYLow(); // the lower limit of the map
+     yUp = c.getYUp();  // the upper limit of the map.
+     data = c.getData();  // vector along z. 
+     if (tCheb != 0) {
+       tCheb->c=0; // Pointing to our vector 
+       if (tCheb->f != 0) free(tCheb->f); tCheb->f = 0;
+       free(tCheb);
+       tCheb=0;
+     }
+     tCheb = gsl_cheb_alloc ((size_t) verticalChebychevOrder);
+//  std::cerr << " verticalChebychevOrder from file " << verticalChebychevOrder << std::endl;
+//  std::cerr << " Freeing coefficients after upload file, with order   .. " << tCheb->order << std::endl;
+     free(tCheb->c); tCheb->c=0; // We will always point to our std::vector
+     if (tCheb->f != 0) free(tCheb->f); tCheb->f = 0;
+//  std::cerr << " Done  .. " << tCheb->order << std::endl;
+     tCheb->a = yLow;
+     tCheb->b = yUp;
+}
+
 ECloudEFieldVORPAL2D::~ECloudEFieldVORPAL2D() {
   if (tCheb != 0) {
      tCheb->c=0; // Pointing to our vector 
@@ -318,48 +365,48 @@ void ECloudEFieldVORPAL2D::loadOneScan(bool isEX, double dz, double x, double yL
 }		      
 void ECloudEFieldVORPAL2D::broadcastIt() {
    
-   int my_rank= myComm.get_rank();
-   if (my_rank == 0) std::cerr << " got to broadcast.... " << std::endl;
+   int my_rank= myComm_sptr->get_rank();
+//   if (my_rank == 0) std::cerr << " got to broadcast.... " << std::endl;
    
    // We do not broadacast the name of the VORPAL job, version, since it should not be used in the calculation 
    if (my_rank != 0) { version = std::string("na"); VORPALJobName = version; }
-   MPI_Bcast((void *) &verticalChebychevOrder, 1, MPI_INTEGER, 0, myComm.get());
-   MPI_Bcast((void *) &yLow, 1, MPI_DOUBLE, 0, myComm.get());
-   MPI_Bcast((void *) &yUp, 1, MPI_DOUBLE, 0, myComm.get());
+   MPI_Bcast((void *) &verticalChebychevOrder, 1, MPI_INTEGER, 0, myComm_sptr->get());
+   MPI_Bcast((void *) &yLow, 1, MPI_DOUBLE, 0, myComm_sptr->get());
+   MPI_Bcast((void *) &yUp, 1, MPI_DOUBLE, 0, myComm_sptr->get());
    int numYXScanAtdZ = 0;
    if (my_rank == 0) numYXScanAtdZ = data.size();
-   MPI_Bcast((void *) &numYXScanAtdZ, 1, MPI_INTEGER, 0, myComm.get());
+   MPI_Bcast((void *) &numYXScanAtdZ, 1, MPI_INTEGER, 0, myComm_sptr->get());
    if (my_rank != 0) data.clear();
    for (size_t iYX = 0; iYX != numYXScanAtdZ; ++iYX) {
       if (my_rank != 0) {
         YXScanAtdZ aYxScan;
 	data.push_back(aYxScan);
       }
-      MPI_Bcast((void *) &(data[iYX].dz), 1, MPI_DOUBLE, 0, myComm.get());
+      MPI_Bcast((void *) &(data[iYX].dz), 1, MPI_DOUBLE, 0, myComm_sptr->get());
       int numYScanAtX = 0;
       if (my_rank == 0) numYScanAtX = data[iYX].data.size();
-      MPI_Bcast((void *) &numYScanAtX, 1, MPI_INTEGER, 0, myComm.get());
+      MPI_Bcast((void *) &numYScanAtX, 1, MPI_INTEGER, 0, myComm_sptr->get());
       if (my_rank != 0) data[iYX].data.clear();
       for (size_t iY = 0; iY != numYScanAtX; ++iY) {
         if (my_rank != 0) {
           YScanAtX aYScan;
 	  data[iYX].data.push_back(aYScan);
 	}
-        MPI_Bcast((void *) &(data[iYX].data[iY].x), 1, MPI_DOUBLE, 0, myComm.get());
+        MPI_Bcast((void *) &(data[iYX].data[iY].x), 1, MPI_DOUBLE, 0, myComm_sptr->get());
 	int nOrderEx = 0;
 	int nOrderEy = 0;
 	if (my_rank == 0) {
 	    nOrderEx = data[iYX].data[iY].coefChebEX.size();
 	    nOrderEy = data[iYX].data[iY].coefChebEY.size();
 	}
-        MPI_Bcast((void *) &nOrderEx, 1, MPI_INTEGER, 0, myComm.get());
-        MPI_Bcast((void *) &nOrderEy, 1, MPI_INTEGER, 0, myComm.get());
+        MPI_Bcast((void *) &nOrderEx, 1, MPI_INTEGER, 0, myComm_sptr->get());
+        MPI_Bcast((void *) &nOrderEy, 1, MPI_INTEGER, 0, myComm_sptr->get());
         if (my_rank != 0) {
 	  data[iYX].data[iY].coefChebEX.resize(nOrderEx);
 	  data[iYX].data[iY].coefChebEY.resize(nOrderEy);
 	} 
-        MPI_Bcast((void *) &(data[iYX].data[iY].coefChebEX[0]), nOrderEx, MPI_DOUBLE, 0, myComm.get());
-        MPI_Bcast((void *) &(data[iYX].data[iY].coefChebEY[0]), nOrderEy, MPI_DOUBLE, 0, myComm.get());
+        MPI_Bcast((void *) &(data[iYX].data[iY].coefChebEX[0]), nOrderEx, MPI_DOUBLE, 0, myComm_sptr->get());
+        MPI_Bcast((void *) &(data[iYX].data[iY].coefChebEY[0]), nOrderEy, MPI_DOUBLE, 0, myComm_sptr->get());
      } // on Y scans
    } // on YX scans 
    // prepare for using GSL Cheb polynoms. 

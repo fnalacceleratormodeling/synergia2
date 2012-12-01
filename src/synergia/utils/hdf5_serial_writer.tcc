@@ -43,7 +43,15 @@ template<typename T>
             size[data_rank] = 0;
             offset[data_rank] = 0;
             dims[data_rank] = 1;
-            chunk_dims[data_rank] = 1000;
+            if (data_size == 0) {
+                throw std::runtime_error("Hdf5_serial_writer: zero data size encountered");
+            }
+            const size_t good_chunk_size = 8192; // pulled out of air
+            if (data_size < good_chunk_size) {
+                chunk_dims[data_rank] = good_chunk_size/data_size;
+            } else {
+                chunk_dims[data_rank] = 1;
+            }
             DSetCreatPropList cparms;
             cparms.setChunk(data_rank + 1, &chunk_dims[0]);
             DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
@@ -59,7 +67,7 @@ template<typename T>
     Hdf5_serial_writer<T >::Hdf5_serial_writer(Hdf5_file_sptr file_sptr,
             std::string const& name, bool resume) :
         data_rank(0), name(name), file_sptr(file_sptr), have_setup(false),
-                resume(resume)
+                resume(resume), data_size(sizeof(T))
     {
     }
 

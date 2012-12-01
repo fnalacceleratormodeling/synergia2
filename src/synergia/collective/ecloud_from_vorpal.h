@@ -24,8 +24,8 @@ public:
     virtual void
       apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Logger & logger);
-    virtual
-    ~Ecloud_from_vorpal();
+//    virtual
+//    ~Ecloud_from_vorpal();
     
    
     inline std::string get_field_name() { return field_name;}
@@ -34,8 +34,17 @@ public:
     inline std::string get_device_name(size_t k=0) {if (subjectedDevices.size() == 0) return std::string("None");
                                                     return subjectedDevices[k]; }
     inline void add_device(const std::string &device) { subjectedDevices.push_back(device);}						    					   
+    template<class Archive>
+        void
+        save(Archive & ar, const unsigned int version) const;
+    template<class Archive>
+        void
+        load(Archive & ar, const unsigned int version);
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+      virtual
+      ~Ecloud_from_vorpal();
 };
-#endif // ECLOUD_FROM_VORPAL_H
 BOOST_CLASS_EXPORT_KEY(Ecloud_from_vorpal)
 
 typedef boost::shared_ptr<Ecloud_from_vorpal > Ecloud_from_vorpal_sptr;
+#endif // ECLOUD_FROM_VORPAL_H

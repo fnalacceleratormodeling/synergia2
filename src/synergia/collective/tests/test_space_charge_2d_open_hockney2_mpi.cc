@@ -44,15 +44,21 @@ get_gaussian_rho2(Space_charge_2d_open_hockney & space_charge, Bunch & bunch,
             * pconstants::e;
     std::vector<double > h(rho2->get_domain().get_cell_size());
     double factor = Q / bunch.get_total_num() / (h[0] * h[1] * h[2]);
-    for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
-        for (int j = 0; j < doubled_shape[1]; ++j) {
-            for (int k = 0; k < doubled_shape[2]; ++k) {
-                double x, y, z;
-                local_rho->get_domain().get_cell_coordinates(i, j, k, x,
-                        y, z);
+    for (int j = 0; j < doubled_shape[1]; ++j) {
+        for (int k = 0; k < doubled_shape[2]; ++k) {
+            double x, y, z;
+            for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
+                local_rho->get_domain().get_cell_coordinates(i, j, k, x, y, z);
                 //double val = gaussian_charge_density(Q, r2, sigma);
-                double val = gaussian_charge_density2(Q, x, y, z, sigma, sigmaz);
+                double val = gaussian_charge_density2(Q, x, y, z, sigma,
+                                sigmaz);
                 rho2->get_grid_points_2dc()[i][j] += val;
+            }
+            for (int i = 0; i < doubled_shape[0]; ++i) {
+                local_rho->get_domain().get_cell_coordinates(i, j, k, x, y, z);
+                //double val = gaussian_charge_density(Q, r2, sigma);
+                double val = gaussian_charge_density2(Q, x, y, z, sigma,
+                                sigmaz);
                 rho2->get_grid_points_1d()[k] += val / factor;
             }
         }
@@ -60,7 +66,7 @@ get_gaussian_rho2(Space_charge_2d_open_hockney & space_charge, Bunch & bunch,
     return rho2;
 }
 
-#if 0
+#if 1
 BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho, Spherical_bunch_fixture_2d)
 {
     std::vector<int > grid_shape_xyz(3);
@@ -89,14 +95,16 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho, Spherical_bunch_fixture_2d)
     bool have_points = false;
 
     for (int component = 0; component < 2; ++component) {
-        for (int i = local_force2->get_lower(); i < local_force2->get_upper();
+        for (int i = std::max(nondoubled_shape[0] / 2,
+                local_force2->get_lower()); i < std::min(
+                        3 * nondoubled_shape[0] / 2, local_force2->get_upper());
                 ++i) {
-//            for (int j = 0; j < doubled_shape[1]; ++j) {
-//        for (int i = nondoubled_shape[0] / 2; i < 3 * nondoubled_shape[0] / 2;
-//                ++i) {
             for (int j = nondoubled_shape[1] / 2; j < 3 * nondoubled_shape[1]
                     / 2; ++j) {
-                for (int k = 0; k < doubled_shape[2]; ++k) {
+//                for (int k = 0; k < doubled_shape[2]; ++k) {
+//                    int i = nondoubled_shape[0];
+//                    int j = nondoubled_shape[1];
+                    int k = nondoubled_shape[2] / 2;
                     double x, y, z;
                     space_charge.get_doubled_domain_sptr()->get_cell_coordinates(i, j, k, x, y, z);
                     double r = std::sqrt(x * x + y * y + z * z);
@@ -116,10 +124,10 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho, Spherical_bunch_fixture_2d)
                                 * local_force2->get_normalization();
                     }
                     double local_force2_exact_ijk
-                            = gaussian_electric_force_component(Q, q, r, sigma,
+                            = gaussian_electric_force_component(q, Q, r, sigma,
                                     var);
                     double local_force2_exact_ijk_2
-                            = gaussian_electric_force_component2(Q, q, x, y, z,
+                            = gaussian_electric_force_component2(q, Q, x, y, z,
                                     sigma, sigmaz, var);
 
                     double fractional_error = (local_force2_calc_ijk
@@ -135,30 +143,31 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho, Spherical_bunch_fixture_2d)
 
                     //BOOST_CHECK_CLOSE(local_force2_calc_ijk, local_force2_exact_ijk_2, solution_tolerance);
                     //BOOST_CHECK_CLOSE(local_force2_calc_ijk, local_force2_exact_ijk, solution_tolerance);
-                }
+//                }
             }
         }
         if (!have_points) {
             max_fractional_error = 0.0;
             min_fractional_error = 0.0;
         }
+        std::cout << "get_local_force2_exact_rho" << std::endl;
         std::cout << "max_fractional_error = " << max_fractional_error
                 << std::endl;
         std::cout << "min_fractional_error = " << min_fractional_error
                 << std::endl;
         // on the development machine, I get
-        //        max_fractional_error = 0.165817
-        //        min_fractional_error = -0.950593
-        //        max_fractional_error = 0.165817
-        //        min_fractional_error = -0.950593
-        const double field_tolerance[] = { 2.0, 2.0 };
+        //        max_fractional_error = 0.0043919
+        //        min_fractional_error = -0.0393926
+        //        max_fractional_error = 0.0043919
+        //        min_fractional_error = -0.0393926
+        const double field_tolerance[] = { 0.05, 0.05 };
         BOOST_CHECK(std::abs(max_fractional_error) < field_tolerance[component]);
         BOOST_CHECK(std::abs(min_fractional_error) < field_tolerance[component]);
     }
 }
 #endif
 
-#if 0
+#if 1
 BOOST_FIXTURE_TEST_CASE(get_local_force2_particles, Spherical_bunch_fixture_2d)
 {
     Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
@@ -183,16 +192,16 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles, Spherical_bunch_fixture_2d)
     double max_fractional_error = -2.0;
     double min_fractional_error = 2.0;
     bool have_points = false;
-    int rank = comm.get_rank();
-
     for (int component = 0; component < 2; ++component) {
-        for (int i = local_force2->get_lower(); i < local_force2->get_upper();
+        for (int i = std::max(nondoubled_shape[0] / 2,
+                local_force2->get_lower()); i < std::min(
+                        3 * nondoubled_shape[0] / 2, local_force2->get_upper());
                 ++i) {
-//            for (int j = nondoubled_shape[1] / 2; j < 3 * nondoubled_shape[1]
-//                    / 2; ++j) {
+            for (int j = nondoubled_shape[1] / 2; j < 3 * nondoubled_shape[1]
+                    / 2; ++j) {
 //                for (int k = 0; k < doubled_shape[2]; ++k) {
 //                    int i = nondoubled_shape[0];
-                    int j = nondoubled_shape[1];
+//                    int j = nondoubled_shape[1];
                     int k = nondoubled_shape[2] / 2;
                     double x, y, z;
                     space_charge.get_doubled_domain_sptr()->get_cell_coordinates(i, j, k, x, y, z);
@@ -214,10 +223,10 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles, Spherical_bunch_fixture_2d)
                     }
 
                     double local_force2_exact_ijk
-                            = gaussian_electric_force_component(Q, q, r, sigma,
+                            = gaussian_electric_force_component(q, Q, r, sigma,
                                     var);
                     double local_force2_exact_ijk_2
-                            = gaussian_electric_force_component2(Q, q, x, y, z,
+                            = gaussian_electric_force_component2(q, Q, x, y, z,
                                     sigma, sigmaz, var);
 
                     double fractional_error = (local_force2_calc_ijk
@@ -231,25 +240,25 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles, Spherical_bunch_fixture_2d)
                     }
                     have_points = true;
 
-                    #if 1 //PRINT_FORCE
-                    if (rank == 0)
+                    #if PRINT_FORCE
                     std::cout << x << "  " << y << "  " << z << "  "
                             << local_force2_exact_ijk << "  "
                             << local_force2_calc_ijk << "  "
                             << local_force2_exact_ijk_2 << "  "
-                            << fractional_error << " : rank[" << rank
+                            << fractional_error
                             << "]" << std::endl;
                     #endif
 
                     //BOOST_CHECK_CLOSE(local_force2_calc_ijk, local_force2_exact_ijk_2, solution_tolerance);
                     //BOOST_CHECK_CLOSE(local_force2_calc_ijk, local_force2_exact_ijk, solution_tolerance);
 //                }
-//            }
+            }
         }
         if (!have_points) {
             max_fractional_error = 0.0;
             min_fractional_error = 0.0;
         }
+        std::cout << "get_local_force2_particles" << std::endl;
         std::cout << "max_fractional_error = " << max_fractional_error
                 << std::endl;
         std::cout << "min_fractional_error = " << min_fractional_error
@@ -259,7 +268,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles, Spherical_bunch_fixture_2d)
         //        min_fractional_error = -0.947536
         //        max_fractional_error = 0.237864
         //        min_fractional_error = -0.947536
-        const double field_tolerance[] = { 2.0, 2.0 };
+        const double field_tolerance[] = { 0.3, 0.3 };
         BOOST_CHECK(std::abs(max_fractional_error) < field_tolerance[component]);
         BOOST_CHECK(std::abs(min_fractional_error) < field_tolerance[component]);
     }

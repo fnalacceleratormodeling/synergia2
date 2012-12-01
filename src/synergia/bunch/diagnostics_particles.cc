@@ -57,7 +57,7 @@ Diagnostics_particles::receive_other_local_particles(
             writer_particles(
                     &(file_sptr->get_h5file()),
                     "particles",
-                    get_bunch().get_local_particles()[boost::indices[range(0, 1)][range()]]);
+                    get_bunch().get_local_particles());
     for (int rank = 0; rank < size; ++rank) {
         int local_num = local_nums[rank];
         if (rank == myrank) {
@@ -66,16 +66,16 @@ Diagnostics_particles::receive_other_local_particles(
                     min_particle_id, max_particle_id);
         } else {
             MPI_Status status;
-            MArray2d received(boost::extents[local_num][7]);
+            Raw_MArray2d received(boost::extents[local_num][7]);
             int message_size = 7 * local_num;
             MPI_Comm comm = get_bunch().get_comm().get();
-            int error = MPI_Recv((void*) received.origin(), message_size,
+            int error = MPI_Recv((void*) received.m.origin(), message_size,
                     MPI_DOUBLE, rank, rank, comm, &status);
             if (error != MPI_SUCCESS) {
                 throw std::runtime_error(
                         "Diagnostics_particles::receive_other_local_particles: MPI_Recv failed.");
             }
-            write_selected_particles(writer_particles, received, local_num,
+            write_selected_particles(writer_particles, received.m, local_num,
                     min_particle_id, max_particle_id);
         }
     }

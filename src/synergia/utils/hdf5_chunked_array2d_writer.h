@@ -15,9 +15,9 @@ private:
     H5::DataType atomic_type;
 public:
     Hdf5_chunked_array2d_writer(H5::H5File * file_ptr, std::string const& name,
-            Const_MArray2d_view const & initial_data);
+            Const_MArray2d_view const & initial_data, int chunk_size = 0);
     Hdf5_chunked_array2d_writer(H5::H5File * file_ptr, std::string const& name,
-            Const_MArray2d_ref const & initial_data);
+            Const_MArray2d_ref const & initial_data, int chunk_size = 0);
     void
     write_chunk(Const_MArray2d_ref const & data);
     void

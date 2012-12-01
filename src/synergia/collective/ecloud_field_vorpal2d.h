@@ -40,6 +40,8 @@ class ECloudEFieldVORPAL2D {
     ECloudEFieldVORPAL2D(const char *archiveName); // Expected constructor, from an archive file
     ECloudEFieldVORPAL2D(Commxx_sptr comm_sptr, const char *archiveName); // Expected constructor, from an archive file
     ~ECloudEFieldVORPAL2D();
+    ECloudEFieldVORPAL2D( const ECloudEFieldVORPAL2D&);
+    ECloudEFieldVORPAL2D& operator=(const ECloudEFieldVORPAL2D&);
                                                                
     bool loadFromFile(const char *archiveName); //loaded from a single file, a BOOST serialized binary, portable archive file 
     double GetFieldEX(double x, double y, double dz) const; // main work-horse accessor: the electric field at one location.  
@@ -106,7 +108,7 @@ class ECloudEFieldVORPAL2D {
    // The real meat 
 
    private:
-     Commxx myComm; // The communicator 
+     Commxx_sptr myComm_sptr; // The communicator 
      std::string version;  // I'll probably change my mind, so there it is..
      std::string VORPALJobName; // strictly ofr experts..
      int verticalChebychevOrder; // the order for the Chebyshev
@@ -130,8 +132,13 @@ class ECloudEFieldVORPAL2D {
 // inlines accessors, implementation.. 
 // 
    public: 
+     inline Commxx_sptr getComm() const {return myComm_sptr;}
      inline std::string getVersion() const {return version;}
-     inline std::string getVORPALJobName() const { return VORPALJobName;} 
+     inline std::string getVORPALJobName() const { return VORPALJobName;}
+     inline int getVerticalChebychevOrder() const {return  verticalChebychevOrder;}
+     inline std::vector<YXScanAtdZ> getData() const {return data;}
+     inline double getYLow() const {return yLow;}
+     inline double getYUp() const {return yUp;}
      inline int getNumPtDZ() const {return data.size();}
      inline int getNumPtX() const {  if (data.size() == 0) return 0; return data[0].data.size(); }  
      inline int getNumChebCoef() const { return  verticalChebychevOrder; }

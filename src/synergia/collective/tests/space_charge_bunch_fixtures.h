@@ -110,7 +110,7 @@ struct Spherical_bunch_fixture_2d
             }
         }
         sigma = 1.3e-3;
-        sigmaz = 1.3e-2;
+        sigmaz = 1.3e-1;
         covariances[0][0] = sigma * sigma;
         covariances[2][2] = sigma * sigma;
         covariances[4][4] = sigmaz * sigmaz;

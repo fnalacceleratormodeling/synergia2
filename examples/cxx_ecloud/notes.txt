@@ -1,0 +1,19 @@
+Tips and tricks:
+
+To test the checkpointing and associated serialization, I did:
+
+mpirun -n 3 ./cxx_ecloudexample
+
+Then kill (ctrl-C), after running for ~ 2.5 turns 
+(as I ask for checkpointing every 2 turns.)   
+
+Then, 
+
+mpirun -n 3 synergia-resume 
+
+Recommended by Jim..
+
+And it works, test with the option of 3 10^13 particles in the bunch. 
+
+
+
