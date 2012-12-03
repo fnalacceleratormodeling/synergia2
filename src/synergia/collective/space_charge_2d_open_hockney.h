@@ -50,6 +50,8 @@ private:
     bool need_state_conversion;
     bool domain_fixed;
     bool have_domains;
+    std::string exfile, eyfile;
+    bool dumped;
     void
     setup_nondoubled_communication();
     void
@@ -142,6 +144,8 @@ public:
             Rectangular_grid const& Fn, double delta_tau);
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
+    void
+    set_files(std::string const& xfile, std::string const& yfile);
     template<class Archive>
         void
         save(Archive & ar, const unsigned int version) const
@@ -159,7 +163,10 @@ public:
                     & BOOST_SERIALIZATION_NVP(have_domains)
                     & BOOST_SERIALIZATION_NVP(green_fn_type)
                     & BOOST_SERIALIZATION_NVP(charge_density_comm)
-                    & BOOST_SERIALIZATION_NVP(e_force_comm);
+                    & BOOST_SERIALIZATION_NVP(e_force_comm)
+                    & BOOST_SERIALIZATION_NVP(exfile)
+                    & BOOST_SERIALIZATION_NVP(eyfile)
+                    & BOOST_SERIALIZATION_NVP(dumped);
         }
     template<class Archive>
         void
@@ -178,7 +185,10 @@ public:
                     & BOOST_SERIALIZATION_NVP(have_domains)
                     & BOOST_SERIALIZATION_NVP(green_fn_type)
                     & BOOST_SERIALIZATION_NVP(charge_density_comm)
-                    & BOOST_SERIALIZATION_NVP(e_force_comm);
+                    & BOOST_SERIALIZATION_NVP(e_force_comm)
+                    & BOOST_SERIALIZATION_NVP(exfile)
+                    & BOOST_SERIALIZATION_NVP(eyfile)
+                    & BOOST_SERIALIZATION_NVP(dumped);
             distributed_fft2d_sptr = Distributed_fft2d_sptr(
                     new Distributed_fft2d(doubled_grid_shape, comm2_sptr));
             setup_nondoubled_communication();

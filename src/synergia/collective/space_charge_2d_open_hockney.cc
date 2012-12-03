@@ -8,6 +8,7 @@ using pconstants::epsilon0;
 #include "interpolate_rectangular_zyx.h"
 #include "synergia/utils/multi_array_offsets.h"
 #include "synergia/utils/simple_timer.h"
+#include "synergia/utils/hdf5_writer.h"
 
 void
 Space_charge_2d_open_hockney::setup_nondoubled_communication()
@@ -81,7 +82,7 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
                 comm2_sptr(comm_sptr), n_sigma(n_sigma), domain_fixed(false),
                 have_domains(false),
                 need_state_conversion(need_state_conversion),
-                use_cell_coords(true)
+                use_cell_coords(true), exfile(""), eyfile(""), dumped(true)
 {
     if (this->periodic_z) {
         throw std::runtime_error(
@@ -110,7 +111,7 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
                 comm2_sptr(distributed_fft2d_sptr->get_comm_sptr()),
                 n_sigma(n_sigma), domain_fixed(false), have_domains(false),
                 need_state_conversion(need_state_conversion),
-                use_cell_coords(true)
+                use_cell_coords(true), exfile(""), eyfile(""), dumped(true)
 {
     if (this->periodic_z) {
         throw std::runtime_error(
@@ -432,7 +433,7 @@ Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
         particle_bin_sptr
                 = boost::shared_ptr<Raw_MArray2d >(
                         new Raw_MArray2d(boost::extents[bunch.get_local_num()][6]));
-        deposit_charge_rectangular_2d(*local_rho_sptr, *particle_bin_sptr, 
+        deposit_charge_rectangular_2d(*local_rho_sptr, *particle_bin_sptr,
                 bunch);
     }
     t = simple_timer_show(t, "get_local_rho-deposit");
@@ -819,7 +820,7 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
             for (int i = 0; i < 6; ++i) {
                 bin.m[i] = (*particle_bin_sptr).m[part][i];
             }
-            grid_val = interpolate_rectangular_2d(bin, doubled_grid_shape, 
+            grid_val = interpolate_rectangular_2d(bin, doubled_grid_shape,
                             periodic_z, grid_points, grid_points_1d);
         }
         bunch.get_local_particles()[part][1] += factor * grid_val.real();
@@ -866,10 +867,41 @@ Space_charge_2d_open_hockney::apply(Bunch & bunch, double time_step,
         apply_kick(bunch, *rho2, *Fn, time_step);
         t = simple_timer_show(t, "sc2doh-apply_kick");
         rho2.reset();
+        if (!dumped && exfile != "") {
+            if (comm2_sptr->get_rank() == 0) {
+                Raw_MArray2d Fx(boost::extents[grid_shape[0]][grid_shape[1]]);
+                Raw_MArray2d Fy(boost::extents[grid_shape[0]][grid_shape[1]]);
+                for (int i=0; i<grid_shape[0]; ++i) {
+                    for(int j=0; j<grid_shape[1]; ++j) {
+                        Fx.m[i][j] = Fn->get_grid_points_2dc()[i][j].real();
+                        Fy.m[i][j] = Fn->get_grid_points_2dc()[i][j].imag();
+                    }
+                }
+                std::cout << "jfa: dumping Fx to " << exfile
+                        << std::endl;
+                Hdf5_file fx(exfile, Hdf5_file::truncate);
+                Hdf5_writer<MArray2d> wx(&(fx.get_h5file()), "F");
+                wx.write(Fx.m);
+                std::cout << "jfa: dumping Fy to " << exfile
+                        << std::endl;
+                Hdf5_file fy(eyfile, Hdf5_file::truncate);
+                Hdf5_writer<MArray2d> wy(&(fy.get_h5file()), "F");
+                wy.write(Fy.m);
+            }
+            dumped = true;
+        }
         Fn.reset();
         t = simple_timer_show(t, "sc2doh-finalize");
         t_total = simple_timer_show(t_total, "collective_operator_apply-sc2doh");
     }
+}
+
+void
+Space_charge_2d_open_hockney::set_files(std::string const& xfile, std::string const& yfile)
+{
+    this->exfile = xfile;
+    this->eyfile = yfile;
+    dumped = false;
 }
 
 Space_charge_2d_open_hockney::~Space_charge_2d_open_hockney()

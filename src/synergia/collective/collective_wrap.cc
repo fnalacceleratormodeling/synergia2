@@ -36,6 +36,7 @@ BOOST_PYTHON_MODULE(collective)
                 .def(init<Commxx_sptr, std::vector<int >, bool, bool, double, bool >())
                 .def(init<Commxx_sptr, std::vector<int >, bool, bool, double, bool, double >())
                 .def("apply", &Space_charge_2d_open_hockney::apply)
+                .def("set_files", &Space_charge_2d_open_hockney::set_files)
         ;
 
     class_<Space_charge_2d_bassetti_erskine, Space_charge_2d_bassetti_erskine_sptr,
