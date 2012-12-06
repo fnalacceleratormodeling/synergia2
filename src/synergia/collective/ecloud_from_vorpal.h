@@ -43,6 +43,10 @@ public:
     BOOST_SERIALIZATION_SPLIT_MEMBER()
       virtual
       ~Ecloud_from_vorpal();
+       
+ private:
+     void getElementBoudaries( const Step & step ); // likely not be a const if we need this information. Learning how to get this info. 
+      
 };
 BOOST_CLASS_EXPORT_KEY(Ecloud_from_vorpal)
 
