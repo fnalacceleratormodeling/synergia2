@@ -29,6 +29,9 @@ public:
     /// @param name an arbitrary name
     Lattice(std::string const& name);
 
+    /// Copies of Lattices contain copies of elements
+    Lattice(Lattice const& lattice);
+
     /// Get the Lattice name
     std::string const&
     get_name() const;

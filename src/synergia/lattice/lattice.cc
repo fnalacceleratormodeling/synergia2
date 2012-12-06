@@ -14,6 +14,20 @@ Lattice::Lattice(std::string const& name) :
 {
 }
 
+Lattice::Lattice(Lattice const& lattice) :
+        name(lattice.name), reference_particle_allocated(false), elements()
+{
+    for (Lattice_elements::const_iterator it = lattice.elements.begin();
+            it != lattice.elements.end(); ++it) {
+        elements.push_back(Lattice_element_sptr(new Lattice_element(**it)));
+    }
+    if (lattice.reference_particle_allocated) {
+        reference_particle_ptr = new Reference_particle(
+                *lattice.reference_particle_ptr);
+        reference_particle_allocated = true;
+    }
+}
+
 std::string const&
 Lattice::get_name() const
 {

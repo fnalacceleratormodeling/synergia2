@@ -8,7 +8,8 @@ using namespace H5;
 #endif
 
 Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(H5File * file_ptr,
-        std::string const& name, Const_MArray2d_view const & initial_data) :
+        std::string const& name, Const_MArray2d_view const & initial_data,
+        int chunk_size) :
         dims(2), max_dims(2), size(2), offset(2), chunk_dims(2), file_ptr(
                 file_ptr), atomic_type(hdf5_atomic_data_type<double >())
 {
@@ -17,6 +18,9 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(H5File * file_ptr,
         max_dims[i] = initial_data.shape()[i];
         chunk_dims[i] = initial_data.shape()[i];
         offset[i] = 0;
+    }
+    if (chunk_size > 0) {
+        chunk_dims[0] = chunk_size;
     }
     size[0] = 0;
     size[1] = initial_data.shape()[1];
@@ -29,7 +33,8 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(H5File * file_ptr,
 }
 
 Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(H5File * file_ptr,
-        std::string const& name, Const_MArray2d_ref const & initial_data) :
+        std::string const& name, Const_MArray2d_ref const & initial_data,
+        int chunk_size) :
         dims(2), max_dims(2), size(2), offset(2), chunk_dims(2), file_ptr(
                 file_ptr), atomic_type(hdf5_atomic_data_type<double >())
 {
@@ -38,6 +43,9 @@ Hdf5_chunked_array2d_writer::Hdf5_chunked_array2d_writer(H5File * file_ptr,
         max_dims[i] = initial_data.shape()[i];
         chunk_dims[i] = initial_data.shape()[i];
         offset[i] = 0;
+    }
+    if (chunk_size > 0) {
+        chunk_dims[0] = chunk_size;
     }
     size[0] = 0;
     size[1] = initial_data.shape()[1];
