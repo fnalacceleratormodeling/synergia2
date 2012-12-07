@@ -173,6 +173,56 @@ BOOST_AUTO_TEST_CASE(get_total_angle2)
     BOOST_CHECK_CLOSE(lattice.get_total_angle(), 2*pi, tolerance);
 }
 
+BOOST_AUTO_TEST_CASE(copy_lattice)
+{
+    Lattice_element f("footype", "foo");
+    const double foo_length = 1.0;
+    f.set_double_attribute("l", foo_length);
+    Lattice lattice(name);
+    lattice.append(f);
+    Reference_particle reference_particle(charge, mass, total_energy);
+    lattice.set_reference_particle(reference_particle);
+
+    Lattice copied_lattice(lattice);
+
+    BOOST_CHECK_EQUAL(lattice.get_elements().size(),
+            copied_lattice.get_elements().size());
+    BOOST_CHECK_EQUAL((*lattice.get_elements().begin())->get_name(),
+            (*copied_lattice.get_elements().begin())->get_name());
+
+    BOOST_CHECK_CLOSE((*lattice.get_elements().begin())->get_length(),
+            foo_length, tolerance);
+    BOOST_CHECK_CLOSE((*copied_lattice.get_elements().begin())->get_length(),
+            foo_length, tolerance);
+
+    const double new_length = 2.0;
+    (*copied_lattice.get_elements().begin())->set_double_attribute("l", new_length);
+
+    BOOST_CHECK_CLOSE((*lattice.get_elements().begin())->get_length(),
+            foo_length, tolerance);
+    BOOST_CHECK_CLOSE((*copied_lattice.get_elements().begin())->get_length(),
+            new_length, tolerance);
+
+    BOOST_CHECK_EQUAL(copied_lattice.has_reference_particle(), true);
+    const double new_energy = 2*total_energy;
+    Reference_particle new_reference_particle(charge, mass, new_energy);
+    copied_lattice.set_reference_particle(new_reference_particle);
+    BOOST_CHECK_CLOSE(lattice.get_reference_particle().get_total_energy(),
+            total_energy, tolerance);
+    BOOST_CHECK_CLOSE(copied_lattice.get_reference_particle().get_total_energy(),
+            new_energy, tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(copy_lattice2)
+{
+    Lattice lattice(name);
+    Lattice copied_lattice(lattice);
+
+    BOOST_CHECK_EQUAL(copied_lattice.has_reference_particle(), false);
+    Reference_particle reference_particle(charge, mass, total_energy);
+    copied_lattice.set_reference_particle(reference_particle);
+}
+
 BOOST_AUTO_TEST_CASE(test_serialize1)
 {
     Lattice_element f("quadrupole", "f");

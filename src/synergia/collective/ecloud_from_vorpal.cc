@@ -30,10 +30,11 @@ void Ecloud_from_vorpal::apply(Bunch & bunch, double time_step, Step & step, int
 // Find if we have an electron cloud in this device. Done above!!  But we learn how to check where we are.. 
 //
    
-   bunch.convert_to_state(Bunch::fixed_z_lab); 
+   bunch.convert_to_state(Bunch::fixed_t_lab); 
 //
 // Actually, we are already in a device where the e-cloud is present. 
-// 
+//
+    this->getElementBoudaries(step); 
     double q = bunch.get_particle_charge() * pconstants::e; // [C]
     double beta = bunch.get_reference_particle().get_beta();
     double lStep = step.get_length();
@@ -92,7 +93,26 @@ template<class Archive>
 //		std::cerr << " And quit for now ... " << std::endl;
 //		MPI_Abort(MPI_COMM_WORLD, 111);	 exit(2);
         }
+	
+	
+void Ecloud_from_vorpal::getElementBoudaries( const Step & step ) {
 
+    Operators operators(step.get_operators());
+    for (Operators::iterator oit = operators.begin(); oit!= operators.end(); ++oit) {
+        if((*oit)->get_type() != "independent") continue;
+	std::cerr << " got an independent operator for this step " << std::endl;
+        Lattice_element_slices
+                    slices(
+                            boost::static_pointer_cast<Independent_operator >(
+                                    *oit)->get_slices());
+	for (Lattice_element_slices::iterator slit = slices.begin(); slit
+                    != slices.end(); ++slit) {
+                double l = (*slit)->get_right() - (*slit)->get_left();
+		std::cerr << " slice, left  " << (*slit)->get_left() << " right " << (*slit)->get_right() << " length " << l << std::endl;	
+	}		    
+   }
+
+}
 template
 void
 Ecloud_from_vorpal::save<boost::archive::binary_oarchive >(
