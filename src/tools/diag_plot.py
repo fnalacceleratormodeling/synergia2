@@ -24,8 +24,10 @@ def get_layout(num):
     else:
         do_error("Too many plots")
 
-def plot2d(x, y, label):
+def plot2d(x, y, label, extra_label):
     fancylabel = label.replace('_', ' ')
+    if extra_label:
+        fancylabel += extra_label
     pyplot.plot(x, y, label=fancylabel)
 
 class Params:
@@ -71,8 +73,9 @@ class Options:
     def __init__(self):
         self.oneplot = False
         self.show = True
-        self.inputfile = None
+        self.inputfiles = []
         self.outputfile = None
+        self.legends = True
         self.plots = []
 
 def do_error(message):
@@ -83,6 +86,7 @@ def do_help(plotparams):
     print "usage: syndiagplot <filename> [option1] ... [optionn] <plot1> ... <plotn>"
     print "available options are:"
     print "    --oneplot : put all plots on the same axis (not on by default)"
+    print "    --nolegend : suppress legends (not on by default)"
     print "    --output=<file> : save output to file (not on by default)"
     print "    --show : show plots on screen (on by default unless --output flag is present"
     print "available plots are:"
@@ -98,14 +102,16 @@ def handle_args(args, plotparams):
     if len(args) < 2:
         do_help(plotparams)
     options = Options()
-    filename = args[0]
-    options.inputfile = filename
+    filenames = args[0]
+    options.inputfiles = filenames.split(',')
     for arg in args[1:]:
         if arg[0] == '-':
             if arg == '--help':
                 do_help(plotparams)
             elif arg == '--oneplot':
                 options.oneplot = True
+            elif arg == '--nolegends':
+                options.legends = False
             elif arg == '--show':
                 options.show = True
             elif arg.find('--output') == 0:
@@ -121,10 +127,9 @@ def handle_args(args, plotparams):
                 do_error('Unknown plot "%s"' % arg)
     return options
 
-def do_plots(options, plotparams):
-    f = tables.openFile(options.inputfile, 'r')
+def do_plot(inputfile, options, plotparams, multiple_files):
+    f = tables.openFile(inputfile, 'r')
     rows, cols = get_layout(len(options.plots))
-    pyplot.figure().canvas.set_window_title('Synergia Diagnostics')
     plot_index = 1
     for plot in options.plots:
         params = plotparams[plot]
@@ -138,10 +143,21 @@ def do_plots(options, plotparams):
             y = ymaster[params.y_index1, params.y_index2, :]
         if not options.oneplot:
             pyplot.subplot(rows, cols, plot_index)
-        plot2d(x, y, plot)
+        extra_label = None
+        if multiple_files:
+            extra_label = ' ' + inputfile
+        plot2d(x, y, plot, extra_label)
         plot_index += 1
-        pyplot.legend()
-    f.close()
+        if options.legends:
+            pyplot.legend()
+
+def do_plots(options, plotparams):
+    pyplot.figure().canvas.set_window_title('Synergia Diagnostics')
+    multiple_files = False
+    if len(options.inputfiles) > 1:
+        multiple_files = True
+    for inputfile in options.inputfiles:
+        do_plot(inputfile, options, plotparams, multiple_files)
     if options.outputfile:
         pyplot.savefig(options.outputfile)
     if options.show:
