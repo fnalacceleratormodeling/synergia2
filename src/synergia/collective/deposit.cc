@@ -203,7 +203,7 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid, Bunch const& bunch,
     std::vector<double > h(rho_grid.get_domain().get_cell_size());
     double weight0 = (bunch.get_real_num() / bunch.get_total_num())
             * bunch.get_particle_charge() * pconstants::e
-            / (h[0] * h[1] * h[2]);
+            / (h[0] * h[1]); // * h[2]);
     int ix, iy, iz;
     double offx, offy, offz;
     for (int n = 0; n < bunch.get_local_num(); ++n) {
@@ -228,7 +228,7 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid, Bunch const& bunch,
             int cellz = iz + k;
             if ((cellz >= 0)
                     && (cellz < int(rho_1d.shape()[0]))) {
-                double weight = (1 - k - (1 - 2 * k) * offz);
+                double weight = (1 - k - (1 - 2 * k) * offz) / h[2];
                 rho_1d[cellz] += weight;
             }
         }
@@ -255,7 +255,7 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid,
     std::vector<double > h(rho_grid.get_domain().get_cell_size());
     double weight0 = (bunch.get_real_num() / bunch.get_total_num())
             * bunch.get_particle_charge() * pconstants::e
-            / (h[0] * h[1] * h[2]);
+            / (h[0] * h[1]); // * h[2]);
     int ix, iy, iz;
     double offx, offy, offz;
     for (int n = 0; n < bunch.get_local_num(); ++n) {
@@ -289,9 +289,9 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid,
         cellz2 = cellz1 + 1; 
         if ((cellz1 >= 0) && (cellz2 < int(rho_1d.shape()[0]))) {
             double aoffz;
-            aoffz = 1. - offz;
-            rho_1d[cellz1] += aoffz;
-            rho_1d[cellz2] += offz;
+            aoffz = (1. - offz);
+            rho_1d[cellz1] += aoffz / h[2];
+            rho_1d[cellz2] += offz / h[2];
         }
     }
 }

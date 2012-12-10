@@ -300,23 +300,13 @@ BOOST_FIXTURE_TEST_CASE(get_local_charge_density, Toy_bunch_fixture_2d)
     Rectangular_grid_sptr local_charge_density(
             space_charge.get_local_charge_density(bunch));
 
-//    for (int i = center_xyz[0] - 1; i < center_xyz[0] + 1; ++i) {
-//        for (int j = center_xyz[1] - 1; j < center_xyz[1] + 1; ++j) {
-//            for (int k = center_xyz[2] - 1; k < center_xyz[2] + 1; ++k) {
-//                expected[i][j][k] = 0.125 * density_norm;
-//            }
-//        }
-//    }
-//    multi_array_check_equal(local_charge_density->get_grid_points(), expected,
-//            1.0 * tolerance);
-
     for (int i = center_xyz[0] - 1; i < center_xyz[0] + 1; ++i) {
         for (int j = center_xyz[1] - 1; j < center_xyz[1] + 1; ++j) {
-            expected_2dc[i][j] = 0.5 * density_norm_2d;
+            expected_2dc[i][j] = 0.25 * density_norm_2d;
         }
     }
     for (int k = center_xyz[2] - 1; k < center_xyz[2] + 1; ++k) {
-        expected_1d[k] = 0.5 * density_norm_1d;
+        expected_1d[k] = 1.0 * density_norm_1d;
     }
     multi_complex_array_check_equal(local_charge_density->get_grid_points_2dc(),
             expected_2dc, 1.0 * tolerance);
@@ -610,7 +600,7 @@ simple_populate(Bunch & bunch, Random_distribution & distribution)
     // to transverse kicks
     double stdx = 1.1e-3;
     double stdy = 2.3e-3;
-    double stdz = 3.5e-7;
+    double stdz = 3.5e-1;
     covariances[0][0] = stdx * stdx;
     covariances[2][2] = stdy * stdy;
     covariances[4][4] = stdz * stdz;
@@ -651,8 +641,8 @@ BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
     double avg_p_kick2 = total_p_kick2 / bunch.get_local_num();
 
     const double rough_tolerance = 20.0;
-    BOOST_CHECK_CLOSE(avg_x_kick2, 6.5e6, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_y_kick2, 6.7e6, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_p_kick2, 3.65e-2, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_x_kick2, 2.0e-3, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_y_kick2, 2.0e-3, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_p_kick2, 3.67e-2, rough_tolerance);
 }
 
