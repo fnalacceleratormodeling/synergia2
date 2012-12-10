@@ -24,7 +24,11 @@ def get_layout(num):
     else:
         do_error("Too many plots")
 
-def plot2d(x, y, label):
+def plot2d(x, y, coord, index):
+    if index:
+        label = coord + ' ' + str(index)
+    else:
+        label = coord
     pyplot.plot(x, y, label=label)
 
 coords = {}
@@ -41,6 +45,7 @@ class Options:
         self.show = True
         self.inputfile = None
         self.outputfile = None
+        self.indices = [None]
         self.coords = []
 
 def do_error(message):
@@ -50,6 +55,7 @@ def do_error(message):
 def do_help():
     print "usage: syntrackplot <filename> [option1] ... [optionn] <h coord1> <v coord1> ... <h coordn> <v coordn>"
     print "available options are:"
+    print "    --index=<index0>[,<index1>,...]: select indices from a bulk_tracks file (default is 0)"
     print "    --oneplot : put all plots on the same axis (not on by default)"
     print "    --output=<file> : save output to file (not on by default)"
     print "    --show : show plots on screen (on by default unless --output flag is present"
@@ -72,6 +78,9 @@ def handle_args(args):
         if arg[0] == '-':
             if arg == '--help':
                 do_help(plotparams)
+            elif arg.find('--index=') == 0:
+                indices = arg.split('=')[1]
+                options.indices = map(str,indices.split(','))
             elif arg == '--oneplot':
                 options.oneplot = True
             elif arg == '--show':
@@ -89,20 +98,36 @@ def handle_args(args):
                 do_error('Unknown coord "%s"' % arg)
     return options
 
+def get_particle_coords(f, options):
+    particle_coords = []
+    if hasattr(f.root, 'coords'):
+        particle_coords = particle_coords.append(getattr(f.root, "coords").read())
+    else:
+        all_coords = getattr(f.root, 'track_coords').read()
+        if options.indices[0]:
+            indices = options.indices
+        else:
+            print "using default track index 0"
+            indices = [0]
+        for index in indices:
+            particle_coords.append(all_coords[index,:,:])
+    return particle_coords
+
 def do_plots(options):
     f = tables.openFile(options.inputfile, 'r')
     rows, cols = get_layout(len(options.coords))
     pyplot.figure().canvas.set_window_title('Synergia Track Viewer')
-    plot_index = 1
-    particle_coords = getattr(f.root, "coords").read()
-    for coord in options.coords:
-        x = getattr(f.root, "trajectory_length").read()
-        y = particle_coords[coords[coord],:]
-        if not options.oneplot:
-            pyplot.subplot(rows, cols, plot_index)
-        plot2d(x, y, coord)
-        plot_index += 1
-        pyplot.legend()
+    all_particle_coords = get_particle_coords(f, options)
+    for particle_coords, index in zip(all_particle_coords, options.indices):
+        plot_index = 1
+        for coord in options.coords:
+            x = getattr(f.root, "trajectory_length").read()
+            y = particle_coords[coords[coord],:]
+            if not options.oneplot:
+                pyplot.subplot(rows, cols, plot_index)
+            plot2d(x, y, coord, index)
+            plot_index += 1
+            pyplot.legend()
     f.close()
     if options.outputfile:
         pyplot.savefig(options.outputfile)
