@@ -26,6 +26,7 @@ class Options:
         self.inputfiles = []
         self.outputfile = None
         self.coords = []
+        self.indices = []
 
 def do_error(message):
     sys.stderr.write(message + '\n')
@@ -34,6 +35,7 @@ def do_error(message):
 def do_help():
     print "usage: synpoincareplot <filename1> ... <filenamen> [option1] ... [optionn] <h coord> <v coord>"
     print "available options are:"
+    print "    --index=<index0>[,<index1>,...]: select indices from a bulk_tracks file (default is 0)"
     print "    --pointsize=<float>: size of plotted points (default=4.0)"
     print "    --output=<file> : save output to file (not on by default)"
     print "    --show : show plots on screen (on by default unless --output flag is present"
@@ -55,6 +57,10 @@ def handle_args(args):
         if arg[0] == '-':
             if arg == '--help':
                 do_help(plotparams)
+            elif arg.find('--index') == 0:
+                indices = arg.split('=')[1]
+                for index in indices.split(','):
+                    options.indices.append(index)
             elif arg.find('--pointsize') == 0:
                 options.point_size = arg.split('=')[1]
             elif arg == '--show':
@@ -71,6 +77,8 @@ def handle_args(args):
     for coord in options.coords:
         if not coord in coords.keys():
             do_error('Unknown coord "%s"' % coord)
+    if options.indices == []:
+        options.indices = [0]
     return options
 
 def single_plot(options, particle_coords):
@@ -90,7 +98,7 @@ def do_plots(options):
             track_coords = getattr(f.root, "track_coords").read()
             f.close()
             ntracks = track_coords.shape[0]
-            for trk in range(ntracks):
+            for trk in options.indices:
                 particle_coords = track_coords[trk,0:6,:]
                 single_plot(options, particle_coords)
 
