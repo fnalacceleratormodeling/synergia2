@@ -98,9 +98,12 @@ template<class Archive>
 void Ecloud_from_vorpal::getElementBoudaries( const Step & step ) {
 
     Operators operators(step.get_operators());
+    Commxx myComm; // The communicator 
+    int my_rank= myComm.get_rank();
+    if (my_rank == 0) std::cerr << " Studying ElementBoudaries for step of length " << step.get_length() << std::endl;
     for (Operators::iterator oit = operators.begin(); oit!= operators.end(); ++oit) {
         if((*oit)->get_type() != "independent") continue;
-	std::cerr << " got an independent operator for this step " << std::endl;
+	if (my_rank == 0) std::cerr << " .....  got an independent operator .. " << std::endl;
         Lattice_element_slices
                     slices(
                             boost::static_pointer_cast<Independent_operator >(
@@ -108,7 +111,16 @@ void Ecloud_from_vorpal::getElementBoudaries( const Step & step ) {
 	for (Lattice_element_slices::iterator slit = slices.begin(); slit
                     != slices.end(); ++slit) {
                 double l = (*slit)->get_right() - (*slit)->get_left();
-		std::cerr << " slice, left  " << (*slit)->get_left() << " right " << (*slit)->get_right() << " length " << l << std::endl;	
+		if (my_rank == 0) {
+		   if ((*slit)->is_whole()) std::cerr << " Whole slice, left  ";
+		   else std::cerr << " fractional slice, left  ";
+		   std::cerr << (*slit)->get_left() 
+		                            << " right " << (*slit)->get_right() << " length " << l << std::endl;
+                   Lattice_element tmpElem = (*slit)->get_lattice_element();
+                   std::cerr << " .............. Element type " 
+		             << (*slit)->get_lattice_element().get_type() << " name " <<  (*slit)->get_lattice_element().get_name() << std::endl;
+		   
+		}	
 	}		    
    }
 
