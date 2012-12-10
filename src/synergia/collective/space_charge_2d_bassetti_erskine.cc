@@ -15,7 +15,6 @@ const Complex complex_0(0.0, 0.0);
 const Complex complex_i(0.0, 1.0);
 
 
-double const sigma_limit = 64.0;
 double const sigma_round = 0.1;
 
 Space_charge_2d_bassetti_erskine::Space_charge_2d_bassetti_erskine() :
@@ -38,9 +37,9 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y)
     double x, y;
     bool normal;
     std::complex<double > z;
-    double ds, mean_sigma;
+    double ds, mean_sigma_squared;
     std::complex<double > arg1, arg2;
-    double tmp1, r;
+    double tmp1, r_squared;
     std::complex<double > retarg1, retarg2;
     enum
     {
@@ -52,32 +51,31 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y)
 
     // Asymptotic limit ...
     if ((sigma[0] == 0.0) && (sigma[1] == 0.0)) {
-        r = x * x + y * y;
-        if (r < 1.0e-20) {
+        r_squared = x * x + y * y;
+        if (r_squared < 1.0e-20) {
             throw std::runtime_error("Asymptotic limit r seems too small in Space_charge_2d_bassetti_erskine::normalized_efield.");
         }
-        retvec[0] = x / r;
-        retvec[1] = y / r;
+        retvec[0] = x / r_squared;
+        retvec[1] = y / r_squared;
         retvec[2] = 0.0;
         return retvec;
     }
 
     // Round beam limit ...
     if (use_round) {
-        if ((fabs((sigma[0] - sigma[1]) / (sigma[0] + sigma[1])) < sigma_round)
-                || ((pow(x / sigma[0], 2.0) + pow(y / sigma[1], 2.0)) > sigma_limit)) {
-            r = x * x + y * y;
-            mean_sigma = 2.0 * sigma[0] * sigma[1];
+        if (fabs((sigma[0] - sigma[1]) / (sigma[0] + sigma[1])) < sigma_round) {
+            r_squared = x * x + y * y;
+            mean_sigma_squared = 2.0 * sigma[0] * sigma[1];
             // Test for small r .....
-            if (r > 1.0e-6 * mean_sigma) {
-                r = (1.0 - exp(-r / mean_sigma)) / r;
-                retvec[0] = x * r;
-                retvec[1] = y * r;
-                retvec[2] = 0.0;
-                return retvec;
+            if (r_squared > 1.0e-6 * mean_sigma_squared) {
+             	double vol_fact = (1.0 - exp(-r_squared / mean_sigma_squared));
+            	retvec[0] = vol_fact * x/r_squared;
+            	retvec[1] = vol_fact * y/r_squared;
+            	retvec[2] = 0.0;
+            	return retvec;
             } else {
-                retvec[0] = x / mean_sigma;
-                retvec[1] = y / mean_sigma;
+                retvec[0] = x / mean_sigma_squared;
+                retvec[1] = y / mean_sigma_squared;
                 retvec[2] = 0.0;
                 return retvec;
             }
@@ -107,7 +105,7 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y)
         }
     }
 
-    // Check for normal processing ...
+	// Check for normal processing ...
     normal = sigma[0] > sigma[1];
     if (!normal) {
         tmp1 = sigma[0];
@@ -121,7 +119,7 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y)
     // The calculation ...
     ds = sqrt(2.0 * (sigma[0] * sigma[0] - sigma[1] * sigma[1]));
     arg1 = x / ds + complex_i * y / ds;
-    r = sigma[1] / sigma[0];
+    double r = sigma[1] / sigma[0];
     arg2 = ((x * r) / ds) + complex_i * ((y / r) / ds);
 
     retarg1 = wofz(arg1);
