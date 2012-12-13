@@ -41,7 +41,12 @@ interpolate_rectangular_2d(double x, double y, double z,
             offx, offy, offz);
     std::complex<double > val;
     if (in_domain) {
-        double line_density = ((1.0 - offz) * b[iz] + offz * b[iz + 1]);
+        double line_density;
+        if (domain.get_grid_shape()[2] == 1) {
+            line_density = b[0];
+        } else {
+            line_density = ((1.0 - offz) * b[iz] + offz * b[iz + 1]);
+        }
         val = line_density * ((1.0 - offx) * (1.0 - offy) * a[ix][iy]
                 + offx * (1.0 - offy) * a[ix + 1][iy]
                 + (1.0 - offx) * offy * a[ix][iy + 1]
@@ -51,24 +56,35 @@ interpolate_rectangular_2d(double x, double y, double z,
 }
 
 inline std::complex<double >
-interpolate_rectangular_2d(Raw_MArray1d const& bin,
-        std::vector<int > const& grid_shape, bool periodic_z,
+interpolate_rectangular_2d(Raw_MArray1d const& bin, bool periodic_z,
         MArray2dc_ref const& a, MArray1d_ref const& b)
 {
     // bi-linear interpolation
     int ix, iy, iz;
     double offx, offy, offz;
-    double aoffx, aoffy, aoffz;
     ix = fast_int_floor(bin.m[0]);
     iy = fast_int_floor(bin.m[2]);
     iz = fast_int_floor(bin.m[4]);
     offx = bin.m[1];
     offy = bin.m[3];
     offz = bin.m[5];
+    std::vector<int > grid_shape(3);
+    grid_shape[0] = a.shape()[0];
+    grid_shape[1] = a.shape()[1];
+    grid_shape[2] = b.shape()[0];
     std::complex<double > val;
-    if (((ix>=0) && (ix<grid_shape[0] - 1) && (iy>=0) && (iy<grid_shape[1] - 1))
-        && (periodic_z || ((iz>=0) && (iz<grid_shape[2] - 1)))) {
-        double line_density = ((1.0 - offz) * b[iz] + offz * b[iz + 1]);
+    if ((grid_shape[2] == 1) && ((ix >= 0) && (ix < grid_shape[0] - 1)
+            && (iy >= 0) && (iy < grid_shape[1] - 1)) && (periodic_z || ((iz
+            >= 0) && (iz <= grid_shape[2])))) {
+        double line_density = b[0];
+        val = line_density * ((1.0 - offx) * (1.0 - offy) * a[ix][iy]
+                + offx * (1.0 - offy) * a[ix + 1][iy]
+                + (1.0 - offx) * offy * a[ix][iy + 1]
+                + offx * offy * a[ix + 1][iy + 1]);
+    } else if ((grid_shape[2] > 1) && ((ix >= 0) && (ix < grid_shape[0] - 1)
+            && (iy >= 0) && (iy < grid_shape[1] - 1)) && (periodic_z || ((iz
+            >= 0) && (iz < grid_shape[2] - 1)))) {
+        double line_density = (1.0 - offz) * b[iz] + offz * b[iz + 1];
         val = line_density * ((1.0 - offx) * (1.0 - offy) * a[ix][iy]
                 + offx * (1.0 - offy) * a[ix + 1][iy]
                 + (1.0 - offx) * offy * a[ix][iy + 1]
