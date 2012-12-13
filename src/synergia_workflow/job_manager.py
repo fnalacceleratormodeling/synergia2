@@ -197,6 +197,14 @@ class Job_manager:
         output_path = os.path.join(directory, name)
         process_template(template_path, output_path, subs)
 
+    def submit_job(self, job_name):
+        submitter = "qsub"
+        for line in open(job_name, 'r'):
+            m = re.match(".*synergia_workflow_submitter:(.*)", line)
+            if m:
+                submitter = m.group(1)
+        os.system(submitter + ' ./' + job_name)
+
     def create_job(self, directory, extra_files, extra_dirs,
                    extra_opt_files, extra_opt_dirs):
 ###        real_script = os.path.abspath(self.argv[0])
@@ -261,7 +269,7 @@ class Job_manager:
             self.copy_extra_dirs(extra_opt_dirs, optional=True)
         if self.opts.get("submit"):
             os.chdir(directory)
-            os.system("qsub %s" % job_name)
+            self.submit_job(job_name)
             os.chdir(old_cwd)
         if self.opts.get("run"):
             os.chdir(directory)
