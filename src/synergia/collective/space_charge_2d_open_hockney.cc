@@ -822,8 +822,8 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
             for (int i = 0; i < 6; ++i) {
                 bin.m[i] = (*particle_bin_sptr).m[part][i];
             }
-            grid_val = interpolate_rectangular_2d(bin, doubled_grid_shape,
-                            periodic_z, grid_points, grid_points_1d);
+            grid_val = interpolate_rectangular_2d(bin, periodic_z, grid_points,
+                            grid_points_1d);
         }
         xkick += factor * grid_val.real();
         xkick2 += factor * grid_val.real()*factor * grid_val.real();
