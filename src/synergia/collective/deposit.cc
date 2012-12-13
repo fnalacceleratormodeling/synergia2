@@ -1,5 +1,6 @@
 #include "synergia/collective/deposit.h"
 #include "synergia/foundation/physical_constants.h"
+#include "synergia/bunch/core_diagnostics.h"
 
 #include <iostream>
 
@@ -190,13 +191,17 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid, Bunch const& bunch,
     MArray2dc_ref rho_2dc(rho_grid.get_grid_points_2dc());
     MArray1d_ref rho_1d(rho_grid.get_grid_points_1d());
     Const_MArray2d_ref parts(bunch.get_local_particles());
+    std::vector<int > grid_shape(3);
+    grid_shape[0] = rho_2dc.shape()[0];
+    grid_shape[1] = rho_2dc.shape()[1];
+    grid_shape[2] = rho_1d.shape()[0];
     if (zero_first) {
-        for (unsigned int i = 0; i < rho_2dc.shape()[0]; ++i) {           // x
-            for (unsigned int j = 0; j < rho_2dc.shape()[1]; ++j) {       // y
+        for (unsigned int i = 0; i < grid_shape[0]; ++i) {           // x
+            for (unsigned int j = 0; j < grid_shape[1]; ++j) {       // y
                 rho_2dc[i][j] = 0.0;
             }
         }
-        for (unsigned int k = 0; k < rho_1d.shape()[0]; ++k) {            // z
+        for (unsigned int k = 0; k < grid_shape[2]; ++k) {            // z
             rho_1d[k] = 0.0;
         }
     }
@@ -206,6 +211,11 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid, Bunch const& bunch,
             / (h[0] * h[1]); // * h[2]);
     int ix, iy, iz;
     double offx, offy, offz;
+    if (grid_shape[2] == 1) {
+        double mean(Core_diagnostics::calculate_z_mean(bunch));
+        double std(Core_diagnostics::calculate_z_std(bunch, mean));
+        rho_1d[0] = bunch.get_total_num() / (std::sqrt(12.0) * std);
+    }
     for (int n = 0; n < bunch.get_local_num(); ++n) {
         // no xyz->zyx transformation
         rho_grid.get_domain().get_leftmost_indices_offsets(
@@ -215,9 +225,8 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid, Bunch const& bunch,
             for (int j = 0; j < 2; ++j) {
                 int cellx = ix + i;
                 int celly = iy + j;
-                if ((cellx >= 0) && (cellx < int(rho_2dc.shape()[0]))
-                        && (celly >= 0)
-                        && (celly < int(rho_2dc.shape()[1]))) {
+                if ((cellx >= 0) && (cellx < grid_shape[0]) && (celly >= 0)
+                        && (celly < grid_shape[1])) {
                     double weight = weight0 * (1 - i - (1 - 2 * i)
                             * offx) * (1 - j - (1 - 2 * j) * offy);
                     rho_2dc[cellx][celly] += weight;
@@ -226,8 +235,7 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid, Bunch const& bunch,
         }
         for (int k = 0; k < 2; ++k) {
             int cellz = iz + k;
-            if ((cellz >= 0)
-                    && (cellz < int(rho_1d.shape()[0]))) {
+            if ((grid_shape[2] > 1) && (cellz >= 0) && (cellz < grid_shape[2])) {
                 double weight = (1 - k - (1 - 2 * k) * offz) / h[2];
                 rho_1d[cellz] += weight;
             }
@@ -242,13 +250,17 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid,
     MArray2dc_ref rho_2dc(rho_grid.get_grid_points_2dc());
     MArray1d_ref rho_1d(rho_grid.get_grid_points_1d());
     Const_MArray2d_ref parts(bunch.get_local_particles());
+    std::vector<int > grid_shape(3);
+    grid_shape[0] = rho_2dc.shape()[0];
+    grid_shape[1] = rho_2dc.shape()[1];
+    grid_shape[2] = rho_1d.shape()[0];
     if (zero_first) {
-        for (unsigned int i = 0; i < rho_2dc.shape()[0]; ++i) {           // x
-            for (unsigned int j = 0; j < rho_2dc.shape()[1]; ++j) {       // y
+        for (unsigned int i = 0; i < grid_shape[0]; ++i) {           // x
+            for (unsigned int j = 0; j < grid_shape[1]; ++j) {       // y
                 rho_2dc[i][j] = 0.0;
             }
         }
-        for (unsigned int k = 0; k < rho_1d.shape()[0]; ++k) {            // z
+        for (unsigned int k = 0; k < grid_shape[2]; ++k) {            // z
             rho_1d[k] = 0.0;
         }
     }
@@ -258,6 +270,11 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid,
             / (h[0] * h[1]); // * h[2]);
     int ix, iy, iz;
     double offx, offy, offz;
+    if (grid_shape[2] == 1) {
+        double mean(Core_diagnostics::calculate_z_mean(bunch));
+        double std(Core_diagnostics::calculate_z_std(bunch, mean));
+        rho_1d[0] = bunch.get_total_num() / (std::sqrt(12.0) * std);
+    }
     for (int n = 0; n < bunch.get_local_num(); ++n) {
         // no xyz->zyx transformation
         rho_grid.get_domain().get_leftmost_indices_offsets(
@@ -274,8 +291,8 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid,
         cellx2 = cellx1 + 1;
         celly1 = iy;
         celly2 = celly1 + 1;
-        if ((cellx1 >= 0) && (cellx2 < int(rho_2dc.shape()[0]))
-                && (celly1 >= 0) && (celly2 < int(rho_2dc.shape()[1]))) {
+        if ((cellx1 >= 0) && (cellx2 < grid_shape[0]) && (celly1 >= 0)
+                && (celly2 < grid_shape[1])) {
             double aoffx, aoffy;
             aoffx = 1. - offx;
             aoffy = 1. - offy;
@@ -286,13 +303,10 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid,
         }
         int cellz1, cellz2;
         cellz1 = iz;
-        cellz2 = cellz1 + 1; 
-        if ((cellz1 >= 0) && (cellz2 < int(rho_1d.shape()[0]))) {
-            double aoffz;
-            aoffz = (1. - offz);
-            rho_1d[cellz1] += aoffz / h[2];
+        cellz2 = cellz1 + 1;
+        if((grid_shape[2] > 1) && (cellz1 >= 0) && (cellz2 < grid_shape[2])) {
+            rho_1d[cellz1] += (1. - offz) / h[2];
             rho_1d[cellz2] += offz / h[2];
         }
     }
 }
-
