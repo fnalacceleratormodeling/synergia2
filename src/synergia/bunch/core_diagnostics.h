@@ -11,6 +11,9 @@ struct Core_diagnostics
     static double
     calculate_z_mean(Bunch const& bunch);
 
+    static double
+    calculate_z_std(Bunch const& bunch, double const& mean);
+
     static MArray1d
     calculate_spatial_mean(Bunch const& bunch);
 

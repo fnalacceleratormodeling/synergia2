@@ -44,6 +44,21 @@ Core_diagnostics::calculate_z_mean(Bunch const& bunch)
     return mean;
 }
 
+double
+Core_diagnostics::calculate_z_std(Bunch const& bunch, double const& mean)
+{
+    double sum = 0;
+    double std;
+    Const_MArray2d_ref particles(bunch.get_local_particles());
+    for (int part = 0; part < bunch.get_local_num(); ++part) {
+        double diff = particles[part][4] - mean;
+        sum += diff * diff;
+    }
+    MPI_Allreduce(&sum, &std, 1, MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
+    std = std::sqrt(std / bunch.get_total_num());
+    return std;
+}
+
 MArray1d
 Core_diagnostics::calculate_spatial_mean(Bunch const& bunch)
 {
