@@ -40,6 +40,7 @@ public:
     get_leftmost_indices_offsets(double x, double y, double z, int &ix,
             int &iy, int&iz, double &offx, double &offy, double &offz) const
     {
+        bool retval;
         double scaled_location;
 
         scaled_location = (x - left[0]) / cell_size[0] - 0.5;
@@ -51,11 +52,27 @@ public:
         offy = scaled_location - iy;
 
         scaled_location = (z - left[2]) / cell_size[2] - 0.5;        
-        iz =fast_int_floor(scaled_location);
+        iz = fast_int_floor(scaled_location);
         offz = scaled_location - iz;
-        return ((ix>=0) && (ix<grid_shape[0] - 1) &&  (iy>=0) && (iy<grid_shape[1] - 1))
-        && 
-        (periodic_z   ||   ((iz>=0) && (iz<grid_shape[2] - 1))    );
+
+        if (grid_shape[2] == 1) {
+            // csp: For grid_shape = 1, iz and offz are not used in deposit
+            //      and interpolation. These are just for the reference.
+            //      iz is 0 or 1, so that all particles are in domain, i.e.,
+            //      no cutting edge. 
+            iz += 1;
+            if (iz == 0) offz = -0.5 + offz;
+            if (iz == 1) offz = 0.5 - offz;
+            retval = ((ix >= 0) && (ix < grid_shape[0] - 1) && (iy >= 0) &&
+                    (iy < grid_shape[1] - 1)) && (periodic_z || ((iz >= 0) &&
+                    (iz <= grid_shape[2])));
+        } else {
+            retval = ((ix >= 0) && (ix < grid_shape[0] - 1) && (iy >= 0) &&
+                    (iy < grid_shape[1] - 1)) && (periodic_z || ((iz >= 0) &&
+                    (iz < grid_shape[2] - 1)));
+        }
+
+        return retval;
     }
 
     void
