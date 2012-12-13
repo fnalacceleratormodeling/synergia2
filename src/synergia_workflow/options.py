@@ -48,7 +48,7 @@ class _option:
         if self.length == 1:
             self.value = value
         else:
-            self.value = string.split(value, ", ")
+            self.value = string.split(value, ",")
             if len(self.value) != self.length:
                 raise RuntimeError("Options: expected a % d - tuple" % self.length)
         if self.valid_values:
