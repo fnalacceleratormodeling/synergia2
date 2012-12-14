@@ -273,7 +273,7 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid,
     if (grid_shape[2] == 1) {
         double mean(Core_diagnostics::calculate_z_mean(bunch));
         double std(Core_diagnostics::calculate_z_std(bunch, mean));
-        rho_1d[0] = bunch.get_total_num() / (std::sqrt(12.0) * std);
+        rho_1d[0] = bunch.get_local_num() / (std::sqrt(12.0) * std);
     }
     for (int n = 0; n < bunch.get_local_num(); ++n) {
         // no xyz->zyx transformation
