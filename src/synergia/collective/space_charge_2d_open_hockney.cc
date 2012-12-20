@@ -858,6 +858,8 @@ Space_charge_2d_open_hockney::apply(Bunch & bunch, double time_step,
             bunch.convert_to_state(Bunch::fixed_t);
             t = simple_timer_show(t, "sc2doh-convert_to_state");
         }
+        bunch.periodic_sort(Bunch::z);
+        t = simple_timer_show(t, "sc2doh-sort");
         Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
         t = simple_timer_show(t, "sc2doh-get_local_rho");
         Distributed_rectangular_grid_sptr rho2(
@@ -873,8 +875,6 @@ Space_charge_2d_open_hockney::apply(Bunch & bunch, double time_step,
         Rectangular_grid_sptr Fn(get_global_electric_force2(*local_force2)); // [N]
         local_force2.reset();
         t = simple_timer_show(t, "sc2doh-get_global_force");
-        bunch.periodic_sort(Bunch::z);
-        t = simple_timer_show(t, "sc2doh-sort");
         apply_kick(bunch, *rho2, *Fn, time_step);
         t = simple_timer_show(t, "sc2doh-apply_kick");
         rho2.reset();
