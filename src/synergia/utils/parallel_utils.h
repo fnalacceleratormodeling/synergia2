@@ -22,7 +22,7 @@ decompose_1d_raw(int processors, int length, std::vector<int > &offsets,
 /// See decompose_1d_raw. The number of processors is extracted from the
 /// Commxx object.
 void
-decompose_1d(Commxx comm, int length, std::vector<int > &offsets,
+decompose_1d(Commxx const& comm, int length, std::vector<int > &offsets,
         std::vector<int > &counts);
 
 /// See decompose_1d_raw. In this simpler version, the number of processors is
@@ -30,7 +30,7 @@ decompose_1d(Commxx comm, int length, std::vector<int > &offsets,
 /// current processor is returned. The lengths on other processors and offsets are
 /// discarded.
 int
-decompose_1d_local(Commxx comm, int length);
+decompose_1d_local(Commxx const& comm, int length);
 
 /// Distribute elements across multiple processors. Where decompose assumes that
 /// each element will be assigned to a single processor, distribute assumes that
@@ -49,14 +49,14 @@ distribute_1d_raw(int processors, int elements);
 /// See distribute_1d_raw. The number of processors is extracted from the
 /// Commxx object.
 std::vector<std::vector<int > >
-distribute_1d(Commxx comm, int elements);
+distribute_1d(Commxx const& comm, int elements);
 
 void 
 counts_and_offsets_for_impedance_raw(unsigned int  processors, int length, std::vector<int > &offsets,
  std::vector<int > &counts);
  
 void 
-counts_and_offsets_for_impedance(Commxx comm,int length, std::vector<int > &offsets,
+counts_and_offsets_for_impedance(Commxx const& comm,int length, std::vector<int > &offsets,
  std::vector<int > &counts); 
   
 #endif /* PARALLEL_UTILS_H_ */

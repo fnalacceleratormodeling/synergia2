@@ -20,7 +20,7 @@ decompose_1d_raw(int processors, int length, std::vector<int > &offsets,
 }
 
 void
-decompose_1d(Commxx comm, int length, std::vector<int > & offsets, std::vector<
+decompose_1d(Commxx const& comm, int length, std::vector<int > & offsets, std::vector<
         int > &counts)
 {
     int size = comm.get_size();
@@ -28,7 +28,7 @@ decompose_1d(Commxx comm, int length, std::vector<int > & offsets, std::vector<
 }
 
 int
-decompose_1d_local(Commxx comm, int length)
+decompose_1d_local(Commxx const& comm, int length)
 {
     int size = comm.get_size();
     int rank = comm.get_rank();
@@ -65,7 +65,7 @@ distribute_1d_raw(int processors, int elements)
 }
 
 std::vector<std::vector<int > >
-distribute_1d(Commxx comm, int elements)
+distribute_1d(Commxx const& comm, int elements)
 {
     return distribute_1d_raw(comm.get_size(), elements);
 }
@@ -95,7 +95,7 @@ counts_and_offsets_for_impedance_raw(unsigned int  processors, int length, std::
    
   
 void 
-counts_and_offsets_for_impedance(Commxx comm,int length, std::vector<int > &offsets,
+counts_and_offsets_for_impedance(Commxx const& comm,int length, std::vector<int > &offsets,
  std::vector<int > &counts)
 {
   return  counts_and_offsets_for_impedance_raw( comm.get_size(), length, offsets, counts);           
