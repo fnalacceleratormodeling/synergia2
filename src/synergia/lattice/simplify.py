@@ -4,12 +4,15 @@
 import synergia
 
 no_simplify_attribute = 'no_simplify'
+extractor_type_attribute = 'extractor_type'
 
-def has_no_simplify(element):
+def no_simplify(element):
     retval = False
     if element.has_string_attribute(no_simplify_attribute):
         if not element.get_string_attribute(no_simplify_attribute).lower == 'false':
             retval = True
+    if element.has_string_attribute(extractor_type_attribute):
+        retval = True
     return retval
 
 def _copy_attributes_ancestors(element, new_element):
@@ -27,7 +30,7 @@ def eliminate_markers(lattice):
     new_lattice.set_reference_particle(lattice.get_reference_particle())
     for element in lattice.get_elements():
             if (element.get_type() == 'marker') and \
-                (not has_no_simplify(element)):
+                (not no_simplify(element)):
                 pass
             else:
                 new_lattice.append(element)
@@ -40,7 +43,7 @@ def convert_monitors(lattice):
             if ((element.get_type() == 'monitor') or \
                 (element.get_type() == 'hmonitor') or \
                 (element.get_type() == 'vmonitor')) and \
-                (not has_no_simplify(element)):
+                (not no_simplify(element)):
                 new_element = synergia.lattice.Lattice_element('drift', element.get_name())
                 _copy_attributes_ancestors(element, new_element)
                 new_lattice.append(new_element)
@@ -57,7 +60,7 @@ def convert_magnets(lattice):
     new_lattice.set_reference_particle(lattice.get_reference_particle())
     for element in lattice.get_elements():
             if _is_magnet(element.get_type()) and \
-                (not has_no_simplify(element)):
+                (not no_simplify(element)):
                 has_nonzero_strength = False
                 for attr in element.get_double_attributes():
                     if (len(attr) == 1) and (attr == 'k'):
@@ -83,7 +86,7 @@ def convert_kickers(lattice):
     for element in lattice.get_elements():
             if ((element.get_type() == 'hicker') or \
                 (element.get_type() == 'vkicker')) and \
-                (not has_no_simplify(element)):
+                (not no_simplify(element)):
                 if element.get_double_attribute('kick') == 0.0:
                     new_element = synergia.lattice.Lattice_element('drift', element.get_name())
                     _copy_attributes_ancestors(element, new_element)
@@ -91,7 +94,7 @@ def convert_kickers(lattice):
                 else:
                     new_lattice.append(element)
             elif (element.get_type() == 'kicker') and \
-                (not has_no_simplify(element)):
+                (not no_simplify(element)):
                 if (element.get_double_attribute('hkick') == 0.0) and \
                     (element.get_double_attribute('vkick') == 0.0):
                     new_element = synergia.lattice.Lattice_element('drift', element.get_name())
@@ -112,7 +115,7 @@ def combine_drifts(lattice):
             last_l = last_element.get_length()
             ancestors = last_element.get_ancestors()
             if (element.get_type() == 'drift') and \
-                (not has_no_simplify(element)):
+                (not no_simplify(element)):
                 concat_name = last_element.get_name()
                 concat_name += '+'
                 concat_name += element.get_name()
