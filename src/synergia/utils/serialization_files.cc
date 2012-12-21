@@ -152,7 +152,8 @@ get_combined_path(std::string const& directory, std::string const& base_name,
 std::string
 get_serialization_path(std::string const& base_name, bool parallel)
 {
-    return get_combined_path(serialization_directory, base_name, parallel);
+    return get_combined_path(serialization_directory,
+            path(base_name).filename().string(), parallel);
 }
 
 void
