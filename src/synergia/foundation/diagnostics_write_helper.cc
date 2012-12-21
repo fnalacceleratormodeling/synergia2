@@ -2,11 +2,27 @@
 #include <sstream>
 #include <iomanip>
 #include <stdexcept>
+#include <boost/filesystem.hpp>
+
+void
+move_file_overwrite_if_exists(std::string const & source,
+        std::string const & dest)
+{
+    if (boost::filesystem::exists(dest)) {
+        boost::filesystem::remove(dest);
+    }
+    boost::filesystem::copy_file(source, dest);
+    boost::filesystem::remove(source);
+}
 
 std::string
-Diagnostics_write_helper::get_filename()
+Diagnostics_write_helper::get_filename(bool include_local_dir)
 {
     std::stringstream sstream;
+    if (include_local_dir && (local_dir != "")) {
+        sstream << local_dir;
+        sstream << "/";
+    }
     sstream << filename_base;
     if (!serial) {
         sstream << "_";
@@ -23,19 +39,16 @@ Diagnostics_write_helper::open_file()
 {
     if (write_locally() && !have_file) {
         file_sptr = Hdf5_file_sptr(
-                new Hdf5_file(get_filename().c_str(), Hdf5_file::truncate));
+                new Hdf5_file(get_filename(true).c_str(), Hdf5_file::truncate));
         have_file = true;
     }
 }
 
 Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
-        bool serial, Commxx const& commxx, int writer_rank)
+        bool serial, Commxx const& commxx, std::string const& local_dir, int writer_rank) :
+        filename(filename), local_dir(local_dir), commxx(commxx), count(0), have_file(
+                false), serial(serial)
 {
-    this->filename = filename;
-    this->commxx = commxx;
-    this->count = 0;
-    this->have_file = false;
-    this->serial = serial;
     if (writer_rank == default_rank) {
         this->writer_rank = commxx.get_size() - 1;
     } else {
@@ -100,6 +113,10 @@ void
 Diagnostics_write_helper::finish_write()
 {
     if (write_locally() && !serial) {
+        file_sptr->close();
+        if (local_dir != "") {
+            move_file_overwrite_if_exists(get_filename(true), get_filename(false));
+        }
         file_sptr.reset();
         have_file = false;
     }
@@ -118,6 +135,7 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_NVP(writer_rank)
                 & BOOST_SERIALIZATION_NVP(filename)
+                & BOOST_SERIALIZATION_NVP(local_dir)
                 & BOOST_SERIALIZATION_NVP(serial)
                 & BOOST_SERIALIZATION_NVP(commxx)
                 & BOOST_SERIALIZATION_NVP(file_sptr)
@@ -149,4 +167,11 @@ Diagnostics_write_helper::serialize<boost::archive::xml_iarchive >(
 
 Diagnostics_write_helper::~Diagnostics_write_helper()
 {
+    if (write_locally() && serial && have_file) {
+        file_sptr->close();
+        if (local_dir != "") {
+            move_file_overwrite_if_exists(get_filename(true),
+                    get_filename(false));
+        }
+    }
 }

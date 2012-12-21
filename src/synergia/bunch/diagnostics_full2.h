@@ -45,7 +45,8 @@ public:
     /// Create a Diagnostics_full2 object
     /// @param bunch the Bunch
     /// @param filename filename for output
-    Diagnostics_full2(std::string const& filename);
+    /// @param local_dir local directory to use for temporary scratch
+    Diagnostics_full2(std::string const& filename, std::string const& local_dir = "");
 
     // Default constructor for serialization use only
     Diagnostics_full2();

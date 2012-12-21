@@ -21,7 +21,7 @@ private:
     bool first_time;
 public:
     Lattice_diagnostics(Lattice_sptr lattice_sptr, std::string const& filename,
-            std::string const& attribute);
+            std::string const& attribute, std::string const& local_dir = "");
 
     void
     set_default_value(double value);

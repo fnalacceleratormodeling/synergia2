@@ -3,11 +3,11 @@
 const char Diagnostics_reference_particle::name[] = "diagnostics_reference_particle";
 
 Diagnostics_reference_particle::Diagnostics_reference_particle(
-        std::string const& filename) :
-            Diagnostics_reference_particle::Diagnostics(
-                    Diagnostics_reference_particle::name, filename),
-            have_writers(false), writer_beta(0), writer_gamma(0),
-            writer_state(0), writer_s(0)
+        std::string const& filename, std::string const& local_dir) :
+        Diagnostics_reference_particle::Diagnostics(
+                Diagnostics_reference_particle::name, filename, local_dir), have_writers(
+                false), writer_beta(0), writer_gamma(0), writer_state(0), writer_s(
+                0)
 {
 }
 

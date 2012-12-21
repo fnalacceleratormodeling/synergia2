@@ -4,9 +4,9 @@
 const char Diagnostics_track::name[] = "diagnostics_track";
 
 Diagnostics_track::Diagnostics_track(std::string const& filename,
-        int particle_id) :
-        Diagnostics(Diagnostics_track::name, filename), have_writers(false), found(
-                false), first_search(true), last_index(-1), particle_id(
+        int particle_id, std::string const& local_dir) :
+        Diagnostics(Diagnostics_track::name, filename, local_dir), have_writers(
+                false), found(false), first_search(true), last_index(-1), particle_id(
                 particle_id), coords(boost::extents[6])
 {
 }
@@ -26,7 +26,8 @@ Diagnostics_track::new_write_helper_ptr()
 {
     delete_write_helper_ptr();
     return new Diagnostics_write_helper(get_filename(), true,
-            get_bunch().get_comm(), get_bunch().get_comm().get_rank());
+            get_bunch().get_comm(), get_local_dir(),
+            get_bunch().get_comm().get_rank());
 }
 
 void

@@ -8,8 +8,8 @@ const char Diagnostics_bulk_track::name[] = "diagnostics_bulk_track";
 const int no_local_num_tracks = -1;
 
 Diagnostics_bulk_track::Diagnostics_bulk_track(std::string const& filename,
-        int num_tracks, int offset) :
-        Diagnostics(Diagnostics_bulk_track::name, filename), num_tracks(
+        int num_tracks, int offset, std::string const& local_dir) :
+        Diagnostics(Diagnostics_bulk_track::name, filename, local_dir), num_tracks(
                 num_tracks), local_num_tracks(no_local_num_tracks), offset(
                 offset), local_offset(no_local_num_tracks), have_writers(false), first_search(
                 true), diag_track_status(), writer_s(0), writer_repetition(0), writer_trajectory_length(

@@ -4,8 +4,8 @@
 
 const char Diagnostics_basic::name[] = "diagnostics_basic";
 
-Diagnostics_basic::Diagnostics_basic(std::string const& filename) :
-        Diagnostics_basic::Diagnostics(Diagnostics_basic::name, filename), have_writers(
+Diagnostics_basic::Diagnostics_basic(std::string const& filename, std::string const& local_dir) :
+        Diagnostics_basic::Diagnostics(Diagnostics_basic::name, filename, local_dir), have_writers(
                 false), writer_s(0), writer_repetition(0), writer_trajectory_length(
                 0), writer_num_particles(0), writer_real_num_particles(0), mean(
                 boost::extents[6]), writer_mean(0), std(boost::extents[6]), writer_std(

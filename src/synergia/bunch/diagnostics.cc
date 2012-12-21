@@ -10,9 +10,10 @@
 // import most common Eigen types
 USING_PART_OF_NAMESPACE_EIGEN
 
-Diagnostics::Diagnostics(std::string const& name, std::string const& filename) :
-    name(name), filename(filename), have_bunch_(false), write_helper_ptr(0),
-            have_write_helper_(0)
+Diagnostics ::Diagnostics(std::string const& name, std::string const& filename,
+        std::string const& local_dir) :
+        name(name), filename(filename), local_dir(local_dir), have_bunch_(
+                false), write_helper_ptr(0), have_write_helper_(0)
 {
 }
 
@@ -20,6 +21,12 @@ std::string const&
 Diagnostics::get_filename() const
 {
     return filename;
+}
+
+std::string const&
+Diagnostics::get_local_dir() const
+{
+    return local_dir;
 }
 
 void
@@ -58,7 +65,7 @@ Diagnostics::new_write_helper_ptr()
 {
     delete_write_helper_ptr();
     return new Diagnostics_write_helper(get_filename(),
-            is_serial(), get_bunch().get_comm());
+            is_serial(), get_bunch().get_comm(), local_dir);
 }
 
 bool
@@ -87,6 +94,7 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_NVP(name);
         ar & BOOST_SERIALIZATION_NVP(filename);
+        ar & BOOST_SERIALIZATION_NVP(local_dir);
         ar & BOOST_SERIALIZATION_NVP(bunch_sptr);
         ar & BOOST_SERIALIZATION_NVP(have_bunch_);
         ar & BOOST_SERIALIZATION_NVP(write_helper_ptr);

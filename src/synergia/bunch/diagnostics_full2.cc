@@ -65,14 +65,16 @@ Diagnostics_full2::update_emittances()
     emitxyz = std::sqrt(mom2_matrix.determinant());
 }
 
-Diagnostics_full2::Diagnostics_full2(std::string const& filename) :
-        Diagnostics_full2::Diagnostics(Diagnostics_full2::name, filename), have_writers(
-                false), writer_s(0), writer_repetition(0), writer_trajectory_length(
-                0), writer_num_particles(0), writer_real_num_particles(0), mean(
-                boost::extents[6]), writer_mean(0), std(boost::extents[6]), writer_std(
-                0), min(boost::extents[3]), writer_min(0), max(
-                boost::extents[3]), writer_max(0), mom2(boost::extents[6][6]), writer_mom2(
-                0), corr(boost::extents[6][6]), writer_corr(0), writer_emitx(0), writer_emity(
+Diagnostics_full2::Diagnostics_full2(std::string const& filename,
+        std::string const& local_dir) :
+        Diagnostics_full2::Diagnostics(Diagnostics_full2::name, filename,
+                local_dir), have_writers(false), writer_s(0), writer_repetition(
+                0), writer_trajectory_length(0), writer_num_particles(0), writer_real_num_particles(
+                0), mean(boost::extents[6]), writer_mean(0), std(
+                boost::extents[6]), writer_std(0), min(boost::extents[3]), writer_min(
+                0), max(boost::extents[3]), writer_max(0), mom2(
+                boost::extents[6][6]), writer_mom2(0), corr(
+                boost::extents[6][6]), writer_corr(0), writer_emitx(0), writer_emity(
                 0), writer_emitz(0), writer_emitxy(0), writer_emitxyz(0)
 
 {

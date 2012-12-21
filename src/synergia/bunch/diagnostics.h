@@ -14,6 +14,7 @@ class Diagnostics
 private:
     std::string name;
     std::string filename;
+    std::string local_dir;
     Bunch_sptr bunch_sptr;
     bool have_bunch_;
     Diagnostics_write_helper * write_helper_ptr;
@@ -21,13 +22,16 @@ private:
 
 public:
 
-    Diagnostics(std::string const& name, std::string const& filename);
+    Diagnostics(std::string const& name, std::string const& filename, std::string const& local_dir="");
 
     // Default constructor for serialization use only
     Diagnostics();
 
     virtual std::string const&
     get_filename() const;
+
+    virtual std::string const&
+    get_local_dir() const;
 
     virtual void
     set_bunch_sptr(Bunch_sptr bunch_sptr);

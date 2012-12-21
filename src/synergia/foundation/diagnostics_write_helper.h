@@ -19,6 +19,7 @@ public:
 private:
     int writer_rank;
     std::string filename;
+    std::string local_dir;
     bool serial;
     Commxx commxx;
     Hdf5_file_sptr file_sptr;
@@ -26,13 +27,13 @@ private:
     int count;
     std::string filename_base, filename_suffix;
     std::string
-    get_filename();
+    get_filename(bool include_local_dir);
     void
     open_file();
 public:
     /// Construct Diagnostics_write_helper
     Diagnostics_write_helper(std::string const& filename, bool serial, Commxx const& commxx,
-            int writer_rank = default_rank);
+            std::string const& local_dir, int writer_rank = default_rank);
 
     // Default constructor for serialization use only
     Diagnostics_write_helper();
@@ -46,7 +47,8 @@ public:
     void
     set_count(int count);
 
-    void increment_count();
+    void
+    increment_count();
 
     bool
     write_locally();
