@@ -105,18 +105,7 @@ void
 Diagnostics_particles::write()
 {
     get_bunch().convert_to_state(get_bunch().fixed_z_lab);
-    int writer_rank = get_write_helper().get_writer_rank();
     MPI_Comm comm = get_bunch().get_comm().get();
-    int icount;
-    icount = get_write_helper().get_count();
-    MPI_Bcast((void *) &icount, 1, MPI_INT, writer_rank, comm);
-
-    //    std::cout<<" icount ="<<icount<<"  count="<< get_write_helper().get_count() <<" on rank ="<< get_bunch().get_comm().get_rank()<<std::endl;
-
-    if (icount % get_write_helper().get_iwrite_skip() != 0) {
-        if (get_write_helper().write_locally()) get_write_helper().increment_count();
-        return;
-    }
 
     int local_num = get_bunch().get_local_num();
     int num_procs = get_bunch().get_comm().get_size();

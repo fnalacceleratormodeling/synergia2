@@ -24,20 +24,13 @@ private:
     Hdf5_file_sptr file_sptr;
     bool have_file;
     int count;
-    int iwrite_skip; // skip writing iwrite_skip turns or steps
     std::string filename_base, filename_suffix;
     std::string
     get_filename();
     void
     open_file();
-    void
-    construct(std::string const& filename,
-        bool serial, int write_skip, Commxx const& commxx, int writer_rank);
 public:
     /// Construct Diagnostics_write_helper
-    Diagnostics_write_helper(std::string const& filename, bool serial, int write_skip, Commxx const& commxx,
-            int writer_rank = default_rank);
-
     Diagnostics_write_helper(std::string const& filename, bool serial, Commxx const& commxx,
             int writer_rank = default_rank);
 
@@ -54,8 +47,6 @@ public:
     set_count(int count);
 
     void increment_count();
-
-    int get_iwrite_skip()const;
 
     bool
     write_locally();

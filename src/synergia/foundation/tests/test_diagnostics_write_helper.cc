@@ -13,19 +13,17 @@ BOOST_AUTO_TEST_CASE(construct)
 {
     std::string filename("test_write_helper.h5");
     bool serial = true;
-    int write_skip = 1;
     Commxx commxx;
-    Diagnostics_write_helper d(filename, serial, write_skip, commxx);
+    Diagnostics_write_helper d(filename, serial, commxx);
 }
 
 BOOST_AUTO_TEST_CASE(serialize_)
 {
     std::string filename("test_write_helper2.h5");
     bool serial = true;
-    int write_skip = 1;
     Commxx commxx;
     {
-        Diagnostics_write_helper d(filename, serial, write_skip, commxx);
+        Diagnostics_write_helper d(filename, serial, commxx);
         xml_save(d, "d.xml");
     }
 
