@@ -25,7 +25,7 @@ public:
     /// @param max_particle_id the highest particle id to write (0 indicates no limit, hence min,max = 0,0 writes all particles)
     /// @param local_dir local directory to use for temporary scratch
     Diagnostics_particles(std::string const& filename, int min_particle_id = 0,
-            int max_particle_id = 0, std::string const& local_dir = "");
+            int max_particle_id = 0, std::string const& local_dir="");
 
     // Default constructor for serialization use only
     Diagnostics_particles();

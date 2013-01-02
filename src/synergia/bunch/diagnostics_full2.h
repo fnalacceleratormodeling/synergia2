@@ -138,6 +138,9 @@ public:
     virtual void
     write();
 
+    //begin egs screwing around
+    bool get_have_writers();
+    // end egs screwing around
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);

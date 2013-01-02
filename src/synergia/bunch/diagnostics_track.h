@@ -36,7 +36,7 @@ public:
     /// @param particle_id the particle ID to track
     /// @param local_dir local directory to use for temporary scratch
     Diagnostics_track(std::string const& filename,
-            int particle_id, std::string const& local_dir);
+            int particle_id, std::string const& local_dir="");
 
     // Default constructor for serialization use only
     Diagnostics_track();

@@ -256,6 +256,9 @@ Diagnostics_full2::write()
     }
 }
 
+// begin egs screwing around
+bool Diagnostics_full2::get_have_writers() { return have_writers; }
+// end egs screwing around
 template<class Archive>
     void
     Diagnostics_full2::serialize(Archive & ar, const unsigned int version)
@@ -319,6 +322,7 @@ Diagnostics_full2::serialize<boost::archive::xml_iarchive >(
 Diagnostics_full2::~Diagnostics_full2()
 {
     if (have_writers) {
+    	std::cout << "egs: ~Diagnostics_full2::writer_emitxyz: " << (unsigned int) writer_emitxyz << std::endl; std::cout.flush();
         delete writer_emitxyz;
         delete writer_emitxy;
         delete writer_emitz;
