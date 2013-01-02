@@ -322,7 +322,6 @@ Diagnostics_full2::serialize<boost::archive::xml_iarchive >(
 Diagnostics_full2::~Diagnostics_full2()
 {
     if (have_writers) {
-    	std::cout << "egs: ~Diagnostics_full2::writer_emitxyz: " << (unsigned int) writer_emitxyz << std::endl; std::cout.flush();
         delete writer_emitxyz;
         delete writer_emitxy;
         delete writer_emitz;
