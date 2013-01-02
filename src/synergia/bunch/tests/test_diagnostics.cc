@@ -147,7 +147,6 @@ BOOST_FIXTURE_TEST_CASE(write_, Fixture)
 // this test works, but the nearly identical test serialize_full2 fails.  why?
 BOOST_FIXTURE_TEST_CASE(serialize_basic, Fixture)
 {
-#if 0
     {
         Diagnostics_basic diagnostics("dummy.h5");
         diagnostics.set_bunch_sptr(bunch_sptr);
@@ -155,13 +154,9 @@ BOOST_FIXTURE_TEST_CASE(serialize_basic, Fixture)
         diagnostics.write();
         xml_save(diagnostics, "diagnostics_basic.xml");
     }
-#endif
 
     Diagnostics_basic loaded;
-#if 0
     xml_load(loaded, "diagnostics_basic.xml");
-#endif
-    std::cout << "egs: finished serialize_basic" << std::endl; std::cout.flush();
 }
 
 BOOST_FIXTURE_TEST_CASE(construct_full2, Fixture)
@@ -300,7 +295,6 @@ const double tolerance_emit2d = 1.0e-11;
 // it.  The failure occurs in the destructor for the hdf5_writers.
 BOOST_FIXTURE_TEST_CASE(serialize_full2, Fixture)
 {
-#if 0
 	{
     	std::cout << "egs: before create diagnostics_full2 dummy_full2.h5" << std::endl; std::cout.flush();
         Diagnostics_full2 diagnostics("dummy_full2.h5");
@@ -315,16 +309,12 @@ BOOST_FIXTURE_TEST_CASE(serialize_full2, Fixture)
     	std::cout << "egs: before create diagnostics_full2 dummy_full2.h5" << std::endl; std::cout.flush();
     }
     std::cout << "egs: wrote full2.xml" << std::endl; std::cout.flush();
-#endif
     Diagnostics_full2 loaded;
     std::cout << "egs: created loaded" << std::endl; std::cout.flush();
     std::cout << "egs: have_writers: " << loaded.get_have_writers() << std::endl; std::cout.flush();
     std::cout << "egs: have_write_helper: " << loaded.have_write_helper() << std::endl; std::cout.flush();
 
-#if 0
     xml_load(loaded, "full2.xml");
-    std::cout << "egs: xml loaded loaded" << std::endl; std::cout.flush();
-#endif
 }
 
 // test_note: We are not (yet) testing the content of the output file.
