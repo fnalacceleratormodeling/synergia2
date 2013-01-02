@@ -152,8 +152,13 @@ get_combined_path(std::string const& directory, std::string const& base_name,
 std::string
 get_serialization_path(std::string const& base_name, bool parallel)
 {
+#if (defined BOOST_FILESYSTEM_VERSION) && (BOOST_FILESYSTEM_VERSION > 2)
     return get_combined_path(serialization_directory,
-            path(base_name).filename().string(), parallel);
+                             path(base_name).filename().string(), parallel);
+#else
+    return get_combined_path(serialization_directory,
+                             path(base_name).filename(), parallel);
+#endif
 }
 
 void
