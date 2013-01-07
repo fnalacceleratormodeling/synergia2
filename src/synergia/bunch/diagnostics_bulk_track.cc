@@ -17,7 +17,7 @@ Diagnostics_bulk_track::Diagnostics_bulk_track(std::string const& filename,
 {
 }
 
-Diagnostics_bulk_track::Diagnostics_bulk_track()
+Diagnostics_bulk_track::Diagnostics_bulk_track() : have_writers(false)
 {
 }
 
