@@ -3,9 +3,9 @@
 template<>
     Hdf5_serial_writer<MArray1d_ref >::Hdf5_serial_writer(
             Hdf5_file_sptr file_sptr, std::string const& name, bool resume) :
-        data_rank(MArray1d_ref::dimensionality), name(name),
-                file_sptr(file_sptr), have_setup(false), resume(resume),
-                data_size(0), atomic_type(hdf5_atomic_data_type<double > ())
+            data_rank(MArray1d_ref::dimensionality), name(name), file_sptr(
+                    file_sptr), atomic_type(hdf5_atomic_data_type<double >()), have_setup(
+                    false), resume(resume), data_size(0)
     {
     }
 
@@ -18,9 +18,9 @@ template<>
 template<>
     Hdf5_serial_writer<MArray2d_ref >::Hdf5_serial_writer(
             Hdf5_file_sptr file_sptr, std::string const& name, bool resume) :
-        data_rank(MArray2d_ref::dimensionality), name(name),
-                file_sptr(file_sptr), have_setup(false), resume(resume),
-                data_size(0), atomic_type(hdf5_atomic_data_type<double > ())
+            data_rank(MArray2d_ref::dimensionality), name(name), file_sptr(
+                    file_sptr), atomic_type(hdf5_atomic_data_type<double >()), have_setup(
+                    false), resume(resume), data_size(0)
     {
     }
 
@@ -33,9 +33,9 @@ template<>
 template<>
     Hdf5_serial_writer<MArray3d_ref >::Hdf5_serial_writer(
             Hdf5_file_sptr file_sptr, std::string const& name, bool resume) :
-        data_rank(MArray3d_ref::dimensionality), name(name),
-                file_sptr(file_sptr), have_setup(false), resume(resume),
-                data_size(0), atomic_type(hdf5_atomic_data_type<double > ())
+            data_rank(MArray3d_ref::dimensionality), name(name), file_sptr(
+                    file_sptr), atomic_type(hdf5_atomic_data_type<double >()), have_setup(
+                    false), resume(resume), data_size(0)
     {
     }
 

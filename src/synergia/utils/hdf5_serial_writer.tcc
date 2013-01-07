@@ -64,8 +64,9 @@ template<typename T>
 template<typename T>
     Hdf5_serial_writer<T >::Hdf5_serial_writer(Hdf5_file_sptr file_sptr,
             std::string const& name, bool resume) :
-        data_rank(0), name(name), file_sptr(file_sptr), have_setup(false),
-                resume(resume), data_size(sizeof(T)), atomic_type(hdf5_atomic_data_type<T > ())
+            data_rank(0), name(name), file_sptr(file_sptr), atomic_type(
+                    hdf5_atomic_data_type<T >()), have_setup(false), resume(
+                    resume), data_size(sizeof(T))
     {
     }
 
