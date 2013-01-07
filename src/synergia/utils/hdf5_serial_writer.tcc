@@ -9,12 +9,10 @@ using namespace H5;
 
 template<typename T>
     void
-    Hdf5_serial_writer<T >::setup(std::vector<int > const& data_dims,
-            H5::DataType atomic_type)
+    Hdf5_serial_writer<T >::setup(std::vector<int > const& data_dims)
     {
         std::vector<hsize_t > chunk_dims(data_rank + 1);
 
-        this->atomic_type = atomic_type;
         dims.resize(data_rank + 1);
         max_dims.resize(data_rank + 1);
         size.resize(data_rank + 1);
@@ -67,25 +65,35 @@ template<typename T>
     Hdf5_serial_writer<T >::Hdf5_serial_writer(Hdf5_file_sptr file_sptr,
             std::string const& name, bool resume) :
         data_rank(0), name(name), file_sptr(file_sptr), have_setup(false),
-                resume(resume), data_size(sizeof(T))
+                resume(resume), data_size(sizeof(T)), atomic_type(hdf5_atomic_data_type<T > ())
     {
     }
 
 template<typename T>
-    Hdf5_serial_writer<T >::Hdf5_serial_writer()
+    Hdf5_serial_writer<T >::Hdf5_serial_writer() : atomic_type(hdf5_atomic_data_type<T > ())
     {
     }
 
 template<>
     Hdf5_serial_writer<MArray1d_ref >::Hdf5_serial_writer(
             Hdf5_file_sptr file_sptr, std::string const& name, bool resume);
+
+template<>
+    Hdf5_serial_writer<MArray1d_ref >::Hdf5_serial_writer();
+
 template<>
     Hdf5_serial_writer<MArray2d_ref >::Hdf5_serial_writer(
             Hdf5_file_sptr file_sptr, std::string const& name, bool resume);
 
 template<>
+    Hdf5_serial_writer<MArray2d_ref >::Hdf5_serial_writer();
+
+template<>
     Hdf5_serial_writer<MArray3d_ref >::Hdf5_serial_writer(
             Hdf5_file_sptr file_sptr, std::string const& name, bool resume);
+
+template<>
+    Hdf5_serial_writer<MArray3d_ref >::Hdf5_serial_writer();
 
 template<typename T>
     void
@@ -94,7 +102,7 @@ template<typename T>
         if (!have_setup) {
             std::vector<int > data_dims(1); // dummy variable -- length really should
             // be 0, but that would not compile
-            setup(data_dims, hdf5_atomic_data_type<T > ());
+            setup(data_dims);
         }
         DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
         ++size[data_rank];

@@ -5,7 +5,13 @@ template<>
             Hdf5_file_sptr file_sptr, std::string const& name, bool resume) :
         data_rank(MArray1d_ref::dimensionality), name(name),
                 file_sptr(file_sptr), have_setup(false), resume(resume),
-                data_size(0)
+                data_size(0), atomic_type(hdf5_atomic_data_type<double > ())
+    {
+    }
+
+template<>
+    Hdf5_serial_writer<MArray1d_ref >::Hdf5_serial_writer() :
+            atomic_type(hdf5_atomic_data_type<double >())
     {
     }
 
@@ -14,7 +20,13 @@ template<>
             Hdf5_file_sptr file_sptr, std::string const& name, bool resume) :
         data_rank(MArray2d_ref::dimensionality), name(name),
                 file_sptr(file_sptr), have_setup(false), resume(resume),
-                data_size(0)
+                data_size(0), atomic_type(hdf5_atomic_data_type<double > ())
+    {
+    }
+
+template<>
+    Hdf5_serial_writer<MArray2d_ref >::Hdf5_serial_writer() :
+            atomic_type(hdf5_atomic_data_type<double >())
     {
     }
 
@@ -23,7 +35,13 @@ template<>
             Hdf5_file_sptr file_sptr, std::string const& name, bool resume) :
         data_rank(MArray3d_ref::dimensionality), name(name),
                 file_sptr(file_sptr), have_setup(false), resume(resume),
-                data_size(0)
+                data_size(0), atomic_type(hdf5_atomic_data_type<double > ())
+    {
+    }
+
+template<>
+    Hdf5_serial_writer<MArray3d_ref >::Hdf5_serial_writer() :
+            atomic_type(hdf5_atomic_data_type<double >())
     {
     }
 
@@ -37,7 +55,7 @@ template<>
                 data_dims.at(i) = data.shape()[i];
             }
             data_size = sizeof(double) * data.num_elements();
-            setup(data_dims, hdf5_atomic_data_type<double > ());
+            setup(data_dims);
         }
         DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
         ++size[data_rank];
@@ -59,7 +77,7 @@ template<>
                 data_dims.at(i) = data.shape()[i];
             }
             data_size = sizeof(double) * data.num_elements();
-            setup(data_dims, hdf5_atomic_data_type<double > ());
+            setup(data_dims);
         }
         DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
         ++size[data_rank];
@@ -81,7 +99,7 @@ template<>
                 data_dims.at(i) = data.shape()[i];
             }
             data_size = sizeof(double) * data.num_elements();
-            setup(data_dims, hdf5_atomic_data_type<double > ());
+            setup(data_dims);
         }
         DataSpace dataspace(data_rank + 1, &dims[0], &max_dims[0]);
         ++size[data_rank];

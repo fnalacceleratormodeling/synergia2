@@ -21,7 +21,7 @@ template<typename T>
         bool resume;
         size_t data_size;
         void
-        setup(std::vector<int > const& data_dims, H5::DataType atomic_type);
+        setup(std::vector<int > const& data_dims);
     public:
         Hdf5_serial_writer(Hdf5_file_sptr file_sptr, std::string const& name,
                 bool resume = false);
