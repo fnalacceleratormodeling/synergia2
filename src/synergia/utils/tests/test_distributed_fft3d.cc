@@ -154,13 +154,15 @@ BOOST_FIXTURE_TEST_CASE(get_padded_shape_complex, Fixture)
     BOOST_CHECK_EQUAL(got_shape[2], shape[2] / 2 + 1);
 }
 
+const double tolerance = 1.0e-12;
+
 BOOST_FIXTURE_TEST_CASE(get_roundtrip_normalization, Fixture)
 {
     double normalization = distributed_fft3d.get_roundtrip_normalization();
-    BOOST_CHECK_EQUAL(normalization, 1.0/(shape[0]*shape[1]*shape[2]));
+    BOOST_CHECK_CLOSE(normalization, 1.0/(shape[0]*shape[1]*shape[2]),
+		      tolerance);
 }
 
-const double tolerance = 1.0e-12;
 BOOST_FIXTURE_TEST_CASE(transform_roundtrip, Fixture)
 {
     std::vector<int > rshape(distributed_fft3d.get_padded_shape_real());
