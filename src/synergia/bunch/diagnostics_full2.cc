@@ -78,7 +78,7 @@ Diagnostics_full2::Diagnostics_full2(std::string const& filename) :
 {
 }
 
-Diagnostics_full2::Diagnostics_full2()
+Diagnostics_full2::Diagnostics_full2() : have_writers(false)
 {
 }
 
