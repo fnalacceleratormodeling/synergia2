@@ -11,7 +11,7 @@ Diagnostics_track::Diagnostics_track(std::string const& filename,
 {
 }
 
-Diagnostics_track::Diagnostics_track()
+Diagnostics_track::Diagnostics_track() : have_writers(false)
 {
 }
 
