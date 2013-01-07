@@ -14,7 +14,7 @@ Diagnostics_basic::Diagnostics_basic(std::string const& filename) :
 {
 }
 
-Diagnostics_basic::Diagnostics_basic()
+Diagnostics_basic::Diagnostics_basic() : have_writers(false)
 {
 }
 
