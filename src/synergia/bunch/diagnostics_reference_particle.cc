@@ -11,7 +11,7 @@ Diagnostics_reference_particle::Diagnostics_reference_particle(
 {
 }
 
-Diagnostics_reference_particle::Diagnostics_reference_particle()
+Diagnostics_reference_particle::Diagnostics_reference_particle() : have_writers(false)
 {
 }
 
