@@ -51,12 +51,12 @@ def general_exam(orig, simp, num_steps, map_order, places):
         assert_particles_almost_equal(bunch_orig.get_local_particles(), \
                                       bunch_simp.get_local_particles(), places)
 
-def test_booster():
-    orig = Lattice()
-    xml_load_lattice(orig, "lattices/fnal_booster.xml")
-    simp = simplify_all(orig)
-
-    general_exam(orig, simp, 96, 2, 13)
+#def test_booster():
+#    orig = Lattice()
+#    xml_load_lattice(orig, "lattices/fnal_booster.xml")
+#    simp = simplify_all(orig)
+#
+#    general_exam(orig, simp, 96, 2, 13)
 
 
 def test_debuncher():
