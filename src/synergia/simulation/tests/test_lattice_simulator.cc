@@ -254,7 +254,7 @@ BOOST_FIXTURE_TEST_CASE(adjust_tunes, Fobodobo_sbend_fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map, Foborodobo32_fixture)
 {
-  const int map_order = 5;
+  const int map_order = 1;
   const double tolerance = 1.0e-10;
   Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
@@ -278,7 +278,7 @@ BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map, Foborodobo32_fixture)
 
 BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map_after_get_tunes, Foborodobo32_fixture)
 {
-  const int map_order = 5;
+  const int map_order = 1;
   const double tolerance = 1.0e-10;
   Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
@@ -307,7 +307,7 @@ BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map_after_get_tunes, Foborodobo32_fi
 
 BOOST_FIXTURE_TEST_CASE(is_ring, Foborodobo32_fixture)
 {
-  const int map_order = 5;
+  const int map_order = 1;
   Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
   BOOST_CHECK(lattice_simulator.is_ring());
@@ -315,7 +315,7 @@ BOOST_FIXTURE_TEST_CASE(is_ring, Foborodobo32_fixture)
 
 BOOST_FIXTURE_TEST_CASE(human_normal_human, Foborodobo32_fixture)
 {
-    const int map_order = 4;
+    const int map_order = 3;
     // tolerance in transverse coordinates can be stricter than
     // longitudinal coordinates because the longitudinal coordinate
     // has the explicit sine wave which blows up when truncated.
@@ -380,22 +380,22 @@ BOOST_FIXTURE_TEST_CASE(normal_human_normal, Foborodobo32_fixture)
 
     // fill the bunch with three points at fixed action each
     // direction but angles uniformly spread around 2*pi
-    
+
     const int n_angles = 24;
-    
+
     // three sets of actions
     // this is the square-root of the action
     const double action_sets[][3] = {
         {6.0e-8, 0.0, 2.5e-9},
         {0.0, 6.0e-8, 0.0},
         {1.9e-9, 0.0, 4.0e-8}};
-    
+
     int nsets = sizeof(action_sets)/(3*sizeof(double));
     int pidx=0;
-    
+
     const int num_macro_particles = nsets*n_angles*n_angles*n_angles;
     MArray2d particles(boost::extents[num_macro_particles][7]);
-    
+
     for (int aset=0; aset<nsets; ++aset) {
         for (int iph0=0; iph0<n_angles; ++iph0) {
             double phase0 = (2.0*mconstants::pi/(2.0*n_angles)) * (2*iph0+1);
@@ -414,7 +414,7 @@ BOOST_FIXTURE_TEST_CASE(normal_human_normal, Foborodobo32_fixture)
             }
         }
     }
-    
+
     MArray2d particles_orig(particles);
 
     lattice_simulator.convert_normal_to_human(particles);
