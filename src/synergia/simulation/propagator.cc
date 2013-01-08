@@ -122,15 +122,6 @@ Propagator::get_checkpoint_dir() const
     return checkpoint_dir;
 }
 
-// Object_to_sptr_hack is a local struct
-struct Object_to_sptr_hack
-{
-    void
-    operator()(void const *) const
-    {
-    }
-};
-
 void
 Propagator::set_concurrent_io(int max)
 {

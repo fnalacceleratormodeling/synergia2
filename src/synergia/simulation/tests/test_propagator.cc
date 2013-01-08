@@ -16,14 +16,6 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-12;
 
-struct Object_to_sptr_hack
-{
-    void
-    operator()(void const *) const
-    {
-    }
-};
-
 BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture)
 {
     Dummy_collective_operator_sptr space_charge(
