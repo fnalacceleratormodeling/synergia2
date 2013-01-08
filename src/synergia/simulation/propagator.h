@@ -96,6 +96,8 @@ public:
     void
     propagate(State & state);
 
+    /// jfa note: the lifetime of the pointers in state must
+    ///           be managed manually
     State
     get_resume_state(std::string const& checkpoint_dir);
 
