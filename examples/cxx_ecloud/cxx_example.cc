@@ -72,7 +72,11 @@ run(bool do_space_charge, bool do_ecloud, const std::string &file_name_ecloud)
       Collective_operators two_ops;
       two_ops.push_back(space_charge_sptr);
       two_ops.push_back(e_cloud_sptr);       
-      stepper_sptr = Split_operator_stepper_sptr(new Split_operator_stepper(lattice_simulator, two_ops, num_steps));
+//      stepper_sptr = Split_operator_stepper_sptr(new Split_operator_stepper(lattice_simulator, two_ops, num_steps));
+// Jan 9 2013: try the split operator elements.  Works, but call the ecould operator only once per elements. 
+// To be discussed!. 
+//
+      stepper_sptr = Split_operator_stepper_elements_sptr(new Split_operator_stepper_elements(lattice_simulator, two_ops, 2));
     } else {
        file_name_out += std::string("none");
        stepper_sptr = Stepper_sptr(new Stepper(lattice_simulator));
@@ -105,7 +109,7 @@ run(bool do_space_charge, bool do_ecloud, const std::string &file_name_ecloud)
     propagator.set_final_checkpoint(true);
     double t0 = MPI_Wtime();
     const int max_turns = 0;
-    const int verbosity = 2;
+    const int verbosity = 4;
     propagator.propagate(bunch_simulator, num_turns, max_turns, verbosity);
     double t1 = MPI_Wtime();
     if (comm_sptr->get_rank() == 0) {
