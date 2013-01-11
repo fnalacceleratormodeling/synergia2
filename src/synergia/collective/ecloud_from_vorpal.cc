@@ -27,14 +27,22 @@ Ecloud_from_vorpal::~Ecloud_from_vorpal() { ; }
 void Ecloud_from_vorpal::apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Logger & logger) {
 //
+// Actually, we are already in a device where the e-cloud is present.
+// Not really ! The clever element stepper is not yet implemented yet. 
+//
+    Commxx myComm; // The communicator 
+    int my_rank= myComm.get_rank();
+   if (!this->checkElementType(step)) {
+      if ((my_rank == 1) && (verbosity > 3) ) std::cerr << " Rank 1; Ecloud_from_vorpal, element with no e-cloud , skip " << std::endl;
+      return;
+   } 
+//
 // Find if we have an electron cloud in this device. Done above!!  But we learn how to check where we are.. 
 //
    
    bunch.convert_to_state(Bunch::fixed_t_lab); 
 //
-// Actually, we are already in a device where the e-cloud is present. 
-//
-    this->getElementBoudaries(step); 
+//    this->getElementBoudaries(step); 
     double q = bunch.get_particle_charge() * pconstants::e; // [C]
     double beta = bunch.get_reference_particle().get_beta();
     double lStep = step.get_length();
@@ -42,8 +50,6 @@ void Ecloud_from_vorpal::apply(Bunch & bunch, double time_step, Step & step, int
     double fact = q * lStep / (beta*pconstants::c) ; // dp = d(mv) = F * dt = F *lStep/(beta c) = q*E*lStep/(beta c) = fact * E
      // So, fact = q*lStep/(beta*c).  In SI units. 
     double p_ref = bunch.get_reference_particle().get_momentum();
-    Commxx myComm; // The communicator 
-    int my_rank= myComm.get_rank();
     int partDump = 3*bunch.get_local_num()/4;
     if ((my_rank == 1) && (verbosity > 3) ) std::cerr << " Rank 1; Ecloud_from_vorpal::apply p_ref = " << p_ref << " lStep " << lStep 
                     << "  Num Particle " <<   bunch.get_local_num() << " kinetics at particle "  << partDump << " verbosity " << verbosity << std::endl;
@@ -95,7 +101,7 @@ template<class Archive>
         }
 	
 	
-void Ecloud_from_vorpal::getElementBoudaries( const Step & step ) {
+void Ecloud_from_vorpal::getElementBoudaries( const Step & step ) const {
 
     Operators operators(step.get_operators());
     Commxx myComm; // The communicator 
@@ -125,6 +131,30 @@ void Ecloud_from_vorpal::getElementBoudaries( const Step & step ) {
    }
 
 }
+
+bool Ecloud_from_vorpal::checkElementType( const Step & step ) const {
+
+    Operators operators(step.get_operators());
+    Commxx myComm; // The communicator 
+    int my_rank= myComm.get_rank();
+    for (Operators::iterator oit = operators.begin(); oit!= operators.end(); ++oit) {
+        if((*oit)->get_type() != "independent") continue;
+        Lattice_element_slices
+                    slices(
+                            boost::static_pointer_cast<Independent_operator >(
+                                    *oit)->get_slices());
+	for (Lattice_element_slices::iterator slit = slices.begin(); slit
+                    != slices.end(); ++slit) {
+                std::string type = (*slit)->get_lattice_element().get_type();
+		for(std::vector<std::string>::const_iterator its=subjectedDevices.begin(); its != subjectedDevices.end(); its++) {
+		  if (type.find((*its).c_str()) != std::string::npos) return true;
+		}
+	}	
+    }
+    return false;
+}
+
+
 template
 void
 Ecloud_from_vorpal::save<boost::archive::binary_oarchive >(
