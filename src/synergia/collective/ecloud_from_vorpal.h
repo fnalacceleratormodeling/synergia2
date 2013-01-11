@@ -13,7 +13,9 @@ private:
    Commxx_sptr comm_sptr; // A single commnicator. Used only once at instantiation, but kept here for possible futur use.
    ECloudEFieldVORPAL2D e_field; // E-Field represented as a series of Chebychev coefficicent Both X and Y component included. 
    std::string field_name; // Just a name, good practice to name things.
-   std::vector<std::string> subjectedDevices; // a list of CHEF device name where this e-cloud is present. OBSOLETE, Done from above, I am told. 
+   std::vector<std::string> subjectedDevices; // a list of CHEF device name where this e-cloud is present. 
+                                              // Not OBSOLETE, let us resurrect this idea, as the algorithm from above has not been settled yet. 
+					      // Devices here mean CHEF lattice elements type, like dipole, quadrupole, etc.. 
    
 public: 
     // Constructor takes a comm pointer, the file name where the Field is, and a a device Name. 
@@ -45,8 +47,10 @@ public:
       ~Ecloud_from_vorpal();
        
  private:
-     void getElementBoudaries( const Step & step ); // likely not be a const if we need this information. Learning how to get this info. 
-      
+     void getElementBoudaries( const Step & step ) const ; // Investigating...
+     bool checkElementType( const Step & step ) const ; // Apply e-Cloud in selected device types Return true if maching one of the subjected devices, 
+                                                        // else, return false
+     
 };
 BOOST_CLASS_EXPORT_KEY(Ecloud_from_vorpal)
 
