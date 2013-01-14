@@ -52,6 +52,11 @@ target_link_libraries(test_chef_lattice_section synergia_lattice synergia_founda
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_chef_lattice_section ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_chef_lattice_section)
 
+add_test_executable(test_madx_parser test_madx_parser.cc)
+target_link_libraries(test_madx_parser synergia_lattice
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+
+
 add_test(test_mad8_parser ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_mad8_parser.py)
 add_test(test_expression_parser ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_expression_parser.py)
 add_test(test_mad8_reader ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_mad8_reader.py)
