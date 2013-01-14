@@ -1,0 +1,7 @@
+lq:=1.0;
+ld:=2.0;
+fodo: sequence, l=2*lq+2*ld;
+f: quad, at=0,l=lq;
+d: quad, at=3,l=lq;
+endmark, at=2*lq+2*ld;
+endsequence;
