@@ -178,6 +178,7 @@ public:
   MadX_command command(string_t const & l, bool resolve = true) const;
 
   size_t line_count() const;     // labeled lines
+  std::vector<string_t > line_labels() const;
   MadX_line const & line(string_t const & l) const;
 
   size_t sequence_count() const; // labeled sequences

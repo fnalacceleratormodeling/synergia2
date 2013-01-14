@@ -454,6 +454,16 @@ size_t
   return lines_.size();
 }
 
+std::vector<string_t>
+  MadX::line_labels() const
+{
+  std::vector<string_t> labels;
+  for( lines_m_t::const_iterator it = lines_.begin()
+     ; it!=lines_.end(); ++it)
+    labels.push_back(it->first);
+  return labels;
+}
+
 MadX_line const &
   MadX::line( string_t const & line ) const
 {
