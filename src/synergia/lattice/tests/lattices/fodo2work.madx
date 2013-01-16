@@ -1,0 +1,20 @@
+//
+// madx example 2: fodo cell with dipoles
+// author: v. ziemann, uppsala university
+// date: 060911
+
+beam, particle=electron,pc=3.0;     
+
+degree:=pi/180.0;                  // for readability
+
+qf: quadrupole,l=0.5,k1=0.2;       // still half-length
+qd: quadrupole,l=1.0,k1=-0.2;      // changed to full length
+b: sbend,l=1.0,angle=15.0*degree;  // added dipole
+
+fodo: sequence,refer=entry,l=12.0;
+  qf1:   qf,      at=0.0;
+  b1:    b,       at=2.5;
+  qd1:   qd,      at=5.5;
+  b2:    b,       at=8.5;
+  qf2:   qf,      at=11.5;
+endsequence;
