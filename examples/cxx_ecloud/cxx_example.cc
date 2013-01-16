@@ -15,6 +15,7 @@
 #include "synergia/bunch/diagnostics_full2.h"
 #include "synergia/collective/space_charge_3d_open_hockney.h"
 #include "synergia/collective/ecloud_from_vorpal.h"
+#include "mpi.h"
 //
 // test example for e-cloud collective effect. Cloned and adapted from cxx_test.cc 
 // 
@@ -22,7 +23,7 @@
 // We put the actual code in a separate function so that shared_ptr's can
 // be cleanup up properly before we call MPI_Finalize.
 void
-run(bool do_space_charge, bool do_ecloud, const std::string &file_name_ecloud)
+run(bool do_space_charge, bool do_ecloud, const std::string &file_name_ecloud, int numStep)
 {
     std::vector<int > grid_shape(3);
     grid_shape[0] = 32;
@@ -33,7 +34,7 @@ run(bool do_space_charge, bool do_ecloud, const std::string &file_name_ecloud)
             * grid_shape[2] * part_per_cell;
     const int seed = 4;
     const double num_real_particles = 3e14;
-    const int num_steps = 8;
+    const int num_steps = numStep;
     const int num_turns = 30;
     const int map_order = 2;
 
@@ -52,17 +53,21 @@ run(bool do_space_charge, bool do_ecloud, const std::string &file_name_ecloud)
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     std::string file_name_out("cxx_eCloud_");
     
+    std::ostringstream tokenStrStr; tokenStrStr << "numStep_" << abs(numStep);
+    std::string tokenStr(tokenStrStr.str());
+    
     if (do_space_charge && (!do_ecloud)) {
       Space_charge_3d_open_hockney_sptr space_charge_sptr(
             new Space_charge_3d_open_hockney(commxx_per_host_sptr, grid_shape));
       space_charge_sptr->set_charge_density_comm(Space_charge_3d_open_hockney::charge_allreduce);
       if (num_steps < 0) {
-        file_name_out += std::string("SpaceChargeMDElem3e14");
-        stepper_sptr = Split_operator_stepper_elements_sptr(new Split_operator_stepper_elements(lattice_simulator, space_charge_sptr, 1));
+        file_name_out += std::string("SpaceChargeMDInt3e14_Elem");
+        stepper_sptr = Split_operator_stepper_elements_sptr(new Split_operator_stepper_elements(lattice_simulator, space_charge_sptr, -numStep));
       } else {
-        file_name_out += std::string("SpaceChargeMDFixed3e14");      
+        file_name_out += std::string("SpaceChargeMDInt3e14_Fixed");      
         stepper_sptr = Split_operator_stepper_sptr(new Split_operator_stepper(lattice_simulator, space_charge_sptr, num_steps));
       }
+      file_name_out += tokenStr;
     } else if ((!do_space_charge) && (do_ecloud)) {
       file_name_out += std::string("ECloudxxx");
       std::cerr << " About to instantiate the collective operator for e cloud from file " << file_name_ecloud << std::endl;
@@ -124,11 +129,35 @@ run(bool do_space_charge, bool do_ecloud, const std::string &file_name_ecloud)
 int
 main(int argc, char **argv)
 {
+
+    
     bool do_space_charge = true;
-    bool do_ecloud = false;    
+    bool do_ecloud = false;  
+    bool doAbortOnArguments=false;
+    int numSteps = 20;
+    int optind=1;
     MPI_Init(&argc, &argv);
+    
+    Commxx_sptr comm_sptr(new Commxx);
+    int my_rank = comm_sptr->get_rank();
+    std::string execName(argv[0]);
+    while ((optind < argc) && (argv[optind][0]=='-')) {
+        std::string sw = argv[optind];
+        if (sw=="-numSteps") {
+            optind++;
+	    numSteps = atoi(argv[optind]);
+            if (my_rank == 0) std::cout << " exec " << execName << " setting the number of steps to " <<  numSteps << std::endl;    
+      } else {
+            if (my_rank == 0) std::cerr << " Unknown switch: " << argv[optind] << " Fatal.... " << endl;
+            doAbortOnArguments=true;
+       }
+       optind++;
+    }
+    
+    if (doAbortOnArguments) MPI_Abort(MPI_COMM_WORLD, 101);
+      
     std::string name=std::string("/data/lebrun/Synergia/ECloudMaps/Efield_MI2D-S2-V2f-a7.bin");    
-    run(do_space_charge, do_ecloud, name);
+    run(do_space_charge, do_ecloud, name, numSteps);
     MPI_Finalize();
     return 0;
 }
