@@ -7,11 +7,13 @@ const double tolerance = 1.0e-12;
 std::string
 get_fodo()
 {
-    std::string fodo("lq:=1.0;\n");
-    fodo += "ld:=2.0;\n";
+    std::string fodo("lq=1.0;\n");
+    fodo += "ld=2.0;\n";
+    fodo += "f: quadrupole, l=lq;\n";
+    fodo += "d: quadrupole, l=lq;\n";
     fodo += "fodo: sequence, l=2*lq+2*ld;\n";
-    fodo += "f: quad, at=0,l=lq;\n";
-    fodo += "d: quad, at=3,l=lq;\n";
+    fodo += "f1: f, at=0;\n";
+    fodo += "d1: d, at=3;\n";
     fodo += "endmark, at=2*lq+2*ld;\n";
     fodo += "endsequence;\n";
     return fodo;
@@ -24,9 +26,10 @@ get_fodo_bodo()
     fodo_bodo += "lb:=3.0;\n";
     fodo_bodo += "lq2:=3.0;\n";
     fodo_bodo += "ld2:=2.0;\n";
+    fodo_bodo += "b: sbend, l=lb;\n";
     fodo_bodo += "bodo: sequence, l=lb+lq2+2*ld2;\n";
-    fodo_bodo += "f: sbend, at=0,l=lb;\n";
-    fodo_bodo += "d: quad, at=lb+ld2,l=lq;\n";
+    fodo_bodo += "b1: b, at=0;\n";
+    fodo_bodo += "d1: d, at=lb+ld2, l=lq2;\n";
     fodo_bodo += "endmark, at=lb+lq2+2*ld;\n";
     fodo_bodo += "endsequence;\n";
     return fodo_bodo;
@@ -80,5 +83,21 @@ BOOST_AUTO_TEST_CASE(get_line_names_bad)
         caught = true;
     }
     BOOST_CHECK(caught);
+}
+
+BOOST_AUTO_TEST_CASE(get_lattice)
+{
+    MadX_reader madx_reader;
+    madx_reader.parse(get_fodo());
+    Lattice lattice(madx_reader.get_lattice("fodo"));
+    lattice.print();
+}
+
+BOOST_AUTO_TEST_CASE(get_lattice3)
+{
+    MadX_reader madx_reader;
+    madx_reader.parse_file("lattices/fodo2work.madx");
+    Lattice lattice(madx_reader.get_lattice("fodo"));
+    lattice.print();
 }
 

@@ -74,6 +74,7 @@ MadX_reader::get_lattice(std::string const& line_name)
         throw std::runtime_error(
                 "MadX_reader::get_lattice does not currently handle lines");
     }
+    std::cout << "jfa: wtf1" << std::endl;
     if (found_sequence) {
         MadX_sequence sequence(madx_sptr->sequence(line_name));
         double total_length = sequence.length();
@@ -81,8 +82,11 @@ MadX_reader::get_lattice(std::string const& line_name)
         const double min_drift_length = 1.0e-9;
         int drift_count = 0;
         int drift_digits = digits(sequence.element_count());
+        std::cout << "jfa: wtf2" << std::endl;
         for (int i = 0; i < sequence.element_count(); ++i) {
-            double at = sequence.element(i).attribute_as_number("at");
+            std::cout << "jfa: wtf3" << std::endl;
+            double at = sequence.element(i, false).attribute_as_number("at");
+            std::cout << "jfa: wtf4" << std::endl;
             double drift_length = at - current_pos;
             if (drift_length > min_drift_length) {
                 std::stringstream name_stream;
@@ -94,7 +98,29 @@ MadX_reader::get_lattice(std::string const& line_name)
                 Lattice_element drift("drift", name_stream.str());
                 drift.set_double_attribute("l", drift_length, false);
                 lattice.append(drift);
+                ++drift_count;
             }
+            std::cout << "jfa: wtf10" << std::endl;
+
+            std::cout << "jfa: false label "
+                    << sequence.element(i, false).label() << std::endl;
+            try {
+                std::cout << "jfa: true label "
+                        << sequence.element(i, true).label() << std::endl;
+            }
+            catch (std::runtime_error) {
+                std::cout << "jfa: no true label\n";
+            }
+            std::cout << "jfa: false name " << sequence.element(i, false).name()
+                    << std::endl;
+            try {
+                std::cout << "jfa: true name "
+                        << sequence.element(i, true).name() << std::endl;
+            }
+            catch (std::runtime_error) {
+                std::cout << "jfa: no true name\n";
+            }
+
             std::string name(sequence.element(i, false).label());
             if (name == "") {
                 name = sequence.element(i, true).label();
@@ -102,11 +128,11 @@ MadX_reader::get_lattice(std::string const& line_name)
             std::string type(sequence.element(i, true).name());
             Lattice_element element(type, name);
             std::vector<string_t > attribute_names(
-                    sequence.element(i).attribute_names());
+                    sequence.element(i, true).attribute_names());
             for (std::vector<string_t >::iterator it = attribute_names.begin();
                     it != attribute_names.end(); ++it) {
                 element.set_double_attribute(*it,
-                        sequence.element(i).attribute_as_number(*it));
+                        sequence.element(i, true).attribute_as_number(*it));
             }
             lattice.append(element);
             current_pos = at + element.get_length();
