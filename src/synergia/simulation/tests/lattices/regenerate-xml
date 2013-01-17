@@ -1,0 +1,10 @@
+#!/bin/sh
+
+cd "`dirname $0`" && \
+synmad8toxml foborodobo32.lat model foborodobo32_lattice.xml
+echo "copying fnal_booster.xml from lattice/tests/lattices"
+cp ../../../lattice/tests/lattices/fnal_booster.xml .
+echo "copying fnal_debuncher.xml from lattice/tests/lattices"
+cp ../../../lattice/tests/lattices/fnal_debuncher.xml .
+echo "copying fnal_main_injector.xml from lattice/tests/lattices"
+cp ../../../lattice/tests/lattices/fnal_main_injector.xml .
