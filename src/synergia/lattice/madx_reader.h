@@ -7,6 +7,8 @@ class MadX_reader
 {
 private:
     boost::shared_ptr<synergia::MadX > madx_sptr;
+    void
+    extract_reference_particle(Lattice & lattice);
 public:
     MadX_reader();
     void

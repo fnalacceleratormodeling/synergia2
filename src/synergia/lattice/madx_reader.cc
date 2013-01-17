@@ -1,11 +1,82 @@
 #include "madx_reader.h"
 #include "mx_parse.h"
 #include "synergia/utils/digits.h"
+#include "synergia/foundation/physical_constants.h"
+#include "synergia/foundation/four_momentum.h"
+#include "synergia/foundation/reference_particle.h"
 
 #include <stdexcept>
 #include <algorithm>
 
 using namespace synergia;
+
+void
+MadX_reader::extract_reference_particle(Lattice & lattice)
+{
+    const int not_found = -1;
+    int beam_index = not_found;
+    std::vector < std::string > command_names(madx_sptr->commands());
+    int current_index = 0;
+    for (std::vector<std::string >::const_iterator it = command_names.begin();
+            it != command_names.end(); ++it) {
+        if (*it == "beam") {
+            beam_index = current_index;
+        }
+        ++current_index;
+    }
+    if (beam_index > not_found) {
+        synergia::MadX_command command(madx_sptr->command(beam_index));
+        std::vector < std::string > attributes(command.attribute_names());
+        double mass = 0, charge = 0, energy = 0, pc = 0, gamma = 0;
+        for (std::vector<std::string >::const_iterator it = attributes.begin();
+                it != attributes.end(); ++it) {
+            if (*it == "particle") {
+                std::string particle(command.attribute_as_string(*it));
+                if (particle == "proton") {
+                    mass = pconstants::mp;
+                    charge = pconstants::proton_charge;
+                } else if (particle == "antiproton") {
+                    mass = pconstants::mp;
+                    charge = pconstants::antiproton_charge;
+                } else if (particle == "electron") {
+                    mass = pconstants::me;
+                    charge = pconstants::electron_charge;
+                } else if (particle == "positron") {
+                    mass = pconstants::me;
+                    charge = pconstants::positron_charge;
+                } else if (particle == "negmuon") {
+                    mass = pconstants::mmu;
+                    charge = pconstants::muon_charge;
+                } else if (particle == "posmuon") {
+                    mass = pconstants::mmu;
+                    charge = pconstants::antimuon_charge;
+                }
+            } else if (*it == "mass") {
+                mass = command.attribute_as_number(*it);
+            } else if (*it == "charge") {
+                charge = command.attribute_as_number(*it);
+            } else if (*it == "energy") {
+                energy = command.attribute_as_number(*it);
+            } else if (*it == "pc") {
+                pc = command.attribute_as_number(*it);
+            } else if (*it == "gamma") {
+                gamma = command.attribute_as_number(*it);
+            }
+        }
+        Four_momentum four_momentum(mass);
+        if (energy > 0) {
+            four_momentum.set_total_energy(energy);
+        }
+        if (pc > 0) {
+            four_momentum.set_momentum(pc);
+        }
+        if (gamma > 0) {
+            four_momentum.set_gamma(gamma);
+        }
+        Reference_particle reference_particle(charge, four_momentum);
+        lattice.set_reference_particle(reference_particle);
+    }
+}
 
 MadX_reader::MadX_reader()
 {
@@ -113,7 +184,7 @@ MadX_reader::get_lattice(std::string const& line_name)
             current_pos = at + element.get_length();
         }
     }
-
+    extract_reference_particle(lattice);
     return lattice;
 }
 
