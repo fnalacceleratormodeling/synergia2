@@ -429,6 +429,8 @@ struct synergia::madx_tree_parser
            ("cycle"    , "cycle"    )
            ("reflect"  , "reflect"  )
            ("endedit"  , "endedit"  )
+           // other commands
+           ("twiss"    , "twiss"    )
            // build sequence ( not present in manual )
            ("sequence" , "sequence" )
            ("endsequence", "endsequence" )
