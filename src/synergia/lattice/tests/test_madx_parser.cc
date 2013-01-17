@@ -219,6 +219,24 @@ BOOST_AUTO_TEST_CASE(subscripted_ident)
   BOOST_CHECK_EQUAL( mx.variable_as_number("x"), 1 );
 }
 
+BOOST_AUTO_TEST_CASE(vector_attribute)
+{
+    string str = "mpfi1: multipole,knl:={ 0, 1.1, 2.2, 3.3, 4.4, 5.5 };";
+    MadX mx;
+    BOOST_CHECK( parse_madx( str, mx ) );
+    MadX_command cmd = mx.command("mpfi1");
+    std::vector<double > knl(cmd.attribute_as_number_seq("knl"));
+
+    BOOST_CHECK_EQUAL(knl.size(), 6);
+    const double tolerance = 1.0e-12;
+    BOOST_CHECK_CLOSE(knl.at(0), 0, tolerance);
+    BOOST_CHECK_CLOSE(knl.at(1), 1.1, tolerance);
+    BOOST_CHECK_CLOSE(knl.at(2), 2.2, tolerance);
+    BOOST_CHECK_CLOSE(knl.at(3), 3.3, tolerance);
+    BOOST_CHECK_CLOSE(knl.at(4), 4.4, tolerance);
+    BOOST_CHECK_CLOSE(knl.at(5), 5.5, tolerance);
+}
+
 BOOST_AUTO_TEST_CASE(continuation)
 {
   string str = "q1: quadrupole,l=\n3.14,k1=0.2;";
