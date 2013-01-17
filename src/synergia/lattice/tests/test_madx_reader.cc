@@ -1,6 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "synergia/lattice/madx_reader.h"
+#include "synergia/foundation/physical_constants.h"
 
 const double tolerance = 1.0e-12;
 
@@ -101,3 +102,25 @@ BOOST_AUTO_TEST_CASE(get_lattice3)
     lattice.print();
 }
 
+BOOST_AUTO_TEST_CASE(get_lattice_no_reference_particle)
+{
+    MadX_reader madx_reader;
+    madx_reader.parse(get_fodo());
+    Lattice lattice(madx_reader.get_lattice("fodo"));
+    BOOST_CHECK(!lattice.has_reference_particle());
+}
+
+BOOST_AUTO_TEST_CASE(get_lattice_with_reference_particle)
+{
+    std::string beam_fodo("beam, particle=proton, gamma=1.42;");
+    beam_fodo += get_fodo();
+    MadX_reader madx_reader;
+    madx_reader.parse(beam_fodo);
+    Lattice lattice(madx_reader.get_lattice("fodo"));
+    BOOST_CHECK(lattice.has_reference_particle());
+    const double tolerance=1.0e-10;
+    BOOST_CHECK_CLOSE(lattice.get_reference_particle().get_four_momentum().get_mass(),
+            pconstants::mp, tolerance);
+    BOOST_CHECK_CLOSE(lattice.get_reference_particle().get_gamma(), 1.42,
+            tolerance);
+}
