@@ -86,14 +86,19 @@ void
 MadX_reader::parse(std::string const& string)
 {
     madx_sptr = boost::shared_ptr<MadX >(new MadX());
-    synergia::parse_madx(string, *madx_sptr);
+    if (!synergia::parse_madx(string, *madx_sptr)) {
+        throw std::runtime_error("MadX_reader::parse: parsing string failed");
+    }
 }
 
 void
 MadX_reader::parse_file(std::string const& filename)
 {
     madx_sptr = boost::shared_ptr<MadX >(new MadX());
-    synergia::parse_madx_file(filename, *madx_sptr);
+    if (!synergia::parse_madx_file(filename, *madx_sptr)) {
+        throw std::runtime_error(
+                "MadX_reader::parse_file: parsing " + filename + " failed");
+    }
 }
 
 std::vector<std::string >
