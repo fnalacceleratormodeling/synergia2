@@ -184,7 +184,6 @@ BOOST_AUTO_TEST_CASE(command_str_attrs2)
 }
 #endif
 
-#if 0
 BOOST_AUTO_TEST_CASE(command_particle_attrs)
 {
   string str = "beam, particle=proton;";
@@ -198,7 +197,6 @@ BOOST_AUTO_TEST_CASE(command_particle_attrs)
   BOOST_CHECK_EQUAL( cmd.attribute_count(), 1 );
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("particle"), "proton");
 }
-#endif
 
 BOOST_AUTO_TEST_CASE(command_assign)
 {

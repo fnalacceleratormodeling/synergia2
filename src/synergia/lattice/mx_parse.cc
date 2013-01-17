@@ -492,7 +492,7 @@ struct synergia::madx_tree_parser
         ;
 
     value =
-        str | expr | array
+        str | no_case[particle_keywords] | expr | array
         ;
 
     attr =
