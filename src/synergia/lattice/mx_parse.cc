@@ -452,7 +452,8 @@ struct synergia::madx_tree_parser
   qi::rule<Iterator, mx_attr()     , Skip> attr;
 
   qi::rule<Iterator, string()      , Skip> name;
-  qi::rule<Iterator, string()      , Skip> str;
+  qi::rule<Iterator, string()      , Skip> dblq_str;
+  qi::rule<Iterator, string()      , Skip> snglq_str;
 
   expression<Iterator              , Skip> expr;
   qi::rule<Iterator, mx_exprs()    , Skip> array;
@@ -492,7 +493,7 @@ struct synergia::madx_tree_parser
         ;
 
     value =
-        str | no_case[particle_keywords] | expr | array
+        dblq_str | snglq_str | no_case[particle_keywords] | expr | array
         ;
 
     attr =
@@ -520,8 +521,12 @@ struct synergia::madx_tree_parser
         lexeme[char_("a-zA-Z_") >> *char_(".a-zA-Z_0-9")]
         ;
 
-    str =
+    dblq_str =
         lexeme['"' >> +(char_ - '"') >> '"']
+        ;
+
+    snglq_str =
+        lexeme['\'' >> +(char_ - '\'') >> '\'']
         ;
   }
 };

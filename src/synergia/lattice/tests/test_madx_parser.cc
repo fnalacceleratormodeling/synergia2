@@ -168,7 +168,6 @@ BOOST_AUTO_TEST_CASE(command_str_attrs1)
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("s"), "Tevatron Collider Run II Lattice" );
 }
 
-#if 0
 BOOST_AUTO_TEST_CASE(command_str_attrs2)
 {
   string str = "title, S = 'Tevatron Collider Run II Lattice';";
@@ -182,7 +181,6 @@ BOOST_AUTO_TEST_CASE(command_str_attrs2)
   BOOST_CHECK_EQUAL( cmd.attribute_count(), 1 );
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("s"), "Tevatron Collider Run II Lattice" );
 }
-#endif
 
 BOOST_AUTO_TEST_CASE(command_particle_attrs)
 {
