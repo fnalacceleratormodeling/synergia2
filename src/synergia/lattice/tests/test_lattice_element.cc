@@ -102,6 +102,51 @@ BOOST_AUTO_TEST_CASE(get_string_attributes)
     BOOST_CHECK(lattice_element.get_string_attributes().count(attr) == 1);
 }
 
+BOOST_AUTO_TEST_CASE(has_vector_attribute)
+{
+    Lattice_element lattice_element(type, name);
+    BOOST_CHECK(lattice_element.has_vector_attribute(attr) == false);
+}
+
+BOOST_AUTO_TEST_CASE(set_get_vector_attribute)
+{
+    std::vector<double > vectorval(3);
+    vectorval.at(0) = 1.1;
+    vectorval.at(1) = 2.2;
+    vectorval.at(2) = 3.3;
+
+    Lattice_element lattice_element(type, name);
+    lattice_element.set_vector_attribute(attr, vectorval);
+    BOOST_CHECK(lattice_element.has_vector_attribute(attr));
+    BOOST_CHECK(lattice_element.get_vector_attribute(attr) == vectorval);
+}
+
+BOOST_AUTO_TEST_CASE(get_nonexistent_vector_attribute)
+{
+    Lattice_element lattice_element(type, name);
+    BOOST_CHECK(lattice_element.has_vector_attribute(attr) == false);
+    bool caught = false;
+    try {
+        std::vector<double > val = lattice_element.get_vector_attribute(attr);
+    }
+    catch (std::runtime_error) {
+        caught = true;
+    }
+    BOOST_CHECK(caught);
+}
+
+BOOST_AUTO_TEST_CASE(get_vector_attributes)
+{
+    std::vector<double > vectorval(3);
+    vectorval.at(0) = 1.1;
+    vectorval.at(1) = 2.2;
+    vectorval.at(2) = 3.3;
+
+    Lattice_element lattice_element(type, name);
+    lattice_element.set_vector_attribute(attr, vectorval);
+    BOOST_CHECK(lattice_element.get_vector_attributes().count(attr) == 1);
+}
+
 BOOST_AUTO_TEST_CASE(get_needs_internal_derive)
 {
     Lattice_element lattice_element(type, name);

@@ -4,6 +4,7 @@
 #include <string>
 #include <map>
 #include <list>
+#include <vector>
 
 #include <boost/shared_ptr.hpp>
 
@@ -22,6 +23,7 @@ private:
     std::list<std::string > ancestors;
     std::map<std::string, double > double_attributes;
     std::map<std::string, std::string > string_attributes;
+    std::map<std::string, std::vector<double> > vector_attributes;
     std::string length_attribute_name;
     std::string bend_angle_attribute_name;
     long int revision;
@@ -96,6 +98,32 @@ public:
     std::string const&
     get_string_attribute(std::string const& name) const;
 
+    /// Get the entire dictionary of string attributes
+    std::map<std::string, std::string > const &
+    get_string_attributes() const;
+
+    /// Set the value of the named vector attribute
+    /// @param name attribute name
+    /// @param value attribute value
+    /// @param increment_revision can be set to false for attributes that do not affect dynamics
+    void
+    set_vector_attribute(std::string const& name,
+            std::vector<double > const& value, bool increment_revision = true);
+
+    /// Check for the existence of the named vector attribute
+    /// @param name attribute name
+    bool
+    has_vector_attribute(std::string const& name) const;
+
+    /// Get the value of the named vector attribute
+    /// @param name attribute name
+    std::vector<double > const&
+    get_vector_attribute(std::string const& name) const;
+
+    /// Get the entire dictionary of vector attributes
+    std::map<std::string, std::vector<double > > const &
+    get_vector_attributes() const;
+
     /// Set the attribute name to be used to determine the length
     /// of the Lattice_element
     /// @param attribute_name attribute name
@@ -107,10 +135,6 @@ public:
     /// @param attribute_name attribute name
     void
     set_bend_angle_attribute_name(std::string const& attribute_name);
-
-    /// Get the entire dictionary of string attributes
-    std::map<std::string, std::string > const &
-    get_string_attributes() const;
 
     /// Set whether the element needs to determine some of its parameters
     /// from its other parameters

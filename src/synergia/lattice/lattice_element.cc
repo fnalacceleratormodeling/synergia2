@@ -136,6 +136,48 @@ Lattice_element::get_string_attribute(std::string const& name) const
     return result->second;
 }
 
+std::map<std::string, std::string > const &
+Lattice_element::get_string_attributes() const
+{
+    return string_attributes;
+}
+
+void
+Lattice_element::set_vector_attribute(std::string const& name,
+        std::vector<double > const& value, bool increment_revision)
+{
+    vector_attributes[name] = value;
+    if (increment_revision) {
+        ++revision;
+    }
+}
+
+bool
+Lattice_element::has_vector_attribute(std::string const& name) const
+{
+    return (vector_attributes.count(name) > 0);
+}
+
+std::vector<double > const&
+Lattice_element::get_vector_attribute(std::string const& name) const
+{
+    std::map<std::string, std::vector<double > >::const_iterator result =
+            vector_attributes.find(name);
+    if (result == vector_attributes.end()) {
+        throw std::runtime_error(
+                "Lattice_element::get_vector_attribute: element " + this->name
+                        + " of type " + type + " has no vector attribute '"
+                        + name + "'");
+    }
+    return result->second;
+}
+
+std::map<std::string, std::vector<double > > const &
+Lattice_element::get_vector_attributes() const
+{
+    return vector_attributes;
+}
+
 void
 Lattice_element::set_length_attribute_name(std::string const& attribute_name)
 {
@@ -147,12 +189,6 @@ Lattice_element::set_bend_angle_attribute_name(
         std::string const& attribute_name)
 {
     bend_angle_attribute_name = attribute_name;
-}
-
-std::map<std::string, std::string > const &
-Lattice_element::get_string_attributes() const
-{
-    return string_attributes;
 }
 
 void
@@ -255,6 +291,7 @@ template<class Archive>
                 & BOOST_SERIALIZATION_NVP(ancestors)
                 & BOOST_SERIALIZATION_NVP(double_attributes)
                 & BOOST_SERIALIZATION_NVP(string_attributes)
+                & BOOST_SERIALIZATION_NVP(vector_attributes)
                 & BOOST_SERIALIZATION_NVP(length_attribute_name)
                 & BOOST_SERIALIZATION_NVP(bend_angle_attribute_name)
                 & BOOST_SERIALIZATION_NVP(revision)
