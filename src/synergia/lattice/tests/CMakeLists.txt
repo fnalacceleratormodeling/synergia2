@@ -55,11 +55,16 @@ add_test(test_chef_lattice_section ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_che
 add_test_executable(test_madx_parser test_madx_parser.cc)
 target_link_libraries(test_madx_parser synergia_lattice
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_madx_parser ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1  test_madx_parser)
 
 add_test_executable(test_madx_reader test_madx_reader.cc)
 target_link_libraries(test_madx_reader synergia_lattice
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_madx_reader ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1  test_madx_reader)
 
+add_test_executable(jfa jfa.cc)
+target_link_libraries(jfa synergia_lattice
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 add_test(test_mad8_parser ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_mad8_parser.py)
 add_test(test_expression_parser ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_expression_parser.py)
