@@ -171,10 +171,11 @@ public:
   std::vector<double> variable_as_number_seq(string_t const & name) const;
 
   size_t command_count() const;  // un-labeled commands
+  std::vector<string_t > commands() const;
   MadX_command command(size_t idx, bool resolve = true) const;
 
   size_t label_count() const;    // labeled commands
-  std::vector<string_t> command_labels() const;
+  std::vector<string_t > command_labels() const;
   MadX_command command(string_t const & l, bool resolve = true) const;
 
   size_t line_count() const;     // labeled lines

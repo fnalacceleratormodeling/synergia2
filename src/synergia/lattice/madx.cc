@@ -408,6 +408,18 @@ size_t
   return cmd_seq_.size();
 }
 
+std::vector<string_t >
+  MadX::commands() const
+{
+    std::vector<string_t > commands;
+    for(commands_v_t::const_iterator it = cmd_seq_.begin();
+            it != cmd_seq_.end(); ++it)
+    {
+        commands.push_back(it->name());
+    }
+    return commands;
+}
+
 MadX_command
   MadX::command( size_t idx, bool resolve ) const
 {
