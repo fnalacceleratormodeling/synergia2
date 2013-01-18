@@ -832,11 +832,13 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
         bunch.get_local_particles()[part][1] += factor * grid_val.real();
         bunch.get_local_particles()[part][3] += factor * grid_val.imag();
     }
+/*
     std::cout << std::scientific;
     std::cout << "jfa xkick: " << xkick/bunch.get_local_num() << " " <<
             std::sqrt(xkick2)<< std::endl;
     std::cout << "jfa ykick: " << ykick/bunch.get_local_num()  << " " <<
             std::sqrt(ykick2)<< std::endl;
+*/
 }
 
 void
