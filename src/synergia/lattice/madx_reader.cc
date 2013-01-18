@@ -182,8 +182,40 @@ MadX_reader::get_lattice(std::string const& line_name)
                     sequence.element(i, true).attribute_names());
             for (std::vector<string_t >::iterator it = attribute_names.begin();
                     it != attribute_names.end(); ++it) {
-                element.set_double_attribute(*it,
-                        sequence.element(i, true).attribute_as_number(*it));
+                bool done(false);
+                try {
+                    element.set_vector_attribute(*it,
+                            sequence.element(i, true).attribute_as_number_seq(
+                                    *it));
+                    done = true;
+                }
+                catch (std::runtime_error) {
+                }
+                if (!done) {
+                    try {
+                        element.set_double_attribute(*it,
+                                sequence.element(i, true).attribute_as_number(
+                                        *it));
+                        done = true;
+                    }
+                    catch (std::runtime_error) {
+                    }
+                }
+                if (!done) {
+                    try {
+                        element.set_string_attribute(*it,
+                                sequence.element(i, true).attribute_as_string(
+                                        *it));
+                        done = true;
+                    }
+                    catch (std::runtime_error) {
+                    }
+                }
+                if (!done) {
+                    throw std::runtime_error(
+                            "unable to process attribute " + *it
+                                    + " of element " + name);
+                }
             }
             lattice.append(element);
             current_pos = at + element.get_length();

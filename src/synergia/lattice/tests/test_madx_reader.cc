@@ -124,3 +124,24 @@ BOOST_AUTO_TEST_CASE(get_lattice_with_reference_particle)
     BOOST_CHECK_CLOSE(lattice.get_reference_particle().get_gamma(), 1.42,
             tolerance);
 }
+
+BOOST_AUTO_TEST_CASE(get_types)
+{
+    std::string str("element: quadrupole, x=3.14, name='foo', knl={1.1,2.2,3.3};");
+    str += "seq:sequence, l=1.0;\n";
+    str += "e1: element, at=0.5;\n";
+    str += "endsequence;\n";
+    MadX_reader madx_reader;
+    madx_reader.parse(str);
+    madx_reader.get_lattice("seq").print();
+
+    // get the second element
+    Lattice_element element(**(++madx_reader.get_lattice("seq").get_elements().begin()));
+    const double tolerance = 1.0e-12;
+    BOOST_CHECK_CLOSE(element.get_double_attribute("x"), 3.14, tolerance);
+    BOOST_CHECK_EQUAL(element.get_string_attribute("name"), "foo");
+    BOOST_CHECK_EQUAL(element.get_vector_attribute("knl").size(), 3);
+    BOOST_CHECK_CLOSE(element.get_vector_attribute("knl").at(0), 1.1, tolerance);
+    BOOST_CHECK_CLOSE(element.get_vector_attribute("knl").at(1), 2.2, tolerance);
+    BOOST_CHECK_CLOSE(element.get_vector_attribute("knl").at(2), 3.3, tolerance);
+}
