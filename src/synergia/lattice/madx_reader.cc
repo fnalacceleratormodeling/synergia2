@@ -220,6 +220,19 @@ MadX_reader::get_lattice(std::string const& line_name)
             lattice.append(element);
             current_pos = at + element.get_length();
         }
+        double final_drift_length = sequence.length() - current_pos;
+        if (final_drift_length > min_drift_length) {
+            std::stringstream name_stream;
+            name_stream << "auto_drift";
+            name_stream << "_";
+            name_stream << std::setw(drift_digits);
+            name_stream << std::setfill('0');
+            name_stream << drift_count;
+            Lattice_element drift("drift", name_stream.str());
+            drift.set_double_attribute("l", final_drift_length, false);
+            lattice.append(drift);
+            ++drift_count;
+        }
     }
     extract_reference_particle(lattice);
     return lattice;

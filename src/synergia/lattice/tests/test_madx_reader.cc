@@ -145,3 +145,33 @@ BOOST_AUTO_TEST_CASE(get_types)
     BOOST_CHECK_CLOSE(element.get_vector_attribute("knl").at(1), 2.2, tolerance);
     BOOST_CHECK_CLOSE(element.get_vector_attribute("knl").at(2), 3.3, tolerance);
 }
+
+BOOST_AUTO_TEST_CASE(line_length_with_endmark)
+{
+    std::string str("element: quadrupole, x=3.14, name='foo', knl={1.1,2.2,3.3};");
+    str += "seq:sequence, l=1.0;\n";
+    str += "e1: element, at=0.5;\n";
+    str += "endmark, at=1.0;\n";
+    str += "endsequence;\n";
+    MadX_reader madx_reader;
+    madx_reader.parse(str);
+    madx_reader.get_lattice("seq").print();
+
+    const double tolerance = 1.0e-12;
+    BOOST_CHECK_CLOSE(madx_reader.get_lattice("seq").get_length(), 1.0, tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(line_length_without_endmark)
+{
+    std::string str("element: quadrupole, x=3.14, name='foo', knl={1.1,2.2,3.3};");
+    str += "seq:sequence, l=1.0;\n";
+    str += "e1: element, at=0.5;\n";
+    str += "endsequence;\n";
+    MadX_reader madx_reader;
+    madx_reader.parse(str);
+    madx_reader.get_lattice("seq").print();
+
+    const double tolerance = 1.0e-12;
+    BOOST_CHECK_CLOSE(madx_reader.get_lattice("seq").get_length(), 1.0, tolerance);
+}
+
