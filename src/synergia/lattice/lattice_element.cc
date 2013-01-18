@@ -44,6 +44,9 @@ Lattice_element::Lattice_element(Lattice_element const& lattice_element) :
     std::copy(lattice_element.string_attributes.begin(),
             lattice_element.string_attributes.end(),
             std::inserter(string_attributes, string_attributes.begin()));
+    std::copy(lattice_element.vector_attributes.begin(),
+            lattice_element.vector_attributes.end(),
+            std::inserter(vector_attributes, vector_attributes.begin()));
 }
 
 std::string const &
