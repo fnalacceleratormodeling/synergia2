@@ -693,8 +693,8 @@ Split_operator_stepper_elements::construct(
 
             }
         }
-        get_lattice_simulator().set_slices(extract_slices(get_steps()));
     }
+    get_lattice_simulator().set_slices(extract_slices(get_steps()));
 }
 
 Split_operator_stepper_elements::Split_operator_stepper_elements(
