@@ -20,7 +20,9 @@ field_name("")
 {
   field_name += e_field.getVORPALJobName();
   subjectedDevices.push_back(aDeviceName);
-}
+  std::cerr << "   Ecloud_from_vorpal::Ecloud_from_vorpal, defined, for device type " << aDeviceName << std::endl;
+  
+} 
 
 Ecloud_from_vorpal::~Ecloud_from_vorpal() { ; }
 
@@ -30,16 +32,16 @@ void Ecloud_from_vorpal::apply(Bunch & bunch, double time_step, Step & step, int
 // Actually, we are already in a device where the e-cloud is present.
 // Not really ! The clever element stepper is not yet implemented yet. 
 //
+
     Commxx myComm; // The communicator 
     int my_rank= myComm.get_rank();
    if (!this->checkElementType(step)) {
-      if ((my_rank == 1) && (verbosity > 3) ) std::cerr << " Rank 1; Ecloud_from_vorpal, element with no e-cloud , skip " << std::endl;
+      if ((my_rank == 0) && (verbosity > 3) ) std::cerr << " Rank 0; Ecloud_from_vorpal, element with no e-cloud , skip " << std::endl; 
       return;
    } 
 //
 // Find if we have an electron cloud in this device. Done above!!  But we learn how to check where we are.. 
-//
-   
+//   
    bunch.convert_to_state(Bunch::fixed_t_lab); 
 //
 //    this->getElementBoudaries(step); 
@@ -51,7 +53,7 @@ void Ecloud_from_vorpal::apply(Bunch & bunch, double time_step, Step & step, int
      // So, fact = q*lStep/(beta*c).  In SI units. 
     double p_ref = bunch.get_reference_particle().get_momentum();
     int partDump = 3*bunch.get_local_num()/4;
-    if ((my_rank == 1) && (verbosity > 3) ) std::cerr << " Rank 1; Ecloud_from_vorpal::apply p_ref = " << p_ref << " lStep " << lStep 
+    if ((my_rank == 0) && (verbosity > 3) ) std::cerr << " Rank 0; Ecloud_from_vorpal::apply p_ref = " << p_ref << " lStep " << lStep 
                     << "  Num Particle " <<   bunch.get_local_num() << " kinetics at particle "  << partDump << " verbosity " << verbosity << std::endl;
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         const double x = bunch.get_local_particles()[part][Bunch::x];
