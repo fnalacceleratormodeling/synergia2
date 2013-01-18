@@ -3,6 +3,7 @@
 #include "interpolate_rectangular_zyx.h"
 #include "space_charge_2d_bassetti_erskine.h"
 #include "space_charge_rectangular.h"
+#include "ecloud_from_vorpal.h"
 #include "impedance.h"
 #include <boost/python.hpp>
 #include "synergia/utils/container_conversions.h"
@@ -54,6 +55,15 @@ BOOST_PYTHON_MODULE(collective)
               .def("get_grid_shape", &Space_charge_rectangular::get_grid_shape)
               .def("apply", &Space_charge_rectangular::apply)
         ;
+
+    class_<Ecloud_from_vorpal, Ecloud_from_vorpal_sptr,
+        bases<Collective_operator > >("Ecloud_from_vorpal",
+                init<Commxx_sptr, std::string, std::string >())
+                .def("apply", &Ecloud_from_vorpal::apply)
+                .def("add_device", &Ecloud_from_vorpal::add_device)
+        ;
+    
+
 
     class_<Impedance,Impedance_sptr,
         bases<Collective_operator > >("Impedance",
