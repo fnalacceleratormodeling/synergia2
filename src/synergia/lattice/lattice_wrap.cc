@@ -1,5 +1,6 @@
 #include "lattice_element.h"
 #include "element_adaptor.h"
+#include "element_adaptor_map.h"
 #include "lattice.h"
 #include "lattice_diagnostics.h"
 #include "chef_lattice.h"

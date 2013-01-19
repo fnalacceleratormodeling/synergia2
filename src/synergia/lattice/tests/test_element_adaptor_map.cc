@@ -1,7 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 
-#include "synergia/lattice/element_adaptor.h"
+#include "synergia/lattice/element_adaptor_map.h"
 #include "synergia/utils/serialization.h"
 #include "synergia/utils/serialization_files.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"

@@ -402,28 +402,4 @@ public:
 };
 BOOST_CLASS_EXPORT_KEY(Lambertson_mad8_adaptor);
 
-class Element_adaptor_map
-{
-private:
-    std::map<std::string, Element_adaptor_sptr > adaptor_map;
-
-public:
-    Element_adaptor_map();
-    void
-    set_adaptor(std::string const& name,
-            Element_adaptor_sptr element_adaptor_sptr);
-    bool
-    has_adaptor(std::string const& name) const;
-    Element_adaptor_sptr
-    get_adaptor(std::string const& name) const;
-    std::list<std::string >
-    get_adaptor_names() const;
-    template<class Archive>
-        void
-        serialize(Archive & ar, const unsigned int version);
-    ~Element_adaptor_map();
-};
-
-typedef boost::shared_ptr<Element_adaptor_map > Element_adaptor_map_sptr;
-
 #endif /* ELEMENT_ADAPTOR_H_ */

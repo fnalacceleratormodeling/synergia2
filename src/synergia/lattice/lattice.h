@@ -6,6 +6,7 @@
 
 #include "synergia/lattice/lattice_element.h"
 #include "synergia/lattice/element_adaptor.h"
+#include "synergia/lattice/element_adaptor_map.h"
 #include "synergia/foundation/reference_particle.h"
 #include <boost/shared_ptr.hpp>
 
