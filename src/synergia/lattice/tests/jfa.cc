@@ -5,7 +5,7 @@ int
 main()
 {
     MadX_reader madx_reader;
-    madx_reader.parse_file("lattices/fodo2work.madx");
-    Lattice lattice(madx_reader.get_lattice("fodo"));
+    madx_reader.parse_file("ps_lattice.madx");
+    Lattice lattice(madx_reader.get_lattice("ps"));
     lattice.print();
 }
