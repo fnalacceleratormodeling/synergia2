@@ -1,7 +1,8 @@
 #!/bin/sh
 
 cd "`dirname $0`" && \
-synmad8toxml foborodobo32.lat model foborodobo32_lattice.xml
+echo "generating foborodobo32_lattice.xml"
+synergia generate_foborodobo32_xml.py
 echo "copying fnal_booster.xml from lattice/tests/lattices"
 cp ../../../lattice/tests/lattices/fnal_booster.xml .
 echo "copying fnal_debuncher.xml from lattice/tests/lattices"
