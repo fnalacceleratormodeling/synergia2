@@ -140,11 +140,18 @@ BOOST_PYTHON_MODULE(lattice)
             .def("get_chef_elements", &Element_adaptor::get_chef_elements)
             ;
 
-    class_<Element_adaptor_map >("Element_adaptor_map", init<>())
+    class_<Element_adaptor_map, Element_adaptor_map_sptr, boost::noncopyable >("Element_adaptor_map", no_init)
             .def("set_adaptor", &Element_adaptor_map::set_adaptor)
             .def("has_adaptor", &Element_adaptor_map::has_adaptor)
             .def("get_adaptor", &Element_adaptor_map::get_adaptor)
             .def("get_adaptor_names", &Element_adaptor_map::get_adaptor_names)
+            ;
+
+    class_<Mad8_adaptor_map, Mad8_adaptor_map_sptr, bases<Element_adaptor_map > >("Mad8_adaptor_map", init<>())
+//            .def("set_adaptor", &Mad8_adaptor_map::set_adaptor)
+//            .def("has_adaptor", &Mad8_adaptor_map::has_adaptor)
+//            .def("get_adaptor", &Mad8_adaptor_map::get_adaptor)
+//            .def("get_adaptor_names", &Mad8_adaptor_map::get_adaptor_names)
             ;
 
     class_<Lattice, Lattice_sptr >("Lattice", init<std::string const& >())
@@ -167,7 +174,6 @@ BOOST_PYTHON_MODULE(lattice)
             ;
 
     class_<Chef_lattice, Chef_lattice_sptr >("Chef_lattice", init<Lattice_sptr>())
-            .def(init<Lattice_sptr, Element_adaptor_map_sptr>())
 //            .def("get_chef_elements", &Chef_lattice::get_chef_elements,
 //                    return_value_policy<copy_non_const_reference >())
             .def("get_beamline", &Chef_lattice::get_beamline_sptr)
