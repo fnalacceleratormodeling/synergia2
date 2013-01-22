@@ -69,7 +69,7 @@ class Lattice_cache:
             index = self.cache[self.line_name].index
             try:
                 binary_load_lattice(retval, self._binary_file_name(index))
-            except RuntimeError, e:
+            except:
                 retval = None
         return retval
 
