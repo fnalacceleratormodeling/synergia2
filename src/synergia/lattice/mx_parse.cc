@@ -48,9 +48,7 @@ using qi::lit;
 using qi::bool_;
 using qi::int_;
 using qi::double_;
-using qi::no_skip;
-using qi::as;
-using qi::as_string;
+//using qi::as;  -- boost 1.45+
 using qi::raw;
 using qi::skip;
 using qi::locals;
@@ -459,19 +457,29 @@ struct synergia::madx_tree_parser
   qi::rule<Iterator, mx_exprs()    , Skip> array;
   qi::rule<Iterator, any()         , Skip> value;
 
+  qi::rule<Iterator, mx_statements_t(), Skip> statements;
 
   madx_tree_parser()
     : madx_tree_parser::base_type( doc )
     , expr()
   {
-    doc = as<mx_statements_t>()[*statement];
+    doc = 
+        //as<mx_statements_t>()[*statement]  -- boost 1.45+
+        statements [_val = _1]
+        ;
+
+    statements = 
+        *statement
+        ;
 
     statement =
-        if_flow | while_flow | command
+        //if_flow | while_flow | command  -- boost 1.45+
+        if_flow [_val = _1] | while_flow [_val = _1] | command [_val = _1]
         ;
 
     block =
-        as<mx_statements_t>()['{' >> *statement >> '}']
+        //as<mx_statements_t>()['{' >> *statement >> '}']  -- boost 1.45+
+        '{' >> statements [_val = _1] >> '}'
         ;
 
     logic =  // TODO: need more work
@@ -489,11 +497,17 @@ struct synergia::madx_tree_parser
         ;
 
     array =
-        '{' >> expr % ',' >> '}'
+        //'{' >> expr % ',' >> '}'  -- boost 1.45+
+        '{' >> expr [phx::push_back(_val, _1)] % ',' >> '}'
         ;
 
     value =
-        dblq_str | snglq_str | no_case[particle_keywords] | expr | array
+        //dblq_str | snglq_str | no_case[particle_keywords] | expr | array  -- boost 1.45+
+        dblq_str                     [_val=_1] 
+        | snglq_str                  [_val=_1] 
+        | no_case[particle_keywords] [_val=_1] 
+        | expr                       [_val=_1] 
+        | array                      [_val=_1]
         ;
 
     attr =
