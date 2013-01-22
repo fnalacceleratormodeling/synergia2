@@ -5,12 +5,13 @@
 #include <stdexcept>
 
 Lattice::Lattice() :
-    name(""), reference_particle_allocated(false), elements()
+        name(""), reference_particle_allocated(false), reference_particle_ptr(
+                0), elements(), element_adaptor_map_sptr(new Mad8_adaptor_map)
 {
 }
 
 Lattice::Lattice(std::string const& name) :
-    name(name), reference_particle_allocated(false), elements()
+        name(name), reference_particle_allocated(false), elements()
 {
 }
 
@@ -64,37 +65,35 @@ Lattice::append(Lattice_element const& element)
 }
 
 void
-Lattice::set_default_attributes(Element_adaptor_map const& element_adaptor_map)
+Lattice::set_default_attributes()
 {
-    for (Lattice_elements::const_iterator it = elements.begin(); it
-            != elements.end(); ++it) {
-        if (element_adaptor_map.has_adaptor((*it)->get_type())) {
-            element_adaptor_map.get_adaptor((*it)->get_type())->set_default_attributes(
+    for (Lattice_elements::const_iterator it = elements.begin();
+            it != elements.end(); ++it) {
+        if (element_adaptor_map_sptr->has_adaptor((*it)->get_type())) {
+            element_adaptor_map_sptr->get_adaptor((*it)->get_type())->set_default_attributes(
                     *(*it));
         }
     }
 }
 
 void
-Lattice::derive_internal_attributes(
-        Element_adaptor_map const& element_adaptor_map)
+Lattice::derive_internal_attributes()
 {
-    for (Lattice_elements::const_iterator it = elements.begin(); it
-            != elements.end(); ++it) {
+    for (Lattice_elements::const_iterator it = elements.begin();
+            it != elements.end(); ++it) {
         if ((*it)->get_needs_internal_derive()) {
-            element_adaptor_map.get_adaptor((*it)->get_type())->set_derived_attributes_internal(
+            element_adaptor_map_sptr->get_adaptor((*it)->get_type())->set_derived_attributes_internal(
                     *(*it));
         }
     }
 }
 
 void
-Lattice::derive_external_attributes(
-        Element_adaptor_map const& element_adaptor_map)
+Lattice::derive_external_attributes()
 {
     bool needed = false;
-    for (Lattice_elements::const_iterator it = elements.begin(); it
-            != elements.end(); ++it) {
+    for (Lattice_elements::const_iterator it = elements.begin();
+            it != elements.end(); ++it) {
         if ((*it)->get_needs_external_derive()) {
             needed = true;
         }
@@ -106,10 +105,10 @@ Lattice::derive_external_attributes(
         }
         double beta = reference_particle_ptr->get_beta();
         double lattice_length = get_length();
-        for (Lattice_elements::const_iterator it = elements.begin(); it
-                != elements.end(); ++it) {
+        for (Lattice_elements::const_iterator it = elements.begin();
+                it != elements.end(); ++it) {
             if ((*it)->get_needs_external_derive()) {
-                element_adaptor_map.get_adaptor((*it)->get_type())->set_derived_attributes_external(
+                element_adaptor_map_sptr->get_adaptor((*it)->get_type())->set_derived_attributes_external(
                         *(*it), lattice_length, beta);
             }
         }
@@ -117,18 +116,19 @@ Lattice::derive_external_attributes(
 }
 
 void
-Lattice::complete_attributes(Element_adaptor_map const& element_adaptor_map)
+Lattice::complete_attributes()
 {
-    set_default_attributes(element_adaptor_map);
-    derive_internal_attributes(element_adaptor_map);
-    derive_external_attributes(element_adaptor_map);
+    set_default_attributes();
+    derive_internal_attributes();
+    derive_external_attributes();
 }
 
 void
 Lattice::set_all_double_attribute(std::string const& name, double value,
         bool increment_revision)
 {
-    for (Lattice_elements::iterator it = elements.begin(); it != elements.end(); ++it) {
+    for (Lattice_elements::iterator it = elements.begin(); it != elements.end();
+            ++it) {
         (*it)->set_double_attribute(name, value, increment_revision);
     }
 }
@@ -137,7 +137,8 @@ void
 Lattice::set_all_string_attribute(std::string const& name,
         std::string const& value, bool increment_revision)
 {
-    for (Lattice_elements::iterator it = elements.begin(); it != elements.end(); ++it) {
+    for (Lattice_elements::iterator it = elements.begin(); it != elements.end();
+            ++it) {
         (*it)->set_string_attribute(name, value, increment_revision);
     }
 }
@@ -148,12 +149,18 @@ Lattice::get_elements()
     return elements;
 }
 
+Element_adaptor_map &
+Lattice::get_element_adaptor_map()
+{
+    return *element_adaptor_map_sptr;
+}
+
 double
 Lattice::get_length() const
 {
     double length = 0.0;
-    for (Lattice_elements::const_iterator it = elements.begin(); it
-            != elements.end(); ++it) {
+    for (Lattice_elements::const_iterator it = elements.begin();
+            it != elements.end(); ++it) {
         length += (*it)->get_length();
     }
     return length;
@@ -163,8 +170,8 @@ double
 Lattice::get_total_angle() const
 {
     double angle = 0.0;
-    for (Lattice_elements::const_iterator it = elements.begin(); it
-            != elements.end(); ++it) {
+    for (Lattice_elements::const_iterator it = elements.begin();
+            it != elements.end(); ++it) {
         angle += (*it)->get_bend_angle();
     }
     return angle;
@@ -175,8 +182,8 @@ Lattice::as_string() const
 {
     std::stringstream sstream;
     sstream << name << ":\n";
-    for (Lattice_elements::const_iterator it = elements.begin(); it
-            != elements.end(); ++it) {
+    for (Lattice_elements::const_iterator it = elements.begin();
+            it != elements.end(); ++it) {
         sstream << (*it)->as_string();
         sstream << std::endl;
     }
@@ -201,12 +208,12 @@ template<class Archive>
     void
     Lattice::serialize(Archive & ar, const unsigned int version)
     {
-        ar & BOOST_SERIALIZATION_NVP(name)
-                & BOOST_SERIALIZATION_NVP(reference_particle_allocated);
+        ar & BOOST_SERIALIZATION_NVP(name)& BOOST_SERIALIZATION_NVP(reference_particle_allocated);
         if (reference_particle_allocated) {
             ar & BOOST_SERIALIZATION_NVP(reference_particle_ptr);
         }
         ar & BOOST_SERIALIZATION_NVP(elements);
+        ar & BOOST_SERIALIZATION_NVP(element_adaptor_map_sptr);
     }
 
 template

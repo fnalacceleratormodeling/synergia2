@@ -18,17 +18,26 @@ class Lattice
 {
 private:
     std::string name;
-    Reference_particle *reference_particle_ptr;
     bool reference_particle_allocated;
+    Reference_particle *reference_particle_ptr;
     Lattice_elements elements;
+    Element_adaptor_map_sptr element_adaptor_map_sptr;
 
 public:
     /// Construct a Lattice object without a name.
+    /// Defaults to interpreting elements as Mad8 elements
     Lattice();
 
     /// Construct a Lattice object with a name
+    /// Defaults to interpreting elements as Mad8 elements
     /// @param name an arbitrary name
     Lattice(std::string const& name);
+
+    /// Construct a Lattice object with a name
+    /// @param name an arbitrary name
+    /// @param element_adaptor_map_sptr an Element_adaptor_map for interpreting elements
+    Lattice(std::string const& name,
+            Element_adaptor_map_sptr element_adaptor_map_sptr);
 
     /// Copies of Lattices contain copies of elements
     Lattice(Lattice const& lattice);
@@ -59,19 +68,19 @@ public:
     /// Lattice
     /// @param element_adaptor_map an Element_adaptor_map
     void
-    set_default_attributes(Element_adaptor_map const& element_adaptor_map);
+    set_default_attributes();
 
     /// Derive internal attributes where necessary
     void
-    derive_internal_attributes(Element_adaptor_map const& element_adaptor_map);
+    derive_internal_attributes();
 
     /// Derive external attributes where necessary
     void
-    derive_external_attributes(Element_adaptor_map const& element_adaptor_map);
+    derive_external_attributes();
 
     /// Complete all attribute updates. Includes defaults and derivations.
     void
-    complete_attributes(Element_adaptor_map const& element_adaptor_map);
+    complete_attributes();
 
     /// Set the value of the named double attribute on all elements
     /// @param name attribute name
@@ -92,6 +101,10 @@ public:
     /// Get the list of elements in the Lattice
     Lattice_elements &
     get_elements();
+
+    /// Get the Element_adaptor_map
+    Element_adaptor_map &
+    get_element_adaptor_map();
 
     /// Get the combined length of all the elements in the Lattice
     double
