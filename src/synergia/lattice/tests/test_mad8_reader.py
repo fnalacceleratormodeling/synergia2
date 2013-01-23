@@ -6,14 +6,14 @@ import local_paths
 
 from nose.tools import *
 from synergia.lattice import Mad8_reader
-from synergia.lattice import Lattice_element, Element_adaptor_map, Lattice
+from synergia.lattice import Lattice_element, Mad8_adaptor_map, Lattice
 from synergia.foundation import Four_momentum, Reference_particle, pconstants
 
 def test_construct():
     reader = Mad8_reader()
 
 def test_construct2():
-    adaptor_map = Element_adaptor_map()
+    adaptor_map = Mad8_adaptor_map()
     reader = Mad8_reader(adaptor_map)
 
 def test_get_element_extractor_map():
