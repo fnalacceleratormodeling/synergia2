@@ -33722,4 +33722,198 @@
 			</px>
 		</item>
 	</elements>
+	<element_adaptor_map_sptr class_id="12" tracking_level="0" version="1">
+		<px class_id="13" class_name="Mad8_adaptor_map" tracking_level="1" version="0" object_id="_887">
+			<Element_adaptor_map class_id="14" tracking_level="0" version="0">
+				<adaptor_map class_id="15" tracking_level="0" version="0">
+					<count>23</count>
+					<item_version>0</item_version>
+					<item class_id="16" tracking_level="0" version="0">
+						<first>drift</first>
+						<second class_id="17" tracking_level="0" version="1">
+							<px class_id="19" class_name="Drift_mad8_adaptor" tracking_level="1" version="0" object_id="_888">
+								<Element_adaptor class_id="18" tracking_level="1" version="0" object_id="_889"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>e_septum</first>
+						<second>
+							<px class_id="20" class_name="Septum_mad8_adaptor" tracking_level="1" version="0" object_id="_890">
+								<Element_adaptor object_id="_891"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>ecollimator</first>
+						<second>
+							<px class_id="21" class_name="Ecollimator_mad8_adaptor" tracking_level="1" version="0" object_id="_892">
+								<Element_adaptor object_id="_893"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>elseparator</first>
+						<second>
+							<px class_id="22" class_name="Elseparator_mad8_adaptor" tracking_level="1" version="0" object_id="_894">
+								<Element_adaptor object_id="_895"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>hkicker</first>
+						<second>
+							<px class_id="23" class_name="Hkicker_mad8_adaptor" tracking_level="1" version="0" object_id="_896">
+								<Element_adaptor object_id="_897"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>hmonitor</first>
+						<second>
+							<px class_id="24" class_name="Hmonitor_mad8_adaptor" tracking_level="1" version="0" object_id="_898">
+								<Element_adaptor object_id="_899"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>instrument</first>
+						<second>
+							<px class_id="25" class_name="Instrument_mad8_adaptor" tracking_level="1" version="0" object_id="_900">
+								<Element_adaptor object_id="_901"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>kicker</first>
+						<second>
+							<px class_id="26" class_name="Kicker_mad8_adaptor" tracking_level="1" version="0" object_id="_902">
+								<Element_adaptor object_id="_903"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>lambertson</first>
+						<second>
+							<px class_id="27" class_name="Lambertson_mad8_adaptor" tracking_level="1" version="0" object_id="_904">
+								<Element_adaptor object_id="_905"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>marker</first>
+						<second>
+							<px class_id="28" class_name="Marker_mad8_adaptor" tracking_level="1" version="0" object_id="_906">
+								<Element_adaptor object_id="_907"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>monitor</first>
+						<second>
+							<px class_id="29" class_name="Monitor_mad8_adaptor" tracking_level="1" version="0" object_id="_908">
+								<Element_adaptor object_id="_909"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>multipole</first>
+						<second>
+							<px class_id="30" class_name="Multipole_mad8_adaptor" tracking_level="1" version="0" object_id="_910">
+								<Element_adaptor object_id="_911"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>octupole</first>
+						<second>
+							<px class_id="31" class_name="Octupole_mad8_adaptor" tracking_level="1" version="0" object_id="_912">
+								<Element_adaptor object_id="_913"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>quadrupole</first>
+						<second>
+							<px class_id="32" class_name="Quadrupole_mad8_adaptor" tracking_level="1" version="0" object_id="_914">
+								<Element_adaptor object_id="_915"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>rbend</first>
+						<second>
+							<px class_id="33" class_name="Rbend_mad8_adaptor" tracking_level="1" version="0" object_id="_916">
+								<Element_adaptor object_id="_917"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>rcollimator</first>
+						<second>
+							<px class_id="34" class_name="Rcollimator_mad8_adaptor" tracking_level="1" version="0" object_id="_918">
+								<Element_adaptor object_id="_919"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>rfcavity</first>
+						<second>
+							<px class_id="35" class_name="Rfcavity_mad8_adaptor" tracking_level="1" version="0" object_id="_920">
+								<Element_adaptor object_id="_921"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>sbend</first>
+						<second>
+							<px class_id="36" class_name="Sbend_mad8_adaptor" tracking_level="1" version="0" object_id="_922">
+								<Element_adaptor object_id="_923"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>sextupole</first>
+						<second>
+							<px class_id="37" class_name="Sextupole_mad8_adaptor" tracking_level="1" version="0" object_id="_924">
+								<Element_adaptor object_id="_925"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>solenoid</first>
+						<second>
+							<px class_id="38" class_name="Solenoid_mad8_adaptor" tracking_level="1" version="0" object_id="_926">
+								<Element_adaptor object_id="_927"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>thinpole</first>
+						<second>
+							<px class_id="39" class_name="Thinpole_mad8_adaptor" tracking_level="1" version="0" object_id="_928">
+								<Element_adaptor object_id="_929"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>vkicker</first>
+						<second>
+							<px class_id="40" class_name="Vkicker_mad8_adaptor" tracking_level="1" version="0" object_id="_930">
+								<Element_adaptor object_id="_931"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+					<item>
+						<first>vmonitor</first>
+						<second>
+							<px class_id="41" class_name="Vmonitor_mad8_adaptor" tracking_level="1" version="0" object_id="_932">
+								<Element_adaptor object_id="_933"></Element_adaptor>
+							</px>
+						</second>
+					</item>
+				</adaptor_map>
+			</Element_adaptor_map>
+		</px>
+	</element_adaptor_map_sptr>
 </object>
