@@ -1,8 +1,8 @@
 #include "element_adaptor_map.h"
 
-Element_adaptor_map::Element_adaptor_map()
+Element_adaptor_map::Element_adaptor_map() :
+        adaptor_map()
 {
-
 }
 
 void
@@ -29,7 +29,7 @@ Element_adaptor_map::get_adaptor(std::string const& name) const
 std::list<std::string >
 Element_adaptor_map::get_adaptor_names() const
 {
-    std::list<std::string > retval;
+    std::list < std::string > retval;
     for (std::map<std::string, Element_adaptor_sptr >::const_iterator it =
             adaptor_map.begin(); it != adaptor_map.end(); ++it) {
         retval.push_back(it->first);
@@ -41,7 +41,7 @@ template<class Archive>
     void
     Element_adaptor_map::serialize(Archive & ar, const unsigned int version)
     {
-       ar & BOOST_SERIALIZATION_NVP(adaptor_map);
+        ar & BOOST_SERIALIZATION_NVP(adaptor_map);
     }
 
 template
@@ -69,8 +69,8 @@ Element_adaptor_map::~Element_adaptor_map()
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Element_adaptor_map)
 
-void
-Mad8_adaptor_map::init_adaptors()
+Mad8_adaptor_map::Mad8_adaptor_map() :
+        Element_adaptor_map()
 {
     boost::shared_ptr<Marker_mad8_adaptor > marker_mad8_adaptor(
             new Marker_mad8_adaptor);
@@ -78,7 +78,7 @@ Mad8_adaptor_map::init_adaptors()
 
     boost::shared_ptr<Drift_mad8_adaptor > drift_mad8_adaptor(
             new Drift_mad8_adaptor);
-    set_adaptor("drift",drift_mad8_adaptor);
+    set_adaptor("drift", drift_mad8_adaptor);
 
     boost::shared_ptr<Sbend_mad8_adaptor > sbend_mad8_adaptor(
             new Sbend_mad8_adaptor);
