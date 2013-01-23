@@ -11,7 +11,15 @@ Lattice::Lattice() :
 }
 
 Lattice::Lattice(std::string const& name) :
-        name(name), reference_particle_allocated(false), elements()
+        name(name), reference_particle_allocated(false), elements(), element_adaptor_map_sptr(
+                new Mad8_adaptor_map)
+{
+}
+
+Lattice::Lattice(std::string const& name,
+        Element_adaptor_map_sptr element_adaptor_map_sptr) :
+        name(name), reference_particle_allocated(false), elements(), element_adaptor_map_sptr(
+                element_adaptor_map_sptr)
 {
 }
 
