@@ -63,6 +63,15 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_set_string_attribute_over
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_set_vector_attribute_overloads,
         set_vector_attribute, 2, 3);
 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_has_double_attribute_overloads,
+        has_double_attribute, 1, 2);
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_has_string_attribute_overloads,
+        has_string_attribute, 1, 2);
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_has_vector_attribute_overloads,
+        has_vector_attribute, 1, 2);
+
 BOOST_PYTHON_FUNCTION_OVERLOADS(xml_save_lattice_overloads23,
         xml_save<Lattice >, 2, 3)
 
@@ -83,18 +92,21 @@ BOOST_PYTHON_MODULE(lattice)
                 return_value_policy<copy_const_reference>())
         .def("set_double_attribute", &Lattice_element::set_double_attribute,
                 Lattice_element_set_double_attribute_overloads())
-        .def("has_double_attribute", &Lattice_element::has_double_attribute)
+        .def("has_double_attribute", &Lattice_element::has_double_attribute,
+                Lattice_element_has_double_attribute_overloads())
         .def("get_double_attribute", &Lattice_element::get_double_attribute)
         .def("get_double_attributes", get_double_attributes_workaround)
         .def("set_string_attribute", &Lattice_element::set_string_attribute,
                 Lattice_element_set_string_attribute_overloads())
-        .def("has_string_attribute", &Lattice_element::has_string_attribute)
+        .def("has_string_attribute", &Lattice_element::has_string_attribute,
+                Lattice_element_has_string_attribute_overloads())
         .def("get_string_attribute", &Lattice_element::get_string_attribute,
                 return_value_policy<copy_const_reference>())
         .def("get_string_attributes", get_string_attributes_workaround)
         .def("set_vector_attribute", &Lattice_element::set_vector_attribute,
                 Lattice_element_set_vector_attribute_overloads())
-        .def("has_vector_attribute", &Lattice_element::has_vector_attribute)
+        .def("has_vector_attribute", &Lattice_element::has_vector_attribute,
+                Lattice_element_has_vector_attribute_overloads())
         .def("get_vector_attribute", &Lattice_element::get_vector_attribute,
                 return_value_policy<copy_const_reference>())
         .def("get_vector_attributes", get_vector_attributes_workaround)
