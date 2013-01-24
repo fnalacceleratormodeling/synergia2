@@ -35,6 +35,9 @@
 			<px class_id="6" tracking_level="1" version="0" object_id="_2">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors class_id="7" tracking_level="0" version="0">
 					<count>2</count>
 					<item_version>0</item_version>
@@ -72,6 +75,9 @@
 			<px class_id_reference="6" object_id="_3">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -105,6 +111,9 @@
 			<px class_id_reference="6" object_id="_4">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -142,6 +151,9 @@
 			<px class_id_reference="6" object_id="_5">
 				<type>drift</type>
 				<name>os</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -175,6 +187,9 @@
 			<px class_id_reference="6" object_id="_6">
 				<type>rfcavity</type>
 				<name>r</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -224,6 +239,9 @@
 			<px class_id_reference="6" object_id="_7">
 				<type>drift</type>
 				<name>os</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -257,6 +275,9 @@
 			<px class_id_reference="6" object_id="_8">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -294,6 +315,9 @@
 			<px class_id_reference="6" object_id="_9">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -327,6 +351,9 @@
 			<px class_id_reference="6" object_id="_10">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -364,6 +391,9 @@
 			<px class_id_reference="6" object_id="_11">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -397,6 +427,9 @@
 			<px class_id_reference="6" object_id="_12">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -434,6 +467,9 @@
 			<px class_id_reference="6" object_id="_13">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -467,6 +503,9 @@
 			<px class_id_reference="6" object_id="_14">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -504,6 +543,9 @@
 			<px class_id_reference="6" object_id="_15">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -537,6 +579,9 @@
 			<px class_id_reference="6" object_id="_16">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -574,6 +619,9 @@
 			<px class_id_reference="6" object_id="_17">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -607,6 +655,9 @@
 			<px class_id_reference="6" object_id="_18">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -644,6 +695,9 @@
 			<px class_id_reference="6" object_id="_19">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -677,6 +731,9 @@
 			<px class_id_reference="6" object_id="_20">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -714,6 +771,9 @@
 			<px class_id_reference="6" object_id="_21">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -747,6 +807,9 @@
 			<px class_id_reference="6" object_id="_22">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -784,6 +847,9 @@
 			<px class_id_reference="6" object_id="_23">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -817,6 +883,9 @@
 			<px class_id_reference="6" object_id="_24">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -854,6 +923,9 @@
 			<px class_id_reference="6" object_id="_25">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -887,6 +959,9 @@
 			<px class_id_reference="6" object_id="_26">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -924,6 +999,9 @@
 			<px class_id_reference="6" object_id="_27">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -957,6 +1035,9 @@
 			<px class_id_reference="6" object_id="_28">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -994,6 +1075,9 @@
 			<px class_id_reference="6" object_id="_29">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1027,6 +1111,9 @@
 			<px class_id_reference="6" object_id="_30">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1064,6 +1151,9 @@
 			<px class_id_reference="6" object_id="_31">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1097,6 +1187,9 @@
 			<px class_id_reference="6" object_id="_32">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1134,6 +1227,9 @@
 			<px class_id_reference="6" object_id="_33">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1167,6 +1263,9 @@
 			<px class_id_reference="6" object_id="_34">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1204,6 +1303,9 @@
 			<px class_id_reference="6" object_id="_35">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1237,6 +1339,9 @@
 			<px class_id_reference="6" object_id="_36">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1274,6 +1379,9 @@
 			<px class_id_reference="6" object_id="_37">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1307,6 +1415,9 @@
 			<px class_id_reference="6" object_id="_38">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1344,6 +1455,9 @@
 			<px class_id_reference="6" object_id="_39">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1377,6 +1491,9 @@
 			<px class_id_reference="6" object_id="_40">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1414,6 +1531,9 @@
 			<px class_id_reference="6" object_id="_41">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1447,6 +1567,9 @@
 			<px class_id_reference="6" object_id="_42">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1484,6 +1607,9 @@
 			<px class_id_reference="6" object_id="_43">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1517,6 +1643,9 @@
 			<px class_id_reference="6" object_id="_44">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1554,6 +1683,9 @@
 			<px class_id_reference="6" object_id="_45">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1587,6 +1719,9 @@
 			<px class_id_reference="6" object_id="_46">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1624,6 +1759,9 @@
 			<px class_id_reference="6" object_id="_47">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1657,6 +1795,9 @@
 			<px class_id_reference="6" object_id="_48">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1694,6 +1835,9 @@
 			<px class_id_reference="6" object_id="_49">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1727,6 +1871,9 @@
 			<px class_id_reference="6" object_id="_50">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1764,6 +1911,9 @@
 			<px class_id_reference="6" object_id="_51">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1797,6 +1947,9 @@
 			<px class_id_reference="6" object_id="_52">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1834,6 +1987,9 @@
 			<px class_id_reference="6" object_id="_53">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1867,6 +2023,9 @@
 			<px class_id_reference="6" object_id="_54">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1904,6 +2063,9 @@
 			<px class_id_reference="6" object_id="_55">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1937,6 +2099,9 @@
 			<px class_id_reference="6" object_id="_56">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -1974,6 +2139,9 @@
 			<px class_id_reference="6" object_id="_57">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2007,6 +2175,9 @@
 			<px class_id_reference="6" object_id="_58">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2044,6 +2215,9 @@
 			<px class_id_reference="6" object_id="_59">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2077,6 +2251,9 @@
 			<px class_id_reference="6" object_id="_60">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2114,6 +2291,9 @@
 			<px class_id_reference="6" object_id="_61">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2147,6 +2327,9 @@
 			<px class_id_reference="6" object_id="_62">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2184,6 +2367,9 @@
 			<px class_id_reference="6" object_id="_63">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2217,6 +2403,9 @@
 			<px class_id_reference="6" object_id="_64">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2254,6 +2443,9 @@
 			<px class_id_reference="6" object_id="_65">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2287,6 +2479,9 @@
 			<px class_id_reference="6" object_id="_66">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2324,6 +2519,9 @@
 			<px class_id_reference="6" object_id="_67">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2357,6 +2555,9 @@
 			<px class_id_reference="6" object_id="_68">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2394,6 +2595,9 @@
 			<px class_id_reference="6" object_id="_69">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2427,6 +2631,9 @@
 			<px class_id_reference="6" object_id="_70">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2464,6 +2671,9 @@
 			<px class_id_reference="6" object_id="_71">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2497,6 +2707,9 @@
 			<px class_id_reference="6" object_id="_72">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2534,6 +2747,9 @@
 			<px class_id_reference="6" object_id="_73">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2567,6 +2783,9 @@
 			<px class_id_reference="6" object_id="_74">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2604,6 +2823,9 @@
 			<px class_id_reference="6" object_id="_75">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2637,6 +2859,9 @@
 			<px class_id_reference="6" object_id="_76">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2674,6 +2899,9 @@
 			<px class_id_reference="6" object_id="_77">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2707,6 +2935,9 @@
 			<px class_id_reference="6" object_id="_78">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2744,6 +2975,9 @@
 			<px class_id_reference="6" object_id="_79">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2777,6 +3011,9 @@
 			<px class_id_reference="6" object_id="_80">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2814,6 +3051,9 @@
 			<px class_id_reference="6" object_id="_81">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2847,6 +3087,9 @@
 			<px class_id_reference="6" object_id="_82">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2884,6 +3127,9 @@
 			<px class_id_reference="6" object_id="_83">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2917,6 +3163,9 @@
 			<px class_id_reference="6" object_id="_84">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2954,6 +3203,9 @@
 			<px class_id_reference="6" object_id="_85">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -2987,6 +3239,9 @@
 			<px class_id_reference="6" object_id="_86">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3024,6 +3279,9 @@
 			<px class_id_reference="6" object_id="_87">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3057,6 +3315,9 @@
 			<px class_id_reference="6" object_id="_88">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3094,6 +3355,9 @@
 			<px class_id_reference="6" object_id="_89">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3127,6 +3391,9 @@
 			<px class_id_reference="6" object_id="_90">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3164,6 +3431,9 @@
 			<px class_id_reference="6" object_id="_91">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3197,6 +3467,9 @@
 			<px class_id_reference="6" object_id="_92">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3234,6 +3507,9 @@
 			<px class_id_reference="6" object_id="_93">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3267,6 +3543,9 @@
 			<px class_id_reference="6" object_id="_94">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3304,6 +3583,9 @@
 			<px class_id_reference="6" object_id="_95">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3337,6 +3619,9 @@
 			<px class_id_reference="6" object_id="_96">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3374,6 +3659,9 @@
 			<px class_id_reference="6" object_id="_97">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3407,6 +3695,9 @@
 			<px class_id_reference="6" object_id="_98">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3444,6 +3735,9 @@
 			<px class_id_reference="6" object_id="_99">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3477,6 +3771,9 @@
 			<px class_id_reference="6" object_id="_100">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3514,6 +3811,9 @@
 			<px class_id_reference="6" object_id="_101">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3547,6 +3847,9 @@
 			<px class_id_reference="6" object_id="_102">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3584,6 +3887,9 @@
 			<px class_id_reference="6" object_id="_103">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3617,6 +3923,9 @@
 			<px class_id_reference="6" object_id="_104">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3654,6 +3963,9 @@
 			<px class_id_reference="6" object_id="_105">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3687,6 +3999,9 @@
 			<px class_id_reference="6" object_id="_106">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3724,6 +4039,9 @@
 			<px class_id_reference="6" object_id="_107">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3757,6 +4075,9 @@
 			<px class_id_reference="6" object_id="_108">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3794,6 +4115,9 @@
 			<px class_id_reference="6" object_id="_109">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3827,6 +4151,9 @@
 			<px class_id_reference="6" object_id="_110">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3864,6 +4191,9 @@
 			<px class_id_reference="6" object_id="_111">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3897,6 +4227,9 @@
 			<px class_id_reference="6" object_id="_112">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3934,6 +4267,9 @@
 			<px class_id_reference="6" object_id="_113">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -3967,6 +4303,9 @@
 			<px class_id_reference="6" object_id="_114">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4004,6 +4343,9 @@
 			<px class_id_reference="6" object_id="_115">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4037,6 +4379,9 @@
 			<px class_id_reference="6" object_id="_116">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4074,6 +4419,9 @@
 			<px class_id_reference="6" object_id="_117">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4107,6 +4455,9 @@
 			<px class_id_reference="6" object_id="_118">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4144,6 +4495,9 @@
 			<px class_id_reference="6" object_id="_119">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4177,6 +4531,9 @@
 			<px class_id_reference="6" object_id="_120">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4214,6 +4571,9 @@
 			<px class_id_reference="6" object_id="_121">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4247,6 +4607,9 @@
 			<px class_id_reference="6" object_id="_122">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4284,6 +4647,9 @@
 			<px class_id_reference="6" object_id="_123">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4317,6 +4683,9 @@
 			<px class_id_reference="6" object_id="_124">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4354,6 +4723,9 @@
 			<px class_id_reference="6" object_id="_125">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4387,6 +4759,9 @@
 			<px class_id_reference="6" object_id="_126">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4424,6 +4799,9 @@
 			<px class_id_reference="6" object_id="_127">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4457,6 +4835,9 @@
 			<px class_id_reference="6" object_id="_128">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4494,6 +4875,9 @@
 			<px class_id_reference="6" object_id="_129">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4527,6 +4911,9 @@
 			<px class_id_reference="6" object_id="_130">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4564,6 +4951,9 @@
 			<px class_id_reference="6" object_id="_131">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4597,6 +4987,9 @@
 			<px class_id_reference="6" object_id="_132">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4634,6 +5027,9 @@
 			<px class_id_reference="6" object_id="_133">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4667,6 +5063,9 @@
 			<px class_id_reference="6" object_id="_134">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4704,6 +5103,9 @@
 			<px class_id_reference="6" object_id="_135">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4737,6 +5139,9 @@
 			<px class_id_reference="6" object_id="_136">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4774,6 +5179,9 @@
 			<px class_id_reference="6" object_id="_137">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4807,6 +5215,9 @@
 			<px class_id_reference="6" object_id="_138">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4844,6 +5255,9 @@
 			<px class_id_reference="6" object_id="_139">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4877,6 +5291,9 @@
 			<px class_id_reference="6" object_id="_140">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4914,6 +5331,9 @@
 			<px class_id_reference="6" object_id="_141">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4947,6 +5367,9 @@
 			<px class_id_reference="6" object_id="_142">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -4984,6 +5407,9 @@
 			<px class_id_reference="6" object_id="_143">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5017,6 +5443,9 @@
 			<px class_id_reference="6" object_id="_144">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5054,6 +5483,9 @@
 			<px class_id_reference="6" object_id="_145">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5087,6 +5519,9 @@
 			<px class_id_reference="6" object_id="_146">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5124,6 +5559,9 @@
 			<px class_id_reference="6" object_id="_147">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5157,6 +5595,9 @@
 			<px class_id_reference="6" object_id="_148">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5194,6 +5635,9 @@
 			<px class_id_reference="6" object_id="_149">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5227,6 +5671,9 @@
 			<px class_id_reference="6" object_id="_150">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5264,6 +5711,9 @@
 			<px class_id_reference="6" object_id="_151">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5297,6 +5747,9 @@
 			<px class_id_reference="6" object_id="_152">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5334,6 +5787,9 @@
 			<px class_id_reference="6" object_id="_153">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5367,6 +5823,9 @@
 			<px class_id_reference="6" object_id="_154">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5404,6 +5863,9 @@
 			<px class_id_reference="6" object_id="_155">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5437,6 +5899,9 @@
 			<px class_id_reference="6" object_id="_156">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5474,6 +5939,9 @@
 			<px class_id_reference="6" object_id="_157">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5507,6 +5975,9 @@
 			<px class_id_reference="6" object_id="_158">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5544,6 +6015,9 @@
 			<px class_id_reference="6" object_id="_159">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5577,6 +6051,9 @@
 			<px class_id_reference="6" object_id="_160">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5614,6 +6091,9 @@
 			<px class_id_reference="6" object_id="_161">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5647,6 +6127,9 @@
 			<px class_id_reference="6" object_id="_162">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5684,6 +6167,9 @@
 			<px class_id_reference="6" object_id="_163">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5717,6 +6203,9 @@
 			<px class_id_reference="6" object_id="_164">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5754,6 +6243,9 @@
 			<px class_id_reference="6" object_id="_165">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5787,6 +6279,9 @@
 			<px class_id_reference="6" object_id="_166">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5824,6 +6319,9 @@
 			<px class_id_reference="6" object_id="_167">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5857,6 +6355,9 @@
 			<px class_id_reference="6" object_id="_168">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5894,6 +6395,9 @@
 			<px class_id_reference="6" object_id="_169">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5927,6 +6431,9 @@
 			<px class_id_reference="6" object_id="_170">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5964,6 +6471,9 @@
 			<px class_id_reference="6" object_id="_171">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -5997,6 +6507,9 @@
 			<px class_id_reference="6" object_id="_172">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6034,6 +6547,9 @@
 			<px class_id_reference="6" object_id="_173">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6067,6 +6583,9 @@
 			<px class_id_reference="6" object_id="_174">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6104,6 +6623,9 @@
 			<px class_id_reference="6" object_id="_175">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6137,6 +6659,9 @@
 			<px class_id_reference="6" object_id="_176">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6174,6 +6699,9 @@
 			<px class_id_reference="6" object_id="_177">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6207,6 +6735,9 @@
 			<px class_id_reference="6" object_id="_178">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6244,6 +6775,9 @@
 			<px class_id_reference="6" object_id="_179">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6277,6 +6811,9 @@
 			<px class_id_reference="6" object_id="_180">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6314,6 +6851,9 @@
 			<px class_id_reference="6" object_id="_181">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6347,6 +6887,9 @@
 			<px class_id_reference="6" object_id="_182">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6384,6 +6927,9 @@
 			<px class_id_reference="6" object_id="_183">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6417,6 +6963,9 @@
 			<px class_id_reference="6" object_id="_184">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6454,6 +7003,9 @@
 			<px class_id_reference="6" object_id="_185">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6487,6 +7039,9 @@
 			<px class_id_reference="6" object_id="_186">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6524,6 +7079,9 @@
 			<px class_id_reference="6" object_id="_187">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6557,6 +7115,9 @@
 			<px class_id_reference="6" object_id="_188">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6594,6 +7155,9 @@
 			<px class_id_reference="6" object_id="_189">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6627,6 +7191,9 @@
 			<px class_id_reference="6" object_id="_190">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6664,6 +7231,9 @@
 			<px class_id_reference="6" object_id="_191">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6697,6 +7267,9 @@
 			<px class_id_reference="6" object_id="_192">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6734,6 +7307,9 @@
 			<px class_id_reference="6" object_id="_193">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6767,6 +7343,9 @@
 			<px class_id_reference="6" object_id="_194">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6804,6 +7383,9 @@
 			<px class_id_reference="6" object_id="_195">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6837,6 +7419,9 @@
 			<px class_id_reference="6" object_id="_196">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6874,6 +7459,9 @@
 			<px class_id_reference="6" object_id="_197">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6907,6 +7495,9 @@
 			<px class_id_reference="6" object_id="_198">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6944,6 +7535,9 @@
 			<px class_id_reference="6" object_id="_199">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -6977,6 +7571,9 @@
 			<px class_id_reference="6" object_id="_200">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7014,6 +7611,9 @@
 			<px class_id_reference="6" object_id="_201">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7047,6 +7647,9 @@
 			<px class_id_reference="6" object_id="_202">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7084,6 +7687,9 @@
 			<px class_id_reference="6" object_id="_203">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7117,6 +7723,9 @@
 			<px class_id_reference="6" object_id="_204">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7154,6 +7763,9 @@
 			<px class_id_reference="6" object_id="_205">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7187,6 +7799,9 @@
 			<px class_id_reference="6" object_id="_206">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7224,6 +7839,9 @@
 			<px class_id_reference="6" object_id="_207">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7257,6 +7875,9 @@
 			<px class_id_reference="6" object_id="_208">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7294,6 +7915,9 @@
 			<px class_id_reference="6" object_id="_209">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7327,6 +7951,9 @@
 			<px class_id_reference="6" object_id="_210">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7364,6 +7991,9 @@
 			<px class_id_reference="6" object_id="_211">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7397,6 +8027,9 @@
 			<px class_id_reference="6" object_id="_212">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7434,6 +8067,9 @@
 			<px class_id_reference="6" object_id="_213">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7467,6 +8103,9 @@
 			<px class_id_reference="6" object_id="_214">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7504,6 +8143,9 @@
 			<px class_id_reference="6" object_id="_215">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7537,6 +8179,9 @@
 			<px class_id_reference="6" object_id="_216">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7574,6 +8219,9 @@
 			<px class_id_reference="6" object_id="_217">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7607,6 +8255,9 @@
 			<px class_id_reference="6" object_id="_218">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7644,6 +8295,9 @@
 			<px class_id_reference="6" object_id="_219">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7677,6 +8331,9 @@
 			<px class_id_reference="6" object_id="_220">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7714,6 +8371,9 @@
 			<px class_id_reference="6" object_id="_221">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7747,6 +8407,9 @@
 			<px class_id_reference="6" object_id="_222">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7784,6 +8447,9 @@
 			<px class_id_reference="6" object_id="_223">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7817,6 +8483,9 @@
 			<px class_id_reference="6" object_id="_224">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7854,6 +8523,9 @@
 			<px class_id_reference="6" object_id="_225">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7887,6 +8559,9 @@
 			<px class_id_reference="6" object_id="_226">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7924,6 +8599,9 @@
 			<px class_id_reference="6" object_id="_227">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7957,6 +8635,9 @@
 			<px class_id_reference="6" object_id="_228">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -7994,6 +8675,9 @@
 			<px class_id_reference="6" object_id="_229">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8027,6 +8711,9 @@
 			<px class_id_reference="6" object_id="_230">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8064,6 +8751,9 @@
 			<px class_id_reference="6" object_id="_231">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8097,6 +8787,9 @@
 			<px class_id_reference="6" object_id="_232">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8134,6 +8827,9 @@
 			<px class_id_reference="6" object_id="_233">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8167,6 +8863,9 @@
 			<px class_id_reference="6" object_id="_234">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8204,6 +8903,9 @@
 			<px class_id_reference="6" object_id="_235">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8237,6 +8939,9 @@
 			<px class_id_reference="6" object_id="_236">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8274,6 +8979,9 @@
 			<px class_id_reference="6" object_id="_237">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8307,6 +9015,9 @@
 			<px class_id_reference="6" object_id="_238">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8344,6 +9055,9 @@
 			<px class_id_reference="6" object_id="_239">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8377,6 +9091,9 @@
 			<px class_id_reference="6" object_id="_240">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8414,6 +9131,9 @@
 			<px class_id_reference="6" object_id="_241">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8447,6 +9167,9 @@
 			<px class_id_reference="6" object_id="_242">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8484,6 +9207,9 @@
 			<px class_id_reference="6" object_id="_243">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8517,6 +9243,9 @@
 			<px class_id_reference="6" object_id="_244">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8554,6 +9283,9 @@
 			<px class_id_reference="6" object_id="_245">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8587,6 +9319,9 @@
 			<px class_id_reference="6" object_id="_246">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8624,6 +9359,9 @@
 			<px class_id_reference="6" object_id="_247">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8657,6 +9395,9 @@
 			<px class_id_reference="6" object_id="_248">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8694,6 +9435,9 @@
 			<px class_id_reference="6" object_id="_249">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8727,6 +9471,9 @@
 			<px class_id_reference="6" object_id="_250">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8764,6 +9511,9 @@
 			<px class_id_reference="6" object_id="_251">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8797,6 +9547,9 @@
 			<px class_id_reference="6" object_id="_252">
 				<type>quadrupole</type>
 				<name>f</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8834,6 +9587,9 @@
 			<px class_id_reference="6" object_id="_253">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8867,6 +9623,9 @@
 			<px class_id_reference="6" object_id="_254">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8904,6 +9663,9 @@
 			<px class_id_reference="6" object_id="_255">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8937,6 +9699,9 @@
 			<px class_id_reference="6" object_id="_256">
 				<type>quadrupole</type>
 				<name>d</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -8974,6 +9739,9 @@
 			<px class_id_reference="6" object_id="_257">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -9007,6 +9775,9 @@
 			<px class_id_reference="6" object_id="_258">
 				<type>sbend</type>
 				<name>b</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -9044,6 +9815,9 @@
 			<px class_id_reference="6" object_id="_259">
 				<type>drift</type>
 				<name>o</name>
+				<default_element_sptr>
+					<px class_id="-1"></px>
+				</default_element_sptr>
 				<ancestors>
 					<count>2</count>
 					<item_version>0</item_version>
@@ -9084,183 +9858,1516 @@
 						<first>drift</first>
 						<second class_id="17" tracking_level="0" version="1">
 							<px class_id="19" class_name="Drift_mad8_adaptor" tracking_level="1" version="0" object_id="_261">
-								<Element_adaptor class_id="18" tracking_level="1" version="0" object_id="_262"></Element_adaptor>
+								<Element_adaptor class_id="18" tracking_level="1" version="0" object_id="_262">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_263">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>0</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>e_septum</first>
 						<second>
-							<px class_id="20" class_name="Septum_mad8_adaptor" tracking_level="1" version="0" object_id="_263">
-								<Element_adaptor object_id="_264"></Element_adaptor>
+							<px class_id="20" class_name="Septum_mad8_adaptor" tracking_level="1" version="0" object_id="_264">
+								<Element_adaptor object_id="_265">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_266">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>7</count>
+												<item_version>0</item_version>
+												<item>
+													<first>gap</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>negative_strength</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>positive_strength</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>voltage</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>wire_position</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>wire_width</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>7</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>ecollimator</first>
 						<second>
-							<px class_id="21" class_name="Ecollimator_mad8_adaptor" tracking_level="1" version="0" object_id="_265">
-								<Element_adaptor object_id="_266"></Element_adaptor>
+							<px class_id="21" class_name="Ecollimator_mad8_adaptor" tracking_level="1" version="0" object_id="_267">
+								<Element_adaptor object_id="_268">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_269">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>3</count>
+												<item_version>0</item_version>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>xsize</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>ysize</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>3</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>elseparator</first>
 						<second>
-							<px class_id="22" class_name="Elseparator_mad8_adaptor" tracking_level="1" version="0" object_id="_267">
-								<Element_adaptor object_id="_268"></Element_adaptor>
+							<px class_id="22" class_name="Elseparator_mad8_adaptor" tracking_level="1" version="0" object_id="_270">
+								<Element_adaptor object_id="_271">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_272">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>3</count>
+												<item_version>0</item_version>
+												<item>
+													<first>e</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>tilt</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>3</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>hkicker</first>
 						<second>
-							<px class_id="23" class_name="Hkicker_mad8_adaptor" tracking_level="1" version="0" object_id="_269">
-								<Element_adaptor object_id="_270"></Element_adaptor>
+							<px class_id="23" class_name="Hkicker_mad8_adaptor" tracking_level="1" version="0" object_id="_273">
+								<Element_adaptor object_id="_274">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_275">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>3</count>
+												<item_version>0</item_version>
+												<item>
+													<first>kick</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>tilt</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>3</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>hmonitor</first>
 						<second>
-							<px class_id="24" class_name="Hmonitor_mad8_adaptor" tracking_level="1" version="0" object_id="_271">
-								<Element_adaptor object_id="_272"></Element_adaptor>
+							<px class_id="24" class_name="Hmonitor_mad8_adaptor" tracking_level="1" version="0" object_id="_276">
+								<Element_adaptor object_id="_277">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_278">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>1</count>
+												<item_version>0</item_version>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>1</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>instrument</first>
 						<second>
-							<px class_id="25" class_name="Instrument_mad8_adaptor" tracking_level="1" version="0" object_id="_273">
-								<Element_adaptor object_id="_274"></Element_adaptor>
+							<px class_id="25" class_name="Instrument_mad8_adaptor" tracking_level="1" version="0" object_id="_279">
+								<Element_adaptor object_id="_280">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_281">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>1</count>
+												<item_version>0</item_version>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>1</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>kicker</first>
 						<second>
-							<px class_id="26" class_name="Kicker_mad8_adaptor" tracking_level="1" version="0" object_id="_275">
-								<Element_adaptor object_id="_276"></Element_adaptor>
+							<px class_id="26" class_name="Kicker_mad8_adaptor" tracking_level="1" version="0" object_id="_282">
+								<Element_adaptor object_id="_283">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_284">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>4</count>
+												<item_version>0</item_version>
+												<item>
+													<first>hkick</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>tilt</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>vkick</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>4</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>lambertson</first>
 						<second>
-							<px class_id="27" class_name="Lambertson_mad8_adaptor" tracking_level="1" version="0" object_id="_277">
-								<Element_adaptor object_id="_278"></Element_adaptor>
+							<px class_id="27" class_name="Lambertson_mad8_adaptor" tracking_level="1" version="0" object_id="_285">
+								<Element_adaptor object_id="_286">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_287">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>0</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>marker</first>
 						<second>
-							<px class_id="28" class_name="Marker_mad8_adaptor" tracking_level="1" version="0" object_id="_279">
-								<Element_adaptor object_id="_280"></Element_adaptor>
+							<px class_id="28" class_name="Marker_mad8_adaptor" tracking_level="1" version="0" object_id="_288">
+								<Element_adaptor object_id="_289">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_290">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>0</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>monitor</first>
 						<second>
-							<px class_id="29" class_name="Monitor_mad8_adaptor" tracking_level="1" version="0" object_id="_281">
-								<Element_adaptor object_id="_282"></Element_adaptor>
+							<px class_id="29" class_name="Monitor_mad8_adaptor" tracking_level="1" version="0" object_id="_291">
+								<Element_adaptor object_id="_292">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_293">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>1</count>
+												<item_version>0</item_version>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>1</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>multipole</first>
 						<second>
-							<px class_id="30" class_name="Multipole_mad8_adaptor" tracking_level="1" version="0" object_id="_283">
-								<Element_adaptor object_id="_284"></Element_adaptor>
+							<px class_id="30" class_name="Multipole_mad8_adaptor" tracking_level="1" version="0" object_id="_294">
+								<Element_adaptor object_id="_295">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_296">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>20</count>
+												<item_version>0</item_version>
+												<item>
+													<first>k0l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>k1l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>k2l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>k3l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>k4l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>k5l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>k6l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>k7l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>k8l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>k9l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>t0</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>t1</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>t2</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>t3</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>t4</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>t5</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>t6</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>t7</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>t8</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>t9</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>20</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>octupole</first>
 						<second>
-							<px class_id="31" class_name="Octupole_mad8_adaptor" tracking_level="1" version="0" object_id="_285">
-								<Element_adaptor object_id="_286"></Element_adaptor>
+							<px class_id="31" class_name="Octupole_mad8_adaptor" tracking_level="1" version="0" object_id="_297">
+								<Element_adaptor object_id="_298">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_299">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>3</count>
+												<item_version>0</item_version>
+												<item>
+													<first>k3</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>tilt</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>3</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>quadrupole</first>
 						<second>
-							<px class_id="32" class_name="Quadrupole_mad8_adaptor" tracking_level="1" version="0" object_id="_287">
-								<Element_adaptor object_id="_288"></Element_adaptor>
+							<px class_id="32" class_name="Quadrupole_mad8_adaptor" tracking_level="1" version="0" object_id="_300">
+								<Element_adaptor object_id="_301">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_302">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>20</count>
+												<item_version>0</item_version>
+												<item>
+													<first>a1</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a2</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a3</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a4</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a5</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a6</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a7</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b1</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b2</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b3</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b4</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b5</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b6</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b7</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>hoffset</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>k1</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>kl</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>tilt</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>voffset</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>20</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>rbend</first>
 						<second>
-							<px class_id="33" class_name="Rbend_mad8_adaptor" tracking_level="1" version="0" object_id="_289">
-								<Element_adaptor object_id="_290"></Element_adaptor>
+							<px class_id="33" class_name="Rbend_mad8_adaptor" tracking_level="1" version="0" object_id="_303">
+								<Element_adaptor object_id="_304">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_305">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>27</count>
+												<item_version>0</item_version>
+												<item>
+													<first>a1</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a2</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a3</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a4</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a5</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a6</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a7</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>angle</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b1</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b2</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b3</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b4</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b5</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b6</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b7</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>e1</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>e2</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>fint</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>h1</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>h2</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>hgap</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>k1</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>k2</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>k3</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>kl</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>tilt</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>27</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>rcollimator</first>
 						<second>
-							<px class_id="34" class_name="Rcollimator_mad8_adaptor" tracking_level="1" version="0" object_id="_291">
-								<Element_adaptor object_id="_292"></Element_adaptor>
+							<px class_id="34" class_name="Rcollimator_mad8_adaptor" tracking_level="1" version="0" object_id="_306">
+								<Element_adaptor object_id="_307">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_308">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>3</count>
+												<item_version>0</item_version>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>xsize</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>ysize</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>3</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>rfcavity</first>
 						<second>
-							<px class_id="35" class_name="Rfcavity_mad8_adaptor" tracking_level="1" version="0" object_id="_293">
-								<Element_adaptor object_id="_294"></Element_adaptor>
+							<px class_id="35" class_name="Rfcavity_mad8_adaptor" tracking_level="1" version="0" object_id="_309">
+								<Element_adaptor object_id="_310">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_311">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>8</count>
+												<item_version>0</item_version>
+												<item>
+													<first>betrf</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>harmon</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>lag</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>pg</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>shunt</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>tfill</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>volt</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>8</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>sbend</first>
 						<second>
-							<px class_id="36" class_name="Sbend_mad8_adaptor" tracking_level="1" version="0" object_id="_295">
-								<Element_adaptor object_id="_296"></Element_adaptor>
+							<px class_id="36" class_name="Sbend_mad8_adaptor" tracking_level="1" version="0" object_id="_312">
+								<Element_adaptor object_id="_313">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_314">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>27</count>
+												<item_version>0</item_version>
+												<item>
+													<first>a1</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a2</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a3</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a4</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a5</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a6</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a7</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>angle</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b1</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b2</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b3</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b4</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b5</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b6</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b7</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>e1</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>e2</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>fint</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>h1</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>h2</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>hgap</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>k1</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>k2</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>k3</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>kl</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>tilt</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>27</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>sextupole</first>
 						<second>
-							<px class_id="37" class_name="Sextupole_mad8_adaptor" tracking_level="1" version="0" object_id="_297">
-								<Element_adaptor object_id="_298"></Element_adaptor>
+							<px class_id="37" class_name="Sextupole_mad8_adaptor" tracking_level="1" version="0" object_id="_315">
+								<Element_adaptor object_id="_316">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_317">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>3</count>
+												<item_version>0</item_version>
+												<item>
+													<first>k2</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>tilt</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>3</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>solenoid</first>
 						<second>
-							<px class_id="38" class_name="Solenoid_mad8_adaptor" tracking_level="1" version="0" object_id="_299">
-								<Element_adaptor object_id="_300"></Element_adaptor>
+							<px class_id="38" class_name="Solenoid_mad8_adaptor" tracking_level="1" version="0" object_id="_318">
+								<Element_adaptor object_id="_319">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_320">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>2</count>
+												<item_version>0</item_version>
+												<item>
+													<first>ks</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>2</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>thinpole</first>
 						<second>
-							<px class_id="39" class_name="Thinpole_mad8_adaptor" tracking_level="1" version="0" object_id="_301">
-								<Element_adaptor object_id="_302"></Element_adaptor>
+							<px class_id="39" class_name="Thinpole_mad8_adaptor" tracking_level="1" version="0" object_id="_321">
+								<Element_adaptor object_id="_322">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_323">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>15</count>
+												<item_version>0</item_version>
+												<item>
+													<first>a1</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a2</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a3</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a4</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a5</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a6</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>a7</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b1</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b2</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b3</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b4</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b5</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b6</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>b7</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>kl</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>15</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>vkicker</first>
 						<second>
-							<px class_id="40" class_name="Vkicker_mad8_adaptor" tracking_level="1" version="0" object_id="_303">
-								<Element_adaptor object_id="_304"></Element_adaptor>
+							<px class_id="40" class_name="Vkicker_mad8_adaptor" tracking_level="1" version="0" object_id="_324">
+								<Element_adaptor object_id="_325">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_326">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>3</count>
+												<item_version>0</item_version>
+												<item>
+													<first>kick</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+												<item>
+													<first>tilt</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>3</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
 					<item>
 						<first>vmonitor</first>
 						<second>
-							<px class_id="41" class_name="Vmonitor_mad8_adaptor" tracking_level="1" version="0" object_id="_305">
-								<Element_adaptor object_id="_306"></Element_adaptor>
+							<px class_id="41" class_name="Vmonitor_mad8_adaptor" tracking_level="1" version="0" object_id="_327">
+								<Element_adaptor object_id="_328">
+									<default_element_sptr>
+										<px class_id_reference="6" object_id="_329">
+											<type></type>
+											<name></name>
+											<default_element_sptr>
+												<px class_id="-1"></px>
+											</default_element_sptr>
+											<ancestors>
+												<count>0</count>
+												<item_version>0</item_version>
+											</ancestors>
+											<double_attributes>
+												<count>1</count>
+												<item_version>0</item_version>
+												<item>
+													<first>l</first>
+													<second>0</second>
+												</item>
+											</double_attributes>
+											<string_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</string_attributes>
+											<vector_attributes>
+												<count>0</count>
+												<item_version>0</item_version>
+											</vector_attributes>
+											<length_attribute_name>l</length_attribute_name>
+											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
+											<revision>1</revision>
+											<needs_internal_derive>0</needs_internal_derive>
+											<needs_external_derive>0</needs_external_derive>
+										</px>
+									</default_element_sptr>
+								</Element_adaptor>
 							</px>
 						</second>
 					</item>
