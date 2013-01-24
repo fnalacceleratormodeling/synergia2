@@ -495,6 +495,7 @@ Quadrupole_madx_adaptor::Quadrupole_madx_adaptor()
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("k1", 0.0);
     get_default_element().set_double_attribute("tilt", 0.0);
+    // k1s not yet handled
     get_default_element().set_double_attribute("hoffset", 0.0);
     get_default_element().set_double_attribute("voffset", 0.0);
     // possible higher order multipole components
@@ -519,7 +520,10 @@ Chef_elements
 Quadrupole_madx_adaptor::get_chef_elements(
         Lattice_element const& lattice_element, double brho)
 {
-    double qtilt;
+    if (lattice_element.has_double_attribute("k1s", false)) {
+        throw std::runtime_error(
+                "Quadrupole_madx_adaptor: k1s attribute not handled");
+    }
 
     Chef_elements retval;
 
@@ -536,12 +540,7 @@ Quadrupole_madx_adaptor::get_chef_elements(
     double xoffset = lattice_element.get_double_attribute("hoffset");
     double yoffset = lattice_element.get_double_attribute("voffset");
 
-    // a string attribute implies default pi/4
-    if (lattice_element.has_string_attribute("tilt")) {
-        qtilt = mconstants::pi / 4.0;
-    } else {
-        qtilt = lattice_element.get_double_attribute("tilt");
-    }
+    double qtilt = lattice_element.get_double_attribute("tilt");
 
     bool has_multipoles = false;
     int highest_order = 0;
