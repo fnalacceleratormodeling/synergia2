@@ -114,7 +114,6 @@ Sbend_madx_adaptor::Sbend_madx_adaptor()
 {
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("angle", 0.0);
-    // jfa: add_angle not yet handled
     get_default_element().set_double_attribute("k1", 0.0);
     get_default_element().set_double_attribute("e1", 0.0);
     get_default_element().set_double_attribute("e2", 0.0);
@@ -124,6 +123,22 @@ Sbend_madx_adaptor::Sbend_madx_adaptor()
     get_default_element().set_double_attribute("k2", 0.0);
     get_default_element().set_double_attribute("h1", 0.0);
     get_default_element().set_double_attribute("h2", 0.0);
+    // possible higher order multipole components
+    get_default_element().set_double_attribute("kl", 0.0); // base strength/B-rho
+    get_default_element().set_double_attribute("a1", 0.0); // skew quad
+    get_default_element().set_double_attribute("a2", 0.0); // skew sextupole
+    get_default_element().set_double_attribute("a3", 0.0); // skew octupole
+    get_default_element().set_double_attribute("a4", 0.0); // skew decapole
+    get_default_element().set_double_attribute("a5", 0.0); // skew dodecapole
+    get_default_element().set_double_attribute("a6", 0.0); // skew tetradecapole
+    get_default_element().set_double_attribute("a7", 0.0); // skew hexdecapole
+    get_default_element().set_double_attribute("b1", 0.0); // quad
+    get_default_element().set_double_attribute("b2", 0.0); // sextupole
+    get_default_element().set_double_attribute("b3", 0.0); // octopole
+    get_default_element().set_double_attribute("b4", 0.0); // decapole
+    get_default_element().set_double_attribute("b5", 0.0); // dodecapole
+    get_default_element().set_double_attribute("b6", 0.0); // tetradecapole
+    get_default_element().set_double_attribute("b7", 0.0); // hexdecapole
 }
 
 Chef_elements
@@ -272,16 +287,16 @@ Rbend_madx_adaptor::Rbend_madx_adaptor()
 {
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("angle", 0.0);
+    // jfa: add_angle not yet handled
     get_default_element().set_double_attribute("k1", 0.0);
     get_default_element().set_double_attribute("e1", 0.0);
     get_default_element().set_double_attribute("e2", 0.0);
+    get_default_element().set_double_attribute("fint", 0.0);
+    get_default_element().set_double_attribute("fintx", 0.0);
+    get_default_element().set_double_attribute("hgap", 0.0);
     get_default_element().set_double_attribute("k2", 0.0);
     get_default_element().set_double_attribute("h1", 0.0);
     get_default_element().set_double_attribute("h2", 0.0);
-    get_default_element().set_double_attribute("hgap", 0.0);
-    get_default_element().set_double_attribute("fint", 0.0);
-    get_default_element().set_double_attribute("k3", 0.0);
-    get_default_element().set_double_attribute("tilt", 0.0);
     // possible higher order multipole components
     get_default_element().set_double_attribute("kl", 0.0); // base strength/B-rho
     get_default_element().set_double_attribute("a1", 0.0); // skew quad
@@ -307,6 +322,8 @@ Rbend_madx_adaptor::set_defaults(Lattice_element & lattice_element)
     lattice_element.set_length_attribute_name("arclength");
     lattice_element.set_needs_internal_derive(true);
     Element_adaptor::set_defaults(lattice_element);
+    std::cout << "Rbend_madx_adaptor: WARNING arc length not properly handled"
+            << std::endl;
 }
 
 void
@@ -332,9 +349,8 @@ Rbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double e2 = lattice_element.get_double_attribute("e2");
     double k1 = lattice_element.get_double_attribute("k1");
     double k2 = lattice_element.get_double_attribute("k2");
-    double k3 = lattice_element.get_double_attribute("k3");
     double tilt = lattice_element.get_double_attribute("tilt");
-    bool simple = ((k1 == 0.0) && (k2 == 0.0) && (k3 == 0.0) && (tilt == 0.0));
+    bool simple = ((k1 == 0.0) && (k2 == 0.0) && (tilt == 0.0));
 
     double ak[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; // currently a0-a7
     double bk[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; // currently b0-b7
@@ -434,10 +450,6 @@ Rbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         multipoleStrength = k2 * brho * length / 2.0;
         if (multipoleStrength != 0.0) {
             dynamic_cast<CF_rbend* >(elm)->setSextupole(multipoleStrength);
-        }
-        multipoleStrength = k3 * brho * length / 6.0;
-        if (multipoleStrength != 0.0) {
-            dynamic_cast<CF_rbend* >(elm)->setOctupole(multipoleStrength);
         }
 
         ElmPtr elmP(elm);
