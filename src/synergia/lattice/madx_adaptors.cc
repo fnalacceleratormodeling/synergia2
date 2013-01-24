@@ -665,6 +665,7 @@ Sextupole_madx_adaptor::Sextupole_madx_adaptor()
 {
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("k2", 0.0);
+    get_default_element().set_double_attribute("k2s", 0.0);
     get_default_element().set_double_attribute("tilt", 0.0);
 }
 
@@ -672,11 +673,14 @@ Chef_elements
 Sextupole_madx_adaptor::get_chef_elements(
         Lattice_element const& lattice_element, double brho)
 {
+    if (lattice_element.has_double_attribute("k2s", false)) {
+        throw std::runtime_error(
+                "Quadrupole_madx_adaptor: k1s attribute not handled");
+    }
     Chef_elements retval;
 
     double sexlen = lattice_element.get_double_attribute("l");
     double sexk2 = lattice_element.get_double_attribute("k2");
-    double sextilt = 0.0;
 
     alignmentData aligner;
 
@@ -690,13 +694,7 @@ Sextupole_madx_adaptor::get_chef_elements(
                 brho * sexk2 / 2.0);
     }
 
-    if (lattice_element.has_double_attribute("tilt")) {
-        sextilt = lattice_element.get_double_attribute("tilt");
-    } else if (lattice_element.has_string_attribute("tilt")) {
-        // if this is a string, assume just tilt specified with no
-        // value so use pi/6.
-        sextilt = mconstants::pi / 6.0;
-    }
+    double sextilt = lattice_element.get_double_attribute("tilt");
 
     if (sextilt != 0.0) {
         aligner.xOffset = 0.0;
