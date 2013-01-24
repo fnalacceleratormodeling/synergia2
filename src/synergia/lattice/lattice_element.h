@@ -53,7 +53,7 @@ public:
     std::string const &
     get_name() const;
 
-    /// Set the defaults attributes for this element
+    /// Set the defaults for this element
     void
     set_default_element(Lattice_element_sptr default_element_sptr);
 
