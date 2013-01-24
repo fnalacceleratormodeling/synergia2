@@ -64,11 +64,9 @@ public:
     void
     append(Lattice_element const& element);
 
-    /// Set the default Element_adaptor_map to be used for elements in the
-    /// Lattice
-    /// @param element_adaptor_map an Element_adaptor_map
+    /// Set the defaults in  elements of the Lattice
     void
-    set_default_attributes();
+    set_defaults();
 
     /// Derive internal attributes where necessary
     void

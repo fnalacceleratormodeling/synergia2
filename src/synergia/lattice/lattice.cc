@@ -73,12 +73,12 @@ Lattice::append(Lattice_element const& element)
 }
 
 void
-Lattice::set_default_attributes()
+Lattice::set_defaults()
 {
     for (Lattice_elements::const_iterator it = elements.begin();
             it != elements.end(); ++it) {
         if (element_adaptor_map_sptr->has_adaptor((*it)->get_type())) {
-            element_adaptor_map_sptr->get_adaptor((*it)->get_type())->set_default_attributes(
+            element_adaptor_map_sptr->get_adaptor((*it)->get_type())->set_defaults(
                     *(*it));
         }
     }
@@ -126,7 +126,7 @@ Lattice::derive_external_attributes()
 void
 Lattice::complete_attributes()
 {
-    set_default_attributes();
+    set_defaults();
     derive_internal_attributes();
     derive_external_attributes();
 }

@@ -15,8 +15,21 @@
 #pragma GCC diagnostic pop
 #endif
 
-Element_adaptor::Element_adaptor()
+Element_adaptor::Element_adaptor() :
+        default_element_sptr(new Lattice_element)
 {
+}
+
+Lattice_element_sptr
+Element_adaptor::get_default_element_sptr()
+{
+    return default_element_sptr;
+}
+
+Lattice_element &
+Element_adaptor::get_default_element()
+{
+    return *default_element_sptr;
 }
 
 void
@@ -38,8 +51,9 @@ Element_adaptor::set_string_default(Lattice_element & lattice_element,
 }
 
 void
-Element_adaptor::set_default_attributes(Lattice_element & lattice_element)
+Element_adaptor::set_defaults(Lattice_element & lattice_element)
 {
+    lattice_element.set_default_element(get_default_element_sptr());
 }
 
 void
@@ -66,6 +80,7 @@ template<class Archive>
     void
     Element_adaptor::serialize(Archive & ar, const unsigned int version)
     {
+        ar & BOOST_SERIALIZATION_NVP(default_element_sptr);
     }
 
 template
@@ -92,13 +107,7 @@ Element_adaptor::~Element_adaptor()
 {
 }
 
-
 Marker_mad8_adaptor::Marker_mad8_adaptor()
-{
-}
-
-void
-Marker_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 {
 }
 
@@ -148,11 +157,6 @@ Drift_mad8_adaptor::Drift_mad8_adaptor()
 {
 }
 
-void
-Drift_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
-{
-}
-
 Chef_elements
 Drift_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
@@ -199,42 +203,34 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Drift_mad8_adaptor)
 
 Sbend_mad8_adaptor::Sbend_mad8_adaptor()
 {
-}
-
-void
-Sbend_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "l", 0.0);
-    set_double_default(lattice_element, "angle", 0.0);
-    set_double_default(lattice_element, "k1", 0.0);
-    set_double_default(lattice_element, "e1", 0.0);
-    set_double_default(lattice_element, "e2", 0.0);
-    set_double_default(lattice_element, "k2", 0.0);
-    set_double_default(lattice_element, "h1", 0.0);
-    set_double_default(lattice_element, "h2", 0.0);
-    set_double_default(lattice_element, "hgap", 0.0);
-    set_double_default(lattice_element, "fint", 0.0);
-    set_double_default(lattice_element, "k3", 0.0);
-    if (!lattice_element.has_double_attribute("tilt")
-            && !lattice_element.has_string_attribute("tilt")) {
-        lattice_element.set_double_attribute("tilt", 0.0);
-    }
+    get_default_element().set_double_attribute("l", 0.0);
+    get_default_element().set_double_attribute("angle", 0.0);
+    get_default_element().set_double_attribute("k1", 0.0);
+    get_default_element().set_double_attribute("e1", 0.0);
+    get_default_element().set_double_attribute("e2", 0.0);
+    get_default_element().set_double_attribute("k2", 0.0);
+    get_default_element().set_double_attribute("h1", 0.0);
+    get_default_element().set_double_attribute("h2", 0.0);
+    get_default_element().set_double_attribute("hgap", 0.0);
+    get_default_element().set_double_attribute("fint", 0.0);
+    get_default_element().set_double_attribute("k3", 0.0);
+    get_default_element().set_double_attribute("tilt", 0.0);
     // possible higher order multipole components
-    set_double_default(lattice_element, "kl", 0.0); // base strength/B-rho
-    set_double_default(lattice_element, "a1", 0.0); // skew quad
-    set_double_default(lattice_element, "a2", 0.0); // skew sextupole
-    set_double_default(lattice_element, "a3", 0.0); // skew octupole
-    set_double_default(lattice_element, "a4", 0.0); // skew decapole
-    set_double_default(lattice_element, "a5", 0.0); // skew dodecapole
-    set_double_default(lattice_element, "a6", 0.0); // skew tetradecapole
-    set_double_default(lattice_element, "a7", 0.0); // skew hexdecapole
-    set_double_default(lattice_element, "b1", 0.0); // quad
-    set_double_default(lattice_element, "b2", 0.0); // sextupole
-    set_double_default(lattice_element, "b3", 0.0); // octopole
-    set_double_default(lattice_element, "b4", 0.0); // decapole
-    set_double_default(lattice_element, "b5", 0.0); // dodecapole
-    set_double_default(lattice_element, "b6", 0.0); // tetradecapole
-    set_double_default(lattice_element, "b7", 0.0); // hexdecapole
+    get_default_element().set_double_attribute("kl", 0.0); // base strength/B-rho
+    get_default_element().set_double_attribute("a1", 0.0); // skew quad
+    get_default_element().set_double_attribute("a2", 0.0); // skew sextupole
+    get_default_element().set_double_attribute("a3", 0.0); // skew octupole
+    get_default_element().set_double_attribute("a4", 0.0); // skew decapole
+    get_default_element().set_double_attribute("a5", 0.0); // skew dodecapole
+    get_default_element().set_double_attribute("a6", 0.0); // skew tetradecapole
+    get_default_element().set_double_attribute("a7", 0.0); // skew hexdecapole
+    get_default_element().set_double_attribute("b1", 0.0); // quad
+    get_default_element().set_double_attribute("b2", 0.0); // sextupole
+    get_default_element().set_double_attribute("b3", 0.0); // octopole
+    get_default_element().set_double_attribute("b4", 0.0); // decapole
+    get_default_element().set_double_attribute("b5", 0.0); // dodecapole
+    get_default_element().set_double_attribute("b6", 0.0); // tetradecapole
+    get_default_element().set_double_attribute("b7", 0.0); // hexdecapole
 }
 
 Chef_elements
@@ -259,37 +255,40 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     aligner.yOffset = 0.0;
     aligner.tilt = tilt;
 
-    double ak[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently a0-a7
-    double bk[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently b0-b7
+    double ak[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; // currently a0-a7
+    double bk[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; // currently b0-b7
 
     // thinpole strengths
-    string a_attr_list[] = { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7"};
-    string b_attr_list[] = { "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7"};
+    string a_attr_list[] = { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7" };
+    string b_attr_list[] = { "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7" };
 
     bool has_multipoles = false;
     int highest_order = 0;
     // find any possible multipole moments
     for (int moment = 0; moment < 8; ++moment) {
         if (lattice_element.has_double_attribute(a_attr_list[moment])) {
-	  ak[moment] = lattice_element.get_double_attribute(a_attr_list[moment]);
-	  // no point in setting using multipole machinery ff the attributes are 0
-	  if (ak[moment] != 0.0) {
-	    has_multipoles = true;
-	    highest_order = moment;
-	  }
-	}
-	if (lattice_element.has_double_attribute(b_attr_list[moment])) {
-	  bk[moment] = lattice_element.get_double_attribute(b_attr_list[moment]);
-	  if (bk[moment] != 0.0) {
-	    has_multipoles = true;
-	    highest_order = moment;
-	  }
-	}
+            ak[moment] = lattice_element.get_double_attribute(
+                    a_attr_list[moment]);
+            // no point in setting using multipole machinery ff the attributes are 0
+            if (ak[moment] != 0.0) {
+                has_multipoles = true;
+                highest_order = moment;
+            }
+        }
+        if (lattice_element.has_double_attribute(b_attr_list[moment])) {
+            bk[moment] = lattice_element.get_double_attribute(
+                    b_attr_list[moment]);
+            if (bk[moment] != 0.0) {
+                has_multipoles = true;
+                highest_order = moment;
+            }
+        }
     }
 
     // being not simple or having a tilt precludes using multipoles
     if ((!simple || (tilt != 0.0)) && has_multipoles) {
-      throw runtime_error("shouldn't use k1,k2,tilt and multipoles in one sbend");
+        throw runtime_error(
+                "shouldn't use k1,k2,tilt and multipoles in one sbend");
     }
 
     if (simple) {
@@ -300,44 +299,47 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         elm->setTag("SBEND");
         if (tilt != 0.0) elm->setAlignment(aligner);
 
-	// if there are no multipoles, I'm done.
-	if (! has_multipoles) {
-	  retval.push_back(elm);
-	  return retval;
-	} else {
-	  // split the sbend and insert a thinpole in between the halves
-	  ElmPtr sbptr1;
-	  ElmPtr sbptr2;
-	  elm->Split(0.5, sbptr1, sbptr2);
+        // if there are no multipoles, I'm done.
+        if (!has_multipoles) {
+            retval.push_back(elm);
+            return retval;
+        } else {
+            // split the sbend and insert a thinpole in between the halves
+            ElmPtr sbptr1;
+            ElmPtr sbptr2;
+            elm->Split(0.5, sbptr1, sbptr2);
 
-	  std::vector<std::complex<double> > c_moments;
-	  for (int k=0; k<=highest_order; ++k) {
-	    c_moments.push_back(std::complex<double> (bk[k],ak[k]));
-	  }
+            std::vector < std::complex<double > > c_moments;
+            for (int k = 0; k <= highest_order; ++k) {
+                c_moments.push_back(std::complex<double >(bk[k], ak[k]));
+            }
 
-	  retval.push_back(sbptr1);
-	  retval.push_back(ElmPtr(new ThinPole((lattice_element.get_name() + "_poles").c_str(),
-					       brho * angle, c_moments)));
-	  retval.push_back(sbptr2);
+            retval.push_back(sbptr1);
+            retval.push_back(
+                    ElmPtr(
+                            new ThinPole(
+                                    (lattice_element.get_name() + "_poles").c_str(),
+                                    brho * angle, c_moments)));
+            retval.push_back(sbptr2);
 
-	  return retval;
-	}
+            return retval;
+        }
     } else {
-      // combined function element
+        // combined function element
         bmlnElmnt* elm = new CF_sbend(lattice_element.get_name().c_str(),
                 length, brho * angle / length, angle, e1, e2);
         if (tilt != 0.0) elm->setAlignment(aligner);
         double multipoleStrength = k1 * brho * length;
         if (multipoleStrength != 0.0) {
-            dynamic_cast<CF_sbend* > (elm)->setQuadrupole(multipoleStrength);
+            dynamic_cast<CF_sbend* >(elm)->setQuadrupole(multipoleStrength);
         }
         multipoleStrength = k2 * brho * length / 2.0;
         if (multipoleStrength != 0.0) {
-            dynamic_cast<CF_sbend* > (elm)->setSextupole(multipoleStrength);
+            dynamic_cast<CF_sbend* >(elm)->setSextupole(multipoleStrength);
         }
         multipoleStrength = k3 * brho * length / 6.0;
         if (multipoleStrength != 0.0) {
-            dynamic_cast<CF_sbend* > (elm)->setOctupole(multipoleStrength);
+            dynamic_cast<CF_sbend* >(elm)->setOctupole(multipoleStrength);
         }
         ElmPtr elmP(elm);
         retval.push_back(elmP);
@@ -380,45 +382,43 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Sbend_mad8_adaptor)
 
 Rbend_mad8_adaptor::Rbend_mad8_adaptor()
 {
+    get_default_element().set_double_attribute("l", 0.0);
+    get_default_element().set_double_attribute("angle", 0.0);
+    get_default_element().set_double_attribute("k1", 0.0);
+    get_default_element().set_double_attribute("e1", 0.0);
+    get_default_element().set_double_attribute("e2", 0.0);
+    get_default_element().set_double_attribute("k2", 0.0);
+    get_default_element().set_double_attribute("h1", 0.0);
+    get_default_element().set_double_attribute("h2", 0.0);
+    get_default_element().set_double_attribute("hgap", 0.0);
+    get_default_element().set_double_attribute("fint", 0.0);
+    get_default_element().set_double_attribute("k3", 0.0);
+    get_default_element().set_double_attribute("tilt", 0.0);
+    // possible higher order multipole components
+    get_default_element().set_double_attribute("kl", 0.0); // base strength/B-rho
+    get_default_element().set_double_attribute("a1", 0.0); // skew quad
+    get_default_element().set_double_attribute("a2", 0.0); // skew sextupole
+    get_default_element().set_double_attribute("a3", 0.0); // skew octupole
+    get_default_element().set_double_attribute("a4", 0.0); // skew decapole
+    get_default_element().set_double_attribute("a5", 0.0); // skew dodecapole
+    get_default_element().set_double_attribute("a6", 0.0); // skew tetradecapole
+    get_default_element().set_double_attribute("a7", 0.0); // skew hexdecapole
+    get_default_element().set_double_attribute("b1", 0.0); // quad
+    get_default_element().set_double_attribute("b2", 0.0); // sextupole
+    get_default_element().set_double_attribute("b3", 0.0); // octopole
+    get_default_element().set_double_attribute("b4", 0.0); // decapole
+    get_default_element().set_double_attribute("b5", 0.0); // dodecapole
+    get_default_element().set_double_attribute("b6", 0.0); // tetradecapole
+    get_default_element().set_double_attribute("b7", 0.0); // hexdecapole
+
 }
 
 void
-Rbend_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
+Rbend_mad8_adaptor::set_defaults(Lattice_element & lattice_element)
 {
-    set_double_default(lattice_element, "l", 0.0);
-    set_double_default(lattice_element, "angle", 0.0);
-    set_double_default(lattice_element, "k1", 0.0);
-    set_double_default(lattice_element, "e1", 0.0);
-    set_double_default(lattice_element, "e2", 0.0);
-    set_double_default(lattice_element, "k2", 0.0);
-    set_double_default(lattice_element, "h1", 0.0);
-    set_double_default(lattice_element, "h2", 0.0);
-    set_double_default(lattice_element, "hgap", 0.0);
-    set_double_default(lattice_element, "fint", 0.0);
-    set_double_default(lattice_element, "k3", 0.0);
-    if (!lattice_element.has_double_attribute("tilt")
-            && !lattice_element.has_string_attribute("tilt")) {
-        lattice_element.set_double_attribute("tilt", 0.0);
-    }
-    // possible higher order multipole components
-    set_double_default(lattice_element, "kl", 0.0); // base strength/B-rho
-    set_double_default(lattice_element, "a1", 0.0); // skew quad
-    set_double_default(lattice_element, "a2", 0.0); // skew sextupole
-    set_double_default(lattice_element, "a3", 0.0); // skew octupole
-    set_double_default(lattice_element, "a4", 0.0); // skew decapole
-    set_double_default(lattice_element, "a5", 0.0); // skew dodecapole
-    set_double_default(lattice_element, "a6", 0.0); // skew tetradecapole
-    set_double_default(lattice_element, "a7", 0.0); // skew hexdecapole
-    set_double_default(lattice_element, "b1", 0.0); // quad
-    set_double_default(lattice_element, "b2", 0.0); // sextupole
-    set_double_default(lattice_element, "b3", 0.0); // octopole
-    set_double_default(lattice_element, "b4", 0.0); // decapole
-    set_double_default(lattice_element, "b5", 0.0); // dodecapole
-    set_double_default(lattice_element, "b6", 0.0); // tetradecapole
-    set_double_default(lattice_element, "b7", 0.0); // hexdecapole
-
     lattice_element.set_length_attribute_name("arclength");
     lattice_element.set_needs_internal_derive(true);
+    Element_adaptor::set_defaults(lattice_element);
 }
 
 void
@@ -427,8 +427,8 @@ Rbend_mad8_adaptor::set_derived_attributes_internal(
 {
     double bend_angle = lattice_element.get_bend_angle();
     double bend_length = lattice_element.get_double_attribute("l");
-    double arc_length = bend_angle * bend_length / (2
-            * std::sin(bend_angle / 2));
+    double arc_length = bend_angle * bend_length
+            / (2 * std::sin(bend_angle / 2));
     lattice_element.set_double_attribute("arclength", arc_length);
 }
 
@@ -448,78 +448,80 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double tilt = lattice_element.get_double_attribute("tilt");
     bool simple = ((k1 == 0.0) && (k2 == 0.0) && (k3 == 0.0) && (tilt == 0.0));
 
-    double ak[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently a0-a7
-    double bk[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently b0-b7
+    double ak[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; // currently a0-a7
+    double bk[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; // currently b0-b7
 
     // thinpole strengths
-    string a_attr_list[] = { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7"};
-    string b_attr_list[] = { "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7"};
+    string a_attr_list[] = { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7" };
+    string b_attr_list[] = { "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7" };
 
     bool has_multipoles = false;
     int highest_order = 0;
     // find any possible multipole moments
     for (int moment = 0; moment < 8; ++moment) {
         if (lattice_element.has_double_attribute(a_attr_list[moment])) {
-	  ak[moment] = lattice_element.get_double_attribute(a_attr_list[moment]);
-	  // no point in setting using multipole machinery ff the attributes are 0
-	  if (ak[moment] != 0.0) {
-	    has_multipoles = true;
-	    highest_order = moment;
-	  }
-	}
-	if (lattice_element.has_double_attribute(b_attr_list[moment])) {
-	  bk[moment] = lattice_element.get_double_attribute(b_attr_list[moment]);
-	  if (bk[moment] != 0.0) {
-	    has_multipoles = true;
-	    highest_order = moment;
-	  }
-	}
+            ak[moment] = lattice_element.get_double_attribute(
+                    a_attr_list[moment]);
+            // no point in setting using multipole machinery ff the attributes are 0
+            if (ak[moment] != 0.0) {
+                has_multipoles = true;
+                highest_order = moment;
+            }
+        }
+        if (lattice_element.has_double_attribute(b_attr_list[moment])) {
+            bk[moment] = lattice_element.get_double_attribute(
+                    b_attr_list[moment]);
+            if (bk[moment] != 0.0) {
+                has_multipoles = true;
+                highest_order = moment;
+            }
+        }
     }
 
     // being not simple precludes using multipoles
     if (!simple && has_multipoles) {
-      throw runtime_error("shouldn't use k1,k2 and multipoles in one rbend");
+        throw runtime_error("shouldn't use k1,k2 and multipoles in one rbend");
     }
 
     if (simple) {
-      bmlnElmnt * bmelmnt;
+        bmlnElmnt * bmelmnt;
 
-      if ((0.0 == e1) && (0.0 == e2)) {
-	bmelmnt =
-	  new rbend(lattice_element.get_name().c_str(), length,
-		    brho * (2.0 * sin(0.5 * angle)) / length, angle);
-	bmelmnt->setTag("RBEND");
-      } else {
-	bmelmnt =
-	  new rbend(lattice_element.get_name().c_str(), length,
-		    brho * (2.0 * sin(0.5 * angle)) / length, angle,
-		    e1, e2);
-	bmelmnt->setTag("RBEND");
-      }
-      ElmPtr elm(bmelmnt);
-      // if there are no multipoles, I'm done.
-      if ( !has_multipoles) {
-	retval.push_back(elm);
-	return retval;
-      } else {
-	// split the sbend and insert a thinpole in between the halves
-	ElmPtr rbptr1;
-	ElmPtr rbptr2;
-	elm->Split(0.5, rbptr1, rbptr2);
+        if ((0.0 == e1) && (0.0 == e2)) {
+            bmelmnt = new rbend(lattice_element.get_name().c_str(), length,
+                    brho * (2.0 * sin(0.5 * angle)) / length, angle);
+            bmelmnt->setTag("RBEND");
+        } else {
+            bmelmnt = new rbend(lattice_element.get_name().c_str(), length,
+                    brho * (2.0 * sin(0.5 * angle)) / length, angle, e1, e2);
+            bmelmnt->setTag("RBEND");
+        }
+        ElmPtr elm(bmelmnt);
+        // if there are no multipoles, I'm done.
+        if (!has_multipoles) {
+            retval.push_back(elm);
+            return retval;
+        } else {
+            // split the sbend and insert a thinpole in between the halves
+            ElmPtr rbptr1;
+            ElmPtr rbptr2;
+            elm->Split(0.5, rbptr1, rbptr2);
 
-	std::vector<std::complex<double> > c_moments;
-	for (int k=0; k<=highest_order; ++k) {
-	  c_moments.push_back(std::complex<double> (bk[k],ak[k]));
-	}
+            std::vector < std::complex<double > > c_moments;
+            for (int k = 0; k <= highest_order; ++k) {
+                c_moments.push_back(std::complex<double >(bk[k], ak[k]));
+            }
 
-	retval.push_back(rbptr1);
-	retval.push_back(ElmPtr(new ThinPole((lattice_element.get_name() + "_poles").c_str(),
-					     brho * (2.0 * sin(0.5 * angle)),
-					     c_moments)));
-	retval.push_back(rbptr2);
+            retval.push_back(rbptr1);
+            retval.push_back(
+                    ElmPtr(
+                            new ThinPole(
+                                    (lattice_element.get_name() + "_poles").c_str(),
+                                    brho * (2.0 * sin(0.5 * angle)),
+                                    c_moments)));
+            retval.push_back(rbptr2);
 
-	return retval;
-      }
+            return retval;
+        }
     } else {
         // Not so simple
         alignmentData aligner;
@@ -539,15 +541,15 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 
         double multipoleStrength = k1 * brho * length;
         if (multipoleStrength != 0.0) {
-            dynamic_cast<CF_rbend* > (elm)->setQuadrupole(multipoleStrength);
+            dynamic_cast<CF_rbend* >(elm)->setQuadrupole(multipoleStrength);
         }
         multipoleStrength = k2 * brho * length / 2.0;
         if (multipoleStrength != 0.0) {
-            dynamic_cast<CF_rbend* > (elm)->setSextupole(multipoleStrength);
+            dynamic_cast<CF_rbend* >(elm)->setSextupole(multipoleStrength);
         }
         multipoleStrength = k3 * brho * length / 6.0;
         if (multipoleStrength != 0.0) {
-            dynamic_cast<CF_rbend* > (elm)->setOctupole(multipoleStrength);
+            dynamic_cast<CF_rbend* >(elm)->setOctupole(multipoleStrength);
         }
 
         ElmPtr elmP(elm);
@@ -590,36 +592,27 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Rbend_mad8_adaptor)
 
 Quadrupole_mad8_adaptor::Quadrupole_mad8_adaptor()
 {
-}
-
-void
-Quadrupole_mad8_adaptor::set_default_attributes(
-        Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "l", 0.0);
-    set_double_default(lattice_element, "k1", 0.0);
-    if (!lattice_element.has_double_attribute("tilt")
-            && !lattice_element.has_string_attribute("tilt")) {
-        lattice_element.set_double_attribute("tilt", 0.0);
-    }
-    set_double_default(lattice_element, "hoffset", 0.0);
-    set_double_default(lattice_element, "voffset", 0.0);
+    get_default_element().set_double_attribute("l", 0.0);
+    get_default_element().set_double_attribute("k1", 0.0);
+    get_default_element().set_double_attribute("tilt", 0.0);
+    get_default_element().set_double_attribute("hoffset", 0.0);
+    get_default_element().set_double_attribute("voffset", 0.0);
     // possible higher order multipole components
-    set_double_default(lattice_element, "kl", 0.0); // base strength/B-rho
-    set_double_default(lattice_element, "a1", 0.0); // skew quad
-    set_double_default(lattice_element, "a2", 0.0); // skew sextupole
-    set_double_default(lattice_element, "a3", 0.0); // skew octupole
-    set_double_default(lattice_element, "a4", 0.0); // skew decapole
-    set_double_default(lattice_element, "a5", 0.0); // skew dodecapole
-    set_double_default(lattice_element, "a6", 0.0); // skew tetradecapole
-    set_double_default(lattice_element, "a7", 0.0); // skew hexdecapole
-    set_double_default(lattice_element, "b1", 0.0); // quad
-    set_double_default(lattice_element, "b2", 0.0); // sextupole
-    set_double_default(lattice_element, "b3", 0.0); // octopole
-    set_double_default(lattice_element, "b4", 0.0); // decapole
-    set_double_default(lattice_element, "b5", 0.0); // dodecapole
-    set_double_default(lattice_element, "b6", 0.0); // tetradecapole
-    set_double_default(lattice_element, "b7", 0.0); // hexdecapole
+    get_default_element().set_double_attribute("kl", 0.0); // base strength/B-rho
+    get_default_element().set_double_attribute("a1", 0.0); // skew quad
+    get_default_element().set_double_attribute("a2", 0.0); // skew sextupole
+    get_default_element().set_double_attribute("a3", 0.0); // skew octupole
+    get_default_element().set_double_attribute("a4", 0.0); // skew decapole
+    get_default_element().set_double_attribute("a5", 0.0); // skew dodecapole
+    get_default_element().set_double_attribute("a6", 0.0); // skew tetradecapole
+    get_default_element().set_double_attribute("a7", 0.0); // skew hexdecapole
+    get_default_element().set_double_attribute("b1", 0.0); // quad
+    get_default_element().set_double_attribute("b2", 0.0); // sextupole
+    get_default_element().set_double_attribute("b3", 0.0); // octopole
+    get_default_element().set_double_attribute("b4", 0.0); // decapole
+    get_default_element().set_double_attribute("b5", 0.0); // dodecapole
+    get_default_element().set_double_attribute("b6", 0.0); // tetradecapole
+    get_default_element().set_double_attribute("b7", 0.0); // hexdecapole
 }
 
 Chef_elements
@@ -633,12 +626,12 @@ Quadrupole_mad8_adaptor::get_chef_elements(
     alignmentData aligner;
     double length = lattice_element.get_double_attribute("l");
 
-    double ak[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently a0-a7
-    double bk[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently b0-b7
+    double ak[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; // currently a0-a7
+    double bk[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; // currently b0-b7
 
     // thinpole strengths
-    string a_attr_list[] = { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7"};
-    string b_attr_list[] = { "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7"};
+    string a_attr_list[] = { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7" };
+    string b_attr_list[] = { "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7" };
 
     double xoffset = lattice_element.get_double_attribute("hoffset");
     double yoffset = lattice_element.get_double_attribute("voffset");
@@ -655,20 +648,22 @@ Quadrupole_mad8_adaptor::get_chef_elements(
     // find any possible multipole moments
     for (int moment = 0; moment < 8; ++moment) {
         if (lattice_element.has_double_attribute(a_attr_list[moment])) {
-	  ak[moment] = lattice_element.get_double_attribute(a_attr_list[moment]);
-	  // no point in setting using multipole machinery ff the attributes are 0
-	  if (ak[moment] != 0.0) {
-	    has_multipoles = true;
-	    highest_order = moment;
-	  }
-	}
-	if (lattice_element.has_double_attribute(b_attr_list[moment])) {
-	  bk[moment] = lattice_element.get_double_attribute(b_attr_list[moment]);
-	  if (bk[moment] != 0.0) {
-	    has_multipoles = true;
-	    highest_order = moment;
-	  }
-	}
+            ak[moment] = lattice_element.get_double_attribute(
+                    a_attr_list[moment]);
+            // no point in setting using multipole machinery ff the attributes are 0
+            if (ak[moment] != 0.0) {
+                has_multipoles = true;
+                highest_order = moment;
+            }
+        }
+        if (lattice_element.has_double_attribute(b_attr_list[moment])) {
+            bk[moment] = lattice_element.get_double_attribute(
+                    b_attr_list[moment]);
+            if (bk[moment] != 0.0) {
+                has_multipoles = true;
+                highest_order = moment;
+            }
+        }
     }
 
     bmlnElmnt* bmln_elmnt;
@@ -682,51 +677,54 @@ Quadrupole_mad8_adaptor::get_chef_elements(
 
     // using tilt and multipoles is a no-no
     if (has_multipoles && (qtilt != 0.0)) {
-      throw runtime_error("shouldn't use tilt and multipoles in same element");
+        throw runtime_error(
+                "shouldn't use tilt and multipoles in same element");
     }
 
     bool needs_aligner;
     if ((qtilt != 0.0) || (xoffset != 0.0) || (yoffset != 0.0)) {
-	needs_aligner = true;
+        needs_aligner = true;
         aligner.xOffset = xoffset;
         aligner.yOffset = yoffset;
         aligner.tilt = qtilt;
     } else {
-      needs_aligner = false;
+        needs_aligner = false;
     }
 
     if (!has_multipoles) {
-      if (needs_aligner) {
-        bmln_elmnt->setAlignment(aligner);
-      }
-      ElmPtr elm(bmln_elmnt);
-      retval.push_back(elm);
+        if (needs_aligner) {
+            bmln_elmnt->setAlignment(aligner);
+        }
+        ElmPtr elm(bmln_elmnt);
+        retval.push_back(elm);
     } else {
-      // split the quadrupole, insert thin multipole element in between halves
-      std::vector<std::complex<double> > c_moments;
-      for (int k=0; k<=highest_order; ++k) {
-	c_moments.push_back(std::complex<double> (bk[k],ak[k]));
-      }
+        // split the quadrupole, insert thin multipole element in between halves
+        std::vector < std::complex<double > > c_moments;
+        for (int k = 0; k <= highest_order; ++k) {
+            c_moments.push_back(std::complex<double >(bk[k], ak[k]));
+        }
 
-      double brkl = brho * length * lattice_element.get_double_attribute("k1");
-      ElmPtr qptr1;
-      ElmPtr qptr2;
-      bmln_elmnt->Split(0.5, qptr1, qptr2);
+        double brkl = brho * length
+                * lattice_element.get_double_attribute("k1");
+        ElmPtr qptr1;
+        ElmPtr qptr2;
+        bmln_elmnt->Split(0.5, qptr1, qptr2);
 
-      if (needs_aligner) {
-	qptr1->setAlignment(aligner);
-      }
-      retval.push_back(qptr1);
-      bmlnElmnt* thinpoleptr = new ThinPole((lattice_element.get_name() + "_poles").c_str(),
-					    brkl, c_moments );
-      if (needs_aligner) {
-	thinpoleptr->setAlignment(aligner);
-      }
-      retval.push_back(ElmPtr(thinpoleptr));
-      if (needs_aligner) {
-	qptr2->setAlignment(aligner);
-      }
-      retval.push_back(qptr2);
+        if (needs_aligner) {
+            qptr1->setAlignment(aligner);
+        }
+        retval.push_back(qptr1);
+        bmlnElmnt* thinpoleptr = new ThinPole(
+                (lattice_element.get_name() + "_poles").c_str(), brkl,
+                c_moments);
+        if (needs_aligner) {
+            thinpoleptr->setAlignment(aligner);
+        }
+        retval.push_back(ElmPtr(thinpoleptr));
+        if (needs_aligner) {
+            qptr2->setAlignment(aligner);
+        }
+        retval.push_back(qptr2);
     }
 
     return retval;
@@ -766,15 +764,9 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Quadrupole_mad8_adaptor)
 
 Sextupole_mad8_adaptor::Sextupole_mad8_adaptor()
 {
-}
-
-void
-Sextupole_mad8_adaptor::set_default_attributes(
-        Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "l", 0.0);
-    set_double_default(lattice_element, "k2", 0.0);
-    set_double_default(lattice_element, "tilt", 0.0);
+    get_default_element().set_double_attribute("l", 0.0);
+    get_default_element().set_double_attribute("k2", 0.0);
+    get_default_element().set_double_attribute("tilt", 0.0);
 }
 
 Chef_elements
@@ -853,19 +845,14 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Sextupole_mad8_adaptor)
 
 Octupole_mad8_adaptor::Octupole_mad8_adaptor()
 {
-}
-
-void
-Octupole_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "l", 0.0);
-    set_double_default(lattice_element, "k3", 0.0);
-    set_double_default(lattice_element, "tilt", 0.0);
+    get_default_element().set_double_attribute("l", 0.0);
+    get_default_element().set_double_attribute("k3", 0.0);
+    get_default_element().set_double_attribute("tilt", 0.0);
 }
 
 Chef_elements
-Octupole_mad8_adaptor::get_chef_elements(
-        Lattice_element const& lattice_element, double brho)
+Octupole_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
 {
     Chef_elements retval;
 
@@ -939,32 +926,26 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Octupole_mad8_adaptor)
 
 Multipole_mad8_adaptor::Multipole_mad8_adaptor()
 {
-}
-
-void
-Multipole_mad8_adaptor::set_default_attributes(
-        Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "k0l", 0.0);
-    set_double_default(lattice_element, "t0", 0.0);
-    set_double_default(lattice_element, "k1l", 0.0);
-    set_double_default(lattice_element, "t1", 0.0);
-    set_double_default(lattice_element, "k2l", 0.0);
-    set_double_default(lattice_element, "t2", 0.0);
-    set_double_default(lattice_element, "k3l", 0.0);
-    set_double_default(lattice_element, "t3", 0.0);
-    set_double_default(lattice_element, "k4l", 0.0);
-    set_double_default(lattice_element, "t4", 0.0);
-    set_double_default(lattice_element, "k5l", 0.0);
-    set_double_default(lattice_element, "t5", 0.0);
-    set_double_default(lattice_element, "k6l", 0.0);
-    set_double_default(lattice_element, "t6", 0.0);
-    set_double_default(lattice_element, "k7l", 0.0);
-    set_double_default(lattice_element, "t7", 0.0);
-    set_double_default(lattice_element, "k8l", 0.0);
-    set_double_default(lattice_element, "t8", 0.0);
-    set_double_default(lattice_element, "k9l", 0.0);
-    set_double_default(lattice_element, "t9", 0.0);
+    get_default_element().set_double_attribute("k0l", 0.0);
+    get_default_element().set_double_attribute("t0", 0.0);
+    get_default_element().set_double_attribute("k1l", 0.0);
+    get_default_element().set_double_attribute("t1", 0.0);
+    get_default_element().set_double_attribute("k2l", 0.0);
+    get_default_element().set_double_attribute("t2", 0.0);
+    get_default_element().set_double_attribute("k3l", 0.0);
+    get_default_element().set_double_attribute("t3", 0.0);
+    get_default_element().set_double_attribute("k4l", 0.0);
+    get_default_element().set_double_attribute("t4", 0.0);
+    get_default_element().set_double_attribute("k5l", 0.0);
+    get_default_element().set_double_attribute("t5", 0.0);
+    get_default_element().set_double_attribute("k6l", 0.0);
+    get_default_element().set_double_attribute("t6", 0.0);
+    get_default_element().set_double_attribute("k7l", 0.0);
+    get_default_element().set_double_attribute("t7", 0.0);
+    get_default_element().set_double_attribute("k8l", 0.0);
+    get_default_element().set_double_attribute("t8", 0.0);
+    get_default_element().set_double_attribute("k9l", 0.0);
+    get_default_element().set_double_attribute("t9", 0.0);
 }
 
 Chef_elements
@@ -973,18 +954,17 @@ Multipole_mad8_adaptor::get_chef_elements(
 {
     Chef_elements retval;
 
-
     // multipole strengths
-    static string k_attr_list[] = { "k0l", "k1l", "k2l", "k3l", "k4l", "k5l", "k6l",
-            "k7l", "k8l", "k9l" };
+    static string k_attr_list[] = { "k0l", "k1l", "k2l", "k3l", "k4l", "k5l",
+            "k6l", "k7l", "k8l", "k9l" };
     // multipole tilts
-    static string t_attr_list[] = { "t0", "t1", "t2", "t3", "t4", "t5", "t6", "t7",
-            "t8", "t9" };
+    static string t_attr_list[] = { "t0", "t1", "t2", "t3", "t4", "t5", "t6",
+            "t7", "t8", "t9" };
 
     double knl[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
     double tn[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    static double nfactorial[] = {1.0, 1.0, 2.0, 6.0, 24.0, 120.0, 720.0,
-			   5040.0, 40320.0, 362880.0};
+    static double nfactorial[] = { 1.0, 1.0, 2.0, 6.0, 24.0, 120.0, 720.0,
+            5040.0, 40320.0, 362880.0 };
 
     // loop through possible attributes
     for (int moment = 0; moment < 10; ++moment) {
@@ -995,7 +975,8 @@ Multipole_mad8_adaptor::get_chef_elements(
             if (lattice_element.has_double_attribute(t_attr_list[moment])) {
                 tn[moment] = lattice_element.get_double_attribute(
                         t_attr_list[moment]);
-            } else if (lattice_element.has_string_attribute(t_attr_list[moment])) {
+            } else if (lattice_element.has_string_attribute(
+                    t_attr_list[moment])) {
                 // any string value is equivalent to just giving the Tn keyword
                 // get default tilt for that multipole order
                 tn[moment] = mconstants::pi / (2 * moment + 2);
@@ -1007,32 +988,33 @@ Multipole_mad8_adaptor::get_chef_elements(
     int multipole_count = 0;
     for (int moment = 0; moment < 10; ++moment) {
 
-      if (knl[moment] != 0.0) {
-	bmlnElmnt* bmln_elmnt = 0;
-	alignmentData aligner;
-	++multipole_count;
-	std::stringstream element_name(stringstream::out);
+        if (knl[moment] != 0.0) {
+            bmlnElmnt* bmln_elmnt = 0;
+            alignmentData aligner;
+            ++multipole_count;
+            std::stringstream element_name(stringstream::out);
 
-	element_name << lattice_element.get_name() << "_" << 2*moment+2 << "pole";
-	bmln_elmnt = new ThinPole(element_name.str().c_str(),
-				    brho * knl[moment]/nfactorial[moment],
-				    2*moment+2);
+            element_name << lattice_element.get_name() << "_" << 2 * moment + 2
+                    << "pole";
+            bmln_elmnt = new ThinPole(element_name.str().c_str(),
+                    brho * knl[moment] / nfactorial[moment], 2 * moment + 2);
 
-	ElmPtr elm(bmln_elmnt);
-	// set tilt if necessary
-	if (tn[moment] != 0.0) {
-	  aligner.xOffset = 0.0;
-	  aligner.yOffset = 0.0;
-	  aligner.tilt = tn[moment];
-	  elm->setAlignment(aligner);
-	}
-	retval.push_back(elm);
-      } else {
-        std::stringstream element_name(stringstream::out);
-        element_name << lattice_element.get_name() << "_" << 2*moment+2 << "pole_marker";
-        ElmPtr elm = ElmPtr(new marker(element_name.str().c_str()));
-        retval.push_back(elm);
-      }
+            ElmPtr elm(bmln_elmnt);
+            // set tilt if necessary
+            if (tn[moment] != 0.0) {
+                aligner.xOffset = 0.0;
+                aligner.yOffset = 0.0;
+                aligner.tilt = tn[moment];
+                elm->setAlignment(aligner);
+            }
+            retval.push_back(elm);
+        } else {
+            std::stringstream element_name(stringstream::out);
+            element_name << lattice_element.get_name() << "_" << 2 * moment + 2
+                    << "pole_marker";
+            ElmPtr elm = ElmPtr(new marker(element_name.str().c_str()));
+            retval.push_back(elm);
+        }
     }
     // csp: temporally or permanently disabled this part to avoid confusion.
     // put in a marker for this element
@@ -1083,61 +1065,59 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Multipole_mad8_adaptor)
 
 Thinpole_mad8_adaptor::Thinpole_mad8_adaptor()
 {
-}
-
-void
-Thinpole_mad8_adaptor::set_default_attributes(
-        Lattice_element & lattice_element)
-{
-  set_double_default(lattice_element, "kl", 0.0); // base strength/B-rho
-  set_double_default(lattice_element, "a1", 0.0); // skew quad
-  set_double_default(lattice_element, "a2", 0.0); // skew sextupole
-  set_double_default(lattice_element, "a3", 0.0); // skew octupole
-  set_double_default(lattice_element, "a4", 0.0); // skew decapole
-  set_double_default(lattice_element, "a5", 0.0); // skew dodecapole
-  set_double_default(lattice_element, "a6", 0.0); // skew tetradecapole
-  set_double_default(lattice_element, "a7", 0.0); // skew hexdecapole
-  set_double_default(lattice_element, "b1", 0.0); // quad
-  set_double_default(lattice_element, "b2", 0.0); // sextupole
-  set_double_default(lattice_element, "b3", 0.0); // octopole
-  set_double_default(lattice_element, "b4", 0.0); // decapole
-  set_double_default(lattice_element, "b5", 0.0); // dodecapole
-  set_double_default(lattice_element, "b6", 0.0); // tetradecapole
-  set_double_default(lattice_element, "b7", 0.0); // hexdecapole
+    get_default_element().set_double_attribute("kl", 0.0); // base strength/B-rho
+    get_default_element().set_double_attribute("a1", 0.0); // skew quad
+    get_default_element().set_double_attribute("a2", 0.0); // skew sextupole
+    get_default_element().set_double_attribute("a3", 0.0); // skew octupole
+    get_default_element().set_double_attribute("a4", 0.0); // skew decapole
+    get_default_element().set_double_attribute("a5", 0.0); // skew dodecapole
+    get_default_element().set_double_attribute("a6", 0.0); // skew tetradecapole
+    get_default_element().set_double_attribute("a7", 0.0); // skew hexdecapole
+    get_default_element().set_double_attribute("b1", 0.0); // quad
+    get_default_element().set_double_attribute("b2", 0.0); // sextupole
+    get_default_element().set_double_attribute("b3", 0.0); // octopole
+    get_default_element().set_double_attribute("b4", 0.0); // decapole
+    get_default_element().set_double_attribute("b5", 0.0); // dodecapole
+    get_default_element().set_double_attribute("b6", 0.0); // tetradecapole
+    get_default_element().set_double_attribute("b7", 0.0); // hexdecapole
 }
 
 Chef_elements
-Thinpole_mad8_adaptor::get_chef_elements(
-        Lattice_element const& lattice_element, double brho)
+Thinpole_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
 {
     Chef_elements retval;
-    double ak[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently a0-a7
-    double bk[] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0}; // currently b0-b7
+    double ak[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; // currently a0-a7
+    double bk[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 }; // currently b0-b7
 
     // thinpole strengths
-    string a_attr_list[] = { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7"};
-    string b_attr_list[] = { "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7"};
+    string a_attr_list[] = { "a0", "a1", "a2", "a3", "a4", "a5", "a6", "a7" };
+    string b_attr_list[] = { "b0", "b1", "b2", "b3", "b4", "b5", "b6", "b7" };
 
     // loop through possible attributes
     for (int moment = 0; moment < 8; ++moment) {
         if (lattice_element.has_double_attribute(a_attr_list[moment])) {
-	  ak[moment] = lattice_element.get_double_attribute(a_attr_list[moment]);
-	}
-	if (lattice_element.has_double_attribute(b_attr_list[moment])) {
-	  bk[moment] = lattice_element.get_double_attribute(b_attr_list[moment]);
-	}
+            ak[moment] = lattice_element.get_double_attribute(
+                    a_attr_list[moment]);
+        }
+        if (lattice_element.has_double_attribute(b_attr_list[moment])) {
+            bk[moment] = lattice_element.get_double_attribute(
+                    b_attr_list[moment]);
+        }
     }
 
     double kl = lattice_element.get_double_attribute("kl");
 
     // assemble chef elements
-    std::vector<std::complex<double> > c_moments;
-    for (int k=0; k<8; ++k) {
-      c_moments.push_back(std::complex<double> (bk[k],ak[k]));
+    std::vector < std::complex<double > > c_moments;
+    for (int k = 0; k < 8; ++k) {
+        c_moments.push_back(std::complex<double >(bk[k], ak[k]));
     }
 
-    retval.push_back(ElmPtr(new ThinPole(lattice_element.get_name().c_str(),
-					 brho * kl, c_moments)));
+    retval.push_back(
+            ElmPtr(
+                    new ThinPole(lattice_element.get_name().c_str(), brho * kl,
+                            c_moments)));
 
     // put in a marker for this element
     ElmPtr elm = ElmPtr(new marker(lattice_element.get_name().c_str()));
@@ -1180,13 +1160,8 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Thinpole_mad8_adaptor)
 
 Solenoid_mad8_adaptor::Solenoid_mad8_adaptor()
 {
-}
-
-void
-Solenoid_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "l", 0.0);
-    set_double_default(lattice_element, "ks", 0.0);
+    get_default_element().set_double_attribute("l", 0.0);
+    get_default_element().set_double_attribute("ks", 0.0);
 }
 
 template<class Archive>
@@ -1223,14 +1198,9 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Solenoid_mad8_adaptor)
 
 Hkicker_mad8_adaptor::Hkicker_mad8_adaptor()
 {
-}
-
-void
-Hkicker_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "l", 0.0);
-    set_double_default(lattice_element, "kick", 0.0);
-    set_double_default(lattice_element, "tilt", 0.0);
+    get_default_element().set_double_attribute("l", 0.0);
+    get_default_element().set_double_attribute("kick", 0.0);
+    get_default_element().set_double_attribute("tilt", 0.0);
 }
 
 Chef_elements
@@ -1297,14 +1267,9 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Hkicker_mad8_adaptor)
 
 Vkicker_mad8_adaptor::Vkicker_mad8_adaptor()
 {
-}
-
-void
-Vkicker_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "l", 0.0);
-    set_double_default(lattice_element, "kick", 0.0);
-    set_double_default(lattice_element, "tilt", 0.0);
+    get_default_element().set_double_attribute("l", 0.0);
+    get_default_element().set_double_attribute("kick", 0.0);
+    get_default_element().set_double_attribute("tilt", 0.0);
 }
 
 Chef_elements
@@ -1371,15 +1336,10 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Vkicker_mad8_adaptor)
 
 Kicker_mad8_adaptor::Kicker_mad8_adaptor()
 {
-}
-
-void
-Kicker_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "l", 0.0);
-    set_double_default(lattice_element, "hkick", 0.0);
-    set_double_default(lattice_element, "vkick", 0.0);
-    set_double_default(lattice_element, "tilt", 0.0);
+    get_default_element().set_double_attribute("l", 0.0);
+    get_default_element().set_double_attribute("hkick", 0.0);
+    get_default_element().set_double_attribute("vkick", 0.0);
+    get_default_element().set_double_attribute("tilt", 0.0);
 }
 
 Chef_elements
@@ -1450,24 +1410,19 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Kicker_mad8_adaptor)
 
 Rfcavity_mad8_adaptor::Rfcavity_mad8_adaptor()
 {
-}
-
-void
-Rfcavity_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "l", 0.0);
-    set_double_default(lattice_element, "volt", 0.0);
-    set_double_default(lattice_element, "lag", 0.0);
-    set_double_default(lattice_element, "harmon", 0.0);
-    set_double_default(lattice_element, "betrf", 0.0);
-    set_double_default(lattice_element, "pg", 0.0);
-    set_double_default(lattice_element, "shunt", 0.0);
-    set_double_default(lattice_element, "tfill", 0.0);
+    get_default_element().set_double_attribute("l", 0.0);
+    get_default_element().set_double_attribute("volt", 0.0);
+    get_default_element().set_double_attribute("lag", 0.0);
+    get_default_element().set_double_attribute("harmon", 0.0);
+    get_default_element().set_double_attribute("betrf", 0.0);
+    get_default_element().set_double_attribute("pg", 0.0);
+    get_default_element().set_double_attribute("shunt", 0.0);
+    get_default_element().set_double_attribute("tfill", 0.0);
 }
 
 Chef_elements
-Rfcavity_mad8_adaptor::get_chef_elements(
-        Lattice_element const& lattice_element, double brho)
+Rfcavity_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
 {
     Chef_elements retval;
 
@@ -1485,12 +1440,10 @@ Rfcavity_mad8_adaptor::get_chef_elements(
     double q = 0;
     if (length == 0.0) {
         bmlnElmnt *bmln_elmnt;
-        bmln_elmnt = new thinrfcavity(
-                lattice_element.get_name().c_str(),
-                freq,
+        bmln_elmnt = new thinrfcavity(lattice_element.get_name().c_str(), freq,
                 lattice_element.get_double_attribute("volt") * 1.0e6,
-                lattice_element.get_double_attribute("lag") * (2.0
-                        * mconstants::pi), q,
+                lattice_element.get_double_attribute("lag")
+                        * (2.0 * mconstants::pi), q,
                 lattice_element.get_double_attribute("shunt"));
         ElmPtr elm(bmln_elmnt);
         retval.push_back(elm);
@@ -1499,12 +1452,10 @@ Rfcavity_mad8_adaptor::get_chef_elements(
         pre_drift = new drift(
                 (lattice_element.get_name() + "_predrift").c_str(),
                 0.5 * length);
-        kick = new thinrfcavity(
-                (lattice_element.get_name() + "_kick").c_str(),
-                freq,
-                lattice_element.get_double_attribute("volt") * 1.0e6,
-                lattice_element.get_double_attribute("lag") * (2.0
-                        * mconstants::pi), q,
+        kick = new thinrfcavity((lattice_element.get_name() + "_kick").c_str(),
+                freq, lattice_element.get_double_attribute("volt") * 1.0e6,
+                lattice_element.get_double_attribute("lag")
+                        * (2.0 * mconstants::pi), q,
                 lattice_element.get_double_attribute("shunt"));
         post_drift = new drift(
                 (lattice_element.get_name() + "_postdrift").c_str(),
@@ -1552,20 +1503,15 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Rfcavity_mad8_adaptor)
 
 Elseparator_mad8_adaptor::Elseparator_mad8_adaptor()
 {
-}
-
-void
-Elseparator_mad8_adaptor::set_default_attributes(
-        Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "l", 0.0);
-    set_double_default(lattice_element, "e", 0.0);
-    set_double_default(lattice_element, "tilt", 0.0);
+    get_default_element().set_double_attribute("l", 0.0);
+    get_default_element().set_double_attribute("e", 0.0);
+    get_default_element().set_double_attribute("tilt", 0.0);
 }
 
 template<class Archive>
     void
-    Elseparator_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    Elseparator_mad8_adaptor::serialize(Archive & ar,
+            const unsigned int version)
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
     }
@@ -1597,17 +1543,12 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Elseparator_mad8_adaptor)
 
 Hmonitor_mad8_adaptor::Hmonitor_mad8_adaptor()
 {
-}
-
-void
-Hmonitor_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "l", 0.0);
+    get_default_element().set_double_attribute("l", 0.0);
 }
 
 Chef_elements
-Hmonitor_mad8_adaptor::get_chef_elements(
-        Lattice_element const& lattice_element, double brho)
+Hmonitor_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
 {
     Chef_elements retval;
 
@@ -1659,17 +1600,12 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Hmonitor_mad8_adaptor)
 
 Vmonitor_mad8_adaptor::Vmonitor_mad8_adaptor()
 {
-}
-
-void
-Vmonitor_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "l", 0.0);
+    get_default_element().set_double_attribute("l", 0.0);
 }
 
 Chef_elements
-Vmonitor_mad8_adaptor::get_chef_elements(
-        Lattice_element const& lattice_element, double brho)
+Vmonitor_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
 {
     Chef_elements retval;
 
@@ -1721,12 +1657,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Vmonitor_mad8_adaptor)
 
 Monitor_mad8_adaptor::Monitor_mad8_adaptor()
 {
-}
-
-void
-Monitor_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "l", 0.0);
+    get_default_element().set_double_attribute("l", 0.0);
 }
 
 Chef_elements
@@ -1783,13 +1714,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Monitor_mad8_adaptor)
 
 Instrument_mad8_adaptor::Instrument_mad8_adaptor()
 {
-}
-
-void
-Instrument_mad8_adaptor::set_default_attributes(
-        Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "l", 0.0);
+    get_default_element().set_double_attribute("l", 0.0);
 }
 
 template<class Archive>
@@ -1826,20 +1751,15 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Instrument_mad8_adaptor)
 
 Ecollimator_mad8_adaptor::Ecollimator_mad8_adaptor()
 {
-}
-
-void
-Ecollimator_mad8_adaptor::set_default_attributes(
-        Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "l", 0.0);
-    set_double_default(lattice_element, "xsize", 0.0);
-    set_double_default(lattice_element, "ysize", 0.0);
+    get_default_element().set_double_attribute("l", 0.0);
+    get_default_element().set_double_attribute("xsize", 0.0);
+    get_default_element().set_double_attribute("ysize", 0.0);
 }
 
 template<class Archive>
     void
-    Ecollimator_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    Ecollimator_mad8_adaptor::serialize(Archive & ar,
+            const unsigned int version)
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
     }
@@ -1871,20 +1791,15 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Ecollimator_mad8_adaptor)
 
 Rcollimator_mad8_adaptor::Rcollimator_mad8_adaptor()
 {
-}
-
-void
-Rcollimator_mad8_adaptor::set_default_attributes(
-        Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "l", 0.0);
-    set_double_default(lattice_element, "xsize", 0.0);
-    set_double_default(lattice_element, "ysize", 0.0);
+    get_default_element().set_double_attribute("l", 0.0);
+    get_default_element().set_double_attribute("xsize", 0.0);
+    get_default_element().set_double_attribute("ysize", 0.0);
 }
 
 template<class Archive>
     void
-    Rcollimator_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    Rcollimator_mad8_adaptor::serialize(Archive & ar,
+            const unsigned int version)
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
     }
@@ -1916,18 +1831,13 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Rcollimator_mad8_adaptor)
 
 Septum_mad8_adaptor::Septum_mad8_adaptor()
 {
-}
-
-void
-Septum_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
-{
-    set_double_default(lattice_element, "l", 0.0);
-    set_double_default(lattice_element, "voltage", 0.0);
-    set_double_default(lattice_element, "gap", 0.0);
-    set_double_default(lattice_element, "wire_position", 0.0);
-    set_double_default(lattice_element, "wire_width", 0.0);
-    set_double_default(lattice_element, "positive_strength", 0.0);
-    set_double_default(lattice_element, "negative_strength", 0.0);
+    get_default_element().set_double_attribute("l", 0.0);
+    get_default_element().set_double_attribute("voltage", 0.0);
+    get_default_element().set_double_attribute("gap", 0.0);
+    get_default_element().set_double_attribute("wire_position", 0.0);
+    get_default_element().set_double_attribute("wire_width", 0.0);
+    get_default_element().set_double_attribute("positive_strength", 0.0);
+    get_default_element().set_double_attribute("negative_strength", 0.0);
 }
 
 Chef_elements
@@ -1939,15 +1849,18 @@ Septum_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double length = lattice_element.get_double_attribute("l");
     double voltage = lattice_element.get_double_attribute("voltage");
     double gap = lattice_element.get_double_attribute("gap");
-    double wire_position = lattice_element.get_double_attribute("wire_position");
+    double wire_position = lattice_element.get_double_attribute(
+            "wire_position");
     double wire_width = lattice_element.get_double_attribute("wire_width");
-    double positive_strength = lattice_element.get_double_attribute("positive_strength");
-    double negative_strength = lattice_element.get_double_attribute("negative_strength");
+    double positive_strength = lattice_element.get_double_attribute(
+            "positive_strength");
+    double negative_strength = lattice_element.get_double_attribute(
+            "negative_strength");
 
     if (length == 0.0) {
-        ThinSeptumPtr es_septum( new thinSeptum(
-                lattice_element.get_name().c_str(), positive_strength,
-                negative_strength, wire_position));
+        ThinSeptumPtr es_septum(
+                new thinSeptum(lattice_element.get_name().c_str(),
+                        positive_strength, negative_strength, wire_position));
         es_septum->setStrengths(positive_strength, negative_strength);
         es_septum->setWire(wire_position);
         es_septum->setWireWidth(wire_width);
@@ -1964,9 +1877,9 @@ Septum_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         //ElmPtr elm(bmln_elmnt);
         retval.push_back(elm);
     } else {
-        SeptumPtr es_septum( new septum(
-                lattice_element.get_name().c_str(), length, voltage, gap,
-                wire_position, wire_width));
+        SeptumPtr es_septum(
+                new septum(lattice_element.get_name().c_str(), length, voltage,
+                        gap, wire_position, wire_width));
         ElmPtr elm(es_septum);
         retval.push_back(elm);
     }
@@ -2006,11 +1919,6 @@ Septum_mad8_adaptor::~Septum_mad8_adaptor()
 BOOST_CLASS_EXPORT_IMPLEMENT(Septum_mad8_adaptor)
 
 Lambertson_mad8_adaptor::Lambertson_mad8_adaptor()
-{
-}
-
-void
-Lambertson_mad8_adaptor::set_default_attributes(Lattice_element & lattice_element)
 {
 }
 

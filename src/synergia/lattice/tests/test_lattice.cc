@@ -98,7 +98,7 @@ BOOST_AUTO_TEST_CASE(derive_internal_attributes)
 
     Lattice lattice(name);
     lattice.append(b);
-    lattice.set_default_attributes();
+    lattice.set_defaults();
     lattice.derive_internal_attributes();
 
     double arc_length = bend_angle * bend_length / (2

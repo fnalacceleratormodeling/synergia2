@@ -13,8 +13,13 @@
 
 class Element_adaptor
 {
+    Lattice_element_sptr default_element_sptr;
 public:
     Element_adaptor();
+    Lattice_element_sptr
+    get_default_element_sptr();
+    Lattice_element &
+    get_default_element();
     void
     set_double_default(Lattice_element & lattice_element,
             std::string const& name, double value);
@@ -22,7 +27,7 @@ public:
     set_string_default(Lattice_element & lattice_element,
             std::string const& name, std::string const& value);
     virtual void
-    set_default_attributes(Lattice_element & lattice_element);
+    set_defaults(Lattice_element & lattice_element);
     virtual void
     set_derived_attributes_internal(Lattice_element & lattice_element);
     virtual void
@@ -43,8 +48,6 @@ class Marker_mad8_adaptor : public Element_adaptor
 {
 public:
     Marker_mad8_adaptor();
-    void
-    set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
@@ -59,8 +62,6 @@ class Drift_mad8_adaptor : public Element_adaptor
 {
 public:
     Drift_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
@@ -75,8 +76,6 @@ class Sbend_mad8_adaptor : public Element_adaptor
 {
 public:
     Sbend_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
@@ -92,7 +91,7 @@ class Rbend_mad8_adaptor : public Element_adaptor
 public:
     Rbend_mad8_adaptor();
     virtual void
-    set_default_attributes(Lattice_element & lattice_element);
+    set_defaults(Lattice_element & lattice_element);
     virtual void
     set_derived_attributes_internal(Lattice_element & lattice_element);
     Chef_elements
@@ -109,8 +108,6 @@ class Quadrupole_mad8_adaptor : public Element_adaptor
 {
 public:
     Quadrupole_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
@@ -125,8 +122,6 @@ class Sextupole_mad8_adaptor : public Element_adaptor
 {
 public:
     Sextupole_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
@@ -141,8 +136,6 @@ class Octupole_mad8_adaptor : public Element_adaptor
 {
 public:
     Octupole_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
@@ -157,8 +150,6 @@ class Multipole_mad8_adaptor : public Element_adaptor
 {
 public:
     Multipole_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
@@ -174,8 +165,6 @@ class Thinpole_mad8_adaptor : public Element_adaptor
 {
 public:
     Thinpole_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
@@ -190,8 +179,6 @@ class Solenoid_mad8_adaptor : public Element_adaptor
 {
 public:
     Solenoid_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
@@ -204,8 +191,6 @@ class Hkicker_mad8_adaptor : public Element_adaptor
 {
 public:
     Hkicker_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
@@ -220,8 +205,6 @@ class Vkicker_mad8_adaptor : public Element_adaptor
 {
 public:
     Vkicker_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
@@ -236,8 +219,6 @@ class Kicker_mad8_adaptor : public Element_adaptor
 {
 public:
     Kicker_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
@@ -252,8 +233,6 @@ class Rfcavity_mad8_adaptor : public Element_adaptor
 {
 public:
     Rfcavity_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
@@ -268,8 +247,6 @@ class Elseparator_mad8_adaptor : public Element_adaptor
 {
 public:
     Elseparator_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
@@ -282,8 +259,6 @@ class Hmonitor_mad8_adaptor : public Element_adaptor
 {
 public:
     Hmonitor_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
@@ -298,8 +273,6 @@ class Vmonitor_mad8_adaptor : public Element_adaptor
 {
 public:
     Vmonitor_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
@@ -314,8 +287,6 @@ class Monitor_mad8_adaptor : public Element_adaptor
 {
 public:
     Monitor_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
@@ -330,8 +301,6 @@ class Instrument_mad8_adaptor : public Element_adaptor
 {
 public:
     Instrument_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
@@ -344,8 +313,6 @@ class Ecollimator_mad8_adaptor : public Element_adaptor
 {
 public:
     Ecollimator_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
@@ -358,8 +325,6 @@ class Rcollimator_mad8_adaptor : public Element_adaptor
 {
 public:
     Rcollimator_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
@@ -373,8 +338,6 @@ class Septum_mad8_adaptor : public Element_adaptor
 {
 public:
     Septum_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
@@ -390,8 +353,6 @@ class Lambertson_mad8_adaptor : public Element_adaptor
 {
 public:
     Lambertson_mad8_adaptor();
-    virtual void
-    set_default_attributes(Lattice_element & lattice_element);
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>

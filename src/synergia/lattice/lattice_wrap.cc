@@ -148,7 +148,7 @@ BOOST_PYTHON_MODULE(lattice)
     class_<Element_adaptor, Element_adaptor_sptr >("Element_adaptor", init<>())
             .def("set_double_default", &Element_adaptor::set_double_default)
             .def("set_string_default", &Element_adaptor::set_string_default)
-            .def("set_default_attributes", &Element_adaptor::set_default_attributes)
+            .def("set_defaults", &Element_adaptor::set_defaults)
             .def("get_chef_elements", &Element_adaptor::get_chef_elements)
             ;
 

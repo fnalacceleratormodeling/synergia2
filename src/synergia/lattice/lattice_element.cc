@@ -323,7 +323,9 @@ template<class Archive>
     void
     Lattice_element::serialize(Archive & ar, const unsigned int version)
     {
-        ar & BOOST_SERIALIZATION_NVP(type)& BOOST_SERIALIZATION_NVP(name)
+        ar & BOOST_SERIALIZATION_NVP(type)
+        & BOOST_SERIALIZATION_NVP(name)
+        & BOOST_SERIALIZATION_NVP(default_element_sptr)
         & BOOST_SERIALIZATION_NVP(ancestors)
         & BOOST_SERIALIZATION_NVP(double_attributes)
         & BOOST_SERIALIZATION_NVP(string_attributes)
