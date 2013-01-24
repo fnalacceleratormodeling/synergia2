@@ -821,26 +821,9 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Octupole_madx_adaptor)
 
 Multipole_madx_adaptor::Multipole_madx_adaptor()
 {
-    get_default_element().set_double_attribute("k0l", 0.0);
-    get_default_element().set_double_attribute("t0", 0.0);
-    get_default_element().set_double_attribute("k1l", 0.0);
-    get_default_element().set_double_attribute("t1", 0.0);
-    get_default_element().set_double_attribute("k2l", 0.0);
-    get_default_element().set_double_attribute("t2", 0.0);
-    get_default_element().set_double_attribute("k3l", 0.0);
-    get_default_element().set_double_attribute("t3", 0.0);
-    get_default_element().set_double_attribute("k4l", 0.0);
-    get_default_element().set_double_attribute("t4", 0.0);
-    get_default_element().set_double_attribute("k5l", 0.0);
-    get_default_element().set_double_attribute("t5", 0.0);
-    get_default_element().set_double_attribute("k6l", 0.0);
-    get_default_element().set_double_attribute("t6", 0.0);
-    get_default_element().set_double_attribute("k7l", 0.0);
-    get_default_element().set_double_attribute("t7", 0.0);
-    get_default_element().set_double_attribute("k8l", 0.0);
-    get_default_element().set_double_attribute("t8", 0.0);
-    get_default_element().set_double_attribute("k9l", 0.0);
-    get_default_element().set_double_attribute("t9", 0.0);
+    get_default_element().set_double_attribute("tilt", 0.0);
+    get_default_element().set_vector_attribute("knl", std::vector<double >(0));
+    get_default_element().set_vector_attribute("ksl", std::vector<double >(0));
 }
 
 Chef_elements
@@ -849,73 +832,49 @@ Multipole_madx_adaptor::get_chef_elements(
 {
     Chef_elements retval;
 
-    // multipole strengths
-    static string k_attr_list[] = { "k0l", "k1l", "k2l", "k3l", "k4l", "k5l",
-            "k6l", "k7l", "k8l", "k9l" };
-    // multipole tilts
-    static string t_attr_list[] = { "t0", "t1", "t2", "t3", "t4", "t5", "t6",
-            "t7", "t8", "t9" };
+    double tilt = lattice_element.get_double_attribute("tilt");
 
-    double knl[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    double tn[] = { 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0 };
-    static double nfactorial[] = { 1.0, 1.0, 2.0, 6.0, 24.0, 120.0, 720.0,
-            5040.0, 40320.0, 362880.0 };
-
-    // loop through possible attributes
-    for (int moment = 0; moment < 10; ++moment) {
-        if (lattice_element.has_double_attribute(k_attr_list[moment])) {
-            knl[moment] = lattice_element.get_double_attribute(
-                    k_attr_list[moment]);
-            // look for a tilt
-            if (lattice_element.has_double_attribute(t_attr_list[moment])) {
-                tn[moment] = lattice_element.get_double_attribute(
-                        t_attr_list[moment]);
-            } else if (lattice_element.has_string_attribute(
-                    t_attr_list[moment])) {
-                // any string value is equivalent to just giving the Tn keyword
-                // get default tilt for that multipole order
-                tn[moment] = mconstants::pi / (2 * moment + 2);
-            }
-        }
-    }
-
-    // assemble chef thinpoles for each specified knl multipole moment
-    int multipole_count = 0;
-    for (int moment = 0; moment < 10; ++moment) {
-
+    std::vector<double > knl(lattice_element.get_vector_attribute("knl"));
+    double nfactorial = 1.0;
+    for (int moment = 0; moment < knl.size(); ++moment) {
         if (knl[moment] != 0.0) {
-            bmlnElmnt* bmln_elmnt = 0;
-            alignmentData aligner;
-            ++multipole_count;
             std::stringstream element_name(stringstream::out);
-
             element_name << lattice_element.get_name() << "_" << 2 * moment + 2
                     << "pole";
-            bmln_elmnt = new ThinPole(element_name.str().c_str(),
-                    brho * knl[moment] / nfactorial[moment], 2 * moment + 2);
-
-            ElmPtr elm(bmln_elmnt);
-            // set tilt if necessary
-            if (tn[moment] != 0.0) {
+            ElmPtr elm(
+                    new ThinPole(element_name.str().c_str(),
+                            brho * knl[moment] / nfactorial, 2 * moment + 2));
+            if (tilt != 0.0) {
+                alignmentData aligner;
                 aligner.xOffset = 0.0;
                 aligner.yOffset = 0.0;
-                aligner.tilt = tn[moment];
+                aligner.tilt = tilt;
                 elm->setAlignment(aligner);
             }
             retval.push_back(elm);
-        } else {
+        }
+        nfactorial *= (moment + 1);
+    }
+
+    std::vector<double > ksl(lattice_element.get_vector_attribute("ksl"));
+    nfactorial = 1.0;
+    for (int moment = 0; moment < ksl.size(); ++moment) {
+        if (ksl[moment] != 0.0) {
             std::stringstream element_name(stringstream::out);
-            element_name << lattice_element.get_name() << "_" << 2 * moment + 2
-                    << "pole_marker";
-            ElmPtr elm = ElmPtr(new marker(element_name.str().c_str()));
+            element_name << lattice_element.get_name() << "_skew"
+                    << 2 * moment + 2 << "pole";
+            ElmPtr elm(
+                    new ThinPole(element_name.str().c_str(),
+                            brho * ksl[moment] / nfactorial, 2 * moment + 2));
+            alignmentData aligner;
+            aligner.xOffset = 0.0;
+            aligner.yOffset = 0.0;
+            aligner.tilt = mconstants::pi / (2 * moment + 2) + tilt;
+            elm->setAlignment(aligner);
             retval.push_back(elm);
         }
+        nfactorial *= (moment + 1);
     }
-    // csp: temporally or permanently disabled this part to avoid confusion.
-    // put in a marker for this element
-    //ElmPtr elm = ElmPtr(new marker(lattice_element.get_name().c_str()));
-    //retval.push_back(elm);
-
     return retval;
 }
 
