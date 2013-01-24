@@ -1016,6 +1016,7 @@ Solenoid_madx_adaptor::Solenoid_madx_adaptor()
 {
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("ks", 0.0);
+    get_default_element().set_double_attribute("ksi", 0.0);
 }
 
 template<class Archive>
