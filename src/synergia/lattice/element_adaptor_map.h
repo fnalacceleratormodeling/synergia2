@@ -28,15 +28,4 @@ public:
 BOOST_CLASS_EXPORT_KEY(Element_adaptor_map)
 typedef boost::shared_ptr<Element_adaptor_map > Element_adaptor_map_sptr;
 
-class Mad8_adaptor_map : public Element_adaptor_map
-{
-public:
-    Mad8_adaptor_map();
-    template<class Archive>
-        void
-        serialize(Archive & ar, const unsigned int version);
-};
-BOOST_CLASS_EXPORT_KEY(Mad8_adaptor_map)
-typedef boost::shared_ptr<Mad8_adaptor_map > Mad8_adaptor_map_sptr;
-
 #endif /* ELEMENT_ADAPTOR_MAP_H_ */

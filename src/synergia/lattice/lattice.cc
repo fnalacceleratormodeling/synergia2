@@ -1,4 +1,5 @@
 #include "lattice.h"
+#include "mad8_adaptor_map.h"
 
 #include <iostream>
 #include <sstream>

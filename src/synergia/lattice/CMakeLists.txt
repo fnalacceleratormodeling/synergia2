@@ -1,6 +1,7 @@
 add_library(synergia_lattice lattice_element.cc lattice_element_slice.cc
     lattice.cc chef_lattice.cc chef_lattice_section.cc chef_utils.cc
-    element_adaptor.cc element_adaptor_map.cc lattice_diagnostics.cc
+    element_adaptor.cc element_adaptor_map.cc mad8_adaptor_map.cc
+    lattice_diagnostics.cc
     madx.cc mx_expr.cc  mx_parse.cc  mx_tree.cc
     madx_reader.cc)
 
