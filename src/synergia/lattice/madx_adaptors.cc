@@ -495,7 +495,7 @@ Quadrupole_madx_adaptor::Quadrupole_madx_adaptor()
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("k1", 0.0);
     get_default_element().set_double_attribute("tilt", 0.0);
-    // k1s not yet handled
+    get_default_element().set_double_attribute("k1s", 0.0);
     get_default_element().set_double_attribute("hoffset", 0.0);
     get_default_element().set_double_attribute("voffset", 0.0);
     // possible higher order multipole components
@@ -675,7 +675,7 @@ Sextupole_madx_adaptor::get_chef_elements(
 {
     if (lattice_element.has_double_attribute("k2s", false)) {
         throw std::runtime_error(
-                "Quadrupole_madx_adaptor: k1s attribute not handled");
+                "Sextupole_madx_adaptor: k2s attribute not handled");
     }
     Chef_elements retval;
 
@@ -751,11 +751,15 @@ Chef_elements
 Octupole_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
+    if (lattice_element.has_double_attribute("k3s", false)) {
+        throw std::runtime_error(
+                "Octupole_madx_adaptor: k3s attribute not handled");
+    }
+
     Chef_elements retval;
 
     double octulen = lattice_element.get_double_attribute("l");
     double octuk2 = lattice_element.get_double_attribute("k3");
-    double octutilt = 0.0;
 
     alignmentData aligner;
 
@@ -769,13 +773,7 @@ Octupole_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
                 brho * octuk2 / 6.0);
     }
 
-    if (lattice_element.has_double_attribute("tilt")) {
-        octutilt = lattice_element.get_double_attribute("tilt");
-    } else if (lattice_element.has_string_attribute("tilt")) {
-        // if this is a string, assume just tilt specified with no
-        // value so use pi/8.
-        octutilt = mconstants::pi / 8.0;
-    }
+    double octutilt = lattice_element.get_double_attribute("tilt");
 
     if (octutilt != 0.0) {
         aligner.xOffset = 0.0;
