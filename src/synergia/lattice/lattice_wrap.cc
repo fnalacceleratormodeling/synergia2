@@ -2,6 +2,7 @@
 #include "element_adaptor.h"
 #include "element_adaptor_map.h"
 #include "mad8_adaptor_map.h"
+#include "madx_adaptor_map.h"
 #include "lattice.h"
 #include "lattice_diagnostics.h"
 #include "chef_lattice.h"
@@ -165,6 +166,13 @@ BOOST_PYTHON_MODULE(lattice)
 //            .def("has_adaptor", &Mad8_adaptor_map::has_adaptor)
 //            .def("get_adaptor", &Mad8_adaptor_map::get_adaptor)
 //            .def("get_adaptor_names", &Mad8_adaptor_map::get_adaptor_names)
+            ;
+
+    class_<MadX_adaptor_map, MadX_adaptor_map_sptr, bases<Element_adaptor_map > >("MadX_adaptor_map", init<>())
+//            .def("set_adaptor", &MadX_adaptor_map::set_adaptor)
+//            .def("has_adaptor", &MadX_adaptor_map::has_adaptor)
+//            .def("get_adaptor", &MadX_adaptor_map::get_adaptor)
+//            .def("get_adaptor_names", &MadX_adaptor_map::get_adaptor_names)
             ;
 
     class_<Lattice, Lattice_sptr >("Lattice", init<std::string const& >())
