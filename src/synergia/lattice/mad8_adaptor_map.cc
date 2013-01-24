@@ -1,4 +1,5 @@
 #include "mad8_adaptor_map.h"
+#include "mad8_adaptors.h"
 
 Mad8_adaptor_map::Mad8_adaptor_map() :
         Element_adaptor_map()
