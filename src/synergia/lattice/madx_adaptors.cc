@@ -1219,7 +1219,7 @@ Kicker_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     if (vkick != 0.0) {
         bmln_elmnt->setVerStrength(vkick * brho);
     }
-    if (tilt > 0.0) {
+    if (tilt != 0.0) {
         aligner.xOffset = 0.0;
         aligner.yOffset = 0.0;
         aligner.tilt = tilt;
@@ -1269,10 +1269,7 @@ Rfcavity_madx_adaptor::Rfcavity_madx_adaptor()
     get_default_element().set_double_attribute("volt", 0.0);
     get_default_element().set_double_attribute("lag", 0.0);
     get_default_element().set_double_attribute("harmon", 0.0);
-    get_default_element().set_double_attribute("betrf", 0.0);
-    get_default_element().set_double_attribute("pg", 0.0);
     get_default_element().set_double_attribute("shunt", 0.0);
-    get_default_element().set_double_attribute("tfill", 0.0);
 }
 
 Chef_elements
