@@ -12,5 +12,6 @@ test_element_adaptor
 test_element_adaptor_map
 test_mad8_adaptor_map
 test_madx_adaptor_map
+jfa
 *.xml
 *.h5
