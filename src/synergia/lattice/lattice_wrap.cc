@@ -7,6 +7,7 @@
 #include "lattice_diagnostics.h"
 #include "chef_lattice.h"
 #include "chef_utils.h"
+#include "madx_reader.h"
 #include <boost/python.hpp>
 #include <boost/python/dict.hpp>
 #include "synergia/utils/container_conversions.h"
@@ -73,6 +74,11 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_has_string_attribute_over
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_has_vector_attribute_overloads,
         has_vector_attribute, 1, 2);
+
+Lattice_sptr (MadX_reader::*get_lattice_sptr1)(std::string const&)
+        =&MadX_reader::get_lattice_sptr;
+Lattice_sptr (MadX_reader::*get_lattice_sptr2)(std::string const&, std::string const&)
+        =&MadX_reader::get_lattice_sptr;
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(xml_save_lattice_overloads23,
         xml_save<Lattice >, 2, 3)
@@ -214,6 +220,15 @@ BOOST_PYTHON_MODULE(lattice)
         .def("write", &Lattice_diagnostics::write)
         .def("update_and_write", &Lattice_diagnostics::update_and_write)
         ;
+
+    class_<MadX_reader>("MadX_reader", init<>())
+            .def(init<Element_adaptor_map_sptr >())
+            .def("parse", &MadX_reader::parse)
+            .def("parse_file", &MadX_reader::parse_file)
+            .def("get_line_names", &MadX_reader::get_line_names)
+            .def("get_lattice", get_lattice_sptr1)
+            .def("get_lattice", get_lattice_sptr2)
+            ;
 
     def("print_chef_beamline", print_chef_beamline);
     def("reference_particle_to_chef_particle",
