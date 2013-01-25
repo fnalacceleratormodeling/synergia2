@@ -6,6 +6,6 @@ main()
 {
     MadX_reader madx_reader;
     madx_reader.parse_file("ps_lattice.madx");
-    Lattice lattice(madx_reader.get_lattice("ps"));
-    lattice.print();
+    Lattice_sptr lattice_sptr(madx_reader.get_lattice_sptr("ps"));
+    lattice_sptr->print();
 }

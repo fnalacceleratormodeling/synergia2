@@ -4,6 +4,7 @@
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/foundation/four_momentum.h"
 #include "synergia/foundation/reference_particle.h"
+#include "synergia/lattice/madx_adaptor_map.h"
 
 #include <stdexcept>
 #include <algorithm>
@@ -78,7 +79,13 @@ MadX_reader::extract_reference_particle(Lattice & lattice)
     }
 }
 
-MadX_reader::MadX_reader()
+MadX_reader::MadX_reader() :
+        element_adaptor_map_sptr(new MadX_adaptor_map)
+{
+}
+
+MadX_reader::MadX_reader(Element_adaptor_map_sptr element_adaptor_map_sptr) :
+        element_adaptor_map_sptr(element_adaptor_map_sptr)
 {
 }
 
@@ -117,15 +124,15 @@ MadX_reader::get_line_names()
     return retval;
 }
 
-Lattice
-MadX_reader::get_lattice(std::string const& line_name)
+Lattice_sptr
+MadX_reader::get_lattice_sptr(std::string const& line_name)
 {
     if (!madx_sptr) {
         throw std::runtime_error(
                 "MadX_reader::get_lattice: nothing has been parsed");
     }
 
-    Lattice lattice(line_name);
+    Lattice_sptr lattice_sptr(new Lattice(line_name, element_adaptor_map_sptr));
 
     bool found_line(false), found_sequence(false);
 
@@ -148,7 +155,7 @@ MadX_reader::get_lattice(std::string const& line_name)
     if (found_line) {
         // to be completed
         throw std::runtime_error(
-                "MadX_reader::get_lattice does not currently handle lines");
+                "MadX_reader::get_lattice_sptr does not currently handle lines");
     }
     if (found_sequence) {
         MadX_sequence sequence(madx_sptr->sequence(line_name));
@@ -169,7 +176,7 @@ MadX_reader::get_lattice(std::string const& line_name)
                 name_stream << drift_count;
                 Lattice_element drift("drift", name_stream.str());
                 drift.set_double_attribute("l", drift_length, false);
-                lattice.append(drift);
+                lattice_sptr->append(drift);
                 ++drift_count;
             }
             std::string name(sequence.element(i, false).label());
@@ -217,7 +224,7 @@ MadX_reader::get_lattice(std::string const& line_name)
                                     + " of element " + name);
                 }
             }
-            lattice.append(element);
+            lattice_sptr->append(element);
             current_pos = at + element.get_length();
         }
         double final_drift_length = sequence.length() - current_pos;
@@ -230,20 +237,20 @@ MadX_reader::get_lattice(std::string const& line_name)
             name_stream << drift_count;
             Lattice_element drift("drift", name_stream.str());
             drift.set_double_attribute("l", final_drift_length, false);
-            lattice.append(drift);
+            lattice_sptr->append(drift);
             ++drift_count;
         }
     }
-    extract_reference_particle(lattice);
-    return lattice;
+    extract_reference_particle(*lattice_sptr);
+    return lattice_sptr;
 }
 
-Lattice
-MadX_reader::get_lattice(std::string const& line_name,
+Lattice_sptr
+MadX_reader::get_lattice_sptr(std::string const& line_name,
         std::string const& filename)
 {
     parse_file(filename);
-    return get_lattice(line_name);
+    return get_lattice_sptr(line_name);
 }
 
 MadX_reader::~MadX_reader()

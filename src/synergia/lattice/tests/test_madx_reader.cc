@@ -86,92 +86,102 @@ BOOST_AUTO_TEST_CASE(get_line_names_bad)
     BOOST_CHECK(caught);
 }
 
-BOOST_AUTO_TEST_CASE(get_lattice)
+BOOST_AUTO_TEST_CASE(get_lattice_sptr)
 {
     MadX_reader madx_reader;
     madx_reader.parse(get_fodo());
-    Lattice lattice(madx_reader.get_lattice("fodo"));
-    lattice.print();
+    Lattice_sptr lattice_sptr(madx_reader.get_lattice_sptr("fodo"));
+//    lattice_sptr->print();
 }
 
-BOOST_AUTO_TEST_CASE(get_lattice3)
+BOOST_AUTO_TEST_CASE(get_lattice_sptr3)
 {
     MadX_reader madx_reader;
     madx_reader.parse_file("lattices/fodo2work.madx");
-    Lattice lattice(madx_reader.get_lattice("fodo"));
-    lattice.print();
+    Lattice_sptr lattice_sptr(madx_reader.get_lattice_sptr("fodo"));
+//    lattice_sptr->print();
 }
 
-BOOST_AUTO_TEST_CASE(get_lattice_no_reference_particle)
+BOOST_AUTO_TEST_CASE(get_lattice_sptr_no_reference_particle)
 {
     MadX_reader madx_reader;
     madx_reader.parse(get_fodo());
-    Lattice lattice(madx_reader.get_lattice("fodo"));
-    BOOST_CHECK(!lattice.has_reference_particle());
+    Lattice_sptr lattice_sptr(madx_reader.get_lattice_sptr("fodo"));
+    BOOST_CHECK(!lattice_sptr->has_reference_particle());
 }
 
-BOOST_AUTO_TEST_CASE(get_lattice_with_reference_particle)
+BOOST_AUTO_TEST_CASE(get_lattice_sptr_with_reference_particle)
 {
     std::string beam_fodo("beam, particle=proton, gamma=1.42;");
     beam_fodo += get_fodo();
     MadX_reader madx_reader;
     madx_reader.parse(beam_fodo);
-    Lattice lattice(madx_reader.get_lattice("fodo"));
-    BOOST_CHECK(lattice.has_reference_particle());
-    const double tolerance=1.0e-10;
-    BOOST_CHECK_CLOSE(lattice.get_reference_particle().get_four_momentum().get_mass(),
+    Lattice_sptr lattice_sptr(madx_reader.get_lattice_sptr("fodo"));
+    BOOST_CHECK(lattice_sptr->has_reference_particle());
+    const double tolerance = 1.0e-10;
+    BOOST_CHECK_CLOSE(
+            lattice_sptr->get_reference_particle().get_four_momentum().get_mass(),
             pconstants::mp, tolerance);
-    BOOST_CHECK_CLOSE(lattice.get_reference_particle().get_gamma(), 1.42,
+    BOOST_CHECK_CLOSE(lattice_sptr->get_reference_particle().get_gamma(), 1.42,
             tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(get_types)
 {
-    std::string str("element: quadrupole, x=3.14, name='foo', knl={1.1,2.2,3.3};");
+    std::string str(
+            "element: quadrupole, x=3.14, name='foo', knl={1.1,2.2,3.3};");
     str += "seq:sequence, l=1.0;\n";
     str += "e1: element, at=0.5;\n";
     str += "endsequence;\n";
     MadX_reader madx_reader;
     madx_reader.parse(str);
-    madx_reader.get_lattice("seq").print();
+//    madx_reader.get_lattice_sptr("seq")->print();
 
-    // get the second element
-    Lattice_element element(**(++madx_reader.get_lattice("seq").get_elements().begin()));
+// get the second element
+    Lattice_element element(
+            **(++madx_reader.get_lattice_sptr("seq")->get_elements().begin()));
     const double tolerance = 1.0e-12;
     BOOST_CHECK_CLOSE(element.get_double_attribute("x"), 3.14, tolerance);
     BOOST_CHECK_EQUAL(element.get_string_attribute("name"), "foo");
     BOOST_CHECK_EQUAL(element.get_vector_attribute("knl").size(), 3);
-    BOOST_CHECK_CLOSE(element.get_vector_attribute("knl").at(0), 1.1, tolerance);
-    BOOST_CHECK_CLOSE(element.get_vector_attribute("knl").at(1), 2.2, tolerance);
-    BOOST_CHECK_CLOSE(element.get_vector_attribute("knl").at(2), 3.3, tolerance);
+    BOOST_CHECK_CLOSE(element.get_vector_attribute("knl").at(0), 1.1,
+            tolerance);
+    BOOST_CHECK_CLOSE(element.get_vector_attribute("knl").at(1), 2.2,
+            tolerance);
+    BOOST_CHECK_CLOSE(element.get_vector_attribute("knl").at(2), 3.3,
+            tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(line_length_with_endmark)
 {
-    std::string str("element: quadrupole, x=3.14, name='foo', knl={1.1,2.2,3.3};");
+    std::string str(
+            "element: quadrupole, x=3.14, name='foo', knl={1.1,2.2,3.3};");
     str += "seq:sequence, l=1.0;\n";
     str += "e1: element, at=0.5;\n";
     str += "endmark, at=1.0;\n";
     str += "endsequence;\n";
     MadX_reader madx_reader;
     madx_reader.parse(str);
-    madx_reader.get_lattice("seq").print();
+//    madx_reader.get_lattice_sptr("seq")->print();
 
     const double tolerance = 1.0e-12;
-    BOOST_CHECK_CLOSE(madx_reader.get_lattice("seq").get_length(), 1.0, tolerance);
+    BOOST_CHECK_CLOSE(madx_reader.get_lattice_sptr("seq")->get_length(), 1.0,
+            tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(line_length_without_endmark)
 {
-    std::string str("element: quadrupole, x=3.14, name='foo', knl={1.1,2.2,3.3};");
+    std::string str(
+            "element: quadrupole, x=3.14, name='foo', knl={1.1,2.2,3.3};");
     str += "seq:sequence, l=1.0;\n";
     str += "e1: element, at=0.5;\n";
     str += "endsequence;\n";
     MadX_reader madx_reader;
     madx_reader.parse(str);
-    madx_reader.get_lattice("seq").print();
+//    madx_reader.get_lattice_sptr("seq")->print();
 
     const double tolerance = 1.0e-12;
-    BOOST_CHECK_CLOSE(madx_reader.get_lattice("seq").get_length(), 1.0, tolerance);
+    BOOST_CHECK_CLOSE(madx_reader.get_lattice_sptr("seq")->get_length(), 1.0,
+            tolerance);
 }
 
