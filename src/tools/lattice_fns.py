@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
-import sys
+import sys, os.path
 import tables
 from matplotlib import pyplot
-import synergia 
+import synergia
 import numpy
 
 def plot2d(x, y, label):
@@ -34,6 +34,7 @@ class Options:
         self.filename = None
         self.line = None
         self.plots = []
+        self.reader = None
 
 def do_error(message):
     sys.stderr.write(message + '\n')
@@ -54,6 +55,11 @@ def handle_args(args, plotparams):
     if len(args) < 3:
         do_help(plotparams)
     options = Options()
+    for arg in args:
+        if arg.find('--reader') == 0:
+            reader = arg.split('=')[1]
+            options.reader = reader
+            args.remove(arg)
     options.filename = args[0]
     options.line = args[1]
     for arg in args[2:]:
@@ -64,10 +70,21 @@ def handle_args(args, plotparams):
                 options.plots.append(arg)
             else:
                 do_error('Unknown plot "%s"' % arg)
+    if not options.reader:
+        if os.path.splitext(options.filename)[1] == '.madx':
+            options.reader = 'madx'
+        else:
+            options.reader = 'mad8'
+    if (options.reader != 'madx') and (options.reader != 'mad8'):
+        do_error("reader must be either 'mad8' or 'madx'")
+
     return options
 
 def do_plots(options, plotparams):
-    lattice = synergia.lattice.Mad8_reader().get_lattice(options.line, options.filename)
+    if options.reader == 'madx':
+        lattice = synergia.lattice.MadX_reader().get_lattice(options.line, options.filename)
+    else:
+        lattice = synergia.lattice.Mad8_reader().get_lattice(options.line, options.filename)
     lattice_simulator = synergia.simulation.Lattice_simulator(lattice, 1)
     for plot in options.plots:
         n = len(lattice.get_elements())

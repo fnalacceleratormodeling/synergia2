@@ -6,6 +6,7 @@ set(tools
     synpoincareplot
     synbeamplot
     synlatticeview
+    synlatticefns
     synprintmaps
     synpart2txt
     syntrack2txt
