@@ -16,6 +16,7 @@ private:
    std::vector<std::string> subjectedDevices; // a list of CHEF device name where this e-cloud is present. 
                                               // Not OBSOLETE, let us resurrect this idea, as the algorithm from above has not been settled yet. 
 					      // Devices here mean CHEF lattice elements type, like dipole, quadrupole, etc.. 
+   double enhanceFactor; // An arbitrary set factor to enhance the field, to start kicking particles more... Default is 1. 
    
 public: 
     // Constructor takes a comm pointer, the file name where the Field is, and a a device Name. 
@@ -36,6 +37,8 @@ public:
     inline std::string get_device_name(size_t k=0) {if (subjectedDevices.size() == 0) return std::string("None");
                                                     return subjectedDevices[k]; }
     inline void add_device(const std::string &device) { subjectedDevices.push_back(device);}						    					   
+    inline void set_enhancing_factor(double f) { enhanceFactor;}						    					   
+    inline double get_enhancing_factor() const { return enhanceFactor;}						    					   
     template<class Archive>
         void
         save(Archive & ar, const unsigned int version) const;
