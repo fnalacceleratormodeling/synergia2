@@ -50,7 +50,9 @@ private:
     bool have_slice_lattice_functions;
     double horizontal_tune, vertical_tune;
     bool have_tunes;
-    std::map<Lattice_element *, Lattice_functions >
+    double horizontal_chromaticity, vertical_chromaticity;
+    bool have_chromaticities;
+std::map<Lattice_element *, Lattice_functions >
             lattice_functions_element_map;
     std::map<Lattice_element_slice *, Lattice_functions >
             lattice_functions_slice_map;
@@ -73,6 +75,10 @@ private:
     get_tunes();
     void calculate_normal_form();
     Normal_form_sage_sptr normal_form_sage_sptr;
+    void
+    get_chromaticities();
+    void
+    change_chromaticityBy ( double dh, double dv );
 public:
     Lattice_simulator(Lattice_sptr lattice, int map_order);
     // Default constructor for serialization use only
@@ -127,7 +133,16 @@ public:
             Lattice_elements const& horizontal_correctors,
             Lattice_elements const& vertical_correctors,
             double tolerance = 1.0e-6);
-    template<class Archive>
+   double
+    get_horizontal_chromaticity();
+    double
+    get_vertical_chromaticity();
+void
+     adjust_chromaticities(double horizontal_chromaticity,double vertical_chromaticity,
+        Lattice_elements const& horizontal_correctors,
+        Lattice_elements const& vertical_correctors, double tolerance = 1.0e-6, int max_steps=10);
+
+template<class Archive>
         void
         save(Archive & ar, const unsigned int version) const;
     template<class Archive>
