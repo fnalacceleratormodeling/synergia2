@@ -7,6 +7,7 @@ MadX_adaptor_map::MadX_adaptor_map() :
     boost::shared_ptr<Marker_madx_adaptor > marker_madx_adaptor(
             new Marker_madx_adaptor);
     set_adaptor("marker", marker_madx_adaptor);
+    set_adaptor("endmark", marker_madx_adaptor);
 
     boost::shared_ptr<Drift_madx_adaptor > drift_madx_adaptor(
             new Drift_madx_adaptor);
