@@ -7,7 +7,8 @@
 
 Ecloud_from_vorpal::Ecloud_from_vorpal():
 file_name_archive("none"),
-field_name("blank")
+field_name("blank"),
+enhanceFactor(1.0)
 {
 ;
 }
@@ -16,11 +17,12 @@ Ecloud_from_vorpal::Ecloud_from_vorpal(Commxx_sptr comm_sptr_in,
 file_name_archive(f_name_archive),
 comm_sptr(comm_sptr_in),
 e_field(comm_sptr_in, f_name_archive.c_str()),
-field_name("")
+field_name(""),
+enhanceFactor(1.0)
 {
   field_name += e_field.getVORPALJobName();
   subjectedDevices.push_back(aDeviceName);
-  std::cerr << "   Ecloud_from_vorpal::Ecloud_from_vorpal, defined, for device type " << aDeviceName << std::endl;
+//  std::cerr << "   Ecloud_from_vorpal::Ecloud_from_vorpal, defined, for device type " << aDeviceName << std::endl;
   
 } 
 
@@ -64,9 +66,9 @@ void Ecloud_from_vorpal::apply(Bunch & bunch, double time_step, Step & step, int
 	if ((part == partDump) && (my_rank == 0) && (verbosity > 3)) 
 	  std::cerr << " At x= " << x << " y " << y << " dz " << dz << " before kick px " << px << " py " << py << std::endl;
 	const double delta_px = e_field.GetFieldEX(x, y, dz) * fact; // in SI units. 
-	px += unit_conversion*delta_px; // adding in GeV/c 
+	px += enhanceFactor*unit_conversion*delta_px; // adding in GeV/c 
 	const double delta_py = e_field.GetFieldEX(x, y, dz) * fact; // in SI units. 
-	py += unit_conversion*delta_py; // adding in GeV/c 
+	py += enhanceFactor*unit_conversion*delta_py; // adding in GeV/c 
 	bunch.get_local_particles()[part][Bunch::xp] = px/p_ref;
 	bunch.get_local_particles()[part][Bunch::yp] = py/p_ref;
 	if ((part == partDump) && (my_rank == 0) && (verbosity > 3)) 
