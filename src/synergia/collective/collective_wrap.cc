@@ -61,6 +61,7 @@ BOOST_PYTHON_MODULE(collective)
                 init<Commxx_sptr, std::string, std::string >())
                 .def("apply", &Ecloud_from_vorpal::apply)
                 .def("add_device", &Ecloud_from_vorpal::add_device)
+		.def("set_enhancing_factor", &Ecloud_from_vorpal::set_enhancing_factor)
         ;
     
 
