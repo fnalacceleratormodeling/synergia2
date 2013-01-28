@@ -838,42 +838,38 @@ Multipole_madx_adaptor::get_chef_elements(
     std::vector<double > knl(lattice_element.get_vector_attribute("knl"));
     double nfactorial = 1.0;
     for (int moment = 0; moment < knl.size(); ++moment) {
-        if (knl[moment] != 0.0) {
-            std::stringstream element_name(stringstream::out);
-            element_name << lattice_element.get_name() << "_" << 2 * moment + 2
-                    << "pole";
-            ElmPtr elm(
-                    new ThinPole(element_name.str().c_str(),
-                            brho * knl[moment] / nfactorial, 2 * moment + 2));
-            if (tilt != 0.0) {
-                alignmentData aligner;
-                aligner.xOffset = 0.0;
-                aligner.yOffset = 0.0;
-                aligner.tilt = tilt;
-                elm->setAlignment(aligner);
-            }
-            retval.push_back(elm);
+        std::stringstream element_name(stringstream::out);
+        element_name << lattice_element.get_name() << "_" << 2 * moment + 2
+                << "pole";
+        ElmPtr elm(
+                new ThinPole(element_name.str().c_str(),
+                        brho * knl[moment] / nfactorial, 2 * moment + 2));
+        if (tilt != 0.0) {
+            alignmentData aligner;
+            aligner.xOffset = 0.0;
+            aligner.yOffset = 0.0;
+            aligner.tilt = tilt;
+            elm->setAlignment(aligner);
         }
+        retval.push_back(elm);
         nfactorial *= (moment + 1);
     }
 
     std::vector<double > ksl(lattice_element.get_vector_attribute("ksl"));
     nfactorial = 1.0;
     for (int moment = 0; moment < ksl.size(); ++moment) {
-        if (ksl[moment] != 0.0) {
-            std::stringstream element_name(stringstream::out);
-            element_name << lattice_element.get_name() << "_skew"
-                    << 2 * moment + 2 << "pole";
-            ElmPtr elm(
-                    new ThinPole(element_name.str().c_str(),
-                            brho * ksl[moment] / nfactorial, 2 * moment + 2));
-            alignmentData aligner;
-            aligner.xOffset = 0.0;
-            aligner.yOffset = 0.0;
-            aligner.tilt = mconstants::pi / (2 * moment + 2) + tilt;
-            elm->setAlignment(aligner);
-            retval.push_back(elm);
-        }
+        std::stringstream element_name(stringstream::out);
+        element_name << lattice_element.get_name() << "_skew" << 2 * moment + 2
+                << "pole";
+        ElmPtr elm(
+                new ThinPole(element_name.str().c_str(),
+                        brho * ksl[moment] / nfactorial, 2 * moment + 2));
+        alignmentData aligner;
+        aligner.xOffset = 0.0;
+        aligner.yOffset = 0.0;
+        aligner.tilt = mconstants::pi / (2 * moment + 2) + tilt;
+        elm->setAlignment(aligner);
+        retval.push_back(elm);
         nfactorial *= (moment + 1);
     }
     return retval;
@@ -1568,6 +1564,26 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Monitor_madx_adaptor)
 Instrument_madx_adaptor::Instrument_madx_adaptor()
 {
     get_default_element().set_double_attribute("l", 0.0);
+}
+
+Chef_elements
+Instrument_madx_adaptor::get_chef_elements(
+        Lattice_element const& lattice_element, double brho)
+{
+    Chef_elements retval;
+
+    bmlnElmnt* bmln_elmnt;
+
+    double lenmon = lattice_element.get_double_attribute("l");
+    bmln_elmnt = new monitor(lattice_element.get_name().c_str());
+    if (lenmon > 0.0) {
+        bmln_elmnt->setLength(lenmon);
+    }
+
+    ElmPtr elm(bmln_elmnt);
+    retval.push_back(elm);
+
+    return retval;
 }
 
 template<class Archive>
