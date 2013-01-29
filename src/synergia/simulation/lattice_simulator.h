@@ -16,7 +16,7 @@
 #include <string>
 #include "synergia/utils/serialization.h"
 
-typedef boost::shared_ptr<normalFormSage> Normal_form_sage_sptr;
+typedef boost::shared_ptr<normalFormSage > Normal_form_sage_sptr;
 
 struct Lattice_functions
 {
@@ -52,13 +52,11 @@ private:
     bool have_tunes;
     double horizontal_chromaticity, vertical_chromaticity;
     bool have_chromaticities;
-std::map<Lattice_element *, Lattice_functions >
-            lattice_functions_element_map;
-    std::map<Lattice_element_slice *, Lattice_functions >
-            lattice_functions_slice_map;
+    std::map<Lattice_element *, Lattice_functions > lattice_functions_element_map;
+    std::map<Lattice_element_slice *, Lattice_functions > lattice_functions_slice_map;
     MArray2d linear_one_turn_map;
-	void
-	construct_extractor_map();
+    void
+    construct_extractor_map();
     void
     construct_aperture_extractor_map();
     void
@@ -73,12 +71,11 @@ std::map<Lattice_element *, Lattice_functions >
     construct_sliced_chef_beamline();
     void
     get_tunes();
-    void calculate_normal_form();
+    void
+    calculate_normal_form();
     Normal_form_sage_sptr normal_form_sage_sptr;
     void
     get_chromaticities();
-    void
-    change_chromaticityBy ( double dh, double dv );
 public:
     Lattice_simulator(Lattice_sptr lattice, int map_order);
     // Default constructor for serialization use only
@@ -114,7 +111,7 @@ public:
     get_lattice_functions(Lattice_element & lattice_element);
     Lattice_functions const&
     get_lattice_functions(Lattice_element_slice & lattice_element_slice);
-    std::pair<double, double>
+    std::pair<double, double >
     get_both_tunes();
     double
     get_horizontal_tune();
@@ -122,27 +119,36 @@ public:
     get_vertical_tune();
     bool
     is_ring();
-    Normal_form_sage_sptr get_normal_form_sptr();
-    Const_MArray2d_ref get_linear_one_turn_map();
-    void convert_human_to_normal(MArray2d_ref coords);
-    void convert_normal_to_human(MArray2d_ref coords);
-    bool check_linear_normal_form();
-    std::vector<double> get_stationary_actions(const double stdx, const double stdy, const double std_cdt);
+    Normal_form_sage_sptr
+    get_normal_form_sptr();
+    Const_MArray2d_ref
+    get_linear_one_turn_map();
+    void
+    convert_human_to_normal(MArray2d_ref coords);
+    void
+    convert_normal_to_human(MArray2d_ref coords);
+    bool
+    check_linear_normal_form();
+    std::vector<double >
+    get_stationary_actions(const double stdx, const double stdy,
+            const double std_cdt);
     void
     adjust_tunes(double horizontal_tune, double vertical_tune,
             Lattice_elements const& horizontal_correctors,
-            Lattice_elements const& vertical_correctors,
-            double tolerance = 1.0e-6);
-   double
+            Lattice_elements const& vertical_correctors, double tolerance =
+                    1.0e-6);
+    double
     get_horizontal_chromaticity();
     double
     get_vertical_chromaticity();
-void
-     adjust_chromaticities(double horizontal_chromaticity,double vertical_chromaticity,
-        Lattice_elements const& horizontal_correctors,
-        Lattice_elements const& vertical_correctors, double tolerance = 1.0e-6, int max_steps=10);
+    void
+    adjust_chromaticities(double horizontal_chromaticity,
+            double vertical_chromaticity,
+            Lattice_elements const& horizontal_correctors,
+            Lattice_elements const& vertical_correctors, double tolerance =
+                    1.0e-6, int max_steps = 10);
 
-template<class Archive>
+    template<class Archive>
         void
         save(Archive & ar, const unsigned int version) const;
     template<class Archive>
