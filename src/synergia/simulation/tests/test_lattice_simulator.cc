@@ -331,10 +331,10 @@ BOOST_FIXTURE_TEST_CASE(adjust_chromaticities, Fosobodosobo_sbend_fixture)
     const int map_order = 1;
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     const double tolerance = 1.0e-3;
-    double chrH = lattice_simulator.get_horizontal_chromaticity();
-    double chrV = lattice_simulator.get_vertical_chromaticity();
-    std::cout << "begin chromaticities (H,V):  (" << chrH << " ,  " << chrV
-            << ")" << std::endl;
+    double chr_h = lattice_simulator.get_horizontal_chromaticity();
+    double chr_v = lattice_simulator.get_vertical_chromaticity();
+//    std::cout << "begin chromaticities (H,V):  (" << chr_h << " ,  " << chr_v
+//            << ")" << std::endl;
 
     Lattice_elements horizontal_correctors;
     Lattice_elements vertical_correctors;
@@ -348,15 +348,19 @@ BOOST_FIXTURE_TEST_CASE(adjust_chromaticities, Fosobodosobo_sbend_fixture)
             vertical_correctors.push_back(*it);
         }
     }
-    lattice_simulator.adjust_chromaticities(-3., -3, horizontal_correctors,
+    const double newchr_h = -2.9;
+    const double newchr_v = -3.1;
+    lattice_simulator.adjust_chromaticities(newchr_h, newchr_v, horizontal_correctors,
             vertical_correctors, 1.0e-6, 5);
 
-    chrH = lattice_simulator.get_horizontal_chromaticity();
-    chrV = lattice_simulator.get_vertical_chromaticity();
+    chr_h = lattice_simulator.get_horizontal_chromaticity();
+    chr_v = lattice_simulator.get_vertical_chromaticity();
 
-    std::cout << "final chromaticities (H,V):  (" << chrH << " ,  " << chrV
-            << ")" << std::endl;
-
+//    std::cout << "final chromaticities (H,V):  (" << chr_h << " ,  " << chr_v
+//            << ")" << std::endl;
+    const double chrom_tolerance = 5.0e-7;
+    BOOST_CHECK_CLOSE(chr_h, newchr_h, chrom_tolerance);
+    BOOST_CHECK_CLOSE(chr_v, newchr_v, chrom_tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(is_ring, Foborodobo32_fixture)
