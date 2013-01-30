@@ -161,24 +161,11 @@ MadX_reader::get_lattice_sptr(std::string const& line_name)
         MadX_sequence sequence(madx_sptr->sequence(line_name));
         double total_length = sequence.length();
         double current_pos = 0.0;
-        const double min_drift_length = 1.0e-9;
+        const double min_drift_length = 1.0e-6;
         int drift_count = 0;
         int drift_digits = digits(sequence.element_count());
         for (int i = 0; i < sequence.element_count(); ++i) {
             double at = sequence.element(i, false).attribute_as_number("at");
-            double drift_length = at - current_pos;
-            if (drift_length > min_drift_length) {
-                std::stringstream name_stream;
-                name_stream << "auto_drift";
-                name_stream << "_";
-                name_stream << std::setw(drift_digits);
-                name_stream << std::setfill('0');
-                name_stream << drift_count;
-                Lattice_element drift("drift", name_stream.str());
-                drift.set_double_attribute("l", drift_length, false);
-                lattice_sptr->append(drift);
-                ++drift_count;
-            }
             std::string name(sequence.element(i, false).label());
             if (name == "") {
                 name = sequence.element(i, true).label();
@@ -224,8 +211,21 @@ MadX_reader::get_lattice_sptr(std::string const& line_name)
                                     + " of element " + name);
                 }
             }
+            double drift_length = at - current_pos - element.get_length() * 0.5;
+            if (drift_length > min_drift_length) {
+                std::stringstream name_stream;
+                name_stream << "auto_drift";
+                name_stream << "_";
+                name_stream << std::setw(drift_digits);
+                name_stream << std::setfill('0');
+                name_stream << drift_count;
+                Lattice_element drift("drift", name_stream.str());
+                drift.set_double_attribute("l", drift_length, false);
+                lattice_sptr->append(drift);
+                ++drift_count;
+            }
             lattice_sptr->append(element);
-            current_pos = at + element.get_length();
+            current_pos = at + element.get_length() * 0.5;
         }
         double final_drift_length = sequence.length() - current_pos;
         if (final_drift_length > min_drift_length) {
