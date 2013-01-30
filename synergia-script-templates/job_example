@@ -1,4 +1,5 @@
 #!/bin/sh
+#synergia_workflow_submitter:/bin/sh
 cd @@jobdir@@ && \
 (time mpirun -np @@numproc@@ @@synergia_executable@@ @@script@@ @@args@@ ; \
 echo "synergia finished with exit status $?")
