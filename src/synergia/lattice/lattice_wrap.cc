@@ -1,9 +1,13 @@
 #include "lattice_element.h"
 #include "element_adaptor.h"
+#include "element_adaptor_map.h"
+#include "mad8_adaptor_map.h"
+#include "madx_adaptor_map.h"
 #include "lattice.h"
 #include "lattice_diagnostics.h"
 #include "chef_lattice.h"
 #include "chef_utils.h"
+#include "madx_reader.h"
 #include <boost/python.hpp>
 #include <boost/python/dict.hpp>
 #include "synergia/utils/container_conversions.h"
@@ -39,11 +43,42 @@ get_string_attributes_workaround(Lattice_element const& lattice_element)
     return retval;
 }
 
+// jfa: ideally, this would be done through a container conversion.
+// This implementation is simpler, if less general.
+dict
+get_vector_attributes_workaround(Lattice_element const& lattice_element)
+{
+    dict retval;
+    for (std::map<std::string, std::vector<double > >::const_iterator it =
+            lattice_element.get_vector_attributes().begin(); it
+            != lattice_element.get_vector_attributes().end(); ++it) {
+        retval[it->first] = it->second;
+    }
+    return retval;
+}
+
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_set_double_attribute_overloads,
         set_double_attribute, 2, 3);
 
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_set_string_attribute_overloads,
         set_string_attribute, 2, 3);
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_set_vector_attribute_overloads,
+        set_vector_attribute, 2, 3);
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_has_double_attribute_overloads,
+        has_double_attribute, 1, 2);
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_has_string_attribute_overloads,
+        has_string_attribute, 1, 2);
+
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(Lattice_element_has_vector_attribute_overloads,
+        has_vector_attribute, 1, 2);
+
+Lattice_sptr (MadX_reader::*get_lattice_sptr1)(std::string const&)
+        =&MadX_reader::get_lattice_sptr;
+Lattice_sptr (MadX_reader::*get_lattice_sptr2)(std::string const&, std::string const&)
+        =&MadX_reader::get_lattice_sptr;
 
 BOOST_PYTHON_FUNCTION_OVERLOADS(xml_save_lattice_overloads23,
         xml_save<Lattice >, 2, 3)
@@ -65,15 +100,24 @@ BOOST_PYTHON_MODULE(lattice)
                 return_value_policy<copy_const_reference>())
         .def("set_double_attribute", &Lattice_element::set_double_attribute,
                 Lattice_element_set_double_attribute_overloads())
-        .def("has_double_attribute", &Lattice_element::has_double_attribute)
+        .def("has_double_attribute", &Lattice_element::has_double_attribute,
+                Lattice_element_has_double_attribute_overloads())
         .def("get_double_attribute", &Lattice_element::get_double_attribute)
         .def("get_double_attributes", get_double_attributes_workaround)
         .def("set_string_attribute", &Lattice_element::set_string_attribute,
                 Lattice_element_set_string_attribute_overloads())
-        .def("has_string_attribute", &Lattice_element::has_string_attribute)
+        .def("has_string_attribute", &Lattice_element::has_string_attribute,
+                Lattice_element_has_string_attribute_overloads())
         .def("get_string_attribute", &Lattice_element::get_string_attribute,
                 return_value_policy<copy_const_reference>())
         .def("get_string_attributes", get_string_attributes_workaround)
+        .def("set_vector_attribute", &Lattice_element::set_vector_attribute,
+                Lattice_element_set_vector_attribute_overloads())
+        .def("has_vector_attribute", &Lattice_element::has_vector_attribute,
+                Lattice_element_has_vector_attribute_overloads())
+        .def("get_vector_attribute", &Lattice_element::get_vector_attribute,
+                return_value_policy<copy_const_reference>())
+        .def("get_vector_attributes", get_vector_attributes_workaround)
         .def("set_length_attribute_name", &Lattice_element::set_length_attribute_name)
         .def("set_bend_angle_attribute_name", &Lattice_element::set_bend_angle_attribute_name)
         .def("get_length", &Lattice_element::get_length)
@@ -112,15 +156,29 @@ BOOST_PYTHON_MODULE(lattice)
     class_<Element_adaptor, Element_adaptor_sptr >("Element_adaptor", init<>())
             .def("set_double_default", &Element_adaptor::set_double_default)
             .def("set_string_default", &Element_adaptor::set_string_default)
-            .def("set_default_attributes", &Element_adaptor::set_default_attributes)
+            .def("set_defaults", &Element_adaptor::set_defaults)
             .def("get_chef_elements", &Element_adaptor::get_chef_elements)
             ;
 
-    class_<Element_adaptor_map >("Element_adaptor_map", init<>())
+    class_<Element_adaptor_map, Element_adaptor_map_sptr, boost::noncopyable >("Element_adaptor_map", no_init)
             .def("set_adaptor", &Element_adaptor_map::set_adaptor)
             .def("has_adaptor", &Element_adaptor_map::has_adaptor)
             .def("get_adaptor", &Element_adaptor_map::get_adaptor)
             .def("get_adaptor_names", &Element_adaptor_map::get_adaptor_names)
+            ;
+
+    class_<Mad8_adaptor_map, Mad8_adaptor_map_sptr, bases<Element_adaptor_map > >("Mad8_adaptor_map", init<>())
+//            .def("set_adaptor", &Mad8_adaptor_map::set_adaptor)
+//            .def("has_adaptor", &Mad8_adaptor_map::has_adaptor)
+//            .def("get_adaptor", &Mad8_adaptor_map::get_adaptor)
+//            .def("get_adaptor_names", &Mad8_adaptor_map::get_adaptor_names)
+            ;
+
+    class_<MadX_adaptor_map, MadX_adaptor_map_sptr, bases<Element_adaptor_map > >("MadX_adaptor_map", init<>())
+//            .def("set_adaptor", &MadX_adaptor_map::set_adaptor)
+//            .def("has_adaptor", &MadX_adaptor_map::has_adaptor)
+//            .def("get_adaptor", &MadX_adaptor_map::get_adaptor)
+//            .def("get_adaptor_names", &MadX_adaptor_map::get_adaptor_names)
             ;
 
     class_<Lattice, Lattice_sptr >("Lattice", init<std::string const& >())
@@ -143,7 +201,6 @@ BOOST_PYTHON_MODULE(lattice)
             ;
 
     class_<Chef_lattice, Chef_lattice_sptr >("Chef_lattice", init<Lattice_sptr>())
-            .def(init<Lattice_sptr, Element_adaptor_map_sptr>())
 //            .def("get_chef_elements", &Chef_lattice::get_chef_elements,
 //                    return_value_policy<copy_non_const_reference >())
             .def("get_beamline", &Chef_lattice::get_beamline_sptr)
@@ -163,6 +220,17 @@ BOOST_PYTHON_MODULE(lattice)
         .def("write", &Lattice_diagnostics::write)
         .def("update_and_write", &Lattice_diagnostics::update_and_write)
         ;
+
+    class_<MadX_reader>("MadX_reader", init<>())
+            .def(init<Element_adaptor_map_sptr >())
+            .def("parse", &MadX_reader::parse)
+            .def("parse_file", &MadX_reader::parse_file)
+            .def("get_double_variable", &MadX_reader::get_double_variable)
+            .def("get_string_variable", &MadX_reader::get_string_variable)
+            .def("get_line_names", &MadX_reader::get_line_names)
+            .def("get_lattice", get_lattice_sptr1)
+            .def("get_lattice", get_lattice_sptr2)
+            ;
 
     def("print_chef_beamline", print_chef_beamline);
     def("reference_particle_to_chef_particle",

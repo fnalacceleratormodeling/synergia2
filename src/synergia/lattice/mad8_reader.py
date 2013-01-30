@@ -2,7 +2,7 @@
 import os, stat, sys, hashlib
 
 from synergia.lattice import Mad8_parser
-from synergia.lattice import Lattice_element, Element_adaptor_map, Lattice
+from synergia.lattice import Lattice_element, Mad8_adaptor_map, Lattice
 from synergia.lattice import binary_save_lattice, binary_load_lattice
 from synergia.foundation import pconstants, Four_momentum, Reference_particle
 from mpi4py import MPI
@@ -69,7 +69,7 @@ class Lattice_cache:
             index = self.cache[self.line_name].index
             try:
                 binary_load_lattice(retval, self._binary_file_name(index))
-            except RuntimeError, e:
+            except:
                 retval = None
         return retval
 
@@ -105,7 +105,7 @@ class Mad8_reader:
         if element_adaptor_map:
             self.element_adaptor_map = element_adaptor_map
         else:
-            self.element_adaptor_map = Element_adaptor_map()
+            self.element_adaptor_map = Mad8_adaptor_map()
         self.parser = None
 
     def get_element_adaptor_map(self):

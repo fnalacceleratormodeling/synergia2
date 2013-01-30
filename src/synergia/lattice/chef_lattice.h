@@ -41,7 +41,6 @@ private:
 
     Lattice_sptr lattice_sptr;
     Lattice_element_slices slices;
-    Element_adaptor_map_sptr element_adaptor_map_sptr;
     BmlPtr beamline_sptr;
     BmlPtr sliced_beamline_sptr;
     Lattice_element_slices lattice_element_slices;
@@ -69,14 +68,10 @@ private:
     construct();
 public:
     Chef_lattice(Lattice_sptr lattice_sptr);
-    Chef_lattice(Lattice_sptr lattice_sptr,
-            Element_adaptor_map_sptr element_adaptor_map_sptr);
     double
     get_brho() const;
     // Default constructor for serialization use only
     Chef_lattice();
-    Element_adaptor_map_sptr
-    get_element_adaptor_map_sptr();
     Chef_elements
     get_chef_elements(Lattice_element & lattice_element);
 // jfa: the following method tickles a bug in Boost <= 1.42

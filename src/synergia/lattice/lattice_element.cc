@@ -5,35 +5,29 @@
 #include <sstream>
 
 Lattice_element::Lattice_element() :
-    type(""), name(""), ancestors(), double_attributes(), string_attributes(),
-            length_attribute_name("l"), bend_angle_attribute_name("angle"),
-            revision(0), needs_internal_derive(false),
-            needs_external_derive(false)
+        type(""), name(""), default_element_sptr(), ancestors(), double_attributes(), string_attributes(), length_attribute_name(
+                "l"), bend_angle_attribute_name("angle"), revision(0), needs_internal_derive(
+                false), needs_external_derive(false)
 {
 
 }
 
 Lattice_element::Lattice_element(std::string const& type,
         std::string const& name) :
-    type(type), name(name), ancestors(), double_attributes(),
-            string_attributes(), length_attribute_name("l"),
-            bend_angle_attribute_name("angle"), revision(0),
-            needs_internal_derive(false), needs_external_derive(false)
+        type(type), name(name), default_element_sptr(), ancestors(), double_attributes(), string_attributes(), length_attribute_name(
+                "l"), bend_angle_attribute_name("angle"), revision(0), needs_internal_derive(
+                false), needs_external_derive(false)
 {
 
 }
 
 Lattice_element::Lattice_element(Lattice_element const& lattice_element) :
-            type(lattice_element.type),
-            name(lattice_element.name),
-            ancestors(),
-            double_attributes(),
-            string_attributes(),
-            length_attribute_name(lattice_element.length_attribute_name),
-            bend_angle_attribute_name(lattice_element.bend_angle_attribute_name),
-            revision(0),
-            needs_internal_derive(lattice_element.needs_internal_derive),
-            needs_external_derive(lattice_element.needs_external_derive)
+        type(lattice_element.type), name(lattice_element.name), default_element_sptr(
+                lattice_element.default_element_sptr), ancestors(), double_attributes(), string_attributes(), length_attribute_name(
+                lattice_element.length_attribute_name), bend_angle_attribute_name(
+                lattice_element.bend_angle_attribute_name), revision(0), needs_internal_derive(
+                lattice_element.needs_internal_derive), needs_external_derive(
+                lattice_element.needs_external_derive)
 {
     std::copy(lattice_element.ancestors.begin(),
             lattice_element.ancestors.end(),
@@ -44,6 +38,9 @@ Lattice_element::Lattice_element(Lattice_element const& lattice_element) :
     std::copy(lattice_element.string_attributes.begin(),
             lattice_element.string_attributes.end(),
             std::inserter(string_attributes, string_attributes.begin()));
+    std::copy(lattice_element.vector_attributes.begin(),
+            lattice_element.vector_attributes.end(),
+            std::inserter(vector_attributes, vector_attributes.begin()));
 }
 
 std::string const &
@@ -56,6 +53,12 @@ std::string const &
 Lattice_element::get_name() const
 {
     return name;
+}
+
+void
+Lattice_element::set_default_element(Lattice_element_sptr default_element_sptr)
+{
+    this->default_element_sptr = default_element_sptr;
 }
 
 void
@@ -81,9 +84,14 @@ Lattice_element::set_double_attribute(std::string const& name, double value,
 }
 
 bool
-Lattice_element::has_double_attribute(std::string const& name) const
+Lattice_element::has_double_attribute(std::string const& name,
+        bool include_default) const
 {
-    return (double_attributes.count(name) > 0);
+    bool retval = (double_attributes.count(name) > 0);
+    if ((!retval) && include_default && default_element_sptr) {
+        retval = default_element_sptr->has_double_attribute(name, false);
+    }
+    return retval;
 }
 
 double
@@ -92,12 +100,18 @@ Lattice_element::get_double_attribute(std::string const& name) const
     std::map<std::string, double >::const_iterator result =
             double_attributes.find(name);
     if (result == double_attributes.end()) {
-        throw std::runtime_error(
-                "Lattice_element::get_double_attribute: element " + this->name
-                        + " of type " + type + " has no double attribute '"
-                        + name + "'");
+        if (default_element_sptr
+                && default_element_sptr->has_double_attribute(name, false)) {
+            return default_element_sptr->get_double_attribute(name);
+        } else {
+            throw std::runtime_error(
+                    "Lattice_element::get_double_attribute: element "
+                            + this->name + " of type " + type
+                            + " has no double attribute '" + name + "'");
+        }
+    } else {
+        return result->second;
     }
-    return result->second;
 }
 
 std::map<std::string, double > const &
@@ -117,9 +131,14 @@ Lattice_element::set_string_attribute(std::string const& name,
 }
 
 bool
-Lattice_element::has_string_attribute(std::string const& name) const
+Lattice_element::has_string_attribute(std::string const& name,
+        bool include_default) const
 {
-    return (string_attributes.count(name) > 0);
+    bool retval = (string_attributes.count(name) > 0);
+    if ((!retval) && include_default && default_element_sptr) {
+        retval = default_element_sptr->has_string_attribute(name, false);
+    }
+    return retval;
 }
 
 std::string const&
@@ -128,12 +147,71 @@ Lattice_element::get_string_attribute(std::string const& name) const
     std::map<std::string, std::string >::const_iterator result =
             string_attributes.find(name);
     if (result == string_attributes.end()) {
-        throw std::runtime_error(
-                "Lattice_element::get_string_attribute: element " + this->name
-                        + " of type " + type + " has no string attribute '"
-                        + name + "'");
+        if (default_element_sptr
+                && default_element_sptr->has_string_attribute(name, false)) {
+            return default_element_sptr->get_string_attribute(name);
+        } else {
+            throw std::runtime_error(
+                    "Lattice_element::get_string_attribute: element "
+                            + this->name + " of type " + type
+                            + " has no string attribute '" + name + "'");
+        }
+    } else {
+        return result->second;
     }
-    return result->second;
+}
+
+std::map<std::string, std::string > const &
+Lattice_element::get_string_attributes() const
+{
+    return string_attributes;
+}
+
+void
+Lattice_element::set_vector_attribute(std::string const& name,
+        std::vector<double > const& value, bool increment_revision)
+{
+    vector_attributes[name] = value;
+    if (increment_revision) {
+        ++revision;
+    }
+}
+
+bool
+Lattice_element::has_vector_attribute(std::string const& name,
+        bool include_default) const
+{
+    bool retval = (vector_attributes.count(name) > 0);
+    if ((!retval) && include_default && default_element_sptr) {
+        retval = default_element_sptr->has_vector_attribute(name, false);
+    }
+    return retval;
+}
+
+std::vector<double > const&
+Lattice_element::get_vector_attribute(std::string const& name) const
+{
+    std::map<std::string, std::vector<double > >::const_iterator result =
+            vector_attributes.find(name);
+    if (result == vector_attributes.end()) {
+        if (default_element_sptr
+                && default_element_sptr->has_vector_attribute(name, false)) {
+            return default_element_sptr->get_vector_attribute(name);
+        } else {
+            throw std::runtime_error(
+                    "Lattice_element::get_vector_attribute: element "
+                            + this->name + " of type " + type
+                            + " has no vector attribute '" + name + "'");
+        }
+    } else {
+        return result->second;
+    }
+}
+
+std::map<std::string, std::vector<double > > const &
+Lattice_element::get_vector_attributes() const
+{
+    return vector_attributes;
 }
 
 void
@@ -147,12 +225,6 @@ Lattice_element::set_bend_angle_attribute_name(
         std::string const& attribute_name)
 {
     bend_angle_attribute_name = attribute_name;
-}
-
-std::map<std::string, std::string > const &
-Lattice_element::get_string_attributes() const
-{
-    return string_attributes;
 }
 
 void
@@ -213,8 +285,8 @@ std::string
 Lattice_element::as_string() const
 {
     std::stringstream sstream;
-    for (std::list<std::string >::const_iterator it = ancestors.begin(); it
-            != ancestors.end(); ++it) {
+    for (std::list<std::string >::const_iterator it = ancestors.begin();
+            it != ancestors.end(); ++it) {
         sstream << (*it) << ":";
     }
     sstream << " " << type << " ";
@@ -251,15 +323,18 @@ template<class Archive>
     void
     Lattice_element::serialize(Archive & ar, const unsigned int version)
     {
-        ar & BOOST_SERIALIZATION_NVP(type) & BOOST_SERIALIZATION_NVP(name)
-                & BOOST_SERIALIZATION_NVP(ancestors)
-                & BOOST_SERIALIZATION_NVP(double_attributes)
-                & BOOST_SERIALIZATION_NVP(string_attributes)
-                & BOOST_SERIALIZATION_NVP(length_attribute_name)
-                & BOOST_SERIALIZATION_NVP(bend_angle_attribute_name)
-                & BOOST_SERIALIZATION_NVP(revision)
-                & BOOST_SERIALIZATION_NVP(needs_internal_derive)
-                & BOOST_SERIALIZATION_NVP(needs_external_derive);
+        ar & BOOST_SERIALIZATION_NVP(type)
+        & BOOST_SERIALIZATION_NVP(name)
+        & BOOST_SERIALIZATION_NVP(default_element_sptr)
+        & BOOST_SERIALIZATION_NVP(ancestors)
+        & BOOST_SERIALIZATION_NVP(double_attributes)
+        & BOOST_SERIALIZATION_NVP(string_attributes)
+        & BOOST_SERIALIZATION_NVP(vector_attributes)
+        & BOOST_SERIALIZATION_NVP(length_attribute_name)
+        & BOOST_SERIALIZATION_NVP(bend_angle_attribute_name)
+        & BOOST_SERIALIZATION_NVP(revision)
+        & BOOST_SERIALIZATION_NVP(needs_internal_derive)
+        & BOOST_SERIALIZATION_NVP(needs_external_derive);
     }
 
 template

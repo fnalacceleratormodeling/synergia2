@@ -6,6 +6,7 @@ set(tools
     synpoincareplot
     synbeamplot
     synlatticeview
+    synlatticefns
     synprintmaps
     synpart2txt
     syntrack2txt
@@ -25,6 +26,7 @@ install(FILES
     poincare_plot.py
     beam_plot.py
     lattice_view.py
+    lattice_fns.py
     print_maps.py
     particles_to_text.py
     tracks_to_text.py

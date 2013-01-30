@@ -60,12 +60,12 @@ Chef_lattice::construct_beamline()
             lattice_sptr->get_elements().begin(); latt_it
             != lattice_sptr->get_elements().end(); ++latt_it) {
         std::string type((*latt_it)->get_type());
-        if (!element_adaptor_map_sptr->has_adaptor(type)) {
+        if (!lattice_sptr->get_element_adaptor_map().has_adaptor(type)) {
             throw(runtime_error("Chef_lattice: " + type + " not handled"));
         } else {
             Chef_elements
                     celms =
-                            element_adaptor_map_sptr->get_adaptor(type)->get_chef_elements(
+                            lattice_sptr->get_element_adaptor_map().get_adaptor(type)->get_chef_elements(
                                     *(*latt_it), brho);
             for (Chef_elements::const_iterator cel_it = celms.begin(); cel_it
                     != celms.end(); ++cel_it) {
@@ -156,7 +156,7 @@ Chef_lattice::extract_element_slice_map(Lattice_element_slices const& slices)
 void
 Chef_lattice::construct()
 {
-    lattice_sptr->complete_attributes(*element_adaptor_map_sptr);
+    lattice_sptr->complete_attributes();
     sliced_beamline_sptr = BmlPtr(new beamline("sliced"));
     have_sliced_beamline_ = false;
     if (!lattice_sptr->has_reference_particle()) {
@@ -170,17 +170,7 @@ Chef_lattice::construct()
 }
 
 Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr) :
-        lattice_sptr(lattice_sptr), element_adaptor_map_sptr(
-                new Element_adaptor_map), beamline_sptr(), lattice_element_marker(
-                new marker(internal_marker_name))
-{
-    construct();
-}
-
-Chef_lattice::Chef_lattice(Lattice_sptr lattice_sptr,
-        Element_adaptor_map_sptr element_adaptor_map_sptr) :
-        lattice_sptr(lattice_sptr), element_adaptor_map_sptr(
-                element_adaptor_map_sptr), beamline_sptr(), lattice_element_marker(
+        lattice_sptr(lattice_sptr), beamline_sptr(), lattice_element_marker(
                 new marker(internal_marker_name))
 {
     construct();
@@ -194,12 +184,6 @@ Chef_lattice::get_brho() const
 
 Chef_lattice::Chef_lattice()
 {
-}
-
-Element_adaptor_map_sptr
-Chef_lattice::get_element_adaptor_map_sptr()
-{
-    return element_adaptor_map_sptr;
 }
 
 Chef_elements
@@ -269,7 +253,7 @@ slice_chef_element(ElmPtr & elm, double left, double right, double tolerance)
 Chef_elements
 Chef_lattice::get_chef_elements_from_slice(Lattice_element_slice const& slice)
 {
-    Chef_elements all_elements = element_adaptor_map_sptr->get_adaptor(
+    Chef_elements all_elements = lattice_sptr->get_element_adaptor_map().get_adaptor(
             slice.get_lattice_element().get_type())->get_chef_elements(
             slice.get_lattice_element(), brho);
     Chef_elements retval;
@@ -448,7 +432,6 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_NVP(lattice_sptr);
         ar & BOOST_SERIALIZATION_NVP(slices);
-        ar & BOOST_SERIALIZATION_NVP(element_adaptor_map_sptr);
         ar & BOOST_SERIALIZATION_NVP(have_sliced_beamline_);
         ar & BOOST_SERIALIZATION_NVP(brho);
     }
@@ -459,7 +442,6 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_NVP(lattice_sptr);
         ar & BOOST_SERIALIZATION_NVP(slices);
-        ar & BOOST_SERIALIZATION_NVP(element_adaptor_map_sptr);
         ar & BOOST_SERIALIZATION_NVP(have_sliced_beamline_);
         ar & BOOST_SERIALIZATION_NVP(brho);
         lattice_element_marker = ElmPtr(

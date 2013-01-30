@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys
+import sys, os.path
 import synergia
 from matplotlib import pyplot
 from math import sin, cos, pi
@@ -98,7 +98,9 @@ def do_help():
     print "usage: synlatticeview <filename> <lattice> [option1] ... [optionn]"
     print "available options are:"
     print "    --nolegend : do not show legend"
-    print "    --highlight=name : highlight line 'name'"
+    print "    --highlight=<name> : highlight line <name>"
+    print "    --reader=<type> : use lattice reader <type> (\"mad8\" or \"madx\")"
+    print "                    : default reader is madx for *.madx files, mad8 otherwise"
     sys.exit(0)
 
 def handle_args(args):
@@ -107,6 +109,7 @@ def handle_args(args):
     options = Options()
     options.lattice_file = args[0]
     options.lattice = args[1]
+    options.reader = None
     for arg in args[2:]:
         if arg == '--help':
             do_help(plotparams)
@@ -115,13 +118,27 @@ def handle_args(args):
         elif arg.find('--highlight') == 0:
             highlight = arg.split('=')[1]
             options.highlight = highlight
+        elif arg.find('--reader') == 0:
+            reader = arg.split('=')[1]
+            options.reader = reader
         else:
             do_error('Unknown argument "%s"' % arg)
+    if not options.reader:
+        if os.path.splitext(options.lattice_file)[1] == '.madx':
+            options.reader = 'madx'
+        else:
+            options.reader = 'mad8'
+    if (options.reader != 'madx') and (options.reader != 'mad8'):
+        do_error("reader must be either 'mad8' or 'madx'")
     return options
 
 def do_plot(options):
-    lattice = synergia.lattice.Mad8_reader().get_lattice(options.lattice,
-                                                         options.lattice_file)
+    if options.reader == 'madx':
+        lattice = synergia.lattice.MadX_reader().get_lattice(options.lattice,
+                                                             options.lattice_file)
+    else:
+        lattice = synergia.lattice.Mad8_reader().get_lattice(options.lattice,
+                                                             options.lattice_file)
     attributes = get_attributes()
     pyplot.figure().canvas.set_window_title('Synergia Lattice Viewer')
     x = 0.0

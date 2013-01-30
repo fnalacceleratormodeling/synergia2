@@ -36,10 +36,15 @@ target_link_libraries(test_element_adaptor synergia_lattice synergia_foundation
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_element_adaptor ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_element_adaptor)
 
-add_test_executable(test_element_adaptor_map test_element_adaptor_map.cc)
-target_link_libraries(test_element_adaptor_map synergia_lattice synergia_foundation
+add_test_executable(test_mad8_adaptor_map test_mad8_adaptor_map.cc)
+target_link_libraries(test_mad8_adaptor_map synergia_lattice synergia_foundation
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(test_element_adaptor_map ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_element_adaptor_map)
+add_test(test_mad8_adaptor_map ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_mad8_adaptor_map)
+
+add_test_executable(test_madx_adaptor_map test_madx_adaptor_map.cc)
+target_link_libraries(test_madx_adaptor_map synergia_lattice synergia_foundation
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_madx_adaptor_map ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_madx_adaptor_map)
 
 add_test_executable(test_chef_lattice test_chef_lattice.cc)
 target_link_libraries(test_chef_lattice synergia_lattice synergia_foundation
@@ -51,6 +56,20 @@ add_test_executable(test_chef_lattice_section test_chef_lattice_section.cc)
 target_link_libraries(test_chef_lattice_section synergia_lattice synergia_foundation
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_chef_lattice_section ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_chef_lattice_section)
+
+add_test_executable(test_madx_parser test_madx_parser.cc)
+target_link_libraries(test_madx_parser synergia_lattice
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_madx_parser ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1  test_madx_parser)
+
+add_test_executable(test_madx_reader test_madx_reader.cc)
+target_link_libraries(test_madx_reader synergia_lattice
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_madx_reader ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1  test_madx_reader)
+
+add_test_executable(jfa jfa.cc)
+target_link_libraries(jfa synergia_lattice
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
 add_test(test_mad8_parser ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_mad8_parser.py)
 add_test(test_expression_parser ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_expression_parser.py)

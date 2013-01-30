@@ -87,6 +87,7 @@ struct Fobodobo_sbend_fixture
         lattice_sptr->append(o);
         lattice_sptr->append(b);
         lattice_sptr->append(o);
+        lattice_sptr->complete_attributes();
     }
     ~Fobodobo_sbend_fixture()
     {
