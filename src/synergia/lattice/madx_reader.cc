@@ -109,7 +109,7 @@ MadX_reader::parse_file(std::string const& filename)
 }
 
 std::vector<std::string >
-MadX_reader::get_line_names()
+MadX_reader::get_line_names() const
 {
     if (!madx_sptr) {
         throw std::runtime_error(

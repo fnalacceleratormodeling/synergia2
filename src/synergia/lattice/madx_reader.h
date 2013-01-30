@@ -19,7 +19,7 @@ public:
     void
     parse_file(std::string const& filename);
     std::vector<std::string >
-    get_line_names();
+    get_line_names() const;
     double
     get_double_variable(std::string const& name) const;
     std::string
