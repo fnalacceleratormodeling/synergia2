@@ -253,8 +253,8 @@ class Job_manager:
             else:
                 job_template_path = os.path.join(get_script_templates_dir(),
                                                  "job_example")
-                print "warning: using example job template:", job_template_path,
-                print "         because no job template was found in search path"
+                print "warning: using example job template:", job_template_path
+                print "because no job template was found in search path"
 
         self.create_script(job_template_path, job_name, directory, subs)
         self.create_script(search_job_manager_paths("cleanup"), "cleanup",
