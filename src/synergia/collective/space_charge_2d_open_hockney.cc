@@ -808,8 +808,6 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
     MArray2dc_ref grid_points(Fn.get_grid_points_2dc());
     MArray1d_ref grid_points_1d(rho2.get_grid_points_1d());
     Raw_MArray1d bin(boost::extents[6]);
-    double xkick(0), ykick(0);
-    double xkick2(0), ykick2(0);
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         std::complex<double > grid_val;
         if (!use_cell_coords) {
@@ -825,18 +823,9 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
             grid_val = interpolate_rectangular_2d(bin, periodic_z, grid_points,
                             grid_points_1d);
         }
-        xkick += factor * grid_val.real();
-        xkick2 += factor * grid_val.real()*factor * grid_val.real();
-        ykick += factor * grid_val.imag();
-        ykick2 += factor * grid_val.imag()*factor * grid_val.imag();
         bunch.get_local_particles()[part][1] += factor * grid_val.real();
         bunch.get_local_particles()[part][3] += factor * grid_val.imag();
     }
-    std::cout << std::scientific;
-    std::cout << "jfa xkick: " << xkick/bunch.get_local_num() << " " <<
-            std::sqrt(xkick2)<< std::endl;
-    std::cout << "jfa ykick: " << ykick/bunch.get_local_num()  << " " <<
-            std::sqrt(ykick2)<< std::endl;
 }
 
 void
