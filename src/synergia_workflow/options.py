@@ -3,7 +3,8 @@ import string
 import sys
 
 class _option:
-    def __init__(self, default_value, doc_string, val_type):
+    def __init__(self, name, default_value, doc_string, val_type, valid_values):
+        self.name = name
         self.value = default_value
         self.doc_string = doc_string
         self.val_type = val_type
@@ -15,6 +16,7 @@ class _option:
             self.length = 1
             if self.val_type == None:
                 self.val_type = type(default_value)
+        self.valid_values = valid_values
 
     def _apply_val_type(self, val):
         val = str(val)
@@ -49,6 +51,12 @@ class _option:
             self.value = string.split(value, ", ")
             if len(self.value) != self.length:
                 raise RuntimeError("Options: expected a % d - tuple" % self.length)
+        if self.valid_values:
+            if self.valid_values.count(value) == 0:
+                raise RuntimeError("Options: " + value \
+                                   + " is not a valid value for " + self.name \
+                                   + "\n" \
+                                   +"valid values are " + str(self.valid_values) )
 
 class Options:
     '''Define a set of command-line options.
@@ -62,12 +70,12 @@ class Options:
     def options_name(self):
         return self.name
 
-    def add(self, option, default_value, doc_string, val_type=None):
+    def add(self, option, default_value, doc_string, val_type=None, valid_values=None):
         '''Add a new option definition'''
         if hasattr(self, option):
             raise RuntimeError('Options: option name "' + option +
                               '" already in use')
-        self.dict[option] = _option(default_value, doc_string, val_type)
+        self.dict[option] = _option(option, default_value, doc_string, val_type, valid_values)
         setattr(self, option, self.get(option))
 
     def get(self, option):
@@ -168,6 +176,8 @@ class Options:
                     sys.stdout.write(str(val))
                 if item + 1 < self.dict[option].length:
                     print ", ",
+            if self.dict[option].valid_values:
+                print ", valid values: ", self.dict[option].valid_values,
             print
 
         print
