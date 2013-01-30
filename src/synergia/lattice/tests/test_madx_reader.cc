@@ -86,6 +86,21 @@ BOOST_AUTO_TEST_CASE(get_line_names_bad)
     BOOST_CHECK(caught);
 }
 
+BOOST_AUTO_TEST_CASE(get_double_variable)
+{
+    MadX_reader madx_reader;
+    madx_reader.parse(get_fodo());
+    const double tolerance = 1.0e-12;
+    BOOST_CHECK_CLOSE(madx_reader.get_double_variable("ld"), 2.0, tolerance);
+}
+
+BOOST_AUTO_TEST_CASE(get_string_variable)
+{
+    MadX_reader madx_reader;
+    madx_reader.parse("foo='bar';\n" + get_fodo());
+    BOOST_CHECK_EQUAL(madx_reader.get_string_variable("foo"), "bar");
+}
+
 BOOST_AUTO_TEST_CASE(get_lattice_sptr)
 {
     MadX_reader madx_reader;

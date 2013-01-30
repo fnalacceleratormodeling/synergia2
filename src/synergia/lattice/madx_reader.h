@@ -20,6 +20,10 @@ public:
     parse_file(std::string const& filename);
     std::vector<std::string >
     get_line_names();
+    double
+    get_double_variable(std::string const& name) const;
+    std::string
+    get_string_variable(std::string const& name) const;
     Lattice_sptr
     get_lattice_sptr(std::string const& line_name);
     Lattice_sptr

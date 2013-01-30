@@ -124,6 +124,26 @@ MadX_reader::get_line_names()
     return retval;
 }
 
+double
+MadX_reader::get_double_variable(std::string const& name) const
+{
+    if (!madx_sptr) {
+        throw std::runtime_error(
+                "MadX_reader::get_line_names: nothing has been parsed");
+    }
+    return madx_sptr->variable_as_number(name);
+}
+
+std::string
+MadX_reader::get_string_variable(std::string const& name) const
+{
+    if (!madx_sptr) {
+        throw std::runtime_error(
+                "MadX_reader::get_line_names: nothing has been parsed");
+    }
+    return madx_sptr->variable_as_string(name);
+}
+
 Lattice_sptr
 MadX_reader::get_lattice_sptr(std::string const& line_name)
 {
