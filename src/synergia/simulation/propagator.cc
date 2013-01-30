@@ -60,7 +60,7 @@ Propagator::State::serialize<boost::archive::xml_iarchive >(
 Propagator::Propagator(Stepper_sptr stepper_sptr) :
         stepper_sptr(stepper_sptr), checkpoint_period(10), checkpoint_dir(
                 default_checkpoint_dir), checkpoint_with_xml(false), concurrent_io(
-										   default_concurrent_io), final_checkpoint(true)
+										   default_concurrent_io), final_checkpoint(false)
 {
 }
 
