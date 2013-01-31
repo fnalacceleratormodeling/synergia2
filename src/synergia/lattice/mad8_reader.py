@@ -17,6 +17,7 @@ class Cache_entry:
 
 class Lattice_cache:
     def __init__(self, file_name, line_name):
+        self.version = 2
         self.file_name = file_name
         self.real_file = (file_name != None)
         if self.real_file:
@@ -54,19 +55,23 @@ class Lattice_cache:
         if not self.cache:
             self._read_cache()
         readable = False
-        exists = self.cache.has_key(self.line_name)
+        exists = self.cache.has_key(self._versioned_line_name())
         if exists:
-            readable = self.cache[self.line_name].hash_hex == self._get_hash_hex()
+            readable = self.cache[self._versioned_line_name()].hash_hex == self._get_hash_hex()
         return readable
 
     def _binary_file_name(self, index):
-        return self.cache_file_name + ("_%d.bina" % index)
+        return self.cache_file_name + ("_%d_%d.bina" % (index, self.version))
+
+    def _versioned_line_name(self):
+        return self.line_name + ("_%d" % self.version)
+
 
     def read(self):
         retval = None
         if self.is_readable():
             retval = Lattice()
-            index = self.cache[self.line_name].index
+            index = self.cache[self._versioned_line_name()].index
             try:
                 binary_load_lattice(retval, self._binary_file_name(index))
             except:
@@ -81,15 +86,15 @@ class Lattice_cache:
         hash_hex = self._get_hash_hex()
         index = None
         need_to_write = True
-        if self.cache.has_key(self.line_name):
-            index = self.cache[self.line_name].index
-            if self.cache[self.line_name].hash_hex == hash_hex:
+        if self.cache.has_key(self._versioned_line_name()):
+            index = self.cache[self._versioned_line_name()].index
+            if self.cache[self._versioned_line_name()].hash_hex == hash_hex:
                 need_to_write = False
         if index == None:
             self.max_index += 1
             index = self.max_index
         if need_to_write:
-            self.cache[self.line_name] = Cache_entry(hash_hex, index)
+            self.cache[self._versioned_line_name()] = Cache_entry(hash_hex, index)
             if not os.path.exists(self.cache_dir):
                 os.mkdir(self.cache_dir)
             cache_file = open(self.cache_file_name, 'w')
