@@ -45,6 +45,12 @@ BOOST_PYTHON_MODULE(bunch)
         .def("update_and_write", &Diagnostics::update_and_write)
         ;
 
+    container_conversions::from_python_sequence<std::list<Diagnostics_sptr >,
+            container_conversions::variable_capacity_policy >();
+
+    to_python_converter<std::list<Diagnostics_sptr >,
+            container_conversions::to_tuple<std::list<Diagnostics_sptr > > >();
+
     class_<Diagnostics_basic, Diagnostics_basic_sptr, bases<Diagnostics > >
         ("Diagnostics_basic",init<std::string const& >())
         .def("set_bunch", &Diagnostics_basic::set_bunch_sptr)
