@@ -361,11 +361,13 @@ BOOST_PYTHON_MODULE(simulation)
         .def_readonly("arc_length", &Lattice_functions::arc_length)
         ;
 
-    void (Step::*apply1)(Bunch &, int, Logger &) = &Step::apply;
+    void (Step::*apply1)(Bunch &, int, Diagnosticss const&, Diagnosticss const&, Logger &) = &Step::apply;
+    void (Step::*apply2)(Bunch_train &, int, Train_diagnosticss const&, Train_diagnosticss const&, Logger &) = &Step::apply;
     Operators& (Step::*get_operators1)() = &Step::get_operators;
     class_<Step, Step_sptr >("Step", init<double >())
 //            .def("append", remember how to overload methods...)
             .def("apply",apply1)
+            .def("apply",apply2)
             .def("get_operators",get_operators1,
                     return_value_policy<copy_non_const_reference >())
             .def("get_time_fractions",&Step::get_time_fractions,

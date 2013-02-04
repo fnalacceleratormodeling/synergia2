@@ -199,25 +199,38 @@ Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
     double t_step0 = MPI_Wtime();
     if (state.bunch_simulator_ptr) {
         Bunch & bunch(state.bunch_simulator_ptr->get_bunch());
-        step.apply(bunch, state.verbosity, logger);
+        Diagnostics_actions & diagnostics_actions(
+                state.bunch_simulator_ptr->get_diagnostics_actions());
+        step.apply(bunch, state.verbosity,
+                diagnostics_actions.get_per_operator_diagnosticss(),
+                diagnostics_actions.get_per_operation_diagnosticss(), logger);
         t = simple_timer_current();
-        state.bunch_simulator_ptr->get_diagnostics_actions().step_end_action(
-                *stepper_sptr, step, bunch, turn, step_count);
+        diagnostics_actions.step_end_action(*stepper_sptr, step, bunch, turn,
+                step_count);
         t = simple_timer_show(t, "diagnostics-step");
         state.propagate_actions_ptr->step_end_action(*stepper_sptr, step, bunch,
                 turn, step_count);
     } else {
         Bunch_train & bunch_train(
                 state.bunch_train_simulator_ptr->get_bunch_train());
-        step.apply(bunch_train, state.verbosity, logger);
-        t = simple_timer_current();
         Diagnostics_actionss & diagnostics_actionss(
                 state.bunch_train_simulator_ptr->get_diagnostics_actionss());
         size_t num_bunches =
                 state.bunch_train_simulator_ptr->get_bunch_train().get_size();
+        Train_diagnosticss per_operator_train_diagnosticss(num_bunches),
+                per_operation_train_diagnosticss(num_bunches);
         for (int i = 0; i < num_bunches; ++i) {
-            state.bunch_train_simulator_ptr->get_diagnostics_actionss().at(i)->step_end_action(
-                    *stepper_sptr, step,
+            per_operator_train_diagnosticss.at(i) =
+                    diagnostics_actionss.at(i)->get_per_operator_diagnosticss();
+            per_operation_train_diagnosticss.at(i) =
+                    diagnostics_actionss.at(i)->get_per_operation_diagnosticss();
+        }
+        step.apply(bunch_train, state.verbosity,
+                per_operation_train_diagnosticss,
+                per_operation_train_diagnosticss, logger);
+        t = simple_timer_current();
+        for (int i = 0; i < num_bunches; ++i) {
+            diagnostics_actionss.at(i)->step_end_action(*stepper_sptr, step,
                     *(state.bunch_train_simulator_ptr->get_bunch_train().get_bunches().at(
                             i)), turn, step_count);
         }
