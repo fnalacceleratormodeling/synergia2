@@ -297,13 +297,13 @@ Diagnostics_actions::step_end_action(Stepper & stepper, Step & step,
     }
 }
 
-Diagnosticss
+Diagnosticss &
 Diagnostics_actions::get_per_operator_diagnosticss()
 {
     return per_operator_diagnosticss;
 }
 
-Diagnosticss
+Diagnosticss &
 Diagnostics_actions::get_per_operation_diagnosticss()
 {
     return per_operation_diagnosticss;

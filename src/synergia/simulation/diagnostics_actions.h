@@ -114,9 +114,9 @@ public:
     virtual void
     step_end_action(Stepper & stepper, Step & step, Bunch & bunch,
             int turn_num, int step_num);
-    virtual Diagnosticss
+    virtual Diagnosticss &
     get_per_operator_diagnosticss();
-    virtual Diagnosticss
+    virtual Diagnosticss &
     get_per_operation_diagnosticss();
     template<class Archive>
         void
