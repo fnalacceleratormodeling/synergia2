@@ -154,13 +154,25 @@ Propagator::get_concurrent_io() const
 }
 
 void
-Propagator::do_before_start(State & state, double & t, Logger & logger) {
+Propagator::do_before_start(State & state, double & t, Logger & logger)
+{
     if (state.first_turn == 0) {
-        state.bunch_simulator_ptr->get_diagnostics_actions().first_action(
-                *stepper_sptr, *(state.bunch_simulator_ptr->get_bunch_sptr()));
+        if (state.bunch_simulator_ptr) {
+            state.bunch_simulator_ptr->get_diagnostics_actions().first_action(
+                    *stepper_sptr, state.bunch_simulator_ptr->get_bunch());
+        } else {
+            size_t num_bunches =
+                    state.bunch_train_simulator_ptr->get_bunch_train().get_size();
+            for (int i = 0; i < num_bunches; ++i) {
+                state.bunch_train_simulator_ptr->get_diagnostics_actionss().at(
+                        i)->first_action(*stepper_sptr,
+                        *(state.bunch_train_simulator_ptr->get_bunch_train().get_bunches().at(
+                                i)));
+            }
+        }
         t = simple_timer_show(t, "diagnostics_first");
         state.propagate_actions_ptr->first_action(*stepper_sptr,
-        		*(state.bunch_simulator_ptr->get_bunch_sptr()));
+                *(state.bunch_simulator_ptr->get_bunch_sptr()));
         t = simple_timer_show(t, "propagate-general_actions");
     }
 }
@@ -301,6 +313,9 @@ Propagator::propagate(State & state)
                 }
                 break;
             }
+        }
+        if (out_of_particles) {
+            logger << "Propagator: no particles left\n";
         }
         simple_timer_show(t_total, "propagate-total");
     }
