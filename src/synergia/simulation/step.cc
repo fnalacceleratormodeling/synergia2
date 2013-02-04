@@ -71,14 +71,6 @@ Step::append(Operators const& the_operators, double time_fraction)
 void
 Step::apply(Bunch & bunch, int verbosity, Logger & logger)
 {
-    Multi_diagnostics   diagnostics; //create an empty list
-    apply(bunch, verbosity, logger, diagnostics);
-}
-
-void
-Step::apply(Bunch & bunch, int verbosity, Logger & logger,
-        Multi_diagnostics & diagnostics)
-{
     std::list<double >::const_iterator fractions_it = time_fractions.begin();
     for (Operators::const_iterator it = operators.begin(); it
             != operators.end(); ++it) {
@@ -103,11 +95,6 @@ Step::apply(Bunch & bunch, int verbosity, Logger & logger,
            // std::cout<<"name ="<< (*it)->get_name()<<" stored dim "<<stored_bunches.size()<<std::endl;
 
          }
-         for (Multi_diagnostics::iterator itd = diagnostics.begin(); itd
-                != diagnostics.end(); ++itd) {
-
-            (*itd)->update_and_write();
-        }
         double t0 = MPI_Wtime();
         (*it)->apply(bunch, (*fractions_it) * time, *this, verbosity, logger);
         double t1 = MPI_Wtime();
@@ -117,11 +104,11 @@ Step::apply(Bunch & bunch, int verbosity, Logger & logger,
                     << std::fixed << std::setprecision(3) << t1 - t0
                     << "s" << std::endl;
         }
-         for (Multi_diagnostics::iterator itd = diagnostics.begin(); itd
-            != diagnostics.end(); ++itd) {
-
-                 (*itd)->update_and_write();
-          }
+//         for (Multi_diagnostics::iterator itd = diagnostics.begin(); itd
+//            != diagnostics.end(); ++itd) {
+//
+//                 (*itd)->update_and_write();
+//          }
 
          if (bunch.is_z_periodic()){
             double plength=bunch.get_z_period_length();
