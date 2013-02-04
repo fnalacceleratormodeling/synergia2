@@ -3,6 +3,7 @@
 
 //#include "synergia/simulation/stepper.h"
 #include "synergia/bunch/bunch.h"
+#include "synergia/bunch/bunch_train.h"
 
 class Stepper;
 class Step;
@@ -14,9 +15,16 @@ public:
     virtual void
     first_action(Stepper & stepper, Bunch & bunch);
     virtual void
+    first_action(Stepper & stepper, Bunch_train & bunch_train);
+    virtual void
     turn_end_action(Stepper & stepper, Bunch & bunch, int turn_num);
     virtual void
+    turn_end_action(Stepper & stepper, Bunch_train & bunch_train, int turn_num);
+    virtual void
     step_end_action(Stepper & stepper, Step & step, Bunch & bunch,
+            int turn_num, int step_num);
+    virtual void
+    step_end_action(Stepper & stepper, Step & step, Bunch_train & bunch_train,
             int turn_num, int step_num);
     template<class Archive>
         void
