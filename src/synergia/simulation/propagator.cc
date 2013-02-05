@@ -186,7 +186,7 @@ void
 Propagator::do_start_repetition(State & state)
 {
     if (state.bunch_simulator_ptr) {
-        state.bunch_simulator_ptr->get_bunch_sptr()->get_reference_particle().start_repetition();
+        state.bunch_simulator_ptr->get_bunch().get_reference_particle().start_repetition();
     } else {
         Bunches & bunches(
                 state.bunch_train_simulator_ptr->get_bunch_train().get_bunches());
