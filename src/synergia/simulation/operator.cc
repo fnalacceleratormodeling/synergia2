@@ -26,14 +26,16 @@ Operator::get_type() const
 
 void
 Operator::apply(Bunch_train & bunch_train, double time_step, Step & step,
-        int verbosity, Logger & logger)
+        int verbosity, Train_diagnosticss const& per_operation_diagnosticss,
+        Logger & logger)
 {
     Bunches bunches(bunch_train.get_bunches());
-    for (Bunches::iterator it = bunches.begin(); it != bunches.end(); ++it) {
-        if ((*it)->get_comm().has_this_rank()) {
-            apply(**it, time_step, step, verbosity, logger);
+    size_t num_bunches = bunch_train.get_size();
+    for (int i = 0; i < num_bunches; ++i)
+        if (bunches.at(i)->get_comm().has_this_rank()) {
+            apply(*bunches.at(i), time_step, step, verbosity,
+                    per_operation_diagnosticss.at(i), logger);
         }
-    }
 }
 
 void
@@ -99,6 +101,13 @@ Collective_operator::Collective_operator(std::string const& name) :
 
 Collective_operator::Collective_operator()
 {
+}
+
+void
+Collective_operator::apply(Bunch & bunch, double time_step, Step & step, int verbosity,
+        Diagnosticss const& per_operation_diagnosticss, Logger & logger)
+{
+    apply(bunch, time_step, step, verbosity, logger);
 }
 
 template<class Archive>
@@ -358,7 +367,8 @@ Independent_operator::get_operations()
 
 void
 Independent_operator::apply(Bunch & bunch, double time_step, Step & step,
-        int verbosity, Logger & logger)
+        int verbosity, Diagnosticss const& per_operation_diagnosticss,
+        Logger & logger)
 {
     if (verbosity > 4) {
         logger << "Independent_operator: slice(s) = " << std::endl;
@@ -392,6 +402,13 @@ Independent_operator::apply(Bunch & bunch, double time_step, Step & step,
         std::string label(
                 "independent-operation-" + (*it)->get_type() + "-apply");
         t1 = simple_timer_show(t1, label.c_str());
+        for (Diagnosticss::const_iterator itd =
+                per_operation_diagnosticss.begin();
+                itd != per_operation_diagnosticss.end(); ++it) {
+            (*itd)->update_and_write();
+        }
+        t1 = simple_timer_show(t1, "diagnostics-operation");
+
     }
     bunch.update_total_num();
     t = simple_timer_show(t, "independent-operator-apply");

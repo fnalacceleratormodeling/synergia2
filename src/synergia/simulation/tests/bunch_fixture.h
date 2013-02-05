@@ -2,6 +2,7 @@
 #define BUNCH_FIXTURE_H_
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/bunch.h"
+#include "synergia/bunch/diagnostics.h"
 #include "synergia/bunch/populate.h"
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/utils/multi_array_print.h"
@@ -16,7 +17,8 @@ struct Bunch_fixture
     Bunch_fixture() :
         four_momentum(mass, total_energy), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
-                total_num, real_num, comm_sptr), distribution(0, *comm_sptr)
+                total_num, real_num, comm_sptr), distribution(0, *comm_sptr),
+                empty_diagnostics()
     {
     BOOST_TEST_MESSAGE("setup bunch fixture");
     MArray2d covariances(boost::extents[6][6]);
@@ -55,6 +57,7 @@ struct Bunch_fixture
     Commxx_sptr comm_sptr;
     Bunch bunch;
     Random_distribution distribution;
+    Diagnosticss empty_diagnostics;
 };
 
 #endif /* BUNCH_FIXTURE_H_ */

@@ -156,11 +156,11 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bs_add_per_forced_diagnostics_step_member
                 Bunch_simulator::add_per_forced_diagnostics_step, 1, 2)
 
 void
-(Operator::*apply_bunch)(Bunch &, double, Step &, int,
+(Operator::*apply_bunch)(Bunch &, double, Step &, int, Diagnosticss const&,
         Logger &) = &Operator::apply;
 void
 (Operator::*apply_bunch_train)(Bunch_train &, double, Step &, int,
-        Logger &) = &Operator::apply;
+        Train_diagnosticss const&, Logger &) = &Operator::apply;
 
 BOOST_PYTHON_MODULE(simulation)
 {

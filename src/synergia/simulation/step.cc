@@ -100,7 +100,8 @@ Step::apply(Bunch & bunch, int verbosity,
          }
 
         double t0 = MPI_Wtime();
-        (*it)->apply(bunch, (*fractions_it) * time, *this, verbosity, logger);
+        (*it)->apply(bunch, (*fractions_it) * time, *this, verbosity,
+                per_operation_diagnostics, logger);
         double t1 = MPI_Wtime();
         if (verbosity > 2) {
             logger << "Step: operator: name = " << (*it)->get_name()
@@ -139,7 +140,7 @@ Step::apply(Bunch_train & bunch_train, int verbosity,
             it != operators.end(); ++it) {
         double t0 = MPI_Wtime();
         (*it)->apply(bunch_train, (*fractions_it) * time, *this, verbosity,
-                logger);
+                per_operation_train_diagnosticss, logger);
         double t1 = MPI_Wtime();
         if (verbosity > 2) {
             logger << "Step: operator: name = " << (*it)->get_name()
