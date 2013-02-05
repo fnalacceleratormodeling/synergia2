@@ -278,26 +278,43 @@ Propagator::check_out_of_particles(State & state, Logger & logger) {
 void
 Propagator::do_turn_end(int turn, State & state, double & t, double t_turn0,
 		Logger & logger) {
-	t = simple_timer_current();
-	state.bunch_simulator_ptr->get_diagnostics_actions().turn_end_action(
-			*stepper_sptr, state.bunch_simulator_ptr->get_bunch(), turn);
-	t = simple_timer_show(t, "diagnostics-turn");
-	state.propagate_actions_ptr->turn_end_action(*stepper_sptr,
-			state.bunch_simulator_ptr->get_bunch(),
-			turn);
-	t = simple_timer_show(t, "propagate-general_actions-turn");
-	state.first_turn = turn + 1;
-	double t_turn1 = MPI_Wtime();
-	if (state.verbosity > 0) {
-		logger << "Propagator:";
-		logger << " turn " << std::setw(digits(state.num_turns)) << turn + 1
-				<< "/" << state.num_turns;
-		logger << ", macroparticles = "
-				<< state.bunch_simulator_ptr->get_bunch().get_total_num();
-		logger << ", time = " << std::fixed << std::setprecision(2)
-				<< t_turn1 - t_turn0 << "s";
-		logger << std::endl;
-	}
+    t = simple_timer_current();
+    if (state.bunch_simulator_ptr) {
+        state.bunch_simulator_ptr->get_diagnostics_actions().turn_end_action(
+                *stepper_sptr, state.bunch_simulator_ptr->get_bunch(), turn);
+    } else {
+        size_t num_bunches =
+                state.bunch_train_simulator_ptr->get_bunch_train().get_size();
+        for (int i = 0; i < num_bunches; ++i) {
+            state.bunch_train_simulator_ptr->get_diagnostics_actionss().at(i)->turn_end_action(
+                    *stepper_sptr,
+                    *(state.bunch_train_simulator_ptr->get_bunch_train().get_bunches().at(
+                            i)), turn);
+        }
+    }
+    t = simple_timer_show(t, "diagnostics-turn");
+    if (state.bunch_simulator_ptr) {
+        state.propagate_actions_ptr->turn_end_action(*stepper_sptr,
+                state.bunch_simulator_ptr->get_bunch(), turn);
+    } else {
+        state.propagate_actions_ptr->turn_end_action(*stepper_sptr,
+                state.bunch_train_simulator_ptr->get_bunch_train(), turn);
+    }
+    t = simple_timer_show(t, "propagate-general_actions-turn");
+    state.first_turn = turn + 1;
+    double t_turn1 = MPI_Wtime();
+    if (state.verbosity > 0) {
+        logger << "Propagator:";
+        logger << " turn " << std::setw(digits(state.num_turns)) << turn + 1
+                << "/" << state.num_turns;
+        if (state.bunch_simulator_ptr) {
+            logger << ", macroparticles = "
+                    << state.bunch_simulator_ptr->get_bunch().get_total_num();
+        }
+        logger << ", time = " << std::fixed << std::setprecision(2)
+                << t_turn1 - t_turn0 << "s";
+        logger << std::endl;
+    }
 }
 
 void
