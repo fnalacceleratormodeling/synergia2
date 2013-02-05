@@ -307,8 +307,8 @@ namespace synergia
     void set_cmd_label(mx_command & cmd, string const & label)
     { cmd.set_label(label); }
 
-    void set_cmd_keyword(mx_command & cmd, string const & keyword, mx_cmd_type tag)
-    { cmd.set_keyword(keyword, tag); }
+    void set_cmd_keyword(mx_command & cmd, mx_keyword const & keyword)
+    { cmd.set_keyword(keyword); }
 
     void ins_cmd_attr(mx_command & cmd, mx_attr const & attr)
     { cmd.ins_attr(attr); }
@@ -322,121 +322,122 @@ struct synergia::madx_tree_parser
   // keywords
   struct particle_keywords_
     : boost::spirit::qi::symbols< typename std::iterator_traits<Iterator>::value_type,
-                                  string >
+                                  mx_keyword >
   {
     particle_keywords_()
     {
       this->add
-           ("proton"     , "proton"     )
-           ("electron"   , "electron"   )
-           ("positron"   , "positron"   )
-           ("anti-proton", "anti-proton")
-           ("posmuon"    , "posmuon"    )
-           ("negmuon"    , "negmuon"    )
+           ("proton"     , mx_keyword("proton"     , MX_KW_PARTICLE) )
+           ("electron"   , mx_keyword("electron"   , MX_KW_PARTICLE) )
+           ("positron"   , mx_keyword("positron"   , MX_KW_PARTICLE) )
+           ("anti-proton", mx_keyword("anti-proton", MX_KW_PARTICLE) )
+           ("posmuon"    , mx_keyword("posmuon"    , MX_KW_PARTICLE) )
+           ("negmuon"    , mx_keyword("negmuon"    , MX_KW_PARTICLE) )
       ;
     }
   } particle_keywords;
 
   struct element_keywords_
     : boost::spirit::qi::symbols< typename std::iterator_traits<Iterator>::value_type,
-                                  string >
+                                  mx_keyword >
   {
     element_keywords_()
     {
       this->add
-           ("drift"      , "drift"      )
-           ("rbend"      , "rbend"      )
-           ("sbend"      , "sbend"      )
-           ("dipedge"    , "dipedge"    )
-           ("quadrupole" , "quadrupole" )
-           ("sextupole"  , "sextupole"  )
-           ("octupole"   , "octupole"   )
-           ("multipole"  , "multipole"  )
-           ("solenoid"   , "solenoid"   )
-           ("nllens"     , "nllens"     )
-           ("hkicker"    , "hkicker"    )
-           ("vkicker"    , "vkicker"    )
-           ("kicker"     , "kicker"     )
-           ("rfcavity"   , "rfcavity"   )
-           ("rfmultipole", "rfmultipole")
-           ("crabcavity" , "crabcavity" )
-           ("elseparator", "elseparator")
-           ("hmonitor"   , "hmonitor"   )
-           ("vmonitor"   , "vmonitor"   )
-           ("monitor"    , "monitor"    )
-           ("instrument" , "instrument" )
-           ("rcollimator", "rcollimator")
-           ("ecollimator", "ecollimator")
-           ("yrotation"  , "yrotation"  )
-           ("srotation"  , "srotation"  )
-           ("beambeam"   , "beambeam"   )
-           ("matrix"     , "matrix"     )
-           ("marker"     , "marker"     )
-           ("endmark"    , "endmark"    )
+           ("drift"      , mx_keyword("drift"      , MX_KW_ELEMENT) )
+           ("rbend"      , mx_keyword("rbend"      , MX_KW_ELEMENT) )
+           ("sbend"      , mx_keyword("sbend"      , MX_KW_ELEMENT) )
+           ("dipedge"    , mx_keyword("dipedge"    , MX_KW_ELEMENT) )
+           ("quadrupole" , mx_keyword("quadrupole" , MX_KW_ELEMENT) )
+           ("sextupole"  , mx_keyword("sextupole"  , MX_KW_ELEMENT) )
+           ("octupole"   , mx_keyword("octupole"   , MX_KW_ELEMENT) )
+           ("multipole"  , mx_keyword("multipole"  , MX_KW_ELEMENT) )
+           ("solenoid"   , mx_keyword("solenoid"   , MX_KW_ELEMENT) )
+           ("nllens"     , mx_keyword("nllens"     , MX_KW_ELEMENT) )
+           ("hkicker"    , mx_keyword("hkicker"    , MX_KW_ELEMENT) )
+           ("vkicker"    , mx_keyword("vkicker"    , MX_KW_ELEMENT) )
+           ("kicker"     , mx_keyword("kicker"     , MX_KW_ELEMENT) )
+           ("rfcavity"   , mx_keyword("rfcavity"   , MX_KW_ELEMENT) )
+           ("rfmultipole", mx_keyword("rfmultipole", MX_KW_ELEMENT) )
+           ("crabcavity" , mx_keyword("crabcavity" , MX_KW_ELEMENT) )
+           ("elseparator", mx_keyword("elseparator", MX_KW_ELEMENT) )
+           ("hmonitor"   , mx_keyword("hmonitor"   , MX_KW_ELEMENT) )
+           ("vmonitor"   , mx_keyword("vmonitor"   , MX_KW_ELEMENT) )
+           ("monitor"    , mx_keyword("monitor"    , MX_KW_ELEMENT) )
+           ("instrument" , mx_keyword("instrument" , MX_KW_ELEMENT) )
+           ("rcollimator", mx_keyword("rcollimator", MX_KW_ELEMENT) )
+           ("ecollimator", mx_keyword("ecollimator", MX_KW_ELEMENT) )
+           ("yrotation"  , mx_keyword("yrotation"  , MX_KW_ELEMENT) )
+           ("srotation"  , mx_keyword("srotation"  , MX_KW_ELEMENT) )
+           ("beam"       , mx_keyword("beam"       , MX_KW_ELEMENT) )
+           ("beambeam"   , mx_keyword("beambeam"   , MX_KW_ELEMENT) )
+           ("matrix"     , mx_keyword("matrix"     , MX_KW_ELEMENT) )
+           ("marker"     , mx_keyword("marker"     , MX_KW_ELEMENT) )
+           ("endmark"    , mx_keyword("endmark"    , MX_KW_ELEMENT) )
       ;
     }
   } element_keywords;
 
   struct command_keywords_
     : boost::spirit::qi::symbols< typename std::iterator_traits<Iterator>::value_type,
-                                  string >
+                                  mx_keyword >
   {
     command_keywords_()
     {
       this->add
            // general
-           ("assign"   , "assign"   )
-           ("call"     , "call"     )
-           ("coguess"  , "coguess"  )
-           ("create"   , "create"   )
-           ("dumpsequ" , "dumpsequ" )
-           ("exec"     , "exec"     )
-           ("exit"     , "exit"     )
-           ("fill"     , "fill"     )
-           ("help"     , "help"     )
-           ("option"   , "option"   )
-           ("print"    , "print"    )
-           ("quit"     , "quit"     )
-           ("readtable", "readtable")
-           ("return"   , "return"   )
-           ("save"     , "save"     )
-           ("savebeta" , "savebeta" )
-           ("select"   , "select"   )
-           ("set"      , "set"      )
-           ("show"     , "show"     )
-           ("stop"     , "stop"     )
-           ("system"   , "system"   )
-           ("tabstring", "tabstring")
-           ("title"    , "title"    )
-           ("use"      , "use"      )
-           ("value"    , "value"    )
-           ("write"    , "write"    )
+           ("assign"   , mx_keyword("assign"   , MX_KW_COMMAND) )
+           ("call"     , mx_keyword("call"     , MX_KW_COMMAND) )
+           ("coguess"  , mx_keyword("coguess"  , MX_KW_COMMAND) )
+           ("create"   , mx_keyword("create"   , MX_KW_COMMAND) )
+           ("dumpsequ" , mx_keyword("dumpsequ" , MX_KW_COMMAND) )
+           ("exec"     , mx_keyword("exec"     , MX_KW_COMMAND) )
+           ("exit"     , mx_keyword("exit"     , MX_KW_COMMAND) )
+           ("fill"     , mx_keyword("fill"     , MX_KW_COMMAND) )
+           ("help"     , mx_keyword("help"     , MX_KW_COMMAND) )
+           ("option"   , mx_keyword("option"   , MX_KW_COMMAND) )
+           ("print"    , mx_keyword("print"    , MX_KW_COMMAND) )
+           ("quit"     , mx_keyword("quit"     , MX_KW_COMMAND) )
+           ("readtable", mx_keyword("readtable", MX_KW_COMMAND) )
+           ("return"   , mx_keyword("return"   , MX_KW_COMMAND) )
+           ("save"     , mx_keyword("save"     , MX_KW_COMMAND) )
+           ("savebeta" , mx_keyword("savebeta" , MX_KW_COMMAND) )
+           ("select"   , mx_keyword("select"   , MX_KW_COMMAND) )
+           ("set"      , mx_keyword("set"      , MX_KW_COMMAND) )
+           ("show"     , mx_keyword("show"     , MX_KW_COMMAND) )
+           ("stop"     , mx_keyword("stop"     , MX_KW_COMMAND) )
+           ("system"   , mx_keyword("system"   , MX_KW_COMMAND) )
+           ("tabstring", mx_keyword("tabstring", MX_KW_COMMAND) )
+           ("title"    , mx_keyword("title"    , MX_KW_COMMAND) )
+           ("use"      , mx_keyword("use"      , MX_KW_COMMAND) )
+           ("value"    , mx_keyword("value"    , MX_KW_COMMAND) )
+           ("write"    , mx_keyword("write"    , MX_KW_COMMAND) )
            // beam specification
-           ("beam"     , "beam"     )
-           ("resbeam"  , "resbeam"  )
+           ("beam"     , mx_keyword("beam"     , MX_KW_COMMAND) )
+           ("resbeam"  , mx_keyword("resbeam"  , MX_KW_COMMAND) )
            // plot
-           ("plot"     , "plot"     )
-           ("resplot"  , "resplot"  )
-           ("setplot"  , "setplot"  )
+           ("plot"     , mx_keyword("plot"     , MX_KW_COMMAND) )
+           ("resplot"  , mx_keyword("resplot"  , MX_KW_COMMAND) )
+           ("setplot"  , mx_keyword("setplot"  , MX_KW_COMMAND) )
            // sequence editing
-           ("seqedit"  , "seqedit"  )
-           ("flatten"  , "flatten"  )
-           ("install"  , "install"  )
-           ("move"     , "move"     )
-           ("remove"   , "remove"   )
-           ("cycle"    , "cycle"    )
-           ("reflect"  , "reflect"  )
-           ("endedit"  , "endedit"  )
+           ("seqedit"  , mx_keyword("seqedit"  , MX_KW_COMMAND) )
+           ("flatten"  , mx_keyword("flatten"  , MX_KW_COMMAND) )
+           ("install"  , mx_keyword("install"  , MX_KW_COMMAND) )
+           ("move"     , mx_keyword("move"     , MX_KW_COMMAND) )
+           ("remove"   , mx_keyword("remove"   , MX_KW_COMMAND) )
+           ("cycle"    , mx_keyword("cycle"    , MX_KW_COMMAND) )
+           ("reflect"  , mx_keyword("reflect"  , MX_KW_COMMAND) )
+           ("endedit"  , mx_keyword("endedit"  , MX_KW_COMMAND) )
            // other commands
-           ("twiss"    , "twiss"    )
+           ("twiss"    , mx_keyword("twiss"    , MX_KW_COMMAND) )
            // build sequence ( not present in manual )
-           ("sequence" , "sequence" )
-           ("endsequence", "endsequence" )
+           ("sequence" , mx_keyword("sequence" , MX_KW_COMMAND) )
+           ("endsequence", mx_keyword("endsequence" , MX_KW_COMMAND) )
       ;
     }
   } command_keywords;
 
-
+   
   // rules
   qi::rule<Iterator, mx_tree()     , Skip> doc;
   qi::rule<Iterator, mx_tree()     , Skip> block;
@@ -444,6 +445,7 @@ struct synergia::madx_tree_parser
   qi::rule<Iterator, mx_command()  , Skip> variable;
   qi::rule<Iterator, mx_command()  , locals<mx_cmd_type>, Skip> cmd;
   qi::rule<Iterator, mx_command()  , Skip> command;
+  qi::rule<Iterator, mx_keyword()   , Skip> ref;
   qi::rule<Iterator, mx_if()       , Skip> if_flow;
   qi::rule<Iterator, mx_while()    , Skip> while_flow;
   qi::rule<Iterator, string()      , Skip> logic;
@@ -456,6 +458,7 @@ struct synergia::madx_tree_parser
   expression<Iterator              , Skip> expr;
   qi::rule<Iterator, mx_exprs()    , Skip> array;
   qi::rule<Iterator, any()         , Skip> value;
+
 
   qi::rule<Iterator, mx_statements_t(), Skip> statements;
 
@@ -519,16 +522,20 @@ struct synergia::madx_tree_parser
         ;
 
     cmd =
-           - ( name >> ':' )     [phx::bind(&set_cmd_label, _val, _1)]  // label
-        >>   ( element_keywords [_a = MX_CMD_ELEMENT    ]
-             | command_keywords [_a = MX_CMD_EXECUTABLE ]
-             | name             [_a = MX_CMD_ELEMENT_REF]
-             )      [phx::bind(&set_cmd_keyword, _val, _1, _a)]         // keyword
-        >> * ( ',' >> attr [phx::bind(&ins_cmd_attr, _val, _1)] )       // attributes
+           - ( name >> ':' )     [phx::bind(&set_cmd_label, _val, _1)]   // label
+        >>   ( no_case[element_keywords] 
+             | no_case[command_keywords] 
+             | ref
+             )                   [phx::bind(&set_cmd_keyword, _val, _1)] // keyword
+        >> * ( ',' >> attr [phx::bind(&ins_cmd_attr, _val, _1)] )        // attributes
         ;
 
     command =
         ( variable | cmd ) >> ';'
+        ;
+
+    ref = 
+        name  [ _val = phx::construct<mx_keyword>(_1, MX_KW_ELEMENT_REF) ]
         ;
 
     name =

@@ -43,6 +43,10 @@ namespace synergia
         mx_expr e = simplify( any_cast<mx_expr>(attr.value()), mx );
         t.insert_attribute( attr.name(), e );
       }
+      else if( attr.type() == MX_ATTR_PARTICLE )
+      {
+        t.insert_attribute( attr.name(), any_cast<mx_keyword>(attr.value()).name );
+      }
       else if( attr.type() == MX_ATTR_LAZY_NUMBER )
       {
         t.insert_attribute( attr.name(), any_cast<mx_expr>(attr.value()) );
@@ -74,7 +78,7 @@ namespace synergia
 void mx_attr::set_attr(std::string const & name, boost::any const & val)
 {
   name_ = name;
-  value_ = any(val);
+  value_ = val;
 
   if( val.type() == typeid(std::string) )
     type_ = MX_ATTR_STRING;
@@ -82,6 +86,9 @@ void mx_attr::set_attr(std::string const & name, boost::any const & val)
     type_ = MX_ATTR_NUMBER;
   else if( val.type() == typeid(mx_exprs) )
     type_ = MX_ATTR_ARRAY;
+  else if( val.type() == typeid(mx_keyword) 
+           && any_cast<mx_keyword>(val).tag == MX_KW_PARTICLE )
+    type_ = MX_ATTR_PARTICLE;
   else
     throw std::runtime_error("Unknown attribute value type for " + name);
 }
@@ -89,7 +96,7 @@ void mx_attr::set_attr(std::string const & name, boost::any const & val)
 void mx_attr::set_lazy_attr(std::string const & name, boost::any const & val)
 {
   name_ = name;
-  value_ = any(val);
+  value_ = val;
 
   if( val.type() == typeid(std::string) )
     type_ = MX_ATTR_STRING;   // no lazy string
@@ -107,6 +114,17 @@ void mx_command::set_label(string const & label)
 {
   label_   = label;
   labeled_ = true;
+}
+
+void mx_command::set_keyword(mx_keyword const & keyword)
+{
+  if( keyword.tag == MX_KW_NONE || keyword.tag == MX_KW_PARTICLE )
+    throw std::runtime_error("Invalid keyword type");
+
+  mx_cmd_type t = (keyword.tag == MX_KW_ELEMENT) ? MX_CMD_ELEMENT
+                : (keyword.tag == MX_KW_COMMAND) ? MX_CMD_EXECUTABLE : MX_CMD_ELEMENT_REF;
+
+  set_keyword( keyword.name, t );
 }
 
 void mx_command::set_keyword(string const & keyword, mx_cmd_type tag)

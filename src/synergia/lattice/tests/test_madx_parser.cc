@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(command_str_attrs2)
 
 BOOST_AUTO_TEST_CASE(command_particle_attrs)
 {
-  string str = "beam, particle=proton;";
+  string str = "beAM, particle=proton;";
   MadX   mx;
 
   BOOST_CHECK( parse_madx( str, mx ) );

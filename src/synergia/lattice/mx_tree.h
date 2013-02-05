@@ -23,6 +23,7 @@ namespace synergia
     { MX_ATTR_NULL
     , MX_ATTR_STRING
     , MX_ATTR_NUMBER
+    , MX_ATTR_PARTICLE
     , MX_ATTR_ARRAY
     , MX_ATTR_LAZY_NUMBER
     , MX_ATTR_LAZY_ARRAY };
@@ -32,6 +33,15 @@ namespace synergia
     , MX_CMD_ELEMENT
     , MX_CMD_EXECUTABLE
     , MX_CMD_ELEMENT_REF };
+
+  enum mx_keyword_type
+    { MX_KW_NONE
+    , MX_KW_ELEMENT
+    , MX_KW_COMMAND
+    , MX_KW_ELEMENT_REF
+    , MX_KW_PARTICLE };
+
+  struct mx_keyword;
 
   class mx_attr;
   class mx_command;
@@ -47,6 +57,16 @@ namespace synergia
     void print(T const & t) { t.print(); }
   }
 }
+
+struct synergia::mx_keyword
+{
+  mx_keyword() : name(), tag() { }
+  mx_keyword(std::string const & k, mx_keyword_type t) : name(k), tag(t) { }
+
+  std::string name;
+  mx_keyword_type tag;
+};
+
 
 // statement could be a command, if- or while-
 class synergia::mx_statement
@@ -132,6 +152,7 @@ public:
   { }
 
   void set_label(std::string const & label);
+  void set_keyword(mx_keyword const & keyword);
   void set_keyword(std::string const & keyword, mx_cmd_type tag);
   void ins_attr(mx_attr const & attr);
 
