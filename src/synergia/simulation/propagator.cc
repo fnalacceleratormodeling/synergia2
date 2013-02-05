@@ -171,8 +171,13 @@ Propagator::do_before_start(State & state, double & t, Logger & logger)
             }
         }
         t = simple_timer_show(t, "diagnostics_first");
-        state.propagate_actions_ptr->first_action(*stepper_sptr,
-                *(state.bunch_simulator_ptr->get_bunch_sptr()));
+        if (state.bunch_simulator_ptr) {
+            state.propagate_actions_ptr->first_action(*stepper_sptr,
+                    state.bunch_simulator_ptr->get_bunch());
+        } else {
+            state.propagate_actions_ptr->first_action(*stepper_sptr,
+                    state.bunch_train_simulator_ptr->get_bunch_train());
+        }
         t = simple_timer_show(t, "propagate-general_actions");
     }
 }
