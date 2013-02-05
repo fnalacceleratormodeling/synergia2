@@ -256,12 +256,17 @@ Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
 
 bool
 Propagator::check_out_of_particles(State & state, Logger & logger) {
+    // n.b.: We only check out_of_particles for single-bunch propagation.
+    // Checking all bunches in a multi-bunch simulation would require a
+    // global communication. The costs exceed the potential benefits.
 	bool retval = false;
-	if (state.bunch_simulator_ptr->get_bunch().get_total_num() == 0) {
-		logger
-				<< "Propagator::propagate: No particles left in bunch. Exiting.\n";
-		retval = true;
-	}
+    if (state.bunch_simulator_ptr) {
+        if (state.bunch_simulator_ptr->get_bunch().get_total_num() == 0) {
+            logger
+                    << "Propagator::propagate: No particles left in bunch. Exiting.\n";
+            retval = true;
+        }
+    }
 	return retval;
 }
 
