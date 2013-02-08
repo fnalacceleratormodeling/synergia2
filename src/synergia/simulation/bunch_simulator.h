@@ -25,12 +25,12 @@ public:
     Diagnostics_actions_sptr
     get_diagnostics_actions_sptr();
     void
-    add_per_turn(Diagnostics_sptr diagnostics_sptr, int period = 1);
+    add_per_turn(Diagnostics_sptr diagnostics_sptr, int turn_period = 1);
     void
     add_per_turn(Diagnostics_sptr diagnostics_sptr,
             std::list<int > const& turn_numbers);
     void
-    add_per_step(Diagnostics_sptr diagnostics_sptr, int period = 1);
+    add_per_step(Diagnostics_sptr diagnostics_sptr, int step_period = 1);
     void
     add_per_step(Diagnostics_sptr diagnostics_sptr,
             std::list<int > const& step_numbers, int turn_period = 1);
