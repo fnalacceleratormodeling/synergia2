@@ -34,7 +34,6 @@ try:
 
     bunch_train_simulator = synergia.simulation.Bunch_train_simulator(bunch_train)
 
-    sys.exit(98)
     for i in range(0, bunch_train.get_size()):
         if opts.step_tracks:
             bunch_train_simulator.add_per_step(i,
@@ -57,7 +56,6 @@ try:
             bunch_train_simulator.add_per_turn(i,
                 synergia.bunch.Diagnostics_particles("turn_particles_%d.h5" % i))
 
-    sys.exit(99)
     propagator = synergia.simulation.Propagator(stepper)
     propagator.set_checkpoint_period(opts.checkpointperiod)
     propagator.set_concurrent_io(opts.concurrentio)
