@@ -103,7 +103,8 @@ public:
     bool
     get_final_checkpoint() const;
 
-    void set_concurrent_io(int max);
+    void
+    set_concurrent_io(int max);
 
     int
     get_concurrent_io() const;
