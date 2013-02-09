@@ -44,105 +44,135 @@ BOOST_FIXTURE_TEST_CASE(get_diagnostics_actions, Bunches_fixture)
             bunches.size());
 }
 
-#if 0
-BOOST_FIXTURE_TEST_CASE(get_diagnostics_actions_sptr, Bunches_fixture)
-{
-    Bunch_sptr bunch_sptr(
-            new Bunch(reference_particle, total_num, real_num, comm_sptr));
-    Bunch_simulator bunch_simulator(bunch_sptr);
-    BOOST_CHECK_EQUAL(
-            bunch_simulator.get_diagnostics_actions_sptr()->get_bunch_sptr(),
-            bunch_sptr);
-}
-
 BOOST_FIXTURE_TEST_CASE(add_per_turn, Bunches_fixture)
 {
-    Bunch_sptr bunch_sptr(
-            new Bunch(reference_particle, total_num, real_num, comm_sptr));
-    Bunch_simulator bunch_simulator(bunch_sptr);
+    Bunch_train_sptr bunch_train_sptr(new Bunch_train(bunches, bunch_spacing));
+    Bunch_train_simulator bunch_train_simulator(bunch_train_sptr);
+
     const char filename[] = "dummy.h5";
     Diagnostics_basic_sptr diagnostics_basic_sptr(
             new Diagnostics_basic(filename));
-    bunch_simulator.add_per_turn(diagnostics_basic_sptr);
+    const int which_bunch = 0;
+    bunch_train_simulator.add_per_turn(which_bunch, diagnostics_basic_sptr);
     const int period = 4;
-    bunch_simulator.add_per_turn(diagnostics_basic_sptr, period);
+    bunch_train_simulator.add_per_turn(which_bunch, diagnostics_basic_sptr,
+            period);
+}
+
+BOOST_FIXTURE_TEST_CASE(add_per_turn_bad_index, Bunches_fixture)
+{
+    Bunch_train_sptr bunch_train_sptr(new Bunch_train(bunches, bunch_spacing));
+    Bunch_train_simulator bunch_train_simulator(bunch_train_sptr);
+
+    const char filename[] = "dummy.h5";
+    Diagnostics_basic_sptr diagnostics_basic_sptr(
+            new Diagnostics_basic(filename));
+    const int which_bunch = bunch_train_sptr->get_size();
+    bool caught = false;
+    try {
+        bunch_train_simulator.add_per_turn(which_bunch, diagnostics_basic_sptr);
+    }
+    catch (std::out_of_range &) {
+        caught = true;
+    }
+    BOOST_CHECK(caught);
 }
 
 BOOST_FIXTURE_TEST_CASE(add_per_turn2, Bunches_fixture)
 {
-    Bunch_sptr bunch_sptr(
-            new Bunch(reference_particle, total_num, real_num, comm_sptr));
-    Bunch_simulator bunch_simulator(bunch_sptr);
+    Bunch_train_sptr bunch_train_sptr(new Bunch_train(bunches, bunch_spacing));
+    Bunch_train_simulator bunch_train_simulator(bunch_train_sptr);
+
     const char filename[] = "dummy.h5";
     Diagnostics_basic_sptr diagnostics_basic_sptr(
             new Diagnostics_basic(filename));
-    bunch_simulator.add_per_turn(diagnostics_basic_sptr);
+    const int which_bunch = 0;
     std::list<int > prime_turns;
     prime_turns.push_back(2);
     prime_turns.push_back(3);
     prime_turns.push_back(5);
-
-    bunch_simulator.add_per_turn(diagnostics_basic_sptr, prime_turns);
+    bunch_train_simulator.add_per_turn(which_bunch, diagnostics_basic_sptr,
+            prime_turns);
 }
 
 BOOST_FIXTURE_TEST_CASE(add_per_step, Bunches_fixture)
 {
-    Bunch_sptr bunch_sptr(
-            new Bunch(reference_particle, total_num, real_num, comm_sptr));
-    Bunch_simulator bunch_simulator(bunch_sptr);
+    Bunch_train_sptr bunch_train_sptr(new Bunch_train(bunches, bunch_spacing));
+    Bunch_train_simulator bunch_train_simulator(bunch_train_sptr);
+
     const char filename[] = "dummy.h5";
     Diagnostics_basic_sptr diagnostics_basic_sptr(
             new Diagnostics_basic(filename));
-    bunch_simulator.add_per_step(diagnostics_basic_sptr);
+    const int which_bunch = 0;
+    bunch_train_simulator.add_per_step(which_bunch, diagnostics_basic_sptr);
     const int period = 4;
-    bunch_simulator.add_per_step(diagnostics_basic_sptr, period);
+    bunch_train_simulator.add_per_step(which_bunch, diagnostics_basic_sptr,
+            period);
+}
+
+BOOST_FIXTURE_TEST_CASE(add_per_step_bad_index, Bunches_fixture)
+{
+    Bunch_train_sptr bunch_train_sptr(new Bunch_train(bunches, bunch_spacing));
+    Bunch_train_simulator bunch_train_simulator(bunch_train_sptr);
+
+    const char filename[] = "dummy.h5";
+    Diagnostics_basic_sptr diagnostics_basic_sptr(
+            new Diagnostics_basic(filename));
+    const int which_bunch = bunch_train_sptr->get_size();
+    bool caught = false;
+    try {
+        bunch_train_simulator.add_per_step(which_bunch, diagnostics_basic_sptr);
+    }
+    catch (std::out_of_range &) {
+        caught = true;
+    }
+    BOOST_CHECK(caught);
 }
 
 BOOST_FIXTURE_TEST_CASE(add_per_step2, Bunches_fixture)
 {
-    Bunch_sptr bunch_sptr(
-            new Bunch(reference_particle, total_num, real_num, comm_sptr));
-    Bunch_simulator bunch_simulator(bunch_sptr);
+    Bunch_train_sptr bunch_train_sptr(new Bunch_train(bunches, bunch_spacing));
+    Bunch_train_simulator bunch_train_simulator(bunch_train_sptr);
+
     const char filename[] = "dummy.h5";
     Diagnostics_basic_sptr diagnostics_basic_sptr(
             new Diagnostics_basic(filename));
-    bunch_simulator.add_per_step(diagnostics_basic_sptr);
+    const int which_bunch = 0;
     std::list<int > prime_steps;
     prime_steps.push_back(2);
     prime_steps.push_back(3);
     prime_steps.push_back(5);
-
-    bunch_simulator.add_per_step(diagnostics_basic_sptr, prime_steps);
-    const int period = 4;
-    bunch_simulator.add_per_step(diagnostics_basic_sptr, prime_steps, period);
+    bunch_train_simulator.add_per_step(which_bunch, diagnostics_basic_sptr,
+            prime_steps);
 }
 
 BOOST_FIXTURE_TEST_CASE(add_per_forced_diagnostics_step, Bunches_fixture)
 {
-    Bunch_sptr bunch_sptr(
-            new Bunch(reference_particle, total_num, real_num, comm_sptr));
-    Bunch_simulator bunch_simulator(bunch_sptr);
+    Bunch_train_sptr bunch_train_sptr(new Bunch_train(bunches, bunch_spacing));
+    Bunch_train_simulator bunch_train_simulator(bunch_train_sptr);
+
     const char filename[] = "dummy.h5";
     Diagnostics_basic_sptr diagnostics_basic_sptr(
             new Diagnostics_basic(filename));
-    bunch_simulator.add_per_forced_diagnostics_step(diagnostics_basic_sptr);
+    const int which_bunch = 0;
+    bunch_train_simulator.add_per_forced_diagnostics_step(which_bunch,
+            diagnostics_basic_sptr);
     const int period = 4;
-    bunch_simulator.add_per_forced_diagnostics_step(diagnostics_basic_sptr,
-            period);
+    bunch_train_simulator.add_per_forced_diagnostics_step(which_bunch,
+            diagnostics_basic_sptr, period);
 }
 
 BOOST_FIXTURE_TEST_CASE(serialize, Bunches_fixture)
 {
     {
-        Bunch_sptr bunch_sptr(
-                new Bunch(reference_particle, total_num, real_num, comm_sptr));
-        Bunch_simulator bunch_simulator(bunch_sptr);
-        xml_save<Bunch_simulator >(bunch_simulator, "bunch_simulator.xml");
+        Bunch_train_sptr bunch_train_sptr(new Bunch_train(bunches, bunch_spacing));
+        Bunch_train_simulator bunch_train_simulator(bunch_train_sptr);
+
+        xml_save<Bunch_train_simulator >(bunch_train_simulator, "bunch_train_simulator.xml");
     }
 
     {
-        Bunch_simulator loaded;
-        xml_load<Bunch_simulator >(loaded, "bunch_simulator.xml");
+        Bunch_train_simulator loaded;
+        xml_load<Bunch_train_simulator >(loaded, "bunch_train_simulator.xml");
     }
 }
-#endif
