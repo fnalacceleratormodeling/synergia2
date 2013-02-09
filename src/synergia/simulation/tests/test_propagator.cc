@@ -20,6 +20,56 @@ BOOST_FIXTURE_TEST_CASE(construct, Propagator_fixture)
 {
 }
 
+BOOST_FIXTURE_TEST_CASE(get_stepper_sptr, Propagator_fixture)
+{
+    BOOST_CHECK_EQUAL(propagator.get_stepper_sptr(), stepper_sptr);
+}
+
+BOOST_FIXTURE_TEST_CASE(set_get_checkpoint_period, Propagator_fixture)
+{
+    BOOST_CHECK_EQUAL(propagator.get_checkpoint_period(),
+            Propagator::default_checkpoint_period);
+    const int new_period = 77;
+    propagator.set_checkpoint_period(new_period);
+    BOOST_CHECK_EQUAL(propagator.get_checkpoint_period(), new_period);
+}
+
+BOOST_FIXTURE_TEST_CASE(set_get_checkpoint_dir, Propagator_fixture)
+{
+    BOOST_CHECK_EQUAL(propagator.get_checkpoint_dir(),
+            Propagator::default_checkpoint_dir);
+    std::string new_dir("garply");
+    propagator.set_checkpoint_dir(new_dir);
+    BOOST_CHECK_EQUAL(propagator.get_checkpoint_dir(), new_dir);
+}
+
+BOOST_FIXTURE_TEST_CASE(set_get_checkpoint_with_xml, Propagator_fixture)
+{
+    BOOST_CHECK_EQUAL(propagator.get_checkpoint_with_xml(),
+            false);
+    bool new_with_xml = true;
+    propagator.set_checkpoint_with_xml(new_with_xml);
+    BOOST_CHECK_EQUAL(propagator.get_checkpoint_with_xml(), new_with_xml);
+}
+
+BOOST_FIXTURE_TEST_CASE(set_get_final_checkpoint, Propagator_fixture)
+{
+    BOOST_CHECK_EQUAL(propagator.get_final_checkpoint(),
+            false);
+    bool new_final_checkpoint = true;
+    propagator.set_final_checkpoint(new_final_checkpoint);
+    BOOST_CHECK_EQUAL(propagator.get_final_checkpoint(), new_final_checkpoint);
+}
+
+BOOST_FIXTURE_TEST_CASE(set_get_concurrent_io, Propagator_fixture)
+{
+    BOOST_CHECK_EQUAL(propagator.get_concurrent_io(),
+            Propagator::default_concurrent_io);
+    const int new_period = 77;
+    propagator.set_concurrent_io(new_period);
+    BOOST_CHECK_EQUAL(propagator.get_concurrent_io(), new_period);
+}
+
 BOOST_FIXTURE_TEST_CASE(propagate, Propagator_fixture)
 {
     Bunch_sptr bunch_sptr(new Bunch(l.b.bunch));
