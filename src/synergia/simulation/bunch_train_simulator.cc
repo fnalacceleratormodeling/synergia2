@@ -1,14 +1,14 @@
 #include "bunch_train_simulator.h"
 
 Bunch_train_simulator::Bunch_train_simulator(Bunch_train_sptr bunch_train_sptr) :
-        bunch_train_sptr(bunch_train_sptr), diagnostics_actionss(
-                bunch_train_sptr->get_size())
+        bunch_train_sptr(bunch_train_sptr), diagnostics_actionss()
 {
     for (int i = 0; i < bunch_train_sptr->get_size(); ++i) {
-        diagnostics_actionss.push_back(
-                Diagnostics_actions_sptr(new Diagnostics_actions));
-        diagnostics_actionss.at(i)->set_bunch_sptr(
+        Diagnostics_actions_sptr diagnostics_actions_sptr(
+                new Diagnostics_actions);
+        diagnostics_actions_sptr->set_bunch_sptr(
                 bunch_train_sptr->get_bunches().at(i));
+        diagnostics_actionss.push_back(diagnostics_actions_sptr);
     }
 }
 
