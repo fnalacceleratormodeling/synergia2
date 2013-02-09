@@ -15,6 +15,8 @@ const std::string Propagator::state_xml_archive_name = "state.xml";
 const std::string Propagator::log_file_name = "log";
 const std::string Propagator::stop_file_name = "stop";
 const std::string Propagator::alt_stop_file_name = "STOPTHISTIMEIMEANIT";
+const int Propagator::default_checkpoint_period = 10;
+const int Propagator::default_concurrent_io = 1;
 
 Propagator::State::State(Bunch_simulator * bunch_simulator_ptr,
         Propagate_actions * propagate_actions_ptr, int num_turns,
@@ -68,9 +70,10 @@ Propagator::State::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
 
 Propagator::Propagator(Stepper_sptr stepper_sptr) :
-        stepper_sptr(stepper_sptr), checkpoint_period(10), checkpoint_dir(
+        stepper_sptr(stepper_sptr), checkpoint_period(
+                default_checkpoint_period), checkpoint_dir(
                 default_checkpoint_dir), checkpoint_with_xml(false), concurrent_io(
-										   default_concurrent_io), final_checkpoint(true)
+                default_concurrent_io), final_checkpoint(true)
 {
 }
 
