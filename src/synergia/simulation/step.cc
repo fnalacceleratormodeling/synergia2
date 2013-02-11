@@ -151,7 +151,7 @@ Step::apply(Bunch_train & bunch_train, int verbosity,
 
         double t = simple_timer_current();
         size_t num_bunches = bunch_train.get_size();
-        for (int i = 0; i < num_bunches; ++it) {
+        for (int i = 0; i < num_bunches; ++i) {
             for (Diagnosticss::const_iterator itd =
                     per_operator_train_diagnosticss.at(i).begin();
                     itd != per_operator_train_diagnosticss.at(i).end(); ++itd) {
