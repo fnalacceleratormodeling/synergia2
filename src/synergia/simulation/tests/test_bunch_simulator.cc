@@ -139,17 +139,17 @@ BOOST_FIXTURE_TEST_CASE(add_per_forced_diagnostics_step, Bunch_fixture)
             period);
 }
 
-BOOST_FIXTURE_TEST_CASE(serialize, Bunch_fixture)
-{
-    {
-        Bunch_sptr bunch_sptr(
-                new Bunch(reference_particle, total_num, real_num, comm_sptr));
-        Bunch_simulator bunch_simulator(bunch_sptr);
-        xml_save<Bunch_simulator >(bunch_simulator, "bunch_simulator.xml");
-    }
+// BOOST_FIXTURE_TEST_CASE(serialize, Bunch_fixture)
+// {
+//     {
+//         Bunch_sptr bunch_sptr(
+//                 new Bunch(reference_particle, total_num, real_num, comm_sptr));
+//         Bunch_simulator bunch_simulator(bunch_sptr);
+//         xml_save<Bunch_simulator >(bunch_simulator, "bunch_simulator.xml");
+//     }
 
-    {
-        Bunch_simulator loaded;
-        xml_load<Bunch_simulator >(loaded, "bunch_simulator.xml");
-    }
-}
+//     {
+//         Bunch_simulator loaded;
+//         xml_load<Bunch_simulator >(loaded, "bunch_simulator.xml");
+//     }
+// }

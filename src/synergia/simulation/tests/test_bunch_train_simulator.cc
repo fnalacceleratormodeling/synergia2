@@ -162,17 +162,17 @@ BOOST_FIXTURE_TEST_CASE(add_per_forced_diagnostics_step, Bunches_fixture)
             diagnostics_basic_sptr, period);
 }
 
-BOOST_FIXTURE_TEST_CASE(serialize, Bunches_fixture)
-{
-    {
-        Bunch_train_sptr bunch_train_sptr(new Bunch_train(bunches, bunch_spacing));
-        Bunch_train_simulator bunch_train_simulator(bunch_train_sptr);
+// BOOST_FIXTURE_TEST_CASE(serialize, Bunches_fixture)
+// {
+//     {
+//         Bunch_train_sptr bunch_train_sptr(new Bunch_train(bunches, bunch_spacing));
+//         Bunch_train_simulator bunch_train_simulator(bunch_train_sptr);
 
-        xml_save<Bunch_train_simulator >(bunch_train_simulator, "bunch_train_simulator.xml");
-    }
+//         xml_save<Bunch_train_simulator >(bunch_train_simulator, "bunch_train_simulator.xml");
+//     }
 
-    {
-        Bunch_train_simulator loaded;
-        xml_load<Bunch_train_simulator >(loaded, "bunch_train_simulator.xml");
-    }
-}
+//     {
+//         Bunch_train_simulator loaded;
+//         xml_load<Bunch_train_simulator >(loaded, "bunch_train_simulator.xml");
+//     }
+// }
