@@ -93,6 +93,41 @@ BOOST_FIXTURE_TEST_CASE(propagate, Propagator_fixture)
     propagator.propagate(bunch_simulator, num_turns);
 }
 
+BOOST_FIXTURE_TEST_CASE(propagate_train, Propagator_fixture)
+{
+    const double bunch_spacing = 1.7;
+    Bunch_train_sptr bunch_train_sptr(new Bunch_train(bs.bunches, bunch_spacing));
+    Bunch_train_simulator bunch_train_simulator(bunch_train_sptr);
+
+    Diagnostics_sptr step_full2_diag0_sptr(
+            new Diagnostics_full2("full2_per_step0.h5"));
+    bunch_train_simulator.add_per_step(0, step_full2_diag0_sptr);
+
+    Diagnostics_sptr turn_basic_diag0_sptr(
+            new Diagnostics_basic("basic_per_turn0.h5"));
+    bunch_train_simulator.add_per_turn(0, turn_basic_diag0_sptr);
+
+    Diagnostics_sptr step_full2_diag1_sptr(
+            new Diagnostics_full2("full2_per_step1.h5"));
+    bunch_train_simulator.add_per_step(1, step_full2_diag1_sptr);
+
+    Diagnostics_sptr turn_basic_diag1_sptr(
+            new Diagnostics_basic("basic_per_turn1.h5"));
+    bunch_train_simulator.add_per_turn(1, turn_basic_diag1_sptr);
+
+    Diagnostics_sptr step_full2_diag2_sptr(
+            new Diagnostics_full2("full2_per_step2.h5"));
+    bunch_train_simulator.add_per_step(2, step_full2_diag2_sptr);
+
+    Diagnostics_sptr turn_basic_diag2_sptr(
+            new Diagnostics_basic("basic_per_turn2.h5"));
+    bunch_train_simulator.add_per_turn(2, turn_basic_diag2_sptr);
+
+
+    int num_turns = 4;
+    propagator.propagate(bunch_train_simulator, num_turns);
+}
+
 BOOST_FIXTURE_TEST_CASE(propagate_max_turns, Propagator_fixture)
 {
     Bunch_sptr bunch_sptr(new Bunch(l.b.bunch));
@@ -143,5 +178,42 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Propagator_fixture)
 
     Propagator loaded;
     xml_load(propagator, "propagator.xml");
+}
+
+BOOST_FIXTURE_TEST_CASE(serialize_train_xml, Propagator_fixture)
+{
+    xml_save(propagator, "propagator_train.xml");
+
+    const double bunch_spacing = 1.7;
+    Bunch_train_sptr bunch_train_sptr(new Bunch_train(bs.bunches, bunch_spacing));
+    Bunch_train_simulator bunch_train_simulator(bunch_train_sptr);
+
+    bunch_train_simulator.add_per_turn(0,
+            Diagnostics_sptr(
+                    new Diagnostics_full2("test_propagate_per_turn0.h5")));
+    bunch_train_simulator.add_per_step(0,
+            Diagnostics_sptr(
+                    new Diagnostics_basic("test_propagate_per_step0.h5")));
+
+    bunch_train_simulator.add_per_turn(1,
+            Diagnostics_sptr(
+                    new Diagnostics_full2("test_propagate_per_turn1.h5")));
+    bunch_train_simulator.add_per_step(1,
+            Diagnostics_sptr(
+                    new Diagnostics_basic("test_propagate_per_step1.h5")));
+
+    bunch_train_simulator.add_per_turn(2,
+            Diagnostics_sptr(
+                    new Diagnostics_full2("test_propagate_per_turn2.h5")));
+    bunch_train_simulator.add_per_step(2,
+            Diagnostics_sptr(
+                    new Diagnostics_basic("test_propagate_per_step2.h5")));
+
+    int num_turns = 4;
+    propagator.propagate(bunch_train_simulator, num_turns);
+    xml_save(propagator, "propagator_train2.xml");
+
+    Propagator loaded;
+    xml_load(propagator, "propagator_train.xml");
 }
 
