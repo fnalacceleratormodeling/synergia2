@@ -6,13 +6,13 @@
 #include <boost/shared_ptr.hpp>
 
 #include "synergia/bunch/bunch.h"
+#include "synergia/bunch/bunch_train.h"
 #include "synergia/lattice/lattice_element_slice.h"
 #include "synergia/lattice/chef_lattice.h"
 #include "synergia/simulation/independent_operation.h"
 #include "synergia/simulation/operation_extractor.h"
 #include "synergia/simulation/aperture_operation_extractor.h"
 #include "synergia/foundation/multi_diagnostics.h"
-#include "synergia/bunch/train.h"
 #include "synergia/utils/serialization.h"
 #include "synergia/utils/logger.h"
 
@@ -32,12 +32,10 @@ public:
     get_type() const;
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity,
-            Logger & logger) = 0;
-#if 0
+            Diagnosticss const& per_operation_diagnosticss, Logger & logger) = 0;
     virtual void
-    apply_train(Bunch_with_diagnostics_train & bunch_diag_train,
-            double time_step, Step & step);
-#endif
+    apply(Bunch_train & bunch_train, double time_step, Step & step, int verbosity,
+            Train_diagnosticss const& per_operation_train_diagnosticss, Logger & logger);
     virtual void
     print() const;
     template<class Archive>
@@ -55,6 +53,9 @@ public:
     Collective_operator(std::string const& name);
     /// Default constructor for serialization use only
     Collective_operator();
+    virtual void
+    apply(Bunch & bunch, double time_step, Step & step, int verbosity,
+            Diagnosticss const& per_operation_diagnosticss, Logger & logger);
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Logger & logger) = 0;
@@ -76,7 +77,8 @@ public:
     /// Default constructor for serialization use only
     Dummy_collective_operator();
     virtual void
-    apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
+    apply(Bunch & bunch, double time_step, Step & step, int verbosity,
+            Logger & logger);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
@@ -120,7 +122,7 @@ public:
     get_operations();
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity,
-            Logger & logger);
+            Diagnosticss const& per_operation_diagnosticss, Logger & logger);
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Logger & logger, Multi_diagnostics & diagnostics);

@@ -44,11 +44,13 @@ Stepper::force_update_operations_no_collective()
     for (int i = 0; i < 6; ++i) {
         bunch.get_local_particles()[0][i] = 0.0;
     }
+    Diagnosticss dummy_diagnosticss;
     for (Steps::iterator sit = steps.begin(); sit != steps.end(); ++sit) {
-        for (Operators::iterator oit = (*sit)->get_operators().begin(); oit
-                != (*sit)->get_operators().end(); ++oit) {
+        for (Operators::iterator oit = (*sit)->get_operators().begin();
+                oit != (*sit)->get_operators().end(); ++oit) {
             if ((*oit)->get_type() == Independent_operator::type_name) {
-                (*oit)->apply(bunch, time_step, **sit, verbosity, logger);
+                (*oit)->apply(bunch, time_step, **sit, verbosity,
+                        dummy_diagnosticss, logger);
             }
         }
     }

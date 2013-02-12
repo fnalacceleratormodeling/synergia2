@@ -63,7 +63,9 @@ BOOST_FIXTURE_TEST_CASE(apply, Bunch_fixture)
 
     const int verbosity = 3;
     Logger logger(0);
-    step.apply(bunch, verbosity, logger);
+    Diagnosticss per_operator_diagnosticss, per_operation_diagnosticss;
+    step.apply(bunch, verbosity, per_operator_diagnosticss,
+            per_operation_diagnosticss, logger);
 }
 
 BOOST_AUTO_TEST_CASE(get_operators)

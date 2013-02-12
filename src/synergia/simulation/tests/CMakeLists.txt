@@ -75,7 +75,6 @@ target_link_libraries(test_split_operator_stepper_choice synergia_simulation
 synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_split_operator_stepper_choice ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_split_operator_stepper_choice)
 
-
 add_test_executable(test_propagator test_propagator.cc)
 target_link_libraries(test_propagator synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_propagator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_propagator)
@@ -108,6 +107,14 @@ add_test(test_propagator_mpi3 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3  test_propaga
 add_test(test_propagator_mpi4 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4  test_propagator_mpi)
 
 add_test(test_simplify2 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_simplify2.py)
+
+add_test_executable(test_bunch_simulator test_bunch_simulator.cc)
+target_link_libraries(test_bunch_simulator synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_bunch_simulator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_bunch_simulator)
+
+add_test_executable(test_bunch_train_simulator test_bunch_train_simulator.cc)
+target_link_libraries(test_bunch_train_simulator synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_bunch_train_simulator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_bunch_train_simulator)
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
     "test_fast_mapping_term.dat;test_fast_mapping.dat;test_fast_mapping2.dat;test_propagate_per_step.h5;test_propagate_per_turn.h5")

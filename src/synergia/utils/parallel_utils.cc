@@ -70,7 +70,7 @@ distribute_1d(Commxx const& comm, int elements)
     return distribute_1d_raw(comm.get_size(), elements);
 }
 
-void 
+void
 counts_and_offsets_for_impedance_raw(unsigned int  processors, int length, std::vector<int > &offsets,
         std::vector<int > &counts)
 {
@@ -79,7 +79,7 @@ counts_and_offsets_for_impedance_raw(unsigned int  processors, int length, std::
  if (counts.size() != processors)  throw std::runtime_error("parallel utilis:counts and offsets for imped. counts size");
  std::vector<std::vector<int > > ranks(
             distribute_1d_raw(processors, length));
-            
+
         int count=0;
         int proc, proc_saved;
         proc_saved=ranks[0][0];
@@ -89,18 +89,17 @@ counts_and_offsets_for_impedance_raw(unsigned int  processors, int length, std::
             if (proc!= proc_saved) count += counts[proc_saved];
             offsets[proc]=count;
             proc_saved=proc;
-        }      
-            
+        }
+
 }
-   
-  
-void 
+
+void
 counts_and_offsets_for_impedance(Commxx const& comm,int length, std::vector<int > &offsets,
  std::vector<int > &counts)
 {
-  return  counts_and_offsets_for_impedance_raw( comm.get_size(), length, offsets, counts);           
+  counts_and_offsets_for_impedance_raw( comm.get_size(), length, offsets, counts);
 }
- 
- 
+
+
 
 

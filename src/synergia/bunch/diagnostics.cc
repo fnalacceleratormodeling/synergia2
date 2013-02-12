@@ -65,7 +65,7 @@ Diagnostics::new_write_helper_ptr()
 {
     delete_write_helper_ptr();
     return new Diagnostics_write_helper(get_filename(),
-            is_serial(), get_bunch().get_comm(), local_dir);
+            is_serial(), get_bunch().get_comm_sptr(), local_dir);
 }
 
 bool

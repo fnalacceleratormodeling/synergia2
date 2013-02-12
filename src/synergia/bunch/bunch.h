@@ -3,6 +3,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include <vector>
 #include <mpi.h>
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/foundation/reference_particle.h"
@@ -267,5 +268,6 @@ public:
 };
 
 typedef boost::shared_ptr<Bunch > Bunch_sptr;
+typedef std::vector<Bunch_sptr > Bunches;
 
 #endif /* BUNCH_H_ */

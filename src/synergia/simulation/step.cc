@@ -70,20 +70,14 @@ Step::append(Operators const& the_operators, double time_fraction)
 }
 
 void
-Step::apply(Bunch & bunch, int verbosity, Logger & logger)
-{
-    Multi_diagnostics   diagnostics; //create an empty list
-    apply(bunch, verbosity, logger, diagnostics);
-}
-
-void
-Step::apply(Bunch & bunch, int verbosity, Logger & logger,
-        Multi_diagnostics & diagnostics)
+Step::apply(Bunch & bunch, int verbosity,
+        Diagnosticss const& per_operator_diagnostics,
+        Diagnosticss const& per_operation_diagnostics, Logger & logger)
 {
     double t_total = simple_timer_current();
     std::list<double >::const_iterator fractions_it = time_fractions.begin();
-    for (Operators::const_iterator it = operators.begin(); it
-            != operators.end(); ++it) {
+    for (Operators::const_iterator it = operators.begin();
+            it != operators.end(); ++it) {
         // time [s] in accelerator frame
         double time = length / (bunch.get_reference_particle().get_beta()
                 * pconstants::c);
@@ -105,36 +99,78 @@ Step::apply(Bunch & bunch, int verbosity, Logger & logger,
            // std::cout<<"name ="<< (*it)->get_name()<<" stored dim "<<stored_bunches.size()<<std::endl;
 
          }
-         for (Multi_diagnostics::iterator itd = diagnostics.begin(); itd
-                != diagnostics.end(); ++itd) {
 
-            (*itd)->update_and_write();
-        }
         double t0 = MPI_Wtime();
         double t = simple_timer_current();
-        (*it)->apply(bunch, (*fractions_it) * time, *this, verbosity, logger);
+        (*it)->apply(bunch, (*fractions_it) * time, *this, verbosity,
+                per_operation_diagnostics, logger);
         std::string label("step_apply-" + (*it)->get_type() + "_operator_apply");
         t = simple_timer_show(t, label.c_str());
         double t1 = MPI_Wtime();
         if (verbosity > 2) {
             logger << "Step: operator: name = " << (*it)->get_name()
                     << ", type = " << (*it)->get_type() << ", time = "
-                    << std::fixed << std::setprecision(3) << t1 - t0
-                    << "s" << std::endl;
+                    << std::fixed << std::setprecision(3) << t1 - t0 << "s"
+                    << std::endl;
         }
-         for (Multi_diagnostics::iterator itd = diagnostics.begin(); itd
-            != diagnostics.end(); ++itd) {
 
-                 (*itd)->update_and_write();
-          }
+        t = simple_timer_current();
+        for (Diagnosticss::const_iterator itd =
+                per_operator_diagnostics.begin();
+                itd != per_operator_diagnostics.end(); ++itd) {
+            (*itd)->update_and_write();
+        }
+        t = simple_timer_show(t, "diagnostics-operator");
 
-         if (bunch.is_z_periodic()){
-            double plength=bunch.get_z_period_length();
+        if (bunch.is_z_periodic()) {
+            double plength = bunch.get_z_period_length();
             apply_longitudinal_periodicity(bunch, plength);
         }
         ++fractions_it;
     }
     t_total = simple_timer_show(t_total, "step_apply-total");
+}
+
+void
+Step::apply(Bunch_train & bunch_train, int verbosity,
+        Train_diagnosticss const& per_operator_train_diagnosticss,
+        Train_diagnosticss const& per_operation_train_diagnosticss, Logger & logger)
+{
+    // time [s] in accelerator frame
+    double time = length
+            / (bunch_train.get_bunches()[0]->get_reference_particle().get_beta()
+                    * pconstants::c);
+    std::list<double >::const_iterator fractions_it = time_fractions.begin();
+    for (Operators::const_iterator it = operators.begin();
+            it != operators.end(); ++it) {
+        double t0 = MPI_Wtime();
+        (*it)->apply(bunch_train, (*fractions_it) * time, *this, verbosity,
+                per_operation_train_diagnosticss, logger);
+        double t1 = MPI_Wtime();
+        if (verbosity > 2) {
+            logger << "Step: operator: name = " << (*it)->get_name()
+                    << ", type = " << (*it)->get_type() << ", time = "
+                    << std::fixed << std::setprecision(3) << t1 - t0 << "s"
+                    << std::endl;
+        }
+
+        double t = simple_timer_current();
+        size_t num_bunches = bunch_train.get_size();
+        for (int i = 0; i < num_bunches; ++i) {
+            for (Diagnosticss::const_iterator itd =
+                    per_operator_train_diagnosticss.at(i).begin();
+                    itd != per_operator_train_diagnosticss.at(i).end(); ++itd) {
+                (*itd)->update_and_write();
+            }
+        }
+        t = simple_timer_show(t, "diagnostics-operator");
+        // jfa: what should we do here? Move particles between bunches?
+//         if (bunch.is_z_periodic()){
+//            double plength=bunch.get_z_period_length();
+//            apply_longitudinal_periodicity(bunch, plength);
+//        }
+        ++fractions_it;
+    }
 }
 
 

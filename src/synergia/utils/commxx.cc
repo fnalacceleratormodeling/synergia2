@@ -1,4 +1,5 @@
 #include "commxx.h"
+#include "parallel_utils.h"
 #include <stdexcept>
 #include <climits>
 
@@ -191,4 +192,16 @@ Commxx::~Commxx()
             throw std::runtime_error("MPI error in Commxx(MPI_Comm_free)");
         }
     }
+}
+
+Commxxs
+generate_subcomms(int count)
+{
+    Commxx_sptr parent_sptr(new Commxx);
+    Commxxs retval(0);
+    std::vector < std::vector<int > > ranks(distribute_1d(*parent_sptr, count));
+    for (int index = 0; index < count; ++index) {
+        retval.push_back(Commxx_sptr(new Commxx(parent_sptr, ranks.at(index))));
+    }
+    return retval;
 }

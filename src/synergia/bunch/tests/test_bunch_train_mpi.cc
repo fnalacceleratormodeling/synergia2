@@ -1,84 +1,41 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "synergia/bunch/train.h"
+#include "synergia/bunch/bunch_train.h"
+#include "bunches_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
-BOOST_AUTO_TEST_CASE(construct1)
+BOOST_FIXTURE_TEST_CASE(construct1, Bunches_fixture)
 {
-    const int num_bunches = 1;
-    Commxx_sptr mcommxx_sptr(new Commxx);
-    Train_comms train(num_bunches, mcommxx_sptr);
-}
-
-BOOST_AUTO_TEST_CASE(construct2)
-{
-
-    const int num_bunches = 2;
-    Commxx_sptr mcommxx_sptr(new Commxx);
-    Train_comms train(num_bunches, mcommxx_sptr);
-}
-
-BOOST_AUTO_TEST_CASE(construct3)
-{
-    const int num_bunches = 16;
-    Commxx_sptr mcommxx_sptr(new Commxx);
-    Train_comms train(num_bunches, mcommxx_sptr);
-
-}
-
-BOOST_AUTO_TEST_CASE(get_master_comm)
-{
-    const int num_bunches = 3;
     const double bunch_separation = 1.7;
-    Commxx_sptr commxx_sptr(new Commxx);
-    Bunch_train bunch_train(num_bunches, bunch_separation,
-            commxx_sptr);
-    BOOST_CHECK_EQUAL(bunch_train.get_master_comm().get(), MPI_COMM_WORLD);
+    Bunch_train bunch_train(bunches, bunch_separation);
 }
 
-BOOST_AUTO_TEST_CASE(get_comm)
+BOOST_FIXTURE_TEST_CASE(construct2, Bunches_fixture)
 {
-    const int num_bunches = 16;
-    const double bunch_separation = 1.7;
-    Commxx_sptr commxx_sptr(new Commxx);
-    Bunch_train bunch_train(num_bunches, bunch_separation,
-            commxx_sptr);
-    for (int bunch = 0; bunch < num_bunches; ++bunch) {
-        bunch_train.get_comm(bunch);
-        // don't know what to check here...
-    }
+    std::vector<double > separations;
+    const double bunch_separation1 = 1.7;
+    separations.push_back(bunch_separation1);
+    const double bunch_separation2 = 3.4;
+    separations.push_back(bunch_separation2);
+    Bunch_train bunch_train(bunches, separations);
 }
 
-BOOST_AUTO_TEST_CASE(is_on_this_rank)
+BOOST_FIXTURE_TEST_CASE(construct3, Bunches_fixture)
 {
-    const int num_bunches = 3;
-    const double bunch_separation = 1.7;
-    Commxx_sptr commxx_sptr(new Commxx);
-    Bunch_train bunch_train(num_bunches, bunch_separation,
-            commxx_sptr);
-    for (int bunch = 0; bunch < num_bunches; ++bunch) {
-        bunch_train.is_on_this_rank(bunch);
-        // could use a better test here...
+    std::vector<double > separations;
+    const double bunch_separation1 = 1.7;
+    separations.push_back(bunch_separation1);
+    const double bunch_separation2 = 3.4;
+    separations.push_back(bunch_separation2);
+    const double bunch_separation3 = 99.9;
+    separations.push_back(bunch_separation3);
+    bool caught_error = false;
+    try {
+        Bunch_train bunch_train(bunches, separations);
     }
-}
-
-BOOST_AUTO_TEST_CASE(diag_get_comm)
-{
-    const int num_bunches = 2;
-    Commxx_sptr mcommxx_sptr(new Commxx);
-//     std::cout<<" mcommxx_sptr rank="<<mcommxx_sptr.get_rank()<<std::endl;
-//     std::cout<<" mcommxx_sptr size="<<mcommxx_sptr.get_size()<<std::endl;
-
-    Train_comms train(num_bunches, mcommxx_sptr);
-    for (int bunch = 0; bunch < num_bunches; ++bunch) {
-        if (train.is_on_this_rank(bunch)) {
-            train.get_comm(bunch).get_rank();
-            train.get_comm(bunch).get_size();
-           // std::cout<<" bunch="<<bunch<<" comm rank="<<rk<<" size="<<sz<<" master com rank="<<mcommxx_sptr.get_rank()<<std::endl;
-       //  std::cout<<" comm size="<<comm.get_size()<<std::endl;
-        }
-
-
+    catch (std::runtime_error) {
+        caught_error = true;
     }
+    BOOST_CHECK(caught_error);
 }

@@ -29,6 +29,10 @@ private:
     // This dummy constructor exists only to force compilation errors in
     // code that uses an older interface to this class.
     Commxx(MPI_Comm const& comm){}
+    // prevent copying
+    Commxx(Commxx const& commxx){}
+    Commxx&
+    operator=(Commxx const& commxx){ return *this;}
 public:
     /// Construct a Commxx object using MPI_COMM_WORLD
     Commxx();
@@ -68,5 +72,10 @@ public:
 
     ~Commxx();
 };
+
+typedef std::vector<Commxx_sptr > Commxxs;
+
+Commxxs
+generate_subcomms(int count);
 
 #endif /* COMMXX_H_ */
