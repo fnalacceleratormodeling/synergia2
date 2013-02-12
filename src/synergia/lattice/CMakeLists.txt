@@ -27,6 +27,7 @@ install(FILES
     chef_lattice_section_fwd.h
     chef_utils.h
     element_adaptor.h
+    element_adaptor_map.h
     lattice_element.h
     lattice_element_slice.h
     lattice.h
