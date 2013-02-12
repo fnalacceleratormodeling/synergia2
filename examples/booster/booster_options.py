@@ -3,11 +3,13 @@
 import synergia_workflow
 
 opts = synergia_workflow.Options("booster")
-opts.add("verbose", False, "Verbose propagation", bool)
+opts.add("template","job_tev","job template",str)
+opts.add("verbose", 1, "Verbose propagation", int)
 opts.add("num_steps", 24*6, "Number of steps per turn", int)
-opts.add("num_steps_else", 24*2, "Number of steps per turn", int)
+opts.add("num_steps_else", 24*4, "Number of steps per turn", int)
 opts.add("num_turns", 2, "Number of turns", int)
-
+opts.add("steps_per_dmag", 1, "Number of steps per D magnet", int)
+opts.add("steps_per_fmag", 1, "Number of steps per F magnet", int)
 
 
 opts.add("map_order", 1, "Map order", int)
@@ -16,39 +18,81 @@ opts.add("num_buckets",84,"number of buckets",int)
 #opts.add("harmno",84,"Harmonic number", int)
 opts.add("rf_voltage", 0.6/18.0, "RF cavity voltage in MV", float)
 opts.add("rfphase",0.0,"rf cavity phase (rad)",float)
+
+
 #opts.add("latticefile","booster_classic.lat","lattice file",str)
 #opts.add("latticefile","booster_0.5.lat","lattice file",str)
-opts.add("latticefile","booster_petrenko.lat","lattice file",str)
+#opts.add("latticefile","booster_petrenko.lat","lattice file",str)
+#opts.add("latticefile","booster_Leo_sbend.lat","lattice file",str)
 #opts.add("latticefile","booster_petrenko_leo.lat","lattice file",str)
 #opts.add("latticefile","booster_petrenko_zero.lat","lattice file",str)
-opts.add("wakefile1","LamD_wake.dat","wake function file",str)
-opts.add("wakefile2","LamF_wake.dat","wake function file",str)
+#opts.add("latticefile","booster_zerochrom.lat","lattice file",str)
+#opts.add("latticefile","booster_expchrom.lat","lattice file",str)
+opts.add("latticefile","booster_2012.lat","lattice file",str)
+opts.add("wakefileD","BoosterD_g142_muyury.dat","wake function file",str)
+opts.add("wakefileF","BoosterF_g142_muyury.dat","wake function file",str)
+#opts.add("wakefileD","BoosterD_g142_mu100.dat","wake function file",str)
+#opts.add("wakefileF","BoosterF_g142_mu100.dat","wake function file",str)
+#opts.add("wakefileD","LamD_wake.dat","wake function file",str)
+#opts.add("wakefileF","LamF_wake.dat","wake function file",str)
 
-opts.add("xrms",0.00856274," RMS x length [m]",float)
-opts.add("yrms",0.00329933777917 ," RMS y length [m]",float)  
-opts.add("zrms",0.88,"RMS longitudinal length [m]",float)  
-opts.add("emit",2.20e-6,"(x-,y-)emittance",float)
+
+#opts.add("xrms",0.00856274," RMS x length [m]",float)
+#iopts.add("yrms",0.00329933777917 ," RMS y length [m]",float) 
+#opts.add("zrms",0.88,"RMS longitudinal length [m]",float)  
+
+#opts.add("xrms",0.0119," RMS x length [m]",float)
+#opts.add("yrms",0.00284 ," RMS y length [m]",float) 
+#opts.add("zrms",0.88,"RMS longitudinal length [m]",float)  
+
+opts.add("xrms", 0.005," RMS x length [m]",float) #good ones!!
+opts.add("yrms",0.006 ," RMS y length [m]",float)  #good ones!!
+opts.add("zrms",0.4 ,"RMS longitudinal length [m]",float) 
+
+
+
+#opts.add("emit",2.20e-6,"(x-,y-)emittance",float)
 #opts.add("norm_emit",5.89533703303356e-07, "Horizontal and vertical emittance [m rad]", float)
 
 opts.add("num_bunches", 1, "number of bunches", int)
 opts.add("seed", 0, "Pseudorandom number generator seed", int)
 opts.add("num_macro_particles", 100000, "Number of macro particles", int)
-opts.add("num_real_particles", 5.e10, "Number of real particles", float)
-opts.add("x_offset", 0.00001, "Bunch offset in x", float)
-opts.add("y_offset", 0.00001, "Bunch offset in y", float)
+opts.add("num_real_particles", 2.22e10, "Number of real particles", float)
+opts.add("periodic", 1, "periodic bunches along z", int)
+opts.add("x_offset", 0.00, "Bunch offset in x", float)
+opts.add("y_offset", 0.0, "Bunch offset in y", float)
 opts.add("z_offset", 0.0, "Bunch offset in z", float)
 
 
+opts.add("adjust_chromaticity", 0, "", int)
+opts.add("chromH", -10.," desired horizontal chromaticty",float) 
+opts.add("chromV", -5.," desired vertical chromaticty",float) 
+
+
+opts.add("bpms", 1, "", int)
 opts.add("impedance", 0, "", int)
 opts.add("space_charge", 0, "", int)
-opts.add("scgrid",[32,32,64],"Space charge grid",int)
+opts.add("aperture",0, "", int)
+opts.add("chef_propagate",0, " chef propagate", int)
+opts.add("chef_map",0, " chef map", int)
+opts.add("turn_write",100, "write particles every turn_write turn", int)
+#opts.add("scgrid",[32,32,64],"Space charge grid",int)
+opts.add("scgrid",[16,16,16],"Space charge grid",int)
+#opts.add("scgrid_L",[128,128,64],"Space charge grid for long section",int)
+opts.add("scgrid_L",[16,16,16],"Space charge grid for long section",int)
 opts.add("grid_ref_distance",0.01,"final spc_grid grid will be scgrid*radius/grid_ref_distance , (m)",float)
 opts.add("apertureF",0.021,"average F magnet self-aperture (m)",float)
 opts.add("apertureD",0.029,"average D magnet self-aperture (m)",float)
-opts.add("apertureL",0.041, "average L pipe self-aperture (m)",float)
+#opts.add("apertureL",0.041, "average L pipe self-aperture (m)",float)
+opts.add("apertureL",0.05715, "average L pipe self-aperture (m)",float)
 
-opts.add("set_corrections", 1, "", int)
-opts.add("correction_file","machine_parameters.sdds",str)
+opts.add("checkpointperiod", 2, "Number of turns to run between checkpoints", int)
+opts.add("maxturns", 0, "Maximum number of turns to run before checkpointing and quitting", int)
+opts.add("concurrentio", 8, "Maximum number of current io threads for checkpointing", int)
+#opts.add("set_corrections", 0, "", int)
+#opts.add("correction_file","sextupole_correctors.txt",str)
 
-job_mgr = synergia_workflow.Job_manager("booster.py", opts, [opts.get("latticefile"), opts.get("wakefile1"),opts.get("wakefile2"),opts.get("correction_file")], extra_opt_dirs=None)
-    
+#job_mgr = synergia_workflow.Job_manager("booster.py", opts, [opts.get("latticefile"), opts.get("wakefileF"),opts.get("wakefileD"),opts.get("correction_file")], extra_opt_dirs=None)
+
+job_mgr = synergia_workflow.Job_manager("booster.py", opts, [opts.get("latticefile"), opts.get("wakefileF"),opts.get("wakefileD")], extra_opt_dirs=None)
+      

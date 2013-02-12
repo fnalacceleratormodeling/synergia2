@@ -1874,3 +1874,58 @@ Lambertson_mad8_adaptor::~Lambertson_mad8_adaptor()
 {
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Lambertson_mad8_adaptor)
+
+
+Srot_mad8_adaptor::Srot_mad8_adaptor()
+{
+}
+
+
+Chef_elements
+Srot_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+    double angle = lattice_element.get_double_attribute("angle");
+
+    ElmPtr elm(
+            new srot(lattice_element.get_name().c_str(), angle));
+
+    retval.push_back(elm);
+    return retval;
+}
+
+template<class Archive>
+    void
+    Srot_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Srot_mad8_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Srot_mad8_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Srot_mad8_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Srot_mad8_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+
+
+Srot_mad8_adaptor::~Srot_mad8_adaptor()
+{
+}
+BOOST_CLASS_EXPORT_IMPLEMENT(Srot_mad8_adaptor)
+
