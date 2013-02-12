@@ -31,7 +31,6 @@ struct Object_to_sptr_hack
    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
            "space_charge"));
 
-   Commxx mcommx=Commxx();
    Lattice_simulator lattice_simulator(lattice_sptr, 2);
 
     Split_operator_stepper_sptr stepper_sptr(new Split_operator_stepper(

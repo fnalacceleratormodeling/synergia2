@@ -20,7 +20,7 @@ private:
     int writer_rank;
     std::string filename;
     bool serial;
-    Commxx commxx;
+    Commxx_sptr commxx_sptr;
     Hdf5_file_sptr file_sptr;
     bool have_file;
     int count;
@@ -30,15 +30,15 @@ private:
     get_filename();
     void
     open_file();
-    void
-    construct(std::string const& filename,
-        bool serial, int write_skip, Commxx const& commxx, int writer_rank);
+//    void
+//    construct(std::string const& filename,
+//        bool serial, int write_skip, Commxx const& commxx, int writer_rank);
 public:
     /// Construct Diagnostics_write_helper
-    Diagnostics_write_helper(std::string const& filename, bool serial, int write_skip, Commxx const& commxx,
-            int writer_rank = default_rank);
+//    Diagnostics_write_helper(std::string const& filename, bool serial, int write_skip, Commxx_sptr commxx_sptr,
+//            int writer_rank = default_rank);
 
-    Diagnostics_write_helper(std::string const& filename, bool serial, Commxx const& commxx,
+    Diagnostics_write_helper(std::string const& filename, bool serial, Commxx_sptr commxx_sptr,
             int writer_rank = default_rank);
 
     // Default constructor for serialization use only

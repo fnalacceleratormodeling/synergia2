@@ -121,12 +121,11 @@ Space_charge_rectangular::get_charge_density(Bunch const& bunch)
     Rectangular_grid_sptr rho_sptr(new Rectangular_grid(domain_sptr));
     deposit_charge_rectangular_xyz(*rho_sptr, bunch);
     //t = simple_timer_show(t, "sc_get_charge_density: depozit_xyz");
-    Commxx comm(bunch.get_comm());
 
 
     t = simple_timer_current();
     int error = MPI_Allreduce(MPI_IN_PLACE, (void*)  rho_sptr->get_grid_points().origin(),
-                               rho_sptr->get_grid_points().num_elements(), MPI_DOUBLE, MPI_SUM, comm.get());
+                               rho_sptr->get_grid_points().num_elements(), MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
 
 
      t = simple_timer_show(t, "sc_get_charge_density: allmpireduce");

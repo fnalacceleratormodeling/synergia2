@@ -28,18 +28,21 @@ Diagnostics_write_helper::open_file()
     }
 }
 
-void
-Diagnostics_write_helper::construct(std::string const& filename, bool serial,
-        int write_skip, Commxx const& commxx, int writer_rank)
+//Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
+//        bool serial, int write_skip, Commxx const& commxx, int writer_rank)
+//{
+//    construct(filename, serial, write_skip, commxx, writer_rank);
+//
+//}
+
+Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
+        bool serial, Commxx_sptr commxx_sptr, int writer_rank) :
+        writer_rank(writer_rank), filename(filename), serial(serial), commxx_sptr(
+                commxx_sptr), file_sptr(), have_file(false), count(0), iwrite_skip(
+                1), filename_base(), filename_suffix()
 {
-    this->filename = filename;
-    this->commxx = commxx;
-    this->count = 0;
-    this->have_file = false;
-    this->iwrite_skip = write_skip;
-    this->serial = serial;
     if (writer_rank == default_rank) {
-        this->writer_rank = commxx.get_size() - 1;
+        this->writer_rank = commxx_sptr->get_size() - 1;
     } else {
         this->writer_rank = writer_rank;
     }
@@ -51,20 +54,6 @@ Diagnostics_write_helper::construct(std::string const& filename, bool serial,
         filename_base = filename.substr(0, idx);
         filename_suffix = filename.substr(idx);
     }
-}
-
-Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
-        bool serial, int write_skip, Commxx const& commxx, int writer_rank)
-{
-    construct(filename, serial, write_skip, commxx, writer_rank);
-
-}
-
-Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
-        bool serial, Commxx const& commxx, int writer_rank)
-{
-    int write_skip = 1;
-    construct(filename, serial, write_skip, commxx, writer_rank);
 }
 
 Diagnostics_write_helper::Diagnostics_write_helper()
@@ -98,7 +87,7 @@ Diagnostics_write_helper::increment_count()
 bool
 Diagnostics_write_helper::write_locally()
 {
-    return commxx.get_rank() == writer_rank;
+    return commxx_sptr->get_rank() == writer_rank;
 }
 
 int
@@ -141,7 +130,7 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(writer_rank)
                 & BOOST_SERIALIZATION_NVP(filename)
                 & BOOST_SERIALIZATION_NVP(serial)
-                & BOOST_SERIALIZATION_NVP(commxx)
+                & BOOST_SERIALIZATION_NVP(commxx_sptr)
                 & BOOST_SERIALIZATION_NVP(file_sptr)
                 & BOOST_SERIALIZATION_NVP(have_file)
                 & BOOST_SERIALIZATION_NVP(count)
