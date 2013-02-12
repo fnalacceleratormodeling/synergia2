@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import sys
 import synergia
 from booster_options import opts
@@ -304,8 +305,7 @@ else:
 #print 
 #for qua in quad_correctors_V:
     #print " quad_correctors_V=",  qua.get_name() 
- 
-         
+          
           
 lattice_simulator = synergia.simulation.Lattice_simulator(lattice, opts.map_order)  
 lattice_simulator.get_lattice().get_reference_particle()        
@@ -313,12 +313,12 @@ bunch_sp= lattice_simulator.get_bucket_length()
 
 #horizontal_tune=0.7
 #vertical_tune=0.72
-#lattice_simulator.adjust_tunes(horizontal_tune, vertical_tune, quad_correctors_H, quad_correctors_V, 1.0e-6)
+#lattice_simulator.adjust_tunes(horizontal_tune, vertical_tune, quad_correctors_H, quad_correctors_V)
 
  
 if opts.adjust_chromaticity:
     lattice_simulator.adjust_chromaticities(opts.chromH, opts.chromV, \
-        sextupole_correctors_H,sextupole_correctors_V, 1.e-6, 10)
+        sextupole_correctors_H,sextupole_correctors_V)
 
 
 
@@ -505,32 +505,37 @@ if MPI.COMM_WORLD.Get_rank() ==0:
     print " bucket_lenght=",bunch_sp
     print "lattice size=",len(lattice.get_elements())
 
-map = linear_one_turn_map(stepper.get_lattice_simulator())
+#map = linear_one_turn_map(stepper.get_lattice_simulator())
+map= stepper.get_lattice_simulator().get_linear_one_turn_map()
 [[ax,ay],[bx,by]] = synergia.optics.get_alpha_beta(map)
 (tune_x, tune_y, tune_z) = synergia.optics.get_tunes(map)
 
 
+stepper.get_lattice_simulator().print_lattice_functions()
+chef_frac_tunex=stepper.get_lattice_simulator().get_horizontal_tune()
+chef_frac_tuney=stepper.get_lattice_simulator().get_vertical_tune()
+chef_eigen_tunex=stepper.get_lattice_simulator().get_horizontal_tune(True)
+chef_eigen_tuney=stepper.get_lattice_simulator().get_vertical_tune(True)
+horizontal_chromaticity=stepper.get_lattice_simulator().get_horizontal_chromaticity()
+vertical_chromaticity=stepper.get_lattice_simulator().get_vertical_chromaticity()
+momentum_compaction=stepper.get_lattice_simulator().get_momentum_compaction()
+slip_factor=stepper.get_lattice_simulator().get_slip_factor()
+if MPI.COMM_WORLD.Get_rank() ==0:
+    print "Lattice functions assuming uncoupled map:"
+    print "alpha x: ", ax
+    print "alpha y: ", ay
+    print "beta x: ", bx
+    print "beta y: ", by
+    print "chef FracTune x: ", chef_frac_tunex, ", EigenTune x: ", chef_eigen_tunex, ", map tune x: ", tune_x, "(",1-tune_x,")"
+    print "chef FracTune y: ", chef_frac_tuney, ", EigenTune y: ", chef_eigen_tuney, ", map tune y: ", tune_y, "(",1-tune_y,")"
+    print "                           map tune z: ", tune_z, "(",1-tune_z,")"  
+    print " horizontal chromaticity: ", horizontal_chromaticity
+    print " vertical   chromaticity: ", vertical_chromaticity
+    print " momentum compaction: ", momentum_compaction
+    print " slip factor: ", slip_factor
 
-#stepper.get_lattice_simulator().print_lattice_functions()
-#chef_tunex=stepper.get_lattice_simulator().get_horizontal_tune()
-#chef_tuney=stepper.get_lattice_simulator().get_vertical_tune()
-#horizontal_chromaticity=stepper.get_lattice_simulator().get_horizontal_chromaticity()
-#vertical_chromaticity=stepper.get_lattice_simulator().get_vertical_chromaticity()
-#momentum_compaction=stepper.get_lattice_simulator().get_momentum_compaction()
-#slip_factor=stepper.get_lattice_simulator().get_slip_factor()
-#if MPI.COMM_WORLD.Get_rank() ==0:
-    #print "Lattice functions assuming uncoupled map:"
-    #print "alpha x: ", ax
-    #print "alpha y: ", ay
-    #print "beta x: ", bx
-    #print "beta y: ", by
-    #print " chef tune x: ", chef_tunex, " map tune x: ", tune_x, "(",1-tune_x,")"
-    #print " chef tune y: ", chef_tuney, " map tune y: ", tune_y, "(",1-tune_y,")"
-    #print "                           map tune z: ", tune_z, "(",1-tune_z,")"  
-    #print " horizontal chromaticity: ", horizontal_chromaticity
-    #print " vertical   chromaticity: ", vertical_chromaticity
-    #print " momentum compaction: ", momentum_compaction
-    #print " slip factor: ", slip_factor
+sys.exit(1)
+
 
 
 # now create bunches

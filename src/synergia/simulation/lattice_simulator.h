@@ -10,6 +10,9 @@
 #include "synergia/simulation/aperture_operation_extractor.h"
 #include "synergia/simulation/step.h"
 #include <physics_toolkit/LattFuncSage.h>
+#include <physics_toolkit/EdwardsTengSage.h>
+#include <physics_toolkit/LBSage.h>
+#include <physics_toolkit/DispersionSage.h>
 #include <physics_toolkit/BeamlineContext.h>
 #include <physics_toolkit/normalFormSage.h>
 
@@ -33,6 +36,68 @@ struct Lattice_functions
         serialize(Archive & ar, const unsigned int version);
 };
 
+
+ struct ET_lattice_functions
+{
+    ET_lattice_functions();
+    ET_lattice_functions(EdwardsTengSage::Info const& ET_Info);
+    double beta_x;
+    double beta_y;    
+    double alpha_x;
+    double alpha_y;
+    double phi;    
+    double arc_length;
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version);
+        
+};     
+        
+ struct LB_lattice_functions
+{
+    LB_lattice_functions();
+    LB_lattice_functions(LBSage::Info const& LB_Info);
+    double beta_1x;
+    double beta_1y;
+    double beta_2x;
+    double beta_2y;
+    double alpha_1x;
+    double alpha_1y;
+    double alpha_2x;
+    double alpha_2y;
+    double u1;
+    double u2;
+    double u3;
+    double u4;
+    double nu_1;
+    double nu_2;   
+    double arc_length;
+    template<class Archive>
+         void
+         serialize(Archive & ar, const unsigned int version);
+};   
+        
+            
+ struct Dispersion_functions
+{
+    Dispersion_functions();
+    Dispersion_functions( DispersionSage::Info   const&  Disp_Info);
+    double  dispersion_x;
+    double  dispersion_y;  
+    double  dPrime_x;
+    double  dPrime_y; 
+    double  closedOrbit_x;
+    double  closedOrbit_y;
+    double  closedOrbitP_x;  
+    double  closedOrbitP_y;
+    double arc_length; 
+     template<class Archive>
+         void
+         serialize(Archive & ar, const unsigned int version);
+};              
+
+
+
 class Lattice_simulator
 {
 private:
@@ -46,15 +111,6 @@ private:
     BmlContextPtr beamline_context_sptr, sliced_beamline_context_sptr;
     int map_order;
     double bucket_length;
-    bool have_element_lattice_functions;
-    bool have_slice_lattice_functions;
-    double horizontal_tune, vertical_tune;
-    bool have_tunes;
-    double horizontal_chromaticity, vertical_chromaticity;
-    bool have_chromaticities;
-    std::map<Lattice_element *, Lattice_functions > lattice_functions_element_map;
-    std::map<Lattice_element_slice *, Lattice_functions > lattice_functions_slice_map;
-    MArray2d linear_one_turn_map;
     void
     construct_extractor_map();
     void
@@ -69,8 +125,40 @@ private:
     get_sliced_beamline_context();
     void
     construct_sliced_chef_beamline();
+    bool have_element_lattice_functions;
+    bool have_slice_lattice_functions;
+    bool have_element_et_lattice_functions;
+    bool have_slice_et_lattice_functions;
+    bool have_element_lb_lattice_functions;
+    bool have_slice_lb_lattice_functions;
+    bool have_element_dispersion;
+    bool  have_slice_dispersion;
+    double horizontal_tune, vertical_tune;
+    bool have_tunes;
+    double horizontal_chromaticity, vertical_chromaticity;
+    double momentum_compaction, slip_factor;
+    bool have_chromaticities;
+    MArray2d linear_one_turn_map;
+    std::map<Lattice_element const*, Lattice_functions >
+            lattice_functions_element_map;         
+    std::map<Lattice_element_slice const*, Lattice_functions >
+            lattice_functions_slice_map;
+            
+    std::map<Lattice_element const*, ET_lattice_functions>
+            et_lattice_functions_element_map; 
+     std::map<Lattice_element_slice const*, ET_lattice_functions >
+            et_lattice_functions_slice_map;  
+     
+     std::map<Lattice_element const*, LB_lattice_functions>
+            lb_lattice_functions_element_map; 
+     std::map<Lattice_element_slice const*, LB_lattice_functions >
+            lb_lattice_functions_slice_map;                    
+     std::map<Lattice_element const*, Dispersion_functions>
+            dispersion_element_map;                    
+     std::map<Lattice_element_slice const*, Dispersion_functions>
+            dispersion_slice_map;       
     void
-    get_tunes();
+    get_tunes(bool use_EigenTune);
     void
     calculate_normal_form();
     Normal_form_sage_sptr normal_form_sage_sptr;
@@ -102,21 +190,55 @@ public:
     Chef_lattice_sptr
     get_chef_lattice_sptr();
     void
-    update();
+    update();    
     void
-    calculate_element_lattice_functions();
+    calculate_element_lattice_functions();// Courant Snyder lattice functions
     void
-    calculate_slice_lattice_functions();
+    calculate_slice_lattice_functions();// Courant Snyder lattice functions
+    void
+    calculate_element_et_lattice_functions(); // Edwards Teng lattice functions
+    void
+    calculate_slice_et_lattice_functions(); // Edwards Teng lattice functions
+    void
+    calculate_element_lb_lattice_functions(); // Lebedev Bogacz lattice functions
+    void
+    calculate_slice_lb_lattice_functions();// Lebedev Bogacz lattice functions
+    void
+    calculate_element_dispersion_functions(); //claulate dispersion and closed orbit
+    void
+    calculate_slice_dispersion_functions(); //claulate dispersion and closed orbit
     Lattice_functions const&
     get_lattice_functions(Lattice_element & lattice_element);
     Lattice_functions const&
     get_lattice_functions(Lattice_element_slice & lattice_element_slice);
-    std::pair<double, double >
-    get_both_tunes();
+    ET_lattice_functions const&
+    get_et_lattice_functions(Lattice_element & lattice_element);
+    ET_lattice_functions const&
+    get_et_lattice_functions(Lattice_element_slice & lattice_element_slice);   
+        LB_lattice_functions const&
+    get_lb_lattice_functions(Lattice_element & lattice_element);
+    LB_lattice_functions const&
+    get_lb_lattice_functions(Lattice_element_slice & lattice_element_slice);
+    Dispersion_functions const&
+    get_dispersion_functions(Lattice_element & lattice_element);
+    Dispersion_functions const&
+    get_dispersion_functions(Lattice_element_slice & lattice_element_slice);
+    void 
+    print_cs_lattice_functions(); // Courant Snyder
+    void 
+    print_et_lattice_functions(); // Edwards Teng
+    void 
+    print_lb_lattice_functions(); // Lebedev Bogacz
+    void 
+    print_dispersion_closedOrbit(); 
+    void 
+    print_lattice_functions(); // all (CS, LB, ET, Dispersion)        
+    std::pair<double, double>
+    get_both_tunes(bool use_EigenTune=false);
     double
-    get_horizontal_tune();
+    get_horizontal_tune(bool use_EigenTune=false);
     double
-    get_vertical_tune();
+    get_vertical_tune(bool use_EigenTune=false);
     bool
     is_ring();
     Normal_form_sage_sptr
@@ -136,7 +258,11 @@ public:
     adjust_tunes(double horizontal_tune, double vertical_tune,
             Lattice_elements const& horizontal_correctors,
             Lattice_elements const& vertical_correctors, double tolerance =
-                    1.0e-6);
+                    1.0e-5);
+    double
+    get_slip_factor();
+    double
+    get_momentum_compaction();
     double
     get_horizontal_chromaticity();
     double
@@ -146,7 +272,7 @@ public:
             double vertical_chromaticity,
             Lattice_elements const& horizontal_correctors,
             Lattice_elements const& vertical_correctors, double tolerance =
-                    1.0e-6, int max_steps = 10);
+                    1.0e-4, int max_steps = 6);
 
     template<class Archive>
         void

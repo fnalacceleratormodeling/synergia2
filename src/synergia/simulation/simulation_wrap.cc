@@ -154,6 +154,19 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bs_add_per_step_member_overloads23,
         Bunch_simulator::add_per_step, 2, 3)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bs_add_per_forced_diagnostics_step_member_overloads12,
                 Bunch_simulator::add_per_forced_diagnostics_step, 1, 2)
+                
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_horizontal_tune_overloads01,
+        Lattice_simulator::get_horizontal_tune, 0, 1) 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertical_tune_overloads01,
+        Lattice_simulator::get_vertical_tune, 0, 1)   
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_both_tunes_overloads01,
+        Lattice_simulator::get_both_tunes, 0, 1) 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_chromaticities_overloads46,
+		 Lattice_simulator::adjust_chromaticities, 4, 6)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_tunes_overloads45,
+		 Lattice_simulator::adjust_tunes, 4, 5)
+		 
+        
 
 BOOST_PYTHON_MODULE(simulation)
 {
@@ -325,19 +338,31 @@ BOOST_PYTHON_MODULE(simulation)
                 return_value_policy<copy_const_reference >())
         .def("get_lattice_functions", get_lattice_functions2,
                 return_value_policy<copy_const_reference >())
-        .def("get_horizontal_tune", &Lattice_simulator::get_horizontal_tune)
-        .def("get_vertical_tune", &Lattice_simulator::get_vertical_tune)
-        .def("get_both_tunes", &Lattice_simulator::get_both_tunes)
-        .def("adjust_tunes", &Lattice_simulator::adjust_tunes)
+        .def("get_horizontal_tune", &Lattice_simulator::get_horizontal_tune, 
+	                          get_horizontal_tune_overloads01())
+        .def("get_vertical_tune", &Lattice_simulator::get_vertical_tune,
+	                          get_vertical_tune_overloads01())
+        .def("get_both_tunes", &Lattice_simulator::get_both_tunes,
+	                          get_both_tunes_overloads01())
+        .def("adjust_tunes", &Lattice_simulator::adjust_tunes,
+	                           adjust_tunes_overloads45())
         .def("get_horizontal_chromaticity", &Lattice_simulator::get_horizontal_chromaticity)
         .def("get_vertical_chromaticity", &Lattice_simulator::get_vertical_chromaticity)
-        .def("adjust_chromaticities", &Lattice_simulator::adjust_chromaticities)
+        .def("get_momentum_compaction", &Lattice_simulator::get_momentum_compaction)
+        .def("get_slip_factor",&Lattice_simulator::get_slip_factor)
+        .def("adjust_chromaticities", &Lattice_simulator::adjust_chromaticities,
+	                             adjust_chromaticities_overloads46())
       .def("is_ring", &Lattice_simulator::is_ring)
       .def("get_linear_one_turn_map", &Lattice_simulator::get_linear_one_turn_map)
       .def("check_linear_normal_form", &Lattice_simulator::check_linear_normal_form)
       .def("convert_normal_to_human", &Lattice_simulator::convert_normal_to_human)
       .def("convert_human_to_normal", &Lattice_simulator::convert_human_to_normal)
       .def("get_stationary_actions", &Lattice_simulator::get_stationary_actions)
+//         .def("print_CS_lattice_functions", &Lattice_simulator::print_cs_lattice_functions)
+//         .def("print_ET_lattice_functions", &Lattice_simulator::print_et_lattice_functions)
+//         .def("print_LB_lattice_functions", &Lattice_simulator::print_lb_lattice_functions)
+//         .def("print_dispersion_closedOrbit", &Lattice_simulator::print_dispersion_closedOrbit)
+        .def("print_lattice_functions", &Lattice_simulator::print_lattice_functions)
         ;
 
     def("populate_6d_stationary_torus", &populate_6d_stationary_torus);
