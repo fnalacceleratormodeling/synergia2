@@ -28,18 +28,11 @@ Diagnostics_write_helper::open_file()
     }
 }
 
-//Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
-//        bool serial, int write_skip, Commxx const& commxx, int writer_rank)
-//{
-//    construct(filename, serial, write_skip, commxx, writer_rank);
-//
-//}
-
 Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
         bool serial, Commxx_sptr commxx_sptr, int writer_rank) :
         writer_rank(writer_rank), filename(filename), serial(serial), commxx_sptr(
-                commxx_sptr), file_sptr(), have_file(false), count(0), iwrite_skip(
-                1), filename_base(), filename_suffix()
+                commxx_sptr), file_sptr(), have_file(false), count(0),
+                filename_base(), filename_suffix()
 {
     if (writer_rank == default_rank) {
         this->writer_rank = commxx_sptr->get_size() - 1;
@@ -64,12 +57,6 @@ int
 Diagnostics_write_helper::get_count() const
 {
     return count;
-}
-
-int
-Diagnostics_write_helper::get_iwrite_skip() const
-{
-    return iwrite_skip;
 }
 
 void
@@ -134,7 +121,6 @@ template<class Archive>
                 & BOOST_SERIALIZATION_NVP(file_sptr)
                 & BOOST_SERIALIZATION_NVP(have_file)
                 & BOOST_SERIALIZATION_NVP(count)
-                & BOOST_SERIALIZATION_NVP(iwrite_skip)
                 & BOOST_SERIALIZATION_NVP(filename_base)
                 & BOOST_SERIALIZATION_NVP(filename_suffix);
     }
