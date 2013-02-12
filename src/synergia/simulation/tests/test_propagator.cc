@@ -73,6 +73,7 @@ BOOST_FIXTURE_TEST_CASE(set_get_concurrent_io, Propagator_fixture)
 BOOST_FIXTURE_TEST_CASE(propagate, Propagator_fixture)
 {
     Bunch_sptr bunch_sptr(new Bunch(l.b.bunch));
+    populate_6d(distribution, *bunch_sptr, means, covariances);
     Bunch_simulator bunch_simulator(bunch_sptr);
 
     Diagnostics_sptr first_step_full2_diag_sptr(
@@ -96,7 +97,12 @@ BOOST_FIXTURE_TEST_CASE(propagate, Propagator_fixture)
 BOOST_FIXTURE_TEST_CASE(propagate_train, Propagator_fixture)
 {
     const double bunch_spacing = 1.7;
-    Bunch_train_sptr bunch_train_sptr(new Bunch_train(bs.bunches, bunch_spacing));
+    Bunch_train_sptr bunch_train_sptr(
+            new Bunch_train(bs.bunches, bunch_spacing));
+    for (Bunches::iterator it = bs.bunches.begin(); it != bs.bunches.end();
+            ++it) {
+        populate_6d(distribution, **it, means, covariances);
+    }
     Bunch_train_simulator bunch_train_simulator(bunch_train_sptr);
 
     Diagnostics_sptr step_full2_diag0_sptr(
@@ -131,6 +137,7 @@ BOOST_FIXTURE_TEST_CASE(propagate_train, Propagator_fixture)
 BOOST_FIXTURE_TEST_CASE(propagate_max_turns, Propagator_fixture)
 {
     Bunch_sptr bunch_sptr(new Bunch(l.b.bunch));
+    populate_6d(distribution, *bunch_sptr, means, covariances);
     Bunch_simulator bunch_simulator(bunch_sptr);
 
     Diagnostics_sptr first_step_full2_diag_sptr(
@@ -163,6 +170,7 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Propagator_fixture)
     xml_save(propagator, "propagator.xml");
 
     Bunch_sptr bunch_sptr(new Bunch(l.b.bunch));
+    populate_6d(distribution, *bunch_sptr, means, covariances);
     Bunch_simulator bunch_simulator(bunch_sptr);
 
     bunch_simulator.add_per_turn(
@@ -186,6 +194,10 @@ BOOST_FIXTURE_TEST_CASE(serialize_train_xml, Propagator_fixture)
 
     const double bunch_spacing = 1.7;
     Bunch_train_sptr bunch_train_sptr(new Bunch_train(bs.bunches, bunch_spacing));
+    for (Bunches::iterator it = bs.bunches.begin(); it != bs.bunches.end();
+            ++it) {
+        populate_6d(distribution, **it, means, covariances);
+    }
     Bunch_train_simulator bunch_train_simulator(bunch_train_sptr);
 
     bunch_train_simulator.add_per_turn(0,
@@ -216,4 +228,5 @@ BOOST_FIXTURE_TEST_CASE(serialize_train_xml, Propagator_fixture)
     Propagator loaded;
     xml_load(propagator, "propagator_train.xml");
 }
+
 
