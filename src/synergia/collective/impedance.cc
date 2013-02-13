@@ -117,8 +117,7 @@ calculate_moments_and_partitions(Bunch & bunch, MArray1d &zdensity,  MArray1d &x
 {
 
   //  std::cout<<"begining of calculate_moments_and_partitions"<<std::endl;
-    Commxx comm(bunch.get_comm());
-    int rank(comm.get_rank());
+      int rank(bunch.get_comm().get_rank());
 
 
       int z_num = zdensity.num_elements();
@@ -179,7 +178,7 @@ calculate_moments_and_partitions(Bunch & bunch, MArray1d &zdensity,  MArray1d &x
 
 
     int error = MPI_Allreduce(reinterpret_cast<void*>(local_zdensity.origin()), reinterpret_cast<void*> (zdensity.origin()),z_num, MPI_DOUBLE,
-            MPI_SUM, comm.get());
+            MPI_SUM, bunch.get_comm().get());
     if (error != MPI_SUCCESS) {
         throw std::runtime_error(
                 "MPI error in Impedance zdensity");
@@ -188,7 +187,7 @@ calculate_moments_and_partitions(Bunch & bunch, MArray1d &zdensity,  MArray1d &x
 
     MPI_Allreduce(reinterpret_cast<void*>(local_xmom.origin()),
                    reinterpret_cast<void*>(xmom.origin()),
-                                           z_num, MPI_DOUBLE, MPI_SUM, comm.get());
+                                           z_num, MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
     if (error != MPI_SUCCESS) {
         throw std::runtime_error(
                 "MPI error in Impedance xmom");
@@ -197,7 +196,7 @@ calculate_moments_and_partitions(Bunch & bunch, MArray1d &zdensity,  MArray1d &x
 
     MPI_Allreduce(reinterpret_cast<void*>(local_ymom.origin()),
                    reinterpret_cast<void*>(ymom.origin()),
-                                           z_num, MPI_DOUBLE, MPI_SUM, comm.get());
+                                           z_num, MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
     if (error != MPI_SUCCESS) {
         throw std::runtime_error(
                 "MPI error in Impedance ymom");

@@ -45,12 +45,12 @@ Diagnostics_write_helper::open_file()
 }
 
 Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
-        bool serial, Commxx const& commxx, std::string const& local_dir, int writer_rank) :
-        filename(filename), local_dir(local_dir), commxx(commxx), count(0), have_file(
+        bool serial, Commxx_sptr commxx_sptr, std::string const& local_dir, int writer_rank) :
+        filename(filename), local_dir(local_dir), commxx_sptr(commxx_sptr), count(0), have_file(
                 false), serial(serial)
 {
     if (writer_rank == default_rank) {
-        this->writer_rank = commxx.get_size() - 1;
+        this->writer_rank = commxx_sptr->get_size() - 1;
     } else {
         this->writer_rank = writer_rank;
     }
@@ -89,7 +89,7 @@ Diagnostics_write_helper::increment_count()
 bool
 Diagnostics_write_helper::write_locally()
 {
-    return commxx.get_rank() == writer_rank;
+    return commxx_sptr->get_rank() == writer_rank;
 }
 
 int
@@ -137,7 +137,7 @@ template<class Archive>
                 & BOOST_SERIALIZATION_NVP(filename)
                 & BOOST_SERIALIZATION_NVP(local_dir)
                 & BOOST_SERIALIZATION_NVP(serial)
-                & BOOST_SERIALIZATION_NVP(commxx)
+                & BOOST_SERIALIZATION_NVP(commxx_sptr)
                 & BOOST_SERIALIZATION_NVP(file_sptr)
                 & BOOST_SERIALIZATION_NVP(have_file)
                 & BOOST_SERIALIZATION_NVP(count)

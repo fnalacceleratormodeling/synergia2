@@ -156,3 +156,21 @@ BOOST_AUTO_TEST_CASE(serialize4)
                 get_serialization_path(serialize_file_name).c_str());
     }
 }
+
+BOOST_AUTO_TEST_CASE(generate_subcomms_)
+{
+    int world_size = Commxx().get_size();
+    for (int size = 1; size<5; ++size) {
+        Commxxs commxxs(generate_subcomms(size));
+        BOOST_CHECK_EQUAL(commxxs.size(), size);
+        int includes_this_rank = 0;
+        for (int i = 0; i< size; ++i) {
+            if (commxxs.at(i)->has_this_rank()) {
+                includes_this_rank += 1;
+            }
+        }
+        if (world_size >= size) {
+            BOOST_CHECK_EQUAL(includes_this_rank, 1);
+        }
+    }
+}

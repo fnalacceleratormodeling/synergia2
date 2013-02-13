@@ -1,5 +1,5 @@
 #include "bunch.h"
-#include "train.h"
+#include "bunch_train.h"
 #include "diagnostics.h"
 #include "diagnostics_basic.h"
 #include "diagnostics_full2.h"
@@ -12,6 +12,7 @@
 #include <boost/python.hpp>
 #include "synergia/utils/numpy_multi_ref_converter.h"
 #include "synergia/utils/comm_converter.h"
+#include "synergia/utils/container_conversions.h"
 #include "synergia/foundation/multi_diagnostics.h"
 
 using namespace boost::python;
@@ -43,6 +44,12 @@ BOOST_PYTHON_MODULE(bunch)
         .def("write", &Diagnostics::write)
         .def("update_and_write", &Diagnostics::update_and_write)
         ;
+
+    container_conversions::from_python_sequence<std::list<Diagnostics_sptr >,
+            container_conversions::variable_capacity_policy >();
+
+    to_python_converter<std::list<Diagnostics_sptr >,
+            container_conversions::to_tuple<std::list<Diagnostics_sptr > > >();
 
     class_<Diagnostics_basic, Diagnostics_basic_sptr, bases<Diagnostics > >
         ("Diagnostics_basic",init<std::string const& >())
@@ -155,31 +162,19 @@ BOOST_PYTHON_MODULE(bunch)
     def("populate_transverse_KV_GaussLong", populate_transverse_KV_GaussLong);
     def("populate_two_particles", populate_two_particles);
 
-    class_<Train_comms, Train_comms_sptr, boost::noncopyable >
-        ("Train_comms", init<int, Commxx_sptr >())
-        .def("get_num_bunches", &Train_comms::get_num_bunches)
-        .def("get_master_comm", &Train_comms::get_master_comm,
-                    return_value_policy<copy_const_reference>())
-        .def("get_comm", &Train_comms::get_comm_sptr)
-        .def("is_on_this_rank", &Train_comms::is_on_this_rank)
-        ;
+    container_conversions::from_python_sequence<std::vector<Bunch_sptr >,
+            container_conversions::variable_capacity_policy >();
 
+    to_python_converter<std::vector<Bunch_sptr >,
+            container_conversions::to_tuple<std::vector<Bunch_sptr > > >();
 
-    class_<Bunch_train, Bunch_train_sptr, bases<Train_comms > >("Bunch_train",
-            init<int, double, Commxx_sptr >())
-            .def("get_bunch_separation", &Bunch_train::get_bunch_separation)
-            .def("get_bunch_sptr", &Bunch_train::get_bunch_sptr)
-            .def("set_bunch_sptr", &Bunch_train::set_bunch_sptr)
+    class_<Bunch_train, Bunch_train_sptr >("Bunch_train",
+            init<Bunches, double >())
+            .def(init<Bunches, std::vector<double > const& >())
+            .def("get_size", &Bunch_train::get_size)
+            .def("get_bunches", &Bunch_train::get_bunches, return_internal_reference< >())
+            .def("get_spacings", &Bunch_train::get_spacings, return_internal_reference< >())
             ;
-
-#if 0
-    class_<Bunch_with_diagnostics_train, Bunch_with_diagnostics_train_sptr, bases<Train_comms > >("Bunch_with_diagnostics_train",
-            init<int, double, Commxx_sptr >())
-            .def("get_bunch_separation", &Bunch_with_diagnostics_train::get_bunch_separation)
-            .def("get_bunch_diag_sptr", &Bunch_with_diagnostics_train::get_bunch_diag_sptr)
-            .def("set_bunch_diag_sptr", &Bunch_with_diagnostics_train::set_bunch_diag_sptr)
-            ;
-#endif
 
     typedef Reference_particle & (Bunch::*get_reference_particle_non_const_type)();
     typedef MArray2d_ref (Bunch::*get_local_particles_non_const_type)();

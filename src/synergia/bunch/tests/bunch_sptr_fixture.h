@@ -1,8 +1,10 @@
 #ifndef BUNCH_SPTR_FIXTURE_H_
 #define BUNCH_SPTR_FIXTURE_H_
 
-const double mass = 100.0;
-const double total_energy = 125.0;
+#include "synergia/foundation/physical_constants.h"
+
+const double mass = pconstants::mp;
+const double total_energy = 1.25*mass;
 const int local_num = 9;
 int total_num;
 const double real_num = 2.0e12;

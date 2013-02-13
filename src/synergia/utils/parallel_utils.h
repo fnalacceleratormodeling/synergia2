@@ -39,10 +39,10 @@ decompose_1d_local(Commxx const& comm, int length);
 /// ranks for each element.
 /// @param processors is the number of processors.
 /// @param elements is the number of elements.
-/// Example1: elements=5, processors=3... vector[0]=0, vector[1]=1, vector[2]=1, 
+/// Example1: elements=5, processors=3... vector[0]=0, vector[1]=1, vector[2]=1,
 ///                                       vector[3]=2, vector[4]=2
-/// Example2: elements=5, procesors=12... vector[0]=(0,1) vector[1]=(2,3), vector[2]=(4,5) 
-///                                       vector[3]=(6,7,8) vector[4]=(9,10,11)   
+/// Example2: elements=5, procesors=12... vector[0]=(0,1) vector[1]=(2,3), vector[2]=(4,5)
+///                                       vector[3]=(6,7,8) vector[4]=(9,10,11)
 std::vector<std::vector<int > >
 distribute_1d_raw(int processors, int elements);
 
@@ -51,13 +51,13 @@ distribute_1d_raw(int processors, int elements);
 std::vector<std::vector<int > >
 distribute_1d(Commxx const& comm, int elements);
 
-void 
+void
 counts_and_offsets_for_impedance_raw(unsigned int  processors, int length, std::vector<int > &offsets,
  std::vector<int > &counts);
- 
-void 
+
+void
 counts_and_offsets_for_impedance(Commxx const& comm,int length, std::vector<int > &offsets,
- std::vector<int > &counts); 
-  
+ std::vector<int > &counts);
+
 #endif /* PARALLEL_UTILS_H_ */
 

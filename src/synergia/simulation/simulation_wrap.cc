@@ -168,6 +168,32 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_tunes_overloads45,
 		 
         
 
+void (Bunch_train_simulator::*bts_add_per_turn1)(int, Diagnostics_sptr, int)
+                            = &Bunch_train_simulator::add_per_turn;
+void (Bunch_train_simulator::*bts_add_per_turn2)(int, Diagnostics_sptr,
+        std::list<int > const&)
+                            = &Bunch_train_simulator::add_per_turn;
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bts_add_per_turn_member_overloads12,
+        Bunch_train_simulator::add_per_turn, 2, 3)
+void (Bunch_train_simulator::*bts_add_per_step1)(int, Diagnostics_sptr, int)
+                            = &Bunch_train_simulator::add_per_step;
+void (Bunch_train_simulator::*bts_add_per_step2)(int, Diagnostics_sptr,
+        std::list<int > const&, int)
+                            = &Bunch_train_simulator::add_per_step;
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bts_add_per_step_member_overloads12,
+        Bunch_train_simulator::add_per_step, 2, 3)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bts_add_per_step_member_overloads23,
+        Bunch_train_simulator::add_per_step, 3, 4)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bts_add_per_forced_diagnostics_step_member_overloads12,
+                Bunch_train_simulator::add_per_forced_diagnostics_step, 2, 3)
+
+void
+(Operator::*apply_bunch)(Bunch &, double, Step &, int, Diagnosticss const&,
+        Logger &) = &Operator::apply;
+void
+(Operator::*apply_bunch_train)(Bunch_train &, double, Step &, int,
+        Train_diagnosticss const&, Logger &) = &Operator::apply;
+
 BOOST_PYTHON_MODULE(simulation)
 {
     import_array();
@@ -177,7 +203,8 @@ BOOST_PYTHON_MODULE(simulation)
                 return_value_policy<copy_const_reference >())
         .def("get_type", &Operator::get_type,
                 return_value_policy<copy_const_reference >())
-        .def("apply", &Operator::apply)
+        .def("apply", apply_bunch)
+        .def("apply", apply_bunch_train)
         .def("print_", &Operator::print)
         ;
 
@@ -385,11 +412,13 @@ BOOST_PYTHON_MODULE(simulation)
         .def_readonly("arc_length", &Lattice_functions::arc_length)
         ;
 
-    void (Step::*apply1)(Bunch &, int, Logger &) = &Step::apply;
+    void (Step::*apply1)(Bunch &, int, Diagnosticss const&, Diagnosticss const&, Logger &) = &Step::apply;
+    void (Step::*apply2)(Bunch_train &, int, Train_diagnosticss const&, Train_diagnosticss const&, Logger &) = &Step::apply;
     Operators& (Step::*get_operators1)() = &Step::get_operators;
     class_<Step, Step_sptr >("Step", init<double >())
 //            .def("append", remember how to overload methods...)
             .def("apply",apply1)
+            .def("apply",apply2)
             .def("get_operators",get_operators1,
                     return_value_policy<copy_non_const_reference >())
             .def("get_time_fractions",&Step::get_time_fractions,
@@ -486,10 +515,32 @@ BOOST_PYTHON_MODULE(simulation)
                     bs_add_per_forced_diagnostics_step_member_overloads12())
             ;
 
+    class_<Bunch_train_simulator > ("Bunch_train_simulator", init<Bunch_train_sptr>())
+            .def("get_bunch_train", &Bunch_train_simulator::get_bunch_train_sptr)
+            .def("get_diagnostics_actionss", &Bunch_train_simulator::get_diagnostics_actionss,
+                    return_internal_reference< >())
+            .def("add_per_turn", bts_add_per_turn1,
+                    bts_add_per_turn_member_overloads12())
+            .def("add_per_turn", bts_add_per_turn2)
+            .def("add_per_step", bts_add_per_step1,
+                    bts_add_per_step_member_overloads12())
+            .def("add_per_step", bts_add_per_step2,
+                    bts_add_per_step_member_overloads23())
+            .def("add_per_forced_diagnostics_step",
+                    &Bunch_train_simulator::add_per_forced_diagnostics_step,
+                    bts_add_per_forced_diagnostics_step_member_overloads12())
+            ;
+
     void (Propagator::*propagate1)(Bunch_simulator &, int, int, int)
                                 = &Propagator::propagate;
 
     void (Propagator::*propagate2)(Bunch_simulator &, Propagate_actions &, int, int, int)
+                                = &Propagator::propagate;
+
+    void (Propagator::*propagate_train1)(Bunch_train_simulator &, int, int, int)
+                                = &Propagator::propagate;
+
+    void (Propagator::*propagate_train2)(Bunch_train_simulator &, Propagate_actions &, int, int, int)
                                 = &Propagator::propagate;
 
 //    void (Propagator::*propagate3)(Bunch_with_diagnostics_train &, int, Propagate_actions &, bool)
@@ -537,6 +588,10 @@ BOOST_PYTHON_MODULE(simulation)
             .def("propagate", propagate1,
                  propagate_member_overloads24())
             .def("propagate", propagate2,
+                    propagate_member_overloads35())
+            .def("propagate", propagate_train1,
+                 propagate_member_overloads24())
+            .def("propagate", propagate_train2,
                     propagate_member_overloads35())
             .def("get_resume_state", &Propagator::get_resume_state)
             .def("resume", &Propagator::resume)

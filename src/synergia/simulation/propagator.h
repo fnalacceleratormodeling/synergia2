@@ -4,8 +4,7 @@
 #include "synergia/simulation/stepper.h"
 #include "synergia/simulation/propagate_actions.h"
 #include "synergia/simulation/bunch_simulator.h"
-#include "synergia/bunch/bunch.h"
-#include "synergia/bunch/train.h"
+#include "synergia/simulation/bunch_train_simulator.h"
 #include "synergia/foundation/multi_diagnostics.h"
 #include "synergia/utils/serialization.h"
 #include "synergia/utils/logger.h"
@@ -22,17 +21,22 @@ public:
     static const std::string log_file_name;
     static const std::string stop_file_name;
     static const std::string alt_stop_file_name;
-    static const int default_concurrent_io = 1;
+    static const int default_checkpoint_period;
+    static const int default_concurrent_io;
 
     struct State
     {
         Bunch_simulator * bunch_simulator_ptr;
+        Bunch_train_simulator * bunch_train_simulator_ptr;
         Propagate_actions * propagate_actions_ptr;
         int num_turns;
         int first_turn;
         int max_turns;
         int verbosity;
         State(Bunch_simulator * bunch_simulator_ptr,
+                Propagate_actions * propagate_actions_ptr, int num_turns,
+                int first_turn, int max_turns, int verbosity);
+        State(Bunch_train_simulator * bunch_train_simulator_ptr,
                 Propagate_actions * propagate_actions_ptr, int num_turns,
                 int first_turn, int max_turns, int verbosity);
         State()
@@ -51,10 +55,21 @@ private:
     int concurrent_io;
   bool final_checkpoint;
 
-    void
-    construct();
-    void
-    checkpoint(State & state, Logger & logger, double & t);
+	void
+	construct();
+	void
+	do_before_start(State & state, double & t, Logger & logger);
+	void
+	do_step(Step & step, int step_count, int num_steps, int turn, State & state,
+			double & t, Logger & logger);
+	void
+	do_start_repetition(State & state);
+	bool
+	check_out_of_particles(State & state, Logger & logger);
+	void
+	checkpoint(State & state, Logger & logger, double & t);
+	void
+	do_turn_end(int turn, State & state, double & t, double t_turn0, Logger & logger);
 public:
     Propagator(Stepper_sptr stepper_sptr);
 
@@ -88,7 +103,8 @@ public:
     bool
     get_final_checkpoint() const;
 
-    void set_concurrent_io(int max);
+    void
+    set_concurrent_io(int max);
 
     int
     get_concurrent_io() const;
@@ -114,15 +130,14 @@ public:
             Propagate_actions & general_actions, int num_turns,
             int max_turns = 0, int verbosity = 1);
 
-#if 0
     void
-    propagate(Bunch_with_diagnostics_train & bunch_diag_train, int num_turns,
-            bool verbose = false);
+    propagate(Bunch_train_simulator & bunch_train_simulator, int num_turns,
+            int max_turns = 0, int verbosity = 1);
 
     void
-    propagate(Bunch_with_diagnostics_train & bunch_diag_train, int num_turns,
-            Propagate_actions & general_actions, bool verbose = true);
-#endif
+    propagate(Bunch_train_simulator & bunch_train_simulator,
+            Propagate_actions & general_actions, int num_turns,
+            int max_turns = 0, int verbosity = 1);
 
     template<class Archive>
         void

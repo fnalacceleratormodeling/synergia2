@@ -4,9 +4,9 @@
 #include <list>
 #include <boost/shared_ptr.hpp>
 #include "synergia/utils/logger.h"
-#include "synergia/bunch/train.h"
 #include "synergia/simulation/operator.h"
 #include "synergia/bunch/bunch.h"
+#include "synergia/bunch/bunch_train.h"
 #include "synergia/foundation/multi_diagnostics.h"
 #include "synergia/utils/serialization.h"
 
@@ -42,14 +42,14 @@ public:
     void
     append(Operators const& operators, double time_fraction);
     virtual void
-    apply(Bunch & bunch, int verbosity, Logger & logger);
+    apply(Bunch & bunch, int verbosity,
+            Diagnosticss const& per_operator_diagnostics,
+            Diagnosticss const& per_operation_diagnostics, Logger & logger);
     virtual void
-    apply(Bunch & bunch, int verbosity, Logger & logger,
-            Multi_diagnostics & diagnostics);
-#if 0
-    virtual void
-    apply(Bunch_with_diagnostics_train & bunch_diag_train);
-#endif
+    apply(Bunch_train & bunch_train, int verbosity,
+            Train_diagnosticss const& per_operator_train_diagnosticss,
+            Train_diagnosticss const& per_operation_train_diagnosticss,
+            Logger & logger);
     Operators const&
     get_operators() const;
     Operators &

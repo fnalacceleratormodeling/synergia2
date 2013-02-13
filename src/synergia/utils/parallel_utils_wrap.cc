@@ -17,7 +17,7 @@ decompose_1d_raw_wrap(int processors, int length)
 }
 
 tuple
-decompose_1d_wrap(Commxx comm, int length)
+decompose_1d_wrap(Commxx & comm, int length)
 {
     int processors = comm.get_size();
     std::vector<int> counts(processors), offsets(processors);
@@ -39,13 +39,21 @@ BOOST_PYTHON_MODULE(parallel_utils)
     to_python_converter<std::vector<int >,
             container_conversions::to_tuple<std::vector<int > > >();
 
-    class_<Commxx, Commxx_sptr >("Commxx", init< >())
+    class_<Commxx, Commxx_sptr, boost::noncopyable >("Commxx", init< >())
             .def(init<bool >())
             .def(init<Commxx_sptr, std::vector<int > const&, optional<bool > >())
             .def("get_rank", &Commxx::get_rank)
             .def("get_size", &Commxx::get_size)
             .def("has_this_rank", &Commxx::has_this_rank)
             ;
+
+    container_conversions::from_python_sequence<std::vector<Commxx_sptr >,
+            container_conversions::variable_capacity_policy >();
+
+    to_python_converter<std::vector<Commxx_sptr >,
+            container_conversions::to_tuple<std::vector<Commxx_sptr > > >();
+
+    def("generate_subcomms", generate_subcomms);
 
     def("decompose_1d_raw", decompose_1d_raw_wrap);
     def("decompose_1d", decompose_1d_wrap);

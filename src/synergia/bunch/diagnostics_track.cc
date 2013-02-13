@@ -26,7 +26,7 @@ Diagnostics_track::new_write_helper_ptr()
 {
     delete_write_helper_ptr();
     return new Diagnostics_write_helper(get_filename(), true,
-            get_bunch().get_comm(), get_local_dir(),
+            get_bunch().get_comm_sptr(), get_local_dir(),
             get_bunch().get_comm().get_rank());
 }
 

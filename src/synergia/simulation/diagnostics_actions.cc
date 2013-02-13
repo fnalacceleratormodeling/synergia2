@@ -180,6 +180,18 @@ Diagnostics_actions::add_per_forced_diagnostics_step(
 }
 
 void
+Diagnostics_actions::add_per_operator(Diagnostics_sptr diagnostics_sptr)
+{
+    per_operator_diagnosticss.push_back(diagnostics_sptr);
+}
+
+void
+Diagnostics_actions::add_per_operation(Diagnostics_sptr diagnostics_sptr)
+{
+    per_operation_diagnosticss.push_back(diagnostics_sptr);
+}
+
+void
 Diagnostics_actions::update_and_write_periodics(Periodics & periodics, int num)
 {
     for (Periodics::iterator it = periodics.begin(); it != periodics.end(); ++it) {
@@ -285,6 +297,18 @@ Diagnostics_actions::step_end_action(Stepper & stepper, Step & step,
     }
 }
 
+Diagnosticss &
+Diagnostics_actions::get_per_operator_diagnosticss()
+{
+    return per_operator_diagnosticss;
+}
+
+Diagnosticss &
+Diagnostics_actions::get_per_operation_diagnosticss()
+{
+    return per_operation_diagnosticss;
+}
+
 template<class Archive>
     void
     Diagnostics_actions::serialize(Archive & ar, const unsigned int version)
@@ -296,6 +320,8 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(per_forced_step_periodic);
         ar & BOOST_SERIALIZATION_NVP(per_turn_listed);
         ar & BOOST_SERIALIZATION_NVP(per_step_periodic_listed);
+        ar & BOOST_SERIALIZATION_NVP(per_operator_diagnosticss);
+        ar & BOOST_SERIALIZATION_NVP(per_operation_diagnosticss);
     }
 
 template

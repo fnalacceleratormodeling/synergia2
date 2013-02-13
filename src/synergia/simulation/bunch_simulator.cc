@@ -1,5 +1,4 @@
 #include "bunch_simulator.h"
-#include "diagnostics_actions.h"
 
 Bunch_simulator::Bunch_simulator(Bunch_sptr bunch_sptr) :
     bunch_sptr(bunch_sptr),
@@ -44,9 +43,10 @@ Bunch_simulator::get_diagnostics_actions_sptr()
 }
 
 void
-Bunch_simulator::add_per_turn(Diagnostics_sptr diagnostics_sptr, int period)
+Bunch_simulator::add_per_turn(Diagnostics_sptr diagnostics_sptr,
+        int turn_period)
 {
-    diagnostics_actions_sptr->add_per_turn(diagnostics_sptr, period);
+    diagnostics_actions_sptr->add_per_turn(diagnostics_sptr, turn_period);
 }
 
 void
@@ -57,9 +57,10 @@ Bunch_simulator::add_per_turn(Diagnostics_sptr diagnostics_sptr,
 }
 
 void
-Bunch_simulator::add_per_step(Diagnostics_sptr diagnostics_sptr, int period)
+Bunch_simulator::add_per_step(Diagnostics_sptr diagnostics_sptr,
+        int step_period)
 {
-    diagnostics_actions_sptr->add_per_step(diagnostics_sptr, period);
+    diagnostics_actions_sptr->add_per_step(diagnostics_sptr, step_period);
 }
 
 void

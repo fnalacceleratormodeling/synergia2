@@ -7,8 +7,7 @@ Lattice_diagnostics::Lattice_diagnostics(Lattice_sptr lattice_sptr,
         Generalized_diagnostics("lattice_diagnostics"), lattice_sptr(
                 lattice_sptr), filename(filename), attribute(attribute), default_value(
                 0), reduce(true), reduce_op(MPI_SUM ), initial_lattice_size(0), write_helper(
-                filename, true, Commxx(), local_dir), writer(0), first_time(true)
-
+                filename, true, Commxx_sptr(new Commxx), local_dir), writer(0), first_time(true)
 {
 }
 
