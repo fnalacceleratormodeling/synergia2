@@ -88,7 +88,8 @@ BOOST_AUTO_TEST_CASE(test_decompose_1d)
     const int procs = 1;
     std::vector<int > offsets(procs), counts(procs);
     const int length = 17;
-    decompose_1d(Commxx(), length, offsets, counts);
+    Commxx commxx;
+    decompose_1d(commxx, length, offsets, counts);
     BOOST_CHECK_EQUAL(0,offsets.at(0));
     BOOST_CHECK_EQUAL(length,counts.at(0));
 }
@@ -96,7 +97,8 @@ BOOST_AUTO_TEST_CASE(test_decompose_1d)
 BOOST_AUTO_TEST_CASE(test_decompose_1d_local)
 {
     const int length = 17;
-    int local_length = decompose_1d_local(Commxx(), length);
+    Commxx commxx;
+    int local_length = decompose_1d_local(commxx, length);
     BOOST_CHECK_EQUAL(length,local_length);
 }
 
@@ -205,8 +207,9 @@ BOOST_AUTO_TEST_CASE(test_distribute_1d_raw6)
 BOOST_AUTO_TEST_CASE(test_distribute_1d)
 {
     const int elements = 17;
+    Commxx commxx;
     std::vector<std::vector<int > > ranks(
-            distribute_1d(Commxx(), elements));
+            distribute_1d(commxx, elements));
     verify_ranks_elms_gt_procs(elements, 1, ranks);
 }
 /*
