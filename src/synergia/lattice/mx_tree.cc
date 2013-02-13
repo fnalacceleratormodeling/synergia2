@@ -38,14 +38,14 @@ namespace synergia
       {
         t.insert_attribute( attr.name(), any_cast<string>(attr.value()) );
       }
+      else if( attr.type() == MX_ATTR_PREDEFINED )
+      {
+        t.insert_attribute( attr.name(), any_cast<mx_keyword>(attr.value()).name );
+      }
       else if( attr.type() == MX_ATTR_NUMBER )
       {
         mx_expr e = simplify( any_cast<mx_expr>(attr.value()), mx );
         t.insert_attribute( attr.name(), e );
-      }
-      else if( attr.type() == MX_ATTR_PARTICLE )
-      {
-        t.insert_attribute( attr.name(), any_cast<mx_keyword>(attr.value()).name );
       }
       else if( attr.type() == MX_ATTR_LAZY_NUMBER )
       {
@@ -86,9 +86,10 @@ void mx_attr::set_attr(std::string const & name, boost::any const & val)
     type_ = MX_ATTR_NUMBER;
   else if( val.type() == typeid(mx_exprs) )
     type_ = MX_ATTR_ARRAY;
-  else if( val.type() == typeid(mx_keyword) 
-           && any_cast<mx_keyword>(val).tag == MX_KW_PARTICLE )
-    type_ = MX_ATTR_PARTICLE;
+  else if(  val.type() == typeid(mx_keyword)
+         && (  any_cast<mx_keyword>(val).tag == MX_KW_PARTICLE
+            || any_cast<mx_keyword>(val).tag == MX_KW_MP_TYPE  ) )
+    type_ = MX_ATTR_PREDEFINED;
   else
     throw std::runtime_error("Unknown attribute value type for " + name);
 }
@@ -99,11 +100,15 @@ void mx_attr::set_lazy_attr(std::string const & name, boost::any const & val)
   value_ = val;
 
   if( val.type() == typeid(std::string) )
-    type_ = MX_ATTR_STRING;   // no lazy string
+    type_ = MX_ATTR_STRING;      // strings are immediate
   else if( val.type() == typeid(mx_expr) )
     type_ = MX_ATTR_LAZY_NUMBER;
   else if( val.type() == typeid(mx_exprs) )
     type_ = MX_ATTR_LAZY_ARRAY;
+  else if(  val.type() == typeid(mx_keyword)
+         && (  any_cast<mx_keyword>(val).tag == MX_KW_PARTICLE
+            || any_cast<mx_keyword>(val).tag == MX_KW_MP_TYPE  ) )
+    type_ = MX_ATTR_PREDEFINED;  // all predefines are immediate
   else
     throw std::runtime_error("Unknown lazy attribute value type for " + name);
 }

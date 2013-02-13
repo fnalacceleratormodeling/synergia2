@@ -23,7 +23,7 @@ namespace synergia
     { MX_ATTR_NULL
     , MX_ATTR_STRING
     , MX_ATTR_NUMBER
-    , MX_ATTR_PARTICLE
+    , MX_ATTR_PREDEFINED
     , MX_ATTR_ARRAY
     , MX_ATTR_LAZY_NUMBER
     , MX_ATTR_LAZY_ARRAY };
@@ -39,7 +39,8 @@ namespace synergia
     , MX_KW_ELEMENT
     , MX_KW_COMMAND
     , MX_KW_ELEMENT_REF
-    , MX_KW_PARTICLE };
+    , MX_KW_PARTICLE 
+    , MX_KW_MP_TYPE };
 
   struct mx_keyword;
 
