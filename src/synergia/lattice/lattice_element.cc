@@ -310,6 +310,22 @@ Lattice_element::as_string() const
         }
         sstream << it->first << "=" << it->second;
     }
+    for (std::map<std::string, std::vector<double > >::const_iterator it =
+             vector_attributes.begin(); it != vector_attributes.end(); ++it) {
+        if (first_attr) {
+            first_attr = false;
+        } else {
+            sstream << ", ";
+        }
+        sstream << it->first << "=" << "{";
+        for (int i=0; i != (it->second).size(); ++i) {
+            if (i) {
+                sstream << ", ";
+            }
+            sstream << (it->second)[i];
+        }
+        sstream << "}";
+    }
     return sstream.str();
 }
 
