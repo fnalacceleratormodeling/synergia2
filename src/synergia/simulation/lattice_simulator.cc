@@ -1508,11 +1508,12 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
     }
 
     have_chromaticities = false;
+    if (count == max_steps) {
+        throw std::runtime_error(
+                "Lattice_simulator::adjust_chromaticities: Convergence not achieved. Increase the maximum number of steps.");
+    }
     if (rank == 0) {
         std::cout << " Chromaticity adjusted in " << count << " steps"
-                << std::endl;
-        if (count == max_steps) std::cout
-                << " Convergence not reached. Increase the maximum number of steps"
                 << std::endl;
         std::cout << "  final    chromaticity:  horizontal    : " << chr_h
                 << "     vertical     : " << chr_v << std::endl;
