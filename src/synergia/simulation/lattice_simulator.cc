@@ -556,7 +556,7 @@ Lattice_simulator::calculate_element_lattice_functions()
             ElmPtr chef_element(*it);
             if (std::strcmp(chef_element->Name().c_str(),
                     Chef_lattice::internal_marker_name)) {
-                Lattice_element const
+                Lattice_element
                         * lattice_element_ptr(
                                 &(chef_lattice_sptr->get_lattice_element(
                                         chef_element)));
@@ -581,7 +581,7 @@ Lattice_simulator::calculate_slice_lattice_functions()
             ElmPtr chef_element(*it);
             if (std::strcmp(chef_element->Name().c_str(),
                     Chef_lattice::internal_marker_name)) {
-                Lattice_element_slice const * lattice_element_slice_ptr(
+                Lattice_element_slice * lattice_element_slice_ptr(
                         &(chef_lattice_sptr->get_lattice_element_slice(
                                 chef_element)));
                 lattice_functions_slice_map[lattice_element_slice_ptr] =
@@ -612,7 +612,7 @@ Lattice_simulator::calculate_element_et_lattice_functions()
               ElmPtr chef_element(*it);
               if (std::strcmp(chef_element->Name().c_str(),
                       Chef_lattice::internal_marker_name)) {
-                  Lattice_element const
+                  Lattice_element
                           * lattice_element_ptr(
                                   &(chef_lattice_sptr->get_lattice_element(
                                           chef_element)));
@@ -640,7 +640,7 @@ Lattice_simulator::calculate_slice_et_lattice_functions()
             ElmPtr chef_element(*it);
             if (std::strcmp(chef_element->Name().c_str(),
                     Chef_lattice::internal_marker_name)) {
-                Lattice_element_slice const * lattice_element_slice_ptr(
+                Lattice_element_slice * lattice_element_slice_ptr(
                         &(chef_lattice_sptr->get_lattice_element_slice(
                                 chef_element)));
                 et_lattice_functions_slice_map[lattice_element_slice_ptr]
@@ -664,7 +664,7 @@ Lattice_simulator::calculate_element_lb_lattice_functions()
              ElmPtr chef_element(*it);
              if (std::strcmp(chef_element->Name().c_str(),
                      Chef_lattice::internal_marker_name)) {
-                 Lattice_element const
+                 Lattice_element
                          * lattice_element_ptr(
                                  &(chef_lattice_sptr->get_lattice_element(
                                          chef_element)));
@@ -696,7 +696,7 @@ Lattice_simulator::calculate_slice_lb_lattice_functions()
             ElmPtr chef_element(*it);
             if (std::strcmp(chef_element->Name().c_str(),
                     Chef_lattice::internal_marker_name)) {
-                Lattice_element_slice const * lattice_element_slice_ptr(
+                Lattice_element_slice * lattice_element_slice_ptr(
                         &(chef_lattice_sptr->get_lattice_element_slice(
                                 chef_element)));
                 lb_lattice_functions_slice_map[lattice_element_slice_ptr]
@@ -721,7 +721,7 @@ Lattice_simulator::calculate_element_dispersion_functions()
               ElmPtr chef_element(*it);
               if (std::strcmp(chef_element->Name().c_str(),
                       Chef_lattice::internal_marker_name)) {
-                  Lattice_element const
+                  Lattice_element
                           * lattice_element_ptr(
                                   &(chef_lattice_sptr->get_lattice_element(
                                           chef_element)));
@@ -748,7 +748,7 @@ Lattice_simulator::calculate_slice_dispersion_functions()
             ElmPtr chef_element(*it);
             if (std::strcmp(chef_element->Name().c_str(),
                     Chef_lattice::internal_marker_name)) {
-                Lattice_element_slice const * lattice_element_slice_ptr(
+                Lattice_element_slice * lattice_element_slice_ptr(
                         &(chef_lattice_sptr->get_lattice_element_slice(
                                 chef_element)));
                 dispersion_slice_map[lattice_element_slice_ptr]

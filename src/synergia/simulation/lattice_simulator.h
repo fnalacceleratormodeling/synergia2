@@ -139,23 +139,23 @@ private:
     double momentum_compaction, slip_factor;
     bool have_chromaticities;
     MArray2d linear_one_turn_map;
-    std::map<Lattice_element const*, Lattice_functions >
+    std::map<Lattice_element *, Lattice_functions >
             lattice_functions_element_map;         
-    std::map<Lattice_element_slice const*, Lattice_functions >
+    std::map<Lattice_element_slice *, Lattice_functions >
             lattice_functions_slice_map;
             
-    std::map<Lattice_element const*, ET_lattice_functions>
+    std::map<Lattice_element *, ET_lattice_functions>
             et_lattice_functions_element_map; 
-     std::map<Lattice_element_slice const*, ET_lattice_functions >
+     std::map<Lattice_element_slice *, ET_lattice_functions >
             et_lattice_functions_slice_map;  
      
-     std::map<Lattice_element const*, LB_lattice_functions>
+     std::map<Lattice_element *, LB_lattice_functions>
             lb_lattice_functions_element_map; 
-     std::map<Lattice_element_slice const*, LB_lattice_functions >
+     std::map<Lattice_element_slice *, LB_lattice_functions >
             lb_lattice_functions_slice_map;                    
-     std::map<Lattice_element const*, Dispersion_functions>
+     std::map<Lattice_element *, Dispersion_functions>
             dispersion_element_map;                    
-     std::map<Lattice_element_slice const*, Dispersion_functions>
+     std::map<Lattice_element_slice *, Dispersion_functions>
             dispersion_slice_map;       
     void
     get_tunes(bool use_EigenTune);
