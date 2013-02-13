@@ -337,6 +337,21 @@ struct synergia::madx_tree_parser
     }
   } particle_keywords;
 
+  struct mp_type_keywords_
+    : boost::spirit::qi::symbols< typename std::iterator_traits<Iterator>::value_type,
+                                  mx_keyword >
+  {
+    mp_type_keywords_()
+    {
+      this->add
+           ("octpn"      , mx_keyword("octpn"      , MX_KW_MP_TYPE) )
+           ("wgl"        , mx_keyword("wgl"        , MX_KW_MP_TYPE) )
+           ("sk"         , mx_keyword("sk"         , MX_KW_MP_TYPE) )
+      ;
+    }
+  } mp_type_keywords;
+
+
   struct element_keywords_
     : boost::spirit::qi::symbols< typename std::iterator_traits<Iterator>::value_type,
                                   mx_keyword >
@@ -445,7 +460,7 @@ struct synergia::madx_tree_parser
   qi::rule<Iterator, mx_command()  , Skip> variable;
   qi::rule<Iterator, mx_command()  , locals<mx_cmd_type>, Skip> cmd;
   qi::rule<Iterator, mx_command()  , Skip> command;
-  qi::rule<Iterator, mx_keyword()   , Skip> ref;
+  qi::rule<Iterator, mx_keyword()  , Skip> ref;
   qi::rule<Iterator, mx_if()       , Skip> if_flow;
   qi::rule<Iterator, mx_while()    , Skip> while_flow;
   qi::rule<Iterator, string()      , Skip> logic;
@@ -508,13 +523,22 @@ struct synergia::madx_tree_parser
         //dblq_str | snglq_str | no_case[particle_keywords] | expr | array  -- boost 1.45+
         dblq_str                     [_val=_1] 
         | snglq_str                  [_val=_1] 
-        | no_case[particle_keywords] [_val=_1] 
+        //| no_case[particle_keywords] [_val=_1] 
+        //| no_case[mp_type_keywords]  [_val=_1] 
         | expr                       [_val=_1] 
         | array                      [_val=_1]
         ;
 
     attr =
-        ( name >> -char_(':') >> '=' >> value ) [phx::bind(&set_attr, _val, _1, _2, _3)]
+          ( no_case[qi::string("type")]     // special attr 'type'
+              >> -char_(':') >> '=' 
+              >> (name|dblq_str|snglq_str) )      [phx::bind(&set_attr, _val, _1, _2, _3)]
+        | ( no_case[qi::string("particle")] // special attr 'particle'
+              >> -char_(':') >> '='   
+              >> no_case[particle_keywords] )     [phx::bind(&set_attr, _val, _1, _2, _3)]
+        | ( name                            // generic attr
+              >> -char_(':') >> '=' 
+              >> value )                          [phx::bind(&set_attr, _val, _1, _2, _3)]
         ;
 
     variable =

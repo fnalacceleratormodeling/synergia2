@@ -196,6 +196,48 @@ BOOST_AUTO_TEST_CASE(command_particle_attrs)
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("particle"), "proton");
 }
 
+BOOST_AUTO_TEST_CASE(command_special_attrs1)
+{
+  string str = "multipole, knl:={0, 1, 1}, type=octpn;";
+  MadX   mx;
+
+  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_EQUAL( mx.command_count(), 1 );
+
+  MadX_command cmd = mx.command(0);
+  BOOST_CHECK_EQUAL( cmd.name(), "multipole" );
+  BOOST_CHECK_EQUAL( cmd.attribute_count(), 2 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_string("type"), "octpn");
+}
+
+BOOST_AUTO_TEST_CASE(command_special_attrs2)
+{
+  string str = "multipole, knl:={0, 1, 1}, TYPE=wgl;";
+  MadX   mx;
+
+  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_EQUAL( mx.command_count(), 1 );
+
+  MadX_command cmd = mx.command(0);
+  BOOST_CHECK_EQUAL( cmd.name(), "multipole" );
+  BOOST_CHECK_EQUAL( cmd.attribute_count(), 2 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_string("type"), "wgl");
+}
+
+BOOST_AUTO_TEST_CASE(command_special_attrs3)
+{
+  string str = "multipole, knl:={0, 1, 1}, type=\"special\";";
+  MadX   mx;
+
+  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_EQUAL( mx.command_count(), 1 );
+
+  MadX_command cmd = mx.command(0);
+  BOOST_CHECK_EQUAL( cmd.name(), "multipole" );
+  BOOST_CHECK_EQUAL( cmd.attribute_count(), 2 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_string("type"), "special");
+}
+
 BOOST_AUTO_TEST_CASE(command_assign)
 {
   string str = "q1: quadrupole,l=3.14;";
