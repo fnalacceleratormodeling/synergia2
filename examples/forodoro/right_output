@@ -1,0 +1,43 @@
+CMA: unable to open /dev/infiniband/rdma_cm
+element=forodoro: rfcavity r: circular_aperture_radius=0.1, freq=1.16951e+07, hoffset=0, l=0, lag=0, volt=0.2
+ None
+element=forodoro: rfcavity r: circular_aperture_radius=0.1, freq=1.16951e+07, hoffset=0, l=0, lag=0, volt=0.2
+ None
+Propagator: starting turn 1
+Independent_operator: slice(s) = 
+    [begin,end] forodoro: quadrupole f: circular_aperture_radius=0.1, hoffset=0, k1=0.0714286, l=2
+    [begin,end] forodoro: drift o: circular_aperture_radius=0.1, hoffset=0, l=4
+    [begin,end] forodoro: rfcavity r: circular_aperture_radius=0.1, freq=1.16951e+07, hoffset=0, l=0, lag=0, volt=0.2
+    [begin,end] forodoro: drift o: circular_aperture_radius=0.1, hoffset=0, l=4
+Independent_operator: needs update because does not have operations
+Independent_operator: updating operations
+Independent_operator: operation type = fast_mapping
+Fast_mapping_operation: length = 6, order = 2
+Independent_operator: operation type = chef_propagate
+Chef_propagator: begin_index = 4, end_index = 5
+Chef_propagator: name = r, type = thinrfcavity, length = 0
+Independent_operator: operation type = fast_mapping
+Fast_mapping_operation: length = 4, order = 2
+Independent_operator: operation type = aperture
+Independent_operator: operation type = aperture
+Step: operator: name = step, type = independent, time = 0.002s
+Propagator:     step 1/2, s=10.0000, macroparticles = 320, time = 0.002s
+Independent_operator: slice(s) = 
+    [begin,end] forodoro: quadrupole d: circular_aperture_radius=0.1, hoffset=0, k1=-0.0714286, l=2
+    [begin,end] forodoro: drift o: circular_aperture_radius=0.1, hoffset=0, l=4
+    [begin,end] forodoro: rfcavity r: circular_aperture_radius=0.1, freq=1.16951e+07, hoffset=0, l=0, lag=0, volt=0.2
+    [begin,end] forodoro: drift o: circular_aperture_radius=0.1, hoffset=0, l=4
+Independent_operator: needs update because does not have operations
+Independent_operator: updating operations
+Independent_operator: operation type = fast_mapping
+Fast_mapping_operation: length = 6.000, order = 2
+Independent_operator: operation type = chef_propagate
+Chef_propagator: begin_index = 12, end_index = 13
+Chef_propagator: name = r, type = thinrfcavity, length = 0.000
+Independent_operator: operation type = fast_mapping
+Fast_mapping_operation: length = 4.000, order = 2
+Independent_operator: operation type = aperture
+Independent_operator: operation type = aperture
+Step: operator: name = step, type = independent, time = 0.002s
+Propagator:     step 2/2, s=20.0000, macroparticles = 320, time = 0.002s
+Propagator: turn 1/1, macroparticles = 320, time = 0.00s
