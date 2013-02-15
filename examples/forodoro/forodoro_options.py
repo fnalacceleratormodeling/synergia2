@@ -29,8 +29,9 @@ opts.add("emit", 1e-6, "Horizontal and vertical emittance [m rad]", float)
 opts.add("stdz", 0.01, "RMS longitudinal length [m]", float)
 opts.add("dpop", 1e-4, "delta p / p", float)
 opts.add("xoffset", 0.0, "x offset", float)
+opts.add("latticefile", "fodo.lat", "the lattice")
 
 
 
-job_mgr = synergia_workflow.Job_manager("fodo.py", opts, ["fodo.lat"])
+job_mgr = synergia_workflow.Job_manager("forodoro.py", opts, extra_opt_files=[(opts,"latticefile")])
 
