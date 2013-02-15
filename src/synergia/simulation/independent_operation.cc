@@ -110,9 +110,11 @@ Fast_mapping_operation::~Fast_mapping_operation()
 BOOST_CLASS_EXPORT_IMPLEMENT(Fast_mapping_operation);
 
 Chef_propagate_operation::Chef_propagate_operation(
-        Chef_lattice_section_sptr chef_lattice_section_sptr) :
-    Independent_operation(chef_propagate_type_name), chef_propagator(
-            chef_lattice_section_sptr)
+        Chef_lattice_section const& chef_lattice_section) :
+                Independent_operation(chef_propagate_type_name),
+                chef_propagator(
+                        Chef_lattice_section_sptr(
+                                new Chef_lattice_section(chef_lattice_section)))
 {
 }
 

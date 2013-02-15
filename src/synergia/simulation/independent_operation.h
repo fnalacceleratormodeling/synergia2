@@ -65,7 +65,7 @@ private:
     Chef_propagator chef_propagator;
 
 public:
-    Chef_propagate_operation(Chef_lattice_section_sptr chef_lattice_section_sptr);
+    Chef_propagate_operation(Chef_lattice_section const& chef_lattice_section);
     /// Default constructor for serialization use only
     Chef_propagate_operation();
     virtual void

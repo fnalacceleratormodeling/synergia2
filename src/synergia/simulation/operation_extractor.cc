@@ -97,17 +97,16 @@ Chef_map_operation_extractor::extract(
         Reference_particle const& reference_particle,
         Lattice_element_slices const& slices)
 {
-    Chef_lattice_section_sptr entire_section_sptr(
-            new Chef_lattice_section(get_chef_lattice_sptr()));
+    Chef_lattice_section entire_section(get_chef_lattice_sptr());
     for (Lattice_element_slices::const_iterator les_it = slices.begin(); les_it
             != slices.end(); ++les_it) {
-        Chef_lattice_section_sptr slice_section_sptr(
-                get_chef_lattice_sptr()->get_chef_section_sptr(get_chef_lattice_sptr(),
-                        *(*les_it)));
-        entire_section_sptr->extend(*slice_section_sptr);
+        Chef_lattice_section slice_section(
+                *(get_chef_lattice_sptr()->get_chef_section_sptr(get_chef_lattice_sptr(),
+                        *(*les_it))));
+        entire_section.extend(slice_section);
     }
     Fast_mapping_operation_sptr fast_mapping_operation_sptr =
-            extract_fast_mapping(reference_particle, *entire_section_sptr,
+            extract_fast_mapping(reference_particle, entire_section,
                     get_map_order());
     Independent_operations retval;
     retval.push_back(fast_mapping_operation_sptr);
@@ -159,17 +158,16 @@ Chef_propagate_operation_extractor::extract(
         Reference_particle const& reference_particle,
         Lattice_element_slices const& slices)
 {
-    Chef_lattice_section_sptr entire_section_sptr(
-            new Chef_lattice_section(get_chef_lattice_sptr()));
+    Chef_lattice_section entire_section(get_chef_lattice_sptr());
     for (Lattice_element_slices::const_iterator les_it = slices.begin(); les_it
             != slices.end(); ++les_it) {
-        Chef_lattice_section_sptr slice_section_sptr(
-                get_chef_lattice_sptr()->get_chef_section_sptr(get_chef_lattice_sptr(),
-                        *(*les_it)));
-        entire_section_sptr->extend(*slice_section_sptr);
+        Chef_lattice_section slice_section(
+                *(get_chef_lattice_sptr()->get_chef_section_sptr(get_chef_lattice_sptr(),
+                        *(*les_it))));
+        entire_section.extend(slice_section);
     }
     Chef_propagate_operation_sptr chef_propagate_operation_sptr(
-            new Chef_propagate_operation(entire_section_sptr));
+            new Chef_propagate_operation(entire_section));
     Independent_operations retval;
     retval.push_back(chef_propagate_operation_sptr);
     return retval;
@@ -218,18 +216,18 @@ Chef_mixed_operation_extractor::Chef_mixed_operation_extractor()
 // handle_subsection is a local function
 void
 handle_subsection(bool is_rf, Reference_particle const& reference_particle,
-        Chef_lattice_section_sptr section_sptr,
+        Chef_lattice_section & section,
         Independent_operations & independent_operations, int map_order)
 {
     if (is_rf) {
         Chef_propagate_operation_sptr chef_propagate_operation_sptr(
-                new Chef_propagate_operation(section_sptr));
+                new Chef_propagate_operation(section));
         independent_operations.push_back(chef_propagate_operation_sptr);
     } else {
-        Fast_mapping_operation_sptr fast_mapping_oeration_sptr =
-                extract_fast_mapping(reference_particle, *section_sptr,
+        Fast_mapping_operation_sptr fast_mapping_operation_sptr =
+                extract_fast_mapping(reference_particle, section,
                         map_order);
-        independent_operations.push_back(fast_mapping_oeration_sptr);
+        independent_operations.push_back(fast_mapping_operation_sptr);
     }
 }
 
@@ -239,32 +237,31 @@ Chef_mixed_operation_extractor::extract(
         Lattice_element_slices const& slices)
 {
     Independent_operations retval;
-    Chef_lattice_section_sptr subsection_sptr(
-            new Chef_lattice_section(get_chef_lattice_sptr()));
+    Chef_lattice_section subsection(get_chef_lattice_sptr());
     bool is_rf(false), last_is_rf(false);
     for (Lattice_element_slices::const_iterator les_it = slices.begin(); les_it
             != slices.end(); ++les_it) {
-        Chef_lattice_section_sptr slice_section_sptr(
-                get_chef_lattice_sptr()->get_chef_section_sptr(get_chef_lattice_sptr(),
-                        *(*les_it)));
-        int index = slice_section_sptr->get_begin_index();
+        Chef_lattice_section slice_section(
+                *(get_chef_lattice_sptr()->get_chef_section_sptr(get_chef_lattice_sptr(),
+                        *(*les_it))));
+        int index = slice_section.get_begin_index();
         for (Chef_lattice_section::const_iterator cls_it =
-                slice_section_sptr->begin(); cls_it
-                != slice_section_sptr->end(); ++cls_it) {
+                slice_section.begin(); cls_it
+                != slice_section.end(); ++cls_it) {
             is_rf = ((std::strcmp((*cls_it)->Type(), "rfcavity") == 0)
                     || (std::strcmp((*cls_it)->Type(), "thinrfcavity") == 0));
-            if ((is_rf != last_is_rf) && (!subsection_sptr->empty())) {
+            if ((is_rf != last_is_rf) && (!subsection.empty())) {
                 handle_subsection(last_is_rf, reference_particle,
-                        subsection_sptr, retval, get_map_order());
-                subsection_sptr->clear();
+                        subsection, retval, get_map_order());
+                subsection.clear();
             }
-            subsection_sptr->extend(index,index+1);
+            subsection.extend(index,index+1);
             last_is_rf = is_rf;
             ++index;
         }
     }
-    if (!subsection_sptr->empty()) {
-        handle_subsection(is_rf, reference_particle, subsection_sptr, retval,
+    if (!subsection.empty()) {
+        handle_subsection(is_rf, reference_particle, subsection, retval,
                 get_map_order());
     }
 
