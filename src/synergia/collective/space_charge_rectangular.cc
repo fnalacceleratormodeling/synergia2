@@ -10,13 +10,12 @@ using pconstants::epsilon0;
 
 
 Space_charge_rectangular::Space_charge_rectangular(Commxx_sptr comm_f_sptr, std::vector<double > const & pipe_size, std::vector<int > const & grid_shape):
-Collective_operator("space_charge_rectangular"), grid_shape(grid_shape),  comm_f_sptr(comm_f_sptr)
+Collective_operator("space_charge_rectangular"), pipe_size(pipe_size), grid_shape(grid_shape),  comm_f_sptr(comm_f_sptr)
 {
 
  try{
-    std::vector<double > offset(3,0.);
     this->domain_sptr = Rectangular_grid_domain_sptr(
-                    new Rectangular_grid_domain(pipe_size, offset, grid_shape , true));
+                    new Rectangular_grid_domain(pipe_size, grid_shape , true));
     this->have_fftw_helper=false;
     construct_fftw_helper(comm_f_sptr);
 
@@ -29,13 +28,12 @@ Collective_operator("space_charge_rectangular"), grid_shape(grid_shape),  comm_f
 
 
 Space_charge_rectangular::Space_charge_rectangular(std::vector<double > const & pipe_size, std::vector<int > const & grid_shape):
-Collective_operator("space_charge_rectangular"),   grid_shape(grid_shape)
+Collective_operator("space_charge_rectangular"),  pipe_size(pipe_size),  grid_shape(grid_shape)
 {
 
  try{
-    std::vector<double > offset(3,0.);
     this->domain_sptr = Rectangular_grid_domain_sptr(
-                    new Rectangular_grid_domain(pipe_size, offset, grid_shape , true));
+                    new Rectangular_grid_domain(pipe_size,  grid_shape , true));
     this->have_fftw_helper=false;
 
  }
@@ -44,6 +42,83 @@ Collective_operator("space_charge_rectangular"),   grid_shape(grid_shape)
         MPI_Abort(MPI_COMM_WORLD, 111);
     }
 }
+ 
+Space_charge_rectangular::Space_charge_rectangular()
+{
+}
+
+
+
+
+
+
+
+
+
+template<class Archive>
+    void
+    Space_charge_rectangular::save(Archive & ar, const unsigned int version) const
+    {
+       
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
+        ar & BOOST_SERIALIZATION_NVP(comm_f_sptr)
+                & BOOST_SERIALIZATION_NVP(grid_shape)
+                & BOOST_SERIALIZATION_NVP(pipe_size) 
+                & BOOST_SERIALIZATION_NVP(have_fftw_helper);
+    }
+
+template<class Archive>
+    void
+    Space_charge_rectangular::load(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
+        ar & BOOST_SERIALIZATION_NVP(comm_f_sptr)
+                & BOOST_SERIALIZATION_NVP(grid_shape)
+                & BOOST_SERIALIZATION_NVP(pipe_size)
+                & BOOST_SERIALIZATION_NVP(have_fftw_helper); 
+     
+        domain_sptr = Rectangular_grid_domain_sptr(
+                    new Rectangular_grid_domain(pipe_size, grid_shape , true));
+        if (have_fftw_helper) { this->have_fftw_helper=false;          
+                                construct_fftw_helper(comm_f_sptr);  
+                               }
+                                       
+    }
+
+template
+void
+Space_charge_rectangular::save<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version) const;
+template
+void
+Space_charge_rectangular::save<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version) const;
+
+template
+void
+Space_charge_rectangular::load<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+template
+void
+Space_charge_rectangular::load<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+
+
+
+
+BOOST_CLASS_EXPORT_IMPLEMENT(Space_charge_rectangular)
+
+
+
+
+
+
+
+
+
+
+
 
 
 Space_charge_rectangular::~Space_charge_rectangular()
@@ -121,7 +196,6 @@ Space_charge_rectangular::get_charge_density(Bunch const& bunch)
     Rectangular_grid_sptr rho_sptr(new Rectangular_grid(domain_sptr));
     deposit_charge_rectangular_xyz(*rho_sptr, bunch);
     //t = simple_timer_show(t, "sc_get_charge_density: depozit_xyz");
-
 
     t = simple_timer_current();
     int error = MPI_Allreduce(MPI_IN_PLACE, (void*)  rho_sptr->get_grid_points().origin(),

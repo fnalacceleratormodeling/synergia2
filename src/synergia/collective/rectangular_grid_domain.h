@@ -22,6 +22,9 @@ public:
     Rectangular_grid_domain(std::vector<double > const & physical_size,
             std::vector<double > const & physical_offset,
             std::vector<int > const & grid_shape);
+    
+     Rectangular_grid_domain(std::vector<double > const & physical_size,
+            std::vector<int > const & grid_shape, bool periodic_z);       
 
     std::vector<double > const&
     get_physical_size() const;

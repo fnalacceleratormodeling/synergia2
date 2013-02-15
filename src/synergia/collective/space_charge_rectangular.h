@@ -31,7 +31,8 @@ public:
 
     Space_charge_rectangular(Commxx_sptr comm_f_sptr, std::vector<double > const & pipe_size, std::vector<int > const & grid_shape);
     Space_charge_rectangular(std::vector<double > const & pipe_size, std::vector<int > const & grid_shape);
-
+    Space_charge_rectangular();
+    
     void
     set_fftw_helper(Commxx_sptr comm_sptr);
 
@@ -69,10 +70,19 @@ public:
 
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
+    
+    template<class Archive>
+        void
+        save(Archive & ar, const unsigned int version) const;
+   template<class Archive>
+        void
+        load(Archive & ar, const unsigned int version);            
+    BOOST_SERIALIZATION_SPLIT_MEMBER()
+    
     virtual
     ~Space_charge_rectangular();
 };
-
+BOOST_CLASS_EXPORT_KEY(Space_charge_rectangular);
 typedef boost::shared_ptr<Space_charge_rectangular> Space_charge_rectangular_sptr;
 
 #endif /* SPACE_CHARGE_RECTANGULAR_H_ */
