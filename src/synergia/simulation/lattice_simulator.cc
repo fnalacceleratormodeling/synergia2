@@ -498,10 +498,22 @@ Lattice_simulator::get_aperture_operation_extractor_map_sptr()
     return aperture_extractor_map_sptr;
 }
 
+Lattice &
+Lattice_simulator::get_lattice()
+{
+    return *lattice_sptr;
+}
+
 Lattice_sptr
 Lattice_simulator::get_lattice_sptr()
 {
     return lattice_sptr;
+}
+
+Chef_lattice &
+Lattice_simulator::get_chef_lattice()
+{
+    return *chef_lattice_sptr;
 }
 
 Chef_lattice_sptr

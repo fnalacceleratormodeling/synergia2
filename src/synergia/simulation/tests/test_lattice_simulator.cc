@@ -63,10 +63,22 @@ BOOST_FIXTURE_TEST_CASE(get_operation_extractor_map_sptr, Lattice_fixture)
     BOOST_CHECK_EQUAL(lattice_simulator.get_map_order(), map_order);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_lattice, Lattice_fixture)
+{
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+    lattice_simulator.get_lattice();
+}
+
 BOOST_FIXTURE_TEST_CASE(get_lattice_sptr, Lattice_fixture)
 {
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     lattice_simulator.get_lattice_sptr();
+}
+
+BOOST_FIXTURE_TEST_CASE(get_chef_lattice, Lattice_fixture)
+{
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+    lattice_simulator.get_chef_lattice();
 }
 
 BOOST_FIXTURE_TEST_CASE(get_chef_lattice_sptr, Lattice_fixture)
@@ -290,14 +302,14 @@ BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map_after_get_tunes, Foborodobo32_fi
 
     // This test fails before update() is added to the get_xxxxx_tune() routine.
     const double expected_frac_tune = 0.224126196916268;
-    const double expected_eigen_tune = 0.224113175247965; 
-  
+    const double expected_eigen_tune = 0.224113175247965;
+
     double horizontal_tune = lattice_simulator.get_horizontal_tune();
     BOOST_CHECK_CLOSE(horizontal_tune, expected_frac_tune, tolerance);
     horizontal_tune = lattice_simulator.get_horizontal_tune(1);
     BOOST_CHECK_CLOSE(horizontal_tune, expected_eigen_tune, tolerance);
-    
-    
+
+
     const double precalc_map[6][6] = { { -2.19357726128732, 32.9385414827834, 0,
             0, -5.62169337392918e-05, 2.1037055586748 }, { -0.198001573221548,
             2.51726768373267, 0, 0, -3.53019959335299e-05, 0.225092380126584 },

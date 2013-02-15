@@ -171,8 +171,12 @@ public:
     get_operation_extractor_map_sptr();
     Aperture_operation_extractor_map_sptr
     get_aperture_operation_extractor_map_sptr();
+    Lattice &
+    get_lattice();
     Lattice_sptr
     get_lattice_sptr();
+    Chef_lattice &
+    get_chef_lattice();
     Chef_lattice_sptr
     get_chef_lattice_sptr();
     void
