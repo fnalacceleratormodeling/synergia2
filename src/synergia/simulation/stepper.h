@@ -199,8 +199,12 @@ struct Kicks
 
     Collective_operators collective_operators;
     int num_steps;
+    
+    template<class Archive>
+            void
+            serialize(Archive & ar, const unsigned int version);
 };
-
+BOOST_CLASS_EXPORT_KEY(Kicks);
 typedef  std::map<std::string, Kicks >  List_choice_map;
 
 /// Generate steps according with a list
@@ -220,10 +224,18 @@ public:
 
   Split_operator_stepper_choice (Lattice_simulator const& lattice_simulator, List_choice_map const & list_choice_map, bool split_else=true);
   Split_operator_stepper_choice (int num_steps_else, Lattice_simulator const& lattice_simulator, List_choice_map const & list_choice_map,  bool split_else=true);
-
-
+ 
+ /// Default constructor for serialization use only
+ Split_operator_stepper_choice();
+    
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version);
+        
  virtual
     ~Split_operator_stepper_choice();
 };
-
+BOOST_CLASS_EXPORT_KEY(Split_operator_stepper_choice);
+typedef boost::shared_ptr<Split_operator_stepper_choice >
+        Split_operator_stepper_choice_sptr;
 #endif /* STEPPER_H_ */

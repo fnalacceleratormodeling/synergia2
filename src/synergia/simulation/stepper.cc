@@ -754,6 +754,42 @@ Split_operator_stepper_elements::~Split_operator_stepper_elements()
 {
 
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Split_operator_stepper_elements);
+
+
+
+//Split_operator_stepper_choice
+
+template<class Archive>
+    void
+    Kicks::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(collective_operators);
+        ar & BOOST_SERIALIZATION_NVP(num_steps);
+    }
+
+template
+void
+Kicks::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Kicks::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Kicks::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Kicks::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+BOOST_CLASS_EXPORT_IMPLEMENT(Kicks);                   
+
+
 
 void
 Split_operator_stepper_choice::construct_per_element_else()
@@ -918,7 +954,6 @@ Split_operator_stepper_choice::construct_per_element_else()
 
 }
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Split_operator_stepper_elements);
 
 
 
@@ -1136,6 +1171,41 @@ Stepper(lattice_simulator),    list_choice_map(list_choice_map), num_steps_else(
 
 }
 
+Split_operator_stepper_choice::Split_operator_stepper_choice()
+{
+}
+
+template<class Archive>
+    void
+    Split_operator_stepper_choice::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Stepper);
+        ar & BOOST_SERIALIZATION_NVP(list_choice_map );
+        ar & BOOST_SERIALIZATION_NVP(num_steps_else);
+    }
+
+template
+void
+Split_operator_stepper_choice::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Split_operator_stepper_choice::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Split_operator_stepper_choice::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Split_operator_stepper_choice::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
 Split_operator_stepper_choice::~Split_operator_stepper_choice()
 {
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Split_operator_stepper_choice);
+
