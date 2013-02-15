@@ -114,6 +114,7 @@ def add_local_opts():
         if not found_options:
             print 'warning: no options object(s) found in', local_opts.__file__
 
+# extra_opt_files and extra_opt_dirs will be copied if present, but ignored if missing
 class Job_manager:
     def __init__(self, script, opts, extra_files=None, extra_dirs=None,
                  extra_opt_files=None, extra_opt_dirs=["lattice_cache"],
@@ -278,7 +279,11 @@ class Job_manager:
         return directory
 
     def copy_extra_files(self, files, optional=False):
-        for file in files:
+        for item in files:
+            if type(item) == tuple or type(item) == list:
+                file = getattr(item[0], item[1])
+            else:
+                file = item
             if os.path.exists(file):
                 shutil.copy(file, self.directory)
             else:
@@ -286,7 +291,11 @@ class Job_manager:
                     raise RuntimeError("Job_manager: required file " + file + " not found")
 
     def copy_extra_dirs(self, dirs, optional=False):
-        for dir in dirs:
+        for item in dirs:
+            if type(item) == tuple or type(item) == list:
+                dir = getattr(item[0], item[1])
+            else:
+                dir = item
             if os.path.exists(dir):
                 shutil.copytree(dir, self.directory + os.sep + dir)
             else:
