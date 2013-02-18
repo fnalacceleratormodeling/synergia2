@@ -154,6 +154,7 @@ public:
     Lattice_simulator(Lattice_sptr lattice, int map_order);
     // Default constructor for serialization use only
     Lattice_simulator();
+    Lattice_simulator(Lattice_simulator const& lattice_simulator);
     void
     set_slices(Lattice_element_slices const& slices);
     Lattice_element_slices const&
