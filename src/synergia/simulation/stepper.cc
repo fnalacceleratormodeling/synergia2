@@ -787,7 +787,7 @@ template
 void
 Kicks::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
-BOOST_CLASS_EXPORT_IMPLEMENT(Kicks);                   
+BOOST_CLASS_EXPORT_IMPLEMENT(Kicks);
 
 
 
