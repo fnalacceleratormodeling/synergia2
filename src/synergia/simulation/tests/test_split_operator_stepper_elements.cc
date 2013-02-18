@@ -192,7 +192,7 @@ BOOST_FIXTURE_TEST_CASE(has_sliced_chef_beamline, Lattice_fixture2)
     Split_operator_stepper_elements stepper(lattice_simulator, space_charge,
             steps_per_element);
     BOOST_CHECK(
-            ! lattice_simulator.get_chef_lattice_sptr()->get_sliced_beamline_sptr()->empty());
+            ! stepper.get_lattice_simulator().get_chef_lattice_sptr()->get_sliced_beamline_sptr()->empty());
 }
 
 BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture2)

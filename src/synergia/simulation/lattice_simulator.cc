@@ -452,6 +452,39 @@ Lattice_simulator::Lattice_simulator()
 {
 }
 
+Lattice_simulator::Lattice_simulator(Lattice_simulator const& lattice_simulator) :
+                lattice_sptr(lattice_simulator.lattice_sptr),
+                slices(),
+                have_slices(false),
+                chef_lattice_sptr(new Chef_lattice(lattice_sptr)),
+                extractor_map_sptr(new Operation_extractor_map),
+                aperture_extractor_map_sptr(
+                        new Aperture_operation_extractor_map),
+                have_beamline_context(false),
+                have_sliced_beamline_context(false),
+                map_order(lattice_simulator.map_order),
+                bucket_length(lattice_simulator.bucket_length),
+                have_element_lattice_functions(false),
+                have_slice_lattice_functions(false),
+                have_element_et_lattice_functions(false),
+                have_slice_et_lattice_functions(false),
+                have_element_lb_lattice_functions(false),
+                have_slice_lb_lattice_functions(false),
+                have_element_dispersion(false),
+                have_slice_dispersion(false),
+                horizontal_tune(0.0),
+                vertical_tune(0.0),
+                have_tunes(false),
+                horizontal_chromaticity(0.0),
+                vertical_chromaticity(0.0),
+                have_chromaticities(false),
+                linear_one_turn_map(boost::extents[6][6])
+
+{
+    construct_extractor_map();
+    construct_aperture_extractor_map();
+}
+
 void
 Lattice_simulator::set_slices(Lattice_element_slices const& slices)
 {
