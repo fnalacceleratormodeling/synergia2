@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 import sys
 import numpy
 
@@ -241,7 +242,8 @@ def get_covariances(sigma, r):
 def generate_matched_bunch(lattice_simulator, arms,brms,crms,
                            num_real_particles, num_macro_particles, rms_index=[0,2,4],seed=0,
                            bunch_index=0, comm=None, periodic=False):
-    map = linear_one_turn_map(lattice_simulator)
+   # map = linear_one_turn_map(lattice_simulator)
+    map=lattice_simulator.get_linear_one_turn_map()
     beta = lattice_simulator.get_lattice().get_reference_particle().get_beta()
     correlation_matrix = _get_correlation_matrix(map, arms,brms,crms,beta, rms_index)
     if comm == None:
