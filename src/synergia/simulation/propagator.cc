@@ -435,8 +435,8 @@ Propagator::checkpoint(State & state, Logger & logger, double & t)
     if (commxx_world.get_rank() == 0) {
         std::ofstream description(
                 get_serialization_path(description_file_name, false).c_str());
-        description << "last_turn = " << state.first_turn << std::endl;
-        description << "mpi_size = " << Commxx().get_size() << std::endl;
+        description << "last_turn=" << state.first_turn << std::endl;
+        description << "mpi_size=" << Commxx().get_size() << std::endl;
         description.close();
     }
     rename_serialization_directory(checkpoint_dir);
