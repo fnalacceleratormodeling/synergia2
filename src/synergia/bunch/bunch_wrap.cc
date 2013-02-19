@@ -172,8 +172,8 @@ BOOST_PYTHON_MODULE(bunch)
             init<Bunches, double >())
             .def(init<Bunches, std::vector<double > const& >())
             .def("get_size", &Bunch_train::get_size)
-            .def("get_bunches", &Bunch_train::get_bunches, return_internal_reference< >())
-            .def("get_spacings", &Bunch_train::get_spacings, return_internal_reference< >())
+            .def("get_bunches", &Bunch_train::get_bunches, return_value_policy<copy_non_const_reference >())
+            .def("get_spacings", &Bunch_train::get_spacings, return_value_policy<copy_non_const_reference >())
             ;
 
     typedef Reference_particle & (Bunch::*get_reference_particle_non_const_type)();
