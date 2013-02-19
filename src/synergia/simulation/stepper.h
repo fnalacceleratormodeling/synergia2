@@ -30,6 +30,8 @@ protected:
     extract_slices(Steps const& steps);
 
 public:
+    Stepper(Lattice_sptr lattice_sptr, int map_order);
+    /// Deprecated
     Stepper(Lattice_simulator const& lattice_simulator);
     /// Default constructor for serialization use only
     Stepper();

@@ -7,6 +7,12 @@
 const std::string Stepper::force_diagnostics_attribute("force_diagnostics");
 const double Stepper::fixed_step_tolerance = 1.0e-8;
 
+Stepper::Stepper(Lattice_sptr lattice_sptr, int map_order) :
+    lattice_simulator(lattice_sptr, map_order)
+{
+
+}
+
 Stepper::Stepper(Lattice_simulator const& lattice_simulator) :
     lattice_simulator(lattice_simulator)
 {
