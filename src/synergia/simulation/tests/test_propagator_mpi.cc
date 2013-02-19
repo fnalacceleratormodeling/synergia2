@@ -3,6 +3,7 @@
 #include <boost/test/unit_test.hpp>
 #include "synergia/simulation/propagator.h"
 #include "synergia/simulation/lattice_simulator.h"
+#include "synergia/simulation/split_operator_stepper.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/lattice/chef_utils.h"
 #include "synergia/bunch/bunch.h"

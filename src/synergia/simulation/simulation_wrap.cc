@@ -2,6 +2,11 @@
 #include "lattice_simulator.h"
 #include "populate_stationary.h"
 #include "stepper.h"
+#include "independent_stepper.h"
+#include "independent_stepper_elements.h"
+#include "split_operator_stepper.h"
+#include "split_operator_stepper_elements.h"
+#include "split_operator_stepper_choice.h"
 #include "propagator.h"
 #include "propagate_actions.h"
 #include "diagnostics_actions.h"
@@ -154,19 +159,19 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bs_add_per_step_member_overloads23,
         Bunch_simulator::add_per_step, 2, 3)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bs_add_per_forced_diagnostics_step_member_overloads12,
                 Bunch_simulator::add_per_forced_diagnostics_step, 1, 2)
-                
+
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_horizontal_tune_overloads01,
-        Lattice_simulator::get_horizontal_tune, 0, 1) 
+        Lattice_simulator::get_horizontal_tune, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertical_tune_overloads01,
-        Lattice_simulator::get_vertical_tune, 0, 1)   
+        Lattice_simulator::get_vertical_tune, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_both_tunes_overloads01,
-        Lattice_simulator::get_both_tunes, 0, 1) 
+        Lattice_simulator::get_both_tunes, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_chromaticities_overloads46,
 		 Lattice_simulator::adjust_chromaticities, 4, 6)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_tunes_overloads45,
 		 Lattice_simulator::adjust_tunes, 4, 5)
-		 
-        
+
+
 
 void (Bunch_train_simulator::*bts_add_per_turn1)(int, Diagnostics_sptr, int)
                             = &Bunch_train_simulator::add_per_turn;
@@ -365,7 +370,7 @@ BOOST_PYTHON_MODULE(simulation)
                 return_value_policy<copy_const_reference >())
         .def("get_lattice_functions", get_lattice_functions2,
                 return_value_policy<copy_const_reference >())
-        .def("get_horizontal_tune", &Lattice_simulator::get_horizontal_tune, 
+        .def("get_horizontal_tune", &Lattice_simulator::get_horizontal_tune,
 	                          get_horizontal_tune_overloads01())
         .def("get_vertical_tune", &Lattice_simulator::get_vertical_tune,
 	                          get_vertical_tune_overloads01())

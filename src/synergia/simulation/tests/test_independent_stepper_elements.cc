@@ -1,6 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "synergia/simulation/stepper.h"
+#include "synergia/simulation/independent_stepper_elements.h"
 #include "synergia/foundation/physical_constants.h"
 #include "lattice_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
@@ -55,15 +55,6 @@ BOOST_FIXTURE_TEST_CASE(construct17, Lattice_fixture2)
     //assume Lattice_fixture2 has a single zero-length element
     BOOST_CHECK_EQUAL(stepper.get_steps().size(),
             (lattice_sptr->get_elements().size()-1)*steps_per_element + 1);
-}
-
-BOOST_FIXTURE_TEST_CASE(get_steps, Lattice_fixture)
-{
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-
-    Independent_stepper stepper100(lattice_simulator, 100);
-
-    BOOST_CHECK_EQUAL(stepper100.get_steps().size(), 100);
 }
 
 void

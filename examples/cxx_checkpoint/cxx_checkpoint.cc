@@ -5,7 +5,7 @@
 #include "synergia/utils/serialization.h"
 #include "synergia/simulation/operator.h"
 #include "synergia/simulation/lattice_simulator.h"
-#include "synergia/simulation/stepper.h"
+#include "synergia/simulation/split_operator_stepper.h"
 #include "synergia/simulation/propagator.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/foundation/distribution.h"

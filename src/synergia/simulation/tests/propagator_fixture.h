@@ -2,6 +2,7 @@
 #define PROPAGATOR_FIXTURE_H_
 
 #include "lattice_fixture.h"
+#include "synergia/simulation/split_operator_stepper.h"
 namespace kludge
 {
 #include "synergia/bunch/tests/bunches_fixture.h"

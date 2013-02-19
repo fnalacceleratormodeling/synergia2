@@ -1,6 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "synergia/simulation/stepper.h"
+#include "synergia/simulation/independent_stepper.h"
 #include "synergia/foundation/physical_constants.h"
 #include "lattice_fixture.h"
 #include "synergia/utils/serialization.h"
