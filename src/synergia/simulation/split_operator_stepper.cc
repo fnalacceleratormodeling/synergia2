@@ -147,6 +147,24 @@ Split_operator_stepper::construct(
 }
 
 Split_operator_stepper::Split_operator_stepper(
+        Lattice_sptr lattice_sptr, int map_order,
+        Collective_operator_sptr collective_operator, int num_steps) :
+    Stepper(lattice_sptr, map_order)
+{
+    Collective_operators collective_operators;
+    collective_operators.push_back(collective_operator);
+    construct(collective_operators, num_steps);
+}
+
+Split_operator_stepper::Split_operator_stepper(
+        Lattice_sptr lattice_sptr, int map_order,
+        Collective_operators const& collective_operators, int num_steps) :
+    Stepper(lattice_sptr, map_order)
+{
+    construct(collective_operators, num_steps);
+}
+
+Split_operator_stepper::Split_operator_stepper(
         Lattice_simulator const& lattice_simulator,
         Collective_operator_sptr collective_operator, int num_steps) :
     Stepper(lattice_simulator)

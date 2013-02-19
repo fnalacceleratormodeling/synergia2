@@ -22,7 +22,7 @@ BOOST_FIXTURE_TEST_CASE(construct_deprecated, Lattice_fixture2)
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 1;
-    Independent_stepper_elements stepper(lattice_sptr, map_order, steps_per_element);
+    Independent_stepper_elements stepper(lattice_simulator, steps_per_element);
     BOOST_CHECK_EQUAL(stepper.get_steps().size(),
             lattice_sptr->get_elements().size());
 }
