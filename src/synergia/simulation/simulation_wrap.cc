@@ -435,7 +435,8 @@ BOOST_PYTHON_MODULE(simulation)
     to_python_converter<Steps,
              container_conversions::to_tuple<Steps > >();
 
-    class_<Stepper >("Stepper",init<Lattice_simulator const& >())
+    class_<Stepper >("Stepper",init<Lattice_sptr, int >())
+        .def(init<Lattice_simulator const& >())
         .def("get_lattice_simulator", &Stepper::get_lattice_simulator,
                 return_internal_reference< >())
         .def("get_steps", &Stepper::get_steps,
@@ -446,12 +447,16 @@ BOOST_PYTHON_MODULE(simulation)
         ;
 
     class_<Split_operator_stepper, bases<Stepper > >("Split_operator_stepper",
-            init<Lattice_simulator const&, Collective_operator_sptr, int >())
+            init<Lattice_sptr, int, Collective_operator_sptr, int >())
+           .def(init<Lattice_sptr, int, Collective_operators, int >())
+           .def(init<Lattice_simulator const&, Collective_operator_sptr, int >())
            .def(init<Lattice_simulator const&, Collective_operators, int >())
             ;
 
     class_<Split_operator_stepper_elements, bases<Stepper > >("Split_operator_stepper_elements",
-            init<Lattice_simulator const&, Collective_operator_sptr, int >())
+            init<Lattice_sptr, int, Collective_operator_sptr, int >())
+	    .def(init<Lattice_sptr, int, Collective_operators const &, int  >())
+	    .def(init<Lattice_simulator const&, Collective_operator_sptr, int >())
 	    .def(init<Lattice_simulator const&, Collective_operators const &, int  >())
 	    ;
 
@@ -464,17 +469,23 @@ BOOST_PYTHON_MODULE(simulation)
         ;
 
     class_<Split_operator_stepper_choice, bases<Stepper > >("Split_operator_stepper_choice",
-            init<Lattice_simulator const&, List_choice_map const&, optional<bool > >())
+            init<Lattice_sptr, int, List_choice_map const&, optional<bool > >())
+           .def(init< int, Lattice_sptr, int, List_choice_map const&, optional<bool > >())
+           .def(init<Lattice_simulator const&, List_choice_map const&, optional<bool > >())
            .def(init< int, Lattice_simulator const&, List_choice_map const&, optional<bool > >())
            //.def(init<Lattice_simulator const&, List_choice_map const&, int>())
          //  .def(init<Lattice_simulator const&, List_choice_map const& >())
            ;
 
     class_<Independent_stepper, bases<Stepper > >("Independent_stepper",
-            init<Lattice_simulator const&, int >());
+            init<Lattice_sptr, int, int >())
+            .def(init<Lattice_simulator const&, int >())
+            ;
 
     class_<Independent_stepper_elements, bases<Stepper > >("Independent_stepper_elements",
-            init<Lattice_simulator const&, int >());
+            init<Lattice_sptr, int, int >())
+            .def(init<Lattice_simulator const&, int >())
+            ;
 
     class_<Propagate_actions, Propagate_actions_callback >("Propagate_actions",
             init< >())
