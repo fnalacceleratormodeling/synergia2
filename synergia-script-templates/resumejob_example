@@ -1,7 +1,10 @@
 #!/bin/sh
 #synergia_workflow_submitter:/bin/sh
 cd @@jobdir@@ && \
-(time mpirun -np @@numproc@@ @@synergia_resume_executable@@; \
-echo "synergia finished with exit status $?")
+(suffix=0; \
+test -f checkpoint/checkpoint_description.txt && \
+    suffix="`grep last_turn checkpoint/checkpoint_description.txt | sed 's/last_turn=//'`" && \
+time mpirun -np @@numproc@@ @@synergia_resume_executable@@  1> synergia.out.$suffix 2> synergia.err.$suffix; \
+echo "synergia resume finished with exit status $?")
 
 
