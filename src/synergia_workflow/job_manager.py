@@ -13,6 +13,9 @@ job_mgr_opts = options.Options("job_manager")
 job_mgr_opts.add("template", "job",
                  "Filename for job template to look for in search path")
 job_mgr_opts.add("templatepath", None, "Full path to a job template", str)
+job_mgr_opts.add("resumetemplate", "resumejob",
+                 "Filename for resume job template to look for in search path")
+job_mgr_opts.add("resumetemplatepath", None, "Full path to a resume job template", str)
 job_mgr_opts.add("createjob", False, "Whether to create new job directory")
 #job_mgr_opts.add("resumejob", 0, "Whether to resume a previously checkpointed job", int)
 job_mgr_opts.add("jobdir", "run", "Job directory")
@@ -28,6 +31,7 @@ job_mgr_opts.add("setupsh", '"${HOME}/synergia2_old_devel_1_0/setup.sh"',
 job_mgr_opts.add("overwrite", False, "Whether to overwrite existing job directory")
 job_mgr_opts.add("walltime", None, "Limit job to given wall time", str)
 job_mgr_opts.add("synergia_executable", "synergia", "Name or path of synergia executable")
+job_mgr_opts.add("synergia_resume_executable", "synergia-pyresume", "Name or path of synergia resume executable")
 
 #job_mgr_opts.add("checkpoint", 0, "enable generation of checkpoint", int)
 #job_mgr_opts.add("checkpoint_freq", 100, "frequency of checkpoint generation", int)
@@ -258,6 +262,23 @@ class Job_manager:
                 print "because no job template was found in search path"
 
         self.create_script(job_template_path, job_name, directory, subs)
+
+        resumejob_name = os.path.basename(directory) + "_resumejob"
+        if self.opts.job_manager.resumetemplatepath:
+            resumejob_template_path = self.opts.job_manager.resumetemplatepath
+            print "using resume job template:", resumejob_template_path
+        else:
+            resumejob_template_path = search_job_manager_paths(self.opts.job_manager.resumetemplate)
+            if resumejob_template_path:
+                print "using resume job template:", resumejob_template_path
+            else:
+                resumejob_template_path = os.path.join(get_script_templates_dir(),
+                                                 "resumejob_example")
+                print "warning: using example resume job template:", job_template_path
+                print "because no resume job template was found in search path"
+
+        self.create_script(resumejob_template_path, resumejob_name, directory, subs)
+
         self.create_script(search_job_manager_paths("cleanup"), "cleanup",
                             directory, subs)
         if extra_files:
