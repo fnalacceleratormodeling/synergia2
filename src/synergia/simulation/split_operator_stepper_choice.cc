@@ -380,6 +380,41 @@ Split_operator_stepper_choice::construct_split_else()
 
 
 Split_operator_stepper_choice::Split_operator_stepper_choice(
+        Lattice_sptr lattice_sptr, int map_order, List_choice_map const & list_choice_map, bool split_else):
+Stepper(lattice_sptr, map_order),    list_choice_map(list_choice_map)
+{
+
+   try{
+        (this->list_choice_map.find("else")!= this->list_choice_map.end()) ?
+            this->num_steps_else=this->list_choice_map["else"].num_steps:
+            throw std::runtime_error(
+                    "Split_operator_stepper_choice: if there is no  keyword \"else\" in the list_choice_map"
+                     " you should use the constructor which provides \"num_steps_else\"");
+
+        split_else ? construct_split_else():  construct_per_element_else();
+    }
+    catch (std::exception const& e){
+        std::cout<<e.what()<<std::endl;
+        MPI_Abort(MPI_COMM_WORLD, 222);
+    }
+}
+
+Split_operator_stepper_choice::Split_operator_stepper_choice(int num_steps_else,
+        Lattice_sptr lattice_sptr, int map_order, List_choice_map const & list_choice_map,  bool split_else):
+Stepper(lattice_sptr, map_order),    list_choice_map(list_choice_map), num_steps_else(num_steps_else)
+{
+
+    try{
+        split_else ? construct_split_else():  construct_per_element_else();
+    }
+    catch (std::exception const& e){
+        std::cout<<e.what()<<std::endl;
+        MPI_Abort(MPI_COMM_WORLD, 222);
+    }
+
+}
+
+Split_operator_stepper_choice::Split_operator_stepper_choice(
                     Lattice_simulator const& lattice_simulator, List_choice_map const & list_choice_map, bool split_else):
 Stepper(lattice_simulator),    list_choice_map(list_choice_map)
 {

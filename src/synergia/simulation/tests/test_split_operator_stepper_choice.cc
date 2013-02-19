@@ -11,7 +11,51 @@ const double tolerance = 1.0e-12;
 
 BOOST_FIXTURE_TEST_CASE(construct_per_elem, Lattice_fixture3)
 {
+    Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
+             "space_charge"));
 
+
+     int num_steps_f=1;
+     int num_steps_d=1;
+     int num_steps_e=1;
+
+   Collective_operators   colective_operators_f;
+   colective_operators_f.push_back(space_charge);
+
+   Kicks kicks_f(colective_operators_f, num_steps_f);
+
+   Dummy_collective_operator_sptr impedance(new Dummy_collective_operator(
+             "impedance"));
+   Collective_operators   colective_operators_d;
+   colective_operators_d.push_back(impedance);
+
+   Kicks kicks_d(colective_operators_d, num_steps_d);
+
+
+   Collective_operators   colective_operators_e;
+   Dummy_collective_operator_sptr dummy(new Dummy_collective_operator(
+             "dummy"));
+   colective_operators_e.push_back(dummy);
+
+   Kicks kicks_e(colective_operators_e, num_steps_e);
+
+   std::map<std::string, Kicks >  list_choice_map;
+
+   list_choice_map["f"]=kicks_f;
+   list_choice_map["d"]=kicks_d;
+   list_choice_map["else"]=kicks_e;
+
+
+    bool split_else=false;
+     Split_operator_stepper_choice stepper(lattice_sptr, map_order, list_choice_map, split_else);
+
+
+     BOOST_CHECK_EQUAL(stepper.get_steps().size(),
+             lattice_sptr->get_elements().size());
+}
+
+BOOST_FIXTURE_TEST_CASE(construct_per_elem_deprecated, Lattice_fixture3)
+{
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
              "space_charge"));
@@ -58,9 +102,6 @@ BOOST_FIXTURE_TEST_CASE(construct_per_elem, Lattice_fixture3)
 
 BOOST_FIXTURE_TEST_CASE(construct_per_elem1, Lattice_fixture3)
 {
-
-
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
              "space_charge"));
 
@@ -97,7 +138,7 @@ BOOST_FIXTURE_TEST_CASE(construct_per_elem1, Lattice_fixture3)
 
 
     bool split_else=false;
-     Split_operator_stepper_choice stepper(lattice_simulator, list_choice_map, split_else);
+     Split_operator_stepper_choice stepper(lattice_sptr, map_order, list_choice_map, split_else);
      double steps_length=0.;
    //  int index=0;
      for (Steps::const_iterator it=stepper.get_steps().begin();it!=stepper.get_steps().end();++it){
@@ -119,7 +160,6 @@ BOOST_FIXTURE_TEST_CASE(construct_per_elem1, Lattice_fixture3)
 BOOST_FIXTURE_TEST_CASE(construct_per_elem2, Lattice_fixture3)
 {
     // no "else" keyword
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
              "space_charge"));
 
@@ -151,7 +191,7 @@ BOOST_FIXTURE_TEST_CASE(construct_per_elem2, Lattice_fixture3)
 
      int num_steps_e=6;
      bool split_else=false;
-     Split_operator_stepper_choice stepper(num_steps_e, lattice_simulator, list_choice_map,  split_else);
+     Split_operator_stepper_choice stepper(num_steps_e, lattice_sptr, map_order, list_choice_map,  split_else);
      double steps_length=0.;
     // int index=0;
      for (Steps::const_iterator it=stepper.get_steps().begin();it!=stepper.get_steps().end();++it){
@@ -173,7 +213,6 @@ BOOST_FIXTURE_TEST_CASE(construct_per_elem2, Lattice_fixture3)
 BOOST_FIXTURE_TEST_CASE(construct_per_elem3, Lattice_fixture3)
 {
     // empty list_choice_map
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 //     Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
 //              "space_charge"));
 
@@ -205,7 +244,7 @@ BOOST_FIXTURE_TEST_CASE(construct_per_elem3, Lattice_fixture3)
 
      int num_steps_e=10;
      bool   split_else=false;
-     Split_operator_stepper_choice stepper(num_steps_e, lattice_simulator, list_choice_map,  split_else);
+     Split_operator_stepper_choice stepper(num_steps_e, lattice_sptr, map_order, list_choice_map,  split_else);
      double steps_length=0.;
   //   int index=0;
      for (Steps::const_iterator it=stepper.get_steps().begin();it!=stepper.get_steps().end();++it){
@@ -265,7 +304,7 @@ BOOST_FIXTURE_TEST_CASE(construct_per_elem3, Lattice_fixture3)
 //
 //          bool caught_error = false;
 //      try {
-//         Split_operator_stepper_choice stepper(lattice_simulator, list_choice_map, split_else);
+//         Split_operator_stepper_choice stepper(lattice_sptr, map_order, list_choice_map, split_else);
 //
 //      }
 //      catch (std::runtime_error) {
@@ -277,8 +316,6 @@ BOOST_FIXTURE_TEST_CASE(construct_per_elem3, Lattice_fixture3)
 
 BOOST_FIXTURE_TEST_CASE(construct_split_else, Lattice_fixture2)
 {
-
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
              "space_charge"));
 
@@ -315,7 +352,7 @@ BOOST_FIXTURE_TEST_CASE(construct_split_else, Lattice_fixture2)
 
 
     bool split_else=true;
-     Split_operator_stepper_choice stepper(lattice_simulator, list_choice_map, split_else);
+     Split_operator_stepper_choice stepper(lattice_sptr, map_order, list_choice_map, split_else);
 
          double steps_length=0.;
      // int index=0;
@@ -340,8 +377,6 @@ BOOST_FIXTURE_TEST_CASE(construct_split_else, Lattice_fixture2)
 
 BOOST_FIXTURE_TEST_CASE(construct_split_else1, Lattice_fixture4)
 {
-
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     Dummy_collective_operator_sptr space_charge(new Dummy_collective_operator(
              "space_charge"));
 
@@ -378,7 +413,7 @@ BOOST_FIXTURE_TEST_CASE(construct_split_else1, Lattice_fixture4)
 
 
     bool split_else=true;
-     Split_operator_stepper_choice stepper(lattice_simulator, list_choice_map, split_else);
+     Split_operator_stepper_choice stepper(lattice_sptr, map_order, list_choice_map, split_else);
 
       double steps_length=0.;
      // int index=0;
