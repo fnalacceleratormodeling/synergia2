@@ -1,6 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "synergia/simulation/stepper.h"
+#include "synergia/simulation/split_operator_stepper_elements.h"
 #include "synergia/foundation/physical_constants.h"
 #include "lattice_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
@@ -10,6 +10,18 @@ const int map_order = 1;
 const double tolerance = 1.0e-12;
 
 BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture2)
+{
+    Dummy_collective_operator_sptr space_charge(
+            new Dummy_collective_operator("space_charge"));
+
+    const int steps_per_element = 1;
+    Split_operator_stepper_elements stepper(lattice_sptr, map_order, space_charge,
+            steps_per_element);
+    BOOST_CHECK_EQUAL(stepper.get_steps().size(),
+            lattice_sptr->get_elements().size());
+}
+
+BOOST_FIXTURE_TEST_CASE(construct_deprecated, Lattice_fixture2)
 {
     Dummy_collective_operator_sptr space_charge(
             new Dummy_collective_operator("space_charge"));
@@ -26,12 +38,11 @@ BOOST_FIXTURE_TEST_CASE(construct_bad, Lattice_fixture2)
 {
     Dummy_collective_operator_sptr space_charge(
             new Dummy_collective_operator("space_charge"));
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 0;
     bool caught_error = false;
     try {
-        Split_operator_stepper_elements stepper(lattice_simulator,
+        Split_operator_stepper_elements stepper(lattice_sptr, map_order,
                 space_charge, steps_per_element);
     }
     catch (std::runtime_error &) {
@@ -44,10 +55,9 @@ BOOST_FIXTURE_TEST_CASE(construct2, Lattice_fixture2)
 {
     Dummy_collective_operator_sptr space_charge(
             new Dummy_collective_operator("space_charge"));
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 2;
-    Split_operator_stepper_elements stepper(lattice_simulator, space_charge,
+    Split_operator_stepper_elements stepper(lattice_sptr, map_order, space_charge,
             steps_per_element);
     //assume Lattice_fixture2 has a single zero-length element
     BOOST_CHECK_EQUAL(stepper.get_steps().size(),
@@ -58,10 +68,9 @@ BOOST_FIXTURE_TEST_CASE(construct17, Lattice_fixture2)
 {
     Dummy_collective_operator_sptr space_charge(
             new Dummy_collective_operator("space_charge"));
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 17;
-    Split_operator_stepper_elements stepper(lattice_simulator, space_charge,
+    Split_operator_stepper_elements stepper(lattice_sptr, map_order, space_charge,
             steps_per_element);
     //assume Lattice_fixture2 has a single zero-length element
     BOOST_CHECK_EQUAL(stepper.get_steps().size(),
@@ -150,10 +159,9 @@ BOOST_FIXTURE_TEST_CASE(verify_steps1, Lattice_fixture2)
 {
     Dummy_collective_operator_sptr space_charge(
             new Dummy_collective_operator("space_charge"));
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 1;
-    Split_operator_stepper_elements stepper(lattice_simulator, space_charge,
+    Split_operator_stepper_elements stepper(lattice_sptr, map_order, space_charge,
             steps_per_element);
     verify_steps(stepper, steps_per_element);
 }
@@ -162,10 +170,9 @@ BOOST_FIXTURE_TEST_CASE(verify_steps2, Lattice_fixture2)
 {
     Dummy_collective_operator_sptr space_charge(
             new Dummy_collective_operator("space_charge"));
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 2;
-    Split_operator_stepper_elements stepper(lattice_simulator, space_charge,
+    Split_operator_stepper_elements stepper(lattice_sptr, map_order, space_charge,
             steps_per_element);
     verify_steps(stepper, steps_per_element);
 }
@@ -174,10 +181,9 @@ BOOST_FIXTURE_TEST_CASE(verify_steps17, Lattice_fixture2)
 {
     Dummy_collective_operator_sptr space_charge(
             new Dummy_collective_operator("space_charge"));
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 17;
-    Split_operator_stepper_elements stepper(lattice_simulator, space_charge,
+    Split_operator_stepper_elements stepper(lattice_sptr, map_order, space_charge,
             steps_per_element);
     verify_steps(stepper, steps_per_element);
 }
@@ -186,10 +192,9 @@ BOOST_FIXTURE_TEST_CASE(has_sliced_chef_beamline, Lattice_fixture2)
 {
     Dummy_collective_operator_sptr space_charge(
             new Dummy_collective_operator("space_charge"));
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 1;
-    Split_operator_stepper_elements stepper(lattice_simulator, space_charge,
+    Split_operator_stepper_elements stepper(lattice_sptr, map_order, space_charge,
             steps_per_element);
     BOOST_CHECK(
             ! stepper.get_lattice_simulator().get_chef_lattice_sptr()->get_sliced_beamline_sptr()->empty());
@@ -199,10 +204,9 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture2)
 {
     Dummy_collective_operator_sptr space_charge(
             new Dummy_collective_operator("space_charge"));
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 1;
-    Split_operator_stepper_elements stepper(lattice_simulator, space_charge,
+    Split_operator_stepper_elements stepper(lattice_sptr, map_order, space_charge,
             steps_per_element);
     xml_save(stepper, "split_operator_stepper_elements.xml");
 
@@ -214,11 +218,10 @@ BOOST_FIXTURE_TEST_CASE(serialize2_xml, Lattice_fixture2)
 {
     Dummy_collective_operator_sptr space_charge(
             new Dummy_collective_operator("space_charge"));
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int steps_per_element = 1;
     Stepper_sptr stepper_sptr(
-            new Split_operator_stepper_elements(lattice_simulator,
+            new Split_operator_stepper_elements(lattice_sptr, map_order,
                     space_charge, steps_per_element));
     xml_save(stepper_sptr, "split_operator_stepper_elements2.xml");
 

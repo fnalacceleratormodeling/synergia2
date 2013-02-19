@@ -1,4 +1,7 @@
 add_library(synergia_simulation operator.cc step.cc stepper.cc
+    independent_stepper.cc independent_stepper_elements.cc
+    split_operator_stepper.cc split_operator_stepper_elements.cc
+    split_operator_stepper_choice.cc
     propagate_actions.cc diagnostics_actions.cc propagator.cc
     fast_mapping.cc chef_propagator.cc independent_operation.cc
     lattice_simulator.cc operation_extractor.cc aperture.cc
@@ -32,6 +35,11 @@ install(FILES
     propagator.h
     step.h
     stepper.h
+    independent_stepper.h
+    independent_stepper_elements.h
+    split_operator_stepper.h
+    split_operator_stepper_elements.h
+    split_operator_stepper_choice.h
     populate_stationary.h
     dense_mapping.h
     DESTINATION include/synergia/simulation)

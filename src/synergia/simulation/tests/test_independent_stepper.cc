@@ -1,6 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
-#include "synergia/simulation/stepper.h"
+#include "synergia/simulation/independent_stepper.h"
 #include "synergia/foundation/physical_constants.h"
 #include "lattice_fixture.h"
 #include "synergia/utils/serialization.h"
@@ -14,6 +14,13 @@ const int map_order = 1;
 
 BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture)
 {
+    const int num_steps = 1;
+    Independent_stepper stepper(lattice_sptr, map_order, num_steps);
+    //stepper.print();
+}
+
+BOOST_FIXTURE_TEST_CASE(construct_deprecated, Lattice_fixture)
+{
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int num_steps = 1;
@@ -23,12 +30,10 @@ BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture)
 
 BOOST_FIXTURE_TEST_CASE(construct_bad, Lattice_fixture)
 {
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-
     const int num_steps = 0;
     bool caught_error = false;
     try {
-        Independent_stepper stepper(lattice_simulator, num_steps);
+        Independent_stepper stepper(lattice_sptr, map_order, num_steps);
     }
     catch (std::runtime_error &) {
         caught_error = true;
@@ -38,33 +43,25 @@ BOOST_FIXTURE_TEST_CASE(construct_bad, Lattice_fixture)
 
 BOOST_FIXTURE_TEST_CASE(construct2, Lattice_fixture)
 {
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-
     const int num_steps = 2;
-    Independent_stepper stepper(lattice_simulator, num_steps);
+    Independent_stepper stepper(lattice_sptr, map_order, num_steps);
 }
 
 BOOST_FIXTURE_TEST_CASE(construct17, Lattice_fixture)
 {
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-
     const int num_steps = 17;
-    Independent_stepper stepper(lattice_simulator, num_steps);
+    Independent_stepper stepper(lattice_sptr, map_order, num_steps);
 }
 
 BOOST_FIXTURE_TEST_CASE(construct100, Lattice_fixture)
 {
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-
-    Independent_stepper stepper100(lattice_simulator, 100);
+    Independent_stepper stepper100(lattice_sptr, map_order, 100);
     //    stepper100.print();
 }
 
 BOOST_FIXTURE_TEST_CASE(get_steps, Lattice_fixture)
 {
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-
-    Independent_stepper stepper100(lattice_simulator, 100);
+    Independent_stepper stepper100(lattice_sptr, map_order, 100);
 
     BOOST_CHECK_EQUAL(stepper100.get_steps().size(), 100);
 }
@@ -120,30 +117,24 @@ verify_steps(Independent_stepper & stepper, Lattice & lattice, int num_steps)
 
 BOOST_FIXTURE_TEST_CASE(verify_steps1, Lattice_fixture)
 {
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-
     const int num_steps = 1;
-    Independent_stepper stepper(lattice_simulator, num_steps);
+    Independent_stepper stepper(lattice_sptr, map_order, num_steps);
 
     verify_steps(stepper, *lattice_sptr, num_steps);
 }
 
 BOOST_FIXTURE_TEST_CASE(verify_steps2, Lattice_fixture)
 {
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-
     const int num_steps = 2;
-    Independent_stepper stepper(lattice_simulator, num_steps);
+    Independent_stepper stepper(lattice_sptr, map_order, num_steps);
 
     verify_steps(stepper, *lattice_sptr, num_steps);
 }
 
 BOOST_FIXTURE_TEST_CASE(verify_steps17, Lattice_fixture)
 {
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-
     const int num_steps = 17;
-    Independent_stepper stepper(lattice_simulator, num_steps);
+    Independent_stepper stepper(lattice_sptr, map_order, num_steps);
 
     verify_steps(stepper, *lattice_sptr, num_steps);
 }
@@ -204,9 +195,8 @@ verify_forced_diagnostics(Independent_stepper & stepper,
 
 BOOST_FIXTURE_TEST_CASE(force_diagnostics0, Lattice_fixture)
 {
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     const int num_steps = 2;
-    Independent_stepper stepper(lattice_simulator, num_steps);
+    Independent_stepper stepper(lattice_sptr, map_order, num_steps);
 
     verify_forced_diagnostics(stepper, "do not find me", lattice_sptr);
 }
@@ -221,9 +211,8 @@ BOOST_FIXTURE_TEST_CASE(force_diagnostics1, Lattice_fixture)
                     "true");
         }
     }
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
     const int num_steps = 2;
-    Independent_stepper stepper(lattice_simulator, num_steps);
+    Independent_stepper stepper(lattice_sptr, map_order, num_steps);
 
     verify_forced_diagnostics(stepper, forced_name, lattice_sptr);
 }
@@ -237,10 +226,9 @@ BOOST_FIXTURE_TEST_CASE(force_diagnostics2, Lattice_fixture)
             (*it)->set_string_attribute(Stepper::force_diagnostics_attribute, "true");
         }
     }
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int num_steps = 2;
-    Independent_stepper stepper(lattice_simulator, num_steps);
+    Independent_stepper stepper(lattice_sptr, map_order, num_steps);
 
     verify_forced_diagnostics(stepper, forced_name, lattice_sptr);
 }
@@ -254,10 +242,9 @@ BOOST_FIXTURE_TEST_CASE(force_diagnostics3, Lattice_fixture)
             (*it)->set_string_attribute(Stepper::force_diagnostics_attribute, "true");
         }
     }
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int num_steps = 2;
-    Independent_stepper stepper(lattice_simulator, num_steps);
+    Independent_stepper stepper(lattice_sptr, map_order, num_steps);
     verify_forced_diagnostics(stepper, forced_name, lattice_sptr);
 }
 
@@ -270,18 +257,15 @@ BOOST_FIXTURE_TEST_CASE(force_diagnostics4, Lattice_fixture)
             (*it)->set_string_attribute(Stepper::force_diagnostics_attribute, "true");
         }
     }
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const int num_steps = 7;
-    Independent_stepper stepper(lattice_simulator, num_steps);
+    Independent_stepper stepper(lattice_sptr, map_order, num_steps);
     verify_forced_diagnostics(stepper, forced_name, lattice_sptr);
 }
 
 BOOST_FIXTURE_TEST_CASE(has_sliced_chef_beamline, Lattice_fixture)
 {
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-
-    Independent_stepper stepper2(lattice_simulator, 2);
+    Independent_stepper stepper2(lattice_sptr, map_order, 2);
 
     BOOST_CHECK(
             ! stepper2.get_lattice_simulator().get_chef_lattice_sptr()->get_sliced_beamline_sptr()->empty());
@@ -289,10 +273,8 @@ BOOST_FIXTURE_TEST_CASE(has_sliced_chef_beamline, Lattice_fixture)
 
 BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture)
 {
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-
     const int num_steps = 2;
-    Independent_stepper stepper(lattice_simulator, num_steps);
+    Independent_stepper stepper(lattice_sptr, map_order, num_steps);
     xml_save(stepper, "independent_stepper.xml");
 
     Independent_stepper loaded;
@@ -301,11 +283,9 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture)
 
 BOOST_FIXTURE_TEST_CASE(serialize2_xml, Lattice_fixture)
 {
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-
     const int num_steps = 2;
     Stepper_sptr stepper_sptr(
-            new Independent_stepper(lattice_simulator, num_steps));
+            new Independent_stepper(lattice_sptr, map_order, num_steps));
     xml_save(stepper_sptr, "independent_stepper2.xml");
 
     Stepper_sptr loaded;

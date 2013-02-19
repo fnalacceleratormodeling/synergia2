@@ -2,6 +2,11 @@
 #include "lattice_simulator.h"
 #include "populate_stationary.h"
 #include "stepper.h"
+#include "independent_stepper.h"
+#include "independent_stepper_elements.h"
+#include "split_operator_stepper.h"
+#include "split_operator_stepper_elements.h"
+#include "split_operator_stepper_choice.h"
 #include "propagator.h"
 #include "propagate_actions.h"
 #include "diagnostics_actions.h"
@@ -154,19 +159,19 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bs_add_per_step_member_overloads23,
         Bunch_simulator::add_per_step, 2, 3)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(bs_add_per_forced_diagnostics_step_member_overloads12,
                 Bunch_simulator::add_per_forced_diagnostics_step, 1, 2)
-                
+
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_horizontal_tune_overloads01,
-        Lattice_simulator::get_horizontal_tune, 0, 1) 
+        Lattice_simulator::get_horizontal_tune, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertical_tune_overloads01,
-        Lattice_simulator::get_vertical_tune, 0, 1)   
+        Lattice_simulator::get_vertical_tune, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_both_tunes_overloads01,
-        Lattice_simulator::get_both_tunes, 0, 1) 
+        Lattice_simulator::get_both_tunes, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_chromaticities_overloads46,
 		 Lattice_simulator::adjust_chromaticities, 4, 6)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_tunes_overloads45,
 		 Lattice_simulator::adjust_tunes, 4, 5)
-		 
-        
+
+
 
 void (Bunch_train_simulator::*bts_add_per_turn1)(int, Diagnostics_sptr, int)
                             = &Bunch_train_simulator::add_per_turn;
@@ -365,7 +370,7 @@ BOOST_PYTHON_MODULE(simulation)
                 return_value_policy<copy_const_reference >())
         .def("get_lattice_functions", get_lattice_functions2,
                 return_value_policy<copy_const_reference >())
-        .def("get_horizontal_tune", &Lattice_simulator::get_horizontal_tune, 
+        .def("get_horizontal_tune", &Lattice_simulator::get_horizontal_tune,
 	                          get_horizontal_tune_overloads01())
         .def("get_vertical_tune", &Lattice_simulator::get_vertical_tune,
 	                          get_vertical_tune_overloads01())
@@ -430,7 +435,8 @@ BOOST_PYTHON_MODULE(simulation)
     to_python_converter<Steps,
              container_conversions::to_tuple<Steps > >();
 
-    class_<Stepper >("Stepper",init<Lattice_simulator const& >())
+    class_<Stepper >("Stepper",init<Lattice_sptr, int >())
+        .def(init<Lattice_simulator const& >())
         .def("get_lattice_simulator", &Stepper::get_lattice_simulator,
                 return_internal_reference< >())
         .def("get_steps", &Stepper::get_steps,
@@ -441,12 +447,16 @@ BOOST_PYTHON_MODULE(simulation)
         ;
 
     class_<Split_operator_stepper, bases<Stepper > >("Split_operator_stepper",
-            init<Lattice_simulator const&, Collective_operator_sptr, int >())
+            init<Lattice_sptr, int, Collective_operator_sptr, int >())
+           .def(init<Lattice_sptr, int, Collective_operators, int >())
+           .def(init<Lattice_simulator const&, Collective_operator_sptr, int >())
            .def(init<Lattice_simulator const&, Collective_operators, int >())
             ;
 
     class_<Split_operator_stepper_elements, bases<Stepper > >("Split_operator_stepper_elements",
-            init<Lattice_simulator const&, Collective_operator_sptr, int >())
+            init<Lattice_sptr, int, Collective_operator_sptr, int >())
+	    .def(init<Lattice_sptr, int, Collective_operators const &, int  >())
+	    .def(init<Lattice_simulator const&, Collective_operator_sptr, int >())
 	    .def(init<Lattice_simulator const&, Collective_operators const &, int  >())
 	    ;
 
@@ -459,17 +469,23 @@ BOOST_PYTHON_MODULE(simulation)
         ;
 
     class_<Split_operator_stepper_choice, bases<Stepper > >("Split_operator_stepper_choice",
-            init<Lattice_simulator const&, List_choice_map const&, optional<bool > >())
+            init<Lattice_sptr, int, List_choice_map const&, optional<bool > >())
+           .def(init< int, Lattice_sptr, int, List_choice_map const&, optional<bool > >())
+           .def(init<Lattice_simulator const&, List_choice_map const&, optional<bool > >())
            .def(init< int, Lattice_simulator const&, List_choice_map const&, optional<bool > >())
            //.def(init<Lattice_simulator const&, List_choice_map const&, int>())
          //  .def(init<Lattice_simulator const&, List_choice_map const& >())
            ;
 
     class_<Independent_stepper, bases<Stepper > >("Independent_stepper",
-            init<Lattice_simulator const&, int >());
+            init<Lattice_sptr, int, int >())
+            .def(init<Lattice_simulator const&, int >())
+            ;
 
     class_<Independent_stepper_elements, bases<Stepper > >("Independent_stepper_elements",
-            init<Lattice_simulator const&, int >());
+            init<Lattice_sptr, int, int >())
+            .def(init<Lattice_simulator const&, int >())
+            ;
 
     class_<Propagate_actions, Propagate_actions_callback >("Propagate_actions",
             init< >())

@@ -151,7 +151,9 @@ private:
     void
     get_chromaticities();
 public:
-    Lattice_simulator(Lattice_sptr lattice, int map_order);
+    /// @param lattice_sptr the Lattice
+    /// @param map_order order for Chef_map operations
+    Lattice_simulator(Lattice_sptr lattice_sptr, int map_order);
     // Default constructor for serialization use only
     Lattice_simulator();
     Lattice_simulator(Lattice_simulator const& lattice_simulator);
