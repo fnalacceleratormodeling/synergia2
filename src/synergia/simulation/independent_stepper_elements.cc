@@ -1,10 +1,7 @@
 #include "independent_stepper_elements.h"
 
-
-//Independent_stepper_elements
-Independent_stepper_elements::Independent_stepper_elements(
-        Lattice_simulator const& lattice_simulator, int steps_per_element) :
-    Stepper(lattice_simulator)
+void
+Independent_stepper_elements::construct(int steps_per_element)
 {
     if (steps_per_element < 1) {
         throw std::runtime_error(
@@ -47,6 +44,20 @@ Independent_stepper_elements::Independent_stepper_elements(
         }
     }
     get_lattice_simulator().set_slices(extract_slices(get_steps()));
+}
+
+Independent_stepper_elements::Independent_stepper_elements(
+        Lattice_sptr lattice_sptr, int map_order, int steps_per_element) :
+    Stepper(lattice_sptr, map_order)
+{
+    construct(steps_per_element);
+}
+
+Independent_stepper_elements::Independent_stepper_elements(
+        Lattice_simulator const& lattice_simulator, int steps_per_element) :
+    Stepper(lattice_simulator)
+{
+    construct(steps_per_element);
 }
 
 Independent_stepper_elements::Independent_stepper_elements()
