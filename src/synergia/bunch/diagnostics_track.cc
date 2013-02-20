@@ -33,49 +33,51 @@ Diagnostics_track::new_write_helper_ptr()
 void
 Diagnostics_track::update()
 {
-    get_bunch().convert_to_state(get_bunch().fixed_z_lab);
-    repetition = get_bunch().get_reference_particle().get_repetition();
-    trajectory_length
-            = get_bunch().get_reference_particle().get_trajectory_length();
-    if (found || first_search) {
-        int index = 0;
-        found = false;
-        if ((last_index > -1) && (last_index < get_bunch().get_local_num())) {
-            if (particle_id
-                    == static_cast<int > (get_bunch().get_local_particles()[Bunch::id][last_index])) {
-                index = last_index;
-                found = true;
-            }
-        }
-        if (!found) {
-            index = 0;
-            while ((index < get_bunch().get_local_num())
-                    && (particle_id
-                            != static_cast<int > (get_bunch().get_local_particles()[index][Bunch::id]))) {
-                index += 1;
-            }
-            if (index < get_bunch().get_local_num()) {
-                found = true;
-            } else {
-                found = false;
-            }
-        }
-        if (found) {
-            if (first_search) {
-                get_write_helper();
-            }
-            coords[0] = get_bunch().get_local_particles()[index][0];
-            coords[1] = get_bunch().get_local_particles()[index][1];
-            coords[2] = get_bunch().get_local_particles()[index][2];
-            coords[3] = get_bunch().get_local_particles()[index][3];
-            coords[4] = get_bunch().get_local_particles()[index][4];
-            coords[5] = get_bunch().get_local_particles()[index][5];
-            s = get_bunch().get_reference_particle().get_s();
-            repetition = get_bunch().get_reference_particle().get_repetition();
-            trajectory_length
-                    = get_bunch().get_reference_particle().get_trajectory_length();
-        }
-        first_search = false;
+    if (get_bunch().get_comm().has_this_rank()){
+	get_bunch().convert_to_state(get_bunch().fixed_z_lab);
+	repetition = get_bunch().get_reference_particle().get_repetition();
+	trajectory_length
+		= get_bunch().get_reference_particle().get_trajectory_length();
+	if (found || first_search) {
+	    int index = 0;
+	    found = false;
+	    if ((last_index > -1) && (last_index < get_bunch().get_local_num())) {
+		if (particle_id
+			== static_cast<int > (get_bunch().get_local_particles()[Bunch::id][last_index])) {
+		    index = last_index;
+		    found = true;
+		}
+	    }
+	    if (!found) {
+		index = 0;
+		while ((index < get_bunch().get_local_num())
+			&& (particle_id
+				!= static_cast<int > (get_bunch().get_local_particles()[index][Bunch::id]))) {
+		    index += 1;
+		}
+		if (index < get_bunch().get_local_num()) {
+		    found = true;
+		} else {
+		    found = false;
+		}
+	    }
+	    if (found) {
+		if (first_search) {
+		    get_write_helper();
+		}
+		coords[0] = get_bunch().get_local_particles()[index][0];
+		coords[1] = get_bunch().get_local_particles()[index][1];
+		coords[2] = get_bunch().get_local_particles()[index][2];
+		coords[3] = get_bunch().get_local_particles()[index][3];
+		coords[4] = get_bunch().get_local_particles()[index][4];
+		coords[5] = get_bunch().get_local_particles()[index][5];
+		s = get_bunch().get_reference_particle().get_s();
+		repetition = get_bunch().get_reference_particle().get_repetition();
+		trajectory_length
+			= get_bunch().get_reference_particle().get_trajectory_length();
+	    }
+	    first_search = false;
+	}
     }
 }
 
@@ -105,14 +107,16 @@ Diagnostics_track::init_writers(Hdf5_file_sptr file_sptr)
 void
 Diagnostics_track::write()
 {
-    get_bunch().convert_to_state(get_bunch().fixed_z_lab);
-    if (found) {
-        init_writers(get_write_helper().get_hdf5_file_sptr());
-        writer_coords->append(coords);
-        writer_s->append(s);
-        writer_repetition->append(repetition);
-        writer_trajectory_length->append(trajectory_length);
-        get_write_helper().finish_write();
+    if (get_bunch().get_comm().has_this_rank()){
+	get_bunch().convert_to_state(get_bunch().fixed_z_lab);
+	if (found) {
+	    init_writers(get_write_helper().get_hdf5_file_sptr());
+	    writer_coords->append(coords);
+	    writer_s->append(s);
+	    writer_repetition->append(repetition);
+	    writer_trajectory_length->append(trajectory_length);
+	    get_write_helper().finish_write();
+	}
     }
 }
 

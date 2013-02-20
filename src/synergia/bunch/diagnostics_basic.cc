@@ -27,17 +27,19 @@ Diagnostics_basic::is_serial() const
 void
 Diagnostics_basic::update()
 {
-    get_bunch().convert_to_state(get_bunch().fixed_z_lab);
-    s = get_bunch().get_reference_particle().get_s();
-    repetition = get_bunch().get_reference_particle().get_repetition();
-    trajectory_length
-            = get_bunch().get_reference_particle().get_trajectory_length();
-    num_particles = get_bunch().get_total_num();
-    real_num_particles = get_bunch().get_real_num();
-    mean = Core_diagnostics::calculate_mean(get_bunch());
-    std = Core_diagnostics::calculate_std(get_bunch(), mean);
-    min = Core_diagnostics::calculate_min(get_bunch());
-    max = Core_diagnostics::calculate_max(get_bunch());
+    if (get_bunch().get_comm().has_this_rank()){
+	get_bunch().convert_to_state(get_bunch().fixed_z_lab);
+	s = get_bunch().get_reference_particle().get_s();
+	repetition = get_bunch().get_reference_particle().get_repetition();
+	trajectory_length
+		= get_bunch().get_reference_particle().get_trajectory_length();
+	num_particles = get_bunch().get_total_num();
+	real_num_particles = get_bunch().get_real_num();
+	mean = Core_diagnostics::calculate_mean(get_bunch());
+	std = Core_diagnostics::calculate_std(get_bunch(), mean);
+	min = Core_diagnostics::calculate_min(get_bunch());
+	max = Core_diagnostics::calculate_max(get_bunch());
+    }
 }
 
 double
@@ -118,18 +120,20 @@ Diagnostics_basic::init_writers(Hdf5_file_sptr file_sptr)
 void
 Diagnostics_basic::write()
 {
-    if (get_write_helper().write_locally()) {
-        init_writers(get_write_helper().get_hdf5_file_sptr());
-        writer_s->append(s);
-        writer_repetition->append(repetition);
-        writer_trajectory_length->append(trajectory_length);
-        writer_num_particles->append(num_particles);
-        writer_real_num_particles->append(real_num_particles);
-        writer_mean->append(mean);
-        writer_std->append(std);
-        writer_min->append(min);
-        writer_max->append(max);
-        get_write_helper().finish_write();
+    if (get_bunch().get_comm().has_this_rank()){
+	if (get_write_helper().write_locally()) {
+	    init_writers(get_write_helper().get_hdf5_file_sptr());
+	    writer_s->append(s);
+	    writer_repetition->append(repetition);
+	    writer_trajectory_length->append(trajectory_length);
+	    writer_num_particles->append(num_particles);
+	    writer_real_num_particles->append(real_num_particles);
+	    writer_mean->append(mean);
+	    writer_std->append(std);
+	    writer_min->append(min);
+	    writer_max->append(max);
+	    get_write_helper().finish_write();
+	}
     }
 }
 
