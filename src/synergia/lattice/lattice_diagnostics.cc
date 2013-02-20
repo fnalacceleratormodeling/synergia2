@@ -4,7 +4,7 @@
 Lattice_diagnostics::Lattice_diagnostics(Lattice_sptr lattice_sptr,
         std::string const& filename, std::string const& attribute,
         std::string const& local_dir) :
-        Generalized_diagnostics("lattice_diagnostics"), lattice_sptr(
+        lattice_sptr(
                 lattice_sptr), filename(filename), attribute(attribute), default_value(
                 0), reduce(true), reduce_op(MPI_SUM ), initial_lattice_size(0), write_helper(
                 filename, true, Commxx_sptr(new Commxx), local_dir), writer(0), first_time(true)
@@ -113,6 +113,13 @@ Lattice_diagnostics::write()
         writer->append(reduced_values);
         write_helper.finish_write();
     }
+}
+
+void
+Lattice_diagnostics::update_and_write()
+{
+    update();
+    write();
 }
 
 Lattice_diagnostics::~Lattice_diagnostics()

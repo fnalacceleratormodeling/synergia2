@@ -207,7 +207,7 @@ BOOST_PYTHON_MODULE(lattice)
             .def("get_sliced_beamline", &Chef_lattice::get_sliced_beamline_sptr)
             ;
 
-    class_<Lattice_diagnostics, Lattice_diagnostics_sptr, bases<Generalized_diagnostics > >
+    class_<Lattice_diagnostics, Lattice_diagnostics_sptr >
         ("Lattice_diagnostics",init<Lattice_sptr, std::string const&,
                 std::string const& >())
         .def("set_default_value", &Lattice_diagnostics::set_default_value)

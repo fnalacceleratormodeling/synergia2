@@ -1,12 +1,11 @@
 #ifndef LATTICE_DIAGNOSTICS_H_
 #define LATTICE_DIAGNOSTICS_H_
 
-#include "synergia/foundation/generalized_diagnostics.h"
 #include "synergia/foundation/diagnostics_write_helper.h"
 #include "synergia/utils/hdf5_serial_writer.h"
 #include "synergia/lattice/lattice.h"
 
-class Lattice_diagnostics : public Generalized_diagnostics
+class Lattice_diagnostics
 {
 private:
     Lattice_sptr lattice_sptr;
@@ -52,6 +51,10 @@ public:
     /// Write the diagnostics to the file
     virtual void
     write();
+
+    /// Update the diagnostics and write to file
+    virtual void
+    update_and_write();
 
     virtual
     ~Lattice_diagnostics();
