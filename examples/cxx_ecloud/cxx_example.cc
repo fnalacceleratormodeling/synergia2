@@ -3,7 +3,6 @@
 
 #include "synergia/lattice/lattice.h"
 #include "synergia/utils/serialization.h"
-#include "synergia/utils/commxx_per_host.h"
 #include "synergia/simulation/operator.h"
 #include "synergia/simulation/lattice_simulator.h"
 #include "synergia/simulation/split_operator_stepper.h"

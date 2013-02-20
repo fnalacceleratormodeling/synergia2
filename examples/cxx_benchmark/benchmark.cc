@@ -13,7 +13,6 @@
 #include "synergia/bunch/diagnostics_basic.h"
 #include "synergia/bunch/diagnostics_full2.h"
 #include "synergia/collective/space_charge_3d_open_hockney.h"
-#include "synergia/utils/commxx_per_host.h"
 
 #include "benchmark_options.h"
 

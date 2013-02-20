@@ -32,7 +32,6 @@ install(FILES
     comm_converter.h
     command_line_arg.h
     commxx.h
-    commxx_per_host.h
     container_conversions.h
     distributed_fft3d.h
     distributed_fft2d.h
