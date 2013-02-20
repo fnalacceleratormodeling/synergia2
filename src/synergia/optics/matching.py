@@ -78,8 +78,8 @@ def _get_correlation_matrix(linear_map,arms,brms,crms,beta,rms_index=[0,2,4]):
 
     return C
 
-def  print_matched_parameters(C,beta):
-     print "One Turn correlation matrix: "
+def  print_matched_parameters(C,beta,bunch_index):
+     print "One Turn correlation matrix for bunch ", bunch_index," : "
      print numpy.array2string(C, precision=3)
 
      gamma=1./numpy.sqrt(1.-beta*beta)
@@ -95,7 +95,7 @@ def  print_matched_parameters(C,beta):
      emity=sqrt(C[2,2]*C[3,3]-C[2,3]*C[3,2])/units[2]/units[3]
      emitz=sqrt(C[4,4]*C[5,5]-C[4,5]*C[5,4])/units[4]/units[5]
 
-     print "************ BEAM MATCHED PARAMETERS *****************"
+     print "************ BEAM MATCHED PARAMETERS, BUNCH ",bunch_index," *****************"
      print "*    emitx=", emitx, " meters*GeV/c   =", emitx/pz, " meters*rad (synergia units)=", emitx/pz/pi, " pi*meters*rad"
      print "*    emity=", emity, " meters*GeV/c   =", emity/pz, " meters*rad (synergia units)=", emity/pz/pi, " pi*meters*rad"
      print "*    emitz=", emitz, " meters*GeV/c =", emitz*1.e9/(pconstants.c), " eV*s =" , emitz*beta*beta*energy/pz, " meters*GeV =", emitz/pz/beta, " [cdt*dp/p] (synergia units)"
@@ -242,17 +242,18 @@ def get_covariances(sigma, r):
 def generate_matched_bunch(lattice_simulator, arms,brms,crms,
                            num_real_particles, num_macro_particles, rms_index=[0,2,4],seed=0,
                            bunch_index=0, comm=None, periodic=False):
+  
    # map = linear_one_turn_map(lattice_simulator)
     map=lattice_simulator.get_linear_one_turn_map()
     beta = lattice_simulator.get_lattice().get_reference_particle().get_beta()
     correlation_matrix = _get_correlation_matrix(map, arms,brms,crms,beta, rms_index)
+
     if comm == None:
        comm = Commxx()
 
-    if comm.get_rank() == 0:
-       print "BUNCH INDEX=", bunch_index
-       print_matched_parameters(correlation_matrix,beta)
-
+    if Commxx().get_rank()==0:
+       print_matched_parameters(correlation_matrix,beta, bunch_index)
+   
     z_period_length= lattice_simulator.get_bucket_length()
     if ((z_period_length == 0) or (not(periodic))):
         bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
@@ -260,7 +261,8 @@ def generate_matched_bunch(lattice_simulator, arms,brms,crms,
     else:
         bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
                   num_macro_particles, num_real_particles, comm, z_period_length, bunch_index)
-    dist = Random_distribution(seed, comm)
+
+    dist = Random_distribution(seed, Commxx())
     populate_6d(dist, bunch, numpy.zeros((6,), 'd'), correlation_matrix)
     return bunch
 

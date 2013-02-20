@@ -42,17 +42,19 @@ Diagnostics_reference_particle::init_writers(Hdf5_file_sptr file_sptr)
 void
 Diagnostics_reference_particle::write()
 {
-    if (get_write_helper().write_locally()) {
-        init_writers(get_write_helper().get_hdf5_file_sptr());
-        double beta = get_bunch().get_reference_particle().get_beta();
-        writer_beta->append(beta);
-        double gamma = get_bunch().get_reference_particle().get_gamma();
-        writer_gamma->append(gamma);
-        MArray1d state(get_bunch().get_reference_particle().get_state());
-        writer_state->append(state);
-        double s = get_bunch().get_reference_particle().get_s();
-        writer_s->append(s);
-        get_write_helper().finish_write();
+    if (get_bunch().get_comm().has_this_rank()){
+	if (get_write_helper().write_locally()) {
+	    init_writers(get_write_helper().get_hdf5_file_sptr());
+	    double beta = get_bunch().get_reference_particle().get_beta();
+	    writer_beta->append(beta);
+	    double gamma = get_bunch().get_reference_particle().get_gamma();
+	    writer_gamma->append(gamma);
+	    MArray1d state(get_bunch().get_reference_particle().get_state());
+	    writer_state->append(state);
+	    double s = get_bunch().get_reference_particle().get_s();
+	    writer_s->append(s);
+	    get_write_helper().finish_write();
+	}
     }
 }
 

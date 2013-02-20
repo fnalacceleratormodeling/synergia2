@@ -92,19 +92,20 @@ Diagnostics_full2::is_serial() const
 
 void
 Diagnostics_full2::update()
-{
-    get_bunch().convert_to_state(Bunch::fixed_z_lab);
-    s = get_bunch().get_reference_particle().get_s();
-    repetition = get_bunch().get_reference_particle().get_repetition();
-    trajectory_length
-            = get_bunch().get_reference_particle().get_trajectory_length();
-    num_particles = get_bunch().get_total_num();
-    real_num_particles = get_bunch().get_real_num();
-    min = Core_diagnostics::calculate_min(get_bunch());
-    max = Core_diagnostics::calculate_max(get_bunch());
-    mean = Core_diagnostics::calculate_mean(get_bunch());
-    update_full2();
-    update_emittances();
+{   if (get_bunch().get_comm().has_this_rank()){
+      get_bunch().convert_to_state(Bunch::fixed_z_lab);
+      s = get_bunch().get_reference_particle().get_s();
+      repetition = get_bunch().get_reference_particle().get_repetition();
+      trajectory_length
+	      = get_bunch().get_reference_particle().get_trajectory_length();
+      num_particles = get_bunch().get_total_num();
+      real_num_particles = get_bunch().get_real_num();
+      min = Core_diagnostics::calculate_min(get_bunch());
+      max = Core_diagnostics::calculate_max(get_bunch());
+      mean = Core_diagnostics::calculate_mean(get_bunch());
+      update_full2();
+      update_emittances();
+    }
 }
 
 double
@@ -233,26 +234,28 @@ Diagnostics_full2::init_writers(Hdf5_file_sptr file_sptr)
 
 void
 Diagnostics_full2::write()
-{
-    if (get_write_helper().write_locally()) {
-        init_writers(get_write_helper().get_hdf5_file_sptr());
-        writer_s->append(s);
-        writer_repetition->append(repetition);
-        writer_trajectory_length->append(trajectory_length);
-        writer_num_particles->append(num_particles);
-        writer_real_num_particles->append(real_num_particles);
-        writer_mean->append(mean);
-        writer_std->append(std);
-        writer_min->append(min);
-        writer_max->append(max);
-        writer_mom2->append(mom2);
-        writer_corr->append(corr);
-        writer_emitx->append(emitx);
-        writer_emity->append(emity);
-        writer_emitz->append(emitz);
-        writer_emitxy->append(emitxy);
-        writer_emitxyz->append(emitxyz);
-        get_write_helper().finish_write();
+{  
+    if (get_bunch().get_comm().has_this_rank()){
+      if (get_write_helper().write_locally()) {
+	  init_writers(get_write_helper().get_hdf5_file_sptr());
+	  writer_s->append(s);
+	  writer_repetition->append(repetition);
+	  writer_trajectory_length->append(trajectory_length);
+	  writer_num_particles->append(num_particles);
+	  writer_real_num_particles->append(real_num_particles);
+	  writer_mean->append(mean);
+	  writer_std->append(std);
+	  writer_min->append(min);
+	  writer_max->append(max);
+	  writer_mom2->append(mom2);
+	  writer_corr->append(corr);
+	  writer_emitx->append(emitx);
+	  writer_emity->append(emity);
+	  writer_emitz->append(emitz);
+	  writer_emitxy->append(emitxy);
+	  writer_emitxyz->append(emitxyz);
+	  get_write_helper().finish_write();
+      }
     }
 }
 
