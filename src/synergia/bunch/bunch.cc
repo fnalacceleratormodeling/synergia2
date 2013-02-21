@@ -543,10 +543,12 @@ template<class Archive>
                 << BOOST_SERIALIZATION_NVP(comm_sptr)
                 << BOOST_SERIALIZATION_NVP(default_converter)
                 << BOOST_SERIALIZATION_NVP(converter_ptr);
-        Hdf5_file file(get_local_particles_serialization_path(),
-                Hdf5_file::truncate);
-        file.write(local_num, "local_num");
-        file.write(*local_particles, "local_particles");
+        if (comm_sptr->has_this_rank()) {
+            Hdf5_file file(get_local_particles_serialization_path(),
+                    Hdf5_file::truncate);
+            file.write(local_num, "local_num");
+            file.write(*local_particles, "local_particles");
+        }
     }
 
 template<class Archive>
@@ -566,11 +568,16 @@ template<class Archive>
                 >> BOOST_SERIALIZATION_NVP(comm_sptr)
                 >> BOOST_SERIALIZATION_NVP(default_converter)
                 >> BOOST_SERIALIZATION_NVP(converter_ptr);
-        Hdf5_file file(get_local_particles_serialization_path(),
-                Hdf5_file::read_only);
-        local_num = file.read<int > ("local_num");
-        local_particles
-                = new MArray2d(file.read<MArray2d > ("local_particles"));
+        if (comm_sptr->has_this_rank()) {
+            Hdf5_file file(get_local_particles_serialization_path(),
+                    Hdf5_file::read_only);
+            local_num = file.read<int > ("local_num");
+            local_particles
+                    = new MArray2d(file.read<MArray2d > ("local_particles"));
+        } else {
+            local_num = 0;
+            local_particles = new MArray2d(boost::extents[local_num][7]);
+        }
     }
 
 template
