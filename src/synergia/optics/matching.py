@@ -242,7 +242,7 @@ def get_covariances(sigma, r):
 def generate_matched_bunch(lattice_simulator, arms,brms,crms,
                            num_real_particles, num_macro_particles, rms_index=[0,2,4],seed=0,
                            bunch_index=0, comm=None, periodic=False):
-  
+
    # map = linear_one_turn_map(lattice_simulator)
     map=lattice_simulator.get_linear_one_turn_map()
     beta = lattice_simulator.get_lattice().get_reference_particle().get_beta()
@@ -253,7 +253,7 @@ def generate_matched_bunch(lattice_simulator, arms,brms,crms,
 
     if Commxx().get_rank()==0:
        print_matched_parameters(correlation_matrix,beta, bunch_index)
-   
+
     z_period_length= lattice_simulator.get_bucket_length()
     if ((z_period_length == 0) or (not(periodic))):
         bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
@@ -294,8 +294,9 @@ def generate_matched_bunch_transverse(lattice_simulator, emit_x, emit_y,
         comm = Commxx()
     bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
                   num_macro_particles, num_real_particles, comm)
-    dist = Random_distribution(seed, comm)
-    populate_6d(dist, bunch, means, covariance_matrix)
+    if comm.has_this_rank():
+        dist = Random_distribution(seed, comm)
+        populate_6d(dist, bunch, means, covariance_matrix)
     return bunch
 
 def generate_matchedKV_bunch_transverse(lattice_simulator, emitMax,
