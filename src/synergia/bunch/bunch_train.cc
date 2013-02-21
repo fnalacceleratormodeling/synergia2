@@ -1,20 +1,41 @@
 #include "bunch_train.h"
 
-Bunch_train::Bunch_train(Bunches const& bunches,
-        double spacing) :
-        bunches(bunches), spacings(
-                std::vector<double >(bunches.size() - 1, spacing))
+void
+Bunch_train::set_bucket_indices()
 {
+    std::list<int > found_indices;
+    for (int i = 0; i < bunches.size(); ++i) {
+        if (bunches[i]->get_bucket_index() == 0) {
+            bunches[i]->set_bucket_index(i);
+        }
+        for (std::list<int >::const_iterator it = found_indices.begin();
+                it != found_indices.end(); ++it) {
+            if (*it == bunches[i]->get_bucket_index()) {
+                throw std::runtime_error(
+                        "Bunch_train: bunch bucket indices must be either unique or all zero");
+            }
+        }
+        found_indices.push_back(bunches[i]->get_bucket_index());
+    }
+}
+
+Bunch_train::Bunch_train(Bunches const& bunches, double spacing) :
+                bunches(bunches),
+                spacings(std::vector<double >(bunches.size() - 1, spacing))
+{
+    set_bucket_indices();
 }
 
 Bunch_train::Bunch_train(Bunches const& bunches,
         std::vector<double > const& spacings) :
-        bunches(bunches), spacings(spacings)
+                bunches(bunches),
+                spacings(spacings)
 {
     if (spacings.size() != bunches.size() - 1) {
         throw std::runtime_error(
                 "Bunch_train:: spacings must have length (length(bunches)-1)");
     }
+    set_bucket_indices();
 }
 
 Bunch_train::Bunch_train()

@@ -4,6 +4,7 @@
 #include <stdexcept>
 #include <cmath>
 #include <algorithm>
+#include <sstream>
 
 const int Bunch::x;
 const int Bunch::xp;
@@ -107,6 +108,16 @@ template<class T, size_t C, int I>
         double* ptr_;
         size_t rows_;
     };
+
+std::string
+Bunch::get_local_particles_serialization_path() const
+{
+    std::stringstream sstream;
+    sstream << "local_particles_";
+    sstream << bucket_index;
+    sstream << ".h5";
+    return get_serialization_path(sstream.str());
+}
 
 void
 Bunch::construct(int particle_charge, int total_num, double real_num)
@@ -525,13 +536,14 @@ template<class Archive>
                 << BOOST_SERIALIZATION_NVP(particle_charge)
                 << BOOST_SERIALIZATION_NVP(total_num)
                 << BOOST_SERIALIZATION_NVP(real_num)
+                << BOOST_SERIALIZATION_NVP(bucket_index)
                 << BOOST_SERIALIZATION_NVP(sort_period)
                 << BOOST_SERIALIZATION_NVP(sort_counter)
                 << BOOST_SERIALIZATION_NVP(state)
                 << BOOST_SERIALIZATION_NVP(comm_sptr)
                 << BOOST_SERIALIZATION_NVP(default_converter)
                 << BOOST_SERIALIZATION_NVP(converter_ptr);
-        Hdf5_file file(get_serialization_path("local_particles.h5"),
+        Hdf5_file file(get_local_particles_serialization_path(),
                 Hdf5_file::truncate);
         file.write(local_num, "local_num");
         file.write(*local_particles, "local_particles");
@@ -547,13 +559,14 @@ template<class Archive>
                 >> BOOST_SERIALIZATION_NVP(particle_charge)
                 >> BOOST_SERIALIZATION_NVP(total_num)
                 >> BOOST_SERIALIZATION_NVP(real_num)
+                >> BOOST_SERIALIZATION_NVP(bucket_index)
                 >> BOOST_SERIALIZATION_NVP(sort_period)
                 >> BOOST_SERIALIZATION_NVP(sort_counter)
                 >> BOOST_SERIALIZATION_NVP(state)
                 >> BOOST_SERIALIZATION_NVP(comm_sptr)
                 >> BOOST_SERIALIZATION_NVP(default_converter)
                 >> BOOST_SERIALIZATION_NVP(converter_ptr);
-        Hdf5_file file(get_serialization_path("local_particles.h5"),
+        Hdf5_file file(get_local_particles_serialization_path(),
                 Hdf5_file::read_only);
         local_num = file.read<int > ("local_num");
         local_particles

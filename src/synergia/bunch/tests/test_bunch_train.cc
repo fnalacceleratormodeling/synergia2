@@ -62,6 +62,45 @@ BOOST_FIXTURE_TEST_CASE(get_bunches, Bunches_fixture)
     BOOST_CHECK_EQUAL(bunch_train.get_bunches().at(2), bunches.at(2));
 }
 
+BOOST_FIXTURE_TEST_CASE(set_bucket_indices1, Bunches_fixture)
+{
+    const double bunch_separation = 1.7;
+    Bunch_train bunch_train(bunches, bunch_separation);
+
+    BOOST_CHECK_EQUAL(bunch_train.get_bunches().at(0)->get_bucket_index(), 0);
+    BOOST_CHECK_EQUAL(bunch_train.get_bunches().at(1)->get_bucket_index(), 1);
+    BOOST_CHECK_EQUAL(bunch_train.get_bunches().at(2)->get_bucket_index(), 2);
+}
+
+BOOST_FIXTURE_TEST_CASE(set_bucket_indices2, Bunches_fixture)
+{
+    bunches.at(0)->set_bucket_index(1);
+    bunches.at(1)->set_bucket_index(7);
+    bunches.at(2)->set_bucket_index(83);
+    const double bunch_separation = 1.7;
+    Bunch_train bunch_train(bunches, bunch_separation);
+
+    BOOST_CHECK_EQUAL(bunch_train.get_bunches().at(0)->get_bucket_index(), 1);
+    BOOST_CHECK_EQUAL(bunch_train.get_bunches().at(1)->get_bucket_index(), 7);
+    BOOST_CHECK_EQUAL(bunch_train.get_bunches().at(2)->get_bucket_index(), 83);
+}
+
+BOOST_FIXTURE_TEST_CASE(set_bucket_indices_bad, Bunches_fixture)
+{
+    bunches.at(0)->set_bucket_index(0);
+    bunches.at(1)->set_bucket_index(83);
+    bunches.at(2)->set_bucket_index(83);
+    const double bunch_separation = 1.7;
+    bool caught = false;
+    try {
+        Bunch_train bunch_train(bunches, bunch_separation);
+    }
+    catch (std::runtime_error) {
+        caught = true;
+    }
+    BOOST_CHECK(caught);
+}
+
 BOOST_FIXTURE_TEST_CASE(get_spacings1, Bunches_fixture)
 {
     std::vector<double > separations;

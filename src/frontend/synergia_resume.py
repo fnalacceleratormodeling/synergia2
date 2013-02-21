@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
-import sys
+import sys, os.path
+from synergia.utils import Commxx
 from synergia.simulation import Propagator, Resume
 
 class Options:
@@ -47,7 +48,22 @@ def handle_args(args):
             options.directory = arg
     return options
 
+def check_size(options):
+    f = open(os.path.join(options.directory,
+                          Propagator.description_file_name), 'r')
+    for line in f.readlines():
+        s = line.split('=')
+        if s[0] == 'mpi_size':
+            original_size = int(s[1])
+    current_size = Commxx().get_size()
+    if (original_size != current_size):
+        sys.stderr.write('''synergia-pyresume: Error. Number of MPI processes (%d) must be equal to
+                   number of MPI processes in original job (%d).\n''' % \
+            (current_size, original_size))
+        sys.exit(1)
+
 def run(options):
+    check_size(options)
     resume = Resume(options.directory)
     if options.checkpoint_period != options.unspecified_int:
         resume.set_checkpoint_period(options.checkpoint_period)
