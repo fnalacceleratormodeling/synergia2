@@ -579,20 +579,20 @@ try:
 
   for i in range(0, bunch_train.get_size()):        
       bunch_train_simulator.add_per_step(i, synergia.bunch.Diagnostics_full2("step_full2_%d.h5" % i))  
-      bunch_train_simulator.add_per_turn(i, synergia.bunch.Diagnostics_particles("turn_particles_%d.h5" % i))
+      bunch_train_simulator.add_per_turn(i, synergia.bunch.Diagnostics_particles("turn_particles_%d.h5" % i, opts.turn_period))
     
       real_num=bunch_train_simulator.get_bunch_train().get_bunches()[i].get_real_num()
       macro_num= bunch_train_simulator.get_bunch_train().get_bunches()[i].get_total_num()
       bucket_index= bunch_train_simulator.get_bunch_train().get_bunches()[i].get_bucket_index()
-
+      #print "bunch # ",i ," num_local_particles=",bunch_train_simulator.get_bunch_train().get_bunches()[i].get_local_num(),\
+               #"  rank= ",MPI.COMM_WORLD.Get_rank()
       if  MPI.COMM_WORLD.Get_rank() ==0:
 	      print "bunch # ",i ," number of real  particles= ",real_num
 	      print "bunch # ",i ," number of macroparticles= ",macro_num
 	      print "bunch # ",i ," bucket index", bucket_index          
 	      print "___________________________________________________________"
-
-
-
+      
+       
 
 
 
@@ -645,7 +645,7 @@ try:
       #print "train bunch space=",bunch_diag_train.get_bunch_separation()
 
 
-
+  
   propagator = synergia.simulation.Propagator(stepper)
   propagator.set_checkpoint_period(opts.checkpointperiod)
   propagator.set_concurrent_io(opts.concurrentio)
