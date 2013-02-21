@@ -58,6 +58,8 @@ private:
     //  Fixed_t_z_synergia20 default_converter;
     void
     assign_ids(int local_offset);
+    std::string
+    get_local_particles_serialization_path() const;
     void
     construct(int particle_charge, int total_num, double real_num);
 public:
