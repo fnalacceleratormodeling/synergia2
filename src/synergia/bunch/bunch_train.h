@@ -8,7 +8,8 @@ class Bunch_train
 private:
     Bunches bunches;
     std::vector<double > spacings;
-
+    void
+    set_bucket_indices();
 public:
     Bunch_train(Bunches const& bunches, double spacing);
     Bunch_train(Bunches const& bunches, std::vector<double > const& spacings);
