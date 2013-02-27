@@ -115,7 +115,9 @@ Split_operator_stepper_choice::construct_per_element_else()
                         lch_it->second.collective_operators.begin(); coll_op_it
                         != lch_it->second.collective_operators.end();
                         ++coll_op_it) {
-                    step->append(*coll_op_it, 1.0);
+                        Collective_operator_sptr copied_collective_operator_sptr(
+                                                                                    (*coll_op_it)->clone());
+                    step->append(copied_collective_operator_sptr, 1.0);
                     }
 
                         //2nd Half
@@ -162,7 +164,9 @@ Split_operator_stepper_choice::construct_per_element_else()
                             for (Collective_operators::const_iterator coll_op_it =
                                 this->list_choice_map["else"].collective_operators.begin(); coll_op_it
                                 != this->list_choice_map["else"].collective_operators.end(); ++coll_op_it) {
-                                step->append(*coll_op_it, 1.0);
+                                Collective_operator_sptr copied_collective_operator_sptr(
+                                                                                            (*coll_op_it)->clone());
+                                step->append(copied_collective_operator_sptr, 1.0);
                             }
                               //2nd Half
                             Independent_operator_sptr

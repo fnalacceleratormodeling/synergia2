@@ -74,7 +74,9 @@ Split_operator_stepper::construct(
                                     collective_operators.begin();
                                     coll_op_it != collective_operators.end();
                                     ++coll_op_it) {
-                                substep_sptr->append(*coll_op_it, 1.0);
+                                Collective_operator_sptr copied_collective_operator_sptr(
+                                        (*coll_op_it)->clone());
+                                substep_sptr->append(copied_collective_operator_sptr, 1.0);
                             }
                             substep_sptr->append(subsecond_half_op_sptr, 0.5);
                         }
