@@ -28,6 +28,12 @@ enhanceFactor(1.0)
 
 Ecloud_from_vorpal::~Ecloud_from_vorpal() { ; }
 
+Ecloud_from_vorpal *
+Ecloud_from_vorpal::clone()
+{
+    return new Ecloud_from_vorpal(*this);
+}
+
 void Ecloud_from_vorpal::apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Logger & logger) {
 //

@@ -152,6 +152,12 @@ Dummy_collective_operator::Dummy_collective_operator()
 {
 }
 
+Dummy_collective_operator *
+Dummy_collective_operator::clone()
+{
+    return new Dummy_collective_operator(*this);
+}
+
 void
 Dummy_collective_operator::apply(Bunch & bunch, double time_step, Step & step,
         int verbosity, Logger & logger)

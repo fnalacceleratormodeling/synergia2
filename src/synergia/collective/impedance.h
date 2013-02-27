@@ -24,6 +24,8 @@ public:
     Impedance(std::string const & wake_file, double const & orbit_length, double const & bunchsp,
                 int const  & zgrid, std::string const & pipe_symmetry, int const nstored_turns);
 
+    virtual Impedance *
+    clone();
 
     int get_z_grid() const;
     double get_orbit_length() const;

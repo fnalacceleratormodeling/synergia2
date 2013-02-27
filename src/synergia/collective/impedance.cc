@@ -92,7 +92,11 @@ Impedance::Impedance(std::string const & wake_file, double const & orbit_length,
 
 }
 
-
+Impedance *
+Impedance::clone()
+{
+    return new Impedance(*this);
+}
 
 int Impedance::get_z_grid() const { return z_grid;}
 double Impedance::get_orbit_length() const{ return orbit_length;}
