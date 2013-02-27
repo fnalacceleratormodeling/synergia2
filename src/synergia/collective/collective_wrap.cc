@@ -5,6 +5,7 @@
 #include "space_charge_rectangular.h"
 #include "ecloud_from_vorpal.h"
 #include "impedance.h"
+#include "wake_field.h"
 #include <boost/python.hpp>
 #include "synergia/utils/container_conversions.h"
 
@@ -63,19 +64,23 @@ BOOST_PYTHON_MODULE(collective)
                 .def("add_device", &Ecloud_from_vorpal::add_device)
 		.def("set_enhancing_factor", &Ecloud_from_vorpal::set_enhancing_factor)
         ;
-    
-
-
+ 
     class_<Impedance,Impedance_sptr,
         bases<Collective_operator > >("Impedance",
-                init<std::string const &, double const &,  double const &, int const &, std::string const &, int const>())
+                init<std::string const &,std::string const &, int const  &,  double const &, double const &,
+		int const, bool, std::vector<int > >())	
+	 .def(init<std::string const &,std::string const &, int const  &,  double const &, int const &,
+		int const, bool, std::vector<int >  >())	
         .def("get_orbit_length", &Impedance::get_orbit_length)
         .def("get_bunch_spacing", &Impedance::get_bunch_spacing)
         .def("get_z_grid", &Impedance::get_z_grid)
-        .def("get_wake_file_name", &Impedance::get_wake_file_name)
+        .def("set_z_grid", &Impedance::set_z_grid)
+        .def("get_wake_field", &Impedance::get_wake_field_sptr)
         .def("get_nstored_turns", &Impedance::get_nstored_turns)
         .def("apply", &Impedance::apply)
         ;
 
+	
+	
     def("interpolate_rectangular_zyx", &interpolate_rectangular_zyx);
 }

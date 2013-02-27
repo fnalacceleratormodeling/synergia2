@@ -330,7 +330,7 @@ try:
 
   impedance=opts.impedance
   if impedance:
-      zgrid=40
+      zgrid=1000
       imped_f= synergia.collective.Impedance(opts.wakefileF,lattice_length, bunch_sp,zgrid, "rectangular",15)
       if MPI.COMM_WORLD.Get_rank() ==0:
 	  print

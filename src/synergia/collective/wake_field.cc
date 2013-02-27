@@ -261,10 +261,83 @@ wake_file(wake_file), wake_type(wake_type)
 
 std::string Wake_field::get_wake_type() const { return wake_type;}
 std::string Wake_field::get_wake_file_name() const { return wake_file;}
-std::vector<double> Wake_field::get_z_coord() const { return z_coord;}
-std::vector<double> Wake_field::get_xw_lead() const { return xw_lead;}
-std::vector<double> Wake_field::get_xw_trail() const { return xw_trail;}
-std::vector<double> Wake_field::get_yw_lead() const { return yw_lead;}
-std::vector<double> Wake_field::get_yw_trail() const{ return yw_trail;}
-std::vector<double> Wake_field::get_z_wake() const { return z_wake;}
+// std::vector<double> Wake_field::get_z_coord() const { return z_coord;}
+// std::vector<double> Wake_field::get_xw_lead() const { return xw_lead;}
+// std::vector<double> Wake_field::get_xw_trail() const { return xw_trail;}
+// std::vector<double> Wake_field::get_yw_lead() const { return yw_lead;}
+// std::vector<double> Wake_field::get_yw_trail() const{ return yw_trail;}
+// std::vector<double> Wake_field::get_z_wake() const { return z_wake;}
+int Wake_field::get_istart() const { return istart;}
+double Wake_field::get_zstart() const { return zstart;}
+double Wake_field::get_delta_z() const { return delta_z;}
+
+MArray1d_ref const Wake_field::get_z_coord()  { 
+  MArray1d_ref retval(z_coord.data(), boost::extents[z_coord.size()]);
+  return retval;
+}
+MArray1d_ref const Wake_field::get_xw_lead() { 
+  MArray1d_ref retval(xw_lead.data(), boost::extents[xw_lead.size()]);
+  return retval;
+} 
+
+MArray1d_ref const Wake_field::get_xw_trail()  { 
+  MArray1d_ref retval(xw_trail.data(), boost::extents[xw_trail.size()]);
+  return retval;
+} 
+
+MArray1d_ref const Wake_field::get_yw_lead()  { 
+  MArray1d_ref retval(yw_lead.data(), boost::extents[yw_lead.size()]);
+  return retval;
+}   
+
+MArray1d_ref const Wake_field::get_yw_trail() { 
+  MArray1d_ref retval(yw_trail.data(), boost::extents[yw_trail.size()]);
+  return retval;
+}   
+
+MArray1d_ref const Wake_field::get_z_wake()  { 
+  MArray1d_ref retval(z_wake.data(), boost::extents[z_wake.size()]);
+  return retval;
+}   
+
+
+
+
+template<class Archive>
+    void
+    Wake_field::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(wake_file);
+        ar & BOOST_SERIALIZATION_NVP(wake_type);
+        ar & BOOST_SERIALIZATION_NVP(istart);
+        ar & BOOST_SERIALIZATION_NVP(zstart);
+	ar & BOOST_SERIALIZATION_NVP(delta_z);
+	ar & BOOST_SERIALIZATION_NVP(z_coord);
+	ar & BOOST_SERIALIZATION_NVP(xw_lead);
+	ar & BOOST_SERIALIZATION_NVP(xw_trail);
+	ar & BOOST_SERIALIZATION_NVP(yw_lead);
+	ar & BOOST_SERIALIZATION_NVP(yw_trail);
+	ar & BOOST_SERIALIZATION_NVP(z_wake);
+    }
+
+
+template
+void
+Wake_field::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Wake_field::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Wake_field::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Wake_field::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
 
