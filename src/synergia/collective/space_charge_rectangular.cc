@@ -47,8 +47,11 @@ Space_charge_rectangular::Space_charge_rectangular()
 {
 }
 
-
-
+Space_charge_rectangular *
+Space_charge_rectangular::clone()
+{
+    return new Space_charge_rectangular(*this);
+}
 
 
 

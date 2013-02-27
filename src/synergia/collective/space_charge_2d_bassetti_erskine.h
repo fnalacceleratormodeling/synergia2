@@ -19,6 +19,8 @@ private:
 
 public:
     Space_charge_2d_bassetti_erskine();
+    virtual Space_charge_2d_bassetti_erskine *
+    clone();
     // pointer to an array containing sigma_x, sigma_y and sigma_cdt[m]
     void
     set_sigma(double* = 0);

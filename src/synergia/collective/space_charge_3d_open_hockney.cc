@@ -125,6 +125,12 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney()
 {
 }
 
+Space_charge_3d_open_hockney *
+Space_charge_3d_open_hockney::clone()
+{
+    return new Space_charge_3d_open_hockney(*this);
+}
+
 double
 Space_charge_3d_open_hockney::get_n_sigma() const
 {

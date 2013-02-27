@@ -72,6 +72,7 @@ Impedance::construct()
 } 
 
 
+
 Impedance::Impedance(Impedance const& impedance)
 {
 
@@ -96,6 +97,14 @@ Impedance::Impedance(Impedance const& impedance)
    this->ywake_trailing_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
    this->zwake0_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
 }  
+
+
+Impedance *
+Impedance::clone()
+{
+    return new Impedance(*this);
+}
+
 
 
 Impedance::~Impedance(){}

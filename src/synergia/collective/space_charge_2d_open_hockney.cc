@@ -130,6 +130,12 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney()
 {
 }
 
+Space_charge_2d_open_hockney *
+Space_charge_2d_open_hockney::clone()
+{
+    return new Space_charge_2d_open_hockney(*this);
+}
+
 bool
 Space_charge_2d_open_hockney::get_need_state_conversion()
 {

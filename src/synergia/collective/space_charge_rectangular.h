@@ -33,6 +33,9 @@ public:
     Space_charge_rectangular(std::vector<double > const & pipe_size, std::vector<int > const & grid_shape);
     Space_charge_rectangular();
     
+    virtual Space_charge_rectangular *
+    clone();
+
     void
     set_fftw_helper(Commxx_sptr comm_sptr);
 

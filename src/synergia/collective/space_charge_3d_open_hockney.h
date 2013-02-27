@@ -65,6 +65,8 @@ public:
             double z_period = 0.0, bool grid_entire_period = false,
             double n_sigma = 8.0);
     Space_charge_3d_open_hockney();
+    virtual Space_charge_3d_open_hockney *
+    clone();
     double
     get_n_sigma() const;
     void

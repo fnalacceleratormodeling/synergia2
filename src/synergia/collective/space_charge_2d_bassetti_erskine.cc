@@ -23,6 +23,12 @@ Space_charge_2d_bassetti_erskine::Space_charge_2d_bassetti_erskine() :
     use_round = 1;
 }
 
+Space_charge_2d_bassetti_erskine *
+Space_charge_2d_bassetti_erskine::clone()
+{
+    return new Space_charge_2d_bassetti_erskine(*this);
+}
+
 void
 Space_charge_2d_bassetti_erskine::set_sigma(double * sigin)
 {

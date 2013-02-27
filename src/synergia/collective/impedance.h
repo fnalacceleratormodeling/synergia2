@@ -80,7 +80,8 @@ private:
 			    bool full_machine=false, std::vector<int > wn=std::vector<int >());
 			    
       Impedance(Impedance const& impedance);
-      
+      virtual Impedance *
+      clone();   
       
       void set_z_grid(int const  & zgrid);
       int get_z_grid() const;

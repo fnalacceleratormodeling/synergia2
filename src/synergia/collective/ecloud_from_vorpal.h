@@ -24,6 +24,9 @@ public:
     Ecloud_from_vorpal(Commxx_sptr comm_sptr, const std::string &file_name_archive, const std::string aDeviceName=std::string("all"));
     Ecloud_from_vorpal(); // Empty collective operator
 
+    virtual Ecloud_from_vorpal *
+    clone();
+
     virtual void
       apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Logger & logger);

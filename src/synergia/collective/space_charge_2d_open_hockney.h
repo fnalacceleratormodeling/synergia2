@@ -73,6 +73,8 @@ public:
             double z_period = 0.0, bool grid_entire_period = false,
             double n_sigma = 8.0);
     Space_charge_2d_open_hockney();
+    virtual Space_charge_2d_open_hockney *
+    clone();
     bool
     get_need_state_conversion();
     double
