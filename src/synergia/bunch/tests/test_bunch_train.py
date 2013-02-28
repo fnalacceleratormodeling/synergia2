@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding: utf-8 -*-
 
 import sys
 sys.path.append('..')
@@ -24,14 +25,16 @@ separation = 2.3
 reference_particle = Reference_particle(proton_charge, mass, total_energy)
 
 def test_construct1():
-    commxxs = generate_subcomms(num_bunches)
+    comm=Commxx()
+    commxxs = generate_subcomms(comm, num_bunches)
     bunches = []
     for commxx in commxxs:
         bunches.append(Bunch(reference_particle, total_num, real_num, commxx))
     bunch_train = Bunch_train(bunches, separation)
 
 def test_construct2():
-    commxxs = generate_subcomms(num_bunches)
+    comm=Commxx()
+    commxxs = generate_subcomms(comm,num_bunches)
     bunches = []
     for commxx in commxxs:
         bunches.append(Bunch(reference_particle, total_num, real_num, commxx))

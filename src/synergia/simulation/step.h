@@ -10,17 +10,7 @@
 #include "synergia/foundation/multi_diagnostics.h"
 #include "synergia/utils/serialization.h"
 
-struct Bunch_means
-{
-    double x_mean;
-    double y_mean;
-    double z_mean;
-    double realnum;
-    int bucket_index;
-    template<class Archive>
-        void
-        serialize(Archive & ar, const unsigned int version);
-};
+
 
 class Step
 {
@@ -28,10 +18,7 @@ private:
     Operators operators;
     std::list<double > time_fractions;
     double length;
-    /// a list which contains informations about prevoius turns, the last element is the last (the earliest) turn stored
-    /// it is updated at every step where impedance kick is applied
-    /// the element is a vector of size num_bunches. The vector elements correspund to different bunches
-    std::list< std::vector<Bunch_means> > stored_vbunches;
+   
 
 public:
     Step(double length);
@@ -58,7 +45,6 @@ public:
     get_time_fractions() const;
     double
     get_length() const;
-    std::list< std::vector<Bunch_means> >  const& get_stored_vbunches() const;
     virtual void
     print(int index) const;
     template<class Archive>

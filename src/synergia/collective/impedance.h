@@ -5,17 +5,17 @@
 #include "synergia/simulation/step.h"
 #include "synergia/bunch/bunch.h"
 
-// struct Bunch_means
-// {
-//     double x_mean;
-//     double y_mean;
-//     double z_mean;
-//     double realnum;
-//     int bucket_index;
-//     template<class Archive>
-//         void
-//         serialize(Archive & ar, const unsigned int version);
-// };
+ struct Bunch_properties
+ {
+     double x_mean;
+     double y_mean;
+     double z_mean;
+     double realnum;
+     int bucket_index;
+     template<class Archive>
+         void
+         serialize(Archive & ar, const unsigned int version);
+ };
 
 
 class Impedance : public Collective_operator
@@ -35,8 +35,9 @@ private:
     /// a list which contains informations about prevoius turns, the last element is the last (the earliest) turn stored
     /// it is updated at every step where impedance kick is applied
     /// the element is a vector of size num_bunches. The vector elements correspund to different bunches
-    std::list< std::vector<Bunch_means> > stored_vbunches;
+    std::list< std::vector<Bunch_properties> > stored_vbunches;
     
+    //boost::shared_ptr<Raw_MArray1d >  xmom_sptr;
     boost::shared_ptr<MArray1d >  xmom_sptr;
     boost::shared_ptr<MArray1d >  ymom_sptr;
     boost::shared_ptr<MArray1d >  zdensity_sptr;
@@ -58,6 +59,7 @@ private:
 
  
      void construct(); 
+     void store_bunches_data(Bunch_train & bunch_train);
      void calculate_moments_and_partitions(Bunch & bunch);
       /// xwake_leading=sum xw_lead*xmom
       /// ywake_leading=sum yw_lead*ymom   
@@ -68,8 +70,9 @@ private:
       /// Dpz=wake_factor*zwake0*time_step/(gamma*beta);    	   
      void calculate_kicks(); 
      void  apply_impedance_kick(Bunch & bunch, double wake_factor);
+    
 
-   public:
+  public:
       Impedance();
       Impedance(std::string const & wake_file, std::string const & wake_type, int const  & zgrid,
 		    double const & orbit_length, double const & bunchsp, int const nstored_turns,
@@ -118,8 +121,11 @@ private:
     is_full_machine() const;
     virtual int 
     get_nstored_turns() const;
+    virtual
+    void  apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
     virtual void
-    apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
+    apply(Bunch_train & bunch_train, double time_step, Step & step, int verbosity,
+            Train_diagnosticss const& per_operation_train_diagnosticss, Logger & logger);
     virtual
     ~Impedance();
 };

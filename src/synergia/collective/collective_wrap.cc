@@ -11,6 +11,13 @@
 
 using namespace boost::python;
 
+void
+(Impedance::*apply_bunch)(Bunch &, double, Step &, int, Logger &) = &Impedance::apply;
+
+void
+(Impedance::*apply_bunch_train)(Bunch_train &, double, Step &, int,
+        Train_diagnosticss const&, Logger &) = &Impedance::apply;
+
 BOOST_PYTHON_MODULE(collective)
 {
     class_<Space_charge_3d_open_hockney, Space_charge_3d_open_hockney_sptr,
@@ -77,7 +84,8 @@ BOOST_PYTHON_MODULE(collective)
         .def("set_z_grid", &Impedance::set_z_grid)
         .def("get_wake_field", &Impedance::get_wake_field_sptr)
         .def("get_nstored_turns", &Impedance::get_nstored_turns)
-        .def("apply", &Impedance::apply)
+        .def("apply", apply_bunch)
+        .def("apply", apply_bunch_train)
         ;
 
 	

@@ -553,7 +553,8 @@ try:
 
   num_bunches=opts.num_bunches
   bunches = []
-  comms = synergia.utils.generate_subcomms(opts.num_bunches)
+  parent_comm = Commxx()
+  comms = synergia.utils.generate_subcomms(parent_com, opts.num_bunches)
   for i in range(0, num_bunches):
       commx=comms[i]
       bunch= synergia.optics.generate_matched_bunch(stepper.get_lattice_simulator(),

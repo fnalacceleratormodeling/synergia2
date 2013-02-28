@@ -4,6 +4,47 @@
 #include "synergia/bunch/period.h"
 #include "synergia/utils/simple_timer.h"
 
+
+template<class Archive>
+    void
+    Bunch_properties::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(x_mean);
+        ar & BOOST_SERIALIZATION_NVP(y_mean);
+        ar & BOOST_SERIALIZATION_NVP(z_mean);
+        ar & BOOST_SERIALIZATION_NVP(realnum);
+        ar & BOOST_SERIALIZATION_NVP(bucket_index);
+    }
+
+template
+void
+Bunch_properties::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Bunch_properties::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Bunch_properties::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Bunch_properties::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+
+
+
+
+
+
+
+
+
 Impedance::Impedance(std::string const & wake_file, std::string const & wake_type, int const  & zgrid,
                     double const & orbit_length, double const & bunchsp, int const nstored_turns,
 			                            bool full_machine, std::vector<int > wn):
@@ -52,8 +93,9 @@ Impedance::construct()
 	      wn[2]=0;
        }
 
-    stored_vbunches=std::list< std::vector<Bunch_means> >();
+    stored_vbunches=std::list< std::vector<Bunch_properties> >();
 
+   // xmom_sptr= boost::shared_ptr<Raw_MArray1d >(new Raw_MArray1d(boost::extents[z_grid]));
     xmom_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
     ymom_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
     zdensity_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
@@ -87,7 +129,7 @@ Impedance::Impedance(Impedance const& impedance)
    this->wn=impedance.wn;
    
    // the following data are not copied
-   this->stored_vbunches=std::list< std::vector<Bunch_means> >(); 
+   this->stored_vbunches=std::list< std::vector<Bunch_properties> >(); 
    this->xmom_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
    this->ymom_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
    this->zdensity_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
@@ -157,12 +199,13 @@ bool Impedance::is_full_machine() const { return full_machine;}
 int Impedance::get_nstored_turns() const { return nstored_turns;}
 
 
+
+
 void
 Impedance::calculate_moments_and_partitions(Bunch & bunch)
 {
 /// output cell_size_z, xmom, ymom, zdensity
   
-  //  std::cout<<"begining of calculate_moments_and_partitions"<<std::endl;
     int rank(bunch.get_comm().get_rank());
     
    MArray1d bunchmin(Core_diagnostics::calculate_min(bunch));
@@ -318,23 +361,22 @@ Impedance::calculate_kicks()
     int numbunches;
     int num_trains;
     if (registered_turns==0) throw
-       std::runtime_error("registered_turns size cannot be zero, the minimum is 1, correct the impedance definition");
+      std::runtime_error("registered_turns size cannot be zero, probably you propagate a bunch instead of a bunch_train");
     
     numbunches=(*stored_vbunches.begin()).size();
     
+    if ((full_machine) && (registered_turns !=0)) {
+      num_trains=int(num_buckets/numbunches);
       
-     if ((full_machine) && (registered_turns !=0)) {
-	num_trains=int(num_buckets/numbunches);
-	
-	if (fabs(num_buckets/float(numbunches)-num_trains)>1e-8) throw 
-	  std::runtime_error(
-                "full machine assumes repetitive numer of trains: num_buckets should be divisible to numbunches");
-	 if (wn[0]<0 || wn[0]>= num_trains ||
-	    wn[1]<0 || wn[1]>= num_trains ||
-	    wn[2]<0 || wn[2]>= num_trains )
-	    throw std::runtime_error(
-                "full machine wave number cannot be smaller than zero or larger than num_trains-1");
-     }
+      if (fabs(num_buckets/float(numbunches)-num_trains)>1e-8) throw 
+	std::runtime_error(
+	      "full machine assumes repetitive numer of trains: num_buckets should be divisible to numbunches");
+	if (wn[0]<0 || wn[0]>= num_trains ||
+	  wn[1]<0 || wn[1]>= num_trains ||
+	  wn[2]<0 || wn[2]>= num_trains )
+	  throw std::runtime_error(
+	      "full machine wave number cannot be smaller than zero or larger than num_trains-1");
+    }
     
     
    // std::cout<<" registred turns= "<<registered_turns<<std::endl; 
@@ -383,7 +425,7 @@ Impedance::calculate_kicks()
          }
         
         
-        std::list< std::vector<Bunch_means> >::const_iterator it=stored_vbunches.begin(); // stored_vbunches.begin() stores the bunches info at 
+        std::list< std::vector<Bunch_properties> >::const_iterator it=stored_vbunches.begin(); // stored_vbunches.begin() stores the bunches info at 
 	                                                                                  // at the moment
         /// bucket 0 is in front of bucket 1, which is in front of bucket 2, etc...
         double z_to_edge=(z_grid-i-1)*cell_size_z;
@@ -473,8 +515,8 @@ Impedance::calculate_kicks()
         double zwake_0=0.; 
               
         
-        std::list< std::vector<Bunch_means> >::const_iterator it;
-	std::list< std::vector<Bunch_means> >::const_iterator jt=stored_vbunches.begin();
+        std::list< std::vector<Bunch_properties> >::const_iterator it;
+	std::list< std::vector<Bunch_properties> >::const_iterator jt=stored_vbunches.begin();
 	++jt;       
 	int iturn;
         for (it=jt,  iturn=1; it !=stored_vbunches.end(); ++it, ++iturn){
@@ -610,3 +652,81 @@ Impedance::apply(Bunch & bunch, double time_step, Step & step, int verbosity, Lo
    t = simple_timer_show(t, "impedance apply");
    
 }
+
+
+
+void
+Impedance::store_bunches_data(Bunch_train & bunch_train)
+{       
+  
+    Bunches bunches(bunch_train.get_bunches());
+    size_t num_bunches = bunch_train.get_size();   
+    Bunch_properties bi;
+    std::vector<Bunch_properties> vbi_local(0);
+    std::vector<Bunch_properties> vbi(num_bunches);    
+    for (int i = 0; i < num_bunches; ++i)
+        if (bunches.at(i)->get_comm().has_this_rank()) {
+	    Bunch_sptr bunch_sptr=bunches.at(i);
+            bunch_sptr->convert_to_state(Bunch::fixed_t_lab);
+	    MArray1d bunch_means=Core_diagnostics::calculate_mean(*bunch_sptr);
+	    if (full_machine)  
+	      if  (bunch_sptr->get_bucket_index() != i) 				
+	                   throw std::runtime_error("for full_machine the buckets have to be occupied in order");		     		    
+            bi.x_mean=bunch_means[0];
+	    bi.y_mean=bunch_means[2];
+	    bi.z_mean=bunch_means[4];
+	    bi.realnum=bunch_sptr->get_real_num();
+	    bi.bucket_index=bunch_sptr->get_bucket_index();  	
+	    if  (bunch_sptr->get_comm().get_rank()==0)   vbi_local.push_back(bi);
+                     ///only the rank 0 of every communicator sends the bi to all others
+        }  
+  
+	    
+	     
+           
+	MPI_Datatype Bunch_properties_type;
+	MPI_Aint lb, extent;
+	MPI_Type_get_extent(MPI_DOUBLE, &lb, &extent); 
+	MPI_Datatype type[2] = {MPI_DOUBLE, MPI_INT};
+	int blocklen[2] = {4,1};
+	MPI_Aint disp[2];
+	disp[0]=0;
+	disp[1]=4*extent;
+	MPI_Type_create_struct(2,blocklen, disp, type, &Bunch_properties_type);
+	MPI_Type_commit(&Bunch_properties_type); 
+                                     
+        int size_parent_comm=bunch_train.get_parent_comm_sptr()->get_size();	
+	std::vector<int > counts(bunch_train.get_proc_counts());
+	std::vector<int > offsets(bunch_train.get_proc_offsets());
+	
+	
+	int error = MPI_Allgatherv(reinterpret_cast<void*>(&vbi_local[0]), vbi_local.size(), Bunch_properties_type,  
+					reinterpret_cast<void*>(&vbi[0]), &counts[0], &offsets[0], 
+					Bunch_properties_type, MPI_COMM_WORLD);
+	if (error != MPI_SUCCESS) {
+	  throw std::runtime_error("Impedance::store_bunches_data: MPI error in MPI_Allgatherv");
+	} 
+		    
+	MPI_Type_free(&Bunch_properties_type);
+	stored_vbunches.push_front(vbi);          
+	if (stored_vbunches.size()>nstored_turns) stored_vbunches.pop_back();
+         
+
+}
+
+
+void
+Impedance::apply(Bunch_train & bunch_train, double time_step, Step & step,
+        int verbosity, Train_diagnosticss const& per_operation_diagnosticss,
+        Logger & logger)
+{ 
+    store_bunches_data(bunch_train);
+    Bunches bunches(bunch_train.get_bunches());
+    size_t num_bunches = bunch_train.get_size();
+    for (int i = 0; i < num_bunches; ++i)
+        if (bunches.at(i)->get_comm().has_this_rank()) {
+            apply(*bunches.at(i), time_step, step, verbosity,logger);
+        }  
+} 
+   
+    

@@ -10,7 +10,8 @@ struct Bunches_fixture
                     mass, total_energy), bunches()
     {
         BOOST_TEST_MESSAGE("setup fixture");
-        Commxxs commxxs(generate_subcomms(num_bunches));
+	Commxx_sptr parent_sptr(new Commxx);
+        Commxxs commxxs(generate_subcomms(parent_sptr, num_bunches));
         for (int i = 0; i < num_bunches; ++i) {
             Bunch_sptr bs(
                     new Bunch(reference_particle, local_num, real_num,

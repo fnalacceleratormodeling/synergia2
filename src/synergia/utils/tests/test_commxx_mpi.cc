@@ -159,9 +159,10 @@ BOOST_AUTO_TEST_CASE(serialize4)
 
 BOOST_AUTO_TEST_CASE(generate_subcomms_)
 {
-    int world_size = Commxx().get_size();
+    Commxx_sptr parent_sptr(new Commxx);
+    int world_size = parent_sptr->get_size();
     for (int size = 1; size<5; ++size) {
-        Commxxs commxxs(generate_subcomms(size));
+        Commxxs commxxs(generate_subcomms(parent_sptr,size));
         BOOST_CHECK_EQUAL(commxxs.size(), size);
         int includes_this_rank = 0;
         for (int i = 0; i< size; ++i) {

@@ -46,6 +46,9 @@ public:
     Commxx(Commxx_sptr parent_sptr, std::vector<int > const& ranks,
             bool per_host = false);
 
+	    
+    Commxx_sptr
+    get_parent_sptr() const;    
     /// Get communicator rank
     int
     get_rank() const;
@@ -76,6 +79,6 @@ public:
 typedef std::vector<Commxx_sptr > Commxxs;
 
 Commxxs
-generate_subcomms(int count);
+generate_subcomms(Commxx_sptr parent_sptr, int count);
 
 #endif /* COMMXX_H_ */

@@ -107,6 +107,11 @@ Commxx::Commxx(Commxx_sptr parent_sptr, std::vector<int > const& ranks,
     construct(parent_sptr->get());
 }
 
+Commxx_sptr
+Commxx::get_parent_sptr() const
+{
+  return parent_sptr;
+}  
 int
 Commxx::get_rank() const
 {
@@ -195,9 +200,8 @@ Commxx::~Commxx()
 }
 
 Commxxs
-generate_subcomms(int count)
-{
-    Commxx_sptr parent_sptr(new Commxx);
+generate_subcomms(Commxx_sptr parent_sptr, int count)
+{  
     Commxxs retval(0);
     std::vector < std::vector<int > > ranks(distribute_1d(*parent_sptr, count));
     for (int index = 0; index < count; ++index) {
