@@ -696,8 +696,8 @@ Impedance::store_bunches_data(Bunch_train & bunch_train)
 	MPI_Type_commit(&Bunch_properties_type); 
                                      
         int size_parent_comm=bunch_train.get_parent_comm_sptr()->get_size();	
-	std::vector<int > counts(bunch_train.get_proc_counts());
-	std::vector<int > offsets(bunch_train.get_proc_offsets());
+	std::vector<int > counts(bunch_train.get_proc_counts_for_impedance());
+	std::vector<int > offsets(bunch_train.get_proc_offsets_for_impedance());
 	
 	
 	int error = MPI_Allgatherv(reinterpret_cast<void*>(&vbi_local[0]), vbi_local.size(), Bunch_properties_type,  

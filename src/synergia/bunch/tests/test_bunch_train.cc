@@ -122,3 +122,12 @@ BOOST_FIXTURE_TEST_CASE(get_spacings2, Bunches_fixture)
     BOOST_CHECK_EQUAL(bunch_train.get_spacings().at(0), bunch_separation);
     BOOST_CHECK_EQUAL(bunch_train.get_spacings().at(1), bunch_separation);
 }
+
+BOOST_FIXTURE_TEST_CASE(get_parent_comm_sptr, Bunches_fixture)
+{
+    const double bunch_separation = 1.7;
+    Bunch_train bunch_train(bunches, bunch_separation);    
+    int result;
+    MPI_Comm_compare(MPI_COMM_WORLD, bunch_train.get_parent_comm_sptr()->get(), &result);
+    BOOST_CHECK(result == MPI_IDENT);    
+}

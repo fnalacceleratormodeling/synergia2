@@ -3,6 +3,7 @@
 
 #include "synergia/bunch/tests/bunch_sptr_fixture.h"
 
+
 struct Bunches_fixture
 {
     Bunches_fixture() :
@@ -21,6 +22,7 @@ struct Bunches_fixture
             dummy_populate(*(bunches.back()));
         }
     }
+  
     ~Bunches_fixture()
     {
         BOOST_TEST_MESSAGE("teardown fixture");

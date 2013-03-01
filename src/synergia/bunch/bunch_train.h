@@ -10,12 +10,18 @@ private:
     std::vector<double > spacings;      
     bool has_parent_comm;
     Commxx_sptr parent_comm_sptr;
-    std::vector< int> proc_counts;
-    std::vector< int> proc_offsets;
+    /// counts and offsets are needed for impedance, counts.size()=offsets.size()=num_procs
+    /// they are meaningfull only on the local rank=0 of every bunch communicator 
+    /// for example:  3 bunches on 5 processors: proc 2 and 4 has local rank different form zero
+    ///              (count[0]=1, offset[0]=0), (count[1]=1, offset[3]=1), (count[3]=1, offset[3]=2)
+    /// for example:  5 bunches on 3 processors: 
+    ///                (count[0]=1, offset[0]=0), (count[1]=2, offset[3]=1), (count[2]=2, offset[2]=3)
+    std::vector< int> proc_counts_imped; 
+    std::vector< int> proc_offsets_imped; 
     void
     set_bucket_indices();
     void find_parent_comm_sptr();
-    void calculates_counts_and_offsets();
+    void calculates_counts_and_offsets_for_impedance();
 public:
     Bunch_train(Bunches const& bunches, double spacing);
     Bunch_train(Bunches const& bunches, std::vector<double > const& spacings);
@@ -30,9 +36,9 @@ public:
     std::vector<double > &
     get_spacings();
     std::vector< int> &
-    get_proc_counts();
+    get_proc_counts_for_impedance();
     std::vector< int> &
-    get_proc_offsets();
+    get_proc_offsets_for_impedance();
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
