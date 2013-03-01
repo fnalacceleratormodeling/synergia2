@@ -197,7 +197,8 @@ MArray1d_ref const &  Impedance::get_zwake0() const {return *zwake0_sptr;}
 
 bool Impedance::is_full_machine() const { return full_machine;}
 int Impedance::get_nstored_turns() const { return nstored_turns;}
-
+std::list< std::vector<Bunch_properties> > &
+Impedance::get_stored_vbunches() {return stored_vbunches;}
 
 
 
@@ -702,7 +703,7 @@ Impedance::store_bunches_data(Bunch_train & bunch_train)
 	
 	int error = MPI_Allgatherv(reinterpret_cast<void*>(&vbi_local[0]), vbi_local.size(), Bunch_properties_type,  
 					reinterpret_cast<void*>(&vbi[0]), &counts[0], &offsets[0], 
-					Bunch_properties_type, MPI_COMM_WORLD);
+					Bunch_properties_type,bunch_train.get_parent_comm_sptr()->get() );
 	if (error != MPI_SUCCESS) {
 	  throw std::runtime_error("Impedance::store_bunches_data: MPI error in MPI_Allgatherv");
 	} 
