@@ -133,6 +133,8 @@ struct ei_member_redux {
   inline result_type operator()(const MatrixBase<Derived>& mat) const
   { return mat.redux(m_functor); }
   const BinaryOp m_functor;
+private:
+  ei_member_redux& operator=(const ei_member_redux&);
 };
 
 /** \array_module \ingroup Array
@@ -158,13 +160,15 @@ template<typename ExpressionType, int Direction> class PartialRedux
   public:
 
     typedef typename ei_traits<ExpressionType>::Scalar Scalar;
+    typedef typename NumTraits<Scalar>::Real RealScalar;
     typedef typename ei_meta_if<ei_must_nest_by_value<ExpressionType>::ret,
         ExpressionType, const ExpressionType&>::ret ExpressionTypeNested;
 
-    template<template<typename _Scalar> class Functor> struct ReturnType
+    template<template<typename _Scalar> class Functor,
+             typename Scalar = typename ei_traits<ExpressionType>::Scalar> struct ReturnType
     {
       typedef PartialReduxExpr<ExpressionType,
-                               Functor<typename ei_traits<ExpressionType>::Scalar>,
+                               Functor<Scalar>,
                                Direction
                               > Type;
     };
@@ -215,7 +219,7 @@ template<typename ExpressionType, int Direction> class PartialRedux
       * Output: \verbinclude PartialRedux_squaredNorm.out
       *
       * \sa MatrixBase::squaredNorm() */
-    const typename ReturnType<ei_member_squaredNorm>::Type squaredNorm() const
+    const typename ReturnType<ei_member_squaredNorm,RealScalar>::Type squaredNorm() const
     { return _expression(); }
 
     /** \returns a row (or column) vector expression of the norm
@@ -225,7 +229,7 @@ template<typename ExpressionType, int Direction> class PartialRedux
       * Output: \verbinclude PartialRedux_norm.out
       *
       * \sa MatrixBase::norm() */
-    const typename ReturnType<ei_member_norm>::Type norm() const
+    const typename ReturnType<ei_member_norm,RealScalar>::Type norm() const
     { return _expression(); }
 
     /** \returns a row (or column) vector expression of the sum
@@ -290,6 +294,9 @@ template<typename ExpressionType, int Direction> class PartialRedux
 
   protected:
     ExpressionTypeNested m_matrix;
+
+  private:
+    PartialRedux& operator=(const PartialRedux&);
 };
 
 /** \array_module

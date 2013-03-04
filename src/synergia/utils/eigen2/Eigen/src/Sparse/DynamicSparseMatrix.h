@@ -212,7 +212,7 @@ class DynamicSparseMatrix
         // remove all coefficients with innerCoord>=innerSize
         // TODO
         std::cerr << "not implemented yet\n";
-        exit(2);
+        std::exit(2);
       }
       if (m_data.size() != outerSize)
       {
@@ -289,9 +289,11 @@ class DynamicSparseMatrix<Scalar,_Flags>::InnerIterator : public SparseVector<Sc
     inline int row() const { return IsRowMajor ? m_outer : Base::index(); }
     inline int col() const { return IsRowMajor ? Base::index() : m_outer; }
 
-
   protected:
     const int m_outer;
+
+  private:
+    InnerIterator& operator=(const InnerIterator&);
 };
 
 #endif // EIGEN_DYNAMIC_SPARSEMATRIX_H
