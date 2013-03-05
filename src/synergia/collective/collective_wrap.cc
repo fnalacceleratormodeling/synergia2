@@ -72,6 +72,12 @@ BOOST_PYTHON_MODULE(collective)
 		.def("set_enhancing_factor", &Ecloud_from_vorpal::set_enhancing_factor)
         ;
  
+    class_<Wake_field,Wake_field_sptr>("Wake_field",
+	        init<std::string const & , std::string const &  >())
+         .def("get_wake_file_name", &Wake_field::get_wake_file_name)
+         .def("get_wake_type", &Wake_field::get_wake_type)
+         ;
+ 
     class_<Impedance,Impedance_sptr,
         bases<Collective_operator > >("Impedance",
                 init<std::string const &,std::string const &, int const  &,  double const &, double const &,

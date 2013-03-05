@@ -149,7 +149,6 @@ Impedance::clone()
 
 
 
-Impedance::~Impedance(){}
 
 void 
 Impedance::set_z_grid(int const  & zgrid)
@@ -729,5 +728,64 @@ Impedance::apply(Bunch_train & bunch_train, double time_step, Step & step,
             apply(*bunches.at(i), time_step, step, verbosity,logger);
         }  
 } 
-   
-    
+
+Impedance::Impedance()
+{
+}  
+
+template<class Archive>
+    void
+    Impedance::serialize(Archive & ar, const unsigned int version)
+    {   
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
+        ar & BOOST_SERIALIZATION_NVP(wake_field_sptr);
+        ar & BOOST_SERIALIZATION_NVP(z_grid);
+        ar & BOOST_SERIALIZATION_NVP(nstored_turns);
+	ar & BOOST_SERIALIZATION_NVP(num_buckets);
+	ar & BOOST_SERIALIZATION_NVP(orbit_length);
+	ar & BOOST_SERIALIZATION_NVP(wake_factor);
+	ar & BOOST_SERIALIZATION_NVP(bunch_spacing);
+	ar & BOOST_SERIALIZATION_NVP(full_machine);
+	ar & BOOST_SERIALIZATION_NVP(wn);
+	ar & BOOST_SERIALIZATION_NVP(stored_vbunches);
+	ar & BOOST_SERIALIZATION_NVP(xmom_sptr);
+	ar & BOOST_SERIALIZATION_NVP(ymom_sptr);
+	ar & BOOST_SERIALIZATION_NVP(zdensity_sptr);
+	ar & BOOST_SERIALIZATION_NVP(bin_partition_sptr);
+	ar & BOOST_SERIALIZATION_NVP(xwake_leading_sptr);
+	ar & BOOST_SERIALIZATION_NVP(xwake_trailing_sptr);
+	ar & BOOST_SERIALIZATION_NVP(ywake_leading_sptr);
+	ar & BOOST_SERIALIZATION_NVP(ywake_trailing_sptr);
+	ar & BOOST_SERIALIZATION_NVP(zwake0_sptr);
+	ar & BOOST_SERIALIZATION_NVP(N_factor);
+	ar & BOOST_SERIALIZATION_NVP(cell_size_z);
+	ar & BOOST_SERIALIZATION_NVP(bunch_z_mean);
+	ar & BOOST_SERIALIZATION_NVP(bunch_bucket);
+    }
+
+template
+
+void
+Impedance::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Impedance::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Impedance::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Impedance::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+Impedance::~Impedance()
+{
+}  
+	
+BOOST_CLASS_EXPORT_IMPLEMENT(Impedance);    

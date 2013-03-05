@@ -6,7 +6,7 @@ from booster_options import opts
 import numpy as np
 import string
 from synergia.optics.one_turn_map import linear_one_turn_map
-#from synergia.utils import Commxx
+from synergia.utils import Commxx
 from mpi4py import MPI
 
 
@@ -331,18 +331,18 @@ try:
   impedance=opts.impedance
   if impedance:
       zgrid=1000
-      imped_f= synergia.collective.Impedance(opts.wakefileF,lattice_length, bunch_sp,zgrid, "rectangular",15)
+      wn=opts.wave_number[:]
+      imped_f=synergia.collective.Impedance(opts.wakefileF, "XLXTYLYTZpp", zgrid, lattice_length, bunch_sp,opts.registred_turns, opts.full_machine,wn); 
       if MPI.COMM_WORLD.Get_rank() ==0:
 	  print
-	  print "WAKES FOR F MAGNET read from ", imped_f.get_wake_file_name()
+	  print "WAKES FOR F MAGNET read from ", imped_f.get_wake_field().get_wake_file_name()
 	  print "F mag orbith length=",imped_f.get_orbit_length()
 	  print "F mag z_grid=",imped_f.get_z_grid()
 	  print "F mag stored turns=",imped_f.get_nstored_turns()
-	  
-      imped_d= synergia.collective.Impedance(opts.wakefileD,lattice_length, bunch_sp,zgrid, "rectangular",15)
+      imped_d=synergia.collective.Impedance(opts.wakefileD, "XLXTYLYTZpp", zgrid, lattice_length, bunch_sp,opts.registred_turns, opts.full_machine,wn)    
       if MPI.COMM_WORLD.Get_rank() ==0:
 	  print
-	  print "WAKES FOR D MAGNET read from", imped_d.get_wake_file_name()
+	  print "WAKES FOR D MAGNET read from", imped_d.get_wake_field().get_wake_file_name()
 	  print "D mag orbith length=",imped_d.get_orbit_length()
 	  print "D mag z_grid=",imped_d.get_z_grid()
 	  print "D mag stored turns=",imped_d.get_nstored_turns()
@@ -554,7 +554,7 @@ try:
   num_bunches=opts.num_bunches
   bunches = []
   parent_comm = Commxx()
-  comms = synergia.utils.generate_subcomms(parent_com, opts.num_bunches)
+  comms = synergia.utils.generate_subcomms(parent_comm, opts.num_bunches)
   for i in range(0, num_bunches):
       commx=comms[i]
       bunch= synergia.optics.generate_matched_bunch(stepper.get_lattice_simulator(),
@@ -592,7 +592,9 @@ try:
 	      print "bunch # ",i ," number of macroparticles= ",macro_num
 	      print "bunch # ",i ," bucket index", bucket_index          
 	      print "___________________________________________________________"
-      
+  if MPI.COMM_WORLD.Get_rank() ==0:
+    print "train bunch space=",bunch_train_simulator.get_bunch_train().get_spacings()[0]
+    print  
        
 
 

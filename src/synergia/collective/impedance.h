@@ -4,6 +4,7 @@
 #include "synergia/simulation/operator.h"
 #include "synergia/simulation/step.h"
 #include "synergia/bunch/bunch.h"
+#include "synergia/utils/serialization.h"
 
  struct Bunch_properties
  {
@@ -79,7 +80,7 @@ private:
 			  bool full_machine=false,std::vector<int > wn=std::vector<int >());
 
     Impedance(std::string const & wake_file, std::string const & wake_type, int const  & zgrid,
-		  double const & orbit_length, int const & num_bucket, int const nstored_turns,
+		  double const & orbit_length, int const & num_buckets, int const nstored_turns,
 			  bool full_machine=false, std::vector<int > wn=std::vector<int >());
 			  
     Impedance(Impedance const& impedance);
@@ -128,10 +129,15 @@ private:
     virtual void
     apply(Bunch_train & bunch_train, double time_step, Step & step, int verbosity,
             Train_diagnosticss const& per_operation_train_diagnosticss, Logger & logger);
+	    
+    template<class Archive>
+        void
+        serialize(Archive & ar, const unsigned int version);    
+	    
     virtual
     ~Impedance();
 };
-
+BOOST_CLASS_EXPORT_KEY(Impedance);
 typedef boost::shared_ptr<Impedance> Impedance_sptr;
 
 #endif /* IMPEDANCE_H_ */
