@@ -130,14 +130,24 @@ Impedance::Impedance(Impedance const& impedance)
    
    // the following data are not copied
    this->stored_vbunches=std::list< std::vector<Bunch_properties> >(); 
-   this->xmom_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
-   this->ymom_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
-   this->zdensity_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
-   this->xwake_leading_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
-   this->xwake_trailing_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
-   this->ywake_leading_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
-   this->ywake_trailing_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
-   this->zwake0_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->xmom_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->ymom_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->zdensity_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->xwake_leading_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->xwake_trailing_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->ywake_leading_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->ywake_trailing_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->zwake0_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//   
+   this->xmom_sptr=impedance.xmom_sptr; 
+   this->ymom_sptr= impedance.ymom_sptr;
+   this->zdensity_sptr=impedance. zdensity_sptr;
+   this->xwake_leading_sptr=impedance.xwake_leading_sptr; 
+   this->xwake_trailing_sptr=impedance.xwake_trailing_sptr;
+   this->ywake_leading_sptr=impedance.ywake_leading_sptr;
+   this->ywake_trailing_sptr=impedance.ywake_trailing_sptr;
+   this->zwake0_sptr=impedance.zwake0_sptr;
+   
 }  
 
 

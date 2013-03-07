@@ -175,6 +175,7 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_tunes_overloads45,
 
 void (Bunch_train_simulator::*bts_add_per_turn1)(int, Diagnostics_sptr, int)
                             = &Bunch_train_simulator::add_per_turn;
+			    
 void (Bunch_train_simulator::*bts_add_per_turn2)(int, Diagnostics_sptr,
         std::list<int > const&)
                             = &Bunch_train_simulator::add_per_turn;

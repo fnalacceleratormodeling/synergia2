@@ -388,11 +388,10 @@ try:
 
 	  
 	  
-  # now make stepper
+  # now make stepper  
   bpms=opts.bpms
   if bpms:
       bpm_measure = synergia.simulation.Dummy_collective_operator("bmp_measure")
-
   if impedance or space_charge or bpms :    
       list_choice_map=synergia.simulation.List_choice_map()
       operators_fmag=[]
@@ -469,7 +468,7 @@ try:
       if MPI.COMM_WORLD.Get_rank() ==0:                                                   
 	  print   "no collective effects, no bpm, independent operator"                     
 	  #stepper.print_()  
-      
+     
       #stepper = synergia.simulation. Independent_stepper_elements(lattice_simulator, 1)
       #if MPI.COMM_WORLD.Get_rank() ==0:                                                   
 	  #print   "independenet stepper elements"                     
@@ -483,12 +482,11 @@ try:
 	  #print   "no collective effects, no bpm, split_operator_stepper"                     
 	  #stepper.print_()                    
   #if MPI.COMM_WORLD.Get_rank() ==0:
-  #    stepper.print_()
-
-  #sys.exit(1)                          
-			    
+     #stepper.print_()
+     
     
-
+  
+	   
   energy = lattice.get_reference_particle().get_total_energy()
   gamma = lattice.get_reference_particle().get_gamma()
   if MPI.COMM_WORLD.Get_rank() ==0:
@@ -563,9 +561,9 @@ try:
 						  opts.num_macroparticles,rms_index,
 						  seed=opts.seed, bunch_index=i,comm=commx, periodic=opts.periodic)
       particles = bunch.get_local_particles()
-      particles[:,0] = particles[:,0]+opts.x_offset
-      particles[:,2] = particles[:,2]+opts.y_offset
-      particles[:,4] = particles[:,4]+opts.z_offset
+      particles[:,0] = particles[:,0]+opts.x_offset*np.cos(2.*np.pi*i/float(num_bunches))
+      particles[:,2] = particles[:,2]+opts.y_offset*np.cos(2.*np.pi*i/float(num_bunches))
+      particles[:,4] = particles[:,4]+opts.z_offset*np.cos(2.*np.pi*i/float(num_bunches))
       bunches.append(bunch)
       #if space_charge:
       #if commx.has_this_rank():
@@ -578,10 +576,17 @@ try:
   bunch_train_simulator = synergia.simulation.Bunch_train_simulator(bunch_train)
 
 
+  Step_Numbers=[] 
+  step_number=0
+  for step  in stepper.get_steps():
+    step_number += 1
+    for op in step.get_operators():	
+	if(op.get_name()=="bmp_measure"):
+	    Step_Numbers.append(step_number)
+
   for i in range(0, bunch_train.get_size()):        
-      bunch_train_simulator.add_per_step(i, synergia.bunch.Diagnostics_full2("step_full2_%d.h5" % i))  
-      bunch_train_simulator.add_per_turn(i, synergia.bunch.Diagnostics_particles("turn_particles_%d.h5" % i, opts.turn_period))
-    
+      bunch_train_simulator.add_per_step(i, synergia.bunch.Diagnostics_full2("step_full2_%d.h5" % i), Step_Numbers)  
+      bunch_train_simulator.add_per_turn(i, synergia.bunch.Diagnostics_particles("turn_particles_%d.h5" % i), opts.turn_period)
       real_num=bunch_train_simulator.get_bunch_train().get_bunches()[i].get_real_num()
       macro_num= bunch_train_simulator.get_bunch_train().get_bunches()[i].get_total_num()
       bucket_index= bunch_train_simulator.get_bunch_train().get_bunches()[i].get_bucket_index()
@@ -592,9 +597,10 @@ try:
 	      print "bunch # ",i ," number of macroparticles= ",macro_num
 	      print "bunch # ",i ," bucket index", bucket_index          
 	      print "___________________________________________________________"
-  if MPI.COMM_WORLD.Get_rank() ==0:
-    print "train bunch space=",bunch_train_simulator.get_bunch_train().get_spacings()[0]
-    print  
+  if num_bunches >1:
+    if MPI.COMM_WORLD.Get_rank() ==0:
+      print "train bunch space=",bunch_train_simulator.get_bunch_train().get_spacings()[0]
+      print  
        
 
 
