@@ -175,3 +175,36 @@ BOOST_AUTO_TEST_CASE(generate_subcomms_)
         }
     }
 }
+/*
+BOOST_AUTO_TEST_CASE(make_optimal_spc_comm_world)
+{
+    Commxx_sptr parent_sptr(new Commxx);
+    int world_size = parent_sptr->get_size();
+    int optimal_number=3;
+    Commxx_sptr comm_spc=make_optimal_spc_comm(parent_sptr, optimal_number);
+    if (comm_spc->has_this_rank()){
+       BOOST_CHECK_EQUAL(parent_sptr->get_rank(), comm_spc->get_rank());
+    }
+    if (parent_sptr->get_rank()>optimal_number-1) {
+      BOOST_CHECK_EQUAL(comm_spc->has_this_rank(), false);
+    }      
+}*/
+
+BOOST_AUTO_TEST_CASE(make_optimal_spc_comm_subcomm)
+{
+    Commxx_sptr parent_sptr(new Commxx);
+    int world_size = parent_sptr->get_size();
+    int optimal_number=3;
+    for (int size = 1; size<5; ++size) {
+       Commxxs commxxs(generate_subcomms(parent_sptr,size));
+       for (int i = 0; i< size; ++i) {
+	  Commxx_sptr comm_spc(make_optimal_spc_comm(commxxs[i]->get_parent_sptr(), optimal_number));
+	  if (comm_spc->has_this_rank()){
+	      BOOST_CHECK_EQUAL(commxxs[i]->get_parent_sptr()->get_rank(), comm_spc->get_rank());
+	  }
+	  if (commxxs[i]->get_parent_sptr()->get_rank()>optimal_number-1) {
+	      BOOST_CHECK_EQUAL(comm_spc->has_this_rank(), false);
+	  }      
+       }	       
+    }      
+}

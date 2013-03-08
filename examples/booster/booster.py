@@ -565,11 +565,7 @@ try:
       particles[:,2] = particles[:,2]+opts.y_offset*np.cos(2.*np.pi*i/float(num_bunches))
       particles[:,4] = particles[:,4]+opts.z_offset*np.cos(2.*np.pi*i/float(num_bunches))
       bunches.append(bunch)
-      #if space_charge:
-      #if commx.has_this_rank():
-	  #spc_f.set_fftw_helper(commx)
-	  #spc_d.set_fftw_helper(commx)
-	  #spc_else.set_fftw_helper(commx)
+     
 
 
   bunch_train = synergia.bunch.Bunch_train(bunches, bunch_sp)
@@ -587,6 +583,17 @@ try:
   for i in range(0, bunch_train.get_size()):        
       bunch_train_simulator.add_per_step(i, synergia.bunch.Diagnostics_full2("step_full2_%d.h5" % i), Step_Numbers)  
       bunch_train_simulator.add_per_turn(i, synergia.bunch.Diagnostics_particles("turn_particles_%d.h5" % i), opts.turn_period)
+
+      if space_charge:
+        spc_optim=opts.spc_optim
+	if bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm().has_this_rank():
+	  #comm_spc=bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm()
+	  comm_spc= synergia.utils.make_optimal_spc_comm(bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm(),spc_optim);
+	  spc_f.set_fftw_helper(comm_spc)
+	  spc_d.set_fftw_helper(comm_spc)
+	  spc_else.set_fftw_helper(comm_spc)
+	 
+
       real_num=bunch_train_simulator.get_bunch_train().get_bunches()[i].get_real_num()
       macro_num= bunch_train_simulator.get_bunch_train().get_bunches()[i].get_total_num()
       bucket_index= bunch_train_simulator.get_bunch_train().get_bunches()[i].get_bucket_index()
