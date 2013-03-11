@@ -1,4 +1,5 @@
 test_commxx_mpi
+test_commxx_divider_mpi
 test_parallel_utils
 test_floating_point
 test_hdf5_writer
