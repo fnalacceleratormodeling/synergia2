@@ -51,7 +51,7 @@ private:
     int bucket_index;
     int sort_period, sort_counter;
     State state;
-    Commxx_sptr comm_sptr;
+    Commxx_sptr comm_sptr;    
     Fixed_t_z_converter *converter_ptr;
     Fixed_t_z_zeroth default_converter;
     // Fixed_t_z_alex default_converter;
@@ -243,19 +243,7 @@ public:
 
     void
     check_pz2_positive();
-
-    //    double z_period_length;
-    //    bool z_periodic;
-    //    Reference_particle reference_particle;
-    //    int particle_charge;
-    //    MArray2d *local_particles;
-    //    int local_num, total_num;
-    //    double real_num;
-    //    int sort_period, sort_counter;
-    //    State state;
-    //    Commxx comm_sptr;
-    //    Fixed_t_z_converter *converter_ptr;
-    //    Fixed_t_z_zeroth default_converter;
+    
 
     template<class Archive>
         void
