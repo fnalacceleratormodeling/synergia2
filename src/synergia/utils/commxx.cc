@@ -215,3 +215,15 @@ generate_subcomms(Commxx_sptr parent_sptr, int count)
     }
     return retval;
 }
+
+Commxx_sptr
+make_optimal_spc_comm(Commxx_sptr comm_sptr, int optimal_number)
+{   
+    int optimal_size=std::min(optimal_number, comm_sptr->get_size());
+    std::vector<int > on_ranks(optimal_size);
+    for (int i=0; i<optimal_size;++i){
+	on_ranks[i]=i;
+    }
+    Commxx_sptr ret_comm_sptr(new Commxx(comm_sptr,on_ranks)); 
+    return ret_comm_sptr;    
+} 

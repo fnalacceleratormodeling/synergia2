@@ -41,7 +41,7 @@ decompose_1d_local(Commxx const& comm, int length);
 /// @param elements is the number of elements.
 /// Example1: elements=5, processors=3... vector[0]=0, vector[1]=1, vector[2]=1,
 ///                                       vector[3]=2, vector[4]=2
-/// Example2: elements=5, procesors=12... vector[0]=(0,1) vector[1]=(2,3), vector[2]=(4,5)
+/// Example2: elements=5, processors=12... vector[0]=(0,1) vector[1]=(2,3), vector[2]=(4,5)
 ///                                       vector[3]=(6,7,8) vector[4]=(9,10,11)
 std::vector<std::vector<int > >
 distribute_1d_raw(int processors, int elements);

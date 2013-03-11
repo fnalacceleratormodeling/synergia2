@@ -6,64 +6,17 @@
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/simulation/step.h"
 #include "synergia/simulation/operator.h"
+#include "bunches_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
- const double tolerance = 1.0e-11;
+const double tolerance = 1.0e-11;
 
 
-double const  orbit_length=160.;
+double const  orbit_length=165.;
 double const bunch_spacing=5.;
-int const  zgrid=40;
+int const  zgrid=400;
 
 
-
-// const double mass = 100.0;
-// const double total_energy = 125.0;
-// const int total_num = 100;
-// const double real_num = 2.0e12;
-// const double step_length = 1.23;
-// struct Fixture
-// {
-//     Fixture() :
-//         four_momentum(mass, total_energy), reference_particle(
-//                 pconstants::proton_charge, four_momentum),
-//                 comm_sptr(new Commxx),
-//                  bunch(reference_particle, total_num,
-//                         real_num, comm_sptr), step(step_length)
-//     {
-//         BOOST_TEST_MESSAGE("setup fixture");
-//     }
-//     ~Fixture()
-//     {
-//         BOOST_TEST_MESSAGE("teardown fixture");
-//     }
-// 
-//     Four_momentum four_momentum;
-//     Reference_particle reference_particle;
-//     Commxx_sptr comm_sptr;
-//     Bunch bunch;
-//     Step step;
-// };
-// 
-// void
-// dummy_populate(Bunch &bunch, int offset = 0)
-// {
-//     for (int part = 0; part < bunch.get_local_num(); ++part) {
-//         // coordinates
-//         for (int i = 0; i < 6; i += 2) {
-//             bunch.get_local_particles()[part][i] = 10.0 * (part + offset) + i;
-//         }
-//         // momenta
-//         for (int i = 1; i < 6; i += 2) {
-//             bunch.get_local_particles()[part][i] = 1e-4 * (10.0 * (part
-//                     + offset) + i);
-//         }
-//     }
-// }
-// 
-// 
-// 
-// 
  BOOST_AUTO_TEST_CASE(test_constructor)
  {
  Impedance imped("Fwake.dat", "XLXTYLYTZpp",zgrid, orbit_length, bunch_spacing,10);
@@ -87,15 +40,56 @@ BOOST_AUTO_TEST_CASE(test_copy)
  } 
 
 
-// 
-// BOOST_FIXTURE_TEST_CASE(test_apply, Fixture)
-//   {
-//     Bunch bunch(reference_particle, total_num, real_num, comm_sptr);
-//     dummy_populate(bunch);
-//     Step step(step_length);
-//     double time_step=10.;
-//     Impedance imped("test_wake.dat", orbit_length, bunch_spacing, zgrid, "circular",10); // four columns file
-//     const int verbosity = 4;
-//     Logger logger(0);
-//     imped.apply(bunch, time_step, step, verbosity, logger);
-// }
+ 
+ BOOST_FIXTURE_TEST_CASE(test_apply,Bunches_fixture)
+ {
+       
+      Impedance imped("Fwake.dat", "XLXTYLYTZpp",zgrid, orbit_length, bunch_spacing,3);   
+      double step_length=2.3;
+      double time_step=10.;
+      const int verbosity = 4;
+      Step step(step_length);
+      Logger logger(0);
+      Bunch_train bunch_train(bunches, bunch_spacing);
+      imped.apply(bunch_train, time_step, step, verbosity, train_diagnosticss, logger);
+      BOOST_CHECK_EQUAL(imped.get_stored_vbunches().size(),1);      
+      imped.apply(bunch_train, time_step, step, verbosity, train_diagnosticss, logger);
+      BOOST_CHECK_EQUAL(imped.get_stored_vbunches().size(),2);
+      imped.apply(bunch_train, time_step, step, verbosity, train_diagnosticss, logger);
+      BOOST_CHECK_EQUAL(imped.get_stored_vbunches().size(),3);
+      imped.apply(bunch_train, time_step, step, verbosity, train_diagnosticss, logger);
+      // 4 times impedance was applied
+      BOOST_CHECK_EQUAL(imped.get_stored_vbunches().size(),3);
+      std::list< std::vector<Bunch_properties> >::const_iterator it=imped.get_stored_vbunches().begin();
+      BOOST_CHECK_EQUAL(it->size(),bunches.size()); 
+      ++it; ++it;
+      BOOST_CHECK_EQUAL(it->size(),bunches.size());
+      
+ }
+
+BOOST_FIXTURE_TEST_CASE(test_apply_full_machine,Bunches_fixture)
+ {
+       
+      std::vector<int > wn(3,0);
+      Impedance imped("Fwake.dat", "XLXTYLYTZpp",zgrid, orbit_length, bunch_spacing,3,1,wn);   
+      double step_length=2.3;
+      double time_step=10.;
+      const int verbosity = 4;
+      Step step(step_length);
+      Logger logger(0);
+      Bunch_train bunch_train(bunches, bunch_spacing);
+      imped.apply(bunch_train, time_step, step, verbosity, train_diagnosticss, logger);
+      BOOST_CHECK_EQUAL(imped.get_stored_vbunches().size(),1);      
+      imped.apply(bunch_train, time_step, step, verbosity, train_diagnosticss, logger);
+      BOOST_CHECK_EQUAL(imped.get_stored_vbunches().size(),2);
+      imped.apply(bunch_train, time_step, step, verbosity, train_diagnosticss, logger);
+      BOOST_CHECK_EQUAL(imped.get_stored_vbunches().size(),3);
+      imped.apply(bunch_train, time_step, step, verbosity, train_diagnosticss, logger);
+      // 4 times impedance was applied
+      BOOST_CHECK_EQUAL(imped.get_stored_vbunches().size(),3);
+      std::list< std::vector<Bunch_properties> >::const_iterator it=imped.get_stored_vbunches().begin();
+      BOOST_CHECK_EQUAL(it->size(),bunches.size()); 
+      ++it; ++it;
+      BOOST_CHECK_EQUAL(it->size(),bunches.size());      
+ }
+

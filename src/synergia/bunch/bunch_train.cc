@@ -30,15 +30,15 @@ Bunch_train::find_parent_comm_sptr()
 }  
 
 void 
-Bunch_train::calculates_counts_and_offsets()
+Bunch_train::calculates_counts_and_offsets_for_impedance()
 {
    
   try{
      if (!has_parent_comm) find_parent_comm_sptr(); 
      int size_parent=parent_comm_sptr->get_size();
-     proc_counts.resize(size_parent);
-     proc_offsets.resize(size_parent); 
- 	  counts_and_offsets_for_impedance(*parent_comm_sptr, bunches.size(), proc_offsets, proc_counts);
+     proc_counts_imped.resize(size_parent);
+     proc_offsets_imped.resize(size_parent); 
+ 	  counts_and_offsets_for_impedance(*parent_comm_sptr, bunches.size(), proc_offsets_imped, proc_counts_imped);
   }
   catch (std::exception const& e) {
         std::cout<<e.what()<<std::endl;
@@ -79,7 +79,7 @@ Bunch_train::Bunch_train(Bunches const& bunches, double spacing) :
                  has_parent_comm(false)
 {
     set_bucket_indices();
-    calculates_counts_and_offsets();
+    calculates_counts_and_offsets_for_impedance();
 }
 
 Bunch_train::Bunch_train(Bunches const& bunches,
@@ -93,7 +93,7 @@ Bunch_train::Bunch_train(Bunches const& bunches,
                 "Bunch_train:: spacings must have length (length(bunches)-1)");
     }
     set_bucket_indices();
-    calculates_counts_and_offsets();
+    calculates_counts_and_offsets_for_impedance();
 }
 
 Bunch_train::Bunch_train()
@@ -120,15 +120,15 @@ Bunch_train::get_spacings()
 
 
 std::vector< int> &
-Bunch_train::get_proc_counts() 
+Bunch_train::get_proc_counts_for_impedance() 
 {
-  return proc_counts;
+  return proc_counts_imped;
 }
 
 std::vector< int> &
-Bunch_train::get_proc_offsets() 
+Bunch_train::get_proc_offsets_for_impedance() 
 {
-  return proc_offsets;
+  return proc_offsets_imped;
 }
 
 
@@ -140,8 +140,8 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(spacings);
 	ar & BOOST_SERIALIZATION_NVP(has_parent_comm);
 	ar & BOOST_SERIALIZATION_NVP(parent_comm_sptr);
-	ar & BOOST_SERIALIZATION_NVP(proc_counts);
-	ar & BOOST_SERIALIZATION_NVP(proc_offsets);
+	ar & BOOST_SERIALIZATION_NVP(proc_counts_imped);
+	ar & BOOST_SERIALIZATION_NVP(proc_offsets_imped);
     }
 
 template

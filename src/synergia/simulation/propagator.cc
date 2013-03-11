@@ -481,7 +481,7 @@ Propagator::resume(std::string const& checkpoint_directory, bool new_max_turns,
         state.verbosity = verbosity;
     }
     propagate(state);
-    delete state.bunch_simulator_ptr;
+    state.bunch_simulator_ptr ?  delete state.bunch_simulator_ptr: delete state.bunch_train_simulator_ptr;
     delete state.propagate_actions_ptr;
 }
 

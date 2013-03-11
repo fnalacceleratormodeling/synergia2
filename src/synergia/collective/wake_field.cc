@@ -300,9 +300,9 @@ MArray1d_ref const Wake_field::get_z_wake()  {
   return retval;
 }   
 
+Wake_field::Wake_field(){};
 
-
-
+	
 template<class Archive>
     void
     Wake_field::serialize(Archive & ar, const unsigned int version)
@@ -341,3 +341,5 @@ void
 Wake_field::serialize<boost::archive::xml_iarchive >(
         boost::archive::xml_iarchive & ar, const unsigned int version);
 
+
+Wake_field::~Wake_field(){}

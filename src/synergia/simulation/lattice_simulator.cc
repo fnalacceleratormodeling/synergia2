@@ -1247,7 +1247,7 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
     update();
     if (rank == 0) {
         std::ofstream file;
-        file.open("quadrupolepole_correctors.txt");
+        file.open("quadrupole_correctors.txt");
         file << " ! the quadrupole correctors are set for tunes (H, V):  ("
                 << horizontal_tune << " ,  " << vertical_tune << " ) "
                 << std::endl;

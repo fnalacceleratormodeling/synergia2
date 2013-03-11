@@ -3,7 +3,7 @@
 <boost_serialization signature="serialization::archive" version="6">
 <num_objects>1</num_objects>
 <object_typename>N5boost11multi_arrayIdLm1ESaIdEEE</object_typename>
-<object class_id="0" tracking_level="0" version="0">
+<object class_id="0" tracking_level="1" version="0" object_id="_0">
 	<shape_0>6</shape_0>
 	<item>0</item>
 	<item>0</item>

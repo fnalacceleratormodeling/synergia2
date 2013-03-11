@@ -54,7 +54,7 @@ BOOST_PYTHON_MODULE(parallel_utils)
             container_conversions::to_tuple<std::vector<Commxx_sptr > > >();
 
     def("generate_subcomms", generate_subcomms);
-
+    def("make_optimal_spc_comm", make_optimal_spc_comm);
     def("decompose_1d_raw", decompose_1d_raw_wrap);
     def("decompose_1d", decompose_1d_wrap);
     def("decompose_1d_local", decompose_1d_local);

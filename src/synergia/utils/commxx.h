@@ -85,4 +85,8 @@ typedef std::vector<Commxx_sptr > Commxxs;
 Commxxs
 generate_subcomms(Commxx_sptr parent_sptr, int count);
 
+Commxx_sptr
+make_optimal_spc_comm(Commxx_sptr parent_sptr, int optimal_number);
+
+
 #endif /* COMMXX_H_ */

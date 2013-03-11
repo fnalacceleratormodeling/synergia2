@@ -130,14 +130,24 @@ Impedance::Impedance(Impedance const& impedance)
    
    // the following data are not copied
    this->stored_vbunches=std::list< std::vector<Bunch_properties> >(); 
-   this->xmom_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
-   this->ymom_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
-   this->zdensity_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
-   this->xwake_leading_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
-   this->xwake_trailing_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
-   this->ywake_leading_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
-   this->ywake_trailing_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
-   this->zwake0_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->xmom_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->ymom_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->zdensity_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->xwake_leading_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->xwake_trailing_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->ywake_leading_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->ywake_trailing_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->zwake0_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//   
+   this->xmom_sptr=impedance.xmom_sptr; 
+   this->ymom_sptr= impedance.ymom_sptr;
+   this->zdensity_sptr=impedance. zdensity_sptr;
+   this->xwake_leading_sptr=impedance.xwake_leading_sptr; 
+   this->xwake_trailing_sptr=impedance.xwake_trailing_sptr;
+   this->ywake_leading_sptr=impedance.ywake_leading_sptr;
+   this->ywake_trailing_sptr=impedance.ywake_trailing_sptr;
+   this->zwake0_sptr=impedance.zwake0_sptr;
+   
 }  
 
 
@@ -149,7 +159,6 @@ Impedance::clone()
 
 
 
-Impedance::~Impedance(){}
 
 void 
 Impedance::set_z_grid(int const  & zgrid)
@@ -197,7 +206,8 @@ MArray1d_ref const &  Impedance::get_zwake0() const {return *zwake0_sptr;}
 
 bool Impedance::is_full_machine() const { return full_machine;}
 int Impedance::get_nstored_turns() const { return nstored_turns;}
-
+std::list< std::vector<Bunch_properties> > &
+Impedance::get_stored_vbunches() {return stored_vbunches;}
 
 
 
@@ -696,13 +706,13 @@ Impedance::store_bunches_data(Bunch_train & bunch_train)
 	MPI_Type_commit(&Bunch_properties_type); 
                                      
         int size_parent_comm=bunch_train.get_parent_comm_sptr()->get_size();	
-	std::vector<int > counts(bunch_train.get_proc_counts());
-	std::vector<int > offsets(bunch_train.get_proc_offsets());
+	std::vector<int > counts(bunch_train.get_proc_counts_for_impedance());
+	std::vector<int > offsets(bunch_train.get_proc_offsets_for_impedance());
 	
 	
 	int error = MPI_Allgatherv(reinterpret_cast<void*>(&vbi_local[0]), vbi_local.size(), Bunch_properties_type,  
 					reinterpret_cast<void*>(&vbi[0]), &counts[0], &offsets[0], 
-					Bunch_properties_type, MPI_COMM_WORLD);
+					Bunch_properties_type,bunch_train.get_parent_comm_sptr()->get() );
 	if (error != MPI_SUCCESS) {
 	  throw std::runtime_error("Impedance::store_bunches_data: MPI error in MPI_Allgatherv");
 	} 
@@ -728,5 +738,64 @@ Impedance::apply(Bunch_train & bunch_train, double time_step, Step & step,
             apply(*bunches.at(i), time_step, step, verbosity,logger);
         }  
 } 
-   
-    
+
+Impedance::Impedance()
+{
+}  
+
+template<class Archive>
+    void
+    Impedance::serialize(Archive & ar, const unsigned int version)
+    {   
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
+        ar & BOOST_SERIALIZATION_NVP(wake_field_sptr);
+        ar & BOOST_SERIALIZATION_NVP(z_grid);
+        ar & BOOST_SERIALIZATION_NVP(nstored_turns);
+	ar & BOOST_SERIALIZATION_NVP(num_buckets);
+	ar & BOOST_SERIALIZATION_NVP(orbit_length);
+	ar & BOOST_SERIALIZATION_NVP(wake_factor);
+	ar & BOOST_SERIALIZATION_NVP(bunch_spacing);
+	ar & BOOST_SERIALIZATION_NVP(full_machine);
+	ar & BOOST_SERIALIZATION_NVP(wn);
+	ar & BOOST_SERIALIZATION_NVP(stored_vbunches);
+	ar & BOOST_SERIALIZATION_NVP(xmom_sptr);
+	ar & BOOST_SERIALIZATION_NVP(ymom_sptr);
+	ar & BOOST_SERIALIZATION_NVP(zdensity_sptr);
+	ar & BOOST_SERIALIZATION_NVP(bin_partition_sptr);
+	ar & BOOST_SERIALIZATION_NVP(xwake_leading_sptr);
+	ar & BOOST_SERIALIZATION_NVP(xwake_trailing_sptr);
+	ar & BOOST_SERIALIZATION_NVP(ywake_leading_sptr);
+	ar & BOOST_SERIALIZATION_NVP(ywake_trailing_sptr);
+	ar & BOOST_SERIALIZATION_NVP(zwake0_sptr);
+	ar & BOOST_SERIALIZATION_NVP(N_factor);
+	ar & BOOST_SERIALIZATION_NVP(cell_size_z);
+	ar & BOOST_SERIALIZATION_NVP(bunch_z_mean);
+	ar & BOOST_SERIALIZATION_NVP(bunch_bucket);
+    }
+
+template
+
+void
+Impedance::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Impedance::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Impedance::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Impedance::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+Impedance::~Impedance()
+{
+}  
+	
+BOOST_CLASS_EXPORT_IMPLEMENT(Impedance);    

@@ -158,6 +158,9 @@ add_test_executable(test_impedance test_impedance.cc)
 target_link_libraries(test_impedance synergia_collective
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_impedance ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_impedance)
+add_test(test_impedance_mpi2 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 test_impedance)
+add_test(test_impedance_mpi3 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 test_impedance)
+add_test(test_impedance_mpi4 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 test_impedance)
 
 add_test_executable(test_wake_field test_wake_field.cc)
 target_link_libraries(test_wake_field synergia_collective

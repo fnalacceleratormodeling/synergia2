@@ -50,13 +50,15 @@ public:
   MArray1d_ref const get_yw_trail(); 
   MArray1d_ref const get_z_wake();
 
-int get_istart() const;
+  int get_istart() const;
   double get_zstart() const;
   double get_delta_z() const;
   
   template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);  
+  
+   ~Wake_field();
 }; 
 
 
