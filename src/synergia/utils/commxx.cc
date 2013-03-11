@@ -100,6 +100,12 @@ Commxx::Commxx(bool per_host) :
     construct(MPI_COMM_WORLD );
 }
 
+Commxx::Commxx(Commxx_sptr parent_sptr, bool per_host) :
+        per_host(per_host), ranks(0), parent_sptr()
+{
+    construct(parent_sptr->get());
+}
+
 Commxx::Commxx(Commxx_sptr parent_sptr, std::vector<int > const& ranks,
         bool per_host) :
         per_host(per_host), ranks(ranks), parent_sptr(parent_sptr)
