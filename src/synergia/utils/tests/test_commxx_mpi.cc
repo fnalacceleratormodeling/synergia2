@@ -199,12 +199,14 @@ BOOST_AUTO_TEST_CASE(make_optimal_spc_comm_subcomm)
        Commxxs commxxs(generate_subcomms(parent_sptr,size));
        for (int i = 0; i< size; ++i) {
 	  Commxx_sptr comm_spc(make_optimal_spc_comm(commxxs[i]->get_parent_sptr(), optimal_number));
-	  if (comm_spc->has_this_rank()){
-	      BOOST_CHECK_EQUAL(commxxs[i]->get_parent_sptr()->get_rank(), comm_spc->get_rank());
-	  }
-	  if (commxxs[i]->get_parent_sptr()->get_rank()>optimal_number-1) {
-	      BOOST_CHECK_EQUAL(comm_spc->has_this_rank(), false);
-	  }      
+	  if (comm_spc->has_this_rank())
+	        BOOST_CHECK_EQUAL(commxxs[i]->get_parent_sptr()->get_rank(), comm_spc->get_rank());
+	  
+	  if (commxxs[i]->get_parent_sptr()->get_rank()>optimal_number-1) 
+	        BOOST_CHECK_EQUAL(comm_spc->has_this_rank(), false);
+
+	  if (commxxs[i]->get_parent_sptr()->get_rank()==0) 
+	       BOOST_CHECK_EQUAL(comm_spc->get_rank(),0);	       	    
        }	       
     }      
 }

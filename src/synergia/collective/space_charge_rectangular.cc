@@ -54,10 +54,6 @@ Space_charge_rectangular::clone()
 }
 
 
-
-
-
-
 template<class Archive>
     void
     Space_charge_rectangular::save(Archive & ar, const unsigned int version) const
@@ -65,9 +61,9 @@ template<class Archive>
        
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
         ar & BOOST_SERIALIZATION_NVP(comm_f_sptr)
-                & BOOST_SERIALIZATION_NVP(grid_shape)
-                & BOOST_SERIALIZATION_NVP(pipe_size) 
-                & BOOST_SERIALIZATION_NVP(have_fftw_helper);
+        & BOOST_SERIALIZATION_NVP(grid_shape)
+        & BOOST_SERIALIZATION_NVP(pipe_size) 
+        & BOOST_SERIALIZATION_NVP(have_fftw_helper);
     }
 
 template<class Archive>
@@ -76,9 +72,9 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
         ar & BOOST_SERIALIZATION_NVP(comm_f_sptr)
-                & BOOST_SERIALIZATION_NVP(grid_shape)
-                & BOOST_SERIALIZATION_NVP(pipe_size)
-                & BOOST_SERIALIZATION_NVP(have_fftw_helper); 
+        & BOOST_SERIALIZATION_NVP(grid_shape)
+        & BOOST_SERIALIZATION_NVP(pipe_size)
+        & BOOST_SERIALIZATION_NVP(have_fftw_helper); 
      
         domain_sptr = Rectangular_grid_domain_sptr(
                     new Rectangular_grid_domain(pipe_size, grid_shape , true));
@@ -163,6 +159,13 @@ Space_charge_rectangular::set_fftw_helper(Commxx_sptr comm_sptr)
     }
 }
 
+
+Commxx_sptr 
+Space_charge_rectangular::get_comm_sptr() const
+{
+  return comm_f_sptr;
+}  
+
 std::vector<double >
 Space_charge_rectangular::get_pipe_size() const
 {
@@ -212,29 +215,21 @@ Space_charge_rectangular::get_charge_density(Bunch const& bunch)
                 "MPI error in Space_charge_rectangular: MPI_Allreduce in get_charge_density");
     }
 
-//     double global_normalization;
-//     double local_normalization(rho.get_normalization());
-//     error = MPI_Allreduce(&local_normalization, &global_normalization,
-//                                1, MPI_DOUBLE, MPI_SUM, comm.get());
-//     if (error != MPI_SUCCESS) {
-//         throw std::runtime_error(
-//                 "MPI error in Space_charge_rectangular(MPI_Allreduce in get_phi: global_rho normalization)");
-//     }
-   //rho.set_normalization(global_normalization);
 
     return rho_sptr;
 }
 
 Distributed_rectangular_grid_sptr
-Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bunch)
+Space_charge_rectangular::get_phi_local( Rectangular_grid & rho)
 {
 
     if (!have_fftw_helper)  throw std::runtime_error(
                 "Space_charge_rectangular::get_phi_local  space_charge does not have have_fftw_helper defined");
 
+    if (!comm_f_sptr->has_this_rank()) throw 
+             std::runtime_error("space charge rectangular, get_phi_local, comm_f_sptr has no rank");
 //    double t;
 //    t = simple_timer_current();
-
 
     MArray3d_ref rho_ref(rho.get_grid_points());
     std::vector<int > shape(domain_sptr->get_grid_shape());
@@ -249,14 +244,14 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bu
     std::string solver("rectangular");
     std::vector<double > local_physical_size(domain_sptr->get_physical_size());
     std::vector<double > local_physical_offset(domain_sptr->get_physical_offset());
-     // local_physical_size[0]=domain_sptr->get_cell_size()[0]*local_nx;
-     //local_physical_offset[0]=domain_sptr->get_left()[0]+local_x_start*domain_sptr->get_cell_size()[0];
+    // local_physical_size[0]=domain_sptr->get_cell_size()[0]*local_nx;
+    //local_physical_offset[0]=domain_sptr->get_left()[0]+local_x_start*domain_sptr->get_cell_size()[0];
     std::vector<int > shape_local(shape);
     shape_local[0]=local_nx;
     Distributed_rectangular_grid_sptr phi_local(
-        new Distributed_rectangular_grid(local_physical_size, local_physical_offset, shape_local,
-            true, lower, upper, comm_f_sptr, solver)
-            );
+	new Distributed_rectangular_grid(local_physical_size, local_physical_offset, shape_local,
+	    true, lower, upper, comm_f_sptr, solver)
+	    );
 
 
     MArray3d_ref phi_local_ref(phi_local->get_grid_points());
@@ -265,7 +260,7 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bu
     // t = simple_timer_current();
     get_fftw_helper_sptr()->transform(rho_local_ref, phi_local_ref);
 
-   // t = simple_timer_show(t, "sc_get_phi_local: fftw_dst_direct");
+  // t = simple_timer_show(t, "sc_get_phi_local: fftw_dst_direct");
 
 
 
@@ -276,31 +271,31 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bu
     rho_nmp_local= (fftw_complex*) fftw_malloc(sizeof(fftw_complex) *local_nx*shape[1]*(shape[2]/2+1)*memory_fudge_factor);
     int dim[] = {shape[2]};
     fftw_plan plan=fftw_plan_many_dft_r2c(1, dim, local_nx*shape[1], phi_local_ref.origin(), NULL,
-                                       1, shape[2], rho_nmp_local, NULL, 1,shape[2]/2+1,
-                                        FFTW_ESTIMATE);
+				      1, shape[2], rho_nmp_local, NULL, 1,shape[2]/2+1,
+					FFTW_ESTIMATE);
     fftw_execute(plan);
     fftw_destroy_plan(plan);
-   // t = simple_timer_show(t, "sc_get_phi_local: fftw1d_direct");
+  // t = simple_timer_show(t, "sc_get_phi_local: fftw1d_direct");
 
 
     MArray3dc_ref rho_nmp_ref(reinterpret_cast<std::complex<double>*>(rho_nmp_local), boost::extents[local_nx][shape[1]][shape[2]/2+1]);
     std::vector<double > pipe_size(rho.get_domain().get_physical_size());
     for (int n=0; n < local_nx; ++n){
-         int nt=n+1+local_x_start;
-         for (int m=0; m< shape[1]; ++m){
-             int mt=m+1;
-             for (int p=0; p< shape[2]/2+1; ++p){
-                 double denominator=pi*pi*
-                     (nt*nt/(pipe_size[0]*pipe_size[0])+mt*mt/(pipe_size[1]*pipe_size[1])+4.*p*p/(pipe_size[2]*pipe_size[2]));
-                        rho_nmp_ref[n][m][p] /= denominator; // delta Phi =- rho
-             }
-         }
+	int nt=n+1+local_x_start;
+	for (int m=0; m< shape[1]; ++m){
+	    int mt=m+1;
+	    for (int p=0; p< shape[2]/2+1; ++p){
+		double denominator=pi*pi*
+		    (nt*nt/(pipe_size[0]*pipe_size[0])+mt*mt/(pipe_size[1]*pipe_size[1])+4.*p*p/(pipe_size[2]*pipe_size[2]));
+			rho_nmp_ref[n][m][p] /= denominator; // delta Phi =- rho
+	    }
+	}
     }
     //t = simple_timer_show(t, "sc_get_phi_local: loop_phi_nmp");
 
     plan=fftw_plan_many_dft_c2r(1, dim, local_nx*shape[1], rho_nmp_local, NULL, 1,shape[2]/2+1,
-                                        phi_local_ref.origin(), NULL, 1,shape[2],
-                                        FFTW_ESTIMATE);
+					phi_local_ref.origin(), NULL, 1,shape[2],
+					FFTW_ESTIMATE);
     fftw_execute(plan);
     fftw_destroy_plan(plan);
     fftw_free(rho_nmp_local);
@@ -309,12 +304,10 @@ Space_charge_rectangular::get_phi_local( Rectangular_grid & rho, Bunch const& bu
     //t = simple_timer_show(t, "sc_get_phi_local: fftw1d_inverse");
     //t = simple_timer_current();
     get_fftw_helper_sptr()->inv_transform(phi_local_ref,phi_local_ref);
-   // t = simple_timer_show(t, "sc_get_phi_local: fftw_dst_inverse");
+  // t = simple_timer_show(t, "sc_get_phi_local: fftw_dst_inverse");
 
 
     phi_local->set_normalization(1./(4.*shape[0]*shape[1]*shape[2]*epsilon0));
-
-
     return phi_local;
  }
 
@@ -324,10 +317,14 @@ void
 Space_charge_rectangular::fill_guards_pplanes(Distributed_rectangular_grid & phi, int lower, int upper, int lengthx,
                           MArray2d & g_lower, MArray2d &g_upper)
 {
+  
+   if (!comm_f_sptr->has_this_rank()) throw 
+             std::runtime_error("space charge rectangular, fill_guards_pplanes, comm_f_sptr has no rank");
+
     int mpi_compare;
     MPI_Comm_compare(phi.get_comm().get(), comm_f_sptr->get(), &mpi_compare) ;
     if  (mpi_compare != MPI_IDENT)    {
-        throw std::runtime_error("space charge rectangular, phi comm is not the same as space_charge comm_f");
+        throw std::runtime_error("space charge rectangular, fill_guards_pplanes, phi comm is not the same as space_charge comm_f");
     }
 
     int lrank=comm_f_sptr->get_rank();
@@ -365,9 +362,13 @@ Space_charge_rectangular::fill_guards_pplanes(Distributed_rectangular_grid & phi
 
 
 Rectangular_grid_sptr
-Space_charge_rectangular::get_En(Distributed_rectangular_grid &phi, Bunch const& bunch, int component)
+Space_charge_rectangular::get_En(Distributed_rectangular_grid &phi, int component)
 {
-    if ((component < 0) || (component > 2)) {
+  
+    if (!comm_f_sptr->has_this_rank()) throw 
+             std::runtime_error("space charge rectangular, get_En, comm_f_sptr has no rank");
+
+if ((component < 0) || (component > 2)) {
         std::stringstream message("");
         message << "calculate_E_n: invalid argument component=" << component
                 << ". Argument be in range 0<=component<=2";
@@ -493,19 +494,36 @@ Space_charge_rectangular::get_En(Distributed_rectangular_grid &phi, Bunch const&
          receive_offsets.at(i) = uppers.at(i)*shape[1]*shape[2]-receive_counts.at(i);
      }
 
-    t = simple_timer_current();
-    int error = MPI_Allgatherv(reinterpret_cast<void*>(En_local_a.origin()),
+     t = simple_timer_current();
+
+//     int error = MPI_Allgatherv(reinterpret_cast<void*>(En_local_a.origin()),
+//                receive_counts[lrank], MPI_DOUBLE,
+//                reinterpret_cast<void*>(En->get_grid_points().origin()),
+//                                        &receive_counts[0], &receive_offsets[0], MPI_DOUBLE, comm_f_sptr->get());
+// 
+//     if (error != MPI_SUCCESS) {
+//         throw std::runtime_error(
+//             "MPI error in Space_charge_rectangular(MPI_Allgatherv in get_En: En_local)");
+//     }
+    
+    
+    int error = MPI_Gatherv(reinterpret_cast<void*>(En_local_a.origin()),
                receive_counts[lrank], MPI_DOUBLE,
                reinterpret_cast<void*>(En->get_grid_points().origin()),
-                                       &receive_counts[0], &receive_offsets[0], MPI_DOUBLE, comm_f_sptr->get());
+                                       &receive_counts[0], &receive_offsets[0], MPI_DOUBLE, 0,comm_f_sptr->get());
 
     if (error != MPI_SUCCESS) {
         throw std::runtime_error(
-            "MPI error in Space_charge_rectangular(MPI_Allgatherv in get_En: En_local)");
+            "MPI error in Space_charge_rectangular(MPI_Gatherv in get_En: En_local)");
     }
-
+    
+    t = simple_timer_current();
+   
     t = simple_timer_show(t, "get_En:  gather En");
     En->set_normalization(phi.get_normalization()); // we should have here  \div $\vec{E}=rho/epsilon
+
+    
+    
     return En;
 
 }
@@ -537,31 +555,76 @@ Space_charge_rectangular::apply_kick(Bunch & bunch, Rectangular_grid const& En, 
     }
 }
 
+std::vector<Rectangular_grid_sptr>
+Space_charge_rectangular::get_Efield(Rectangular_grid & rho,Bunch const& bunch, int max_component )
+{	
+   std::vector<Rectangular_grid_sptr> Efield;
+    if (comm_f_sptr->has_this_rank()){
+       Distributed_rectangular_grid_sptr phi_local(get_phi_local(rho)); // \nabla phi= -rho/epsilon0; [phi]=kg*m^2*C^{-1}*s^{-2}            
+       for (int component = 0; component < max_component; ++component) {
+	   Efield.push_back(get_En(*phi_local, component));
+       }	
+    } 
+    else{
+	for (int component = 0; component < max_component; ++component){ 
+	  Efield.push_back(Rectangular_grid_sptr(new Rectangular_grid(domain_sptr)));
+	}
+    }  // comm_f_sptr->has_this_rank()
+   
+   bunch.get_comm_sptr()->get();
+   comm_f_sptr->get_parent_sptr()->get();
+   int mpi_compare;
+   MPI_Comm_compare(comm_f_sptr->get_parent_sptr()->get(), bunch.get_comm_sptr()->get(), &mpi_compare);
+   if ((mpi_compare != MPI_IDENT) && ( mpi_compare != MPI_CONGRUENT)){
+              	throw std::runtime_error
+              	("Space_charge_rectangular get_Efield: comm_f_sptr parent and bunch.comm are not congruent");
+   } 
+   
+
+   // cast Efield from rank=0 of comm_spc to whole bunch.get_comm
+   std::vector<int > shape(domain_sptr->get_grid_shape());
+   int count=shape[0]*shape[1]*shape[2];
+   for (int component = 0; component < max_component; ++component){
+      int error=MPI_Bcast(Efield[component]->get_grid_points().origin(), count, 
+				  MPI_DOUBLE, 0, bunch.get_comm().get());
+	if (error != MPI_SUCCESS) {
+		throw std::runtime_error(
+		  "MPI error in Space_charge_rectangular, get_Efield: MPI_Bcast Efield failed)");
+	}
+	double normalization;	
+	if  (bunch.get_comm_sptr()->get_rank()==0) normalization=Efield[component]->get_normalization();
+	error=MPI_Bcast(&normalization, 1, MPI_DOUBLE, 0, bunch.get_comm().get());
+	if (error != MPI_SUCCESS) {
+		throw std::runtime_error(
+		  "MPI error in Space_charge_rectangular, get_Efield: MPI_Bcast normalization failed)");
+	}  
+	Efield[component]->set_normalization(normalization);	  
+   }    
+   return Efield;   
+}  
+
 
 void
 Space_charge_rectangular::apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger)
 {
+  
+
     double t,t1;
     t = simple_timer_current();
     t1 = simple_timer_current();
 
     bunch.convert_to_state(Bunch::fixed_t_bunch);
     t = simple_timer_show(t, "sc_apply: convert-to-state");
-    Rectangular_grid_sptr rho(get_charge_density(bunch)); // [C/m^3]
+    Rectangular_grid_sptr rho_sptr(get_charge_density(bunch)); // [C/m^3]
     t = simple_timer_show(t, "sc_apply: get-rho");
 
-    Distributed_rectangular_grid_sptr phi_local(get_phi_local(*rho, bunch)); // \nabla phi= -rho/epsilon0; [phi]=kg*m^2*C^{-1}*s^{-2}
-    t = simple_timer_show(t, "sc_apply: get-phi_local");
-
-    int max_component;
-    max_component = 3;
-
-    for (int component = 0; component < max_component; ++component) {
-       Rectangular_grid_sptr  En(get_En(*phi_local, bunch, component)); // E=-/grad phi; [E]=kg*m/(C*s^2)=N/C
-     //  t = simple_timer_show(t, "sc_apply: get_En");
-       apply_kick(bunch, *En, time_step, component);
-       // t = simple_timer_show(t, "sc_apply: apply_kick");
+    int max_component(3);       
+    std::vector<Rectangular_grid_sptr>  Efield(get_Efield(*rho_sptr, bunch, max_component));
+    for (int component = 0; component < max_component; ++component) { 
+	apply_kick(bunch, *(Efield[component]), time_step, component);  
     }
+      
+    
      t = simple_timer_show(t, "sc_apply: 3x apply_kick and get En");
      t1 = simple_timer_show(t1, "sc_aplly total");
 }

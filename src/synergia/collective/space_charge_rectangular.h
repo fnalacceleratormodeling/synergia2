@@ -38,7 +38,11 @@ public:
 
     void
     set_fftw_helper(Commxx_sptr comm_sptr);
-
+    
+    Commxx_sptr 
+    get_comm_sptr() const;
+    
+    
     std::vector<double >
     get_pipe_size() const;
 
@@ -63,13 +67,16 @@ public:
 
 
    Distributed_rectangular_grid_sptr
-   get_phi_local(Rectangular_grid & rho, Bunch const& bunch);
+   get_phi_local(Rectangular_grid & rho);
 
    Rectangular_grid_sptr
-   get_En( Distributed_rectangular_grid & phi_local,Bunch const& bunch, int component);
+   get_En( Distributed_rectangular_grid & phi_local, int component);
 
-    void
-    apply_kick(Bunch & bunch, Rectangular_grid const& En, double time_step, int component);
+   std::vector<Rectangular_grid_sptr>
+   get_Efield(Rectangular_grid & rho,Bunch const& bunch, int max_component);
+    
+   void
+   apply_kick(Bunch & bunch, Rectangular_grid const& En, double time_step, int component);
 
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
