@@ -128,15 +128,18 @@ Space_charge_rectangular::~Space_charge_rectangular()
 void
 Space_charge_rectangular::construct_fftw_helper(Commxx_sptr comm_sptr)
 {
-    if (!have_fftw_helper){
-        this->fftw_helper_sptr=  Fftw_rectangular_helper_sptr (  new   Fftw_rectangular_helper(grid_shape, comm_sptr));
-        this->comm_f_sptr=comm_sptr;
-        this->have_fftw_helper=true;
-    }
-    else {
-        throw std::runtime_error(
-                "Space_charge_rectangular::construct_fftw_helper:   already has fftw_helper ");
-    }
+      if (!have_fftw_helper){
+	 if (comm_sptr->has_this_rank()){
+	    this->fftw_helper_sptr=  Fftw_rectangular_helper_sptr (  new   Fftw_rectangular_helper(grid_shape, comm_sptr));	  
+	    this->have_fftw_helper=true;
+	 }
+	  this->comm_f_sptr=comm_sptr;
+      }
+      else {
+	  throw std::runtime_error(
+		  "Space_charge_rectangular::construct_fftw_helper:   already has fftw_helper ");
+      }
+    
 }
 
 
@@ -149,8 +152,9 @@ Space_charge_rectangular::set_fftw_helper(Commxx_sptr comm_sptr)
             construct_fftw_helper(comm_sptr);
         }
         else {
-            this->fftw_helper_sptr->reset_comm_f(comm_sptr);
-            this->comm_f_sptr=comm_sptr;
+	  if (comm_sptr->has_this_rank()) this->fftw_helper_sptr->reset_comm_f(comm_sptr);
+           this->comm_f_sptr=comm_sptr;
+	    
         }
     }
  catch (std::exception const& e){
@@ -591,14 +595,15 @@ Space_charge_rectangular::get_Efield(Rectangular_grid & rho,Bunch const& bunch, 
 		throw std::runtime_error(
 		  "MPI error in Space_charge_rectangular, get_Efield: MPI_Bcast Efield failed)");
 	}
-	double normalization;	
-	if  (bunch.get_comm_sptr()->get_rank()==0) normalization=Efield[component]->get_normalization();
-	error=MPI_Bcast(&normalization, 1, MPI_DOUBLE, 0, bunch.get_comm().get());
-	if (error != MPI_SUCCESS) {
-		throw std::runtime_error(
-		  "MPI error in Space_charge_rectangular, get_Efield: MPI_Bcast normalization failed)");
-	}  
-	Efield[component]->set_normalization(normalization);	  
+// 	double normalization;	
+// 	if  (bunch.get_comm_sptr()->get_rank()==0) normalization=Efield[component]->get_normalization();
+// 	error=MPI_Bcast(&normalization, 1, MPI_DOUBLE, 0, bunch.get_comm().get());
+// 	if (error != MPI_SUCCESS) {
+// 		throw std::runtime_error(
+// 		  "MPI error in Space_charge_rectangular, get_Efield: MPI_Bcast normalization failed)");
+// 	}  
+// 	Efield[component]->set_normalization(normalization);	  
+	Efield[component]->set_normalization(1./(4.*shape[0]*shape[1]*shape[2]*epsilon0));
    }    
    return Efield;   
 }  

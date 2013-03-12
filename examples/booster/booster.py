@@ -511,14 +511,14 @@ try:
 
 
   #stepper.get_lattice_simulator().print_lattice_functions()
-  #chef_frac_tunex=stepper.get_lattice_simulator().get_horizontal_tune()
-  #chef_frac_tuney=stepper.get_lattice_simulator().get_vertical_tune()
-  #chef_eigen_tunex=stepper.get_lattice_simulator().get_horizontal_tune(True)
-  #chef_eigen_tuney=stepper.get_lattice_simulator().get_vertical_tune(True)
-  #horizontal_chromaticity=stepper.get_lattice_simulator().get_horizontal_chromaticity()
-  #vertical_chromaticity=stepper.get_lattice_simulator().get_vertical_chromaticity()
-  #momentum_compaction=stepper.get_lattice_simulator().get_momentum_compaction()
-  #slip_factor=stepper.get_lattice_simulator().get_slip_factor()
+  chef_frac_tunex=stepper.get_lattice_simulator().get_horizontal_tune()
+  chef_frac_tuney=stepper.get_lattice_simulator().get_vertical_tune()
+  chef_eigen_tunex=stepper.get_lattice_simulator().get_horizontal_tune(True)
+  chef_eigen_tuney=stepper.get_lattice_simulator().get_vertical_tune(True)
+  horizontal_chromaticity=stepper.get_lattice_simulator().get_horizontal_chromaticity()
+  vertical_chromaticity=stepper.get_lattice_simulator().get_vertical_chromaticity()
+  momentum_compaction=stepper.get_lattice_simulator().get_momentum_compaction()
+  slip_factor=stepper.get_lattice_simulator().get_slip_factor()
   if MPI.COMM_WORLD.Get_rank() ==0:
       print "Lattice functions assuming uncoupled map:"
       print "alpha x: ", ax
@@ -610,55 +610,6 @@ try:
       print  
        
 
-
-
-
-  #bunch_diag_train=synergia.bunch.Bunch_with_diagnostics_train(num_bunches,bunch_sp, MPI.COMM_WORLD)
-  #for bunchnum in range(0,num_bunches):
-      #if bunch_diag_train.is_on_this_rank(bunchnum):
-	  #commx=bunch_diag_train.get_comm(bunchnum)
-	  ##bunch = synergia.optics.generate_matched_bunch_normalcoo(stepper.get_lattice_simulator(),
-						  ##actions,
-						  ##opts.num_real_particles,
-						  ##opts.num_macro_particles,
-						  ##seed=opts.seed, bunch_index=bunchnum,comm=commx, periodic=opts.periodic)
-		  
-	  #bunch= synergia.optics.generate_matched_bunch(stepper.get_lattice_simulator(),
-						  #arms,brms,crms,
-						  #opts.num_real_particles,
-						  #opts.num_macro_particles,rms_index,
-						  #seed=opts.seed, bunch_index=bunchnum,comm=commx, periodic=opts.periodic)
-	  #particles = bunch.get_local_particles()
-	  ## apply offset to bunch
-	  #particles[:,0] = particles[:,0]+opts.x_offset
-	  #particles[:,2] = particles[:,2]+opts.y_offset
-	  #particles[:,4] = particles[:,4]+opts.z_offset 
-	  #diagnostics_actions = synergia.simulation.Standard_diagnostics_actions()
-	  #bunch_diag=synergia.bunch.Bunch_with_diagnostics(bunch, diagnostics_actions)
-	  #bunch_diag.add_per_step_diagnostics(synergia.bunch.Diagnostics_full2(bunch, "step_full2-%02d.h5"%bunchnum))        
-	  #bunch_diag.add_per_turn_diagnostics(synergia.bunch.Diagnostics_particles(bunch,"turn_particles-%02d.h5"%bunchnum,0,0,opts.turn_write))
-	  #if bpms:  
-	      #diagnostics_actions.addto_list_with_steps_for_diagnostics("bpm")
-	  #else:
-	      #diagnostics_actions.addto_list_with_steps_for_diagnostics("all_steps")
-	  #bunch_diag_train.set_bunch_diag_sptr(bunchnum, bunch_diag)
-	  #if space_charge:
-	      #spc_f.set_fftw_helper(commx)
-	      #spc_d.set_fftw_helper(commx)
-	      #spc_else.set_fftw_helper(commx)
-	      
-	  #real_num=bunch_diag_train.get_bunch_diag_sptr(bunchnum).get_bunch_sptr().get_real_num()
-	  #macro_num=bunch_diag_train.get_bunch_diag_sptr(bunchnum).get_bunch_sptr().get_total_num()
-	  #bucket_index=bunch_diag_train.get_bunch_diag_sptr(bunchnum).get_bunch_sptr().get_bucket_index()
-	##  if ((bucket_index >= ac_bucket_min) and (bucket_index <= ac_bucket_max)): action_on_bunch[bunchnum]=1    
-	  #if commx.Get_rank() ==0:
-	      #print "bunch # ",bunchnum ," number of real  particles= ",real_num
-	      #print "bunch # ",bunchnum ," number of macroparticles= ",macro_num
-	      #print "bunch # ",bunchnum ," bucket index", bucket_index
-	      ##print "action_on_bunch=", action_on_bunch
-	      #print "___________________________________________________________"
-  #if MPI.COMM_WORLD.Get_rank() ==0:
-      #print "train bunch space=",bunch_diag_train.get_bunch_separation()
 
 
   
