@@ -207,11 +207,19 @@ Commxx::~Commxx()
 
 Commxxs
 generate_subcomms(Commxx_sptr parent_sptr, int count)
-{  
+{
     Commxxs retval(0);
-    std::vector < std::vector<int > > ranks(distribute_1d(*parent_sptr, count));
+    std::vector<std::vector<int > > ranks(distribute_1d(*parent_sptr, count));
     for (int index = 0; index < count; ++index) {
-        retval.push_back(Commxx_sptr(new Commxx(parent_sptr, ranks.at(index))));
+        if (index == 0) {
+            retval.push_back(
+                    Commxx_sptr(new Commxx(parent_sptr, ranks.at(index))));
+        } else if ((ranks.at(index) == ranks.at(index - 1))) {
+            retval.push_back(retval.at(index - 1));
+        } else {
+            retval.push_back(
+                    Commxx_sptr(new Commxx(parent_sptr, ranks.at(index))));
+        }
     }
     return retval;
 }

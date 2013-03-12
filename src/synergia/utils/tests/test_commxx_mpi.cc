@@ -165,14 +165,21 @@ BOOST_AUTO_TEST_CASE(generate_subcomms_)
         Commxxs commxxs(generate_subcomms(parent_sptr,size));
         BOOST_CHECK_EQUAL(commxxs.size(), size);
         int includes_this_rank = 0;
+        Commxx_sptr last_commxx_sptr;
+        int unique_on_this_rank = 0;
         for (int i = 0; i< size; ++i) {
             if (commxxs.at(i)->has_this_rank()) {
                 includes_this_rank += 1;
+                if (commxxs.at(i) != last_commxx_sptr) {
+                    ++unique_on_this_rank;
+                }
+                last_commxx_sptr = commxxs.at(i);
             }
         }
         if (world_size >= size) {
             BOOST_CHECK_EQUAL(includes_this_rank, 1);
         }
+        BOOST_CHECK_EQUAL(unique_on_this_rank, 1);
     }
 }
 /*
