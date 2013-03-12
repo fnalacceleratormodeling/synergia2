@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(get_commxx_sptr4)
     }
 }
 
-BOOST_AUTO_TEST_CASE(serialize)
+BOOST_AUTO_TEST_CASE(serialize_)
 {
     const std::string serialize_file_name("commxx_divider.xml");
     {
