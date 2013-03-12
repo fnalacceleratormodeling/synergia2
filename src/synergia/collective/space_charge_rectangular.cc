@@ -9,8 +9,10 @@ using pconstants::epsilon0;
 #include <fftw3-mpi.h>
 
 
-Space_charge_rectangular::Space_charge_rectangular(Commxx_sptr comm_f_sptr, std::vector<double > const & pipe_size, std::vector<int > const & grid_shape):
-Collective_operator("space_charge_rectangular"), pipe_size(pipe_size), grid_shape(grid_shape),  comm_f_sptr(comm_f_sptr)
+Space_charge_rectangular::Space_charge_rectangular(Commxx_sptr comm_f_sptr, std::vector<double > const & pipe_size, 
+			std::vector<int > const & grid_shape, bool use_comm_divider):
+Collective_operator("space_charge_rectangular"), pipe_size(pipe_size), 
+grid_shape(grid_shape),  comm_f_sptr(comm_f_sptr), use_comm_divider(use_comm_divider)
 {
 
  try{
@@ -18,6 +20,8 @@ Collective_operator("space_charge_rectangular"), pipe_size(pipe_size), grid_shap
                     new Rectangular_grid_domain(pipe_size, grid_shape , true));
     this->have_fftw_helper=false;
     construct_fftw_helper(comm_f_sptr);
+     if ((!comm_f_sptr->has_this_rank()) && (use_comm_divider)) throw std::runtime_error(
+		  "Space_charge_rectangular:: use_comm_divider is incompatible with this choice of comm_f_sptr ");
 
  }
  catch (std::exception const& e){
@@ -35,6 +39,7 @@ Collective_operator("space_charge_rectangular"),  pipe_size(pipe_size),  grid_sh
     this->domain_sptr = Rectangular_grid_domain_sptr(
                     new Rectangular_grid_domain(pipe_size,  grid_shape , true));
     this->have_fftw_helper=false;
+    this->use_comm_divider=false; 
 
  }
  catch (std::exception const& e){
@@ -61,9 +66,10 @@ template<class Archive>
        
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
         ar & BOOST_SERIALIZATION_NVP(comm_f_sptr)
-        & BOOST_SERIALIZATION_NVP(grid_shape)
-        & BOOST_SERIALIZATION_NVP(pipe_size) 
-        & BOOST_SERIALIZATION_NVP(have_fftw_helper);
+	 &  BOOST_SERIALIZATION_NVP(grid_shape)
+	 &  BOOST_SERIALIZATION_NVP(pipe_size) 
+	 &  BOOST_SERIALIZATION_NVP(have_fftw_helper)
+	 &  BOOST_SERIALIZATION_NVP(use_comm_divider);
     }
 
 template<class Archive>
@@ -72,9 +78,10 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
         ar & BOOST_SERIALIZATION_NVP(comm_f_sptr)
-        & BOOST_SERIALIZATION_NVP(grid_shape)
-        & BOOST_SERIALIZATION_NVP(pipe_size)
-        & BOOST_SERIALIZATION_NVP(have_fftw_helper); 
+	 &  BOOST_SERIALIZATION_NVP(grid_shape)
+	 &  BOOST_SERIALIZATION_NVP(pipe_size)
+	 &  BOOST_SERIALIZATION_NVP(have_fftw_helper) 
+	 &  BOOST_SERIALIZATION_NVP(use_comm_divider);
      
         domain_sptr = Rectangular_grid_domain_sptr(
                     new Rectangular_grid_domain(pipe_size, grid_shape , true));
@@ -130,7 +137,7 @@ Space_charge_rectangular::construct_fftw_helper(Commxx_sptr comm_sptr)
 {
       if (!have_fftw_helper){
 	 if (comm_sptr->has_this_rank()){
-	    this->fftw_helper_sptr=  Fftw_rectangular_helper_sptr (  new   Fftw_rectangular_helper(grid_shape, comm_sptr));	  
+	    this->fftw_helper_sptr=  Fftw_rectangular_helper_sptr (  new   Fftw_rectangular_helper(grid_shape, comm_sptr));
 	    this->have_fftw_helper=true;
 	 }
 	  this->comm_f_sptr=comm_sptr;
@@ -144,19 +151,21 @@ Space_charge_rectangular::construct_fftw_helper(Commxx_sptr comm_sptr)
 
 
 void
-Space_charge_rectangular::set_fftw_helper(Commxx_sptr comm_sptr)
+Space_charge_rectangular::set_fftw_helper(Commxx_sptr comm_sptr, bool comm_divider)
 {
 
  try{
     if (!have_fftw_helper){
-            construct_fftw_helper(comm_sptr);
-        }
-        else {
-	  if (comm_sptr->has_this_rank()) this->fftw_helper_sptr->reset_comm_f(comm_sptr);
-           this->comm_f_sptr=comm_sptr;
-	    
-        }
+	construct_fftw_helper(comm_sptr);
     }
+    else {
+	if (comm_sptr->has_this_rank()) this->fftw_helper_sptr->reset_comm_f(comm_sptr);
+	this->comm_f_sptr=comm_sptr;	    
+   }
+   this->use_comm_divider=comm_divider; 
+   if ((!comm_sptr->has_this_rank()) && (comm_divider)) throw std::runtime_error(
+		  "Space_charge_rectangular:: set fftw: use_comm_divider is incompatible with this choice of comm_sptr ");
+ }
  catch (std::exception const& e){
         std::cout<<e.what()<<std::endl;
         MPI_Abort(MPI_COMM_WORLD, 111);
@@ -500,29 +509,30 @@ if ((component < 0) || (component > 2)) {
 
      t = simple_timer_current();
 
-//     int error = MPI_Allgatherv(reinterpret_cast<void*>(En_local_a.origin()),
-//                receive_counts[lrank], MPI_DOUBLE,
-//                reinterpret_cast<void*>(En->get_grid_points().origin()),
-//                                        &receive_counts[0], &receive_offsets[0], MPI_DOUBLE, comm_f_sptr->get());
-// 
-//     if (error != MPI_SUCCESS) {
-//         throw std::runtime_error(
-//             "MPI error in Space_charge_rectangular(MPI_Allgatherv in get_En: En_local)");
-//     }
-    
-    
-    int error = MPI_Gatherv(reinterpret_cast<void*>(En_local_a.origin()),
-               receive_counts[lrank], MPI_DOUBLE,
-               reinterpret_cast<void*>(En->get_grid_points().origin()),
-                                       &receive_counts[0], &receive_offsets[0], MPI_DOUBLE, 0,comm_f_sptr->get());
+    if (use_comm_divider){ 
+	int error = MPI_Allgatherv(reinterpret_cast<void*>(En_local_a.origin()),
+		  receive_counts[lrank], MPI_DOUBLE,
+		  reinterpret_cast<void*>(En->get_grid_points().origin()),
+					  &receive_counts[0], &receive_offsets[0], MPI_DOUBLE, comm_f_sptr->get());
 
-    if (error != MPI_SUCCESS) {
-        throw std::runtime_error(
-            "MPI error in Space_charge_rectangular(MPI_Gatherv in get_En: En_local)");
+	if (error != MPI_SUCCESS) {
+	    throw std::runtime_error(
+		"MPI error in Space_charge_rectangular(MPI_Allgatherv in get_En: En_local)");
+	}
+	En->set_normalization(phi.get_normalization()); // we should have here  \div $\vec{E}=rho/epsilon   
     }
-    
-    t = simple_timer_current();
-   
+    else{
+	int error = MPI_Gatherv(reinterpret_cast<void*>(En_local_a.origin()),
+		  receive_counts[lrank], MPI_DOUBLE,
+		  reinterpret_cast<void*>(En->get_grid_points().origin()),
+					  &receive_counts[0], &receive_offsets[0], MPI_DOUBLE, 0,comm_f_sptr->get());
+
+	if (error != MPI_SUCCESS) {
+	    throw std::runtime_error(
+		"MPI error in Space_charge_rectangular(MPI_Gatherv in get_En: En_local)");
+	}
+	
+    }   
     t = simple_timer_show(t, "get_En:  gather En");
     En->set_normalization(phi.get_normalization()); // we should have here  \div $\vec{E}=rho/epsilon
 
@@ -562,6 +572,9 @@ Space_charge_rectangular::apply_kick(Bunch & bunch, Rectangular_grid const& En, 
 std::vector<Rectangular_grid_sptr>
 Space_charge_rectangular::get_Efield(Rectangular_grid & rho,Bunch const& bunch, int max_component )
 {	
+   if (use_comm_divider) throw std::runtime_error
+              	("Space_charge_rectangular get_Efield: don't call this function for true use_comm_divider ");
+  
    std::vector<Rectangular_grid_sptr> Efield;
     if (comm_f_sptr->has_this_rank()){
        Distributed_rectangular_grid_sptr phi_local(get_phi_local(rho)); // \nabla phi= -rho/epsilon0; [phi]=kg*m^2*C^{-1}*s^{-2}            
@@ -623,12 +636,20 @@ Space_charge_rectangular::apply(Bunch & bunch, double time_step, Step & step, in
     Rectangular_grid_sptr rho_sptr(get_charge_density(bunch)); // [C/m^3]
     t = simple_timer_show(t, "sc_apply: get-rho");
 
-    int max_component(3);       
-    std::vector<Rectangular_grid_sptr>  Efield(get_Efield(*rho_sptr, bunch, max_component));
-    for (int component = 0; component < max_component; ++component) { 
-	apply_kick(bunch, *(Efield[component]), time_step, component);  
+    int max_component(3);   
+    if (use_comm_divider){      
+	for (int component = 0; component < max_component; ++component) {
+	  Distributed_rectangular_grid_sptr phi_local(get_phi_local(*rho_sptr));
+	  Rectangular_grid_sptr  En(get_En(*phi_local, component)); // E=-/grad phi; [E]=kg*m/(C*s^2)=N/C	
+	  apply_kick(bunch, *En, time_step, component);	 
+	}
     }
-      
+    else{
+	std::vector<Rectangular_grid_sptr>  Efield(get_Efield(*rho_sptr, bunch, max_component));
+	for (int component = 0; component < max_component; ++component) { 
+	    apply_kick(bunch, *(Efield[component]), time_step, component);  
+	}
+    }      
     
      t = simple_timer_show(t, "sc_apply: 3x apply_kick and get En");
      t1 = simple_timer_show(t1, "sc_aplly total");

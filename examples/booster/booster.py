@@ -511,14 +511,14 @@ try:
 
 
   #stepper.get_lattice_simulator().print_lattice_functions()
-  chef_frac_tunex=stepper.get_lattice_simulator().get_horizontal_tune()
-  chef_frac_tuney=stepper.get_lattice_simulator().get_vertical_tune()
-  chef_eigen_tunex=stepper.get_lattice_simulator().get_horizontal_tune(True)
-  chef_eigen_tuney=stepper.get_lattice_simulator().get_vertical_tune(True)
-  horizontal_chromaticity=stepper.get_lattice_simulator().get_horizontal_chromaticity()
-  vertical_chromaticity=stepper.get_lattice_simulator().get_vertical_chromaticity()
-  momentum_compaction=stepper.get_lattice_simulator().get_momentum_compaction()
-  slip_factor=stepper.get_lattice_simulator().get_slip_factor()
+  #chef_frac_tunex=stepper.get_lattice_simulator().get_horizontal_tune()
+  #chef_frac_tuney=stepper.get_lattice_simulator().get_vertical_tune()
+  #chef_eigen_tunex=stepper.get_lattice_simulator().get_horizontal_tune(True)
+  #chef_eigen_tuney=stepper.get_lattice_simulator().get_vertical_tune(True)
+  #horizontal_chromaticity=stepper.get_lattice_simulator().get_horizontal_chromaticity()
+  #vertical_chromaticity=stepper.get_lattice_simulator().get_vertical_chromaticity()
+  #momentum_compaction=stepper.get_lattice_simulator().get_momentum_compaction()
+  #slip_factor=stepper.get_lattice_simulator().get_slip_factor()
   if MPI.COMM_WORLD.Get_rank() ==0:
       print "Lattice functions assuming uncoupled map:"
       print "alpha x: ", ax
@@ -585,13 +585,20 @@ try:
       bunch_train_simulator.add_per_turn(i, synergia.bunch.Diagnostics_particles("turn_particles_%d.h5" % i), opts.turn_period)
 
       if space_charge:
-        spc_optim=opts.spc_optim
 	if bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm().has_this_rank():
-	  #comm_spc=bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm()
-	  comm_spc= synergia.utils.make_optimal_spc_comm(bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm(),spc_optim);
-	  spc_f.set_fftw_helper(comm_spc)
-	  spc_d.set_fftw_helper(comm_spc)
-	  spc_else.set_fftw_helper(comm_spc)
+	   
+	      if opts.use_comm_divider:
+		commxx_divider=synergia.utils.Commxx_divider(opts.spc_comm_size, 1)
+		comm_spc=commxx_divider.get_commxx(bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm())
+	      else:
+		spc_comm_size=opts.spc_comm_size
+		if bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm().has_this_rank():
+		    comm_spc= synergia.utils.make_optimal_spc_comm(bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm(),\
+			  spc_comm_size);
+
+	      spc_f.set_fftw_helper(comm_spc,opts.use_comm_divider)
+	      spc_d.set_fftw_helper(comm_spc,opts.use_comm_divider)
+	      spc_else.set_fftw_helper(comm_spc,opts.use_comm_divider)
 	 
 
       real_num=bunch_train_simulator.get_bunch_train().get_bunches()[i].get_real_num()

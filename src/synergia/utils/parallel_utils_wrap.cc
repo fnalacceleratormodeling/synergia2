@@ -3,6 +3,7 @@
 #include "synergia/utils/container_conversions.h"
 #include "synergia/utils/comm_converter.h"
 #include "synergia/utils/logger.h"
+#include "synergia/utils/commxx_divider.h"
 
 using namespace boost::python;
 
@@ -70,4 +71,7 @@ BOOST_PYTHON_MODULE(parallel_utils)
             .def("flush", &Logger::flush,
                     return_internal_reference<>())
             ;
+    class_<Commxx_divider, Commxx_divider_sptr >("Commxx_divider", init<int, bool >())
+	    .def("get_commxx", &Commxx_divider::get_commxx_sptr)
+	    ;
 }

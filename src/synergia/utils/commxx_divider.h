@@ -22,4 +22,5 @@ public:
     ~Commxx_divider();
 };
 
+typedef boost::shared_ptr<Commxx_divider > Commxx_divider_sptr;
 #endif /* COMMXX_DIVIDER_H_ */

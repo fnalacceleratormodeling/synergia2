@@ -16,6 +16,7 @@ using pconstants::epsilon0;
 #include "gaussian_charge_density.h"
 #include "space_charge_bunch_fixtures.h"
 #include "synergia/utils/parallel_utils.h"
+#include "synergia/utils/commxx_divider.h"
 
  BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
@@ -48,7 +49,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_charge_density, Ellipsoidal_bunch_fixture)
     size[1]=0.2;
     size[2]=0.05;
     Space_charge_rectangular space_charge(size, grid_shape);
-    space_charge.set_fftw_helper(bunch.get_comm_sptr());
+    space_charge.set_fftw_helper(bunch.get_comm_sptr(), false);
     Rectangular_grid_sptr rho(space_charge.get_charge_density(bunch));
 
   //double local_charge=bunch.get_local_num()*real_num*pconstants::e/total_num;
@@ -98,7 +99,7 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local, Ellipsoidal_bunch_fixture)
     Space_charge_rectangular space_charge(size, grid_shape);
     Rectangular_grid_sptr rho(space_charge.get_charge_density(bunch));
 
-    space_charge.set_fftw_helper(bunch.get_comm_sptr());
+    space_charge.set_fftw_helper(bunch.get_comm_sptr(), false);
     Distributed_rectangular_grid_sptr phi_local(space_charge.get_phi_local(*rho));
     
  }
@@ -120,13 +121,38 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local1, Ellipsoidal_bunch_fixture)
     int optimal_number=3;
     Commxx_sptr comm_spc=make_optimal_spc_comm(bunch.get_comm_sptr(), optimal_number);
 
-    space_charge.set_fftw_helper(comm_spc);
+    space_charge.set_fftw_helper(comm_spc, false);
     if (space_charge.get_comm_sptr()->has_this_rank())
 	Distributed_rectangular_grid_sptr phi_local(space_charge.get_phi_local(*rho));
     
  }
+ 
+ 
+ BOOST_FIXTURE_TEST_CASE(get_phi_local2, Ellipsoidal_bunch_fixture)
+{
+    //grid_shape[0] = 16;
+    //grid_shape[1] = 24;
+    //grid_shape[2] = 32;
 
-   BOOST_FIXTURE_TEST_CASE(get_phi_local2, Ellipsoidal_bunch_fixture)
+    std::vector<double > size(3);
+    size[0]=0.1;
+    size[1]=0.2;
+    size[2]=0.05;
+
+    Space_charge_rectangular space_charge(size, grid_shape);
+    Rectangular_grid_sptr rho(space_charge.get_charge_density(bunch));
+    
+    int optimal_number=2; 
+    if (bunch.get_comm_sptr()->get_size() %  optimal_number==0) {
+      Commxx_divider comm_divider(optimal_number, false);
+      Commxx_sptr comm_spc=comm_divider.get_commxx_sptr(bunch.get_comm_sptr());
+      space_charge.set_fftw_helper(comm_spc, true);
+      Distributed_rectangular_grid_sptr phi_local(space_charge.get_phi_local(*rho));
+    }
+    
+ }
+
+   BOOST_FIXTURE_TEST_CASE(get_phi_local3, Ellipsoidal_bunch_fixture)
   {
 
      std::vector<int > grid_shape1(3);
@@ -166,7 +192,7 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local1, Ellipsoidal_bunch_fixture)
     
      int optimal_number=3;
      Commxx_sptr comm_spc=make_optimal_spc_comm(bunch.get_comm_sptr(), optimal_number);
-     space_charge.set_fftw_helper(comm_spc);
+     space_charge.set_fftw_helper(comm_spc,false);
     
    
     
@@ -234,6 +260,122 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local1, Ellipsoidal_bunch_fixture)
     }//comm_sptr()->has_this_rank
  }
 
+  BOOST_FIXTURE_TEST_CASE(get_phi_local4, Ellipsoidal_bunch_fixture)
+  {
+
+     std::vector<int > grid_shape1(3);
+     grid_shape1[0] =32;
+     grid_shape1[1] = 16;
+     grid_shape1[2] = 12;
+     std::vector<double > size(3);
+     size[0]=0.1;
+     size[1]=0.1;
+     size[2]=0.1;
+
+     Space_charge_rectangular space_charge(size, grid_shape1);
+     std::vector<double > hi(space_charge.get_domain().get_cell_size());
+     std::vector<int > shape(space_charge.get_domain().get_grid_shape());
+
+     int nt=18;
+     int mt=1;
+     int pt=2;
+
+
+    Rectangular_grid_sptr rho_grid(new Rectangular_grid(space_charge.get_domain_sptr()));
+
+    MArray3d_ref rho(rho_grid->get_grid_points());
+    for (int i = 0; i < shape[0]; ++i) {
+            for (int j = 0; j < shape[1]; ++j) {
+                for (int k = 0; k < shape[2]; ++k) {
+                   rho[i][j][k] =  sin(nt*(i+0.5)*pi/double(shape[0]))*sin(mt*(j+0.5)*pi/double(shape[1]))*cos((2.*pi*pt*k)/double(shape[2]));
+
+                }
+            }
+        }
+
+
+//     int size_com=bunch.get_comm().get_size();
+//     int lrank=bunch.get_comm().get_rank();
+//     space_charge.set_fftw_helper(bunch.get_comm_sptr());
+    int optimal_number=2;
+    if (bunch.get_comm_sptr()->get_size() %  optimal_number==0) {
+	Commxx_divider comm_divider(optimal_number, false);
+	Commxx_sptr comm_spc=comm_divider.get_commxx_sptr(bunch.get_comm_sptr());
+	space_charge.set_fftw_helper(comm_spc, true);
+     
+    
+   
+    
+   
+	int size_com=comm_spc->get_size();    
+	int lrank=comm_spc->get_rank();
+	Distributed_rectangular_grid_sptr phi_local(space_charge.get_phi_local(*rho_grid));
+	std::vector<int> local_shape(phi_local->get_domain().get_grid_shape());
+
+	// std::cout<<" local_shape="<<local_shape[0]<<" rank="<<lrank<<std::endl;
+
+	double xnt=pi*nt/size[0];
+	double ymt=pi*mt/size[1];
+	double zpt=2.*pi*pt/size[2];
+	double Cnmp=-(xnt*xnt+ymt*ymt+zpt*zpt);
+
+
+    //    local check
+	int offset=phi_local->get_lower();
+	MArray3d  rhocheck_local(boost::extents[local_shape[0]][shape[1]][shape[2]]);
+	MArray3d  phicheck_local(boost::extents[local_shape[0]][shape[1]][shape[2]]);
+	for (int i = 0; i < local_shape[0]; ++i) {
+	      int i_local=i+offset;
+		for (int j = 0; j < shape[1]; ++j) {
+		    for (int k = 0; k < shape[2]; ++k) {
+		      rhocheck_local[i][j][k] = rho[i_local][j][k];
+		      phicheck_local[i][j][k] = -Cnmp* phi_local->get_grid_points()[i][j][k]*phi_local->get_normalization()*epsilon0;
+		    }
+		}
+	    }
+
+	  multi_array_check_equal(rhocheck_local, phicheck_local, 10.e-8);
+
+	std::vector<int> uppers(phi_local->get_uppers());
+	std::vector<int> receive_counts(phi_local->get_lengths()), receive_offsets(size_com);
+	for (int i=0; i< size_com; ++i) {
+	    receive_offsets.at(i) = uppers.at(i)*shape[1]*shape[2]-receive_counts.at(i);
+	}
+
+	Rectangular_grid_sptr phi_global_grid(new Rectangular_grid(space_charge.get_domain_sptr()));
+	MArray3d_ref phi_global(phi_global_grid->get_grid_points());
+
+
+
+	int error =MPI_Allgatherv(reinterpret_cast<void*>(phi_local->get_grid_points().origin()),
+		  receive_counts[lrank], MPI_DOUBLE,
+		  reinterpret_cast<void*>(phi_global.origin()),
+					  &receive_counts[0], &receive_offsets[0], MPI_DOUBLE, 
+				                 space_charge.get_comm_sptr()->get());
+	if (error != MPI_SUCCESS) {
+	    throw std::runtime_error(
+		    "MPI error in test_space_charge_rectangular(MPI_Allgatherv in test get_phi_local1)");
+	}
+    
+
+	MArray3d  phicheck(boost::extents[shape[0]][shape[1]][shape[2]]);
+	for (int i = 0; i < shape[0]; ++i) {
+		for (int j = 0; j < shape[1]; ++j) {
+		    for (int k = 0; k < shape[2]; ++k) {
+			phicheck[i][j][k] = -Cnmp* phi_global[i][j][k]*phi_local->get_normalization()*epsilon0;
+		    }
+		}
+	    }
+
+	multi_array_check_equal(rho, phicheck, 10.e-8);
+    }//bunch.get_comm_sptr()->get_size() %  optimal_number==0	
+   
+ }
+
+
+
+
+
  BOOST_FIXTURE_TEST_CASE(get_En, Ellipsoidal_bunch_fixture)
 {
 
@@ -270,7 +412,7 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local1, Ellipsoidal_bunch_fixture)
    std::vector<double > hi(space_charge.get_domain().get_cell_size());
    int optimal_number=3;
    Commxx_sptr comm_spc=make_optimal_spc_comm(bunch.get_comm_sptr(), optimal_number);
-   space_charge.set_fftw_helper(comm_spc); 
+   space_charge.set_fftw_helper(comm_spc, false); 
    space_charge.get_comm_sptr()->get_parent_sptr()->get();
 
    std::vector<Rectangular_grid_sptr>  Efield(space_charge.get_Efield(*rho_grid, bunch,3));
@@ -411,7 +553,135 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local1, Ellipsoidal_bunch_fixture)
      multi_array_check_equal(rhocheck, Efxcheck,  10.e-8);
      multi_array_check_equal(rhocheck, Efycheck,  10.e-8);
      multi_array_check_equal(rhocheck, Efzcheck,  10.e-8);
-    
- 
 }
+     
+     
+BOOST_FIXTURE_TEST_CASE(get_En1, Ellipsoidal_bunch_fixture)
+{
+
+    std::vector<int > grid_shape1(3);
+    grid_shape1[0] =32;
+    grid_shape1[1] = 12;
+    grid_shape1[2] = 10;
+    std::vector<double > size(3);
+    size[0]=0.1;
+    size[1]=0.1;
+    size[2]=0.1;
+
+    Space_charge_rectangular space_charge(size, grid_shape1);
+
+    int nt=6;
+    int mt=3;
+    int pt=4;
+
+
+    Rectangular_grid_sptr rho_grid(new Rectangular_grid(space_charge.get_domain_sptr()));
+    std::vector<int > shape(space_charge.get_domain().get_grid_shape());
+
+    MArray3d_ref rho(rho_grid->get_grid_points());
+    for (int i = 0; i < shape[0]; ++i) {
+            for (int j = 0; j < shape[1]; ++j) {
+                for (int k = 0; k < shape[2]; ++k) {
+                   rho[i][j][k] = sin(nt*(i+0.5)*pi/double(shape[0]))*sin(mt*(j+0.5)*pi/double(shape[1])) *cos((2.*pi*pt*k)/double(shape[2]));
+                }
+            }
+        }
+
+   
+
+   std::vector<double > hi(space_charge.get_domain().get_cell_size());
+    int optimal_number=2;
+    if (bunch.get_comm_sptr()->get_size() %  optimal_number==0) {
+	  Commxx_divider comm_divider(optimal_number, false);
+	  Commxx_sptr comm_spc=comm_divider.get_commxx_sptr(bunch.get_comm_sptr());
+	  space_charge.set_fftw_helper(comm_spc, true);
+	
+	
+	  double xnt=pi*nt/size[0];
+	  double ymt=pi*mt/size[1];
+	  double zpt=2.*pi*pt/size[2];
+	  double Cnmp=-(xnt*xnt+ymt*ymt+zpt*zpt);
+
+
+	  double sxnt=sin(pi*nt/double(shape[0]))/hi[0];
+	  double symt=sin(pi*mt/double(shape[1]))/hi[1];
+	  double szpt=sin(2.*pi*pt/double(shape[2]))/hi[2];
+
+
+	  MArray3d  rhocheck(boost::extents[shape[0]][shape[1]][shape[2]]);
+	//  MArray3d  phi_check(boost::extents[shape[0]][shape[1]][shape[2]]);
+	  for (int i = 0; i < shape[0]; ++i) {
+	      for (int j = 0; j < shape[1]; ++j) {
+		  for (int k = 0; k < shape[2]; ++k) {
+		      rhocheck[i][j][k]=-rho[i][j][k]/(Cnmp*epsilon0);
+		  //   phi_check[i][j][k] = phi_local->get_grid_points()[i][j][k]*phi_local->get_normalization();//epsilon0;
+		  }
+	      }
+	  }
+
+
+
+
+	//  multi_array_check_equal(rhocheck, phi_check,  10.e-8);
+    
+	  Distributed_rectangular_grid_sptr phi_local(space_charge.get_phi_local(*rho_grid));
+      
+	  Rectangular_grid_sptr  Ex(space_charge.get_En(*phi_local, 0));
+	  Rectangular_grid_sptr  Ey(space_charge.get_En(*phi_local, 1));
+	  Rectangular_grid_sptr  Ez(space_charge.get_En(*phi_local, 2));
+	  BOOST_CHECK_EQUAL(Ex->get_domain().get_grid_shape()[0], space_charge.get_domain().get_grid_shape()[0]);
+	  BOOST_CHECK_EQUAL(Ex->get_domain().get_grid_shape()[1], space_charge.get_domain().get_grid_shape()[1]);
+	  BOOST_CHECK_EQUAL(Ex->get_domain().get_grid_shape()[2], space_charge.get_domain().get_grid_shape()[2]);
+      
+    
+	  MArray3d_ref Exa(Ex->get_grid_points());
+	  MArray3d_ref Eya(Ey->get_grid_points());
+	  MArray3d_ref Eza(Ez->get_grid_points());         
+	
+	
+	  for (int i = 0; i < shape[0]; ++i) {
+		  for (int j = 0; j < shape[1]; ++j) {
+		      for (int k = 0; k < shape[2]; ++k) {
+			  Exa[i][j][k] *= Ex->get_normalization();
+			  Eya[i][j][k] *= Ey->get_normalization();
+			  Eza[i][j][k] *= Ez->get_normalization();			
+		      }
+		  }
+	      }
+	// Check if Ex= -sxnt*cos(nt*(i+0.5)*pi/double(rho.shape()[0]))
+	//       *sin(mt*(j+0.5)*pi/double(rho.shape()[1])) *cos((2.*pi*pt*k)/double(rho.shape()[2]))=
+	//= -sxnt*cos(nt*(i+0.5)*pi/double(rho.shape()[0]))/ sin(nt*(i+0.5)*pi/double(rho.shape()[0]))*rho
+
+
+	  MArray3d  Excheck(boost::extents[shape[0]][shape[1]][shape[2]]);
+	  MArray3d  Eycheck(boost::extents[shape[0]][shape[1]][shape[2]]);
+	  MArray3d  Ezcheck(boost::extents[shape[0]][shape[1]][shape[2]]);
+	
+	  for (int i = 0; i < shape[0]; ++i) {
+		    for (int j = 0; j < shape[1]; ++j) {
+			for (int k = 0; k < shape[2]; ++k) {
+			    Excheck[i][j][k]=Exa[i][j][k]*sin(nt*(i+0.5)*pi/double(shape[0]))/((-sxnt)*cos(nt*(i+0.5)*pi/double(shape[0])));
+			    Eycheck[i][j][k]=Eya[i][j][k]*sin(mt*(j+0.5)*pi/double(shape[1]))/((-symt)*cos(mt*(j+0.5)*pi/double(shape[1])));
+			    ((k==shape[2]/2) || (k==0)) ? Ezcheck[i][j][k]= rhocheck[i][j][k]:
+					      Ezcheck[i][j][k]=Eza[i][j][k]*cos((2.*pi*pt*k)/double(shape[2]))
+						/(szpt*sin((2.*pi*pt*k)/double(shape[2])));					    			
+
+			  if ((i==0) || (i==shape[0]-1) ||(j==0) || (j==shape[1]-1)){
+			    Excheck[i][j][k]=0.;
+			    Eycheck[i][j][k]=0.;
+			    Ezcheck[i][j][k]=0.;		
+			    rhocheck[i][j][k]=0.;
+			  }
+			}
+		    }
+		}
+	    
+	  multi_array_check_equal(rhocheck, Excheck,  10.e-8);
+	  multi_array_check_equal(rhocheck, Eycheck,  10.e-8);
+	  multi_array_check_equal(rhocheck, Ezcheck,  10.e-8);
+    }//	bunch.get_comm_sptr()->get_size() %  optimal_number    
+     
+}
+   
+ 
 
