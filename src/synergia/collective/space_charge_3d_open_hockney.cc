@@ -13,12 +13,7 @@ void
 Space_charge_3d_open_hockney::setup_communication(
         Commxx_sptr const& bunch_comm_sptr)
 {
-    std::cout << "jfa: in setup communication" << std::endl;
-    std::cout << "jfa: comm2_sptr = " << comm2_sptr <<
-            ", bunch_comm_sptr  = " << bunch_comm_sptr << std::endl;
-    std::cout << "jfa: derived comm = " << commxx_divider_sptr->get_commxx_sptr(bunch_comm_sptr) << std::endl;
     if (comm2_sptr != commxx_divider_sptr->get_commxx_sptr(bunch_comm_sptr)) {
-        std::cout << "jfa: in really doing setup communication" << std::endl;
         comm2_sptr = commxx_divider_sptr->get_commxx_sptr(bunch_comm_sptr);
         setup_derived_communication();
     }
@@ -50,7 +45,6 @@ Space_charge_3d_open_hockney::setup_derived_communication()
         }
     }
     comm1_sptr = Commxx_sptr(new Commxx(comm2_sptr, ranks1));
-    std::cout << "jfa: lengths1.size() = " << lengths1.size() << std::endl;
     std::vector<int > real_uppers(distributed_fft3d_sptr->get_uppers());
     real_lengths = distributed_fft3d_sptr->get_lengths();
     for (int i = 0; i < comm2_sptr->get_size(); ++i) {
@@ -1064,8 +1058,6 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_gatherv_bcast(
     return global_field;
 }
 
-#include "synergia/utils/containers_to_string.h"
-
 Rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_global_electric_field_component_allgatherv(
         Distributed_rectangular_grid const& dist_field)
@@ -1084,10 +1076,6 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_allgatherv(
         }
     }
     int rank = comm2_sptr->get_rank();
-    Logger logger("jfadebug", true);
-    logger << container_to_string(lowers1) << std::endl;
-    logger << container_to_string(lowers12) << std::endl;
-    logger << container_to_string(lengths12) << std::endl;
     int error = MPI_Allgatherv(
             (void *) (dist_field.get_grid_points().origin() + lowers12[rank]),
             lengths12[rank], MPI_DOUBLE,
