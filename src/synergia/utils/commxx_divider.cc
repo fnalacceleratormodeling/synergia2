@@ -21,6 +21,7 @@ Commxx_divider::get_commxx_sptr(Commxx_sptr const& parent)
         int parent_size = parent->get_size();
         if ((subsize == 0) || (subsize >= parent_size)) {
             retval = Commxx_sptr(new Commxx(parent, per_host));
+            cache[parent] = retval;
         } else {
             if (parent_size % subsize != 0) {
                 throw std::runtime_error(
@@ -32,6 +33,7 @@ Commxx_divider::get_commxx_sptr(Commxx_sptr const& parent)
                 ranks[i] = min_rank + i;
             }
             retval = Commxx_sptr(new Commxx(parent, ranks, per_host));
+            cache[parent] = retval;
         }
     } else {
         retval = pos->first;
