@@ -10,8 +10,26 @@ using pconstants::epsilon0;
 #include "synergia/utils/simple_timer.h"
 
 void
-Space_charge_3d_open_hockney::setup_nondoubled_communication()
+Space_charge_3d_open_hockney::setup_communication(
+        Commxx_sptr const& bunch_comm_sptr)
 {
+    std::cout << "jfa: in setup communication" << std::endl;
+    std::cout << "jfa: comm2_sptr = " << comm2_sptr <<
+            ", bunch_comm_sptr  = " << bunch_comm_sptr << std::endl;
+    std::cout << "jfa: derived comm = " << commxx_divider_sptr->get_commxx_sptr(bunch_comm_sptr) << std::endl;
+    if (comm2_sptr != commxx_divider_sptr->get_commxx_sptr(bunch_comm_sptr)) {
+        std::cout << "jfa: in really doing setup communication" << std::endl;
+        comm2_sptr = commxx_divider_sptr->get_commxx_sptr(bunch_comm_sptr);
+        setup_derived_communication();
+    }
+}
+
+void
+Space_charge_3d_open_hockney::setup_derived_communication()
+{
+    distributed_fft3d_sptr = Distributed_fft3d_sptr(
+            new Distributed_fft3d(doubled_grid_shape, comm2_sptr));
+    padded_grid_shape = distributed_fft3d_sptr->get_padded_shape_real();
     std::vector<int > ranks1; // ranks with data from the undoubled domain
     int lower = 0;
     for (int rank = 0; rank < comm2_sptr->get_size(); ++rank) {
@@ -32,7 +50,7 @@ Space_charge_3d_open_hockney::setup_nondoubled_communication()
         }
     }
     comm1_sptr = Commxx_sptr(new Commxx(comm2_sptr, ranks1));
-
+    std::cout << "jfa: lengths1.size() = " << lengths1.size() << std::endl;
     std::vector<int > real_uppers(distributed_fft3d_sptr->get_uppers());
     real_lengths = distributed_fft3d_sptr->get_lengths();
     for (int i = 0; i < comm2_sptr->get_size(); ++i) {
@@ -62,26 +80,11 @@ Space_charge_3d_open_hockney::setup_nondoubled_communication()
     doubled_upper = distributed_fft3d_sptr->get_uppers()[my_rank];
     real_doubled_lower = std::min(doubled_lower, grid_shape[0]);
     real_doubled_upper = std::min(doubled_upper, grid_shape[0]);
-
 }
 
 void
-Space_charge_3d_open_hockney::setup_default_options()
-{
-    set_green_fn_type(linear);
-    set_charge_density_comm(charge_allreduce);
-    set_e_field_comm(e_field_allreduce);
-}
-
-Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
-        Commxx_sptr comm_sptr, std::vector<int > const & grid_shape,
-        bool longitudinal_kicks, bool periodic_z, double z_period,
-        bool grid_entire_period, double n_sigma) :
-        Collective_operator("space charge 3D open hockney"), grid_shape(3), doubled_grid_shape(
-                3), padded_grid_shape(3), periodic_z(periodic_z), z_period(
-                z_period), grid_entire_period(grid_entire_period), longitudinal_kicks(
-                longitudinal_kicks), comm2_sptr(comm_sptr), n_sigma(n_sigma), domain_fixed(
-                false), have_domains(false)
+Space_charge_3d_open_hockney::constructor_common(
+        std::vector<int > const& grid_shape)
 {
     if (this->periodic_z && (this->z_period == 0.0)) {
         throw std::runtime_error(
@@ -93,33 +96,99 @@ Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
     for (int i = 0; i < 3; ++i) {
         doubled_grid_shape[i] = 2 * this->grid_shape[i];
     }
-    distributed_fft3d_sptr = Distributed_fft3d_sptr(
-            new Distributed_fft3d(doubled_grid_shape, comm_sptr));
-    padded_grid_shape = distributed_fft3d_sptr->get_padded_shape_real();
-    setup_nondoubled_communication();
-    setup_default_options();
+
+    set_green_fn_type(linear);
+    set_charge_density_comm(charge_allreduce);
+    set_e_field_comm(e_field_allreduce);
 }
 
 Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
-        Distributed_fft3d_sptr distributed_fft3d_sptr, bool longitudinal_kicks,
+        std::vector<int > const & grid_shape, bool longitudinal_kicks,
         bool periodic_z, double z_period, bool grid_entire_period,
         double n_sigma) :
-        Collective_operator("space charge"), grid_shape(3), doubled_grid_shape(
-                3), padded_grid_shape(3), periodic_z(periodic_z), z_period(
-                z_period), grid_entire_period(grid_entire_period), longitudinal_kicks(
-                longitudinal_kicks), distributed_fft3d_sptr(
-                distributed_fft3d_sptr), comm2_sptr(
-                distributed_fft3d_sptr->get_comm_sptr()), n_sigma(n_sigma), domain_fixed(
-                false), have_domains(false)
+                Collective_operator("space charge 3D open hockney"),
+                grid_shape(3),
+                doubled_grid_shape(3),
+                padded_grid_shape(3),
+                periodic_z(periodic_z),
+                z_period(z_period),
+                grid_entire_period(grid_entire_period),
+                longitudinal_kicks(longitudinal_kicks),
+                commxx_divider_sptr(new Commxx_divider),
+                comm2_sptr(),
+                comm1_sptr(),
+                n_sigma(n_sigma),
+                domain_fixed(false),
+                have_domains(false)
 {
-    doubled_grid_shape = distributed_fft3d_sptr->get_shape();
-    for (int i = 0; i < 3; ++i) {
-        grid_shape[i] = doubled_grid_shape[i] / 2;
-    }
-    padded_grid_shape = distributed_fft3d_sptr->get_padded_shape_real();
-    setup_nondoubled_communication();
-    setup_default_options();
+    constructor_common(grid_shape);
 }
+
+Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
+        Commxx_divider_sptr commxx_divider_sptr,
+        std::vector<int > const & grid_shape, bool longitudinal_kicks,
+        bool periodic_z, double z_period, bool grid_entire_period,
+        double n_sigma) :
+                Collective_operator("space charge 3D open hockney"),
+                grid_shape(3),
+                doubled_grid_shape(3),
+                padded_grid_shape(3),
+                periodic_z(periodic_z),
+                z_period(z_period),
+                grid_entire_period(grid_entire_period),
+                longitudinal_kicks(longitudinal_kicks),
+                commxx_divider_sptr(commxx_divider_sptr),
+                comm2_sptr(),
+                comm1_sptr(),
+                n_sigma(n_sigma),
+                domain_fixed(false),
+                have_domains(false)
+{
+    constructor_common(grid_shape);
+}
+
+Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
+        Commxx_sptr comm_sptr, std::vector<int > const & grid_shape,
+        bool longitudinal_kicks, bool periodic_z, double z_period,
+        bool grid_entire_period, double n_sigma) :
+                Collective_operator("space charge 3D open hockney"),
+                grid_shape(3),
+                doubled_grid_shape(3),
+                padded_grid_shape(3),
+                periodic_z(periodic_z),
+                z_period(z_period),
+                grid_entire_period(grid_entire_period),
+                longitudinal_kicks(longitudinal_kicks),
+                commxx_divider_sptr(new Commxx_divider),
+                comm2_sptr(),
+                comm1_sptr(),
+                n_sigma(n_sigma),
+                domain_fixed(false),
+                have_domains(false)
+{
+    constructor_common(grid_shape);
+}
+
+//Space_charge_3d_open_hockney::Space_charge_3d_open_hockney(
+//        Distributed_fft3d_sptr distributed_fft3d_sptr, bool longitudinal_kicks,
+//        bool periodic_z, double z_period, bool grid_entire_period,
+//        double n_sigma) :
+//        Collective_operator("space charge"), grid_shape(3), doubled_grid_shape(
+//                3), padded_grid_shape(3), periodic_z(periodic_z), z_period(
+//                z_period), grid_entire_period(grid_entire_period), longitudinal_kicks(
+//                longitudinal_kicks), distributed_fft3d_sptr(
+//                distributed_fft3d_sptr), comm2_sptr(
+//                distributed_fft3d_sptr->get_comm_sptr()), n_sigma(n_sigma), domain_fixed(
+//                false), have_domains(false)
+//{
+//    doubled_grid_shape = distributed_fft3d_sptr->get_shape();
+//    for (int i = 0; i < 3; ++i) {
+//        grid_shape[i] = doubled_grid_shape[i] / 2;
+//    }
+//    padded_grid_shape = distributed_fft3d_sptr->get_padded_shape_real();
+//    setup_nondoubled_communication();
+//    setup_default_options();
+//}
 
 Space_charge_3d_open_hockney::Space_charge_3d_open_hockney()
 {
@@ -205,8 +274,9 @@ Space_charge_3d_open_hockney::get_e_field_comm() const
 }
 
 void
-Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
+Space_charge_3d_open_hockney::auto_tune_comm(Bunch & bunch, bool verbose)
 {
+    setup_communication(bunch.get_comm_sptr());
     bool output = verbose && (comm2_sptr->get_rank() == 0);
     double t0, t1;
     const int repetitions = 3;
@@ -246,7 +316,8 @@ Space_charge_3d_open_hockney::auto_tune_comm(bool verbose)
     for (int i = 0; i < repetitions; ++i) {
         MPI_Barrier(comm2_sptr->get());
         t0 = MPI_Wtime();
-        get_global_charge_density2_allreduce(fake_local_charge_density, comm2_sptr);
+        get_global_charge_density2_allreduce(fake_local_charge_density,
+                comm2_sptr);
         MPI_Barrier(comm2_sptr->get());
         t1 = MPI_Wtime();
         if (output) {
@@ -383,6 +454,7 @@ get_smallest_non_tiny(double val, double other1, double other2, double tiny)
 void
 Space_charge_3d_open_hockney::update_domain(Bunch const& bunch)
 {
+    setup_communication(bunch.get_comm_sptr());
     if (!domain_fixed) {
         MArray1d mean(Core_diagnostics::calculate_mean(bunch));
         MArray1d std(Core_diagnostics::calculate_std(bunch, mean));
@@ -452,6 +524,7 @@ Distributed_rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_global_charge_density2_reduce_scatter(
         Rectangular_grid const& local_charge_density, Commxx_sptr comm_sptr)
 {
+    setup_communication(comm_sptr);
 // jfa: here is where we do something complicated, but (potentially) efficient
 // in calculating a version of the charge density that is just global enough
 // to fill in the doubled global charge density
@@ -477,7 +550,8 @@ Space_charge_3d_open_hockney::get_global_charge_density2_reduce_scatter(
     Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr, doubled_lower,
                     doubled_upper,
-                    distributed_fft3d_sptr->get_padded_shape_real(), comm_sptr));
+                    distributed_fft3d_sptr->get_padded_shape_real(),
+                    comm_sptr));
     for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
             for (int k = 0; k < doubled_grid_shape[2]; ++k) {
@@ -499,6 +573,7 @@ Distributed_rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_global_charge_density2_allreduce(
         Rectangular_grid const& local_charge_density, Commxx_sptr comm_sptr)
 {
+    setup_communication(comm_sptr);
     int error = MPI_Allreduce(MPI_IN_PLACE,
             (void*) local_charge_density.get_grid_points().origin(),
             local_charge_density.get_grid_points().num_elements(), MPI_DOUBLE,
@@ -510,7 +585,8 @@ Space_charge_3d_open_hockney::get_global_charge_density2_allreduce(
     Distributed_rectangular_grid_sptr rho2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr, doubled_lower,
                     doubled_upper,
-                    distributed_fft3d_sptr->get_padded_shape_real(), comm_sptr));
+                    distributed_fft3d_sptr->get_padded_shape_real(),
+                    comm_sptr));
     for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
             for (int k = 0; k < doubled_grid_shape[2]; ++k) {
@@ -538,7 +614,8 @@ Space_charge_3d_open_hockney::get_global_charge_density2(
         return get_global_charge_density2_reduce_scatter(local_charge_density,
                 comm_sptr);
     case charge_allreduce:
-        return get_global_charge_density2_allreduce(local_charge_density, comm_sptr);
+        return get_global_charge_density2_allreduce(local_charge_density,
+                comm_sptr);
     default:
         throw runtime_error(
                 "Space_charge_3d_open_hockney: invalid charge_density_comm");
@@ -556,7 +633,8 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
     int upper = distributed_fft3d_sptr->get_upper();
     Distributed_rectangular_grid_sptr G2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr, lower, upper,
-                    distributed_fft3d_sptr->get_padded_shape_real(), comm2_sptr));
+                    distributed_fft3d_sptr->get_padded_shape_real(),
+                    comm2_sptr));
 
     double hx = domain_sptr->get_cell_size()[2];
     double hy = domain_sptr->get_cell_size()[1];
@@ -653,7 +731,8 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
     int upper = distributed_fft3d_sptr->get_upper();
     Distributed_rectangular_grid_sptr G2 = Distributed_rectangular_grid_sptr(
             new Distributed_rectangular_grid(doubled_domain_sptr, lower, upper,
-                    distributed_fft3d_sptr->get_padded_shape_real(), comm2_sptr));
+                    distributed_fft3d_sptr->get_padded_shape_real(),
+                    comm2_sptr));
 
     double hx = domain_sptr->get_cell_size()[2];
     double hy = domain_sptr->get_cell_size()[1];
@@ -852,7 +931,8 @@ Space_charge_3d_open_hockney::get_scalar_field2(
 
     Distributed_rectangular_grid_sptr phi2(
             new Distributed_rectangular_grid(doubled_domain_sptr, lower, upper,
-                    distributed_fft3d_sptr->get_padded_shape_real(), comm2_sptr));
+                    distributed_fft3d_sptr->get_padded_shape_real(),
+                    comm2_sptr));
     distributed_fft3d_sptr->inv_transform(phi2hat, phi2->get_grid_points());
 
     normalization *= charge_density2.get_normalization();
@@ -984,6 +1064,8 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_gatherv_bcast(
     return global_field;
 }
 
+#include "synergia/utils/containers_to_string.h"
+
 Rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_global_electric_field_component_allgatherv(
         Distributed_rectangular_grid const& dist_field)
@@ -1002,6 +1084,10 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_allgatherv(
         }
     }
     int rank = comm2_sptr->get_rank();
+    Logger logger("jfadebug", true);
+    logger << container_to_string(lowers1) << std::endl;
+    logger << container_to_string(lowers12) << std::endl;
+    logger << container_to_string(lengths12) << std::endl;
     int error = MPI_Allgatherv(
             (void *) (dist_field.get_grid_points().origin() + lowers12[rank]),
             lengths12[rank], MPI_DOUBLE,
@@ -1100,15 +1186,17 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
         Step & step, int verbosity, Logger & logger)
 {
     if (bunch.get_total_num() > 1) {
+        double t = simple_timer_current();
+        setup_communication(bunch.get_comm_sptr());
         int comm_compare;
-        MPI_Comm_compare(comm2_sptr->get(), bunch.get_comm().get(), &comm_compare);
+        MPI_Comm_compare(comm2_sptr->get(), bunch.get_comm().get(),
+                &comm_compare);
         if ((comm_compare == MPI_UNEQUAL)
                 && (charge_density_comm != charge_allreduce)) {
             throw std::runtime_error(
                     "Space_charge_3d_open_hockney: set_charge_density_comm(charge_allreduce) required when comm != bunch comm");
         }
-        double t;
-        t = simple_timer_current();
+        t = simple_timer_show(t, "sc-setup-communication");
         bunch.convert_to_state(Bunch::fixed_t_bunch);
         t = simple_timer_show(t, "sc-convert-to-state");
         Rectangular_grid_sptr local_rho(get_local_charge_density(bunch)); // [C/m^3]
@@ -1157,22 +1245,24 @@ Space_charge_3d_open_hockney::apply(Bunch & bunch, double time_step,
 
 template<class Archive>
     void
-    Space_charge_3d_open_hockney::save(Archive & ar, const unsigned int version) const
+    Space_charge_3d_open_hockney::save(Archive & ar,
+            const unsigned int version) const
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
         ar & BOOST_SERIALIZATION_NVP(comm2_sptr)
-                & BOOST_SERIALIZATION_NVP(grid_shape)
-                & BOOST_SERIALIZATION_NVP(doubled_grid_shape)
-                & BOOST_SERIALIZATION_NVP(longitudinal_kicks)
-                & BOOST_SERIALIZATION_NVP(periodic_z)
-                & BOOST_SERIALIZATION_NVP(z_period)
-                & BOOST_SERIALIZATION_NVP(grid_entire_period)
-                & BOOST_SERIALIZATION_NVP(n_sigma)
-                & BOOST_SERIALIZATION_NVP(domain_fixed)
-                & BOOST_SERIALIZATION_NVP(have_domains)
-                & BOOST_SERIALIZATION_NVP(green_fn_type)
-                & BOOST_SERIALIZATION_NVP(charge_density_comm)
-                & BOOST_SERIALIZATION_NVP(e_field_comm);
+        & BOOST_SERIALIZATION_NVP(commxx_divider_sptr)
+        & BOOST_SERIALIZATION_NVP(grid_shape)
+        & BOOST_SERIALIZATION_NVP(doubled_grid_shape)
+        & BOOST_SERIALIZATION_NVP(longitudinal_kicks)
+        & BOOST_SERIALIZATION_NVP(periodic_z)
+        & BOOST_SERIALIZATION_NVP(z_period)
+        & BOOST_SERIALIZATION_NVP(grid_entire_period)
+        & BOOST_SERIALIZATION_NVP(n_sigma)
+        & BOOST_SERIALIZATION_NVP(domain_fixed)
+        & BOOST_SERIALIZATION_NVP(have_domains)
+        & BOOST_SERIALIZATION_NVP(green_fn_type)
+        & BOOST_SERIALIZATION_NVP(charge_density_comm)
+        & BOOST_SERIALIZATION_NVP(e_field_comm);
     }
 template<class Archive>
     void
@@ -1180,22 +1270,22 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
         ar & BOOST_SERIALIZATION_NVP(comm2_sptr)
-                & BOOST_SERIALIZATION_NVP(grid_shape)
-                & BOOST_SERIALIZATION_NVP(doubled_grid_shape)
-                & BOOST_SERIALIZATION_NVP(longitudinal_kicks)
-                & BOOST_SERIALIZATION_NVP(periodic_z)
-                & BOOST_SERIALIZATION_NVP(z_period)
-                & BOOST_SERIALIZATION_NVP(grid_entire_period)
-                & BOOST_SERIALIZATION_NVP(n_sigma)
-                & BOOST_SERIALIZATION_NVP(domain_fixed)
-                & BOOST_SERIALIZATION_NVP(have_domains)
-                & BOOST_SERIALIZATION_NVP(green_fn_type)
-                & BOOST_SERIALIZATION_NVP(charge_density_comm)
-                & BOOST_SERIALIZATION_NVP(e_field_comm);
-        distributed_fft3d_sptr = Distributed_fft3d_sptr(
-                new Distributed_fft3d(doubled_grid_shape, comm2_sptr));
-        padded_grid_shape = distributed_fft3d_sptr->get_padded_shape_real();
-        setup_nondoubled_communication();
+        & BOOST_SERIALIZATION_NVP(commxx_divider_sptr)
+        & BOOST_SERIALIZATION_NVP(grid_shape)
+        & BOOST_SERIALIZATION_NVP(doubled_grid_shape)
+        & BOOST_SERIALIZATION_NVP(longitudinal_kicks)
+        & BOOST_SERIALIZATION_NVP(periodic_z)
+        & BOOST_SERIALIZATION_NVP(z_period)
+        & BOOST_SERIALIZATION_NVP(grid_entire_period)
+        & BOOST_SERIALIZATION_NVP(n_sigma)
+        & BOOST_SERIALIZATION_NVP(domain_fixed)
+        & BOOST_SERIALIZATION_NVP(have_domains)
+        & BOOST_SERIALIZATION_NVP(green_fn_type)
+        & BOOST_SERIALIZATION_NVP(charge_density_comm)
+        & BOOST_SERIALIZATION_NVP(e_field_comm);
+        if (comm2_sptr) {
+            setup_derived_communication();
+        }
     }
 
 template
