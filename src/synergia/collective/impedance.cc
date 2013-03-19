@@ -479,9 +479,9 @@ Impedance::calculate_kicks()
 			  double ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
 			  double zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]);    
 			  
-			  xwake_leading[i]  +=(*it)[ibunch].realnum*(*it)[ibunch].x_mean*xwl; 
+			  xwake_leading[i]  +=(*it)[ibunch].realnum*(*it)[ibunch].x_mean*wnx*xwl; 
 			  xwake_trailing[i]  += (*it)[ibunch].realnum*xwt;
-			  ywake_leading[i]  +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*ywl;
+			  ywake_leading[i]  +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*wny*ywl;
 			  ywake_trailing[i]  +=(*it)[ibunch].realnum*ywt;
 			  zwake0[i] += (*it)[ibunch].realnum*zw;
                    }
@@ -574,9 +574,9 @@ Impedance::calculate_kicks()
 			  double  ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
 			  double  zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]);
 			  
-		          xwake_l +=  (*it)[ibunch].realnum*(*it)[ibunch].x_mean*xwl;
+		          xwake_l +=  (*it)[ibunch].realnum*(*it)[ibunch].x_mean*wnx*xwl;
 			  xwake_t += (*it)[ibunch].realnum*xwt;
-			  ywake_l +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*ywl;
+			  ywake_l +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*wny*ywl;
 			  ywake_t += (*it)[ibunch].realnum*ywt; 
 			  zwake_0 += (*it)[ibunch].realnum*zw;
                     }		      

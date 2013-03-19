@@ -1,0 +1,22 @@
+# this is a script to submit a job
+
+#here's how to submit this job
+#qsub -A @@account@@ -q @@queue@@ -t @@walltime@@ -n @@numnode@@ --mode script -O synergia @@script@@
+
+# root of compute node linux tools
+BGLINUX=/bgsys/drivers/ppcfloor/gnu-linux
+
+# -mode vn: 4 tasks/node
+# -mode dual: 2 tasks/node
+# -mode smp: 1 task/node
+cobalt-mpirun -mode vn -np @@numproc@@ -env "PATH=@@synergia2dir@@/../bin:$BGLINUX/bin:$PATH LD_LIBRARY_PATH=@@synergia2dir@@:$BGLINUX/lib:/bgsys/drivers/ppcfloor/comm/default/lib:/bgsys/drivers/ppcfloor/comm/sys/lib:$LD_LIBRARY_PATH PYTHONPATH=@@synergia2dir@@:@@synergia2dir@@/python2.6/site-packages:$PYTHONPATH SYNERGIA2DIR=@@synergia2dir@@" -verbose 2 $BGLINUX/bin/python @@script@@ @@args@@
+
+# if running multiple simultaneous executables, use
+#cobalt-subrun nnodes1 partition -mode vn -np @@numproc@@ -env "PATH=@@synergia2dir@@/../bin:$BGLINUX/bin:$PATH LD_LIBRARY_PATH=@@synergia2dir@@:$BGLINUX/lib:/bgsys/drivers/ppcfloor/comm/default/lib:/bgsys/drivers/ppcfloor/comm/sys/lib PYTHONPATH=@@synergia2dir@@:@@synergia2dir@@/python2.6/site-packages:$PYTHONPATH SYNERGIA2DIR=@@synergia2dir@@" -verbose 2 $BGLINUX/bin/python @@script@@ @@args@@ &
+# can redirect output and error, must use
+# wait
+# at the end
+
+# This shows how to submit an executable to run
+#qsub -A ParPhySim -q @@queue@@ -t @@walltime@@ -n @@numnode@@ --mode smp -O synergia --env PATH=@@synergia2dir@@/../bin:LD_LIBRARY_PATH=@@synergia2dir@@ benchmark gridx=64 gridy=64 gridz=256 diagnostics=1
+

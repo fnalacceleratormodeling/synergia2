@@ -7,6 +7,7 @@ import numpy as np
 import string
 from synergia.optics.one_turn_map import linear_one_turn_map
 from synergia.utils import Commxx
+from synergia.bunch import Core_diagnostics
 from mpi4py import MPI
 
 
@@ -525,13 +526,13 @@ try:
       print "alpha y: ", ay
       print "beta x: ", bx
       print "beta y: ", by
-      #print "chef FracTune x: ", chef_frac_tunex, ", EigenTune x: ", chef_eigen_tunex, ", map tune x: ", tune_x, "(",1-tune_x,")"
-      #print "chef FracTune y: ", chef_frac_tuney, ", EigenTune y: ", chef_eigen_tuney, ", map tune y: ", tune_y, "(",1-tune_y,")"
-      #print "                           map tune z: ", tune_z, "(",1-tune_z,")"  
-      #print " horizontal chromaticity: ", horizontal_chromaticity
-      #print " vertical   chromaticity: ", vertical_chromaticity
-      #print " momentum compaction: ", momentum_compaction
-      #print " slip factor: ", slip_factor
+      print "chef FracTune x: ", chef_frac_tunex, ", EigenTune x: ", chef_eigen_tunex, ", map tune x: ", tune_x, "(",1-tune_x,")"
+      print "chef FracTune y: ", chef_frac_tuney, ", EigenTune y: ", chef_eigen_tuney, ", map tune y: ", tune_y, "(",1-tune_y,")"
+      print "                           map tune z: ", tune_z, "(",1-tune_z,")"  
+      print " horizontal chromaticity: ", horizontal_chromaticity
+      print " vertical   chromaticity: ", vertical_chromaticity
+      print " momentum compaction: ", momentum_compaction
+      print " slip factor: ", slip_factor
 
 
 
@@ -561,9 +562,15 @@ try:
 						  opts.num_macroparticles,rms_index,
 						  seed=opts.seed, bunch_index=i,comm=commx, periodic=opts.periodic)
       particles = bunch.get_local_particles()
-      particles[:,0] = particles[:,0]+opts.x_offset*np.cos(2.*np.pi*i/float(num_bunches))
-      particles[:,2] = particles[:,2]+opts.y_offset*np.cos(2.*np.pi*i/float(num_bunches))
-      particles[:,4] = particles[:,4]+opts.z_offset*np.cos(2.*np.pi*i/float(num_bunches))
+      if opts.initial_wave_in_train:
+	particles[:,0] = particles[:,0]+opts.x_offset*np.cos(2.*np.pi*i*opts.wave_in_train[0]/float(num_bunches))
+	particles[:,2] = particles[:,2]+opts.y_offset*np.cos(2.*np.pi*i*opts.wave_in_train[1]/float(num_bunches))
+	particles[:,4] = particles[:,4]+opts.z_offset*np.cos(2.*np.pi*i*opts.wave_in_train[2]/float(num_bunches))
+      else:
+	if i==0: # mixture of all possible modes
+	  particles[:,0] = particles[:,0]+opts.x_offset*3.
+	  particles[:,2] = particles[:,2]+opts.y_offset*3.
+	  particles[:,4] = particles[:,4]+opts.z_offset*3.
       bunches.append(bunch)
      
 
@@ -585,24 +592,34 @@ try:
       bunch_train_simulator.add_per_turn(i, synergia.bunch.Diagnostics_particles("turn_particles_%d.h5" % i), opts.turn_period)
 
       if space_charge:
-        spc_optim=opts.spc_optim
 	if bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm().has_this_rank():
-	  #comm_spc=bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm()
-	  comm_spc= synergia.utils.make_optimal_spc_comm(bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm(),spc_optim);
-	  spc_f.set_fftw_helper(comm_spc)
-	  spc_d.set_fftw_helper(comm_spc)
-	  spc_else.set_fftw_helper(comm_spc)
+	   
+	      if opts.use_comm_divider:
+		commxx_divider=synergia.utils.Commxx_divider(opts.spc_comm_size, 1)
+		comm_spc=commxx_divider.get_commxx(bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm())
+	      else:
+		spc_comm_size=opts.spc_comm_size
+		if bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm().has_this_rank():
+		    comm_spc= synergia.utils.make_optimal_spc_comm(bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm(),\
+			  spc_comm_size);
+
+	      spc_f.set_fftw_helper(comm_spc,opts.use_comm_divider)
+	      spc_d.set_fftw_helper(comm_spc,opts.use_comm_divider)
+	      spc_else.set_fftw_helper(comm_spc,opts.use_comm_divider)
 	 
 
       real_num=bunch_train_simulator.get_bunch_train().get_bunches()[i].get_real_num()
       macro_num= bunch_train_simulator.get_bunch_train().get_bunches()[i].get_total_num()
       bucket_index= bunch_train_simulator.get_bunch_train().get_bunches()[i].get_bucket_index()
+      bunch_means=Core_diagnostics.calculate_mean(bunch_train_simulator.get_bunch_train().get_bunches()[i])
       #print "bunch # ",i ," num_local_particles=",bunch_train_simulator.get_bunch_train().get_bunches()[i].get_local_num(),\
                #"  rank= ",MPI.COMM_WORLD.Get_rank()
       if  MPI.COMM_WORLD.Get_rank() ==0:
 	      print "bunch # ",i ," number of real  particles= ",real_num
 	      print "bunch # ",i ," number of macroparticles= ",macro_num
-	      print "bunch # ",i ," bucket index", bucket_index          
+	      print "bunch # ",i ," bucket index", bucket_index      
+              print "bunch # ",i ," initial offsets (x,y,z)=(", bunch_means[0],", ", \
+				bunch_means[2],", ",bunch_means[4] ,") [meters]"
 	      print "___________________________________________________________"
   if num_bunches >1:
     if MPI.COMM_WORLD.Get_rank() ==0:

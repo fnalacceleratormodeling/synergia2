@@ -18,6 +18,9 @@ void
 (Impedance::*apply_bunch_train)(Bunch_train &, double, Step &, int,
         Train_diagnosticss const&, Logger &) = &Impedance::apply;
 
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(set_fftw_helper_member_overloads12,
+        Space_charge_rectangular::set_fftw_helper, 1, 2);
+
 BOOST_PYTHON_MODULE(collective)
 {
     class_<Space_charge_3d_open_hockney, Space_charge_3d_open_hockney_sptr,
@@ -57,8 +60,10 @@ BOOST_PYTHON_MODULE(collective)
    class_<Space_charge_rectangular, Space_charge_rectangular_sptr,
         bases<Collective_operator > >("Space_charge_rectangular",
               init<Commxx_sptr, std::vector<double >, std::vector<int > >())
+              .def(init<Commxx_sptr, std::vector<double >, std::vector<int >, bool >())
               .def(init<std::vector<double >, std::vector<int > >())
-              .def("set_fftw_helper", &Space_charge_rectangular::set_fftw_helper)
+              .def("set_fftw_helper", &Space_charge_rectangular::set_fftw_helper,
+		                  set_fftw_helper_member_overloads12())
               .def("get_pipe_size", &Space_charge_rectangular::get_pipe_size)
               .def("get_grid_shape", &Space_charge_rectangular::get_grid_shape)
               .def("apply", &Space_charge_rectangular::apply)
