@@ -244,6 +244,7 @@ struct synergia::expression
         | ( no_case[constant]  ) [_val = _1]
         | ( no_case[ufunc] >> '(' >> expr >> ')')                [_val = phx::construct<uop_t>(_1, _2)]
         | ( no_case[bfunc] >> '(' >> expr >> ',' >> expr >> ')') [_val = phx::construct<bop_t>(_1, _2, _3)]
+        | ( lit("table")   >> '(' >> name >> ',' >> name >> ')') [_val = 1.0]  // eat table()
         | ( cmdref             ) [_val = _1]
         | ( name               ) [_val = _1]
         ;
@@ -531,8 +532,6 @@ struct synergia::madx_tree_parser
         //dblq_str | snglq_str | no_case[particle_keywords] | expr | array  -- boost 1.45+
         dblq_str                     [_val=_1] 
         | snglq_str                  [_val=_1] 
-        //| no_case[particle_keywords] [_val=_1] 
-        //| no_case[mp_type_keywords]  [_val=_1] 
         | expr                       [_val=_1] 
         | array                      [_val=_1]
         ;
