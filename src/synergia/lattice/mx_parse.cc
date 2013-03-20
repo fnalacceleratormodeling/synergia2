@@ -304,6 +304,9 @@ namespace synergia
     void set_attr(mx_attr & attr, string const & name, boost::optional<char> c, any const & v)
     { if(c) attr.set_lazy_attr(name, v); else attr.set_attr(name, v); }
 
+    void set_flag_attr(mx_attr & attr, boost::optional<char> c, string const & name)
+    { if(c) attr.set_attr(name, boost::any(mx_expr(0.0))); else attr.set_attr(name, boost::any(mx_expr(1.0))); }
+
     void set_cmd_label(mx_command & cmd, string const & label)
     { cmd.set_label(label); }
 
@@ -465,6 +468,8 @@ struct synergia::madx_tree_parser
   qi::rule<Iterator, mx_while()    , Skip> while_flow;
   qi::rule<Iterator, string()      , Skip> logic;
   qi::rule<Iterator, mx_attr()     , Skip> attr;
+  qi::rule<Iterator, mx_attr()     , Skip> flag_attr;
+  qi::rule<Iterator, mx_attr()     , Skip> cmd_attr;
 
   qi::rule<Iterator, string()      , Skip> name;
   qi::rule<Iterator, string()      , Skip> dblq_str;
@@ -541,6 +546,17 @@ struct synergia::madx_tree_parser
               >> value )                          [phx::bind(&set_attr, _val, _1, _2, _3)]
         ;
 
+    flag_attr =   // flag attributes, attributes with values only, etc.
+          ( -char_("-") >> name )                 [phx::bind(&set_flag_attr, _val, _1, _2)]
+        | ( dblq_str )   [phx::bind(&set_attr, _val, "default", boost::optional<char>(), _1)]
+        | ( snglq_str )  [phx::bind(&set_attr, _val, "default", boost::optional<char>(), _1)]
+        | ( expr )       [phx::bind(&set_attr, _val, "default", boost::optional<char>(), _1)]
+        ;
+
+    cmd_attr = 
+          attr [_val=_1] | flag_attr [_val=_1]
+        ;
+
     variable =
         attr [phx::bind(&ins_cmd_attr, _val, _1)]
         ;
@@ -551,7 +567,7 @@ struct synergia::madx_tree_parser
              | no_case[command_keywords] 
              | ref
              )                   [phx::bind(&set_cmd_keyword, _val, _1)] // keyword
-        >> * ( ',' >> attr [phx::bind(&ins_cmd_attr, _val, _1)] )        // attributes
+        >> * ( ',' >> cmd_attr   [phx::bind(&ins_cmd_attr, _val, _1)] )  // attributes
         ;
 
     command =
