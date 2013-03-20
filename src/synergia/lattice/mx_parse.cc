@@ -604,7 +604,8 @@ bool synergia::parse_madx_tree( string const & s, mx_tree & doc )
 
   ws_t whitespace = space
                   | lit('!')  >> *(char_ - eol) >> eol
-                  | lit("//") >> *(char_ - eol) >> eol;
+                  | lit("//") >> *(char_ - eol) >> eol
+                  | lit("/*") >> *(char_ - "*/") >> "*/";
 
   madx_tree_parser<iter_t, ws_t> parser;
 
