@@ -497,7 +497,10 @@ struct synergia::madx_tree_parser
 
     statement =
         //if_flow | while_flow | command  -- boost 1.45+
-        if_flow [_val = _1] | while_flow [_val = _1] | command [_val = _1]
+          if_flow    [_val = _1] 
+        | while_flow [_val = _1] 
+        | command    [_val = _1]
+        | ';'   // empty statement
         ;
 
     block =

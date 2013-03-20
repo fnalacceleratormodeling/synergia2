@@ -161,6 +161,7 @@ bool mx_command::interpret(MadX & mx) const
                                   : (type_==MX_CMD_ELEMENT_REF) ? ELEMENT_REF
                                                                 : EXECUTABLE ;
 
+    // prepare MadX_command object
     MadX_command cmd;
     cmd.set_name( keyword_, type );
     if ( labeled_ ) {
@@ -178,9 +179,17 @@ bool mx_command::interpret(MadX & mx) const
     // insert the command to the MadX object
     if( labeled_ ) mx.insert_label(label_, cmd);
     else           mx.insert_command(cmd);
+
+    // execute the command if needed
+    execute(mx);
   }
 
   return true;
+}
+
+void mx_command::execute(MadX & mx) const
+{
+
 }
 
 void mx_command::print() const
@@ -347,6 +356,8 @@ bool mx_statement::interpret(MadX & mx) const
     return boost::any_cast<mx_if>(value).interpret(mx);
   else if( type==MX_WHILE )
     return boost::any_cast<mx_while>(value).interpret(mx);
+  else if( type==MX_NULL )
+    return true; // do nothing
   else
     throw runtime_error("mx_statement::interpret()  Unknown statement type");
 }

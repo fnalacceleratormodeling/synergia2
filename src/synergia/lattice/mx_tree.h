@@ -160,6 +160,7 @@ public:
   bool has_label() const { return labeled_; }
 
   bool interpret(MadX & mx) const;
+  void execute(MadX & mx) const;
   void print() const;
 
 private:
