@@ -205,9 +205,10 @@ def  get_tunes(mymap):
     tune_z=mu/(2.*pi)
 
     l,v = numpy.linalg.eig(mymap)
-    print "eigenvalues of one turn map: ", l
-    print "absolute values of eigenvalues (should all be 1): ", abs(l)
-    print "fractional tunes from eigenvalues: ", numpy.log(l).imag/(2.0*numpy.pi)
+    if Commxx().get_rank()==0:
+      print "eigenvalues of one turn map: ", l
+      print "absolute values of eigenvalues (should all be 1): ", abs(l)
+      print "fractional tunes from eigenvalues: ", numpy.log(l).imag/(2.0*numpy.pi)
 
     return (tune_x,tune_y, tune_z)
 
