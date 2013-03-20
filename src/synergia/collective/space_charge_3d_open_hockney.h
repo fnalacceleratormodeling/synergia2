@@ -7,6 +7,7 @@
 #include "synergia/collective/rectangular_grid.h"
 #include "synergia/collective/distributed_rectangular_grid.h"
 #include "synergia/utils/commxx.h"
+#include "synergia/utils/commxx_divider.h"
 #include "synergia/utils/distributed_fft3d.h"
 
 /// Note: internal grid is stored in [z][y][x] order, but
@@ -37,6 +38,7 @@ private:
     Charge_density_comm charge_density_comm;
     E_field_comm e_field_comm;
     Distributed_fft3d_sptr distributed_fft3d_sptr;
+    Commxx_divider_sptr commxx_divider_sptr;
     Commxx_sptr comm2_sptr, comm1_sptr;
     std::vector<int > lowers1, lengths1;
     int real_lower, real_upper, real_length;
@@ -47,12 +49,20 @@ private:
     bool domain_fixed;
     bool have_domains;
     void
-    setup_nondoubled_communication();
-    void
-    setup_default_options();
+    constructor_common(std::vector<int > const& grid_shape);
     void
     set_doubled_domain();
 public:
+    Space_charge_3d_open_hockney(std::vector<int > const & grid_shape,
+            bool longitudinal_kicks = true, bool periodic_z = false,
+            double z_period = 0.0, bool grid_entire_period = false,
+            double n_sigma = 8.0);
+    Space_charge_3d_open_hockney(Commxx_divider_sptr commxx_divider_sptr,
+            std::vector<int > const & grid_shape,
+            bool longitudinal_kicks = true, bool periodic_z = false,
+            double z_period = 0.0, bool grid_entire_period = false,
+            double n_sigma = 8.0);
+    /// Deprecated. The comm_sptr argument is ignored.
     Space_charge_3d_open_hockney(Commxx_sptr comm_sptr,
             std::vector<int > const & grid_shape,
             bool longitudinal_kicks = true, bool periodic_z = false,
@@ -60,13 +70,18 @@ public:
             double n_sigma = 8.0);
     /// Note: Use Space_charge_3d_open_hockney::get_internal_grid_shape for
     /// Distributed_fft3d.
-    Space_charge_3d_open_hockney(Distributed_fft3d_sptr distributed_fft3d_sptr,
-            bool longitudinal_kicks = true, bool periodic_z = false,
-            double z_period = 0.0, bool grid_entire_period = false,
-            double n_sigma = 8.0);
+    /// jfa: unnecessary complication
+//    Space_charge_3d_open_hockney(Distributed_fft3d_sptr distributed_fft3d_sptr,
+//            bool longitudinal_kicks = true, bool periodic_z = false,
+//            double z_period = 0.0, bool grid_entire_period = false,
+//            double n_sigma = 8.0);
     Space_charge_3d_open_hockney();
     virtual Space_charge_3d_open_hockney *
     clone();
+    void
+    setup_communication(Commxx_sptr const& bunch_comm_sptr);
+    void
+    setup_derived_communication();
     double
     get_n_sigma() const;
     void
@@ -82,7 +97,7 @@ public:
     E_field_comm
     get_e_field_comm() const;
     void
-    auto_tune_comm(bool verbose = false);
+    auto_tune_comm(Bunch & bunch, bool verbose = false);
     void
     set_fixed_domain(Rectangular_grid_domain_sptr domain_sptr);
     void

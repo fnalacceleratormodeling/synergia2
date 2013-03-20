@@ -44,11 +44,26 @@ run(Benchmark_options const& opts)
         exit(1);
     }
     lattice_sptr->set_all_string_attribute("extractor_type","chef_propagate");
-    Commxx_sptr sc_comm_sptr(new Commxx(opts.avoid));
+
+    Commxx_sptr comm_sptr(new Commxx);
+    Bunch_sptr bunch_sptr(
+            new Bunch(lattice_sptr->get_reference_particle(),
+                    num_macro_particles, num_real_particles, comm_sptr));
+    Random_distribution distribution(seed, *comm_sptr);
+    MArray1d means;
+    xml_load(means, "cxx_means.xml");
+    MArray2d covariances;
+    xml_load(covariances, "cxx_covariance_matrix.xml");
+    populate_6d(distribution, *bunch_sptr, means, covariances);
+    if (opts.sortperiod > 0) {
+        bunch_sptr->sort(Bunch::z);
+    }
+    bunch_sptr->set_sort_period(opts.sortperiod);
+
     Space_charge_3d_open_hockney_sptr space_charge_sptr(
-            new Space_charge_3d_open_hockney(sc_comm_sptr, grid_shape));
+            new Space_charge_3d_open_hockney(grid_shape));
     if (opts.autotune) {
-        space_charge_sptr->auto_tune_comm(true);
+        space_charge_sptr->auto_tune_comm(*bunch_sptr, true);
     } else {
         if (opts.chargecomm > 0) {
             space_charge_sptr->set_charge_density_comm(
@@ -71,21 +86,6 @@ run(Benchmark_options const& opts)
                     num_steps));
     Propagator propagator(stepper_sptr);
     propagator.set_final_checkpoint(false);
-
-    Commxx_sptr comm_sptr(new Commxx);
-    Bunch_sptr bunch_sptr(
-            new Bunch(lattice_sptr->get_reference_particle(),
-                    num_macro_particles, num_real_particles, comm_sptr));
-    Random_distribution distribution(seed, *comm_sptr);
-    MArray1d means;
-    xml_load(means, "cxx_means.xml");
-    MArray2d covariances;
-    xml_load(covariances, "cxx_covariance_matrix.xml");
-    populate_6d(distribution, *bunch_sptr, means, covariances);
-    if (opts.sortperiod > 0) {
-        bunch_sptr->sort(Bunch::z);
-    }
-    bunch_sptr->set_sort_period(opts.sortperiod);
 
     Bunch_simulator bunch_simulator(bunch_sptr);
     if (opts.diagnostics) {

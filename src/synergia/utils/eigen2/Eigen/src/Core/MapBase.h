@@ -66,11 +66,11 @@ template<typename Derived> class MapBase
     inline const Scalar* data() const { return m_data; }
 
     template<bool IsForceAligned,typename Dummy> struct force_aligned_impl {
-      AlignedDerivedType static run(MapBase& a) { return a.derived(); }
+      static AlignedDerivedType run(MapBase& a) { return a.derived(); }
     };
 
     template<typename Dummy> struct force_aligned_impl<false,Dummy> {
-      AlignedDerivedType static run(MapBase& a) { return a.derived()._convertToForceAligned(); }
+      static AlignedDerivedType run(MapBase& a) { return a.derived()._convertToForceAligned(); }
     };
 
     /** \returns an expression equivalent to \c *this but having the \c PacketAccess constant
@@ -99,7 +99,7 @@ template<typename Derived> class MapBase
     inline const Scalar coeff(int index) const
     {
       ei_assert(Derived::IsVectorAtCompileTime || (ei_traits<Derived>::Flags & LinearAccessBit));
-      if ( ((RowsAtCompileTime == 1) == IsRowMajor) )
+      if ( ((RowsAtCompileTime == 1) == IsRowMajor) || !int(Derived::IsVectorAtCompileTime) )
         return m_data[index];
       else
         return m_data[index*stride()];
@@ -108,7 +108,7 @@ template<typename Derived> class MapBase
     inline Scalar& coeffRef(int index)
     {
       ei_assert(Derived::IsVectorAtCompileTime || (ei_traits<Derived>::Flags & LinearAccessBit));
-      if ( ((RowsAtCompileTime == 1) == IsRowMajor) )
+      if ( ((RowsAtCompileTime == 1) == IsRowMajor)  || !int(Derived::IsVectorAtCompileTime) )
         return const_cast<Scalar*>(m_data)[index];
       else
         return const_cast<Scalar*>(m_data)[index*stride()];

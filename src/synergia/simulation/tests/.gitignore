@@ -29,6 +29,9 @@ test_propagator_mpi
 test_polygon_aperture_operation
 test_split_operator_stepper_choice
 
+quadrupole_correctors.txt
+sextupole_correctors.txt
+
 *.h5
 *.xml
 !foborodobo32.xml

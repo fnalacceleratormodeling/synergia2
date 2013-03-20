@@ -12,7 +12,7 @@ BGLINUX=/bgsys/drivers/ppcfloor/gnu-linux
 cobalt-mpirun -mode vn -np @@numproc@@ -env "PATH=@@synergia2dir@@/../bin:$BGLINUX/bin:$PATH LD_LIBRARY_PATH=@@synergia2dir@@:$BGLINUX/lib:/bgsys/drivers/ppcfloor/comm/default/lib:/bgsys/drivers/ppcfloor/comm/sys/lib:$LD_LIBRARY_PATH PYTHONPATH=@@synergia2dir@@:@@synergia2dir@@/python2.6/site-packages:$PYTHONPATH SYNERGIA2DIR=@@synergia2dir@@" -verbose 2 $BGLINUX/bin/python @@script@@ @@args@@
 
 # if running multiple simultaneous executables, use
-#cobalt-subrun nnodes1 partition -mode vn -np @@numproc@@ -env "PATH=@@synergia2dir@@/../bin:$BGLINUX/bin:$PATH LD_LIBRARY_PATH=@@synergia2dir@@:$BGLINUX/lib:/bgsys/drivers/ppcfloor/comm/default/lib:/bgsys/drivers/ppcfloor/comm/sys/lib:$LD_LIBRARY_PATH PYTHONPATH=@@synergia2dir@@:@@synergia2dir@@/python2.6/site-packages:$PYTHONPATH SYNERGIA2DIR=@@synergia2dir@@" -verbose 2 $BGLINUX/bin/python @@script@@ @@args@@ &
+#cobalt-subrun nnodes1 partition -mode vn -np @@numproc@@ -env "PATH=@@synergia2dir@@/../bin:$BGLINUX/bin:$PATH LD_LIBRARY_PATH=@@synergia2dir@@:$BGLINUX/lib:/bgsys/drivers/ppcfloor/comm/default/lib:/bgsys/drivers/ppcfloor/comm/sys/lib PYTHONPATH=@@synergia2dir@@:@@synergia2dir@@/python2.6/site-packages:$PYTHONPATH SYNERGIA2DIR=@@synergia2dir@@" -verbose 2 $BGLINUX/bin/python @@script@@ @@args@@ &
 # can redirect output and error, must use
 # wait
 # at the end
