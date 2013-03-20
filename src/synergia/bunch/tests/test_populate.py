@@ -32,7 +32,9 @@ def test_6d():
     means = numpy.zeros((6,), 'd')
     covariances = numpy.zeros((6, 6), 'd')
     for i in range(0, 6):
-        covariances[i][i] = 1.1 * i
+        covariances[i][i] = 1.1 * (i+1)
+    covariances[1][1] = covariances[1][1]*1.0e-6
+    covariances[3][3] = covariances[3][3]*1.0e-6
     populate_6d(distribution, bunch, means, covariances)
 
 def test_transverse_gaussian():
@@ -42,6 +44,8 @@ def test_transverse_gaussian():
     means = numpy.zeros((6,), 'd')
     covariances = numpy.zeros((6, 6), 'd')
     for i in range(0, 6):
-        covariances[i][i] = 1.1 * i
+        covariances[i][i] = 1.1 * (i+1)
+    covariances[1][1] = covariances[1][1]*1.0e-6
+    covariances[3][3] = covariances[3][3]*1.0e-6
     cdt = 3.14
     populate_transverse_gaussian(distribution, bunch, means, covariances, cdt)
