@@ -189,7 +189,23 @@ bool mx_command::interpret(MadX & mx) const
 
 void mx_command::execute(MadX & mx) const
 {
-
+  if( keyword_ == "call" )
+  {
+    for( attrs_t::const_iterator it = attrs_.begin()
+       ; it != attrs_.end(); ++it )
+    {
+      if( it->name() == "file" )
+      {
+        string fname = boost::any_cast<string>(it->value());
+        mx_tree subroutine;
+        bool r = parse_madx_file(fname, subroutine);
+        if( !r ) throw runtime_error("Error parsing subroutine " + fname);
+        subroutine.interpret(mx);
+        return;
+      }
+    }
+    throw runtime_error("Error executing command 'call'");
+  } 
 }
 
 void mx_command::print() const
