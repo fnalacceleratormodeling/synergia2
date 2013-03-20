@@ -12,6 +12,7 @@ namespace synergia
 
   // parse mad8 file
   bool parse_madx_file( string_t const & fname, MadX & mx );
+  bool parse_madx_file( string_t const & fname, mx_tree & doc );
 
   bool parse_madx_tree( string_t const & s, mx_tree & doc );
 

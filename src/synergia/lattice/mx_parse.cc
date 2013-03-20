@@ -630,26 +630,39 @@ bool synergia::parse_madx( string_t const & str, MadX & mx )
   return r;
 }
 
+// helper
+namespace
+{
+  void read_from_file( string const & fname, string & str )
+  {
+    ifstream file;
+    file.open(fname.c_str());
+
+    if( !file.is_open() )
+      throw runtime_error( "Failed to open file " + fname + " for parsing");
+
+    file.seekg(0, std::ios::end);
+    str.reserve(file.tellg());
+    file.seekg(0, std::ios::beg);
+
+    str.assign((istreambuf_iterator<char>(file)),
+                istreambuf_iterator<char>());
+
+    file.close();
+  }
+}
+
+bool synergia::parse_madx_file( string_t const & fname, mx_tree & doc )
+{
+  string str;
+  read_from_file( fname, str );
+  return parse_madx_tree( str, doc );
+}
 
 bool synergia::parse_madx_file( string_t const & fname, MadX & mx )
 {
-
-  ifstream file;
-  file.open(fname.c_str());
-
-  if( !file.is_open() )
-    throw runtime_error( "Failed to open file " + fname + " for parsing");
-
-  file.seekg(0, std::ios::end);
   string str;
-  str.reserve(file.tellg());
-  file.seekg(0, std::ios::beg);
-
-  str.assign((istreambuf_iterator<char>(file)),
-              istreambuf_iterator<char>());
-
-  file.close();
-
+  read_from_file( fname, str );
   return parse_madx( str, mx );
 }
 
