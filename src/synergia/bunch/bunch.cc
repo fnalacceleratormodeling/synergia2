@@ -182,6 +182,7 @@ Bunch::Bunch(Bunch const& bunch) :
     total_num = bunch.total_num;
     real_num = bunch.real_num;
     local_num = bunch.local_num;
+    bucket_index=bunch.bucket_index;
     local_particles = new MArray2d(*(bunch.local_particles));
     state = bunch.state;
     z_period_length=bunch.z_period_length;
@@ -203,6 +204,7 @@ Bunch::operator=(Bunch const& bunch)
         total_num = bunch.total_num;
         real_num = bunch.real_num;
         local_num = bunch.local_num;
+	bucket_index=bunch.bucket_index;
         local_particles = new MArray2d(*(bunch.local_particles));
         state = bunch.state;
         z_period_length=bunch.z_period_length;
