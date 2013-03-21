@@ -5,6 +5,9 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "synergia/foundation/physical_constants.h"
+#include "synergia/foundation/four_momentum.h"
+
 using namespace synergia;
 using namespace std;
 
@@ -147,8 +150,12 @@ void mx_command::ins_attr(mx_attr const & attr)
   attrs_.push_back( attr );
 }
 
-bool mx_command::interpret(MadX & mx) const
+bool mx_command::interpret(MadX & mx) 
 {
+  // first execute the command if needed
+  execute(mx);
+
+  // push the command into MadX object
   if( type_ == MX_CMD_VARIABLE )
   {
     mx_attr attr = attrs_[0];
@@ -179,18 +186,16 @@ bool mx_command::interpret(MadX & mx) const
     // insert the command to the MadX object
     if( labeled_ ) mx.insert_label(label_, cmd);
     else           mx.insert_command(cmd);
-
-    // execute the command if needed
-    execute(mx);
   }
 
   return true;
 }
 
-void mx_command::execute(MadX & mx) const
+void mx_command::execute(MadX & mx)
 {
   if( keyword_ == "call" )
   {
+    // pull in the sub-file
     for( attrs_t::const_iterator it = attrs_.begin()
        ; it != attrs_.end(); ++it )
     {
@@ -206,6 +211,95 @@ void mx_command::execute(MadX & mx) const
     }
     throw runtime_error("Error executing command 'call'");
   } 
+  else if( keyword_ == "beam" )
+  {
+    // beam can always be referenced with 'beam'
+    if( !labeled_ )
+    {
+      label_ = "beam";
+      labeled_ = true;
+    }
+
+    // build attributes of beam
+    double mass = 0, charge = 0, energy = 0, pc = 0, gamma = 0;
+    for ( attrs_t::const_iterator it = attrs_.begin()
+        ; it != attrs_.end(); ++it ) 
+    {
+      if ( it->name() == "particle" ) 
+      {
+        string particle = any_cast<mx_keyword>( it->value() ).name;
+        if (particle == "proton") {
+          mass = pconstants::mp;
+          charge = pconstants::proton_charge;
+        } else if (particle == "antiproton") {
+          mass = pconstants::mp;
+          charge = pconstants::antiproton_charge;
+        } else if (particle == "electron") {
+          mass = pconstants::me;
+          charge = pconstants::electron_charge;
+        } else if (particle == "positron") {
+          mass = pconstants::me;
+          charge = pconstants::positron_charge;
+        } else if (particle == "negmuon") {
+          mass = pconstants::mmu;
+          charge = pconstants::muon_charge;
+        } else if (particle == "posmuon") {
+          mass = pconstants::mmu;
+          charge = pconstants::antimuon_charge;
+        } else {
+          throw runtime_error("Unknown particle type " + particle);
+        }
+      } 
+      else if ( it->name() == "mass") 
+      {
+        mx_expr e = boost::any_cast<mx_expr>( it->value() );
+        mass = boost::apply_visitor(mx_calculator(mx), e);
+      } 
+      else if ( it->name() == "charge") 
+      {
+        mx_expr e = boost::any_cast<mx_expr>( it->value() );
+        charge = boost::apply_visitor(mx_calculator(mx), e);
+      } 
+      else if ( it->name() == "energy") 
+      {
+        mx_expr e = boost::any_cast<mx_expr>( it->value() );
+        energy = boost::apply_visitor(mx_calculator(mx), e);
+      } 
+      else if ( it->name() == "pc") 
+      {
+        mx_expr e = boost::any_cast<mx_expr>( it->value() );
+        pc = boost::apply_visitor(mx_calculator(mx), e);
+      } 
+      else if ( it->name() == "gamma") 
+      {
+        mx_expr e = boost::any_cast<mx_expr>( it->value() );
+        gamma = boost::apply_visitor(mx_calculator(mx), e);
+      }
+    }
+
+    Four_momentum four_momentum(mass);
+
+    if (energy > 0) four_momentum.set_total_energy(energy);
+    if (pc > 0)     four_momentum.set_momentum(pc);
+    if (gamma > 0)  four_momentum.set_gamma(gamma);
+
+    mx_attr attr;
+    if (energy == 0) 
+    {
+      attr.set_attr( "energy", mx_expr(four_momentum.get_total_energy()) );
+      ins_attr(attr);
+    }
+    if (pc == 0) 
+    {
+      attr.set_attr( "pc", mx_expr(four_momentum.get_momentum()) );
+      ins_attr(attr);
+    }
+    if (gamma == 0) 
+    {
+      attr.set_attr( "gamma", mx_expr(four_momentum.get_gamma()) );
+      ins_attr(attr);
+    }
+  }
 }
 
 void mx_command::print() const
@@ -233,7 +327,7 @@ bool mx_if_block::evaluate_logic(MadX & mx) const
   return true;
 }
 
-bool mx_if_block::interpret_block(MadX & mx) const
+bool mx_if_block::interpret_block(MadX & mx)
 {
   return block.interpret(mx);
 }
@@ -264,7 +358,7 @@ void mx_if::assign_else(mx_tree const & block)
   else_ = mx_if_block("1", block);
 }
 
-bool mx_if::interpret(MadX & mx) const
+bool mx_if::interpret(MadX & mx)
 {
   if( !if_.valid() )
     throw runtime_error("mx_if::interpret() Invalid if command");
@@ -275,7 +369,7 @@ bool mx_if::interpret(MadX & mx) const
   }
   else if( !elseif_.empty() )
   {
-    for( mx_if_block_v::const_iterator it = elseif_.begin();
+    for( mx_if_block_v::iterator it = elseif_.begin();
          it != elseif_.end();
          ++it )
     {
@@ -328,7 +422,7 @@ void mx_while::assign(string const & logic, mx_tree const & block)
   while_ = mx_if_block(logic, block);
 }
 
-bool mx_while::interpret(MadX & mx) const
+bool mx_while::interpret(MadX & mx)
 {
   return true;
 }
@@ -364,7 +458,7 @@ void mx_statement::assign(mx_while const & st)
   type = MX_WHILE;
 }
 
-bool mx_statement::interpret(MadX & mx) const
+bool mx_statement::interpret(MadX & mx) 
 {
   if( type==MX_COMMAND )
     return boost::any_cast<mx_command>(value).interpret(mx);
@@ -391,9 +485,9 @@ void mx_statement::print() const
 }
 
 // tree
-bool mx_tree::interpret(MadX & mx) const
+bool mx_tree::interpret(MadX & mx) 
 {
-  for( mx_statements_t::const_iterator it = statements.begin();
+  for( mx_statements_t::iterator it = statements.begin();
        it != statements.end();
        ++it )
   {

@@ -90,7 +90,7 @@ public:
   void assign(mx_if const & st);
   void assign(mx_while const & st);
 
-  bool interpret(MadX & mx) const;
+  bool interpret(MadX & mx);
   void print() const;
 
 private:
@@ -112,7 +112,7 @@ public:
   { }
 
   void push(mx_statement const & st);
-  bool interpret(MadX & mx) const;
+  bool interpret(MadX & mx);
   void print() const;
 
 private:
@@ -159,8 +159,8 @@ public:
 
   bool has_label() const { return labeled_; }
 
-  bool interpret(MadX & mx) const;
-  void execute(MadX & mx) const;
+  bool interpret(MadX & mx);
+  void execute(MadX & mx);
   void print() const;
 
 private:
@@ -186,7 +186,7 @@ public:
 
   bool valid() const { return valid_; }
   bool evaluate_logic(MadX & mx) const;
-  bool interpret_block(MadX & mx) const;
+  bool interpret_block(MadX & mx);
 
   void print_logic() const;
   void print_block() const;
@@ -210,7 +210,7 @@ public:
   void assign_if    (std::string const & logic, mx_tree const & block);
   void assign_elseif(std::string const & logic, mx_tree const & block);
   void assign_else  (mx_tree const & block);
-  bool interpret(MadX & mx) const;
+  bool interpret(MadX & mx);
   void print() const;
 
 private:
@@ -228,7 +228,7 @@ public:
   { }
 
   void assign(std::string const & logic, mx_tree const & block);
-  bool interpret(MadX & mx) const;
+  bool interpret(MadX & mx);
   void print() const;
 
 private:
