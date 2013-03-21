@@ -74,6 +74,13 @@ namespace
   double sub(double v1, double v2) { return v1-v2; }
   double mul(double v1, double v2) { return v1*v2; }
   double div(double v1, double v2) { return v1/v2; }
+
+  bool op_l (double l, double r) { return l< r; }
+  bool op_le(double l, double r) { return l<=r; }
+  bool op_e (double l, double r) { return l==r; }
+  bool op_ne(double l, double r) { return l!=r; }
+  bool op_g (double l, double r) { return l> r; }
+  bool op_ge(double l, double r) { return l>=r; }
 }
 
 
@@ -290,16 +297,19 @@ namespace synergia
 {
   namespace
   {
-    void ins_if(mx_if & if_, string const & logic, mx_tree const & block)
+    void set_logic( mx_logic & logic, mx_expr const & lhs, logic_op_t op, mx_expr const & rhs)
+    { logic.set(lhs, op, rhs); }
+
+    void ins_if(mx_if & if_, mx_logic const & logic, mx_tree const & block)
     { if_.assign_if(logic, block); }
 
-    void ins_elseif(mx_if & if_, string const & logic, mx_tree const & block)
+    void ins_elseif(mx_if & if_, mx_logic const & logic, mx_tree const & block)
     { if_.assign_elseif(logic, block); }
 
     void ins_else(mx_if & if_, mx_tree const & block)
     { if_.assign_else(block); }
 
-    void ins_while(mx_while & while_, string const & logic, mx_tree const & block)
+    void ins_while(mx_while & while_, mx_logic const & logic, mx_tree const & block)
     { while_.assign(logic, block); }
 
     void set_attr(mx_attr & attr, string const & name, boost::optional<char> c, any const & v)
@@ -324,6 +334,22 @@ struct synergia::madx_tree_parser
   : qi::grammar< Iterator, mx_tree(), Skip >
 {
   // keywords
+  struct logic_op_ 
+    : boost::spirit::qi::symbols< typename std::iterator_traits<Iterator>::value_type, 
+                                  logic_op_t >
+  {
+    logic_op_()
+    {
+      this->add ("<" , (logic_op_t) op_l  )
+                ("<=", (logic_op_t) op_le )
+                ("==", (logic_op_t) op_e  )
+                ("!=", (logic_op_t) op_ne )
+                (">" , (logic_op_t) op_g  )
+                (">=", (logic_op_t) op_ge )
+      ;
+    }
+  } logic_op;
+
   struct particle_keywords_
     : boost::spirit::qi::symbols< typename std::iterator_traits<Iterator>::value_type,
                                   mx_keyword >
@@ -467,7 +493,7 @@ struct synergia::madx_tree_parser
   qi::rule<Iterator, mx_keyword()  , Skip> ref;
   qi::rule<Iterator, mx_if()       , Skip> if_flow;
   qi::rule<Iterator, mx_while()    , Skip> while_flow;
-  qi::rule<Iterator, string()      , Skip> logic;
+  qi::rule<Iterator, mx_logic()    , Skip> logic;
   qi::rule<Iterator, mx_attr()     , Skip> attr;
   qi::rule<Iterator, mx_attr()     , Skip> flag_attr;
   qi::rule<Iterator, mx_attr()     , Skip> cmd_attr;
@@ -509,8 +535,9 @@ struct synergia::madx_tree_parser
         '{' >> statements [_val = _1] >> '}'
         ;
 
-    logic =  // TODO: need more work
-        '(' >> *(char_ - char_(')')) >> ')'
+    logic = 
+        //'(' >> *(char_ - char_(')')) >> ')'
+        ( '(' >> expr >> logic_op >> expr >> ')' )  [phx::bind(&set_logic, _val, _1, _2, _3)]
         ;
 
     if_flow =

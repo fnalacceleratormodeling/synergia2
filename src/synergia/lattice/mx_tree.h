@@ -12,6 +12,8 @@
 
 namespace synergia 
 {
+  typedef bool(*logic_op_t)(double, double);
+
   enum mx_statement_type 
     { MX_NULL
     , MX_COMMAND
@@ -46,6 +48,7 @@ namespace synergia
 
   class mx_attr;
   class mx_command;
+  class mx_logic;
   class mx_if_block;
   class mx_if;
   class mx_while;
@@ -68,6 +71,24 @@ struct synergia::mx_keyword
   mx_keyword_type tag;
 };
 
+class synergia::mx_logic
+{
+public:
+  mx_logic(bool p = true) 
+    : lhs(0.0), rhs(0.0), op(), pre(p), use_preset(true) { }
+  mx_logic(mx_expr const & l, mx_expr const & r, logic_op_t o)
+    : lhs(l), rhs(r), op(o), pre(true), use_preset(false) { }
+
+  void set(mx_expr const & l, logic_op_t o, mx_expr const & r);
+  bool evaluate(MadX const & mx) const;
+
+private:
+  mx_expr lhs;
+  mx_expr rhs;
+  logic_op_t op;
+  bool pre;
+  bool use_preset;
+};
 
 // statement could be a command, if- or while-
 class synergia::mx_statement
@@ -180,19 +201,19 @@ public:
   mx_if_block()
     : logic_expr(), block(), valid_(false)
   { }
-  mx_if_block(std::string const & logic, mx_tree const & block) 
+  mx_if_block(mx_logic const & logic, mx_tree const & block) 
     : logic_expr(logic), block(block), valid_(true) 
   { }
 
   bool valid() const { return valid_; }
-  bool evaluate_logic(MadX & mx) const;
+  bool evaluate_logic(MadX const & mx) const;
   bool interpret_block(MadX & mx);
 
   void print_logic() const;
   void print_block() const;
 
 private:
-  std::string logic_expr;
+  mx_logic logic_expr;
   mx_tree block;
   bool valid_;
 };
@@ -207,8 +228,8 @@ public:
     : if_(), elseif_(), else_() 
   { }
 
-  void assign_if    (std::string const & logic, mx_tree const & block);
-  void assign_elseif(std::string const & logic, mx_tree const & block);
+  void assign_if    (mx_logic const & logic, mx_tree const & block);
+  void assign_elseif(mx_logic const & logic, mx_tree const & block);
   void assign_else  (mx_tree const & block);
   bool interpret(MadX & mx);
   void print() const;
@@ -227,7 +248,7 @@ public:
     : while_()
   { }
 
-  void assign(std::string const & logic, mx_tree const & block);
+  void assign(mx_logic const & logic, mx_tree const & block);
   bool interpret(MadX & mx);
   void print() const;
 

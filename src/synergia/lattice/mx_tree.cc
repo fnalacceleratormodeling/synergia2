@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <cassert>
 
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/foundation/four_momentum.h"
@@ -76,6 +77,22 @@ namespace synergia
 }
 
 
+void mx_logic::set(mx_expr const & l, logic_op_t o, mx_expr const & r)
+{
+  lhs = l; rhs = r; op = o; use_preset = false;
+}
+
+bool mx_logic::evaluate(MadX const & mx) const
+{
+  if( use_preset ) return pre;
+
+  assert( op!=NULL );
+
+  double l = boost::apply_visitor( mx_calculator(mx), lhs );
+  double r = boost::apply_visitor( mx_calculator(mx), rhs );
+
+  return op(l, r);
+}
 
 // attributes
 void mx_attr::set_attr(std::string const & name, boost::any const & val)
@@ -320,11 +337,9 @@ void mx_command::print() const
 }
 
 // if_block
-bool mx_if_block::evaluate_logic(MadX & mx) const
+bool mx_if_block::evaluate_logic(MadX const & mx) const
 {
-  // TODO: parse logic
-
-  return true;
+  return logic_expr.evaluate(mx);
 }
 
 bool mx_if_block::interpret_block(MadX & mx)
@@ -334,7 +349,7 @@ bool mx_if_block::interpret_block(MadX & mx)
 
 void mx_if_block::print_logic() const
 {
-  cout << logic_expr;
+  //cout << logic_expr;
 }
 
 void mx_if_block::print_block() const
@@ -343,19 +358,19 @@ void mx_if_block::print_block() const
 }
 
 // if-elseif-else
-void mx_if::assign_if(string const & logic, mx_tree const & block)
+void mx_if::assign_if(mx_logic const & logic, mx_tree const & block)
 {
   if_ = mx_if_block(logic, block);
 }
 
-void mx_if::assign_elseif(string const & logic, mx_tree const & block)
+void mx_if::assign_elseif(mx_logic const & logic, mx_tree const & block)
 {
   elseif_.push_back(mx_if_block(logic, block));
 }
 
 void mx_if::assign_else(mx_tree const & block)
 {
-  else_ = mx_if_block("1", block);
+  else_ = mx_if_block(true, block);
 }
 
 bool mx_if::interpret(MadX & mx)
@@ -417,7 +432,7 @@ void mx_if::print() const
 }
 
 // while
-void mx_while::assign(string const & logic, mx_tree const & block)
+void mx_while::assign(mx_logic const & logic, mx_tree const & block)
 {
   while_ = mx_if_block(logic, block);
 }
