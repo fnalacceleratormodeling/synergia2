@@ -2,6 +2,8 @@
 #include <boost/test/unit_test.hpp>
 #include "synergia/collective/wake_field.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
+#include "synergia/utils/serialization_files.h"
+#include "synergia/utils/multi_array_check_equal.h"
 
 
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
@@ -230,6 +232,37 @@ Wake_field wakef("Fwake.dat", "XLXTYLYTZpp"); // four columns file
   BOOST_CHECK_CLOSE(wakef.get_z_wake()[last],   -34.4432, tolerance);  
  
 }
+
+
+BOOST_AUTO_TEST_CASE(serialize_)
+{
+  Wake_field wakef("Fwake.dat", "XLXTYLYTZpp"); // four columns file
+  xml_save(wakef, "wakef.xml");
+ 
+  Wake_field wake_load;
+  xml_load(wake_load, "wakef.xml");
+   
+   
+  
+   BOOST_CHECK_EQUAL(wakef.get_wake_type(), wake_load.get_wake_type());
+   BOOST_CHECK_EQUAL(wakef.get_wake_file_name(), wake_load.get_wake_file_name());
+   BOOST_CHECK_EQUAL(wakef.get_istart() , wake_load.get_istart() );
+   BOOST_CHECK_EQUAL(wakef.get_zstart() , wake_load.get_zstart() );
+   BOOST_CHECK_EQUAL(wakef.get_delta_z() , wake_load.get_delta_z() );
+   multi_array_check_equal(wakef.get_z_coord(), wake_load.get_z_coord(),  tolerance);
+   multi_array_check_equal(wakef.get_xw_lead() , wake_load.get_xw_lead() ,  tolerance);
+   multi_array_check_equal(wakef.get_xw_trail() , wake_load.get_xw_trail() ,  tolerance);
+   multi_array_check_equal(wakef.get_yw_lead() , wake_load.get_yw_lead() ,  tolerance); 
+   multi_array_check_equal(wakef.get_yw_trail() , wake_load.get_yw_trail() ,  tolerance); 
+   multi_array_check_equal(wakef.get_z_wake() , wake_load.get_z_wake() ,  tolerance); 
+        
+   
+}
+
+ 
+ 
+  
+
 
 
  

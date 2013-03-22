@@ -94,7 +94,8 @@ private:
     double get_orbit_length() const;
     double get_wake_factor() const;
     double get_bunch_spacing() const;
-      
+    int get_num_buckets() const;
+    std::vector<int >  get_train_wave() const;
 
     
     MArray1d_ref &  get_xmom();
@@ -132,8 +133,7 @@ private:
 	    
     template<class Archive>
         void
-        serialize(Archive & ar, const unsigned int version);    
-	    
+        serialize(Archive & ar, const unsigned int version); 
     virtual
     ~Impedance();
 };
