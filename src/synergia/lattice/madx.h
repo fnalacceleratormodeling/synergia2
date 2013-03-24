@@ -114,6 +114,9 @@ public:
   // modifier
   void insert_element(string_t const & ele);
 
+  // print
+  void print() const;
+
 private:
 
   MadX const & parent;
@@ -139,6 +142,9 @@ public:
   void set_length(double length);
   void add_element(MadX_command const & cmd);
   void reset();
+
+  // print
+  void print() const;
 
 private:
   MadX const & parent;

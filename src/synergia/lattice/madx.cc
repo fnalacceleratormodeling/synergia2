@@ -8,6 +8,7 @@
 
 
 using namespace synergia;
+using namespace std;
 
 
 //===========================================================================
@@ -290,6 +291,18 @@ void
   elements_.push_back(e);
 }
 
+void
+  MadX_line::print() const
+{
+  cout << "( ";
+  for( vector<string>::const_iterator it=elements_.begin()
+     ; it!=elements_.end(); ++it )
+  {
+    cout << *it;
+    if( it+1 != elements_.end() ) cout << ", ";
+  }
+  cout << " )\n";
+}
 
 //===========================================================================
 // MadX_sequence
@@ -342,6 +355,12 @@ void
   lbl = string_t();
   l = 0.0;
   seq_.clear();
+}
+
+void
+  MadX_sequence::print() const
+{
+
 }
 
 
@@ -505,16 +524,19 @@ MadX_sequence &
 MadX_entry_type
   MadX::entry_type(string_t const & entry) const
 {
-  if( variables_.find(entry) != variables_.end() )
+  string_t key(entry);
+  std::transform( key.begin(), key.end(), key.begin(), ::tolower );
+
+  if( variables_.find(key) != variables_.end() )
     return ENTRY_VARIABLE;
 
-  if( cmd_map_.find(entry) != cmd_map_.end() )
+  if( cmd_map_.find(key) != cmd_map_.end() )
     return ENTRY_COMMAND;
 
-  if( lines_.find(entry) != lines_.end() )
+  if( lines_.find(key) != lines_.end() )
     return ENTRY_LINE;
 
-  if( seqs_.find(entry) != seqs_.end() )
+  if( seqs_.find(key) != seqs_.end() )
     return ENTRY_SEQUENCE;
 
   return ENTRY_NULL;
@@ -639,6 +661,13 @@ void
     std::string key = it->first;
     double val = variable_as_number(key);
     std::cout << key << " = " << val << "\n";
+  }
+
+  for( lines_m_t::const_iterator it=lines_.begin()
+     ; it!=lines_.end(); ++it )
+  {
+    cout << it->first << " : line = ";
+    it->second.print();
   }
 }
 

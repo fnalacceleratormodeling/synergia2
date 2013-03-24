@@ -17,6 +17,7 @@ namespace synergia
   enum mx_statement_type 
     { MX_NULL
     , MX_COMMAND
+    , MX_LINE
     , MX_IF
     , MX_WHILE
     , MX_MACRO };
@@ -113,10 +114,14 @@ public:
   mx_statement(mx_while const & st)
     : value(st), type(MX_WHILE)
   { }
+  mx_statement(mx_line const & st)
+    : value(st), type(MX_LINE)
+  { }
 
   void assign(mx_command const & st);
   void assign(mx_if const & st);
   void assign(mx_while const & st);
+  void assign(mx_line const & st);
 
   bool interpret(MadX & mx);
   void print() const;
@@ -205,6 +210,10 @@ class synergia::mx_line_member
 public:
   mx_line_member() 
     : member(), tag(MX_LINE_MEMBER_NAME) { }
+  mx_line_member(string_t const & name)
+    : member(name), tag(MX_LINE_MEMBER_NAME) { }
+  mx_line_member(mx_line_seq const & seq)
+    : member(seq), tag(MX_LINE_MEMBER_SEQ) { }
 
   bool interpret(MadX const & mx, MadX_line & line, int op=1);
 
@@ -220,6 +229,7 @@ class synergia::mx_line_seq
 public:
   mx_line_seq() : members() { }
 
+  void insert_member(int op, mx_line_member const & member);
   bool interpret(MadX const & mx, MadX_line & line, int op=1);
 
 private:
@@ -231,6 +241,8 @@ class synergia::mx_line
 {
 public:
   mx_line() { }
+  mx_line(string_t const & name, mx_line_seq const & seq)
+    : name(name), seq(seq) { }
 
   bool interpret(MadX & mx);
 

@@ -142,6 +142,11 @@ bool mx_line::interpret(MadX & mx)
   return true;
 }
 
+void mx_line_seq::insert_member(int op, mx_line_member const & member)
+{
+  members.push_back( make_pair(member, op) );
+}
+
 bool mx_line_seq::interpret(MadX const & mx, MadX_line & line, int op)
 {
   if( op==0 ) return true;
@@ -163,7 +168,7 @@ bool mx_line_seq::interpret(MadX const & mx, MadX_line & line, int op)
 
   if( op<0 )  // reverse then repeat
   {
-    for(int z=0; z<op; ++z)
+    for(int z=0; z>op; --z)
     {
       for( mx_line_members::reverse_iterator it = members.rbegin()
          ; it!=members.rend(); ++it )
@@ -208,24 +213,14 @@ bool mx_line_member::interpret(MadX const & mx, MadX_line & line, int op)
     // or the name referes to a pre-exisitng line
     else if( type==ENTRY_LINE )
     {
-      MadX_line subline = mx.line(name);
+      MadX_line const & subline = mx.line(name);
       size_t ne = subline.element_count();
-
       int repeat = (op>0) ? op : -op;
+
       for(int z=0; z<repeat; ++z)
       {
-        if( op>0 )
-        {
-          // iterate and push to line
-          for(size_t i=0; i<ne; ++i)
-            line.insert_element( subline.element_name(i) );
-        }
-        else
-        {
-          // reverse iterate and push to line
-          for(size_t i=ne-1; i>=0; --i)
-            line.insert_element( subline.element_name(i) );
-        }
+        for(size_t i=0; i<ne; ++i)
+          line.insert_element( subline.element_name( (op>0) ? (i) : (ne-1-i) ) );
       }
     }
     // something we dont support
@@ -580,10 +575,18 @@ void mx_statement::assign(mx_while const & st)
   type = MX_WHILE;
 }
 
+void mx_statement::assign(mx_line const & st)
+{
+  value = any(st);
+  type = MX_LINE;
+}
+
 bool mx_statement::interpret(MadX & mx) 
 {
   if( type==MX_COMMAND )
     return boost::any_cast<mx_command>(value).interpret(mx);
+  else if( type==MX_LINE )
+    return boost::any_cast<mx_line>(value).interpret(mx);
   else if( type==MX_IF )
     return boost::any_cast<mx_if>(value).interpret(mx);
   else if( type==MX_WHILE )

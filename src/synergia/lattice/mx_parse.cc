@@ -59,6 +59,8 @@ using boost::spirit::qi::real_policies;
 using boost::any;
 using boost::any_cast;
 
+using boost::optional;
+
 using namespace qi::labels;
 using namespace std;
 
@@ -312,10 +314,13 @@ namespace synergia
     void ins_while(mx_while & while_, mx_logic const & logic, mx_tree const & block)
     { while_.assign(logic, block); }
 
-    void set_attr(mx_attr & attr, string const & name, boost::optional<char> c, any const & v)
+    void ins_seq_member(mx_line_seq & seq, optional<char> m, optional<int> o, mx_line_member const & member)
+    { int op=m?-1:1; if(o) op*=o.get(); seq.insert_member(op, member); }
+
+    void set_attr(mx_attr & attr, string const & name, optional<char> c, any const & v)
     { if(c) attr.set_lazy_attr(name, v); else attr.set_attr(name, v); }
 
-    void set_flag_attr(mx_attr & attr, boost::optional<char> c, string const & name)
+    void set_flag_attr(mx_attr & attr, optional<char> c, string const & name)
     { if(c) attr.set_attr(name, boost::any(mx_expr(0.0))); else attr.set_attr(name, boost::any(mx_expr(1.0))); }
 
     void set_cmd_label(mx_command & cmd, string const & label)
@@ -490,6 +495,9 @@ struct synergia::madx_tree_parser
   qi::rule<Iterator, mx_command()  , Skip> variable;
   qi::rule<Iterator, mx_command()  , locals<mx_cmd_type>, Skip> cmd;
   qi::rule<Iterator, mx_command()  , Skip> command;
+  qi::rule<Iterator, mx_line()     , Skip> line;
+  qi::rule<Iterator, mx_line_seq() , Skip> line_seq;
+  qi::rule<Iterator, mx_line_member(), Skip> line_member;
   qi::rule<Iterator, mx_keyword()  , Skip> ref;
   qi::rule<Iterator, mx_if()       , Skip> if_flow;
   qi::rule<Iterator, mx_while()    , Skip> while_flow;
@@ -527,6 +535,7 @@ struct synergia::madx_tree_parser
           if_flow    [_val = _1] 
         | while_flow [_val = _1] 
         | command    [_val = _1]
+        | line       [_val = _1]
         | ';'   // empty statement
         ;
 
@@ -601,6 +610,26 @@ struct synergia::madx_tree_parser
 
     command =
         ( variable | cmd ) >> ';'
+        ;
+
+    line = 
+        ( name >> ':' >> no_case["line"] >> '=' >> line_seq >> ';' )
+               [ _val = phx::construct<mx_line>(_1, _2) ]
+        ;
+
+    line_seq  = 
+           lit('(') 
+        >> (
+             ( -char_('-') >> -( int_ >> '*' ) >> line_member ) 
+                                 [phx::bind(&ins_seq_member, _val, _1, _2, _3)]
+           % ','
+           ) 
+        >> lit(')')
+        ;
+
+    line_member = 
+          name     [_val=_1] 
+        | line_seq [_val=_1]
         ;
 
     ref = 
