@@ -34,8 +34,12 @@ namespace synergia
   , ELEMENT_REF
   , EXECUTABLE };
 
-  enum MadX_line_element_type
-  { LABEL, MULTIPLIER, MINUS, LINE };
+  enum MadX_entry_type
+  { ENTRY_NULL
+  , ENTRY_VARIABLE
+  , ENTRY_COMMAND
+  , ENTRY_LINE
+  , ENTRY_SEQUENCE };
 }
 
 struct synergia::MadX_value
@@ -98,28 +102,22 @@ typedef std::map<string_t, synergia::MadX_command>  commands_m_t;
 
 class synergia::MadX_line
 {
-  typedef MadX_line_element_type ele_t;
-
 public:
-  MadX_line() : elements_(), lines_(), index_() { }
+  MadX_line(MadX const & parent) 
+    : parent(parent), elements_() { }
 
   // accessor
-  size_t    element_count() const;
-  ele_t     element_type(size_t idx) const;
-  string_t  element_as_string(size_t idx) const;
-  MadX_line element_as_line  (size_t idx) const;
+  size_t       element_count() const;
+  string_t     element_name(size_t idx) const;
+  MadX_command element(size_t idx, bool resolve=true) const;
 
   // modifier
-  void insert_operator(string_t const & op);
   void insert_element(string_t const & ele);
-  void insert_subline(MadX_line const & line);
 
 private:
 
+  MadX const & parent;
   std::vector<string_t>  elements_;
-  std::vector<MadX_line> lines_;
-  std::vector<std::pair<ele_t, size_t> > index_;  // index_[i].first = element type
-                                                  // index_[i].second = index in respective container
 };
 
 typedef std::map<string_t, synergia::MadX_line>    lines_m_t;
@@ -187,6 +185,8 @@ public:
   MadX_sequence const & sequence(string_t const & s) const;
   MadX_sequence const & current_sequence( ) const;
   MadX_sequence & current_sequence( );
+
+  MadX_entry_type entry_type(string_t const & entry) const;
 
   void print() const;
 
