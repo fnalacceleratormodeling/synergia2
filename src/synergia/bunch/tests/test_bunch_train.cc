@@ -5,6 +5,47 @@
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
+const double tolerance = 1.0e-14;
+
+void
+compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance = tolerance,
+        bool check_state = true, bool check_ids = true)
+{
+    BOOST_CHECK_EQUAL(bunch1.get_reference_particle().get_total_energy(),
+            bunch2.get_reference_particle().get_total_energy());
+    BOOST_CHECK_EQUAL(bunch1.get_particle_charge(),
+            bunch2.get_particle_charge());
+    BOOST_CHECK_CLOSE(bunch1.get_mass(), bunch2.get_mass(), tolerance);
+    BOOST_CHECK_CLOSE(bunch1.get_real_num(), bunch1.get_real_num(), tolerance);
+    BOOST_CHECK_EQUAL(bunch1.get_local_num(), bunch2.get_local_num());
+    BOOST_CHECK_EQUAL(bunch1.get_total_num(), bunch2.get_total_num());
+    BOOST_CHECK_EQUAL(bunch1.get_bucket_index(), bunch2.get_bucket_index());
+    if (check_state) {
+        BOOST_CHECK_EQUAL(bunch1.get_state(), bunch2.get_state());
+    }
+    for (int part = 0; part < bunch1.get_local_num(); ++part) {
+        // this loop is unrolled in order to give more meaningful error messages
+        // i.e., error messages including which component was tested
+        BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][0],
+                bunch2.get_local_particles()[part][0], tolerance);
+        BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][1],
+                bunch2.get_local_particles()[part][1], tolerance);
+        BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][2],
+                bunch2.get_local_particles()[part][2], tolerance);
+        BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][3],
+                bunch2.get_local_particles()[part][3], tolerance);
+        BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][4],
+                bunch2.get_local_particles()[part][4], tolerance);
+        BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][5],
+                bunch2.get_local_particles()[part][5], tolerance);
+        if (check_ids) {
+            BOOST_CHECK_CLOSE(bunch1.get_local_particles()[part][6],
+                    bunch2.get_local_particles()[part][6], tolerance);
+        }
+    }
+}
+
+
 BOOST_FIXTURE_TEST_CASE(construct1, Bunches_fixture)
 {
     const double bunch_separation = 1.7;
@@ -130,4 +171,28 @@ BOOST_FIXTURE_TEST_CASE(get_parent_comm_sptr, Bunches_fixture)
     int result;
     MPI_Comm_compare(MPI_COMM_WORLD, bunch_train.get_parent_comm_sptr()->get(), &result);
     BOOST_CHECK(result == MPI_IDENT);    
+}
+
+BOOST_FIXTURE_TEST_CASE(serialize_xml, Bunches_fixture)
+{
+    const double bunch_separation = 1.7;
+    Bunch_train bunch_train(bunches, bunch_separation);
+    xml_save(bunch_train, "bunch_train.xml");
+    
+    Bunch_train bunch_loaded;
+    xml_load(bunch_loaded, "bunch_train.xml");
+    size_t num_bunches=bunch_train.get_bunches().size();
+    size_t num_loaded=bunch_loaded.get_bunches().size();
+    BOOST_CHECK_EQUAL(num_bunches, num_loaded);
+
+    int result;
+    MPI_Comm_compare( bunch_loaded.get_parent_comm_sptr()->get(),
+		      bunch_train.get_parent_comm_sptr()->get(), &result);
+    BOOST_CHECK(result == MPI_IDENT);    	      
+    
+    for (int i=0; i<num_bunches; ++i){
+      compare_bunches( *bunch_train.get_bunches().at(i), *bunch_loaded.get_bunches().at(i));
+    }
+    
+ 
 }

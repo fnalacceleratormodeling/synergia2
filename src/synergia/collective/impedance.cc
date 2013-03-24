@@ -128,8 +128,9 @@ Impedance::Impedance(Impedance const& impedance)
    this->full_machine=impedance.full_machine;
    this->wn=impedance.wn;
    
-   // the following data are not copied
-   this->stored_vbunches=std::list< std::vector<Bunch_properties> >(); 
+ // the following data are not copied
+
+//    this->stored_vbunches=std::list< std::vector<Bunch_properties> >(); 
 //    this->xmom_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
 //    this->ymom_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
 //    this->zdensity_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
@@ -138,7 +139,7 @@ Impedance::Impedance(Impedance const& impedance)
 //    this->ywake_leading_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
 //    this->ywake_trailing_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
 //    this->zwake0_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
-//   
+  
    this->xmom_sptr=impedance.xmom_sptr; 
    this->ymom_sptr= impedance.ymom_sptr;
    this->zdensity_sptr=impedance. zdensity_sptr;
@@ -208,6 +209,9 @@ bool Impedance::is_full_machine() const { return full_machine;}
 int Impedance::get_nstored_turns() const { return nstored_turns;}
 std::list< std::vector<Bunch_properties> > &
 Impedance::get_stored_vbunches() {return stored_vbunches;}
+
+int Impedance::get_num_buckets() const { return num_buckets;}
+std::vector<int >  Impedance::get_train_wave() const { return wn;}
 
 
 
@@ -304,6 +308,7 @@ Impedance::calculate_moments_and_partitions(Bunch & bunch)
                 "MPI error in Impedance xmom");
     }
   
+   
     
     MPI_Allreduce(reinterpret_cast<void*>(local_ymom.origin()),
                    reinterpret_cast<void*>(ymom.origin()),
@@ -743,6 +748,8 @@ Impedance::Impedance()
 {
 }  
 
+
+
 template<class Archive>
     void
     Impedance::serialize(Archive & ar, const unsigned int version)
@@ -757,21 +764,22 @@ template<class Archive>
 	ar & BOOST_SERIALIZATION_NVP(bunch_spacing);
 	ar & BOOST_SERIALIZATION_NVP(full_machine);
 	ar & BOOST_SERIALIZATION_NVP(wn);
-	ar & BOOST_SERIALIZATION_NVP(stored_vbunches);
+	ar & BOOST_SERIALIZATION_NVP(stored_vbunches);	
 	ar & BOOST_SERIALIZATION_NVP(xmom_sptr);
-	ar & BOOST_SERIALIZATION_NVP(ymom_sptr);
-	ar & BOOST_SERIALIZATION_NVP(zdensity_sptr);
-	ar & BOOST_SERIALIZATION_NVP(bin_partition_sptr);
-	ar & BOOST_SERIALIZATION_NVP(xwake_leading_sptr);
-	ar & BOOST_SERIALIZATION_NVP(xwake_trailing_sptr);
-	ar & BOOST_SERIALIZATION_NVP(ywake_leading_sptr);
-	ar & BOOST_SERIALIZATION_NVP(ywake_trailing_sptr);
-	ar & BOOST_SERIALIZATION_NVP(zwake0_sptr);
+ 	ar & BOOST_SERIALIZATION_NVP(ymom_sptr);
+ 	ar & BOOST_SERIALIZATION_NVP(zdensity_sptr);
+	//ar & BOOST_SERIALIZATION_NVP(bin_partition_sptr);
+ 	ar & BOOST_SERIALIZATION_NVP(xwake_leading_sptr);
+ 	ar & BOOST_SERIALIZATION_NVP(xwake_trailing_sptr);
+ 	ar & BOOST_SERIALIZATION_NVP(ywake_leading_sptr);
+ 	ar & BOOST_SERIALIZATION_NVP(ywake_trailing_sptr);
+ 	ar & BOOST_SERIALIZATION_NVP(zwake0_sptr);
 	ar & BOOST_SERIALIZATION_NVP(N_factor);
 	ar & BOOST_SERIALIZATION_NVP(cell_size_z);
 	ar & BOOST_SERIALIZATION_NVP(bunch_z_mean);
 	ar & BOOST_SERIALIZATION_NVP(bunch_bucket);
     }
+    
 
 template
 

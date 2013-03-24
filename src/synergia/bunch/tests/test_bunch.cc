@@ -76,6 +76,7 @@ compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance = tolerance,
     BOOST_CHECK_CLOSE(bunch1.get_real_num(), bunch1.get_real_num(), tolerance);
     BOOST_CHECK_EQUAL(bunch1.get_local_num(), bunch2.get_local_num());
     BOOST_CHECK_EQUAL(bunch1.get_total_num(), bunch2.get_total_num());
+    BOOST_CHECK_EQUAL(bunch1.get_bucket_index(), bunch2.get_bucket_index());
     if (check_state) {
         BOOST_CHECK_EQUAL(bunch1.get_state(), bunch2.get_state());
     }

@@ -30,7 +30,7 @@
 
 #define EIGEN_WORLD_VERSION 2
 #define EIGEN_MAJOR_VERSION 0
-#define EIGEN_MINOR_VERSION 6
+#define EIGEN_MINOR_VERSION 17
 
 #define EIGEN_VERSION_AT_LEAST(x,y,z) (EIGEN_WORLD_VERSION>x || (EIGEN_WORLD_VERSION>=x && \
                                       (EIGEN_MAJOR_VERSION>y || (EIGEN_MAJOR_VERSION>=y && \
@@ -39,7 +39,7 @@
 // 16 byte alignment is only useful for vectorization. Since it affects the ABI, we need to enable 16 byte alignment on all
 // platforms where vectorization might be enabled. In theory we could always enable alignment, but it can be a cause of problems
 // on some platforms, so we just disable it in certain common platform (compiler+architecture combinations) to avoid these problems.
-#if defined(__GNUC__) && !(defined(__i386__) || defined(__x86_64__) || defined(__powerpc__) || defined(__ia64__))
+#if defined(__GNUC__) && !(defined(__i386__) || defined(__x86_64__) || defined(__powerpc__) || defined(__ppc__) || defined(__ia64__))
 #define EIGEN_GCC_AND_ARCH_DOESNT_WANT_ALIGNMENT 1
 #else
 #define EIGEN_GCC_AND_ARCH_DOESNT_WANT_ALIGNMENT 0
@@ -52,7 +52,7 @@
 #endif
 
 // FIXME vectorization + alignment is completely disabled with sun studio
-#if !EIGEN_GCC_AND_ARCH_DOESNT_WANT_ALIGNMENT && !EIGEN_GCC3_OR_OLDER && !defined(__SUNPRO_CC)
+#if !EIGEN_GCC_AND_ARCH_DOESNT_WANT_ALIGNMENT && !EIGEN_GCC3_OR_OLDER && !defined(__SUNPRO_CC) && !defined(__QNXNTO__)
   #define EIGEN_ARCH_WANTS_ALIGNMENT 1
 #else
   #define EIGEN_ARCH_WANTS_ALIGNMENT 0
@@ -257,6 +257,9 @@ enum { RowsAtCompileTime = Eigen::ei_traits<Derived>::RowsAtCompileTime, \
 _EIGEN_GENERIC_PUBLIC_INTERFACE(Derived, Eigen::MatrixBase<Derived>)
 
 #define EIGEN_ENUM_MIN(a,b) (((int)a <= (int)b) ? (int)a : (int)b)
+#define EIGEN_SIZE_MIN(a,b) (((int)a == 1 || (int)b == 1) ? 1 \
+                           : ((int)a == Dynamic || (int)b == Dynamic) ? Dynamic \
+                           : ((int)a <= (int)b) ? (int)a : (int)b)
 #define EIGEN_ENUM_MAX(a,b) (((int)a >= (int)b) ? (int)a : (int)b)
 
 // just an empty macro !
