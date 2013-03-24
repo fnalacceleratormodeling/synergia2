@@ -134,6 +134,113 @@ void mx_attr::set_lazy_attr(std::string const & name, boost::any const & val)
 }
 
 
+bool mx_line::interpret(MadX & mx)
+{
+  MadX_line new_line(mx);
+  seq.interpret(mx, new_line, 1);
+  mx.insert_line(name, new_line);
+  return true;
+}
+
+bool mx_line_seq::interpret(MadX const & mx, MadX_line & line, int op)
+{
+  if( op==0 ) return true;
+
+  if( op>0 )  // repeat op times
+  {
+    for(int z=0; z<op; ++z)
+    {
+      for( mx_line_members::const_iterator it = members.begin()
+         ; it!=members.end(); ++it )
+      {
+        mx_line_member member = it->first;
+        int op = it->second;
+        member.interpret(mx, line, op);
+      }
+    }
+    return true;
+  }
+
+  if( op<0 )  // reverse then repeat
+  {
+    for(int z=0; z<op; ++z)
+    {
+      for( mx_line_members::reverse_iterator it = members.rbegin()
+         ; it!=members.rend(); ++it )
+      {
+        mx_line_member member = it->first;
+        int op = it->second;
+        member.interpret(mx, line, op);
+      }
+    }
+    return true;
+  }
+}
+
+bool mx_line_member::interpret(MadX const & mx, MadX_line & line, int op)
+{
+  if( op==0 ) return true;
+
+  // member is a name/reference
+  if( tag==MX_LINE_MEMBER_NAME )
+  {
+    string name = any_cast<string>(member);
+    MadX_entry_type type = mx.entry_type(name);
+
+    // is the name refering to a madx command?
+    if( type==ENTRY_COMMAND )
+    { 
+      // ok it is a command
+      if( mx.command(name, true).is_element() )
+      { 
+        // now it is a real element
+        if( op!=1 )
+          throw runtime_error("Line op only applies on sublines, not on elements!");
+
+        // push to the line
+        line.insert_element( name );
+      }
+      else
+      {
+        throw runtime_error("Line member '" + name + "' is not an element");
+      }
+    } 
+    // or the name referes to a pre-exisitng line
+    else if( type==ENTRY_LINE )
+    {
+      MadX_line subline = mx.line(name);
+      size_t ne = subline.element_count();
+
+      int repeat = (op>0) ? op : -op;
+      for(int z=0; z<repeat; ++z)
+      {
+        if( op>0 )
+        {
+          // iterate and push to line
+          for(size_t i=0; i<ne; ++i)
+            line.insert_element( subline.element_name(i) );
+        }
+        else
+        {
+          // reverse iterate and push to line
+          for(size_t i=ne-1; i>=0; --i)
+            line.insert_element( subline.element_name(i) );
+        }
+      }
+    }
+    // something we dont support
+    else
+    {
+      throw runtime_error("Line member '" + name + "' does not exist or not correct type");
+    }
+
+    return true;
+  }
+
+  // if it is not a name, it must be a seq
+  return any_cast<mx_line_seq>(member).interpret(mx, line, op);
+}
+
 // command
 void mx_command::set_label(string const & label)
 {

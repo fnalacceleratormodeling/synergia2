@@ -44,10 +44,17 @@ namespace synergia
     , MX_KW_PARTICLE 
     , MX_KW_MP_TYPE };
 
+  enum mx_line_member_type
+    { MX_LINE_MEMBER_NAME
+    , MX_LINE_MEMBER_SEQ };
+
   struct mx_keyword;
 
   class mx_attr;
   class mx_command;
+  class mx_line;
+  class mx_line_member;
+  class mx_line_seq;
   class mx_logic;
   class mx_if_block;
   class mx_if;
@@ -191,6 +198,45 @@ private:
   bool         keyed_;
   std::string  keyword_;
   attrs_t      attrs_;
+};
+
+class synergia::mx_line_member
+{
+public:
+  mx_line_member() 
+    : member(), tag(MX_LINE_MEMBER_NAME) { }
+
+  bool interpret(MadX const & mx, MadX_line & line, int op=1);
+
+private:
+  boost::any member;  // either a name ref or a line object
+  mx_line_member_type tag;
+};
+
+typedef std::vector<std::pair<synergia::mx_line_member, int> > mx_line_members;
+
+class synergia::mx_line_seq
+{
+public:
+  mx_line_seq() : members() { }
+
+  bool interpret(MadX const & mx, MadX_line & line, int op=1);
+
+private:
+  mx_line_members members;
+};
+  
+
+class synergia::mx_line
+{
+public:
+  mx_line() { }
+
+  bool interpret(MadX & mx);
+
+private:
+  std::string name;
+  mx_line_seq seq;
 };
 
 // element block for building an if-elseif-else control statement
