@@ -566,10 +566,10 @@ struct synergia::madx_tree_parser
 
     value =
         //dblq_str | snglq_str | no_case[particle_keywords] | expr | array  -- boost 1.45+
-        dblq_str                     [_val=_1] 
-        | snglq_str                  [_val=_1] 
-        | expr                       [_val=_1] 
-        | array                      [_val=_1]
+        dblq_str    [_val=_1] 
+        | snglq_str [_val=_1] 
+        | expr      [_val=_1] 
+        | array     [_val=_1]
         ;
 
     attr =
@@ -591,8 +591,8 @@ struct synergia::madx_tree_parser
         | ( expr )       [phx::bind(&set_attr, _val, "default", boost::optional<char>(), _1)]
         ;
 
-    cmd_attr = 
-          attr [_val=_1] | flag_attr [_val=_1]
+    cmd_attr =
+        attr | flag_attr 
         ;
 
     variable =
@@ -614,7 +614,7 @@ struct synergia::madx_tree_parser
 
     line = 
         ( name >> ':' >> no_case["line"] >> '=' >> line_seq >> ';' )
-               [ _val = phx::construct<mx_line>(_1, _2) ]
+                                 [_val = phx::construct<mx_line>(_1, _2)]
         ;
 
     line_seq  = 
