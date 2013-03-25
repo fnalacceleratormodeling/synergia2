@@ -684,7 +684,7 @@ bool synergia::parse_madx( string_t const & str, MadX & mx )
   //tree.print();
 
   // interpret the syntax tree into a MadX object
-  r = tree.interpret(mx);
+  tree.interpret(mx);
 
   return r;
 }

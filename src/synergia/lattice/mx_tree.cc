@@ -134,12 +134,11 @@ void mx_attr::set_lazy_attr(std::string const & name, boost::any const & val)
 }
 
 
-bool mx_line::interpret(MadX & mx)
+void mx_line::interpret(MadX & mx)
 {
   MadX_line new_line(mx);
   seq.interpret(mx, new_line, 1);
   mx.insert_line(name, new_line);
-  return true;
 }
 
 void mx_line_seq::insert_member(int op, mx_line_member const & member)
@@ -147,9 +146,9 @@ void mx_line_seq::insert_member(int op, mx_line_member const & member)
   members.push_back( make_pair(member, op) );
 }
 
-bool mx_line_seq::interpret(MadX const & mx, MadX_line & line, int op)
+void mx_line_seq::interpret(MadX const & mx, MadX_line & line, int op)
 {
-  if( op==0 ) return true;
+  if( op==0 ) return;
 
   if( op>0 )  // repeat op times
   {
@@ -163,7 +162,7 @@ bool mx_line_seq::interpret(MadX const & mx, MadX_line & line, int op)
         member.interpret(mx, line, op);
       }
     }
-    return true;
+    return;
   }
 
   if( op<0 )  // reverse then repeat
@@ -178,21 +177,21 @@ bool mx_line_seq::interpret(MadX const & mx, MadX_line & line, int op)
         member.interpret(mx, line, op);
       }
     }
-    return true;
+    return;
   }
 }
 
-bool mx_line_member::interpret(MadX const & mx, MadX_line & line, int op)
+void mx_line_member::interpret(MadX const & mx, MadX_line & line, int op)
 {
-  if( op==0 ) return true;
+  if( op==0 ) return;
 
-  // member is a name/reference
   if( tag==MX_LINE_MEMBER_NAME )
   {
+    // member is a name/reference
     string name = any_cast<string>(member);
     MadX_entry_type type = mx.entry_type(name);
 
-    // is the name refering to a madx command?
+    // does the name refer to a madx command?
     if( type==ENTRY_COMMAND )
     { 
       // ok it is a command
@@ -228,12 +227,14 @@ bool mx_line_member::interpret(MadX const & mx, MadX_line & line, int op)
     {
       throw runtime_error("Line member '" + name + "' does not exist or not correct type");
     }
-
-    return true;
+  }
+  else
+  {
+    // if it is not a name, it must be a seq
+    any_cast<mx_line_seq>(member).interpret(mx, line, op);
   }
 
-  // if it is not a name, it must be a seq
-  return any_cast<mx_line_seq>(member).interpret(mx, line, op);
+  return;
 }
 
 // command
@@ -269,7 +270,7 @@ void mx_command::ins_attr(mx_attr const & attr)
   attrs_.push_back( attr );
 }
 
-bool mx_command::interpret(MadX & mx) 
+void mx_command::interpret(MadX & mx) 
 {
   // first execute the command if needed
   execute(mx);
@@ -307,7 +308,7 @@ bool mx_command::interpret(MadX & mx)
     else           mx.insert_command(cmd);
   }
 
-  return true;
+  return;
 }
 
 void mx_command::execute(MadX & mx)
@@ -447,9 +448,9 @@ bool mx_if_block::evaluate_logic(MadX const & mx) const
   return logic_expr.evaluate(mx);
 }
 
-bool mx_if_block::interpret_block(MadX & mx)
+void mx_if_block::interpret_block(MadX & mx)
 {
-  return block.interpret(mx);
+  block.interpret(mx);
 }
 
 void mx_if_block::print_logic() const
@@ -478,14 +479,14 @@ void mx_if::assign_else(mx_tree const & block)
   else_ = mx_if_block(true, block);
 }
 
-bool mx_if::interpret(MadX & mx)
+void mx_if::interpret(MadX & mx)
 {
   if( !if_.valid() )
     throw runtime_error("mx_if::interpret() Invalid if command");
 
   if( if_.evaluate_logic(mx) )
   {
-    return if_.interpret_block(mx);
+    if_.interpret_block(mx);
   }
   else if( !elseif_.empty() )
   {
@@ -495,16 +496,16 @@ bool mx_if::interpret(MadX & mx)
     {
       if( it->evaluate_logic(mx) )
       {
-        return it->interpret_block(mx);
+        it->interpret_block(mx);
       }
     }
   }
   else if( else_.valid() )
   {
-    return else_.interpret_block(mx);
+    else_.interpret_block(mx);
   }
 
-  return true;
+  return;
 }
 
 void mx_if::print() const
@@ -542,9 +543,9 @@ void mx_while::assign(mx_logic const & logic, mx_tree const & block)
   while_ = mx_if_block(logic, block);
 }
 
-bool mx_while::interpret(MadX & mx)
+void mx_while::interpret(MadX & mx)
 {
-  return true;
+  return;
 }
 
 void mx_while::print() const
@@ -584,20 +585,27 @@ void mx_statement::assign(mx_line const & st)
   type = MX_LINE;
 }
 
-bool mx_statement::interpret(MadX & mx) 
+void mx_statement::interpret(MadX & mx) 
 {
-  if( type==MX_COMMAND )
-    return boost::any_cast<mx_command>(value).interpret(mx);
-  else if( type==MX_LINE )
-    return boost::any_cast<mx_line>(value).interpret(mx);
-  else if( type==MX_IF )
-    return boost::any_cast<mx_if>(value).interpret(mx);
-  else if( type==MX_WHILE )
-    return boost::any_cast<mx_while>(value).interpret(mx);
-  else if( type==MX_NULL )
-    return true; // do nothing
-  else
+  switch( type )
+  {
+  case MX_COMMAND:
+    boost::any_cast<mx_command>(value).interpret(mx);
+    break;
+  case MX_LINE:
+    boost::any_cast<mx_line>(value).interpret(mx);
+    break;
+  case MX_IF:
+    boost::any_cast<mx_if>(value).interpret(mx);
+    break;
+  case MX_WHILE:
+    boost::any_cast<mx_while>(value).interpret(mx);
+    break;
+  case MX_NULL:
+    break;
+  default:
     throw runtime_error("mx_statement::interpret()  Unknown statement type");
+  }
 }
 
 void mx_statement::print() const
@@ -613,16 +621,13 @@ void mx_statement::print() const
 }
 
 // tree
-bool mx_tree::interpret(MadX & mx) 
+void mx_tree::interpret(MadX & mx) 
 {
-  for( mx_statements_t::iterator it = statements.begin();
-       it != statements.end();
-       ++it )
+  for( mx_statements_t::iterator it = statements.begin()
+     ; it != statements.end(); ++it )
   {
-    if( !it->interpret(mx) )
-      throw runtime_error("mx_tree::interpret() Failed");
+    it->interpret(mx);
   }
-  return true;
 }
 
 void mx_tree::print() const
