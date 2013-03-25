@@ -10,7 +10,8 @@
 #include "synergia/utils/multi_array_typedefs.h"
 
 class Fftw_rectangular_helper
-{   std::vector<int > grid_shape;
+{   
+    std::vector<int > grid_shape;
     fftw_plan  plan_r2r_direct, plan_r2r_inv;
     ptrdiff_t local_nx, local_x_start;
     ptrdiff_t fftw_local_size;
@@ -23,6 +24,9 @@ public:
 
     Fftw_rectangular_helper( std::vector<int >  const & grid_shape, Commxx_sptr comm_f_sptr);
 
+    Commxx_sptr 
+    get_comm_sptr() const;
+    
     void
     reset_comm_f(Commxx_sptr comm_sptr);
 

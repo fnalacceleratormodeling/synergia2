@@ -138,9 +138,16 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Bunches_fixture)
   
    const double bunch_separation = 1.7;
    Bunch_train bunch_train(bunches, bunch_separation);
-   xml_save(bunch_train, "bunch_train.xml");
+   int rank;
+   MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+   std::string ss("bunch_train");
+   std::stringstream pp;
+   pp<<rank;
+   ss.append(pp.str());
+   ss.append(".xml");
+   xml_save(bunch_train, ss);
    Bunch_train bunch_loaded;
-   xml_load(bunch_loaded, "bunch_train.xml");
+   xml_load(bunch_loaded, ss);
    
    size_t num_bunches=bunch_train.get_bunches().size();
    size_t num_loaded=bunch_loaded.get_bunches().size();

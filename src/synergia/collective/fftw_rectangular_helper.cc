@@ -1,6 +1,7 @@
 #include "fftw_rectangular_helper.h"
 #include "synergia/utils/simple_timer.h"
 
+
 Fftw_rectangular_helper::Fftw_rectangular_helper(
         std::vector<int > const & grid_shape, Commxx_sptr comm_f_sptr) :
         grid_shape(grid_shape), comm_f_sptr(comm_f_sptr)
@@ -33,6 +34,11 @@ Fftw_rectangular_helper::Fftw_rectangular_helper(
 }
 
 
+Commxx_sptr 
+Fftw_rectangular_helper::get_comm_sptr() const
+{
+  return comm_f_sptr;
+}  
 
  void
 Fftw_rectangular_helper::reset_comm_f(Commxx_sptr comm_sptr)

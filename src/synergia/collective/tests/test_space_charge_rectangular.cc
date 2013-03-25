@@ -683,5 +683,149 @@ BOOST_FIXTURE_TEST_CASE(get_En1, Ellipsoidal_bunch_fixture)
      
 }
    
- 
+BOOST_FIXTURE_TEST_CASE(serialize_, Ellipsoidal_bunch_fixture)
+{
+    
+    std::vector<int > grid_shape1(3);
+    grid_shape1[0] =32;
+    grid_shape1[1] = 12;
+    grid_shape1[2] = 10;
+    std::vector<double > size(3);
+    size[0]=0.1;
+    size[1]=0.1;
+    size[2]=0.1;
 
+   Space_charge_rectangular space_charge(size, grid_shape1);
+   int optimal_number=3;
+   Commxx_sptr comm_spc=make_optimal_spc_comm(bunch.get_comm_sptr(), optimal_number);
+   space_charge.set_fftw_helper(comm_spc, false); 
+    
+ 
+   
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    std::string ss("space_charge");
+    std::stringstream pp;
+    pp<<rank;
+    ss.append(pp.str());
+    ss.append(".xml");
+    xml_save(space_charge, ss);
+  
+    Space_charge_rectangular spc_loaded;
+    xml_load(spc_loaded, ss);
+ 
+    BOOST_CHECK_EQUAL(space_charge.get_pipe_size()[0], spc_loaded.get_pipe_size()[0]);
+    BOOST_CHECK_EQUAL(space_charge.get_pipe_size()[1], spc_loaded.get_pipe_size()[1]);
+    BOOST_CHECK_EQUAL(space_charge.get_pipe_size()[2], spc_loaded.get_pipe_size()[2]);
+   
+    BOOST_CHECK_EQUAL(space_charge.get_grid_shape()[0], spc_loaded.get_grid_shape()[0]);
+    BOOST_CHECK_EQUAL(space_charge.get_grid_shape()[1], spc_loaded.get_grid_shape()[1]);
+    BOOST_CHECK_EQUAL(space_charge.get_grid_shape()[2], spc_loaded.get_grid_shape()[2]);   
+  // BOOST_CHECK_EQUAL(space_charge.have_fftw_helper,  spc_loaded.have_fftw_helper);
+  // BOOST_CHECK_EQUAL(space_charge.use_comm_divider, spc_loaded.use_comm_divider);
+    BOOST_CHECK_EQUAL(space_charge.get_comm_sptr()->has_this_rank(),spc_loaded.get_comm_sptr()->has_this_rank());
+//    if (rank==0){
+//       std::cout<<" MPI_IDENT="<<MPI_IDENT<<std::endl;
+//       std::cout<<" MPI_CONGRUENT="<<MPI_CONGRUENT<<std::endl; 
+//       std::cout<<" MPI_SIMILAR="<<MPI_SIMILAR<<std::endl;
+//       std::cout<<" MPI_UNEQUAL="<<MPI_UNEQUAL<<std::endl;
+//    }
+    if (space_charge.get_comm_sptr()->has_this_rank()){
+	int result;
+	MPI_Comm_compare(space_charge.get_comm_sptr()->get(), spc_loaded.get_comm_sptr()->get(),  &result);
+    //std::cout<<" result="<<result<<" rank="<<rank<<std::endl;  
+	BOOST_CHECK((result == MPI_IDENT) || (result == MPI_CONGRUENT));
+
+	int result_helper;
+	MPI_Comm_compare(space_charge.get_fftw_helper_sptr()->get_comm_sptr()->get(), 
+			     spc_loaded.get_fftw_helper_sptr()->get_comm_sptr()->get(),  &result_helper);
+	BOOST_CHECK((result_helper == MPI_IDENT) || (result_helper == MPI_CONGRUENT));		     
+	
+    }
+    
+    
+   BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_cell_size()[0],spc_loaded.get_domain_sptr()->get_cell_size()[0]);
+   BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_cell_size()[1],spc_loaded.get_domain_sptr()->get_cell_size()[1]);
+   BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_cell_size()[2],spc_loaded.get_domain_sptr()->get_cell_size()[2]);
+   
+   BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_physical_size()[0],spc_loaded.get_domain_sptr()->get_physical_size()[0]);
+   BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_physical_size()[1],spc_loaded.get_domain_sptr()->get_physical_size()[1]);
+   BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_physical_size()[2],spc_loaded.get_domain_sptr()->get_physical_size()[2]);
+   
+   BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_left()[0],spc_loaded.get_domain_sptr()->get_left()[0]);
+   BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_left()[1],spc_loaded.get_domain_sptr()->get_left()[1]);
+   BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_left()[2],spc_loaded.get_domain_sptr()->get_left()[2]);
+   BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->is_periodic(), spc_loaded.get_domain_sptr()->is_periodic());  
+    
+}
+ 
+ 
+BOOST_FIXTURE_TEST_CASE(serialize_comm_divider, Ellipsoidal_bunch_fixture)
+{
+    
+    std::vector<int > grid_shape1(3);
+    grid_shape1[0] =32;
+    grid_shape1[1] = 12;
+    grid_shape1[2] = 10;
+    std::vector<double > size(3);
+    size[0]=0.1;
+    size[1]=0.1;
+    size[2]=0.1;
+
+   Space_charge_rectangular space_charge0(size, grid_shape1);
+   int optimal_number=2;
+   if (bunch.get_comm_sptr()->get_size() %  optimal_number==0) {
+	Commxx_divider comm_divider(optimal_number, false);
+	Commxx_sptr comm_spc=comm_divider.get_commxx_sptr(bunch.get_comm_sptr());
+	space_charge0.set_fftw_helper(comm_spc, true);
+        
+	Space_charge_rectangular space_charge(*space_charge0.clone());
+      
+	int rank;
+	MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+	std::string ss("space_charge");
+	std::stringstream pp;
+	pp<<rank;
+	ss.append(pp.str());
+	ss.append(".xml");
+	xml_save(space_charge, ss);
+      
+	Space_charge_rectangular spc_loaded;
+	xml_load(spc_loaded, ss);
+    
+	BOOST_CHECK_EQUAL(space_charge.get_pipe_size()[0], spc_loaded.get_pipe_size()[0]);
+	BOOST_CHECK_EQUAL(space_charge.get_pipe_size()[1], spc_loaded.get_pipe_size()[1]);
+	BOOST_CHECK_EQUAL(space_charge.get_pipe_size()[2], spc_loaded.get_pipe_size()[2]);
+      
+	BOOST_CHECK_EQUAL(space_charge.get_grid_shape()[0], spc_loaded.get_grid_shape()[0]);
+	BOOST_CHECK_EQUAL(space_charge.get_grid_shape()[1], spc_loaded.get_grid_shape()[1]);
+	BOOST_CHECK_EQUAL(space_charge.get_grid_shape()[2], spc_loaded.get_grid_shape()[2]);   
+	// BOOST_CHECK_EQUAL(space_charge.have_fftw_helper,  spc_loaded.have_fftw_helper);
+	// BOOST_CHECK_EQUAL(space_charge.use_comm_divider, spc_loaded.use_comm_divider);
+	BOOST_CHECK_EQUAL(space_charge.get_comm_sptr()->has_this_rank(),spc_loaded.get_comm_sptr()->has_this_rank());
+	int result;
+	MPI_Comm_compare(space_charge.get_comm_sptr()->get(), spc_loaded.get_comm_sptr()->get(),  &result);
+	//std::cout<<" result="<<result<<" rank="<<rank<<std::endl;  
+	BOOST_CHECK((result == MPI_IDENT) || (result == MPI_CONGRUENT));  
+	
+	int result_helper;
+	MPI_Comm_compare(space_charge.get_fftw_helper_sptr()->get_comm_sptr()->get(), 
+			     spc_loaded.get_fftw_helper_sptr()->get_comm_sptr()->get(),  &result_helper);
+	BOOST_CHECK((result_helper == MPI_IDENT) || (result_helper == MPI_CONGRUENT));		
+	
+	BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_cell_size()[0],spc_loaded.get_domain_sptr()->get_cell_size()[0]);
+	BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_cell_size()[1],spc_loaded.get_domain_sptr()->get_cell_size()[1]);
+	BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_cell_size()[2],spc_loaded.get_domain_sptr()->get_cell_size()[2]);
+	
+	BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_physical_size()[0],spc_loaded.get_domain_sptr()->get_physical_size()[0]);
+	BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_physical_size()[1],spc_loaded.get_domain_sptr()->get_physical_size()[1]);
+	BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_physical_size()[2],spc_loaded.get_domain_sptr()->get_physical_size()[2]);
+	
+	BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_left()[0],spc_loaded.get_domain_sptr()->get_left()[0]);
+	BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_left()[1],spc_loaded.get_domain_sptr()->get_left()[1]);
+	BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->get_left()[2],spc_loaded.get_domain_sptr()->get_left()[2]);
+	BOOST_CHECK_EQUAL(space_charge.get_domain_sptr()->is_periodic(), spc_loaded.get_domain_sptr()->is_periodic()); 
+	
+   }			
+}
+ 
