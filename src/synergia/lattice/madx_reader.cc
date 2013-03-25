@@ -14,19 +14,8 @@ using namespace synergia;
 void
 MadX_reader::extract_reference_particle(Lattice & lattice)
 {
-    const int not_found = -1;
-    int beam_index = not_found;
-    std::vector < std::string > command_names(madx_sptr->commands());
-    int current_index = 0;
-    for (std::vector<std::string >::const_iterator it = command_names.begin();
-            it != command_names.end(); ++it) {
-        if (*it == "beam") {
-            beam_index = current_index;
-        }
-        ++current_index;
-    }
-    if (beam_index > not_found) {
-        synergia::MadX_command command(madx_sptr->command(beam_index));
+    try {
+        synergia::MadX_command command(madx_sptr->command("beam"));
         std::vector < std::string > attributes(command.attribute_names());
         double mass = 0, charge = 0, energy = 0, pc = 0, gamma = 0;
         for (std::vector<std::string >::const_iterator it = attributes.begin();
@@ -74,8 +63,10 @@ MadX_reader::extract_reference_particle(Lattice & lattice)
         if (gamma > 0) {
             four_momentum.set_gamma(gamma);
         }
-        Reference_particle reference_particle(charge, four_momentum);
+        Reference_particle reference_particle((int)charge, four_momentum);
         lattice.set_reference_particle(reference_particle);
+    }
+    catch( ... ) {
     }
 }
 
