@@ -675,7 +675,7 @@ bool synergia::parse_int_madx( string const & s, mx_tree & doc )
     iter_t e = distance(begin, end)<100 ? end : begin+100;
     string r = string(begin, e);
 
-    throw runtime_error("parse failed at \n>>>\n" + r + "\n<<<");
+    throw runtime_error("MadX: parsing failed at \n>>>\n" + r + "\n<<<");
   }
 
   return b;
