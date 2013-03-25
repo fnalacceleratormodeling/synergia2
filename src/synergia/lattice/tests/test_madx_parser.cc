@@ -324,6 +324,37 @@ BOOST_AUTO_TEST_CASE(continuation3)
   BOOST_CHECK_CLOSE( cmd.attribute_as_number("k1"), 0.2, tolerance );
 }
 
+BOOST_AUTO_TEST_CASE(line_expansion)
+{
+  string str = "a:rbend; b:rbend; c:rbend; d:rbend; e:rbend; f:rbend; g:rbend; h:rbend;"
+	"r:line=(g,h); s:line=(c,r,d); t:line=(2*s,2*(e,f),-s,-(a,b));";
+  MadX   mx;
+
+  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_EQUAL( mx.line_count(), 3 );
+
+  MadX_line line = mx.line("t");
+  BOOST_CHECK_EQUAL( line.element_count(), 18 );
+  BOOST_CHECK_EQUAL( line.element_name(0), "c" );
+  BOOST_CHECK_EQUAL( line.element_name(1), "g" );
+  BOOST_CHECK_EQUAL( line.element_name(2), "h" );
+  BOOST_CHECK_EQUAL( line.element_name(3), "d" );
+  BOOST_CHECK_EQUAL( line.element_name(4), "c" );
+  BOOST_CHECK_EQUAL( line.element_name(5), "g" );
+  BOOST_CHECK_EQUAL( line.element_name(6), "h" );
+  BOOST_CHECK_EQUAL( line.element_name(7), "d" );
+  BOOST_CHECK_EQUAL( line.element_name(8), "e" );
+  BOOST_CHECK_EQUAL( line.element_name(9), "f" );
+  BOOST_CHECK_EQUAL( line.element_name(10), "e" );
+  BOOST_CHECK_EQUAL( line.element_name(11), "f" );
+  BOOST_CHECK_EQUAL( line.element_name(12), "d" );
+  BOOST_CHECK_EQUAL( line.element_name(13), "h" );
+  BOOST_CHECK_EQUAL( line.element_name(14), "g" );
+  BOOST_CHECK_EQUAL( line.element_name(15), "c" );
+  BOOST_CHECK_EQUAL( line.element_name(16), "b" );
+  BOOST_CHECK_EQUAL( line.element_name(17), "a" );
+}
+
 #if 0
 BOOST_AUTO_TEST_CASE(continuation4)
 {
