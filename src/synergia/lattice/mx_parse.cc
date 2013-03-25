@@ -650,7 +650,7 @@ struct synergia::madx_tree_parser
   }
 };
 
-bool synergia::parse_madx_tree( string const & s, mx_tree & doc )
+bool synergia::parse_int_madx( string const & s, mx_tree & doc )
 {
   if( s.empty() ) return true;
 
@@ -685,8 +685,7 @@ bool synergia::parse_madx( string_t const & str, MadX & mx )
 {
   // first parse the madx doc into a statement tree
   mx_tree tree;
-  bool r = parse_madx_tree(str, tree);
-  if( !r ) return false;
+  parse_int_madx(str, tree);
 
   // print for debug purpose
   //tree.print();
@@ -694,7 +693,7 @@ bool synergia::parse_madx( string_t const & str, MadX & mx )
   // interpret the syntax tree into a MadX object
   tree.interpret(mx);
 
-  return r;
+  return true;
 }
 
 // helper
@@ -719,11 +718,11 @@ namespace
   }
 }
 
-bool synergia::parse_madx_file( string_t const & fname, mx_tree & doc )
+bool synergia::parse_int_madx_file( string_t const & fname, mx_tree & doc )
 {
   string str;
   read_from_file( fname, str );
-  return parse_madx_tree( str, doc );
+  return parse_int_madx( str, doc );
 }
 
 bool synergia::parse_madx_file( string_t const & fname, MadX & mx )

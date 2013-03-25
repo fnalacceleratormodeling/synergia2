@@ -323,8 +323,7 @@ void mx_command::execute(MadX & mx)
       {
         string fname = boost::any_cast<string>(it->value());
         mx_tree subroutine;
-        bool r = parse_madx_file(fname, subroutine);
-        if( !r ) throw runtime_error("Error parsing subroutine " + fname);
+        parse_int_madx_file(fname, subroutine);
         subroutine.interpret(mx);
         return;
       }
