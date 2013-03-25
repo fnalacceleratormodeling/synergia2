@@ -670,6 +670,14 @@ bool synergia::parse_madx_tree( string const & s, mx_tree & doc )
   bool b = qi::phrase_parse( begin, end, parser, whitespace, doc )
          && begin == end;
 
+  if( !b )
+  {
+    iter_t e = distance(begin, end)<100 ? end : begin+100;
+    string r = string(begin, e);
+
+    throw runtime_error("parse failed at \n>>>\n" + r + "\n<<<");
+  }
+
   return b;
 }
 
