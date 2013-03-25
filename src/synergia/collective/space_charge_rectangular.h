@@ -29,7 +29,6 @@ private:
     construct_fftw_helper(Commxx_sptr comm_sptr);
 
 public:
-
     Space_charge_rectangular(Commxx_sptr comm_f_sptr, std::vector<double > const & pipe_size, 
 			       std::vector<int > const & grid_shape, bool use_comm_divider=true);
     Space_charge_rectangular(std::vector<double > const & pipe_size, std::vector<int > const & grid_shape);

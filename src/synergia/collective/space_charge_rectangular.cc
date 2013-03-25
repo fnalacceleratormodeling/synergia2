@@ -116,17 +116,6 @@ Space_charge_rectangular::load<boost::archive::xml_iarchive >(
 BOOST_CLASS_EXPORT_IMPLEMENT(Space_charge_rectangular)
 
 
-
-
-
-
-
-
-
-
-
-
-
 Space_charge_rectangular::~Space_charge_rectangular()
 {
  //fftw_mpi_cleanup();

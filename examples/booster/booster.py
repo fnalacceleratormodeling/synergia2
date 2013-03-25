@@ -568,9 +568,13 @@ try:
 	particles[:,4] = particles[:,4]+opts.z_offset*np.cos(2.*np.pi*i*opts.wave_in_train[2]/float(num_bunches))
       else:
 	if i==0: # mixture of all possible modes
-	  particles[:,0] = particles[:,0]+opts.x_offset*3.
-	  particles[:,2] = particles[:,2]+opts.y_offset*3.
-	  particles[:,4] = particles[:,4]+opts.z_offset*3.
+	  particles[:,0] = particles[:,0]+opts.x_offset
+	  particles[:,2] = particles[:,2]+opts.y_offset
+	  particles[:,4] = particles[:,4]+opts.z_offset
+	#if i==41:
+	  #particles[:,0] = particles[:,0]+opts.x_offset
+	  #particles[:,2] = particles[:,2]+opts.y_offset
+	  #particles[:,4] = particles[:,4]+opts.z_offset
       bunches.append(bunch)
      
 
