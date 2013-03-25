@@ -8,6 +8,7 @@
 
 
 using namespace synergia;
+using namespace std;
 
 
 //===========================================================================
@@ -266,39 +267,19 @@ void
 size_t
   MadX_line::element_count() const
 {
-  return index_.size();
-}
-
-MadX_line_element_type
-  MadX_line::element_type(size_t idx) const
-{
-  return index_[idx].first;
+  return elements_.size();
 }
 
 string_t
-  MadX_line::element_as_string(size_t idx) const
+  MadX_line::element_name(size_t idx) const
 {
-  return elements_[index_[idx].second];
+  return elements_[idx];
 }
 
-MadX_line
-  MadX_line::element_as_line(size_t idx) const
+MadX_command
+  MadX_line::element(size_t idx, bool resolve) const
 {
-  return lines_[index_[idx].second];
-}
-
-void
-  MadX_line::insert_operator(string_t const & op)
-{
-  elements_.push_back(op);
-  size_t idx = elements_.size()-1;
-
-  MadX_line_element_type t;
-  if( op.compare("-")==0 )         t = MINUS;
-  else if( op[op.size()-1]=='*' )  t = MULTIPLIER;
-  else throw std::runtime_error( "Unrecognized MadX line operator: " + op );
-
-  index_.push_back( std::make_pair(t, idx) );
+  return parent.command(elements_[idx], resolve);
 }
 
 void
@@ -308,18 +289,20 @@ void
   std::transform(e.begin(), e.end(), e.begin(), ::tolower);
 
   elements_.push_back(e);
-  size_t idx = elements_.size()-1;
-  index_.push_back( std::make_pair(LABEL, idx) );
 }
 
 void
-  MadX_line::insert_subline(MadX_line const & line)
+  MadX_line::print() const
 {
-  lines_.push_back(line);
-  size_t idx = lines_.size()-1;
-  index_.push_back( std::make_pair(LINE, idx) );
+  cout << "( ";
+  for( vector<string>::const_iterator it=elements_.begin()
+     ; it!=elements_.end(); ++it )
+  {
+    cout << *it;
+    if( it+1 != elements_.end() ) cout << ", ";
+  }
+  cout << " )\n";
 }
-
 
 //===========================================================================
 // MadX_sequence
@@ -372,6 +355,12 @@ void
   lbl = string_t();
   l = 0.0;
   seq_.clear();
+}
+
+void
+  MadX_sequence::print() const
+{
+
 }
 
 
@@ -532,6 +521,27 @@ MadX_sequence &
   return cur_seq_;
 }
 
+MadX_entry_type
+  MadX::entry_type(string_t const & entry) const
+{
+  string_t key(entry);
+  std::transform( key.begin(), key.end(), key.begin(), ::tolower );
+
+  if( variables_.find(key) != variables_.end() )
+    return ENTRY_VARIABLE;
+
+  if( cmd_map_.find(key) != cmd_map_.end() )
+    return ENTRY_COMMAND;
+
+  if( lines_.find(key) != lines_.end() )
+    return ENTRY_LINE;
+
+  if( seqs_.find(key) != seqs_.end() )
+    return ENTRY_SEQUENCE;
+
+  return ENTRY_NULL;
+}
+
 void
   MadX::insert_variable(string_t const & name, string_t const & value)
 {
@@ -651,6 +661,13 @@ void
     std::string key = it->first;
     double val = variable_as_number(key);
     std::cout << key << " = " << val << "\n";
+  }
+
+  for( lines_m_t::const_iterator it=lines_.begin()
+     ; it!=lines_.end(); ++it )
+  {
+    cout << it->first << " : line = ";
+    it->second.print();
   }
 }
 

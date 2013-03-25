@@ -59,6 +59,8 @@ using boost::spirit::qi::real_policies;
 using boost::any;
 using boost::any_cast;
 
+using boost::optional;
+
 using namespace qi::labels;
 using namespace std;
 
@@ -74,6 +76,13 @@ namespace
   double sub(double v1, double v2) { return v1-v2; }
   double mul(double v1, double v2) { return v1*v2; }
   double div(double v1, double v2) { return v1/v2; }
+
+  bool op_l (double l, double r) { return l< r; }
+  bool op_le(double l, double r) { return l<=r; }
+  bool op_e (double l, double r) { return l==r; }
+  bool op_ne(double l, double r) { return l!=r; }
+  bool op_g (double l, double r) { return l> r; }
+  bool op_ge(double l, double r) { return l>=r; }
 }
 
 
@@ -244,6 +253,7 @@ struct synergia::expression
         | ( no_case[constant]  ) [_val = _1]
         | ( no_case[ufunc] >> '(' >> expr >> ')')                [_val = phx::construct<uop_t>(_1, _2)]
         | ( no_case[bfunc] >> '(' >> expr >> ',' >> expr >> ')') [_val = phx::construct<bop_t>(_1, _2, _3)]
+        | ( lit("table")   >> '(' >> name >> ',' >> name >> ')') [_val = 1.0]  // eat table()
         | ( cmdref             ) [_val = _1]
         | ( name               ) [_val = _1]
         ;
@@ -289,20 +299,29 @@ namespace synergia
 {
   namespace
   {
-    void ins_if(mx_if & if_, string const & logic, mx_tree const & block)
+    void set_logic( mx_logic & logic, mx_expr const & lhs, logic_op_t op, mx_expr const & rhs)
+    { logic.set(lhs, op, rhs); }
+
+    void ins_if(mx_if & if_, mx_logic const & logic, mx_tree const & block)
     { if_.assign_if(logic, block); }
 
-    void ins_elseif(mx_if & if_, string const & logic, mx_tree const & block)
+    void ins_elseif(mx_if & if_, mx_logic const & logic, mx_tree const & block)
     { if_.assign_elseif(logic, block); }
 
     void ins_else(mx_if & if_, mx_tree const & block)
     { if_.assign_else(block); }
 
-    void ins_while(mx_while & while_, string const & logic, mx_tree const & block)
+    void ins_while(mx_while & while_, mx_logic const & logic, mx_tree const & block)
     { while_.assign(logic, block); }
 
-    void set_attr(mx_attr & attr, string const & name, boost::optional<char> c, any const & v)
+    void ins_seq_member(mx_line_seq & seq, optional<char> m, optional<int> o, mx_line_member const & member)
+    { int op=m?-1:1; if(o) op*=o.get(); seq.insert_member(op, member); }
+
+    void set_attr(mx_attr & attr, string const & name, optional<char> c, any const & v)
     { if(c) attr.set_lazy_attr(name, v); else attr.set_attr(name, v); }
+
+    void set_flag_attr(mx_attr & attr, optional<char> c, string const & name)
+    { if(c) attr.set_attr(name, boost::any(mx_expr(0.0))); else attr.set_attr(name, boost::any(mx_expr(1.0))); }
 
     void set_cmd_label(mx_command & cmd, string const & label)
     { cmd.set_label(label); }
@@ -320,6 +339,22 @@ struct synergia::madx_tree_parser
   : qi::grammar< Iterator, mx_tree(), Skip >
 {
   // keywords
+  struct logic_op_ 
+    : boost::spirit::qi::symbols< typename std::iterator_traits<Iterator>::value_type, 
+                                  logic_op_t >
+  {
+    logic_op_()
+    {
+      this->add ("<" , (logic_op_t) op_l  )
+                ("<=", (logic_op_t) op_le )
+                ("==", (logic_op_t) op_e  )
+                ("!=", (logic_op_t) op_ne )
+                (">" , (logic_op_t) op_g  )
+                (">=", (logic_op_t) op_ge )
+      ;
+    }
+  } logic_op;
+
   struct particle_keywords_
     : boost::spirit::qi::symbols< typename std::iterator_traits<Iterator>::value_type,
                                   mx_keyword >
@@ -460,11 +495,16 @@ struct synergia::madx_tree_parser
   qi::rule<Iterator, mx_command()  , Skip> variable;
   qi::rule<Iterator, mx_command()  , locals<mx_cmd_type>, Skip> cmd;
   qi::rule<Iterator, mx_command()  , Skip> command;
+  qi::rule<Iterator, mx_line()     , Skip> line;
+  qi::rule<Iterator, mx_line_seq() , Skip> line_seq;
+  qi::rule<Iterator, mx_line_member(), Skip> line_member;
   qi::rule<Iterator, mx_keyword()  , Skip> ref;
   qi::rule<Iterator, mx_if()       , Skip> if_flow;
   qi::rule<Iterator, mx_while()    , Skip> while_flow;
-  qi::rule<Iterator, string()      , Skip> logic;
+  qi::rule<Iterator, mx_logic()    , Skip> logic;
   qi::rule<Iterator, mx_attr()     , Skip> attr;
+  qi::rule<Iterator, mx_attr()     , Skip> flag_attr;
+  qi::rule<Iterator, mx_attr()     , Skip> cmd_attr;
 
   qi::rule<Iterator, string()      , Skip> name;
   qi::rule<Iterator, string()      , Skip> dblq_str;
@@ -492,7 +532,11 @@ struct synergia::madx_tree_parser
 
     statement =
         //if_flow | while_flow | command  -- boost 1.45+
-        if_flow [_val = _1] | while_flow [_val = _1] | command [_val = _1]
+          if_flow    [_val = _1] 
+        | while_flow [_val = _1] 
+        | command    [_val = _1]
+        | line       [_val = _1]
+        | ';'   // empty statement
         ;
 
     block =
@@ -500,8 +544,9 @@ struct synergia::madx_tree_parser
         '{' >> statements [_val = _1] >> '}'
         ;
 
-    logic =  // TODO: need more work
-        '(' >> *(char_ - char_(')')) >> ')'
+    logic = 
+        //'(' >> *(char_ - char_(')')) >> ')'
+        ( '(' >> expr >> logic_op >> expr >> ')' )  [phx::bind(&set_logic, _val, _1, _2, _3)]
         ;
 
     if_flow =
@@ -521,12 +566,10 @@ struct synergia::madx_tree_parser
 
     value =
         //dblq_str | snglq_str | no_case[particle_keywords] | expr | array  -- boost 1.45+
-        dblq_str                     [_val=_1] 
-        | snglq_str                  [_val=_1] 
-        //| no_case[particle_keywords] [_val=_1] 
-        //| no_case[mp_type_keywords]  [_val=_1] 
-        | expr                       [_val=_1] 
-        | array                      [_val=_1]
+        dblq_str    [_val=_1] 
+        | snglq_str [_val=_1] 
+        | expr      [_val=_1] 
+        | array     [_val=_1]
         ;
 
     attr =
@@ -541,6 +584,17 @@ struct synergia::madx_tree_parser
               >> value )                          [phx::bind(&set_attr, _val, _1, _2, _3)]
         ;
 
+    flag_attr =   // flag attributes, attributes with values only, etc.
+          ( -char_("-") >> name )                 [phx::bind(&set_flag_attr, _val, _1, _2)]
+        | ( dblq_str )   [phx::bind(&set_attr, _val, "default", boost::optional<char>(), _1)]
+        | ( snglq_str )  [phx::bind(&set_attr, _val, "default", boost::optional<char>(), _1)]
+        | ( expr )       [phx::bind(&set_attr, _val, "default", boost::optional<char>(), _1)]
+        ;
+
+    cmd_attr =
+        attr | flag_attr 
+        ;
+
     variable =
         attr [phx::bind(&ins_cmd_attr, _val, _1)]
         ;
@@ -551,11 +605,31 @@ struct synergia::madx_tree_parser
              | no_case[command_keywords] 
              | ref
              )                   [phx::bind(&set_cmd_keyword, _val, _1)] // keyword
-        >> * ( ',' >> attr [phx::bind(&ins_cmd_attr, _val, _1)] )        // attributes
+        >> * ( ',' >> cmd_attr   [phx::bind(&ins_cmd_attr, _val, _1)] )  // attributes
         ;
 
     command =
         ( variable | cmd ) >> ';'
+        ;
+
+    line = 
+        ( name >> ':' >> no_case["line"] >> '=' >> line_seq >> ';' )
+                                 [_val = phx::construct<mx_line>(_1, _2)]
+        ;
+
+    line_seq  = 
+           lit('(') 
+        >> (
+             ( -char_('-') >> -( int_ >> '*' ) >> line_member ) 
+                                 [phx::bind(&ins_seq_member, _val, _1, _2, _3)]
+           % ','
+           ) 
+        >> lit(')')
+        ;
+
+    line_member = 
+          name     [_val=_1] 
+        | line_seq [_val=_1]
         ;
 
     ref = 
@@ -585,7 +659,8 @@ bool synergia::parse_madx_tree( string const & s, mx_tree & doc )
 
   ws_t whitespace = space
                   | lit('!')  >> *(char_ - eol) >> eol
-                  | lit("//") >> *(char_ - eol) >> eol;
+                  | lit("//") >> *(char_ - eol) >> eol
+                  | lit("/*") >> *(char_ - "*/") >> "*/";
 
   madx_tree_parser<iter_t, ws_t> parser;
 
@@ -614,26 +689,39 @@ bool synergia::parse_madx( string_t const & str, MadX & mx )
   return r;
 }
 
+// helper
+namespace
+{
+  void read_from_file( string const & fname, string & str )
+  {
+    ifstream file;
+    file.open(fname.c_str());
+
+    if( !file.is_open() )
+      throw runtime_error( "Failed to open file " + fname + " for parsing");
+
+    file.seekg(0, std::ios::end);
+    str.reserve(file.tellg());
+    file.seekg(0, std::ios::beg);
+
+    str.assign((istreambuf_iterator<char>(file)),
+                istreambuf_iterator<char>());
+
+    file.close();
+  }
+}
+
+bool synergia::parse_madx_file( string_t const & fname, mx_tree & doc )
+{
+  string str;
+  read_from_file( fname, str );
+  return parse_madx_tree( str, doc );
+}
 
 bool synergia::parse_madx_file( string_t const & fname, MadX & mx )
 {
-
-  ifstream file;
-  file.open(fname.c_str());
-
-  if( !file.is_open() )
-    throw runtime_error( "Failed to open file " + fname + " for parsing");
-
-  file.seekg(0, std::ios::end);
   string str;
-  str.reserve(file.tellg());
-  file.seekg(0, std::ios::beg);
-
-  str.assign((istreambuf_iterator<char>(file)),
-              istreambuf_iterator<char>());
-
-  file.close();
-
+  read_from_file( fname, str );
   return parse_madx( str, mx );
 }
 

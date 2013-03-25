@@ -4,6 +4,10 @@
 
 #include <iostream>
 #include <stdexcept>
+#include <cassert>
+
+#include "synergia/foundation/physical_constants.h"
+#include "synergia/foundation/four_momentum.h"
 
 using namespace synergia;
 using namespace std;
@@ -73,6 +77,22 @@ namespace synergia
 }
 
 
+void mx_logic::set(mx_expr const & l, logic_op_t o, mx_expr const & r)
+{
+  lhs = l; rhs = r; op = o; use_preset = false;
+}
+
+bool mx_logic::evaluate(MadX const & mx) const
+{
+  if( use_preset ) return pre;
+
+  assert( op!=NULL );
+
+  double l = boost::apply_visitor( mx_calculator(mx), lhs );
+  double r = boost::apply_visitor( mx_calculator(mx), rhs );
+
+  return op(l, r);
+}
 
 // attributes
 void mx_attr::set_attr(std::string const & name, boost::any const & val)
@@ -114,6 +134,108 @@ void mx_attr::set_lazy_attr(std::string const & name, boost::any const & val)
 }
 
 
+bool mx_line::interpret(MadX & mx)
+{
+  MadX_line new_line(mx);
+  seq.interpret(mx, new_line, 1);
+  mx.insert_line(name, new_line);
+  return true;
+}
+
+void mx_line_seq::insert_member(int op, mx_line_member const & member)
+{
+  members.push_back( make_pair(member, op) );
+}
+
+bool mx_line_seq::interpret(MadX const & mx, MadX_line & line, int op)
+{
+  if( op==0 ) return true;
+
+  if( op>0 )  // repeat op times
+  {
+    for(int z=0; z<op; ++z)
+    {
+      for( mx_line_members::const_iterator it = members.begin()
+         ; it!=members.end(); ++it )
+      {
+        mx_line_member member = it->first;
+        int op = it->second;
+        member.interpret(mx, line, op);
+      }
+    }
+    return true;
+  }
+
+  if( op<0 )  // reverse then repeat
+  {
+    for(int z=0; z>op; --z)
+    {
+      for( mx_line_members::reverse_iterator it = members.rbegin()
+         ; it!=members.rend(); ++it )
+      {
+        mx_line_member member = it->first;
+        int op = it->second;
+        member.interpret(mx, line, op);
+      }
+    }
+    return true;
+  }
+}
+
+bool mx_line_member::interpret(MadX const & mx, MadX_line & line, int op)
+{
+  if( op==0 ) return true;
+
+  // member is a name/reference
+  if( tag==MX_LINE_MEMBER_NAME )
+  {
+    string name = any_cast<string>(member);
+    MadX_entry_type type = mx.entry_type(name);
+
+    // is the name refering to a madx command?
+    if( type==ENTRY_COMMAND )
+    { 
+      // ok it is a command
+      if( mx.command(name, true).is_element() )
+      { 
+        // now it is a real element
+        if( op!=1 )
+          throw runtime_error("Line op only applies on sublines, not on elements!");
+
+        // push to the line
+        line.insert_element( name );
+      }
+      else
+      {
+        throw runtime_error("Line member '" + name + "' is not an element");
+      }
+    } 
+    // or the name referes to a pre-exisitng line
+    else if( type==ENTRY_LINE )
+    {
+      MadX_line const & subline = mx.line(name);
+      size_t ne = subline.element_count();
+      int repeat = (op>0) ? op : -op;
+
+      for(int z=0; z<repeat; ++z)
+      {
+        for(size_t i=0; i<ne; ++i)
+          line.insert_element( subline.element_name( (op>0) ? (i) : (ne-1-i) ) );
+      }
+    }
+    // something we dont support
+    else
+    {
+      throw runtime_error("Line member '" + name + "' does not exist or not correct type");
+    }
+
+    return true;
+  }
+
+  // if it is not a name, it must be a seq
+  return any_cast<mx_line_seq>(member).interpret(mx, line, op);
+}
+
 // command
 void mx_command::set_label(string const & label)
 {
@@ -147,8 +269,12 @@ void mx_command::ins_attr(mx_attr const & attr)
   attrs_.push_back( attr );
 }
 
-bool mx_command::interpret(MadX & mx) const
+bool mx_command::interpret(MadX & mx) 
 {
+  // first execute the command if needed
+  execute(mx);
+
+  // push the command into MadX object
   if( type_ == MX_CMD_VARIABLE )
   {
     mx_attr attr = attrs_[0];
@@ -161,6 +287,7 @@ bool mx_command::interpret(MadX & mx) const
                                   : (type_==MX_CMD_ELEMENT_REF) ? ELEMENT_REF
                                                                 : EXECUTABLE ;
 
+    // prepare MadX_command object
     MadX_command cmd;
     cmd.set_name( keyword_, type );
     if ( labeled_ ) {
@@ -183,6 +310,120 @@ bool mx_command::interpret(MadX & mx) const
   return true;
 }
 
+void mx_command::execute(MadX & mx)
+{
+  if( keyword_ == "call" )
+  {
+    // pull in the sub-file
+    for( attrs_t::const_iterator it = attrs_.begin()
+       ; it != attrs_.end(); ++it )
+    {
+      if( it->name() == "file" )
+      {
+        string fname = boost::any_cast<string>(it->value());
+        mx_tree subroutine;
+        bool r = parse_madx_file(fname, subroutine);
+        if( !r ) throw runtime_error("Error parsing subroutine " + fname);
+        subroutine.interpret(mx);
+        return;
+      }
+    }
+    throw runtime_error("Error executing command 'call'");
+  } 
+  else if( keyword_ == "beam" )
+  {
+    // beam can always be referenced with 'beam'
+    if( !labeled_ )
+    {
+      label_ = "beam";
+      labeled_ = true;
+    }
+
+    // build attributes of beam
+    double mass = 0, charge = 0, energy = 0, pc = 0, gamma = 0;
+    for ( attrs_t::const_iterator it = attrs_.begin()
+        ; it != attrs_.end(); ++it ) 
+    {
+      if ( it->name() == "particle" ) 
+      {
+        string particle = any_cast<mx_keyword>( it->value() ).name;
+        if (particle == "proton") {
+          mass = pconstants::mp;
+          charge = pconstants::proton_charge;
+        } else if (particle == "antiproton") {
+          mass = pconstants::mp;
+          charge = pconstants::antiproton_charge;
+        } else if (particle == "electron") {
+          mass = pconstants::me;
+          charge = pconstants::electron_charge;
+        } else if (particle == "positron") {
+          mass = pconstants::me;
+          charge = pconstants::positron_charge;
+        } else if (particle == "negmuon") {
+          mass = pconstants::mmu;
+          charge = pconstants::muon_charge;
+        } else if (particle == "posmuon") {
+          mass = pconstants::mmu;
+          charge = pconstants::antimuon_charge;
+        } else {
+          throw runtime_error("Unknown particle type " + particle);
+        }
+      } 
+      else if ( it->name() == "mass") 
+      {
+        mx_expr e = boost::any_cast<mx_expr>( it->value() );
+        mass = boost::apply_visitor(mx_calculator(mx), e);
+      } 
+      else if ( it->name() == "charge") 
+      {
+        mx_expr e = boost::any_cast<mx_expr>( it->value() );
+        charge = boost::apply_visitor(mx_calculator(mx), e);
+      } 
+      else if ( it->name() == "energy") 
+      {
+        mx_expr e = boost::any_cast<mx_expr>( it->value() );
+        energy = boost::apply_visitor(mx_calculator(mx), e);
+      } 
+      else if ( it->name() == "pc") 
+      {
+        mx_expr e = boost::any_cast<mx_expr>( it->value() );
+        pc = boost::apply_visitor(mx_calculator(mx), e);
+      } 
+      else if ( it->name() == "gamma") 
+      {
+        mx_expr e = boost::any_cast<mx_expr>( it->value() );
+        gamma = boost::apply_visitor(mx_calculator(mx), e);
+      }
+    }
+
+    // makes no change if the particle type is absent
+    if( mass==0 ) return;
+
+    Four_momentum four_momentum(mass);
+
+    if (energy > 0) four_momentum.set_total_energy(energy);
+    if (pc > 0)     four_momentum.set_momentum(pc);
+    if (gamma > 0)  four_momentum.set_gamma(gamma);
+
+    mx_attr attr;
+    if (energy == 0) 
+    {
+      attr.set_attr( "energy", mx_expr(four_momentum.get_total_energy()) );
+      ins_attr(attr);
+    }
+    if (pc == 0) 
+    {
+      attr.set_attr( "pc", mx_expr(four_momentum.get_momentum()) );
+      ins_attr(attr);
+    }
+    if (gamma == 0) 
+    {
+      attr.set_attr( "gamma", mx_expr(four_momentum.get_gamma()) );
+      ins_attr(attr);
+    }
+  }
+}
+
 void mx_command::print() const
 {
   if( labeled_ )
@@ -201,21 +442,19 @@ void mx_command::print() const
 }
 
 // if_block
-bool mx_if_block::evaluate_logic(MadX & mx) const
+bool mx_if_block::evaluate_logic(MadX const & mx) const
 {
-  // TODO: parse logic
-
-  return true;
+  return logic_expr.evaluate(mx);
 }
 
-bool mx_if_block::interpret_block(MadX & mx) const
+bool mx_if_block::interpret_block(MadX & mx)
 {
   return block.interpret(mx);
 }
 
 void mx_if_block::print_logic() const
 {
-  cout << logic_expr;
+  //cout << logic_expr;
 }
 
 void mx_if_block::print_block() const
@@ -224,22 +463,22 @@ void mx_if_block::print_block() const
 }
 
 // if-elseif-else
-void mx_if::assign_if(string const & logic, mx_tree const & block)
+void mx_if::assign_if(mx_logic const & logic, mx_tree const & block)
 {
   if_ = mx_if_block(logic, block);
 }
 
-void mx_if::assign_elseif(string const & logic, mx_tree const & block)
+void mx_if::assign_elseif(mx_logic const & logic, mx_tree const & block)
 {
   elseif_.push_back(mx_if_block(logic, block));
 }
 
 void mx_if::assign_else(mx_tree const & block)
 {
-  else_ = mx_if_block("1", block);
+  else_ = mx_if_block(true, block);
 }
 
-bool mx_if::interpret(MadX & mx) const
+bool mx_if::interpret(MadX & mx)
 {
   if( !if_.valid() )
     throw runtime_error("mx_if::interpret() Invalid if command");
@@ -250,7 +489,7 @@ bool mx_if::interpret(MadX & mx) const
   }
   else if( !elseif_.empty() )
   {
-    for( mx_if_block_v::const_iterator it = elseif_.begin();
+    for( mx_if_block_v::iterator it = elseif_.begin();
          it != elseif_.end();
          ++it )
     {
@@ -298,12 +537,12 @@ void mx_if::print() const
 }
 
 // while
-void mx_while::assign(string const & logic, mx_tree const & block)
+void mx_while::assign(mx_logic const & logic, mx_tree const & block)
 {
   while_ = mx_if_block(logic, block);
 }
 
-bool mx_while::interpret(MadX & mx) const
+bool mx_while::interpret(MadX & mx)
 {
   return true;
 }
@@ -339,14 +578,24 @@ void mx_statement::assign(mx_while const & st)
   type = MX_WHILE;
 }
 
-bool mx_statement::interpret(MadX & mx) const
+void mx_statement::assign(mx_line const & st)
+{
+  value = any(st);
+  type = MX_LINE;
+}
+
+bool mx_statement::interpret(MadX & mx) 
 {
   if( type==MX_COMMAND )
     return boost::any_cast<mx_command>(value).interpret(mx);
+  else if( type==MX_LINE )
+    return boost::any_cast<mx_line>(value).interpret(mx);
   else if( type==MX_IF )
     return boost::any_cast<mx_if>(value).interpret(mx);
   else if( type==MX_WHILE )
     return boost::any_cast<mx_while>(value).interpret(mx);
+  else if( type==MX_NULL )
+    return true; // do nothing
   else
     throw runtime_error("mx_statement::interpret()  Unknown statement type");
 }
@@ -364,9 +613,9 @@ void mx_statement::print() const
 }
 
 // tree
-bool mx_tree::interpret(MadX & mx) const
+bool mx_tree::interpret(MadX & mx) 
 {
-  for( mx_statements_t::const_iterator it = statements.begin();
+  for( mx_statements_t::iterator it = statements.begin();
        it != statements.end();
        ++it )
   {
