@@ -396,6 +396,9 @@ void mx_command::execute(MadX & mx)
       }
     }
 
+    // makes no change if the particle type is absent
+    if( mass==0 ) return;
+
     Four_momentum four_momentum(mass);
 
     if (energy > 0) four_momentum.set_total_energy(energy);

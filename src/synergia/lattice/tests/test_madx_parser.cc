@@ -117,9 +117,9 @@ BOOST_AUTO_TEST_CASE(command)
   MadX   mx;
 
   BOOST_CHECK( parse_madx( str, mx ) );
-  BOOST_CHECK_EQUAL( mx.command_count(), 1 );
+  BOOST_CHECK_EQUAL( mx.label_count(), 1 );
 
-  MadX_command cmd = mx.command(0);
+  MadX_command cmd = mx.command("beam");
   BOOST_CHECK_EQUAL( cmd.name(), "beam" );
   BOOST_CHECK_EQUAL( cmd.attribute_count(), 0 );
 }
@@ -145,9 +145,9 @@ BOOST_AUTO_TEST_CASE(command_attrs)
   MadX   mx;
 
   BOOST_CHECK( parse_madx( str, mx ) );
-  BOOST_CHECK_EQUAL( mx.command_count(), 1 );
+  BOOST_CHECK_EQUAL( mx.label_count(), 1 );
 
-  MadX_command cmd = mx.command(0);
+  MadX_command cmd = mx.command("beam");
   BOOST_CHECK_EQUAL( cmd.name(), "beam" );
   BOOST_CHECK_EQUAL( cmd.attribute_count(), 2 );
   BOOST_CHECK_EQUAL( cmd.attribute_as_number("a"), 1 );
@@ -188,11 +188,11 @@ BOOST_AUTO_TEST_CASE(command_particle_attrs)
   MadX   mx;
 
   BOOST_CHECK( parse_madx( str, mx ) );
-  BOOST_CHECK_EQUAL( mx.command_count(), 1 );
+  BOOST_CHECK_EQUAL( mx.label_count(), 1 );
 
-  MadX_command cmd = mx.command(0);
+  MadX_command cmd = mx.command("beam");
   BOOST_CHECK_EQUAL( cmd.name(), "beam" );
-  BOOST_CHECK_EQUAL( cmd.attribute_count(), 1 );
+  BOOST_CHECK_EQUAL( cmd.attribute_count(), 4 );
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("particle"), "proton");
 }
 
