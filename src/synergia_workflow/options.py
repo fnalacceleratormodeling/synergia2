@@ -20,16 +20,23 @@ class _option:
 
     def _apply_val_type(self, val):
         val = str(val)
-        if self.val_type == bool:
-            if (val == "True" or val == "true" or val == "t" or val == "1"):
-                retval = True
-            elif (val == "False" or val == "false" or val == "f" or val == "0"
-                  or val == "nil"):
-                retval = False
-            else:
-                raise RuntimeError('Cannot convert "' + val + '" to boolean')
+        have_multiple = False
+        if len(val) > 0:
+            if val[0] == '_':
+                have_multiple = True
+        if have_multiple:
+            retval = val
         else:
-            retval = self.val_type(val)
+            if self.val_type == bool:
+                if (val == "True" or val == "true" or val == "t" or val == "1"):
+                    retval = True
+                elif (val == "False" or val == "false" or val == "f" or val == "0"
+                      or val == "nil"):
+                    retval = False
+                else:
+                    raise RuntimeError('Cannot convert "' + val + '" to boolean')
+            else:
+                retval = self.val_type(val)
         return retval
 
     def get(self):
