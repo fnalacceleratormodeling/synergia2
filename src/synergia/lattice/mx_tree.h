@@ -123,7 +123,7 @@ public:
   void assign(mx_while const & st);
   void assign(mx_line const & st);
 
-  bool interpret(MadX & mx);
+  void interpret(MadX & mx);
   void print() const;
 
 private:
@@ -145,7 +145,7 @@ public:
   { }
 
   void push(mx_statement const & st);
-  bool interpret(MadX & mx);
+  void interpret(MadX & mx);
   void print() const;
 
 private:
@@ -192,7 +192,7 @@ public:
 
   bool has_label() const { return labeled_; }
 
-  bool interpret(MadX & mx);
+  void interpret(MadX & mx);
   void execute(MadX & mx);
   void print() const;
 
@@ -215,7 +215,7 @@ public:
   mx_line_member(mx_line_seq const & seq)
     : member(seq), tag(MX_LINE_MEMBER_SEQ) { }
 
-  bool interpret(MadX const & mx, MadX_line & line, int op=1);
+  void interpret(MadX const & mx, MadX_line & line, int op=1);
 
 private:
   boost::any member;  // either a name ref or a line object
@@ -230,7 +230,7 @@ public:
   mx_line_seq() : members() { }
 
   void insert_member(int op, mx_line_member const & member);
-  bool interpret(MadX const & mx, MadX_line & line, int op=1);
+  void interpret(MadX const & mx, MadX_line & line, int op=1);
 
 private:
   mx_line_members members;
@@ -244,7 +244,7 @@ public:
   mx_line(string_t const & name, mx_line_seq const & seq)
     : name(name), seq(seq) { }
 
-  bool interpret(MadX & mx);
+  void interpret(MadX & mx);
 
 private:
   std::string name;
@@ -265,7 +265,7 @@ public:
 
   bool valid() const { return valid_; }
   bool evaluate_logic(MadX const & mx) const;
-  bool interpret_block(MadX & mx);
+  void interpret_block(MadX & mx);
 
   void print_logic() const;
   void print_block() const;
@@ -289,7 +289,7 @@ public:
   void assign_if    (mx_logic const & logic, mx_tree const & block);
   void assign_elseif(mx_logic const & logic, mx_tree const & block);
   void assign_else  (mx_tree const & block);
-  bool interpret(MadX & mx);
+  void interpret(MadX & mx);
   void print() const;
 
 private:
@@ -307,7 +307,7 @@ public:
   { }
 
   void assign(mx_logic const & logic, mx_tree const & block);
-  bool interpret(MadX & mx);
+  void interpret(MadX & mx);
   void print() const;
 
 private:

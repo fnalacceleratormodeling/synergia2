@@ -20,7 +20,7 @@ BOOST_AUTO_TEST_CASE(blank_line)
   string str = "";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
 }
 
 BOOST_AUTO_TEST_CASE(garbage)
@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(garbage)
   string str = "your momma uses portions->of madx syntax";
   MadX   mx;
 
-  BOOST_CHECK( !parse_madx( str, mx ) );
+  BOOST_CHECK_THROW( parse_madx( str, mx ), std::runtime_error );
 }
 
 #if 0
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(comment1)
   string str = "//your momma uses portions->of madx syntax";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
 }
 
 BOOST_AUTO_TEST_CASE(comment2)
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(comment2)
   string str = "!your momma uses portions->of madx syntax";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
 }
 #endif
 
@@ -54,7 +54,7 @@ BOOST_AUTO_TEST_CASE(variable_assignment)
   string str = "x=1;";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.variable_as_number("x"), 1 );
 }
 
@@ -64,7 +64,7 @@ BOOST_AUTO_TEST_CASE(mod_variable_assignment)
   string str = "x:=1;";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.variable_as_number("x"), 1 );
 }
 
@@ -73,7 +73,7 @@ BOOST_AUTO_TEST_CASE(newline_separation)
   string str = "x=1;\n y=2;";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.variable_as_number("x"), 1 );
   BOOST_CHECK_EQUAL( mx.variable_as_number("y"), 2 );
 }
@@ -83,7 +83,7 @@ BOOST_AUTO_TEST_CASE(semicolon_separation)
   string str = "x=1;y=2;";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.variable_as_number("x"), 1 );
   BOOST_CHECK_EQUAL( mx.variable_as_number("y"), 2 );
 }
@@ -93,7 +93,7 @@ BOOST_AUTO_TEST_CASE(variable_assignment_expression)
   string str = "foo.bar=pi*sin(1.2e-4)^0.69;";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_CLOSE( mx.variable_as_number("foo.bar"),
                      boost::math::constants::pi<double>() * pow(sin(1.2e-4), 0.69),
                      tolerance );
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(caps_variable_assignment)
   string str = "X=1;Y=X;";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.variable_as_number("y"), 1 );
 }
 
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE(command)
   string str = "beam;";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.label_count(), 1 );
 
   MadX_command cmd = mx.command("beam");
@@ -130,7 +130,7 @@ BOOST_AUTO_TEST_CASE(upper_command)
   string str = "BEAM;";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.command_count(), 1 );
 
   MadX_command cmd = mx.command(0);
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE(command_attrs)
   string str = "beam,a=1,B=3*(4+5);";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.label_count(), 1 );
 
   MadX_command cmd = mx.command("beam");
@@ -159,7 +159,7 @@ BOOST_AUTO_TEST_CASE(command_str_attrs1)
   string str = "title, S = \"Tevatron Collider Run II Lattice\";";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.command_count(), 1 );
 
   MadX_command cmd = mx.command(0);
@@ -173,7 +173,7 @@ BOOST_AUTO_TEST_CASE(command_str_attrs2)
   string str = "title, S = 'Tevatron Collider Run II Lattice';";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.command_count(), 1 );
 
   MadX_command cmd = mx.command(0);
@@ -187,7 +187,7 @@ BOOST_AUTO_TEST_CASE(command_particle_attrs)
   string str = "beAM, particle=proton;";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.label_count(), 1 );
 
   MadX_command cmd = mx.command("beam");
@@ -201,7 +201,7 @@ BOOST_AUTO_TEST_CASE(command_special_attrs1)
   string str = "multipole, knl:={0, 1, 1}, type=octpn;";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.command_count(), 1 );
 
   MadX_command cmd = mx.command(0);
@@ -215,7 +215,7 @@ BOOST_AUTO_TEST_CASE(command_special_attrs2)
   string str = "multipole, knl:={0, 1, 1}, TYPE=wgl;";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.command_count(), 1 );
 
   MadX_command cmd = mx.command(0);
@@ -229,7 +229,7 @@ BOOST_AUTO_TEST_CASE(command_special_attrs3)
   string str = "multipole, knl:={0, 1, 1}, type=\"special\";";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.command_count(), 1 );
 
   MadX_command cmd = mx.command(0);
@@ -243,7 +243,7 @@ BOOST_AUTO_TEST_CASE(command_assign)
   string str = "q1: quadrupole,l=3.14;";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.label_count(), 1 );
 
   MadX_command cmd = mx.command("q1");
@@ -257,7 +257,7 @@ BOOST_AUTO_TEST_CASE(subscripted_ident)
   string str = "foo: quadrupole, a=1; x=foo->a;";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.variable_as_number("x"), 1 );
 }
 
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE(vector_attribute)
 {
     string str = "mpfi1: multipole,knl:={ 0, 1.1, 2.2, 3.3, 4.4, 5.5 };";
     MadX mx;
-    BOOST_CHECK( parse_madx( str, mx ) );
+    BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
     MadX_command cmd = mx.command("mpfi1");
     std::vector<double > knl(cmd.attribute_as_number_seq("knl"));
 
@@ -284,7 +284,7 @@ BOOST_AUTO_TEST_CASE(continuation)
   string str = "q1: quadrupole,l=\n3.14,k1=0.2;";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.label_count(), 1 );
 
   MadX_command cmd = mx.command("q1");
@@ -299,7 +299,7 @@ BOOST_AUTO_TEST_CASE(continuation2)
   string str = "q2: quadrupole,l=! )junk)\n3.14,k1=0.2;";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.label_count(), 1 );
 
   MadX_command cmd = mx.command("q2");
@@ -314,7 +314,7 @@ BOOST_AUTO_TEST_CASE(continuation3)
   string str = "q3: quadrupole,l=3.14,\nk1=0.2;";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.label_count(), 1 );
 
   MadX_command cmd = mx.command("q3");
@@ -330,7 +330,7 @@ BOOST_AUTO_TEST_CASE(line_expansion)
 	"r:line=(g,h); s:line=(c,r,d); t:line=(2*s,2*(e,f),-s,-(a,b));";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.line_count(), 3 );
 
   MadX_line line = mx.line("t");
@@ -361,7 +361,7 @@ BOOST_AUTO_TEST_CASE(continuation4)
   string str = "twiss, save,   betx=28.871,alfx=-0.069,mux=0.0,dx=2.682,dpx=-0.073,\nbety= 5.264,alfy=-0.006,muy=0.0,dy=0.0,dpy=0.0;";
   MadX   mx;
 
-  BOOST_CHECK( parse_madx( str, mx ) );
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
 }
 #endif
 

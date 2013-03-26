@@ -650,7 +650,7 @@ struct synergia::madx_tree_parser
   }
 };
 
-bool synergia::parse_madx_tree( string const & s, mx_tree & doc )
+bool synergia::parse_int_madx( string const & s, mx_tree & doc, string const & f )
 {
   if( s.empty() ) return true;
 
@@ -670,23 +670,30 @@ bool synergia::parse_madx_tree( string const & s, mx_tree & doc )
   bool b = qi::phrase_parse( begin, end, parser, whitespace, doc )
          && begin == end;
 
+  if( !b )
+  {
+    iter_t e = distance(begin, end)<100 ? end : begin+100;
+    string r = string(begin, e);
+
+    throw runtime_error("MadX: parsing " + f + " failed at \n>>>\n" + r + "\n<<<");
+  }
+
   return b;
 }
 
-bool synergia::parse_madx( string_t const & str, MadX & mx )
+bool synergia::parse_madx( string const & str, MadX & mx, string const & f )
 {
   // first parse the madx doc into a statement tree
   mx_tree tree;
-  bool r = parse_madx_tree(str, tree);
-  if( !r ) return false;
+  parse_int_madx(str, tree, f);
 
   // print for debug purpose
   //tree.print();
 
   // interpret the syntax tree into a MadX object
-  r = tree.interpret(mx);
+  tree.interpret(mx);
 
-  return r;
+  return true;
 }
 
 // helper
@@ -711,18 +718,18 @@ namespace
   }
 }
 
-bool synergia::parse_madx_file( string_t const & fname, mx_tree & doc )
+bool synergia::parse_int_madx_file( string const & fname, mx_tree & doc )
 {
   string str;
   read_from_file( fname, str );
-  return parse_madx_tree( str, doc );
+  return parse_int_madx( str, doc, fname );
 }
 
-bool synergia::parse_madx_file( string_t const & fname, MadX & mx )
+bool synergia::parse_madx_file( string const & fname, MadX & mx )
 {
   string str;
   read_from_file( fname, str );
-  return parse_madx( str, mx );
+  return parse_madx( str, mx, fname );
 }
 
 
