@@ -56,6 +56,12 @@ if [ -f "$options_file" ]; then
 		if [ x"$arg" = x"createjob=1" ]; then
 			just_options=true
 		fi
+		if [ x"$arg" = x"createjob=true" ]; then
+			just_options=true
+		fi
+		if [ x"$arg" = x"createjob=t" ]; then
+			just_options=true
+		fi
 	done
 fi
 
