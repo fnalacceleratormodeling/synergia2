@@ -532,6 +532,7 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(checkpoint_dir);
         ar & BOOST_SERIALIZATION_NVP(checkpoint_with_xml);
         ar & BOOST_SERIALIZATION_NVP(concurrent_io);
+        ar & BOOST_SERIALIZATION_NVP(final_checkpoint);
     }
 
 template

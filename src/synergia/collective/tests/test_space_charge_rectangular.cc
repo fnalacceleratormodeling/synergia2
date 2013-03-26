@@ -451,6 +451,9 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local1, Ellipsoidal_bunch_fixture)
 	Rectangular_grid_sptr  Ex(space_charge.get_En(*phi_local, 0));
 	Rectangular_grid_sptr  Ey(space_charge.get_En(*phi_local, 1));
 	Rectangular_grid_sptr  Ez(space_charge.get_En(*phi_local, 2));
+	Ex->set_normalization(phi_local->get_normalization());
+	Ey->set_normalization(phi_local->get_normalization());
+	Ez->set_normalization(phi_local->get_normalization());
 	BOOST_CHECK_EQUAL(Ex->get_domain().get_grid_shape()[0], space_charge.get_domain().get_grid_shape()[0]);
 	BOOST_CHECK_EQUAL(Ex->get_domain().get_grid_shape()[1], space_charge.get_domain().get_grid_shape()[1]);
 	BOOST_CHECK_EQUAL(Ex->get_domain().get_grid_shape()[2], space_charge.get_domain().get_grid_shape()[2]);

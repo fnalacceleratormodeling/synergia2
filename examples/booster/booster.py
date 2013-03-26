@@ -512,27 +512,29 @@ try:
 
 
   #stepper.get_lattice_simulator().print_lattice_functions()
-  chef_frac_tunex=stepper.get_lattice_simulator().get_horizontal_tune()
-  chef_frac_tuney=stepper.get_lattice_simulator().get_vertical_tune()
-  chef_eigen_tunex=stepper.get_lattice_simulator().get_horizontal_tune(True)
-  chef_eigen_tuney=stepper.get_lattice_simulator().get_vertical_tune(True)
-  horizontal_chromaticity=stepper.get_lattice_simulator().get_horizontal_chromaticity()
-  vertical_chromaticity=stepper.get_lattice_simulator().get_vertical_chromaticity()
-  momentum_compaction=stepper.get_lattice_simulator().get_momentum_compaction()
-  slip_factor=stepper.get_lattice_simulator().get_slip_factor()
+  if opts.tunes_and_chroms:
+      chef_frac_tunex=stepper.get_lattice_simulator().get_horizontal_tune()
+      chef_frac_tuney=stepper.get_lattice_simulator().get_vertical_tune()
+      chef_eigen_tunex=stepper.get_lattice_simulator().get_horizontal_tune(True)
+      chef_eigen_tuney=stepper.get_lattice_simulator().get_vertical_tune(True)
+      horizontal_chromaticity=stepper.get_lattice_simulator().get_horizontal_chromaticity()
+      vertical_chromaticity=stepper.get_lattice_simulator().get_vertical_chromaticity()
+      momentum_compaction=stepper.get_lattice_simulator().get_momentum_compaction()
+      slip_factor=stepper.get_lattice_simulator().get_slip_factor()
   if MPI.COMM_WORLD.Get_rank() ==0:
       print "Lattice functions assuming uncoupled map:"
       print "alpha x: ", ax
       print "alpha y: ", ay
       print "beta x: ", bx
       print "beta y: ", by
-      print "chef FracTune x: ", chef_frac_tunex, ", EigenTune x: ", chef_eigen_tunex, ", map tune x: ", tune_x, "(",1-tune_x,")"
-      print "chef FracTune y: ", chef_frac_tuney, ", EigenTune y: ", chef_eigen_tuney, ", map tune y: ", tune_y, "(",1-tune_y,")"
-      print "                           map tune z: ", tune_z, "(",1-tune_z,")"  
-      print " horizontal chromaticity: ", horizontal_chromaticity
-      print " vertical   chromaticity: ", vertical_chromaticity
-      print " momentum compaction: ", momentum_compaction
-      print " slip factor: ", slip_factor
+      if opts.tunes_and_chroms:
+	  print "chef FracTune x: ", chef_frac_tunex, ", EigenTune x: ", chef_eigen_tunex, ", map tune x: ", tune_x, "(",1-tune_x,")"
+	  print "chef FracTune y: ", chef_frac_tuney, ", EigenTune y: ", chef_eigen_tuney, ", map tune y: ", tune_y, "(",1-tune_y,")"
+	  print "                           map tune z: ", tune_z, "(",1-tune_z,")"  
+	  print " horizontal chromaticity: ", horizontal_chromaticity
+	  print " vertical   chromaticity: ", vertical_chromaticity
+	  print " momentum compaction: ", momentum_compaction
+	  print " slip factor: ", slip_factor
 
 
 
@@ -599,18 +601,20 @@ try:
 	if bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm().has_this_rank():
 	   
 	      if opts.use_comm_divider:
-		commxx_divider=synergia.utils.Commxx_divider(opts.spc_comm_size, 1)
+		commxx_divider=synergia.utils.Commxx_divider(opts.spc_comm_size, opts.per_host)
 		comm_spc=commxx_divider.get_commxx(bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm())
 	      else:
 		spc_comm_size=opts.spc_comm_size
 		if bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm().has_this_rank():
 		    comm_spc= synergia.utils.make_optimal_spc_comm(bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm(),\
 			  spc_comm_size);
+	      #comm_spc=bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm()
 
 	      spc_f.set_fftw_helper(comm_spc,opts.use_comm_divider)
 	      spc_d.set_fftw_helper(comm_spc,opts.use_comm_divider)
 	      spc_else.set_fftw_helper(comm_spc,opts.use_comm_divider)
-	 
+	     
+	      
 
       real_num=bunch_train_simulator.get_bunch_train().get_bunches()[i].get_real_num()
       macro_num= bunch_train_simulator.get_bunch_train().get_bunches()[i].get_total_num()

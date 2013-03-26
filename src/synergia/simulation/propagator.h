@@ -53,7 +53,7 @@ private:
     std::string checkpoint_dir;
     bool checkpoint_with_xml;
     int concurrent_io;
-  bool final_checkpoint;
+    bool final_checkpoint;
 
 	void
 	construct();

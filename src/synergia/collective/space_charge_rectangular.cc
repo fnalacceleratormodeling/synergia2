@@ -523,10 +523,7 @@ if ((component < 0) || (component > 2)) {
 	
     }   
     t = simple_timer_show(t, "get_En:  gather En");
-    En->set_normalization(phi.get_normalization()); // we should have here  \div $\vec{E}=rho/epsilon
-
-    
-    
+   
     return En;
 
 }
@@ -573,18 +570,18 @@ Space_charge_rectangular::get_Efield(Rectangular_grid & rho,Bunch const& bunch, 
     } 
     else{
 	for (int component = 0; component < max_component; ++component){ 
-	  Efield.push_back(Rectangular_grid_sptr(new Rectangular_grid(domain_sptr)));
+	  Efield.push_back(Rectangular_grid_sptr(new Rectangular_grid(domain_sptr)));			
 	}
-    }  // comm_f_sptr->has_this_rank()
-   
-   bunch.get_comm_sptr()->get();
-   comm_f_sptr->get_parent_sptr()->get();
-   int mpi_compare;
-   MPI_Comm_compare(comm_f_sptr->get_parent_sptr()->get(), bunch.get_comm_sptr()->get(), &mpi_compare);
-   if ((mpi_compare != MPI_IDENT) && ( mpi_compare != MPI_CONGRUENT)){
+	int mpi_compare;
+	MPI_Comm_compare(comm_f_sptr->get_parent_sptr()->get(), bunch.get_comm_sptr()->get(), &mpi_compare);
+	if ((mpi_compare != MPI_IDENT) && ( mpi_compare != MPI_CONGRUENT)){
               	throw std::runtime_error
               	("Space_charge_rectangular get_Efield: comm_f_sptr parent and bunch.comm are not congruent");
-   } 
+	} 
+    }  // comm_f_sptr->has_this_rank()
+   
+   
+   
    
 
    // cast Efield from rank=0 of comm_spc to whole bunch.get_comm
@@ -596,15 +593,7 @@ Space_charge_rectangular::get_Efield(Rectangular_grid & rho,Bunch const& bunch, 
 	if (error != MPI_SUCCESS) {
 		throw std::runtime_error(
 		  "MPI error in Space_charge_rectangular, get_Efield: MPI_Bcast Efield failed)");
-	}
-// 	double normalization;	
-// 	if  (bunch.get_comm_sptr()->get_rank()==0) normalization=Efield[component]->get_normalization();
-// 	error=MPI_Bcast(&normalization, 1, MPI_DOUBLE, 0, bunch.get_comm().get());
-// 	if (error != MPI_SUCCESS) {
-// 		throw std::runtime_error(
-// 		  "MPI error in Space_charge_rectangular, get_Efield: MPI_Bcast normalization failed)");
-// 	}  
-// 	Efield[component]->set_normalization(normalization);	  
+	}	  
 	Efield[component]->set_normalization(1./(4.*shape[0]*shape[1]*shape[2]*epsilon0));
    }    
    return Efield;   
@@ -613,9 +602,7 @@ Space_charge_rectangular::get_Efield(Rectangular_grid & rho,Bunch const& bunch, 
 
 void
 Space_charge_rectangular::apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger)
-{
-  
-
+{ 
     double t,t1;
     t = simple_timer_current();
     t1 = simple_timer_current();
@@ -624,7 +611,7 @@ Space_charge_rectangular::apply(Bunch & bunch, double time_step, Step & step, in
     t = simple_timer_show(t, "sc_apply: convert-to-state");
     Rectangular_grid_sptr rho_sptr(get_charge_density(bunch)); // [C/m^3]
     t = simple_timer_show(t, "sc_apply: get-rho");
-
+    
     int max_component(3);   
     if (use_comm_divider){      
 	for (int component = 0; component < max_component; ++component) {
