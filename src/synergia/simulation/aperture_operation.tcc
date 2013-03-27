@@ -44,7 +44,11 @@ template<typename T>
                 }
             }
         }
-        deposit_charge(discarded * bunch.get_real_num() / bunch.get_total_num());
+        double charge = 0.0;
+        if (discarded > 0) {
+        	charge = discarded * bunch.get_real_num() / bunch.get_total_num();
+        }
+        deposit_charge(charge);
         bunch.set_local_num(local_num);
         double t1 = MPI_Wtime();
         if (verbosity > 5) {
@@ -94,7 +98,11 @@ template<typename T>
                 }
             }
         }
-        deposit_charge(discarded * bunch.get_real_num() / bunch.get_total_num());
+        double charge = 0.0;
+        if (discarded > 0) {
+        	charge = discarded * bunch.get_real_num() / bunch.get_total_num();
+        }
+        deposit_charge(charge);
         bunch.set_local_num(local_num);
         double t1 = MPI_Wtime();
         if (verbosity > 5) {
