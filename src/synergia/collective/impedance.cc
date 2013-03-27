@@ -679,7 +679,7 @@ Impedance::store_bunches_data(Bunch_train & bunch_train)
     Bunch_properties bi;
     std::vector<Bunch_properties> vbi_local(0);
     std::vector<Bunch_properties> vbi(num_bunches);    
-    for (int i = 0; i < num_bunches; ++i)
+    for (int i = 0; i < num_bunches; ++i){
         if (bunches.at(i)->get_comm().has_this_rank()) {
 	    Bunch_sptr bunch_sptr=bunches.at(i);
             bunch_sptr->convert_to_state(Bunch::fixed_t_lab);
@@ -695,36 +695,36 @@ Impedance::store_bunches_data(Bunch_train & bunch_train)
 	    if  (bunch_sptr->get_comm().get_rank()==0)   vbi_local.push_back(bi);
                      ///only the rank 0 of every communicator sends the bi to all others
         }  
-  
+    }
 	    
 	     
-           
-	MPI_Datatype Bunch_properties_type;
-	MPI_Aint lb, extent;
-	MPI_Type_get_extent(MPI_DOUBLE, &lb, &extent); 
-	MPI_Datatype type[2] = {MPI_DOUBLE, MPI_INT};
-	int blocklen[2] = {4,1};
-	MPI_Aint disp[2];
-	disp[0]=0;
-	disp[1]=4*extent;
-	MPI_Type_create_struct(2,blocklen, disp, type, &Bunch_properties_type);
-	MPI_Type_commit(&Bunch_properties_type); 
-                                     
-        int size_parent_comm=bunch_train.get_parent_comm_sptr()->get_size();	
-	std::vector<int > counts(bunch_train.get_proc_counts_for_impedance());
-	std::vector<int > offsets(bunch_train.get_proc_offsets_for_impedance());
-	
-	
-	int error = MPI_Allgatherv(reinterpret_cast<void*>(&vbi_local[0]), vbi_local.size(), Bunch_properties_type,  
-					reinterpret_cast<void*>(&vbi[0]), &counts[0], &offsets[0], 
-					Bunch_properties_type,bunch_train.get_parent_comm_sptr()->get() );
-	if (error != MPI_SUCCESS) {
-	  throw std::runtime_error("Impedance::store_bunches_data: MPI error in MPI_Allgatherv");
-	} 
-		    
-	MPI_Type_free(&Bunch_properties_type);
-	stored_vbunches.push_front(vbi);          
-	if (stored_vbunches.size()>nstored_turns) stored_vbunches.pop_back();
+	  
+    MPI_Datatype Bunch_properties_type;
+    MPI_Aint lb, extent;
+    MPI_Type_get_extent(MPI_DOUBLE, &lb, &extent); 
+    MPI_Datatype type[2] = {MPI_DOUBLE, MPI_INT};
+    int blocklen[2] = {4,1};
+    MPI_Aint disp[2];
+    disp[0]=0;
+    disp[1]=4*extent;
+    MPI_Type_create_struct(2,blocklen, disp, type, &Bunch_properties_type);
+    MPI_Type_commit(&Bunch_properties_type); 
+				  
+    int size_parent_comm=bunch_train.get_parent_comm_sptr()->get_size();	
+    std::vector<int > counts(bunch_train.get_proc_counts_for_impedance());
+    std::vector<int > offsets(bunch_train.get_proc_offsets_for_impedance());
+    
+    
+    int error = MPI_Allgatherv(reinterpret_cast<void*>(&vbi_local[0]), vbi_local.size(), Bunch_properties_type,  
+				    reinterpret_cast<void*>(&vbi[0]), &counts[0], &offsets[0], 
+				    Bunch_properties_type,bunch_train.get_parent_comm_sptr()->get() );
+    if (error != MPI_SUCCESS) {
+      throw std::runtime_error("Impedance::store_bunches_data: MPI error in MPI_Allgatherv");
+    } 
+		
+    MPI_Type_free(&Bunch_properties_type);
+    stored_vbunches.push_front(vbi);          
+    if (stored_vbunches.size()>nstored_turns) stored_vbunches.pop_back();
          
 
 }

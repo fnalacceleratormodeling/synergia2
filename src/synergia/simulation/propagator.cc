@@ -353,7 +353,7 @@ Propagator::propagate(State & state)
                 break;
             }
             ++turns_since_checkpoint;
-            do_turn_end(turn, state, t, t_turn0, logger);
+            do_turn_end(turn, state, t, t_turn0, logger);	   
             if ((turns_since_checkpoint == checkpoint_period) || ((turn
 								   == (state.num_turns - 1)) && final_checkpoint)) {
                 t = simple_timer_current();
@@ -532,7 +532,7 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(checkpoint_dir);
         ar & BOOST_SERIALIZATION_NVP(checkpoint_with_xml);
         ar & BOOST_SERIALIZATION_NVP(concurrent_io);
-        ar & BOOST_SERIALIZATION_NVP(final_checkpoint);
+	ar & BOOST_SERIALIZATION_NVP(final_checkpoint);
     }
 
 template

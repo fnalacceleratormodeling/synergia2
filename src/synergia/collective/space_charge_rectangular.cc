@@ -613,9 +613,9 @@ Space_charge_rectangular::apply(Bunch & bunch, double time_step, Step & step, in
     t = simple_timer_show(t, "sc_apply: get-rho");
     
     int max_component(3);   
-    if (use_comm_divider){      
-	for (int component = 0; component < max_component; ++component) {
-	  Distributed_rectangular_grid_sptr phi_local(get_phi_local(*rho_sptr));
+    if (use_comm_divider){     
+        Distributed_rectangular_grid_sptr phi_local(get_phi_local(*rho_sptr));
+	for (int component = 0; component < max_component; ++component) {	  
 	  Rectangular_grid_sptr  En(get_En(*phi_local, component)); // E=-/grad phi; [E]=kg*m/(C*s^2)=N/C	
 	  apply_kick(bunch, *En, time_step, component);	 
 	}
