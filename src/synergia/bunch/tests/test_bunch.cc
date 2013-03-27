@@ -65,7 +65,7 @@ random_populate(Bunch &bunch)
 }
 
 void
-compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance = tolerance,
+compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance,
         bool check_state = true, bool check_ids = true)
 {
     BOOST_CHECK_EQUAL(bunch1.get_reference_particle().get_total_energy(),
@@ -133,7 +133,7 @@ BOOST_FIXTURE_TEST_CASE(copy_construct, Fixture)
 {
     dummy_populate(bunch);
     Bunch second_bunch(bunch);
-    compare_bunches(bunch, second_bunch);
+    compare_bunches(bunch, second_bunch, tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(assign, Fixture)
@@ -141,7 +141,7 @@ BOOST_FIXTURE_TEST_CASE(assign, Fixture)
     Bunch second_bunch(reference_particle, total_num + 10, real_num * 2, comm_sptr);
     dummy_populate(bunch);
     second_bunch = bunch;
-    compare_bunches(bunch, second_bunch);
+    compare_bunches(bunch, second_bunch, tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_particle_charge, Fixture)
@@ -468,7 +468,7 @@ BOOST_FIXTURE_TEST_CASE(inject, Fixture)
     total_bunch.update_total_num();
     dummy_populate(total_bunch);
     bunch.inject(second_bunch);
-    compare_bunches(bunch, total_bunch, true, false);
+    compare_bunches(bunch, total_bunch, tolerance, true, false);
 }
 
 BOOST_FIXTURE_TEST_CASE(inject_mismatched_weights, Fixture)
@@ -493,5 +493,5 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Fixture)
     Bunch loaded;
     xml_load(loaded, "bunch.xml");
 
-    compare_bunches(bunch, loaded);
+    compare_bunches(bunch, loaded, tolerance);
 }
