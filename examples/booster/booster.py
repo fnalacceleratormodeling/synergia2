@@ -598,21 +598,15 @@ try:
       bunch_train_simulator.add_per_turn(i, synergia.bunch.Diagnostics_particles("turn_particles_%d.h5" % i), opts.turn_period)
 
       if space_charge:
-	if bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm().has_this_rank():
-	   
-	      if opts.use_comm_divider:
-		commxx_divider=synergia.utils.Commxx_divider(opts.spc_comm_size, opts.per_host)
-		comm_spc=commxx_divider.get_commxx(bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm())
-	      else:
-		spc_comm_size=opts.spc_comm_size
-		if bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm().has_this_rank():
-		    comm_spc= synergia.utils.make_optimal_spc_comm(bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm(),\
-			  spc_comm_size);
-	      #comm_spc=bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm()
-
-	      spc_f.set_fftw_helper(comm_spc,opts.use_comm_divider)
-	      spc_d.set_fftw_helper(comm_spc,opts.use_comm_divider)
-	      spc_else.set_fftw_helper(comm_spc,opts.use_comm_divider)
+	if bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm().has_this_rank():  
+	    spc_comm_size=opts.spc_comm_size
+	    if bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm().has_this_rank():
+		comm_spc= synergia.utils.make_optimal_spc_comm(bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm(),\
+		      spc_comm_size, opts.equally_spread );
+	  #comm_spc=bunch_train_simulator.get_bunch_train().get_bunches()[i].get_comm()
+	    spc_f.set_fftw_helper(comm_spc,opts.equally_spread)
+	    spc_d.set_fftw_helper(comm_spc,opts.equally_spread)
+	    spc_else.set_fftw_helper(comm_spc,opts.equally_spread)
 	     
 	      
 

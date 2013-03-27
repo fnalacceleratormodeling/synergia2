@@ -33,7 +33,7 @@ BOOST_AUTO_TEST_CASE(construct)
     size[1]=0.2;
     size[2]=0.05;
     Commxx_sptr comm_f_sptr(new Commxx);
-    Space_charge_rectangular space_charge(comm_f_sptr,size, grid_shape);
+    Space_charge_rectangular space_charge(comm_f_sptr,size, grid_shape, false);
 
 }
 
@@ -119,7 +119,7 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local1, Ellipsoidal_bunch_fixture)
     Rectangular_grid_sptr rho(space_charge.get_charge_density(bunch));
     
     int optimal_number=3;
-    Commxx_sptr comm_spc=make_optimal_spc_comm(bunch.get_comm_sptr(), optimal_number);
+    Commxx_sptr comm_spc=make_optimal_spc_comm(bunch.get_comm_sptr(), optimal_number, false);
 
     space_charge.set_fftw_helper(comm_spc, false);
     if (space_charge.get_comm_sptr()->has_this_rank())
@@ -143,11 +143,10 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local1, Ellipsoidal_bunch_fixture)
     Rectangular_grid_sptr rho(space_charge.get_charge_density(bunch));
     
     int optimal_number=2; 
-    if (bunch.get_comm_sptr()->get_size() %  optimal_number==0) {
-      Commxx_divider comm_divider(optimal_number, false);
-      Commxx_sptr comm_spc=comm_divider.get_commxx_sptr(bunch.get_comm_sptr());
-      space_charge.set_fftw_helper(comm_spc, true);
-      Distributed_rectangular_grid_sptr phi_local(space_charge.get_phi_local(*rho));
+    if (bunch.get_comm_sptr()->get_size() %  optimal_number==0) {     
+       Commxx_sptr comm_spc=make_optimal_spc_comm(bunch.get_comm_sptr(), optimal_number, true);
+       space_charge.set_fftw_helper(comm_spc, true);
+       Distributed_rectangular_grid_sptr phi_local(space_charge.get_phi_local(*rho));
     }
     
  }
@@ -191,7 +190,7 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local1, Ellipsoidal_bunch_fixture)
 //     space_charge.set_fftw_helper(bunch.get_comm_sptr());
     
      int optimal_number=3;
-     Commxx_sptr comm_spc=make_optimal_spc_comm(bunch.get_comm_sptr(), optimal_number);
+     Commxx_sptr comm_spc=make_optimal_spc_comm(bunch.get_comm_sptr(), optimal_number, false);
      space_charge.set_fftw_helper(comm_spc,false);
     
    
@@ -298,9 +297,8 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local1, Ellipsoidal_bunch_fixture)
 //     int lrank=bunch.get_comm().get_rank();
 //     space_charge.set_fftw_helper(bunch.get_comm_sptr());
     int optimal_number=2;
-    if (bunch.get_comm_sptr()->get_size() %  optimal_number==0) {
-	Commxx_divider comm_divider(optimal_number, false);
-	Commxx_sptr comm_spc=comm_divider.get_commxx_sptr(bunch.get_comm_sptr());
+    if (bunch.get_comm_sptr()->get_size() %  optimal_number==0) {	
+	Commxx_sptr comm_spc=make_optimal_spc_comm(bunch.get_comm_sptr(), optimal_number, true);
 	space_charge.set_fftw_helper(comm_spc, true);
      
     
@@ -411,7 +409,7 @@ BOOST_FIXTURE_TEST_CASE(get_phi_local1, Ellipsoidal_bunch_fixture)
 
    std::vector<double > hi(space_charge.get_domain().get_cell_size());
    int optimal_number=3;
-   Commxx_sptr comm_spc=make_optimal_spc_comm(bunch.get_comm_sptr(), optimal_number);
+   Commxx_sptr comm_spc=make_optimal_spc_comm(bunch.get_comm_sptr(), optimal_number, false);
    space_charge.set_fftw_helper(comm_spc, false); 
    space_charge.get_comm_sptr()->get_parent_sptr()->get();
 
@@ -594,9 +592,8 @@ BOOST_FIXTURE_TEST_CASE(get_En1, Ellipsoidal_bunch_fixture)
 
    std::vector<double > hi(space_charge.get_domain().get_cell_size());
     int optimal_number=2;
-    if (bunch.get_comm_sptr()->get_size() %  optimal_number==0) {
-	  Commxx_divider comm_divider(optimal_number, false);
-	  Commxx_sptr comm_spc=comm_divider.get_commxx_sptr(bunch.get_comm_sptr());
+    if (bunch.get_comm_sptr()->get_size() %  optimal_number==0) {	  
+	  Commxx_sptr comm_spc=make_optimal_spc_comm(bunch.get_comm_sptr(), optimal_number, true);
 	  space_charge.set_fftw_helper(comm_spc, true);
 	
 	
@@ -700,7 +697,7 @@ BOOST_FIXTURE_TEST_CASE(serialize_, Ellipsoidal_bunch_fixture)
 
    Space_charge_rectangular space_charge(size, grid_shape1);
    int optimal_number=3;
-   Commxx_sptr comm_spc=make_optimal_spc_comm(bunch.get_comm_sptr(), optimal_number);
+   Commxx_sptr comm_spc=make_optimal_spc_comm(bunch.get_comm_sptr(), optimal_number,false);
    space_charge.set_fftw_helper(comm_spc, false); 
     
  
@@ -763,7 +760,7 @@ BOOST_FIXTURE_TEST_CASE(serialize_, Ellipsoidal_bunch_fixture)
 }
  
  
-BOOST_FIXTURE_TEST_CASE(serialize_comm_divider, Ellipsoidal_bunch_fixture)
+BOOST_FIXTURE_TEST_CASE(serialize_comm_divided, Ellipsoidal_bunch_fixture)
 {
     
     std::vector<int > grid_shape1(3);
@@ -778,8 +775,7 @@ BOOST_FIXTURE_TEST_CASE(serialize_comm_divider, Ellipsoidal_bunch_fixture)
    Space_charge_rectangular space_charge0(size, grid_shape1);
    int optimal_number=2;
    if (bunch.get_comm_sptr()->get_size() %  optimal_number==0) {
-	Commxx_divider comm_divider(optimal_number, false);
-	Commxx_sptr comm_spc=comm_divider.get_commxx_sptr(bunch.get_comm_sptr());
+	Commxx_sptr comm_spc=make_optimal_spc_comm(bunch.get_comm_sptr(), optimal_number,true);	
 	space_charge0.set_fftw_helper(comm_spc, true);
         
 	Space_charge_rectangular space_charge(*space_charge0.clone());

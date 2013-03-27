@@ -217,3 +217,22 @@ BOOST_AUTO_TEST_CASE(make_optimal_spc_comm_subcomm)
        }	       
     }      
 }
+
+BOOST_AUTO_TEST_CASE(make_optimal_spc_comm_subcomm_equally_spread)
+{
+    Commxx_sptr parent_sptr(new Commxx);
+    int world_size = parent_sptr->get_size();
+    int size=2;
+    for (int optimal_number=2; optimal_number<4; ++optimal_number){ 
+       Commxxs commxxs(generate_subcomms(parent_sptr,size));
+       if ((world_size%size==0) && ((world_size/size)%optimal_number==0)){
+	  for (int i = 0; i< size; ++i) {
+	      if (commxxs[i]->has_this_rank()){
+		Commxx_sptr comm_spc(make_optimal_spc_comm(commxxs[i], optimal_number, true));		     
+		BOOST_CHECK_EQUAL(comm_spc->has_this_rank(), 1);	
+		BOOST_CHECK_EQUAL(commxxs[i]->get_rank()% optimal_number, comm_spc->get_rank());	     
+	      }
+	  }
+       }
+    }//optimal number     
+}

@@ -21,7 +21,7 @@ private:
     Commxx_sptr comm_f_sptr;
     Fftw_rectangular_helper_sptr fftw_helper_sptr;
     bool have_fftw_helper;
-    bool use_comm_divider;
+    bool equally_spread;
     void
     fill_guards_pplanes(Distributed_rectangular_grid & phi, int lower, int upper, int lengthx,
                           MArray2d & g_lower, MArray2d &g_upper);
@@ -30,7 +30,7 @@ private:
 
 public:
     Space_charge_rectangular(Commxx_sptr comm_f_sptr, std::vector<double > const & pipe_size, 
-			       std::vector<int > const & grid_shape, bool use_comm_divider=true);
+			       std::vector<int > const & grid_shape, bool equally_spread);
     Space_charge_rectangular(std::vector<double > const & pipe_size, std::vector<int > const & grid_shape);
     Space_charge_rectangular();
     
@@ -38,7 +38,7 @@ public:
     clone();
 
     void
-    set_fftw_helper(Commxx_sptr comm_sptr, bool comm_divider=true);
+    set_fftw_helper(Commxx_sptr comm_sptr, bool equally_spread);
     
     Commxx_sptr 
     get_comm_sptr() const;

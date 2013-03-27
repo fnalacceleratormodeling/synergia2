@@ -225,13 +225,22 @@ generate_subcomms(Commxx_sptr parent_sptr, int count)
 }
 
 Commxx_sptr
-make_optimal_spc_comm(Commxx_sptr comm_sptr, int optimal_number)
+make_optimal_spc_comm(Commxx_sptr comm_sptr, int optimal_number, bool equally_spread)
 {   
     int optimal_size=std::min(optimal_number, comm_sptr->get_size());
     std::vector<int > on_ranks(optimal_size);
+    int start_rank;
+     if (equally_spread){
+        if ((comm_sptr->get_size() %  optimal_size) !=0)  
+	  throw std::runtime_error("make_optimal_spc_comm, for equal_spread  the subsize is not a divider of comm size");
+	start_rank=comm_sptr->get_rank()/optimal_size;
+     }
+     else{
+       start_rank=0;
+     }      
     for (int i=0; i<optimal_size;++i){
-	on_ranks[i]=i;
-    }
+	    on_ranks[i]=i+start_rank*optimal_size;
+    }	
     Commxx_sptr ret_comm_sptr(new Commxx(comm_sptr,on_ranks)); 
-    return ret_comm_sptr;    
+    return ret_comm_sptr; 
 } 

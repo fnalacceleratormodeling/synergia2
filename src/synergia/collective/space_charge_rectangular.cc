@@ -10,9 +10,9 @@ using pconstants::epsilon0;
 
 
 Space_charge_rectangular::Space_charge_rectangular(Commxx_sptr comm_f_sptr, std::vector<double > const & pipe_size, 
-			std::vector<int > const & grid_shape, bool use_comm_divider):
+			std::vector<int > const & grid_shape, bool equally_spread):
 Collective_operator("space_charge_rectangular"), pipe_size(pipe_size), 
-grid_shape(grid_shape),  comm_f_sptr(comm_f_sptr), use_comm_divider(use_comm_divider)
+grid_shape(grid_shape),  comm_f_sptr(comm_f_sptr), equally_spread(equally_spread)
 {
 
  try{
@@ -20,8 +20,8 @@ grid_shape(grid_shape),  comm_f_sptr(comm_f_sptr), use_comm_divider(use_comm_div
                     new Rectangular_grid_domain(pipe_size, grid_shape , true));
     this->have_fftw_helper=false;
     construct_fftw_helper(comm_f_sptr);
-     if ((!comm_f_sptr->has_this_rank()) && (use_comm_divider)) throw std::runtime_error(
-		  "Space_charge_rectangular:: use_comm_divider is incompatible with this choice of comm_f_sptr ");
+     if ((!comm_f_sptr->has_this_rank()) && (equally_spread)) throw std::runtime_error(
+		  "Space_charge_rectangular:: equally_spread is incompatible with this choice of comm_f_sptr ");
 
  }
  catch (std::exception const& e){
@@ -39,7 +39,7 @@ Collective_operator("space_charge_rectangular"),  pipe_size(pipe_size),  grid_sh
     this->domain_sptr = Rectangular_grid_domain_sptr(
                     new Rectangular_grid_domain(pipe_size,  grid_shape , true));
     this->have_fftw_helper=false;
-    this->use_comm_divider=false; 
+    this->equally_spread=false; 
 
  }
  catch (std::exception const& e){
@@ -66,10 +66,10 @@ template<class Archive>
        
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
         ar & BOOST_SERIALIZATION_NVP(comm_f_sptr)
-	 &  BOOST_SERIALIZATION_NVP(grid_shape)
-	 &  BOOST_SERIALIZATION_NVP(pipe_size) 
-	 &  BOOST_SERIALIZATION_NVP(have_fftw_helper)
-	 &  BOOST_SERIALIZATION_NVP(use_comm_divider);
+	   &  BOOST_SERIALIZATION_NVP(grid_shape)
+	   &  BOOST_SERIALIZATION_NVP(pipe_size) 
+	   &  BOOST_SERIALIZATION_NVP(have_fftw_helper)
+	   &  BOOST_SERIALIZATION_NVP(equally_spread);
     }
 
 template<class Archive>
@@ -78,10 +78,10 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
         ar & BOOST_SERIALIZATION_NVP(comm_f_sptr)
-	 &  BOOST_SERIALIZATION_NVP(grid_shape)
-	 &  BOOST_SERIALIZATION_NVP(pipe_size)
-	 &  BOOST_SERIALIZATION_NVP(have_fftw_helper) 
-	 &  BOOST_SERIALIZATION_NVP(use_comm_divider);
+	   &  BOOST_SERIALIZATION_NVP(grid_shape)
+	   &  BOOST_SERIALIZATION_NVP(pipe_size)
+	   &  BOOST_SERIALIZATION_NVP(have_fftw_helper) 
+	   &  BOOST_SERIALIZATION_NVP(equally_spread);
      
         domain_sptr = Rectangular_grid_domain_sptr(
                     new Rectangular_grid_domain(pipe_size, grid_shape , true));
@@ -140,7 +140,7 @@ Space_charge_rectangular::construct_fftw_helper(Commxx_sptr comm_sptr)
 
 
 void
-Space_charge_rectangular::set_fftw_helper(Commxx_sptr comm_sptr, bool comm_divider)
+Space_charge_rectangular::set_fftw_helper(Commxx_sptr comm_sptr, bool equally_spread)
 {
 
  try{
@@ -151,9 +151,9 @@ Space_charge_rectangular::set_fftw_helper(Commxx_sptr comm_sptr, bool comm_divid
 	if (comm_sptr->has_this_rank()) this->fftw_helper_sptr->reset_comm_f(comm_sptr);
 	this->comm_f_sptr=comm_sptr;	    
    }
-   this->use_comm_divider=comm_divider; 
-   if ((!comm_sptr->has_this_rank()) && (comm_divider)) throw std::runtime_error(
-		  "Space_charge_rectangular:: set fftw: use_comm_divider is incompatible with this choice of comm_sptr ");
+   this->equally_spread=equally_spread; 
+   if ((!comm_sptr->has_this_rank()) && (equally_spread)) throw std::runtime_error(
+		  "Space_charge_rectangular:: set fftw: equally_spread is incompatible with this choice of comm_sptr ");
  }
  catch (std::exception const& e){
         std::cout<<e.what()<<std::endl;
@@ -498,7 +498,7 @@ if ((component < 0) || (component > 2)) {
 
      t = simple_timer_current();
 
-    if (use_comm_divider){ 
+    if (equally_spread){ 
 	int error = MPI_Allgatherv(reinterpret_cast<void*>(En_local_a.origin()),
 		  receive_counts[lrank], MPI_DOUBLE,
 		  reinterpret_cast<void*>(En->get_grid_points().origin()),
@@ -558,8 +558,8 @@ Space_charge_rectangular::apply_kick(Bunch & bunch, Rectangular_grid const& En, 
 std::vector<Rectangular_grid_sptr>
 Space_charge_rectangular::get_Efield(Rectangular_grid & rho,Bunch const& bunch, int max_component )
 {	
-   if (use_comm_divider) throw std::runtime_error
-              	("Space_charge_rectangular get_Efield: don't call this function for true use_comm_divider ");
+   if (equally_spread) throw std::runtime_error
+              	("Space_charge_rectangular get_Efield: don't call this function for true equally_spread ");
   
    std::vector<Rectangular_grid_sptr> Efield;
     if (comm_f_sptr->has_this_rank()){
@@ -574,7 +574,7 @@ Space_charge_rectangular::get_Efield(Rectangular_grid & rho,Bunch const& bunch, 
 	}
 	int mpi_compare;
 	MPI_Comm_compare(comm_f_sptr->get_parent_sptr()->get(), bunch.get_comm_sptr()->get(), &mpi_compare);
-	if ((mpi_compare != MPI_IDENT) && ( mpi_compare != MPI_CONGRUENT)){
+	if ((mpi_compare != MPI_IDENT) && ( mpi_compare != MPI_CONGRUENT)){	       
               	throw std::runtime_error
               	("Space_charge_rectangular get_Efield: comm_f_sptr parent and bunch.comm are not congruent");
 	} 
@@ -613,7 +613,16 @@ Space_charge_rectangular::apply(Bunch & bunch, double time_step, Step & step, in
     t = simple_timer_show(t, "sc_apply: get-rho");
     
     int max_component(3);   
-    if (use_comm_divider){     
+    if (equally_spread){     
+         if (comm_f_sptr->get_parent_sptr().get()!= 0) {
+	    int mpi_compare;
+	    MPI_Comm_compare(comm_f_sptr->get_parent_sptr()->get(), bunch.get_comm_sptr()->get(), &mpi_compare);
+	    if ((mpi_compare != MPI_IDENT) && ( mpi_compare != MPI_CONGRUENT)){
+		  throw std::runtime_error
+		  ("Space_charge_rectangular apply, equally_spread=1: comm_f_sptr parent and bunch.comm are not congruent");
+	} 
+	  
+	}
         Distributed_rectangular_grid_sptr phi_local(get_phi_local(*rho_sptr));
 	for (int component = 0; component < max_component; ++component) {	  
 	  Rectangular_grid_sptr  En(get_En(*phi_local, component)); // E=-/grad phi; [E]=kg*m/(C*s^2)=N/C	

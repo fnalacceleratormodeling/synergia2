@@ -6,11 +6,13 @@ add_test(test_commxx_mpi1 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_commxx_mpi)
 add_test(test_commxx_mpi2 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 test_commxx_mpi)
 add_test(test_commxx_mpi4 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 test_commxx_mpi)
 add_test(test_commxx_mpi7 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 7 test_commxx_mpi)
+add_test(test_commxx_mpi12 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 12 test_commxx_mpi)
 
 add_test_executable(test_commxx_divider_mpi test_commxx_divider_mpi.cc)
 target_link_libraries(test_commxx_divider_mpi synergia_parallel_utils synergia_serialization ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_commxx_divider_mpi1 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_commxx_divider_mpi)
 add_test(test_commxx_divider_mpi4 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 test_commxx_divider_mpi)
+
 
 add_test_executable(test_parallel_utils test_parallel_utils.cc)
 target_link_libraries(test_parallel_utils synergia_parallel_utils
