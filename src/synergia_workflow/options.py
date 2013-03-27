@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import string
 import sys
+import textwrap
 
 class _option:
     def __init__(self, name, default_value, doc_string, val_type, valid_values):
@@ -139,56 +140,72 @@ class Options:
                 else:
                     print "warning: override", name, "not found in existing options"
 
+    def _underlined_text(self, text):
+        return text + '\n' + ''.ljust(len(text),'-')
+    
+    def _get_opt_str(self, option):
+        opt_str = "%s=" % option
+        val_type = self.dict[option].val_type
+        if val_type == type(1):
+            typename = "int"
+        elif val_type == type(1.0):
+            typename = "float"
+        elif val_type == type(""):
+            typename = "str"
+        elif val_type == type(True):
+            typename = "bool"
+        else:
+            typename = "x"
+        if self.dict[option].length == 1:
+            opt_str += "<%s>" % typename
+        else:
+            opt_str += "<"
+            for i in range(1, self.dict[option].length):
+                opt_str += "%s," % typename
+            opt_str += "%s> " % typename
+        return opt_str
 
+    def _get_desc_str(self, option):
+        val_type = self.dict[option].val_type
+        desc_str = "%s," % self.dict[option].doc_string
+        desc_str += " default="
+        for item in range(0, self.dict[option].length):
+            if self.dict[option].length == 1:
+                val = self.dict[option].get()
+            else:
+                val = self.dict[option].get()[item]
+            if val_type == type(1.0):
+                if val != None:
+                    desc_str += "%g" % val
+                else:
+                    desc_str += "None"
+            else:
+                desc_str += str(val)
+            if item + 1 < self.dict[option].length:
+                desc_str += ","
+        if self.dict[option].valid_values:
+            desc_str += ", valid values: " + self.dict[option].valid_values
+        return desc_str
+    
     def usage(self):
         '''Print usage message to stdout'''
         for suboption in self.suboptions:
             suboption.usage()
-        print "%s options:" % self.name
+        print
+        print self._underlined_text("%s options:" % self.name)
         all_options = self.options(include_suboptions=0)
         all_options.sort()
+        opt_strs = []
+        desc_strs = []
         for option in all_options:
-            sys.stdout.write(" %s=" % option)
-            val_type = self.dict[option].val_type
-            if val_type == type(1):
-                typename = "int"
-            elif val_type == type(1.0):
-                typename = "float"
-            elif val_type == type(""):
-                typename = "str"
-            elif val_type == type(True):
-                typename = "bool"
-            else:
-                typename = "x"
-            if self.dict[option].length == 1:
-                print "<%s> " % typename,
-            else:
-                sys.stdout.write("<")
-                for i in range(1, self.dict[option].length):
-                    sys.stdout.write("%s, " % typename)
-                print "%s> " % typename,
-            print "%s," % self.dict[option].doc_string,
-            print "default=",
-            for item in range(0, self.dict[option].length):
-                if self.dict[option].length == 1:
-                    val = self.dict[option].get()
-                else:
-                    val = self.dict[option].get()[item]
-                if val_type == type(1.0):
-                    if val != None:
-                        sys.stdout.write("%g" % val)
-                    else:
-                        sys.stdout.write("None")
-                else:
-                    sys.stdout.write(str(val))
-                if item + 1 < self.dict[option].length:
-                    print ", ",
-            if self.dict[option].valid_values:
-                print ", valid values: ", self.dict[option].valid_values,
-            print
-
-        print
-
+            opt_strs.append(self._get_opt_str(option))
+            desc_strs.append(self._get_desc_str(option))
+        opt_len = max([len(s) for s in opt_strs]) + 1
+        wrapper = textwrap.TextWrapper(subsequent_indent = "".ljust(opt_len))
+        for (opt_str, desc_str) in zip(opt_strs,desc_strs):
+            for line in wrapper.wrap(opt_str.ljust(opt_len) +  desc_str):
+                print line
+        
     def parse_argv(self, argv):
         '''Parse command-line arguments from argv'''
         for arg in argv[1:]:
@@ -222,7 +239,7 @@ if __name__ == "__main__":
 
     really_stupid = Options("really_stupid")
     really_stupid.add("daffy", "duck", "daffy's species", str)
-    really_stupid.add("bugs", "male", "bugs's gender", str)
+    really_stupid.add("bugs", "male", "bugs's gender as defined by bug itself, not the society in which the bug lives", str)
     stupid.add_suboptions(really_stupid)
 
     stupid.parse_argv(sys.argv)
