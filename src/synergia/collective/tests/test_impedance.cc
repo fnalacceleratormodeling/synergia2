@@ -7,6 +7,7 @@
 #include "synergia/simulation/step.h"
 #include "synergia/simulation/operator.h"
 #include "bunches_fixture.h"
+#include "bunch_fixture.h"
 #include "synergia/utils/serialization_files.h"
 
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
@@ -41,8 +42,22 @@ BOOST_AUTO_TEST_CASE(test_copy)
  Impedance imped2(*imped_sptr);
  } 
 
-
+#if 0 
+BOOST_FIXTURE_TEST_CASE(test_apply_kicks, Bunches_fixture)
+{
+  Impedance imped("Fwake.dat", "XLXTYLYTZpp",43, orbit_length, bunch_spacing,3); 
+  double step_length=2.3;
+  double time_step=10.;
+  const int verbosity = 4;
+  Step step(step_length);
+  Logger logger(0);
+  Bunch_train bunch_train(bunches, bunch_spacing);
+  imped.apply(bunch_train, time_step, step, verbosity, train_diagnosticss, logger);
  
+} 
+#endif
+
+
  BOOST_FIXTURE_TEST_CASE(test_apply,Bunches_fixture)
  {
        
@@ -320,4 +335,4 @@ BOOST_FIXTURE_TEST_CASE(serialize_, Bunches_fixture)
    multi_array_check_equal(imped_clone_sptr->get_ywake_trailing(), imped_loaded_clone.get_ywake_trailing(),  tolerance);
    multi_array_check_equal(imped_clone_sptr->get_zwake0(), imped_loaded_clone.get_zwake0(),  tolerance);
  
-} 
+}

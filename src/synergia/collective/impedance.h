@@ -5,6 +5,7 @@
 #include "synergia/simulation/step.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/utils/serialization.h"
+#include "synergia/utils/commxx.h"
 
  struct Bunch_properties
  {
@@ -68,8 +69,7 @@ private:
     void construct(); 
     void store_bunches_data(Bunch_train & bunch_train);
     void calculate_moments_and_partitions(Bunch & bunch);
-    
-    void calculate_kicks(); 
+    void calculate_kicks(Commxx_sptr const & comm_sptr);
     void  apply_impedance_kick(Bunch & bunch, double wake_factor);
   
 

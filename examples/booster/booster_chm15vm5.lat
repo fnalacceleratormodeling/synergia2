@@ -1,0 +1,1052 @@
+! file provided by Meghan McAteer in Apr 2012
+ekin    :=      0.400000             ! 0.4 GeV
+erest   :=      0.93827203               ! proton mass   agrees with basic_toolkit/include/PhysicsConstants.h
+                                         ! However, more recent value is 0.938272013(23), according to
+                                         ! http://pdg.lbl.gov/2011/reviews/rpp2011-rev-phys-constants.pdf
+c       :=      0.299792458              ! c=299792458 m/s
+etotal  :=      ekin + erest         ! proton total energy
+pc      :=      sqrt(etotal * etotal - erest * erest)     ! proton momentum
+pc0     :=      0.954263             ! proton momentum at ekin=0.4 GeV
+gamma   :=      etotal / erest                            ! gamma
+beta    :=      sqrt(1 - (1 / (gamma * gamma)))           ! beta
+brho    :=      pc/c                 !  Rigidity in Tm for kinetic energy 0.4 GeV (Pc=0.954263 GeV)
+kpc     :=      pc0/pc               ! pc0/pc 
+pct     :=      5.02561              ! Pc (GeV) at transition
+kpct    :=      pct/pc               ! pc0/pc 
+beam,   particle=proton, energy=etotal
+                                         
+                                         
+bFMAG: SBEND,  L=  2.889612,  ANGLE=-0.07074218186,  K1=0.05421951472   ,  E1=-0.03537109093    ,  E2=-0.03537109093
+hmagF: MONITOR  
+bDMAG: SBEND,  L=  2.889612,  ANGLE=-0.06015751194,  K1=-0.05770689978   ,  E1=-0.03007875597    ,  E2=-0.03007875597 
+hmagD: MONITOR  
+bORBUMPp: SBEND,  L=0.4824577921,  ANGLE=0.04432019051,  K1=0.006216317127  ,  E1=0.02216010166    ,  E2=0.02216010166 
+bORBUMPm: SBEND,  L=0.4824577921,  ANGLE=0.02216009525,  K1=0.003108158563,  TILT=3.141592654    ,  E1=0.01108005083    ,  E2=0.01108005083 
+bDOG03p: SBEND,  L=0.2472804587,  ANGLE=0.03831506746,  E1=0.01915753682    ,  E2=0.01915753682 
+bSEPT03:  DRIFT,  L=   1.52358
+bDOG03m: SBEND,  L=0.2472804587,  ANGLE=0.03831506746    ,  E1=0.01915753682    ,  E2=0.01915753682 
+bSEPT13:  DRIFT,  L=   1.52372
+bROLLp: SROT, ANGLE=1.570796327
+bROLLm: SROT, ANGLE=-1.570796327
+mFMAGU01: DRIFT, L=0. 
+mFMAGD01: DRIFT, L=0. 
+mFMAGU02: DRIFT, L=0. 
+mFMAGD02: DRIFT, L=0. 
+mFMAGU03: DRIFT, L=0. 
+mFMAGD03: DRIFT, L=0. 
+mFMAGU04: DRIFT, L=0. 
+mFMAGD04: DRIFT, L=0. 
+mFMAGU05: DRIFT, L=0. 
+mFMAGD05: DRIFT, L=0. 
+mFMAGU06: DRIFT, L=0. 
+mFMAGD06: DRIFT, L=0. 
+mFMAGU07: DRIFT, L=0. 
+mFMAGD07: DRIFT, L=0. 
+mFMAGU08: DRIFT, L=0. 
+mFMAGD08: DRIFT, L=0. 
+mFMAGU09: DRIFT, L=0. 
+mFMAGD09: DRIFT, L=0. 
+mFMAGU10: DRIFT, L=0. 
+mFMAGD10: DRIFT, L=0. 
+mFMAGU11: DRIFT, L=0. 
+mFMAGD11: DRIFT, L=0. 
+mFMAGU12: DRIFT, L=0. 
+mFMAGD12: DRIFT, L=0. 
+mFMAGU13: DRIFT, L=0. 
+mFMAGD13: DRIFT, L=0. 
+mFMAGU14: DRIFT, L=0. 
+mFMAGD14: DRIFT, L=0. 
+mFMAGU15: DRIFT, L=0. 
+mFMAGD15: DRIFT, L=0. 
+mFMAGU16: DRIFT, L=0. 
+mFMAGD16: DRIFT, L=0. 
+mFMAGU17: DRIFT, L=0. 
+mFMAGD17: DRIFT, L=0. 
+mFMAGU18: DRIFT, L=0. 
+mFMAGD18: DRIFT, L=0. 
+mFMAGU19: DRIFT, L=0. 
+mFMAGD19: DRIFT, L=0. 
+mFMAGU20: DRIFT, L=0. 
+mFMAGD20: DRIFT, L=0. 
+mFMAGU21: DRIFT, L=0. 
+mFMAGD21: DRIFT, L=0. 
+mFMAGU22: DRIFT, L=0. 
+mFMAGD22: DRIFT, L=0. 
+mFMAGU23: DRIFT, L=0. 
+mFMAGD23: DRIFT, L=0. 
+mFMAGU24: DRIFT, L=0. 
+mFMAGD24: DRIFT, L=0. 
+mDMAGU01: DRIFT, L=0. 
+mDMAGD01: DRIFT, L=0. 
+mDMAGU02: DRIFT, L=0. 
+mDMAGD02: DRIFT, L=0. 
+mDMAGU03: DRIFT, L=0. 
+mDMAGD03: DRIFT, L=0. 
+mDMAGU04: DRIFT, L=0. 
+mDMAGD04: DRIFT, L=0. 
+mDMAGU05: DRIFT, L=0. 
+mDMAGD05: DRIFT, L=0. 
+mDMAGU06: DRIFT, L=0. 
+mDMAGD06: DRIFT, L=0. 
+mDMAGU07: DRIFT, L=0. 
+mDMAGD07: DRIFT, L=0. 
+mDMAGU08: DRIFT, L=0. 
+mDMAGD08: DRIFT, L=0. 
+mDMAGU09: DRIFT, L=0. 
+mDMAGD09: DRIFT, L=0. 
+mDMAGU10: DRIFT, L=0. 
+mDMAGD10: DRIFT, L=0. 
+mDMAGU11: DRIFT, L=0. 
+mDMAGD11: DRIFT, L=0. 
+mDMAGU12: DRIFT, L=0. 
+mDMAGD12: DRIFT, L=0. 
+mDMAGU13: DRIFT, L=0. 
+mDMAGD13: DRIFT, L=0. 
+mDMAGU14: DRIFT, L=0. 
+mDMAGD14: DRIFT, L=0. 
+mDMAGU15: DRIFT, L=0. 
+mDMAGD15: DRIFT, L=0. 
+mDMAGU16: DRIFT, L=0. 
+mDMAGD16: DRIFT, L=0. 
+mDMAGU17: DRIFT, L=0. 
+mDMAGD17: DRIFT, L=0. 
+mDMAGU18: DRIFT, L=0. 
+mDMAGD18: DRIFT, L=0. 
+mDMAGU19: DRIFT, L=0. 
+mDMAGD19: DRIFT, L=0. 
+mDMAGU20: DRIFT, L=0. 
+mDMAGD20: DRIFT, L=0. 
+mDMAGU21: DRIFT, L=0. 
+mDMAGD21: DRIFT, L=0. 
+mDMAGU22: DRIFT, L=0. 
+mDMAGD22: DRIFT, L=0. 
+mDMAGU23: DRIFT, L=0. 
+mDMAGD23: DRIFT, L=0. 
+mDMAGU24: DRIFT, L=0. 
+mDMAGD24: DRIFT, L=0. 
+qQL01: QUADRUPOLE,  L=     0.024,  K1=0.01647632941 
+qSQL01: QUADRUPOLE,  L=     0.024,  K1=-0.03240344968,  TILT=0.7853981634  
+qQS01: QUADRUPOLE,  L=     0.024,  K1=0.04775121468 
+qSQS01: QUADRUPOLE,  L=     0.024,  K1=-0.003794054986,  TILT=0.7853981634  
+qQL02: QUADRUPOLE,  L=     0.024,  K1=0.02442052802 
+qSQL02: QUADRUPOLE,  L=     0.024,  K1=0.0298810608,  TILT=0.7853981634  
+qQS02: QUADRUPOLE,  L=     0.024,  K1=0.01371379382 
+qSQS02: QUADRUPOLE,  L=     0.024,  K1=0.02755424574,  TILT=0.7853981634  
+qQL03: QUADRUPOLE,  L=     0.024,  K1=-0.0627072297 
+qSQL03: QUADRUPOLE,  L=     0.024,  K1=-0.08381390213,  TILT=0.7853981634  
+qQS03: QUADRUPOLE,  L=     0.024,  K1=-0.08323129482 
+qSQS03: QUADRUPOLE,  L=     0.024,  K1=-0.02297674053,  TILT=0.7853981634  
+qQL04: QUADRUPOLE,  L=     0.024,  K1=0.06414148856 
+qSQL04: QUADRUPOLE,  L=     0.024,  K1=0.02006648926,  TILT=0.7853981634  
+qQS04: QUADRUPOLE,  L=     0.024,  K1=0.06712722151 
+qSQS04: QUADRUPOLE,  L=     0.024,  K1=0.04670230805,  TILT=0.7853981634  
+qQL05: QUADRUPOLE,  L=     0.024,  K1=-0.07439749755 
+qSQL05: QUADRUPOLE,  L=     0.024,  K1=-0.04687899179,  TILT=0.7853981634  
+qQS05: QUADRUPOLE,  L=     0.024,  K1=-0.1131351849 
+qSQS05: QUADRUPOLE,  L=     0.024,  K1=-0.03983920714,  TILT=0.7853981634  
+qQL06: QUADRUPOLE,  L=     0.024,  K1=-0.1159916555 
+qSQL06: QUADRUPOLE,  L=     0.024,  K1=0.0104482615,  TILT=0.7853981634  
+qQS06: QUADRUPOLE,  L=     0.024,  K1=-0.06979712449 
+qSQS06: QUADRUPOLE,  L=     0.024,  K1=0.02091705569,  TILT=0.7853981634  
+qQL07: QUADRUPOLE,  L=     0.024,  K1=0.1234970132 
+qSQL07: QUADRUPOLE,  L=     0.024,  K1=0.006658646707,  TILT=0.7853981634  
+qQS07: QUADRUPOLE,  L=     0.024,  K1=-0.03472632094 
+qSQS07: QUADRUPOLE,  L=     0.024,  K1=0.03156320093,  TILT=0.7853981634  
+qQL08: QUADRUPOLE,  L=     0.024,  K1=0.06104147073 
+qSQL08: QUADRUPOLE,  L=     0.024,  K1=-0.005161711391,  TILT=0.7853981634  
+qQS08: QUADRUPOLE,  L=     0.024,  K1=-0.1832764664 
+qSQS08: QUADRUPOLE,  L=     0.024,  K1=0.01469051931,  TILT=0.7853981634  
+qQL09: QUADRUPOLE,  L=     0.024,  K1=0.1309890215 
+qSQL09: QUADRUPOLE,  L=     0.024,  K1=-0.03081355264,  TILT=0.7853981634  
+qQS09: QUADRUPOLE,  L=     0.024,  K1=-0.1670652714 
+qSQS09: QUADRUPOLE,  L=     0.024,  K1=0.02263286941,  TILT=0.7853981634  
+qQL10: QUADRUPOLE,  L=     0.024,  K1=-0.1148289453 
+qSQL10: QUADRUPOLE,  L=     0.024,  K1=0.002115764741,  TILT=0.7853981634  
+qQL11: QUADRUPOLE,  L=     0.024,  K1=0.2058452865 
+qSQL11: QUADRUPOLE,  L=     0.024,  K1=-0.002076691043,  TILT=0.7853981634  
+qQS10: QUADRUPOLE,  L=     0.024,  K1=-0.04292910943 
+qSQS10: QUADRUPOLE,  L=     0.024,  K1=0.008505048302,  TILT=0.7853981634  
+qQS11: QUADRUPOLE,  L=     0.024,  K1=-0.2287458908 
+qSQS11: QUADRUPOLE,  L=     0.024,  K1=0.03024916049,  TILT=0.7853981634  
+qQL12: QUADRUPOLE,  L=     0.024,  K1=0.05335540614 
+qSQL12: QUADRUPOLE,  L=     0.024,  K1=-0.05080745886,  TILT=0.7853981634  
+qQS12: QUADRUPOLE,  L=     0.024,  K1=-0.0610134693 
+qSQS12: QUADRUPOLE,  L=     0.024,  K1=-0.02598991189,  TILT=0.7853981634  
+qQL13: QUADRUPOLE,  L=     0.024,  K1=0.01337614878 
+qSQL13: QUADRUPOLE,  L=     0.024,  K1=-0.03407824937,  TILT=0.7853981634  
+qQS13: QUADRUPOLE,  L=     0.024,  K1=-0.02633012729 
+qSQS13: QUADRUPOLE,  L=     0.024,  K1=-0.02531746649,  TILT=0.7853981634  
+qQL14: QUADRUPOLE,  L=     0.024,  K1=0.01240736472 
+qSQL14: QUADRUPOLE,  L=     0.024,  K1=-0.006282128617,  TILT=0.7853981634  
+qQS14: QUADRUPOLE,  L=     0.024,  K1=-0.1474307398 
+qSQS14: QUADRUPOLE,  L=     0.024,  K1=-0.01050688231,  TILT=0.7853981634  
+qQL15: QUADRUPOLE,  L=     0.024,  K1=0.2589359815 
+qSQL15: QUADRUPOLE,  L=     0.024,  K1=0.001160994942,  TILT=0.7853981634  
+qQS15: QUADRUPOLE,  L=     0.024,  K1=0.1640075813 
+qSQS15: QUADRUPOLE,  L=     0.024,  K1=0.02892993556,  TILT=0.7853981634  
+qQL16: QUADRUPOLE,  L=     0.024,  K1=0.02758530728 
+qSQL16: QUADRUPOLE,  L=     0.024,  K1=-0.03519214747,  TILT=0.7853981634  
+qQS16: QUADRUPOLE,  L=     0.024,  K1=0.008094722538 
+qSQS16: QUADRUPOLE,  L=     0.024,  K1=-0.00931598665,  TILT=0.7853981634  
+qQL17: QUADRUPOLE,  L=     0.024,  K1=-0.04404167754 
+qSQL17: QUADRUPOLE,  L=     0.024,  K1=-0.01380735725,  TILT=0.7853981634  
+qQS17: QUADRUPOLE,  L=     0.024,  K1=-0.08051873851 
+qSQS17: QUADRUPOLE,  L=     0.024,  K1=0.004901536621,  TILT=0.7853981634  
+qQL18: QUADRUPOLE,  L=     0.024,  K1=-0.06935984648 
+qSQL18: QUADRUPOLE,  L=     0.024,  K1=-0.01028461601,  TILT=0.7853981634  
+qQS18: QUADRUPOLE,  L=     0.024,  K1=0.004477850564 
+qSQS18: QUADRUPOLE,  L=     0.024,  K1=0.003670925615,  TILT=0.7853981634  
+qQL19: QUADRUPOLE,  L=     0.024,  K1=0.2298070145 
+qSQL19: QUADRUPOLE,  L=     0.024,  K1=-0.02319079376,  TILT=0.7853981634  
+qQS19: QUADRUPOLE,  L=     0.024,  K1=-0.06818248439 
+qSQS19: QUADRUPOLE,  L=     0.024,  K1=-0.0357518171,  TILT=0.7853981634  
+qQL20: QUADRUPOLE,  L=     0.024,  K1=0.08713456272 
+qSQL20: QUADRUPOLE,  L=     0.024,  K1=0.02953713835,  TILT=0.7853981634  
+qQS20: QUADRUPOLE,  L=     0.024,  K1=-0.1375488428 
+qSQS20: QUADRUPOLE,  L=     0.024,  K1=0.05131189557,  TILT=0.7853981634  
+qQL21: QUADRUPOLE,  L=     0.024,  K1=-0.1747011939 
+qSQL21: QUADRUPOLE,  L=     0.024,  K1=-0.03163485999,  TILT=0.7853981634  
+qQS21: QUADRUPOLE,  L=     0.024,  K1=-0.1185602975 
+qSQS21: QUADRUPOLE,  L=     0.024,  K1=-0.003700313018,  TILT=0.7853981634  
+qQL22: QUADRUPOLE,  L=     0.024,  K1=0.04114841439 
+qSQL22: QUADRUPOLE,  L=     0.024,  K1=-0.02497061813,  TILT=0.7853981634  
+qQS22: QUADRUPOLE,  L=     0.024,  K1=-0.2423734663 
+qSQS22: QUADRUPOLE,  L=     0.024,  K1=0.01230359481,  TILT=0.7853981634  
+qQL23: QUADRUPOLE,  L=     0.024,  K1=0.02048072803 
+qSQL23: QUADRUPOLE,  L=     0.024,  K1=0.01272092161,  TILT=0.7853981634  
+qQS23: QUADRUPOLE,  L=     0.024,  K1=-0.08510445967 
+qSQS23: QUADRUPOLE,  L=     0.024,  K1=0.04327196389,  TILT=0.7853981634  
+qQL24: QUADRUPOLE,  L=     0.024,  K1=-0.02873457027 
+qSQL24: QUADRUPOLE,  L=     0.024,  K1=-0.06476983787,  TILT=0.7853981634  
+qQS24: QUADRUPOLE,  L=     0.024,  K1=0.04839687536 
+qSQS24: QUADRUPOLE,  L=     0.024,  K1=-0.0283805836,  TILT=0.7853981634  
+qQLerr01: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr01: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr01: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr01: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr02: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr02: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr02: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr02: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr03: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr03: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr03: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr03: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr04: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr04: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr04: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr04: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr05: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr05: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr05: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr05: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr06: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr06: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr06: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr06: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr07: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr07: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr07: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr07: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr08: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr08: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr08: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr08: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr09: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr09: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr09: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr09: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr10: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr10: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr11: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr11: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr10: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr10: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr11: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr11: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr12: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr12: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr12: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr12: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr13: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr13: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr13: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr13: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr14: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr14: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr14: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr14: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr15: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr15: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr15: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr15: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr16: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr16: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr16: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr16: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr17: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr17: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr17: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr17: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr18: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr18: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr18: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr18: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr19: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr19: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr19: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr19: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr20: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr20: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr20: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr20: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr21: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr21: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr21: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr21: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr22: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr22: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr22: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr22: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr23: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr23: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr23: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr23: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQLerr24: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQLerr24: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634  
+qQSerr24: QUADRUPOLE,  L=     0.,  K1=         0 
+qSQSerr24: QUADRUPOLE,  L=     0.,  K1=         0,  TILT=0.7853981634 
+ssxs01:  SEXTUPOLE,  L=0.024,    K2=0.86069266543
+ssxs02:  SEXTUPOLE,  L=0.024,    K2=1.1197726654
+ssxs03:  SEXTUPOLE,  L=0.024,    K2=0.86069266543
+ssxs04:  SEXTUPOLE,  L=0.024,    K2=1.1197726654
+ssxs05:  SEXTUPOLE,  L=0.024,    K2=0.86069266543
+ssxs06:  SEXTUPOLE,  L=0.024,    K2=1.1197726654
+ssxs07:  SEXTUPOLE,  L=0.024,    K2=0.86069266543
+ssxs08:  SEXTUPOLE,  L=0.024,    K2=1.1197726654
+ssxs09:  SEXTUPOLE,  L=0.024,    K2=0.86069266543
+ssxs10:  SEXTUPOLE,  L=0.024,    K2=1.1197726654
+ssxs11:  SEXTUPOLE,  L=0.024,    K2=0.86069266543
+ssxs12:  SEXTUPOLE,  L=0.024,    K2=1.1197726654
+ssxs13:  SEXTUPOLE,  L=0.024,    K2=0.86069266543
+ssxs14:  SEXTUPOLE,  L=0.024,    K2=1.1197726654
+ssxs15:  SEXTUPOLE,  L=0.024,    K2=0.86069266543
+ssxs16:  SEXTUPOLE,  L=0.024,    K2=1.1197726654
+ssxs17:  SEXTUPOLE,  L=0.024,    K2=0.86069266543
+ssxs18:  SEXTUPOLE,  L=0.024,    K2=1.1197726654
+ssxs19:  SEXTUPOLE,  L=0.024,    K2=0.86069266543
+ssxs20:  SEXTUPOLE,  L=0.024,    K2=1.1197726654
+ssxs21:  SEXTUPOLE,  L=0.024,    K2=0.86069266543
+ssxs22:  SEXTUPOLE,  L=0.024,    K2=1.1197726654
+ssxs23:  SEXTUPOLE,  L=0.024,    K2=0.86069266543
+ssxs24:  SEXTUPOLE,  L=0.024,    K2=1.1197726654
+ssxl01:  SEXTUPOLE,  L=0.024,    K2=0.33707828538
+ssxl02:  SEXTUPOLE,  L=0.024,    K2=2.1220782854
+ssxl03:  SEXTUPOLE,  L=0.024,    K2=-0.10570171462
+ssxl04:  SEXTUPOLE,  L=0.024,    K2=1.4202282853
+ssxl05:  SEXTUPOLE,  L=0.024,    K2=-0.65678171456
+ssxl06:  SEXTUPOLE,  L=0.024,    K2=1.3433782853
+ssxl07:  SEXTUPOLE,  L=0.024,    K2=-0.21401171458
+ssxl08:  SEXTUPOLE,  L=0.024,    K2=2.0452282854
+ssxl09:  SEXTUPOLE,  L=0.024,    K2=0.33707828538
+ssxl10:  SEXTUPOLE,  L=0.024,    K2=2.1220782854
+ssxl11:  SEXTUPOLE,  L=0.024,    K2=-0.10570171462
+ssxl12:  SEXTUPOLE,  L=0.024,    K2=1.4202282853
+ssxl13:  SEXTUPOLE,  L=0.024,    K2=-0.65678171456
+ssxl14:  SEXTUPOLE,  L=0.024,    K2=1.3433782853
+ssxl15:  SEXTUPOLE,  L=0.024,    K2=-0.21401171458
+ssxl16:  SEXTUPOLE,  L=0.024,    K2=2.0452282854
+ssxl17:  SEXTUPOLE,  L=0.024,    K2=0.33707828538
+ssxl18:  SEXTUPOLE,  L=0.024,    K2=2.1220782854
+ssxl19:  SEXTUPOLE,  L=0.024,    K2=-0.10570171462
+ssxl20:  SEXTUPOLE,  L=0.024,    K2=1.4202282853
+ssxl21:  SEXTUPOLE,  L=0.024,    K2=-0.65678171456
+ssxl22:  SEXTUPOLE,  L=0.024,    K2=0.27779828538
+ssxl23:  SEXTUPOLE,  L=0.024,    K2=-0.96343171456
+ssxl24:  SEXTUPOLE,  L=0.024,    K2=2.0452282854
+sSSL01: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634   
+sSSS01: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634   
+sSSL02: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS02: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL03: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS03: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL04: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS04: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL05: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS05: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL06: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS06: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL07: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS07: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL08: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS08: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL09: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS09: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL10: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL11: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS10: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS11: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL12: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS12: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL13: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS13: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL14: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS14: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL15: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS15: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL16: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS16: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL17: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS17: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL18: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS18: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL19: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS19: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL20: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS20: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL21: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS21: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL22: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS22: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL23: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS23: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSL24: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSSS24: SEXTUPOLE, L=     0.024, K2=  0,    TILT=0.7853981634 
+sSEXL4: SEXTUPOLE, L=       0.3, K2=  0
+sSEXL5: SEXTUPOLE, L=       0.3, K2=  0 
+sSEXL6: SEXTUPOLE, L=       0.3, K2=  0,    TILT=0.5235987755983 
+sSEXL7: SEXTUPOLE, L=       0.3, K2=  0,    TILT=0.5235987755983
+sSEX_DISC: SEXTUPOLE, L=      0.42, K2=0   
+oOCT: OCTUPOLE, L=      0.42, K3=0.00675/brho 
+kMKS02:  kicker, L=      1.08,  hkick=             0, vkick=         0 
+kMKS12_4:  kicker, L=      1.08,  hkick=             0, vkick=         0 
+kBEX2:  kicker, L=     0.265,  hkick=    7.741921577e-23, vkick=1.263834035e-06 
+kBEX3:  kicker, L=     0.265,  hkick=    2.818379839e-23, vkick=-4.600878902e-07 
+kBEX4:  kicker, L=     0.265,  hkick=    8.723426072e-23, vkick=1.424060249e-06 
+kHPINGER:  kicker, L=      1.08,  hkick=             0, vkick=         0 
+kNOTCHER:  kicker, L=      1.08,  hkick=             0, vkick=         0 
+kVPINGER:  kicker, L=      1.08,  hkick=             0, vkick=         0 
+kNOKKER:  kicker, L=      1.08,  hkick=             0, vkick=         0 
+kHOR_DAMP:  kicker, L=      1.27,  hkick=             0, vkick=         0 
+kVER_DAMP:  kicker, L=      1.27,  hkick=             0, vkick=         0 
+kPICK_UP:  kicker, L=       0.5,  hkick=             0, vkick=         0 
+kHL01:  kicker, L=     0.024,  hkick=    -8.243718286e-06, vkick=         0 
+kVL01:  kicker, L=     0.024,  hkick=    2.167688376e-25, vkick=3.538654222e-09 
+kHS01:  kicker, L=     0.024,  hkick=    1.73612865e-05, vkick=         0 
+kVS01:  kicker, L=     0.024,  hkick=    6.157344104e-23, vkick=1.005158857e-06 
+kHL02:  kicker, L=     0.024,  hkick=    4.932779878e-06, vkick=         0 
+kVL02:  kicker, L=     0.024,  hkick=    -1.425227029e-22, vkick=-2.326619314e-06 
+kHS02:  kicker, L=     0.024,  hkick=    1.73702493e-05, vkick=         0 
+kVS02:  kicker, L=     0.024,  hkick=    -4.807586045e-22, vkick=-7.848168972e-06 
+kHL03:  kicker, L=     0.024,  hkick=    4.995105804e-06, vkick=         0 
+kVL03:  kicker, L=     0.024,  hkick=    4.078623612e-22, vkick=6.658170437e-06 
+kHS03:  kicker, L=     0.024,  hkick=    1.098008382e-05, vkick=         0 
+kVS03:  kicker, L=     0.024,  hkick=    -4.192504468e-23, vkick=-6.844075836e-07 
+kHL04:  kicker, L=     0.024,  hkick=    2.510594924e-05, vkick=         0 
+kVL04:  kicker, L=     0.024,  hkick=    7.658931606e-23, vkick=1.250286294e-06 
+kHS04:  kicker, L=     0.024,  hkick=    6.190364003e-06, vkick=         0 
+kVS04:  kicker, L=     0.024,  hkick=    -6.939129902e-22, vkick=-1.132781889e-05 
+kHL05:  kicker, L=     0.024,  hkick=    1.541463549e-05, vkick=         0 
+kVL05:  kicker, L=     0.024,  hkick=    3.394692658e-22, vkick=5.541683776e-06 
+kHS05:  kicker, L=     0.024,  hkick=    1.410664136e-05, vkick=         0 
+kVS05:  kicker, L=     0.024,  hkick=    -3.663632027e-22, vkick=-5.980715254e-06 
+kHL06:  kicker, L=     0.024,  hkick=    1.65324574e-05, vkick=         0 
+kVL06:  kicker, L=     0.024,  hkick=    2.203685481e-22, vkick=3.597417884e-06 
+kHS06:  kicker, L=     0.024,  hkick=    6.079822815e-06, vkick=         0 
+kVS06:  kicker, L=     0.024,  hkick=    -4.431357333e-22, vkick=-7.233992445e-06 
+kHL07:  kicker, L=     0.024,  hkick=    1.760535041e-05, vkick=         0 
+kVL07:  kicker, L=     0.024,  hkick=    1.461427705e-22, vkick=2.385715298e-06 
+kHS07:  kicker, L=     0.024,  hkick=    1.31361311e-05, vkick=         0 
+kVS07:  kicker, L=     0.024,  hkick=    -2.36327873e-23, vkick=-3.857946718e-07 
+kHL08:  kicker, L=     0.024,  hkick=    1.797661713e-05, vkick=         0 
+kVL08:  kicker, L=     0.024,  hkick=    -9.080213554e-23, vkick=-1.482304209e-06 
+kHS08:  kicker, L=     0.024,  hkick=    1.271039814e-05, vkick=         0 
+kVS08:  kicker, L=     0.024,  hkick=    8.199098771e-23, vkick=1.338466165e-06 
+kHL09:  kicker, L=     0.024,  hkick=    1.943962171e-06, vkick=         0 
+kVL09:  kicker, L=     0.024,  hkick=    1.272211254e-22, vkick=2.076827912e-06 
+kHS09:  kicker, L=     0.024,  hkick=    1.726189135e-05, vkick=         0 
+kVS09:  kicker, L=     0.024,  hkick=    -1.601513163e-22, vkick=-2.614398535e-06 
+kHL10:  kicker, L=     0.024,  hkick=    1.090896746e-05, vkick=         0 
+kVL10:  kicker, L=     0.024,  hkick=    1.024689039e-22, vkick=1.672758979e-06 
+kHS10:  kicker, L=     0.024,  hkick=    1.44422867e-05, vkick=         0 
+kVS10:  kicker, L=     0.024,  hkick=    -1.903192488e-22, vkick=-3.106876527e-06 
+kHL11:  kicker, L=     0.024,  hkick=    -3.96779667e-06, vkick=         0 
+kVL11:  kicker, L=     0.024,  hkick=    3.756832799e-22, vkick=6.132861343e-06 
+kHS11:  kicker, L=     0.024,  hkick=    2.06020278e-05, vkick=         0 
+kVS11:  kicker, L=     0.024,  hkick=    -2.68637521e-22, vkick=-4.385387255e-06 
+kHL12:  kicker, L=     0.024,  hkick=    6.394865201e-06, vkick=         0 
+kVL12:  kicker, L=     0.024,  hkick=    3.778965964e-22, vkick=6.168992744e-06 
+kHS12:  kicker, L=     0.024,  hkick=    1.283001704e-05, vkick=         0 
+kVS12:  kicker, L=     0.024,  hkick=    -9.038586637e-23, vkick=-1.475508801e-06 
+kHL13:  kicker, L=     0.024,  hkick=    9.764969573e-06, vkick=         0 
+kVL13:  kicker, L=     0.024,  hkick=    1.711126032e-22, vkick=2.793336636e-06 
+kHS13:  kicker, L=     0.024,  hkick=    1.23896908e-05, vkick=         0 
+kVS13:  kicker, L=     0.024,  hkick=    -8.081518524e-23, vkick=-1.319271716e-06 
+kHL14:  kicker, L=     0.024,  hkick=    1.989925243e-05, vkick=         0 
+kVL14:  kicker, L=     0.024,  hkick=    3.850230124e-23, vkick=6.285328294e-07 
+kHS14:  kicker, L=     0.024,  hkick=    5.642024553e-06, vkick=         0 
+kVS14:  kicker, L=     0.024,  hkick=    -9.983510641e-24, vkick=-1.629763414e-07 
+kHL15:  kicker, L=     0.024,  hkick=    1.736346974e-05, vkick=         0 
+kVL15:  kicker, L=     0.024,  hkick=    3.824973185e-23, vkick=6.244097471e-07 
+kHS15:  kicker, L=     0.024,  hkick=    8.903759492e-06, vkick=         0 
+kVS15:  kicker, L=     0.024,  hkick=    -2.024837151e-22, vkick=-3.305455992e-06 
+kHL16:  kicker, L=     0.024,  hkick=    1.864308167e-05, vkick=         0 
+kVL16:  kicker, L=     0.024,  hkick=    1.457623019e-22, vkick=2.379504318e-06 
+kHS16:  kicker, L=     0.024,  hkick=    1.102087605e-05, vkick=         0 
+kVS16:  kicker, L=     0.024,  hkick=    -1.714418279e-22, vkick=-2.798711082e-06 
+kHL17:  kicker, L=     0.024,  hkick=    1.484296978e-05, vkick=         0 
+kVL17:  kicker, L=     0.024,  hkick=    1.877563504e-22, vkick=3.065038358e-06 
+kHS17:  kicker, L=     0.024,  hkick=    1.014783047e-05, vkick=         0 
+kVS17:  kicker, L=     0.024,  hkick=    -8.057791883e-23, vkick=-1.315398448e-06 
+kHL18:  kicker, L=     0.024,  hkick=    1.149720285e-05, vkick=         0 
+kVL18:  kicker, L=     0.024,  hkick=    1.153957114e-22, vkick=1.883783323e-06 
+kHS18:  kicker, L=     0.024,  hkick=    9.399597622e-06, vkick=         0 
+kVS18:  kicker, L=     0.024,  hkick=    1.776451511e-22, vkick=2.899977556e-06 
+kHL19:  kicker, L=     0.024,  hkick=    6.11177864e-06, vkick=         0 
+kVL19:  kicker, L=     0.024,  hkick=    -2.129711712e-23, vkick=-3.476659017e-07 
+kHS19:  kicker, L=     0.024,  hkick=    1.601617719e-05, vkick=         0 
+kVS19:  kicker, L=     0.024,  hkick=    1.241991376e-23, vkick=2.027495314e-07 
+kHL20:  kicker, L=     0.024,  hkick=    -8.091810332e-07, vkick=         0 
+kVL20:  kicker, L=     0.024,  hkick=    -4.814156499e-23, vkick=-7.858894945e-07 
+kHS20:  kicker, L=     0.024,  hkick=    1.449433988e-05, vkick=         0 
+kVS20:  kicker, L=     0.024,  hkick=    1.819714022e-22, vkick=2.970601669e-06 
+kHL21:  kicker, L=     0.024,  hkick=    1.071685331e-05, vkick=         0 
+kVL21:  kicker, L=     0.024,  hkick=    4.910172178e-23, vkick=8.015636241e-07 
+kHS21:  kicker, L=     0.024,  hkick=    1.172644367e-05, vkick=         0 
+kVS21:  kicker, L=     0.024,  hkick=    -1.58574688e-22, vkick=-2.588660784e-06 
+kHL22:  kicker, L=     0.024,  hkick=    2.478742515e-05, vkick=         0 
+kVL22:  kicker, L=     0.024,  hkick=    1.778487229e-22, vkick=2.903300774e-06 
+kHS22:  kicker, L=     0.024,  hkick=    5.495011667e-06, vkick=         0 
+kVS22:  kicker, L=     0.024,  hkick=    -2.685329272e-22, vkick=-4.383679808e-06 
+kHL23:  kicker, L=     0.024,  hkick=    1.974182891e-05, vkick=         0 
+kVL23:  kicker, L=     0.024,  hkick=    2.88204278e-22, vkick=4.704805804e-06 
+kHS23:  kicker, L=     0.024,  hkick=    1.175884764e-05, vkick=         0 
+kVS23:  kicker, L=     0.024,  hkick=    -9.621152888e-23, vkick=-1.570610133e-06 
+kHL24:  kicker, L=     0.024,  hkick=    1.355692302e-05, vkick=         0 
+kVL24:  kicker, L=     0.024,  hkick=    3.230038194e-22, vkick=5.272892735e-06 
+kHS24:  kicker, L=     0.024,  hkick=    1.856195685e-05, vkick=         0 
+kVS24:  kicker, L=     0.024,  hkick=    -4.27235374e-22, vkick=-6.974426198e-06 
+diRAD_POS_MON1: DRIFT, L=      0.19  
+diRAD_POS_MON2: DRIFT, L=      0.19  
+diPHASE_DET: DRIFT, L=       0.5  
+diLONG_DAMPER: DRIFT, L=       0.5  
+diiWALL_MON: DRIFT, L=       0.5  
+oBPM: DRIFT, L=     0.024  
+obpmOld: DRIFT, L=      0.19  
+aRF: RFCAVITY, L=      2.35, VOLT=         0, LAG=     -0.25, HARMON=84 
+hRF: MONITOR  
+oMKS12: DRIFT, L=      1.08  
+oQGD: DRIFT, L=     0.246  
+oQGF: DRIFT, L=     0.216  
+oDOG13: DRIFT, L=   0.24722  
+oIBEX12: DRIFT, L=     0.265  
+oIBEX13: DRIFT, L=     0.265  
+oIBEX14: DRIFT, L=     0.265  
+oSEXTL: DRIFT, L=      0.42  
+oSEXTS: DRIFT, L=       0.3  
+odrift9: DRIFT, L=     0.066  
+oDRBPMR: DRIFT, L=      0.11  
+oDRCP: DRIFT, L=      0.19  
+oSPACE: DRIFT, L=       0.5  
+oL01A1: DRIFT, L=   0.03376  
+oL01A2: DRIFT, L=    0.0225  
+oL01B: DRIFT, L=    2.0066  
+!oL01C: DRIFT, L=     0.179
+oL01C_1: DRIFT, L=     0.005
+oL01C_2: DRIFT, L=     0.174
+oL01D1: DRIFT, L=    0.0948  
+oL01D2: DRIFT, L=       0.8  
+oL01E1: DRIFT, L=   0.06375  
+oL01E2: DRIFT, L=       0.7  
+oL01F: DRIFT, L=     0.353  
+oDRSEXTS: DRIFT, L=      0.17  
+oDRBPML: DRIFT, L=      0.13  
+oL02A: DRIFT, L=     0.308  
+oL02B: DRIFT, L=     0.114  
+oL02C: DRIFT, L=     0.115  
+oL02D: DRIFT, L=     0.115  
+oL02E: DRIFT, L=     0.114  
+oL02F: DRIFT, L=     0.195  
+oL02G: DRIFT, L=     0.154  
+oDRQGD: DRIFT, L=     0.207  
+oDRBPMD: DRIFT, L=     0.147 
+!oL03A:  DRIFT, L=   0.31505
+oL03A_1: DRIFT, L=   0.30505
+oL03A_2: DRIFT, L=   0.01  
+!oL03B: DRIFT, L=   0.16878 
+oL03B_1: DRIFT, L=   0.01
+oL03B_2: DRIFT, L=   0.15878 
+!oL03C: DRIFT, L=       0.3 
+oL03C_1: DRIFT, L=       0.29
+oL03C_2: DRIFT, L=       0.01
+ !oL03D: DRIFT, L=     0.474 
+oL03D_1: DRIFT, L=     0.01
+oL03D_2: DRIFT, L=     0.464 
+!oL03E: DRIFT, L=     0.474 
+oL03E_1: DRIFT, L=     0.464
+oL03E_2: DRIFT, L=     0.01
+!oL03F: DRIFT, L=   0.76878
+oL03F_1: DRIFT, L=   0.01
+oL03F_2: DRIFT, L=  0.74878
+oL03F_3: DRIFT, L=   0.01
+!oL03G: DRIFT, L=       0.2 
+oL03G_1: DRIFT, L=       0.01
+oL03G_2: DRIFT, L=       0.19
+oL03H: DRIFT, L=   0.22105  
+oL04A: DRIFT, L=      0.64  
+oL04B: DRIFT, L=      0.01  
+oL04C: DRIFT, L=      0.11  
+oL04D: DRIFT, L=      0.22  
+oL04E: DRIFT, L=      1.02  
+oL04F: DRIFT, L=       0.4  
+oL04G: DRIFT, L=     0.485  
+oL04H: DRIFT, L=     0.315  
+oL04I: DRIFT, L=     0.185  
+oDRQGF: DRIFT, L=     0.222  
+oDRBPMF: DRIFT, L=     0.162  
+oL05A: DRIFT, L=      0.43  
+oL05B: DRIFT, L=      0.04  
+oL05C: DRIFT, L=         1  
+oIPMH: DRIFT, L=       0.3  
+oL05D: DRIFT, L=       0.3  
+oIPMV: DRIFT, L=       0.3  
+oL05E1: DRIFT, L=     0.175  
+oL05E2: DRIFT, L=    0.1507  
+oL05F: DRIFT, L=      0.06  
+oL05G: DRIFT, L=     0.185  
+oHALF_SP: DRIFT, L=      0.25  
+oL06A: DRIFT, L=       0.2  
+oSHCOL1: DRIFT, L=       0.6  
+oL06B: DRIFT, L=       2.2  
+oSVCOL1: DRIFT, L=       0.6  
+oL06C: DRIFT, L=       0.3  
+oSHVCOL: DRIFT, L=       0.6  
+oL06D: DRIFT, L=      0.51  
+oL06E: DRIFT, L=     0.315  
+oL06F: DRIFT, L=     0.185  
+oL07A: DRIFT, L=         1  
+oSHCOL2: DRIFT, L=       0.6  
+oL07B: DRIFT, L=       1.4  
+oSVCOL2: DRIFT, L=       0.6  
+oL07C: DRIFT, L=      0.51  
+oL07D: DRIFT, L=      0.15  
+oL07E: DRIFT, L=      0.15  
+oL07F: DRIFT, L=     0.315  
+oL07G: DRIFT, L=     0.185  
+oL08A: DRIFT, L=      0.46  
+oL08B: DRIFT, L=      0.02  
+oL08C: DRIFT, L=      0.02  
+oL08D: DRIFT, L=      0.31  
+oL08E: DRIFT, L=      0.12  
+oL08F: DRIFT, L=       0.1  
+oL08G: DRIFT, L=      0.04  
+oL08H: DRIFT, L=      0.04  
+oL08I: DRIFT, L=      0.07  
+oL08J: DRIFT, L=      0.29  
+oL08K: DRIFT, L=     0.315  
+oL08L: DRIFT, L=     0.185  
+oL09A: DRIFT, L=     1.251  
+oL09A1: DRIFT, L=      1.08  
+oL09B: DRIFT, L=     0.093  
+oL09B1: DRIFT, L=      1.08  
+oL09C: DRIFT, L=     0.356  
+oL09D: DRIFT, L=      0.12  
+oL09E: DRIFT, L=     0.108  
+oL09F: DRIFT, L=     0.152  
+oL10A: DRIFT, L=       0.3  
+oL10B: DRIFT, L=       0.3  
+oL10C: DRIFT, L=       0.3  
+oL10D: DRIFT, L=      2.85  
+oL10E: DRIFT, L=     0.315  
+oL10F: DRIFT, L=     0.185  
+oL11A: DRIFT, L=         2  
+oL11B: DRIFT, L=       0.5  
+oL11C: DRIFT, L=      0.74  
+oL11D: DRIFT, L=     0.315  
+oL11E: DRIFT, L=     0.185  
+oL12A: DRIFT, L=     0.308  
+oL12B: DRIFT, L=     0.114  
+oL12C: DRIFT, L=     0.115  
+oL12D: DRIFT, L=     0.115  
+oL12E: DRIFT, L=     0.114  
+oL12F: DRIFT, L=     0.005  
+oL12G: DRIFT, L=     0.154  
+oL13A: DRIFT, L=   0.31505  
+oL13B: DRIFT, L=0.76900913  
+oL13C: DRIFT, L=   0.21614  
+oL13D: DRIFT, L=   0.62462  
+oL13E: DRIFT, L=0.76900913  
+oL13F: DRIFT, L=       0.2  
+oL13G: DRIFT, L=         0  
+oL13H: DRIFT, L=    0.0286  
+oL14A: DRIFT, L=       0.1  
+oL14B: DRIFT, L=      0.05  
+oL14C: DRIFT, L=      0.06  
+oL14D: DRIFT, L=      0.05  
+oL14E: DRIFT, L=       0.1  
+oL14F: DRIFT, L=     0.185  
+oL15A: DRIFT, L=      0.21  
+oL15B: DRIFT, L=      0.12  
+oL15C: DRIFT, L=      0.25  
+oL15D: DRIFT, L=     0.045  
+oL15E: DRIFT, L=     0.185  
+oL16A: DRIFT, L=      0.21  
+oL16B: DRIFT, L=      0.12  
+oL16C: DRIFT, L=      0.25  
+oL16D: DRIFT, L=     0.045  
+oL16E: DRIFT, L=     0.185  
+oL17A: DRIFT, L=      0.21  
+oL17B: DRIFT, L=      0.12  
+oL17C: DRIFT, L=      0.25  
+oL17D: DRIFT, L=     0.045  
+oL17E: DRIFT, L=     0.185  
+oL18A: DRIFT, L=      0.18  
+oL18B: DRIFT, L=      0.18  
+oL18C: DRIFT, L=      0.18  
+oL18D: DRIFT, L=      0.04  
+oL18E: DRIFT, L=      0.04  
+oL18F: DRIFT, L=       0.3  
+oL18G: DRIFT, L=       0.3  
+oL18H: DRIFT, L=      0.35  
+oL18I: DRIFT, L=       0.3  
+oL18J: DRIFT, L=     0.315  
+oL18K: DRIFT, L=     0.185  
+oL19A: DRIFT, L=      0.21  
+oL19B: DRIFT, L=      0.12  
+oL19C: DRIFT, L=      0.25  
+oL19D: DRIFT, L=     0.045  
+oL19E: DRIFT, L=     0.185  
+oL20A: DRIFT, L=     0.215  
+oL20E: DRIFT, L=     3.115  
+oL20F: DRIFT, L=     0.315  
+oL20G: DRIFT, L=     0.185  
+oL21A: DRIFT, L=      0.21  
+oL21B: DRIFT, L=      0.12  
+oL21C: DRIFT, L=      0.25  
+oL21D: DRIFT, L=     0.045  
+oL21E: DRIFT, L=     0.185  
+oL22A: DRIFT, L=      0.21  
+oL22B: DRIFT, L=      0.12  
+oL22C: DRIFT, L=      0.25  
+oL22D: DRIFT, L=     0.045  
+oL22E: DRIFT, L=     0.185  
+oL23A: DRIFT, L=      0.21  
+oL23B: DRIFT, L=      0.12  
+oL23C: DRIFT, L=      0.25  
+oL23D: DRIFT, L=     0.045  
+oL23E: DRIFT, L=     0.185  
+oL24A: DRIFT, L=      0.21  
+oL24B: DRIFT, L=      0.12  
+oL24C: DRIFT, L=      0.25  
+oL24D: DRIFT, L=     0.045  
+oL24E: DRIFT, L=     0.185  
+IFOIL: MONITOR  
+ipB_VPFOIL: MONITOR  
+ipB_HPFOIL: MONITOR  
+ipB_VP01L: MONITOR  
+ipB_HP01L: MONITOR  
+ipB_HPL1D: MONITOR  
+ipB_VPL1D: MONITOR  
+ipB_VPS01: MONITOR  
+ipB_HPS01: MONITOR  
+ipB_VP01S: MONITOR  
+ipB_HP01S: MONITOR  
+ipB_VP02L: MONITOR  
+ipB_HP02L: MONITOR  
+ipB_VP02S: MONITOR  
+ipB_HP02S: MONITOR  
+ipB_VPU3L: MONITOR  
+ipB_HPU3L: MONITOR  
+ipB_VP03L: MONITOR  
+ipB_HP03L: MONITOR  
+ipB_VP03S: MONITOR  
+ipB_HP03S: MONITOR  
+ipB_VP04L: MONITOR  
+ipB_HP04L: MONITOR  
+ipB_VP04S: MONITOR  
+ipB_HP04S: MONITOR  
+ipB_VP05L: MONITOR  
+ipB_HP05L: MONITOR  
+IPRIM_H: MONITOR  
+ipB_VP05S: MONITOR  
+ipB_HP05S: MONITOR  
+IPRIM_V: MONITOR  
+ipB_VPU6L: MONITOR  
+ipB_HPU6L: MONITOR  
+ipB_VP06L: MONITOR  
+ipB_HP06L: MONITOR  
+ipB_VP06S: MONITOR  
+ipB_HP06S: MONITOR  
+ipB_VPU7L: MONITOR  
+ipB_HPU7L: MONITOR  
+ipB_VP07L: MONITOR  
+ipB_HP07L: MONITOR  
+ipB_VP07S: MONITOR  
+ipB_HP07S: MONITOR  
+ipB_VP08L: MONITOR  
+ipB_HP08L: MONITOR  
+ipB_VP08S: MONITOR  
+ipB_HP08S: MONITOR  
+ipB_VP09L: MONITOR  
+ipB_HP09L: MONITOR  
+ipB_VP09S: MONITOR  
+ipB_HP09S: MONITOR  
+ipB_VP10L: MONITOR  
+ipB_HP10L: MONITOR  
+ipB_VP10S: MONITOR  
+ipB_HP10S: MONITOR  
+ipB_VP11L: MONITOR  
+ipB_HP11L: MONITOR  
+ipB_VP11S: MONITOR  
+ipB_HP11S: MONITOR  
+ipB_VP12L: MONITOR  
+ipB_HP12L: MONITOR  
+ipB_VP12S: MONITOR  
+ipB_HP12S: MONITOR  
+ipB_VP13L: MONITOR  
+ipB_HP13L: MONITOR  
+ipB_VP13S: MONITOR  
+ipB_HP13S: MONITOR  
+ipB_VP14L: MONITOR  
+ipB_HP14L: MONITOR  
+ipB_VP14S: MONITOR  
+ipB_HP14S: MONITOR  
+ipB_VP15L: MONITOR  
+ipB_HP15L: MONITOR  
+ipB_VP15S: MONITOR  
+ipB_HP15S: MONITOR  
+ipB_VP16L: MONITOR  
+ipB_HP16L: MONITOR  
+ipB_VP16S: MONITOR  
+ipB_HP16S: MONITOR  
+ipB_VP17L: MONITOR  
+ipB_HP17L: MONITOR  
+ipB_VP17S: MONITOR  
+ipB_HP17S: MONITOR  
+iRAD_POS_MON1: MONITOR  
+iRAD_POS_MON2: MONITOR  
+iPHASE_DET: MONITOR  
+iLONG_DAMPER: MONITOR  
+iiWALL_MON: MONITOR  
+ipB_VP18L: MONITOR  
+ipB_HP18L: MONITOR  
+ipB_VP18S: MONITOR  
+ipB_HP18S: MONITOR  
+ipB_VP19L: MONITOR  
+ipB_HP19L: MONITOR  
+ipB_VP19S: MONITOR  
+ipB_HP19S: MONITOR  
+ipB_VP20L: MONITOR  
+ipB_HP20L: MONITOR  
+ipB_VP20S: MONITOR  
+ipB_HP20S: MONITOR  
+ipB_VP21L: MONITOR  
+ipB_HP21L: MONITOR  
+ipB_VP21S: MONITOR  
+ipB_HP21S: MONITOR  
+ipB_VP22L: MONITOR  
+ipB_HP22L: MONITOR  
+ipB_VP22S: MONITOR  
+ipB_HP22S: MONITOR  
+ipB_VP23L: MONITOR  
+ipB_HP23L: MONITOR  
+ipB_VP23S: MONITOR  
+ipB_HP23S: MONITOR  
+ipB_VP24L: MONITOR  
+ipB_HP24L: MONITOR  
+ipB_VPS24: MONITOR  
+ipB_HPS24: MONITOR  
+ipB_VP24S: MONITOR  
+ipB_HP24S: MONITOR  
+ipB_VPL1U: MONITOR  
+ipB_HPL1U: MONITOR  
+
+MACHINE: LINE=(oL01C_2, IFOIL,oL01D1, ipB_VPFOIL, ipB_HPFOIL, oL01D2,&
+odrift9, kHL01, kVL01, qQL01, qSQL01, ipB_VP01L, ipB_HP01L, oBPM, qQLerr01,&
+qSQLerr01, sSXL01, sSSL01, odrift9, oL01E1, ipB_HPL1D, ipB_VPL1D, oL01E2,&
+bORBUMPm, oL01F, mDMAGD01, hmagD, bDMAG, hmagD, mDMAGD01, oSPACE, mFMAGD01,&
+hmagF, bFMAG, hmagF, mFMAGD01, oDRSEXTS, oSEXTS, oDRBPML, ipB_VPS01,&
+ipB_HPS01, oDRBPMR, odrift9, kHS01, kVS01, qQS01, qSQS01, ipB_VP01S,&
+ipB_HP01S, oBPM, qQSerr01, qSQSerr01, sSXS01, sSSS01, odrift9, oDRCP,&
+mFMAGU02, hmagF, bFMAG, hmagF, mFMAGU02, oSPACE, mDMAGU02, hmagD, bDMAG,&
+hmagD, mDMAGU02, oL02A, kMKS02, oL02B, kMKS02, oL02C, kBEX2, oL02D, kMKS02,&
+oL02E, kMKS02, oL02F, odrift9, kHL02, kVL02, qQL02, qSQL02, ipB_VP02L,&
+ipB_HP02L, oBPM, qQLerr02, qSQLerr02, sSXL02, sSSL02, odrift9, oL02G,&
+mDMAGD02, hmagD, bDMAG, hmagD, mDMAGD02, oSPACE, mFMAGD02, hmagF, bFMAG,&
+hmagF, mFMAGD02, oDRQGD, oQGD, oDRBPMD, oDRBPMR, odrift9, kHS02, kVS02,&
+qQS02, qSQS02, ipB_VP02S, ipB_HP02S, oBPM, qQSerr02, qSQSerr02, sSXS02,&
+sSSS02, odrift9, oDRCP, mFMAGU03, hmagF, bFMAG, hmagF, mFMAGU03, oSPACE,&
+mDMAGU03, hmagD, bDMAG, hmagD, mDMAGU03, oL03A_1, bROLLm, oL03A_2, bDOG03m,&
+ oL03B_1,bROLLp, oL03B_2, odrift9,&
+kHL03, kVL03, qQL03, qSQL03, ipB_VPU3L, ipB_HPU3L, oBPM, qQLerr03,&
+qSQLerr03, sSXL03, sSSL03, odrift9, oL03C_1,bROLLp, oL03C_2, bDOG03p,&
+ oL03D_1,bROLLm, oL03D_2, bSEPT03, oL03E_1,&
+bROLLP,oL03E_2,bDOG03p, oL03F_1,bROLLm, oL03F_2, bROLLm,&
+ oL03F_3, bDOG03m, oL03G_1,bROLLp,&
+oL03G_2, kBEX3, oL03H, ipB_VP03L, ipB_HP03L,&
+mDMAGD03, hmagD, bDMAG, hmagD, mDMAGD03, oSPACE, mFMAGD03, hmagF, bFMAG,&
+hmagF, mFMAGD03, oDRSEXTS, oSEXTS, oDRBPML, oDRBPMR, odrift9, kHS03, kVS03,&
+qQS03, qSQS03, ipB_VP03S, ipB_HP03S, oBPM, qQSerr03, qSQSerr03, sSXS03,&
+sSSS03, odrift9, oDRCP, mFMAGU04, hmagF, bFMAG, hmagF, mFMAGU04, oSPACE,&
+mDMAGU04, hmagD, bDMAG, hmagD, mDMAGU04, oL04A, oSEXTL, oL04B, oSEXTL,&
+oL04C, sSEXL6, oL04D, sSEXL4, oL04E, oSEXTL, oL04F, kBEX4, oL04G, obpmOld,&
+oL04H, odrift9, kHL04, kVL04, qQL04, qSQL04, ipB_VP04L, ipB_HP04L, oBPM,&
+qQLerr04, qSQLerr04, sSXL04, sSSL04, odrift9, oL04I, mDMAGD04, hmagD,&
+bDMAG, hmagD, mDMAGD04, oSPACE, mFMAGD04, hmagF, bFMAG, hmagF, mFMAGD04,&
+oDRQGF, oQGF, oDRBPMF, oDRBPMR, odrift9, kHS04, kVS04, qQS04, qSQS04,&
+ipB_VP04S, ipB_HP04S, oBPM, qQSerr04, qSQSerr04, sSXS04, sSSS04, odrift9,&
+oDRCP, mFMAGU05, hmagF, bFMAG, hmagF, mFMAGU05, oSPACE, mDMAGU05, hmagD,&
+bDMAG, hmagD, mDMAGU05, oL05A, sSEXL7, oL05B, sSEXL5, oL05C, oIPMH, oL05D,&
+oIPMV, oL05E1, kNOTCHER, oL05E2, kHPINGER, oL05F, odrift9, kHL05, kVL05,&
+qQL05, qSQL05, ipB_VP05L, ipB_HP05L, oBPM, qQLerr05, qSQLerr05, sSXL05,&
+sSSL05, odrift9, oL05G, mDMAGD05, hmagD, bDMAG, hmagD, mDMAGD05, oHALF_SP,&
+IPRIM_H, oHALF_SP, mFMAGD05, hmagF, bFMAG, hmagF, mFMAGD05, oDRSEXTS,&
+oSEXTS, oDRBPML, oDRBPMR, odrift9, kHS05, kVS05, qQS05, qSQS05, ipB_VP05S,&
+ipB_HP05S, oBPM, qQSerr05, qSQSerr05, sSXS05, sSSS05, odrift9, oDRCP,&
+mFMAGU06, hmagF, bFMAG, hmagF, mFMAGU06, oHALF_SP, IPRIM_V, oHALF_SP,&
+mDMAGU06, hmagD, bDMAG, hmagD, mDMAGU06, ipB_VPU6L, ipB_HPU6L, oL06A,&
+oSHCOL1, oL06B, oSVCOL1, oL06C, oSHVCOL, oL06D, obpmOld, oL06E, odrift9,&
+kHL06, kVL06, qQL06, qSQL06, ipB_VP06L, ipB_HP06L, oBPM, qQLerr06,&
+qSQLerr06, sSXL06, sSSL06, odrift9, oL06F, mDMAGD06, hmagD, bDMAG, hmagD,&
+mDMAGD06, oSPACE, mFMAGD06, hmagF, bFMAG, hmagF, mFMAGD06, oDRQGD, oQGD,&
+oDRBPMD, oDRBPMR, odrift9, kHS06, kVS06, qQS06, qSQS06, ipB_VP06S,&
+ipB_HP06S, oBPM, qQSerr06, qSQSerr06, sSXS06, sSSS06, odrift9, oDRCP,&
+mFMAGU07, hmagF, bFMAG, hmagF, mFMAGU07, oSPACE, mDMAGU07, hmagD, bDMAG,&
+hmagD, mDMAGU07, ipB_VPU7L, ipB_HPU7L, oL07A, oSHCOL2, oL07B, oSVCOL2,&
+oL07C, sSEXL6, oL07D, sSEXL4, oL07E, obpmOld, oL07F, odrift9, kHL07, kVL07,&
+qQL07, qSQL07, ipB_VP07L, ipB_HP07L, oBPM, qQLerr07, qSQLerr07, sSXL07,&
+sSSL07, odrift9, oL07G, mDMAGD07, hmagD, bDMAG, hmagD, mDMAGD07, oSPACE,&
+mFMAGD07, hmagF, bFMAG, hmagF, mFMAGD07, oDRSEXTS, oSEXTS, oDRBPML,&
+oDRBPMR, odrift9, kHS07, kVS07, qQS07, qSQS07, ipB_VP07S, ipB_HP07S, oBPM,&
+qQSerr07, qSQSerr07, sSXS07, sSSS07, odrift9, oDRCP, mFMAGU08, hmagF,&
+bFMAG, hmagF, mFMAGU08, oSPACE, mDMAGU08, hmagD, bDMAG, hmagD, mDMAGU08,&
+oL08A, oSEXTL, oL08B, oSEXTL, oL08C, sSEXL7, oL08D, sSEXL5, oL08E, oSEXTL,&
+oL08F, oOCT, oL08G, oOCT, oL08H, oOCT, oL08I, oOCT, oL08J, obpmOld, oL08K,&
+odrift9, kHL08, kVL08, qQL08, qSQL08, ipB_VP08L, ipB_HP08L, oBPM, qQLerr08,&
+qSQLerr08, sSXL08, sSSL08, odrift9, oL08L, mDMAGD08, hmagD, bDMAG, hmagD,&
+mDMAGD08, oSPACE, mFMAGD08, hmagF, bFMAG, hmagF, mFMAGD08, oDRQGF, oQGF,&
+oDRBPMF, oDRBPMR, odrift9, kHS08, kVS08, qQS08, qSQS08, ipB_VP08S,&
+ipB_HP08S, oBPM, qQSerr08, qSQSerr08, sSXS08, sSSS08, odrift9, oDRCP,&
+mFMAGU09, hmagF, bFMAG, hmagF, mFMAGU09, oSPACE, mDMAGU09, hmagD, bDMAG,&
+hmagD, mDMAGU09, oL09A, oL09A1, oL09B, oL09B1, oL09C, kHOR_DAMP, oL09D,&
+obpmOld, oL09E, odrift9, kHL09, kVL09, qQL09, qSQL09, ipB_VP09L, ipB_HP09L,&
+oBPM, qQLerr09, qSQLerr09, sSXL09, sSSL09, odrift9, oL09F, mDMAGD09, hmagD,&
+bDMAG, hmagD, mDMAGD09, oSPACE, mFMAGD09, hmagF, bFMAG, hmagF, mFMAGD09,&
+oDRSEXTS, oSEXTS, oDRBPML, oDRBPMR, odrift9, kHS09, kVS09, qQS09, qSQS09,&
+ipB_VP09S, ipB_HP09S, oBPM, qQSerr09, qSQSerr09, sSXS09, sSSS09, odrift9,&
+oDRCP, mFMAGU10, hmagF, bFMAG, hmagF, mFMAGU10, oSPACE, mDMAGU10, hmagD,&
+bDMAG, hmagD, mDMAGU10, oL10A, sSEX_DISC, oL10B, sSEX_DISC, oL10C,&
+sSEX_DISC, oL10D, obpmOld, oL10E, odrift9, kHL10, kVL10, qQL10, qSQL10,&
+ipB_VP10L, ipB_HP10L, oBPM, qQLerr10, qSQLerr10, sSXL10, sSSL10, odrift9,&
+oL10F, mDMAGD10, hmagD, bDMAG, hmagD, mDMAGD10, oSPACE, mFMAGD10, hmagF,&
+bFMAG, hmagF, mFMAGD10, oDRQGD, oQGD, oDRBPMD, oDRBPMR, odrift9, kHS10,&
+kVS10, qQS10, qSQS10, ipB_VP10S, ipB_HP10S, oBPM, qQSerr10, qSQSerr10,&
+sSXS10, sSSS10, odrift9, oDRCP, mFMAGU11, hmagF, bFMAG, hmagF, mFMAGU11,&
+oSPACE, mDMAGU11, hmagD, bDMAG, hmagD, mDMAGU11, oL11A, kVER_DAMP, oL11B,&
+kPICK_UP, oL11C, obpmOld, oL11D, odrift9, kHL11, kVL11, qQL11, qSQL11,&
+ipB_VP11L, ipB_HP11L, oBPM, qQLerr11, qSQLerr11, sSXL11, sSSL11, odrift9,&
+oL11E, mDMAGD11, hmagD, bDMAG, hmagD, mDMAGD11, oSPACE, mFMAGD11, hmagF,&
+bFMAG, hmagF, mFMAGD11, oDRSEXTS, oSEXTS, oDRBPML, oDRBPMR, odrift9, kHS11,&
+kVS11, qQS11, qSQS11, ipB_VP11S, ipB_HP11S, oBPM, qQSerr11, qSQSerr11,&
+sSXS11, sSSS11, odrift9, oDRCP, mFMAGU12, hmagF, bFMAG, hmagF, mFMAGU12,&
+oSPACE, mDMAGU12, hmagD, bDMAG, hmagD, mDMAGU12, oL12A, oMKS12, oL12B,&
+kVPINGER, oL12C, oIBEX12, oL12D, kNOKKER, oL12E, kMKS12_4, oL12F, obpmOld,&
+odrift9, kHL12, kVL12, qQL12, qSQL12, ipB_VP12L, ipB_HP12L, oBPM, qQLerr12,&
+qSQLerr12, sSXL12, sSSL12, odrift9, oL12G, mDMAGD12, hmagD, bDMAG, hmagD,&
+mDMAGD12, oSPACE, mFMAGD12, hmagF, bFMAG, hmagF, mFMAGD12, oDRQGF, oQGF,&
+oDRBPMF, oDRBPMR, odrift9, kHS12, kVS12, qQS12, qSQS12, ipB_VP12S,&
+ipB_HP12S, oBPM, qQSerr12, qSQSerr12, sSXS12, sSSS12, odrift9, oDRCP,&
+mFMAGU13, hmagF, bFMAG, hmagF, mFMAGU13, oSPACE, mDMAGU13, hmagD, bDMAG,&
+hmagD, mDMAGU13, oL13A, oDOG13, oL13B, oDOG13, oL13C, bSEPT13, oL13D,&
+oDOG13, oL13E, oDOG13, oL13F, oIBEX13, oL13G, odrift9, kHL13, kVL13, qQL13,&
+qSQL13, ipB_VP13L, ipB_HP13L, oBPM, qQLerr13, qSQLerr13, sSXL13, sSSL13,&
+odrift9, oL13H, mDMAGD13, hmagD, bDMAG, hmagD, mDMAGD13, oSPACE, mFMAGD13,&
+hmagF, bFMAG, hmagF, mFMAGD13, oDRSEXTS, oSEXTS, oDRBPML, oDRBPMR, odrift9,&
+kHS13, kVS13, qQS13, qSQS13, ipB_VP13S, ipB_HP13S, oBPM, qQSerr13,&
+qSQSerr13, sSXS13, sSSS13, odrift9, oDRCP, mFMAGU14, hmagF, bFMAG, hmagF,&
+mFMAGU14, oSPACE, mDMAGU14, hmagD, bDMAG, hmagD, mDMAGU14, oL14A, hRF, aRF,&
+hRF, oL14B, hRF, aRF, hRF, oL14C, oIBEX14, oL14D, obpmOld, oL14E, odrift9,&
+kHL14, kVL14, qQL14, qSQL14, ipB_VP14L, ipB_HP14L, oBPM, qQLerr14,&
+qSQLerr14, sSXL14, sSSL14, odrift9, oL14F, mDMAGD14, hmagD, bDMAG, hmagD,&
+mDMAGD14, oSPACE, mFMAGD14, hmagF, bFMAG, hmagF, mFMAGD14, oDRQGD, oQGD,&
+oDRBPMD, oDRBPMR, odrift9, kHS14, kVS14, qQS14, qSQS14, ipB_VP14S,&
+ipB_HP14S, oBPM, qQSerr14, qSQSerr14, sSXS14, sSSS14, odrift9, oDRCP,&
+mFMAGU15, hmagF, bFMAG, hmagF, mFMAGU15, oSPACE, mDMAGU15, hmagD, bDMAG,&
+hmagD, mDMAGU15, oL15A, hRF, aRF, hRF, oL15B, hRF, aRF, hRF, oL15C,&
+obpmOld, oL15D, odrift9, kHL15, kVL15, qQL15, qSQL15, ipB_VP15L, ipB_HP15L,&
+oBPM, qQLerr15, qSQLerr15, sSXL15, sSSL15, odrift9, oL15E, mDMAGD15, hmagD,&
+bDMAG, hmagD, mDMAGD15, oSPACE, mFMAGD15, hmagF, bFMAG, hmagF, mFMAGD15,&
+oDRSEXTS, oSEXTS, oDRBPML, oDRBPMR, odrift9, kHS15, kVS15, qQS15, qSQS15,&
+ipB_VP15S, ipB_HP15S, oBPM, qQSerr15, qSQSerr15, sSXS15, sSSS15, odrift9,&
+oDRCP, mFMAGU16, hmagF, bFMAG, hmagF, mFMAGU16, oSPACE, mDMAGU16, hmagD,&
+bDMAG, hmagD, mDMAGU16, oL16A, hRF, aRF, hRF, oL16B, hRF, aRF, hRF, oL16C,&
+obpmOld, oL16D, odrift9, kHL16, kVL16, qQL16, qSQL16, ipB_VP16L, ipB_HP16L,&
+oBPM, qQLerr16, qSQLerr16, sSXL16, sSSL16, odrift9, oL16E, mDMAGD16, hmagD,&
+bDMAG, hmagD, mDMAGD16, oSPACE, mFMAGD16, hmagF, bFMAG, hmagF, mFMAGD16,&
+oDRQGF, oQGF, oDRBPMF, oDRBPMR, odrift9, kHS16, kVS16, qQS16, qSQS16,&
+ipB_VP16S, ipB_HP16S, oBPM, qQSerr16, qSQSerr16, sSXS16, sSSS16, odrift9,&
+oDRCP, mFMAGU17, hmagF, bFMAG, hmagF, mFMAGU17, oSPACE, mDMAGU17, hmagD,&
+bDMAG, hmagD, mDMAGU17, oL17A, hRF, aRF, hRF, oL17B, hRF, aRF, hRF, oL17C,&
+obpmOld, oL17D, odrift9, kHL17, kVL17, qQL17, qSQL17, ipB_VP17L, ipB_HP17L,&
+oBPM, qQLerr17, qSQLerr17, sSXL17, sSSL17, odrift9, oL17E, mDMAGD17, hmagD,&
+bDMAG, hmagD, mDMAGD17, oSPACE, mFMAGD17, hmagF, bFMAG, hmagF, mFMAGD17,&
+oDRSEXTS, oSEXTS, oDRBPML, oDRBPMR, odrift9, kHS17, kVS17, qQS17, qSQS17,&
+ipB_VP17S, ipB_HP17S, oBPM, qQSerr17, qSQSerr17, sSXS17, sSSS17, odrift9,&
+oDRCP, mFMAGU18, hmagF, bFMAG, hmagF, mFMAGU18, oSPACE, mDMAGU18, hmagD,&
+bDMAG, hmagD, mDMAGU18, oL18A, diRAD_POS_MON1, iRAD_POS_MON1, oL18B,&
+diRAD_POS_MON2, iRAD_POS_MON2, oL18C, oSEXTL, oL18D, oSEXTL, oL18E, oSEXTL,&
+oL18F, diPHASE_DET, iPHASE_DET, oL18G, diLONG_DAMPER, iLONG_DAMPER, oL18H,&
+diiWALL_MON, iiWALL_MON, oL18I, obpmOld, oL18J, odrift9, kHL18, kVL18,&
+qQL18, qSQL18, ipB_VP18L, ipB_HP18L, oBPM, qQLerr18, qSQLerr18, sSXL18,&
+sSSL18, odrift9, oL18K, mDMAGD18, hmagD, bDMAG, hmagD, mDMAGD18, oSPACE,&
+mFMAGD18, hmagF, bFMAG, hmagF, mFMAGD18, oDRQGD, oQGD, oDRBPMD, oDRBPMR,&
+odrift9, kHS18, kVS18, qQS18, qSQS18, ipB_VP18S, ipB_HP18S, oBPM, qQSerr18,&
+qSQSerr18, sSXS18, sSSS18, odrift9, oDRCP, mFMAGU19, hmagF, bFMAG, hmagF,&
+mFMAGU19, oSPACE, mDMAGU19, hmagD, bDMAG, hmagD, mDMAGU19, oL19A, hRF, aRF,&
+hRF, oL19B, hRF, aRF, hRF, oL19C, obpmOld, oL19D, odrift9, kHL19, kVL19,&
+qQL19, qSQL19, ipB_VP19L, ipB_HP19L, oBPM, qQLerr19, qSQLerr19, sSXL19,&
+sSSL19, odrift9, oL19E, mDMAGD19, hmagD, bDMAG, hmagD, mDMAGD19, oSPACE,&
+mFMAGD19, hmagF, bFMAG, hmagF, mFMAGD19, oDRSEXTS, oSEXTS, oDRBPML,&
+oDRBPMR, odrift9, kHS19, kVS19, qQS19, qSQS19, ipB_VP19S, ipB_HP19S, oBPM,&
+qQSerr19, qSQSerr19, sSXS19, sSSS19, odrift9, oDRCP, mFMAGU20, hmagF,&
+bFMAG, hmagF, mFMAGU20, oSPACE, mDMAGU20, hmagD, bDMAG, hmagD, mDMAGU20,&
+oL20A, oOCT, oOCT, oOCT, oOCT, oL20E, obpmOld, oL20F, odrift9, kHL20,&
+kVL20, qQL20, qSQL20, ipB_VP20L, ipB_HP20L, oBPM, qQLerr20, qSQLerr20,&
+sSXL20, sSSL20, odrift9, oL20G, mDMAGD20, hmagD, bDMAG, hmagD, mDMAGD20,&
+oSPACE, mFMAGD20, hmagF, bFMAG, hmagF, mFMAGD20, oDRQGF, oQGF, oDRBPMF,&
+oDRBPMR, odrift9, kHS20, kVS20, qQS20, qSQS20, ipB_VP20S, ipB_HP20S, oBPM,&
+qQSerr20, qSQSerr20, sSXS20, sSSS20, odrift9, oDRCP, mFMAGU21, hmagF,&
+bFMAG, hmagF, mFMAGU21, oSPACE, mDMAGU21, hmagD, bDMAG, hmagD, mDMAGU21,&
+oL21A, hRF, aRF, hRF, oL21B, hRF, aRF, hRF, oL21C, obpmOld, oL21D, odrift9,&
+kHL21, kVL21, qQL21, qSQL21, ipB_VP21L, ipB_HP21L, oBPM, qQLerr21,&
+qSQLerr21, sSXL21, sSSL21, odrift9, oL21E, mDMAGD21, hmagD, bDMAG, hmagD,&
+mDMAGD21, oSPACE, mFMAGD21, hmagF, bFMAG, hmagF, mFMAGD21, oDRSEXTS,&
+oSEXTS, oDRBPML, oDRBPMR, odrift9, kHS21, kVS21, qQS21, qSQS21, ipB_VP21S,&
+ipB_HP21S, oBPM, qQSerr21, qSQSerr21, sSXS21, sSSS21, odrift9, oDRCP,&
+mFMAGU22, hmagF, bFMAG, hmagF, mFMAGU22, oSPACE, mDMAGU22, hmagD, bDMAG,&
+hmagD, mDMAGU22, oL22A, hRF, aRF, hRF, oL22B, hRF, aRF, hRF, oL22C,&
+obpmOld, oL22D, odrift9, kHL22, kVL22, qQL22, qSQL22, ipB_VP22L, ipB_HP22L,&
+oBPM, qQLerr22, qSQLerr22, sSXL22, sSSL22, odrift9, oL22E, mDMAGD22, hmagD,&
+bDMAG, hmagD, mDMAGD22, oSPACE, mFMAGD22, hmagF, bFMAG, hmagF, mFMAGD22,&
+oDRQGD, oQGD, oDRBPMD, oDRBPMR, odrift9, kHS22, kVS22, qQS22, qSQS22,&
+ipB_VP22S, ipB_HP22S, oBPM, qQSerr22, qSQSerr22, sSXS22, sSSS22, odrift9,&
+oDRCP, mFMAGU23, hmagF, bFMAG, hmagF, mFMAGU23, oSPACE, mDMAGU23, hmagD,&
+bDMAG, hmagD, mDMAGU23, oL23A, hRF, aRF, hRF, oL23B, hRF, aRF, hRF, oL23C,&
+obpmOld, oL23D, odrift9, kHL23, kVL23, qQL23, qSQL23, ipB_VP23L, ipB_HP23L,&
+oBPM, qQLerr23, qSQLerr23, sSXL23, sSSL23, odrift9, oL23E, mDMAGD23, hmagD,&
+bDMAG, hmagD, mDMAGD23, oSPACE, mFMAGD23, hmagF, bFMAG, hmagF, mFMAGD23,&
+oDRSEXTS, oSEXTS, oDRBPML, oDRBPMR, odrift9, kHS23, kVS23, qQS23, qSQS23,&
+ipB_VP23S, ipB_HP23S, oBPM, qQSerr23, qSQSerr23, sSXS23, sSSS23, odrift9,&
+oDRCP, mFMAGU24, hmagF, bFMAG, hmagF, mFMAGU24, oSPACE, mDMAGU24, hmagD,&
+bDMAG, hmagD, mDMAGU24, oL24A, hRF, aRF, hRF, oL24B, hRF, aRF, hRF, oL24C,&
+obpmOld, oL24D, odrift9, kHL24, kVL24, qQL24, qSQL24, ipB_VP24L, ipB_HP24L,&
+oBPM, qQLerr24, qSQLerr24, sSXL24, sSSL24, odrift9, oL24E, mDMAGD24, hmagD,&
+bDMAG, hmagD, mDMAGD24, oSPACE, mFMAGD24, hmagF, bFMAG, hmagF, mFMAGD24,&
+oDRQGF, oQGF, oDRBPMF, ipB_VPS24, ipB_HPS24, oDRBPMR, odrift9, kHS24,&
+kVS24, qQS24, qSQS24, ipB_VP24S, ipB_HP24S, oBPM, qQSerr24, qSQSerr24,&
+sSXS24, sSSS24, odrift9, oDRCP, mFMAGU01, hmagF, bFMAG, hmagF, mFMAGU01,&
+oSPACE, mDMAGU01, hmagD, bDMAG, hmagD, mDMAGU01, oL01A1, ipB_VPL1U,&
+ipB_HPL1U, oL01A2, bORBUMPm, oL01B, bORBUMPp,oL01C_1)
+
+
+

@@ -3,6 +3,7 @@
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/period.h"
 #include "synergia/utils/simple_timer.h"
+#include "synergia/utils/parallel_utils.h"
 
 
 template<class Archive>
@@ -357,8 +358,11 @@ inline int get_zindex_for_wake(double z, double dz, int istart, double zstart)
 
 
 void 
-Impedance::calculate_kicks()
+Impedance::calculate_kicks(Commxx_sptr const & comm_sptr)
  {
+    
+    double t,t1;
+    t = simple_timer_current();
     
     int zpoints=get_wake_field_sptr()->get_z_coord().size();
     double delta_z=get_wake_field_sptr()->get_delta_z();
@@ -371,7 +375,8 @@ Impedance::calculate_kicks()
     MArray1d_ref yw_lead(get_wake_field_sptr()->get_yw_lead());
     MArray1d_ref yw_trail(get_wake_field_sptr()->get_yw_trail());
     
-
+    t = simple_timer_show(t, "impedance_calculate_kicks:  ref the  wake fields ");
+   
     int registered_turns=stored_vbunches.size();
     int numbunches;
     int num_trains;
@@ -410,16 +415,40 @@ Impedance::calculate_kicks()
    MArray1d_ref zwake0(get_zwake0());
    
    
-    for (int i = 0; i < z_grid; ++i){
-        xwake_leading[i]=0.; 
-	xwake_trailing[i]=0. ;
-        ywake_leading[i] =0.; 
-	ywake_trailing[i]=0. ;
-	zwake0[i] =0.;	
+ //    this->xwake_leading_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->xwake_trailing_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->ywake_leading_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->ywake_trailing_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+//    this->zwake0_sptr= boost::shared_ptr<MArray1d >(new MArray1d(boost::extents[z_grid]));
+   
+   int size=comm_sptr->get_size();
+   std::vector<int >  offsets(size);
+   std::vector<int >  counts(size);
+   decompose_1d_raw(size, z_grid, offsets, counts);
+   int rank=comm_sptr->get_rank();
+   
+   MArray1d xwake_leading_local(boost::extents[counts[rank]]);
+   MArray1d xwake_trailing_local(boost::extents[counts[rank]]);
+   MArray1d ywake_leading_local(boost::extents[counts[rank]]);
+   MArray1d ywake_trailing_local(boost::extents[counts[rank]]);
+   MArray1d zwake0_local(boost::extents[counts[rank]]); 
+   
+   
+   
+    t1 = simple_timer_current();
+   // for (int i = offsets[rank]; i <offsets[rank]+counts[rank] ; ++i){
+    for (int i = 0; i <counts[rank] ; ++i){  
+       int real_i=i+offsets[rank];
+        xwake_leading_local[i]=0.; 
+	xwake_trailing_local[i]=0. ;
+        ywake_leading_local[i] =0.; 
+	ywake_trailing_local[i]=0. ;
+	zwake0_local[i] =0.;	
       // in-bunch impedance 
         for (int j = 0; j < z_grid; ++j){
        // for (int j = i+1; j < z_grid; ++j){
-            double zji=(j-i)*cell_size_z;
+            double zji=(j-real_i)*cell_size_z;
+	    
             if (zji>=z_coord[0]) {// at small distance no impedance is considered
                 // below it is assumed the wake function is stored using a quadratic grid           
 	        int iz=get_zindex_for_wake(zji, delta_z, istart, zstart);
@@ -431,11 +460,11 @@ Impedance::calculate_kicks()
 		    ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
                     zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]); 
                     }
-                xwake_leading[i]  +=zdensity[j]*N_factor*xmom[j]*xwl; 
-		xwake_trailing[i]  += zdensity[j]*N_factor*xwt;
-                ywake_leading[i]  += zdensity[j]*N_factor*ymom[j]*ywl; 
-		ywake_trailing[i]  += zdensity[j]*N_factor*ywt;
-	        zwake0[i] += zdensity[j]*N_factor*zw;				
+                xwake_leading_local[i]  +=zdensity[j]*N_factor*xmom[j]*xwl; 
+		xwake_trailing_local[i]  += zdensity[j]*N_factor*xwt;
+                ywake_leading_local[i]  += zdensity[j]*N_factor*ymom[j]*ywl; 
+		ywake_trailing_local[i]  += zdensity[j]*N_factor*ywt;
+	        zwake0_local[i] += zdensity[j]*N_factor*zw;				
             }          
          }
         
@@ -443,7 +472,7 @@ Impedance::calculate_kicks()
         std::list< std::vector<Bunch_properties> >::const_iterator it=stored_vbunches.begin(); // stored_vbunches.begin() stores the bunches info at 
 	                                                                                  // at the moment
         /// bucket 0 is in front of bucket 1, which is in front of bucket 2, etc...
-        double z_to_edge=(z_grid-i-1)*cell_size_z;
+        double z_to_edge=(z_grid-real_i-1)*cell_size_z;
         for (int ibunch= 0; ibunch<numbunches; ++ibunch){            
 	  //  double xwl(0.), xwt(0.), ywl(0.), ywt(0.), zw(0.);
             int ibucket=(*it)[ibunch].bucket_index;
@@ -458,11 +487,11 @@ Impedance::calculate_kicks()
 		    double ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
                     double zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]); 
 		    
-		    xwake_leading[i]  +=(*it)[ibunch].realnum*(*it)[ibunch].x_mean*xwl; 
-		    xwake_trailing[i]  += (*it)[ibunch].realnum*xwt;
-		    ywake_leading[i]  +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*ywl;
-		    ywake_trailing[i]  +=(*it)[ibunch].realnum*ywt;
-		    zwake0[i] += (*it)[ibunch].realnum*zw;
+		    xwake_leading_local[i]  +=(*it)[ibunch].realnum*(*it)[ibunch].x_mean*xwl; 
+		    xwake_trailing_local[i]  += (*it)[ibunch].realnum*xwt;
+		    ywake_leading_local[i]  +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*ywl;
+		    ywake_trailing_local[i]  +=(*it)[ibunch].realnum*ywt;
+		    zwake0_local[i] += (*it)[ibunch].realnum*zw;
                 }
             }
         } // ibunch loop
@@ -484,11 +513,11 @@ Impedance::calculate_kicks()
 			  double ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
 			  double zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]);    
 			  
-			  xwake_leading[i]  +=(*it)[ibunch].realnum*(*it)[ibunch].x_mean*wnx*xwl; 
-			  xwake_trailing[i]  += (*it)[ibunch].realnum*xwt;
-			  ywake_leading[i]  +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*wny*ywl;
-			  ywake_trailing[i]  +=(*it)[ibunch].realnum*ywt;
-			  zwake0[i] += (*it)[ibunch].realnum*zw;
+			  xwake_leading_local[i]  +=(*it)[ibunch].realnum*(*it)[ibunch].x_mean*wnx*xwl; 
+			  xwake_trailing_local[i]  += (*it)[ibunch].realnum*xwt;
+			  ywake_leading_local[i]  +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*wny*ywl;
+			  ywake_trailing_local[i]  +=(*it)[ibunch].realnum*ywt;
+			  zwake0_local[i] += (*it)[ibunch].realnum*zw;
                    }
  	      }
  	   }
@@ -509,11 +538,11 @@ Impedance::calculate_kicks()
 			  double ywt=yw_trail[iz]+(zji-z_coord[iz])*(yw_trail[iz+1]-yw_trail[iz])/(z_coord[iz+1]-z_coord[iz]);                  
 			  double zw=z_wake[iz]+(zji-z_coord[iz])*(z_wake[iz+1]-z_wake[iz])/(z_coord[iz+1]-z_coord[iz]);    
 			  
-			  xwake_leading[i]  +=(*it)[ibunch].realnum*(*it)[ibunch].x_mean*xwl; 
-			  xwake_trailing[i]  += (*it)[ibunch].realnum*xwt;
-			  ywake_leading[i]  +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*ywl;
-			  ywake_trailing[i]  +=(*it)[ibunch].realnum*ywt;
-			  zwake0[i] += (*it)[ibunch].realnum*zw;
+			  xwake_leading_local[i]  +=(*it)[ibunch].realnum*(*it)[ibunch].x_mean*xwl; 
+			  xwake_trailing_local[i]  += (*it)[ibunch].realnum*xwt;
+			  ywake_leading_local[i]  +=  (*it)[ibunch].realnum*(*it)[ibunch].y_mean*ywl;
+			  ywake_trailing_local[i]  +=(*it)[ibunch].realnum*ywt;
+			  zwake0_local[i] += (*it)[ibunch].realnum*zw;
 			  
                      }
                  }
@@ -521,6 +550,7 @@ Impedance::calculate_kicks()
 	}//registered_turns>1
          
     } // i loop
+    t1 = simple_timer_show(t1, "impedance_calculate_kicks:  i loop ");
     /// it is not necessary to have a loop over i at larger distances, since the effect is negligible
     if (registered_turns>1) {
         double xwake_l=0.;
@@ -589,16 +619,64 @@ Impedance::calculate_kicks()
 	      } //ibunch
 	    }  // full_machine
       } //iturn
-      for (int i = 0; i < z_grid; ++i){
-	xwake_leading[i] +=  xwake_l;
-	xwake_trailing[i] += xwake_t;
-	ywake_leading[i] +=  ywake_l; 
-	ywake_trailing[i] += ywake_t ;
-	zwake0[i] += zwake_0;    
+      for (int i = 0; i <counts[rank] ; ++i){
+	xwake_leading_local[i] +=  xwake_l;
+	xwake_trailing_local[i] += xwake_t;
+	ywake_leading_local[i] +=  ywake_l; 
+	ywake_trailing_local[i] += ywake_t ;
+	zwake0_local[i] += zwake_0;    
       }         
    }//registred_turns>1
-}
+    t1 = simple_timer_show(t1, "impedance_calculate_kicks: registred_turns loop   ");
+   
+     int error = MPI_Allgatherv(reinterpret_cast<void*>(xwake_leading_local.origin()),
+		  counts[rank], MPI_DOUBLE,
+		  reinterpret_cast<void*>(xwake_leading.origin()),
+					  &counts[0], &offsets[0], MPI_DOUBLE, comm_sptr->get());
+      if (error != MPI_SUCCESS) {
+	  throw std::runtime_error(
+	      "MPI error in Impedance_calculate_kicks:MPI_Allgatherv xwake_leading"); 
+      } 
+ 
 
+     error = MPI_Allgatherv(reinterpret_cast<void*>(xwake_trailing_local.origin()),
+		  counts[rank], MPI_DOUBLE,
+		  reinterpret_cast<void*>(xwake_trailing.origin()),
+					  &counts[0], &offsets[0], MPI_DOUBLE, comm_sptr->get());
+    if (error != MPI_SUCCESS) {
+	  throw std::runtime_error(
+	      "MPI error in Impedance_calculate_kicks:MPI_Allgatherv xwake_trailing"); 
+     } 
+   
+    error = MPI_Allgatherv(reinterpret_cast<void*>(ywake_leading_local.origin()),
+		  counts[rank], MPI_DOUBLE,
+		  reinterpret_cast<void*>(ywake_leading.origin()),
+					  &counts[0], &offsets[0], MPI_DOUBLE, comm_sptr->get());
+    if (error != MPI_SUCCESS) {
+	  throw std::runtime_error(
+	      "MPI error in Impedance_calculate_kicks:MPI_Allgatherv ywake_leading"); 
+     } 
+ 
+
+    error = MPI_Allgatherv(reinterpret_cast<void*>(ywake_trailing_local.origin()),
+		  counts[rank], MPI_DOUBLE,
+		  reinterpret_cast<void*>(ywake_trailing.origin()),
+					  &counts[0], &offsets[0], MPI_DOUBLE, comm_sptr->get());
+    if (error != MPI_SUCCESS) {
+	  throw std::runtime_error(
+	      "MPI error in Impedance_calculate_kicks:MPI_Allgatherv ywake_trailing"); 
+     } 
+   
+    error = MPI_Allgatherv(reinterpret_cast<void*>(zwake0_local.origin()),
+		  counts[rank], MPI_DOUBLE,
+		  reinterpret_cast<void*>(zwake0.origin()),
+					  &counts[0], &offsets[0], MPI_DOUBLE, comm_sptr->get());
+    if (error != MPI_SUCCESS) {
+	  throw std::runtime_error(
+	      "MPI error in Impedance_calculate_kicks:MPI_Allgatherv zwake0"); 
+     }    
+    t1 = simple_timer_show(t1, "impedance_calculate_kicks: mpi_allgather   ");
+}
 
 void 
 Impedance::apply_impedance_kick(Bunch & bunch, double wake_factor)
@@ -645,7 +723,8 @@ Impedance::apply(Bunch & bunch, double time_step, Step & step, int verbosity, Lo
    double t;
    t = simple_timer_current();
    bunch.convert_to_state(Bunch::fixed_t_lab);  
-   calculate_moments_and_partitions(bunch);      
+   calculate_moments_and_partitions(bunch);   
+   t = simple_timer_show(t, "impedance_apply:  calculate_moments_and_partitions ");
       
 //       std::ofstream file;
 //       file.open("zdensity.dat");
@@ -656,15 +735,17 @@ Impedance::apply(Bunch & bunch, double time_step, Step & step, int verbosity, Lo
 //       abort(); 
    N_factor=bunch.get_real_num()/bunch.get_total_num();
    bunch_z_mean=Core_diagnostics::calculate_z_mean(bunch);
+   t = simple_timer_show(t, "impedance_apply: calculate_z_mean ");
    bunch_bucket=bunch.get_bucket_index(); 
-   calculate_kicks();
-
+   calculate_kicks(bunch.get_comm_sptr());
+   t = simple_timer_show(t, "impedance_apply: calculate_kicks ");
    double gamma = bunch.get_reference_particle().get_gamma();
    double beta= bunch.get_reference_particle().get_beta();
    double w_f=get_wake_factor()*time_step/(gamma*beta);  
-      
+   
+    
    apply_impedance_kick(bunch,  w_f);
-   t = simple_timer_show(t, "impedance apply");
+   t = simple_timer_show(t, "impedance apply:apply_impedance_kick ");
    
 }
 
