@@ -244,8 +244,13 @@ void
 Bunch::update_total_num()
 {
     int old_total_num = total_num;
-    MPI_Allreduce(&local_num, &total_num, 1, MPI_INT, MPI_SUM, comm_sptr->get());
-    real_num = (total_num * real_num) / old_total_num;
+    MPI_Allreduce(&local_num, &total_num, 1, MPI_INT, MPI_SUM,
+            comm_sptr->get());
+    if (old_total_num != 0.0) {
+        real_num = (total_num * real_num) / old_total_num;
+    } else {
+        real_num = 0.0;
+    }
 }
 
 void
