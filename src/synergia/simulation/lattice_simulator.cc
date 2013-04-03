@@ -21,6 +21,8 @@
 #include <cmath>
 #include <iostream>
 #include <fstream>
+#include <gsl/gsl_vector.h>
+#include <gsl/gsl_multiroots.h>
 
 Lattice_functions::Lattice_functions() :
                 alpha_x(0.0),
@@ -1257,6 +1259,127 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
     }
 }
 
+struct Adjust_tune_params
+{
+    Chef_elements h_elements, v_elements;
+    BmlPtr beamline_sptr;
+    BmlContextPtr beamline_context_sptr;
+    double nu_h_target, nu_v_target;
+};
+
+Chef_elements
+get_quad_chef_elements(Lattice_elements const& lattice_elements,
+        Chef_lattice & chef_lattice)
+{
+    Chef_elements retval;
+    for (Lattice_elements::const_iterator le_it = lattice_elements.begin();
+            le_it != lattice_elements.end(); ++le_it) {
+        Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*le_it)));
+        for (Chef_elements::iterator ce_it = chef_elements.begin();
+                ce_it != chef_elements.end(); ++ce_it) {
+            if ((std::strcmp((*ce_it)->Type(), "quadrupole") == 0)
+                    || (std::strcmp((*ce_it)->Type(), "thinQuad") == 0)) {
+                retval.push_back(*ce_it);
+            } else {
+                throw std::runtime_error("jfa found a non-quadrupole");
+            }
+        }
+    }
+    return retval;
+}
+
+int
+adjust_tune_function(const gsl_vector * x, void * params, gsl_vector * f)
+{
+    Adjust_tune_params atparams(*static_cast<Adjust_tune_params *>(params));
+    double h_strength = gsl_vector_get(x, 0);
+    for (Chef_elements::iterator it = atparams.h_elements.begin();
+            it != atparams.h_elements.end(); ++it) {
+        (*it)->setStrength(h_strength);
+    }
+    double v_strength = gsl_vector_get(x, 1);
+    for (Chef_elements::iterator it = atparams.v_elements.begin();
+            it != atparams.v_elements.end(); ++it) {
+        (*it)->setStrength(v_strength);
+    }
+    atparams.beamline_sptr->dataHook.eraseAll("Tunes");
+    double nu_h = atparams.beamline_context_sptr->getHorizontalFracTune();
+    double nu_v = atparams.beamline_context_sptr->getVerticalFracTune();
+    gsl_vector_set(f, 0, nu_h - atparams.nu_h_target);
+    gsl_vector_set(f, 1, nu_v - atparams.nu_v_target);
+
+    std::cout << std::setprecision(20);
+    std::cout << "jfa adjust_tune_function: "
+            << h_strength << ", "
+            << v_strength << ": "
+            << nu_h << ", "
+            << nu_v << std::endl;
+
+    return GSL_SUCCESS;
+}
+
+double
+get_uniform_strength(Chef_elements const& elements)
+{
+    Chef_elements::const_iterator it = elements.begin();
+    double retval = (*it)->Strength();
+    const double tolerance = 1.0e-8;
+    for (; it != elements.end(); ++it) {
+        if (std::abs((*it)->Strength() - retval) > tolerance) {
+            throw std::runtime_error(
+                    "jfa: adjust_tunes_jfa requires symmetric quads");
+        }
+    }
+    return retval;
+}
+
+void
+Lattice_simulator::adjust_tunes_jfa(double horizontal_tune,
+        double vertical_tune, Lattice_elements const& horizontal_correctors,
+        Lattice_elements const& vertical_correctors, double tolerance)
+{
+    get_beamline_context();
+    const gsl_multiroot_fsolver_type * T;
+    gsl_multiroot_fsolver * s;
+
+    int status;
+    size_t i, iter = 0;
+
+    const size_t n = 2;
+
+    Adjust_tune_params atparams;
+    atparams.h_elements = get_quad_chef_elements(horizontal_correctors,
+            *chef_lattice_sptr);
+    atparams.v_elements = get_quad_chef_elements(vertical_correctors,
+            *chef_lattice_sptr);
+    atparams.beamline_sptr = chef_lattice_sptr->get_beamline_sptr();
+    atparams.beamline_context_sptr = beamline_context_sptr;
+    atparams.nu_h_target = horizontal_tune;
+    atparams.nu_v_target = vertical_tune;
+
+    gsl_multiroot_function f = { &adjust_tune_function, n, (void*) &atparams };
+
+    gsl_vector * x = gsl_vector_alloc(n);
+    gsl_vector_set(x, 0, get_uniform_strength(atparams.h_elements));
+    gsl_vector_set(x, 1, get_uniform_strength(atparams.v_elements));
+
+    T = gsl_multiroot_fsolver_hybrids;
+    s = gsl_multiroot_fsolver_alloc(T, 2);
+    gsl_multiroot_fsolver_set(s, &f, x);
+
+    do {
+        iter++;
+        std::cout << "jfa: revolution " << iter << std::endl;
+        status = gsl_multiroot_fsolver_iterate(s);
+        if (status) break;
+        status = gsl_multiroot_test_residual(s->f, tolerance);
+    }
+    while (status == GSL_CONTINUE && iter < 100);
+
+    gsl_multiroot_fsolver_free(s);
+    gsl_vector_free(x);
+}
+
 
 void
 Lattice_simulator::get_chromaticities()
@@ -1292,7 +1415,7 @@ Lattice_simulator::get_chromaticities()
 	BmlContextPtr probecontext_sptr;
         for (double dpp = -0.0005; dpp <= 0.00051; dpp += 0.0002) {
             // for (double dpp = -0.005; dpp <= 0.0051; dpp+= 0.002) {
-	    double  dpp= 0.0005;
+//	    double  dpp= 0.0005;
             Proton newprobe;
             newprobe.SetReferenceMomentum(momentum * (1.0 + dpp));
             newprobe.setStateToZero();

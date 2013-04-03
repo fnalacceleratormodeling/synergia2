@@ -252,6 +252,11 @@ public:
             Lattice_elements const& horizontal_correctors,
             Lattice_elements const& vertical_correctors, double tolerance =
                     1.0e-5);
+    void
+    adjust_tunes_jfa(double horizontal_tune, double vertical_tune,
+            Lattice_elements const& horizontal_correctors,
+            Lattice_elements const& vertical_correctors, double tolerance =
+                    1.0e-5);
     double
     get_slip_factor();
     double
