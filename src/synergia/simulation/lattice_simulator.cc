@@ -1379,6 +1379,10 @@ Lattice_simulator::adjust_tunes_jfa(double horizontal_tune,
 
     gsl_multiroot_fsolver_free(s);
     gsl_vector_free(x);
+
+    extract_quad_strengths(horizontal_correctors, *chef_lattice_sptr);
+    extract_quad_strengths(vertical_correctors, *chef_lattice_sptr);
+    update();
 }
 
 
