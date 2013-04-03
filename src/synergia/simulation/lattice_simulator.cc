@@ -1183,7 +1183,7 @@ extract_quad_strengths(Lattice_elements const& correctors,
 }
 
 void
-Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
+Lattice_simulator::adjust_tunes_chef(double horizontal_tune, double vertical_tune,
         Lattice_elements const& horizontal_correctors,
         Lattice_elements const& vertical_correctors, double tolerance)
 {
@@ -1335,7 +1335,7 @@ get_uniform_strength(Chef_elements const& elements)
 }
 
 void
-Lattice_simulator::adjust_tunes_jfa(double horizontal_tune,
+Lattice_simulator::adjust_tunes(double horizontal_tune,
         double vertical_tune, Lattice_elements const& horizontal_correctors,
         Lattice_elements const& vertical_correctors, double tolerance)
 {
