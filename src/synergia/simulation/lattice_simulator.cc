@@ -1302,7 +1302,8 @@ adjust_tune_function(const gsl_vector * x, void * params, gsl_vector * f)
             it != atparams.v_elements.end(); ++it) {
         (*it)->setStrength(v_strength);
     }
-    atparams.beamline_sptr->dataHook.eraseAll("Tunes");
+//    atparams.beamline_sptr->dataHook.eraseAll("Tunes");
+    atparams.beamline_context_sptr->reset();
     double nu_h = atparams.beamline_context_sptr->getHorizontalFracTune();
     double nu_v = atparams.beamline_context_sptr->getVerticalFracTune();
     gsl_vector_set(f, 0, nu_h - atparams.nu_h_target);
@@ -1314,6 +1315,34 @@ adjust_tune_function(const gsl_vector * x, void * params, gsl_vector * f)
             << v_strength << ": "
             << nu_h << ", "
             << nu_v << std::endl;
+
+    return GSL_SUCCESS;
+}
+
+int
+adjust_tune_df(const gsl_vector * x, void * params,
+        gsl_matrix * J)
+{
+    gsl_vector * f = gsl_vector_alloc(2);
+    adjust_tune_function(x, params, f);
+    gsl_multiroot_function gmf = { &adjust_tune_function,
+             2,params };
+    const double epsilon = 1.0e-6;
+    gsl_multiroot_fdjacobian(&gmf, x, f, epsilon, J);
+    gsl_vector_free(f);
+
+    return GSL_SUCCESS;
+}
+
+int
+adjust_tune_fdf(const gsl_vector * x, void * params, gsl_vector * f,
+        gsl_matrix * J)
+{
+    adjust_tune_function(x, params, f);
+    gsl_multiroot_function gmf = { &adjust_tune_function,
+             2, params };
+    const double epsilon = 1.0e-6;
+    gsl_multiroot_fdjacobian(&gmf, x, f, epsilon, J);
 
     return GSL_SUCCESS;
 }
@@ -1339,8 +1368,8 @@ Lattice_simulator::adjust_tunes_jfa(double horizontal_tune,
         Lattice_elements const& vertical_correctors, double tolerance)
 {
     get_beamline_context();
-    const gsl_multiroot_fsolver_type * T;
-    gsl_multiroot_fsolver * s;
+    const gsl_multiroot_fdfsolver_type * T;
+    gsl_multiroot_fdfsolver * s;
 
     int status;
     size_t i, iter = 0;
@@ -1357,26 +1386,27 @@ Lattice_simulator::adjust_tunes_jfa(double horizontal_tune,
     atparams.nu_h_target = horizontal_tune;
     atparams.nu_v_target = vertical_tune;
 
-    gsl_multiroot_function f = { &adjust_tune_function, n, (void*) &atparams };
+    gsl_multiroot_function_fdf f = { &adjust_tune_function,
+            &adjust_tune_df, &adjust_tune_fdf, n, (void*) &atparams };
 
     gsl_vector * x = gsl_vector_alloc(n);
     gsl_vector_set(x, 0, get_uniform_strength(atparams.h_elements));
     gsl_vector_set(x, 1, get_uniform_strength(atparams.v_elements));
 
-    T = gsl_multiroot_fsolver_hybrids;
-    s = gsl_multiroot_fsolver_alloc(T, 2);
-    gsl_multiroot_fsolver_set(s, &f, x);
+    T = gsl_multiroot_fdfsolver_hybridsj;
+    s = gsl_multiroot_fdfsolver_alloc(T, 2);
+    gsl_multiroot_fdfsolver_set(s, &f, x);
 
     do {
         iter++;
         std::cout << "jfa: revolution " << iter << std::endl;
-        status = gsl_multiroot_fsolver_iterate(s);
+        status = gsl_multiroot_fdfsolver_iterate(s);
         if (status) break;
         status = gsl_multiroot_test_residual(s->f, tolerance);
     }
     while (status == GSL_CONTINUE && iter < 100);
 
-    gsl_multiroot_fsolver_free(s);
+    gsl_multiroot_fdfsolver_free(s);
     gsl_vector_free(x);
 }
 
