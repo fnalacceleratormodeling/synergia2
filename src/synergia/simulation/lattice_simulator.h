@@ -248,11 +248,6 @@ public:
     get_stationary_actions(const double stdx, const double stdy,
             const double std_cdt);
     void
-    adjust_tunes_chef(double horizontal_tune, double vertical_tune,
-            Lattice_elements const& horizontal_correctors,
-            Lattice_elements const& vertical_correctors, double tolerance =
-                    1.0e-5);
-    void
     adjust_tunes(double horizontal_tune, double vertical_tune,
             Lattice_elements const& horizontal_correctors,
             Lattice_elements const& vertical_correctors, double tolerance =

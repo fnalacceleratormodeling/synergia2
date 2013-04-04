@@ -1124,48 +1124,6 @@ write_quad_correctors(Lattice_elements const& horizontal_correctors,
 
 }
 
-// set_chef_correctors is a local function
-void
-set_chef_correctors(Lattice_elements const& correctors,
-        Chef_lattice & chef_lattice, BmlContextPtr & beamline_context_sptr,
-        bool horizontal)
-{
-    for (Lattice_elements::const_iterator le_it = correctors.begin();
-            le_it != correctors.end(); ++le_it) {
-        Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*le_it)));
-        for (Chef_elements::iterator ce_it = chef_elements.begin();
-                ce_it != chef_elements.end(); ++ce_it) {
-            if (std::strcmp((*ce_it)->Type(), "quadrupole") == 0) {
-                if (horizontal) {
-                    beamline_context_sptr->addHTuneCorrector(
-                            boost::dynamic_pointer_cast<quadrupole >(*ce_it));
-                } else {
-                    beamline_context_sptr->addVTuneCorrector(
-                            boost::dynamic_pointer_cast<quadrupole >(*ce_it));
-                }
-            } else if (std::strcmp((*ce_it)->Type(), "thinQuad") == 0) {
-                if (horizontal) {
-                    beamline_context_sptr->addHTuneCorrector(
-                            boost::dynamic_pointer_cast<thinQuad >(*ce_it));
-                } else {
-                    beamline_context_sptr->addVTuneCorrector(
-                            boost::dynamic_pointer_cast<thinQuad >(*ce_it));
-                }
-            } else {
-                std::string message(
-                        "Lattice_simulator::adjust_tunes: Lattice_element ");
-                message += (*le_it)->get_name();
-                message += " of type ";
-                message += (*le_it)->get_type();
-                message += " cannot be used as a corrector because it has a";
-                message += " chef element of type ";
-                message += (*ce_it)->Type();
-                throw std::runtime_error(message.c_str());
-            }
-        }
-    }
-}
-
 // extract_quad_strengths is a local function
 void
 extract_quad_strengths(Lattice_elements const& correctors,
@@ -1179,83 +1137,6 @@ extract_quad_strengths(Lattice_elements const& correctors,
             double k1 = (*ce_it)->Strength() / chef_lattice.get_brho();
             (*le_it)->set_double_attribute("k1", k1);
         }
-    }
-}
-
-void
-Lattice_simulator::adjust_tunes_chef(double horizontal_tune, double vertical_tune,
-        Lattice_elements const& horizontal_correctors,
-        Lattice_elements const& vertical_correctors, double tolerance)
-{
-    BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr());
-    get_beamline_context();
-    set_chef_correctors(horizontal_correctors, *chef_lattice_sptr,
-            beamline_context_sptr, true);
-    set_chef_correctors(vertical_correctors, *chef_lattice_sptr,
-            beamline_context_sptr, false);
-    double nu_h = beamline_context_sptr->getHorizontalFracTune();
-    double nu_v = beamline_context_sptr->getVerticalFracTune();
-    double horizontal_final_tune = horizontal_tune
-            - double(int(horizontal_tune));
-    double vertical_final_tune = vertical_tune - double(int(vertical_tune));
-    int rank = Commxx().get_rank();
-    if (rank == 0) {
-        std::cout << "        Initial tunes: horizontal    : " << nu_h
-                << std::endl;
-        ;
-        std::cout << "                       vertical      : " << nu_v
-                << std::endl;
-        std::cout << "        Final tunes: horizontal      : "
-                << horizontal_final_tune << std::endl;
-        std::cout << "                     vertical        : "
-                << vertical_final_tune << std::endl;
-    }
-
-    int step = 0;
-    bool in_tolerance = sqrt(
-            pow((nu_h - horizontal_final_tune), 2)
-                    + pow((nu_v - vertical_final_tune), 2)) < tolerance;
-
-    while (!in_tolerance && (step < 20)) {
-        if (rank == 0) std::cout << "\n        Step " << step << std::endl;
-        int status = beamline_context_sptr->changeTunesTo(horizontal_final_tune,
-                vertical_final_tune);
-        if (status == BeamlineContext::NO_TUNE_ADJUSTER) {
-            throw std::runtime_error(
-                    "Lattice_simulator::adjust_tunes: no corrector elements found");
-        } else if (status != BeamlineContext::OKAY) {
-            throw std::runtime_error(
-                    "Lattice_simulator::adjust_tunes: failed with unknown status");
-        }
-        nu_h = beamline_context_sptr->getHorizontalFracTune();
-        nu_v = beamline_context_sptr->getVerticalFracTune();
-        if (rank == 0) {
-            std::cout << "        Step tunes: horizontal: " << nu_h
-                    << ", error " << horizontal_final_tune - nu_h << std::endl;
-            std::cout << "                    vertical  : " << nu_v
-                    << ", error " << vertical_final_tune - nu_v << std::endl;
-        }
-        in_tolerance = sqrt(
-                pow((nu_h - horizontal_final_tune), 2)
-                        + pow((nu_v - vertical_final_tune), 2)) < tolerance;
-        ++step;
-    }
-    if (!in_tolerance) {
-        std::cout << "Error, did not meet final tolerance within 20 steps"
-                << std::endl;
-    }
-    extract_quad_strengths(horizontal_correctors, *chef_lattice_sptr);
-    extract_quad_strengths(vertical_correctors, *chef_lattice_sptr);
-    update();
-    if (rank == 0) {
-        std::ofstream file;
-        file.open("quadrupole_correctors.txt");
-        file << " ! the quadrupole correctors are set for tunes (H, V):  ("
-                << horizontal_tune << " ,  " << vertical_tune << " ) "
-                << std::endl;
-        write_quad_correctors(horizontal_correctors, vertical_correctors,
-                *chef_lattice_sptr, file);
-        file.close();
     }
 }
 
