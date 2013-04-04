@@ -260,9 +260,10 @@ BOOST_FIXTURE_TEST_CASE(adjust_tunes, Fobodobo_sbend_fixture)
     }
     const double new_horizontal_tune = 0.69;
     const double new_vertical_tune = 0.15;
-    const double tolerance = 1.0e-6;
+    const double tolerance = 1.0e-7;
+    const int verbosity = 0;
     lattice_simulator.adjust_tunes(new_horizontal_tune, new_vertical_tune,
-            horizontal_correctors, vertical_correctors, tolerance);
+            horizontal_correctors, vertical_correctors, tolerance, verbosity);
     BOOST_CHECK(
             std::abs(lattice_simulator.get_horizontal_tune() - new_horizontal_tune) < tolerance);
     BOOST_CHECK(
