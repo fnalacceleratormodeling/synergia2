@@ -168,8 +168,8 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_both_tunes_overloads01,
         Lattice_simulator::get_both_tunes, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_chromaticities_overloads46,
 		 Lattice_simulator::adjust_chromaticities, 4, 6)
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_tunes_overloads45,
-		 Lattice_simulator::adjust_tunes, 4, 5)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_tunes_overloads46,
+		 Lattice_simulator::adjust_tunes, 4, 6)
 
 
 
@@ -378,7 +378,7 @@ BOOST_PYTHON_MODULE(simulation)
         .def("get_both_tunes", &Lattice_simulator::get_both_tunes,
 	                          get_both_tunes_overloads01())
         .def("adjust_tunes", &Lattice_simulator::adjust_tunes,
-	                           adjust_tunes_overloads45())
+	                           adjust_tunes_overloads46())
         .def("get_horizontal_chromaticity", &Lattice_simulator::get_horizontal_chromaticity)
         .def("get_vertical_chromaticity", &Lattice_simulator::get_vertical_chromaticity)
         .def("get_momentum_compaction", &Lattice_simulator::get_momentum_compaction)

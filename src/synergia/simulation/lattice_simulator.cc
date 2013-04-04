@@ -1259,13 +1259,32 @@ Lattice_simulator::adjust_tunes_chef(double horizontal_tune, double vertical_tun
     }
 }
 
-struct Adjust_tune_params
+bool
+get_strengths_param(Chef_elements const& elements,
+        std::vector<double> & original_strengths,
+        double & param)
 {
-    Chef_elements h_elements, v_elements;
-    BmlPtr beamline_sptr;
-    BmlContextPtr beamline_context_sptr;
-    double nu_h_target, nu_v_target;
-};
+    bool relative(false);
+    Chef_elements::const_iterator it = elements.begin();
+    double lastval = (*it)->Strength();
+    const double tolerance = 1.0e-12;
+    int i = 0;
+    for (; it != elements.end(); ++it) {
+        double val = (*it)->Strength();
+        if (std::abs(val - lastval) > tolerance) {
+            relative = true;
+        }
+        original_strengths.at(i) = val;
+        lastval = val;
+        ++i;
+    }
+    if (relative) {
+        param = 1.0;
+    } else {
+        param = original_strengths.at(0);
+    }
+    return relative;
+}
 
 Chef_elements
 get_quad_chef_elements(Lattice_elements const& lattice_elements,
@@ -1281,93 +1300,119 @@ get_quad_chef_elements(Lattice_elements const& lattice_elements,
                     || (std::strcmp((*ce_it)->Type(), "thinQuad") == 0)) {
                 retval.push_back(*ce_it);
             } else {
-                throw std::runtime_error("jfa found a non-quadrupole");
+                std::string message(
+                        "Lattice_simulator::adjust_tunes: Lattice_element ");
+                message += (*le_it)->get_name();
+                message += " of type ";
+                message += (*le_it)->get_type();
+                message += " cannot be used as a corrector because it has a";
+                message += " chef element of type ";
+                message += (*ce_it)->Type();
+                throw std::runtime_error(message.c_str());
             }
         }
     }
     return retval;
 }
 
+struct Adjust_tune_params
+{
+    double h_nu_target, v_nu_target;
+    Chef_elements h_elements, v_elements;
+    BmlPtr beamline_sptr;
+    BmlContextPtr beamline_context_sptr;
+    bool h_relative, v_relative;
+    std::vector<double > h_original_strengths, v_original_strengths;
+    double h_param, v_param;
+    Adjust_tune_params(double horizontal_tune, double vertical_tune,
+            Lattice_elements const& horizontal_correctors,
+            Lattice_elements const& vertical_correctors,
+            Chef_lattice & chef_lattice, BmlContextPtr beamline_context_sptr) :
+                    h_nu_target(horizontal_tune),
+                    v_nu_target(vertical_tune),
+                    h_elements(
+                            get_quad_chef_elements(horizontal_correctors,
+                                    chef_lattice)),
+                    v_elements(
+                            get_quad_chef_elements(vertical_correctors,
+                                    chef_lattice)),
+                    beamline_sptr(chef_lattice.get_beamline_sptr()),
+                    beamline_context_sptr(beamline_context_sptr),
+                    h_original_strengths(horizontal_correctors.size()),
+                    v_original_strengths(vertical_correctors.size()),
+                    h_param(1.0),
+                    v_param(1.0)
+    {
+        h_relative = get_strengths_param(h_elements, h_original_strengths,
+                h_param);
+        v_relative = get_strengths_param(v_elements, v_original_strengths,
+                v_param);
+    }
+};
+
+
 int
 adjust_tune_function(const gsl_vector * x, void * params, gsl_vector * f)
 {
-    Adjust_tune_params atparams(*static_cast<Adjust_tune_params *>(params));
-    double h_strength = gsl_vector_get(x, 0);
+    Adjust_tune_params atparams(*static_cast<Adjust_tune_params * >(params));
+    double h_param = gsl_vector_get(x, 0);
+    int i = 0;
     for (Chef_elements::iterator it = atparams.h_elements.begin();
             it != atparams.h_elements.end(); ++it) {
-        (*it)->setStrength(h_strength);
+        if (atparams.h_relative) {
+            (*it)->setStrength(h_param * atparams.h_original_strengths.at(i));
+        } else {
+            (*it)->setStrength(h_param);
+        }
+        ++i;
     }
-    double v_strength = gsl_vector_get(x, 1);
+    double v_param = gsl_vector_get(x, 1);
+    i = 0;
     for (Chef_elements::iterator it = atparams.v_elements.begin();
             it != atparams.v_elements.end(); ++it) {
-        (*it)->setStrength(v_strength);
+        if (atparams.v_relative) {
+            (*it)->setStrength(h_param * atparams.v_original_strengths.at(i));
+        } else {
+            (*it)->setStrength(v_param);
+        }
+        ++i;
     }
-//    atparams.beamline_sptr->dataHook.eraseAll("Tunes");
     atparams.beamline_context_sptr->reset();
     double nu_h = atparams.beamline_context_sptr->getHorizontalFracTune();
     double nu_v = atparams.beamline_context_sptr->getVerticalFracTune();
-    gsl_vector_set(f, 0, nu_h - atparams.nu_h_target);
-    gsl_vector_set(f, 1, nu_v - atparams.nu_v_target);
+    gsl_vector_set(f, 0, nu_h - atparams.h_nu_target);
+    gsl_vector_set(f, 1, nu_v - atparams.v_nu_target);
 
     std::cout << std::setprecision(20);
-    std::cout << "jfa adjust_tune_function: "
-            << h_strength << ", "
-            << v_strength << ": "
-            << nu_h << ", "
-            << nu_v << std::endl;
+    std::cout << "jfa adjust_tune_function: " << h_param << ", "
+            << v_param << ": " << nu_h << ", " << nu_v << std::endl;
 
     return GSL_SUCCESS;
 }
 
-double
-get_uniform_strength(Chef_elements const& elements)
-{
-    Chef_elements::const_iterator it = elements.begin();
-    double retval = (*it)->Strength();
-    const double tolerance = 1.0e-8;
-    for (; it != elements.end(); ++it) {
-        if (std::abs((*it)->Strength() - retval) > tolerance) {
-            throw std::runtime_error(
-                    "jfa: adjust_tunes_jfa requires symmetric quads");
-        }
-    }
-    return retval;
-}
-
 void
-Lattice_simulator::adjust_tunes(double horizontal_tune,
-        double vertical_tune, Lattice_elements const& horizontal_correctors,
-        Lattice_elements const& vertical_correctors, double tolerance)
+Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
+        Lattice_elements const& horizontal_correctors,
+        Lattice_elements const& vertical_correctors, double tolerance,
+        int verbosity)
 {
     get_beamline_context();
-    const gsl_multiroot_fsolver_type * T;
-    gsl_multiroot_fsolver * s;
 
-    int status;
-    size_t i, iter = 0;
-
+    Adjust_tune_params atparams(horizontal_tune, vertical_tune,
+            horizontal_correctors, vertical_correctors, *chef_lattice_sptr,
+            beamline_context_sptr);
     const size_t n = 2;
-
-    Adjust_tune_params atparams;
-    atparams.h_elements = get_quad_chef_elements(horizontal_correctors,
-            *chef_lattice_sptr);
-    atparams.v_elements = get_quad_chef_elements(vertical_correctors,
-            *chef_lattice_sptr);
-    atparams.beamline_sptr = chef_lattice_sptr->get_beamline_sptr();
-    atparams.beamline_context_sptr = beamline_context_sptr;
-    atparams.nu_h_target = horizontal_tune;
-    atparams.nu_v_target = vertical_tune;
-
     gsl_multiroot_function f = { &adjust_tune_function, n, (void*) &atparams };
-
     gsl_vector * x = gsl_vector_alloc(n);
-    gsl_vector_set(x, 0, get_uniform_strength(atparams.h_elements));
-    gsl_vector_set(x, 1, get_uniform_strength(atparams.v_elements));
-
-    T = gsl_multiroot_fsolver_hybrids;
-    s = gsl_multiroot_fsolver_alloc(T, 2);
+    gsl_vector_set(x, 0, atparams.h_param);
+    gsl_vector_set(x, 1, atparams.v_param);
+    const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids;
+    gsl_multiroot_fsolver * s = gsl_multiroot_fsolver_alloc(T, n);
     gsl_multiroot_fsolver_set(s, &f, x);
 
+    int status;
+    size_t iter = 0;
+    const int max_iter = 100;
     do {
         iter++;
         std::cout << "jfa: revolution " << iter << std::endl;
@@ -1375,10 +1420,15 @@ Lattice_simulator::adjust_tunes(double horizontal_tune,
         if (status) break;
         status = gsl_multiroot_test_residual(s->f, tolerance);
     }
-    while (status == GSL_CONTINUE && iter < 100);
+    while (status == GSL_CONTINUE && iter < max_iter);
 
     gsl_multiroot_fsolver_free(s);
     gsl_vector_free(x);
+
+    if (iter >= max_iter) {
+        throw std::runtime_error(
+                "Lattice_elements::adjust_tunes: solver failed to converge");
+    }
 
     extract_quad_strengths(horizontal_correctors, *chef_lattice_sptr);
     extract_quad_strengths(vertical_correctors, *chef_lattice_sptr);

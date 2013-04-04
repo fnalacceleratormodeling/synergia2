@@ -256,7 +256,7 @@ public:
     adjust_tunes(double horizontal_tune, double vertical_tune,
             Lattice_elements const& horizontal_correctors,
             Lattice_elements const& vertical_correctors, double tolerance =
-                    1.0e-5);
+                    1.0e-5, int verbosity = 0);
     double
     get_slip_factor();
     double
