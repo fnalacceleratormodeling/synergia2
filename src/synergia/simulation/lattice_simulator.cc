@@ -1315,7 +1315,7 @@ get_quad_chef_elements(Lattice_elements const& lattice_elements,
     return retval;
 }
 
-struct Adjust_tune_params
+struct Adjust_tunes_params
 {
     double h_nu_target, v_nu_target;
     Chef_elements h_elements, v_elements;
@@ -1324,7 +1324,7 @@ struct Adjust_tune_params
     bool h_relative, v_relative;
     std::vector<double > h_original_strengths, v_original_strengths;
     double h_param, v_param;
-    Adjust_tune_params(double horizontal_tune, double vertical_tune,
+    Adjust_tunes_params(double horizontal_tune, double vertical_tune,
             Lattice_elements const& horizontal_correctors,
             Lattice_elements const& vertical_correctors,
             Chef_lattice & chef_lattice, BmlContextPtr beamline_context_sptr) :
@@ -1354,7 +1354,7 @@ struct Adjust_tune_params
 int
 adjust_tune_function(const gsl_vector * x, void * params, gsl_vector * f)
 {
-    Adjust_tune_params atparams(*static_cast<Adjust_tune_params * >(params));
+    Adjust_tunes_params atparams(*static_cast<Adjust_tunes_params * >(params));
     double h_param = gsl_vector_get(x, 0);
     int i = 0;
     for (Chef_elements::iterator it = atparams.h_elements.begin();
@@ -1398,7 +1398,7 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
 {
     get_beamline_context();
 
-    Adjust_tune_params atparams(horizontal_tune, vertical_tune,
+    Adjust_tunes_params atparams(horizontal_tune, vertical_tune,
             horizontal_correctors, vertical_correctors, *chef_lattice_sptr,
             beamline_context_sptr);
     const size_t n = 2;
