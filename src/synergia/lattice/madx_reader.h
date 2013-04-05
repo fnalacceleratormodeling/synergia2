@@ -20,6 +20,10 @@ public:
     parse_file(std::string const& filename);
     std::vector<std::string >
     get_line_names() const;
+    std::vector<std::string >
+    get_sequence_names() const;
+    std::vector<std::string >
+    get_all_names() const;
     double
     get_double_variable(std::string const& name) const;
     std::string
