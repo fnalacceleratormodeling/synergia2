@@ -9,7 +9,6 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture)
 const double tolerance = 1.0e-12;
 const int map_order = 2;
 
-#if 0
 BOOST_FIXTURE_TEST_CASE(construct, Lattice_fixture)
 {
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
@@ -240,8 +239,6 @@ BOOST_FIXTURE_TEST_CASE(get_tunes, Fobodobo_sbend_fixture)
     BOOST_CHECK_CLOSE(the_tunes.second, expected_vertical_tune, tolerance);
 }
 
-#endif
-
 BOOST_FIXTURE_TEST_CASE(adjust_tunes, Fobodobo_sbend_fixture)
 {
     const int map_order = 1;
@@ -270,7 +267,6 @@ BOOST_FIXTURE_TEST_CASE(adjust_tunes, Fobodobo_sbend_fixture)
             std::abs(lattice_simulator.get_vertical_tune() - new_vertical_tune) < tolerance);
 }
 
-#if 0
 BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map, Foborodobo32_fixture)
 {
     const int map_order = 1;
@@ -560,4 +556,3 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture)
 //    Lattice_simulator loaded;
 //    xml_load(loaded, "lattice_simulator2.xml");
 //}
-#endif
