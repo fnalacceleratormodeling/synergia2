@@ -176,42 +176,27 @@ MadX_reader::get_lattice_sptr(std::string const& line_name)
             if (name == "") {
                 name = sequence.element(i, true).label();
             }
-            std::string type(sequence.element(i, true).name());
+            MadX_command cmd = sequence.element(i, true);
+            std::string type(cmd.name());
             Lattice_element element(type, name);
-            std::vector<string_t > attribute_names(
-                    sequence.element(i, true).attribute_names());
+            std::vector<string_t > attribute_names( cmd.attribute_names() );
             for (std::vector<string_t >::iterator it = attribute_names.begin();
                     it != attribute_names.end(); ++it) {
-                bool done(false);
-                try {
-                    element.set_vector_attribute(*it,
-                            sequence.element(i, true).attribute_as_number_seq(
-                                    *it));
-                    done = true;
-                }
-                catch (std::runtime_error) {
-                }
-                if (!done) {
-                    try {
-                        element.set_double_attribute(*it,
-                                sequence.element(i, true).attribute_as_number(
-                                        *it));
-                        done = true;
-                    }
-                    catch (std::runtime_error) {
-                    }
-                }
-                if (!done) {
-                    try {
-                        element.set_string_attribute(*it,
-                                sequence.element(i, true).attribute_as_string(
-                                        *it));
-                        done = true;
-                    }
-                    catch (std::runtime_error) {
-                    }
-                }
-                if (!done) {
+
+                MadX_value_type vt = cmd.attribute_type(*it);
+
+                switch( vt ) {
+                  case NONE:
+                  case STRING:
+                    element.set_string_attribute(*it, cmd.attribute_as_string(*it));
+                    break;
+                  case NUMBER:
+                    element.set_double_attribute(*it, cmd.attribute_as_number(*it));
+                    break;
+                  case ARRAY:
+                    element.set_vector_attribute(*it, cmd.attribute_as_number_seq(*it));
+                    break;
+                  default:
                     throw std::runtime_error(
                             "unable to process attribute " + *it
                                     + " of element " + name);

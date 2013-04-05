@@ -6,6 +6,8 @@
 #include <stdexcept>
 #include <cassert>
 
+#include <boost/algorithm/string.hpp>
+
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/foundation/four_momentum.h"
 
@@ -14,6 +16,7 @@ using namespace std;
 
 using boost::any;
 using boost::any_cast;
+using boost::get;
 
 
 // helper
@@ -100,6 +103,8 @@ void mx_attr::set_attr(std::string const & name, boost::any const & val)
   name_ = name;
   value_ = val;
 
+  transform(name_.begin(), name_.end(), name_.begin(), ::tolower);
+
   if( val.type() == typeid(std::string) )
     type_ = MX_ATTR_STRING;
   else if( val.type() == typeid(mx_expr) )
@@ -118,6 +123,8 @@ void mx_attr::set_lazy_attr(std::string const & name, boost::any const & val)
 {
   name_ = name;
   value_ = val;
+
+  transform(name_.begin(), name_.end(), name_.begin(), ::tolower);
 
   if( val.type() == typeid(std::string) )
     type_ = MX_ATTR_STRING;      // strings are immediate
@@ -339,20 +346,58 @@ void mx_command::execute(MadX & mx)
       if( it->name() == "refer" )
       {
         if( it->value().type() == typeid(string) )
-          return;
-
-        if( it->value().type() == typeid(mx_expr) )
         {
-          try {
-            string val = boost::get<string>( any_cast<mx_expr>(it->value()) );
+          // do nothing
+        }
+        else if( it->value().type() == typeid(mx_expr) )
+        {
+          try 
+          {
+            mx_expr ex = any_cast<mx_expr>(it->value());
+            ex = get<nop_t>(get<nop_t>(get<nop_t>(ex).expr).expr).expr;
+            string val = boost::get<string>( ex );
             it->set_attr("refer", val);
-            return;
-          } catch(...) {
-            throw runtime_error("The 'refer' attribute of sequence '" + label_ + "' is not a string");
+          } 
+          catch(...) 
+          {
+            throw runtime_error("The 'refer' attribute of sequence '" 
+                + label_ + "' is not a string");
           }
         }
+        else
+        {
+          throw runtime_error("The 'refer' attribute of sequence '" 
+              + label_ + "' is not a string");
+        }
+      }
 
-        throw runtime_error("The 'refer' attribute of sequence '" + label_ + "' is not a string");
+      if( it->name() == "refpos" )
+      {
+        if( it->value().type() == typeid(string) )
+        {
+          // do nothing
+        }
+        else if( it->value().type() == typeid(mx_expr) )
+        {
+          try 
+          {
+            mx_expr ex = any_cast<mx_expr>(it->value());
+            ex = get<nop_t>(get<nop_t>(get<nop_t>(ex).expr).expr).expr;
+            string val = boost::get<string>( ex );
+            it->set_attr("refpos", val);
+          } 
+          catch(...) 
+          {
+            throw runtime_error("The 'refpos' attribute of sequence '" 
+                + label_ + "' is not a string");
+          }
+        }
+        else
+        {
+          throw runtime_error("The 'refpos' attribute of sequence '" 
+              + label_ + "' is not a string");
+        }
+ 
       }
     }
   }
