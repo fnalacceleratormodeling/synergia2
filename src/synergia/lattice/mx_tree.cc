@@ -330,6 +330,32 @@ void mx_command::execute(MadX & mx)
     }
     throw runtime_error("Error executing command 'call'");
   } 
+  else if( keyword_ == "sequence" )
+  {
+    // the "refer" attribute is an unquoted string, not a reference
+    for( attrs_t::iterator it = attrs_.begin()
+       ; it != attrs_.end(); ++it )
+    {
+      if( it->name() == "refer" )
+      {
+        if( it->value().type() == typeid(string) )
+          return;
+
+        if( it->value().type() == typeid(mx_expr) )
+        {
+          try {
+            string val = boost::get<string>( any_cast<mx_expr>(it->value()) );
+            it->set_attr("refer", val);
+            return;
+          } catch(...) {
+            throw runtime_error("The 'refer' attribute of sequence '" + label_ + "' is not a string");
+          }
+        }
+
+        throw runtime_error("The 'refer' attribute of sequence '" + label_ + "' is not a string");
+      }
+    }
+  }
   else if( keyword_ == "beam" )
   {
     // beam can always be referenced with 'beam'
