@@ -66,6 +66,12 @@
 ! 2010.07.07  (csp)
 ! * Put 3 rf cavities on sextant10, sextant30, and sextant50
 !
+! 2012        (csp)
+! * two e_septa and a Lambertson magnet form a extraction beamline.
+!
+! 2013.03.21  (csp)
+! * Put 6 additional half tune-quads (tqf)
+!
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 twopi    := 6.28318530718
@@ -127,6 +133,10 @@ hqd2     : quadrupole, l = lSQC_2, k1 = kd2
 hqf3     : quadrupole, l = lSQD_2, k1 = kf3
 hqd3     : quadrupole, l = lSQD_2, k1 = kd3
 
+! Tune quads
+
+tqf      : quadrupole, l = lSQC_2, k1 = 0.0 !kf
+
 ! Chromaticity Sextupoles: 
 !        chromaticities : Cx ~ Cy ~ 0.
 !        d"By/dx" fields:
@@ -166,18 +176,23 @@ l_septum1  := 1.5
 l_septum2  := 1.5
 septum1    : drift, l = l_septum1
 septum2    : drift, l = l_septum2
-!septum1    : marker
-!septum2    : marker
 lambertson : marker
+mpsa1      : marker
+mpsa2      : marker
+
+! RFKO kicker
+rfko_kicker : hkicker, kick = 0.0, l = 1.4
 
 ! Drifts:
 dr14     : drift, l = 3.613159 
+dr15     : drift, l = 0.1524
 dr45     : drift, l = 3.549659 
 dr56     : drift, l = 3.486159 
 dr67     : drift, l = 3.549659 
 drds     : drift, l = 0.922342 
 drb      : drift, l = 1.074740 
-drmt     : drift, l = 2.940109 
+drmt     : drift, l = 2.940109
+drmt_a   : drift, l = (2.940109 - 1.4) / 2.0
 drba     : drift, l = 0.655667 
 drbb     : drift, l = 0.668367 
 drms     : drift, l = 0.079350
@@ -193,6 +208,18 @@ dr56_a   : drift, l = 3.486159/2.0
 dr56_b   : drift, l = 3.486159/2.0
 dr67_a   : drift, l = 3.549659/2.0
 dr67_b   : drift, l = 3.549659/2.0
+
+l0       := 0.0
+l1       := 0.187325 + 0.1524 + l0 !(3.613159 - 2 * lSQC_2) / 2.0
+l2       := 3.613159 - 2 * lSQC_2 - l1
+dr14_utqf: drift, l = l1
+dr14_dtqf: drift, l = l2
+mtqf     : marker
+
+dr14_tune1: line = (dr14_utqf, tqf, mtqf, tqf, dr14_dtqf)
+dr14_tune2: line = (dr14)
+!dr14_tune1: line = (dr14)
+!dr14_tune2: line = (dr14_utqf,  tqf, mtqf, tqf, dr14_dtqf)
 
 ! rf cavities
 lrf	 := 0.0     !0.8382
@@ -211,12 +238,14 @@ drbc_b   : drift, l = (1.074740-lrf)/2.0
 hcfdmt   : line = ( hqf, hbpm, drms, sf, drmt, sd, drsq, hqd )
 hcdfmt   : line = ( hqd, vbpm, drms, sd, drmt, sf, drsq, hqf )
 fmtcell  : line = ( hcfdmt, hcdfmt )
+r1_hcfdmt   : line = ( hqf, hbpm, drms, sf, drmt_a, rfko_kicker, drmt_a, sd, drsq, hqd )
+r1_fmtcell  : line = ( r1_hcfdmt, hcdfmt )
 
-hcfdds    : line = ( hqf,             hbpm, drds, bdb, drb,                 hqd )
-r1_hcfdds : line = ( hqf,             hbpm, drds, bdb, drbc_b, rf1, drbc_a, hqd )
-r3_hcfdds : line = ( hqf,             hbpm, drds, bdb, drbc_b, rf3, drbc_a, hqd )
-r5_hcfdds : line = ( hqf,             hbpm, drds, bdb, drbc_b, rf5, drbc_a, hqd )
-hcdfds    : line = ( hqd,             vbpm, drds, bdb, drbb,   sf,  drsq,   hqf )
+hcfdds    : line = ( hqf, hbpm, drds, bdb, drb,                 hqd )
+r1_hcfdds : line = ( hqf, hbpm, drds, bdb, drbc_b, rf1, drbc_a, hqd )
+r3_hcfdds : line = ( hqf, hbpm, drds, bdb, drbc_b, rf3, drbc_a, hqd )
+r5_hcfdds : line = ( hqf, hbpm, drds, bdb, drbc_b, rf5, drbc_a, hqd )
+hcdfds    : line = ( hqd, vbpm, drds, bdb, drbb,   sf,  drsq,   hqf )
 
 fdscell   : line = (    hcfdds, hcdfds )
 r1_fdscell: line = ( r1_hcfdds, hcdfds )
@@ -236,62 +265,50 @@ dcell    : line = ( hcdf, hcfd )
 
 hcfd1920 : line = ( hqf,hbpm, drms, sf, drba, bdb, drba, sd, drms, vbpm,hqd )
 
-ldr45_b      := 3.549659/2.0/7.0
-dr45_b_1     : drift, l = ldr45_b
-dr45_b_2     : drift, l = ldr45_b
-dr45_b_3     : drift, l = ldr45_b
-dr45_b_4     : drift, l = ldr45_b
-dr45_b_5     : drift, l = ldr45_b
-dr45_b_6     : drift, l = ldr45_b
-dr45_b_7     : drift, l = ldr45_b
-
-dr45_b_6_1   : drift, l = ldr45_b/5.0
-dr45_b_6_2   : drift, l = ldr45_b/5.0
-dr45_b_6_3   : drift, l = ldr45_b/5.0
-dr45_b_6_4   : drift, l = ldr45_b/5.0
-dr45_b_6_5   : drift, l = ldr45_b/5.0
-
 !-----------------------------------------------------------------------------
 
 ! Sextant Components:
 
 !++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-straight60 : line = ( hqf1, hbpm,           dr14,                       hqd1, &
-                      hqd1, vbpm, g2kicker, dr14_a, septum1,    dr14_b, hqf2, &
-                      hqf2, hbpm, septum2,  dr14_c,                     hqd2, &
+septumbml1 : line = ( mpsa1, septum1 )
+septumbml2 : line = ( mpsa2, septum2 )
+
+straight60 : line = ( hqf1, hbpm,           dr14_tune1,                 hqd1, &
+                      hqd1, vbpm, g2kicker, dr14_a, septumbml1, dr14_b, hqf2, &
+                      hqf2, dr15, septum2,  dr14_c,                     hqd2, &
                       hqd2, vbpm,           dr45_a, lambertson, dr45_b, hqf3, &
                       hqf3, hbpm,           dr56,                       hqd3, &
                       hqd3, vbpm,           dr67,                       hqf )
 
-straight50 : line = ( hqf1, hbpm, ddd_50_1, dr14,                       hqd1, &
+straight50 : line = ( hqf1, hbpm, ddd_50_1, dr14_tune2,                 hqd1, &
                       hqd1, vbpm,           dr14,                       hqf2, &
                       hqf2, hbpm, ddd_50_2, dr14,                       hqd2, &
                       hqd2, vbpm,           dr45,                       hqf3, &
                       hqf3, hbpm, ddd_50_3, dr56,                       hqd3, &
                       hqd3, vbpm,           dr67,                       hqf )
 
-straight40 : line = ( hqf1, hbpm,           dr14,                       hqd1, &
+straight40 : line = ( hqf1, hbpm,           dr14_tune1,                 hqd1, &
                       hqd1, vbpm,           dr14,                       hqf2, &
                       hqf2, hbpm,           dr14,                       hqd2, &
                       hqd2, vbpm,           dr45,                       hqf3, &
                       hqf3, hbpm,           dr56,                       hqd3, &
                       hqd3, vbpm,           dr67,                       hqf )
 
-straight30 : line = ( hqf1, hbpm,           dr14,                       hqd1, &
+straight30 : line = ( hqf1, hbpm,           dr14_tune2,                 hqd1, &
                       hqd1, vbpm,           dr14,                       hqf2, &
                       hqf2, hbpm,           dr14,                       hqd2, &
                       hqd2, vbpm,           dr45,                       hqf3, &
                       hqf3, hbpm,           dr56,                       hqd3, &
                       hqd3, vbpm,           dr67,                       hqf )
 
-straight20 : line = ( hqf1, hbpm, ddd_20_1, dr14,                       hqd1, &
+straight20 : line = ( hqf1, hbpm, ddd_20_1, dr14_tune1,                 hqd1, &
                       hqd1, vbpm,           dr14,                       hqf2, &
                       hqf2, hbpm, ddd_20_2, dr14,                       hqd2, &
                       hqd2, vbpm,           dr45,                       hqf3, &
                       hqf3, hbpm, ddd_20_3, dr56,                       hqd3, &
                       hqd3, vbpm,           dr67,                       hqf )
 
-straight10 : line = ( hqf1, hbpm,           dr14,                       hqd1, &
+straight10 : line = ( hqf1, hbpm,           dr14_tune2,                 hqd1, &
                       hqd1, vbpm,           dr14,                       hqf2, &
                       hqf2, hbpm,           dr14,                       hqd2, &
                       hqd2, vbpm,           dr45,                       hqf3, &
@@ -299,7 +316,8 @@ straight10 : line = ( hqf1, hbpm,           dr14,                       hqd1, &
                       hqd3, vbpm,           dr67,                       hqf )
 
 suppress   : line = (    fdscell, fmtcell )
-r1_suppress: line = ( r1_fdscell, fmtcell )
+!r1_suppress: line = ( r1_fdscell, fmtcell )
+r1_suppress: line = ( r1_fdscell, r1_fmtcell )
 r3_suppress: line = ( r3_fdscell, fmtcell )
 r5_suppress: line = ( r5_fdscell, fmtcell )
 

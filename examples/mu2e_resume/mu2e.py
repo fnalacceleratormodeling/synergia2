@@ -39,6 +39,7 @@ def get_resonance_sum(lattice_simulator, brho):
     delta = nu_x - harmonic / 3.0
 
     if myrank == 0:
+        print
         print "        number of elements           :", num_elements
         print "        nu_x                         :", nu_x
         print "        circumference                :", circumference, "m"
@@ -59,15 +60,15 @@ def get_resonance_sum(lattice_simulator, brho):
                 phase -= 2.0 * numpy.pi
             while phase <= - numpy.pi:
                 phase += 2.0 * numpy.pi
-            #if myrank == 0:
-            #    print
-            #    print "        index                        :", index
-            #    print "        type                         :", 
-            #    print element.get_type()
-            #    print "        name                         :", 
-            #    print element.get_name()
+            if myrank == 0:
+                print
+                print "        index                        :", index
+                print "        type                         :",
+                print element.get_type()
+                print "        name                         :",
+                print element.get_name()
             #    print "        strength                     :", 
-            #    print element.get_double_attribute("k2l"), "1/m^2"
+            #    print element.get_double_attribute("k2l"), "1/m^3"
             #    print "        strength in chef unit        :",
             #    print element.get_double_attribute("k2l") * brho / 2.0, "T/m"
             #    print "        theta                        :", theta
@@ -77,6 +78,10 @@ def get_resonance_sum(lattice_simulator, brho):
             increment = beta32 * brho \
                     * element.get_double_attribute("k2l") \
                     * (numpy.cos(phase) - numpy.sin(phase) * imaginary_number)
+            phasor = beta32 \
+                    * (numpy.cos(phase) - numpy.sin(phase) * imaginary_number)
+            if myrank == 0:
+                print "        phasor                       :", phasor
             #in debuncher.cc (ext_sim_e.cc)
             #std::complex<double> increment
             #=   std::complex<double>( beta32, 0.0 )
@@ -111,9 +116,9 @@ def map2twiss(csmap):
     if csmap[0,1] < 0.0:
         mu = 2.0 * numpy.pi - mu
 
-    beta = csmap[0,1]/numpy.sin(mu)
-    alpha = asinmu/numpy.sin(mu)
-    tune = mu/(2.0*numpy.pi) 
+    beta = csmap[0,1] / numpy.sin(mu)
+    alpha = asinmu / numpy.sin(mu)
+    tune = mu / (2.0 * numpy.pi)
 
     return (alpha, beta, tune)
 
@@ -130,7 +135,7 @@ def calculate_lattice_settings():
         print "....Set the tune control circuits"
     horizontal_correctors = []
     vertical_correctors = []
-    index = 0 
+    index = 0
     for element in synergia_elements:
         name = element.get_name()
         index += 1
@@ -151,21 +156,21 @@ def calculate_lattice_settings():
         print "....Adjust Tunes"
     tune_tolerance = 1.0e-8
     lattice_simulator.adjust_tunes(bare_tune[0], bare_tune[1], 
-            horizontal_correctors, vertical_correctors, tune_tolerance)
+            horizontal_correctors, vertical_correctors, tune_tolerance, 3)
 
     #   Store initial quad settings for initial tune
     if myrank == 0:
         print
-        print "....Store initial quad settings for initial tune"
+        print "....Store initial quad settings for the initial tune"
     initial_k1 = []
     index = 0
     for element in synergia_elements:
         if element.get_type() == "quadrupole":
-            initial_k1.append(element.get_double_attribute("k1"))     # 1/m
+            initial_k1.append(element.get_double_attribute("k1"))     # 1/m^2
             index += 1
             #if myrank == 0:
             #    print "       ", element.get_name(), initial_k1[index - 1], 
-            #    print "1/m"
+            #    print "1/m^2"
 
     #   Calculate target emittance from invariant emittance
     #   (This is the area of a triangle tangent to a circle.)
@@ -196,12 +201,6 @@ def calculate_lattice_settings():
     if myrank == 0:
         print
         print "....Calculate current value of g"
-        print
-
-    #~for element in synergia_elements:
-    #~    name = element.get_name()
-    #~    type = element.get_type()
-    #~    lattice_function = lattice_simulator.get_lattice_functions(element)
 
     g = numpy.zeros([2], dtype=complex)
     g = get_resonance_sum(lattice_simulator, brho)
@@ -241,7 +240,7 @@ def calculate_lattice_settings():
                 print "            name                     :", 
                 print element.get_name()
                 print "            strength                 :",
-                print new_strength, "1/m^2"
+                print new_strength, "1/m^3"
                 print "            strength in chef unit    :",
                 print old_strength * brho / 2.0,
                 print "->", new_strength * brho / 2.0, "T/m"
@@ -262,6 +261,8 @@ def calculate_lattice_settings():
         print "            g2                       :", g[1]
         print "            s1                       :", s[0]
         print "            s2                       :", s[1]
+        print "            new g1                   :", s[0] * g[0]
+        print "            new g2                   :", s[1] * g[1]
         print "            target_g                 :", numpy.abs(target_g)
         print "            g                        :", numpy.abs(g[0] + g[1])
         print "            target_phase_g           :", target_phase_g
@@ -283,7 +284,7 @@ def calculate_lattice_settings():
                 print "            name                     :", 
                 print element.get_name()
                 print "            strength                 :",
-                print new_strength, "1/m^2"
+                print new_strength, "1/m^3"
                 print "            strength in chef unit    :",
                 print old_strength * brho / 2.0,
                 print "->", new_strength * brho / 2.0, "T/m"
@@ -291,6 +292,15 @@ def calculate_lattice_settings():
                 print new_strength * brho, "T/m"
     g[0] *= s[0]
     g[1] *= s[1]
+
+    gnew = get_resonance_sum(lattice_simulator, brho)
+    if myrank == 0:
+        print
+        print "........Verifying g"
+        print "            target g                 :", target_g,
+        print numpy.abs(target_g)
+        print "            new g                    :", gnew[0] + gnew[1],
+        print numpy.abs(gnew[0] + gnew[1])
 
     #   Store final settings of harmonic sextupole circuits
     final_k2l = []
@@ -301,7 +311,7 @@ def calculate_lattice_settings():
     for element in synergia_elements:
         if element.get_type() == "multipole":
             strength = element.get_double_attribute("k2l")
-            final_k2l.append(strength)        # 1/m^2
+            final_k2l.append(strength)        # 1/m^3
             index += 1
             if myrank == 0:
                 print
@@ -310,18 +320,101 @@ def calculate_lattice_settings():
                 print "            name                     :", 
                 print element.get_name()
                 print "            strength (k2l)           :", 
-                print final_k2l[index-1], "1/m^2"
+                print final_k2l[index-1], "1/m^3"
                 print "                                     : B''l =",
                 print strength * brho, "T/m"
 
-    #   Set resonant tune
+    #   Set up the resonant tune and control circuits
     if myrank == 0:
         print
-        print "....Set resonant tune"
-    lattice_simulator.adjust_tunes(resonant_tune, bare_tune[1], 
+        print "....Set the resonant tune and control circuits"
+        print
+        print "....Adjust tune with the resonant tune control circuits"
+    fractional_tune = resonant_tune - int(resonant_tune)
+    lattice_simulator.update()
+    nu_h, nu_v = lattice_simulator.get_both_tunes()
+    delta_nu_h = nu_h - fractional_tune
+    delta_nu_v = nu_v - (bare_tune[1] - int(bare_tune[1]))
+#    if myrank == 0:
+#        print
+#        print "        Initial tunes: horizontal    :", nu_h
+#        print "                       vertical      :", nu_v
+#        print "        Final tunes: horizontal      :", fractional_tune
+#        print "                     vertical        :", nu_v
+#
+#    step = 0
+#    #in_tolerance = numpy.sqrt(delta_nu_h**2.0 + delta_nu_v**2.0) < tune_tolerance
+#    in_tolerance = numpy.abs(delta_nu_h) < tune_tolerance
+#    while ((not in_tolerance) and step < 20):
+#        if myrank == 0:
+#            print
+#            print "        Step", step
+#            print "        Step tunes: horizontal:", nu_h, "error", delta_nu_h
+#            print "                    vertical  :", nu_v, "error", delta_nu_v
+#        step += 1
+#        beta_x = []
+#        for element in synergia_elements:
+#            if element.get_name() == "mtqf":
+#                bx = lattice_simulator.get_lattice_functions(element).beta_x
+#                beta_x.append(bx)
+#                beta_x.append(bx)
+#        index = 0
+#        for element in synergia_elements:
+#            name = element.get_name()
+#            if name == "tqf":
+#                length = element.get_length()
+#                #bx = lattice_simulator.get_lattice_functions(element).beta_x
+#                bx = beta_x[index]
+#                old_k1 = element.get_double_attribute("k1")
+#                delta_k1 = - 4.0 * numpy.pi * delta_nu_h / (bx * length) / 6.0
+#                new_k1 = old_k1 + delta_k1
+#                element.set_double_attribute("k1", new_k1)
+#                index += 1
+#                if myrank == 0:
+#                    print
+#                    print "            type                     :",
+#                    print element.get_type()
+#                    print "            name                     :", name
+#                    print "            beta_x                   :",
+#                    print beta_x[index - 1], "m"
+#                    print "            delta_nu_h               :", delta_nu_h
+#                    print "            old_k1                   :",
+#                    print old_k1, "1/m^2"
+#                    print "                                     : B'l =",
+#                    print old_k1 * brho * length, "T"
+#                    print "            new_k1                   :",
+#                    print new_k1, "1/m^2"
+#                    print "                                     : B'l =",
+#                    print new_k1 * brho * length, "T"
+#                    print "            N|B'l|                   :",
+#                    print 6.0 * new_k1 * brho * length, "T"
+#                    print "            deltak_k1                :", delta_k1
+#        lattice_simulator.update()
+#        nu_h, nu_v = lattice_simulator.get_both_tunes()
+#        delta_nu_h = nu_h - fractional_tune
+#        delta_nu_v = nu_v - (bare_tune[1] - int(bare_tune[1]))
+#        #in_tolerance = numpy.sqrt(delta_nu_h**2.0 + delta_nu_v**2.0) < tune_tolerance
+#        in_tolerance = numpy.abs(delta_nu_h) < tune_tolerance
+#
+#    if (not in_tolerance):
+#        if myrank == 0:
+#            print
+#            print "Error, did not meet final tolerance within 20 steps"
+#        sys.exit(1)
+    # csp: the following method does not work for adjusting tune with
+    # the resonant tune control circuits (3 quads)
+    horizontal_correctors = []
+    vertical_correctors = []
+    index = 0
+    for element in synergia_elements:
+        name = element.get_name()
+        index += 1
+        if name == "tqf":
+            horizontal_correctors.append(element)
+    lattice_simulator.adjust_tunes(resonant_tune, bare_tune[1],
             horizontal_correctors, vertical_correctors, tune_tolerance)
 
-    #   Store final quad settings for resonant tune
+    #   Store final quad settings for the resonant tune
     if myrank == 0:
         print
         print "....Store final quad settings for resonant tune"
@@ -329,11 +422,11 @@ def calculate_lattice_settings():
     index = 0
     for element in synergia_elements:
         if element.get_type() == "quadrupole":
-            final_k1.append(element.get_double_attribute("k1"))         # 1/m
+            final_k1.append(element.get_double_attribute("k1"))         # 1/m^2
             index += 1
             #if myrank == 0:
             #    print "       ", element.get_name(), final_k1[index - 1], 
-            #    print "1/m"
+            #    print "1/m^2"
 
     #   Testing with final conditions
     if myrank == 0:
@@ -352,8 +445,7 @@ def calculate_lattice_settings():
         print "        One Turn Map                 :"
         print numpy.array2string(map_final, max_line_width=200, precision=3)
 
-    nu_h = lattice_simulator.get_horizontal_tune()
-    nu_v = lattice_simulator.get_vertical_tune()
+    nu_h, nu_v = lattice_simulator.get_both_tunes()
     fractional_tune = resonant_tune - int(resonant_tune)
     if myrank == 0:
         print
@@ -366,9 +458,9 @@ def calculate_lattice_settings():
         print
         print "....Saving final lattice configurations"
 
-    final_setting = ("/data/cspark/results/mu2e/%s/final_setting_tunes_%g_%g_phase_%g_4.xml" % (latt_dir, opts.tuneh, opts.tunev, opts.phase_g))
-    synergia.lattice.xml_save_lattice(lattice_simulator.get_lattice(), 
-            final_setting)
+    final_setting = ("/data/cspark/results/mu2e/%s/final_setting_tunes_%g_%g.xml" % (latt_dir, opts.tuneh, opts.tunev))
+#    synergia.lattice.xml_save_lattice(lattice_simulator.get_lattice(),
+#            final_setting)
 
     #   Testing with initial conditions
     if myrank == 0:
@@ -386,8 +478,7 @@ def calculate_lattice_settings():
         print "        qi                           :", qi
         print "        One Turn Map                 :"
         print numpy.array2string(map_initial, max_line_width=200, precision=3)
-    nu_h = lattice_simulator.get_horizontal_tune()
-    nu_v = lattice_simulator.get_vertical_tune()
+    nu_h, nu_v = lattice_simulator.get_both_tunes()
     fractional_tune = resonant_tune - int(resonant_tune)
     if myrank == 0:
         print
@@ -400,17 +491,18 @@ def calculate_lattice_settings():
         print
         print "....Saving initial lattice configuations"
 
-    initial_setting = ("/data/cspark/results/mu2e/%s/initial_setting_tunes_%g_%g_phase_%g_4.xml" % (latt_dir, opts.tuneh, opts.tunev, opts.phase_g))
-    synergia.lattice.xml_save_lattice(lattice_simulator.get_lattice(),
-            initial_setting)
+    initial_setting = ("/data/cspark/results/mu2e/%s/initial_setting_tunes_%g_%g.xml" % (latt_dir, opts.tuneh, opts.tunev))
+#    synergia.lattice.xml_save_lattice(lattice_simulator.get_lattice(),
+#            initial_setting)
 
+    sys.exit(1)
     return (initial_k1, final_k1, final_k2l)
 
 ###############################################################################
 #   load pre-calculated lattice settings for third integer resonant extraction
 ###############################################################################
 def load_lattice_settings():
-    initial_setting = ("/data/cspark/results/mu2e/%s/initial_setting_tunes_%g_%g_phase_%g_4.xml" % (latt_dir, opts.tuneh, opts.tunev, opts.phase_g))
+    initial_setting = ("/data/cspark/results/mu2e/%s/initial_setting_tunes_%g_%g.xml" % (latt_dir, opts.tuneh, opts.tunev))
     initial_synergia_lattice = synergia.lattice.Lattice()
     synergia.lattice.xml_load_lattice(initial_synergia_lattice, initial_setting)
     initial_synergia_elements = initial_synergia_lattice.get_elements()
@@ -422,33 +514,33 @@ def load_lattice_settings():
     index = 0
     for element in initial_synergia_elements:
         if element.get_type() == "quadrupole":
-            initial_k1.append(element.get_double_attribute("k1"))       # 1/m
+            initial_k1.append(element.get_double_attribute("k1"))       # 1/m^2
             index += 1
             #if myrank == 0:
             #    print "       ", element.get_name(), initial_k1[index - 1], 
-            #    print "1/m"
+            #    print "1/m^2"
 
-    final_setting = ("/data/cspark/results/mu2e/%s/final_setting_tunes_%g_%g_phase_%g_4.xml" % (latt_dir, opts.tuneh, opts.tunev, opts.phase_g))
+    final_setting = ("/data/cspark/results/mu2e/%s/final_setting_tunes_%g_%g.xml" % (latt_dir, opts.tuneh, opts.tunev))
     final_synergia_lattice = synergia.lattice.Lattice()
     synergia.lattice.xml_load_lattice(final_synergia_lattice, final_setting)
     final_synergia_elements = final_synergia_lattice.get_elements()
     #   Load final magnet settings
     if myrank == 0:
         print
-        print "....Load final quad settings"
+        print "....Load final quad and sextupole settings"
     final_k1 = []
     final_k2l = []
     index = 0
     index2 = 0
     for element in final_synergia_elements:
         if element.get_type() == "quadrupole":
-            final_k1.append(element.get_double_attribute("k1"))         # 1/m
+            final_k1.append(element.get_double_attribute("k1"))         # 1/m^2
             index += 1
             #if myrank == 0:
             #    print "       ", element.get_name(), final_k1[index - 1], 
-            #    print "1/m"
+            #    print "1/m^2"
         if element.get_type() == "multipole":
-            final_k2l.append(element.get_double_attribute("k2l"))       # 1/m^2
+            final_k2l.append(element.get_double_attribute("k2l"))       # 1/m^3
             index2 += 1
             if myrank == 0:
                 print
@@ -457,7 +549,7 @@ def load_lattice_settings():
                 print "            name                     :",
                 print element.get_name()
                 print "            strength (k2l)           :",
-                print final_k2l[index2-1], "1/m^2"
+                print final_k2l[index2-1], "1/m^3"
                 print "                                     : B''l =",
                 print final_k2l[index2-1] * brho, "T/m"
 
@@ -561,6 +653,9 @@ z_offset = opts.z_offset
 
 kick = opts.kick
 wire_x = opts.wire_x
+wire_x_exit = opts.wire_x_exit
+wire2_x = opts.wire2_x
+wire2_x_exit = opts.wire2_x_exit
 wire_width = opts.wire_width
 gap = opts.gap
 septum_voltage = opts.septum_voltage
@@ -583,15 +678,18 @@ if myrank == 0:
     print "    bunch length                     :", bunchlen_sec * 1e9, "nsec"
     print "    starting horizontal tune         :", opts.tuneh
     print "    starting vertical tune           :", opts.tunev
-    print "    Radius aperture                  :", radius, "m"
+    print "    aperture radius                  :", radius, "m"
     print "    RF Voltage                       :", rf_voltage, "MV"
     print "    X offset                         :", x_offset
     print "    Y offset                         :", y_offset
     print "    Z_offset                         :", z_offset
-    print "    Septum kick strength (mrad)      :", kick * 1e3
-    print "    Septum wire position (cm)        :", wire_x * 1e2
-    print "    Septum wire width (um)           :", wire_width * 1e6
-    print "    Septum wire gap (cm)             :", gap * 1e2
+    #print "    Septum kick strength (mrad)      :", kick * 1e3
+    print "    Septum1 wire position (cm)       :", wire_x * 1e2
+    print "    Septum1 wire width (um)          :", wire_width * 1e6
+    print "    Septum1 wire gap (cm)            :", gap * 1e2
+    print "    Septum2 wire position (cm)       :", wire2_x * 1e2
+    print "    Septum2 wire width (um)          :", wire_width * 1e6
+    print "    Septum2 wire gap (cm)            :", gap * 1e2
     print "    Space Charge                     :",
     if solver == "2d" or solver == "2D" or solver == "3d" or solver == "3D":
         print "ON"
@@ -636,7 +734,7 @@ synergia_lattice = synergia.lattice.Lattice()
 #   Element setup: apertures, septum, and lambertson
 if myrank == 0:
     print
-    print "Initial Element Setup"
+    print "Initial Element Set-Ups"
 
 np1 = 4
 np2 = 10
@@ -646,19 +744,21 @@ total_np = (2*np1+np2-1)*4+4
 pamr2 = numpy.min(u*u+v*v)
 
 # Options for extractor type: "chef_propagate", "chef_map", or "chef_mixed"
+septum1_length = 1.5
+septum2_length = 1.5
 for element in orig_elements:
     name = element.get_name()
     type = element.get_type()
     if type == "quadrupole":
         element.set_string_attribute("extractor_type", "chef_map")
-        element.set_string_attribute("aperture_type","polygon")
+        element.set_string_attribute("aperture_type", "polygon")
         element.set_double_attribute("the_number_of_vertices", total_np)
         element.set_double_attribute("min_radius2", pamr2)
         for i in range(0, total_np):
             element.set_double_attribute("pax%d" % (i+1), u[i])
             element.set_double_attribute("pay%d" % (i+1), v[i])
         synergia_lattice.append(element)
-    elif name == "septum1":
+    elif name == "septum3":
         # generate new element for e_septum
         septum = synergia.lattice.Lattice_element("e_septum", name)
         # extractor type: e_septum must use Chef_propatator
@@ -667,20 +767,28 @@ for element in orig_elements:
         septum.set_string_attribute("aperture_type", "wire_elliptical")
         septum.set_double_attribute("wire_elliptical_aperture_horizontal_radius", radius)
         septum.set_double_attribute("wire_elliptical_aperture_vertical_radius", radius)
-        septum.set_double_attribute("wire_elliptical_aperture_wire_x", -wire_x)
+        septum.set_double_attribute("wire_elliptical_aperture_wire_x", wire_x)
         septum.set_double_attribute("wire_elliptical_aperture_wire_width", wire_width)
         septum.set_double_attribute("wire_elliptical_aperture_gap", gap)
         # settings for e_septum wire and kick
         septum.set_double_attribute("l", element.get_length())
         septum.set_double_attribute("voltage", septum_voltage)
         septum.set_double_attribute("gap", gap)
-        septum.set_double_attribute("wire_position", wire_x)
+        septum.set_double_attribute("wire_x", wire_x)
+        septum.set_double_attribute("wire_x_exit", wire_x_exit)
+        element_rotation_angle = numpy.arctan2(wire_x_exit - wire_x, element.get_length())
+        if myrank == 0:
+            print "    wire1 aperture offset angle      :",
+            print element_rotation_angle
+        septum.set_double_attribute("element_rotation_angle", element_rotation_angle)
         septum.set_double_attribute("wire_width", wire_width)
-        septum.set_double_attribute("positive_strength", 0.0)
-        septum.set_double_attribute("negative_strength", kick)
+        if element.get_length() == 0.0:
+            septum.set_double_attribute("positive_strength", 0.0)
+            septum.set_double_attribute("negative_strength", kick)
+        # force_diagnostics
         septum.set_string_attribute("force_diagnostics", "false")
         synergia_lattice.append(septum)
-    elif name == "septum2":
+    elif name == "septum4":
         # generate new element for e_septum
         septum = synergia.lattice.Lattice_element("e_septum", name)
         # extractor type: e_septum must use Chef_propatator
@@ -689,47 +797,75 @@ for element in orig_elements:
         septum.set_string_attribute("aperture_type", "wire_elliptical")
         septum.set_double_attribute("wire_elliptical_aperture_horizontal_radius", radius)
         septum.set_double_attribute("wire_elliptical_aperture_vertical_radius", radius)
-        septum.set_double_attribute("wire_elliptical_aperture_wire_x", -wire_x)
+        septum.set_double_attribute("wire_elliptical_aperture_wire_x", wire2_x)
         septum.set_double_attribute("wire_elliptical_aperture_wire_width", wire_width)
         septum.set_double_attribute("wire_elliptical_aperture_gap", gap)
         # settings for e_septum wire and kick
         septum.set_double_attribute("l", element.get_length())
         septum.set_double_attribute("voltage", septum_voltage)
         septum.set_double_attribute("gap", gap)
-        septum.set_double_attribute("wire_position", wire_x)
+        septum.set_double_attribute("wire_x", wire2_x)
+        septum.set_double_attribute("wire_x_exit", wire2_x_exit)
+        element_rotation_angle = numpy.arctan2(wire2_x_exit - wire2_x, element.get_length())
+        if myrank == 0:
+            print "    wire2 aperture offset angle      :",
+            print element_rotation_angle
+        septum.set_double_attribute("element_rotation_angle", element_rotation_angle)
         septum.set_double_attribute("wire_width", wire_width)
-        septum.set_double_attribute("positive_strength", 0.0)
-        septum.set_double_attribute("negative_strength", kick)
+        if element.get_length() == 0.0:
+            septum.set_double_attribute("positive_strength", 0.0)
+            septum.set_double_attribute("negative_strength", kick)
+        # force_diagnostics
         septum.set_string_attribute("force_diagnostics", "false")
         synergia_lattice.append(septum)
-    elif name == "lambertson":
+    elif name == "mpsa1":
+        # phasespace aperture
+        element.set_string_attribute("extractor_type", "chef_propagate")
+        element.set_string_attribute("aperture_type", "phasespace")
+        element.set_double_attribute("phasespace_aperture_emittance_x", opts.aperture_emittance)
+        element.set_double_attribute("phasespace_aperture_alpha_x", -1.93062520)
+        element.set_double_attribute("phasespace_aperture_beta_x", 15.5683713795)
+        element.set_double_attribute("phasespace_aperture_emittance_y", opts.aperture_emittance)
+        element.set_double_attribute("phasespace_aperture_alpha_y", 2.14444065)
+        element.set_double_attribute("phasespace_aperture_beta_y", 17.75815613)
+        angle = numpy.arctan2(wire_x_exit - wire_x, septum1_length)
+        if myrank == 0:
+            print "    phasespace aperture offset angle :", angle
+        element.set_double_attribute("phasespace_rotation_angle", angle)
+        synergia_lattice.append(element)
+    elif name == "lambertson3":
         # generate new element for lambertson
         lambertson = synergia.lattice.Lattice_element("lambertson", name)
         # extractor type: lambertson must use Chef_propatator
         lambertson.set_string_attribute("extractor_type", "chef_propagate")
         # aperture type: lambertson uses lambertson_aprture
         lambertson.set_string_attribute("aperture_type", "lambertson")
-        lambertson.set_double_attribute("lambertson_aperture_radius", -wire_x-0.004)
+        lambertson.set_double_attribute("lambertson_aperture_radius", wire_x-0.004)
         lambertson.set_string_attribute("force_diagnostics", "false")
         synergia_lattice.append(lambertson)
     elif type == "multipole":
         element.set_string_attribute("extractor_type", "chef_propagate")
-        element.set_string_attribute("aperture_type","circular")
+        element.set_string_attribute("aperture_type", "circular")
         element.set_double_attribute("circular_aperture_radius", radius)
         synergia_lattice.append(element)
     elif type == "sextupole":
         element.set_string_attribute("extractor_type", "chef_propagate")
-        element.set_string_attribute("aperture_type","circular")
+        element.set_string_attribute("aperture_type", "circular")
         element.set_double_attribute("circular_aperture_radius", radius)
         synergia_lattice.append(element)
     elif type == "sbend":
         element.set_string_attribute("extractor_type", "chef_propagate")
-        element.set_string_attribute("aperture_type","circular")
+        element.set_string_attribute("aperture_type", "circular")
+        element.set_double_attribute("circular_aperture_radius", radius)
+        synergia_lattice.append(element)
+    elif name == "rfko_kicker":
+        element.set_string_attribute("extractor_type", "chef_propagate")
+        element.set_string_attribute("aperture_type", "circular")
         element.set_double_attribute("circular_aperture_radius", radius)
         synergia_lattice.append(element)
     else:
         element.set_string_attribute("extractor_type", "chef_propagate")
-        element.set_string_attribute("aperture_type","circular")
+        element.set_string_attribute("aperture_type", "circular")
         element.set_double_attribute("circular_aperture_radius", radius)
         synergia_lattice.append(element)
 
@@ -745,7 +881,7 @@ synergia_lattice.set_reference_particle(orig_lattice.get_reference_particle())
 #    length = element.get_length()
 #    accumulated_length += length
 #    if myrank == 0:
-#        print "%5d %11s %11s %9.5f %5.3f" %(index, name, type, accumulated_length, length)
+#        print "%5d %11s %11s %9.5f %9.5f" %(index, name, type, accumulated_length, length)
 #sys.exit(1)
 
 lattice_length = synergia_lattice.get_length()
@@ -754,9 +890,12 @@ energy = reference_particle.get_total_energy()
 beta = reference_particle.get_beta()
 gamma = reference_particle.get_gamma()
 momentum = reference_particle.get_momentum()
-brho = momentum / (synergia.foundation.pconstants.c / 1e9)
+brho = momentum / (synergia.foundation.pconstants.c / 1.0e9)
 bunchlen_m = bunchlen_sec * beta * synergia.foundation.pconstants.c
 
+# emitx is the rms emittance
+# emitx_rms = emitx_95% / 6
+# emitx_rms = emitx^normalized_rms / (beta*gamma)
 emitx /= (beta * gamma) * 6.0
 emity /= (beta * gamma) * 6.0
 
@@ -779,7 +918,7 @@ if myrank == 0:
 # set rf cavity frequency (= harmno * beta * c / ring_length)
 if myrank == 0:
     print
-    print "Begin setting RF voltage..."
+    print "RF cavity settings..."
 harmno = 4
 freq = harmno * beta * synergia.foundation.pconstants.c / lattice_length
 for element in synergia_elements:
@@ -800,7 +939,7 @@ if myrank == 0:
     print
     print "Set lattice_simulator"
 
-lattice_simulator = synergia.simulation.Lattice_simulator(synergia_lattice, 
+lattice_simulator = synergia.simulation.Lattice_simulator(synergia_lattice,
                 map_order)
 
 ###############################################################################
@@ -836,8 +975,105 @@ if myrank == 0:
     print "        turns to extract:            :", turns_to_extract
     print "        final turn                   :", num_turns
 
-ramp_actions = Ramp_actions(ramp_turns, turns_to_extract, initial_k1,
-                final_k1, final_k2l)
+#ramp_actions = Ramp_actions(ramp_turns, turns_to_extract, initial_k1,
+#                final_k1, final_k2l)
+
+##############################################################################
+#   rfko kicker
+##############################################################################
+if myrank == 0:
+    print
+    print "Begin setting RFKO kicker"
+rfpower = opts.rfpower
+lkicker = opts.lkicker
+rfgap = opts.rfgap
+nsweep = opts.nsweep
+dq = opts.dq
+
+unit_conversion = synergia.foundation.pconstants.c / (1.0e9 * synergia.foundation.pconstants.e)
+k0 = unit_conversion * synergia.foundation.pconstants.e \
+        * numpy.sqrt(8.0 * 50.0 * rfpower) / rfgap \
+        * (lkicker / (synergia.foundation.pconstants.c * beta)) \
+        / momentum #(reference momentum in GeV/c)
+q0 = opts.tuneh - int(opts.tuneh)
+twopi = 2.0 * numpy.pi
+mturns = turns_to_extract - ramp_turns
+rfko_kicker = numpy.zeros([mturns], 'd')
+if opts.rfsignal == "linear":
+    phi_0 = numpy.zeros([mturns], 'd')
+    phi_t = numpy.zeros([mturns], 'd')
+    psi_t = numpy.zeros([mturns], 'd')
+    avg = 0.0
+    for i in range(0, mturns):
+        irunm = i % nsweep
+        if i % nsweep == 0:
+            phi_0[i] = numpy.random.uniform(0.0, twopi)
+        else:
+            phi_0[i] = phi_0[i-1]
+        arg1 = i - int(i / nsweep) * nsweep
+        phi_t[i] = twopi * dq * 0.5 * arg1 * (arg1 / nsweep - 1.0)
+        psi_t[i] = twopi * q0 * i + phi_t[i] + phi_0[i]
+        rfko_kicker[i] = numpy.sin(psi_t[i])
+#        print i, phi_0[i], phi_t[i], psi_t[i], k0 * rfko_kicker[i]
+        avg += rfko_kicker[i] * rfko_kicker[i]
+    rfko_kicker *= k0
+    fft = numpy.abs(numpy.fft.fft(rfko_kicker))
+    freq = numpy.fft.fftfreq(rfko_kicker.size)
+#    for i in range(0, freq.size):
+#        print freq[i], fft[i]
+    if myrank == 0:
+        print "    The linear mudulating RFKO signal is being used"
+        print "    rf Power                         :", rfpower / 1e3, "kW"
+        print "    kicker length                    :", lkicker, "m"
+        print "    kicker gap                       :", rfgap * 1e2, "cm"
+        print "    FM period                        :", int(nsweep), "turn"
+        print "    carrier tune                     :", q0
+        print "    tune bandwidth                   :", dq
+        print "    k0                               :", k0 * 1e6, "urad"
+        print "    average of kicker strength       :", avg / mturns
+elif opts.rfsignal == "white":
+    lfloor = numpy.floor(5.0 / dq)
+    smooth = 1e-6
+    lmax = int(2.0 * lfloor) + 1
+    u_l = numpy.zeros([lmax], 'd')
+    for l in range(0, lmax):
+        arg1 = twopi * dq * (l - lfloor) / 2.0 + smooth
+        u_l[l] = dq * numpy.cos(twopi * q0 * (l - lfloor)) * numpy.sin(arg1) / arg1 
+
+    rdx = numpy.random.uniform(-0.5, 0.5, mturns + lmax)
+    x_ext = numpy.zeros([mturns],'d')
+    power = 0.0
+    for i in range(0, mturns):
+        for l in range(0, lmax):
+            x_ext[i] += u_l[l] * rdx[i+l]
+        power += x_ext[i] * x_ext[i]
+    power /= mturns
+    rfko_kicker = numpy.zeros([mturns], 'd')
+    avg = 0.0
+    for i in range(0, mturns):
+        rfko_kicker[i] = x_ext[i] / numpy.sqrt(2.0 * power)
+#        print i, x_ext[i], rfko_kicker[i]
+        avg += rfko_kicker[i] * rfko_kicker[i]
+    rfko_kicker *= k0
+    fft = numpy.abs(numpy.fft.fft(rfko_kicker))
+    freq = numpy.fft.fftfreq(rfko_kicker.size)
+#    for i in range(0, freq.size):
+#        print freq[i], fft[i]
+    if myrank == 0:
+        print "    The white noise RFKO signal is being used"
+        print "    rf Power                         :", rfpower / 1e3, "kW"
+        print "    kicker length                    :", lkicker, "m"
+        print "    kicker gap                       :", rfgap * 1e2, "cm"
+        print "    carrier tune                     :", q0
+        print "    tune bandwidth                   :", dq
+        print "    k0                               :", k0 * 1e6, "urad"
+        print "    average of kicker strength       :", avg / mturns
+else:
+    if myrank == 0:
+        print "    NO RFKO heating"
+
+ramp_actions = Ramp_actions(ramp_turns, turns_to_extract, initial_k1, final_k1,
+                final_k2l, rfko_kicker)
 
 ###############################################################################
 #   Set initial element strengths for beam matching
@@ -847,15 +1083,13 @@ if myrank == 0:
     print "Set initial element strengths"
     print
     print "....Set initial settings for the Synergia lattice"
-index_q = 0
-index_s = 0
+index = 0
 for element in synergia_elements:
     if element.get_type() == "quadrupole":
-        element.set_double_attribute("k1", initial_k1[index_q])
-        index_q += 1
+        element.set_double_attribute("k1", initial_k1[index])
+        index += 1
     if element.get_type() == "multipole":
-        element.set_double_attribute("k2l", 0.0) #final_k2l[index_s])
-        index_s += 1
+        element.set_double_attribute("k2l", 0.0)
 lattice_simulator.update()
 
 ###############################################################################
@@ -937,6 +1171,37 @@ if myrank == 0:
 
 #Bunch_simulator
 bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
+
+###############################################################################
+#   Initial settings for phasespace apertures
+###############################################################################
+
+for element in synergia_elements:
+    if element.get_name() == "mpsa1":
+        lattice_functions = lattice_simulator.get_lattice_functions(element)
+        ax = lattice_functions.alpha_x
+        bx = lattice_functions.beta_x
+        ay = lattice_functions.alpha_y
+        by = lattice_functions.beta_y
+        ex = opts.aperture_emittance
+        ey = opts.aperture_emittance
+        element.set_double_attribute("phasespace_aperture_emittance_x", ex)
+        element.set_double_attribute("phasespace_aperture_emittance_y", ey)
+        element.set_double_attribute("phasespace_aperture_alpha_x", ax)
+        element.set_double_attribute("phasespace_aperture_beta_x", bx)
+        element.set_double_attribute("phasespace_aperture_alpha_y", ay)
+        element.set_double_attribute("phasespace_aperture_beta_y", by)
+        if myrank == 0:
+            print
+            print "....Phasespace aperture parameters"
+            print "    turn                             :", 0
+            print "    emitx                            :", ex, "mm-mrad"
+            print "    emity                            :", ey, "mm-mrad"
+            print "    alpha_x                          :", ax, "m^{1/2}"
+            print "    alpha_y                          :", ay, "m^{1/2}"
+            print "    beta_x                           :", bx, "m"
+            print "    beta_y                           :", by, "m"
+lattice_simulator.update()
 
 ###############################################################################
 #   Collective operator
