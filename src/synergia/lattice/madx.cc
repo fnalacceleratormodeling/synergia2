@@ -140,6 +140,24 @@ std::vector<string_t>
   return names;
 }
 
+MadX_value_type
+  MadX_command::attribute_type( string_t const & name ) const
+{
+  string_t key(name);
+  std::transform(key.begin(), key.end(), key.begin(), ::tolower);
+
+  value_map_t::const_iterator it = attributes_.find(key);
+  if( it!=attributes_.end() )
+  {
+    return it->second.type;
+  }
+  else
+  {
+    throw std::runtime_error( "MadX_command::attribute_type:"
+        " cannot find attribute with name " + key);
+  }
+}
+
 string_t
   MadX_command::attribute_as_string( string_t const & name ) const
 {

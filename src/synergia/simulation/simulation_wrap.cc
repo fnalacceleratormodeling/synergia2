@@ -176,8 +176,8 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_both_tunes_overloads01,
         Lattice_simulator::get_both_tunes, 0, 1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_chromaticities_overloads46,
 		 Lattice_simulator::adjust_chromaticities, 4, 6)
-BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_tunes_overloads45,
-		 Lattice_simulator::adjust_tunes, 4, 5)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_tunes_overloads46,
+		 Lattice_simulator::adjust_tunes, 4, 6)
 
 
 

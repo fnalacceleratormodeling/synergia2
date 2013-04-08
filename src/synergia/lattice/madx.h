@@ -68,10 +68,13 @@ public:
   size_t   attribute_count() const;
   std::vector<string_t>
            attribute_names() const;
+  MadX_value_type
+           attribute_type(string_t const & name) const;
   string_t attribute_as_string(string_t const & name) const;
   double   attribute_as_number(string_t const & name) const;
   bool     attribute_as_boolean(string_t const & name) const;
-  std::vector<double> attribute_as_number_seq(string_t const & name) const;
+  std::vector<double> 
+           attribute_as_number_seq(string_t const & name) const;
   MadX_command_type type() const;
   bool is_element() const;
   bool is_reference() const;
