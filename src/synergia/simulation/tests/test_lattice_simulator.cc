@@ -338,16 +338,27 @@ BOOST_FIXTURE_TEST_CASE(get_chromaticities, Fobodobo_sbend_fixture)
     const double tolerance = 1.0e-3;
     double chrH = lattice_simulator.get_horizontal_chromaticity();
     double chrV = lattice_simulator.get_vertical_chromaticity();
-    const double expected_horizontal_chromaticity = -2.1483864;
-    const double expected_vertical_chromaticity = -2.142446;
+    const double expected_horizontal_chromaticity = -2.15054;
+    const double expected_vertical_chromaticity = -2.14415;
+    const double expected_slip_factor=0.155889;
+    const double expected_momentum_compaction=0.169645;
     BOOST_CHECK_CLOSE(lattice_simulator.get_horizontal_chromaticity(),
             expected_horizontal_chromaticity, tolerance);
     BOOST_CHECK_CLOSE(lattice_simulator.get_vertical_chromaticity(),
             expected_vertical_chromaticity, tolerance);
-//     std::cout<<"chromaticities (H,V):  ("<< chrH<<" ,  "<<chrV<<")"<<std::endl;
+    BOOST_CHECK_CLOSE(lattice_simulator.get_slip_factor(),
+	    expected_slip_factor,  tolerance);  
+    BOOST_CHECK_CLOSE(lattice_simulator.get_momentum_compaction(),
+		 expected_momentum_compaction, tolerance);     
+	    
+  /*    
+    std::cout<<"chromaticities (H,V):  ("<< chrH<<" ,  "<<chrV<<")"<<std::endl;
+    std::cout<<" slip factor, momentum_compaction="<<lattice_simulator.get_slip_factor()
+    <<"  ,  "<<lattice_simulator.get_momentum_compaction()<<std::endl;*/
 
 }
 
+#if 1
 BOOST_FIXTURE_TEST_CASE(adjust_chromaticities, Fosobodosobo_sbend_fixture)
 {
     const int map_order = 1;
@@ -556,3 +567,4 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture)
 //    Lattice_simulator loaded;
 //    xml_load(loaded, "lattice_simulator2.xml");
 //}
+#endif

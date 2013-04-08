@@ -149,7 +149,7 @@ private:
     calculate_normal_form();
     Normal_form_sage_sptr normal_form_sage_sptr;
     void
-    get_chromaticities();
+    get_chromaticities(double dpp);
 public:
     /// @param lattice_sptr the Lattice
     /// @param map_order order for Chef_map operations
@@ -253,13 +253,13 @@ public:
             Lattice_elements const& vertical_correctors, double tolerance =
                     1.0e-5);
     double
-    get_slip_factor();
+    get_slip_factor(double dpp=1.e-4);
     double
-    get_momentum_compaction();
+    get_momentum_compaction(double dpp=1.e-4);
     double
-    get_horizontal_chromaticity();
+    get_horizontal_chromaticity(double dpp=1.e-4);
     double
-    get_vertical_chromaticity();
+    get_vertical_chromaticity(double dpp=1.e-4);
     void
     adjust_chromaticities(double horizontal_chromaticity,
             double vertical_chromaticity,
