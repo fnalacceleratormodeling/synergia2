@@ -386,7 +386,7 @@ BOOST_PYTHON_MODULE(simulation)
         .def("get_both_tunes", &Lattice_simulator::get_both_tunes,
 	                          get_both_tunes_overloads01())
         .def("adjust_tunes", &Lattice_simulator::adjust_tunes,
-	                           adjust_tunes_overloads45())
+	                           adjust_tunes_overloads46())
         .def("get_horizontal_chromaticity", &Lattice_simulator::get_horizontal_chromaticity,
 	                     get_horizontal_chromaticity_overloads01())
         .def("get_vertical_chromaticity", &Lattice_simulator::get_vertical_chromaticity,
