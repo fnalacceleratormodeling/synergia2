@@ -103,10 +103,11 @@ def search_job_manager_paths(filename):
 def get_default_script_templates_dir():
     return os.path.join(get_synergia_directory(), 'synergia-script-templates')
 
-def add_local_opts():
+def add_local_opts(verbose):
     local_options_path = search_job_manager_paths('local_opts.py')
     if local_options_path:
-        print 'using local options from:', local_options_path
+        if verbose:
+            print 'using local options from:', local_options_path
         sys.path.insert(0, os.path.dirname(local_options_path))
         import local_opts
         sys.path.pop(0)
@@ -123,7 +124,8 @@ def add_local_opts():
                 if object.is_override:
                     job_mgr_opts.override(object)
         if not found_options:
-            print 'warning: no options object(s) found in', local_opts.__file__
+            if verbose:
+                print 'warning: no options object(s) found in', local_opts.__file__
 
 def expand_multiple(arg):
     s = arg.split('=')
@@ -185,7 +187,11 @@ class Job_manager:
         else:
             self.submanagers = []
         self.opts = opts
-        add_local_opts()
+        creating_job = False
+        if len(sys.argv) > 1:
+            if sys.argv[1] == "--strip-options-file":
+                creating_job = True
+        add_local_opts(creating_job)
         self.opts.add_suboptions(job_mgr_opts)
         self.directory = None
         self.subdirectory = "sub%02d" % self.subjob_index
