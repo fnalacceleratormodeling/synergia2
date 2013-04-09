@@ -5,8 +5,11 @@
 namespace pconstants
 {
     const double mp = 0.93827203; // Mass of proton [GeV/c^2]
+    const double proton_mass = 0.93827203; // Mass of proton [GeV/c^2]
     const double me = 0.51099892e-3; // Mass of electron [GeV/c^2]
+    const double electron_mass = 0.51099892e-3; // Mass of electron [GeV/c^2]
     const double mmu = 0.105658369; // Mass of muon [GeV/c^2]
+    const double muon_mass = 0.105658369; // Mass of muon [GeV/c^2]
 
     const double e = 1.6021892e-19; // Charge of proton [C]
 
