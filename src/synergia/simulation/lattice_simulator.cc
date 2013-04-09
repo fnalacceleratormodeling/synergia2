@@ -1386,9 +1386,28 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
     }
 }
 
+void
+calculate_tune_and_cdt(double momentum, double dpp, BmlPtr & beamline_sptr, 
+		       BmlPtr & beamline0_sptr, double & tune_h, double &  tune_v, 
+		       double & c_delta_t)
+{
+	Proton newprobe;
+	newprobe.SetReferenceMomentum(momentum * (1.0 + dpp));
+	newprobe.setStateToZero();
+        beamline_sptr->setEnergy(newprobe.ReferenceEnergy());
+	BeamlineContext probecontext(newprobe, beamline_sptr);           
+        probecontext.handleAsRing();
+	//tune_h = probecontext.getHorizontalFracTune();
+        //tune_v = probecontext.getVerticalFracTune();
+	tune_h  = probecontext.getHorizontalEigenTune();
+        tune_v  = probecontext.getVerticalEigenTune();
+	beamline0_sptr->propagate(newprobe);
+	c_delta_t=newprobe.get_cdt();
+}
+			       
 
 void
-Lattice_simulator::get_chromaticities()
+Lattice_simulator::get_chromaticities(double dpp)
 {
     if (!have_chromaticities) {
 
@@ -1405,85 +1424,54 @@ Lattice_simulator::get_chromaticities()
         double gamma = probe.Gamma();
         double cT0 = beamline_sptr->OrbitLength(probe) / probe.Beta();
 
-        BeamlineContext probecontext(probe, beamline_sptr);
-        probecontext.handleAsRing();
 
-        double hcentral_tune, vcentral_tune;
-        //  hcentral_tune = probecontext.getHorizontalFracTune();
-        //  vcentral_tune = probecontext.getVerticalFracTune();
 
-        hcentral_tune = probecontext.getHorizontalEigenTune();
-        vcentral_tune = probecontext.getVerticalEigenTune();
-        double chromat_H = 0.;
-        double chromat_V = 0.;
-        double slip = 0.;
-        double dppcount = 0.;
-	BmlContextPtr probecontext_sptr;
-        for (double dpp = -0.0005; dpp <= 0.00051; dpp += 0.0002) {
-            // for (double dpp = -0.005; dpp <= 0.0051; dpp+= 0.002) {
-//	    double  dpp= 0.0005;
-            Proton newprobe;
-            newprobe.SetReferenceMomentum(momentum * (1.0 + dpp));
-            newprobe.setStateToZero();
-            beamline_sptr->setEnergy(newprobe.ReferenceEnergy());
-	    probecontext_sptr=BmlContextPtr(new BeamlineContext(newprobe, beamline_sptr));
-	    
-            //BeamlineContext newprobecontext(newprobe, beamline_sptr);
-           // probecontext(newprobe, beamline_sptr);
-            probecontext_sptr->handleAsRing();
-            double newhtune, newvtune;
-            //newhtune = probecontext_sptr->getHorizontalFracTune();
-            // newvtune = probecontext_sptr->getVerticalFracTune();
-            newhtune = probecontext_sptr->getHorizontalEigenTune();
-            newvtune = probecontext_sptr->getVerticalEigenTune();
-            chromat_H += (newhtune - hcentral_tune) / dpp;
-            chromat_V += (newvtune - vcentral_tune) / dpp;
-            probecontext_sptr->getReferenceParticle(newprobe);
-            copy_beamline_sptr->propagate(newprobe);
-            slip += newprobe.get_cdt() / cT0 / dpp;
-            //  std::cout<<"   dpp:   "<<dpp<<"   p="<<momentum * (1.0 + dpp)<<"  beamline energy="<<beamline_sptr->Energy()<<std::endl;
-            // std::cout<<"  tunes: ("<<newhtune<<",  "<< newvtune<<" )"<<std::endl;
-            // std::cout<<" chrom:  ("<<(newhtune - hcentral_tune)/dpp<<",  "<<(newvtune - vcentral_tune)/dpp<<")"<<std::endl;
-            //      std::cout<<" compactfact: "<< newprobe.get_cdt()/cT0/dpp+1./gamma/gamma <<" slip="<<newprobe.get_cdt()/cT0/dpp<<std::endl;
+	
 
-            dppcount += 1.;
-        }
-      
-        horizontal_chromaticity = chromat_H / dppcount;
-        vertical_chromaticity = chromat_V / dppcount;
-        slip_factor = slip / dppcount;
-        momentum_compaction = slip_factor + 1. / gamma / gamma;
-        have_chromaticities = true;
+	double tune_h_plus, tune_h_minus ;
+        double tune_v_plus, tune_v_minus;
+	double c_delta_t_plus, c_delta_t_minus;
+	calculate_tune_and_cdt(momentum, dpp, beamline_sptr, copy_beamline_sptr, 
+			       tune_h_plus,  tune_v_plus, c_delta_t_plus);			       
+	calculate_tune_and_cdt(momentum, -dpp, beamline_sptr, copy_beamline_sptr, 
+			       tune_h_minus,  tune_v_minus, c_delta_t_minus);		       
+			       
+			       
+	horizontal_chromaticity=0.5*(tune_h_plus-tune_h_minus)/dpp;
+	vertical_chromaticity=0.5*(tune_v_plus-tune_v_minus)/dpp;
+	slip_factor =0.5*(c_delta_t_plus-c_delta_t_minus)/cT0 / dpp;
+	momentum_compaction = slip_factor + 1. / gamma / gamma;
+        have_chromaticities = true;	
 
     }
 }
 
 
 double
-Lattice_simulator::get_slip_factor()
+Lattice_simulator::get_slip_factor(double dpp)
 {
-    get_chromaticities();
+    get_chromaticities(dpp);
     return slip_factor;
 }
 
 double
-Lattice_simulator::get_momentum_compaction()
+Lattice_simulator::get_momentum_compaction(double dpp)
 {
-    get_chromaticities();
+    get_chromaticities(dpp);
     return momentum_compaction;
 }
 
 double
-Lattice_simulator::get_horizontal_chromaticity()
+Lattice_simulator::get_horizontal_chromaticity(double dpp)
 {
-    get_chromaticities();
+    get_chromaticities(dpp);
     return horizontal_chromaticity;
 }
 
 double
-Lattice_simulator::get_vertical_chromaticity()
+Lattice_simulator::get_vertical_chromaticity(double dpp)
 {
-    get_chromaticities();
+    get_chromaticities(dpp);
     return vertical_chromaticity;
 }
 
