@@ -149,7 +149,7 @@ BOOST_AUTO_TEST_CASE(get_random)
 BOOST_AUTO_TEST_CASE(fill_uniform_random)
 {
     Commxx commxx;
-    Random_distribution distribution(0, commxx);
+    Random_distribution distribution(test_seed, commxx);
     MArray1d array(boost::extents[array_length]);
     distribution.fill_uniform(array, default_min, default_max);
     verify_uniform_distribution(array, default_min, default_max);
@@ -158,7 +158,7 @@ BOOST_AUTO_TEST_CASE(fill_uniform_random)
 BOOST_AUTO_TEST_CASE(fill_unit_gaussian_random)
 {
     Commxx commxx;
-    Random_distribution distribution(0, commxx);
+    Random_distribution distribution(test_seed, commxx);
     MArray1d array(boost::extents[array_length]);
     distribution.fill_unit_gaussian(array);
     verify_unit_gaussian_distribution(array);
@@ -167,7 +167,7 @@ BOOST_AUTO_TEST_CASE(fill_unit_gaussian_random)
 BOOST_AUTO_TEST_CASE(fill_unit_disk_random)
 {
     Commxx commxx;
-    Random_distribution distribution(0, commxx);
+    Random_distribution distribution(test_seed, commxx);
     MArray1d x_array(boost::extents[array_length]);
     MArray1d y_array(boost::extents[array_length]);
     distribution.fill_unit_disk(x_array, y_array);

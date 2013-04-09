@@ -11,7 +11,7 @@ struct Ellipsoidal_bunch_fixture
     Ellipsoidal_bunch_fixture() :
         four_momentum(mass, total_energy), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
-                total_num, real_num, comm_sptr), distribution(0, *comm_sptr),
+                total_num, real_num, comm_sptr), seed(718281828), distribution(seed, *comm_sptr),
                 grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup ellipsoidal bunch fixture");
@@ -29,7 +29,7 @@ struct Ellipsoidal_bunch_fixture
         covariances[0][0] = stdx * stdx;
         covariances[2][2] = stdy * stdy;
         covariances[4][4] = stdz * stdz;
-        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;;
+        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;
         populate_6d(distribution, bunch, means, covariances);
         grid_shape[0] = 16;
         grid_shape[1] = 24;
@@ -45,6 +45,7 @@ struct Ellipsoidal_bunch_fixture
     Reference_particle reference_particle;
     Commxx_sptr comm_sptr;
     Bunch bunch;
+    unsigned long int seed;
     Random_distribution distribution;
     double stdx, stdy, stdz;
     std::vector<int > grid_shape;
@@ -55,7 +56,7 @@ struct Spherical_bunch_fixture
     Spherical_bunch_fixture() :
         four_momentum(mass, total_energy), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
-                total_num, real_num, comm_sptr), distribution(0, *comm_sptr),
+                total_num, real_num, comm_sptr), seed(718281828), distribution(seed, *comm_sptr),
                 grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup Spherical bunch fixture");
@@ -71,7 +72,7 @@ struct Spherical_bunch_fixture
         covariances[0][0] = sigma * sigma;
         covariances[2][2] = sigma * sigma;
         covariances[4][4] = sigma * sigma;
-        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;;
+        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;
         populate_6d(distribution, bunch, means, covariances);
         grid_shape[0] = 16;
         grid_shape[1] = 24;
@@ -87,6 +88,7 @@ struct Spherical_bunch_fixture
     Reference_particle reference_particle;
     Commxx_sptr comm_sptr;
     Bunch bunch;
+    unsigned long int seed;
     Random_distribution distribution;
     double sigma;
     std::vector<int > grid_shape;
@@ -95,10 +97,13 @@ struct Spherical_bunch_fixture
 struct Spherical_bunch_fixture_2d
 {
     Spherical_bunch_fixture_2d() :
-        four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
-                total_num, real_num, comm_sptr), distribution(0, *comm_sptr),
-                grid_shape(3)
+                    four_momentum(mass, total_energy),
+                    reference_particle(charge, four_momentum),
+                    comm_sptr(new Commxx),
+                    bunch(reference_particle, total_num, real_num, comm_sptr),
+                    seed(718281828),
+                    distribution(seed, *comm_sptr),
+                    grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup Spherical bunch fixture");
         MArray2d covariances(boost::extents[6][6]);
@@ -114,7 +119,7 @@ struct Spherical_bunch_fixture_2d
         covariances[0][0] = sigma * sigma;
         covariances[2][2] = sigma * sigma;
         covariances[4][4] = sigmaz * sigmaz;
-        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;;
+        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;
         populate_6d(distribution, bunch, means, covariances);
         grid_shape[0] = 16;
         grid_shape[1] = 24;
@@ -130,6 +135,7 @@ struct Spherical_bunch_fixture_2d
     Reference_particle reference_particle;
     Commxx_sptr comm_sptr;
     Bunch bunch;
+    unsigned long int seed;
     Random_distribution distribution;
     double sigma, sigmaz;
     std::vector<int > grid_shape;
@@ -140,7 +146,7 @@ struct Cylindrical_bunch_fixture
     Cylindrical_bunch_fixture() :
         four_momentum(mass, total_energy), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
-                total_num, real_num, comm_sptr), distribution(0, *comm_sptr),
+                total_num, real_num, comm_sptr), seed(718281828), distribution(seed, *comm_sptr),
                 grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup Cylindrical bunch fixture");
@@ -156,7 +162,7 @@ struct Cylindrical_bunch_fixture
         covariances[0][0] = sigma * sigma;
         covariances[2][2] = sigma * sigma;
         covariances[4][4] = sigma * sigma * 1000;
-        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;;
+        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;
         populate_6d(distribution, bunch, means, covariances);
         grid_shape[0] = 16;
         grid_shape[1] = 16;
@@ -172,6 +178,7 @@ struct Cylindrical_bunch_fixture
     Reference_particle reference_particle;
     Commxx_sptr comm_sptr;
     Bunch bunch;
+    unsigned long int seed;
     Random_distribution distribution;
     double sigma;
     std::vector<int > grid_shape;
@@ -183,7 +190,10 @@ struct Cylindrical_bunch_fixture_fine
     Cylindrical_bunch_fixture_fine() :
         four_momentum(mass, total_energy), reference_particle(charge,
                 four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
-                fine_num_particles, real_num, comm_sptr), distribution(0, *comm_sptr),
+                fine_num_particles, real_num,
+                            comm_sptr),
+                    seed(718281828),
+                    distribution(seed, *comm_sptr),
                 grid_shape(3)
     {
         BOOST_TEST_MESSAGE("setup Cylindrical bunch fixture");
@@ -199,7 +209,7 @@ struct Cylindrical_bunch_fixture_fine
         covariances[0][0] = sigma * sigma;
         covariances[2][2] = sigma * sigma;
         covariances[4][4] = sigma * sigma;
-        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;;
+        covariances[1][1] = covariances[3][3] = covariances[5][5] = 0.00001;
         populate_6d(distribution, bunch, means, covariances);
         grid_shape[0] = 64;
         grid_shape[1] = 64;
@@ -215,6 +225,7 @@ struct Cylindrical_bunch_fixture_fine
     Reference_particle reference_particle;
     Commxx_sptr comm_sptr;
     Bunch bunch;
+    unsigned long int seed;
     Random_distribution distribution;
     double sigma;
     std::vector<int > grid_shape;

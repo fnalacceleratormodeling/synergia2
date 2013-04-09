@@ -60,11 +60,12 @@ dummy_populate(Bunch &bunch, int offset = 0)
 
 void
 dummy_populate_gaussian(Bunch &bunch, int offset = 0)
-{ 
-  
-   Commxx_sptr comm_sptr(new Commxx); 
-   Random_distribution distribution(0, *comm_sptr);
-             
+{
+
+   Commxx_sptr comm_sptr(new Commxx);
+   unsigned long int seed = 718281828;
+   Random_distribution distribution(seed, *comm_sptr);
+
     MArray2d covariances(boost::extents[6][6]);
     MArray1d means(boost::extents[6]);
     for (int i = 0; i < 6; ++i) {
@@ -74,7 +75,7 @@ dummy_populate_gaussian(Bunch &bunch, int offset = 0)
         }
          covariances[i][i] *= 10.0; // this makes for a positive-definite matrix
     }
- 
+
     for (int i = 0; i < 6; ++i) {
          covariances[1][i] *=0.01;
          covariances[i][1] *=0.01;
@@ -83,10 +84,10 @@ dummy_populate_gaussian(Bunch &bunch, int offset = 0)
          covariances[5][i] *=0.01;
          covariances[i][5] *=0.01;
     }
-                       
+
      populate_6d(distribution, bunch, means, covariances);
-       
-}	
+
+}
 
 struct Bunches_fixture
 {
@@ -103,14 +104,14 @@ struct Bunches_fixture
                             commxxs.at(i)));
             bunches.push_back(
                     bs);
-            dummy_populate(*(bunches.back()));	    
+            dummy_populate(*(bunches.back()));
         }
         Diagnostics_basic_sptr diagnostics_sptr(new Diagnostics_basic("dummy.h5"));
 	Diagnosticss diagnosticss;
 	diagnosticss.push_back(diagnostics_sptr);
 	train_diagnosticss.push_back(diagnosticss);
     }
-  
+
     ~Bunches_fixture()
     {
         BOOST_TEST_MESSAGE("teardown fixture");

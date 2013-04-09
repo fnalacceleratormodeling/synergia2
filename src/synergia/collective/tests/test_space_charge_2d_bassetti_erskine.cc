@@ -65,9 +65,11 @@ simple_populate(Bunch & bunch, Random_distribution & distribution)
 struct Ellipsoidal_bunch_fixture
 {
     Ellipsoidal_bunch_fixture() :
-        four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
-                total_num, real_num, comm_sptr), distribution(0, *comm_sptr)
+                    four_momentum(mass, total_energy),
+                    reference_particle(charge, four_momentum),
+                    comm_sptr(new Commxx),
+                    bunch(reference_particle, total_num, real_num, comm_sptr),
+                    seed(718281828), distribution(seed, *comm_sptr)
     {
         BOOST_TEST_MESSAGE("setup ellipsoidal bunch fixture");
         MArray2d covariances(boost::extents[6][6]);
@@ -97,6 +99,7 @@ struct Ellipsoidal_bunch_fixture
     Reference_particle reference_particle;
     Commxx_sptr comm_sptr;
     Bunch bunch;
+    unsigned long int seed;
     Random_distribution distribution;
     double stdx, stdy, stdz;
 };
@@ -141,9 +144,12 @@ BOOST_FIXTURE_TEST_CASE(apply, Ellipsoidal_bunch_fixture)
 struct Spherical_bunch_fixture
 {
     Spherical_bunch_fixture() :
-        four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
-                total_num, real_num, comm_sptr), distribution(0, *comm_sptr)
+                    four_momentum(mass, total_energy),
+                    reference_particle(charge, four_momentum),
+                    comm_sptr(new Commxx),
+                    bunch(reference_particle, total_num, real_num, comm_sptr),
+                    seed(718281828),
+                    distribution(seed, *comm_sptr)
     {
         BOOST_TEST_MESSAGE("setup Spherical bunch fixture");
         MArray2d covariances(boost::extents[6][6]);
@@ -173,6 +179,7 @@ struct Spherical_bunch_fixture
     Reference_particle reference_particle;
     Commxx_sptr comm_sptr;
     Bunch bunch;
+    unsigned long int seed;
     Random_distribution distribution;
     double sigmax, sigmay, sigmaz;
 };
@@ -187,7 +194,7 @@ BOOST_FIXTURE_TEST_CASE(efield_particles, Spherical_bunch_fixture)
     Space_charge_2d_bassetti_erskine space_charge_bs;
     space_charge_bs.set_sigma(sigin);
     double Q = bunch.get_real_num() * bunch.get_particle_charge()
-            * pconstants::e;
+    * pconstants::e;
 
     for (int component = 0; component < 1; ++component) {
         double max_fractional_error = -2.0;
@@ -205,56 +212,55 @@ BOOST_FIXTURE_TEST_CASE(efield_particles, Spherical_bunch_fixture)
 //                    z = zmin + k * (zmax - zmin) / npoints;
             y = 0, z = 0;
 
-                    double r = std::sqrt(x * x + y * y + z * z);
-                    double var = x;
-                    double efield_exact, efield_calc;
+            double r = std::sqrt(x * x + y * y + z * z);
+            double var = x;
+            double efield_exact, efield_calc;
 
-                    double line_charge_density = Q * exp(-z * z /(2.0
+            double line_charge_density = Q * exp(-z * z /(2.0
                             * sigin[2] * sigin[2])) / (sqrt(2.0
                             * mconstants::pi) * sigin[2]);
-                    if (component == 0) {
-                        var = x;
-                        efield_exact = gaussian_electric_field_component2(Q,
-                                        x, y, z, sigin[0], sigin[1], sigin[2],
-                                        var);
-                        efield_calc = space_charge_bs.normalized_efield(x,y)[0]
-                                / (2.0 * mconstants::pi * pconstants::epsilon0)
-                                * line_charge_density;
-                    } else if (component == 1) {
-                        var = y;
-                        efield_exact = gaussian_electric_field_component2(Q,
-                                        x, y, z, sigin[0], sigin[1], sigin[2],
-                                        var);
-                        efield_calc = space_charge_bs.normalized_efield(x,y)[1]
-                                / (2.0 * mconstants::pi * pconstants::epsilon0)
-                                * line_charge_density;
-                    }
+            if (component == 0) {
+                var = x;
+                efield_exact = gaussian_electric_field_component2(Q,
+                        x, y, z, sigin[0], sigin[1], sigin[2],
+                        var);
+                efield_calc = space_charge_bs.normalized_efield(x,y)[0]
+                / (2.0 * mconstants::pi * pconstants::epsilon0)
+                * line_charge_density;
+            } else if (component == 1) {
+                var = y;
+                efield_exact = gaussian_electric_field_component2(Q,
+                        x, y, z, sigin[0], sigin[1], sigin[2],
+                        var);
+                efield_calc = space_charge_bs.normalized_efield(x,y)[1]
+                / (2.0 * mconstants::pi * pconstants::epsilon0)
+                * line_charge_density;
+            }
 
+            const double tiny = 1.0e-8;
 
-                    const double tiny = 1.0e-8;
-
-                    double fractional_error = (efield_calc - efield_exact)
-                                / efield_exact;
-                    if (fractional_error > max_fractional_error) {
-                        max_fractional_error = fractional_error;
-                    }
-                    if (fractional_error < min_fractional_error) {
-                        min_fractional_error = fractional_error;
-                    }
-                    #if 1
-                    std::cout << x << "  " << y << "  " << z << "  "
-                            << efield_exact << "  "
-                            << efield_calc << "  "
-                            << fractional_error << std::endl;
-                    #endif
+            double fractional_error = (efield_calc - efield_exact)
+            / efield_exact;
+            if (fractional_error > max_fractional_error) {
+                max_fractional_error = fractional_error;
+            }
+            if (fractional_error < min_fractional_error) {
+                min_fractional_error = fractional_error;
+            }
+#if 1
+            std::cout << x << "  " << y << "  " << z << "  "
+            << efield_exact << "  "
+            << efield_calc << "  "
+            << fractional_error << std::endl;
+#endif
 //                }
 //            }
         }
         std::cout << "max_fractional_error = " << max_fractional_error
-                << std::endl;
+        << std::endl;
         std::cout << "min_fractional_error = " << min_fractional_error
-                << std::endl;
-        const double field_tolerance[] = { 2.0, 2.0 };
+        << std::endl;
+        const double field_tolerance[] = {2.0, 2.0};
         BOOST_CHECK(std::abs(max_fractional_error) < field_tolerance[component]);
         BOOST_CHECK(std::abs(min_fractional_error) < field_tolerance[component]);
     }

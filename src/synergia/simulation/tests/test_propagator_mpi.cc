@@ -48,29 +48,5 @@ BOOST_FIXTURE_TEST_CASE(propagate, Lattice_fixture)
          covariances[5][i] *=0.01;
          covariances[i][5] *=0.01;
     }
-    ///*********************************
-//    Bunch_with_diagnostics_train bunch_diag_train(num_bunches, bunch_separation, mcommx);
-//    for (int bunchnum = 0; bunchnum < num_bunches; ++bunchnum) {
-//         if (bunch_diag_train.is_on_this_rank(bunchnum)){
-//            Commxx commx=bunch_diag_train.get_comm(bunchnum);
-//            Bunch_sptr bunch_sptr(new Bunch(reference_particle, total_num,real_num, commx, particle_charge));
-//            Random_distribution distribution(0,commx);
-//            populate_6d(distribution, *bunch_sptr, means, covariances);
-//
-//            Diagnostics_actions_sptr diagnostics_actions_sptr(new Diagnostics_actions);
-//            Bunch_with_diagnostics_sptr bunch_with_diagnostics_sptr(new Bunch_with_diagnostics(bunch_sptr, diagnostics_actions_sptr));
-//
-//            std::string ss =boost::lexical_cast<std::string>(bunchnum);
-//            Diagnostics_sptr step_full2_sptr(new  Diagnostics_full2(bunch_sptr,"full2_per_step_"+ss+".h5"));
-//            Diagnostics_sptr turn_particles_sptr(new  Diagnostics_particles(bunch_sptr,"particles_per_turn_"+ss+".h5"));
-//            bunch_with_diagnostics_sptr->add_per_step_diagnostics(step_full2_sptr);
-//            bunch_with_diagnostics_sptr->add_per_turn_diagnostics(turn_particles_sptr);
-//            bunch_diag_train.set_bunch_diag_sptr(bunchnum, bunch_with_diagnostics_sptr);
-//         }
-//    }
-//
-//    int num_turns = 4;
-//    propagator.propagate(bunch_diag_train, num_turns);
-
  }
 
