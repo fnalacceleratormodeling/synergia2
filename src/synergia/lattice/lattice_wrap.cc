@@ -229,6 +229,8 @@ BOOST_PYTHON_MODULE(lattice)
             .def("get_double_variable", &MadX_reader::get_double_variable)
             .def("get_string_variable", &MadX_reader::get_string_variable)
             .def("get_line_names", &MadX_reader::get_line_names)
+            .def("get_sequence_names", &MadX_reader::get_sequence_names)
+            .def("get_all_names", &MadX_reader::get_all_names)
             .def("get_lattice", get_lattice_sptr1)
             .def("get_lattice", get_lattice_sptr2)
             ;

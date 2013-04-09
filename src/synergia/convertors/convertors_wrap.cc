@@ -56,6 +56,8 @@ BOOST_PYTHON_MODULE(convertors)
 
     to_python_converter<std::list<std::string >,
             container_conversions::to_tuple<std::list<std::string > > > ();
+    to_python_converter<std::vector<std::string >,
+            container_conversions::to_tuple<std::vector<std::string > > > ();
 
     container_conversions::from_python_sequence<std::vector<double >,
             container_conversions::variable_capacity_policy >();

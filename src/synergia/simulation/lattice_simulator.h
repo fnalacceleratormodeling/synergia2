@@ -237,7 +237,7 @@ public:
     Normal_form_sage_sptr
     get_normal_form_sptr();
     Const_MArray2d_ref
-    get_linear_one_turn_map();
+    get_linear_one_turn_map(bool sliced=true);
     void
     convert_human_to_normal(MArray2d_ref coords);
     void

@@ -101,6 +101,26 @@ MadX_reader::get_line_names() const
         throw std::runtime_error(
                 "MadX_reader::get_line_names: nothing has been parsed");
     }
+    return madx_sptr->line_labels();
+}
+
+std::vector<std::string >
+MadX_reader::get_sequence_names() const
+{
+    if (!madx_sptr) {
+        throw std::runtime_error(
+                "MadX_reader::get_sequence_names: nothing has been parsed");
+    }
+    return madx_sptr->sequence_labels();
+}
+
+std::vector<std::string >
+MadX_reader::get_all_names() const
+{
+    if (!madx_sptr) {
+        throw std::runtime_error(
+                "MadX_reader::get_all_names: nothing has been parsed");
+    }
     std::vector < std::string > retval(madx_sptr->line_labels());
     std::vector < std::string > sequence_labels(madx_sptr->sequence_labels());
     for (std::vector<std::string >::const_iterator it = sequence_labels.begin();
@@ -135,7 +155,7 @@ MadX_reader::get_lattice_sptr(std::string const& line_name)
 {
     if (!madx_sptr) {
         throw std::runtime_error(
-                "MadX_reader::get_lattice: nothing has been parsed");
+                "MadX_reader::get_lattice_sptr: nothing has been parsed");
     }
 
     Lattice_sptr lattice_sptr(new Lattice(line_name, element_adaptor_map_sptr));
@@ -155,7 +175,7 @@ MadX_reader::get_lattice_sptr(std::string const& line_name)
             found_sequence = true;
         } else {
             throw std::runtime_error(
-                    "cannot find line with label " + line_name);
+                    "MadX_reader::get_lattice_sptr: cannot find line or sequence with label " + line_name);
         }
     }
     if (found_line) {

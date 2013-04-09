@@ -1045,12 +1045,21 @@ Lattice_simulator::get_stationary_actions(const double stdx, const double stdy,
 // returns the linear one turn map for the lattice and beam parameters
 // for this lattice_simulator
 Const_MArray2d_ref
-Lattice_simulator::get_linear_one_turn_map()
+Lattice_simulator::get_linear_one_turn_map(bool sliced)
 {
 
-    get_beamline_context();
-    MatrixD lin_one_turn_map =
-            beamline_context_sptr->getOneTurnMap().Jacobian();
+    MatrixD lin_one_turn_map;
+    if ((sliced) && (have_slices)) {
+	get_sliced_beamline_context();
+	lin_one_turn_map =
+	    sliced_beamline_context_sptr->getOneTurnMap().Jacobian();
+    }
+    else{
+	get_beamline_context();
+	lin_one_turn_map =
+	    beamline_context_sptr->getOneTurnMap().Jacobian();      
+    }
+		    
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 6; ++j) {
             linear_one_turn_map[i][j] = lin_one_turn_map(get_chef_index(i),

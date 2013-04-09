@@ -142,7 +142,7 @@ class Options:
 
     def _underlined_text(self, text):
         return text + '\n' + ''.ljust(len(text),'-')
-    
+
     def _get_opt_str(self, option):
         opt_str = "%s=" % option
         val_type = self.dict[option].val_type
@@ -186,7 +186,7 @@ class Options:
         if self.dict[option].valid_values:
             desc_str += ", valid values: " + self.dict[option].valid_values
         return desc_str
-    
+
     def usage(self):
         '''Print usage message to stdout'''
         for suboption in self.suboptions:
@@ -200,12 +200,13 @@ class Options:
         for option in all_options:
             opt_strs.append(self._get_opt_str(option))
             desc_strs.append(self._get_desc_str(option))
-        opt_len = max([len(s) for s in opt_strs]) + 1
-        wrapper = textwrap.TextWrapper(subsequent_indent = "".ljust(opt_len))
-        for (opt_str, desc_str) in zip(opt_strs,desc_strs):
-            for line in wrapper.wrap(opt_str.ljust(opt_len) +  desc_str):
-                print line
-        
+        if (len(opt_strs) > 0):
+            opt_len = max([len(s) for s in opt_strs]) + 1
+            wrapper = textwrap.TextWrapper(subsequent_indent = "".ljust(opt_len))
+            for (opt_str, desc_str) in zip(opt_strs,desc_strs):
+                for line in wrapper.wrap(opt_str.ljust(opt_len) +  desc_str):
+                    print line
+
     def parse_argv(self, argv):
         '''Parse command-line arguments from argv'''
         for arg in argv[1:]:
@@ -222,8 +223,10 @@ class Options:
                 self.usage_error(arg)
 
     def usage_error(self, unknown_argument):
-        self.usage()
-        sys.stderr.write("Error: unknown argument \"%s\"\n\n" % unknown_argument)
+        sys.stderr.write("\n" + sys.argv[0] + \
+                         " error: unknown argument \"%s\"\n" % unknown_argument)
+        sys.stderr.write("use " + sys.argv[0] + \
+                         " --help to see list of possible arguments\n")
         sys.exit(1)
 
 class Override:
