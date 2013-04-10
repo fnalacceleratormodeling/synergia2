@@ -1653,7 +1653,7 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
     extract_sextupole_strengths(vertical_correctors, *chef_lattice_sptr);
     update();
 
-    Logger flogger(0, std::string("sextupole_correctors.txt"));
+    Logger flogger(0, "sextupole_correctors.txt", false, true);
     flogger      << "! the sextupole correctors  for the chromaticity (H, V):  ("
                 << chr_h << " ,  " << chr_v << " ) " << std::endl;
     write_sextupole_correctors(horizontal_correctors, vertical_correctors,
@@ -1668,6 +1668,7 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
     logger<<"_________________________________________"<<std::endl;       
     logger << " FINAL CHROMATICITY: (H,V):  ("<< chr_h<<", " <<chr_v<<")"<<std::endl;
     logger<<"_________________________________________"<<std::endl; 
+    logger.flush();
  
 
 }
@@ -1676,7 +1677,7 @@ void
 Lattice_simulator::print_cs_lattice_functions()
 {
     try {
-        Logger flogger(0, std::string("CS_lattice_functions.dat"));
+        Logger flogger(0, "CS_lattice_functions.dat", false, true);
         flogger << "#    element      arc[m]     beta_x[m]      beta_y[m]     alpha_x     alpha_y      "
                     << " psi_x      psi_y       D_x[m]      D_y[m]      Dprime_x     Dprime_y"
                     << std::endl;
@@ -1707,7 +1708,7 @@ void
 Lattice_simulator::print_et_lattice_functions()
 {
     try {
-        Logger flogger(0, std::string("ET_lattice_functions.dat"));
+        Logger flogger(0, "ET_lattice_functions.dat", false, true);
 
         flogger<< "#    element      arc[m]     beta_x[m]      beta_y[m]     alpha_x     alpha_y      "
                     << " phi_x " << std::endl;
@@ -1734,7 +1735,7 @@ void
 Lattice_simulator::print_lb_lattice_functions()
 {
     try {
-        Logger flogger(0, std::string("LB_lattice_functions.dat"));
+        Logger flogger(0, "LB_lattice_functions.dat", false, true);
         flogger << "#    element      arc[m]     beta_1x[m]      beta_1y       beta_2x     beta_2y[m]     "
                 << "     alpha_1x     alpha_1y       alpha_2x     alpha_2y     "
                 << "     u1           u2            u3           u4       nu_1       nu_2"
@@ -1767,7 +1768,7 @@ void
 Lattice_simulator::print_dispersion_closedOrbit()
 {
     try {
-        Logger flogger(0, std::string("Dispersion_CloseOrbit.dat"));
+        Logger flogger(0, "Dispersion_CloseOrbit.dat", false, true);
         flogger << "#    element     arc[m]     dispersion_x[m]     dispersion_y[m] "
                 << "     dPrime_x     dPrime_y      closedOrbit_x[m]     closedOrbit_y[m]"
                 << " closedOrbitP_x     closedOrbitP_y " << std::endl;
