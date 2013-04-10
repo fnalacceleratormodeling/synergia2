@@ -26,10 +26,17 @@ BOOST_AUTO_TEST_CASE(doit1)
     logger.flush();
 }
 
-BOOST_AUTO_TEST_CASE(doit2)
+BOOST_AUTO_TEST_CASE(doit2a)
 {
-    Logger logger(0, std::string("logger-log2"));
-    logger << "doit2" << std::endl;
+    Logger logger(0, std::string("logger-log2a"));
+    logger << "doit2a" << std::endl;
+    logger.flush();
+}
+
+BOOST_AUTO_TEST_CASE(doit2b)
+{
+    Logger logger(0, "logger-log2b");
+    logger << "doit2b" << std::endl;
     logger.flush();
 }
 

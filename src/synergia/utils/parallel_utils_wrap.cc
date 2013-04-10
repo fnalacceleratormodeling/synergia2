@@ -64,6 +64,7 @@ BOOST_PYTHON_MODULE(parallel_utils)
             .def(init<int, bool >())
             .def(init<int, std::string const& >())
             .def(init<int, std::string const&, bool >())
+            .def(init<int, std::string const&, bool, bool >())
             .def(init<std::string const& >())
             .def(init<std::string const&, bool >())
             .def("write", &Logger::write,
