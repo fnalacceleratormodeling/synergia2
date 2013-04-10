@@ -53,19 +53,19 @@ BOOST_AUTO_TEST_CASE(parse_file)
     madx_reader.parse_file("lattices/fodo.madx");
 }
 
-BOOST_AUTO_TEST_CASE(get_line_names)
+BOOST_AUTO_TEST_CASE(get_sequence_names)
 {
     MadX_reader madx_reader;
     madx_reader.parse(get_fodo_bodo());
-    std::vector < std::string > line_names(madx_reader.get_line_names());
-    BOOST_CHECK(line_names.size() == 2);
+    std::vector < std::string > sequence_names(madx_reader.get_sequence_names());
+    BOOST_CHECK(sequence_names.size() == 2);
     int fodo_count = 0;
     int bodo_count = 0;
     for (int i = 0; i < 2; ++i) {
-        if (line_names.at(i) == "fodo") {
+        if (sequence_names.at(i) == "fodo") {
             ++fodo_count;
         }
-        if (line_names.at(i) == "bodo") {
+        if (sequence_names.at(i) == "bodo") {
             ++bodo_count;
         }
     }
