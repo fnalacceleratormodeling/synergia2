@@ -178,6 +178,8 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_chromaticities_overloads46,
 		 Lattice_simulator::adjust_chromaticities, 4, 6)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_tunes_overloads46,
 		 Lattice_simulator::adjust_tunes, 4, 6)
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_linear_one_turn_map_overloads01,
+			Lattice_simulator::get_linear_one_turn_map, 0, 1)       
 
 
 
@@ -398,7 +400,8 @@ BOOST_PYTHON_MODULE(simulation)
         .def("adjust_chromaticities", &Lattice_simulator::adjust_chromaticities,
 	                             adjust_chromaticities_overloads46())
       .def("is_ring", &Lattice_simulator::is_ring)
-      .def("get_linear_one_turn_map", &Lattice_simulator::get_linear_one_turn_map)
+      .def("get_linear_one_turn_map", &Lattice_simulator::get_linear_one_turn_map,
+			    get_linear_one_turn_map_overloads01())
       .def("check_linear_normal_form", &Lattice_simulator::check_linear_normal_form)
       .def("convert_normal_to_human", &Lattice_simulator::convert_normal_to_human)
       .def("convert_human_to_normal", &Lattice_simulator::convert_human_to_normal)
