@@ -28,7 +28,7 @@ BOOST_AUTO_TEST_CASE(doit1)
 
 BOOST_AUTO_TEST_CASE(doit2)
 {
-    Logger logger(0, "logger-log2");
+    Logger logger(0, std::string("logger-log2"));
     logger << "doit2" << std::endl;
     logger.flush();
 }
