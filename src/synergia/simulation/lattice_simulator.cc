@@ -1050,16 +1050,15 @@ Lattice_simulator::get_linear_one_turn_map(bool sliced)
 
     MatrixD lin_one_turn_map;
     if ((sliced) && (have_slices)) {
-	get_sliced_beamline_context();
-	lin_one_turn_map =
-	    sliced_beamline_context_sptr->getOneTurnMap().Jacobian();
+        get_sliced_beamline_context();
+        lin_one_turn_map =
+          sliced_beamline_context_sptr->getOneTurnMap().Jacobian();
     }
     else{
-	get_beamline_context();
-	lin_one_turn_map =
-	    beamline_context_sptr->getOneTurnMap().Jacobian();      
+        get_beamline_context();
+        lin_one_turn_map =
+            beamline_context_sptr->getOneTurnMap().Jacobian();      
     }
-		    
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 6; ++j) {
             linear_one_turn_map[i][j] = lin_one_turn_map(get_chef_index(i),
@@ -1397,23 +1396,23 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
 
 void
 calculate_tune_and_cdt(double momentum, double dpp, BmlPtr & beamline_sptr, 
-		       BmlPtr & beamline0_sptr, double & tune_h, double &  tune_v, 
-		       double & c_delta_t)
+         BmlPtr & beamline0_sptr, double & tune_h, double &  tune_v, 
+           double & c_delta_t)
 {
-	Proton newprobe;
-	newprobe.SetReferenceMomentum(momentum * (1.0 + dpp));
-	newprobe.setStateToZero();
-        beamline_sptr->setEnergy(newprobe.ReferenceEnergy());
-	BeamlineContext probecontext(newprobe, beamline_sptr);           
-        probecontext.handleAsRing();
-	//tune_h = probecontext.getHorizontalFracTune();
-        //tune_v = probecontext.getVerticalFracTune();
-	tune_h  = probecontext.getHorizontalEigenTune();
-        tune_v  = probecontext.getVerticalEigenTune();
-	beamline0_sptr->propagate(newprobe);
-	c_delta_t=newprobe.get_cdt();
+  Proton newprobe;
+  newprobe.SetReferenceMomentum(momentum * (1.0 + dpp));
+  newprobe.setStateToZero();
+  beamline_sptr->setEnergy(newprobe.ReferenceEnergy());
+  BeamlineContext probecontext(newprobe, beamline_sptr);           
+  probecontext.handleAsRing();
+  //tune_h = probecontext.getHorizontalFracTune();
+  //tune_v = probecontext.getVerticalFracTune();
+  tune_h  = probecontext.getHorizontalEigenTune();
+  tune_v  = probecontext.getVerticalEigenTune();
+  beamline0_sptr->propagate(newprobe);
+  c_delta_t=newprobe.get_cdt();
 }
-			       
+
 
 void
 Lattice_simulator::get_chromaticities(double dpp)
@@ -1435,21 +1434,18 @@ Lattice_simulator::get_chromaticities(double dpp)
 
 
 
-	
-
-	double tune_h_plus, tune_h_minus ;
+        double tune_h_plus, tune_h_minus ;
         double tune_v_plus, tune_v_minus;
-	double c_delta_t_plus, c_delta_t_minus;
-	calculate_tune_and_cdt(momentum, dpp, beamline_sptr, copy_beamline_sptr, 
-			       tune_h_plus,  tune_v_plus, c_delta_t_plus);			       
-	calculate_tune_and_cdt(momentum, -dpp, beamline_sptr, copy_beamline_sptr, 
-			       tune_h_minus,  tune_v_minus, c_delta_t_minus);		       
-			       
-			       
-	horizontal_chromaticity=0.5*(tune_h_plus-tune_h_minus)/dpp;
-	vertical_chromaticity=0.5*(tune_v_plus-tune_v_minus)/dpp;
-	slip_factor =0.5*(c_delta_t_plus-c_delta_t_minus)/cT0 / dpp;
-	momentum_compaction = slip_factor + 1. / gamma / gamma;
+        double c_delta_t_plus, c_delta_t_minus;
+        calculate_tune_and_cdt(momentum, dpp, beamline_sptr, copy_beamline_sptr, 
+               tune_h_plus,  tune_v_plus, c_delta_t_plus);
+        calculate_tune_and_cdt(momentum, -dpp, beamline_sptr, copy_beamline_sptr, 
+               tune_h_minus,  tune_v_minus, c_delta_t_minus);		       
+
+        horizontal_chromaticity=0.5*(tune_h_plus-tune_h_minus)/dpp;
+        vertical_chromaticity=0.5*(tune_v_plus-tune_v_minus)/dpp;
+        slip_factor =0.5*(c_delta_t_plus-c_delta_t_minus)/cT0 / dpp;
+        momentum_compaction = slip_factor + 1. / gamma / gamma;
         have_chromaticities = true;	
 
     }
@@ -1487,12 +1483,12 @@ Lattice_simulator::get_vertical_chromaticity(double dpp)
 void
 write_sextupole_correctors(Lattice_elements const& horizontal_correctors,
         Lattice_elements const & vertical_correctors,
-        Chef_lattice & chef_lattice, std::ofstream & file)
+        Chef_lattice & chef_lattice, Logger & flogger)
 {
 
     for (Lattice_elements::const_iterator le_it = horizontal_correctors.begin();
             le_it != horizontal_correctors.end(); ++le_it) {
-        file << (*le_it)->get_name() << ":  SEXTUPOLE,  L="
+        flogger << (*le_it)->get_name() << ":  SEXTUPOLE,  L="
                 << std::setprecision(5) << (*le_it)->get_double_attribute("l")
                 << ",    K2=" << std::setprecision(11)
                 << (*le_it)->get_double_attribute("k2") << std::endl;
@@ -1500,7 +1496,7 @@ write_sextupole_correctors(Lattice_elements const& horizontal_correctors,
 
     for (Lattice_elements::const_iterator le_it = vertical_correctors.begin();
             le_it != vertical_correctors.end(); ++le_it) {
-        file << (*le_it)->get_name() << ":  SEXTUPOLE,  L="
+        flogger << (*le_it)->get_name() << ":  SEXTUPOLE,  L="
                 << std::setprecision(5) << (*le_it)->get_double_attribute("l")
                 << ",    K2=" << std::setprecision(11)
                 << (*le_it)->get_double_attribute("k2") << std::endl;
@@ -1581,12 +1577,12 @@ set_chef_chrom_correctors(Lattice_elements const& correctors,
                 message += " chef element of type ";
                 message += (*ce_it)->Type();
                 message += " or it is skewed (i.e. nonzero tilt)";
-// 		message += "; has_double_attribute tilt: ";
-// 		message += hda_tilt.str();
-// 		message += " ,  has_string_attribute tilt: ";
-// 		message += hsa_tilt.str();
-// 		message += "  tilt: ";
-// 		message += gda_tilt.str();
+//              message += "; has_double_attribute tilt: ";
+//              message += hda_tilt.str();
+//              message += " ,  has_string_attribute tilt: ";
+//              message += hsa_tilt.str();
+//              message += "  tilt: ";
+//              message += gda_tilt.str();
                 throw std::runtime_error(message.c_str());
             }
         }
@@ -1615,18 +1611,15 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
 
     double chr_h = get_horizontal_chromaticity();
     double chr_v = get_vertical_chromaticity();
-    int rank = Commxx().get_rank();
-    if (rank == 0) {
-        std::cout << "        Initial chromaticity: horizontal    : " << chr_h
-                << std::endl;
-        ;
-        std::cout << "                       vertical      : " << chr_v
-                << std::endl;
-        std::cout << "        Desired chromaticity: horizontal      : "
-                << horizontal_chromaticity << std::endl;
-        std::cout << "                     vertical        : "
-                << vertical_chromaticity << std::endl;
-    }
+    Logger logger(0);
+    logger<<"_________________________________________"<<std::endl;
+    logger <<" Initial chromaticity (H,V):  ("<< chr_h<<", "
+                <<chr_v<<")"<<std::endl;
+    logger <<" Desired chromaticity (H,V):  ("<< horizontal_chromaticity<<", "
+                <<vertical_chromaticity<<")"<<std::endl;
+    logger<<"_________________________________________"<<std::endl;
+    logger<<"adjusting chromaticity:"<<std::endl;
+
 
     double dh = horizontal_chromaticity - chr_h;
     double dv = vertical_chromaticity - chr_v;
@@ -1634,12 +1627,8 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
 
     while (((fabs(dh) > tolerance) || (fabs(dv) > tolerance))
             && (count < max_steps)) {
-        if (rank == 0) {
-            std::cout << " chr_h=" << chr_h << "  chr_v  =" << chr_v
-                    << "  count=" << count << std::endl;
-            std::cout << " dh=" << dh << "  dv=" << dv << "  count=" << count
-                    << std::endl;
-        }
+            logger<< "  step=" << count << " chromaticity (H,V):  (" << chr_h<<", "
+                <<chr_v<<")"<< "   (Delta H, Delta V): (" << dh << ", " << dv <<")"<<    std::endl;
         int status = beamline_context.changeChromaticityBy(dh, dv);
 
         if (status == BeamlineContext::NO_CHROMATICITY_ADJUSTER) {
@@ -1650,8 +1639,6 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
                     "Lattice_simulator::adjust_chromaticities: failed with unknown status");
         }
 
-        //  extract_sextupole_strengths(horizontal_correctors, *chef_lattice_sptr);
-        //  extract_sextupole_strengths(vertical_correctors, *chef_lattice_sptr);
 
         have_chromaticities = false;
         chr_h = get_horizontal_chromaticity();
@@ -1666,28 +1653,23 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
     extract_sextupole_strengths(vertical_correctors, *chef_lattice_sptr);
     update();
 
-    if (rank == 0) {
-        std::ofstream file;
-        file.open("sextupole_correctors.txt");
-        file
-                << " ! the sextupole correctors are set for chromaticity (H, V):  ("
+    Logger flogger(0, "sextupole_correctors.txt", false, true);
+    flogger      << "! the sextupole correctors  for the chromaticity (H, V):  ("
                 << chr_h << " ,  " << chr_v << " ) " << std::endl;
-        write_sextupole_correctors(horizontal_correctors, vertical_correctors,
-                *chef_lattice_sptr, file);
-        file.close();
-    }
+    write_sextupole_correctors(horizontal_correctors, vertical_correctors,
+                *chef_lattice_sptr, flogger);
 
     have_chromaticities = false;
-    if (count == max_steps) {
-        throw std::runtime_error(
-                "Lattice_simulator::adjust_chromaticities: Convergence not achieved. Increase the maximum number of steps.");
-    }
-    if (rank == 0) {
-        std::cout << " Chromaticity adjusted in " << count << " steps"
-                << std::endl;
-        std::cout << "  final    chromaticity:  horizontal    : " << chr_h
-                << "     vertical     : " << chr_v << std::endl;
-    }
+    if (count == max_steps)  throw std::runtime_error(
+        "Lattice_simulator::adjust_chromaticities: Convergence not achieved. Increase the maximum number of steps.");
+
+    logger<<"convergence with tolerance "<<tolerance<<" reached in "
+                        <<count<<" steps"<<std::endl;
+    logger<<"_________________________________________"<<std::endl;       
+    logger << " FINAL CHROMATICITY: (H,V):  ("<< chr_h<<", " <<chr_v<<")"<<std::endl;
+    logger<<"_________________________________________"<<std::endl; 
+    logger.flush();
+ 
 
 }
 
@@ -1695,34 +1677,26 @@ void
 Lattice_simulator::print_cs_lattice_functions()
 {
     try {
-        int rank = Commxx().get_rank();
-        if (rank == 0) {
-
-            std::ofstream file;
-            file.open("CS_lattice_functions.dat");
-
-            file
-                    << "#    element      arc[m]     beta_x[m]      beta_y[m]     alpha_x     alpha_y      "
+        Logger flogger(0, "CS_lattice_functions.dat", false, true);
+        flogger << "#    element      arc[m]     beta_x[m]      beta_y[m]     alpha_x     alpha_y      "
                     << " psi_x      psi_y       D_x[m]      D_y[m]      Dprime_x     Dprime_y"
                     << std::endl;
-            file << "#" << std::endl;
+        flogger << "#" << std::endl;
 
-            for (Lattice_elements::const_iterator it =
-                    this->lattice_sptr->get_elements().begin();
-                    it != this->lattice_sptr->get_elements().end(); ++it) {
+        for (Lattice_elements::const_iterator it =
+                this->lattice_sptr->get_elements().begin();
+                it != this->lattice_sptr->get_elements().end(); ++it) {
 
-                Lattice_functions lfs = get_lattice_functions(*(*it));
+            Lattice_functions lfs = get_lattice_functions(*(*it));
 
-                file << std::setw(19) << (*it)->get_name() << "    "
-                        << lfs.arc_length << "   " << lfs.beta_x << "    "
-                        << lfs.beta_y << "   " << lfs.alpha_x << "   "
-                        << lfs.alpha_y << "    " << lfs.psi_x << "   "
-                        << lfs.psi_y << "   " << lfs.D_x << "    " << lfs.D_y
-                        << "   " << lfs.Dprime_x << "   " << lfs.Dprime_y
-                        << std::endl;
+            flogger << std::setw(19) << (*it)->get_name() << "    "
+                    << lfs.arc_length << "   " << lfs.beta_x << "    "
+                    << lfs.beta_y << "   " << lfs.alpha_x << "   "
+                    << lfs.alpha_y << "    " << lfs.psi_x << "   "
+                    << lfs.psi_y << "   " << lfs.D_x << "    " << lfs.D_y
+                    << "   " << lfs.Dprime_x << "   " << lfs.Dprime_y
+                    << std::endl;
 
-            }
-            file.close();
         }
     }
     catch (std::exception const& e) {
@@ -1733,32 +1707,23 @@ Lattice_simulator::print_cs_lattice_functions()
 void
 Lattice_simulator::print_et_lattice_functions()
 {
-
     try {
-        int rank = Commxx().get_rank();
-        if (rank == 0) {
+        Logger flogger(0, "ET_lattice_functions.dat", false, true);
 
-            std::ofstream file;
-            file.open("ET_lattice_functions.dat");
-
-            file
-                    << "#    element      arc[m]     beta_x[m]      beta_y[m]     alpha_x     alpha_y      "
+        flogger<< "#    element      arc[m]     beta_x[m]      beta_y[m]     alpha_x     alpha_y      "
                     << " phi_x " << std::endl;
-            file << "#" << std::endl;
+        flogger << "#" << std::endl;
 
-            for (Lattice_elements::const_iterator it =
+        for (Lattice_elements::const_iterator it =
                     this->lattice_sptr->get_elements().begin();
                     it != this->lattice_sptr->get_elements().end(); ++it) {
 
-                ET_lattice_functions etinfo = get_et_lattice_functions(*(*it));
+            ET_lattice_functions etinfo = get_et_lattice_functions(*(*it));
 
-                file << std::setw(19) << (*it)->get_name() << "    "
+            flogger << std::setw(19) << (*it)->get_name() << "    "
                         << etinfo.arc_length << "   " << etinfo.beta_x << "    "
                         << etinfo.beta_y << "   " << etinfo.alpha_x << "   "
                         << etinfo.alpha_y << "    " << etinfo.phi << std::endl;
-
-            }
-            file.close();
         }
     }
     catch (std::exception const& e) {
@@ -1770,37 +1735,28 @@ void
 Lattice_simulator::print_lb_lattice_functions()
 {
     try {
-        int rank = Commxx().get_rank();
-        if (rank == 0) {
+        Logger flogger(0, "LB_lattice_functions.dat", false, true);
+        flogger << "#    element      arc[m]     beta_1x[m]      beta_1y       beta_2x     beta_2y[m]     "
+                << "     alpha_1x     alpha_1y       alpha_2x     alpha_2y     "
+                << "     u1           u2            u3           u4       nu_1       nu_2"
+                << std::endl;
+        flogger << "#" << std::endl;
 
-            std::ofstream file;
-            file.open("LB_lattice_functions.dat");
-
-            file
-                    << "#    element      arc[m]     beta_1x[m]      beta_1y       beta_2x     beta_2y[m]     "
-                    << "     alpha_1x     alpha_1y       alpha_2x     alpha_2y     "
-                    << "     u1           u2            u3           u4       nu_1       nu_2"
-                    << std::endl;
-            file << "#" << std::endl;
-
-            for (Lattice_elements::const_iterator it =
+        for (Lattice_elements::const_iterator it =
                     this->lattice_sptr->get_elements().begin();
                     it != this->lattice_sptr->get_elements().end(); ++it) {
 
-                LB_lattice_functions lbinfo = get_lb_lattice_functions(*(*it));
+            LB_lattice_functions lbinfo = get_lb_lattice_functions(*(*it));
 
-                file << std::setw(19) << (*it)->get_name() << "    "
-                        << lbinfo.arc_length << "   " << lbinfo.beta_1x
-                        << "    " << lbinfo.beta_1y << "   " << lbinfo.beta_2x
-                        << "   " << lbinfo.beta_2y << "    " << lbinfo.alpha_1x
-                        << "   " << lbinfo.alpha_1y << "   " << lbinfo.alpha_2x
-                        << "    " << lbinfo.alpha_2y << "     " << lbinfo.u1
-                        << "     " << lbinfo.u2 << "     " << lbinfo.u3
-                        << "     " << lbinfo.u4 << "     " << lbinfo.nu_1
-                        << "     " << lbinfo.nu_2 << std::endl;
-
-            }
-            file.close();
+            flogger << std::setw(19) << (*it)->get_name() << "    "
+                    << lbinfo.arc_length << "   " << lbinfo.beta_1x
+                    << "    " << lbinfo.beta_1y << "   " << lbinfo.beta_2x
+                    << "   " << lbinfo.beta_2y << "    " << lbinfo.alpha_1x
+                    << "   " << lbinfo.alpha_1y << "   " << lbinfo.alpha_2x
+                    << "    " << lbinfo.alpha_2y << "     " << lbinfo.u1
+                    << "     " << lbinfo.u2 << "     " << lbinfo.u3
+                    << "     " << lbinfo.u4 << "     " << lbinfo.nu_1
+                    << "     " << lbinfo.nu_2 << std::endl;
         }
     }
     catch (std::exception const& e) {
@@ -1812,34 +1768,26 @@ void
 Lattice_simulator::print_dispersion_closedOrbit()
 {
     try {
-        int rank = Commxx().get_rank();
-        if (rank == 0) {
+        Logger flogger(0, "Dispersion_CloseOrbit.dat", false, true);
+        flogger << "#    element     arc[m]     dispersion_x[m]     dispersion_y[m] "
+                << "     dPrime_x     dPrime_y      closedOrbit_x[m]     closedOrbit_y[m]"
+                << " closedOrbitP_x     closedOrbitP_y " << std::endl;
+        flogger << "#" << std::endl;
 
-            std::ofstream file;
-            file.open("Dispersion_CloseOrbit.dat");
-
-            file
-                    << "#    element     arc[m]     dispersion_x[m]     dispersion_y[m] "
-                    << "     dPrime_x     dPrime_y      closedOrbit_x[m]     closedOrbit_y[m]"
-                    << " closedOrbitP_x     closedOrbitP_y " << std::endl;
-            file << "#" << std::endl;
-
-            for (Lattice_elements::const_iterator it =
+        for (Lattice_elements::const_iterator it =
                     this->lattice_sptr->get_elements().begin();
                     it != this->lattice_sptr->get_elements().end(); ++it) {
 
-                Dispersion_functions dispfs = get_dispersion_functions(*(*it));
+            Dispersion_functions dispfs = get_dispersion_functions(*(*it));
 
-                file << std::setw(19) << (*it)->get_name() << "    "
-                        << dispfs.arc_length << "   " << dispfs.dispersion_x
-                        << "   " << dispfs.dispersion_y << "   "
-                        << dispfs.dPrime_x << "   " << dispfs.dPrime_y << "   "
-                        << dispfs.closedOrbit_x << "   " << dispfs.closedOrbit_y
-                        << "   " << dispfs.closedOrbitP_x << "   "
-                        << dispfs.closedOrbitP_y << std::endl;
+            flogger << std::setw(19) << (*it)->get_name() << "    "
+                    << dispfs.arc_length << "   " << dispfs.dispersion_x
+                    << "   " << dispfs.dispersion_y << "   "
+                    << dispfs.dPrime_x << "   " << dispfs.dPrime_y << "   "
+                    << dispfs.closedOrbit_x << "   " << dispfs.closedOrbit_y
+                    << "   " << dispfs.closedOrbitP_x << "   "
+                    << dispfs.closedOrbitP_y << std::endl;
 
-            }
-            file.close();
         }
     }
     catch (std::exception const& e) {

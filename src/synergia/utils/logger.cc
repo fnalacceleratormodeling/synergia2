@@ -10,12 +10,22 @@ Logger::Logger(int rank, bool log) :
     }
 }
 
-Logger::Logger(int rank, std::string const& filename, bool log) :
+Logger::Logger(int rank, std::string const& filename, bool screen, bool log) :
     stream_ptr(&std::cout), have_stream(false), fstream_ptr(0), have_fstream(false)
 {
     if ((Commxx().get_rank() == rank) && log) {
-        have_stream = true;
+        have_stream = screen;
         fstream_ptr = new std::ofstream(filename.c_str());
+        have_fstream = true;
+    }
+}
+
+Logger::Logger(int rank, char const* filename, bool screen, bool log) :
+    stream_ptr(&std::cout), have_stream(false), fstream_ptr(0), have_fstream(false)
+{
+    if ((Commxx().get_rank() == rank) && log) {
+        have_stream = screen;
+        fstream_ptr = new std::ofstream(filename);
         have_fstream = true;
     }
 }
