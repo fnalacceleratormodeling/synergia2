@@ -1,0 +1,14 @@
+focus := 7                   ! [m]     : focal length of equivalent
+                             !         :   thin quad
+sepn := 10                   ! [m]     : distance between quad centers
+length := 2.0                ! [m]     : quadrupole length
+strength := 1/(focus*length) ! [m**-2] : quadrupole strength
+                             !         :   = B'/brho
+
+beam, particle=proton, energy=1.5
+
+o: drift, l=( sepn - length )
+f: quadrupole, l=length, k1=strength
+d: quadrupole, l=length, k1=(-strength)
+
+fodo:  line=( f, o, d, o )

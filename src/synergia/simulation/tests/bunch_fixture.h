@@ -15,35 +15,36 @@ const double total_energy = 125.0;
 struct Bunch_fixture
 {
     Bunch_fixture() :
-        four_momentum(mass, total_energy), reference_particle(charge,
-                four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
-                total_num, real_num, comm_sptr), distribution(0, *comm_sptr),
-                empty_diagnostics()
+                    four_momentum(mass, total_energy),
+                    reference_particle(charge, four_momentum),
+                    comm_sptr(new Commxx),
+                    bunch(reference_particle, total_num, real_num, comm_sptr),
+                    seed(718281828),
+                    distribution(seed, *comm_sptr),
+                    empty_diagnostics()
     {
-    BOOST_TEST_MESSAGE("setup bunch fixture");
-    MArray2d covariances(boost::extents[6][6]);
-    MArray1d means(boost::extents[6]);
-    for (int i = 0; i < 6; ++i) {
-        means[i] =0.;// i * 0.0000072;
-        for (int j = i; j < 6; ++j) {
-            covariances[i][j] = covariances[j][i] = (i + 1) * (j + 1)*0.00000000001;
+        BOOST_TEST_MESSAGE("setup bunch fixture");
+        MArray2d covariances(boost::extents[6][6]);
+        MArray1d means(boost::extents[6]);
+        for (int i = 0; i < 6; ++i) {
+            means[i] = 0.; // i * 0.0000072;
+            for (int j = i; j < 6; ++j) {
+                covariances[i][j] = covariances[j][i] = (i + 1) * (j + 1)
+                        * 0.00000000001;
+            }
+            covariances[i][i] *= 10.0; // this makes for a positive-definite matrix
         }
-         covariances[i][i] *= 10.0; // this makes for a positive-definite matrix
-    }
 
-    for (int i = 0; i < 6; ++i) {
-         covariances[1][i] *=0.01;
-         covariances[i][1] *=0.01;
-         covariances[3][i] *=0.01;
-         covariances[i][3] *=0.01;
-         covariances[5][i] *=0.01;
-         covariances[i][5] *=0.01;
-    }
+        for (int i = 0; i < 6; ++i) {
+            covariances[1][i] *= 0.01;
+            covariances[i][1] *= 0.01;
+            covariances[3][i] *= 0.01;
+            covariances[i][3] *= 0.01;
+            covariances[5][i] *= 0.01;
+            covariances[i][5] *= 0.01;
+        }
 
-
-
-
-     populate_6d(distribution, bunch, means, covariances);
+        populate_6d(distribution, bunch, means, covariances);
 
     }
 
@@ -56,6 +57,7 @@ struct Bunch_fixture
     Reference_particle reference_particle;
     Commxx_sptr comm_sptr;
     Bunch bunch;
+    unsigned long int seed;
     Random_distribution distribution;
     Diagnosticss empty_diagnostics;
 };

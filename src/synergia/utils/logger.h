@@ -15,8 +15,14 @@ private:
 public:
     /// Log to screen on a single rank
     Logger(int rank, bool log = true);
-    /// Log to screen and file on a single rank
-    Logger(int rank, std::string const& filename, bool log = true);
+    /// Log to file and, optionally, screen on a single rank
+    Logger(int rank, std::string const& filename, bool screen = true, bool log =
+            true);
+    /// Log to file and, optionally, screen on a single rank
+    /// This variation on the previous constructor is needed
+    /// for technical C++ reasons...
+    Logger(int rank, char const * filename, bool screen = true,
+            bool log = true);
     /// Log to a separate file on each rank
     Logger(std::string const& filename_base, bool log = true);
     Logger &

@@ -141,7 +141,8 @@ def is_multiple(arg):
     retval = False
     s = arg.split('=')
     if len(s) > 1:
-        if s[1][0] == '_':
+        # if arg is "option=" then s[1] is None
+        if s[1] and s[1][0] == '_':
             if s[1][-1] == '_':
                 retval = True
             else:
