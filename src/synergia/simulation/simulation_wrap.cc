@@ -420,6 +420,7 @@ BOOST_PYTHON_MODULE(simulation)
 
     class_<Lattice_functions >("Lattice_functions",
             init<LattFuncSage::lattFunc const& >())
+        .def(init<Const_MArray2d_ref > ())
         .def_readonly("alpha_x", &Lattice_functions::alpha_x)
         .def_readonly("alpha_y", &Lattice_functions::alpha_y)
         .def_readonly("beta_x", &Lattice_functions::beta_x)
