@@ -21,10 +21,14 @@
 
 typedef boost::shared_ptr<normalFormSage > Normal_form_sage_sptr;
 
+void map_to_twiss(Const_MArray2d_ref one_turn_map, double &alpha, double& beta, double& psi);
+void map_to_twiss(Const_MArray2d_view one_turn_map, double &alpha, double& beta, double& psi);
+
 struct Lattice_functions
 {
     Lattice_functions();
     Lattice_functions(LattFuncSage::lattFunc const& latt_func);
+    Lattice_functions(Const_MArray2d_ref one_turn_map);
     double alpha_x, alpha_y;
     double beta_x, beta_y;
     double psi_x, psi_y;
@@ -34,6 +38,15 @@ struct Lattice_functions
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
+};
+
+struct Long_lattice_functions
+{
+	Long_lattice_functions();
+    Long_lattice_functions(Const_MArray2d_ref one_turn_map);
+    double alpha; // should really be 0 for longitudinal
+    double beta;
+    double psi;
 };
 
 struct ET_lattice_functions
