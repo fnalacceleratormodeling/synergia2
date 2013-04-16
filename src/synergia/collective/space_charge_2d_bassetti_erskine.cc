@@ -71,7 +71,7 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y)
 
     // Round beam limit ...
     if (use_round) {
-        if (fabs((sigma_x - sigma_y) / (sigma_x + sigma_y)) < sigma_round) {
+        if (std::abs((sigma_x - sigma_y) / (sigma_x + sigma_y)) < sigma_round) {
             r_squared = x * x + y * y;
             mean_sigma_squared = 2.0 * sigma_x * sigma_y;
             // Test for small r .....

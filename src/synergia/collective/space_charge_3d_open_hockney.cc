@@ -773,19 +773,19 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
                             / (sqrt((z + hz) * (z + hz) + rr) - z - hz);
                     T2 = (hz + z) * log(r2);
                     G += T1 + T2;
-                } else if (fabs(z + hz) < epsz) {
+                } else if (std::abs(z + hz) < epsz) {
                     r1 = (sqrt((z - hz) * (z - hz) + rr) - z + hz)
                             / (sqrt(z * z + rr) - z);
                     T1 = (hz - z) * log(r1);
                     G += T1;
-                } else if (fabs(z) < epsz) {
-                    if (fabs(x) + fabs(y) < 2. * epsz) {
+                } else if (std::abs(z) < epsz) {
+                    if (std::abs(x) + std::abs(y) < 2. * epsz) {
                         G += hz * G000;
                     } /* T1+T2 in fact */else {
                         r1 = (sqrt(hz * hz + rr) + hz) / sqrt(rr);
                         G += 2. * hz * log(r1);
                     }
-                } else if (fabs(z - hz) < epsz) {
+                } else if (std::abs(z - hz) < epsz) {
                     r1 = (sqrt((z + hz) * (z + hz) + rr) + z + hz)
                             / (sqrt(z * z + rr) + z);
                     T1 = (hz + z) * log(r1);
@@ -824,7 +824,7 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
                                 G += T1 + T2;
                             }
 
-                            else if (fabs(z_image + hz) < epsz) {
+                            else if (std::abs(z_image + hz) < epsz) {
                                 r1 = (sqrt((z_image - hz) * (z_image - hz) + rr)
                                         - z_image + hz)
                                         / (sqrt(z_image * z_image + rr)
@@ -833,15 +833,15 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
                                 G += T1;
                             }
 
-                            else if (fabs(z_image) < epsz) {
-                                if (fabs(x) + fabs(y) < 2. * epsz) {
+                            else if (std::abs(z_image) < epsz) {
+                                if (std::abs(x) + std::abs(y) < 2. * epsz) {
                                     G += hz * G000;
                                 } // T1+T2 in fact
                                 else {
                                     r1 = (sqrt(hz * hz + rr) + hz) / sqrt(rr);
                                     G += 2. * hz * log(r1);
                                 }
-                            } else if (fabs(z_image - hz) < epsz) {
+                            } else if (std::abs(z_image - hz) < epsz) {
                                 r1 = (sqrt((z_image + hz) * (z_image + hz) + rr)
                                         + z_image + hz)
                                         / (sqrt(z_image * z_image + rr)

@@ -173,7 +173,7 @@ double
 bool
   MadX_command::attribute_as_boolean( string_t const & name ) const
 {
-  return fabs(retrieve_number_from_map(attributes_, name, *mx)) > 1e-10;
+  return std::abs(retrieve_number_from_map(attributes_, name, *mx)) > 1e-10;
 }
 
 std::vector<double>
@@ -400,7 +400,7 @@ double
 bool
   MadX::variable_as_boolean( string_t const & name ) const
 {
-  return fabs(retrieve_number_from_map( variables_, name, *this )) > 1e-10;
+  return std::abs(retrieve_number_from_map( variables_, name, *this )) > 1e-10;
 }
 
 std::vector<double>

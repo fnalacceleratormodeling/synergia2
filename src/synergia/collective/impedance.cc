@@ -55,7 +55,7 @@ Collective_operator("impedance"), z_grid(zgrid), nstored_turns(nstored_turns),
 { 
   
   try{
-    if (fabs(orbit_length/bunchsp-int(orbit_length/bunchsp))>1e-8)
+    if (std::abs(orbit_length/bunchsp-int(orbit_length/bunchsp))>1e-8)
            throw std::runtime_error("orbit length should divide exacty to bunch_spacing ");
    }
   catch(std::exception const& e){    
@@ -265,7 +265,7 @@ Impedance::calculate_moments_and_partitions(Bunch & bunch)
              local_ymom[bin] += bunch.get_local_particles()[part][2];
              bin_partition[part]=bin; //bin_partition(n) is the bin where you find the particle n
          }
-         else if ((bin==z_grid) && fabs(bunch.get_local_particles()[part][4]-z_length-z_left)<z_length*1.e-14) { 
+         else if ((bin==z_grid) && std::abs(bunch.get_local_particles()[part][4]-z_length-z_left)<z_length*1.e-14) { 
              local_zdensity[bin-1] += 1; // put the edge particle in the last bin=z_grid-1
              bin_partition[part]=z_grid-1;
          } 
@@ -283,7 +283,7 @@ Impedance::calculate_moments_and_partitions(Bunch & bunch)
          std::cout << "  z_length  "<<z_length<<"  rank= "<<rank<<std::endl;
          std::cout << "(mbs.local_particles(4,n)-z_left)= "<<(bunch.get_local_particles()[part][4]-z_left)<<"  rank= "<<rank<<std::endl;
          std::cout << "bin: " << bin<<"  z_grid="<<z_grid<< "  h=" << h <<"  rank= "<<rank<<std::endl;                
-         std::cout << "bunch.get_local_particles()[part][4]-z_length-z_left= "<<fabs(bunch.get_local_particles()[part][4]-z_length-z_left)<<"  rank= "<<rank<<std::endl;
+         std::cout << "bunch.get_local_particles()[part][4]-z_length-z_left= "<<std::abs(bunch.get_local_particles()[part][4]-z_length-z_left)<<"  rank= "<<rank<<std::endl;
          throw
                  std::runtime_error("particles out of range in calculate_moments_and_partitions ");
          }
@@ -388,7 +388,7 @@ Impedance::calculate_kicks(Commxx_sptr const & comm_sptr)
     if ((full_machine) && (registered_turns !=0)) {
       num_trains=int(num_buckets/numbunches);
       
-      if (fabs(num_buckets/float(numbunches)-num_trains)>1e-8) throw 
+      if (std::abs(num_buckets/float(numbunches)-num_trains)>1e-8) throw 
 	std::runtime_error(
 	      "full machine assumes repetitive numer of trains: num_buckets should be divisible to numbunches");
 	if (wn[0]<0 || wn[0]>= num_trains ||

@@ -171,7 +171,7 @@ Complex wofz2( Complex );
 
 Complex erf( const Complex& z )
 {   
-    if ( ( fabs(imag(z)) > 3.9 ) || ( fabs(real(z)) > 3.0 ) ) {
+    if ( ( std::abs(imag(z)) > 3.9 ) || ( std::abs(real(z)) > 3.0 ) ) {
         Complex u( - imag(z), real(z) );
         return ( 1.0 - std::exp(u*u)*wofz2(u) );
     }
