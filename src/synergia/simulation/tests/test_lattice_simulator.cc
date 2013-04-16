@@ -3,6 +3,7 @@
 #include "synergia/simulation/lattice_simulator.h"
 #include "lattice_fixture.h"
 #include "synergia/utils/floating_point.h"
+#include "synergia/foundation/math_constants.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
@@ -545,6 +546,49 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Lattice_fixture)
 //    xml_load(loaded, "lattice_simulator1.xml");
 }
 
+BOOST_AUTO_TEST_CASE(lattice_functions_from_maps)
+{
+	const double a_x = 0.1;
+	const double b_x = 32.0;
+	const double mu_x = 2.0 * mconstants::pi * 0.42526;
+	const double a_y = -0.8;
+	const double b_y = 4.5;
+	const double mu_y = 2.0 * mconstants::pi * 0.41526;
+	const double b_l = 415.0;
+	const double mu_l = (2.0 * mconstants::pi)/995.0;
+
+	MArray2d map(boost::extents[6][6]);
+	map[0][0] = cos(mu_x) + a_x * sin(mu_x);
+	map[0][1] = b_x * sin(mu_x);
+	map[1][0] = -((1 + a_x*a_x)/b_x) * sin(mu_x);
+	map[1][1] = cos(mu_x) - a_x * sin(mu_x);
+
+	map[2][2] = cos(mu_y) + a_y * sin(mu_y);
+	map[2][3] = b_y * sin(mu_y);
+	map[3][2] = -((1 + a_y*a_y)/b_y) * sin(mu_y);
+	map[3][3] = cos(mu_y) - a_y * sin(mu_y);
+
+	map[4][4] = cos(mu_l);
+	map[4][5] = b_l * sin(mu_l);
+	map[5][4] = -(1.0/b_l) * sin(mu_l);
+	map[5][5] = cos(mu_l);
+
+	Lattice_functions lf(map);
+	Long_lattice_functions llf(map);
+
+	BOOST_CHECK(floating_point_equal(a_x,lf.alpha_x, tolerance));
+	BOOST_CHECK(floating_point_equal(b_x, lf.beta_x, tolerance));
+	BOOST_CHECK(floating_point_equal(mu_x, lf.psi_x, tolerance));
+
+	BOOST_CHECK(floating_point_equal(a_y,lf.alpha_y, tolerance));
+	BOOST_CHECK(floating_point_equal(b_y, lf.beta_y, tolerance));
+	BOOST_CHECK(floating_point_equal(mu_y, lf.psi_y, tolerance));
+
+	BOOST_CHECK(floating_point_equal(0.0, llf.alpha, tolerance));
+	BOOST_CHECK(floating_point_equal(b_l, llf.beta, tolerance));
+	BOOST_CHECK(floating_point_equal(mu_l, llf.psi, tolerance));
+
+}
 //BOOST_FIXTURE_TEST_CASE(serialize_sliced_chef_beamline, Lattice_fixture)
 //{
 //    Lattice_simulator lattice_simulator(lattice_sptr, map_order);

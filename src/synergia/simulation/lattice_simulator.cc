@@ -2,6 +2,7 @@
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/utils/logger.h"
 #include "synergia/utils/containers_to_string.h"
+#include "synergia/foundation/math_constants.h"
 #include "synergia/utils/digits.h"
 
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
@@ -27,21 +28,6 @@
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multiroots.h>
 
-Lattice_functions::Lattice_functions() :
-                alpha_x(0.0),
-                alpha_y(0.0),
-                beta_x(0.0),
-                beta_y(0.0),
-                psi_x(0.0),
-                psi_y(0.0),
-                D_x(0.0),
-                D_y(0.0),
-                Dprime_x(0.0),
-                Dprime_y(0.0),
-                arc_length(0.0)
-{
-}
-
 Lattice_functions::Lattice_functions(LattFuncSage::lattFunc const& latt_func) :
                 alpha_x(latt_func.alpha.hor),
                 alpha_y(latt_func.alpha.ver),
@@ -55,6 +41,46 @@ Lattice_functions::Lattice_functions(LattFuncSage::lattFunc const& latt_func) :
                 Dprime_y(latt_func.dPrime.ver),
                 arc_length(latt_func.arcLength)
 {
+}
+
+Lattice_functions::Lattice_functions() :
+		alpha_x(0.0),
+		alpha_y(0.0),
+		beta_x(0.0),
+		beta_y(0.0),
+		psi_x(0.0),
+		psi_y(0.0),
+		D_x(0.0),
+		D_y(0.0),
+		Dprime_x(0.0),
+		Dprime_y(0.0),
+		arc_length(0.0)
+{
+}
+
+Lattice_functions::Lattice_functions(Const_MArray2d_ref one_turn_map) :
+		alpha_x(0.0),
+		alpha_y(0.0),
+		beta_x(0.0),
+		beta_y(0.0),
+		psi_x(0.0),
+		psi_y(0.0),
+		D_x(0.0),
+		D_y(0.0),
+		Dprime_x(0.0),
+		Dprime_y(0.0),
+		arc_length(0.0)
+{
+	map_to_twiss(one_turn_map[boost::indices[range(0,2)][range(0,2)]], alpha_x, beta_x, psi_x);
+	map_to_twiss(one_turn_map[boost::indices[range(2,4)][range(2,4)]], alpha_y, beta_y, psi_y);
+}
+
+Long_lattice_functions::Long_lattice_functions(Const_MArray2d_ref one_turn_map) :
+		alpha(0.0),
+		beta(0.0),
+		psi(0.0)
+{
+	map_to_twiss(one_turn_map[boost::indices[range(4,6)][range(4,6)]], alpha, beta, psi);
 }
 
 template<class Archive>
@@ -1802,6 +1828,38 @@ Lattice_simulator::print_lattice_functions()
     print_et_lattice_functions();
     print_lb_lattice_functions();
     print_dispersion_closedOrbit();
+}
+
+// map_to_twiss is a local function
+void
+map_to_twiss(Const_MArray2d_view two_by_two, double& alpha, double& beta, double& psi)
+{
+	double cospsi = 0.5 * (two_by_two[0][0]+two_by_two[1][1]);
+	double alpha_sinpsi = 0.5 * (two_by_two[0][0] - two_by_two[1][1]);
+
+	if (abs(cospsi) > 1.0) {
+		// psi is comples, can't extract parameters
+		beta = -1.0; // impossible value
+		psi = 0.0;
+		alpha = 0.0;
+		return;
+	}
+	// phase of psi is chosen so that beta is positive
+	if (two_by_two[0][1] > 0.0) {
+		psi = acos(cospsi);
+	} else {
+		psi = 2.0 * mconstants::pi - acos(cospsi);
+	}
+	beta = two_by_two[0][1]/sin(psi);
+	alpha = alpha_sinpsi/sin(psi);
+	return;
+}
+
+void
+map_to_twiss(Const_MArray2d_ref two_by_two, double &alpha, double &beta, double &psi)
+{
+	map_to_twiss(two_by_two[boost::indices[range()][range()]], alpha, beta, psi);
+	return;
 }
 
 template<class Archive>
