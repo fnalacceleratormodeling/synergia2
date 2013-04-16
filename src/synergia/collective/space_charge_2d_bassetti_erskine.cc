@@ -20,7 +20,6 @@ double const sigma_round = 0.1;
 Space_charge_2d_bassetti_erskine::Space_charge_2d_bassetti_erskine() :
     Collective_operator("space charge")
 {
-    use_round = 1;
 }
 
 Space_charge_2d_bassetti_erskine *
@@ -30,10 +29,13 @@ Space_charge_2d_bassetti_erskine::clone()
 }
 
 void
-Space_charge_2d_bassetti_erskine::set_sigma(double * sigin)
+Space_charge_2d_bassetti_erskine::set_sigma(double sigma_x, double sigma_y, double sigma_cdt)
 {
-    for (int i = 0; i < 3; i++)
-        sigma[i] = sigin[i];
+    this->sigma_x = sigma_x;
+    this->sigma_y = sigma_y;
+    this->sigma_cdt = sigma_cdt;
+    const double round_tolerance = 1.0e-6;
+    use_round = (std::abs(sigma_x/sigma_y -1) < round_tolerance);
 }
 
 std::vector<double >
@@ -56,7 +58,7 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y)
     y = arg_y;
 
     // Asymptotic limit ...
-    if ((sigma[0] == 0.0) && (sigma[1] == 0.0)) {
+    if ((sigma_x == 0.0) && (sigma_y == 0.0)) {
         r_squared = x * x + y * y;
         if (r_squared < 1.0e-20) {
             throw std::runtime_error("Asymptotic limit r seems too small in Space_charge_2d_bassetti_erskine::normalized_efield.");
@@ -69,9 +71,9 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y)
 
     // Round beam limit ...
     if (use_round) {
-        if (fabs((sigma[0] - sigma[1]) / (sigma[0] + sigma[1])) < sigma_round) {
+        if (fabs((sigma_x - sigma_y) / (sigma_x + sigma_y)) < sigma_round) {
             r_squared = x * x + y * y;
-            mean_sigma_squared = 2.0 * sigma[0] * sigma[1];
+            mean_sigma_squared = 2.0 * sigma_x * sigma_y;
             // Test for small r .....
             if (r_squared > 1.0e-6 * mean_sigma_squared) {
              	double vol_fact = (1.0 - exp(-r_squared / mean_sigma_squared));
@@ -112,29 +114,29 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y)
     }
 
 	// Check for normal processing ...
-    normal = sigma[0] > sigma[1];
+    normal = sigma_x > sigma_y;
     if (!normal) {
-        tmp1 = sigma[0];
-        sigma[0] = sigma[1];
-        sigma[1] = tmp1;
+        tmp1 = sigma_x;
+        sigma_x = sigma_y;
+        sigma_y = tmp1;
         tmp1 = x;
         x = y;
         y = tmp1;
     }
 
     // The calculation ...
-    ds = sqrt(2.0 * (sigma[0] * sigma[0] - sigma[1] * sigma[1]));
+    ds = sqrt(2.0 * (sigma_x * sigma_x - sigma_y * sigma_y));
     arg1 = x / ds + complex_i * y / ds;
-    double r = sigma[1] / sigma[0];
+    double r = sigma_y / sigma_x;
     arg2 = ((x * r) / ds) + complex_i * ((y / r) / ds);
 
     retarg1 = wofz(arg1);
     retarg2 = wofz(arg2);
 
     // Normalization ...
-    r = x / sigma[0];
+    r = x / sigma_x;
     r = r * r;
-    tmp1 = y / sigma[1];
+    tmp1 = y / sigma_y;
     r += tmp1 * tmp1;
 
     z = retarg1;
@@ -201,9 +203,9 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
 
     MArray1d mean(Core_diagnostics::calculate_mean(bunch));
     MArray1d std(Core_diagnostics::calculate_std(bunch, mean));
-    sigma[0] = std[Bunch::x];
-    sigma[1] = std[Bunch::y];
-    sigma[2] = std[Bunch::z];
+    sigma_x = std[Bunch::x];
+    sigma_y = std[Bunch::y];
+    sigma_cdt = std[Bunch::z];
 
     // $\delta \vec{p} = \vec{F} \delta t = q \vec{E} \delta t$
     // point charge
@@ -226,8 +228,8 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
         double z = bunch.get_local_particles()[part][Bunch::z];
         // csp: This line charge density works only for the gaussian charge
         //      distribution.
-        double line_charge_density = q_total * exp(-z * z /(2.0 * sigma[2]
-                * sigma[2])) / (sqrt(2.0 * mconstants::pi) * sigma[2]);
+        double line_charge_density = q_total * exp(-z * z /(2.0 * sigma_cdt
+                * sigma_cdt)) / (sqrt(2.0 * mconstants::pi) * sigma_cdt);
         double factor2 = line_charge_density * factor;
         std::vector<double > e_field(normalized_efield(x, y));
         bunch.get_local_particles()[part][Bunch::xp] += e_field[0] * factor2;
@@ -241,8 +243,10 @@ template<class Archive>
             const unsigned int version)
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
-        ar & BOOST_SERIALIZATION_NVP(sigma)
-                & BOOST_SERIALIZATION_NVP(use_round);
+        ar & BOOST_SERIALIZATION_NVP(sigma_x);
+        ar & BOOST_SERIALIZATION_NVP(sigma_y);
+        ar & BOOST_SERIALIZATION_NVP(sigma_cdt);
+        ar & BOOST_SERIALIZATION_NVP(use_round);
     }
 
 template
