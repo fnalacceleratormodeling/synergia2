@@ -13,6 +13,6 @@
 #pragma GCC diagnostic pop
 #endif
 
-typedef std::list<ElmPtr > Chef_elements;
+typedef std::list<ElmPtr > Chef_elements; // syndoc:include
 
 #endif /* CHEF_ELEMENTS_H_ */

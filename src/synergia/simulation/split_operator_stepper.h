@@ -51,7 +51,7 @@ public:
     ~Split_operator_stepper();
 };
 BOOST_CLASS_EXPORT_KEY(Split_operator_stepper);
-typedef boost::shared_ptr<Split_operator_stepper > Split_operator_stepper_sptr;
+typedef boost::shared_ptr<Split_operator_stepper > Split_operator_stepper_sptr;  // syndoc:include
 
 
 #endif /* SPLIT_OPERATOR_STEPPER_H_ */

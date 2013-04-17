@@ -84,6 +84,6 @@ public:
 };
 
 typedef boost::shared_ptr<Rectangular_grid_domain >
-        Rectangular_grid_domain_sptr;
+        Rectangular_grid_domain_sptr;  // syndoc:include
 
 #endif /* RECTANGULAR_GRID_DOMAIN_H_ */

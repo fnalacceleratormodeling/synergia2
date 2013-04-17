@@ -6,10 +6,13 @@ add_custom_target(doxygen
     COMMAND doxygen synergia.cfg)
 add_dependencies(doxygen update_synergia_cfg)
 
+add_custom_target(update_modules_rst
+    COMMAND ./update-modules-rst)
+
 add_custom_target(sphinx
     /bin/rm -rf html doctrees
     COMMAND sphinx-build -a -b html -d doctrees sphinx-src html)
-add_dependencies(sphinx doxygen)
+add_dependencies(sphinx doxygen update_modules_rst)
 
 add_custom_target(doc)
 add_dependencies(doc sphinx)

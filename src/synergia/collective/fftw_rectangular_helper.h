@@ -45,5 +45,5 @@ public:
     ~Fftw_rectangular_helper();
 };
 
-typedef boost::shared_ptr<Fftw_rectangular_helper> Fftw_rectangular_helper_sptr;
+typedef boost::shared_ptr<Fftw_rectangular_helper> Fftw_rectangular_helper_sptr; // syndoc:include
 #endif /* FFTW_RECTANGULAR_HELPER_H_ */

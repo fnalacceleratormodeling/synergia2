@@ -26,7 +26,7 @@ public:
 	~Operation_extractor();
 };
 
-typedef boost::shared_ptr<Operation_extractor> Operation_extractor_sptr;
+typedef boost::shared_ptr<Operation_extractor> Operation_extractor_sptr; // syndoc:include
 
 class Chef_map_operation_extractor: public Operation_extractor {
 public:
@@ -90,7 +90,7 @@ public:
 	~Operation_extractor_map();
 };
 
-typedef boost::shared_ptr<Operation_extractor_map> Operation_extractor_map_sptr;
+typedef boost::shared_ptr<Operation_extractor_map> Operation_extractor_map_sptr; // syndoc:include
 
 const char default_operation_extractor_name[] = "default";
 const char chef_map_operation_extractor_name[] = "chef_map";

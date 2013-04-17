@@ -85,5 +85,5 @@ public:
 };
 
 typedef boost::shared_ptr<Distributed_rectangular_grid >
-        Distributed_rectangular_grid_sptr;
+        Distributed_rectangular_grid_sptr;  // syndoc:include
 #endif /* DISTRIBUTED_RECTANGULAR_GRID_H_ */

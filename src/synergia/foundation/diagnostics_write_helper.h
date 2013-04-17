@@ -68,6 +68,6 @@ public:
     ~Diagnostics_write_helper();
 };
 
-typedef boost::shared_ptr<Diagnostics_write_helper > Diagnostics_write_helper_sptr;
+typedef boost::shared_ptr<Diagnostics_write_helper > Diagnostics_write_helper_sptr;  // syndoc:include
 
 #endif /* DIAGNOSTICS_WRITE_HELPER_H_ */

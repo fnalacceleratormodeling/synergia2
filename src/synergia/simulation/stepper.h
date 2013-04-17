@@ -51,6 +51,6 @@ public:
     virtual
     ~Stepper();
 };
-typedef boost::shared_ptr<Stepper > Stepper_sptr;
+typedef boost::shared_ptr<Stepper > Stepper_sptr; // syndoc:include
 
 #endif /* STEPPER_H_ */

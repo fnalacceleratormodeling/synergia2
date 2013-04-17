@@ -49,6 +49,6 @@ public:
 };
 BOOST_CLASS_EXPORT_KEY(Diagnostics_reference_particle)
 typedef boost::shared_ptr<Diagnostics_reference_particle >
-        Diagnostics_reference_particle_sptr;
+        Diagnostics_reference_particle_sptr; // syndoc:include
 
 #endif /* DIAGNOSTICS_REFERENCE_PARTICLE_H_ */

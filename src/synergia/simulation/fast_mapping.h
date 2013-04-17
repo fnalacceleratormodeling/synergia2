@@ -91,7 +91,7 @@ public:
     ~Fast_mapping_term();
 };
 
-typedef std::list<Fast_mapping_term > Fast_mapping_terms;
+typedef std::list<Fast_mapping_term > Fast_mapping_terms; // syndoc:include
 
 // The interface in this comment is out of date
 // Fast_mapping is a sparse container for a collection of arbitrary-order

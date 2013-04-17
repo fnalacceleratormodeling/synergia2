@@ -76,7 +76,8 @@ public:
     ~Diagnostics();
 };
 BOOST_CLASS_EXPORT_KEY(Diagnostics)
-typedef boost::shared_ptr<Diagnostics > Diagnostics_sptr;
+
+typedef boost::shared_ptr<Diagnostics > Diagnostics_sptr; // syndoc:include
 typedef std::list<Diagnostics_sptr > Diagnosticss;
 typedef std::vector<Diagnosticss > Train_diagnosticss;
 

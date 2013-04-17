@@ -35,6 +35,6 @@ public:
     ~Propagate_actions();
 };
 
-typedef boost::shared_ptr<Propagate_actions > Propagate_actions_sptr;
+typedef boost::shared_ptr<Propagate_actions > Propagate_actions_sptr; // syndoc:include
 
 #endif /* PROPAGATE_ACTIONS_H_ */

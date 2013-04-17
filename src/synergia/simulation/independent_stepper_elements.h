@@ -36,6 +36,6 @@ public:
 };
 BOOST_CLASS_EXPORT_KEY(Independent_stepper_elements);
 typedef boost::shared_ptr<Independent_stepper_elements >
-        Independent_stepper_elements_sptr;
+        Independent_stepper_elements_sptr; // syndoc:include
 
 #endif /* INDEPENDENT_STEPPER_ELEMENTS_H_ */
