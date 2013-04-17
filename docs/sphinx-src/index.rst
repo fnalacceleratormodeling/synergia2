@@ -14,7 +14,7 @@ Contents:
    code_conventions
    tools
    api_reference
-   CHEF
+   chef
 
 Indices and tables
 ==================
