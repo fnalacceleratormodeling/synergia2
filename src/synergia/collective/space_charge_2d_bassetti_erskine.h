@@ -11,7 +11,7 @@ class Space_charge_2d_bassetti_erskine : public Collective_operator
 {
 private:
     double sigma_x, sigma_y, sigma_cdt;
-    bool use_round;
+    bool is_round;
 public:
     Space_charge_2d_bassetti_erskine();
     virtual Space_charge_2d_bassetti_erskine *
@@ -24,6 +24,8 @@ public:
     // (in rest frame).
     std::vector<double >
     normalized_efield(double x, double y);
+    void
+    normalized_efield(double x, double y, double & E_x, double & E_y);
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
     virtual

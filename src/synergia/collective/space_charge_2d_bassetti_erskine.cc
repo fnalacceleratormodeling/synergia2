@@ -14,11 +14,8 @@ const Complex complex_1(1.0, 0.0);
 const Complex complex_0(0.0, 0.0);
 const Complex complex_i(0.0, 1.0);
 
-
-double const sigma_round = 0.1;
-
 Space_charge_2d_bassetti_erskine::Space_charge_2d_bassetti_erskine() :
-    Collective_operator("space charge")
+        Collective_operator("space charge")
 {
 }
 
@@ -29,20 +26,29 @@ Space_charge_2d_bassetti_erskine::clone()
 }
 
 void
-Space_charge_2d_bassetti_erskine::set_sigma(double sigma_x, double sigma_y, double sigma_cdt)
+Space_charge_2d_bassetti_erskine::set_sigma(double sigma_x, double sigma_y,
+        double sigma_cdt)
 {
     this->sigma_x = sigma_x;
     this->sigma_y = sigma_y;
     this->sigma_cdt = sigma_cdt;
     const double round_tolerance = 1.0e-6;
-    use_round = (std::abs(sigma_x/sigma_y -1) < round_tolerance);
+    is_round = (std::abs((sigma_x - sigma_y) / (sigma_x + sigma_y))
+            < round_tolerance);
 }
 
 std::vector<double >
 Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y)
 {
-    std::vector<double > retvec(3);
-    double x, y;
+    std::vector<double > retvec(2);
+    normalized_efield(arg_x, arg_y, retvec[0], retvec[1]);
+    return retvec;
+}
+
+void
+Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y,
+        double & E_x, double & E_y)
+{
     bool normal;
     std::complex<double > z;
     double ds, mean_sigma_squared;
@@ -54,143 +60,140 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y)
         ur, ul, lr, ll
     } quadrant;
 
-    x = arg_x;
-    y = arg_y;
+    double x = arg_x;
+    double y = arg_y;
 
     // Asymptotic limit ...
     if ((sigma_x == 0.0) && (sigma_y == 0.0)) {
-        r_squared = x * x + y * y;
+        double r_squared = x * x + y * y;
         if (r_squared < 1.0e-20) {
-            throw std::runtime_error("Asymptotic limit r seems too small in Space_charge_2d_bassetti_erskine::normalized_efield.");
+            throw std::runtime_error(
+                    "Asymptotic limit r seems too small in Space_charge_2d_bassetti_erskine::normalized_efield.");
         }
-        retvec[0] = x / r_squared;
-        retvec[1] = y / r_squared;
-        retvec[2] = 0.0;
-        return retvec;
-    }
+        E_x = x / r_squared;
+        E_y = y / r_squared;
+    } else {
 
-    // Round beam limit ...
-    if (use_round) {
-        if (std::abs((sigma_x - sigma_y) / (sigma_x + sigma_y)) < sigma_round) {
+        // Round beam limit ...
+        if (is_round) {
             r_squared = x * x + y * y;
             mean_sigma_squared = 2.0 * sigma_x * sigma_y;
             // Test for small r .....
-            if (r_squared > 1.0e-6 * mean_sigma_squared) {
-             	double vol_fact = (1.0 - exp(-r_squared / mean_sigma_squared));
-            	retvec[0] = vol_fact * x/r_squared;
-            	retvec[1] = vol_fact * y/r_squared;
-            	retvec[2] = 0.0;
-            	return retvec;
+            const double sigma_scale = 1.0e-6;
+            if (r_squared > sigma_scale * mean_sigma_squared) {
+                double vol_fact = (1.0 - exp(-r_squared / mean_sigma_squared));
+                E_x = vol_fact * x / r_squared;
+                E_y = vol_fact * y / r_squared;
+                return;
             } else {
-                retvec[0] = x / mean_sigma_squared;
-                retvec[1] = y / mean_sigma_squared;
-                retvec[2] = 0.0;
-                return retvec;
+                E_x = x / mean_sigma_squared;
+                E_y = y / mean_sigma_squared;
+                return;
+            }
+        } else {
+
+            // Elliptic beam ...
+            if (arg_x >= 0.0) {
+                if (arg_y >= 0.0) {
+                    quadrant = ur;
+                    x = arg_x;
+                    y = arg_y;
+                } else {
+                    quadrant = lr;
+                    x = arg_x;
+                    y = -arg_y;
+                }
+            } else {
+                if (arg_y >= 0.0) {
+                    quadrant = ul;
+                    x = -arg_x;
+                    y = arg_y;
+                } else {
+                    quadrant = ll;
+                    x = -arg_x;
+                    y = -arg_y;
+                }
+            }
+
+            // Check for normal processing ...
+            normal = sigma_x > sigma_y;
+            if (!normal) {
+                tmp1 = sigma_x;
+                sigma_x = sigma_y;
+                sigma_y = tmp1;
+                tmp1 = x;
+                x = y;
+                y = tmp1;
+            }
+
+            // The calculation ...
+            ds = sqrt(2.0 * (sigma_x * sigma_x - sigma_y * sigma_y));
+            arg1 = x / ds + complex_i * y / ds;
+            double r = sigma_y / sigma_x;
+            arg2 = ((x * r) / ds) + complex_i * ((y / r) / ds);
+
+            retarg1 = wofz(arg1);
+            retarg2 = wofz(arg2);
+
+            // Normalization ...
+            r = x / sigma_x;
+            r = r * r;
+            tmp1 = y / sigma_y;
+            r += tmp1 * tmp1;
+
+            z = retarg1;
+            z -= retarg2 * exp(-r / 2.0);
+            z *= -complex_i * sqrt(mconstants::pi) / ds;
+
+            // And return ...
+            if (normal) {
+                if (quadrant == ur) {
+                    E_x = real(z);
+                    E_y = -imag(z);
+                    return;
+                }
+                if (quadrant == ul) {
+                    E_x = -real(z);
+                    E_y = -imag(z);
+                    return;
+                }
+                if (quadrant == lr) {
+                    E_x = real(z);
+                    E_y = imag(z);
+                    return;
+                }
+                if (quadrant == ll) {
+                    E_x = -real(z);
+                    E_y = imag(z);
+                    return;
+                }
+            } else {
+                if (quadrant == ur) {
+                    E_x = -imag(z);
+                    E_y = real(z);
+                    return;
+                }
+                if (quadrant == ul) {
+                    E_x = imag(z);
+                    E_y = real(z);
+                    return;
+                }
+                if (quadrant == lr) {
+                    E_x = -imag(z);
+                    E_y = -real(z);
+                    return;
+                }
+                if (quadrant == ll) {
+                    E_x = imag(z);
+                    E_y = -real(z);
+                    return;
+                }
+                // ??? Just a guess; check this!
             }
         }
     }
 
-    // Elliptic beam ...
-    if (arg_x >= 0.0) {
-        if (arg_y >= 0.0) {
-            quadrant = ur;
-            x = arg_x;
-            y = arg_y;
-        } else {
-            quadrant = lr;
-            x = arg_x;
-            y = -arg_y;
-        }
-    } else {
-        if (arg_y >= 0.0) {
-            quadrant = ul;
-            x = -arg_x;
-            y = arg_y;
-        } else {
-            quadrant = ll;
-            x = -arg_x;
-            y = -arg_y;
-        }
-    }
-
-	// Check for normal processing ...
-    normal = sigma_x > sigma_y;
-    if (!normal) {
-        tmp1 = sigma_x;
-        sigma_x = sigma_y;
-        sigma_y = tmp1;
-        tmp1 = x;
-        x = y;
-        y = tmp1;
-    }
-
-    // The calculation ...
-    ds = sqrt(2.0 * (sigma_x * sigma_x - sigma_y * sigma_y));
-    arg1 = x / ds + complex_i * y / ds;
-    double r = sigma_y / sigma_x;
-    arg2 = ((x * r) / ds) + complex_i * ((y / r) / ds);
-
-    retarg1 = wofz(arg1);
-    retarg2 = wofz(arg2);
-
-    // Normalization ...
-    r = x / sigma_x;
-    r = r * r;
-    tmp1 = y / sigma_y;
-    r += tmp1 * tmp1;
-
-    z = retarg1;
-    z -= retarg2 * exp(-r / 2.0);
-    z *= -complex_i * sqrt(mconstants::pi) / ds;
-
-    // And return ...
-    retvec[2] = 0.0;
-    if (normal) {
-        if (quadrant == ur) {
-            retvec[0] = real(z);
-            retvec[1] = -imag(z);
-            return retvec;
-        }
-        if (quadrant == ul) {
-            retvec[0] = -real(z);
-            retvec[1] = -imag(z);
-            return retvec;
-        }
-        if (quadrant == lr) {
-            retvec[0] = real(z);
-            retvec[1] = imag(z);
-            return retvec;
-        }
-        if (quadrant == ll) {
-            retvec[0] = -real(z);
-            retvec[1] = imag(z);
-            return retvec;
-        }
-    } else {
-        if (quadrant == ur) {
-            retvec[0] = -imag(z);
-            retvec[1] = real(z);
-            return retvec;
-        }
-        if (quadrant == ul) {
-            retvec[0] = imag(z);
-            retvec[1] = real(z);
-            return retvec;
-        }
-        if (quadrant == lr) {
-            retvec[0] = -imag(z);
-            retvec[1] = -real(z);
-            return retvec;
-        }
-        if (quadrant == ll) {
-            retvec[0] = imag(z);
-            retvec[1] = -real(z);
-            return retvec;
-        }
-        // ??? Just a guess; check this!
-    }
-
-    return retvec; // This line should never be reached.
+    return; // This line should never be reached.
 }
 
 void
@@ -228,8 +231,9 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
         double z = bunch.get_local_particles()[part][Bunch::z];
         // csp: This line charge density works only for the gaussian charge
         //      distribution.
-        double line_charge_density = q_total * exp(-z * z /(2.0 * sigma_cdt
-                * sigma_cdt)) / (sqrt(2.0 * mconstants::pi) * sigma_cdt);
+        double line_charge_density = q_total
+                * exp(-z * z / (2.0 * sigma_cdt * sigma_cdt))
+                / (sqrt(2.0 * mconstants::pi) * sigma_cdt);
         double factor2 = line_charge_density * factor;
         std::vector<double > e_field(normalized_efield(x, y));
         bunch.get_local_particles()[part][Bunch::xp] += e_field[0] * factor2;
@@ -246,7 +250,7 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(sigma_x);
         ar & BOOST_SERIALIZATION_NVP(sigma_y);
         ar & BOOST_SERIALIZATION_NVP(sigma_cdt);
-        ar & BOOST_SERIALIZATION_NVP(use_round);
+        ar & BOOST_SERIALIZATION_NVP(is_round);
     }
 
 template
