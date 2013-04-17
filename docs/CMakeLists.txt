@@ -14,6 +14,15 @@ add_custom_target(sphinx
     COMMAND sphinx-build -a -b html -d doctrees sphinx-src html)
 add_dependencies(sphinx doxygen update_modules_rst)
 
+add_custom_target(sphinx_latex
+    /bin/rm -rf pdf doctrees
+    COMMAND sphinx-build -a -b latex -d doctrees sphinx-src pdf)
+add_dependencies(sphinx_latex doxygen update_modules_rst)
+
+add_custom_target(sphinx_pdf
+    COMMAND ./run-pdflatex)
+add_dependencies(sphinx_pdf sphinx_latex)
+
 add_custom_target(doc)
 add_dependencies(doc sphinx)
 

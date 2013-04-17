@@ -1,0 +1,6 @@
+#!/bin/sh
+
+cd "`dirname $0`" && \
+cd pdf && \
+pdflatex Synergia2.tex && \
+pdflatex Synergia2.tex
