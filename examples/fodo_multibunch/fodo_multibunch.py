@@ -23,7 +23,8 @@ try:
                                 lattice_simulator, opts.steps)
 
     bunches = []
-    comms = synergia.utils.generate_subcomms(opts.num_bunches)
+    comms = synergia.utils.generate_subcomms(synergia.utils.Commxx(),
+                                             opts.num_bunches)
     for i in range(0, opts.num_bunches):
         bunches.append(synergia.optics.generate_matched_bunch_transverse(
                   lattice_simulator, opts.emit, opts.emit, opts.stdz, opts.dpop,
