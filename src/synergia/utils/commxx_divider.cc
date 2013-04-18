@@ -36,7 +36,7 @@ Commxx_divider::get_commxx_sptr(Commxx_sptr const& parent)
             cache[parent] = retval;
         }
     } else {
-        retval = pos->first;
+        retval = pos->second;
     }
     return retval;
 }
