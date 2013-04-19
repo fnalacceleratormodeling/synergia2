@@ -8,11 +8,9 @@
 #include "synergia/foundation/math_constants.h"
 #include "synergia/utils/complex_error_function.h"
 
-typedef std::complex<double > Complex;
-
-const Complex complex_1(1.0, 0.0);
-const Complex complex_0(0.0, 0.0);
-const Complex complex_i(0.0, 1.0);
+const std::complex<double > complex_1(1.0, 0.0);
+const std::complex<double > complex_0(0.0, 0.0);
+const std::complex<double > complex_i(0.0, 1.0);
 
 Space_charge_2d_bassetti_erskine::Space_charge_2d_bassetti_erskine() :
         Collective_operator("space charge")

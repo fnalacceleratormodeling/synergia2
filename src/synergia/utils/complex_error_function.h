@@ -17,8 +17,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-typedef std::complex<double > Complex;
-
 inline int
 nearest_int_floor(const double x)
 {
@@ -26,8 +24,8 @@ nearest_int_floor(const double x)
     return ix;
 }
 
-inline Complex
-wofz(Complex z)
+inline std::complex<double >
+wofz(std::complex<double > z)
 {
     const double factor = 2.0 / sqrt(mconstants::pi);
     const double rmaxreal(0.5e154);
@@ -154,7 +152,7 @@ wofz(Complex z)
         if (z.real() < 0.0) v = -v;
     }
 
-    return Complex (u, v);
+    return std::complex<double > (u, v);
 }
 
 #endif /* COMPLEX_ERROR_FUNCTION_H_ */
