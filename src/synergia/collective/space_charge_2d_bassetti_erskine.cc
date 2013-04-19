@@ -47,12 +47,6 @@ void
 Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y,
         double & E_x, double & E_y)
 {
-    bool normal;
-    std::complex<double > z;
-    double ds, mean_sigma_squared;
-    std::complex<double > arg1, arg2;
-    double tmp1, r_squared;
-    std::complex<double > retarg1, retarg2;
     enum
     {
         ur, ul, lr, ll
@@ -74,8 +68,8 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y,
 
         // Round beam limit ...
         if (is_round) {
-            r_squared = x * x + y * y;
-            mean_sigma_squared = 2.0 * sigma_x * sigma_y;
+            double r_squared = x * x + y * y;
+            double mean_sigma_squared = 2.0 * sigma_x * sigma_y;
             // Test for small r .....
             const double sigma_scale = 1.0e-6;
             if (r_squared > sigma_scale * mean_sigma_squared) {
@@ -114,7 +108,8 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y,
             }
 
             // Check for normal processing ...
-            normal = sigma_x > sigma_y;
+            bool normal = sigma_x > sigma_y;
+            double tmp1;
             if (!normal) {
                 tmp1 = sigma_x;
                 sigma_x = sigma_y;
@@ -125,13 +120,13 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y,
             }
 
             // The calculation ...
-            ds = sqrt(2.0 * (sigma_x * sigma_x - sigma_y * sigma_y));
-            arg1 = x / ds + complex_i * y / ds;
+            double ds = sqrt(2.0 * (sigma_x * sigma_x - sigma_y * sigma_y));
+            std::complex<double > arg1 = x / ds + complex_i * y / ds;
             double r = sigma_y / sigma_x;
-            arg2 = ((x * r) / ds) + complex_i * ((y / r) / ds);
+            std::complex<double > arg2 = ((x * r) / ds) + complex_i * ((y / r) / ds);
 
-            retarg1 = wofz(arg1);
-            retarg2 = wofz(arg2);
+            std::complex<double > retarg1 = wofz(arg1);
+            std::complex<double > retarg2 = wofz(arg2);
 
             // Normalization ...
             r = x / sigma_x;
@@ -139,7 +134,7 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y,
             tmp1 = y / sigma_y;
             r += tmp1 * tmp1;
 
-            z = retarg1;
+            std::complex<double > z = retarg1;
             z -= retarg2 * exp(-r / 2.0);
             z *= -complex_i * sqrt(mconstants::pi) / ds;
 
