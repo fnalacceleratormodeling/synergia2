@@ -17,5 +17,13 @@ ratsimp(%);
 plot2d(%o3/sigma^2,[n,0,5]);
 /* [wxMaxima: input   end   ] */
 
+/* [wxMaxima: input   start ] */
+load(f90);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+f90(%o3);
+/* [wxMaxima: input   end   ] */
+
 /* Maxima can't load/batch files which end with a comment! */
 "Created with wxMaxima"$
