@@ -1,0 +1,21 @@
+/* [wxMaxima batch file version 1] [ DO NOT EDIT BY HAND! ]*/
+/* [ Created with wxMaxima version 12.09.0 ] */
+
+/* [wxMaxima: input   start ] */
+g(x):=exp(-(x/sigma)^2/2)/(sigma*sqrt(2*%pi));
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+integrate(g(x)*x^2, x, -n*sigma, n*sigma);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+ratsimp(%);
+/* [wxMaxima: input   end   ] */
+
+/* [wxMaxima: input   start ] */
+plot2d(%o3/sigma^2,[n,0,5]);
+/* [wxMaxima: input   end   ] */
+
+/* Maxima can't load/batch files which end with a comment! */
+"Created with wxMaxima"$
