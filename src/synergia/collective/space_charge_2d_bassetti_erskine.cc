@@ -60,12 +60,11 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y,
         double r_squared = x * x + y * y;
         if (r_squared < 1.0e-20) {
             throw std::runtime_error(
-                    "Asymptotic limit r seems too small in Space_charge_2d_bassetti_erskine::normalized_efield.");
+                    "Space_charge_2d_bassetti_erskine::normalized_efield: r is too small");
         }
         E_x = x / r_squared;
         E_y = y / r_squared;
     } else {
-
         // Round beam limit ...
         if (is_round) {
             double r_squared = x * x + y * y;
@@ -76,14 +75,11 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y,
                 double vol_fact = (1.0 - exp(-r_squared / mean_sigma_squared));
                 E_x = vol_fact * x / r_squared;
                 E_y = vol_fact * y / r_squared;
-                return;
             } else {
                 E_x = x / mean_sigma_squared;
                 E_y = y / mean_sigma_squared;
-                return;
             }
         } else {
-
             // Elliptic beam ...
             if (arg_x >= 0.0) {
                 if (arg_y >= 0.0) {
@@ -106,7 +102,6 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y,
                     y = -arg_y;
                 }
             }
-
             // Check for normal processing ...
             bool normal = sigma_x > sigma_y;
             double tmp1;
@@ -118,12 +113,12 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y,
                 x = y;
                 y = tmp1;
             }
-
             // The calculation ...
             double ds = sqrt(2.0 * (sigma_x * sigma_x - sigma_y * sigma_y));
             std::complex<double > arg1 = x / ds + complex_i * y / ds;
             double r = sigma_y / sigma_x;
-            std::complex<double > arg2 = ((x * r) / ds) + complex_i * ((y / r) / ds);
+            std::complex<double > arg2 = ((x * r) / ds)
+                    + complex_i * ((y / r) / ds);
 
             std::complex<double > retarg1 = wofz(arg1);
             std::complex<double > retarg2 = wofz(arg2);
@@ -138,55 +133,38 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y,
             z -= retarg2 * exp(-r / 2.0);
             z *= -complex_i * sqrt(mconstants::pi) / ds;
 
-            // And return ...
             if (normal) {
                 if (quadrant == ur) {
                     E_x = real(z);
                     E_y = -imag(z);
-                    return;
-                }
-                if (quadrant == ul) {
+                } else if (quadrant == ul) {
                     E_x = -real(z);
                     E_y = -imag(z);
-                    return;
-                }
-                if (quadrant == lr) {
+                } else if (quadrant == lr) {
                     E_x = real(z);
                     E_y = imag(z);
-                    return;
-                }
-                if (quadrant == ll) {
+                } else { // quadrant == ll
                     E_x = -real(z);
                     E_y = imag(z);
-                    return;
                 }
             } else {
                 if (quadrant == ur) {
                     E_x = -imag(z);
                     E_y = real(z);
-                    return;
-                }
-                if (quadrant == ul) {
+                } else if (quadrant == ul) {
                     E_x = imag(z);
                     E_y = real(z);
-                    return;
-                }
-                if (quadrant == lr) {
+                } else if (quadrant == lr) {
                     E_x = -imag(z);
                     E_y = -real(z);
-                    return;
-                }
-                if (quadrant == ll) {
+                } else { // quadrant == ll
                     E_x = imag(z);
                     E_y = -real(z);
-                    return;
                 }
-                // ??? Just a guess; check this!
             }
         }
     }
-
-    return; // This line should never be reached.
+    return;
 }
 
 void
