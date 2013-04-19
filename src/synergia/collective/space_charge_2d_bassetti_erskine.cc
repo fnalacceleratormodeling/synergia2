@@ -171,8 +171,6 @@ void
 Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
         Step & step, int verbosity, Logger & logger)
 {
-    // jfa: we should really convert to fixed_t state here and adjust
-    //      factor accordingly.
     bunch.convert_to_state(Bunch::fixed_t);
 
     MArray1d mean(Core_diagnostics::calculate_mean(bunch));
