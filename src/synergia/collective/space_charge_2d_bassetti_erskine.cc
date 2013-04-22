@@ -115,23 +115,15 @@ Space_charge_2d_bassetti_erskine::normalized_efield(double arg_x, double arg_y,
             }
             // The calculation ...
             double ds = sqrt(2.0 * (sigma_x * sigma_x - sigma_y * sigma_y));
-            std::complex<double > arg1 = x / ds + complex_i * y / ds;
-            double r = sigma_y / sigma_x;
-            std::complex<double > arg2 = ((x * r) / ds)
-                    + complex_i * ((y / r) / ds);
-
-            std::complex<double > retarg1 = wofz(arg1);
-            std::complex<double > retarg2 = wofz(arg2);
-
-            // Normalization ...
-            r = x / sigma_x;
-            r = r * r;
-            tmp1 = y / sigma_y;
-            r += tmp1 * tmp1;
-
-            std::complex<double > z = retarg1;
-            z -= retarg2 * exp(-r / 2.0);
-            z *= -complex_i * sqrt(mconstants::pi) / ds;
+            std::complex<double > z1 = (x + complex_i * y) / ds;
+            double rsigma = sigma_y / sigma_x;
+            std::complex<double > z2 = (x * rsigma + complex_i * y / rsigma)
+                    / ds;
+            double rx = x / sigma_x;
+            double ry = y / sigma_y;
+            double r2 = rx * rx + ry * ry;
+            std::complex<double > z = -complex_i
+                    * (wofz(z1) - exp(-r2 / 2.0) * wofz(z2)) / ds;
 
             if (normal) {
                 if (quadrant == ur) {
@@ -191,8 +183,9 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
     double unit_conversion = pconstants::c / (1.0e9 * pconstants::e);
     // scaled p = p/p_ref
     double p_scale = 1.0 / bunch.get_reference_particle().get_momentum();
-    double factor = unit_conversion * q * delta_t_beam * p_scale
-            / (2.0 * mconstants::pi * pconstants::epsilon0);
+    // conversion from normalized_efield to E_n/lambda in [(V/m)/(C/m)]
+    double E_conversion = 1.0 / (2.0*sqrt(mconstants::pi)*pconstants::epsilon0);
+    double factor = unit_conversion * q * delta_t_beam * p_scale * E_conversion;
 
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         double x = bunch.get_local_particles()[part][Bunch::x];
@@ -203,11 +196,10 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
         double line_charge_density = q_total
                 * exp(-z * z / (2.0 * sigma_cdt * sigma_cdt))
                 / (sqrt(2.0 * mconstants::pi) * sigma_cdt);
-        double factor2 = line_charge_density * factor;
         double E_x, E_y;
         normalized_efield(x, y, E_x, E_y);
-        bunch.get_local_particles()[part][Bunch::xp] += E_x * factor2;
-        bunch.get_local_particles()[part][Bunch::yp] += E_y * factor2;
+        bunch.get_local_particles()[part][Bunch::xp] += E_x * factor * line_charge_density;
+        bunch.get_local_particles()[part][Bunch::yp] += E_y * factor * line_charge_density;
     }
 }
 
