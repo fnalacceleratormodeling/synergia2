@@ -204,9 +204,10 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
                 * exp(-z * z / (2.0 * sigma_cdt * sigma_cdt))
                 / (sqrt(2.0 * mconstants::pi) * sigma_cdt);
         double factor2 = line_charge_density * factor;
-        std::vector<double > e_field(normalized_efield(x, y));
-        bunch.get_local_particles()[part][Bunch::xp] += e_field[0] * factor2;
-        bunch.get_local_particles()[part][Bunch::yp] += e_field[1] * factor2;
+        double E_x, E_y;
+        normalized_efield(x, y, E_x, E_y);
+        bunch.get_local_particles()[part][Bunch::xp] += E_x * factor2;
+        bunch.get_local_particles()[part][Bunch::yp] += E_y * factor2;
     }
 }
 
