@@ -184,7 +184,10 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
     // scaled p = p/p_ref
     double p_scale = 1.0 / bunch.get_reference_particle().get_momentum();
     // conversion from normalized_efield to E_n/lambda in [(V/m)/(C/m)]
-    double E_conversion = 1.0 / (2.0*sqrt(mconstants::pi)*pconstants::epsilon0);
+    // jfa: what I thought:
+//    double E_conversion = 1.0 / (2.0*sqrt(mconstants::pi)*pconstants::epsilon0);
+    // jfa: agrees with Space_charge_2d_open_hockney:
+    double E_conversion = 1.0 / (2.0*mconstants::pi * sqrt(mconstants::pi)*pconstants::epsilon0);
     double factor = unit_conversion * q * delta_t_beam * p_scale * E_conversion;
 
     for (int part = 0; part < bunch.get_local_num(); ++part) {
