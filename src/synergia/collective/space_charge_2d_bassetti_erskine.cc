@@ -167,9 +167,7 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
 
     MArray1d mean(Core_diagnostics::calculate_mean(bunch));
     MArray1d std(Core_diagnostics::calculate_std(bunch, mean));
-    sigma_x = std[Bunch::x];
-    sigma_y = std[Bunch::y];
-    sigma_cdt = std[Bunch::z];
+    set_sigma(std[Bunch::x], std[Bunch::y], std[Bunch::z]);
 
     // $\delta \vec{p} = \vec{F} \delta t = q \vec{E} \delta t$
     // point charge
@@ -187,7 +185,7 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
     // jfa: what I thought:
 //    double E_conversion = 1.0 / (2.0*sqrt(mconstants::pi)*pconstants::epsilon0);
     // jfa: agrees with Space_charge_2d_open_hockney:
-    double E_conversion = 1.0 / (2.0*mconstants::pi * sqrt(mconstants::pi)*pconstants::epsilon0);
+    double E_conversion = 1.0 / (2.0 * mconstants::pi * pconstants::epsilon0);
     double factor = unit_conversion * q * delta_t_beam * p_scale * E_conversion;
 
     for (int part = 0; part < bunch.get_local_num(); ++part) {
@@ -201,8 +199,10 @@ Space_charge_2d_bassetti_erskine::apply(Bunch & bunch, double delta_t,
                 / (sqrt(2.0 * mconstants::pi) * sigma_cdt);
         double E_x, E_y;
         normalized_efield(x, y, E_x, E_y);
-        bunch.get_local_particles()[part][Bunch::xp] += E_x * factor * line_charge_density;
-        bunch.get_local_particles()[part][Bunch::yp] += E_y * factor * line_charge_density;
+        bunch.get_local_particles()[part][Bunch::xp] += E_x * factor
+                * line_charge_density;
+        bunch.get_local_particles()[part][Bunch::yp] += E_y * factor
+                * line_charge_density;
     }
 }
 
