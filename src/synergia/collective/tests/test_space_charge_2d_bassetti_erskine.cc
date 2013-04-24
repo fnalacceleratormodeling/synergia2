@@ -132,10 +132,10 @@ BOOST_FIXTURE_TEST_CASE(apply, Ellipsoidal_bunch_fixture)
     double avg_y_kick2 = total_y_kick2 / bunch.get_local_num();
     double avg_p_kick2 = total_p_kick2 / bunch.get_local_num();
 
-    const double rough_tolerance = 5.0;
-    BOOST_CHECK_CLOSE(avg_x_kick2, 2.4e6, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_y_kick2, 1.3e7, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_p_kick2, 3.65e-2, rough_tolerance);
+    const double rough_tolerance = 0.01;
+    BOOST_CHECK_CLOSE(avg_x_kick2, 7.628e5, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_y_kick2, 4.206e6, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_p_kick2, 0.036659379, rough_tolerance);
 }
 
 struct Spherical_bunch_fixture
