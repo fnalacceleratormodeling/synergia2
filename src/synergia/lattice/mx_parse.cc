@@ -659,6 +659,7 @@ bool synergia::parse_int_madx( string const & s, mx_tree & doc, string const & f
 
   ws_t whitespace = space
                   | lit('!')  >> *(char_ - eol) >> eol
+                  | lit('&')  >> *(char_ - eol) >> eol
                   | lit("//") >> *(char_ - eol) >> eol
                   | lit("/*") >> *(char_ - "*/") >> "*/";
 
