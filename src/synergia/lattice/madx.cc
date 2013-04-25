@@ -3,6 +3,7 @@
 #include "mx_expr.h"
 
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 #include <iostream>
 
