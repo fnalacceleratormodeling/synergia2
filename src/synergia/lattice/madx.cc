@@ -57,7 +57,7 @@ namespace
       if( it->second.type == NUMBER )
       {
         mx_expr e = boost::any_cast<mx_expr>(it->second.value);
-        return boost::apply_visitor(mx_calculator(global), e);
+        return boost::apply_visitor(mx_calculator(global, def), e);
       }
       else
       {
