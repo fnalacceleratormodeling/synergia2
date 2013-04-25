@@ -238,7 +238,8 @@ void mx_line_member::interpret(MadX const & mx, MadX_line & line, int op)
     // something we dont support
     else
     {
-      throw runtime_error("Line member '" + name + "' does not exist or not correct type");
+      // TODO: for now, accept all names whether it is valid or not!!
+      //throw runtime_error("Line member '" + name + "' does not exist or not correct type");
     }
   }
   else
