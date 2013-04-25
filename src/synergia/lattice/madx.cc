@@ -566,14 +566,14 @@ MadX_entry_type
   if( variables_.find(key) != variables_.end() )
     return ENTRY_VARIABLE;
 
-  if( cmd_map_.find(key) != cmd_map_.end() )
-    return ENTRY_COMMAND;
+  if( seqs_.find(key) != seqs_.end() )
+    return ENTRY_SEQUENCE;
 
   if( lines_.find(key) != lines_.end() )
     return ENTRY_LINE;
 
-  if( seqs_.find(key) != seqs_.end() )
-    return ENTRY_SEQUENCE;
+  if( cmd_map_.find(key) != cmd_map_.end() )
+    return ENTRY_COMMAND;
 
   return ENTRY_NULL;
 }

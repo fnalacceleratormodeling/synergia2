@@ -229,6 +229,12 @@ void mx_line_member::interpret(MadX const & mx, MadX_line & line, int op)
           line.insert_element( subline.element_name( (op>0) ? (i) : (ne-1-i) ) );
       }
     }
+    // TODO: for now, we accept the sequence name as a simiple line member
+    // Needs more works!
+    else if( type==ENTRY_SEQUENCE )
+    {
+      line.insert_element( name );
+    }
     // something we dont support
     else
     {
