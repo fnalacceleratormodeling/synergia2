@@ -740,10 +740,10 @@ void
     cur_seq_.set_length( cmd.attribute_as_number("l") );
     string ref = cmd.attribute_as_string("refer", "");
 
-    if( ref.empty() )        cur_seq_.set_refer(SEQ_REF_START);
-    else if( ref=="START"  ) cur_seq_.set_refer(SEQ_REF_START);
+    if( ref=="START"  )      cur_seq_.set_refer(SEQ_REF_START);
     else if( ref=="CENTRE" ) cur_seq_.set_refer(SEQ_REF_CENTRE);
     else if( ref=="END" )    cur_seq_.set_refer(SEQ_REF_END);
+    else                     cur_seq_.set_refer(SEQ_REF_CENTRE);
   }
   else if( cmd.name()=="endsequence" )
   {

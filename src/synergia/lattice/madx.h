@@ -140,7 +140,7 @@ class synergia::MadX_sequence
 {
 public:
   MadX_sequence(MadX const & parent)
-    : parent(parent), lbl(), l(0.0), r(SEQ_REF_START), seq_() { }
+    : parent(parent), lbl(), l(0.0), r(SEQ_REF_CENTRE), seq_() { }
 
   // accessor
   string_t label() const;
