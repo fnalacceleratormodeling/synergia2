@@ -64,18 +64,18 @@ class synergia::mx_calculator
 {
 public:
   mx_calculator() 
-    : mx(NULL), has_def(false), def(0.0) { }
+    : mx(NULL), def(nan) { }
 
   explicit 
   mx_calculator(double def)
-    : mx(NULL), has_def(true),  def(def) { }
+    : mx(NULL), def(def) { }
 
   explicit 
   mx_calculator(MadX const & mx) 
-    : mx(&mx),  has_def(false), def(0.0) { }
+    : mx(&mx),  def(nan) { }
 
   mx_calculator(MadX const & mx, double def) 
-    : mx(&mx),  has_def(true),  def(def) { }
+    : mx(&mx),  def(def) { }
 
   double operator()(double val) const;
   double operator()(std::string const & ref) const;
@@ -84,9 +84,11 @@ public:
   double operator()(uop_t const & u) const;
   double operator()(bop_t const & b) const;
 
+public:
+  static double nan;
+
 private:
   MadX const * mx;
-  bool has_def;
   double def;
 };
 

@@ -81,8 +81,8 @@ public:
   double   attribute_as_number(string_t const & name) const;
   double   attribute_as_number(string_t const & name, double def) const;
   bool     attribute_as_boolean(string_t const & name) const;
-  std::vector<double> 
-           attribute_as_number_seq(string_t const & name) const;
+  std::vector<double> attribute_as_number_seq(string_t const & name) const;
+  std::vector<double> attribute_as_number_seq(string_t const & name, double def) const;
   MadX_command_type type() const;
   bool is_element() const;
   bool is_reference() const;
@@ -190,6 +190,7 @@ public:
   double   variable_as_number (string_t const & name, double def) const;
   bool     variable_as_boolean(string_t const & name) const;
   std::vector<double> variable_as_number_seq(string_t const & name) const;
+  std::vector<double> variable_as_number_seq(string_t const & name, double def) const;
 
   size_t command_count() const;  // un-labeled commands
   std::vector<string_t > commands() const;
@@ -234,6 +235,10 @@ public:
 
 private:
   void execute_command(string_t const & label, MadX_command const & cmd);
+
+public:
+  static double   nan;  // not a number
+  static string_t nst;  // not a string
 
 private:
   value_map_t   variables_;

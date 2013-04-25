@@ -3,7 +3,7 @@
 #include "mx_expr.h"
 
 #include <cmath>
-#include <limits>
+#include <climits>
 #include <stdexcept>
 #include <iostream>
 
@@ -13,12 +13,19 @@ using namespace std;
 
 
 //===========================================================================
+// Static initializer
+
+double MadX::nan = std::numeric_limits<double>::quiet_NaN();
+string MadX::nst = string("!!!!*&^%&*IMANULLSTRING(*&*&^^^");
+
+
+//===========================================================================
 // Helper functions
 
 namespace
 {
-  double madx_nan = std::numeric_limits<double>::quiet_NaN();
-  string madx_nst = string("!!!!*&^%&*IMANULLSTRING(*&*&^^^");
+  double madx_nan = MadX::nan;
+  string madx_nst = MadX::nst;
 
   string_t
     retrieve_string_from_map( value_map_t const & m
@@ -76,7 +83,8 @@ namespace
   std::vector<double>
     retrieve_number_seq_from_map( value_map_t const & m
                                 , string_t const & k
-                                , MadX const & global )
+                                , MadX const & global
+                                , double def )
   {
     string_t key(k);
     std::transform(key.begin(), key.end(), key.begin(), ::tolower);
@@ -92,7 +100,7 @@ namespace
         for( mx_exprs::const_iterator it = es.begin()
            ; it != es.end(); ++it )
         {
-          vd.push_back( boost::apply_visitor(mx_calculator(global), *it) );
+          vd.push_back( boost::apply_visitor(mx_calculator(global, def), *it) );
         }
         return vd;
       }
@@ -103,7 +111,14 @@ namespace
     }
     else
     {
-      throw std::runtime_error( "cannot find attribute with name " + key);
+      if( std::isnan(def) )
+        throw std::runtime_error( "cannot find attribute with name " + key);
+      else
+      {
+        vector<double> r(1); 
+        r[0] = def;
+        return r;
+      }
     }
   }
 
@@ -203,7 +218,13 @@ bool
 std::vector<double>
   MadX_command::attribute_as_number_seq( string_t const & name ) const
 {
-  return retrieve_number_seq_from_map(attributes_, name, *mx);
+  return retrieve_number_seq_from_map(attributes_, name, *mx, madx_nan);
+}
+
+std::vector<double>
+  MadX_command::attribute_as_number_seq( string_t const & name, double def ) const
+{
+  return retrieve_number_seq_from_map(attributes_, name, *mx, def);
 }
 
 void
@@ -464,7 +485,13 @@ bool
 std::vector<double>
   MadX::variable_as_number_seq( string_t const & name ) const
 {
-  return retrieve_number_seq_from_map( variables_, name, *this );
+  return retrieve_number_seq_from_map( variables_, name, *this, madx_nan );
+}
+
+std::vector<double>
+  MadX::variable_as_number_seq( string_t const & name, double def ) const
+{
+  return retrieve_number_seq_from_map( variables_, name, *this, def );
 }
 
 size_t
