@@ -17,10 +17,12 @@ using namespace std;
 namespace
 {
   double madx_nan = std::numeric_limits<double>::quiet_NaN();
+  string madx_nst = string("!!!!*&^%&*IMANULLSTRING(*&*&^^^");
 
   string_t
     retrieve_string_from_map( value_map_t const & m
-                            , string_t const & k )
+                            , string_t const & k 
+                            , string_t const & def )
   {
     string_t key(k);
     std::transform(key.begin(), key.end(), key.begin(), ::tolower);
@@ -32,7 +34,10 @@ namespace
     }
     else
     {
-      throw std::runtime_error( "cannot find attribute with name " + key);
+      if( def==madx_nst )
+        throw std::runtime_error( "cannot find attribute with name " + key);
+      else
+        return def;
     }
   }
 
@@ -167,7 +172,13 @@ MadX_value_type
 string_t
   MadX_command::attribute_as_string( string_t const & name ) const
 {
-  return retrieve_string_from_map(attributes_, name);
+  return retrieve_string_from_map( attributes_, name, madx_nst );
+}
+
+string_t
+  MadX_command::attribute_as_string( string_t const & name, string_t const & def ) const
+{
+  return retrieve_string_from_map( attributes_, name, def );
 }
 
 double
@@ -361,6 +372,21 @@ MadX_command
   return resolve_command(seq_[idx], parent, resolve);
 }
 
+MadX_entry_type
+  MadX_sequence::element_type(size_t idx) const
+{
+  MadX_command cmd = element(idx, false);
+  std::string key = cmd.label();
+  if( key.empty() ) key = cmd.name();
+  return parent.entry_type(key);
+}
+
+MadX_sequence_refer
+  MadX_sequence::refer() const
+{
+  return r;
+}
+
 void
   MadX_sequence::set_label(string_t const & label)
 {
@@ -374,6 +400,12 @@ void
 }
 
 void
+  MadX_sequence::set_refer(MadX_sequence_refer refer)
+{
+  r = refer;
+}
+
+void
   MadX_sequence::add_element(MadX_command const & cmd)
 {
   seq_.push_back(cmd);
@@ -384,6 +416,7 @@ void
 {
   lbl = string_t();
   l = 0.0;
+  r = SEQ_REF_START;
   seq_.clear();
 }
 
@@ -400,7 +433,13 @@ void
 string_t
   MadX::variable_as_string( string_t const & name ) const
 {
-  return retrieve_string_from_map( variables_, name );
+  return retrieve_string_from_map( variables_, name, madx_nst );
+}
+
+string_t
+  MadX::variable_as_string( string_t const & name, string_t const & def ) const
+{
+  return retrieve_string_from_map( variables_, name, def );
 }
 
 double
@@ -670,6 +709,12 @@ void
     building_seq_ = true;
     cur_seq_.set_label( label );
     cur_seq_.set_length( cmd.attribute_as_number("l") );
+    string ref = cmd.attribute_as_string("refer", "");
+
+    if( ref.empty() )        cur_seq_.set_refer(SEQ_REF_START);
+    else if( ref=="START"  ) cur_seq_.set_refer(SEQ_REF_START);
+    else if( ref=="CENTRE" ) cur_seq_.set_refer(SEQ_REF_CENTRE);
+    else if( ref=="END" )    cur_seq_.set_refer(SEQ_REF_END);
   }
   else if( cmd.name()=="endsequence" )
   {
