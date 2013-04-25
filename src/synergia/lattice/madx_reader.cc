@@ -62,13 +62,13 @@ namespace
         switch( vt ) {
         case NONE:
         case STRING:
-          element.set_string_attribute(*it, cmd.attribute_as_string(*it));
+          element.set_string_attribute(*it, cmd.attribute_as_string(*it, ""));
           break;
         case NUMBER:
-          element.set_double_attribute(*it, cmd.attribute_as_number(*it));
+          element.set_double_attribute(*it, cmd.attribute_as_number(*it, 0.0));
           break;
         case ARRAY:
-          element.set_vector_attribute(*it, cmd.attribute_as_number_seq(*it));
+          element.set_vector_attribute(*it, cmd.attribute_as_number_seq(*it, 0.0));
           break;
         default:
           throw std::runtime_error( "unable to process attribute " + *it
