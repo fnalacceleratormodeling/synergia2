@@ -74,7 +74,7 @@ opts.add("tuneV", 0.85," desired vertical tune, fractional (0<tuneH<1)",float)
 opts.add("adjust_chromaticity", 0, "", int)
 opts.add("chromH", -10.," desired horizontal chromaticty",float) 
 opts.add("chromV", -5.," desired vertical chromaticty",float) 
-opts.add("tunes_and_chroms",1, "calculates and print tunes and chromaticities", int)
+#opts.add("tunes_and_chroms",1, "calculates and print tunes and chromaticities", int)
 
 opts.add("bpms", 1, "", int)
 opts.add("impedance", 0, "", int)

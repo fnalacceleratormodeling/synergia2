@@ -182,12 +182,18 @@ Diagnostics_actions::add_per_forced_diagnostics_step(
 void
 Diagnostics_actions::add_per_operator(Diagnostics_sptr diagnostics_sptr)
 {
+    if (have_bunch_sptr()) {
+        diagnostics_sptr->set_bunch_sptr(get_bunch_sptr());
+    }
     per_operator_diagnosticss.push_back(diagnostics_sptr);
 }
 
 void
 Diagnostics_actions::add_per_operation(Diagnostics_sptr diagnostics_sptr)
 {
+    if (have_bunch_sptr()) {
+        diagnostics_sptr->set_bunch_sptr(get_bunch_sptr());
+    }
     per_operation_diagnosticss.push_back(diagnostics_sptr);
 }
 

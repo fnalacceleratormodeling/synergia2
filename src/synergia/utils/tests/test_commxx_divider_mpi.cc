@@ -104,6 +104,17 @@ BOOST_AUTO_TEST_CASE(get_commxx_sptr4)
     }
 }
 
+BOOST_AUTO_TEST_CASE(get_commxx_sptr_cached)
+{
+    int subsize = 1;
+    bool per_host = false;
+    Commxx_divider commxx_divider(subsize, per_host);
+    Commxx_sptr parent(new Commxx());
+    Commxx_sptr initial(commxx_divider.get_commxx_sptr(parent));
+    Commxx_sptr cached(commxx_divider.get_commxx_sptr(parent));
+    BOOST_CHECK_EQUAL(initial, cached);
+}
+
 BOOST_AUTO_TEST_CASE(serialize_)
 {
     const std::string serialize_file_name("commxx_divider.xml");

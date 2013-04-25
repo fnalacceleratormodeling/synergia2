@@ -15,18 +15,22 @@ double
   mx_calculator::operator()(std::string const & ref) const
 {
   if( mx==NULL )
-    throw std::runtime_error("Unable to locate reference " + ref);
+    if( has_def )  return def;
+    else throw std::runtime_error("Unable to locate reference " + ref);
 
-  return mx->variable_as_number(ref);
+  return has_def ? mx->variable_as_number(ref, def) 
+                 : mx->variable_as_number(ref);
 }
 
 double 
   mx_calculator::operator()(string_pair_t const & ref) const
 {
   if( mx==NULL )
-    throw std::runtime_error("Unable to locate reference " + ref.first + "->" + ref.second);
+    if( has_def ) return def;
+    else throw std::runtime_error("Unable to locate reference " + ref.first + "->" + ref.second);
 
-  return mx->command(ref.first).attribute_as_number(ref.second);
+  return has_def ? mx->command(ref.first).attribute_as_number(ref.second, def)
+                 : mx->command(ref.first).attribute_as_number(ref.second);
 }
 
 double 

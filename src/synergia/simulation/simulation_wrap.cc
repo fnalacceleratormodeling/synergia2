@@ -527,6 +527,8 @@ BOOST_PYTHON_MODULE(simulation)
             .def("add_per_forced_diagnostics_step",
                     &Diagnostics_actions::add_per_forced_diagnostics_step,
                     add_per_forced_diagnostics_step_member_overloads12())
+            .def("add_per_operator", &Diagnostics_actions::add_per_operator)
+            .def("add_per_operation", &Diagnostics_actions::add_per_operation)
             .def("first_action", &Diagnostics_actions::first_action)
             .def("turn_end_action", &Diagnostics_actions::turn_end_action)
             .def("step_end_action", &Diagnostics_actions::step_end_action)

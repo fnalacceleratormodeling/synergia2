@@ -38,15 +38,15 @@ void
 Split_operator_stepper_choice::construct_per_element_else()
 {
     bool verbose=false;
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    Logger logger(0);
+    
     double t_turn, t_turn1;
     t_turn= MPI_Wtime();
     // check if all num_steps are >1
     for(List_choice_map::const_iterator lch_it=this->list_choice_map.begin(); lch_it!= this->list_choice_map.end();
                  ++lch_it){
             if (lch_it->second.num_steps < 1) {
-                 std::cout<<"element name="<<  lch_it->first<<" num steps= "<<lch_it->second.num_steps<<std::endl;
+                 logger<<"element name="<<  lch_it->first<<" num steps= "<<lch_it->second.num_steps<<std::endl;
                 throw std::runtime_error(
                     "Split_operator_stepper_choice: all num_steps must be >= 1");
         }
@@ -83,7 +83,7 @@ Split_operator_stepper_choice::construct_per_element_else()
             Step_sptr step(new Step(0.0));
             step->append(ind_op, 1.0);
             get_steps().push_back(step);
-            if ((rank==0) && verbose) std::cout<<" element: "<<(*it)->get_name()<<" zero length step"<<std::endl;
+            if (verbose) logger<<" element: "<<(*it)->get_name()<<" zero length step"<<std::endl;
          }
          else{
             List_choice_map::const_iterator lch_it= this->list_choice_map.find((*it)->get_name());
@@ -135,7 +135,7 @@ Split_operator_stepper_choice::construct_per_element_else()
                     get_steps().push_back(step);
 
                 }
-            if ((rank==0) && verbose) std::cout<<" element: "<<(*it)->get_name()<<" nr of collective kicks ="<<steps_per_element<<std::endl;
+            if (verbose) logger<<" element: "<<(*it)->get_name()<<" nr of collective kicks ="<<steps_per_element<<std::endl;
             }
             else{
                         int steps_per_element=int(ceil(length/step_length_else));
@@ -184,7 +184,7 @@ Split_operator_stepper_choice::construct_per_element_else()
                             get_steps().push_back(step);
 
                    }
-            if ((rank==0) && verbose) std::cout<<" element: "<<(*it)->get_name()<<" nr of \"else\" collective kicks ="<<steps_per_element<<std::endl;
+            if (verbose) logger<<" element: "<<(*it)->get_name()<<" nr of \"else\" collective kicks ="<<steps_per_element<<std::endl;
             }
          }
 
@@ -193,11 +193,11 @@ Split_operator_stepper_choice::construct_per_element_else()
     get_lattice_simulator().set_slices(extract_slices(get_steps()));
 
     t_turn1= MPI_Wtime();
-     if (rank==0){
-          std::cout<<" stepper_choice per element:"<<std::endl;
-          std::cout<<"                total number of steps=  "<<this->get_steps().size()<<std::endl;
-          std::cout<<" time: stepper choice done in "<<t_turn1-t_turn<<std::endl;
-     }
+
+    logger<<" stepper_choice per element:"<<std::endl;
+    logger<<"                total number of steps=  "<<this->get_steps().size()<<std::endl;
+    logger<<" time: stepper choice done in "<<t_turn1-t_turn<<std::endl;
+     
 
 }
 
@@ -247,15 +247,15 @@ void
 Split_operator_stepper_choice::construct_split_else()
 {
     bool verbose=false;
-    int rank;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    Logger logger(0);
+
     double t_turn, t_turn1;
     t_turn= MPI_Wtime();
     // check if all num_steps are >1
     for(List_choice_map::const_iterator lch_it=this->list_choice_map.begin(); lch_it!= this->list_choice_map.end();
                  ++lch_it){
             if (lch_it->second.num_steps < 1) {
-                 std::cout<<"element name="<<  lch_it->first<<" num steps= "<<lch_it->second.num_steps<<std::endl;
+                 logger<<"element name="<<  lch_it->first<<" num steps= "<<lch_it->second.num_steps<<std::endl;
                 throw std::runtime_error(
                     "Split_operator_stepper_choice: all num_steps must be >= 1");
         }
@@ -277,7 +277,7 @@ Split_operator_stepper_choice::construct_split_else()
 
 
     double step_length_else = length_else/this->num_steps_else;
-    if (rank==0) std::cout<<" length_else="<< length_else<<" step_length_else="<< step_length_else<<std::endl;
+    logger<<" length_else="<< length_else<<" step_length_else="<< step_length_else<<std::endl;
 
     double  length_between=0.; // length between chosen elements
     Lattice_elements::iterator begin=get_lattice_simulator().get_lattice_sptr()->get_elements().begin();
@@ -305,7 +305,7 @@ Split_operator_stepper_choice::construct_split_else()
                 Step_sptr step(new Step(0.0));
                 step->append(ind_op, 1.0);
                 get_steps().push_back(step);
-                if ((rank==0) && verbose) std::cout<<" element: "<<(*it)->get_name()<<" zero length step"<<std::endl;
+                if (verbose)logger<<" element: "<<(*it)->get_name()<<" zero length step"<<std::endl;
             }
             else{
                int steps_per_element=found_it->second.num_steps;
@@ -354,7 +354,7 @@ Split_operator_stepper_choice::construct_split_else()
                     get_steps().push_back(step);
 
                 }
-            if ((rank==0) && verbose) std::cout<<" element: "<<(*it)->get_name()<<" nr of collective kicks ="<<steps_per_element<<std::endl;
+            if (verbose) logger<<" element: "<<(*it)->get_name()<<" nr of collective kicks ="<<steps_per_element<<std::endl;
             }
         ++end;
         begin=end;
@@ -373,11 +373,10 @@ Split_operator_stepper_choice::construct_split_else()
 
 
     t_turn1= MPI_Wtime();
-     if (rank==0){
-          std::cout<<" stepper_choice split_else:"<<std::endl;
-          std::cout<<"                total number of steps=  "<<this->get_steps().size()<<std::endl;
-          std::cout<<" time: stepper choice done in "<<t_turn1-t_turn<<std::endl;
-     }
+    
+          logger<<" stepper_choice split_else:"<<std::endl;
+          logger<<"                total number of steps=  "<<this->get_steps().size()<<std::endl;
+          logger<<" time: stepper choice done in "<<t_turn1-t_turn<<std::endl;
 
 }
 

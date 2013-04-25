@@ -11,6 +11,113 @@
 
 using namespace synergia;
 
+
+namespace
+{
+
+  double insert_sequence( Lattice_sptr lattice_sptr, 
+                          MadX const & mx, 
+                          std::string const & line_name )
+  {
+    MadX_sequence sequence(mx.sequence(line_name));
+
+    double r = 0.5;
+    double total_length = sequence.length();
+    double current_pos = 0.0;
+    const double min_drift_length = 1.0e-6;
+    int drift_count = 0;
+    int drift_digits = digits(sequence.element_count());
+
+    MadX_sequence_refer ref = sequence.refer();
+    if( ref==SEQ_REF_START )      r = 1.0;
+    else if( ref==SEQ_REF_CENTRE) r = 0.5;
+    else                          r = 0.0;
+
+    for (int i = 0; i < sequence.element_count(); ++i) {
+
+      double at = sequence.element(i, false).attribute_as_number("at");
+      std::string name(sequence.element(i, false).label());
+      if (name == "") {
+        name = sequence.element(i, true).label();
+      }
+ 
+      if( sequence.element_type(i)==ENTRY_SEQUENCE )
+      {
+        double l = insert_sequence( lattice_sptr, mx, name );
+        current_pos = at + l * r;
+
+        continue;
+      }
+
+      MadX_command cmd = sequence.element(i, true);
+      std::string type(cmd.name());
+      Lattice_element element(type, name);
+      std::vector<string_t > attribute_names( cmd.attribute_names() );
+
+      for (std::vector<string_t >::iterator it = attribute_names.begin();
+           it != attribute_names.end(); ++it) {
+
+        MadX_value_type vt = cmd.attribute_type(*it);
+
+        switch( vt ) {
+        case NONE:
+        case STRING:
+          element.set_string_attribute(*it, cmd.attribute_as_string(*it));
+          break;
+        case NUMBER:
+          element.set_double_attribute(*it, cmd.attribute_as_number(*it));
+          break;
+        case ARRAY:
+          element.set_vector_attribute(*it, cmd.attribute_as_number_seq(*it));
+          break;
+        default:
+          throw std::runtime_error( "unable to process attribute " + *it
+                                    + " of element " + name);
+        }
+      }
+
+      double drift_length = at - current_pos - element.get_length() * (1.0-r);
+      if (drift_length > min_drift_length) {
+        std::stringstream name_stream;
+        name_stream << "auto_drift";
+        name_stream << "_";
+        name_stream << line_name;
+        name_stream << "_";
+        name_stream << std::setw(drift_digits);
+        name_stream << std::setfill('0');
+        name_stream << drift_count;
+        Lattice_element drift("drift", name_stream.str());
+        drift.set_double_attribute("l", drift_length, false);
+        lattice_sptr->append(drift);
+        ++drift_count;
+      }
+      lattice_sptr->append(element);
+      current_pos = at + element.get_length() * r;
+    }
+
+    double final_drift_length = sequence.length() - current_pos;
+    if (final_drift_length > min_drift_length) {
+      std::stringstream name_stream;
+      name_stream << "auto_drift";
+      name_stream << "_";
+      name_stream << line_name;
+      name_stream << "_";
+      name_stream << std::setw(drift_digits);
+      name_stream << std::setfill('0');
+      name_stream << drift_count;
+      Lattice_element drift("drift", name_stream.str());
+      drift.set_double_attribute("l", final_drift_length, false);
+      lattice_sptr->append(drift);
+      ++drift_count;
+    }
+
+    return sequence.length();
+  }
+
+
+}
+
+
 void
 MadX_reader::extract_reference_particle(Lattice & lattice)
 {
@@ -184,73 +291,8 @@ MadX_reader::get_lattice_sptr(std::string const& line_name)
                 "MadX_reader::get_lattice_sptr does not currently handle lines");
     }
     if (found_sequence) {
-        MadX_sequence sequence(madx_sptr->sequence(line_name));
-        double total_length = sequence.length();
-        double current_pos = 0.0;
-        const double min_drift_length = 1.0e-6;
-        int drift_count = 0;
-        int drift_digits = digits(sequence.element_count());
-        for (int i = 0; i < sequence.element_count(); ++i) {
-            double at = sequence.element(i, false).attribute_as_number("at");
-            std::string name(sequence.element(i, false).label());
-            if (name == "") {
-                name = sequence.element(i, true).label();
-            }
-            MadX_command cmd = sequence.element(i, true);
-            std::string type(cmd.name());
-            Lattice_element element(type, name);
-            std::vector<string_t > attribute_names( cmd.attribute_names() );
-            for (std::vector<string_t >::iterator it = attribute_names.begin();
-                    it != attribute_names.end(); ++it) {
 
-                MadX_value_type vt = cmd.attribute_type(*it);
-
-                switch( vt ) {
-                  case NONE:
-                  case STRING:
-                    element.set_string_attribute(*it, cmd.attribute_as_string(*it));
-                    break;
-                  case NUMBER:
-                    element.set_double_attribute(*it, cmd.attribute_as_number(*it));
-                    break;
-                  case ARRAY:
-                    element.set_vector_attribute(*it, cmd.attribute_as_number_seq(*it));
-                    break;
-                  default:
-                    throw std::runtime_error(
-                            "unable to process attribute " + *it
-                                    + " of element " + name);
-                }
-            }
-            double drift_length = at - current_pos - element.get_length() * 0.5;
-            if (drift_length > min_drift_length) {
-                std::stringstream name_stream;
-                name_stream << "auto_drift";
-                name_stream << "_";
-                name_stream << std::setw(drift_digits);
-                name_stream << std::setfill('0');
-                name_stream << drift_count;
-                Lattice_element drift("drift", name_stream.str());
-                drift.set_double_attribute("l", drift_length, false);
-                lattice_sptr->append(drift);
-                ++drift_count;
-            }
-            lattice_sptr->append(element);
-            current_pos = at + element.get_length() * 0.5;
-        }
-        double final_drift_length = sequence.length() - current_pos;
-        if (final_drift_length > min_drift_length) {
-            std::stringstream name_stream;
-            name_stream << "auto_drift";
-            name_stream << "_";
-            name_stream << std::setw(drift_digits);
-            name_stream << std::setfill('0');
-            name_stream << drift_count;
-            Lattice_element drift("drift", name_stream.str());
-            drift.set_double_attribute("l", final_drift_length, false);
-            lattice_sptr->append(drift);
-            ++drift_count;
-        }
+        insert_sequence( lattice_sptr, *madx_sptr, line_name );
     }
     extract_reference_particle(*lattice_sptr);
     return lattice_sptr;

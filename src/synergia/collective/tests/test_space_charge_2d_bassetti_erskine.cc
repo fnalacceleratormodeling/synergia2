@@ -1,8 +1,6 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "synergia/collective/space_charge_2d_bassetti_erskine.h"
-//#include "synergia/collective/space_charge_2d_open_hockney.h"
-//#include "synergia/collective/space_charge_3d_open_hockney.h"
 #include "synergia/foundation/math_constants.h"
 using mconstants::pi;
 #include "synergia/foundation/physical_constants.h"
@@ -31,11 +29,10 @@ const double tolerance = 1.0e-12;
 BOOST_AUTO_TEST_CASE(construct)
 {
     Space_charge_2d_bassetti_erskine space_charge;
-    double sigin[3];
-    sigin[0] = 3.5e-3;
-    sigin[1] = 2.3e-3;
-    sigin[2] = 1.2e-2;
-    space_charge.set_sigma(sigin);
+    double sigma_x = 3.5e-3;
+    double sigma_y = 2.3e-3;
+    double sigma_cdt = 1.2e-2;
+    space_charge.set_sigma(sigma_x, sigma_y, sigma_cdt);
 }
 
 void
@@ -135,10 +132,10 @@ BOOST_FIXTURE_TEST_CASE(apply, Ellipsoidal_bunch_fixture)
     double avg_y_kick2 = total_y_kick2 / bunch.get_local_num();
     double avg_p_kick2 = total_p_kick2 / bunch.get_local_num();
 
-    const double rough_tolerance = 5.0;
-    BOOST_CHECK_CLOSE(avg_x_kick2, 2.4e6, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_y_kick2, 1.3e7, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_p_kick2, 3.65e-2, rough_tolerance);
+    const double rough_tolerance = 0.01;
+    BOOST_CHECK_CLOSE(avg_x_kick2, 7.628e5, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_y_kick2, 4.206e6, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_p_kick2, 0.036659379, rough_tolerance);
 }
 
 struct Spherical_bunch_fixture
