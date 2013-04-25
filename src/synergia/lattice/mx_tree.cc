@@ -91,8 +91,8 @@ bool mx_logic::evaluate(MadX const & mx) const
 
   assert( op!=NULL );
 
-  double l = boost::apply_visitor( mx_calculator(mx), lhs );
-  double r = boost::apply_visitor( mx_calculator(mx), rhs );
+  double l = boost::apply_visitor( mx_calculator(mx, 0.0), lhs );
+  double r = boost::apply_visitor( mx_calculator(mx, 0.0), rhs );
 
   return op(l, r);
 }
