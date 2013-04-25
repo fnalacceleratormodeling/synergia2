@@ -72,6 +72,7 @@ public:
            attribute_type(string_t const & name) const;
   string_t attribute_as_string(string_t const & name) const;
   double   attribute_as_number(string_t const & name) const;
+  double   attribute_as_number(string_t const & name, double def) const;
   bool     attribute_as_boolean(string_t const & name) const;
   std::vector<double> 
            attribute_as_number_seq(string_t const & name) const;
@@ -174,6 +175,7 @@ public:
   // accessor
   string_t variable_as_string (string_t const & name) const;
   double   variable_as_number (string_t const & name) const;
+  double   variable_as_number (string_t const & name, double def) const;
   bool     variable_as_boolean(string_t const & name) const;
   std::vector<double> variable_as_number_seq(string_t const & name) const;
 

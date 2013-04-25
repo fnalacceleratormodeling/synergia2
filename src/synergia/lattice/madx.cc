@@ -16,6 +16,8 @@ using namespace std;
 
 namespace
 {
+  double madx_nan = std::numeric_limits<double>::quiet_NaN();
+
   string_t
     retrieve_string_from_map( value_map_t const & m
                             , string_t const & k )
@@ -37,7 +39,8 @@ namespace
   double
     retrieve_number_from_map( value_map_t const & m
                             , string_t const & k
-                            , MadX const & global )
+                            , MadX const & global
+                            , double def )
   {
     string_t key(k);
     std::transform(key.begin(), key.end(), key.begin(), ::tolower);
@@ -57,7 +60,10 @@ namespace
     }
     else
     {
-      throw std::runtime_error( "cannot find attribute with name " + key);
+      if( std::isnan(def) )
+        throw std::runtime_error( "cannot find attribute with name " + key);
+      else
+        return def;
     }
   }
 
@@ -167,13 +173,19 @@ string_t
 double
   MadX_command::attribute_as_number( string_t const & name ) const
 {
-  return retrieve_number_from_map(attributes_, name, *mx);
+  return retrieve_number_from_map( attributes_, name, *mx, madx_nan );
+}
+
+double
+  MadX_command::attribute_as_number( string_t const & name, double def ) const
+{
+  return retrieve_number_from_map(attributes_, name, *mx, def);
 }
 
 bool
   MadX_command::attribute_as_boolean( string_t const & name ) const
 {
-  return std::abs(retrieve_number_from_map(attributes_, name, *mx)) > 1e-10;
+  return std::abs(retrieve_number_from_map(attributes_, name, *mx, madx_nan)) > 1e-10;
 }
 
 std::vector<double>
@@ -394,13 +406,19 @@ string_t
 double
   MadX::variable_as_number( string_t const & name ) const
 {
-  return retrieve_number_from_map( variables_, name, *this );
+  return retrieve_number_from_map( variables_, name, *this, madx_nan );
+}
+
+double
+  MadX::variable_as_number( string_t const & name, double def ) const
+{
+  return retrieve_number_from_map( variables_, name, *this, def );
 }
 
 bool
   MadX::variable_as_boolean( string_t const & name ) const
 {
-  return std::abs(retrieve_number_from_map( variables_, name, *this )) > 1e-10;
+  return std::abs(retrieve_number_from_map( variables_, name, *this, madx_nan )) > 1e-10;
 }
 
 std::vector<double>
