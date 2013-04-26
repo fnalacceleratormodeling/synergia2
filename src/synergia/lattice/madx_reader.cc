@@ -29,7 +29,7 @@ namespace
     int drift_digits = digits(sequence.element_count());
 
     MadX_sequence_refer ref = sequence.refer();
-    if( ref==SEQ_REF_START )      r = 1.0;
+    if( ref==SEQ_REF_ENTRY )      r = 1.0;
     else if( ref==SEQ_REF_CENTRE) r = 0.5;
     else                          r = 0.0;
 

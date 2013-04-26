@@ -36,9 +36,9 @@ namespace synergia
   , SEQUENCE };
 
   enum MadX_sequence_refer
-  { SEQ_REF_START
+  { SEQ_REF_ENTRY
   , SEQ_REF_CENTRE
-  , SEQ_REF_END };
+  , SEQ_REF_EXIT };
 
   enum MadX_entry_type
   { ENTRY_NULL

@@ -3,7 +3,6 @@
 #include "mx_expr.h"
 
 #include <cmath>
-#include <climits>
 #include <limits>
 #include <stdexcept>
 #include <iostream>
@@ -439,7 +438,7 @@ void
 {
   lbl = string_t();
   l = 0.0;
-  r = SEQ_REF_START;
+  r = SEQ_REF_CENTRE;
   seq_.clear();
 }
 
@@ -740,9 +739,9 @@ void
     cur_seq_.set_length( cmd.attribute_as_number("l") );
     string ref = cmd.attribute_as_string("refer", "");
 
-    if( ref=="START"  )      cur_seq_.set_refer(SEQ_REF_START);
+    if( ref=="ENTRY"  )      cur_seq_.set_refer(SEQ_REF_ENTRY);
     else if( ref=="CENTRE" ) cur_seq_.set_refer(SEQ_REF_CENTRE);
-    else if( ref=="END" )    cur_seq_.set_refer(SEQ_REF_END);
+    else if( ref=="EXIT" )   cur_seq_.set_refer(SEQ_REF_EXIT);
     else                     cur_seq_.set_refer(SEQ_REF_CENTRE);
   }
   else if( cmd.name()=="endsequence" )

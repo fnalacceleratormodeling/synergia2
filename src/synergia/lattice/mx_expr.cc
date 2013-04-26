@@ -3,7 +3,6 @@
 
 #include <stdexcept>
 #include <cmath>
-#include <climits>
 #include <limits>
 
 using namespace synergia;
