@@ -44,7 +44,7 @@ namespace
       if( sequence.element_type(i)==ENTRY_SEQUENCE )
       {
         double l = insert_sequence( lattice_sptr, mx, name );
-        current_pos = at + l * r;
+        current_pos = at + l;  // sub-sequence always refer to the entry point
 
         continue;
       }
