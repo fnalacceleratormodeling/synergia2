@@ -54,14 +54,27 @@ void
 populate_6d(Distribution &dist, Bunch &bunch, Const_MArray1d_ref means,
         Const_MArray2d_ref covariances)
 {
+    MArray1d limits(boost::extents[6]);
+    for (int i = 0; i < 6; ++i) {
+        limits[i] = 0.0;
+    }
+    populate_6d_truncated(dist, bunch, means, covariances, limits);
+}
+
+void
+populate_6d_truncated(Distribution &dist, Bunch &bunch,
+        Const_MArray1d_ref means, Const_MArray2d_ref covariances,
+        Const_MArray1d_ref limits)
+{
     multi_array_assert_size(means, 6, "populate_6d: means");
-    multi_array_assert_size(covariances, 6, 6, "populate_6d: covariances ");
+    multi_array_assert_size(covariances, 6, 6, "populate_6d: covariances");
+    multi_array_assert_size(limits, 6, "populate_6d: limits");
     MArray2d_ref particles(bunch.get_local_particles());
     int start = 0;
     int end = bunch.get_local_num();
     fill_unit_6d(dist, particles, covariances, start, end);
     adjust_moments(bunch, means, covariances);
-    bunch.check_pz2_positive();    
+    bunch.check_pz2_positive();
 }
 
 void
