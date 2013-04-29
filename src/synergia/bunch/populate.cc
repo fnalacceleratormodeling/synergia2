@@ -8,6 +8,7 @@
 USING_PART_OF_NAMESPACE_EIGEN
 
 #include "synergia/utils/multi_array_print.h"
+#include "synergia/utils/multi_array_assert.h"
 
 void
 adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
@@ -36,14 +37,29 @@ adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
     }
 }
 
+namespace
+{
+    void
+    fill_unit_6d(Distribution & dist, MArray2d_ref & particles,
+            Const_MArray2d_ref & covariances, int start, int end)
+    {
+        for (int i = 0; i < 6; ++i) {
+            dist.fill_unit_gaussian(
+                    particles[boost::indices[range(start, end)][i]]);
+        }
+    }
+}
+
 void
 populate_6d(Distribution &dist, Bunch &bunch, Const_MArray1d_ref means,
         Const_MArray2d_ref covariances)
 {
+    multi_array_assert_size(means, 6, "populate_6d: means");
+    multi_array_assert_size(covariances, 6, 6, "populate_6d: covariances ");
     MArray2d_ref particles(bunch.get_local_particles());
-    for (int i = 0; i < 6; ++i) {
-        dist.fill_unit_gaussian(particles[boost::indices[range()][i]]);
-    }
+    int start = 0;
+    int end = bunch.get_local_num();
+    fill_unit_6d(dist, particles, covariances, start, end);
     adjust_moments(bunch, means, covariances);
     bunch.check_pz2_positive();    
 }

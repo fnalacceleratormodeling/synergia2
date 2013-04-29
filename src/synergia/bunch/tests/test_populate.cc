@@ -92,6 +92,32 @@ BOOST_FIXTURE_TEST_CASE(populate_6d_general, Fixture)
     multi_array_check_equal(covariances, bunch_mom2, tolerance);
 }
 
+BOOST_FIXTURE_TEST_CASE(populate_6d_bad_shapes, Fixture)
+{
+    MArray2d covariances(boost::extents[6][6]);
+    MArray2d covariances_bad(boost::extents[6][7]);
+    MArray1d means(boost::extents[6]);
+    MArray1d means_bad(boost::extents[5]);
+
+    bool caught = false;
+    try {
+        populate_6d(distribution, bunch, means_bad, covariances);
+    }
+    catch (std::runtime_error &) {
+        caught = true;
+    }
+    BOOST_CHECK(caught);
+
+    caught = false;
+    try {
+        populate_6d(distribution, bunch, means, covariances_bad);
+    }
+    catch (std::runtime_error &) {
+        caught = true;
+    }
+    BOOST_CHECK(caught);
+}
+
 BOOST_FIXTURE_TEST_CASE(populate_transverse_gaussian_general, Fixture)
 {
     MArray2d covariances(boost::extents[6][6]);
