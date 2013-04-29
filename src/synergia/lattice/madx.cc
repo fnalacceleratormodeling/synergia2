@@ -3,6 +3,7 @@
 #include "mx_expr.h"
 
 #include <cmath>
+#include <limits>
 #include <stdexcept>
 #include <iostream>
 
@@ -12,12 +13,19 @@ using namespace std;
 
 
 //===========================================================================
+// Static initializer
+
+double MadX::nan = std::numeric_limits<double>::quiet_NaN();
+string MadX::nst = string("!!!!*&^%&*IMANULLSTRING(*&*&^^^");
+
+
+//===========================================================================
 // Helper functions
 
 namespace
 {
-  double madx_nan = std::numeric_limits<double>::quiet_NaN();
-  string madx_nst = string("!!!!*&^%&*IMANULLSTRING(*&*&^^^");
+  double madx_nan = MadX::nan;
+  string madx_nst = MadX::nst;
 
   string_t
     retrieve_string_from_map( value_map_t const & m
@@ -56,7 +64,7 @@ namespace
       if( it->second.type == NUMBER )
       {
         mx_expr e = boost::any_cast<mx_expr>(it->second.value);
-        return boost::apply_visitor(mx_calculator(global), e);
+        return boost::apply_visitor(mx_calculator(global, def), e);
       }
       else
       {
@@ -75,7 +83,8 @@ namespace
   std::vector<double>
     retrieve_number_seq_from_map( value_map_t const & m
                                 , string_t const & k
-                                , MadX const & global )
+                                , MadX const & global
+                                , double def )
   {
     string_t key(k);
     std::transform(key.begin(), key.end(), key.begin(), ::tolower);
@@ -91,7 +100,7 @@ namespace
         for( mx_exprs::const_iterator it = es.begin()
            ; it != es.end(); ++it )
         {
-          vd.push_back( boost::apply_visitor(mx_calculator(global), *it) );
+          vd.push_back( boost::apply_visitor(mx_calculator(global, def), *it) );
         }
         return vd;
       }
@@ -102,7 +111,14 @@ namespace
     }
     else
     {
-      throw std::runtime_error( "cannot find attribute with name " + key);
+      if( std::isnan(def) )
+        throw std::runtime_error( "cannot find attribute with name " + key);
+      else
+      {
+        vector<double> r(1); 
+        r[0] = def;
+        return r;
+      }
     }
   }
 
@@ -202,7 +218,13 @@ bool
 std::vector<double>
   MadX_command::attribute_as_number_seq( string_t const & name ) const
 {
-  return retrieve_number_seq_from_map(attributes_, name, *mx);
+  return retrieve_number_seq_from_map(attributes_, name, *mx, madx_nan);
+}
+
+std::vector<double>
+  MadX_command::attribute_as_number_seq( string_t const & name, double def ) const
+{
+  return retrieve_number_seq_from_map(attributes_, name, *mx, def);
 }
 
 void
@@ -416,7 +438,7 @@ void
 {
   lbl = string_t();
   l = 0.0;
-  r = SEQ_REF_START;
+  r = SEQ_REF_CENTRE;
   seq_.clear();
 }
 
@@ -463,7 +485,13 @@ bool
 std::vector<double>
   MadX::variable_as_number_seq( string_t const & name ) const
 {
-  return retrieve_number_seq_from_map( variables_, name, *this );
+  return retrieve_number_seq_from_map( variables_, name, *this, madx_nan );
+}
+
+std::vector<double>
+  MadX::variable_as_number_seq( string_t const & name, double def ) const
+{
+  return retrieve_number_seq_from_map( variables_, name, *this, def );
 }
 
 size_t
@@ -711,10 +739,10 @@ void
     cur_seq_.set_length( cmd.attribute_as_number("l") );
     string ref = cmd.attribute_as_string("refer", "");
 
-    if( ref.empty() )        cur_seq_.set_refer(SEQ_REF_START);
-    else if( ref=="START"  ) cur_seq_.set_refer(SEQ_REF_START);
+    if( ref=="ENTRY"  )      cur_seq_.set_refer(SEQ_REF_ENTRY);
     else if( ref=="CENTRE" ) cur_seq_.set_refer(SEQ_REF_CENTRE);
-    else if( ref=="END" )    cur_seq_.set_refer(SEQ_REF_END);
+    else if( ref=="EXIT" )   cur_seq_.set_refer(SEQ_REF_EXIT);
+    else                     cur_seq_.set_refer(SEQ_REF_CENTRE);
   }
   else if( cmd.name()=="endsequence" )
   {

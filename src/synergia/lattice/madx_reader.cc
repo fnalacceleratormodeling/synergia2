@@ -29,7 +29,7 @@ namespace
     int drift_digits = digits(sequence.element_count());
 
     MadX_sequence_refer ref = sequence.refer();
-    if( ref==SEQ_REF_START )      r = 1.0;
+    if( ref==SEQ_REF_ENTRY )      r = 1.0;
     else if( ref==SEQ_REF_CENTRE) r = 0.5;
     else                          r = 0.0;
 
@@ -44,7 +44,7 @@ namespace
       if( sequence.element_type(i)==ENTRY_SEQUENCE )
       {
         double l = insert_sequence( lattice_sptr, mx, name );
-        current_pos = at + l * r;
+        current_pos = at + l;  // sub-sequence always refer to the entry point
 
         continue;
       }
@@ -62,13 +62,13 @@ namespace
         switch( vt ) {
         case NONE:
         case STRING:
-          element.set_string_attribute(*it, cmd.attribute_as_string(*it));
+          element.set_string_attribute(*it, cmd.attribute_as_string(*it, ""));
           break;
         case NUMBER:
-          element.set_double_attribute(*it, cmd.attribute_as_number(*it));
+          element.set_double_attribute(*it, cmd.attribute_as_number(*it, 0.0));
           break;
         case ARRAY:
-          element.set_vector_attribute(*it, cmd.attribute_as_number_seq(*it));
+          element.set_vector_attribute(*it, cmd.attribute_as_number_seq(*it, 0.0));
           break;
         default:
           throw std::runtime_error( "unable to process attribute " + *it

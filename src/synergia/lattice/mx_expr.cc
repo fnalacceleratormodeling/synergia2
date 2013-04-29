@@ -2,8 +2,12 @@
 #include "madx.h"
 
 #include <stdexcept>
+#include <cmath>
+#include <limits>
 
 using namespace synergia;
+
+double mx_calculator::nan = std::numeric_limits<double>::quiet_NaN();
 
 double 
   mx_calculator::operator()(double val) const
@@ -15,22 +19,24 @@ double
   mx_calculator::operator()(std::string const & ref) const
 {
   if( mx==NULL )
-    if( has_def )  return def;
-    else throw std::runtime_error("Unable to locate reference " + ref);
+    if( std::isnan(def) )  
+      throw std::runtime_error("Unable to locate reference " + ref);
+    else 
+      return def;
 
-  return has_def ? mx->variable_as_number(ref, def) 
-                 : mx->variable_as_number(ref);
+  return mx->variable_as_number(ref, def);
 }
 
 double 
   mx_calculator::operator()(string_pair_t const & ref) const
 {
   if( mx==NULL )
-    if( has_def ) return def;
-    else throw std::runtime_error("Unable to locate reference " + ref.first + "->" + ref.second);
+    if( std::isnan(def) ) 
+      throw std::runtime_error("Unable to locate reference " + ref.first + "->" + ref.second);
+    else 
+      return def;
 
-  return has_def ? mx->command(ref.first).attribute_as_number(ref.second, def)
-                 : mx->command(ref.first).attribute_as_number(ref.second);
+  return mx->command(ref.first).attribute_as_number(ref.second, def);
 }
 
 double 
