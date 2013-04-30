@@ -96,8 +96,6 @@ namespace
         }
         MPI_Allreduce(&local_num, &total_num, 1, MPI_INT, MPI_SUM,
                 bunch.get_comm().get());
-        std::cout << "jfa: removed " << bunch.get_total_num() - total_num
-                << std::endl;
     }
 }
 
@@ -146,7 +144,6 @@ populate_6d_truncated(Distribution &dist, Bunch &bunch,
         strip_unit_6d(bunch, limits, total_num, local_num);
         while (total_num < bunch.get_total_num()) {
             ++iteration;
-            std::cout << "jfa: iteration " << iteration << std::endl;
             const int max_iterations = 50;
             if (iteration > max_iterations) {
                 throw std::runtime_error(
