@@ -118,6 +118,68 @@ BOOST_FIXTURE_TEST_CASE(populate_6d_bad_shapes, Fixture)
     BOOST_CHECK(caught);
 }
 
+BOOST_FIXTURE_TEST_CASE(populate_6d_truncated_diagonal, Fixture)
+{
+    MArray2d covariances(boost::extents[6][6]);
+    MArray1d means(boost::extents[6]);
+    MArray1d limits(boost::extents[6]);
+    for (int i = 0; i < 6; ++i) {
+        means[i] = i * 0.1;
+        covariances[i][i] = (i + 1) * (i + 1);
+        limits[i] = 3.0;
+    }
+
+    covariances[1][1] *= 0.00001;
+    covariances[3][3] *= 0.00001;
+    covariances[5][5] *= 0.00001;
+
+    populate_6d_truncated(distribution, bunch, means, covariances, limits);
+    MArray1d bunch_mean(Core_diagnostics::calculate_mean(bunch));
+    MArray2d bunch_mom2(Core_diagnostics::calculate_mom2(bunch, bunch_mean));
+    multi_array_check_equal(means, bunch_mean, tolerance);
+    multi_array_check_equal(covariances, bunch_mom2, tolerance);
+
+    bool found_miscreant(false);
+    for (int particle = 0; particle < bunch.get_local_num(); ++particle) {
+        for (int i = 0; i < 6; ++i) {
+            if (std::abs(bunch.get_local_particles()[particle][i]-means[i])
+                    > std::sqrt(covariances[i][i]) * limits[i]) {
+                found_miscreant = true;
+            }
+        }
+    }
+    BOOST_CHECK(!found_miscreant);
+}
+
+BOOST_FIXTURE_TEST_CASE(populate_6d_truncated_general, Fixture)
+{
+    MArray2d covariances(boost::extents[6][6]);
+    MArray1d means(boost::extents[6]);
+    MArray1d limits(boost::extents[6]);
+    for (int i = 0; i < 6; ++i) {
+        means[i] = i * 7.2;
+        for (int j = i; j < 6; ++j) {
+            covariances[i][j] = covariances[j][i] = (i + 1) * (j + 1);
+        }
+        covariances[i][i] *= 10.0; // this makes for a positive-definite matrix
+        limits[i] = 3.0;
+    }
+    for (int i = 0; i < 6; ++i) {
+         covariances[1][i] *=0.001;
+         covariances[i][1] *=0.001;
+         covariances[3][i] *=0.001;
+         covariances[i][3] *=0.001;
+         covariances[5][i] *=0.001;
+         covariances[i][5] *=0.001;
+    }
+
+    populate_6d_truncated(distribution, bunch, means, covariances, limits);
+    MArray1d bunch_mean(Core_diagnostics::calculate_mean(bunch));
+    MArray2d bunch_mom2(Core_diagnostics::calculate_mom2(bunch, bunch_mean));
+    multi_array_check_equal(means, bunch_mean, tolerance);
+    multi_array_check_equal(covariances, bunch_mom2, tolerance);
+}
+
 BOOST_FIXTURE_TEST_CASE(populate_transverse_gaussian_general, Fixture)
 {
     MArray2d covariances(boost::extents[6][6]);
