@@ -1,3 +1,4 @@
+#include <sstream>
 #include "populate.h"
 #include "diagnostics.h"
 
@@ -23,6 +24,10 @@ adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
     Matrix<double, 6, 6, Eigen::RowMajor > X(bunch_mom2.origin());
     Matrix<double, 6, 6, Eigen::RowMajor > H(X.llt().matrixL());
     Matrix<double, 6, 6, Eigen::RowMajor > A(G * H.inverse());
+    // jfa: dummy exists only to work around a bad interaction betwen
+    //      Eigen3 and g++ 4.1.2
+    std::stringstream dummy;
+    dummy << C;
 
     int num_particles = bunch.get_local_num();
     Eigen::Map<Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor > >
