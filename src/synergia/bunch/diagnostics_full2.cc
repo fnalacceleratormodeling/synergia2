@@ -1,12 +1,11 @@
 #include "diagnostics_full2.h"
 #include <cmath>
-#include "synergia/utils/eigen2/Eigen/Core"
-#include "synergia/utils/eigen2/Eigen/LU"
+#include "eigen3/Eigen/Core"
+#include "eigen3/Eigen/LU"
 #include <stdexcept>
 #include "synergia/utils/simple_timer.h"
 
-// import most common Eigen types
-USING_PART_OF_NAMESPACE_EIGEN
+using namespace Eigen;
 
 const char Diagnostics_full2::name[] = "diagnostics_full2";
 

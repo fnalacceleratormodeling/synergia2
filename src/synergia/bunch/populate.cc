@@ -1,11 +1,10 @@
 #include "populate.h"
 #include "diagnostics.h"
 
-#include "synergia/utils/eigen2/Eigen/Eigen"
-#include "synergia/utils/eigen2/Eigen/Cholesky"
+#include "eigen3/Eigen/Eigen"
+#include "eigen3/Eigen/Cholesky"
 
-// import most common Eigen types
-USING_PART_OF_NAMESPACE_EIGEN
+using namespace Eigen;
 
 #include "synergia/utils/multi_array_print.h"
 #include "synergia/utils/multi_array_assert.h"
@@ -20,9 +19,10 @@ adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
     MArray1d bunch_mean(Core_diagnostics::calculate_mean(bunch));
     MArray2d bunch_mom2(Core_diagnostics::calculate_mom2(bunch, bunch_mean));
     Matrix<double, 6, 6, Eigen::RowMajor > C(covariances.origin());
+    Matrix<double, 6, 6, Eigen::RowMajor > G(C.llt().matrixL());
     Matrix<double, 6, 6, Eigen::RowMajor > X(bunch_mom2.origin());
-    Matrix<double, 6, 6, Eigen::RowMajor > A = C.llt().matrixL()
-            * X.llt().matrixL().inverse();
+    Matrix<double, 6, 6, Eigen::RowMajor > H(X.llt().matrixL());
+    Matrix<double, 6, 6, Eigen::RowMajor > A(G * H.inverse());
 
     int num_particles = bunch.get_local_num();
     Eigen::Map<Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor > >
