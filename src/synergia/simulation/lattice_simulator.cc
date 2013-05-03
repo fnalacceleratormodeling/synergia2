@@ -598,7 +598,7 @@ Lattice_simulator::set_bucket_length()
 
         if ((*it)->has_double_attribute("freq")) {
             freq = (*it)->get_double_attribute("freq");
-            if ((isw == 1) && (fabs(freq - freq2) > eps)) {
+            if ((isw == 1) && (std::abs(freq - freq2) > eps)) {
                 throw std::runtime_error(
                         "set_bucket_length: rf elements with different frequencies found!!");
             }
@@ -1562,7 +1562,7 @@ set_chef_chrom_correctors(Lattice_elements const& correctors,
                     && ((!(*le_it)->has_double_attribute("tilt")
                             && !(*le_it)->has_string_attribute("tilt"))
                             || ((*le_it)->has_double_attribute("tilt")
-                                    && fabs(
+                                    && std::abs(
                                             (*le_it)->get_double_attribute(
                                                     "tilt")) < 1.e-6))) {
                 if (horizontal) {
@@ -1576,7 +1576,7 @@ set_chef_chrom_correctors(Lattice_elements const& correctors,
                     && ((!(*le_it)->has_double_attribute("tilt")
                             && !(*le_it)->has_string_attribute("tilt"))
                             || ((*le_it)->has_double_attribute("tilt")
-                                    && fabs(
+                                    && std::abs(
                                             (*le_it)->get_double_attribute(
                                                     "tilt")) < 1.e-6))) {
 
@@ -1651,7 +1651,7 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
     double dv = vertical_chromaticity - chr_v;
     int count = 0;
 
-    while (((fabs(dh) > tolerance) || (fabs(dv) > tolerance))
+    while (((std::abs(dh) > tolerance) || (std::abs(dv) > tolerance))
             && (count < max_steps)) {
             logger<< "  step=" << count << " chromaticity (H,V):  (" << chr_h<<", "
                 <<chr_v<<")"<< "   (Delta H, Delta V): (" << dh << ", " << dv <<")"<<    std::endl;

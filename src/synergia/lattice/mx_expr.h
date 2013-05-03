@@ -63,8 +63,19 @@ class synergia::mx_calculator
   : public boost::static_visitor<double>
 {
 public:
-  mx_calculator() : mx(NULL) { }
-  mx_calculator(MadX const & mx) : mx(&mx) { }
+  mx_calculator() 
+    : mx(NULL), def(nan) { }
+
+  explicit 
+  mx_calculator(double def)
+    : mx(NULL), def(def) { }
+
+  explicit 
+  mx_calculator(MadX const & mx) 
+    : mx(&mx),  def(nan) { }
+
+  mx_calculator(MadX const & mx, double def) 
+    : mx(&mx),  def(def) { }
 
   double operator()(double val) const;
   double operator()(std::string const & ref) const;
@@ -73,8 +84,12 @@ public:
   double operator()(uop_t const & u) const;
   double operator()(bop_t const & b) const;
 
+public:
+  static double nan;
+
 private:
   MadX const * mx;
+  double def;
 };
 
 #endif

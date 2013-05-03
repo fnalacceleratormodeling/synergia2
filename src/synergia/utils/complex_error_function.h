@@ -17,8 +17,6 @@
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-typedef std::complex<double > Complex;
-
 inline int
 nearest_int_floor(const double x)
 {
@@ -26,8 +24,8 @@ nearest_int_floor(const double x)
     return ix;
 }
 
-inline Complex
-wofz(Complex z)
+inline std::complex<double >
+wofz(std::complex<double > z)
 {
     const double factor = 2.0 / sqrt(mconstants::pi);
     const double rmaxreal(0.5e154);
@@ -154,87 +152,7 @@ wofz(Complex z)
         if (z.real() < 0.0) v = -v;
     }
 
-    return Complex (u, v);
-}
-
-//////////////////////////////////////////////////////////////
-//
-// Leo's version
-//
-// See basic_toolkit/src/erf.cc
-//
-//////////////////////////////////////////////////////////////
-
-Complex wofz2( Complex );
-
-//////////////////////////////////////////////////////////////
-
-Complex erf( const Complex& z )
-{   
-    if ( ( fabs(imag(z)) > 3.9 ) || ( fabs(real(z)) > 3.0 ) ) {
-        Complex u( - imag(z), real(z) );
-        return ( 1.0 - std::exp(u*u)*wofz2(u) );
-    }
-
-    static Complex series;
-    static Complex oldseries;
-    static Complex arg;
-    static Complex term;
-    static double  den;
-    static double  fctr_x;
-
-    series        = 1.0;
-    oldseries     = 0.0;
-    arg           = - z * z;
-    den           = 1.0;
-    term          = 1.0;
-    fctr_x        = 0.0;
-
-    while ( series != oldseries ) {
-        oldseries = series;
-        den      += 2.0;
-        fctr_x   += 1.0;
-        term     *= arg / fctr_x;
-        series   += term / den;
-    }
-
-    return (2.0 / sqrt(mconstants::pi)) * z * series;
-}
-
-//////////////////////////////////////////////////////////////
-
-Complex wofz2( Complex z )
-{
-    static const Complex mi( 0., -1. );
-    static double x;
-    static double y;
-
-    x = real(z);
-    y = imag(z);
-
-    if ( y < 0.0 )
-        return 2.0*std::exp( -z*z ) - wofz2( -z );
-
-    if ( x < 0.0 )
-        return conj( wofz2( Complex( - x, y ) ) );
-
-    if ( ( x > 6.0 ) || ( y > 6.0 ) )
-        return ( - mi * z * (
-                     ( 0.5124242  / ( z*z - 0.2752551 )) +
-                     ( 0.05176536 / ( z*z - 2.724745  ))
-                 )
-               );
-
-    if ( ( x > 3.9 ) || ( y > 3.0 ) )
-        return ( - mi * z * (
-                     ( 0.4613135   / ( z*z - 0.1901635 )) +
-                     ( 0.09999216  / ( z*z - 1.7844927 )) +
-                     ( 0.002883894 / ( z*z - 5.5253437 ))
-                 )
-               );
-
-    return std::exp( -z*z )*( 1.0 - erf( mi*z ) );
-
+    return std::complex<double > (u, v);
 }
 
 #endif /* COMPLEX_ERROR_FUNCTION_H_ */

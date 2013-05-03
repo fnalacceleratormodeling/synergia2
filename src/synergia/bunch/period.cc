@@ -31,7 +31,7 @@ void apply_zcut(Bunch & bunch, double length)
             for (int part = 0; part < local_num; ++part) {
                 bool try_discard = true;
                 while (try_discard) {
-                    if  (fabs((particles[part][Bunch::z]))>half_length){
+                    if  (std::abs((particles[part][Bunch::z]))>half_length){
                           ++discarded;
                          --local_num;       
                          if (part == local_num) {

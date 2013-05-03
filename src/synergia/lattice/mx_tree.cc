@@ -91,8 +91,8 @@ bool mx_logic::evaluate(MadX const & mx) const
 
   assert( op!=NULL );
 
-  double l = boost::apply_visitor( mx_calculator(mx), lhs );
-  double r = boost::apply_visitor( mx_calculator(mx), rhs );
+  double l = boost::apply_visitor( mx_calculator(mx, 0.0), lhs );
+  double r = boost::apply_visitor( mx_calculator(mx, 0.0), rhs );
 
   return op(l, r);
 }
@@ -229,10 +229,17 @@ void mx_line_member::interpret(MadX const & mx, MadX_line & line, int op)
           line.insert_element( subline.element_name( (op>0) ? (i) : (ne-1-i) ) );
       }
     }
+    // TODO: for now, we accept the sequence name as a simiple line member
+    // Needs more works!
+    else if( type==ENTRY_SEQUENCE )
+    {
+      line.insert_element( name );
+    }
     // something we dont support
     else
     {
-      throw runtime_error("Line member '" + name + "' does not exist or not correct type");
+      // TODO: for now, accept all names whether it is valid or not!!
+      //throw runtime_error("Line member '" + name + "' does not exist or not correct type");
     }
   }
   else
