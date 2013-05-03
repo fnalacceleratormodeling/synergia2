@@ -200,10 +200,17 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     }
 
     if (simple) {
-
-        ElmPtr elm(
-                new sbend(lattice_element.get_name().c_str(), length,
-                        brho * angle / length, angle, e1, e2));
+    	// std::cout << "sbend element: " << lattice_element.get_name() << ", angle: " << angle << ", e1: " << e1 << ", e2: " << e2 << ", k1: " << k1 << ", k2: " << k2 << std::endl;
+    	ElmPtr elm;
+    	// if angle is 0.0, this reduces to a drift, but only if the edge angles are also 0
+    	if (angle == 0.0 && e1 == 0.0 && e2 == 0.0) {
+    		elm = ElmPtr(
+    				new drift((lattice_element.get_name()+"_conv2drft").c_str(), length));
+    	} else {
+    		elm = ElmPtr(
+    				new sbend(lattice_element.get_name().c_str(), length,
+    						brho * angle / length, angle, e1, e2));
+    	}
         elm->setTag("SBEND");
         if (tilt != 0.0) elm->setAlignment(aligner);
 
@@ -1269,6 +1276,19 @@ Rfcavity_madx_adaptor::Rfcavity_madx_adaptor()
     get_default_element().set_double_attribute("shunt", 0.0);
 }
 
+void
+Rfcavity_madx_adaptor::set_derived_attributes_external(Lattice_element &lattice_element,
+		double lattice_length, double beta)
+{
+    if (lattice_element.has_double_attribute("harmon")
+            && lattice_element.get_double_attribute("harmon") != 0.0) {
+    	double h = lattice_element.get_double_attribute("harmon");
+
+    	double freq = h * beta * pconstants::c/lattice_length;
+    	lattice_element.set_double_attribute("freq", freq);
+    }
+}
+
 Chef_elements
 Rfcavity_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
@@ -1279,12 +1299,6 @@ Rfcavity_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double freq = 0;
     if (lattice_element.has_double_attribute("freq")) {
         freq = lattice_element.get_double_attribute("freq");
-    } else {
-        if (lattice_element.has_double_attribute("harmon")
-                && lattice_element.get_double_attribute("harmon") != 0.0) {
-            std::cout
-                    << "jfa: rfcavity could figure out frequency from harmonic number, but doesn't. FIXME!\n";
-        }
     }
     double q = 0;
     if (length == 0.0) {

@@ -2,6 +2,7 @@
 #define MADX_ADAPTORS_H_
 
 #include "synergia/lattice/element_adaptor.h"
+#include "synergia/foundation/physical_constants.h"
 
 class Marker_madx_adaptor : public Element_adaptor
 {
@@ -194,6 +195,9 @@ public:
     Rfcavity_madx_adaptor();
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
+    virtual void
+    set_derived_attributes_external(Lattice_element &lattice_element,
+    		double lattice_length, double beta);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
