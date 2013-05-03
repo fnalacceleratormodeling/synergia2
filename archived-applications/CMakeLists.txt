@@ -1,0 +1,6 @@
+add_subdirectory(cxx_test)
+add_subdirectory(cxx_checkpoint)
+add_subdirectory(cxx_benchmark)
+add_subdirectory(normal_forms)
+add_subdirectory(cxx_ecloud)
+add_subdirectory(booster)
