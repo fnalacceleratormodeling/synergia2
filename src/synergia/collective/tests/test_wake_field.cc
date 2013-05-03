@@ -233,6 +233,35 @@ Wake_field wakef("Fwake.dat", "XLXTYLYTZpp"); // four columns file
  
 }
 
+BOOST_AUTO_TEST_CASE(Fwake_multiply)
+{
+  Wake_field wakef("Fwake.dat", "XLXTYLYTZpp"); // four columns file
+  BOOST_CHECK_EQUAL(wakef.get_z_coord().size(), 3000);
+ 
+  double mltp=2.4;
+  wakef.multiply_xw_lead(mltp);
+  wakef.multiply_xw_trail(mltp);
+  wakef.multiply_yw_lead(mltp);
+  wakef.multiply_yw_trail(mltp);
+  wakef.multiply_z_wake(mltp);
+
+  BOOST_CHECK_CLOSE(wakef.get_z_coord()[0],  -0.534401, tolerance);
+  BOOST_CHECK_CLOSE(wakef.get_xw_lead()[0],  1.20964e+08*mltp, tolerance);
+  BOOST_CHECK_CLOSE(wakef.get_xw_trail()[0], -1.20964e+08*mltp, tolerance);
+  BOOST_CHECK_CLOSE(wakef.get_yw_lead()[0], 8.68572e+08*mltp, tolerance);
+  BOOST_CHECK_CLOSE(wakef.get_yw_trail()[0], 1.21505e+08*mltp, tolerance);
+  BOOST_CHECK_CLOSE(wakef.get_z_wake()[0],  205815*mltp, tolerance);
+ 
+  int last=wakef.get_z_coord().size()-1;
+  BOOST_CHECK_CLOSE(wakef.get_z_coord()[last],   1859.06, tolerance);
+  BOOST_CHECK_CLOSE(wakef.get_xw_lead()[last],   -4.25699e+06*mltp, tolerance);
+  BOOST_CHECK_CLOSE(wakef.get_xw_trail()[last],  4.25699e+06*mltp , tolerance);
+  BOOST_CHECK_CLOSE(wakef.get_yw_lead()[last],   -3.39949e+06*mltp , tolerance);
+  BOOST_CHECK_CLOSE(wakef.get_yw_trail()[last], -4.25699e+06*mltp, tolerance);
+  BOOST_CHECK_CLOSE(wakef.get_z_wake()[last],   -34.4432*mltp, tolerance);  
+ 
+}
+
 
 BOOST_AUTO_TEST_CASE(serialize_)
 {

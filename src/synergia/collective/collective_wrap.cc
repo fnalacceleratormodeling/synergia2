@@ -92,6 +92,16 @@ BOOST_PYTHON_MODULE(collective)
 	        init<std::string const & , std::string const &  >())
          .def("get_wake_file_name", &Wake_field::get_wake_file_name)
          .def("get_wake_type", &Wake_field::get_wake_type)
+         .def("get_xw_lead", &Wake_field::get_xw_lead)
+         .def("get_xw_trail", &Wake_field::get_xw_trail)
+         .def("get_yw_lead", &Wake_field::get_yw_lead)
+         .def("get_yw_trail", &Wake_field::get_yw_trail)
+         .def("get_z_wake", &Wake_field::get_z_wake)
+         .def("multiply_xw_lead", &Wake_field::multiply_xw_lead)
+         .def("multiply_xw_trail", &Wake_field::multiply_xw_trail)
+         .def("multiply_yw_lead", &Wake_field::multiply_yw_lead)
+         .def("multiply_yw_trail", &Wake_field::multiply_yw_trail)
+         .def("multiply_z_wake", &Wake_field::multiply_z_wake)
          ;
  
     class_<Impedance,Impedance_sptr,

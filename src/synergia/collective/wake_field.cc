@@ -172,6 +172,13 @@ wake_file(wake_file), wake_type(wake_type)
 				      yw_trail.push_back(temp_wake[3]);
 				      z_wake.push_back(temp_wake[4]);
 				    } 
+				    else  if (get_wake_type()=="TRANSVERSEpp"){
+				      xw_lead.push_back(temp_wake[1]);
+				      xw_trail.push_back(-temp_wake[1]);  
+				      yw_lead.push_back(temp_wake[2]);
+				      yw_trail.push_back(temp_wake[3]);
+				     // z_wake.push_back();
+				    } 
 				  else{
 				    throw
 				      std::runtime_error("invalid specification of the wake type for 5 columns wake file");
@@ -299,6 +306,48 @@ MArray1d_ref const Wake_field::get_z_wake()  {
   MArray1d_ref retval(z_wake.data(), boost::extents[z_wake.size()]);
   return retval;
 }   
+
+void Wake_field::multiply_xw_lead(double mltp)
+{
+        int size=xw_lead.size();
+        for (int i=0;i<size; ++i){
+          xw_lead[i] *= mltp;     
+        }
+}
+ 
+void Wake_field::multiply_xw_trail(double mltp)
+{ 
+        int size=xw_trail.size();
+        for (int i=0;i<size; ++i){
+          xw_trail[i] *= mltp;     
+        }
+
+}
+ 
+void Wake_field::multiply_yw_lead(double mltp)
+{
+        int size=yw_lead.size();
+        for (int i=0;i<size; ++i){
+          yw_lead[i] *= mltp;     
+        }
+}
+ 
+void Wake_field::multiply_yw_trail(double mltp)
+{
+        int size=yw_trail.size();
+        for (int i=0;i<size; ++i){
+          yw_trail[i] *= mltp;     
+        }
+}
+ 
+void Wake_field::multiply_z_wake(double mltp)
+{
+        int size=z_wake.size();
+        for (int i=0;i<size; ++i){
+          z_wake[i] *= mltp;     
+        }
+}
+ 
 
 Wake_field::Wake_field(){};
 

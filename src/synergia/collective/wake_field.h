@@ -54,6 +54,12 @@ public:
   double get_zstart() const;
   double get_delta_z() const;
   
+  void multiply_xw_lead(double mltp);
+  void multiply_xw_trail(double mltp);
+  void multiply_yw_lead(double mltp);
+  void multiply_yw_trail(double mltp);
+  void multiply_z_wake(double mltp);
+  
   template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);  

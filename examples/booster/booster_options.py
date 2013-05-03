@@ -46,7 +46,8 @@ opts.add("wakefileF","Fwake.dat","wake function file",str)
 #opts.add("wakefileF","BoosterF_g142_mu100.dat","wake function file",str)
 #opts.add("wakefileD","LamD_wake.dat","wake function file",str)
 #opts.add("wakefileF","LamF_wake.dat","wake function file",str)
-
+opts.add("waketype","XLXTYLYTZpp","wake type",str)
+#opts.add("waketype","TRANSVERSEpp","wake type",str)
 
 opts.add("xrms", 0.005," RMS x length [m]",float) #good ones!!
 opts.add("yrms",0.006 ," RMS y length [m]",float)  #good ones!!
@@ -62,8 +63,8 @@ opts.add("seed", 13, "Pseudorandom number generator seed", int)
 opts.add("num_macroparticles", 100000, "Number of macro particles", int)
 opts.add("num_real_particles", 5e10, "Number of real particles", float)
 opts.add("periodic", 1, "periodic bunches along z", int)
-opts.add("x_offset", 0.0005, "Bunch offset in x", float)
-opts.add("y_offset", 0.0005, "Bunch offset in y", float)
+opts.add("x_offset", 0.0006, "Bunch offset in x", float)
+opts.add("y_offset", 0.0003, "Bunch offset in y", float)
 opts.add("z_offset", 0.0, "Bunch offset in z", float)
 
 
