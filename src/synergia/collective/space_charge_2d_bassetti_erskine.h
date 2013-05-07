@@ -37,6 +37,6 @@ public:
 BOOST_CLASS_EXPORT_KEY(Space_charge_2d_bassetti_erskine)
 
 typedef boost::shared_ptr<Space_charge_2d_bassetti_erskine >
-        Space_charge_2d_bassetti_erskine_sptr;
+        Space_charge_2d_bassetti_erskine_sptr; // syndoc:include
 
 #endif /* SPACE_CHARGE_2D_BASSETTI_ERSKINE_H_ */

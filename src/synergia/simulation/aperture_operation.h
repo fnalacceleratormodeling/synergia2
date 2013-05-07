@@ -45,8 +45,8 @@ public:
 };
 BOOST_CLASS_EXPORT_KEY(Aperture_operation)
 
-typedef boost::shared_ptr<Aperture_operation > Aperture_operation_sptr;
-typedef std::list<Aperture_operation_sptr > Aperture_operation_sptrs;
+typedef boost::shared_ptr<Aperture_operation > Aperture_operation_sptr; // syndoc:include
+typedef std::list<Aperture_operation_sptr > Aperture_operation_sptrs; // syndoc:include
 
 /// An aperture to remove all particles with infinite and/or NaN coordinates.
 class Finite_aperture_operation : public Aperture_operation

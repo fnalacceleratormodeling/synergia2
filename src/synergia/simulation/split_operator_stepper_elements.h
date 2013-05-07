@@ -60,6 +60,6 @@ public:
 };
 BOOST_CLASS_EXPORT_KEY(Split_operator_stepper_elements);
 typedef boost::shared_ptr<Split_operator_stepper_elements >
-        Split_operator_stepper_elements_sptr;
+        Split_operator_stepper_elements_sptr;  // syndoc:include
 
 #endif /* SPLIT_OPERATOR_STEPPER_ELEMENTS_H_ */

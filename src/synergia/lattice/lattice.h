@@ -127,6 +127,6 @@ public:
     ~Lattice();
 };
 
-typedef boost::shared_ptr<Lattice > Lattice_sptr;
+typedef boost::shared_ptr<Lattice > Lattice_sptr; // syndoc:include
 
 #endif /* LATTICE_H_ */

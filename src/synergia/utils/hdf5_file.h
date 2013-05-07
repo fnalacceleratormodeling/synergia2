@@ -65,7 +65,7 @@ public:
     ~Hdf5_file();
 };
 
-typedef boost::shared_ptr<Hdf5_file > Hdf5_file_sptr;
+typedef boost::shared_ptr<Hdf5_file > Hdf5_file_sptr; // syndoc:include
 
 #include "synergia/utils/hdf5_file.tcc"
 

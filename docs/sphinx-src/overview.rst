@@ -102,7 +102,7 @@ Diagnostics on a per-step and per-turn basis.
 .. _MAD: http://mad.home.cern.ch/mad/
 .. _Bunch: ./bunch.html
 .. _Stepper: ./Stepper.html
-.. _CHEF: ./CHEF.html
+.. _chef: ./chef.html
 .. _accelerator: http://uspas.fnal.gov/
 
 .. rubric: Footnotes

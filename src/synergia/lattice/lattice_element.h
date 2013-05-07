@@ -11,7 +11,7 @@
 #include "synergia/utils/serialization.h"
 
 class Lattice_element;
-typedef boost::shared_ptr<Lattice_element > Lattice_element_sptr;
+typedef boost::shared_ptr<Lattice_element > Lattice_element_sptr; // syndoc:include
 
 /// The Lattice_element class contains the description of a single
 /// lattice element. Each element has a name, a (string) type and
@@ -193,6 +193,6 @@ public:
         serialize(Archive & ar, const unsigned int version);
 };
 
-typedef std::list<Lattice_element_sptr > Lattice_elements;
+typedef std::list<Lattice_element_sptr > Lattice_elements; // syndoc:include
 
 #endif /* LATTICE_ELEMENT_H_ */

@@ -50,6 +50,6 @@ public:
     ~Diagnostics_particles();
 };
 BOOST_CLASS_EXPORT_KEY(Diagnostics_particles)
-typedef boost::shared_ptr<Diagnostics_particles > Diagnostics_particles_sptr;
+typedef boost::shared_ptr<Diagnostics_particles > Diagnostics_particles_sptr; // syndoc:include
 
 #endif /* DIAGNOSTICS_PARTICLES_H_ */

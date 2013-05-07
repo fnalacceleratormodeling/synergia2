@@ -9,7 +9,7 @@
 #include "synergia/utils/serialization.h"
 
 class Commxx;
-typedef boost::shared_ptr<Commxx > Commxx_sptr;
+typedef boost::shared_ptr<Commxx > Commxx_sptr; // syndoc:include
 
 /// Commxx is a wrapper around MPI communicator (MPI_Comm) objects.
 ///
