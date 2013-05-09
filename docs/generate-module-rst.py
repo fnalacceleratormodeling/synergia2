@@ -24,11 +24,13 @@ Classes
 ''')
     classes.sort()
     for class_ in classes:
-        f.write('''.. doxygenclass:: %s
-    :project: synergia
-    :members:
-
-''' % class_)
+        f.write('.. doxygenclass:: %s\n' % class_)
+# jfa: DANGER DANGER
+#      hardwired to workaround a bug in Sphinx by not
+#      documenting members in Logger.
+        if class_ != 'Logger':
+            f.write('    :members:\n')
+        f.write('\n')
 
 def print_typedefs(f, typedefs):
     if len(typedefs) == 0:
