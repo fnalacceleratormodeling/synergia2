@@ -9,7 +9,7 @@ Contents:
    :maxdepth: 2
 
    overview
-   examples
+   tutorial
    units
    code_conventions
    tools
