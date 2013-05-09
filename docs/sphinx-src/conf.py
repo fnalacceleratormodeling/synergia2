@@ -36,6 +36,10 @@ breathe_projects = {
     "synergia":"xml"
 }
 breathe_default_project = "synergia"
+breathe_domain_by_extension = {
+    "h" : "cpp",
+    "cc" : "cpp",
+        }
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['.templates']
