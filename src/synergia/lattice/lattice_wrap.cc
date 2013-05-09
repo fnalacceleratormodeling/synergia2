@@ -235,6 +235,7 @@ BOOST_PYTHON_MODULE(lattice)
             .def("get_lattice", get_lattice_sptr2)
             ;
 
+    def("chef_beamline_as_string", chef_beamline_as_string);
     def("print_chef_beamline", print_chef_beamline);
     def("reference_particle_to_chef_particle",
             reference_particle_to_chef_particle);
