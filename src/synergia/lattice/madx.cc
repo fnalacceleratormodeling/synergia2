@@ -433,6 +433,8 @@ void
   if( cmd.name()=="sequence" || cmd.name()=="endsequence" ) 
     return;
 
+  // TODO: command must have "at" field
+  // throw if no 'at'
   seq_.push_back(cmd);
 }
 
@@ -754,39 +756,6 @@ void
   building_seq_ = false;
   seqs_.insert(std::make_pair(cur_seq_.label(), cur_seq_));
   cur_seq_.reset();
-}
-
-void
-  MadX::execute_command(string_t const & label, MadX_command const & cmd)
-{
-  if( cmd.name()=="sequence" )
-  {
-    // TODO: start building sequence
-    building_seq_ = true;
-    cur_seq_.set_label( label );
-    cur_seq_.set_length( cmd.attribute_as_number("l") );
-    string ref = cmd.attribute_as_string("refer", "");
-
-    if( ref=="ENTRY"  )      cur_seq_.set_refer(SEQ_REF_ENTRY);
-    else if( ref=="CENTRE" ) cur_seq_.set_refer(SEQ_REF_CENTRE);
-    else if( ref=="EXIT" )   cur_seq_.set_refer(SEQ_REF_EXIT);
-    else                     cur_seq_.set_refer(SEQ_REF_CENTRE);
-  }
-  else if( cmd.name()=="endsequence" )
-  {
-    // TODO: finish building the sequence and push it to the madx object
-    building_seq_ = false;
-    seqs_.insert(std::make_pair(cur_seq_.label(), cur_seq_));
-    cur_seq_.reset();
-  }
-  else if( building_seq_ )
-  {
-    // TODO: command must have "at" field
-    // throw if no 'at'
-
-    // push to cur_seq_ object
-    cur_seq_.add_element( cmd );
-  }
 }
 
 void

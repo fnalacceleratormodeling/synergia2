@@ -237,7 +237,6 @@ public:
     { insert_variable(name, value); }
 
 private:
-  void execute_command(string_t const & label, MadX_command const & cmd);
 
 public:
   static double   nan;  // not a number
