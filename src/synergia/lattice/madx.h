@@ -224,7 +224,8 @@ public:
   void fuse_command   (string_t const & name, MadX_command const & cmd);
                           // fuse all attr in cmd into label with the provided name
 
-  void start_sequence();
+  void start_sequence( string_t const & label, double length
+                     , string_t const & refer, string_t const & refpos );
   void end_sequence();
 
   // alias
