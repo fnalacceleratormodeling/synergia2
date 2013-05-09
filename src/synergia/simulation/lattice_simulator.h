@@ -19,7 +19,7 @@
 #include <string>
 #include "synergia/utils/serialization.h"
 
-typedef boost::shared_ptr<normalFormSage > Normal_form_sage_sptr;
+typedef boost::shared_ptr<normalFormSage > Normal_form_sage_sptr; // syndoc:include
 
 void map_to_twiss(Const_MArray2d_ref one_turn_map, double &alpha, double& beta, double& psi);
 void map_to_twiss(Const_MArray2d_view one_turn_map, double &alpha, double& beta, double& psi);

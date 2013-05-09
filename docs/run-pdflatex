@@ -1,0 +1,7 @@
+#!/bin/sh
+
+cd "`dirname $0`" && \
+./remove-empty-quotes.py pdf/Synergia2.tex && \
+cd pdf && \
+pdflatex Synergia2.tex && \
+pdflatex Synergia2.tex

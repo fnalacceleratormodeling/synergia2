@@ -69,5 +69,5 @@ public:
     ~Distributed_fft2d();
 };
 
-typedef boost::shared_ptr<Distributed_fft2d > Distributed_fft2d_sptr;
+typedef boost::shared_ptr<Distributed_fft2d > Distributed_fft2d_sptr; // syndoc:include
 #endif /* DISTRIBUTED_FFT2D_H_ */

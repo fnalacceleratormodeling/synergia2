@@ -42,6 +42,6 @@ public:
     ~Element_adaptor();
 };
 
-typedef boost::shared_ptr<Element_adaptor > Element_adaptor_sptr;
+typedef boost::shared_ptr<Element_adaptor > Element_adaptor_sptr; // syndoc:include
 
 #endif /* ELEMENT_ADAPTOR_H_ */

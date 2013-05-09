@@ -52,7 +52,7 @@ public:
         serialize(Archive & ar, const unsigned int version);
 };
 
-typedef boost::shared_ptr<Step > Step_sptr;
-typedef std::list<Step_sptr > Steps;
+typedef boost::shared_ptr<Step > Step_sptr; // syndoc:include
+typedef std::list<Step_sptr > Steps; // syndoc:include
 
 #endif /* STEP_H_ */

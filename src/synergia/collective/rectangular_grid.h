@@ -127,6 +127,6 @@ public:
 
 };
 
-typedef boost::shared_ptr<Rectangular_grid> Rectangular_grid_sptr;
+typedef boost::shared_ptr<Rectangular_grid> Rectangular_grid_sptr; // syndoc:include
 
 #endif /* RECTANGULAR_GRID_H_ */

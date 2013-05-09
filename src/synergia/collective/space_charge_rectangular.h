@@ -94,6 +94,7 @@ public:
     ~Space_charge_rectangular();
 };
 BOOST_CLASS_EXPORT_KEY(Space_charge_rectangular);
-typedef boost::shared_ptr<Space_charge_rectangular> Space_charge_rectangular_sptr;
+
+typedef boost::shared_ptr<Space_charge_rectangular> Space_charge_rectangular_sptr; // syndoc:include
 
 #endif /* SPACE_CHARGE_RECTANGULAR_H_ */

@@ -257,7 +257,7 @@ public:
     ~Bunch();
 };
 
-typedef boost::shared_ptr<Bunch > Bunch_sptr;
+typedef boost::shared_ptr<Bunch > Bunch_sptr; // syndoc:include // syndoc:include
 typedef std::vector<Bunch_sptr > Bunches;
 
 #endif /* BUNCH_H_ */

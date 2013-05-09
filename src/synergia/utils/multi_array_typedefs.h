@@ -31,54 +31,54 @@ template<typename T, size_t N_dims>
         }
     };
 
-typedef boost::multi_array<double, 1 > MArray1d;
-typedef boost::multi_array_ref<double, 1 > MArray1d_ref;
-typedef boost::const_multi_array_ref<double, 1 > Const_MArray1d_ref;
-typedef boost::detail::multi_array::multi_array_view<double, 1 > MArray1d_view;
-typedef Raw_multi_array<double, 1> Raw_MArray1d;
+typedef boost::multi_array<double, 1 > MArray1d; // syndoc:include
+typedef boost::multi_array_ref<double, 1 > MArray1d_ref; // syndoc:include
+typedef boost::const_multi_array_ref<double, 1 > Const_MArray1d_ref; // syndoc:include
+typedef boost::detail::multi_array::multi_array_view<double, 1 > MArray1d_view;  // syndoc:include
+typedef Raw_multi_array<double, 1> Raw_MArray1d; // syndoc:include
 
 
-typedef boost::multi_array<double, 2 > MArray2d;
-typedef boost::multi_array_ref<double, 2 > MArray2d_ref;
-typedef boost::const_multi_array_ref<double, 2 > Const_MArray2d_ref;
-typedef boost::detail::multi_array::multi_array_view<double, 2 > MArray2d_view;
+typedef boost::multi_array<double, 2 > MArray2d; // syndoc:include
+typedef boost::multi_array_ref<double, 2 > MArray2d_ref; // syndoc:include
+typedef boost::const_multi_array_ref<double, 2 > Const_MArray2d_ref; // syndoc:include
+typedef boost::detail::multi_array::multi_array_view<double, 2 > MArray2d_view; // syndoc:include
 typedef boost::detail::multi_array::const_multi_array_view<double, 2 >
-        Const_MArray2d_view;
+        Const_MArray2d_view; // syndoc:include
 typedef boost::general_storage_order<2> storage2d;
-typedef Raw_multi_array<double, 2> Raw_MArray2d;
+typedef Raw_multi_array<double, 2> Raw_MArray2d; // syndoc:include
 
-typedef boost::multi_array<double, 3 > MArray3d;
-typedef boost::multi_array_ref<double, 3 > MArray3d_ref;
-typedef boost::const_multi_array_ref<double, 3 > Const_MArray3d_ref;
-typedef boost::detail::multi_array::multi_array_view<double, 3 > MArray3d_view;
+typedef boost::multi_array<double, 3 > MArray3d; // syndoc:include
+typedef boost::multi_array_ref<double, 3 > MArray3d_ref; // syndoc:include
+typedef boost::const_multi_array_ref<double, 3 > Const_MArray3d_ref; // syndoc:include
+typedef boost::detail::multi_array::multi_array_view<double, 3 > MArray3d_view; // syndoc:include
 typedef boost::general_storage_order<3> storage3d;
-typedef Raw_multi_array<double, 3> Raw_MArray3d;
+typedef Raw_multi_array<double, 3> Raw_MArray3d; // syndoc:include
 
-typedef boost::multi_array<std::complex<double >, 1 > MArray1dc;
-typedef boost::multi_array_ref<std::complex<double >, 1 > MArray1dc_ref;
+typedef boost::multi_array<std::complex<double >, 1 > MArray1dc; // syndoc:include
+typedef boost::multi_array_ref<std::complex<double >, 1 > MArray1dc_ref; // syndoc:include
 typedef boost::const_multi_array_ref<std::complex<double >, 1 >
-        Const_MArray1dc_ref;
+        Const_MArray1dc_ref; // syndoc:include
 typedef boost::detail::multi_array::multi_array_view<std::complex<double >, 1 >
-        MArray1dc_view;
+        MArray1dc_view; // syndoc:include
 
-typedef boost::multi_array<std::complex<double >, 2 > MArray2dc;
-typedef boost::multi_array_ref<std::complex<double >, 2 > MArray2dc_ref;
+typedef boost::multi_array<std::complex<double >, 2 > MArray2dc; // syndoc:include
+typedef boost::multi_array_ref<std::complex<double >, 2 > MArray2dc_ref; // syndoc:include
 typedef boost::const_multi_array_ref<std::complex<double >, 2 >
-        Const_MArray2dc_ref;
+        Const_MArray2dc_ref; // syndoc:include
 typedef boost::detail::multi_array::multi_array_view<std::complex<double >, 2 >
-        MArray2dc_view;
-typedef Raw_multi_array<std::complex<double >, 2> Raw_MArray2dc;
+        MArray2dc_view; // syndoc:include
+typedef Raw_multi_array<std::complex<double >, 2> Raw_MArray2dc; // syndoc:include
 
-typedef boost::multi_array<std::complex<double >, 3 > MArray3dc;
-typedef boost::multi_array_ref<std::complex<double >, 3 > MArray3dc_ref;
+typedef boost::multi_array<std::complex<double >, 3 > MArray3dc; // syndoc:include
+typedef boost::multi_array_ref<std::complex<double >, 3 > MArray3dc_ref; // syndoc:include
 typedef boost::const_multi_array_ref<std::complex<double >, 3 >
-        Const_MArray3dc_ref;
+        Const_MArray3dc_ref; // syndoc:include
 typedef boost::detail::multi_array::multi_array_view<std::complex<double >, 3 >
-        MArray3dc_view;
+        MArray3dc_view; // syndoc:include
 
-typedef boost::multi_array<int, 1 > MArray1int;
-typedef boost::multi_array_ref<int, 1 > MArray1int_ref;
-typedef boost::const_multi_array_ref<int, 1 > Const_MArray1int_ref;
-typedef boost::detail::multi_array::multi_array_view<int, 1 > MArray1int_view;
+typedef boost::multi_array<int, 1 > MArray1int; // syndoc:include
+typedef boost::multi_array_ref<int, 1 > MArray1int_ref; // syndoc:include
+typedef boost::const_multi_array_ref<int, 1 > Const_MArray1int_ref; // syndoc:include
+typedef boost::detail::multi_array::multi_array_view<int, 1 > MArray1int_view; // syndoc:include
 
 #endif /* MULTI_ARRAY_TYPEDEFS_H_ */

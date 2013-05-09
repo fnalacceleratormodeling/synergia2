@@ -64,5 +64,5 @@ public:
     ~Distributed_fft3d();
 };
 
-typedef boost::shared_ptr<Distributed_fft3d > Distributed_fft3d_sptr;
+typedef boost::shared_ptr<Distributed_fft3d > Distributed_fft3d_sptr; // syndoc:include
 #endif /* DISTRIBUTED_FFT3D_H_ */

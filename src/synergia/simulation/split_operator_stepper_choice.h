@@ -65,6 +65,6 @@ public:
     ~Split_operator_stepper_choice();
 };
 BOOST_CLASS_EXPORT_KEY(Split_operator_stepper_choice);
-typedef boost::shared_ptr<Split_operator_stepper_choice > Split_operator_stepper_choice_sptr;
+typedef boost::shared_ptr<Split_operator_stepper_choice > Split_operator_stepper_choice_sptr;  // syndoc:include
 
 #endif /* SPLIT_OPERATOR_STEPPER_CHOICE_H_ */

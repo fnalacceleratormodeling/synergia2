@@ -1,0 +1,13 @@
+digraph foo {
+    graph [rankdir=LR];
+    node [shape=box, style="rounded,filled"];
+    "Propagator" [fillcolor=red];
+
+    "Steps" [fillcolor=blue];
+    "Actions" [fillcolor=green];
+    "Propagator" -> "Steps" [label="applies"];
+    "Propagator" -> "Actions" [label="applies"];
+
+    "Operators" [color=blue];
+    "Steps" -> "Operators" [label="consisting of"];
+   }
