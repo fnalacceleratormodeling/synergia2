@@ -317,6 +317,13 @@ void mx_command::interpret(MadX & mx)
       insert_attr(cmd, attr, mx);
     }
 
+    // un-labeled command
+    //   for un-labeled command, if there is a command whose label is
+    //   the same as the keyword of this un-labeled command, then merge
+    //   the unlabeled command into the labeled one
+    if( !labeled_ )
+      mx.fuse_command( keyword_, cmd );
+
     // insert the command to the MadX object
     if( labeled_ ) mx.insert_label(label_, cmd);
     else           mx.insert_command(cmd);

@@ -221,6 +221,8 @@ public:
   void insert_label   (string_t const & name, MadX_command const & cmd);
   void insert_line    (string_t const & name, MadX_line const & line);
   void insert_command (MadX_command const & cmd);
+  void fuse_command   (string_t const & name, MadX_command const & cmd);
+                          // fuse all attr in cmd into label with the provided name
 
   void start_sequence();
   void end_sequence();

@@ -698,6 +698,19 @@ void
 }
 
 void
+  MadX::fuse_command(string_t const & name, MadX_command const & cmd)
+{
+  string_t key(name);
+  std::transform( key.begin(), key.end(), key.begin(), ::tolower );
+
+  commands_m_t::iterator it = cmd_map_.find( key );
+  if( it!=cmd_map_.end() )
+  {
+    it->second.merge_with_overwrite( cmd );
+  }
+}
+
+void
   MadX::insert_line(string_t const & name, MadX_line const & line)
 {
   string_t key(name);
