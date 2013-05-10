@@ -22,6 +22,7 @@ import sys, os
 #sys.path.append(os.path.abspath('.'))
 sys.path.append(os.path.abspath('..'))
 sys.path.append(os.path.abspath('../..'))
+sys.path.append(os.path.abspath('../../src'))
 sys.path.append(os.path.abspath('../../../../install/lib'))
 
 
@@ -108,7 +109,7 @@ pygments_style = 'sphinx'
 # must exist either in Sphinx' static/ path, or in one of the custom paths
 # given in html_static_path.
 #html_style = 'default.css'
-html_theme = 'solar'
+html_theme = 'f6'
 html_theme_path = ['themes']
 
 # The name for this set of Sphinx documents.  If None, it defaults to
