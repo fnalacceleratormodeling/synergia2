@@ -391,7 +391,13 @@ size_t
 MadX_command
   MadX_sequence::element(size_t idx, bool resolve) const
 {
-  return resolve_command(seq_[idx], parent, resolve);
+  MadX_command cmd;
+  pair<string, size_t> id = seq_[idx];
+
+  if( id.first.empty() ) cmd = parent.command(id.second, resolve);
+  else                   cmd = parent.command(id.first , resolve);
+
+  return cmd;
 }
 
 MadX_entry_type
@@ -407,6 +413,12 @@ MadX_sequence_refer
   MadX_sequence::refer() const
 {
   return r;
+}
+
+string
+  MadX_sequence::refpos() const
+{
+  return rp;
 }
 
 void
@@ -428,9 +440,27 @@ void
 }
 
 void
-  MadX_sequence::add_element(MadX_command const & cmd)
+  MadX_sequence::set_refpos(string const & refpos)
 {
-  seq_.push_back(cmd);
+  rp = refpos;
+}
+
+void
+  MadX_sequence::add_element(string_t const & label)
+{
+  if( parent.command(label, false).name() == "sequence" )
+    return;
+
+  seq_.push_back( make_pair(label, 0) );
+}
+
+void
+  MadX_sequence::add_element(size_t idx)
+{
+  if( parent.command(idx, false).name() == "sequence" )
+    return;
+
+  seq_.push_back( make_pair(string(""), idx) );
 }
 
 void
@@ -439,6 +469,7 @@ void
   lbl = string_t();
   l = 0.0;
   r = SEQ_REF_CENTRE;
+  rp = string_t();
   seq_.clear();
 }
 
@@ -693,8 +724,21 @@ void
   cmd_map_.insert( std::make_pair(key, cmd) );
   cmd_map_[key].set_parent(*this);
 
-  // TODO : execution part should be moved to mx_tree
-  execute_command(key, cmd);
+  if( building_seq_ ) 
+    cur_seq_.add_element( key );
+}
+
+void
+  MadX::fuse_command(string_t const & name, MadX_command const & cmd)
+{
+  string_t key(name);
+  std::transform( key.begin(), key.end(), key.begin(), ::tolower );
+
+  commands_m_t::iterator it = cmd_map_.find( key );
+  if( it!=cmd_map_.end() )
+  {
+    it->second.merge_with_overwrite( cmd );
+  }
 }
 
 void
@@ -712,53 +756,33 @@ void
   cmd_seq_.push_back(cmd);
   cmd_seq_.back().set_parent(*this);
 
-  // TODO : execution part should be moved to mx_tree
-  execute_command("", cmd);
+  if( building_seq_ ) 
+    cur_seq_.add_element( cmd_seq_.size()-1 );
 }
 
 void
-  MadX::start_sequence()
+  MadX::start_sequence( string_t const & label
+                      , double length
+                      , string_t const & refer
+                      , string_t const & refpos )
 {
   building_seq_ = true;
+  cur_seq_.set_label(label);
+  cur_seq_.set_length(length);
+  cur_seq_.set_refpos(refpos);
+
+  if( refer=="entry"  )      cur_seq_.set_refer(SEQ_REF_ENTRY);
+  else if( refer=="center" ) cur_seq_.set_refer(SEQ_REF_CENTRE);
+  else if( refer=="exit" )   cur_seq_.set_refer(SEQ_REF_EXIT);
+  else                       cur_seq_.set_refer(SEQ_REF_CENTRE);
 }
 
 void
   MadX::end_sequence()
 {
   building_seq_ = false;
-}
-
-void
-  MadX::execute_command(string_t const & label, MadX_command const & cmd)
-{
-  if( cmd.name()=="sequence" )
-  {
-    // TODO: start building sequence
-    building_seq_ = true;
-    cur_seq_.set_label( label );
-    cur_seq_.set_length( cmd.attribute_as_number("l") );
-    string ref = cmd.attribute_as_string("refer", "");
-
-    if( ref=="ENTRY"  )      cur_seq_.set_refer(SEQ_REF_ENTRY);
-    else if( ref=="CENTRE" ) cur_seq_.set_refer(SEQ_REF_CENTRE);
-    else if( ref=="EXIT" )   cur_seq_.set_refer(SEQ_REF_EXIT);
-    else                     cur_seq_.set_refer(SEQ_REF_CENTRE);
-  }
-  else if( cmd.name()=="endsequence" )
-  {
-    // TODO: finish building the sequence and push it to the madx object
-    building_seq_ = false;
-    seqs_.insert(std::make_pair(cur_seq_.label(), cur_seq_));
-    cur_seq_.reset();
-  }
-  else if( building_seq_ )
-  {
-    // TODO: command must have "at" field
-    // throw if no 'at'
-
-    // push to cur_seq_ object
-    cur_seq_.add_element( cmd );
-  }
+  seqs_.insert(std::make_pair(cur_seq_.label(), cur_seq_));
+  cur_seq_.reset();
 }
 
 void

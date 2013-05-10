@@ -73,7 +73,8 @@ namespace synergia
 struct synergia::mx_keyword
 {
   mx_keyword() : name(), tag() { }
-  mx_keyword(std::string const & k, mx_keyword_type t) : name(k), tag(t) { }
+  mx_keyword(std::string const & k, mx_keyword_type t) : name(k), tag(t) 
+    { std::transform( name.begin(), name.end(), name.begin(), ::tolower ); }
 
   std::string name;
   mx_keyword_type tag;
