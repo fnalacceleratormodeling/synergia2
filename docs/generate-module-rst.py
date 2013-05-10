@@ -7,13 +7,17 @@ import os.path
 
 def start_file(filename):
     f = open(filename, 'w')
-    s = filename.split('.')
-    header = s[0] + '-header.' + s[1]
+    s = os.path.basename(filename).split('.')
+    header = 'sphinx-module-headers/' + s[0] + '-header.' + s[1]
     if os.path.exists(header):
         hf = open(header,'r')
         for line in hf.readlines():
             f.write(line)
         hf.close()
+    else:
+        sys.stderr.write(sys.argv[0] + 
+                         ":failed to open " + header + "\n")
+        sys.exit(1)
     return f
 
 def print_classes(f, classes):
