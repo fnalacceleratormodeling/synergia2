@@ -11,7 +11,8 @@ which uses Mad8 format.
 :file:`fodo.lat`:
 
 .. literalinclude:: ../../examples/fodo_simple1/fodo.lat
-
+   :language: none
+   
 The simulation itself is defined by the Python script 
 :file:`fodo_simple1.py`.
 
@@ -19,5 +20,5 @@ The simulation itself is defined by the Python script
 
 .. literalinclude:: ../../examples/fodo_simple1/fodo_simple1.py
 
-The :cpp:class:`Mad8Reader` class reads lattice files in Mad8 format
+The :py:class:`synergia.lattice.Mad8_reader` class reads lattice files in Mad8 format
 and produces an object of type :cpp:class:`Lattice`.
