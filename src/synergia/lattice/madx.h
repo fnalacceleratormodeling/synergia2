@@ -142,7 +142,7 @@ class synergia::MadX_sequence
 {
 public:
   MadX_sequence(MadX const & parent)
-    : parent(parent), lbl(), l(0.0), r(SEQ_REF_CENTRE), seq_() { }
+    : parent(parent), lbl(), l(0.0), r(SEQ_REF_CENTRE), rp(), seq_() { }
 
   // accessor
   string_t label() const;
@@ -151,11 +151,13 @@ public:
   MadX_command      element(size_t idx, bool resolve = true) const;
   MadX_entry_type   element_type(size_t idx) const;
   MadX_sequence_refer refer() const;
+  string_t            refpos() const;
 
   // modifier
   void set_label(string_t const & label);
   void set_length(double length);
   void set_refer(MadX_sequence_refer ref);
+  void set_refpos(string_t const & refpos);
   void add_element(string_t const & label); // add element by label (key to the map)
   void add_element(size_t idx);             // add element by index (unnamed cmd)
   void reset();
@@ -168,6 +170,7 @@ private:
   string_t lbl;
   double l;
   MadX_sequence_refer r;
+  string_t rp;
   cmd_idx_v_t   seq_;
 };
 

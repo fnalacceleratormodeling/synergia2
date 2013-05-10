@@ -415,6 +415,12 @@ MadX_sequence_refer
   return r;
 }
 
+string
+  MadX_sequence::refpos() const
+{
+  return rp;
+}
+
 void
   MadX_sequence::set_label(string_t const & label)
 {
@@ -431,6 +437,12 @@ void
   MadX_sequence::set_refer(MadX_sequence_refer refer)
 {
   r = refer;
+}
+
+void
+  MadX_sequence::set_refpos(string const & refpos)
+{
+  rp = refpos;
 }
 
 void
@@ -457,6 +469,7 @@ void
   lbl = string_t();
   l = 0.0;
   r = SEQ_REF_CENTRE;
+  rp = string_t();
   seq_.clear();
 }
 
@@ -756,6 +769,7 @@ void
   building_seq_ = true;
   cur_seq_.set_label(label);
   cur_seq_.set_length(length);
+  cur_seq_.set_refpos(refpos);
 
   if( refer=="entry"  )      cur_seq_.set_refer(SEQ_REF_ENTRY);
   else if( refer=="center" ) cur_seq_.set_refer(SEQ_REF_CENTRE);
