@@ -391,7 +391,13 @@ size_t
 MadX_command
   MadX_sequence::element(size_t idx, bool resolve) const
 {
-  return resolve_command(seq_[idx], parent, resolve);
+  MadX_command cmd;
+  pair<string, size_t> id = seq_[idx];
+
+  if( id.first.empty() ) cmd = parent.command(id.second, resolve);
+  else                   cmd = parent.command(id.first , resolve);
+
+  return cmd;
 }
 
 MadX_entry_type
@@ -428,14 +434,21 @@ void
 }
 
 void
-  MadX_sequence::add_element(MadX_command const & cmd)
+  MadX_sequence::add_element(string_t const & label)
 {
-  if( cmd.name()=="sequence" || cmd.name()=="endsequence" ) 
+  if( parent.command(label, false).name() == "sequence" )
     return;
 
-  // TODO: command must have "at" field
-  // throw if no 'at'
-  seq_.push_back(cmd);
+  seq_.push_back( make_pair(label, 0) );
+}
+
+void
+  MadX_sequence::add_element(size_t idx)
+{
+  if( parent.command(idx, false).name() == "sequence" )
+    return;
+
+  seq_.push_back( make_pair(string(""), idx) );
 }
 
 void
@@ -699,7 +712,7 @@ void
   cmd_map_[key].set_parent(*this);
 
   if( building_seq_ ) 
-    cur_seq_.add_element( cmd );
+    cur_seq_.add_element( key );
 }
 
 void
@@ -731,7 +744,7 @@ void
   cmd_seq_.back().set_parent(*this);
 
   if( building_seq_ ) 
-    cur_seq_.add_element( cmd );
+    cur_seq_.add_element( cmd_seq_.size()-1 );
 }
 
 void

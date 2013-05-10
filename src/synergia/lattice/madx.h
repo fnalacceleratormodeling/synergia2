@@ -136,6 +136,8 @@ private:
 
 typedef std::map<string_t, synergia::MadX_line>    lines_m_t;
 
+typedef std::vector<std::pair<std::string, size_t> > cmd_idx_v_t;
+
 class synergia::MadX_sequence
 {
 public:
@@ -154,7 +156,8 @@ public:
   void set_label(string_t const & label);
   void set_length(double length);
   void set_refer(MadX_sequence_refer ref);
-  void add_element(MadX_command const & cmd);
+  void add_element(string_t const & label); // add element by label (key to the map)
+  void add_element(size_t idx);             // add element by index (unnamed cmd)
   void reset();
 
   // print
@@ -165,7 +168,7 @@ private:
   string_t lbl;
   double l;
   MadX_sequence_refer r;
-  commands_v_t  seq_;
+  cmd_idx_v_t   seq_;
 };
 
 typedef std::map<string_t, synergia::MadX_sequence> sequences_m_t;
