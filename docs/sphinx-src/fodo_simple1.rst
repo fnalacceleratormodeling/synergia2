@@ -42,7 +42,7 @@ a given number of real particles.
 
 .. note::
 
-This example uses :py:function:`synergia.optics.generate_matched_bunch_transverse`,
+This example uses :py:func:`synergia.optics.generate_matched_bunch_transverse`,
 which combines bunch generation with filling the bunch with a set of macroparticles
 matched to a simulation. This interface will be changed before the Synergia 2.1
 final release.
@@ -51,18 +51,21 @@ Bunch simulator definition
 --------------------------
 
 Synergia uses the :cpp:class:`Bunch_simulator` class to combine 
-:cpp:class:`Bunch`es with corresponding diagnostics objects.
+objects of type :cpp:class:`Bunch` with corresponding diagnostics objects.
 
 Bunch diagnostic definition
 ---------------------------
 
 Synergia has contains a variety of measurements to be applied to bunches at
-various points in the simulation. The simulation uses classes derived from
-:cpp:class:`Diagnostics` that have been added to the 
-:cpp:class:`Bunch_simulator`. Here we have decided to use a basic set of
-diagnostics which included means and standard deviations in all six phase-space
+various points in the simulation. The simulation applies measurements via
+classes derived from :cpp:class:`Diagnostics` that have been added to the 
+:cpp:class:`Bunch_simulator`. In this example we have decided to use 
+:cpp:class:`Diagnostics_basic`, which creates a basic set of
+diagnostics including means and standard deviations in all six phase-space
 degrees of freedom. The diagnostics will be applied every step. Many more
-options are available.
+options are available. See the various classes derived from 
+:cpp:class:`Diagnostics` and the various :code:`add_per` methods of
+:cpp:class:`Bunch_simulator`.
 
 Performing the simulation
 -------------------------
@@ -99,9 +102,10 @@ Viewing the results
 
 The output of the simulation is contained in the HDF5 file
 :file:`diagnostics.h5`. The HDF5 format is a widely-adopted standard; the data in
-:file:`diagnostics.h5` can be analyzed using a number of standard applications.
-Synergia2 includes several simple scripts for analyzing the output of the various
-Diagnostics. The syndiagplot script can be used, e.g.,
+:file:`diagnostics.h5` can be analyzed using a number of standard applications, or
+in end-user written code.
+For simple analysis, Synergia2 includes several scripts for analyzing the output of
+the various Diagnostics. The syndiagplot script can be used on :file:`diagnostics.h5`, e.g.,
 
 ::
 
@@ -110,4 +114,5 @@ Diagnostics. The syndiagplot script can be used, e.g.,
 which produces the following output:
 
 .. image:: figures/fodo_simple1_xy_std.png
+
 
