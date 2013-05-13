@@ -21,8 +21,8 @@ private:
     Hdf5_serial_writer<double > * writer_s_n;
     int repetition;
     Hdf5_serial_writer<int > * writer_repetition;
-    double trajectory_length;
-    Hdf5_serial_writer<double > * writer_trajectory_length;
+    double s;
+    Hdf5_serial_writer<double > * writer_s;
     MArray1d coords;
     Hdf5_serial_writer<MArray1d_ref > * writer_coords;
     virtual void

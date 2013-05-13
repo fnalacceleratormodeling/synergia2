@@ -45,11 +45,11 @@ def test_get_repetition():
     diagnostics.update()
     assert_equal(diagnostics.get_repetition(), turns)
 
-def test_get_trajectory_length():
+def test_get_s():
     diagnostics = Diagnostics_basic("dummy.h5")
     diagnostics.set_bunch(bunch)
     diagnostics.update()
-    assert_almost_equal(diagnostics.get_trajectory_length(),
+    assert_almost_equal(diagnostics.get_s(),
                         turns * turn_length + partial_s)
 
 def test_get_mean():
@@ -92,11 +92,11 @@ def test_get_repetition_full2():
     diagnostics.update()
     assert_equal(diagnostics.get_repetition(), turns)
 
-def test_get_trajectory_length_full2():
+def test_get_s_full2():
     diagnostics = Diagnostics_full2("dummy.h5")
     diagnostics.set_bunch(bunch)
     diagnostics.update()
-    assert_almost_equal(diagnostics.get_trajectory_length(),
+    assert_almost_equal(diagnostics.get_s(),
                         turns * turn_length + partial_s)
 
 def test_get_mean_full2():

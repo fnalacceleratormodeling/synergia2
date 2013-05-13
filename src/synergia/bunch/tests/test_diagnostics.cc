@@ -80,12 +80,12 @@ BOOST_FIXTURE_TEST_CASE(get_repetition, Fixture)
     BOOST_CHECK_EQUAL(diagnostics.get_repetition(), turns);
 }
 
-BOOST_FIXTURE_TEST_CASE(get_trajectory_length, Fixture)
+BOOST_FIXTURE_TEST_CASE(get_s, Fixture)
 {
     Diagnostics_basic diagnostics("dummy.h5");
     diagnostics.set_bunch_sptr(bunch_sptr);
     diagnostics.update();
-    BOOST_CHECK_CLOSE(diagnostics.get_trajectory_length(),
+    BOOST_CHECK_CLOSE(diagnostics.get_s(),
             turns * turn_length + partial_s, tolerance);
 }
 

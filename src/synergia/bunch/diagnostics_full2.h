@@ -15,8 +15,8 @@ private:
     Hdf5_serial_writer<double > * writer_s_n;
     int repetition;
     Hdf5_serial_writer<int > * writer_repetition;
-    double trajectory_length;
-    Hdf5_serial_writer<double > * writer_trajectory_length;
+    double s;
+    Hdf5_serial_writer<double > * writer_s;
     int num_particles;
     Hdf5_serial_writer<int > * writer_num_particles;
     double real_num_particles;
@@ -74,7 +74,7 @@ public:
 
     /// Get the total distance along the reference trajectory in meters.
     virtual double
-    get_trajectory_length() const;
+    get_s() const;
 
     /// Get the total number of macroparticles in the bunch
     virtual int

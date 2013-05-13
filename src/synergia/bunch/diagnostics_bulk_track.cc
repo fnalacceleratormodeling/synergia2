@@ -12,7 +12,7 @@ Diagnostics_bulk_track::Diagnostics_bulk_track(std::string const& filename,
         Diagnostics(Diagnostics_bulk_track::name, filename, local_dir), num_tracks(
                 num_tracks), local_num_tracks(no_local_num_tracks), offset(
                 offset), local_offset(no_local_num_tracks), have_writers(false), first_search(
-                true), diag_track_status(), writer_s_n(0), writer_repetition(0), writer_trajectory_length(
+                true), diag_track_status(), writer_s_n(0), writer_repetition(0), writer_s(
                 0), track_coords(boost::extents[1][7]), writer_coords(0)
 {
 }
@@ -79,8 +79,8 @@ Diagnostics_bulk_track::update()
 	}
 	get_bunch().convert_to_state(get_bunch().fixed_z_lab);
 	repetition = get_bunch().get_reference_particle().get_repetition();
-	trajectory_length =
-		get_bunch().get_reference_particle().get_trajectory_length();
+	s =
+		get_bunch().get_reference_particle().get_s();
 	for (int idxtrk = local_offset; idxtrk < local_num_tracks+local_offset; ++idxtrk) {
 	    Track_status *dtsptr = &diag_track_status[idxtrk-local_offset];
 	    if (dtsptr->found || first_search) {
@@ -138,8 +138,8 @@ Diagnostics_bulk_track::update()
 		}
 		s_n = get_bunch().get_reference_particle().get_s_n();
 		repetition = get_bunch().get_reference_particle().get_repetition();
-		trajectory_length =
-			get_bunch().get_reference_particle().get_trajectory_length();
+		s =
+			get_bunch().get_reference_particle().get_s();
 		first_search = false;
 	    }
 	}
@@ -163,8 +163,8 @@ Diagnostics_bulk_track::init_writers(Hdf5_file_sptr file_sptr)
         writer_s_n = new Hdf5_serial_writer<double >(file_sptr, "s_n");
         writer_repetition = new Hdf5_serial_writer<int >(file_sptr,
                 "repetition");
-        writer_trajectory_length = new Hdf5_serial_writer<double >(file_sptr,
-                "trajectory_length");
+        writer_s = new Hdf5_serial_writer<double >(file_sptr,
+                "s");
         have_writers = true;
     }
 }
@@ -245,7 +245,7 @@ Diagnostics_bulk_track::write()
 	    receive_other_local_coords(all_local_num_tracks);
 	    writer_s_n->append(s_n);
 	    writer_repetition->append(repetition);
-	    writer_trajectory_length->append(trajectory_length);
+	    writer_s->append(s);
 	    get_write_helper().finish_write();
 	} else {
 	    send_local_coords();
@@ -269,8 +269,8 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(writer_s_n);
         ar & BOOST_SERIALIZATION_NVP(repetition);
         ar & BOOST_SERIALIZATION_NVP(writer_repetition);
-        ar & BOOST_SERIALIZATION_NVP(trajectory_length);
-        ar & BOOST_SERIALIZATION_NVP(writer_trajectory_length);
+        ar & BOOST_SERIALIZATION_NVP(s);
+        ar & BOOST_SERIALIZATION_NVP(writer_s);
         ar & BOOST_SERIALIZATION_NVP(track_coords);
         ar & BOOST_SERIALIZATION_NVP(writer_coords);
     }
@@ -328,7 +328,7 @@ Diagnostics_bulk_track::serialize<boost::archive::xml_iarchive >(
 Diagnostics_bulk_track::~Diagnostics_bulk_track()
 {
     if (have_writers) {
-        delete writer_trajectory_length;
+        delete writer_s;
         delete writer_repetition;
         delete writer_s_n;
         delete writer_coords;

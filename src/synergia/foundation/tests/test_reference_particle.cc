@@ -111,7 +111,7 @@ BOOST_AUTO_TEST_CASE(increment_trajectory)
     }
     BOOST_CHECK_CLOSE(reference_particle.get_s_n(), steps*step_length,
             tolerance);
-    BOOST_CHECK_CLOSE(reference_particle.get_trajectory_length(), steps*step_length,
+    BOOST_CHECK_CLOSE(reference_particle.get_s(), steps*step_length,
             tolerance);
 }
 
@@ -231,7 +231,7 @@ BOOST_AUTO_TEST_CASE(copy2)
     }
 }
 
-BOOST_AUTO_TEST_CASE(get_trajectory_length)
+BOOST_AUTO_TEST_CASE(get_s)
 {
     Four_momentum four_momentum(mass);
     four_momentum.set_total_energy(total_energy);
@@ -242,7 +242,7 @@ BOOST_AUTO_TEST_CASE(get_trajectory_length)
             reference_particle.increment_trajectory(step_length);
         }
     }
-    BOOST_CHECK_CLOSE(reference_particle. get_trajectory_length(),
+    BOOST_CHECK_CLOSE(reference_particle. get_s(),
             turns * steps * step_length, tolerance);
 }
 

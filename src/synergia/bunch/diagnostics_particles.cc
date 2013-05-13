@@ -137,7 +137,7 @@ Diagnostics_particles::write()
 	    double pz = fourp.get_momentum();
 	    file_sptr->write(pz, "pz");
 	    double tlen =
-		    get_bunch().get_reference_particle().get_trajectory_length();
+		    get_bunch().get_reference_particle().get_s();
 	    file_sptr->write(tlen, "tlen");
 	    int rep = get_bunch().get_reference_particle().get_repetition();
 	    file_sptr->write(rep, "rep");

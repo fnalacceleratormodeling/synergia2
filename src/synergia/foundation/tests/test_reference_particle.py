@@ -78,5 +78,5 @@ def test_set_get_trajectory():
     assert_equal(r.get_repetition(), turns)
     assert_almost_equal(r.get_repetition_length(), steps * step_length)
     assert_almost_equal(r.get_s_n(), partial_s)
-    assert_almost_equal(r.get_trajectory_length(),
+    assert_almost_equal(r.get_s(),
                         turns * steps * step_length + partial_s)
