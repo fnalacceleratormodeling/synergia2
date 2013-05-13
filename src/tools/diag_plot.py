@@ -131,6 +131,7 @@ def do_plot(inputfile, options, plotparams, multiple_files):
     f = tables.openFile(inputfile, 'r')
     rows, cols = get_layout(len(options.plots))
     plot_index = 1
+    y_label = ""
     for plot in options.plots:
         params = plotparams[plot]
         x = getattr(f.root, params.x_attr).read()
@@ -148,8 +149,18 @@ def do_plot(inputfile, options, plotparams, multiple_files):
             extra_label = ' ' + inputfile
         plot2d(x, y, plot, extra_label)
         plot_index += 1
+        pyplot.xlabel(params.x_attr)
+        if options.oneplot:
+            if y_label == "":
+                y_label = plot
+            else:
+                y_label += "," + plot
+        else:
+            y_label = plot
+        pyplot.ylabel(y_label)
         if options.legends:
             pyplot.legend()
+        
 
 def do_plots(options, plotparams):
     pyplot.figure().canvas.set_window_title('Synergia Diagnostics')
