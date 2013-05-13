@@ -106,6 +106,10 @@ class Lattice_cache:
             binary_save_lattice(lattice, self._binary_file_name(index))
 
 class Mad8_reader:
+    """Read lattice descriptions written in Mad8 format
+    
+        :param element_adaptor_map: The Element_adaptor_map class used to interpret 
+                the elements. If *None*, the Mad8_adaptor_map class is used."""
     def __init__(self, element_adaptor_map=None):
         if element_adaptor_map:
             self.element_adaptor_map = element_adaptor_map
@@ -114,13 +118,16 @@ class Mad8_reader:
         self.parser = None
 
     def get_element_adaptor_map(self):
+        """Returns the Element_adaptor_map used by the reader."""
         return self.element_adaptor_map
 
     def parse_string(self, string):
+        """Parse a string containing a lattice description in Mad8 format."""
         self.parser = Mad8_parser()
         self.parser.parse(string)
 
     def parse(self, filename):
+        """Parse a file containing a lattice description in Mad8 format."""
         try:
             the_file = open(filename, 'r')
         except IOError, e:
@@ -138,6 +145,9 @@ class Mad8_reader:
             self.parse(filename)
 
     def get_lines(self, filename=None):
+        """Return a list of lines found in the last parse.
+
+                :param filename: parse *filename* first"""
         self._parser_check(filename, "get_lines")
         return self.parser.lines.keys()
 
@@ -153,6 +163,10 @@ class Mad8_reader:
         return retval
 
     def get_lattice_element(self, label, filename=None):
+        """Return the parsed definition of a lattice element.
+
+                :param label: the lattice element's label
+                :param filename: parse *filename* first"""
         self._parser_check(filename, "get_lattice_element")
         type = self._expand_type(self.parser.labels[label].name)
         attributes = self.parser.labels[label].attributes
@@ -284,14 +298,20 @@ class Mad8_reader:
                 lattice.set_reference_particle(reference_particle)
 
 
-    def get_possibly_cached_lattice(self, line_name, filename=None, enable_cache_write=True,
+    def _get_possibly_cached_lattice(self, line_name, filename=None, enable_cache_write=True,
                     enable_cache_read=True):
+        """Retrieve a lattice, using the lattice_cache if appropriate.
+
+                :param line_name: the name of the line to be used
+                :param filename: if given, parse *filename* first
+                :param enable_cache_write: if True, write cache to the lattice_cache directory when appropriate.
+                :param enable_cache_write: if True, read cache from the lattice_cache directory when appropriate."""
         lattice_cache = Lattice_cache(filename, line_name)
         lattice = None
         if enable_cache_read and lattice_cache.is_readable():
             lattice = lattice_cache.read()
         if not lattice:
-            self._parser_check(filename, "get_possibly_cached_lattice")
+            self._parser_check(filename, "_get_possibly_cached_lattice")
             lattice = Lattice(line_name)
             self._extract_elements(self.parser.lines[line_name], [line_name], lattice)
             self._extract_reference_particle(lattice)
@@ -303,15 +323,21 @@ class Mad8_reader:
 
     def get_lattice(self, line_names, filename=None, enable_cache_write=True,
                     enable_cache_read=True):
+        """Retrieve a lattice
+
+                :param line_name: the name of the line to be used
+                :param filename: if given, parse *filename* first
+                :param enable_cache_write: if True, write cache to the lattice_cache directory when appropriate.
+                :param enable_cache_write: if True, read cache from the lattice_cache directory when appropriate."""
         if not islist(line_names):
-            return self.get_possibly_cached_lattice(line_names,
+            return self._get_possibly_cached_lattice(line_names,
                                                filename,enable_cache_write,
                                                enable_cache_read)
         else:
             lattices = []
             for theline in line_names:
                 lattices.append(
-                    self.get_possibly_cached_lattice(theline,filename,
+                    self._get_possibly_cached_lattice(theline,filename,
                                                 enable_cache_write,
                                                 enable_cache_read))
             return lattices
