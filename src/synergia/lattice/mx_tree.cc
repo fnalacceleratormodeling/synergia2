@@ -322,7 +322,7 @@ void mx_command::interpret(MadX & mx)
     //   for un-labeled command, if there is a command whose label is
     //   the same as the keyword of this un-labeled command, then merge
     //   the unlabeled command into the labeled one
-    if( !labeled_ )
+    if( !labeled_ && !mx.building_sequence() )
       mx.fuse_command( keyword_, cmd );
 
     // insert the command to the MadX object

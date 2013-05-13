@@ -655,6 +655,12 @@ MadX_sequence &
   return cur_seq_;
 }
 
+bool
+  MadX::building_sequence() const
+{
+  return building_seq_;
+}
+
 MadX_entry_type
   MadX::entry_type(string_t const & entry) const
 {
