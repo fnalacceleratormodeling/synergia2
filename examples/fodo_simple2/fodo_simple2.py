@@ -23,7 +23,7 @@ d = Lattice_element("quadrupole", "d")
 d.set_double_attribute("l", quad_length)
 d.set_double_attribute("k1", -strength)
 
-# Define the  fodo lattice itself, interpreting elements
+# Define the fodo lattice itself, interpreting elements
 # by their Mad8 definitions
 lattice = Lattice("fodo", Mad8_adaptor_map())
 # Add copies of the lattice elements to the fodo lattice
@@ -39,19 +39,19 @@ reference_particle = Reference_particle(pconstants.proton_charge,
                                         four_momentum)
 lattice.set_reference_particle(reference_particle)
 
-# Define the simulation steps
+# Define a set of simulation steps
 map_order = 1
 steps_per_element = 2
 stepper = Independent_stepper_elements(lattice, map_order, steps_per_element)
 
-# Define the parameters for the bunch
+# Define a bunch
 x_emit = 1.0e-6  # m-rad, RMS
 y_emit = 1.0e-6  # m-rad, RMS
 z_std = 0.01  # m
 dpop = 1.0e-4  # unitless, RMS \frac{\delta p}{p_{tot}}
 real_particles = 1.2e12  # unitless, meaningless in this simulation
                          #           without collective effects
-macro_particles = 100
+macro_particles = 50000
 seed = 1415926  # random number seed; 0 for automatic calculation (GSL)
 bunch = synergia.optics.generate_matched_bunch_transverse(
               stepper.get_lattice_simulator(),
@@ -59,14 +59,17 @@ bunch = synergia.optics.generate_matched_bunch_transverse(
               real_particles, macro_particles,
               seed=seed)
 
+# Define a bunch simulator
+bunch_simulator = Bunch_simulator(bunch)
+
+# Define a set of bunch diagnostics
 # Apply basic diagnostics every step
 diagnostics = Diagnostics_basic("diagnostics.h5")
-bunch_simulator = Bunch_simulator(bunch)
 bunch_simulator.add_per_step(diagnostics)
 
 # Perform the simulation
 propagator = Propagator(stepper)
-turns = 4  # really repetitions, since this isn't a ring
+turns = 1  # a single pass through the line, since this isn't a ring
 max_turns = 0 # Number of turns to run before writing checkpoint and stopping
               # When max_turns is 0, the simulation continues until the end.
 verbosity = 2  # Display information about each simulation step
