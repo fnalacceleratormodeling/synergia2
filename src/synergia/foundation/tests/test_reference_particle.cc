@@ -109,7 +109,7 @@ BOOST_AUTO_TEST_CASE(increment_trajectory)
     for (int step = 0; step < steps; ++step) {
         reference_particle.increment_trajectory(step_length);
     }
-    BOOST_CHECK_CLOSE(reference_particle.get_s(), steps*step_length,
+    BOOST_CHECK_CLOSE(reference_particle.get_s_n(), steps*step_length,
             tolerance);
     BOOST_CHECK_CLOSE(reference_particle.get_trajectory_length(), steps*step_length,
             tolerance);
@@ -122,13 +122,13 @@ BOOST_AUTO_TEST_CASE(start_repetition)
     Reference_particle reference_particle(charge, four_momentum);
     reference_particle.start_repetition();
     BOOST_CHECK_EQUAL(reference_particle.get_repetition(), 0);
-    BOOST_CHECK_EQUAL(reference_particle.get_s(), 0);
+    BOOST_CHECK_EQUAL(reference_particle.get_s_n(), 0);
     for (int step = 0; step < steps; ++step) {
         reference_particle.increment_trajectory(step_length);
     }
     reference_particle.start_repetition();
     BOOST_CHECK_EQUAL(reference_particle.get_repetition(), 1);
-    BOOST_CHECK_EQUAL(reference_particle.get_s(), 0.0);
+    BOOST_CHECK_EQUAL(reference_particle.get_s_n(), 0.0);
     BOOST_CHECK_CLOSE(reference_particle.get_repetition_length(),
             steps*step_length, tolerance);
 }
@@ -143,7 +143,7 @@ BOOST_AUTO_TEST_CASE(set_trajectory)
     BOOST_CHECK_EQUAL(reference_particle.get_repetition(), turns);
     BOOST_CHECK_CLOSE(reference_particle.get_repetition_length(),
             steps*step_length, tolerance);
-    BOOST_CHECK_CLOSE(reference_particle.get_s(), partial_s, tolerance);
+    BOOST_CHECK_CLOSE(reference_particle.get_s_n(), partial_s, tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(set_four_momentum)

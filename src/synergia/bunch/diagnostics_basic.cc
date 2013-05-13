@@ -6,7 +6,7 @@ const char Diagnostics_basic::name[] = "diagnostics_basic";
 
 Diagnostics_basic::Diagnostics_basic(std::string const& filename, std::string const& local_dir) :
         Diagnostics_basic::Diagnostics(Diagnostics_basic::name, filename, local_dir), have_writers(
-                false), writer_s(0), writer_repetition(0), writer_trajectory_length(
+                false), writer_s_n(0), writer_repetition(0), writer_trajectory_length(
                 0), writer_num_particles(0), writer_real_num_particles(0), mean(
                 boost::extents[6]), writer_mean(0), std(boost::extents[6]), writer_std(
                 0), min(boost::extents[3]), writer_min(0), max(
@@ -29,7 +29,7 @@ Diagnostics_basic::update()
 {
     if (get_bunch().get_comm().has_this_rank()){
 	get_bunch().convert_to_state(get_bunch().fixed_z_lab);
-	s = get_bunch().get_reference_particle().get_s();
+	s_n = get_bunch().get_reference_particle().get_s_n();
 	repetition = get_bunch().get_reference_particle().get_repetition();
 	trajectory_length
 		= get_bunch().get_reference_particle().get_trajectory_length();
@@ -43,9 +43,9 @@ Diagnostics_basic::update()
 }
 
 double
-Diagnostics_basic::get_s() const
+Diagnostics_basic::get_s_n() const
 {
-    return s;
+    return s_n;
 }
 
 int
@@ -100,7 +100,7 @@ void
 Diagnostics_basic::init_writers(Hdf5_file_sptr file_sptr)
 {
     if (!have_writers) {
-        writer_s = new Hdf5_serial_writer<double > (file_sptr, "s");
+        writer_s_n = new Hdf5_serial_writer<double > (file_sptr, "s_n");
         writer_repetition = new Hdf5_serial_writer<int > (file_sptr,
                 "repetition");
         writer_trajectory_length = new Hdf5_serial_writer<double > (file_sptr,
@@ -123,7 +123,7 @@ Diagnostics_basic::write()
     if (get_bunch().get_comm().has_this_rank()){
 	if (get_write_helper().write_locally()) {
 	    init_writers(get_write_helper().get_hdf5_file_sptr());
-	    writer_s->append(s);
+	    writer_s_n->append(s_n);
 	    writer_repetition->append(repetition);
 	    writer_trajectory_length->append(trajectory_length);
 	    writer_num_particles->append(num_particles);
@@ -143,8 +143,8 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics);
         ar & BOOST_SERIALIZATION_NVP(have_writers);
-        ar & BOOST_SERIALIZATION_NVP(s);
-        ar & BOOST_SERIALIZATION_NVP(writer_s);
+        ar & BOOST_SERIALIZATION_NVP(s_n);
+        ar & BOOST_SERIALIZATION_NVP(writer_s_n);
         ar & BOOST_SERIALIZATION_NVP(repetition);
         ar & BOOST_SERIALIZATION_NVP(writer_repetition);
         ar & BOOST_SERIALIZATION_NVP(trajectory_length);
@@ -194,7 +194,7 @@ Diagnostics_basic::~Diagnostics_basic()
         delete writer_num_particles;
         delete writer_trajectory_length;
         delete writer_repetition;
-        delete writer_s;
+        delete writer_s_n;
     }
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_basic)

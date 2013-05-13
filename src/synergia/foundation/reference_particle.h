@@ -19,7 +19,7 @@ private:
     MArray1d state;
     int repetition;
     double repetition_length;
-    double s;
+    double s_n;
 public:
     /// Default constructor for internal use only
     Reference_particle();
@@ -110,7 +110,7 @@ public:
     /// Get the distance traveled in m since the beginning
     /// of the current repetition.
     double
-    get_s() const;
+    get_s_n() const;
 
     /// Get the number of repetition.
     int

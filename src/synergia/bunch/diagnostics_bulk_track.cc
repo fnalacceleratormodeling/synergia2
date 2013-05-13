@@ -12,7 +12,7 @@ Diagnostics_bulk_track::Diagnostics_bulk_track(std::string const& filename,
         Diagnostics(Diagnostics_bulk_track::name, filename, local_dir), num_tracks(
                 num_tracks), local_num_tracks(no_local_num_tracks), offset(
                 offset), local_offset(no_local_num_tracks), have_writers(false), first_search(
-                true), diag_track_status(), writer_s(0), writer_repetition(0), writer_trajectory_length(
+                true), diag_track_status(), writer_s_n(0), writer_repetition(0), writer_trajectory_length(
                 0), track_coords(boost::extents[1][7]), writer_coords(0)
 {
 }
@@ -136,7 +136,7 @@ Diagnostics_bulk_track::update()
 		    track_coords[idxtrk][6] =
 			    -static_cast<double >(dtsptr->particle_id);
 		}
-		s = get_bunch().get_reference_particle().get_s();
+		s_n = get_bunch().get_reference_particle().get_s_n();
 		repetition = get_bunch().get_reference_particle().get_repetition();
 		trajectory_length =
 			get_bunch().get_reference_particle().get_trajectory_length();
@@ -160,7 +160,7 @@ Diagnostics_bulk_track::init_writers(Hdf5_file_sptr file_sptr)
 
         writer_coords = new Hdf5_serial_writer<MArray2d_ref >(file_sptr,
                 "track_coords");
-        writer_s = new Hdf5_serial_writer<double >(file_sptr, "s");
+        writer_s_n = new Hdf5_serial_writer<double >(file_sptr, "s_n");
         writer_repetition = new Hdf5_serial_writer<int >(file_sptr,
                 "repetition");
         writer_trajectory_length = new Hdf5_serial_writer<double >(file_sptr,
@@ -243,7 +243,7 @@ Diagnostics_bulk_track::write()
 	if (get_write_helper().write_locally()) {
 	    init_writers(get_write_helper().get_hdf5_file_sptr());
 	    receive_other_local_coords(all_local_num_tracks);
-	    writer_s->append(s);
+	    writer_s_n->append(s_n);
 	    writer_repetition->append(repetition);
 	    writer_trajectory_length->append(trajectory_length);
 	    get_write_helper().finish_write();
@@ -265,8 +265,8 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(have_writers);
         ar & BOOST_SERIALIZATION_NVP(first_search);
         ar & BOOST_SERIALIZATION_NVP(diag_track_status);
-        ar & BOOST_SERIALIZATION_NVP(s);
-        ar & BOOST_SERIALIZATION_NVP(writer_s);
+        ar & BOOST_SERIALIZATION_NVP(s_n);
+        ar & BOOST_SERIALIZATION_NVP(writer_s_n);
         ar & BOOST_SERIALIZATION_NVP(repetition);
         ar & BOOST_SERIALIZATION_NVP(writer_repetition);
         ar & BOOST_SERIALIZATION_NVP(trajectory_length);
@@ -330,7 +330,7 @@ Diagnostics_bulk_track::~Diagnostics_bulk_track()
     if (have_writers) {
         delete writer_trajectory_length;
         delete writer_repetition;
-        delete writer_s;
+        delete writer_s_n;
         delete writer_coords;
     }
 }

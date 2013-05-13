@@ -17,8 +17,8 @@ private:
     bool first_search;
     int last_index;
     int particle_id;
-    double s;
-    Hdf5_serial_writer<double > * writer_s;
+    double s_n;
+    Hdf5_serial_writer<double > * writer_s_n;
     int repetition;
     Hdf5_serial_writer<int > * writer_repetition;
     double trajectory_length;

@@ -28,8 +28,8 @@ private:
     bool have_writers;
     bool first_search;
     std::vector<Track_status > diag_track_status;
-    double s;
-    Hdf5_serial_writer<double > * writer_s;
+    double s_n;
+    Hdf5_serial_writer<double > * writer_s_n;
     int repetition;
     Hdf5_serial_writer<int > * writer_repetition;
     double trajectory_length;

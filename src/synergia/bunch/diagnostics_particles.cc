@@ -141,8 +141,8 @@ Diagnostics_particles::write()
 	    file_sptr->write(tlen, "tlen");
 	    int rep = get_bunch().get_reference_particle().get_repetition();
 	    file_sptr->write(rep, "rep");
-	    double s = get_bunch().get_reference_particle().get_s();
-	    file_sptr->write(s, "s");
+	    double s_n = get_bunch().get_reference_particle().get_s_n();
+	    file_sptr->write(s_n, "s_n");
 	    get_write_helper().finish_write();
 	} else {
 	    send_local_particles();

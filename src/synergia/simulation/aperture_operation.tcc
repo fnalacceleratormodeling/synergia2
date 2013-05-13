@@ -54,7 +54,7 @@ template<typename T>
         if (verbosity > 5) {
             logger << "Aperture_operation: type = " << get_aperture_type()
                     << ", time = " << std::fixed << std::setprecision(3) << t1
-                    - t0 << "s" << std::endl;
+                    - t0 << "s_n" << std::endl;
         }
 
     }
@@ -108,7 +108,7 @@ template<typename T>
         if (verbosity > 5) {
             logger << "Aperture_operation: type = " << get_aperture_type()
                     << ", time = " << std::fixed << std::setprecision(3) << t1
-                    - t0 << "s" << std::endl;
+                    - t0 << "s_n" << std::endl;
         }
     }
 

@@ -71,7 +71,7 @@ Diagnostics_track::update()
 		coords[3] = get_bunch().get_local_particles()[index][3];
 		coords[4] = get_bunch().get_local_particles()[index][4];
 		coords[5] = get_bunch().get_local_particles()[index][5];
-		s = get_bunch().get_reference_particle().get_s();
+		s_n = get_bunch().get_reference_particle().get_s_n();
 		repetition = get_bunch().get_reference_particle().get_repetition();
 		trajectory_length
 			= get_bunch().get_reference_particle().get_trajectory_length();
@@ -95,7 +95,7 @@ Diagnostics_track::init_writers(Hdf5_file_sptr file_sptr)
 
         writer_coords = new Hdf5_serial_writer<MArray1d_ref > (file_sptr,
                 "coords");
-        writer_s = new Hdf5_serial_writer<double > (file_sptr, "s");
+        writer_s_n = new Hdf5_serial_writer<double > (file_sptr, "s_n");
         writer_repetition = new Hdf5_serial_writer<int > (file_sptr,
                 "repetition");
         writer_trajectory_length = new Hdf5_serial_writer<double > (file_sptr,
@@ -112,7 +112,7 @@ Diagnostics_track::write()
 	if (found) {
 	    init_writers(get_write_helper().get_hdf5_file_sptr());
 	    writer_coords->append(coords);
-	    writer_s->append(s);
+	    writer_s_n->append(s_n);
 	    writer_repetition->append(repetition);
 	    writer_trajectory_length->append(trajectory_length);
 	    get_write_helper().finish_write();
@@ -130,8 +130,8 @@ template<class Archive>
                 & BOOST_SERIALIZATION_NVP(first_search)
                 & BOOST_SERIALIZATION_NVP(last_index)
                 & BOOST_SERIALIZATION_NVP(particle_id)
-                & BOOST_SERIALIZATION_NVP(s)
-                & BOOST_SERIALIZATION_NVP(writer_s)
+                & BOOST_SERIALIZATION_NVP(s_n)
+                & BOOST_SERIALIZATION_NVP(writer_s_n)
                 & BOOST_SERIALIZATION_NVP(repetition)
                 & BOOST_SERIALIZATION_NVP(writer_repetition)
                 & BOOST_SERIALIZATION_NVP(trajectory_length)
@@ -165,7 +165,7 @@ Diagnostics_track::~Diagnostics_track()
     if (have_writers) {
         delete writer_trajectory_length;
         delete writer_repetition;
-        delete writer_s;
+        delete writer_s_n;
         delete writer_coords;
     }
 }

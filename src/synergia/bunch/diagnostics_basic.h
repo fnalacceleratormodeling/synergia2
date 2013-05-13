@@ -11,8 +11,8 @@ public:
     static const char name[];
 private:
     bool have_writers;
-    double s;
-    Hdf5_serial_writer<double > * writer_s;
+    double s_n;
+    Hdf5_serial_writer<double > * writer_s_n;
     int repetition;
     Hdf5_serial_writer<int > * writer_repetition;
     double trajectory_length;
@@ -54,7 +54,7 @@ public:
     /// Get the distance from the origin along the reference trajectory in
     /// meters.
     virtual double
-    get_s() const;
+    get_s_n() const;
 
     /// Get the number of complete repetitions.
     virtual int
