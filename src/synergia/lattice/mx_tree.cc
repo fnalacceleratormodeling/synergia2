@@ -539,6 +539,15 @@ void mx_command::execute(MadX & mx)
       attr.set_attr( "gamma", mx_expr(four_momentum.get_gamma()) );
       ins_attr(attr);
     }
+
+    // insert a global variable brho to the madx object
+    stringstream ss;
+    ss.precision(18);
+    ss << 1e9/pconstants::c << "*beam->pc";
+
+    mx_expr expr;
+    parse_expression( ss.str(), expr );
+    mx.insert_variable( "brho", expr );
   }
 }
 
