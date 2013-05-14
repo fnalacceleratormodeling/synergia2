@@ -267,7 +267,7 @@ struct synergia::expression
 
 
 bool synergia::parse_expression( string const & s
-                               , double & result )
+                               , mx_expr & expr )
 {
   if( s.empty() ) return false;
 
@@ -279,7 +279,6 @@ bool synergia::parse_expression( string const & s
                   | lit("//") >> *(char_ - eol) >> eol;
 
   expression<iter_t, ws_t> parser;
-  mx_expr expr;
 
   iter_t       begin = s.begin();
   iter_t const end   = s.end();
@@ -287,11 +286,19 @@ bool synergia::parse_expression( string const & s
   bool b = qi::phrase_parse( begin, end, parser, whitespace, expr)
          && begin == end;
 
-  result = boost::apply_visitor(synergia::mx_calculator(), expr);
-
   return b;
 }
 
+bool synergia::parse_expression( string const & s
+                               , double & result )
+{
+  mx_expr expr;
+  bool b = parse_expression( s, expr );
+  if( !b ) return false;
+
+  result = boost::apply_visitor(synergia::mx_calculator(), expr);
+  return true;
+}
 
 ////
 // semantic actions for madx tree parser
