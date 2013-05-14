@@ -63,7 +63,6 @@ def get_classes_typedefs(dir, verbose):
     classes = []
     typedefs = []
     for fname in glob.glob(os.path.join(dir,'*.h')):
-        print "jfa: working on", fname
         f = open(fname,'r')
         in_multiline_typedef = False
         for line in f.readlines():
@@ -91,8 +90,6 @@ def get_classes_typedefs(dir, verbose):
                     if semicolon_loc > 0:
                         classname = classname[0:semicolon_loc]
                     classes.append(classname)
-                    print "jfa: found class", classname
-
                 m = re.search('^[ \t]*typedef (.*)', line)
                 if m:
                     m2 = re.search('([^ ]+);', m.group(1))
@@ -101,7 +98,6 @@ def get_classes_typedefs(dir, verbose):
                         typedef = m2.group(1)
                         if m3:
                             typedefs.append(typedef)
-                            print "jfa: found typedef", typedef
                         else:
                             if verbose:
                                 print 'skipping typedef', typedef,'in', fname
