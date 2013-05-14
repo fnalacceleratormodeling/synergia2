@@ -216,6 +216,8 @@ public:
   MadX_sequence const & current_sequence( ) const;
   MadX_sequence & current_sequence( );
 
+  bool building_sequence() const;
+
   MadX_entry_type entry_type(string_t const & entry) const;
 
   void print() const;

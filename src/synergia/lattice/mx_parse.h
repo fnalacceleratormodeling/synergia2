@@ -16,6 +16,7 @@ namespace synergia
   bool parse_int_madx_file( string_t const & fname, mx_tree & doc );
 
   // parse a const math expression
+  bool parse_expression( std::string const & s, mx_expr & expr );
   bool parse_expression( std::string const & s, double & result );
 }
 

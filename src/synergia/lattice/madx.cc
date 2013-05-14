@@ -655,6 +655,12 @@ MadX_sequence &
   return cur_seq_;
 }
 
+bool
+  MadX::building_sequence() const
+{
+  return building_seq_;
+}
+
 MadX_entry_type
   MadX::entry_type(string_t const & entry) const
 {
@@ -686,7 +692,7 @@ void
   v.value = boost::any(value);
   v.type  = value.empty() ? NONE : STRING;
 
-  variables_.insert(std::make_pair(key, v));
+  variables_[key] = v;
 }
 
 void
@@ -699,7 +705,7 @@ void
   v.value = boost::any(value);
   v.type  = NUMBER;
 
-  variables_.insert( std::make_pair(key, v) );
+  variables_[key] = v;
 }
 
 void
@@ -712,7 +718,7 @@ void
   v.value = boost::any(value);
   v.type  = ARRAY;
 
-  variables_.insert( std::make_pair(key, v) );
+  variables_[key] = v;
 }
 
 void

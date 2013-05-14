@@ -322,7 +322,7 @@ void mx_command::interpret(MadX & mx)
     //   for un-labeled command, if there is a command whose label is
     //   the same as the keyword of this un-labeled command, then merge
     //   the unlabeled command into the labeled one
-    if( !labeled_ )
+    if( !labeled_ && !mx.building_sequence() )
       mx.fuse_command( keyword_, cmd );
 
     // insert the command to the MadX object
@@ -539,6 +539,15 @@ void mx_command::execute(MadX & mx)
       attr.set_attr( "gamma", mx_expr(four_momentum.get_gamma()) );
       ins_attr(attr);
     }
+
+    // insert a global variable brho to the madx object
+    stringstream ss;
+    ss.precision(18);
+    ss << 1e9/pconstants::c << "*beam->pc";
+
+    mx_expr expr;
+    parse_expression( ss.str(), expr );
+    mx.insert_variable( "brho", expr );
   }
 }
 
