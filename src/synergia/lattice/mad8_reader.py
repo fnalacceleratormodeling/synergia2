@@ -147,7 +147,7 @@ class Mad8_reader:
     def get_lines(self, filename=None):
         """Return a list of lines found in the last parse.
 
-                :param filename: parse *filename* first"""
+                :param filename: if not *None*, parse *filename* first"""
         self._parser_check(filename, "get_lines")
         return self.parser.lines.keys()
 
@@ -166,7 +166,7 @@ class Mad8_reader:
         """Return the parsed definition of a lattice element.
 
                 :param label: the lattice element's label
-                :param filename: parse *filename* first"""
+                :param filename: if not *None*, parse *filename* first"""
         self._parser_check(filename, "get_lattice_element")
         type = self._expand_type(self.parser.labels[label].name)
         attributes = self.parser.labels[label].attributes
