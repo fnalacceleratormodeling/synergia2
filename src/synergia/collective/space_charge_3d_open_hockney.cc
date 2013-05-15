@@ -1094,13 +1094,9 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_allreduce(
         Distributed_rectangular_grid const& dist_field)
 {
     Rectangular_grid_sptr global_field(new Rectangular_grid(domain_sptr));
-    for (int i = 0; i < grid_shape[0]; ++i) {
-        for (int j = 0; j < grid_shape[1]; ++j) {
-            for (int k = 0; k < grid_shape[2]; ++k) {
-                global_field->get_grid_points()[i][j][k] = 0.0;
-            }
-        }
-    }
+
+    memset( (void*)global_field->get_grid_points().origin(), 0, 
+            global_field->get_grid_points().num_elements()*sizeof(double) );
 
     for (int i = dist_field.get_lower();
             i < std::min(grid_shape[0], dist_field.get_upper()); ++i) {
