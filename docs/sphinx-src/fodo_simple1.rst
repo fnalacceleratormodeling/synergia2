@@ -1,3 +1,5 @@
+.. _section-fodo_simple1:
+
 A first example: fodo_simple1
 =============================
 
