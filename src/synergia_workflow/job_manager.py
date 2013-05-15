@@ -33,7 +33,7 @@ job_mgr_opts.add("submit", False, "Whether to immediately submit job")
 job_mgr_opts.add("queue", None, "Batch system queue", str)
 job_mgr_opts.add("account", None, "Batch system account", str)
 job_mgr_opts.add("run", False, "Whether to immediately run job")
-job_mgr_opts.add("setupsh", '"${HOME}/synergia2_old_devel_1_0/setup.sh"',
+job_mgr_opts.add("setupsh", '/usr/local/share/synergia/setup.sh',
                  "Path to Synergia2 setup.sh file")
 job_mgr_opts.add("overwrite", False, "Whether to overwrite existing job directory")
 job_mgr_opts.add("walltime", None, "Limit job to given wall time", str)
