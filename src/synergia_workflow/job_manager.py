@@ -171,9 +171,26 @@ def expand_multiples(argv):
 
 # extra_opt_files and extra_opt_dirs will be copied if present, but ignored if missing
 class Job_manager:
+    '''The main Synergia workflow class.
+    
+    :param script: the name of the Synergia Python script or executable.
+    :param opts: an Options object containing the job options. The internally-defined job manager options
+        will be added as a suboption to opts.
+    :param extra_files: a list of additional files required to run the job.
+    :param extra_dirs: a list of additional directories whose contents are required to run the job.
+    :param argv: the command-line arguments. Use sys.argv if :code:`None`.
+    :param extra_opt_files: for internal use.
+    :param extra_opt_dirs: for internal use.
+    :param standalone: for internal use.
+    :param subjob: for internal use.
+    :param subjob_index: for internal use.
+    '''
     def __init__(self, script, opts, extra_files=None, extra_dirs=None,
+                 argv=None,
                  extra_opt_files=None, extra_opt_dirs=["lattice_cache"],
-                 standalone=False, argv=sys.argv, subjob=False, subjob_index=0):
+                 standalone=False, subjob=False, subjob_index=0):
+        if argv == None:
+            argv = sys.argv
         self.subjob = subjob
         self.subjob_index = subjob_index
         if has_multiple(argv):
