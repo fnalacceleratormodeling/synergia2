@@ -11,3 +11,4 @@ API Reference
    simulation
    collective
    optics
+   synergia_workflow
