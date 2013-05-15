@@ -68,18 +68,37 @@ class _option:
 
 class Options:
     '''Define a set of command-line options.
-    Hierarchical sets of option may be created with add_suboptions'''
+    Hierarchical sets of option may be created with add_suboptions.
+    
+    :param name: The name for this set of options to appear in the :code:`--help` output
+
+    The value of each option is available as a data member. The following example
+    prints the (integer) value 4:
+    
+    .. code-block:: python
+
+        from synergia_workflow import Options
+        opts = Options("foo")
+        opts.add("bar", 4, "bar parameter")
+        print opts.bar
+    '''
     def __init__(self, name):
         self.name = name
         self.dict = {}
         self.suboptions = []
         self.is_options = True
 
-    def options_name(self):
+    def get_name(self):
+        '''Get the name of this set of options'''
         return self.name
 
     def add(self, option, default_value, doc_string, val_type=None, valid_values=None):
-        '''Add a new option definition'''
+        '''Add a new option definition
+        
+        :param option: the name of the option. Must be a legal Python identifier.
+        :param default_value: the default value for the option. If :code:`None`, val_type is required.
+        :param val_type: optionally specify the value type. Necessary if default value is :code:`None`.
+        :param valid_values: an optional list of valid values. If specified, invalid values will raise an exception.'''
         if hasattr(self, option):
             raise RuntimeError('Options: option name "' + option +
                               '" already in use')
@@ -105,9 +124,13 @@ class Options:
                     suboption.set(option, value)
                     found = 1
             if not found:
-                print "Error: option", option, "not found."
+                raise RuntimeError('Options: option "' + option +
+                              '" not found')
 
     def has_option(self, option):
+        '''Returns true if option present.
+        
+        :param option: Name of option.'''
         if self.dict.has_key(option):
             return 1
         else:
@@ -117,7 +140,9 @@ class Options:
         return 0
 
     def options(self, include_suboptions=True):
-        '''Returns a list of all options, including suboptions'''
+        '''Returns a list of options.
+        
+        :param include_suboptions: whether to include suboptions'''
         list = self.dict.keys()
         if include_suboptions:
             for suboption in self.suboptions:
@@ -125,9 +150,12 @@ class Options:
         return list
 
     def add_suboptions(self, suboptions):
-        name = suboptions.options_name()
+        '''Add a set of suboptions.
+        
+        :param suboptions: An Options object'''
+        name = suboptions.get_name()
         if hasattr(self, name):
-            raise RuntimeError('Options: option name "' + name +
+            raise RuntimeError('Options.add_suboption: option name "' + name +
                               '" already in use')
         setattr(self, name, suboptions)
         self.suboptions.append(suboptions)
@@ -230,6 +258,9 @@ class Options:
         sys.exit(1)
 
 class Override:
+    '''The Override class provides a way to override default options in an Options object. Data members
+    of an Override instance named :code:`override` will override default values in the built-in
+    options.'''
     def __init__(self):
         self.is_override = True
 
