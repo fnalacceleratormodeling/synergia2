@@ -16,6 +16,8 @@
 
 #include "benchmark_options.h"
 
+#include <omp.h>
+
 // We put the actual code in a separate function so that shared_ptr's can
 // be cleanup up properly before we call MPI_Finalize.
 void
@@ -31,7 +33,7 @@ run(Benchmark_options const& opts)
     const int seed = 4;
     const double num_real_particles = 1e13;
     const int num_steps = 8;
-    const int num_turns = 4;
+    const int num_turns = 16;
     const int map_order = 2;
 
     Lattice_sptr lattice_sptr(new Lattice());
@@ -43,7 +45,7 @@ run(Benchmark_options const& opts)
         std::cerr << "Run cxx_example.py to generate cxx_lattice.xml\n";
         exit(1);
     }
-    lattice_sptr->set_all_string_attribute("extractor_type","chef_propagate");
+    //lattice_sptr->set_all_string_attribute("extractor_type","chef_propagate");
 
     Commxx_sptr comm_sptr(new Commxx);
     Bunch_sptr bunch_sptr(
@@ -60,8 +62,9 @@ run(Benchmark_options const& opts)
     }
     bunch_sptr->set_sort_period(opts.sortperiod);
 
+    Commxx_divider_sptr commxx_divider_sptr(new Commxx_divider(grid_shape[2]/2, false));
     Space_charge_3d_open_hockney_sptr space_charge_sptr(
-            new Space_charge_3d_open_hockney(grid_shape));
+            new Space_charge_3d_open_hockney(commxx_divider_sptr, grid_shape));
     if (opts.autotune) {
         space_charge_sptr->auto_tune_comm(*bunch_sptr, true);
     } else {
@@ -85,6 +88,7 @@ run(Benchmark_options const& opts)
             new Split_operator_stepper(lattice_simulator, space_charge_sptr,
                     num_steps));
     Propagator propagator(stepper_sptr);
+    propagator.set_checkpoint_period(100);
     propagator.set_final_checkpoint(false);
 
     Bunch_simulator bunch_simulator(bunch_sptr);
@@ -110,6 +114,7 @@ main(int argc, char **argv)
 {
     MPI_Init(&argc, &argv);
     Benchmark_options opts(argc, argv);
+    omp_set_num_threads(opts.omp_threads);
     run(opts);
     MPI_Finalize();
     return 0;
