@@ -5,7 +5,7 @@ import numpy
 
 from one_turn_map import linear_one_turn_map
 from mpi4py import MPI
-from synergia.bunch import Bunch, populate_6d, populate_transverse_gaussian, populate_transverse_KV_GaussLong, populate_two_particles
+from synergia.bunch import Bunch, populate_6d, populate_6d_truncated, populate_transverse_gaussian, populate_transverse_KV_GaussLong, populate_two_particles
 from synergia.foundation import Random_distribution, pconstants
 from synergia.utils import Commxx
 from synergia.optics.one_turn_map import linear_one_turn_map
@@ -242,7 +242,7 @@ def get_covariances(sigma, r):
 
 def generate_matched_bunch(lattice_simulator, arms,brms,crms,
                            num_real_particles, num_macro_particles, rms_index=[0,2,4],seed=0,
-                           bunch_index=0, comm=None, periodic=False):
+                           bunch_index=0, comm=None, periodic=False, nsigma=None):
 
    # map = linear_one_turn_map(lattice_simulator)
     map=lattice_simulator.get_linear_one_turn_map()
@@ -264,7 +264,10 @@ def generate_matched_bunch(lattice_simulator, arms,brms,crms,
                   num_macro_particles, num_real_particles, comm, z_period_length, bunch_index)
 
     dist = Random_distribution(seed, Commxx())
-    populate_6d(dist, bunch, numpy.zeros((6,), 'd'), correlation_matrix)
+    if nsigma != None:
+        populate_6d_truncated(dist, bunch, numpy.zeros((6,), 'd'), correlation_matrix, nsigma)
+    else:
+        populate_6d(dist, bunch, numpy.zeros((6,), 'd'), correlation_matrix)
     return bunch
 
 def get_matched_bunch_transverse_parameters(lattice_simulator,
