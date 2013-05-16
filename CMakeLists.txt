@@ -7,9 +7,6 @@ cmake_minimum_required(VERSION 2.8)
 enable_testing()
 set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
 
-# OpenMP
-set(CMAKE_CXX_FLAGS "-fopenmp")
-
 # Set defaults for building python bindings (build bindings by default).
 if (NOT DEFINED BUILD_PYTHON_BINDINGS)
   if (NOT $ENV{BUILD_PYTHON_BINDINGS} STREQUAL "")
@@ -27,6 +24,13 @@ endif ()
 FIND_PACKAGE(MPI REQUIRED)
 INCLUDE(CMakeForceCompiler)
 CMAKE_FORCE_CXX_COMPILER(${MPI_COMPILER} "MPI C++ Compiler")
+
+# OpenMP
+FIND_PACKAGE(OpenMP)
+if (OPENMP_FOUND)
+    set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+endif ()
 
 # python
 if (BUILD_PYTHON_BINDINGS)
