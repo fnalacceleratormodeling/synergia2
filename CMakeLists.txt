@@ -65,6 +65,10 @@ INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/AddPythonExtension.cmake)
 INCLUDE(${SYNERGIA2_SOURCE_DIR}/CMake/FindGSL.cmake)
 include_directories(${GSL_INCLUDE_DIR})
 
+# Eigen3
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIR})
+
 # fftw3 (and, possibly, fftw2)
 find_package(FFTW3 REQUIRED)
 if(FFTW3_MPI_FOUND)

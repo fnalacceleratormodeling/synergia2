@@ -2,13 +2,12 @@
 #include "synergia/utils/hdf5_writer.h"
 #include "synergia/utils/hdf5_chunked_array2d_writer.h"
 #include <cmath>
-#include "synergia/utils/eigen2/Eigen/Core"
-#include "synergia/utils/eigen2/Eigen/LU"
+#include "eigen3/Eigen/Core"
+#include "eigen3/Eigen/LU"
 #include <stdexcept>
 #include "synergia/utils/simple_timer.h"
 
-// import most common Eigen types
-USING_PART_OF_NAMESPACE_EIGEN
+using namespace Eigen;
 
 Diagnostics ::Diagnostics(std::string const& name, std::string const& filename,
         std::string const& local_dir) :

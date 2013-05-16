@@ -14,6 +14,18 @@ void
 populate_6d(Distribution &dist, Bunch &bunch, Const_MArray1d_ref means,
         Const_MArray2d_ref covariances);
 
+/// Populate a bunch with a truncated Gaussian distribution in all six dimensions.
+/// @param dist the distribution generator
+/// @param bunch the bunch
+/// @param means an array of length six of the mean value of the distribution
+///  in each phase space variable
+/// @param covariances the six-by-six covariance matrix
+/// @param limits an array of length six giving the cutoffs in units of the individual sigmas. A zero value means "do not truncate."
+void
+populate_6d_truncated(Distribution &dist, Bunch &bunch,
+        Const_MArray1d_ref means, Const_MArray2d_ref covariances,
+        Const_MArray1d_ref limits);
+
 /// Populate a bunch with a Gaussian distribution in all four
 /// transverse dimensions. The time distribution is uniform, but the
 /// dp/p distribution is also Gaussian.

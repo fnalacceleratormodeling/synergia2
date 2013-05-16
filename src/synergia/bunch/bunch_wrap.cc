@@ -157,6 +157,7 @@ BOOST_PYTHON_MODULE(bunch)
 
     def("no_diagnostics", no_diagnostics);
     def("populate_6d", populate_6d);
+    def("populate_6d_truncated", populate_6d_truncated);
     def("populate_transverse_gaussian", populate_transverse_gaussian);
     def("populate_uniform_cylinder", populate_uniform_cylinder);
     def("populate_transverse_KV_GaussLong", populate_transverse_KV_GaussLong);

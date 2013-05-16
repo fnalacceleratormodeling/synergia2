@@ -1,13 +1,17 @@
+#include <sstream>
 #include "populate.h"
 #include "diagnostics.h"
 
-#include "synergia/utils/eigen2/Eigen/Eigen"
-#include "synergia/utils/eigen2/Eigen/Cholesky"
+#include "eigen3/Eigen/Eigen"
+#include "eigen3/Eigen/Cholesky"
 
-// import most common Eigen types
-USING_PART_OF_NAMESPACE_EIGEN
+using namespace Eigen;
 
 #include "synergia/utils/multi_array_print.h"
+#include "synergia/utils/multi_array_assert.h"
+#include "synergia/foundation/math_constants.h"
+
+using mconstants::pi;
 
 void
 adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
@@ -16,9 +20,14 @@ adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
     MArray1d bunch_mean(Core_diagnostics::calculate_mean(bunch));
     MArray2d bunch_mom2(Core_diagnostics::calculate_mom2(bunch, bunch_mean));
     Matrix<double, 6, 6, Eigen::RowMajor > C(covariances.origin());
+    Matrix<double, 6, 6, Eigen::RowMajor > G(C.llt().matrixL());
     Matrix<double, 6, 6, Eigen::RowMajor > X(bunch_mom2.origin());
-    Matrix<double, 6, 6, Eigen::RowMajor > A = C.llt().matrixL()
-            * X.llt().matrixL().inverse();
+    Matrix<double, 6, 6, Eigen::RowMajor > H(X.llt().matrixL());
+    Matrix<double, 6, 6, Eigen::RowMajor > A(G * H.inverse());
+    // jfa: dummy exists only to work around a bad interaction betwen
+    //      Eigen3 and g++ 4.1.2
+    std::stringstream dummy;
+    dummy << C;
 
     int num_particles = bunch.get_local_num();
     Eigen::Map<Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor > >
@@ -36,16 +45,122 @@ adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
     }
 }
 
+namespace
+{
+    void
+    fill_unit_6d(Distribution & dist, MArray2d_ref & particles,
+            Const_MArray2d_ref covariances, int start, int end)
+    {
+        for (int j = 0; j < 6; ++j) {
+            dist.fill_unit_gaussian(
+                    particles[boost::indices[range(start, end)][j]]);
+            double scale = sqrt(covariances[j][j]);
+            for (int i = start; i < end; ++i) {
+                particles[i][j] *= scale;
+            }
+        }
+    }
+
+    inline
+    bool
+    good(MArray2d_ref particles, Const_MArray1d_ref limits, int index)
+    {
+        bool retval = true;
+        for (int i = 0; i < 6; ++i) {
+            double val = particles[index][i];
+            double limit = limits[i];
+            if ((limit > 0) && ((val > limit) or (val < -limit))) {
+                retval = false;
+            }
+        }
+        return retval;
+    }
+
+    void
+    strip_unit_6d(Bunch & bunch, Const_MArray1d_ref limits, int & total_num,
+            int & local_num)
+    {
+        MArray2d_ref particles(bunch.get_local_particles());
+        local_num = bunch.get_local_num();
+        int index = 0;
+        while (index < local_num) {
+            if (good(particles, limits, index)) {
+                ++index;
+            } else {
+                int last = local_num - 1;
+                if (good(particles, limits, last)) {
+                    particles[index][0] = particles[last][0];
+                    particles[index][1] = particles[last][1];
+                    particles[index][2] = particles[last][2];
+                    particles[index][3] = particles[last][3];
+                    particles[index][4] = particles[last][4];
+                    particles[index][5] = particles[last][5];
+                }
+                --local_num;
+            }
+        }
+        MPI_Allreduce(&local_num, &total_num, 1, MPI_INT, MPI_SUM,
+                bunch.get_comm().get());
+    }
+}
+
 void
 populate_6d(Distribution &dist, Bunch &bunch, Const_MArray1d_ref means,
         Const_MArray2d_ref covariances)
 {
-    MArray2d_ref particles(bunch.get_local_particles());
+    MArray1d limits(boost::extents[6]);
     for (int i = 0; i < 6; ++i) {
-        dist.fill_unit_gaussian(particles[boost::indices[range()][i]]);
+        limits[i] = 0.0;
+    }
+    populate_6d_truncated(dist, bunch, means, covariances, limits);
+}
+
+void
+populate_6d_truncated(Distribution &dist, Bunch &bunch,
+        Const_MArray1d_ref means, Const_MArray2d_ref covariances,
+        Const_MArray1d_ref limits)
+{
+    multi_array_assert_size(means, 6, "populate_6d: means");
+    multi_array_assert_size(covariances, 6, 6, "populate_6d: covariances");
+    multi_array_assert_size(limits, 6, "populate_6d: limits");
+    MArray2d_ref particles(bunch.get_local_particles());
+    MArray2d unit_covariances(boost::extents[6][6]);
+    MArray1d zero_means(boost::extents[6]);
+    bool truncated(false);
+    for (int i = 0; i < 6; ++i) {
+        double n = limits[i];
+        if (n > 0) {
+            truncated = true;
+            double cutoff_integral = exp(-n * n / 2.0)
+                    * (sqrt(pi) * exp(n * n / 2.0) * erf(n / sqrt(2.0))
+                            - sqrt(2.0) * n) / (sqrt(pi));
+            unit_covariances[i][i] = 1 / (cutoff_integral * cutoff_integral);
+        } else {
+            unit_covariances[i][i] = 1.0;
+        }
+    }
+    int start = 0;
+    int end = bunch.get_local_num();
+    fill_unit_6d(dist, particles, unit_covariances, start, end);
+    if (truncated) {
+        adjust_moments(bunch, zero_means, unit_covariances);
+        int iteration = 0;
+        int total_num, local_num;
+        strip_unit_6d(bunch, limits, total_num, local_num);
+        while (total_num < bunch.get_total_num()) {
+            ++iteration;
+            const int max_iterations = 50;
+            if (iteration > max_iterations) {
+                throw std::runtime_error(
+                        "populate_6d_truncated: maximum number of truncation iterations exceeded. Algorithm known to fail ~< 2.5 sigma.");
+            }
+            fill_unit_6d(dist, particles, unit_covariances, local_num - 1, end);
+            adjust_moments(bunch, zero_means, unit_covariances);
+            strip_unit_6d(bunch, limits, total_num, local_num);
+        }
     }
     adjust_moments(bunch, means, covariances);
-    bunch.check_pz2_positive();    
+    bunch.check_pz2_positive();
 }
 
 void
