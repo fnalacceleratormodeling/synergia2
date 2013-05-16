@@ -7,11 +7,11 @@
 
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 #pragma GCC diagnostic ignored "-Wsequence-point"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wsign-compare"
-#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #include <basic_toolkit/PhysicsConstants.h>
 #include <physics_toolkit/DriftConverter.h>
 #include <beamline/RefRegVisitor.h>
