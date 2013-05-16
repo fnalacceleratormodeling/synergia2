@@ -20,5 +20,6 @@ struct Benchmark_options
     int chargecomm;
     bool diagnostics;
     int sortperiod;
+    int omp_threads;
 };
 #endif /* BENCHMARK_OPTIONS_H_ */
