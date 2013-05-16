@@ -149,7 +149,7 @@ def do_plot(inputfile, options, plotparams, multiple_files):
         plot2d(x, y, plot, extra_label)
         plot_index += 1
         if options.legends:
-            pyplot.legend()
+            pyplot.legend(loc='best')
 
 def do_plots(options, plotparams):
     pyplot.figure().canvas.set_window_title('Synergia Diagnostics')
