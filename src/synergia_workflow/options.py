@@ -184,7 +184,8 @@ class Options:
             if item + 1 < self.dict[option].length:
                 desc_str += ","
         if self.dict[option].valid_values:
-            desc_str += ", valid values: " + self.dict[option].valid_values
+            desc_str += ", valid values: " + \
+                string.join(map (str, self.dict[option].valid_values), ',')
         return desc_str
 
     def usage(self):
