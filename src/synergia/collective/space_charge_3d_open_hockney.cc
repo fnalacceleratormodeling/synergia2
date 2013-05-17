@@ -1095,7 +1095,7 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_allreduce(
 {
     Rectangular_grid_sptr global_field(new Rectangular_grid(domain_sptr));
 
-    memset( (void*)global_field->get_grid_points().origin(), 0, 
+    std::memset( (void*)global_field->get_grid_points().data(), 0, 
             global_field->get_grid_points().num_elements()*sizeof(double) );
 
     for (int i = dist_field.get_lower();
