@@ -43,9 +43,14 @@ Fixed_t_z_zeroth::from_z_lab_to_t_bunch(Bunch &bunch)
     double m = bunch.get_mass();
     double p_ref = bunch.get_reference_particle().get_momentum();
     MArray2d_ref particles = bunch.get_local_particles();
-    for (int part = 0; part < bunch.get_local_num(); ++part) {
+
+    int local_num = bunch.get_local_num();
+    double gb = - gamma*beta;
+
+    #pragma omp parallel for shared(local_num, gb, particles, gamma, beta, m, p_ref)
+    for (int part = 0; part < local_num; ++part) {
         // z in beam rest frame
-        particles[part][Bunch::z] = -gamma * beta * particles[part][Bunch::cdt];
+        particles[part][Bunch::z] = gb * particles[part][Bunch::cdt];
 
         // total momentum in accelerator frame
         double p = p_ref + particles[part][Bunch::dpop] * p_ref;
@@ -77,10 +82,14 @@ Fixed_t_z_zeroth::from_t_bunch_to_z_lab(Bunch &bunch)
     double m = bunch.get_mass();
     double p_ref = bunch.get_reference_particle().get_momentum();
     MArray2d_ref particles = bunch.get_local_particles();
-    for (int part = 0; part < bunch.get_local_num(); ++part) {
+
+    int local_num = bunch.get_local_num();
+    double gb = - gamma*beta;
+
+    #pragma omp parallel for shared(local_num, gb, particles, gamma, beta, m, p_ref)
+    for (int part = 0; part < local_num; ++part) {
         // ct in accelerator frame
-        particles[part][Bunch::cdt] = -particles[part][Bunch::z]
-                / (gamma * beta);
+        particles[part][Bunch::cdt] = particles[part][Bunch::z] / gb;
 
         // p'_{x,y,z} in beam frame
         double pxp = particles[part][Bunch::xp] * p_ref;
@@ -103,7 +112,11 @@ Fixed_t_z_zeroth::from_z_lab_to_t_lab(Bunch &bunch)
     double beta = bunch.get_reference_particle().get_beta();
     double p_ref = bunch.get_reference_particle().get_momentum();
     MArray2d_ref particles = bunch.get_local_particles();
-    for (int part = 0; part < bunch.get_local_num(); ++part) {
+
+    int local_num = bunch.get_local_num();
+
+    #pragma omp parallel for shared(local_num, particles, beta, p_ref)
+    for (int part = 0; part < local_num; ++part) {
           // total momentum in accelerator frame
         double p = p_ref + particles[part][Bunch::dpop] * p_ref;
          // p_{x,y,z} in accelerator frame
@@ -131,7 +144,10 @@ Fixed_t_z_zeroth::from_t_lab_to_z_lab(Bunch &bunch)
     double p_ref = bunch.get_reference_particle().get_momentum();
     MArray2d_ref particles = bunch.get_local_particles();
 
-    for (int part = 0; part < bunch.get_local_num(); ++part) {
+    int local_num = bunch.get_local_num();
+
+    #pragma omp parallel for shared(local_num, particles, beta, p_ref)
+    for (int part = 0; part < local_num; ++part) {
           // p'_{x,y,z} in beam rest frame
         double px = particles[part][Bunch::xp]* p_ref;
         double py = particles[part][Bunch::yp]* p_ref;
@@ -151,7 +167,11 @@ Fixed_t_z_zeroth::from_t_lab_to_t_bunch(Bunch &bunch)
      double m = bunch.get_mass();
      double p_ref = bunch.get_reference_particle().get_momentum();
      MArray2d_ref particles = bunch.get_local_particles();
-     for (int part = 0; part < bunch.get_local_num(); ++part) {
+
+    int local_num = bunch.get_local_num();
+
+    #pragma omp parallel for shared(local_num, particles, gamma, beta, m, p_ref)
+     for (int part = 0; part < local_num; ++part) {
          double px  = particles[part][Bunch::xp] * p_ref;
          double py  = particles[part][Bunch::yp] * p_ref;
          double pz  = particles[part][Bunch::zp]  * p_ref;
@@ -171,7 +191,11 @@ Fixed_t_z_zeroth::from_t_bunch_to_t_lab(Bunch &bunch)
     double m = bunch.get_mass();
     double p_ref = bunch.get_reference_particle().get_momentum();
     MArray2d_ref particles = bunch.get_local_particles();
-    for (int part = 0; part < bunch.get_local_num(); ++part) {
+
+    int local_num = bunch.get_local_num();
+
+    #pragma omp parallel for shared(local_num, particles, gamma, beta, m, p_ref)
+    for (int part = 0; part < local_num; ++part) {
           // p'_{x,y,z} in beam rest frame
         double pxp = particles[part][Bunch::xp]* p_ref;
         double pyp = particles[part][Bunch::yp]* p_ref;
