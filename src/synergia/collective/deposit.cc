@@ -14,15 +14,11 @@ deposit_charge_rectangular_zyx(Rectangular_grid & rho_grid, Bunch const& bunch,
 {
     MArray3d_ref rho(rho_grid.get_grid_points());
     Const_MArray2d_ref parts(bunch.get_local_particles());
+
     if (zero_first) {
-        for (unsigned int i = 0; i < rho.shape()[0]; ++i) {
-            for (unsigned int j = 0; j < rho.shape()[1]; ++j) {
-                for (unsigned int k = 0; k < rho.shape()[2]; ++k) {
-                    rho[i][j][k] = 0.0;
-                }
-            }
-        }
+        std::memset( rho.data(), 0, sizeof(double)*rho.num_elements() );
     }
+
     std::vector<double > h(rho_grid.get_domain().get_cell_size());
     double weight0 = (bunch.get_real_num() / bunch.get_total_num())
             * bunch.get_particle_charge() * pconstants::e
