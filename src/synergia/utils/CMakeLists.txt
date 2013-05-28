@@ -27,6 +27,7 @@ install(TARGETS
     synergia_hdf5_utils
     synergia_distributed_fft
     synergia_serialization
+    synergia_command_line
     DESTINATION lib)
 install(FILES
     boost_test_mpi_fixture.h
