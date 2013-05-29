@@ -1,6 +1,0 @@
-This directory contains the installed header files of the Eigen library,
-    http://eigen.tuxfamily.org
-Please see the files COPYING and COPYING.LESSER.
-
-These files are from Eigen release 2.0.17 and consist of the results of 
-    cp -r $PREFIX/install/eigen2 .

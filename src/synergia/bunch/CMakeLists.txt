@@ -21,6 +21,7 @@ install(FILES
     diagnostics_full2.h
     diagnostics_track.h
     diagnostics_bulk_track.h
+    diagnostics_particles.h
     fixed_t_z_converter.h
     populate.h
     analysis.h

@@ -256,6 +256,7 @@ void mx_command::set_label(string const & label)
 {
   label_   = label;
   labeled_ = true;
+  transform( label_.begin(), label_.end(), label_.begin(), ::tolower );
 }
 
 void mx_command::set_keyword(mx_keyword const & keyword)
@@ -317,6 +318,13 @@ void mx_command::interpret(MadX & mx)
       insert_attr(cmd, attr, mx);
     }
 
+    // un-labeled command
+    //   for un-labeled command, if there is a command whose label is
+    //   the same as the keyword of this un-labeled command, then merge
+    //   the unlabeled command into the labeled one
+    if( !labeled_ && !mx.building_sequence() )
+      mx.fuse_command( keyword_, cmd );
+
     // insert the command to the MadX object
     if( labeled_ ) mx.insert_label(label_, cmd);
     else           mx.insert_command(cmd);
@@ -346,6 +354,10 @@ void mx_command::execute(MadX & mx)
   } 
   else if( keyword_ == "sequence" )
   {
+    double length = 0.0;
+    string refer  = string("");
+    string refpos = string("");
+
     // the "refer" attribute is an unquoted string, not a reference
     for( attrs_t::iterator it = attrs_.begin()
        ; it != attrs_.end(); ++it )
@@ -354,7 +366,7 @@ void mx_command::execute(MadX & mx)
       {
         if( it->value().type() == typeid(string) )
         {
-          // do nothing
+          refer = boost::any_cast<string>(it->value());
         }
         else if( it->value().type() == typeid(mx_expr) )
         {
@@ -362,8 +374,8 @@ void mx_command::execute(MadX & mx)
           {
             mx_expr ex = any_cast<mx_expr>(it->value());
             ex = get<nop_t>(get<nop_t>(get<nop_t>(ex).expr).expr).expr;
-            string val = boost::get<string>( ex );
-            it->set_attr("refer", val);
+            refer = boost::get<string>( ex );
+            it->set_attr("refer", refer);
           } 
           catch(...) 
           {
@@ -382,7 +394,7 @@ void mx_command::execute(MadX & mx)
       {
         if( it->value().type() == typeid(string) )
         {
-          // do nothing
+          refpos = boost::any_cast<string>(it->value());
         }
         else if( it->value().type() == typeid(mx_expr) )
         {
@@ -390,8 +402,8 @@ void mx_command::execute(MadX & mx)
           {
             mx_expr ex = any_cast<mx_expr>(it->value());
             ex = get<nop_t>(get<nop_t>(get<nop_t>(ex).expr).expr).expr;
-            string val = boost::get<string>( ex );
-            it->set_attr("refpos", val);
+            refpos = boost::get<string>( ex );
+            it->set_attr("refpos", refpos);
           } 
           catch(...) 
           {
@@ -404,9 +416,37 @@ void mx_command::execute(MadX & mx)
           throw runtime_error("The 'refpos' attribute of sequence '" 
               + label_ + "' is not a string");
         }
- 
       }
-    }
+
+      if( it->name() == "length" || it->name() == "l" )
+      {
+        try
+        {
+          mx_expr e = boost::any_cast<mx_expr>( it->value() );
+          length = boost::apply_visitor(mx_calculator(mx), e);
+        }
+        catch(...)
+        {
+          throw runtime_error("The 'length' attribute of sequence '"
+              + label_ + "' is not a number");
+        }
+      }
+
+    } // end of attr iter loop
+
+    transform( refer .begin(), refer .end(), refer .begin(), ::tolower );
+    transform( refpos.begin(), refpos.end(), refpos.begin(), ::tolower );
+
+    if( length < 1e-8 )
+      throw runtime_error("The 'length' attribute of sequence '"
+          + label_ + "' is not a valid number");
+
+    // tells madx object to start building sequence
+    mx.start_sequence( label_, length, refer, refpos );
+  }
+  else if( keyword_ == "endsequence" )
+  {
+    mx.end_sequence();
   }
   else if( keyword_ == "beam" )
   {
@@ -499,6 +539,15 @@ void mx_command::execute(MadX & mx)
       attr.set_attr( "gamma", mx_expr(four_momentum.get_gamma()) );
       ins_attr(attr);
     }
+
+    // insert a global variable brho to the madx object
+    stringstream ss;
+    ss.precision(18);
+    ss << 1e9/pconstants::c << "*beam->pc";
+
+    mx_expr expr;
+    parse_expression( ss.str(), expr );
+    mx.insert_variable( "brho", expr );
   }
 }
 

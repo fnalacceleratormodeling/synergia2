@@ -136,11 +136,13 @@ private:
 
 typedef std::map<string_t, synergia::MadX_line>    lines_m_t;
 
+typedef std::vector<std::pair<std::string, size_t> > cmd_idx_v_t;
+
 class synergia::MadX_sequence
 {
 public:
   MadX_sequence(MadX const & parent)
-    : parent(parent), lbl(), l(0.0), r(SEQ_REF_CENTRE), seq_() { }
+    : parent(parent), lbl(), l(0.0), r(SEQ_REF_CENTRE), rp(), seq_() { }
 
   // accessor
   string_t label() const;
@@ -149,12 +151,15 @@ public:
   MadX_command      element(size_t idx, bool resolve = true) const;
   MadX_entry_type   element_type(size_t idx) const;
   MadX_sequence_refer refer() const;
+  string_t            refpos() const;
 
   // modifier
   void set_label(string_t const & label);
   void set_length(double length);
   void set_refer(MadX_sequence_refer ref);
-  void add_element(MadX_command const & cmd);
+  void set_refpos(string_t const & refpos);
+  void add_element(string_t const & label); // add element by label (key to the map)
+  void add_element(size_t idx);             // add element by index (unnamed cmd)
   void reset();
 
   // print
@@ -165,7 +170,8 @@ private:
   string_t lbl;
   double l;
   MadX_sequence_refer r;
-  commands_v_t  seq_;
+  string_t rp;
+  cmd_idx_v_t   seq_;
 };
 
 typedef std::map<string_t, synergia::MadX_sequence> sequences_m_t;
@@ -210,6 +216,8 @@ public:
   MadX_sequence const & current_sequence( ) const;
   MadX_sequence & current_sequence( );
 
+  bool building_sequence() const;
+
   MadX_entry_type entry_type(string_t const & entry) const;
 
   void print() const;
@@ -221,8 +229,11 @@ public:
   void insert_label   (string_t const & name, MadX_command const & cmd);
   void insert_line    (string_t const & name, MadX_line const & line);
   void insert_command (MadX_command const & cmd);
+  void fuse_command   (string_t const & name, MadX_command const & cmd);
+                          // fuse all attr in cmd into label with the provided name
 
-  void start_sequence();
+  void start_sequence( string_t const & label, double length
+                     , string_t const & refer, string_t const & refpos );
   void end_sequence();
 
   // alias
@@ -234,7 +245,6 @@ public:
     { insert_variable(name, value); }
 
 private:
-  void execute_command(string_t const & label, MadX_command const & cmd);
 
 public:
   static double   nan;  // not a number

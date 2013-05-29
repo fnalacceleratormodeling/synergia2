@@ -27,6 +27,7 @@ install(TARGETS
     synergia_hdf5_utils
     synergia_distributed_fft
     synergia_serialization
+    synergia_command_line
     DESTINATION lib)
 install(FILES
     boost_test_mpi_fixture.h
@@ -48,6 +49,7 @@ install(FILES
     hdf5_writer.h
     hdf5_writer.tcc
     complex_error_function.h
+    multi_array_assert.h
     multi_array_check_equal.h
     multi_array_offsets.h
     multi_array_print.h
