@@ -20,6 +20,7 @@ Contents:
    units
    code_conventions
    tools
+   synergia_workflow
    api_reference
    chef
 
