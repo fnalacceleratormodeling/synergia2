@@ -174,9 +174,7 @@ deposit_charge_rectangular_zyx_omp_reduce(Rectangular_grid & rho_grid, Bunch con
     } 
     else 
     {
-        #pragma omp parallel \
-            num_threads(8),\
-            shared(npart, parts, lx, ly, lz, cx, cy, cz, w0, h, gx, gy, gz, rl, ncc, weight0, rho)
+        #pragma omp parallel shared(npart, parts, lx, ly, lz, cx, cy, cz, w0, h, gx, gy, gz, rl, ncc, weight0, rho)
         {
             int nt = omp_get_num_threads();
             int it = omp_get_thread_num();
