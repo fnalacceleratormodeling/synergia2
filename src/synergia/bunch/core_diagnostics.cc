@@ -138,17 +138,48 @@ Core_diagnostics::calculate_std(Bunch const& bunch, MArray1d_ref const& mean)
     MArray1d std(boost::extents[6]);
     double sum[6] = { 0, 0, 0, 0, 0, 0 };
     Const_MArray2d_ref particles(bunch.get_local_particles());
-    for (int part = 0; part < bunch.get_local_num(); ++part) {
-        for (int i = 0; i < 6; ++i) {
-            double diff = particles[part][i] - mean[i];
-            sum[i] += diff * diff;
+    int npart = bunch.get_local_num();
+
+    #pragma omp parallel shared(npart, particles)
+    {
+        int nt = omp_get_num_threads();
+        int it = omp_get_thread_num();
+
+        int l = npart / nt;
+        int s = it * l;
+        int e = (it==nt-1) ? npart : (it+1)*l;
+
+        double lsum[6] = { 0, 0, 0, 0, 0, 0 };
+        double diff;
+
+        for(int part = s; part < e; ++part)
+        {
+            diff = particles[part][0] - mean[0]; lsum[0] += diff * diff;
+            diff = particles[part][1] - mean[1]; lsum[1] += diff * diff;
+            diff = particles[part][2] - mean[2]; lsum[2] += diff * diff;
+            diff = particles[part][3] - mean[3]; lsum[3] += diff * diff;
+            diff = particles[part][4] - mean[4]; lsum[4] += diff * diff;
+            diff = particles[part][5] - mean[5]; lsum[5] += diff * diff;
         }
+ 
+        #pragma omp critical
+        {
+            sum[0] += lsum[0];
+            sum[1] += lsum[1];
+            sum[2] += lsum[2];
+            sum[3] += lsum[3];
+            sum[4] += lsum[4];
+            sum[5] += lsum[5];
+        } // end of omp critical
     }
+
     MPI_Allreduce(sum, std.origin(), 6, MPI_DOUBLE, MPI_SUM,
             bunch.get_comm().get());
+
     for (int i = 0; i < 6; ++i) {
         std[i] = std::sqrt(std[i] / bunch.get_total_num());
     }
+
     return std;
 }
 
