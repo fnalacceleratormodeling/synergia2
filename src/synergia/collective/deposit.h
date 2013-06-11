@@ -8,6 +8,14 @@ deposit_charge_rectangular_zyx(Rectangular_grid & rho_grid, Bunch const& bunch,
         bool zero_first = true);
 
 void
+deposit_charge_rectangular_zyx_omp_reduce(Rectangular_grid & rho_grid, Bunch const& bunch,
+        bool zero_first = true);
+
+void
+deposit_charge_rectangular_zyx_omp_interleaved(Rectangular_grid & rho_grid, Bunch const& bunch,
+        bool zero_first = true);
+
+void
 deposit_charge_rectangular_xyz(Rectangular_grid & rho_grid, Bunch const& bunch,
         bool zero_first = true);
 
