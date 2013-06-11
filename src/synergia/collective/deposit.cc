@@ -121,6 +121,7 @@ deposit_charge_rectangular_zyx_omp_reduce(Rectangular_grid & rho_grid, Bunch con
     }
 
     double * rl = new double[nt*ncc];  // nt copies of complex cells
+    double * rs = new double[nc];  
 
     const std::vector<double> & offs  = rho_grid.get_domain_sptr()->get_physical_offset();
     const std::vector<double> & size  = rho_grid.get_domain_sptr()->get_physical_size();
@@ -192,7 +193,6 @@ deposit_charge_rectangular_zyx_omp_reduce(Rectangular_grid & rho_grid, Bunch con
             double ox, oy, oz, w;
             int    ix, iy, iz;
 
-
             for(int n=ps; n<pe; ++n)
             {
                 scaled_location = (parts[n][0] - lx) / cx - 0.5;
@@ -210,15 +210,17 @@ deposit_charge_rectangular_zyx_omp_reduce(Rectangular_grid & rho_grid, Bunch con
                 if( ix<0 || iy<0 || iz<0 || ix>=gx || iy>=gy || iz>=gz )
                     continue;
 
-                rlt[(iz)*(gx+1)*(gy+1) + (iy  )*(gx+1) + ix  ] += w0*(1-ox)*(1-oy)*(1-oz);
-                rlt[(iz)*(gx+1)*(gy+1) + (iy  )*(gx+1) + ix+1] += w0*(  ox)*(1-oy)*(1-oz);
-                rlt[(iz)*(gx+1)*(gy+1) + (iy+1)*(gx+1) + ix  ] += w0*(1-ox)*(  oy)*(1-oz);
-                rlt[(iz)*(gx+1)*(gy+1) + (iy+1)*(gx+1) + ix+1] += w0*(  ox)*(  oy)*(1-oz);
+                int base = iz * (gx+1) * (gy+1);
+                rlt[base + (iy  )*(gx+1) + ix  ] += w0*(1-ox)*(1-oy)*(1-oz);
+                rlt[base + (iy  )*(gx+1) + ix+1] += w0*(  ox)*(1-oy)*(1-oz);
+                rlt[base + (iy+1)*(gx+1) + ix  ] += w0*(1-ox)*(  oy)*(1-oz);
+                rlt[base + (iy+1)*(gx+1) + ix+1] += w0*(  ox)*(  oy)*(1-oz);
 
-                rlt[(iz+1)*(gx+1)*(gy+1) + (iy  )*(gx+1) + ix  ] += w0*(1-ox)*(1-oy)*(oz);
-                rlt[(iz+1)*(gx+1)*(gy+1) + (iy  )*(gx+1) + ix+1] += w0*(  ox)*(1-oy)*(oz);
-                rlt[(iz+1)*(gx+1)*(gy+1) + (iy+1)*(gx+1) + ix  ] += w0*(1-ox)*(  oy)*(oz); 
-                rlt[(iz+1)*(gx+1)*(gy+1) + (iy+1)*(gx+1) + ix+1] += w0*(  ox)*(  oy)*(oz); 
+                base = (iz+1) * (gx+1) * (gy+1);
+                rlt[base + (iy  )*(gx+1) + ix  ] += w0*(1-ox)*(1-oy)*(oz);
+                rlt[base + (iy  )*(gx+1) + ix+1] += w0*(  ox)*(1-oy)*(oz);
+                rlt[base + (iy+1)*(gx+1) + ix  ] += w0*(1-ox)*(  oy)*(oz); 
+                rlt[base + (iy+1)*(gx+1) + ix+1] += w0*(  ox)*(  oy)*(oz); 
             }
 
             #pragma omp barrier
@@ -230,15 +232,16 @@ deposit_charge_rectangular_zyx_omp_reduce(Rectangular_grid & rho_grid, Bunch con
 
             for(int z=ps; z<pe; ++z)
             {
-              for(int y=0; y<gy; ++y)
-              {
-                for(int x=0; x<gx; ++x)
+                for(int y=0; y<gy; ++y)
                 {
-                  w = 0.0;
-                  for(int n=1; n<nt; ++n)  w += rl[n*ncc + z*(gx+1)*(gy+1) + y*(gx+1) + x];
-                  rl[z*gx*gy + y*gx + x] += w;
+                    for(int x=0; x<gx; ++x)
+                    {
+                        w = 0.0;
+                        for(int n=0; n<nt; ++n)  
+                            w += rl[n*ncc + z*(gx+1)*(gy+1) + y*(gx+1) + x];
+                        rs[z*gx*gy + y*gx + x] += w;
+                    }
                 }
-              }
             }
 
             #pragma omp barrier
@@ -247,9 +250,10 @@ deposit_charge_rectangular_zyx_omp_reduce(Rectangular_grid & rho_grid, Bunch con
 
     } // end of periodic if
 
-    memcpy( rho.data(), rl, sizeof(double)*nc );
+    memcpy( rho.data(), rs, sizeof(double)*nc );
 
     delete [] rl;
+    delete [] rs;
 }
 
 
