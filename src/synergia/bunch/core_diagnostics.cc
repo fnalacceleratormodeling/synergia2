@@ -66,9 +66,29 @@ Core_diagnostics::calculate_z_mean(Bunch const& bunch)
     double sum = 0;
     double mean;
     Const_MArray2d_ref particles(bunch.get_local_particles());
-    for (int part = 0; part < bunch.get_local_num(); ++part) {
-        sum += particles[part][4];
-    }
+    int npart = bunch.get_local_num();
+
+    #pragma omp parallel shared(npart, particles)
+    {
+        int nt = omp_get_num_threads();
+        int it = omp_get_thread_num();
+
+        int l = npart / nt;
+        int s = it * l;
+        int e = (it==nt-1) ? npart : (it+1)*l;
+
+        double lsum = 0;
+
+        for (int part = s; part < e; ++part) 
+        {
+            lsum += particles[part][4];
+        }
+
+        #pragma omp critical
+        sum += lsum;
+
+    } // end of omp parallel
+
     MPI_Allreduce(&sum, &mean, 1, MPI_DOUBLE, MPI_SUM, bunch.get_comm().get());
     mean /= bunch.get_total_num();
     return mean;
