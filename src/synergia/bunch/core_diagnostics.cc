@@ -13,11 +13,41 @@ Core_diagnostics::calculate_mean(Bunch const& bunch)
     MArray1d mean(boost::extents[6]);
     double sum[6] = { 0, 0, 0, 0, 0, 0 };
     Const_MArray2d_ref particles(bunch.get_local_particles());
-    for (int part = 0; part < bunch.get_local_num(); ++part) {
-        for (int i = 0; i < 6; ++i) {
-            sum[i] += particles[part][i];
+    int npart = bunch.get_local_num();
+
+    #pragma omp parallel shared(npart, particles)
+    {
+        int nt = omp_get_num_threads();
+        int it = omp_get_thread_num();
+
+        int l = npart / nt;
+        int s = it * l;
+        int e = (it==nt-1) ? npart : (it+1)*l;
+
+        double lsum[6] = { 0, 0, 0, 0, 0, 0 };
+
+        for (int part = s; part < e; ++part) 
+        {
+            lsum[0] += particles[part][0];
+            lsum[1] += particles[part][1];
+            lsum[2] += particles[part][2];
+            lsum[3] += particles[part][3];
+            lsum[4] += particles[part][4];
+            lsum[5] += particles[part][5];
         }
-    }
+
+        #pragma omp critical
+        {
+            sum[0] += lsum[0];
+            sum[1] += lsum[0];
+            sum[2] += lsum[0];
+            sum[3] += lsum[0];
+            sum[4] += lsum[0];
+            sum[5] += lsum[0];
+        } // end of omp critical
+
+    } // end of omp parallel
+
     double t;
     t = simple_timer_current();
     MPI_Allreduce(sum, mean.origin(), 6, MPI_DOUBLE, MPI_SUM,
