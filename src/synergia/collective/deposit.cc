@@ -274,10 +274,13 @@ deposit_charge_rectangular_zyx_omp_interleaved(Rectangular_grid & rho_grid, Bunc
     int    * count = new int[gx*gy*gz]; // particle count in cells
     int    * pll = new int[npart];      // indexed list
 
-    int nt = 1;
+    static int nt = 0;
 
-    #pragma omp parallel
-    { nt = omp_get_num_threads(); }
+    if( nt==0 )
+    {
+        #pragma omp parallel
+        { nt = omp_get_num_threads(); }
+    }
 
     #pragma omp parallel for
     for(int i=0; i<gx*gy*gz+1; ++i) pc[i] = 0;
