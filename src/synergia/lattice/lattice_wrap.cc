@@ -206,6 +206,7 @@ BOOST_PYTHON_MODULE(lattice)
 //                    return_value_policy<copy_non_const_reference >())
             .def("get_beamline", &Chef_lattice::get_beamline_sptr)
             .def("get_sliced_beamline", &Chef_lattice::get_sliced_beamline_sptr)
+            .def("get_brho",&Chef_lattice::get_brho)
             ;
 
     class_<Lattice_diagnostics, Lattice_diagnostics_sptr >
