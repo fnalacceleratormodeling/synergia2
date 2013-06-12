@@ -483,7 +483,7 @@ class Job_manager:
                 subs["subnumproc"] = val
             else:
                 subs["subnumproc"] = 1 
-            val = (subs[subnumproc] + self.opts.get("procspernode") - 1) / \
+            val = (subs["subnumproc"] + self.opts.get("procspernode") - 1) / \
                   self.opts.get("procspernode")
             if val > 0:
                 subs["subnumnode"] = val
