@@ -508,9 +508,15 @@ Space_charge_3d_open_hockney::get_doubled_domain_sptr() const
 Rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_local_charge_density(Bunch const& bunch)
 {
+double t = simple_timer_current();
     update_domain(bunch);
+t = simple_timer_show(t, "sc-local-rho-update-domain");
     Rectangular_grid_sptr local_rho_sptr(new Rectangular_grid(domain_sptr));
-    deposit_charge_rectangular_zyx(*local_rho_sptr, bunch);
+t = simple_timer_show(t, "sc-local-rho-new");
+    //deposit_charge_rectangular_zyx(*local_rho_sptr, bunch);
+    deposit_charge_rectangular_zyx_omp_reduce(*local_rho_sptr, bunch);
+    //deposit_charge_rectangular_zyx_omp_interleaved(*local_rho_sptr, bunch);
+t = simple_timer_show(t, "sc-local-rho-deposit");
     return local_rho_sptr;
 }
 
@@ -659,6 +665,8 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
 // Note that the doubling algorithm is not quite symmetric. For
 // example, the doubled grid for 4 points in 1d looks like
 //    0 1 2 3 4 3 2 1
+
+    #pragma omp parallel for private( dx, dy, dz, G, mix, miy )
     for (int iz = lower; iz < upper; ++iz) {
         if (iz > grid_shape[0]) {
             dz = (doubled_grid_shape[0] - iz) * hz;
@@ -737,30 +745,33 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
     double G000 = (2.0 / rr)
             * (hz * r1 + rr * log((hz + r1) / sqrt(rr)) - hz * hz); // average value of outer cylinder.
 
+    int gz = grid_shape[0];
+    int gy = grid_shape[1];
+    int gx = grid_shape[2];
+
+    int dgz = doubled_grid_shape[0];
+    int dgy = doubled_grid_shape[1];
+    int dgx = doubled_grid_shape[2];
+
     const int num_images = 8;
     int mix, miy; // mirror indices for x- and y-planes
     double x, y, z, G;
     const double epsz = 1.0e-12 * hz;
 
+    #pragma omp parallel for default(none), \
+        private( x, y, z, G, mix, miy, rr ), \
+        shared( gx, gy, gz, dgx, dgy, dgz, hx, hy, hz, G000, lower, upper, G2 )
     for (int iz = lower; iz < upper; ++iz) {
-        if (iz > grid_shape[0]) {
-            z = (doubled_grid_shape[0] - iz) * hz;
-        } else {
-            z = iz * hz;
-        }
-        for (int iy = 0; iy <= grid_shape[1]; ++iy) {
+        z = (iz>gz) ? (dgz-iz)*hz : iz*hz;
+
+        for (int iy = 0; iy <= gy; ++iy) {
             y = iy * hy;
-            miy = doubled_grid_shape[1] - iy;
-            if (miy == grid_shape[1]) {
-                miy = doubled_grid_shape[1]; // will get thrown away
-            }
-            for (int ix = 0; ix <= grid_shape[2]; ++ix) {
+            miy = (iy==gy) ? dgy : (dgy-iy);
+
+            for (int ix = 0; ix <= gx; ++ix) {
                 x = ix * hx;
                 rr = x * x + y * y;
-                mix = doubled_grid_shape[2] - ix;
-                if (mix == grid_shape[2]) {
-                    mix = doubled_grid_shape[2]; // will get thrown away
-                }
+                mix = (ix==gx) ? dgx : (dgx-ix);
 
                 G = 2.0 * sqrt(rr + z * z) - sqrt(rr + (z - hz) * (z - hz))
                         - sqrt(rr + (z + hz) * (z + hz));
@@ -1155,6 +1166,7 @@ Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
     int ps_component = 2 * component + 1;
     Rectangular_grid_domain & domain(*En.get_domain_sptr());
     MArray3d_ref grid_points(En.get_grid_points());
+
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         double x = bunch.get_local_particles()[part][Bunch::x];
         double y = bunch.get_local_particles()[part][Bunch::y];
