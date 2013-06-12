@@ -3,6 +3,13 @@
 Synergia2 documentation
 =======================
 
+.. warning::
+   This manual is a work in progress. It has not been released, even in beta form. The first
+   released version of the manual will be part of Synergia 2.1beta2.
+   
+.. figure:: figures/dragon.png
+   :align: center
+   
 Contents:
 
 .. toctree::
@@ -13,6 +20,7 @@ Contents:
    units
    code_conventions
    tools
+   synergia_workflow
    api_reference
    chef
 

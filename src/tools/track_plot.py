@@ -121,7 +121,7 @@ def do_plots(options):
     for particle_coords, index in zip(all_particle_coords, options.indices):
         plot_index = 1
         for coord in options.coords:
-            x = getattr(f.root, "trajectory_length").read()
+            x = getattr(f.root, "s").read()
             y = particle_coords[coords[coord],:]
             if not options.oneplot:
                 pyplot.subplot(rows, cols, plot_index)

@@ -26,6 +26,6 @@ public:
     ~Element_adaptor_map() = 0;
 };
 BOOST_CLASS_EXPORT_KEY(Element_adaptor_map)
-typedef boost::shared_ptr<Element_adaptor_map > Element_adaptor_map_sptr;
+typedef boost::shared_ptr<Element_adaptor_map > Element_adaptor_map_sptr; // syndoc:include
 
 #endif /* ELEMENT_ADAPTOR_MAP_H_ */

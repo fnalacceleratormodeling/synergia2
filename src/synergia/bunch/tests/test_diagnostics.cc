@@ -64,12 +64,12 @@ BOOST_FIXTURE_TEST_CASE(is_serial, Fixture)
     BOOST_CHECK(diagnostics.is_serial());
 }
 
-BOOST_FIXTURE_TEST_CASE(get_s, Fixture)
+BOOST_FIXTURE_TEST_CASE(get_s_n, Fixture)
 {
     Diagnostics_basic diagnostics("dummy.h5");
     diagnostics.set_bunch_sptr(bunch_sptr);
     diagnostics.update();
-    BOOST_CHECK_CLOSE(diagnostics.get_s(), partial_s, tolerance);
+    BOOST_CHECK_CLOSE(diagnostics.get_s_n(), partial_s, tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_repetition, Fixture)
@@ -80,12 +80,12 @@ BOOST_FIXTURE_TEST_CASE(get_repetition, Fixture)
     BOOST_CHECK_EQUAL(diagnostics.get_repetition(), turns);
 }
 
-BOOST_FIXTURE_TEST_CASE(get_trajectory_length, Fixture)
+BOOST_FIXTURE_TEST_CASE(get_s, Fixture)
 {
     Diagnostics_basic diagnostics("dummy.h5");
     diagnostics.set_bunch_sptr(bunch_sptr);
     diagnostics.update();
-    BOOST_CHECK_CLOSE(diagnostics.get_trajectory_length(),
+    BOOST_CHECK_CLOSE(diagnostics.get_s(),
             turns * turn_length + partial_s, tolerance);
 }
 
@@ -170,12 +170,12 @@ BOOST_FIXTURE_TEST_CASE(is_serial_full2, Fixture)
     BOOST_CHECK(diagnostics.is_serial());
 }
 
-BOOST_FIXTURE_TEST_CASE(get_s_full2, Fixture)
+BOOST_FIXTURE_TEST_CASE(get_s_n_full2, Fixture)
 {
     Diagnostics_full2 diagnostics("dummy.h5");
     diagnostics.set_bunch_sptr(bunch_sptr);
     diagnostics.update();
-    BOOST_CHECK_CLOSE(diagnostics.get_s(), partial_s, tolerance);
+    BOOST_CHECK_CLOSE(diagnostics.get_s_n(), partial_s, tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_num_particles_full2, Fixture)

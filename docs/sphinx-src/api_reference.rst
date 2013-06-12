@@ -10,3 +10,4 @@ API Reference
    lattice
    simulation
    collective
+   optics
