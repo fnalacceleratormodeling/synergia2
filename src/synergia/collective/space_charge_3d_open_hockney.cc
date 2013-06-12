@@ -1167,6 +1167,7 @@ Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
     Rectangular_grid_domain & domain(*En.get_domain_sptr());
     MArray3d_ref grid_points(En.get_grid_points());
 
+    #pragma omp parallel for
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         double x = bunch.get_local_particles()[part][Bunch::x];
         double y = bunch.get_local_particles()[part][Bunch::y];
