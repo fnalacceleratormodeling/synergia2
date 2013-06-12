@@ -428,12 +428,13 @@ class Job_manager:
                                      resumemultijob_footer_template_path,
                                      resumejob_name, directory, subs)
 
-    def submit_job(self, job_name):
+    def submit_job(self, job_name, subs):
         submitter = "qsub"
         for line in open(job_name, 'r'):
             m = re.match(".*synergia_workflow_submitter:(.*)", line)
             if m:
                 submitter = m.group(1)
+        submitter = process_line(submitter, subs)
         os.system(submitter + ' ./' + job_name)
 
     def create_job(self, directory, extra_files, extra_dirs,
@@ -514,7 +515,7 @@ class Job_manager:
                    extra_opt_files, extra_opt_dirs)
         if self.opts.get("submit") and not self.subjob:
             os.chdir(directory)
-            self.submit_job(job_name)
+            self.submit_job(job_name, subs)
             os.chdir(old_cwd)
         if self.opts.get("run"):
             os.chdir(directory)
@@ -655,39 +656,42 @@ def cxx_source_value(val):
         retval = '"' + val + '"'
     return retval
 
+def process_line(line, subs):
+    match = re.search("@@[A-z0-9]+@@", line)
+    while match:
+        var = string.replace(match.group(), "@@", "")
+        if subs.has_key(var):
+            replacement = str(subs[var])
+        else:
+            replacement = ""
+            unknown_vars.append(var)
+        original = match.group()
+        line = string.replace(line, original, replacement)
+        match = re.search("@@[A-z0-9]+@@", line)
+    match = re.search("__([A-z0-9]+){{(.*)}}{{(.*)}}__", line)
+    while match:
+        var = match.group(1)
+        have_var = False
+        if subs.has_key(var):
+            if (subs[var] != None) and (subs[var] != False):
+                have_var = True
+        if have_var:
+            replacement = match.group(2)
+        else:
+            replacement = match.group(3)
+            if unknown_vars.count(var) > 0:
+                unknown_vars.remove(var)
+        original = "__%s{{%s}}{{%s}}__" % (match.group(1), match.group(2),
+                                           match.group(3))
+        line = string.replace(line, original, replacement)
+        match = re.search("@@[A-z0-9]+@@", line)
+    return line
+
 def process_template(template_name, output, subs):
     template = open(template_name, "r")
     unknown_vars = []
     for line in template.readlines():
-        match = re.search("@@[A-z0-9]+@@", line)
-        while match:
-            var = string.replace(match.group(), "@@", "")
-            if subs.has_key(var):
-                replacement = str(subs[var])
-            else:
-                replacement = ""
-                unknown_vars.append(var)
-            original = match.group()
-            line = string.replace(line, original, replacement)
-            match = re.search("@@[A-z0-9]+@@", line)
-        match = re.search("__([A-z0-9]+){{(.*)}}{{(.*)}}__", line)
-        while match:
-            var = match.group(1)
-            have_var = False
-            if subs.has_key(var):
-                if (subs[var] != None) and (subs[var] != False):
-                    have_var = True
-            if have_var:
-                replacement = match.group(2)
-            else:
-                replacement = match.group(3)
-                if unknown_vars.count(var) > 0:
-                    unknown_vars.remove(var)
-            original = "__%s{{%s}}{{%s}}__" % (match.group(1), match.group(2),
-                                               match.group(3))
-            line = string.replace(line, original, replacement)
-            match = re.search("@@[A-z0-9]+@@", line)
-        output.write(line)
+        output.write(process_line(line, subs))
     for var in unknown_vars:
         print "process_template warning: variable \"%s\" unknown." % var
     template.close()
