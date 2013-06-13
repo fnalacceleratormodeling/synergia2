@@ -375,6 +375,10 @@ Space_charge_2d_open_hockney::set_fixed_domain(
     have_domains = true;
 }
 
+// get_smallest_non_tiny is in space_charge_3d_open_hockney.cc
+double
+get_smallest_non_tiny(double val, double other1, double other2, double tiny);
+
 void
 Space_charge_2d_open_hockney::update_domain(Bunch const& bunch)
 {
@@ -384,14 +388,36 @@ Space_charge_2d_open_hockney::update_domain(Bunch const& bunch)
         std::vector<double > size(3);
         std::vector<double > offset(3);
         // domain is in xyz order
+        const double tiny = 1.0e-10;
+        // protect against degenerate domain sizes
+        if ((std[0] < tiny) && (std[1] < tiny)
+                && (std[2] < tiny)) {
+            throw std::runtime_error(
+                    "Space_charge_3d_open_hockney::update_domain: all three spatial dimensions have neglible extent");
+        }
+
         for (int i = 0; i < 3; ++i) {
             offset[i] = mean[i];
             size[i] = n_sigma * std[i];
         }
         if (grid_entire_period) {
-            offset[2] = 0.0;
-            size[2] = z_period;
+        	offset[2] = 0.0;
+        	size[2] = z_period;
+        }  else {
+        	offset[2] = mean[2];
+        	size[2] = n_sigma
+        			* get_smallest_non_tiny(std[2], std[0],
+        					std[2], tiny);
         }
+        offset[1] = mean[1];
+        size[1] = n_sigma
+        		* get_smallest_non_tiny(std[1], std[0],
+        				std[2], tiny);
+        offset[0] = mean[0];
+        size[0] = n_sigma
+        		* get_smallest_non_tiny(std[0], std[1],
+        				std[2], tiny);
+
         domain_sptr = Rectangular_grid_domain_sptr(new Rectangular_grid_domain(
                 size, offset, grid_shape, periodic_z));
         set_doubled_domain();
