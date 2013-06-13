@@ -199,9 +199,9 @@ class Job_manager:
             index = 0
             for sub_argv in expand_multiples(argv):
                 self.submanagers.append(Job_manager(script, copy.deepcopy(opts),
-                                                    extra_files, extra_dirs,
-                                   extra_opt_files, extra_opt_dirs, standalone,
-                                   sub_argv, True, index))
+                                                    extra_files, extra_dirs, sub_argv,
+                                                    extra_opt_files, extra_opt_dirs, standalone,
+                                                    True, index))
                 index += 1
         else:
             self.submanagers = []
@@ -500,7 +500,7 @@ class Job_manager:
                 subs["subnumproc"] = val
             else:
                 subs["subnumproc"] = 1 
-            val = (subs[subnumproc] + self.opts.get("procspernode") - 1) / \
+            val = (subs["subnumproc"] + self.opts.get("procspernode") - 1) / \
                   self.opts.get("procspernode")
             if val > 0:
                 subs["subnumnode"] = val
