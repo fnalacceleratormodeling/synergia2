@@ -1199,7 +1199,7 @@ get_strengths_param(Chef_elements const& elements,
         std::vector<double> & original_strengths,
         double & param)
 {
-    bool relative(false);
+	bool relative(false);
     Chef_elements::const_iterator it = elements.begin();
     double lastval = (*it)->Strength();
     const double tolerance = 1.0e-12;
@@ -1283,6 +1283,7 @@ struct Adjust_tunes_params
                     logger(logger),
                     verbosity(verbosity)
     {
+    	logger << "I AM IN THE Adjust_tunes_params CONSTRUCTOR" << std::endl;
         h_relative = get_strengths_param(h_elements, h_original_strengths,
                 h_param);
         v_relative = get_strengths_param(v_elements, v_original_strengths,
@@ -1298,13 +1299,14 @@ struct Adjust_tunes_params
 int
 adjust_tunes_function(const gsl_vector * x, void * params, gsl_vector * f)
 {
-    Adjust_tunes_params atparams(*static_cast<Adjust_tunes_params * >(params));
+    Adjust_tunes_params *atparams_ptr = static_cast<Adjust_tunes_params * >(params);
     double h_param = gsl_vector_get(x, 0);
     int i = 0;
-    for (Chef_elements::iterator it = atparams.h_elements.begin();
-            it != atparams.h_elements.end(); ++it) {
-        if (atparams.h_relative) {
-            (*it)->setStrength(h_param * atparams.h_original_strengths.at(i));
+    atparams_ptr->logger << std::setprecision(17);
+    for (Chef_elements::iterator it = atparams_ptr->h_elements.begin();
+            it != atparams_ptr->h_elements.end(); ++it) {
+        if (atparams_ptr->h_relative) {
+            (*it)->setStrength(h_param * atparams_ptr->h_original_strengths.at(i));
         } else {
             (*it)->setStrength(h_param);
         }
@@ -1312,47 +1314,51 @@ adjust_tunes_function(const gsl_vector * x, void * params, gsl_vector * f)
     }
     double v_param = gsl_vector_get(x, 1);
     i = 0;
-    for (Chef_elements::iterator it = atparams.v_elements.begin();
-            it != atparams.v_elements.end(); ++it) {
-        if (atparams.v_relative) {
-            (*it)->setStrength(h_param * atparams.v_original_strengths.at(i));
+    for (Chef_elements::iterator it = atparams_ptr->v_elements.begin();
+            it != atparams_ptr->v_elements.end(); ++it) {
+        if (atparams_ptr->v_relative) {
+            (*it)->setStrength(h_param * atparams_ptr->v_original_strengths.at(i));
         } else {
             (*it)->setStrength(v_param);
         }
         ++i;
     }
-    if (atparams.verbosity > 2) {
-        atparams.logger
-                << "Lattice_simulator::adjust_tunes: adjust_tunes_function: ";
-        if (atparams.h_relative) {
-            atparams.logger << "horizontal strengths = " << atparams.h_param
-                    << "*" << container_to_string(atparams.h_original_strengths)
+    if (atparams_ptr->verbosity > 2) {
+
+        atparams_ptr->logger
+                << "Lattice_simulator::adjust_tunes: adjust_tunes_function: " << std::setprecision(17);
+        if (atparams_ptr->h_relative) {
+            atparams_ptr->logger << "horizontal strengths = " << atparams_ptr->h_param
+                    << "*" << container_to_string(atparams_ptr->h_original_strengths)
                     << std::endl;
         } else {
-            atparams.logger << "horizontal strength = " << atparams.h_param
+            atparams_ptr->logger << "horizontal strength = " << atparams_ptr->h_param
                     << std::endl;
         }
-        atparams.logger
+        atparams_ptr->logger
                 << "Lattice_simulator::adjust_tunes: adjust_tunes_function: ";
-        if (atparams.v_relative) {
-            atparams.logger << "vertical strengths = " << atparams.v_param
-                    << "*" << container_to_string(atparams.v_original_strengths)
+        if (atparams_ptr->v_relative) {
+            atparams_ptr->logger << "vertical strengths = " << atparams_ptr->v_param
+                    << "*" << container_to_string(atparams_ptr->v_original_strengths)
                     << std::endl;
         } else {
-            atparams.logger << "vertical strength = " << atparams.v_param
+            atparams_ptr->logger << "vertical strength = " << atparams_ptr->v_param
                     << std::endl;
         }
     }
-    atparams.beamline_context_sptr->reset();
-    double nu_h = atparams.beamline_context_sptr->getHorizontalFracTune();
-    double nu_v = atparams.beamline_context_sptr->getVerticalFracTune();
-    if (atparams.verbosity > 2) {
-        atparams.logger << std::setprecision(10);
-        atparams.logger << "Lattice_simulator::adjust_tunes: adjust_tunes_function: horizontal tune = " << nu_h << ", vertical tune = "
+    atparams_ptr->logger << "adjust_tunes_function: before beamline_context_sptr->reset()" << std::endl;
+    atparams_ptr->beamline_context_sptr->reset();
+    atparams_ptr->logger << "adjust_tunes_function: after beamline_context_sptr->reset()" << std::endl;
+    double nu_h = atparams_ptr->beamline_context_sptr->getHorizontalFracTune();
+    atparams_ptr->logger << "after getHorizontalFracTune" << std::endl;
+    double nu_v = atparams_ptr->beamline_context_sptr->getVerticalFracTune();
+    if (atparams_ptr->verbosity > 2) {
+        atparams_ptr->logger << std::setprecision(10);
+        atparams_ptr->logger << "Lattice_simulator::adjust_tunes: adjust_tunes_function: horizontal tune = " << nu_h << ", vertical tune = "
                 << nu_v << std::endl;
     }
-    gsl_vector_set(f, 0, nu_h - atparams.h_nu_target);
-    gsl_vector_set(f, 1, nu_v - atparams.v_nu_target);
+    gsl_vector_set(f, 0, nu_h - atparams_ptr->h_nu_target);
+    gsl_vector_set(f, 1, nu_v - atparams_ptr->v_nu_target);
 
     return GSL_SUCCESS;
 }
@@ -1366,6 +1372,11 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
     Logger logger(0);
     get_beamline_context();
 
+    logger << std::setprecision(17);
+    logger << "setting atparams horizontal_tune: " << horizontal_tune << std::endl;
+    logger << "    vertical_tune: " << vertical_tune <<  std::endl;
+    logger << "    #horizontal correctors: " << horizontal_correctors.size() <<
+    		"  #vertical correctors: " << vertical_correctors.size() << std::endl;
     Adjust_tunes_params atparams(horizontal_tune, vertical_tune,
             horizontal_correctors, vertical_correctors, *chef_lattice_sptr,
             beamline_context_sptr, logger, verbosity);
@@ -1376,7 +1387,9 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
     gsl_vector_set(x, 1, atparams.v_param);
     const gsl_multiroot_fsolver_type * T = gsl_multiroot_fsolver_hybrids;
     gsl_multiroot_fsolver * s = gsl_multiroot_fsolver_alloc(T, n);
+    logger << "before gsl_multiroot_fsolver_set" << std::endl;
     gsl_multiroot_fsolver_set(s, &f, x);
+    logger << "after gsl_multiroot_fsolver_set" << std::endl;
 
     int status;
     size_t iter = 0;
@@ -1387,6 +1400,7 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
             logger << "Lattice_simulator::adjust_tunes: iteration " << iter << std::endl;
         }
         status = gsl_multiroot_fsolver_iterate(s);
+        logger << "after gsl_multiroot_fsolver_iterate, status: " << status << std::endl;
         if (status) break;
         status = gsl_multiroot_test_residual(s->f, tolerance);
     }
