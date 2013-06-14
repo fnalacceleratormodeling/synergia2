@@ -513,8 +513,8 @@ double t = simple_timer_current();
 t = simple_timer_show(t, "sc-local-rho-update-domain");
     Rectangular_grid_sptr local_rho_sptr(new Rectangular_grid(domain_sptr));
 t = simple_timer_show(t, "sc-local-rho-new");
-    //deposit_charge_rectangular_zyx(*local_rho_sptr, bunch);
-    deposit_charge_rectangular_zyx_omp_reduce(*local_rho_sptr, bunch);
+    deposit_charge_rectangular_zyx(*local_rho_sptr, bunch);
+    //deposit_charge_rectangular_zyx_omp_reduce(*local_rho_sptr, bunch);
     //deposit_charge_rectangular_zyx_omp_interleaved(*local_rho_sptr, bunch);
 t = simple_timer_show(t, "sc-local-rho-deposit");
     return local_rho_sptr;
@@ -909,20 +909,23 @@ Space_charge_3d_open_hockney::get_scalar_field2(
             distributed_fft3d_sptr->get_padded_shape_complex());
     int lower = distributed_fft3d_sptr->get_lower();
     int upper = distributed_fft3d_sptr->get_upper();
-    MArray3dc rho2hat(
-            boost::extents[extent_range(lower, upper)][cshape[1]][cshape[2]]);
-    MArray3dc G2hat(
-            boost::extents[extent_range(lower, upper)][cshape[1]][cshape[2]]);
-    MArray3dc phi2hat(
-            boost::extents[extent_range(lower, upper)][cshape[1]][cshape[2]]);
+
+    static fftw_complex * rho2hat = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*(upper-lower)*cshape[1]*cshape[2]);
+    static fftw_complex * G2hat   = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*(upper-lower)*cshape[1]*cshape[2]);
+    static fftw_complex * phi2hat = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*(upper-lower)*cshape[1]*cshape[2]);
+
     distributed_fft3d_sptr->transform(charge_density2.get_grid_points(),
             rho2hat);
     distributed_fft3d_sptr->transform(green_fn2.get_grid_points(), G2hat);
 
+    #pragma omp parallel for
     for (int i = lower; i < upper; ++i) {
         for (int j = 0; j < cshape[1]; ++j) {
             for (int k = 0; k < cshape[2]; ++k) {
-                phi2hat[i][j][k] = rho2hat[i][j][k] * G2hat[i][j][k];
+                //phi2hat[i][j][k] = rho2hat[i][j][k] * G2hat[i][j][k];
+                int idx = (i-lower)*cshape[1]*cshape[2] + j*cshape[2] + k;
+                phi2hat[idx][0] = rho2hat[idx][0] * G2hat[idx][0] - rho2hat[idx][1] * G2hat[idx][1];
+                phi2hat[idx][1] = rho2hat[idx][0] * G2hat[idx][1] - rho2hat[idx][1] * G2hat[idx][0];
             }
         }
     }
@@ -936,8 +939,8 @@ Space_charge_3d_open_hockney::get_scalar_field2(
 
     Distributed_rectangular_grid_sptr phi2(
             new Distributed_rectangular_grid(doubled_domain_sptr, lower, upper,
-                    distributed_fft3d_sptr->get_padded_shape_real(),
-                    comm2_sptr));
+                    distributed_fft3d_sptr->get_padded_shape_real(), comm2_sptr));
+
     distributed_fft3d_sptr->inv_transform(phi2hat, phi2->get_grid_points());
 
     normalization *= charge_density2.get_normalization();
@@ -956,6 +959,7 @@ Space_charge_3d_open_hockney::extract_scalar_field(
             new Distributed_rectangular_grid(domain_sptr, real_doubled_lower,
                     real_doubled_upper, comm1_sptr));
 
+    #pragma omp parallel for
     for (int i = real_doubled_lower; i < real_doubled_upper; ++i) {
         for (int j = 0; j < grid_shape[1]; ++j) {
             for (int k = 0; k < grid_shape[2]; ++k) {
@@ -1002,6 +1006,8 @@ Space_charge_3d_open_hockney::get_electric_field_component(
     }
     double cell_size = domain_sptr->get_cell_size()[index];
     boost::array<MArray3d::index, 3 > center, left, right;
+
+    #pragma omp parallel for private(center, left, right)
     for (int i = En->get_lower(); i < En->get_upper(); ++i) {
         left[0] = i;
         center[0] = i;
@@ -1109,6 +1115,7 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_allreduce(
     std::memset( (void*)global_field->get_grid_points().data(), 0, 
             global_field->get_grid_points().num_elements()*sizeof(double) );
 
+    #pragma omp parallel for
     for (int i = dist_field.get_lower();
             i < std::min(grid_shape[0], dist_field.get_upper()); ++i) {
         for (int j = 0; j < grid_shape[1]; ++j) {
