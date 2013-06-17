@@ -1306,8 +1306,10 @@ adjust_tunes_function(const gsl_vector * x, void * params, gsl_vector * f)
     for (Chef_elements::iterator it = atparams_ptr->h_elements.begin();
             it != atparams_ptr->h_elements.end(); ++it) {
         if (atparams_ptr->h_relative) {
+            atparams_ptr->logger << "setting h strength (relatively) for element " << (*it)->Name() << " 1+" << std::setprecision(17) << h_param-1.0 << std::endl;
             (*it)->setStrength(h_param * atparams_ptr->h_original_strengths.at(i));
         } else {
+            atparams_ptr->logger << "setting h strength (absolutely) for element " << (*it)->Name() << " " << std::setprecision(17) << h_param << std::endl;
             (*it)->setStrength(h_param);
         }
         ++i;
@@ -1317,8 +1319,10 @@ adjust_tunes_function(const gsl_vector * x, void * params, gsl_vector * f)
     for (Chef_elements::iterator it = atparams_ptr->v_elements.begin();
             it != atparams_ptr->v_elements.end(); ++it) {
         if (atparams_ptr->v_relative) {
-            (*it)->setStrength(h_param * atparams_ptr->v_original_strengths.at(i));
+            atparams_ptr->logger << "setting v strength (relatively) for element " << (*it)->Name() << " 1+" << std::setprecision(17) << v_param-1.0 << std::endl;
+            (*it)->setStrength(v_param * atparams_ptr->v_original_strengths.at(i));
         } else {
+            atparams_ptr->logger << "setting v strength (absolutely) for element " << (*it)->Name() << " " << std::setprecision(17) << v_param << std::endl;
             (*it)->setStrength(v_param);
         }
         ++i;
@@ -1328,8 +1332,8 @@ adjust_tunes_function(const gsl_vector * x, void * params, gsl_vector * f)
         atparams_ptr->logger
                 << "Lattice_simulator::adjust_tunes: adjust_tunes_function: " << std::setprecision(17);
         if (atparams_ptr->h_relative) {
-            atparams_ptr->logger << "horizontal strengths = " << atparams_ptr->h_param
-                    << "*" << container_to_string(atparams_ptr->h_original_strengths)
+            atparams_ptr->logger << "horizontal strengths = (1 + " << std::setprecision(17) << atparams_ptr->h_param-1.0
+                                 << ") *" << container_to_string(atparams_ptr->h_original_strengths)
                     << std::endl;
         } else {
             atparams_ptr->logger << "horizontal strength = " << atparams_ptr->h_param
@@ -1338,8 +1342,8 @@ adjust_tunes_function(const gsl_vector * x, void * params, gsl_vector * f)
         atparams_ptr->logger
                 << "Lattice_simulator::adjust_tunes: adjust_tunes_function: ";
         if (atparams_ptr->v_relative) {
-            atparams_ptr->logger << "vertical strengths = " << atparams_ptr->v_param
-                    << "*" << container_to_string(atparams_ptr->v_original_strengths)
+            atparams_ptr->logger << "vertical strengths = (1 + " << std::setprecision(17) << atparams_ptr->v_param-1.0
+                    << ") *" << container_to_string(atparams_ptr->v_original_strengths)
                     << std::endl;
         } else {
             atparams_ptr->logger << "vertical strength = " << atparams_ptr->v_param
