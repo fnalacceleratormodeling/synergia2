@@ -4,6 +4,7 @@
 #include "synergia/utils/multi_array_typedefs.h"
 #include "synergia/utils/commxx.h"
 #include <gsl/gsl_rng.h>
+#include "gsl-sprng.h"
 
 /// Distribution is a virtual base class for obtaining the next number or set
 /// of numbers from a sequence according to a limited set of shapes.
@@ -60,7 +61,7 @@ private:
 public:
     enum Generator
     {
-        ranlxd2, mt19937
+        ranlxd2, mt19937, sprng44
     };
 
     /// Construct a Random_distribution.
@@ -70,7 +71,7 @@ public:
     /// communicator.
     /// @param generator The underlying random number generator to be used.
     Random_distribution(unsigned long int seed, Commxx const & comm,
-            Generator generator = ranlxd2);
+            Generator generator = sprng44);
 
     /// Generate a random seed. Attempt to read from device if present.
     /// Otherwise, use the system clock.

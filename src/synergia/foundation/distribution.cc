@@ -45,6 +45,8 @@ Random_distribution::Random_distribution(unsigned long int seed,
         rng_type = gsl_rng_ranlxd2;
     } else if (generator == mt19937) {
         rng_type = gsl_rng_mt19937;
+    } else if (generator == sprng44) {
+        rng_type = gsl_rng_sprng44;
     }
     rng = gsl_rng_alloc(rng_type);
     rank = comm.get_rank();
@@ -60,9 +62,12 @@ Random_distribution::set_seed(unsigned long int seed)
         original_seed = seed;
     }
     unsigned long int distributed_seed;
-    distributed_seed = (1000 + 5 * (rank + original_seed)) * ((rank
-            + original_seed) + 7) - 1;
-
+    if (rng_type == gsl_rng_sprng44) {
+        distributed_seed = seed;
+    } else {
+        distributed_seed = (1000 + 5 * (rank + original_seed))
+                * ((rank + original_seed) + 7) - 1;
+    }
     gsl_rng_set(rng, distributed_seed);
 }
 

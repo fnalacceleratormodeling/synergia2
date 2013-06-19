@@ -93,6 +93,9 @@ else(FFTW3_MPI_FOUND)
     endif(NOT PARALLEL_FFTW_FOUND)
 endif(FFTW3_MPI_FOUND)
 
+# sprng
+include_directories(BEFORE "/home/amundson/work/synergia2-stable/install/include/sprng")
+
 # for eclipse only
 IF(CMAKE_COMPILER_IS_GNUCC)
   SET(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fmessage-length=0")
