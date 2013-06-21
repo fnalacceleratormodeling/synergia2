@@ -11,8 +11,20 @@ using pconstants::epsilon0;
 #include "synergia/utils/hdf5_writer.h"
 
 void
-Space_charge_2d_open_hockney::setup_nondoubled_communication()
+Space_charge_2d_open_hockney::setup_communication(
+        Commxx_sptr const& bunch_comm_sptr)
 {
+    if (comm2_sptr != commxx_divider_sptr->get_commxx_sptr(bunch_comm_sptr)) {
+        comm2_sptr = commxx_divider_sptr->get_commxx_sptr(bunch_comm_sptr);
+        setup_derived_communication();
+    }
+}
+
+void
+Space_charge_2d_open_hockney::setup_derived_communication()
+{
+    distributed_fft2d_sptr = Distributed_fft2d_sptr(
+            new Distributed_fft2d(doubled_grid_shape, comm2_sptr));
     std::vector<int > ranks1; // ranks with data from the undoubled domain
     int lower = 0;
     for (int rank = 0; rank < comm2_sptr->get_size(); ++rank) {
@@ -73,16 +85,26 @@ Space_charge_2d_open_hockney::setup_default_options()
 }
 
 Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
-        Commxx_sptr comm_sptr, std::vector<int > const & grid_shape,
+        Commxx_divider_sptr commxx_divider_sptr, std::vector<int > const & grid_shape,
         bool need_state_conversion, bool periodic_z, double z_period,
         bool grid_entire_period, double n_sigma) :
-        Collective_operator("space charge 2D open hockney"), grid_shape(3),
-                doubled_grid_shape(3), periodic_z(periodic_z),
-                z_period(z_period), grid_entire_period(grid_entire_period),
-                comm2_sptr(comm_sptr), n_sigma(n_sigma), domain_fixed(false),
+                Collective_operator("space charge 2D open hockney"), 
+                grid_shape(3),
+                doubled_grid_shape(3), 
+                periodic_z(periodic_z),
+                z_period(z_period), 
+                grid_entire_period(grid_entire_period),
+                commxx_divider_sptr(commxx_divider_sptr),
+                comm1_sptr(), 
+                comm2_sptr(), 
+                n_sigma(n_sigma), 
+                domain_fixed(false),
                 have_domains(false),
                 need_state_conversion(need_state_conversion),
-                use_cell_coords(true), exfile(""), eyfile(""), dumped(true)
+                use_cell_coords(true), 
+                exfile(""), 
+                eyfile(""), 
+                dumped(true)
 {
     if (this->periodic_z) {
         throw std::runtime_error(
@@ -94,37 +116,76 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
         doubled_grid_shape[i] = 2 * this->grid_shape[i];
     }
     doubled_grid_shape[2] = this->grid_shape[2];
-    distributed_fft2d_sptr = Distributed_fft2d_sptr(
-            new Distributed_fft2d(doubled_grid_shape, comm_sptr));
-    setup_nondoubled_communication();
+    //distributed_fft2d_sptr = Distributed_fft2d_sptr(
+    //        new Distributed_fft2d(doubled_grid_shape, comm_sptr));
+    //setup_nondoubled_communication();
     setup_default_options();
 }
 
 Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
-        Distributed_fft2d_sptr distributed_fft2d_sptr,
+        Commxx_sptr comm_sptr, std::vector<int > const & grid_shape,
         bool need_state_conversion, bool periodic_z, double z_period,
         bool grid_entire_period, double n_sigma) :
-        Collective_operator("space charge"), grid_shape(3),
-                doubled_grid_shape(3), periodic_z(periodic_z),
-                z_period(z_period), grid_entire_period(grid_entire_period),
-                distributed_fft2d_sptr(distributed_fft2d_sptr),
-                comm2_sptr(distributed_fft2d_sptr->get_comm_sptr()),
-                n_sigma(n_sigma), domain_fixed(false), have_domains(false),
+                Collective_operator("space charge 2D open hockney"), 
+                grid_shape(3),
+                doubled_grid_shape(3), 
+                periodic_z(periodic_z),
+                z_period(z_period), 
+                grid_entire_period(grid_entire_period),
+                commxx_divider_sptr(new Commxx_divider),
+                comm1_sptr(), 
+                comm2_sptr(), 
+                n_sigma(n_sigma), 
+                domain_fixed(false),
+                have_domains(false),
                 need_state_conversion(need_state_conversion),
-                use_cell_coords(true), exfile(""), eyfile(""), dumped(true)
+                use_cell_coords(true), 
+                exfile(""), 
+                eyfile(""), 
+                dumped(true)
 {
     if (this->periodic_z) {
         throw std::runtime_error(
                 "Space_charge_2d_open_hockney: periodic_z must be FALSE");
     }
-    doubled_grid_shape = distributed_fft2d_sptr->get_shape();
-    for (int i = 0; i < 2; ++i) {
-        grid_shape[i] = doubled_grid_shape[i] / 2;
+    // no xyz->zyx transformation in 2D version
+    for (int i = 0; i < 3; ++i) {
+        this->grid_shape[i] = grid_shape[i];
+        doubled_grid_shape[i] = 2 * this->grid_shape[i];
     }
-    grid_shape[2] = doubled_grid_shape[2];
-    setup_nondoubled_communication();
+    doubled_grid_shape[2] = this->grid_shape[2];
+    //distributed_fft2d_sptr = Distributed_fft2d_sptr(
+    //        new Distributed_fft2d(doubled_grid_shape, comm_sptr));
+    //setup_nondoubled_communication();
     setup_default_options();
 }
+
+
+//Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
+//        Distributed_fft2d_sptr distributed_fft2d_sptr,
+//        bool need_state_conversion, bool periodic_z, double z_period,
+//        bool grid_entire_period, double n_sigma) :
+//        Collective_operator("space charge"), grid_shape(3),
+//                doubled_grid_shape(3), periodic_z(periodic_z),
+//                z_period(z_period), grid_entire_period(grid_entire_period),
+//                distributed_fft2d_sptr(distributed_fft2d_sptr),
+//                comm2_sptr(distributed_fft2d_sptr->get_comm_sptr()),
+//                n_sigma(n_sigma), domain_fixed(false), have_domains(false),
+//                need_state_conversion(need_state_conversion),
+//                use_cell_coords(true), exfile(""), eyfile(""), dumped(true)
+//{
+//    if (this->periodic_z) {
+//        throw std::runtime_error(
+//                "Space_charge_2d_open_hockney: periodic_z must be FALSE");
+//    }
+//    doubled_grid_shape = distributed_fft2d_sptr->get_shape();
+//    for (int i = 0; i < 2; ++i) {
+//        grid_shape[i] = doubled_grid_shape[i] / 2;
+//    }
+//    grid_shape[2] = doubled_grid_shape[2];
+//    setup_nondoubled_communication();
+//    setup_default_options();
+//}
 
 Space_charge_2d_open_hockney::Space_charge_2d_open_hockney()
 {
@@ -216,8 +277,9 @@ Space_charge_2d_open_hockney::get_e_force_comm() const
 }
 
 void
-Space_charge_2d_open_hockney::auto_tune_comm(bool verbose)
+Space_charge_2d_open_hockney::auto_tune_comm(Bunch & bunch, bool verbose)
 {
+    setup_communication(bunch.get_comm_sptr());
     bool output = verbose && (comm2_sptr->get_rank() == 0);
     double t0, t1;
     const int repetitions = 3;
@@ -382,6 +444,7 @@ get_smallest_non_tiny(double val, double other1, double other2, double tiny);
 void
 Space_charge_2d_open_hockney::update_domain(Bunch const& bunch)
 {
+    setup_communication(bunch.get_comm_sptr());
     if (!domain_fixed) {
         MArray1d mean(Core_diagnostics::calculate_spatial_mean(bunch));
         MArray1d std(Core_diagnostics::calculate_spatial_std(bunch, mean));
@@ -477,6 +540,7 @@ Distributed_rectangular_grid_sptr
 Space_charge_2d_open_hockney::get_global_charge_density2_reduce_scatter(
         Rectangular_grid const& local_charge_density, Commxx_sptr comm_sptr)
 {
+    setup_communication(comm_sptr);
     // jfa: here is where we do something complicated, but (potentially) efficient
     // in calculating a version of the charge density that is just global enough
     // to fill in the doubled global charge density
@@ -533,6 +597,7 @@ Distributed_rectangular_grid_sptr
 Space_charge_2d_open_hockney::get_global_charge_density2_allreduce(
         Rectangular_grid const& local_charge_density, Commxx_sptr comm_sptr)
 {
+    setup_communication(comm_sptr);
     int error_2d = MPI_Allreduce(MPI_IN_PLACE,
             (void*) local_charge_density.get_grid_points_2dc().origin(),
             local_charge_density.get_grid_points_2dc().num_elements(),
@@ -865,6 +930,7 @@ Space_charge_2d_open_hockney::apply(Bunch & bunch, double time_step,
         Step & step, int verbosity, Logger & logger)
 {
     if (bunch.get_total_num() > 1) {
+        setup_communication(bunch.get_comm_sptr());
         int comm_compare;
         MPI_Comm_compare(comm2_sptr->get(), bunch.get_comm().get(), &comm_compare);
         if ((comm_compare == MPI_UNEQUAL)

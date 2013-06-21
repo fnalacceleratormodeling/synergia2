@@ -7,6 +7,7 @@
 #include "synergia/collective/rectangular_grid.h"
 #include "synergia/collective/distributed_rectangular_grid.h"
 #include "synergia/utils/commxx.h"
+#include "synergia/utils/commxx_divider.h"
 #include "synergia/utils/distributed_fft2d.h"
 
 /// Note: internal grid is stored in [z][y][x] order, but
@@ -36,6 +37,7 @@ private:
     Charge_density_comm charge_density_comm;
     E_force_comm e_force_comm;
     Distributed_fft2d_sptr distributed_fft2d_sptr;
+    Commxx_divider_sptr commxx_divider_sptr;
     Commxx_sptr comm2_sptr, comm1_sptr;
     std::vector<int > lowers1, lengths1;
     int real_lower, real_upper, real_length;
@@ -53,7 +55,9 @@ private:
     std::string exfile, eyfile;
     bool dumped;
     void
-    setup_nondoubled_communication();
+    setup_communication(Commxx_sptr const& bunch_comm_sptr);
+    void
+    setup_derived_communication();
     void
     setup_default_options();
     void
@@ -61,6 +65,12 @@ private:
     boost::shared_ptr<Raw_MArray2d > particle_bin_sptr;
 
 public:
+    Space_charge_2d_open_hockney(Commxx_divider_sptr commxx_divider_sptr,
+            std::vector<int > const & grid_shape,
+            bool need_state_conversion = true, bool periodic_z = false,
+            double z_period = 0.0, bool grid_entire_period = false,
+            double n_sigma = 8.0);
+    /// Deprecated. The comm_sptr argument is ignored.
     Space_charge_2d_open_hockney(Commxx_sptr comm_sptr,
             std::vector<int > const & grid_shape,
             bool need_state_conversion = true, bool periodic_z = false,
@@ -68,10 +78,10 @@ public:
             double n_sigma = 8.0);
     /// Note: Use Space_charge_2d_open_hockney::get_internal_grid_shape for
     /// Distributed_fft2d.
-    Space_charge_2d_open_hockney(Distributed_fft2d_sptr distributed_fft2d_sptr,
-            bool need_state_conversion = true, bool periodic_z = false,
-            double z_period = 0.0, bool grid_entire_period = false,
-            double n_sigma = 8.0);
+    //Space_charge_2d_open_hockney(Distributed_fft2d_sptr distributed_fft2d_sptr,
+    //        bool need_state_conversion = true, bool periodic_z = false,
+    //        double z_period = 0.0, bool grid_entire_period = false,
+    //        double n_sigma = 8.0);
     Space_charge_2d_open_hockney();
     virtual Space_charge_2d_open_hockney *
     clone();
@@ -92,7 +102,7 @@ public:
     E_force_comm
     get_e_force_comm() const;
     void
-    auto_tune_comm(bool verbose = false);
+    auto_tune_comm(Bunch & bunch, bool verbose = false);
     void
     set_fixed_domain(Rectangular_grid_domain_sptr domain_sptr);
     void
@@ -154,6 +164,7 @@ public:
         {
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
             ar & BOOST_SERIALIZATION_NVP(comm2_sptr)
+                    & BOOST_SERIALIZATION_NVP(commxx_divider_sptr)
                     & BOOST_SERIALIZATION_NVP(grid_shape)
                     & BOOST_SERIALIZATION_NVP(doubled_grid_shape)
                     & BOOST_SERIALIZATION_NVP(use_cell_coords)
@@ -176,6 +187,7 @@ public:
         {
             ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Collective_operator);
             ar & BOOST_SERIALIZATION_NVP(comm2_sptr)
+                    & BOOST_SERIALIZATION_NVP(commxx_divider_sptr)
                     & BOOST_SERIALIZATION_NVP(grid_shape)
                     & BOOST_SERIALIZATION_NVP(doubled_grid_shape)
                     & BOOST_SERIALIZATION_NVP(use_cell_coords)
@@ -191,9 +203,9 @@ public:
                     & BOOST_SERIALIZATION_NVP(exfile)
                     & BOOST_SERIALIZATION_NVP(eyfile)
                     & BOOST_SERIALIZATION_NVP(dumped);
-            distributed_fft2d_sptr = Distributed_fft2d_sptr(
-                    new Distributed_fft2d(doubled_grid_shape, comm2_sptr));
-            setup_nondoubled_communication();
+            if (comm2_sptr) {
+                setup_derived_communication();
+            }
         }
     BOOST_SERIALIZATION_SPLIT_MEMBER()
     virtual
