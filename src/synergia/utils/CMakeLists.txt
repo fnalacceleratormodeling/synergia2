@@ -54,6 +54,7 @@ install(FILES
     multi_array_offsets.h
     multi_array_print.h
     multi_array_serialization.h
+    multi_array_to_string.h
     multi_array_typedefs.h
     numpy_multi_array_converter.h
     numpy_multi_ref_converter.h
