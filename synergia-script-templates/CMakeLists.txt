@@ -12,5 +12,6 @@ install(FILES
     job_example_wilson
     job_tev
     job_example_hopper
+    resume_example_hopper
     local_opts_hopper.py
     DESTINATION lib/synergia-script-templates)
