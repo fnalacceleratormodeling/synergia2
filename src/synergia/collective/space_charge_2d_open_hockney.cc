@@ -615,12 +615,14 @@ Space_charge_2d_open_hockney::get_global_charge_density2_allreduce(
             new Distributed_rectangular_grid(doubled_domain_sptr,
                     doubled_lower, doubled_upper, doubled_grid_shape,
                     comm_sptr));
+    #pragma omp parallel for
     for (int i = rho2->get_lower(); i < rho2->get_upper(); ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
             rho2->get_grid_points_2dc()[i][j]
                     = local_charge_density.get_grid_points_2dc()[i][j];
         }
     }
+    #pragma omp parallel for
     for (int k = 0; k < doubled_grid_shape[2]; ++k) {
         rho2->get_grid_points_1d()[k]
                 = local_charge_density.get_grid_points_1d()[k];
@@ -666,6 +668,7 @@ Space_charge_2d_open_hockney::get_green_fn2_pointlike()
     const double epsilon = 0.01;
     double dx, dy, Gx, Gy;
 
+    #pragma omp parallel for private( dx, dy, Gx, Gy )
     for (int ix = doubled_lower; ix < doubled_upper; ++ix) {
         if (ix > grid_shape[0]) {
             dx = (ix - doubled_grid_shape[0]) * hx;
@@ -720,28 +723,18 @@ Space_charge_2d_open_hockney::get_local_force2(
     distributed_fft2d_sptr->transform(green_fn2.get_grid_points_2dc(), G2hat.m);
     t = simple_timer_show(t, "get_local_force-get_Ghat");
 
-    for (int i = lower; i < upper; ++i) {
-        for (int j = 0; j < doubled_grid_shape[1]; ++j) {
-            local_force2hat.m[i][j] = rho2hat.m[i][j] * G2hat.m[i][j];
-        }
-    }
     Distributed_rectangular_grid_sptr local_force2(
             new Distributed_rectangular_grid(doubled_domain_sptr,
                     lower, upper, doubled_grid_shape, comm2_sptr));
     t = simple_timer_show(t, "get_local_force-construct_local_force2");
 
+    #pragma omp parallel for
     for (int i = lower; i < upper; ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
             local_force2hat.m[i][j] = rho2hat.m[i][j] * G2hat.m[i][j];
         }
     }
     t = simple_timer_show(t, "get_local_force-convolution");
-    //for (int i = lower; i < upper; ++i) {
-    //    for (int j = 0; j < doubled_grid_shape[1]; ++j) {
-    //        local_force2_sptr->get_grid_points_2dc()[i][j] = 0.0;
-    //    }
-    //}
-    //t = simple_timer_show(t, "get_local_force-local_force2_initialization");
 
     // inverse FFT
     distributed_fft2d_sptr->inv_transform(local_force2hat.m,
@@ -845,11 +838,11 @@ Space_charge_2d_open_hockney::get_global_electric_force2_allreduce(
 {
     Rectangular_grid_sptr global_force2(new Rectangular_grid(
             doubled_domain_sptr));
-    for (int i = 0; i < doubled_grid_shape[0]; ++i) {
-        for (int j = 0; j < doubled_grid_shape[1]; ++j) {
-            global_force2->get_grid_points_2dc()[i][j] = 0.0;
-        }
-    }
+
+    std::memset( (void*)global_force2->get_grid_points_2dc().data(), 0,
+            global_force2->get_grid_points_2dc().num_elements()*sizeof(double) );
+
+    #pragma omp parallel for
     for (int i = dist_force.get_lower(); i < std::min(doubled_grid_shape[0],
             dist_force.get_upper()); ++i) {
         for (int j = 0; j < doubled_grid_shape[1]; ++j) {
@@ -857,6 +850,7 @@ Space_charge_2d_open_hockney::get_global_electric_force2_allreduce(
                     = dist_force.get_grid_points_2dc()[i][j];
         }
     }
+
     int error = MPI_Allreduce(MPI_IN_PLACE,
             (void*) global_force2->get_grid_points_2dc().origin(),
             global_force2->get_grid_points_2dc().num_elements(),
@@ -905,6 +899,7 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
     MArray2dc_ref grid_points(Fn.get_grid_points_2dc());
     MArray1d_ref grid_points_1d(rho2.get_grid_points_1d());
     Raw_MArray1d bin(boost::extents[6]);
+
     #pragma omp parallel for
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         std::complex<double > grid_val;
