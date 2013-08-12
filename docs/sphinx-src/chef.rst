@@ -106,7 +106,7 @@ in the absence of space charge.
 |
 
 Code sample
-===========
+-----------
 
 .. Code sample taken originally from file michelot@mrbutts.fnal.gov:tex/vgs/tpc/anl_chef_seminar_20070216/seminar_20070216.tpc
 
@@ -118,7 +118,7 @@ We shall use the definition,
 
 .. math::
 
-H_n( x ) = (-1)^n e^{x^2} \tsfrac{d^n}{d x^n} e^{-x^2}
+   H_n( x ) = (-1)^n e^{x^2} \frac{d^n}{d x^n} e^{-x^2}
 
 Based on this, an algorithm for generating :math:`H_n` can be formulated:
 
@@ -133,31 +133,33 @@ Below is
 a small program that implements this algorithm to compute Hermite polynomials
 and store them in an array.
 
-    |  #include <mxyzptlk/Jet.h>
-    |
-    |  int main( int argc, char** argv )
-    |  {
-    |    // Preliminary setup
-    |    // -----------------
-    |    int n = atoi( argv[1] );
-    |    IntArray w(1);  w[0] = 1;
-    |
-    |    Jet__environment::BeginEnvironment(2*n);
-    |    coord x( 0.0 );
-    |    Jet__environment::EndEnvironment();
-    |
-    |    // Calculation and storage of Hermite polynomials
-    |    // ----------------------------------------------
-    |    Jet f = exp( - x*x ); [#]_
-    |    Jet g = f;
-    |    Jet H[n+1];        // Instantiate array to hold Hermite polynomials
-    | 
-    |    for( int k = 0; k <= n; ++k ) {
-    |      H[k] = g / f;
-    |      g = - g.D( w );  // Differentiation done in this line
-    |    }
-    |    // ... < additional user code can go here > ...
-    |  }
+.. code-block:: c++
+
+   #include <mxyzptlk/Jet.h>
+   
+   int main( int argc, char** argv )
+   {
+     // Preliminary setup
+     // -----------------
+     int n = atoi( argv[1] );
+     IntArray w(1);  w[0] = 1;
+
+     Jet__environment::BeginEnvironment(2*n);
+     coord x( 0.0 );
+     Jet__environment::EndEnvironment();
+   
+     // Calculation and storage of Hermite polynomials
+     // ----------------------------------------------
+     Jet f = exp( - x*x );
+     Jet g = f;
+     Jet H[n+1];        // Instantiate array to hold Hermite polynomials
+   
+     for( int k = 0; k <= n; ++k ) {
+       H[k] = g / f;
+       g = - g.D( w );  // Differentiation done in this line
+     }
+     // ... < additional user code can go here > ...
+   }
 
 
 Notice that the syntax of the calculation in the code transparently mimics the algorithm.
@@ -173,15 +175,16 @@ as elements of the array H[0...4].
 A user could see the coefficients of, for example, :math:`H_4`,
 by adding a line
 
-    |      H[4].printCoeffs();
+.. code-block:: c++
+
+   H[4].printCoeffs();
 
 or store the value of :math:`H_2(1.5)` for later use
 with a line like
 
-    |      double x = H[2](1.5);
-
-|
-|
+.. code-block:: c++
+   
+   double x = H[2](1.5);
 
 .. Footnotes
 .. ..............
@@ -200,7 +203,7 @@ with a line like
 |
 
 Additional information
-======================
+----------------------
 
 There is little documentation on CHEF, but some information is available online:
 

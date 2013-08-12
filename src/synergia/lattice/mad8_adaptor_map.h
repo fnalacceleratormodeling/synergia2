@@ -12,6 +12,6 @@ public:
         serialize(Archive & ar, const unsigned int version);
 };
 BOOST_CLASS_EXPORT_KEY(Mad8_adaptor_map)
-typedef boost::shared_ptr<Mad8_adaptor_map > Mad8_adaptor_map_sptr;
+typedef boost::shared_ptr<Mad8_adaptor_map > Mad8_adaptor_map_sptr; // syndoc:include
 
 #endif /* MAD8_ADAPTOR_MAP_H_ */

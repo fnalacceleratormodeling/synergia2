@@ -6,7 +6,7 @@ Diagnostics_reference_particle::Diagnostics_reference_particle(
         std::string const& filename, std::string const& local_dir) :
         Diagnostics_reference_particle::Diagnostics(
                 Diagnostics_reference_particle::name, filename, local_dir), have_writers(
-                false), writer_beta(0), writer_gamma(0), writer_state(0), writer_s(
+                false), writer_beta(0), writer_gamma(0), writer_state(0), writer_s_n(
                 0)
 {
 }
@@ -34,7 +34,7 @@ Diagnostics_reference_particle::init_writers(Hdf5_file_sptr file_sptr)
         writer_gamma = new Hdf5_serial_writer<double > (file_sptr, "gamma");
         writer_state = new Hdf5_serial_writer<MArray1d_ref > (file_sptr,
                 "state");
-        writer_s = new Hdf5_serial_writer<double > (file_sptr, "s");
+        writer_s_n = new Hdf5_serial_writer<double > (file_sptr, "s_n");
         have_writers = true;
     }
 }
@@ -51,8 +51,8 @@ Diagnostics_reference_particle::write()
 	    writer_gamma->append(gamma);
 	    MArray1d state(get_bunch().get_reference_particle().get_state());
 	    writer_state->append(state);
-	    double s = get_bunch().get_reference_particle().get_s();
-	    writer_s->append(s);
+	    double s_n = get_bunch().get_reference_particle().get_s_n();
+	    writer_s_n->append(s_n);
 	    get_write_helper().finish_write();
 	}
     }
@@ -68,7 +68,7 @@ template<class Archive>
                 & BOOST_SERIALIZATION_NVP(writer_beta)
                 & BOOST_SERIALIZATION_NVP(writer_gamma)
                 & BOOST_SERIALIZATION_NVP(writer_state)
-                & BOOST_SERIALIZATION_NVP(writer_s);
+                & BOOST_SERIALIZATION_NVP(writer_s_n);
     }
 
 template
@@ -97,7 +97,7 @@ Diagnostics_reference_particle::~Diagnostics_reference_particle()
         delete writer_beta;
         delete writer_gamma;
         delete writer_state;
-        delete writer_s;
+        delete writer_s_n;
     }
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_reference_particle)
