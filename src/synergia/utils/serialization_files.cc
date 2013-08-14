@@ -1,6 +1,9 @@
 #include "serialization_files.h"
 #include "commxx.h"
 #include "digits.h"
+
+// avoid bad interaction between Boost Filesystem and clang
+#define BOOST_NO_CXX11_SCOPED_ENUMS
 #include <boost/filesystem.hpp>
 
 const std::string serialization_directory("serialization");

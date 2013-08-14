@@ -2,6 +2,9 @@
 #include <sstream>
 #include <iomanip>
 #include <stdexcept>
+
+// avoid bad interaction between Boost Filesystem and clang
+#define BOOST_NO_CXX11_SCOPED_ENUMS
 #include <boost/filesystem.hpp>
 
 void

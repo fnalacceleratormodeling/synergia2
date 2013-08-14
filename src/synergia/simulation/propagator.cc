@@ -4,6 +4,9 @@
 #include "synergia/utils/serialization_files.h"
 #include "synergia/utils/logger.h"
 #include "synergia/utils/digits.h"
+
+// avoid bad interaction between Boost Filesystem and clang
+#define BOOST_NO_CXX11_SCOPED_ENUMS
 #include <boost/filesystem.hpp>
 
 const std::string Propagator::default_checkpoint_dir = "checkpoint";
