@@ -27,6 +27,7 @@ install(TARGETS
     synergia_hdf5_utils
     synergia_distributed_fft
     synergia_serialization
+    synergia_command_line
     DESTINATION lib)
 install(FILES
     boost_test_mpi_fixture.h
@@ -53,6 +54,7 @@ install(FILES
     multi_array_offsets.h
     multi_array_print.h
     multi_array_serialization.h
+    multi_array_to_string.h
     multi_array_typedefs.h
     numpy_multi_array_converter.h
     numpy_multi_ref_converter.h

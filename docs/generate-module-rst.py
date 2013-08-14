@@ -7,13 +7,17 @@ import os.path
 
 def start_file(filename):
     f = open(filename, 'w')
-    s = filename.split('.')
-    header = s[0] + '-header.' + s[1]
+    s = os.path.basename(filename).split('.')
+    header = 'sphinx-module-headers/' + s[0] + '-header.' + s[1]
     if os.path.exists(header):
         hf = open(header,'r')
         for line in hf.readlines():
             f.write(line)
         hf.close()
+    else:
+        sys.stderr.write(sys.argv[0] + 
+                         ":failed to open " + header + "\n")
+        sys.exit(1)
     return f
 
 def print_classes(f, classes):
@@ -24,11 +28,13 @@ Classes
 ''')
     classes.sort()
     for class_ in classes:
-        f.write('''.. doxygenclass:: %s
-    :project: synergia
-    :members:
-
-''' % class_)
+        f.write('.. doxygenclass:: %s\n' % class_)
+# jfa: DANGER DANGER
+#      hardwired to workaround a bug in Sphinx by not
+#      documenting members in Logger.
+        if class_ != 'Logger':
+            f.write('    :members:\n')
+        f.write('\n')
 
 def print_typedefs(f, typedefs):
     if len(typedefs) == 0:

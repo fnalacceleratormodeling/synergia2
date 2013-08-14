@@ -1,0 +1,9 @@
+#synergia_workflow_submitter:qsub -A @@account@@ -q @@queue@@ -t @@walltime@@ -n @@numnode@@ --mode script -O resume
+
+# root of compute node linux tools
+BGLINUX=/bgsys/drivers/ppcfloor/gnu-linux
+
+# -mode vn: 4 tasks/node
+# -mode dual: 2 tasks/node
+# -mode smp: 1 task/node
+cobalt-mpirun -mode vn -np @@numproc@@ -env "PATH=@@synergia2dir@@/../bin:$BGLINUX/bin:$PATH LD_LIBRARY_PATH=@@synergia2dir@@:$BGLINUX/lib:/bgsys/drivers/ppcfloor/comm/default/lib:/bgsys/drivers/ppcfloor/comm/sys/lib:$LD_LIBRARY_PATH PYTHONPATH=@@synergia2dir@@:@@synergia2dir@@/python2.6/site-packages:$PYTHONPATH SYNERGIA2DIR=@@synergia2dir@@" -verbose 2 $BGLINUX/bin/python @@synergia2dir@@/synergia_tools/synergia_resume.py

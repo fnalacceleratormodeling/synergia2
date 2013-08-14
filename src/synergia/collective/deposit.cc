@@ -751,3 +751,127 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid,
         }
     }
 }
+
+void
+deposit_charge_rectangular_2d_omp_reduce(Rectangular_grid & rho_grid,
+        Raw_MArray2d & particle_bin, Bunch const& bunch, bool zero_first)
+{
+    MArray2dc_ref rho_2dc(rho_grid.get_grid_points_2dc());
+    MArray1d_ref rho_1d(rho_grid.get_grid_points_1d());
+    Const_MArray2d_ref parts(bunch.get_local_particles());
+
+    int g0, g1, g2;
+    g0 = rho_2dc.shape()[0];
+    g1 = rho_2dc.shape()[1];
+    g2 = rho_1d.shape()[0];
+
+    int G0 = g0 + 2;
+    int G1 = g1 + 2;
+    int G2 = g2 + 2;
+
+    int npart = bunch.get_local_num();
+
+    int nt = 1;
+
+    #pragma omp parallel shared(nt)
+    { nt = omp_get_num_threads(); }
+
+    double * lrho2d = new double[g0*g1*32];
+    double * lrho1d = new double[g2*32];
+
+    if (zero_first) {
+        for (unsigned int i = 0; i < g0; ++i) {           // x
+            for (unsigned int j = 0; j < g1; ++j) {       // y
+                rho_2dc[i][j] = 0.0;
+            }
+        }
+        for (unsigned int k = 0; k < g2; ++k) {            // z
+            rho_1d[k] = 0.0;
+        }
+    }
+
+    std::vector<double > h(rho_grid.get_domain().get_cell_size());
+    double weight0 = (bunch.get_real_num() / bunch.get_total_num())
+            * bunch.get_particle_charge() * pconstants::e
+            / (h[0] * h[1]); // * h[2]);
+
+    if (g2 == 1) {
+        double mean(Core_diagnostics::calculate_z_mean(bunch));
+        double std(Core_diagnostics::calculate_z_std(bunch, mean));
+        rho_1d[0] = bunch.get_local_num() / (std::sqrt(12.0) * std);
+    }
+
+    #pragma omp parallel \
+        default(none) \
+        shared(nt, npart, parts, lrho2d, lrho1d, h, \
+               G0, G1, G2, g0, g1, g2, particle_bin, \
+               weight0, rho_2dc, rho_1d, rho_grid)
+    {
+        int ix, iy, iz;
+        double offx, offy, offz;
+
+        int it = omp_get_thread_num();
+
+        int l  = npart / nt;                  // length
+        int s  = it * l;                      // start particle
+        int e  = (it==nt-1) ? npart : (s+l);  // end particle
+
+        double * r2d = lrho2d + it * G0 * G1;
+        double * r1d = lrho1d + it * G2;
+
+        // zero buffer
+        std::memset( r2d, 0, sizeof(double)*G0*G1 );
+        std::memset( r1d, 0, sizeof(double)*G2    );
+
+        for (int n = s; n < e; ++n) {
+            // no xyz->zyx transformation
+            rho_grid.get_domain().get_leftmost_indices_offsets(
+                    parts[n][0], parts[n][2], parts[n][4], ix, iy, iz, offx,
+                    offy, offz);
+
+            particle_bin.m[n][0] = ix;
+            particle_bin.m[n][1] = offx;
+            particle_bin.m[n][2] = iy;
+            particle_bin.m[n][3] = offy;
+            particle_bin.m[n][4] = iz;
+            particle_bin.m[n][5] = offz;
+
+            int cellz1 = iz;
+            int cellz2 = cellz1 + 1;
+
+            if( cellz1>=0 && cellz1<g2 ) r1d[cellz1] += (1.0 - offz) / h[2];
+            if( cellz2>=0 && cellz2<g2 ) r1d[cellz2] += offz / h[2];
+
+            if( ix<-1 || ix>g0-1 || iy<-1 || iy>g1-1 ) continue;
+
+            int cellx1, cellx2, celly1, celly2;
+            cellx1 = ix;
+            cellx2 = cellx1 + 1;
+            celly1 = iy;
+            celly2 = celly1 + 1;
+
+            double aoffx, aoffy;
+            aoffx = 1. - offx;
+            aoffy = 1. - offy;
+
+            r2d[celly1*G0 + cellx1] += weight0 * aoffx * aoffy;
+            r2d[celly1*G0 + cellx2] += weight0 *  offx * aoffy;
+            r2d[celly2*G0 + cellx1] += weight0 * aoffx *  offy;
+            r2d[celly2*G0 + cellx2] += weight0 *  offx *  offy;
+        }
+
+        #pragma omp critical
+        {
+            for (int y = 0; y < g1; ++y)
+                for (int x = 0; x < g0; ++x)
+                    rho_2dc[x][y] += r2d[y*G0 + x];
+
+            if (g2 > 1)
+                for (int z = 0; z < g2; ++z)
+                    rho_1d[z] += r1d[z];
+        }
+    }
+
+    delete [] lrho2d;
+    delete [] lrho1d;
+}

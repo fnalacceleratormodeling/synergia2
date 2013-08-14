@@ -183,6 +183,7 @@ BOOST_PYTHON_MODULE(lattice)
 
     class_<Lattice, Lattice_sptr >("Lattice", init<std::string const& >())
             .def(init<std::string const&, Mad8_adaptor_map_sptr >())
+            .def(init<std::string const&, MadX_adaptor_map_sptr >())
             .def(init<>())
             .def("get_name", &Lattice::get_name,
                     return_value_policy<copy_const_reference>())
@@ -206,6 +207,7 @@ BOOST_PYTHON_MODULE(lattice)
 //                    return_value_policy<copy_non_const_reference >())
             .def("get_beamline", &Chef_lattice::get_beamline_sptr)
             .def("get_sliced_beamline", &Chef_lattice::get_sliced_beamline_sptr)
+            .def("get_brho",&Chef_lattice::get_brho)
             ;
 
     class_<Lattice_diagnostics, Lattice_diagnostics_sptr >

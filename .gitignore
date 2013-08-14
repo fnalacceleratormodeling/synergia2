@@ -46,3 +46,6 @@ language_breakdown.png
 test_breakdown.png
 checkpoint
 log
+
+.RData
+.Rhistory

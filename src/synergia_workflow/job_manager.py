@@ -33,12 +33,13 @@ job_mgr_opts.add("submit", False, "Whether to immediately submit job")
 job_mgr_opts.add("queue", None, "Batch system queue", str)
 job_mgr_opts.add("account", None, "Batch system account", str)
 job_mgr_opts.add("run", False, "Whether to immediately run job")
-job_mgr_opts.add("setupsh", '"${HOME}/synergia2_old_devel_1_0/setup.sh"',
+job_mgr_opts.add("setupsh", '/usr/local/share/synergia/setup.sh',
                  "Path to Synergia2 setup.sh file")
 job_mgr_opts.add("overwrite", False, "Whether to overwrite existing job directory")
 job_mgr_opts.add("walltime", None, "Limit job to given wall time", str)
 job_mgr_opts.add("synergia_executable", "synergia", "Name or path of synergia executable")
 job_mgr_opts.add("synergia_resume_executable", "synergia-pyresume", "Name or path of synergia resume executable")
+job_mgr_opts.add("jmverbosity", 1, "Job manager verbosity")
 
 #job_mgr_opts.add("checkpoint", 0, "enable generation of checkpoint", int)
 #job_mgr_opts.add("checkpoint_freq", 100, "frequency of checkpoint generation", int)
@@ -106,8 +107,6 @@ def get_default_script_templates_dir():
 def add_local_opts(verbose):
     local_options_path = search_job_manager_paths('local_opts.py')
     if local_options_path:
-        if verbose:
-            print 'using local options from:', local_options_path
         sys.path.insert(0, os.path.dirname(local_options_path))
         import local_opts
         sys.path.pop(0)
@@ -123,6 +122,8 @@ def add_local_opts(verbose):
             if hasattr(object, "is_override"):
                 if object.is_override:
                     job_mgr_opts.override(object)
+        if verbose and (job_mgr_opts.jmverbosity > 0):
+            print 'read local options from:', local_options_path
         if not found_options:
             if verbose:
                 print 'warning: no options object(s) found in', local_opts.__file__
@@ -171,9 +172,26 @@ def expand_multiples(argv):
 
 # extra_opt_files and extra_opt_dirs will be copied if present, but ignored if missing
 class Job_manager:
+    '''The main Synergia workflow class.
+    
+    :param script: the name of the Synergia Python script or executable.
+    :param opts: an Options object containing the job options. The internally-defined job manager options
+        will be added as a suboption to opts.
+    :param extra_files: a list of additional files required to run the job.
+    :param extra_dirs: a list of additional directories whose contents are required to run the job.
+    :param argv: the command-line arguments. Use sys.argv if :code:`None`.
+    :param extra_opt_files: for internal use.
+    :param extra_opt_dirs: for internal use.
+    :param standalone: for internal use.
+    :param subjob: for internal use.
+    :param subjob_index: for internal use.
+    '''
     def __init__(self, script, opts, extra_files=None, extra_dirs=None,
+                 argv=None,
                  extra_opt_files=None, extra_opt_dirs=["lattice_cache"],
-                 standalone=False, argv=sys.argv, subjob=False, subjob_index=0):
+                 standalone=False, subjob=False, subjob_index=0):
+        if argv == None:
+            argv = sys.argv
         self.subjob = subjob
         self.subjob_index = subjob_index
         if has_multiple(argv):
@@ -181,9 +199,9 @@ class Job_manager:
             index = 0
             for sub_argv in expand_multiples(argv):
                 self.submanagers.append(Job_manager(script, copy.deepcopy(opts),
-                                                    extra_files, extra_dirs,
-                                   extra_opt_files, extra_opt_dirs, standalone,
-                                   sub_argv, True, index))
+                                                    extra_files, extra_dirs, sub_argv,
+                                                    extra_opt_files, extra_opt_dirs, standalone,
+                                                    True, index))
                 index += 1
         else:
             self.submanagers = []
@@ -192,7 +210,8 @@ class Job_manager:
         if len(sys.argv) > 1:
             if sys.argv[1] == "--strip-options-file":
                 creating_job = True
-        add_local_opts(creating_job)
+        if not self.subjob:
+            add_local_opts(creating_job)
         self.opts.add_suboptions(job_mgr_opts)
         self.directory = None
         self.subdirectory = "sub%02d" % self.subjob_index
@@ -297,17 +316,20 @@ class Job_manager:
     def create_job_script(self, job_name, directory, subs):
         if self.opts.job_manager.templatepath:
             job_template_path = self.opts.job_manager.templatepath
-            print "using job template:", job_template_path
+            if self.opts.job_manager.jmverbosity > 0:
+                print "using job template:", job_template_path
         else:
             job_template_path = search_job_manager_paths(self.opts.job_manager.template)
             if job_template_path:
-                print "using job template:", job_template_path
+                if self.opts.job_manager.jmverbosity > 0:
+                    print "using job template:", job_template_path
             else:
                 job_template_path = os.path.join(get_script_templates_dir(),
                                                  "job_example")
-                print "warning: using example job template:"
-                print "  ", job_template_path
-                print "because no job template was found in search path"
+                if self.opts.job_manager.jmverbosity > 0:
+                    print "warning: using example job template:"
+                    print "  ", job_template_path
+                    print "because no job template was found in search path"
 
         self.create_script(job_template_path, job_name, directory, subs)
 
@@ -316,10 +338,11 @@ class Job_manager:
             multijob_header_template_path = self.opts.job_manager.multitemplatepath + '_header'
             multijob_subjob_template_path = self.opts.job_manager.multitemplatepath + '_subjob'
             multijob_footer_template_path = self.opts.job_manager.multitemplatepath + '_footer'
-            print "using multijob templates:",
-            print "    ", multijob_header_template_path
-            print "    ", multijob_subjob_template_path
-            print "    ", multijob_footer_template_path
+            if self.opts.job_manager.jmverbosity > 0:
+                print "using multijob templates:"
+                print "    ", multijob_header_template_path
+                print "    ", multijob_subjob_template_path
+                print "    ", multijob_footer_template_path
         else:
             multijob_header_template_path = search_job_manager_paths(self.opts.job_manager.multitemplate
                                                                      + '_header')
@@ -331,10 +354,11 @@ class Job_manager:
                 multijob_footer_template_path = os.path.join(basedir, 
                                                              self.opts.job_manager.multitemplate + \
                                                              '_footer')
-                print "using multijob templates:",
-                print "    ", multijob_header_template_path
-                print "    ", multijob_subjob_template_path
-                print "    ", multijob_footer_template_path
+                if self.opts.job_manager.jmverbosity > 0:
+                    print "using multijob templates:"
+                    print "    ", multijob_header_template_path
+                    print "    ", multijob_subjob_template_path
+                    print "    ", multijob_footer_template_path
             else:
                 multijob_header_template_path = os.path.join(get_script_templates_dir(),
                                                  "multijob_example_header")
@@ -342,11 +366,12 @@ class Job_manager:
                                                  "multijob_example_subjob")
                 multijob_footer_template_path = os.path.join(get_script_templates_dir(),
                                                  "multijob_example_footer")
-                print "warning: using multijob templates:"
-                print "  ", multijob_header_template_path
-                print "  ", multijob_subjob_template_path
-                print "  ", multijob_footer_template_path
-                print "because no multijob templates were found in search path"
+                if self.opts.job_manager.jmverbosity > 0:
+                    print "warning: using multijob templates:"
+                    print "  ", multijob_header_template_path
+                    print "  ", multijob_subjob_template_path
+                    print "  ", multijob_footer_template_path
+                    print "because no multijob templates were found in search path"
 
         self.create_composite_script(multijob_header_template_path, 
                                      multijob_subjob_template_path,
@@ -357,17 +382,20 @@ class Job_manager:
         resumejob_name = os.path.basename(directory) + "_resumejob"
         if self.opts.job_manager.resumetemplatepath:
             resumejob_template_path = self.opts.job_manager.resumetemplatepath
-            print "using resume job template:", resumejob_template_path
+            if self.opts.job_manager.jmverbosity > 0:
+                print "using resume job template:", resumejob_template_path
         else:
             resumejob_template_path = search_job_manager_paths(self.opts.job_manager.resumetemplate)
             if resumejob_template_path:
-                print "using resume job template:", resumejob_template_path
+                if self.opts.job_manager.jmverbosity > 0:
+                    print "using resume job template:", resumejob_template_path
             else:
                 resumejob_template_path = os.path.join(get_script_templates_dir(),
                                                  "resumejob_example")
-                print "warning: using example resume job template:"
-                print "  ", resumejob_template_path
-                print "because no resume job template was found in search path"
+                if self.opts.job_manager.jmverbosity > 0:
+                    print "warning: using example resume job template:"
+                    print "  ", resumejob_template_path
+                    print "because no resume job template was found in search path"
 
         self.create_script(resumejob_template_path, resumejob_name, directory, subs)
 
@@ -377,10 +405,11 @@ class Job_manager:
             resumemultijob_header_template_path = self.opts.job_manager.resumemultitemplatepath + '_header'
             resumemultijob_subjob_template_path = self.opts.job_manager.resumemultitemplatepath + '_subjob'
             resumemultijob_footer_template_path = self.opts.job_manager.resumemultitemplatepath + '_footer'
-            print "using resumemultijob templates:",
-            print "    ", resumemultijob_header_template_path
-            print "    ", resumemultijob_subjob_template_path
-            print "    ", resumemultijob_footer_template_path
+            if self.opts.job_manager.jmverbosity > 0:
+                print "using resumemultijob templates:"
+                print "    ", resumemultijob_header_template_path
+                print "    ", resumemultijob_subjob_template_path
+                print "    ", resumemultijob_footer_template_path
         else:
             resumemultijob_header_template_path = search_job_manager_paths(self.opts.job_manager.resumemultitemplate
                                                                      + '_header')
@@ -392,10 +421,11 @@ class Job_manager:
                 resumemultijob_footer_template_path = os.path.join(basedir, 
                                                              self.opts.job_manager.resumemultitemplate + \
                                                              '_footer')
-                print "using resumemultijob templates:",
-                print "    ", resumemultijob_header_template_path
-                print "    ", resumemultijob_subjob_template_path
-                print "    ", resumemultijob_footer_template_path
+                if self.opts.job_manager.jmverbosity > 0:
+                    print "using resumemultijob templates:"
+                    print "    ", resumemultijob_header_template_path
+                    print "    ", resumemultijob_subjob_template_path
+                    print "    ", resumemultijob_footer_template_path
             else:
                 resumemultijob_header_template_path = os.path.join(get_script_templates_dir(),
                                                  "resumemultijob_example_header")
@@ -403,23 +433,25 @@ class Job_manager:
                                                  "resumemultijob_example_subjob")
                 resumemultijob_footer_template_path = os.path.join(get_script_templates_dir(),
                                                  "resumemultijob_example_footer")
-                print "warning: using resumemultijob templates:"
-                print "  ", resumemultijob_header_template_path
-                print "  ", resumemultijob_subjob_template_path
-                print "  ", resumemultijob_footer_template_path
-                print "because no resumemultijob templates were found in search path"
+                if self.opts.job_manager.jmverbosity > 0:
+                    print "warning: using resumemultijob templates:"
+                    print "  ", resumemultijob_header_template_path
+                    print "  ", resumemultijob_subjob_template_path
+                    print "  ", resumemultijob_footer_template_path
+                    print "because no resumemultijob templates were found in search path"
 
         self.create_composite_script(resumemultijob_header_template_path, 
                                      resumemultijob_subjob_template_path,
                                      resumemultijob_footer_template_path,
                                      resumejob_name, directory, subs)
 
-    def submit_job(self, job_name):
+    def submit_job(self, job_name, subs):
         submitter = "qsub"
         for line in open(job_name, 'r'):
             m = re.match(".*synergia_workflow_submitter:(.*)", line)
             if m:
                 submitter = m.group(1)
+        submitter = process_line(submitter, subs)
         os.system(submitter + ' ./' + job_name)
 
     def create_job(self, directory, extra_files, extra_dirs,
@@ -468,8 +500,15 @@ class Job_manager:
                 subs["subnumproc"] = val
             else:
                 subs["subnumproc"] = 1 
+            val = (subs["subnumproc"] + self.opts.get("procspernode") - 1) / \
+                  self.opts.get("procspernode")
+            if val > 0:
+                subs["subnumnode"] = val
+            else:
+                subs["subnumnode"] = 1 
         else:
             subs["subnumproc"] = self.opts.get("numproc")
+            subs["subnumnode"] = subs["numnode"]
         if self.standalone:
             subs["synergia_executable"] = self.real_script
             subs["script"] = ""
@@ -495,17 +534,17 @@ class Job_manager:
             self.copy_extra_files(extra_opt_files, optional=True)
         if extra_opt_dirs:
             self.copy_extra_dirs(extra_opt_dirs, optional=True)
-        if self.opts.get("submit"):
+        for submanager in self.submanagers:
+            submanager.create_job(directory,extra_files, extra_dirs,
+                   extra_opt_files, extra_opt_dirs)
+        if self.opts.get("submit") and not self.subjob:
             os.chdir(directory)
-            self.submit_job(job_name)
+            self.submit_job(job_name, subs)
             os.chdir(old_cwd)
         if self.opts.get("run"):
             os.chdir(directory)
             os.system("./" + job_name)
             os.chdir(old_cwd)
-        for submanager in self.submanagers:
-            submanager.create_job(directory,extra_files, extra_dirs,
-                   extra_opt_files, extra_opt_dirs)
         return directory
 
     def copy_extra_files(self, files, optional=False):
@@ -641,39 +680,42 @@ def cxx_source_value(val):
         retval = '"' + val + '"'
     return retval
 
+def process_line(line, subs, unknown_vars = []):
+    match = re.search("@@[A-z0-9]+@@", line)
+    while match:
+        var = string.replace(match.group(), "@@", "")
+        if subs.has_key(var):
+            replacement = str(subs[var])
+        else:
+            replacement = ""
+            unknown_vars.append(var)
+        original = match.group()
+        line = string.replace(line, original, replacement)
+        match = re.search("@@[A-z0-9]+@@", line)
+    match = re.search("__([A-z0-9]+){{(.*)}}{{(.*)}}__", line)
+    while match:
+        var = match.group(1)
+        have_var = False
+        if subs.has_key(var):
+            if (subs[var] != None) and (subs[var] != False):
+                have_var = True
+        if have_var:
+            replacement = match.group(2)
+        else:
+            replacement = match.group(3)
+            if unknown_vars.count(var) > 0:
+                unknown_vars.remove(var)
+        original = "__%s{{%s}}{{%s}}__" % (match.group(1), match.group(2),
+                                           match.group(3))
+        line = string.replace(line, original, replacement)
+        match = re.search("@@[A-z0-9]+@@", line)
+    return line
+
 def process_template(template_name, output, subs):
     template = open(template_name, "r")
     unknown_vars = []
     for line in template.readlines():
-        match = re.search("@@[A-z0-9]+@@", line)
-        while match:
-            var = string.replace(match.group(), "@@", "")
-            if subs.has_key(var):
-                replacement = str(subs[var])
-            else:
-                replacement = ""
-                unknown_vars.append(var)
-            original = match.group()
-            line = string.replace(line, original, replacement)
-            match = re.search("@@[A-z0-9]+@@", line)
-        match = re.search("__([A-z0-9]+){{(.*)}}{{(.*)}}__", line)
-        while match:
-            var = match.group(1)
-            have_var = False
-            if subs.has_key(var):
-                if (subs[var] != None) and (subs[var] != False):
-                    have_var = True
-            if have_var:
-                replacement = match.group(2)
-            else:
-                replacement = match.group(3)
-                if unknown_vars.count(var) > 0:
-                    unknown_vars.remove(var)
-            original = "__%s{{%s}}{{%s}}__" % (match.group(1), match.group(2),
-                                               match.group(3))
-            line = string.replace(line, original, replacement)
-            match = re.search("@@[A-z0-9]+@@", line)
-        output.write(line)
+        output.write(process_line(line, subs, unknown_vars))
     for var in unknown_vars:
         print "process_template warning: variable \"%s\" unknown." % var
     template.close()
@@ -692,12 +734,10 @@ def create_new_directory(directory, version, overwrite):
         if overwrite:
             shutil.rmtree(created_directory)
             os.mkdir(created_directory)
-            print "created directory", created_directory
         else:
             created_directory = create_new_directory(directory,
                                                      version + 1,
                                                      overwrite)
     else:
         os.mkdir(created_directory)
-        print "created directory", created_directory
     return created_directory

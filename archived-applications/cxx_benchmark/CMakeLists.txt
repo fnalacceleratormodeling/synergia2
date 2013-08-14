@@ -1,2 +1,5 @@
 add_executable(benchmark benchmark.cc benchmark_options.cc)
 target_link_libraries(benchmark synergia_simulation synergia_collective synergia_command_line)
+
+add_executable(benchmark2d benchmark2d.cc benchmark_options.cc)
+target_link_libraries(benchmark2d synergia_simulation synergia_collective synergia_command_line)

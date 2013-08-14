@@ -18,5 +18,6 @@ override.procspernode=24
 # fix setupsh to point to your own installation
 override.setupsh="/global/homes/e/egstern/hopper/synergia2-refactor/setup.sh"
 override.template="job_example_hopper"
+override.resumetemplate="resume_example_hopper"
 override.queue="debug"
 override.walltime="00:30:00"

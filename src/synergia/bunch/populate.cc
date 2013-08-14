@@ -154,7 +154,7 @@ populate_6d_truncated(Distribution &dist, Bunch &bunch,
                 throw std::runtime_error(
                         "populate_6d_truncated: maximum number of truncation iterations exceeded. Algorithm known to fail ~< 2.5 sigma.");
             }
-            fill_unit_6d(dist, particles, unit_covariances, local_num - 1, end);
+            fill_unit_6d(dist, particles, unit_covariances, local_num, end);
             adjust_moments(bunch, zero_means, unit_covariances);
             strip_unit_6d(bunch, limits, total_num, local_num);
         }

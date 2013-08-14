@@ -43,7 +43,7 @@ namespace
     else
     {
       if( def==madx_nst )
-        throw std::runtime_error( "cannot find attribute with name " + key);
+        throw std::runtime_error( "retrieve string: cannot find attribute with name " + key);
       else
         return def;
     }
@@ -74,7 +74,7 @@ namespace
     else
     {
       if( std::isnan(def) )
-        throw std::runtime_error( "cannot find attribute with name " + key);
+        throw std::runtime_error( "retrieve number: cannot find attribute with name " + key);
       else
         return def;
     }
@@ -112,7 +112,7 @@ namespace
     else
     {
       if( std::isnan(def) )
-        throw std::runtime_error( "cannot find attribute with name " + key);
+        throw std::runtime_error( "retrieve number sequence: cannot find attribute with name " + key);
       else
       {
         vector<double> r(1); 
@@ -727,7 +727,7 @@ void
   string_t key(name);
   std::transform( key.begin(), key.end(), key.begin(), ::tolower );
 
-  cmd_map_.insert( std::make_pair(key, cmd) );
+  cmd_map_[key] = cmd; // always overwrite
   cmd_map_[key].set_parent(*this);
 
   if( building_seq_ ) 

@@ -7,15 +7,17 @@ from synergia.bunch import Bunch, Diagnostics_basic
 from synergia.simulation import Independent_stepper_elements, Bunch_simulator, \
     Propagator
 
-# Read the lattice named "fodo" from the Mad8 file "fodo.lat"
+# Define a lattice
+#     Read the lattice named "fodo" from the Mad8 file "fodo.lat"
 lattice = synergia.lattice.Mad8_reader().get_lattice("fodo", "fodo.lat")
 
-# Define the simulation steps
+
+# Define a set of simulation steps
 map_order = 1
 steps_per_element = 2
 stepper = Independent_stepper_elements(lattice, map_order, steps_per_element)
 
-# Define the parameters for the bunch
+# Define a bunch
 x_emit = 1.0e-6  # m-rad, RMS
 y_emit = 1.0e-6  # m-rad, RMS
 z_std = 0.01  # m
@@ -30,9 +32,12 @@ bunch = synergia.optics.generate_matched_bunch_transverse(
               real_particles, macro_particles,
               seed=seed)
 
-# Apply basic diagnostics every step
-diagnostics = Diagnostics_basic("diagnostics.h5")
+# Define a bunch simulator
 bunch_simulator = Bunch_simulator(bunch)
+
+# Define a set of bunch diagnostics
+#     Apply basic diagnostics every step
+diagnostics = Diagnostics_basic("diagnostics.h5")
 bunch_simulator.add_per_step(diagnostics)
 
 # Perform the simulation
