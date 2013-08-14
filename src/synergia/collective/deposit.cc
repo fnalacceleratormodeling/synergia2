@@ -836,7 +836,13 @@ deposit_charge_rectangular_2d_omp_reduce(Rectangular_grid & rho_grid,
             particle_bin.m[n][4] = iz;
             particle_bin.m[n][5] = offz;
 
-            //if( ix<-1 || ix>g0-1 || iy<-1 || iy>g1-1 ) continue;
+            int cellz1 = iz;
+            int cellz2 = cellz1 + 1;
+
+            if( cellz1>=0 && cellz1<g2 ) r1d[cellz1] += (1.0 - offz) / h[2];
+            if( cellz2>=0 && cellz2<g2 ) r1d[cellz2] += offz / h[2];
+
+            if( ix<-1 || ix>g0-1 || iy<-1 || iy>g1-1 ) continue;
 
             int cellx1, cellx2, celly1, celly2;
             cellx1 = ix;
@@ -848,24 +854,10 @@ deposit_charge_rectangular_2d_omp_reduce(Rectangular_grid & rho_grid,
             aoffx = 1. - offx;
             aoffy = 1. - offy;
 
-            if( cellx1>=0 && cellx1<g0 && celly1>=0 && celly1<g1)
             r2d[celly1*G0 + cellx1] += weight0 * aoffx * aoffy;
-
-            if( cellx2>=0 && cellx2<g0 && celly1>=0 && celly1<g1)
             r2d[celly1*G0 + cellx2] += weight0 *  offx * aoffy;
-
-            if( cellx1>=0 && cellx1<g0 && celly2>=0 && celly2<g1)
             r2d[celly2*G0 + cellx1] += weight0 * aoffx *  offy;
-
-            if( cellx2>=0 && cellx2<g0 && celly2>=0 && celly2<g1)
             r2d[celly2*G0 + cellx2] += weight0 *  offx *  offy;
-
-            int cellz1 = iz;
-            int cellz2 = cellz1 + 1;
-
-            if( cellz1>=0 && cellz1<g2 ) r1d[cellz1] += (1.0 - offz) / h[2];
-            if( cellz2>=0 && cellz2<g2 ) r1d[cellz2] += offz / h[2];
-
         }
 
         #pragma omp critical
