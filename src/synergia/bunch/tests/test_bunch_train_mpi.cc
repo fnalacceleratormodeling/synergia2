@@ -5,7 +5,7 @@
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
-const double tolerance = 1.0e-14;
+const double default_tolerance = 1.0e-14;
 
 BOOST_FIXTURE_TEST_CASE(construct1, Bunches_fixture)
 {
@@ -95,7 +95,7 @@ BOOST_FIXTURE_TEST_CASE(counts_and_offsets, Bunches_fixture)
 }
 
 void
-compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance = tolerance,
+compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance = default_tolerance,
         bool check_state = true, bool check_ids = true)
 {
     BOOST_CHECK_EQUAL(bunch1.get_reference_particle().get_total_energy(),
