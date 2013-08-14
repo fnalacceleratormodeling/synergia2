@@ -528,7 +528,7 @@ Space_charge_2d_open_hockney::get_local_charge_density(Bunch const& bunch)
         particle_bin_sptr
                 = boost::shared_ptr<Raw_MArray2d >(
                         new Raw_MArray2d(boost::extents[bunch.get_local_num()][6]));
-        deposit_charge_rectangular_2d(*local_rho_sptr, *particle_bin_sptr,
+        deposit_charge_rectangular_2d_omp_reduce(*local_rho_sptr, *particle_bin_sptr,
                 bunch);
     }
     t = simple_timer_show(t, "get_local_rho-deposit");

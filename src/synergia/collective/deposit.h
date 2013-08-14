@@ -28,6 +28,10 @@ void
 deposit_charge_rectangular_2d(Rectangular_grid & rho_grid,
         Raw_MArray2d & particle_bin, Bunch const& bunch, bool zero_first = true);
 
+void
+deposit_charge_rectangular_2d_omp_reduce(Rectangular_grid & rho_grid,
+        Raw_MArray2d & particle_bin, Bunch const& bunch, bool zero_first = true);
+
 inline double
 interpolate_rectangular_xyz(double x, double y, double z,
         Rectangular_grid_domain const& domain, MArray3d_ref const& a)
