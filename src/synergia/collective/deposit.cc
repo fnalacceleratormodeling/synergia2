@@ -776,8 +776,8 @@ deposit_charge_rectangular_2d_omp_reduce(Rectangular_grid & rho_grid,
     #pragma omp parallel shared(nt)
     { nt = omp_get_num_threads(); }
 
-    double * lrho2d = new double[g0*g1*32];
-    double * lrho1d = new double[g2*32];
+    double * lrho2d = new double[G0*G1*nt];
+    double * lrho1d = new double[G2*nt];
 
     if (zero_first) {
         for (unsigned int i = 0; i < g0; ++i) {           // x
