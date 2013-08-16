@@ -7,7 +7,9 @@
 #pragma GCC diagnostic ignored "-Wsequence-point"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wsign-compare"
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 #include <beamline/beamline.h>
 #include <beamline/Particle.h>
 #include <beamline/JetParticle.h>

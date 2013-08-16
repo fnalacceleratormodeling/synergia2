@@ -11,7 +11,9 @@
 #pragma GCC diagnostic ignored "-Wsequence-point"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wsign-compare"
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 #include <basic_toolkit/PhysicsConstants.h>
 #include <physics_toolkit/DriftConverter.h>
 #include <beamline/RefRegVisitor.h>
