@@ -8,7 +8,7 @@ from synergia.simulation import Independent_stepper_elements, Bunch_simulator, \
     Propagator
 
 # Get options from separate options file
-from fodo_job_mgr_options import opts
+from fodo_workflow_options import opts
 
 # Define a lattice
 #     Read the lattice named "fodo" from the Mad8 file "fodo.lat"
