@@ -266,13 +266,13 @@ public:
             Lattice_elements const& vertical_correctors, double tolerance =
                     1.0e-5, int verbosity = 0);
     double
-    get_slip_factor(double dpp=1.e-4);
+    get_slip_factor(double dpp=1.0e-5);
     double
-    get_momentum_compaction(double dpp=1.e-4);
+    get_momentum_compaction(double dpp=1.e-5);
     double
-    get_horizontal_chromaticity(double dpp=1.e-4);
+    get_horizontal_chromaticity(double dpp=1.e-5);
     double
-    get_vertical_chromaticity(double dpp=1.e-4);
+    get_vertical_chromaticity(double dpp=1.e-5);
     void
     adjust_chromaticities(double horizontal_chromaticity,
             double vertical_chromaticity,

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
-<boost_serialization signature="serialization::archive" version="9">
+<boost_serialization signature="serialization::archive" version="6">
 <num_objects>1</num_objects>
 <object_typename>7Lattice</object_typename>
 <object class_id="0" tracking_level="1" version="0" object_id="_0">
@@ -9,11 +9,11 @@
 	<reference_particle_ptr class_id="1" tracking_level="1" version="0" object_id="_1">
 		<charge>1</charge>
 		<four_momentum class_id="2" tracking_level="0" version="0">
-			<mass>0.93827203000000003</mass>
-			<energy>10.043921266232704</energy>
+			<mass>0.93827201299999996</mass>
+			<energy>10.043921264644617</energy>
 			<momentum>10.000000000000064</momentum>
-			<gamma>10.704700710552679</gamma>
-			<beta>0.9956270797959853</beta>
+			<gamma>10.704700902812304</gamma>
+			<beta>0.99562707995340816</beta>
 		</four_momentum>
 		<state class_id="3" tracking_level="1" version="0" object_id="_2">
 			<shape_0>6</shape_0>
@@ -201,7 +201,7 @@
 					<item_version>0</item_version>
 					<item>
 						<first>freq</first>
-						<second>59696297.90068002</second>
+						<second>59696297.910118856</second>
 					</item>
 					<item>
 						<first>harmon</first>

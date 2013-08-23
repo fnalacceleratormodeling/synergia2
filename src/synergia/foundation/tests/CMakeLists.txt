@@ -5,6 +5,10 @@ target_link_libraries(test_four_momentum synergia_foundation ${Boost_UNIT_TEST_F
 add_test(test_four_momentum ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_four_momentum)
 add_test(test_four_momentum_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_four_momentum.py)
 
+add_test_executable(test_physical_constants test_physical_constants.cc)
+target_link_libraries(test_physical_constants synergia_foundation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_physical_constants ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_physical_constants)
+
 add_test_executable(test_reference_particle test_reference_particle.cc)
 target_link_libraries(test_reference_particle synergia_foundation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_reference_particle ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_reference_particle)

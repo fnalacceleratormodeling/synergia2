@@ -71,4 +71,4 @@ print "q_x: ", qx, " q_y: ", qy
 print "beta_z: ", bz
 
 print "one turn map"
-print np.array2string(map, max_line_width=200)
+print np.array2string(map, max_line_width=300,precision=16)

@@ -82,6 +82,7 @@ BOOST_PYTHON_MODULE(foundation)
         ;
 
     class_<Dummy2 >("pconstants",no_init)
+        .def_readonly("pdg_year", pconstants::pdg_year)
         .def_readonly("mp", pconstants::mp)
         .def_readonly("proton_mass", pconstants::proton_mass)
         .def_readonly("me", pconstants::me)

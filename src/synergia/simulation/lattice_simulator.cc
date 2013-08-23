@@ -1464,14 +1464,36 @@ Lattice_simulator::get_chromaticities(double dpp)
         double tune_h_plus, tune_h_minus ;
         double tune_v_plus, tune_v_minus;
         double c_delta_t_plus, c_delta_t_minus;
+
+        double tune_h_plusplus, tune_h_minusminus ;
+        double tune_v_plusplus, tune_v_minusminus;
+        double c_delta_t_plusplus, c_delta_t_minusminus;
+
         calculate_tune_and_cdt(momentum, dpp, beamline_sptr, copy_beamline_sptr, 
                tune_h_plus,  tune_v_plus, c_delta_t_plus);
         calculate_tune_and_cdt(momentum, -dpp, beamline_sptr, copy_beamline_sptr, 
                tune_h_minus,  tune_v_minus, c_delta_t_minus);		       
 
-        horizontal_chromaticity=0.5*(tune_h_plus-tune_h_minus)/dpp;
-        vertical_chromaticity=0.5*(tune_v_plus-tune_v_minus)/dpp;
-        slip_factor =0.5*(c_delta_t_plus-c_delta_t_minus)/cT0 / dpp;
+        calculate_tune_and_cdt(momentum, 2.0*dpp, beamline_sptr, copy_beamline_sptr, 
+               tune_h_plusplus,  tune_v_plusplus, c_delta_t_plusplus);
+        calculate_tune_and_cdt(momentum, -2.0*dpp, beamline_sptr, copy_beamline_sptr, 
+               tune_h_minusminus,  tune_v_minusminus, c_delta_t_minusminus);
+
+        double a_h_chrom, b_h_chrom;
+        a_h_chrom = 0.5*(tune_h_plus-tune_h_minus)/dpp;
+        b_h_chrom = 0.25*(tune_h_plusplus-tune_h_minusminus)/dpp;
+        horizontal_chromaticity=(4*a_h_chrom - b_h_chrom)/3.0;
+
+        double a_v_chrom, b_v_chrom;
+        a_v_chrom = 0.5*(tune_v_plus-tune_v_minus)/dpp;
+        b_v_chrom = 0.25*(tune_v_plusplus-tune_v_minusminus)/dpp;
+        vertical_chromaticity=(4*a_v_chrom - b_v_chrom)/3.0;
+
+        double a_slip, b_slip;
+        a_slip = 0.5*(c_delta_t_plus-c_delta_t_minus)/cT0 / dpp;
+        b_slip = 0.25*(c_delta_t_plusplus-c_delta_t_minusminus)/cT0 / dpp;
+        slip_factor =(4*a_slip-b_slip)/3.0;
+
         momentum_compaction = slip_factor + 1. / gamma / gamma;
         have_chromaticities = true;	
 
@@ -1717,7 +1739,7 @@ Lattice_simulator::print_cs_lattice_functions()
             Lattice_functions lfs = get_lattice_functions(*(*it));
 
             flogger << std::setw(19) << (*it)->get_name() << "    "
-                    << lfs.arc_length << "   " << lfs.beta_x << "    "
+                    << std::setprecision(16) << lfs.arc_length << "   " << lfs.beta_x << "    "
                     << lfs.beta_y << "   " << lfs.alpha_x << "   "
                     << lfs.alpha_y << "    " << lfs.psi_x << "   "
                     << lfs.psi_y << "   " << lfs.D_x << "    " << lfs.D_y
