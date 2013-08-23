@@ -121,6 +121,8 @@ ECloudEFieldVORPAL2D& ECloudEFieldVORPAL2D::operator=(const ECloudEFieldVORPAL2D
 //  std::cerr << " Done  .. " << tCheb->order << std::endl;
      tCheb->a = yLow;
      tCheb->b = yUp;
+
+     return *this;
 }
 
 ECloudEFieldVORPAL2D::~ECloudEFieldVORPAL2D() {
@@ -334,7 +336,7 @@ void ECloudEFieldVORPAL2D::loadOneScan(bool isEX, double dz, double x, double yL
   }   
   YScanAtX tDat;
   tDat.x = x;
-  int n = chebSerie->order + 1;
+  size_t n = chebSerie->order + 1;
   double *cE = chebSerie->c;
   if (isEX) {
     tDat.coefChebEX.resize(n);
@@ -373,7 +375,7 @@ void ECloudEFieldVORPAL2D::broadcastIt() {
    MPI_Bcast((void *) &verticalChebychevOrder, 1, MPI_INTEGER, 0, myComm_sptr->get());
    MPI_Bcast((void *) &yLow, 1, MPI_DOUBLE, 0, myComm_sptr->get());
    MPI_Bcast((void *) &yUp, 1, MPI_DOUBLE, 0, myComm_sptr->get());
-   int numYXScanAtdZ = 0;
+   size_t numYXScanAtdZ = 0;
    if (my_rank == 0) numYXScanAtdZ = data.size();
    MPI_Bcast((void *) &numYXScanAtdZ, 1, MPI_INTEGER, 0, myComm_sptr->get());
    if (my_rank != 0) data.clear();
@@ -383,7 +385,7 @@ void ECloudEFieldVORPAL2D::broadcastIt() {
 	data.push_back(aYxScan);
       }
       MPI_Bcast((void *) &(data[iYX].dz), 1, MPI_DOUBLE, 0, myComm_sptr->get());
-      int numYScanAtX = 0;
+      size_t numYScanAtX = 0;
       if (my_rank == 0) numYScanAtX = data[iYX].data.size();
       MPI_Bcast((void *) &numYScanAtX, 1, MPI_INTEGER, 0, myComm_sptr->get());
       if (my_rank != 0) data[iYX].data.clear();
