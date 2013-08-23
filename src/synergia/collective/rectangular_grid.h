@@ -68,7 +68,7 @@ public:
        this->get_domain_sptr()->get_leftmost_indices_offsets(x, y, z, ix, iy, iz,
             offx, offy, offz);
        MArray3d_ref a(this->get_grid_points());
-       double val;
+       double val = 0.0;
        if ((get_domain_sptr()->get_grid_shape()[0] > 1) && (get_domain_sptr()->get_grid_shape()[1] > 1) &&
 	      (get_domain_sptr()->get_grid_shape()[2] > 1)) {
        if ((ix < 0) || (ix >= get_domain_sptr()->get_grid_shape()[0] - 1) || (iy
