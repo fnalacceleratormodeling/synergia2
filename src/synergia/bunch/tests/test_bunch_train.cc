@@ -190,7 +190,7 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Bunches_fixture)
 		      bunch_train.get_parent_comm_sptr()->get(), &result);
     BOOST_CHECK(result == MPI_IDENT);    	      
     
-    for (int i=0; i<num_bunches; ++i){
+    for (size_t i=0; i<num_bunches; ++i){
       compare_bunches( *bunch_train.get_bunches().at(i), *bunch_loaded.get_bunches().at(i));
     }
     

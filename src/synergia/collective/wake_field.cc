@@ -25,7 +25,7 @@ wake_file(wake_file), wake_type(wake_type)
 	      getline(rfile,line);
 	      
 	      if ( !line.empty() ){  
-		  int pos=line.find_first_not_of(" \t\r\n");
+		  size_t pos=line.find_first_not_of(" \t\r\n");
 		  if (pos !=std::string::npos){
 		      if (line.at(pos) != '#' ){
 			    std::stringstream ss(line);
@@ -226,6 +226,9 @@ wake_file(wake_file), wake_type(wake_type)
 
   // Broadcasting to all     
 	  int error=MPI_Bcast( (void *) &size_wake, 1, MPI_INT, 0,  MPI_COMM_WORLD );
+      if (error != MPI_SUCCESS) {
+			throw std::runtime_error("MPI error in Wake_field::Wake_field 1");
+      }
 	  z_coord.resize(size_wake);
 	  xw_lead.resize(size_wake);
 	  xw_trail.resize(size_wake);
@@ -234,11 +237,29 @@ wake_file(wake_file), wake_type(wake_type)
 	  z_wake.resize(size_wake);
 	  
 	  error=MPI_Bcast( z_coord.data(),  size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
+      if (error != MPI_SUCCESS) {
+			throw std::runtime_error("MPI error in Wake_field::Wake_field 2");
+      }
 	  error=MPI_Bcast( xw_lead.data(),  size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
+      if (error != MPI_SUCCESS) {
+			throw std::runtime_error("MPI error in Wake_field::Wake_field 3");
+      }
 	  error=MPI_Bcast( xw_trail.data(), size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
+      if (error != MPI_SUCCESS) {
+			throw std::runtime_error("MPI error in Wake_field::Wake_field 4");
+      }
 	  error=MPI_Bcast( yw_lead.data(),  size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
+      if (error != MPI_SUCCESS) {
+			throw std::runtime_error("MPI error in Wake_field::Wake_field 5");
+      }
 	  error=MPI_Bcast( yw_trail.data(), size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
+      if (error != MPI_SUCCESS) {
+			throw std::runtime_error("MPI error in Wake_field::Wake_field 6");
+      }
 	  error=MPI_Bcast( z_wake.data(),   size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
+      if (error != MPI_SUCCESS) {
+			throw std::runtime_error("MPI error in Wake_field::Wake_field 7");
+      }
 	
 	  if (z_coord[0]>0) {
 	    double dz1=z_coord[1]-z_coord[0];

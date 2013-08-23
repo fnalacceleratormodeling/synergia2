@@ -49,7 +49,6 @@ BOOST_FIXTURE_TEST_CASE(counts_and_offsets, Bunches_fixture)
    std::vector<int > counts(bunch_train.get_proc_counts_for_impedance());
    std::vector<int > offsets(bunch_train.get_proc_offsets_for_impedance());
    int num_procs=bunch_train.get_parent_comm_sptr()->get_size();
-   int rank=bunch_train.get_parent_comm_sptr()->get_rank();  
    Bunches bunches(bunch_train.get_bunches());
    size_t num_bunches=bunches.size();
 
@@ -168,7 +167,7 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Bunches_fixture)
    BOOST_CHECK_EQUAL_COLLECTIONS(offsets.begin(), offsets.end(), loffsets.begin(), loffsets.end());
  
      
-     for (int i=0; i<num_bunches; ++i){
+     for (size_t i=0; i<num_bunches; ++i){
        compare_bunches( *bunch_train.get_bunches().at(i), *bunch_loaded.get_bunches().at(i));
      }
     

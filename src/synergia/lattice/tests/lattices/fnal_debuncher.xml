@@ -25,8 +25,8 @@
 			<item>0</item>
 		</state>
 		<repetition>0</repetition>
-		<repetition_length>0</repetition_length>
 		<s>0</s>
+		<s_n>0</s_n>
 	</reference_particle_ptr>
 	<elements class_id="4" tracking_level="0" version="0">
 		<count>885</count>

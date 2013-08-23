@@ -196,12 +196,12 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid, Bunch const& bunch,
     grid_shape[1] = rho_2dc.shape()[1];
     grid_shape[2] = rho_1d.shape()[0];
     if (zero_first) {
-        for (unsigned int i = 0; i < grid_shape[0]; ++i) {           // x
-            for (unsigned int j = 0; j < grid_shape[1]; ++j) {       // y
+        for (int i = 0; i < grid_shape[0]; ++i) {           // x
+            for (int j = 0; j < grid_shape[1]; ++j) {       // y
                 rho_2dc[i][j] = 0.0;
             }
         }
-        for (unsigned int k = 0; k < grid_shape[2]; ++k) {            // z
+        for (int k = 0; k < grid_shape[2]; ++k) {            // z
             rho_1d[k] = 0.0;
         }
     }
@@ -255,12 +255,12 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid,
     grid_shape[1] = rho_2dc.shape()[1];
     grid_shape[2] = rho_1d.shape()[0];
     if (zero_first) {
-        for (unsigned int i = 0; i < grid_shape[0]; ++i) {           // x
-            for (unsigned int j = 0; j < grid_shape[1]; ++j) {       // y
+        for (int i = 0; i < grid_shape[0]; ++i) {           // x
+            for (int j = 0; j < grid_shape[1]; ++j) {       // y
                 rho_2dc[i][j] = 0.0;
             }
         }
-        for (unsigned int k = 0; k < grid_shape[2]; ++k) {            // z
+        for (int k = 0; k < grid_shape[2]; ++k) {            // z
             rho_1d[k] = 0.0;
         }
     }

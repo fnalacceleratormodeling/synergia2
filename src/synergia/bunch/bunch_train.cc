@@ -8,7 +8,7 @@ Bunch_train::find_parent_comm_sptr()
     if (bunches.size()>0) {
         // check if all bunches has the same parent communicator
         MPI_Comm comm_test=bunches[0]->get_comm().get_parent_sptr()->get();
-	for (int i = 1; i < bunches.size(); ++i) {
+	for (size_t i = 1; i < bunches.size(); ++i) {
  	      int result;
  	      MPI_Comm_compare( comm_test, bunches[i]->get_comm().get_parent_sptr()->get(), &result);
  	      if (result != MPI_IDENT) {
@@ -58,7 +58,7 @@ void
 Bunch_train::set_bucket_indices()
 {
     std::list<int > found_indices;
-    for (int i = 0; i < bunches.size(); ++i) {
+    for (size_t i = 0; i < bunches.size(); ++i) {
         if (bunches[i]->get_bucket_index() == 0) {
             bunches[i]->set_bucket_index(i);
         }

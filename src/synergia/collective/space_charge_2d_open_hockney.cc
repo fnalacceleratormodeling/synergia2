@@ -79,10 +79,12 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
         Collective_operator("space charge 2D open hockney"), grid_shape(3),
                 doubled_grid_shape(3), periodic_z(periodic_z),
                 z_period(z_period), grid_entire_period(grid_entire_period),
-                comm2_sptr(comm_sptr), n_sigma(n_sigma), domain_fixed(false),
-                have_domains(false),
+                comm2_sptr(comm_sptr), n_sigma(n_sigma),
+                use_cell_coords(true),
                 need_state_conversion(need_state_conversion),
-                use_cell_coords(true), exfile(""), eyfile(""), dumped(true)
+                domain_fixed(false),
+                have_domains(false),
+                exfile(""), eyfile(""), dumped(true)
 {
     if (this->periodic_z) {
         throw std::runtime_error(
@@ -109,9 +111,11 @@ Space_charge_2d_open_hockney::Space_charge_2d_open_hockney(
                 z_period(z_period), grid_entire_period(grid_entire_period),
                 distributed_fft2d_sptr(distributed_fft2d_sptr),
                 comm2_sptr(distributed_fft2d_sptr->get_comm_sptr()),
-                n_sigma(n_sigma), domain_fixed(false), have_domains(false),
+                n_sigma(n_sigma),
+                use_cell_coords(true),
                 need_state_conversion(need_state_conversion),
-                use_cell_coords(true), exfile(""), eyfile(""), dumped(true)
+                domain_fixed(false), have_domains(false),
+                exfile(""), eyfile(""), dumped(true)
 {
     if (this->periodic_z) {
         throw std::runtime_error(

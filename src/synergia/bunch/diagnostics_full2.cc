@@ -67,8 +67,8 @@ Diagnostics_full2::update_emittances()
 Diagnostics_full2::Diagnostics_full2(std::string const& filename,
         std::string const& local_dir) :
         Diagnostics_full2::Diagnostics(Diagnostics_full2::name, filename,
-                local_dir), have_writers(false), writer_s(0), writer_repetition(
-                0), writer_trajectory_length(0), writer_num_particles(0), writer_real_num_particles(
+                local_dir), have_writers(false), writer_s_n(0), writer_repetition(
+                0), writer_s(0), writer_num_particles(0), writer_real_num_particles(
                 0), mean(boost::extents[6]), writer_mean(0), std(
                 boost::extents[6]), writer_std(0), min(boost::extents[3]), writer_min(
                 0), max(boost::extents[3]), writer_max(0), mom2(
@@ -93,10 +93,10 @@ void
 Diagnostics_full2::update()
 {   if (get_bunch().get_comm().has_this_rank()){
       get_bunch().convert_to_state(Bunch::fixed_z_lab);
-      s = get_bunch().get_reference_particle().get_s();
+      s_n = get_bunch().get_reference_particle().get_s_n();
       repetition = get_bunch().get_reference_particle().get_repetition();
-      trajectory_length
-	      = get_bunch().get_reference_particle().get_trajectory_length();
+      s
+	      = get_bunch().get_reference_particle().get_s();
       num_particles = get_bunch().get_total_num();
       real_num_particles = get_bunch().get_real_num();
       min = Core_diagnostics::calculate_min(get_bunch());
@@ -108,9 +108,9 @@ Diagnostics_full2::update()
 }
 
 double
-Diagnostics_full2::get_s() const
+Diagnostics_full2::get_s_n() const
 {
-    return s;
+    return s_n;
 }
 
 int
@@ -120,9 +120,9 @@ Diagnostics_full2::get_repetition() const
 }
 
 double
-Diagnostics_full2::get_trajectory_length() const
+Diagnostics_full2::get_s() const
 {
-    return trajectory_length;
+    return s;
 }
 
 int
@@ -207,11 +207,11 @@ void
 Diagnostics_full2::init_writers(Hdf5_file_sptr file_sptr)
 {
     if (!have_writers) {
-        writer_s = new Hdf5_serial_writer<double > (file_sptr, "s");
+        writer_s_n = new Hdf5_serial_writer<double > (file_sptr, "s_n");
         writer_repetition = new Hdf5_serial_writer<int > (file_sptr,
                 "repetition");
-        writer_trajectory_length = new Hdf5_serial_writer<double > (file_sptr,
-                "trajectory_length");
+        writer_s = new Hdf5_serial_writer<double > (file_sptr,
+                "s");
         writer_num_particles = new Hdf5_serial_writer<int > (file_sptr,
                 "num_particles");
         writer_real_num_particles = new Hdf5_serial_writer<double > (file_sptr,
@@ -237,9 +237,9 @@ Diagnostics_full2::write()
     if (get_bunch().get_comm().has_this_rank()){
       if (get_write_helper().write_locally()) {
 	  init_writers(get_write_helper().get_hdf5_file_sptr());
-	  writer_s->append(s);
+	  writer_s_n->append(s_n);
 	  writer_repetition->append(repetition);
-	  writer_trajectory_length->append(trajectory_length);
+	  writer_s->append(s);
 	  writer_num_particles->append(num_particles);
 	  writer_real_num_particles->append(real_num_particles);
 	  writer_mean->append(mean);
@@ -267,12 +267,12 @@ template<class Archive>
     {
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Diagnostics)
                 & BOOST_SERIALIZATION_NVP(have_writers)
-                & BOOST_SERIALIZATION_NVP(s)
-                & BOOST_SERIALIZATION_NVP(writer_s)
+                & BOOST_SERIALIZATION_NVP(s_n)
+                & BOOST_SERIALIZATION_NVP(writer_s_n)
                 & BOOST_SERIALIZATION_NVP(repetition)
                 & BOOST_SERIALIZATION_NVP(writer_repetition)
-                & BOOST_SERIALIZATION_NVP(trajectory_length)
-                & BOOST_SERIALIZATION_NVP(writer_trajectory_length)
+                & BOOST_SERIALIZATION_NVP(s)
+                & BOOST_SERIALIZATION_NVP(writer_s)
                 & BOOST_SERIALIZATION_NVP(num_particles)
                 & BOOST_SERIALIZATION_NVP(writer_num_particles)
                 & BOOST_SERIALIZATION_NVP(real_num_particles)
@@ -337,9 +337,9 @@ Diagnostics_full2::~Diagnostics_full2()
         delete writer_mean;
         delete writer_real_num_particles;
         delete writer_num_particles;
-        delete writer_trajectory_length;
-        delete writer_repetition;
         delete writer_s;
+        delete writer_repetition;
+        delete writer_s_n;
     }
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Diagnostics_full2)

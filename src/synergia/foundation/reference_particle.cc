@@ -3,7 +3,7 @@
 
 Reference_particle::Reference_particle() :
     charge(0), four_momentum(1.0, 1.0), state(boost::extents[6]),
-            repetition(0), repetition_length(0), s(0)
+            repetition(0), s(0), s_n(0)
 {
 
 }
@@ -11,7 +11,7 @@ Reference_particle::Reference_particle() :
 Reference_particle::Reference_particle(int charge, double mass,
         double total_energy) :
     charge(charge), four_momentum(mass, total_energy),
-            state(boost::extents[6]), repetition(0), repetition_length(0), s(0)
+            state(boost::extents[6]), repetition(0), s(0), s_n(0)
 {
     for (int i = 0; i < 6; ++i) {
         state[i] = 0;
@@ -21,7 +21,7 @@ Reference_particle::Reference_particle(int charge, double mass,
 Reference_particle::Reference_particle(int charge,
         Four_momentum const & four_momentum_in) :
     charge(charge), four_momentum(four_momentum_in), state(boost::extents[6]),
-            repetition(0), repetition_length(0), s(0)
+            repetition(0), s(0), s_n(0)
 {
     for (int i = 0; i < 6; ++i) {
         state[i] = 0;
@@ -31,7 +31,7 @@ Reference_particle::Reference_particle(int charge,
 Reference_particle::Reference_particle(int charge,
         Four_momentum const & four_momentum_in, Const_MArray1d_ref state) :
     charge(charge), four_momentum(four_momentum_in), state(state),
-            repetition(0), repetition_length(0), s(0)
+            repetition(0), s(0), s_n(0)
 {
 }
 
@@ -56,19 +56,19 @@ Reference_particle::set_total_energy(double total_energy)
 void
 Reference_particle::increment_trajectory(double length)
 {
-    s += length;
+    s_n += length;
 }
 
 void
 Reference_particle::start_repetition()
 {
-    if (repetition_length == 0.0) {
-        repetition_length = s;
+    if (s == 0.0) {
+        s = s_n;
     }
-    if (s > 0.0) {
+    if (s_n > 0.0) {
         repetition += 1;
     }
-    s = 0.0;
+    s_n = 0.0;
 }
 
 void
@@ -76,8 +76,8 @@ Reference_particle::set_trajectory(int repetition, double repetition_length,
         double s)
 {
     this->repetition = repetition;
-    this->repetition_length = repetition_length;
-    this->s = s;
+    this->s = repetition_length;
+    this->s_n = s;
 }
 
 int
@@ -123,15 +123,15 @@ Reference_particle::get_total_energy() const
 }
 
 double
-Reference_particle::get_trajectory_length() const
+Reference_particle::get_s() const
 {
-    return repetition * repetition_length + s;
+    return repetition * s + s_n;
 }
 
 double
-Reference_particle::get_s() const
+Reference_particle::get_s_n() const
 {
-    return s;
+    return s_n;
 }
 
 int
@@ -143,7 +143,7 @@ Reference_particle::get_repetition() const
 double
 Reference_particle::get_repetition_length() const
 {
-    return repetition_length;
+    return s;
 }
 
 bool
@@ -173,8 +173,8 @@ template<class Archive>
                 & BOOST_SERIALIZATION_NVP(four_momentum)
                 & BOOST_SERIALIZATION_NVP(state)
                 & BOOST_SERIALIZATION_NVP(repetition)
-                & BOOST_SERIALIZATION_NVP(repetition_length)
-                & BOOST_SERIALIZATION_NVP(s);
+                & BOOST_SERIALIZATION_NVP(s)
+                & BOOST_SERIALIZATION_NVP(s_n);
     }
 
 template

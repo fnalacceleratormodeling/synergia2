@@ -247,13 +247,13 @@ Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
         logger << "     step " << std::setw(digits(num_steps)) << step_count
                 << "/" << num_steps;
         if (state.bunch_train_simulator_ptr) {
-            logger << ", s=" << std::fixed << std::setprecision(4)
-                    << state.bunch_train_simulator_ptr->get_bunch_train().get_bunches()[0]->get_reference_particle().get_s();
+            logger << ", s_n=" << std::fixed << std::setprecision(4)
+                    << state.bunch_train_simulator_ptr->get_bunch_train().get_bunches()[0]->get_reference_particle().get_s_n();
 
         }
         if (state.bunch_simulator_ptr) {
-            logger << ", s=" << std::fixed << std::setprecision(4)
-                    << state.bunch_simulator_ptr->get_bunch().get_reference_particle().get_s();
+            logger << ", s_n=" << std::fixed << std::setprecision(4)
+                    << state.bunch_simulator_ptr->get_bunch().get_reference_particle().get_s_n();
             logger << ", macroparticles = "
                     << state.bunch_simulator_ptr->get_bunch().get_total_num();
         }

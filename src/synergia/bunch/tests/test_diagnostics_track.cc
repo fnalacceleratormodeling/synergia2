@@ -75,9 +75,9 @@ BOOST_FIXTURE_TEST_CASE(write_track_sin_x, Fixture)
     for (int i = 0; i < 200; ++i) {
         bunch_sptr->get_reference_particle().increment_trajectory(length);
         bunch_sptr->get_local_particles()[0][Bunch::x] = sin(
-                bunch_sptr->get_reference_particle().get_trajectory_length());
+                bunch_sptr->get_reference_particle().get_s());
         bunch_sptr->get_local_particles()[0][Bunch::xp] = cos(
-                bunch_sptr->get_reference_particle().get_trajectory_length());
+                bunch_sptr->get_reference_particle().get_s());
         diagnostics.update();
         diagnostics.write();
     }

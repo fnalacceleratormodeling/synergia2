@@ -1,6 +1,7 @@
 #ifndef NUMPY_MULTI_REF_CONVERTER_H_
 #define NUMPY_MULTI_REF_CONVERTER_H_
 
+#define NPY_NO_DEPRECATED_API 7
 #include "numpy/arrayobject.h"
 
 template<typename ValueType, int Dimension>
@@ -66,7 +67,7 @@ template<typename ValueType, int Dimension>
             shape_t shape;
             get_shape(py_obj, shape);
             new (memory_chunk) multi_array_ref_t(
-                    reinterpret_cast<ValueType* > (PyArray_DATA(obj)), shape);
+                    reinterpret_cast<ValueType* > (PyArray_DATA((PyArrayObject *)obj)), shape);
             data->convertible = memory_chunk;
         }
 
@@ -168,7 +169,7 @@ template<typename ValueType, int Dimension>
             shape_t shape;
             get_shape(py_obj, shape);
             new (memory_chunk) const_multi_array_ref_t(
-                    reinterpret_cast<ValueType* > (PyArray_DATA(obj)), shape);
+                    reinterpret_cast<ValueType* > (PyArray_DATA((PyArrayObject *)obj)), shape);
             data->convertible = memory_chunk;
         }
 

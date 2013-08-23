@@ -18,24 +18,24 @@ double
 double 
   mx_calculator::operator()(std::string const & ref) const
 {
-  if( mx==NULL )
+  if( mx==NULL ) {
     if( std::isnan(def) )  
       throw std::runtime_error("Unable to locate reference " + ref);
     else 
       return def;
-
+  }
   return mx->variable_as_number(ref, def);
 }
 
 double 
   mx_calculator::operator()(string_pair_t const & ref) const
 {
-  if( mx==NULL )
+  if( mx==NULL ) {
     if( std::isnan(def) ) 
       throw std::runtime_error("Unable to locate reference " + ref.first + "->" + ref.second);
     else 
       return def;
-
+  }
   return mx->command(ref.first).attribute_as_number(ref.second, def);
 }
 

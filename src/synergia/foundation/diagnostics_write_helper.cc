@@ -48,12 +48,12 @@ Diagnostics_write_helper::open_file()
 }
 
 Diagnostics_write_helper::Diagnostics_write_helper(std::string const& filename,
-        bool serial, Commxx_sptr commxx_sptr, std::string const& local_dir, int writer_rank) :
-        filename(filename), local_dir(local_dir), commxx_sptr(commxx_sptr), count(0), have_file(
-                false), serial(serial)
-{
-    if (writer_rank == default_rank) {
-        this->writer_rank = commxx_sptr->get_size() - 1;
+		bool serial, Commxx_sptr commxx_sptr, std::string const& local_dir,
+		int writer_rank) :
+		filename(filename), local_dir(local_dir), serial(serial), commxx_sptr(
+				commxx_sptr), have_file(false), count(0) {
+	if (writer_rank == default_rank) {
+		this->writer_rank = commxx_sptr->get_size() - 1;
     } else {
         this->writer_rank = writer_rank;
     }

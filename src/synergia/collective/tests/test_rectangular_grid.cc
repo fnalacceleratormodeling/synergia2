@@ -132,7 +132,6 @@ BOOST_FIXTURE_TEST_CASE(interpolate_coord, Rectangular_grid_domain_fixture)
     //
     const double ddx = 1.267*cellS[0];
     const double ddy = 1.453*cellS[1];
-    const double ddz = 0.234*cellS[2];
     const double y1 = domain_offset + 0.123*cellS[1];
     const double z1 = domain_offset + 0.245*cellS[2];
     const double xx1 = domain_offset - ddx;

@@ -72,7 +72,7 @@ Impedance::Impedance(std::string const & wake_file, std::string const & wake_typ
                     double const & orbit_length, int const& num_buckets, int const nstored_turns,
 			              bool full_machine, std::vector<int > wn):
 Collective_operator("impedance"), z_grid(zgrid), nstored_turns(nstored_turns), 
-             orbit_length(orbit_length), num_buckets(num_buckets), 
+		num_buckets(num_buckets), orbit_length(orbit_length),
               full_machine(full_machine), wn(wn)
 {       
    this->wake_field_sptr=Wake_field_sptr(new Wake_field(wake_file, wake_type)); 
@@ -357,46 +357,47 @@ inline int get_zindex_for_wake(double z, double dz, int istart, double zstart)
 }  
 
 
-void 
-Impedance::calculate_kicks(Commxx_sptr const & comm_sptr)
- {
-    
-    double t,t1;
-    t = simple_timer_current();
-    
-    int zpoints=get_wake_field_sptr()->get_z_coord().size();
-    double delta_z=get_wake_field_sptr()->get_delta_z();
-    int istart= get_wake_field_sptr()->get_istart();
-    double zstart =get_wake_field_sptr()->get_zstart();
-    MArray1d_ref z_coord(get_wake_field_sptr()->get_z_coord());
-    MArray1d_ref z_wake(get_wake_field_sptr()->get_z_wake());
-    MArray1d_ref xw_lead(get_wake_field_sptr()->get_xw_lead());
-    MArray1d_ref xw_trail(get_wake_field_sptr()->get_xw_trail());
-    MArray1d_ref yw_lead(get_wake_field_sptr()->get_yw_lead());
-    MArray1d_ref yw_trail(get_wake_field_sptr()->get_yw_trail());
-    
-    t = simple_timer_show(t, "impedance_calculate_kicks:  ref the  wake fields ");
-   
-    int registered_turns=stored_vbunches.size();
-    int numbunches;
-    int num_trains;
-    if (registered_turns==0) throw
-      std::runtime_error("registered_turns size cannot be zero, probably you propagate a bunch instead of a bunch_train");
-    
-    numbunches=(*stored_vbunches.begin()).size();
-    
-    if ((full_machine) && (registered_turns !=0)) {
-      num_trains=int(num_buckets/numbunches);
-      
-      if (std::abs(num_buckets/float(numbunches)-num_trains)>1e-8) throw 
-	std::runtime_error(
-	      "full machine assumes repetitive numer of trains: num_buckets should be divisible to numbunches");
-	if (wn[0]<0 || wn[0]>= num_trains ||
-	  wn[1]<0 || wn[1]>= num_trains ||
-	  wn[2]<0 || wn[2]>= num_trains )
-	  throw std::runtime_error(
-	      "full machine wave number cannot be smaller than zero or larger than num_trains-1");
-    }
+
+
+void Impedance::calculate_kicks(Commxx_sptr const & comm_sptr) {
+
+	double t, t1;
+	t = simple_timer_current();
+
+	int zpoints = get_wake_field_sptr()->get_z_coord().size();
+	double delta_z = get_wake_field_sptr()->get_delta_z();
+	int istart = get_wake_field_sptr()->get_istart();
+	double zstart = get_wake_field_sptr()->get_zstart();
+	MArray1d_ref z_coord(get_wake_field_sptr()->get_z_coord());
+	MArray1d_ref z_wake(get_wake_field_sptr()->get_z_wake());
+	MArray1d_ref xw_lead(get_wake_field_sptr()->get_xw_lead());
+	MArray1d_ref xw_trail(get_wake_field_sptr()->get_xw_trail());
+	MArray1d_ref yw_lead(get_wake_field_sptr()->get_yw_lead());
+	MArray1d_ref yw_trail(get_wake_field_sptr()->get_yw_trail());
+
+	t = simple_timer_show(t,
+			"impedance_calculate_kicks:  ref the  wake fields ");
+
+	int registered_turns = stored_vbunches.size();
+	int numbunches;
+	int num_trains = 0;
+	if (registered_turns == 0)
+		throw std::runtime_error(
+				"registered_turns size cannot be zero, probably you propagate a bunch instead of a bunch_train");
+
+	numbunches = (*stored_vbunches.begin()).size();
+
+	if ((full_machine) && (registered_turns != 0)) {
+		num_trains = int(num_buckets / numbunches);
+
+		if (std::abs(num_buckets / float(numbunches) - num_trains) > 1e-8)
+			throw std::runtime_error(
+					"full machine assumes repetitive numer of trains: num_buckets should be divisible to numbunches");
+		if (wn[0] < 0 || wn[0] >= num_trains || wn[1] < 0 || wn[1] >= num_trains
+				|| wn[2] < 0 || wn[2] >= num_trains)
+			throw std::runtime_error(
+					"full machine wave number cannot be smaller than zero or larger than num_trains-1");
+	}
     
     
    // std::cout<<" registred turns= "<<registered_turns<<std::endl; 

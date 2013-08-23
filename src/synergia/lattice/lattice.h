@@ -13,7 +13,8 @@
 #include "synergia/utils/serialization.h"
 
 /// The Lattice class contains an abstract representation of an ordered
-/// set of Lattice_elements. Each element of the Lattice is unique.
+/// set of objects of type Lattice_element.
+/// Each element of the Lattice is unique.
 class Lattice
 {
 private:

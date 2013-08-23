@@ -60,7 +60,7 @@ Step::apply(Bunch & bunch, int verbosity,
         if (verbosity > 2) {
             logger << "Step: operator: name = " << (*it)->get_name()
                     << ", type = " << (*it)->get_type() << ", time = "
-                    << std::fixed << std::setprecision(3) << t1 - t0 << "s"
+                    << std::fixed << std::setprecision(3) << t1 - t0 << "s_n"
                     << std::endl;
         }
 
@@ -100,7 +100,7 @@ Step::apply(Bunch_train & bunch_train, int verbosity,
         if (verbosity > 2) {
             logger << "Step: operator: name = " << (*it)->get_name()
                     << ", type = " << (*it)->get_type() << ", time = "
-                    << std::fixed << std::setprecision(3) << t1 - t0 << "s"
+                    << std::fixed << std::setprecision(3) << t1 - t0 << "s_n"
                     << std::endl;
         }
 
