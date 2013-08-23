@@ -459,6 +459,7 @@ void mx_command::execute(MadX & mx)
 
     // build attributes of beam
     double mass = 0, charge = 0, energy = 0, pc = 0, gamma = 0;
+    bool have_charge = false;
     for ( attrs_t::const_iterator it = attrs_.begin()
         ; it != attrs_.end(); ++it ) 
     {
@@ -496,6 +497,7 @@ void mx_command::execute(MadX & mx)
       {
         mx_expr e = boost::any_cast<mx_expr>( it->value() );
         charge = boost::apply_visitor(mx_calculator(mx), e);
+        have_charge = true;
       } 
       else if ( it->name() == "energy") 
       {
@@ -538,6 +540,12 @@ void mx_command::execute(MadX & mx)
     {
       attr.set_attr( "gamma", mx_expr(four_momentum.get_gamma()) );
       ins_attr(attr);
+    }
+
+    if (!have_charge)
+    {
+    	attr.set_attr( "charge", mx_expr(charge));
+    	ins_attr(attr);
     }
 
     // insert a global variable brho to the madx object

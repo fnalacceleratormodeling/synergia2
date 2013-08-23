@@ -192,7 +192,7 @@ BOOST_AUTO_TEST_CASE(command_particle_attrs)
 
   MadX_command cmd = mx.command("beam");
   BOOST_CHECK_EQUAL( cmd.name(), "beam" );
-  BOOST_CHECK_EQUAL( cmd.attribute_count(), 4 );
+  BOOST_CHECK_EQUAL( cmd.attribute_count(), 5 );
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("particle"), "proton");
 }
 
