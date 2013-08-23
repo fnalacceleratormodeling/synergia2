@@ -1,6 +1,7 @@
 #ifndef NUMPY_MULTI_ARRAY_CONVERTER_H_
 #define NUMPY_MULTI_ARRAY_CONVERTER_H_
 
+#define NPY_NO_DEPRECATED_API 7
 #include "numpy/arrayobject.h"
 
 template<typename ValueType, int Dimension>
@@ -45,7 +46,7 @@ template<typename ValueType, int Dimension>
             }
             retval = PyArray_SimpleNew(c_array.num_dimensions(),
                     (npy_intp*) c_array.shape(), type_num);
-            double * p = (double *) PyArray_DATA(retval);
+            double * p = (double *) PyArray_DATA((PyArrayObject *)retval);
             for (const double * it = c_array.data();
                     it != (c_array.data() + c_array.num_elements()); ++it) {
                 *p = *it;
