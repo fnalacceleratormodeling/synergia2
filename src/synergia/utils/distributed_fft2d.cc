@@ -225,7 +225,7 @@ Distributed_fft2d::transform(MArray2dc_ref & in, MArray2dc_ref & out)
 void
 Distributed_fft2d::inv_transform(MArray2dc_ref & in, MArray2dc_ref & out)
 {
-    double t;
+    //double t;
     //t = simple_timer_current();
     if (have_local_data) {
         if (in.index_bases()[0] > lower) {
