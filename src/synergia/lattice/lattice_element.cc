@@ -318,7 +318,7 @@ Lattice_element::as_string() const
             sstream << ", ";
         }
         sstream << it->first << "=" << "{";
-        for (int i=0; i != (it->second).size(); ++i) {
+        for (size_t i=0; i != (it->second).size(); ++i) {
             if (i) {
                 sstream << ", ";
             }
