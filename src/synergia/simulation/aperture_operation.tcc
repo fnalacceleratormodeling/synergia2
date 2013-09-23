@@ -46,40 +46,39 @@ template<typename T>
 
         for (int t = 1; t < nt; ++t)
         {
-            std::memcpy( discard + discard_counts[t-1], discard + t*npart/nt, discard_counts[t] );
+            std::memcpy( discard + total_discarded, discard + t*npart/nt, discard_counts[t]*sizeof(int) );
             total_discarded += discard_counts[t];
         }
 
-        int last = npart-1;
-
-        for (int n = 0; n < total_discarded; ++n, --last)
+        for (int n = 0; n < total_discarded; ++n)
         {
-            while ( last == discard[total_discarded-1] )
-            {
-                --last;
-                --total_discarded;
+            // handle each particle in the list of discards
 
-                if (n == total_discarded) goto done;
+            if (discard[n] == npart-1) {
+                // this is the last particle, just reduce count
+                --npart;
+            } else {
+                // move the last particle into the position of this discarded particle then reduce count
+                int idx = discard[n];
+                int last = npart - 1;
+
+                particles[idx][0] = particles[last][0];
+                particles[idx][1] = particles[last][1];
+                particles[idx][2] = particles[last][2];
+                particles[idx][3] = particles[last][3];
+                particles[idx][4] = particles[last][4];
+                particles[idx][5] = particles[last][5];
+                particles[idx][6] = particles[last][6];
+                --npart;
             }
-
-            int idx = discard[n];
-
-            particles[idx][0] = particles[last][0];
-            particles[idx][1] = particles[last][1];
-            particles[idx][2] = particles[last][2];
-            particles[idx][3] = particles[last][3];
-            particles[idx][4] = particles[last][4];
-            particles[idx][5] = particles[last][5];
-            particles[idx][6] = particles[last][6];
         }
 
-done:
         double charge = 0.0;
         if (total_discarded > 0) {
         	charge = total_discarded * bunch.get_real_num() / bunch.get_total_num();
         }
         deposit_charge(charge);
-        bunch.set_local_num(npart - total_discarded);
+        bunch.set_local_num(npart);
         double t1 = MPI_Wtime();
         if (verbosity > 5) {
             logger << "Aperture_operation: type = " << get_aperture_type()
