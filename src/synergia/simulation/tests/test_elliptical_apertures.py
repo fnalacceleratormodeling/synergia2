@@ -73,8 +73,6 @@ def test_elliptical_aperture_cut_last():
 
     new_local_num = bunch.get_local_num()
     assert_equal(local_num-1, new_local_num)
-    for i in range(new_local_num):
-        print local_particles[i,:]
 
 # test cutting all particles but last
 def test_elliptical_aperture_cut_all_but_last():
