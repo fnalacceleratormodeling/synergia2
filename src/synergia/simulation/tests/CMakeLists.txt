@@ -90,6 +90,7 @@ add_test(test_circular_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 t
 add_test_executable(test_elliptical_aperture_operation test_elliptical_aperture_operation.cc)
 target_link_libraries(test_elliptical_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_elliptical_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_elliptical_aperture_operation)
+add_test(test_elliptical_aperture_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose ; nose.main()" test_elliptical_apertures.py)
 
 add_test_executable(test_rectangular_aperture_operation test_rectangular_aperture_operation.cc)
 target_link_libraries(test_rectangular_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
