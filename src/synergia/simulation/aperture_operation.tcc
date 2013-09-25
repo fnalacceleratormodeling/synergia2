@@ -22,13 +22,13 @@ template<typename T>
         int * discard = new int[npart];
         int * discard_counts = new int[nt];
 
+        int part_per_thread = npart / nt;
         #pragma omp parallel shared(nt, npart, particles, discard, discard_counts)
         {
             int it = omp_get_thread_num();
 
-            int l = npart / nt;
-            int s = it * l;
-            int e = (it==nt-1) ? npart : (s+l);
+            int s = it * part_per_thread;
+            int e = (it==nt-1) ? npart : (s+part_per_thread);
 
             discard_counts[it] = 0;
 
@@ -46,7 +46,8 @@ template<typename T>
 
         for (int t = 1; t < nt; ++t)
         {
-            std::memcpy( discard + total_discarded, discard + t*npart/nt, discard_counts[t]*sizeof(int) );
+            std::memcpy( discard + total_discarded, discard + t*part_per_thread,
+	        discard_counts[t]*sizeof(int) );
             total_discarded += discard_counts[t];
         }
 
