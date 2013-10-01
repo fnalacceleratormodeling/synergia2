@@ -63,6 +63,7 @@ public:
     Collective_operator();
     virtual Collective_operator *
     clone() = 0;
+    using Operator::apply;
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Diagnosticss const& per_operation_diagnosticss, Logger & logger);
@@ -88,6 +89,7 @@ public:
     Dummy_collective_operator();
     virtual Dummy_collective_operator *
     clone();
+    using Collective_operator::apply;
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Logger & logger);
@@ -132,6 +134,7 @@ public:
     get_operations() const;
     Independent_operations &
     get_operations();
+    using Operator::apply;
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Diagnosticss const& per_operation_diagnosticss, Logger & logger);
