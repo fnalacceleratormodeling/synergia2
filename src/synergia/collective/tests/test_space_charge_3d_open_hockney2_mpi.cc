@@ -318,7 +318,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
                         var = x;
                     } else if (component == 1) {
                         var = y;
-                    } else if (component == 2) {
+                    } else {
                         var = z;
                     }
                     double En_exact_ijk = gaussian_electric_field_component(Q,
@@ -747,7 +747,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_G2linear_exact_rho,
                         var = x;
                     } else if (component == 1) {
                         var = y;
-                    } else if (component == 2) {
+                    } else {
                         var = z;
                     }
                     double En_exact_ijk = gaussian_electric_field_component(Q,
