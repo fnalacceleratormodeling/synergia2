@@ -125,6 +125,7 @@ private:
     is_full_machine() const;
     virtual int 
     get_nstored_turns() const;
+    using Collective_operator::apply;
     virtual
     void  apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
     virtual void
