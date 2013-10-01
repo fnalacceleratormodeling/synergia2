@@ -44,6 +44,7 @@ Chef_propagator::apply(Bunch & bunch, int verbosity, Logger & logger)
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
+    #pragma omp parallel for firstprivate(particle)
     for (int part = 0; part < local_num; ++part) {
         particle.set_x(particles[part][Bunch::x]);
         particle.set_npx(particles[part][Bunch::xp]);
