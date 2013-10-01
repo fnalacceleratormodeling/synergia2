@@ -859,17 +859,17 @@ deposit_charge_rectangular_2d_omp_reduce(Rectangular_grid & rho_grid,
             r2d[celly2*G0 + cellx1] += weight0 * aoffx *  offy;
             r2d[celly2*G0 + cellx2] += weight0 *  offx *  offy;
         }
+    }
 
-        #pragma omp critical
-        {
-            for (int y = 0; y < g1; ++y)
-                for (int x = 0; x < g0; ++x)
-                    rho_2dc[x][y] += r2d[y*G0 + x];
+    for (int t = 0; t < nt; ++t)
+    {
+        for (int y = 0; y < g1; ++y)
+            for (int x = 0; x < g0; ++x)
+                rho_2dc[x][y] += lrho2d[t*G0*G1 + y*G0 + x];
 
-            if (g2 > 1)
-                for (int z = 0; z < g2; ++z)
-                    rho_1d[z] += r1d[z];
-        }
+        if (g2 > 1)
+            for (int z = 0; z < g2; ++z)
+                rho_1d[z] += lrho1d[t*G2 + z];
     }
 
     delete [] lrho2d;
