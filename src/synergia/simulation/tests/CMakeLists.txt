@@ -117,5 +117,9 @@ add_test_executable(test_bunch_train_simulator test_bunch_train_simulator.cc)
 target_link_libraries(test_bunch_train_simulator synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_bunch_train_simulator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_bunch_train_simulator)
 
+add_test_executable(test_beamline_element_dynamics test_beamline_element_dynamics.cc)
+target_link_libraries(test_beamline_element_dynamics synergia_lattice synergia_simulation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_beamline_element_dynamics ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_beamline_element_dynamics)
+
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
     "test_fast_mapping_term.dat;test_fast_mapping.dat;test_fast_mapping2.dat;test_propagate_per_step.h5;test_propagate_per_turn.h5")
