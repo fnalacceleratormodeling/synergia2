@@ -63,7 +63,7 @@ wake_file(wake_file), wake_type(wake_type)
 				  else if (get_wake_type()=="XLYL") {				   
 				      xw_lead.push_back(temp_wake[1]);
 				      yw_lead.push_back(temp_wake[1]);
-				  } 
+				  }
 				  else{
 				    throw
 				      std::runtime_error("invalid specification of the wake type for 2 columns wake file");
@@ -116,7 +116,19 @@ wake_file(wake_file), wake_type(wake_type)
 				      xw_trail.push_back(temp_wake[2]);
 				      yw_lead.push_back(temp_wake[1]);
 				      yw_trail.push_back(temp_wake[2]);				   
-				  } 	
+				  } 
+				  else if (get_wake_type()=="XZ_Elliptical_coeff") {
+                      double cxs=0.42; // approximate values for the main injector
+                      double cxw=-0.40; // this hardwiring of the yokoya coefficents should
+                      double cys=0.81; //           be changed!!!
+                      double cyw=0.40;
+                      double cl=0.985;
+                      xw_lead.push_back(cxs*temp_wake[1]);
+                      xw_trail.push_back(cxw*temp_wake[1]);
+                      yw_lead.push_back(cys*temp_wake[1]);
+                      yw_trail.push_back(cyw*temp_wake[1]); 
+                      z_wake.push_back(cl*temp_wake[2]);                                   
+                  }
 				  else{
 				    throw
 				      std::runtime_error("invalid specification of the wake type for 3 columns wake file");
