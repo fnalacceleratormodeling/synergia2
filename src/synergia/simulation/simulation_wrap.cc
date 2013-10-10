@@ -666,6 +666,12 @@ BOOST_PYTHON_MODULE(simulation)
             .def("set_new_checkpoint_dir", &Resume::set_new_checkpoint_dir)
             .def("get_new_checkpoint_dir", &Resume::get_new_checkpoint_dir,
                     return_value_policy<copy_const_reference >())
+            .def("set_checkpoint_with_xml", &Resume::set_checkpoint_with_xml)
+            .def("get_checkpoint_with_xml", &Resume::get_checkpoint_with_xml)
+    	    .def("set_final_checkpoint", &Resume::set_final_checkpoint)
+    	    .def("get_final_checkpoint", &Resume::get_final_checkpoint)
+    	    .def("set_concurrent_io", &Resume::set_concurrent_io)
+    	    .def("get_concurrent_io", &Resume::get_concurrent_io)
             .def("get_content", &Resume::get_content)
             .def("propagate", &Resume::propagate)
     );
