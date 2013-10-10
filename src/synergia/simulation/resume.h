@@ -36,6 +36,30 @@ public:
     std::string const&
     get_new_checkpoint_dir() const;
 
+    void
+    set_checkpoint_with_xml(bool with_xml);
+
+    bool
+    get_checkpoint_with_xml() const;
+
+    void
+    set_final_checkpoint(bool final_checkpoint);
+
+    bool
+    get_final_checkpoint() const;
+
+    void
+    set_concurrent_io(int max);
+
+    int
+    get_concurrent_io() const;
+
+    /*void
+    set_num_turns(int num_turns);
+
+    int
+    get_num_turns() const;
+*/
     Content
     get_content();
 

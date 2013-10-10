@@ -45,6 +45,56 @@ Resume::get_new_checkpoint_dir() const
     return propagator.get_checkpoint_dir();
 }
 
+void
+Resume::set_checkpoint_with_xml(bool with_xml)
+{
+	propagator.set_checkpoint_with_xml(with_xml);
+}
+
+bool
+Resume::get_checkpoint_with_xml() const
+{
+	return propagator.get_checkpoint_with_xml();
+}
+
+void
+Resume::set_final_checkpoint(bool final_checkpoint)
+{
+	propagator.set_final_checkpoint(final_checkpoint);
+}
+
+bool
+Resume::get_final_checkpoint() const
+{
+	return propagator.get_final_checkpoint();
+}
+
+void
+Resume::set_concurrent_io(int max)
+{
+	propagator.set_concurrent_io(max);
+}
+
+int
+Resume::get_concurrent_io() const
+{
+	return propagator.get_concurrent_io();
+}
+
+/*
+void
+Resume::set_num_turns(int num_turns)
+{
+	propagator.state.num_turns = num_turns;
+}
+
+int
+Resume::get_num_turns() const
+{
+	return propagator.state.num_turns;
+}
+*/
+
 Resume::Content
 Resume::get_content()
 {
