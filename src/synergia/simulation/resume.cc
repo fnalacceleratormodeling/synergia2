@@ -81,20 +81,6 @@ Resume::get_concurrent_io() const
 	return propagator.get_concurrent_io();
 }
 
-/*
-void
-Resume::set_num_turns(int num_turns)
-{
-	propagator.state.num_turns = num_turns;
-}
-
-int
-Resume::get_num_turns() const
-{
-	return propagator.state.num_turns;
-}
-*/
-
 Resume::Content
 Resume::get_content()
 {
@@ -104,10 +90,10 @@ Resume::get_content()
 }
 
 void
-Resume::propagate(bool new_max_turns, int max_turns, bool new_verbosity,
+Resume::propagate(bool new_num_turns, int num_turns, bool new_max_turns, int max_turns, bool new_verbosity,
         int verbosity)
 {
-    propagator.resume(checkpoint_dir, new_max_turns, max_turns, new_verbosity,
+    propagator.resume(checkpoint_dir, new_num_turns, num_turns, new_max_turns, max_turns, new_verbosity,
             verbosity);
 }
 

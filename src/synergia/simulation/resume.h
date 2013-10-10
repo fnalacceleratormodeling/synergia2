@@ -54,17 +54,11 @@ public:
     int
     get_concurrent_io() const;
 
-    /*void
-    set_num_turns(int num_turns);
-
-    int
-    get_num_turns() const;
-*/
     Content
     get_content();
 
     void
-    propagate(bool new_max_turns, int max_turns, bool new_verbosity,
+    propagate(bool new_num_turns, int num_turns, bool new_max_turns, int max_turns, bool new_verbosity,
             int verbosity);
 
     ~Resume();
