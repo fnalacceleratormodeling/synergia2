@@ -118,7 +118,7 @@ public:
     get_resume_state(std::string const& checkpoint_dir);
 
     void
-    resume(std::string const& checkpoint_dir, bool new_max_turns,
+    resume(std::string const& checkpoint_dir, bool new_num_turns, int num_turns, bool new_max_turns,
             int max_turns, bool new_verbosity, int verbosity);
 
     void
