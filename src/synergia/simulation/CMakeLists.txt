@@ -2,7 +2,7 @@ add_library(synergia_simulation operator.cc step.cc stepper.cc
     independent_stepper.cc independent_stepper_elements.cc
     split_operator_stepper.cc split_operator_stepper_elements.cc
     split_operator_stepper_choice.cc
-    propagate_actions.cc diagnostics_actions.cc propagator.cc
+    propagate_actions.cc kicker_actions.cc diagnostics_actions.cc propagator.cc
     fast_mapping.cc chef_propagator.cc independent_operation.cc
     lattice_simulator.cc operation_extractor.cc aperture.cc
     aperture_operation.cc aperture_operation_extractor.cc populate_stationary.cc bunch_simulator.cc
@@ -32,6 +32,7 @@ install(FILES
     operation_extractor.h
     operator.h
     propagate_actions.h
+    kicker_actions.h
     propagator.h
     step.h
     stepper.h
