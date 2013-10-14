@@ -202,6 +202,10 @@ BOOST_AUTO_TEST_CASE(sbend_propagation)
      * substitute
      * (1+ct**2)*x**2 + 2*ct*dr*x + dr**2-radius1**2 = 0 and
      * solve quadratic equation
+     *
+     * px/pref calculation L. Michelotti:
+     * px/pref = (dp/pref) * sin(theta_0)
+     *
      */
     double a = 1.0 + cot_theta*cot_theta;
     double b = 2.0*cot_theta*delta_radius;
@@ -213,6 +217,9 @@ BOOST_AUTO_TEST_CASE(sbend_propagation)
                                 std::pow(sbend_exit_y-sbend_exit_y1,2));
     // offset distance is the x offset in accelerator coordinates
     BOOST_CHECK(floating_point_equal(d_offset, proton.get_x(), sbend_tolerance));
+    // check px/pref
+    double px_over_pref = dpp_offset * std::sin(sbend_angle);
+    BOOST_CHECK(floating_point_equal(proton.get_npx(), px_over_pref, sbend_tolerance));
     // check path length difference
     // path length for particle 0 is just sbend_length
     // calculate path length for particle 1 on its circular trajectory
