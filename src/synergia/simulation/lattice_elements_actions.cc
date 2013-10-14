@@ -2,23 +2,61 @@
 #include "synergia/simulation/operator.h"
 #include "synergia/simulation/stepper.h"
 
+Kick_element::Kick_element()
+{
+}
 
 Kick_element::Kick_element(std::string const& type, std::string const& name):
 element(type,name)
 {
 }
 
+template<class Archive>
+    void
+    Kick_element::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_NVP(element);
+        ar & BOOST_SERIALIZATION_NVP(map_turn_bunches);
+    }
+
+template
+void
+Kick_element::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Kick_element::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Kick_element::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Kick_element::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+        
+Kick_element::~Kick_element()
+{
+}
+        
+BOOST_CLASS_EXPORT_IMPLEMENT(Kick_element);       
+ 
+
+
+
 const char Lattice_elements_actions::type_name[] = "lattice_elements_actions";
+
+Lattice_elements_actions::Lattice_elements_actions()
+{
+}  
 
 Lattice_elements_actions::Lattice_elements_actions(Stepper_sptr stepper_sptr):
 Propagate_actions(type_name), kstepper_sptr(stepper_sptr), has_inside_operator_actions(true)
-{ 
-  //type="lattice_elements_action";
-  //this->list_bunches=std::list<int > ();
- // this->list_turns=std::list<int > ();
- // this->elements_to_kick=std::list<Lattice_element >();
-  //this->map_step_to_elements=std::map<std::string, std::list<Lattice_element>  > ();  
-  
+{   
 }  
 
 bool const& 
@@ -177,3 +215,47 @@ Lattice_elements_actions::lattice_elements_action(Stepper & stepper, Step & step
        }              
    }
 }
+
+template<class Archive>
+    void
+    Lattice_elements_actions::serialize(Archive & ar, const unsigned int version)
+    {   
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Propagate_actions);
+        ar & BOOST_SERIALIZATION_NVP(kstepper_sptr);
+        ar & BOOST_SERIALIZATION_NVP(has_inside_operator_actions);
+        ar & BOOST_SERIALIZATION_NVP(elements_to_kick);
+        ar & BOOST_SERIALIZATION_NVP(map_step_to_elements);
+        ar & BOOST_SERIALIZATION_NVP(kick_turns);    
+    }
+    
+
+   
+template
+
+void
+Lattice_elements_actions::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Lattice_elements_actions::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Lattice_elements_actions::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Lattice_elements_actions::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+
+
+
+Lattice_elements_actions::~Lattice_elements_actions()
+{
+}  
+    
+BOOST_CLASS_EXPORT_IMPLEMENT(Lattice_elements_actions); 

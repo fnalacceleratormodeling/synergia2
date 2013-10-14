@@ -79,6 +79,11 @@ add_test_executable(test_propagator test_propagator.cc)
 target_link_libraries(test_propagator synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_propagator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_propagator)
 
+add_test_executable(test_lattice_elements_action test_lattice_elements_action.cc)
+target_link_libraries(test_lattice_elements_action synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_propagator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_propagator)
+
+
 add_test_executable(test_finite_aperture_operation test_finite_aperture_operation.cc)
 target_link_libraries(test_finite_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_finite_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_finite_aperture_operation)
@@ -106,6 +111,8 @@ add_test(test_propagator_mpi1 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1  test_propaga
 add_test(test_propagator_mpi2 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2  test_propagator_mpi)
 add_test(test_propagator_mpi3 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3  test_propagator_mpi)
 add_test(test_propagator_mpi4 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4  test_propagator_mpi)
+
+
 
 add_test(test_simplify2 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_simplify2.py)
 
