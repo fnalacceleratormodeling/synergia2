@@ -3,7 +3,10 @@
 Propagate_actions::Propagate_actions()
 {
 }
-
+Propagate_actions::Propagate_actions(std::string const& type):
+type(type)
+{
+}  
 void
 Propagate_actions::first_action(Stepper & stepper, Bunch & bunch)
 {
@@ -37,6 +40,20 @@ Propagate_actions::step_end_action(Stepper & stepper, Step & step,
         Bunch_train & bunch_train, int turn_num, int step_num)
 {
 }
+
+void
+Propagate_actions::lattice_elements_action(Stepper & stepper, Step & step, Operator * op, int step_num, int turn_num, 
+                   int bunch_num, Logger & logger)                      
+{
+}  
+
+std::string const&
+Propagate_actions::get_type() const
+{
+  return type;
+}  
+
+
 
 Propagate_actions::~Propagate_actions()
 {

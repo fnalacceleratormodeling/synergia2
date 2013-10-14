@@ -133,6 +133,63 @@ Step::apply(Bunch_train & bunch_train, int verbosity,
 }
 
 
+void        
+Step::apply(Bunch_train & bunch_train, int verbosity,
+        Train_diagnosticss const& per_operator_train_diagnosticss,
+        Train_diagnosticss const& per_operation_train_diagnosticss, 
+         Propagate_actions * propagate_actions_ptr, Stepper & stepper, int step_count,  int turn,  
+         Logger & logger)       
+        
+        
+{
+    // time [s] in accelerator frame
+    double time = length
+            / (bunch_train.get_bunches()[0]->get_reference_particle().get_beta()
+                    * pconstants::c);
+    std::list<double >::const_iterator fractions_it = time_fractions.begin();
+    for (Operators::const_iterator it = operators.begin();
+            it != operators.end(); ++it) {
+        double t0 = MPI_Wtime();
+        (*it)->apply(bunch_train, (*fractions_it) * time, *this, verbosity,
+                per_operation_train_diagnosticss, 
+                propagate_actions_ptr, stepper, step_count,  turn, logger);
+                       
+        double t1 = MPI_Wtime();
+        if (verbosity > 2) {
+            logger << "Step: operator: name = " << (*it)->get_name()
+                    << ", type = " << (*it)->get_type() << ", time = "
+                    << std::fixed << std::setprecision(3) << t1 - t0 << "s"
+                    << std::endl;
+        }
+
+        double t = simple_timer_current();
+        size_t num_bunches = bunch_train.get_size();
+        for (int i = 0; i < num_bunches; ++i) {
+            for (Diagnosticss::const_iterator itd =
+                    per_operator_train_diagnosticss.at(i).begin();
+                    itd != per_operator_train_diagnosticss.at(i).end(); ++itd) {
+                (*itd)->update_and_write();
+            }
+        }
+        t = simple_timer_show(t, "diagnostics-operator");
+        // jfa: what should we do here? Move particles between bunches?
+    // am: this should be changed soon, for now assume the effect is small
+        for (int i = 0; i < num_bunches; ++i) {
+       if (bunch_train.get_bunches().at(i)->get_comm().has_this_rank()) {
+                Bunch_sptr bunch_sptr=bunch_train.get_bunches().at(i);
+        double plength=bunch_sptr->get_z_period_length();
+                if (bunch_sptr->is_z_periodic()){              
+                    apply_longitudinal_periodicity(*bunch_sptr, plength);
+                } 
+                else{                 
+                    apply_zcut(*bunch_sptr, plength);
+                }
+       }                  
+        }           
+        ++fractions_it;
+    }
+}
+
 
 Operators const&
 Step::get_operators() const

@@ -769,7 +769,7 @@ Impedance::store_bunches_data(Bunch_train & bunch_train)
 	    if (full_machine)  
 	      if  (bunch_sptr->get_bucket_index() != i) 				
 	                   throw std::runtime_error("for full_machine the buckets have to be occupied in order");		     		    
-            bi.x_mean=bunch_means[0];
+        bi.x_mean=bunch_means[0];
 	    bi.y_mean=bunch_means[2];
 	    bi.z_mean=bunch_means[4];
 	    bi.realnum=bunch_sptr->get_real_num();

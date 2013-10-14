@@ -64,9 +64,9 @@ Bunch_train::set_bucket_indices()
         }
         for (std::list<int >::const_iterator it = found_indices.begin();
                 it != found_indices.end(); ++it) {
-            if (*it == bunches[i]->get_bucket_index()) {
+            if (*it >= bunches[i]->get_bucket_index()) {
                 throw std::runtime_error(
-                        "Bunch_train: bunch bucket indices must be either unique or all zero");
+                        "Bunch_train: bunch bucket indices must be either in strictly increasing order or all zero");
             }
         }
         found_indices.push_back(bunches[i]->get_bucket_index());

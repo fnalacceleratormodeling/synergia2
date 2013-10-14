@@ -12,7 +12,7 @@
 #include "propagator_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 #include "synergia/simulation/diagnostics_actions.h"
-#include "synergia/simulation/kicker_actions.h"
+#include "synergia/simulation/lattice_elements_actions.h"
 
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
@@ -138,7 +138,7 @@ BOOST_FIXTURE_TEST_CASE(propagate_train, Propagator_fixture)
 
 BOOST_FIXTURE_TEST_CASE(propagate_train_kicker, Propagator_fixture)
 {
-    std::cout<<"   kicker test begin"<<std::endl;
+   
     const double bunch_spacing = 1.7;
     Bunch_train_sptr bunch_train_sptr(
             new Bunch_train(bs.bunches, bunch_spacing));
@@ -148,49 +148,49 @@ BOOST_FIXTURE_TEST_CASE(propagate_train_kicker, Propagator_fixture)
     }
     Bunch_train_simulator bunch_train_simulator(bunch_train_sptr);
 
-//     Diagnostics_sptr step_full2_diag0_sptr(
-//             new Diagnostics_full2("full2_per_step0.h5"));
-//     bunch_train_simulator.add_per_step(0, step_full2_diag0_sptr);
-// 
-//     Diagnostics_sptr turn_basic_diag0_sptr(
-//             new Diagnostics_basic("basic_per_turn0.h5"));
-//     bunch_train_simulator.add_per_turn(0, turn_basic_diag0_sptr);
-// 
-//     Diagnostics_sptr step_full2_diag1_sptr(
-//             new Diagnostics_full2("full2_per_step1.h5"));
-//     bunch_train_simulator.add_per_step(1, step_full2_diag1_sptr);
-// 
-//     Diagnostics_sptr turn_basic_diag1_sptr(
-//             new Diagnostics_basic("basic_per_turn1.h5"));
-//     bunch_train_simulator.add_per_turn(1, turn_basic_diag1_sptr);
-// 
-//     Diagnostics_sptr step_full2_diag2_sptr(
-//             new Diagnostics_full2("full2_per_step2.h5"));
-//     bunch_train_simulator.add_per_step(2, step_full2_diag2_sptr);
-// 
-//     Diagnostics_sptr turn_basic_diag2_sptr(
-//             new Diagnostics_basic("basic_per_turn2.h5"));
-//     bunch_train_simulator.add_per_turn(2, turn_basic_diag2_sptr);
 
     Stepper_sptr stepper_sptr=propagator.get_stepper_sptr();
-   // stepper_sptr->print();
+    Lattice_elements_actions kick_actions(stepper_sptr);
+
+// kick f at turn1 for bunches 0 and 1   
+    Kick_element ef1("quadrupole", "f");   
+    ef1.element.set_double_attribute("k1", 0.33);
     
-    //Lattice_element lelement(1,"f");
-    Kicker_actions  kick_actions(stepper_sptr);
+    std::list<int> ef1bunches_for_turn;
+    ef1bunches_for_turn.push_back(0);
+    ef1bunches_for_turn.push_back(1);
+    ef1.map_turn_bunches[1]=ef1bunches_for_turn;
+    kick_actions.add_element_to_kick(ef1);
 
-    Kick_element ef("quadrupole", "f");   
-    ef.element.set_double_attribute("k1", 0.33);
-    std::list<int> efbunches_for_turn1(1,1);
-    ef.map_turn_bunches[0]=efbunches_for_turn1;
-    kick_actions.add_element_to_kick(ef);
+// kick back f at turn1 for bunch 2   
+       
+    Kick_element ef2("quadrupole", "f"); 
+    ef2.element.set_double_attribute("k1", 0.07);
+    std::list<int> ef2bunches_for_turn;    
+    ef2bunches_for_turn.push_back(2);
+    ef2.map_turn_bunches[1]=ef2bunches_for_turn;
+    kick_actions.add_element_to_kick(ef2);
+    
+//  kick back f at turn2 for bunch 0,1,2   
+    Kick_element ef3("quadrupole", "f"); 
+    ef3.element.set_double_attribute("k1", 0.07);
 
+    std::list<int> ef3bunches_for_turn;
+    ef3bunches_for_turn.push_back(0);
+    ef3bunches_for_turn.push_back(1);
+    ef3bunches_for_turn.push_back(2);
+    ef3.map_turn_bunches[2]=ef3bunches_for_turn;
+    kick_actions.add_element_to_kick(ef3);
+    
+
+    
     Kick_element ed("quadrupole", "d");
     ed.element.set_double_attribute("k1", 0.2);
     ed.element.set_double_attribute("l", 0.7);
     std::list<int> edbunches_for_turn3;
     edbunches_for_turn3.push_back(2);
     edbunches_for_turn3.push_back(0);  
-    ed.map_turn_bunches[3]=efbunches_for_turn1;
+    ed.map_turn_bunches[3]=ef1bunches_for_turn;
     ed.map_turn_bunches[2]=edbunches_for_turn3;
     kick_actions.add_element_to_kick(ed);
 
@@ -198,17 +198,18 @@ BOOST_FIXTURE_TEST_CASE(propagate_train_kicker, Propagator_fixture)
     BOOST_CHECK_EQUAL(kick_actions.get_map_step_to_elements()["1first_half"].front().element.get_name(),"f");
     BOOST_CHECK_EQUAL(kick_actions.get_map_step_to_elements()["4second_half"].front().element.get_name(),"d");
     BOOST_CHECK_EQUAL(kick_actions.get_kick_turns().size(),3);
-    BOOST_CHECK_EQUAL(kick_actions.get_kick_turns().front(),0);
-     BOOST_CHECK_EQUAL(kick_actions.get_kick_turns().back(),3);
+    BOOST_CHECK_EQUAL(kick_actions.get_kick_turns().front(),1);
+    BOOST_CHECK_EQUAL(kick_actions.get_kick_turns().back(),3);
+    BOOST_CHECK_EQUAL(kick_actions.get_type(),"lattice_elements_actions");
     
     //for (std::list<int>::const_iterator it=kick_actions.get_kick_turns().begin();
     //it!=kick_actions.get_kick_turns().end();++it){
     //    std::cout<<" kicked tuns are: "<<*it<<std::endl;
    // }
     
+    kick_actions.print_actions();
     int num_turns = 4;
     propagator.propagate(bunch_train_simulator, kick_actions, num_turns);
-    std::cout<<"   kicker test done"<<std::endl;
 }
 
 

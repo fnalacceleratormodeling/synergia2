@@ -1,15 +1,19 @@
-#include "kicker_actions.h"
+#include "lattice_elements_actions.h"
 #include "synergia/simulation/operator.h"
 #include "synergia/simulation/stepper.h"
+
 
 Kick_element::Kick_element(std::string const& type, std::string const& name):
 element(type,name)
 {
 }
 
-Kicker_actions::Kicker_actions(Stepper_sptr stepper_sptr):
-  kstepper_sptr(stepper_sptr)
-{
+const char Lattice_elements_actions::type_name[] = "lattice_elements_actions";
+
+Lattice_elements_actions::Lattice_elements_actions(Stepper_sptr stepper_sptr):
+Propagate_actions(type_name), kstepper_sptr(stepper_sptr), has_inside_operator_actions(true)
+{ 
+  //type="lattice_elements_action";
   //this->list_bunches=std::list<int > ();
  // this->list_turns=std::list<int > ();
  // this->elements_to_kick=std::list<Lattice_element >();
@@ -17,17 +21,21 @@ Kicker_actions::Kicker_actions(Stepper_sptr stepper_sptr):
   
 }  
 
-
+bool const& 
+Lattice_elements_actions::get_has_inside_operator_actions() const
+{
+  return has_inside_operator_actions;
+}  
 
 
 void 
-Kicker_actions::add_element_to_kick(Kick_element element)
+Lattice_elements_actions::add_element_to_kick(Kick_element element)
 {
   // order bunches in map_turn_bunches
     for (std::map< int, std::list<int> >::iterator it=element.map_turn_bunches.begin();
               it!=element.map_turn_bunches.end(); ++it){
         it->second.sort();
-    kick_turns.push_back(it->first);
+        kick_turns.push_back(it->first);
     }
     kick_turns.unique();
     kick_turns.sort();
@@ -35,9 +43,35 @@ Kicker_actions::add_element_to_kick(Kick_element element)
     determine_map_step_to_elements();
 }
 
+void
+Lattice_elements_actions::print_actions()
+{
+  for (Kick_elements::const_iterator eit = elements_to_kick.begin(); 
+                           eit !=elements_to_kick.end(); ++eit ){
+    
+        std::cout<<" element: ("<<eit->element.get_type()<<", "<<eit->element.get_name()
+        <<") will be changed to: ("<<eit->element.as_string()<<" ), ";
+        
+            for (std::map< int, std::list<int> >::const_iterator mit=eit->map_turn_bunches.begin();
+                        mit!=eit->map_turn_bunches.end(); ++mit){
+                  std::cout<<" {at turn "<<mit->first<<", for bunches: [";
+                  for(std::list<int> ::const_iterator bit=mit->second.begin();
+                          bit!=mit->second.end(); ++bit ){
+                          std::cout<<(*bit)<<" ";
+                  }
+                  std::cout<<"]} ";
+            }
+        
+        
+        std::cout<<std::endl;
+        
+    }
+}  
+  
+
 
  void 
- Kicker_actions::determine_map_step_to_elements()
+ Lattice_elements_actions::determine_map_step_to_elements()
  {
       if (elements_to_kick.empty()) {      
         this->map_step_to_elements=std::map<std::string, Kick_elements > ();
@@ -79,21 +113,21 @@ Kicker_actions::add_element_to_kick(Kick_element element)
  }  
 
 std::map<std::string, Kick_elements > &
-Kicker_actions::get_map_step_to_elements() 
+Lattice_elements_actions::get_map_step_to_elements() 
 {
    return map_step_to_elements;
 }  
 
 std::list<int> &  
-Kicker_actions::get_kick_turns()
+Lattice_elements_actions::get_kick_turns()
 {
   return this->kick_turns;
 }  
 
 
 void
-Kicker_actions::operator_action(Stepper & stepper, Step & step, Operator * op,
-                     Bunch_train & bunch_train, int turn_num, int step_num, int bunch_num)
+Lattice_elements_actions::lattice_elements_action(Stepper & stepper, Step & step, Operator * op, int step_num, int turn_num, 
+                   int bunch_num)
 {
     try{
        if (&(*kstepper_sptr)!=&stepper)   throw 
@@ -121,18 +155,19 @@ Kicker_actions::operator_action(Stepper & stepper, Step & step, Operator * op,
                 if( ait != eit->map_turn_bunches.end()){ 
                     std::list<int>::const_iterator bunch_find=find(ait->second.begin(),ait->second.end(),bunch_num);
                     if (bunch_find !=ait->second.end()){                     
-                       // std::cout<<" kick applied on bunch "<<*bunch_find<<std::endl;
                         for(std::list<Lattice_element_sptr >::const_iterator 
                                   le_it =stepper.get_lattice_simulator().get_lattice_sptr()->get_elements().begin();
                                   le_it != stepper.get_lattice_simulator().get_lattice_sptr()->get_elements().end(); ++le_it){ 
                             if ((*le_it)->get_name()==eit->element.get_name() ){
-                                std::map<std::string, double > dattr=eit->element.get_double_attributes();
+                                std::map<std::string, double > dattr=eit->element.get_double_attributes();                                                                                
+                                            //  std::cout<<"turn: "<<turn_num<<"  bunch: "<<bunch_num<<" before update: ";                                             
+                                             // (*le_it)->print();
                                               for (std::map<std::string, double >::const_iterator dait=dattr.begin();
                                                             dait!=dattr.end();++dait){
                                                     (*le_it)->set_double_attribute(dait->first,dait->second);
-                                                }                                               
-                                                std::cout<<" element updated: ";
-                                                (*le_it)->print();  
+                                                } 
+                                              //  std::cout<<"turn: "<<turn_num<<"  bunch: "<<bunch_num<<" after update: ";                                               
+                                             //   (*le_it)->print();  
                             }
                         }
                         stepper.get_lattice_simulator().update();

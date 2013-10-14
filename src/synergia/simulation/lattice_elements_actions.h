@@ -1,5 +1,5 @@
-#ifndef KICKER_ACTIONS_H_
-#define KICKER_ACTIONS_H_
+#ifndef LATTICE_ELEMENTS_ACTIONS_H_
+#define LATTICE_ELEMENTS_ACTIONS_H_
 
 #include "synergia/simulation/propagate_actions.h"
 #include "synergia/lattice/lattice_element.h"
@@ -18,16 +18,20 @@ struct Kick_element
   
 typedef   std::list<Kick_element> Kick_elements;
 
-class Kicker_actions : public Propagate_actions
+class Lattice_elements_actions : public Propagate_actions
 {
   private:
+   bool has_inside_operator_actions;
    boost::shared_ptr<Stepper > kstepper_sptr;
    Kick_elements elements_to_kick;
    std::map<std::string, Kick_elements > map_step_to_elements;
    std::list<int> kick_turns;
    void determine_map_step_to_elements();
  public: 
-  Kicker_actions(boost::shared_ptr<Stepper > stepper_sptr);
+  Lattice_elements_actions(boost::shared_ptr<Stepper > stepper_sptr);
+
+  bool const& 
+  get_has_inside_operator_actions() const;
   
   void 
   add_element_to_kick(Kick_element  element);
@@ -38,11 +42,16 @@ class Kicker_actions : public Propagate_actions
   std::list<int> & 
   get_kick_turns() ;
   
- virtual void 
- operator_action(Stepper & stepper, Step & step, Operator * op,
-                   Bunch_train & bunch_train, int turn_num, int step_num, int bunch_num);
+  void
+  print_actions();
+  
+  virtual void 
+  lattice_elements_action(Stepper & stepper, Step & step, Operator * op, int step_num, int turn_num, 
+                   int bunch_num); 
+  
+  static const char type_name[];                
 };
 
 
-typedef boost::shared_ptr<Kicker_actions > Kicker_actions_sptr;
-#endif /* KICKER_ACTIONS_H_ */
+typedef boost::shared_ptr<Lattice_elements_actions > Lattice_elements_actions_sptr;
+#endif /* LATTICE_ELEMENTS_ACTIONS_H_ */
