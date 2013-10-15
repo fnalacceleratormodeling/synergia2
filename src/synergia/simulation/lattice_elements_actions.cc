@@ -164,7 +164,7 @@ Lattice_elements_actions::get_kick_turns()
 
 
 void
-Lattice_elements_actions::lattice_elements_action(Stepper & stepper, Step & step, Operator * op, int step_num, int turn_num, 
+Lattice_elements_actions::operator_begin_action(Stepper & stepper, Step & step, Operator & op, int step_num, int turn_num, 
                    int bunch_num)
 {
     try{
@@ -180,9 +180,9 @@ Lattice_elements_actions::lattice_elements_action(Stepper & stepper, Step & step
     if (find(kick_turns.begin(),kick_turns.end(),turn_num)==kick_turns.end()){ //no kick at this turn
       return;
     }      
-    else if (op->get_type()=="independent"){
+    else if (op.get_type()=="independent"){
        std::stringstream pp;
-       pp<<step_num<<op->get_name();
+       pp<<step_num<<op.get_name();
        std::string key(pp.str());
        std::map<std::string, Kick_elements >::iterator mit=map_step_to_elements.find(key);
        if (mit != map_step_to_elements.end()){

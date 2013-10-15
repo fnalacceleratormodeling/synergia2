@@ -612,19 +612,13 @@ try:
             print "train bunch space=",bunch_train_simulator.get_bunch_train().get_spacings()[0]
             print  
          
-
-    #for element in stepper.get_lattice_simulator().get_lattice().get_elements():
-        #if element.get_name() == "khpinger":
-          #element.print_()
-        #if element.get_name() == "kvpinger":
-          #element.print_()
   
     
     if (opts.hkick or opts.vkick):
       kick_actions=synergia.simulation.Lattice_elements_actions(stepper)
       if opts.hkick:
           khpinger_on= synergia.simulation.Kick_element("kicker","khpinger" )
-          khpinger_on.element.set_double_attribute("hkick", 0.001)
+          khpinger_on.element.set_double_attribute("hkick", 0.003)
           bunches_hkicked_on=[0,1]
           khpinger_on.map_turn_bunches[0]=bunches_hkicked_on
           khpinger_on.map_turn_bunches[4]=bunches_hkicked_on
@@ -672,7 +666,6 @@ try:
     propagator = synergia.simulation.Propagator(stepper)
     propagator.set_checkpoint_period(opts.checkpointperiod)
     propagator.set_concurrent_io(opts.concurrentio)
-    #propagator.propagate(bunch_train_simulator, opts.num_turns, opts.maxturns, opts.verbosity)
     propagator.propagate(bunch_train_simulator,kick_actions,opts.num_turns, opts.maxturns, opts.verbosity)
 except Exception, e:
       sys.stderr.write(str(e) + '\n')

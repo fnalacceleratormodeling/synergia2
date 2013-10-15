@@ -35,7 +35,7 @@ public:
     step_end_action(Stepper & stepper, Step & step, Bunch_train & bunch_train,
             int turn_num, int step_num);             
     virtual void
-    lattice_elements_action(Stepper & stepper, Step & step, Operator * op, int step_num, int turn_num, 
+    operator_begin_action(Stepper & stepper, Step & step, Operator & op, int step_num, int turn_num, 
                    int bunch_num);  
    
 

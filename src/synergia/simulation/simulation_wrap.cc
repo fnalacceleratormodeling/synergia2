@@ -532,7 +532,7 @@ BOOST_PYTHON_MODULE(simulation)
           // .def("get_map_step_to_elements", &Lattice_elements_actions::get_map_step_to_elements)
            .def("get_kick_turns", &Lattice_elements_actions::get_kick_turns,return_value_policy<copy_non_const_reference >())
            .def("print_actions", &Lattice_elements_actions::print_actions)
-           .def("lattice_elements_action", &Lattice_elements_actions::lattice_elements_action)
+           .def("operator_begin_action", &Lattice_elements_actions::operator_begin_action)
            ;       
 
     class_<Diagnostics_actions, Diagnostics_actions_sptr >(

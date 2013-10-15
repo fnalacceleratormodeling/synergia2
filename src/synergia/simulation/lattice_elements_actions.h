@@ -56,7 +56,7 @@ class Lattice_elements_actions : public Propagate_actions
   print_actions();
   
   virtual void 
-  lattice_elements_action(Stepper & stepper, Step & step, Operator * op, int step_num, int turn_num, 
+  operator_begin_action(Stepper & stepper, Step & step, Operator & op, int step_num, int turn_num, 
                    int bunch_num); 
                                   
   template<class Archive>
