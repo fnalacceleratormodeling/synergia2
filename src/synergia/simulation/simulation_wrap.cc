@@ -9,6 +9,7 @@
 #include "split_operator_stepper_choice.h"
 #include "propagator.h"
 #include "propagate_actions.h"
+#include "lattice_elements_actions.h"
 #include "diagnostics_actions.h"
 #include "dense_mapping.h"
 #include "resume.h"
@@ -514,6 +515,20 @@ BOOST_PYTHON_MODULE(simulation)
                     &Propagate_actions_callback::default_step_end_action)
             .enable_pickling()
             ;
+     
+      class_<Kick_element >("Kick_element", init<std::string const& , std::string const& >())
+            ;       
+      
+    //  to_python_converter<std::list<int>,
+    //         container_conversions::to_tuple<std::list<int> > >();     
+      class_<Lattice_elements_actions, bases<Propagate_actions > >("Lattice_elements_actions",
+            init<Stepper_sptr >())
+           .def("add_element_to_kick", &Lattice_elements_actions::add_element_to_kick)
+          // .def("get_map_step_to_elements", &Lattice_elements_actions::get_map_step_to_elements)
+           .def("get_kick_turns", &Lattice_elements_actions::get_kick_turns,return_value_policy<copy_non_const_reference >())
+           .def("print_actions", &Lattice_elements_actions::print_actions)
+           .def("lattice_elements_action", &Lattice_elements_actions::lattice_elements_action)
+           ;       
 
     class_<Diagnostics_actions, Diagnostics_actions_sptr >(
             "Diagnostics_actions", init< >())
