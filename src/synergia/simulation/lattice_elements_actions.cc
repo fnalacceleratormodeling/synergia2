@@ -59,11 +59,11 @@ Propagate_actions(type_name), kstepper_sptr(stepper_sptr), has_inside_operator_a
 {   
 }  
 
-bool const& 
-Lattice_elements_actions::get_has_inside_operator_actions() const
-{
-  return has_inside_operator_actions;
-}  
+//bool const& 
+//Lattice_elements_actions::get_has_inside_operator_actions() const
+//{
+//  return has_inside_operator_actions;
+//}  
 
 
 void 
@@ -199,12 +199,12 @@ Lattice_elements_actions::lattice_elements_action(Stepper & stepper, Step & step
                             if ((*le_it)->get_name()==eit->element.get_name() ){
                                 std::map<std::string, double > dattr=eit->element.get_double_attributes();                                                                                
                                             //  std::cout<<"turn: "<<turn_num<<"  bunch: "<<bunch_num<<" before update: ";                                             
-                                             // (*le_it)->print();
+                                            //  (*le_it)->print();
                                               for (std::map<std::string, double >::const_iterator dait=dattr.begin();
                                                             dait!=dattr.end();++dait){
                                                     (*le_it)->set_double_attribute(dait->first,dait->second);
                                                 } 
-                                              //  std::cout<<"turn: "<<turn_num<<"  bunch: "<<bunch_num<<" after update: ";                                               
+                                            //    std::cout<<"turn: "<<turn_num<<"  bunch: "<<bunch_num<<" after update: ";                                               
                                              //   (*le_it)->print();  
                             }
                         }

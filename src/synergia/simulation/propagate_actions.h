@@ -36,7 +36,7 @@ public:
             int turn_num, int step_num);             
     virtual void
     lattice_elements_action(Stepper & stepper, Step & step, Operator * op, int step_num, int turn_num, 
-                   int bunch_num, Logger & logger);  
+                   int bunch_num);  
    
 
                     template<class Archive>

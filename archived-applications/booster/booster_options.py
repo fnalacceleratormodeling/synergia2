@@ -66,6 +66,8 @@ opts.add("periodic", 1, "periodic bunches along z", int)
 opts.add("x_offset", 0.0006, "Bunch offset in x", float)
 opts.add("y_offset", 0.0003, "Bunch offset in y", float)
 opts.add("z_offset", 0.0, "Bunch offset in z", float)
+opts.add("hkick",0, "", int)
+opts.add("vkick",0, "", int)
 
 
 opts.add("adjust_tunes", 0, "", int)

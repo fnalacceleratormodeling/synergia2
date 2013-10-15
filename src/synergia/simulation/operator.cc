@@ -48,8 +48,8 @@ Operator::apply(Bunch_train & bunch_train, double time_step, Step & step, int ve
     Bunches bunches(bunch_train.get_bunches());
     size_t num_bunches = bunch_train.get_size();
     for (int i = 0; i < num_bunches; ++i)
-        if (bunches.at(i)->get_comm().has_this_rank()) {                      
-            propagate_actions_ptr->lattice_elements_action(stepper, step, this, step_count,  turn,  i, logger);             
+        if (bunches.at(i)->get_comm().has_this_rank()) {  
+            propagate_actions_ptr->lattice_elements_action(stepper, step, this, step_count,  turn,  i);             
             apply(*bunches.at(i), time_step, step, verbosity,
                     per_operation_diagnosticss.at(i), logger);                 
         }

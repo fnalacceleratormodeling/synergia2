@@ -516,11 +516,16 @@ BOOST_PYTHON_MODULE(simulation)
             .enable_pickling()
             ;
      
-      class_<Kick_element >("Kick_element", init<std::string const& , std::string const& >())
-            ;       
+     class_<std::map<int, std::list<int> > >("Map_turn_bunches")
+            .def(map_indexing_suite<std::map< int, std::list<int> > >() )
+            ;
       
-    //  to_python_converter<std::list<int>,
-    //         container_conversions::to_tuple<std::list<int> > >();     
+      class_<Kick_element >("Kick_element",
+            init<std::string, std::string >()) 
+            .def_readwrite("element",&Kick_element::element)
+            .def_readwrite("map_turn_bunches",&Kick_element::map_turn_bunches)
+            ;
+     
       class_<Lattice_elements_actions, bases<Propagate_actions > >("Lattice_elements_actions",
             init<Stepper_sptr >())
            .def("add_element_to_kick", &Lattice_elements_actions::add_element_to_kick)

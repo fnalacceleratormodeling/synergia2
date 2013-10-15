@@ -329,11 +329,13 @@ Lattice_element::as_string() const
     return sstream.str();
 }
 
+
 void
 Lattice_element::print() const
 {
     std::cout << as_string() << std::endl;
 }
+
 
 template<class Archive>
     void
