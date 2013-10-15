@@ -229,16 +229,16 @@ Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
         }
       
         
-        if (state.propagate_actions_ptr->get_type()=="lattice_elements_actions") {
+        //if (state.propagate_actions_ptr->get_type()=="lattice_elements_actions") {
           step.apply(bunch_train, state.verbosity, per_operator_train_diagnosticss,
                     per_operation_train_diagnosticss, 
                     state.propagate_actions_ptr, *stepper_sptr, step_count, turn,
                     logger);  
-        } 
-        else{
-          step.apply(bunch_train, state.verbosity, per_operator_train_diagnosticss,
-                  per_operation_train_diagnosticss,logger);
-        }  
+//         } 
+//         else{
+//           step.apply(bunch_train, state.verbosity, per_operator_train_diagnosticss,
+//                   per_operation_train_diagnosticss,logger);
+//         }  
                  
                 
         t = simple_timer_show(t, "propagate-step_apply");
