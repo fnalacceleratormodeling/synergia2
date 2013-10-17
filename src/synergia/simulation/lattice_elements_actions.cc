@@ -50,12 +50,12 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Kick_element);
 
 const char Lattice_elements_actions::type_name[] = "lattice_elements_actions";
 
-Lattice_elements_actions::Lattice_elements_actions()
-{
-}  
+// Lattice_elements_actions::Lattice_elements_actions()
+// {
+// }  
 
-Lattice_elements_actions::Lattice_elements_actions(Stepper_sptr stepper_sptr):
-Propagate_actions(type_name), kstepper_sptr(stepper_sptr), has_inside_operator_actions(true)
+Lattice_elements_actions::Lattice_elements_actions():
+ has_map_step_to_elements(false)
 {   
 }  
 
@@ -78,7 +78,8 @@ Lattice_elements_actions::add_element_to_kick(Kick_element element)
     kick_turns.unique();
     kick_turns.sort();
     elements_to_kick.push_back(element); 
-    determine_map_step_to_elements();
+    has_map_step_to_elements=false;
+
 }
 
 void
@@ -88,16 +89,16 @@ Lattice_elements_actions::print_actions()
                            eit !=elements_to_kick.end(); ++eit ){
     
         std::cout<<" element: ("<<eit->element.get_type()<<", "<<eit->element.get_name()
-        <<") will be changed to: ("<<eit->element.as_string()<<" ), ";
+        <<") will be changed to: ("<<eit->element.as_string()<<" ): "<<std::endl;;
         
             for (std::map< int, std::list<int> >::const_iterator mit=eit->map_turn_bunches.begin();
                         mit!=eit->map_turn_bunches.end(); ++mit){
-                  std::cout<<" {at turn "<<mit->first<<", for bunches: [";
+                  std::cout<<"                                {at turn "<<mit->first<<", for bunches: [";
                   for(std::list<int> ::const_iterator bit=mit->second.begin();
                           bit!=mit->second.end(); ++bit ){
                           std::cout<<(*bit)<<" ";
                   }
-                  std::cout<<"]} ";
+                  std::cout<<"]} "<<std::endl;
             }
         
         
@@ -109,7 +110,7 @@ Lattice_elements_actions::print_actions()
 
 
  void 
- Lattice_elements_actions::determine_map_step_to_elements()
+ Lattice_elements_actions::determine_map_step_to_elements(Stepper & stepper)
  {
       if (elements_to_kick.empty()) {      
         this->map_step_to_elements=std::map<std::string, Kick_elements > ();
@@ -119,8 +120,8 @@ Lattice_elements_actions::print_actions()
       
        
       int step_count = 0;
-      for (Steps::const_iterator sit = kstepper_sptr->get_steps().begin(); sit
-                      != kstepper_sptr->get_steps().end(); ++sit) {
+      for (Steps::const_iterator sit = stepper.get_steps().begin(); sit
+                      != stepper.get_steps().end(); ++sit) {
            ++step_count;
             
            for (Operators::const_iterator oit = (*sit)->get_operators().begin();
@@ -147,7 +148,8 @@ Lattice_elements_actions::print_actions()
                 std::string  key(pp.str());
                 if (!(list_elem.empty())) map_step_to_elements[key]=list_elem;
            } //operators                           
-     } //steps                     
+     } //steps     
+      has_map_step_to_elements=true;
  }  
 
 std::map<std::string, Kick_elements > &
@@ -167,15 +169,16 @@ void
 Lattice_elements_actions::operator_begin_action(Stepper & stepper, Step & step, Operator & op, int step_num, int turn_num, 
                    int bunch_num)
 {
-    try{
-       if (&(*kstepper_sptr)!=&stepper)   throw 
-             std::runtime_error("kicker stepper_sptr point to a different object than the propagator stepper "); 
-     }
-     catch(std::exception const& e){    
-           std::cout<<e.what()<< std::endl;   
-            MPI_Abort(MPI_COMM_WORLD, 123);
-     } 
-    
+//     try{
+//        if (&(*kstepper_sptr)!=&stepper)   throw 
+//              std::runtime_error("kicker stepper_sptr point to a different object than the propagator stepper "); 
+//      }
+//      catch(std::exception const& e){    
+//            std::cout<<e.what()<< std::endl;   
+//             MPI_Abort(MPI_COMM_WORLD, 123);
+//      } 
+     
+    if (!has_map_step_to_elements) determine_map_step_to_elements(stepper);
   
     if (find(kick_turns.begin(),kick_turns.end(),turn_num)==kick_turns.end()){ //no kick at this turn
       return;
@@ -221,8 +224,7 @@ template<class Archive>
     Lattice_elements_actions::serialize(Archive & ar, const unsigned int version)
     {   
         ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Propagate_actions);
-        ar & BOOST_SERIALIZATION_NVP(kstepper_sptr);
-        ar & BOOST_SERIALIZATION_NVP(has_inside_operator_actions);
+        ar & BOOST_SERIALIZATION_NVP(has_map_step_to_elements);
         ar & BOOST_SERIALIZATION_NVP(elements_to_kick);
         ar & BOOST_SERIALIZATION_NVP(map_step_to_elements);
         ar & BOOST_SERIALIZATION_NVP(kick_turns);    

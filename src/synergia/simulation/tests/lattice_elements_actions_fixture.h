@@ -12,7 +12,7 @@ namespace kludge
 struct Lattice_elements_action_fixture
 {
   Lattice_elements_action_fixture():
-  kick_actions(p.propagator.get_stepper_sptr()),
+  kick_actions(),
   covariances(boost::extents[6][6]), means(boost::extents[6]), seed(67), distribution(seed, *l.b.comm_sptr)
   {
     

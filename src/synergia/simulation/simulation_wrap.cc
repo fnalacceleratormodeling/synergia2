@@ -526,8 +526,7 @@ BOOST_PYTHON_MODULE(simulation)
             .def_readwrite("map_turn_bunches",&Kick_element::map_turn_bunches)
             ;
      
-      class_<Lattice_elements_actions, bases<Propagate_actions > >("Lattice_elements_actions",
-            init<Stepper_sptr >())
+      class_<Lattice_elements_actions, bases<Propagate_actions > >("Lattice_elements_actions",init< >())
            .def("add_element_to_kick", &Lattice_elements_actions::add_element_to_kick)
           // .def("get_map_step_to_elements", &Lattice_elements_actions::get_map_step_to_elements)
            .def("get_kick_turns", &Lattice_elements_actions::get_kick_turns,return_value_policy<copy_non_const_reference >())

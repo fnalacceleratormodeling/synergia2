@@ -13,8 +13,6 @@ class Operator;
 
 class Propagate_actions
 { 
-private:
-    std::string type;
 public:
     Propagate_actions(); 
     Propagate_actions(std::string const& type);

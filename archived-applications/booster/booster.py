@@ -496,29 +496,30 @@ try:
 
 
 #    #stepper.get_lattice_simulator().print_lattice_functions()
-#    
-    #chef_frac_tunex=stepper.get_lattice_simulator().get_horizontal_tune()
-    #chef_frac_tuney=stepper.get_lattice_simulator().get_vertical_tune()
-    #chef_eigen_tunex=stepper.get_lattice_simulator().get_horizontal_tune(True)
-    #chef_eigen_tuney=stepper.get_lattice_simulator().get_vertical_tune(True)
-    #horizontal_chromaticity=stepper.get_lattice_simulator().get_horizontal_chromaticity()
-    #vertical_chromaticity=stepper.get_lattice_simulator().get_vertical_chromaticity()
-    #momentum_compaction=stepper.get_lattice_simulator().get_momentum_compaction()
-    #slip_factor=stepper.get_lattice_simulator().get_slip_factor()
-    #if MPI.COMM_WORLD.Get_rank() ==0:
-       #print "Lattice functions assuming uncoupled map:"
-       #print "alpha x: ", ax
-       #print "alpha y: ", ay
-       #print "beta x: ", bx
-       #print "beta y: ", by
-       
-       #print "chef FracTune x: ", chef_frac_tunex, ", EigenTune x: ", chef_eigen_tunex, ", map tune x: ", tune_x, "(",1-tune_x,")"
-       #print "chef FracTune y: ", chef_frac_tuney, ", EigenTune y: ", chef_eigen_tuney, ", map tune y: ", tune_y, "(",1-tune_y,")"
-       #print "                           map tune z: ", tune_z, "(",1-tune_z,")"  
-       #print " horizontal chromaticity: ", horizontal_chromaticity
-       #print " vertical   chromaticity: ", vertical_chromaticity
-       #print " momentum compaction: ", momentum_compaction
-       #print " slip factor: ", slip_factor
+#   
+    if opts.tunes_and_chroms:
+        chef_frac_tunex=stepper.get_lattice_simulator().get_horizontal_tune()
+        chef_frac_tuney=stepper.get_lattice_simulator().get_vertical_tune()
+        chef_eigen_tunex=stepper.get_lattice_simulator().get_horizontal_tune(True)
+        chef_eigen_tuney=stepper.get_lattice_simulator().get_vertical_tune(True)
+        horizontal_chromaticity=stepper.get_lattice_simulator().get_horizontal_chromaticity()
+        vertical_chromaticity=stepper.get_lattice_simulator().get_vertical_chromaticity()
+        momentum_compaction=stepper.get_lattice_simulator().get_momentum_compaction()
+        slip_factor=stepper.get_lattice_simulator().get_slip_factor()
+        if MPI.COMM_WORLD.Get_rank() ==0:
+          print "Lattice functions assuming uncoupled map:"
+          print "alpha x: ", ax
+          print "alpha y: ", ay
+          print "beta x: ", bx
+          print "beta y: ", by
+          
+          print "chef FracTune x: ", chef_frac_tunex, ", EigenTune x: ", chef_eigen_tunex, ", map tune x: ", tune_x, "(",1-tune_x,")"
+          print "chef FracTune y: ", chef_frac_tuney, ", EigenTune y: ", chef_eigen_tuney, ", map tune y: ", tune_y, "(",1-tune_y,")"
+          print "                           map tune z: ", tune_z, "(",1-tune_z,")"  
+          print " horizontal chromaticity: ", horizontal_chromaticity
+          print " vertical   chromaticity: ", vertical_chromaticity
+          print " momentum compaction: ", momentum_compaction
+          print " slip factor: ", slip_factor
 
 
    
@@ -553,10 +554,10 @@ try:
             particles[:,2] = particles[:,2]+opts.y_offset*np.cos(2.*np.pi*i*opts.wave_in_train[1]/float(num_bunches))
             particles[:,4] = particles[:,4]+opts.z_offset*np.cos(2.*np.pi*i*opts.wave_in_train[2]/float(num_bunches))
         else:
-            if i==0: # mixture of all possible modes
-              particles[:,0] = particles[:,0]+opts.x_offset
-              particles[:,2] = particles[:,2]+opts.y_offset
-              particles[:,4] = particles[:,4]+opts.z_offset
+            particles[:,0] = particles[:,0]+opts.x_offset
+            particles[:,2] = particles[:,2]+opts.y_offset
+            particles[:,4] = particles[:,4]+opts.z_offset
+            # if i==0: # mixture of all possible modes
             #if i==41:
               #particles[:,0] = particles[:,0]+opts.x_offset
               #particles[:,2] = particles[:,2]+opts.y_offset
@@ -615,28 +616,61 @@ try:
   
     
     if (opts.hkick or opts.vkick):
-      kick_actions=synergia.simulation.Lattice_elements_actions(stepper)
+      kick_actions=synergia.simulation.Lattice_elements_actions()
       if opts.hkick:
+          kikced_bunch_cutoff=4
+          kicking_turn=5
+
+          # double kick_on=0.0002248401542;
+           #double kick_on=0.00005;
+
+
           khpinger_on= synergia.simulation.Kick_element("kicker","khpinger" )
-          khpinger_on.element.set_double_attribute("hkick", 0.003)
-          bunches_hkicked_on=[0,1]
-          khpinger_on.map_turn_bunches[0]=bunches_hkicked_on
-          khpinger_on.map_turn_bunches[4]=bunches_hkicked_on
+          khpinger_on.element.set_double_attribute("hkick", 0.00005)
+
+          bunches_hkicked_on=[]
+          bunches_hkicked_off=[]
+          all_bunches_hkicked_off=[]
+          for i in range(0, num_bunches):
+              all_bunches_hkicked_off.append(i)
+              if i<kikced_bunch_cutoff:
+                bunches_hkicked_on.append(i) 
+              else:
+                bunches_hkicked_off.append(i)
+
+          #print "bunches_hkicked_on=",bunches_hkicked_on
+          #print "bunches_hkicked_off=",bunches_hkicked_off
+          #print "all_bunches_hkicked_off=",all_bunches_hkicked_off
         
+
+        
+          khpinger_on.map_turn_bunches[0]=bunches_hkicked_on
+          khpinger_on.map_turn_bunches[kicking_turn]=bunches_hkicked_on
+          khpinger_on.map_turn_bunches[2*kicking_turn]=bunches_hkicked_on
+          khpinger_on.map_turn_bunches[3*kicking_turn]=bunches_hkicked_on
+          khpinger_on.map_turn_bunches[4*kicking_turn]=bunches_hkicked_on
           
 
 
           khpinger_off= synergia.simulation.Kick_element("kicker", "khpinger")
           khpinger_off.element.set_double_attribute("hkick", 0.)
-          bunches_hkicked_off_0=[2]
-          bunches_hkicked_off=[0,1,2]
-          khpinger_off.map_turn_bunches[0]=bunches_hkicked_off_0
-          khpinger_off.map_turn_bunches[1]=bunches_hkicked_off
-          khpinger_off.map_turn_bunches[4]=bunches_hkicked_off_0
-          khpinger_off.map_turn_bunches[5]=bunches_hkicked_off
+          khpinger_off.map_turn_bunches[0]=bunches_hkicked_off
+          khpinger_off.map_turn_bunches[kicking_turn]=bunches_hkicked_off
+          khpinger_off.map_turn_bunches[2*kicking_turn]=bunches_hkicked_off
+          khpinger_off.map_turn_bunches[3*kicking_turn]=bunches_hkicked_off
+          khpinger_off.map_turn_bunches[4*kicking_turn]=bunches_hkicked_off
+
+         
+          khpinger_off.map_turn_bunches[1]=all_bunches_hkicked_off
+          khpinger_off.map_turn_bunches[kicking_turn+1]=all_bunches_hkicked_off
+          khpinger_off.map_turn_bunches[2*kicking_turn+1]=all_bunches_hkicked_off
+          khpinger_off.map_turn_bunches[3*kicking_turn+1]=all_bunches_hkicked_off
+          khpinger_off.map_turn_bunches[4*kicking_turn+1]=all_bunches_hkicked_off
+        
+          
           kick_actions.add_element_to_kick(khpinger_on)
           kick_actions.add_element_to_kick(khpinger_off)
-      if opts.hkick:
+      if opts.vkick:
           kvpinger_on= synergia.simulation.Kick_element("kicker", "kvpinger")
           kvpinger_on.element.set_double_attribute("vkick", 0.0002)
           bunches_vkicked_on=[0,1]
@@ -662,7 +696,7 @@ try:
       kick_actions=synergia.simulation.Propagate_actions()
 
     
-    
+  
     propagator = synergia.simulation.Propagator(stepper)
     propagator.set_checkpoint_period(opts.checkpointperiod)
     propagator.set_concurrent_io(opts.concurrentio)

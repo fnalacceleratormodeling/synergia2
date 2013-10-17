@@ -3,10 +3,7 @@
 Propagate_actions::Propagate_actions()
 {
 }
-Propagate_actions::Propagate_actions(std::string const& type):
-type(type)
-{
-}  
+
 void
 Propagate_actions::first_action(Stepper & stepper, Bunch & bunch)
 {
@@ -47,11 +44,7 @@ Propagate_actions::operator_begin_action(Stepper & stepper, Step & step, Operato
 {
 }  
 
-std::string const&
-Propagate_actions::get_type() const
-{
-  return type;
-}  
+
 
 
 

@@ -14,13 +14,13 @@ const double tolerance = 1.0e-12;
 BOOST_FIXTURE_TEST_CASE(construct_lattice_elements_actions, Lattice_elements_action_fixture)
 {
 
-    
+    kick_actions.determine_map_step_to_elements(*p.propagator.get_stepper_sptr());
     BOOST_CHECK_EQUAL(kick_actions.get_map_step_to_elements()["1first_half"].front().element.get_name(),"f");
     BOOST_CHECK_EQUAL(kick_actions.get_map_step_to_elements()["4second_half"].front().element.get_name(),"d");
     BOOST_CHECK_EQUAL(kick_actions.get_kick_turns().size(),3);
     BOOST_CHECK_EQUAL(kick_actions.get_kick_turns().front(),1);
     BOOST_CHECK_EQUAL(kick_actions.get_kick_turns().back(),3);
-    BOOST_CHECK_EQUAL(kick_actions.get_type(),"lattice_elements_actions");
+    
     
     //for (std::list<int>::const_iterator it=kick_actions.get_kick_turns().begin();
     //it!=kick_actions.get_kick_turns().end();++it){

@@ -30,19 +30,21 @@ typedef   std::list<Kick_element> Kick_elements;
 class Lattice_elements_actions : public Propagate_actions
 {
   private:
-   bool has_inside_operator_actions;
-   boost::shared_ptr<Stepper > kstepper_sptr;
+   bool has_map_step_to_elements;
    Kick_elements elements_to_kick;
    std::map<std::string, Kick_elements > map_step_to_elements;
    std::list<int> kick_turns;
-   void determine_map_step_to_elements();
+  // void 
+  // determine_map_step_to_elements(Stepper & stepper);
  public: 
-  Lattice_elements_actions(); 
-  Lattice_elements_actions(boost::shared_ptr<Stepper > stepper_sptr);
+    Lattice_elements_actions(); 
+ // Lattice_elements_actions(boost::shared_ptr<Stepper > stepper_sptr);
 
  // bool const& 
 //  get_has_inside_operator_actions() const;
   
+  void 
+   determine_map_step_to_elements(Stepper & stepper);
   void 
   add_element_to_kick(Kick_element  element);
   
