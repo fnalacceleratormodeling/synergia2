@@ -1,0 +1,8 @@
+#synergia_workflow_submitter:qsub -A @@account@@ -q @@queue@@ -t @@walltime@@ -n @@numnode@@ --mode script -O synergia -M egstern@fnal.gov
+
+# root of compute node linux tools
+BGLINUX=/bgsys/drivers/ppcfloor/gnu-linux
+BGPYTHON=/bgsys/tools/python2.7.5-gnu-20130730
+
+# -mode c[1|2|4|8|16|32|64]: n tasks/node
+runjob -p @@procspernode@@ --np @@numproc@@ --block $COBALT_PARTNAME --verbose=INFO --envs OMP_NUM_THREADS=8 --envs PATH=@@synergia2dir@@/../bin:$PATH --envs LD_LIBRARY_PATH=@@synergia2dir@@:@@synergia2dir@@/../lib64:$BGPYTHON/lib64:$BGPYTHON/lib:$BGLINUX/powerpc64-bgq-linux/lib:$LD_LIBRARY_PATH --envs PYTHONPATH=@@synergia2dir@@:@@synergia2dir@@/python2.7/site-packages:@@synergia2dir@@/../lib64/python2.7/site-packages:$PYTHONPATH --envs SYNERGIA2DIR=@@synergia2dir@@ : $BGPYTHON/bin/python @@script@@ @@args@@

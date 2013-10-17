@@ -1,0 +1,7 @@
+wait
+
+for blk in $BLOCKLIST
+do
+    bootblock --block $blk --free &
+done
+wait

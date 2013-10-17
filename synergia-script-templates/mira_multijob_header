@@ -1,0 +1,25 @@
+#synergia_workflow_submitter:qsub -A @@account@@ -q @@queue@@ -t @@walltime@@ -n @@numnode@@ --mode script --disable_preboot -O synergia
+
+# root of compute node linux tools
+BGLINUX=/bgsys/drivers/ppcfloor/gnu-linux
+BGPYTHON=/bgsys/tools/python2.7.5-gnu-20130730
+
+# get list of bootable block
+BLOCKLIST=`get-bootable-blocks --size @@subnumnode@@ $COBALT_PARTNAME`
+echo "My blocks are: ->${BLOCKLIST}<-"
+
+# Create sh array of bootable blocks
+i=0
+for blk in $BLOCKLIST
+do
+    BLOCKARRAY[$i]=$blk
+    echo "$i: ${BLOCKARRAY[$i]}"
+    i=$(($i+1))
+done
+
+# boot them up
+for blk in $BLOCKLIST
+do
+    boot-block --block $blk &
+done
+wait
