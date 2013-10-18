@@ -826,6 +826,17 @@ Impedance::apply(Bunch_train & bunch_train, double time_step, Step & step,
         }  
 } 
 
+void
+Impedance::apply(Bunch_train & bunch_train, double time_step, Step & step, int verbosity,
+            Train_diagnosticss const& per_operation_train_diagnosticss, 
+            Propagate_actions * propagate_actions_ptr, Stepper & stepper, int step_count,  int turn, 
+            Logger & logger)
+{
+   
+      apply(bunch_train,time_step,step,verbosity,per_operation_train_diagnosticss,logger);  
+}  
+
+
 Impedance::Impedance()
 {
 }  
