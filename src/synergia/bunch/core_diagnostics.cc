@@ -39,11 +39,11 @@ Core_diagnostics::calculate_mean(Bunch const& bunch)
         #pragma omp critical
         {
             sum[0] += lsum[0];
-            sum[1] += lsum[0];
-            sum[2] += lsum[0];
-            sum[3] += lsum[0];
-            sum[4] += lsum[0];
-            sum[5] += lsum[0];
+            sum[1] += lsum[1];
+            sum[2] += lsum[2];
+            sum[3] += lsum[3];
+            sum[4] += lsum[4];
+            sum[5] += lsum[5];
         } // end of omp critical
 
     } // end of omp parallel
