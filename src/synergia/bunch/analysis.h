@@ -23,13 +23,11 @@ class Analysis
 
 private:
     size_t maxNumberOfTurn; // The number of turn performed in the simulation. User intput
-    size_t seqCount;
     std::string tokenname; // Token, not the full file name  
     std::string filename; // the file name currently opened, volatile. 
      
     size_t numTurns;
     size_t numParticles1rstBunch;
-    size_t selectedParticleId;
     bool gotHorizontalTunes;
     bool gotVerticalTunes;
     size_t numXTunesFound;
