@@ -102,8 +102,8 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho,
                     local_force2->get_domain().get_cell_coordinates(i, j,
                             k, x, y, z);
                     double r = std::sqrt(x * x + y * y);
-                    double var;
-                    double force2_exact_ijk, force2_calc_ijk;
+                    double var = 0.0;
+                    double force2_exact_ijk, force2_calc_ijk = 0.0;
                     if (component == 0) {
                         var = x;
                         force2_calc_ijk
@@ -208,8 +208,8 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles,
                     local_force2->get_domain().get_cell_coordinates(i, j,
                             k, x, y, z);
                     double r = std::sqrt(x * x + y * y);
-                    double var;
-                    double force2_exact_ijk, force2_calc_ijk;
+                    double var = 0.0;
+                    double force2_exact_ijk, force2_calc_ijk = 0.0;
                     if (component == 0) {
                         var = x;
                         force2_calc_ijk
