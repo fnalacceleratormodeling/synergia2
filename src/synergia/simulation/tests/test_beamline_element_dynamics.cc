@@ -202,13 +202,10 @@ BOOST_AUTO_TEST_CASE(sbend_propagation)
      * substitute
      * (1+ct**2)*x**2 + 2*ct*dr*x + dr**2-radius1**2 = 0 and
      * solve quadratic equation
-<<<<<<< HEAD
-=======
      *
      * px/pref calculation L. Michelotti:
      * px/pref = (dp/pref) * sin(theta_0)
      *
->>>>>>> 16052ba6180f3b57c520c7b59c83f56519c24887
      */
     double a = 1.0 + cot_theta*cot_theta;
     double b = 2.0*cot_theta*delta_radius;
