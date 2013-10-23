@@ -243,8 +243,9 @@ struct Fobodobo_rbend_markers_fixture
     Lattice_sptr lattice_sptr;
 };
 
-struct Chef_lattice_tester
+class Chef_lattice_tester
 {
+ public:
     Chef_lattice chef_lattice;
     Chef_lattice_tester(Lattice_sptr lattice_sptr) :
         chef_lattice(lattice_sptr)
