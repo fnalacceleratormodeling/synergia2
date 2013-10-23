@@ -202,6 +202,13 @@ BOOST_AUTO_TEST_CASE(sbend_propagation)
      * substitute
      * (1+ct**2)*x**2 + 2*ct*dr*x + dr**2-radius1**2 = 0 and
      * solve quadratic equation
+<<<<<<< HEAD
+=======
+     *
+     * px/pref calculation L. Michelotti:
+     * px/pref = (dp/pref) * sin(theta_0)
+     *
+>>>>>>> 16052ba6180f3b57c520c7b59c83f56519c24887
      */
     double a = 1.0 + cot_theta*cot_theta;
     double b = 2.0*cot_theta*delta_radius;
@@ -213,6 +220,9 @@ BOOST_AUTO_TEST_CASE(sbend_propagation)
                                 std::pow(sbend_exit_y-sbend_exit_y1,2));
     // offset distance is the x offset in accelerator coordinates
     BOOST_CHECK(floating_point_equal(d_offset, proton.get_x(), sbend_tolerance));
+    // check px/pref
+    double px_over_pref = dpp_offset * std::sin(sbend_angle);
+    BOOST_CHECK(floating_point_equal(proton.get_npx(), px_over_pref, sbend_tolerance));
     // check path length difference
     // path length for particle 0 is just sbend_length
     // calculate path length for particle 1 on its circular trajectory
@@ -227,4 +237,59 @@ BOOST_AUTO_TEST_CASE(sbend_propagation)
     double sbend_length1 = theta1 * radius1;
     double delta_cdt = sbend_length1/beta1 - sbend_length/beta;
     BOOST_CHECK(floating_point_equal(proton.get_cdt(), delta_cdt, sbend_tolerance));
+
+    // check propagation of x-offset particle on-momentum.
+    proton.setStateToZero();
+    double x_offset = .001;
+    proton.set_x(x_offset);
+    bml_ptr->propagate(proton);
+
+    // In this case, the trajectory follows a circle of original radius
+    // but centered on (0, -R+x_offset).  The exit point is the intersection of that
+    // circle with the line of close cot(theta) passing through (0, -R) which is the solution
+    // of the quadratic equation
+    // (1+ct**2)*x**2 - 2*ct*x_offset*x + x_offset**2-radius**2 = 0
+    a = 1.0 + cot_theta*cot_theta;
+    b = -2.0*cot_theta*x_offset;
+    c = x_offset*x_offset - radius*radius;
+    // quadratic solution (for 1/x, inverted)
+    double sbend_exit_x2 = 2*c/(-b - std::sqrt(b*b - 4*a*c));
+    double sbend_exit_y2 = -radius + cot_theta*sbend_exit_x2;
+    d_offset = std::sqrt(std::pow(sbend_exit_x-sbend_exit_x2,2) +
+                                std::pow(sbend_exit_y-sbend_exit_y2,2));
+    // offset distance is the x offset in accelerator coordinates
+#if 0
+    std::cout << "central  exit position: " << sbend_exit_x  << ", " << sbend_exit_y  << std::endl;
+    std::cout << "particle exit position: " << sbend_exit_x2 << ", " << sbend_exit_y2 << std::endl;
+    std::cout << "proton.get_x(): " << proton.get_x() << ", d_offset: " << d_offset << std::endl;
+#endif
+    BOOST_CHECK(floating_point_equal(proton.get_x(), d_offset, sbend_tolerance));
+
+    // get pathlength
+    // start position vector is (0, -radius)
+    // final position vector is (sbend_exit_x2, sbend_exit_y2-(-radius+x_offset)
+    double v0dotv2 = sbend_exit_y2+radius-x_offset; // times radius
+    double v2norm = std::sqrt(pow(sbend_exit_x2, 2) +
+    		                  pow(sbend_exit_y2-radius+x_offset, 2));
+    double theta2 = std::acos(v0dotv2/radius);
+    double sbend_length2 = theta2 * radius;
+    delta_cdt = sbend_length2/beta - sbend_length/beta;
+#if 0
+    std::cout << "proton.get_cdt(): " << proton.get_cdt() << ", delta_cdt: " << delta_cdt << std::endl;
+#endif
+    BOOST_CHECK(floating_point_equal(proton.get_cdt(), delta_cdt, sbend_tolerance));
+
+    // check x'.  Transverse momentum is the sin of the angle between the
+    // vector normal to the sbend exit face and the particle trajectory vector.
+    // calculate with the cross product.
+    double exit_normal_x = (sbend_exit_y2-(-radius+x_offset))/radius;
+    double exit_normal_y = -sbend_exit_x2/radius;
+    double face_normal_x = std::cos(sbend_angle);
+    double face_normal_y = -std::sin(sbend_angle);
+    // cross product
+    double exit_px = face_normal_x*exit_normal_y - face_normal_y*exit_normal_x;
+#if 0
+    std::cout << "exit_px: " << exit_px << ", proton.get_npx(): " << proton.get_npx() << std::endl;
+#endif
+    BOOST_CHECK(floating_point_equal(proton.get_npx(), exit_px, sbend_tolerance));
 }

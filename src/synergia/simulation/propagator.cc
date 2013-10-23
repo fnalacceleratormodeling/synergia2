@@ -484,12 +484,15 @@ Propagator::get_resume_state(std::string const& checkpoint_directory)
 }
 
 void
-Propagator::resume(std::string const& checkpoint_directory, bool new_max_turns,
+Propagator::resume(std::string const& checkpoint_directory, bool new_num_turns, int num_turns, bool new_max_turns,
         int max_turns, bool new_verbosity, int verbosity)
 {
     State state(get_resume_state(checkpoint_directory));
     if (new_max_turns) {
         state.max_turns = max_turns;
+    }
+    if (new_num_turns) {
+    	state.num_turns = num_turns;
     }
     if (new_verbosity) {
         state.verbosity = verbosity;

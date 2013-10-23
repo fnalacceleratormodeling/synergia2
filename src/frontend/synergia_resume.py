@@ -13,6 +13,8 @@ class Options:
         self.checkpoint_period = self.unspecified_int
         self.max_turns = self.unspecified_int
         self.verbosity = self.unspecified_int
+        self.num_turns = self.unspecified_int
+        self.concurrent_io = self.unspecified_int
 
 def do_error(message):
     sys.stderr.write(message + '\n')
@@ -24,7 +26,9 @@ def do_help():
     print "    --help: this message";
     print "    --new-dir=<dir>: directory name to use for subsequent checkpointing";
     print "    --period=<period>: period for subsequent checkpointing";
+    print "    --turns=<num>: total number of turns to run";
     print "    --max=<num>: maximum number of turns for this run";
+    print "    --concurrent-io=<num>: number of processors which simultaneously write checkpoints";
     print "    --verbosity=<num>: verbosity for this run";
     sys.exit(0)
 
@@ -38,8 +42,12 @@ def handle_args(args):
                 options.new_checkpoint_directory = arg.split('=')[1]
             elif arg.find('--period') == 0:
                 options.checkpoint_period = int(arg.split('=')[1])
+            elif arg.find('--turns') == 0:
+                options.num_turns = int(arg.split('=')[1])	
             elif arg.find('--max') == 0:
                 options.max_turns = int(arg.split('=')[1])
+            elif arg.find('--concurrent-io') == 0:
+                options.concurrent_io = int(arg.split('=')[1])
             elif arg.find('--verbosity') == 0:
                 options.verbosity = int(arg.split('=')[1])
             else:
@@ -69,10 +77,13 @@ def run(options):
         resume.set_checkpoint_period(options.checkpoint_period)
     if options.new_checkpoint_directory != options.unspecified_str:
         resume.set_new_checkpoint_dir(options.new_checkpoint_directory)
+    new_num_turns = (options.num_turns != options.unspecified_int)
     new_max_turns = (options.max_turns != options.unspecified_int)
     new_verbosity = (options.verbosity != options.unspecified_int)
-    resume.propagate(new_max_turns, options.max_turns, new_verbosity,
-                     options.verbosity)
+    if options.concurrent_io != options.unspecified_int:
+        resume.set_concurrent_io(options.concurrent_io)
+    resume.propagate(new_num_turns, options.num_turns,new_max_turns,
+        options.max_turns, new_verbosity, options.verbosity)
 
 if __name__ == '__main__':
     options = handle_args(sys.argv[1:])

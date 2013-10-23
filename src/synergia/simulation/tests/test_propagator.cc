@@ -165,9 +165,71 @@ BOOST_FIXTURE_TEST_CASE(propagate_max_turns, Propagator_fixture)
 
     const char second_checkpoint[] = "second_checkpoint";
     propagator.set_checkpoint_dir(second_checkpoint);
-    propagator.resume(Propagator::default_checkpoint_dir, false, 0, false, 0);
+    propagator.resume(Propagator::default_checkpoint_dir, false, 0, false, 0, false, 0);
 
-    propagator.resume(second_checkpoint, true, 2, false, 0);
+    propagator.resume(second_checkpoint, false, 0, true, 2, false, 0);
+}
+
+BOOST_FIXTURE_TEST_CASE(propagate_max_turns2, Propagator_fixture)
+{
+    Bunch_sptr bunch_sptr(new Bunch(l.b.bunch));
+    populate_6d(distribution, *bunch_sptr, means, covariances);
+    Bunch_simulator bunch_simulator(bunch_sptr);
+
+    Diagnostics_sptr first_step_full2_diag_sptr(
+            new Diagnostics_full2("first_full2_per_step.h5"));
+    Diagnostics_sptr second_step_full2_diag_sptr(
+            new Diagnostics_full2("second_full2_per_step.h5"));
+    bunch_simulator.add_per_step(first_step_full2_diag_sptr);
+    bunch_simulator.add_per_step(second_step_full2_diag_sptr);
+
+    Diagnostics_sptr first_turn_particles_diag_sptr(
+            new Diagnostics_particles("first_particles_per_turn.h5"));
+    Diagnostics_sptr second_turn_particles_diag_sptr(
+            new Diagnostics_particles("second_particles_per_turn.h5"));
+    bunch_simulator.add_per_turn(first_turn_particles_diag_sptr);
+    bunch_simulator.add_per_turn(second_turn_particles_diag_sptr);
+
+    int num_turns = 4;
+    int max_turns = 1;
+    propagator.propagate(bunch_simulator, num_turns, max_turns);
+
+    const char second_checkpoint[] = "second_checkpoint";
+    propagator.set_checkpoint_dir(second_checkpoint);
+    propagator.resume(Propagator::default_checkpoint_dir, false, 0, false, 0, false, 0);
+
+    propagator.resume(second_checkpoint, false, 0, true, 2, false, 0);
+}
+
+BOOST_FIXTURE_TEST_CASE(propagate_new_num_turns, Propagator_fixture)
+{
+    Bunch_sptr bunch_sptr(new Bunch(l.b.bunch));
+    populate_6d(distribution, *bunch_sptr, means, covariances);
+    Bunch_simulator bunch_simulator(bunch_sptr);
+
+    Diagnostics_sptr first_step_full2_diag_sptr(
+            new Diagnostics_full2("first_full2_per_step.h5"));
+    Diagnostics_sptr second_step_full2_diag_sptr(
+            new Diagnostics_full2("second_full2_per_step.h5"));
+    bunch_simulator.add_per_step(first_step_full2_diag_sptr);
+    bunch_simulator.add_per_step(second_step_full2_diag_sptr);
+
+    Diagnostics_sptr first_turn_particles_diag_sptr(
+            new Diagnostics_particles("first_particles_per_turn.h5"));
+    Diagnostics_sptr second_turn_particles_diag_sptr(
+            new Diagnostics_particles("second_particles_per_turn.h5"));
+    bunch_simulator.add_per_turn(first_turn_particles_diag_sptr);
+    bunch_simulator.add_per_turn(second_turn_particles_diag_sptr);
+
+    int num_turns = 4;
+    int max_turns = 100;
+    int new_num_turns = 8;
+
+    const char num_turns_checkpoint[] = "num_turns_checkpoint";
+    propagator.set_checkpoint_dir(num_turns_checkpoint);
+    propagator.set_final_checkpoint(true);
+    propagator.propagate(bunch_simulator, num_turns, max_turns);
+    propagator.resume(num_turns_checkpoint, true, new_num_turns, false, 0, false, 0);
 }
 
 BOOST_FIXTURE_TEST_CASE(serialize_xml, Propagator_fixture)
