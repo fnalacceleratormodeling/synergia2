@@ -910,22 +910,23 @@ Space_charge_3d_open_hockney::get_scalar_field2(
     int lower = distributed_fft3d_sptr->get_lower();
     int upper = distributed_fft3d_sptr->get_upper();
 
-    static fftw_complex * rho2hat = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*(upper-lower)*cshape[1]*cshape[2]);
-    static fftw_complex * G2hat   = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*(upper-lower)*cshape[1]*cshape[2]);
-    static fftw_complex * phi2hat = (fftw_complex*)fftw_malloc(sizeof(fftw_complex)*(upper-lower)*cshape[1]*cshape[2]);
+    fftw_complex * rho2hat = (fftw_complex*)fftw_malloc(
+        sizeof(fftw_complex)*(upper-lower)*cshape[1]*cshape[2]);
+    fftw_complex * G2hat   = (fftw_complex*)fftw_malloc(
+        sizeof(fftw_complex)*(upper-lower)*cshape[1]*cshape[2]);
+    fftw_complex * phi2hat = (fftw_complex*)fftw_malloc(
+        sizeof(fftw_complex)*(upper-lower)*cshape[1]*cshape[2]);
 
-    distributed_fft3d_sptr->transform(charge_density2.get_grid_points(),
-            rho2hat);
+    distributed_fft3d_sptr->transform(charge_density2.get_grid_points(), rho2hat);
     distributed_fft3d_sptr->transform(green_fn2.get_grid_points(), G2hat);
 
     #pragma omp parallel for
     for (int i = lower; i < upper; ++i) {
         for (int j = 0; j < cshape[1]; ++j) {
             for (int k = 0; k < cshape[2]; ++k) {
-                //phi2hat[i][j][k] = rho2hat[i][j][k] * G2hat[i][j][k];
                 int idx = (i-lower)*cshape[1]*cshape[2] + j*cshape[2] + k;
                 phi2hat[idx][0] = rho2hat[idx][0] * G2hat[idx][0] - rho2hat[idx][1] * G2hat[idx][1];
-                phi2hat[idx][1] = rho2hat[idx][0] * G2hat[idx][1] - rho2hat[idx][1] * G2hat[idx][0];
+                phi2hat[idx][1] = rho2hat[idx][0] * G2hat[idx][1] + rho2hat[idx][1] * G2hat[idx][0];
             }
         }
     }
@@ -947,6 +948,10 @@ Space_charge_3d_open_hockney::get_scalar_field2(
     normalization *= green_fn2.get_normalization();
     normalization *= distributed_fft3d_sptr->get_roundtrip_normalization();
     phi2->set_normalization(normalization);
+
+    fftw_free(rho2hat);
+    fftw_free(G2hat);
+    fftw_free(phi2hat);
 
     return phi2;
 }
