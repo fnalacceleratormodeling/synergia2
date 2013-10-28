@@ -47,7 +47,9 @@ Fixed_t_z_zeroth::from_z_lab_to_t_bunch(Bunch &bunch)
     int local_num = bunch.get_local_num();
     double gb = - gamma*beta;
 
-    #pragma omp parallel for shared(local_num, gb, particles, gamma, beta, m, p_ref)
+    bool exception_flag = false;
+
+    #pragma omp parallel for shared(local_num, gb, particles, gamma, beta, m, p_ref, exception_flag)
     for (int part = 0; part < local_num; ++part) {
         // z in beam rest frame
         particles[part][Bunch::z] = gb * particles[part][Bunch::cdt];
@@ -61,8 +63,7 @@ Fixed_t_z_zeroth::from_z_lab_to_t_bunch(Bunch &bunch)
         double py = particles[part][Bunch::yp] * p_ref;
         double pz2 = p * p - px * px - py * py;
         if (pz2 < 0.0) {
-            throw std::runtime_error(
-                    "Fixed_t_z_zeroth::fixed_z_to_fixed_t: particle has negative pz^2");
+            exception_flag = true;
         }
         double pz = std::sqrt(pz2);
         // zp = pz/p_{ref}^{total}
@@ -71,6 +72,11 @@ Fixed_t_z_zeroth::from_z_lab_to_t_bunch(Bunch &bunch)
         // n.b. in the zeroth approximation, the transformation from
         //      t' = gamma cdt to t' = 0
         //      is a no-op.
+    }
+
+    if (exception_flag) {
+        throw std::runtime_error(
+                "Fixed_t_z_zeroth::fixed_z_to_fixed_t: particle has negative pz^2");
     }
 }
 
