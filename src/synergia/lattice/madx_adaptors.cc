@@ -332,8 +332,6 @@ Rbend_madx_adaptor::set_defaults(Lattice_element & lattice_element)
     lattice_element.set_length_attribute_name("arclength");
     lattice_element.set_needs_internal_derive(true);
     Element_adaptor::set_defaults(lattice_element);
-    std::cout << "Rbend_madx_adaptor: WARNING arc length not properly handled"
-            << std::endl;
 }
 
 void
