@@ -206,7 +206,7 @@ void mx_line_member::interpret(MadX const & mx, MadX_line & line, int op)
       { 
         // now it is a real element
         if( op!=1 )
-          throw runtime_error("Line op only applies on sublines, not on elements!");
+          throw runtime_error("Line op only applies to sublines, not to elements!");
 
         // push to the line
         line.insert_element( name );
@@ -229,7 +229,7 @@ void mx_line_member::interpret(MadX const & mx, MadX_line & line, int op)
           line.insert_element( subline.element_name( (op>0) ? (i) : (ne-1-i) ) );
       }
     }
-    // TODO: for now, we accept the sequence name as a simiple line member
+    // TODO: for now, we accept the sequence name as a simple line member
     // Needs more works!
     else if( type==ENTRY_SEQUENCE )
     {
