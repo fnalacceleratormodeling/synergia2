@@ -114,8 +114,9 @@ class Expression_parser:
         number = Word(nums)
         integer = Combine(Optional(plusorminus) + number)
         self.integer = integer
-        floatnumber = (Combine(integer + \
-                               Optional(point + Optional(number)) + \
+        floatnumber = (Combine(((integer + \
+                                 Optional(point + Optional(number))) |  \
+                               (point + number)) + \
                                Optional(e + integer)) | \
                        Optional(plusorminus) + Combine(point + number) + \
                         Optional(e + integer))

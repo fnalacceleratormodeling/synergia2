@@ -297,6 +297,7 @@ Rbend_madx_adaptor::Rbend_madx_adaptor()
 {
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("angle", 0.0);
+    get_default_element().set_double_attribute("tilt", 0.0);
     // jfa: add_angle not yet handled
     get_default_element().set_double_attribute("k1", 0.0);
     get_default_element().set_double_attribute("e1", 0.0);
@@ -332,8 +333,6 @@ Rbend_madx_adaptor::set_defaults(Lattice_element & lattice_element)
     lattice_element.set_length_attribute_name("arclength");
     lattice_element.set_needs_internal_derive(true);
     Element_adaptor::set_defaults(lattice_element);
-    std::cout << "Rbend_madx_adaptor: WARNING arc length not properly handled"
-            << std::endl;
 }
 
 void
