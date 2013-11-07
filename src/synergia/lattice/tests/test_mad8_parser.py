@@ -58,10 +58,11 @@ def test_variable_assignment_expression():
 
 def test_variable_assignment():
     mp = Mad8_parser()
-    mp.parse('x=0.1234E+02')
-    assert_equal(12.34,mp.variables['x'])
-    mp.parse('y=.1234E+02')
-    assert_equal(12.34,mp.variables['y'])
+    # 7/32 has an exact representation in floating point
+    mp.parse('x=0.21875E+02')
+    assert_equal(21.875,mp.variables['x'])
+    mp.parse('y=.21875E+02')
+    assert_equal(21.875,mp.variables['y'])
 
 def test_caps_variable_assignment():
     mp = Mad8_parser()
