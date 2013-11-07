@@ -1,3 +1,6 @@
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 add_library(synergia_foundation four_momentum.cc reference_particle.cc
     distribution.cc multi_diagnostics.cc
     diagnostics_write_helper.cc)

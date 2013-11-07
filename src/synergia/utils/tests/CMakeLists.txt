@@ -18,12 +18,17 @@ add_test_executable(test_parallel_utils test_parallel_utils.cc)
 target_link_libraries(test_parallel_utils synergia_parallel_utils
      ${Boost_SERIALIZATION_LIBRARY} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_parallel_utils ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_parallel_utils)
-add_test(test_parallel_utils_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_parallel_utils.py)
+add_test(test_parallel_utils_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()"
+    test_parallel_utils.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_parallel_utils.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_executable(test_logger test_logger.cc)
 target_link_libraries(test_logger synergia_parallel_utils  ${Boost_SERIALIZATION_LIBRARY} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_logger ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_logger)
 add_test(test_logger_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_logger.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_logger.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_executable(test_logger_mpi test_logger_mpi.cc)
 target_link_libraries(test_logger_mpi synergia_parallel_utils ${Boost_SERIALIZATION_LIBRARY} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})

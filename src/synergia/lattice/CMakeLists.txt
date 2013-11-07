@@ -1,3 +1,12 @@
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/mad8_parser.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/mad8_reader.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/simplify.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 add_library(synergia_lattice lattice_element.cc lattice_element_slice.cc
     lattice.cc chef_lattice.cc chef_lattice_section.cc chef_utils.cc
     element_adaptor.cc mad8_adaptors.cc madx_adaptors.cc

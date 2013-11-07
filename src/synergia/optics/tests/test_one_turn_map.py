@@ -12,7 +12,7 @@ from synergia.simulation import Dummy_collective_operator, Lattice_simulator, \
 def test_linear_one_turn_map():
     num_steps = 1
     map_order = 2
-    lattice = Mad8_reader().get_lattice("fodo", "../../lattice/tests/fodo.lat")
+    lattice = Mad8_reader().get_lattice("fodo", "lattices/fodo.lat")
     space_charge = Dummy_collective_operator("dummy")
     lattice_simulator = Lattice_simulator(lattice, map_order)
     stepper = Split_operator_stepper(lattice_simulator, space_charge, num_steps)

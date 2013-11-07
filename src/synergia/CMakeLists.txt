@@ -9,13 +9,16 @@ add_subdirectory(simulation)
 add_subdirectory(optics)
 add_subdirectory(collective)
 
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 configure_file("${SYNERGIA2_SOURCE_DIR}/src/synergia/synergia.cc.in"
     "${SYNERGIA2_BINARY_DIR}/src/synergia/synergia.cc" IMMEDIATE)
 
 configure_file("${SYNERGIA2_SOURCE_DIR}/src/synergia/version.py.in"
     "${SYNERGIA2_BINARY_DIR}/src/synergia/version.py" IMMEDIATE)
 
-add_library(synergia synergia.cc)
+add_library(synergia ${SYNERGIA2_BINARY_DIR}/src/synergia/synergia.cc)
 target_link_libraries(synergia synergia_parallel_utils synergia_hdf5_utils
     synergia_foundation synergia_bunch synergia_lattice synergia_simulation
     synergia_distributed_fft synergia_collective)
