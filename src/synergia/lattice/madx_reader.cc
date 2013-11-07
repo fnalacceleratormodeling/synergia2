@@ -15,6 +15,41 @@ using namespace synergia;
 namespace
 {
 
+  void insert_line( Lattice_sptr lattice_sptr,
+                    MadX const & mx,
+                    std::string const & line_name )
+  {
+    MadX_line line(mx.line(line_name));
+
+    for (int i = 0; i < line.element_count(); ++i) 
+    {
+      MadX_command cmd = line.element(i, true);
+      std::string name = line.element_name(i);
+      std::string type = cmd.name();
+
+      Lattice_element element(type, name);
+      std::vector<std::string> attr_names( cmd.attribute_names() );
+
+      for (std::vector<std::string>::const_iterator it = attr_names.begin();
+           it != attr_names.end(); ++it) 
+      {
+        MadX_value_type vt = cmd.attribute_type(*it);
+
+        switch( vt ) 
+        {
+          case NONE:
+          case STRING: element.set_string_attribute(*it, cmd.attribute_as_string(*it, "")); break;
+          case NUMBER: element.set_double_attribute(*it, cmd.attribute_as_number(*it, 0.0)); break;
+          case ARRAY:  element.set_vector_attribute(*it, cmd.attribute_as_number_seq(*it, 0.0)); break;
+          default:
+            throw std::runtime_error( "unable to process attribute " + *it + " of element " + name);
+        }
+      }
+
+      lattice_sptr->append(element);
+    }
+  }
+
   double insert_sequence( Lattice_sptr lattice_sptr, 
                           MadX const & mx, 
                           std::string const & line_name )
@@ -286,9 +321,8 @@ MadX_reader::get_lattice_sptr(std::string const& line_name)
         }
     }
     if (found_line) {
-        // to be completed
-        throw std::runtime_error(
-                "MadX_reader::get_lattice_sptr does not currently handle lines");
+
+        insert_line( lattice_sptr, *madx_sptr, line_name );
     }
     if (found_sequence) {
 
