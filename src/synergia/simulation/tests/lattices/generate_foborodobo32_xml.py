@@ -39,20 +39,11 @@ gamma = reference_particle.get_gamma()
 harmno = 128
 
 # the stable frequency is harmno * beta * c/ring_length
-freq = harmno * beta * synergia.foundation.pconstants.c/lattice_length
+freq = harmno * beta * synergia.foundation.pconstants.c/lattice_length * 1.0e-6
 rfwavelen = lattice_length/harmno
 
 print "rf frequency: ", freq
 
-for elem in lattice.get_elements():
-    if elem.get_type() == "rfcavity":
-        # if the voltage was not set in the lattice file, you
-        # would set it here.
-        # elem.set_double_attribute("volt", rf_voltage)
-        elem.set_double_attribute("freq", freq)
-        # this lattice is above transition.  lag is specified as a fraction
-        # of 2.0*pi
-        elem.set_double_attribute("lag", 0.5)
 
 synergia.lattice.xml_save_lattice(lattice, "foborodobo32_lattice.xml")
 

@@ -197,15 +197,11 @@
 					<item>fobrdobo</item>
 				</ancestors>
 				<double_attributes>
-					<count>5</count>
+					<count>4</count>
 					<item_version>0</item_version>
 					<item>
-						<first>freq</first>
-						<second>59696297.910118856</second>
-					</item>
-					<item>
 						<first>harmon</first>
-						<second>32</second>
+						<second>128</second>
 					</item>
 					<item>
 						<first>l</first>
@@ -230,7 +226,7 @@
 				</vector_attributes>
 				<length_attribute_name>l</length_attribute_name>
 				<bend_angle_attribute_name>angle</bend_angle_attribute_name>
-				<revision>2</revision>
+				<revision>0</revision>
 				<needs_internal_derive>0</needs_internal_derive>
 				<needs_external_derive>0</needs_external_derive>
 			</px>
