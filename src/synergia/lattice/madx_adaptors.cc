@@ -1278,6 +1278,13 @@ Rfcavity_madx_adaptor::Rfcavity_madx_adaptor()
 }
 
 void
+Rfcavity_madx_adaptor::set_defaults(Lattice_element & lattice_element)
+{
+    lattice_element.set_needs_external_derive(true);
+    Element_adaptor::set_defaults(lattice_element);
+}
+
+void
 Rfcavity_madx_adaptor::set_derived_attributes_external(Lattice_element &lattice_element,
 		double lattice_length, double beta)
 {
@@ -1304,7 +1311,7 @@ Rfcavity_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double q = 0;
     if (length == 0.0) {
         bmlnElmnt *bmln_elmnt;
-        bmln_elmnt = new thinrfcavity(lattice_element.get_name().c_str(), freq,
+        bmln_elmnt = new thinrfcavity(lattice_element.get_name().c_str(), freq*1.0e6,
                 lattice_element.get_double_attribute("volt") * 1.0e6,
                 lattice_element.get_double_attribute("lag")
                         * (2.0 * mconstants::pi), q,
@@ -1317,7 +1324,7 @@ Rfcavity_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
                 (lattice_element.get_name() + "_predrift").c_str(),
                 0.5 * length);
         kick = new thinrfcavity((lattice_element.get_name() + "_kick").c_str(),
-                freq, lattice_element.get_double_attribute("volt") * 1.0e6,
+                freq*1.0e6, lattice_element.get_double_attribute("volt") * 1.0e6,
                 lattice_element.get_double_attribute("lag")
                         * (2.0 * mconstants::pi), q,
                 lattice_element.get_double_attribute("shunt"));
