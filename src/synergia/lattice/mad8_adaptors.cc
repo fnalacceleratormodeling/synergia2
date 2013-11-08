@@ -1361,17 +1361,12 @@ Rfcavity_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double length = lattice_element.get_length();
     double freq = 0.0;
 
-    // if there is a nonzero harmon attribute, that overrides any frequency attribute
-    // since mad8 does not support freq.  8.13 manual states the FREQ attribute MUST NOT BE USED.
-    if (lattice_element.has_double_attribute("harmon")
-            && lattice_element.get_double_attribute("harmon") != 0.0) {
-    		; // the frequency will be set by from the external_derived_attributes
-    } else if (lattice_element.has_double_attribute("freq")) {
+    if (lattice_element.has_double_attribute("freq")) {
     	freq = lattice_element.get_double_attribute("freq");
     }
 
     double q = 0;
-	// mad8 does not support freq.  madx has freq in MHz.  We'll go
+	// Although mad8 does not support freq.  madx has freq in MHz.  We'll go
 	// with the madx convention, converting to Hz for the CHEF constructor.
     // The CHEF rfcavity constructor takes voltage argument in eV, but
     // converts in to GeV for internal use. mad units for volt are MV.
