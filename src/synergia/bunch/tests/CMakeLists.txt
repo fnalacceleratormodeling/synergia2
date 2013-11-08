@@ -1,5 +1,5 @@
 add_definitions(-DBOOST_TEST_DYN_LINK)
-include_directories(${SYNERGIA2_BINARY_DIR}/src/synergia/bunch/tests)
+include_directories(${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_executable(test_bunch test_bunch.cc)
 target_link_libraries(test_bunch synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
