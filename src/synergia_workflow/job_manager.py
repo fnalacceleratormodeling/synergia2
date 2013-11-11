@@ -290,17 +290,6 @@ class Job_manager:
                 retval += argout
         return retval
 
-    def add_files_dynamic(self, opts, names):
-        all_names = []
-        if type(files) == tuple or type(files) == list:
-            all_names = names
-        else:
-            all_names = [names]
-        files = []
-        for name in all_names:
-            files.append(opts.get(name))
-        if self.ext
-    
     def create_script(self, template_path, name, directory, subs):
         output_path = os.path.join(directory, name)
         output = open(output_path, 'w')
