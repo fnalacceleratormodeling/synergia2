@@ -1424,11 +1424,12 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
 }
 
 void
-calculate_tune_and_cdt(double momentum, double dpp, BmlPtr & beamline_sptr, 
+calculate_tune_and_cdt(const Reference_particle refpart, double dpp, BmlPtr & beamline_sptr,
          BmlPtr & beamline0_sptr, double & tune_h, double &  tune_v, 
            double & c_delta_t)
 {
-  Proton newprobe;
+  double momentum = refpart.get_momentum();
+  Particle newprobe(reference_particle_to_chef_particle(refpart));
   newprobe.SetReferenceMomentum(momentum * (1.0 + dpp));
   newprobe.setStateToZero();
   beamline_sptr->setEnergy(newprobe.ReferenceEnergy());
@@ -1452,8 +1453,9 @@ Lattice_simulator::get_chromaticities(double dpp)
             JetParticle::createStandardEnvironments(map_order);
         }
         double momentum(lattice_sptr->get_reference_particle().get_momentum());
-        Proton probe;
-        probe.SetReferenceMomentum(momentum);
+        Particle probe(reference_particle_to_chef_particle(
+                lattice_sptr->get_reference_particle()));
+
         probe.setStateToZero();
         BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr()->Clone());
         beamline_sptr->setEnergy(probe.ReferenceEnergy());
@@ -1471,14 +1473,14 @@ Lattice_simulator::get_chromaticities(double dpp)
         double tune_v_plusplus, tune_v_minusminus;
         double c_delta_t_plusplus, c_delta_t_minusminus;
 
-        calculate_tune_and_cdt(momentum, dpp, beamline_sptr, copy_beamline_sptr, 
+        calculate_tune_and_cdt(lattice_sptr->get_reference_particle(), dpp, beamline_sptr, copy_beamline_sptr,
                tune_h_plus,  tune_v_plus, c_delta_t_plus);
-        calculate_tune_and_cdt(momentum, -dpp, beamline_sptr, copy_beamline_sptr, 
+        calculate_tune_and_cdt(lattice_sptr->get_reference_particle(), -dpp, beamline_sptr, copy_beamline_sptr,
                tune_h_minus,  tune_v_minus, c_delta_t_minus);		       
 
-        calculate_tune_and_cdt(momentum, 2.0*dpp, beamline_sptr, copy_beamline_sptr, 
+        calculate_tune_and_cdt(lattice_sptr->get_reference_particle(), 2.0*dpp, beamline_sptr, copy_beamline_sptr,
                tune_h_plusplus,  tune_v_plusplus, c_delta_t_plusplus);
-        calculate_tune_and_cdt(momentum, -2.0*dpp, beamline_sptr, copy_beamline_sptr, 
+        calculate_tune_and_cdt(lattice_sptr->get_reference_particle(), -2.0*dpp, beamline_sptr, copy_beamline_sptr,
                tune_h_minusminus,  tune_v_minusminus, c_delta_t_minusminus);
 
         double a_h_chrom, b_h_chrom;
