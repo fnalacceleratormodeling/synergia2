@@ -1292,7 +1292,7 @@ Rfcavity_madx_adaptor::set_derived_attributes_external(Lattice_element &lattice_
             && lattice_element.get_double_attribute("harmon") != 0.0) {
     	double h = lattice_element.get_double_attribute("harmon");
 
-    	double freq = h * beta * pconstants::c/lattice_length;
+    	double freq = 1.0e-6 * h * beta * pconstants::c/lattice_length;
     	lattice_element.set_double_attribute("freq", freq);
     }
 }
