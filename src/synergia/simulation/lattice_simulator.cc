@@ -599,7 +599,7 @@ Lattice_simulator::set_bucket_length()
             it != this->lattice_sptr->get_elements().end(); ++it) {
 
         if ((*it)->has_double_attribute("freq")) {
-            freq = (*it)->get_double_attribute("freq");
+            freq = (*it)->get_double_attribute("freq")*1.0e6;
             if ((isw == 1) && (std::abs(freq - freq2) > eps)) {
                 throw std::runtime_error(
                         "set_bucket_length: rf elements with different frequencies found!!");
