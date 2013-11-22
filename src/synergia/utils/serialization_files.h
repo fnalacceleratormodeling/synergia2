@@ -7,6 +7,7 @@
 #include <typeinfo>
 #include <cerrno>
 #include <cstring>
+#include <unistd.h>
 
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
@@ -60,23 +61,48 @@ template<typename T, typename A>
     archive_save(T const& object, std::string const& filename,
             bool parallel = false)
     {
-        ensure_serialization_directory_exists(parallel);
-        std::ofstream output_stream(filename.c_str());
-        if (!output_stream.good()) {
-            std::string message("<archive>_save: unable to open ");
-            message += filename;
-            message += ": \"";
-            message += std::strerror(errno);
-            message += "\"";
-            throw std::runtime_error(message);
+        int try_no=0;
+        bool fail=true;
+        while ((try_no<5) && fail){
+            try {
+                ensure_serialization_directory_exists(parallel);
+                std::ofstream output_stream;
+                output_stream.open(filename.c_str());
+                int attempts=0;
+                while(!output_stream.good()){
+                    std::cout<<" archive_save attempt to open the file failed "<<attempts+1<<" times!"<<std::endl;
+                    if (output_stream.is_open()) output_stream.close();
+                    sleep(3);
+                    ++attempts;
+                    output_stream.open(filename.c_str(),std::ofstream::out);
+                    if (attempts>5) break;
+                }
+                if (!output_stream.good()) {
+                    std::string message("<archive>_save: unable to open ");
+                    message += filename;
+                    message += ": \"";
+                    message += std::strerror(errno);
+                    message += "\"";
+                    throw std::runtime_error(message);
+                }
+                A output_archive(output_stream);
+                int num_objects = 1;
+                output_archive << BOOST_SERIALIZATION_NVP(num_objects);
+                std::string object_typename(typeid(object).name());
+                output_archive << BOOST_SERIALIZATION_NVP(object_typename);
+                output_archive << BOOST_SERIALIZATION_NVP(object);
+                output_stream.close();
+                fail=false;
+            }
+            catch(boost::archive::archive_exception& be){
+                // try again
+                ++try_no;
+                fail=true;
+                std::cout<<" boost archive exception  has been thrown: "<<be.what()<<
+                    "; trying again archive_save; trying number= "<< try_no<<std::endl<<std::flush;
+                sleep(3);
+            }
         }
-        A output_archive(output_stream);
-        int num_objects = 1;
-        output_archive << BOOST_SERIALIZATION_NVP(num_objects);
-        std::string object_typename(typeid(object).name());
-        output_archive << BOOST_SERIALIZATION_NVP(object_typename);
-        output_archive << BOOST_SERIALIZATION_NVP(object);
-        output_stream.close();
     }
 
 template<typename T, typename A>
