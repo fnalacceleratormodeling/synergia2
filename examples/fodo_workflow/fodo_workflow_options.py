@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import synergia_workflow
+from synergia_workflow import Options, Job_manager
 
-opts = synergia_workflow.Options("fodo_workflow")
+opts = Options("fodo_workflow")
 opts.add("map_order", 1, "map order")
 opts.add("steps_per_element", 2, "steps per element")
 opts.add("x_emit", 1.0e-6, "x RMS emittance [m-rad]")
@@ -20,5 +20,5 @@ opts.add("verbosity", 2, "simulation verbosity level")
 
 # Create the job manager for the simulation fodo_workflow.py, including the 
 # above options. When creating job directories, include the file fodo.lat.
-job_mgr = synergia_workflow.Job_manager("fodo_workflow.py", opts, ["fodo.lat"])
+job_mgr = Job_manager("fodo_workflow.py", opts, ["fodo.lat"])
 
