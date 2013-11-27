@@ -3,7 +3,7 @@ import synergia
 
 from synergia.foundation import Four_momentum, Reference_particle, pconstants
 from synergia.lattice import Mad8_reader, Lattice
-from synergia.bunch import Bunch, Diagnostics_basic 
+from synergia.bunch import Bunch, Diagnostics_basic, Diagnostics_track
 from synergia.simulation import Independent_stepper_elements, Bunch_simulator, \
     Propagator
 
@@ -33,6 +33,11 @@ bunch_simulator = Bunch_simulator(bunch)
 #     Apply basic diagnostics every step
 diagnostics = Diagnostics_basic("diagnostics.h5")
 bunch_simulator.add_per_step(diagnostics)
+
+# Optionally, save track of a single particle
+if opts.track_particle:
+    track_diagnostics = Diagnostics_track("track.h5", opts.track_particle)
+    bunch_simulator.add_per_step(track_diagnostics)
 
 # Perform the simulation
 propagator = Propagator(stepper)

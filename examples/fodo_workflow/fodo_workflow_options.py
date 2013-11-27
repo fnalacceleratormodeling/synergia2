@@ -12,7 +12,8 @@ opts.add("dpop", 1.0e-4, "(delta p)/p")
 opts.add("real_particles", 1.2e12, "number of physical particles in bunch")
 opts.add("macro_particles", 50000, "number of simulation particles")
 opts.add("seed", 1415926, 
-         "random number seed; 0 for automatic calculation (GSL)")
+         "random number seed; 0 for automatic calculation")
+opts.add("track_particle", None, "id of particle to save in track file", int)
 opts.add("turns", 1, "number of times to track through fodo lattice")
 opts.add("max_turns", 0, 
          "maximum number of turns to run before checkpointing and stopping; 0 to not stop")
