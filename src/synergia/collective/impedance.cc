@@ -5,7 +5,6 @@
 #include "synergia/utils/simple_timer.h"
 #include "synergia/utils/parallel_utils.h"
 
-
 template<class Archive>
     void
     Bunch_properties::serialize(Archive & ar, const unsigned int version)
@@ -52,20 +51,26 @@ Impedance::Impedance(std::string const & wake_file, std::string const & wake_typ
 Collective_operator("impedance"), z_grid(zgrid), nstored_turns(nstored_turns), 
              orbit_length(orbit_length), bunch_spacing(bunchsp), 
               full_machine(full_machine),wn(wn)
-{ 
-  
-  try{
-    if (std::abs(orbit_length/bunchsp-int(orbit_length/bunchsp))>1e-8)
-           throw std::runtime_error("orbit length should divide exacty to bunch_spacing ");
-   }
-  catch(std::exception const& e){    
-        std::cout<<e.what()<<" but the division is "<<orbit_length/bunchsp<< std::endl;   
-        MPI_Abort(MPI_COMM_WORLD, 777);
-    }  
-   
-   this->wake_field_sptr=Wake_field_sptr(new Wake_field(wake_file, wake_type)); 
-   this->num_buckets=int(orbit_length/bunchsp);   
-   construct();        
+{
+
+	try {
+		if (std::abs(orbit_length/bunchsp - int(orbit_length/bunchsp + 0.5))
+				> 1e-8)
+			throw std::runtime_error(
+					"orbit length should divide exacty to bunch_spacing ");
+	} catch (std::exception const& e) {
+		std::cout << e.what() << " but the division is "
+				<< std::setprecision(17) << orbit_length/bunchsp
+				<< " with remainder " << std::setprecision(17)
+				<< std::abs(orbit_length/bunchsp - int(orbit_length/bunchsp + 0.5))
+				<< std::endl;
+		MPI_Abort(MPI_COMM_WORLD, 137);
+	}
+
+	this->wake_field_sptr = Wake_field_sptr(
+			new Wake_field(wake_file, wake_type));
+	this->num_buckets = int(orbit_length/bunchsp + 0.5);
+	construct();
 }  
 
 Impedance::Impedance(std::string const & wake_file, std::string const & wake_type, int const  & zgrid,
