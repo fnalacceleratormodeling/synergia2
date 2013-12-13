@@ -101,7 +101,7 @@ def handle_args(args):
 def get_particle_coords(f, options):
     particle_coords = []
     if hasattr(f.root, 'coords'):
-        particle_coords = particle_coords.append(getattr(f.root, "coords").read())
+        particle_coords.append(getattr(f.root, "coords").read())
     else:
         all_coords = getattr(f.root, 'track_coords').read()
         if options.indices[0]:
