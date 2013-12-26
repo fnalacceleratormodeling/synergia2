@@ -19,7 +19,22 @@ Hdf5_file::open(Flag flag)
     if (is_open) {
         close();
     }
-    h5file_ptr = new H5::H5File(file_name.c_str(), flag_to_h5_flags(flag));
+    int attempts=0;
+    bool fail=true;
+    while ((attempts<5) && fail){
+        try{
+            h5file_ptr = new H5::H5File(file_name.c_str(), flag_to_h5_flags(flag));
+            fail=false;
+        }
+        catch (H5::FileIException& e) {
+            ++attempts;
+            fail=true;
+            std::cout << "caught hdf5 open file error, attempts number="
+                <<attempts<<" on rank="<<Commxx().get_rank()<<std::endl;
+            if (h5file_ptr) delete h5file_ptr;
+            sleep(3);
+        }
+    }
     is_open = true;
 }
 

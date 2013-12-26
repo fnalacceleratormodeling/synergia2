@@ -1,6 +1,7 @@
 #ifndef SERIALIZATION_FILES_H_
 #define SERIALIZATION_FILES_H_
 
+#include <mpi.h>
 #include <fstream>
 #include <stdexcept>
 #include <string>
@@ -13,6 +14,7 @@
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/archive_exception.hpp>
 
 // copy_file_overwrite_if_exists provides portability across
 // Boost Filesystem versions 2 and 3
@@ -101,6 +103,10 @@ template<typename T, typename A>
                 std::cout<<" boost archive exception  has been thrown: "<<be.what()<<
                     "; trying again archive_save; trying number= "<< try_no<<std::endl<<std::flush;
                 sleep(3);
+            }
+            catch(...) {
+                std::cout<<"AAAAAAAAAAAA an unknown exception was thrown"<<std::endl<<std::flush;
+                MPI_Abort(MPI_COMM_WORLD, 135);
             }
         }
     }
