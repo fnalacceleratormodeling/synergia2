@@ -1,5 +1,6 @@
 #include "bunch.h"
 #include "synergia/utils/parallel_utils.h"
+#include <boost/filesystem.hpp>
 #include <iostream>
 #include <stdexcept>
 #include <cmath>
@@ -551,10 +552,27 @@ template<class Archive>
                 << BOOST_SERIALIZATION_NVP(default_converter)
                 << BOOST_SERIALIZATION_NVP(converter_ptr);
         if (comm_sptr->has_this_rank()) {
-            Hdf5_file file(get_local_particles_serialization_path(),
-                    Hdf5_file::truncate);
-            file.write(local_num, "local_num");
-            file.write(*local_particles, "local_particles");
+            int attempts=0;
+            bool fail=true;
+            while ((attempts<5) && fail){
+
+                try {
+boost::filesystem::remove(get_local_particles_serialization_path());
+                    Hdf5_file file(get_local_particles_serialization_path(),
+                        Hdf5_file::truncate);
+                    file.write(local_num, "local_num");
+                    file.write(*local_particles, "local_particles");
+                    file.close();
+                    fail=false;
+                }
+                catch(H5::Exception& he) {
+                    ++attempts;
+                    fail=true;
+                    std::cout<<"bunch.cc: H5 Exception thrown, attempts number="
+                        <<attempts<<" on rank="<<Commxx().get_rank()<<std::endl;
+                    sleep(3);
+                }
+            }
         }
     }
 
