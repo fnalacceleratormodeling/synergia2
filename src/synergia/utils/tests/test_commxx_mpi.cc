@@ -200,7 +200,6 @@ BOOST_AUTO_TEST_CASE(make_optimal_spc_comm_world)
 BOOST_AUTO_TEST_CASE(make_optimal_spc_comm_subcomm)
 {
     Commxx_sptr parent_sptr(new Commxx);
-    int world_size = parent_sptr->get_size();
     int optimal_number=3;
     for (int size = 1; size<5; ++size) {
        Commxxs commxxs(generate_subcomms(parent_sptr,size));

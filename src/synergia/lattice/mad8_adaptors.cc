@@ -2,6 +2,7 @@
 #include <sstream>
 #include "mad8_adaptors.h"
 #include "synergia/foundation/math_constants.h"
+#include "synergia/foundation/physical_constants.h"
 
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic push
@@ -9,7 +10,9 @@
 #pragma GCC diagnostic ignored "-Wsequence-point"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wsign-compare"
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 #include <beamline/beamline_elements.h>
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic pop
@@ -1328,6 +1331,27 @@ Rfcavity_mad8_adaptor::Rfcavity_mad8_adaptor()
     get_default_element().set_double_attribute("tfill", 0.0);
 }
 
+void
+Rfcavity_mad8_adaptor::set_defaults(Lattice_element & lattice_element)
+{
+    lattice_element.set_needs_external_derive(true);
+    Element_adaptor::set_defaults(lattice_element);
+}
+
+void
+Rfcavity_mad8_adaptor::set_derived_attributes_external(Lattice_element &lattice_element,
+		double lattice_length, double beta)
+{
+    if (lattice_element.has_double_attribute("harmon")
+            && lattice_element.get_double_attribute("harmon") != 0.0) {
+    	double h = lattice_element.get_double_attribute("harmon");
+    	// freq in MHz to match what the input would be in a MAD file.
+    	// I wish we didn't have to divide and multiply by 1.0e6.
+    	double freq = 1.0e-6 * h * beta * pconstants::c/lattice_length;
+    	lattice_element.set_double_attribute("freq", freq);
+    }
+}
+
 Chef_elements
 Rfcavity_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
@@ -1335,20 +1359,20 @@ Rfcavity_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     Chef_elements retval;
 
     double length = lattice_element.get_length();
-    double freq = 0;
+    double freq = 0.0;
+
     if (lattice_element.has_double_attribute("freq")) {
-        freq = lattice_element.get_double_attribute("freq");
-    } else {
-        if (lattice_element.has_double_attribute("harmon")
-                && lattice_element.get_double_attribute("harmon") != 0.0) {
-            std::cout
-                    << "jfa: rfcavity could figure out frequency from harmonic number, but doesn't. FIXME!\n";
-        }
+    	freq = lattice_element.get_double_attribute("freq");
     }
+
     double q = 0;
+	// Although mad8 does not support freq.  madx has freq in MHz.  We'll go
+	// with the madx convention, converting to Hz for the CHEF constructor.
+    // The CHEF rfcavity constructor takes voltage argument in eV, but
+    // converts in to GeV for internal use. mad units for volt are MV.
     if (length == 0.0) {
         bmlnElmnt *bmln_elmnt;
-        bmln_elmnt = new thinrfcavity(lattice_element.get_name().c_str(), freq,
+        bmln_elmnt = new thinrfcavity(lattice_element.get_name().c_str(), freq*1.0e6,
                 lattice_element.get_double_attribute("volt") * 1.0e6,
                 lattice_element.get_double_attribute("lag")
                         * (2.0 * mconstants::pi), q,
@@ -1361,7 +1385,7 @@ Rfcavity_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
                 (lattice_element.get_name() + "_predrift").c_str(),
                 0.5 * length);
         kick = new thinrfcavity((lattice_element.get_name() + "_kick").c_str(),
-                freq, lattice_element.get_double_attribute("volt") * 1.0e6,
+                freq*1.0e6, lattice_element.get_double_attribute("volt") * 1.0e6,
                 lattice_element.get_double_attribute("lag")
                         * (2.0 * mconstants::pi), q,
                 lattice_element.get_double_attribute("shunt"));

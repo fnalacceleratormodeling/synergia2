@@ -18,8 +18,8 @@ private:
     Four_momentum four_momentum;
     MArray1d state;
     int repetition;
-    double repetition_length;
     double s;
+    double s_n;
 public:
     /// Default constructor for internal use only
     Reference_particle();
@@ -105,12 +105,12 @@ public:
     /// Get the total path length in m of the reference
     /// particle trajectory
     double
-    get_trajectory_length() const;
+    get_s() const;
 
     /// Get the distance traveled in m since the beginning
     /// of the current repetition.
     double
-    get_s() const;
+    get_s_n() const;
 
     /// Get the number of repetition.
     int

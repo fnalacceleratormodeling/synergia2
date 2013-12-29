@@ -1,7 +1,7 @@
 #!/bin/sh
 #PBS -o synergia.out
 #PBS -e synergia.err
-#PBS -l nodes=@@numnode@@
+#PBS -l nodes=@@numnode@@:@@queue@@
 __walltime{{#PBS -l walltime=@@walltime@@}}{{}}__
 __queue{{#PBS -q @@queue@@}}{{}}__
 __account{{#PBS -A @@account@@}}{{}}__

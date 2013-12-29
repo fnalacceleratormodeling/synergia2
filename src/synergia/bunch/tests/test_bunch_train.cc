@@ -5,10 +5,10 @@
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
-const double tolerance = 1.0e-14;
+const double default_tolerance = 1.0e-14;
 
 void
-compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance = tolerance,
+compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance = default_tolerance,
         bool check_state = true, bool check_ids = true)
 {
     BOOST_CHECK_EQUAL(bunch1.get_reference_particle().get_total_energy(),
@@ -190,7 +190,7 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Bunches_fixture)
 		      bunch_train.get_parent_comm_sptr()->get(), &result);
     BOOST_CHECK(result == MPI_IDENT);    	      
     
-    for (int i=0; i<num_bunches; ++i){
+    for (size_t i=0; i<num_bunches; ++i){
       compare_bunches( *bunch_train.get_bunches().at(i), *bunch_loaded.get_bunches().at(i));
     }
     

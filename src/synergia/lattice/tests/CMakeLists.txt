@@ -9,7 +9,9 @@ add_test_executable(test_lattice_element test_lattice_element.cc)
 target_link_libraries(test_lattice_element synergia_lattice
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_lattice_element ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_lattice_element)
-add_test(test_pylattice_element ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_lattice_element.py)
+add_test(test_lattice_element_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_lattice_element.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_lattice_element.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_executable(test_lattice_element_slice test_lattice_element_slice.cc)
 target_link_libraries(test_lattice_element_slice synergia_lattice
@@ -71,11 +73,25 @@ add_test_executable(jfa jfa.cc)
 target_link_libraries(jfa synergia_lattice
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 
-add_test(test_mad8_parser ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_mad8_parser.py)
-add_test(test_expression_parser ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_expression_parser.py)
-add_test(test_mad8_reader ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_mad8_reader.py)
-add_test(test_simplify ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_simplify.py)
+add_test(test_mad8_parser_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_mad8_parser.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_mad8_parser.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
+add_test(test_expression_parser_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_expression_parser.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_expression_parser.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+add_test(test_mad8_reader_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_mad8_reader.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_mad8_reader.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+add_test(test_simplify_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_simplify.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_simplify.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+    
 set(CLEAN_FILES
     lattice_element.xml
     lattice1.xml

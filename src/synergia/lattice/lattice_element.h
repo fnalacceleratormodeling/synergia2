@@ -7,7 +7,6 @@
 #include <vector>
 
 #include <boost/shared_ptr.hpp>
-
 #include "synergia/utils/serialization.h"
 
 class Lattice_element;
@@ -187,7 +186,7 @@ public:
     /// The Python version of the function is named "print_".
     void
     print() const;
-
+    
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);

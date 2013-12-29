@@ -245,8 +245,8 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
             filename = "ez.h5";
         } else if (component == 1) {
             filename = "ey.h5";
-        } else if (component == 2) {
-            filename = "ex.h5";
+        } else {
+            filename = "ez.h5";
         }
         Hdf5_file f(filename, Hdf5_file::truncate);
         f.write(local_En->get_grid_points(), "en");
@@ -269,7 +269,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
                     } else {
                         if (component == 0) {
                             var = x;
-                        } else if (component == 1) {
+                        } else {
                             var = y;
                         }
                         En_exact_ijk

@@ -88,6 +88,20 @@ BOOST_AUTO_TEST_CASE(semicolon_separation)
   BOOST_CHECK_EQUAL( mx.variable_as_number("y"), 2 );
 }
 
+BOOST_AUTO_TEST_CASE(floating_point)
+{
+  // 7/32 has an exact floating point representation
+  string str = "x=1.234;y=0.21875; ze2=.21875e2; wep2=.21875E2; wep02=.21875e+02;";
+  MadX   mx;
+
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+  BOOST_CHECK_CLOSE( mx.variable_as_number("x"), 1.234, tolerance);
+  BOOST_CHECK_EQUAL( mx.variable_as_number("y"), 0.21875 );
+  BOOST_CHECK_EQUAL( mx.variable_as_number("ze2"), 21.875);
+  BOOST_CHECK_EQUAL( mx.variable_as_number("wep2"), 21.875);
+  BOOST_CHECK_EQUAL( mx.variable_as_number("wep02"), 21.875);
+}
+
 BOOST_AUTO_TEST_CASE(variable_assignment_expression)
 {
   string str = "foo.bar=pi*sin(1.2e-4)^0.69;";
@@ -192,7 +206,7 @@ BOOST_AUTO_TEST_CASE(command_particle_attrs)
 
   MadX_command cmd = mx.command("beam");
   BOOST_CHECK_EQUAL( cmd.name(), "beam" );
-  BOOST_CHECK_EQUAL( cmd.attribute_count(), 4 );
+  BOOST_CHECK_EQUAL( cmd.attribute_count(), 5 );
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("particle"), "proton");
 }
 

@@ -66,6 +66,8 @@ opts.add("periodic", 1, "periodic bunches along z", int)
 opts.add("x_offset", 0.0006, "Bunch offset in x", float)
 opts.add("y_offset", 0.0003, "Bunch offset in y", float)
 opts.add("z_offset", 0.0, "Bunch offset in z", float)
+opts.add("hkick",0, "", int)
+opts.add("vkick",0, "", int)
 
 
 opts.add("adjust_tunes", 0, "", int)
@@ -75,7 +77,7 @@ opts.add("tuneV", 0.85," desired vertical tune, fractional (0<tuneH<1)",float)
 opts.add("adjust_chromaticity", 0, "", int)
 opts.add("chromH", -10.," desired horizontal chromaticty",float) 
 opts.add("chromV", -5.," desired vertical chromaticty",float) 
-#opts.add("tunes_and_chroms",1, "calculates and print tunes and chromaticities", int)
+opts.add("tunes_and_chroms",0, "calculates and print tunes and chromaticities", int)
 
 opts.add("bpms", 1, "", int)
 opts.add("impedance", 0, "", int)

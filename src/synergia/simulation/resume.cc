@@ -45,6 +45,42 @@ Resume::get_new_checkpoint_dir() const
     return propagator.get_checkpoint_dir();
 }
 
+void
+Resume::set_checkpoint_with_xml(bool with_xml)
+{
+	propagator.set_checkpoint_with_xml(with_xml);
+}
+
+bool
+Resume::get_checkpoint_with_xml() const
+{
+	return propagator.get_checkpoint_with_xml();
+}
+
+void
+Resume::set_final_checkpoint(bool final_checkpoint)
+{
+	propagator.set_final_checkpoint(final_checkpoint);
+}
+
+bool
+Resume::get_final_checkpoint() const
+{
+	return propagator.get_final_checkpoint();
+}
+
+void
+Resume::set_concurrent_io(int max)
+{
+	propagator.set_concurrent_io(max);
+}
+
+int
+Resume::get_concurrent_io() const
+{
+	return propagator.get_concurrent_io();
+}
+
 Resume::Content
 Resume::get_content()
 {
@@ -54,10 +90,10 @@ Resume::get_content()
 }
 
 void
-Resume::propagate(bool new_max_turns, int max_turns, bool new_verbosity,
+Resume::propagate(bool new_num_turns, int num_turns, bool new_max_turns, int max_turns, bool new_verbosity,
         int verbosity)
 {
-    propagator.resume(checkpoint_dir, new_max_turns, max_turns, new_verbosity,
+    propagator.resume(checkpoint_dir, new_num_turns, num_turns, new_max_turns, max_turns, new_verbosity,
             verbosity);
 }
 

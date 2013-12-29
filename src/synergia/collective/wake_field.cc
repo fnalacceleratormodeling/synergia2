@@ -25,7 +25,7 @@ wake_file(wake_file), wake_type(wake_type)
 	      getline(rfile,line);
 	      
 	      if ( !line.empty() ){  
-		  int pos=line.find_first_not_of(" \t\r\n");
+		  size_t pos=line.find_first_not_of(" \t\r\n");
 		  if (pos !=std::string::npos){
 		      if (line.at(pos) != '#' ){
 			    std::stringstream ss(line);
@@ -63,7 +63,7 @@ wake_file(wake_file), wake_type(wake_type)
 				  else if (get_wake_type()=="XLYL") {				   
 				      xw_lead.push_back(temp_wake[1]);
 				      yw_lead.push_back(temp_wake[1]);
-				  } 
+				  }
 				  else{
 				    throw
 				      std::runtime_error("invalid specification of the wake type for 2 columns wake file");
@@ -116,7 +116,19 @@ wake_file(wake_file), wake_type(wake_type)
 				      xw_trail.push_back(temp_wake[2]);
 				      yw_lead.push_back(temp_wake[1]);
 				      yw_trail.push_back(temp_wake[2]);				   
-				  } 	
+				  } 
+				  else if (get_wake_type()=="XZ_Elliptical_coeff") {
+                      double cxs=0.42; // approximate values for the main injector
+                      double cxw=-0.40; // this hardwiring of the yokoya coefficents should
+                      double cys=0.81; //           be changed!!!
+                      double cyw=0.40;
+                      double cl=0.985;
+                      xw_lead.push_back(cxs*temp_wake[1]);
+                      xw_trail.push_back(cxw*temp_wake[1]);
+                      yw_lead.push_back(cys*temp_wake[1]);
+                      yw_trail.push_back(cyw*temp_wake[1]); 
+                      z_wake.push_back(cl*temp_wake[2]);                                   
+                  }
 				  else{
 				    throw
 				      std::runtime_error("invalid specification of the wake type for 3 columns wake file");
@@ -226,6 +238,9 @@ wake_file(wake_file), wake_type(wake_type)
 
   // Broadcasting to all     
 	  int error=MPI_Bcast( (void *) &size_wake, 1, MPI_INT, 0,  MPI_COMM_WORLD );
+      if (error != MPI_SUCCESS) {
+			throw std::runtime_error("MPI error in Wake_field::Wake_field 1");
+      }
 	  z_coord.resize(size_wake);
 	  xw_lead.resize(size_wake);
 	  xw_trail.resize(size_wake);
@@ -234,11 +249,29 @@ wake_file(wake_file), wake_type(wake_type)
 	  z_wake.resize(size_wake);
 	  
 	  error=MPI_Bcast( z_coord.data(),  size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
+      if (error != MPI_SUCCESS) {
+			throw std::runtime_error("MPI error in Wake_field::Wake_field 2");
+      }
 	  error=MPI_Bcast( xw_lead.data(),  size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
+      if (error != MPI_SUCCESS) {
+			throw std::runtime_error("MPI error in Wake_field::Wake_field 3");
+      }
 	  error=MPI_Bcast( xw_trail.data(), size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
+      if (error != MPI_SUCCESS) {
+			throw std::runtime_error("MPI error in Wake_field::Wake_field 4");
+      }
 	  error=MPI_Bcast( yw_lead.data(),  size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
+      if (error != MPI_SUCCESS) {
+			throw std::runtime_error("MPI error in Wake_field::Wake_field 5");
+      }
 	  error=MPI_Bcast( yw_trail.data(), size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
+      if (error != MPI_SUCCESS) {
+			throw std::runtime_error("MPI error in Wake_field::Wake_field 6");
+      }
 	  error=MPI_Bcast( z_wake.data(),   size_wake, MPI_DOUBLE, 0,  MPI_COMM_WORLD );
+      if (error != MPI_SUCCESS) {
+			throw std::runtime_error("MPI error in Wake_field::Wake_field 7");
+      }
 	
 	  if (z_coord[0]>0) {
 	    double dz1=z_coord[1]-z_coord[0];

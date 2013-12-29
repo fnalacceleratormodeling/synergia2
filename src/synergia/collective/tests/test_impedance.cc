@@ -22,12 +22,12 @@ int const  zgrid=400;
 
  BOOST_AUTO_TEST_CASE(test_constructor)
  {
- Impedance imped("Fwake.dat", "XLXTYLYTZpp",zgrid, orbit_length, bunch_spacing,10);
+ Impedance imped("wake_files/Fwake.dat", "XLXTYLYTZpp",zgrid, orbit_length, bunch_spacing,10);
  }
  
 BOOST_AUTO_TEST_CASE(test_copy)
  {
- Impedance imped("Fwake.dat", "XLXTYLYTZpp",zgrid, orbit_length, bunch_spacing,10);
+ Impedance imped("wake_files/Fwake.dat", "XLXTYLYTZpp",zgrid, orbit_length, bunch_spacing,10);
  Impedance imped1(imped);
  imped1.set_z_grid(30);
  
@@ -37,7 +37,7 @@ BOOST_AUTO_TEST_CASE(test_copy)
 //  std::cout<<" imped1 zgrid="<<imped1.get_z_grid()<<std::endl;
 //  std::cout<<" imped1 wake file="<<imped1.get_wake_field_sptr()->get_wake_file_name()<<std::endl;
  
- Impedance_sptr imped_sptr=Impedance_sptr(new Impedance("test_wake_pp.dat", "XLXTYLYTZpp",
+ Impedance_sptr imped_sptr=Impedance_sptr(new Impedance("wake_files/test_wake_pp.dat", "XLXTYLYTZpp",
 							zgrid, orbit_length, bunch_spacing,100));
  Impedance imped2(*imped_sptr);
  } 
@@ -45,7 +45,7 @@ BOOST_AUTO_TEST_CASE(test_copy)
 #if 0 
 BOOST_FIXTURE_TEST_CASE(test_apply_kicks, Bunches_fixture)
 {
-  Impedance imped("Fwake.dat", "XLXTYLYTZpp",43, orbit_length, bunch_spacing,3); 
+  Impedance imped("wake_files/Fwake.dat", "XLXTYLYTZpp",43, orbit_length, bunch_spacing,3);
   double step_length=2.3;
   double time_step=10.;
   const int verbosity = 4;
@@ -61,7 +61,7 @@ BOOST_FIXTURE_TEST_CASE(test_apply_kicks, Bunches_fixture)
  BOOST_FIXTURE_TEST_CASE(test_apply,Bunches_fixture)
  {
        
-      Impedance imped("Fwake.dat", "XLXTYLYTZpp",zgrid, orbit_length, bunch_spacing,3);   
+      Impedance imped("wake_files/Fwake.dat", "XLXTYLYTZpp",zgrid, orbit_length, bunch_spacing,3);
       double step_length=2.3;
       double time_step=10.;
       const int verbosity = 4;
@@ -88,7 +88,7 @@ BOOST_FIXTURE_TEST_CASE(test_apply_full_machine,Bunches_fixture)
  {
        
       std::vector<int > wn(3,0);
-      Impedance imped("Fwake.dat", "XLXTYLYTZpp",zgrid, orbit_length, bunch_spacing,3,1,wn);   
+      Impedance imped("wake_files/Fwake.dat", "XLXTYLYTZpp",zgrid, orbit_length, bunch_spacing,3,1,wn);
       double step_length=2.3;
       double time_step=10.;
       const int verbosity = 4;
@@ -117,7 +117,7 @@ BOOST_FIXTURE_TEST_CASE(serialize_, Bunches_fixture)
   int zgrid1=4;
   std::vector<int > wn(3,0);
   wn[2]=1;
-  Impedance imped("Fwake.dat", "XLXTYLYTZpp",zgrid1, orbit_length, bunch_spacing,3,1,wn);   
+  Impedance imped("wake_files/Fwake.dat", "XLXTYLYTZpp",zgrid1, orbit_length, bunch_spacing,3,1,wn);
   double step_length=2.3;
   double time_step=10.;
   const int verbosity = 4;
@@ -204,7 +204,7 @@ BOOST_FIXTURE_TEST_CASE(serialize_, Bunches_fixture)
   int zgrid1=4;
   std::vector<int > wn(3,0);
   wn[2]=1;
-  Impedance imped("Fwake.dat", "XLXTYLYTZpp",zgrid1, orbit_length, bunch_spacing,3,1,wn);   
+  Impedance imped("wake_files/Fwake.dat", "XLXTYLYTZpp",zgrid1, orbit_length, bunch_spacing,3,1,wn);
   Impedance_sptr imped_clone_sptr(imped.clone()); 
   
   double step_length=2.3;

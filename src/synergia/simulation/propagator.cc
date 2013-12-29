@@ -4,6 +4,9 @@
 #include "synergia/utils/serialization_files.h"
 #include "synergia/utils/logger.h"
 #include "synergia/utils/digits.h"
+
+// avoid bad interaction between Boost Filesystem and clang
+#define BOOST_NO_CXX11_SCOPED_ENUMS
 #include <boost/filesystem.hpp>
 
 const std::string Propagator::default_checkpoint_dir = "checkpoint";
@@ -224,9 +227,20 @@ Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
             per_operation_train_diagnosticss.at(i) =
                     diagnostics_actionss.at(i)->get_per_operation_diagnosticss();
         }
-        step.apply(bunch_train, state.verbosity,
-                per_operation_train_diagnosticss,
-                per_operation_train_diagnosticss, logger);
+      
+        
+        //if (state.propagate_actions_ptr->get_type()=="lattice_elements_actions") {
+          step.apply(bunch_train, state.verbosity, per_operator_train_diagnosticss,
+                    per_operation_train_diagnosticss, 
+                    state.propagate_actions_ptr, *stepper_sptr, step_count, turn,
+                    logger);  
+//         } 
+//         else{
+//           step.apply(bunch_train, state.verbosity, per_operator_train_diagnosticss,
+//                   per_operation_train_diagnosticss,logger);
+//         }  
+                 
+                
         t = simple_timer_show(t, "propagate-step_apply");
         for (int i = 0; i < num_bunches; ++i) {
             diagnostics_actionss.at(i)->step_end_action(*stepper_sptr, step,
@@ -244,13 +258,13 @@ Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
         logger << "     step " << std::setw(digits(num_steps)) << step_count
                 << "/" << num_steps;
         if (state.bunch_train_simulator_ptr) {
-            logger << ", s=" << std::fixed << std::setprecision(4)
-                    << state.bunch_train_simulator_ptr->get_bunch_train().get_bunches()[0]->get_reference_particle().get_s();
+            logger << ", s_n=" << std::fixed << std::setprecision(4)
+                    << state.bunch_train_simulator_ptr->get_bunch_train().get_bunches()[0]->get_reference_particle().get_s_n();
 
         }
         if (state.bunch_simulator_ptr) {
-            logger << ", s=" << std::fixed << std::setprecision(4)
-                    << state.bunch_simulator_ptr->get_bunch().get_reference_particle().get_s();
+            logger << ", s_n=" << std::fixed << std::setprecision(4)
+                    << state.bunch_simulator_ptr->get_bunch().get_reference_particle().get_s_n();
             logger << ", macroparticles = "
                     << state.bunch_simulator_ptr->get_bunch().get_total_num();
         }
@@ -470,12 +484,15 @@ Propagator::get_resume_state(std::string const& checkpoint_directory)
 }
 
 void
-Propagator::resume(std::string const& checkpoint_directory, bool new_max_turns,
+Propagator::resume(std::string const& checkpoint_directory, bool new_num_turns, int num_turns, bool new_max_turns,
         int max_turns, bool new_verbosity, int verbosity)
 {
     State state(get_resume_state(checkpoint_directory));
     if (new_max_turns) {
         state.max_turns = max_turns;
+    }
+    if (new_num_turns) {
+    	state.num_turns = num_turns;
     }
     if (new_verbosity) {
         state.verbosity = verbosity;

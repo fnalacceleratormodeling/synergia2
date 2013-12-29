@@ -31,7 +31,7 @@ driftlength := (sepn-quadlength-bendlength)/2
 beam, particle=proton, pc=momentum
 ! harmonic number = 80  harmonic number, yields 2 meter wavelength
 ! the actual frequence is harmno following
-harmno=32
+harmno=128
 lambda = 160.0/harmno
 
 !hvoltage = 12500
@@ -49,7 +49,7 @@ os: drift,      l=shortdlen
 f: quadrupole, l=quadlength, k1=strength
 d: quadrupole, l=quadlength, k1=(-strength)
 b: sbend,      l=bendlength, angle=bendangle
-r: rfcavity,	l=cavlen, volt=hvoltage, harmon=harmno
+r: rfcavity,	l=cavlen, volt=hvoltage, harmon=harmno, lag=0.5
 
 ! ------------------
 ! Lattices

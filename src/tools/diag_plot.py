@@ -52,21 +52,21 @@ def generate_plotparams():
         for label2 in coords.keys():
             if coords[label2] > coords[label]:
                 corr = label + '_' + label2 + '_corr'
-                plotparams[corr] = Params(corr, 'trajectory_length', 'corr',
+                plotparams[corr] = Params(corr, 's', 'corr',
                                            coords[label], coords[label2])
                 mom2 = label + '_' + label2 + '_mom2'
-                plotparams[mom2] = Params(mom2, 'trajectory_length', 'mom2',
+                plotparams[mom2] = Params(mom2, 's', 'mom2',
                                            coords[label], coords[label2])
         std = label + '_std'
-        plotparams[std] = Params(std, 'trajectory_length', 'std', coords[label])
+        plotparams[std] = Params(std, 's', 'std', coords[label])
         mean = label + '_mean'
-        plotparams[mean] = Params(mean, 'trajectory_length', 'mean', coords[label])
-    plotparams['x_emit'] = Params('x_emit', 'trajectory_length', 'emitx')
-    plotparams['y_emit'] = Params('y_emit', 'trajectory_length', 'emity')
-    plotparams['z_emit'] = Params('z_emit', 'trajectory_length', 'emitz')
-    plotparams['xy_emit'] = Params('xy_emit', 'trajectory_length', 'emitxy')
-    plotparams['xyz_emit'] = Params('xyz_emit', 'trajectory_length', 'emitxyz')
-    plotparams['particles'] = Params('particles', 'trajectory_length', 'num_particles')
+        plotparams[mean] = Params(mean, 's', 'mean', coords[label])
+    plotparams['x_emit'] = Params('x_emit', 's', 'emitx')
+    plotparams['y_emit'] = Params('y_emit', 's', 'emity')
+    plotparams['z_emit'] = Params('z_emit', 's', 'emitz')
+    plotparams['xy_emit'] = Params('xy_emit', 's', 'emitxy')
+    plotparams['xyz_emit'] = Params('xyz_emit', 's', 'emitxyz')
+    plotparams['particles'] = Params('particles', 's', 'num_particles')
     return plotparams
 
 class Options:
@@ -131,6 +131,7 @@ def do_plot(inputfile, options, plotparams, multiple_files):
     f = tables.openFile(inputfile, 'r')
     rows, cols = get_layout(len(options.plots))
     plot_index = 1
+    y_label = ""
     for plot in options.plots:
         params = plotparams[plot]
         x = getattr(f.root, params.x_attr).read()
@@ -148,6 +149,15 @@ def do_plot(inputfile, options, plotparams, multiple_files):
             extra_label = ' ' + inputfile
         plot2d(x, y, plot, extra_label)
         plot_index += 1
+        pyplot.xlabel(params.x_attr)
+        if options.oneplot:
+            if y_label == "":
+                y_label = plot
+            else:
+                y_label += "," + plot
+        else:
+            y_label = plot
+        pyplot.ylabel(y_label)
         if options.legends:
             pyplot.legend(loc='best')
 

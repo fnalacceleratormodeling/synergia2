@@ -43,53 +43,53 @@ run()
    
 
 // ***************************************
+/*
+  double ref[1]={1.};
+  double scale[1]={1.e-3};
+  double * pref=ref;
+  double * pscale=scale;
+  int maxweight=1;
+  int numvar=1;
+  int spacedim=1;
 
-//   double ref[1]={1.};
-//   double scale[1]={1.e-3};
-//   double * pref=ref;
-//   double * pscale=scale;
-//   int maxweight=1;
-//   int numvar=1;
-//   int spacedim=1;
-
-//   EnvPtr<double> evp=
-//   TJetEnvironment<double>::makeJetEnvironment(maxweight, numvar, spacedim, pref,pscale);
+  EnvPtr<double> evp=
+  TJetEnvironment<double>::makeJetEnvironment(maxweight, numvar, spacedim, pref,pscale);*/
 // ***************************************
 
-//    Chef_lattice_sptr  chef_lattice_sptr(new Chef_lattice(lattice_sptr));
-//    std::cout<<"chef lattice constructed "<<std::endl;
-//    BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr()->Clone());
-//    std::cout<<"beamline_sptr created "<<std::endl;
-//    Proton probe;
-//    double momentum(lattice_sptr->get_reference_particle().get_momentum());
-//    probe.SetReferenceMomentum(momentum);
-//    probe.setStateToZero();
+   Chef_lattice_sptr  chef_lattice_sptr(new Chef_lattice(lattice_sptr));
+   std::cout<<"chef lattice constructed "<<std::endl;
+   BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr()->Clone());
+   std::cout<<"beamline_sptr created "<<std::endl;
+   Proton probe;
+   double momentum(lattice_sptr->get_reference_particle().get_momentum());
+   probe.SetReferenceMomentum(momentum);
+   probe.setStateToZero();
 
-//    if (Jet__environment::getLastEnv() == 0) {
-//            JetParticle::createStandardEnvironments(map_order);
-//    }
+   if (Jet__environment::getLastEnv() == 0) {
+           JetParticle::createStandardEnvironments(map_order);
+   }
 
-//    BeamlineContext probecontext(probe, beamline_sptr); 
-//    probecontext.handleAsRing();
-//    std::cout<<"beamlinecontext created "<<std::endl;
+   BeamlineContext probecontext(probe, beamline_sptr); 
+   probecontext.handleAsRing();
+   std::cout<<"beamlinecontext created "<<std::endl;
 
 
-//   
-//     double tune=probecontext.getHorizontalEigenTune();
-//     std::cout<<" tune="<<tune<<std::endl;
+  
+    double tune=probecontext.getHorizontalEigenTune();
+    std::cout<<" tune="<<tune<<std::endl;
 // ***************************************
 
 
 
 
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-      std::cout<<"lattice simulator passed "<<std::endl;
+//    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+//      std::cout<<"lattice simulator passed "<<std::endl;
 
 //    double chef_frac_tunex=lattice_simulator.get_horizontal_tune();
-//    double chef_frac_tuney=lattice_simulator.get_vertical_tune();
+//    double chef_fracnedit _tuney=lattice_simulator.get_vertical_tune();
 //       std::cout<<" chef_frac_tunex="<<chef_frac_tunex<<std::endl;
 //        std::cout<<" chef_frac_tuney="<<chef_frac_tuney<<std::endl;
-//    double chef_eigen_tunex=lattice_simulator.get_horizontal_tune(true);
+//    double chef_eigen_tuqnex=lattice_simulator.get_horizontal_tune(true);
 //    double chef_eigen_tuney=lattice_simulator.get_vertical_tune(true);
 //        std::cout<<" chef_eigen_tunex="<<chef_eigen_tunex<<std::endl;
 //        std::cout<<" chef_eigen_tuney="<<chef_eigen_tuney<<std::endl;
@@ -102,7 +102,7 @@ run()
 //        std::cout<<" vertical_chromaticity="<<vertical_chromaticity<<std::endl;
 //        std::cout<<" momentum_compaction="<<momentum_compaction<<std::endl;
 //        std::cout<<" slip_factor="<<slip_factor<<std::endl;
-
+/*
     Lattice_elements  horizontal_correctors;
     Lattice_elements  vertical_correctors;
 
@@ -193,13 +193,13 @@ else{
         std::cout<<" momentum_compaction="<<momentum_compaction<<std::endl;
         std::cout<<" slip_factor="<<slip_factor<<std::endl;
 
-    std::cout<<" run done"<<std::endl;    
+    std::cout<<" run done"<<std::endl;   */ 
 }
 int
 main(int argc, char **argv)
 {
-   MPI_Init(&argc, &argv);
+  // MPI_Init(&argc, &argv);
   run();
-   MPI_Finalize();
+  // MPI_Finalize();
     return 0;
 }

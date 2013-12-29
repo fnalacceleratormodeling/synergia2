@@ -10,7 +10,6 @@ class Hdf5_chunked_array2d_writer
 private:
     std::vector<hsize_t > dims, max_dims, size, offset, chunk_dims;
     std::string name;
-    H5::H5File * file_ptr;
     H5::DataSet dataset;
     H5::DataType atomic_type;
 public:

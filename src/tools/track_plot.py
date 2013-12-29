@@ -101,7 +101,7 @@ def handle_args(args):
 def get_particle_coords(f, options):
     particle_coords = []
     if hasattr(f.root, 'coords'):
-        particle_coords = particle_coords.append(getattr(f.root, "coords").read())
+        particle_coords.append(getattr(f.root, "coords").read())
     else:
         all_coords = getattr(f.root, 'track_coords').read()
         if options.indices[0]:
@@ -121,7 +121,7 @@ def do_plots(options):
     for particle_coords, index in zip(all_particle_coords, options.indices):
         plot_index = 1
         for coord in options.coords:
-            x = getattr(f.root, "trajectory_length").read()
+            x = getattr(f.root, "s").read()
             y = particle_coords[coords[coord],:]
             if not options.oneplot:
                 pyplot.subplot(rows, cols, plot_index)

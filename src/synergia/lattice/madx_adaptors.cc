@@ -9,7 +9,9 @@
 #pragma GCC diagnostic ignored "-Wsequence-point"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wsign-compare"
+#ifndef __clang__
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 #include <beamline/beamline_elements.h>
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic pop
@@ -295,6 +297,7 @@ Rbend_madx_adaptor::Rbend_madx_adaptor()
 {
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("angle", 0.0);
+    get_default_element().set_double_attribute("tilt", 0.0);
     // jfa: add_angle not yet handled
     get_default_element().set_double_attribute("k1", 0.0);
     get_default_element().set_double_attribute("e1", 0.0);
@@ -330,8 +333,6 @@ Rbend_madx_adaptor::set_defaults(Lattice_element & lattice_element)
     lattice_element.set_length_attribute_name("arclength");
     lattice_element.set_needs_internal_derive(true);
     Element_adaptor::set_defaults(lattice_element);
-    std::cout << "Rbend_madx_adaptor: WARNING arc length not properly handled"
-            << std::endl;
 }
 
 void
@@ -1277,6 +1278,13 @@ Rfcavity_madx_adaptor::Rfcavity_madx_adaptor()
 }
 
 void
+Rfcavity_madx_adaptor::set_defaults(Lattice_element & lattice_element)
+{
+    lattice_element.set_needs_external_derive(true);
+    Element_adaptor::set_defaults(lattice_element);
+}
+
+void
 Rfcavity_madx_adaptor::set_derived_attributes_external(Lattice_element &lattice_element,
 		double lattice_length, double beta)
 {
@@ -1284,7 +1292,7 @@ Rfcavity_madx_adaptor::set_derived_attributes_external(Lattice_element &lattice_
             && lattice_element.get_double_attribute("harmon") != 0.0) {
     	double h = lattice_element.get_double_attribute("harmon");
 
-    	double freq = h * beta * pconstants::c/lattice_length;
+    	double freq = 1.0e-6 * h * beta * pconstants::c/lattice_length;
     	lattice_element.set_double_attribute("freq", freq);
     }
 }
@@ -1303,7 +1311,7 @@ Rfcavity_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double q = 0;
     if (length == 0.0) {
         bmlnElmnt *bmln_elmnt;
-        bmln_elmnt = new thinrfcavity(lattice_element.get_name().c_str(), freq,
+        bmln_elmnt = new thinrfcavity(lattice_element.get_name().c_str(), freq*1.0e6,
                 lattice_element.get_double_attribute("volt") * 1.0e6,
                 lattice_element.get_double_attribute("lag")
                         * (2.0 * mconstants::pi), q,
@@ -1316,7 +1324,7 @@ Rfcavity_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
                 (lattice_element.get_name() + "_predrift").c_str(),
                 0.5 * length);
         kick = new thinrfcavity((lattice_element.get_name() + "_kick").c_str(),
-                freq, lattice_element.get_double_attribute("volt") * 1.0e6,
+                freq*1.0e6, lattice_element.get_double_attribute("volt") * 1.0e6,
                 lattice_element.get_double_attribute("lag")
                         * (2.0 * mconstants::pi), q,
                 lattice_element.get_double_attribute("shunt"));

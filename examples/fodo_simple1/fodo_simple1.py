@@ -24,7 +24,7 @@ z_std = 0.01  # m
 dpop = 1.0e-4  # unitless, RMS \frac{\delta p}{p_{tot}}
 real_particles = 1.2e12  # unitless, meaningless in this simulation
                          #           without collective effects
-macro_particles = 100
+macro_particles = 50000
 seed = 1415926  # random number seed; 0 for automatic calculation (GSL)
 bunch = synergia.optics.generate_matched_bunch_transverse(
               stepper.get_lattice_simulator(),
@@ -42,7 +42,7 @@ bunch_simulator.add_per_step(diagnostics)
 
 # Perform the simulation
 propagator = Propagator(stepper)
-turns = 4  # really repetitions, since this isn't a ring
+turns = 1  # a single pass through the line, since this isn't a ring
 max_turns = 0 # Number of turns to run before writing checkpoint and stopping
               # When max_turns is 0, the simulation continues until the end.
 verbosity = 2  # Display information about each simulation step

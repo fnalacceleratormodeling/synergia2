@@ -9,6 +9,7 @@
 #include "split_operator_stepper_choice.h"
 #include "propagator.h"
 #include "propagate_actions.h"
+#include "lattice_elements_actions.h"
 #include "diagnostics_actions.h"
 #include "dense_mapping.h"
 #include "resume.h"
@@ -514,6 +515,24 @@ BOOST_PYTHON_MODULE(simulation)
                     &Propagate_actions_callback::default_step_end_action)
             .enable_pickling()
             ;
+     
+     class_<std::map<int, std::list<int> > >("Map_turn_bunches")
+            .def(map_indexing_suite<std::map< int, std::list<int> > >() )
+            ;
+      
+      class_<Kick_element >("Kick_element",
+            init<std::string, std::string >()) 
+            .def_readwrite("element",&Kick_element::element)
+            .def_readwrite("map_turn_bunches",&Kick_element::map_turn_bunches)
+            ;
+     
+      class_<Lattice_elements_actions, bases<Propagate_actions > >("Lattice_elements_actions",init< >())
+           .def("add_element_to_kick", &Lattice_elements_actions::add_element_to_kick)
+          // .def("get_map_step_to_elements", &Lattice_elements_actions::get_map_step_to_elements)
+           .def("get_kick_turns", &Lattice_elements_actions::get_kick_turns,return_value_policy<copy_non_const_reference >())
+           .def("print_actions", &Lattice_elements_actions::print_actions)
+           .def("operator_begin_action", &Lattice_elements_actions::operator_begin_action)
+           ;       
 
     class_<Diagnostics_actions, Diagnostics_actions_sptr >(
             "Diagnostics_actions", init< >())
@@ -666,6 +685,12 @@ BOOST_PYTHON_MODULE(simulation)
             .def("set_new_checkpoint_dir", &Resume::set_new_checkpoint_dir)
             .def("get_new_checkpoint_dir", &Resume::get_new_checkpoint_dir,
                     return_value_policy<copy_const_reference >())
+            .def("set_checkpoint_with_xml", &Resume::set_checkpoint_with_xml)
+            .def("get_checkpoint_with_xml", &Resume::get_checkpoint_with_xml)
+    	    .def("set_final_checkpoint", &Resume::set_final_checkpoint)
+    	    .def("get_final_checkpoint", &Resume::get_final_checkpoint)
+    	    .def("set_concurrent_io", &Resume::set_concurrent_io)
+    	    .def("get_concurrent_io", &Resume::get_concurrent_io)
             .def("get_content", &Resume::get_content)
             .def("propagate", &Resume::propagate)
     );

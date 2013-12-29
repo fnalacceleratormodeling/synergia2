@@ -196,6 +196,8 @@ public:
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     virtual void
+    set_defaults(Lattice_element & lattice_element);
+    virtual void
     set_derived_attributes_external(Lattice_element &lattice_element,
     		double lattice_length, double beta);
     template<class Archive>

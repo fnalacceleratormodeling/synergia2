@@ -13,9 +13,9 @@ set(tools
     synpart2madxtxt)
 
 foreach(tool ${tools})
-    configure_file("${SYNERGIA2_SOURCE_DIR}/src/tools/${tool}.in"
-        "${SYNERGIA2_BINARY_DIR}/src/tools/${tool}" IMMEDIATE)
-    install(PROGRAMS "${SYNERGIA2_BINARY_DIR}/src/tools/${tool}" DESTINATION bin)
+    configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${tool}.in"
+        "${CMAKE_CURRENT_BINARY_DIR}/${tool}" IMMEDIATE)
+    install(PROGRAMS "${CMAKE_CURRENT_BINARY_DIR}/${tool}" DESTINATION bin)
 endforeach(tool tools)
 
 install(FILES

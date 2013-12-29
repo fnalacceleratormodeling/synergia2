@@ -96,7 +96,7 @@ BOOST_AUTO_TEST_CASE(get_n_sigma)
 BOOST_FIXTURE_TEST_CASE(auto_tune_comm_sptr, Ellipsoidal_bunch_fixture)
 {
     Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
-    space_charge.auto_tune_comm(false);
+    space_charge.auto_tune_comm(bunch, false);
 }
 
 BOOST_FIXTURE_TEST_CASE(update_domain, Ellipsoidal_bunch_fixture)

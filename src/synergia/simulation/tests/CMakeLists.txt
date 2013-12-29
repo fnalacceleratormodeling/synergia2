@@ -39,7 +39,9 @@ add_test(test_operation_extractor_map ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_
 add_test_executable(test_lattice_simulator test_lattice_simulator.cc)
 target_link_libraries(test_lattice_simulator synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_lattice_simulator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_lattice_simulator)
-add_test(test_pylattice_simulator ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_lattice_simulator.py)
+add_test(test_lattice_simulator_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_lattice_simulator.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_lattice_simulator.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_executable(test_collective_operator test_collective_operator.cc)
 target_link_libraries(test_collective_operator synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
@@ -79,6 +81,11 @@ add_test_executable(test_propagator test_propagator.cc)
 target_link_libraries(test_propagator synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_propagator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_propagator)
 
+add_test_executable(test_lattice_elements_action test_lattice_elements_action.cc)
+target_link_libraries(test_lattice_elements_action synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_propagator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_propagator)
+
+
 add_test_executable(test_finite_aperture_operation test_finite_aperture_operation.cc)
 target_link_libraries(test_finite_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_finite_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_finite_aperture_operation)
@@ -90,6 +97,9 @@ add_test(test_circular_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 t
 add_test_executable(test_elliptical_aperture_operation test_elliptical_aperture_operation.cc)
 target_link_libraries(test_elliptical_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_elliptical_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_elliptical_aperture_operation)
+add_test(test_elliptical_aperture_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose ; nose.main()" test_elliptical_apertures.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_elliptical_apertures.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_executable(test_rectangular_aperture_operation test_rectangular_aperture_operation.cc)
 target_link_libraries(test_rectangular_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
@@ -106,7 +116,11 @@ add_test(test_propagator_mpi2 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2  test_propaga
 add_test(test_propagator_mpi3 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3  test_propagator_mpi)
 add_test(test_propagator_mpi4 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4  test_propagator_mpi)
 
-add_test(test_simplify2 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_simplify2.py)
+
+
+add_test(test_simplify2_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_simplify2.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_simplify2.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_executable(test_bunch_simulator test_bunch_simulator.cc)
 target_link_libraries(test_bunch_simulator synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
@@ -115,6 +129,13 @@ add_test(test_bunch_simulator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_bunch_si
 add_test_executable(test_bunch_train_simulator test_bunch_train_simulator.cc)
 target_link_libraries(test_bunch_train_simulator synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_bunch_train_simulator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_bunch_train_simulator)
+
+add_test_executable(test_beamline_element_dynamics test_beamline_element_dynamics.cc)
+target_link_libraries(test_beamline_element_dynamics synergia_lattice synergia_simulation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_beamline_element_dynamics ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_beamline_element_dynamics)
+
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES
     "test_fast_mapping_term.dat;test_fast_mapping.dat;test_fast_mapping2.dat;test_propagate_per_step.h5;test_propagate_per_turn.h5")

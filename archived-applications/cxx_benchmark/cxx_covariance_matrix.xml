@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
-<boost_serialization signature="serialization::archive" version="6">
+<boost_serialization signature="serialization::archive" version="9">
 <num_objects>1</num_objects>
 <object_typename>N5boost11multi_arrayIdLm2ESaIdEEE</object_typename>
 <object class_id="0" tracking_level="0" version="0">
@@ -34,7 +34,7 @@
 	<item>0</item>
 	<item>0</item>
 	<item>0</item>
-	<item>0.00016427607285753496</item>
+	<item>0.00016427606903128108</item>
 	<item>0</item>
 	<item>0</item>
 	<item>0</item>

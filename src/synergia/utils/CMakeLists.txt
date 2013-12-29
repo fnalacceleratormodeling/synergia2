@@ -1,3 +1,6 @@
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 add_library(synergia_parallel_utils parallel_utils.cc commxx.cc 
     commxx_divider.cc logger.cc)
 if (BUILD_PYTHON_BINDINGS)

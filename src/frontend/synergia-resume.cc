@@ -12,6 +12,8 @@ usage(int retval)
             << "    --new-dir=<dir>: directory name to use for subsequent checkpointing\n";
     std::cout << "    --period=<period>: period for subsequent checkpointing\n";
     std::cout << "    --max=<num>: maximum number of turns for this run\n";
+    std::cout << "    --turns=<num>: total number of turns to run\n";
+    std::cout << "    --concurrent-io=<num>: number of processors that simultaneously write checkpoints\n";
     std::cout << "    --verbosity=<num>: verbosity for this run\n";
     exit(retval);
 }
@@ -21,7 +23,9 @@ struct Resume_options
     std::string directory;
     std::string new_checkpoint_directory;
     int checkpoint_period;
+    int num_turns;
     int max_turns;
+    int concurrent_io;
     int verbosity;
 
     static const int unspecified_int = -1;
@@ -30,7 +34,9 @@ struct Resume_options
     Resume_options(int argc, char **argv) :
         directory(Propagator::default_checkpoint_dir),
                 new_checkpoint_directory(unspecified_str),
-                checkpoint_period(unspecified_int), max_turns(unspecified_int),
+                checkpoint_period(unspecified_int), num_turns(unspecified_int),
+                max_turns(unspecified_int),
+                concurrent_io(unspecified_int),
                 verbosity(unspecified_int)
     {
         for (int i = 1; i < argc; ++i) {
@@ -44,9 +50,13 @@ struct Resume_options
                                 std::string > ();
                     } else if (arg.get_lhs() == "--period") {
                         checkpoint_period = arg.extract_value<int > ();
+                    } else if (arg.get_lhs() == "--turns") {
+                    	num_turns = arg.extract_value<int > ();
                     } else if (arg.get_lhs() == "--max") {
                         max_turns = arg.extract_value<int > ();
-                    } else if (arg.get_lhs() == "--verbosity") {
+                    } else if (arg.get_lhs() == "--concurrent-io") {
+                        concurrent_io = arg.extract_value<int > ();
+                     } else if (arg.get_lhs() == "--verbosity") {
                         verbosity = arg.extract_value<int > ();
                     } else {
                         std::cerr << "Unknown argument " << arg.get_lhs()
@@ -79,9 +89,13 @@ run(Resume_options &opts)
     if (opts.new_checkpoint_directory != Resume_options::unspecified_str) {
         resume.set_new_checkpoint_dir(opts.new_checkpoint_directory);
     }
+    bool new_num_turns = (opts.num_turns != Resume_options::unspecified_int);
     bool new_max_turns = (opts.max_turns != Resume_options::unspecified_int);
     bool new_verbosity = (opts.verbosity != Resume_options::unspecified_int);
-    resume.propagate(new_max_turns, opts.max_turns, new_verbosity,
+    if (opts.concurrent_io != Resume_options::unspecified_int) {
+    	resume.set_concurrent_io(opts.concurrent_io);
+    }
+    resume.propagate(new_num_turns, opts.num_turns, new_max_turns, opts.max_turns, new_verbosity,
             opts.verbosity);
 }
 

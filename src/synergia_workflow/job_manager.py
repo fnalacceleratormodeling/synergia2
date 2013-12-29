@@ -180,11 +180,15 @@ class Job_manager:
     :param extra_files: a list of additional files required to run the job.
     :param extra_dirs: a list of additional directories whose contents are required to run the job.
     :param argv: the command-line arguments. Use sys.argv if :code:`None`.
-    :param extra_opt_files: for internal use.
-    :param extra_opt_dirs: for internal use.
+    :param extra_opt_files: a list of additional files to be included iff found.
+    :param extra_opt_dirs:  list of additional directories to be included iff found.
     :param standalone: for internal use.
     :param subjob: for internal use.
     :param subjob_index: for internal use.
+    
+    To list extra files or directories that are part of an Options object opt, use, e.g.,
+        extra_files=[...,[opt,"name"],...]
+    to get the option named "name".
     '''
     def __init__(self, script, opts, extra_files=None, extra_dirs=None,
                  argv=None,

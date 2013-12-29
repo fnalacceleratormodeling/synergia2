@@ -52,11 +52,18 @@ BOOST_PYTHON_MODULE(collective)
     class_<Space_charge_2d_open_hockney, Space_charge_2d_open_hockney_sptr,
         bases<Collective_operator > >("Space_charge_2d_open_hockney",
                 init<Commxx_sptr, std::vector<int > >())
+        .def(init<Commxx_divider_sptr, std::vector<int > >())
                 .def(init<Commxx_sptr, std::vector<int >, bool >())
+        .def(init<Commxx_divider_sptr, std::vector<int >, bool >())
                 .def(init<Commxx_sptr, std::vector<int >, bool, bool >())
+        .def(init<Commxx_divider_sptr, std::vector<int >, bool, bool >())
                 .def(init<Commxx_sptr, std::vector<int >, bool, bool, double >())
+        .def(init<Commxx_divider_sptr, std::vector<int >, bool, bool, double >())
                 .def(init<Commxx_sptr, std::vector<int >, bool, bool, double, bool >())
+        .def(init<Commxx_divider_sptr, std::vector<int >, bool, bool, double, bool >())
                 .def(init<Commxx_sptr, std::vector<int >, bool, bool, double, bool, double >())
+        .def(init<Commxx_divider_sptr, std::vector<int >, bool, bool, double, bool, double >())
+
                 .def("apply", &Space_charge_2d_open_hockney::apply)
                 .def("set_files", &Space_charge_2d_open_hockney::set_files)
         ;
