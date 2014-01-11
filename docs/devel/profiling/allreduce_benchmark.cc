@@ -14,9 +14,9 @@
 int
 main(int argc, char **argv)
 {
-    double t = simple_timer_current();
 
     MPI_Init(&argc, &argv);
+    double t = simple_timer_current();
     Allreduce_benchmark_options opts(argc, argv);
 
     Commxx comm;
