@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-import os, stat, sys, hashlib
+import os, sys, hashlib
 
 from synergia.lattice import Mad8_parser
 from synergia.lattice import Lattice_element, Mad8_adaptor_map, Lattice
