@@ -39,7 +39,7 @@ add_test(test_operation_extractor_map ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_
 add_test_executable(test_lattice_simulator test_lattice_simulator.cc)
 target_link_libraries(test_lattice_simulator synergia_simulation synergia_lattice ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_lattice_simulator ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_lattice_simulator)
-add_test(test_lattice_simulator_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_lattice_simulator.py)
+add_test(test_lattice_simulator_py ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_lattice_simulator.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_lattice_simulator.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -97,7 +97,7 @@ add_test(test_circular_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 t
 add_test_executable(test_elliptical_aperture_operation test_elliptical_aperture_operation.cc)
 target_link_libraries(test_elliptical_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_elliptical_aperture_operation ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_elliptical_aperture_operation)
-add_test(test_elliptical_aperture_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose ; nose.main()" test_elliptical_apertures.py)
+add_test(test_elliptical_aperture_py ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose ; nose.main()" test_elliptical_apertures.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_elliptical_apertures.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -118,7 +118,7 @@ add_test(test_propagator_mpi4 ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4  test_propaga
 
 
 
-add_test(test_simplify2_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_simplify2.py)
+add_test(test_simplify2_py ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_simplify2.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_simplify2.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 

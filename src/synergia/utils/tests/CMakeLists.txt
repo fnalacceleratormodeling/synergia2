@@ -18,7 +18,8 @@ add_test_executable(test_parallel_utils test_parallel_utils.cc)
 target_link_libraries(test_parallel_utils synergia_parallel_utils
      ${Boost_SERIALIZATION_LIBRARY} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_parallel_utils ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_parallel_utils)
-add_test(test_parallel_utils_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()"
+add_test(test_parallel_utils_py 
+    ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()"
     test_parallel_utils.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_parallel_utils.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
@@ -26,7 +27,9 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_parallel_utils.py
 add_test_executable(test_logger test_logger.cc)
 target_link_libraries(test_logger synergia_parallel_utils  ${Boost_SERIALIZATION_LIBRARY} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_logger ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_logger)
-add_test(test_logger_py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_logger.py)
+add_test(test_logger_py 
+    ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()"
+    test_logger.py)
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_logger.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
@@ -130,7 +133,7 @@ set_directory_properties(PROPERTIES ADDITIONAL_MAKE_CLEAN_FILES "${CLEAN_FILES}"
 # add_library(wrap_containers wrap_containers.cc)
 # add_python_extension(wrap_containers_python wrap_containers_wrap.cc)
 #   target_link_libraries(wrap_containers_python wrap_containers ${Boost_LIBRARIES})
-# add_test(test_container_conversions.py ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_container_conversions.py)
+# add_test(test_container_conversions.py ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_container_conversions.py)
 
 
 #     wrap_containers.h
