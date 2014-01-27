@@ -6,6 +6,7 @@ from matplotlib import pyplot
 from math import sin, cos, pi
 import numpy
 
+xmlfile = False
 used_legends = []
 def plot_element(element, x, y, angle, attributes, highlight):
     global used_legends
@@ -104,13 +105,24 @@ def do_help():
     sys.exit(0)
 
 def handle_args(args):
-    if len(args) < 2:
+    if len(args) < 1:
         do_help()
     options = Options()
     options.lattice_file = args[0]
-    options.lattice = args[1]
+    # is this an xml file?
+    if os.path.splitext(options.lattice_file)[1] == '.xml':
+        options.xmlfile = True
+        start_args = 1
+        # default reader mad8 for xml files can be changed with --reader=
+        options.reader = 'mad8'
+    else:
+        if len(args) < 2:
+            do_help()
+        options.xmlfile = False
+        start_args = 2
+        options.lattice = args[1]
     options.reader = None
-    for arg in args[2:]:
+    for arg in args[start_args:]:
         if arg == '--help':
             do_help(plotparams)
         elif arg == '--nolegend':
@@ -133,7 +145,10 @@ def handle_args(args):
     return options
 
 def do_plot(options):
-    if options.reader == 'madx':
+    if options.xmlfile:
+        lattice = synergia.lattice.Lattice()
+        synergia.lattice.xml_load_lattice(lattice, options.lattice_file)
+    elif not options.xmlfile and options.reader == 'madx':
         lattice = synergia.lattice.MadX_reader().get_lattice(options.lattice,
                                                              options.lattice_file)
     else:
