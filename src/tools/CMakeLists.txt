@@ -10,7 +10,8 @@ set(tools
     synprintmaps
     synpart2txt
     syntrack2txt
-    synpart2madxtxt)
+    synpart2madxtxt
+    syndecodemad8twiss)
 
 foreach(tool ${tools})
     configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${tool}.in"
@@ -31,4 +32,5 @@ install(FILES
     particles_to_text.py
     tracks_to_text.py
     particles_to_madX_text.py
+    decode_mad8_twiss.py
     DESTINATION lib/synergia_tools)
