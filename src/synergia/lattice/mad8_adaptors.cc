@@ -1649,6 +1649,24 @@ Instrument_mad8_adaptor::Instrument_mad8_adaptor()
     get_default_element().set_double_attribute("l", 0.0);
 }
 
+// Use a drift to reserve space for instruments
+Chef_elements
+Instrument_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+
+    bmlnElmnt* bmln_elmnt;
+
+    double lenmon = lattice_element.get_double_attribute("l");
+    bmln_elmnt = new drift(lattice_element.get_name().c_str(), lenmon);
+
+    ElmPtr elm(bmln_elmnt);
+    retval.push_back(elm);
+
+    return retval;
+}
+
 template<class Archive>
     void
     Instrument_mad8_adaptor::serialize(Archive & ar, const unsigned int version)
