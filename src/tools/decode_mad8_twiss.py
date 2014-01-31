@@ -171,7 +171,7 @@ def read_twiss_file(tfo):
         if elem_num != 0:
             lattice.append(make_lattice_element(letype, lename, lelength,
                                                 p1, p2, p3, p4, p5, p6, p7, p8))
-            lfinfo.append(lf)
+        lfinfo.append(lf)
         
     return lfinfo, lattice
     
