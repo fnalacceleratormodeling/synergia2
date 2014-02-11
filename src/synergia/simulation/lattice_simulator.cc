@@ -640,6 +640,7 @@ Lattice_simulator::update()
     chef_lattice_sptr = Chef_lattice_sptr(new Chef_lattice(lattice_sptr));
     construct_extractor_map();
     construct_aperture_extractor_map();
+    set_bucket_length();
     if (have_slices) {
         construct_sliced_chef_beamline();
     }
