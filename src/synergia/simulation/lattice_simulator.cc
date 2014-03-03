@@ -670,6 +670,20 @@ Lattice_simulator::update()
     normal_form_sage_sptr.reset();
 }
 
+MArray1d
+Lattice_simulator::get_closed_orbit()
+{
+    MArray1d retval(boost::extents[6]);
+    BmlContextPtr context(get_beamline_context());
+    retval[Bunch::x] = context->getParticle_x();
+    retval[Bunch::xp] = context->getParticle_npx();
+    retval[Bunch::y] = context->getParticle_y();
+    retval[Bunch::yp] = context->getParticle_npy();
+    retval[Bunch::cdt] = context->getParticle_cdt();
+    retval[Bunch::dpop] = context->getParticle_ndp();
+    return retval;
+}
+
 void
 Lattice_simulator::calculate_element_lattice_functions()
 {

@@ -164,6 +164,15 @@ BOOST_AUTO_TEST_CASE(update)
     BOOST_CHECK_CLOSE(new_quad_strength, 2*orig_quad_strength, tolerance);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_closed_orbit, Lattice_fixture)
+{
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+    MArray1d closed_orbit(lattice_simulator.get_closed_orbit());
+    for(int i = 0; i < 6; ++i) {
+        BOOST_CHECK_CLOSE(closed_orbit[i], 0.0, tolerance);
+    }
+}
+
 BOOST_FIXTURE_TEST_CASE(calculate_element_lattice_functions, Fobodobo_sbend_fixture)
 {
     const int map_order = 1;

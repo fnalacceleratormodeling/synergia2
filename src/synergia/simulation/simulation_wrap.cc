@@ -374,6 +374,7 @@ BOOST_PYTHON_MODULE(simulation)
         .def("get_bucket_length", &Lattice_simulator::get_bucket_length)
         .def("get_number_buckets",&Lattice_simulator::get_number_buckets)
         .def("update", &Lattice_simulator::update)
+        .def("get_closed_orbit", &Lattice_simulator::get_closed_orbit)
         .def("calculate_element_lattice_functions",
                 &Lattice_simulator::calculate_element_lattice_functions)
         .def("calculate_slice_lattice_functions",

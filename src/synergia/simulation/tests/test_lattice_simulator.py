@@ -75,3 +75,10 @@ def test_adjust_tunes():
     tolerance = 1.0e-6
     lattice_simulator.adjust_tunes(new_horizontal_tune, new_vertical_tune,
             horizontal_correctors, vertical_correctors, tolerance)
+
+def test_get_closed_orbit():
+    f = Fixture()
+    map_order = 1
+    lattice_simulator = Lattice_simulator(f.lattice, map_order)
+
+    coords = lattice_simulator.get_closed_orbit()

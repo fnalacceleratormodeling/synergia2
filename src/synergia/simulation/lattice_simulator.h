@@ -197,6 +197,8 @@ public:
     get_chef_lattice_sptr();
     void
     update();
+    MArray1d
+    get_closed_orbit();
     void
     calculate_element_lattice_functions(); // Courant Snyder lattice functions
     void
