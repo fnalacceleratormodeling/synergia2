@@ -181,6 +181,8 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(adjust_tunes_overloads46,
 		 Lattice_simulator::adjust_tunes, 4, 6)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_linear_one_turn_map_overloads01,
 			Lattice_simulator::get_linear_one_turn_map, 0, 1)       
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_closed_orbit_overloads01,
+            Lattice_simulator::get_closed_orbit, 0, 1)
 
 
 
@@ -374,7 +376,8 @@ BOOST_PYTHON_MODULE(simulation)
         .def("get_bucket_length", &Lattice_simulator::get_bucket_length)
         .def("get_number_buckets",&Lattice_simulator::get_number_buckets)
         .def("update", &Lattice_simulator::update)
-        .def("get_closed_orbit", &Lattice_simulator::get_closed_orbit)
+        .def("get_closed_orbit", &Lattice_simulator::get_closed_orbit,
+             get_closed_orbit_overloads01())
         .def("calculate_element_lattice_functions",
                 &Lattice_simulator::calculate_element_lattice_functions)
         .def("calculate_slice_lattice_functions",

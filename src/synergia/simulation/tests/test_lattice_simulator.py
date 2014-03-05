@@ -4,6 +4,7 @@ import synergia
 from synergia.simulation import Lattice_simulator
 import math
 from nose.tools import *
+from beamline import *
 
 name = "fobodobo"
 charge = 1
@@ -76,9 +77,66 @@ def test_adjust_tunes():
     lattice_simulator.adjust_tunes(new_horizontal_tune, new_vertical_tune,
             horizontal_correctors, vertical_correctors, tolerance)
 
+class Kick_Fixture:
+    n_cells=32
+    bend_angle = synergia.foundation.mconstants.pi/n_cells
+    def __init__(self):
+        four_momentum = synergia.foundation.Four_momentum(mass, 2.0)
+        reference_particle = \
+            synergia.foundation.Reference_particle(charge, four_momentum)
+        self.lattice = synergia.lattice.Lattice(name)
+        self.lattice.set_reference_particle(reference_particle)
+        f = synergia.lattice.Lattice_element("quadrupole", "f")
+        f.set_double_attribute("l", quad_length)
+        f.set_double_attribute("k1", quad_strength)
+        o = synergia.lattice.Lattice_element("drift", "o")
+        o.set_double_attribute("l", drift_length)
+        d = synergia.lattice.Lattice_element("quadrupole", "d")
+        d.set_double_attribute("l", quad_length)
+        d.set_double_attribute("k1", -quad_strength)
+        b = synergia.lattice.Lattice_element("sbend", "b")
+        b.set_double_attribute("l", bend_length)
+        b.set_double_attribute("angle", bend_angle)
+        k = synergia.lattice.Lattice_element("hkicker", "k")
+        k.set_double_attribute("kick", .0003)
+
+        for cell in range(0, n_cells):
+            self.lattice.append(f)
+            self.lattice.append(o)
+            self.lattice.append(b)
+            self.lattice.append(o)
+            self.lattice.append(d)
+            self.lattice.append(o)
+            self.lattice.append(b)
+            self.lattice.append(o)
+        self.lattice.append(k)
+
 def test_get_closed_orbit():
-    f = Fixture()
+    f = Kick_Fixture()
     map_order = 1
     lattice_simulator = Lattice_simulator(f.lattice, map_order)
 
     coords = lattice_simulator.get_closed_orbit()
+    # with kick, the x-x' closed orbit better be nonzero.
+    print "closed orbit:",
+    #for i in range(6):
+    #    print " ",coords[i],
+    #print
+    chef_beamline = lattice_simulator.get_chef_lattice().get_beamline()
+    energy = chef_beamline.Energy()
+    probe = Proton(energy)
+    probe.set_x(coords[0])
+    probe.set_npx(coords[1])
+    probe.set_y(coords[2])
+    probe.set_npy(coords[3])
+    probe.set_cdt(coords[4])
+    probe.set_ndp(coords[5])
+    #print "probe before: ", probe.State()
+    chef_beamline.propagate(probe)
+    #print "probe after: ", probe.State()
+    assert_almost_equal(coords[0], probe.get_x())
+    assert_almost_equal(coords[1], probe.get_npx())
+
+
+
+

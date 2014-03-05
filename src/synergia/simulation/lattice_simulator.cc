@@ -29,6 +29,7 @@
 #include <fstream>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_multiroots.h>
+#include <physics_toolkit/ClosedOrbitSage.h>
 
 Lattice_functions::Lattice_functions(LattFuncSage::lattFunc const& latt_func) :
                 alpha_x(latt_func.alpha.hor),
@@ -671,16 +672,30 @@ Lattice_simulator::update()
 }
 
 MArray1d
-Lattice_simulator::get_closed_orbit()
+Lattice_simulator::get_closed_orbit(double dpop)
 {
     MArray1d retval(boost::extents[6]);
-    BmlContextPtr context(get_beamline_context());
-    retval[Bunch::x] = context->getParticle_x();
-    retval[Bunch::xp] = context->getParticle_npx();
-    retval[Bunch::y] = context->getParticle_y();
-    retval[Bunch::yp] = context->getParticle_npy();
-    retval[Bunch::cdt] = context->getParticle_cdt();
-    retval[Bunch::dpop] = context->getParticle_ndp();
+    // beamline for calculations, cloned because the rf cavities will be turned off.
+    BmlPtr beamline_sptr(get_chef_lattice_sptr()->get_beamline_sptr()->Clone());
+
+    double beamline_energy = beamline_sptr->Energy();
+
+    ensure_jet_environment(map_order);
+
+    ClosedOrbitSage closed_orbit_sage(beamline_sptr);
+    // someday we might not use protons
+    Proton probe(beamline_energy);
+    probe.set_ndp(dpop);
+    JetProton jetprobe(probe);
+    closed_orbit_sage.findClosedOrbit(jetprobe);
+    Proton closed_orbit_particle(jetprobe);
+
+    retval[Bunch::x] = closed_orbit_particle.get_x();
+    retval[Bunch::xp] = closed_orbit_particle.get_npx();
+    retval[Bunch::y] = closed_orbit_particle.get_y();
+    retval[Bunch::yp] = closed_orbit_particle.get_npy();
+    retval[Bunch::cdt] = closed_orbit_particle.get_cdt();
+    retval[Bunch::dpop] = closed_orbit_particle.get_ndp();
     return retval;
 }
 

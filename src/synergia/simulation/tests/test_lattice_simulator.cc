@@ -164,14 +164,106 @@ BOOST_AUTO_TEST_CASE(update)
     BOOST_CHECK_CLOSE(new_quad_strength, 2*orig_quad_strength, tolerance);
 }
 
-BOOST_FIXTURE_TEST_CASE(get_closed_orbit, Lattice_fixture)
+#define CO_DEBUG 0
+BOOST_AUTO_TEST_CASE(get_closed_orbit)
 {
-    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
-    MArray1d closed_orbit(lattice_simulator.get_closed_orbit());
-    for(int i = 0; i < 6; ++i) {
-        BOOST_CHECK_CLOSE(closed_orbit[i], 0.0, tolerance);
+    const double bend_length = 2.0;
+    const double quad_length = 0.5;
+    const double sep = 10.0;
+    const double focus = 7.0;
+    const double quad_strength = 1.0/(focus*quad_length);
+    const double drift_length = (sep - quad_length - bend_length)/2.0;
+    const double kick_strength = 0.0002;
+    const int ncells = 128;
+    // angle = 2*pi/(2*ncells)
+    const double bend_angle = mconstants::pi/ncells;
+    const double co_tolerance = 1.0e-4;
+
+    Lattice_element f("quadrupole", "f");
+    f.set_double_attribute("l", quad_length);
+    f.set_double_attribute("k1", quad_strength);
+    Lattice_element o("drift", "o");
+    o.set_double_attribute("l", drift_length);
+    Lattice_element d("quadrupole", "d");
+    d.set_double_attribute("l", quad_length);
+    d.set_double_attribute("k1", -quad_strength);
+    Lattice_element b("sbend", "b");
+    b.set_double_attribute("l", bend_length);
+    b.set_double_attribute("angle", bend_angle);
+
+    Lattice_element k("hkicker", "k");
+    k.set_double_attribute("kick", kick_strength);
+
+    Lattice_sptr lattice_sptr(new Lattice(name));
+    for (int cell=0; cell<ncells; ++cell) {
+        lattice_sptr->append(f);
+        lattice_sptr->append(o);
+        lattice_sptr->append(b);
+        lattice_sptr->append(o);
+        lattice_sptr->append(d);
+        lattice_sptr->append(o);
+        lattice_sptr->append(b);
+        lattice_sptr->append(o);
     }
+    lattice_sptr->append(k);
+
+    const int charge = pconstants::proton_charge;
+    const double mass = pconstants::mp;
+    const double total_energy = 2.0;
+    Four_momentum four_momentum(mass, total_energy);
+    Reference_particle reference_particle(charge, four_momentum);
+    lattice_sptr->set_reference_particle(reference_particle);
+
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+    BmlPtr beamline_sptr(lattice_simulator.get_chef_lattice_sptr()->get_beamline_sptr());
+    Proton probe(total_energy);
+
+#if CO_DEBUG
+    beamline_sptr->propagate(probe);
+
+    std::cout << "egs: test_get_closed_orbit propagate zero particle: ";
+    std::cout << probe.get_x() << " " << probe.get_npx() << " " << probe.get_y() << " " << probe.get_npy()
+              << " " << probe.get_cdt() << " " << probe.get_ndp();
+    std::cout << std::endl;
+#endif
+
+    MArray1d closed_orbit(lattice_simulator.get_closed_orbit());
+#if CO_DEBUG
+    std::cout << "egs: test_get_closed_orbit: ";
+    for (int i=0; i<6; ++i) {
+        std::cout << " " << closed_orbit[i];
+    }
+    std::cout << std::endl;
+#endif
+
+    // with kick, the closed orbit in x and xp better be away from 0
+    for (int i=0; i<2; ++i) {
+        BOOST_CHECK(std::abs(closed_orbit[i]) > 1.0e-5);
+    }
+
+    probe.set_x(closed_orbit[0]);
+    probe.set_npx(closed_orbit[1]);
+    probe.set_y(closed_orbit[2]);
+    probe.set_npy(closed_orbit[3]);
+    probe.set_cdt(closed_orbit[4]);
+    probe.set_ndp(closed_orbit[5]);
+
+    beamline_sptr->propagate(probe);
+
+#if CO_DEBUG
+    std::cout << "egs: test_get_closed_orbit after propagate: ";
+    std::cout << probe.get_x() << " " << probe.get_npx() << " " << probe.get_y() << " " << probe.get_npy()
+              << " " << probe.get_cdt() << " " << probe.get_ndp();
+    std::cout << std::endl;
+#endif
+
+    BOOST_CHECK(floating_point_equal(closed_orbit[0], probe.get_x(), co_tolerance));
+    BOOST_CHECK(floating_point_equal(closed_orbit[1], probe.get_npx(), co_tolerance));
+    BOOST_CHECK(floating_point_equal(closed_orbit[2], probe.get_y(), co_tolerance));
+    BOOST_CHECK(floating_point_equal(closed_orbit[3], probe.get_npy(), co_tolerance));
 }
+
 
 BOOST_FIXTURE_TEST_CASE(calculate_element_lattice_functions, Fobodobo_sbend_fixture)
 {

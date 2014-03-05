@@ -198,7 +198,7 @@ public:
     void
     update();
     MArray1d
-    get_closed_orbit();
+    get_closed_orbit(double dpop = 0.0);
     void
     calculate_element_lattice_functions(); // Courant Snyder lattice functions
     void
