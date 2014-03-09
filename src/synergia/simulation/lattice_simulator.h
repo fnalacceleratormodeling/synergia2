@@ -294,4 +294,15 @@ public:
     ~Lattice_simulator();
 };
 
+#include "synergia/simulation/dense_mapping.h"
+class Dense_mapping_calculator
+{
+private:
+    std::map<Lattice_element *, Dense_mapping> element_map;
+public:
+    Dense_mapping_calculator(Lattice_simulator& lattice_simulator, bool closed_orbit);
+    Dense_mapping get_dense_mappping(Lattice_element& lattice_element);
+    ~Dense_mapping_calculator();
+};
+
 #endif /* LATTICE_SIMULATOR_H_ */

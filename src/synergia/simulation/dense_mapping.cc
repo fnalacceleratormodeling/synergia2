@@ -1,5 +1,10 @@
 #include "dense_mapping.h"
 
+Dense_mapping::Dense_mapping() :
+    constant(boost::extents[6]), linear(boost::extents[6][6])
+{
+}
+
 Dense_mapping::Dense_mapping(Fast_mapping const& fast_mapping) :
     constant(boost::extents[6]), linear(boost::extents[6][6])
 {

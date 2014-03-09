@@ -705,4 +705,9 @@ BOOST_PYTHON_MODULE(simulation)
             .def_readwrite("lattice", &Resume::Content::lattice_sptr)
             ;
     }
+    
+    class_<Dense_mapping_calculator>("Dense_mapping_calculator", 
+                                     init<Lattice_simulator&, bool>())
+            .def("get_dense_mapping", &Dense_mapping_calculator::get_dense_mappping)
+            ;
 }

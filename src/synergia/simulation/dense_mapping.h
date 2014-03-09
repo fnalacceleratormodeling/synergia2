@@ -10,6 +10,7 @@ private:
     MArray1d constant;
     MArray2d linear;
 public:
+    Dense_mapping();
     Dense_mapping(Fast_mapping const& fast_mapping);
     MArray1d_ref
     get_constant_term();

@@ -2005,3 +2005,42 @@ Lattice_simulator::~Lattice_simulator()
 {
 }
 
+Dense_mapping_calculator::Dense_mapping_calculator(Lattice_simulator& lattice_simulator, bool closed_orbit)
+{
+    Chef_lattice& chef_lattice(lattice_simulator.get_chef_lattice());
+    Lattice_elements& lattice_elements(lattice_simulator.get_lattice().get_elements());
+    Reference_particle reference_particle(lattice_simulator.get_lattice().get_reference_particle());
+    Particle particle = reference_particle_to_chef_particle(reference_particle);
+    if (closed_orbit) {
+        ClosedOrbitSage closed_orbit_sage(lattice_simulator.get_chef_lattice().get_beamline_sptr());
+        JetParticle jetprobe(particle);
+        closed_orbit_sage.findClosedOrbit(jetprobe);
+        particle = Particle(jetprobe);
+    }
+    for (Lattice_elements::iterator it = lattice_elements.begin();
+         it != lattice_elements.end(); ++it)
+    {
+        JetParticle jet_particle(particle);
+        Chef_elements chef_elements(chef_lattice.get_chef_elements(**it));
+        double mapping_length = 0.0;        
+        for (Chef_elements::iterator chef_it = chef_elements.begin();
+             chef_it != chef_elements.end();
+             ++chef_it)
+        {
+            (*chef_it)->propagate(jet_particle);
+            mapping_length += (*chef_it)->OrbitLength(particle);            
+            (*chef_it)->propagate(particle);
+        }
+        element_map[&(**it)] = Fast_mapping(reference_particle, jet_particle.State(),
+                                            mapping_length);
+    }
+}
+
+Dense_mapping Dense_mapping_calculator::get_dense_mappping(Lattice_element& lattice_element)
+{
+    return element_map[&lattice_element];
+}
+
+Dense_mapping_calculator::~Dense_mapping_calculator()
+{
+}
