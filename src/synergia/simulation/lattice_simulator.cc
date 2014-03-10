@@ -2010,6 +2010,7 @@ Dense_mapping_calculator::Dense_mapping_calculator(Lattice_simulator& lattice_si
     Chef_lattice& chef_lattice(lattice_simulator.get_chef_lattice());
     Lattice_elements& lattice_elements(lattice_simulator.get_lattice().get_elements());
     Reference_particle reference_particle(lattice_simulator.get_lattice().get_reference_particle());
+    ensure_jet_environment(lattice_simulator.get_map_order());
     Particle particle = reference_particle_to_chef_particle(reference_particle);
     if (closed_orbit) {
         ClosedOrbitSage closed_orbit_sage(lattice_simulator.get_chef_lattice().get_beamline_sptr());
