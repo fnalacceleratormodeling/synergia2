@@ -7,15 +7,18 @@
 class Dense_mapping
 {
 private:
+    double length;
     MArray1d constant;
     MArray2d linear;
 public:
     Dense_mapping();
     Dense_mapping(Fast_mapping const& fast_mapping);
+    double
+    get_length() const;
     MArray1d_ref
-    get_constant_term();
+    get_constant_term() const;
     MArray2d_ref
-    get_linear_term();
+    get_linear_term() const;
     ~Dense_mapping();
 };
 

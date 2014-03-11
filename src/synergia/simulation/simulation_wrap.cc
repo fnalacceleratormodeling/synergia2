@@ -292,6 +292,7 @@ BOOST_PYTHON_MODULE(simulation)
             ;
 
     class_<Dense_mapping >("Dense_mapping", init<Fast_mapping const& >())
+            .def("get_length", &Dense_mapping::get_length)
             .def("get_constant_term", &Dense_mapping::get_constant_term)
             .def("get_linear_term", &Dense_mapping::get_linear_term)
             ;

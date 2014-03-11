@@ -25,16 +25,23 @@ Dense_mapping::Dense_mapping(Fast_mapping const& fast_mapping) :
             linear[i][telem->index(0)] = telem->coeff();
         }
     }
+    length = fast_mapping.get_length();
+}
+
+double
+Dense_mapping::get_length() const
+{
+    return length;
 }
 
 MArray1d_ref
-Dense_mapping::get_constant_term()
+Dense_mapping::get_constant_term() const
 {
     return constant;
 }
 
 MArray2d_ref
-Dense_mapping::get_linear_term()
+Dense_mapping::get_linear_term() const
 {
     return linear;
 }
