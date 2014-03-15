@@ -892,7 +892,6 @@ Lattice_simulator::calculate_slice_dispersion_functions()
             }
             ++it;
         }
-        have_slice_dispersion = true;
     }
 }
 
@@ -1781,6 +1780,8 @@ Lattice_simulator::print_cs_lattice_functions()
                     << std::endl;
 
         }
+        // remake beamline after it's all over to restore RF
+        update();
     }
     catch (std::exception const& e) {
         std::cout << e.what() << std::endl;
@@ -1808,6 +1809,8 @@ Lattice_simulator::print_et_lattice_functions()
                         << etinfo.beta_y << "   " << etinfo.alpha_x << "   "
                         << etinfo.alpha_y << "    " << etinfo.phi << std::endl;
         }
+        // remake beamline after it's all over to restore RF
+        update();
     }
     catch (std::exception const& e) {
         std::cout << e.what() << std::endl;
@@ -1841,6 +1844,8 @@ Lattice_simulator::print_lb_lattice_functions()
                     << "     " << lbinfo.u4 << "     " << lbinfo.nu_1
                     << "     " << lbinfo.nu_2 << std::endl;
         }
+        // remake beamline after it's all over to restore RF
+        update();
     }
     catch (std::exception const& e) {
         std::cout << e.what() << std::endl;
