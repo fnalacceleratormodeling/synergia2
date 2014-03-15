@@ -74,6 +74,11 @@ struct Propagate_actions_callback : Propagate_actions
         self_.Propagate_actions::step_end_action(stepper, step, bunch,
                 turn_num, step_num);
     }
+    PyObject*
+    get_python_object()
+    {
+        return self.ptr();
+    }
     template<class Archive>
         void
         save(Archive & ar, const unsigned int version) const
@@ -517,6 +522,8 @@ BOOST_PYTHON_MODULE(simulation)
                     &Propagate_actions_callback::default_turn_end_action)
             .def("step_end_action",
                     &Propagate_actions_callback::default_step_end_action)
+            .def("get_python_object",
+                 &Propagate_actions_callback::get_python_object)
             .enable_pickling()
             ;
      

@@ -4,6 +4,7 @@
 #include "synergia/utils/containers_to_string.h"
 #include "synergia/foundation/math_constants.h"
 #include "synergia/utils/digits.h"
+#include "synergia/lattice/chef_utils.h"
 
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic push
@@ -677,18 +678,14 @@ Lattice_simulator::get_closed_orbit(double dpop)
     MArray1d retval(boost::extents[6]);
     // beamline for calculations, cloned because the rf cavities will be turned off.
     BmlPtr beamline_sptr(get_chef_lattice_sptr()->get_beamline_sptr()->Clone());
-
-    double beamline_energy = beamline_sptr->Energy();
-
     ensure_jet_environment(map_order);
 
     ClosedOrbitSage closed_orbit_sage(beamline_sptr);
-    // someday we might not use protons
-    Proton probe(beamline_energy);
+    Particle probe(reference_particle_to_chef_particle(lattice_sptr->get_reference_particle()));
     probe.set_ndp(dpop);
-    JetProton jetprobe(probe);
+    JetParticle jetprobe(probe);
     closed_orbit_sage.findClosedOrbit(jetprobe);
-    Proton closed_orbit_particle(jetprobe);
+    Particle closed_orbit_particle(jetprobe);
 
     retval[Bunch::x] = closed_orbit_particle.get_x();
     retval[Bunch::xp] = closed_orbit_particle.get_npx();
