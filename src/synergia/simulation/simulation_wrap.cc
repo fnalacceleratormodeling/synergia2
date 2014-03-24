@@ -300,6 +300,7 @@ BOOST_PYTHON_MODULE(simulation)
             .def("get_length", &Dense_mapping::get_length)
             .def("get_constant_term", &Dense_mapping::get_constant_term)
             .def("get_linear_term", &Dense_mapping::get_linear_term)
+            .def("get_linear_term_mad", &Dense_mapping::get_linear_term_mad)
             ;
 
     class_<Fast_mapping_operation, Fast_mapping_operation_sptr,

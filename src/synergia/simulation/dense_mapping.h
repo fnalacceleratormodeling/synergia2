@@ -19,6 +19,8 @@ public:
     get_constant_term() const;
     MArray2d_ref
     get_linear_term() const;
+    MArray2d
+    get_linear_term_mad();
     ~Dense_mapping();
 };
 
