@@ -2,22 +2,22 @@ add_definitions(-DBOOST_TEST_DYN_LINK)
 
 add_test_executable(test_commxx_mpi test_commxx_mpi.cc)
 target_link_libraries(test_commxx_mpi synergia_parallel_utils synergia_serialization ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(NAME test_commxx_mpi1 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_commxx_mpi)
-add_test(NAME test_commxx_mpi2 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 test_commxx_mpi)
-add_test(NAME test_commxx_mpi4 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 test_commxx_mpi)
-add_test(NAME test_commxx_mpi7 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 7 test_commxx_mpi)
-add_test(NAME test_commxx_mpi12 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 12 test_commxx_mpi)
+add_test(NAME test_commxx_mpi1 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_commxx_mpi>)
+add_test(NAME test_commxx_mpi2 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_commxx_mpi>)
+add_test(NAME test_commxx_mpi4 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:test_commxx_mpi>)
+add_test(NAME test_commxx_mpi7 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 7 $<TARGET_FILE:test_commxx_mpi>)
+add_test(NAME test_commxx_mpi12 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 12 $<TARGET_FILE:test_commxx_mpi>)
 
 add_test_executable(test_commxx_divider_mpi test_commxx_divider_mpi.cc)
 target_link_libraries(test_commxx_divider_mpi synergia_parallel_utils synergia_serialization ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(NAME test_commxx_divider_mpi1 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_commxx_divider_mpi)
-add_test(NAME test_commxx_divider_mpi4 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 test_commxx_divider_mpi)
+add_test(NAME test_commxx_divider_mpi1 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_commxx_divider_mpi>)
+add_test(NAME test_commxx_divider_mpi4 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:test_commxx_divider_mpi>)
 
 
 add_test_executable(test_parallel_utils test_parallel_utils.cc)
 target_link_libraries(test_parallel_utils synergia_parallel_utils
      ${Boost_SERIALIZATION_LIBRARY} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(NAME test_parallel_utils COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_parallel_utils)
+add_test(NAME test_parallel_utils COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_parallel_utils>)
 add_test(test_parallel_utils_py 
     ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()"
     test_parallel_utils.py)
@@ -26,7 +26,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_parallel_utils.py
 
 add_test_executable(test_logger test_logger.cc)
 target_link_libraries(test_logger synergia_parallel_utils  ${Boost_SERIALIZATION_LIBRARY} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(NAME test_logger COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_logger)
+add_test(NAME test_logger COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_logger>)
 add_test(test_logger_py 
     ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()"
     test_logger.py)
@@ -35,8 +35,8 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_logger.py
 
 add_test_executable(test_logger_mpi test_logger_mpi.cc)
 target_link_libraries(test_logger_mpi synergia_parallel_utils ${Boost_SERIALIZATION_LIBRARY} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(NAME test_logger_mpi2 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 test_logger_mpi)
-add_test(NAME test_logger_mpi3 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 test_logger_mpi)
+add_test(NAME test_logger_mpi2 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_logger_mpi>)
+add_test(NAME test_logger_mpi3 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 $<TARGET_FILE:test_logger_mpi>)
 
 add_test_executable(test_floating_point test_floating_point.cc)
 target_link_libraries(test_floating_point ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
@@ -52,11 +52,11 @@ add_test(test_hdf5_writer test_hdf5_writer)
 
 add_test_executable(test_hdf5_file test_hdf5_file.cc)
 target_link_libraries(test_hdf5_file synergia_hdf5_utils synergia_serialization ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(NAME test_hdf5_file COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_hdf5_file)
+add_test(NAME test_hdf5_file COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_hdf5_file>)
 
 add_test_executable(test_hdf5_serial_writer test_hdf5_serial_writer.cc)
 target_link_libraries(test_hdf5_serial_writer synergia_hdf5_utils synergia_serialization ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(NAME test_hdf5_serial_writer COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_hdf5_serial_writer)
+add_test(NAME test_hdf5_serial_writer COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_hdf5_serial_writer>)
 
 add_test_executable(test_hdf5_chunked_array2d_writer test_hdf5_chunked_array2d_writer.cc)
 target_link_libraries(test_hdf5_chunked_array2d_writer synergia_hdf5_utils ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
@@ -64,32 +64,32 @@ add_test(test_hdf5_chunked_array2d_writer test_hdf5_chunked_array2d_writer)
 
 add_test_executable(test_distributed_fft3d test_distributed_fft3d.cc)
 target_link_libraries(test_distributed_fft3d synergia_distributed_fft ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(NAME test_distributed_fft3d COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_distributed_fft3d)
+add_test(NAME test_distributed_fft3d COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_distributed_fft3d>)
 
 add_test_executable(test_distributed_fft3d_mpi test_distributed_fft3d_mpi.cc)
 target_link_libraries(test_distributed_fft3d_mpi synergia_distributed_fft
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(NAME test_distributed_fft3d_mpi1 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_distributed_fft3d_mpi)
-add_test(NAME test_distributed_fft3d_mpi2 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 test_distributed_fft3d_mpi)
-add_test(NAME test_distributed_fft3d_mpi3 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 test_distributed_fft3d_mpi)
-add_test(NAME test_distributed_fft3d_mpi4 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 test_distributed_fft3d_mpi)
+add_test(NAME test_distributed_fft3d_mpi1 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_distributed_fft3d_mpi>)
+add_test(NAME test_distributed_fft3d_mpi2 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_distributed_fft3d_mpi>)
+add_test(NAME test_distributed_fft3d_mpi3 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 $<TARGET_FILE:test_distributed_fft3d_mpi>)
+add_test(NAME test_distributed_fft3d_mpi4 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:test_distributed_fft3d_mpi>)
 
 add_test_executable(test_distributed_fft2d test_distributed_fft2d.cc)
 target_link_libraries(test_distributed_fft2d synergia_distributed_fft ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(NAME test_distributed_fft2d COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_distributed_fft2d)
+add_test(NAME test_distributed_fft2d COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_distributed_fft2d>)
 
 add_test_executable(test_distributed_fft2d_mpi test_distributed_fft2d_mpi.cc)
 target_link_libraries(test_distributed_fft2d_mpi synergia_distributed_fft
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(NAME test_distributed_fft2d_mpi1 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_distributed_fft2d_mpi)
-add_test(NAME test_distributed_fft2d_mpi2 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 test_distributed_fft2d_mpi)
-add_test(NAME test_distributed_fft2d_mpi3 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 test_distributed_fft2d_mpi)
-add_test(NAME test_distributed_fft2d_mpi4 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 test_distributed_fft2d_mpi)
+add_test(NAME test_distributed_fft2d_mpi1 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_distributed_fft2d_mpi>)
+add_test(NAME test_distributed_fft2d_mpi2 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 $<TARGET_FILE:test_distributed_fft2d_mpi>)
+add_test(NAME test_distributed_fft2d_mpi3 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 $<TARGET_FILE:test_distributed_fft2d_mpi>)
+add_test(NAME test_distributed_fft2d_mpi4 COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 $<TARGET_FILE:test_distributed_fft2d_mpi>)
 
 add_test_executable(test_xml_serialization test_xml_serialization.cc)
 target_link_libraries(test_xml_serialization synergia_serialization
     ${Boost_SERIALIZATION_LIBRARY} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(NAME test_xml_serialization COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_xml_serialization)
+add_test(NAME test_xml_serialization COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_xml_serialization>)
 
 add_test_executable(test_complex_error_function test_complex_error_function.cc)
 target_link_libraries(test_complex_error_function ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
@@ -103,7 +103,7 @@ add_test(test_multi_array_offsets test_multi_array_offsets)
 add_test_executable(test_multi_array_serialization test_multi_array_serialization.cc)
 target_link_libraries(test_multi_array_serialization synergia_serialization
     ${Boost_SERIALIZATION_LIBRARY} ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
-add_test(NAME test_multi_array_serialization COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 test_multi_array_serialization)
+add_test(NAME test_multi_array_serialization COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_multi_array_serialization>)
 
 add_test_executable(test_command_line_arg test_command_line_arg.cc)
 target_link_libraries(test_command_line_arg synergia_command_line
