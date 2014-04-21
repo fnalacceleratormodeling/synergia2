@@ -13,6 +13,7 @@
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 #include <beamline/beamline_elements.h>
+#include <beamline/YoshidaPropagator.h>
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic pop
 #endif
@@ -499,8 +500,15 @@ Rbend_madx_adaptor::~Rbend_madx_adaptor()
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Rbend_madx_adaptor)
 
+const char Quadrupole_madx_adaptor::yoshida_propagator[] = "yoshida";
+const char Quadrupole_madx_adaptor::basic_propagator[] = "basic";
+
 Quadrupole_madx_adaptor::Quadrupole_madx_adaptor()
 {
+    get_default_element().set_string_attribute("propagator_type", yoshida_propagator);
+    get_default_element().set_double_attribute("yoshida_order", 3);
+    get_default_element().set_double_attribute("yoshida_steps", 5);
+    get_default_element().set_double_attribute("basic_kicks", 40);
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("k1", 0.0);
     get_default_element().set_double_attribute("tilt", 0.0);
@@ -579,8 +587,35 @@ Quadrupole_madx_adaptor::get_chef_elements(
         bmln_elmnt = new thinQuad(lattice_element.get_name().c_str(),
                 brho * lattice_element.get_double_attribute("k1"));
     } else {
+        // jfa hackity hack hack hack: elm being pushed back here is a temporary hack which
+        //     disables many options below
+        if(lattice_element.get_string_attribute("propagator_type") == yoshida_propagator) {
+            int steps = floor(lattice_element.get_double_attribute("yoshida_steps"));
+            int order = floor(lattice_element.get_double_attribute("yoshida_order"));
+            std::cout << "jfa: creating yoshida propagator of order " << order << std::endl;
+            for(int i = 0; i < steps; ++i) {
+                bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length/steps,
+                                            brho * lattice_element.get_double_attribute("k1"));
+                quadrupole::PropagatorPtr yoshida_propagator(new YoshidaPropagator(order));
+                dynamic_cast<quadrupole*>(bmln_elmnt)->usePropagator(yoshida_propagator);
+                ElmPtr elm(bmln_elmnt);
+                retval.push_back(elm);
+            }
+        } else if (lattice_element.get_string_attribute("propagator_type") == basic_propagator) {
+            bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
+                    brho * lattice_element.get_double_attribute("k1"));
+            dynamic_cast<quadrupole*>(bmln_elmnt)->setNumberOfKicks(floor(lattice_element.get_double_attribute("basic_kicks")));
+            ElmPtr elm(bmln_elmnt);
+            retval.push_back(elm);
+        } else {
+            throw std::runtime_error(
+                        "Quadrupole_madx_adaptor::get_chef_elements: bad propagator_type \"" +
+                        lattice_element.get_string_attribute("propagator_type") + "\"");
+        }
         bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
                 brho * lattice_element.get_double_attribute("k1"));
+        //        ElmPtr elm(bmln_elmnt);
+        //        retval.push_back(elm);
     }
 
     // using tilt and multipoles is a no-no
@@ -603,8 +638,9 @@ Quadrupole_madx_adaptor::get_chef_elements(
         if (needs_aligner) {
             bmln_elmnt->setAlignment(aligner);
         }
-        ElmPtr elm(bmln_elmnt);
-        retval.push_back(elm);
+        // jfa: hackity hack hack hack moved to first hhh
+//        ElmPtr elm(bmln_elmnt);
+//        retval.push_back(elm);
     } else {
         // split the quadrupole, insert thin multipole element in between halves
         std::vector < std::complex<double > > c_moments;
