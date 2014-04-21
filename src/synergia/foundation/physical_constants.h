@@ -3,7 +3,7 @@
 #include "synergia/foundation/math_constants.h"
 #include <string>
 
-#define PDG 2010 // use 2010 pdg values for now
+#define PDG 2012 // use 2012 pdg values for now
 
 namespace pconstants
 {
