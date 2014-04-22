@@ -1691,15 +1691,6 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
 
     double chr_h = get_horizontal_chromaticity();
     double chr_v = get_vertical_chromaticity();
-    Logger logger(0);
-    logger<<"_________________________________________"<<std::endl;
-    logger <<" Initial chromaticity (H,V):  ("<< chr_h<<", "
-                <<chr_v<<")"<<std::endl;
-    logger <<" Desired chromaticity (H,V):  ("<< horizontal_chromaticity<<", "
-                <<vertical_chromaticity<<")"<<std::endl;
-    logger<<"_________________________________________"<<std::endl;
-    logger<<"adjusting chromaticity:"<<std::endl;
-
 
     double dh = horizontal_chromaticity - chr_h;
     double dv = vertical_chromaticity - chr_v;
@@ -1707,8 +1698,6 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
 
     while (((std::abs(dh) > tolerance) || (std::abs(dv) > tolerance))
             && (count < max_steps)) {
-            logger<< "  step=" << count << " chromaticity (H,V):  (" << chr_h<<", "
-                <<chr_v<<")"<< "   (Delta H, Delta V): (" << dh << ", " << dv <<")"<<    std::endl;
         int status = beamline_context.changeChromaticityBy(dh, dv);
 
         if (status == BeamlineContext::NO_CHROMATICITY_ADJUSTER) {
@@ -1742,15 +1731,6 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
     have_chromaticities = false;
     if (count == max_steps)  throw std::runtime_error(
         "Lattice_simulator::adjust_chromaticities: Convergence not achieved. Increase the maximum number of steps.");
-
-    logger<<"convergence with tolerance "<<tolerance<<" reached in "
-                        <<count<<" steps"<<std::endl;
-    logger<<"_________________________________________"<<std::endl;       
-    logger << " FINAL CHROMATICITY: (H,V):  ("<< chr_h<<", " <<chr_v<<")"<<std::endl;
-    logger<<"_________________________________________"<<std::endl; 
-    logger.flush();
- 
-
 }
 
 void
@@ -2044,18 +2024,18 @@ Dense_mapping_calculator::Dense_mapping_calculator(Lattice_simulator& lattice_si
             double x1 = particle.get_x();
             double y1 = particle.get_y();
             double cdt1 = particle.get_cdt();
-            std::cout << "jfa: chef element " << (*chef_it)->Name() << std::endl;
+//            std::cout << "jfa: chef element " << (*chef_it)->Name() << std::endl;
             double our_length = std::sqrt(mapping_length*mapping_length + (x1-x0)*(x1-x0) + (y1-y0)*(y1-y0));
-            std::cout << "jfa: our length = " << our_length << std::endl;
-            std::cout << "jfa: our other length = " << (cdt1 - cdt0)/particle.Beta() << std::endl;
-            std::cout << "jfa: cdt0 = " << cdt0 << ", cdt1 = " << cdt1 << std::endl;
-            std::cout << "jfa: c(delta t) = " << cdt1 - cdt0 << std::endl;
-            std::cout << "jfa: check c(delta_t) = " << (our_length - mapping_length)/particle.Beta() << std::endl;
+//            std::cout << "jfa: our length = " << our_length << std::endl;
+//            std::cout << "jfa: our other length = " << (cdt1 - cdt0)/particle.Beta() << std::endl;
+//            std::cout << "jfa: cdt0 = " << cdt0 << ", cdt1 = " << cdt1 << std::endl;
+//            std::cout << "jfa: c(delta t) = " << cdt1 - cdt0 << std::endl;
+//            std::cout << "jfa: check c(delta_t) = " << (our_length - mapping_length)/particle.Beta() << std::endl;
             Particle zero_particle(particle);
             zero_particle.setStateToZero();
-            std::cout << "jfa: zero particle before " << zero_particle.get_cdt() << std::endl;
+//            std::cout << "jfa: zero particle before " << zero_particle.get_cdt() << std::endl;
             (*chef_it)->propagate(zero_particle);
-            std::cout << "jfa: zero particle after " << zero_particle.get_cdt() << std::endl;  
+//            std::cout << "jfa: zero particle after " << zero_particle.get_cdt() << std::endl;  
         }
         element_map[&(**it)] = Fast_mapping(reference_particle, jet_particle.State(),
                                             mapping_length);
