@@ -376,18 +376,19 @@ BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map, Foborodobo32_fixture)
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const double precalc_map[6][6] = {
-        { -2.1935772612873268e+00,3.2938541482783556e+01, 0,0, -5.6216933739288504e-05, 2.1037055586746294e+00 },
-        { -1.9800157322154857e-01, 2.5172676837326748e+00, 0, 0,-3.5301995933528796e-05, 2.2509238012648533e-01 },
-        { 0, 0, 1.0703346477030218e+00, 1.2655013062650458e+00, 0, 0 },
-        { 0, 0, -4.3725938974271211e-02, 8.8258823456539948e-01, 0, 0 },
-        {-7.7644019321389715e-02, 2.1263114465268420e+00, 0, 0, 9.9693570268153409e-01, 4.9072337965406998e+00},
-        {-1.7867416207448667e-05,-3.1118565749225271e-04, 0, 0, -6.2831853071795374e-04, 1.0000430047739368e+00 } };
-
+        {-2.19357726128732455, 32.9385414827834779, 0, 0, -5.62169337565512927e-05, 2.10370555867492648},
+        {-0.198001573221549515, 2.51726768373266863, 0, 0, -3.53019959443651049e-05, 0.225092380126673486},
+        {0, 0, 1.07033464770301578, 1.26550130626503421, 0, 0},
+        {0, 0, -0.0437259389742707255, 0.882588234565398477, 0, 0},
+        {-0.0776440193383640537, 2.12631144729862065, 0, 0, 0.99693570292221767, 4.90723340689686705},
+        {-1.78674162184173776e-05, -0.000311185657683272924, 0, 0, -0.000628318530910801864, 1.00004300477723884}
+    };
+    
     MArray2d gotten_map(lattice_simulator.get_linear_one_turn_map());
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 6; ++j) {
             BOOST_CHECK(
-                    floating_point_equal(gotten_map[i][j], precalc_map[i][j],tolerance));
+                        floating_point_equal(gotten_map[i][j], precalc_map[i][j],tolerance));
         }
     }
 }
@@ -411,13 +412,14 @@ BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map_after_get_tunes, Foborodobo32_fi
 
 
     const double precalc_map[6][6] = {
-        { -2.1935772612873268e+00,3.2938541482783556e+01, 0,0, -5.6216933739288504e-05, 2.1037055586746294e+00 },
-        { -1.9800157322154857e-01, 2.5172676837326748e+00, 0, 0,-3.5301995933528796e-05, 2.2509238012648533e-01 },
-        { 0, 0, 1.0703346477030218e+00, 1.2655013062650458e+00, 0, 0 },
-        { 0, 0, -4.3725938974271211e-02, 8.8258823456539948e-01, 0, 0 },
-        {-7.7644019321389715e-02, 2.1263114465268420e+00, 0, 0, 9.9693570268153409e-01, 4.9072337965406998e+00},
-        {-1.7867416207448667e-05,-3.1118565749225271e-04, 0, 0, -6.2831853071795374e-04, 1.0000430047739368e+00 } };
-
+        {-2.19357726128732455, 32.9385414827834779, 0, 0, -5.62169337565512927e-05, 2.10370555867492648},
+        {-0.198001573221549515, 2.51726768373266863, 0, 0, -3.53019959443651049e-05, 0.225092380126673486},
+        {0, 0, 1.07033464770301578, 1.26550130626503421, 0, 0},
+        {0, 0, -0.0437259389742707255, 0.882588234565398477, 0, 0},
+        {-0.0776440193383640537, 2.12631144729862065, 0, 0, 0.99693570292221767, 4.90723340689686705},
+        {-1.78674162184173776e-05, -0.000311185657683272924, 0, 0, -0.000628318530910801864, 1.00004300477723884}
+    };
+    
     MArray2d gotten_map(lattice_simulator.get_linear_one_turn_map());
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 6; ++j) {
@@ -481,17 +483,19 @@ BOOST_FIXTURE_TEST_CASE(adjust_chromaticities, Fosobodosobo_sbend_fixture)
     }
     const double newchr_h = -2.9;
     const double newchr_v = -3.1;
+    const double chrom_tolerance = 5.0e-7;
+    const int max_steps = 5;
     lattice_simulator.adjust_chromaticities(newchr_h, newchr_v, horizontal_correctors,
-            vertical_correctors, 1.0e-6, 5);
+            vertical_correctors, chrom_tolerance, max_steps);
 
     chr_h = lattice_simulator.get_horizontal_chromaticity();
     chr_v = lattice_simulator.get_vertical_chromaticity();
 
 //    std::cout << "final chromaticities (H,V):  (" << chr_h << " ,  " << chr_v
 //            << ")" << std::endl;
-    const double chrom_tolerance = 5.0e-7;
-    BOOST_CHECK_CLOSE(chr_h, newchr_h, chrom_tolerance);
-    BOOST_CHECK_CLOSE(chr_v, newchr_v, chrom_tolerance);
+    double percent_chrom_tolerance = 100 * chrom_tolerance;
+    BOOST_CHECK_CLOSE(chr_h, newchr_h, percent_chrom_tolerance);
+    BOOST_CHECK_CLOSE(chr_v, newchr_v, percent_chrom_tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(is_ring, Foborodobo32_fixture)
