@@ -2,6 +2,8 @@
 #include <iostream>
 #include <sstream>
 #include "synergia/utils/floating_point.h"
+#include <beamline/CF_sbend.h>
+#include <beamline/CF_rbend.h>
 
 std::string
 chef_beamline_as_string(BmlPtr beamline_sptr)
@@ -10,8 +12,19 @@ chef_beamline_as_string(BmlPtr beamline_sptr)
     for (beamline::const_iterator it = beamline_sptr->begin();
             it != beamline_sptr->end(); ++it) {
         sstream << (*it)->Name() << "(" << (*it)->Type() << "): Length="
-                << (*it)->Length() << ", Strength=" << (*it)->Strength()
-                << std::endl;
+                << (*it)->Length() << ", Strength=" << (*it)->Strength();
+        if ( (std::strcmp((*it)->Type(),"CF_rbend") == 0) ) {
+            sstream << ", Quadrupole="
+                << boost::dynamic_pointer_cast<CF_rbend>(*it)->getQuadrupole()
+                    << ", Sextupole="
+                    << boost::dynamic_pointer_cast<CF_rbend>(*it)->getSextupole();
+        } else if ( (std::strcmp((*it)->Type(), "CF_sbend") == 0)) {
+            sstream << ", Quadrupole="
+                << boost::dynamic_pointer_cast<CF_sbend>(*it)->getQuadrupole()
+                    << ", Sextupole="
+                    << boost::dynamic_pointer_cast<CF_sbend>(*it)->getSextupole();
+        }
+        sstream << std::endl;
     }
     return sstream.str();
 }
@@ -19,12 +32,39 @@ chef_beamline_as_string(BmlPtr beamline_sptr)
 void
 print_chef_beamline(BmlPtr beamline_sptr)
 {
-    for (beamline::const_iterator it = beamline_sptr->begin();
-            it != beamline_sptr->end(); ++it) {
-        std::cout << (*it)->Name() << "(" << (*it)->Type() << "): Length="
-                << (*it)->Length() << ", Strength=" << (*it)->Strength()
-                << std::endl;
+    std::cout << chef_beamline_as_string(beamline_sptr) << std::endl;
+    std::cout.flush();
+}
+
+std::string
+full_chef_beamline_as_string(BmlPtr beamline_sptr)
+{
+    std::stringstream sstream;
+    for (beamline::deep_iterator it = beamline_sptr->deep_begin();
+            it != beamline_sptr->deep_end(); ++it) {
+        sstream << (*it)->Name() << "(" << (*it)->Type() << "): Length="
+                << (*it)->Length() << ", Strength=" << (*it)->Strength();
+        if ( (std::strcmp((*it)->Type(), "CF_rbend") == 0) ) {
+            sstream << ", Quadrupole="
+                << boost::dynamic_pointer_cast<CF_rbend>(*it)->getQuadrupole()
+                    << ", Sextupole="
+                    << boost::dynamic_pointer_cast<CF_rbend>(*it)->getSextupole();
+        } else if ( (std::strcmp((*it)->Type(), "CF_sbend") == 0)) {
+            sstream << ", Quadrupole="
+                << boost::dynamic_pointer_cast<CF_sbend>(*it)->getQuadrupole()
+                    << ", Sextupole="
+                    << boost::dynamic_pointer_cast<CF_sbend>(*it)->getSextupole();
+        }
+        sstream << std::endl;
     }
+    return sstream.str();
+}
+
+void
+print_full_chef_beamline(BmlPtr beamline_sptr)
+{
+    std::cout << full_chef_beamline_as_string(beamline_sptr) << std::endl;
+    std::cout.flush();
 }
 
 Particle
