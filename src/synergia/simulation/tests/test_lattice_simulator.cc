@@ -369,6 +369,26 @@ BOOST_FIXTURE_TEST_CASE(adjust_tunes, Fobodobo_sbend_fixture)
             std::abs(lattice_simulator.get_vertical_tune() - new_vertical_tune) < tolerance);
 }
 
+void print_precalc_map(MArray2d const& map)
+{
+    std::cout << "const double precalc_map[6][6] = {\n";
+    for (int i = 0; i < 6; ++i) {
+        std::cout << "    {";
+        for (int j = 0; j < 6; ++j) {
+            std::cout << std::setprecision(16) << map[i][j];
+            if (j < 5) {
+                std::cout << ", ";
+            }
+        }
+        if (i < 5) { 
+            std::cout << "},\n";
+        } else {
+            std::cout << "}\n";
+        }
+    }
+    std::cout << "};\n";    
+}
+
 BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map, Foborodobo32_fixture)
 {
     const int map_order = 1;
@@ -376,19 +396,20 @@ BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map, Foborodobo32_fixture)
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const double precalc_map[6][6] = {
-        {-2.19357726128732455, 32.9385414827834779, 0, 0, -5.62169337565512927e-05, 2.10370555867492648},
-        {-0.198001573221549515, 2.51726768373266863, 0, 0, -3.53019959443651049e-05, 0.225092380126673486},
-        {0, 0, 1.07033464770301578, 1.26550130626503421, 0, 0},
-        {0, 0, -0.0437259389742707255, 0.882588234565398477, 0, 0},
-        {-0.0776440193383640537, 2.12631144729862065, 0, 0, 0.99693570292221767, 4.90723340689686705},
-        {-1.78674162184173776e-05, -0.000311185657683272924, 0, 0, -0.000628318530910801864, 1.00004300477723884}
+        {-2.193577261287314, 32.93854148278329, 0, 0, -5.621693373923317e-05, 2.103705558674615},
+        {-0.1980015732215482, 2.517267683732666, 0, 0, -3.530199593352539e-05, 0.2250923801264854},
+        {0, 0, 1.070334647703016, 1.265501306264987, 0, 0},
+        {0, 0, -0.04372593897427053, 0.8825882345654039, 0, 0},
+        {-0.07764401932138086, 2.126311446526691, 0, 0, 0.996935702681534, 4.907233796540886},
+        {-1.786741620744867e-05, -0.000311185657492247, 0, 0, -0.0006283185307179535, 1.000043004773937}
     };
     
-    MArray2d gotten_map(lattice_simulator.get_linear_one_turn_map());
+    MArray2d calculated_map(lattice_simulator.get_linear_one_turn_map());
+//    print_precalc_map(calculated_map);
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 6; ++j) {
             BOOST_CHECK(
-                        floating_point_equal(gotten_map[i][j], precalc_map[i][j],tolerance));
+                        floating_point_equal(calculated_map[i][j], precalc_map[i][j],tolerance));
         }
     }
 }
@@ -412,19 +433,19 @@ BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map_after_get_tunes, Foborodobo32_fi
 
 
     const double precalc_map[6][6] = {
-        {-2.19357726128732455, 32.9385414827834779, 0, 0, -5.62169337565512927e-05, 2.10370555867492648},
-        {-0.198001573221549515, 2.51726768373266863, 0, 0, -3.53019959443651049e-05, 0.225092380126673486},
-        {0, 0, 1.07033464770301578, 1.26550130626503421, 0, 0},
-        {0, 0, -0.0437259389742707255, 0.882588234565398477, 0, 0},
-        {-0.0776440193383640537, 2.12631144729862065, 0, 0, 0.99693570292221767, 4.90723340689686705},
-        {-1.78674162184173776e-05, -0.000311185657683272924, 0, 0, -0.000628318530910801864, 1.00004300477723884}
+        {-2.193577261287314, 32.93854148278329, 0, 0, -5.621693373923317e-05, 2.103705558674615},
+        {-0.1980015732215482, 2.517267683732666, 0, 0, -3.530199593352539e-05, 0.2250923801264854},
+        {0, 0, 1.070334647703016, 1.265501306264987, 0, 0},
+        {0, 0, -0.04372593897427053, 0.8825882345654039, 0, 0},
+        {-0.07764401932138086, 2.126311446526691, 0, 0, 0.996935702681534, 4.907233796540886},
+        {-1.786741620744867e-05, -0.000311185657492247, 0, 0, -0.0006283185307179535, 1.000043004773937}
     };
     
-    MArray2d gotten_map(lattice_simulator.get_linear_one_turn_map());
+    MArray2d calculated_map(lattice_simulator.get_linear_one_turn_map());
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 6; ++j) {
             BOOST_CHECK(
-                    floating_point_equal(gotten_map[i][j], precalc_map[i][j],tolerance));
+                    floating_point_equal(calculated_map[i][j], precalc_map[i][j],tolerance));
         }
     }
 }

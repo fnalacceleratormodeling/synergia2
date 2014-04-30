@@ -66,6 +66,8 @@ BOOST_CLASS_EXPORT_KEY(Rbend_mad8_adaptor);
 class Quadrupole_mad8_adaptor : public Element_adaptor
 {
 public:
+    static const char yoshida_propagator[];
+    static const char basic_propagator[];
     Quadrupole_mad8_adaptor();
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
