@@ -9,11 +9,11 @@
 	<reference_particle_ptr class_id="1" tracking_level="1" version="0" object_id="_1">
 		<charge>1</charge>
 		<four_momentum class_id="2" tracking_level="0" version="0">
-			<mass>0.93827201299999996</mass>
-			<energy>10.043921264644617</energy>
-			<momentum>10.000000000000064</momentum>
-			<gamma>10.704700902812304</gamma>
-			<beta>0.99562707995340816</beta>
+			<mass>0.93827204600000003</mass>
+			<energy>10.043921267727386</energy>
+			<momentum>10.000000000000075</momentum>
+			<gamma>10.704700529602462</gamma>
+			<beta>0.9956270796478226</beta>
 		</four_momentum>
 		<state class_id="3" tracking_level="1" version="0" object_id="_2">
 			<shape_0>6</shape_0>
