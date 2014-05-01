@@ -124,9 +124,20 @@ struct synergia::expression
   {
     constant_()
     {
-      this->add ("pi"   , boost::math::constants::pi<double>()  )
-                ("true" , 1.0  )
-                ("false", 0.0  )
+      this->add ("pi"     , boost::math::constants::pi<double>()     )
+                ("twopi"  , boost::math::constants::two_pi<double>() )
+             // ("degpi"  , boost::math::constants::radian<double>() )   -- boost 1.51+
+             // ("raddeg" , boost::math::constants::degree<double>() )   -- boost 1.51+
+                ("degrad" , 180.0 / boost::math::constants::pi<double>() )
+                ("raddeg" , boost::math::constants::pi<double>() / 180.0 )
+                ("e"      , boost::math::constants::e<double>()      )
+                ("emass"  , 0.510998928e-3                           )        
+                ("pmass"  , 0.938272046                              )
+                ("mumass" , 0.1056583715                             )
+                ("clight" , 2.99792458e8                             )
+                ("qelect" , 1.602176565e-19                          )
+                ("true" , 1.0                                        )
+                ("false", 0.0                                        )
       ;
     }
   } constant;

@@ -68,6 +68,27 @@ BOOST_AUTO_TEST_CASE(mod_variable_assignment)
   BOOST_CHECK_EQUAL( mx.variable_as_number("x"), 1 );
 }
 
+BOOST_AUTO_TEST_CASE(mad_constants)
+{
+  string str = "a = pi; b = twopi; c = degrad; d = raddeg; ee = e; "
+               "f = emass; g = pmass; h = mumass; i = clight; j = qelect; ";
+  MadX   mx;
+
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+  
+  BOOST_CHECK_CLOSE( mx.variable_as_number("a"), boost::math::constants::pi<double>(),         tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("b"), boost::math::constants::two_pi<double>(),     tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("c"), 180.0 / boost::math::constants::pi<double>(), tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("d"), boost::math::constants::pi<double>() / 180.0, tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("ee"), boost::math::constants::e<double>(),         tolerance);
+
+  BOOST_CHECK_CLOSE( mx.variable_as_number("f"), 0.510998928e-3 , tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("g"), 0.938272046,     tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("h"), 0.1056583715,    tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("i"), 2.99792458e8,    tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("j"), 1.602176565e-19, tolerance);
+}
+
 BOOST_AUTO_TEST_CASE(newline_separation)
 {
   string str = "x=1;\n y=2;";
