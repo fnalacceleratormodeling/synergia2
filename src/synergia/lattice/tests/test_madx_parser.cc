@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+#include "synergia/foundation/physical_constants.h"
 #include "synergia/lattice/mx_parse.h"
 
 using namespace std;
@@ -82,11 +83,11 @@ BOOST_AUTO_TEST_CASE(mad_constants)
   BOOST_CHECK_CLOSE( mx.variable_as_number("d"), boost::math::constants::pi<double>() / 180.0, tolerance);
   BOOST_CHECK_CLOSE( mx.variable_as_number("ee"), boost::math::constants::e<double>(),         tolerance);
 
-  BOOST_CHECK_CLOSE( mx.variable_as_number("f"), 0.510998928e-3 , tolerance);
-  BOOST_CHECK_CLOSE( mx.variable_as_number("g"), 0.938272046,     tolerance);
-  BOOST_CHECK_CLOSE( mx.variable_as_number("h"), 0.1056583715,    tolerance);
-  BOOST_CHECK_CLOSE( mx.variable_as_number("i"), 2.99792458e8,    tolerance);
-  BOOST_CHECK_CLOSE( mx.variable_as_number("j"), 1.602176565e-19, tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("f"), pconstants::me,  tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("g"), pconstants::mp,  tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("h"), pconstants::mmu, tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("i"), pconstants::c,   tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("j"), pconstants::e,   tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(newline_separation)

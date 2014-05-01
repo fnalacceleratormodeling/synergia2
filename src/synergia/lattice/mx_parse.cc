@@ -21,6 +21,8 @@
 
 #include <boost/fusion/include/std_pair.hpp>
 
+#include <synergia/foundation/physical_constants.h>
+
 
 namespace ascii = ::boost::spirit::ascii;
 namespace phx   = ::boost::phoenix;
@@ -131,11 +133,11 @@ struct synergia::expression
                 ("degrad" , 180.0 / boost::math::constants::pi<double>() )
                 ("raddeg" , boost::math::constants::pi<double>() / 180.0 )
                 ("e"      , boost::math::constants::e<double>()      )
-                ("emass"  , 0.510998928e-3                           )        
-                ("pmass"  , 0.938272046                              )
-                ("mumass" , 0.1056583715                             )
-                ("clight" , 2.99792458e8                             )
-                ("qelect" , 1.602176565e-19                          )
+                ("emass"  , pconstants::me                           )        
+                ("pmass"  , pconstants::mp                           )
+                ("mumass" , pconstants::mmu                          )
+                ("clight" , pconstants::c                            )
+                ("qelect" , pconstants::e                            )
                 ("true" , 1.0                                        )
                 ("false", 0.0                                        )
       ;
