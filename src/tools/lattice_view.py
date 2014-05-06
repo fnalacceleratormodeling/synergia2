@@ -37,10 +37,15 @@ def plot_element(element, x, y, angle, attributes, highlight):
             xnew = x + l * cos(angle)
             ynew = y + l * sin(angle)
             anglenew = angle
-            pyplot.plot([x, xnew], [y, ynew], '-',
-                        color=color,
-                        label=label,
-                        linewidth=attribute.width)
+            if label:
+                pyplot.plot([x, xnew], [y, ynew], '-',
+                            color=color,
+                            label=label,
+                            linewidth=attribute.width)
+            else:
+                pyplot.plot([x, xnew], [y, ynew], '-',
+                            color=color,
+                            linewidth=attribute.width)
         else:
             num = 8
             xn = numpy.zeros([num + 1], numpy.float64)
@@ -54,10 +59,15 @@ def plot_element(element, x, y, angle, attributes, highlight):
             xnew = xn[num]
             ynew = yn[num]
             anglenew = angle
-            pyplot.plot(xn, yn, '-',
-                        color=color,
-                        label=label,
-                        linewidth=attribute.width)
+            if label:
+                pyplot.plot(xn, yn, '-',
+                            color=color,
+                            label=label,
+                            linewidth=attribute.width)
+            else:
+                pyplot.plot(xn, yn, '-',
+                            color=color,
+                            linewidth=attribute.width)
 
     return xnew, ynew, anglenew
 
