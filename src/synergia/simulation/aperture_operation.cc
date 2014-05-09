@@ -437,6 +437,116 @@ Rectangular_aperture_operation::~Rectangular_aperture_operation()
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Rectangular_aperture_operation);
 
+const char Rectangular_with_ears_aperture_operation::aperture_type[] = "rectangular_with_ears";
+const char Rectangular_with_ears_aperture_operation::attribute_name[] = "rectangular_with_ears";
+
+Rectangular_with_ears_aperture_operation::Rectangular_with_ears_aperture_operation(
+        Lattice_element_slice_sptr slice_sptr) :
+    Aperture_operation(slice_sptr)
+{
+    if (slice_sptr->get_lattice_element().has_double_attribute(
+            "rectangular_aperture_width")) {
+        width = slice_sptr->get_lattice_element().get_double_attribute(
+                "rectangular_aperture_width");
+    } else {
+        throw std::runtime_error(
+                "Rectangular_aperture_operation: rectangular_aperture requires an rectangular_aperture_width attribute");
+    }
+    if (slice_sptr->get_lattice_element().has_double_attribute(
+            "rectangular_aperture_height")) {
+        height = slice_sptr->get_lattice_element().get_double_attribute(
+                "rectangular_aperture_height");
+    } else {
+        throw std::runtime_error(
+                "Rectangular_aperture_operation: rectangular_aperture requires an rectangular_aperture_height attribute");
+    }
+    if (slice_sptr->get_lattice_element().has_double_attribute(
+            "rectangular_aperture_ear_offset")) {
+        ear_offset = slice_sptr->get_lattice_element().get_double_attribute(
+                "rectangular_aperture_ear_offset");
+    } else {
+        throw std::runtime_error(
+                "Rectangular_with_ears_aperture_operation: rectangular_with_ears_aperture requires an rectangular_aperture_ear_offset attribute");
+    }
+    radius = 0.5*height - ear_offset;
+}
+
+Rectangular_with_ears_aperture_operation::Rectangular_with_ears_aperture_operation()
+{
+}
+
+const char *
+Rectangular_with_ears_aperture_operation::get_aperture_type() const
+{
+    return aperture_type;
+}
+
+bool
+Rectangular_with_ears_aperture_operation::operator==(
+        Aperture_operation const& aperture_operation) const
+{
+    if (aperture_type == aperture_operation.get_aperture_type()) {
+        return operator==(
+                *static_cast<Rectangular_with_ears_aperture_operation const* > (&aperture_operation));
+    } else {
+        return false;
+    }
+}
+
+bool
+Rectangular_with_ears_aperture_operation::operator==(
+        Rectangular_with_ears_aperture_operation const& rectangular_with_ears_aperture_operation) const
+{
+    return ((width == rectangular_with_ears_aperture_operation.width) &&
+            (height == rectangular_with_ears_aperture_operation.height) &&
+            (ear_offset == rectangular_with_ears_aperture_operation.ear_offset));
+}
+
+void
+Rectangular_with_ears_aperture_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
+{
+    double t;
+    //t = simple_timer_current();
+    apply_impl(*this, bunch, verbosity, logger);
+    //t = simple_timer_show(t, "rectangular_aperture-apply");
+}
+
+template<class Archive>
+    void
+    Rectangular_with_ears_aperture_operation::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Aperture_operation);
+        ar & BOOST_SERIALIZATION_NVP(width);
+        ar & BOOST_SERIALIZATION_NVP(height);
+        ar & BOOST_SERIALIZATION_NVP(ear_offset);
+        ar & BOOST_SERIALIZATION_NVP(radius);
+    }
+
+template
+void
+Rectangular_with_ears_aperture_operation::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Rectangular_with_ears_aperture_operation::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Rectangular_with_ears_aperture_operation::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Rectangular_with_ears_aperture_operation::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+Rectangular_with_ears_aperture_operation::~Rectangular_with_ears_aperture_operation()
+{
+}
+BOOST_CLASS_EXPORT_IMPLEMENT(Rectangular_with_ears_aperture_operation);
+
 const char Polygon_aperture_operation::aperture_type[] = "polygon";
 const char Polygon_aperture_operation::attribute_name[] = "polygon";
 
