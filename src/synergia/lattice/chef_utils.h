@@ -25,6 +25,12 @@ chef_beamline_as_string(BmlPtr beamline_sptr);
 void
 print_chef_beamline(BmlPtr beamline_sptr);
 
+std::string
+full_chef_beamline_as_string(BmlPtr beamline_sptr);
+
+void
+print_full_chef_beamline(BmlPtr beamline_sptr);
+
 Particle
 reference_particle_to_chef_particle(
         Reference_particle const& reference_particle);

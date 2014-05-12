@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+#include "synergia/foundation/physical_constants.h"
 #include "synergia/lattice/mx_parse.h"
 
 using namespace std;
@@ -66,6 +67,27 @@ BOOST_AUTO_TEST_CASE(mod_variable_assignment)
 
   BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.variable_as_number("x"), 1 );
+}
+
+BOOST_AUTO_TEST_CASE(mad_constants)
+{
+  string str = "a = pi; b = twopi; c = degrad; d = raddeg; ee = e; "
+               "f = emass; g = pmass; h = mumass; i = clight; j = qelect; ";
+  MadX   mx;
+
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+  
+  BOOST_CHECK_CLOSE( mx.variable_as_number("a"), boost::math::constants::pi<double>(),         tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("b"), boost::math::constants::two_pi<double>(),     tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("c"), 180.0 / boost::math::constants::pi<double>(), tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("d"), boost::math::constants::pi<double>() / 180.0, tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("ee"), boost::math::constants::e<double>(),         tolerance);
+
+  BOOST_CHECK_CLOSE( mx.variable_as_number("f"), pconstants::me,  tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("g"), pconstants::mp,  tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("h"), pconstants::mmu, tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("i"), pconstants::c,   tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("j"), pconstants::e,   tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(newline_separation)

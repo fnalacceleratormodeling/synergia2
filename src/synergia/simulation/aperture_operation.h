@@ -180,6 +180,47 @@ public:
 BOOST_CLASS_EXPORT_KEY(Rectangular_aperture_operation)
 ;
 
+/// A rectangular aperture with quarter-circular ears on top of a
+/// rectangular strip. The rectangular
+/// horizontal and vertical dimensions in meters
+/// determined by the Lattice_element_attributes
+/// "rectangular_aperture_width" and
+/// "rectangular_aperture_height", respectively.  The quarter circle radius
+/// is given by "ear_radius" and the vertical location of the
+/// the center of the ear is given by option "rectangular_aperture_ear_offset".  The aperture
+/// has four-fold symmetry.
+/// All dimensions must be specified. Failing to do so will cause an
+/// exception.
+class Rectangular_with_ears_aperture_operation : public Aperture_operation
+{
+private:
+    double width, height, ear_offset, radius;
+public:
+    static const char aperture_type[];
+    static const char attribute_name[];
+    Rectangular_with_ears_aperture_operation(Lattice_element_slice_sptr slice_sptr);
+    // Default constructor for serialization use only
+    Rectangular_with_ears_aperture_operation();
+    virtual const char *
+            get_aperture_type() const;
+    virtual bool
+            operator==(Aperture_operation const& aperture_operation) const;
+    bool
+            operator==(
+                    Rectangular_with_ears_aperture_operation const& rectangular_with_ears_aperture_operation) const;
+    bool
+            operator()(MArray2d_ref & particles, int part);
+    virtual void
+            apply(Bunch & bunch, int verbosity, Logger & logger);
+    template<class Archive>
+    void
+            serialize(Archive & ar, const unsigned int version);
+    virtual
+            ~Rectangular_with_ears_aperture_operation();
+};
+BOOST_CLASS_EXPORT_KEY(Rectangular_with_ears_aperture_operation)
+;
+
 /// A polygon aperture with vertices
 /// determined by the Lattice_element_attributes
 /// "pax1", "pay1", "pax2", "pay2", and so on.
@@ -291,6 +332,7 @@ public:
     ~Lambertson_aperture_operation();
 };
 BOOST_CLASS_EXPORT_KEY(Lambertson_aperture_operation)
+
 
 #include "synergia/simulation/aperture_operation.tcc"
 

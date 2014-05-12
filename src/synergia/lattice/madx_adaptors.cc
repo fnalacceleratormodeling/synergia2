@@ -436,6 +436,8 @@ Rbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
             return retval;
         }
     } else {
+        // std::cout << "rbend not so simple: " << lattice_element.get_name() << std::endl; std::cout.flush();
+        // std::cout << "length: " << length << ", strength: " << brho * (2.0 * sin(0.5 * angle)) / length << std::endl; std::cout.flush();
         // Not so simple
         alignmentData aligner;
         aligner.xOffset = 0.0;
@@ -443,10 +445,10 @@ Rbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         aligner.tilt = tilt;
 
         bmlnElmnt* elm;
-        if ((0.0 == e1) && (0.0 == e2)) elm = new rbend(
+        if ((0.0 == e1) && (0.0 == e2)) elm = new CF_rbend(
                 lattice_element.get_name().c_str(), length,
                 brho * (2.0 * sin(0.5 * angle)) / length, angle);
-        else elm = new rbend(lattice_element.get_name().c_str(), length,
+        else elm = new CF_rbend(lattice_element.get_name().c_str(), length,
                 brho * (2.0 * sin(0.5 * angle)) / length, angle, e1, e2);
 
         elm->setTag("RBEND");

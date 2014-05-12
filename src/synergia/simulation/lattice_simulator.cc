@@ -1832,7 +1832,7 @@ Lattice_simulator::print_lb_lattice_functions()
             LB_lattice_functions lbinfo = get_lb_lattice_functions(*(*it));
 
             flogger << std::setw(19) << (*it)->get_name() << "    "
-                    << lbinfo.arc_length << "   " << lbinfo.beta_1x
+                    << std::setprecision(16) << lbinfo.arc_length << "   " << lbinfo.beta_1x
                     << "    " << lbinfo.beta_1y << "   " << lbinfo.beta_2x
                     << "   " << lbinfo.beta_2y << "    " << lbinfo.alpha_1x
                     << "   " << lbinfo.alpha_1y << "   " << lbinfo.alpha_2x

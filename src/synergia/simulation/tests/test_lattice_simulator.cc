@@ -481,15 +481,16 @@ BOOST_FIXTURE_TEST_CASE(adjust_chromaticities, Fosobodosobo_sbend_fixture)
     }
     const double newchr_h = -2.9;
     const double newchr_v = -3.1;
+    const double chrom_tolerance = 5.0e-7;
+
     lattice_simulator.adjust_chromaticities(newchr_h, newchr_v, horizontal_correctors,
-            vertical_correctors, 1.0e-6, 5);
+            vertical_correctors, chrom_tolerance/100.0, 5);
 
     chr_h = lattice_simulator.get_horizontal_chromaticity();
     chr_v = lattice_simulator.get_vertical_chromaticity();
 
 //    std::cout << "final chromaticities (H,V):  (" << chr_h << " ,  " << chr_v
 //            << ")" << std::endl;
-    const double chrom_tolerance = 5.0e-7;
     BOOST_CHECK_CLOSE(chr_h, newchr_h, chrom_tolerance);
     BOOST_CHECK_CLOSE(chr_v, newchr_v, chrom_tolerance);
 }
