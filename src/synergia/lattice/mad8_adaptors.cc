@@ -14,6 +14,7 @@
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 #include <beamline/beamline_elements.h>
+#include <beamline/YoshidaPropagator.h>
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic pop
 #endif
@@ -501,8 +502,15 @@ Rbend_mad8_adaptor::~Rbend_mad8_adaptor()
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Rbend_mad8_adaptor)
 
+const char Quadrupole_mad8_adaptor::yoshida_propagator[] = "yoshida";
+const char Quadrupole_mad8_adaptor::basic_propagator[] = "basic";
+
 Quadrupole_mad8_adaptor::Quadrupole_mad8_adaptor()
 {
+    get_default_element().set_string_attribute("propagator_type", basic_propagator);
+    get_default_element().set_double_attribute("yoshida_order", 2); // method is accurate to O[(kL)^(2*order+2)]
+    get_default_element().set_double_attribute("yoshida_steps", 4);
+    get_default_element().set_double_attribute("basic_kicks", 40);
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("k1", 0.0);
     get_default_element().set_double_attribute("tilt", 0.0);
@@ -582,8 +590,24 @@ Quadrupole_mad8_adaptor::get_chef_elements(
         bmln_elmnt = new thinQuad(lattice_element.get_name().c_str(),
                 brho * lattice_element.get_double_attribute("k1"));
     } else {
-        bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
-                brho * lattice_element.get_double_attribute("k1"));
+        if(lattice_element.get_string_attribute("propagator_type") == yoshida_propagator) {
+            int steps = floor(lattice_element.get_double_attribute("yoshida_steps"));
+            int order = floor(lattice_element.get_double_attribute("yoshida_order"));
+            bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
+                                        brho * lattice_element.get_double_attribute("k1"));
+            quadrupole::PropagatorPtr yoshida_propagator(new YoshidaPropagator(order, steps));
+            dynamic_cast<quadrupole*>(bmln_elmnt)->usePropagator(yoshida_propagator);
+        } else if (lattice_element.get_string_attribute("propagator_type") == basic_propagator) {
+            bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
+                                        brho * lattice_element.get_double_attribute("k1"));
+            dynamic_cast<quadrupole*>(bmln_elmnt)->setNumberOfKicks(floor(lattice_element.get_double_attribute("basic_kicks")));
+        } else {
+            throw std::runtime_error(
+                        "Quadrupole_madx_adaptor::get_chef_elements: bad propagator_type \"" +
+                        lattice_element.get_string_attribute("propagator_type") + "\"");
+        }
+//        ElmPtr elm(bmln_elmnt);
+//        retval.push_back(elm);
     }
 
     // using tilt and multipoles is a no-no

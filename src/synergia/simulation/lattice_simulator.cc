@@ -678,6 +678,7 @@ Lattice_simulator::get_closed_orbit(double dpop)
     MArray1d retval(boost::extents[6]);
     // beamline for calculations, cloned because the rf cavities will be turned off.
     BmlPtr beamline_sptr(get_chef_lattice_sptr()->get_beamline_sptr()->Clone());
+    beamline_sptr->setLineMode(beamline::ring);
     ensure_jet_environment(map_order);
 
     ClosedOrbitSage closed_orbit_sage(beamline_sptr);
@@ -1690,15 +1691,6 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
 
     double chr_h = get_horizontal_chromaticity();
     double chr_v = get_vertical_chromaticity();
-    Logger logger(0);
-    logger<<"_________________________________________"<<std::endl;
-    logger <<" Initial chromaticity (H,V):  ("<< chr_h<<", "
-                <<chr_v<<")"<<std::endl;
-    logger <<" Desired chromaticity (H,V):  ("<< horizontal_chromaticity<<", "
-                <<vertical_chromaticity<<")"<<std::endl;
-    logger<<"_________________________________________"<<std::endl;
-    logger<<"adjusting chromaticity:"<<std::endl;
-
 
     double dh = horizontal_chromaticity - chr_h;
     double dv = vertical_chromaticity - chr_v;
@@ -1706,8 +1698,6 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
 
     while (((std::abs(dh) > tolerance) || (std::abs(dv) > tolerance))
             && (count < max_steps)) {
-            logger<< "  step=" << count << " chromaticity (H,V):  (" << chr_h<<", "
-                <<chr_v<<")"<< "   (Delta H, Delta V): (" << dh << ", " << dv <<")"<<    std::endl;
         int status = beamline_context.changeChromaticityBy(dh, dv);
 
         if (status == BeamlineContext::NO_CHROMATICITY_ADJUSTER) {
@@ -1741,15 +1731,6 @@ Lattice_simulator::adjust_chromaticities(double horizontal_chromaticity,
     have_chromaticities = false;
     if (count == max_steps)  throw std::runtime_error(
         "Lattice_simulator::adjust_chromaticities: Convergence not achieved. Increase the maximum number of steps.");
-
-    logger<<"convergence with tolerance "<<tolerance<<" reached in "
-                        <<count<<" steps"<<std::endl;
-    logger<<"_________________________________________"<<std::endl;       
-    logger << " FINAL CHROMATICITY: (H,V):  ("<< chr_h<<", " <<chr_v<<")"<<std::endl;
-    logger<<"_________________________________________"<<std::endl; 
-    logger.flush();
- 
-
 }
 
 void
@@ -2010,3 +1991,62 @@ Lattice_simulator::~Lattice_simulator()
 {
 }
 
+Dense_mapping_calculator::Dense_mapping_calculator(Lattice_simulator& lattice_simulator, bool closed_orbit)
+{
+    Chef_lattice& chef_lattice(lattice_simulator.get_chef_lattice());
+    Lattice_elements& lattice_elements(lattice_simulator.get_lattice().get_elements());
+    Reference_particle reference_particle(lattice_simulator.get_lattice().get_reference_particle());
+    ensure_jet_environment(lattice_simulator.get_map_order());
+    Particle particle = reference_particle_to_chef_particle(reference_particle);
+    lattice_simulator.get_chef_lattice().get_beamline_sptr()->setLineMode(beamline::ring);
+    if (closed_orbit) {
+        ClosedOrbitSage closed_orbit_sage(lattice_simulator.get_chef_lattice().get_beamline_sptr());
+        JetParticle jetprobe(particle);
+        closed_orbit_sage.findClosedOrbit(jetprobe);
+        particle = Particle(jetprobe);
+    }
+    for (Lattice_elements::iterator it = lattice_elements.begin();
+         it != lattice_elements.end(); ++it)
+    {
+        JetParticle jet_particle(particle);
+        Chef_elements chef_elements(chef_lattice.get_chef_elements(**it));
+        double mapping_length = 0.0;        
+        for (Chef_elements::iterator chef_it = chef_elements.begin();
+             chef_it != chef_elements.end();
+             ++chef_it)
+        {
+            (*chef_it)->propagate(jet_particle);
+            mapping_length += (*chef_it)->OrbitLength(particle);
+            double x0 = particle.get_x();
+            double y0 = particle.get_y();
+            double cdt0 = particle.get_cdt();
+            (*chef_it)->propagate(particle);
+            double x1 = particle.get_x();
+            double y1 = particle.get_y();
+            double cdt1 = particle.get_cdt();
+//            std::cout << "jfa: chef element " << (*chef_it)->Name() << std::endl;
+            double our_length = std::sqrt(mapping_length*mapping_length + (x1-x0)*(x1-x0) + (y1-y0)*(y1-y0));
+//            std::cout << "jfa: our length = " << our_length << std::endl;
+//            std::cout << "jfa: our other length = " << (cdt1 - cdt0)/particle.Beta() << std::endl;
+//            std::cout << "jfa: cdt0 = " << cdt0 << ", cdt1 = " << cdt1 << std::endl;
+//            std::cout << "jfa: c(delta t) = " << cdt1 - cdt0 << std::endl;
+//            std::cout << "jfa: check c(delta_t) = " << (our_length - mapping_length)/particle.Beta() << std::endl;
+            Particle zero_particle(particle);
+            zero_particle.setStateToZero();
+//            std::cout << "jfa: zero particle before " << zero_particle.get_cdt() << std::endl;
+            (*chef_it)->propagate(zero_particle);
+//            std::cout << "jfa: zero particle after " << zero_particle.get_cdt() << std::endl;  
+        }
+        element_map[&(**it)] = Fast_mapping(reference_particle, jet_particle.State(),
+                                            mapping_length);
+    }
+}
+
+Dense_mapping Dense_mapping_calculator::get_dense_mappping(Lattice_element& lattice_element)
+{
+    return element_map[&lattice_element];
+}
+
+Dense_mapping_calculator::~Dense_mapping_calculator()
+{
+}

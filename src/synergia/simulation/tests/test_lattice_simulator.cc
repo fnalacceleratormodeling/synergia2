@@ -369,6 +369,26 @@ BOOST_FIXTURE_TEST_CASE(adjust_tunes, Fobodobo_sbend_fixture)
             std::abs(lattice_simulator.get_vertical_tune() - new_vertical_tune) < tolerance);
 }
 
+void print_precalc_map(MArray2d const& map)
+{
+    std::cout << "const double precalc_map[6][6] = {\n";
+    for (int i = 0; i < 6; ++i) {
+        std::cout << "    {";
+        for (int j = 0; j < 6; ++j) {
+            std::cout << std::setprecision(16) << map[i][j];
+            if (j < 5) {
+                std::cout << ", ";
+            }
+        }
+        if (i < 5) { 
+            std::cout << "},\n";
+        } else {
+            std::cout << "}\n";
+        }
+    }
+    std::cout << "};\n";    
+}
+
 BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map, Foborodobo32_fixture)
 {
     const int map_order = 1;
@@ -376,18 +396,20 @@ BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map, Foborodobo32_fixture)
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
     const double precalc_map[6][6] = {
-        { -2.1935772612873268e+00,3.2938541482783556e+01, 0,0, -5.6216933739288504e-05, 2.1037055586746294e+00 },
-        { -1.9800157322154857e-01, 2.5172676837326748e+00, 0, 0,-3.5301995933528796e-05, 2.2509238012648533e-01 },
-        { 0, 0, 1.0703346477030218e+00, 1.2655013062650458e+00, 0, 0 },
-        { 0, 0, -4.3725938974271211e-02, 8.8258823456539948e-01, 0, 0 },
-        {-7.7644019321389715e-02, 2.1263114465268420e+00, 0, 0, 9.9693570268153409e-01, 4.9072337965406998e+00},
-        {-1.7867416207448667e-05,-3.1118565749225271e-04, 0, 0, -6.2831853071795374e-04, 1.0000430047739368e+00 } };
+        {-2.193577261287337, 32.93854148278354, 0, 0, -5.621693373928432e-05, 2.103705558674908},
+        {-0.1980015732215495, 2.517267683732674, 0, 0, -3.530199593352855e-05, 0.2250923801266718},
+        {0, 0, 1.070334647703023, 1.265501306265068, 0, 0},
+        {0, 0, -0.04372593897427258, 0.8825882345653975, 0, 0},
+        {-0.07764401933834172, 2.126311447299118, 0, 0, 0.996935702923177, 4.907233406896752},
+        {-1.786741621293265e-05, -0.0003111856575877582, 0, 0, -0.0006283185307179529, 1.000043004777226}
+    };
 
-    MArray2d gotten_map(lattice_simulator.get_linear_one_turn_map());
+    MArray2d calculated_map(lattice_simulator.get_linear_one_turn_map());
+//    print_precalc_map(calculated_map);
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 6; ++j) {
             BOOST_CHECK(
-                    floating_point_equal(gotten_map[i][j], precalc_map[i][j],tolerance));
+                        floating_point_equal(calculated_map[i][j], precalc_map[i][j],tolerance));
         }
     }
 }
@@ -411,18 +433,19 @@ BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map_after_get_tunes, Foborodobo32_fi
 
 
     const double precalc_map[6][6] = {
-        { -2.1935772612873268e+00,3.2938541482783556e+01, 0,0, -5.6216933739288504e-05, 2.1037055586746294e+00 },
-        { -1.9800157322154857e-01, 2.5172676837326748e+00, 0, 0,-3.5301995933528796e-05, 2.2509238012648533e-01 },
-        { 0, 0, 1.0703346477030218e+00, 1.2655013062650458e+00, 0, 0 },
-        { 0, 0, -4.3725938974271211e-02, 8.8258823456539948e-01, 0, 0 },
-        {-7.7644019321389715e-02, 2.1263114465268420e+00, 0, 0, 9.9693570268153409e-01, 4.9072337965406998e+00},
-        {-1.7867416207448667e-05,-3.1118565749225271e-04, 0, 0, -6.2831853071795374e-04, 1.0000430047739368e+00 } };
-
-    MArray2d gotten_map(lattice_simulator.get_linear_one_turn_map());
+        {-2.193577261287337, 32.93854148278354, 0, 0, -5.621693373928432e-05, 2.103705558674908},
+        {-0.1980015732215495, 2.517267683732674, 0, 0, -3.530199593352855e-05, 0.2250923801266718},
+        {0, 0, 1.070334647703023, 1.265501306265068, 0, 0},
+        {0, 0, -0.04372593897427258, 0.8825882345653975, 0, 0},
+        {-0.07764401933834172, 2.126311447299118, 0, 0, 0.996935702923177, 4.907233406896752},
+        {-1.786741621293265e-05, -0.0003111856575877582, 0, 0, -0.0006283185307179529, 1.000043004777226}
+    };
+    
+    MArray2d calculated_map(lattice_simulator.get_linear_one_turn_map());
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 6; ++j) {
             BOOST_CHECK(
-                    floating_point_equal(gotten_map[i][j], precalc_map[i][j],tolerance));
+                    floating_point_equal(calculated_map[i][j], precalc_map[i][j],tolerance));
         }
     }
 }
@@ -482,17 +505,18 @@ BOOST_FIXTURE_TEST_CASE(adjust_chromaticities, Fosobodosobo_sbend_fixture)
     const double newchr_h = -2.9;
     const double newchr_v = -3.1;
     const double chrom_tolerance = 5.0e-7;
-
+    const int max_steps = 5;
     lattice_simulator.adjust_chromaticities(newchr_h, newchr_v, horizontal_correctors,
-            vertical_correctors, chrom_tolerance/100.0, 5);
+            vertical_correctors, chrom_tolerance, max_steps);
 
     chr_h = lattice_simulator.get_horizontal_chromaticity();
     chr_v = lattice_simulator.get_vertical_chromaticity();
 
 //    std::cout << "final chromaticities (H,V):  (" << chr_h << " ,  " << chr_v
 //            << ")" << std::endl;
-    BOOST_CHECK_CLOSE(chr_h, newchr_h, chrom_tolerance);
-    BOOST_CHECK_CLOSE(chr_v, newchr_v, chrom_tolerance);
+    double percent_chrom_tolerance = 100 * chrom_tolerance;
+    BOOST_CHECK_CLOSE(chr_h, newchr_h, percent_chrom_tolerance);
+    BOOST_CHECK_CLOSE(chr_v, newchr_v, percent_chrom_tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(is_ring, Foborodobo32_fixture)

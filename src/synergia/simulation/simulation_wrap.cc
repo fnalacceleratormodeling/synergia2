@@ -297,8 +297,10 @@ BOOST_PYTHON_MODULE(simulation)
             ;
 
     class_<Dense_mapping >("Dense_mapping", init<Fast_mapping const& >())
+            .def("get_length", &Dense_mapping::get_length)
             .def("get_constant_term", &Dense_mapping::get_constant_term)
             .def("get_linear_term", &Dense_mapping::get_linear_term)
+            .def("get_linear_term_mad", &Dense_mapping::get_linear_term_mad)
             ;
 
     class_<Fast_mapping_operation, Fast_mapping_operation_sptr,
@@ -712,4 +714,9 @@ BOOST_PYTHON_MODULE(simulation)
             .def_readwrite("lattice", &Resume::Content::lattice_sptr)
             ;
     }
+    
+    class_<Dense_mapping_calculator>("Dense_mapping_calculator", 
+                                     init<Lattice_simulator&, bool>())
+            .def("get_dense_mapping", &Dense_mapping_calculator::get_dense_mappping)
+            ;
 }
