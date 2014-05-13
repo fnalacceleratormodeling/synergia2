@@ -69,6 +69,15 @@ BOOST_AUTO_TEST_CASE(mod_variable_assignment)
   BOOST_CHECK_EQUAL( mx.variable_as_number("x"), 1 );
 }
 
+BOOST_AUTO_TEST_CASE(keyword_leading_values)
+{
+  string str = "pine = 3; v = pine; "
+               "fodo: sequence, refer=entry, l=12.0; endsequence;";
+  MadX mx;
+
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+}
+
 BOOST_AUTO_TEST_CASE(mad_constants)
 {
   string str = "a = pi; b = twopi; c = degrad; d = raddeg; ee = e; "
@@ -89,6 +98,8 @@ BOOST_AUTO_TEST_CASE(mad_constants)
   BOOST_CHECK_CLOSE( mx.variable_as_number("i"), pconstants::c,   tolerance);
   BOOST_CHECK_CLOSE( mx.variable_as_number("j"), pconstants::e,   tolerance);
 }
+
+
 
 BOOST_AUTO_TEST_CASE(newline_separation)
 {
