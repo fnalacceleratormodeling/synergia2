@@ -105,6 +105,10 @@ add_test_executable(test_rectangular_aperture_operation test_rectangular_apertur
 target_link_libraries(test_rectangular_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_rectangular_aperture_operation COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_rectangular_aperture_operation>)
 
+add_test_executable(test_rectangular_with_ears_aperture_operation test_rectangular_with_ears_aperture_operation.cc)
+target_link_libraries(test_rectangular_with_ears_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_rectangular_with_ears_aperture_operation COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_rectangular_with_ears_aperture_operation>)
+
 add_test_executable(test_polygon_aperture_operation test_polygon_aperture_operation.cc)
 target_link_libraries(test_polygon_aperture_operation synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_polygon_aperture_operation COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_polygon_aperture_operation>)
