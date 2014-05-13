@@ -263,8 +263,8 @@ struct synergia::expression
         real                     [_val = _1]
         | ( '(' >> expr >> ')' ) [_val = phx::construct<nop_t>(_1)]
         | ( uop >> primary     ) [_val = phx::construct<uop_t>(_1, _2)]
-        | ( no_case[constant]  ) [_val = _1]
-        | ( no_case[ufunc] >> '(' >> expr >> ')')                [_val = phx::construct<uop_t>(_1, _2)]
+        | ( no_case[constant] >> !char_(".a-zA-Z_0-9")         ) [_val = _1]
+        | ( no_case[ufunc] >> '(' >> expr >> ')'               ) [_val = phx::construct<uop_t>(_1, _2)]
         | ( no_case[bfunc] >> '(' >> expr >> ',' >> expr >> ')') [_val = phx::construct<bop_t>(_1, _2, _3)]
         | ( lit("table")   >> '(' >> name >> ',' >> name >> ')') [_val = 1.0]  // eat table()
         | ( cmdref             ) [_val = _1]
@@ -274,7 +274,8 @@ struct synergia::expression
     cmdref =
         name >> "->" >> name;
 
-    name = char_("a-zA-Z_") >> *char_(".a-zA-Z_0-9");
+    name = 
+        lexeme[char_("a-zA-Z_") >> *char_(".a-zA-Z_0-9")];
   }
 };
 
