@@ -448,6 +448,12 @@ Lattice_simulator::construct_aperture_extractor_map()
             Lambertson_aperture_operation::attribute_name,
             boost::shared_ptr<Lambertson_extractor >(
                     new Lambertson_extractor()));
+
+    aperture_extractor_map_sptr->set_extractor(
+            Rectangular_with_ears_aperture_operation::attribute_name,
+            boost::shared_ptr<Rectangular_with_ears_extractor >(
+                    new Rectangular_with_ears_extractor()));
+
 }
 
 Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
