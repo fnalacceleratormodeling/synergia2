@@ -194,7 +194,7 @@ Polygon_aperture_operation::operator()(MArray2d_ref & particles, int part)
     double r2 = xrel * xrel + yrel * yrel;
 
     bool keep = true;
-    if (r2 > min_radius2) {
+    if (r2 >= min_radius2) {
         std::complex<double > u(xrel, yrel);
         int index = 0;
         int size = vertices.size();
