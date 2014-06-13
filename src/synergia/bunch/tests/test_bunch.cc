@@ -302,14 +302,8 @@ BOOST_FIXTURE_TEST_CASE(increase_local_num, Fixture)
     const int increase = 5;
     bool caught_error = false;
     int old_num = bunch.get_local_num();
-    try {
-        bunch.set_local_num(old_num + increase);
-    }
-    catch (std::runtime_error) {
-        caught_error = true;
-    }
-    BOOST_CHECK(caught_error);
-
+    bunch.set_local_num(old_num + increase);
+    BOOST_CHECK_EQUAL(bunch.get_local_num(), old_num + increase);
 }
 
 BOOST_FIXTURE_TEST_CASE(get_state, Fixture)
@@ -469,6 +463,28 @@ BOOST_FIXTURE_TEST_CASE(inject, Fixture)
     dummy_populate(total_bunch);
     bunch.inject(second_bunch);
     compare_bunches(bunch, total_bunch, tolerance, true, false);
+}
+
+BOOST_FIXTURE_TEST_CASE(inject2, Fixture)
+{
+    Bunch total_bunch(bunch);
+    const int local_num = bunch.get_local_num();
+    Bunch second_bunch(bunch);
+    dummy_populate(second_bunch);
+    dummy_populate(total_bunch);
+    total_bunch.inject(second_bunch);
+    // total bunch should now have two copies of bunch
+    BOOST_CHECK_EQUAL(total_bunch.get_local_num(), 2*local_num);
+    std::cout << "egs: inject2 local_num test passed" << std::endl;
+    BOOST_CHECK_EQUAL(total_bunch.get_total_num(), 2*bunch.get_total_num());
+    std::cout << "egs: inject2 total_num test passed" << std::endl;
+    for (int part=0; part<local_num; ++part) {
+        for (int coord=0; coord<6; ++coord) {
+            std::cout << "checking [" << part<<"][" << coord << "] == ["<<(part+local_num)<<"]" << std::endl;
+            BOOST_CHECK_CLOSE(total_bunch.get_local_particles()[part][coord],
+                              total_bunch.get_local_particles()[part+local_num][coord], tolerance);
+        }
+    }
 }
 
 BOOST_FIXTURE_TEST_CASE(inject_mismatched_weights, Fixture)
