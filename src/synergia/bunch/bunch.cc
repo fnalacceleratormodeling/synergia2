@@ -231,68 +231,17 @@ Bunch::set_real_num(double real_num)
     this->real_num = real_num;
 }
 
-#if 0
-std::cout << "egs: setting local_num to " << local_num << ", currently " << this->local_num << std::endl;
-if (local_num > this->local_num) {
-    std::cout << "egs: increasing local_num" << std::endl;
-    MArray2d *prev_local_particles = local_particles;
-    int prev_local_num = this->local_num;
-    std::cout << "before allocating new local_particles" << std::endl;
-    local_particles = new MArray2d(boost::extents[local_num][7]);
-    std::cout << "after allocating new local_particles and before copy" << std::endl;
-    (*local_particles)[ boost::indices[range(prev_local_num)][range()] ] =
-            (*prev_local_particles)[ boost::indices[range(0, prev_local_num)][range()] ];
-    std::cout << "egs: after copy, before delete old local_particles" << std::endl;
-    delete prev_local_particles;
-    std::cout << "egs:: after delete old local_particles" << std::endl;
-#endif
-
-
-#if 0
-    std::cout << "egs: setting local_num to " << local_num << ", currently " << this->local_num << std::endl;
-    if (local_num > this->local_num) {
-        std::cout << "egs: increasing local_num" << std::endl;
-        MArray2d *prev_local_particles = local_particles;
-        int prev_local_num = this->local_num;
-        std::cout << "before allocating new local_particles" << std::endl;
-        local_particles = new MArray2d(boost::extents[local_num][7]);
-        std::cout << "after allocating new local_particles and before copy" << std::endl;
-        (*local_particles)[ boost::indices[range(0,prev_local_num)][range()] ] =
-                (*prev_local_particles)[ boost::indices[range(0,prev_local_num)][range()] ];
-        std::cout << "egs: after copy, before delete old local_particles" << std::endl;
-        delete prev_local_particles;
-        std::cout << "egs:: after delete old local_particles" << std::endl;
-    }
-    this->local_num = local_num;
-#endif
-
 void
 Bunch::set_local_num(int local_num)
 {
-    std::cout << "egs: setting local_num to " << local_num << ", currently " << this->local_num << std::endl;
     if (local_num > this->local_num) {
-        std::cout << "egs: increasing local_num" << std::endl;
         MArray2d *prev_local_particles = local_particles;
         int prev_local_num = this->local_num;
-        std::cout << "before allocating new local_particles" << std::endl;
-        local_particles = new MArray2d(boost::extents[local_num][7]);
-        std::cout << "after allocating new local_particles and before copy" << std::endl;
-#if 0
-        for (int i=0; i<prev_local_num; ++i) {
-            for (int j=0; j<7; ++j) {
-                (*local_particles)[i][j] =
-                        (*prev_local_particles)[i][j];
-            }
-        }
-#endif
-#if 1
-        (*local_particles)[ boost::indices[range(0,prev_local_num)][range()] ] =
+         local_particles = new MArray2d(boost::extents[local_num][7]);
+         (*local_particles)[ boost::indices[range(0,prev_local_num)][range()] ] =
                 (*prev_local_particles)[ boost::indices[range(0,prev_local_num)][range()] ];
-#endif
-        std::cout << "egs: after copy, before delete old local_particles" << std::endl;
         delete prev_local_particles;
-        std::cout << "egs:: after delete old local_particles" << std::endl;
-    }
+     }
     this->local_num = local_num;
 }
 
