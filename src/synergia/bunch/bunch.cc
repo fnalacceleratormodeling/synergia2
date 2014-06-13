@@ -277,13 +277,15 @@ Bunch::set_local_num(int local_num)
         std::cout << "before allocating new local_particles" << std::endl;
         local_particles = new MArray2d(boost::extents[local_num][7]);
         std::cout << "after allocating new local_particles and before copy" << std::endl;
+#if 0
         for (int i=0; i<prev_local_num; ++i) {
             for (int j=0; j<7; ++j) {
                 (*local_particles)[i][j] =
                         (*prev_local_particles)[i][j];
             }
         }
-#if 0
+#endif
+#if 1
         (*local_particles)[ boost::indices[range(0,prev_local_num)][range()] ] =
                 (*prev_local_particles)[ boost::indices[range(0,prev_local_num)][range()] ];
 #endif
@@ -551,7 +553,7 @@ Bunch::inject(Bunch const& bunch)
                 "Bunch.inject: macroparticle weight of injected bunch does not match.");
     }
     int old_local_num = local_num;
-    local_num += bunch.get_local_num();
+    set_local_num(old_local_num + bunch.get_local_num());
     Const_MArray2d_ref injected_particles(bunch.get_local_particles());
     MArray1d ref_state_diff(boost::extents[6]);
     for (int i = 0; i < 6; ++i) {

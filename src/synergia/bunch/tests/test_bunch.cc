@@ -469,6 +469,7 @@ BOOST_FIXTURE_TEST_CASE(inject2, Fixture)
 {
     Bunch total_bunch(bunch);
     const int local_num = bunch.get_local_num();
+    std::cout << "inject2: initial bunch " << local_num << " particles" << std::endl;
     Bunch second_bunch(bunch);
     dummy_populate(second_bunch);
     dummy_populate(total_bunch);
@@ -478,13 +479,16 @@ BOOST_FIXTURE_TEST_CASE(inject2, Fixture)
     std::cout << "egs: inject2 local_num test passed" << std::endl;
     BOOST_CHECK_EQUAL(total_bunch.get_total_num(), 2*bunch.get_total_num());
     std::cout << "egs: inject2 total_num test passed" << std::endl;
+    BOOST_CHECK_CLOSE(total_bunch.get_real_num(), 2.0*bunch.get_real_num(), tolerance);
+    std::cout << "egs: inject2 real_num test passed" << std::endl;
     for (int part=0; part<local_num; ++part) {
         for (int coord=0; coord<6; ++coord) {
-            std::cout << "checking [" << part<<"][" << coord << "] == ["<<(part+local_num)<<"]" << std::endl;
+            std::cout << "checking [" << part<<"][" << coord << "] == ["<<(part+local_num)<<"][" << coord << "]" << std::endl;
             BOOST_CHECK_CLOSE(total_bunch.get_local_particles()[part][coord],
                               total_bunch.get_local_particles()[part+local_num][coord], tolerance);
         }
     }
+    std::cout << "inject2 tests finished" << std::endl;
 }
 
 BOOST_FIXTURE_TEST_CASE(inject_mismatched_weights, Fixture)
