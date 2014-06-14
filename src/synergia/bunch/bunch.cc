@@ -504,16 +504,42 @@ Bunch::inject(Bunch const& bunch)
     int old_local_num = local_num;
     set_local_num(old_local_num + bunch.get_local_num());
     Const_MArray2d_ref injected_particles(bunch.get_local_particles());
+    double target_momentum = reference_particle.get_momentum();
+    double injected_momentum = bunch.get_reference_particle().get_momentum();
     MArray1d ref_state_diff(boost::extents[6]);
+    MArray1d target_state(boost::extents[6]);
+    MArray1d injected_state(boost::extents[6]);
+
     for (int i = 0; i < 6; ++i) {
         ref_state_diff[i] = bunch.get_reference_particle().get_state()[i]
                 - reference_particle.get_state()[i];
     }
+
+    for (int i = 0; i < 6; ++i) {
+        target_state[i] = reference_particle.get_state()[i];
+        injected_state[i] = bunch.get_reference_particle().get_state()[i];
+    }
+
     for (int part = 0; part < bunch.get_local_num(); ++part) {
-        for (int i = 0; i < 6; ++i) {
+        // space-like coordinates
+        for (int i = 0; i < 6; i += 2) {
             (*local_particles)[old_local_num + part][i]
                     = injected_particles[part][i] + ref_state_diff[i];
         }
+
+        // npx and npy coordinates are scaled with p_ref which can be different
+        // for different bunches
+        for (int i = 1; i < 4; i += 2) {
+            (*local_particles)[old_local_num + part][i] =
+                    (injected_momentum/target_momentum) *
+                    (injected_particles[part][i] - injected_state[i]) + target_state[i];
+        }
+
+        // ndp coordinate is delta-p scaled with pref
+        (*local_particles)[old_local_num + part][5] =
+                (injected_momentum/target_momentum) *
+                (1.0 + injected_particles[part][5] - injected_state[5]) + target_state[5] - 1.0;
+
         (*local_particles)[old_local_num + part][Bunch::id]
                 = injected_particles[part][Bunch::id];
     }

@@ -304,6 +304,13 @@ BOOST_FIXTURE_TEST_CASE(increase_local_num, Fixture)
     int old_num = bunch.get_local_num();
     bunch.set_local_num(old_num + increase);
     BOOST_CHECK_EQUAL(bunch.get_local_num(), old_num + increase);
+    // make sure I can scribble in the new space
+    for (int part=old_num; part<bunch.get_local_num(); ++part) {
+        for (int i=0; i<6; ++i) {
+            bunch.get_local_particles()[part][i] = -100.0;
+        }
+        bunch.get_local_particles()[part][6] = part;
+    }
 }
 
 BOOST_FIXTURE_TEST_CASE(get_state, Fixture)
@@ -449,6 +456,10 @@ BOOST_FIXTURE_TEST_CASE(set_converter, Fixture)
     compare_bunches(bunch, second_bunch, tolerance, false);
 }
 
+// inject tolerance is lower than the others because calculation of
+// momentum rescaling induces roundoff errors
+const double inject_tolerance = 2.0e11;
+
 BOOST_FIXTURE_TEST_CASE(inject, Fixture)
 {
     Bunch total_bunch(bunch);
@@ -462,7 +473,7 @@ BOOST_FIXTURE_TEST_CASE(inject, Fixture)
     total_bunch.update_total_num();
     dummy_populate(total_bunch);
     bunch.inject(second_bunch);
-    compare_bunches(bunch, total_bunch, tolerance, true, false);
+    compare_bunches(bunch, total_bunch, inject_tolerance, true, false);
 }
 
 BOOST_FIXTURE_TEST_CASE(inject2, Fixture)
@@ -480,7 +491,7 @@ BOOST_FIXTURE_TEST_CASE(inject2, Fixture)
     for (int part=0; part<local_num; ++part) {
         for (int coord=0; coord<6; ++coord) {
             BOOST_CHECK_CLOSE(total_bunch.get_local_particles()[part][coord],
-                              total_bunch.get_local_particles()[part+local_num][coord], tolerance);
+                              total_bunch.get_local_particles()[part+local_num][coord], inject_tolerance);
         }
     }
 }
@@ -497,6 +508,42 @@ BOOST_FIXTURE_TEST_CASE(inject_mismatched_weights, Fixture)
         caught_error = true;
     }
     BOOST_CHECK(caught_error);
+}
+
+BOOST_AUTO_TEST_CASE(inject_different_momentum_bunch)
+{
+    const double momentum1 = 10.0;
+    const double momentum2 = 10.1;
+    const double mass = 1.0;
+    Four_momentum four_momentum1(mass);
+    Four_momentum four_momentum2(mass);
+    four_momentum1.set_momentum(momentum1);
+    Reference_particle refpart1(1, four_momentum1);
+    four_momentum2.set_momentum(momentum2);
+    Reference_particle refpart2(1, four_momentum2);
+    Commxx_sptr comm_sptr(new Commxx());
+
+    // first bunch has no particles to make it easy
+    Bunch bunch1(refpart1, 0, 0.0, comm_sptr);
+    Bunch bunch2(refpart2, 3, 1.0e4, comm_sptr);
+    // give some transverse momentum to the bunch 2 particles
+    for (int part=0; part<bunch2.get_local_num(); ++part) {
+        bunch2.get_local_particles()[part][1] = .001*(part-1);
+        bunch2.get_local_particles()[part][3] = -.001*(part-1);
+        // try different longitudinal momenta
+        bunch2.get_local_particles()[part][5] = 0.01*(part-1);
+    }
+    // inject it
+    bunch1.inject(bunch2);
+    // the unscaled momentum better be the same
+    for (int part=0; part<bunch1.get_local_num(); ++part) {
+        BOOST_CHECK_CLOSE(momentum1*bunch1.get_local_particles()[part][1],
+                          momentum2*bunch2.get_local_particles()[part][1], inject_tolerance);
+        BOOST_CHECK_CLOSE(momentum1*bunch1.get_local_particles()[part][3],
+                          momentum2*bunch2.get_local_particles()[part][3], inject_tolerance);
+        BOOST_CHECK_CLOSE(momentum1*(1.0+bunch1.get_local_particles()[part][5]),
+                          momentum2*(1.0+bunch2.get_local_particles()[part][5]), inject_tolerance);
+    }
 }
 
 BOOST_FIXTURE_TEST_CASE(serialize_xml, Fixture)
