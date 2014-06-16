@@ -496,8 +496,25 @@ void
 Bunch::inject(Bunch const& bunch)
 {
     const double weight_tolerance = 1.0e-10;
-    if (std::abs(real_num / total_num - bunch.get_real_num()
-            / bunch.get_total_num()) > weight_tolerance) {
+    const double particle_tolerance = 1.0e-14;
+
+    // The charge and mass of the bunch particles must match
+    if (particle_charge != bunch.get_particle_charge()) {
+        throw std::runtime_error(
+                "Bunch.inject: bunch particle charges do not match.");
+    }
+    if (std::abs(reference_particle.get_four_momentum().get_mass()/
+                 bunch.get_reference_particle().get_four_momentum().get_mass() - 1.0) > particle_tolerance) {
+        throw std::runtime_error(
+                "Bunch:inject: bunch particle masses do not match.");
+    }
+    // can only check particle weight if total_num is nonzero
+    if (total_num == 0) {
+        // target bunch is empty.  Set the weights from the injected bunch
+        real_num = bunch.get_real_num();
+        total_num = bunch.get_total_num();
+    } else if (std::abs(real_num/total_num - bunch.get_real_num()/bunch.get_total_num())
+        > weight_tolerance) {
         throw std::runtime_error(
                 "Bunch.inject: macroparticle weight of injected bunch does not match.");
     }

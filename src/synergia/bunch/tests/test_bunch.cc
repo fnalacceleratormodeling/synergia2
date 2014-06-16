@@ -73,7 +73,7 @@ compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance,
     BOOST_CHECK_EQUAL(bunch1.get_particle_charge(),
             bunch2.get_particle_charge());
     BOOST_CHECK_CLOSE(bunch1.get_mass(), bunch2.get_mass(), tolerance);
-    BOOST_CHECK_CLOSE(bunch1.get_real_num(), bunch1.get_real_num(), tolerance);
+    BOOST_CHECK_CLOSE(bunch1.get_real_num(), bunch2.get_real_num(), tolerance);
     BOOST_CHECK_EQUAL(bunch1.get_local_num(), bunch2.get_local_num());
     BOOST_CHECK_EQUAL(bunch1.get_total_num(), bunch2.get_total_num());
     BOOST_CHECK_EQUAL(bunch1.get_bucket_index(), bunch2.get_bucket_index());
@@ -510,11 +510,41 @@ BOOST_FIXTURE_TEST_CASE(inject_mismatched_weights, Fixture)
     BOOST_CHECK(caught_error);
 }
 
+BOOST_FIXTURE_TEST_CASE(inject_wrong_particle, Fixture)
+{
+    Four_momentum four_momentum2(mass/2.0, total_energy);
+    Reference_particle reference_particle2(1, four_momentum2);
+    Bunch target_bunch(bunch);
+    Bunch second_bunch(reference_particle2, total_num, real_num, comm_sptr);
+    bool caught_error = false;
+
+    try {
+        target_bunch.inject(second_bunch);
+    }
+    catch (std::runtime_error) {
+        caught_error = true;
+    }
+    BOOST_CHECK(caught_error);
+
+    Bunch target_bunch2(bunch);
+    Reference_particle reference_particle3(2, reference_particle.get_four_momentum());
+    Bunch third_bunch(reference_particle3, total_num, real_num, comm_sptr);
+    caught_error = false;
+    try {
+        target_bunch2.inject(third_bunch);
+    }
+    catch (std::runtime_error) {
+        caught_error = true;
+    }
+    BOOST_CHECK(caught_error);
+
+}
+
 BOOST_AUTO_TEST_CASE(inject_different_momentum_bunch)
 {
     const double momentum1 = 10.0;
     const double momentum2 = 10.1;
-    const double mass = 1.0;
+    const double mass = 0.75;
     Four_momentum four_momentum1(mass);
     Four_momentum four_momentum2(mass);
     four_momentum1.set_momentum(momentum1);
@@ -544,6 +574,16 @@ BOOST_AUTO_TEST_CASE(inject_different_momentum_bunch)
         BOOST_CHECK_CLOSE(momentum1*(1.0+bunch1.get_local_particles()[part][5]),
                           momentum2*(1.0+bunch2.get_local_particles()[part][5]), inject_tolerance);
     }
+}
+
+BOOST_FIXTURE_TEST_CASE(inject_into_empty_bunch, Fixture)
+{
+    Bunch new_bunch(reference_particle, 0, 0.0, comm_sptr);
+    Bunch bunch_to_inject(bunch);
+    dummy_populate(bunch_to_inject);
+    new_bunch.inject(bunch_to_inject);
+    // new_bunch should be the same as old bunch
+    compare_bunches(new_bunch, bunch_to_inject, inject_tolerance, true, false);
 }
 
 BOOST_FIXTURE_TEST_CASE(serialize_xml, Fixture)
