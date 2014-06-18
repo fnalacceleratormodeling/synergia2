@@ -2,6 +2,7 @@
 
 import sys
 import tables
+import numpy
 from matplotlib import pyplot
 import matplotlib
 
@@ -18,6 +19,8 @@ coords['y'] = 2
 coords['yp'] = 3
 coords['z'] = 4
 coords['zp'] = 5
+coords['pz'] = 6
+coords['energy'] = 7
 
 class Options:
     def __init__(self):
@@ -96,10 +99,20 @@ def do_plots(options):
             single_plot(options, particle_coords)
         elif "track_coords" in dir(f.root):
             track_coords = getattr(f.root, "track_coords").read()
+            mass = f.root.mass[()]
+            p_ref = f.root.pz[()]
             f.close()
             ntracks = track_coords.shape[0]
+            nturns = track_coords.shape[2]
             for trk in options.indices:
                 particle_coords = track_coords[trk,0:6,:]
+                #print "particle_coords.shape: ", particle_coords.shape
+                pz = p_ref * (1.0 + track_coords[trk, 5, :]).reshape(1,nturns)
+                #print "pz.shape: ", pz.shape
+                energy = numpy.sqrt(pz*pz + mass**2).reshape(1,nturns)
+                #print "energy.shape: ", energy.shape
+                particle_coords = numpy.vstack((particle_coords,pz,energy))
+                #print "particle_coords.shape: ", particle_coords.shape
                 single_plot(options, particle_coords)
 
     pyplot.xlabel(options.coords[0])

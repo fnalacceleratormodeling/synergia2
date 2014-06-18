@@ -2,6 +2,7 @@
 
 import sys
 import tables
+import numpy
 from matplotlib import pyplot
 
 def get_layout(num):
@@ -38,6 +39,8 @@ coords['y'] = 2
 coords['yp'] = 3
 coords['z'] = 4
 coords['zp'] = 5
+coords['pz'] = 7
+coords['energy'] = 8
 
 class Options:
     def __init__(self):
@@ -103,14 +106,19 @@ def get_particle_coords(f, options):
     if hasattr(f.root, 'coords'):
         particle_coords.append(getattr(f.root, "coords").read())
     else:
+        mass = f.root.mass[()]
+        p_ref = f.root.pz[()]
         all_coords = getattr(f.root, 'track_coords').read()
+        nturns = all_coords.shape[2]
         if options.indices[0]:
             indices = options.indices
         else:
             print "using default track index 0"
             indices = [0]
         for index in indices:
-            particle_coords.append(all_coords[index,:,:])
+            pz = p_ref * (1.0 + all_coords[index, 5, :]).reshape(1,nturns)
+            energy = numpy.sqrt(pz*pz + mass**2).reshape(1,nturns)
+            particle_coords.append(numpy.vstack((all_coords[index,:,:], pz, energy)))
     return particle_coords
 
 def do_plots(options):

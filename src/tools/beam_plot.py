@@ -41,7 +41,8 @@ coords['y'] = 2
 coords['yp'] = 3
 coords['z'] = 4
 coords['zp'] = 5
-coords['pz'] = 6
+coords['pz'] = 7
+coords['energy'] = 8
 
 class Options:
     def __init__(self):
@@ -103,11 +104,16 @@ def do_plots(options):
     f = tables.openFile(options.inputfile, 'r')
     particles = f.root.particles.read()
     npart = particles.shape[0]
-    mass = f.root.mass
+    mass = f.root.mass[()]
     p_ref = f.root.pz[()]
     f.close()
-    print "p_ref: ", p_ref
-    particles[:,6] = p_ref * (1.0 + particles[:,5])
+    #print "p_ref: ", p_ref
+    #print "mass: ", mass
+    pz = (p_ref * (1.0 + particles[:,5])).reshape(npart, 1)
+    #print "pz.shape: ", pz.shape
+    energy = numpy.sqrt(pz*pz + mass**2).reshape(npart, 1)
+    #print "energy.shape: ", energy.shape
+    particles = numpy.hstack((particles, pz, energy))
     
     pyplot.figure().canvas.set_window_title('Synergia Phase Space Distribution')
     plot_density(particles[:, coords[options.hcoord]],
