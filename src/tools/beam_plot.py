@@ -53,6 +53,10 @@ class Options:
         self.hcoord = None
         self.vcoord = None
         self.bins = 10
+        self.minh = -sys.float_info.max
+        self.maxh = sys.float_info.max
+        self.minv = -sys.float_info.max
+        self.maxv = sys.float_info.max
 
 def do_error(message):
     sys.stderr.write(message + '\n')
@@ -63,6 +67,10 @@ def do_help():
     print "available options are:"
     print "    --nohist : do not show histograms (not on by default)"
     print "    --bins=<num> : number of bins in each direction"
+    print "    --minh=<num> : minimum limit on horizontal axis data
+    print "    --maxh=<num> : maximum limit on horizontal axis data
+    print "    --minv=<num> : minimum limit on vertical axis data
+    print "    --maxv=<num> : maximum limit on vertical axis data
     print "    --output=<file> : save output to file (not on by default)"
     print "    --show : show plots on screen (on by default unless --output flag is present"
     print "available coords are:"
@@ -96,6 +104,15 @@ def handle_args(args):
                 file = arg.split('=')[1]
                 options.outputfile = file
                 options.show = False
+            elif arg.find('--minh') == 0:
+                options.minh = float(arg.split('=')[1])
+            elif arg.find('--maxh') == 0:
+                options.maxh = float(arg.split('=')[1])
+            elif arg.find('--minv') == 0:
+                options.minv = float(arg.split('=')[1])
+            elif arg.find('maxv') == 0:
+                options.maxv = float(arg.split('=')[1])
+                                     
             else:
                 do_error('Unknown argument "%s"' % arg)
     return options
@@ -116,8 +133,13 @@ def do_plots(options):
     particles = numpy.hstack((particles, pz, energy))
     
     pyplot.figure().canvas.set_window_title('Synergia Phase Space Distribution')
-    plot_density(particles[:, coords[options.hcoord]],
-                 particles[:, coords[options.vcoord]], 'foobar', options.bins)
+    selected_particles = ((particles[:, coords[options.hcoord]] >= options.minh) *
+                       (particles[:, coords[options.hcoord]] < options.maxh) *
+                       (particles[:, coords[options.vcoord]] >= options.minv) *
+                       (particles[:, coords[options.vcoord]] < options.maxv))
+
+    plot_density(particles[selected_particles, coords[options.hcoord]],
+                 particles[selected_particles, coords[options.vcoord]], 'foobar', options.bins)
     if options.outputfile:
         pyplot.savefig(options.outputfile)
     if options.show:
