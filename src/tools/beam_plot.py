@@ -67,10 +67,10 @@ def do_help():
     print "available options are:"
     print "    --nohist : do not show histograms (not on by default)"
     print "    --bins=<num> : number of bins in each direction"
-    print "    --minh=<num> : minimum limit on horizontal axis data
-    print "    --maxh=<num> : maximum limit on horizontal axis data
-    print "    --minv=<num> : minimum limit on vertical axis data
-    print "    --maxv=<num> : maximum limit on vertical axis data
+    print "    --minh=<num> : minimum limit on horizontal axis data"
+    print "    --maxh=<num> : maximum limit on horizontal axis data"
+    print "    --minv=<num> : minimum limit on vertical axis data"
+    print "    --maxv=<num> : maximum limit on vertical axis data"
     print "    --output=<file> : save output to file (not on by default)"
     print "    --show : show plots on screen (on by default unless --output flag is present"
     print "available coords are:"
