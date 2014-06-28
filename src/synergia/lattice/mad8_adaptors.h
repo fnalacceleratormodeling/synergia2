@@ -196,8 +196,10 @@ public:
     Rfcavity_mad8_adaptor();
     virtual void
     set_defaults(Lattice_element & lattice_element);
+#if 0 // let CHEF set frequency
     virtual void
     set_derived_attributes_external(Lattice_element & lattice_element, double lattice_length, double beta);
+#endif // let CHEF set frequency
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>

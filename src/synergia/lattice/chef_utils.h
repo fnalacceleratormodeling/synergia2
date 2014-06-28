@@ -49,6 +49,9 @@ Reference_particle
 propagate_reference_particle(Reference_particle const& reference_particle,
         BmlPtr beamline_sptr);
 
+Particle
+get_closed_orbit_particle(Particle util_part, BmlPtr beamline_sptr, double dpop);
+
 /// units conversion
 /// X_synergia = U X_chef
 /// where U = diag(u[0],u[1],u[2],u[3],u[4],u[5])

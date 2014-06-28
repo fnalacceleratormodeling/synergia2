@@ -6,6 +6,7 @@
 #include <beamline/CF_sbend.h>
 #include <beamline/CF_rbend.h>
 #include <beamline/rfcavity.h>
+#include <physics_toolkit/ClosedOrbitSage.h>
 
 std::string
 chef_beamline_as_string(BmlPtr beamline_sptr)
@@ -204,6 +205,25 @@ propagate_reference_particle(Reference_particle const& reference_particle,
     Particle particle(reference_particle_to_chef_particle(reference_particle));
     beamline_sptr->propagate(particle);
     return chef_particle_to_reference_particle(particle);
+}
+
+Particle
+get_closed_orbit_particle(Particle util_part, BmlPtr beamline_sptr, double dpop)
+{
+    beamline_sptr->setLineMode(beamline::ring);
+
+    // any environment will do
+    if (Jet__environment::getLastEnv() == 0) {
+        JetParticle::createStandardEnvironments(1);
+    }
+
+    ClosedOrbitSage closed_orbit_sage(beamline_sptr);
+    Particle probe(util_part);
+    probe.set_ndp(dpop);
+    JetParticle jetprobe(probe);
+    closed_orbit_sage.findClosedOrbit(jetprobe);
+    Particle closed_orbit_particle(jetprobe);
+    return closed_orbit_particle;
 }
 
 std::vector<double >
