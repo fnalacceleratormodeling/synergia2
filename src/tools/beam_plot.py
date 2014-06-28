@@ -43,6 +43,7 @@ coords['z'] = 4
 coords['zp'] = 5
 coords['pz'] = 7
 coords['energy'] = 8
+coords['t'] = 9
 
 class Options:
     def __init__(self):
@@ -118,6 +119,7 @@ def handle_args(args):
     return options
 
 def do_plots(options):
+    c = 299792458.0
     f = tables.openFile(options.inputfile, 'r')
     particles = f.root.particles.read()
     npart = particles.shape[0]
@@ -129,8 +131,9 @@ def do_plots(options):
     pz = (p_ref * (1.0 + particles[:,5])).reshape(npart, 1)
     #print "pz.shape: ", pz.shape
     energy = numpy.sqrt(pz*pz + mass**2).reshape(npart, 1)
+    time = (particles[:,4]*1.0e9/c).reshape(npart,1)
     #print "energy.shape: ", energy.shape
-    particles = numpy.hstack((particles, pz, energy))
+    particles = numpy.hstack((particles, pz, energy,time))
     
     pyplot.figure().canvas.set_window_title('Synergia Phase Space Distribution')
     selected_particles = ((particles[:, coords[options.hcoord]] >= options.minh) *
