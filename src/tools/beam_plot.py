@@ -111,7 +111,7 @@ def handle_args(args):
                 options.maxh = float(arg.split('=')[1])
             elif arg.find('--minv') == 0:
                 options.minv = float(arg.split('=')[1])
-            elif arg.find('maxv') == 0:
+            elif arg.find('--maxv') == 0:
                 options.maxv = float(arg.split('=')[1])
                                      
             else:
