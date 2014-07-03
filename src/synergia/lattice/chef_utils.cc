@@ -2,8 +2,10 @@
 #include <iostream>
 #include <sstream>
 #include "synergia/utils/floating_point.h"
+#include "synergia/foundation/math_constants.h"
 #include <beamline/CF_sbend.h>
 #include <beamline/CF_rbend.h>
+#include <beamline/rfcavity.h>
 
 std::string
 chef_beamline_as_string(BmlPtr beamline_sptr)
@@ -15,14 +17,24 @@ chef_beamline_as_string(BmlPtr beamline_sptr)
                 << (*it)->Length() << ", Strength=" << (*it)->Strength();
         if ( (std::strcmp((*it)->Type(),"CF_rbend") == 0) ) {
             sstream << ", Quadrupole="
-                << boost::dynamic_pointer_cast<CF_rbend>(*it)->getQuadrupole()
+                << boost::static_pointer_cast<CF_rbend>(*it)->getQuadrupole()
                     << ", Sextupole="
-                    << boost::dynamic_pointer_cast<CF_rbend>(*it)->getSextupole();
+                    << boost::static_pointer_cast<CF_rbend>(*it)->getSextupole();
         } else if ( (std::strcmp((*it)->Type(), "CF_sbend") == 0)) {
             sstream << ", Quadrupole="
-                << boost::dynamic_pointer_cast<CF_sbend>(*it)->getQuadrupole()
+                << boost::static_pointer_cast<CF_sbend>(*it)->getQuadrupole()
                     << ", Sextupole="
-                    << boost::dynamic_pointer_cast<CF_sbend>(*it)->getSextupole();
+                    << boost::static_pointer_cast<CF_sbend>(*it)->getSextupole();
+        } else if ( std::strcmp((*it)->Type(), "rfcavity") == 0 ) {
+            sstream << ", Freq="
+                    << boost::static_pointer_cast<rfcavity>(*it)->getRadialFrequency()/(2.0*mconstants::pi) <<
+                    ", Harmon="
+                    << boost::static_pointer_cast<rfcavity>(*it)->getHarmonicNumber();
+        } else if ( std::strcmp((*it)->Type(), "thinrfcavity") == 0) {
+            sstream << ", Freq="
+                    << boost::static_pointer_cast<thinrfcavity>(*it)->getRadialFrequency()/(2.0*mconstants::pi) <<
+                    ", Harmon="
+                    << boost::static_pointer_cast<thinrfcavity>(*it)->getHarmonicNumber();
         }
         sstream << std::endl;
     }
@@ -46,14 +58,24 @@ full_chef_beamline_as_string(BmlPtr beamline_sptr)
                 << (*it)->Length() << ", Strength=" << (*it)->Strength();
         if ( (std::strcmp((*it)->Type(), "CF_rbend") == 0) ) {
             sstream << ", Quadrupole="
-                << boost::dynamic_pointer_cast<CF_rbend>(*it)->getQuadrupole()
+                << boost::static_pointer_cast<CF_rbend>(*it)->getQuadrupole()
                     << ", Sextupole="
-                    << boost::dynamic_pointer_cast<CF_rbend>(*it)->getSextupole();
+                    << boost::static_pointer_cast<CF_rbend>(*it)->getSextupole();
         } else if ( (std::strcmp((*it)->Type(), "CF_sbend") == 0)) {
             sstream << ", Quadrupole="
-                << boost::dynamic_pointer_cast<CF_sbend>(*it)->getQuadrupole()
+                << boost::static_pointer_cast<CF_sbend>(*it)->getQuadrupole()
                     << ", Sextupole="
-                    << boost::dynamic_pointer_cast<CF_sbend>(*it)->getSextupole();
+                    << boost::static_pointer_cast<CF_sbend>(*it)->getSextupole();
+        } else if ( std::strcmp((*it)->Type(), "rfcavity") == 0 ) {
+            sstream << ", Freq="
+                    << boost::static_pointer_cast<rfcavity>(*it)->getRadialFrequency()/(2.0*mconstants::pi) <<
+                    ", Harmon="
+                    << boost::static_pointer_cast<rfcavity>(*it)->getHarmonicNumber();
+        } else if ( std::strcmp((*it)->Type(), "thinrfcavity") == 0) {
+            sstream << ", Freq="
+                    << boost::static_pointer_cast<thinrfcavity>(*it)->getRadialFrequency()/(2.0*mconstants::pi) <<
+                    ", Harmon="
+                    << boost::static_pointer_cast<thinrfcavity>(*it)->getHarmonicNumber();
         }
         sstream << std::endl;
     }
