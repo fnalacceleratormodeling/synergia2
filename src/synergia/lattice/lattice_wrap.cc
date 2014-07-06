@@ -238,7 +238,9 @@ BOOST_PYTHON_MODULE(lattice)
             ;
 
     def("chef_beamline_as_string", chef_beamline_as_string);
+    def("chef_element_as_string", chef_element_as_string);
     def("print_chef_beamline", print_chef_beamline);
+    def("print_chef_element", print_chef_element);
     def("chef_full_beamline_as_string", full_chef_beamline_as_string);
     def("print_full_chef_beamline", print_full_chef_beamline);
     def("reference_particle_to_chef_particle",

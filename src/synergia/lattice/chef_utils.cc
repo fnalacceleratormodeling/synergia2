@@ -3,6 +3,8 @@
 #include <sstream>
 #include "synergia/utils/floating_point.h"
 #include "synergia/foundation/math_constants.h"
+#include <beamline/beamline.h>
+#include <beamline/bmlnElmnt.h>
 #include <beamline/CF_sbend.h>
 #include <beamline/CF_rbend.h>
 #include <beamline/rfcavity.h>
@@ -14,31 +16,39 @@ chef_beamline_as_string(BmlPtr beamline_sptr)
     std::stringstream sstream;
     for (beamline::const_iterator it = beamline_sptr->begin();
             it != beamline_sptr->end(); ++it) {
-        sstream << (*it)->Name() << "(" << (*it)->Type() << "): Length="
-                << (*it)->Length() << ", Strength=" << (*it)->Strength();
-        if ( (std::strcmp((*it)->Type(),"CF_rbend") == 0) ) {
-            sstream << ", Quadrupole="
-                << boost::static_pointer_cast<CF_rbend>(*it)->getQuadrupole()
-                    << ", Sextupole="
-                    << boost::static_pointer_cast<CF_rbend>(*it)->getSextupole();
-        } else if ( (std::strcmp((*it)->Type(), "CF_sbend") == 0)) {
-            sstream << ", Quadrupole="
-                << boost::static_pointer_cast<CF_sbend>(*it)->getQuadrupole()
-                    << ", Sextupole="
-                    << boost::static_pointer_cast<CF_sbend>(*it)->getSextupole();
-        } else if ( std::strcmp((*it)->Type(), "rfcavity") == 0 ) {
-            sstream << ", Freq="
-                    << boost::static_pointer_cast<rfcavity>(*it)->getRadialFrequency()/(2.0*mconstants::pi) <<
-                    ", Harmon="
-                    << boost::static_pointer_cast<rfcavity>(*it)->getHarmonicNumber();
-        } else if ( std::strcmp((*it)->Type(), "thinrfcavity") == 0) {
-            sstream << ", Freq="
-                    << boost::static_pointer_cast<thinrfcavity>(*it)->getRadialFrequency()/(2.0*mconstants::pi) <<
-                    ", Harmon="
-                    << boost::static_pointer_cast<thinrfcavity>(*it)->getHarmonicNumber();
-        }
-        sstream << std::endl;
+        sstream << chef_element_as_string(*it);
     }
+    return sstream.str();
+}
+
+std::string
+chef_element_as_string(ElmPtr element_sptr)
+{
+    std::stringstream sstream;
+    sstream << (element_sptr)->Name() << "(" << (element_sptr)->Type() << "): Length="
+            << (element_sptr)->Length() << ", Strength=" << (element_sptr)->Strength();
+    if ( (std::strcmp((element_sptr)->Type(),"CF_rbend") == 0) ) {
+        sstream << ", Quadrupole="
+            << boost::static_pointer_cast<CF_rbend>(element_sptr)->getQuadrupole()
+                << ", Sextupole="
+                << boost::static_pointer_cast<CF_rbend>(element_sptr)->getSextupole();
+    } else if ( (std::strcmp((element_sptr)->Type(), "CF_sbend") == 0)) {
+        sstream << ", Quadrupole="
+            << boost::static_pointer_cast<CF_sbend>(element_sptr)->getQuadrupole()
+                << ", Sextupole="
+                << boost::static_pointer_cast<CF_sbend>(element_sptr)->getSextupole();
+    } else if ( std::strcmp((element_sptr)->Type(), "rfcavity") == 0 ) {
+        sstream << ", Freq="
+                << boost::static_pointer_cast<rfcavity>(element_sptr)->getRadialFrequency()/(2.0*mconstants::pi) <<
+                ", Harmon="
+                << boost::static_pointer_cast<rfcavity>(element_sptr)->getHarmonicNumber();
+    } else if ( std::strcmp((element_sptr)->Type(), "thinrfcavity") == 0) {
+        sstream << ", Freq="
+                << boost::static_pointer_cast<thinrfcavity>(element_sptr)->getRadialFrequency()/(2.0*mconstants::pi) <<
+                ", Harmon="
+                << boost::static_pointer_cast<thinrfcavity>(element_sptr)->getHarmonicNumber();
+    }
+    sstream << std::endl;
     return sstream.str();
 }
 
@@ -46,6 +56,13 @@ void
 print_chef_beamline(BmlPtr beamline_sptr)
 {
     std::cout << chef_beamline_as_string(beamline_sptr) << std::endl;
+    std::cout.flush();
+}
+
+void
+print_chef_element(ElmPtr element_sptr)
+{
+    std::cout << chef_element_as_string(element_sptr) << std::endl;
     std::cout.flush();
 }
 
