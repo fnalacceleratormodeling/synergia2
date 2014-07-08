@@ -300,7 +300,6 @@ BOOST_FIXTURE_TEST_CASE(get_const_local_particles, Fixture)
 BOOST_FIXTURE_TEST_CASE(increase_local_num, Fixture)
 {
     const int increase = 5;
-    bool caught_error = false;
     int old_num = bunch.get_local_num();
     bunch.set_local_num(old_num + increase);
     BOOST_CHECK_EQUAL(bunch.get_local_num(), old_num + increase);
