@@ -16,7 +16,6 @@
 #endif
 #include <basic_toolkit/PhysicsConstants.h>
 #include <physics_toolkit/DriftConverter.h>
-#include <physics_toolkit/ClosedOrbitSage.h>
 #include <beamline/RefRegVisitor.h>
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic pop
@@ -77,7 +76,7 @@ Chef_lattice::construct_beamline()
             unpolished_beamline_sptr->append(lattice_element_marker);
         }
     }
-    beamline_sptr = polish_beamline(reference_particle_to_chef_particle(lattice_sptr->get_reference_particle()), unpolished_beamline_sptr);
+    beamline_sptr = polish_beamline(unpolished_beamline_sptr);
     extract_element_map();
 }
 
@@ -87,11 +86,11 @@ struct strengthData {
 };
 
 void
-Chef_lattice::register_beamline(Particle polisher, BmlPtr beamline_sptr)
+Chef_lattice::register_beamline(BmlPtr beamline_sptr)
 {
 
-    // can't use get_closed_orbit
-    Particle testpart(get_closed_orbit_particle(polisher, beamline_sptr, 0.0));
+    Particle testpart(reference_particle_to_chef_particle(lattice_sptr->get_reference_particle()));
+    // std::cout << "Registering beamline with particle state: " << testpart.State() << std::endl;
 
     // turn off RF for registration.  Save the RF cavity strengths, copied
     // from ClosedOrbitSage
@@ -110,8 +109,8 @@ Chef_lattice::register_beamline(Particle polisher, BmlPtr beamline_sptr)
             (*it)->setStrength(0.0);
         }
     }
-
     RefRegVisitor registrar(testpart);
+
     beamline_sptr->accept(registrar);
 
     // restore RF
@@ -121,7 +120,7 @@ Chef_lattice::register_beamline(Particle polisher, BmlPtr beamline_sptr)
 }
 
 BmlPtr
-Chef_lattice::polish_beamline(Particle polisher, BmlPtr beamline_sptr)
+Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
 {
     DriftConverter drift_converter;
     BmlPtr converted_beamline_sptr;
@@ -129,7 +128,7 @@ Chef_lattice::polish_beamline(Particle polisher, BmlPtr beamline_sptr)
         converted_beamline_sptr = beamline_sptr;
     } else {
         converted_beamline_sptr = drift_converter.convert(*beamline_sptr);
-        register_beamline(polisher, converted_beamline_sptr);
+        register_beamline(converted_beamline_sptr);
     }
     return converted_beamline_sptr;
 }
@@ -156,23 +155,6 @@ Chef_lattice::extract_element_map()
     }
     beamline_iterators.at(index) = beamline_sptr->end();
 }
-
-//Particle get_closed_orbit_particle(BmlPtr beamline_sptr, double dpop)
-//{
-//    beamline_sptr->setLineMode(beamline::ring);
-//    // any map order will do
-//    if (Jet__environment::getLastEnv() == 0) {
-//        JetParticle::createStandardEnvironments(1);
-//    }
-//
-//    ClosedOrbitSage closed_orbit_sage(beamline_sptr);
-//    Particle probe(reference_particle_to_chef_particle(lattice_sptr->get_reference_particle()));
-//    probe.set_ndp(dpop);
-//    JetParticle jetprobe(probe);
-//    closed_orbit_sage.findClosedOrbit(jetprobe);
-//    Particle closed_orbit_particle(jetprobe);
-//    return closed_orbit_particle;
-//}
 
 void
 Chef_lattice::extract_element_slice_map(Lattice_element_slices const& slices)
@@ -441,7 +423,7 @@ Chef_lattice::construct_sliced_beamline(Lattice_element_slices const& slices)
         }
         unpolished_beamline_sptr->append(lattice_element_marker);
     }
-    sliced_beamline_sptr = polish_beamline(reference_particle_to_chef_particle(lattice_sptr->get_reference_particle()), unpolished_beamline_sptr);
+    sliced_beamline_sptr = polish_beamline(unpolished_beamline_sptr);
     extract_element_slice_map(slices);
     lattice_element_slices = slices;
     have_sliced_beamline_ = true;

@@ -57,9 +57,9 @@ private:
     void
     construct_beamline();
     void
-        register_beamline(Particle polisher, BmlPtr beamline_sptr);
+    register_beamline(BmlPtr beamline_sptr);
     BmlPtr
-        polish_beamline(Particle polisher, BmlPtr beamline_sptr);
+    polish_beamline(BmlPtr beamline_sptr);
     void
     extract_element_map();
     void

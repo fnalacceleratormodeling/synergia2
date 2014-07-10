@@ -681,12 +681,12 @@ Lattice_simulator::update()
 MArray1d
 Lattice_simulator::get_closed_orbit(double dpop)
 {
-    MArray1d retval(boost::extents[6]);
-    BmlPtr beamline_sptr(get_chef_lattice_sptr()->get_beamline_sptr());
-    Particle test_particle(reference_particle_to_chef_particle(lattice_sptr->get_reference_particle()));
-
+    MArray1d retval(boost::extents[6]); Particle
+    test_particle(reference_particle_to_chef_particle(lattice_sptr->get_reference_particle()));
+    // get_closed_orbit_particle clones the beamline
     Particle closed_orbit_particle(get_closed_orbit_particle(test_particle,
-                                                             beamline_sptr, dpop));
+                                                             get_chef_lattice_sptr()->get_beamline_sptr(),
+                                                             dpop));
 
     retval[Bunch::x] = closed_orbit_particle.get_x();
     retval[Bunch::xp] = closed_orbit_particle.get_npx();

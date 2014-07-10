@@ -227,19 +227,23 @@ propagate_reference_particle(Reference_particle const& reference_particle,
 Particle
 get_closed_orbit_particle(Particle util_part, BmlPtr beamline_sptr, double dpop)
 {
-    beamline_sptr->setLineMode(beamline::ring);
+    BmlPtr throwaway_sptr(beamline_sptr->Clone());
+    throwaway_sptr->setLineMode(beamline::ring);
 
-    // any environment will do
-    if (Jet__environment::getLastEnv() == 0) {
-        JetParticle::createStandardEnvironments(1);
-    }
+    Jet__environment_ptr storedEnv = Jet__environment::getLastEnv();
+    JetC__environment_ptr storedEnvC = JetC__environment::getLastEnv();
+    // just need a basic first order environment
+    JetParticle::createStandardEnvironments(1);
 
-    ClosedOrbitSage closed_orbit_sage(beamline_sptr);
+    ClosedOrbitSage closed_orbit_sage(throwaway_sptr);
     Particle probe(util_part);
     probe.set_ndp(dpop);
     JetParticle jetprobe(probe);
     closed_orbit_sage.findClosedOrbit(jetprobe);
     Particle closed_orbit_particle(jetprobe);
+    // restore environment
+    Jet__environment::setLastEnv(storedEnv);
+    JetC__environment::setLastEnv(storedEnvC);
     return closed_orbit_particle;
 }
 
