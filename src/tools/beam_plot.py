@@ -27,12 +27,39 @@ def plot_density(x, y, label, bins):
         for j in range(0, H.shape[1]):
             if H[i, j] > 0:
                 H[i, j] = math.log(H[i, j])
+    # contour plots use the center of the bins, not the edges
+    if options.contour:
+        xedges = (xedges[0:-1] + xedges[1:])/2.0
+        yedges = (yedges[0:-1] + yedges[1:])/2.0
     X, Y = pylab.meshgrid(xedges, yedges)
-    axScatter.pcolor(X, Y, H.transpose())
+    if not options.contour:
+        axScatter.pcolor(X, Y, H.transpose())
+    else:
+        if options.num_contour:
+            # select number of contours
+            axScatter.contourf(X, Y, H.transpose(), options.num_contour)
+        else:
+            # matplotlib chooses number of contours
+            axScatter.contourf(X, Y, H.transpose())
+
     axScatter.set_axis_bgcolor((0, 0, 0.5))
     axHistx.hist(x, bins=bins)
     axHisty.hist(y, bins=bins, orientation='horizontal')
 #    axScatter.plot(x, y, '.', label=fancylabel)
+
+    # if limits were specified, set the axis limits to match
+    xlims = list(axScatter.get_xlim())
+    ylims = list(axScatter.get_ylim())
+    if options.minh != -sys.float_info.max:
+        xlims[0] = options.minh
+    if options.maxh != sys.float_info.max:
+        xlims[1] = options.maxh
+    if options.minv != -sys.float_info.max:
+        ylims[0] = options.minv
+    if options.maxv != sys.float_info.max:
+        ylims[1] = options.maxv
+    axScatter.set_xlim(xlims)
+    axScatter.set_ylim(ylims)
 
 coords = {}
 coords['x'] = 0
@@ -58,6 +85,8 @@ class Options:
         self.maxh = sys.float_info.max
         self.minv = -sys.float_info.max
         self.maxv = sys.float_info.max
+        self.contour = None
+        self.num_contour = None
 
 def do_error(message):
     sys.stderr.write(message + '\n')
@@ -72,6 +101,8 @@ def do_help():
     print "    --maxh=<num> : maximum limit on horizontal axis data"
     print "    --minv=<num> : minimum limit on vertical axis data"
     print "    --maxv=<num> : maximum limit on vertical axis data"
+    print "    --contour    : draw contours instead of color density"
+    print "    --contour=<num>: draw <num> levels of contours"
     print "    --output=<file> : save output to file (not on by default)"
     print "    --show : show plots on screen (on by default unless --output flag is present"
     print "available coords are:"
@@ -113,7 +144,10 @@ def handle_args(args):
                 options.minv = float(arg.split('=')[1])
             elif arg.find('--maxv') == 0:
                 options.maxv = float(arg.split('=')[1])
-                                     
+            elif arg.find('--contour') == 0:
+                options.contour = True
+                if arg.find('=') >= 0:
+                    options.num_contour = int(arg.split('=')[1])
             else:
                 do_error('Unknown argument "%s"' % arg)
     return options
