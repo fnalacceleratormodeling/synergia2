@@ -60,6 +60,8 @@ def plot_density(x, y, label, bins):
         ylims[1] = options.maxv
     axScatter.set_xlim(xlims)
     axScatter.set_ylim(ylims)
+    axScatter.set_xlabel(options.hcoord, fontdict={'fontsize': 'large'})
+    axScatter.set_ylabel(options.vcoord, fontdict={'fontsize': 'large'})
 
 coords = {}
 coords['x'] = 0
