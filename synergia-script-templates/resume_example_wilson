@@ -16,7 +16,7 @@ then
     cat $PBS_NODEFILE
     echo "end nodes"
 fi
-MPI_HOME=/usr/local/openmpi
+MPI_HOME=/usr/local/openmpi-1.6.3-with-pbs
 
 export PATH=${MPI_HOME}/bin:$PATH
 export PATH=/usr/local/python-2.7.0/bin:$PATH
