@@ -3,6 +3,8 @@
 #include "madx_adaptors.h"
 #include "synergia/foundation/math_constants.h"
 
+#include <complex>
+
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic push
 #endif
@@ -539,10 +541,6 @@ Chef_elements
 Quadrupole_madx_adaptor::get_chef_elements(
         Lattice_element const& lattice_element, double brho)
 {
-    if (lattice_element.has_double_attribute("k1s", false)) {
-        throw std::runtime_error(
-                "Quadrupole_madx_adaptor: k1s attribute not handled");
-    }
 
     Chef_elements retval;
 
@@ -560,6 +558,14 @@ Quadrupole_madx_adaptor::get_chef_elements(
     double yoffset = lattice_element.get_double_attribute("voffset");
 
     double qtilt = lattice_element.get_double_attribute("tilt");
+
+    std::complex<double> ck1(lattice_element.get_double_attribute("k1"),
+                             lattice_element.get_double_attribute("k1s"));
+    // rot_angle is phase of ck1/(2*(order+1))
+    // for pure skew quad, phase is pi/2, order=1 so rotation = pi/4
+    // so rot_angle is the rotation needed to turn a normal quad
+    // into one with k1 and k1s components.
+     double rot_angle = std::arg(ck1)/2.0 + qtilt;
 
     bool has_multipoles = false;
     int highest_order = 0;
@@ -587,40 +593,32 @@ Quadrupole_madx_adaptor::get_chef_elements(
     bmlnElmnt* bmln_elmnt;
     if (length == 0.0) {
         bmln_elmnt = new thinQuad(lattice_element.get_name().c_str(),
-                brho * lattice_element.get_double_attribute("k1"));
+                                  brho * std::abs(ck1));
     } else {
         if(lattice_element.get_string_attribute("propagator_type") == yoshida_propagator) {
             int steps = floor(lattice_element.get_double_attribute("yoshida_steps"));
             int order = floor(lattice_element.get_double_attribute("yoshida_order"));
             bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
-                                        brho * lattice_element.get_double_attribute("k1"));
+                                        brho * std::abs(ck1));
             quadrupole::PropagatorPtr yoshida_propagator(new YoshidaPropagator(order, steps));
             dynamic_cast<quadrupole*>(bmln_elmnt)->usePropagator(yoshida_propagator);
         } else if (lattice_element.get_string_attribute("propagator_type") == basic_propagator) {
             bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
-                    brho * lattice_element.get_double_attribute("k1"));
+                                        brho * std::abs(ck1));
             dynamic_cast<quadrupole*>(bmln_elmnt)->setNumberOfKicks(floor(lattice_element.get_double_attribute("basic_kicks")));
         } else {
             throw std::runtime_error(
                         "Quadrupole_madx_adaptor::get_chef_elements: bad propagator_type \"" +
                         lattice_element.get_string_attribute("propagator_type") + "\"");
         }
-        ElmPtr elm(bmln_elmnt);
-        retval.push_back(elm);
-    }
-
-    // using tilt and multipoles is a no-no
-    if (has_multipoles && (qtilt != 0.0)) {
-        throw runtime_error(
-                "shouldn't use tilt and multipoles in same element");
     }
 
     bool needs_aligner;
-    if ((qtilt != 0.0) || (xoffset != 0.0) || (yoffset != 0.0)) {
+    if ((rot_angle != 0.0) || (xoffset != 0.0) || (yoffset != 0.0)) {
         needs_aligner = true;
         aligner.xOffset = xoffset;
         aligner.yOffset = yoffset;
-        aligner.tilt = qtilt;
+        aligner.tilt = rot_angle + qtilt;
     } else {
         needs_aligner = false;
     }
@@ -629,11 +627,19 @@ Quadrupole_madx_adaptor::get_chef_elements(
         if (needs_aligner) {
             bmln_elmnt->setAlignment(aligner);
         }
-    } else {
+        ElmPtr elm(bmln_elmnt);
+        retval.push_back(elm);
+     } else {
         // split the quadrupole, insert thin multipole element in between halves
         std::vector < std::complex<double > > c_moments;
         for (int k = 0; k <= highest_order; ++k) {
             c_moments.push_back(std::complex<double >(bk[k], ak[k]));
+        }
+        // if explicit qtilt attribute set, rotation accomplished by multiplying
+        // b + i*a coefficients by exp(-i (n+1)*theta ).  The multipoles are rotated by
+        // the tilt angle, but the magnet body is rotated by normal+skew+tilt angle
+        for (int k=0; k <= highest_order; ++k) {
+            c_moments[k] *= std::complex<double>(std::cos((k+1)*qtilt), -std::sin((k+1)*qtilt));
         }
 
         double brkl = brho * length
