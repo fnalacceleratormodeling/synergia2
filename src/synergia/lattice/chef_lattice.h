@@ -57,7 +57,7 @@ private:
     void
     construct_beamline();
     void
-    register_beamline(beamline & the_beamline);
+    register_beamline(BmlPtr beamline_sptr);
     BmlPtr
     polish_beamline(BmlPtr beamline_sptr);
     void

@@ -10,6 +10,7 @@ install(FILES
     resumemultijob_example_footer
     job_example_pbs
     job_example_wilson
+    resume_example_wilson
     job_tev
     job_example_hopper
     resume_example_hopper

@@ -1304,10 +1304,13 @@ Rfcavity_madx_adaptor::Rfcavity_madx_adaptor()
 void
 Rfcavity_madx_adaptor::set_defaults(Lattice_element & lattice_element)
 {
+#if 0 // let CHEF set RF frequency
     lattice_element.set_needs_external_derive(true);
+#endif // let CHEF set RF frequency
     Element_adaptor::set_defaults(lattice_element);
 }
 
+#if 0 // let CHEF set the RF frequency
 void
 Rfcavity_madx_adaptor::set_derived_attributes_external(Lattice_element &lattice_element,
 		double lattice_length, double beta)
@@ -1320,6 +1323,7 @@ Rfcavity_madx_adaptor::set_derived_attributes_external(Lattice_element &lattice_
     	lattice_element.set_double_attribute("freq", freq);
     }
 }
+#endif // let CHEF set the RF frequency
 
 Chef_elements
 Rfcavity_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
@@ -1332,6 +1336,7 @@ Rfcavity_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     if (lattice_element.has_double_attribute("freq")) {
         freq = lattice_element.get_double_attribute("freq");
     }
+    int harmonic_number = lattice_element.get_double_attribute("harmon");
     double q = 0;
     if (length == 0.0) {
         bmlnElmnt *bmln_elmnt;
@@ -1340,6 +1345,7 @@ Rfcavity_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
                 lattice_element.get_double_attribute("lag")
                         * (2.0 * mconstants::pi), q,
                 lattice_element.get_double_attribute("shunt"));
+        static_cast<thinrfcavity *>(bmln_elmnt)->setHarmonicNumber(harmonic_number);
         ElmPtr elm(bmln_elmnt);
         retval.push_back(elm);
     } else {
@@ -1352,6 +1358,7 @@ Rfcavity_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
                 lattice_element.get_double_attribute("lag")
                         * (2.0 * mconstants::pi), q,
                 lattice_element.get_double_attribute("shunt"));
+        static_cast<thinrfcavity *>(kick)->setHarmonicNumber(harmonic_number);
         post_drift = new drift(
                 (lattice_element.get_name() + "_postdrift").c_str(),
                 0.5 * length);

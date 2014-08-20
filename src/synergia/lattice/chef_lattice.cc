@@ -80,14 +80,43 @@ Chef_lattice::construct_beamline()
     extract_element_map();
 }
 
+struct strengthData {
+    thinrfcavity *address;
+    double strength;
+};
+
 void
-Chef_lattice::register_beamline(beamline & the_beamline)
+Chef_lattice::register_beamline(BmlPtr beamline_sptr)
 {
-    Particle testpart(
-            reference_particle_to_chef_particle(
-                    lattice_sptr->get_reference_particle()));
+
+    Particle testpart(reference_particle_to_chef_particle(lattice_sptr->get_reference_particle()));
+    // std::cout << "Registering beamline with particle state: " << testpart.State() << std::endl;
+
+    // turn off RF for registration.  Save the RF cavity strengths, copied
+    // from ClosedOrbitSage
+    std::list<strengthData> cavityStrengths;
+
+    for ( beamline::deep_iterator it  = beamline_sptr->deep_begin(); it != beamline_sptr->deep_end(); ++it ) {
+        strengthData sd;
+        // at this point, all the beamlines have only thinrfcavities, not rfcavities
+        thinrfcavity *rfptr;
+
+        if ( (rfptr = dynamic_cast<thinrfcavity*>((*it).get()) ) ) {
+            strengthData sd;
+            sd.address = rfptr;
+            sd.strength = rfptr->Strength();
+            cavityStrengths.push_back(sd);
+            (*it)->setStrength(0.0);
+        }
+    }
     RefRegVisitor registrar(testpart);
-    the_beamline.accept(registrar);
+
+    beamline_sptr->accept(registrar);
+
+    // restore RF
+    for (std::list<strengthData>::const_iterator sdit=cavityStrengths.begin(); sdit!=cavityStrengths.end(); ++sdit) {
+        (sdit->address)->setStrength(sdit->strength);
+    }
 }
 
 BmlPtr
@@ -99,7 +128,7 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
         converted_beamline_sptr = beamline_sptr;
     } else {
         converted_beamline_sptr = drift_converter.convert(*beamline_sptr);
-        register_beamline(*converted_beamline_sptr);
+        register_beamline(converted_beamline_sptr);
     }
     return converted_beamline_sptr;
 }

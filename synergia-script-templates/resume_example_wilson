@@ -16,7 +16,7 @@ then
     cat $PBS_NODEFILE
     echo "end nodes"
 fi
-MPI_HOME=/usr/local/openmpi
+MPI_HOME=/usr/local/openmpi-1.6.3-with-pbs
 
 export PATH=${MPI_HOME}/bin:$PATH
 export PATH=/usr/local/python-2.7.0/bin:$PATH
@@ -28,7 +28,7 @@ export LD_LIBRARY_PATH=/usr/local/python-2.7.0/lib:$LD_LIBRARY_PATH
 
 cd $PBS_O_WORKDIR
 echo "Job start at `date`"
-${MPI_HOME}/bin/mpirun __loadbalance{{--loadbalance}}{{}}__ -np @@numproc@@ @@resume_executable@@
+${MPI_HOME}/bin/mpirun __loadbalance{{--loadbalance}}{{}}__ -np @@numproc@@ @@synergia_resume_executable@@
 echo "Job end at `date`"
 
 

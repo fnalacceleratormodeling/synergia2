@@ -681,18 +681,12 @@ Lattice_simulator::update()
 MArray1d
 Lattice_simulator::get_closed_orbit(double dpop)
 {
-    MArray1d retval(boost::extents[6]);
-    // beamline for calculations, cloned because the rf cavities will be turned off.
-    BmlPtr beamline_sptr(get_chef_lattice_sptr()->get_beamline_sptr()->Clone());
-    beamline_sptr->setLineMode(beamline::ring);
-    ensure_jet_environment(map_order);
-
-    ClosedOrbitSage closed_orbit_sage(beamline_sptr);
-    Particle probe(reference_particle_to_chef_particle(lattice_sptr->get_reference_particle()));
-    probe.set_ndp(dpop);
-    JetParticle jetprobe(probe);
-    closed_orbit_sage.findClosedOrbit(jetprobe);
-    Particle closed_orbit_particle(jetprobe);
+    MArray1d retval(boost::extents[6]); Particle
+    test_particle(reference_particle_to_chef_particle(lattice_sptr->get_reference_particle()));
+    // get_closed_orbit_particle clones the beamline
+    Particle closed_orbit_particle(get_closed_orbit_particle(test_particle,
+                                                             get_chef_lattice_sptr()->get_beamline_sptr(),
+                                                             dpop));
 
     retval[Bunch::x] = closed_orbit_particle.get_x();
     retval[Bunch::xp] = closed_orbit_particle.get_npx();

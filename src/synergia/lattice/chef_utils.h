@@ -20,7 +20,13 @@
 #include "synergia/foundation/reference_particle.h"
 
 std::string
+chef_element_as_string(ElmPtr element_sptr);
+
+std::string
 chef_beamline_as_string(BmlPtr beamline_sptr);
+
+void
+print_chef_element(ElmPtr element_sptr);
 
 void
 print_chef_beamline(BmlPtr beamline_sptr);
@@ -48,6 +54,9 @@ reference_particle_to_chef_jet_particle(
 Reference_particle
 propagate_reference_particle(Reference_particle const& reference_particle,
         BmlPtr beamline_sptr);
+
+Particle
+get_closed_orbit_particle(Particle util_part, BmlPtr beamline_sptr, double dpop);
 
 /// units conversion
 /// X_synergia = U X_chef
