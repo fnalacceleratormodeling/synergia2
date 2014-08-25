@@ -559,10 +559,11 @@ Quadrupole_madx_adaptor::get_chef_elements(
 
     double qtilt = lattice_element.get_double_attribute("tilt");
 
+    // ck1 is the complex phase of the quadrupole k1 - i*k1s (negative because of MAD-X definition)
     std::complex<double> ck1(lattice_element.get_double_attribute("k1"),
-                             lattice_element.get_double_attribute("k1s"));
+                             -lattice_element.get_double_attribute("k1s"));
     // rot_angle is phase of ck1/(2*(order+1))
-    // for pure skew quad, phase is pi/2, order=1 so rotation = pi/4
+    // for pure skew quad, phase is -pi/2, order=1 so rotation = -pi/4
     // so rot_angle is the rotation needed to turn a normal quad
     // into one with k1 and k1s components.
      double rot_angle = std::arg(ck1)/2.0 + qtilt;
