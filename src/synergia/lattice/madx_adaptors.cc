@@ -562,7 +562,7 @@ Quadrupole_madx_adaptor::get_chef_elements(
     // ck1 is the complex phase of the quadrupole k1 - i*k1s (negative because of MAD-X definition)
     std::complex<double> ck1(lattice_element.get_double_attribute("k1"),
                              -lattice_element.get_double_attribute("k1s"));
-    // rot_angle is phase of ck1/(2*(order+1))
+    // rot_angle is phase of ck1/(2*(order+1)) (order = 1 for quadrupole)
     // for pure skew quad, phase is -pi/2, order=1 so rotation = -pi/4
     // so rot_angle is the rotation needed to turn a normal quad
     // into one with k1 and k1s components.
@@ -619,7 +619,7 @@ Quadrupole_madx_adaptor::get_chef_elements(
         needs_aligner = true;
         aligner.xOffset = xoffset;
         aligner.yOffset = yoffset;
-        aligner.tilt = rot_angle + qtilt;
+        aligner.tilt = rot_angle;
     } else {
         needs_aligner = false;
     }
@@ -713,33 +713,37 @@ Chef_elements
 Sextupole_madx_adaptor::get_chef_elements(
         Lattice_element const& lattice_element, double brho)
 {
-    if (lattice_element.has_double_attribute("k2s", false)) {
-        throw std::runtime_error(
-                "Sextupole_madx_adaptor: k2s attribute not handled");
-    }
+
     Chef_elements retval;
 
     double sexlen = lattice_element.get_double_attribute("l");
-    double sexk2 = lattice_element.get_double_attribute("k2");
-
     alignmentData aligner;
 
     bmlnElmnt* bmln_elmnt;
 
-    if (sexlen == 0.0) {
-        bmln_elmnt = new thinSextupole(lattice_element.get_name().c_str(),
-                brho * sexk2 / 2.0);
-    } else {
-        bmln_elmnt = new sextupole(lattice_element.get_name().c_str(), sexlen,
-                brho * sexk2 / 2.0);
-    }
-
     double sextilt = lattice_element.get_double_attribute("tilt");
 
-    if (sextilt != 0.0) {
+    // ck2 is the complex phase of the sextupole k2 - i*k2s (negative because of MAD-X definition)
+    std::complex<double> ck2(lattice_element.get_double_attribute("k2"),
+                             -lattice_element.get_double_attribute("k2s"));
+    // rot_angle is phase of ck2/(2*(order+1)) (order=2 for sextupole)
+    // for pure skew sext, phase is -pi/2, order=2 so rotation = -pi/6
+    // so rot_angle is the rotation needed to turn a normal sextupole
+    // into one with k2 and k2s components.
+     double rot_angle = std::arg(ck2)/3.0 + sextilt;
+
+    if (sexlen == 0.0) {
+        bmln_elmnt = new thinSextupole(lattice_element.get_name().c_str(),
+                brho * std::abs(ck2) / 2.0);
+    } else {
+        bmln_elmnt = new sextupole(lattice_element.get_name().c_str(), sexlen,
+                brho * std::abs(ck2) / 2.0);
+    }
+
+    if (rot_angle != 0.0) {
         aligner.xOffset = 0.0;
         aligner.yOffset = 0.0;
-        aligner.tilt = sextilt;
+        aligner.tilt = rot_angle;
         bmln_elmnt->setAlignment(aligner);
     }
 
@@ -784,6 +788,7 @@ Octupole_madx_adaptor::Octupole_madx_adaptor()
 {
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("k3", 0.0);
+    get_default_element().set_double_attribute("k3s", 0.0);
     get_default_element().set_double_attribute("tilt", 0.0);
 }
 
@@ -791,34 +796,38 @@ Chef_elements
 Octupole_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
-    if (lattice_element.has_double_attribute("k3s", false)) {
-        throw std::runtime_error(
-                "Octupole_madx_adaptor: k3s attribute not handled");
-    }
 
     Chef_elements retval;
 
     double octulen = lattice_element.get_double_attribute("l");
-    double octuk2 = lattice_element.get_double_attribute("k3");
+
+    double octutilt = lattice_element.get_double_attribute("tilt");
 
     alignmentData aligner;
 
     bmlnElmnt* bmln_elmnt;
 
+    // ck3 is the complex phase of the octupole k3 - i*k3s (negative because of MAD-X definition)
+    std::complex<double> ck3(lattice_element.get_double_attribute("k3"),
+                             -lattice_element.get_double_attribute("k3s"));
+    // rot_angle is phase of ck3/(2*(order+1)) (order=3 for octupole)
+    // for pure skew oct, phase is -pi/2, order=3 so rotation = -pi/8
+    // so rot_angle is the rotation needed to turn a normal octupole
+    // into one with k3 and k3s components.
+     double rot_angle = std::arg(ck3)/4.0 + octutilt;
+
     if (octulen == 0.0) {
         bmln_elmnt = new thinOctupole(lattice_element.get_name().c_str(),
-                brho * octuk2 / 6.0);
+                brho * std::abs(ck3) / 6.0);
     } else {
         bmln_elmnt = new octupole(lattice_element.get_name().c_str(), octulen,
-                brho * octuk2 / 6.0);
+                brho * std::abs(ck3) / 6.0);
     }
 
-    double octutilt = lattice_element.get_double_attribute("tilt");
-
-    if (octutilt != 0.0) {
+    if (rot_angle != 0.0) {
         aligner.xOffset = 0.0;
         aligner.yOffset = 0.0;
-        aligner.tilt = octutilt;
+        aligner.tilt = rot_angle;
         bmln_elmnt->setAlignment(aligner);
     }
 
