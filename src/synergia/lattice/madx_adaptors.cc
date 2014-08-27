@@ -559,10 +559,10 @@ Quadrupole_madx_adaptor::get_chef_elements(
 
     double qtilt = lattice_element.get_double_attribute("tilt");
 
-    // ck1 is the complex phase of the quadrupole k1 - i*k1s (negative because of MAD-X definition)
+    // ck1 is the complex strength of the quadrupole k1 - i*k1s (negative because of MAD-X definition)
     std::complex<double> ck1(lattice_element.get_double_attribute("k1"),
                              -lattice_element.get_double_attribute("k1s"));
-    // rot_angle is phase of ck1/(2*(order+1)) (order = 1 for quadrupole)
+    // rot_angle is phase of ck1/(order+1) (order = 1 for quadrupole)
     // for pure skew quad, phase is -pi/2, order=1 so rotation = -pi/4
     // so rot_angle is the rotation needed to turn a normal quad
     // into one with k1 and k1s components.
@@ -723,10 +723,10 @@ Sextupole_madx_adaptor::get_chef_elements(
 
     double sextilt = lattice_element.get_double_attribute("tilt");
 
-    // ck2 is the complex phase of the sextupole k2 - i*k2s (negative because of MAD-X definition)
+    // ck2 is the complex strength of the sextupole k2 - i*k2s (negative because of MAD-X definition)
     std::complex<double> ck2(lattice_element.get_double_attribute("k2"),
                              -lattice_element.get_double_attribute("k2s"));
-    // rot_angle is phase of ck2/(2*(order+1)) (order=2 for sextupole)
+    // rot_angle is phase of ck2/(order+1) (order=2 for sextupole)
     // for pure skew sext, phase is -pi/2, order=2 so rotation = -pi/6
     // so rot_angle is the rotation needed to turn a normal sextupole
     // into one with k2 and k2s components.
@@ -807,10 +807,10 @@ Octupole_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 
     bmlnElmnt* bmln_elmnt;
 
-    // ck3 is the complex phase of the octupole k3 - i*k3s (negative because of MAD-X definition)
+    // ck3 is the complex strength of the octupole k3 - i*k3s (negative because of MAD-X definition)
     std::complex<double> ck3(lattice_element.get_double_attribute("k3"),
                              -lattice_element.get_double_attribute("k3s"));
-    // rot_angle is phase of ck3/(2*(order+1)) (order=3 for octupole)
+    // rot_angle is phase of ck3/(order+1) (order=3 for octupole)
     // for pure skew oct, phase is -pi/2, order=3 so rotation = -pi/8
     // so rot_angle is the rotation needed to turn a normal octupole
     // into one with k3 and k3s components.
