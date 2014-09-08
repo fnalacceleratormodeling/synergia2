@@ -1,4 +1,5 @@
 #include <sstream>
+#include <stdexcept>
 #include "populate.h"
 #include "diagnostics.h"
 
@@ -7,16 +8,34 @@
 
 using namespace Eigen;
 
+#include "synergia/utils/floating_point.h"
 #include "synergia/utils/multi_array_print.h"
 #include "synergia/utils/multi_array_assert.h"
 #include "synergia/foundation/math_constants.h"
-
 using mconstants::pi;
+
+namespace {
+bool is_symmetric66(Const_MArray2d_ref &m) {
+  bool symmetric = true;
+  const double tolerance = 1.0e-14;
+  for (int i = 0; i < 6; ++i) {
+    for (int j = i + 1; j < 6; ++j) {
+      if (!floating_point_equal(m[i][j], m[j][i], tolerance)) {
+        symmetric = false;
+      }
+    }
+  }
+  return symmetric;
+}
+}
 
 void
 adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
         Const_MArray2d_ref covariances)
 {
+    if (!is_symmetric66(covariances)) {
+        throw std::runtime_error("adjust_moments: covariance matrix must be symmetric");
+    }
     MArray1d bunch_mean(Core_diagnostics::calculate_mean(bunch));
     MArray2d bunch_mom2(Core_diagnostics::calculate_mom2(bunch, bunch_mean));
     Matrix<double, 6, 6, Eigen::RowMajor > C(covariances.origin());
