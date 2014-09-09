@@ -290,15 +290,22 @@ def get_matched_bunch_transverse_parameters(lattice_simulator,
 
 def generate_matched_bunch_transverse(lattice_simulator, emit_x, emit_y,
                            rms_z, dpop, num_real_particles,
-                           num_macro_particles, seed=0, comm=None):
+                           num_macro_particles, seed=0, comm=None,
+                           z_period_length=0):
 
     means, covariance_matrix = \
         get_matched_bunch_transverse_parameters(lattice_simulator,
                                                 emit_x, emit_y, rms_z, dpop)
     if comm == None:
         comm = Commxx()
-    bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
-                  num_macro_particles, num_real_particles, comm)
+    if z_period_length == 0.0:
+        bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
+                      num_macro_particles, num_real_particles, comm)
+    else:
+        bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
+                      num_macro_particles, num_real_particles, comm,
+                      z_period_length)
+    
     if comm.has_this_rank():
         dist = Random_distribution(seed, comm)
         populate_6d(dist, bunch, means, covariance_matrix)
