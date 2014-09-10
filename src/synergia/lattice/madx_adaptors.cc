@@ -1064,6 +1064,29 @@ Solenoid_madx_adaptor::Solenoid_madx_adaptor()
     get_default_element().set_double_attribute("ksi", 0.0);
 }
 
+Chef_elements
+Solenoid_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+                                        double brho)
+{
+    Chef_elements retval;
+    double length = lattice_element.get_double_attribute("l");
+    double ks = lattice_element.get_double_attribute("ks");
+
+    if (length == 0.0) {
+        throw 
+        std::runtime_error("Solenoid_madx_adaptor: zero-length solenoids not yet handled");
+    }
+    bmlnElmnt * generic_elm;
+    if (ks == 0.0) {
+        generic_elm = new drift(lattice_element.get_name().c_str(), length);
+    } else {
+        generic_elm = new Solenoid(lattice_element.get_name().c_str(), length, ks);
+    }
+    ElmPtr elm(generic_elm);
+    retval.push_back(elm);
+    return retval;
+}
+
 template<class Archive>
     void
     Solenoid_madx_adaptor::serialize(Archive & ar, const unsigned int version)
@@ -1904,8 +1927,6 @@ Lambertson_madx_adaptor::~Lambertson_madx_adaptor()
 {
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Lambertson_madx_adaptor)
-
-
 
 
 Srot_madx_adaptor::Srot_madx_adaptor()
