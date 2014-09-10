@@ -1981,3 +1981,65 @@ Srot_madx_adaptor::~Srot_madx_adaptor()
 {
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Srot_madx_adaptor)
+
+Dipedge_madx_adaptor::Dipedge_madx_adaptor()
+{
+    get_default_element().set_double_attribute("h", 0.0);
+    get_default_element().set_double_attribute("e1", 0.0);
+    get_default_element().set_double_attribute("fint", 0.0);
+    get_default_element().set_double_attribute("hgap", 0.0);
+    get_default_element().set_double_attribute("tilt", 0.0);
+}
+
+
+Chef_elements
+Dipedge_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+    double h = lattice_element.get_double_attribute("h");
+    double e1 = lattice_element.get_double_attribute("e1");
+    double fint = lattice_element.get_double_attribute("fint");
+    double hgap = lattice_element.get_double_attribute("hgap");
+    double tilt = lattice_element.get_double_attribute("tilt");
+    double length = 0.0;
+    double strength = 0.0;
+    
+    ElmPtr elm(
+            new Dipedge(lattice_element.get_name().c_str(), length, strength,
+            h, e1, fint, hgap, tilt));
+
+    retval.push_back(elm);
+    return retval;
+}
+
+template<class Archive>
+    void
+    Dipedge_madx_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Dipedge_madx_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Dipedge_madx_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Dipedge_madx_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Dipedge_madx_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+Dipedge_madx_adaptor::~Dipedge_madx_adaptor()
+{
+}

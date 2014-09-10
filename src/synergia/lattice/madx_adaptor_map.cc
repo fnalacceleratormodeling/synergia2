@@ -100,6 +100,10 @@ MadX_adaptor_map::MadX_adaptor_map() :
      boost::shared_ptr<Srot_madx_adaptor > srot_madx_adaptor(
             new Srot_madx_adaptor);
      set_adaptor("srot", srot_madx_adaptor);
+
+     boost::shared_ptr<Dipedge_madx_adaptor > dipedge_madx_adaptor(
+                 new Dipedge_madx_adaptor);
+     set_adaptor("dipedge", dipedge_madx_adaptor);
 }
 
 template<class Archive>
