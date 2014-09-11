@@ -141,6 +141,8 @@ class Solenoid_madx_adaptor : public Element_adaptor
 {
 public:
     Solenoid_madx_adaptor();
+    Chef_elements
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
@@ -349,5 +351,18 @@ public:
 };
 BOOST_CLASS_EXPORT_KEY(Srot_madx_adaptor);
 
+class Dipedge_madx_adaptor : public Element_adaptor
+{
+public:
+    Dipedge_madx_adaptor();
+    Chef_elements
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
+    template<class Archive>
+    void
+    serialize(Archive & ar, const unsigned int version);
+    virtual
+    ~Dipedge_madx_adaptor();
+};
+BOOST_CLASS_EXPORT_KEY(Dipedge_madx_adaptor);
 
 #endif /* MADX_ADAPTORS_H_ */
