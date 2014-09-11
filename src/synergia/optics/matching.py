@@ -274,7 +274,7 @@ def generate_matched_bunch(lattice_simulator, arms,brms,crms,
 def get_matched_bunch_transverse_parameters(lattice_simulator,
                                             emit_x, emit_y, rms_z, rms_dpop):
 
-    map = linear_one_turn_map(lattice_simulator)
+    map = lattice_simulator.get_linear_one_turn_map()
     alpha, beta = get_alpha_beta(map)
     sigma4, r4 = match_transverse_twiss_emittance([emit_x, emit_y], alpha, beta)
     sigma = range(0, 6)
