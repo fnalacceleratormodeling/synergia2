@@ -2043,3 +2043,4 @@ Dipedge_madx_adaptor::serialize<boost::archive::xml_iarchive >(
 Dipedge_madx_adaptor::~Dipedge_madx_adaptor()
 {
 }
+BOOST_CLASS_EXPORT_IMPLEMENT(Dipedge_madx_adaptor)
