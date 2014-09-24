@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
-<boost_serialization signature="serialization::archive" version="9">
+<boost_serialization signature="serialization::archive" version="10">
 <num_objects>1</num_objects>
 <object_typename>7Lattice</object_typename>
 <object class_id="0" tracking_level="1" version="0" object_id="_0">
@@ -9,13 +9,13 @@
 	<reference_particle_ptr class_id="1" tracking_level="1" version="0" object_id="_1">
 		<charge>1</charge>
 		<four_momentum class_id="2" tracking_level="0" version="0">
-			<mass>0.93827201299999996</mass>
+			<mass>0.93827204600000003</mass>
 			<energy>1.5</energy>
-			<momentum>1.1703186017580547</momentum>
-			<gamma>1.598683515246234</gamma>
-			<beta>0.78021240117203638</beta>
+			<momentum>1.1703185753011756</momentum>
+			<gamma>1.5986834590188781</gamma>
+			<beta>0.78021238353411715</beta>
 		</four_momentum>
-		<state class_id="3" tracking_level="0" version="0">
+		<state class_id="3" tracking_level="1" version="0" object_id="_2">
 			<shape_0>6</shape_0>
 			<item>0</item>
 			<item>0</item>
@@ -32,7 +32,7 @@
 		<count>4</count>
 		<item_version>1</item_version>
 		<item class_id="5" tracking_level="0" version="1">
-			<px class_id="6" tracking_level="1" version="0" object_id="_2">
+			<px class_id="6" tracking_level="1" version="0" object_id="_3">
 				<type>quadrupole</type>
 				<name>f</name>
 				<default_element_sptr>
@@ -71,7 +71,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_3">
+			<px class_id_reference="6" object_id="_4">
 				<type>drift</type>
 				<name>o</name>
 				<default_element_sptr>
@@ -106,7 +106,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_4">
+			<px class_id_reference="6" object_id="_5">
 				<type>quadrupole</type>
 				<name>d</name>
 				<default_element_sptr>
@@ -145,7 +145,7 @@
 			</px>
 		</item>
 		<item>
-			<px class_id_reference="6" object_id="_5">
+			<px class_id_reference="6" object_id="_6">
 				<type>drift</type>
 				<name>o</name>
 				<default_element_sptr>
@@ -181,7 +181,7 @@
 		</item>
 	</elements>
 	<element_adaptor_map_sptr class_id="12" tracking_level="0" version="1">
-		<px class_id="13" class_name="Mad8_adaptor_map" tracking_level="1" version="0" object_id="_6">
+		<px class_id="13" class_name="Mad8_adaptor_map" tracking_level="1" version="0" object_id="_7">
 			<Element_adaptor_map class_id="14" tracking_level="0" version="0">
 				<adaptor_map class_id="15" tracking_level="0" version="0">
 					<count>24</count>
@@ -189,10 +189,10 @@
 					<item class_id="16" tracking_level="0" version="0">
 						<first>drift</first>
 						<second class_id="17" tracking_level="0" version="1">
-							<px class_id="19" class_name="Drift_mad8_adaptor" tracking_level="1" version="0" object_id="_7">
-								<Element_adaptor class_id="18" tracking_level="1" version="0" object_id="_8">
+							<px class_id="19" class_name="Drift_mad8_adaptor" tracking_level="1" version="0" object_id="_8">
+								<Element_adaptor class_id="18" tracking_level="1" version="0" object_id="_9">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_9">
+										<px class_id_reference="6" object_id="_10">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -228,10 +228,10 @@
 					<item>
 						<first>e_septum</first>
 						<second>
-							<px class_id="20" class_name="Septum_mad8_adaptor" tracking_level="1" version="0" object_id="_10">
-								<Element_adaptor object_id="_11">
+							<px class_id="20" class_name="Septum_mad8_adaptor" tracking_level="1" version="0" object_id="_11">
+								<Element_adaptor object_id="_12">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_12">
+										<px class_id_reference="6" object_id="_13">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -295,10 +295,10 @@
 					<item>
 						<first>ecollimator</first>
 						<second>
-							<px class_id="21" class_name="Ecollimator_mad8_adaptor" tracking_level="1" version="0" object_id="_13">
-								<Element_adaptor object_id="_14">
+							<px class_id="21" class_name="Ecollimator_mad8_adaptor" tracking_level="1" version="0" object_id="_14">
+								<Element_adaptor object_id="_15">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_15">
+										<px class_id_reference="6" object_id="_16">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -346,10 +346,10 @@
 					<item>
 						<first>elseparator</first>
 						<second>
-							<px class_id="22" class_name="Elseparator_mad8_adaptor" tracking_level="1" version="0" object_id="_16">
-								<Element_adaptor object_id="_17">
+							<px class_id="22" class_name="Elseparator_mad8_adaptor" tracking_level="1" version="0" object_id="_17">
+								<Element_adaptor object_id="_18">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_18">
+										<px class_id_reference="6" object_id="_19">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -397,10 +397,10 @@
 					<item>
 						<first>hkicker</first>
 						<second>
-							<px class_id="23" class_name="Hkicker_mad8_adaptor" tracking_level="1" version="0" object_id="_19">
-								<Element_adaptor object_id="_20">
+							<px class_id="23" class_name="Hkicker_mad8_adaptor" tracking_level="1" version="0" object_id="_20">
+								<Element_adaptor object_id="_21">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_21">
+										<px class_id_reference="6" object_id="_22">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -448,10 +448,10 @@
 					<item>
 						<first>hmonitor</first>
 						<second>
-							<px class_id="24" class_name="Hmonitor_mad8_adaptor" tracking_level="1" version="0" object_id="_22">
-								<Element_adaptor object_id="_23">
+							<px class_id="24" class_name="Hmonitor_mad8_adaptor" tracking_level="1" version="0" object_id="_23">
+								<Element_adaptor object_id="_24">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_24">
+										<px class_id_reference="6" object_id="_25">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -491,10 +491,10 @@
 					<item>
 						<first>instrument</first>
 						<second>
-							<px class_id="25" class_name="Instrument_mad8_adaptor" tracking_level="1" version="0" object_id="_25">
-								<Element_adaptor object_id="_26">
+							<px class_id="25" class_name="Instrument_mad8_adaptor" tracking_level="1" version="0" object_id="_26">
+								<Element_adaptor object_id="_27">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_27">
+										<px class_id_reference="6" object_id="_28">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -534,10 +534,10 @@
 					<item>
 						<first>kicker</first>
 						<second>
-							<px class_id="26" class_name="Kicker_mad8_adaptor" tracking_level="1" version="0" object_id="_28">
-								<Element_adaptor object_id="_29">
+							<px class_id="26" class_name="Kicker_mad8_adaptor" tracking_level="1" version="0" object_id="_29">
+								<Element_adaptor object_id="_30">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_30">
+										<px class_id_reference="6" object_id="_31">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -589,10 +589,10 @@
 					<item>
 						<first>lambertson</first>
 						<second>
-							<px class_id="27" class_name="Lambertson_mad8_adaptor" tracking_level="1" version="0" object_id="_31">
-								<Element_adaptor object_id="_32">
+							<px class_id="27" class_name="Lambertson_mad8_adaptor" tracking_level="1" version="0" object_id="_32">
+								<Element_adaptor object_id="_33">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_33">
+										<px class_id_reference="6" object_id="_34">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -628,10 +628,10 @@
 					<item>
 						<first>marker</first>
 						<second>
-							<px class_id="28" class_name="Marker_mad8_adaptor" tracking_level="1" version="0" object_id="_34">
-								<Element_adaptor object_id="_35">
+							<px class_id="28" class_name="Marker_mad8_adaptor" tracking_level="1" version="0" object_id="_35">
+								<Element_adaptor object_id="_36">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_36">
+										<px class_id_reference="6" object_id="_37">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -667,10 +667,10 @@
 					<item>
 						<first>monitor</first>
 						<second>
-							<px class_id="29" class_name="Monitor_mad8_adaptor" tracking_level="1" version="0" object_id="_37">
-								<Element_adaptor object_id="_38">
+							<px class_id="29" class_name="Monitor_mad8_adaptor" tracking_level="1" version="0" object_id="_38">
+								<Element_adaptor object_id="_39">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_39">
+										<px class_id_reference="6" object_id="_40">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -710,10 +710,10 @@
 					<item>
 						<first>multipole</first>
 						<second>
-							<px class_id="30" class_name="Multipole_mad8_adaptor" tracking_level="1" version="0" object_id="_40">
-								<Element_adaptor object_id="_41">
+							<px class_id="30" class_name="Multipole_mad8_adaptor" tracking_level="1" version="0" object_id="_41">
+								<Element_adaptor object_id="_42">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_42">
+										<px class_id_reference="6" object_id="_43">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -829,10 +829,10 @@
 					<item>
 						<first>octupole</first>
 						<second>
-							<px class_id="31" class_name="Octupole_mad8_adaptor" tracking_level="1" version="0" object_id="_43">
-								<Element_adaptor object_id="_44">
+							<px class_id="31" class_name="Octupole_mad8_adaptor" tracking_level="1" version="0" object_id="_44">
+								<Element_adaptor object_id="_45">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_45">
+										<px class_id_reference="6" object_id="_46">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -880,10 +880,10 @@
 					<item>
 						<first>quadrupole</first>
 						<second>
-							<px class_id="32" class_name="Quadrupole_mad8_adaptor" tracking_level="1" version="0" object_id="_46">
-								<Element_adaptor object_id="_47">
+							<px class_id="32" class_name="Quadrupole_mad8_adaptor" tracking_level="1" version="0" object_id="_47">
+								<Element_adaptor object_id="_48">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_48">
+										<px class_id_reference="6" object_id="_49">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -894,7 +894,7 @@
 												<item_version>0</item_version>
 											</ancestors>
 											<double_attributes>
-												<count>20</count>
+												<count>23</count>
 												<item_version>0</item_version>
 												<item>
 													<first>a1</first>
@@ -953,6 +953,10 @@
 													<second>0</second>
 												</item>
 												<item>
+													<first>basic_kicks</first>
+													<second>40</second>
+												</item>
+												<item>
 													<first>hoffset</first>
 													<second>0</second>
 												</item>
@@ -976,10 +980,22 @@
 													<first>voffset</first>
 													<second>0</second>
 												</item>
+												<item>
+													<first>yoshida_order</first>
+													<second>2</second>
+												</item>
+												<item>
+													<first>yoshida_steps</first>
+													<second>4</second>
+												</item>
 											</double_attributes>
 											<string_attributes>
-												<count>0</count>
+												<count>1</count>
 												<item_version>0</item_version>
+												<item class_id="33" tracking_level="0" version="0">
+													<first>propagator_type</first>
+													<second>basic</second>
+												</item>
 											</string_attributes>
 											<vector_attributes>
 												<count>0</count>
@@ -987,7 +1003,7 @@
 											</vector_attributes>
 											<length_attribute_name>l</length_attribute_name>
 											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
-											<revision>20</revision>
+											<revision>24</revision>
 											<needs_internal_derive>0</needs_internal_derive>
 											<needs_external_derive>0</needs_external_derive>
 										</px>
@@ -999,10 +1015,10 @@
 					<item>
 						<first>rbend</first>
 						<second>
-							<px class_id="33" class_name="Rbend_mad8_adaptor" tracking_level="1" version="0" object_id="_49">
-								<Element_adaptor object_id="_50">
+							<px class_id="34" class_name="Rbend_mad8_adaptor" tracking_level="1" version="0" object_id="_50">
+								<Element_adaptor object_id="_51">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_51">
+										<px class_id_reference="6" object_id="_52">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -1146,10 +1162,10 @@
 					<item>
 						<first>rcollimator</first>
 						<second>
-							<px class_id="34" class_name="Rcollimator_mad8_adaptor" tracking_level="1" version="0" object_id="_52">
-								<Element_adaptor object_id="_53">
+							<px class_id="35" class_name="Rcollimator_mad8_adaptor" tracking_level="1" version="0" object_id="_53">
+								<Element_adaptor object_id="_54">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_54">
+										<px class_id_reference="6" object_id="_55">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -1197,10 +1213,10 @@
 					<item>
 						<first>rfcavity</first>
 						<second>
-							<px class_id="35" class_name="Rfcavity_mad8_adaptor" tracking_level="1" version="0" object_id="_55">
-								<Element_adaptor object_id="_56">
+							<px class_id="36" class_name="Rfcavity_mad8_adaptor" tracking_level="1" version="0" object_id="_56">
+								<Element_adaptor object_id="_57">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_57">
+										<px class_id_reference="6" object_id="_58">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -1268,10 +1284,10 @@
 					<item>
 						<first>sbend</first>
 						<second>
-							<px class_id="36" class_name="Sbend_mad8_adaptor" tracking_level="1" version="0" object_id="_58">
-								<Element_adaptor object_id="_59">
+							<px class_id="37" class_name="Sbend_mad8_adaptor" tracking_level="1" version="0" object_id="_59">
+								<Element_adaptor object_id="_60">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_60">
+										<px class_id_reference="6" object_id="_61">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -1415,10 +1431,10 @@
 					<item>
 						<first>sextupole</first>
 						<second>
-							<px class_id="37" class_name="Sextupole_mad8_adaptor" tracking_level="1" version="0" object_id="_61">
-								<Element_adaptor object_id="_62">
+							<px class_id="38" class_name="Sextupole_mad8_adaptor" tracking_level="1" version="0" object_id="_62">
+								<Element_adaptor object_id="_63">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_63">
+										<px class_id_reference="6" object_id="_64">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -1466,10 +1482,10 @@
 					<item>
 						<first>solenoid</first>
 						<second>
-							<px class_id="38" class_name="Solenoid_mad8_adaptor" tracking_level="1" version="0" object_id="_64">
-								<Element_adaptor object_id="_65">
+							<px class_id="39" class_name="Solenoid_mad8_adaptor" tracking_level="1" version="0" object_id="_65">
+								<Element_adaptor object_id="_66">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_66">
+										<px class_id_reference="6" object_id="_67">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -1513,10 +1529,10 @@
 					<item>
 						<first>srot</first>
 						<second>
-							<px class_id="39" class_name="Srot_mad8_adaptor" tracking_level="1" version="0" object_id="_67">
-								<Element_adaptor object_id="_68">
+							<px class_id="40" class_name="Srot_mad8_adaptor" tracking_level="1" version="0" object_id="_68">
+								<Element_adaptor object_id="_69">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_69">
+										<px class_id_reference="6" object_id="_70">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -1552,10 +1568,10 @@
 					<item>
 						<first>thinpole</first>
 						<second>
-							<px class_id="40" class_name="Thinpole_mad8_adaptor" tracking_level="1" version="0" object_id="_70">
-								<Element_adaptor object_id="_71">
+							<px class_id="41" class_name="Thinpole_mad8_adaptor" tracking_level="1" version="0" object_id="_71">
+								<Element_adaptor object_id="_72">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_72">
+										<px class_id_reference="6" object_id="_73">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -1651,10 +1667,10 @@
 					<item>
 						<first>vkicker</first>
 						<second>
-							<px class_id="41" class_name="Vkicker_mad8_adaptor" tracking_level="1" version="0" object_id="_73">
-								<Element_adaptor object_id="_74">
+							<px class_id="42" class_name="Vkicker_mad8_adaptor" tracking_level="1" version="0" object_id="_74">
+								<Element_adaptor object_id="_75">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_75">
+										<px class_id_reference="6" object_id="_76">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
@@ -1702,10 +1718,10 @@
 					<item>
 						<first>vmonitor</first>
 						<second>
-							<px class_id="42" class_name="Vmonitor_mad8_adaptor" tracking_level="1" version="0" object_id="_76">
-								<Element_adaptor object_id="_77">
+							<px class_id="43" class_name="Vmonitor_mad8_adaptor" tracking_level="1" version="0" object_id="_77">
+								<Element_adaptor object_id="_78">
 									<default_element_sptr>
-										<px class_id_reference="6" object_id="_78">
+										<px class_id_reference="6" object_id="_79">
 											<type></type>
 											<name></name>
 											<default_element_sptr>
