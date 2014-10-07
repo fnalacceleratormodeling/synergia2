@@ -2044,3 +2044,66 @@ Dipedge_madx_adaptor::~Dipedge_madx_adaptor()
 {
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Dipedge_madx_adaptor)
+
+Nonlinearlens_madx_adaptor::Nonlinearlens_madx_adaptor()
+{
+    get_default_element().set_double_attribute("knll", 0.0);
+    get_default_element().set_double_attribute("cnll", 0.0);
+    get_default_element().set_double_attribute("bcoeff", 0.0);
+    get_default_element().set_double_attribute("dcoeff", 0.0);
+}
+
+Chef_elements
+Nonlinearlens_madx_adaptor::get_chef_elements(
+        Lattice_element const& lattice_element, double brho)
+{
+    Chef_elements retval;
+    double knll = lattice_element.get_double_attribute("knll");
+    double cnll = lattice_element.get_double_attribute("cnll");
+    double bcoeff = lattice_element.get_double_attribute("bcoeff");
+    double dcoeff = lattice_element.get_double_attribute("dcoeff");
+
+    ElmPtr elm;
+    if ((bcoeff != 0.0) || (dcoeff != 0.0)) {
+        elm = ElmPtr(
+                        new nonLinearLens(lattice_element.get_name().c_str(), knll, cnll, bcoeff, dcoeff));
+    } else {
+        elm = ElmPtr(
+                        new nonLinearLens(lattice_element.get_name().c_str(), knll, cnll));
+    }
+
+    retval.push_back(elm);
+    return retval;
+}
+
+template<class Archive>
+    void
+    Nonlinearlens_madx_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Nonlinearlens_madx_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Nonlinearlens_madx_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Nonlinearlens_madx_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Nonlinearlens_madx_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+Nonlinearlens_madx_adaptor::~Nonlinearlens_madx_adaptor()
+{
+}
+BOOST_CLASS_EXPORT_IMPLEMENT(Nonlinearlens_madx_adaptor)
