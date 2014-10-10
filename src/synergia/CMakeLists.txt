@@ -8,6 +8,7 @@ add_subdirectory(lattice)
 add_subdirectory(simulation)
 add_subdirectory(optics)
 add_subdirectory(collective)
+add_subdirectory(tools)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
