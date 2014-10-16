@@ -626,7 +626,8 @@ struct synergia::madx_tree_parser
              | no_case[command_keywords] 
              | ref
              )                   [phx::bind(&set_cmd_keyword, _val, _1)] // keyword
-        >> * ( ',' >> cmd_attr   [phx::bind(&ins_cmd_attr, _val, _1)] )  // attributes
+        >> - ( lit(',') )
+        >> * ( cmd_attr [phx::bind(&ins_cmd_attr, _val, _1)] % ',' )     // attributes
         ;
 
     command =
