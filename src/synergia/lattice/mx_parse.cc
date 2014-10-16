@@ -384,6 +384,7 @@ struct synergia::madx_tree_parser
     {
       this->add
            ("proton"     , mx_keyword("proton"     , MX_KW_PARTICLE) )
+           ("prot"       , mx_keyword("proton"     , MX_KW_PARTICLE) )
            ("electron"   , mx_keyword("electron"   , MX_KW_PARTICLE) )
            ("positron"   , mx_keyword("positron"   , MX_KW_PARTICLE) )
            ("anti-proton", mx_keyword("anti-proton", MX_KW_PARTICLE) )

@@ -297,6 +297,36 @@ BOOST_AUTO_TEST_CASE(command_omitted_comma)
   BOOST_CHECK_EQUAL( mx.variable_as_number("b"), 2 );
 }
 
+BOOST_AUTO_TEST_CASE(command_beam_particle)
+{
+  string str = " BEAM, PARTICLE=Proton, MASS=0.93827, CHARGE=1., ENERGY=0.93827 + 0.160;";
+  MadX   mx;
+
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+
+  MadX_command cmd = mx.command("beam");
+  BOOST_CHECK_EQUAL( cmd.name(), "beam" );
+  BOOST_CHECK_EQUAL( cmd.attribute_count(), 6 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_number("mass"), 0.93827 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_number("charge"), 1 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_number("energy"), 0.93827 + 0.160 );
+}
+
+BOOST_AUTO_TEST_CASE(command_beam_particle_abbreviate)
+{
+  string str = " BEAM, PARTICLE=Prot, MASS=0.93827, CHARGE=1., ENERGY=0.93827 + 0.160;";
+  MadX   mx;
+
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+
+  MadX_command cmd = mx.command("beam");
+  BOOST_CHECK_EQUAL( cmd.name(), "beam" );
+  BOOST_CHECK_EQUAL( cmd.attribute_count(), 6 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_number("mass"), 0.93827 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_number("charge"), 1 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_number("energy"), 0.93827 + 0.160 );
+}
+
 BOOST_AUTO_TEST_CASE(command_assign)
 {
   string str = "q1: quadrupole,l=3.14;";
