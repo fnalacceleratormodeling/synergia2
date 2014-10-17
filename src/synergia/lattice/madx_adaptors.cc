@@ -1717,6 +1717,18 @@ Ecollimator_madx_adaptor::Ecollimator_madx_adaptor()
     get_default_element().set_double_attribute("ysize", 0.0);
 }
 
+Chef_elements
+Ecollimator_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+    ElmPtr elm(
+            new drift(lattice_element.get_name().c_str(),
+                    lattice_element.get_length()));
+    retval.push_back(elm);
+    return retval;
+}
+
 template<class Archive>
     void
     Ecollimator_madx_adaptor::serialize(Archive & ar,
@@ -1755,6 +1767,18 @@ Rcollimator_madx_adaptor::Rcollimator_madx_adaptor()
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("xsize", 0.0);
     get_default_element().set_double_attribute("ysize", 0.0);
+}
+
+Chef_elements
+Rcollimator_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+    ElmPtr elm(
+            new drift(lattice_element.get_name().c_str(),
+                    lattice_element.get_length()));
+    retval.push_back(elm);
+    return retval;
 }
 
 template<class Archive>
