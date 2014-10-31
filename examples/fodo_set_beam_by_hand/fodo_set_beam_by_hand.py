@@ -16,6 +16,15 @@ from fodo_set_beam_by_hand_options import opts
 #     Read the lattice named "fodo" from the Mad8 file "fodo.lat"
 lattice = synergia.lattice.Mad8_reader().get_lattice("fodo", "fodo.lat")
 
+refpart = lattice.get_reference_particle()
+energy = refpart.get_total_energy()
+momentum = refpart.get_momentum()
+gamma = refpart.get_gamma()
+beta = refpart.get_beta()
+print "Beamline energy: ", energy
+print "Beamline momentum: ", momentum
+print "Beamline particle gamma: ", gamma
+print "Beamline particle beta: ", beta
 
 # Define a set of simulation steps
 stepper = Independent_stepper_elements(lattice, opts.map_order, 
@@ -88,14 +97,14 @@ print "yp std: ", local_particles[:,3].std()
 
 zdist = np.zeros(local_num, 'd')
 dist.fill_unit_gaussian(zdist)
-local_particles[:, 4] *= zdist * opts.z_std
-print "cdt std: ", local_particles[:,4].std()
+local_particles[:, 4] = zdist * opts.z_std/beta
+print "c*dt std: ", local_particles[:,4].std()
 
 # delta p/p is a straight gaussian
-cdtdist = np.zeros(local_num, 'd')
-dist.fill_unit_gaussian(zdist)
-local_particles[:, 5] *= cdtdist * opts.dpop
-print "dpop std: ", local_particles[:,4].std()
+dpopdist = np.zeros(local_num, 'd')
+dist.fill_unit_gaussian(dpopdist)
+local_particles[:, 5] = dpopdist * opts.dpop
+print "dpop std: ", local_particles[:,5].std()
 
 # Define a bunch simulator
 bunch_simulator = Bunch_simulator(bunch)
