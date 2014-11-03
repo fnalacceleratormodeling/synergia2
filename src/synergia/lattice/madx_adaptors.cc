@@ -246,16 +246,16 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         }
     } else {
         // combined function element
-        bmlnElmnt* elm = new CF_sbend(lattice_element.get_name().c_str(),
+        CF_sbend* elm = new CF_sbend(lattice_element.get_name().c_str(),
                 length, brho * angle / length, angle, e1, e2);
         if (tilt != 0.0) elm->setAlignment(aligner);
         double multipoleStrength = k1 * brho * length;
         if (multipoleStrength != 0.0) {
-            dynamic_cast<CF_sbend* >(elm)->setQuadrupole(multipoleStrength);
+            elm->setQuadrupole(multipoleStrength);
         }
         multipoleStrength = k2 * brho * length / 2.0;
         if (multipoleStrength != 0.0) {
-            dynamic_cast<CF_sbend* >(elm)->setSextupole(multipoleStrength);
+            elm->setSextupole(multipoleStrength);
         }
         ElmPtr elmP(elm);
         retval.push_back(elmP);
