@@ -35,6 +35,8 @@ BOOST_CLASS_EXPORT_KEY(Drift_madx_adaptor);
 class Sbend_madx_adaptor : public Element_adaptor
 {
 public:
+    static const char mad_propagator[];
+    static const char basic_propagator[];
     Sbend_madx_adaptor();
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);

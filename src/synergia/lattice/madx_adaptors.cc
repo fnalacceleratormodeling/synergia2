@@ -16,6 +16,7 @@
 #endif
 #include <beamline/beamline_elements.h>
 #include <beamline/YoshidaPropagator.h>
+#include <beamline/CF_sbend_MADPropagator.h>
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic pop
 #endif
@@ -115,8 +116,12 @@ Drift_madx_adaptor::~Drift_madx_adaptor()
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Drift_madx_adaptor)
 
+const char Sbend_madx_adaptor::mad_propagator[] = "mad";
+const char Sbend_madx_adaptor::basic_propagator[] = "basic";
+
 Sbend_madx_adaptor::Sbend_madx_adaptor()
 {
+    get_default_element().set_string_attribute("propagator_type", basic_propagator);
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("angle", 0.0);
     get_default_element().set_double_attribute("tilt", 0.0);
@@ -256,6 +261,16 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         multipoleStrength = k2 * brho * length / 2.0;
         if (multipoleStrength != 0.0) {
             elm->setSextupole(multipoleStrength);
+        }
+        if(lattice_element.get_string_attribute("propagator_type") == mad_propagator) {
+            CF_sbend::PropagatorPtr mad_propagator(new CF_sbend_MADPropagator);
+            elm->usePropagator(mad_propagator);
+        } else if (lattice_element.get_string_attribute("propagator_type") == basic_propagator) {
+            // nothing to be done
+        } else {
+            throw std::runtime_error(
+                        "Sbend_madx_adaptor::get_chef_elements: bad propagator_type \"" +
+                        lattice_element.get_string_attribute("propagator_type") + "\"");
         }
         ElmPtr elmP(elm);
         retval.push_back(elmP);
