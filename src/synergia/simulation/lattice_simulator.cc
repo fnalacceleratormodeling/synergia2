@@ -481,6 +481,9 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
                 horizontal_chromaticity(0.0),
                 vertical_chromaticity(0.0),
                 have_chromaticities(false),
+                alt_horizontal_chromaticity(0.0),
+                alt_vertical_chromaticity(0.0),
+                have_alt_chromaticities(false),
                 linear_one_turn_map(boost::extents[6][6])
 
 {
@@ -519,6 +522,9 @@ Lattice_simulator::Lattice_simulator(Lattice_simulator const& lattice_simulator)
                 horizontal_chromaticity(0.0),
                 vertical_chromaticity(0.0),
                 have_chromaticities(false),
+                alt_horizontal_chromaticity(0.0),
+                alt_vertical_chromaticity(0.0),
+                have_alt_chromaticities(false),
                 linear_one_turn_map(boost::extents[6][6])
 
 {
@@ -675,6 +681,7 @@ Lattice_simulator::update()
     have_tunes = false;
     have_beamline_context = false;
     have_chromaticities = false;
+    have_alt_chromaticities = false;
     normal_form_sage_sptr.reset();
 }
 
@@ -1526,10 +1533,29 @@ Lattice_simulator::get_chromaticities(double dpp)
 
         momentum_compaction = slip_factor + 1. / gamma / gamma;
         have_chromaticities = true;	
-
     }
 }
 
+void
+Lattice_simulator::get_alt_chromaticities(double dpp)
+{
+    if (!have_alt_chromaticities) {
+        if (Jet__environment::getLastEnv() == 0) {
+            JetParticle::createStandardEnvironments(map_order);
+        }
+        BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr()->Clone());
+        LattFuncSage lfs(beamline_sptr);
+        lfs.set_dpp(dpp);
+        JetParticle jp(reference_particle_to_chef_jet_particle( lattice_sptr->get_reference_particle(), map_order) );
+        if (lfs.FourPointDisp_Calc(jp, false) != 0) {
+            throw(runtime_error("FourPointDisp calculation failed"));
+        }
+        LattFuncSage::lattRing answers( lfs.getLattRing() );
+        alt_horizontal_chromaticity = answers.chromaticity.hor;
+        alt_vertical_chromaticity = answers.chromaticity.ver;
+        have_alt_chromaticities = true;
+    }
+}
 
 double
 Lattice_simulator::get_slip_factor(double dpp)
@@ -1557,6 +1583,20 @@ Lattice_simulator::get_vertical_chromaticity(double dpp)
 {
     get_chromaticities(dpp);
     return vertical_chromaticity;
+}
+
+double
+Lattice_simulator::get_alt_horizontal_chromaticity(double dpp)
+{
+    get_alt_chromaticities(dpp);
+    return alt_horizontal_chromaticity;
+}
+
+double
+Lattice_simulator::get_alt_vertical_chromaticity(double dpp)
+{
+    get_alt_chromaticities(dpp);
+    return alt_vertical_chromaticity;
 }
 
 void
@@ -1922,6 +1962,9 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(horizontal_chromaticity);
         ar & BOOST_SERIALIZATION_NVP(vertical_chromaticity);
         ar & BOOST_SERIALIZATION_NVP(have_chromaticities);
+        ar & BOOST_SERIALIZATION_NVP(alt_horizontal_chromaticity);
+        ar & BOOST_SERIALIZATION_NVP(alt_vertical_chromaticity);
+        ar & BOOST_SERIALIZATION_NVP(have_alt_chromaticities);
         ar & BOOST_SERIALIZATION_NVP(lattice_functions_element_map);
         ar & BOOST_SERIALIZATION_NVP(lattice_functions_slice_map);
         ar & BOOST_SERIALIZATION_NVP(et_lattice_functions_element_map);
@@ -1953,6 +1996,9 @@ template<class Archive>
         ar & BOOST_SERIALIZATION_NVP(horizontal_chromaticity);
         ar & BOOST_SERIALIZATION_NVP(vertical_chromaticity);
         ar & BOOST_SERIALIZATION_NVP(have_chromaticities);
+        ar & BOOST_SERIALIZATION_NVP(alt_horizontal_chromaticity);
+        ar & BOOST_SERIALIZATION_NVP(alt_vertical_chromaticity);
+        ar & BOOST_SERIALIZATION_NVP(have_alt_chromaticities);
         ar & BOOST_SERIALIZATION_NVP(lattice_functions_element_map);
         ar & BOOST_SERIALIZATION_NVP(lattice_functions_slice_map);
         ar & BOOST_SERIALIZATION_NVP(et_lattice_functions_element_map);

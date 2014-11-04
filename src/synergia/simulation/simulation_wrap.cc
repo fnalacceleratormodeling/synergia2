@@ -174,6 +174,10 @@ BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_horizontal_chromaticity_overloads01,
 	Lattice_simulator::get_horizontal_chromaticity, 0,1)				
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_vertical_chromaticity_overloads01, 
 	Lattice_simulator::get_vertical_chromaticity, 0,1)  
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_alt_horizontal_chromaticity_overloads01, 
+	Lattice_simulator::get_alt_horizontal_chromaticity, 0,1)				
+BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_alt_vertical_chromaticity_overloads01, 
+	Lattice_simulator::get_alt_vertical_chromaticity, 0,1)  
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_slip_factor_overloads01,
 	Lattice_simulator::get_slip_factor,0,1)
 BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(get_momentum_compaction_overloads01,	
@@ -405,6 +409,10 @@ BOOST_PYTHON_MODULE(simulation)
 	                     get_horizontal_chromaticity_overloads01())
         .def("get_vertical_chromaticity", &Lattice_simulator::get_vertical_chromaticity,
 	                     get_vertical_chromaticity_overloads01())
+        .def("get_alt_horizontal_chromaticity", &Lattice_simulator::get_alt_horizontal_chromaticity,
+	                     get_alt_horizontal_chromaticity_overloads01())
+        .def("get_alt_vertical_chromaticity", &Lattice_simulator::get_alt_vertical_chromaticity,
+	                     get_alt_vertical_chromaticity_overloads01())
         .def("get_momentum_compaction", &Lattice_simulator::get_momentum_compaction,
                                   get_momentum_compaction_overloads01())
         .def("get_slip_factor",&Lattice_simulator::get_slip_factor,

@@ -132,6 +132,8 @@ private:
     bool have_tunes;
     double horizontal_chromaticity, vertical_chromaticity;
     bool have_chromaticities;
+    double alt_horizontal_chromaticity, alt_vertical_chromaticity;
+    bool have_alt_chromaticities;
     double momentum_compaction, slip_factor;
     MArray2d linear_one_turn_map;
     std::map<Lattice_element *, Lattice_functions > lattice_functions_element_map;
@@ -163,6 +165,8 @@ private:
     Normal_form_sage_sptr normal_form_sage_sptr;
     void
     get_chromaticities(double dpp);
+    void
+    get_alt_chromaticities(double dpp);
 public:
     /// @param lattice_sptr the Lattice
     /// @param map_order order for Chef_map operations
@@ -275,6 +279,10 @@ public:
     get_horizontal_chromaticity(double dpp=1.e-5);
     double
     get_vertical_chromaticity(double dpp=1.e-5);
+    double
+    get_alt_horizontal_chromaticity(double dpp=1.e-5);
+    double
+    get_alt_vertical_chromaticity(double dpp=1.e-5);
     void
     adjust_chromaticities(double horizontal_chromaticity,
             double vertical_chromaticity,
