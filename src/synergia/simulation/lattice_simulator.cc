@@ -959,12 +959,11 @@ void
 Lattice_simulator::calculate_normal_form()
 {
     get_beamline_context();
-    Mapping one_turn_map = beamline_context_sptr->getOneTurnMap();
+    JetParticle jpart(reference_particle_to_chef_jet_particle(
+							lattice_sptr->get_reference_particle(), map_order));
+	jpart.State() = beamline_context_sptr->getOneTurnMap();
     normal_form_sage_sptr = Normal_form_sage_sptr(
-            new normalFormSage(one_turn_map,
-                    reference_particle_to_chef_jet_particle(
-                            lattice_sptr->get_reference_particle(), map_order),
-                    map_order));
+            new normalFormSage(jpart, map_order));
 }
 
 // return the normal_form_sage_sptr if it exists, otherwise calculate
