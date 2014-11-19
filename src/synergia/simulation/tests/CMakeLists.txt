@@ -81,6 +81,10 @@ add_test_executable(test_propagator test_propagator.cc)
 target_link_libraries(test_propagator synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_propagator COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_propagator>)
 
+add_test_executable(test_resume test_resume.cc)
+target_link_libraries(test_resume synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_resume COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_resume>)
+
 add_test_executable(test_lattice_elements_action test_lattice_elements_action.cc)
 target_link_libraries(test_lattice_elements_action synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_lattice_elements_action COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_lattice_elements_action>)
