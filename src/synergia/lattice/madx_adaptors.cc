@@ -574,14 +574,28 @@ Quadrupole_madx_adaptor::get_chef_elements(
 
     double qtilt = lattice_element.get_double_attribute("tilt");
 
-    // ck1 is the complex strength of the quadrupole k1 - i*k1s (negative because of MAD-X definition)
-    std::complex<double> ck1(lattice_element.get_double_attribute("k1"),
-                             -lattice_element.get_double_attribute("k1s"));
-    // rot_angle is phase of ck1/(order+1) (order = 1 for quadrupole)
-    // for pure skew quad, phase is -pi/2, order=1 so rotation = -pi/4
-    // so rot_angle is the rotation needed to turn a normal quad
-    // into one with k1 and k1s components.
-     double rot_angle = std::arg(ck1)/2.0 + qtilt;
+    // if there is a k1s moment, make a normal quadrupole with positive strength and rotate it to the correct angle.
+    // if there is no k1s moment, make a quadrupole with the given strength and no rotation.  This is
+    // done so that normal negative strength quadrupoles will become a CHEF quadrupole with negative strength instead
+    // of a rotated positive positive strength quadrupole.
+    double quad_strength;
+    double rot_angle;
+
+    if (lattice_element.get_double_attribute("k1s") == 0.0) {
+        // no k1s
+        quad_strength = lattice_element.get_double_attribute("k1");
+        rot_angle = qtilt;
+    } else {
+        // ck1 is the complex strength of the quadrupole k1 - i*k1s (negative because of MAD-X definition)
+        std::complex<double> ck1(lattice_element.get_double_attribute("k1"),
+                                 -lattice_element.get_double_attribute("k1s"));
+        // rot_angle is phase of ck1/(order+1) (order = 1 for quadrupole)
+        // for pure skew quad, phase is -pi/2, order=1 so rotation = -pi/4
+        // so rot_angle is the rotation needed to turn a normal quad
+        // into one with k1 and k1s components.
+        quad_strength = std::abs(ck1);
+        rot_angle = std::arg(ck1)/2.0 + qtilt;
+    }
 
     bool has_multipoles = false;
     int highest_order = 0;
@@ -609,18 +623,18 @@ Quadrupole_madx_adaptor::get_chef_elements(
     bmlnElmnt* bmln_elmnt;
     if (length == 0.0) {
         bmln_elmnt = new thinQuad(lattice_element.get_name().c_str(),
-                                  brho * std::abs(ck1));
+                                  brho * quad_strength);
     } else {
         if(lattice_element.get_string_attribute("propagator_type") == yoshida_propagator) {
             int steps = floor(lattice_element.get_double_attribute("yoshida_steps"));
             int order = floor(lattice_element.get_double_attribute("yoshida_order"));
             bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
-                                        brho * std::abs(ck1));
+                                        brho * quad_strength);
             quadrupole::PropagatorPtr yoshida_propagator(new YoshidaPropagator(order, steps));
             dynamic_cast<quadrupole*>(bmln_elmnt)->usePropagator(yoshida_propagator);
         } else if (lattice_element.get_string_attribute("propagator_type") == basic_propagator) {
             bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
-                                        brho * std::abs(ck1));
+                                        brho * quad_strength);
             dynamic_cast<quadrupole*>(bmln_elmnt)->setNumberOfKicks(floor(lattice_element.get_double_attribute("basic_kicks")));
         } else {
             throw std::runtime_error(
