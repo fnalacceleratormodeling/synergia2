@@ -752,21 +752,35 @@ Sextupole_madx_adaptor::get_chef_elements(
 
     double sextilt = lattice_element.get_double_attribute("tilt");
 
-    // ck2 is the complex strength of the sextupole k2 - i*k2s (negative because of MAD-X definition)
-    std::complex<double> ck2(lattice_element.get_double_attribute("k2"),
-                             -lattice_element.get_double_attribute("k2s"));
-    // rot_angle is phase of ck2/(order+1) (order=2 for sextupole)
-    // for pure skew sext, phase is -pi/2, order=2 so rotation = -pi/6
-    // so rot_angle is the rotation needed to turn a normal sextupole
-    // into one with k2 and k2s components.
-     double rot_angle = std::arg(ck2)/3.0 + sextilt;
+    // if there is a k2s moment, make a normal sextupole with positive strength and rotate it to the correct angle.
+    // if there is no k2s moment, make a sextupole with the given strength and no rotation.  This is
+    // done so that normal negative strength sextupoles will become a CHEF sextupole with negative strength instead
+    // of a rotated positive positive strength sextupole.
+    double sext_strength;
+    double rot_angle;
+
+    if (lattice_element.get_double_attribute("k2s") == 0.0) {
+        // no k2s
+        sext_strength = lattice_element.get_double_attribute("k2");
+        rot_angle = sextilt;
+    } else {
+        // ck2 is the complex strength of the sextupole k2 - i*k2s (negative because of MAD-X definition)
+        std::complex<double> ck2(lattice_element.get_double_attribute("k2"),
+                                 -lattice_element.get_double_attribute("k2s"));
+        // rot_angle is phase of ck2/(order+1) (order = 2 for sextupole)
+        // for pure skew sext, phase is -pi/2, order=2 so rotation = -pi/6
+        // so rot_angle is the rotation needed to turn a normal sextupole
+        // into one with k2 and k2s components.
+        sext_strength = std::abs(ck2);
+        rot_angle = std::arg(ck2)/3.0 + sextilt;
+    }
 
     if (sexlen == 0.0) {
         bmln_elmnt = new thinSextupole(lattice_element.get_name().c_str(),
-                brho * std::abs(ck2) / 2.0);
+                  brho * sext_strength / 2.0);
     } else {
         bmln_elmnt = new sextupole(lattice_element.get_name().c_str(), sexlen,
-                brho * std::abs(ck2) / 2.0);
+                  brho * sext_strength / 2.0);
     }
 
     if (rot_angle != 0.0) {
