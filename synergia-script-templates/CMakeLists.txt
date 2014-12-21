@@ -14,6 +14,7 @@ install(FILES
     job_tev
     job_example_hopper
     resume_example_hopper
+    local_opts_wilson_example.py
     local_opts_hopper.py
     intrepid_multijob_footer
     intrepid_resumemulti_subjob

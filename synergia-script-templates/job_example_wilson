@@ -16,19 +16,18 @@ then
     cat $PBS_NODEFILE
     echo "end nodes"
 fi
-MPI_HOME=/usr/local/openmpi-1.6.3-with-pbs
+MPI_HOME=/usr/local/openmpi
 
 export PATH=${MPI_HOME}/bin:$PATH
-export PATH=/usr/local/python-2.7.0/bin:$PATH
 export LD_LIBRARY_PATH=${MPI_HOME}/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/usr/local/python-2.7.0/lib:$LD_LIBRARY_PATH
-
 
 . @@setupsh@@
 
 cd $PBS_O_WORKDIR
 echo "Job start at `date`"
-${MPI_HOME}/bin/mpirun __loadbalance{{--loadbalance}}{{}}__ -np @@numproc@@ @@synergia_executable@@ @@script@@ @@args@@
+# 2014-12-20 after upgrade of Wilson cluster and using openmpi 1.8, the
+# --loadbalance option is not used
+${MPI_HOME}/bin/mpirun -np @@numproc@@ @@synergia_executable@@ @@script@@ @@args@@
 echo "Job end at `date`"
 
 
