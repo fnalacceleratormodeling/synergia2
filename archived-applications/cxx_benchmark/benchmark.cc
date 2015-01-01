@@ -62,20 +62,17 @@ run(Benchmark_options const& opts)
 
     Space_charge_3d_open_hockney_sptr space_charge_sptr(
             new Space_charge_3d_open_hockney(grid_shape));
-    if (opts.autotune) {
-        space_charge_sptr->auto_tune_comm(*bunch_sptr, true);
-    } else {
-        if (opts.chargecomm > 0) {
-            space_charge_sptr->set_charge_density_comm(
+    if (opts.chargecomm > 0) {
+        space_charge_sptr->set_charge_density_comm(
                     Space_charge_3d_open_hockney::Charge_density_comm(
-                            opts.chargecomm));
-        }
-        if (opts.efieldcomm > 0) {
-            space_charge_sptr->set_e_field_comm(
-                    Space_charge_3d_open_hockney::E_field_comm(
-                            opts.efieldcomm));
-        }
+                        opts.chargecomm));
     }
+    if (opts.efieldcomm > 0) {
+        space_charge_sptr->set_e_field_comm(
+                    Space_charge_3d_open_hockney::E_field_comm(
+                        opts.efieldcomm));
+    }
+
     if (opts.avoid) {
         space_charge_sptr->set_charge_density_comm(
                 Space_charge_3d_open_hockney::charge_allreduce);

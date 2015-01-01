@@ -36,7 +36,8 @@ private:
     bool longitudinal_kicks;
     Green_fn_type green_fn_type;
     Charge_density_comm charge_density_comm;
-    E_field_comm e_field_comm;
+    E_field_comm e_field_comm; // vestigial from when we thought we would choose the most
+                               // most performant collective primitive
     Distributed_fft3d_sptr distributed_fft3d_sptr;
     Commxx_divider_sptr commxx_divider_sptr;
     Commxx_sptr comm2_sptr, comm1_sptr;
@@ -96,8 +97,6 @@ public:
     set_e_field_comm(E_field_comm e_field_comm);
     E_field_comm
     get_e_field_comm() const;
-    void
-    auto_tune_comm(Bunch & bunch, bool verbose = false);
     void
     set_fixed_domain(Rectangular_grid_domain_sptr domain_sptr);
     void
