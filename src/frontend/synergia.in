@@ -15,14 +15,14 @@ install_dir="`dirname \"$tmp_bin_dir\"`"
 SYNERGIA2DIR="$install_dir/lib"
 export SYNERGIA2DIR
 
-pathadd () 
-{ 
+pathadd ()
+{
     PATH="$1:$PATH"
     export PATH
 }
 
-ldpathadd () 
-{ 
+ldpathadd ()
+{
     if [ -z "$LD_LIBRARY_PATH" ]; then
         LD_LIBRARY_PATH="$1"
     else
@@ -31,8 +31,8 @@ ldpathadd ()
     export LD_LIBRARY_PATH
 }
 
-pythonpathadd () 
-{ 
+pythonpathadd ()
+{
     if [ -z "$PYTHONPATH" ]; then
         PYTHONPATH="$1"
     else
