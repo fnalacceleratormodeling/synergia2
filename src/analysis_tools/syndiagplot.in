@@ -1,3 +1,6 @@
 #!/bin/sh
 
-exec synergia "${CMAKE_INSTALL_PREFIX}/lib/synergia_tools/diag_plot.py" "$@"
+tmp_bin_dir="`dirname \"$0\"`"
+install_dir="`dirname \"$tmp_bin_dir\"`"
+
+exec synergia "$install_dir/lib/synergia_tools/diag_plot.py" "$@"
