@@ -27,9 +27,8 @@ CMAKE_FORCE_CXX_COMPILER(${MPI_COMPILER} "MPI C++ Compiler")
 
 # python
 if (BUILD_PYTHON_BINDINGS)
-    find_package(PythonInterp REQUIRED)
-    find_package(PythonLibs REQUIRED)
-    INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+    find_package(ConsistentPython)
+    INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIR})
 endif()
 
 # boost

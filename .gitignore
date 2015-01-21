@@ -1,6 +1,7 @@
 *.pyc
 *.so
 *.o
+*.dylib
 .*.swp
 *~
 config.status

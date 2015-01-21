@@ -220,6 +220,9 @@ public:
 
 private:
   boost::any member;  // either a name ref or a line object
+#if __APPLE_CC__ == 6000
+public:
+#endif //  __APPLE_CC__ == 6000
   mx_line_member_type tag;
 };
 
