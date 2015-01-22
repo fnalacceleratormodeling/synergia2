@@ -1,11 +1,19 @@
 #!/bin/sh
 
+usage() {
+    echo "usage: $0 [synergia_arguments] <synergia_script> [script_arguments]"
+    echo "synergia_arguments:"
+    echo "         -i         : enter interactive Python mode"
+    echo "         --ipython  : enter IPython interactive mode (if available)"
+    echo "         --help     : this message"
+}
+
 if [ -z "$1" ]; then
-    echo "usage: $0 <synergia_script> [arguments]" >&2
+    usage
     exit 1
 fi
 if [ "$1" = "--help" ]; then
-    echo "usage: $0 <synergia_script> [arguments]"
+    usage
     exit 0
 fi
 
