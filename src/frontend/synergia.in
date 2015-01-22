@@ -23,12 +23,21 @@ pathadd ()
 
 ldpathadd ()
 {
-    if [ -z "$LD_LIBRARY_PATH" ]; then
-        LD_LIBRARY_PATH="$1"
+    if [ "`uname`" = "Darwin" ]; then
+        if [ -z "$DYLD_LIBRARY_PATH" ]; then
+            DYLD_LIBRARY_PATH="$1"
+        else
+            DYLD_LIBRARY_PATH="$1:$DYLD_LIBRARY_PATH"
+        fi
+        export DYLD_LIBRARY_PATH
     else
-        LD_LIBRARY_PATH="$1:$LD_LIBRARY_PATH"
+        if [ -z "$LD_LIBRARY_PATH" ]; then
+            LD_LIBRARY_PATH="$1"
+        else
+            LD_LIBRARY_PATH="$1:$LD_LIBRARY_PATH"
+        fi
+        export LD_LIBRARY_PATH
     fi
-    export LD_LIBRARY_PATH
 }
 
 pythonpathadd ()
@@ -57,7 +66,11 @@ if [ x"$1" = x"--path" ]; then
 fi
 
 if [ x"$1" = x"--ldlibrarypath" ]; then
-    echo "$LD_LIBRARY_PATH"
+    if [ "`uname`" = "Darwin" ]; then
+        echo "$DYLD_LIBRARY_PATH"
+    else
+        echo "$LD_LIBRARY_PATH"
+    fi
     exit 0
 fi
 
