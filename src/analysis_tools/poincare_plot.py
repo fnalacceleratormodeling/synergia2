@@ -9,7 +9,7 @@ import matplotlib
 def plot2d(x, y, options):
     p = pyplot.plot(x, y, 'o')
     pyplot.setp(p, "markersize", float(options.point_size))
-    pyplot.setp(p, "markeredgewidth", 0)
+    pyplot.setp(p, "markeredgewidth", 0.1)
 
 
 coords = {}
