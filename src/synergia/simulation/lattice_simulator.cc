@@ -1262,12 +1262,14 @@ get_quad_chef_elements(Lattice_elements const& lattice_elements,
 {
     Chef_elements retval;
     for (Lattice_elements::const_iterator le_it = lattice_elements.begin();
-            le_it != lattice_elements.end(); ++le_it) {
+    le_it != lattice_elements.end(); ++le_it) {
         Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*le_it)));
         for (Chef_elements::iterator ce_it = chef_elements.begin();
-                ce_it != chef_elements.end(); ++ce_it) {
+        ce_it != chef_elements.end(); ++ce_it) {
             if ((std::strcmp((*ce_it)->Type(), "quadrupole") == 0)
-                    || (std::strcmp((*ce_it)->Type(), "thinQuad") == 0)) {
+                || (std::strcmp((*ce_it)->Type(), "thinQuad") == 0)
+                || (std::strcmp((*ce_it)->Type(), "CF_sbend") == 0)
+                || (std::strcmp((*ce_it)->Type(), "CF_rbend") == 0)) {
                 retval.push_back(*ce_it);
             } else {
                 std::string message(
