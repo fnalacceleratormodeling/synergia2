@@ -301,12 +301,13 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid,
             rho_2dc[cellx2][celly1] += weight0 * offx * aoffy;
             rho_2dc[cellx2][celly2] += weight0 * offx * offy;
         }
-        int cellz1, cellz2;
-        cellz1 = iz;
-        cellz2 = cellz1 + 1;
-        if((grid_shape[2] > 1) && (cellz1 >= 0) && (cellz2 < grid_shape[2])) {
-            rho_1d[cellz1] += (1. - offz) / h[2];
-            rho_1d[cellz2] += offz / h[2];
+
+        for (int k = 0; k < 2; ++k) {
+            int cellz = iz + k;
+            if ((grid_shape[2] > 1) && (cellz >= 0) && (cellz < grid_shape[2])) {
+                double weight = (1 - k - (1 - 2 * k) * offz) / h[2];
+                rho_1d[cellz] += weight;
+            }
         }
     }
 }
