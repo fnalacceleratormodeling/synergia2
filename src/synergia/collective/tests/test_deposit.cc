@@ -26,7 +26,9 @@ struct Fixture
                 comm_sptr(new Commxx), bunch(reference_particle, total_num,
                         real_num, comm_sptr), physical_size(3), physical_offset(3),
                 grid_shape(3), expected(
-                        boost::extents[grid_size][grid_size][grid_size])
+                        boost::extents[grid_size][grid_size][grid_size]),
+                expected_2dc(boost::extents[grid_size][grid_size]),
+                expected_1d(boost::extents[grid_size])
     {
         for (int i = 0; i < 3; ++i) {
             physical_offset[i] = domain_offset;
@@ -38,7 +40,9 @@ struct Fixture
                 for (unsigned int k = 0; k < expected.shape()[2]; ++k) {
                     expected[i][j][k] = 0.0;
                 }
+                expected_2dc[i][j] = 0.0;
             }
+            expected_1d[i] = 0.0;
         }
         double cell_size = (domain_max - domain_min) / grid_size;
         density_norm = (real_num / total_num) * pconstants::e / (cell_size
@@ -59,6 +63,8 @@ struct Fixture
     std::vector<int > grid_shape;
     Rectangular_grid_sptr rho_grid_sptr;
     MArray3d expected;
+    MArray2dc expected_2dc;
+    MArray1d  expected_1d;
 };
 
 BOOST_FIXTURE_TEST_CASE(no_particles, Fixture)
@@ -419,4 +425,163 @@ BOOST_FIXTURE_TEST_CASE(additive_deposit, Fixture)
     multi_array_check_equal(rho_grid_sptr->get_grid_points(), expected,
             tolerance);
 }
+
+BOOST_FIXTURE_TEST_CASE(origin_particle_2d, Fixture)
+{
+    rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
+            physical_offset, grid_shape, false));
+    bunch.set_local_num(1);
+    bunch.get_local_particles()[0][0] = 0;
+    bunch.get_local_particles()[0][2] = 0;
+    bunch.get_local_particles()[0][4] = 0;
+
+    deposit_charge_rectangular_2d(*rho_grid_sptr, bunch);
+
+    for (int i = 1; i < 3; ++i) {
+        for (int j = 1; j < 3; ++j) {
+            expected_2dc[i][j] = 0.25 * density_norm;
+        }
+    }
+
+    expected_1d[1] = 0.5;
+    expected_1d[2] = 0.5;
+
+    multi_complex_array_check_equal(rho_grid_sptr->get_grid_points_2dc(), expected_2dc,
+            tolerance);
+
+    multi_array_check_equal(rho_grid_sptr->get_grid_points_1d(), expected_1d,
+            tolerance);
+}
+
+BOOST_FIXTURE_TEST_CASE(zedge_particle_2d, Fixture)
+{
+    rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
+            physical_offset, grid_shape, false));
+    bunch.set_local_num(1);
+    bunch.get_local_particles()[0][0] = 0;
+    bunch.get_local_particles()[0][2] = 0;
+    bunch.get_local_particles()[0][4] = domain_min;
+
+    deposit_charge_rectangular_2d(*rho_grid_sptr, bunch);
+
+    expected_2dc[1][1] = 0.25 * density_norm;
+    expected_2dc[1][2] = 0.25 * density_norm;
+    expected_2dc[2][1] = 0.25 * density_norm;
+    expected_2dc[2][2] = 0.25 * density_norm;
+
+    expected_1d[0] = 0.5;
+
+    multi_complex_array_check_equal(rho_grid_sptr->get_grid_points_2dc(), expected_2dc,
+            tolerance);
+
+    multi_array_check_equal(rho_grid_sptr->get_grid_points_1d(), expected_1d,
+            tolerance);
+}
+
+BOOST_FIXTURE_TEST_CASE(zrightedge_particle_2d, Fixture)
+{
+    rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
+            physical_offset, grid_shape, true));
+    bunch.set_local_num(1);
+    bunch.get_local_particles()[0][0] = 0;
+    bunch.get_local_particles()[0][2] = 0;
+    bunch.get_local_particles()[0][4] = domain_max;
+
+    deposit_charge_rectangular_2d(*rho_grid_sptr, bunch);
+
+    expected_2dc[1][1] = 0.25 * density_norm;
+    expected_2dc[1][2] = 0.25 * density_norm;
+    expected_2dc[2][1] = 0.25 * density_norm;
+    expected_2dc[2][2] = 0.25 * density_norm;
+
+    expected_1d[3] = 0.5;
+
+    multi_complex_array_check_equal(rho_grid_sptr->get_grid_points_2dc(), expected_2dc,
+            tolerance);
+
+    multi_array_check_equal(rho_grid_sptr->get_grid_points_1d(), expected_1d,
+            tolerance);
+}
+
+
+BOOST_FIXTURE_TEST_CASE(origin_particle_2d_bin, Fixture)
+{
+    rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
+            physical_offset, grid_shape, false));
+    bunch.set_local_num(1);
+    bunch.get_local_particles()[0][0] = 0;
+    bunch.get_local_particles()[0][2] = 0;
+    bunch.get_local_particles()[0][4] = 0;
+
+    Raw_MArray2d bin(boost::extents[bunch.get_local_num()][6]);
+    deposit_charge_rectangular_2d(*rho_grid_sptr, bin, bunch);
+
+    for (int i = 1; i < 3; ++i) {
+        for (int j = 1; j < 3; ++j) {
+            expected_2dc[i][j] = 0.25 * density_norm;
+        }
+    }
+
+    expected_1d[1] = 0.5;
+    expected_1d[2] = 0.5;
+
+    multi_complex_array_check_equal(rho_grid_sptr->get_grid_points_2dc(), expected_2dc,
+            tolerance);
+
+    multi_array_check_equal(rho_grid_sptr->get_grid_points_1d(), expected_1d,
+            tolerance);
+}
+
+BOOST_FIXTURE_TEST_CASE(zedge_particle_2d_bin, Fixture)
+{
+    rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
+            physical_offset, grid_shape, false));
+    bunch.set_local_num(1);
+    bunch.get_local_particles()[0][0] = 0;
+    bunch.get_local_particles()[0][2] = 0;
+    bunch.get_local_particles()[0][4] = domain_min;
+
+    Raw_MArray2d bin(boost::extents[bunch.get_local_num()][6]);
+    deposit_charge_rectangular_2d(*rho_grid_sptr, bin, bunch);
+
+    expected_2dc[1][1] = 0.25 * density_norm;
+    expected_2dc[1][2] = 0.25 * density_norm;
+    expected_2dc[2][1] = 0.25 * density_norm;
+    expected_2dc[2][2] = 0.25 * density_norm;
+
+    expected_1d[0] = 0.5;
+
+    multi_complex_array_check_equal(rho_grid_sptr->get_grid_points_2dc(), expected_2dc,
+            tolerance);
+
+    multi_array_check_equal(rho_grid_sptr->get_grid_points_1d(), expected_1d,
+            tolerance);
+}
+
+BOOST_FIXTURE_TEST_CASE(zrightedge_particle_2d_bin, Fixture)
+{
+    rho_grid_sptr = Rectangular_grid_sptr(new Rectangular_grid(physical_size,
+            physical_offset, grid_shape, true));
+    bunch.set_local_num(1);
+    bunch.get_local_particles()[0][0] = 0;
+    bunch.get_local_particles()[0][2] = 0;
+    bunch.get_local_particles()[0][4] = domain_max;
+
+    Raw_MArray2d bin(boost::extents[bunch.get_local_num()][6]);
+    deposit_charge_rectangular_2d(*rho_grid_sptr, bin, bunch);
+
+    expected_2dc[1][1] = 0.25 * density_norm;
+    expected_2dc[1][2] = 0.25 * density_norm;
+    expected_2dc[2][1] = 0.25 * density_norm;
+    expected_2dc[2][2] = 0.25 * density_norm;
+
+    expected_1d[3] = 0.5;
+
+    multi_complex_array_check_equal(rho_grid_sptr->get_grid_points_2dc(), expected_2dc,
+            tolerance);
+
+    multi_array_check_equal(rho_grid_sptr->get_grid_points_1d(), expected_1d,
+            tolerance);
+}
+
 
