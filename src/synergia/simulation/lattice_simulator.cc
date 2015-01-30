@@ -16,6 +16,9 @@
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 #include <beamline/beamline_elements.h>
+#include <beamline/quadrupole.h>
+#include <beamline/CF_sbend.h>
+#include <beamline/CF_rbend.h>
 #include <physics_toolkit/Sage.h>
 #include <basic_toolkit/PhysicsConstants.h>
 #include <beamline/RefRegVisitor.h>
@@ -1196,6 +1199,48 @@ write_quad_correctors(Lattice_elements const& horizontal_correctors,
 
 }
 
+// get_AT_corrector_strength and set_AT_corrector_strength are local functions
+// They are needed because correctors could be either regular quadrupoles whose strength is
+// get/set with the Strength()/setStrength() or combined function magnets whose strength is get/set
+// with getQuadrupole()/setQuadrupole().
+
+double
+get_AT_corrector_strength(ElmPtr elmptr)
+{
+    // Is it regular/thin quad or combined function magnet?
+    if (boost::dynamic_pointer_cast<quadrupole>(elmptr)) {
+        return boost::dynamic_pointer_cast<quadrupole>(elmptr)->Strength();
+    } else if (boost::dynamic_pointer_cast<thinQuad>(elmptr)) {
+        return boost::dynamic_pointer_cast<thinQuad>(elmptr)->Strength();
+    } else if (boost::dynamic_pointer_cast<CF_sbend>(elmptr)) {
+        return boost::dynamic_pointer_cast<CF_sbend>(elmptr)->getQuadrupole();
+    } else if (boost::dynamic_pointer_cast<CF_rbend>(elmptr)) {
+        return boost::dynamic_pointer_cast<CF_rbend>(elmptr)->getQuadrupole();
+    } else {
+        throw std::runtime_error("Bad element type passed to get_AT_corrector_strength: " +
+                                 std::string(elmptr->Type()));
+    }
+}
+
+void
+set_AT_corrector_strength(ElmPtr elmptr, double strength)
+{
+    // is it regular/thin quad or combined function magnet?
+    if (boost::dynamic_pointer_cast<quadrupole>(elmptr)) {
+        boost::dynamic_pointer_cast<quadrupole>(elmptr)->setStrength(strength);
+    } else if (boost::dynamic_pointer_cast<thinQuad>(elmptr)) {
+        boost::dynamic_pointer_cast<thinQuad>(elmptr)->setStrength(strength);
+    } else if (boost::dynamic_pointer_cast<CF_sbend>(elmptr)) {
+        boost::dynamic_pointer_cast<CF_sbend>(elmptr)->setQuadrupole(strength);
+    } else if (boost::dynamic_pointer_cast<CF_rbend>(elmptr)) {
+        boost::dynamic_pointer_cast<CF_rbend>(elmptr)->setQuadrupole(strength);
+    } else {
+        throw std::runtime_error("Bad element type passed to get_AT_corrector_strength: " +
+                                 std::string(elmptr->Type()));
+    }
+    return;
+}
+
 // extract_quad_strengths is a local function
 void
 extract_quad_strengths(Lattice_elements const& correctors,
@@ -1206,8 +1251,22 @@ extract_quad_strengths(Lattice_elements const& correctors,
         Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*le_it)));
         for (Chef_elements::iterator ce_it = chef_elements.begin();
                 ce_it != chef_elements.end(); ++ce_it) {
-            double scaled_strength = (*ce_it)->Strength()
+            double scaled_strength = get_AT_corrector_strength(*ce_it)
                     / chef_lattice.get_brho();
+            // regular quads k1 is strength/unit length.  thin quads use k1l
+            // which is integrated strength.  CF magnets use k1, but their CHEF strength
+            // is integrated strength so must be divided by length for k1.
+            if (boost::dynamic_pointer_cast<CF_sbend>(*ce_it) ||
+                boost::dynamic_pointer_cast<CF_rbend>(*ce_it)) {
+                // this is a CF magnet, and its length better by > 0
+                if ((*le_it)->get_length() == 0.0) {
+                    throw runtime_error("CF magnet " + (*le_it)->get_name() +
+                                        " corresponding to CHEF element " +
+                                        (*ce_it)->Name() +
+                                        " unexpectedly has 0 length");
+                    scaled_strength /= (*le_it)->get_length();
+                }
+            }
             if ((*le_it)->get_length() > 0) {
                 (*le_it)->set_double_attribute("k1", scaled_strength);
             } else {
@@ -1236,11 +1295,11 @@ get_strengths_param(Chef_elements const& elements,
 {
 	bool relative(false);
     Chef_elements::const_iterator it = elements.begin();
-    double lastval = (*it)->Strength();
+    double lastval = get_AT_corrector_strength(*it);
     const double tolerance = 1.0e-12;
     int i = 0;
     for (; it != elements.end(); ++it) {
-        double val = (*it)->Strength();
+        double val = get_AT_corrector_strength(*it);
         if (std::abs(val - lastval) > tolerance) {
             relative = true;
         }
@@ -1341,9 +1400,9 @@ adjust_tunes_function(const gsl_vector * x, void * params, gsl_vector * f)
     for (Chef_elements::iterator it = atparams_ptr->h_elements.begin();
             it != atparams_ptr->h_elements.end(); ++it) {
         if (atparams_ptr->h_relative) {
-            (*it)->setStrength(h_param * atparams_ptr->h_original_strengths.at(i));
+            set_AT_corrector_strength(*it, h_param * atparams_ptr->h_original_strengths.at(i));
         } else {
-            (*it)->setStrength(h_param);
+            set_AT_corrector_strength(*it, h_param);
         }
         ++i;
     }
@@ -1352,9 +1411,9 @@ adjust_tunes_function(const gsl_vector * x, void * params, gsl_vector * f)
     for (Chef_elements::iterator it = atparams_ptr->v_elements.begin();
             it != atparams_ptr->v_elements.end(); ++it) {
         if (atparams_ptr->v_relative) {
-            (*it)->setStrength(v_param * atparams_ptr->v_original_strengths.at(i));
+            set_AT_corrector_strength(*it, v_param * atparams_ptr->v_original_strengths.at(i));
         } else {
-            (*it)->setStrength(v_param);
+            set_AT_corrector_strength(*it, v_param);
         }
         ++i;
     }
