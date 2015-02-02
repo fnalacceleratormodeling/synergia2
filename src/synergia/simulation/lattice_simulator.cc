@@ -1275,13 +1275,19 @@ void
 extract_quad_strengths(Lattice_elements const& correctors,
         Chef_lattice & chef_lattice, Logger & logger, int verbosity)
 {
+    const std::string quad_type = "quad";
+    const std::string bend_type = "bend";
+
     for (Lattice_elements::const_iterator le_it = correctors.begin();
             le_it != correctors.end(); ++le_it) {
         Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*le_it)));
         for (Chef_elements::iterator ce_it = chef_elements.begin();
                 ce_it != chef_elements.end(); ++ce_it) {
+            std::string elem_type;
+
             double scaled_strength = get_AT_corrector_strength(*ce_it)
                     / chef_lattice.get_brho();
+            elem_type = quad_type;
             // regular quads k1 is strength/unit length.  thin quads use k1l
             // which is integrated strength.  CF magnets use k1, but their CHEF strength
             // is integrated strength so must be divided by length for k1.
@@ -1294,6 +1300,7 @@ extract_quad_strengths(Lattice_elements const& correctors,
                                         (*ce_it)->Name() +
                                         " unexpectedly has 0 length");
                 }
+                elem_type = bend_type;
                 scaled_strength /= (*le_it)->get_length();
             }
             if ((*le_it)->get_length() > 0) {
@@ -1303,7 +1310,7 @@ extract_quad_strengths(Lattice_elements const& correctors,
             }
             if (verbosity > 1) {
                 logger << std::setprecision(6);
-                logger << (*le_it)->get_name() << ": " << "quad, l="
+                logger << (*le_it)->get_name() << ": " << elem_type << ", l="
                         << (*le_it)->get_length() << ", ";
                 logger << std::setprecision(12);
                 if ((*le_it)->get_length() > 0.0) {
