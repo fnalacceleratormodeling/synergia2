@@ -1157,48 +1157,6 @@ Lattice_simulator::get_vertical_tune(bool use_eigen_tune)
     return vertical_tune;
 }
 
-void
-write_quad_correctors(Lattice_elements const& horizontal_correctors,
-        Lattice_elements const & vertical_correctors,
-        Chef_lattice & chef_lattice, std::ofstream & file)
-{
-
-    for (Lattice_elements::const_iterator le_it = horizontal_correctors.begin();
-            le_it != horizontal_correctors.end(); ++le_it) {
-        Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*le_it)));
-        for (Chef_elements::iterator ce_it = chef_elements.begin();
-                ce_it != chef_elements.end(); ++ce_it) {
-
-            double k1 = (*ce_it)->Strength() / chef_lattice.get_brho();
-            (*le_it)->set_double_attribute("k1", k1);
-            file << (*le_it)->get_name() << ":  QUADRUPOLE,  L="
-                    << std::setprecision(5)
-                    << (*le_it)->get_double_attribute("l") << ",    K1="
-                    << std::setprecision(11)
-                    << (*le_it)->get_double_attribute("k1") << std::endl;
-
-        }
-    }
-
-    for (Lattice_elements::const_iterator le_it = vertical_correctors.begin();
-            le_it != vertical_correctors.end(); ++le_it) {
-        Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*le_it)));
-        for (Chef_elements::iterator ce_it = chef_elements.begin();
-                ce_it != chef_elements.end(); ++ce_it) {
-
-            double k1 = (*ce_it)->Strength() / chef_lattice.get_brho();
-            (*le_it)->set_double_attribute("k1", k1);
-            file << (*le_it)->get_name() << ":  QUADRUPOLE,  L="
-                    << std::setprecision(5)
-                    << (*le_it)->get_double_attribute("l") << ",    K1="
-                    << std::setprecision(11)
-                    << (*le_it)->get_double_attribute("k1") << std::endl;
-
-        }
-    }
-
-}
-
 // get_AT_corrector_strength and set_AT_corrector_strength are local functions
 // They are needed because correctors could be either regular quadrupoles whose strength is
 // get/set with the Strength()/setStrength() or combined function magnets whose strength is get/set
@@ -1241,6 +1199,77 @@ set_AT_corrector_strength(ElmPtr elmptr, double strength)
     return;
 }
 
+void
+write_quad_correctors(Lattice_elements const& horizontal_correctors,
+        Lattice_elements const & vertical_correctors,
+        Chef_lattice & chef_lattice, std::ofstream & file)
+{
+    const std::string quadrupole_type = "QUADRUPOLE";
+    const std::string sbend_type = "SBEND";
+    const std::string rbend_type = "RBEND";
+
+    for (Lattice_elements::const_iterator le_it = horizontal_correctors.begin();
+            le_it != horizontal_correctors.end(); ++le_it) {
+        Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*le_it)));
+        for (Chef_elements::iterator ce_it = chef_elements.begin();
+                ce_it != chef_elements.end(); ++ce_it) {
+
+            double k1;
+            std::string elem_type;
+            if (boost::dynamic_pointer_cast<quadrupole>(*ce_it)) {
+                k1 = (*ce_it)->Strength() / chef_lattice.get_brho();
+                elem_type = quadrupole_type;
+            } else if (boost::dynamic_pointer_cast<CF_sbend>(*ce_it)) {
+                k1 = boost::dynamic_pointer_cast<CF_sbend>(*ce_it)->getQuadrupole()/
+                        (chef_lattice.get_brho() * (*le_it)->get_length());
+                elem_type = sbend_type;
+            } else if (boost::dynamic_pointer_cast<CF_rbend>(*ce_it)) {
+                k1 = boost::dynamic_pointer_cast<CF_rbend>(*ce_it)->getQuadrupole()/
+                        (chef_lattice.get_brho() * (*le_it)->get_length());
+                elem_type = rbend_type;
+            }
+            (*le_it)->set_double_attribute("k1", k1);
+            file << (*le_it)->get_name() << ":  " << elem_type << ",  L="
+                    << std::setprecision(5)
+                    << (*le_it)->get_double_attribute("l") << ",    K1="
+                    << std::setprecision(11)
+                    << (*le_it)->get_double_attribute("k1") << std::endl;
+
+        }
+    }
+
+    for (Lattice_elements::const_iterator le_it = vertical_correctors.begin();
+            le_it != vertical_correctors.end(); ++le_it) {
+        Chef_elements chef_elements(chef_lattice.get_chef_elements(*(*le_it)));
+        for (Chef_elements::iterator ce_it = chef_elements.begin();
+                ce_it != chef_elements.end(); ++ce_it) {
+
+            double k1;
+            std::string elem_type;
+            if (boost::dynamic_pointer_cast<quadrupole>(*ce_it)) {
+                k1 = (*ce_it)->Strength() / chef_lattice.get_brho();
+                elem_type = quadrupole_type;
+            } else if (boost::dynamic_pointer_cast<CF_sbend>(*ce_it)) {
+                k1 = boost::dynamic_pointer_cast<CF_sbend>(*ce_it)->getQuadrupole()/
+                        (chef_lattice.get_brho() * (*le_it)->get_length());
+                elem_type = sbend_type;
+            } else if (boost::dynamic_pointer_cast<CF_rbend>(*ce_it)) {
+                k1 = boost::dynamic_pointer_cast<CF_rbend>(*ce_it)->getQuadrupole()/
+                        (chef_lattice.get_brho() * (*le_it)->get_length());
+                elem_type = rbend_type;
+            }
+            (*le_it)->set_double_attribute("k1", k1);
+            file << (*le_it)->get_name() << ":  " << elem_type << ",  L="
+                    << std::setprecision(5)
+                    << (*le_it)->get_double_attribute("l") << ",    K1="
+                    << std::setprecision(11)
+                    << (*le_it)->get_double_attribute("k1") << std::endl;
+
+        }
+    }
+
+}
+
 // extract_quad_strengths is a local function
 void
 extract_quad_strengths(Lattice_elements const& correctors,
@@ -1264,8 +1293,8 @@ extract_quad_strengths(Lattice_elements const& correctors,
                                         " corresponding to CHEF element " +
                                         (*ce_it)->Name() +
                                         " unexpectedly has 0 length");
-                    scaled_strength /= (*le_it)->get_length();
                 }
+                scaled_strength /= (*le_it)->get_length();
             }
             if ((*le_it)->get_length() > 0) {
                 (*le_it)->set_double_attribute("k1", scaled_strength);
@@ -1460,6 +1489,13 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
         Lattice_elements const& vertical_correctors, double tolerance,
         int verbosity)
 {
+    if (horizontal_correctors.size() == 0) {
+        throw std::runtime_error("no horizontal correctors found");
+    }
+    if (vertical_correctors.size() == 0) {
+        throw std::runtime_error("no vertical correctors found");
+    }
+
     Logger logger(0);
     get_beamline_context();
 
