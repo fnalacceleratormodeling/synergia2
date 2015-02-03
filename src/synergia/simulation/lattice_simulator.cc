@@ -1193,7 +1193,7 @@ set_AT_corrector_strength(ElmPtr elmptr, double strength)
     } else if (boost::dynamic_pointer_cast<CF_rbend>(elmptr)) {
         boost::dynamic_pointer_cast<CF_rbend>(elmptr)->setQuadrupole(strength);
     } else {
-        throw std::runtime_error("Bad element type passed to get_AT_corrector_strength: " +
+        throw std::runtime_error("Bad element type passed to set_AT_corrector_strength: " +
                                  std::string(elmptr->Type()));
     }
     return;
@@ -1293,7 +1293,7 @@ extract_quad_strengths(Lattice_elements const& correctors,
             // is integrated strength so must be divided by length for k1.
             if (boost::dynamic_pointer_cast<CF_sbend>(*ce_it) ||
                 boost::dynamic_pointer_cast<CF_rbend>(*ce_it)) {
-                // this is a CF magnet, and its length better by > 0
+                // this is a CF magnet, and its length better be > 0
                 if ((*le_it)->get_length() == 0.0) {
                     throw runtime_error("CF magnet " + (*le_it)->get_name() +
                                         " corresponding to CHEF element " +
