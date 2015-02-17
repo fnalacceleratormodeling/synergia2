@@ -134,6 +134,7 @@ Sbend_madx_adaptor::Sbend_madx_adaptor()
     get_default_element().set_double_attribute("k2", 0.0);
     get_default_element().set_double_attribute("h1", 0.0);
     get_default_element().set_double_attribute("h2", 0.0);
+    get_default_element().set_double_attribute("kicks", 40.0);
     // possible higher order multipole components
     get_default_element().set_double_attribute("kl", 0.0); // base strength/B-rho
     get_default_element().set_double_attribute("a1", 0.0); // skew quad
@@ -165,6 +166,7 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double k1 = lattice_element.get_double_attribute("k1");
     double k2 = lattice_element.get_double_attribute("k2");
     double tilt = lattice_element.get_double_attribute("tilt");
+    int kicks = floor(lattice_element.get_double_attribute("kicks"));
 
     bool simple = ((k1 == 0.0) && (k2 == 0.0));
 
@@ -220,6 +222,7 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     		elm = ElmPtr(
     				new sbend(lattice_element.get_name().c_str(), length,
     						brho * angle / length, angle, e1, e2));
+                boost::dynamic_pointer_cast<CF_sbend>(elm)->setNumberOfKicks(kicks);
     	}
         elm->setTag("SBEND");
         if (tilt != 0.0) elm->setAlignment(aligner);
@@ -233,6 +236,8 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
             ElmPtr sbptr1;
             ElmPtr sbptr2;
             elm->Split(0.5, sbptr1, sbptr2);
+            boost::dynamic_pointer_cast<CF_sbend>(sbptr1)->setNumberOfKicks(kicks);
+            boost::dynamic_pointer_cast<CF_sbend>(sbptr2)->setNumberOfKicks(kicks);
 
             std::vector < std::complex<double > > c_moments;
             for (int k = 0; k <= highest_order; ++k) {
