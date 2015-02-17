@@ -164,3 +164,57 @@ Chef_propagate_operation::~Chef_propagate_operation()
 {
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Chef_propagate_operation);
+
+LibFF_operation::LibFF_operation(
+        Lattice_element_slices const& lattice_element_slices) :
+            Independent_operation(libFF_type_name),
+            lattice_element_slices(lattice_element_slices)
+{
+}
+
+LibFF_operation::LibFF_operation()
+{
+}
+
+void
+LibFF_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
+{
+    double t = simple_timer_current();
+    bunch.convert_to_state(Bunch::fixed_z_lab);
+    t = simple_timer_show(t, "LibFF_operation_apply-convert_to_state");
+    // jfa doit!!!!!
+    t = simple_timer_show(t, "LibFF_operation_apply-chef_propagator_apply");
+}
+
+template<class Archive>
+    void
+    LibFF_operation::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Independent_operation);
+        ar & BOOST_SERIALIZATION_NVP(lattice_element_slices);
+    }
+
+template
+void
+LibFF_operation::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+LibFF_operation::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+LibFF_operation::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+LibFF_operation::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+LibFF_operation::~LibFF_operation()
+{
+}
+BOOST_CLASS_EXPORT_IMPLEMENT(LibFF_operation);
