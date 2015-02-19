@@ -10962,7 +10962,7 @@
 												<item_version>0</item_version>
 											</ancestors>
 											<double_attributes>
-												<count>27</count>
+												<count>28</count>
 												<item_version>0</item_version>
 												<item>
 													<first>a1</first>
@@ -11061,6 +11061,10 @@
 													<second>0</second>
 												</item>
 												<item>
+													<first>kicks</first>
+													<second>40</second>
+												</item>
+												<item>
 													<first>kl</first>
 													<second>0</second>
 												</item>
@@ -11083,7 +11087,7 @@
 											</vector_attributes>
 											<length_attribute_name>l</length_attribute_name>
 											<bend_angle_attribute_name>angle</bend_angle_attribute_name>
-											<revision>27</revision>
+											<revision>28</revision>
 											<needs_internal_derive>0</needs_internal_derive>
 											<needs_external_derive>0</needs_external_derive>
 										</px>

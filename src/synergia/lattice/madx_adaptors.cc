@@ -222,7 +222,6 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     		elm = ElmPtr(
     				new sbend(lattice_element.get_name().c_str(), length,
     						brho * angle / length, angle, e1, e2));
-                boost::dynamic_pointer_cast<CF_sbend>(elm)->setNumberOfKicks(kicks);
     	}
         elm->setTag("SBEND");
         if (tilt != 0.0) elm->setAlignment(aligner);
@@ -236,9 +235,6 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
             ElmPtr sbptr1;
             ElmPtr sbptr2;
             elm->Split(0.5, sbptr1, sbptr2);
-            boost::dynamic_pointer_cast<CF_sbend>(sbptr1)->setNumberOfKicks(kicks);
-            boost::dynamic_pointer_cast<CF_sbend>(sbptr2)->setNumberOfKicks(kicks);
-
             std::vector < std::complex<double > > c_moments;
             for (int k = 0; k <= highest_order; ++k) {
                 c_moments.push_back(std::complex<double >(bk[k], ak[k]));
@@ -258,6 +254,10 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         // combined function element
         CF_sbend* elm = new CF_sbend(lattice_element.get_name().c_str(),
                 length, brho * angle / length, angle, e1, e2);
+        // Does the CHEF default number of kicks match the Synergia default number of kicks?
+        if (elm->numberOfKicks() != kicks) {
+            elm->setNumberOfKicks(kicks);
+        }
         if (tilt != 0.0) elm->setAlignment(aligner);
         double multipoleStrength = k1 * brho * length;
         if (multipoleStrength != 0.0) {
