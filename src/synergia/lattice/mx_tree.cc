@@ -315,6 +315,20 @@ void mx_command::interpret(MadX & mx)
        ; it != attrs_.end(); ++it )
     {
       mx_attr attr = *it;
+
+      if ( mx.building_sequence() && attr.name() == "from" )
+      {
+        mx_expr ex(any_cast<mx_expr>(attr.value()));
+        ex = get<nop_t>(get<nop_t>(get<nop_t>(ex).expr).expr).expr;
+
+        if (ex.which() != 1)  // name (string = 1)
+          throw runtime_error("invalid value used for attribute 'from' in command " + keyword_);
+
+        // rewrite the attribute to 'from = label->at'
+        mx_expr expr(make_pair(get<string>(ex), "at"));
+        attr.set_attr(attr.name(), expr);
+      }
+
       insert_attr(cmd, attr, mx);
     }
 
