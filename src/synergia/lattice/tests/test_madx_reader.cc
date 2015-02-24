@@ -21,6 +21,22 @@ get_fodo()
 }
 
 std::string
+get_fodo_with_from()
+{
+    std::string fodo("lq=1.0;\n");
+    fodo += "ld=2.0;\n";
+    fodo += "f: quadrupole, l=lq;\n";
+    fodo += "d: quadrupole, l=lq;\n";
+    fodo += "fodo: sequence, l=2*lq+2*ld;\n";
+    fodo += "m: marker, at=1.0;\n";
+    fodo += "f1: f, at=1;\n";
+    fodo += "d1: d, at=3, from=m;\n";
+    fodo += "endmark, at=2*lq+2*ld;\n";
+    fodo += "endsequence;\n";
+    return fodo;
+}
+
+std::string
 get_fodo_bodo()
 {
     std::string fodo_bodo(get_fodo());
@@ -107,6 +123,23 @@ BOOST_AUTO_TEST_CASE(get_lattice_sptr)
     madx_reader.parse(get_fodo());
     Lattice_sptr lattice_sptr(madx_reader.get_lattice_sptr("fodo"));
 //    lattice_sptr->print();
+}
+
+BOOST_AUTO_TEST_CASE(get_lattice_sptr2)
+{
+    MadX_reader madx_reader;
+    madx_reader.parse(get_fodo_with_from());
+    Lattice_sptr lattice_sptr(madx_reader.get_lattice_sptr("fodo"));
+//    lattice_sptr->print();
+
+    std::list<Lattice_element_sptr>::const_iterator it = 
+        lattice_sptr->get_elements().begin();
+
+    std::advance(it, 3);
+    Lattice_element element(**(it));
+
+    const double tolerance = 1.0e-10;
+    BOOST_CHECK_CLOSE(element.get_double_attribute("l"), 2.0, tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(get_lattice_sptr3)
