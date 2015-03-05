@@ -70,12 +70,9 @@ namespace
 
     for (int i = 0; i < sequence.element_count(); ++i) {
 
-      double at = sequence.element(i, false).attribute_as_number("at");
-      double from = sequence.element(i, false).attribute_as_number("from", 0.0);
-      std::string name(sequence.element(i, false).label());
-      if (name == "") {
-        name = sequence.element(i, true).label();
-      }
+      double at = sequence.element_at(i);
+      double from = sequence.element_from(i);
+      std::string name(sequence.element(i).label());
  
       if( sequence.element_type(i)==ENTRY_SEQUENCE )
       {
@@ -85,7 +82,7 @@ namespace
         continue;
       }
 
-      MadX_command cmd = sequence.element(i, true);
+      MadX_command cmd = sequence.element(i);
       std::string type(cmd.name());
       Lattice_element element(type, name);
       std::vector<string_t > attribute_names( cmd.attribute_names() );

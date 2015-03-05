@@ -441,7 +441,6 @@ struct synergia::madx_tree_parser
            ("ecollimator", mx_keyword("ecollimator", MX_KW_ELEMENT) )
            ("yrotation"  , mx_keyword("yrotation"  , MX_KW_ELEMENT) )
            ("srotation"  , mx_keyword("srotation"  , MX_KW_ELEMENT) )
-           ("beam"       , mx_keyword("beam"       , MX_KW_ELEMENT) )
            ("beambeam"   , mx_keyword("beambeam"   , MX_KW_ELEMENT) )
            ("matrix"     , mx_keyword("matrix"     , MX_KW_ELEMENT) )
            ("marker"     , mx_keyword("marker"     , MX_KW_ELEMENT) )
@@ -459,6 +458,7 @@ struct synergia::madx_tree_parser
       this->add
            // general
            ("assign"   , mx_keyword("assign"   , MX_KW_COMMAND) )
+           ("beam"     , mx_keyword("beam"     , MX_KW_COMMAND) )
            ("call"     , mx_keyword("call"     , MX_KW_COMMAND) )
            ("coguess"  , mx_keyword("coguess"  , MX_KW_COMMAND) )
            ("create"   , mx_keyword("create"   , MX_KW_COMMAND) )
