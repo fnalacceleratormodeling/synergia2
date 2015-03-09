@@ -1,0 +1,16 @@
+add_library(synergia_libFF
+    ff_element.cc)
+target_link_libraries(synergia_libFF
+   synergia_bunch synergia_serialization)
+
+#if (BUILD_PYTHON_BINDINGS)
+#    add_python_extension(foundation foundation_wrap.cc)
+#    target_link_libraries(foundation synergia_foundation ${Boost_LIBRARIES})
+#endif ()
+
+install(TARGETS synergia_libFF DESTINATION lib)
+install(FILES
+    ff_element.h
+    DESTINATION include/synergia/libFF)
+
+add_subdirectory(tests)
