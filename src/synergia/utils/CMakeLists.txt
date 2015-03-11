@@ -52,6 +52,7 @@ install(FILES
     hdf5_serial_writer.tcc
     hdf5_writer.h
     hdf5_writer.tcc
+    invsqrt.h
     complex_error_function.h
     multi_array_assert.h
     multi_array_check_equal.h
