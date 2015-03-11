@@ -416,7 +416,7 @@ Bunch::get_particle_charge() const
 double
 Bunch::get_mass() const
 {
-    return reference_particle.get_four_momentum().get_mass();
+    return reference_particle.get_mass();
 }
 
 
@@ -503,8 +503,8 @@ Bunch::inject(Bunch const& bunch)
         throw std::runtime_error(
                 "Bunch.inject: bunch particle charges do not match.");
     }
-    if (std::abs(reference_particle.get_four_momentum().get_mass()/
-                 bunch.get_reference_particle().get_four_momentum().get_mass() - 1.0) > particle_tolerance) {
+    if (std::abs(reference_particle.get_mass()/
+                 bunch.get_reference_particle().get_mass() - 1.0) > particle_tolerance) {
         throw std::runtime_error(
                 "Bunch:inject: bunch particle masses do not match.");
     }

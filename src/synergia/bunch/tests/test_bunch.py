@@ -82,7 +82,7 @@ def test_get_local_particles():
 def test_get_mass():
     b = Bunch(reference_particle, total_num, real_num,
               Commxx())
-    assert_equal(reference_particle.get_four_momentum().get_mass(),
+    assert_equal(reference_particle.get_mass(),
                  b.get_mass())
 
 def test_get_state():
