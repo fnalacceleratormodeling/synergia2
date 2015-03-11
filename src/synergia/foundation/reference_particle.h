@@ -78,6 +78,10 @@ public:
     int
     get_charge() const;
 
+    /// Return the Reference_particle mass in units of GeV/c
+    double
+    get_mass() const;
+
     /// Get the four momentum in the lab frame.
     Four_momentum const &
     get_four_momentum() const;
