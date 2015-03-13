@@ -10,8 +10,9 @@ private:
 public:
     FF_drift();
     template <typename T>
-    inline static void drift_unit(T & x, T & y, T & cdt,
-                                  T const& xp, T const& yp, T const& dpop,
+    inline static void drift_unit(T & x, T const& xp,
+                                  T & y, T const& yp,
+                                  T & z, T const& dpop,
                                   double length, double reference_momentum,
                                   double m, double reference_cdt);
     virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle);
@@ -24,8 +25,9 @@ public:
 #include "synergia/utils/invsqrt.h"
 
 template <typename T>
-void FF_drift::drift_unit(T & x, T & y, T & cdt,
-                          T const& xp, T const& yp, T const& dpop,
+void FF_drift::drift_unit(T & x, T const& xp,
+                          T & y, T const& yp,
+                          T & cdt, T const& dpop,
                           double length, double reference_momentum,
                           double m, double reference_cdt) {
     T inv_npz = invsqrt((dpop + 1.0) * (dpop + 1.0) - xp * xp - yp * yp);

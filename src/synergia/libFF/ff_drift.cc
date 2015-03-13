@@ -18,7 +18,7 @@ double FF_drift::get_reference_cdt(double length,
     double m = reference_particle.get_mass();
 
     double cdt_orig = cdt;
-    drift_unit(x, y, cdt, xp, yp, dpop, length, reference_momentum, m, 0.0);
+    drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m, 0.0);
 
     return cdt - cdt_orig;
 }
@@ -47,7 +47,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
                 chef_particle_to_reference_particle(chef_particle));
     double reference_cdt = get_reference_cdt(length, reference_particle);
 
-    drift_unit(x, y, cdt, xp, yp, dpop, length, reference_momentum, m,
+    drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
                reference_cdt);
 }
 
