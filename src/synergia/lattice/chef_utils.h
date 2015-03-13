@@ -79,4 +79,14 @@ get_synergia_index(int chef_index)
   const int synergia_index[] = {0, 2, 4, 1, 3, 5};
   return synergia_index[chef_index];
 }
+
+struct Chef
+{
+    static const int x = 0;
+    static const int xp = 3;
+    static const int y = 1;
+    static const int yp = 4;
+    static const int cdt = 2;
+    static const int dpop = 5;
+};
 #endif /* CHEF_UTILS_H_ */

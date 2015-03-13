@@ -1,16 +1,6 @@
 #include "ff_drift.h"
 #include "synergia/lattice/chef_utils.h"
 
-struct Chef
-{
-    static const int x = 0;
-    static const int xp = 3;
-    static const int y = 1;
-    static const int yp = 4;
-    static const int cdt = 2;
-    static const int dpop = 5;
-};
-
 FF_drift::FF_drift()
 {
 }
