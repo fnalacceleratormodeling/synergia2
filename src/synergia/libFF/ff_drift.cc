@@ -32,12 +32,12 @@ void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
 
     State_t& state = jet_particle.State();
 
-    Component_t x(state[Chef::x]);
-    Component_t xp(state[Chef::xp]);
-    Component_t y(state[Chef::y]);
-    Component_t yp(state[Chef::yp]);
-    Component_t cdt(state[Chef::cdt]);
-    Component_t dpop(state[Chef::dpop]);
+    Component_t & x(state[Chef::x]);
+    Component_t & xp(state[Chef::xp]);
+    Component_t & y(state[Chef::y]);
+    Component_t & yp(state[Chef::yp]);
+    Component_t & cdt(state[Chef::cdt]);
+    Component_t & dpop(state[Chef::dpop]);
 
     double reference_momentum = jet_particle.ReferenceMomentum();
     double m = jet_particle.Mass();
