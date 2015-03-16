@@ -30,6 +30,8 @@ public:
     virtual ~FF_quadrupole();
 };
 
+typedef boost::shared_ptr<FF_quadrupole > FF_quadrupole_sptr;
+
 template <typename T>
 inline void FF_quadrupole::thin_quadrupole_unit(T const& x, T& xp,
                                                 T const& y, T& yp, double kL) {
