@@ -13,9 +13,9 @@ private:
 
 public:
     FF_element_map();
-    bool has_adaptor(std::string const& type) const;
-    void set_adaptor(std::string const& type, FF_element_sptr element_sptr);
-    FF_element_sptr get_adaptor(std::string const& type) const;
+    bool has_element_type(std::string const& type) const;
+    void set_element_type(std::string const& type, FF_element_sptr element_sptr);
+    FF_element_sptr get_element_type(std::string const& type) const;
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);

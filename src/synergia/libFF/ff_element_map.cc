@@ -5,18 +5,18 @@ FF_element_map::FF_element_map()
 
 }
 
-bool FF_element_map::has_adaptor(std::string const& type) const
+bool FF_element_map::has_element_type(std::string const& type) const
 {
     return (element_map.count(type) > 0);
 }
 
-void FF_element_map::set_adaptor(std::string const& type,
+void FF_element_map::set_element_type(std::string const& type,
                              FF_element_sptr element_sptr)
 {
     element_map[type] = element_sptr;
 }
 
-FF_element_sptr FF_element_map::get_adaptor(std::string const& type) const
+FF_element_sptr FF_element_map::get_element_type(std::string const& type) const
 {
     std::map<std::string, FF_element_sptr >::const_iterator iter =
             element_map.find(type);
@@ -62,6 +62,6 @@ BOOST_CLASS_EXPORT_IMPLEMENT(FF_element_map)
 FF_element_map the_big_giant_global_ff_element_map;
 void construct_big_giant_global_ff_element_map()
 {
-    the_big_giant_global_ff_element_map.set_adaptor("drift", FF_drift_sptr(new FF_drift()));
-    the_big_giant_global_ff_element_map.set_adaptor("quad", FF_quadrupole_sptr(new FF_quadrupole()));
+    the_big_giant_global_ff_element_map.set_element_type("drift", FF_drift_sptr(new FF_drift()));
+    the_big_giant_global_ff_element_map.set_element_type("quad", FF_quadrupole_sptr(new FF_quadrupole()));
 }
