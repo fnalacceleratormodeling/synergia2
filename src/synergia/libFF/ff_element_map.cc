@@ -20,6 +20,9 @@ FF_element_sptr FF_element_map::get_element_type(std::string const& type) const
 {
     std::map<std::string, FF_element_sptr >::const_iterator iter =
             element_map.find(type);
+    if (iter == element_map.end()) {
+        throw std::runtime_error("FF_element_map::get_element_type: type '" + type + "' not found");
+    }
     return iter->second;
 }
 
@@ -63,5 +66,5 @@ FF_element_map the_big_giant_global_ff_element_map;
 void construct_big_giant_global_ff_element_map()
 {
     the_big_giant_global_ff_element_map.set_element_type("drift", FF_drift_sptr(new FF_drift()));
-    the_big_giant_global_ff_element_map.set_element_type("quad", FF_quadrupole_sptr(new FF_quadrupole()));
+    the_big_giant_global_ff_element_map.set_element_type("quadrupole", FF_quadrupole_sptr(new FF_quadrupole()));
 }
