@@ -91,7 +91,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
              double y(particles[part][Bunch::y]);
              double yp(particles[part][Bunch::yp]);
 
-             thin_quadrupole_unit(x, xp, y, yp, k*length);
+             thin_quadrupole_unit(x, xp, y, yp, k);
 
              particles[part][Bunch::xp] = xp;
              particles[part][Bunch::yp] = yp;
