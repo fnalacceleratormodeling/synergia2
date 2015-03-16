@@ -69,7 +69,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
          double cdt(particles[part][Bunch::cdt]);
          double dpop(particles[part][Bunch::dpop]);
 
-         drift_unit(x, y, cdt, xp, yp, dpop, length, reference_momentum, m,
+         drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
                     reference_cdt);
 
          particles[part][Bunch::x] = x;
