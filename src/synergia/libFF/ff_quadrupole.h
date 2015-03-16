@@ -50,12 +50,12 @@ inline void FF_quadrupole::thick_quadrupole_unit(T & x, T & xp,
 {
     // see yoshida4.py for formulas
     const double c1 = 0.675603595979828817023843904487;
+    const double c4 = c1;
     const double c2 = -0.175603595979828817023843904487;
     const double c3 = c2;
-    const double c4 = c1;
     const double d1 = 1.35120719195965763404768780897;
-    const double d2 = 1.35120719195965763404768780897;
     const double d3 = d1;
+    const double d2 = -1.70241438391931526809537561795;
 
     for(int i = 0; i < steps; ++i) {
         FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
