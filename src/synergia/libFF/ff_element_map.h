@@ -4,7 +4,7 @@
 #include <map>
 #include <string>
 
-#include "synergia/libff/ff_element.h"
+#include "synergia/libFF/ff_element.h"
 
 class FF_element_map
 {

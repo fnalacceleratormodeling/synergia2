@@ -1,5 +1,5 @@
 #include "independent_operation.h"
-#include "synergia/libff/ff_element_map.h"
+#include "synergia/libFF/ff_element_map.h"
 #include "synergia/utils/simple_timer.h"
 
 Independent_operation::Independent_operation(std::string const& type) :
