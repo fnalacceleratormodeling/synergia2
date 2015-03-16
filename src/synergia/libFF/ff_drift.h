@@ -22,6 +22,8 @@ public:
     virtual ~FF_drift();
 };
 
+typedef boost::shared_ptr<FF_drift > FF_drift_sptr;
+
 #include "synergia/utils/invsqrt.h"
 
 template <typename T>
