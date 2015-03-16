@@ -22,4 +22,6 @@ public:
     ~FF_element_map();
 };
 
+void construct_big_giant_global_ff_element_map();
+extern FF_element_map the_big_giant_global_ff_element_map;
 #endif // FF_ELEMENT_MAP_H

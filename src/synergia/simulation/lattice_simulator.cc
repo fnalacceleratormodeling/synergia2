@@ -5,6 +5,7 @@
 #include "synergia/foundation/math_constants.h"
 #include "synergia/utils/digits.h"
 #include "synergia/lattice/chef_utils.h"
+#include "synergia/libFF/ff_element_map.h"
 
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic push
@@ -492,6 +493,7 @@ Lattice_simulator::Lattice_simulator(Lattice_sptr lattice_sptr, int map_order) :
 {
     construct_extractor_map();
     construct_aperture_extractor_map();
+    construct_big_giant_global_ff_element_map();
     set_bucket_length();
 }
 
@@ -2116,6 +2118,7 @@ template<class Archive>
             calculate_beamline_context();
         }
         normal_form_sage_sptr.reset();
+        construct_big_giant_global_ff_element_map();
     }
 
 template

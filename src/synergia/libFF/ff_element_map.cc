@@ -54,3 +54,14 @@ FF_element_map::~FF_element_map()
 {
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(FF_element_map)
+
+// jfa "the_big_giant_global_ff_element_map" is a temporary workaround for the
+// problem of making the FF_element_map available to FF_propagate_operation.
+#include "ff_drift.h"
+#include "ff_quadrupole.h"
+FF_element_map the_big_giant_global_ff_element_map;
+void construct_big_giant_global_ff_element_map()
+{
+    the_big_giant_global_ff_element_map.set_adaptor("drift", FF_drift_sptr(new FF_drift()));
+    the_big_giant_global_ff_element_map.set_adaptor("quad", FF_quadrupole_sptr(new FF_quadrupole()));
+}
