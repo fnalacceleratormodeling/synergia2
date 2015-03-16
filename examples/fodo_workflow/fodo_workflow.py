@@ -14,6 +14,12 @@ from fodo_workflow_options import opts
 #     Read the lattice named "fodo" from the Mad8 file "fodo.lat"
 lattice = synergia.lattice.Mad8_reader().get_lattice("fodo", "fodo.lat")
 
+if opts.libff:
+    extractor_type = "libff"
+else:
+    extractor_type = "chef_propagate"
+for element in lattice.get_elements():
+    element.set_string_attribute("extractor_type", extractor_type)
 
 # Define a set of simulation steps
 stepper = Independent_stepper_elements(lattice, opts.map_order, 
