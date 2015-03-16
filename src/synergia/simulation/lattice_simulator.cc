@@ -339,6 +339,10 @@ Lattice_simulator::construct_extractor_map()
             Operation_extractor_sptr(
                     new Chef_map_operation_extractor(chef_lattice_sptr,
                             map_order)));
+    extractor_map_sptr->set_extractor(libff_operation_extractor_name,
+                                      Operation_extractor_sptr(
+                                          new LibFF_operation_extractor(chef_lattice_sptr,
+                                                                        map_order)));
 }
 
 void

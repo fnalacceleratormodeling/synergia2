@@ -52,6 +52,7 @@ BOOST_FIXTURE_TEST_CASE(get_operation_extractor_map_sptr, Lattice_fixture)
     expected_names.push_back(chef_mixed_operation_extractor_name);
     expected_names.push_back(chef_map_operation_extractor_name);
     expected_names.push_back(chef_propagate_operation_extractor_name);
+    expected_names.push_back(libff_operation_extractor_name);
 
     BOOST_CHECK_EQUAL(names.size(), expected_names.size());
     names.sort();
