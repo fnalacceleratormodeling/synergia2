@@ -1,4 +1,5 @@
 #include "independent_operation.h"
+#include "synergia/libff/ff_element_map.h"
 #include "synergia/utils/simple_timer.h"
 
 Independent_operation::Independent_operation(std::string const& type) :
@@ -182,8 +183,12 @@ LibFF_operation::apply(Bunch & bunch, int verbosity, Logger & logger)
     double t = simple_timer_current();
     bunch.convert_to_state(Bunch::fixed_z_lab);
     t = simple_timer_show(t, "LibFF_operation_apply-convert_to_state");
-    // jfa doit!!!!!
-    t = simple_timer_show(t, "LibFF_operation_apply-chef_propagator_apply");
+    for(Lattice_element_slices::iterator it = lattice_element_slices.begin();
+        it != lattice_element_slices.end(); ++it) {
+        std::string const& type((*it)->get_lattice_element().get_type());
+        the_big_giant_global_ff_element_map.get_element_type(type)->apply(**it, bunch);
+    }
+    t = simple_timer_show(t, "LibFF_operation_apply-element_apply");
 }
 
 template<class Archive>
