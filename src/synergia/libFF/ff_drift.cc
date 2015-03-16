@@ -76,6 +76,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
          particles[part][Bunch::y] = y;
          particles[part][Bunch::cdt] = cdt;
     }
+    bunch.get_reference_particle().increment_trajectory(length);
 }
 
 template<class Archive>

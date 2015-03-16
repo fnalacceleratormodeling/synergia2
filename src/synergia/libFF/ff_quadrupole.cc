@@ -124,6 +124,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
              particles[part][Bunch::yp] = yp;
              particles[part][Bunch::cdt] = cdt;
         }
+        bunch.get_reference_particle().increment_trajectory(length);
     }
 }
 
