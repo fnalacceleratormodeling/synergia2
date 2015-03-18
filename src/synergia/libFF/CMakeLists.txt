@@ -2,6 +2,7 @@ add_library(synergia_libFF
     ff_element.cc
     ff_drift.cc
     ff_quadrupole.cc
+    ff_sbend.cc
     ff_element_map.cc)
 target_link_libraries(synergia_libFF
    synergia_bunch synergia_lattice synergia_serialization)
