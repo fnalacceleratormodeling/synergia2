@@ -255,7 +255,6 @@ try:
     for elem in d_quads:
         elem.set_double_attribute("k1", kq)
 
-
     reference_particle = lattice.get_reference_particle()
     energy = reference_particle.get_total_energy()
     beta = reference_particle.get_beta()
@@ -326,6 +325,8 @@ try:
                 elem.set_string_attribute("extractor_type", "chef_map")
             else:
                 elem.set_string_attribute("extractor_type", "chef_propagate")
+        elif opts.use_maps == "libff":
+            elem.set_string_attribute("extractor_type", "libff")
         else:
             raise RuntimeError, "bad options for use_maps: %d"%opts.use_maps
 
