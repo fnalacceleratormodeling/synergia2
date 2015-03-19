@@ -64,12 +64,14 @@ BOOST_CLASS_EXPORT_IMPLEMENT(FF_element_map)
 #include "ff_sbend.h"
 #include "ff_multipole.h"
 #include "ff_quadrupole.h"
+#include "ff_rfcavity.h"
 FF_element_map the_big_giant_global_ff_element_map;
 void construct_big_giant_global_ff_element_map()
 {
     the_big_giant_global_ff_element_map.set_element_type("drift", FF_drift_sptr(new FF_drift()));
     the_big_giant_global_ff_element_map.set_element_type("sbend", FF_sbend_sptr(new FF_sbend()));
-    the_big_giant_global_ff_element_map.set_element_type("rfcavity", FF_drift_sptr(new FF_drift()));
+    the_big_giant_global_ff_element_map.set_element_type("rfcavity", 
+            FF_rfcavity_sptr(new FF_rfcavity()));
     the_big_giant_global_ff_element_map.set_element_type("multipole", 
             FF_multipole_sptr(new FF_multipole()));
     the_big_giant_global_ff_element_map.set_element_type("quadrupole", 

@@ -4,6 +4,7 @@ add_library(synergia_libFF
     ff_sbend.cc
     ff_multipole.cc
     ff_quadrupole.cc
+    ff_rfcavity.cc
     ff_element_map.cc)
 target_link_libraries(synergia_libFF
    synergia_bunch synergia_lattice synergia_serialization)
