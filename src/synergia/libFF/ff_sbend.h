@@ -2,6 +2,7 @@
 #define FF_SBEND_H
 
 #include "ff_element.h"
+#include "synergia/utils/invsqrt.h"
 
 class FF_sbend : public FF_element
 {
@@ -19,9 +20,25 @@ public:
                                   double m, 
                                   double reference_brho );
 
+    template <typename T>
+    inline static void sbend_unit2(T & x, T & xp,
+                                   T & y, T & yp,
+                                   T & cdt, T const& dpop,
+                                   double length, 
+                                   double angle, 
+                                   double strength, 
+                                   double reference_momentum,
+                                   double m, 
+                                   double reference_cdt,
+                                   std::complex<double> phase,
+                                   std::complex<double> term
+                                   );
+
     virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle);
     virtual void apply(Lattice_element_slice const& slice, Bunch & bunch);
 
+    double get_reference_cdt(double length, double angle, double strength,
+                                   Reference_particle &reference_particle);
     template<class Archive>
         void serialize(Archive & ar, const unsigned int version);
     virtual ~FF_sbend();
@@ -66,6 +83,62 @@ inline void FF_sbend::sbend_unit(T & x, T & xp,
     y = m14 * yp;
     cdt = m20 * x_ + m23 * xp + m25 * dpop;
     xp  = m30 * x_ + m33 * xp + m35 * dpop;
+}
+
+template <typename T>
+inline void FF_sbend::sbend_unit2(T & x, T & xp,
+                                 T & y, T & yp,
+                                 T & cdt, T const& dpop,
+                                 double length, 
+                                 double angle, 
+                                 double strength, 
+                                 double reference_momentum,
+                                 double m, 
+                                 double reference_cdt,
+                                 std::complex<double> phase,
+                                 std::complex<double> term
+                                 )
+{
+    typedef std::complex<T> CT;
+
+    T p = reference_momentum * (dpop + 1.0);
+    T E = sqrt(p * p + m * m);
+
+    T igamma = m / E;
+    T ibeta  = invsqrt(1.0 - igamma * igamma);
+
+    T csq = PH_MKS_c * PH_MKS_c * 1e-9;
+    T psq = (dpop + 1.0) * (dpop + 1.0);
+
+    T Ef = invsqrt(psq + igamma * igamma * ibeta * ibeta);
+
+    T beta1 = Ef * xp;
+    T beta2 = Ef * yp;
+    T beta3 = Ef * sqrt( (dpop + 1.0) * (dpop + 1.0) - xp * xp - yp * yp );
+
+    CT ui  = CT(0.0, x);
+    CT vui = CT(PH_MKS_c * beta3, PH_MKS_c * beta1);
+
+    T iomega = E / (csq * strength);
+
+    CT bi = CT(0.0, 1.0) * vui * iomega - ui;
+    CT bf = bi * phase + term;
+
+    T rho = PH_MKS_c * sqrt( beta1 * beta1 + beta3 * beta3 ) * iomega;
+
+    T dthmphi = asin(bi.real() / rho) - asin(bf.real() / rho);
+
+    CT expf = std::exp( CT(0.0, dthmphi) );
+    CT vuf  = vui * expf;
+    CT uf   = (ui + bi) * expf - bf;
+
+    T dtheta = dthmphi - angle;
+    T ncdt = - PH_MKS_c * dtheta * iomega;
+
+    x    = uf.imag();
+    y   += beta2 * ncdt;
+    cdt += ncdt - reference_cdt;
+    xp   = vuf.imag() / (Ef * PH_MKS_c);
 }
 
 #endif // FF_SBEND_H
