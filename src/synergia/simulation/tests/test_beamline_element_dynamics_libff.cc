@@ -30,8 +30,7 @@ BOOST_AUTO_TEST_CASE(drift_propagation)
     const double pc = 2.784435311;
     const double drift_length = 1.0;
     const double real_particles = 1.0e9;
-    const int map_order = 1;    // not really used for anything
-    const int steps = 1;        // propagate one total step for test
+    const int map_order = 1;    // not really used for step for test
 
     const double x_offset = 0.1;
     const double dpp_offset = 0.04;
@@ -41,8 +40,8 @@ BOOST_AUTO_TEST_CASE(drift_propagation)
 
     Lattice_element my_drift("drift", "my_drift");
     my_drift.set_double_attribute("l", drift_length);
-    // my_drift.set_string_attribute("extractor_type", "libff");
-    my_drift.set_string_attribute("extractor_type", "chef_foo");
+    my_drift.set_string_attribute("extractor_type", "libff");
+    // my_drift.set_string_attribute("extractor_type", "chef_propagate");
     lattice_sptr->append(my_drift);
 #if 1
     std::cout << "this is my lattice" << std::endl;
@@ -58,67 +57,76 @@ BOOST_AUTO_TEST_CASE(drift_propagation)
     std::cout << "before commxx" << std::endl;
     Commxx_sptr commxx(new Commxx());
     std::cout << "after ocmmxx" << std::endl;
-    // 3 particles in the test
-    Bunch_sptr bunch_sptr(new Bunch(reference_particle, 3, real_particles, commxx));
+    // 3 particles in the test + reference
+    Bunch_sptr bunch_sptr(new Bunch(reference_particle, 4, real_particles, commxx));
     Bunch_simulator bunch_simulator(bunch_sptr);
 
     MArray2d_ref local_particles(bunch_sptr->get_local_particles());
 
-    Independent_stepper_sptr stepper_sptr(new Independent_stepper(lattice_sptr, map_order, steps));
+    Independent_stepper_sptr stepper_sptr(new Independent_stepper(lattice_sptr, map_order, 1));
     Propagator propagator(stepper_sptr);
 
-    // first particle at 0
-    // test straight drift central particle
-    local_particles[0][Bunch::x] = 0.0;
-    local_particles[0][Bunch::xp] = 0.0;
-    local_particles[0][Bunch::y] = 0.0;
-    local_particles[0][Bunch::yp] = 0.0;
-    local_particles[0][Bunch::cdt] = 0.0;
-    local_particles[0][Bunch::dpop] = 0.0;
+    // reference particle at 0
+    MArray1d ref_state(reference_particle.get_state());
+    for (int i=0; i<6; ++i) {
+        local_particles[0][i] = ref_state[i];
+    }
 
-    // test drift from -xoffset to +xoffset
-    const double proton_path_length =
-        std::sqrt(drift_length*drift_length + 4.0*x_offset*x_offset);
-    const double xprime = 2.0*x_offset/proton_path_length;
-    local_particles[1][Bunch::x] = (-x_offset);
-    local_particles[1][Bunch::xp] = (xprime);
+    // test straight drift central particle
+    local_particles[1][Bunch::x] = 0.0;
+    local_particles[1][Bunch::xp] = 0.0;
     local_particles[1][Bunch::y] = 0.0;
     local_particles[1][Bunch::yp] = 0.0;
     local_particles[1][Bunch::cdt] = 0.0;
     local_particles[1][Bunch::dpop] = 0.0;
 
-    // check drift at offset dpp
-    local_particles[2][Bunch::x] = 0.0;
-    local_particles[2][Bunch::xp] = 0.0;
+    // test drift from -xoffset to +xoffset
+    const double proton_path_length =
+        std::sqrt(drift_length*drift_length + 4.0*x_offset*x_offset);
+    const double xprime = 2.0*x_offset/proton_path_length;
+    local_particles[2][Bunch::x] = (-x_offset);
+    local_particles[2][Bunch::xp] = (xprime);
     local_particles[2][Bunch::y] = 0.0;
     local_particles[2][Bunch::yp] = 0.0;
     local_particles[2][Bunch::cdt] = 0.0;
-    local_particles[2][Bunch::dpop] = dpp_offset;
+    local_particles[2][Bunch::dpop] = 0.0;
+
+    // check drift at offset dpp
+    local_particles[3][Bunch::x] = 0.0;
+    local_particles[3][Bunch::xp] = 0.0;
+    local_particles[3][Bunch::y] = 0.0;
+    local_particles[3][Bunch::yp] = 0.0;
+    local_particles[3][Bunch::cdt] = 0.0;
+    local_particles[3][Bunch::dpop] = dpp_offset;
 
     propagator.propagate(bunch_simulator, 1);
 
+    // subtract reference particle cdt
+    for (int j=1; j<4; ++j) {
+        local_particles[j][Bunch::cdt] -= local_particles[0][Bunch::cdt];
+    }
     std::cout << "propagating 0 particle through drift" << std::endl;
-    BOOST_CHECK(floating_point_equal(local_particles[0][Bunch::x], 0.0, tolerance));
-    BOOST_CHECK(floating_point_equal(local_particles[0][Bunch::xp], 0.0, tolerance));
-    BOOST_CHECK(floating_point_equal(local_particles[0][Bunch::y], 0.0, tolerance));
-    BOOST_CHECK(floating_point_equal(local_particles[0][Bunch::yp], 0.0, tolerance));
-    std::cout << "particle cdt (should be 0): " << local_particles[0][Bunch::cdt] << std::endl;
-    BOOST_CHECK(floating_point_equal(local_particles[0][Bunch::cdt], 0.0, tolerance));
-    BOOST_CHECK(floating_point_equal(local_particles[0][Bunch::dpop], 0.0, tolerance));
+    BOOST_CHECK(floating_point_equal(local_particles[1][Bunch::x], 0.0, tolerance));
+    BOOST_CHECK(floating_point_equal(local_particles[1][Bunch::xp], 0.0, tolerance));
+    BOOST_CHECK(floating_point_equal(local_particles[1][Bunch::y], 0.0, tolerance));
+    BOOST_CHECK(floating_point_equal(local_particles[1][Bunch::yp], 0.0, tolerance));
+    std::cout << "particle cdt (should be 0): " << local_particles[1][Bunch::cdt] << std::endl;
+    BOOST_CHECK(floating_point_equal(local_particles[1][Bunch::cdt], 0.0, tolerance));
+    BOOST_CHECK(floating_point_equal(local_particles[1][Bunch::dpop], 0.0, tolerance));
 
     // no momentum offset so particle beta is the same as the reference particle beta
     double beta = reference_particle.get_beta();
 
     std::cout << "propagating particle at slat through drift" << std::endl;
-    std::cout << "particle x (should be " << x_offset  << "): " << local_particles[1][Bunch::x] << std::endl;
-    BOOST_CHECK(floating_point_equal(local_particles[1][Bunch::x], x_offset, tolerance));
-    BOOST_CHECK(floating_point_equal(local_particles[1][Bunch::y], 0.0, tolerance));
-    BOOST_CHECK(floating_point_equal(local_particles[1][Bunch::cdt],
+    std::cout << "particle x (should be " << x_offset  << "): " << local_particles[2][Bunch::x] << std::endl;
+    BOOST_CHECK(floating_point_equal(local_particles[2][Bunch::x], x_offset, tolerance));
+    BOOST_CHECK(floating_point_equal(local_particles[2][Bunch::y], 0.0, tolerance));
+    BOOST_CHECK(floating_point_equal(local_particles[2][Bunch::cdt],
                                      (proton_path_length/beta - drift_length/beta),
                                      tolerance));
-    BOOST_CHECK(floating_point_equal(local_particles[1][Bunch::xp], xprime, tolerance));
-    BOOST_CHECK(floating_point_equal(local_particles[1][Bunch::yp], 0.0, tolerance));
-    BOOST_CHECK(floating_point_equal(local_particles[1][Bunch::dpop], 0.0, tolerance));
+    BOOST_CHECK(floating_point_equal(local_particles[2][Bunch::xp], xprime, tolerance));
+    BOOST_CHECK(floating_point_equal(local_particles[2][Bunch::yp], 0.0, tolerance));
+    BOOST_CHECK(floating_point_equal(local_particles[2][Bunch::dpop], 0.0, tolerance));
 
     // particle has momentum offset so calculate its beta from its momentum
     double proton_momentum = pc * (1.0 + dpp_offset);
@@ -126,14 +134,14 @@ BOOST_AUTO_TEST_CASE(drift_propagation)
     test_four_momentum.set_momentum(proton_momentum);
     double proton_beta = test_four_momentum.get_beta();
 
-    BOOST_CHECK(floating_point_equal(local_particles[2][Bunch::x],0.0, tolerance));
-    BOOST_CHECK(floating_point_equal(local_particles[2][Bunch::y], 0.0, tolerance));
-    BOOST_CHECK(floating_point_equal(local_particles[2][Bunch::cdt],
+    BOOST_CHECK(floating_point_equal(local_particles[3][Bunch::x],0.0, tolerance));
+    BOOST_CHECK(floating_point_equal(local_particles[3][Bunch::y], 0.0, tolerance));
+    BOOST_CHECK(floating_point_equal(local_particles[3][Bunch::cdt],
                                      drift_length*(1.0/proton_beta-1.0/beta),
                                      tolerance));
-    BOOST_CHECK(floating_point_equal(local_particles[2][Bunch::xp], 0.0, tolerance));
-    BOOST_CHECK(floating_point_equal(local_particles[2][Bunch::yp], 0.0, tolerance));
-    BOOST_CHECK(floating_point_equal(local_particles[2][Bunch::dpop], dpp_offset, tolerance));
+    BOOST_CHECK(floating_point_equal(local_particles[3][Bunch::xp], 0.0, tolerance));
+    BOOST_CHECK(floating_point_equal(local_particles[3][Bunch::yp], 0.0, tolerance));
+    BOOST_CHECK(floating_point_equal(local_particles[3][Bunch::dpop], dpp_offset, tolerance));
 }
 
 BOOST_AUTO_TEST_CASE(sbend_propagation)
