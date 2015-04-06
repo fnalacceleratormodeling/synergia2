@@ -147,7 +147,58 @@ BOOST_AUTO_TEST_CASE(get_lattice_sptr3)
     MadX_reader madx_reader;
     madx_reader.parse_file("lattices/fodo2work.madx");
     Lattice_sptr lattice_sptr(madx_reader.get_lattice_sptr("fodo"));
-//    lattice_sptr->print();
+    //lattice_sptr->print();
+}
+
+BOOST_AUTO_TEST_CASE(get_lattice_sptr_embedded_sequence)
+{
+    MadX_reader madx_reader;
+    madx_reader.parse_file("lattices/cf_oboobo.seq");
+    Lattice_sptr lattice_sptr(madx_reader.get_lattice_sptr("model"));
+    //lattice_sptr->print();
+
+    const double tolerance = 1.0e-10;
+    BOOST_CHECK_CLOSE(lattice_sptr->get_length(), 128.0, tolerance);
+    BOOST_CHECK_CLOSE(lattice_sptr->get_total_angle(), 6.283185307179588, tolerance);
+
+    Lattice_elements const & elements = lattice_sptr->get_elements();
+
+    int idx = 0;
+    for(Lattice_elements::const_iterator it = elements.begin();
+            it != elements.end(); ++it, ++idx)
+    {
+        if (idx == 0)
+        {
+            BOOST_CHECK( (*it)->get_name().compare("bf") == 0 );
+            BOOST_CHECK( (*it)->get_type().compare("sbend") == 0 );
+            BOOST_CHECK_CLOSE( (*it)->get_length(), 3, tolerance );
+        }
+        else if (idx == 1)
+        {
+            BOOST_CHECK( (*it)->get_name().compare("auto_drift_fodo_0") == 0 );
+            BOOST_CHECK( (*it)->get_type().compare("drift") == 0 );
+            BOOST_CHECK_CLOSE( (*it)->get_length(), 5, tolerance );
+        }
+        else if (idx == 2)
+        {
+            BOOST_CHECK( (*it)->get_name().compare("bd") == 0 );
+            BOOST_CHECK( (*it)->get_type().compare("sbend") == 0 );
+            BOOST_CHECK_CLOSE( (*it)->get_length(), 3, tolerance );
+        }
+        else if (idx == 20)
+        {
+            BOOST_CHECK( (*it)->get_name().compare("bf") == 0 );
+            BOOST_CHECK( (*it)->get_type().compare("sbend") == 0 );
+            BOOST_CHECK_CLOSE( (*it)->get_length(), 3, tolerance );
+        }
+        else if (idx == 31)
+        {
+            BOOST_CHECK( (*it)->get_name().compare("auto_drift_fodo_1") == 0 );
+            BOOST_CHECK( (*it)->get_type().compare("drift") == 0 );
+            BOOST_CHECK_CLOSE( (*it)->get_length(), 5, tolerance );
+        }
+    }
+
 }
 
 BOOST_AUTO_TEST_CASE(get_lattice_sptr_no_reference_particle)
