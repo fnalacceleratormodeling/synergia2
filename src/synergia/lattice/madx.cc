@@ -406,12 +406,19 @@ double
   return seq_[idx].from;
 }
 
+string_t
+  MadX_sequence::element_label(size_t idx) const
+{
+  return seq_[idx].label;
+}
+
 MadX_entry_type
   MadX_sequence::element_type(size_t idx) const
 {
-  MadX_command cmd = element(idx);
-  std::string key = cmd.label();
-  if( key.empty() ) key = cmd.name();
+//  MadX_command const & cmd = element(idx);
+//  std::string key = cmd.label();
+//  if( key.empty() ) key = cmd.name();
+  std::string key = seq_[idx].label;
   return parent.entry_type(key);
 }
 

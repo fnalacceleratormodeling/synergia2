@@ -163,6 +163,7 @@ public:
   MadX_command      element(size_t idx) const;
   double            element_at(size_t idx) const;
   double            element_from(size_t idx) const;
+  string_t          element_label(size_t idx) const;
   MadX_entry_type   element_type(size_t idx) const;
   MadX_sequence_refer refer() const;
   string_t            refpos() const;

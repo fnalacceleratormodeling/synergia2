@@ -72,11 +72,11 @@ namespace
 
       double at = sequence.element_at(i);
       double from = sequence.element_from(i);
-      std::string name(sequence.element(i).label());
- 
+      std::string label = sequence.element_label(i);
+
       if( sequence.element_type(i)==ENTRY_SEQUENCE )
       {
-        double l = insert_sequence( lattice_sptr, mx, name );
+        double l = insert_sequence( lattice_sptr, mx, label );
         current_pos = at + from + l;  // sub-sequence always refer to the entry point
 
         continue;
@@ -84,6 +84,7 @@ namespace
 
       MadX_command cmd = sequence.element(i);
       std::string type(cmd.name());
+      std::string name(cmd.label());
       Lattice_element element(type, name);
       std::vector<string_t > attribute_names( cmd.attribute_names() );
 
