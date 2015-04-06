@@ -32,15 +32,18 @@ void FF_drift::drift_unit(T & x, T const& xp,
                           T & cdt, T const& dpop,
                           double length, double reference_momentum,
                           double m, double reference_cdt) {
-    T inv_npz = invsqrt((dpop + 1.0) * (dpop + 1.0) - xp * xp - yp * yp);
+    T dp = dpop + 1.0;
+    T inv_npz = invsqrt(dp * dp - xp * xp - yp * yp);
     T lxpr = xp * length * inv_npz;
     T lypr = yp * length * inv_npz;
     T D2 = lxpr * lxpr + length * length + lypr * lypr;
-    T p = dpop * reference_momentum + reference_momentum;
+    T p = dp * reference_momentum;
     T E2 = p * p + m * m;
-    T beta2 = p*p / E2;
+    //T beta2 = p*p / E2;
+    T ibeta2 = E2 / (p * p);
     x += lxpr;
     y += lypr;
-    cdt += sqrt(D2 / beta2) - reference_cdt;
+    //cdt += sqrt(D2 / beta2) - reference_cdt;
+    cdt += sqrt(D2 * ibeta2) - reference_cdt;
 }
 #endif // FF_DRIFT_H
