@@ -7,6 +7,12 @@ cmake_minimum_required(VERSION 2.8)
 enable_testing()
 set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
 
+# needed to avoid warnings about rpath policy on Mac OSX
+# no known difference between "OLD" and "NEW" policies for us
+if(POLICY CMP0042)
+    cmake_policy(SET CMP0042 OLD)
+endif()
+
 # Set defaults for building python bindings (build bindings by default).
 if (NOT DEFINED BUILD_PYTHON_BINDINGS)
   if (NOT $ENV{BUILD_PYTHON_BINDINGS} STREQUAL "")
