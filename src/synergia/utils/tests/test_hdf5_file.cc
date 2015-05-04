@@ -1,4 +1,5 @@
 #define BOOST_TEST_MAIN
+#include <algorithm>
 #include <boost/test/unit_test.hpp>
 #include "synergia/utils/hdf5_file.h"
 #include "synergia/utils/multi_array_typedefs.h"
@@ -105,6 +106,22 @@ BOOST_FIXTURE_TEST_CASE(read_data, Hdf5_file_fixture)
     multi_array_check_equal(a3d_read, a3d, tolerance);
 }
 
+BOOST_FIXTURE_TEST_CASE(get_member_names, Hdf5_file_fixture)
+{
+    Hdf5_file read_file(filename, Hdf5_file::read_only);
+    std::vector<std::string > member_names(read_file.get_member_names());
+    BOOST_CHECK_EQUAL(member_names.size(), num_members);
+    BOOST_CHECK_EQUAL(std::count(member_names.begin(),
+                                 member_names.end(), int_label), 1);
+    BOOST_CHECK_EQUAL(std::count(member_names.begin(),
+                                 member_names.end(), double_label), 1);
+    BOOST_CHECK_EQUAL(std::count(member_names.begin(),
+                                 member_names.end(), array1d_label), 1);
+    BOOST_CHECK_EQUAL(std::count(member_names.begin(),
+                                 member_names.end(), array2d_label), 1);
+    BOOST_CHECK_EQUAL(std::count(member_names.begin(),
+                                 member_names.end(), array3d_label), 1);
+}
 
 BOOST_AUTO_TEST_CASE(test_serialize)
 {

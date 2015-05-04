@@ -54,6 +54,27 @@ Hdf5_file::flush() const
     h5file_ptr->flush(H5F_SCOPE_GLOBAL);
 }
 
+extern "C" herr_t get_member_names_callback(hid_t group, const char *name,
+                                            const H5L_info_t *info,
+                                            void *op_data)
+{
+    ((std::vector<std::string> *)op_data)->push_back(name);
+    return 0;
+}
+
+std::vector<std::string>
+Hdf5_file::get_member_names()
+{
+    std::vector<std::string> member_names;
+    Group *root_group_ptr = new Group (h5file_ptr->openGroup("/"));
+    herr_t status = H5Literate(root_group_ptr->getId(), H5_INDEX_NAME,
+                               H5_ITER_NATIVE, NULL,
+                               &get_member_names_callback,
+                               (void *) &member_names);
+    delete root_group_ptr;
+    return member_names;
+}
+
 H5::H5File &
 Hdf5_file::get_h5file()
 {

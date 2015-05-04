@@ -46,6 +46,8 @@ public:
     close();
     void
     flush() const;
+    std::vector<std::string>
+    get_member_names();
     H5::H5File &
     get_h5file();
     template<typename T>
