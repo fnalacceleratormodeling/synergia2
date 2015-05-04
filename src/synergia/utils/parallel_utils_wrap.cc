@@ -92,6 +92,7 @@ BOOST_PYTHON_MODULE(parallel_utils)
             .def("read_array1d", &Hdf5_file::read<MArray1d >)
             .def("read_array2d", &Hdf5_file::read<MArray2d >)
             .def("read_array3d", &Hdf5_file::read<MArray3d >)
+            .def("get_member_names", &Hdf5_file::get_member_names)
             .def("close", &Hdf5_file::flush)
             ;
         enum_<Hdf5_file::Flag > ("Flag")
