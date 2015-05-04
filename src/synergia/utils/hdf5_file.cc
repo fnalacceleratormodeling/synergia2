@@ -75,6 +75,36 @@ Hdf5_file::get_member_names()
     return member_names;
 }
 
+Hdf5_file::Atomic_type
+Hdf5_file::get_atomic_type(std::string const& name)
+{
+    DataSet dataset = h5file_ptr->openDataSet(name.c_str());
+    DataType datatype = dataset.getDataType();
+    H5T_class_t the_class = datatype.getClass();
+
+    Hdf5_file::Atomic_type retval;
+    if(the_class == H5T_FLOAT) {
+        retval = Hdf5_file::double_type;
+    } else if(the_class == H5T_INTEGER) {
+        retval = Hdf5_file::int_type;
+    } else {
+        throw std::runtime_error("Hdf5_file::get_atomic_type: type not handled");
+    }
+    return retval;
+}
+
+std::vector<hsize_t>
+Hdf5_file::get_dims(std::string const& name)
+{
+    DataSet dataset = h5file_ptr->openDataSet(name.c_str());
+    DataSpace dataspace = dataset.getSpace();
+    int rank = dataspace.getSimpleExtentNdims();
+    std::vector<hsize_t > dims(rank);
+    dataspace.getSimpleExtentDims(&dims[0], NULL);
+
+    return dims;
+}
+
 H5::H5File &
 Hdf5_file::get_h5file()
 {

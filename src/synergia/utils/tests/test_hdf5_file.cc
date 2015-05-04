@@ -55,6 +55,9 @@ struct Hdf5_file_fixture
     Hdf5_file_fixture() :
         int_data(7),
         double_data(2.71828),
+        dim1(2),
+        dim2(3),
+        dim3(4),
         a1d(boost::extents[dim1]),
         a2d(boost::extents[dim1][dim2]),
         a3d(boost::extents[dim1][dim2][dim3])
@@ -81,9 +84,9 @@ struct Hdf5_file_fixture
 
     int int_data;
     double double_data;
-    static const int dim1 = 2;
-    static const int dim2 = 3;
-    static const int dim3 = 4;
+    int dim1;
+    int dim2;
+    int dim3;
     MArray1d a1d;
     MArray2d a2d;
     MArray3d a3d;
@@ -121,6 +124,52 @@ BOOST_FIXTURE_TEST_CASE(get_member_names, Hdf5_file_fixture)
                                  member_names.end(), array2d_label), 1);
     BOOST_CHECK_EQUAL(std::count(member_names.begin(),
                                  member_names.end(), array3d_label), 1);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_atomic_type, Hdf5_file_fixture)
+{
+    Hdf5_file read_file(filename, Hdf5_file::read_only);
+    BOOST_CHECK_EQUAL(read_file.get_atomic_type(int_label), Hdf5_file::int_type);
+    BOOST_CHECK_EQUAL(read_file.get_atomic_type(double_label), Hdf5_file::double_type);
+    BOOST_CHECK_EQUAL(read_file.get_atomic_type(array1d_label), Hdf5_file::double_type);
+    BOOST_CHECK_EQUAL(read_file.get_atomic_type(array2d_label), Hdf5_file::double_type);
+    BOOST_CHECK_EQUAL(read_file.get_atomic_type(array3d_label), Hdf5_file::double_type);
+}
+
+BOOST_FIXTURE_TEST_CASE(get_dims, Hdf5_file_fixture)
+{
+    Hdf5_file read_file(filename, Hdf5_file::read_only);
+
+    {
+        std::vector<hsize_t> dims(read_file.get_dims(int_label));
+        BOOST_CHECK_EQUAL(dims.size(), 0);
+    }
+
+    {
+        std::vector<hsize_t> dims(read_file.get_dims(double_label));
+        BOOST_CHECK_EQUAL(dims.size(), 0);
+    }
+
+    {
+        std::vector<hsize_t> dims(read_file.get_dims(array1d_label));
+        BOOST_CHECK_EQUAL(dims.size(), 1);
+        BOOST_CHECK_EQUAL(dims.at(0), dim1);
+    }
+
+    {
+        std::vector<hsize_t> dims(read_file.get_dims(array2d_label));
+        BOOST_CHECK_EQUAL(dims.size(), 2);
+        BOOST_CHECK_EQUAL(dims.at(0), dim1);
+        BOOST_CHECK_EQUAL(dims.at(1), dim2);
+    }
+
+    {
+        std::vector<hsize_t> dims(read_file.get_dims(array3d_label));
+        BOOST_CHECK_EQUAL(dims.size(), 3);
+        BOOST_CHECK_EQUAL(dims.at(0), dim1);
+        BOOST_CHECK_EQUAL(dims.at(1), dim2);
+        BOOST_CHECK_EQUAL(dims.at(2), dim3);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(test_serialize)
