@@ -55,7 +55,7 @@ public:
     get_member_names();
     Atomic_type
     get_atomic_type(std::string const& name);
-    std::vector<hsize_t>
+    std::vector<int >
     get_dims(std::string const& name);
     H5::H5File &
     get_h5file();

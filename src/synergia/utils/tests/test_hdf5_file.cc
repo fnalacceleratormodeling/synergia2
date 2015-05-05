@@ -141,30 +141,30 @@ BOOST_FIXTURE_TEST_CASE(get_dims, Hdf5_file_fixture)
     Hdf5_file read_file(filename, Hdf5_file::read_only);
 
     {
-        std::vector<hsize_t> dims(read_file.get_dims(int_label));
+        std::vector<int > dims(read_file.get_dims(int_label));
         BOOST_CHECK_EQUAL(dims.size(), 0);
     }
 
     {
-        std::vector<hsize_t> dims(read_file.get_dims(double_label));
+        std::vector<int> dims(read_file.get_dims(double_label));
         BOOST_CHECK_EQUAL(dims.size(), 0);
     }
 
     {
-        std::vector<hsize_t> dims(read_file.get_dims(array1d_label));
+        std::vector<int> dims(read_file.get_dims(array1d_label));
         BOOST_CHECK_EQUAL(dims.size(), 1);
         BOOST_CHECK_EQUAL(dims.at(0), dim1);
     }
 
     {
-        std::vector<hsize_t> dims(read_file.get_dims(array2d_label));
+        std::vector<int> dims(read_file.get_dims(array2d_label));
         BOOST_CHECK_EQUAL(dims.size(), 2);
         BOOST_CHECK_EQUAL(dims.at(0), dim1);
         BOOST_CHECK_EQUAL(dims.at(1), dim2);
     }
 
     {
-        std::vector<hsize_t> dims(read_file.get_dims(array3d_label));
+        std::vector<int> dims(read_file.get_dims(array3d_label));
         BOOST_CHECK_EQUAL(dims.size(), 3);
         BOOST_CHECK_EQUAL(dims.at(0), dim1);
         BOOST_CHECK_EQUAL(dims.at(1), dim2);

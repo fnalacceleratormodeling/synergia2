@@ -93,7 +93,7 @@ Hdf5_file::get_atomic_type(std::string const& name)
     return retval;
 }
 
-std::vector<hsize_t>
+std::vector<int >
 Hdf5_file::get_dims(std::string const& name)
 {
     DataSet dataset = h5file_ptr->openDataSet(name.c_str());
@@ -102,7 +102,9 @@ Hdf5_file::get_dims(std::string const& name)
     std::vector<hsize_t > dims(rank);
     dataspace.getSimpleExtentDims(&dims[0], NULL);
 
-    return dims;
+    std::vector<int > retval(rank);
+    std::copy(dims.begin(), dims.end(), retval.begin());
+    return retval;
 }
 
 H5::H5File &
