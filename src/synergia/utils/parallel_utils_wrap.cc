@@ -93,6 +93,8 @@ BOOST_PYTHON_MODULE(parallel_utils)
             .def("read_array2d", &Hdf5_file::read<MArray2d >)
             .def("read_array3d", &Hdf5_file::read<MArray3d >)
             .def("get_member_names", &Hdf5_file::get_member_names)
+            .def("get_atomic_type", &Hdf5_file::get_atomic_type)
+            .def("get_dims", &Hdf5_file::get_dims)
             .def("close", &Hdf5_file::flush)
             ;
         enum_<Hdf5_file::Flag > ("Flag")
@@ -100,7 +102,8 @@ BOOST_PYTHON_MODULE(parallel_utils)
             .value("read_write", Hdf5_file::read_write)
             .value("read_only", Hdf5_file::read_only)
             .export_values();
-
-
-
+        enum_<Hdf5_file::Atomic_type > ("Atomic_type")
+            .value("double_type", Hdf5_file::double_type)
+            .value("int_type", Hdf5_file::int_type)
+            .export_values();
 }
