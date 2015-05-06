@@ -190,6 +190,30 @@ template<>
         return retval;
     }
 
+    template<>
+        MArray1i
+        Hdf5_file::read<MArray1i >(std::string const& name)
+        {
+            DataSet dataset = h5file_ptr->openDataSet(name.c_str());
+            H5::DataType atomic_type = hdf5_atomic_data_type<int > ();
+
+            const int rank = 1;
+            std::vector<hsize_t > dims(rank);
+            DataSpace dataspace = dataset.getSpace();
+            int file_rank = dataspace.getSimpleExtentNdims();
+            if (file_rank != rank) {
+                throw std::runtime_error(
+                        "Hdf5_file::read<MArray1d>: data to read has wrong rank");
+            }
+            dataspace.getSimpleExtentDims(&dims[0], NULL);
+            MArray1i retval(boost::extents[dims[0]]);
+
+            DataSpace memspace(rank, &dims[0]);
+            int * data_out = retval.origin();
+            dataset.read(data_out, atomic_type, memspace, dataspace);
+            return retval;
+        }
+
 template<class Archive>
     void
     Hdf5_file::save(Archive & ar, const unsigned int version) const
