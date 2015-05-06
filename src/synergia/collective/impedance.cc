@@ -191,13 +191,13 @@ double Impedance::get_bunch_spacing() const { return bunch_spacing;}
 MArray1d_ref &  Impedance::get_xmom() {return *xmom_sptr;}
 MArray1d_ref &  Impedance::get_ymom() {return *ymom_sptr;}
 MArray1d_ref &  Impedance::get_zdensity() {return *zdensity_sptr;}
-MArray1int_ref & Impedance::get_bin_partition() {return *bin_partition_sptr;}
+MArray1i_ref & Impedance::get_bin_partition() {return *bin_partition_sptr;}
 
 
 MArray1d_ref const &  Impedance::get_xmom() const {return *xmom_sptr;}
 MArray1d_ref const &  Impedance::get_ymom() const {return *ymom_sptr;}
 MArray1d_ref const &  Impedance::get_zdensity() const {return *zdensity_sptr;}
-MArray1int_ref const & Impedance::get_bin_partition() const {return *bin_partition_sptr;}
+MArray1i_ref const & Impedance::get_bin_partition() const {return *bin_partition_sptr;}
 
 MArray1d_ref &  Impedance::get_xwake_leading() {return *xwake_leading_sptr;}
 MArray1d_ref &  Impedance::get_xwake_trailing() {return *xwake_trailing_sptr;}
@@ -246,8 +246,8 @@ Impedance::calculate_moments_and_partitions(Bunch & bunch)
     MArray1d_ref zdensity(get_zdensity());
 
     int lnum_part=bunch.get_local_num();
-    bin_partition_sptr= boost::shared_ptr<MArray1int >(new MArray1int(boost::extents[lnum_part])); 
-    MArray1int_ref bin_partition(get_bin_partition());
+    bin_partition_sptr= boost::shared_ptr<MArray1i >(new MArray1i(boost::extents[lnum_part])); 
+    MArray1i_ref bin_partition(get_bin_partition());
     
     MArray1d  local_zdensity(boost::extents[z_grid]);
     MArray1d  local_xmom(boost::extents[z_grid]);
@@ -688,7 +688,7 @@ void
 Impedance::apply_impedance_kick(Bunch & bunch, double wake_factor)
 {
   
- MArray1int_ref const bin_partition(get_bin_partition());
+ MArray1i_ref const bin_partition(get_bin_partition());
  MArray1d_ref const  xwake_leading(get_xwake_leading());
  MArray1d_ref const xwake_trailing(get_xwake_trailing());
  MArray1d_ref const  ywake_leading(get_ywake_leading());
