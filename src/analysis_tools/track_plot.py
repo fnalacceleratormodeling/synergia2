@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys
-import tables
+from synergia.utils import Hdf5_file
 import numpy
 from matplotlib import pyplot
 
@@ -80,7 +80,7 @@ def handle_args(args):
     for arg in args[1:]:
         if arg[0] == '-':
             if arg == '--help':
-                do_help(plotparams)
+                do_help()
             elif arg.find('--index=') == 0:
                 indices = arg.split('=')[1]
                 options.indices = map(str,indices.split(','))
@@ -103,12 +103,12 @@ def handle_args(args):
 
 def get_particle_coords(f, options):
     particle_coords = []
-    if hasattr(f.root, 'coords'):
-        particle_coords.append(getattr(f.root, "coords").read())
+    if "coords" in f.get_member_names():
+        particle_coords.append(f.read_array2d("coords"))
     else:
-        mass = f.root.mass[()]
-        p_ref = f.root.pz[()]
-        all_coords = getattr(f.root, 'track_coords').read()
+        mass = f.read_double('mass')
+        p_ref = f.read_double('pz')
+        all_coords = f.read_array3d("track_coords")
         nturns = all_coords.shape[2]
         if options.indices[0]:
             indices = options.indices
@@ -122,21 +122,20 @@ def get_particle_coords(f, options):
     return particle_coords
 
 def do_plots(options):
-    f = tables.openFile(options.inputfile, 'r')
+    f = Hdf5_file(options.inputfile, Hdf5_file.read_only)
     rows, cols = get_layout(len(options.coords))
     pyplot.figure().canvas.set_window_title('Synergia Track Viewer')
     all_particle_coords = get_particle_coords(f, options)
     for particle_coords, index in zip(all_particle_coords, options.indices):
         plot_index = 1
         for coord in options.coords:
-            x = getattr(f.root, "s").read()
+            x = f.read_array1d("s")
             y = particle_coords[coords[coord],:]
             if not options.oneplot:
                 pyplot.subplot(rows, cols, plot_index)
             plot2d(x, y, coord, index)
             plot_index += 1
             pyplot.legend()
-    f.close()
     if options.outputfile:
         pyplot.savefig(options.outputfile)
     if options.show:

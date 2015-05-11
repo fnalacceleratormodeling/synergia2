@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 
 import sys
-import tables
+from synergia.utils import Hdf5_file
 import numpy
 from matplotlib import pyplot
-import matplotlib
 
 def plot2d(x, y, options):
     p = pyplot.plot(x, y, 'o')
@@ -59,7 +58,7 @@ def handle_args(args):
     for arg in args[:first_coord]:
         if arg[0] == '-':
             if arg == '--help':
-                do_help(plotparams)
+                do_help()
             elif arg.find('--index') == 0:
                 indices = arg.split('=')[1]
                 for index in indices.split(','):
@@ -92,15 +91,15 @@ def single_plot(options, particle_coords):
 def do_plots(options):
     pyplot.figure().canvas.set_window_title('Synergia Poincare Plot')
     for filename in options.inputfiles:
-        f = tables.openFile(filename, 'r')
-        if "coords" in dir(f.root):
-            particle_coords = getattr(f.root, "coords").read()
+        f = Hdf5_file(filename, Hdf5_file.read_only)
+        if "coords" in f.get_member_names():
+            particle_coords = f.read_array2d("coords")
             f.close()
             single_plot(options, particle_coords)
-        elif "track_coords" in dir(f.root):
-            track_coords = getattr(f.root, "track_coords").read()
-            mass = f.root.mass[()]
-            p_ref = f.root.pz[()]
+        elif "track_coords" in f.get_member_names():
+            track_coords = f.read_array3d("track_coords")
+            mass = f.read_double('mass')
+            p_ref = f.read_double('pz')
             f.close()
             ntracks = track_coords.shape[0]
             nturns = track_coords.shape[2]

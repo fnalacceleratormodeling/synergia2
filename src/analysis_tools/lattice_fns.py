@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import sys, os.path
-import tables
 from matplotlib import pyplot
 import synergia
 import numpy

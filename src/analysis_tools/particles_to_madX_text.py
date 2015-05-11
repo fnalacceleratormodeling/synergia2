@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys, os.path
-import tables
+from synergia.utils import Hdf5_file
 import numpy as np
 
 class Options:
@@ -51,7 +51,7 @@ def handle_args(args):
     return options
 
 def do_conversion(options):
-    ifile = tables.openFile(options.filename, 'r')
+    ifile = Hdf5_file(options.filename, Hdf5_file.read_only)
     ofilename = os.path.splitext(options.filename)[0] + '_madX.txt'
     ofile = open(ofilename, 'w')
     if options.header > 1:
@@ -64,15 +64,13 @@ def do_conversion(options):
 # T = -c (delta-T)
 # PT = (delta E)/pref
 ''')
-    m = ifile.root.mass[()]
-    pz = ifile.root.pz[()]
+    m = ifile.read_double('mass')
+    pz = ifile.read_double('pz')
     E0 = np.sqrt(pz**2 + m**2)
     m_over_p0 = m/pz
     E0_over_p0 = E0/pz
 
-    particles = ifile.root.particles.read()
-
-    ifile.close()
+    particles = ifile.read_array2d('particles')
 
     # convert synergia to MAD-X
     # c*dt -> -c*dt
