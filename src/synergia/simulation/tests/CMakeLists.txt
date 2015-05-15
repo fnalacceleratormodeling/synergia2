@@ -130,6 +130,13 @@ add_test(NAME test_simplify2_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${S
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_simplify2.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
+add_test(NAME test_propagate_resume_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_propagate_resume.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_propagate_resume.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+add_test(NAME test_propagate_resume_mpi_2_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_propagate_resume.py)
+add_test(NAME test_propagate_resume_mpi_3_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_propagate_resume.py)
+add_test(NAME test_propagate_resume_mpi_4_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_propagate_resume.py)
+
 add_test_executable(test_bunch_simulator test_bunch_simulator.cc)
 target_link_libraries(test_bunch_simulator synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_bunch_simulator COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_bunch_simulator>)
