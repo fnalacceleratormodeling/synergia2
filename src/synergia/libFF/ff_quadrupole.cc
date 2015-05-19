@@ -1,4 +1,5 @@
 #include "ff_quadrupole.h"
+#include "ff_algorithm.h"
 #include "synergia/lattice/chef_utils.h"
 
 const int FF_quadrupole::steps = 5; // temporarily hardwired
@@ -28,10 +29,11 @@ double FF_quadrupole::get_reference_cdt(double length, double k,
         double dpop(reference_particle.get_state()[Bunch::dpop]);
 
         double cdt_orig = cdt;
-        thick_quadrupole_unit(x, xp, y, yp, cdt, dpop,
-                              reference_momentum, m,
-                              0.0,
-                              step_length, step_strength, steps);
+        FF_algorithm::yoshida<double, FF_quadrupole::thin_quadrupole_unit<double> >
+                ( x, xp, y, yp, cdt, dpop,
+                  reference_momentum, m,
+                  0.0,
+                  step_length, step_strength, steps );
         reference_cdt = cdt - cdt_orig;
     }
     return reference_cdt;
@@ -68,10 +70,11 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, JetParticle& jet_p
     if (length == 0.0) {
         thin_quadrupole_unit(x, xp, y, yp, k*length);
     } else {
-        thick_quadrupole_unit(x, xp, y, yp, cdt, dpop,
-                              reference_momentum, m,
-                              substep_reference_cdt,
-                              step_length, step_strength, steps);
+        FF_algorithm::yoshida<TJet<double>, FF_quadrupole::thin_quadrupole_unit<TJet<double> > >
+                ( x, xp, y, yp, cdt, dpop,
+                  reference_momentum, m,
+                  substep_reference_cdt,
+                  step_length, step_strength, steps );
     }
     FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
                reference_cdt);
@@ -113,10 +116,11 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
              double cdt(particles[part][Bunch::cdt]);
              double dpop(particles[part][Bunch::dpop]);
 
-             thick_quadrupole_unit(x, xp, y, yp, cdt, dpop,
-                                   reference_momentum, m,
-                                   substep_reference_cdt,
-                                   step_length, step_strength, steps);
+             FF_algorithm::yoshida<double, FF_quadrupole::thin_quadrupole_unit<double> >
+                     ( x, xp, y, yp, cdt, dpop,
+                       reference_momentum, m,
+                       substep_reference_cdt,
+                       step_length, step_strength, steps );
 
              particles[part][Bunch::x] = x;
              particles[part][Bunch::xp] = xp;

@@ -3,6 +3,7 @@
 
 #include "ff_element.h"
 #include "ff_drift.h"
+
 class FF_quadrupole : public FF_element
 {
 private:
@@ -23,6 +24,7 @@ public:
                                              double m, double substep_reference_cdt,
                                              double step_length, double step_strength,
                                              int steps);
+
     virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle);
     virtual void apply(Lattice_element_slice const& slice, Bunch & bunch);
     template<class Archive>
