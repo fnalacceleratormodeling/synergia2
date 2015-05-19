@@ -15,7 +15,8 @@ public:
     FF_quadrupole();
     template <typename T>
     inline static void thin_quadrupole_unit(T const& x, T & xp,
-                                            T const& y, T & yp, double kL);
+                                            T const& y, T & yp, double const * kL);
+#if 0
     template <typename T>
     inline static void thick_quadrupole_unit(T & x, T & xp,
                                              T & y, T & yp,
@@ -24,9 +25,11 @@ public:
                                              double m, double substep_reference_cdt,
                                              double step_length, double step_strength,
                                              int steps);
+#endif
 
     virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle);
     virtual void apply(Lattice_element_slice const& slice, Bunch & bunch);
+
     template<class Archive>
         void serialize(Archive & ar, const unsigned int version);
     virtual ~FF_quadrupole();
@@ -36,11 +39,12 @@ typedef boost::shared_ptr<FF_quadrupole > FF_quadrupole_sptr;
 
 template <typename T>
 inline void FF_quadrupole::thin_quadrupole_unit(T const& x, T& xp,
-                                                T const& y, T& yp, double kL) {
-    xp += -kL * x;
-    yp += kL * y;
+                                                T const& y, T& yp, double const * kL) {
+    xp += -kL[0] * x;
+    yp += kL[0] * y;
 }
 
+#if 0
 template <typename T>
 inline void FF_quadrupole::thick_quadrupole_unit(T & x, T & xp,
                                          T & y, T & yp,
@@ -73,5 +77,6 @@ inline void FF_quadrupole::thick_quadrupole_unit(T & x, T & xp,
                    m, substep_reference_cdt);
     }
 }
+#endif
 
 #endif // FF_QUADRUPOLE_H

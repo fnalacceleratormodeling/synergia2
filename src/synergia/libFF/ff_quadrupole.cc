@@ -67,8 +67,10 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, JetParticle& jet_p
     double step_length = length/steps;
     double step_strength = k*step_length;
 
+    double kl = k * length;
+
     if (length == 0.0) {
-        thin_quadrupole_unit(x, xp, y, yp, k*length);
+        thin_quadrupole_unit(x, xp, y, yp, &kl);
     } else {
         FF_algorithm::yoshida<TJet<double>, FF_quadrupole::thin_quadrupole_unit<TJet<double> > >
                 ( x, xp, y, yp, cdt, dpop,
@@ -94,7 +96,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
              double y(particles[part][Bunch::y]);
              double yp(particles[part][Bunch::yp]);
 
-             thin_quadrupole_unit(x, xp, y, yp, k);
+             thin_quadrupole_unit(x, xp, y, yp, &k);
 
              particles[part][Bunch::xp] = xp;
              particles[part][Bunch::yp] = yp;
