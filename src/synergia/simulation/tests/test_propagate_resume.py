@@ -3,7 +3,7 @@
 from nose.tools import *
 import synergia
 from synergia.utils import Hdf5_file
-from synergia.simulation import Lattice_simulator, Bunch_simulator, Independent_stepper, Propagator, Resume
+from synergia.simulation import Lattice_simulator, Bunch_simulator, Split_operator_stepper, Propagator, Resume, Dummy_collective_operator
 from synergia.bunch import Bunch, Diagnostics_particles, Diagnostics_full2, Diagnostics_bulk_track
 from synergia.optics import generate_matched_bunch_transverse
 
@@ -26,7 +26,7 @@ pct = 0.4;
 drift_length = sepn - quad_length
 
 map_order = 1
-macro_particles = 8192
+macro_particles = 256
 real_particles = 1.0e11
 emit = 1.0e-6
 rmsz = 0.1
@@ -132,7 +132,7 @@ def test_propagate():
     bunch_simulator.add_per_turn(Diagnostics_full2("turn_full2.h5"))
     bunch_simulator.add_per_turn(Diagnostics_bulk_track("turn_tracks.h5", f.bunch.get_total_num()))
 
-    stepper = Independent_stepper(f.lattice, map_order, 1)
+    stepper = Split_operator_stepper(f.lattice, map_order, Dummy_collective_operator("space charge"), 4)
     propagator = Propagator(stepper)
     propagator.propagate(bunch_simulator, nturns, maxturns)
     # check that all the diagnostics were written out
