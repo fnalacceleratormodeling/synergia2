@@ -110,8 +110,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
      } else {
          double reference_momentum = bunch.get_reference_particle().get_momentum();
          double m = bunch.get_mass();
-         double reference_cdt = get_reference_cdt(length, k,
-                                                  bunch.get_reference_particle());
+         double reference_cdt = get_reference_cdt(length, k, bunch.get_reference_particle());
          double substep_reference_cdt = reference_cdt/steps/drifts_per_step;
          double step_length = length/steps;
          double step_strength[2] = { k[0]*step_length, k[1]*step_length };
