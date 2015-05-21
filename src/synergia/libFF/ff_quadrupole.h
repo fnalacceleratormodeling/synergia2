@@ -40,8 +40,8 @@ typedef boost::shared_ptr<FF_quadrupole > FF_quadrupole_sptr;
 template <typename T>
 inline void FF_quadrupole::thin_quadrupole_unit(T const& x, T& xp,
                                                 T const& y, T& yp, double const * kL) {
-    xp += -kL[0] * x;
-    yp += kL[0] * y;
+    xp += -kL[0] * x - kL[1] * y;
+    yp += kL[0] * y - kL[1] * x;
 }
 
 #if 0
