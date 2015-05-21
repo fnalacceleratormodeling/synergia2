@@ -6,13 +6,16 @@
 class FF_algorithm
 {
 public:
-    template <typename T, void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL)>
+    template <
+        typename T, 
+        void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
+        int components >
     inline static void yoshida(T & x, T & xp,
                                T & y, T & yp,
                                T & cdt, T const& dpop,
                                double reference_momentum,
                                double m, double substep_reference_cdt,
-                               double step_length, double step_strength,
+                               double step_length, double * step_strength,
                                int steps)
     {
         // see yoshida4.py for formulas
@@ -24,9 +27,19 @@ public:
         const double d3 = d1;
         const double d2 = -1.70241438391931526809537561795;
 
-        const double k1 = d1 * step_strength;
-        const double k2 = d2 * step_strength;
-        const double k3 = d3 * step_strength;
+        double k1[components * 2], k2[components * 2], k3[components * 3];
+
+        for (int i=0; i<components; ++i)
+        {
+            k1[i*2+0] = d1 * step_strength[i*2+0];
+            k1[i*2+1] = d1 * step_strength[i*2+1];
+
+            k1[i*2+0] = d2 * step_strength[i*2+0];
+            k1[i*2+1] = d2 * step_strength[i*2+1];
+
+            k1[i*2+0] = d3 * step_strength[i*2+0];
+            k1[i*2+1] = d3 * step_strength[i*2+1];
+        }
 
         for(int i = 0; i < steps; ++i) 
         {
@@ -34,19 +47,19 @@ public:
                        m, substep_reference_cdt);
 
             //kf( x, xp, y, yp, d1 * step_strength );
-            kf( x, xp, y, yp, &k1 );
+            kf( x, xp, y, yp, k1 );
 
             FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
             //kf( x, xp, y, yp, d2 * step_strength );
-            kf( x, xp, y, yp, &k2 );
+            kf( x, xp, y, yp, k2 );
 
             FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
             //kf( x, xp, y, yp, d3 * step_strength );
-            kf( x, xp, y, yp, &k3 );
+            kf( x, xp, y, yp, k3 );
 
             FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
                        m, substep_reference_cdt);

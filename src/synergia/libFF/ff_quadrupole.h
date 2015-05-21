@@ -9,7 +9,7 @@ class FF_quadrupole : public FF_element
 private:
     static const int steps;
     static const int drifts_per_step;
-    double get_reference_cdt(double length, double k,
+    double get_reference_cdt(double length, double * k,
                              Reference_particle & reference_particle);
 public:
     FF_quadrupole();
