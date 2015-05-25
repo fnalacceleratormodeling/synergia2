@@ -13,7 +13,7 @@ Diagnostics_bulk_track::Diagnostics_bulk_track(std::string const& filename,
         num_tracks), local_num_tracks(no_local_num_tracks), offset(
         offset), local_offset(no_local_num_tracks), have_writers(false), first_search(
         true), diag_track_status(), writer_s_n(0), writer_repetition(0), writer_s(
-        0), track_coords(boost::extents[1][7]), writer_coords(0)
+        0), writer_pz(0), track_coords(boost::extents[1][7]), writer_coords(0)
 {
 }
 
@@ -141,6 +141,7 @@ Diagnostics_bulk_track::update()
                 repetition = get_bunch().get_reference_particle().get_repetition();
                 s =
                         get_bunch().get_reference_particle().get_s();
+                pz = get_bunch().get_reference_particle().get_momentum();
                 first_search = false;
             }
         }
@@ -156,8 +157,6 @@ Diagnostics_bulk_track::init_writers(Hdf5_file_sptr file_sptr)
         file_sptr->write(chg, "charge");
         double pmass = fourp.get_mass();
         file_sptr->write(pmass, "mass");
-        double pz = fourp.get_momentum();
-        file_sptr->write(pz, "pz");
 
         writer_coords = new Hdf5_serial_writer<MArray2d_ref >(file_sptr,
                                                               "track_coords");
@@ -166,6 +165,7 @@ Diagnostics_bulk_track::init_writers(Hdf5_file_sptr file_sptr)
                                                          "repetition");
         writer_s = new Hdf5_serial_writer<double >(file_sptr,
                                                    "s");
+        writer_pz = new Hdf5_serial_writer<double >(file_sptr, "pz");
         have_writers = true;
     }
 }
@@ -247,6 +247,7 @@ Diagnostics_bulk_track::write()
             writer_s_n->append(s_n);
             writer_repetition->append(repetition);
             writer_s->append(s);
+            writer_pz->append(pz);
             get_write_helper().finish_write();
         } else {
             send_local_coords();
@@ -272,6 +273,8 @@ Diagnostics_bulk_track::serialize(Archive & ar, const unsigned int version)
     ar & BOOST_SERIALIZATION_NVP(writer_repetition);
     ar & BOOST_SERIALIZATION_NVP(s);
     ar & BOOST_SERIALIZATION_NVP(writer_s);
+    ar & BOOST_SERIALIZATION_NVP(pz);
+    ar & BOOST_SERIALIZATION_NVP(writer_pz);
     ar & BOOST_SERIALIZATION_NVP(track_coords);
     ar & BOOST_SERIALIZATION_NVP(writer_coords);
 }
@@ -329,6 +332,7 @@ boost::archive::xml_iarchive & ar, const unsigned int version);
 Diagnostics_bulk_track::~Diagnostics_bulk_track()
 {
     if (have_writers) {
+        delete writer_pz;
         delete writer_s;
         delete writer_repetition;
         delete writer_s_n;

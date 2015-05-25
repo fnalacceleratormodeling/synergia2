@@ -46,7 +46,8 @@ chef_element_as_string(ElmPtr element_sptr)
         sstream << ", Freq="
                 << boost::static_pointer_cast<thinrfcavity>(element_sptr)->getRadialFrequency()/(2.0*mconstants::pi) <<
                 ", Harmon="
-                << boost::static_pointer_cast<thinrfcavity>(element_sptr)->getHarmonicNumber();
+                << boost::static_pointer_cast<thinrfcavity>(element_sptr)->getHarmonicNumber() <<
+                   ", Phi=" <<  boost::static_pointer_cast<thinrfcavity>(element_sptr)->getPhi();
     }
     sstream << std::endl;
     return sstream.str();

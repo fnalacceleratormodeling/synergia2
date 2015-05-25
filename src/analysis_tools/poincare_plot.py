@@ -99,7 +99,7 @@ def do_plots(options):
         elif "track_coords" in f.get_member_names():
             track_coords = f.read_array3d("track_coords")
             mass = f.read_double('mass')
-            p_ref = f.read_double('pz')
+            p_ref = f.read_array1d('pz')
             f.close()
             ntracks = track_coords.shape[0]
             nturns = track_coords.shape[2]

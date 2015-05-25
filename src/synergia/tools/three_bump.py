@@ -32,7 +32,7 @@ class Three_bump:
     #     specifies (x,y) or (0,1) specifies (x, xp)
     # verbose = False/True on whether the module is chatty
 
-    def __init__(self, lattice, start_name, end_name, hcorr_names, vcorr_names, target_name, coords, verbose=False):
+    def __init__(self, lattice, start_name, end_name, hcorr_names, vcorr_names, target_name, coords=(0,2), verbose=False):
         self.lattice = lattice
         # I keep the elements separately so I can adjust them at the end when I know
         # what the settings are
@@ -43,13 +43,18 @@ class Three_bump:
         self.hcorr_names = hcorr_names
         self.vcorr_names = vcorr_names
         self.target_name = target_name
-        self.coords = (0, 2)
+        self.coords = coords
         self.verbose = verbose
 
         self._construct()
 
     def _construct(self):
-        self.bump_lattice = synergia.lattice.Lattice("bump")
+        # until the Lattice::get_element_adaptor_map() method gets wrapped this routine will be
+        # forced to assume the element adaptor type is MadX_adaptor_map.  Apparently, setting the
+        # bump with one adaptor element type and using the main lattice of another element adaptor type
+        # doesn't work.
+        #self.bump_lattice = synergia.lattice.Lattice("bump", self.lattice.get_element_adaptor_map())
+        self.bump_lattice = synergia.lattice.Lattice("bump", synergia.lattice.MadX_adaptor_map())
         self.bump_lattice.set_reference_particle(self.lattice.get_reference_particle())
 
         elem_names = [e.get_name() for e in self.lattice_elements]
@@ -211,18 +216,18 @@ class Three_bump:
         solver.set(tmp)
 
         if self.verbose:
-            print "  bump solver:"
-            print "  %5s %9s %9s %9s %9s  %9s  %9s" %("iter", "hc1", "hc2", "hc3", "vc1", "vc2", "vc3")
-            
+            print "  bump solver residuals:"
+            #print "  %5s %9s %9s %9s %9s  %9s  %9s" %("iter", "hc1", "hc2", "hc3", "vc1", "vc2", "vc3")
+
         for iter in range(100):
             status = solver.iterate()
             r = solver.root()
             x = solver.getx()
             f = solver.getf()
             if self.verbose:
-                print "  %5d % .7g % .7g % .7g % .7g  % .7g  % .7g" %(iter, x[0], x[1], x[2], f[0], f[1], f[2])
+                print "  %5d % .7g % .7g % .7g % .7g  % .7g  % .7g" %(iter, f[0], f[1], f[2], f[3], f[4], f[5])
  
-            status = multiroots.test_residual(f, 1.0e-11)
+            status = multiroots.test_residual(f, 1.0e-13)
             if status == pygslerrno.GSL_SUCCESS:
                 if self.verbose: print "Converged!!"
                 break
@@ -245,7 +250,7 @@ if __name__ == "__main__":
     print "read lattice: ", len(lattice.get_elements()), " elements, length = ", lattice.get_length()
     hcorr_names = ('hc1', 'hc2', 'hc3')
     vcorr_names = ('vc1', 'vc2', 'vc3')
-    three_bump = Three_bump(lattice, 'm1', 'm2', hcorr_names, vcorr_names, 'm3', False)
+    three_bump = Three_bump(lattice, 'm1', 'm2', hcorr_names, vcorr_names, 'm3', (0,2), True)
     three_bump.information()
 
     bump_settings = three_bump.set_bump((0.001, -0.0005))
@@ -254,7 +259,7 @@ if __name__ == "__main__":
     # propagate the whole lattice now
     comm = synergia.utils.Commxx()
     refpart = lattice.get_reference_particle()
-    stepper = synergia.simulation.Independent_stepper_elements(lattice, 1, 1)
+    stepper = synergia.simulation.Independent_stepper(lattice, 1, 1)
     # 3 particles is the minimum so that the diagnostics don't crash
     bunch = synergia.bunch.Bunch(refpart, 3, 1.0e10, comm)
     bunch.get_local_particles()[:,0:6] = 0.0
@@ -262,3 +267,4 @@ if __name__ == "__main__":
     bunch_simulator.add_per_step(synergia.bunch.Diagnostics_basic("step_basic.h5"))
     propagator = synergia.simulation.Propagator(stepper)
     propagator.propagate(bunch_simulator, 1, 1, 1)
+    print "final coordinates: ", np.array2string(bunch.get_local_particles()[0, 0:6])

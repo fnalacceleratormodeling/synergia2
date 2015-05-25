@@ -57,8 +57,8 @@ public:
     has_reference_particle() const;
 
     /// Get the Lattice reference particle
-    Reference_particle const&
-    get_reference_particle() const;
+    Reference_particle &
+    get_reference_particle();
 
     /// Append a copy of a Lattice_element.
     /// @param element a Lattice_element

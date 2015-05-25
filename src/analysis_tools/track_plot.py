@@ -107,7 +107,7 @@ def get_particle_coords(f, options):
         particle_coords.append(f.read_array2d("coords"))
     else:
         mass = f.read_double('mass')
-        p_ref = f.read_double('pz')
+        p_ref = f.read_array1d('pz')
         all_coords = f.read_array3d("track_coords")
         nturns = all_coords.shape[2]
         if options.indices[0]:
