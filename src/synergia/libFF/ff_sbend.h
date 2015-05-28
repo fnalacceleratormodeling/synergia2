@@ -4,6 +4,8 @@
 #include "ff_element.h"
 #include "synergia/utils/invsqrt.h"
 
+#include <iostream>
+
 class FF_sbend : public FF_element
 {
 public:
@@ -101,10 +103,12 @@ inline void FF_sbend::sbend_unit2(T & x, T & xp,
 {
     typedef std::complex<T> CT;
 
-    T p = reference_momentum * (dpop + 1.0);
-    T E = sqrt(p * p + m * m);
+    T p0 = reference_momentum;
+    T p  = reference_momentum * (dpop + 1.0);
+    T E0 = sqrt(p0 * p0 + m * m);
+    T E  = sqrt(p * p + m * m);
 
-    T igamma = m / E;
+    T igamma = m / E0;
     T ibeta  = invsqrt(1.0 - igamma * igamma);
 
     T csq = PH_MKS_c * PH_MKS_c * 1e-9;
