@@ -233,7 +233,6 @@ BOOST_AUTO_TEST_CASE(sbend_propagation_libff)
 
 
     // calculate where it should be
-
     double brho = p0 * 1.0e9/pconstants::c;
     double magnetic_field = sbend_angle*brho/sbend_length;
 
@@ -466,11 +465,9 @@ BOOST_AUTO_TEST_CASE(sbend_propagation)
                                 std::pow(sbend_exit_y-sbend_exit_y1,2));
     // offset distance is the x offset in accelerator coordinates
     BOOST_CHECK(floating_point_equal(d_offset, proton.get_x(), sbend_tolerance));
-    std::cout << "d_offset = " << d_offset << "\n";
     // check px/pref
     double px_over_pref = dpp_offset * std::sin(sbend_angle);
     BOOST_CHECK(floating_point_equal(proton.get_npx(), px_over_pref, sbend_tolerance));
-    std::cout << "px = " << px_over_pref << "\n";
     // check path length difference
     // path length for particle 0 is just sbend_length
     // calculate path length for particle 1 on its circular trajectory
@@ -486,7 +483,6 @@ BOOST_AUTO_TEST_CASE(sbend_propagation)
     double delta_cdt = sbend_length1/beta1 - sbend_length/beta;
     BOOST_CHECK(floating_point_equal(proton.get_cdt(), delta_cdt, sbend_tolerance));
 
-    std::cout << "cdt = " << delta_cdt << "\n";
     // check propagation of x-offset particle on-momentum.
     proton.setStateToZero();
     double x_offset = .001;
@@ -514,7 +510,6 @@ BOOST_AUTO_TEST_CASE(sbend_propagation)
 #endif
     BOOST_CHECK(floating_point_equal(proton.get_x(), d_offset, sbend_tolerance));
 
-    std::cout << "d_offset = " << d_offset << "\n";
     // get pathlength
     // start position vector is (0, -radius)
     // final position vector is (sbend_exit_x2, sbend_exit_y2-(-radius+x_offset)
@@ -528,7 +523,6 @@ BOOST_AUTO_TEST_CASE(sbend_propagation)
     std::cout << "proton.get_cdt(): " << proton.get_cdt() << ", delta_cdt: " << delta_cdt << std::endl;
 #endif
     BOOST_CHECK(floating_point_equal(proton.get_cdt(), delta_cdt, sbend_tolerance));
-    std::cout << "cdt = " << delta_cdt << "\n";
 
     // check x'.  Transverse momentum is the sin of the angle between the
     // vector normal to the sbend exit face and the particle trajectory vector.
@@ -543,5 +537,4 @@ BOOST_AUTO_TEST_CASE(sbend_propagation)
     std::cout << "exit_px: " << exit_px << ", proton.get_npx(): " << proton.get_npx() << std::endl;
 #endif
     BOOST_CHECK(floating_point_equal(proton.get_npx(), exit_px, sbend_tolerance));
-    std::cout << "px = " << exit_px << "\n";
 }
