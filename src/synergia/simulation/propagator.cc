@@ -254,6 +254,7 @@ Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
     t = simple_timer_show(t, "propagate-general_actions-step");
     double t_step1 = MPI_Wtime();
     if (state.verbosity > 1) {
+        int p = cout.precision();
         logger << "Propagator:";
         logger << "     step " << std::setw(digits(num_steps)) << step_count
                 << "/" << num_steps;
@@ -271,6 +272,7 @@ Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
         logger << ", time = " << std::fixed << std::setprecision(3)
                 << t_step1 - t_step0 << "s";
         logger << std::endl;
+        cout.precision(p);
     }
 }
 
@@ -319,6 +321,7 @@ Propagator::do_turn_end(int turn, State & state, double & t, double t_turn0,
     state.first_turn = turn + 1;
     double t_turn1 = MPI_Wtime();
     if (state.verbosity > 0) {
+        int p = cout.precision();
         logger << "Propagator:";
         logger << " turn " << std::setw(digits(state.num_turns)) << turn + 1
                 << "/" << state.num_turns;
@@ -329,6 +332,7 @@ Propagator::do_turn_end(int turn, State & state, double & t, double t_turn0,
         logger << ", time = " << std::fixed << std::setprecision(2)
                 << t_turn1 - t_turn0 << "s";
         logger << std::endl;
+        cout.precision(p);
     }
 }
 
@@ -461,11 +465,13 @@ Propagator::checkpoint(State & state, Logger & logger, double & t)
     rename_serialization_directory(checkpoint_dir);
     double t_checkpoint = MPI_Wtime() - t0;
     if (state.verbosity > 0) {
+        int p = cout.precision();
         logger << " written to \"" << checkpoint_dir << "\"";
         logger << ", time = " << std::fixed << std::setprecision(3)
                 << t_checkpoint << "s";
         ;
         logger << std::endl;
+        cout.precision(p);
     }
     t = simple_timer_show(t, "checkpoint");
 }
