@@ -1,0 +1,5 @@
+The sis18_accel.py script propagates a bunch through the sis18 lattice with
+RF cavities set for acceleration at about 0.1 MeV/turn.  The script
+plot_emit.py plots the results of the turn_accel_full2.h5 diagnostics file
+showing the emittance and invariant emittances, momentum and energy as a
+function of turn number.
