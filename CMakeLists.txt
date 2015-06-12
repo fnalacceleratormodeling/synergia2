@@ -143,6 +143,7 @@ configure_file("${SYNERGIA2_SOURCE_DIR}/synergia-local.in"
 configure_file("${SYNERGIA2_SOURCE_DIR}/src/local_paths.py.in"
     "${SYNERGIA2_BINARY_DIR}/src/local_paths.py" IMMEDIATE)
 
+include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src/synergia/utils/vectorclass)
 include_directories(BEFORE ${SYNERGIA2_SOURCE_DIR}/src)
 
 # Are we building shared or static (shared is the default)?

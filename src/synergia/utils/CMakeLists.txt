@@ -44,6 +44,7 @@ install(FILES
     distributed_fft2d.h
     fast_int_floor.h
     floating_point.h
+    gsvector.h
     hdf5_chunked_array2d_writer.h
     hdf5_misc.h
     hdf5_file.h
@@ -79,4 +80,6 @@ if (BUILD_PYTHON_BINDINGS)
         DESTINATION lib/synergia/utils)
 endif ()
 
+add_subdirectory(vectorclass)
 add_subdirectory(tests)
+
