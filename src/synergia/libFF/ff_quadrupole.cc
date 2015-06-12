@@ -90,7 +90,11 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
      double k[2];
      k[0] = slice.get_lattice_element().get_double_attribute("k1");
-     k[1] = slice.get_lattice_element().get_double_attribute("k1s");
+     if (slice.get_lattice_element().has_double_attribute("k1s")) {
+        k[1] = slice.get_lattice_element().get_double_attribute("k1s");
+     } else {
+        k[1] = 0.0;
+     }
 
      int local_num = bunch.get_local_num();
      MArray2d_ref particles = bunch.get_local_particles();
