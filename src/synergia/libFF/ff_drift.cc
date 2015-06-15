@@ -1,5 +1,6 @@
 #include "ff_drift.h"
 #include "synergia/lattice/chef_utils.h"
+#include "synergia/utils/gsvector.h"
 
 FF_drift::FF_drift()
 {
@@ -53,29 +54,52 @@ void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
 
 void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
-     double length = slice.get_right() - slice.get_left();
-     int local_num = bunch.get_local_num();
-     MArray2d_ref particles = bunch.get_local_particles();
-     double reference_momentum = bunch.get_reference_particle().get_momentum();
-     double m = bunch.get_mass();
-     double reference_cdt = get_reference_cdt(length,
-                                              bunch.get_reference_particle());
+     const double length = slice.get_right() - slice.get_left();
+     const int local_num = bunch.get_local_num();
+     const double reference_momentum = bunch.get_reference_particle().get_momentum();
+     const double m = bunch.get_mass();
+     const double reference_cdt = get_reference_cdt(length,
+                                                    bunch.get_reference_particle());
+     double * RESTRICT xa, * RESTRICT xpa, * RESTRICT ya, * RESTRICT ypa,
+             * RESTRICT cdta, * RESTRICT dpopa;
+     bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
 
-     for (int part = 0; part < local_num; ++part) {
-         double x(particles[part][Bunch::x]);
-         double xp(particles[part][Bunch::xp]);
-         double y(particles[part][Bunch::y]);
-         double yp(particles[part][Bunch::yp]);
-         double cdt(particles[part][Bunch::cdt]);
-         double dpop(particles[part][Bunch::dpop]);
+     const int num_blocks = local_num / GSVector::size;
+     const int block_last = num_blocks * GSVector::size;
+     std::cout << "jfa: local_num = " << local_num<< ", num_blocks = " << num_blocks << ", block_last = " << block_last << std::endl;
+     for (int part = 0; part < block_last; part += GSVector::size) {
+         double x(xa[part]);
+         double xp(xpa[part]);
+         double y(ya[part]);
+         double yp(ypa[part]);
+         double cdt(cdta[part]);
+         double dpop(dpopa[part]);
 
          drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
                     reference_cdt);
 
-         particles[part][Bunch::x] = x;
-         particles[part][Bunch::y] = y;
-         particles[part][Bunch::cdt] = cdt;
+         xa[part] =    x;
+         ya[part] =          y;
+         cdta[part] =          cdt;
+//         x.store(&xa[part]);
+//         y.store(&ya[part]);
+//         cdt.store(&cdta[part]);
     }
+     for (int part = block_last; part < local_num; ++part) {
+         double x(xa[part]);
+         double xp(xpa[part]);
+         double y(ya[part]);
+         double yp(ypa[part]);
+         double cdt(cdta[part]);
+         double dpop(dpopa[part]);
+
+         drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
+                    reference_cdt);
+
+         xa[part] = x;
+         ya[part] = y;
+         cdta[part] = cdt;
+     }
     bunch.get_reference_particle().increment_trajectory(length);
 }
 
