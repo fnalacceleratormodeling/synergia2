@@ -65,6 +65,7 @@ install(FILES
     numpy_multi_array_converter.h
     numpy_multi_ref_converter.h
     parallel_utils.h
+    restrict_extension.h
     simple_timer.h
     serialization.h
     serialization_files.h
