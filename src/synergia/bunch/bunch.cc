@@ -136,28 +136,13 @@ Bunch::construct(int particle_charge, int total_num, double real_num)
                 comm_sptr->get_size());
         decompose_1d(*comm_sptr, total_num, offsets, counts);
         local_num = counts[comm_sptr->get_rank()];
-        storage =
-#ifdef MM_MALLOC
-              (double*)_mm_malloc(local_num * 7 * sizeof(double), 64);
-#else
-              (double *)malloc(local_num * 7 * sizeof(double));
-#endif
-        local_particles = new MArray2d_ref(
-            storage, boost::extents[local_num][7],
-                         boost::fortran_storage_order());
-
+        local_particles = new MArray2d(boost::extents[local_num][7],
+                boost::fortran_storage_order());
         assign_ids(offsets[comm_sptr->get_rank()]);
     } else {
         local_num = 0;
-        storage =
-#ifdef MM_MALLOC
-              (double*)_mm_malloc(local_num * 7 * sizeof(double), 64);
-#else
-              (double *)malloc(local_num * 7 * sizeof(double));
-#endif
-        local_particles = new MArray2d_ref(
-            storage, boost::extents[local_num][7],
-                         boost::fortran_storage_order());
+        local_particles = new MArray2d(boost::extents[local_num][7],
+                boost::fortran_storage_order());
     }
 }
 
@@ -201,14 +186,7 @@ Bunch::Bunch(Bunch const& bunch) :
     real_num = bunch.real_num;
     local_num = bunch.local_num;
     bucket_index=bunch.bucket_index;
-    storage =
-#ifdef MM_MALLOC
-          (double*)_mm_malloc(local_num * 7 * sizeof(double), 64);
-#else
-          (double *)malloc(local_num * 7 * sizeof(double));
-#endif
-    local_particles = new MArray2d_ref(*(bunch.local_particles));
-    std::cout << "jfa still has to fix this!!!!!!!!!!!!!\n";
+    local_particles = new MArray2d(*(bunch.local_particles));
     state = bunch.state;
     z_period_length=bunch.z_period_length;
     z_periodic=bunch.z_periodic;
@@ -229,15 +207,8 @@ Bunch::operator=(Bunch const& bunch)
         total_num = bunch.total_num;
         real_num = bunch.real_num;
         local_num = bunch.local_num;
-        bucket_index=bunch.bucket_index;
-        storage =
-#ifdef MM_MALLOC
-                (double*)_mm_malloc(local_num * 7 * sizeof(double), 64);
-#else
-                (double *)malloc(local_num * 7 * sizeof(double));
-#endif
-        local_particles = new MArray2d_ref(*(bunch.local_particles));
-        std::cout << "jfa still has to fix this!!!!!!!!!!!!!\n";
+	bucket_index=bunch.bucket_index;
+        local_particles = new MArray2d(*(bunch.local_particles));
         state = bunch.state;
         z_period_length=bunch.z_period_length;
         z_periodic=bunch.z_periodic;
@@ -266,17 +237,10 @@ void
 Bunch::set_local_num(int local_num)
 {
     if (local_num > this->local_num) {
-        MArray2d_ref *prev_local_particles = local_particles;
+        MArray2d *prev_local_particles = local_particles;
         int prev_local_num = this->local_num;
-        storage =
-#ifdef MM_MALLOC
-              (double*)_mm_malloc(local_num * 7 * sizeof(double), 64);
-    #else
-              (double *)malloc(local_num * 7 * sizeof(double));
-    #endif
-        local_particles = new MArray2d_ref(
-            storage, boost::extents[local_num][7],
-                         boost::fortran_storage_order());
+         local_particles = new MArray2d(boost::extents[local_num][7],
+                 boost::fortran_storage_order());
          (*local_particles)[ boost::indices[range(0,prev_local_num)][range()] ] =
                 (*prev_local_particles)[ boost::indices[range(0,prev_local_num)][range()] ];
         delete prev_local_particles;
@@ -697,13 +661,12 @@ template<class Archive>
             Hdf5_file file(get_local_particles_serialization_path(),
                     Hdf5_file::read_only);
             local_num = file.read<int > ("local_num");
-// jfa: ugh
-            //            local_particles
-//                    = new MArray2d(file.read<MArray2d > ("local_particles"));
+            local_particles
+                    = new MArray2d(file.read<MArray2d > ("local_particles"));
         } else {
             local_num = 0;
-            // jfa: ugh
-//            local_particles = new MArray2d(boost::extents[local_num][7]);
+            local_particles = new MArray2d(boost::extents[local_num][7],
+                    boost::fortran_storage_order());
         }
     }
 
