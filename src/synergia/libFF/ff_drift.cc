@@ -68,12 +68,12 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
      const int block_last = num_blocks * GSVector::size;
      std::cout << "jfa: local_num = " << local_num<< ", num_blocks = " << num_blocks << ", block_last = " << block_last << std::endl;
      for (int part = 0; part < block_last; part += GSVector::size) {
-         GSVector x(xa[part]);
-         GSVector xp(xpa[part]);
-         GSVector y(ya[part]);
-         GSVector yp(ypa[part]);
-         GSVector cdt(cdta[part]);
-         GSVector dpop(dpopa[part]);
+         GSVector x(&xa[part]);
+         GSVector xp(&xpa[part]);
+         GSVector y(&ya[part]);
+         GSVector yp(&ypa[part]);
+         GSVector cdt(&cdta[part]);
+         GSVector dpop(&dpopa[part]);
 
          drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
                     reference_cdt);
