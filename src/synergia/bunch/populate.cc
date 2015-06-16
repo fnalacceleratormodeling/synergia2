@@ -38,18 +38,18 @@ adjust_moments(Bunch &bunch, Const_MArray1d_ref means,
     }
     MArray1d bunch_mean(Core_diagnostics::calculate_mean(bunch));
     MArray2d bunch_mom2(Core_diagnostics::calculate_mom2(bunch, bunch_mean));
-    Matrix<double, 6, 6, Eigen::RowMajor > C(covariances.origin());
-    Matrix<double, 6, 6, Eigen::RowMajor > G(C.llt().matrixL());
-    Matrix<double, 6, 6, Eigen::RowMajor > X(bunch_mom2.origin());
-    Matrix<double, 6, 6, Eigen::RowMajor > H(X.llt().matrixL());
-    Matrix<double, 6, 6, Eigen::RowMajor > A(G * H.inverse());
+    Matrix<double, 6, 6, Eigen::ColMajor > C(covariances.origin());
+    Matrix<double, 6, 6, Eigen::ColMajor > G(C.llt().matrixL());
+    Matrix<double, 6, 6, Eigen::ColMajor > X(bunch_mom2.origin());
+    Matrix<double, 6, 6, Eigen::ColMajor > H(X.llt().matrixL());
+    Matrix<double, 6, 6, Eigen::ColMajor > A(G * H.inverse());
     // jfa: dummy exists only to work around a bad interaction betwen
     //      Eigen3 and g++ 4.1.2
     std::stringstream dummy;
     dummy << C;
 
     int num_particles = bunch.get_local_num();
-    Eigen::Map<Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor > >
+    Eigen::Map<Matrix<double, Eigen::Dynamic, Eigen::Dynamic, Eigen::ColMajor > >
             rho7(bunch.get_local_particles().origin(), num_particles, 7);
     Matrix<double, 1, 6 > rhobar6(bunch_mean.origin());
     for (int part = 0; part < bunch.get_local_num(); ++part) {
