@@ -48,6 +48,7 @@ BOOST_AUTO_TEST_CASE(read_write_data)
     const char * array2d_label = "array2d_data";
     const char * array2dfo_label = "array2dfo_data";
     const char * array3d_label = "array3d_data";
+    const char * array3dfo_label = "array3dfo_data";
     int int_data = 7;
     double double_data = 2.71828;
     const int dim1 = 2;
@@ -58,6 +59,7 @@ BOOST_AUTO_TEST_CASE(read_write_data)
     MArray2d a2dfo(boost::extents[dim1][dim2],
                  boost::fortran_storage_order());
     MArray3d a3d(boost::extents[dim1][dim2][dim3]);
+    MArray3d a3dfo(boost::extents[dim1][dim2][dim3]);
     for (int j = 0; j < dim1; ++j) {
         a1d[j] = 100 * j;
         for (int k = 0; k < dim2; ++k) {
@@ -65,6 +67,7 @@ BOOST_AUTO_TEST_CASE(read_write_data)
             a2dfo[j][k] = 10 * k + 100 * j;
             for (int l = 0; l < dim2; ++l) {
                 a3d[j][k][l] = 1.1 * l + 10 * k + 100 * j;
+                a3dfo[j][k][l] = 1.1 * l + 10 * k + 100 * j;
             }
         }
     }
@@ -77,6 +80,7 @@ BOOST_AUTO_TEST_CASE(read_write_data)
         write_file.write(a2d, array2d_label);
         write_file.write(a2dfo, array2dfo_label);
         write_file.write(a3d, array3d_label);
+        write_file.write(a3dfo, array3dfo_label);
     }
 
     {
@@ -94,7 +98,11 @@ BOOST_AUTO_TEST_CASE(read_write_data)
         BOOST_CHECK(a2dfo_read.storage_order() == a2dfo.storage_order());
         multi_array_check_equal(a2dfo_read, a2dfo, tolerance);
         MArray3d a3d_read(read_file.read<MArray3d > (array3d_label));
+        BOOST_CHECK(a3d_read.storage_order() == a3d.storage_order());
         multi_array_check_equal(a3d_read, a3d, tolerance);
+        MArray3d a3dfo_read(read_file.read<MArray3d > (array3dfo_label));
+        BOOST_CHECK(a3dfo_read.storage_order() == a3dfo.storage_order());
+        multi_array_check_equal(a3dfo_read, a3dfo, tolerance);
     }
 }
 
