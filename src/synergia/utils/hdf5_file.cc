@@ -106,23 +106,17 @@ template<>
         }
         dataspace.getSimpleExtentDims(&dims[0], NULL);
         int storage_order = read<int>(name + "_storage_order");
-        if (storage_order == Hdf5_writer<MArray2d >::c_storage_order) {
-            MArray2d retval(boost::extents[dims[0]][dims[1]],
-                    boost::c_storage_order());
+        MArray2d retval =
+                (storage_order == Hdf5_writer<MArray2d >::c_storage_order) ?
+                    MArray2d(boost::extents[dims[0]][dims[1]],
+                        boost::c_storage_order()) :
+                    MArray2d(boost::extents[dims[0]][dims[1]],
+                        boost::fortran_storage_order());
 
-            DataSpace memspace(rank, &dims[0]);
-            double * data_out = retval.origin();
-            dataset.read(data_out, atomic_type, memspace, dataspace);
-            return retval;
-        } else {
-            MArray2d retval(boost::extents[dims[0]][dims[1]],
-                    boost::fortran_storage_order());
-
-            DataSpace memspace(rank, &dims[0]);
-            double * data_out = retval.origin();
-            dataset.read(data_out, atomic_type, memspace, dataspace);
-            return retval;
-        }
+        DataSpace memspace(rank, &dims[0]);
+        double * data_out = retval.origin();
+        dataset.read(data_out, atomic_type, memspace, dataspace);
+        return retval;
     }
 
 template<>
@@ -142,23 +136,17 @@ template<>
         }
         dataspace.getSimpleExtentDims(&dims[0], NULL);
         int storage_order = read<int>(name + "_storage_order");
-        if (storage_order == Hdf5_writer<MArray3d >::c_storage_order) {
-            MArray3d retval(boost::extents[dims[0]][dims[1]][dims[2]],
-                    boost::c_storage_order());
+        MArray3d retval =
+                (storage_order == Hdf5_writer<MArray3d >::c_storage_order) ?
+                    MArray3d(boost::extents[dims[0]][dims[1]][dims[2]],
+                        boost::c_storage_order()) :
+                    MArray3d(boost::extents[dims[0]][dims[1]][dims[2]],
+                        boost::fortran_storage_order());
 
-            DataSpace memspace(rank, &dims[0]);
-            double * data_out = retval.origin();
-            dataset.read(data_out, atomic_type, memspace, dataspace);
-            return retval;
-        } else {
-            MArray3d retval(boost::extents[dims[0]][dims[1]][dims[2]],
-                    boost::fortran_storage_order());
-
-            DataSpace memspace(rank, &dims[0]);
-            double * data_out = retval.origin();
-            dataset.read(data_out, atomic_type, memspace, dataspace);
-            return retval;
-        }
+        DataSpace memspace(rank, &dims[0]);
+        double * data_out = retval.origin();
+        dataset.read(data_out, atomic_type, memspace, dataspace);
+        return retval;
 }
 
 template<class Archive>
