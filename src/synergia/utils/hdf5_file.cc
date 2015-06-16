@@ -105,12 +105,24 @@ template<>
                     "Hdf5_file::read<MArray2d>: data to read has wrong rank");
         }
         dataspace.getSimpleExtentDims(&dims[0], NULL);
-        MArray2d retval(boost::extents[dims[0]][dims[1]]);
+        int storage_order = read<int>(name + "_storage_order");
+        if (storage_order == Hdf5_writer<MArray2d >::c_storage_order) {
+            MArray2d retval(boost::extents[dims[0]][dims[1]],
+                    boost::c_storage_order());
 
-        DataSpace memspace(rank, &dims[0]);
-        double * data_out = retval.origin();
-        dataset.read(data_out, atomic_type, memspace, dataspace);
-        return retval;
+            DataSpace memspace(rank, &dims[0]);
+            double * data_out = retval.origin();
+            dataset.read(data_out, atomic_type, memspace, dataspace);
+            return retval;
+        } else {
+            MArray2d retval(boost::extents[dims[0]][dims[1]],
+                    boost::fortran_storage_order());
+
+            DataSpace memspace(rank, &dims[0]);
+            double * data_out = retval.origin();
+            dataset.read(data_out, atomic_type, memspace, dataspace);
+            return retval;
+        }
     }
 
 template<>

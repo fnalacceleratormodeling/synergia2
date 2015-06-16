@@ -16,6 +16,28 @@ template<typename T>
 
 template<typename T>
     void
+    Hdf5_writer<T >::write_storage_order(T const& data)
+    {
+    }
+
+template<>
+    void
+    Hdf5_writer<MArray2d >::write_storage_order(MArray2d const& data);
+
+template<>
+    void
+    Hdf5_writer<MArray2d_ref >::write_storage_order(MArray2d_ref const& data);
+
+template<>
+    void
+    Hdf5_writer<MArray3d >::write_storage_order(MArray3d const& data);
+
+template<>
+    void
+    Hdf5_writer<MArray3d_ref >::write_storage_order(MArray3d_ref const& data);
+
+template<typename T>
+    void
     Hdf5_writer<T >::update_dims(T const& data)
     {
         dims.at(0) = 1;
@@ -32,6 +54,7 @@ template<typename T>
     void
     Hdf5_writer<T >::write(T const& data)
     {
+        write_storage_order(data);
         update_dims(data);
         DataSpace dataspace(data_rank, &dims[0]);
         DataSet dataset = file_ptr->createDataSet(name.c_str(), atomic_type,

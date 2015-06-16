@@ -46,6 +46,7 @@ BOOST_AUTO_TEST_CASE(read_write_data)
     const char * double_label = "double_data";
     const char * array1d_label = "array1d_data";
     const char * array2d_label = "array2d_data";
+    const char * array2dfo_label = "array2dfo_data";
     const char * array3d_label = "array3d_data";
     int int_data = 7;
     double double_data = 2.71828;
@@ -54,11 +55,14 @@ BOOST_AUTO_TEST_CASE(read_write_data)
     const int dim3 = 4;
     MArray1d a1d(boost::extents[dim1]);
     MArray2d a2d(boost::extents[dim1][dim2]);
+    MArray2d a2dfo(boost::extents[dim1][dim2],
+                 boost::fortran_storage_order());
     MArray3d a3d(boost::extents[dim1][dim2][dim3]);
     for (int j = 0; j < dim1; ++j) {
         a1d[j] = 100 * j;
         for (int k = 0; k < dim2; ++k) {
             a2d[j][k] = 10 * k + 100 * j;
+            a2dfo[j][k] = 10 * k + 100 * j;
             for (int l = 0; l < dim2; ++l) {
                 a3d[j][k][l] = 1.1 * l + 10 * k + 100 * j;
             }
@@ -71,6 +75,7 @@ BOOST_AUTO_TEST_CASE(read_write_data)
         write_file.write(double_data, double_label);
         write_file.write(a1d, array1d_label);
         write_file.write(a2d, array2d_label);
+        write_file.write(a2dfo, array2dfo_label);
         write_file.write(a3d, array3d_label);
     }
 
@@ -83,7 +88,11 @@ BOOST_AUTO_TEST_CASE(read_write_data)
         MArray1d a1d_read(read_file.read<MArray1d > (array1d_label));
         multi_array_check_equal(a1d_read, a1d, tolerance);
         MArray2d a2d_read(read_file.read<MArray2d > (array2d_label));
+        BOOST_CHECK(a2d_read.storage_order() == a2d.storage_order());
         multi_array_check_equal(a2d_read, a2d, tolerance);
+        MArray2d a2dfo_read(read_file.read<MArray2d > (array2dfo_label));
+        BOOST_CHECK(a2dfo_read.storage_order() == a2dfo.storage_order());
+        multi_array_check_equal(a2dfo_read, a2dfo, tolerance);
         MArray3d a3d_read(read_file.read<MArray3d > (array3d_label));
         multi_array_check_equal(a3d_read, a3d, tolerance);
     }
