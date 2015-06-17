@@ -44,8 +44,22 @@ template<typename ValueType, int Dimension>
                 throw std::runtime_error(
                         "numpy_multi_array_converter: Unable to deal with type");
             }
-            retval = PyArray_SimpleNew(c_array.num_dimensions(),
-                    (npy_intp*) c_array.shape(), type_num);
+            int flags;
+            if (c_array.storage_order() == boost::c_storage_order()) {
+                flags = 0;
+            } else {
+                if (c_array.storage_order() == boost::fortran_storage_order()) {
+                    flags = NPY_ARRAY_F_CONTIGUOUS;
+                } else {
+                    throw std::runtime_error(
+                                "numpy_multi_array_converter: Unable to deal with general storage order");
+                }
+            }
+            retval = PyArray_NewFromDescr(&PyArray_Type,
+                                          PyArray_DescrFromType(type_num),
+                                          c_array.num_dimensions(),
+                                          (npy_intp*) c_array.shape(),
+                                          0, 0, flags, 0);
             double * p = (double *) PyArray_DATA((PyArrayObject *)retval);
             for (const double * it = c_array.data();
                     it != (c_array.data() + c_array.num_elements()); ++it) {

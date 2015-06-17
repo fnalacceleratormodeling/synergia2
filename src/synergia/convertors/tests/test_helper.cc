@@ -39,6 +39,33 @@ MArray3d get_MArray3d(int n1, int n2, int n3)
     return a;
 }
 
+MArray2d get_MArray2d_fortran(int n1, int n2)
+{
+    MArray2d a(boost::extents[n1][n2],
+               boost::fortran_storage_order());
+    for(int i = 0; i < n1; ++i) {
+        for(int j = 0; j < n2; ++j) {
+            a[i][j] = i + 10*j + 0.25;
+        }
+    }
+
+    return a;
+}
+
+MArray3d get_MArray3d_fortran(int n1, int n2, int n3)
+{
+    MArray3d a(boost::extents[n1][n2][n3],
+               boost::fortran_storage_order());
+    for(int i = 0; i < n1; ++i) {
+        for(int j = 0; j < n2; ++j) {
+            for(int k = 0; k < n3; ++k) {
+                a[i][j][k] = i + 10*j + 100*k + 0.25;
+            }
+        }
+    }
+
+    return a;
+}
 using namespace boost::python;
 
 BOOST_PYTHON_MODULE(test_helper)
@@ -57,4 +84,6 @@ BOOST_PYTHON_MODULE(test_helper)
     def("get_MArray1d", get_MArray1d);
     def("get_MArray2d", get_MArray2d);
     def("get_MArray3d", get_MArray3d);
+    def("get_MArray2d_fortran", get_MArray2d_fortran);
+    def("get_MArray3d_fortran", get_MArray3d_fortran);
 }

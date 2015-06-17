@@ -25,9 +25,23 @@ def test_convert_MArray2d():
         for j in range(0, n2):
             assert_equal(a[i][j], f(i, j))
 
-def test_convert_MArray2d():
+def test_convert_MArray3d():
     a = test_helper.get_MArray3d(n1, n2, n3)
     for i in range(0, n1):
         for j in range(0, n2):
             for k in range(0, n3):
                 assert_equal(a[i][j][k], f(i, j, k))
+
+def test_convert_MArray2d_fortran():
+    a = test_helper.get_MArray2d_fortran(n1, n2)
+    for i in range(0, n1):
+        for j in range(0, n2):
+            assert_equal(a[i][j], f(i, j))
+
+def test_convert_MArray3d_fortran():
+    a = test_helper.get_MArray3d_fortran(n1, n2, n3)
+    for i in range(0, n1):
+        for j in range(0, n2):
+            for k in range(0, n3):
+                assert_equal(a[i][j][k], f(i, j, k))
+
