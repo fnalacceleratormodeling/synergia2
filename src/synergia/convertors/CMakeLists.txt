@@ -12,4 +12,4 @@ install(TARGETS
     convertors
     DESTINATION lib/synergia/convertors)
 
-#add_subdirectory(tests)
+add_subdirectory(tests)
