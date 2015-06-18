@@ -1,6 +1,7 @@
 #include "ff_quadrupole.h"
 #include "ff_algorithm.h"
 #include "synergia/lattice/chef_utils.h"
+#include "synergia/utils/gsvector.h"
 
 const int FF_quadrupole::steps = 5; // temporarily hardwired
 const int FF_quadrupole::drifts_per_step = 4; // determined by algorithm in thick_quadrupole unit
@@ -119,13 +120,39 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
          double step_length = length/steps;
          double step_strength[2] = { k[0]*step_length, k[1]*step_length };
 
-         for (int part = 0; part < local_num; ++part) {
-             double x(particles[part][Bunch::x]);
-             double xp(particles[part][Bunch::xp]);
-             double y(particles[part][Bunch::y]);
-             double yp(particles[part][Bunch::yp]);
-             double cdt(particles[part][Bunch::cdt]);
-             double dpop(particles[part][Bunch::dpop]);
+         double * RESTRICT xa, * RESTRICT xpa, * RESTRICT ya, * RESTRICT ypa,
+                 * RESTRICT cdta, * RESTRICT dpopa;
+         bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
+
+         const int num_blocks = local_num / GSVector::size;
+         const int block_last = num_blocks * GSVector::size;
+         for (int part = 0; part < block_last; part += GSVector::size) {
+             GSVector x(&xa[part]);
+             GSVector xp(&xpa[part]);
+             GSVector y(&ya[part]);
+             GSVector yp(&ypa[part]);
+             GSVector cdt(&cdta[part]);
+             GSVector dpop(&dpopa[part]);
+
+             FF_algorithm::yoshida<GSVector, FF_quadrupole::thin_quadrupole_unit<GSVector>, 1 >
+                     ( x, xp, y, yp, cdt, dpop,
+                       reference_momentum, m,
+                       substep_reference_cdt,
+                       step_length, step_strength, steps );
+
+             x.store(&xa[part]);
+             xp.store(&xpa[part]);
+             yp.store(&ypa[part]);
+             cdt.store(&cdta[part]);
+             dpop.store(&dpopa[part]);
+         }
+         for (int part = block_last; part < local_num; ++part) {
+             double x(xa[part]);
+             double xp(xpa[part]);
+             double y(ya[part]);
+             double yp(ypa[part]);
+             double cdt(cdta[part]);
+             double dpop(dpopa[part]);
 
              FF_algorithm::yoshida<double, FF_quadrupole::thin_quadrupole_unit<double>, 1 >
                      ( x, xp, y, yp, cdt, dpop,
@@ -133,12 +160,13 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
                        substep_reference_cdt,
                        step_length, step_strength, steps );
 
-             particles[part][Bunch::x] = x;
-             particles[part][Bunch::xp] = xp;
-             particles[part][Bunch::y] = y;
-             particles[part][Bunch::yp] = yp;
-             particles[part][Bunch::cdt] = cdt;
-        }
+             xa[part] = x;
+             xpa[part] = xp;
+             ya[part] = y;
+             ypa[part] = yp;
+             cdta[part] = cdt;
+             dpopa[part] = dpop;
+         }
         bunch.get_reference_particle().increment_trajectory(length);
     }
 }
