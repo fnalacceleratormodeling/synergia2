@@ -271,6 +271,8 @@ Bunch::set_sort_period(int period)
 void
 Bunch::sort(int index)
 {
+    std::cout << "jfa: sort is broken!!!" << std::endl;
+    return;
     if (index == 0) {
         Sortable2d<double*, 7, 0 > sortable(local_particles->origin(),
                 local_num);
