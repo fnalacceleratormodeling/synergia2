@@ -84,10 +84,10 @@ template<typename ValueType, int Dimension>
             }
             int flags;
             if (c_array.storage_order() == boost::c_storage_order()) {
-                flags = 0;
+                flags = NPY_ARRAY_WRITEABLE;
             } else {
                 if (c_array.storage_order() == boost::fortran_storage_order()) {
-                    flags = NPY_ARRAY_F_CONTIGUOUS;
+                    flags = NPY_ARRAY_WRITEABLE | NPY_ARRAY_F_CONTIGUOUS;
                 } else {
                     throw std::runtime_error(
                                 "numpy_multi_array_converter: Unable to deal with general storage order");
