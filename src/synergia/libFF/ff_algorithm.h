@@ -49,18 +49,18 @@ public:
         const double d3 = d1;
         const double d2 = -1.70241438391931526809537561795;
 
-        double k1[components * 2], k2[components * 2], k3[components * 3];
+        double k1[components * 2], k2[components * 2], k3[components * 2];
 
         for (int i=0; i<components; ++i)
         {
             k1[i*2+0] = d1 * step_strength[i*2+0];
             k1[i*2+1] = d1 * step_strength[i*2+1];
 
-            k1[i*2+0] = d2 * step_strength[i*2+0];
-            k1[i*2+1] = d2 * step_strength[i*2+1];
+            k2[i*2+0] = d2 * step_strength[i*2+0];
+            k2[i*2+1] = d2 * step_strength[i*2+1];
 
-            k1[i*2+0] = d3 * step_strength[i*2+0];
-            k1[i*2+1] = d3 * step_strength[i*2+1];
+            k3[i*2+0] = d3 * step_strength[i*2+0];
+            k3[i*2+1] = d3 * step_strength[i*2+1];
         }
 
         for(int i = 0; i < steps; ++i) 
@@ -90,4 +90,4 @@ public:
 
 };
 
-#endif // FF_QUADRUPOLE_H
+#endif // FF_ALGORITHM_H

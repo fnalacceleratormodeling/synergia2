@@ -30,7 +30,7 @@ double FF_quadrupole::get_reference_cdt(double length, double * k,
         double dpop(reference_particle.get_state()[Bunch::dpop]);
 
         double cdt_orig = cdt;
-        FF_algorithm::yoshida<double, FF_quadrupole::thin_quadrupole_unit<double>, 1 >
+        FF_algorithm::yoshida<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
                 ( x, xp, y, yp, cdt, dpop,
                   reference_momentum, m,
                   0.0,
@@ -73,9 +73,9 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, JetParticle& jet_p
     double kl[2] = { k[0]*length, k[1]*length };
 
     if (length == 0.0) {
-        thin_quadrupole_unit(x, xp, y, yp, kl);
+        FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, kl);
     } else {
-        FF_algorithm::yoshida<TJet<double>, FF_quadrupole::thin_quadrupole_unit<TJet<double> >, 1 >
+        FF_algorithm::yoshida<TJet<double>, FF_algorithm::thin_quadrupole_unit<TJet<double> >, 1 >
                 ( x, xp, y, yp, cdt, dpop,
                   reference_momentum, m,
                   substep_reference_cdt,
@@ -107,7 +107,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
              double y(particles[part][Bunch::y]);
              double yp(particles[part][Bunch::yp]);
 
-             thin_quadrupole_unit(x, xp, y, yp, k);
+             FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k);
 
              particles[part][Bunch::xp] = xp;
              particles[part][Bunch::yp] = yp;
@@ -134,7 +134,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
              GSVector cdt(&cdta[part]);
              GSVector dpop(&dpopa[part]);
 
-             FF_algorithm::yoshida<GSVector, FF_quadrupole::thin_quadrupole_unit<GSVector>, 1 >
+             FF_algorithm::yoshida<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 1 >
                      ( x, xp, y, yp, cdt, dpop,
                        reference_momentum, m,
                        substep_reference_cdt,
@@ -142,6 +142,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
              x.store(&xa[part]);
              xp.store(&xpa[part]);
+             y.store(&ya[part]);
              yp.store(&ypa[part]);
              cdt.store(&cdta[part]);
              dpop.store(&dpopa[part]);
@@ -154,7 +155,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
              double cdt(cdta[part]);
              double dpop(dpopa[part]);
 
-             FF_algorithm::yoshida<double, FF_quadrupole::thin_quadrupole_unit<double>, 1 >
+             FF_algorithm::yoshida<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
                      ( x, xp, y, yp, cdt, dpop,
                        reference_momentum, m,
                        substep_reference_cdt,
