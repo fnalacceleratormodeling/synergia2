@@ -6,7 +6,6 @@ import string
 import time
 import commands
 import sys
-import shutil
 
 def find_ctesttestfiles(dir):
     matches = []
@@ -66,7 +65,6 @@ class Test:
 def extract_tests_subdirs(dir_name):
     tests = []
     subdirs = []
-#    commands = []
     ctesttestfile = os.path.join(dir_name, 'CTestTestfile.cmake')
     try:
         f = open(ctesttestfile, 'r')
@@ -76,7 +74,6 @@ def extract_tests_subdirs(dir_name):
                 split = match.group(1).split(' ')
                 name = split[0]
                 concat_command = string.join(split[1:])
-    #            command = extract_command_args(concat_command)
                 tests.append(Test(name, concat_command, os.path.dirname(ctesttestfile)))
             match = re.match('subdirs\((.*)\)', line, re.IGNORECASE)
             if match:
@@ -149,43 +146,4 @@ def run_tests(tests):
            
 if __name__ == '__main__':
     tests = extract_all_tests('.')
-#    print 'found', len(tests), 'tests'
-#    for index, test in zip(range(1,len(tests)+1), tests):
-#        print index, test.name, test.dir
     run_tests(tests)
-
-#    cttfiles = find_ctesttestfiles('.')
-#    all_tests = []
-#    for cttfile in cttfiles:
-#        tests = extract_tests(cttfile)
-#        all_tests.extend(tests)
-#    logdir = os.path.abspath('./ctest_python_logs')
-#    if os.path.exists(logdir):
-#        shutil.rmtree(logdir)
-#    os.mkdir(logdir)
-#    count = 0
-#    errors = []
-#    error_names = []
-#    t0 = time.time()
-#    for test in all_tests:
-#        count += 1
-#        status, output = test.run(count, len(all_tests))
-#        if status:
-#            errors.append(count)
-#            error_names.append(test.name)
-#        open(os.path.join(logdir, '%d.log' % count), 'w').write(output + '\n')
-#    t1 = time.time()
-#
-#    print
-#    print "%d%%" % (100 * (1.0 - len(errors) / (1.0 * len(all_tests)))),
-#    print "tests passed,",
-#    print len(errors), "tests failed out of", len(all_tests)
-#    print
-#    print "Total Test time (real) = %0.2f" % (t1 - t0) , "sec"
-#    print
-#    if len(errors) > 0:
-#        print "The following tests FAILED:"
-#        for error, error_name in zip(errors, error_names):
-#            print "%8d" % error, '-', error_name, '(Failed)'
-#        print 'Errors while running ctest_python.py'
-#        sys.exit(1)
