@@ -145,5 +145,8 @@ def run_tests(tests):
             
            
 if __name__ == '__main__':
-    tests = extract_all_tests('.')
+    root_dir = '.'
+    if len(sys.argv) > 1:
+        root_dir = sys.argv[1]
+    tests = extract_all_tests(root_dir)
     run_tests(tests)
