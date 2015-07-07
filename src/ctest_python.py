@@ -44,7 +44,8 @@ class Test:
         here = os.getcwd()
         os.chdir(self.dir)
         t0 = time.time()
-        status, output = commands.getstatusoutput(self.command)
+        output = None
+        status = os.system(self.command)
         t1 = time.time()
         os.chdir(here)
         beginning = "%2d/%2d" % (index, max_index) + ' '
