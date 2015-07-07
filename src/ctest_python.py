@@ -44,7 +44,7 @@ class Test:
         here = os.getcwd()
         os.chdir(self.dir)
         t0 = time.time()
-        output = None
+        output = "this is fake output\n"
         status = os.system(self.command)
         t1 = time.time()
         os.chdir(here)
