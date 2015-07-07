@@ -268,45 +268,48 @@ Bunch::set_sort_period(int period)
     sort_counter = period;
 }
 
+namespace {
+double * semi_global_t;
+size_t semi_global_start_pos;
+
+inline bool do_compare(unsigned int const& a, unsigned int const& b)
+{
+    bool retval = semi_global_t[semi_global_start_pos+a] <
+            semi_global_t[semi_global_start_pos+b];
+    return retval;
+}
+
+void do_sort(double * t, size_t rows, size_t cols, size_t ord_col)
+{
+    semi_global_t = t;
+    std::vector<unsigned int> index(cols);
+    // c++ 11
+    // unsigned int ind=0;
+    //generate(index.begin(),index.end(), [&]() { return ind++; });
+    for(int i=0; i<cols; ++i) {
+        index[i] = i;
+    }
+    semi_global_start_pos = ord_col*cols;
+    std::sort(index.begin(),index.end(), &do_compare);
+
+    // swap all values in each row according to index order
+    for(size_t r=0; r<rows; ++r) {
+        double *start = t+(r*cols), *end = t+((r+1)*cols);
+        std::vector<double> temp(start, end);
+        for(size_t i=0; i<index.size(); ++i) {
+            start[i] = temp[index[i]];
+        }
+    }
+}
+}
+
 void
 Bunch::sort(int index)
 {
-    std::cout << "jfa: sort is broken!!!" << std::endl;
-    return;
-    if (index == 0) {
-        Sortable2d<double*, 7, 0 > sortable(local_particles->origin(),
-                local_num);
-        std::sort(sortable.begin(), sortable.end(),
-                Sortable2d<double*, 7, 0 >::Less());
-    } else if (index == 1) {
-        Sortable2d<double*, 7, 1 > sortable(local_particles->origin(),
-                local_num);
-        std::sort(sortable.begin(), sortable.end(),
-                Sortable2d<double*, 7, 1 >::Less());
-    } else if (index == 2) {
-        Sortable2d<double*, 7, 2 > sortable(local_particles->origin(),
-                local_num);
-        std::sort(sortable.begin(), sortable.end(),
-                Sortable2d<double*, 7, 2 >::Less());
-    } else if (index == 3) {
-        Sortable2d<double*, 7, 3 > sortable(local_particles->origin(),
-                local_num);
-        std::sort(sortable.begin(), sortable.end(),
-                Sortable2d<double*, 7, 3 >::Less());
-    } else if (index == 4) {
-        Sortable2d<double*, 7, 4 > sortable(local_particles->origin(),
-                local_num);
-        std::sort(sortable.begin(), sortable.end(),
-                Sortable2d<double*, 7, 4 >::Less());
-    } else if (index == 5) {
-        Sortable2d<double*, 7, 5 > sortable(local_particles->origin(),
-                local_num);
-        std::sort(sortable.begin(), sortable.end(),
-                Sortable2d<double*, 7, 5 >::Less());
-    } else {
+    if ((index<0) || (index>6)) {
         throw std::runtime_error("Bunch::sort: invalid index");
     }
-
+    do_sort(local_particles->origin(), 7, local_num, index);
     sort_counter = sort_period;
 }
 
