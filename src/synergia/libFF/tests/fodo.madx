@@ -1,0 +1,19 @@
+
+beam, particle=proton,pc=3.0;
+
+qd: drift, l=1.0;
+qf: quadrupole, l=1.0, k1=0.01;
+qs: sextupole, l=1.0, k2=0.02;
+
+seq_drift: sequence, l=1.0;
+sd: qd, at=0;
+endsequence;
+
+seq_quadrupole: sequence, l=1.0;
+sq: qf, at=0;
+endsequence;
+
+seq_sextupole: sequence, l=1.0;
+ss: qs, at=0;
+endsequence;
+
