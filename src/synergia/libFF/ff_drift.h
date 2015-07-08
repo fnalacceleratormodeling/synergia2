@@ -44,6 +44,6 @@ void FF_drift::drift_unit(T & x, T const& xp,
     x += lxpr;
     y += lypr;
     //cdt += sqrt(D2 / beta2) - reference_cdt;
-    cdt += sqrt(D2 * ibeta2) - reference_cdt;
+    cdt += ((0.0 < length) - (length < 0.0)) * sqrt(D2 * ibeta2) - reference_cdt;
 }
 #endif // FF_DRIFT_H
