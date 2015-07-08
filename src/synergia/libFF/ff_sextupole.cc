@@ -29,7 +29,7 @@ double FF_sextupole::get_reference_cdt(double length, double * k,
         double dpop(reference_particle.get_state()[Bunch::dpop]);
 
         double cdt_orig = cdt;
-        FF_algorithm::yoshida<double, FF_sextupole::thin_sextupole_unit<double>, 1 >
+        FF_algorithm::yoshida4<double, FF_sextupole::thin_sextupole_unit<double>, 1 >
                 ( x, xp, y, yp, cdt, dpop,
                   reference_momentum, m,
                   0.0,
@@ -74,7 +74,7 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, JetParticle& jet_pa
     if (length == 0.0) {
         thin_sextupole_unit(x, xp, y, yp, kl);
     } else {
-        FF_algorithm::yoshida<TJet<double>, FF_sextupole::thin_sextupole_unit<TJet<double> >, 1 >
+        FF_algorithm::yoshida4<TJet<double>, FF_sextupole::thin_sextupole_unit<TJet<double> >, 1 >
                 ( x, xp, y, yp, cdt, dpop,
                   reference_momentum, m,
                   substep_reference_cdt,
@@ -124,7 +124,7 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
              double cdt(particles[part][Bunch::cdt]);
              double dpop(particles[part][Bunch::dpop]);
 
-             FF_algorithm::yoshida<double, FF_sextupole::thin_sextupole_unit<double>, 1 >
+             FF_algorithm::yoshida4<double, FF_sextupole::thin_sextupole_unit<double>, 1 >
                      ( x, xp, y, yp, cdt, dpop,
                        reference_momentum, m,
                        substep_reference_cdt,

@@ -30,7 +30,7 @@ double FF_quadrupole::get_reference_cdt(double length, double * k,
         double dpop(reference_particle.get_state()[Bunch::dpop]);
 
         double cdt_orig = cdt;
-        FF_algorithm::yoshida<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
+        FF_algorithm::yoshida4<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
                 ( x, xp, y, yp, cdt, dpop,
                   reference_momentum, m,
                   0.0,
@@ -75,7 +75,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, JetParticle& jet_p
     if (length == 0.0) {
         FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, kl);
     } else {
-        FF_algorithm::yoshida<TJet<double>, FF_algorithm::thin_quadrupole_unit<TJet<double> >, 1 >
+        FF_algorithm::yoshida4<TJet<double>, FF_algorithm::thin_quadrupole_unit<TJet<double> >, 1 >
                 ( x, xp, y, yp, cdt, dpop,
                   reference_momentum, m,
                   substep_reference_cdt,
@@ -120,6 +120,8 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
          double step_length = length/steps;
          double step_strength[2] = { k[0]*step_length, k[1]*step_length };
 
+         std::cout << "reference cdt = " << reference_cdt << "\n";
+
          double * RESTRICT xa, * RESTRICT xpa, * RESTRICT ya, * RESTRICT ypa,
                  * RESTRICT cdta, * RESTRICT dpopa;
          bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
@@ -134,7 +136,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
              GSVector cdt(&cdta[part]);
              GSVector dpop(&dpopa[part]);
 
-             FF_algorithm::yoshida<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 1 >
+             FF_algorithm::yoshida4<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 1 >
                      ( x, xp, y, yp, cdt, dpop,
                        reference_momentum, m,
                        substep_reference_cdt,
@@ -155,7 +157,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
              double cdt(cdta[part]);
              double dpop(dpopa[part]);
 
-             FF_algorithm::yoshida<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
+             FF_algorithm::yoshida4<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
                      ( x, xp, y, yp, cdt, dpop,
                        reference_momentum, m,
                        substep_reference_cdt,
