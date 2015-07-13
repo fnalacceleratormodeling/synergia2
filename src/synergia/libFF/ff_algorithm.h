@@ -32,6 +32,31 @@ public:
         typename T, 
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
         int components >
+    inline static void yoshida2(T & x, T & xp,
+                                T & y, T & yp,
+                                T & cdt, T const& dpop,
+                                double reference_momentum,
+                                double m, double substep_reference_cdt,
+                                double step_length, double * step_strength,
+                                int steps)
+    {
+        for(int i = 0; i < steps; ++i) 
+        {
+            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, 0.5 * step_length, reference_momentum,
+                       m, substep_reference_cdt);
+
+            kf( x, xp, y, yp, step_strength );
+
+            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, 0.5 * step_length, reference_momentum,
+                       m, substep_reference_cdt);
+        }
+    }
+
+
+    template <
+        typename T, 
+        void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
+        int components >
     inline static void yoshida4(T & x, T & xp,
                                 T & y, T & yp,
                                 T & cdt, T const& dpop,
