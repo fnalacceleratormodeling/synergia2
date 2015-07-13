@@ -25,6 +25,8 @@ class GSVector {
     void wtf() {
         std::cout << "GSVector::wtf " << vec[0] << "," << vec[1] << std::endl;
     }
+
+    friend std::ostream & operator << (std::ostream & out, GSVector & v);
 };
 static inline GSVector operator+(GSVector const& a, GSVector const& b) {
     return GSVector(a.vec + b.vec);
@@ -82,6 +84,12 @@ static inline GSVector& operator/=(GSVector& a, GSVector const& b) {
 static inline GSVector sqrt(GSVector const& a) { return GSVector(sqrt(a.vec)); }
 static inline GSVector invsqrt(GSVector const& a) {
     return GSVector(1.0 / sqrt(a.vec));
+}
+
+inline std::ostream & operator << (std::ostream & out, GSVector & v)
+{
+    out << "(" << v.vec[0] << ", " << v.vec[1] << ")";
+    return out;
 }
 
 #elif defined(GSV_AVX)
@@ -105,6 +113,8 @@ public:
     void wtf() {
         std::cout << "GSVector::wtf " << vec[0] << "," << vec[1] << std::endl;
     }
+
+    friend std::ostream & operator << (std::ostream & out, GSVector & v);
 };
 static inline GSVector operator+(GSVector const& a, GSVector const& b) {
     return GSVector(a.vec + b.vec);
@@ -162,6 +172,12 @@ static inline GSVector& operator/=(GSVector& a, GSVector const& b) {
 static inline GSVector sqrt(GSVector const& a) { return GSVector(sqrt(a.vec)); }
 static inline GSVector invsqrt(GSVector const& a) {
     return GSVector(1.0 / sqrt(a.vec));
+}
+
+inline std::ostream & operator << (std::ostream & out, GSVector & v)
+{
+    out << "(" << v.vec[0] << ", " << v.vec[1] << ", " << v.vec[2] << ", " << v.vec[3] << ")";
+    return out;
 }
 
 #elif defined(GSV_V4D)
@@ -257,6 +273,8 @@ class GSVector {
         marray[index0][index1] = vec;
     }
     void store(double* array_start) const { *array_start = vec; }
+
+    friend std::ostream & operator << (std::ostream & out, GSVector & v);
 };
 static inline GSVector operator+(GSVector const& a, GSVector const& b) {
     return GSVector(a.vec + b.vec);
@@ -315,6 +333,13 @@ static inline GSVector sqrt(GSVector const& a) { return GSVector(sqrt(a.vec)); }
 static inline GSVector invsqrt(GSVector const& a) {
     return GSVector(1.0 / sqrt(a.vec));
 }
+
+inline std::ostream & operator << (std::ostream & out, GSVector & v)
+{
+    out << "(" << v.vec << ")";
+    return out;
+}
+
 #endif
 
 #define GSVECTOR_H_
