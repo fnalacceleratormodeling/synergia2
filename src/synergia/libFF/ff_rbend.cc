@@ -99,7 +99,8 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     double reference_brho     = reference_momentum / PH_CNV_brho_to_p;
     double m = bunch.get_mass();
 
-    k[0] = reference_brho * angle / l;
+    //k[0] = reference_brho * angle / l;
+    k[0] = 2.0 * sin( angle / 2.0 ) / l;
     k[1] = 0;
 
     double reference_cdt = get_reference_cdt(length, k, bunch.get_reference_particle());
