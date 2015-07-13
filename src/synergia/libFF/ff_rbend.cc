@@ -1,8 +1,8 @@
 #include "ff_rbend.h"
 #include "synergia/lattice/chef_utils.h"
 
-const int FF_rbend::steps = 5; // temporarily hardwired
-const int FF_rbend::drifts_per_step = 4; // determined by algorithm in thick_quadrupole unit
+const int FF_rbend::steps = 1; // temporarily hardwired
+const int FF_rbend::drifts_per_step = 2; // determined by algorithm in thick_quadrupole unit
 
 FF_rbend::FF_rbend()
 {
@@ -33,7 +33,7 @@ double FF_rbend::get_reference_cdt(double length, double * k,
 
         double cdt_orig = cdt;
 
-        FF_algorithm::yoshida4<double, FF_rbend::thin_rbend_unit<double>, 3 >
+        FF_algorithm::yoshida<double, FF_rbend::thin_rbend_unit<double>, 4, 3 >
             ( x, xp, y, yp, cdt, dpop,
               reference_momentum, m,
               0.0,
@@ -103,8 +103,12 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     k[0] = 2.0 * sin( angle / 2.0 ) / l;
     k[1] = 0;
 
+    std::cout << std::setprecision(10);
+    std::cout << "k0 = " << k[0] << "\n";
+
+
     double reference_cdt = get_reference_cdt(length, k, bunch.get_reference_particle());
-    double substep_reference_cdt = reference_cdt/steps/drifts_per_step;
+    double step_reference_cdt = reference_cdt/steps;
     double step_length = length/steps;
     double step_strength[6] = 
         { k[0]*step_length, k[1]*step_length,
@@ -119,10 +123,10 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double cdt (particles[part][Bunch::cdt ]);
         double dpop(particles[part][Bunch::dpop]);
 
-        FF_algorithm::yoshida4<double, FF_rbend::thin_rbend_unit<double>, 3 >
+        FF_algorithm::yoshida<double, FF_rbend::thin_rbend_unit<double>, 4, 3 >
             ( x, xp, y, yp, cdt, dpop,
               reference_momentum, m,
-              substep_reference_cdt,
+              step_reference_cdt,
               step_length, step_strength, steps );
 
         particles[part][Bunch::x]  = x;

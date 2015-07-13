@@ -28,6 +28,98 @@ public:
         yp += kL[0] * x * y - 0.5 * kL[1] * (x * x - y * y);
     }
 
+    // utility
+    inline int full_drifts_per_step(int order)
+    { return pow(3.0, (order-2.0)/2.0) * 2; }
+
+    inline int compact_drifts_per_step(int order)
+    { return (full_drifts_per_step(order) - 2) / 2 + 2; }
+
+    // general n-th order yoshida
+    template <
+        typename T,
+        void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
+        int n,
+        int components >
+    struct yoshida_element
+    {
+        static void integral ( T & x, T & xp,
+                               T & y, T & yp,
+                               T & cdt, T const & dpop,
+                               double pref, double m, double step_ref_cdt,
+                               double step_length, double * step_strength,
+                               int steps, double c )
+        {
+            double substep_ref_cdt = step_ref_cdt / 3.0;
+
+            yoshida_element<T, kf, n-1, components>::integral( x, xp, y, yp, cdt, dpop, pref, m, substep_ref_cdt,
+                                         step_length, step_strength, steps, c * x1(n) );
+
+            yoshida_element<T, kf, n-1, components>::integral( x, xp, y, yp, cdt, dpop, pref, m, substep_ref_cdt,
+                                         step_length, step_strength, steps, c * x0(n) );
+
+            yoshida_element<T, kf, n-1, components>::integral( x, xp, y, yp, cdt, dpop, pref, m, substep_ref_cdt,
+                                         step_length, step_strength, steps, c * x1(n) );
+        }
+
+        static double x1(int nn)
+        { return 1.0 / (2.0 - pow(2.0, 1.0/(2*nn+1))); }
+
+        static double x0(int nn)
+        { return 1.0 - 2.0 * x1(nn); }
+    };
+
+    template <
+        typename T,
+        void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
+        int components >
+    struct yoshida_element < T, kf, 0, components >
+    {
+        static void integral ( T & x, T & xp,
+                               T & y, T & yp,
+                               T & cdt, T const & dpop,
+                               double pref, double m, double step_ref_cdt,
+                               double step_length, double * step_strength,
+                               int steps, double c )
+        {
+            double substep_ref_cdt = step_ref_cdt / 2.0;
+            double kl[components * 2];
+
+            for (int i = 0; i < components * 2; ++i)
+                kl[i] = step_strength[i] * c;
+
+            FF_drift::drift_unit( x, xp, y, yp, cdt, dpop, 0.5 * c * step_length, pref, m, substep_ref_cdt );
+
+            kf( x, xp, y, yp, kl );
+
+            FF_drift::drift_unit( x, xp, y, yp, cdt, dpop, 0.5 * c * step_length, pref, m, substep_ref_cdt );
+        }
+    };
+
+    template <
+        typename T,
+        void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
+        int order,
+        int components >
+    inline static void yoshida( T & x, T & xp,
+                                T & y, T & yp,
+                                T & cdt, T const & dpop,
+                                double pref, double m, double step_ref_cdt,
+                                double step_length, double * step_strength, int steps )
+    {
+        const int n = (order - 2) / 2;
+
+        for(int i = 0; i < steps; ++i)
+        {
+            yoshida_element<T, kf, n, components>::integral( x, xp, y, yp, cdt, dpop, pref, m, step_ref_cdt,
+                                                   step_length, step_strength, steps, 1.0 );
+        }
+    }
+
+
+
+
+    // hardwired 2nd order yoshida
     template <
         typename T, 
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
@@ -53,6 +145,7 @@ public:
     }
 
 
+    // hardwired 4th order yoshida
     template <
         typename T, 
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
@@ -114,6 +207,7 @@ public:
     }
 
 
+    // hardwired 6th order yoshida
     template <
         typename T, 
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
