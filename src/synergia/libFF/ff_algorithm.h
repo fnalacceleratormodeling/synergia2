@@ -69,6 +69,7 @@ public:
         { return 1.0 - 2.0 * x1(nn); }
     };
 
+#if 0
     template <
         typename T,
         void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
@@ -95,6 +96,35 @@ public:
             FF_drift::drift_unit( x, xp, y, yp, cdt, dpop, 0.5 * c * step_length, pref, m, substep_ref_cdt );
         }
     };
+#endif
+
+    template <
+        typename T,
+        void(kf)(T const & x, T & xp, T const & y, T & yp, double const * kL),
+        int components >
+    struct yoshida_element < T, kf, 0, components >
+    {
+        static void integral ( T & x, T & xp,
+                               T & y, T & yp,
+                               T & cdt, T const & dpop,
+                               double pref, double m, double step_ref_cdt,
+                               double step_length, double * step_strength,
+                               int steps, double c )
+        {
+            double substep_ref_cdt = step_ref_cdt;
+            double kl[components * 2];
+
+            for (int i = 0; i < components * 2; ++i)
+                kl[i] = step_strength[i] * c * 0.5;
+
+            kf( x, xp, y, yp, kl );
+
+            FF_drift::drift_unit( x, xp, y, yp, cdt, dpop, c * step_length, pref, m, substep_ref_cdt );
+
+            kf( x, xp, y, yp, kl );
+        }
+    };
+
 
     template <
         typename T,
