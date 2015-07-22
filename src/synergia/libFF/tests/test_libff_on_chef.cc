@@ -47,11 +47,14 @@ struct propagator_fixture
     {
         BOOST_TEST_MESSAGE("setup propagator fixture");
 
+        const int map_order = 1;
+        const int num_steps = 1;
+
         // chef propagator
         lattice_chef = reader.get_lattice_sptr(seq_name, "fodo.madx");
         lattice_chef->set_all_string_attribute("extractor_type", "chef_propagate");
 
-        stepper_chef.reset(new Independent_stepper_elements(lattice_chef, 1, 1));
+        stepper_chef.reset(new Independent_stepper_elements(lattice_chef, map_order, num_steps));
         propagator_chef = new Propagator(stepper_chef);
 
         bunch_chef.reset(new Bunch(lattice_chef->get_reference_particle(), 1, 1.0e9, commxx));
@@ -61,7 +64,7 @@ struct propagator_fixture
         lattice_ff = reader.get_lattice_sptr(seq_name, "fodo.madx");
         lattice_ff->set_all_string_attribute("extractor_type", "libff");
 
-        stepper_ff.reset(new Independent_stepper_elements(lattice_ff, 1, 1));
+        stepper_ff.reset(new Independent_stepper_elements(lattice_ff, map_order, num_steps));
         propagator_ff = new Propagator(stepper_ff);
 
         bunch_ff.reset(new Bunch(lattice_ff->get_reference_particle(), 1, 1.0e9, commxx));
@@ -113,9 +116,11 @@ struct propagator_fixture
 };
 
 ELEMENT_FIXTURE(drift);
+ELEMENT_FIXTURE(rbend);
 ELEMENT_FIXTURE(quadrupole);
 ELEMENT_FIXTURE(sextupole);
 
+#if 1
 BOOST_FIXTURE_TEST_CASE( test_drift, drift_fixture )
 {
     MArray2d_ref pcf = p_chef();
@@ -148,6 +153,40 @@ BOOST_FIXTURE_TEST_CASE( test_drift, drift_fixture )
     BOOST_CHECK(true);
 }
 
+BOOST_FIXTURE_TEST_CASE( test_rbend, rbend_fixture )
+{
+    MArray2d_ref pcf = p_chef();
+    MArray2d_ref pff = p_ff();
+
+    pcf[0][0] = 0.0;
+    pcf[0][1] = 0.0;
+    pcf[0][2] = 0.0;
+    pcf[0][3] = 0.0;
+    pcf[0][4] = 0.0;
+    pcf[0][5] = 0.0;
+
+    pff[0][0] = 0.0;
+    pff[0][1] = 0.0;
+    pff[0][2] = 0.0;
+    pff[0][3] = 0.0;
+    pff[0][4] = 0.0;
+    pff[0][5] = 0.0;
+
+    //FF_rbend::set_yoshida_steps(1);
+
+    propagate_chef();
+    propagate_ff();
+
+    std::cout << std::setprecision(16);
+
+    for(int i=0; i<6; ++i)
+    {
+        std::cout << pcf[0][i] << " <--> " << pff[0][i] << "\n";
+    }
+
+    BOOST_CHECK(true);
+}
+
 BOOST_FIXTURE_TEST_CASE( test_quadrupole, quadrupole_fixture )
 {
     MArray2d_ref pcf = p_chef();
@@ -171,6 +210,7 @@ BOOST_FIXTURE_TEST_CASE( test_quadrupole, quadrupole_fixture )
     propagate_ff();
 
     std::cout << std::setprecision(10);
+
 
     for(int i=0; i<6; ++i)
     {
@@ -211,5 +251,58 @@ BOOST_FIXTURE_TEST_CASE( test_sextupole, sextupole_fixture )
 
     BOOST_CHECK(true);
 }
+#endif
+
+#if 0
+
+BOOST_FIXTURE_TEST_CASE( test_rbend, rbend_fixture )
+{
+
+    double x  = (sqrt(1-4.0*sin(0.17/2.0)*sin(0.17/2.0)) - 1.0) / (2.0 * sin(0.17/2.0));
+    double px = -2.0*sin(0.17/2.0);
+
+    MArray2d_ref pff = p_ff();
+
+    std::cout << "steps\tex\tt\n";
+
+    for (int i=0; i<1024; ++i)
+    {
+        //int steps = 1 << i;
+        int steps = i;
+        FF_rbend::set_yoshida_steps(steps);
+
+        for (int j=0; j<1000; ++j)
+        {
+            pff[j][0] = 0.0;
+            pff[j][1] = 0.0;
+            pff[j][2] = 0.0;
+            pff[j][3] = 0.0;
+            pff[j][4] = 0.0;
+            pff[j][5] = 0.0;
+        }
+
+        double start = MPI_Wtime();
+        propagate_ff();
+        double end = MPI_Wtime();
+
+        double dx  = abs(pff[0][0] - x);
+        double dpx = abs(pff[0][1] - px);
+
+        double ex  = -log(abs(dx / x));
+        double epx = -log(abs(dpx / px));
+
+        std::cout << std::setprecision(16);
+
+        std::cout << i << "\t" << ex << "\t" << end-start << "\n";
+
+#if 0
+        std::cout << "steps = " << steps << "\n";
+
+        std::cout << "delta x  = " << dx  << ", E(x)  = " << ex  << "\n";
+        std::cout << "delta px = " << dpx << ", E(px) = " << epx << "\n";
+#endif
+    }
+}
+#endif
 
 
