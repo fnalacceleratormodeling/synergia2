@@ -19,7 +19,7 @@ double FF_drift::get_reference_cdt(double length,
     double m = reference_particle.get_mass();
 
     double cdt_orig = cdt;
-    drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m, 0.0);
+    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m, 0.0);
 
     return cdt - cdt_orig;
 }
@@ -48,7 +48,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
                 chef_particle_to_reference_particle(chef_particle));
     double reference_cdt = get_reference_cdt(length, reference_particle);
 
-    drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
+    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
                reference_cdt);
 }
 
@@ -74,7 +74,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
          GSVector cdt(&cdta[part]);
          GSVector dpop(&dpopa[part]);
 
-         drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
+         FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
                     reference_cdt);
 
          x.store(&xa[part]);
@@ -89,7 +89,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
          double cdt(cdta[part]);
          double dpop(dpopa[part]);
 
-         drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
+         FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
                     reference_cdt);
 
          xa[part] = x;

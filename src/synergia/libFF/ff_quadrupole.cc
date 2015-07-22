@@ -80,7 +80,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, JetParticle& jet_p
                   substep_reference_cdt,
                   step_length, step_strength, steps );
     }
-    FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
+    FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
                reference_cdt);
 }
 

@@ -1,11 +1,33 @@
-#ifndef FF_RTHICK_H
-#define FF_RTHICK_H
+#ifndef FF_ALGORITHM_H
+#define FF_ALGORITHM_H
 
-#include "ff_drift.h"
+#include <math.h>
+#include "synergia/utils/invsqrt.h"
 
 class FF_algorithm
 {
 public:
+
+    template <typename T>
+    inline static void drift_unit
+      (T & x, T const& xp, T & y, T const& yp, T & cdt, T const& dpop,
+       double length, double reference_momentum, double m, double reference_cdt) 
+    {
+        T dp = dpop + 1.0;
+        T inv_npz = invsqrt(dp * dp - xp * xp - yp * yp);
+        T lxpr = xp * length * inv_npz;
+        T lypr = yp * length * inv_npz;
+        T D2 = lxpr * lxpr + length * length + lypr * lypr;
+        T p = dp * reference_momentum;
+        T E2 = p * p + m * m;
+        //T beta2 = p*p / E2;
+        T ibeta2 = E2 / (p * p);
+        x += lxpr;
+        y += lypr;
+        //cdt += sqrt(D2 / beta2) - reference_cdt;
+        cdt += ((0.0 < length) - (length < 0.0)) * sqrt(D2 * ibeta2) - reference_cdt;
+    }
+
 
     template <typename T>
     inline static void thin_dipole_unit
@@ -102,11 +124,11 @@ public:
             for (int i = 0; i < components * 2; ++i)
                 kl[i] = step_strength[i] * c;
 
-            FF_drift::drift_unit( x, xp, y, yp, cdt, dpop, 0.5 * c * step_length, pref, m, substep_ref_cdt );
+            drift_unit( x, xp, y, yp, cdt, dpop, 0.5 * c * step_length, pref, m, substep_ref_cdt );
 
             kf( x, xp, y, yp, kl );
 
-            FF_drift::drift_unit( x, xp, y, yp, cdt, dpop, 0.5 * c * step_length, pref, m, substep_ref_cdt );
+            drift_unit( x, xp, y, yp, cdt, dpop, 0.5 * c * step_length, pref, m, substep_ref_cdt );
         }
     };
 #endif
@@ -132,7 +154,7 @@ public:
 
             kf( x, xp, y, yp, kl );
 
-            FF_drift::drift_unit( x, xp, y, yp, cdt, dpop, c * step_length, pref, m, substep_ref_cdt );
+            drift_unit( x, xp, y, yp, cdt, dpop, c * step_length, pref, m, substep_ref_cdt );
 
             kf( x, xp, y, yp, kl );
         }
@@ -177,12 +199,12 @@ public:
     {
         for(int i = 0; i < steps; ++i) 
         {
-            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, 0.5 * step_length, reference_momentum,
+            drift_unit(x, xp, y, yp, cdt, dpop, 0.5 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
             kf( x, xp, y, yp, step_strength );
 
-            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, 0.5 * step_length, reference_momentum,
+            drift_unit(x, xp, y, yp, cdt, dpop, 0.5 * step_length, reference_momentum,
                        m, substep_reference_cdt);
         }
     }
@@ -226,25 +248,25 @@ public:
 
         for(int i = 0; i < steps; ++i) 
         {
-            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
+            drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
             //kf( x, xp, y, yp, d1 * step_strength );
             kf( x, xp, y, yp, k1 );
 
-            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
+            drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
             //kf( x, xp, y, yp, d2 * step_strength );
             kf( x, xp, y, yp, k2 );
 
-            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
+            drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
             //kf( x, xp, y, yp, d3 * step_strength );
             kf( x, xp, y, yp, k3 );
 
-            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
+            drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
                        m, substep_reference_cdt);
         }
     }
@@ -293,52 +315,52 @@ public:
 
         for(int i = 0; i < steps; ++i) 
         {
-            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
+            drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
             kf( x, xp, y, yp, k1 );
 
-            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
+            drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
             kf( x, xp, y, yp, k2 );
 
-            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
+            drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
             kf( x, xp, y, yp, k1 );
 
-            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
+            drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
             kf( x, xp, y, yp, k3 );
 
-            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
+            drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
             kf( x, xp, y, yp, k4 );
 
-            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
+            drift_unit(x, xp, y, yp, cdt, dpop, c4 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
             kf( x, xp, y, yp, k3 );
 
-            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
+            drift_unit(x, xp, y, yp, cdt, dpop, c3 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
             kf( x, xp, y, yp, k1 );
 
-            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
+            drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
             kf( x, xp, y, yp, k2 );
 
-            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
+            drift_unit(x, xp, y, yp, cdt, dpop, c2 * step_length, reference_momentum,
                        m, substep_reference_cdt);
 
             kf( x, xp, y, yp, k1 );
 
-            FF_drift::drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
+            drift_unit(x, xp, y, yp, cdt, dpop, c1 * step_length, reference_momentum,
                        m, substep_reference_cdt);
         }
     }
