@@ -1,9 +1,6 @@
 #include "ff_rbend.h"
 #include "synergia/lattice/chef_utils.h"
 
-const int FF_rbend::steps = 1; // temporarily hardwired
-const int FF_rbend::drifts_per_step = 2; // determined by algorithm in thick_quadrupole unit
-
 FF_rbend::FF_rbend()
 {
 
@@ -103,13 +100,9 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     k[0] = 2.0 * sin( angle / 2.0 ) / l;
     k[1] = 0;
 
-    std::cout << std::setprecision(10);
-    std::cout << "k0 = " << k[0] << "\n";
-
-
-    double reference_cdt = get_reference_cdt(length, k, bunch.get_reference_particle());
+    double reference_cdt = get_reference_cdt(l, k, bunch.get_reference_particle());
     double step_reference_cdt = reference_cdt/steps;
-    double step_length = length/steps;
+    double step_length = l/steps;
     double step_strength[6] = 
         { k[0]*step_length, k[1]*step_length,
           k[2]*step_length, k[3]*step_length,
