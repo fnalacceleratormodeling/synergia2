@@ -14,6 +14,15 @@ public:
     template<class Archive>
         void serialize(Archive & ar, const unsigned int version);
     virtual ~FF_element();
+
+    void set_yoshida_steps(int s)
+    { steps = s; }
+
+    int get_yoshdia_steps() const
+    { return steps; }
+
+protected:
+    static int steps;
 };
 
 typedef boost::shared_ptr<FF_element > FF_element_sptr; // syndoc:include

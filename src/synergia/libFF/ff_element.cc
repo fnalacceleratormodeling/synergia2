@@ -1,5 +1,7 @@
 #include "ff_element.h"
 
+int FF_element::steps = 6; // default yoshida steps
+
 FF_element::FF_element()
 {
 
