@@ -33,8 +33,7 @@ double FF_rbend::get_reference_cdt(double length, double * k,
         FF_algorithm::yoshida<double, FF_rbend::thin_rbend_unit<double>, 4, 3 >
             ( x, xp, y, yp, cdt, dpop,
               reference_momentum, m,
-              0.0,
-              step_length, step_strength, steps );
+              0.0, step_length, step_strength, steps );
 
         reference_cdt = cdt - cdt_orig;
     }
@@ -79,9 +78,14 @@ void FF_rbend::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
 
 void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
-    double length = slice.get_right() - slice.get_left();
+    double arc_length = slice.get_right() - slice.get_left();
+
     double angle = slice.get_lattice_element().get_double_attribute("angle");
     double l     = slice.get_lattice_element().get_double_attribute("l");
+    double rho   = l / ( 2.0 * sin( angle / 2.0 ) );
+    double arc   = angle * rho;
+
+    double length = l * (arc_length / arc);
 
     double k[6];
     k[2]  = slice.get_lattice_element().get_double_attribute("k1");
@@ -93,20 +97,17 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
     MArray2d_ref particles = bunch.get_local_particles();
 
     double reference_momentum = bunch.get_reference_particle().get_momentum();
-    double reference_brho     = reference_momentum / PH_CNV_brho_to_p;
     double m = bunch.get_mass();
 
-    //k[0] = reference_brho * angle / l;
     k[0] = 2.0 * sin( angle / 2.0 ) / l;
     k[1] = 0;
 
-    double reference_cdt = get_reference_cdt(l, k, bunch.get_reference_particle());
+    double reference_cdt = get_reference_cdt(length, k, bunch.get_reference_particle());
     double step_reference_cdt = reference_cdt/steps;
-    double step_length = l/steps;
-    double step_strength[6] = 
-        { k[0]*step_length, k[1]*step_length,
-          k[2]*step_length, k[3]*step_length,
-          k[4]*step_length, k[5]*step_length };
+    double step_length = length/steps;
+    double step_strength[6] = { k[0]*step_length, k[1]*step_length,
+                                k[2]*step_length, k[3]*step_length,
+                                k[4]*step_length, k[5]*step_length };
 
     for (int part = 0; part < local_num; ++part) {
         double x   (particles[part][Bunch::x   ]);
