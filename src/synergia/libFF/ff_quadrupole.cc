@@ -3,7 +3,6 @@
 #include "synergia/lattice/chef_utils.h"
 #include "synergia/utils/gsvector.h"
 
-const int FF_quadrupole::steps = 5; // temporarily hardwired
 const int FF_quadrupole::drifts_per_step = 4; // determined by algorithm in thick_quadrupole unit
 
 FF_quadrupole::FF_quadrupole()

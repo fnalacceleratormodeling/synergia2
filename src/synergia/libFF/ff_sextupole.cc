@@ -2,7 +2,6 @@
 #include "ff_algorithm.h"
 #include "synergia/lattice/chef_utils.h"
 
-const int FF_sextupole::steps = 5; // temporarily hardwired
 const int FF_sextupole::drifts_per_step = 4; // determined by algorithm in thick_sextupole unit
 
 FF_sextupole::FF_sextupole()
