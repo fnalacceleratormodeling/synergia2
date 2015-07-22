@@ -8,25 +8,38 @@ class FF_algorithm
 public:
 
     template <typename T>
-    inline static void thin_dipole_unit(T const& x, T& xp, T const& y, T& yp, double const * kL) 
+    inline static void thin_dipole_unit
+      (T const& x, T& xp, T const& y, T& yp, double const * kL) 
     {
         xp += -kL[0];
         yp += -kL[1];
     }
 
     template <typename T>
-    inline static void thin_quadrupole_unit(T const& x, T& xp, T const& y, T& yp, double const * kL) 
+    inline static void thin_quadrupole_unit
+      (T const& x, T& xp, T const& y, T& yp, double const * kL) 
     {
         xp += -kL[0] * x - kL[1] * y;
         yp += kL[0] * y - kL[1] * x;
     }
 
     template <typename T>
-    inline static void thin_sextupole_unit(T const& x, T& xp, T const& y, T& yp, double const * kL) 
+    inline static void thin_sextupole_unit
+      (T const& x, T& xp, T const& y, T& yp, double const * kL) 
     {
         xp += -0.5 * kL[0] * (x * x - y * y) - kL[1] * x * y;
         yp += kL[0] * x * y - 0.5 * kL[1] * (x * x - y * y);
     }
+
+    template <typename T>
+    inline static void thin_rbend_unit
+      (T const& x, T& xp, T const& y, T& yp, double const * kL) 
+    {
+        thin_dipole_unit(x, xp, y, yp, kL);
+        thin_quadrupole_unit(x, xp, y, yp, kL + 2);
+        thin_sextupole_unit(x, xp, y, yp, kL + 4);
+    }
+
 
     // utility
     inline int full_drifts_per_step(int order)

@@ -30,7 +30,7 @@ double FF_rbend::get_reference_cdt(double length, double * k,
 
         double cdt_orig = cdt;
 
-        FF_algorithm::yoshida<double, FF_rbend::thin_rbend_unit<double>, 4, 3 >
+        FF_algorithm::yoshida<double, FF_algorithm::thin_rbend_unit<double>, 4, 3 >
             ( x, xp, y, yp, cdt, dpop,
               reference_momentum, m,
               0.0, step_length, step_strength, steps );
@@ -117,7 +117,7 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double cdt (particles[part][Bunch::cdt ]);
         double dpop(particles[part][Bunch::dpop]);
 
-        FF_algorithm::yoshida<double, FF_rbend::thin_rbend_unit<double>, 4, 3 >
+        FF_algorithm::yoshida<double, FF_algorithm::thin_rbend_unit<double>, 4, 3 >
             ( x, xp, y, yp, cdt, dpop,
               reference_momentum, m,
               step_reference_cdt,
