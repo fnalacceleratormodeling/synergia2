@@ -15,10 +15,10 @@ public:
         void serialize(Archive & ar, const unsigned int version);
     virtual ~FF_element();
 
-    void set_yoshida_steps(int s)
+    static void set_yoshida_steps(int s)
     { steps = s; }
 
-    int get_yoshdia_steps() const
+    static int get_yoshdia_steps()
     { return steps; }
 
 protected:
