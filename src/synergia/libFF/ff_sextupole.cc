@@ -28,7 +28,7 @@ double FF_sextupole::get_reference_cdt(double length, double * k,
         double dpop(reference_particle.get_state()[Bunch::dpop]);
 
         double cdt_orig = cdt;
-        FF_algorithm::yoshida4<double, FF_sextupole::thin_sextupole_unit<double>, 1 >
+        FF_algorithm::yoshida<double, FF_sextupole::thin_sextupole_unit<double>, 4, 1 >
                 ( x, xp, y, yp, cdt, dpop,
                   reference_momentum, m,
                   0.0,
@@ -65,7 +65,7 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, JetParticle& jet_pa
     Reference_particle reference_particle(
                 chef_particle_to_reference_particle(chef_particle));
     double reference_cdt = get_reference_cdt(length, k, reference_particle);
-    double substep_reference_cdt = reference_cdt/steps/drifts_per_step;
+    double step_reference_cdt = reference_cdt/steps;
     double step_length = length/steps;
     double step_strength[2] = { k[0]*step_length, k[1]*step_length };
     double kl[2] = { k[0]*length, k[1]*length };
@@ -73,10 +73,10 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, JetParticle& jet_pa
     if (length == 0.0) {
         thin_sextupole_unit(x, xp, y, yp, kl);
     } else {
-        FF_algorithm::yoshida4<TJet<double>, FF_sextupole::thin_sextupole_unit<TJet<double> >, 1 >
+        FF_algorithm::yoshida<TJet<double>, FF_sextupole::thin_sextupole_unit<TJet<double> >, 4, 1 >
                 ( x, xp, y, yp, cdt, dpop,
                   reference_momentum, m,
-                  substep_reference_cdt,
+                  step_reference_cdt,
                   step_length, step_strength, steps );
     }
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
@@ -111,7 +111,7 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
          double m = bunch.get_mass();
          double reference_cdt = get_reference_cdt(length, k,
                                                   bunch.get_reference_particle());
-         double substep_reference_cdt = reference_cdt/steps/drifts_per_step;
+         double step_reference_cdt = reference_cdt/steps;
          double step_length = length/steps;
          double step_strength[2] = { k[0]*step_length, k[1]*step_length };
 
@@ -123,10 +123,10 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
              double cdt(particles[part][Bunch::cdt]);
              double dpop(particles[part][Bunch::dpop]);
 
-             FF_algorithm::yoshida4<double, FF_sextupole::thin_sextupole_unit<double>, 1 >
+             FF_algorithm::yoshida<double, FF_sextupole::thin_sextupole_unit<double>, 4, 1 >
                      ( x, xp, y, yp, cdt, dpop,
                        reference_momentum, m,
-                       substep_reference_cdt,
+                       step_reference_cdt,
                        step_length, step_strength, steps );
 
              particles[part][Bunch::x] = x;
