@@ -54,6 +54,16 @@ public:
     }
 
     template <typename T>
+    inline static void thin_octupole_unit
+      (T const& x, T& xp, T const& y, T& yp, double const * kL) 
+    {
+        xp += - 0.5 * kL[0] * (x * x * x / 3.0 - x * y * y) 
+              - 0.5 * kL[1] * (x * x * y - y * y * y / 3.0);
+        yp += - 0.5 * kL[0] * (y * y * y / 3.0 - x * x * y)
+              - 0.5 * kL[1] * (x * x * x / 3.0 - x * y * y);
+    }
+
+    template <typename T>
     inline static void thin_rbend_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL) 
     {
