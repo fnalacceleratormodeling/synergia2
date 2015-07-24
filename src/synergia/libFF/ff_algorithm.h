@@ -62,6 +62,71 @@ public:
         thin_sextupole_unit(x, xp, y, yp, kL + 4);
     }
 
+    // general thin magnets of n-th order
+    // n = 1, dipole; n = 2, quadrupole; n = 3, sextupole, etc.
+    template <typename T>
+    inline static void thin_magnet_unit
+      (T const& x, T& xp, T const& y, T& yp, double const * kL, int n)
+    {
+        for(int k = 0; k < n; k += 4)
+        {
+            xp += -kL[0] * (n-k) * pow(x, n-k-1) * pow(y, k) 
+                         / (factorial(n-k) * factorial(k));
+        }
+
+        for(int k = 2; k < n; k += 4)
+        {
+            xp += +kL[0] * (n-k) * pow(x, n-k-1) * pow(y, k) 
+                         / (factorial(n-k) * factorial(k));
+        }
+
+        for(int k = 1; k < n; k += 4)
+        {
+            xp += -kL[1] * (n-k) * pow(x, n-k-1) * pow(y, k) 
+                         / (factorial(n-k) * factorial(k));
+        }
+
+        for(int k = 3; k < n; k += 4)
+        {
+            xp += +kL[1] * (n-k) * pow(x, n-k-1) * pow(y, k) 
+                         / (factorial(n-k) * factorial(k));
+        }
+
+        for(int k = 4; k <= n; k += 4)
+        {
+            yp += -kL[0] * k * pow(x, n-k) * pow(y, k-1) 
+                         / (factorial(n-k) * factorial(k));
+        }
+
+        for(int k = 2; k <= n; k += 4)
+        {
+            yp += +kL[0] * k * pow(x, n-k) * pow(y, k-1) 
+                         / (factorial(n-k) * factorial(k));
+        }
+
+        for(int k = 1; k <= n; k += 4)
+        {
+            yp += +kL[1] * k * pow(x, n-k) * pow(y, k-1) 
+                         / (factorial(n-k) * factorial(k));
+        }
+
+        for(int k = 3; k <= n; k += 4)
+        {
+            yp += +kL[1] * k * pow(x, n-k) * pow(y, k-1) 
+                         / (factorial(n-k) * factorial(k));
+        }
+    }
+
+    inline double factorial(int n)
+    {
+        if (n == 0) return 1.0;
+
+        double r = 1; 
+        for(int i = 1; i <= n; ++i) r *= i;
+        return r;
+    }
+
+
 
     // utility
     inline int full_drifts_per_step(int order)
