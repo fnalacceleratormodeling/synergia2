@@ -1,4 +1,5 @@
 #include "ff_multipole.h"
+#include "ff_algorithm.h"
 #include "synergia/lattice/chef_utils.h"
 
 FF_multipole::FF_multipole()
@@ -8,6 +9,9 @@ FF_multipole::FF_multipole()
 
 void FF_multipole::apply(Lattice_element_slice const& slice, JetParticle& jet_particle)
 {
+    throw std::runtime_error("FF_multipole::apply(JetParticle) not implemented");
+
+#if 0
     double length = slice.get_right() - slice.get_left();
     double strength = 0.0;
 
@@ -30,39 +34,68 @@ void FF_multipole::apply(Lattice_element_slice const& slice, JetParticle& jet_pa
     multipole_unit(x, xp, y, yp, cdt, dpop,
                    length, strength,
                    reference_momentum, m, reference_brho);
+#endif
 }
 
 void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
     double length = slice.get_right() - slice.get_left();
-    double strength = 0.0;
+
+    if (length > 0.0)
+        throw std::runtime_error("FF_multipole::apply() cannot deal with thick elements");
+
+    std::vector<double> const & knl = 
+        slice.get_lattice_element().get_vector_attribute("knl");
+
+    std::vector<double> const & ksl = 
+        slice.get_lattice_element().get_vector_attribute("ksl");
+
+    if (knl.size() != ksl.size())
+        throw std::runtime_error("FF_multipole:apply() different array size of knl and ksl");
+
+    double kL[2];
 
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
-
-    double reference_momentum = bunch.get_reference_particle().get_momentum();
-    double reference_brho     = reference_momentum / PH_CNV_brho_to_p;
-    double m = bunch.get_mass();
 
     for (int part = 0; part < local_num; ++part) {
         double x   (particles[part][Bunch::x   ]);
         double xp  (particles[part][Bunch::xp  ]);
         double y   (particles[part][Bunch::y   ]);
         double yp  (particles[part][Bunch::yp  ]);
-        double cdt (particles[part][Bunch::cdt ]);
-        double dpop(particles[part][Bunch::dpop]);
 
-        multipole_unit(x, xp, y, yp, cdt, dpop,
-                       length, strength,
-                       reference_momentum, m, reference_brho);
+        // dipole
+        if (knl.size() > 0 && (knl[0] || ksl[0])) 
+        {
+            kL[0] = knl[0]; kL[1] = ksl[0];
+            FF_algorithm::thin_dipole_unit(x, xp, y, yp, kL);
+        }
 
-        particles[part][Bunch::x]  = x;
+        // quad
+        if (knl.size() > 1 && (knl[1] || ksl[1])) 
+        {
+            kL[0] = knl[1]; kL[1] = ksl[1];
+            FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, kL);
+        }
+
+        // sextu
+        if (knl.size() > 2 && (knl[2] || ksl[2])) 
+        {
+            kL[0] = knl[2]; kL[1] = ksl[2];
+            FF_algorithm::thin_sextupole_unit(x, xp, y, yp, kL);
+        }
+
+        // higher orders
+        for (int n = 3; n < knl.size(); ++n) {
+            if (knl[n] && ksl[n]) {
+                kL[0] = knl[n]; kL[1] = ksl[n];
+                FF_algorithm::thin_magnet_unit(x, xp, y, yp, kL, n);
+            }
+        }
+
         particles[part][Bunch::xp] = xp;
-        particles[part][Bunch::y]  = y;
-        particles[part][Bunch::cdt] = cdt;
+        particles[part][Bunch::yp] = yp;
     }
-
-    bunch.get_reference_particle().increment_trajectory(length);
 }
 
 template<class Archive>

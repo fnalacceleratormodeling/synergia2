@@ -117,7 +117,7 @@ public:
         }
     }
 
-    inline double factorial(int n)
+    inline static double factorial(int n)
     {
         if (n == 0) return 1.0;
 
