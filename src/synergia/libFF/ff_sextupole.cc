@@ -28,7 +28,7 @@ double FF_sextupole::get_reference_cdt(double length, double * k,
         double dpop(reference_particle.get_state()[Bunch::dpop]);
 
         double cdt_orig = cdt;
-        FF_algorithm::yoshida<double, FF_sextupole::thin_sextupole_unit<double>, 4, 1 >
+        FF_algorithm::yoshida<double, FF_algorithm::thin_sextupole_unit<double>, 4, 1 >
                 ( x, xp, y, yp, cdt, dpop,
                   reference_momentum, m,
                   0.0,
@@ -71,9 +71,9 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, JetParticle& jet_pa
     double kl[2] = { k[0]*length, k[1]*length };
 
     if (length == 0.0) {
-        thin_sextupole_unit(x, xp, y, yp, kl);
+        FF_algorithm::thin_sextupole_unit(x, xp, y, yp, kl);
     } else {
-        FF_algorithm::yoshida<TJet<double>, FF_sextupole::thin_sextupole_unit<TJet<double> >, 4, 1 >
+        FF_algorithm::yoshida<TJet<double>, FF_algorithm::thin_sextupole_unit<TJet<double> >, 4, 1 >
                 ( x, xp, y, yp, cdt, dpop,
                   reference_momentum, m,
                   step_reference_cdt,
@@ -101,7 +101,7 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
              double y(particles[part][Bunch::y]);
              double yp(particles[part][Bunch::yp]);
 
-             thin_sextupole_unit(x, xp, y, yp, k);
+             FF_algorithm::thin_sextupole_unit(x, xp, y, yp, k);
 
              particles[part][Bunch::xp] = xp;
              particles[part][Bunch::yp] = yp;
@@ -123,7 +123,7 @@ void FF_sextupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
              double cdt(particles[part][Bunch::cdt]);
              double dpop(particles[part][Bunch::dpop]);
 
-             FF_algorithm::yoshida<double, FF_sextupole::thin_sextupole_unit<double>, 4, 1 >
+             FF_algorithm::yoshida<double, FF_algorithm::thin_sextupole_unit<double>, 4, 1 >
                      ( x, xp, y, yp, cdt, dpop,
                        reference_momentum, m,
                        step_reference_cdt,
