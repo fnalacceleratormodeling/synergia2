@@ -85,6 +85,13 @@ void FF_multipole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             FF_algorithm::thin_sextupole_unit(x, xp, y, yp, kL);
         }
 
+        // octu 
+        if (knl.size() > 3 && (knl[3] || ksl[3])) 
+        {
+            kL[0] = knl[3]; kL[1] = ksl[3];
+            FF_algorithm::thin_octupole_unit(x, xp, y, yp, kL);
+        }
+
         // higher orders
         for (int n = 3; n < knl.size(); ++n) {
             if (knl[n] && ksl[n]) {
