@@ -1,7 +1,7 @@
 #ifndef FF_ALGORITHM_H
 #define FF_ALGORITHM_H
 
-#include <math.h>
+#include <cmath>
 #include "synergia/utils/invsqrt.h"
 
 class FF_algorithm
@@ -80,49 +80,49 @@ public:
     {
         for(int k = 0; k < n; k += 4)
         {
-            xp += -kL[0] * (n-k) * pow(x, n-k-1) * pow(y, k) 
+            xp += -kL[0] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k) 
                          / (factorial(n-k) * factorial(k));
         }
 
         for(int k = 2; k < n; k += 4)
         {
-            xp += +kL[0] * (n-k) * pow(x, n-k-1) * pow(y, k) 
+            xp += +kL[0] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k) 
                          / (factorial(n-k) * factorial(k));
         }
 
         for(int k = 1; k < n; k += 4)
         {
-            xp += -kL[1] * (n-k) * pow(x, n-k-1) * pow(y, k) 
+            xp += -kL[1] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k) 
                          / (factorial(n-k) * factorial(k));
         }
 
         for(int k = 3; k < n; k += 4)
         {
-            xp += +kL[1] * (n-k) * pow(x, n-k-1) * pow(y, k) 
+            xp += +kL[1] * (n-k) * std::pow(x, n-k-1) * std::pow(y, k) 
                          / (factorial(n-k) * factorial(k));
         }
 
         for(int k = 4; k <= n; k += 4)
         {
-            yp += -kL[0] * k * pow(x, n-k) * pow(y, k-1) 
+            yp += -kL[0] * k * std::pow(x, n-k) * std::pow(y, k-1) 
                          / (factorial(n-k) * factorial(k));
         }
 
         for(int k = 2; k <= n; k += 4)
         {
-            yp += +kL[0] * k * pow(x, n-k) * pow(y, k-1) 
+            yp += +kL[0] * k * std::pow(x, n-k) * std::pow(y, k-1) 
                          / (factorial(n-k) * factorial(k));
         }
 
         for(int k = 1; k <= n; k += 4)
         {
-            yp += +kL[1] * k * pow(x, n-k) * pow(y, k-1) 
+            yp += +kL[1] * k * std::pow(x, n-k) * std::pow(y, k-1) 
                          / (factorial(n-k) * factorial(k));
         }
 
         for(int k = 3; k <= n; k += 4)
         {
-            yp += +kL[1] * k * pow(x, n-k) * pow(y, k-1) 
+            yp += +kL[1] * k * std::pow(x, n-k) * std::pow(y, k-1) 
                          / (factorial(n-k) * factorial(k));
         }
     }
@@ -140,7 +140,7 @@ public:
 
     // utility
     inline int full_drifts_per_step(int order)
-    { return pow(3.0, (order-2.0)/2.0) * 2; }
+    { return std::pow(3.0, (order-2.0)/2.0) * 2; }
 
     inline int compact_drifts_per_step(int order)
     { return (full_drifts_per_step(order) - 2) / 2 + 2; }
@@ -173,7 +173,7 @@ public:
         }
 
         static double x1(int nn)
-        { return 1.0 / (2.0 - pow(2.0, 1.0/(2*nn+1))); }
+        { return 1.0 / (2.0 - std::pow(2.0, 1.0/(2*nn+1))); }
 
         static double x0(int nn)
         { return 1.0 - 2.0 * x1(nn); }
