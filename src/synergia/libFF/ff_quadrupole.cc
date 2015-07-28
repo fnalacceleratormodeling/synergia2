@@ -119,8 +119,6 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
          double step_length = length/steps;
          double step_strength[2] = { k[0]*step_length, k[1]*step_length };
 
-         std::cout << "reference cdt = " << reference_cdt << "\n";
-
          double * RESTRICT xa, * RESTRICT xpa, * RESTRICT ya, * RESTRICT ypa,
                  * RESTRICT cdta, * RESTRICT dpopa;
          bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
