@@ -109,25 +109,51 @@ void FF_rbend::apply(Lattice_element_slice const& slice, Bunch& bunch)
                                 k[2]*step_length, k[3]*step_length,
                                 k[4]*step_length, k[5]*step_length };
 
-    for (int part = 0; part < local_num; ++part) {
-        double x   (particles[part][Bunch::x   ]);
-        double xp  (particles[part][Bunch::xp  ]);
-        double y   (particles[part][Bunch::y   ]);
-        double yp  (particles[part][Bunch::yp  ]);
-        double cdt (particles[part][Bunch::cdt ]);
-        double dpop(particles[part][Bunch::dpop]);
+    if (k[2] == 0.0 && k[4] == 0.0)
+    {
+        // use the exact solution for dipole
+        for (int part = 0; part < local_num; ++part) 
+        {
+            double x   (particles[part][Bunch::x   ]);
+            double xp  (particles[part][Bunch::xp  ]);
+            double y   (particles[part][Bunch::y   ]);
+            double yp  (particles[part][Bunch::yp  ]);
+            double cdt (particles[part][Bunch::cdt ]);
+            double dpop(particles[part][Bunch::dpop]);
 
-        FF_algorithm::yoshida<double, FF_algorithm::thin_rbend_unit<double>, 4, 3 >
-            ( x, xp, y, yp, cdt, dpop,
-              reference_momentum, m,
-              step_reference_cdt,
-              step_length, step_strength, steps );
+            FF_algorithm::dipole_unit(x, xp, y, yp, cdt, dpop, length, k[0]);
 
-        particles[part][Bunch::x]  = x;
-        particles[part][Bunch::xp] = xp;
-        particles[part][Bunch::y]  = y;
-        particles[part][Bunch::yp] = yp;
-        particles[part][Bunch::cdt] = cdt;
+            particles[part][Bunch::x]  = x;
+            particles[part][Bunch::xp] = xp;
+            particles[part][Bunch::y]  = y;
+            particles[part][Bunch::yp] = yp;
+            particles[part][Bunch::cdt] = cdt;
+        }
+    }
+    else
+    {
+        // with combined high order function, use yoshida approximation
+        for (int part = 0; part < local_num; ++part) 
+        {
+            double x   (particles[part][Bunch::x   ]);
+            double xp  (particles[part][Bunch::xp  ]);
+            double y   (particles[part][Bunch::y   ]);
+            double yp  (particles[part][Bunch::yp  ]);
+            double cdt (particles[part][Bunch::cdt ]);
+            double dpop(particles[part][Bunch::dpop]);
+
+            FF_algorithm::yoshida<double, FF_algorithm::thin_rbend_unit<double>, 4, 3 >
+                ( x, xp, y, yp, cdt, dpop,
+                  reference_momentum, m,
+                  step_reference_cdt,
+                  step_length, step_strength, steps );
+
+            particles[part][Bunch::x]  = x;
+            particles[part][Bunch::xp] = xp;
+            particles[part][Bunch::y]  = y;
+            particles[part][Bunch::yp] = yp;
+            particles[part][Bunch::cdt] = cdt;
+        }
     }
 
     bunch.get_reference_particle().increment_trajectory(length);

@@ -8,6 +8,7 @@ class FF_algorithm
 {
 public:
 
+    // exact solution for drift spaces
     template <typename T>
     inline static void drift_unit
       (T & x, T const& xp, T & y, T const& yp, T & cdt, T const& dpop,
@@ -28,7 +29,23 @@ public:
         cdt += ((0.0 < length) - (length < 0.0)) * sqrt(D2 * ibeta2) - reference_cdt;
     }
 
+    // exact solution for dipole without high order combined functions
+    template <typename T>
+    inline static void dipole_unit
+      (T & x, T & xp, T & y, T & yp, T & cdt, T const & dpop, double l, double k0) 
+    {
+        T xp1 = xp - k0 * l / (dpop + 1.0);
+        T yp1 = yp;
 
+        T poeb = (dpop + 1.0) / k0;   // p/eB
+
+        x += poeb * ( sqrt(1 - xp1*xp1 - yp1*yp1) - sqrt(1 - xp*xp - yp*yp) );
+        y += poeb * yp * ( atan( xp/sqrt(1-xp*xp-yp*yp) ) - atan( xp1/sqrt(1-xp1*xp1-yp1*yp1) ) );
+
+        xp = xp1;
+    }
+
+    // thin kick dipole
     template <typename T>
     inline static void thin_dipole_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL) 
