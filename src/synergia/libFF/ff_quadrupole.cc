@@ -86,87 +86,87 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, JetParticle& jet_p
 
 void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
-     double length = slice.get_right() - slice.get_left();
+    double length = slice.get_right() - slice.get_left();
 
-     double k[2];
-     k[0] = slice.get_lattice_element().get_double_attribute("k1");
-     if (slice.get_lattice_element().has_double_attribute("k1s")) {
+    double k[2];
+    k[0] = slice.get_lattice_element().get_double_attribute("k1");
+    if (slice.get_lattice_element().has_double_attribute("k1s")) {
         k[1] = slice.get_lattice_element().get_double_attribute("k1s");
-     } else {
+    } else {
         k[1] = 0.0;
-     }
+    }
 
-     int local_num = bunch.get_local_num();
-     MArray2d_ref particles = bunch.get_local_particles();
+    int local_num = bunch.get_local_num();
+    MArray2d_ref particles = bunch.get_local_particles();
 
-     if (length == 0.0) {
-         for (int part = 0; part < local_num; ++part) {
-             double x(particles[part][Bunch::x]);
-             double xp(particles[part][Bunch::xp]);
-             double y(particles[part][Bunch::y]);
-             double yp(particles[part][Bunch::yp]);
+    if (length == 0.0) {
+        for (int part = 0; part < local_num; ++part) {
+            double x(particles[part][Bunch::x]);
+            double xp(particles[part][Bunch::xp]);
+            double y(particles[part][Bunch::y]);
+            double yp(particles[part][Bunch::yp]);
 
-             FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k);
+            FF_algorithm::thin_quadrupole_unit(x, xp, y, yp, k);
 
-             particles[part][Bunch::xp] = xp;
-             particles[part][Bunch::yp] = yp;
+            particles[part][Bunch::xp] = xp;
+            particles[part][Bunch::yp] = yp;
         }
-     } else {
-         double reference_momentum = bunch.get_reference_particle().get_momentum();
-         double m = bunch.get_mass();
-         double reference_cdt = get_reference_cdt(length, k, bunch.get_reference_particle());
-         double substep_reference_cdt = reference_cdt/steps/drifts_per_step;
-         double step_length = length/steps;
-         double step_strength[2] = { k[0]*step_length, k[1]*step_length };
+    } else {
+        double reference_momentum = bunch.get_reference_particle().get_momentum();
+        double m = bunch.get_mass();
+        double reference_cdt = get_reference_cdt(length, k, bunch.get_reference_particle());
+        double substep_reference_cdt = reference_cdt/steps/drifts_per_step;
+        double step_length = length/steps;
+        double step_strength[2] = { k[0]*step_length, k[1]*step_length };
 
-         double * RESTRICT xa, * RESTRICT xpa, * RESTRICT ya, * RESTRICT ypa,
-                 * RESTRICT cdta, * RESTRICT dpopa;
-         bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
+        double * RESTRICT xa, * RESTRICT xpa, * RESTRICT ya, * RESTRICT ypa,
+               * RESTRICT cdta, * RESTRICT dpopa;
+        bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
 
-         const int num_blocks = local_num / GSVector::size;
-         const int block_last = num_blocks * GSVector::size;
-         for (int part = 0; part < block_last; part += GSVector::size) {
-             GSVector x(&xa[part]);
-             GSVector xp(&xpa[part]);
-             GSVector y(&ya[part]);
-             GSVector yp(&ypa[part]);
-             GSVector cdt(&cdta[part]);
-             GSVector dpop(&dpopa[part]);
+        const int num_blocks = local_num / GSVector::size;
+        const int block_last = num_blocks * GSVector::size;
+        for (int part = 0; part < block_last; part += GSVector::size) {
+            GSVector x(&xa[part]);
+            GSVector xp(&xpa[part]);
+            GSVector y(&ya[part]);
+            GSVector yp(&ypa[part]);
+            GSVector cdt(&cdta[part]);
+            GSVector dpop(&dpopa[part]);
 
-             FF_algorithm::yoshida4<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 1 >
-                     ( x, xp, y, yp, cdt, dpop,
-                       reference_momentum, m,
-                       substep_reference_cdt,
-                       step_length, step_strength, steps );
+            FF_algorithm::yoshida4<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 1 >
+                    ( x, xp, y, yp, cdt, dpop,
+                      reference_momentum, m,
+                      substep_reference_cdt,
+                      step_length, step_strength, steps );
 
-             x.store(&xa[part]);
-             xp.store(&xpa[part]);
-             y.store(&ya[part]);
-             yp.store(&ypa[part]);
-             cdt.store(&cdta[part]);
-             dpop.store(&dpopa[part]);
-         }
-         for (int part = block_last; part < local_num; ++part) {
-             double x(xa[part]);
-             double xp(xpa[part]);
-             double y(ya[part]);
-             double yp(ypa[part]);
-             double cdt(cdta[part]);
-             double dpop(dpopa[part]);
+            x.store(&xa[part]);
+            xp.store(&xpa[part]);
+            y.store(&ya[part]);
+            yp.store(&ypa[part]);
+            cdt.store(&cdta[part]);
+            dpop.store(&dpopa[part]);
+        }
+        for (int part = block_last; part < local_num; ++part) {
+            double x(xa[part]);
+            double xp(xpa[part]);
+            double y(ya[part]);
+            double yp(ypa[part]);
+            double cdt(cdta[part]);
+            double dpop(dpopa[part]);
 
-             FF_algorithm::yoshida4<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
-                     ( x, xp, y, yp, cdt, dpop,
-                       reference_momentum, m,
-                       substep_reference_cdt,
-                       step_length, step_strength, steps );
+            FF_algorithm::yoshida4<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
+                    ( x, xp, y, yp, cdt, dpop,
+                      reference_momentum, m,
+                      substep_reference_cdt,
+                      step_length, step_strength, steps );
 
-             xa[part] = x;
-             xpa[part] = xp;
-             ya[part] = y;
-             ypa[part] = yp;
-             cdta[part] = cdt;
-             dpopa[part] = dpop;
-         }
+            xa[part] = x;
+            xpa[part] = xp;
+            ya[part] = y;
+            ypa[part] = yp;
+            cdta[part] = cdt;
+            dpopa[part] = dpop;
+        }
         bunch.get_reference_particle().increment_trajectory(length);
     }
 }
