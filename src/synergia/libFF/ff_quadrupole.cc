@@ -3,13 +3,6 @@
 #include "synergia/lattice/chef_utils.h"
 #include "synergia/utils/gsvector.h"
 
-const int FF_quadrupole::drifts_per_step = 4; // determined by algorithm in thick_quadrupole unit
-
-FF_quadrupole::FF_quadrupole()
-{
-
-}
-
 double FF_quadrupole::get_reference_cdt(double length, double * k,
                                         Reference_particle &reference_particle) {
     double reference_cdt;
@@ -66,7 +59,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, JetParticle& jet_p
     Reference_particle reference_particle(
                 chef_particle_to_reference_particle(chef_particle));
     double reference_cdt = get_reference_cdt(length, k, reference_particle);
-    double substep_reference_cdt = reference_cdt/steps/drifts_per_step;
+    double step_reference_cdt = reference_cdt/steps;
     double step_length = length/steps;
     double step_strength[2] = { k[0]*step_length, k[1]*step_length };
     double kl[2] = { k[0]*length, k[1]*length };
@@ -77,7 +70,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, JetParticle& jet_p
         FF_algorithm::yoshida4<TJet<double>, FF_algorithm::thin_quadrupole_unit<TJet<double> >, 1 >
                 ( x, xp, y, yp, cdt, dpop,
                   reference_momentum, m,
-                  substep_reference_cdt,
+                  step_reference_cdt,
                   step_length, step_strength, steps );
     }
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
@@ -115,7 +108,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         double reference_momentum = bunch.get_reference_particle().get_momentum();
         double m = bunch.get_mass();
         double reference_cdt = get_reference_cdt(length, k, bunch.get_reference_particle());
-        double substep_reference_cdt = reference_cdt/steps/drifts_per_step;
+        double step_reference_cdt = reference_cdt/steps;
         double step_length = length/steps;
         double step_strength[2] = { k[0]*step_length, k[1]*step_length };
 
@@ -136,7 +129,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             FF_algorithm::yoshida4<GSVector, FF_algorithm::thin_quadrupole_unit<GSVector>, 1 >
                     ( x, xp, y, yp, cdt, dpop,
                       reference_momentum, m,
-                      substep_reference_cdt,
+                      step_reference_cdt,
                       step_length, step_strength, steps );
 
             x.store(&xa[part]);
@@ -157,7 +150,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             FF_algorithm::yoshida4<double, FF_algorithm::thin_quadrupole_unit<double>, 1 >
                     ( x, xp, y, yp, cdt, dpop,
                       reference_momentum, m,
-                      substep_reference_cdt,
+                      step_reference_cdt,
                       step_length, step_strength, steps );
 
             xa[part] = x;

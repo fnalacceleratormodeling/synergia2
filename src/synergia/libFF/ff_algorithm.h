@@ -311,7 +311,7 @@ public:
                                 T & y, T & yp,
                                 T & cdt, T const& dpop,
                                 double reference_momentum,
-                                double m, double substep_reference_cdt,
+                                double m, double step_reference_cdt,
                                 double step_length, double * step_strength,
                                 int steps)
     {
@@ -325,6 +325,8 @@ public:
         const double d2 = -1.70241438391931526809537561795;
 
         double k1[components * 2], k2[components * 2], k3[components * 2];
+
+        double substep_reference_cdt = step_reference_cdt * 0.25;
 
         for (int i=0; i<components; ++i)
         {
