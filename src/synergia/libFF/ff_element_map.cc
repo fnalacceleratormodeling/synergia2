@@ -68,6 +68,7 @@ BOOST_CLASS_EXPORT_IMPLEMENT(FF_element_map)
 #include "ff_sextupole.h"
 #include "ff_octupole.h"
 #include "ff_rfcavity.h"
+#include "ff_vkicker.h"
 FF_element_map the_big_giant_global_ff_element_map;
 void construct_big_giant_global_ff_element_map()
 {
@@ -75,6 +76,7 @@ void construct_big_giant_global_ff_element_map()
     the_big_giant_global_ff_element_map.set_element_type("sbend",      FF_sbend_sptr(new FF_sbend()));
     the_big_giant_global_ff_element_map.set_element_type("rbend",      FF_rbend_sptr(new FF_rbend()));
     the_big_giant_global_ff_element_map.set_element_type("rfcavity",   FF_rfcavity_sptr(new FF_rfcavity()));
+    the_big_giant_global_ff_element_map.set_element_type("vkicker",    FF_vkicker_sptr(new FF_vkicker()));
     the_big_giant_global_ff_element_map.set_element_type("multipole",  FF_multipole_sptr(new FF_multipole()));
     the_big_giant_global_ff_element_map.set_element_type("quadrupole", FF_quadrupole_sptr(new FF_quadrupole()));
     the_big_giant_global_ff_element_map.set_element_type("sextupole",  FF_sextupole_sptr(new FF_sextupole()));

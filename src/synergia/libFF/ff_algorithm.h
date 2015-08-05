@@ -89,6 +89,13 @@ public:
         thin_sextupole_unit(x, xp, y, yp, kL + 4);
     }
 
+    template <typename T>
+    inline static void thin_vkicker_unit
+      (T& yp, double kL) 
+    {
+        yp += kL;
+    }
+
     // general thin magnets of n-th order
     // n = 1, dipole; n = 2, quadrupole; n = 3, sextupole, etc.
     template <typename T>
