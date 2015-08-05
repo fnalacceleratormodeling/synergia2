@@ -23,7 +23,7 @@ double FF_vkicker::get_reference_cdt(double length, double k, Reference_particle
     double cdt_orig = cdt;
 
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
-    FF_algorithm::thin_vkicker_unit(yp, k);
+    FF_algorithm::thin_kicker_unit(yp, k);
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
 
     reference_cdt = cdt - cdt_orig;
@@ -62,12 +62,12 @@ void FF_vkicker::apply(Lattice_element_slice const& slice, JetParticle& jet_part
 
     if (length == 0.0) 
     {
-        FF_algorithm::thin_vkicker_unit(yp, k);
+        FF_algorithm::thin_kicker_unit(yp, k);
     } 
     else 
     {
         FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
-        FF_algorithm::thin_vkicker_unit(yp, k);
+        FF_algorithm::thin_kicker_unit(yp, k);
         FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
     }
 }
@@ -86,7 +86,7 @@ void FF_vkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
         {
             double yp(particles[part][Bunch::yp]);
 
-            FF_algorithm::thin_vkicker_unit(yp, k);
+            FF_algorithm::thin_kicker_unit(yp, k);
 
             particles[part][Bunch::yp] = yp;
         }
@@ -122,7 +122,7 @@ void FF_vkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
             GSVector dpop(&dpopa[part]);
 
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
-            FF_algorithm::thin_vkicker_unit(yp, k);
+            FF_algorithm::thin_kicker_unit(yp, k);
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
 
             x.store(&xa[part]);
@@ -142,7 +142,7 @@ void FF_vkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
             double dpop(dpopa[part]);
 
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
-            FF_algorithm::thin_vkicker_unit(yp, k);
+            FF_algorithm::thin_kicker_unit(yp, k);
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
 
             xa[part] = x;

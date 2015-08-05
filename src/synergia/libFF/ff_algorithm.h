@@ -90,17 +90,10 @@ public:
     }
 
     template <typename T>
-    inline static void thin_hkicker_unit
-      (T& xp, double kL) 
+    inline static void thin_kicker_unit
+      (T& p, double kL) 
     {
-        xp += kL;
-    }
-
-    template <typename T>
-    inline static void thin_vkicker_unit
-      (T& yp, double kL) 
-    {
-        yp += kL;
+        p += kL;
     }
 
     // general thin magnets of n-th order

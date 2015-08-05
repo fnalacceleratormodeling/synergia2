@@ -23,7 +23,7 @@ double FF_hkicker::get_reference_cdt(double length, double k, Reference_particle
     double cdt_orig = cdt;
 
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
-    FF_algorithm::thin_hkicker_unit(xp, k);
+    FF_algorithm::thin_kicker_unit(xp, k);
     FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
 
     reference_cdt = cdt - cdt_orig;
@@ -62,12 +62,12 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, JetParticle& jet_part
 
     if (length == 0.0) 
     {
-        FF_algorithm::thin_hkicker_unit(yp, k);
+        FF_algorithm::thin_kicker_unit(yp, k);
     } 
     else 
     {
         FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
-        FF_algorithm::thin_hkicker_unit(xp, k);
+        FF_algorithm::thin_kicker_unit(xp, k);
         FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, 0.0);
     }
 }
@@ -97,14 +97,14 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
         for (int part = 0; part < block_last; part += GSVector::size) 
         {
             GSVector xp(&xpa[part]);
-            FF_algorithm::thin_hkicker_unit(xp, k);
+            FF_algorithm::thin_kicker_unit(xp, k);
             xp.store(&xpa[part]);
         }
 
         for (int part = block_last; part < local_num; ++part) 
         {
             double xp(xpa[part]);
-            FF_algorithm::thin_hkicker_unit(xp, k);
+            FF_algorithm::thin_kicker_unit(xp, k);
             xpa[part] = xp;
         }
     } 
@@ -127,7 +127,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
             GSVector dpop(&dpopa[part]);
 
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
-            FF_algorithm::thin_hkicker_unit(xp, k);
+            FF_algorithm::thin_kicker_unit(xp, k);
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
 
             x.store(&xa[part]);
@@ -148,7 +148,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, Bunch& bunch)
             double dpop(dpopa[part]);
 
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
-            FF_algorithm::thin_hkicker_unit(xp, k);
+            FF_algorithm::thin_kicker_unit(xp, k);
             FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, step_length, pref, m, step_reference_cdt);
 
             xa[part] = x;
