@@ -1,11 +1,7 @@
 #include "ff_element.h"
 
-int FF_element::steps = 6; // default yoshida steps
-
-FF_element::FF_element()
-{
-
-}
+int FF_element::default_steps = 6; // default yoshida steps
+int FF_element::default_order = 4; // default yoshida order
 
 template<class Archive>
     void FF_element::serialize(Archive & ar, const unsigned int version)

@@ -8,21 +8,49 @@
 class FF_element
 {
 public:
-    FF_element();
-    virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle) = 0;
-    virtual void apply(Lattice_element_slice const& slice, Bunch & bunch) = 0;
-    template<class Archive>
-        void serialize(Archive & ar, const unsigned int version);
+    FF_element()
+    : steps(default_steps), order(default_order) { };
+
     virtual ~FF_element();
 
-    static void set_yoshida_steps(int s)
+    virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle) = 0;
+    virtual void apply(Lattice_element_slice const& slice, Bunch & bunch) = 0;
+
+    void set_yoshida_steps(int s)
     { steps = s; }
 
-    static int get_yoshdia_steps()
+    void set_yoshida_order(int o)
+    { order = o; }
+
+    int get_yoshida_steps() const
     { return steps; }
 
+    int get_yoshida_order() const
+    { return order; }
+
+
+    // static members
+    static void set_default_yoshida_steps(int s)
+    { default_steps = s; }
+
+    static void set_default_yoshida_order(int o)
+    { default_order = o; }
+
+    static int get_default_yoshdia_steps()
+    { return default_steps; }
+
+    static int get_default_yoshida_order()
+    { return default_order; }
+
+    template<class Archive>
+        void serialize(Archive & ar, const unsigned int version);
+
 protected:
-    static int steps;
+    static int default_steps;
+    static int default_order;
+
+    int steps;
+    int order;
 };
 
 typedef boost::shared_ptr<FF_element > FF_element_sptr; // syndoc:include
