@@ -90,6 +90,13 @@ public:
     }
 
     template <typename T>
+    inline static void thin_hkicker_unit
+      (T& xp, double kL) 
+    {
+        xp += kL;
+    }
+
+    template <typename T>
     inline static void thin_vkicker_unit
       (T& yp, double kL) 
     {
