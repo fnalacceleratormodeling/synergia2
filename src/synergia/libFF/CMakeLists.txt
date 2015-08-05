@@ -8,6 +8,7 @@ add_library(synergia_libFF
     ff_sextupole.cc
     ff_octupole.cc
     ff_rfcavity.cc
+    ff_kicker.cc
     ff_hkicker.cc
     ff_vkicker.cc
     ff_element_map.cc)
