@@ -62,7 +62,7 @@ void FF_hkicker::apply(Lattice_element_slice const& slice, JetParticle& jet_part
 
     if (length == 0.0) 
     {
-        FF_algorithm::thin_kicker_unit(yp, k);
+        FF_algorithm::thin_kicker_unit(xp, k);
     } 
     else 
     {
