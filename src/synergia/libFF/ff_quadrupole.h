@@ -2,7 +2,6 @@
 #define FF_QUADRUPOLE_H
 
 #include "ff_element.h"
-#include "ff_drift.h"
 
 class FF_quadrupole : public FF_element
 {
