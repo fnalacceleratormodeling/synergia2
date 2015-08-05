@@ -6,11 +6,10 @@
 class FF_sextupole : public FF_element
 {
 private:
-    static const int drifts_per_step;
     double get_reference_cdt(double length, double * k,
                              Reference_particle & reference_particle);
 public:
-    FF_sextupole();
+    FF_sextupole() { };
 
     virtual void apply(Lattice_element_slice const& slice, JetParticle & jet_particle);
     virtual void apply(Lattice_element_slice const& slice, Bunch & bunch);

@@ -2,13 +2,6 @@
 #include "ff_algorithm.h"
 #include "synergia/lattice/chef_utils.h"
 
-const int FF_sextupole::drifts_per_step = 4; // determined by algorithm in thick_sextupole unit
-
-FF_sextupole::FF_sextupole()
-{
-
-}
-
 double FF_sextupole::get_reference_cdt(double length, double * k,
                                        Reference_particle &reference_particle) {
     double reference_cdt;
