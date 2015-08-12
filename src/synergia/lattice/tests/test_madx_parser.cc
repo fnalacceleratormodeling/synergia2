@@ -447,6 +447,34 @@ BOOST_AUTO_TEST_CASE(line_expansion)
   BOOST_CHECK_EQUAL( line.element_name(17), "a" );
 }
 
+BOOST_AUTO_TEST_CASE(matrix)
+{
+  string str = "m1: matrix, type=abc, L=1.2, kick1=0.001, kick2=0.001, kick3=0.002, kick4=0.002, kick5=0.003, kick6=0.003, rm11=1.1, rm12=1.2, rm32=3.2, rm54=5.4, tm111=1.11, tm321=3.21;";
+
+  MadX mx;
+
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+  BOOST_CHECK_EQUAL( mx.label_count(), 1 );
+
+  MadX_command cmd = mx.command("m1");
+  BOOST_CHECK_EQUAL( cmd.name(), "matrix" );
+  BOOST_CHECK_EQUAL( cmd.attribute_count(), 14 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_string("type"), "abc" );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("l"), 1.2, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick1"), 0.001, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick2"), 0.001, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick3"), 0.002, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick4"), 0.002, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick5"), 0.003, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick6"), 0.003, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("rm11"), 1.1, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("rm12"), 1.2, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("rm32"), 3.2, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("rm54"), 5.4, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("tm111"), 1.11, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("tm321"), 3.21, tolerance );
+}
+
 #if 0
 BOOST_AUTO_TEST_CASE(continuation4)
 {
