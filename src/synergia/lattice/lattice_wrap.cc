@@ -201,7 +201,7 @@ BOOST_PYTHON_MODULE(lattice)
                     return_value_policy<copy_non_const_reference >())
             .def("get_length", &Lattice::get_length)
             .def("get_total_angle", &Lattice::get_total_angle)
-            //.def("get_element_adaptor_map", &Lattice::get_element_adaptor_map)
+            .def("get_element_adaptor_map_sptr", &Lattice::get_element_adaptor_map_sptr)
             .def("print_", &Lattice::print)
             .def("as_string", &Lattice::as_string)
             ;

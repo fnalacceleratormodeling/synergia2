@@ -164,6 +164,12 @@ Lattice::get_element_adaptor_map()
     return *element_adaptor_map_sptr;
 }
 
+Element_adaptor_map_sptr
+Lattice::get_element_adaptor_map_sptr()
+{
+    return element_adaptor_map_sptr;
+}
+
 double
 Lattice::get_length() const
 {
