@@ -93,6 +93,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
     MArray2d_ref particles = bunch.get_local_particles();
 
     if (length == 0.0) {
+        #pragma omp parallel for
         for (int part = 0; part < local_num; ++part) {
             double x(particles[part][Bunch::x]);
             double xp(particles[part][Bunch::xp]);
@@ -118,6 +119,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
         const int num_blocks = local_num / GSVector::size;
         const int block_last = num_blocks * GSVector::size;
+        #pragma omp parallel for
         for (int part = 0; part < block_last; part += GSVector::size) {
             GSVector x(&xa[part]);
             GSVector xp(&xpa[part]);
@@ -139,6 +141,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             cdt.store(&cdta[part]);
             dpop.store(&dpopa[part]);
         }
+        #pragma omp parallel for
         for (int part = block_last; part < local_num; ++part) {
             double x(xa[part]);
             double xp(xpa[part]);
