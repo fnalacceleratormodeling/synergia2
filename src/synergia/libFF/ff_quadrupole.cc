@@ -79,6 +79,7 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, JetParticle& jet_p
 
 void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
+    double t0 = MPI_Wtime();
     double length = slice.get_right() - slice.get_left();
 
     double k[2];
@@ -117,8 +118,16 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
                * RESTRICT cdta, * RESTRICT dpopa;
         bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
 
+        double xtmp[local_num];
+        double xptmp[local_num];
+        double ytmp[local_num];
+        double yptmp[local_num];
+        double cdttmp[local_num];
+        double dpoptmp[local_num];
+
         const int num_blocks = local_num / GSVector::size;
         const int block_last = num_blocks * GSVector::size;
+        double t1 = MPI_Wtime();
         #pragma omp parallel for
         for (int part = 0; part < block_last; part += GSVector::size) {
             GSVector x(&xa[part]);
@@ -134,12 +143,12 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
                       step_reference_cdt,
                       step_length, step_strength, steps );
 
-            x.store(&xa[part]);
-            xp.store(&xpa[part]);
-            y.store(&ya[part]);
-            yp.store(&ypa[part]);
-            cdt.store(&cdta[part]);
-            dpop.store(&dpopa[part]);
+            x.store(&xtmp[part]);
+            xp.store(&xptmp[part]);
+            y.store(&ytmp[part]);
+            yp.store(&yptmp[part]);
+            cdt.store(&cdttmp[part]);
+            dpop.store(&dpoptmp[part]);
         }
         #pragma omp parallel for
         for (int part = block_last; part < local_num; ++part) {
@@ -163,6 +172,18 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             cdta[part] = cdt;
             dpopa[part] = dpop;
         }
+        double t2 = MPI_Wtime();
+        std::copy(xtmp, xtmp+block_last, xa);
+        std::copy(xptmp, xptmp+block_last, xpa);
+        std::copy(ytmp, ytmp+block_last, ya);
+        std::copy(yptmp, yptmp+block_last, ypa);
+        std::copy(cdttmp, cdttmp+block_last, cdta);
+        std::copy(dpoptmp, dpoptmp+block_last, dpopa);
+        double t3 = MPI_Wtime();
+//        std::cout << "jfa: GSVector::implentation " << GSVector::implementation << std::endl;
+        std::cout << std::setw(8) << std::setprecision(6);
+        std::cout << "quadrupole-time: " << t1 -t0 << ", " << t2-t1 << ", " << t3-t2 << std::endl;
+
         bunch.get_reference_particle().increment_trajectory(length);
     }
 }

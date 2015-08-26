@@ -326,7 +326,7 @@ Propagator::do_turn_end(int turn, State & state, double & t, double t_turn0,
             logger << ", macroparticles = "
                     << state.bunch_simulator_ptr->get_bunch().get_total_num();
         }
-        logger << ", time = " << std::fixed << std::setprecision(2)
+        logger << ", time = " << std::fixed << std::setprecision(4)
                 << t_turn1 - t_turn0 << "s";
         logger << std::endl;
     }

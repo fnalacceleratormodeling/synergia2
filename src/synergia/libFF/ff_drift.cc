@@ -119,8 +119,9 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
      std::copy(ytmp, ytmp+block_last, ya);
      std::copy(cdttmp, cdttmp+block_last, cdta);
      double t3 = MPI_Wtime();
-     std::cout << "jfa: GSVector::implentation " << GSVector::implementation << std::endl;
-     std::cout << std::setw(6) << "drift-time: " << t1 -t0 << ", " << t2-t1 << ", " << t3-t2 << std::endl;
+//     std::cout << "jfa: GSVector::implentation " << GSVector::implementation << std::endl;
+     std::cout << std::setw(8) << std::setprecision(6);
+     std::cout << "drift-time: " << t1 -t0 << ", " << t2-t1 << ", " << t3-t2 << std::endl;
     bunch.get_reference_particle().increment_trajectory(length);
 }
 
