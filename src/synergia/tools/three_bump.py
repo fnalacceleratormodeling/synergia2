@@ -54,10 +54,12 @@ class Three_bump:
         # bump with one adaptor element type and using the main lattice of another element adaptor type
         # doesn't work.
         #self.bump_lattice = synergia.lattice.Lattice("bump", self.lattice.get_element_adaptor_map())
-        self.bump_lattice = synergia.lattice.Lattice("bump", synergia.lattice.MadX_adaptor_map())
+        self.bump_lattice = synergia.lattice.Lattice("bump", synergia.lattice.Mad8_adaptor_map())
         self.bump_lattice.set_reference_particle(self.lattice.get_reference_particle())
 
+        print "length of lattice_elements: ", len(lattice_elements)
         elem_names = [e.get_name() for e in self.lattice_elements]
+        print "elem_names[0:9]: ", elem_names[0:9]
         try:
             start_idx = elem_names.index(self.start_name)
         except:
