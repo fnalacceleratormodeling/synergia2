@@ -1,6 +1,7 @@
 #include "ff_drift.h"
 #include "synergia/lattice/chef_utils.h"
 #include "synergia/utils/gsvector.h"
+#include <iomanip>
 
 FF_drift::FF_drift()
 {
@@ -54,7 +55,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, JetParticle& jet_partic
 
 void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 {
-//    double t0 = MPI_Wtime();
+    double t0 = MPI_Wtime();
      const double length = slice.get_right() - slice.get_left();
      const int local_num = bunch.get_local_num();
      const double reference_momentum = bunch.get_reference_particle().get_momentum();
@@ -71,7 +72,7 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 
      const int num_blocks = local_num / GSVector::size;
      const int block_last = num_blocks * GSVector::size;
-//     double t1 = MPI_Wtime();
+     double t1 = MPI_Wtime();
      #pragma omp parallel for
      for (int part = 0; part < block_last; part += GSVector::size) {
          GSVector x(&xa[part]);
@@ -84,12 +85,12 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
          FF_algorithm::drift_unit(x, xp, y, yp, cdt, dpop, length, reference_momentum, m,
                     reference_cdt);
 
-         x.store(&xa[part]);
-         y.store(&ya[part]);
-         cdt.store(&cdta[part]);
-//         x.store(&xtmp[part]);
-//         y.store(&ytmp[part]);
-//         cdt.store(&cdttmp[part]);
+//         x.store(&xa[part]);
+//         y.store(&ya[part]);
+//         cdt.store(&cdta[part]);
+         x.store(&xtmp[part]);
+         y.store(&ytmp[part]);
+         cdt.store(&cdttmp[part]);
      }
      #pragma omp parallel for
      for (int part = block_last; part < local_num; ++part) {
@@ -107,15 +108,19 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
          ya[part] = y;
          cdta[part] = cdt;
      }
-//     double t2 = MPI_Wtime();
+     double t2 = MPI_Wtime();
 //    #pragma omp parallel for
 //     for(int part = 0; part < block_last; ++part) {
 //         xa[part] = xtmp[part];
 //         ya[part] = ytmp[part];
 //         cdta[part] = cdttmp[part];
 //     }
-//     double t3 = MPI_Wtime();
-//     std::cout << "drift-time: " << t1 -t0 << ", " << t2-t1 << ", " << t2-t1 << std::endl;
+     std::copy(xtmp, xtmp+block_last, xa);
+     std::copy(ytmp, ytmp+block_last, ya);
+     std::copy(cdttmp, cdttmp+block_last, cdta);
+     double t3 = MPI_Wtime();
+     std::cout << "jfa: GSVector::implentation " << GSVector::implementation << std::endl;
+     std::cout << std::setw(6) << "drift-time: " << t1 -t0 << ", " << t2-t1 << ", " << t3-t2 << std::endl;
     bunch.get_reference_particle().increment_trajectory(length);
 }
 
