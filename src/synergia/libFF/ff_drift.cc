@@ -66,10 +66,13 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
      double * RESTRICT xa, * RESTRICT xpa, * RESTRICT ya, * RESTRICT ypa,
              * RESTRICT cdta, * RESTRICT dpopa;
      bunch.set_arrays(xa, xpa, ya, ypa, cdta, dpopa);
+     double * RESTRICT xa2, * RESTRICT xpa2, * RESTRICT ya2, * RESTRICT ypa2,
+             * RESTRICT cdta2, * RESTRICT dpopa2;
+     bunch.set_alt_arrays(xa2, xpa2, ya2, ypa2, cdta2, dpopa2);
 
-     double xtmp[local_num];
-     double ytmp[local_num];
-     double cdttmp[local_num];
+//     double xtmp[local_num];
+//     double ytmp[local_num];
+//     double cdttmp[local_num];
 
      const int num_blocks = local_num / GSVector::size;
      const int block_last = num_blocks * GSVector::size;
@@ -89,9 +92,9 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
 //         x.store(&xa[part]);
 //         y.store(&ya[part]);
 //         cdt.store(&cdta[part]);
-         x.store(&xtmp[part]);
-         y.store(&ytmp[part]);
-         cdt.store(&cdttmp[part]);
+         x.store(&xa2[part]);
+         y.store(&ya2[part]);
+         cdt.store(&cdta2[part]);
      }
      #pragma omp parallel for
      for (int part = block_last; part < local_num; ++part) {
@@ -112,13 +115,13 @@ void FF_drift::apply(Lattice_element_slice const& slice, Bunch& bunch)
      double t2 = MPI_Wtime();
 //    #pragma omp parallel for
 //     for(int part = 0; part < block_last; ++part) {
-//         xa[part] = xtmp[part];
-//         ya[part] = ytmp[part];
-//         cdta[part] = cdttmp[part];
+//         xa[part] = xa2[part];
+//         ya[part] = ya2[part];
+//         cdta[part] = cdta2[part];
 //     }
-     std::copy(xtmp, xtmp+block_last, xa);
-     std::copy(ytmp, ytmp+block_last, ya);
-     std::copy(cdttmp, cdttmp+block_last, cdta);
+     std::copy(xa2, xa2+block_last, xa);
+     std::copy(ya2, ya2+block_last, ya);
+     std::copy(cdta2, cdta2+block_last, cdta);
      double t3 = MPI_Wtime();
      Logger logger(0);
 //     logger << "jfa: GSVector::implentation " << GSVector::implementation << std::endl;
