@@ -2,6 +2,7 @@
 #include "ff_algorithm.h"
 #include "synergia/lattice/chef_utils.h"
 #include "synergia/utils/gsvector.h"
+#include "synergia/utils/logger.h"
 
 double FF_quadrupole::get_reference_cdt(double length, double * k,
                                         Reference_particle &reference_particle) {
@@ -180,9 +181,10 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
         std::copy(cdttmp, cdttmp+block_last, cdta);
         std::copy(dpoptmp, dpoptmp+block_last, dpopa);
         double t3 = MPI_Wtime();
-//        std::cout << "jfa: GSVector::implentation " << GSVector::implementation << std::endl;
-        std::cout << std::setw(8) << std::setprecision(6);
-        std::cout << "quadrupole-time: " << t1 -t0 << ", " << t2-t1 << ", " << t3-t2 << std::endl;
+        Logger logger(0);
+//        logger << "jfa: GSVector::implentation " << GSVector::implementation << std::endl;
+        logger << std::setw(8) << std::setprecision(6);
+        logger << "quadrupole-time: " << t1 -t0 << ", " << t2-t1 << ", " << t3-t2 << std::endl;
 
         bunch.get_reference_particle().increment_trajectory(length);
     }
