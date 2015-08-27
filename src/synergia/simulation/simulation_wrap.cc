@@ -74,6 +74,18 @@ struct Propagate_actions_callback : Propagate_actions
         self_.Propagate_actions::step_end_action(stepper, step, bunch,
                 turn_num, step_num);
     }
+    void
+    before_resume_action(Stepper & stepper, Bunch & bunch)
+    {
+        call_method<void > (self.ptr(), "before_resume_action", boost::ref(stepper),
+                boost::ref(bunch));
+    }
+    static void
+    default_before_resume_action(Propagate_actions& self_, Stepper & stepper,
+            Bunch & bunch)
+    {
+        self_.Propagate_actions::before_resume_action(stepper, bunch);
+    }
     PyObject*
     get_python_object()
     {

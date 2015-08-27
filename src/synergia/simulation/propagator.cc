@@ -503,6 +503,13 @@ Propagator::resume(std::string const& checkpoint_directory, bool new_num_turns, 
     if (new_verbosity) {
         state.verbosity = verbosity;
     }
+    if (state.bunch_simulator_ptr) {
+        state.propagate_actions_ptr->before_resume_action(*stepper_sptr,
+                                                          state.bunch_simulator_ptr->get_bunch());
+    } else {
+        state.propagate_actions_ptr->before_resume_action(*stepper_sptr,
+                                                          state.bunch_train_simulator_ptr->get_bunch_train());
+    }
     propagate(state);
     state.bunch_simulator_ptr ?  delete state.bunch_simulator_ptr: delete state.bunch_train_simulator_ptr;
     delete state.propagate_actions_ptr;
