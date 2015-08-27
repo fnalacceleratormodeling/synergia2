@@ -46,7 +46,7 @@ private:
     bool z_periodic;
     Reference_particle reference_particle;
     int particle_charge;
-    MArray2d *local_particles;
+    MArray2d *local_particles, *alt_local_particles;
     int local_num, total_num;
     double real_num;
     int bucket_index;
@@ -185,6 +185,12 @@ public:
     Const_MArray2d_ref
     get_local_particles() const;
 
+    MArray2d_ref
+    get_alt_local_particles();
+
+    Const_MArray2d_ref
+    get_alt_local_particles() const;
+
     /// Get the particle charge in units of e.
     int
     get_particle_charge() const;
@@ -246,6 +252,10 @@ public:
     check_pz2_positive();
     
     void set_arrays(double * RESTRICT &xa, double * RESTRICT &xpa,
+                    double * RESTRICT &ya, double * RESTRICT &ypa,
+                    double * RESTRICT &cdta, double * RESTRICT &dpopa);
+
+    void set_alt_arrays(double * RESTRICT &xa, double * RESTRICT &xpa,
                     double * RESTRICT &ya, double * RESTRICT &ypa,
                     double * RESTRICT &cdta, double * RESTRICT &dpopa);
 
