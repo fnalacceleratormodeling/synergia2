@@ -4,6 +4,14 @@
 #define NPY_NO_DEPRECATED_API 7
 #include "numpy/arrayobject.h"
 
+// backwards compatibility
+#ifndef NPY_ARRAY_F_CONTIGUOUS
+    #define NPY_ARRAY_F_CONTIGUOUS NPY_F_CONTIGUOUS
+#endif
+#ifndef NPY_ARRAY_WRITEABLE
+    #define NPY_ARRAY_WRITEABLE NPY_WRITEABLE
+#endif
+
 template<typename ValueType, int Dimension>
     struct numpy_multi_array_converter
     {
