@@ -438,7 +438,16 @@ void mx_command::execute(MadX & mx)
           try 
           {
             mx_expr ex = any_cast<mx_expr>(it->value());
-            ex = get<nop_t>(get<nop_t>(get<nop_t>(ex).expr).expr).expr;
+
+            // this line causes the final extracted string to be random characters
+            // if compiled with os x clang compiler
+            // ex = get<nop_t>(get<nop_t>(get<nop_t>(ex).expr).expr).expr;
+
+            // fix to the above issue
+            ex = get<nop_t>(ex).expr;
+            ex = get<nop_t>(ex).expr;
+            ex = get<nop_t>(ex).expr;
+
             refer = boost::get<string>( ex );
             it->set_attr("refer", refer);
           } 
@@ -466,7 +475,9 @@ void mx_command::execute(MadX & mx)
           try 
           {
             mx_expr ex = any_cast<mx_expr>(it->value());
-            ex = get<nop_t>(get<nop_t>(get<nop_t>(ex).expr).expr).expr;
+            ex = get<nop_t>(ex).expr;
+            ex = get<nop_t>(ex).expr;
+            ex = get<nop_t>(ex).expr;
             refpos = boost::get<string>( ex );
             it->set_attr("refpos", refpos);
           } 
