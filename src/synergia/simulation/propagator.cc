@@ -328,6 +328,18 @@ Propagator::do_turn_end(int turn, State & state, double & t, double t_turn0,
         if (state.bunch_simulator_ptr) {
             logger << ", macroparticles = "
                     << state.bunch_simulator_ptr->get_bunch().get_total_num();
+        } else {
+            Bunch_train & bunch_train(
+                    state.bunch_train_simulator_ptr->get_bunch_train());
+            size_t num_bunches = bunch_train.get_size();
+            Bunches & bunches(bunch_train.get_bunches());
+            logger << ", macroparticles = ";
+            for (std::vector<Bunch_sptr >::const_iterator bit = bunches.begin(); bit!=bunches.end(); ++bit) {
+                if (bit != bunches.begin()) {
+                    logger << ", " ;
+                }
+                logger << (*bit)->get_total_num();
+            }
         }
         logger << ", time = " << std::fixed << std::setprecision(2)
                 << t_turn1 - t_turn0 << "s";
