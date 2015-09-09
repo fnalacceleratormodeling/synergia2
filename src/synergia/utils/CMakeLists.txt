@@ -1,11 +1,9 @@
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 add_library(synergia_parallel_utils parallel_utils.cc commxx.cc 
     commxx_divider.cc logger.cc)
-if (BUILD_PYTHON_BINDINGS)
-    add_python_extension(parallel_utils parallel_utils_wrap.cc)
-   target_link_libraries(parallel_utils synergia_parallel_utils
-        ${Boost_LIBRARIES})
-endif ()
-target_link_libraries(parallel_utils)
+target_link_libraries(synergia_parallel_utils ${Boost_SERIALIZATION_LIBRARIES})
 
 add_library(synergia_serialization serialization_files.cc)
 target_link_libraries(synergia_serialization ${Boost_FILESYSTEM_LIBRARIES}
@@ -14,6 +12,12 @@ target_link_libraries(synergia_serialization ${Boost_FILESYSTEM_LIBRARIES}
 add_library(synergia_hdf5_utils hdf5_writer.cc hdf5_serial_writer.cc
     hdf5_chunked_array2d_writer.cc hdf5_file.cc)
 target_link_libraries(synergia_hdf5_utils ${HDF5_LIBRARIES} synergia_serialization)
+
+if (BUILD_PYTHON_BINDINGS)
+    add_python_extension(parallel_utils parallel_utils_wrap.cc)
+    target_link_libraries(parallel_utils synergia_parallel_utils
+        synergia_hdf5_utils ${Boost_LIBRARIES})
+endif ()
 
 add_library(synergia_distributed_fft distributed_fft3d.cc
     distributed_fft2d.cc)

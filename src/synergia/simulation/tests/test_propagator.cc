@@ -9,9 +9,12 @@
 #include "synergia/bunch/diagnostics_basic.h"
 #include "synergia/bunch/diagnostics_full2.h"
 #include "synergia/bunch/diagnostics_particles.h"
+#include "synergia/bunch/diagnostics_bulk_track.h"
 #include "propagator_fixture.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
 #include "synergia/simulation/diagnostics_actions.h"
+#include "synergia/simulation/lattice_elements_actions.h"
+
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-12;
@@ -134,6 +137,9 @@ BOOST_FIXTURE_TEST_CASE(propagate_train, Propagator_fixture)
     propagator.propagate(bunch_train_simulator, num_turns);
 }
 
+
+
+
 BOOST_FIXTURE_TEST_CASE(propagate_max_turns, Propagator_fixture)
 {
     Bunch_sptr bunch_sptr(new Bunch(l.b.bunch));
@@ -151,8 +157,11 @@ BOOST_FIXTURE_TEST_CASE(propagate_max_turns, Propagator_fixture)
             new Diagnostics_particles("first_particles_per_turn.h5"));
     Diagnostics_sptr second_turn_particles_diag_sptr(
             new Diagnostics_particles("second_particles_per_turn.h5"));
+    Diagnostics_sptr track_diag_sptr(
+                new Diagnostics_bulk_track("tracks.h5", 9));
     bunch_simulator.add_per_turn(first_turn_particles_diag_sptr);
     bunch_simulator.add_per_turn(second_turn_particles_diag_sptr);
+    bunch_simulator.add_per_turn(track_diag_sptr);
 
     int num_turns = 4;
     int max_turns = 1;

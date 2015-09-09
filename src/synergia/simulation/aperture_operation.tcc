@@ -84,7 +84,7 @@ template<typename T>
         if (verbosity > 5) {
             logger << "Aperture_operation: type = " << get_aperture_type()
                     << ", time = " << std::fixed << std::setprecision(3) << t1
-                    - t0 << "s" << std::endl;
+                    - t0 << "s_n" << std::endl;
         }
 
         delete [] discard;
@@ -140,7 +140,7 @@ template<typename T>
         if (verbosity > 5) {
             logger << "Aperture_operation: type = " << get_aperture_type()
                     << ", time = " << std::fixed << std::setprecision(3) << t1
-                    - t0 << "s" << std::endl;
+                    - t0 << "s_n" << std::endl;
         }
     }
 
@@ -195,6 +195,30 @@ Rectangular_aperture_operation::operator()(MArray2d_ref & particles, int part)
 }
 
 inline bool
+Rectangular_with_ears_aperture_operation::operator()(MArray2d_ref & particles, int part)
+{
+    double xrel = particles[part][Bunch::x] - get_x_offset();
+    double yrel = particles[part][Bunch::y] - get_y_offset();
+
+    // hopefully most particles will be within the rectangular area so check it first
+    if ((std::abs(xrel) <= 0.5*width) &&
+        (std::abs(yrel) <= 0.5*height))
+        return 0;
+
+    if ((std::abs(xrel) > 0.5*width+radius) ||
+        (std::abs(yrel) > 0.5*height))
+        return 1;
+
+    if (std::abs(yrel) <= ear_offset)
+        return (std::abs(xrel) > 0.5*width+radius);
+ 
+    double xcirc = std::abs(xrel)-0.5*width;
+    double ycirc = std::abs(yrel)-ear_offset;
+
+    return ( xcirc*xcirc + ycirc*ycirc > radius*radius);
+}
+
+inline bool
 Polygon_aperture_operation::operator()(MArray2d_ref & particles, int part)
 {
     double xrel = particles[part][Bunch::x] - get_x_offset();
@@ -202,7 +226,7 @@ Polygon_aperture_operation::operator()(MArray2d_ref & particles, int part)
     double r2 = xrel * xrel + yrel * yrel;
 
     bool keep = true;
-    if (r2 > min_radius2) {
+    if (r2 >= min_radius2) {
         std::complex<double > u(xrel, yrel);
         int index = 0;
         int size = vertices.size();

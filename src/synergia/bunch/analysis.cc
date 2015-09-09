@@ -9,12 +9,10 @@
 
 Analysis::Analysis(std::string const& fname, size_t maxTurn):
     maxNumberOfTurn(maxTurn),
-    seqCount(0),
     tokenname(fname),
     filename(fname),
     numTurns(0),
     numParticles1rstBunch(0),
-    selectedParticleId(0),
     gotHorizontalTunes(false),
     gotVerticalTunes(false),
     numXTunesFound(0),

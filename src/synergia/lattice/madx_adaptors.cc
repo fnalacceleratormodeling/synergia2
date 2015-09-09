@@ -3,6 +3,8 @@
 #include "madx_adaptors.h"
 #include "synergia/foundation/math_constants.h"
 
+#include <complex>
+
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
@@ -10,7 +12,12 @@
 #pragma GCC diagnostic ignored "-Wsequence-point"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wsign-compare"
+#ifndef __clang__
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 #include <beamline/beamline_elements.h>
+#include <beamline/YoshidaPropagator.h>
+#include <beamline/CF_sbend_MADPropagator.h>
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic pop
 #endif
@@ -110,8 +117,12 @@ Drift_madx_adaptor::~Drift_madx_adaptor()
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Drift_madx_adaptor)
 
+const char Sbend_madx_adaptor::mad_propagator[] = "mad";
+const char Sbend_madx_adaptor::basic_propagator[] = "basic";
+
 Sbend_madx_adaptor::Sbend_madx_adaptor()
 {
+    get_default_element().set_string_attribute("propagator_type", basic_propagator);
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("angle", 0.0);
     get_default_element().set_double_attribute("tilt", 0.0);
@@ -124,6 +135,7 @@ Sbend_madx_adaptor::Sbend_madx_adaptor()
     get_default_element().set_double_attribute("k2", 0.0);
     get_default_element().set_double_attribute("h1", 0.0);
     get_default_element().set_double_attribute("h2", 0.0);
+    get_default_element().set_double_attribute("kicks", 40.0);
     // possible higher order multipole components
     get_default_element().set_double_attribute("kl", 0.0); // base strength/B-rho
     get_default_element().set_double_attribute("a1", 0.0); // skew quad
@@ -155,6 +167,7 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double k1 = lattice_element.get_double_attribute("k1");
     double k2 = lattice_element.get_double_attribute("k2");
     double tilt = lattice_element.get_double_attribute("tilt");
+    int kicks = floor(lattice_element.get_double_attribute("kicks"));
 
     bool simple = ((k1 == 0.0) && (k2 == 0.0));
 
@@ -223,7 +236,6 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
             ElmPtr sbptr1;
             ElmPtr sbptr2;
             elm->Split(0.5, sbptr1, sbptr2);
-
             std::vector < std::complex<double > > c_moments;
             for (int k = 0; k <= highest_order; ++k) {
                 c_moments.push_back(std::complex<double >(bk[k], ak[k]));
@@ -241,16 +253,30 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         }
     } else {
         // combined function element
-        bmlnElmnt* elm = new CF_sbend(lattice_element.get_name().c_str(),
+        CF_sbend* elm = new CF_sbend(lattice_element.get_name().c_str(),
                 length, brho * angle / length, angle, e1, e2);
+        // Does the CHEF default number of kicks match the Synergia default number of kicks?
+        if (elm->numberOfKicks() != kicks) {
+            elm->setNumberOfKicks(kicks);
+        }
         if (tilt != 0.0) elm->setAlignment(aligner);
         double multipoleStrength = k1 * brho * length;
         if (multipoleStrength != 0.0) {
-            dynamic_cast<CF_sbend* >(elm)->setQuadrupole(multipoleStrength);
+            elm->setQuadrupole(multipoleStrength);
         }
         multipoleStrength = k2 * brho * length / 2.0;
         if (multipoleStrength != 0.0) {
-            dynamic_cast<CF_sbend* >(elm)->setSextupole(multipoleStrength);
+            elm->setSextupole(multipoleStrength);
+        }
+        if(lattice_element.get_string_attribute("propagator_type") == mad_propagator) {
+            CF_sbend::PropagatorPtr mad_propagator(new CF_sbend_MADPropagator);
+            elm->usePropagator(mad_propagator);
+        } else if (lattice_element.get_string_attribute("propagator_type") == basic_propagator) {
+            // nothing to be done
+        } else {
+            throw std::runtime_error(
+                        "Sbend_madx_adaptor::get_chef_elements: bad propagator_type \"" +
+                        lattice_element.get_string_attribute("propagator_type") + "\"");
         }
         ElmPtr elmP(elm);
         retval.push_back(elmP);
@@ -295,6 +321,7 @@ Rbend_madx_adaptor::Rbend_madx_adaptor()
 {
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("angle", 0.0);
+    get_default_element().set_double_attribute("tilt", 0.0);
     // jfa: add_angle not yet handled
     get_default_element().set_double_attribute("k1", 0.0);
     get_default_element().set_double_attribute("e1", 0.0);
@@ -330,8 +357,6 @@ Rbend_madx_adaptor::set_defaults(Lattice_element & lattice_element)
     lattice_element.set_length_attribute_name("arclength");
     lattice_element.set_needs_internal_derive(true);
     Element_adaptor::set_defaults(lattice_element);
-    std::cout << "Rbend_madx_adaptor: WARNING arc length not properly handled"
-            << std::endl;
 }
 
 void
@@ -435,6 +460,8 @@ Rbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
             return retval;
         }
     } else {
+        // std::cout << "rbend not so simple: " << lattice_element.get_name() << std::endl; std::cout.flush();
+        // std::cout << "length: " << length << ", strength: " << brho * (2.0 * sin(0.5 * angle)) / length << std::endl; std::cout.flush();
         // Not so simple
         alignmentData aligner;
         aligner.xOffset = 0.0;
@@ -442,10 +469,10 @@ Rbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         aligner.tilt = tilt;
 
         bmlnElmnt* elm;
-        if ((0.0 == e1) && (0.0 == e2)) elm = new rbend(
+        if ((0.0 == e1) && (0.0 == e2)) elm = new CF_rbend(
                 lattice_element.get_name().c_str(), length,
                 brho * (2.0 * sin(0.5 * angle)) / length, angle);
-        else elm = new rbend(lattice_element.get_name().c_str(), length,
+        else elm = new CF_rbend(lattice_element.get_name().c_str(), length,
                 brho * (2.0 * sin(0.5 * angle)) / length, angle, e1, e2);
 
         elm->setTag("RBEND");
@@ -498,8 +525,15 @@ Rbend_madx_adaptor::~Rbend_madx_adaptor()
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Rbend_madx_adaptor)
 
+const char Quadrupole_madx_adaptor::yoshida_propagator[] = "yoshida";
+const char Quadrupole_madx_adaptor::basic_propagator[] = "basic";
+
 Quadrupole_madx_adaptor::Quadrupole_madx_adaptor()
 {
+    get_default_element().set_string_attribute("propagator_type", yoshida_propagator);
+    get_default_element().set_double_attribute("yoshida_order", 2); // method is accurate to O[(kL)^(2*order+2)]
+    get_default_element().set_double_attribute("yoshida_steps", 4);
+    get_default_element().set_double_attribute("basic_kicks", 40);
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("k1", 0.0);
     get_default_element().set_double_attribute("tilt", 0.0);
@@ -528,10 +562,6 @@ Chef_elements
 Quadrupole_madx_adaptor::get_chef_elements(
         Lattice_element const& lattice_element, double brho)
 {
-    if (lattice_element.has_double_attribute("k1s", false)) {
-        throw std::runtime_error(
-                "Quadrupole_madx_adaptor: k1s attribute not handled");
-    }
 
     Chef_elements retval;
 
@@ -549,6 +579,29 @@ Quadrupole_madx_adaptor::get_chef_elements(
     double yoffset = lattice_element.get_double_attribute("voffset");
 
     double qtilt = lattice_element.get_double_attribute("tilt");
+
+    // if there is a k1s moment, make a normal quadrupole with positive strength and rotate it to the correct angle.
+    // if there is no k1s moment, make a quadrupole with the given strength and no rotation.  This is
+    // done so that normal negative strength quadrupoles will become a CHEF quadrupole with negative strength instead
+    // of a rotated positive positive strength quadrupole.
+    double quad_strength;
+    double rot_angle;
+
+    if (lattice_element.get_double_attribute("k1s") == 0.0) {
+        // no k1s
+        quad_strength = lattice_element.get_double_attribute("k1");
+        rot_angle = qtilt;
+    } else {
+        // ck1 is the complex strength of the quadrupole k1 - i*k1s (negative because of MAD-X definition)
+        std::complex<double> ck1(lattice_element.get_double_attribute("k1"),
+                                 -lattice_element.get_double_attribute("k1s"));
+        // rot_angle is phase of ck1/(order+1) (order = 1 for quadrupole)
+        // for pure skew quad, phase is -pi/2, order=1 so rotation = -pi/4
+        // so rot_angle is the rotation needed to turn a normal quad
+        // into one with k1 and k1s components.
+        quad_strength = std::abs(ck1);
+        rot_angle = std::arg(ck1)/2.0 + qtilt;
+    }
 
     bool has_multipoles = false;
     int highest_order = 0;
@@ -576,24 +629,32 @@ Quadrupole_madx_adaptor::get_chef_elements(
     bmlnElmnt* bmln_elmnt;
     if (length == 0.0) {
         bmln_elmnt = new thinQuad(lattice_element.get_name().c_str(),
-                brho * lattice_element.get_double_attribute("k1"));
+                                  brho * quad_strength);
     } else {
-        bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
-                brho * lattice_element.get_double_attribute("k1"));
-    }
-
-    // using tilt and multipoles is a no-no
-    if (has_multipoles && (qtilt != 0.0)) {
-        throw runtime_error(
-                "shouldn't use tilt and multipoles in same element");
+        if(lattice_element.get_string_attribute("propagator_type") == yoshida_propagator) {
+            int steps = floor(lattice_element.get_double_attribute("yoshida_steps"));
+            int order = floor(lattice_element.get_double_attribute("yoshida_order"));
+            bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
+                                        brho * quad_strength);
+            quadrupole::PropagatorPtr yoshida_propagator(new YoshidaPropagator(order, steps));
+            dynamic_cast<quadrupole*>(bmln_elmnt)->usePropagator(yoshida_propagator);
+        } else if (lattice_element.get_string_attribute("propagator_type") == basic_propagator) {
+            bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
+                                        brho * quad_strength);
+            dynamic_cast<quadrupole*>(bmln_elmnt)->setNumberOfKicks(floor(lattice_element.get_double_attribute("basic_kicks")));
+        } else {
+            throw std::runtime_error(
+                        "Quadrupole_madx_adaptor::get_chef_elements: bad propagator_type \"" +
+                        lattice_element.get_string_attribute("propagator_type") + "\"");
+        }
     }
 
     bool needs_aligner;
-    if ((qtilt != 0.0) || (xoffset != 0.0) || (yoffset != 0.0)) {
+    if ((rot_angle != 0.0) || (xoffset != 0.0) || (yoffset != 0.0)) {
         needs_aligner = true;
         aligner.xOffset = xoffset;
         aligner.yOffset = yoffset;
-        aligner.tilt = qtilt;
+        aligner.tilt = rot_angle;
     } else {
         needs_aligner = false;
     }
@@ -604,11 +665,17 @@ Quadrupole_madx_adaptor::get_chef_elements(
         }
         ElmPtr elm(bmln_elmnt);
         retval.push_back(elm);
-    } else {
+     } else {
         // split the quadrupole, insert thin multipole element in between halves
         std::vector < std::complex<double > > c_moments;
         for (int k = 0; k <= highest_order; ++k) {
             c_moments.push_back(std::complex<double >(bk[k], ak[k]));
+        }
+        // if explicit qtilt attribute set, rotation accomplished by multiplying
+        // b + i*a coefficients by exp(-i (n+1)*theta ).  The multipoles are rotated by
+        // the tilt angle, but the magnet body is rotated by normal+skew+tilt angle
+        for (int k=0; k <= highest_order; ++k) {
+            c_moments[k] *= std::complex<double>(std::cos((k+1)*qtilt), -std::sin((k+1)*qtilt));
         }
 
         double brkl = brho * length
@@ -681,33 +748,51 @@ Chef_elements
 Sextupole_madx_adaptor::get_chef_elements(
         Lattice_element const& lattice_element, double brho)
 {
-    if (lattice_element.has_double_attribute("k2s", false)) {
-        throw std::runtime_error(
-                "Sextupole_madx_adaptor: k2s attribute not handled");
-    }
+
     Chef_elements retval;
 
     double sexlen = lattice_element.get_double_attribute("l");
-    double sexk2 = lattice_element.get_double_attribute("k2");
-
     alignmentData aligner;
 
     bmlnElmnt* bmln_elmnt;
 
-    if (sexlen == 0.0) {
-        bmln_elmnt = new thinSextupole(lattice_element.get_name().c_str(),
-                brho * sexk2 / 2.0);
-    } else {
-        bmln_elmnt = new sextupole(lattice_element.get_name().c_str(), sexlen,
-                brho * sexk2 / 2.0);
-    }
-
     double sextilt = lattice_element.get_double_attribute("tilt");
 
-    if (sextilt != 0.0) {
+    // if there is a k2s moment, make a normal sextupole with positive strength and rotate it to the correct angle.
+    // if there is no k2s moment, make a sextupole with the given strength and no rotation.  This is
+    // done so that normal negative strength sextupoles will become a CHEF sextupole with negative strength instead
+    // of a rotated positive positive strength sextupole.
+    double sext_strength;
+    double rot_angle;
+
+    if (lattice_element.get_double_attribute("k2s") == 0.0) {
+        // no k2s
+        sext_strength = lattice_element.get_double_attribute("k2");
+        rot_angle = sextilt;
+    } else {
+        // ck2 is the complex strength of the sextupole k2 - i*k2s (negative because of MAD-X definition)
+        std::complex<double> ck2(lattice_element.get_double_attribute("k2"),
+                                 -lattice_element.get_double_attribute("k2s"));
+        // rot_angle is phase of ck2/(order+1) (order = 2 for sextupole)
+        // for pure skew sext, phase is -pi/2, order=2 so rotation = -pi/6
+        // so rot_angle is the rotation needed to turn a normal sextupole
+        // into one with k2 and k2s components.
+        sext_strength = std::abs(ck2);
+        rot_angle = std::arg(ck2)/3.0 + sextilt;
+    }
+
+    if (sexlen == 0.0) {
+        bmln_elmnt = new thinSextupole(lattice_element.get_name().c_str(),
+                  brho * sext_strength / 2.0);
+    } else {
+        bmln_elmnt = new sextupole(lattice_element.get_name().c_str(), sexlen,
+                  brho * sext_strength / 2.0);
+    }
+
+    if (rot_angle != 0.0) {
         aligner.xOffset = 0.0;
         aligner.yOffset = 0.0;
-        aligner.tilt = sextilt;
+        aligner.tilt = rot_angle;
         bmln_elmnt->setAlignment(aligner);
     }
 
@@ -752,6 +837,7 @@ Octupole_madx_adaptor::Octupole_madx_adaptor()
 {
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("k3", 0.0);
+    get_default_element().set_double_attribute("k3s", 0.0);
     get_default_element().set_double_attribute("tilt", 0.0);
 }
 
@@ -759,34 +845,38 @@ Chef_elements
 Octupole_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
 {
-    if (lattice_element.has_double_attribute("k3s", false)) {
-        throw std::runtime_error(
-                "Octupole_madx_adaptor: k3s attribute not handled");
-    }
 
     Chef_elements retval;
 
     double octulen = lattice_element.get_double_attribute("l");
-    double octuk2 = lattice_element.get_double_attribute("k3");
+
+    double octutilt = lattice_element.get_double_attribute("tilt");
 
     alignmentData aligner;
 
     bmlnElmnt* bmln_elmnt;
 
+    // ck3 is the complex strength of the octupole k3 - i*k3s (negative because of MAD-X definition)
+    std::complex<double> ck3(lattice_element.get_double_attribute("k3"),
+                             -lattice_element.get_double_attribute("k3s"));
+    // rot_angle is phase of ck3/(order+1) (order=3 for octupole)
+    // for pure skew oct, phase is -pi/2, order=3 so rotation = -pi/8
+    // so rot_angle is the rotation needed to turn a normal octupole
+    // into one with k3 and k3s components.
+     double rot_angle = std::arg(ck3)/4.0 + octutilt;
+
     if (octulen == 0.0) {
         bmln_elmnt = new thinOctupole(lattice_element.get_name().c_str(),
-                brho * octuk2 / 6.0);
+                brho * std::abs(ck3) / 6.0);
     } else {
         bmln_elmnt = new octupole(lattice_element.get_name().c_str(), octulen,
-                brho * octuk2 / 6.0);
+                brho * std::abs(ck3) / 6.0);
     }
 
-    double octutilt = lattice_element.get_double_attribute("tilt");
-
-    if (octutilt != 0.0) {
+    if (rot_angle != 0.0) {
         aligner.xOffset = 0.0;
         aligner.yOffset = 0.0;
-        aligner.tilt = octutilt;
+        aligner.tilt = rot_angle;
         bmln_elmnt->setAlignment(aligner);
     }
 
@@ -1021,6 +1111,29 @@ Solenoid_madx_adaptor::Solenoid_madx_adaptor()
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("ks", 0.0);
     get_default_element().set_double_attribute("ksi", 0.0);
+}
+
+Chef_elements
+Solenoid_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+                                        double brho)
+{
+    Chef_elements retval;
+    double length = lattice_element.get_double_attribute("l");
+    double ks = lattice_element.get_double_attribute("ks");
+
+    if (length == 0.0) {
+        throw 
+        std::runtime_error("Solenoid_madx_adaptor: zero-length solenoids not yet handled");
+    }
+    bmlnElmnt * generic_elm;
+    if (ks == 0.0) {
+        generic_elm = new drift(lattice_element.get_name().c_str(), length);
+    } else {
+        generic_elm = new Solenoid(lattice_element.get_name().c_str(), length, ks);
+    }
+    ElmPtr elm(generic_elm);
+    retval.push_back(elm);
+    return retval;
 }
 
 template<class Archive>
@@ -1277,6 +1390,16 @@ Rfcavity_madx_adaptor::Rfcavity_madx_adaptor()
 }
 
 void
+Rfcavity_madx_adaptor::set_defaults(Lattice_element & lattice_element)
+{
+#if 0 // let CHEF set RF frequency
+    lattice_element.set_needs_external_derive(true);
+#endif // let CHEF set RF frequency
+    Element_adaptor::set_defaults(lattice_element);
+}
+
+#if 0 // let CHEF set the RF frequency
+void
 Rfcavity_madx_adaptor::set_derived_attributes_external(Lattice_element &lattice_element,
 		double lattice_length, double beta)
 {
@@ -1284,10 +1407,11 @@ Rfcavity_madx_adaptor::set_derived_attributes_external(Lattice_element &lattice_
             && lattice_element.get_double_attribute("harmon") != 0.0) {
     	double h = lattice_element.get_double_attribute("harmon");
 
-    	double freq = h * beta * pconstants::c/lattice_length;
+    	double freq = 1.0e-6 * h * beta * pconstants::c/lattice_length;
     	lattice_element.set_double_attribute("freq", freq);
     }
 }
+#endif // let CHEF set the RF frequency
 
 Chef_elements
 Rfcavity_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
@@ -1300,14 +1424,16 @@ Rfcavity_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     if (lattice_element.has_double_attribute("freq")) {
         freq = lattice_element.get_double_attribute("freq");
     }
+    int harmonic_number = lattice_element.get_double_attribute("harmon");
     double q = 0;
     if (length == 0.0) {
         bmlnElmnt *bmln_elmnt;
-        bmln_elmnt = new thinrfcavity(lattice_element.get_name().c_str(), freq,
+        bmln_elmnt = new thinrfcavity(lattice_element.get_name().c_str(), freq*1.0e6,
                 lattice_element.get_double_attribute("volt") * 1.0e6,
                 lattice_element.get_double_attribute("lag")
                         * (2.0 * mconstants::pi), q,
                 lattice_element.get_double_attribute("shunt"));
+        static_cast<thinrfcavity *>(bmln_elmnt)->setHarmonicNumber(harmonic_number);
         ElmPtr elm(bmln_elmnt);
         retval.push_back(elm);
     } else {
@@ -1316,10 +1442,11 @@ Rfcavity_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
                 (lattice_element.get_name() + "_predrift").c_str(),
                 0.5 * length);
         kick = new thinrfcavity((lattice_element.get_name() + "_kick").c_str(),
-                freq, lattice_element.get_double_attribute("volt") * 1.0e6,
+                freq*1.0e6, lattice_element.get_double_attribute("volt") * 1.0e6,
                 lattice_element.get_double_attribute("lag")
                         * (2.0 * mconstants::pi), q,
                 lattice_element.get_double_attribute("shunt"));
+        static_cast<thinrfcavity *>(kick)->setHarmonicNumber(harmonic_number);
         post_drift = new drift(
                 (lattice_element.get_name() + "_postdrift").c_str(),
                 0.5 * length);
@@ -1639,6 +1766,18 @@ Ecollimator_madx_adaptor::Ecollimator_madx_adaptor()
     get_default_element().set_double_attribute("ysize", 0.0);
 }
 
+Chef_elements
+Ecollimator_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+    ElmPtr elm(
+            new drift(lattice_element.get_name().c_str(),
+                    lattice_element.get_length()));
+    retval.push_back(elm);
+    return retval;
+}
+
 template<class Archive>
     void
     Ecollimator_madx_adaptor::serialize(Archive & ar,
@@ -1677,6 +1816,18 @@ Rcollimator_madx_adaptor::Rcollimator_madx_adaptor()
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("xsize", 0.0);
     get_default_element().set_double_attribute("ysize", 0.0);
+}
+
+Chef_elements
+Rcollimator_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+    ElmPtr elm(
+            new drift(lattice_element.get_name().c_str(),
+                    lattice_element.get_length()));
+    retval.push_back(elm);
+    return retval;
 }
 
 template<class Archive>
@@ -1851,8 +2002,6 @@ Lambertson_madx_adaptor::~Lambertson_madx_adaptor()
 BOOST_CLASS_EXPORT_IMPLEMENT(Lambertson_madx_adaptor)
 
 
-
-
 Srot_madx_adaptor::Srot_madx_adaptor()
 {
 }
@@ -1905,3 +2054,129 @@ Srot_madx_adaptor::~Srot_madx_adaptor()
 {
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Srot_madx_adaptor)
+
+Dipedge_madx_adaptor::Dipedge_madx_adaptor()
+{
+    get_default_element().set_double_attribute("h", 0.0);
+    get_default_element().set_double_attribute("e1", 0.0);
+    get_default_element().set_double_attribute("fint", 0.0);
+    get_default_element().set_double_attribute("hgap", 0.0);
+    get_default_element().set_double_attribute("tilt", 0.0);
+}
+
+
+Chef_elements
+Dipedge_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+    double h = lattice_element.get_double_attribute("h");
+    double e1 = lattice_element.get_double_attribute("e1");
+    double fint = lattice_element.get_double_attribute("fint");
+    double hgap = lattice_element.get_double_attribute("hgap");
+    double tilt = lattice_element.get_double_attribute("tilt");
+    double length = 0.0;
+    double strength = 0.0;
+    
+    ElmPtr elm(
+            new Dipedge(lattice_element.get_name().c_str(), length, strength,
+            h, e1, fint, hgap, tilt));
+
+    retval.push_back(elm);
+    return retval;
+}
+
+template<class Archive>
+    void
+    Dipedge_madx_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Dipedge_madx_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Dipedge_madx_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Dipedge_madx_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Dipedge_madx_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+Dipedge_madx_adaptor::~Dipedge_madx_adaptor()
+{
+}
+BOOST_CLASS_EXPORT_IMPLEMENT(Dipedge_madx_adaptor)
+
+Nonlinearlens_madx_adaptor::Nonlinearlens_madx_adaptor()
+{
+    get_default_element().set_double_attribute("knll", 0.0);
+    get_default_element().set_double_attribute("cnll", 0.0);
+    get_default_element().set_double_attribute("bcoeff", 0.0);
+    get_default_element().set_double_attribute("dcoeff", 0.0);
+}
+
+Chef_elements
+Nonlinearlens_madx_adaptor::get_chef_elements(
+        Lattice_element const& lattice_element, double brho)
+{
+    Chef_elements retval;
+    double knll = lattice_element.get_double_attribute("knll");
+    double cnll = lattice_element.get_double_attribute("cnll");
+    double bcoeff = lattice_element.get_double_attribute("bcoeff");
+    double dcoeff = lattice_element.get_double_attribute("dcoeff");
+
+    ElmPtr elm;
+    if ((bcoeff != 0.0) || (dcoeff != 0.0)) {
+        elm = ElmPtr(
+                        new nonLinearLens(lattice_element.get_name().c_str(), knll, cnll, bcoeff, dcoeff));
+    } else {
+        elm = ElmPtr(
+                        new nonLinearLens(lattice_element.get_name().c_str(), knll, cnll));
+    }
+
+    retval.push_back(elm);
+    return retval;
+}
+
+template<class Archive>
+    void
+    Nonlinearlens_madx_adaptor::serialize(Archive & ar, const unsigned int version)
+    {
+        ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Element_adaptor);
+    }
+
+template
+void
+Nonlinearlens_madx_adaptor::serialize<boost::archive::binary_oarchive >(
+        boost::archive::binary_oarchive & ar, const unsigned int version);
+
+template
+void
+Nonlinearlens_madx_adaptor::serialize<boost::archive::xml_oarchive >(
+        boost::archive::xml_oarchive & ar, const unsigned int version);
+
+template
+void
+Nonlinearlens_madx_adaptor::serialize<boost::archive::binary_iarchive >(
+        boost::archive::binary_iarchive & ar, const unsigned int version);
+
+template
+void
+Nonlinearlens_madx_adaptor::serialize<boost::archive::xml_iarchive >(
+        boost::archive::xml_iarchive & ar, const unsigned int version);
+
+Nonlinearlens_madx_adaptor::~Nonlinearlens_madx_adaptor()
+{
+}
+BOOST_CLASS_EXPORT_IMPLEMENT(Nonlinearlens_madx_adaptor)

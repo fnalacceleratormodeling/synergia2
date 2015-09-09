@@ -35,6 +35,8 @@ BOOST_CLASS_EXPORT_KEY(Drift_madx_adaptor);
 class Sbend_madx_adaptor : public Element_adaptor
 {
 public:
+    static const char mad_propagator[];
+    static const char basic_propagator[];
     Sbend_madx_adaptor();
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
@@ -67,6 +69,8 @@ BOOST_CLASS_EXPORT_KEY(Rbend_madx_adaptor);
 class Quadrupole_madx_adaptor : public Element_adaptor
 {
 public:
+    static const char yoshida_propagator[];
+    static const char basic_propagator[];
     Quadrupole_madx_adaptor();
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
@@ -139,6 +143,8 @@ class Solenoid_madx_adaptor : public Element_adaptor
 {
 public:
     Solenoid_madx_adaptor();
+    Chef_elements
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
@@ -196,8 +202,12 @@ public:
     Chef_elements
     get_chef_elements(Lattice_element const & lattice_element, double brho);
     virtual void
+    set_defaults(Lattice_element & lattice_element);
+#if 0 // let CHEF set frequency
+    virtual void
     set_derived_attributes_external(Lattice_element &lattice_element,
     		double lattice_length, double beta);
+#endif // let CHEF set frequency
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
@@ -278,6 +288,8 @@ class Ecollimator_madx_adaptor : public Element_adaptor
 {
 public:
     Ecollimator_madx_adaptor();
+    Chef_elements
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
@@ -290,6 +302,8 @@ class Rcollimator_madx_adaptor : public Element_adaptor
 {
 public:
     Rcollimator_madx_adaptor();
+    Chef_elements
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
@@ -343,5 +357,32 @@ public:
 };
 BOOST_CLASS_EXPORT_KEY(Srot_madx_adaptor);
 
+class Dipedge_madx_adaptor : public Element_adaptor
+{
+public:
+    Dipedge_madx_adaptor();
+    Chef_elements
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
+    template<class Archive>
+    void
+    serialize(Archive & ar, const unsigned int version);
+    virtual
+    ~Dipedge_madx_adaptor();
+};
+BOOST_CLASS_EXPORT_KEY(Dipedge_madx_adaptor);
+
+class Nonlinearlens_madx_adaptor : public Element_adaptor
+{
+public:
+    Nonlinearlens_madx_adaptor();
+    Chef_elements
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
+    template<class Archive>
+    void
+    serialize(Archive & ar, const unsigned int version);
+    virtual
+    ~Nonlinearlens_madx_adaptor();
+};
+BOOST_CLASS_EXPORT_KEY(Nonlinearlens_madx_adaptor);
 
 #endif /* MADX_ADAPTORS_H_ */

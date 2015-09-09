@@ -1,0 +1,6 @@
+#!/bin/sh
+
+tmp_bin_dir="`dirname \"$0\"`"
+install_dir="`dirname \"$tmp_bin_dir\"`"
+
+exec synergia "$install_dir/lib/synergia_tools/tracks_to_text.py" "$@"

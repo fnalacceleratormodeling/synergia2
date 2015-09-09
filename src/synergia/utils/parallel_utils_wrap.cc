@@ -4,6 +4,7 @@
 #include "synergia/utils/comm_converter.h"
 #include "synergia/utils/logger.h"
 #include "synergia/utils/commxx_divider.h"
+#include "synergia/utils/hdf5_file.h"
 
 using namespace boost::python;
 
@@ -75,4 +76,36 @@ BOOST_PYTHON_MODULE(parallel_utils)
     class_<Commxx_divider, Commxx_divider_sptr >("Commxx_divider", init<int, bool >())
 	    .def("get_commxx", &Commxx_divider::get_commxx_sptr)
 	    ;
+
+    scope
+        Hdf5_file_scope =
+        class_<Hdf5_file, Hdf5_file_sptr >("Hdf5_file",
+                                           init<std::string const&, Hdf5_file::Flag >())
+            .def("open", &Hdf5_file::open)
+            .def("close", &Hdf5_file::close)
+            .def("flush", &Hdf5_file::flush)
+            .def("write", &Hdf5_file::write<double >)
+            .def("write", &Hdf5_file::write<MArray1d_ref >)
+            .def("write", &Hdf5_file::write<MArray2d_ref >)
+            .def("write", &Hdf5_file::write<MArray3d_ref >)
+            .def("read_double", &Hdf5_file::read<double >)
+            .def("read_int", &Hdf5_file::read<int >)
+            .def("read_array1d", &Hdf5_file::read<MArray1d >)
+            .def("read_array2d", &Hdf5_file::read<MArray2d >)
+            .def("read_array3d", &Hdf5_file::read<MArray3d >)
+            .def("read_array1i", &Hdf5_file::read<MArray1i >)
+            .def("get_member_names", &Hdf5_file::get_member_names)
+            .def("get_atomic_type", &Hdf5_file::get_atomic_type)
+            .def("get_dims", &Hdf5_file::get_dims)
+            .def("close", &Hdf5_file::flush)
+            ;
+        enum_<Hdf5_file::Flag > ("Flag")
+            .value("truncate", Hdf5_file::truncate)
+            .value("read_write", Hdf5_file::read_write)
+            .value("read_only", Hdf5_file::read_only)
+            .export_values();
+        enum_<Hdf5_file::Atomic_type > ("Atomic_type")
+            .value("double_type", Hdf5_file::double_type)
+            .value("int_type", Hdf5_file::int_type)
+            .export_values();
 }

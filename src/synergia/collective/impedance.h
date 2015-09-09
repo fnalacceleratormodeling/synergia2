@@ -43,7 +43,7 @@ private:
     boost::shared_ptr<MArray1d >  xmom_sptr;
     boost::shared_ptr<MArray1d >  ymom_sptr;
     boost::shared_ptr<MArray1d >  zdensity_sptr;
-    boost::shared_ptr<MArray1int > bin_partition_sptr;
+    boost::shared_ptr<MArray1i > bin_partition_sptr;
     
 
     boost::shared_ptr<MArray1d > xwake_leading_sptr;
@@ -101,11 +101,11 @@ private:
     MArray1d_ref &  get_xmom();
     MArray1d_ref &  get_ymom();
     MArray1d_ref & get_zdensity();
-    MArray1int_ref &  get_bin_partition();
+    MArray1i_ref &  get_bin_partition();
     MArray1d_ref const &  get_xmom() const;
     MArray1d_ref const &  get_ymom() const;
     MArray1d_ref const & get_zdensity() const;
-    MArray1int_ref const &  get_bin_partition() const;
+    MArray1i_ref const &  get_bin_partition() const;
     
     MArray1d_ref &  get_xwake_leading(); 
     MArray1d_ref const & get_xwake_leading() const;    
@@ -125,12 +125,19 @@ private:
     is_full_machine() const;
     virtual int 
     get_nstored_turns() const;
+    using Collective_operator::apply;
     virtual
     void  apply(Bunch & bunch, double time_step, Step & step, int verbosity, Logger & logger);
     virtual void
     apply(Bunch_train & bunch_train, double time_step, Step & step, int verbosity,
             Train_diagnosticss const& per_operation_train_diagnosticss, Logger & logger);
-	    
+           
+	virtual void
+    apply(Bunch_train & bunch_train, double time_step, Step & step, int verbosity,
+            Train_diagnosticss const& per_operation_train_diagnosticss, 
+            Propagate_actions * propagate_actions_ptr, Stepper & stepper, int step_count,  int turn, 
+            Logger & logger);
+            
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version); 

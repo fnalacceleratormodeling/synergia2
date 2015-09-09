@@ -67,7 +67,7 @@ run(Benchmark_options const& opts)
     Space_charge_2d_open_hockney_sptr space_charge_sptr(
             new Space_charge_2d_open_hockney(commxx_divider_sptr, grid_shape));
     if (opts.autotune) {
-        space_charge_sptr->auto_tune_comm(*bunch_sptr, true);
+        //space_charge_sptr->auto_tune_comm(*bunch_sptr, true);
     } else {
         if (opts.chargecomm > 0) {
             space_charge_sptr->set_charge_density_comm(

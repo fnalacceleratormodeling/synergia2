@@ -4,6 +4,9 @@
 #include "synergia/utils/serialization_files.h"
 #include "synergia/utils/logger.h"
 #include "synergia/utils/digits.h"
+
+// avoid bad interaction between Boost Filesystem and clang
+#define BOOST_NO_CXX11_SCOPED_ENUMS
 #include <boost/filesystem.hpp>
 
 const std::string Propagator::default_checkpoint_dir = "checkpoint";
@@ -224,9 +227,20 @@ Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
             per_operation_train_diagnosticss.at(i) =
                     diagnostics_actionss.at(i)->get_per_operation_diagnosticss();
         }
-        step.apply(bunch_train, state.verbosity,
-                per_operation_train_diagnosticss,
-                per_operation_train_diagnosticss, logger);
+      
+        
+        //if (state.propagate_actions_ptr->get_type()=="lattice_elements_actions") {
+          step.apply(bunch_train, state.verbosity, per_operator_train_diagnosticss,
+                    per_operation_train_diagnosticss, 
+                    state.propagate_actions_ptr, *stepper_sptr, step_count, turn,
+                    logger);  
+//         } 
+//         else{
+//           step.apply(bunch_train, state.verbosity, per_operator_train_diagnosticss,
+//                   per_operation_train_diagnosticss,logger);
+//         }  
+                 
+                
         t = simple_timer_show(t, "propagate-step_apply");
         for (int i = 0; i < num_bunches; ++i) {
             diagnostics_actionss.at(i)->step_end_action(*stepper_sptr, step,
@@ -240,23 +254,25 @@ Propagator::do_step(Step & step, int step_count, int num_steps, int turn,
     t = simple_timer_show(t, "propagate-general_actions-step");
     double t_step1 = MPI_Wtime();
     if (state.verbosity > 1) {
+        int p = cout.precision();
         logger << "Propagator:";
         logger << "     step " << std::setw(digits(num_steps)) << step_count
                 << "/" << num_steps;
         if (state.bunch_train_simulator_ptr) {
-            logger << ", s=" << std::fixed << std::setprecision(4)
-                    << state.bunch_train_simulator_ptr->get_bunch_train().get_bunches()[0]->get_reference_particle().get_s();
+            logger << ", s_n=" << std::fixed << std::setprecision(4)
+                    << state.bunch_train_simulator_ptr->get_bunch_train().get_bunches()[0]->get_reference_particle().get_s_n();
 
         }
         if (state.bunch_simulator_ptr) {
-            logger << ", s=" << std::fixed << std::setprecision(4)
-                    << state.bunch_simulator_ptr->get_bunch().get_reference_particle().get_s();
+            logger << ", s_n=" << std::fixed << std::setprecision(4)
+                    << state.bunch_simulator_ptr->get_bunch().get_reference_particle().get_s_n();
             logger << ", macroparticles = "
                     << state.bunch_simulator_ptr->get_bunch().get_total_num();
         }
         logger << ", time = " << std::fixed << std::setprecision(3)
                 << t_step1 - t_step0 << "s";
         logger << std::endl;
+        cout.precision(p);
     }
 }
 
@@ -305,6 +321,7 @@ Propagator::do_turn_end(int turn, State & state, double & t, double t_turn0,
     state.first_turn = turn + 1;
     double t_turn1 = MPI_Wtime();
     if (state.verbosity > 0) {
+        int p = cout.precision();
         logger << "Propagator:";
         logger << " turn " << std::setw(digits(state.num_turns)) << turn + 1
                 << "/" << state.num_turns;
@@ -315,6 +332,7 @@ Propagator::do_turn_end(int turn, State & state, double & t, double t_turn0,
         logger << ", time = " << std::fixed << std::setprecision(2)
                 << t_turn1 - t_turn0 << "s";
         logger << std::endl;
+        cout.precision(p);
     }
 }
 
@@ -447,11 +465,13 @@ Propagator::checkpoint(State & state, Logger & logger, double & t)
     rename_serialization_directory(checkpoint_dir);
     double t_checkpoint = MPI_Wtime() - t0;
     if (state.verbosity > 0) {
+        int p = cout.precision();
         logger << " written to \"" << checkpoint_dir << "\"";
         logger << ", time = " << std::fixed << std::setprecision(3)
                 << t_checkpoint << "s";
         ;
         logger << std::endl;
+        cout.precision(p);
     }
     t = simple_timer_show(t, "checkpoint");
 }
@@ -482,6 +502,13 @@ Propagator::resume(std::string const& checkpoint_directory, bool new_num_turns, 
     }
     if (new_verbosity) {
         state.verbosity = verbosity;
+    }
+    if (state.bunch_simulator_ptr) {
+        state.propagate_actions_ptr->before_resume_action(*stepper_sptr,
+                                                          state.bunch_simulator_ptr->get_bunch());
+    } else {
+        state.propagate_actions_ptr->before_resume_action(*stepper_sptr,
+                                                          state.bunch_train_simulator_ptr->get_bunch_train());
     }
     propagate(state);
     state.bunch_simulator_ptr ?  delete state.bunch_simulator_ptr: delete state.bunch_train_simulator_ptr;

@@ -46,7 +46,6 @@ BOOST_PYTHON_MODULE(collective)
                 .def(init<Commxx_sptr, std::vector<int >, bool, bool,
                         double, bool, double >())
                 .def("apply", &Space_charge_3d_open_hockney::apply)
-                .def("auto_tune_comm", &Space_charge_3d_open_hockney::auto_tune_comm)
         ;
 
     class_<Space_charge_2d_open_hockney, Space_charge_2d_open_hockney_sptr,

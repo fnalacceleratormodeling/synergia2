@@ -5,7 +5,6 @@
 #include "synergia/utils/simple_timer.h"
 #include "synergia/utils/parallel_utils.h"
 
-
 template<class Archive>
     void
     Bunch_properties::serialize(Archive & ar, const unsigned int version)
@@ -52,27 +51,33 @@ Impedance::Impedance(std::string const & wake_file, std::string const & wake_typ
 Collective_operator("impedance"), z_grid(zgrid), nstored_turns(nstored_turns), 
              orbit_length(orbit_length), bunch_spacing(bunchsp), 
               full_machine(full_machine),wn(wn)
-{ 
-  
-  try{
-    if (std::abs(orbit_length/bunchsp-int(orbit_length/bunchsp))>1e-8)
-           throw std::runtime_error("orbit length should divide exacty to bunch_spacing ");
-   }
-  catch(std::exception const& e){    
-        std::cout<<e.what()<<" but the division is "<<orbit_length/bunchsp<< std::endl;   
-        MPI_Abort(MPI_COMM_WORLD, 777);
-    }  
-   
-   this->wake_field_sptr=Wake_field_sptr(new Wake_field(wake_file, wake_type)); 
-   this->num_buckets=int(orbit_length/bunchsp);   
-   construct();        
+{
+
+	try {
+		if (std::abs(orbit_length/bunchsp - int(orbit_length/bunchsp + 0.5))
+				> 1e-8)
+			throw std::runtime_error(
+					"orbit length should divide exacty to bunch_spacing ");
+	} catch (std::exception const& e) {
+		std::cout << e.what() << " but the division is "
+				<< std::setprecision(17) << orbit_length/bunchsp
+				<< " with remainder " << std::setprecision(17)
+				<< std::abs(orbit_length/bunchsp - int(orbit_length/bunchsp + 0.5))
+				<< std::endl;
+		MPI_Abort(MPI_COMM_WORLD, 137);
+	}
+
+	this->wake_field_sptr = Wake_field_sptr(
+			new Wake_field(wake_file, wake_type));
+	this->num_buckets = int(orbit_length/bunchsp + 0.5);
+	construct();
 }  
 
 Impedance::Impedance(std::string const & wake_file, std::string const & wake_type, int const  & zgrid,
                     double const & orbit_length, int const& num_buckets, int const nstored_turns,
 			              bool full_machine, std::vector<int > wn):
 Collective_operator("impedance"), z_grid(zgrid), nstored_turns(nstored_turns), 
-             orbit_length(orbit_length), num_buckets(num_buckets), 
+		num_buckets(num_buckets), orbit_length(orbit_length),
               full_machine(full_machine), wn(wn)
 {       
    this->wake_field_sptr=Wake_field_sptr(new Wake_field(wake_file, wake_type)); 
@@ -186,13 +191,13 @@ double Impedance::get_bunch_spacing() const { return bunch_spacing;}
 MArray1d_ref &  Impedance::get_xmom() {return *xmom_sptr;}
 MArray1d_ref &  Impedance::get_ymom() {return *ymom_sptr;}
 MArray1d_ref &  Impedance::get_zdensity() {return *zdensity_sptr;}
-MArray1int_ref & Impedance::get_bin_partition() {return *bin_partition_sptr;}
+MArray1i_ref & Impedance::get_bin_partition() {return *bin_partition_sptr;}
 
 
 MArray1d_ref const &  Impedance::get_xmom() const {return *xmom_sptr;}
 MArray1d_ref const &  Impedance::get_ymom() const {return *ymom_sptr;}
 MArray1d_ref const &  Impedance::get_zdensity() const {return *zdensity_sptr;}
-MArray1int_ref const & Impedance::get_bin_partition() const {return *bin_partition_sptr;}
+MArray1i_ref const & Impedance::get_bin_partition() const {return *bin_partition_sptr;}
 
 MArray1d_ref &  Impedance::get_xwake_leading() {return *xwake_leading_sptr;}
 MArray1d_ref &  Impedance::get_xwake_trailing() {return *xwake_trailing_sptr;}
@@ -241,8 +246,8 @@ Impedance::calculate_moments_and_partitions(Bunch & bunch)
     MArray1d_ref zdensity(get_zdensity());
 
     int lnum_part=bunch.get_local_num();
-    bin_partition_sptr= boost::shared_ptr<MArray1int >(new MArray1int(boost::extents[lnum_part])); 
-    MArray1int_ref bin_partition(get_bin_partition());
+    bin_partition_sptr= boost::shared_ptr<MArray1i >(new MArray1i(boost::extents[lnum_part])); 
+    MArray1i_ref bin_partition(get_bin_partition());
     
     MArray1d  local_zdensity(boost::extents[z_grid]);
     MArray1d  local_xmom(boost::extents[z_grid]);
@@ -357,46 +362,47 @@ inline int get_zindex_for_wake(double z, double dz, int istart, double zstart)
 }  
 
 
-void 
-Impedance::calculate_kicks(Commxx_sptr const & comm_sptr)
- {
-    
-    double t,t1;
-    t = simple_timer_current();
-    
-    int zpoints=get_wake_field_sptr()->get_z_coord().size();
-    double delta_z=get_wake_field_sptr()->get_delta_z();
-    int istart= get_wake_field_sptr()->get_istart();
-    double zstart =get_wake_field_sptr()->get_zstart();
-    MArray1d_ref z_coord(get_wake_field_sptr()->get_z_coord());
-    MArray1d_ref z_wake(get_wake_field_sptr()->get_z_wake());
-    MArray1d_ref xw_lead(get_wake_field_sptr()->get_xw_lead());
-    MArray1d_ref xw_trail(get_wake_field_sptr()->get_xw_trail());
-    MArray1d_ref yw_lead(get_wake_field_sptr()->get_yw_lead());
-    MArray1d_ref yw_trail(get_wake_field_sptr()->get_yw_trail());
-    
-    t = simple_timer_show(t, "impedance_calculate_kicks:  ref the  wake fields ");
-   
-    int registered_turns=stored_vbunches.size();
-    int numbunches;
-    int num_trains;
-    if (registered_turns==0) throw
-      std::runtime_error("registered_turns size cannot be zero, probably you propagate a bunch instead of a bunch_train");
-    
-    numbunches=(*stored_vbunches.begin()).size();
-    
-    if ((full_machine) && (registered_turns !=0)) {
-      num_trains=int(num_buckets/numbunches);
-      
-      if (std::abs(num_buckets/float(numbunches)-num_trains)>1e-8) throw 
-	std::runtime_error(
-	      "full machine assumes repetitive numer of trains: num_buckets should be divisible to numbunches");
-	if (wn[0]<0 || wn[0]>= num_trains ||
-	  wn[1]<0 || wn[1]>= num_trains ||
-	  wn[2]<0 || wn[2]>= num_trains )
-	  throw std::runtime_error(
-	      "full machine wave number cannot be smaller than zero or larger than num_trains-1");
-    }
+
+
+void Impedance::calculate_kicks(Commxx_sptr const & comm_sptr) {
+
+	double t, t1;
+	t = simple_timer_current();
+
+	int zpoints = get_wake_field_sptr()->get_z_coord().size();
+	double delta_z = get_wake_field_sptr()->get_delta_z();
+	int istart = get_wake_field_sptr()->get_istart();
+	double zstart = get_wake_field_sptr()->get_zstart();
+	MArray1d_ref z_coord(get_wake_field_sptr()->get_z_coord());
+	MArray1d_ref z_wake(get_wake_field_sptr()->get_z_wake());
+	MArray1d_ref xw_lead(get_wake_field_sptr()->get_xw_lead());
+	MArray1d_ref xw_trail(get_wake_field_sptr()->get_xw_trail());
+	MArray1d_ref yw_lead(get_wake_field_sptr()->get_yw_lead());
+	MArray1d_ref yw_trail(get_wake_field_sptr()->get_yw_trail());
+
+	t = simple_timer_show(t,
+			"impedance_calculate_kicks:  ref the  wake fields ");
+
+	int registered_turns = stored_vbunches.size();
+	int numbunches;
+	int num_trains = 0;
+	if (registered_turns == 0)
+		throw std::runtime_error(
+				"registered_turns size cannot be zero, probably you propagate a bunch instead of a bunch_train");
+
+	numbunches = (*stored_vbunches.begin()).size();
+
+	if ((full_machine) && (registered_turns != 0)) {
+		num_trains = int(num_buckets / numbunches);
+
+		if (std::abs(num_buckets / float(numbunches) - num_trains) > 1e-8)
+			throw std::runtime_error(
+					"full machine assumes repetitive numer of trains: num_buckets should be divisible to numbunches");
+		if (wn[0] < 0 || wn[0] >= num_trains || wn[1] < 0 || wn[1] >= num_trains
+				|| wn[2] < 0 || wn[2] >= num_trains)
+			throw std::runtime_error(
+					"full machine wave number cannot be smaller than zero or larger than num_trains-1");
+	}
     
     
    // std::cout<<" registred turns= "<<registered_turns<<std::endl; 
@@ -682,7 +688,7 @@ void
 Impedance::apply_impedance_kick(Bunch & bunch, double wake_factor)
 {
   
- MArray1int_ref const bin_partition(get_bin_partition());
+ MArray1i_ref const bin_partition(get_bin_partition());
  MArray1d_ref const  xwake_leading(get_xwake_leading());
  MArray1d_ref const xwake_trailing(get_xwake_trailing());
  MArray1d_ref const  ywake_leading(get_ywake_leading());
@@ -768,7 +774,7 @@ Impedance::store_bunches_data(Bunch_train & bunch_train)
 	    if (full_machine)  
 	      if  (bunch_sptr->get_bucket_index() != i) 				
 	                   throw std::runtime_error("for full_machine the buckets have to be occupied in order");		     		    
-            bi.x_mean=bunch_means[0];
+        bi.x_mean=bunch_means[0];
 	    bi.y_mean=bunch_means[2];
 	    bi.z_mean=bunch_means[4];
 	    bi.realnum=bunch_sptr->get_real_num();
@@ -824,6 +830,17 @@ Impedance::apply(Bunch_train & bunch_train, double time_step, Step & step,
             apply(*bunches.at(i), time_step, step, verbosity,logger);
         }  
 } 
+
+void
+Impedance::apply(Bunch_train & bunch_train, double time_step, Step & step, int verbosity,
+            Train_diagnosticss const& per_operation_train_diagnosticss, 
+            Propagate_actions * propagate_actions_ptr, Stepper & stepper, int step_count,  int turn, 
+            Logger & logger)
+{
+   
+      apply(bunch_train,time_step,step,verbosity,per_operation_train_diagnosticss,logger);  
+}  
+
 
 Impedance::Impedance()
 {

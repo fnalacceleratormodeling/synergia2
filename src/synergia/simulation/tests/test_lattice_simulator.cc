@@ -164,6 +164,107 @@ BOOST_AUTO_TEST_CASE(update)
     BOOST_CHECK_CLOSE(new_quad_strength, 2*orig_quad_strength, tolerance);
 }
 
+#define CO_DEBUG 0
+BOOST_AUTO_TEST_CASE(get_closed_orbit)
+{
+    const double bend_length = 2.0;
+    const double quad_length = 0.5;
+    const double sep = 10.0;
+    const double focus = 7.0;
+    const double quad_strength = 1.0/(focus*quad_length);
+    const double drift_length = (sep - quad_length - bend_length)/2.0;
+    const double kick_strength = 0.0002;
+    const int ncells = 128;
+    // angle = 2*pi/(2*ncells)
+    const double bend_angle = mconstants::pi/ncells;
+    const double co_tolerance = 1.0e-4;
+
+    Lattice_element f("quadrupole", "f");
+    f.set_double_attribute("l", quad_length);
+    f.set_double_attribute("k1", quad_strength);
+    Lattice_element o("drift", "o");
+    o.set_double_attribute("l", drift_length);
+    Lattice_element d("quadrupole", "d");
+    d.set_double_attribute("l", quad_length);
+    d.set_double_attribute("k1", -quad_strength);
+    Lattice_element b("sbend", "b");
+    b.set_double_attribute("l", bend_length);
+    b.set_double_attribute("angle", bend_angle);
+
+    Lattice_element k("hkicker", "k");
+    k.set_double_attribute("kick", kick_strength);
+
+    Lattice_sptr lattice_sptr(new Lattice(name));
+    for (int cell=0; cell<ncells; ++cell) {
+        lattice_sptr->append(f);
+        lattice_sptr->append(o);
+        lattice_sptr->append(b);
+        lattice_sptr->append(o);
+        lattice_sptr->append(d);
+        lattice_sptr->append(o);
+        lattice_sptr->append(b);
+        lattice_sptr->append(o);
+    }
+    lattice_sptr->append(k);
+
+    const int charge = pconstants::proton_charge;
+    const double mass = pconstants::mp;
+    const double total_energy = 2.0;
+    Four_momentum four_momentum(mass, total_energy);
+    Reference_particle reference_particle(charge, four_momentum);
+    lattice_sptr->set_reference_particle(reference_particle);
+
+    Lattice_simulator lattice_simulator(lattice_sptr, map_order);
+
+    BmlPtr beamline_sptr(lattice_simulator.get_chef_lattice_sptr()->get_beamline_sptr());
+    Proton probe(total_energy);
+
+#if CO_DEBUG
+    beamline_sptr->propagate(probe);
+
+    std::cout << "egs: test_get_closed_orbit propagate zero particle: ";
+    std::cout << probe.get_x() << " " << probe.get_npx() << " " << probe.get_y() << " " << probe.get_npy()
+              << " " << probe.get_cdt() << " " << probe.get_ndp();
+    std::cout << std::endl;
+#endif
+
+    MArray1d closed_orbit(lattice_simulator.get_closed_orbit());
+#if CO_DEBUG
+    std::cout << "egs: test_get_closed_orbit: ";
+    for (int i=0; i<6; ++i) {
+        std::cout << " " << closed_orbit[i];
+    }
+    std::cout << std::endl;
+#endif
+
+    // with kick, the closed orbit in x and xp better be away from 0
+    for (int i=0; i<2; ++i) {
+        BOOST_CHECK(std::abs(closed_orbit[i]) > 1.0e-5);
+    }
+
+    probe.set_x(closed_orbit[0]);
+    probe.set_npx(closed_orbit[1]);
+    probe.set_y(closed_orbit[2]);
+    probe.set_npy(closed_orbit[3]);
+    probe.set_cdt(closed_orbit[4]);
+    probe.set_ndp(closed_orbit[5]);
+
+    beamline_sptr->propagate(probe);
+
+#if CO_DEBUG
+    std::cout << "egs: test_get_closed_orbit after propagate: ";
+    std::cout << probe.get_x() << " " << probe.get_npx() << " " << probe.get_y() << " " << probe.get_npy()
+              << " " << probe.get_cdt() << " " << probe.get_ndp();
+    std::cout << std::endl;
+#endif
+
+    BOOST_CHECK(floating_point_equal(closed_orbit[0], probe.get_x(), co_tolerance));
+    BOOST_CHECK(floating_point_equal(closed_orbit[1], probe.get_npx(), co_tolerance));
+    BOOST_CHECK(floating_point_equal(closed_orbit[2], probe.get_y(), co_tolerance));
+    BOOST_CHECK(floating_point_equal(closed_orbit[3], probe.get_npy(), co_tolerance));
+}
+
+
 BOOST_FIXTURE_TEST_CASE(calculate_element_lattice_functions, Fobodobo_sbend_fixture)
 {
     const int map_order = 1;
@@ -268,27 +369,47 @@ BOOST_FIXTURE_TEST_CASE(adjust_tunes, Fobodobo_sbend_fixture)
             std::abs(lattice_simulator.get_vertical_tune() - new_vertical_tune) < tolerance);
 }
 
+void print_precalc_map(MArray2d const& map)
+{
+    std::cout << "const double precalc_map[6][6] = {\n";
+    for (int i = 0; i < 6; ++i) {
+        std::cout << "    {";
+        for (int j = 0; j < 6; ++j) {
+            std::cout << std::setprecision(16) << map[i][j];
+            if (j < 5) {
+                std::cout << ", ";
+            }
+        }
+        if (i < 5) { 
+            std::cout << "},\n";
+        } else {
+            std::cout << "}\n";
+        }
+    }
+    std::cout << "};\n";    
+}
+
 BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map, Foborodobo32_fixture)
 {
     const int map_order = 1;
     const double tolerance = 1.0e-10;
     Lattice_simulator lattice_simulator(lattice_sptr, map_order);
 
-    const double precalc_map[6][6] = { { -2.19357726128732, 32.9385414827834, 0,
-            0, -5.62169337392918e-05, 2.1037055586748 }, { -0.198001573221548,
-            2.51726768373267, 0, 0, -3.53019959335299e-05, 0.225092380126584 },
-            { 0, 0, 1.07033464770303, 1.26550130626506, 0, 0 }, { 0, 0,
-                    -0.043725938974272, 0.882588234565397, 0, 0 }, {
-                    -0.077644019330161, 2.12631144692458, 0, 0,
-                    0.996935702805962, 4.9072335958152 }, {
-                    -1.78674162102745e-05, -0.000311185657541453, 0, 0,
-                    -0.000628318530717954, 1.00004300477563 } };
+    const double precalc_map[6][6] = {
+        {-2.193577261287337, 32.93854148278354, 0, 0, -5.621693373928432e-05, 2.103705558674908},
+        {-0.1980015732215495, 2.517267683732674, 0, 0, -3.530199593352855e-05, 0.2250923801266718},
+        {0, 0, 1.070334647703023, 1.265501306265068, 0, 0},
+        {0, 0, -0.04372593897427258, 0.8825882345653975, 0, 0},
+        {-0.07764401933834172, 2.126311447299118, 0, 0, 0.996935702923177, 4.907233406896752},
+        {-1.786741621293265e-05, -0.0003111856575877582, 0, 0, -0.0006283185307179529, 1.000043004777226}
+    };
 
-    MArray2d gotten_map(lattice_simulator.get_linear_one_turn_map());
+    MArray2d calculated_map(lattice_simulator.get_linear_one_turn_map());
+//    print_precalc_map(calculated_map);
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 6; ++j) {
             BOOST_CHECK(
-                    floating_point_equal(gotten_map[i][j], precalc_map[i][j],tolerance));
+                        floating_point_equal(calculated_map[i][j], precalc_map[i][j],tolerance));
         }
     }
 }
@@ -311,21 +432,20 @@ BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map_after_get_tunes, Foborodobo32_fi
     BOOST_CHECK_CLOSE(horizontal_tune, expected_eigen_tune, tolerance);
 
 
-    const double precalc_map[6][6] = { { -2.19357726128732, 32.9385414827834, 0,
-            0, -5.62169337392918e-05, 2.1037055586748 }, { -0.198001573221548,
-            2.51726768373267, 0, 0, -3.53019959335299e-05, 0.225092380126584 },
-            { 0, 0, 1.07033464770303, 1.26550130626506, 0, 0 }, { 0, 0,
-                    -0.043725938974272, 0.882588234565397, 0, 0 }, {
-                    -0.077644019330161, 2.12631144692458, 0, 0,
-                    0.996935702805962, 4.9072335958152 }, {
-                    -1.78674162102745e-05, -0.000311185657541453, 0, 0,
-                    -0.000628318530717954, 1.00004300477563 } };
-
-    MArray2d gotten_map(lattice_simulator.get_linear_one_turn_map());
+    const double precalc_map[6][6] = {
+        {-2.193577261287337, 32.93854148278354, 0, 0, -5.621693373928432e-05, 2.103705558674908},
+        {-0.1980015732215495, 2.517267683732674, 0, 0, -3.530199593352855e-05, 0.2250923801266718},
+        {0, 0, 1.070334647703023, 1.265501306265068, 0, 0},
+        {0, 0, -0.04372593897427258, 0.8825882345653975, 0, 0},
+        {-0.07764401933834172, 2.126311447299118, 0, 0, 0.996935702923177, 4.907233406896752},
+        {-1.786741621293265e-05, -0.0003111856575877582, 0, 0, -0.0006283185307179529, 1.000043004777226}
+    };
+    
+    MArray2d calculated_map(lattice_simulator.get_linear_one_turn_map());
     for (int i = 0; i < 6; ++i) {
         for (int j = 0; j < 6; ++j) {
             BOOST_CHECK(
-                    floating_point_equal(gotten_map[i][j], precalc_map[i][j],tolerance));
+                    floating_point_equal(calculated_map[i][j], precalc_map[i][j],tolerance));
         }
     }
 }
@@ -384,17 +504,19 @@ BOOST_FIXTURE_TEST_CASE(adjust_chromaticities, Fosobodosobo_sbend_fixture)
     }
     const double newchr_h = -2.9;
     const double newchr_v = -3.1;
+    const double chrom_tolerance = 5.0e-7;
+    const int max_steps = 5;
     lattice_simulator.adjust_chromaticities(newchr_h, newchr_v, horizontal_correctors,
-            vertical_correctors, 1.0e-6, 5);
+            vertical_correctors, chrom_tolerance, max_steps);
 
     chr_h = lattice_simulator.get_horizontal_chromaticity();
     chr_v = lattice_simulator.get_vertical_chromaticity();
 
 //    std::cout << "final chromaticities (H,V):  (" << chr_h << " ,  " << chr_v
 //            << ")" << std::endl;
-    const double chrom_tolerance = 5.0e-7;
-    BOOST_CHECK_CLOSE(chr_h, newchr_h, chrom_tolerance);
-    BOOST_CHECK_CLOSE(chr_v, newchr_v, chrom_tolerance);
+    double percent_chrom_tolerance = 100 * chrom_tolerance;
+    BOOST_CHECK_CLOSE(chr_h, newchr_h, percent_chrom_tolerance);
+    BOOST_CHECK_CLOSE(chr_v, newchr_v, percent_chrom_tolerance);
 }
 
 BOOST_FIXTURE_TEST_CASE(is_ring, Foborodobo32_fixture)

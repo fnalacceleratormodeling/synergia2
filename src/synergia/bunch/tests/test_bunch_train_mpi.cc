@@ -5,7 +5,7 @@
 #include "synergia/utils/boost_test_mpi_fixture.h"
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
-const double tolerance = 1.0e-14;
+const double default_tolerance = 1.0e-14;
 
 BOOST_FIXTURE_TEST_CASE(construct1, Bunches_fixture)
 {
@@ -49,7 +49,6 @@ BOOST_FIXTURE_TEST_CASE(counts_and_offsets, Bunches_fixture)
    std::vector<int > counts(bunch_train.get_proc_counts_for_impedance());
    std::vector<int > offsets(bunch_train.get_proc_offsets_for_impedance());
    int num_procs=bunch_train.get_parent_comm_sptr()->get_size();
-   int rank=bunch_train.get_parent_comm_sptr()->get_rank();  
    Bunches bunches(bunch_train.get_bunches());
    size_t num_bunches=bunches.size();
 
@@ -95,7 +94,7 @@ BOOST_FIXTURE_TEST_CASE(counts_and_offsets, Bunches_fixture)
 }
 
 void
-compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance = tolerance,
+compare_bunches(Bunch &bunch1, Bunch &bunch2, double tolerance = default_tolerance,
         bool check_state = true, bool check_ids = true)
 {
     BOOST_CHECK_EQUAL(bunch1.get_reference_particle().get_total_energy(),
@@ -168,7 +167,7 @@ BOOST_FIXTURE_TEST_CASE(serialize_xml, Bunches_fixture)
    BOOST_CHECK_EQUAL_COLLECTIONS(offsets.begin(), offsets.end(), loffsets.begin(), loffsets.end());
  
      
-     for (int i=0; i<num_bunches; ++i){
+     for (size_t i=0; i<num_bunches; ++i){
        compare_bunches( *bunch_train.get_bunches().at(i), *bunch_loaded.get_bunches().at(i));
      }
     

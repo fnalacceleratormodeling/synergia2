@@ -15,6 +15,7 @@
 #include "synergia/foundation/multi_diagnostics.h"
 #include "synergia/utils/serialization.h"
 #include "synergia/utils/logger.h"
+#include "synergia/simulation/propagate_actions.h"
 
 class Step;
 
@@ -36,6 +37,13 @@ public:
     virtual void
     apply(Bunch_train & bunch_train, double time_step, Step & step, int verbosity,
             Train_diagnosticss const& per_operation_train_diagnosticss, Logger & logger);
+            
+    virtual void
+    apply(Bunch_train & bunch_train, double time_step, Step & step, int verbosity,
+            Train_diagnosticss const& per_operation_train_diagnosticss, 
+            Propagate_actions * propagate_actions_ptr, Stepper & stepper, int step_count,  int turn, 
+            Logger & logger);
+                    
     virtual void
     print() const;
     template<class Archive>
@@ -55,6 +63,7 @@ public:
     Collective_operator();
     virtual Collective_operator *
     clone() = 0;
+    using Operator::apply;
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Diagnosticss const& per_operation_diagnosticss, Logger & logger);
@@ -80,6 +89,7 @@ public:
     Dummy_collective_operator();
     virtual Dummy_collective_operator *
     clone();
+    using Collective_operator::apply;
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Logger & logger);
@@ -124,6 +134,7 @@ public:
     get_operations() const;
     Independent_operations &
     get_operations();
+    using Operator::apply;
     virtual void
     apply(Bunch & bunch, double time_step, Step & step, int verbosity,
             Diagnosticss const& per_operation_diagnosticss, Logger & logger);

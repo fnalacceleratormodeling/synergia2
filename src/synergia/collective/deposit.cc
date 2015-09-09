@@ -637,12 +637,12 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid, Bunch const& bunch,
     grid_shape[1] = rho_2dc.shape()[1];
     grid_shape[2] = rho_1d.shape()[0];
     if (zero_first) {
-        for (unsigned int i = 0; i < grid_shape[0]; ++i) {           // x
-            for (unsigned int j = 0; j < grid_shape[1]; ++j) {       // y
+        for (int i = 0; i < grid_shape[0]; ++i) {           // x
+            for (int j = 0; j < grid_shape[1]; ++j) {       // y
                 rho_2dc[i][j] = 0.0;
             }
         }
-        for (unsigned int k = 0; k < grid_shape[2]; ++k) {            // z
+        for (int k = 0; k < grid_shape[2]; ++k) {            // z
             rho_1d[k] = 0.0;
         }
     }
@@ -696,12 +696,12 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid,
     grid_shape[1] = rho_2dc.shape()[1];
     grid_shape[2] = rho_1d.shape()[0];
     if (zero_first) {
-        for (unsigned int i = 0; i < grid_shape[0]; ++i) {           // x
-            for (unsigned int j = 0; j < grid_shape[1]; ++j) {       // y
+        for (int i = 0; i < grid_shape[0]; ++i) {           // x
+            for (int j = 0; j < grid_shape[1]; ++j) {       // y
                 rho_2dc[i][j] = 0.0;
             }
         }
-        for (unsigned int k = 0; k < grid_shape[2]; ++k) {            // z
+        for (int k = 0; k < grid_shape[2]; ++k) {            // z
             rho_1d[k] = 0.0;
         }
     }
@@ -742,12 +742,13 @@ deposit_charge_rectangular_2d(Rectangular_grid & rho_grid,
             rho_2dc[cellx2][celly1] += weight0 * offx * aoffy;
             rho_2dc[cellx2][celly2] += weight0 * offx * offy;
         }
-        int cellz1, cellz2;
-        cellz1 = iz;
-        cellz2 = cellz1 + 1;
-        if((grid_shape[2] > 1) && (cellz1 >= 0) && (cellz2 < grid_shape[2])) {
-            rho_1d[cellz1] += (1. - offz) / h[2];
-            rho_1d[cellz2] += offz / h[2];
+
+        for (int k = 0; k < 2; ++k) {
+            int cellz = iz + k;
+            if ((grid_shape[2] > 1) && (cellz >= 0) && (cellz < grid_shape[2])) {
+                double weight = (1 - k - (1 - 2 * k) * offz) / h[2];
+                rho_1d[cellz] += weight;
+            }
         }
     }
 }

@@ -12,13 +12,13 @@ const double tolerance = 1.0e-11;
 
 BOOST_AUTO_TEST_CASE(test_constructor)
 {
-Wake_field wakef("test_wake.dat","XLXTYLYTZ");
+Wake_field wakef("wake_files/test_wake.dat","XLXTYLYTZ");
 }
 
  
 BOOST_AUTO_TEST_CASE(wake_reading_3XLYLZ)
  {
- Wake_field wakef("test_wake_cc.dat", "XLYLZ"); // three columns file
+ Wake_field wakef("wake_files/test_wake_cc.dat", "XLYLZ"); // three columns file
  
      
       BOOST_CHECK_CLOSE(wakef.get_z_coord()[0], 0.00614575, tolerance);
@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(wake_reading_3XLYLZ)
  
  BOOST_AUTO_TEST_CASE(wake_reading_4XLYLZ)
  {
- Wake_field wakef("test_wake.dat",  "XLYLZ"); // four columns file
+ Wake_field wakef("wake_files/test_wake.dat",  "XLYLZ"); // four columns file
  
  BOOST_CHECK_CLOSE(wakef.get_z_coord()[0], 0.00614575, tolerance);
  BOOST_CHECK_CLOSE(wakef.get_z_coord()[1], 0.0136406, tolerance);
@@ -82,7 +82,7 @@ BOOST_CHECK_CLOSE(wakef.get_yw_trail()[3],   0., tolerance);
  
  BOOST_AUTO_TEST_CASE(wake_reading_4XLXTYLYTZ)
  {
- Wake_field wakef("test_wake.dat",  "XLXTYLYTZ"); // four columns file
+ Wake_field wakef("wake_files/test_wake.dat",  "XLXTYLYTZ"); // four columns file
  
  BOOST_CHECK_CLOSE(wakef.get_z_coord()[0], 0.00614575, tolerance);
  BOOST_CHECK_CLOSE(wakef.get_z_coord()[1], 0.0136406, tolerance);
@@ -119,7 +119,7 @@ BOOST_CHECK_CLOSE(wakef.get_yw_trail()[3],   -1.77089e+11  , tolerance);
 
 BOOST_AUTO_TEST_CASE(wake_reading_5XLXTYLYTZ)
 {
-Wake_field wakef("test_5XLXTYLYT.dat", "XLXTYLYT"); // four columns file
+Wake_field wakef("wake_files/test_5XLXTYLYT.dat", "XLXTYLYT"); // four columns file
  BOOST_CHECK_CLOSE(wakef.get_z_coord()[0],  -0.534401, tolerance);
  BOOST_CHECK_CLOSE(wakef.get_z_coord()[1],  -0.513238, tolerance);
  BOOST_CHECK_CLOSE(wakef.get_z_coord()[2],  -0.492502, tolerance);
@@ -156,7 +156,7 @@ BOOST_CHECK_CLOSE(wakef.get_yw_trail()[3],    5.35593e+07  , tolerance);
 
 BOOST_AUTO_TEST_CASE(wake_reading_6XLXTYLYTZ)
 {
-Wake_field wakef("test_gwake.dat", "XLXTYLYTZ"); // four columns file
+Wake_field wakef("wake_files/test_gwake.dat", "XLXTYLYTZ"); // four columns file
  BOOST_CHECK_CLOSE(wakef.get_z_coord()[0],  -0.534401, tolerance);
  BOOST_CHECK_CLOSE(wakef.get_z_coord()[1],  -0.513238, tolerance);
  BOOST_CHECK_CLOSE(wakef.get_z_coord()[2],  -0.492502, tolerance);
@@ -194,7 +194,7 @@ BOOST_CHECK_CLOSE(wakef.get_yw_trail()[3],    5.35593e+07  , tolerance);
 
 BOOST_AUTO_TEST_CASE(wake_reading_pp)
 {
-Wake_field wakef("test_wake_pp.dat", "XLXTYLYTZpp"); // four columns file
+Wake_field wakef("wake_files/test_wake_pp.dat", "XLXTYLYTZpp"); // four columns file
   BOOST_CHECK_CLOSE(wakef.get_z_coord()[0],  0.000106884, tolerance);
   BOOST_CHECK_CLOSE(wakef.get_xw_lead()[0], -6.79233e+09, tolerance);
   BOOST_CHECK_CLOSE(wakef.get_xw_trail()[0], 6.79233e+09, tolerance);
@@ -213,7 +213,7 @@ Wake_field wakef("test_wake_pp.dat", "XLXTYLYTZpp"); // four columns file
 
 BOOST_AUTO_TEST_CASE(Fwake)
 {
-Wake_field wakef("Fwake.dat", "XLXTYLYTZpp"); // four columns file
+Wake_field wakef("wake_files/Fwake.dat", "XLXTYLYTZpp"); // four columns file
   BOOST_CHECK_EQUAL(wakef.get_z_coord().size(), 3000);
 
   BOOST_CHECK_CLOSE(wakef.get_z_coord()[0],  -0.534401, tolerance);
@@ -235,7 +235,7 @@ Wake_field wakef("Fwake.dat", "XLXTYLYTZpp"); // four columns file
 
 BOOST_AUTO_TEST_CASE(Fwake_multiply)
 {
-  Wake_field wakef("Fwake.dat", "XLXTYLYTZpp"); // four columns file
+  Wake_field wakef("wake_files/Fwake.dat", "XLXTYLYTZpp"); // four columns file
   BOOST_CHECK_EQUAL(wakef.get_z_coord().size(), 3000);
  
   double mltp=2.4;
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE(Fwake_multiply)
 
 BOOST_AUTO_TEST_CASE(serialize_)
 {
-  Wake_field wakef("Fwake.dat", "XLXTYLYTZpp"); // four columns file
+  Wake_field wakef("wake_files/Fwake.dat", "XLXTYLYTZpp"); // four columns file
   xml_save(wakef, "wakef.xml");
  
   Wake_field wake_load;

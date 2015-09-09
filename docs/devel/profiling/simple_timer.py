@@ -23,7 +23,9 @@ def extract_times(filename):
     f.close()
     times = {}
     for key in times_detail.keys():
+        n = len(times_detail[key])
         times[key] = numpy.array(times_detail[key]).sum()
+        times[key+"_std"] = numpy.array(times_detail[key]).std() * numpy.sqrt(n)
     total = 0.0
     for key in times.keys():
         total += times[key]

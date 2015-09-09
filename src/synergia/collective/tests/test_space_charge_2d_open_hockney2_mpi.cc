@@ -108,8 +108,8 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_exact_rho, Spherical_bunch_fixture_2d)
                     double x, y, z;
                     space_charge.get_doubled_domain_sptr()->get_cell_coordinates(i, j, k, x, y, z);
                     double r = std::sqrt(x * x + y * y + z * z);
-                    double var;
-                    double local_force2_calc_ijk;
+                    double var = 0.0;
+                    double local_force2_calc_ijk = 0.0;
                     if (component == 0) {
                         var = x;
                         local_force2_calc_ijk
@@ -206,8 +206,8 @@ BOOST_FIXTURE_TEST_CASE(get_local_force2_particles, Spherical_bunch_fixture_2d)
                     double x, y, z;
                     space_charge.get_doubled_domain_sptr()->get_cell_coordinates(i, j, k, x, y, z);
                     double r = std::sqrt(x * x + y * y + z * z);
-                    double var;
-                    double local_force2_calc_ijk;
+                    double var = 0.0;
+                    double local_force2_calc_ijk = 0.0;
                     if (component == 0) {
                         var = x;
                         local_force2_calc_ijk

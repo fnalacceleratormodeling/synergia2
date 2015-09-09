@@ -26,7 +26,7 @@ def test_parse_string():
 
 def test_parse():
     reader = Mad8_reader()
-    reader.parse("fodo.lat")
+    reader.parse("lattices/fodo.lat")
 
 def test_get_lines1():
     reader = Mad8_reader()
@@ -39,7 +39,7 @@ def test_get_lines1():
 
 def test_get_lines2():
     reader = Mad8_reader()
-    reader.parse("fodo.lat")
+    reader.parse("lattices/fodo.lat")
     lines = reader.get_lines()
     lines.sort()
     expecteds = ["justf", "justo", "justd", "fodo", "model"]
@@ -58,7 +58,7 @@ def test_get_lattice_element1():
 
 def test_get_lattice_element2():
     reader = Mad8_reader()
-    reader.parse("fodo.lat")
+    reader.parse("lattices/fodo.lat")
     drift = reader.get_lattice_element("o")
     assert_equal(drift.get_name(), "o")
 
@@ -78,7 +78,7 @@ def assert_element_names(elements, names):
 
 def test_get_lattice2():
     reader = Mad8_reader()
-    lattice = reader.get_lattice("fodo", "fodo.lat")
+    lattice = reader.get_lattice("fodo", "lattices/fodo.lat")
     elements = lattice.get_elements()
     assert_element_names(elements, ['f', 'o', 'd', 'o'])
 
@@ -216,7 +216,7 @@ def test_reference_particle_none():
 precision = 1.0e-12
 def test_reference_particle():
     reader = Mad8_reader()
-    lattice = reader.get_lattice("fodo", "fodo.lat")
+    lattice = reader.get_lattice("fodo", "lattices/fodo.lat")
     assert(lattice.has_reference_particle())
     reference_particle = lattice.get_reference_particle()
     four_momentum = Four_momentum(pconstants.mp)

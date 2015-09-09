@@ -16,6 +16,11 @@ public:
     {
         truncate, read_write, read_only
     };
+    enum Atomic_type
+    {
+        double_type, int_type
+    };
+
 private:
     std::string file_name;
     H5::H5File * h5file_ptr;
@@ -46,6 +51,12 @@ public:
     close();
     void
     flush() const;
+    std::vector<std::string>
+    get_member_names();
+    Atomic_type
+    get_atomic_type(std::string const& name);
+    std::vector<int >
+    get_dims(std::string const& name);
     H5::H5File &
     get_h5file();
     template<typename T>

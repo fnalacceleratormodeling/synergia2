@@ -8,11 +8,19 @@ bunch = synergia.optics.generate_matched_bunch_transverse(
               lattice_simulator, opts.emit, opts.emit, opts.stdz, opts.dpop,
               opts.real_particles, opts.macro_particles,
               seed=opts.seed)
+
+bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
+
+
+diagnostics_step = synergia.bunch.Diagnostics_full2("full2.h5")
+diagnostics_turn = synergia.bunch.Diagnostics_particles("particles.h5")
+
+bunch_simulator.add_per_step(diagnostics_step)
+bunch_simulator.add_per_turn(diagnostics_turn)
+
 stepper = synergia.simulation.Independent_stepper_elements(
                             lattice_simulator, opts.steps)
-diagnostics_step = synergia.bunch.Diagnostics_full2(bunch, "full2.h5")
-diagnostics_turn = synergia.bunch.Diagnostics_particles(bunch, "particles.h5")
+
+
 propagator = synergia.simulation.Propagator(stepper)
-propagator.propagate(bunch, opts.turns,
-                     diagnostics_step, diagnostics_turn,
-                     opts.verbose)
+propagator.propagate(bunch_simulator, opts.turns, opts.turns, opts.verbose)

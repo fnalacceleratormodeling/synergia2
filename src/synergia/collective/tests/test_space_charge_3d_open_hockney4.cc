@@ -186,7 +186,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_exact_rho,
                     } else {
                         if (component == 0) {
                             var = x;
-                        } else if (component == 1) {
+                        } else {
                             var = y;
                         }
                         En_exact_ijk
@@ -385,7 +385,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_electric_field_component_particles,
                     } else {
                         if (component == 0) {
                             var = x;
-                        } else if (component == 1) {
+                        } else {
                             var = y;
                         }
                         En_exact_ijk

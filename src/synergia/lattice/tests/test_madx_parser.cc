@@ -4,6 +4,7 @@
 
 #include <iostream>
 
+#include "synergia/foundation/physical_constants.h"
 #include "synergia/lattice/mx_parse.h"
 
 using namespace std;
@@ -68,6 +69,39 @@ BOOST_AUTO_TEST_CASE(mod_variable_assignment)
   BOOST_CHECK_EQUAL( mx.variable_as_number("x"), 1 );
 }
 
+BOOST_AUTO_TEST_CASE(keyword_leading_values)
+{
+  // n.b. "pine" starts with "pi"
+  string str = "xpine = 3; v = xpine; ";
+  str += "fodo: sequence, refer=entry, l=12.0; endsequence;";
+  MadX mx;
+
+//  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+}
+
+BOOST_AUTO_TEST_CASE(mad_constants)
+{
+  string str = "a = pi; b = twopi; c = degrad; d = raddeg; ee = e; "
+               "f = emass; g = pmass; h = mumass; i = clight; j = qelect; ";
+  MadX   mx;
+
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+  
+  BOOST_CHECK_CLOSE( mx.variable_as_number("a"), boost::math::constants::pi<double>(),         tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("b"), boost::math::constants::two_pi<double>(),     tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("c"), 180.0 / boost::math::constants::pi<double>(), tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("d"), boost::math::constants::pi<double>() / 180.0, tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("ee"), boost::math::constants::e<double>(),         tolerance);
+
+  BOOST_CHECK_CLOSE( mx.variable_as_number("f"), pconstants::me,  tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("g"), pconstants::mp,  tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("h"), pconstants::mmu, tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("i"), pconstants::c,   tolerance);
+  BOOST_CHECK_CLOSE( mx.variable_as_number("j"), pconstants::e,   tolerance);
+}
+
+
+
 BOOST_AUTO_TEST_CASE(newline_separation)
 {
   string str = "x=1;\n y=2;";
@@ -86,6 +120,20 @@ BOOST_AUTO_TEST_CASE(semicolon_separation)
   BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
   BOOST_CHECK_EQUAL( mx.variable_as_number("x"), 1 );
   BOOST_CHECK_EQUAL( mx.variable_as_number("y"), 2 );
+}
+
+BOOST_AUTO_TEST_CASE(floating_point)
+{
+  // 7/32 has an exact floating point representation
+  string str = "x=1.234;y=0.21875; ze2=.21875e2; wep2=.21875E2; wep02=.21875e+02;";
+  MadX   mx;
+
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+  BOOST_CHECK_CLOSE( mx.variable_as_number("x"), 1.234, tolerance);
+  BOOST_CHECK_EQUAL( mx.variable_as_number("y"), 0.21875 );
+  BOOST_CHECK_EQUAL( mx.variable_as_number("ze2"), 21.875);
+  BOOST_CHECK_EQUAL( mx.variable_as_number("wep2"), 21.875);
+  BOOST_CHECK_EQUAL( mx.variable_as_number("wep02"), 21.875);
 }
 
 BOOST_AUTO_TEST_CASE(variable_assignment_expression)
@@ -154,6 +202,7 @@ BOOST_AUTO_TEST_CASE(command_attrs)
   BOOST_CHECK_EQUAL( cmd.attribute_as_number("b"), 3*(4+5) );
 }
 
+#if 0
 BOOST_AUTO_TEST_CASE(command_str_attrs1)
 {
   string str = "title, S = \"Tevatron Collider Run II Lattice\";";
@@ -181,6 +230,7 @@ BOOST_AUTO_TEST_CASE(command_str_attrs2)
   BOOST_CHECK_EQUAL( cmd.attribute_count(), 1 );
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("s"), "Tevatron Collider Run II Lattice" );
 }
+#endif
 
 BOOST_AUTO_TEST_CASE(command_particle_attrs)
 {
@@ -192,19 +242,19 @@ BOOST_AUTO_TEST_CASE(command_particle_attrs)
 
   MadX_command cmd = mx.command("beam");
   BOOST_CHECK_EQUAL( cmd.name(), "beam" );
-  BOOST_CHECK_EQUAL( cmd.attribute_count(), 4 );
+  BOOST_CHECK_EQUAL( cmd.attribute_count(), 5 );
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("particle"), "proton");
 }
 
 BOOST_AUTO_TEST_CASE(command_special_attrs1)
 {
-  string str = "multipole, knl:={0, 1, 1}, type=octpn;";
+  string str = "mp: multipole, knl:={0, 1, 1}, type=octpn;";
   MadX   mx;
 
   BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
-  BOOST_CHECK_EQUAL( mx.command_count(), 1 );
+  BOOST_CHECK_EQUAL( mx.label_count(), 1 );
 
-  MadX_command cmd = mx.command(0);
+  MadX_command cmd = mx.command("mp");
   BOOST_CHECK_EQUAL( cmd.name(), "multipole" );
   BOOST_CHECK_EQUAL( cmd.attribute_count(), 2 );
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("type"), "octpn");
@@ -212,13 +262,13 @@ BOOST_AUTO_TEST_CASE(command_special_attrs1)
 
 BOOST_AUTO_TEST_CASE(command_special_attrs2)
 {
-  string str = "multipole, knl:={0, 1, 1}, TYPE=wgl;";
+  string str = "mp: multipole, knl:={0, 1, 1}, TYPE=wgl;";
   MadX   mx;
 
   BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
-  BOOST_CHECK_EQUAL( mx.command_count(), 1 );
+  BOOST_CHECK_EQUAL( mx.label_count(), 1 );
 
-  MadX_command cmd = mx.command(0);
+  MadX_command cmd = mx.command("mp");
   BOOST_CHECK_EQUAL( cmd.name(), "multipole" );
   BOOST_CHECK_EQUAL( cmd.attribute_count(), 2 );
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("type"), "wgl");
@@ -226,16 +276,58 @@ BOOST_AUTO_TEST_CASE(command_special_attrs2)
 
 BOOST_AUTO_TEST_CASE(command_special_attrs3)
 {
-  string str = "multipole, knl:={0, 1, 1}, type=\"special\";";
+  string str = "mp: multipole, knl:={0, 1, 1}, type=\"special\";";
   MadX   mx;
 
   BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
-  BOOST_CHECK_EQUAL( mx.command_count(), 1 );
+  BOOST_CHECK_EQUAL( mx.label_count(), 1 );
 
-  MadX_command cmd = mx.command(0);
+  MadX_command cmd = mx.command("mp");
   BOOST_CHECK_EQUAL( cmd.name(), "multipole" );
   BOOST_CHECK_EQUAL( cmd.attribute_count(), 2 );
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("type"), "special");
+}
+
+BOOST_AUTO_TEST_CASE(command_omitted_comma)
+{
+  string str = "call file = './foo.dbx';";
+  MadX   mx;
+
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+  BOOST_CHECK_EQUAL( mx.command_count(), 0 );
+
+  BOOST_CHECK_EQUAL( mx.variable_as_number("a"), 3 );
+  BOOST_CHECK_EQUAL( mx.variable_as_number("b"), 2 );
+}
+
+BOOST_AUTO_TEST_CASE(command_beam_particle)
+{
+  string str = " BEAM, PARTICLE=Proton, MASS=0.93827, CHARGE=1., ENERGY=0.93827 + 0.160;";
+  MadX   mx;
+
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+
+  MadX_command cmd = mx.command("beam");
+  BOOST_CHECK_EQUAL( cmd.name(), "beam" );
+  BOOST_CHECK_EQUAL( cmd.attribute_count(), 6 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_number("mass"), 0.93827 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_number("charge"), 1 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_number("energy"), 0.93827 + 0.160 );
+}
+
+BOOST_AUTO_TEST_CASE(command_beam_particle_abbreviate)
+{
+  string str = " BEAM, PARTICLE=Prot, MASS=0.93827, CHARGE=1., ENERGY=0.93827 + 0.160;";
+  MadX   mx;
+
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+
+  MadX_command cmd = mx.command("beam");
+  BOOST_CHECK_EQUAL( cmd.name(), "beam" );
+  BOOST_CHECK_EQUAL( cmd.attribute_count(), 6 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_number("mass"), 0.93827 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_number("charge"), 1 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_number("energy"), 0.93827 + 0.160 );
 }
 
 BOOST_AUTO_TEST_CASE(command_assign)
@@ -353,6 +445,34 @@ BOOST_AUTO_TEST_CASE(line_expansion)
   BOOST_CHECK_EQUAL( line.element_name(15), "c" );
   BOOST_CHECK_EQUAL( line.element_name(16), "b" );
   BOOST_CHECK_EQUAL( line.element_name(17), "a" );
+}
+
+BOOST_AUTO_TEST_CASE(matrix)
+{
+  string str = "m1: matrix, type=abc, L=1.2, kick1=0.001, kick2=0.001, kick3=0.002, kick4=0.002, kick5=0.003, kick6=0.003, rm11=1.1, rm12=1.2, rm32=3.2, rm54=5.4, tm111=1.11, tm321=3.21;";
+
+  MadX mx;
+
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+  BOOST_CHECK_EQUAL( mx.label_count(), 1 );
+
+  MadX_command cmd = mx.command("m1");
+  BOOST_CHECK_EQUAL( cmd.name(), "matrix" );
+  BOOST_CHECK_EQUAL( cmd.attribute_count(), 14 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_string("type"), "abc" );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("l"), 1.2, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick1"), 0.001, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick2"), 0.001, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick3"), 0.002, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick4"), 0.002, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick5"), 0.003, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick6"), 0.003, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("rm11"), 1.1, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("rm12"), 1.2, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("rm32"), 3.2, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("rm54"), 5.4, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("tm111"), 1.11, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("tm321"), 3.21, tolerance );
 }
 
 #if 0

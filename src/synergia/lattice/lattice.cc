@@ -57,8 +57,8 @@ Lattice::has_reference_particle() const
     return reference_particle_allocated;
 }
 
-Reference_particle const&
-Lattice::get_reference_particle() const
+Reference_particle &
+Lattice::get_reference_particle()
 {
     if (!reference_particle_allocated) {
         throw std::runtime_error("Lattice: no reference_particle available");
@@ -162,6 +162,12 @@ Element_adaptor_map &
 Lattice::get_element_adaptor_map()
 {
     return *element_adaptor_map_sptr;
+}
+
+Element_adaptor_map_sptr
+Lattice::get_element_adaptor_map_sptr()
+{
+    return element_adaptor_map_sptr;
 }
 
 double

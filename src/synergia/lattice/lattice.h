@@ -13,7 +13,8 @@
 #include "synergia/utils/serialization.h"
 
 /// The Lattice class contains an abstract representation of an ordered
-/// set of Lattice_elements. Each element of the Lattice is unique.
+/// set of objects of type Lattice_element.
+/// Each element of the Lattice is unique.
 class Lattice
 {
 private:
@@ -56,8 +57,8 @@ public:
     has_reference_particle() const;
 
     /// Get the Lattice reference particle
-    Reference_particle const&
-    get_reference_particle() const;
+    Reference_particle &
+    get_reference_particle();
 
     /// Append a copy of a Lattice_element.
     /// @param element a Lattice_element
@@ -103,6 +104,10 @@ public:
     /// Get the Element_adaptor_map
     Element_adaptor_map &
     get_element_adaptor_map();
+
+    /// Get the Element_adaptor_map as a shared pointer
+    Element_adaptor_map_sptr
+    get_element_adaptor_map_sptr();
 
     /// Get the combined length of all the elements in the Lattice
     double

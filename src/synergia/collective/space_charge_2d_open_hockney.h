@@ -102,8 +102,6 @@ public:
     E_force_comm
     get_e_force_comm() const;
     void
-    auto_tune_comm(Bunch & bunch, bool verbose = false);
-    void
     set_fixed_domain(Rectangular_grid_domain_sptr domain_sptr);
     void
     update_domain(Bunch const& bunch);

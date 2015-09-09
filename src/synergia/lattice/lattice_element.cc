@@ -318,7 +318,7 @@ Lattice_element::as_string() const
             sstream << ", ";
         }
         sstream << it->first << "=" << "{";
-        for (int i=0; i != (it->second).size(); ++i) {
+        for (size_t i=0; i != (it->second).size(); ++i) {
             if (i) {
                 sstream << ", ";
             }
@@ -329,11 +329,13 @@ Lattice_element::as_string() const
     return sstream.str();
 }
 
+
 void
 Lattice_element::print() const
 {
     std::cout << as_string() << std::endl;
 }
+
 
 template<class Archive>
     void

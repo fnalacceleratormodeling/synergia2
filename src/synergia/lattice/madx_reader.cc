@@ -15,6 +15,41 @@ using namespace synergia;
 namespace
 {
 
+  void insert_line( Lattice_sptr lattice_sptr,
+                    MadX const & mx,
+                    std::string const & line_name )
+  {
+    MadX_line line(mx.line(line_name));
+
+    for (int i = 0; i < line.element_count(); ++i) 
+    {
+      MadX_command cmd = line.element(i, true);
+      std::string name = line.element_name(i);
+      std::string type = cmd.name();
+
+      Lattice_element element(type, name);
+      std::vector<std::string> attr_names( cmd.attribute_names() );
+
+      for (std::vector<std::string>::const_iterator it = attr_names.begin();
+           it != attr_names.end(); ++it) 
+      {
+        MadX_value_type vt = cmd.attribute_type(*it);
+
+        switch( vt ) 
+        {
+          case NONE:
+          case STRING: element.set_string_attribute(*it, cmd.attribute_as_string(*it, "")); break;
+          case NUMBER: element.set_double_attribute(*it, cmd.attribute_as_number(*it, 0.0)); break;
+          case ARRAY:  element.set_vector_attribute(*it, cmd.attribute_as_number_seq(*it, 0.0)); break;
+          default:
+            throw std::runtime_error( "unable to process attribute " + *it + " of element " + name);
+        }
+      }
+
+      lattice_sptr->append(element);
+    }
+  }
+
   double insert_sequence( Lattice_sptr lattice_sptr, 
                           MadX const & mx, 
                           std::string const & line_name )
@@ -35,22 +70,21 @@ namespace
 
     for (int i = 0; i < sequence.element_count(); ++i) {
 
-      double at = sequence.element(i, false).attribute_as_number("at");
-      std::string name(sequence.element(i, false).label());
-      if (name == "") {
-        name = sequence.element(i, true).label();
-      }
- 
+      double at = sequence.element_at(i);
+      double from = sequence.element_from(i);
+      std::string label = sequence.element_label(i);
+
       if( sequence.element_type(i)==ENTRY_SEQUENCE )
       {
-        double l = insert_sequence( lattice_sptr, mx, name );
-        current_pos = at + l;  // sub-sequence always refer to the entry point
+        double l = insert_sequence( lattice_sptr, mx, label );
+        current_pos = at + from + l;  // sub-sequence always refer to the entry point
 
         continue;
       }
 
-      MadX_command cmd = sequence.element(i, true);
+      MadX_command cmd = sequence.element(i);
       std::string type(cmd.name());
+      std::string name(cmd.label());
       Lattice_element element(type, name);
       std::vector<string_t > attribute_names( cmd.attribute_names() );
 
@@ -76,7 +110,7 @@ namespace
         }
       }
 
-      double drift_length = at - current_pos - element.get_length() * (1.0-r);
+      double drift_length = at + from - current_pos - element.get_length() * (1.0-r);
       if (drift_length > min_drift_length) {
         std::stringstream name_stream;
         name_stream << "auto_drift";
@@ -92,7 +126,7 @@ namespace
         ++drift_count;
       }
       lattice_sptr->append(element);
-      current_pos = at + element.get_length() * r;
+      current_pos = at + from + element.get_length() * r;
     }
 
     double final_drift_length = sequence.length() - current_pos;
@@ -286,9 +320,8 @@ MadX_reader::get_lattice_sptr(std::string const& line_name)
         }
     }
     if (found_line) {
-        // to be completed
-        throw std::runtime_error(
-                "MadX_reader::get_lattice_sptr does not currently handle lines");
+
+        insert_line( lattice_sptr, *madx_sptr, line_name );
     }
     if (found_sequence) {
 

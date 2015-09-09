@@ -1,3 +1,6 @@
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 add_library(synergia_bunch fixed_t_z_converter.cc bunch.cc
     bunch_train.cc
     diagnostics.cc core_diagnostics.cc diagnostics_basic.cc

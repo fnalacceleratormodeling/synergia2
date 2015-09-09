@@ -7,6 +7,12 @@ cmake_minimum_required(VERSION 2.8)
 enable_testing()
 set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
 
+# needed to avoid warnings about rpath policy on Mac OSX
+# no known difference between "OLD" and "NEW" policies for us
+if(POLICY CMP0042)
+    cmake_policy(SET CMP0042 NEW)
+endif()
+
 # Set defaults for building python bindings (build bindings by default).
 if (NOT DEFINED BUILD_PYTHON_BINDINGS)
   if (NOT $ENV{BUILD_PYTHON_BINDINGS} STREQUAL "")
@@ -34,9 +40,8 @@ endif ()
 
 # python
 if (BUILD_PYTHON_BINDINGS)
-    find_package(PythonInterp REQUIRED)
-    find_package(PythonLibs REQUIRED)
-    INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_PATH})
+    find_package(ConsistentPython)
+    INCLUDE_DIRECTORIES(${PYTHON_INCLUDE_DIR})
 endif()
 
 # boost
@@ -117,6 +122,10 @@ endif(ENABLE_WARNINGS)
 if(WARNINGS_ARE_ERRORS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Werror")
 endif(WARNINGS_ARE_ERRORS)
+
+if(CLANG_FIX)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+endif(CLANG_FIX)
 
 if(USE_SIMPLE_TIMER)
     message("-- Simple timer profiling enabled")

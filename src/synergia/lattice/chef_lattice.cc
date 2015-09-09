@@ -12,6 +12,9 @@
 #pragma GCC diagnostic ignored "-Wsequence-point"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wsign-compare"
+#ifndef __clang__
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 #include <basic_toolkit/PhysicsConstants.h>
 #include <physics_toolkit/DriftConverter.h>
 #include <beamline/RefRegVisitor.h>
@@ -78,14 +81,22 @@ Chef_lattice::construct_beamline()
     extract_element_map();
 }
 
+struct strengthData {
+    thinrfcavity *address;
+    double strength;
+};
+
 void
-Chef_lattice::register_beamline(beamline & the_beamline)
+Chef_lattice::register_beamline(BmlPtr beamline_sptr)
 {
-    Particle testpart(
-            reference_particle_to_chef_particle(
-                    lattice_sptr->get_reference_particle()));
+
+    Particle testpart(reference_particle_to_chef_particle(lattice_sptr->get_reference_particle()));
+    // std::cout << "Registering beamline with particle state: " << testpart.State() << std::endl;
+
     RefRegVisitor registrar(testpart);
-    the_beamline.accept(registrar);
+
+    beamline_sptr->accept(registrar);
+
 }
 
 BmlPtr
@@ -97,7 +108,7 @@ Chef_lattice::polish_beamline(BmlPtr beamline_sptr)
         converted_beamline_sptr = beamline_sptr;
     } else {
         converted_beamline_sptr = drift_converter.convert(*beamline_sptr);
-        register_beamline(*converted_beamline_sptr);
+        register_beamline(converted_beamline_sptr);
     }
     return converted_beamline_sptr;
 }

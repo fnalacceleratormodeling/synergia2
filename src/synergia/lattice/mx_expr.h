@@ -30,6 +30,13 @@ namespace synergia
                         > mx_expr;
 
   typedef std::vector<mx_expr> mx_exprs;
+
+  // evaluate the expression
+  double mx_eval(mx_expr const & expr);
+  double mx_eval(mx_expr const & expr, MadX const & mx);
+
+  // retrieve the ref as a string
+  std::string mx_expr_refstr(mx_expr const & expr);
 }
 
 struct synergia::nop_t

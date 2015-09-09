@@ -132,6 +132,8 @@ private:
     bool have_tunes;
     double horizontal_chromaticity, vertical_chromaticity;
     bool have_chromaticities;
+    double alt_horizontal_chromaticity, alt_vertical_chromaticity;
+    bool have_alt_chromaticities;
     double momentum_compaction, slip_factor;
     MArray2d linear_one_turn_map;
     std::map<Lattice_element *, Lattice_functions > lattice_functions_element_map;
@@ -163,6 +165,8 @@ private:
     Normal_form_sage_sptr normal_form_sage_sptr;
     void
     get_chromaticities(double dpp);
+    void
+    get_alt_chromaticities(double dpp);
 public:
     /// @param lattice_sptr the Lattice
     /// @param map_order order for Chef_map operations
@@ -197,6 +201,8 @@ public:
     get_chef_lattice_sptr();
     void
     update();
+    MArray1d
+    get_closed_orbit(double dpop = 0.0);
     void
     calculate_element_lattice_functions(); // Courant Snyder lattice functions
     void
@@ -266,13 +272,17 @@ public:
             Lattice_elements const& vertical_correctors, double tolerance =
                     1.0e-5, int verbosity = 0);
     double
-    get_slip_factor(double dpp=1.e-4);
+    get_slip_factor(double dpp=1.0e-5);
     double
-    get_momentum_compaction(double dpp=1.e-4);
+    get_momentum_compaction(double dpp=1.e-5);
     double
-    get_horizontal_chromaticity(double dpp=1.e-4);
+    get_horizontal_chromaticity(double dpp=1.e-5);
     double
-    get_vertical_chromaticity(double dpp=1.e-4);
+    get_vertical_chromaticity(double dpp=1.e-5);
+    double
+    get_alt_horizontal_chromaticity(double dpp=1.e-5);
+    double
+    get_alt_vertical_chromaticity(double dpp=1.e-5);
     void
     adjust_chromaticities(double horizontal_chromaticity,
             double vertical_chromaticity,
@@ -290,6 +300,17 @@ public:
     BOOST_SERIALIZATION_SPLIT_MEMBER();
 
     ~Lattice_simulator();
+};
+
+#include "synergia/simulation/dense_mapping.h"
+class Dense_mapping_calculator
+{
+private:
+    std::map<Lattice_element *, Dense_mapping> element_map;
+public:
+    Dense_mapping_calculator(Lattice_simulator& lattice_simulator, bool closed_orbit);
+    Dense_mapping get_dense_mappping(Lattice_element& lattice_element);
+    ~Dense_mapping_calculator();
 };
 
 #endif /* LATTICE_SIMULATOR_H_ */

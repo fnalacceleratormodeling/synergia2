@@ -197,6 +197,9 @@ public:
   void execute(MadX & mx);
   void print() const;
 
+  // convert to a MadX command object
+  MadX_command convert(MadX const & mx) const;
+
 private:
   mx_cmd_type  type_;
   bool         labeled_;
@@ -220,6 +223,9 @@ public:
 
 private:
   boost::any member;  // either a name ref or a line object
+#if __APPLE_CC__ == 6000
+public:
+#endif //  __APPLE_CC__ == 6000
   mx_line_member_type tag;
 };
 

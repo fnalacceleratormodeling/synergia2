@@ -38,6 +38,26 @@ Propagate_actions::step_end_action(Stepper & stepper, Step & step,
 {
 }
 
+void
+Propagate_actions::before_resume_action(Stepper & stepper, Bunch & bunch)
+{
+}
+
+void
+Propagate_actions::before_resume_action(Stepper & stepper, Bunch_train & bunch_train)
+{
+}
+
+void
+Propagate_actions::operator_begin_action(Stepper & stepper, Step & step, Operator & op, int step_num, int turn_num, 
+                   int bunch_num)                      
+{
+}  
+
+
+
+
+
 Propagate_actions::~Propagate_actions()
 {
 }

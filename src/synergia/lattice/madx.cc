@@ -389,23 +389,36 @@ size_t
 }
 
 MadX_command
-  MadX_sequence::element(size_t idx, bool resolve) const
+  MadX_sequence::element(size_t idx) const
 {
-  MadX_command cmd;
-  pair<string, size_t> id = seq_[idx];
+  return parent.command(seq_[idx].label);
+}
 
-  if( id.first.empty() ) cmd = parent.command(id.second, resolve);
-  else                   cmd = parent.command(id.first , resolve);
+double
+  MadX_sequence::element_at(size_t idx) const
+{
+  return seq_[idx].at;
+}
 
-  return cmd;
+double
+  MadX_sequence::element_from(size_t idx) const
+{
+  return seq_[idx].from;
+}
+
+string_t
+  MadX_sequence::element_label(size_t idx) const
+{
+  return seq_[idx].label;
 }
 
 MadX_entry_type
   MadX_sequence::element_type(size_t idx) const
 {
-  MadX_command cmd = element(idx, false);
-  std::string key = cmd.label();
-  if( key.empty() ) key = cmd.name();
+//  MadX_command const & cmd = element(idx);
+//  std::string key = cmd.label();
+//  if( key.empty() ) key = cmd.name();
+  std::string key = seq_[idx].label;
   return parent.entry_type(key);
 }
 
@@ -446,21 +459,37 @@ void
 }
 
 void
-  MadX_sequence::add_element(string_t const & label)
+  MadX_sequence::add_element(string_t const & label, double at, string_t const & from)
 {
-  if( parent.command(label, false).name() == "sequence" )
-    return;
-
-  seq_.push_back( make_pair(label, 0) );
+  seq_.push_back( seq_element(label, at, from) );
 }
 
 void
-  MadX_sequence::add_element(size_t idx)
+  MadX_sequence::finalize()
 {
-  if( parent.command(idx, false).name() == "sequence" )
-    return;
+  // resolve all the 'from' references
+  for (seq_ele_v_t::iterator it = seq_.begin(); it != seq_.end(); ++it)
+  {
+    if (!it->from_str.empty())
+    {
+      bool found = false;
 
-  seq_.push_back( make_pair(string(""), idx) );
+      for (seq_ele_v_t::const_iterator cit = seq_.begin(); cit != seq_.end(); ++cit)
+      {
+        if (cit == it) continue;
+
+        if (cit->label == it->from_str)
+        {
+          it->from = cit->at;
+          found = true;
+          break;
+        }
+      }
+
+      if (!found)
+        throw runtime_error("fatal: 'from' reference to unknown element: " + it->from_str);
+    }
+  }
 }
 
 void
@@ -729,9 +758,6 @@ void
 
   cmd_map_[key] = cmd; // always overwrite
   cmd_map_[key].set_parent(*this);
-
-  if( building_seq_ ) 
-    cur_seq_.add_element( key );
 }
 
 void
@@ -761,9 +787,6 @@ void
 {
   cmd_seq_.push_back(cmd);
   cmd_seq_.back().set_parent(*this);
-
-  if( building_seq_ ) 
-    cur_seq_.add_element( cmd_seq_.size()-1 );
 }
 
 void
@@ -784,9 +807,18 @@ void
 }
 
 void
+  MadX::append_sequence_element(string_t const & label, double at, string_t const & from)
+{
+  if( building_seq_ )
+    cur_seq_.add_element(label, at, from);
+}
+
+void
   MadX::end_sequence()
 {
+  // done and insert the sequence to madx object
   building_seq_ = false;
+  cur_seq_.finalize();
   seqs_.insert(std::make_pair(cur_seq_.label(), cur_seq_));
   cur_seq_.reset();
 }

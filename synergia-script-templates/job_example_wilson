@@ -1,10 +1,13 @@
 #!/bin/sh
 #PBS -o synergia.out
 #PBS -e synergia.err
-#PBS -l nodes=@@numnode@@
+#PBS -l nodes=@@numnode@@:@@queue@@
 __walltime{{#PBS -l walltime=@@walltime@@}}{{}}__
 __queue{{#PBS -q @@queue@@}}{{}}__
 __account{{#PBS -A @@account@@}}{{}}__
+
+# 2015-01-14 (EGS) switching back to openmpi-1.4.4rc3 on the Wilson
+# cluster.
 
 # This script is an appropriate template for running PBS jobs on the
 # wilson cluster.
@@ -16,19 +19,19 @@ then
     cat $PBS_NODEFILE
     echo "end nodes"
 fi
-MPI_HOME=/usr/local/openmpi
+MPI_HOME=/usr/local/openmpi-1.4.4rc3-with-pbs
 
 export PATH=${MPI_HOME}/bin:$PATH
-export PATH=/usr/local/python-2.7.0/bin:$PATH
 export LD_LIBRARY_PATH=${MPI_HOME}/lib:$LD_LIBRARY_PATH
-export LD_LIBRARY_PATH=/usr/local/python-2.7.0/lib:$LD_LIBRARY_PATH
-
 
 . @@setupsh@@
 
 cd $PBS_O_WORKDIR
 echo "Job start at `date`"
-${MPI_HOME}/bin/mpirun __loadbalance{{--loadbalance}}{{}}__ -np @@numproc@@ @@synergia_executable@@ @@script@@ @@args@@
+# 2014-12-20 (EGS) after upgrade of Wilson cluster and using openmpi 1.8, the
+# --loadbalance option is not used.
+# 2015-01-04 (EGS) using --map-by core --bind-to numa appears to work best
+${MPI_HOME}/bin/mpirun -np @@numproc@@ --loadbalance --bycore --bind-to-core @@synergia_executable@@ @@script@@ @@args@@
 echo "Job end at `date`"
 
 

@@ -34,11 +34,11 @@ particles[:, 0:6] = numpy.random.lognormal(size=[bunch.get_total_num(), 6])
 def test_construct():
     diagnostics = Diagnostics_basic("dummy.h5")
 
-def test_get_s():
+def test_get_s_n():
     diagnostics = Diagnostics_basic("dummy.h5")
     diagnostics.set_bunch(bunch)
     diagnostics.update()
-    assert_almost_equal(diagnostics.get_s(), partial_s)
+    assert_almost_equal(diagnostics.get_s_n(), partial_s)
 
 def test_get_repetition():
     diagnostics = Diagnostics_basic("dummy.h5")
@@ -46,11 +46,11 @@ def test_get_repetition():
     diagnostics.update()
     assert_equal(diagnostics.get_repetition(), turns)
 
-def test_get_trajectory_length():
+def test_get_s():
     diagnostics = Diagnostics_basic("dummy.h5")
     diagnostics.set_bunch(bunch)
     diagnostics.update()
-    assert_almost_equal(diagnostics.get_trajectory_length(),
+    assert_almost_equal(diagnostics.get_s(),
                         turns * turn_length + partial_s)
 
 def test_get_mean():
@@ -81,11 +81,11 @@ def test_update():
 def test_construct_full2():
     diagnostics = Diagnostics_full2("dummy.h5")
 
-def test_get_s_full2():
+def test_get_s_n_full2():
     diagnostics = Diagnostics_full2("dummy.h5")
     diagnostics.set_bunch(bunch)
     diagnostics.update()
-    assert_almost_equal(diagnostics.get_s(), partial_s)
+    assert_almost_equal(diagnostics.get_s_n(), partial_s)
 
 def test_get_repetition_full2():
     diagnostics = Diagnostics_full2("dummy.h5")
@@ -93,11 +93,11 @@ def test_get_repetition_full2():
     diagnostics.update()
     assert_equal(diagnostics.get_repetition(), turns)
 
-def test_get_trajectory_length_full2():
+def test_get_s_full2():
     diagnostics = Diagnostics_full2("dummy.h5")
     diagnostics.set_bunch(bunch)
     diagnostics.update()
-    assert_almost_equal(diagnostics.get_trajectory_length(),
+    assert_almost_equal(diagnostics.get_s(),
                         turns * turn_length + partial_s)
 
 def test_get_mean_full2():

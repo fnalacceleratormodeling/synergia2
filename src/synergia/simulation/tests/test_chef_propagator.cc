@@ -9,13 +9,13 @@ BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-12;
 
-const int begin = 1;
-const int end = 2;
+const int begin1 = 1;
+const int end1 = 2;
 
 BOOST_FIXTURE_TEST_CASE(construct, Chef_lattice_sptr_fixture)
 {
     Chef_lattice_section_sptr chef_lattice_section_sptr(
-            new Chef_lattice_section(chef_lattice_sptr, begin, end));
+            new Chef_lattice_section(chef_lattice_sptr, begin1, end1));
     Chef_propagator chef_propagator(chef_lattice_section_sptr);
 }
 
@@ -25,7 +25,7 @@ BOOST_AUTO_TEST_CASE(apply)
     Bunch_fixture b;
 
     Chef_lattice_section_sptr chef_lattice_section_sptr(
-            new Chef_lattice_section(c.chef_lattice_sptr, begin, end));
+            new Chef_lattice_section(c.chef_lattice_sptr, begin1, end1));
     Chef_propagator chef_propagator(chef_lattice_section_sptr);
 
     //    multi_array_print(bunch.get_local_particles(),"particles before");
@@ -40,7 +40,7 @@ BOOST_AUTO_TEST_CASE(apply)
 BOOST_FIXTURE_TEST_CASE(serialize_xml, Chef_lattice_sptr_fixture)
 {
     Chef_lattice_section_sptr chef_lattice_section_sptr(
-            new Chef_lattice_section(chef_lattice_sptr, begin, end));
+            new Chef_lattice_section(chef_lattice_sptr, begin1, end1));
     Chef_propagator chef_propagator(chef_lattice_section_sptr);
 
     xml_save<Chef_propagator >(chef_propagator,"chef_propagator.xml");

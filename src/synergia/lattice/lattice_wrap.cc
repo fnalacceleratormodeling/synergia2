@@ -181,6 +181,7 @@ BOOST_PYTHON_MODULE(lattice)
 //            .def("get_adaptor_names", &MadX_adaptor_map::get_adaptor_names)
             ;
 
+    typedef Reference_particle & (Lattice::*get_reference_particle_non_const_type)();
     class_<Lattice, Lattice_sptr >("Lattice", init<std::string const& >())
             .def(init<std::string const&, Mad8_adaptor_map_sptr >())
             .def(init<std::string const&, MadX_adaptor_map_sptr >())
@@ -189,8 +190,10 @@ BOOST_PYTHON_MODULE(lattice)
                     return_value_policy<copy_const_reference>())
             .def("set_reference_particle", &Lattice::set_reference_particle)
             .def("has_reference_particle", &Lattice::has_reference_particle)
-            .def("get_reference_particle", &Lattice::get_reference_particle,
-                    return_value_policy<return_by_value >()) // jfa: not sure return_by_value is correct
+            .def("get_reference_particle",
+                 get_reference_particle_non_const_type(
+                     &Lattice::get_reference_particle),
+                 return_internal_reference< >())
             .def("append", &Lattice::append)
             .def("set_all_double_attribute", &Lattice::set_all_double_attribute)
             .def("set_all_string_attribute", &Lattice::set_all_string_attribute)
@@ -198,6 +201,7 @@ BOOST_PYTHON_MODULE(lattice)
                     return_value_policy<copy_non_const_reference >())
             .def("get_length", &Lattice::get_length)
             .def("get_total_angle", &Lattice::get_total_angle)
+            .def("get_element_adaptor_map_sptr", &Lattice::get_element_adaptor_map_sptr)
             .def("print_", &Lattice::print)
             .def("as_string", &Lattice::as_string)
             ;
@@ -238,7 +242,11 @@ BOOST_PYTHON_MODULE(lattice)
             ;
 
     def("chef_beamline_as_string", chef_beamline_as_string);
+    def("chef_element_as_string", chef_element_as_string);
     def("print_chef_beamline", print_chef_beamline);
+    def("print_chef_element", print_chef_element);
+    def("chef_full_beamline_as_string", full_chef_beamline_as_string);
+    def("print_full_chef_beamline", print_full_chef_beamline);
     def("reference_particle_to_chef_particle",
             reference_particle_to_chef_particle);
     def("reference_particle_to_chef_jet_particle",

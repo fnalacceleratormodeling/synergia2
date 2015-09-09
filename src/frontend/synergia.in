@@ -1,37 +1,89 @@
 #!/bin/sh
 
+usage() {
+    echo "usage: $0 [synergia_arguments] <synergia_script> [script_arguments]"
+    echo "synergia_arguments:"
+    echo "         -i         : enter interactive Python mode"
+    echo "         --ipython  : enter IPython interactive mode (if available)"
+    echo "         --help     : this message"
+}
+
 if [ -z "$1" ]; then
-    echo "usage: $0 <synergia_script> [arguments]" >&2
+    usage
     exit 1
 fi
 if [ "$1" = "--help" ]; then
-    echo "usage: $0 <synergia_script> [arguments]"
+    usage
     exit 0
 fi
 
-local_dir="${SYNERGIA2_BINARY_DIR}"
-install_dir="${CMAKE_INSTALL_PREFIX}"
+tmp_bin_dir="`dirname \"$0\"`"
+install_dir="`dirname \"$tmp_bin_dir\"`"
+
 SYNERGIA2DIR="$install_dir/lib"
 export SYNERGIA2DIR
-# the next section is a hack
-. "$install_dir/../setup.sh"
-install_python_dir="`find $install_dir -type d -name site-packages`"
-# end hack
-this_synergia_python_path="$install_dir/lib"
-chef_dirs=`echo "${CHEF_LIBRARY_DIRS}" | sed 's/;/ /g'`
-for dir in $chef_dirs $install_python_dir "$this_synergia_python_path"
-do
-    PYTHONPATH="$dir:$PYTHONPATH"
-done
-export PYTHONPATH
 
-if [ x"$1" = x"--pythonpath" ]; then
-	echo "$PYTHONPATH"
-	exit 0
+pathadd ()
+{
+    PATH="$1:$PATH"
+    export PATH
+}
+
+ldpathadd ()
+{
+    if [ "`uname`" = "Darwin" ]; then
+        if [ -z "$DYLD_LIBRARY_PATH" ]; then
+            DYLD_LIBRARY_PATH="$1"
+        else
+            DYLD_LIBRARY_PATH="$1:$DYLD_LIBRARY_PATH"
+        fi
+        export DYLD_LIBRARY_PATH
+    else
+        if [ -z "$LD_LIBRARY_PATH" ]; then
+            LD_LIBRARY_PATH="$1"
+        else
+            LD_LIBRARY_PATH="$1:$LD_LIBRARY_PATH"
+        fi
+        export LD_LIBRARY_PATH
+    fi
+}
+
+pythonpathadd ()
+{
+    if [ -z "$PYTHONPATH" ]; then
+        PYTHONPATH="$1"
+    else
+        PYTHONPATH="$1:$PYTHONPATH"
+    fi
+    export PYTHONPATH
+}
+
+pathadd "$install_dir/bin"
+ldpathadd "$install_dir/lib"
+
+install_site_packages="`/bin/ls -d \"$install_dir\"/lib*/*/site-packages 2>/dev/null`"
+chef_lib_dirs=`chef-config.sh --lib_dirs_list | sed 's/;/ /g'`
+for dir in $install_site_packages $chef_lib_dirs
+do
+    pythonpathadd $dir
+done
+
+if [ x"$1" = x"--path" ]; then
+    echo "$PATH"
+    exit 0
 fi
 
 if [ x"$1" = x"--ldlibrarypath" ]; then
-	echo "$LD_LIBRARY_PATH"
+    if [ "`uname`" = "Darwin" ]; then
+        echo "$DYLD_LIBRARY_PATH"
+    else
+        echo "$LD_LIBRARY_PATH"
+    fi
+    exit 0
+fi
+
+if [ x"$1" = x"--pythonpath" ]; then
+	echo "$PYTHONPATH"
 	exit 0
 fi
 

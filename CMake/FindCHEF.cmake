@@ -8,7 +8,10 @@
 
 if(NOT CHEF_FOUND)
     set(INTERNAL_CHEF_FOUND TRUE)
-    execute_process(COMMAND "chef-config.sh" "--includes_list"
+    if(NOT CHEF_CONFIG)
+        set(CHEF_CONFIG "chef-config.sh")
+    endif(NOT CHEF_CONFIG)
+    execute_process(COMMAND ${CHEF_CONFIG} "--includes_list"
         OUTPUT_VARIABLE CHEF_INCLUDE_DIRS
         RESULT_VARIABLE CHEF_CONFIG_FAILED
         OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -18,7 +21,7 @@ if(NOT CHEF_FOUND)
         set (CHEF_INCLUDE_DIRS ${CHEF_INCLUDE_DIRS} CACHE FILEPATH "CHEF include paths")
     endif(CHEF_CONFIG_FAILED)
 
-    execute_process(COMMAND "chef-config.sh" "--lib_dirs_list"
+    execute_process(COMMAND ${CHEF_CONFIG} "--lib_dirs_list"
         OUTPUT_VARIABLE CHEF_LIBRARY_DIRS
         RESULT_VARIABLE CHEF_CONFIG_FAILED
         OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -28,7 +31,7 @@ if(NOT CHEF_FOUND)
         set(CHEF_LIBRARY_DIRS ${CHEF_LIBRARY_DIRS} CACHE FILEPATH "CHEF library paths")
     endif(CHEF_CONFIG_FAILED)
 
-    execute_process(COMMAND "chef-config.sh" "--libs_list"
+    execute_process(COMMAND ${CHEF_CONFIG} "--libs_list"
         OUTPUT_VARIABLE CHEF_LIBS
         RESULT_VARIABLE CHEF_CONFIG_FAILED
         OUTPUT_STRIP_TRAILING_WHITESPACE)

@@ -21,6 +21,8 @@
 
 #include <boost/fusion/include/std_pair.hpp>
 
+#include <synergia/foundation/physical_constants.h>
+
 
 namespace ascii = ::boost::spirit::ascii;
 namespace phx   = ::boost::phoenix;
@@ -124,9 +126,20 @@ struct synergia::expression
   {
     constant_()
     {
-      this->add ("pi"   , boost::math::constants::pi<double>()  )
-                ("true" , 1.0  )
-                ("false", 0.0  )
+      this->add ("pi"     , boost::math::constants::pi<double>()     )
+                ("twopi"  , boost::math::constants::two_pi<double>() )
+             // ("degpi"  , boost::math::constants::radian<double>() )   -- boost 1.51+
+             // ("raddeg" , boost::math::constants::degree<double>() )   -- boost 1.51+
+                ("degrad" , 180.0 / boost::math::constants::pi<double>() )
+                ("raddeg" , boost::math::constants::pi<double>() / 180.0 )
+                ("e"      , boost::math::constants::e<double>()      )
+                ("emass"  , pconstants::me                           )        
+                ("pmass"  , pconstants::mp                           )
+                ("mumass" , pconstants::mmu                          )
+                ("clight" , pconstants::c                            )
+                ("qelect" , pconstants::e                            )
+                ("true" , 1.0                                        )
+                ("false", 0.0                                        )
       ;
     }
   } constant;
@@ -250,8 +263,8 @@ struct synergia::expression
         real                     [_val = _1]
         | ( '(' >> expr >> ')' ) [_val = phx::construct<nop_t>(_1)]
         | ( uop >> primary     ) [_val = phx::construct<uop_t>(_1, _2)]
-        | ( no_case[constant]  ) [_val = _1]
-        | ( no_case[ufunc] >> '(' >> expr >> ')')                [_val = phx::construct<uop_t>(_1, _2)]
+        | ( no_case[constant] >> !char_(".a-zA-Z_0-9")         ) [_val = _1]
+        | ( no_case[ufunc] >> '(' >> expr >> ')'               ) [_val = phx::construct<uop_t>(_1, _2)]
         | ( no_case[bfunc] >> '(' >> expr >> ',' >> expr >> ')') [_val = phx::construct<bop_t>(_1, _2, _3)]
         | ( lit("table")   >> '(' >> name >> ',' >> name >> ')') [_val = 1.0]  // eat table()
         | ( cmdref             ) [_val = _1]
@@ -261,7 +274,8 @@ struct synergia::expression
     cmdref =
         name >> "->" >> name;
 
-    name = char_("a-zA-Z_") >> *char_(".a-zA-Z_0-9");
+    name = 
+        lexeme[char_("a-zA-Z_") >> *char_(".a-zA-Z_0-9")];
   }
 };
 
@@ -370,6 +384,7 @@ struct synergia::madx_tree_parser
     {
       this->add
            ("proton"     , mx_keyword("proton"     , MX_KW_PARTICLE) )
+           ("prot"       , mx_keyword("proton"     , MX_KW_PARTICLE) )
            ("electron"   , mx_keyword("electron"   , MX_KW_PARTICLE) )
            ("positron"   , mx_keyword("positron"   , MX_KW_PARTICLE) )
            ("anti-proton", mx_keyword("anti-proton", MX_KW_PARTICLE) )
@@ -426,7 +441,6 @@ struct synergia::madx_tree_parser
            ("ecollimator", mx_keyword("ecollimator", MX_KW_ELEMENT) )
            ("yrotation"  , mx_keyword("yrotation"  , MX_KW_ELEMENT) )
            ("srotation"  , mx_keyword("srotation"  , MX_KW_ELEMENT) )
-           ("beam"       , mx_keyword("beam"       , MX_KW_ELEMENT) )
            ("beambeam"   , mx_keyword("beambeam"   , MX_KW_ELEMENT) )
            ("matrix"     , mx_keyword("matrix"     , MX_KW_ELEMENT) )
            ("marker"     , mx_keyword("marker"     , MX_KW_ELEMENT) )
@@ -444,6 +458,7 @@ struct synergia::madx_tree_parser
       this->add
            // general
            ("assign"   , mx_keyword("assign"   , MX_KW_COMMAND) )
+           ("beam"     , mx_keyword("beam"     , MX_KW_COMMAND) )
            ("call"     , mx_keyword("call"     , MX_KW_COMMAND) )
            ("coguess"  , mx_keyword("coguess"  , MX_KW_COMMAND) )
            ("create"   , mx_keyword("create"   , MX_KW_COMMAND) )
@@ -612,7 +627,8 @@ struct synergia::madx_tree_parser
              | no_case[command_keywords] 
              | ref
              )                   [phx::bind(&set_cmd_keyword, _val, _1)] // keyword
-        >> * ( ',' >> cmd_attr   [phx::bind(&ins_cmd_attr, _val, _1)] )  // attributes
+        >> - ( lit(',') )
+        >> * ( cmd_attr [phx::bind(&ins_cmd_attr, _val, _1)] % ',' )     // attributes
         ;
 
     command =

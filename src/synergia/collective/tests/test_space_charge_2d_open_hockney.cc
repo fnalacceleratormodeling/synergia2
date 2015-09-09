@@ -198,12 +198,6 @@ BOOST_FIXTURE_TEST_CASE(get_e_force_comm_sptr, Ellipsoidal_bunch_fixture)
             Space_charge_2d_open_hockney::e_force_allreduce);
 }
 
-BOOST_FIXTURE_TEST_CASE(auto_tune_comm_sptr, Ellipsoidal_bunch_fixture)
-{
-    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
-    space_charge.auto_tune_comm(bunch, false);
-}
-
 BOOST_FIXTURE_TEST_CASE(update_domain, Ellipsoidal_bunch_fixture)
 {
     Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
@@ -629,6 +623,7 @@ BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
 {
     simple_populate(bunch, distribution);
     Bunch original_bunch(bunch);
+    bunch.set_sort_period(1000); // delay the sorting
     Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
     const double time_fraction = 1.0;
     Step dummy_step(time_fraction);
@@ -657,7 +652,7 @@ BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
     double avg_p_kick2 = total_p_kick2 / bunch.get_local_num();
 
     const double rough_tolerance = 10.0;
-    BOOST_CHECK_CLOSE(avg_x_kick2, 2.0e-3, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_y_kick2, 2.0e-3, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_x_kick2, 6.637e-6, rough_tolerance);
+    BOOST_CHECK_CLOSE(avg_y_kick2, 6.735e-6, rough_tolerance);
     BOOST_CHECK_CLOSE(avg_p_kick2, 3.67e-2, rough_tolerance);
 }

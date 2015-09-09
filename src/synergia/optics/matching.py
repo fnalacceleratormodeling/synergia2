@@ -238,6 +238,7 @@ def get_covariances(sigma, r):
         c[i, i] = sigma[i] ** 2
     for (i, ri) in zip([0, 2, 4], r):
         c[i, i + 1] = ri * sigma[i] * sigma[i + 1]
+        c[i + 1, i] = c[i, i + 1]
     return c
 
 def generate_matched_bunch(lattice_simulator, arms,brms,crms,
@@ -273,7 +274,7 @@ def generate_matched_bunch(lattice_simulator, arms,brms,crms,
 def get_matched_bunch_transverse_parameters(lattice_simulator,
                                             emit_x, emit_y, rms_z, rms_dpop):
 
-    map = linear_one_turn_map(lattice_simulator)
+    map = lattice_simulator.get_linear_one_turn_map()
     alpha, beta = get_alpha_beta(map)
     sigma4, r4 = match_transverse_twiss_emittance([emit_x, emit_y], alpha, beta)
     sigma = range(0, 6)
@@ -289,15 +290,22 @@ def get_matched_bunch_transverse_parameters(lattice_simulator,
 
 def generate_matched_bunch_transverse(lattice_simulator, emit_x, emit_y,
                            rms_z, dpop, num_real_particles,
-                           num_macro_particles, seed=0, comm=None):
+                           num_macro_particles, seed=0, comm=None,
+                           z_period_length=0):
 
     means, covariance_matrix = \
         get_matched_bunch_transverse_parameters(lattice_simulator,
                                                 emit_x, emit_y, rms_z, dpop)
     if comm == None:
         comm = Commxx()
-    bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
-                  num_macro_particles, num_real_particles, comm)
+    if z_period_length == 0.0:
+        bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
+                      num_macro_particles, num_real_particles, comm)
+    else:
+        bunch = Bunch(lattice_simulator.get_lattice().get_reference_particle(),
+                      num_macro_particles, num_real_particles, comm,
+                      z_period_length)
+    
     if comm.has_this_rank():
         dist = Random_distribution(seed, comm)
         populate_6d(dist, bunch, means, covariance_matrix)

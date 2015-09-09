@@ -28,24 +28,43 @@ Chef_propagator::apply(Bunch & bunch, int verbosity, Logger & logger)
                 << ", end_index = "
                 << chef_lattice_section_sptr->get_end_index() << std::endl;
     }
+
+    bool has_rf_cavity = false;
+    double initial_reference_energy = particle.ReferenceEnergy();
+    if (verbosity > 4) {
+        logger << "reference particle energy: " << initial_reference_energy << std::endl;
+    }
     for (Chef_lattice_section::iterator it = chef_lattice_section_sptr->begin(); it
             != chef_lattice_section_sptr->end(); ++it) {
+        if (verbosity > 5) {
+			logger << "-->" << (*it)->Type() << "<--" << std::endl;
+		}
+        if (strcmp((*it)->Type(), "thinrfcavity") == 0) {
+            has_rf_cavity = true;
+        }
         (*it)->propagate(particle);
         double this_length = (*it)->OrbitLength(particle);
         length += this_length;
         if (verbosity > 4) {
             logger << "Chef_propagator: name = " << (*it)->Name() << ", type = " <<
-                    (*it)->Type() << ", length = " << this_length << std::endl;
+                    (*it)->Type() << ", length = " << this_length << ", ReferenceTime: " << (*it)->getReferenceTime() << std::endl;
         }
     }
-    // std::cout<<"chef operate apply with length= "<<length<<std::endl;
     bunch.get_reference_particle().increment_trajectory(length);
+    double final_reference_energy = particle.ReferenceEnergy();
+
+    if ((verbosity > 4) && has_rf_cavity) {
+        logger << "Chef_propagator, lattice section has rf cavity, energy gain: " << final_reference_energy-initial_reference_energy << std::endl;
+    }
 
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
 
     #pragma omp parallel for firstprivate(particle)
     for (int part = 0; part < local_num; ++part) {
+        // propagation through an RF cavity cavity section changes the ReferenceEnergy of particle,
+        // so I have to reset it each loop
+        particle.SetReferenceEnergy(initial_reference_energy);
         particle.set_x(particles[part][Bunch::x]);
         particle.set_npx(particles[part][Bunch::xp]);
         particle.set_y(particles[part][Bunch::y]);
@@ -65,6 +84,12 @@ Chef_propagator::apply(Bunch & bunch, int verbosity, Logger & logger)
         particles[part][Bunch::yp] = particle.get_npy();
         particles[part][Bunch::cdt] = particle.get_cdt();
         particles[part][Bunch::dpop] = particle.get_ndp();
+    }
+
+    // update the reference particle if there was an energy change
+    if (has_rf_cavity &&
+        (final_reference_energy-initial_reference_energy != 0.0)) {
+        bunch.get_reference_particle().set_total_energy(final_reference_energy);
     }
 }
 

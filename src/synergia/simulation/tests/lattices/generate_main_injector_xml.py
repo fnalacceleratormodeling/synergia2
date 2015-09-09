@@ -64,9 +64,9 @@ try:
         print "gamma: ", gamma
         print "brho: ", brho
 
-    # set rf cavity frequency
+    # set rf cavity frequency (units are MHz)
     # harmno * beta * c/ring_length
-    freq = harmno * beta * synergia.foundation.pconstants.c/lattice_length
+    freq = 1.0e-6 * harmno * beta * synergia.foundation.pconstants.c/lattice_length
     if myrank == 0:
         print "RF frequency: ", freq
 

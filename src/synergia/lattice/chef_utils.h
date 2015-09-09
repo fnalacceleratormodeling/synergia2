@@ -8,6 +8,9 @@
 #pragma GCC diagnostic ignored "-Wsequence-point"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wsign-compare"
+#ifndef __clang__
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 #include <beamline/beamline.h>
 #include <beamline/Particle.h>
 #include <beamline/JetParticle.h>
@@ -18,10 +21,22 @@
 #include "synergia/foundation/reference_particle.h"
 
 std::string
+chef_element_as_string(ElmPtr element_sptr);
+
+std::string
 chef_beamline_as_string(BmlPtr beamline_sptr);
 
 void
+print_chef_element(ElmPtr element_sptr);
+
+void
 print_chef_beamline(BmlPtr beamline_sptr);
+
+std::string
+full_chef_beamline_as_string(BmlPtr beamline_sptr);
+
+void
+print_full_chef_beamline(BmlPtr beamline_sptr);
 
 Particle
 reference_particle_to_chef_particle(
@@ -40,6 +55,9 @@ reference_particle_to_chef_jet_particle(
 Reference_particle
 propagate_reference_particle(Reference_particle const& reference_particle,
         BmlPtr beamline_sptr);
+
+Particle
+get_closed_orbit_particle(Particle util_part, BmlPtr beamline_sptr, double dpop);
 
 /// units conversion
 /// X_synergia = U X_chef

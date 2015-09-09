@@ -137,12 +137,12 @@ Diagnostics_particles::write()
 	    double pz = fourp.get_momentum();
 	    file_sptr->write(pz, "pz");
 	    double tlen =
-		    get_bunch().get_reference_particle().get_trajectory_length();
+		    get_bunch().get_reference_particle().get_s();
 	    file_sptr->write(tlen, "tlen");
 	    int rep = get_bunch().get_reference_particle().get_repetition();
 	    file_sptr->write(rep, "rep");
-	    double s = get_bunch().get_reference_particle().get_s();
-	    file_sptr->write(s, "s");
+	    double s_n = get_bunch().get_reference_particle().get_s_n();
+	    file_sptr->write(s_n, "s_n");
 	    get_write_helper().finish_write();
 	} else {
 	    send_local_particles();

@@ -1,3 +1,12 @@
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/__init__.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/mad8_parser.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/mad8_reader.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/simplify.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 add_library(synergia_lattice lattice_element.cc lattice_element_slice.cc
     lattice.cc chef_lattice.cc chef_lattice_section.cc chef_utils.cc
     element_adaptor.cc mad8_adaptors.cc madx_adaptors.cc
@@ -5,10 +14,6 @@ add_library(synergia_lattice lattice_element.cc lattice_element_slice.cc
     lattice_diagnostics.cc
     madx.cc mx_expr.cc  mx_parse.cc  mx_tree.cc
     madx_reader.cc)
-
-# jfa: temporary entry
-add_executable(thetest test.cc)
-target_link_libraries(thetest synergia_foundation synergia_lattice)
 
 target_link_libraries(synergia_lattice synergia_foundation
     ${CHEF_LIBS} ${Boost_REGEX_LIBRARY} ${Boost_SERIALIZATION_LIBRARY})

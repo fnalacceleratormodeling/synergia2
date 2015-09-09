@@ -2,6 +2,7 @@
 #include <sstream>
 #include "mad8_adaptors.h"
 #include "synergia/foundation/math_constants.h"
+#include "synergia/foundation/physical_constants.h"
 
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic push
@@ -10,7 +11,11 @@
 #pragma GCC diagnostic ignored "-Wsequence-point"
 #pragma GCC diagnostic ignored "-Wunused-variable"
 #pragma GCC diagnostic ignored "-Wsign-compare"
+#ifndef __clang__
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
+#endif
 #include <beamline/beamline_elements.h>
+#include <beamline/YoshidaPropagator.h>
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic pop
 #endif
@@ -123,6 +128,7 @@ Sbend_mad8_adaptor::Sbend_mad8_adaptor()
     get_default_element().set_double_attribute("fint", 0.0);
     get_default_element().set_double_attribute("k3", 0.0);
     get_default_element().set_double_attribute("tilt", 0.0);
+    get_default_element().set_double_attribute("kicks", 40.0);
     // possible higher order multipole components
     get_default_element().set_double_attribute("kl", 0.0); // base strength/B-rho
     get_default_element().set_double_attribute("a1", 0.0); // skew quad
@@ -155,6 +161,8 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double k2 = lattice_element.get_double_attribute("k2");
     double k3 = lattice_element.get_double_attribute("k3");
     double tilt = lattice_element.get_double_attribute("tilt");
+    int kicks = floor(lattice_element.get_double_attribute("kicks"));
+
 
     bool simple = ((k1 == 0.0) && (k2 == 0.0) && (k3 == 0.0));
 
@@ -216,7 +224,6 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
             ElmPtr sbptr1;
             ElmPtr sbptr2;
             elm->Split(0.5, sbptr1, sbptr2);
-
             std::vector < std::complex<double > > c_moments;
             for (int k = 0; k <= highest_order; ++k) {
                 c_moments.push_back(std::complex<double >(bk[k], ak[k]));
@@ -234,20 +241,24 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         }
     } else {
         // combined function element
-        bmlnElmnt* elm = new CF_sbend(lattice_element.get_name().c_str(),
+        CF_sbend* elm = new CF_sbend(lattice_element.get_name().c_str(),
                 length, brho * angle / length, angle, e1, e2);
+        // Does the CHEF default number of kicks match the Synergia default number of kicks?
+        if (elm->numberOfKicks() != kicks) {
+            elm->setNumberOfKicks(kicks);
+        }
         if (tilt != 0.0) elm->setAlignment(aligner);
         double multipoleStrength = k1 * brho * length;
         if (multipoleStrength != 0.0) {
-            dynamic_cast<CF_sbend* >(elm)->setQuadrupole(multipoleStrength);
+            elm->setQuadrupole(multipoleStrength);
         }
         multipoleStrength = k2 * brho * length / 2.0;
         if (multipoleStrength != 0.0) {
-            dynamic_cast<CF_sbend* >(elm)->setSextupole(multipoleStrength);
+            elm->setSextupole(multipoleStrength);
         }
         multipoleStrength = k3 * brho * length / 6.0;
         if (multipoleStrength != 0.0) {
-            dynamic_cast<CF_sbend* >(elm)->setOctupole(multipoleStrength);
+            elm->setOctupole(multipoleStrength);
         }
         ElmPtr elmP(elm);
         retval.push_back(elmP);
@@ -438,10 +449,10 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         aligner.tilt = tilt;
 
         bmlnElmnt* elm;
-        if ((0.0 == e1) && (0.0 == e2)) elm = new rbend(
+        if ((0.0 == e1) && (0.0 == e2)) elm = new CF_rbend(
                 lattice_element.get_name().c_str(), length,
                 brho * (2.0 * sin(0.5 * angle)) / length, angle);
-        else elm = new rbend(lattice_element.get_name().c_str(), length,
+        else elm = new CF_rbend(lattice_element.get_name().c_str(), length,
                 brho * (2.0 * sin(0.5 * angle)) / length, angle, e1, e2);
 
         elm->setTag("RBEND");
@@ -498,8 +509,15 @@ Rbend_mad8_adaptor::~Rbend_mad8_adaptor()
 }
 BOOST_CLASS_EXPORT_IMPLEMENT(Rbend_mad8_adaptor)
 
+const char Quadrupole_mad8_adaptor::yoshida_propagator[] = "yoshida";
+const char Quadrupole_mad8_adaptor::basic_propagator[] = "basic";
+
 Quadrupole_mad8_adaptor::Quadrupole_mad8_adaptor()
 {
+    get_default_element().set_string_attribute("propagator_type", basic_propagator);
+    get_default_element().set_double_attribute("yoshida_order", 2); // method is accurate to O[(kL)^(2*order+2)]
+    get_default_element().set_double_attribute("yoshida_steps", 4);
+    get_default_element().set_double_attribute("basic_kicks", 40);
     get_default_element().set_double_attribute("l", 0.0);
     get_default_element().set_double_attribute("k1", 0.0);
     get_default_element().set_double_attribute("tilt", 0.0);
@@ -579,8 +597,24 @@ Quadrupole_mad8_adaptor::get_chef_elements(
         bmln_elmnt = new thinQuad(lattice_element.get_name().c_str(),
                 brho * lattice_element.get_double_attribute("k1"));
     } else {
-        bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
-                brho * lattice_element.get_double_attribute("k1"));
+        if(lattice_element.get_string_attribute("propagator_type") == yoshida_propagator) {
+            int steps = floor(lattice_element.get_double_attribute("yoshida_steps"));
+            int order = floor(lattice_element.get_double_attribute("yoshida_order"));
+            bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
+                                        brho * lattice_element.get_double_attribute("k1"));
+            quadrupole::PropagatorPtr yoshida_propagator(new YoshidaPropagator(order, steps));
+            dynamic_cast<quadrupole*>(bmln_elmnt)->usePropagator(yoshida_propagator);
+        } else if (lattice_element.get_string_attribute("propagator_type") == basic_propagator) {
+            bmln_elmnt = new quadrupole(lattice_element.get_name().c_str(), length,
+                                        brho * lattice_element.get_double_attribute("k1"));
+            dynamic_cast<quadrupole*>(bmln_elmnt)->setNumberOfKicks(floor(lattice_element.get_double_attribute("basic_kicks")));
+        } else {
+            throw std::runtime_error(
+                        "Quadrupole_madx_adaptor::get_chef_elements: bad propagator_type \"" +
+                        lattice_element.get_string_attribute("propagator_type") + "\"");
+        }
+//        ElmPtr elm(bmln_elmnt);
+//        retval.push_back(elm);
     }
 
     // using tilt and multipoles is a no-no
@@ -1328,6 +1362,31 @@ Rfcavity_mad8_adaptor::Rfcavity_mad8_adaptor()
     get_default_element().set_double_attribute("tfill", 0.0);
 }
 
+void
+Rfcavity_mad8_adaptor::set_defaults(Lattice_element & lattice_element)
+{
+#if 0 // let CHEF set RF frequency
+    lattice_element.set_needs_external_derive(true);
+#endif // let CHEF set RF frequency
+    Element_adaptor::set_defaults(lattice_element);
+}
+
+#if 0 // let CHEF set RF frequency
+void
+Rfcavity_mad8_adaptor::set_derived_attributes_external(Lattice_element &lattice_element,
+		double lattice_length, double beta)
+{
+    if (lattice_element.has_double_attribute("harmon")
+            && lattice_element.get_double_attribute("harmon") != 0.0) {
+    	double h = lattice_element.get_double_attribute("harmon");
+    	// freq in MHz to match what the input would be in a MAD file.
+    	// I wish we didn't have to divide and multiply by 1.0e6.
+    	double freq = 1.0e-6 * h * beta * pconstants::c/lattice_length;
+    	lattice_element.set_double_attribute("freq", freq);
+    }
+}
+#endif // let CHEF set RF frequency
+
 Chef_elements
 Rfcavity_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         double brho)
@@ -1335,24 +1394,26 @@ Rfcavity_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     Chef_elements retval;
 
     double length = lattice_element.get_length();
-    double freq = 0;
+    double freq = 0.0;
+
     if (lattice_element.has_double_attribute("freq")) {
-        freq = lattice_element.get_double_attribute("freq");
-    } else {
-        if (lattice_element.has_double_attribute("harmon")
-                && lattice_element.get_double_attribute("harmon") != 0.0) {
-            std::cout
-                    << "jfa: rfcavity could figure out frequency from harmonic number, but doesn't. FIXME!\n";
-        }
+    	freq = lattice_element.get_double_attribute("freq");
     }
+
+    int harmonic_number = lattice_element.get_double_attribute("harmon");
     double q = 0;
+	// Although mad8 does not support freq.  madx has freq in MHz.  We'll go
+	// with the madx convention, converting to Hz for the CHEF constructor.
+    // The CHEF rfcavity constructor takes voltage argument in eV, but
+    // converts in to GeV for internal use. mad units for volt are MV.
     if (length == 0.0) {
         bmlnElmnt *bmln_elmnt;
-        bmln_elmnt = new thinrfcavity(lattice_element.get_name().c_str(), freq,
+        bmln_elmnt = new thinrfcavity(lattice_element.get_name().c_str(), freq*1.0e6,
                 lattice_element.get_double_attribute("volt") * 1.0e6,
                 lattice_element.get_double_attribute("lag")
                         * (2.0 * mconstants::pi), q,
                 lattice_element.get_double_attribute("shunt"));
+        static_cast<thinrfcavity *>(bmln_elmnt)->setHarmonicNumber(harmonic_number);
         ElmPtr elm(bmln_elmnt);
         retval.push_back(elm);
     } else {
@@ -1361,10 +1422,11 @@ Rfcavity_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
                 (lattice_element.get_name() + "_predrift").c_str(),
                 0.5 * length);
         kick = new thinrfcavity((lattice_element.get_name() + "_kick").c_str(),
-                freq, lattice_element.get_double_attribute("volt") * 1.0e6,
+                freq*1.0e6, lattice_element.get_double_attribute("volt") * 1.0e6,
                 lattice_element.get_double_attribute("lag")
                         * (2.0 * mconstants::pi), q,
                 lattice_element.get_double_attribute("shunt"));
+        static_cast<thinrfcavity *>(kick)->setHarmonicNumber(harmonic_number);
         post_drift = new drift(
                 (lattice_element.get_name() + "_postdrift").c_str(),
                 0.5 * length);
@@ -1623,6 +1685,24 @@ BOOST_CLASS_EXPORT_IMPLEMENT(Monitor_mad8_adaptor)
 Instrument_mad8_adaptor::Instrument_mad8_adaptor()
 {
     get_default_element().set_double_attribute("l", 0.0);
+}
+
+// Use a drift to reserve space for instruments
+Chef_elements
+Instrument_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
+        double brho)
+{
+    Chef_elements retval;
+
+    bmlnElmnt* bmln_elmnt;
+
+    double lenmon = lattice_element.get_double_attribute("l");
+    bmln_elmnt = new drift(lattice_element.get_name().c_str(), lenmon);
+
+    ElmPtr elm(bmln_elmnt);
+    retval.push_back(elm);
+
+    return retval;
 }
 
 template<class Archive>

@@ -12,7 +12,7 @@ private:
     Hdf5_serial_writer<double > * writer_beta;
     Hdf5_serial_writer<double > * writer_gamma;
     Hdf5_serial_writer<MArray1d_ref > * writer_state;
-    Hdf5_serial_writer<double > * writer_s;
+    Hdf5_serial_writer<double > * writer_s_n;
 
 public:
     /// Create a Diagnostics_reference_particle object
