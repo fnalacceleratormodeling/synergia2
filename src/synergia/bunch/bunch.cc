@@ -136,17 +136,44 @@ Bunch::construct(int particle_charge, int total_num, double real_num)
                 comm_sptr->get_size());
         decompose_1d(*comm_sptr, total_num, offsets, counts);
         local_num = counts[comm_sptr->get_rank()];
+
+        storage = new double[local_num * 7];
+        alt_storage = new double[local_num * 7];
+        local_particles = new MArray2d_ref(storage, boost::extents[local_num][7], boost::fortran_storage_order());
+        alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num][7], boost::fortran_storage_order());
+
+#pragma omp parallel for
+        for (int i=0; i<local_num; ++i)
+        {
+            for(int j=0; j<7; ++j)
+            {
+                (*local_particles)[i][j] = 0.0;
+                (*alt_local_particles)[i][j] = 0.0;
+            }
+        }
+
+
+#if 0
         local_particles = new MArray2d(boost::extents[local_num][7],
                 boost::fortran_storage_order());
         alt_local_particles = new MArray2d(boost::extents[local_num][7],
                 boost::fortran_storage_order());
+#endif
         assign_ids(offsets[comm_sptr->get_rank()]);
     } else {
         local_num = 0;
+
+        storage = new double[local_num * 7];
+        alt_storage = new double[local_num * 7];
+        local_particles = new MArray2d_ref(storage, boost::extents[local_num][7], boost::fortran_storage_order());
+        alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num][7], boost::fortran_storage_order());
+
+#if 0
         local_particles = new MArray2d(boost::extents[local_num][7],
                 boost::fortran_storage_order());
         alt_local_particles = new MArray2d(boost::extents[local_num][7],
                 boost::fortran_storage_order());
+#endif
     }
 }
 
@@ -190,8 +217,21 @@ Bunch::Bunch(Bunch const& bunch) :
     real_num = bunch.real_num;
     local_num = bunch.local_num;
     bucket_index=bunch.bucket_index;
+
+    storage = new double[local_num * 7];
+    alt_storage = new double[local_num * 7];
+
+    memcpy(storage, bunch.storage, sizeof(double)*local_num*7);
+    memcpy(alt_storage, bunch.alt_storage, sizeof(double)*local_num*7);
+
+    local_particles = new MArray2d_ref(storage, boost::extents[local_num][7], boost::fortran_storage_order());
+    alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num][7], boost::fortran_storage_order());
+
+#if 0
     local_particles = new MArray2d(*(bunch.local_particles));
     alt_local_particles = new MArray2d(*(bunch.alt_local_particles));
+#endif
+
     state = bunch.state;
     z_period_length=bunch.z_period_length;
     z_periodic=bunch.z_periodic;
@@ -213,8 +253,22 @@ Bunch::operator=(Bunch const& bunch)
         real_num = bunch.real_num;
         local_num = bunch.local_num;
 	bucket_index=bunch.bucket_index;
+
+    storage = new double[local_num * 7];
+    alt_storage = new double[local_num * 7];
+
+    memcpy(storage, bunch.storage, sizeof(double)*local_num*7);
+    memcpy(alt_storage, bunch.alt_storage, sizeof(double)*local_num*7);
+
+    local_particles = new MArray2d_ref(storage, boost::extents[local_num][7], boost::fortran_storage_order());
+    alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num][7], boost::fortran_storage_order());
+
+
+#if 0
         local_particles = new MArray2d(*(bunch.local_particles));
         alt_local_particles = new MArray2d(*(bunch.alt_local_particles));
+#endif
+
         state = bunch.state;
         z_period_length=bunch.z_period_length;
         z_periodic=bunch.z_periodic;
@@ -243,6 +297,8 @@ void
 Bunch::set_local_num(int local_num)
 {
     if (local_num > this->local_num) {
+        throw std::runtime_error("set num not supported");
+#if 0
         MArray2d *prev_local_particles = local_particles;
         int prev_local_num = this->local_num;
          local_particles = new MArray2d(boost::extents[local_num][7],
@@ -252,6 +308,7 @@ Bunch::set_local_num(int local_num)
          (*local_particles)[ boost::indices[range(0,prev_local_num)][range()] ] =
                 (*prev_local_particles)[ boost::indices[range(0,prev_local_num)][range()] ];
         delete prev_local_particles;
+#endif
      }
     this->local_num = local_num;
 }
@@ -729,6 +786,9 @@ Bunch::load<boost::archive::xml_iarchive >(
 
 Bunch::~Bunch()
 {
+    delete [] storage;
+    delete [] alt_storage;
+
     delete local_particles;
     delete alt_local_particles;
 }

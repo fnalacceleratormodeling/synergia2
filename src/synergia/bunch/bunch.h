@@ -46,7 +46,9 @@ private:
     bool z_periodic;
     Reference_particle reference_particle;
     int particle_charge;
-    MArray2d *local_particles, *alt_local_particles;
+    double * storage;
+    double * alt_storage;
+    MArray2d_ref *local_particles, *alt_local_particles;
     int local_num, total_num;
     double real_num;
     int bucket_index;
