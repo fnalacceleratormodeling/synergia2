@@ -252,17 +252,16 @@ Bunch::operator=(Bunch const& bunch)
         total_num = bunch.total_num;
         real_num = bunch.real_num;
         local_num = bunch.local_num;
-	bucket_index=bunch.bucket_index;
+        bucket_index=bunch.bucket_index;
 
-    storage = new double[local_num * 7];
-    alt_storage = new double[local_num * 7];
+        storage = new double[local_num * 7];
+        alt_storage = new double[local_num * 7];
 
-    memcpy(storage, bunch.storage, sizeof(double)*local_num*7);
-    memcpy(alt_storage, bunch.alt_storage, sizeof(double)*local_num*7);
+        memcpy(storage, bunch.storage, sizeof(double)*local_num*7);
+        memcpy(alt_storage, bunch.alt_storage, sizeof(double)*local_num*7);
 
-    local_particles = new MArray2d_ref(storage, boost::extents[local_num][7], boost::fortran_storage_order());
-    alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num][7], boost::fortran_storage_order());
-
+        local_particles = new MArray2d_ref(storage, boost::extents[local_num][7], boost::fortran_storage_order());
+        alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num][7], boost::fortran_storage_order());
 
 #if 0
         local_particles = new MArray2d(*(bunch.local_particles));
@@ -735,6 +734,12 @@ boost::filesystem::remove(get_local_particles_serialization_path());
         }
     }
 
+        storage = new double[local_num * 7];
+        alt_storage = new double[local_num * 7];
+        local_particles = new MArray2d_ref(storage, boost::extents[local_num][7], boost::fortran_storage_order());
+        alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num][7], boost::fortran_storage_order());
+
+
 
 template<class Archive>
     void
@@ -757,10 +762,11 @@ template<class Archive>
             Hdf5_file file(get_local_particles_serialization_path(),
                     Hdf5_file::read_only);
             local_num = file.read<int > ("local_num");
-            local_particles
-                    = new MArray2d(file.read<MArray2d > ("local_particles"));
+            storage = NULL;
+            local_particles = new MArray2d(file.read<MArray2d > ("local_particles"));
         } else {
             local_num = 0;
+            storage = NULL;
             local_particles = new MArray2d(boost::extents[local_num][7],
                     boost::fortran_storage_order());
         }
