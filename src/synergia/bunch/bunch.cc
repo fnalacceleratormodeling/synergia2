@@ -734,13 +734,6 @@ boost::filesystem::remove(get_local_particles_serialization_path());
         }
     }
 
-        storage = new double[local_num * 7];
-        alt_storage = new double[local_num * 7];
-        local_particles = new MArray2d_ref(storage, boost::extents[local_num][7], boost::fortran_storage_order());
-        alt_local_particles = new MArray2d_ref(alt_storage, boost::extents[local_num][7], boost::fortran_storage_order());
-
-
-
 template<class Archive>
     void
     Bunch::load(Archive & ar, const unsigned int version)
