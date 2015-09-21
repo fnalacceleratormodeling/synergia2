@@ -14,19 +14,27 @@ public:
       (T & x, T const& xp, T & y, T const& yp, T & cdt, T const& dpop,
        double length, double reference_momentum, double m, double reference_cdt) 
     {
-        T dp = dpop + 1.0;
-        T inv_npz = invsqrt(dp * dp - xp * xp - yp * yp);
-        T lxpr = xp * length * inv_npz;
-        T lypr = yp * length * inv_npz;
-        T D2 = lxpr * lxpr + length * length + lypr * lypr;
-        T p = dp * reference_momentum;
-        T E2 = p * p + m * m;
+        T uni(1.0);
+        T sig((0.0<length) - (length<0.0));
+
+        T vl(length);
+        T vm(m);
+        T vrm(reference_momentum);
+        T vrc(reference_cdt);
+
+        T dp = dpop + uni;
+        T inv_npz = uni / sqrt(dp * dp - xp * xp - yp * yp);
+        T lxpr = xp * vl * inv_npz;
+        T lypr = yp * vl * inv_npz;
+        T D2 = lxpr * lxpr + vl * vl + lypr * lypr;
+        T p = dp * vrm;
+        T E2 = p * p + vm * vm;
         //T beta2 = p*p / E2;
         T ibeta2 = E2 / (p * p);
-        x += lxpr;
-        y += lypr;
+        x = x + lxpr;
+        y = y + lypr;
         //cdt += sqrt(D2 / beta2) - reference_cdt;
-        cdt += ((0.0 < length) - (length < 0.0)) * sqrt(D2 * ibeta2) - reference_cdt;
+        cdt = cdt + sig * sqrt(D2 * ibeta2) - vrc;
     }
 
     // exact solution for dipole without high order combined functions
@@ -50,16 +58,19 @@ public:
     inline static void thin_dipole_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL) 
     {
-        xp += -kL[0];
-        yp += -kL[1];
+        xp = xp - kL[0];
+        yp = yp - kL[1];
     }
 
     template <typename T>
     inline static void thin_quadrupole_unit
       (T const& x, T& xp, T const& y, T& yp, double const * kL) 
     {
-        xp += -kL[0] * x - kL[1] * y;
-        yp += kL[0] * y - kL[1] * x;
+        T vk0(kL[0]);
+        T vk1(kL[1]);
+
+        xp = xp - vk0 * x - vk1 * y;
+        yp = yp + vk0 * y - vk1 * x;
     }
 
     template <typename T>

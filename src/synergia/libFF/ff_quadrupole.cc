@@ -147,12 +147,12 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
                       step_reference_cdt,
                       step_length, step_strength, steps );
 
-            x.store(&xa2[part]);
-            xp.store(&xpa2[part]);
-            y.store(&ya2[part]);
-            yp.store(&ypa2[part]);
-            cdt.store(&cdta2[part]);
-            dpop.store(&dpopa2[part]);
+            x.store(&xa[part]);
+            xp.store(&xpa[part]);
+            y.store(&ya[part]);
+            yp.store(&ypa[part]);
+            cdt.store(&cdta[part]);
+            dpop.store(&dpopa[part]);
         }
         #pragma omp parallel for
         for (int part = block_last; part < local_num; ++part) {
@@ -177,12 +177,14 @@ void FF_quadrupole::apply(Lattice_element_slice const& slice, Bunch& bunch)
             dpopa[part] = dpop;
         }
         double t2 = MPI_Wtime();
+#if 0
         std::copy(xa2, xa2+block_last, xa);
         std::copy(xpa2, xpa2+block_last, xpa);
         std::copy(ya2, ya2+block_last, ya);
         std::copy(ypa2, ypa2+block_last, ypa);
         std::copy(cdta2, cdta2+block_last, cdta);
         std::copy(dpopa2, dpopa2+block_last, dpopa);
+#endif
         double t3 = MPI_Wtime();
         Logger logger(0);
 //        logger << "jfa: GSVector::implentation " << GSVector::implementation << std::endl;
