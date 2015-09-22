@@ -21,6 +21,22 @@ get_fodo()
 }
 
 std::string
+get_fodo_with_from()
+{
+    std::string fodo("lq=1.0;\n");
+    fodo += "ld=2.0;\n";
+    fodo += "f: quadrupole, l=lq;\n";
+    fodo += "d: quadrupole, l=lq;\n";
+    fodo += "fodo: sequence, l=2*lq+2*ld;\n";
+    fodo += "m: marker, at=1.0;\n";
+    fodo += "f1: f, at=1;\n";
+    fodo += "d1: d, at=3, from=m;\n";
+    fodo += "endmark, at=2*lq+2*ld;\n";
+    fodo += "endsequence;\n";
+    return fodo;
+}
+
+std::string
 get_fodo_bodo()
 {
     std::string fodo_bodo(get_fodo());
@@ -109,12 +125,80 @@ BOOST_AUTO_TEST_CASE(get_lattice_sptr)
 //    lattice_sptr->print();
 }
 
+BOOST_AUTO_TEST_CASE(get_lattice_sptr2)
+{
+    MadX_reader madx_reader;
+    madx_reader.parse(get_fodo_with_from());
+    Lattice_sptr lattice_sptr(madx_reader.get_lattice_sptr("fodo"));
+//    lattice_sptr->print();
+
+    std::list<Lattice_element_sptr>::const_iterator it = 
+        lattice_sptr->get_elements().begin();
+
+    std::advance(it, 3);
+    Lattice_element element(**(it));
+
+    const double tolerance = 1.0e-10;
+    BOOST_CHECK_CLOSE(element.get_double_attribute("l"), 2.0, tolerance);
+}
+
 BOOST_AUTO_TEST_CASE(get_lattice_sptr3)
 {
     MadX_reader madx_reader;
     madx_reader.parse_file("lattices/fodo2work.madx");
     Lattice_sptr lattice_sptr(madx_reader.get_lattice_sptr("fodo"));
-//    lattice_sptr->print();
+    //lattice_sptr->print();
+}
+
+BOOST_AUTO_TEST_CASE(get_lattice_sptr_embedded_sequence)
+{
+    MadX_reader madx_reader;
+    madx_reader.parse_file("lattices/cf_oboobo.seq");
+    Lattice_sptr lattice_sptr(madx_reader.get_lattice_sptr("model"));
+    //lattice_sptr->print();
+
+    const double tolerance = 1.0e-10;
+    BOOST_CHECK_CLOSE(lattice_sptr->get_length(), 128.0, tolerance);
+    BOOST_CHECK_CLOSE(lattice_sptr->get_total_angle(), 6.283185307179588, tolerance);
+
+    Lattice_elements const & elements = lattice_sptr->get_elements();
+
+    int idx = 0;
+    for(Lattice_elements::const_iterator it = elements.begin();
+            it != elements.end(); ++it, ++idx)
+    {
+        if (idx == 0)
+        {
+            BOOST_CHECK( (*it)->get_name().compare("bf") == 0 );
+            BOOST_CHECK( (*it)->get_type().compare("sbend") == 0 );
+            BOOST_CHECK_CLOSE( (*it)->get_length(), 3, tolerance );
+        }
+        else if (idx == 1)
+        {
+            BOOST_CHECK( (*it)->get_name().compare("auto_drift_fodo_0") == 0 );
+            BOOST_CHECK( (*it)->get_type().compare("drift") == 0 );
+            BOOST_CHECK_CLOSE( (*it)->get_length(), 5, tolerance );
+        }
+        else if (idx == 2)
+        {
+            BOOST_CHECK( (*it)->get_name().compare("bd") == 0 );
+            BOOST_CHECK( (*it)->get_type().compare("sbend") == 0 );
+            BOOST_CHECK_CLOSE( (*it)->get_length(), 3, tolerance );
+        }
+        else if (idx == 20)
+        {
+            BOOST_CHECK( (*it)->get_name().compare("bf") == 0 );
+            BOOST_CHECK( (*it)->get_type().compare("sbend") == 0 );
+            BOOST_CHECK_CLOSE( (*it)->get_length(), 3, tolerance );
+        }
+        else if (idx == 31)
+        {
+            BOOST_CHECK( (*it)->get_name().compare("auto_drift_fodo_1") == 0 );
+            BOOST_CHECK( (*it)->get_type().compare("drift") == 0 );
+            BOOST_CHECK_CLOSE( (*it)->get_length(), 5, tolerance );
+        }
+    }
+
 }
 
 BOOST_AUTO_TEST_CASE(get_lattice_sptr_no_reference_particle)

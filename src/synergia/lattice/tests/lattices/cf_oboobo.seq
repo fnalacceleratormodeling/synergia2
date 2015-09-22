@@ -1,0 +1,30 @@
+n := 8;
+sepn := 8.0;
+bendangle := pi/n; // twopi/(2*n)
+bendlength := 3.0;
+focus := 5.5;
+strength := 1.0/(focus*bendlength);
+
+momentum := 1.5;
+
+beam, particle=proton, pc=momentum;
+
+bf: sbend, l=bendlength, angle=bendangle, k1=strength;
+bd: sbend, l=bendlength, angle=bendangle, k1=-strength;
+
+fodo: sequence, l=2*sepn, refer=entry;
+bf, at=0.0;
+bd, at=sepn;
+endsequence;
+
+model: sequence, l=16*sepn, refer=entry;
+fodo, at=0.0;
+fodo, at=2.0*sepn;
+fodo, at=4.0*sepn;
+fodo, at=6.0*sepn;
+fodo, at=8.0*sepn;
+fodo, at=10.0*sepn;
+fodo, at=12.0*sepn;
+fodo, at=14.0*sepn;
+endsequence;
+

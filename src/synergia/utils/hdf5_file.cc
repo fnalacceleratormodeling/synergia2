@@ -54,6 +54,59 @@ Hdf5_file::flush() const
     h5file_ptr->flush(H5F_SCOPE_GLOBAL);
 }
 
+extern "C" herr_t get_member_names_callback(hid_t group, const char *name,
+                                            const H5L_info_t *info,
+                                            void *op_data)
+{
+    ((std::vector<std::string> *)op_data)->push_back(name);
+    return 0;
+}
+
+std::vector<std::string>
+Hdf5_file::get_member_names()
+{
+    std::vector<std::string> member_names;
+    Group *root_group_ptr = new Group (h5file_ptr->openGroup("/"));
+    herr_t status = H5Literate(root_group_ptr->getId(), H5_INDEX_NAME,
+                               H5_ITER_NATIVE, NULL,
+                               &get_member_names_callback,
+                               (void *) &member_names);
+    delete root_group_ptr;
+    return member_names;
+}
+
+Hdf5_file::Atomic_type
+Hdf5_file::get_atomic_type(std::string const& name)
+{
+    DataSet dataset = h5file_ptr->openDataSet(name.c_str());
+    DataType datatype = dataset.getDataType();
+    H5T_class_t the_class = datatype.getClass();
+
+    Hdf5_file::Atomic_type retval;
+    if(the_class == H5T_FLOAT) {
+        retval = Hdf5_file::double_type;
+    } else if(the_class == H5T_INTEGER) {
+        retval = Hdf5_file::int_type;
+    } else {
+        throw std::runtime_error("Hdf5_file::get_atomic_type: type not handled");
+    }
+    return retval;
+}
+
+std::vector<int >
+Hdf5_file::get_dims(std::string const& name)
+{
+    DataSet dataset = h5file_ptr->openDataSet(name.c_str());
+    DataSpace dataspace = dataset.getSpace();
+    int rank = dataspace.getSimpleExtentNdims();
+    std::vector<hsize_t > dims(rank);
+    dataspace.getSimpleExtentDims(&dims[0], NULL);
+
+    std::vector<int > retval(rank);
+    std::copy(dims.begin(), dims.end(), retval.begin());
+    return retval;
+}
+
 H5::H5File &
 Hdf5_file::get_h5file()
 {
@@ -148,6 +201,30 @@ template<>
         dataset.read(data_out, atomic_type, memspace, dataspace);
         return retval;
 }
+
+    template<>
+        MArray1i
+        Hdf5_file::read<MArray1i >(std::string const& name)
+        {
+            DataSet dataset = h5file_ptr->openDataSet(name.c_str());
+            H5::DataType atomic_type = hdf5_atomic_data_type<int > ();
+
+            const int rank = 1;
+            std::vector<hsize_t > dims(rank);
+            DataSpace dataspace = dataset.getSpace();
+            int file_rank = dataspace.getSimpleExtentNdims();
+            if (file_rank != rank) {
+                throw std::runtime_error(
+                        "Hdf5_file::read<MArray1d>: data to read has wrong rank");
+            }
+            dataspace.getSimpleExtentDims(&dims[0], NULL);
+            MArray1i retval(boost::extents[dims[0]]);
+
+            DataSpace memspace(rank, &dims[0]);
+            int * data_out = retval.origin();
+            dataset.read(data_out, atomic_type, memspace, dataspace);
+            return retval;
+        }
 
 template<class Archive>
     void

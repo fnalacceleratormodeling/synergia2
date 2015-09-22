@@ -202,6 +202,7 @@ BOOST_AUTO_TEST_CASE(command_attrs)
   BOOST_CHECK_EQUAL( cmd.attribute_as_number("b"), 3*(4+5) );
 }
 
+#if 0
 BOOST_AUTO_TEST_CASE(command_str_attrs1)
 {
   string str = "title, S = \"Tevatron Collider Run II Lattice\";";
@@ -229,6 +230,7 @@ BOOST_AUTO_TEST_CASE(command_str_attrs2)
   BOOST_CHECK_EQUAL( cmd.attribute_count(), 1 );
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("s"), "Tevatron Collider Run II Lattice" );
 }
+#endif
 
 BOOST_AUTO_TEST_CASE(command_particle_attrs)
 {
@@ -246,13 +248,13 @@ BOOST_AUTO_TEST_CASE(command_particle_attrs)
 
 BOOST_AUTO_TEST_CASE(command_special_attrs1)
 {
-  string str = "multipole, knl:={0, 1, 1}, type=octpn;";
+  string str = "mp: multipole, knl:={0, 1, 1}, type=octpn;";
   MadX   mx;
 
   BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
-  BOOST_CHECK_EQUAL( mx.command_count(), 1 );
+  BOOST_CHECK_EQUAL( mx.label_count(), 1 );
 
-  MadX_command cmd = mx.command(0);
+  MadX_command cmd = mx.command("mp");
   BOOST_CHECK_EQUAL( cmd.name(), "multipole" );
   BOOST_CHECK_EQUAL( cmd.attribute_count(), 2 );
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("type"), "octpn");
@@ -260,13 +262,13 @@ BOOST_AUTO_TEST_CASE(command_special_attrs1)
 
 BOOST_AUTO_TEST_CASE(command_special_attrs2)
 {
-  string str = "multipole, knl:={0, 1, 1}, TYPE=wgl;";
+  string str = "mp: multipole, knl:={0, 1, 1}, TYPE=wgl;";
   MadX   mx;
 
   BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
-  BOOST_CHECK_EQUAL( mx.command_count(), 1 );
+  BOOST_CHECK_EQUAL( mx.label_count(), 1 );
 
-  MadX_command cmd = mx.command(0);
+  MadX_command cmd = mx.command("mp");
   BOOST_CHECK_EQUAL( cmd.name(), "multipole" );
   BOOST_CHECK_EQUAL( cmd.attribute_count(), 2 );
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("type"), "wgl");
@@ -274,13 +276,13 @@ BOOST_AUTO_TEST_CASE(command_special_attrs2)
 
 BOOST_AUTO_TEST_CASE(command_special_attrs3)
 {
-  string str = "multipole, knl:={0, 1, 1}, type=\"special\";";
+  string str = "mp: multipole, knl:={0, 1, 1}, type=\"special\";";
   MadX   mx;
 
   BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
-  BOOST_CHECK_EQUAL( mx.command_count(), 1 );
+  BOOST_CHECK_EQUAL( mx.label_count(), 1 );
 
-  MadX_command cmd = mx.command(0);
+  MadX_command cmd = mx.command("mp");
   BOOST_CHECK_EQUAL( cmd.name(), "multipole" );
   BOOST_CHECK_EQUAL( cmd.attribute_count(), 2 );
   BOOST_CHECK_EQUAL( cmd.attribute_as_string("type"), "special");
@@ -292,7 +294,7 @@ BOOST_AUTO_TEST_CASE(command_omitted_comma)
   MadX   mx;
 
   BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
-  BOOST_CHECK_EQUAL( mx.command_count(), 1 );
+  BOOST_CHECK_EQUAL( mx.command_count(), 0 );
 
   BOOST_CHECK_EQUAL( mx.variable_as_number("a"), 3 );
   BOOST_CHECK_EQUAL( mx.variable_as_number("b"), 2 );
@@ -443,6 +445,34 @@ BOOST_AUTO_TEST_CASE(line_expansion)
   BOOST_CHECK_EQUAL( line.element_name(15), "c" );
   BOOST_CHECK_EQUAL( line.element_name(16), "b" );
   BOOST_CHECK_EQUAL( line.element_name(17), "a" );
+}
+
+BOOST_AUTO_TEST_CASE(matrix)
+{
+  string str = "m1: matrix, type=abc, L=1.2, kick1=0.001, kick2=0.001, kick3=0.002, kick4=0.002, kick5=0.003, kick6=0.003, rm11=1.1, rm12=1.2, rm32=3.2, rm54=5.4, tm111=1.11, tm321=3.21;";
+
+  MadX mx;
+
+  BOOST_CHECK_NO_THROW( parse_madx( str, mx ) );
+  BOOST_CHECK_EQUAL( mx.label_count(), 1 );
+
+  MadX_command cmd = mx.command("m1");
+  BOOST_CHECK_EQUAL( cmd.name(), "matrix" );
+  BOOST_CHECK_EQUAL( cmd.attribute_count(), 14 );
+  BOOST_CHECK_EQUAL( cmd.attribute_as_string("type"), "abc" );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("l"), 1.2, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick1"), 0.001, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick2"), 0.001, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick3"), 0.002, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick4"), 0.002, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick5"), 0.003, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("kick6"), 0.003, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("rm11"), 1.1, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("rm12"), 1.2, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("rm32"), 3.2, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("rm54"), 5.4, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("tm111"), 1.11, tolerance );
+  BOOST_CHECK_CLOSE( cmd.attribute_as_number("tm321"), 3.21, tolerance );
 }
 
 #if 0

@@ -1,4 +1,5 @@
 import sys
+import math
 sys.path.append('..')
 sys.path.append('../..')
 sys.path.append('../../foundation')
@@ -74,8 +75,8 @@ def test_update():
     diagnostics2.set_bunch(bunch)
     diagnostics2.update()
     for i in range(0, 6):
-        assert diagnostics1.get_mean()[i] == diagnostics2.get_mean()[i]
-        assert diagnostics1.get_std()[i] == diagnostics2.get_std()[i]
+        assert math.fabs(diagnostics1.get_mean()[i] - diagnostics2.get_mean()[i]) < 1e-12
+        assert math.fabs(diagnostics1.get_std()[i] - diagnostics2.get_std()[i]) < 1e-12
 
 def test_construct_full2():
     diagnostics = Diagnostics_full2("dummy.h5")
@@ -121,8 +122,8 @@ def test_update_full2():
     diagnostics2.set_bunch(bunch)
     diagnostics2.update()
     for i in range(0, 6):
-        assert diagnostics1.get_mean()[i] == diagnostics2.get_mean()[i]
-        assert diagnostics1.get_std()[i] == diagnostics2.get_std()[i]
+        assert math.fabs(diagnostics1.get_mean()[i] - diagnostics2.get_mean()[i]) < 1e-12
+        assert math.fabs(diagnostics1.get_std()[i] - diagnostics2.get_std()[i]) < 1e-12
 
 def test_get_corr_full2():
     diagnostics = Diagnostics_full2("dummy.h5")

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys, os.path
-import tables
+from synergia.utils import Hdf5_file
 
 class Options:
     def __init__(self):
@@ -50,10 +50,11 @@ def handle_args(args):
     return options
 
 def do_conversion(options):
-    ifile = tables.openFile(options.filename, 'r')
-    turns = ifile.root.repetition.read()
-    npart = ifile.root.track_coords.shape[0]
-    nturns = ifile.root.repetition.shape[0]
+    ifile = Hdf5_file(options.filename, Hdf5_file.read_only)
+    turns = ifile.read_array1d("repetition")
+    track_coords = ifile.read_array3d("track_coords")
+    npart = track_coords.shape[0]
+    nturns = ifile.read_array1i("repetition").shape[0]
 
     ofilename = os.path.splitext(options.filename)[0] + '.txt'
     ofile = open(ofilename, 'w')
@@ -72,7 +73,7 @@ def do_conversion(options):
                 ofile.write('%24s' % col)
         ofile.write('\n')
 
-    if ifile.root.track_coords.shape[2] != nturns:
+    if track_coords.shape[2] != nturns:
         raise RuntimeError, "number of turns doesn't agree between arrays repetition and track_coords"
 
     for t in range(len(turns)):
@@ -80,7 +81,7 @@ def do_conversion(options):
         ofile.write('%10d'%turns[t])
         for part in range(npart):
             for coord in range(7):
-                ofile.write('%24.16e' % ifile.root.track_coords[part, coord, t])
+                ofile.write('%24.16e' % track_coords[part, coord, t])
         ofile.write('\n')
     ofile.close()
 

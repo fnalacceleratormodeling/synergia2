@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
 import sys
-import tables
 from matplotlib import pyplot
+from synergia.utils import Hdf5_file
 
 def get_layout(num):
     if num == 1:
@@ -127,15 +127,39 @@ def handle_args(args, plotparams):
                 do_error('Unknown plot "%s"' % arg)
     return options
 
+def hdf5_read_any(hdf5_file, member):
+    try:
+        the_type = hdf5_file.get_atomic_type(member)
+    except:
+        sys.stderr.write('syndiagplot: data member "%s" not found in Hdf5 file\n'
+                        % member)
+        sys.exit(1)
+
+    dims = hdf5_file.get_dims(member)
+    if the_type == Hdf5_file.double_type:
+        if len(dims) == 0:
+            return hdf5_file.read_double(member)
+        elif len(dims) == 1:
+            return hdf5_file.read_array1d(member)
+        elif len(dims) == 2:
+            return hdf5_file.read_array2d(member)
+        elif len(dims) == 3:
+            return hdf5_file.read_array3d(member)
+    elif the_type == Hdf5_file.int_type:
+        if len(dims) == 0:
+            return hdf5_file.read_int(member)
+        elif len(dims) == 1:
+            return hdf5_file.read_array1i(member)
+
 def do_plot(inputfile, options, plotparams, multiple_files):
-    f = tables.openFile(inputfile, 'r')
+    f = Hdf5_file(inputfile, Hdf5_file.read_only)
     rows, cols = get_layout(len(options.plots))
     plot_index = 1
     y_label = ""
     for plot in options.plots:
         params = plotparams[plot]
-        x = getattr(f.root, params.x_attr).read()
-        ymaster = getattr(f.root, params.y_attr).read()
+        x = hdf5_read_any(f, params.x_attr)
+        ymaster = hdf5_read_any(f, params.y_attr)
         if (params.y_index1 == None) and (params.y_index2 == None):
             y = ymaster
         elif (params.y_index2 == None):

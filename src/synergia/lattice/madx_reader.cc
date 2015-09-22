@@ -70,22 +70,21 @@ namespace
 
     for (int i = 0; i < sequence.element_count(); ++i) {
 
-      double at = sequence.element(i, false).attribute_as_number("at");
-      std::string name(sequence.element(i, false).label());
-      if (name == "") {
-        name = sequence.element(i, true).label();
-      }
- 
+      double at = sequence.element_at(i);
+      double from = sequence.element_from(i);
+      std::string label = sequence.element_label(i);
+
       if( sequence.element_type(i)==ENTRY_SEQUENCE )
       {
-        double l = insert_sequence( lattice_sptr, mx, name );
-        current_pos = at + l;  // sub-sequence always refer to the entry point
+        double l = insert_sequence( lattice_sptr, mx, label );
+        current_pos = at + from + l;  // sub-sequence always refer to the entry point
 
         continue;
       }
 
-      MadX_command cmd = sequence.element(i, true);
+      MadX_command cmd = sequence.element(i);
       std::string type(cmd.name());
+      std::string name(cmd.label());
       Lattice_element element(type, name);
       std::vector<string_t > attribute_names( cmd.attribute_names() );
 
@@ -111,7 +110,7 @@ namespace
         }
       }
 
-      double drift_length = at - current_pos - element.get_length() * (1.0-r);
+      double drift_length = at + from - current_pos - element.get_length() * (1.0-r);
       if (drift_length > min_drift_length) {
         std::stringstream name_stream;
         name_stream << "auto_drift";
@@ -127,7 +126,7 @@ namespace
         ++drift_count;
       }
       lattice_sptr->append(element);
-      current_pos = at + element.get_length() * r;
+      current_pos = at + from + element.get_length() * r;
     }
 
     double final_drift_length = sequence.length() - current_pos;

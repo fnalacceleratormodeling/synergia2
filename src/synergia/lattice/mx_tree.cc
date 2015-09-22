@@ -285,49 +285,114 @@ void mx_command::ins_attr(mx_attr const & attr)
   attrs_.push_back( attr );
 }
 
+MadX_command mx_command::convert(MadX const & mx) const
+{
+    // prepare MadX_command object
+    MadX_command cmd;
+
+    cmd.set_label( label_ );
+    cmd.set_name( keyword_, ELEMENT );
+
+    for( attrs_t::const_iterator it = attrs_.begin()
+       ; it != attrs_.end(); ++it )
+    {
+      mx_attr attr = *it;
+
+      if (attr.name() == "from")
+      {
+        string from = mx_expr_refstr(any_cast<mx_expr>(attr.value()));
+        attr.set_attr("from", from);
+      }
+
+      insert_attr(cmd, attr, mx);
+    }
+
+    return cmd;
+}
+
 void mx_command::interpret(MadX & mx) 
 {
-  // first execute the command if needed
-  execute(mx);
+  // create an MadX_command object from mx_command
+  MadX_command new_cmd = convert(mx);
 
-  // push the command into MadX object
+  // type of the command?
   if( type_ == MX_CMD_VARIABLE )
   {
     mx_attr attr = attrs_[0];
     insert_attr(mx, attr, mx);
   }
-  else
+  else if ( type_ == MX_CMD_ELEMENT )
   {
-    MadX_command_type type =
-        (type_ == MX_CMD_ELEMENT) ? ELEMENT
-                                  : (type_==MX_CMD_ELEMENT_REF) ? ELEMENT_REF
-                                                                : EXECUTABLE ;
-
-    // prepare MadX_command object
-    MadX_command cmd;
-    cmd.set_name( keyword_, type );
-    if ( labeled_ ) {
-        cmd.set_label( label_ );
-    } else {
-        cmd.set_label( "" );
-    }
-    for( attrs_t::const_iterator it = attrs_.begin()
-       ; it != attrs_.end(); ++it )
+    // unlabeled class? -- it is a warning and will be skipped
+    if ( !labeled_ )
     {
-      mx_attr attr = *it;
-      insert_attr(cmd, attr, mx);
+      cout << "statment illegal in the context (declared a class without a label), will be skipped\n";
+      return;
     }
 
-    // un-labeled command
-    //   for un-labeled command, if there is a command whose label is
-    //   the same as the keyword of this un-labeled command, then merge
-    //   the unlabeled command into the labeled one
-    if( !labeled_ && !mx.building_sequence() )
-      mx.fuse_command( keyword_, cmd );
+    // insert a label
+    mx.insert_label(label_, new_cmd);
 
-    // insert the command to the MadX object
-    if( labeled_ ) mx.insert_label(label_, cmd);
-    else           mx.insert_command(cmd);
+    // building a sequence?
+    if ( mx.building_sequence() )
+    {
+      double at = new_cmd.attribute_as_number("at");
+      string from = new_cmd.attribute_as_string("from", "");
+
+      // label_, at, from
+      mx.append_sequence_element( label_, at, from );
+    }
+  }
+  else if ( type_ == MX_CMD_ELEMENT_REF )
+  {
+    // type of the referenced entry
+    MadX_entry_type ref_type = mx.entry_type(keyword_);
+
+    if ( labeled_ )
+    {
+      // check ref type
+      if (ref_type != ENTRY_COMMAND)
+        throw runtime_error("unknown class type " + keyword_ + ".");
+
+      // create a new element instance
+      MadX_command ori_cmd = mx.command(keyword_);
+
+      new_cmd.merge(ori_cmd);
+      new_cmd.set_name( ori_cmd.name(), ELEMENT );
+
+      mx.insert_label(label_, new_cmd);
+    }
+    else if ( !mx.building_sequence() )
+    {
+      // check ref type
+      if (ref_type != ENTRY_COMMAND)
+      {
+        cout << "warning: unknown class type " << keyword_ << "\n";
+        return;
+      }
+
+      // merge with the existing instance
+      mx.fuse_command( keyword_, new_cmd );
+    }
+
+    // building a sequence?
+    if ( mx.building_sequence() )
+    {
+      if (ref_type != ENTRY_COMMAND && ref_type != ENTRY_SEQUENCE)
+        throw runtime_error("unknown class type " + keyword_ + ".");
+
+      double at = new_cmd.attribute_as_number("at");
+      string from = new_cmd.attribute_as_string("from", "");
+
+      // label_ or keyword_
+      mx.append_sequence_element( (labeled_ ? label_ : keyword_), at, from );
+    }
+  }
+  else  // execute the command
+  {
+    execute(mx);
+
+    //mx.insert_command(new_cmd);
   }
 
   return;
@@ -373,7 +438,16 @@ void mx_command::execute(MadX & mx)
           try 
           {
             mx_expr ex = any_cast<mx_expr>(it->value());
-            ex = get<nop_t>(get<nop_t>(get<nop_t>(ex).expr).expr).expr;
+
+            // this line causes the final extracted string to be random characters
+            // if compiled with os x clang compiler
+            // ex = get<nop_t>(get<nop_t>(get<nop_t>(ex).expr).expr).expr;
+
+            // fix to the above issue
+            ex = get<nop_t>(ex).expr;
+            ex = get<nop_t>(ex).expr;
+            ex = get<nop_t>(ex).expr;
+
             refer = boost::get<string>( ex );
             it->set_attr("refer", refer);
           } 
@@ -401,7 +475,9 @@ void mx_command::execute(MadX & mx)
           try 
           {
             mx_expr ex = any_cast<mx_expr>(it->value());
-            ex = get<nop_t>(get<nop_t>(get<nop_t>(ex).expr).expr).expr;
+            ex = get<nop_t>(ex).expr;
+            ex = get<nop_t>(ex).expr;
+            ex = get<nop_t>(ex).expr;
             refpos = boost::get<string>( ex );
             it->set_attr("refpos", refpos);
           } 
@@ -517,45 +593,53 @@ void mx_command::execute(MadX & mx)
     }
 
     // makes no change if the particle type is absent
-    if( mass==0 ) return;
-
-    Four_momentum four_momentum(mass);
-
-    if (energy > 0) four_momentum.set_total_energy(energy);
-    if (pc > 0)     four_momentum.set_momentum(pc);
-    if (gamma > 0)  four_momentum.set_gamma(gamma);
-
-    mx_attr attr;
-    if (energy == 0) 
+    if( mass!=0 )
     {
-      attr.set_attr( "energy", mx_expr(four_momentum.get_total_energy()) );
-      ins_attr(attr);
-    }
-    if (pc == 0) 
-    {
-      attr.set_attr( "pc", mx_expr(four_momentum.get_momentum()) );
-      ins_attr(attr);
-    }
-    if (gamma == 0) 
-    {
-      attr.set_attr( "gamma", mx_expr(four_momentum.get_gamma()) );
-      ins_attr(attr);
+      Four_momentum four_momentum(mass);
+
+      if (energy > 0) four_momentum.set_total_energy(energy);
+      if (pc > 0)     four_momentum.set_momentum(pc);
+      if (gamma > 0)  four_momentum.set_gamma(gamma);
+
+      mx_attr attr;
+
+      if (energy == 0) 
+      {
+        attr.set_attr( "energy", mx_expr(four_momentum.get_total_energy()) );
+        ins_attr(attr);
+      }
+
+      if (pc == 0) 
+      {
+        attr.set_attr( "pc", mx_expr(four_momentum.get_momentum()) );
+        ins_attr(attr);
+      }
+
+      if (gamma == 0) 
+      {
+        attr.set_attr( "gamma", mx_expr(four_momentum.get_gamma()) );
+        ins_attr(attr);
+      }
+
+      if (!have_charge)
+      {
+          attr.set_attr( "charge", mx_expr(charge));
+          ins_attr(attr);
+      }
+
+      // insert a global variable brho to the madx object
+      stringstream ss;
+      ss.precision(18);
+      ss << 1e9/pconstants::c << "*beam->pc";
+
+      mx_expr expr;
+      parse_expression( ss.str(), expr );
+      mx.insert_variable( "brho", expr );
     }
 
-    if (!have_charge)
-    {
-    	attr.set_attr( "charge", mx_expr(charge));
-    	ins_attr(attr);
-    }
-
-    // insert a global variable brho to the madx object
-    stringstream ss;
-    ss.precision(18);
-    ss << 1e9/pconstants::c << "*beam->pc";
-
-    mx_expr expr;
-    parse_expression( ss.str(), expr );
-    mx.insert_variable( "brho", expr );
+    // insert beam as a label
+    MadX_command new_cmd = convert(mx);
+    mx.insert_label(label_, new_cmd);
   }
 }
 

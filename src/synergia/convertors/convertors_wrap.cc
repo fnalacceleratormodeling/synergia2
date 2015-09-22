@@ -27,7 +27,6 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(xml_save_array1d_overloads23,
 BOOST_PYTHON_FUNCTION_OVERLOADS(xml_save_array2d_overloads23,
         xml_save<MArray2d >, 2, 3)
 
-
 BOOST_PYTHON_MODULE(convertors)
 {
     import_array();
@@ -38,11 +37,15 @@ BOOST_PYTHON_MODULE(convertors)
 
     numpy_multi_array_converter<double, 1 >::register_to_python();
     numpy_multi_array_converter<double, 2 >::register_to_python();
+    numpy_multi_array_converter<double, 3 >::register_to_python();
+    numpy_multi_array_converter<int, 1 >::register_to_python();
 
     numpy_multi_array_ref_converter<double, 1 >::register_to_and_from_python();
     numpy_const_multi_array_ref_converter<double, 1 >::register_to_and_from_python();
     numpy_multi_array_ref_converter<double, 2 >::register_to_and_from_python();
     numpy_const_multi_array_ref_converter<double, 2 >::register_to_and_from_python();
+    numpy_multi_array_ref_converter<double, 3 >::register_to_and_from_python();
+    numpy_const_multi_array_ref_converter<double, 3 >::register_to_and_from_python();
 
     def("xml_save_array1d", xml_save<MArray1d_ref >,
             xml_save_array1d_overloads23());

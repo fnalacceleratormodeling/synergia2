@@ -21,6 +21,8 @@ private:
     Hdf5_serial_writer<int > * writer_num_particles;
     double real_num_particles;
     Hdf5_serial_writer<double > * writer_real_num_particles;
+    double pz;
+    Hdf5_serial_writer<double > * writer_pz;
     MArray1d mean;
     Hdf5_serial_writer<MArray1d_ref > * writer_mean;
     MArray1d std;
@@ -83,6 +85,10 @@ public:
     /// Get the total number of real particles represented by the bunch
     virtual double
     get_real_num_particles() const;
+
+    /// Get the current momentum of the bunch
+    virtual double
+    get_pz() const;
 
     /// Get a six-dimensional vector of the means of each phase-space
     /// coordinate. The units are in Synergia units.

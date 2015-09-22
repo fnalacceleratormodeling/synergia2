@@ -34,6 +34,8 @@ private:
     Hdf5_serial_writer<int > * writer_repetition;
     double s;
     Hdf5_serial_writer<double > * writer_s;
+    double pz;
+    Hdf5_serial_writer<double > * writer_pz;
     MArray2d track_coords;
     Hdf5_serial_writer<MArray2d_ref > * writer_coords;
     virtual void

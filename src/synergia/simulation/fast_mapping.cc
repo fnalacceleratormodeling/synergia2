@@ -220,6 +220,7 @@ Fast_mapping::apply(Bunch & bunch)
     double temp[6];
     int local_num = bunch.get_local_num();
     MArray2d_ref particles = bunch.get_local_particles();
+    #pragma omp parallel for private(temp)
     for (int part = 0; part < local_num; ++part) {
         for (int i = 0; i < 6; ++i) {
             temp[i] = 0.0;

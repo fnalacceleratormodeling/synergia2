@@ -7,6 +7,7 @@
 
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
 #pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wunused-but-set-variable"
 #endif
 #pragma GCC diagnostic ignored "-Wsequence-point"
 #pragma GCC diagnostic ignored "-Wunused-variable"
@@ -134,6 +135,7 @@ Sbend_madx_adaptor::Sbend_madx_adaptor()
     get_default_element().set_double_attribute("k2", 0.0);
     get_default_element().set_double_attribute("h1", 0.0);
     get_default_element().set_double_attribute("h2", 0.0);
+    get_default_element().set_double_attribute("kicks", 40.0);
     // possible higher order multipole components
     get_default_element().set_double_attribute("kl", 0.0); // base strength/B-rho
     get_default_element().set_double_attribute("a1", 0.0); // skew quad
@@ -165,6 +167,7 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double k1 = lattice_element.get_double_attribute("k1");
     double k2 = lattice_element.get_double_attribute("k2");
     double tilt = lattice_element.get_double_attribute("tilt");
+    int kicks = floor(lattice_element.get_double_attribute("kicks"));
 
     bool simple = ((k1 == 0.0) && (k2 == 0.0));
 
@@ -233,7 +236,6 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
             ElmPtr sbptr1;
             ElmPtr sbptr2;
             elm->Split(0.5, sbptr1, sbptr2);
-
             std::vector < std::complex<double > > c_moments;
             for (int k = 0; k <= highest_order; ++k) {
                 c_moments.push_back(std::complex<double >(bk[k], ak[k]));
@@ -253,6 +255,10 @@ Sbend_madx_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         // combined function element
         CF_sbend* elm = new CF_sbend(lattice_element.get_name().c_str(),
                 length, brho * angle / length, angle, e1, e2);
+        // Does the CHEF default number of kicks match the Synergia default number of kicks?
+        if (elm->numberOfKicks() != kicks) {
+            elm->setNumberOfKicks(kicks);
+        }
         if (tilt != 0.0) elm->setAlignment(aligner);
         double multipoleStrength = k1 * brho * length;
         if (multipoleStrength != 0.0) {

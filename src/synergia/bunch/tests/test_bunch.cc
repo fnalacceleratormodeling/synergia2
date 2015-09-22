@@ -1,6 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include <cstdlib>
+#include "synergia/utils/floating_point.h"
 #include "synergia/foundation/physical_constants.h"
 #include "synergia/bunch/bunch.h"
 #include "synergia/bunch/diagnostics.h"
@@ -345,10 +346,10 @@ BOOST_FIXTURE_TEST_CASE(convert_to_state, Fixture)
     MArray1d accel_mean(Core_diagnostics::calculate_mean(second_bunch));
     MArray1d bunch_mean(Core_diagnostics::calculate_mean(bunch));
     const double tolerance_mean = 1.0e-11;
-    BOOST_CHECK_CLOSE(accel_mean[Bunch::x], bunch_mean[Bunch::x], tolerance_mean);
-    BOOST_CHECK_CLOSE(accel_mean[Bunch::xp], bunch_mean[Bunch::xp], tolerance_mean);
-    BOOST_CHECK_CLOSE(accel_mean[Bunch::y], bunch_mean[Bunch::y], tolerance_mean);
-    BOOST_CHECK_CLOSE(accel_mean[Bunch::yp], bunch_mean[Bunch::yp], tolerance_mean);
+    BOOST_CHECK(floating_point_equal(accel_mean[Bunch::x], bunch_mean[Bunch::x], tolerance_mean));
+    BOOST_CHECK(floating_point_equal(accel_mean[Bunch::xp], bunch_mean[Bunch::xp], tolerance_mean));
+    BOOST_CHECK(floating_point_equal(accel_mean[Bunch::y], bunch_mean[Bunch::y], tolerance_mean));
+    BOOST_CHECK(floating_point_equal(accel_mean[Bunch::yp], bunch_mean[Bunch::yp], tolerance_mean));
 
     // verify that transverse std's are unaffected by state transformation
     MArray1d accel_std(Core_diagnostics::calculate_std(second_bunch, accel_mean));

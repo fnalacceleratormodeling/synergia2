@@ -9,14 +9,15 @@ Benchmark_options::Benchmark_options(int argc, char **argv) :
     partpercell(10),
     verbosity(1),
     avoid(true),
-    gridy(32),
-    gridx(32),
-    gridz(64),
-    autotune(true),
+    gridy(64),
+    gridx(64),
+    gridz(256),
+    autotune(false),
     efieldcomm(0),
     chargecomm(0),
     diagnostics(false),
-    sortperiod(1000)
+    sortperiod(1000),
+    omp_threads(1)
 {
     for (int i = 1; i < argc; ++i) {
         Command_line_arg arg(argv[i]);
@@ -43,6 +44,8 @@ Benchmark_options::Benchmark_options(int argc, char **argv) :
                 diagnostics = arg.extract_value<bool >();
             } else if (arg.get_lhs() == "sortperiod") {
                 sortperiod = arg.extract_value<int >();
+            } else if (arg.get_lhs() == "omp_threads") {
+                omp_threads = arg.extract_value<int >();
             } else if (arg.get_lhs() == "synergia_executable") {
                 // ignore
             } else if (arg.get_lhs() == "run") {

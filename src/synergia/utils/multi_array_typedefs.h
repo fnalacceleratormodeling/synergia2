@@ -79,9 +79,9 @@ typedef boost::const_multi_array_ref<std::complex<double >, 3 >
 typedef boost::detail::multi_array::multi_array_view<std::complex<double >, 3 >
         MArray3dc_view; // syndoc:include
 
-typedef boost::multi_array<int, 1 > MArray1int; // syndoc:include
-typedef boost::multi_array_ref<int, 1 > MArray1int_ref; // syndoc:include
-typedef boost::const_multi_array_ref<int, 1 > Const_MArray1int_ref; // syndoc:include
-typedef boost::detail::multi_array::multi_array_view<int, 1 > MArray1int_view; // syndoc:include
+typedef boost::multi_array<int, 1 > MArray1i; // syndoc:include
+typedef boost::multi_array_ref<int, 1 > MArray1i_ref; // syndoc:include
+typedef boost::const_multi_array_ref<int, 1 > Const_MArray1i_ref; // syndoc:include
+typedef boost::detail::multi_array::multi_array_view<int, 1 > MArray1i_view; // syndoc:include
 
 #endif /* MULTI_ARRAY_TYPEDEFS_H_ */

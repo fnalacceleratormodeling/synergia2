@@ -10,6 +10,12 @@ set(CMAKE_MODULE_PATH "${SYNERGIA2_SOURCE_DIR}/CMake")
 # openmp
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 
+# needed to avoid warnings about rpath policy on Mac OSX
+# no known difference between "OLD" and "NEW" policies for us
+if(POLICY CMP0042)
+    cmake_policy(SET CMP0042 NEW)
+endif()
+
 # Set defaults for building python bindings (build bindings by default).
 if (NOT DEFINED BUILD_PYTHON_BINDINGS)
   if (NOT $ENV{BUILD_PYTHON_BINDINGS} STREQUAL "")
@@ -46,7 +52,7 @@ SET(Boost_USE_STATIC_LIBS OFF)
 SET(Boost_USE_MULTITHREAD ON)
 SET(Boost_NO_BOOST_CMAKE ON)
 FIND_PACKAGE(Boost COMPONENTS python regex unit_test_framework serialization
-    filesystem system REQUIRED)
+    filesystem system iostreams REQUIRED)
 INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIRS})
 LINK_DIRECTORIES(${Boost_LIBRARY_DIRS})
 
@@ -82,7 +88,7 @@ include_directories(${EIGEN3_INCLUDE_DIR})
 find_package(FFTW3 REQUIRED)
 if(FFTW3_MPI_FOUND)
     include_directories(${FFTW3_INCLUDE_DIR})
-    set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_LIBRARIES})
+    set(PARALLEL_FFTW_LIBRARIES ${FFTW3_MPI_LIBRARIES} ${FFTW3_OMP_LIBRARIES} ${FFTW3_LIBRARIES})
     if(NOT PARALLEL_FFTW_FOUND)
         message("-- Using FFTW3 for parallel FFTs")
         set(PARALLEL_FFTW_FOUND TRUE CACHE BOOL "found parallel fftw" FORCE)

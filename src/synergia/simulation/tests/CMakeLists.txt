@@ -130,6 +130,13 @@ add_test(NAME test_simplify2_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${S
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_simplify2.py 
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
+add_test(NAME test_propagate_resume_mpi_1_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_propagate_resume.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_propagate_resume.py 
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+add_test(NAME test_propagate_resume_mpi_2_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 2 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_propagate_resume.py)
+add_test(NAME test_propagate_resume_mpi_3_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 3 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_propagate_resume.py)
+add_test(NAME test_propagate_resume_mpi_4_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 4 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_propagate_resume.py)
+
 add_test_executable(test_bunch_simulator test_bunch_simulator.cc)
 target_link_libraries(test_bunch_simulator synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_bunch_simulator COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_bunch_simulator>)
@@ -141,6 +148,10 @@ add_test(NAME test_bunch_train_simulator COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FL
 add_test_executable(test_beamline_element_dynamics test_beamline_element_dynamics.cc)
 target_link_libraries(test_beamline_element_dynamics synergia_lattice synergia_simulation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_beamline_element_dynamics COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_beamline_element_dynamics>)
+
+add_test_executable(test_acceleration test_acceleration.cc)
+target_link_libraries(test_acceleration synergia_simulation synergia_lattice synergia_bunch ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(NAME test_acceleration COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_acceleration>)
 
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/lattices
     DESTINATION ${CMAKE_CURRENT_BINARY_DIR})

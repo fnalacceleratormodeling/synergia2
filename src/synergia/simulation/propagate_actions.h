@@ -33,6 +33,10 @@ public:
     step_end_action(Stepper & stepper, Step & step, Bunch_train & bunch_train,
             int turn_num, int step_num);             
     virtual void
+    before_resume_action(Stepper & stepper, Bunch & bunch);
+    virtual void
+    before_resume_action(Stepper & stepper, Bunch_train & bunch_train);
+    virtual void
     operator_begin_action(Stepper & stepper, Step & step, Operator & op, int step_num, int turn_num, 
                    int bunch_num);  
    

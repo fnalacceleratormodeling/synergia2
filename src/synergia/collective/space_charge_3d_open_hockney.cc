@@ -376,9 +376,15 @@ Space_charge_3d_open_hockney::get_doubled_domain_sptr() const
 Rectangular_grid_sptr
 Space_charge_3d_open_hockney::get_local_charge_density(Bunch const& bunch)
 {
+double t = simple_timer_current();
     update_domain(bunch);
+t = simple_timer_show(t, "sc-local-rho-update-domain");
     Rectangular_grid_sptr local_rho_sptr(new Rectangular_grid(domain_sptr));
+t = simple_timer_show(t, "sc-local-rho-new");
     deposit_charge_rectangular_zyx(*local_rho_sptr, bunch);
+    //deposit_charge_rectangular_zyx_omp_reduce(*local_rho_sptr, bunch);
+    //deposit_charge_rectangular_zyx_omp_interleaved(*local_rho_sptr, bunch);
+t = simple_timer_show(t, "sc-local-rho-deposit");
     return local_rho_sptr;
 }
 
@@ -527,6 +533,8 @@ Space_charge_3d_open_hockney::get_green_fn2_pointlike()
 // Note that the doubling algorithm is not quite symmetric. For
 // example, the doubled grid for 4 points in 1d looks like
 //    0 1 2 3 4 3 2 1
+
+    #pragma omp parallel for private( dx, dy, dz, G, mix, miy )
     for (int iz = lower; iz < upper; ++iz) {
         if (iz > grid_shape[0]) {
             dz = (doubled_grid_shape[0] - iz) * hz;
@@ -605,30 +613,33 @@ Space_charge_3d_open_hockney::get_green_fn2_linear()
     double G000 = (2.0 / rr)
             * (hz * r1 + rr * log((hz + r1) / sqrt(rr)) - hz * hz); // average value of outer cylinder.
 
+    int gz = grid_shape[0];
+    int gy = grid_shape[1];
+    int gx = grid_shape[2];
+
+    int dgz = doubled_grid_shape[0];
+    int dgy = doubled_grid_shape[1];
+    int dgx = doubled_grid_shape[2];
+
     const int num_images = 8;
     int mix, miy; // mirror indices for x- and y-planes
     double x, y, z, G;
     const double epsz = 1.0e-12 * hz;
 
+    #pragma omp parallel for default(none), \
+        private( x, y, z, G, mix, miy, rr ), \
+        shared( gx, gy, gz, dgx, dgy, dgz, hx, hy, hz, G000, lower, upper, G2 )
     for (int iz = lower; iz < upper; ++iz) {
-        if (iz > grid_shape[0]) {
-            z = (doubled_grid_shape[0] - iz) * hz;
-        } else {
-            z = iz * hz;
-        }
-        for (int iy = 0; iy <= grid_shape[1]; ++iy) {
+        z = (iz>gz) ? (dgz-iz)*hz : iz*hz;
+
+        for (int iy = 0; iy <= gy; ++iy) {
             y = iy * hy;
-            miy = doubled_grid_shape[1] - iy;
-            if (miy == grid_shape[1]) {
-                miy = doubled_grid_shape[1]; // will get thrown away
-            }
-            for (int ix = 0; ix <= grid_shape[2]; ++ix) {
+            miy = (iy==gy) ? dgy : (dgy-iy);
+
+            for (int ix = 0; ix <= gx; ++ix) {
                 x = ix * hx;
                 rr = x * x + y * y;
-                mix = doubled_grid_shape[2] - ix;
-                if (mix == grid_shape[2]) {
-                    mix = doubled_grid_shape[2]; // will get thrown away
-                }
+                mix = (ix==gx) ? dgx : (dgx-ix);
 
                 G = 2.0 * sqrt(rr + z * z) - sqrt(rr + (z - hz) * (z - hz))
                         - sqrt(rr + (z + hz) * (z + hz));
@@ -766,20 +777,24 @@ Space_charge_3d_open_hockney::get_scalar_field2(
             distributed_fft3d_sptr->get_padded_shape_complex());
     int lower = distributed_fft3d_sptr->get_lower();
     int upper = distributed_fft3d_sptr->get_upper();
-    MArray3dc rho2hat(
-            boost::extents[extent_range(lower, upper)][cshape[1]][cshape[2]]);
-    MArray3dc G2hat(
-            boost::extents[extent_range(lower, upper)][cshape[1]][cshape[2]]);
-    MArray3dc phi2hat(
-            boost::extents[extent_range(lower, upper)][cshape[1]][cshape[2]]);
-    distributed_fft3d_sptr->transform(charge_density2.get_grid_points(),
-            rho2hat);
+
+    fftw_complex * rho2hat = (fftw_complex*)fftw_malloc(
+        sizeof(fftw_complex)*(upper-lower)*cshape[1]*cshape[2]);
+    fftw_complex * G2hat   = (fftw_complex*)fftw_malloc(
+        sizeof(fftw_complex)*(upper-lower)*cshape[1]*cshape[2]);
+    fftw_complex * phi2hat = (fftw_complex*)fftw_malloc(
+        sizeof(fftw_complex)*(upper-lower)*cshape[1]*cshape[2]);
+
+    distributed_fft3d_sptr->transform(charge_density2.get_grid_points(), rho2hat);
     distributed_fft3d_sptr->transform(green_fn2.get_grid_points(), G2hat);
 
+    #pragma omp parallel for
     for (int i = lower; i < upper; ++i) {
         for (int j = 0; j < cshape[1]; ++j) {
             for (int k = 0; k < cshape[2]; ++k) {
-                phi2hat[i][j][k] = rho2hat[i][j][k] * G2hat[i][j][k];
+                int idx = (i-lower)*cshape[1]*cshape[2] + j*cshape[2] + k;
+                phi2hat[idx][0] = rho2hat[idx][0] * G2hat[idx][0] - rho2hat[idx][1] * G2hat[idx][1];
+                phi2hat[idx][1] = rho2hat[idx][0] * G2hat[idx][1] + rho2hat[idx][1] * G2hat[idx][0];
             }
         }
     }
@@ -793,14 +808,18 @@ Space_charge_3d_open_hockney::get_scalar_field2(
 
     Distributed_rectangular_grid_sptr phi2(
             new Distributed_rectangular_grid(doubled_domain_sptr, lower, upper,
-                    distributed_fft3d_sptr->get_padded_shape_real(),
-                    comm2_sptr));
+                    distributed_fft3d_sptr->get_padded_shape_real(), comm2_sptr));
+
     distributed_fft3d_sptr->inv_transform(phi2hat, phi2->get_grid_points());
 
     normalization *= charge_density2.get_normalization();
     normalization *= green_fn2.get_normalization();
     normalization *= distributed_fft3d_sptr->get_roundtrip_normalization();
     phi2->set_normalization(normalization);
+
+    fftw_free(rho2hat);
+    fftw_free(G2hat);
+    fftw_free(phi2hat);
 
     return phi2;
 }
@@ -813,6 +832,7 @@ Space_charge_3d_open_hockney::extract_scalar_field(
             new Distributed_rectangular_grid(domain_sptr, real_doubled_lower,
                     real_doubled_upper, comm1_sptr));
 
+    #pragma omp parallel for
     for (int i = real_doubled_lower; i < real_doubled_upper; ++i) {
         for (int j = 0; j < grid_shape[1]; ++j) {
             for (int k = 0; k < grid_shape[2]; ++k) {
@@ -859,6 +879,8 @@ Space_charge_3d_open_hockney::get_electric_field_component(
     }
     double cell_size = domain_sptr->get_cell_size()[index];
     boost::array<MArray3d::index, 3 > center, left, right;
+
+    #pragma omp parallel for private(center, left, right)
     for (int i = En->get_lower(); i < En->get_upper(); ++i) {
         left[0] = i;
         center[0] = i;
@@ -962,14 +984,11 @@ Space_charge_3d_open_hockney::get_global_electric_field_component_allreduce(
         Distributed_rectangular_grid const& dist_field)
 {
     Rectangular_grid_sptr global_field(new Rectangular_grid(domain_sptr));
-    for (int i = 0; i < grid_shape[0]; ++i) {
-        for (int j = 0; j < grid_shape[1]; ++j) {
-            for (int k = 0; k < grid_shape[2]; ++k) {
-                global_field->get_grid_points()[i][j][k] = 0.0;
-            }
-        }
-    }
 
+    std::memset( (void*)global_field->get_grid_points().data(), 0, 
+            global_field->get_grid_points().num_elements()*sizeof(double) );
+
+    #pragma omp parallel for
     for (int i = dist_field.get_lower();
             i < std::min(grid_shape[0], dist_field.get_upper()); ++i) {
         for (int j = 0; j < grid_shape[1]; ++j) {
@@ -1027,6 +1046,8 @@ Space_charge_3d_open_hockney::apply_kick(Bunch & bunch,
     int ps_component = 2 * component + 1;
     Rectangular_grid_domain & domain(*En.get_domain_sptr());
     MArray3d_ref grid_points(En.get_grid_points());
+
+    #pragma omp parallel for
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         double x = bunch.get_local_particles()[part][Bunch::x];
         double y = bunch.get_local_particles()[part][Bunch::y];

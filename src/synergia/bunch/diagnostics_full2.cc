@@ -69,7 +69,7 @@ Diagnostics_full2::Diagnostics_full2(std::string const& filename,
         Diagnostics_full2::Diagnostics(Diagnostics_full2::name, filename,
                 local_dir), have_writers(false), writer_s_n(0), writer_repetition(
                 0), writer_s(0), writer_num_particles(0), writer_real_num_particles(
-                0), mean(boost::extents[6]), writer_mean(0), std(
+                0), writer_pz(0), mean(boost::extents[6]), writer_mean(0), std(
                 boost::extents[6]), writer_std(0), min(boost::extents[3]), writer_min(
                 0), max(boost::extents[3]), writer_max(0), mom2(
                 boost::extents[6][6]), writer_mom2(0), corr(
@@ -99,6 +99,7 @@ Diagnostics_full2::update()
 	      = get_bunch().get_reference_particle().get_s();
       num_particles = get_bunch().get_total_num();
       real_num_particles = get_bunch().get_real_num();
+      pz = get_bunch().get_reference_particle().get_momentum();
       min = Core_diagnostics::calculate_min(get_bunch());
       max = Core_diagnostics::calculate_max(get_bunch());
       mean = Core_diagnostics::calculate_mean(get_bunch());
@@ -135,6 +136,12 @@ double
 Diagnostics_full2::get_real_num_particles() const
 {
     return real_num_particles;
+}
+
+double
+Diagnostics_full2::get_pz() const
+{
+    return pz;
 }
 
 Const_MArray1d_ref
@@ -207,6 +214,11 @@ void
 Diagnostics_full2::init_writers(Hdf5_file_sptr file_sptr)
 {
     if (!have_writers) {
+        Four_momentum fourp( get_bunch().get_reference_particle().get_four_momentum() );
+        int chg = get_bunch().get_reference_particle().get_charge();
+        file_sptr->write(chg, "charge");
+        double pmass = fourp.get_mass();
+        file_sptr->write(pmass, "mass");
         writer_s_n = new Hdf5_serial_writer<double > (file_sptr, "s_n");
         writer_repetition = new Hdf5_serial_writer<int > (file_sptr,
                 "repetition");
@@ -216,6 +228,7 @@ Diagnostics_full2::init_writers(Hdf5_file_sptr file_sptr)
                 "num_particles");
         writer_real_num_particles = new Hdf5_serial_writer<double > (file_sptr,
                 "real_num_particles");
+        writer_pz = new Hdf5_serial_writer<double > (file_sptr,"pz");
         writer_mean = new Hdf5_serial_writer<MArray1d_ref > (file_sptr, "mean");
         writer_std = new Hdf5_serial_writer<MArray1d_ref > (file_sptr, "std");
         writer_min = new Hdf5_serial_writer<MArray1d_ref > (file_sptr, "min");
@@ -242,7 +255,8 @@ Diagnostics_full2::write()
 	  writer_s->append(s);
 	  writer_num_particles->append(num_particles);
 	  writer_real_num_particles->append(real_num_particles);
-	  writer_mean->append(mean);
+      writer_pz->append(pz);
+      writer_mean->append(mean);
 	  writer_std->append(std);
 	  writer_min->append(min);
 	  writer_max->append(max);
@@ -277,6 +291,7 @@ template<class Archive>
                 & BOOST_SERIALIZATION_NVP(writer_num_particles)
                 & BOOST_SERIALIZATION_NVP(real_num_particles)
                 & BOOST_SERIALIZATION_NVP(writer_real_num_particles)
+                & BOOST_SERIALIZATION_NVP(writer_pz)
                 & BOOST_SERIALIZATION_NVP(mean)
                 & BOOST_SERIALIZATION_NVP(writer_mean)
                 & BOOST_SERIALIZATION_NVP(std)
@@ -335,6 +350,7 @@ Diagnostics_full2::~Diagnostics_full2()
         delete writer_min;
         delete writer_std;
         delete writer_mean;
+        delete writer_pz;
         delete writer_real_num_particles;
         delete writer_num_particles;
         delete writer_s;

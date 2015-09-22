@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import sys, os.path
-import tables
 from matplotlib import pyplot
 import synergia
 import numpy
@@ -32,6 +31,7 @@ def generate_plotparams():
 class Options:
     def __init__(self):
         self.filename = None
+        self.xmlfile = False
         self.line = None
         self.plots = []
         self.reader = None
@@ -42,17 +42,22 @@ def do_error(message):
     sys.exit(1)
 
 def do_help(plotparams):
-    print "usage: synlatticefns [save options] <lattice_file> <line_name> <fn_1> ... <fn_n>"
+    print "usage: synlatticefns [options] <lattice_file> <line_name> <fn_1> ... <fn_n>"
+    print "    or"
+    print "       synlatticefns [options] <lattice_file.xml> <fn_1> ... <fn_n>"
+    print "options governing the interpretation of the lattice are:"
+    print "    --reader=[mad8|madx]"
+    print "lattice from xml file is assumed by default to be a mad8 lattice.  Change"
+    print "    with --reader=madx"
     print "available plots are:"
-    print "   ",
     plots = plotparams.keys()
     plots.sort()
     for plot in plots:
         print plot,
     print
     print "lattice function file save options are:"
-    print "    --lfcsvfile=<filename>"
-    print "    --lfnpfile=<filename>"
+    print "    --lfcsvfile=<filename>    (save as a csv text file)"
+    print "    --lfnpfile=<filename>     (save as a numpy .npy file)"
     sys.exit(0)
 
 def handle_args(args, plotparams):
@@ -71,11 +76,18 @@ def handle_args(args, plotparams):
             options.lfnpfile = arg.split("=")[1]
             args.remove(arg)
     options.filename = args[0]
-    options.line = args[1]
-    if (len(args)<3) and (not options.lfcsvfile) and (not options.lfnpfile):
+    # is this a lattice file or an xml file?
+    if os.path.splitext(options.filename)[1] == '.xml':
+        options.xmlfile = True
+        options.line = "not_needed"
+        start_args = 1
+    else:
+        options.line = args[1]
+        start_args = 2
+    if (len(args)<start_args+1) and (not options.lfcsvfile) and (not options.lfnpfile):
         do_help(plotparams)
 
-    for arg in args[2:]:
+    for arg in args[start_args:]:
         if arg[0] == '-':
             do_error('Unknown argument "%s"' % arg)
         else:
@@ -83,7 +95,10 @@ def handle_args(args, plotparams):
                 options.plots.append(arg)
             else:
                 do_error('Unknown plot "%s"' % arg)
-    if not options.reader:
+    if options.xmlfile and not options.reader:
+        options.reader = 'mad8'
+        print "lattice reader defaulting to mad8"
+    if not options.xmlfile and not options.reader:
         if os.path.splitext(options.filename)[1] == '.madx':
             options.reader = 'madx'
         else:
@@ -106,10 +121,18 @@ def do_csvfile(options, lfinfo):
 
 
 def get_lf_info():
-    if options.reader == 'madx':
+    if options.xmlfile:
+        if options.reader == 'mad8':
+            adaptor_map_obj = synergia.lattice.Mad8_adaptor_map()
+        elif options.reader == 'madx':
+            adaptor_map_obj = synergia.lattice.MadX_adaptor_map()
+        lattice = synergia.lattice.Lattice("lattice_from_xmlfile", adaptor_map_obj)
+        synergia.lattice.xml_load_lattice(lattice, options.filename)
+    elif options.reader == 'madx':
         lattice = synergia.lattice.MadX_reader().get_lattice(options.line, options.filename)
     else:
         lattice = synergia.lattice.Mad8_reader().get_lattice(options.line, options.filename)
+    print "read lattice, ", len(lattice.get_elements()), " elements, length: ", lattice.get_length()
     lattice_simulator = synergia.simulation.Lattice_simulator(lattice, 1)
     n_elem = len(lattice.get_elements())
 

@@ -6,6 +6,7 @@
 #include <limits>
 
 using namespace synergia;
+using namespace boost;
 
 double mx_calculator::nan = std::numeric_limits<double>::quiet_NaN();
 
@@ -57,5 +58,31 @@ double
   return b.func( boost::apply_visitor(*this, b.lhs)
                , boost::apply_visitor(*this, b.rhs) );
 }
+
+double
+  synergia::mx_eval(mx_expr const & expr)
+{
+  return boost::apply_visitor(mx_calculator(0.0), expr);
+}
+
+double
+  mx_eval(mx_expr const & expr, MadX const & mx)
+{
+  return boost::apply_visitor(mx_calculator(mx, 0.0), expr);
+}
+
+std::string
+  synergia::mx_expr_refstr(mx_expr const & expr)
+{
+  mx_expr ex = get<nop_t>(get<nop_t>(get<nop_t>(expr).expr).expr).expr;
+
+  if (ex.which() != 1) // string
+    throw std::runtime_error("unable to get ref string from mx_expr");
+
+  return get<std::string>(ex);
+}
+
+
+
 
 

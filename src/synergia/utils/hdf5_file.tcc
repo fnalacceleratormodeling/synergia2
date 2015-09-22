@@ -36,5 +36,8 @@ template<>
 template<>
     MArray3d
     Hdf5_file::read<MArray3d >(std::string const& name);
+template<>
+    MArray1i
+    Hdf5_file::read<MArray1i >(std::string const& name);
 
 #endif /* HDF5_FILE_TCC_ */

@@ -197,6 +197,9 @@ public:
   void execute(MadX & mx);
   void print() const;
 
+  // convert to a MadX command object
+  MadX_command convert(MadX const & mx) const;
+
 private:
   mx_cmd_type  type_;
   bool         labeled_;

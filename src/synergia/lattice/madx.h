@@ -136,10 +136,22 @@ private:
 
 typedef std::map<string_t, synergia::MadX_line>    lines_m_t;
 
-typedef std::vector<std::pair<std::string, size_t> > cmd_idx_v_t;
-
 class synergia::MadX_sequence
 {
+private:
+  struct seq_element
+  {
+    seq_element(std::string const & label_, double at_, std::string const & from_)
+      : label(label_), at(at_), from_str(from_) { }
+
+    std::string label;
+    std::string from_str;
+    double      at;
+    double      from;
+  };
+
+  typedef std::vector<seq_element> seq_ele_v_t;
+
 public:
   MadX_sequence(MadX const & parent)
     : parent(parent), lbl(), l(0.0), r(SEQ_REF_CENTRE), rp(), seq_() { }
@@ -148,7 +160,10 @@ public:
   string_t label() const;
   double   length() const;
   size_t   element_count() const;
-  MadX_command      element(size_t idx, bool resolve = true) const;
+  MadX_command      element(size_t idx) const;
+  double            element_at(size_t idx) const;
+  double            element_from(size_t idx) const;
+  string_t          element_label(size_t idx) const;
   MadX_entry_type   element_type(size_t idx) const;
   MadX_sequence_refer refer() const;
   string_t            refpos() const;
@@ -158,8 +173,8 @@ public:
   void set_length(double length);
   void set_refer(MadX_sequence_refer ref);
   void set_refpos(string_t const & refpos);
-  void add_element(string_t const & label); // add element by label (key to the map)
-  void add_element(size_t idx);             // add element by index (unnamed cmd)
+  void add_element(string_t const & label, double at, string_t const & from);
+  void finalize();
   void reset();
 
   // print
@@ -171,7 +186,7 @@ private:
   double l;
   MadX_sequence_refer r;
   string_t rp;
-  cmd_idx_v_t   seq_;
+  seq_ele_v_t   seq_;
 };
 
 typedef std::map<string_t, synergia::MadX_sequence> sequences_m_t;
@@ -234,6 +249,8 @@ public:
 
   void start_sequence( string_t const & label, double length
                      , string_t const & refer, string_t const & refpos );
+  void append_sequence_element( string_t const & label, double at
+                              , string_t const & from );
   void end_sequence();
 
   // alias

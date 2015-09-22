@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import sys, os.path
-import tables
+from synergia.utils import Hdf5_file
 
 class Options:
     def __init__(self):
@@ -50,7 +50,7 @@ def handle_args(args):
     return options
 
 def do_conversion(options):
-    ifile = tables.openFile(options.filename, 'r')
+    ifile = Hdf5_file(options.filename, Hdf5_file.read_only)
     ofilename = os.path.splitext(options.filename)[0] + '.txt'
     ofile = open(ofilename, 'w')
     if options.header > 1:
@@ -60,14 +60,16 @@ def do_conversion(options):
 # yp = py/pref
 # dp = (delta ptotal)/pref
 ''')
-        pz = ifile.root.pz.read()
+        pz = ifile.read_double('pz')
         ofile.write('# pref = %g [GeV/c]\n' % pz)
     if options.header > 0:
         ofile.write('#')
         for col in ['x', 'xp', 'y', 'py', 'cdt', 'dp', 'id']:
             ofile.write('%24s' % col)
         ofile.write('\n')
-    for part in ifile.root.particles.iterrows():
+    particles = ifile.read_array2d('particles')
+    for pnum in range(particles.shape[0]):
+        part = particles[pnum,:]
         ofile.write(' ')
         for coord in part:
             ofile.write('%24.16e' % coord)
