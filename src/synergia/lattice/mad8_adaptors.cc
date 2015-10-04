@@ -160,8 +160,8 @@ Sbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
     double k2 = lattice_element.get_double_attribute("k2");
     double k3 = lattice_element.get_double_attribute("k3");
     double tilt = lattice_element.get_double_attribute("tilt");
-    int kicks = floor(lattice_element.get_double_attribute("kicks"));
-
+    int kicks = lattice_element.has_double_attribute("kicks") ?
+            floor(lattice_element.get_double_attribute("kicks")) : 40;
 
     bool simple = ((k1 == 0.0) && (k2 == 0.0) && (k3 == 0.0));
 
