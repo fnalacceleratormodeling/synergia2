@@ -49,15 +49,13 @@ class Three_bump:
         self._construct()
 
     def _construct(self):
-        # until the Lattice::get_element_adaptor_map() method gets wrapped this routine will be
-        # forced to assume the element adaptor type is MadX_adaptor_map.  Apparently, setting the
-        # bump with one adaptor element type and using the main lattice of another element adaptor type
-        # doesn't work.
-        #self.bump_lattice = synergia.lattice.Lattice("bump", self.lattice.get_element_adaptor_map())
-        self.bump_lattice = synergia.lattice.Lattice("bump", synergia.lattice.MadX_adaptor_map())
+        element_adaptor_map = self.lattice.get_element_adaptor_map_sptr()
+        self.bump_lattice = synergia.lattice.Lattice("bump", element_adaptor_map)
         self.bump_lattice.set_reference_particle(self.lattice.get_reference_particle())
 
+        print "length of lattice_elements: ", len(self.lattice_elements)
         elem_names = [e.get_name() for e in self.lattice_elements]
+        print "elem_names[0:9]: ", elem_names[0:9]
         try:
             start_idx = elem_names.index(self.start_name)
         except:
@@ -127,10 +125,10 @@ class Three_bump:
         print "bump_lattice: ", len(self.bump_lattice.get_elements()), " elements, length: ", self.bump_lattice.get_length()
         print "horizontal correctors: "
         for i in range(3):
-            print "\t%s, kick = %g"%(self.hcorr_elements[i].get_name(), self.hcorr_elements[i].get_double_attribute("kick"))
+            print "\t%s, kick = "%self.hcorr_elements[i].get_name(), self.hcorr_elements[i].get_double_attribute("kick")
         print "vertical correctors: "
         for i in range(3):
-            print "\t%s, kick = %g"%(self.vcorr_elements[i].get_name(), self.vcorr_elements[i].get_double_attribute("kick"))
+            print "\t%s, kick = "%self.vcorr_elements[i].get_name(), self.vcorr_elements[i].get_double_attribute("kick")
         print "target element name: ", self.target_name
 
 
@@ -167,12 +165,13 @@ class Three_bump:
         comm = synergia.utils.Commxx()
         refpart = self.bump_lattice.get_reference_particle()
         stepper = synergia.simulation.Independent_stepper(self.bump_lattice, 1, 1)
+        #stepper = synergia.simulation.Independent_stepper_elements(self.bump_lattice, 1, 1)
         # 3 particles is the minimum so that the diagnostics don't crash
         bunch = synergia.bunch.Bunch(refpart, 3, 1.0e10, comm)
         bunch.get_local_particles()[:,0:6] = 0.0
         bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
         bunch_simulator.add_per_forced_diagnostics_step(synergia.bunch.Diagnostics_basic("bump_basic.h5"))
-        #bunch_simulator.add_per_step(synergia.bunch.Diagnostics_basic("step_basic.h5"))
+        #bunch_simulator.add_per_step(synergia.bunch.Diagnostics_basic("orbit_basic.h5"))
         propagator = synergia.simulation.Propagator(stepper)
         propagator.propagate(bunch_simulator, 1, 1, verbosity)
 
@@ -208,7 +207,9 @@ class Three_bump:
     #     [hc1, hc2, hc3, vc1, vc2, vc3]
 
     def set_bump(self, desired_position, coords=(0, 2)):
-        params = desired_position
+        # params is only 2 positions, but I have to fit
+        # to hit 0 in x, x', y, y' at the end also
+        params = list(desired_position) + [0.0, 0.0, 0.0, 0.0]
         mysys = multiroots.gsl_multiroot_function(self.bump_f, params, 6)
         solver = multiroots.hybrids(mysys, 6)
 
