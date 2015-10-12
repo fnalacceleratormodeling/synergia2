@@ -282,6 +282,8 @@ class Ecollimator_mad8_adaptor : public Element_adaptor
 {
 public:
     Ecollimator_mad8_adaptor();
+    Chef_elements
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
@@ -294,6 +296,8 @@ class Rcollimator_mad8_adaptor : public Element_adaptor
 {
 public:
     Rcollimator_mad8_adaptor();
+    Chef_elements
+    get_chef_elements(Lattice_element const & lattice_element, double brho);
     template<class Archive>
         void
         serialize(Archive & ar, const unsigned int version);
