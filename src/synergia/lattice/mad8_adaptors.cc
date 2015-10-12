@@ -396,6 +396,17 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         }
     }
 
+    // mad8 implements rbends as parallel faced sbends.  Unless the
+    // the string attribute true_rbend is "true", do the same.
+    bool true_rbend = false;
+    double arc_length = length;
+    if (lattice_element.has_string_attribute("true_rbend") &&
+        lattice_element.get_string_attribute("true_rbend") == "true") {
+        true_rbend = true;
+    } else {
+        arc_length = length * angle/ (2 * std::sin(angle / 2));
+    }
+
     // being not simple precludes using multipoles
     if (!simple && has_multipoles) {
         throw runtime_error("shouldn't use k1,k2 and multipoles in one rbend");
@@ -405,9 +416,15 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         bmlnElmnt * bmelmnt;
 
         if ((0.0 == e1) && (0.0 == e2)) {
-            bmelmnt = new rbend(lattice_element.get_name().c_str(), length,
-                    brho * (2.0 * sin(0.5 * angle)) / length, angle);
-            bmelmnt->setTag("RBEND");
+            if (true_rbend) {
+                bmelmnt = new rbend(lattice_element.get_name().c_str(), length,
+                                    brho * (2.0 * sin(0.5 * angle)) / length, angle);
+                bmelmnt->setTag("RBEND");
+            } else {
+                bmelmnt = new sbend(lattice_element.get_name().c_str(), arc_length,
+                                    brho * angle / arc_length, angle,
+                                    angle/2.0, angle/2.0);
+            }
         } else {
             bmelmnt = new rbend(lattice_element.get_name().c_str(), length,
                     brho * (2.0 * sin(0.5 * angle)) / length, angle, e1, e2);
@@ -448,9 +465,18 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
         aligner.tilt = tilt;
 
         bmlnElmnt* elm;
-        if ((0.0 == e1) && (0.0 == e2)) elm = new CF_rbend(
-                lattice_element.get_name().c_str(), length,
-                brho * (2.0 * sin(0.5 * angle)) / length, angle);
+        if ((0.0 == e1) && (0.0 == e2)) {
+            if (true_rbend) {
+                elm = new CF_rbend(
+                        lattice_element.get_name().c_str(), length,
+                        brho * (2.0 * sin(0.5 * angle)) / length, angle);
+            } else {
+                elm = new CF_sbend(
+                        lattice_element.get_name().c_str(), arc_length,
+                        brho * angle / arc_length, angle,
+                        angle/2.0, angle/2.0);
+            }
+        }
         else elm = new CF_rbend(lattice_element.get_name().c_str(), length,
                 brho * (2.0 * sin(0.5 * angle)) / length, angle, e1, e2);
 
@@ -459,15 +485,27 @@ Rbend_mad8_adaptor::get_chef_elements(Lattice_element const& lattice_element,
 
         double multipoleStrength = k1 * brho * length;
         if (multipoleStrength != 0.0) {
-            dynamic_cast<CF_rbend* >(elm)->setQuadrupole(multipoleStrength);
+            if (true_rbend) {
+                dynamic_cast<CF_rbend* >(elm)->setQuadrupole(multipoleStrength);
+            } else {
+                dynamic_cast<CF_sbend* >(elm)->setQuadrupole(multipoleStrength);
+            }
         }
         multipoleStrength = k2 * brho * length / 2.0;
         if (multipoleStrength != 0.0) {
-            dynamic_cast<CF_rbend* >(elm)->setSextupole(multipoleStrength);
+            if (true_rbend) {
+                dynamic_cast<CF_rbend* >(elm)->setSextupole(multipoleStrength);
+            } else {
+                dynamic_cast<CF_sbend* >(elm)->setSextupole(multipoleStrength);
+            }
         }
         multipoleStrength = k3 * brho * length / 6.0;
         if (multipoleStrength != 0.0) {
-            dynamic_cast<CF_rbend* >(elm)->setOctupole(multipoleStrength);
+            if (true_rbend) {
+                dynamic_cast<CF_rbend* >(elm)->setOctupole(multipoleStrength);
+            } else {
+                dynamic_cast<CF_sbend* >(elm)->setOctupole(multipoleStrength);
+            }
         }
 
         ElmPtr elmP(elm);
