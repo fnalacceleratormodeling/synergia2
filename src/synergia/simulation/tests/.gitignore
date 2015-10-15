@@ -40,3 +40,5 @@ sextupole_correctors.txt
 *.xml
 !foborodobo32.xml
 second_checkpoint
+num_turns_checkpoint
+test_acceleration
