@@ -7,7 +7,7 @@
 Lattice_element::Lattice_element() :
         type(""), name(""), default_element_sptr(), ancestors(), double_attributes(), string_attributes(), length_attribute_name(
                 "l"), bend_angle_attribute_name("angle"), revision(0), needs_internal_derive(
-                false), needs_external_derive(false)
+                false), needs_external_derive(false), lattice_ptr(0)
 {
 
 }
@@ -16,7 +16,7 @@ Lattice_element::Lattice_element(std::string const& type,
         std::string const& name) :
         type(type), name(name), default_element_sptr(), ancestors(), double_attributes(), string_attributes(), length_attribute_name(
                 "l"), bend_angle_attribute_name("angle"), revision(0), needs_internal_derive(
-                false), needs_external_derive(false)
+                false), needs_external_derive(false), lattice_ptr(0)
 {
 
 }
@@ -27,7 +27,7 @@ Lattice_element::Lattice_element(Lattice_element const& lattice_element) :
                 lattice_element.length_attribute_name), bend_angle_attribute_name(
                 lattice_element.bend_angle_attribute_name), revision(0), needs_internal_derive(
                 lattice_element.needs_internal_derive), needs_external_derive(
-                lattice_element.needs_external_derive)
+                lattice_element.needs_external_derive), lattice_ptr(0)
 {
     std::copy(lattice_element.ancestors.begin(),
             lattice_element.ancestors.end(),
@@ -280,6 +280,39 @@ Lattice_element::get_revision() const
 {
     return revision;
 }
+
+bool
+Lattice_element::has_lattice() const
+{
+    return (lattice_ptr != 0);
+}
+
+void
+Lattice_element::set_lattice(Lattice &lattice)
+{
+    lattice_ptr = &lattice;
+}
+
+Lattice &
+Lattice_element::get_lattice()
+{
+    if(! has_lattice()) {
+        throw std::runtime_error(
+                    "Lattice_element::get_lattice: element not part of any lattice");
+    }
+    return *lattice_ptr;
+}
+
+Lattice &
+Lattice_element::get_lattice() const
+{
+    if(! has_lattice()) {
+        throw std::runtime_error(
+                    "Lattice_element::get_lattice: element not part of any lattice");
+    }
+    return *lattice_ptr;
+}
+
 
 std::string
 Lattice_element::as_string() const

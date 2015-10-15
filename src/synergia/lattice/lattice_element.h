@@ -12,6 +12,8 @@
 class Lattice_element;
 typedef boost::shared_ptr<Lattice_element > Lattice_element_sptr; // syndoc:include
 
+class Lattice;
+
 /// The Lattice_element class contains the description of a single
 /// lattice element. Each element has a name, a (string) type and
 /// dictionaries of named double and string attributes.
@@ -31,6 +33,7 @@ private:
     std::string bend_angle_attribute_name;
     long int revision;
     bool needs_internal_derive, needs_external_derive;
+    Lattice *lattice_ptr;
 
 public:
     /// Construct a Lattice_element with an empty name and type.
@@ -177,6 +180,22 @@ public:
     /// Get the Lattice_element's revision number
     long int
     get_revision() const;
+
+    /// Check whether the element has a reference to a parent lattice
+    bool
+    has_lattice() const;
+
+    /// Set the reference to the parent lattice
+    void
+    set_lattice(Lattice &lattice);
+
+    /// Get a reference to the parent lattice
+    Lattice &
+    get_lattice();
+
+    /// Get a reference to the parent lattice
+    Lattice &
+    get_lattice() const;
 
     /// Return a human-readable description of the Lattice_element
     std::string

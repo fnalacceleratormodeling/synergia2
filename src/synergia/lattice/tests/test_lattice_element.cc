@@ -1,6 +1,7 @@
 #define BOOST_TEST_MAIN
 #include <boost/test/unit_test.hpp>
 #include "synergia/lattice/lattice_element.h"
+#include "synergia/lattice/lattice.h"
 #include "synergia/utils/serialization.h"
 #include "synergia/utils/serialization_files.h"
 #include "synergia/utils/boost_test_mpi_fixture.h"
@@ -16,6 +17,7 @@ const std::string strval2("qux");
 const std::string def_attr("corge");
 const double def_dblval(4.669201); //first Feigenbaum constant, $\delta$
 const std::string def_strval("garply");
+const std::string lattice_name("foo_lattice");
 const double tolerance = 1.0e-12;
 
 BOOST_AUTO_TEST_CASE(construct)
@@ -234,7 +236,43 @@ BOOST_AUTO_TEST_CASE(set_needs_external_derive)
     BOOST_CHECK(!lattice_element.get_needs_external_derive());
 }
 
-BOOST_AUTO_TEST_CASE(copy)
+BOOST_AUTO_TEST_CASE(has_lattice)
+{
+    Lattice_element lattice_element(type, name);
+    BOOST_CHECK(!lattice_element.has_lattice());
+}
+
+BOOST_AUTO_TEST_CASE(set_lattice)
+{
+    Lattice_element lattice_element(type, name);
+    Lattice lattice(lattice_name);
+    lattice_element.set_lattice(lattice);
+    BOOST_CHECK(lattice_element.has_lattice());
+}
+
+BOOST_AUTO_TEST_CASE(get_lattice)
+{
+    Lattice_element lattice_element(type, name);
+    Lattice lattice(lattice_name);
+    lattice_element.set_lattice(lattice);
+    BOOST_CHECK_EQUAL(&(lattice_element.get_lattice()), &lattice);
+}
+
+BOOST_AUTO_TEST_CASE(get_lattice_no_lattice)
+{
+    Lattice_element lattice_element(type, name);
+
+    bool caught = false;
+    try {
+        lattice_element.get_lattice();
+    }
+    catch (std::runtime_error &) {
+        caught = true;
+    }
+    BOOST_CHECK(caught);
+}
+
+BOOST_AUTO_TEST_CASE(copy_test)
 {
     Lattice_element lattice_element(type, name);
     lattice_element.set_double_attribute("one", 1.0);
