@@ -29,7 +29,9 @@ Lattice::Lattice(Lattice const& lattice) :
 {
     for (Lattice_elements::const_iterator it = lattice.elements.begin();
             it != lattice.elements.end(); ++it) {
-        elements.push_back(Lattice_element_sptr(new Lattice_element(**it)));
+        Lattice_element_sptr lattice_element_sptr(new Lattice_element(**it));
+        elements.push_back(lattice_element_sptr);
+        lattice_element_sptr->set_lattice(*this);
     }
     if (lattice.reference_particle_allocated) {
         reference_particle_ptr = new Reference_particle(
@@ -71,6 +73,7 @@ Lattice::append(Lattice_element const& element)
 {
     Lattice_element_sptr element_sptr(new Lattice_element(element));
     elements.push_back(element_sptr);
+    element_sptr->set_lattice(*this);
 }
 
 void

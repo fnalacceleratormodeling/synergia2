@@ -173,6 +173,18 @@ BOOST_AUTO_TEST_CASE(get_total_angle2)
     BOOST_CHECK_CLOSE(lattice.get_total_angle(), 2*pi, tolerance);
 }
 
+BOOST_AUTO_TEST_CASE(lattice_from_lattice_element)
+{
+    Lattice_element f("footype", "foo");
+    Lattice lattice(name);
+    lattice.append(f);
+    for(Lattice_elements::const_iterator it = lattice.get_elements().begin();
+        it != lattice.get_elements().end(); ++it) {
+        BOOST_CHECK((*it)->has_lattice());
+        BOOST_CHECK_EQUAL(&((*it)->get_lattice()), &lattice);
+    }
+}
+
 BOOST_AUTO_TEST_CASE(copy_lattice)
 {
     Lattice_element f("footype", "foo");
@@ -194,6 +206,12 @@ BOOST_AUTO_TEST_CASE(copy_lattice)
             foo_length, tolerance);
     BOOST_CHECK_CLOSE((*copied_lattice.get_elements().begin())->get_length(),
             foo_length, tolerance);
+
+    for(Lattice_elements::const_iterator it = copied_lattice.get_elements().begin();
+        it != copied_lattice.get_elements().end(); ++it) {
+        BOOST_CHECK((*it)->has_lattice());
+        BOOST_CHECK_EQUAL(&((*it)->get_lattice()), &copied_lattice);
+    }
 
     const double new_length = 2.0;
     (*copied_lattice.get_elements().begin())->set_double_attribute("l", new_length);
