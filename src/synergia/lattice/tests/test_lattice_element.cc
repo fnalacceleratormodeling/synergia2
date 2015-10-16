@@ -18,6 +18,9 @@ const std::string def_attr("corge");
 const double def_dblval(4.669201); //first Feigenbaum constant, $\delta$
 const std::string def_strval("garply");
 const std::string lattice_name("foo_lattice");
+const int charge = -1;
+const double mass = 100.0;
+const double total_energy = 125.0;
 const double tolerance = 1.0e-12;
 
 BOOST_AUTO_TEST_CASE(construct)
@@ -270,6 +273,24 @@ BOOST_AUTO_TEST_CASE(get_lattice_no_lattice)
         caught = true;
     }
     BOOST_CHECK(caught);
+}
+
+BOOST_AUTO_TEST_CASE(get_lattice_reference_particle)
+{
+    Lattice_element lattice_element(type, name);
+    Lattice lattice(lattice_name);
+    Reference_particle reference_particle(charge, mass, total_energy);
+    lattice.set_reference_particle(reference_particle);
+    lattice.append(lattice_element);
+
+    Lattice_elements const &lattice_elements(lattice.get_elements());
+    for (Lattice_elements::const_iterator leit=lattice_elements.begin();
+         leit!=lattice_elements.end(); ++leit) {
+
+        BOOST_CHECK_EQUAL((*leit)->get_lattice().get_reference_particle().get_charge(), charge);
+        BOOST_CHECK_CLOSE((*leit)->get_lattice().get_reference_particle().get_four_momentum().get_mass(), mass, tolerance);
+        BOOST_CHECK_CLOSE((*leit)->get_lattice().get_reference_particle().get_total_energy(), total_energy, tolerance);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(copy_test)
