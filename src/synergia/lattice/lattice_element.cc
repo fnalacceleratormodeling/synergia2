@@ -303,7 +303,7 @@ Lattice_element::get_lattice()
     return *lattice_ptr;
 }
 
-Lattice &
+Lattice const&
 Lattice_element::get_lattice() const
 {
     if(! has_lattice()) {

@@ -194,7 +194,7 @@ public:
     get_lattice();
 
     /// Get a reference to the parent lattice
-    Lattice &
+    Lattice const&
     get_lattice() const;
 
     /// Return a human-readable description of the Lattice_element
