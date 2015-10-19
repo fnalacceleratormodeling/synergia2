@@ -4,7 +4,7 @@ import sys
 sys.path.append('../../..')
 import local_paths
 
-from synergia.lattice import Lattice_element
+from synergia.lattice import Lattice_element, Lattice
 from nose.tools import *
 
 name = "foo"
@@ -74,4 +74,18 @@ def test_add_ancestor():
     assert_equal(ancestors[0], "pa")
     assert_equal(ancestors[1], "grandpa")
 
+def test_has_lattice():
+    lattice_element = Lattice_element(type, name)
+    has_one = lattice_element.has_lattice()
+    assert_equal(has_one, False)
+
+lattice_name = "foo_lattice"
+def test_set_get_lattice():
+    lattice_element = Lattice_element(type, name)
+    lattice = Lattice(lattice_name)
+    lattice_element.set_lattice(lattice)
+    # This is a less-than-optimal test. The test in
+    # test_lattice_element.cc is better.
+    assert_equal(lattice_element.get_lattice().get_name(),
+        lattice.get_name())
 

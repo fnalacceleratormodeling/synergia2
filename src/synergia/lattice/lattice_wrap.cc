@@ -89,6 +89,7 @@ BOOST_PYTHON_FUNCTION_OVERLOADS(binary_save_lattice_overloads23,
 BOOST_PYTHON_MODULE(lattice)
 {
 //    import("pyconvertors");
+    typedef Lattice & (Lattice_element::*get_lattice_non_const_type)();
     class_<Lattice_element, Lattice_element_sptr >("Lattice_element",
             init<std::string, std::string >())
         .def("get_type", &Lattice_element::get_type,
@@ -123,6 +124,10 @@ BOOST_PYTHON_MODULE(lattice)
         .def("get_length", &Lattice_element::get_length)
         .def("get_bend_angle", &Lattice_element::get_bend_angle)
         .def("get_revision", &Lattice_element::get_revision)
+        .def("has_lattice", &Lattice_element::has_lattice)
+        .def("set_lattice", &Lattice_element::set_lattice)
+        .def("get_lattice", get_lattice_non_const_type(&Lattice_element::get_lattice),
+             return_internal_reference<>())
         .def("print_",&Lattice_element::print)
         .def("as_string", &Lattice_element::as_string)
        ;
