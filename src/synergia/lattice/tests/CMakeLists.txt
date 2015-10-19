@@ -23,7 +23,12 @@ add_test_executable(test_lattice test_lattice.cc)
 target_link_libraries(test_lattice synergia_lattice synergia_foundation
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_lattice COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_lattice>)
-# add_test(NAME test_pylattice COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_lattice.py)
+add_test(NAME test_lattice_py COMMAND
+    ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1
+    ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()"
+    test_lattice.py)
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_lattice.py
+    DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_test_executable(test_lattice_diagnostics test_lattice_diagnostics.cc)
 target_link_libraries(test_lattice_diagnostics synergia_lattice synergia_foundation ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
