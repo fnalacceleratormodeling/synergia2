@@ -17,7 +17,7 @@ class Cache_entry:
 
 class Lattice_cache:
     def __init__(self, file_name, line_name):
-        self.version = 2
+        self.version = 3
         self.file_name = file_name
         self.real_file = (file_name != None)
         if self.real_file:
@@ -32,7 +32,7 @@ class Lattice_cache:
             self.max_index = 0
 
     def _get_hash_hex(self):
-        hash = hashlib.sha1(open(self.file_name, 'r').read())
+        hash = hashlib.sha1(open(self.file_name, 'r').read() + str(self.version))
         return hash.hexdigest()
 
     def _read_cache(self):

@@ -345,6 +345,8 @@ BOOST_AUTO_TEST_CASE(test_serialize)
     Lattice_element lattice_element(type, name);
     lattice_element.set_double_attribute(attr, dblval);
     lattice_element.set_string_attribute(attr, strval);
+    Lattice lattice(lattice_name);
+    lattice_element.set_lattice(lattice);
     xml_save<Lattice_element >(lattice_element, "lattice_element.xml");
 
     Lattice_element loaded;
@@ -355,4 +357,6 @@ BOOST_AUTO_TEST_CASE(test_serialize)
     BOOST_CHECK_CLOSE(loaded.get_double_attribute(attr), dblval, tolerance);
     BOOST_CHECK(loaded.has_string_attribute(attr));
     BOOST_CHECK(loaded.get_string_attribute(attr) == strval);
+    BOOST_CHECK(loaded.has_lattice());
+    BOOST_CHECK(loaded.get_lattice().get_name() == lattice_name);
 }

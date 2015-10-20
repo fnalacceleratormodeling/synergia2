@@ -1,4 +1,5 @@
 #include "lattice_element.h"
+#include "lattice.h"
 #include <algorithm>
 #include <iostream>
 #include <stdexcept>
@@ -385,7 +386,8 @@ template<class Archive>
         & BOOST_SERIALIZATION_NVP(bend_angle_attribute_name)
         & BOOST_SERIALIZATION_NVP(revision)
         & BOOST_SERIALIZATION_NVP(needs_internal_derive)
-        & BOOST_SERIALIZATION_NVP(needs_external_derive);
+        & BOOST_SERIALIZATION_NVP(needs_external_derive)
+        & BOOST_SERIALIZATION_NVP(lattice_ptr);
     }
 
 template
