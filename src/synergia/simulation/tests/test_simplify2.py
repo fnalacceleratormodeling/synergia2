@@ -64,7 +64,7 @@ def test_debuncher():
     xml_load_lattice(orig, "lattices/fnal_debuncher.xml")
     simp = simplify_all(orig)
 
-    general_exam(orig, simp, 204, 2, 13)
+    general_exam(orig, simp, 205, 2, 12)
 
 def test_main_injector():
     orig = Lattice()

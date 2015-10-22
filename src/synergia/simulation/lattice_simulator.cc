@@ -327,7 +327,9 @@ Lattice_simulator::construct_extractor_map()
             new Chef_mixed_operation_extractor(chef_lattice_sptr, map_order));
 
     extractor_map_sptr->set_extractor(default_operation_extractor_name,
-            chef_mixed_operation_extractor);
+                                      Operation_extractor_sptr(
+                                              new Chef_propagate_operation_extractor(chef_lattice_sptr,
+                                                                                     map_order)));
     extractor_map_sptr->set_extractor(chef_mixed_operation_extractor_name,
             chef_mixed_operation_extractor);
     extractor_map_sptr->set_extractor(chef_propagate_operation_extractor_name,
