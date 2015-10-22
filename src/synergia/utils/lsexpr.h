@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <sstream>
 
 struct Lsexpr;
 
@@ -31,29 +32,31 @@ struct Lsexpr
       , sequence()
     { }
 
-//    Lsexpr(int atom) :
-//        has_label(false)
-//      , label("")
-//      , is_atom(true)
-//      , atom()
-//      , sequence()
-//    {
-//        std::stringstream ss;
-//        ss << atom;
-//        this->atom = ss.str();
-//    }
+    Lsexpr(int atom) :
+        has_label(false)
+      , label("")
+      , is_atom(true)
+      , atom()
+      , sequence()
+    {
+        std::stringstream ss;
+        ss << atom;
+        this->atom = ss.str();
+    }
 
-//    Lsexpr(double atom) :
-//        has_label(false)
-//      , label("")
-//      , is_atom(true)
-//      , atom(atom)
-//      , sequence()
-//    {
-//        std::stringstream ss;
-//        ss << atom;
-//        this->atom = ss.str();
-//    }
+    Lsexpr(double atom) :
+        has_label(false)
+      , label("")
+      , is_atom(true)
+      , atom(atom)
+      , sequence()
+    {
+        std::stringstream ss;
+        const int precision = 15;
+        ss.precision(precision);
+        ss << atom;
+        this->atom = ss.str();
+    }
 
     void set_label(std::string const& label)
     {
