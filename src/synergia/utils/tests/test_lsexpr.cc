@@ -23,29 +23,29 @@ BOOST_AUTO_TEST_CASE(write_lsexpr_labeled_atom)
     std::cout << std::endl;
 }
 
-BOOST_AUTO_TEST_CASE(write_lsexpr_list)
+BOOST_AUTO_TEST_CASE(write_lsexpr_sequence)
 {
     Lsexpr lsexpr;
     Lsexpr foo("foo");
-    lsexpr.list.push_back(foo);
+    lsexpr.sequence.push_back(foo);
     Lsexpr bar("bar");
-    lsexpr.list.push_back(bar);
+    lsexpr.sequence.push_back(bar);
     Lsexpr baz("baz");
-    lsexpr.list.push_back(baz);
+    lsexpr.sequence.push_back(baz);
     write_lsexpr(lsexpr, std::cout);
     std::cout << std::endl;
 }
 
-BOOST_AUTO_TEST_CASE(write_lsexpr_labeled_list)
+BOOST_AUTO_TEST_CASE(write_lsexpr_labeled_sequence)
 {
     Lsexpr lsexpr;
     lsexpr.set_label("other_label");
     Lsexpr foo("foo");
-    lsexpr.list.push_back(foo);
+    lsexpr.sequence.push_back(foo);
     Lsexpr bar("bar");
-    lsexpr.list.push_back(bar);
+    lsexpr.sequence.push_back(bar);
     Lsexpr baz("baz");
-    lsexpr.list.push_back(baz);
+    lsexpr.sequence.push_back(baz);
     write_lsexpr(lsexpr, std::cout);
     std::cout << std::endl;
 }
@@ -55,17 +55,17 @@ BOOST_AUTO_TEST_CASE(write_lsexpr_complex)
     Lsexpr lsexpr;
     lsexpr.set_label("complex");
     Lsexpr foo("foo");
-    lsexpr.list.push_back(foo);
+    lsexpr.sequence.push_back(foo);
     Lsexpr bar("bar");
     bar.set_label("second_element");
-    lsexpr.list.push_back(bar);
+    lsexpr.sequence.push_back(bar);
     Lsexpr weird;
     weird.set_label("weird_elements");
     Lsexpr corge("corge");
-    weird.list.push_back(corge);
+    weird.sequence.push_back(corge);
     Lsexpr garply("garply");
-    weird.list.push_back(garply);
-    lsexpr.list.push_back(weird);
+    weird.sequence.push_back(garply);
+    lsexpr.sequence.push_back(weird);
     write_lsexpr(lsexpr, std::cout);
     std::cout << std::endl;
 }
@@ -84,15 +84,15 @@ BOOST_AUTO_TEST_CASE(read_lsexpr_atom)
     std::cout << std::endl;
 }
 
-BOOST_AUTO_TEST_CASE(read_lsexpr_list)
+BOOST_AUTO_TEST_CASE(read_lsexpr_sequence)
 {
     Lsexpr lsexpr;
     Lsexpr foo("foo");
-    lsexpr.list.push_back(foo);
+    lsexpr.sequence.push_back(foo);
     Lsexpr bar("bar");
-    lsexpr.list.push_back(bar);
+    lsexpr.sequence.push_back(bar);
     Lsexpr baz("baz");
-    lsexpr.list.push_back(baz);
+    lsexpr.sequence.push_back(baz);
     std::cout << "original:\n";
     write_lsexpr(lsexpr, std::cout);
     std::cout << std::endl;
@@ -104,16 +104,16 @@ BOOST_AUTO_TEST_CASE(read_lsexpr_list)
     std::cout << std::endl;
 }
 
-BOOST_AUTO_TEST_CASE(read_lsexpr_labeled_list)
+BOOST_AUTO_TEST_CASE(read_lsexpr_labeled_sequence)
 {
     Lsexpr lsexpr;
     lsexpr.set_label("other_label");
     Lsexpr foo("foo");
-    lsexpr.list.push_back(foo);
+    lsexpr.sequence.push_back(foo);
     Lsexpr bar("bar");
-    lsexpr.list.push_back(bar);
+    lsexpr.sequence.push_back(bar);
     Lsexpr baz("baz");
-    lsexpr.list.push_back(baz);
+    lsexpr.sequence.push_back(baz);
     std::cout << "original:\n";
     write_lsexpr(lsexpr, std::cout);
     std::cout << std::endl;
@@ -130,17 +130,17 @@ BOOST_AUTO_TEST_CASE(read_lsexpr_complex)
     Lsexpr lsexpr;
     lsexpr.set_label("complex");
     Lsexpr foo("foo");
-    lsexpr.list.push_back(foo);
+    lsexpr.sequence.push_back(foo);
     Lsexpr bar("bar");
     bar.set_label("second_element");
-    lsexpr.list.push_back(bar);
+    lsexpr.sequence.push_back(bar);
     Lsexpr weird;
     weird.set_label("weird_elements");
     Lsexpr corge("corge");
-    weird.list.push_back(corge);
+    weird.sequence.push_back(corge);
     Lsexpr garply("garply");
-    weird.list.push_back(garply);
-    lsexpr.list.push_back(weird);
+    weird.sequence.push_back(garply);
+    lsexpr.sequence.push_back(weird);
     std::cout << "original:\n";
     write_lsexpr(lsexpr, std::cout);
     std::cout << std::endl;
@@ -151,4 +151,3 @@ BOOST_AUTO_TEST_CASE(read_lsexpr_complex)
     write_lsexpr(parsed_lsexpr, std::cout);
     std::cout << std::endl;
 }
-

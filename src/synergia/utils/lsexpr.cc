@@ -11,24 +11,24 @@ Lsexpr read_lsexpr(std::istream & stream)
     while(!stream.eof()) {
         if(c == '{' && !in_str) {
             Lsexpr empty;
-            current->list.push_back(empty);
+            current->sequence.push_back(empty);
             parent = current;
-            current = &(current->list.back());
+            current = &(current->sequence.back());
         } else if(c == '}' && !in_str) {
             if(!current->atom.empty()) {
                 current->is_atom = true;
             }
             Lsexpr empty;
-            current = &(parent->list.back());
-            current->list.push_back(empty);
+            current = &(parent->sequence.back());
+            current->sequence.push_back(empty);
         } else if((c == ',') && !in_str) {
             if(!current->atom.empty()) {
                 current->is_atom = true;
             }
             Lsexpr empty;
             current = parent;
-            current->list.push_back(empty);
-            current = &(current->list.back());
+            current->sequence.push_back(empty);
+            current = &(current->sequence.back());
         } else if(c=='"') {
             in_str = !in_str;
         } else if((c == ' ') || (c == '\n') || (c == '\t')) {
@@ -65,10 +65,10 @@ void write_lsexpr_internal(Lsexpr const& lsexpr, std::ostream & stream,
             stream << "\n" << std::string(indent, ' ');
         }
         stream << "{";
-        for(std::vector<Lsexpr>::const_iterator it = lsexpr.list.begin();
-            it != lsexpr.list.end(); ++it) {
+        for(std::vector<Lsexpr>::const_iterator it = lsexpr.sequence.begin();
+            it != lsexpr.sequence.end(); ++it) {
             write_lsexpr_internal(*it, stream, indent, false);
-            if ((it+1) != lsexpr.list.end()) {
+            if ((it+1) != lsexpr.sequence.end()) {
                 stream << ", ";
             }
         }

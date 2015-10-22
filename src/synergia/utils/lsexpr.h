@@ -13,14 +13,14 @@ struct Lsexpr
     std::string label;
     bool is_atom;
     std::string atom;
-    std::vector<Lsexpr> list;
+    std::vector<Lsexpr> sequence;
 
     Lsexpr() :
         has_label(false)
       , label("")
       , is_atom(false)
       , atom("")
-      , list()
+      , sequence()
     { }
 
     Lsexpr(std::string const& atom) :
@@ -28,7 +28,7 @@ struct Lsexpr
       , label("")
       , is_atom(true)
       , atom(atom)
-      , list()
+      , sequence()
     { }
 
 //    Lsexpr(int atom) :
@@ -36,7 +36,7 @@ struct Lsexpr
 //      , label("")
 //      , is_atom(true)
 //      , atom()
-//      , list()
+//      , sequence()
 //    {
 //        std::stringstream ss;
 //        ss << atom;
@@ -48,7 +48,7 @@ struct Lsexpr
 //      , label("")
 //      , is_atom(true)
 //      , atom(atom)
-//      , list()
+//      , sequence()
 //    {
 //        std::stringstream ss;
 //        ss << atom;
