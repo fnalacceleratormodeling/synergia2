@@ -1,4 +1,5 @@
 #include "lsexpr.h"
+#include <cstring>
 
 #include <iostream>
 Lsexpr read_lsexpr(std::istream & stream)
@@ -31,7 +32,7 @@ Lsexpr read_lsexpr(std::istream & stream)
             current = &(current->sequence.back());
         } else if(c=='"') {
             in_str = !in_str;
-        } else if((c == ' ') || (c == '\n') || (c == '\t')) {
+        } else if(((c == ' ') || (c == '\n') || (c == '\t')) && !in_str) {
             // pass
         } else if((c == ':' && !in_str)) {
             current->has_label = true;
@@ -49,6 +50,17 @@ Lsexpr read_lsexpr(std::istream & stream)
 }
 
 namespace {
+const char *specials = " \t\n:{},\"";
+
+void write_atom(std::string const& atom, std::ostream & stream)
+{
+    if (std::strcspn(atom.c_str(), specials) != atom.length()) {
+        stream << '"' << atom << '"';
+    } else {
+        stream << atom;
+    }
+}
+
 void write_lsexpr_internal(Lsexpr const& lsexpr, std::ostream & stream,
                   int indent, bool first)
 {
@@ -56,7 +68,7 @@ void write_lsexpr_internal(Lsexpr const& lsexpr, std::ostream & stream,
         stream << lsexpr.label << ": ";
     }
     if(lsexpr.is_atom) {
-        stream << lsexpr.atom;
+        write_atom(lsexpr.atom, stream);
     } else {
         if(!first || lsexpr.has_label) {
             if(!lsexpr.is_atom) {

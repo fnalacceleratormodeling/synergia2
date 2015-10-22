@@ -151,3 +151,24 @@ BOOST_AUTO_TEST_CASE(read_lsexpr_complex)
     write_lsexpr(parsed_lsexpr, std::cout);
     std::cout << std::endl;
 }
+
+BOOST_AUTO_TEST_CASE(read_quoted_whitespace)
+{
+    Lsexpr lsexpr;
+    Lsexpr foo("foo");
+    lsexpr.sequence.push_back(foo);
+    Lsexpr bar("white space");
+    lsexpr.sequence.push_back(bar);
+    Lsexpr baz("baz");
+    lsexpr.sequence.push_back(baz);
+    std::cout << "original:\n";
+    write_lsexpr(lsexpr, std::cout);
+    std::cout << std::endl;
+    std::stringstream sstream;
+    write_lsexpr(lsexpr, sstream);
+    Lsexpr parsed_lsexpr(read_lsexpr(sstream));
+    std::cout << "regurgitated:\n";
+    write_lsexpr(parsed_lsexpr, std::cout);
+    std::cout << std::endl;
+}
+
