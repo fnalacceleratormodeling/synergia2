@@ -26,6 +26,8 @@ target_link_libraries(synergia_distributed_fft ${PARALLEL_FFTW_LIBRARIES}
 
 add_library(synergia_command_line command_line_arg.cc)
 
+add_library(lsexpr lsexpr.cc)
+
 install(TARGETS
     synergia_parallel_utils
     synergia_hdf5_utils

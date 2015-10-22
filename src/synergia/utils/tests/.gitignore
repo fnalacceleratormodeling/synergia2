@@ -23,3 +23,4 @@ test_logger_mpi
 *.xml
 *.h5
 logger-log*
+test_lsexpr

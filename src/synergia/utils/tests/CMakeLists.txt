@@ -110,6 +110,11 @@ target_link_libraries(test_command_line_arg synergia_command_line
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(test_command_line_arg test_command_line_arg)
 
+add_test_executable(test_lsexpr test_lsexpr.cc)
+target_link_libraries(test_lsexpr lsexpr
+    ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
+add_test(test_lsexpr test_lsexpr)
+
 set(CLEAN_FILES
     array1d.h5
     array2d.h5
