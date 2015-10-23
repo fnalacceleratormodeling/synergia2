@@ -61,11 +61,17 @@ void write_atom(std::string const& atom, std::ostream & stream)
     }
 }
 
+void write_label(std::string const& label, std::ostream & stream)
+{
+    write_atom(label, stream);
+    stream << ": ";
+}
+
 void write_lsexpr_internal(Lsexpr const& lsexpr, std::ostream & stream,
                   int indent, bool first)
 {
     if(lsexpr.has_label) {
-        stream << lsexpr.label << ": ";
+        write_label(lsexpr.label, stream);
     }
     if(lsexpr.is_atom) {
         write_atom(lsexpr.atom, stream);

@@ -172,3 +172,41 @@ BOOST_AUTO_TEST_CASE(read_quoted_whitespace)
     std::cout << std::endl;
 }
 
+BOOST_AUTO_TEST_CASE(int_constructor)
+{
+    Lsexpr lsexpr(7);
+    lsexpr.set_label("int");
+    std::cout << "original:\n";
+    write_lsexpr(lsexpr, std::cout);
+    std::cout << std::endl;
+    std::stringstream sstream;
+    write_lsexpr(lsexpr, sstream);
+    Lsexpr parsed_lsexpr(read_lsexpr(sstream));
+    std::cout << "regurgitated:\n";
+    write_lsexpr(parsed_lsexpr, std::cout);
+    std::cout << std::endl;
+}
+
+BOOST_AUTO_TEST_CASE(double_constructor)
+{
+    Lsexpr lsexpr;
+    Lsexpr first(3);
+    first.set_label("really int");
+    lsexpr.push_back(first);
+    Lsexpr second(3.14);
+    second.set_label("short");
+    lsexpr.push_back(second);
+    Lsexpr third(3.141592653689793);
+    third.set_label("long");
+    lsexpr.push_back(third);
+    std::cout << "original:\n";
+    write_lsexpr(lsexpr, std::cout);
+    std::cout << std::endl;
+    std::stringstream sstream;
+    write_lsexpr(lsexpr, sstream);
+    Lsexpr parsed_lsexpr(read_lsexpr(sstream));
+    std::cout << "regurgitated:\n";
+    write_lsexpr(parsed_lsexpr, std::cout);
+    std::cout << std::endl;
+}
+
