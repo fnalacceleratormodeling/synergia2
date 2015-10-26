@@ -319,6 +319,7 @@ std::string
 Lattice_element::as_string() const
 {
     std::stringstream sstream;
+    sstream.precision(15);
     for (std::list<std::string >::const_iterator it = ancestors.begin();
             it != ancestors.end(); ++it) {
         sstream << (*it) << ":";

@@ -25,6 +25,7 @@ std::string
 chef_element_as_string(ElmPtr element_sptr)
 {
     std::stringstream sstream;
+    sstream.precision(15);
     sstream << (element_sptr)->Name() << "(" << (element_sptr)->Type() << "): Length="
             << (element_sptr)->Length() << ", Strength=" << (element_sptr)->Strength();
     if ( (std::strcmp((element_sptr)->Type(),"CF_rbend") == 0) ) {
@@ -73,6 +74,7 @@ std::string
 full_chef_beamline_as_string(BmlPtr beamline_sptr)
 {
     std::stringstream sstream;
+    sstream.precision(15);
     for (beamline::deep_iterator it = beamline_sptr->deep_begin();
             it != beamline_sptr->deep_end(); ++it) {
         sstream << (*it)->Name() << "(" << (*it)->Type() << "): Length="
