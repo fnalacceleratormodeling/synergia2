@@ -20,6 +20,7 @@
 #include <beamline/CF_sbend.h>
 #include <beamline/CF_rbend.h>
 #include <physics_toolkit/Sage.h>
+#include <physics_toolkit/ClosedOrbitSage.h>
 #include <basic_toolkit/PhysicsConstants.h>
 #include <beamline/RefRegVisitor.h>
 #if __GNUC__ > 4 && __GNUC_MINOR__ > 5
@@ -1562,24 +1563,81 @@ Lattice_simulator::adjust_tunes(double horizontal_tune, double vertical_tune,
     }
 }
 
+// calculate_tune_and_cdt will alter the beamline and render it unusable for further calculations
+#define EGSDBG 0
 void
 calculate_tune_and_cdt(const Reference_particle refpart, double dpp, BmlPtr & beamline_sptr,
          BmlPtr & beamline0_sptr, double & tune_h, double &  tune_v, 
            double & c_delta_t)
 {
-  double momentum = refpart.get_momentum();
-  Particle newprobe(reference_particle_to_chef_particle(refpart));
-  newprobe.SetReferenceMomentum(momentum * (1.0 + dpp));
-  newprobe.setStateToZero();
-  beamline_sptr->setEnergy(newprobe.ReferenceEnergy());
-  BeamlineContext probecontext(newprobe, beamline_sptr);           
-  probecontext.handleAsRing();
-  //tune_h = probecontext.getHorizontalFracTune();
-  //tune_v = probecontext.getVerticalFracTune();
-  tune_h  = probecontext.getHorizontalEigenTune();
-  tune_v  = probecontext.getVerticalEigenTune();
-  beamline0_sptr->propagate(newprobe);
-  c_delta_t=newprobe.get_cdt();
+    int p = std::cout.precision(15);
+    extern int filterTransverseTunes( /* const */ MatrixD&, Vector& );
+
+#if EGSDBG
+    std::cout << "egs: calculate_tune_and_cdt: dpp: " << dpp << std::endl;
+#endif
+
+    Particle newprobe(reference_particle_to_chef_particle(refpart));
+#if EGSDBG
+    std::cout << "egs: newprobe: energy: " << newprobe.ReferenceEnergy() << std::endl;
+    std::cout << "egs: newprobe: momentum: " << newprobe.ReferenceMomentum() << std::endl;
+#endif
+    newprobe.set_ndp(dpp);
+#if EGSDBG
+    std::cout << "egs: off-momentum newprobe momentum: " << newprobe.Momentum() << std::endl;
+#endif
+    JetParticle jetprobe(newprobe);
+
+    beamline_sptr->setLineMode(beamline::ring);
+
+    // This calculation inspired by LattFuncSage::FourPointDisp_Calc.
+    // 1. Create closed orbit with dpp offset particle
+    // 2. Propagate JetParticle on that orbit
+    // 3. Extract tunes from it's Jacobian
+    // 4. Blow away the registration and propagate a particle to determine
+    //      absolute time
+    ClosedOrbitSage closed_orbit_sage(beamline_sptr);
+    // for some reason, the closed orbit sage can't find the closed orbit
+    // when it is forced.
+    //closed_orbit_sage.setForcedCalc();
+#if EGSDBG
+    closed_orbit_sage.set_verbose();
+#endif
+    int ret = closed_orbit_sage.findClosedOrbit(jetprobe);
+    if (ret) {
+        throw std::runtime_error("calculate_tunes_and_cdt: can't find closed orbit");
+    }
+    MatrixD jacobian = jetprobe.State().Jacobian();
+    Vector nus(2);
+    if (filterTransverseTunes(jacobian, nus)) {
+        throw std::runtime_error("calculate_tunes_and_cdt: can't filter transverse tunes");
+    }
+    tune_h = nus[0];
+    tune_v = nus[1];
+
+#if EGSDBG
+    std::cout << "egs: calculate_tunes_and_cdt: tunes: h: " << tune_h << ", v: " << tune_v << std::endl;
+#endif
+    Particle closed_orbit_particle(jetprobe);
+
+#if EGSDBG
+    std::cout << "egs: closed_orbit.State(): " << closed_orbit_particle.State() << std::endl;
+    std::cout << "egs: propagate closed orbit particle" << std::endl;
+#endif
+    closed_orbit_particle.set_cdt(0.0);
+#if EGSDBG
+    std::cout << "egs: begin: " << closed_orbit_particle.State() << std::endl;
+#endif
+    // remove times so I can get absolute orbit time
+    for (beamline::deep_iterator bit=beamline_sptr->deep_begin(); bit!=beamline_sptr->deep_end(); ++bit) {
+        (*bit)->setReferenceTime(0.0);
+    }
+    beamline_sptr->propagate(closed_orbit_particle);
+#if EGSDBG
+    std::cout << "egs: end: " << closed_orbit_particle.State() << std::endl;
+#endif
+    c_delta_t = closed_orbit_particle.get_cdt();
+    std::cout.precision(p);
 }
 
 
@@ -1600,9 +1658,10 @@ Lattice_simulator::get_chromaticities(double dpp)
         beamline_sptr->setEnergy(probe.ReferenceEnergy());
         BmlPtr copy_beamline_sptr(beamline_sptr->Clone());
         double gamma = probe.Gamma();
-        double cT0 = beamline_sptr->OrbitLength(probe) / probe.Beta();
+        double cT0;
 
-
+        double tune_h0, tune_v0;
+        calculate_tune_and_cdt(lattice_sptr->get_reference_particle(), 0.0, beamline_sptr, copy_beamline_sptr, tune_h0, tune_v0, cT0);
 
         double tune_h_plus, tune_h_minus ;
         double tune_v_plus, tune_v_minus;
