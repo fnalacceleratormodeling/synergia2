@@ -459,10 +459,10 @@ BOOST_FIXTURE_TEST_CASE(get_chromaticities, Fobodobo_sbend_fixture)
     const double tolerance = 1.0e-3;
     double chrH = lattice_simulator.get_horizontal_chromaticity();
     double chrV = lattice_simulator.get_vertical_chromaticity();
-    const double expected_horizontal_chromaticity = -2.15054;
-    const double expected_vertical_chromaticity = -2.14415;
-    const double expected_slip_factor=0.155889;
-    const double expected_momentum_compaction=0.169645;
+    const double expected_horizontal_chromaticity = -2.15053914;
+    const double expected_vertical_chromaticity = -2.14414478;
+    const double expected_slip_factor=0.148477934;
+    const double expected_momentum_compaction=0.162233472;
     BOOST_CHECK_CLOSE(lattice_simulator.get_horizontal_chromaticity(),
             expected_horizontal_chromaticity, tolerance);
     BOOST_CHECK_CLOSE(lattice_simulator.get_vertical_chromaticity(),
