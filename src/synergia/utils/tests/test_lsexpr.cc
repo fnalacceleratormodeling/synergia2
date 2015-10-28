@@ -210,3 +210,62 @@ BOOST_AUTO_TEST_CASE(double_constructor)
     std::cout << std::endl;
 }
 
+BOOST_AUTO_TEST_CASE(string_vector_constructor)
+{
+    std::vector<std::string> string_vector;
+    string_vector.push_back("foo bar");
+    string_vector.push_back("baz");
+    string_vector.push_back("garply");
+    Lsexpr lsexpr(string_vector);
+    std::cout << "original:\n";
+    write_lsexpr(lsexpr, std::cout);
+    std::cout << std::endl;
+    std::stringstream sstream;
+    write_lsexpr(lsexpr, sstream);
+    Lsexpr parsed_lsexpr(read_lsexpr(sstream));
+    std::cout << "regurgitated:\n";
+    write_lsexpr(parsed_lsexpr, std::cout);
+    std::cout << std::endl;
+}
+
+BOOST_AUTO_TEST_CASE(int_vector_constructor)
+{
+    std::vector<int> int_vector;
+    int_vector.push_back(0);
+    int_vector.push_back(1);
+    int_vector.push_back(1);
+    int_vector.push_back(2);
+    int_vector.push_back(3);
+    int_vector.push_back(5);
+    int_vector.push_back(8);
+    int_vector.push_back(13);
+    Lsexpr lsexpr(int_vector);
+    std::cout << "original:\n";
+    write_lsexpr(lsexpr, std::cout);
+    std::cout << std::endl;
+    std::stringstream sstream;
+    write_lsexpr(lsexpr, sstream);
+    Lsexpr parsed_lsexpr(read_lsexpr(sstream));
+    std::cout << "regurgitated:\n";
+    write_lsexpr(parsed_lsexpr, std::cout);
+    std::cout << std::endl;
+}
+
+BOOST_AUTO_TEST_CASE(double_vector_constructor)
+{
+    std::vector<double> double_vector;
+    double_vector.push_back(-1.7e32);
+    double_vector.push_back(3.141592653589793);
+    double_vector.push_back(7.1e129);
+    Lsexpr lsexpr(double_vector);
+    std::cout << "original:\n";
+    write_lsexpr(lsexpr, std::cout);
+    std::cout << std::endl;
+    std::stringstream sstream;
+    write_lsexpr(lsexpr, sstream);
+    Lsexpr parsed_lsexpr(read_lsexpr(sstream));
+    std::cout << "regurgitated:\n";
+    write_lsexpr(parsed_lsexpr, std::cout);
+    std::cout << std::endl;
+
+}

@@ -66,6 +66,45 @@ struct Lsexpr
     {
     }
 
+    Lsexpr(std::vector<std::string> const& sequence) :
+        has_label(false)
+      , label("")
+      , is_atom(false)
+      , atom()
+      , sequence()
+    {
+        for(std::vector<std::string>::const_iterator it = sequence.begin();
+            it != sequence.end(); ++it) {
+            this->sequence.push_back(Lsexpr(*it));
+        }
+    }
+
+    Lsexpr(std::vector<int> const& sequence) :
+        has_label(false)
+      , label("")
+      , is_atom(false)
+      , atom()
+      , sequence()
+    {
+        for(std::vector<int>::const_iterator it = sequence.begin();
+            it != sequence.end(); ++it) {
+            this->sequence.push_back(Lsexpr(*it));
+        }
+    }
+
+    Lsexpr(std::vector<double> const& sequence) :
+        has_label(false)
+      , label("")
+      , is_atom(false)
+      , atom()
+      , sequence()
+    {
+        for(std::vector<double>::const_iterator it = sequence.begin();
+            it != sequence.end(); ++it) {
+            this->sequence.push_back(Lsexpr(*it));
+        }
+    }
+
     void set_label(std::string const& label)
     {
         this->label = label;
