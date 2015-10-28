@@ -32,30 +32,38 @@ struct Lsexpr
       , sequence()
     { }
 
+    std::string to_string(int i)
+    {
+        std::stringstream ss;
+        ss << i;
+        return ss.str();
+    }
+
+    std::string to_string(double d)
+    {
+        std::stringstream ss;
+        const int precision = 15;
+        ss.precision(precision);
+        ss << d;
+        return(ss.str());
+    }
+
     Lsexpr(int atom) :
         has_label(false)
       , label("")
       , is_atom(true)
-      , atom()
+      , atom(to_string(atom))
       , sequence()
     {
-        std::stringstream ss;
-        ss << atom;
-        this->atom = ss.str();
     }
 
     Lsexpr(double atom) :
         has_label(false)
       , label("")
       , is_atom(true)
-      , atom()
+      , atom(to_string(atom))
       , sequence()
     {
-        std::stringstream ss;
-        const int precision = 15;
-        ss.precision(precision);
-        ss << atom;
-        this->atom = ss.str();
     }
 
     void set_label(std::string const& label)
