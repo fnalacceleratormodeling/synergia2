@@ -26,6 +26,17 @@ BOOST_AUTO_TEST_CASE(construct2)
     Four_momentum four_momentum(mass, total_energy);
 }
 
+BOOST_AUTO_TEST_CASE(lsexpr)
+{
+    Four_momentum original(mass, total_energy);
+    Lsexpr original_as_lsexpr(original.as_lsexpr());
+    Four_momentum from_lsexpr(original_as_lsexpr);
+    BOOST_CHECK_CLOSE(from_lsexpr.get_mass(),mass,
+            tolerance);
+    BOOST_CHECK_CLOSE(from_lsexpr.get_total_energy(), total_energy,
+            tolerance);
+}
+
 BOOST_AUTO_TEST_CASE(get_mass)
 {
     Four_momentum four_momentum(mass);

@@ -2,6 +2,7 @@
 #define FOUR_MOMENTUM_H_
 
 #include "synergia/utils/serialization.h"
+#include "synergia/utils/lsexpr.h"
 
 /// Four_momentum provides conversion between various relativistic kinematic
 /// parameters.
@@ -23,6 +24,14 @@ public:
     /// @param mass in GeV/c^2
     /// @param total_energy in GeV
     Four_momentum(double mass, double total_energy);
+
+    /// Construct a Four_momentum from the Lsexpr representation
+    /// @param lsexpr representation
+    Four_momentum(Lsexpr const& lsexpr);
+
+    /// Extract an Lsexpr representation of the Four_momentum
+    Lsexpr
+    as_lsexpr() const;
 
     /// Set the total energy
     /// @param total_energy in GeV

@@ -33,6 +33,47 @@ Four_momentum::Four_momentum(double mass, double total_energy)
     set_total_energy(total_energy);
 }
 
+Four_momentum::Four_momentum(Lsexpr const& lsexpr)
+{
+    bool found_mass(false), found_gamma(false);
+    for(Lsexpr::const_iterator_t it = lsexpr.begin();
+        it != lsexpr.end(); ++it) {
+        if(it->is_labeled()) {
+            if(it->get_label() == "mass") {
+                mass = it->get_double();
+                found_mass = true;
+            } else if(it->get_label() == "gamma") {
+                gamma = it->get_double();
+                found_gamma = true;
+            } else {
+                throw std::runtime_error("Four_momentum: Lsexpr unknown label '" +
+                                         it->get_label() +
+                                         "'");
+            }
+        }
+    }
+    if(!found_mass) {
+        throw std::runtime_error("Four_momentum: Lsexpr missing mass");
+    }
+    if(!found_gamma) {
+        throw std::runtime_error("Four_momentum: Lsexpr missing gamma");
+    }
+    update_from_gamma();
+}
+
+Lsexpr
+Four_momentum::as_lsexpr() const
+{
+    Lsexpr retval;
+    retval.set_label("Four_momentum");
+    Lsexpr mass_atom(mass);
+    mass_atom.set_label("mass");
+    retval.push_back(mass_atom);
+    Lsexpr gamma_atom(gamma);
+    gamma_atom.set_label("gamma");
+    retval.push_back(gamma_atom);
+    return retval;
+}
 void
 Four_momentum::set_total_energy(double total_energy)
 {
