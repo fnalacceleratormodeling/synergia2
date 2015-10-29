@@ -43,6 +43,14 @@ public:
     Reference_particle(int charge, Four_momentum const& four_momentum,
             Const_MArray1d_ref state);
 
+    /// Construct a Reference_particle from the Lsexpr representation
+    /// @param lsexpr representation
+    Reference_particle(Lsexpr const& lsexpr);
+
+    /// Extract an Lsexpr representation of the Reference_particle
+    Lsexpr
+    as_lsexpr() const;
+
     /// Set the four momentum.
     /// @param four_momentum in the lab frame
     void

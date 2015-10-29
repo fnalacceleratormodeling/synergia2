@@ -35,6 +35,96 @@ Reference_particle::Reference_particle(int charge,
 {
 }
 
+Reference_particle::Reference_particle(Lsexpr const& lsexpr) :
+      state(boost::extents[6])
+    , repetition(0)
+    , s(0)
+    , s_n(0)
+{
+    std::vector<double> lsexpr_state(6);
+    for (int i = 0; i < 6; ++i) {
+        lsexpr_state[i] = 0;
+    }
+    bool found_charge(false), found_four_momentum(false);
+    for(Lsexpr::const_iterator_t it = lsexpr.begin();
+        it != lsexpr.end(); ++it) {
+        if(it->is_labeled()) {
+            if(it->get_label() == "charge") {
+                charge = it->get_int();
+                found_charge = true;
+            } else if(it->get_label() == "four_momentum") {
+                four_momentum = Four_momentum(*it);
+                found_four_momentum = true;
+            } else if(it->get_label() == "repetition") {
+                repetition = it->get_int();
+            } else if(it->get_label() == "s") {
+                s = it->get_double();
+            } else if(it->get_label() == "s_n") {
+                s_n = it->get_double();
+            } else if(it->get_label() == "state") {
+                lsexpr_state = it->get_double_vector();
+            } else {
+                throw std::runtime_error("Reference_particle: Lsexpr unknown label '" +
+                                         it->get_label() +
+                                         "'");
+            }
+        }
+    }
+    if(!found_charge) {
+        throw std::runtime_error("Reference_particle: Lsexpr missing charge");
+    }
+    if(!found_four_momentum) {
+        throw std::runtime_error("Reference_particle: Lsexpr missing four_momentum");
+    }
+    for (int i = 0; i < 6; ++i) {
+        state[i] = lsexpr_state[i];
+    }
+}
+
+Lsexpr Reference_particle::as_lsexpr() const
+{
+    Lsexpr retval;
+
+    Lsexpr four_momentum_lsexpr(four_momentum.as_lsexpr());
+    four_momentum_lsexpr.set_label("four_momentum");
+    retval.push_back(four_momentum_lsexpr);
+
+    Lsexpr charge_lsexpr(charge);
+    charge_lsexpr.set_label("charge");
+    retval.push_back(charge_lsexpr);
+
+    if(repetition != 0) {
+        Lsexpr repetition_lsexpr(repetition);
+        repetition_lsexpr.set_label("repetition");
+        retval.push_back(repetition_lsexpr);
+    }
+
+    if(s != 0) {
+        Lsexpr s_lsexpr(s);
+        s_lsexpr.set_label("s");
+        retval.push_back(s_lsexpr);
+    }
+
+    if(s_n != 0) {
+        Lsexpr s_n_lsexpr(s_n);
+        s_n_lsexpr.set_label("s_n");
+        retval.push_back(s_n_lsexpr);
+    }
+
+    if((state[0] != 0) || (state[1] != 0) || (state[2] != 0) ||
+       (state[3] != 0) || (state[4] != 0) || (state[5] != 0)) {
+        std::vector<double> state_vector(6);
+        for (int i = 0; i < 6; ++i) {
+            state_vector[i] = state[i];
+        }
+        Lsexpr state_lsexpr(state_vector);
+        state_lsexpr.set_label("state");
+        retval.push_back(state_lsexpr);
+    }
+
+    return retval;
+}
+
 void
 Reference_particle::set_four_momentum(Four_momentum const & four_momentum)
 {

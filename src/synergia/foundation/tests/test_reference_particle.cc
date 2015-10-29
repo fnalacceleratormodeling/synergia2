@@ -27,6 +27,25 @@ BOOST_AUTO_TEST_CASE(construct2)
     Reference_particle reference_particle(charge, four_momentum);
 }
 
+BOOST_AUTO_TEST_CASE(construct2_lsexpr)
+{
+    Four_momentum four_momentum(mass);
+    four_momentum.set_total_energy(total_energy);
+    Reference_particle original(charge, four_momentum);
+    Lsexpr original_as_lsexpr(original.as_lsexpr());
+    Reference_particle from_lsexpr(original_as_lsexpr);
+    BOOST_CHECK_EQUAL(from_lsexpr.get_charge(), charge);
+    BOOST_CHECK_CLOSE(from_lsexpr.get_four_momentum().get_total_energy(),
+                      total_energy, tolerance);
+    for (int i = 0; i < 6; ++i) {
+        BOOST_CHECK_CLOSE(from_lsexpr.get_state()[i], 0.0, tolerance);
+    }
+    BOOST_CHECK_EQUAL(from_lsexpr.get_repetition(), 0);
+    BOOST_CHECK_CLOSE(from_lsexpr.get_repetition_length(),
+            0, tolerance);
+    BOOST_CHECK_CLOSE(from_lsexpr.get_s_n(), 0, tolerance);
+}
+
 BOOST_AUTO_TEST_CASE(construct3)
 {
     Four_momentum four_momentum(mass);
@@ -36,6 +55,32 @@ BOOST_AUTO_TEST_CASE(construct3)
         state[i] = 1.1 * i;
     }
     Reference_particle reference_particle(charge, four_momentum, state);
+}
+
+BOOST_AUTO_TEST_CASE(construct3_lsexpr)
+{
+    Four_momentum four_momentum(mass);
+    four_momentum.set_total_energy(total_energy);
+    MArray1d state(boost::extents[6]);
+    for (int i = 0; i < 6; ++i) {
+        state[i] = 1.1 * i;
+    }
+    Reference_particle original(charge, four_momentum, state);
+    const double partial_s = 3 * step_length;
+    original.set_trajectory(turns, steps * step_length, partial_s);
+    Lsexpr original_as_lsexpr(original.as_lsexpr());
+    Reference_particle from_lsexpr(original_as_lsexpr);
+    BOOST_CHECK_EQUAL(from_lsexpr.get_charge(), charge);
+    BOOST_CHECK_CLOSE(from_lsexpr.get_four_momentum().get_total_energy(),
+                      total_energy, tolerance);
+    for (int i = 0; i < 6; ++i) {
+        BOOST_CHECK_CLOSE(original.get_state()[i],
+                          from_lsexpr.get_state()[i], tolerance);
+    }
+    BOOST_CHECK_EQUAL(from_lsexpr.get_repetition(), turns);
+    BOOST_CHECK_CLOSE(from_lsexpr.get_repetition_length(),
+            steps*step_length, tolerance);
+    BOOST_CHECK_CLOSE(from_lsexpr.get_s_n(), partial_s, tolerance);
 }
 
 BOOST_AUTO_TEST_CASE(get_charge)
