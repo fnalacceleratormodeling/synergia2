@@ -230,7 +230,7 @@ struct Lsexpr
         std::vector<double> retval;
         for(const_iterator_t it = begin(); it!= end();
             ++it) {
-            retval.push_back(stoi(it->get_string()));
+            retval.push_back(stod(it->get_string()));
         }
         return retval;
     }
