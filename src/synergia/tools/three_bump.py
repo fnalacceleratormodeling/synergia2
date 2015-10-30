@@ -32,7 +32,7 @@ class Three_bump:
     #     specifies (x,y) or (0,1) specifies (x, xp)
     # verbose = False/True on whether the module is chatty
 
-    def __init__(self, lattice, start_name, end_name, hcorr_names, vcorr_names, target_name, coords=(0,2), verbose=False):
+    def __init__(self, lattice, start_name, end_name, hcorr_names, vcorr_names, target_name, coords=(0,2), verbose=0):
         self.lattice = lattice
         # I keep the elements separately so I can adjust them at the end when I know
         # what the settings are
@@ -78,6 +78,11 @@ class Three_bump:
 
         for elem in self.bump_lattice.get_elements():
             elem.set_string_attribute("extractor_type", "chef_propagate")
+
+        if self.verbose > 2:
+            print "bump lattice:"
+            print self.bump_lattice.as_string()
+            print self.bump_idx
 
         bump_elements = self.bump_lattice.get_elements()
         bump_enames = [e.get_name() for e in bump_elements]
@@ -125,10 +130,10 @@ class Three_bump:
         print "bump_lattice: ", len(self.bump_lattice.get_elements()), " elements, length: ", self.bump_lattice.get_length()
         print "horizontal correctors: "
         for i in range(3):
-            print "\t%s, kick = "%self.hcorr_elements[i].get_name(), self.hcorr_elements[i].get_double_attribute("kick")
+            print "\t%s, kick = %.16g"%(self.hcorr_elements[i].get_name(), self.hcorr_elements[i].get_double_attribute("kick"))
         print "vertical correctors: "
         for i in range(3):
-            print "\t%s, kick = "%self.vcorr_elements[i].get_name(), self.vcorr_elements[i].get_double_attribute("kick")
+            print "\t%s, kick = %.16g"%(self.vcorr_elements[i].get_name(), self.vcorr_elements[i].get_double_attribute("kick"))
         print "target element name: ", self.target_name
 
 
@@ -164,14 +169,18 @@ class Three_bump:
             verbosity = 0
         comm = synergia.utils.Commxx()
         refpart = self.bump_lattice.get_reference_particle()
-        stepper = synergia.simulation.Independent_stepper(self.bump_lattice, 1, 1)
-        #stepper = synergia.simulation.Independent_stepper_elements(self.bump_lattice, 1, 1)
+        #stepper = synergia.simulation.Independent_stepper(self.bump_lattice, 1, 1)
+        stepper = synergia.simulation.Independent_stepper_elements(self.bump_lattice, 1, 1)
+        if self.verbose > 5:
+            print "bump chef beamline"
+            print synergia.lattice.chef_beamline_as_string(stepper.get_lattice_simulator().get_chef_lattice().get_sliced_beamline())
         # 3 particles is the minimum so that the diagnostics don't crash
         bunch = synergia.bunch.Bunch(refpart, 3, 1.0e10, comm)
         bunch.get_local_particles()[:,0:6] = 0.0
         bunch_simulator = synergia.simulation.Bunch_simulator(bunch)
         bunch_simulator.add_per_forced_diagnostics_step(synergia.bunch.Diagnostics_basic("bump_basic.h5"))
         #bunch_simulator.add_per_step(synergia.bunch.Diagnostics_basic("orbit_basic.h5"))
+        bunch_simulator.add_per_step(synergia.bunch.Diagnostics_bulk_track("orbit_track.h5", 1))
         propagator = synergia.simulation.Propagator(stepper)
         propagator.propagate(bunch_simulator, 1, 1, verbosity)
 
