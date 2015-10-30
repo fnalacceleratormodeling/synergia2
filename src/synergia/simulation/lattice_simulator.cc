@@ -407,15 +407,26 @@ Lattice_simulator::is_ring()
 void
 Lattice_simulator::get_tunes(bool use_eigen_tune)
 {
+    void calculate_tune_and_cdt(const Reference_particle, double, BmlPtr &, BmlPtr &,
+                                double&, double&, double &);
     if (!have_tunes) {
-        get_beamline_context();
-        if (use_eigen_tune) {
-            horizontal_tune = beamline_context_sptr->getHorizontalEigenTune();
-            vertical_tune = beamline_context_sptr->getVerticalEigenTune();
-        } else {
-            horizontal_tune = beamline_context_sptr->getHorizontalFracTune();
-            vertical_tune = beamline_context_sptr->getVerticalFracTune();
+        if (Jet__environment::getLastEnv() == 0) {
+            JetParticle::createStandardEnvironments(map_order);
         }
+        double momentum(lattice_sptr->get_reference_particle().get_momentum());
+        Particle probe(reference_particle_to_chef_particle(
+                lattice_sptr->get_reference_particle()));
+
+        probe.setStateToZero();
+        BmlPtr beamline_sptr(chef_lattice_sptr->get_beamline_sptr()->Clone());
+        beamline_sptr->setEnergy(probe.ReferenceEnergy());
+        BmlPtr copy_beamline_sptr(beamline_sptr->Clone());
+
+        double tune_h0, tune_v0, cT0;
+        calculate_tune_and_cdt(lattice_sptr->get_reference_particle(), 0.0,
+                               beamline_sptr, copy_beamline_sptr, tune_h0, tune_v0, cT0);
+        horizontal_tune = tune_h0;
+        vertical_tune = tune_v0;
 
         have_tunes = true;
     }

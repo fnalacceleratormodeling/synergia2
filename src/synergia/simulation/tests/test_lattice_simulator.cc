@@ -424,7 +424,7 @@ BOOST_FIXTURE_TEST_CASE(get_linear_one_turn_map_after_get_tunes, Foborodobo32_fi
 
     // This test fails before update() is added to the get_xxxxx_tune() routine.
     const double expected_frac_tune = 0.224126196916268;
-    const double expected_eigen_tune = 0.224113175247965;
+    const double expected_eigen_tune = 0.22412619691626814;
 
     double horizontal_tune = lattice_simulator.get_horizontal_tune();
     BOOST_CHECK_CLOSE(horizontal_tune, expected_frac_tune, tolerance);
