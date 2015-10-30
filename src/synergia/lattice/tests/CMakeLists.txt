@@ -6,7 +6,7 @@ target_link_libraries(test_chef_utils synergia_lattice synergia_foundation
 add_test(test_chef_utils test_chef_utils)
 
 add_test_executable(test_lattice_element test_lattice_element.cc)
-target_link_libraries(test_lattice_element synergia_lattice
+target_link_libraries(test_lattice_element synergia_lattice lsexpr
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_lattice_element COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_lattice_element>)
 add_test(NAME test_lattice_element_py COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_lattice_element.py)

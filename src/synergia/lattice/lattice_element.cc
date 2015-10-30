@@ -44,6 +44,134 @@ Lattice_element::Lattice_element(Lattice_element const& lattice_element) :
             std::inserter(vector_attributes, vector_attributes.begin()));
 }
 
+Lattice_element::Lattice_element(Lsexpr const& lsexpr)
+    : type("")
+    , name("")
+    , default_element_sptr()
+    , ancestors()
+    , double_attributes()
+    , string_attributes()
+    , length_attribute_name("l")
+    , bend_angle_attribute_name("angle")
+    , revision(0)
+    , needs_internal_derive(false)
+    , needs_external_derive(false)
+    , lattice_ptr(0)
+{
+    for (Lsexpr::const_iterator_t it = lsexpr.begin(); it != lsexpr.end();
+         ++it) {
+        if (it->is_labeled()) {
+            if (it->get_label() == "type") {
+                type = it->get_string();
+            } else if (it->get_label() == "name") {
+                name = it->get_string();
+            } else if (it->get_label() == "ancestors") {
+                std::vector<std::string> ancestors_vector(
+                    it->get_string_vector());
+                std::copy(ancestors_vector.begin(), ancestors_vector.end(),
+                          std::back_inserter(ancestors));
+            } else if (it->get_label() == "double_attributes") {
+                for (Lsexpr::const_iterator_t ait = it->begin();
+                     ait != it->end(); ++ait) {
+                    double_attributes[ait->get_label()] = ait->get_double();
+                }
+            } else if (it->get_label() == "string_attributes") {
+                for (Lsexpr::const_iterator_t ait = it->begin();
+                     ait != it->end(); ++ait) {
+                    string_attributes[ait->get_label()] = ait->get_string();
+                }
+            } else if (it->get_label() == "vector_attributes") {
+                for (Lsexpr::const_iterator_t ait = it->begin();
+                     ait != it->end(); ++ait) {
+                    vector_attributes[ait->get_label()] =
+                        ait->get_double_vector();
+                }
+            } else {
+                if (!it->is_atomic()) {
+                    for (Lsexpr::const_iterator_t ait = it->begin();
+                         ait != ait->end(); ++ait) {
+                        double_attributes[ait->get_label()] = ait->get_double();
+                    }
+                }
+            }
+        }
+    }
+}
+
+Lsexpr
+Lattice_element::as_lsexpr() const
+{
+    Lsexpr retval;
+    Lsexpr type_lsexpr(type);
+    type_lsexpr.set_label("type");
+    retval.push_back(type_lsexpr);
+    Lsexpr name_lsexpr(name);
+    name_lsexpr.set_label("name");
+    retval.push_back(name_lsexpr);
+    if (double_attributes.size() > 0) {
+        Lsexpr attrs;
+        for (std::map<std::string, double>::const_iterator it =
+                 double_attributes.begin();
+             it != double_attributes.end(); ++it) {
+            Lsexpr attr(it->second);
+            attr.set_label(it->first);
+            attrs.push_back(attr);
+        }
+        if (!((string_attributes.size() == 0) &&
+              (vector_attributes.size() == 0))) {
+            attrs.set_label("double_attributes");
+        }
+    }
+    if (double_attributes.size() > 0) {
+        Lsexpr attrs;
+        for (std::map<std::string, double>::const_iterator it =
+                 double_attributes.begin();
+             it != double_attributes.end(); ++it) {
+            Lsexpr attr(it->second);
+            attr.set_label(it->first);
+            attrs.push_back(attr);
+        }
+        if (!((string_attributes.size() == 0) &&
+              (vector_attributes.size() == 0))) {
+            attrs.set_label("double_attributes");
+        }
+        retval.push_back(attrs);
+    }
+    if (string_attributes.size() > 0) {
+        Lsexpr attrs;
+        for (std::map<std::string, std::string>::const_iterator it =
+                 string_attributes.begin();
+             it != string_attributes.end(); ++it) {
+            Lsexpr attr(it->second);
+            attr.set_label(it->first);
+            attrs.push_back(attr);
+        }
+        attrs.set_label("string_attributes");
+        retval.push_back(attrs);
+    }
+    if (vector_attributes.size() > 0) {
+        Lsexpr attrs;
+        for (std::map<std::string, std::vector<double> >::const_iterator it =
+                 vector_attributes.begin();
+             it != vector_attributes.end(); ++it) {
+            Lsexpr attr(it->second);
+            attr.set_label(it->first);
+            attrs.push_back(attr);
+        }
+        attrs.set_label("vector_attributes");
+        retval.push_back(attrs);
+    }
+    if (ancestors.size() > 0) {
+        std::vector<std::string> ancestors_vector;
+        std::copy(ancestors.begin(), ancestors.end(),
+                  std::back_inserter(ancestors_vector));
+        Lsexpr ancestors_lsexpr(ancestors_vector);
+        ancestors_lsexpr.set_label("ancestors");
+        retval.push_back(ancestors_lsexpr);
+    }
+    return retval;
+}
+
 std::string const &
 Lattice_element::get_type() const
 {

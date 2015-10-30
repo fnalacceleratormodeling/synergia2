@@ -8,6 +8,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include "synergia/utils/serialization.h"
+#include "synergia/utils/lsexpr.h"
 
 class Lattice_element;
 typedef boost::shared_ptr<Lattice_element > Lattice_element_sptr; // syndoc:include
@@ -43,6 +44,14 @@ public:
     /// @param name name
     /// @param type type
     Lattice_element(std::string const& type, std::string const& name);
+
+    /// Construct a Lattice_element from the Lsexpr representation
+    /// @param lsexpr representation
+    Lattice_element(Lsexpr const& lsexpr);
+
+    /// Extract an Lsexpr representation of the Lattice_element
+    Lsexpr
+    as_lsexpr() const;
 
     /// Copy constructor.
     Lattice_element(Lattice_element const& lattice_element);

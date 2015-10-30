@@ -304,6 +304,11 @@ BOOST_AUTO_TEST_CASE(copy_test)
     lattice_element.set_needs_external_derive(true);
     lattice_element.add_ancestor("ma");
     lattice_element.add_ancestor("grandma");
+    std::vector<double > vectorval(3);
+    vectorval.at(0) = 1.1;
+    vectorval.at(1) = 2.2;
+    vectorval.at(2) = 3.3;
+    lattice_element.set_vector_attribute(attr, vectorval);
 
     Lattice_element copied_lattice_element(lattice_element);
 
@@ -317,6 +322,42 @@ BOOST_AUTO_TEST_CASE(copy_test)
             std::equal(lattice_element.get_ancestors().begin(), lattice_element.get_ancestors().end(), copied_lattice_element.get_ancestors().begin()));
     BOOST_CHECK_EQUAL(lattice_element.get_needs_external_derive(),
             copied_lattice_element.get_needs_external_derive());
+    for (int i = 0; i < 3; ++i) {
+        BOOST_CHECK_CLOSE(lattice_element.get_vector_attribute(attr).at(i),
+                          copied_lattice_element.get_vector_attribute(attr).at(i), tolerance);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(lsexpr_test)
+{
+    Lattice_element lattice_element(type, name);
+    lattice_element.set_double_attribute("one", 1.0);
+    lattice_element.set_double_attribute("two", 2.0);
+    lattice_element.set_double_attribute("three", 3.0);
+    lattice_element.set_string_attribute("foo", "foo");
+    lattice_element.set_string_attribute("bar", "bar");
+    lattice_element.set_needs_external_derive(true);
+    lattice_element.add_ancestor("ma");
+    lattice_element.add_ancestor("grandma");
+    std::vector<double > vectorval(3);
+    vectorval.at(0) = 1.1;
+    vectorval.at(1) = 2.2;
+    vectorval.at(2) = 3.3;
+    lattice_element.set_vector_attribute(attr, vectorval);
+
+    Lsexpr lsexpr(lattice_element.as_lsexpr());
+    Lattice_element copied_lattice_element(lsexpr);
+
+    BOOST_CHECK_EQUAL(copied_lattice_element.get_type(), type);
+    BOOST_CHECK_EQUAL(copied_lattice_element.get_name(), name);
+    BOOST_CHECK(
+                std::equal(lattice_element.get_double_attributes().begin(), lattice_element.get_double_attributes().end(), copied_lattice_element.get_double_attributes().begin()));
+    BOOST_CHECK(
+                std::equal(lattice_element.get_string_attributes().begin(), lattice_element.get_string_attributes().end(), copied_lattice_element.get_string_attributes().begin()));
+    BOOST_CHECK(
+                std::equal(lattice_element.get_ancestors().begin(), lattice_element.get_ancestors().end(), copied_lattice_element.get_ancestors().begin()));
+    BOOST_CHECK(
+            std::equal(lattice_element.get_vector_attributes().begin(), lattice_element.get_vector_attributes().end(), copied_lattice_element.get_vector_attributes().begin()));
 }
 
 BOOST_AUTO_TEST_CASE(get_revision)
