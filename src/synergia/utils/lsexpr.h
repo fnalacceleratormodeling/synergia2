@@ -166,7 +166,7 @@ struct Lsexpr
     double get_double() const
     {
         if(!is_atom) {
-            throw std::runtime_error("Lsexpr::get_double: non-atomic Lsexpr");
+            throw std::runtime_error("Lsexpr::get_double: non-atomic Lsexpr " + label);
         }
         return stod(atom);
     }
