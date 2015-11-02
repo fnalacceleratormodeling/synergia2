@@ -328,7 +328,27 @@ BOOST_AUTO_TEST_CASE(copy_test)
     }
 }
 
-BOOST_AUTO_TEST_CASE(lsexpr_test)
+BOOST_AUTO_TEST_CASE(lsexpr_test1)
+{
+    Lattice_element lattice_element(type, name);
+    lattice_element.set_double_attribute("one", 1.0);
+
+    Lsexpr lsexpr(lattice_element.as_lsexpr());
+    Lattice_element copied_lattice_element(lsexpr);
+
+    BOOST_CHECK_EQUAL(copied_lattice_element.get_type(), type);
+    BOOST_CHECK_EQUAL(copied_lattice_element.get_name(), name);
+    BOOST_CHECK(
+                std::equal(lattice_element.get_double_attributes().begin(), lattice_element.get_double_attributes().end(), copied_lattice_element.get_double_attributes().begin()));
+    BOOST_CHECK(
+                std::equal(lattice_element.get_string_attributes().begin(), lattice_element.get_string_attributes().end(), copied_lattice_element.get_string_attributes().begin()));
+    BOOST_CHECK(
+                std::equal(lattice_element.get_ancestors().begin(), lattice_element.get_ancestors().end(), copied_lattice_element.get_ancestors().begin()));
+    BOOST_CHECK(
+            std::equal(lattice_element.get_vector_attributes().begin(), lattice_element.get_vector_attributes().end(), copied_lattice_element.get_vector_attributes().begin()));
+}
+
+BOOST_AUTO_TEST_CASE(lsexpr_test2)
 {
     Lattice_element lattice_element(type, name);
     lattice_element.set_double_attribute("one", 1.0);
@@ -357,7 +377,7 @@ BOOST_AUTO_TEST_CASE(lsexpr_test)
     BOOST_CHECK(
                 std::equal(lattice_element.get_ancestors().begin(), lattice_element.get_ancestors().end(), copied_lattice_element.get_ancestors().begin()));
     BOOST_CHECK(
-            std::equal(lattice_element.get_vector_attributes().begin(), lattice_element.get_vector_attributes().end(), copied_lattice_element.get_vector_attributes().begin()));
+                std::equal(lattice_element.get_vector_attributes().begin(), lattice_element.get_vector_attributes().end(), copied_lattice_element.get_vector_attributes().begin()));
 }
 
 BOOST_AUTO_TEST_CASE(get_revision)

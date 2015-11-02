@@ -86,12 +86,12 @@ Lattice_element::Lattice_element(Lsexpr const& lsexpr)
                     vector_attributes[ait->get_label()] =
                         ait->get_double_vector();
                 }
-            } else {
-                if (!it->is_atomic()) {
-                    for (Lsexpr::const_iterator_t ait = it->begin();
-                         ait != ait->end(); ++ait) {
-                        double_attributes[ait->get_label()] = ait->get_double();
-                    }
+            }
+        } else {
+            if (!it->is_atomic()) {
+                for (Lsexpr::const_iterator_t ait = it->begin();
+                     ait != it->end(); ++ait) {
+                    double_attributes[ait->get_label()] = ait->get_double();
                 }
             }
         }
