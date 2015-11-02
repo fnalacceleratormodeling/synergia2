@@ -84,9 +84,13 @@ void write_lsexpr_internal(Lsexpr const& lsexpr, std::ostream & stream,
     } else {
         if(!first || lsexpr.has_label) {
             if(!lsexpr.is_atom) {
-                indent += 4;
+                if (lsexpr.has_label) {
+                    indent += 4;
+                } else {
+                    indent += 1;
+                }
             }
-            stream << "\n" << std::string(indent, ' ');
+            stream << "\n" << std::string(indent + 1, ' ');
         }
         stream << "{";
         bool first_in_sequence(true);
@@ -100,7 +104,11 @@ void write_lsexpr_internal(Lsexpr const& lsexpr, std::ostream & stream,
         }
         stream << "}";
         if(!first || lsexpr.has_label) {
-            indent -= 4;
+            if (lsexpr.has_label) {
+                indent -= 4;
+            } else {
+                indent -= 1;
+            }
         }
     }
 }
