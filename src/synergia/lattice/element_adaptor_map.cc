@@ -2,7 +2,20 @@
 
 Element_adaptor_map::Element_adaptor_map() :
         adaptor_map()
+      , label("")
 {
+}
+
+Element_adaptor_map::Element_adaptor_map(std::string const& label) :
+    adaptor_map()
+  , label(label)
+{
+}
+
+std::string
+Element_adaptor_map::get_label() const
+{
+    return label;
 }
 
 void
@@ -42,6 +55,7 @@ template<class Archive>
     Element_adaptor_map::serialize(Archive & ar, const unsigned int version)
     {
         ar & BOOST_SERIALIZATION_NVP(adaptor_map);
+        ar & BOOST_SERIALIZATION_NVP(label);
     }
 
 template

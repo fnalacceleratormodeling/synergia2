@@ -7,9 +7,13 @@ class Element_adaptor_map
 {
 private:
     std::map<std::string, Element_adaptor_sptr > adaptor_map;
+    std::string label;
 
 public:
     Element_adaptor_map();
+    Element_adaptor_map(std::string const& label);
+    std::string
+    get_label() const;
     virtual void
     set_adaptor(std::string const& name,
             Element_adaptor_sptr element_adaptor_sptr);

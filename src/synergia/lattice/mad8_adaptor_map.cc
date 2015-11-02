@@ -2,7 +2,7 @@
 #include "mad8_adaptors.h"
 
 Mad8_adaptor_map::Mad8_adaptor_map() :
-        Element_adaptor_map()
+        Element_adaptor_map("Mad8")
 {
     boost::shared_ptr<Marker_mad8_adaptor > marker_mad8_adaptor(
             new Marker_mad8_adaptor);

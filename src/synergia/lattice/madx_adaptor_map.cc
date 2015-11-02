@@ -2,7 +2,7 @@
 #include "madx_adaptors.h"
 
 MadX_adaptor_map::MadX_adaptor_map() :
-        Element_adaptor_map()
+        Element_adaptor_map("MadX")
 {
     boost::shared_ptr<Marker_madx_adaptor > marker_madx_adaptor(
             new Marker_madx_adaptor);
