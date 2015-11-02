@@ -40,6 +40,14 @@ public:
     Lattice(std::string const& name,
             Element_adaptor_map_sptr element_adaptor_map_sptr);
 
+    /// Construct a Lattice from the Lsexpr representation
+    /// @param lsexpr representation
+    Lattice(Lsexpr const& lsexpr);
+
+    /// Extract an Lsexpr representation of the Lattice
+    Lsexpr
+    as_lsexpr() const;
+
     /// Copies of Lattices contain copies of elements
     Lattice(Lattice const& lattice);
 

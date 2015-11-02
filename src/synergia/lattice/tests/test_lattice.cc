@@ -241,6 +241,49 @@ BOOST_AUTO_TEST_CASE(copy_lattice2)
     copied_lattice.set_reference_particle(reference_particle);
 }
 
+BOOST_AUTO_TEST_CASE(test_lsexpr)
+{
+    Lattice_element f("quadrupole", "f");
+    f.set_double_attribute("l", quad_length);
+    Lattice_element o("drift", "o");
+    o.set_double_attribute("l", drift_length);
+    Lattice_element d("quadrupole", "d");
+    d.set_double_attribute("l", quad_length);
+
+    Lattice lattice(name);
+    lattice.append(f);
+    lattice.append(o);
+    lattice.append(d);
+    lattice.append(o);
+    Reference_particle reference_particle(charge, mass, total_energy);
+    lattice.set_reference_particle(reference_particle);
+
+    Lsexpr lsexpr(lattice.as_lsexpr());
+    Lattice loaded(lsexpr);
+
+    BOOST_CHECK(loaded.has_reference_particle());
+    Lattice_elements::const_iterator it = (loaded.get_elements()).begin();
+    BOOST_CHECK(it != loaded.get_elements().end());
+    BOOST_CHECK_EQUAL((*it)->get_name(), "f");
+    BOOST_CHECK((*it)->get_type() == "quadrupole");
+    BOOST_CHECK_CLOSE((*it)->get_double_attribute("l"), quad_length, tolerance);
+    ++it;
+
+    BOOST_CHECK((*it)->get_name() == "o");
+    BOOST_CHECK((*it)->get_type() == "drift");
+    BOOST_CHECK_CLOSE((*it)->get_double_attribute("l"), drift_length, tolerance);
+    ++it;
+
+    BOOST_CHECK((*it)->get_name() == "d");
+    BOOST_CHECK((*it)->get_type() == "quadrupole");
+    BOOST_CHECK_CLOSE((*it)->get_double_attribute("l"), quad_length, tolerance);
+    ++it;
+
+    BOOST_CHECK((*it)->get_name() == "o");
+    BOOST_CHECK((*it)->get_type() == "drift");
+    BOOST_CHECK_CLOSE((*it)->get_double_attribute("l"), drift_length, tolerance);
+}
+
 BOOST_AUTO_TEST_CASE(test_serialize1)
 {
     Lattice_element f("quadrupole", "f");

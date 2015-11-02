@@ -1,5 +1,6 @@
 #include "lattice.h"
 #include "mad8_adaptor_map.h"
+#include "madx_adaptor_map.h"
 
 #include <iostream>
 #include <sstream>
@@ -38,6 +39,69 @@ Lattice::Lattice(Lattice const& lattice) :
                 *lattice.reference_particle_ptr);
         reference_particle_allocated = true;
     }
+}
+
+Lattice::Lattice(Lsexpr const& lsexpr) :
+      name("")
+    , reference_particle_allocated(false)
+    , reference_particle_ptr(0)
+    , elements()
+    , element_adaptor_map_sptr()
+{
+    for (Lsexpr::const_iterator_t it = lsexpr.begin(); it != lsexpr.end();
+         ++it) {
+        if (it->is_labeled()) {
+            if (it->get_label() == "name") {
+                name = it->get_string();
+            } else if (it->get_label() == "type") {
+                std::string lctype(it->get_string());
+                std::transform(lctype.begin(), lctype.end(), lctype.begin(),
+                               ::tolower);
+                if (lctype == "mad8") {
+                    element_adaptor_map_sptr = boost::shared_ptr<Element_adaptor_map>(new Mad8_adaptor_map);
+                } else if (lctype == "madx") {
+                    element_adaptor_map_sptr = boost::shared_ptr<Element_adaptor_map>(new MadX_adaptor_map);
+                } else {
+                    throw std::runtime_error("Lattice: adaptor map type " +
+                                             it->get_string() + " not handled");
+                }
+            } else if (it->get_label() == "reference_particle") {
+                reference_particle_ptr = new Reference_particle(*it);
+                reference_particle_allocated = true;
+            } else if (it->get_label() == "elements") {
+                for (Lsexpr::const_iterator_t eit = it->begin();
+                     eit != it->end(); ++eit) {
+                    append(Lattice_element(*eit));
+                }
+            }
+        }
+    }
+}
+
+Lsexpr
+Lattice::as_lsexpr() const
+{
+    Lsexpr retval;
+    Lsexpr name_lsexpr(name);
+    name_lsexpr.set_label("name");
+    retval.push_back(name_lsexpr);
+    Lsexpr type_lsexpr(element_adaptor_map_sptr->get_label());
+    type_lsexpr.set_label("type");
+    retval.push_back(type_lsexpr);
+    if (reference_particle_ptr) {
+        Lsexpr ref_lsexpr(reference_particle_ptr->as_lsexpr());
+        ref_lsexpr.set_label("reference_particle");
+        retval.push_back(ref_lsexpr);
+    }
+    Lsexpr elements_lsexpr;
+    elements_lsexpr.set_label("elements");
+    for(Lattice_elements::const_iterator it = elements.begin();
+        it != elements.end(); ++it) {
+        Lsexpr element_lsexpr((*it)->as_lsexpr());
+        elements_lsexpr.push_back(element_lsexpr);
+    }
+    retval.push_back(elements_lsexpr);
+    return retval;
 }
 
 std::string const&

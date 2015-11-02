@@ -20,7 +20,7 @@ add_test(NAME test_lattice_element_slice COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FL
 # add_test(NAME test_pylattice_element COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 ${SYNERGIA2_BINARY_DIR}/synergia-local -c "import nose; nose.main()" test_lattice_element.py)
 
 add_test_executable(test_lattice test_lattice.cc)
-target_link_libraries(test_lattice synergia_lattice synergia_foundation
+target_link_libraries(test_lattice synergia_lattice synergia_foundation lsexpr
     ${Boost_UNIT_TEST_FRAMEWORK_LIBRARY})
 add_test(NAME test_lattice COMMAND ${MPIEXEC} ${MPIEXEC_NUMPROC_FLAG} 1 $<TARGET_FILE:test_lattice>)
 add_test(NAME test_lattice_py COMMAND
