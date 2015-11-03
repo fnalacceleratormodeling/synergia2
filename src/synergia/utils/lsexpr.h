@@ -30,7 +30,7 @@ public:
 
     Lsexpr(std::vector<double> const& sequence);
 
-    Lsexpr(std::istream & stream);
+    Lsexpr(std::istream& stream);
 
     void set_label(std::string const& label);
 
@@ -56,13 +56,13 @@ public:
 
     iterator_t end();
 
-    std::vector<std::string > get_string_vector() const;
+    std::vector<std::string> get_string_vector() const;
 
     std::vector<int> get_int_vector() const;
 
     std::vector<double> get_double_vector() const;
 
-    void write(std::ostream & stream) const;
+    void write(std::ostream& stream) const;
 
 private:
     std::string to_string(int i) const;

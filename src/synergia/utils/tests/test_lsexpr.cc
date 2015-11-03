@@ -265,7 +265,6 @@ BOOST_AUTO_TEST_CASE(double_vector_constructor)
     lsexpr.write(sstream);
     Lsexpr parsed_lsexpr(sstream);
     std::cout << "regurgitated:\n";
-    parsed_lsexpr.write( std::cout);
+    parsed_lsexpr.write(std::cout);
     std::cout << std::endl;
-
 }
