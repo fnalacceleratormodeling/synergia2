@@ -2,12 +2,122 @@
 #include <cstring>
 
 #include <iostream>
-Lsexpr read_lsexpr(std::istream & stream)
+
+Lsexpr::Lsexpr() :
+    has_label(false)
+  , label("")
+  , is_atom(false)
+  , atom("")
+  , sequence()
+{ }
+
+Lsexpr::Lsexpr(std::string const& atom) :
+    has_label(false)
+  , label("")
+  , is_atom(true)
+  , atom(atom)
+  , sequence()
+{ }
+
+std::string Lsexpr::to_string(int i) const
 {
-    Lsexpr retval;
+    std::stringstream ss;
+    ss << i;
+    return ss.str();
+}
+
+int Lsexpr::stoi(std::string const& s) const
+{
+    int retval;
+    std::istringstream ss(s);
+    ss >> retval;
+    return retval;
+}
+
+std::string Lsexpr::to_string(double d) const
+{
+    std::stringstream ss;
+    const int precision = 15;
+    ss.precision(precision);
+    ss << d;
+    return(ss.str());
+}
+
+double Lsexpr::stod(std::string const& s) const
+{
+    double retval;
+    std::istringstream ss(s);
+    ss >> retval;
+    return retval;
+}
+
+Lsexpr::Lsexpr(int atom) :
+    has_label(false)
+  , label("")
+  , is_atom(true)
+  , atom(to_string(atom))
+  , sequence()
+{
+}
+
+Lsexpr::Lsexpr(double atom) :
+    has_label(false)
+  , label("")
+  , is_atom(true)
+  , atom(to_string(atom))
+  , sequence()
+{
+}
+
+Lsexpr::Lsexpr(std::vector<std::string> const& sequence) :
+    has_label(false)
+  , label("")
+  , is_atom(false)
+  , atom()
+  , sequence()
+{
+    for(std::vector<std::string>::const_iterator it = sequence.begin();
+        it != sequence.end(); ++it) {
+        this->sequence.push_back(Lsexpr(*it));
+    }
+}
+
+Lsexpr::Lsexpr(std::vector<int> const& sequence) :
+    has_label(false)
+  , label("")
+  , is_atom(false)
+  , atom()
+  , sequence()
+{
+    for(std::vector<int>::const_iterator it = sequence.begin();
+        it != sequence.end(); ++it) {
+        this->sequence.push_back(Lsexpr(*it));
+    }
+}
+
+Lsexpr::Lsexpr(std::vector<double> const& sequence) :
+    has_label(false)
+  , label("")
+  , is_atom(false)
+  , atom()
+  , sequence()
+{
+    for(std::vector<double>::const_iterator it = sequence.begin();
+        it != sequence.end(); ++it) {
+        this->sequence.push_back(Lsexpr(*it));
+    }
+}
+
+Lsexpr::Lsexpr(std::istream & stream)
+    : has_label(false)
+    , label("")
+    , is_atom(false)
+    , atom("")
+    , sequence()
+{
     bool in_str(false);
-    Lsexpr * current = &retval;
-    Lsexpr * parent = &retval;
+    Lsexpr * current = this;
+    Lsexpr * parent = this;
     char c(stream.get());
     while(!stream.eof()) {
         if(c == '{' && !in_str) {
@@ -46,6 +156,116 @@ Lsexpr read_lsexpr(std::istream & stream)
     if(!current->atom.empty()) {
         current->is_atom = true;
     }
+}
+
+void
+Lsexpr::set_label(std::string const& label)
+{
+    this->label = label;
+    has_label = true;
+}
+
+bool
+Lsexpr::is_labeled() const
+{
+    return has_label;
+}
+
+std::string const& Lsexpr::get_label() const
+{
+    return label;
+}
+
+bool Lsexpr::is_atomic() const
+{
+    return is_atom;
+}
+
+std::string Lsexpr::get_string() const
+{
+    if(!is_atom) {
+        throw std::runtime_error("Lsexpr::get_string: non-atomic Lsexpr");
+    }
+    return atom;
+}
+
+int Lsexpr::get_int() const
+{
+    if(!is_atom) {
+        throw std::runtime_error("Lsexpr::get_int: non-atomic Lsexpr");
+    }
+    return stoi(atom);
+}
+
+double Lsexpr::get_double() const
+{
+    if(!is_atom) {
+        throw std::runtime_error("Lsexpr::get_double: non-atomic Lsexpr " + label);
+    }
+    return stod(atom);
+}
+
+void Lsexpr::push_back(Lsexpr const& lsexpr)
+{
+    sequence.push_back(lsexpr);
+}
+
+Lsexpr::const_iterator_t Lsexpr::begin() const
+{
+    return sequence.begin();
+}
+
+Lsexpr::const_iterator_t Lsexpr::end() const
+{
+    return sequence.end();
+}
+
+Lsexpr::iterator_t Lsexpr::begin()
+{
+    return sequence.begin();
+}
+
+Lsexpr::iterator_t Lsexpr::end()
+{
+    return sequence.end();
+}
+
+std::vector<std::string > Lsexpr::get_string_vector() const
+{
+    if(is_atom) {
+        throw std::runtime_error("Lsexpr::get_string_vector: atomic Lsexpr");
+    }
+    std::vector<std::string> retval;
+    for(const_iterator_t it = begin(); it!= end();
+        ++it) {
+        retval.push_back(it->get_string());
+    }
+    return retval;
+}
+
+std::vector<int> Lsexpr::get_int_vector() const
+{
+    if(is_atom) {
+        throw std::runtime_error("Lsexpr::get_int_vector: atomic Lsexpr");
+    }
+    std::vector<int> retval;
+    for(const_iterator_t it = begin(); it!= end();
+        ++it) {
+        retval.push_back(stoi(it->get_string()));
+    }
+    return retval;
+}
+
+std::vector<double> Lsexpr::get_double_vector() const
+{
+    if(is_atom) {
+        throw std::runtime_error("Lsexpr::get_double_vector: atomic Lsexpr");
+    }
+    std::vector<double> retval;
+    for(const_iterator_t it = begin(); it!= end();
+        ++it) {
+        retval.push_back(stod(it->get_string()));
+    }
     return retval;
 }
 
@@ -70,21 +290,21 @@ void write_label(std::string const& label, std::ostream & stream)
 void write_lsexpr_internal(Lsexpr const& lsexpr, std::ostream & stream,
                   int indent, bool first)
 {
-    if(lsexpr.has_label) {
-        if(!lsexpr.is_atom && !first) {
+    if(lsexpr.is_labeled()) {
+        if(!lsexpr.is_atomic() && !first) {
             stream << "\n";
             if (indent > -1) {
                 stream << std::string(indent + 1, ' ');
             }
         }
-        write_label(lsexpr.label, stream);
+        write_label(lsexpr.get_label(), stream);
     }
-    if(lsexpr.is_atom) {
-        write_atom(lsexpr.atom, stream);
+    if(lsexpr.is_atomic()) {
+        write_atom(lsexpr.get_string(), stream);
     } else {
-        if(!first || lsexpr.has_label) {
-            if(!lsexpr.is_atom) {
-                if (lsexpr.has_label) {
+        if(!first || lsexpr.is_labeled()) {
+            if(!lsexpr.is_atomic()) {
+                if (lsexpr.is_labeled()) {
                     indent += 4;
                 } else {
                     indent += 1;
@@ -94,17 +314,17 @@ void write_lsexpr_internal(Lsexpr const& lsexpr, std::ostream & stream,
         }
         stream << "{";
         bool first_in_sequence(true);
-        for(std::vector<Lsexpr>::const_iterator it = lsexpr.sequence.begin();
-            it != lsexpr.sequence.end(); ++it) {
+        for(Lsexpr::const_iterator_t it = lsexpr.begin();
+            it != lsexpr.end(); ++it) {
             write_lsexpr_internal(*it, stream, indent, first_in_sequence);
             first_in_sequence = false;
-            if ((it+1) != lsexpr.sequence.end()) {
+            if ((it+1) != lsexpr.end()) {
                 stream << ", ";
             }
         }
         stream << "}";
-        if(!first || lsexpr.has_label) {
-            if (lsexpr.has_label) {
+        if(!first || lsexpr.is_labeled()) {
+            if (lsexpr.is_labeled()) {
                 indent -= 4;
             } else {
                 indent -= 1;
@@ -114,7 +334,20 @@ void write_lsexpr_internal(Lsexpr const& lsexpr, std::ostream & stream,
 }
 }
 
-void write_lsexpr(Lsexpr const& lsexpr, std::ostream & stream)
+void Lsexpr::write(std::ostream & stream) const
 {
-    write_lsexpr_internal(lsexpr, stream, 0, true);
+    write_lsexpr_internal(*this, stream, 0, true);
+}
+
+Lsexpr read_lsepxr_file(std::string const& filename)
+{
+    std::ifstream f(filename.c_str());
+    Lsexpr retval(f);
+    return retval;
+}
+
+void write_lsexpr_file(Lsexpr const& lsexpr, std::string const& filename)
+{
+    std::ofstream f(filename.c_str());
+    lsexpr.write(f);
 }
