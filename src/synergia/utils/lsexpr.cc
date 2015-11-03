@@ -4,17 +4,15 @@
 #include <iostream>
 
 Lsexpr::Lsexpr()
-    : has_label(false)
-    , label("")
+    : label("")
     , is_atom(false)
     , atom("")
     , sequence()
 {
 }
 
-Lsexpr::Lsexpr(std::string const& atom)
-    : has_label(false)
-    , label("")
+Lsexpr::Lsexpr(std::string const& atom, std::string const& label)
+    : label(label)
     , is_atom(true)
     , atom(atom)
     , sequence()
@@ -57,27 +55,25 @@ Lsexpr::stod(std::string const& s) const
     return retval;
 }
 
-Lsexpr::Lsexpr(int atom)
-    : has_label(false)
-    , label("")
+Lsexpr::Lsexpr(int atom, std::string const& label)
+    : label(label)
     , is_atom(true)
     , atom(to_string(atom))
     , sequence()
 {
 }
 
-Lsexpr::Lsexpr(double atom)
-    : has_label(false)
-    , label("")
+Lsexpr::Lsexpr(double atom, std::string const& label)
+    : label(label)
     , is_atom(true)
     , atom(to_string(atom))
     , sequence()
 {
 }
 
-Lsexpr::Lsexpr(std::vector<std::string> const& sequence)
-    : has_label(false)
-    , label("")
+Lsexpr::Lsexpr(std::vector<std::string> const& sequence,
+               std::string const& label)
+    : label(label)
     , is_atom(false)
     , atom()
     , sequence()
@@ -88,9 +84,8 @@ Lsexpr::Lsexpr(std::vector<std::string> const& sequence)
     }
 }
 
-Lsexpr::Lsexpr(std::vector<int> const& sequence)
-    : has_label(false)
-    , label("")
+Lsexpr::Lsexpr(std::vector<int> const& sequence, std::string const& label)
+    : label(label)
     , is_atom(false)
     , atom()
     , sequence()
@@ -101,9 +96,8 @@ Lsexpr::Lsexpr(std::vector<int> const& sequence)
     }
 }
 
-Lsexpr::Lsexpr(std::vector<double> const& sequence)
-    : has_label(false)
-    , label("")
+Lsexpr::Lsexpr(std::vector<double> const& sequence, std::string const& label)
+    : label(label)
     , is_atom(false)
     , atom()
     , sequence()
@@ -115,8 +109,7 @@ Lsexpr::Lsexpr(std::vector<double> const& sequence)
 }
 
 Lsexpr::Lsexpr(std::istream& stream)
-    : has_label(false)
-    , label("")
+    : label("")
     , is_atom(false)
     , atom("")
     , sequence()
@@ -151,7 +144,6 @@ Lsexpr::Lsexpr(std::istream& stream)
         } else if (((c == ' ') || (c == '\n') || (c == '\t')) && !in_str) {
             // pass
         } else if ((c == ':' && !in_str)) {
-            current->has_label = true;
             current->label = current->atom;
             current->atom = "";
         } else {
@@ -168,13 +160,12 @@ void
 Lsexpr::set_label(std::string const& label)
 {
     this->label = label;
-    has_label = true;
 }
 
 bool
 Lsexpr::is_labeled() const
 {
-    return has_label;
+    return !label.empty();
 }
 
 std::string const&

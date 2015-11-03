@@ -18,17 +18,18 @@ public:
 
     Lsexpr();
 
-    Lsexpr(std::string const& atom);
+    Lsexpr(std::string const& atom, std::string const& label = "");
 
-    Lsexpr(int atom);
+    Lsexpr(int atom, std::string const& label = "");
 
-    Lsexpr(double atom);
+    Lsexpr(double atom, std::string const& label = "");
 
-    Lsexpr(std::vector<std::string> const& sequence);
+    Lsexpr(std::vector<std::string> const& sequence,
+           std::string const& label = "");
 
-    Lsexpr(std::vector<int> const& sequence);
+    Lsexpr(std::vector<int> const& sequence, std::string const& label = "");
 
-    Lsexpr(std::vector<double> const& sequence);
+    Lsexpr(std::vector<double> const& sequence, std::string const& label = "");
 
     Lsexpr(std::istream& stream);
 
@@ -70,7 +71,6 @@ private:
     std::string to_string(double d) const;
     double stod(std::string const& s) const;
 
-    bool has_label;
     std::string label;
     bool is_atom;
     std::string atom;
