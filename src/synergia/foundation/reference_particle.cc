@@ -89,26 +89,18 @@ Lsexpr Reference_particle::as_lsexpr() const
     four_momentum_lsexpr.set_label("four_momentum");
     retval.push_back(four_momentum_lsexpr);
 
-    Lsexpr charge_lsexpr(charge);
-    charge_lsexpr.set_label("charge");
-    retval.push_back(charge_lsexpr);
+    retval.push_back(Lsexpr(charge, "charge"));
 
     if(repetition != 0) {
-        Lsexpr repetition_lsexpr(repetition);
-        repetition_lsexpr.set_label("repetition");
-        retval.push_back(repetition_lsexpr);
+        retval.push_back(Lsexpr(repetition, "repetition"));
     }
 
     if(s != 0) {
-        Lsexpr s_lsexpr(s);
-        s_lsexpr.set_label("s");
-        retval.push_back(s_lsexpr);
+        retval.push_back(Lsexpr(s, "s'"));
     }
 
     if(s_n != 0) {
-        Lsexpr s_n_lsexpr(s_n);
-        s_n_lsexpr.set_label("s_n");
-        retval.push_back(s_n_lsexpr);
+        retval.push_back(Lsexpr(s_n, "s_n"));
     }
 
     if((state[0] != 0) || (state[1] != 0) || (state[2] != 0) ||
@@ -117,9 +109,7 @@ Lsexpr Reference_particle::as_lsexpr() const
         for (int i = 0; i < 6; ++i) {
             state_vector[i] = state[i];
         }
-        Lsexpr state_lsexpr(state_vector);
-        state_lsexpr.set_label("state");
-        retval.push_back(state_lsexpr);
+        retval.push_back(Lsexpr(state_vector, "state_vector"));
     }
 
     return retval;

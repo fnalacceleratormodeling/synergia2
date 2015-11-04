@@ -82,12 +82,9 @@ Lsexpr
 Lattice::as_lsexpr() const
 {
     Lsexpr retval;
-    Lsexpr name_lsexpr(name);
-    name_lsexpr.set_label("name");
-    retval.push_back(name_lsexpr);
-    Lsexpr type_lsexpr(element_adaptor_map_sptr->get_label());
-    type_lsexpr.set_label("type");
-    retval.push_back(type_lsexpr);
+    retval.push_back(Lsexpr(name, "name"));
+    retval.push_back(Lsexpr(element_adaptor_map_sptr->get_label(),
+                            "type"));
     if (reference_particle_ptr) {
         Lsexpr ref_lsexpr(reference_particle_ptr->as_lsexpr());
         ref_lsexpr.set_label("reference_particle");

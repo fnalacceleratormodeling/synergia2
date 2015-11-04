@@ -66,12 +66,8 @@ Four_momentum::as_lsexpr() const
 {
     Lsexpr retval;
     retval.set_label("Four_momentum");
-    Lsexpr mass_atom(mass);
-    mass_atom.set_label("mass");
-    retval.push_back(mass_atom);
-    Lsexpr gamma_atom(gamma);
-    gamma_atom.set_label("gamma");
-    retval.push_back(gamma_atom);
+    retval.push_back(Lsexpr(mass, "mass"));
+    retval.push_back(Lsexpr(gamma, "gamma"));
     return retval;
 }
 void

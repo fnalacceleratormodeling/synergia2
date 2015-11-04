@@ -102,12 +102,8 @@ Lsexpr
 Lattice_element::as_lsexpr() const
 {
     Lsexpr retval;
-    Lsexpr type_lsexpr(type);
-    type_lsexpr.set_label("type");
-    retval.push_back(type_lsexpr);
-    Lsexpr name_lsexpr(name);
-    name_lsexpr.set_label("name");
-    retval.push_back(name_lsexpr);
+    retval.push_back(Lsexpr(type, "type"));
+    retval.push_back(Lsexpr(name, "name"));
     if (double_attributes.size() > 0) {
         Lsexpr attrs;
         for (std::map<std::string, double>::const_iterator it =
@@ -165,9 +161,7 @@ Lattice_element::as_lsexpr() const
         std::vector<std::string> ancestors_vector;
         std::copy(ancestors.begin(), ancestors.end(),
                   std::back_inserter(ancestors_vector));
-        Lsexpr ancestors_lsexpr(ancestors_vector);
-        ancestors_lsexpr.set_label("ancestors");
-        retval.push_back(ancestors_lsexpr);
+        retval.push_back(Lsexpr(ancestors_vector, "ancestors"));
     }
     return retval;
 }
