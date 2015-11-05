@@ -352,7 +352,7 @@ Lsexpr::write(std::ostream& stream) const
 }
 
 Lsexpr
-read_lsepxr_file(std::string const& filename)
+read_lsexpr_file(std::string const& filename)
 {
     std::ifstream f(filename.c_str());
     Lsexpr retval(f);

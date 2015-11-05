@@ -77,7 +77,7 @@ private:
     sequence_t sequence;
 };
 
-Lsexpr read_lsepxr_file(std::string const& filename);
+Lsexpr read_lsexpr_file(std::string const& filename);
 
 void write_lsexpr_file(Lsexpr const& lsexpr, std::string const& filename);
 
