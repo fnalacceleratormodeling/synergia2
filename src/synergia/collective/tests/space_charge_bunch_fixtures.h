@@ -234,7 +234,7 @@ struct Cylindrical_bunch_fixture_fine
 
 // ----------------------------------------------------------------------------
 
-const int rod_num_particles = 1 + 2501*8; // 1 + (odd number) * 8
+const int rod_num_particles = 1 + 2501*8+2; // 1 + (odd number) * 8 + 2 to expand the domein on both sides
 const double rod_betagamma = 11.0/60.0;
 const double rod_gamma = 61.0/60.0;
 const double rod_beta = 11.0/61.0;
@@ -255,13 +255,13 @@ struct Rod_bunch_fixture
         bunch.set_sort_period(-1);
         MArray2d_ref local_particles(bunch.get_local_particles());
         // a ring of 8 particles around each longitudinal location
-        int num_longitudinal = (rod_num_particles-1)/8;
+        int num_longitudinal = (rod_num_particles-3)/8;
         double dz = rod_length/(num_longitudinal-1);
 
         double r2o2 = std::sqrt(2.0)/2.0;
 
         double z = -rod_length/2.0;
-        for (int i=1; i<rod_num_particles; i+=8, z+=dz) {
+        for (int i=3; i<rod_num_particles; i+=8, z+=dz) {
             local_particles[i][Bunch::x] = rod_radius;
             local_particles[i][Bunch::y] = 0.0;
 
@@ -302,9 +302,28 @@ struct Rod_bunch_fixture
         local_particles[0][Bunch::dpop] = 0.0;
         local_particles[0][Bunch::id] = 0.0;
 
-        grid_shape[0] = 64;
-        grid_shape[1] = 64;
-        grid_shape[2] = 128;
+        local_particles[1][Bunch::x] = rod_probe*1.2;
+        local_particles[1][Bunch::y] = rod_probe*1.2;
+        local_particles[1][Bunch::xp] = 0.0;
+        local_particles[1][Bunch::yp] = 0.0;
+        local_particles[1][Bunch::cdt] = 0.0;
+        local_particles[1][Bunch::dpop] = 0.0;
+        local_particles[1][Bunch::id] = 1.0;
+
+        local_particles[2][Bunch::x] = -rod_probe*1.2;
+        local_particles[2][Bunch::y] = -rod_probe*1.2;
+        local_particles[2][Bunch::xp] = 0.0;
+        local_particles[2][Bunch::yp] = 0.0;
+        local_particles[2][Bunch::cdt] = 0.0;
+        local_particles[2][Bunch::dpop] = 0.0;
+        local_particles[2][Bunch::id] = 2.0;
+
+//        grid_shape[0] = 64;
+//        grid_shape[1] = 64;
+//        grid_shape[2] = 128;
+        grid_shape[0] = 4;
+        grid_shape[1] = 4;
+        grid_shape[2] = 4;
     }
 
     ~Rod_bunch_fixture()

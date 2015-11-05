@@ -774,18 +774,28 @@ BOOST_FIXTURE_TEST_CASE(apply_transverse, Ellipsoidal_bunch_fixture)
 BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
 {
     Bunch original_bunch(bunch);
-    Space_charge_3d_open_hockney space_charge(comm_sptr, grid_shape, false);
     const double time_fraction = 1.0;
     const double step_length = 0.1;
+    const double beta = bunch.get_reference_particle().get_beta();
+    const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
+    const double time_step = step_length/(beta*pconstants::c);
+    const double bunchlen = bunch.get_z_period_length();
+
+    // Space_charge_3d_open_hockney(comm, grid, longitudinal_kicks, z_periodic, z_period, grid_entire_domain,nsigma)
+    Space_charge_3d_open_hockney space_charge(comm_sptr, grid_shape, true, false, bunchlen, true);
+
     Step dummy_step(step_length);
-    const double time_step = 1.0;
+
     const int verbosity = 99;
     Logger logger(0);
     logger << "egs: bunch initial state: " << bunch.get_state() << std::endl;
+    logger << "egs: before anything: bunch.get_local_particles()[0][0]: " << bunch.get_local_particles()[0][0] << std::endl;
+
+
     space_charge.apply(bunch, time_step, dummy_step, verbosity, logger);
     logger << "egs: bunch final state: " << bunch.get_state() << std::endl;
-
-    logger << "egs: before anything: bunch.get_local_particles()[0][0]: " << bunch.get_local_particles()[0][0] << std::endl;
+    bunch.convert_to_state(Bunch::fixed_z_lab);
+    logger << "egs: after sc::apply : bunch.get_local_particles()[0][0]: " << bunch.get_local_particles()[0][0] << std::endl;
     // Rod of charge Q over length L
     // E field at radius r $$ E = \frac{1}{2 \pi \epsilon_0} \frac{Q}{L} \frac{1}{r} $$
     // B field at radius r $$ E = \frac{\mu_0}{2 \pi } \frac{Q v}{L} \frac{1}{r} $$
@@ -796,7 +806,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
     // convert to usual units
     // \frac{\Delta p}{p} = \frac{2 N r_p}{L \beta^2 \gamma^2} \frac{D}{r}
 
-    double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
     double L = bunch.get_z_period_length();
     double N = bunch.get_real_num();
     logger << "L: " << L << std::endl;
