@@ -401,6 +401,7 @@ BOOST_FIXTURE_TEST_CASE(set_fixed_domain_bad_shape, Ellipsoidal_bunch_fixture)
     }
     BOOST_CHECK(caught_error == true);
 }
+#endif
 
 BOOST_FIXTURE_TEST_CASE(get_local_charge_density, Toy_bunch_fixture)
 {
@@ -435,7 +436,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_charge_density, Toy_bunch_fixture)
     multi_array_check_equal(local_charge_density->get_grid_points(), expected,
             100 * tolerance);
 }
-
+#if 0
 BOOST_FIXTURE_TEST_CASE(get_global_charge_density2_reduce_scatter,
         Ellipsoidal_bunch_fixture)
 {
@@ -781,13 +782,61 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
     const double time_step = step_length/(beta*pconstants::c);
     const double bunchlen = bunch.get_z_period_length();
 
+    Logger logger(0);
+
+    logger << "first four particles (x y z):" << std::endl;
+    for (int k=0; k<4; ++k) {
+        logger << k<<": " << bunch.get_local_particles()[k][0] << ", " <<
+                bunch.get_local_particles()[k][2] << ", " <<
+                bunch.get_local_particles()[k][4] << std::endl;
+    }
+    logger << std::endl;
+
     // Space_charge_3d_open_hockney(comm, grid, longitudinal_kicks, z_periodic, z_period, grid_entire_domain,nsigma)
-    Space_charge_3d_open_hockney space_charge(comm_sptr, grid_shape, true, false, bunchlen, true);
+    Space_charge_3d_open_hockney space_charge(comm_sptr, grid_shape, true);
+    space_charge.update_domain(bunch);
+    Rectangular_grid_domain_sptr orig_domain_sptr(space_charge.get_domain_sptr());
+    std::vector<int> sc_grid_shape(orig_domain_sptr->get_grid_shape());
+    std::vector<double> sc_size(orig_domain_sptr->get_physical_size());
+    std::vector<double> sc_offs(orig_domain_sptr->get_physical_offset());
+    logger << "sc orig grid shape: " << sc_grid_shape[0] << ", " << sc_grid_shape[1] << ", " << sc_grid_shape[2] << std::endl;
+    logger << "sc orig phys size: " << sc_size[0] << ", " << sc_size[1] << ", " << sc_size[2] << std::endl;
+    logger << "sc orig offs: " << sc_offs[0] << ", " << sc_offs[1] << ", " << sc_offs[2] << std::endl;
+
+    std::vector<double> domain_sizezyx(3);
+    std::vector<double> domain_offsetzyx(3);
+    domain_offsetzyx[2] = 0.0;
+    domain_offsetzyx[1] = 0.0;
+    domain_offsetzyx[0] = 0.0;
+    domain_sizezyx[2] = 2*1.21e-3;
+    domain_sizezyx[1] = 2*1.21e-3;
+    domain_sizezyx[0] = 0.12;
+    std::vector<int> grid_shapezyx(3);
+    grid_shapezyx[0] = grid_shape[2];
+    grid_shapezyx[1] = grid_shape[1];
+    grid_shapezyx[2] = grid_shape[0];
+
+    Rectangular_grid_domain_sptr fixed_domain(
+            new Rectangular_grid_domain(domain_sizezyx, domain_offsetzyx, grid_shapezyx));
+    space_charge.set_fixed_domain(fixed_domain);
+
+    Rectangular_grid_sptr local_charge_density(
+            space_charge.get_local_charge_density(bunch));
+    std::vector<int> local_rho_shape(local_charge_density->get_domain_sptr()->get_grid_shape());
+    logger << "local_rho_shape: " << local_rho_shape[0] << ", " << local_rho_shape[1] << ", " << local_rho_shape[2] << std::endl;
+    std::vector<double> local_rho_phys_size(local_charge_density->get_domain_sptr()->get_physical_size());
+    logger << "local_rho_physical_size: " << local_rho_phys_size[0] << ", " << local_rho_phys_size[1] << ", " << local_rho_phys_size[2] << std::endl;
+    std::vector<double> local_rho_phys_off(local_charge_density->get_domain_sptr()->get_physical_offset());
+    logger << "local_rho_physical_offset: " << local_rho_phys_off[0] << ", " << local_rho_phys_off[1] << ", " << local_rho_phys_off[2] << std::endl;
+    std::vector<double> local_rho_left(local_charge_density->get_domain_sptr()->get_left());
+    logger << "local_rho_left: " << local_rho_left[0] << ", " << local_rho_left[1] << ", " << local_rho_left[2] << std::endl;
+
+
+
 
     Step dummy_step(step_length);
 
     const int verbosity = 99;
-    Logger logger(0);
     logger << "egs: bunch initial state: " << bunch.get_state() << std::endl;
     logger << "egs: before anything: bunch.get_local_particles()[0][0]: " << bunch.get_local_particles()[0][0] << std::endl;
 

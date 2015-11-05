@@ -241,6 +241,7 @@ const double rod_beta = 11.0/61.0;
 const double rod_real_num = 5.0e9;
 const double rod_length = 0.1;
 const double rod_radius = 1.0e-6; //radius of rod particles
+//const double rod_radius = 1.0e-3; //radius of rod particles
 const double rod_probe = 1.0e-3;  // radius of the probe particle
 struct Rod_bunch_fixture
 {
@@ -266,25 +267,25 @@ struct Rod_bunch_fixture
             local_particles[i][Bunch::y] = 0.0;
 
             local_particles[i+1][Bunch::x] = rod_radius*r2o2;
-            local_particles[i+1][Bunch::y] = rod_radius*r2o2;
+            local_particles[i+1][Bunch::y] = 2*rod_radius*r2o2;
 
             local_particles[i+2][Bunch::x] = 0.0;
-            local_particles[i+2][Bunch::y] = rod_radius;
+            local_particles[i+2][Bunch::y] = 2*rod_radius;
 
             local_particles[i+3][Bunch::x] = -rod_radius*r2o2;
-            local_particles[i+3][Bunch::y] =  rod_radius*r2o2;
+            local_particles[i+3][Bunch::y] =  2*rod_radius*r2o2;
 
             local_particles[i+4][Bunch::x] = -rod_radius;
             local_particles[i+4][Bunch::y] = 0.0;
 
             local_particles[i+5][Bunch::x] = -rod_radius*r2o2;
-            local_particles[i+5][Bunch::y] = -rod_radius*r2o2;
+            local_particles[i+5][Bunch::y] = -2*rod_radius*r2o2;
 
             local_particles[i+6][Bunch::x] = 0.0;
-            local_particles[i+6][Bunch::y] = -rod_radius;
+            local_particles[i+6][Bunch::y] = -2*rod_radius;
 
             local_particles[i+7][Bunch::x] = rod_radius*r2o2;
-            local_particles[i+7][Bunch::y] = -rod_radius*r2o2;
+            local_particles[i+7][Bunch::y] = -2*rod_radius*r2o2;
 
             for (int j=i; j<i+8; ++j) {
                 local_particles[j][Bunch::cdt] = z/rod_beta;
@@ -322,8 +323,8 @@ struct Rod_bunch_fixture
 //        grid_shape[1] = 64;
 //        grid_shape[2] = 128;
         grid_shape[0] = 4;
-        grid_shape[1] = 4;
-        grid_shape[2] = 4;
+        grid_shape[1] = 8;
+        grid_shape[2] = 12;
     }
 
     ~Rod_bunch_fixture()
