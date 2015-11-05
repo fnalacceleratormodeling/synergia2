@@ -17,6 +17,8 @@ if (BUILD_PYTHON_BINDINGS)
     add_python_extension(parallel_utils parallel_utils_wrap.cc)
     target_link_libraries(parallel_utils synergia_parallel_utils
         synergia_hdf5_utils ${Boost_LIBRARIES})
+    add_python_extension(pylsexpr lsexpr_wrap.cc)
+    target_link_libraries(pylsexpr lsexpr ${Boost_LIBRARIES})
 endif ()
 
 add_library(synergia_distributed_fft distributed_fft3d.cc
@@ -34,6 +36,7 @@ install(TARGETS
     synergia_distributed_fft
     synergia_serialization
     synergia_command_line
+    lsexpr
     DESTINATION lib)
 install(FILES
     boost_test_mpi_fixture.h
@@ -77,6 +80,7 @@ if (BUILD_PYTHON_BINDINGS)
         DESTINATION lib/synergia/utils)
     install(TARGETS
         parallel_utils
+        pylsexpr
         DESTINATION lib/synergia/utils)
 endif ()
 
