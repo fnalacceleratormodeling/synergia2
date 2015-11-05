@@ -231,6 +231,108 @@ struct Cylindrical_bunch_fixture_fine
     std::vector<int > grid_shape;
 };
 
+
+// ----------------------------------------------------------------------------
+
+const int rod_num_particles = 1 + 2501*8; // 1 + (odd number) * 8
+const double rod_betagamma = 11.0/60.0;
+const double rod_gamma = 61.0/60.0;
+const double rod_beta = 11.0/61.0;
+const double rod_real_num = 5.0e9;
+const double rod_length = 0.1;
+const double rod_radius = 1.0e-6; //radius of rod particles
+const double rod_probe = 1.0e-3;  // radius of the probe particle
+struct Rod_bunch_fixture
+{
+    Rod_bunch_fixture() :
+        four_momentum(mass, mass*rod_gamma), reference_particle(charge,
+                four_momentum), comm_sptr(new Commxx), bunch(reference_particle,
+                rod_num_particles, rod_real_num,
+                            comm_sptr, rod_length),
+                grid_shape(3)
+    {
+        BOOST_TEST_MESSAGE("setup Rod bunch fixture");
+        bunch.set_sort_period(-1);
+        MArray2d_ref local_particles(bunch.get_local_particles());
+        // a ring of 8 particles around each longitudinal location
+        int num_longitudinal = (rod_num_particles-1)/8;
+        double dz = rod_length/(num_longitudinal-1);
+
+        double r2o2 = std::sqrt(2.0)/2.0;
+
+        double z = -rod_length/2.0;
+        for (int i=1; i<rod_num_particles; i+=8, z+=dz) {
+            local_particles[i][Bunch::x] = rod_radius;
+            local_particles[i][Bunch::y] = 0.0;
+
+            local_particles[i+1][Bunch::x] = rod_radius*r2o2;
+            local_particles[i+1][Bunch::y] = rod_radius*r2o2;
+
+            local_particles[i+2][Bunch::x] = 0.0;
+            local_particles[i+2][Bunch::y] = rod_radius;
+
+            local_particles[i+3][Bunch::x] = -rod_radius*r2o2;
+            local_particles[i+3][Bunch::y] =  rod_radius*r2o2;
+
+            local_particles[i+4][Bunch::x] = -rod_radius;
+            local_particles[i+4][Bunch::y] = 0.0;
+
+            local_particles[i+5][Bunch::x] = -rod_radius*r2o2;
+            local_particles[i+5][Bunch::y] = -rod_radius*r2o2;
+
+            local_particles[i+6][Bunch::x] = 0.0;
+            local_particles[i+6][Bunch::y] = -rod_radius;
+
+            local_particles[i+7][Bunch::x] = rod_radius*r2o2;
+            local_particles[i+7][Bunch::y] = -rod_radius*r2o2;
+
+            for (int j=i; j<i+8; ++j) {
+                local_particles[j][Bunch::cdt] = z/rod_beta;
+                local_particles[j][Bunch::xp] = 0.0;
+                local_particles[j][Bunch::yp] = 0.0;
+                local_particles[j][Bunch::dpop] = 0.0;
+                local_particles[j][Bunch::id] = j;
+            }
+        }
+        local_particles[0][Bunch::x] = rod_probe;
+        local_particles[0][Bunch::y] = 0.0;
+        local_particles[0][Bunch::xp] = 0.0;
+        local_particles[0][Bunch::yp] = 0.0;
+        local_particles[0][Bunch::cdt] = 0.0;
+        local_particles[0][Bunch::dpop] = 0.0;
+        local_particles[0][Bunch::id] = 0.0;
+
+        grid_shape[0] = 64;
+        grid_shape[1] = 64;
+        grid_shape[2] = 128;
+    }
+
+    ~Rod_bunch_fixture()
+    {
+        BOOST_TEST_MESSAGE("tear down Rod bunch fixture");
+    }
+
+    Four_momentum four_momentum;
+    Reference_particle reference_particle;
+    Commxx_sptr comm_sptr;
+    Bunch bunch;
+    unsigned long int seed;
+    std::vector<int > grid_shape;
+};
+
+
+
+
+
+
+
+
+
+
+
+
+// ----------------------------------------------------------------------------
+
 const double domain_min = -2.0;
 const double domain_max = 2.0;
 const double domain_offset = 0.0;

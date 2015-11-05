@@ -18,7 +18,7 @@ using pconstants::epsilon0;
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-12;
-
+#if 0
 BOOST_AUTO_TEST_CASE(construct1)
 {
     std::vector<int > grid_shape(3);
@@ -769,6 +769,49 @@ BOOST_FIXTURE_TEST_CASE(apply_transverse, Ellipsoidal_bunch_fixture)
     BOOST_CHECK_CLOSE(avg_p_kick2, 3.65e-2, rough_tolerance);
 }
 
+#endif
+
+BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
+{
+    Bunch original_bunch(bunch);
+    Space_charge_3d_open_hockney space_charge(comm_sptr, grid_shape, false);
+    const double time_fraction = 1.0;
+    const double step_length = 0.1;
+    Step dummy_step(step_length);
+    const double time_step = 1.0;
+    const int verbosity = 99;
+    Logger logger(0);
+    logger << "egs: bunch initial state: " << bunch.get_state() << std::endl;
+    space_charge.apply(bunch, time_step, dummy_step, verbosity, logger);
+    logger << "egs: bunch final state: " << bunch.get_state() << std::endl;
+
+    logger << "egs: before anything: bunch.get_local_particles()[0][0]: " << bunch.get_local_particles()[0][0] << std::endl;
+    // Rod of charge Q over length L
+    // E field at radius r $$ E = \frac{1}{2 \pi \epsilon_0} \frac{Q}{L} \frac{1}{r} $$
+    // B field at radius r $$ E = \frac{\mu_0}{2 \pi } \frac{Q v}{L} \frac{1}{r} $$
+    // Net EM force on electric+magnetic on probe of charge q from E-B cancellation
+    // $$ F = \frac{1}{2 \pi \epsilon_0 \gamma^2} \frac{qQ}{L} \frac{1}{r}
+    // travel over distance D at velocity v
+    // \frac{\Delta p}{p} = \frac{1}{2 \pi \epsilon_0 \gamma^2} \frac{qQ}{L} \frac{D}{m v^2} \frac{1}{r}
+    // convert to usual units
+    // \frac{\Delta p}{p} = \frac{2 N r_p}{L \beta^2 \gamma^2} \frac{D}{r}
+
+    double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
+    double L = bunch.get_z_period_length();
+    double N = bunch.get_real_num();
+    logger << "L: " << L << std::endl;
+    logger << "N: " << N << std::endl;
+    logger << "step_length: " << step_length << std::endl;
+    logger << "betagamma: " << betagamma << std::endl;
+    logger << "x: " << bunch.get_local_particles()[0][Bunch::x] << std::endl;
+    double computed_dpop = ((2.0*N*pconstants::rp)/(L*betagamma*betagamma)) *
+            (step_length/bunch.get_local_particles()[0][Bunch::x]);
+    logger << "egs: computed dpop: " << computed_dpop << std::endl;
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], 0.0004566044, .01);
+
+}
+
+#if 0
 BOOST_FIXTURE_TEST_CASE(serialize_, Ellipsoidal_bunch_fixture)
 {
     simple_populate(bunch, distribution);
@@ -811,3 +854,4 @@ BOOST_FIXTURE_TEST_CASE(serialize_, Ellipsoidal_bunch_fixture)
     BOOST_CHECK_CLOSE(avg_y_kick2, 2.9e4, rough_tolerance);
     BOOST_CHECK_CLOSE(avg_p_kick2, 7.2e6, rough_tolerance);
 }
+#endif
