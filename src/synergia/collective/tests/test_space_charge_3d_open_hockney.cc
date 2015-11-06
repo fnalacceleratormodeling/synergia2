@@ -816,8 +816,8 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
     domain_offsetzyx[2] = 0.0;
     domain_offsetzyx[1] = 0.0;
     domain_offsetzyx[0] = 0.0;
-    domain_sizezyx[2] = 2*1.21e-3;
-    domain_sizezyx[1] = 2*1.21e-3;
+    domain_sizezyx[2] = bunch.get_local_particles()[0][Bunch::x] * 4;
+    domain_sizezyx[1] = domain_sizezyx[2];
     domain_sizezyx[0] = 0.12/beta;
     std::vector<int> grid_shapezyx(3);
     grid_shapezyx[0] = grid_shape[2];
@@ -828,7 +828,7 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
             new Rectangular_grid_domain(domain_sizezyx, domain_offsetzyx, grid_shapezyx));
     // setting a fixed domain tickles a bug that crashes the space charge calculation in
     // CMAKE_BUILD_TYPE=Debug mode.
-    //space_charge.set_fixed_domain(fixed_domain);
+    space_charge.set_fixed_domain(fixed_domain);
 
     Rectangular_grid_sptr local_charge_density(
             space_charge.get_local_charge_density(bunch));
