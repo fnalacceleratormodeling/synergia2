@@ -267,25 +267,25 @@ struct Rod_bunch_fixture
             local_particles[i][Bunch::y] = 0.0;
 
             local_particles[i+1][Bunch::x] = rod_radius*r2o2;
-            local_particles[i+1][Bunch::y] = 2*rod_radius*r2o2;
+            local_particles[i+1][Bunch::y] = rod_radius*r2o2;
 
             local_particles[i+2][Bunch::x] = 0.0;
-            local_particles[i+2][Bunch::y] = 2*rod_radius;
+            local_particles[i+2][Bunch::y] = rod_radius;
 
             local_particles[i+3][Bunch::x] = -rod_radius*r2o2;
-            local_particles[i+3][Bunch::y] =  2*rod_radius*r2o2;
+            local_particles[i+3][Bunch::y] =  rod_radius*r2o2;
 
             local_particles[i+4][Bunch::x] = -rod_radius;
             local_particles[i+4][Bunch::y] = 0.0;
 
             local_particles[i+5][Bunch::x] = -rod_radius*r2o2;
-            local_particles[i+5][Bunch::y] = -2*rod_radius*r2o2;
+            local_particles[i+5][Bunch::y] = -rod_radius*r2o2;
 
             local_particles[i+6][Bunch::x] = 0.0;
-            local_particles[i+6][Bunch::y] = -2*rod_radius;
+            local_particles[i+6][Bunch::y] = -rod_radius;
 
             local_particles[i+7][Bunch::x] = rod_radius*r2o2;
-            local_particles[i+7][Bunch::y] = -2*rod_radius*r2o2;
+            local_particles[i+7][Bunch::y] = -rod_radius*r2o2;
 
             for (int j=i; j<i+8; ++j) {
                 local_particles[j][Bunch::cdt] = z/rod_beta;
@@ -295,7 +295,11 @@ struct Rod_bunch_fixture
                 local_particles[j][Bunch::id] = j;
             }
         }
-        local_particles[0][Bunch::x] = rod_probe;
+
+        // when the probe is too far, it falls outside the domain and does
+        // not get any sc kicks.
+        //local_particles[0][Bunch::x] = rod_probe;
+        local_particles[0][Bunch::x] = 0.00008;
         local_particles[0][Bunch::y] = 0.0;
         local_particles[0][Bunch::xp] = 0.0;
         local_particles[0][Bunch::yp] = 0.0;
@@ -319,12 +323,12 @@ struct Rod_bunch_fixture
         local_particles[2][Bunch::dpop] = 0.0;
         local_particles[2][Bunch::id] = 2.0;
 
-//        grid_shape[0] = 64;
-//        grid_shape[1] = 64;
-//        grid_shape[2] = 128;
-        grid_shape[0] = 4;
-        grid_shape[1] = 8;
-        grid_shape[2] = 12;
+        grid_shape[0] = 64;
+        grid_shape[1] = 64;
+        grid_shape[2] = 16;
+//        grid_shape[0] = 4;
+//        grid_shape[1] = 4;
+//        grid_shape[2] = 8;
     }
 
     ~Rod_bunch_fixture()

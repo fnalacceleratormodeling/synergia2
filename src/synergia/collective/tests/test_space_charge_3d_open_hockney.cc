@@ -779,6 +779,7 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
     const double step_length = 0.1;
     const double beta = bunch.get_reference_particle().get_beta();
     const double betagamma = bunch.get_reference_particle().get_beta() * bunch.get_reference_particle().get_gamma();
+    const double gamma = bunch.get_reference_particle().get_gamma();
     const double time_step = step_length/(beta*pconstants::c);
     const double bunchlen = bunch.get_z_period_length();
 
@@ -790,10 +791,17 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
                 bunch.get_local_particles()[k][2] << ", " <<
                 bunch.get_local_particles()[k][4] << std::endl;
     }
+    logger << "last four particles (x y z): << std::endl";
+    for (int k=bunch.get_local_num()-4; k<bunch.get_local_num(); ++k) {
+        logger << k<<": " << bunch.get_local_particles()[k][0] << ", " <<
+                bunch.get_local_particles()[k][2] << ", " <<
+                bunch.get_local_particles()[k][4] << std::endl;
+    }
     logger << std::endl;
 
     // Space_charge_3d_open_hockney(comm, grid, longitudinal_kicks, z_periodic, z_period, grid_entire_domain,nsigma)
-    Space_charge_3d_open_hockney space_charge(comm_sptr, grid_shape, true);
+    Space_charge_3d_open_hockney space_charge(comm_sptr, grid_shape, true, false, 0.0, false, 16.0);
+
     space_charge.update_domain(bunch);
     Rectangular_grid_domain_sptr orig_domain_sptr(space_charge.get_domain_sptr());
     std::vector<int> sc_grid_shape(orig_domain_sptr->get_grid_shape());
@@ -810,7 +818,7 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
     domain_offsetzyx[0] = 0.0;
     domain_sizezyx[2] = 2*1.21e-3;
     domain_sizezyx[1] = 2*1.21e-3;
-    domain_sizezyx[0] = 0.12;
+    domain_sizezyx[0] = 0.12/beta;
     std::vector<int> grid_shapezyx(3);
     grid_shapezyx[0] = grid_shape[2];
     grid_shapezyx[1] = grid_shape[1];
@@ -818,7 +826,9 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
 
     Rectangular_grid_domain_sptr fixed_domain(
             new Rectangular_grid_domain(domain_sizezyx, domain_offsetzyx, grid_shapezyx));
-    space_charge.set_fixed_domain(fixed_domain);
+    // setting a fixed domain tickles a bug that crashes the space charge calculation in
+    // CMAKE_BUILD_TYPE=Debug mode.
+    //space_charge.set_fixed_domain(fixed_domain);
 
     Rectangular_grid_sptr local_charge_density(
             space_charge.get_local_charge_density(bunch));
@@ -862,10 +872,26 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
     logger << "step_length: " << step_length << std::endl;
     logger << "betagamma: " << betagamma << std::endl;
     logger << "x: " << bunch.get_local_particles()[0][Bunch::x] << std::endl;
-    double computed_dpop = ((2.0*N*pconstants::rp)/(L*betagamma*betagamma)) *
+    double computed_dpop = ((2.0*N*pconstants::rp)/(L*betagamma*betagamma*gamma)) *
             (step_length/bunch.get_local_particles()[0][Bunch::x]);
     logger << "egs: computed dpop: " << computed_dpop << std::endl;
-    BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], 0.0004566044, .01);
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], computed_dpop, .01);
+
+    int nkicks = 0;
+    for (int k=0; k<bunch.get_local_num(); ++k) {
+        if ((bunch.get_local_particles()[k][1] != 0.0) ||
+                (bunch.get_local_particles()[k][3] != 0.0)) {
+            ++nkicks;
+            if (nkicks < 10) {
+                logger << "kick: " << nkicks << "particle " << k << ": " << bunch.get_local_particles()[k][0] << ", " <<
+                          bunch.get_local_particles()[k][1] << ", " <<
+                          bunch.get_local_particles()[k][2] << ", " <<
+                          bunch.get_local_particles()[k][3] << ", " <<
+                          bunch.get_local_particles()[k][4] << ", " <<
+                          bunch.get_local_particles()[k][5] << std::endl;
+            }
+        }
+    }
 
 }
 
