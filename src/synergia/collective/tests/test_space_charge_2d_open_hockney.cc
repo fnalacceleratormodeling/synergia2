@@ -684,8 +684,12 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
     }
     logger << std::endl;
 
-    // Space_charge_3d_open_hockney(comm, grid, longitudinal_kicks, z_periodic, z_period, grid_entire_domain,nsigma)
-    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
+    std::vector<int> grid_shape2d(3);
+    grid_shape2d[0] = 64;
+    grid_shape2d[1] = grid_shape2d[0];
+    grid_shape2d[2] = 32;
+
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape2d);
 
     space_charge.update_domain(bunch);
     Rectangular_grid_domain_sptr orig_domain_sptr(space_charge.get_domain_sptr());
@@ -696,24 +700,18 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
     logger << "sc orig phys size: " << sc_size[0] << ", " << sc_size[1] << ", " << sc_size[2] << std::endl;
     logger << "sc orig offs: " << sc_offs[0] << ", " << sc_offs[1] << ", " << sc_offs[2] << std::endl;
 
-    std::vector<double> domain_sizezyx(3);
-    std::vector<double> domain_offsetzyx(3);
-    domain_offsetzyx[2] = 0.0;
-    domain_offsetzyx[1] = 0.0;
-    domain_offsetzyx[0] = 0.0;
-    domain_sizezyx[2] = 2*1.21e-3;
-    domain_sizezyx[1] = 2*1.21e-3;
-    domain_sizezyx[0] = 0.12/beta;
-    std::vector<int> grid_shapezyx(3);
-    grid_shapezyx[0] = grid_shape[2];
-    grid_shapezyx[1] = grid_shape[1];
-    grid_shapezyx[2] = grid_shape[0];
+    std::vector<double> domain_size(3);
+    std::vector<double> domain_offset(3);
+    domain_offset[0] = 0.0;
+    domain_offset[1] = 0.0;
+    domain_offset[2] = 0.0;
+    domain_size[0] = bunch.get_local_particles()[0][Bunch::x] * 4;
+    domain_size[1] = domain_size[0];
+    domain_size[2] = 0.12/beta;
 
     Rectangular_grid_domain_sptr fixed_domain(
-            new Rectangular_grid_domain(domain_sizezyx, domain_offsetzyx, grid_shapezyx));
-    // setting a fixed domain tickles a bug that crashes the space charge calculation in
-    // CMAKE_BUILD_TYPE=Debug mode.
-    //space_charge.set_fixed_domain(fixed_domain);
+            new Rectangular_grid_domain(domain_size, domain_offset, grid_shape2d));
+    space_charge.set_fixed_domain(fixed_domain);
 
     Rectangular_grid_sptr local_charge_density(
             space_charge.get_local_charge_density(bunch));
@@ -725,9 +723,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
     logger << "local_rho_physical_offset: " << local_rho_phys_off[0] << ", " << local_rho_phys_off[1] << ", " << local_rho_phys_off[2] << std::endl;
     std::vector<double> local_rho_left(local_charge_density->get_domain_sptr()->get_left());
     logger << "local_rho_left: " << local_rho_left[0] << ", " << local_rho_left[1] << ", " << local_rho_left[2] << std::endl;
-
-
-
 
     Step dummy_step(step_length);
 

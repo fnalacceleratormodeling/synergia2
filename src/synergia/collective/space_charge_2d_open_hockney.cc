@@ -299,7 +299,7 @@ Space_charge_2d_open_hockney::set_fixed_domain(
             || (domain_sptr->get_grid_shape()[1] != grid_shape[1])
             || (domain_sptr->get_grid_shape()[2] != grid_shape[2])) {
         throw runtime_error(
-                "Space_charge_2d_open_hockney::set_fixed_domain requires a shape\nequal to that of the parent object, but with zyx ordering.");
+                "Space_charge_2d_open_hockney::set_fixed_domain requires a shape\nequal to that of the parent object.");
     }
     this->domain_sptr = domain_sptr;
     set_doubled_domain();
@@ -775,6 +775,7 @@ Space_charge_2d_open_hockney::apply_kick(Bunch & bunch,
     MArray2dc_ref grid_points(Fn.get_grid_points_2dc());
     MArray1d_ref grid_points_1d(rho2.get_grid_points_1d());
     Raw_MArray1d bin(boost::extents[6]);
+    std::cout << "jfa: factor is " << factor << std::endl;
     for (int part = 0; part < bunch.get_local_num(); ++part) {
         std::complex<double > grid_val;
         if (!use_cell_coords) {
