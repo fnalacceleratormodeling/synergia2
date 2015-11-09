@@ -619,44 +619,6 @@ simple_populate(Bunch & bunch, Random_distribution & distribution)
 
 }
 
-BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
-{
-    simple_populate(bunch, distribution);
-    Bunch original_bunch(bunch);
-    bunch.set_sort_period(1000); // delay the sorting
-    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape);
-    const double time_fraction = 1.0;
-    Step dummy_step(time_fraction);
-    const double time_step = 0.3;
-    const int verbosity = 4;
-    Logger logger(0);
-    space_charge.apply(bunch, time_step, dummy_step, verbosity, logger);
-
-    double total_x_kick2 = 0.0;
-    double total_y_kick2 = 0.0;
-    double total_p_kick2 = 0.0;
-    for (int i = 0; i < bunch.get_local_num(); ++i) {
-        double kick;
-        kick = bunch.get_local_particles()[i][Bunch::xp]
-                - original_bunch.get_local_particles()[i][Bunch::xp];
-        total_x_kick2 += kick * kick;
-        kick = bunch.get_local_particles()[i][Bunch::yp]
-                - original_bunch.get_local_particles()[i][Bunch::yp];
-        total_y_kick2 += kick * kick;
-        kick = bunch.get_local_particles()[i][Bunch::dpop]
-                - original_bunch.get_local_particles()[i][Bunch::dpop];
-        total_p_kick2 += kick * kick;
-    }
-    double avg_x_kick2 = total_x_kick2 / bunch.get_local_num();
-    double avg_y_kick2 = total_y_kick2 / bunch.get_local_num();
-    double avg_p_kick2 = total_p_kick2 / bunch.get_local_num();
-
-    const double rough_tolerance = 10.0;
-    BOOST_CHECK_CLOSE(avg_x_kick2, 6.637e-6, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_y_kick2, 6.735e-6, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_p_kick2, 3.67e-2, rough_tolerance);
-}
-
 BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
 {
     Bunch original_bunch(bunch);

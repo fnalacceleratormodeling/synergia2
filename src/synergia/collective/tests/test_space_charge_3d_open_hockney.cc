@@ -18,7 +18,7 @@ using pconstants::epsilon0;
 BOOST_GLOBAL_FIXTURE(MPI_fixture)
 
 const double tolerance = 1.0e-12;
-#if 0
+
 BOOST_AUTO_TEST_CASE(construct1)
 {
     std::vector<int > grid_shape(3);
@@ -401,7 +401,6 @@ BOOST_FIXTURE_TEST_CASE(set_fixed_domain_bad_shape, Ellipsoidal_bunch_fixture)
     }
     BOOST_CHECK(caught_error == true);
 }
-#endif
 
 BOOST_FIXTURE_TEST_CASE(get_local_charge_density, Toy_bunch_fixture)
 {
@@ -436,7 +435,7 @@ BOOST_FIXTURE_TEST_CASE(get_local_charge_density, Toy_bunch_fixture)
     multi_array_check_equal(local_charge_density->get_grid_points(), expected,
             100 * tolerance);
 }
-#if 0
+
 BOOST_FIXTURE_TEST_CASE(get_global_charge_density2_reduce_scatter,
         Ellipsoidal_bunch_fixture)
 {
@@ -733,45 +732,6 @@ BOOST_FIXTURE_TEST_CASE(apply_full, Ellipsoidal_bunch_fixture)
     BOOST_CHECK_CLOSE(avg_p_kick2, 7.2e6, rough_tolerance);
 }
 
-BOOST_FIXTURE_TEST_CASE(apply_transverse, Ellipsoidal_bunch_fixture)
-{
-    simple_populate(bunch, distribution);
-    Bunch original_bunch(bunch);
-    Space_charge_3d_open_hockney space_charge(comm_sptr, grid_shape, false);
-    const double time_fraction = 1.0;
-    Step dummy_step(time_fraction);
-    const double time_step = 0.3;
-    const int verbosity = 4;
-    Logger logger(0);
-    space_charge.apply(bunch, time_step, dummy_step, verbosity, logger);
-
-    double total_x_kick2 = 0.0;
-    double total_y_kick2 = 0.0;
-    double total_p_kick2 = 0.0;
-    for (int i = 0; i < bunch.get_local_num(); ++i) {
-        double kick;
-        kick = bunch.get_local_particles()[i][Bunch::xp]
-                - original_bunch.get_local_particles()[i][Bunch::xp];
-        total_x_kick2 += kick * kick;
-        kick += bunch.get_local_particles()[i][Bunch::yp]
-                - original_bunch.get_local_particles()[i][Bunch::yp];
-        total_y_kick2 += kick * kick;
-        kick = bunch.get_local_particles()[i][Bunch::dpop]
-                - original_bunch.get_local_particles()[i][Bunch::dpop];
-        total_p_kick2 += kick * kick;
-    }
-    double avg_x_kick2 = total_x_kick2 / bunch.get_local_num();
-    double avg_y_kick2 = total_y_kick2 / bunch.get_local_num();
-    double avg_p_kick2 = total_p_kick2 / bunch.get_local_num();
-
-    const double rough_tolerance = 50.0;
-    BOOST_CHECK_CLOSE(avg_x_kick2, 7.9e4, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_y_kick2, 1.1e5, rough_tolerance);
-    BOOST_CHECK_CLOSE(avg_p_kick2, 3.65e-2, rough_tolerance);
-}
-
-#endif
-
 BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
 {
     Bunch original_bunch(bunch);
@@ -783,15 +743,16 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
     const double time_step = step_length/(beta*pconstants::c);
     const double bunchlen = bunch.get_z_period_length();
 
-    Logger logger(0);
+    bool show_output(true);
+    Logger logger(0, show_output);
 
     logger << "first four particles (x y z):" << std::endl;
     for (int k=0; k<4; ++k) {
-        logger << k<<": " << bunch.get_local_particles()[k][0] << ", " <<
+        logger << k<< ": " << bunch.get_local_particles()[k][0] << ", " <<
                 bunch.get_local_particles()[k][2] << ", " <<
                 bunch.get_local_particles()[k][4] << std::endl;
     }
-    logger << "last four particles (x y z): << std::endl";
+    logger << "last four particles (x y z):" << std::endl;
     for (int k=bunch.get_local_num()-4; k<bunch.get_local_num(); ++k) {
         logger << k<<": " << bunch.get_local_particles()[k][0] << ", " <<
                 bunch.get_local_particles()[k][2] << ", " <<
@@ -807,9 +768,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
     std::vector<int> sc_grid_shape(orig_domain_sptr->get_grid_shape());
     std::vector<double> sc_size(orig_domain_sptr->get_physical_size());
     std::vector<double> sc_offs(orig_domain_sptr->get_physical_offset());
-    logger << "sc orig grid shape: " << sc_grid_shape[0] << ", " << sc_grid_shape[1] << ", " << sc_grid_shape[2] << std::endl;
-    logger << "sc orig phys size: " << sc_size[0] << ", " << sc_size[1] << ", " << sc_size[2] << std::endl;
-    logger << "sc orig offs: " << sc_offs[0] << ", " << sc_offs[1] << ", " << sc_offs[2] << std::endl;
 
     std::vector<double> domain_sizezyx(3);
     std::vector<double> domain_offsetzyx(3);
@@ -833,28 +791,19 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
     Rectangular_grid_sptr local_charge_density(
             space_charge.get_local_charge_density(bunch));
     std::vector<int> local_rho_shape(local_charge_density->get_domain_sptr()->get_grid_shape());
-    logger << "local_rho_shape: " << local_rho_shape[0] << ", " << local_rho_shape[1] << ", " << local_rho_shape[2] << std::endl;
     std::vector<double> local_rho_phys_size(local_charge_density->get_domain_sptr()->get_physical_size());
-    logger << "local_rho_physical_size: " << local_rho_phys_size[0] << ", " << local_rho_phys_size[1] << ", " << local_rho_phys_size[2] << std::endl;
     std::vector<double> local_rho_phys_off(local_charge_density->get_domain_sptr()->get_physical_offset());
-    logger << "local_rho_physical_offset: " << local_rho_phys_off[0] << ", " << local_rho_phys_off[1] << ", " << local_rho_phys_off[2] << std::endl;
     std::vector<double> local_rho_left(local_charge_density->get_domain_sptr()->get_left());
-    logger << "local_rho_left: " << local_rho_left[0] << ", " << local_rho_left[1] << ", " << local_rho_left[2] << std::endl;
-
-
-
 
     Step dummy_step(step_length);
 
     const int verbosity = 99;
-    logger << "egs: bunch initial state: " << bunch.get_state() << std::endl;
-    logger << "egs: before anything: bunch.get_local_particles()[0][0]: " << bunch.get_local_particles()[0][0] << std::endl;
-
 
     space_charge.apply(bunch, time_step, dummy_step, verbosity, logger);
-    logger << "egs: bunch final state: " << bunch.get_state() << std::endl;
+    logger << "bunch final state: " << bunch.get_state() << std::endl;
     bunch.convert_to_state(Bunch::fixed_z_lab);
-    logger << "egs: after sc::apply : bunch.get_local_particles()[0][0]: " << bunch.get_local_particles()[0][0] << std::endl;
+    logger << "after sc::apply : bunch.get_local_particles()[0][0]: " <<
+            bunch.get_local_particles()[0][0] << std::endl;
     // Rod of charge Q over length L
     // E field at radius r $$ E = \frac{1}{2 \pi \epsilon_0} \frac{Q}{L} \frac{1}{r} $$
     // B field at radius r $$ E = \frac{\mu_0}{2 \pi } \frac{Q v}{L} \frac{1}{r} $$
@@ -863,7 +812,7 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
     // travel over distance D at velocity v
     // \frac{\Delta p}{p} = \frac{1}{2 \pi \epsilon_0 \gamma^2} \frac{qQ}{L} \frac{D}{m v^2} \frac{1}{r}
     // convert to usual units
-    // \frac{\Delta p}{p} = \frac{2 N r_p}{L \beta^2 \gamma^2} \frac{D}{r}
+    // \frac{\Delta p}{p} = \frac{2 N r_p}{L \beta^2 \gamma^3} \frac{D}{r}
 
     double L = bunch.get_z_period_length();
     double N = bunch.get_real_num();
@@ -874,7 +823,7 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
     logger << "x: " << bunch.get_local_particles()[0][Bunch::x] << std::endl;
     double computed_dpop = ((2.0*N*pconstants::rp)/(L*betagamma*betagamma*gamma)) *
             (step_length/bunch.get_local_particles()[0][Bunch::x]);
-    logger << "egs: computed dpop: " << computed_dpop << std::endl;
+    logger << "computed dpop: " << computed_dpop << std::endl;
     BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], computed_dpop, .01);
 
     int nkicks = 0;
@@ -895,7 +844,6 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
 
 }
 
-#if 0
 BOOST_FIXTURE_TEST_CASE(serialize_, Ellipsoidal_bunch_fixture)
 {
     simple_populate(bunch, distribution);
@@ -938,4 +886,3 @@ BOOST_FIXTURE_TEST_CASE(serialize_, Ellipsoidal_bunch_fixture)
     BOOST_CHECK_CLOSE(avg_y_kick2, 2.9e4, rough_tolerance);
     BOOST_CHECK_CLOSE(avg_p_kick2, 7.2e6, rough_tolerance);
 }
-#endif

@@ -298,7 +298,6 @@ struct Rod_bunch_fixture
 
         // when the probe is too far, it falls outside the domain and does
         // not get any sc kicks.
-        //local_particles[0][Bunch::x] = rod_probe;
         local_particles[0][Bunch::x] = 80*rod_radius;
         local_particles[0][Bunch::y] = 0.0;
         local_particles[0][Bunch::xp] = 0.0;
@@ -307,28 +306,9 @@ struct Rod_bunch_fixture
         local_particles[0][Bunch::dpop] = 0.0;
         local_particles[0][Bunch::id] = 0.0;
 
-//        local_particles[1][Bunch::x] = rod_probe*1.2;
-//        local_particles[1][Bunch::y] = rod_probe*1.2;
-//        local_particles[1][Bunch::xp] = 0.0;
-//        local_particles[1][Bunch::yp] = 0.0;
-//        local_particles[1][Bunch::cdt] = 0.0;
-//        local_particles[1][Bunch::dpop] = 0.0;
-//        local_particles[1][Bunch::id] = 1.0;
-
-//        local_particles[2][Bunch::x] = -rod_probe*1.2;
-//        local_particles[2][Bunch::y] = -rod_probe*1.2;
-//        local_particles[2][Bunch::xp] = 0.0;
-//        local_particles[2][Bunch::yp] = 0.0;
-//        local_particles[2][Bunch::cdt] = 0.0;
-//        local_particles[2][Bunch::dpop] = 0.0;
-//        local_particles[2][Bunch::id] = 2.0;
-
         grid_shape[0] = 256;
         grid_shape[1] = 256;
         grid_shape[2] = 64;
-//        grid_shape[0] = 4;
-//        grid_shape[1] = 4;
-//        grid_shape[2] = 8;
     }
 
     ~Rod_bunch_fixture()
