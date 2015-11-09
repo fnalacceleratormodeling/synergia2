@@ -64,9 +64,9 @@ Reference_particle::Reference_particle(Lsexpr const& lsexpr) :
             } else if(it->get_label() == "state") {
                 lsexpr_state = it->get_double_vector();
             } else {
-                throw std::runtime_error("Reference_particle: Lsexpr unknown label '" +
+                throw std::runtime_error("Reference_particle: Lsexpr unknown label \"" +
                                          it->get_label() +
-                                         "'");
+                                         "\"");
             }
         }
     }
@@ -96,7 +96,7 @@ Lsexpr Reference_particle::as_lsexpr() const
     }
 
     if(s != 0) {
-        retval.push_back(Lsexpr(s, "s'"));
+        retval.push_back(Lsexpr(s, "s"));
     }
 
     if(s_n != 0) {
