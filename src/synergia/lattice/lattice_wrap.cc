@@ -191,6 +191,8 @@ BOOST_PYTHON_MODULE(lattice)
             .def(init<std::string const&, Mad8_adaptor_map_sptr >())
             .def(init<std::string const&, MadX_adaptor_map_sptr >())
             .def(init<>())
+            .def(init<Lsexpr const&>())
+            .def("as_lsexpr", &Lattice::as_lsexpr)
             .def("get_name", &Lattice::get_name,
                     return_value_policy<copy_const_reference>())
             .def("set_reference_particle", &Lattice::set_reference_particle)
