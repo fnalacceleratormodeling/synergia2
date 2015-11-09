@@ -10,11 +10,15 @@ from nose.tools import *
 from synergia.lattice import eliminate_markers, convert_monitors, convert_magnets, \
     combine_drifts, simplify_all
 from synergia.lattice import Lattice, xml_load_lattice
+from synergia.utils import read_lsexpr_file
+import synergia
 
 def test_booster():
-    orig = Lattice()
-    xml_load_lattice(orig, "lattices/fnal_booster.xml")
-    simplified = simplify_all(orig)
+    orig1 = Lattice()
+    xml_load_lattice(orig1, "lattices/fnal_booster.xml")
+    synergia.utils.write_lsexpr_file(orig1.as_lsexpr(), "lattices/fnal_booster.lsx")
+    orig = Lattice(read_lsexpr_file("lattices/fnal_booster.lsx"))
+    simplified = simplify_all(orig1)
     assert_almost_equal(orig.get_length(), simplified.get_length())
     print "booster went from", len(orig.get_elements()), "to",
     print len(simplified.get_elements()), "elements"

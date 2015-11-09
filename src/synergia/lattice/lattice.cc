@@ -66,6 +66,10 @@ Lattice::Lattice(Lsexpr const& lsexpr) :
                                              it->get_string() + " not handled");
                 }
             } else if (it->get_label() == "reference_particle") {
+                std::cout << "jfa: creating ref part from ";
+                it->write(std::cout);
+                std::cout << std::endl;
+
                 reference_particle_ptr = new Reference_particle(*it);
                 reference_particle_allocated = true;
             } else if (it->get_label() == "elements") {
