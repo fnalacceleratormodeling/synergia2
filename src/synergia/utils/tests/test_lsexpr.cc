@@ -2,6 +2,37 @@
 #include <boost/test/unit_test.hpp>
 #include "synergia/utils/lsexpr.h"
 #include <iostream>
+#include <sstream>
+
+bool
+compare_lsexpr_string(Lsexpr const& lsexpr, std::string const& string)
+{
+    std::stringstream sstream;
+    lsexpr.write(sstream);
+    bool retval = sstream.str() == string;
+    if (!retval) {
+        std::cerr << "compare_lsexpr_string(): \"" <<
+                     sstream.str() << "\" != \"" <<
+                     string << "\"" <<  std::endl;
+    }
+    return retval;
+}
+
+bool
+compare_lsexpr_lsexpr(Lsexpr const& lsexpr1, Lsexpr const& lsexpr2)
+{
+    std::stringstream sstream1;
+    lsexpr1.write(sstream1);
+    std::stringstream sstream2;
+    lsexpr1.write(sstream2);
+    bool retval = sstream1.str() == sstream2.str();
+    if (!retval) {
+        std::cerr << "compare_lsexpr_lsexpr(): \"" <<
+                     sstream1.str() << "\" != \"" <<
+                     sstream2.str() << "\"" <<  std::endl;
+    }
+    return retval;
+}
 
 BOOST_AUTO_TEST_CASE(construct)
 {
@@ -11,16 +42,15 @@ BOOST_AUTO_TEST_CASE(construct)
 BOOST_AUTO_TEST_CASE(write_lsexpr_atom)
 {
     Lsexpr lsexpr("atomic_foo");
-    lsexpr.write(std::cout);
-    std::cout << std::endl;
+    BOOST_CHECK(compare_lsexpr_string(lsexpr, "atomic_foo"));
 }
 
 BOOST_AUTO_TEST_CASE(write_lsexpr_labeled_atom)
 {
     Lsexpr lsexpr("atomic_foo");
     lsexpr.set_label("label");
-    lsexpr.write(std::cout);
-    std::cout << std::endl;
+    BOOST_CHECK(compare_lsexpr_string(lsexpr,
+                                      "label: atomic_foo"));
 }
 
 BOOST_AUTO_TEST_CASE(write_lsexpr_sequence)
@@ -32,8 +62,8 @@ BOOST_AUTO_TEST_CASE(write_lsexpr_sequence)
     lsexpr.push_back(bar);
     Lsexpr baz("baz");
     lsexpr.push_back(baz);
-    lsexpr.write(std::cout);
-    std::cout << std::endl;
+    BOOST_CHECK(compare_lsexpr_string(lsexpr,
+                                      "{foo, bar, baz}"));
 }
 
 BOOST_AUTO_TEST_CASE(write_lsexpr_labeled_sequence)
@@ -46,8 +76,8 @@ BOOST_AUTO_TEST_CASE(write_lsexpr_labeled_sequence)
     lsexpr.push_back(bar);
     Lsexpr baz("baz");
     lsexpr.push_back(baz);
-    lsexpr.write(std::cout);
-    std::cout << std::endl;
+    BOOST_CHECK(compare_lsexpr_string(lsexpr,
+                                      "other_label: \n     {foo, bar, baz}"));
 }
 
 BOOST_AUTO_TEST_CASE(write_lsexpr_complex)
@@ -66,22 +96,18 @@ BOOST_AUTO_TEST_CASE(write_lsexpr_complex)
     Lsexpr garply("garply");
     weird.push_back(garply);
     lsexpr.push_back(weird);
-    lsexpr.write(std::cout);
-    std::cout << std::endl;
+    BOOST_CHECK(compare_lsexpr_string(lsexpr,
+                                      "complex: \n     {foo, second_element: bar, \n     weird_elements: \n         {corge, garply}}"));
 }
 
 BOOST_AUTO_TEST_CASE(read_lsexpr_atom)
 {
     Lsexpr lsexpr("atomic_foo");
-    std::cout << "original:\n";
-    lsexpr.write(std::cout);
-    std::cout << std::endl;
+
     std::stringstream sstream;
     lsexpr.write(sstream);
     Lsexpr parsed_lsexpr(sstream);
-    std::cout << "regurgitated:\n";
-    parsed_lsexpr.write(std::cout);
-    std::cout << std::endl;
+    BOOST_CHECK(compare_lsexpr_lsexpr(lsexpr, parsed_lsexpr));
 }
 
 BOOST_AUTO_TEST_CASE(read_lsexpr_sequence)
@@ -93,15 +119,11 @@ BOOST_AUTO_TEST_CASE(read_lsexpr_sequence)
     lsexpr.push_back(bar);
     Lsexpr baz("baz");
     lsexpr.push_back(baz);
-    std::cout << "original:\n";
-    lsexpr.write(std::cout);
-    std::cout << std::endl;
+
     std::stringstream sstream;
     lsexpr.write(sstream);
     Lsexpr parsed_lsexpr(sstream);
-    std::cout << "regurgitated:\n";
-    parsed_lsexpr.write(std::cout);
-    std::cout << std::endl;
+    BOOST_CHECK(compare_lsexpr_lsexpr(lsexpr, parsed_lsexpr));
 }
 
 BOOST_AUTO_TEST_CASE(read_lsexpr_labeled_sequence)
@@ -114,15 +136,11 @@ BOOST_AUTO_TEST_CASE(read_lsexpr_labeled_sequence)
     lsexpr.push_back(bar);
     Lsexpr baz("baz");
     lsexpr.push_back(baz);
-    std::cout << "original:\n";
-    lsexpr.write(std::cout);
-    std::cout << std::endl;
+
     std::stringstream sstream;
     lsexpr.write(sstream);
     Lsexpr parsed_lsexpr(sstream);
-    std::cout << "regurgitated:\n";
-    parsed_lsexpr.write(std::cout);
-    std::cout << std::endl;
+    BOOST_CHECK(compare_lsexpr_lsexpr(lsexpr, parsed_lsexpr));
 }
 
 BOOST_AUTO_TEST_CASE(read_lsexpr_complex)
@@ -141,15 +159,11 @@ BOOST_AUTO_TEST_CASE(read_lsexpr_complex)
     Lsexpr garply("garply");
     weird.push_back(garply);
     lsexpr.push_back(weird);
-    std::cout << "original:\n";
-    lsexpr.write(std::cout);
-    std::cout << std::endl;
+
     std::stringstream sstream;
     lsexpr.write(sstream);
     Lsexpr parsed_lsexpr(sstream);
-    std::cout << "regurgitated:\n";
-    parsed_lsexpr.write(std::cout);
-    std::cout << std::endl;
+    BOOST_CHECK(compare_lsexpr_lsexpr(lsexpr, parsed_lsexpr));
 }
 
 BOOST_AUTO_TEST_CASE(read_quoted_whitespace)
@@ -161,30 +175,22 @@ BOOST_AUTO_TEST_CASE(read_quoted_whitespace)
     lsexpr.push_back(bar);
     Lsexpr baz("baz");
     lsexpr.push_back(baz);
-    std::cout << "original:\n";
-    lsexpr.write(std::cout);
-    std::cout << std::endl;
+
     std::stringstream sstream;
     lsexpr.write(sstream);
     Lsexpr parsed_lsexpr(sstream);
-    std::cout << "regurgitated:\n";
-    parsed_lsexpr.write(std::cout);
-    std::cout << std::endl;
+    BOOST_CHECK(compare_lsexpr_lsexpr(lsexpr, parsed_lsexpr));
 }
 
 BOOST_AUTO_TEST_CASE(int_constructor)
 {
     Lsexpr lsexpr(7);
     lsexpr.set_label("int");
-    std::cout << "original:\n";
-    lsexpr.write(std::cout);
-    std::cout << std::endl;
+
     std::stringstream sstream;
     lsexpr.write(sstream);
     Lsexpr parsed_lsexpr(sstream);
-    std::cout << "regurgitated:\n";
-    parsed_lsexpr.write(std::cout);
-    std::cout << std::endl;
+    BOOST_CHECK(compare_lsexpr_lsexpr(lsexpr, parsed_lsexpr));
 }
 
 BOOST_AUTO_TEST_CASE(double_constructor)
@@ -199,15 +205,11 @@ BOOST_AUTO_TEST_CASE(double_constructor)
     Lsexpr third(3.141592653689793);
     third.set_label("long");
     lsexpr.push_back(third);
-    std::cout << "original:\n";
-    lsexpr.write(std::cout);
-    std::cout << std::endl;
+
     std::stringstream sstream;
     lsexpr.write(sstream);
     Lsexpr parsed_lsexpr(sstream);
-    std::cout << "regurgitated:\n";
-    parsed_lsexpr.write(std::cout);
-    std::cout << std::endl;
+    BOOST_CHECK(compare_lsexpr_lsexpr(lsexpr, parsed_lsexpr));
 }
 
 BOOST_AUTO_TEST_CASE(string_vector_constructor)
@@ -217,15 +219,11 @@ BOOST_AUTO_TEST_CASE(string_vector_constructor)
     string_vector.push_back("baz");
     string_vector.push_back("garply");
     Lsexpr lsexpr(string_vector);
-    std::cout << "original:\n";
-    lsexpr.write(std::cout);
-    std::cout << std::endl;
+
     std::stringstream sstream;
     lsexpr.write(sstream);
     Lsexpr parsed_lsexpr(sstream);
-    std::cout << "regurgitated:\n";
-    parsed_lsexpr.write(std::cout);
-    std::cout << std::endl;
+    BOOST_CHECK(compare_lsexpr_lsexpr(lsexpr, parsed_lsexpr));
 }
 
 BOOST_AUTO_TEST_CASE(int_vector_constructor)
@@ -240,15 +238,11 @@ BOOST_AUTO_TEST_CASE(int_vector_constructor)
     int_vector.push_back(8);
     int_vector.push_back(13);
     Lsexpr lsexpr(int_vector);
-    std::cout << "original:\n";
-    lsexpr.write(std::cout);
-    std::cout << std::endl;
+
     std::stringstream sstream;
     lsexpr.write(sstream);
     Lsexpr parsed_lsexpr(sstream);
-    std::cout << "regurgitated:\n";
-    parsed_lsexpr.write(std::cout);
-    std::cout << std::endl;
+    BOOST_CHECK(compare_lsexpr_lsexpr(lsexpr, parsed_lsexpr));
 }
 
 BOOST_AUTO_TEST_CASE(double_vector_constructor)
@@ -258,13 +252,9 @@ BOOST_AUTO_TEST_CASE(double_vector_constructor)
     double_vector.push_back(3.141592653589793);
     double_vector.push_back(7.1e129);
     Lsexpr lsexpr(double_vector);
-    std::cout << "original:\n";
-    lsexpr.write(std::cout);
-    std::cout << std::endl;
+
     std::stringstream sstream;
     lsexpr.write(sstream);
     Lsexpr parsed_lsexpr(sstream);
-    std::cout << "regurgitated:\n";
-    parsed_lsexpr.write(std::cout);
-    std::cout << std::endl;
+    BOOST_CHECK(compare_lsexpr_lsexpr(lsexpr, parsed_lsexpr));
 }
