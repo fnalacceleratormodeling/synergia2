@@ -235,9 +235,7 @@ struct Cylindrical_bunch_fixture_fine
 // ----------------------------------------------------------------------------
 
 const int rod_num_particles = 1 + 250001*8; // 1 + (odd number) * 8 + 2 to expand the domein on both sides
-const double rod_betagamma = 11.0/60.0;
 const double rod_gamma = 61.0/60.0;
-const double rod_beta = 11.0/61.0;
 const double rod_real_num = 5.0e9;
 const double rod_length = 0.1;
 const double rod_radius = 1.0e-6; //radius of rod particles
@@ -287,6 +285,7 @@ struct Rod_bunch_fixture
             local_particles[i+7][Bunch::x] = rod_radius*r2o2;
             local_particles[i+7][Bunch::y] = -rod_radius*r2o2;
 
+            double rod_beta = reference_particle.get_beta();
             for (int j=i; j<i+8; ++j) {
                 local_particles[j][Bunch::cdt] = z/rod_beta;
                 local_particles[j][Bunch::xp] = 0.0;

@@ -49,7 +49,7 @@ os: drift,      l=shortdlen
 f: quadrupole, l=quadlength, k1=strength
 d: quadrupole, l=quadlength, k1=(-strength)
 b: sbend,      l=bendlength, angle=bendangle
-r: rfcavity,	l=cavlen, volt=hvoltage, harmon=harmno, lag=0.5
+r: rfcavity,   l=cavlen, volt=hvoltage, harmon=128, lag=0.5
 
 ! ------------------
 ! Lattices
