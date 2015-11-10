@@ -41,10 +41,6 @@ Reference_particle::Reference_particle(Lsexpr const& lsexpr) :
     , s(0)
     , s_n(0)
 {
-    std::vector<double> lsexpr_state(6);
-    for (int i = 0; i < 6; ++i) {
-        lsexpr_state[i] = 0;
-    }
     bool found_charge(false), found_four_momentum(false);
     for(Lsexpr::const_iterator_t it = lsexpr.begin();
         it != lsexpr.end(); ++it) {
@@ -53,7 +49,6 @@ Reference_particle::Reference_particle(Lsexpr const& lsexpr) :
                 charge = it->get_int();
                 found_charge = true;
             } else if(it->get_label() == "four_momentum") {
-                std::cout << "jfa: creating four mom from ";
                 it->write(std::cout);
                 std::cout << std::endl;
                 four_momentum = Four_momentum(*it);
@@ -65,7 +60,11 @@ Reference_particle::Reference_particle(Lsexpr const& lsexpr) :
             } else if(it->get_label() == "s_n") {
                 s_n = it->get_double();
             } else if(it->get_label() == "state") {
-                lsexpr_state = it->get_double_vector();
+                std::vector<double> state_vector(it->get_double_vector());
+                if (state_vector.size() != 6) {
+                    throw std::runtime_error("Reference_particle from lsexpr: state vector must have length 6");
+                }
+                std::copy(state_vector.begin(), state_vector.end(), state.begin());
             } else {
                 throw std::runtime_error("Reference_particle: Lsexpr unknown label \"" +
                                          it->get_label() +
@@ -78,9 +77,6 @@ Reference_particle::Reference_particle(Lsexpr const& lsexpr) :
     }
     if(!found_four_momentum) {
         throw std::runtime_error("Reference_particle: Lsexpr missing four_momentum");
-    }
-    for (int i = 0; i < 6; ++i) {
-        state[i] = lsexpr_state[i];
     }
 }
 
@@ -109,10 +105,8 @@ Lsexpr Reference_particle::as_lsexpr() const
     if((state[0] != 0) || (state[1] != 0) || (state[2] != 0) ||
        (state[3] != 0) || (state[4] != 0) || (state[5] != 0)) {
         std::vector<double> state_vector(6);
-        for (int i = 0; i < 6; ++i) {
-            state_vector[i] = state[i];
-        }
-        retval.push_back(Lsexpr(state_vector, "state_vector"));
+        std::copy(state.begin(), state.end(), state_vector.begin());
+        retval.push_back(Lsexpr(state_vector, "state"));
     }
 
     return retval;
