@@ -619,7 +619,7 @@ simple_populate(Bunch & bunch, Random_distribution & distribution)
 
 }
 
-BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
+BOOST_FIXTURE_TEST_CASE(real_apply_transverse_lowgamma, Rod_bunch_fixture_lowgamma)
 {
     Bunch original_bunch(bunch);
     const double time_fraction = 1.0;
@@ -631,7 +631,130 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse, Rod_bunch_fixture)
     const double time_step = step_length / (beta * pconstants::c);
     const double bunchlen = bunch.get_z_period_length();
 
-    bool show_output(false);
+    bool show_output(true);
+    Logger logger(0, show_output);
+
+    logger << "first four particles (x y z):" << std::endl;
+    for (int k = 0; k < 4; ++k) {
+        logger << k << ": " << bunch.get_local_particles()[k][0] << ", "
+               << bunch.get_local_particles()[k][2] << ", "
+               << bunch.get_local_particles()[k][4] << std::endl;
+    }
+    logger << "last four particles (x y z): << std::endl";
+    for (int k = bunch.get_local_num() - 4; k < bunch.get_local_num(); ++k) {
+        logger << k << ": " << bunch.get_local_particles()[k][0] << ", "
+               << bunch.get_local_particles()[k][2] << ", "
+               << bunch.get_local_particles()[k][4] << std::endl;
+    }
+    logger << std::endl;
+
+    std::vector<int> grid_shape2d(3);
+    grid_shape2d[0] = 64;
+    grid_shape2d[1] = grid_shape2d[0];
+    grid_shape2d[2] = 32;
+
+    Space_charge_2d_open_hockney space_charge(comm_sptr, grid_shape2d);
+
+    space_charge.update_domain(bunch);
+    Rectangular_grid_domain_sptr orig_domain_sptr(
+        space_charge.get_domain_sptr());
+    std::vector<int> sc_grid_shape(orig_domain_sptr->get_grid_shape());
+    std::vector<double> sc_size(orig_domain_sptr->get_physical_size());
+    std::vector<double> sc_offs(orig_domain_sptr->get_physical_offset());
+
+    std::vector<double> domain_size(3);
+    std::vector<double> domain_offset(3);
+    domain_offset[0] = 0.0;
+    domain_offset[1] = 0.0;
+    domain_offset[2] = 0.0;
+    domain_size[0] = bunch.get_local_particles()[0][Bunch::x] * 4;
+    domain_size[1] = domain_size[0];
+    domain_size[2] = 0.12 / beta;
+
+    Rectangular_grid_domain_sptr fixed_domain(
+        new Rectangular_grid_domain(domain_size, domain_offset, grid_shape2d));
+    space_charge.set_fixed_domain(fixed_domain);
+
+    Rectangular_grid_sptr local_charge_density(
+        space_charge.get_local_charge_density(bunch));
+    std::vector<int> local_rho_shape(
+        local_charge_density->get_domain_sptr()->get_grid_shape());
+    std::vector<double> local_rho_phys_size(
+        local_charge_density->get_domain_sptr()->get_physical_size());
+    std::vector<double> local_rho_phys_off(
+        local_charge_density->get_domain_sptr()->get_physical_offset());
+    std::vector<double> local_rho_left(
+        local_charge_density->get_domain_sptr()->get_left());
+
+    Step dummy_step(step_length);
+
+    const int verbosity = 99;
+
+    space_charge.apply(bunch, time_step, dummy_step, verbosity, logger);
+    logger << "bunch final state: " << bunch.get_state() << std::endl;
+    bunch.convert_to_state(Bunch::fixed_z_lab);
+
+    logger << "after sc::apply : bunch.get_local_particles()[0][0]: "
+           << bunch.get_local_particles()[0][0] << std::endl;
+    // Rod of charge Q over length L
+    // E field at radius r $$ E = \frac{1}{2 \pi \epsilon_0} \frac{Q}{L}
+    // \frac{1}{r} $$
+    // B field at radius r $$ E = \frac{\mu_0}{2 \pi } \frac{Q v}{L} \frac{1}{r}
+    // $$
+    // Net EM force on electric+magnetic on probe of charge q from E-B
+    // cancellation
+    // $$ F = \frac{1}{2 \pi \epsilon_0 \gamma^2} \frac{qQ}{L} \frac{1}{r}
+    // travel over distance D at velocity v
+    // \frac{\Delta p}{p} = \frac{1}{2 \pi \epsilon_0 \gamma^2} \frac{qQ}{L}
+    // \frac{D}{m v^2} \frac{1}{r}
+    // convert to usual units
+    // \frac{\Delta p}{p} = \frac{2 N r_p}{L \beta^2 \gamma^3} \frac{D}{r}
+
+    double L = bunch.get_z_period_length();
+    double N = bunch.get_real_num();
+    logger << "L: " << L << std::endl;
+    logger << "N: " << N << std::endl;
+    logger << "step_length: " << step_length << std::endl;
+    logger << "betagamma: " << betagamma << std::endl;
+    logger << "x: " << bunch.get_local_particles()[0][Bunch::x] << std::endl;
+    double computed_dpop =
+        ((2.0 * N * pconstants::rp) / (L * betagamma * betagamma * gamma)) *
+        (step_length / bunch.get_local_particles()[0][Bunch::x]);
+    logger << "computed dpop: " << computed_dpop << std::endl;
+    BOOST_CHECK_CLOSE(bunch.get_local_particles()[0][Bunch::xp], computed_dpop,
+                      .01);
+
+    int nkicks = 0;
+    for (int k = 0; k < bunch.get_local_num(); ++k) {
+        if ((bunch.get_local_particles()[k][1] != 0.0) ||
+            (bunch.get_local_particles()[k][3] != 0.0)) {
+            ++nkicks;
+            if (nkicks < 10) {
+                logger << "kick: " << nkicks << "particle " << k << ": "
+                       << bunch.get_local_particles()[k][0] << ", "
+                       << bunch.get_local_particles()[k][1] << ", "
+                       << bunch.get_local_particles()[k][2] << ", "
+                       << bunch.get_local_particles()[k][3] << ", "
+                       << bunch.get_local_particles()[k][4] << ", "
+                       << bunch.get_local_particles()[k][5] << std::endl;
+            }
+        }
+    }
+}
+
+BOOST_FIXTURE_TEST_CASE(real_apply_transverse_highgamma, Rod_bunch_fixture_highgamma)
+{
+    Bunch original_bunch(bunch);
+    const double time_fraction = 1.0;
+    const double step_length = 0.1;
+    const double beta = bunch.get_reference_particle().get_beta();
+    const double betagamma = bunch.get_reference_particle().get_beta() *
+                             bunch.get_reference_particle().get_gamma();
+    const double gamma = bunch.get_reference_particle().get_gamma();
+    const double time_step = step_length / (beta * pconstants::c);
+    const double bunchlen = bunch.get_z_period_length();
+
+    bool show_output(true);
     Logger logger(0, show_output);
 
     logger << "first four particles (x y z):" << std::endl;
