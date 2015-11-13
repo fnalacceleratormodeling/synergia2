@@ -115,44 +115,67 @@ Lsexpr::Lsexpr(std::istream& stream)
     , sequence()
 {
     bool in_str(false);
+    std::vector<Lsexpr*> stack;
+    stack.push_back(this);
     Lsexpr* current = this;
     Lsexpr* parent = this;
+    std::string current_word("");
+    std::string current_label("");
     char c(stream.get());
     while (!stream.eof()) {
-        if (c == '{' && !in_str) {
-            Lsexpr empty;
-            current->sequence.push_back(empty);
-            parent = current;
-            current = &(current->sequence.back());
+        if (c == '{' && !in_str) {            
+            stack.push_back(new Lsexpr);
+            if (!current_label.empty()) {
+                stack.back()->set_label(current_label);
+                current_label = "";
+            }
+
         } else if (c == '}' && !in_str) {
-            if (!current->atom.empty()) {
-                current->is_atom = true;
+            if (!current_word.empty()) {
+                Lsexpr lsexpr(current_word);
+                if (!current_label.empty()) {
+                    lsexpr.set_label(current_label);
+                }
+                stack.back()->push_back(lsexpr);
             }
-            Lsexpr empty;
-            current = &(parent->sequence.back());
-            current->sequence.push_back(empty);
+            current_word = "";
+            current_label = "";
+            Lsexpr tmp(*stack.back());
+            delete stack.back();
+            stack.pop_back();
+            stack.back()->push_back(tmp);
+//            std::copy(tmp.begin(), tmp.end(),
+//                      stack.back()->begin());
+//            stack.back()->sequence.push_back(empty);
         } else if ((c == ',') && !in_str) {
-            if (!current->atom.empty()) {
-                current->is_atom = true;
+            if (!current_word.empty()) {
+                Lsexpr lsexpr(current_word);
+                if (!current_label.empty()) {
+                    lsexpr.set_label(current_label);
+                }
+                stack.back()->push_back(lsexpr);
             }
-            Lsexpr empty;
-            current = parent;
-            current->sequence.push_back(empty);
-            current = &(current->sequence.back());
+            current_word = "";
+            current_label = "";
         } else if (c == '"') {
             in_str = !in_str;
         } else if (((c == ' ') || (c == '\n') || (c == '\t')) && !in_str) {
             // pass
         } else if ((c == ':' && !in_str)) {
-            current->label = current->atom;
-            current->atom = "";
+            current_label = current_word;
+            current_word = "";
         } else {
-            current->atom += c;
+            current_word += c;
         }
         c = stream.get();
     }
-    if (!current->atom.empty()) {
-        current->is_atom = true;
+    if (!current_word.empty()) {
+        Lsexpr lsexpr(current_word);
+        if (!current_label.empty()) {
+            lsexpr.set_label(current_label);
+        }
+        *this = lsexpr;
+//        stack.back()->push_back(lsexpr);
     }
 }
 
