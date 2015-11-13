@@ -11,11 +11,10 @@ compare_lsexpr_string(Lsexpr const& lsexpr, std::string const& string)
     lsexpr.write(sstream);
     bool retval = sstream.str() == string;
     if (!retval) {
-        std::cerr << "compare_lsexpr_string(): \"" <<
-                     sstream.str() << "\" != \"" <<
+        std::cerr << "compare_lsexpr_string():\n\"" <<
+                     sstream.str() << "\"\n!=\n\"" <<
                      string << "\"" <<  std::endl;
-    }
-    return retval;
+    }    return retval;
 }
 
 bool
@@ -24,14 +23,13 @@ compare_lsexpr_lsexpr(Lsexpr const& lsexpr1, Lsexpr const& lsexpr2)
     std::stringstream sstream1;
     lsexpr1.write(sstream1);
     std::stringstream sstream2;
-    lsexpr1.write(sstream2);
-    bool retval = sstream1.str() == sstream2.str();
+    lsexpr2.write(sstream2);
+    bool retval = (sstream1.str() == sstream2.str());
     if (!retval) {
-        std::cerr << "compare_lsexpr_lsexpr(): \"" <<
-                     sstream1.str() << "\" != \"" <<
+        std::cerr << "compare_lsexpr_lsexpr():\n\"" <<
+                     sstream1.str() << "\"\n!=\n\"" <<
                      sstream2.str() << "\"" <<  std::endl;
-    }
-    return retval;
+    }    return retval;
 }
 
 BOOST_AUTO_TEST_CASE(construct)
@@ -252,6 +250,47 @@ BOOST_AUTO_TEST_CASE(double_vector_constructor)
     double_vector.push_back(3.141592653589793);
     double_vector.push_back(7.1e129);
     Lsexpr lsexpr(double_vector);
+
+    std::stringstream sstream;
+    lsexpr.write(sstream);
+    Lsexpr parsed_lsexpr(sstream);
+    BOOST_CHECK(compare_lsexpr_lsexpr(lsexpr, parsed_lsexpr));
+}
+
+BOOST_AUTO_TEST_CASE(fake_reference_particle)
+{
+    Lsexpr refpart;
+    refpart.set_label("reference_particle");
+    Lsexpr fourmom;
+    fourmom.set_label("four_momentum");
+    fourmom.push_back(Lsexpr(1.1, "mass"));
+    fourmom.push_back(Lsexpr(1.2, "gamma"));
+    refpart.push_back(fourmom);
+    refpart.push_back(Lsexpr(-1,"charge"));
+
+    std::stringstream sstream;
+    refpart.write(sstream);
+    Lsexpr parsed_lsexpr(sstream);
+    BOOST_CHECK(compare_lsexpr_lsexpr(refpart, parsed_lsexpr));
+}
+
+BOOST_AUTO_TEST_CASE(nested)
+{
+    Lsexpr lsexpr;
+    Lsexpr a;
+    Lsexpr a1;
+    Lsexpr a11("a11");
+    Lsexpr a12("a12");
+    a1.push_back(a11);
+    a1.push_back(a12);
+    Lsexpr a2("a2");
+    a.push_back(a1);
+    a.push_back(a2);
+    lsexpr.push_back(a);
+    Lsexpr bar("bar");
+    lsexpr.push_back(bar);
+    Lsexpr baz("baz");
+    lsexpr.push_back(baz);
 
     std::stringstream sstream;
     lsexpr.write(sstream);
