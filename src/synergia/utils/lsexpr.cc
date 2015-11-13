@@ -116,7 +116,8 @@ Lsexpr::Lsexpr(std::istream& stream)
 {
     bool in_str(false);
     std::vector<Lsexpr*> stack;
-    stack.push_back(this);
+    Lsexpr root;
+    stack.push_back(&root);
     Lsexpr* current = this;
     Lsexpr* parent = this;
     std::string current_word("");
@@ -174,9 +175,10 @@ Lsexpr::Lsexpr(std::istream& stream)
         if (!current_label.empty()) {
             lsexpr.set_label(current_label);
         }
-        *this = lsexpr;
-//        stack.back()->push_back(lsexpr);
+//        *this = lsexpr;
+        stack.back()->push_back(lsexpr);
     }
+    *this = root.sequence.front();
 }
 
 void
