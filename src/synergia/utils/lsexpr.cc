@@ -121,7 +121,7 @@ Lsexpr::Lsexpr(std::istream& stream)
     std::string current_label("");
     char c(stream.get());
     while (!stream.eof()) {
-        if (c == '{' && !in_str) {            
+        if (c == '{' && !in_str) {
             stack.push_back(new Lsexpr);
             if (!current_label.empty()) {
                 stack.back()->set_label(current_label);
@@ -172,6 +172,10 @@ Lsexpr::Lsexpr(std::istream& stream)
         stack.back()->push_back(lsexpr);
     }
     *this = stack.front()->sequence.front();
+    for (std::vector<Lsexpr*>::iterator it = stack.begin(); it != stack.end();
+         ++it) {
+        delete *it;
+    }
 }
 
 void
