@@ -631,7 +631,7 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse_lowgamma, Rod_bunch_fixture_lowgam
     const double time_step = step_length / (beta * pconstants::c);
     const double bunchlen = bunch.get_z_period_length();
 
-    bool show_output(true);
+    bool show_output(false);
     Logger logger(0, show_output);
 
     logger << "first four particles (x y z):" << std::endl;
@@ -669,7 +669,7 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse_lowgamma, Rod_bunch_fixture_lowgam
     domain_offset[2] = 0.0;
     domain_size[0] = bunch.get_local_particles()[0][Bunch::x] * 4;
     domain_size[1] = domain_size[0];
-    domain_size[2] = 0.12 / beta;
+    domain_size[2] = bunchlen / beta;
 
     Rectangular_grid_domain_sptr fixed_domain(
         new Rectangular_grid_domain(domain_size, domain_offset, grid_shape2d));
@@ -754,7 +754,7 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse_highgamma, Rod_bunch_fixture_highg
     const double time_step = step_length / (beta * pconstants::c);
     const double bunchlen = bunch.get_z_period_length();
 
-    bool show_output(true);
+    bool show_output(false);
     Logger logger(0, show_output);
 
     logger << "first four particles (x y z):" << std::endl;
@@ -792,7 +792,7 @@ BOOST_FIXTURE_TEST_CASE(real_apply_transverse_highgamma, Rod_bunch_fixture_highg
     domain_offset[2] = 0.0;
     domain_size[0] = bunch.get_local_particles()[0][Bunch::x] * 4;
     domain_size[1] = domain_size[0];
-    domain_size[2] = 0.12 / beta;
+    domain_size[2] = bunchlen / beta;
 
     Rectangular_grid_domain_sptr fixed_domain(
         new Rectangular_grid_domain(domain_size, domain_offset, grid_shape2d));
