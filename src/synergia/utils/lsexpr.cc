@@ -114,41 +114,41 @@ Lsexpr::Lsexpr(std::istream& stream)
     , atom("")
     , sequence()
 {
-    std::vector<Lsexpr*> stack;
-    stack.push_back(new Lsexpr);
+    std::vector<Lsexpr> stack;
+    Lsexpr root;
+    stack.push_back(root);
     bool in_str(false);
     std::string current_word("");
     std::string current_label("");
     char c(stream.get());
     while (!stream.eof()) {
         if (c == '{' && !in_str) {
-            stack.push_back(new Lsexpr);
+            Lsexpr lsexpr;
             if (!current_label.empty()) {
-                stack.back()->set_label(current_label);
+                lsexpr.set_label(current_label);
                 current_label = "";
             }
-
+            stack.push_back(lsexpr);
         } else if (c == '}' && !in_str) {
             if (!current_word.empty()) {
                 Lsexpr lsexpr(current_word);
                 if (!current_label.empty()) {
                     lsexpr.set_label(current_label);
                 }
-                stack.back()->push_back(lsexpr);
+                stack.back().push_back(lsexpr);
             }
             current_word = "";
             current_label = "";
-            Lsexpr tmp(*stack.back());
-            delete stack.back();
+            Lsexpr tmp(stack.back());
             stack.pop_back();
-            stack.back()->push_back(tmp);
+            stack.back().push_back(tmp);
         } else if ((c == ',') && !in_str) {
             if (!current_word.empty()) {
                 Lsexpr lsexpr(current_word);
                 if (!current_label.empty()) {
                     lsexpr.set_label(current_label);
                 }
-                stack.back()->push_back(lsexpr);
+                stack.back().push_back(lsexpr);
             }
             current_word = "";
             current_label = "";
@@ -169,13 +169,9 @@ Lsexpr::Lsexpr(std::istream& stream)
         if (!current_label.empty()) {
             lsexpr.set_label(current_label);
         }
-        stack.back()->push_back(lsexpr);
+        stack.back().push_back(lsexpr);
     }
-    *this = stack.front()->sequence.front();
-    for (std::vector<Lsexpr*>::iterator it = stack.begin(); it != stack.end();
-         ++it) {
-        delete *it;
-    }
+    *this = stack.front().sequence.front();
 }
 
 void
